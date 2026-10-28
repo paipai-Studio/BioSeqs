@@ -1,6 +1,5 @@
 ///|
 /// Demo for tfbstools module: TF binding site analysis.
-
 fn main {
   println("=== TFBSTools Demo: TF Binding Site Analysis ===")
   println("")
@@ -22,8 +21,18 @@ fn main {
   let pwm = @src.tfbs_pfm_to_pwm(pfm)
   println("PWM: " + pwm.length().to_string() + " positions")
   for i in 0..<pwm.length() {
-    println("  pos " + (i+1).to_string() + ": A=" + pwm[i][0].to_string() + " C=" + pwm[i][1].to_string() +
-            " G=" + pwm[i][2].to_string() + " T=" + pwm[i][3].to_string())
+    println(
+      "  pos " +
+      (i + 1).to_string() +
+      ": A=" +
+      pwm[i][0].to_string() +
+      " C=" +
+      pwm[i][1].to_string() +
+      " G=" +
+      pwm[i][2].to_string() +
+      " T=" +
+      pwm[i][3].to_string(),
+    )
   }
   println("")
 
@@ -48,8 +57,20 @@ fn main {
   println("Hits found: " + hits.length().to_string())
   for i in 0..<hits.length() {
     let h = hits[i]
-    println("  " + h.sequence_id + ":" + h.start.to_string() + "-" + h.end.to_string() +
-            " " + h.strand + " score=" + h.score.to_string() + " " + h.sequence)
+    println(
+      "  " +
+      h.sequence_id +
+      ":" +
+      h.start.to_string() +
+      "-" +
+      h.end.to_string() +
+      " " +
+      h.strand +
+      " score=" +
+      h.score.to_string() +
+      " " +
+      h.sequence,
+    )
   }
   println("")
 
@@ -62,13 +83,20 @@ fn main {
 
   // Example 7: Motif enrichment
   println("--- Step 7: Motif Enrichment ---")
-  let r = @src.tfbs_enrich_hypergeometric(
-    "MA001", "TF1",
-    20, 100, 5, 100,
-  )
+  let r = @src.tfbs_enrich_hypergeometric("MA001", "TF1", 20, 100, 5, 100)
   println("TF: " + r.tf_name + " (" + r.matrix_id + ")")
-  println("  Targets: " + r.n_targets_hit.to_string() + "/" + r.total_targets.to_string())
-  println("  Background: " + r.n_background_hit.to_string() + "/" + r.total_background.to_string())
+  println(
+    "  Targets: " +
+    r.n_targets_hit.to_string() +
+    "/" +
+    r.total_targets.to_string(),
+  )
+  println(
+    "  Background: " +
+    r.n_background_hit.to_string() +
+    "/" +
+    r.total_background.to_string(),
+  )
   println("  Fold enrichment: " + r.fold_enrichment.to_string())
   println("  p-value: " + r.p_value.to_string())
   println("")
@@ -82,7 +110,14 @@ fn main {
   println("Adjusted results:")
   for i in 0..<results.length() {
     let res = results[i]
-    println("  " + res.tf_name + ": p=" + res.p_value.to_string() + " adj_p=" + res.adj_p.to_string())
+    println(
+      "  " +
+      res.tf_name +
+      ": p=" +
+      res.p_value.to_string() +
+      " adj_p=" +
+      res.adj_p.to_string(),
+    )
   }
   println("")
 

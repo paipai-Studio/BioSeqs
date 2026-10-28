@@ -13,18 +13,18 @@
 ///|
 /// Scoring and search options, mirroring pqsfinder defaults.
 pub struct PqsOptions {
-  max_len : Int
-  min_score : Int
-  run_min_len : Int
-  run_max_len : Int
-  loop_min_len : Int
-  loop_max_len : Int
-  max_bulges : Int
-  max_mismatches : Int
-  max_defects : Int
-  tetrad_bonus : Int
-  mismatch_penalty : Int
-  bulge_penalty : Int
+  max_len : Int32
+  min_score : Int32
+  run_min_len : Int32
+  run_max_len : Int32
+  loop_min_len : Int32
+  loop_max_len : Int32
+  max_bulges : Int32
+  max_mismatches : Int32
+  max_defects : Int32
+  tetrad_bonus : Int32
+  mismatch_penalty : Int32
+  bulge_penalty : Int32
   bulge_len_factor : Double
   bulge_len_exponent : Double
   loop_mean_factor : Double
@@ -58,22 +58,22 @@ pub fn PqsOptions::default() -> PqsOptions {
 /// Construct options with explicit overrides; unset parameters keep the
 /// pqsfinder defaults.
 pub fn PqsOptions::of(
-  max_len? : Int = 50,
-  min_score? : Int = 47,
-  run_min_len? : Int = 2,
-  run_max_len? : Int = 11,
-  loop_min_len? : Int = 0,
-  loop_max_len? : Int = 30,
-  max_bulges? : Int = 3,
-  max_mismatches? : Int = 3,
-  max_defects? : Int = 3,
-  tetrad_bonus? : Int = 40,
-  mismatch_penalty? : Int = 28,
-  bulge_penalty? : Int = 20,
-  bulge_len_factor? : Double = 0.2,
-  bulge_len_exponent? : Double = 1.0,
-  loop_mean_factor? : Double = 6.6,
-  loop_mean_exponent? : Double = 0.8,
+  max_len~ : Int32 = 50,
+  min_score~ : Int32 = 47,
+  run_min_len~ : Int32 = 2,
+  run_max_len~ : Int32 = 11,
+  loop_min_len~ : Int32 = 0,
+  loop_max_len~ : Int32 = 30,
+  max_bulges~ : Int32 = 3,
+  max_mismatches~ : Int32 = 3,
+  max_defects~ : Int32 = 3,
+  tetrad_bonus~ : Int32 = 40,
+  mismatch_penalty~ : Int32 = 28,
+  bulge_penalty~ : Int32 = 20,
+  bulge_len_factor~ : Double = 0.2,
+  bulge_len_exponent~ : Double = 1.0,
+  loop_mean_factor~ : Double = 6.6,
+  loop_mean_exponent~ : Double = 0.8,
 ) -> PqsOptions {
   {
     max_len,
@@ -102,32 +102,32 @@ pub fn PqsOptions::of(
 /// Features: `nt` tetrads, `nb` bulges, `nm` mismatches, `rl1..rl3` run
 /// lengths and `ll1..ll3` loop lengths.
 pub struct Pqs {
-  start : Int
-  end : Int
+  start : Int32
+  end : Int32
   strand : String
-  score : Int
-  nt : Int
-  nb : Int
-  nm : Int
-  rl1 : Int
-  rl2 : Int
-  rl3 : Int
-  ll1 : Int
-  ll2 : Int
-  ll3 : Int
+  score : Int32
+  nt : Int32
+  nb : Int32
+  nm : Int32
+  rl1 : Int32
+  rl2 : Int32
+  rl3 : Int32
+  ll1 : Int32
+  ll2 : Int32
+  ll3 : Int32
 }
 
 ///|
 priv struct PqsFeatures {
-  mut nt : Int
-  mut nb : Int
-  mut nm : Int
-  mut rl1 : Int
-  mut rl2 : Int
-  mut rl3 : Int
-  mut ll1 : Int
-  mut ll2 : Int
-  mut ll3 : Int
+  mut nt : Int32
+  mut nb : Int32
+  mut nm : Int32
+  mut rl1 : Int32
+  mut rl2 : Int32
+  mut rl3 : Int32
+  mut ll1 : Int32
+  mut ll2 : Int32
+  mut ll3 : Int32
 }
 
 ///|
@@ -137,7 +137,7 @@ fn PqsFeatures::zero() -> PqsFeatures {
 
 ///|
 /// Round half away from zero (C `round` semantics used by pqsfinder tables).
-fn pqs_round(x : Double) -> Int {
+fn pqs_round(x : Double) -> Int32 {
   if x >= 0.0 {
     (x + 0.5).floor().to_int()
   } else {
@@ -146,8 +146,8 @@ fn pqs_round(x : Double) -> Int {
 }
 
 ///|
-fn pqs_run_penalties(sc : PqsOptions) -> Array[Int] {
-  let out : Array[Int] = []
+fn pqs_run_penalties(sc : PqsOptions) -> Array[Int32] {
+  let out : Array[Int32] = []
   let mut i = 0
   while i < sc.run_max_len - 1 {
     out.push(
@@ -161,8 +161,8 @@ fn pqs_run_penalties(sc : PqsOptions) -> Array[Int] {
 }
 
 ///|
-fn pqs_loop_penalties(sc : PqsOptions) -> Array[Int] {
-  let out : Array[Int] = []
+fn pqs_loop_penalties(sc : PqsOptions) -> Array[Int32] {
+  let out : Array[Int32] = []
   let len_sum_max = sc.loop_max_len * 3
   let mut i = 0
   while i <= len_sum_max {
@@ -177,7 +177,7 @@ fn pqs_loop_penalties(sc : PqsOptions) -> Array[Int] {
 
 ///|
 /// Count leading + trailing G's of a run window (pqsfinder `count_g_num`).
-fn pqs_count_g(seq : String, first : Int, second : Int) -> Int {
+fn pqs_count_g(seq : String, first : Int32, second : Int32) -> Int32 {
   let mut cnt = 0
   let mut s = first
   let mut e = second - 1
@@ -198,11 +198,11 @@ fn pqs_count_g(seq : String, first : Int, second : Int) -> Int {
 /// Port of pqsfinder's non-regex `find_run`.
 fn pqs_find_run(
   seq : String,
-  start : Int,
-  limit : Int,
-  run_min_len : Int,
-  run_max_len : Int,
-) -> (Int, Int)? {
+  start : Int32,
+  limit : Int32,
+  run_min_len : Int32,
+  run_max_len : Int32,
+) -> (Int32, Int32)? {
   let mut s = start
   while s < limit {
     while s < limit && seq.unsafe_get(s) != 'G' {
@@ -226,9 +226,9 @@ fn pqs_find_run(
 
 ///|
 priv struct PqsCandidate {
-  score : Int
-  start : Int
-  len : Int
+  score : Int32
+  start : Int32
+  len : Int32
   features : PqsFeatures
 }
 
@@ -237,16 +237,16 @@ priv struct PqsCandidate {
 /// `score_run_defects`).
 fn pqs_score_pqs(
   seq : String,
-  m : Array[(Int, Int)],
+  m : Array[(Int32, Int32)],
   sc : PqsOptions,
-  loop_penalties : Array[Int],
-  bulge_penalties : Array[Int],
+  loop_penalties : Array[Int32],
+  bulge_penalties : Array[Int32],
   features : PqsFeatures,
-) -> Int {
+) -> Int32 {
   let run_cnt = 4
-  let l : Array[Int] = []
-  let w : Array[Int] = []
-  let g : Array[Int] = []
+  let l : Array[Int32] = []
+  let w : Array[Int32] = []
+  let g : Array[Int32] = []
   let mut i = 0
   while i < run_cnt {
     w.push(m[i].1 - m[i].0)
@@ -335,16 +335,16 @@ fn pqs_score_pqs(
 fn pqs_find_all_runs(
   seq : String,
   sc : PqsOptions,
-  loop_penalties : Array[Int],
-  bulge_penalties : Array[Int],
-  runs : Array[(Int, Int)],
-  i : Int,
-  start : Int,
-  limit : Int,
+  loop_penalties : Array[Int32],
+  bulge_penalties : Array[Int32],
+  runs : Array[(Int32, Int32)],
+  i : Int32,
+  start : Int32,
+  limit : Int32,
   zero_loop : Bool,
   candidates : Array[PqsCandidate],
-  density : Array[Int],
-  max_scores : Array[Int],
+  density : Array[Int32],
+  max_scores : Array[Int32],
 ) -> Unit {
   let mut start = start
   if i > 0 {
@@ -455,7 +455,7 @@ fn pqs_resolve_non_overlapping(
     return []
   }
   // collect distinct candidate scores
-  let scores : Array[Int] = []
+  let scores : Array[Int32] = []
   for c in candidates {
     let mut found = false
     for s in scores {
@@ -468,7 +468,7 @@ fn pqs_resolve_non_overlapping(
       scores.push(c.score)
     }
   }
-  scores.sort_by(fn(a : Int, b : Int) { b.compare(a) })
+  scores.sort_by(fn(a : Int32, b : Int32) { b.compare(a) })
   let result : Array[PqsCandidate] = []
   for score in scores {
     let level : Array[PqsCandidate] = []
@@ -522,8 +522,8 @@ fn pqs_resolve_overlapping(
 ) -> Array[PqsCandidate] {
   let result : Array[PqsCandidate] = []
   let mut group_start = -1
-  let group_ends : Array[Int] = []
-  let group_idx : Array[Int] = []
+  let group_ends : Array[Int32] = []
+  let group_idx : Array[Int32] = []
   for c in candidates {
     if c.start != group_start {
       group_start = c.start
@@ -587,8 +587,8 @@ fn pqs_revcomp(seq : String) -> String {
 /// position `i`. These mirror pqsfinder's `density()` and `maxScores()`.
 pub struct PqsResult {
   hits : Array[Pqs]
-  density : Array[Int]
-  max_scores : Array[Int]
+  density : Array[Int32]
+  max_scores : Array[Int32]
 }
 
 ///|
@@ -610,9 +610,9 @@ pub fn Pqs::sequence(self : Pqs, seq : String) -> String {
 /// the original coordinates with the run/loop features reversed.
 pub fn pqs_search(
   seq : String,
-  strand? : String = "*",
-  overlapping? : Bool = false,
-  options? : PqsOptions = PqsOptions::default(),
+  strand~ : String = "*",
+  overlapping~ : Bool = false,
+  options~ : PqsOptions = PqsOptions::default(),
 ) -> PqsResult raise SeqError {
   if strand != "+" && strand != "-" && strand != "*" {
     raise SeqError("strand must be \"+\", \"-\" or \"*\"")
@@ -631,15 +631,15 @@ pub fn pqs_search(
   let loop_penalties = pqs_loop_penalties(options)
   let bulge_penalties = pqs_run_penalties(options)
   let merged : Array[Pqs] = []
-  let density : Array[Int] = Array::make(n, 0)
-  let max_scores : Array[Int] = Array::make(n, 0)
+  let density : Array[Int32] = Array::make(n, 0)
+  let max_scores : Array[Int32] = Array::make(n, 0)
   // Run the exhaustive search on one strand; `flip` indicates the
   // reverse-complement mapping back to original coordinates.
   let run_strand : (String, String, Bool) -> Unit = fn(subject, label, flip) {
     let candidates : Array[PqsCandidate] = []
-    let sd : Array[Int] = Array::make(subject.length(), 0)
-    let sm : Array[Int] = Array::make(subject.length(), 0)
-    let runs : Array[(Int, Int)] = [(0, 0), (0, 0), (0, 0), (0, 0)]
+    let sd : Array[Int32] = Array::make(subject.length(), 0)
+    let sm : Array[Int32] = Array::make(subject.length(), 0)
+    let runs : Array[(Int32, Int32)] = [(0, 0), (0, 0), (0, 0), (0, 0)]
     pqs_find_all_runs(
       subject,
       options,
@@ -727,9 +727,9 @@ pub fn pqs_search(
 /// `density` and `max_scores` vectors.
 pub fn pqs_finder(
   seq : String,
-  strand? : String = "*",
-  overlapping? : Bool = false,
-  options? : PqsOptions = PqsOptions::default(),
+  strand~ : String = "*",
+  overlapping~ : Bool = false,
+  options~ : PqsOptions = PqsOptions::default(),
 ) -> Array[Pqs] raise SeqError {
   pqs_search(seq, strand~, overlapping~, options~).hits
 }

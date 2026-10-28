@@ -56,10 +56,18 @@ fn main {
   // ------------------------------------------------------------------
   println("=== 3. Query: Find 'ABC' domains ===")
   let abc_domains = @bio.smart_find_domains(result, "ABC")
-  println("Found " + abc_domains.length().to_string() + " domains matching 'ABC':")
+  println(
+    "Found " + abc_domains.length().to_string() + " domains matching 'ABC':",
+  )
   let mut q = 0
   while q < abc_domains.length() {
-    println("  - " + abc_domains[q].domain_name + " (evalue: " + abc_domains[q].evalue.to_string() + ")")
+    println(
+      "  - " +
+      abc_domains[q].domain_name +
+      " (evalue: " +
+      abc_domains[q].evalue.to_string() +
+      ")",
+    )
     q = q + 1
   }
   println("")
@@ -72,7 +80,13 @@ fn main {
   println("Found " + significant.length().to_string() + " significant domains:")
   let mut s = 0
   while s < significant.length() {
-    println("  - " + significant[s].domain_name + " (evalue: " + significant[s].evalue.to_string() + ")")
+    println(
+      "  - " +
+      significant[s].domain_name +
+      " (evalue: " +
+      significant[s].evalue.to_string() +
+      ")",
+    )
     s = s + 1
   }
   println("")
@@ -85,7 +99,9 @@ fn main {
     Some(best) => {
       println("Best domain: " + best.domain_name)
       println("  E-value: " + best.evalue.to_string())
-      println("  Location: " + best.start.to_string() + " - " + best.end.to_string())
+      println(
+        "  Location: " + best.start.to_string() + " - " + best.end.to_string(),
+      )
     }
     None => println("  No domains found")
   }

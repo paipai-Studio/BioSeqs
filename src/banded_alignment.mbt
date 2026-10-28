@@ -23,7 +23,7 @@ pub struct BandedAlignResult {
   aligned_seq2 : String
   match_line : String
   score : Double
-  band_used : Int // actual k used (may be widened if sequences differ in length)
+  band_used : Int32 // actual k used (may be widened if sequences differ in length)
 }
 
 ///|
@@ -35,7 +35,7 @@ pub struct BandedAlignResult {
 pub fn banded_needleman_wunsch(
   seq1 : String,
   seq2 : String,
-  k : Int,
+  k : Int32,
   match_reward : Double,
   mismatch_penalty : Double,
   gap_penalty : Double,
@@ -47,11 +47,7 @@ pub fn banded_needleman_wunsch(
   let band = if k >= len_diff { k } else { len_diff + k }
   // For very short sequences or wide bands, fall back to full DP
   if band >= n || band >= m {
-    let scoring = NWScoring::{
-      match_reward,
-      mismatch_penalty,
-      gap_penalty,
-    }
+    let scoring = NWScoring::{ match_reward, mismatch_penalty, gap_penalty, }
     let full = needleman_wunsch(seq1, seq2, scoring)
     return BandedAlignResult::{
       aligned_seq1: full.aligned_seq1,
@@ -71,12 +67,12 @@ pub fn banded_needleman_wunsch(
   // Width = hi_i - lo_i + 1
   // We use two arrays: prev_dp (row i-1) and cur_dp (row i)
   // Traceback: store direction per cell
-  let trace : Array[Array[Int]] = Array(capacity=n + 1)
+  let trace : Array[Array[Int32]] = Array(capacity=n + 1)
   for i = 0; i <= n; i = i + 1 {
     let lo = if i > band { i - band } else { 0 }
     let hi = if i + band < m { i + band } else { m }
     let width = hi - lo + 1
-    let row : Array[Int] = Array(capacity=width)
+    let row : Array[Int32] = Array(capacity=width)
     for dummy = 0; dummy < width; dummy = dummy + 1 {
       row.push(0) // 0=Start, 1=Diag, 2=Up, 3=Left
     }
@@ -175,7 +171,13 @@ pub fn banded_needleman_wunsch(
   // Final score is dp[n][m]
   let lo_n = if n > band { n - band } else { 0 }
   let final_score = prev_dp[m - lo_n]
-  BandedAlignResult::{ aligned_seq1: aligned1, aligned_seq2: aligned2, match_line, score: final_score, band_used: band }
+  BandedAlignResult::{
+    aligned_seq1: aligned1,
+    aligned_seq2: aligned2,
+    match_line,
+    score: final_score,
+    band_used: band,
+  }
 }
 
 ///|
@@ -185,7 +187,7 @@ pub fn banded_needleman_wunsch(
 pub fn banded_smith_waterman(
   seq1 : String,
   seq2 : String,
-  k : Int,
+  k : Int32,
   match_reward : Double,
   mismatch_penalty : Double,
   gap_penalty : Double,
@@ -195,11 +197,7 @@ pub fn banded_smith_waterman(
   let len_diff = if n > m { n - m } else { m - n }
   let band = if k >= len_diff { k } else { len_diff + k }
   if band >= n || band >= m {
-    let scoring = Scoring::{
-      match_reward,
-      mismatch_penalty,
-      gap_penalty,
-    }
+    let scoring = Scoring::{ match_reward, mismatch_penalty, gap_penalty, }
     let full = smith_waterman(seq1, seq2, scoring)
     return BandedAlignResult::{
       aligned_seq1: full.aligned_seq1,
@@ -210,12 +208,12 @@ pub fn banded_smith_waterman(
     }
   }
   // DP with 0-flooring
-  let trace : Array[Array[Int]] = Array(capacity=n + 1)
+  let trace : Array[Array[Int32]] = Array(capacity=n + 1)
   for i = 0; i <= n; i = i + 1 {
     let lo = if i > band { i - band } else { 0 }
     let hi = if i + band < m { i + band } else { m }
     let width = hi - lo + 1
-    let row : Array[Int] = Array(capacity=width)
+    let row : Array[Int32] = Array(capacity=width)
     for dummy = 0; dummy < width; dummy = dummy + 1 {
       row.push(0)
     }
@@ -310,7 +308,13 @@ pub fn banded_smith_waterman(
   let aligned1 = banded_reverse(r1.to_string())
   let aligned2 = banded_reverse(r2.to_string())
   let match_line = banded_build_match_line(aligned1, aligned2)
-  BandedAlignResult::{ aligned_seq1: aligned1, aligned_seq2: aligned2, match_line, score: best_score, band_used: band }
+  BandedAlignResult::{
+    aligned_seq1: aligned1,
+    aligned_seq2: aligned2,
+    match_line,
+    score: best_score,
+    band_used: band,
+  }
 }
 
 ///|

@@ -14,15 +14,15 @@
 /// A single base modification call.
 pub struct BaseMod {
   /// Position in the query sequence (0-based)
-  pos : Int
+  pos : Int32
   /// Canonical base (A/C/G/T/N)
   canonical : Char
   /// Modification code (e.g. 'm' for 5mC, 'h' for 5hmC, 'a' for 6mA)
   code : Char
   /// Strand: +1 for forward, -1 for reverse
-  strand : Int
+  strand : Int32
   /// Quality score (0-255), -1 if unavailable
-  qual : Int
+  qual : Int32
 }
 
 ///|
@@ -33,13 +33,13 @@ pub struct ModType {
   /// Modification code
   code : Char
   /// Strand: +1 or -1
-  strand : Int
+  strand : Int32
   /// Whether this is implicit (unlisted positions = unmodified)
   implicit : Bool
   /// Positions (0-based query positions) where this modification occurs
-  positions : Array[Int]
+  positions : Array[Int32]
   /// Quality scores for each position
-  quals : Array[Int]
+  quals : Array[Int32]
 }
 
 ///|
@@ -52,8 +52,8 @@ pub struct BaseModState {
 ///|
 /// Parse the MM tag string to extract modification types and delta positions.
 /// Returns an array of (canonical, code, strand, implicit, deltas) tuples.
-fn parse_mm_tag(mm : String) -> Array[(Char, Char, Int, Bool, Array[Int])] {
-  let result : Array[(Char, Char, Int, Bool, Array[Int])] = []
+fn parse_mm_tag(mm : String) -> Array[(Char, Char, Int32, Bool, Array[Int32])] {
+  let result : Array[(Char, Char, Int32, Bool, Array[Int32])] = []
   let chars = mm.to_array()
   let n = chars.length()
   let mut i = 0
@@ -65,7 +65,12 @@ fn parse_mm_tag(mm : String) -> Array[(Char, Char, Int, Bool, Array[Int])] {
     }
     // Parse canonical base
     let canonical = chars[i]
-    if canonical != 'A' && canonical != 'C' && canonical != 'G' && canonical != 'T' && canonical != 'U' && canonical != 'N' {
+    if canonical != 'A' &&
+      canonical != 'C' &&
+      canonical != 'G' &&
+      canonical != 'T' &&
+      canonical != 'U' &&
+      canonical != 'N' {
       i = i + 1
       continue
     }
@@ -97,7 +102,7 @@ fn parse_mm_tag(mm : String) -> Array[(Char, Char, Int, Bool, Array[Int])] {
       i = i + 1
       // Skip to delta list
       // Now parse delta list: ,d1,d2,d3...;
-      let deltas : Array[Int] = []
+      let deltas : Array[Int32] = []
       while i < n && chars[i] == ',' {
         i = i + 1
         let mut num = 0
@@ -112,7 +117,14 @@ fn parse_mm_tag(mm : String) -> Array[(Char, Char, Int, Bool, Array[Int])] {
         }
       }
       // Skip to ; or next code
-      while i < n && chars[i] != ';' && chars[i] != ',' && chars[i] != 'A' && chars[i] != 'C' && chars[i] != 'G' && chars[i] != 'T' && chars[i] != 'N' {
+      while i < n &&
+            chars[i] != ';' &&
+            chars[i] != ',' &&
+            chars[i] != 'A' &&
+            chars[i] != 'C' &&
+            chars[i] != 'G' &&
+            chars[i] != 'T' &&
+            chars[i] != 'N' {
         i = i + 1
       }
       result.push((canonical, code, strand, implicit, deltas))
@@ -139,19 +151,19 @@ fn parse_mm_tag(mm : String) -> Array[(Char, Char, Int, Bool, Array[Int])] {
 /// E.g. for sequence "ACGTCGT" and canonical 'C', C appears at positions 1,5.
 /// Delta 0 → position 1, delta 1 → position 5.
 fn deltas_to_positions(
-  deltas : Array[Int],
+  deltas : Array[Int32],
   canonical : Char,
   sequence : String,
-) -> Array[Int] {
+) -> Array[Int32] {
   // Find all positions of canonical base in sequence
-  let base_positions : Array[Int] = []
+  let base_positions : Array[Int32] = []
   for i = 0; i < sequence.length(); i = i + 1 {
     if sequence.unsafe_get(i).to_int() == canonical.to_int() {
       base_positions.push(i)
     }
   }
   // Convert deltas to absolute positions
-  let result : Array[Int] = []
+  let result : Array[Int32] = []
   let mut prev_delta = -1
   for d in deltas {
     let curr = if prev_delta == -1 { d } else { prev_delta + d + 1 }
@@ -170,7 +182,7 @@ fn deltas_to_positions(
 /// sequence: the query sequence (for converting deltas to positions)
 pub fn parse_base_mods(
   mm_tag : String,
-  ml_tag : Array[Int]?,
+  ml_tag : Array[Int32]?,
   sequence : String,
 ) -> BaseModState {
   let parsed = parse_mm_tag(mm_tag)
@@ -178,23 +190,22 @@ pub fn parse_base_mods(
   let mut ml_idx = 0
   for (canonical, code, strand, implicit, deltas) in parsed {
     let positions = deltas_to_positions(deltas, canonical, sequence)
-    let quals : Array[Int] = []
+    let quals : Array[Int32] = []
     for _ in positions {
       match ml_tag {
-        Some(arr) => {
+        Some(arr) =>
           if ml_idx < arr.length() {
             quals.push(arr[ml_idx])
             ml_idx = ml_idx + 1
           } else {
             quals.push(-1)
           }
-        }
         None => quals.push(-1)
       }
     }
-    types.push(ModType::{ canonical, code, strand, implicit, positions, quals })
+    types.push(ModType::{ canonical, code, strand, implicit, positions, quals, })
   }
-  BaseModState::{ types }
+  BaseModState::{ types, }
 }
 
 ///|
@@ -208,7 +219,11 @@ pub fn BaseModState::all_mods(self : BaseModState) -> Array[BaseMod] {
         canonical: t.canonical,
         code: t.code,
         strand: t.strand,
-        qual: if i < t.quals.length() { t.quals[i] } else { -1 },
+        qual: if i < t.quals.length() {
+          t.quals[i]
+        } else {
+          -1
+        },
       })
     }
   }
@@ -219,7 +234,7 @@ pub fn BaseModState::all_mods(self : BaseModState) -> Array[BaseMod] {
 /// Get modifications at a specific query position.
 pub fn BaseModState::mods_at(
   self : BaseModState,
-  pos : Int,
+  pos : Int32,
 ) -> Array[BaseMod] {
   let result : Array[BaseMod] = []
   for t in self.types {
@@ -230,7 +245,11 @@ pub fn BaseModState::mods_at(
           canonical: t.canonical,
           code: t.code,
           strand: t.strand,
-          qual: if i < t.quals.length() { t.quals[i] } else { -1 },
+          qual: if i < t.quals.length() {
+            t.quals[i]
+          } else {
+            -1
+          },
         })
       }
     }
@@ -250,7 +269,7 @@ pub fn BaseModState::mod_codes(self : BaseModState) -> Array[Char] {
         break
       }
     }
-    if !(found) {
+    if !found {
       result.push(t.code)
     }
   }
@@ -259,10 +278,7 @@ pub fn BaseModState::mod_codes(self : BaseModState) -> Array[Char] {
 
 ///|
 /// Get modification count by code.
-pub fn BaseModState::count_by_code(
-  self : BaseModState,
-  code : Char,
-) -> Int {
+pub fn BaseModState::count_by_code(self : BaseModState, code : Char) -> Int32 {
   let mut total = 0
   for t in self.types {
     if t.code == code {
@@ -280,9 +296,9 @@ pub struct MethylationSummary {
   /// Modification code
   code : Char
   /// Number of modified bases
-  modified : Int
+  modified : Int32
   /// Number of unmodified bases (total canonical - modified)
-  unmodified : Int
+  unmodified : Int32
   /// Methylation fraction (modified / total)
   fraction : Double
 }

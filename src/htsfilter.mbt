@@ -10,13 +10,13 @@
 /// HTSFilter configuration and results.
 pub struct HTSFilterResult {
   cpm_threshold : Double
-  min_samples_per_group : Int
-  groups : Array[Int]
+  min_samples_per_group : Int32
+  groups : Array[Int32]
   cpm_matrix : Array[Array[Double]]
   keep : Array[Bool]
-  n_genes_input : Int
-  n_genes_kept : Int
-  n_genes_removed : Int
+  n_genes_input : Int32
+  n_genes_kept : Int32
+  n_genes_removed : Int32
 }
 
 ///|
@@ -89,9 +89,9 @@ pub fn hts_filter_library_sizes(counts : Array[Array[Double]]) -> Array[Double] 
 /// Returns HTSFilterResult with keep mask and statistics.
 pub fn hts_filter(
   counts : Array[Array[Double]],
-  groups : Array[Int],
+  groups : Array[Int32],
   cpm_threshold : Double,
-  min_samples_per_group : Int,
+  min_samples_per_group : Int32,
 ) -> HTSFilterResult {
   let n_genes = counts.length()
   if n_genes == 0 {
@@ -111,7 +111,7 @@ pub fn hts_filter(
   let cpm_mat = hts_filter_cpm(counts, lib_sizes)
 
   // Find unique groups
-  let unique_groups : Array[Int] = []
+  let unique_groups : Array[Int32] = []
   let mut i = 0
   while i < groups.length() {
     let g = groups[i]
@@ -239,7 +239,7 @@ pub fn hts_filter_summary(result : HTSFilterResult) -> String {
 /// Returns tuple of (counts, groups, gene_names).
 pub fn hts_filter_sample_data() -> (
   Array[Array[Double]],
-  Array[Int],
+  Array[Int32],
   Array[String],
 ) {
   // 20 genes x 6 samples (3 control + 3 treatment)

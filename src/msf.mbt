@@ -16,7 +16,11 @@ pub(all) enum MsfSequenceType {
   MsfProtein
   MsfNucleotide
 } derive(Eq, Debug)
+
+///|
 pub extend MsfSequenceType with Eq::{equal, not_equal}
+
+///|
 pub extend MsfSequenceType with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -29,13 +33,17 @@ pub struct MsfMetadata {
   header : String
   title : String
   preamble : Array[String]
-  declared_length : Int
+  declared_length : Int32
   sequence_type : MsfSequenceType
   date_text : String
   checksum_label : String
-  declared_checksum : Int
+  declared_checksum : Int32
 } derive(Eq, Debug)
+
+///|
 pub extend MsfMetadata with Eq::{equal, not_equal}
+
+///|
 pub extend MsfMetadata with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -48,11 +56,15 @@ pub struct MsfSequence {
   id : String
   sequence : String
   aligned_sequence : String
-  length : Int
-  checksum : Int
+  length : Int32
+  checksum : Int32
   weight : Double
 } derive(Eq, Debug)
+
+///|
 pub extend MsfSequence with Eq::{equal, not_equal}
+
+///|
 pub extend MsfSequence with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -61,34 +73,42 @@ pub struct MsfAlignment {
   metadata : MsfMetadata
   sequences : Array[MsfSequence]
 } derive(Eq, Debug)
+
+///|
 pub extend MsfAlignment with Eq::{equal, not_equal}
+
+///|
 pub extend MsfAlignment with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Pairwise statistics for two rows in an MSF alignment.
 pub struct MsfPairCounts {
-  columns : Int
-  aligned : Int
-  identities : Int
-  mismatches : Int
-  gap_columns : Int
-  double_gap_columns : Int
-  gap_opens : Int
+  columns : Int32
+  aligned : Int32
+  identities : Int32
+  mismatches : Int32
+  gap_columns : Int32
+  double_gap_columns : Int32
+  gap_opens : Int32
 } derive(Eq, Debug)
+
+///|
 pub extend MsfPairCounts with Eq::{equal, not_equal}
+
+///|
 pub extend MsfPairCounts with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Construct validated file-level MSF metadata.
 pub fn MsfMetadata::create(
-  declared_length : Int,
+  declared_length : Int32,
   sequence_type : MsfSequenceType,
-  header? : String = "",
-  title? : String = "",
-  preamble? : Array[String] = [],
-  date_text? : String = "",
-  checksum_label? : String = "Check:",
-  declared_checksum? : Int = 0,
+  header~ : String = "",
+  title~ : String = "",
+  preamble~ : Array[String] = [],
+  date_text~ : String = "",
+  checksum_label~ : String = "Check:",
+  declared_checksum~ : Int32 = 0,
 ) -> MsfMetadata raise MsfError {
   if declared_length <= 0 {
     raise MsfError("MSF declared alignment length must be positive")
@@ -133,8 +153,8 @@ pub fn MsfSequence::create(
   id : String,
   aligned_sequence : String,
   sequence_type : MsfSequenceType,
-  weight? : Double = 1.0,
-  checksum? : Int? = None,
+  weight~ : Double = 1.0,
+  checksum~ : Int32? = None,
 ) -> MsfSequence raise MsfError {
   msf_validate_id(id)
   if weight != weight || weight.abs() > 1.0e300 || weight < 0.0 {
@@ -190,7 +210,7 @@ pub fn msf_from_aligned(
   ids : Array[String],
   aligned_sequences : Array[String],
   sequence_type : MsfSequenceType,
-  weights? : Array[Double] = [],
+  weights~ : Array[Double] = [],
 ) -> MsfAlignment raise MsfError {
   if ids.length() == 0 {
     raise MsfError("MSF alignment must contain at least one sequence")
@@ -228,7 +248,7 @@ pub fn msf_from_aligned(
 /// `verify_checksums` checks every non-zero sequence and file checksum.
 pub fn msf_parse(
   text : String,
-  verify_checksums? : Bool = true,
+  verify_checksums~ : Bool = true,
 ) -> MsfAlignment raise MsfError {
   let lines = msf_normalize_lines(text)
   if lines.length() == 0 || lines[0].trim().length() == 0 {
@@ -265,8 +285,8 @@ pub fn msf_parse(
   msf_validate_header(header, parsed_header.2)
 
   let ids : Array[String] = []
-  let lengths : Array[Int] = []
-  let checksums : Array[Int] = []
+  let lengths : Array[Int32] = []
+  let checksums : Array[Int32] = []
   let weights : Array[Double] = []
   let mut found_terminator = false
   while index < lines.length() {
@@ -419,9 +439,9 @@ pub fn msf_parse(
 /// may be `.`, `~`, or `-`.
 pub fn msf_write(
   alignment : MsfAlignment,
-  block_width? : Int = 50,
-  group_width? : Int = 10,
-  gap_character? : String = ".",
+  block_width~ : Int32 = 50,
+  group_width~ : Int32 = 10,
+  gap_character~ : String = ".",
 ) -> String raise MsfError {
   msf_validate_alignment(alignment)
   if block_width <= 0 || group_width <= 0 || block_width % group_width != 0 {
@@ -512,13 +532,13 @@ pub fn MsfSequenceType::code(self : MsfSequenceType) -> String {
 
 ///|
 /// Return the number of sequence rows.
-pub fn MsfAlignment::num_sequences(self : MsfAlignment) -> Int {
+pub fn MsfAlignment::num_sequences(self : MsfAlignment) -> Int32 {
   self.sequences.length()
 }
 
 ///|
 /// Return the alignment width including gaps.
-pub fn MsfAlignment::alignment_length(self : MsfAlignment) -> Int {
+pub fn MsfAlignment::alignment_length(self : MsfAlignment) -> Int32 {
   if self.sequences.length() == 0 {
     0
   } else {
@@ -534,7 +554,7 @@ pub fn MsfAlignment::length_mismatch(self : MsfAlignment) -> Bool {
 
 ///|
 /// Locate a row by its exact identifier.
-pub fn MsfAlignment::find_sequence(self : MsfAlignment, id : String) -> Int? {
+pub fn MsfAlignment::find_sequence(self : MsfAlignment, id : String) -> Int32? {
   let index = msf_find_string(
     self.sequences.map(fn(sequence) { sequence.id }),
     id,
@@ -548,7 +568,7 @@ pub fn MsfAlignment::find_sequence(self : MsfAlignment, id : String) -> Int? {
 
 ///|
 /// Return one alignment column, or `None` for an invalid column.
-pub fn MsfAlignment::column(self : MsfAlignment, column : Int) -> String? {
+pub fn MsfAlignment::column(self : MsfAlignment, column : Int32) -> String? {
   if column < 0 || column >= self.alignment_length() {
     return None
   }
@@ -565,9 +585,9 @@ pub fn MsfAlignment::column(self : MsfAlignment, column : Int) -> String? {
 /// Map a zero-based ungapped row position to an alignment column.
 pub fn MsfAlignment::sequence_position_to_column(
   self : MsfAlignment,
-  row : Int,
-  position : Int,
-) -> Int? {
+  row : Int32,
+  position : Int32,
+) -> Int32? {
   if row < 0 || row >= self.sequences.length() || position < 0 {
     return None
   }
@@ -590,9 +610,9 @@ pub fn MsfAlignment::sequence_position_to_column(
 /// Gap columns and out-of-range coordinates return `None`.
 pub fn MsfAlignment::column_to_sequence_position(
   self : MsfAlignment,
-  row : Int,
-  column : Int,
-) -> Int? {
+  row : Int32,
+  column : Int32,
+) -> Int32? {
   if row < 0 ||
     row >= self.sequences.length() ||
     column < 0 ||
@@ -616,10 +636,10 @@ pub fn MsfAlignment::column_to_sequence_position(
 /// Map one residue through the alignment to another row.
 pub fn MsfAlignment::map_position(
   self : MsfAlignment,
-  source_row : Int,
-  target_row : Int,
-  source_position : Int,
-) -> Int? {
+  source_row : Int32,
+  target_row : Int32,
+  source_position : Int32,
+) -> Int32? {
   if target_row < 0 || target_row >= self.sequences.length() {
     return None
   }
@@ -633,12 +653,12 @@ pub fn MsfAlignment::map_position(
 /// Return per-column residue coordinates for two rows.
 pub fn MsfAlignment::aligned_pairs(
   self : MsfAlignment,
-  first_row : Int,
-  second_row : Int,
-) -> Array[(Int?, Int?)] raise MsfError {
+  first_row : Int32,
+  second_row : Int32,
+) -> Array[(Int32?, Int32?)] raise MsfError {
   msf_validate_row(self, first_row)
   msf_validate_row(self, second_row)
-  let result : Array[(Int?, Int?)] = []
+  let result : Array[(Int32?, Int32?)] = []
   let mut first_position = 0
   let mut second_position = 0
   for column = 0; column < self.alignment_length(); column = column + 1 {
@@ -679,8 +699,10 @@ pub fn MsfAlignment::aligned_pairs(
 ///
 /// A boundary is emitted whenever the per-row residue/gap movement vector
 /// changes, plus the initial and final boundaries.
-pub fn MsfAlignment::coordinate_path(self : MsfAlignment) -> Array[Array[Int]] {
-  let paths : Array[Array[Int]] = []
+pub fn MsfAlignment::coordinate_path(
+  self : MsfAlignment,
+) -> Array[Array[Int32]] {
+  let paths : Array[Array[Int32]] = []
   let coordinates = Array::make(self.sequences.length(), 0)
   for _row = 0; _row < self.sequences.length(); _row = _row + 1 {
     paths.push([0])
@@ -711,8 +733,8 @@ pub fn MsfAlignment::coordinate_path(self : MsfAlignment) -> Array[Array[Int]] {
 /// Compute pairwise identity, mismatch, and gap statistics.
 pub fn MsfAlignment::pair_counts(
   self : MsfAlignment,
-  first_row : Int,
-  second_row : Int,
+  first_row : Int32,
+  second_row : Int32,
 ) -> MsfPairCounts raise MsfError {
   msf_validate_row(self, first_row)
   msf_validate_row(self, second_row)
@@ -774,7 +796,7 @@ pub fn MsfPairCounts::identity(self : MsfPairCounts) -> Double {
 /// Calculate a majority consensus. Gaps do not vote.
 pub fn MsfAlignment::consensus(
   self : MsfAlignment,
-  minimum_fraction? : Double = 0.0,
+  minimum_fraction~ : Double = 0.0,
 ) -> String raise MsfError {
   if minimum_fraction != minimum_fraction ||
     minimum_fraction < 0.0 ||
@@ -833,7 +855,7 @@ pub fn MsfAlignment::occupancy(self : MsfAlignment) -> Array[Double] {
 
 ///|
 /// Calculate the standard GCG checksum, cycling position weights from 1 to 57.
-pub fn msf_gcg_checksum(sequence : String) -> Int {
+pub fn msf_gcg_checksum(sequence : String) -> Int32 {
   let upper = sequence.to_upper()
   let mut position = 0
   let mut checksum = 0
@@ -849,7 +871,7 @@ pub fn msf_gcg_checksum(sequence : String) -> Int {
 
 ///|
 /// Return the sum-of-row-checksums file checksum.
-pub fn MsfAlignment::computed_checksum(self : MsfAlignment) -> Int {
+pub fn MsfAlignment::computed_checksum(self : MsfAlignment) -> Int32 {
   let mut checksum = 0
   for sequence in self.sequences {
     checksum = (checksum + msf_gcg_checksum(sequence.sequence)) % 10000
@@ -991,7 +1013,10 @@ fn msf_verify_checksums(alignment : MsfAlignment) -> Unit raise MsfError {
 }
 
 ///|
-fn msf_validate_row(alignment : MsfAlignment, row : Int) -> Unit raise MsfError {
+fn msf_validate_row(
+  alignment : MsfAlignment,
+  row : Int32,
+) -> Unit raise MsfError {
   if row < 0 || row >= alignment.sequences.length() {
     raise MsfError("MSF row index is out of bounds")
   }
@@ -1045,7 +1070,7 @@ fn msf_validate_plain_text(
 ///|
 fn msf_parse_alignment_header(
   line : String,
-) -> (String, Int, MsfSequenceType, String, String, Int) raise MsfError {
+) -> (String, Int32, MsfSequenceType, String, String, Int32) raise MsfError {
   let words = msf_split_whitespace(line)
   let msf_index = msf_find_string(words, "MSF:")
   if msf_index < 0 ||
@@ -1078,8 +1103,8 @@ fn msf_parse_alignment_header(
 ///|
 fn msf_parse_name_line(
   line : String,
-  line_number : Int,
-) -> (String, Int, Int, Double) raise MsfError {
+  line_number : Int32,
+) -> (String, Int32, Int32, Double) raise MsfError {
   let words = msf_split_whitespace(line)
   let name_index = msf_find_string(words, "Name:")
   let length_index = msf_find_string(words, "Len:")
@@ -1131,7 +1156,7 @@ fn msf_parse_name_line(
 fn msf_parse_nonnegative_int(
   text : String,
   label : String,
-) -> Int raise MsfError {
+) -> Int32 raise MsfError {
   if text.length() == 0 {
     raise MsfError(label + " is empty")
   }
@@ -1151,7 +1176,7 @@ fn msf_parse_nonnegative_int(
 }
 
 ///|
-fn msf_parse_checksum(text : String, label : String) -> Int raise MsfError {
+fn msf_parse_checksum(text : String, label : String) -> Int32 raise MsfError {
   let value = msf_parse_nonnegative_int(text, label)
   if value > 9999 {
     raise MsfError(label + " must be between 0 and 9999")
@@ -1187,7 +1212,7 @@ fn msf_normalize_aligned_sequence(
 }
 
 ///|
-fn msf_valid_residue(code : Int, sequence_type : MsfSequenceType) -> Bool {
+fn msf_valid_residue(code : Int32, sequence_type : MsfSequenceType) -> Bool {
   match sequence_type {
     MsfProtein =>
       (code >= 'A'.to_int() && code <= 'Z'.to_int()) ||
@@ -1198,7 +1223,7 @@ fn msf_valid_residue(code : Int, sequence_type : MsfSequenceType) -> Bool {
 }
 
 ///|
-fn msf_upper_code(code : Int) -> Int {
+fn msf_upper_code(code : Int32) -> Int32 {
   if code >= 'a'.to_int() && code <= 'z'.to_int() {
     code - 'a'.to_int() + 'A'.to_int()
   } else {
@@ -1219,7 +1244,7 @@ fn msf_remove_gaps(sequence : String) -> String {
 }
 
 ///|
-fn msf_count_residues(sequence : String) -> Int {
+fn msf_count_residues(sequence : String) -> Int32 {
   let mut count = 0
   for index = 0; index < sequence.length(); index = index + 1 {
     if sequence.unsafe_get(index).to_int() != '-'.to_int() {
@@ -1232,8 +1257,8 @@ fn msf_count_residues(sequence : String) -> Int {
 ///|
 fn msf_movement_changes(
   alignment : MsfAlignment,
-  first_column : Int,
-  second_column : Int,
+  first_column : Int32,
+  second_column : Int32,
 ) -> Bool {
   for row = 0; row < alignment.sequences.length(); row = row + 1 {
     let first = alignment.sequences[row].aligned_sequence
@@ -1289,7 +1314,7 @@ fn msf_split_whitespace(text : String) -> Array[String] {
 }
 
 ///|
-fn msf_is_whitespace(code : Int) -> Bool {
+fn msf_is_whitespace(code : Int32) -> Bool {
   code == ' '.to_int() ||
   code == '\t'.to_int() ||
   code == '\n'.to_int() ||
@@ -1328,7 +1353,7 @@ fn msf_contains_word(text : String, word : String) -> Bool {
 }
 
 ///|
-fn msf_find_string(values : Array[String], target : String) -> Int {
+fn msf_find_string(values : Array[String], target : String) -> Int32 {
   for index = 0; index < values.length(); index = index + 1 {
     if values[index] == target {
       return index
@@ -1338,7 +1363,7 @@ fn msf_find_string(values : Array[String], target : String) -> Int {
 }
 
 ///|
-fn msf_find_last_checksum_label(words : Array[String]) -> Int {
+fn msf_find_last_checksum_label(words : Array[String]) -> Int32 {
   let mut result = -1
   for index = 0; index < words.length(); index = index + 1 {
     if words[index] == "Check:" || words[index] == "CompCheck:" {
@@ -1349,7 +1374,7 @@ fn msf_find_last_checksum_label(words : Array[String]) -> Int {
 }
 
 ///|
-fn msf_join_words(words : Array[String], start : Int, end : Int) -> String {
+fn msf_join_words(words : Array[String], start : Int32, end : Int32) -> String {
   let output = StringBuilder()
   for index = start; index < end; index = index + 1 {
     if index > start {
@@ -1361,7 +1386,7 @@ fn msf_join_words(words : Array[String], start : Int, end : Int) -> String {
 }
 
 ///|
-fn msf_pad_right(value : String, width : Int, character : Char) -> String {
+fn msf_pad_right(value : String, width : Int32, character : Char) -> String {
   if value.length() >= width {
     return value
   }
@@ -1374,7 +1399,7 @@ fn msf_pad_right(value : String, width : Int, character : Char) -> String {
 }
 
 ///|
-fn msf_contains_code(values : String, target : Int) -> Bool {
+fn msf_contains_code(values : String, target : Int32) -> Bool {
   for index = 0; index < values.length(); index = index + 1 {
     if values.unsafe_get(index).to_int() == target {
       return true
@@ -1396,7 +1421,7 @@ fn msf_ends_with(value : String, suffix : String) -> Bool {
 }
 
 ///|
-fn msf_min(first : Int, second : Int) -> Int {
+fn msf_min(first : Int32, second : Int32) -> Int32 {
   if first < second {
     first
   } else {

@@ -25,7 +25,7 @@ fn mash_hash64(s : String) -> UInt64 {
   let mut hash : UInt64 = 14695981039346656037UL // FNV offset basis (64-bit)
   let prime : UInt64 = 1099511628211UL // FNV prime (64-bit)
   for i = 0; i < s.length(); i = i + 1 {
-    hash = hash ^ (s.unsafe_get(i).to_uint64())
+    hash = hash ^ s.unsafe_get(i).to_uint64()
     hash = hash * prime
   }
   hash
@@ -100,12 +100,12 @@ fn is_acgt(s : String) -> Bool {
 /// A MinHash sketch of a genome: the `s` smallest canonical k-mer hashes.
 pub struct MashSketch {
   name : String
-  kmer_size : Int
-  sketch_size : Int
+  kmer_size : Int32
+  sketch_size : Int32
   // Sorted ascending — the s smallest hash values
   hashes : Array[UInt64]
   // Total number of valid canonical k-mers hashed (before taking min-s)
-  total_kmers : Int
+  total_kmers : Int32
 }
 
 ///|
@@ -116,19 +116,19 @@ pub fn MashSketch::name(self : MashSketch) -> String {
 
 ///|
 /// Get the k-mer size used for sketching.
-pub fn MashSketch::kmer_size(self : MashSketch) -> Int {
+pub fn MashSketch::kmer_size(self : MashSketch) -> Int32 {
   self.kmer_size
 }
 
 ///|
 /// Get the sketch size (number of hashes retained).
-pub fn MashSketch::sketch_size(self : MashSketch) -> Int {
+pub fn MashSketch::sketch_size(self : MashSketch) -> Int32 {
   self.sketch_size
 }
 
 ///|
 /// Get the total number of valid k-mers seen (before min-s selection).
-pub fn MashSketch::total_kmers(self : MashSketch) -> Int {
+pub fn MashSketch::total_kmers(self : MashSketch) -> Int32 {
   self.total_kmers
 }
 
@@ -150,8 +150,8 @@ pub fn MashSketch::total_kmers(self : MashSketch) -> Int {
 pub fn mash_sketch(
   name : String,
   seq : String,
-  k : Int,
-  s : Int
+  k : Int32,
+  s : Int32,
 ) -> MashSketch {
   let n = seq.length()
   let mut total = 0
@@ -175,15 +175,7 @@ pub fn mash_sketch(
   }
 
   // Sort ascending and take the smallest s
-  all_hashes.sort_by(fn(a, b) {
-    if a < b {
-      -1
-    } else if a > b {
-      1
-    } else {
-      0
-    }
-  })
+  all_hashes.sort_by(fn(a, b) { if a < b { -1 } else if a > b { 1 } else { 0 } })
 
   let sketch_hashes : Array[UInt64] = []
   let limit = if all_hashes.length() < s { all_hashes.length() } else { s }
@@ -207,7 +199,7 @@ pub fn mash_sketch(
 ///|
 /// Count the number of shared hashes between two sketches
 /// (intersection size). Both sketch arrays are sorted ascending.
-fn count_shared(a : Array[UInt64], b : Array[UInt64]) -> Int {
+fn count_shared(a : Array[UInt64], b : Array[UInt64]) -> Int32 {
   let mut i = 0
   let mut j = 0
   let mut shared = 0
@@ -329,18 +321,18 @@ pub fn mash_distance_matrix(sketches : Array[MashSketch]) -> Array[Double] {
 /// The first member of each cluster is the "seed" (first encountered).
 pub fn mash_cluster(
   sketches : Array[MashSketch],
-  threshold : Double
+  threshold : Double,
 ) -> Array[Array[String]] {
   let n = sketches.length()
   let matrix = mash_distance_matrix(sketches)
 
   // Union-Find for connected components
-  let parent : Array[Int] = Array(capacity=n)
+  let parent : Array[Int32] = Array(capacity=n)
   for i = 0; i < n; i = i + 1 {
     parent.push(i)
   }
 
-  fn find(parent : Array[Int], x : Int) -> Int {
+  fn find(parent : Array[Int32], x : Int32) -> Int32 {
     let mut root = x
     while parent[root] != root {
       root = parent[root]
@@ -368,7 +360,7 @@ pub fn mash_cluster(
   }
 
   // Group by root
-  let groups : Map[Int, Array[String]] = Map([], capacity=0)
+  let groups : Map[Int32, Array[String]] = Map([], capacity=0)
   for i = 0; i < n; i = i + 1 {
     let root = find(parent, i)
     match groups.get(root) {
@@ -395,11 +387,15 @@ pub fn mash_cluster(
 pub fn mash_sketch_all(
   names : Array[String],
   seqs : Array[String],
-  k : Int,
-  s : Int
+  k : Int32,
+  s : Int32,
 ) -> Array[MashSketch] {
   let sketches : Array[MashSketch] = []
-  let n = if names.length() < seqs.length() { names.length() } else { seqs.length() }
+  let n = if names.length() < seqs.length() {
+    names.length()
+  } else {
+    seqs.length()
+  }
   for i = 0; i < n; i = i + 1 {
     sketches.push(mash_sketch(names[i], seqs[i], k, s))
   }

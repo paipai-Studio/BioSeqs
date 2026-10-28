@@ -1,3 +1,4 @@
+///|
 test "xtc_write_read_roundtrip" {
   // Create a simple frame with 3 atoms
   let frame = @src.XtcFrame::{
@@ -21,6 +22,7 @@ test "xtc_write_read_roundtrip" {
   assert_true(@moonbit.assert_num_close(f.coords[8], 0.9, 0.002))
 }
 
+///|
 test "xtc_read_multiple_frames" {
   let frame1 = @src.XtcFrame::{
     step: 0,
@@ -39,7 +41,9 @@ test "xtc_read_multiple_frames" {
   let bytes1 = @src.xtc_write_frame(frame1)
   let bytes2 = @src.xtc_write_frame(frame2)
   // Concatenate
-  let combined : Array[Int] = Array(capacity=bytes1.length() + bytes2.length())
+  let combined : Array[Int32] = Array(
+    capacity=bytes1.length() + bytes2.length(),
+  )
   for i = 0; i < bytes1.length(); i = i + 1 {
     combined.push(bytes1[i])
   }
@@ -52,6 +56,7 @@ test "xtc_read_multiple_frames" {
   assert_eq(frames[1].step, 1000)
 }
 
+///|
 test "xtc_frame_box" {
   let frame = @src.XtcFrame::{
     step: 0,

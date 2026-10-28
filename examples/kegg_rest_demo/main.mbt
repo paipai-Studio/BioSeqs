@@ -30,11 +30,15 @@ fn main raise {
 
   println("\n=== 3. find: keyword and chemical searches ===")
   println(@src.kegg_rest_find(client, "genes", "shiga toxin"))
-  println(@src.kegg_rest_find(client, "compound", "C00001", option="exact_mass"))
+  println(
+    @src.kegg_rest_find(client, "compound", "C00001", option="exact_mass"),
+  )
 
   println("\n=== 4. get: entry retrieval ===")
   println(@src.kegg_rest_get(client, "hsa:10458", option="aaseq"))
-  println(@src.kegg_rest_get_multi(client, ["hsa:10458", "hsa:10459"], option="ntseq"))
+  println(
+    @src.kegg_rest_get_multi(client, ["hsa:10458", "hsa:10459"], option="ntseq"),
+  )
 
   println("\n=== 5. conv: cross-database identifier conversion ===")
   println(@src.kegg_rest_conv(client, "uniprot", "hsa"))

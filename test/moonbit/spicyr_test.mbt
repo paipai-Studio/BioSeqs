@@ -68,8 +68,8 @@ fn spicyr_test_pair(
 
 ///|
 fn spicyr_test_metadata(
-  count : Int,
-  split : Int,
+  count : Int32,
+  split : Int32,
 ) -> Array[@src.SpicyImageMetadata] {
   let metadata : Array[@src.SpicyImageMetadata] = []
   for index in 0..<count {
@@ -113,7 +113,7 @@ fn spicyr_test_association(
   from_type : String,
   to_type : String,
   statistic : Double,
-  count : Int,
+  count : Int32,
 ) -> @src.SpicyAssociation {
   @src.SpicyAssociation::create(
     image_id,

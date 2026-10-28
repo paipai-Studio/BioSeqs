@@ -20,9 +20,9 @@
 /// A minimizer: (hash, position, strand).
 /// strand = 0 for forward, 1 for reverse complement.
 pub struct Minimizer {
-  hash : Int
-  pos : Int
-  strand : Int
+  hash : Int32
+  pos : Int32
+  strand : Int32
 }
 
 ///|
@@ -47,7 +47,7 @@ fn _dna_complement(c : Char) -> Char {
 ///|
 /// Hash a k-mer using a simple rolling hash (2-bit encoding).
 /// Returns an integer hash. Non-ACGT characters get hash = -1.
-fn kmer_hash(seq : String, start : Int, k : Int) -> Int {
+fn kmer_hash(seq : String, start : Int32, k : Int32) -> Int32 {
   let mut h = 0
   for i = 0; i < k; i = i + 1 {
     let c = seq[start + i].unsafe_to_char()
@@ -65,7 +65,7 @@ fn kmer_hash(seq : String, start : Int, k : Int) -> Int {
 
 ///|
 /// Hash the reverse complement of a k-mer.
-fn kmer_hash_rc(seq : String, start : Int, k : Int) -> Int {
+fn kmer_hash_rc(seq : String, start : Int32, k : Int32) -> Int32 {
   let mut h = 0
   for i = k - 1; i >= 0; i = i - 1 {
     let c = seq[start + i].unsafe_to_char()
@@ -87,7 +87,11 @@ fn kmer_hash_rc(seq : String, start : Int, k : Int) -> Int {
 /// For each window of w consecutive k-mers, select the one with the
 /// smallest hash (canonical: min of forward and RC hash).
 /// Returns a list of minimizers, sorted by position.
-pub fn minimap_minimizers(seq : String, k : Int, w : Int) -> Array[Minimizer] {
+pub fn minimap_minimizers(
+  seq : String,
+  k : Int32,
+  w : Int32,
+) -> Array[Minimizer] {
   let n = seq.length()
   if n < k {
     return []
@@ -103,12 +107,10 @@ pub fn minimap_minimizers(seq : String, k : Int, w : Int) -> Array[Minimizer] {
     let h_rc = kmer_hash_rc(seq, i, k)
     if h_fwd < 0 || h_rc < 0 {
       hashes[i] = (-1, 0)
+    } else if h_fwd <= h_rc {
+      hashes[i] = (h_fwd, 0)
     } else {
-      if h_fwd <= h_rc {
-        hashes[i] = (h_fwd, 0)
-      } else {
-        hashes[i] = (h_rc, 1)
-      }
+      hashes[i] = (h_rc, 1)
     }
   }
   // Sliding window minimum
@@ -129,7 +131,7 @@ pub fn minimap_minimizers(seq : String, k : Int, w : Int) -> Array[Minimizer] {
       }
     }
     if best_pos >= 0 && best_pos != last_min_pos {
-      result.push({ hash: best_hash, pos: best_pos, strand: best_strand })
+      result.push({ hash: best_hash, pos: best_pos, strand: best_strand, })
       _last_min_hash = best_hash
       last_min_pos = best_pos
     }
@@ -148,7 +150,7 @@ pub fn minimap_minimizers(seq : String, k : Int, w : Int) -> Array[Minimizer] {
       }
     }
     if best_pos >= 0 {
-      result.push({ hash: best_hash, pos: best_pos, strand: best_strand })
+      result.push({ hash: best_hash, pos: best_pos, strand: best_strand, })
     }
   }
   result
@@ -168,37 +170,37 @@ pub struct MinimapRefSeq {
 ///|
 /// Constructor for MinimapRefSeq.
 pub fn MinimapRefSeq::new(name : String, seq : String) -> MinimapRefSeq {
-  { name, seq }
+  { name, seq, }
 }
 
 ///|
 /// A seed match: (query_pos, ref_seq_id, ref_pos, strand, k).
 pub struct MinimapSeed {
-  q_pos : Int
-  r_seq_id : Int
-  r_pos : Int
-  strand : Int
-  k : Int
+  q_pos : Int32
+  r_seq_id : Int32
+  r_pos : Int32
+  strand : Int32
+  k : Int32
 }
 
 ///|
 /// Minimizer index: maps minimizer hashes to reference positions.
 pub struct MinimapIndex {
   // hash → list of (seq_id, pos, strand)
-  table : Map[Int, Array[(Int, Int, Int)]]
+  table : Map[Int32, Array[(Int32, Int32, Int32)]]
   refs : Array[MinimapRefSeq]
-  k : Int
-  w : Int
+  k : Int32
+  w : Int32
 }
 
 ///|
 /// Build a minimizer index from reference sequences.
 pub fn minimap_index_build(
   refs : Array[MinimapRefSeq],
-  k : Int,
-  w : Int,
+  k : Int32,
+  w : Int32,
 ) -> MinimapIndex {
-  let table : Map[Int, Array[(Int, Int, Int)]] = Map([], capacity=0)
+  let table : Map[Int32, Array[(Int32, Int32, Int32)]] = Map([], capacity=0)
   for seq_id = 0; seq_id < refs.length(); seq_id = seq_id + 1 {
     let minimizers = minimap_minimizers(refs[seq_id].seq, k, w)
     for m in minimizers {
@@ -206,7 +208,7 @@ pub fn minimap_index_build(
       let entry = match table.get(key) {
         Some(arr) => arr
         None => {
-          let arr : Array[(Int, Int, Int)] = Array(capacity=0)
+          let arr : Array[(Int32, Int32, Int32)] = Array(capacity=0)
           table[key] = arr
           arr
         }
@@ -214,7 +216,7 @@ pub fn minimap_index_build(
       entry.push((seq_id, m.pos, m.strand))
     }
   }
-  { table, refs, k, w }
+  { table, refs, k, w, }
 }
 
 // ============================================================================
@@ -223,15 +225,12 @@ pub fn minimap_index_build(
 
 ///|
 /// Find seed matches between a query sequence and the index.
-pub fn minimap_seed(
-  index : MinimapIndex,
-  query : String,
-) -> Array[MinimapSeed] {
+pub fn minimap_seed(index : MinimapIndex, query : String) -> Array[MinimapSeed] {
   let q_mins = minimap_minimizers(query, index.k, index.w)
   let seeds : Array[MinimapSeed] = Array(capacity=0)
   for qm in q_mins {
     match index.table.get(qm.hash) {
-      Some(arr) => {
+      Some(arr) =>
         for (seq_id, r_pos, r_strand) in arr {
           // Only keep seeds where strands are compatible
           let strand = if qm.strand == r_strand { 0 } else { 1 }
@@ -243,7 +242,6 @@ pub fn minimap_seed(
             k: index.k,
           })
         }
-      }
       None => continue
     }
   }
@@ -269,12 +267,12 @@ pub fn minimap_seed(
 pub struct MinimapChain {
   seeds : Array[MinimapSeed]
   score : Double
-  q_start : Int
-  q_end : Int
-  r_start : Int
-  r_end : Int
-  r_seq_id : Int
-  strand : Int
+  q_start : Int32
+  q_end : Int32
+  r_start : Int32
+  r_end : Int32
+  r_seq_id : Int32
+  strand : Int32
 }
 
 ///|
@@ -285,8 +283,8 @@ pub struct MinimapChain {
 ///   - q2 - q1 and r2 - r1 are approximately equal (consistent indel)
 pub fn minimap_chain(
   seeds : Array[MinimapSeed],
-  max_gap : Int,
-  min_seeds : Int,
+  max_gap : Int32,
+  min_seeds : Int32,
 ) -> Array[MinimapChain] {
   let n = seeds.length()
   if n == 0 {
@@ -332,7 +330,13 @@ pub fn minimap_chain(
   // Sort indices by score descending
   let order = Array::makei(n, fn(i) { i })
   order.sort_by(fn(a, b) {
-    if f[a] > f[b] { -1 } else if f[a] < f[b] { 1 } else { 0 }
+    if f[a] > f[b] {
+      -1
+    } else if f[a] < f[b] {
+      1
+    } else {
+      0
+    }
   })
   for idx in order {
     if used[idx] {
@@ -351,13 +355,13 @@ pub fn minimap_chain(
     }
     // Reverse to get seeds in order
     {
-    let n = chain_seeds.length()
-    for i = 0; i < n / 2; i = i + 1 {
-      let tmp = chain_seeds[i]
-      chain_seeds[i] = chain_seeds[n - 1 - i]
-      chain_seeds[n - 1 - i] = tmp
+      let n = chain_seeds.length()
+      for i = 0; i < n / 2; i = i + 1 {
+        let tmp = chain_seeds[i]
+        chain_seeds[i] = chain_seeds[n - 1 - i]
+        chain_seeds[n - 1 - i] = tmp
+      }
     }
-  }
     // Compute chain bounds
     let mut q_min = chain_seeds[0].q_pos
     let mut q_max = chain_seeds[0].q_pos + chain_seeds[0].k
@@ -398,13 +402,13 @@ pub fn minimap_chain(
 ///|
 /// Alignment result: (score, ref_start, query_start, cigar_string).
 pub struct MinimapAlignment {
-  score : Int
-  r_start : Int
-  r_end : Int
-  q_start : Int
-  q_end : Int
-  cigar : String  // e.g. "10M2D5M"
-  nm : Int        // number of mismatches
+  score : Int32
+  r_start : Int32
+  r_end : Int32
+  q_start : Int32
+  q_end : Int32
+  cigar : String // e.g. "10M2D5M"
+  nm : Int32 // number of mismatches
 }
 
 ///|
@@ -414,15 +418,23 @@ pub struct MinimapAlignment {
 fn banded_sw(
   ref_seq : String,
   query_seq : String,
-  band_width : Int,
-  match_score : Int,
-  mismatch_penalty : Int,
-  gap_penalty : Int,
+  band_width : Int32,
+  match_score : Int32,
+  mismatch_penalty : Int32,
+  gap_penalty : Int32,
 ) -> MinimapAlignment {
   let m = query_seq.length()
   let n = ref_seq.length()
   if m == 0 || n == 0 {
-    return { score: 0, r_start: 0, r_end: 0, q_start: 0, q_end: 0, cigar: "", nm: 0 }
+    return {
+      score: 0,
+      r_start: 0,
+      r_end: 0,
+      q_start: 0,
+      q_end: 0,
+      cigar: "",
+      nm: 0,
+    }
   }
   // DP matrix (banded)
   let w = band_width
@@ -431,19 +443,20 @@ fn banded_sw(
   let mut best_j = 0
   // Use full matrix for simplicity (sequences are short within a chain)
   let dp = Array::make((m + 1) * (n + 1), 0)
-  let get = fn(i : Int, j : Int) -> Int {
-    dp[i * (n + 1) + j]
-  }
-  let set_dp = fn(i : Int, j : Int, v : Int) -> Unit {
+  let get = fn(i : Int32, j : Int32) -> Int32 { dp[i * (n + 1) + j] }
+  let set_dp = fn(i : Int32, j : Int32, v : Int32) -> Unit {
     dp[i * (n + 1) + j] = v
   }
   for i = 1; i <= m; i = i + 1 {
     let j_start = if i - w < 1 { 1 } else { i - w }
     let j_end = if i + w > n { n } else { i + w }
     for j = j_start; j <= j_end; j = j + 1 {
-      let diag = get(i - 1, j - 1) + (
-        if query_seq[i - 1] == ref_seq[j - 1] { match_score } else { -mismatch_penalty }
-      )
+      let diag = get(i - 1, j - 1) +
+        (if query_seq[i - 1] == ref_seq[j - 1] {
+          match_score
+        } else {
+          -mismatch_penalty
+        })
       let up = if i - 1 >= 0 && j >= j_start && j <= j_end {
         get(i - 1, j) - gap_penalty
       } else {
@@ -472,9 +485,12 @@ fn banded_sw(
   let mut nm = 0
   while i > 0 && j > 0 && get(i, j) > 0 {
     let cur = get(i, j)
-    let diag = get(i - 1, j - 1) + (
-      if query_seq[i - 1] == ref_seq[j - 1] { match_score } else { -mismatch_penalty }
-    )
+    let diag = get(i - 1, j - 1) +
+      (if query_seq[i - 1] == ref_seq[j - 1] {
+        match_score
+      } else {
+        -mismatch_penalty
+      })
     if cur == diag {
       if query_seq[i - 1] != ref_seq[j - 1] {
         nm = nm + 1
@@ -545,15 +561,15 @@ fn compress_cigar(ops : Array[Char]) -> String {
 pub struct MinimapResult {
   query_name : String
   ref_name : String
-  ref_start : Int     // 0-based
-  ref_end : Int       // exclusive
-  query_start : Int   // 0-based
-  query_end : Int     // exclusive
-  strand : Int        // 0=forward, 1=reverse
-  score : Int
+  ref_start : Int32 // 0-based
+  ref_end : Int32 // exclusive
+  query_start : Int32 // 0-based
+  query_end : Int32 // exclusive
+  strand : Int32 // 0=forward, 1=reverse
+  score : Int32
   cigar : String
-  nm : Int            // edit distance
-  mapq : Int          // mapping quality
+  nm : Int32 // edit distance
+  mapq : Int32 // mapping quality
 }
 
 ///|
@@ -572,21 +588,34 @@ pub fn minimap_align(
     let ref_name = index.refs[chain.r_seq_id].name
     // Extract regions for base-level alignment
     let r_pad = index.k * 2
-    let r_start = if chain.r_start - r_pad < 0 { 0 } else { chain.r_start - r_pad }
-    let r_end = if chain.r_end + r_pad > ref_seq.length() { ref_seq.length() } else { chain.r_end + r_pad }
+    let r_start = if chain.r_start - r_pad < 0 {
+      0
+    } else {
+      chain.r_start - r_pad
+    }
+    let r_end = if chain.r_end + r_pad > ref_seq.length() {
+      ref_seq.length()
+    } else {
+      chain.r_end + r_pad
+    }
     let q_pad = index.k * 2
-    let q_start = if chain.q_start - q_pad < 0 { 0 } else { chain.q_start - q_pad }
-    let q_end = if chain.q_end + q_pad > query.length() { query.length() } else { chain.q_end + q_pad }
+    let q_start = if chain.q_start - q_pad < 0 {
+      0
+    } else {
+      chain.q_start - q_pad
+    }
+    let q_end = if chain.q_end + q_pad > query.length() {
+      query.length()
+    } else {
+      chain.q_end + q_pad
+    }
     let ref_region = ref_seq[r_start:r_end].to_owned()
     let query_region = if chain.strand == 0 {
       query[q_start:q_end].to_owned()
     } else {
       reverse_complement(query[q_start:q_end].to_owned())
     }
-    let aln = banded_sw(
-      ref_region, query_region, index.k * 5,
-      2, 1, 1,
-    )
+    let aln = banded_sw(ref_region, query_region, index.k * 5, 2, 1, 1)
     if aln.score > 0 {
       results.push({
         query_name,
@@ -605,18 +634,30 @@ pub fn minimap_align(
   }
   // Sort by score descending
   results.sort_by(fn(a, b) {
-    if a.score > b.score { -1 } else if a.score < b.score { 1 } else { 0 }
+    if a.score > b.score {
+      -1
+    } else if a.score < b.score {
+      1
+    } else {
+      0
+    }
   })
   results
 }
 
 ///|
 /// Compute mapping quality (simplified).
-fn compute_mapq(score : Int, n_chains : Int) -> Int {
+fn compute_mapq(score : Int32, n_chains : Int32) -> Int32 {
   let base = score * 5
   let penalty = if n_chains > 1 { (n_chains - 1) * 10 } else { 0 }
   let mq = base - penalty
-  if mq < 0 { 0 } else if mq > 60 { 60 } else { mq }
+  if mq < 0 {
+    0
+  } else if mq > 60 {
+    60
+  } else {
+    mq
+  }
 }
 
 ///|
@@ -635,7 +676,23 @@ pub fn minimap_to_sam(result : MinimapResult, query_seq : String) -> String {
   let qual = "*"
   let nm_tag = "NM:i:" + result.nm.to_string()
   let qname = result.query_name
-  let line = qname + "\t" + flag.to_string() + "\t" + rname + "\t" + pos.to_string() + "\t" + mapq.to_string() + "\t" + cigar + "\t*\t0\t0\t" + seq + "\t" + qual + "\t" + nm_tag
+  let line = qname +
+    "\t" +
+    flag.to_string() +
+    "\t" +
+    rname +
+    "\t" +
+    pos.to_string() +
+    "\t" +
+    mapq.to_string() +
+    "\t" +
+    cigar +
+    "\t*\t0\t0\t" +
+    seq +
+    "\t" +
+    qual +
+    "\t" +
+    nm_tag
   line
 }
 
@@ -648,7 +705,13 @@ pub fn minimap_align_batch(
   let buf : StringBuilder = StringBuilder()
   // SAM header
   for reference in index.refs {
-    buf.write_string("@SQ\tSN:" + reference.name + "\tLN:" + reference.seq.length().to_string() + "\n")
+    buf.write_string(
+      "@SQ\tSN:" +
+      reference.name +
+      "\tLN:" +
+      reference.seq.length().to_string() +
+      "\n",
+    )
   }
   for (name, seq) in queries {
     let results = minimap_align(index, seq, name)

@@ -9,7 +9,7 @@
 
 ///|
 /// CIP priority level for an atom.
-fn cip_atomic_number(symbol : String) -> Int {
+fn cip_atomic_number(symbol : String) -> Int32 {
   match symbol {
     "H" => 1
     "B" => 5
@@ -32,10 +32,10 @@ fn cip_atomic_number(symbol : String) -> Int {
 /// Returns positive if atom1 > atom2, negative if atom1 < atom2, 0 if equal.
 fn _cip_compare(
   mol : Molecule,
-  a1 : Int,
-  a2 : Int,
+  a1 : Int32,
+  a2 : Int32,
   visited : Array[Bool],
-) -> Int {
+) -> Int32 {
   let atom1 = mol.atoms[a1]
   let atom2 = mol.atoms[a2]
   // Level 1: atomic number
@@ -56,17 +56,17 @@ fn _cip_compare(
   }
   // Level 4: recursive neighbor comparison
   let neighbors = mol_adjacency(mol)
-  let n1_priorities : Array[Int] = Array(capacity=0)
+  let n1_priorities : Array[Int32] = Array(capacity=0)
   for (nb, _) in neighbors[a1] {
-    if !(visited[nb]) {
+    if !visited[nb] {
       visited[nb] = true
       n1_priorities.push(_cip_compare(mol, nb, -1, visited))
       visited[nb] = false
     }
   }
-  let n2_priorities : Array[Int] = Array(capacity=0)
+  let n2_priorities : Array[Int32] = Array(capacity=0)
   for (nb, _) in neighbors[a2] {
-    if !(visited[nb]) {
+    if !visited[nb] {
       visited[nb] = true
       n2_priorities.push(_cip_compare(mol, nb, -1, visited))
       visited[nb] = false
@@ -110,13 +110,13 @@ fn _cip_compare(
 /// Returns neighbor indices sorted by CIP priority (highest first).
 fn cip_sort_neighbors(
   mol : Molecule,
-  center : Int,
-  neighbors : Array[Int],
-) -> Array[Int] {
+  center : Int32,
+  neighbors : Array[Int32],
+) -> Array[Int32] {
   let visited = Array::make(mol.atoms.length(), false)
   visited[center] = true
   // Compute priority for each neighbor
-  let pairs : Array[(Int, Int)] = Array(capacity=0)
+  let pairs : Array[(Int32, Int32)] = Array(capacity=0)
   for nb in neighbors {
     visited[nb] = true
     let mut priority = cip_atomic_number(mol.atoms[nb].symbol)
@@ -135,7 +135,7 @@ fn cip_sort_neighbors(
       }
     }
   }
-  let result : Array[Int] = Array(capacity=0)
+  let result : Array[Int32] = Array(capacity=0)
   for (_, nb) in pairs {
     result.push(nb)
   }
@@ -155,7 +155,7 @@ pub(all) enum StereoDescriptor {
 ///|
 /// Check if an atom is a tetrahedral stereocenter.
 /// Requires: 4 neighbors with different CIP priorities, sp3 carbon.
-pub fn is_tetrahedral_center(mol : Molecule, atom : Int) -> Bool {
+pub fn is_tetrahedral_center(mol : Molecule, atom : Int32) -> Bool {
   let neighbors = mol_adjacency(mol)
   let nbs = neighbors[atom]
   if nbs.length() != 4 {
@@ -183,12 +183,12 @@ pub fn is_tetrahedral_center(mol : Molecule, atom : Int) -> Bool {
 /// This is a simplified version: without 3D coordinates, we determine
 /// the configuration from the atom ordering in the molecular graph.
 /// Returns R, S, or None if not a stereocenter.
-pub fn cip_tetrahedral(mol : Molecule, atom : Int) -> StereoDescriptor {
-  if !(is_tetrahedral_center(mol, atom)) {
+pub fn cip_tetrahedral(mol : Molecule, atom : Int32) -> StereoDescriptor {
+  if !is_tetrahedral_center(mol, atom) {
     return None
   }
   let neighbors = mol_adjacency(mol)
-  let nb_list : Array[Int] = Array(capacity=0)
+  let nb_list : Array[Int32] = Array(capacity=0)
   for (nb, _) in neighbors[atom] {
     nb_list.push(nb)
   }
@@ -224,8 +224,8 @@ pub fn cip_tetrahedral(mol : Molecule, atom : Int) -> StereoDescriptor {
 
 ///|
 /// Find all tetrahedral stereocenters in a molecule.
-pub fn find_stereocenters(mol : Molecule) -> Array[(Int, StereoDescriptor)] {
-  let result : Array[(Int, StereoDescriptor)] = Array(capacity=0)
+pub fn find_stereocenters(mol : Molecule) -> Array[(Int32, StereoDescriptor)] {
+  let result : Array[(Int32, StereoDescriptor)] = Array(capacity=0)
   for k = 0; k < mol.atoms.length(); k = k + 1 {
     let desc = cip_tetrahedral(mol, k)
     match desc {
@@ -241,18 +241,15 @@ pub fn find_stereocenters(mol : Molecule) -> Array[(Int, StereoDescriptor)] {
 ///|
 /// Determine E/Z configuration of a double bond.
 /// Returns E, Z, or None if not applicable.
-pub fn cip_double_bond(
-  mol : Molecule,
-  bond_idx : Int,
-) -> StereoDescriptor {
+pub fn cip_double_bond(mol : Molecule, bond_idx : Int32) -> StereoDescriptor {
   let b = mol.bonds[bond_idx]
   if b.order != 2 {
     return None
   }
   let neighbors = mol_adjacency(mol)
   // Get substituents on each end (excluding the double bond partner)
-  let subst1 : Array[Int] = Array(capacity=0)
-  let subst2 : Array[Int] = Array(capacity=0)
+  let subst1 : Array[Int32] = Array(capacity=0)
+  let subst2 : Array[Int32] = Array(capacity=0)
   for (nb, _) in neighbors[b.from] {
     if nb != b.to {
       subst1.push(nb)
@@ -292,8 +289,10 @@ pub fn cip_double_bond(
 
 ///|
 /// Find all E/Z double bonds in a molecule.
-pub fn find_double_bond_stereo(mol : Molecule) -> Array[(Int, StereoDescriptor)] {
-  let result : Array[(Int, StereoDescriptor)] = Array(capacity=0)
+pub fn find_double_bond_stereo(
+  mol : Molecule,
+) -> Array[(Int32, StereoDescriptor)] {
+  let result : Array[(Int32, StereoDescriptor)] = Array(capacity=0)
   for i = 0; i < mol.bonds.length(); i = i + 1 {
     let desc = cip_double_bond(mol, i)
     match desc {

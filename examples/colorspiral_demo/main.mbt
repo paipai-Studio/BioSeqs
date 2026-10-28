@@ -1,6 +1,5 @@
 ///|
 /// Demo for colorspiral module: HSV color spiral for chart series.
-
 fn main {
   println("=== colorspiral Demo: HSV Color Spiral ===")
   println("")
@@ -41,7 +40,16 @@ fn main {
   println("--- Step 4: HSV Values ---")
   for i in 0..<5 {
     let (h, s, v) = @src.spiral_hsv_at(sp, i)
-    println("  color " + i.to_string() + ": h=" + h.to_string() + " s=" + s.to_string() + " v=" + v.to_string())
+    println(
+      "  color " +
+      i.to_string() +
+      ": h=" +
+      h.to_string() +
+      " s=" +
+      s.to_string() +
+      " v=" +
+      v.to_string(),
+    )
   }
   println("")
 
@@ -57,7 +65,9 @@ fn main {
 
   // Example 6: SVG palette
   println("--- Step 6: SVG Palette ---")
-  let palette = @src.spiral_svg_palette(cs, labels=["A", "B", "C", "D", "E", "F", "G", "H"])
+  let palette = @src.spiral_svg_palette(cs, labels=[
+    "A", "B", "C", "D", "E", "F", "G", "H",
+  ])
   println("SVG palette length: " + palette.length().to_string() + " chars")
   println("")
 

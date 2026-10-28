@@ -1,6 +1,5 @@
 ///|
 /// Tests for conumee module (copy number unified interface).
-
 fn cnm_example_probes() -> Array[@src.CnmProbe] {
   [
     @src.CnmProbe::new("chr1", 1000, 0.1),
@@ -13,6 +12,7 @@ fn cnm_example_probes() -> Array[@src.CnmProbe] {
   ]
 }
 
+///|
 test "cnm_from_arrays" {
   let opt = @src.cnm_from_arrays(
     "test",
@@ -26,34 +26,34 @@ test "cnm_from_arrays" {
   }
 }
 
+///|
 test "cnm_from_arrays_mismatch" {
-  let opt = @src.cnm_from_arrays(
-    "test",
-    ["chr1", "chr1"],
-    [1000],
-    [0.5],
-  )
+  let opt = @src.cnm_from_arrays("test", ["chr1", "chr1"], [1000], [0.5])
   assert_true(opt is None)
 }
 
+///|
 test "cnm_sample_creation" {
   let s = @src.CnmSample::new("s1", cnm_example_probes())
   assert_eq(s.sample_id, "s1")
   assert_eq(s.probes.length(), 7)
 }
 
+///|
 test "cnm_median" {
   let vals = [1.0, 2.0, 3.0, 4.0, 5.0]
   let m = @src.cnm_median(vals)
   assert_true((m - 3.0).abs() < 1.0e-9)
 }
 
+///|
 test "cnm_mad" {
   let vals = [1.0, 2.0, 3.0, 4.0, 5.0]
   let mad = @src.cnm_mad(vals)
   assert_true(mad > 0.0)
 }
 
+///|
 test "cnm_segment" {
   let s = @src.CnmSample::new("s1", cnm_example_probes())
   let segged = @src.cnm_segment(s)
@@ -61,6 +61,7 @@ test "cnm_segment" {
   assert_true(segged.segments.length() >= 0)
 }
 
+///|
 test "cnm_qc" {
   let s = @src.CnmSample::new("s1", cnm_example_probes())
   let segged = @src.cnm_segment(s)
@@ -69,13 +70,19 @@ test "cnm_qc" {
   assert_true(qc.noise_score >= 0.0)
 }
 
+///|
 test "cnm_filter_segments" {
   let s = @src.CnmSample::new("s1", cnm_example_probes())
   let segged = @src.cnm_segment(s)
-  let filtered = @src.cnm_filter_segments(segged, gain_threshold=2.5, loss_threshold=1.5)
+  let filtered = @src.cnm_filter_segments(
+    segged,
+    gain_threshold=2.5,
+    loss_threshold=1.5,
+  )
   assert_true(filtered.length() >= 0)
 }
 
+///|
 test "cnm_annotate_genes" {
   let s = @src.CnmSample::new("s1", cnm_example_probes())
   let segged = @src.cnm_segment(s)
@@ -88,6 +95,7 @@ test "cnm_annotate_genes" {
   assert_true(annotated.segments.length() >= 0)
 }
 
+///|
 test "cnm_compare_samples" {
   let s1 = @src.CnmSample::new("s1", cnm_example_probes())
   let s2 = @src.CnmSample::new("s2", [
@@ -100,22 +108,34 @@ test "cnm_compare_samples" {
   assert_true(cmp.correlation >= -1.0 && cmp.correlation <= 1.0)
 }
 
+///|
 test "cnm_segments_tsv" {
   let segs : Array[@src.CnmSegment] = [
     @src.CnmSegment::{
-      chr: "chr1", start: 1000, end: 2000, n_probes: 5,
-      mean_logratio: 0.5, copy_number: 3.0, genes: ["GENE1"],
+      chr: "chr1",
+      start: 1000,
+      end: 2000,
+      n_probes: 5,
+      mean_logratio: 0.5,
+      copy_number: 3.0,
+      genes: ["GENE1"],
     },
   ]
   let tsv = @src.cnm_segments_tsv(segs)
   assert_true(tsv.contains("chr1"))
 }
 
+///|
 test "cnm_ascii_plot" {
   let segs : Array[@src.CnmSegment] = [
     @src.CnmSegment::{
-      chr: "chr1", start: 1000, end: 2000, n_probes: 5,
-      mean_logratio: 0.5, copy_number: 3.0, genes: ["GENE1"],
+      chr: "chr1",
+      start: 1000,
+      end: 2000,
+      n_probes: 5,
+      mean_logratio: 0.5,
+      copy_number: 3.0,
+      genes: ["GENE1"],
     },
   ]
   let plot = @src.cnm_ascii_plot(segs, "chr1")

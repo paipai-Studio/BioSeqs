@@ -22,7 +22,7 @@ pub fn compare_modes(
   modes2 : Array[Array[Double]],
   fluctuations1 : Array[Double],
   fluctuations2 : Array[Double],
-  k : Int, // number of modes from set 2 to use for cumulative overlap
+  k : Int32, // number of modes from set 2 to use for cumulative overlap
 ) -> ComparativeResult {
   let om = overlap_matrix(modes1, modes2)
   // Cumulative overlap for each mode in set 1
@@ -41,7 +41,9 @@ pub fn compare_modes(
     0.0
   }
   // RMSD and correlation of fluctuations
-  let (rmsd_fluc, corr_fluc) = compare_fluctuations(fluctuations1, fluctuations2)
+  let (rmsd_fluc, corr_fluc) = compare_fluctuations(
+    fluctuations1, fluctuations2,
+  )
   ComparativeResult::{
     overlap_mat: om,
     cumulative_overlaps: cum_overlaps,
@@ -108,7 +110,7 @@ pub fn dynamics_similarity(
   modes2 : Array[Array[Double]],
   fluctuations1 : Array[Double],
   fluctuations2 : Array[Double],
-  k : Int,
+  k : Int32,
 ) -> Double {
   let result = compare_modes(modes1, modes2, fluctuations1, fluctuations2, k)
   // Similarity = 0.5 * (effective_overlap + max(0, correlation))
@@ -161,11 +163,9 @@ pub fn compare_bfactors(
 /// Returns average collectivity across the first k modes.
 pub fn average_collectivity(
   eigenvectors : Array[Array[Double]],
-  k : Int,
+  k : Int32,
 ) -> Double {
-  let max_k = if k < eigenvectors.length() { k } else {
-    eigenvectors.length()
-  }
+  let max_k = if k < eigenvectors.length() { k } else { eigenvectors.length() }
   if max_k == 0 {
     return 0.0
   }
@@ -181,7 +181,7 @@ pub fn average_collectivity(
       sum_4th = sum_4th + s * s
     }
     if sum_4th > 1.0e-20 {
-      let pr = (sum_sq * sum_sq) / (n.to_double() * sum_4th)
+      let pr = sum_sq * sum_sq / (n.to_double() * sum_4th)
       total = total + pr
     }
   }

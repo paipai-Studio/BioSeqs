@@ -114,7 +114,9 @@ fn main {
   println("Converted \{records.length()} segment(s) to SeqRecord(s)")
   for i in 0..<records.length() {
     let rec = records[i]
-    println("  Record \{i}: id=\{rec.id}, name=\{rec.name}, length=\{rec.seq.to_string().length()}")
+    println(
+      "  Record \{i}: id=\{rec.id}, name=\{rec.name}, length=\{rec.seq.to_string().length()}",
+    )
   }
   println("")
 
@@ -156,10 +158,8 @@ fn main {
   let re_parsed = @bio.gfa_parse(re_text)
   let ok = @bio.gfa_graph_n_segments(re_parsed) ==
     @bio.gfa_graph_n_segments(parsed) &&
-    @bio.gfa_graph_n_links(re_parsed) ==
-    @bio.gfa_graph_n_links(parsed) &&
-    @bio.gfa_graph_n_paths(re_parsed) ==
-    @bio.gfa_graph_n_paths(parsed)
+    @bio.gfa_graph_n_links(re_parsed) == @bio.gfa_graph_n_links(parsed) &&
+    @bio.gfa_graph_n_paths(re_parsed) == @bio.gfa_graph_n_paths(parsed)
   println("Round-trip verify: \{ok}")
   println("")
 

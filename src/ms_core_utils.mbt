@@ -116,8 +116,8 @@ fn mc_sort_inplace(arr : Array[Double]) -> Unit {
 pub fn mc_refine_centroids(
   mz : Array[Double],
   intensity : Array[Double],
-  peak_indices : Array[Int],
-  half_window : Int,
+  peak_indices : Array[Int32],
+  half_window : Int32,
 ) -> (Array[Double], Array[Double]) {
   let out_mz = Array(capacity=0)
   let out_int = Array(capacity=0)
@@ -158,7 +158,7 @@ pub fn mc_refine_centroids(
 /// A point i is a local maximum if intensity[i] >= intensity[i-1],
 /// intensity[i] >= intensity[i+1], and intensity[i] > 0.
 /// Returns the indices of all local maxima.
-pub fn mc_local_maxima(intensity : Array[Double]) -> Array[Int] {
+pub fn mc_local_maxima(intensity : Array[Double]) -> Array[Int32] {
   let n = intensity.length()
   let out = Array(capacity=0)
   if n < 3 {
@@ -199,7 +199,7 @@ pub fn mc_join_peaks(
   y : Array[Double],
   tolerance : Double,
   use_ppm : Bool,
-) -> Array[(Int, Int)] {
+) -> Array[(Int32, Int32)] {
   let out = Array(capacity=0)
   for i in 0..<x.length() {
     let mut best_j = -1
@@ -227,7 +227,7 @@ pub fn mc_join_peaks(
 /// Moving-average smoothing with a window of `half_window * 2 + 1` points.
 pub fn mc_smooth_moving_average(
   values : Array[Double],
-  half_window : Int,
+  half_window : Int32,
 ) -> Array[Double] {
   let n = values.length()
   let out = Array::make(n, 0.0)
@@ -251,7 +251,7 @@ pub fn mc_smooth_moving_average(
 /// for the common case of quadratic/cubic fit.
 pub fn mc_smooth_savitzky_golay(
   values : Array[Double],
-  half_window : Int,
+  half_window : Int32,
 ) -> Array[Double] {
   let n = values.length()
   let out = Array::make(n, 0.0)
@@ -325,7 +325,7 @@ pub fn mc_smooth_savitzky_golay(
 /// Generic smoothing dispatcher.
 pub fn mc_smooth(
   values : Array[Double],
-  half_window : Int,
+  half_window : Int32,
   method_ : String,
 ) -> Array[Double] {
   if method_ == "SavitzkyGolay" {
@@ -347,7 +347,7 @@ pub fn mc_smooth(
 /// `max_iter` controls the number of increasing-window iterations.
 pub fn mc_baseline_snip(
   values : Array[Double],
-  max_iter : Int,
+  max_iter : Int32,
 ) -> Array[Double] {
   let n = values.length()
   if n == 0 {
@@ -523,7 +523,7 @@ pub fn mc_is_missing(v : Double) -> Bool {
 pub fn mc_impute(
   matrix : Array[Array[Double]],
   method_ : String,
-  k : Int,
+  k : Int32,
 ) -> Array[Array[Double]] {
   let n = matrix.length()
   if n == 0 {
@@ -608,7 +608,7 @@ pub fn mc_impute(
       for j in 0..<p {
         if mc_is_missing(out[i][j]) {
           // find k nearest rows that have a value at column j
-          let distances : Array[(Int, Double)] = Array(capacity=0)
+          let distances : Array[(Int32, Double)] = Array(capacity=0)
           for r in 0..<n {
             if r == i || mc_is_missing(out[r][j]) {
               continue
@@ -666,7 +666,7 @@ pub fn mc_impute(
 ///   x[i][j] = overall + row_eff[i] + col_eff[j] + residual[i][j]
 pub fn mc_median_polish(
   matrix : Array[Array[Double]],
-  max_iter : Int,
+  max_iter : Int32,
   eps : Double,
 ) -> (Array[Array[Double]], Array[Double], Array[Double], Double) {
   let n = matrix.length()
@@ -812,7 +812,7 @@ pub fn mc_has_missing(matrix : Array[Array[Double]]) -> Bool {
 /// Returns one row per group.
 pub fn mc_aggregate_rows(
   matrix : Array[Array[Double]],
-  groups : Array[Int],
+  groups : Array[Int32],
   method_ : String,
 ) -> Array[Array[Double]] {
   let n = matrix.length()
@@ -821,7 +821,7 @@ pub fn mc_aggregate_rows(
   }
   let p = matrix[0].length()
   // collect unique group ids
-  let group_ids : Array[Int] = Array(capacity=0)
+  let group_ids : Array[Int32] = Array(capacity=0)
   for g in groups {
     let mut found = false
     for id in group_ids {

@@ -1,7 +1,6 @@
 ///|
 /// motif_matrix demo - Unified motif matrix abstraction (PFM/PPM/PWM/PSSM).
 /// Inspired by Biopython Bio.motifs.matrix.
-
 fn main {
   println("=== motif_matrix Demo: PFM/PPM/PWM/PSSM ===")
   println("")
@@ -45,7 +44,9 @@ fn main {
   println("Hits in TTACGTTTACGTTT: " + hits.length().to_string())
   let mut i = 0
   while i < hits.length() {
-    println("  pos=" + hits[i].0.to_string() + " score=" + hits[i].1.to_string())
+    println(
+      "  pos=" + hits[i].0.to_string() + " score=" + hits[i].1.to_string(),
+    )
     i = i + 1
   }
   println("")

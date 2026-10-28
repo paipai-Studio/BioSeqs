@@ -11,10 +11,10 @@
 ///|
 /// Dataset for EBSeq analysis containing count matrix and experimental design.
 pub struct EBSeqDataSet {
-  counts : Array[Array[Int]]
+  counts : Array[Array[Int32]]
   gene_names : Array[String]
   sample_names : Array[String]
-  conditions : Array[Int]
+  conditions : Array[Int32]
   size_factors : Array[Double]
   dispersions : Array[Double]
 }
@@ -32,10 +32,10 @@ pub struct EBSeqResult {
 
 ///|
 pub fn EBSeqDataSet::new(
-  counts : Array[Array[Int]],
+  counts : Array[Array[Int32]],
   gene_names : Array[String],
   sample_names : Array[String],
-  conditions : Array[Int],
+  conditions : Array[Int32],
 ) -> EBSeqDataSet {
   let n_genes = counts.length()
   let n_samples = if counts.length() > 0 { counts[0].length() } else { 0 }
@@ -207,8 +207,8 @@ pub fn ebseq_estimate_dispersion(data : EBSeqDataSet) -> EBSeqDataSet {
   let n_samples = data.sample_names.length()
 
   // Get indices for each condition
-  let cond1_idx : Array[Int] = Array(capacity=0)
-  let cond2_idx : Array[Int] = Array(capacity=0)
+  let cond1_idx : Array[Int32] = Array(capacity=0)
+  let cond2_idx : Array[Int32] = Array(capacity=0)
   for j = 0; j < n_samples; j = j + 1 {
     if data.conditions[j] == 0 {
       cond1_idx.push(j)
@@ -285,9 +285,9 @@ pub fn ebseq_estimate_dispersion(data : EBSeqDataSet) -> EBSeqDataSet {
 /// Compute marginal likelihood for a gene under the EE (equal expression) model.
 /// Both conditions share a common mean q.
 fn ebseq_marginal_ee(
-  counts_gene : Array[Int],
-  cond1_idx : Array[Int],
-  cond2_idx : Array[Int],
+  counts_gene : Array[Int32],
+  cond1_idx : Array[Int32],
+  cond2_idx : Array[Int32],
   size_factors : Array[Double],
   dispersion : Double,
 ) -> Double {
@@ -357,9 +357,9 @@ fn ebseq_marginal_ee(
 /// Compute marginal likelihood for a gene under the DE (differential expression) model.
 /// Each condition has its own mean.
 fn ebseq_marginal_de(
-  counts_gene : Array[Int],
-  cond1_idx : Array[Int],
-  cond2_idx : Array[Int],
+  counts_gene : Array[Int32],
+  cond1_idx : Array[Int32],
+  cond2_idx : Array[Int32],
   size_factors : Array[Double],
   dispersion : Double,
 ) -> Double {
@@ -445,8 +445,8 @@ pub fn ebseq_ppde(data : EBSeqDataSet) -> Array[Double] {
   let n_samples = data.sample_names.length()
 
   // Get condition indices
-  let cond1_idx : Array[Int] = Array(capacity=0)
-  let cond2_idx : Array[Int] = Array(capacity=0)
+  let cond1_idx : Array[Int32] = Array(capacity=0)
+  let cond2_idx : Array[Int32] = Array(capacity=0)
   for j = 0; j < n_samples; j = j + 1 {
     if data.conditions[j] == 0 {
       cond1_idx.push(j)
@@ -545,14 +545,14 @@ pub fn ebseq_ppde(data : EBSeqDataSet) -> Array[Double] {
 /// Returns EBSeqResult with PPDE, log2 fold change, condition means, and DE flags.
 pub fn ebseq_test(
   data : EBSeqDataSet,
-  threshold? : Double = 0.95,
+  threshold~ : Double = 0.95,
 ) -> EBSeqResult {
   let n_genes = data.counts.length()
   let n_samples = data.sample_names.length()
 
   // Get condition indices
-  let cond1_idx : Array[Int] = Array(capacity=0)
-  let cond2_idx : Array[Int] = Array(capacity=0)
+  let cond1_idx : Array[Int32] = Array(capacity=0)
+  let cond2_idx : Array[Int32] = Array(capacity=0)
   for j = 0; j < n_samples; j = j + 1 {
     if data.conditions[j] == 0 {
       cond1_idx.push(j)
@@ -630,7 +630,7 @@ pub fn ebseq_test(
 
 ///|
 /// Count number of differentially expressed genes in a result.
-pub fn ebseq_count_de(result : EBSeqResult) -> Int {
+pub fn ebseq_count_de(result : EBSeqResult) -> Int32 {
   let mut count = 0
   for flag in result.flag_de {
     if flag {
@@ -656,13 +656,13 @@ pub fn ebseq_get_de_genes(result : EBSeqResult) -> Array[String] {
 /// Get top DE genes sorted by PPDE descending.
 pub fn ebseq_top_genes(
   result : EBSeqResult,
-  n? : Int = 10,
+  n~ : Int32 = 10,
 ) -> Array[(String, Double, Double)] {
   let n_genes = result.gene_names.length()
   let actual_n = if n < n_genes { n } else { n_genes }
 
   // Sort indices by PPDE descending (bubble sort)
-  let indices : Array[Int] = Array(capacity=0)
+  let indices : Array[Int32] = Array(capacity=0)
   for i = 0; i < n_genes; i = i + 1 {
     indices.push(i)
   }
@@ -699,9 +699,9 @@ pub fn ebseq_sample_dataset() -> EBSeqDataSet {
   ]
   let conditions = [0, 0, 0, 1, 1, 1]
 
-  let counts : Array[Array[Int]] = Array(capacity=0)
+  let counts : Array[Array[Int32]] = Array(capacity=0)
   for i = 0; i < 20; i = i + 1 {
-    let row : Array[Int] = Array(capacity=0)
+    let row : Array[Int32] = Array(capacity=0)
     let base = 100.0 + i.to_double() * 50.0
 
     // Determine fold change for condition 2

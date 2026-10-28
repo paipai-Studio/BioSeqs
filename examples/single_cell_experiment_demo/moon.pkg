@@ -2,6 +2,4 @@ import {
   "IvanAXu/BioSeqs/src",
 }
 
-options(
-  "is-main": true,
-)
+pkgtype(kind: "executable")

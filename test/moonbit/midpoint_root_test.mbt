@@ -13,7 +13,11 @@ fn mp_leaf0(name : String) -> @src.Clade {
 
 ///|
 fn _mp_internal(children : Array[@src.Clade], bl : Double) -> @src.Clade {
-  @src.Clade::new(name=Some("internal"), branch_length=Some(bl), clades=children)
+  @src.Clade::new(
+    name=Some("internal"),
+    branch_length=Some(bl),
+    clades=children,
+  )
 }
 
 ///|
@@ -38,7 +42,7 @@ fn mp_leaf_names(clade : @src.Clade, names : Array[String]) -> Unit {
 
 ///|
 /// Count total leaves in a tree.
-fn mp_count_leaves(clade : @src.Clade) -> Int {
+fn mp_count_leaves(clade : @src.Clade) -> Int32 {
   if clade.is_terminal() {
     return 1
   }
@@ -164,7 +168,9 @@ test "midpoint_root: all leaves preserved" {
 test "midpoint_root: star tree" {
   // (A:1, B:2, C:3) — longest path A-C = 4, midpoint at 2.0 from A
   let tree = mp_internal0([
-    mp_leaf("A", 1.0), mp_leaf("B", 2.0), mp_leaf("C", 3.0),
+    mp_leaf("A", 1.0),
+    mp_leaf("B", 2.0),
+    mp_leaf("C", 3.0),
   ])
   let result = @src.phylo_midpoint_root(tree)
   assert_eq(mp_count_leaves(result), 3)

@@ -18,10 +18,15 @@ fn main {
     let mut found = false
     let mut j = 0
     while j < genes.length() {
-      if genes[j] == g { found = true; break }
+      if genes[j] == g {
+        found = true
+        break
+      }
       j = j + 1
     }
-    if !found { genes.push(g) }
+    if !found {
+      genes.push(g)
+    }
     i = i + 1
   }
   println("Unique genes: " + genes.length().to_string())
@@ -40,7 +45,17 @@ fn main {
   let mut p = 0
   while p < props.length() && p < 6 {
     let rec = props[p]
-    println("  " + rec.transcript_id + " (" + rec.gene_id + "): proportion=" + rec.proportion().to_string() + " (count=" + rec.count.to_string() + ")")
+    println(
+      "  " +
+      rec.transcript_id +
+      " (" +
+      rec.gene_id +
+      "): proportion=" +
+      rec.proportion().to_string() +
+      " (count=" +
+      rec.count.to_string() +
+      ")",
+    )
     p = p + 1
   }
   println("")
@@ -54,7 +69,7 @@ fn main {
   // Run DRIMSeq analysis
   println("=== DRIMSeq Analysis ===")
   let config = @bio.DRIMSeqConfig::new()
-  let result = @bio.drimseq_test_differential(counts, config=config)
+  let result = @bio.drimseq_test_differential(counts, config~)
   println(result.summary())
   println("")
 
@@ -64,7 +79,16 @@ fn main {
   let mut t = 0
   while t < top.length() {
     let g = top[t]
-    println("  " + g.gene_id + ": p=" + g.p_value.to_string() + ", adj_p=" + g.p_adj.to_string() + ", lr=" + g.lr_stat.to_string())
+    println(
+      "  " +
+      g.gene_id +
+      ": p=" +
+      g.p_value.to_string() +
+      ", adj_p=" +
+      g.p_adj.to_string() +
+      ", lr=" +
+      g.lr_stat.to_string(),
+    )
     t = t + 1
   }
   println("")
@@ -85,18 +109,28 @@ fn main {
   println("=== Configuration Options ===")
   let cfg_low = @bio.DRIMSeqConfig::new().set_min_count(val=5.0)
   let result_low = @bio.drimseq_test_differential(counts, config=cfg_low)
-  println("With min_count=5: tested=" + result_low.n_genes_tested.to_string() + ", filtered=" + result_low.n_genes_filtered.to_string())
+  println(
+    "With min_count=5: tested=" +
+    result_low.n_genes_tested.to_string() +
+    ", filtered=" +
+    result_low.n_genes_filtered.to_string(),
+  )
 
   let cfg_alpha = @bio.DRIMSeqConfig::new().set_alpha(val=0.01)
   let result_alpha = @bio.drimseq_test_differential(counts, config=cfg_alpha)
-  println("With alpha=0.01: significant=" + result_alpha.n_significant.to_string())
+  println(
+    "With alpha=0.01: significant=" + result_alpha.n_significant.to_string(),
+  )
   println("")
 
   // Dirichlet-multinomial demonstration
   println("=== Dirichlet-Multinomial Log-Likelihood ===")
   let test_counts : Array[Double] = [50.0, 30.0, 20.0]
   let test_props : Array[Double] = [0.5, 0.3, 0.2]
-  let ll = @bio.drimseq_dirichlet_multinomial(counts=test_counts, proportions=test_props)
+  let ll = @bio.drimseq_dirichlet_multinomial(
+    counts=test_counts,
+    proportions=test_props,
+  )
   println("Log-likelihood: " + ll.to_string())
   println("")
 
@@ -105,10 +139,22 @@ fn main {
   let a : Array[Double] = [0.7, 0.3]
   let b : Array[Double] = [0.4, 0.6]
   let (stat, pval, delta) = @bio.drimseq_wald_test(a, b)
-  println("  stat=" + stat.to_string() + ", pval=" + pval.to_string() + ", delta=" + delta.to_string())
+  println(
+    "  stat=" +
+    stat.to_string() +
+    ", pval=" +
+    pval.to_string() +
+    ", delta=" +
+    delta.to_string(),
+  )
 
   let c : Array[Double] = [0.5, 0.5]
   let d : Array[Double] = [0.5, 0.5]
   let (stat2, pval2, _) = @bio.drimseq_wald_test(c, d)
-  println("  Same proportions: stat=" + stat2.to_string() + ", pval=" + pval2.to_string())
+  println(
+    "  Same proportions: stat=" +
+    stat2.to_string() +
+    ", pval=" +
+    pval2.to_string(),
+  )
 }

@@ -31,7 +31,7 @@ pub struct QsSuperimposeResult {
 ///|
 /// Construct a point.
 pub fn QsPoint::new(x : Double, y : Double, z : Double) -> QsPoint {
-  QsPoint::{ x, y, z }
+  QsPoint::{ x, y, z, }
 }
 
 ///|
@@ -58,7 +58,7 @@ pub fn qs_point_cross(a : QsPoint, b : QsPoint) -> QsPoint {
   QsPoint::new(
     a.y * b.z - a.z * b.y,
     a.z * b.x - a.x * b.z,
-    a.x * b.y - a.y * b.x
+    a.x * b.y - a.y * b.x,
   )
 }
 
@@ -70,8 +70,13 @@ pub fn qs_point_norm(a : QsPoint) -> Double {
 
 ///|
 /// Construct a quaternion.
-pub fn Quaternion::new(w : Double, x : Double, y : Double, z : Double) -> Quaternion {
-  Quaternion::{ w, x, y, z }
+pub fn Quaternion::new(
+  w : Double,
+  x : Double,
+  y : Double,
+  z : Double,
+) -> Quaternion {
+  Quaternion::{ w, x, y, z, }
 }
 
 ///|
@@ -87,7 +92,7 @@ pub fn quaternion_multiply(q1 : Quaternion, q2 : Quaternion) -> Quaternion {
     q1.w * q2.w - q1.x * q2.x - q1.y * q2.y - q1.z * q2.z,
     q1.w * q2.x + q1.x * q2.w + q1.y * q2.z - q1.z * q2.y,
     q1.w * q2.y - q1.x * q2.z + q1.y * q2.w + q1.z * q2.x,
-    q1.w * q2.z + q1.x * q2.y - q1.y * q2.x + q1.z * q2.w
+    q1.w * q2.z + q1.x * q2.y - q1.y * q2.x + q1.z * q2.w,
   )
 }
 
@@ -179,7 +184,7 @@ pub fn qs_translate(points : Array[QsPoint], v : QsPoint) -> Array[QsPoint] {
 /// yields the rotation matrix that maps x onto y (Coutsias et al. 2004).
 fn qs_compute_n_matrix(
   x : Array[QsPoint],
-  y : Array[QsPoint]
+  y : Array[QsPoint],
 ) -> Array[Array[Double]] {
   let n = x.length()
   let mut sxx = 0.0
@@ -221,7 +226,7 @@ fn qs_compute_n_matrix(
 /// when the extreme eigenvalues have equal magnitude.
 fn qs_jacobi_eigen(
   mat : Array[Array[Double]],
-  max_sweeps~ : Int = 100
+  max_sweeps~ : Int32 = 100,
 ) -> (Array[Double], Array[Array[Double]]) {
   let n = 4
   let a : Array[Array[Double]] = []
@@ -336,14 +341,14 @@ fn qs_largest_eigenvector(mat : Array[Array[Double]]) -> Array[Double] {
 /// Returns rotation matrix, translation, and RMSD.
 pub fn qs_superimpose(
   a : Array[QsPoint],
-  b : Array[QsPoint]
+  b : Array[QsPoint],
 ) -> QsSuperimposeResult {
   let n = a.length()
   if n == 0 {
     return QsSuperimposeResult::{
       rotation: [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]],
       translation: [0.0, 0.0, 0.0],
-      rmsd: 0.0
+      rmsd: 0.0,
     }
   }
 
@@ -356,8 +361,20 @@ pub fn qs_superimpose(
   let b_centered : Array[QsPoint] = []
   let mut i = 0
   while i < n {
-    a_centered.push(QsPoint::new(a[i].x - centroid_a.x, a[i].y - centroid_a.y, a[i].z - centroid_a.z))
-    b_centered.push(QsPoint::new(b[i].x - centroid_b.x, b[i].y - centroid_b.y, b[i].z - centroid_b.z))
+    a_centered.push(
+      QsPoint::new(
+        a[i].x - centroid_a.x,
+        a[i].y - centroid_a.y,
+        a[i].z - centroid_a.z,
+      ),
+    )
+    b_centered.push(
+      QsPoint::new(
+        b[i].x - centroid_b.x,
+        b[i].y - centroid_b.y,
+        b[i].z - centroid_b.z,
+      ),
+    )
     i = i + 1
   }
 
@@ -378,9 +395,15 @@ pub fn qs_superimpose(
   let mut j = 0
   while j < n {
     // Rotate b_centered[j] by rot
-    let x_rot = rot[0][0] * b_centered[j].x + rot[0][1] * b_centered[j].y + rot[0][2] * b_centered[j].z
-    let y_rot = rot[1][0] * b_centered[j].x + rot[1][1] * b_centered[j].y + rot[1][2] * b_centered[j].z
-    let z_rot = rot[2][0] * b_centered[j].x + rot[2][1] * b_centered[j].y + rot[2][2] * b_centered[j].z
+    let x_rot = rot[0][0] * b_centered[j].x +
+      rot[0][1] * b_centered[j].y +
+      rot[0][2] * b_centered[j].z
+    let y_rot = rot[1][0] * b_centered[j].x +
+      rot[1][1] * b_centered[j].y +
+      rot[1][2] * b_centered[j].z
+    let z_rot = rot[2][0] * b_centered[j].x +
+      rot[2][1] * b_centered[j].y +
+      rot[2][2] * b_centered[j].z
 
     let dx = a_centered[j].x - x_rot
     let dy = a_centered[j].y - y_rot
@@ -391,15 +414,26 @@ pub fn qs_superimpose(
   let rmsd = (sum_sq / n.to_double()).sqrt()
 
   // Translation: t = centroid_a - R·centroid_b
-  let tx = centroid_a.x - (rot[0][0] * centroid_b.x + rot[0][1] * centroid_b.y + rot[0][2] * centroid_b.z)
-  let ty = centroid_a.y - (rot[1][0] * centroid_b.x + rot[1][1] * centroid_b.y + rot[1][2] * centroid_b.z)
-  let tz = centroid_a.z - (rot[2][0] * centroid_b.x + rot[2][1] * centroid_b.y + rot[2][2] * centroid_b.z)
+  let tx = centroid_a.x -
+    (
+      rot[0][0] * centroid_b.x +
+      rot[0][1] * centroid_b.y +
+      rot[0][2] * centroid_b.z
+    )
+  let ty = centroid_a.y -
+    (
+      rot[1][0] * centroid_b.x +
+      rot[1][1] * centroid_b.y +
+      rot[1][2] * centroid_b.z
+    )
+  let tz = centroid_a.z -
+    (
+      rot[2][0] * centroid_b.x +
+      rot[2][1] * centroid_b.y +
+      rot[2][2] * centroid_b.z
+    )
 
-  QsSuperimposeResult::{
-    rotation: rot,
-    translation: [tx, ty, tz],
-    rmsd
-  }
+  QsSuperimposeResult::{ rotation: rot, translation: [tx, ty, tz], rmsd, }
 }
 
 ///|
@@ -407,15 +441,27 @@ pub fn qs_superimpose(
 pub fn qs_apply_transform(
   points : Array[QsPoint],
   rotation : Array[Array[Double]],
-  translation : Array[Double]
+  translation : Array[Double],
 ) -> Array[QsPoint] {
   let result : Array[QsPoint] = []
   let mut i = 0
   while i < points.length() {
-    let x_rot = rotation[0][0] * points[i].x + rotation[0][1] * points[i].y + rotation[0][2] * points[i].z
-    let y_rot = rotation[1][0] * points[i].x + rotation[1][1] * points[i].y + rotation[1][2] * points[i].z
-    let z_rot = rotation[2][0] * points[i].x + rotation[2][1] * points[i].y + rotation[2][2] * points[i].z
-    result.push(QsPoint::new(x_rot + translation[0], y_rot + translation[1], z_rot + translation[2]))
+    let x_rot = rotation[0][0] * points[i].x +
+      rotation[0][1] * points[i].y +
+      rotation[0][2] * points[i].z
+    let y_rot = rotation[1][0] * points[i].x +
+      rotation[1][1] * points[i].y +
+      rotation[1][2] * points[i].z
+    let z_rot = rotation[2][0] * points[i].x +
+      rotation[2][1] * points[i].y +
+      rotation[2][2] * points[i].z
+    result.push(
+      QsPoint::new(
+        x_rot + translation[0],
+        y_rot + translation[1],
+        z_rot + translation[2],
+      ),
+    )
     i = i + 1
   }
   result

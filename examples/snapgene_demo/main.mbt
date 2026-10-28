@@ -115,7 +115,9 @@ fn main {
   let hex_preview_len = if hex.length() < 40 { hex.length() } else { 40 }
   println("  first \{hex_preview_len} chars: \{hex[0:hex_preview_len]}")
   let file3 = @bio.snapgene_parse(hex)
-  println("Deserialized from hex: sequence length=\{@bio.snapgene_seq_length(file3)}")
+  println(
+    "Deserialized from hex: sequence length=\{@bio.snapgene_seq_length(file3)}",
+  )
   println("Hex round-trip verify: \{file3.sequence == file.sequence}")
   println("")
 

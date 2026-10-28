@@ -12,7 +12,7 @@ fn md_dist(a : Array[Double], b : Array[Double]) -> Double {
 }
 
 ///|
-fn md_new_forces(n : Int) -> Array[Array[Double]] {
+fn md_new_forces(n : Int32) -> Array[Array[Double]] {
   let f : Array[Array[Double]] = Array::make(n, [])
   for i = 0; i < n; i = i + 1 {
     f[i] = [0.0, 0.0, 0.0]
@@ -24,7 +24,7 @@ fn md_new_forces(n : Int) -> Array[Array[Double]] {
 /// Harmonic bond energy: `sum 0.5 k (r - r0)^2`. `bonds` is `(i, j, r0, k)`.
 pub fn md_bond_energy(
   positions : Array[Array[Double]],
-  bonds : Array[(Int, Int, Double, Double)],
+  bonds : Array[(Int32, Int32, Double, Double)],
 ) -> Double {
   let mut e = 0.0
   for (i, j, r0, k) in bonds {
@@ -40,7 +40,7 @@ pub fn md_bond_energy(
 /// `(i, j, r0, k)`; returns one `[fx, fy, fz]` per atom.
 pub fn md_bond_forces(
   positions : Array[Array[Double]],
-  bonds : Array[(Int, Int, Double, Double)],
+  bonds : Array[(Int32, Int32, Double, Double)],
 ) -> Array[Array[Double]] {
   let forces = md_new_forces(positions.length())
   for (i, j, r0, k) in bonds {
@@ -65,7 +65,7 @@ pub fn md_bond_forces(
 /// `(i, j, epsilon, sigma)`.
 pub fn md_lj_energy(
   positions : Array[Array[Double]],
-  pairs : Array[(Int, Int, Double, Double)],
+  pairs : Array[(Int32, Int32, Double, Double)],
 ) -> Double {
   let mut e = 0.0
   for (i, j, epsilon, sigma) in pairs {
@@ -85,7 +85,7 @@ pub fn md_lj_energy(
 /// Analytic Lennard-Jones forces (negative gradient).
 pub fn md_lj_forces(
   positions : Array[Array[Double]],
-  pairs : Array[(Int, Int, Double, Double)],
+  pairs : Array[(Int32, Int32, Double, Double)],
 ) -> Array[Array[Double]] {
   let forces = md_new_forces(positions.length())
   for (i, j, epsilon, sigma) in pairs {
@@ -113,7 +113,7 @@ pub fn md_lj_forces(
 /// `pairs` is `(i, j, qi, qj)`.
 pub fn md_coulomb_energy(
   positions : Array[Array[Double]],
-  pairs : Array[(Int, Int, Double, Double)],
+  pairs : Array[(Int32, Int32, Double, Double)],
 ) -> Double {
   let ke = 332.0637
   let mut e = 0.0
@@ -131,7 +131,7 @@ pub fn md_coulomb_energy(
 /// Coulomb forces (negative gradient): `k_e q_i q_j / r^2` along the bond.
 pub fn md_coulomb_forces(
   positions : Array[Array[Double]],
-  pairs : Array[(Int, Int, Double, Double)],
+  pairs : Array[(Int32, Int32, Double, Double)],
 ) -> Array[Array[Double]] {
   let ke = 332.0637
   let forces = md_new_forces(positions.length())
@@ -164,7 +164,6 @@ pub fn md_kinetic_energy(
   }
   e
 }
-
 
 ///|
 /// Velocity-Verlet first half: returns `(new_positions, half_velocities)`.
@@ -215,9 +214,9 @@ pub fn md_simulate_harmonic(
   positions : Array[Array[Double]],
   velocities : Array[Array[Double]],
   masses : Array[Double],
-  bonds : Array[(Int, Int, Double, Double)],
+  bonds : Array[(Int32, Int32, Double, Double)],
   dt : Double,
-  steps : Int,
+  steps : Int32,
 ) -> Array[Double] {
   let energies : Array[Double] = Array(capacity=0)
   let mut pos = positions
@@ -235,7 +234,6 @@ pub fn md_simulate_harmonic(
   }
   energies
 }
-
 
 // ============================================================================
 // Angle bending + dihedral (proper torsion) terms
@@ -267,7 +265,11 @@ fn md_cross(a : Array[Double], b : Array[Double]) -> Array[Double] {
 
 ///|
 /// Bond angle at `b` (center) spanned by `a` and `c`, in radians.
-fn md_angle_value(a : Array[Double], b : Array[Double], c : Array[Double]) -> Double {
+fn md_angle_value(
+  a : Array[Double],
+  b : Array[Double],
+  c : Array[Double],
+) -> Double {
   let v1 = md_vec_sub(a, b)
   let v2 = md_vec_sub(c, b)
   let d1 = md_norm(v1)
@@ -289,7 +291,7 @@ fn md_angle_value(a : Array[Double], b : Array[Double], c : Array[Double]) -> Do
 /// `(i, j, k, theta0, k_theta)` with `j` the central atom, `theta0` in radians.
 pub fn md_angle_energy(
   positions : Array[Array[Double]],
-  angles : Array[(Int, Int, Int, Double, Double)],
+  angles : Array[(Int32, Int32, Int32, Double, Double)],
 ) -> Double {
   let mut e = 0.0
   for (i, j, k, theta0, kt) in angles {
@@ -304,7 +306,7 @@ pub fn md_angle_energy(
 /// Analytic angle forces (negative gradient). Force on each of `i`, `j`, `k`.
 pub fn md_angle_forces(
   positions : Array[Array[Double]],
-  angles : Array[(Int, Int, Int, Double, Double)],
+  angles : Array[(Int32, Int32, Int32, Double, Double)],
 ) -> Array[Array[Double]] {
   let forces = md_new_forces(positions.length())
   for (i, j, k, theta0, kt) in angles {
@@ -350,15 +352,15 @@ fn md_dihedral_value(
   c : Array[Double],
   d : Array[Double],
 ) -> Double {
-  let bvec = md_vec_sub(c, b)   // j -> k
+  let bvec = md_vec_sub(c, b) // j -> k
   let nb = md_norm(bvec)
   if nb == 0.0 {
     return 0.0
   }
-  let v1 = md_vec_sub(a, b)     // j -> i
-  let v2 = md_vec_sub(d, c)     // k -> l
-  let n1 = md_cross(v1, bvec)   // normal of plane i-j-k
-  let n2 = md_cross(bvec, v2)   // normal of plane j-k-l
+  let v1 = md_vec_sub(a, b) // j -> i
+  let v2 = md_vec_sub(d, c) // k -> l
+  let n1 = md_cross(v1, bvec) // normal of plane i-j-k
+  let n2 = md_cross(bvec, v2) // normal of plane j-k-l
   @math.atan2(nb * md_dot(v1, n2), md_dot(n1, n2))
 }
 
@@ -368,11 +370,16 @@ fn md_dihedral_value(
 /// `delta` the phase in radians.
 pub fn md_dihedral_energy(
   positions : Array[Array[Double]],
-  dihedrals : Array[(Int, Int, Int, Int, Double, Int, Double)],
+  dihedrals : Array[(Int32, Int32, Int32, Int32, Double, Int32, Double)],
 ) -> Double {
   let mut e = 0.0
   for (i, j, k, l, kphi, n, delta) in dihedrals {
-    let phi = md_dihedral_value(positions[i], positions[j], positions[k], positions[l])
+    let phi = md_dihedral_value(
+      positions[i],
+      positions[j],
+      positions[k],
+      positions[l],
+    )
     e = e + kphi * (1.0 + @math.cos(n.to_double() * phi - delta))
   }
   e
@@ -394,7 +401,7 @@ fn md_copy_positions(positions : Array[Array[Double]]) -> Array[Array[Double]] {
 /// documented exception to the analytic-force convention in this module.
 pub fn md_dihedral_forces(
   positions : Array[Array[Double]],
-  dihedrals : Array[(Int, Int, Int, Int, Double, Int, Double)],
+  dihedrals : Array[(Int32, Int32, Int32, Int32, Double, Int32, Double)],
 ) -> Array[Array[Double]] {
   let n = positions.length()
   let forces = md_new_forces(n)
@@ -418,7 +425,6 @@ pub fn md_dihedral_forces(
   forces
 }
 
-
 // ============================================================================
 // Temperature + thermostats (NVT)
 // ============================================================================
@@ -432,7 +438,7 @@ const MD_KB : Double = 0.001987204
 pub fn md_temperature(
   velocities : Array[Array[Double]],
   masses : Array[Double],
-  n_dof : Int,
+  n_dof : Int32,
 ) -> Double {
   if n_dof == 0 {
     return 0.0
@@ -454,8 +460,12 @@ pub fn md_berendsen_scale(
   let lambda = if t_current <= 0.0 {
     1.0
   } else {
-    let r = 1.0 + (dt / tau) * (t_target / t_current - 1.0)
-    if r < 0.0 { 0.0 } else { r.sqrt() }
+    let r = 1.0 + dt / tau * (t_target / t_current - 1.0)
+    if r < 0.0 {
+      0.0
+    } else {
+      r.sqrt()
+    }
   }
   let out : Array[Array[Double]] = Array(capacity=0)
   for v in velocities {
@@ -471,12 +481,12 @@ pub fn md_simulate_berendsen(
   positions : Array[Array[Double]],
   velocities : Array[Array[Double]],
   masses : Array[Double],
-  bonds : Array[(Int, Int, Double, Double)],
+  bonds : Array[(Int32, Int32, Double, Double)],
   dt : Double,
   tau : Double,
   target_t : Double,
-  steps : Int,
-  n_dof : Int,
+  steps : Int32,
+  n_dof : Int32,
 ) -> Array[Double] {
   let temps : Array[Double] = Array(capacity=0)
   let mut pos = positions
@@ -501,12 +511,12 @@ pub fn md_simulate_nose_hoover(
   positions : Array[Array[Double]],
   velocities : Array[Array[Double]],
   masses : Array[Double],
-  bonds : Array[(Int, Int, Double, Double)],
+  bonds : Array[(Int32, Int32, Double, Double)],
   dt : Double,
   target_t : Double,
   tau : Double,
-  steps : Int,
-  n_dof : Int,
+  steps : Int32,
+  n_dof : Int32,
 ) -> Array[Double] {
   let q = MD_KB * target_t * tau * tau
   let temps : Array[Double] = Array(capacity=0)
@@ -525,7 +535,8 @@ pub fn md_simulate_nose_hoover(
     while i < n {
       let mut d = 0
       while d < 3 {
-        v_half[i][d] = vel[i][d] + 0.5 * dt * (forces[i][d] / masses[i] - zeta_half * vel[i][d])
+        v_half[i][d] = vel[i][d] +
+          0.5 * dt * (forces[i][d] / masses[i] - zeta_half * vel[i][d])
         d = d + 1
       }
       i = i + 1
@@ -551,7 +562,10 @@ pub fn md_simulate_nose_hoover(
     while i3 < n {
       let mut d = 0
       while d < 3 {
-        vel_new[i3][d] = (v_half[i3][d] + 0.5 * dt * new_forces[i3][d] / masses[i3]) * inv
+        vel_new[i3][d] = (
+            v_half[i3][d] + 0.5 * dt * new_forces[i3][d] / masses[i3]
+          ) *
+          inv
         d = d + 1
       }
       i3 = i3 + 1

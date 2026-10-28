@@ -113,17 +113,17 @@ pub fn se_set_metadata(
 }
 
 ///|
-pub fn se_num_rows(se : SpatialExperiment) -> Int {
+pub fn se_num_rows(se : SpatialExperiment) -> Int32 {
   se.row_data.length()
 }
 
 ///|
-pub fn se_num_cols(se : SpatialExperiment) -> Int {
+pub fn se_num_cols(se : SpatialExperiment) -> Int32 {
   se.col_data.length()
 }
 
 ///|
-pub fn se_num_assays(se : SpatialExperiment) -> Int {
+pub fn se_num_assays(se : SpatialExperiment) -> Int32 {
   se.assay.keys().count()
 }
 

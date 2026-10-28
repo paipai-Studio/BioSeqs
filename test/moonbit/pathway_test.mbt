@@ -1,3 +1,4 @@
+///|
 /// Test suite for Bio.Pathway (Reaction / System / Network) and
 /// Bio.Pathway.Rep (PathwayGraph / PathwayMultiGraph + BFS / DFS).
 ///
@@ -9,21 +10,33 @@ fn _pathway_double_eq(a : Double, b : Double) -> Bool {
   (a - b).abs() < 0.000000000001
 }
 
+///|
 fn _pathway_sorted(arr : Array[String]) -> Array[String] {
   let copy = arr.copy()
-  copy.sort_by(fn(a : String, b : String) -> Int {
-    if a < b { -1 } else if a > b { 1 } else { 0 }
+  copy.sort_by(fn(a : String, b : String) -> Int32 {
+    if a < b {
+      -1
+    } else if a > b {
+      1
+    } else {
+      0
+    }
   })
   copy
 }
 
+///|
 fn _pathway_sorted_strings_equal(a : Array[String], b : Array[String]) -> Bool {
   let sa = _pathway_sorted(a)
   let sb = _pathway_sorted(b)
-  if sa.length() != sb.length() { return false }
+  if sa.length() != sb.length() {
+    return false
+  }
   let mut i = 0
   while i < sa.length() {
-    if sa[i] != sb[i] { return false }
+    if sa[i] != sb[i] {
+      return false
+    }
     i = i + 1
   }
   true
@@ -34,6 +47,7 @@ fn _pathway_sorted_strings_equal(a : Array[String], b : Array[String]) -> Bool {
 //                positive = product.
 // =======================================================================
 
+///|
 test "reaction_coef_basics" {
   let r1 = @src.Reaction::new("r1", Map([("S", -1.0), ("A", 1.0)]))
   assert_true(_pathway_double_eq(r1.reactants["S"], -1.0))
@@ -41,6 +55,7 @@ test "reaction_coef_basics" {
   assert_false(r1.reversible)
 }
 
+///|
 test "reaction_reverse_flips_signs" {
   let r1 = @src.Reaction::new("r1", Map([("S", -1.0), ("A", 1.0)]))
   let rr = r1.reverse()
@@ -48,6 +63,7 @@ test "reaction_reverse_flips_signs" {
   assert_true(_pathway_double_eq(rr.reactants["A"], -1.0))
 }
 
+///|
 test "reaction_reversible_flag" {
   let r = @src.Reaction::new(
     "r5",
@@ -59,19 +75,19 @@ test "reaction_reversible_flag" {
   assert_true(_pathway_double_eq(r.reactants["Z"], 3.0))
 }
 
+///|
 test "reaction_zeros_dropped" {
-  let r = @src.Reaction::new(
-    "rz",
-    Map([("A", -1.0), ("B", 0.0), ("C", 2.0)]),
-  )
+  let r = @src.Reaction::new("rz", Map([("A", -1.0), ("B", 0.0), ("C", 2.0)]))
   assert_true(_pathway_sorted_strings_equal(r.species(), ["A", "C"]))
 }
 
+///|
 test "reaction_species" {
   let r = @src.Reaction::new("rx", Map([("S", -1.0), ("A", 1.0)]))
   assert_true(_pathway_sorted_strings_equal(r.species(), ["A", "S"]))
 }
 
+///|
 test "reaction_to_string_irreversible" {
   let r = @src.Reaction::new("t", Map([("a", -2.0), ("b", 1.0)]))
   let s = r.to_string()
@@ -80,8 +96,13 @@ test "reaction_to_string_irreversible" {
   assert_true(s.contains("b"))
 }
 
+///|
 test "reaction_to_string_reversible" {
-  let r = @src.Reaction::new("t", Map([("x", -1.0), ("y", 1.0)]), reversible=true)
+  let r = @src.Reaction::new(
+    "t",
+    Map([("x", -1.0), ("y", 1.0)]),
+    reversible=true,
+  )
   let s = r.to_string()
   assert_true(s.contains("<->"))
 }
@@ -90,6 +111,7 @@ test "reaction_to_string_reversible" {
 // 2. System + stoichiometry matrix  (species × reactions)
 // =======================================================================
 
+///|
 test "stoichiometry_simple_3reactions" {
   let r1 = @src.Reaction::new("r1", Map([("S", -1.0), ("A", 1.0)]))
   let r2 = @src.Reaction::new("r2", Map([("A", -1.0), ("B", 1.0)]))
@@ -102,7 +124,9 @@ test "stoichiometry_simple_3reactions" {
 
   let mut ri = 0
   while ri < species.length() {
-    if species[ri] == "S" { break }
+    if species[ri] == "S" {
+      break
+    }
     ri = ri + 1
   }
   assert_true(_pathway_double_eq(stoch[ri][0], -1.0))
@@ -111,7 +135,9 @@ test "stoichiometry_simple_3reactions" {
 
   let mut ri2 = 0
   while ri2 < species.length() {
-    if species[ri2] == "A" { break }
+    if species[ri2] == "A" {
+      break
+    }
     ri2 = ri2 + 1
   }
   assert_true(_pathway_double_eq(stoch[ri2][0], 1.0))
@@ -119,6 +145,7 @@ test "stoichiometry_simple_3reactions" {
   assert_true(_pathway_double_eq(stoch[ri2][2], 0.0))
 }
 
+///|
 test "stoichiometry_single_reaction" {
   let r5 = @src.Reaction::new(
     "r5",
@@ -144,17 +171,20 @@ test "stoichiometry_single_reaction" {
   }
 }
 
+///|
 test "stoichiometry_glycolysis_core" {
   let sys = @src.create_example_pathway()
   let (species, rxns, _stoch) = sys.stochiometry()
   assert_eq(species.length(), 6)
   assert_eq(rxns.length(), 3)
-  assert_true(_pathway_sorted_strings_equal(
-    species,
-    ["adp", "atp", "f16bp", "f6p", "g6p", "glucose"]
-  ))
+  assert_true(
+    _pathway_sorted_strings_equal(species, [
+      "adp", "atp", "f16bp", "f6p", "g6p", "glucose",
+    ]),
+  )
 }
 
+///|
 test "stoichiometry_empty_system" {
   let sys = @src.System::new("empty", [])
   let (species, rxns, stoch) = sys.stochiometry()
@@ -167,6 +197,7 @@ test "stoichiometry_empty_system" {
 // 3. Network  (source / sink / interactions)
 // =======================================================================
 
+///|
 test "network_linear_source_sink" {
   let net = @src.create_example_network()
   assert_eq(net.source("S").length(), 0)
@@ -182,6 +213,7 @@ test "network_linear_source_sink" {
   assert_eq(net.sink("P").length(), 0)
 }
 
+///|
 test "network_interactions" {
   let net = @src.create_example_network()
   let src_a = net.source_interactions("A")
@@ -195,6 +227,7 @@ test "network_interactions" {
   assert_eq(snk_a[0].1, "r2")
 }
 
+///|
 test "network_multi_source" {
   let net = @src.Network::new()
   net.add_interaction("X", "Y", "e1")
@@ -204,6 +237,7 @@ test "network_multi_source" {
   assert_true(_pathway_sorted_strings_equal(net.sink("Y"), ["W"]))
 }
 
+///|
 test "network_unknown_species_empty" {
   let net = @src.create_example_network()
   assert_eq(net.source("unknown").length(), 0)
@@ -214,9 +248,12 @@ test "network_unknown_species_empty" {
 // 4. PathwayGraph  (simple directed graph with labelled edges)
 // =======================================================================
 
+///|
 test "graph_basic_nodes_edges" {
   let g = @src.PathwayGraph::new()
-  g.add_node("A"); g.add_node("B"); g.add_node("C")
+  g.add_node("A")
+  g.add_node("B")
+  g.add_node("C")
   g.add_edge("A", "B", "e1")
   g.add_edge("B", "C", "e2")
 
@@ -228,6 +265,7 @@ test "graph_basic_nodes_edges" {
   assert_eq(t1, "B")
 }
 
+///|
 test "graph_children_parents_labels" {
   let g = @src.PathwayGraph::new()
   for n in ["n1", "n2", "n3", "n4", "n5"] {
@@ -244,9 +282,12 @@ test "graph_children_parents_labels" {
   assert_true(_pathway_sorted_strings_equal(g.parents("n5"), ["e4"]))
 }
 
+///|
 test "graph_child_edges_parent_edges" {
   let g = @src.PathwayGraph::new()
-  g.add_node("A"); g.add_node("B"); g.add_node("C")
+  g.add_node("A")
+  g.add_node("B")
+  g.add_node("C")
   g.add_edge("A", "B", "e1")
   g.add_edge("A", "C", "e2")
 
@@ -257,9 +298,12 @@ test "graph_child_edges_parent_edges" {
   assert_eq(g.parent_edges("B").length(), 2)
 }
 
+///|
 test "graph_duplicate_edge_label_ignored" {
   let g = @src.PathwayGraph::new()
-  g.add_node("A"); g.add_node("B"); g.add_node("C")
+  g.add_node("A")
+  g.add_node("B")
+  g.add_node("C")
   g.add_edge("A", "B", "shared")
   g.add_edge("A", "C", "shared")
   assert_eq(g.labels().length(), 1)
@@ -272,9 +316,12 @@ test "graph_duplicate_edge_label_ignored" {
 // 5. PathwayMultiGraph  (parallel edges allowed)
 // =======================================================================
 
+///|
 test "multigraph_parallel_edges" {
   let mg = @src.PathwayMultiGraph::new()
-  mg.add_node("X"); mg.add_node("Y"); mg.add_node("Z")
+  mg.add_node("X")
+  mg.add_node("Y")
+  mg.add_node("Z")
   mg.add_edge("X", "Y", "p1")
   mg.add_edge("X", "Y", "p2")
   mg.add_edge("Y", "Z", "yz")
@@ -286,6 +333,7 @@ test "multigraph_parallel_edges" {
   assert_true(_pathway_sorted_strings_equal(mg.children("X"), ["p1", "p2"]))
 }
 
+///|
 test "multigraph_empty" {
   let mg = @src.PathwayMultiGraph::new()
   assert_eq(mg.nodes().length(), 0)
@@ -296,9 +344,12 @@ test "multigraph_empty" {
 // 6. BFS / DFS
 // =======================================================================
 
+///|
 test "bf_search_multigraph_linear" {
   let mg = @src.PathwayMultiGraph::new()
-  for n in ["A", "B", "C", "D", "E"] { mg.add_node(n) }
+  for n in ["A", "B", "C", "D", "E"] {
+    mg.add_node(n)
+  }
   mg.add_edge("A", "B", "e1")
   mg.add_edge("B", "C", "e2")
   mg.add_edge("C", "D", "e3")
@@ -311,30 +362,44 @@ test "bf_search_multigraph_linear" {
   assert_true(_pathway_sorted_strings_equal(order, ["A", "B", "C", "D", "E"]))
 }
 
+///|
 test "bf_search_disconnected" {
   let mg = @src.PathwayMultiGraph::new()
-  for n in ["X", "Y", "Z", "W"] { mg.add_node(n) }
+  for n in ["X", "Y", "Z", "W"] {
+    mg.add_node(n)
+  }
   mg.add_edge("X", "Y", "xy")
   mg.add_edge("Y", "Z", "yz")
 
-  assert_true(_pathway_sorted_strings_equal(@src.bf_search(mg, root="X"), ["X", "Y", "Z"]))
-  assert_true(_pathway_sorted_strings_equal(@src.bf_search(mg, root="W"), ["W"]))
+  assert_true(
+    _pathway_sorted_strings_equal(@src.bf_search(mg, root="X"), ["X", "Y", "Z"]),
+  )
+  assert_true(
+    _pathway_sorted_strings_equal(@src.bf_search(mg, root="W"), ["W"]),
+  )
 }
 
+///|
 test "bf_search_single_node" {
   let mg = @src.PathwayMultiGraph::new()
   mg.add_node("solo")
-  assert_true(_pathway_sorted_strings_equal(@src.bf_search(mg, root="solo"), ["solo"]))
+  assert_true(
+    _pathway_sorted_strings_equal(@src.bf_search(mg, root="solo"), ["solo"]),
+  )
 }
 
+///|
 test "bf_search_empty_graph" {
   let mg = @src.PathwayMultiGraph::new()
   assert_eq(@src.bf_search(mg).length(), 0)
 }
 
+///|
 test "df_search_multigraph_covers_all" {
   let mg = @src.PathwayMultiGraph::new()
-  for n in ["A", "B", "C", "D", "E"] { mg.add_node(n) }
+  for n in ["A", "B", "C", "D", "E"] {
+    mg.add_node(n)
+  }
   mg.add_edge("A", "B", "e1")
   mg.add_edge("B", "C", "e2")
   mg.add_edge("C", "D", "e3")
@@ -347,9 +412,12 @@ test "df_search_multigraph_covers_all" {
   assert_true(_pathway_sorted_strings_equal(order, ["A", "B", "C", "D", "E"]))
 }
 
+///|
 test "bf_search_pathway_graph" {
   let g = @src.PathwayGraph::new()
-  for n in ["n1", "n2", "n3", "n4", "n5"] { g.add_node(n) }
+  for n in ["n1", "n2", "n3", "n4", "n5"] {
+    g.add_node(n)
+  }
   g.add_edge("n1", "n2", "e1")
   g.add_edge("n2", "n3", "e2")
   g.add_edge("n3", "n4", "e3")
@@ -360,9 +428,12 @@ test "bf_search_pathway_graph" {
   let order = @src.bf_search_graph(g, root="n1")
   assert_eq(order.length(), 5)
   assert_eq(order[0], "n1")
-  assert_true(_pathway_sorted_strings_equal(order, ["n1", "n2", "n3", "n4", "n5"]))
+  assert_true(
+    _pathway_sorted_strings_equal(order, ["n1", "n2", "n3", "n4", "n5"]),
+  )
 }
 
+///|
 test "df_search_graph_single" {
   let g = @src.PathwayGraph::new()
   g.add_node("solo")

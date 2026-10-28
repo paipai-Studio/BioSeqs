@@ -205,11 +205,11 @@ fn ns_linear_regression(
 /// A single NanoString sample with its control and endogenous counts.
 pub struct NsSample {
   sample_id : String
-  raw_counts : Array[Int]
-  positive_controls : Array[Int]
-  negative_controls : Array[Int]
-  housekeeping : Array[Int]
-  endogenous : Array[Int]
+  raw_counts : Array[Int32]
+  positive_controls : Array[Int32]
+  negative_controls : Array[Int32]
+  housekeeping : Array[Int32]
+  endogenous : Array[Int32]
 }
 
 ///|
@@ -217,31 +217,31 @@ pub struct NsSample {
 /// subsets using the provided index arrays.
 pub fn NsSample::new(
   sample_id : String,
-  raw_counts : Array[Int],
-  positive_control_indices : Array[Int],
-  negative_control_indices : Array[Int],
-  housekeeping_indices : Array[Int],
-  endogenous_indices : Array[Int],
+  raw_counts : Array[Int32],
+  positive_control_indices : Array[Int32],
+  negative_control_indices : Array[Int32],
+  housekeeping_indices : Array[Int32],
+  endogenous_indices : Array[Int32],
 ) -> NsSample {
-  let positive_controls : Array[Int] = Array(capacity=0)
+  let positive_controls : Array[Int32] = Array(capacity=0)
   for idx in positive_control_indices {
     if idx >= 0 && idx < raw_counts.length() {
       positive_controls.push(raw_counts[idx])
     }
   }
-  let negative_controls : Array[Int] = Array(capacity=0)
+  let negative_controls : Array[Int32] = Array(capacity=0)
   for idx in negative_control_indices {
     if idx >= 0 && idx < raw_counts.length() {
       negative_controls.push(raw_counts[idx])
     }
   }
-  let housekeeping : Array[Int] = Array(capacity=0)
+  let housekeeping : Array[Int32] = Array(capacity=0)
   for idx in housekeeping_indices {
     if idx >= 0 && idx < raw_counts.length() {
       housekeeping.push(raw_counts[idx])
     }
   }
-  let endogenous : Array[Int] = Array(capacity=0)
+  let endogenous : Array[Int32] = Array(capacity=0)
   for idx in endogenous_indices {
     if idx >= 0 && idx < raw_counts.length() {
       endogenous.push(raw_counts[idx])
@@ -265,31 +265,31 @@ pub fn NsSample::sample_id(self : NsSample) -> String {
 
 ///|
 /// Raw count vector for the whole sample.
-pub fn NsSample::raw_counts(self : NsSample) -> Array[Int] {
+pub fn NsSample::raw_counts(self : NsSample) -> Array[Int32] {
   self.raw_counts
 }
 
 ///|
 /// Positive control counts.
-pub fn NsSample::positive_controls(self : NsSample) -> Array[Int] {
+pub fn NsSample::positive_controls(self : NsSample) -> Array[Int32] {
   self.positive_controls
 }
 
 ///|
 /// Negative control counts.
-pub fn NsSample::negative_controls(self : NsSample) -> Array[Int] {
+pub fn NsSample::negative_controls(self : NsSample) -> Array[Int32] {
   self.negative_controls
 }
 
 ///|
 /// Housekeeping gene counts.
-pub fn NsSample::housekeeping(self : NsSample) -> Array[Int] {
+pub fn NsSample::housekeeping(self : NsSample) -> Array[Int32] {
   self.housekeeping
 }
 
 ///|
 /// Endogenous gene counts.
-pub fn NsSample::endogenous(self : NsSample) -> Array[Int] {
+pub fn NsSample::endogenous(self : NsSample) -> Array[Int32] {
   self.endogenous
 }
 
@@ -298,8 +298,8 @@ pub fn NsSample::endogenous(self : NsSample) -> Array[Int] {
 pub struct NsNanostringData {
   samples : Array[NsSample]
   gene_names : Array[String]
-  mut n_genes : Int
-  mut n_samples : Int
+  mut n_genes : Int32
+  mut n_samples : Int32
 }
 
 ///|
@@ -326,13 +326,13 @@ pub fn NsNanostringData::add_sample(
 
 ///|
 /// Number of samples in the experiment.
-pub fn NsNanostringData::n_samples(self : NsNanostringData) -> Int {
+pub fn NsNanostringData::n_samples(self : NsNanostringData) -> Int32 {
   self.n_samples
 }
 
 ///|
 /// Number of endogenous genes.
-pub fn NsNanostringData::n_genes(self : NsNanostringData) -> Int {
+pub fn NsNanostringData::n_genes(self : NsNanostringData) -> Int32 {
   self.n_genes
 }
 
@@ -664,7 +664,7 @@ pub fn ns_content_norm(data : NsNanostringData) -> Array[NsNormResult] {
 ///|
 /// Imaging QC: flag samples whose average positive-control binding density
 /// (used here as a proxy) is at least `threshold`.
-pub fn ns_imaging_qc(data : NsNanostringData, threshold : Int) -> Array[Bool] {
+pub fn ns_imaging_qc(data : NsNanostringData, threshold : Int32) -> Array[Bool] {
   let results : Array[Bool] = Array(capacity=0)
   for sample in data.samples() {
     let pos = sample.positive_controls()
@@ -710,8 +710,8 @@ pub fn ns_pos_linearity_qc(data : NsNanostringData) -> (Double, Double) {
 ///|
 /// Limit of quantification QC.
 /// For each sample, count endogenous genes whose raw count is below `loq`.
-pub fn ns_loq_qc(data : NsNanostringData, loq : Int) -> Array[Int] {
-  let results : Array[Int] = Array(capacity=0)
+pub fn ns_loq_qc(data : NsNanostringData, loq : Int32) -> Array[Int32] {
+  let results : Array[Int32] = Array(capacity=0)
   for sample in data.samples() {
     let mut count = 0
     for c in sample.endogenous() {
@@ -984,7 +984,7 @@ pub fn ns_sample_data() -> NsNanostringData {
   ]
   let sample_ids = ["C1", "C2", "C3", "T1", "T2", "T3"]
   for s in 0..<6 {
-    let raw : Array[Int] = Array(capacity=0)
+    let raw : Array[Int32] = Array(capacity=0)
     // Endogenous genes 0-4: up-regulated in treatment.
     for g in 0..<5 {
       if s < 3 {

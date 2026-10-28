@@ -101,8 +101,7 @@ fn main {
 
   // === New: EMBL Format Parsing ===
   println("\n=== EMBL Format Parsing (NEW) ===")
-  let embl_content =
-    "ID   HSBGLOD; SV 1; linear; genomic DNA; STD; HUM; 20 BP.\n" +
+  let embl_content = "ID   HSBGLOD; SV 1; linear; genomic DNA; STD; HUM; 20 BP.\n" +
     "XX\n" +
     "AC   M16496;\n" +
     "XX\n" +
@@ -125,8 +124,7 @@ fn main {
 
   // === New: PIR/NBRF Format Parsing ===
   println("\n=== PIR/NBRF Format Parsing (NEW) ===")
-  let pir_content =
-    ">P1;ALB_HUMAN\n" +
+  let pir_content = ">P1;ALB_HUMAN\n" +
     "Serum albumin precursor.\n" +
     "MKWVTFISLLFLFSSAYS*\n" +
     ">P1;HBA_HUMAN\n" +

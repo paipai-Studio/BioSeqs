@@ -17,7 +17,7 @@
 
 ///|
 /// Return the row index (0=A, 1=C, 2=G, 3=T) for a single-base string.
-fn seqlogo_base_index(ch : String) -> Int {
+fn seqlogo_base_index(ch : String) -> Int32 {
   if ch == "A" || ch == "a" {
     0
   } else if ch == "C" || ch == "c" {
@@ -33,7 +33,7 @@ fn seqlogo_base_index(ch : String) -> Int {
 
 ///|
 /// Return the canonical base character for a row index.
-fn seqlogo_base_char(base : Int) -> Char {
+fn seqlogo_base_char(base : Int32) -> Char {
   if base == 0 {
     'A'
   } else if base == 1 {
@@ -52,7 +52,7 @@ fn seqlogo_base_char(base : Int) -> Char {
 fn seqlogo_to_lower(c : Char) -> Char {
   let code = c.to_int()
   if code >= 65 && code <= 90 {
-    Int::unsafe_to_char(code + 32)
+    Int32::unsafe_to_char(code + 32)
   } else {
     c
   }
@@ -60,7 +60,7 @@ fn seqlogo_to_lower(c : Char) -> Char {
 
 ///|
 /// Sort (frequency, base) pairs by frequency descending (selection sort).
-fn seqlogo_sort_desc(pairs : Array[(Double, Int)]) -> Array[(Double, Int)] {
+fn seqlogo_sort_desc(pairs : Array[(Double, Int32)]) -> Array[(Double, Int32)] {
   let sorted = pairs.copy()
   let n = sorted.length()
   let mut i = 0
@@ -91,8 +91,8 @@ fn seqlogo_sort_desc(pairs : Array[(Double, Int)]) -> Array[(Double, Int)] {
 /// A position weight matrix for DNA (4 rows: A, C, G, T; L columns).
 pub struct SeqLogoPwm {
   matrix : Array[Array[Double]]
-  width : Int
-  alphabet_size : Int
+  width : Int32
+  alphabet_size : Int32
   alphabet : Array[String]
 }
 
@@ -142,13 +142,13 @@ pub fn SeqLogoPwm::from_sequences(sequences : Array[String]) -> SeqLogoPwm {
 
 ///|
 /// Number of positions in the PWM.
-pub fn SeqLogoPwm::width(self : SeqLogoPwm) -> Int {
+pub fn SeqLogoPwm::width(self : SeqLogoPwm) -> Int32 {
   self.width
 }
 
 ///|
 /// Alphabet size (number of rows).
-pub fn SeqLogoPwm::alphabet_size(self : SeqLogoPwm) -> Int {
+pub fn SeqLogoPwm::alphabet_size(self : SeqLogoPwm) -> Int32 {
   self.alphabet_size
 }
 
@@ -160,7 +160,7 @@ pub fn SeqLogoPwm::alphabet(self : SeqLogoPwm) -> Array[String] {
 
 ///|
 /// Frequency of `base` (0-3) at `pos`.
-pub fn SeqLogoPwm::get(self : SeqLogoPwm, base : Int, pos : Int) -> Double {
+pub fn SeqLogoPwm::get(self : SeqLogoPwm, base : Int32, pos : Int32) -> Double {
   if base >= 0 && base < self.alphabet_size && pos >= 0 && pos < self.width {
     self.matrix[base][pos]
   } else {
@@ -230,13 +230,13 @@ pub fn SeqLogoLetter::color(self : SeqLogoLetter) -> String {
 pub struct SeqLogoColumn {
   letters : Array[SeqLogoLetter]
   info_content : Double
-  position : Int
+  position : Int32
 }
 
 ///|
 /// Construct a SeqLogoColumn (letters start empty; use add_letter).
 pub fn SeqLogoColumn::new(
-  position : Int,
+  position : Int32,
   info_content : Double,
 ) -> SeqLogoColumn {
   SeqLogoColumn::{ letters: Array(capacity=0), info_content, position, }
@@ -265,7 +265,7 @@ pub fn SeqLogoColumn::info_content(self : SeqLogoColumn) -> Double {
 
 ///|
 /// Position index of this column.
-pub fn SeqLogoColumn::position(self : SeqLogoColumn) -> Int {
+pub fn SeqLogoColumn::position(self : SeqLogoColumn) -> Int32 {
   self.position
 }
 
@@ -274,7 +274,7 @@ pub fn SeqLogoColumn::position(self : SeqLogoColumn) -> Int {
 pub struct SeqLogoResult {
   columns : Array[SeqLogoColumn]
   total_ic : Double
-  width : Int
+  width : Int32
   alphabet : Array[String]
 }
 
@@ -307,7 +307,7 @@ pub fn SeqLogoResult::total_ic(self : SeqLogoResult) -> Double {
 
 ///|
 /// Number of columns in the logo.
-pub fn SeqLogoResult::width(self : SeqLogoResult) -> Int {
+pub fn SeqLogoResult::width(self : SeqLogoResult) -> Int32 {
   self.width
 }
 
@@ -324,7 +324,7 @@ pub fn SeqLogoResult::alphabet(self : SeqLogoResult) -> Array[String] {
 ///|
 /// Maximum information content for an alphabet of `alphabet_size` symbols:
 /// log2(alphabet_size). For DNA this is 2.0 bits.
-pub fn seqlogo_max_information_content(alphabet_size : Int) -> Double {
+pub fn seqlogo_max_information_content(alphabet_size : Int32) -> Double {
   if alphabet_size <= 1 {
     return 0.0
   }
@@ -425,7 +425,7 @@ pub fn seqlogo_compute_logo_bg(
     } else {
       raw_ic
     }
-    let pairs : Array[(Double, Int)] = Array(capacity=0)
+    let pairs : Array[(Double, Int32)] = Array(capacity=0)
     for base in 0..<pwm.alphabet_size() {
       pairs.push((pwm.get(base, pos), base))
     }
@@ -454,7 +454,7 @@ pub fn seqlogo_compute_logo_bg(
 /// information contribution. Uppercase letters mark large contributions and
 /// lowercase letters mark small ones. `max_height` is the row count used for
 /// the tallest possible column (2 bits for DNA).
-pub fn seqlogo_to_ascii(logo : SeqLogoResult, max_height : Int) -> String {
+pub fn seqlogo_to_ascii(logo : SeqLogoResult, max_height : Int32) -> String {
   if max_height <= 0 {
     return ""
   }

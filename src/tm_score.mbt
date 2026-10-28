@@ -10,7 +10,7 @@
 
 ///|
 /// The TM-score length scale `d0`.
-pub fn tm_score_d0(l : Int) -> Double {
+pub fn tm_score_d0(l : Int32) -> Double {
   if l < 22 {
     0.5
   } else {
@@ -25,7 +25,7 @@ pub fn tm_score_d0(l : Int) -> Double {
 pub fn tm_score_aligned(
   coords1 : Array[QsPoint],
   coords2 : Array[QsPoint],
-  l_target : Int,
+  l_target : Int32,
 ) -> Double {
   let n = if coords1.length() < coords2.length() {
     coords1.length()
@@ -55,10 +55,7 @@ pub fn tm_score_aligned(
 /// `coords2` (quaternion method), then the score is computed with `l_target`
 /// equal to the larger structure's length. Returns 0.0 when either set is
 /// empty.
-pub fn tm_score(
-  coords1 : Array[QsPoint],
-  coords2 : Array[QsPoint],
-) -> Double {
+pub fn tm_score(coords1 : Array[QsPoint], coords2 : Array[QsPoint]) -> Double {
   let n1 = coords1.length()
   let n2 = coords2.length()
   if n1 == 0 || n2 == 0 {

@@ -31,6 +31,8 @@ pub enum SeqXmlType {
   ProteinType
   UnknownType
 } derive(Eq)
+
+///|
 pub extend SeqXmlType with Eq::{equal, not_equal}
 
 ///|
@@ -103,7 +105,7 @@ pub fn SeqXmlEntry::new(
   id : String,
   seq_type : SeqXmlType,
   sequence : String,
-  description? : String = "",
+  description~ : String = "",
 ) -> SeqXmlEntry {
   SeqXmlEntry::{ id, description, seq_type, sequence, properties: [], }
 }
@@ -196,7 +198,7 @@ pub fn SeqXmlDocument::source_db(self : SeqXmlDocument) -> String {
 
 ///|
 /// Return the number of entries in this document.
-pub fn SeqXmlDocument::n_entries(self : SeqXmlDocument) -> Int {
+pub fn SeqXmlDocument::n_entries(self : SeqXmlDocument) -> Int32 {
   self.entries.length()
 }
 
@@ -236,7 +238,7 @@ pub fn SeqXmlDocument::add_entry(
 ///|
 /// Find the first occurrence of `sub` in `s` at or after position `from`.
 /// Returns the index of the match, or None if not found.
-fn seqxml_index_of_from(s : String, sub : String, from : Int) -> Int? {
+fn seqxml_index_of_from(s : String, sub : String, from : Int32) -> Int32? {
   let n = s.length()
   let m = sub.length()
   if m == 0 || from >= n {
@@ -282,7 +284,7 @@ fn seqxml_is_tag_delim(c : UInt16) -> Bool {
 /// Find the next opening tag named `tag_name` at or after position `from`.
 /// Returns the position of the "<" or None. A tag boundary (whitespace, ">",
 /// or "/") must follow the tag name to avoid prefix matches.
-fn seqxml_find_tag(content : String, tag_name : String, from : Int) -> Int? {
+fn seqxml_find_tag(content : String, tag_name : String, from : Int32) -> Int32? {
   let pattern = "<" + tag_name
   let plen = pattern.length()
   let n = content.length()
@@ -309,7 +311,7 @@ fn seqxml_find_tag(content : String, tag_name : String, from : Int) -> Int? {
 /// Given the position of a "<" that starts a tag, find the matching ">"
 /// that closes the opening tag, respecting quoted attribute values.
 /// Returns the position of the ">".
-fn seqxml_find_tag_end(s : String, from : Int) -> Int? {
+fn seqxml_find_tag_end(s : String, from : Int32) -> Int32? {
   let n = s.length()
   let dq = '"'.to_int().to_uint16()
   let sq = '\''.to_int().to_uint16()
@@ -629,7 +631,7 @@ pub fn seqxml_parse(content : String) -> SeqXmlDocument {
             let id = seqxml_attr_or(clean_body, "id", "")
             let desc = seqxml_attr_or(clean_body, "desc", "")
             let inner_start = gt_pos + 1
-            let close_pos_opt : Int? = if self_closing {
+            let close_pos_opt : Int32? = if self_closing {
               None
             } else {
               seqxml_index_of_from(content, close_tag, inner_start)
@@ -833,7 +835,7 @@ pub fn seqxml_to_seq_records(doc : SeqXmlDocument) -> Array[SeqRecord] {
 /// auto-detected from its sequence content.
 pub fn seqxml_from_seq_records(
   records : Array[SeqRecord],
-  seq_type? : SeqXmlType = UnknownType,
+  seq_type~ : SeqXmlType = UnknownType,
 ) -> SeqXmlDocument {
   let doc = SeqXmlDocument::new()
   for rec in records {

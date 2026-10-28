@@ -130,6 +130,7 @@ test "vcf_meta_headers" {
   assert_true(found_contig)
   assert_true(found_format)
 }
+
 ///|
 test "vcf_write_roundtrip" {
   let vcf = @src.parse_vcf(test_vcf_content)

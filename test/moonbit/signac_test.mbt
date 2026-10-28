@@ -3,12 +3,17 @@
 /// nucleosome signal.
 
 ///|
-fn siv(chrom : String, start : Int, end : Int) -> @src.BedInterval {
+fn siv(chrom : String, start : Int32, end : Int32) -> @src.BedInterval {
   @src.BedInterval::new(chrom, start, end)
 }
 
 ///|
-fn sfrag(chrom : String, start : Int, end : Int, cell : String) -> @src.SignacFragment {
+fn sfrag(
+  chrom : String,
+  start : Int32,
+  end : Int32,
+  cell : String,
+) -> @src.SignacFragment {
   @src.SignacFragment::new(chrom, start, end, cell)
 }
 
@@ -35,7 +40,10 @@ test "signac_feature_matrix" {
 test "signac_feature_matrix_ignores_unknown_cell" {
   let peaks = [siv("chr1", 0, 100)]
   let cells = ["cell1"]
-  let fragments = [sfrag("chr1", 10, 20, "cellX"), sfrag("chr1", 30, 40, "cell1")]
+  let fragments = [
+    sfrag("chr1", 10, 20, "cellX"),
+    sfrag("chr1", 30, 40, "cell1"),
+  ]
   let fm = @src.signac_feature_matrix(fragments, peaks, cells)
   assert_eq(fm.counts[0][0], 1)
 }
@@ -78,6 +86,7 @@ test "signac_tss_enrichment" {
 // Signac 深化：peak calling + gene activity
 // ============================================================
 
+///|
 test "signac_call_peaks" {
   // chr1 两个重叠 fragment [0,100) 与 [50,150)：coverage>=2 仅在 [50,100)
   let frags = [
@@ -92,6 +101,7 @@ test "signac_call_peaks" {
   assert_eq(peaks[0].end, 100)
 }
 
+///|
 test "signac_call_peaks_chroms_separate" {
   // 每个染色体各有一个独立峰
   let frags = [
@@ -104,6 +114,7 @@ test "signac_call_peaks_chroms_separate" {
   assert_eq(peaks.length(), 2)
 }
 
+///|
 test "signac_gene_activity" {
   let peaks = [siv("chr1", 0, 100), siv("chr1", 200, 300)]
   let cells = ["c1", "c2"]
@@ -123,6 +134,7 @@ test "signac_gene_activity" {
   assert_eq(ga.activity[1][1], 1)
 }
 
+///|
 test "signac_gene_activity_promoter_upstream" {
   // peak 落在 gene 的 upstream 区（不在 body 内）也应计入
   let peaks = [siv("chr1", 150, 180)]

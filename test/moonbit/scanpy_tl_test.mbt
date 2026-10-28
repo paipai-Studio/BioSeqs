@@ -14,8 +14,14 @@ test "scanpy_leiden_connected" {
   ]
   let labels = @src.scanpy_leiden(@src.sparse_graph_from_dense(a))
   assert_eq(labels.length(), 6)
-  assert_eq((labels[0], labels[1], labels[2]), (labels[0], labels[0], labels[0]))
-  assert_eq((labels[3], labels[4], labels[5]), (labels[3], labels[3], labels[3]))
+  assert_eq(
+    (labels[0], labels[1], labels[2]),
+    (labels[0], labels[0], labels[0]),
+  )
+  assert_eq(
+    (labels[3], labels[4], labels[5]),
+    (labels[3], labels[3], labels[3]),
+  )
   assert_true(labels[0] != labels[3])
 }
 

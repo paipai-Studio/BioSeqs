@@ -6,9 +6,9 @@
 ///|
 /// DNA scoring matrix (substitution scores).
 pub struct DecipherSubMatrix {
-  scores : Array[Array[Int]] // 4x4 for ACGT
-  gap_open : Int
-  gap_extend : Int
+  scores : Array[Array[Int32]] // 4x4 for ACGT
+  gap_open : Int32
+  gap_extend : Int32
 }
 
 ///|
@@ -28,7 +28,7 @@ pub fn default_dna_matrix() -> DecipherSubMatrix {
 
 ///|
 /// Nucleotide to index: A=0, C=1, G=2, T=3, else=-1
-pub fn decipher_nt_idx(c : Char) -> Int {
+pub fn decipher_nt_idx(c : Char) -> Int32 {
   match c.to_int() {
     65 | 97 => 0
     67 | 99 => 1
@@ -40,7 +40,7 @@ pub fn decipher_nt_idx(c : Char) -> Int {
 
 ///|
 /// Index to nucleotide.
-pub fn decipher_idx_nt(i : Int) -> Char {
+pub fn decipher_idx_nt(i : Int32) -> Char {
   match i {
     0 => 'A'
     1 => 'C'
@@ -55,12 +55,12 @@ pub fn decipher_idx_nt(i : Int) -> Char {
 pub struct DecipherAlnResult {
   aligned_a : String
   aligned_b : String
-  score : Int
+  score : Int32
   identity : Double
   coverage : Double
-  mismatches : Int
-  gaps : Int
-  gap_length : Int
+  mismatches : Int32
+  gaps : Int32
+  gap_length : Int32
 }
 
 ///|
@@ -90,11 +90,11 @@ pub fn align_nw_affine(
   // DP matrices: M (match/mismatch), Ix (gap in b), Iy (gap in a)
   // Use 1D arrays for efficiency
   let m_size = (m + 1) * (n + 1)
-  let mat_m : Array[Int] = Array::make(m_size, neg_inf)
-  let mat_ix : Array[Int] = Array::make(m_size, neg_inf)
-  let mat_iy : Array[Int] = Array::make(m_size, neg_inf)
+  let mat_m : Array[Int32] = Array::make(m_size, neg_inf)
+  let mat_ix : Array[Int32] = Array::make(m_size, neg_inf)
+  let mat_iy : Array[Int32] = Array::make(m_size, neg_inf)
   // Traceback: 0=match, 1=gap_x (gap in b), 2=gap_y (gap in a)
-  let tb : Array[Int] = Array::make(m_size, 0)
+  let tb : Array[Int32] = Array::make(m_size, 0)
   // Initialize
   mat_m[0] = 0
   let mut i = 1
@@ -138,9 +138,15 @@ pub fn align_nw_affine(
       let m_from_ix = mat_ix[idx_diag] + sub_score
       let m_from_iy = mat_iy[idx_diag] + sub_score
       let best_diag = if m_from_m > m_from_ix {
-        if m_from_m > m_from_iy { m_from_m } else { m_from_iy }
+        if m_from_m > m_from_iy {
+          m_from_m
+        } else {
+          m_from_iy
+        }
+      } else if m_from_ix > m_from_iy {
+        m_from_ix
       } else {
-        if m_from_ix > m_from_iy { m_from_ix } else { m_from_iy }
+        m_from_iy
       }
       mat_m[idx] = best_diag
       // Choose best of M, Ix, Iy for traceback
@@ -226,7 +232,11 @@ pub fn align_nw_affine(
   }
   let aln_len = result_a.length().to_double()
   let identity = if aln_len > 0.0 { matches.to_double() / aln_len } else { 0.0 }
-  let coverage = if m > 0 { (matches + mismatches).to_double() / m.to_double() } else { 0.0 }
+  let coverage = if m > 0 {
+    (matches + mismatches).to_double() / m.to_double()
+  } else {
+    0.0
+  }
   let final_score = mat_m[m * (n + 1) + n]
   DecipherAlnResult::{
     aligned_a: result_a,
@@ -242,10 +252,7 @@ pub fn align_nw_affine(
 
 ///|
 /// Align a single sequence to a reference (convenience wrapper).
-pub fn align_seqs(
-  seq : String,
-  reference : String,
-) -> DecipherAlnResult {
+pub fn align_seqs(seq : String, reference : String) -> DecipherAlnResult {
   align_nw_affine(seq, reference, default_dna_matrix())
 }
 
@@ -270,7 +277,7 @@ pub fn align_seqs_batch(
 /// Profile: position-specific nucleotide frequencies.
 pub struct Profile {
   freqs : Array[Array[Double]] // [position][4 nucleotides]
-  length : Int
+  length : Int32
   total_weight : Double
 }
 
@@ -278,7 +285,7 @@ pub struct Profile {
 /// Build a profile from an array of aligned sequences.
 pub fn build_profile(aligned_seqs : Array[String]) -> Profile {
   if aligned_seqs.length() == 0 {
-    return Profile::{ freqs: [], length: 0, total_weight: 0.0 }
+    return Profile::{ freqs: [], length: 0, total_weight: 0.0, }
   }
   let n_pos = aligned_seqs[0].length()
   let freqs : Array[Array[Double]] = []
@@ -311,7 +318,11 @@ pub fn build_profile(aligned_seqs : Array[String]) -> Profile {
     freqs.push(col)
     pos = pos + 1
   }
-  Profile::{ freqs, length: n_pos, total_weight: aligned_seqs.length().to_double() }
+  Profile::{
+    freqs,
+    length: n_pos,
+    total_weight: aligned_seqs.length().to_double(),
+  }
 }
 
 ///|
@@ -371,7 +382,11 @@ pub fn decipher_distance_matrix(
       if i == j {
         row[j] = 0.0
       } else if j > i {
-        let aln = align_nw_affine(sequences[i], sequences[j], default_dna_matrix())
+        let aln = align_nw_affine(
+          sequences[i],
+          sequences[j],
+          default_dna_matrix(),
+        )
         let d = if dist_method == "hamming" {
           1.0 - aln.identity
         } else {
@@ -392,9 +407,9 @@ pub fn decipher_distance_matrix(
 ///|
 /// Cluster result.
 pub struct DecipherClusterResult {
-  clusters : Array[Array[Int]] // cluster -> member indices
-  n_clusters : Int
-  cluster_ids : Array[Int] // sequence index -> cluster id
+  clusters : Array[Array[Int32]] // cluster -> member indices
+  n_clusters : Int32
+  cluster_ids : Array[Int32] // sequence index -> cluster id
 }
 
 ///|
@@ -407,7 +422,7 @@ pub fn id_clusters(
   let n = sequences.length()
   let dist = decipher_distance_matrix(sequences)
   // Union-find
-  let parent : Array[Int] = []
+  let parent : Array[Int32] = []
   let mut i = 0
   while i < n {
     parent.push(i)
@@ -437,8 +452,8 @@ pub fn id_clusters(
     ii = ii + 1
   }
   // Find roots and build clusters
-  let cluster_map : Map[Int, Int] = Map([], capacity=n)
-  let cluster_ids : Array[Int] = Array::make(n, 0)
+  let cluster_map : Map[Int32, Int32] = Map([], capacity=n)
+  let cluster_ids : Array[Int32] = Array::make(n, 0)
   let mut n_clusters = 0
   let mut k = 0
   while k < n {
@@ -453,7 +468,7 @@ pub fn id_clusters(
     cluster_ids[k] = cluster_map[root]
     k = k + 1
   }
-  let clusters : Array[Array[Int]] = []
+  let clusters : Array[Array[Int32]] = []
   let mut ci = 0
   while ci < n_clusters {
     clusters.push([])
@@ -464,16 +479,16 @@ pub fn id_clusters(
     clusters[cluster_ids[mi]].push(mi)
     mi = mi + 1
   }
-  DecipherClusterResult::{ clusters, n_clusters, cluster_ids }
+  DecipherClusterResult::{ clusters, n_clusters, cluster_ids, }
 }
 
 ///|
 /// Neighbor-Joining tree node.
 pub struct DecipherTreeNode {
   name : String
-  left : Int
-  right : Int
-  mut parent : Int
+  left : Int32
+  right : Int32
+  mut parent : Int32
   branch_left : Double
   branch_right : Double
   is_leaf : Bool
@@ -483,8 +498,8 @@ pub struct DecipherTreeNode {
 /// Phylogenetic tree.
 pub struct PhyloTree {
   nodes : Array[DecipherTreeNode]
-  n_taxa : Int
-  root : Int
+  n_taxa : Int32
+  root : Int32
 }
 
 ///|
@@ -497,14 +512,22 @@ pub fn neighbor_joining(
   if n <= 1 {
     let nodes : Array[DecipherTreeNode] = []
     if n == 1 {
-      nodes.push(  DecipherTreeNode::{ name: names[0], left: -1, right: -1, parent: -1, branch_left: 0.0, branch_right: 0.0, is_leaf: true })
+      nodes.push(DecipherTreeNode::{
+        name: names[0],
+        left: -1,
+        right: -1,
+        parent: -1,
+        branch_left: 0.0,
+        branch_right: 0.0,
+        is_leaf: true,
+      })
     }
-    return PhyloTree::{ nodes, n_taxa: n, root: if n == 1 { 0 } else { -1 } }
+    return PhyloTree::{ nodes, n_taxa: n, root: if n == 1 { 0 } else { -1 }, }
   }
   // NJ algorithm
   // Active taxa (indices still in the tree)
   let active : Array[Bool] = Array::make(n, true)
-  let active_indices : Array[Int] = []
+  let active_indices : Array[Int32] = []
   let mut i = 0
   while i < n {
     active_indices.push(i)
@@ -514,7 +537,15 @@ pub fn neighbor_joining(
   let nodes : Array[DecipherTreeNode] = []
   let mut ki = 0
   while ki < n {
-    nodes.push(  DecipherTreeNode::{ name: names[ki], left: -1, right: -1, parent: -1, branch_left: 0.0, branch_right: 0.0, is_leaf: true })
+    nodes.push(DecipherTreeNode::{
+      name: names[ki],
+      left: -1,
+      right: -1,
+      parent: -1,
+      branch_left: 0.0,
+      branch_right: 0.0,
+      is_leaf: true,
+    })
     ki = ki + 1
   }
   // Working distance matrix (copy)
@@ -579,7 +610,7 @@ pub fn neighbor_joining(
     let bl_i = 0.5 * (d_ij + r[best_i] - r[best_j])
     let bl_j = d_ij - bl_i
     // Create new internal node
-    nodes.push(  DecipherTreeNode::{
+    nodes.push(DecipherTreeNode::{
       name: "Node" + next_node.to_string(),
       left: best_i,
       right: best_j,
@@ -620,7 +651,7 @@ pub fn neighbor_joining(
   }
   if last_i >= 0 && last_j >= 0 {
     let d_final = work_dist[last_i][last_j]
-    nodes.push(  DecipherTreeNode::{
+    nodes.push(DecipherTreeNode::{
       name: "Root",
       left: last_i,
       right: last_j,
@@ -631,11 +662,11 @@ pub fn neighbor_joining(
     })
     nodes[last_i].parent = next_node
     nodes[last_j].parent = next_node
-    return PhyloTree::{ nodes, n_taxa: n, root: next_node }
+    return PhyloTree::{ nodes, n_taxa: n, root: next_node, }
   } else if last_i >= 0 {
-    return PhyloTree::{ nodes, n_taxa: n, root: last_i }
+    return PhyloTree::{ nodes, n_taxa: n, root: last_i, }
   }
-  PhyloTree::{ nodes, n_taxa: n, root: -1 }
+  PhyloTree::{ nodes, n_taxa: n, root: -1, }
 }
 
 ///|
@@ -648,14 +679,22 @@ pub fn tree_to_newick(tree : PhyloTree) -> String {
 }
 
 ///|
-fn newick_recursive(tree : PhyloTree, node_idx : Int) -> String {
+fn newick_recursive(tree : PhyloTree, node_idx : Int32) -> String {
   let node = tree.nodes[node_idx]
   if node.is_leaf {
     return node.name
   }
   let left_str = newick_recursive(tree, node.left)
   let right_str = newick_recursive(tree, node.right)
-  let result = "(" + left_str + ":" + node.branch_left.to_string() + "," + right_str + ":" + node.branch_right.to_string() + ")"
+  let result = "(" +
+    left_str +
+    ":" +
+    node.branch_left.to_string() +
+    "," +
+    right_str +
+    ":" +
+    node.branch_right.to_string() +
+    ")"
   if !node.is_leaf && node.parent == -1 {
     result
   } else {
@@ -668,13 +707,13 @@ fn newick_recursive(tree : PhyloTree, node_idx : Int) -> String {
 /// A sequence is chimeric if it can be split into segments from 3+ parents.
 pub fn find_chimeras(
   sequences : Array[String],
-  abundances : Array[Int],
+  abundances : Array[Int32],
   threshold~ : Double = 0.5,
 ) -> Array[Bool] {
   let n = sequences.length()
   let is_chimera : Array[Bool] = Array::make(n, false)
   // Sort by abundance descending
-  let order : Array[Int] = []
+  let order : Array[Int32] = []
   let mut i = 0
   while i < n {
     order.push(i)
@@ -789,7 +828,7 @@ pub fn decipher_consensus(aligned_seqs : Array[String]) -> String {
   let sb = StringBuilder()
   let mut pos = 0
   while pos < n_pos {
-    let counts : Array[Int] = Array::make(5, 0) // A, C, G, T, gap
+    let counts : Array[Int32] = Array::make(5, 0) // A, C, G, T, gap
     let mut si = 0
     while si < aligned_seqs.length() {
       let c = aligned_seqs[si][pos]
@@ -828,7 +867,10 @@ pub fn decipher_consensus(aligned_seqs : Array[String]) -> String {
 
 ///|
 /// Browse sequences: format for display (ASCII art style).
-pub fn browse_seqs(sequences : Array[String], names~ : Array[String] = []) -> String {
+pub fn browse_seqs(
+  sequences : Array[String],
+  names~ : Array[String] = [],
+) -> String {
   let sb = StringBuilder()
   let max_name = if names.length() > 0 {
     let mut mx = 0
@@ -864,7 +906,7 @@ pub fn browse_seqs(sequences : Array[String], names~ : Array[String] = []) -> St
 ///|
 /// Sequence database entry.
 pub struct DbEntry {
-  id : Int
+  id : Int32
   description : String
   sequence : String
 }
@@ -873,13 +915,13 @@ pub struct DbEntry {
 /// Sequence database (in-memory).
 pub struct SeqDatabase {
   entries : Array[DbEntry]
-  next_id : Int
+  next_id : Int32
 }
 
 ///|
 /// Create a new empty sequence database.
 pub fn seq_database_new() -> SeqDatabase {
-  SeqDatabase::{ entries: [], next_id: 0 }
+  SeqDatabase::{ entries: [], next_id: 0, }
 }
 
 ///|
@@ -889,7 +931,7 @@ pub fn db_add_seq(
   sequence : String,
   description~ : String = "",
 ) -> SeqDatabase {
-  let entry = DbEntry::{ id: db.next_id, description, sequence }
+  let entry = DbEntry::{ id: db.next_id, description, sequence, }
   let new_entries = []
   let mut i = 0
   while i < db.entries.length() {
@@ -897,7 +939,7 @@ pub fn db_add_seq(
     i = i + 1
   }
   new_entries.push(entry)
-  SeqDatabase::{ entries: new_entries, next_id: db.next_id + 1 }
+  SeqDatabase::{ entries: new_entries, next_id: db.next_id + 1, }
 }
 
 ///|
@@ -923,7 +965,7 @@ pub fn db_add_seqs(
 pub fn db_search(
   db : SeqDatabase,
   query : String,
-) -> (Int, DecipherAlnResult) {
+) -> (Int32, DecipherAlnResult) {
   let matrix = default_dna_matrix()
   let mut best_idx = -1
   let mut best_score = -999999
@@ -952,13 +994,13 @@ pub fn db_search(
 
 ///|
 /// Get database size.
-pub fn db_size(db : SeqDatabase) -> Int {
+pub fn db_size(db : SeqDatabase) -> Int32 {
   db.entries.length()
 }
 
 ///|
 /// Get entry by index.
-pub fn db_get(db : SeqDatabase, index : Int) -> DbEntry? {
+pub fn db_get(db : SeqDatabase, index : Int32) -> DbEntry? {
   if index >= 0 && index < db.entries.length() {
     Some(db.entries[index])
   } else {
@@ -968,7 +1010,7 @@ pub fn db_get(db : SeqDatabase, index : Int) -> DbEntry? {
 
 ///|
 /// Remove entry by index.
-pub fn db_remove(db : SeqDatabase, index : Int) -> SeqDatabase {
+pub fn db_remove(db : SeqDatabase, index : Int32) -> SeqDatabase {
   let new_entries : Array[DbEntry] = []
   let mut i = 0
   while i < db.entries.length() {
@@ -977,7 +1019,7 @@ pub fn db_remove(db : SeqDatabase, index : Int) -> SeqDatabase {
     }
     i = i + 1
   }
-  SeqDatabase::{ entries: new_entries, next_id: db.next_id }
+  SeqDatabase::{ entries: new_entries, next_id: db.next_id, }
 }
 
 ///|
@@ -996,9 +1038,7 @@ pub fn decipher_gc_content(seq : String) -> Double {
         gc = gc + 1
         total = total + 1
       }
-      65 | 97 | 84 | 116 => {
-        total = total + 1
-      }
+      65 | 97 | 84 | 116 => total = total + 1
       _ => ()
     }
     i = i + 1
@@ -1016,7 +1056,7 @@ pub fn decipher_complexity(seq : String) -> Double {
   if seq.length() == 0 {
     return 0.0
   }
-  let counts : Array[Int] = Array::make(4, 0)
+  let counts : Array[Int32] = Array::make(4, 0)
   let bytes = seq.to_array()
   let mut total = 0
   let mut i = 0
@@ -1047,12 +1087,8 @@ pub fn decipher_complexity(seq : String) -> Double {
 /// Create example sequences for testing/demo.
 pub fn create_example_sequences() -> Array[String] {
   [
-    "ACGTACGTACGTACGTACGT",
-    "ACGTACGTACGTACGTACGA",
-    "ACGTACGTACGTACGTACGT",
-    "TTGCGCGCATATATATGCGC",
-    "TTGCGCGCATATATATGCGT",
-    "GCGCATATATATGCGCGCGC",
+    "ACGTACGTACGTACGTACGT", "ACGTACGTACGTACGTACGA", "ACGTACGTACGTACGTACGT", "TTGCGCGCATATATATGCGC",
+    "TTGCGCGCATATATATGCGT", "GCGCATATATATGCGCGCGC",
   ]
 }
 
@@ -1063,11 +1099,11 @@ pub fn create_example_database() -> SeqDatabase {
   db_add_seqs(
     db,
     [
-      "ACGTACGTACGTACGTACGTACGTACGTACGT",
-      "TTGCGCGCATATATATGCGCGCGCATATATA",
-      "GCGCATATATATGCGCGCGCATATATATGCG",
+      "ACGTACGTACGTACGTACGTACGTACGTACGT", "TTGCGCGCATATATATGCGCGCGCATATATA", "GCGCATATATATGCGCGCGCATATATATGCG",
       "ATATATATGCGCGCGCATATATATGCGCGCG",
     ],
-    descriptions=["E_coli_16S", "L_plantarum_16S", "B_longum_16S", "B_fragilis_16S"],
+    descriptions=[
+      "E_coli_16S", "L_plantarum_16S", "B_longum_16S", "B_fragilis_16S",
+    ],
   )
 }

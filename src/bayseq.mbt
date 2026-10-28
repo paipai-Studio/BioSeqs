@@ -9,7 +9,7 @@
 ///|
 /// Result for a single gene from baySeq analysis.
 pub struct BayesGeneResult {
-  gene_index : Int
+  gene_index : Int32
   gene_name : String
   log_fold_change : Double
   dispersion : Double
@@ -23,7 +23,7 @@ pub struct BayesGeneResult {
 /// Full baySeq analysis result.
 pub struct BayesResult {
   gene_results : Array[BayesGeneResult]
-  n_de_genes : Int
+  n_de_genes : Int32
   dispersion_prior_shape : Double
   dispersion_prior_rate : Double
   alpha_level : Double
@@ -102,7 +102,7 @@ pub fn bayseq_estimate_dispersion_gene(
 /// Estimate dispersion prior parameters (shape, rate) from all genes.
 pub fn bayseq_estimate_prior(
   counts : Array[Array[Double]],
-  groups : Array[Int],
+  groups : Array[Int32],
 ) -> (Double, Double) {
   let n_genes = counts.length()
   if n_genes == 0 {
@@ -175,7 +175,7 @@ pub fn bayseq_estimate_prior(
 
 ///|
 /// Count number of samples in a given group.
-pub fn hts_count_group(groups : Array[Int], group_id : Int) -> Int {
+pub fn hts_count_group(groups : Array[Int32], group_id : Int32) -> Int32 {
   let mut count = 0
   let mut i = 0
   while i < groups.length() {
@@ -313,11 +313,11 @@ pub fn bayseq_lgamma(x : Double) -> Double {
 /// Returns BayesGeneResult for each gene.
 pub fn bayseq_test(
   counts : Array[Array[Double]],
-  groups : Array[Int],
+  groups : Array[Int32],
   gene_names : Array[String],
-  dispersion_shape? : Double = 2.0,
-  dispersion_rate? : Double = 0.5,
-  alpha? : Double = 0.05,
+  dispersion_shape~ : Double = 2.0,
+  dispersion_rate~ : Double = 0.5,
+  alpha~ : Double = 0.05,
 ) -> BayesResult {
   let n_genes = counts.length()
   let n_samples = counts[0].length()
@@ -426,7 +426,7 @@ pub fn bayseq_get_de_genes(result : BayesResult) -> Array[BayesGeneResult] {
 /// Get top DE genes sorted by absolute log fold change.
 pub fn bayseq_get_top_de(
   result : BayesResult,
-  n : Int,
+  n : Int32,
 ) -> Array[BayesGeneResult] {
   let all = result.gene_results
   // Sort by absolute log_fold_change descending (bubble sort)
@@ -466,7 +466,11 @@ pub fn bayseq_get_top_de(
 ///|
 /// Generate sample RNA-seq data with clear differential expression signal.
 /// Returns (counts, groups, gene_names) with some genes truly DE.
-pub fn bayseq_sample_data() -> (Array[Array[Double]], Array[Int], Array[String]) {
+pub fn bayseq_sample_data() -> (
+  Array[Array[Double]],
+  Array[Int32],
+  Array[String],
+) {
   let n_genes = 30
   let n_samples = 8
   let counts : Array[Array[Double]] = []

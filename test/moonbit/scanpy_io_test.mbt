@@ -20,12 +20,20 @@ test "scanpy_read_10x_mtx" {
   let mtx = "%%MatrixMarket matrix coordinate integer general\n3 2 4\n1 1 10\n1 2 5\n2 1 3\n3 2 7\n"
   let features = "g1\tsym1\tGene Expression\ng2\tsym2\tGene Expression\ng3\tsym3\tAntibody Capture\n"
   let barcodes = "cell1\ncell2\n"
-  let adata = @src.scanpy_read_10x_mtx(mtx, features, barcodes, "gene_symbols", true, true)
+  let adata = @src.scanpy_read_10x_mtx(
+    mtx, features, barcodes, "gene_symbols", true, true,
+  )
   // 3 genes × 2 cells, transposed to 2×3; gex_only drops the Antibody gene
   assert_eq(adata.n_obs(), 2)
   assert_eq(adata.n_vars(), 2)
-  assert_eq((adata.get_obs_names()[0], adata.get_obs_names()[1]), ("cell1", "cell2"))
-  assert_eq((adata.get_var_names()[0], adata.get_var_names()[1]), ("sym1", "sym2"))
+  assert_eq(
+    (adata.get_obs_names()[0], adata.get_obs_names()[1]),
+    ("cell1", "cell2"),
+  )
+  assert_eq(
+    (adata.get_var_names()[0], adata.get_var_names()[1]),
+    ("sym1", "sym2"),
+  )
   // X = [[10, 3], [5, 0]]
   let x = adata.x_matrix()
   assert_true(@moonbit.assert_num_close(x[0][0], 10.0, 1.0e-9))
@@ -37,7 +45,8 @@ test "scanpy_read_10x_mtx" {
     None => assert_true(false)
   }
   match adata.var_column("feature_types") {
-    Some(ft) => assert_eq((ft[0], ft[1]), ("Gene Expression", "Gene Expression"))
+    Some(ft) =>
+      assert_eq((ft[0], ft[1]), ("Gene Expression", "Gene Expression"))
     None => assert_true(false)
   }
 }

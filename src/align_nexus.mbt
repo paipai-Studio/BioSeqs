@@ -18,7 +18,11 @@ pub(all) enum AlignNexusDataType {
   AlignNexusProtein
   AlignNexusStandard
 } derive(Eq, Debug)
+
+///|
 pub extend AlignNexusDataType with Eq::{equal, not_equal}
+
+///|
 pub extend AlignNexusDataType with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -29,8 +33,8 @@ pub extend AlignNexusDataType with @moonbitlang/core/debug.Debug::{to_repr}
 /// matching Biopython's `Bio.Align.nexus` behavior.
 pub struct AlignNexusMetadata {
   block_name : String
-  declared_taxa : Int
-  declared_characters : Int
+  declared_taxa : Int32
+  declared_characters : Int32
   data_type : AlignNexusDataType
   missing_character : String
   gap_character : String
@@ -38,9 +42,13 @@ pub struct AlignNexusMetadata {
   interleaved : Bool
   respect_case : Bool
   symbols : String
-  removed_all_gap_columns : Int
+  removed_all_gap_columns : Int32
 } derive(Eq, Debug)
+
+///|
 pub extend AlignNexusMetadata with Eq::{equal, not_equal}
+
+///|
 pub extend AlignNexusMetadata with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -53,7 +61,11 @@ pub struct AlignNexusSequence {
   sequence : String
   aligned_sequence : String
 } derive(Eq, Debug)
+
+///|
 pub extend AlignNexusSequence with Eq::{equal, not_equal}
+
+///|
 pub extend AlignNexusSequence with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -62,21 +74,29 @@ pub struct AlignNexusAlignment {
   metadata : AlignNexusMetadata
   sequences : Array[AlignNexusSequence]
 } derive(Eq, Debug)
+
+///|
 pub extend AlignNexusAlignment with Eq::{equal, not_equal}
+
+///|
 pub extend AlignNexusAlignment with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Pairwise or all-pairs alignment statistics.
 pub struct AlignNexusCounts {
-  pairs : Int
-  aligned : Int
-  identities : Int
-  mismatches : Int
-  gap_columns : Int
-  double_gap_columns : Int
-  gap_opens : Int
+  pairs : Int32
+  aligned : Int32
+  identities : Int32
+  mismatches : Int32
+  gap_columns : Int32
+  double_gap_columns : Int32
+  gap_opens : Int32
 } derive(Eq, Debug)
+
+///|
 pub extend AlignNexusCounts with Eq::{equal, not_equal}
+
+///|
 pub extend AlignNexusCounts with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -95,17 +115,17 @@ priv struct AlignNexusFormat {
 ///|
 /// Construct validated NEXUS alignment metadata.
 pub fn AlignNexusMetadata::create(
-  declared_taxa : Int,
-  declared_characters : Int,
+  declared_taxa : Int32,
+  declared_characters : Int32,
   data_type : AlignNexusDataType,
-  block_name? : String = "data",
-  missing_character? : String = "?",
-  gap_character? : String = "-",
-  match_character? : String? = None,
-  interleaved? : Bool = false,
-  respect_case? : Bool = false,
-  symbols? : String = "",
-  removed_all_gap_columns? : Int = 0,
+  block_name~ : String = "data",
+  missing_character~ : String = "?",
+  gap_character~ : String = "-",
+  match_character~ : String? = None,
+  interleaved~ : Bool = false,
+  respect_case~ : Bool = false,
+  symbols~ : String = "",
+  removed_all_gap_columns~ : Int32 = 0,
 ) -> AlignNexusMetadata raise AlignNexusError {
   if declared_taxa <= 0 {
     raise AlignNexusError("NEXUS NTAX must be positive")
@@ -163,10 +183,10 @@ pub fn AlignNexusSequence::create(
   id : String,
   aligned_sequence : String,
   data_type : AlignNexusDataType,
-  missing_character? : String = "?",
-  gap_character? : String = "-",
-  symbols? : String = "",
-  respect_case? : Bool = false,
+  missing_character~ : String = "?",
+  gap_character~ : String = "-",
+  symbols~ : String = "",
+  respect_case~ : Bool = false,
 ) -> AlignNexusSequence raise AlignNexusError {
   align_nexus_validate_id(id)
   if aligned_sequence.length() == 0 {
@@ -216,10 +236,10 @@ pub fn align_nexus_from_aligned(
   ids : Array[String],
   aligned_sequences : Array[String],
   data_type : AlignNexusDataType,
-  missing_character? : String = "?",
-  gap_character? : String = "-",
-  symbols? : String = "",
-  respect_case? : Bool = false,
+  missing_character~ : String = "?",
+  gap_character~ : String = "-",
+  symbols~ : String = "",
+  respect_case~ : Bool = false,
 ) -> AlignNexusAlignment raise AlignNexusError {
   if ids.length() == 0 {
     raise AlignNexusError("NEXUS alignment must contain at least one sequence")
@@ -476,8 +496,8 @@ pub fn align_nexus_parse(
 /// columns.
 pub fn align_nexus_write(
   alignment : AlignNexusAlignment,
-  interleave? : Bool? = None,
-  block_width? : Int = 70,
+  interleave~ : Bool? = None,
+  block_width~ : Int32 = 70,
 ) -> String raise AlignNexusError {
   align_nexus_validate_alignment(alignment)
   let width = alignment.alignment_length()
@@ -595,13 +615,15 @@ pub fn AlignNexusDataType::molecule_type(self : AlignNexusDataType) -> String {
 
 ///|
 /// Return the number of sequence rows.
-pub fn AlignNexusAlignment::num_sequences(self : AlignNexusAlignment) -> Int {
+pub fn AlignNexusAlignment::num_sequences(self : AlignNexusAlignment) -> Int32 {
   self.sequences.length()
 }
 
 ///|
 /// Return the alignment width after removal of all-gap source columns.
-pub fn AlignNexusAlignment::alignment_length(self : AlignNexusAlignment) -> Int {
+pub fn AlignNexusAlignment::alignment_length(
+  self : AlignNexusAlignment,
+) -> Int32 {
   if self.sequences.length() == 0 {
     0
   } else {
@@ -613,7 +635,7 @@ pub fn AlignNexusAlignment::alignment_length(self : AlignNexusAlignment) -> Int 
 /// Return the source width before all-gap columns were removed.
 pub fn AlignNexusAlignment::source_alignment_length(
   self : AlignNexusAlignment,
-) -> Int {
+) -> Int32 {
   self.metadata.declared_characters
 }
 
@@ -622,7 +644,7 @@ pub fn AlignNexusAlignment::source_alignment_length(
 pub fn AlignNexusAlignment::find_sequence(
   self : AlignNexusAlignment,
   id : String,
-) -> Int? {
+) -> Int32? {
   for index = 0; index < self.sequences.length(); index = index + 1 {
     if self.sequences[index].id == id {
       return Some(index)
@@ -635,7 +657,7 @@ pub fn AlignNexusAlignment::find_sequence(
 /// Return one printed alignment column.
 pub fn AlignNexusAlignment::column(
   self : AlignNexusAlignment,
-  column : Int,
+  column : Int32,
 ) -> String? {
   if column < 0 || column >= self.alignment_length() {
     return None
@@ -653,9 +675,9 @@ pub fn AlignNexusAlignment::column(
 /// Map a zero-based ungapped row position to an alignment column.
 pub fn AlignNexusAlignment::sequence_position_to_column(
   self : AlignNexusAlignment,
-  row : Int,
-  position : Int,
-) -> Int? {
+  row : Int32,
+  position : Int32,
+) -> Int32? {
   if row < 0 || row >= self.sequences.length() || position < 0 {
     return None
   }
@@ -676,9 +698,9 @@ pub fn AlignNexusAlignment::sequence_position_to_column(
 /// Map a printed column to a zero-based ungapped row position.
 pub fn AlignNexusAlignment::column_to_sequence_position(
   self : AlignNexusAlignment,
-  row : Int,
-  column : Int,
-) -> Int? {
+  row : Int32,
+  column : Int32,
+) -> Int32? {
   if row < 0 ||
     row >= self.sequences.length() ||
     column < 0 ||
@@ -702,10 +724,10 @@ pub fn AlignNexusAlignment::column_to_sequence_position(
 /// Map one residue through the alignment to another row.
 pub fn AlignNexusAlignment::map_position(
   self : AlignNexusAlignment,
-  source_row : Int,
-  target_row : Int,
-  source_position : Int,
-) -> Int? {
+  source_row : Int32,
+  target_row : Int32,
+  source_position : Int32,
+) -> Int32? {
   if target_row < 0 || target_row >= self.sequences.length() {
     return None
   }
@@ -719,12 +741,12 @@ pub fn AlignNexusAlignment::map_position(
 /// Return per-column residue coordinates for two rows.
 pub fn AlignNexusAlignment::aligned_pairs(
   self : AlignNexusAlignment,
-  first_row : Int,
-  second_row : Int,
-) -> Array[(Int?, Int?)] raise AlignNexusError {
+  first_row : Int32,
+  second_row : Int32,
+) -> Array[(Int32?, Int32?)] raise AlignNexusError {
   align_nexus_validate_row(self, first_row)
   align_nexus_validate_row(self, second_row)
-  let result : Array[(Int?, Int?)] = []
+  let result : Array[(Int32?, Int32?)] = []
   let mut first_position = 0
   let mut second_position = 0
   for column = 0; column < self.alignment_length(); column = column + 1 {
@@ -764,8 +786,8 @@ pub fn AlignNexusAlignment::aligned_pairs(
 /// Return a compact Biopython-style coordinate path for all rows.
 pub fn AlignNexusAlignment::coordinate_path(
   self : AlignNexusAlignment,
-) -> Array[Array[Int]] {
-  let paths : Array[Array[Int]] = []
+) -> Array[Array[Int32]] {
+  let paths : Array[Array[Int32]] = []
   let coordinates = Array::make(self.sequences.length(), 0)
   for _row = 0; _row < self.sequences.length(); _row = _row + 1 {
     paths.push([0])
@@ -796,8 +818,8 @@ pub fn AlignNexusAlignment::coordinate_path(
 /// Compute statistics for one pair of rows.
 pub fn AlignNexusAlignment::pair_counts(
   self : AlignNexusAlignment,
-  first_row : Int,
-  second_row : Int,
+  first_row : Int32,
+  second_row : Int32,
 ) -> AlignNexusCounts raise AlignNexusError {
   align_nexus_validate_row(self, first_row)
   align_nexus_validate_row(self, second_row)
@@ -855,7 +877,7 @@ pub fn AlignNexusCounts::identity(self : AlignNexusCounts) -> Double {
 /// Calculate a majority consensus. Gaps do not vote.
 pub fn AlignNexusAlignment::consensus(
   self : AlignNexusAlignment,
-  minimum_fraction? : Double = 0.0,
+  minimum_fraction~ : Double = 0.0,
 ) -> String raise AlignNexusError {
   if minimum_fraction != minimum_fraction ||
     minimum_fraction < 0.0 ||
@@ -1026,7 +1048,7 @@ fn align_nexus_validate_alignment(
 ///|
 fn align_nexus_validate_row(
   alignment : AlignNexusAlignment,
-  row : Int,
+  row : Int32,
 ) -> Unit raise AlignNexusError {
   if row < 0 || row >= alignment.sequences.length() {
     raise AlignNexusError("NEXUS row index is out of bounds")
@@ -1036,8 +1058,8 @@ fn align_nexus_validate_row(
 ///|
 fn align_nexus_count_pair(
   alignment : AlignNexusAlignment,
-  first_row : Int,
-  second_row : Int,
+  first_row : Int32,
+  second_row : Int32,
 ) -> AlignNexusCounts {
   let first = alignment.sequences[first_row].aligned_sequence
   let second = alignment.sequences[second_row].aligned_sequence
@@ -1231,7 +1253,7 @@ fn align_nexus_tokenize(text : String) -> Array[String] raise AlignNexusError {
 ///|
 fn align_nexus_parse_dimensions(
   text : String,
-) -> (Int, Int) raise AlignNexusError {
+) -> (Int32, Int32) raise AlignNexusError {
   let tokens = align_nexus_tokenize(text)
   let mut ntax = -1
   let mut nchar = -1
@@ -1448,8 +1470,8 @@ fn align_nexus_parse_taxlabels(
 ///|
 fn align_nexus_parse_matrix(
   body : String,
-  ntax : Int,
-  nchar : Int,
+  ntax : Int32,
+  nchar : Int32,
   format : AlignNexusFormat,
   taxlabels : Array[String],
 ) -> (Array[String], Array[String]) raise AlignNexusError {
@@ -1486,8 +1508,8 @@ fn align_nexus_parse_matrix(
 ///|
 fn align_nexus_parse_interleaved_matrix(
   lines : Array[String],
-  ntax : Int,
-  nchar : Int,
+  ntax : Int32,
+  nchar : Int32,
   labels : Bool,
   taxlabels : Array[String],
 ) -> (Array[String], Array[String]) raise AlignNexusError {
@@ -1563,8 +1585,8 @@ fn align_nexus_parse_interleaved_matrix(
 ///|
 fn align_nexus_parse_sequential_matrix(
   lines : Array[String],
-  ntax : Int,
-  nchar : Int,
+  ntax : Int32,
+  nchar : Int32,
   labels : Bool,
   taxlabels : Array[String],
 ) -> (Array[String], Array[String]) raise AlignNexusError {
@@ -1734,7 +1756,7 @@ fn align_nexus_normalize_row(
 
 ///|
 fn align_nexus_valid_residue(
-  code : Int,
+  code : Int32,
   data_type : AlignNexusDataType,
   symbols : String,
   respect_case : Bool,
@@ -1770,7 +1792,7 @@ fn align_nexus_validate_symbols(
       "NEXUS standard datatype requires a non-empty SYMBOLS value",
     )
   }
-  let seen : Array[Int] = []
+  let seen : Array[Int32] = []
   for index = 0; index < symbols.length(); index = index + 1 {
     let code = symbols.unsafe_get(index).to_int()
     if code < 33 ||
@@ -1846,7 +1868,7 @@ fn align_nexus_validate_id(id : String) -> Unit raise AlignNexusError {
 ///|
 fn align_nexus_remove_all_gap_columns(
   rows : Array[String],
-) -> (Array[String], Int) {
+) -> (Array[String], Int32) {
   if rows.length() == 0 {
     return ([], 0)
   }
@@ -1879,8 +1901,8 @@ fn align_nexus_remove_all_gap_columns(
 ///|
 fn align_nexus_movement_changes(
   alignment : AlignNexusAlignment,
-  first_column : Int,
-  second_column : Int,
+  first_column : Int32,
+  second_column : Int32,
 ) -> Bool {
   for row = 0; row < alignment.sequences.length(); row = row + 1 {
     let first = alignment.sequences[row].aligned_sequence
@@ -1954,8 +1976,8 @@ fn align_nexus_safe_name(id : String) -> String {
 ///|
 fn align_nexus_output_fragment(
   row : String,
-  start : Int,
-  end : Int,
+  start : Int32,
+  end : Int32,
   gap_character : String,
 ) -> String {
   let output = StringBuilder(size_hint=end - start)
@@ -2026,7 +2048,7 @@ fn align_nexus_normalize_lines(text : String) -> Array[String] {
 fn align_nexus_parse_positive_int(
   text : String,
   label : String,
-) -> Int raise AlignNexusError {
+) -> Int32 raise AlignNexusError {
   if text.length() == 0 {
     raise AlignNexusError(label + " is empty")
   }
@@ -2061,7 +2083,7 @@ fn align_nexus_parse_yes_no(
 }
 
 ///|
-fn align_nexus_is_whitespace(code : Int) -> Bool {
+fn align_nexus_is_whitespace(code : Int32) -> Bool {
   code == ' '.to_int() ||
   code == '\t'.to_int() ||
   code == '\n'.to_int() ||
@@ -2069,7 +2091,7 @@ fn align_nexus_is_whitespace(code : Int) -> Bool {
 }
 
 ///|
-fn align_nexus_contains_code(values : String, target : Int) -> Bool {
+fn align_nexus_contains_code(values : String, target : Int32) -> Bool {
   for index = 0; index < values.length(); index = index + 1 {
     if values.unsafe_get(index).to_int() == target {
       return true
@@ -2079,7 +2101,7 @@ fn align_nexus_contains_code(values : String, target : Int) -> Bool {
 }
 
 ///|
-fn align_nexus_upper_code(code : Int) -> Int {
+fn align_nexus_upper_code(code : Int32) -> Int32 {
   if code >= 'a'.to_int() && code <= 'z'.to_int() {
     code - 'a'.to_int() + 'A'.to_int()
   } else {
@@ -2088,7 +2110,7 @@ fn align_nexus_upper_code(code : Int) -> Int {
 }
 
 ///|
-fn align_nexus_swap_case(code : Int) -> Int {
+fn align_nexus_swap_case(code : Int32) -> Int32 {
   if code >= 'a'.to_int() && code <= 'z'.to_int() {
     code - 'a'.to_int() + 'A'.to_int()
   } else if code >= 'A'.to_int() && code <= 'Z'.to_int() {
@@ -2099,7 +2121,7 @@ fn align_nexus_swap_case(code : Int) -> Int {
 }
 
 ///|
-fn align_nexus_pad_right(value : String, width : Int) -> String {
+fn align_nexus_pad_right(value : String, width : Int32) -> String {
   if value.length() >= width {
     return value
   }
@@ -2112,7 +2134,7 @@ fn align_nexus_pad_right(value : String, width : Int) -> String {
 }
 
 ///|
-fn align_nexus_min(first : Int, second : Int) -> Int {
+fn align_nexus_min(first : Int32, second : Int32) -> Int32 {
   if first < second {
     first
   } else {

@@ -54,11 +54,7 @@ pub fn vcf_filter_min_qual(file : VcfFile, min_qual : Double) -> VcfFile {
   let result : Array[VcfRecord] = []
   for rec in file.records {
     match rec.qual {
-      Some(q) => {
-        if q >= min_qual {
-          result.push(rec)
-        }
-      }
+      Some(q) => if q >= min_qual { result.push(rec) }
       None => ()
     }
   }
@@ -90,7 +86,7 @@ pub fn vcf_filter_tag(file : VcfFile, tag : String) -> VcfFile {
 pub fn vcf_exclude_tag(file : VcfFile, tag : String) -> VcfFile {
   let result : Array[VcfRecord] = []
   for rec in file.records {
-    if !(rec.has_filter(tag)) {
+    if !rec.has_filter(tag) {
       result.push(rec)
     }
   }
@@ -147,11 +143,7 @@ pub fn vcf_view_indels(file : VcfFile) -> VcfFile {
 /// sample columns from subsequent files are appended.
 pub fn vcf_merge(files : Array[VcfFile]) -> VcfFile {
   if files.length() == 0 {
-    return VcfFile::{
-      meta_headers: [],
-      fixed_header: None,
-      records: [],
-    }
+    return VcfFile::{ meta_headers: [], fixed_header: None, records: [], }
   }
   let first = files[0]
   let all_records : Array[VcfRecord] = []
@@ -212,7 +204,7 @@ pub fn vcf_isec_complement(file_a : VcfFile, file_b : VcfFile) -> VcfFile {
   let result : Array[VcfRecord] = []
   for rec in file_a.records {
     let key = vcf_record_key(rec)
-    if !(set_b.contains(key)) {
+    if !set_b.contains(key) {
       result.push(rec)
     }
   }
@@ -230,14 +222,14 @@ pub fn vcf_union(file_a : VcfFile, file_b : VcfFile) -> VcfFile {
   let result : Array[VcfRecord] = []
   for rec in file_a.records {
     let key = vcf_record_key(rec)
-    if !(seen.contains(key)) {
+    if !seen.contains(key) {
       seen.set(key, true)
       result.push(rec)
     }
   }
   for rec in file_b.records {
     let key = vcf_record_key(rec)
-    if !(seen.contains(key)) {
+    if !seen.contains(key) {
       seen.set(key, true)
       result.push(rec)
     }
@@ -263,20 +255,18 @@ pub fn vcf_norm_split(file : VcfFile) -> VcfFile {
       result.push(rec)
     } else {
       for i = 0; i < rec.alt.length(); i = i + 1 {
-        result.push(
-          VcfRecord::{
-            chrom: rec.chrom,
-            pos: rec.pos,
-            id: rec.id,
-            ref_seq: rec.ref_seq,
-            alt: [rec.alt[i]],
-            qual: rec.qual,
-            filter: rec.filter,
-            info: rec.info,
-            format: rec.format,
-            samples: rec.samples,
-          },
-        )
+        result.push(VcfRecord::{
+          chrom: rec.chrom,
+          pos: rec.pos,
+          id: rec.id,
+          ref_seq: rec.ref_seq,
+          alt: [rec.alt[i]],
+          qual: rec.qual,
+          filter: rec.filter,
+          info: rec.info,
+          format: rec.format,
+          samples: rec.samples,
+        })
       }
     }
   }
@@ -318,25 +308,23 @@ pub fn vcf_norm_merge(file : VcfFile) -> VcfFile {
             break
           }
         }
-        if !(found) {
+        if !found {
           alt.push(a)
         }
       }
     }
-    result.push(
-      VcfRecord::{
-        chrom: first.chrom,
-        pos: first.pos,
-        id: first.id,
-        ref_seq: first.ref_seq,
-        alt,
-        qual: first.qual,
-        filter: first.filter,
-        info: first.info,
-        format: first.format,
-        samples: first.samples,
-      },
-    )
+    result.push(VcfRecord::{
+      chrom: first.chrom,
+      pos: first.pos,
+      id: first.id,
+      ref_seq: first.ref_seq,
+      alt,
+      qual: first.qual,
+      filter: first.filter,
+      info: first.info,
+      format: first.format,
+      samples: first.samples,
+    })
   }
   VcfFile::{
     meta_headers: file.meta_headers,
@@ -436,14 +424,14 @@ pub fn vcf_query_info(file : VcfFile, key : String) -> String {
 ///|
 /// Basic VCF statistics (similar to `bcftools stats`).
 pub struct VcfStats {
-  total_records : Int
-  snps : Int
-  insertions : Int
-  deletions : Int
-  mnps : Int
-  multi_allelic : Int
-  pass_records : Int
-  failed_records : Int
+  total_records : Int32
+  snps : Int32
+  insertions : Int32
+  deletions : Int32
+  mnps : Int32
+  multi_allelic : Int32
+  pass_records : Int32
+  failed_records : Int32
   qual_mean : Double
 }
 
@@ -467,11 +455,10 @@ pub fn vcf_stats(file : VcfFile) -> VcfStats {
       ins = ins + 1
     } else if rec.is_deletion() {
       dels = dels + 1
-    } else {
       // Multi-nucleotide variant (MNP) or complex
-      if rec.ref_seq.length() > 1 || (rec.alt.length() > 0 && rec.alt[0].length() > 1) {
-        mnps = mnps + 1
-      }
+    } else if rec.ref_seq.length() > 1 ||
+      (rec.alt.length() > 0 && rec.alt[0].length() > 1) {
+      mnps = mnps + 1
     }
     if rec.alt.length() > 1 {
       multi = multi + 1
@@ -498,7 +485,11 @@ pub fn vcf_stats(file : VcfFile) -> VcfStats {
     multi_allelic: multi,
     pass_records: pass_n,
     failed_records: fail_n,
-    qual_mean: if qual_count > 0 { qual_sum / qual_count.to_double() } else { 0.0 },
+    qual_mean: if qual_count > 0 {
+      qual_sum / qual_count.to_double()
+    } else {
+      0.0
+    },
   }
 }
 // ============================================================
@@ -509,7 +500,11 @@ pub fn vcf_stats(file : VcfFile) -> VcfStats {
 /// Set an INFO field on every record in the VCF.
 /// If the key already exists, its value is overwritten.
 /// Mirrors `bcftools annotate --set-info KEY=VALUE`.
-pub fn vcf_annotate_set_info(file : VcfFile, key : String, value : String) -> VcfFile {
+pub fn vcf_annotate_set_info(
+  file : VcfFile,
+  key : String,
+  value : String,
+) -> VcfFile {
   for rec in file.records {
     rec.info[key] = value
   }
@@ -529,7 +524,11 @@ pub fn vcf_annotate_remove_info(file : VcfFile, key : String) -> VcfFile {
 ///|
 /// Rename an INFO field key across all records.
 /// Mirrors `bcftools annotate --rename-info OLD:NEW`.
-pub fn vcf_annotate_rename_info(file : VcfFile, old_key : String, new_key : String) -> VcfFile {
+pub fn vcf_annotate_rename_info(
+  file : VcfFile,
+  old_key : String,
+  new_key : String,
+) -> VcfFile {
   for rec in file.records {
     match rec.info.get(old_key) {
       Some(v) => {
@@ -569,7 +568,12 @@ pub fn vcf_annotate_set_filter(file : VcfFile, filter_name : String) -> VcfFile 
 
 ///|
 /// Build a lookup key from CHROM:POS:REF:ALT for matching records.
-fn variant_key(chrom : String, pos : Int, ref_allele : String, alt : Array[String]) -> String {
+fn variant_key(
+  chrom : String,
+  pos : Int32,
+  ref_allele : String,
+  alt : Array[String],
+) -> String {
   let alt_str = alt.join(",")
   chrom + ":" + pos.to_string() + ":" + ref_allele + ":" + alt_str
 }
@@ -590,11 +594,10 @@ pub fn vcf_annotate_from(target : VcfFile, source : VcfFile) -> VcfFile {
   for rec in target.records {
     let key = variant_key(rec.chrom, rec.pos, rec.ref_seq, rec.alt)
     match lookup.get(key) {
-      Some(src_info) => {
+      Some(src_info) =>
         for k, v in src_info {
           rec.info[k] = v
         }
-      }
       None => ()
     }
   }
@@ -620,7 +623,7 @@ pub fn vcf_annotate_info_if_filter(
   file : VcfFile,
   filter_name : String,
   key : String,
-  value : String
+  value : String,
 ) -> VcfFile {
   for rec in file.records {
     if rec.has_filter(filter_name) {

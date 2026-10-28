@@ -21,6 +21,8 @@ pub enum CswFilterStatus {
   /// Window fails spatial filter (merged with neighbor)
   Merged
 } derive(Eq)
+
+///|
 pub extend CswFilterStatus with Eq::{equal, not_equal}
 
 ///|
@@ -31,9 +33,9 @@ pub struct CswWindow {
   /// Chromosome
   chrom : String
   /// Start position (0-based)
-  start : Int
+  start : Int32
   /// End position (0-based, exclusive)
-  end : Int
+  end : Int32
   /// Counts per sample
   counts : Array[Double]
   /// Filter status
@@ -56,7 +58,7 @@ pub struct CswDataSet {
   /// Filtered windows (after filtering)
   filtered_windows : Array[CswWindow]
   /// Binned window indices (for region finding)
-  bin_indices : Array[Int]
+  bin_indices : Array[Int32]
 }
 
 ///|
@@ -67,7 +69,7 @@ pub struct CswNormResult {
   /// Normalization method used
   norm_method : CswNormMethod
   /// Reference sample index (for TMM)
-  ref_sample : Int
+  ref_sample : Int32
   /// Log-ratios used for TMM
   log_ratios : Array[Array[Double]]
 }
@@ -76,7 +78,7 @@ pub struct CswNormResult {
 /// Differential binding result
 pub struct CswResult {
   /// Window indices
-  window_indices : Array[Int]
+  window_indices : Array[Int32]
   /// Log2 fold changes
   log_fc : Array[Double]
   /// Standard errors
@@ -99,17 +101,17 @@ pub struct CswRegion {
   /// Chromosome
   chrom : String
   /// Start position
-  start : Int
+  start : Int32
   /// End position
-  end : Int
+  end : Int32
   /// Combined p-value (Fisher's method)
   combined_p_value : Double
   /// Maximum logFC
   max_log_fc : Double
   /// Number of merged windows
-  n_windows : Int
+  n_windows : Int32
   /// Window indices
-  window_indices : Array[Int]
+  window_indices : Array[Int32]
 }
 
 // ===== Window methods =====
@@ -119,8 +121,8 @@ pub struct CswRegion {
 pub fn CswWindow::new(
   id : String,
   chrom : String,
-  start : Int,
-  end : Int,
+  start : Int32,
+  end : Int32,
   counts : Array[Double],
 ) -> CswWindow {
   CswWindow::{
@@ -136,13 +138,13 @@ pub fn CswWindow::new(
 
 ///|
 /// Get window width
-pub fn CswWindow::csw_width(self : CswWindow) -> Int {
+pub fn CswWindow::csw_width(self : CswWindow) -> Int32 {
   self.end - self.start
 }
 
 ///|
 /// Get count for a sample index
-pub fn CswWindow::csw_count(self : CswWindow, sample_idx : Int) -> Double {
+pub fn CswWindow::csw_count(self : CswWindow, sample_idx : Int32) -> Double {
   self.counts[sample_idx]
 }
 
@@ -190,19 +192,19 @@ pub fn CswDataSet::new(
 
 ///|
 /// Get number of windows
-pub fn CswDataSet::csw_n_windows(self : CswDataSet) -> Int {
+pub fn CswDataSet::csw_n_windows(self : CswDataSet) -> Int32 {
   self.windows.length()
 }
 
 ///|
 /// Get number of samples
-pub fn CswDataSet::csw_n_samples(self : CswDataSet) -> Int {
+pub fn CswDataSet::csw_n_samples(self : CswDataSet) -> Int32 {
   self.samples.length()
 }
 
 ///|
 /// Get a window by index
-pub fn CswDataSet::csw_get_window(self : CswDataSet, idx : Int) -> CswWindow {
+pub fn CswDataSet::csw_get_window(self : CswDataSet, idx : Int32) -> CswWindow {
   self.windows[idx]
 }
 
@@ -218,10 +220,10 @@ pub fn CswDataSet::csw_get_filtered(self : CswDataSet) -> Array[CswWindow] {
 /// Generate sliding windows across a chromosome.
 pub fn csw_make_windows(
   chrom : String,
-  start : Int,
-  end : Int,
-  width : Int,
-  shift : Int,
+  start : Int32,
+  end : Int32,
+  width : Int32,
+  shift : Int32,
 ) -> Array[CswWindow] {
   let windows : Array[CswWindow] = Array(capacity=0)
   let mut pos = start
@@ -243,7 +245,7 @@ pub fn csw_make_windows(
 /// Assign counts to windows from read positions.
 pub fn csw_assign_counts(
   windows : Array[CswWindow],
-  read_positions : Array[Int],
+  read_positions : Array[Int32],
 ) -> Array[CswWindow] {
   let result : Array[CswWindow] = Array(capacity=0)
   let mut i = 0
@@ -509,8 +511,8 @@ fn csw_adjacent_window(a : CswWindow, b : CswWindow) -> Bool {
 /// Simplified Wald test for two-group comparison.
 pub fn csw_test_differential(
   data : CswDataSet,
-  group1_indices : Array[Int],
-  group2_indices : Array[Int],
+  group1_indices : Array[Int32],
+  group2_indices : Array[Int32],
   dispersion : Double,
 ) -> CswResult {
   let filtered = data.filtered_windows
@@ -519,7 +521,7 @@ pub fn csw_test_differential(
   let std_err : Array[Double] = Array(capacity=0)
   let wald_stat : Array[Double] = Array(capacity=0)
   let p_values : Array[Double] = Array(capacity=0)
-  let window_indices : Array[Int] = Array(capacity=0)
+  let window_indices : Array[Int32] = Array(capacity=0)
 
   let mut i = 0
   while i < n_windows {
@@ -579,7 +581,7 @@ pub fn csw_test_differential(
 pub fn csw_find_regions(
   data : CswDataSet,
   result : CswResult,
-  merge_tol : Int,
+  merge_tol : Int32,
 ) -> Array[CswRegion] {
   let regions : Array[CswRegion] = Array(capacity=0)
   let n = result.window_indices.length()
@@ -612,9 +614,9 @@ pub fn csw_find_regions(
 /// Check if two windows can be merged into a region.
 fn csw_can_merge_windows(
   data : CswDataSet,
-  idx1 : Int,
-  idx2 : Int,
-  tol : Int,
+  idx1 : Int32,
+  idx2 : Int32,
+  tol : Int32,
 ) -> Bool {
   let w1 = data.filtered_windows[idx1]
   let w2 = data.filtered_windows[idx2]
@@ -630,10 +632,10 @@ fn csw_can_merge_windows(
 fn csw_build_region(
   data : CswDataSet,
   result : CswResult,
-  start : Int,
-  end : Int,
+  start : Int32,
+  end : Int32,
 ) -> CswRegion {
-  let win_indices : Array[Int] = Array(capacity=0)
+  let win_indices : Array[Int32] = Array(capacity=0)
   let mut i = start
   let mut combined_chi2 = 0.0
   let mut max_lfc = -1.0e30
@@ -693,7 +695,7 @@ fn csw_mean_double(arr : Array[Double]) -> Double {
 }
 
 ///|
-fn csw_mean_int(arr : Array[Int]) -> Double {
+fn csw_mean_int(arr : Array[Int32]) -> Double {
   let n = arr.length()
   if n == 0 {
     return 0.0
@@ -722,7 +724,7 @@ fn csw_total_cpb(counts : Array[Double], lib_sizes : Array[Double]) -> Double {
 ///|
 fn csw_mean_var_group(
   counts : Array[Double],
-  indices : Array[Int],
+  indices : Array[Int32],
 ) -> (Double, Double) {
   let n = indices.length()
   if n == 0 {
@@ -779,7 +781,7 @@ fn csw_bh_correction(p_values : Array[Double]) -> Array[Double] {
   if n == 0 {
     return Array(capacity=0)
   }
-  let indexed : Array[(Double, Int)] = Array(capacity=0)
+  let indexed : Array[(Double, Int32)] = Array(capacity=0)
   let mut i = 0
   while i < n {
     indexed.push((p_values[i], i))

@@ -7,8 +7,17 @@ fn make_ref_chain() -> @src.Chain {
   let residues : Array[@src.Residue] = Array(capacity=0)
   for r = 0; r < 5; r = r + 1 {
     let x = r.to_double() * 3.8
-    let ca = @src.Atom::new(name="CA", coord=@src.Vector3::new(x, 0.0, 0.0), resname="ALA", chainid='A', resseq=r + 1, element="C")
-    let res = @src.Residue::new(resname="ALA", chainid='A', resseq=r + 1, atoms=[ca])
+    let ca = @src.Atom::new(
+      name="CA",
+      coord=@src.Vector3::new(x, 0.0, 0.0),
+      resname="ALA",
+      chainid='A',
+      resseq=r + 1,
+      element="C",
+    )
+    let res = @src.Residue::new(resname="ALA", chainid='A', resseq=r + 1, atoms=[
+      ca,
+    ])
     residues.push(res)
   }
   @src.Chain::new(id='A', residues~)
@@ -21,8 +30,17 @@ fn make_perturbed_chain(dx : Double, dy : Double) -> @src.Chain {
   for r = 0; r < 5; r = r + 1 {
     let x = r.to_double() * 3.8 + dx
     let y = dy
-    let ca = @src.Atom::new(name="CA", coord=@src.Vector3::new(x, y, 0.0), resname="ALA", chainid='A', resseq=r + 1, element="C")
-    let res = @src.Residue::new(resname="ALA", chainid='A', resseq=r + 1, atoms=[ca])
+    let ca = @src.Atom::new(
+      name="CA",
+      coord=@src.Vector3::new(x, y, 0.0),
+      resname="ALA",
+      chainid='A',
+      resseq=r + 1,
+      element="C",
+    )
+    let res = @src.Residue::new(resname="ALA", chainid='A', resseq=r + 1, atoms=[
+      ca,
+    ])
     residues.push(res)
   }
   @src.Chain::new(id='A', residues~)
@@ -37,8 +55,17 @@ fn make_missing_res_chain() -> @src.Chain {
       continue
     }
     let x = r.to_double() * 3.8 + 0.5
-    let ca = @src.Atom::new(name="CA", coord=@src.Vector3::new(x, 0.1, 0.0), resname="ALA", chainid='A', resseq=r + 1, element="C")
-    let res = @src.Residue::new(resname="ALA", chainid='A', resseq=r + 1, atoms=[ca])
+    let ca = @src.Atom::new(
+      name="CA",
+      coord=@src.Vector3::new(x, 0.1, 0.0),
+      resname="ALA",
+      chainid='A',
+      resseq=r + 1,
+      element="C",
+    )
+    let res = @src.Residue::new(resname="ALA", chainid='A', resseq=r + 1, atoms=[
+      ca,
+    ])
     residues.push(res)
   }
   @src.Chain::new(id='A', residues~)
@@ -50,8 +77,17 @@ fn make_reordered_chain() -> @src.Chain {
   let residues : Array[@src.Residue] = Array(capacity=0)
   for r = 4; r >= 0; r = r - 1 {
     let x = r.to_double() * 3.8 + 0.3
-    let ca = @src.Atom::new(name="CA", coord=@src.Vector3::new(x, 0.2, 0.0), resname="ALA", chainid='A', resseq=r + 1, element="C")
-    let res = @src.Residue::new(resname="ALA", chainid='A', resseq=r + 1, atoms=[ca])
+    let ca = @src.Atom::new(
+      name="CA",
+      coord=@src.Vector3::new(x, 0.2, 0.0),
+      resname="ALA",
+      chainid='A',
+      resseq=r + 1,
+      element="C",
+    )
+    let res = @src.Residue::new(resname="ALA", chainid='A', resseq=r + 1, atoms=[
+      ca,
+    ])
     residues.push(res)
   }
   @src.Chain::new(id='A', residues~)
@@ -63,10 +99,33 @@ fn make_full_chain() -> @src.Chain {
   let residues : Array[@src.Residue] = Array(capacity=0)
   for r = 0; r < 5; r = r + 1 {
     let x = r.to_double() * 3.8
-    let n = @src.Atom::new(name="N", coord=@src.Vector3::new(x - 0.5, 0.0, 0.0), resname="ALA", chainid='A', resseq=r + 1, element="N")
-    let ca = @src.Atom::new(name="CA", coord=@src.Vector3::new(x, 0.0, 0.0), resname="ALA", chainid='A', resseq=r + 1, element="C")
-    let c = @src.Atom::new(name="C", coord=@src.Vector3::new(x + 0.5, 0.0, 0.0), resname="ALA", chainid='A', resseq=r + 1, element="C")
-    let res = @src.Residue::new(resname="ALA", chainid='A', resseq=r + 1, atoms=[n, ca, c])
+    let n = @src.Atom::new(
+      name="N",
+      coord=@src.Vector3::new(x - 0.5, 0.0, 0.0),
+      resname="ALA",
+      chainid='A',
+      resseq=r + 1,
+      element="N",
+    )
+    let ca = @src.Atom::new(
+      name="CA",
+      coord=@src.Vector3::new(x, 0.0, 0.0),
+      resname="ALA",
+      chainid='A',
+      resseq=r + 1,
+      element="C",
+    )
+    let c = @src.Atom::new(
+      name="C",
+      coord=@src.Vector3::new(x + 0.5, 0.0, 0.0),
+      resname="ALA",
+      chainid='A',
+      resseq=r + 1,
+      element="C",
+    )
+    let res = @src.Residue::new(resname="ALA", chainid='A', resseq=r + 1, atoms=[
+      n, ca, c,
+    ])
     residues.push(res)
   }
   @src.Chain::new(id='A', residues~)
@@ -74,6 +133,7 @@ fn make_full_chain() -> @src.Chain {
 
 // ===== AtomMap tests =====
 
+///|
 test "atommap_basic" {
   let reference = make_ref_chain()
   let mob = make_perturbed_chain(0.5, 0.1)
@@ -82,6 +142,7 @@ test "atommap_basic" {
   assert_true(@src.AtomMap::coverage(map, 5) - 1.0 < 0.001)
 }
 
+///|
 test "atommap_missing" {
   let reference = make_ref_chain()
   let mob = make_missing_res_chain()
@@ -90,6 +151,7 @@ test "atommap_missing" {
   assert_true(@src.AtomMap::coverage(map, 5) - 0.8 < 0.001)
 }
 
+///|
 test "atommap_reordered" {
   let reference = make_ref_chain()
   let mob = make_reordered_chain()
@@ -97,6 +159,7 @@ test "atommap_reordered" {
   assert_eq(@src.AtomMap::num_mapped(map), 5)
 }
 
+///|
 test "atommap_indices" {
   let reference = make_ref_chain()
   let mob = make_reordered_chain()
@@ -112,6 +175,7 @@ test "atommap_indices" {
 
 // ===== PDBEnsemble construction =====
 
+///|
 test "pdb_ensemble_construction" {
   let reference = make_ref_chain()
   match @src.PDBEnsemble::new(reference, true) {
@@ -124,6 +188,7 @@ test "pdb_ensemble_construction" {
   }
 }
 
+///|
 test "pdb_ensemble_add_chain" {
   let reference = make_ref_chain()
   match @src.PDBEnsemble::new(reference, true) {
@@ -136,10 +201,11 @@ test "pdb_ensemble_add_chain" {
   }
 }
 
+///|
 test "pdb_ensemble_from_chains" {
   let reference = make_ref_chain()
-  let mob1: @src.Chain = make_perturbed_chain(0.5, 0.1)
-  let mob2: @src.Chain = make_perturbed_chain(-0.3, 0.2)
+  let mob1 : @src.Chain = make_perturbed_chain(0.5, 0.1)
+  let mob2 : @src.Chain = make_perturbed_chain(-0.3, 0.2)
   match @src.PDBEnsemble::from_chains([reference, mob1, mob2], true) {
     Some(ens) => {
       assert_eq(@src.PDBEnsemble::num_atoms(ens), 5)
@@ -149,6 +215,7 @@ test "pdb_ensemble_from_chains" {
   }
 }
 
+///|
 test "pdb_ensemble_add_coordset" {
   let reference = make_ref_chain()
   match @src.PDBEnsemble::new(reference, true) {
@@ -167,6 +234,7 @@ test "pdb_ensemble_add_coordset" {
   }
 }
 
+///|
 test "pdb_ensemble_add_mapped" {
   let reference = make_ref_chain()
   let mob = make_reordered_chain()
@@ -182,6 +250,7 @@ test "pdb_ensemble_add_mapped" {
 
 // ===== Superimposition =====
 
+///|
 test "pdb_ensemble_superimpose" {
   let reference = make_ref_chain()
   let mob = make_perturbed_chain(0.5, 0.1)
@@ -197,6 +266,7 @@ test "pdb_ensemble_superimpose" {
   }
 }
 
+///|
 test "pdb_ensemble_superimpose_identity" {
   let reference = make_ref_chain()
   match @src.PDBEnsemble::from_chains([reference, reference], true) {
@@ -209,10 +279,11 @@ test "pdb_ensemble_superimpose_identity" {
   }
 }
 
+///|
 test "pdb_ensemble_iterative_superimpose" {
   let reference = make_ref_chain()
-  let mob1: @src.Chain = make_perturbed_chain(0.5, 0.1)
-  let mob2: @src.Chain = make_perturbed_chain(-0.3, 0.2)
+  let mob1 : @src.Chain = make_perturbed_chain(0.5, 0.1)
+  let mob2 : @src.Chain = make_perturbed_chain(-0.3, 0.2)
   match @src.PDBEnsemble::from_chains([reference, mob1, mob2], true) {
     Some(ens) => {
       let aligned = ens.iterative_superimpose(3)
@@ -226,6 +297,7 @@ test "pdb_ensemble_iterative_superimpose" {
 
 // ===== RMSD =====
 
+///|
 test "pdb_ensemble_rmsd" {
   let reference = make_ref_chain()
   let mob = make_perturbed_chain(0.5, 0.1)
@@ -238,10 +310,11 @@ test "pdb_ensemble_rmsd" {
   }
 }
 
+///|
 test "pdb_ensemble_rmsd_matrix" {
   let reference = make_ref_chain()
-  let mob1: @src.Chain = make_perturbed_chain(0.5, 0.1)
-  let mob2: @src.Chain = make_perturbed_chain(-0.3, 0.2)
+  let mob1 : @src.Chain = make_perturbed_chain(0.5, 0.1)
+  let mob2 : @src.Chain = make_perturbed_chain(-0.3, 0.2)
   match @src.PDBEnsemble::from_chains([reference, mob1, mob2], true) {
     Some(ens) => {
       let aligned = ens.superimpose()
@@ -258,10 +331,11 @@ test "pdb_ensemble_rmsd_matrix" {
 
 // ===== RMSF =====
 
+///|
 test "pdb_ensemble_rmsf" {
   let reference = make_ref_chain()
-  let mob1: @src.Chain = make_perturbed_chain(0.5, 0.1)
-  let mob2: @src.Chain = make_perturbed_chain(-0.3, 0.2)
+  let mob1 : @src.Chain = make_perturbed_chain(0.5, 0.1)
+  let mob2 : @src.Chain = make_perturbed_chain(-0.3, 0.2)
   match @src.PDBEnsemble::from_chains([reference, mob1, mob2], true) {
     Some(ens) => {
       let aligned = ens.superimpose()
@@ -275,6 +349,7 @@ test "pdb_ensemble_rmsf" {
   }
 }
 
+///|
 test "pdb_ensemble_rmsf_identical" {
   let reference = make_ref_chain()
   match @src.PDBEnsemble::from_chains([reference, reference, reference], true) {
@@ -291,6 +366,7 @@ test "pdb_ensemble_rmsf_identical" {
 
 // ===== Mean structure =====
 
+///|
 test "pdb_ensemble_mean_structure" {
   let reference = make_ref_chain()
   match @src.PDBEnsemble::from_chains([reference, reference], true) {
@@ -308,6 +384,7 @@ test "pdb_ensemble_mean_structure" {
   }
 }
 
+///|
 test "pdb_ensemble_coord_deviations" {
   let reference = make_ref_chain()
   let mob = make_perturbed_chain(0.0, 0.5)
@@ -326,6 +403,7 @@ test "pdb_ensemble_coord_deviations" {
 
 // ===== Missing atoms =====
 
+///|
 test "pdb_ensemble_missing_atoms" {
   let reference = make_ref_chain()
   let mob = make_missing_res_chain()
@@ -342,6 +420,7 @@ test "pdb_ensemble_missing_atoms" {
   }
 }
 
+///|
 test "pdb_ensemble_reordered_mapping" {
   let reference = make_ref_chain()
   let mob = make_reordered_chain()
@@ -356,6 +435,7 @@ test "pdb_ensemble_reordered_mapping" {
 
 // ===== Full atom ensemble =====
 
+///|
 test "pdb_ensemble_full_atoms" {
   let reference = make_full_chain()
   match @src.PDBEnsemble::new(reference, false) {
@@ -370,10 +450,11 @@ test "pdb_ensemble_full_atoms" {
 
 // ===== Utility =====
 
+///|
 test "pdb_ensemble_remove_conformation" {
   let reference = make_ref_chain()
-  let mob1: @src.Chain = make_perturbed_chain(0.5, 0.1)
-  let mob2: @src.Chain = make_perturbed_chain(-0.3, 0.2)
+  let mob1 : @src.Chain = make_perturbed_chain(0.5, 0.1)
+  let mob2 : @src.Chain = make_perturbed_chain(-0.3, 0.2)
   match @src.PDBEnsemble::from_chains([reference, mob1, mob2], true) {
     Some(ens) => {
       assert_eq(@src.PDBEnsemble::num_conformations(ens), 2)
@@ -384,6 +465,7 @@ test "pdb_ensemble_remove_conformation" {
   }
 }
 
+///|
 test "pdb_ensemble_weights" {
   let reference = make_ref_chain()
   match @src.PDBEnsemble::new(reference, true) {
@@ -397,6 +479,7 @@ test "pdb_ensemble_weights" {
   }
 }
 
+///|
 test "pdb_ensemble_metadata" {
   let reference = make_full_chain()
   match @src.PDBEnsemble::new(reference, false) {
@@ -415,6 +498,7 @@ test "pdb_ensemble_metadata" {
   }
 }
 
+///|
 test "pdb_ensemble_get_coords" {
   let reference = make_ref_chain()
   let mob = make_perturbed_chain(0.5, 0.1)
@@ -429,9 +513,17 @@ test "pdb_ensemble_get_coords" {
   }
 }
 
+///|
 test "pdb_ensemble_too_few_atoms" {
   let residues : Array[@src.Residue] = Array(capacity=0)
-  let ca = @src.Atom::new(name="CA", coord=@src.Vector3::new(0.0, 0.0, 0.0), resname="ALA", chainid='A', resseq=1, element="C")
+  let ca = @src.Atom::new(
+    name="CA",
+    coord=@src.Vector3::new(0.0, 0.0, 0.0),
+    resname="ALA",
+    chainid='A',
+    resseq=1,
+    element="C",
+  )
   let res = @src.Residue::new(resname="ALA", chainid='A', resseq=1, atoms=[ca])
   residues.push(res)
   let chain = @src.Chain::new(id='A', residues~)

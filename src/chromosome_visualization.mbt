@@ -17,6 +17,8 @@ pub enum ChrOrientation {
   Reverse
   None
 } derive(Eq)
+
+///|
 pub extend ChrOrientation with Eq::{equal, not_equal}
 
 ///|
@@ -47,6 +49,8 @@ pub enum ChrFeatureType {
   UTR
   Promoter
 } derive(Eq)
+
+///|
 pub extend ChrFeatureType with Eq::{equal, not_equal}
 
 ///|
@@ -166,11 +170,11 @@ pub fn ChrFeature::new(
   name~ : String,
   start~ : Double,
   end~ : Double,
-  orientation? : ChrOrientation = None,
-  feature_type? : ChrFeatureType = ChrFeatureType::Gene,
-  color? : String = "#45B7D1",
-  label? : String = "",
-  height? : Double = 0.3,
+  orientation~ : ChrOrientation = None,
+  feature_type~ : ChrFeatureType = ChrFeatureType::Gene,
+  color~ : String = "#45B7D1",
+  label~ : String = "",
+  height~ : Double = 0.3,
 ) -> ChrFeature {
   ChrFeature::{
     name,
@@ -194,9 +198,9 @@ pub fn ChrRegion::new(
   name~ : String,
   start~ : Double,
   end~ : Double,
-  color? : String = "#FFD700",
-  opacity? : Double = 0.3,
-  label? : String = "",
+  color~ : String = "#FFD700",
+  opacity~ : Double = 0.3,
+  label~ : String = "",
 ) -> ChrRegion {
   ChrRegion::{
     name,
@@ -217,8 +221,8 @@ pub fn ChrRegion::new(
 pub fn Chromosome::new(
   name~ : String,
   length~ : Double,
-  centromere_pos? : Double = 0.0,
-  is_circular? : Bool = false,
+  centromere_pos~ : Double = 0.0,
+  is_circular~ : Bool = false,
 ) -> Chromosome {
   Chromosome::{
     name,
@@ -234,18 +238,18 @@ pub fn Chromosome::new(
 ///|
 /// Create layout configuration.
 pub fn ChrLayout::new(
-  width? : Double = 800.0,
-  height? : Double = 600.0,
-  margin_left? : Double = 60.0,
-  margin_right? : Double = 60.0,
-  margin_top? : Double = 40.0,
-  margin_bottom? : Double = 40.0,
-  chromosome_thickness? : Double = 10.0,
-  label_font_size? : Double = 12.0,
-  show_labels? : Bool = true,
-  show_centromere? : Bool = true,
-  show_bands? : Bool = false,
-  color_scheme? : String = "default",
+  width~ : Double = 800.0,
+  height~ : Double = 600.0,
+  margin_left~ : Double = 60.0,
+  margin_right~ : Double = 60.0,
+  margin_top~ : Double = 40.0,
+  margin_bottom~ : Double = 40.0,
+  chromosome_thickness~ : Double = 10.0,
+  label_font_size~ : Double = 12.0,
+  show_labels~ : Bool = true,
+  show_centromere~ : Bool = true,
+  show_bands~ : Bool = false,
+  color_scheme~ : String = "default",
 ) -> ChrLayout {
   ChrLayout::{
     width,
@@ -267,8 +271,8 @@ pub fn ChrLayout::new(
 /// Create a chromosome diagram.
 pub fn ChrDiagram::new(
   chromosomes~ : Array[Chromosome],
-  layout? : ChrLayout = ChrLayout::new(),
-  title? : String = "",
+  layout~ : ChrLayout = ChrLayout::new(),
+  title~ : String = "",
 ) -> ChrDiagram {
   ChrDiagram::{ chromosomes, layout, title, svg_elements: [], }
 }
@@ -407,7 +411,6 @@ fn chr_min(a : Double, b : Double) -> Double {
     b
   }
 }
-
 
 ///|
 /// Helper: PI constant.
@@ -1136,7 +1139,7 @@ pub fn chr_create_bacterial_chromosome() -> ChrDiagram {
 
 ///|
 /// Get total number of features across all chromosomes.
-pub fn ChrDiagram::total_features(self : ChrDiagram) -> Int {
+pub fn ChrDiagram::total_features(self : ChrDiagram) -> Int32 {
   let mut count = 0
   for chr in self.chromosomes {
     count = count + chr.features.length()
@@ -1146,8 +1149,8 @@ pub fn ChrDiagram::total_features(self : ChrDiagram) -> Int {
 
 ///|
 /// Get features grouped by type across all chromosomes.
-pub fn ChrDiagram::features_by_type(self : ChrDiagram) -> Map[String, Int] {
-  let counts : Map[String, Int] = Map([], capacity=10)
+pub fn ChrDiagram::features_by_type(self : ChrDiagram) -> Map[String, Int32] {
+  let counts : Map[String, Int32] = Map([], capacity=10)
   for chr in self.chromosomes {
     for feat in chr.features {
       let type_name = chr_feature_type_name(feat.feature_type)
@@ -1195,7 +1198,10 @@ fn chr_feature_type_name(ft : ChrFeatureType) -> String {
 
 ///|
 /// Count features of a specific type across all chromosomes.
-pub fn ChrDiagram::count_by_type(self : ChrDiagram, ft : ChrFeatureType) -> Int {
+pub fn ChrDiagram::count_by_type(
+  self : ChrDiagram,
+  ft : ChrFeatureType,
+) -> Int32 {
   let mut count = 0
   for chr in self.chromosomes {
     for feat in chr.features {

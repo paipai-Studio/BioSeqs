@@ -107,7 +107,7 @@ fn _validate_pvalues(p_values : Array[Double]) -> Array[Double] {
 ///|
 /// Simple deterministic pseudo-random number generator (LCG).
 /// Returns the new state and a random Double in [0, 1).
-fn _lcg_next(state : Int) -> (Int, Double) {
+fn _lcg_next(state : Int32) -> (Int32, Double) {
   let new_state = (state * 1103515245 + 12345) & 0x7fffffff
   let rand_val = new_state.to_double() / 2147483647.0
   (new_state, rand_val)
@@ -116,7 +116,7 @@ fn _lcg_next(state : Int) -> (Int, Double) {
 ///|
 /// Generate a bootstrap resample of the given array.
 /// Uses deterministic LCG seeded from the data.
-fn _bootstrap_sample(p_values : Array[Double], seed : Int) -> Array[Double] {
+fn _bootstrap_sample(p_values : Array[Double], seed : Int32) -> Array[Double] {
   let n = p_values.length()
   let result : Array[Double] = Array::make(n, 0.0)
   let mut state = seed
@@ -181,7 +181,7 @@ fn _choose_lambda(p_values : Array[Double]) -> Double {
     i = i + 1
   }
 
-  let n_bootstrap = Int::min(100, n * 2)
+  let n_bootstrap = Int32::min(100, n * 2)
   let mut best_idx = -1
   let mut best_mse = 0.0
 
@@ -246,7 +246,7 @@ fn _compute_qvalues(p_values : Array[Double], pi0 : Double) -> Array[Double] {
       i = i + 1
     }
 
-    indexed.sort_by(fn(a : Array[Double], b : Array[Double]) -> Int {
+    indexed.sort_by(fn(a : Array[Double], b : Array[Double]) -> Int32 {
       if a[0] < b[0] {
         -1
       } else if a[0] > b[0] {
@@ -429,7 +429,7 @@ pub fn storey_fdr(p_values : Array[Double]) -> Array[Double] {
 ///
 /// Returns:
 ///   - Bootstrap estimate of pi0 (median across samples)
-pub fn bootstrap_pi0(p_values : Array[Double], n_bootstrap : Int) -> Double {
+pub fn bootstrap_pi0(p_values : Array[Double], n_bootstrap : Int32) -> Double {
   let validated = _validate_pvalues(p_values)
   let n = validated.length()
   if n == 0 {
@@ -723,7 +723,7 @@ fn _pi0_lambda_path(
 
 ///|
 /// Allocate a dense r x c matrix of zeros (independent rows).
-fn _mat_new(r : Int, c : Int) -> Array[Array[Double]] {
+fn _mat_new(r : Int32, c : Int32) -> Array[Array[Double]] {
   let m : Array[Array[Double]] = Array(capacity=0)
   let mut i = 0
   while i < r {
@@ -747,7 +747,7 @@ fn _mat_copy(a : Array[Array[Double]]) -> Array[Array[Double]] {
 
 ///|
 /// Identity matrix of size n.
-fn _mat_identity(n : Int) -> Array[Array[Double]] {
+fn _mat_identity(n : Int32) -> Array[Array[Double]] {
   let m = _mat_new(n, n)
   let mut i = 0
   while i < n {
@@ -848,13 +848,13 @@ fn _jacobi_sym(
     ev0[i] = if a[i][i] < 0.0 { 0.0 } else { a[i][i] }
     i = i + 1
   }
-  let idx : Array[Int] = Array(capacity=0)
+  let idx : Array[Int32] = Array(capacity=0)
   i = 0
   while i < m {
     idx.push(i)
     i = i + 1
   }
-  idx.sort_by(fn(a : Int, b : Int) -> Int {
+  idx.sort_by(fn(a : Int32, b : Int32) -> Int32 {
     if ev0[a] < ev0[b] {
       -1
     } else if ev0[a] > ev0[b] {
@@ -1321,9 +1321,9 @@ fn _kde_at_points(x : Array[Double], adj : Double) -> Array[Double] {
 ///   - Pi0EstResult with pi0, pi0_lambda, lambdas, pi0_smooth
 pub fn qvalue_pi0est(
   p_values : Array[Double],
-  lambdas? : Array[Double] = _default_lambdas(),
-  method_? : String = "smoother",
-  smooth_log? : Bool = false,
+  lambdas~ : Array[Double] = _default_lambdas(),
+  method_~ : String = "smoother",
+  smooth_log~ : Bool = false,
 ) -> Pi0EstResult raise QValueError {
   _check_pvalues_strict(p_values)
   let lams = lambdas.copy()
@@ -1462,12 +1462,12 @@ pub fn qvalue_pi0est(
 ///   - eps:      Tail threshold for the probit transform (default 1.0e-8)
 pub fn qvalue_lfdr(
   p_values : Array[Double],
-  pi0? : Double? = None,
-  transf? : String = "probit",
-  trunc? : Bool = true,
-  monotone? : Bool = true,
-  adj? : Double = 1.5,
-  eps? : Double = 1.0e-8,
+  pi0~ : Double? = None,
+  transf~ : String = "probit",
+  trunc~ : Bool = true,
+  monotone~ : Bool = true,
+  adj~ : Double = 1.5,
+  eps~ : Double = 1.0e-8,
 ) -> Array[Double] raise QValueError {
   _check_pvalues_strict(p_values)
   let n = p_values.length()
@@ -1530,13 +1530,13 @@ pub fn qvalue_lfdr(
     }
   }
   if monotone {
-    let order : Array[Int] = Array(capacity=0)
+    let order : Array[Int32] = Array(capacity=0)
     let mut i = 0
     while i < n {
       order.push(i)
       i = i + 1
     }
-    order.sort_by(fn(a : Int, b : Int) -> Int {
+    order.sort_by(fn(a : Int32, b : Int32) -> Int32 {
       if p_values[a] < p_values[b] {
         -1
       } else if p_values[a] > p_values[b] {
@@ -1599,7 +1599,7 @@ pub fn empirical_pvalues(
     merged.push([stat0[i], 0.0, -1.0])
     i = i + 1
   }
-  merged.sort_by(fn(a : Array[Double], b : Array[Double]) -> Int {
+  merged.sort_by(fn(a : Array[Double], b : Array[Double]) -> Int32 {
     if a[0] > b[0] {
       -1
     } else if a[0] < b[0] {
@@ -1707,13 +1707,13 @@ pub fn empirical_pvalues_rows(
 ///   - lfdr_out:  Include local FDR values in the result (default true)
 pub fn qvalue_analyze(
   p_values : Array[Double],
-  fdr_level? : Double? = None,
-  pfdr? : Bool = false,
-  pi0? : Double? = None,
-  lambdas? : Array[Double]? = None,
-  method_? : String = "smoother",
-  smooth_log? : Bool = false,
-  lfdr_out? : Bool = true,
+  fdr_level~ : Double? = None,
+  pfdr~ : Bool = false,
+  pi0~ : Double? = None,
+  lambdas~ : Array[Double]? = None,
+  method_~ : String = "smoother",
+  smooth_log~ : Bool = false,
+  lfdr_out~ : Bool = true,
 ) -> QValueFullResult raise QValueError {
   _check_pvalues_strict(p_values)
   match fdr_level {
@@ -1797,7 +1797,7 @@ fn _compute_qvalues_official(
     indexed.push([p_values[i], i.to_double()])
     i = i + 1
   }
-  indexed.sort_by(fn(a : Array[Double], b : Array[Double]) -> Int {
+  indexed.sort_by(fn(a : Array[Double], b : Array[Double]) -> Int32 {
     if a[0] < b[0] {
       -1
     } else if a[0] > b[0] {

@@ -16,7 +16,11 @@ pub struct AlignMauveMetadataEntry {
   key : String
   value : String
 } derive(Eq, Debug)
+
+///|
 pub extend AlignMauveMetadataEntry with Eq::{equal, not_equal}
+
+///|
 pub extend AlignMauveMetadataEntry with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -25,13 +29,17 @@ pub extend AlignMauveMetadataEntry with @moonbitlang/core/debug.Debug::{to_repr}
 /// `number` and `entry` retain XMFA's one-based values. `entry == None`
 /// denotes separate-file input without a `SequenceNEntry` line.
 pub struct AlignMauveSource {
-  number : Int
+  number : Int32
   file : String
-  entry : Int?
+  entry : Int32?
   format : String
   identifier : String
 } derive(Eq, Debug)
+
+///|
 pub extend AlignMauveSource with Eq::{equal, not_equal}
+
+///|
 pub extend AlignMauveSource with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -41,26 +49,34 @@ pub extend AlignMauveSource with @moonbitlang/core/debug.Debug::{to_repr}
 /// Reverse rows have a decreasing `coordinates` path from `end` to `start`.
 /// `source_sequence` is always stored in the forward source orientation.
 pub struct AlignMauveRow {
-  source_number : Int
+  source_number : Int32
   identifier : String
-  start : Int
-  end : Int
+  start : Int32
+  end : Int32
   strand : String
   description : String
   aligned_sequence : String
   source_sequence : String
-  coordinates : Array[Int]
+  coordinates : Array[Int32]
 } derive(Eq, Debug)
+
+///|
 pub extend AlignMauveRow with Eq::{equal, not_equal}
+
+///|
 pub extend AlignMauveRow with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// One Mauve locally collinear block.
 pub struct AlignMauveBlock {
   rows : Array[AlignMauveRow]
-  width : Int
+  width : Int32
 } derive(Eq, Debug)
+
+///|
 pub extend AlignMauveBlock with Eq::{equal, not_equal}
+
+///|
 pub extend AlignMauveBlock with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -71,7 +87,11 @@ pub struct AlignMauveDocument {
   metadata : Array[AlignMauveMetadataEntry]
   blocks : Array[AlignMauveBlock]
 } derive(Eq, Debug)
+
+///|
 pub extend AlignMauveDocument with Eq::{equal, not_equal}
+
+///|
 pub extend AlignMauveDocument with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -79,29 +99,37 @@ pub extend AlignMauveDocument with @moonbitlang/core/debug.Debug::{to_repr}
 /// blocks. Columns where both rows contain gaps are reported separately and
 /// do not contribute to gap counts.
 pub struct AlignMauveCounts {
-  pair_count : Int
-  columns : Int
-  aligned : Int
-  identities : Int
-  mismatches : Int
-  gaps : Int
-  gap_opens : Int
-  double_gap_columns : Int
+  pair_count : Int32
+  columns : Int32
+  aligned : Int32
+  identities : Int32
+  mismatches : Int32
+  gaps : Int32
+  gap_opens : Int32
+  double_gap_columns : Int32
 } derive(Eq, Debug)
+
+///|
 pub extend AlignMauveCounts with Eq::{equal, not_equal}
+
+///|
 pub extend AlignMauveCounts with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// One interval-index entry for an aligned source segment.
 pub struct AlignMauveIndexEntry {
   identifier : String
-  start : Int
-  end : Int
-  block_index : Int
-  row_index : Int
+  start : Int32
+  end : Int32
+  block_index : Int32
+  row_index : Int32
   strand : String
 } derive(Eq, Debug)
+
+///|
 pub extend AlignMauveIndexEntry with Eq::{equal, not_equal}
+
+///|
 pub extend AlignMauveIndexEntry with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -110,19 +138,29 @@ pub struct AlignMauveIndex {
   identifiers : Array[String]
   entries : Array[AlignMauveIndexEntry]
 } derive(Eq, Debug)
+
+///|
 pub extend AlignMauveIndex with Eq::{equal, not_equal}
+
+///|
 pub extend AlignMauveIndex with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// One exact residue-to-residue coordinate projection.
 pub struct AlignMauvePositionMapping {
-  block_index : Int
-  column : Int
-  source_position : Int
-  target_position : Int
+  block_index : Int32
+  column : Int32
+  source_position : Int32
+  target_position : Int32
 } derive(Eq, Debug)
+
+///|
 pub extend AlignMauvePositionMapping with Eq::{equal, not_equal}
-pub extend AlignMauvePositionMapping with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend AlignMauvePositionMapping with @moonbitlang/core/debug.Debug::{
+  to_repr,
+}
 
 ///|
 /// One contiguous aligned part of a projected source interval.
@@ -130,39 +168,47 @@ pub extend AlignMauvePositionMapping with @moonbitlang/core/debug.Debug::{to_rep
 /// Source and target intervals are zero-based forward-axis half-open ranges.
 /// `column_start` and `column_end` identify the shared alignment columns.
 pub struct AlignMauveRangeMapping {
-  block_index : Int
-  column_start : Int
-  column_end : Int
-  source_start : Int
-  source_end : Int
-  target_start : Int
-  target_end : Int
+  block_index : Int32
+  column_start : Int32
+  column_end : Int32
+  source_start : Int32
+  source_end : Int32
+  target_start : Int32
+  target_end : Int32
   source_strand : String
   target_strand : String
 } derive(Eq, Debug)
+
+///|
 pub extend AlignMauveRangeMapping with Eq::{equal, not_equal}
+
+///|
 pub extend AlignMauveRangeMapping with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Aggregate document summary.
 pub struct AlignMauveSummary {
-  sources : Int
-  blocks : Int
-  rows : Int
-  alignment_columns : Int
-  aligned_pairs : Int
-  identities : Int
-  mismatches : Int
-  gaps : Int
+  sources : Int32
+  blocks : Int32
+  rows : Int32
+  alignment_columns : Int32
+  aligned_pairs : Int32
+  identities : Int32
+  mismatches : Int32
+  gaps : Int32
 } derive(Eq, Debug)
+
+///|
 pub extend AlignMauveSummary with Eq::{equal, not_equal}
+
+///|
 pub extend AlignMauveSummary with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 priv struct AlignMauvePendingRow {
-  source_number : Int
-  start : Int
-  end : Int
+  source_number : Int32
+  start : Int32
+  end : Int32
   strand : String
   description : String
   mut aligned_sequence : String
@@ -186,7 +232,7 @@ fn align_mauve_copy_sources(
 
 ///|
 fn align_mauve_clone_row(value : AlignMauveRow) -> AlignMauveRow {
-  let coordinates : Array[Int] = []
+  let coordinates : Array[Int32] = []
   for coordinate in value.coordinates {
     coordinates.push(coordinate)
   }
@@ -243,8 +289,8 @@ fn align_mauve_copy_metadata(
 }
 
 ///|
-fn align_mauve_copy_ints(values : Array[Int]) -> Array[Int] {
-  let copied : Array[Int] = []
+fn align_mauve_copy_ints(values : Array[Int32]) -> Array[Int32] {
+  let copied : Array[Int32] = []
   for value in values {
     copied.push(value)
   }
@@ -291,7 +337,7 @@ fn align_mauve_ends_with(value : String, suffix : String) -> Bool {
 }
 
 ///|
-fn align_mauve_is_space(code : Int) -> Bool {
+fn align_mauve_is_space(code : Int32) -> Bool {
   code == ' '.to_int() ||
   code == '\t'.to_int() ||
   code == '\r'.to_int() ||
@@ -332,7 +378,7 @@ fn align_mauve_validate_plain_text(
 fn align_mauve_parse_positive_int(
   text : String,
   label : String,
-) -> Int raise AlignMauveError {
+) -> Int32 raise AlignMauveError {
   if text.length() == 0 {
     align_mauve_fail(label + " must not be empty")
   }
@@ -352,7 +398,11 @@ fn align_mauve_parse_positive_int(
 }
 
 ///|
-fn align_mauve_index_of_char(value : String, wanted : Int, start : Int) -> Int {
+fn align_mauve_index_of_char(
+  value : String,
+  wanted : Int32,
+  start : Int32,
+) -> Int32 {
   let mut index = start
   while index < value.length() {
     if value.unsafe_get(index).to_int() == wanted {
@@ -366,7 +416,7 @@ fn align_mauve_index_of_char(value : String, wanted : Int, start : Int) -> Int {
 ///|
 fn align_mauve_header_parts(
   line : String,
-  line_number : Int,
+  line_number : Int32,
 ) -> (String, String) raise AlignMauveError {
   let body = align_mauve_trim_line(line[1:line.length()].to_owned())
   let mut split = 0
@@ -407,7 +457,7 @@ fn align_mauve_find_metadata(
 ///|
 fn align_mauve_find_source_property(
   values : Array[AlignMauveMetadataEntry],
-  number : Int,
+  number : Int32,
   suffix : String,
 ) -> String? {
   align_mauve_find_metadata(values, "Sequence" + number.to_string() + suffix)
@@ -416,7 +466,7 @@ fn align_mauve_find_source_property(
 ///|
 fn align_mauve_parse_sequence_key(
   key : String,
-) -> (Int, String)? raise AlignMauveError {
+) -> (Int32, String)? raise AlignMauveError {
   if !align_mauve_starts_with(key, "Sequence") {
     return None
   }
@@ -448,7 +498,7 @@ fn align_mauve_parse_sequence_key(
 ///|
 fn align_mauve_find_source(
   sources : Array[AlignMauveSource],
-  number : Int,
+  number : Int32,
 ) -> AlignMauveSource? {
   for source in sources {
     if source.number == number {
@@ -569,11 +619,11 @@ fn align_mauve_reverse_complement(
 ///|
 fn align_mauve_make_coordinates(
   aligned_sequence : String,
-  start : Int,
-  end : Int,
+  start : Int32,
+  end : Int32,
   strand : String,
-) -> Array[Int] raise AlignMauveError {
-  let coordinates : Array[Int] = []
+) -> Array[Int32] raise AlignMauveError {
+  let coordinates : Array[Int32] = []
   let mut current = if strand == "+" { start } else { end }
   coordinates.push(current)
   for column in 0..<aligned_sequence.length() {
@@ -594,7 +644,7 @@ fn align_mauve_make_coordinates(
 ///|
 fn align_mauve_parse_description(
   line : String,
-  line_number : Int,
+  line_number : Int32,
 ) -> AlignMauvePendingRow raise AlignMauveError {
   let body = align_mauve_trim_line(line[1:line.length()].to_owned())
   let mut first_end = 0
@@ -758,11 +808,11 @@ pub fn AlignMauveMetadataEntry::create(
 ///|
 /// Construct one validated XMFA source declaration.
 pub fn AlignMauveSource::create(
-  number : Int,
+  number : Int32,
   file : String,
-  format? : String = "FastA",
-  entry? : Int = 0,
-  identifier? : String = "",
+  format~ : String = "FastA",
+  entry~ : Int32 = 0,
+  identifier~ : String = "",
 ) -> AlignMauveSource raise AlignMauveError {
   if number <= 0 {
     align_mauve_fail("XMFA source number must be positive")
@@ -799,8 +849,8 @@ pub fn AlignMauveSource::create(
 /// Construct one validated aligned XMFA row.
 pub fn AlignMauveRow::create(
   source : AlignMauveSource,
-  start : Int,
-  end : Int,
+  start : Int32,
+  end : Int32,
   strand : String,
   description : String,
   aligned_sequence : String,
@@ -944,7 +994,7 @@ pub fn align_mauve_parse(
   }
   let source_files : Array[String] = []
   let source_formats : Array[String] = []
-  let source_entries : Array[Int] = []
+  let source_entries : Array[Int32] = []
   for number = 1; number <= maximum_source; number = number + 1 {
     let file = match
       align_mauve_find_source_property(all_metadata, number, "File") {
@@ -1073,7 +1123,7 @@ pub fn align_mauve_parse(
 /// Biopython's writer. Positive widths wrap sequence rows deterministically.
 pub fn align_mauve_write(
   document : AlignMauveDocument,
-  line_width? : Int = 0,
+  line_width~ : Int32 = 0,
 ) -> String raise AlignMauveError {
   if line_width < 0 {
     align_mauve_fail("XMFA line width must be non-negative")
@@ -1166,7 +1216,7 @@ pub fn AlignMauveMetadataEntry::value(self : AlignMauveMetadataEntry) -> String 
 }
 
 ///|
-pub fn AlignMauveSource::number(self : AlignMauveSource) -> Int {
+pub fn AlignMauveSource::number(self : AlignMauveSource) -> Int32 {
   self.number
 }
 
@@ -1176,7 +1226,7 @@ pub fn AlignMauveSource::file(self : AlignMauveSource) -> String {
 }
 
 ///|
-pub fn AlignMauveSource::entry(self : AlignMauveSource) -> Int? {
+pub fn AlignMauveSource::entry(self : AlignMauveSource) -> Int32? {
   self.entry
 }
 
@@ -1191,7 +1241,7 @@ pub fn AlignMauveSource::identifier(self : AlignMauveSource) -> String {
 }
 
 ///|
-pub fn AlignMauveRow::source_number(self : AlignMauveRow) -> Int {
+pub fn AlignMauveRow::source_number(self : AlignMauveRow) -> Int32 {
   self.source_number
 }
 
@@ -1201,12 +1251,12 @@ pub fn AlignMauveRow::identifier(self : AlignMauveRow) -> String {
 }
 
 ///|
-pub fn AlignMauveRow::start(self : AlignMauveRow) -> Int {
+pub fn AlignMauveRow::start(self : AlignMauveRow) -> Int32 {
   self.start
 }
 
 ///|
-pub fn AlignMauveRow::end(self : AlignMauveRow) -> Int {
+pub fn AlignMauveRow::end(self : AlignMauveRow) -> Int32 {
   self.end
 }
 
@@ -1231,7 +1281,7 @@ pub fn AlignMauveRow::source_sequence(self : AlignMauveRow) -> String {
 }
 
 ///|
-pub fn AlignMauveRow::coordinates(self : AlignMauveRow) -> Array[Int] {
+pub fn AlignMauveRow::coordinates(self : AlignMauveRow) -> Array[Int32] {
   align_mauve_copy_ints(self.coordinates)
 }
 
@@ -1239,8 +1289,8 @@ pub fn AlignMauveRow::coordinates(self : AlignMauveRow) -> Array[Int] {
 /// Return the source boundary at one alignment-column boundary.
 pub fn AlignMauveRow::coordinate_at_boundary(
   self : AlignMauveRow,
-  column : Int,
-) -> Int raise AlignMauveError {
+  column : Int32,
+) -> Int32 raise AlignMauveError {
   if column < 0 || column >= self.coordinates.length() {
     align_mauve_fail("XMFA alignment-column boundary is out of range")
   }
@@ -1252,8 +1302,8 @@ pub fn AlignMauveRow::coordinate_at_boundary(
 /// column, or `None` when this row has a gap in that column.
 pub fn AlignMauveRow::residue_coordinate(
   self : AlignMauveRow,
-  column : Int,
-) -> Int? raise AlignMauveError {
+  column : Int32,
+) -> Int32? raise AlignMauveError {
   if column < 0 || column >= self.aligned_sequence.length() {
     align_mauve_fail("XMFA alignment column is out of range")
   }
@@ -1271,8 +1321,8 @@ pub fn AlignMauveRow::residue_coordinate(
 /// Locate one forward-axis source residue in this aligned row.
 pub fn AlignMauveRow::column_for_coordinate(
   self : AlignMauveRow,
-  coordinate : Int,
-) -> Int? raise AlignMauveError {
+  coordinate : Int32,
+) -> Int32? raise AlignMauveError {
   if coordinate < 0 {
     align_mauve_fail("XMFA source coordinate must be non-negative")
   }
@@ -1291,12 +1341,12 @@ pub fn AlignMauveBlock::rows(self : AlignMauveBlock) -> Array[AlignMauveRow] {
 }
 
 ///|
-pub fn AlignMauveBlock::row_count(self : AlignMauveBlock) -> Int {
+pub fn AlignMauveBlock::row_count(self : AlignMauveBlock) -> Int32 {
   self.rows.length()
 }
 
 ///|
-pub fn AlignMauveBlock::width(self : AlignMauveBlock) -> Int {
+pub fn AlignMauveBlock::width(self : AlignMauveBlock) -> Int32 {
   self.width
 }
 
@@ -1316,7 +1366,7 @@ pub fn AlignMauveBlock::row_by_identifier(
 ///|
 pub fn AlignMauveBlock::row_by_source_number(
   self : AlignMauveBlock,
-  source_number : Int,
+  source_number : Int32,
 ) -> AlignMauveRow? {
   for row in self.rows {
     if row.source_number == source_number {
@@ -1333,8 +1383,8 @@ pub fn AlignMauveBlock::row_by_source_number(
 /// and gap movement, plus the first and final boundaries.
 pub fn AlignMauveBlock::compact_coordinates(
   self : AlignMauveBlock,
-) -> Array[Array[Int]] {
-  let boundaries : Array[Int] = [0]
+) -> Array[Array[Int32]] {
+  let boundaries : Array[Int32] = [0]
   for column = 1; column < self.width; column = column + 1 {
     let mut changed = false
     for row in self.rows {
@@ -1349,9 +1399,9 @@ pub fn AlignMauveBlock::compact_coordinates(
     }
   }
   boundaries.push(self.width)
-  let compact : Array[Array[Int]] = []
+  let compact : Array[Array[Int32]] = []
   for row in self.rows {
-    let coordinates : Array[Int] = []
+    let coordinates : Array[Int32] = []
     for boundary in boundaries {
       coordinates.push(row.coordinates[boundary])
     }
@@ -1367,8 +1417,8 @@ pub fn AlignMauveBlock::map_position(
   self : AlignMauveBlock,
   source_identifier : String,
   target_identifier : String,
-  source_position : Int,
-) -> Int? raise AlignMauveError {
+  source_position : Int32,
+) -> Int32? raise AlignMauveError {
   if source_position < 0 {
     align_mauve_fail("XMFA source position must be non-negative")
   }
@@ -1478,12 +1528,12 @@ pub fn AlignMauveDocument::metadata_value(
 }
 
 ///|
-pub fn AlignMauveDocument::source_count(self : AlignMauveDocument) -> Int {
+pub fn AlignMauveDocument::source_count(self : AlignMauveDocument) -> Int32 {
   self.sources.length()
 }
 
 ///|
-pub fn AlignMauveDocument::block_count(self : AlignMauveDocument) -> Int {
+pub fn AlignMauveDocument::block_count(self : AlignMauveDocument) -> Int32 {
   self.blocks.length()
 }
 
@@ -1543,42 +1593,42 @@ pub fn AlignMauveDocument::counts(
 }
 
 ///|
-pub fn AlignMauveCounts::pair_count(self : AlignMauveCounts) -> Int {
+pub fn AlignMauveCounts::pair_count(self : AlignMauveCounts) -> Int32 {
   self.pair_count
 }
 
 ///|
-pub fn AlignMauveCounts::columns(self : AlignMauveCounts) -> Int {
+pub fn AlignMauveCounts::columns(self : AlignMauveCounts) -> Int32 {
   self.columns
 }
 
 ///|
-pub fn AlignMauveCounts::aligned(self : AlignMauveCounts) -> Int {
+pub fn AlignMauveCounts::aligned(self : AlignMauveCounts) -> Int32 {
   self.aligned
 }
 
 ///|
-pub fn AlignMauveCounts::identities(self : AlignMauveCounts) -> Int {
+pub fn AlignMauveCounts::identities(self : AlignMauveCounts) -> Int32 {
   self.identities
 }
 
 ///|
-pub fn AlignMauveCounts::mismatches(self : AlignMauveCounts) -> Int {
+pub fn AlignMauveCounts::mismatches(self : AlignMauveCounts) -> Int32 {
   self.mismatches
 }
 
 ///|
-pub fn AlignMauveCounts::gaps(self : AlignMauveCounts) -> Int {
+pub fn AlignMauveCounts::gaps(self : AlignMauveCounts) -> Int32 {
   self.gaps
 }
 
 ///|
-pub fn AlignMauveCounts::gap_opens(self : AlignMauveCounts) -> Int {
+pub fn AlignMauveCounts::gap_opens(self : AlignMauveCounts) -> Int32 {
   self.gap_opens
 }
 
 ///|
-pub fn AlignMauveCounts::double_gap_columns(self : AlignMauveCounts) -> Int {
+pub fn AlignMauveCounts::double_gap_columns(self : AlignMauveCounts) -> Int32 {
   self.double_gap_columns
 }
 
@@ -1617,8 +1667,8 @@ pub fn AlignMauveIndex::entries(
 pub fn AlignMauveIndex::query(
   self : AlignMauveIndex,
   identifier : String,
-  start : Int,
-  end : Int,
+  start : Int32,
+  end : Int32,
 ) -> Array[AlignMauveIndexEntry] raise AlignMauveError {
   if start < 0 || end <= start {
     align_mauve_fail("XMFA index query must satisfy 0 <= start < end")
@@ -1641,22 +1691,22 @@ pub fn AlignMauveIndexEntry::identifier(self : AlignMauveIndexEntry) -> String {
 }
 
 ///|
-pub fn AlignMauveIndexEntry::start(self : AlignMauveIndexEntry) -> Int {
+pub fn AlignMauveIndexEntry::start(self : AlignMauveIndexEntry) -> Int32 {
   self.start
 }
 
 ///|
-pub fn AlignMauveIndexEntry::end(self : AlignMauveIndexEntry) -> Int {
+pub fn AlignMauveIndexEntry::end(self : AlignMauveIndexEntry) -> Int32 {
   self.end
 }
 
 ///|
-pub fn AlignMauveIndexEntry::block_index(self : AlignMauveIndexEntry) -> Int {
+pub fn AlignMauveIndexEntry::block_index(self : AlignMauveIndexEntry) -> Int32 {
   self.block_index
 }
 
 ///|
-pub fn AlignMauveIndexEntry::row_index(self : AlignMauveIndexEntry) -> Int {
+pub fn AlignMauveIndexEntry::row_index(self : AlignMauveIndexEntry) -> Int32 {
   self.row_index
 }
 
@@ -1671,7 +1721,7 @@ pub fn align_mauve_map_position(
   document : AlignMauveDocument,
   source_identifier : String,
   target_identifier : String,
-  source_position : Int,
+  source_position : Int32,
 ) -> Array[AlignMauvePositionMapping] raise AlignMauveError {
   if align_mauve_find_source_by_identifier(document.sources, source_identifier)
     is None {
@@ -1720,41 +1770,41 @@ pub fn align_mauve_map_position(
 ///|
 pub fn AlignMauvePositionMapping::block_index(
   self : AlignMauvePositionMapping,
-) -> Int {
+) -> Int32 {
   self.block_index
 }
 
 ///|
 pub fn AlignMauvePositionMapping::column(
   self : AlignMauvePositionMapping,
-) -> Int {
+) -> Int32 {
   self.column
 }
 
 ///|
 pub fn AlignMauvePositionMapping::source_position(
   self : AlignMauvePositionMapping,
-) -> Int {
+) -> Int32 {
   self.source_position
 }
 
 ///|
 pub fn AlignMauvePositionMapping::target_position(
   self : AlignMauvePositionMapping,
-) -> Int {
+) -> Int32 {
   self.target_position
 }
 
 ///|
 fn align_mauve_append_range_mapping(
   mappings : Array[AlignMauveRangeMapping],
-  block_index : Int,
-  column_start : Int,
-  column_end : Int,
-  first_source : Int,
-  last_source : Int,
-  first_target : Int,
-  last_target : Int,
+  block_index : Int32,
+  column_start : Int32,
+  column_end : Int32,
+  first_source : Int32,
+  last_source : Int32,
+  first_target : Int32,
+  last_target : Int32,
   source_strand : String,
   target_strand : String,
 ) -> Unit {
@@ -1800,8 +1850,8 @@ pub fn align_mauve_map_range(
   document : AlignMauveDocument,
   source_identifier : String,
   target_identifier : String,
-  start : Int,
-  end : Int,
+  start : Int32,
+  end : Int32,
 ) -> Array[AlignMauveRangeMapping] raise AlignMauveError {
   if start < 0 || end <= start {
     align_mauve_fail("XMFA source interval must satisfy 0 <= start < end")
@@ -1913,43 +1963,49 @@ pub fn align_mauve_map_range(
 ///|
 pub fn AlignMauveRangeMapping::block_index(
   self : AlignMauveRangeMapping,
-) -> Int {
+) -> Int32 {
   self.block_index
 }
 
 ///|
 pub fn AlignMauveRangeMapping::column_start(
   self : AlignMauveRangeMapping,
-) -> Int {
+) -> Int32 {
   self.column_start
 }
 
 ///|
-pub fn AlignMauveRangeMapping::column_end(self : AlignMauveRangeMapping) -> Int {
+pub fn AlignMauveRangeMapping::column_end(
+  self : AlignMauveRangeMapping,
+) -> Int32 {
   self.column_end
 }
 
 ///|
 pub fn AlignMauveRangeMapping::source_start(
   self : AlignMauveRangeMapping,
-) -> Int {
+) -> Int32 {
   self.source_start
 }
 
 ///|
-pub fn AlignMauveRangeMapping::source_end(self : AlignMauveRangeMapping) -> Int {
+pub fn AlignMauveRangeMapping::source_end(
+  self : AlignMauveRangeMapping,
+) -> Int32 {
   self.source_end
 }
 
 ///|
 pub fn AlignMauveRangeMapping::target_start(
   self : AlignMauveRangeMapping,
-) -> Int {
+) -> Int32 {
   self.target_start
 }
 
 ///|
-pub fn AlignMauveRangeMapping::target_end(self : AlignMauveRangeMapping) -> Int {
+pub fn AlignMauveRangeMapping::target_end(
+  self : AlignMauveRangeMapping,
+) -> Int32 {
   self.target_end
 }
 
@@ -1976,7 +2032,7 @@ pub fn AlignMauveRangeMapping::target_strand(
 pub fn align_mauve_reconstruct_sequence(
   document : AlignMauveDocument,
   identifier : String,
-  fill? : String = "N",
+  fill~ : String = "N",
 ) -> String raise AlignMauveError {
   if align_mauve_find_source_by_identifier(document.sources, identifier) is None {
     align_mauve_fail("Unknown XMFA source identifier '" + identifier + "'")
@@ -2050,42 +2106,42 @@ pub fn align_mauve_summary(document : AlignMauveDocument) -> AlignMauveSummary {
 }
 
 ///|
-pub fn AlignMauveSummary::sources(self : AlignMauveSummary) -> Int {
+pub fn AlignMauveSummary::sources(self : AlignMauveSummary) -> Int32 {
   self.sources
 }
 
 ///|
-pub fn AlignMauveSummary::blocks(self : AlignMauveSummary) -> Int {
+pub fn AlignMauveSummary::blocks(self : AlignMauveSummary) -> Int32 {
   self.blocks
 }
 
 ///|
-pub fn AlignMauveSummary::rows(self : AlignMauveSummary) -> Int {
+pub fn AlignMauveSummary::rows(self : AlignMauveSummary) -> Int32 {
   self.rows
 }
 
 ///|
-pub fn AlignMauveSummary::alignment_columns(self : AlignMauveSummary) -> Int {
+pub fn AlignMauveSummary::alignment_columns(self : AlignMauveSummary) -> Int32 {
   self.alignment_columns
 }
 
 ///|
-pub fn AlignMauveSummary::aligned_pairs(self : AlignMauveSummary) -> Int {
+pub fn AlignMauveSummary::aligned_pairs(self : AlignMauveSummary) -> Int32 {
   self.aligned_pairs
 }
 
 ///|
-pub fn AlignMauveSummary::identities(self : AlignMauveSummary) -> Int {
+pub fn AlignMauveSummary::identities(self : AlignMauveSummary) -> Int32 {
   self.identities
 }
 
 ///|
-pub fn AlignMauveSummary::mismatches(self : AlignMauveSummary) -> Int {
+pub fn AlignMauveSummary::mismatches(self : AlignMauveSummary) -> Int32 {
   self.mismatches
 }
 
 ///|
-pub fn AlignMauveSummary::gaps(self : AlignMauveSummary) -> Int {
+pub fn AlignMauveSummary::gaps(self : AlignMauveSummary) -> Int32 {
   self.gaps
 }
 

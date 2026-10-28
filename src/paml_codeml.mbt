@@ -16,7 +16,11 @@ pub struct CodemlOption {
   name : String
   value : String
 } derive(Eq, Debug)
+
+///|
 pub extend CodemlOption with Eq::{equal, not_equal}
+
+///|
 pub extend CodemlOption with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -27,7 +31,11 @@ pub struct CodemlControl {
   tree_file : String
   options : Array[CodemlOption]
 } derive(Eq, Debug)
+
+///|
 pub extend CodemlControl with Eq::{equal, not_equal}
+
+///|
 pub extend CodemlControl with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -36,28 +44,40 @@ pub struct CodemlNamedValue {
   name : String
   value : Double
 } derive(Eq, Debug)
+
+///|
 pub extend CodemlNamedValue with Eq::{equal, not_equal}
+
+///|
 pub extend CodemlNamedValue with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Per-gene kappa and omega estimates from a multi-gene model.
 pub struct CodemlGeneParameter {
-  gene : Int
+  gene : Int32
   kappa : Double
   omega : Double
 } derive(Eq, Debug)
+
+///|
 pub extend CodemlGeneParameter with Eq::{equal, not_equal}
+
+///|
 pub extend CodemlGeneParameter with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// One CODEML site class.
 pub struct CodemlSiteClass {
-  index : Int
+  index : Int32
   proportion : Double
   omega : Double?
   branch_types : Array[CodemlNamedValue]
 } derive(Eq, Debug)
+
+///|
 pub extend CodemlSiteClass with Eq::{equal, not_equal}
+
+///|
 pub extend CodemlSiteClass with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -76,31 +96,39 @@ pub struct CodemlBranchResult {
   n_times_dn : Double?
   s_times_ds : Double?
 } derive(Eq, Debug)
+
+///|
 pub extend CodemlBranchResult with Eq::{equal, not_equal}
+
+///|
 pub extend CodemlBranchResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// One positively selected site reported by NEB or BEB.
 pub struct CodemlPositiveSite {
   analysis_method : String
-  position : Int
+  position : Int32
   amino_acid : String
   probability : Double
   significance : String
   posterior_mean_omega : Double?
   standard_error : Double?
 } derive(Eq, Debug)
+
+///|
 pub extend CodemlPositiveSite with Eq::{equal, not_equal}
+
+///|
 pub extend CodemlPositiveSite with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// One fitted CODEML NSsites model or one multi-gene result section.
 pub struct CodemlModelResult {
-  number : Int
-  gene : Int
+  number : Int32
+  gene : Int32
   description : String
   ln_likelihood : Double
-  parameter_count : Int
+  parameter_count : Int32
   parameter_list : String
   standard_errors : String
   tree_length : Double?
@@ -119,7 +147,11 @@ pub struct CodemlModelResult {
   branches : Array[CodemlBranchResult]
   positive_sites : Array[CodemlPositiveSite]
 } derive(Eq, Debug)
+
+///|
 pub extend CodemlModelResult with Eq::{equal, not_equal}
+
+///|
 pub extend CodemlModelResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -135,7 +167,11 @@ pub struct CodemlPairwiseResult {
   dn : Double
   ds : Double
 } derive(Eq, Debug)
+
+///|
 pub extend CodemlPairwiseResult with Eq::{equal, not_equal}
+
+///|
 pub extend CodemlPairwiseResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -146,7 +182,11 @@ pub struct CodemlDistance {
   second : String
   value : Double
 } derive(Eq, Debug)
+
+///|
 pub extend CodemlDistance with Eq::{equal, not_equal}
+
+///|
 pub extend CodemlDistance with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -157,26 +197,34 @@ pub struct CodemlResults {
   model : String
   codon_frequency_model : String
   site_class_model : String
-  sequence_count : Int
-  site_count : Int
+  sequence_count : Int32
+  site_count : Int32
   ln_l_max : Double?
   models : Array[CodemlModelResult]
   pairwise : Array[CodemlPairwiseResult]
   distances : Array[CodemlDistance]
 } derive(Eq, Debug)
+
+///|
 pub extend CodemlResults with Eq::{equal, not_equal}
+
+///|
 pub extend CodemlResults with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Likelihood-ratio comparison between nested CODEML models.
 pub struct CodemlLikelihoodRatio {
   statistic : Double
-  degrees_of_freedom : Int
+  degrees_of_freedom : Int32
   p_value : Double
   alpha : Double
   significant : Bool
 } derive(Eq, Debug)
+
+///|
 pub extend CodemlLikelihoodRatio with Eq::{equal, not_equal}
+
+///|
 pub extend CodemlLikelihoodRatio with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -192,7 +240,7 @@ fn codeml_fail(message : String) -> Unit raise CodemlError {
 }
 
 ///|
-fn codeml_is_space(code : Int) -> Bool {
+fn codeml_is_space(code : Int32) -> Bool {
   code == ' '.to_int() ||
   code == '\t'.to_int() ||
   code == '\r'.to_int() ||
@@ -241,7 +289,7 @@ fn codeml_ends_with(value : String, suffix : String) -> Bool {
 }
 
 ///|
-fn codeml_index_of_char(value : String, wanted : Int, start : Int) -> Int {
+fn codeml_index_of_char(value : String, wanted : Int32, start : Int32) -> Int32 {
   let mut index = start
   while index < value.length() {
     if value.unsafe_get(index).to_int() == wanted {
@@ -253,7 +301,7 @@ fn codeml_index_of_char(value : String, wanted : Int, start : Int) -> Int {
 }
 
 ///|
-fn codeml_last_index_of_char(value : String, wanted : Int) -> Int {
+fn codeml_last_index_of_char(value : String, wanted : Int32) -> Int32 {
   let mut index = value.length() - 1
   while index >= 0 {
     if value.unsafe_get(index).to_int() == wanted {
@@ -289,7 +337,7 @@ fn codeml_contains(value : String, needle : String) -> Bool {
 }
 
 ///|
-fn codeml_index_of(value : String, needle : String, from : Int) -> Int {
+fn codeml_index_of(value : String, needle : String, from : Int32) -> Int32 {
   if needle.length() == 0 {
     return from
   }
@@ -349,12 +397,12 @@ fn codeml_words(value : String) -> Array[String] {
 }
 
 ///|
-fn codeml_is_digit(code : Int) -> Bool {
+fn codeml_is_digit(code : Int32) -> Bool {
   code >= '0'.to_int() && code <= '9'.to_int()
 }
 
 ///|
-fn codeml_parse_int(text : String, label : String) -> Int raise CodemlError {
+fn codeml_parse_int(text : String, label : String) -> Int32 raise CodemlError {
   let value = codeml_trim(text)
   if value.length() == 0 {
     codeml_fail(label + " must be an integer")
@@ -988,8 +1036,8 @@ pub fn CodemlControl::option(self : CodemlControl, name : String) -> String? {
 }
 
 ///|
-pub fn CodemlControl::ns_sites(self : CodemlControl) -> Array[Int] {
-  let result : Array[Int] = []
+pub fn CodemlControl::ns_sites(self : CodemlControl) -> Array[Int32] {
+  let result : Array[Int32] = []
   match self.option("NSsites") {
     Some(value) =>
       for word in codeml_words(value) {
@@ -1014,7 +1062,7 @@ pub fn CodemlOption::value(self : CodemlOption) -> String {
 }
 
 ///|
-fn codeml_site_model_number(name : String) -> Int {
+fn codeml_site_model_number(name : String) -> Int32 {
   match name {
     "" | "one-ratio" => 0
     "NearlyNeutral" => 1
@@ -1028,7 +1076,7 @@ fn codeml_site_model_number(name : String) -> Int {
 }
 
 ///|
-fn codeml_model_header(line : String) -> (Int, String)? {
+fn codeml_model_header(line : String) -> (Int32, String)? {
   let value = codeml_trim(line)
   if !codeml_starts_with(value, "Model ") {
     return None
@@ -1048,7 +1096,7 @@ fn codeml_model_header(line : String) -> (Int, String)? {
 }
 
 ///|
-fn codeml_gene_header(line : String) -> Int? {
+fn codeml_gene_header(line : String) -> Int32? {
   let value = codeml_trim(line)
   if !codeml_starts_with(value, "Gene ") {
     return None
@@ -1213,10 +1261,10 @@ fn codeml_parse_positive_site(
 ///|
 fn codeml_parse_model_segment(
   lines : Array[String],
-  start : Int,
-  end : Int,
-  number : Int,
-  gene : Int,
+  start : Int32,
+  end : Int32,
+  number : Int32,
+  gene : Int32,
   description : String,
 ) -> CodemlModelResult? raise CodemlError {
   let mut ln_likelihood : Double? = None
@@ -1683,7 +1731,7 @@ fn codeml_parse_distances(lines : Array[String]) -> Array[CodemlDistance] {
 }
 
 ///|
-fn codeml_parse_counts(line : String) -> (Int, Int)? {
+fn codeml_parse_counts(line : String) -> (Int32, Int32)? {
   let ns = codeml_index_of(line, "ns =", 0)
   let ls = codeml_index_of(line, "ls =", 0)
   if ns < 0 || ls < 0 || ls <= ns {
@@ -1776,8 +1824,8 @@ pub fn codeml_parse_results(text : String) -> CodemlResults raise CodemlError {
     codeml_fail("Invalid CODEML results header")
   }
   let models : Array[CodemlModelResult] = []
-  let model_starts : Array[Int] = []
-  let model_numbers : Array[Int] = []
+  let model_starts : Array[Int32] = []
+  let model_numbers : Array[Int32] = []
   let model_descriptions : Array[String] = []
   for index in 0..<lines.length() {
     match codeml_model_header(lines[index]) {
@@ -1815,8 +1863,8 @@ pub fn codeml_parse_results(text : String) -> CodemlResults raise CodemlError {
       }
     }
   } else {
-    let gene_starts : Array[Int] = []
-    let gene_numbers : Array[Int] = []
+    let gene_starts : Array[Int32] = []
+    let gene_numbers : Array[Int32] = []
     for index in 0..<lines.length() {
       match codeml_gene_header(lines[index]) {
         Some(gene) => {
@@ -1918,12 +1966,12 @@ pub fn CodemlResults::site_class_model(self : CodemlResults) -> String {
 }
 
 ///|
-pub fn CodemlResults::sequence_count(self : CodemlResults) -> Int {
+pub fn CodemlResults::sequence_count(self : CodemlResults) -> Int32 {
   self.sequence_count
 }
 
 ///|
-pub fn CodemlResults::site_count(self : CodemlResults) -> Int {
+pub fn CodemlResults::site_count(self : CodemlResults) -> Int32 {
   self.site_count
 }
 
@@ -1952,7 +2000,7 @@ pub fn CodemlResults::distances(self : CodemlResults) -> Array[CodemlDistance] {
 ///|
 pub fn CodemlResults::model_by_number(
   self : CodemlResults,
-  number : Int,
+  number : Int32,
 ) -> CodemlModelResult? {
   for model in self.models {
     if model.number == number {
@@ -1963,12 +2011,12 @@ pub fn CodemlResults::model_by_number(
 }
 
 ///|
-pub fn CodemlModelResult::number(self : CodemlModelResult) -> Int {
+pub fn CodemlModelResult::number(self : CodemlModelResult) -> Int32 {
   self.number
 }
 
 ///|
-pub fn CodemlModelResult::gene(self : CodemlModelResult) -> Int {
+pub fn CodemlModelResult::gene(self : CodemlModelResult) -> Int32 {
   self.gene
 }
 
@@ -1983,7 +2031,7 @@ pub fn CodemlModelResult::ln_likelihood(self : CodemlModelResult) -> Double {
 }
 
 ///|
-pub fn CodemlModelResult::parameter_count(self : CodemlModelResult) -> Int {
+pub fn CodemlModelResult::parameter_count(self : CodemlModelResult) -> Int32 {
   self.parameter_count
 }
 
@@ -2093,7 +2141,7 @@ pub fn CodemlNamedValue::value(self : CodemlNamedValue) -> Double {
 }
 
 ///|
-pub fn CodemlGeneParameter::gene(self : CodemlGeneParameter) -> Int {
+pub fn CodemlGeneParameter::gene(self : CodemlGeneParameter) -> Int32 {
   self.gene
 }
 
@@ -2108,7 +2156,7 @@ pub fn CodemlGeneParameter::omega(self : CodemlGeneParameter) -> Double {
 }
 
 ///|
-pub fn CodemlSiteClass::index(self : CodemlSiteClass) -> Int {
+pub fn CodemlSiteClass::index(self : CodemlSiteClass) -> Int32 {
   self.index
 }
 
@@ -2184,7 +2232,7 @@ pub fn CodemlPositiveSite::analysis_method(self : CodemlPositiveSite) -> String 
 }
 
 ///|
-pub fn CodemlPositiveSite::position(self : CodemlPositiveSite) -> Int {
+pub fn CodemlPositiveSite::position(self : CodemlPositiveSite) -> Int32 {
   self.position
 }
 
@@ -2296,7 +2344,7 @@ pub fn CodemlModelResult::aic(self : CodemlModelResult) -> Double {
 /// Bayesian information criterion for a fitted model.
 pub fn CodemlModelResult::bic(
   self : CodemlModelResult,
-  observations : Int,
+  observations : Int32,
 ) -> Double raise CodemlError {
   if observations <= 0 {
     codeml_fail("CODEML BIC observations must be positive")
@@ -2369,11 +2417,7 @@ fn codeml_gamma_q(a : Double, x : Double) -> Double {
     }
     index = index + 1
   }
-  clamp(
-    value * @math.exp(-x + a * @math.ln(x) - codeml_log_gamma(a)),
-    0.0,
-    1.0,
-  )
+  clamp(value * @math.exp(-x + a * @math.ln(x) - codeml_log_gamma(a)), 0.0, 1.0)
 }
 
 ///|
@@ -2381,7 +2425,7 @@ fn codeml_gamma_q(a : Double, x : Double) -> Double {
 pub fn codeml_likelihood_ratio(
   null_model : CodemlModelResult,
   alternative_model : CodemlModelResult,
-  alpha? : Double = 0.05,
+  alpha~ : Double = 0.05,
 ) -> CodemlLikelihoodRatio raise CodemlError {
   if alpha <= 0.0 || alpha >= 1.0 || alpha.is_nan() {
     codeml_fail("CODEML LRT alpha must be between zero and one")
@@ -2417,7 +2461,7 @@ pub fn CodemlLikelihoodRatio::statistic(self : CodemlLikelihoodRatio) -> Double 
 ///|
 pub fn CodemlLikelihoodRatio::degrees_of_freedom(
   self : CodemlLikelihoodRatio,
-) -> Int {
+) -> Int32 {
   self.degrees_of_freedom
 }
 

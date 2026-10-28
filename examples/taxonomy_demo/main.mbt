@@ -34,12 +34,14 @@ fn main {
 
   println("\n5. Common Ancestor:")
   match db.get_common_ancestor("9606", "9599") {
-    Some(ancestor_id) => {
+    Some(ancestor_id) =>
       match db.get_scientific_name(ancestor_id) {
-        Some(name) => println("   Common ancestor of human and chimp: \{name} (tax_id: \{ancestor_id})")
+        Some(name) =>
+          println(
+            "   Common ancestor of human and chimp: \{name} (tax_id: \{ancestor_id})",
+          )
         None => println("   Common ancestor: tax_id \{ancestor_id}")
       }
-    }
     None => println("   No common ancestor found")
   }
 
@@ -52,7 +54,9 @@ fn main {
 
   println("\n7. Ancestor Check:")
   let is_ancestor = db.is_ancestor("9604", "9606")
-  println("   Is Hominidae (9604) ancestor of Homo sapiens (9606)? \{is_ancestor}")
+  println(
+    "   Is Hominidae (9604) ancestor of Homo sapiens (9606)? \{is_ancestor}",
+  )
 
   println("\n8. Common Names:")
   let common_names = db.get_common_names("9606")
@@ -90,7 +94,10 @@ fn main {
 
   println("\n11. Parse nodes.dmp format:")
   let nodes_content = "1\t|\t0\t|\tno rank\t|\n131567\t|\t1\t|\tno rank\t|\n2759\t|\t131567\t|\tsuperkingdom\t|\n"
-  let parsed_db = @bio.parse_nodes_dmp(@bio.TaxonomyDatabase::new(), nodes_content)
+  let parsed_db = @bio.parse_nodes_dmp(
+    @bio.TaxonomyDatabase::new(),
+    nodes_content,
+  )
   println("   Parsed \{parsed_db.count_taxa()} taxa from nodes.dmp")
 
   println("\n=== Demo Complete ===")

@@ -1,7 +1,6 @@
 ///|
 /// Tier 1 cheminformatics tests: canonical SMILES, descriptors, MACCS, SMARTS,
 /// kekulization, distance matrix, ring perception.
-
 test "adjacency_list_ethanol" {
   let mol = @src.parse_smiles("CCO")
   let adj = @src.mol_adjacency(mol)
@@ -15,6 +14,7 @@ test "adjacency_list_ethanol" {
   assert_eq(adj[2][0], (1, 1))
 }
 
+///|
 test "distance_matrix_ethanol" {
   let mol = @src.parse_smiles("CCO")
   let dist = @src.mol_distance_matrix(mol)
@@ -30,6 +30,7 @@ test "distance_matrix_ethanol" {
   assert_eq(dist[2][2], 0)
 }
 
+///|
 test "distance_matrix_benzene" {
   let mol = @src.parse_smiles("c1ccccc1")
   let dist = @src.mol_distance_matrix(mol)
@@ -39,6 +40,7 @@ test "distance_matrix_benzene" {
   assert_eq(dist[0][2], 2)
 }
 
+///|
 test "ring_perception_benzene" {
   let mol = @src.parse_smiles("c1ccccc1")
   let rings = @src.mol_find_rings(mol)
@@ -46,6 +48,7 @@ test "ring_perception_benzene" {
   assert_eq(rings[0].length(), 6)
 }
 
+///|
 test "ring_perception_cyclohexane" {
   let mol = @src.parse_smiles("C1CCCCC1")
   let rings = @src.mol_find_rings(mol)
@@ -53,6 +56,7 @@ test "ring_perception_cyclohexane" {
   assert_eq(rings[0].length(), 6)
 }
 
+///|
 test "ring_perception_naphthalene" {
   let mol = @src.parse_smiles("c1ccc2ccccc2c1")
   let rings = @src.mol_find_rings(mol)
@@ -60,16 +64,19 @@ test "ring_perception_naphthalene" {
   assert_eq(rings.length(), 2)
 }
 
+///|
 test "ring_count_benzene" {
   let mol = @src.parse_smiles("c1ccccc1")
   assert_eq(@src.mol_ring_count(mol), 1)
 }
 
+///|
 test "ring_count_no_ring" {
   let mol = @src.parse_smiles("CCO")
   assert_eq(@src.mol_ring_count(mol), 0)
 }
 
+///|
 test "is_in_ring" {
   let mol = @src.parse_smiles("c1ccccc1")
   // All atoms in benzene are in a ring
@@ -78,6 +85,7 @@ test "is_in_ring" {
   }
 }
 
+///|
 test "is_in_ring_no_ring" {
   let mol = @src.parse_smiles("CCO")
   for i = 0; i < 3; i = i + 1 {
@@ -85,16 +93,19 @@ test "is_in_ring_no_ring" {
   }
 }
 
+///|
 test "aromatic_ring_count_benzene" {
   let mol = @src.parse_smiles("c1ccccc1")
   assert_eq(@src.mol_aromatic_ring_count(mol), 1)
 }
 
+///|
 test "saturated_ring_count_cyclohexane" {
   let mol = @src.parse_smiles("C1CCCCC1")
   assert_eq(@src.mol_saturated_ring_count(mol), 1)
 }
 
+///|
 test "kekulize_benzene" {
   let mol = @src.parse_smiles("c1ccccc1")
   let kek = @src.mol_kekulize(mol)
@@ -112,6 +123,7 @@ test "kekulize_benzene" {
   assert_eq(num_double, 3)
 }
 
+///|
 test "perceive_aromaticity" {
   let mol = @src.parse_smiles("C1=CC=CC=C1")
   let arom = @src.mol_perceive_aromaticity(mol)
@@ -124,6 +136,7 @@ test "perceive_aromaticity" {
   assert_eq(num_aromatic, 6)
 }
 
+///|
 test "canonical_smiles_ethanol" {
   let mol = @src.parse_smiles("CCO")
   let smi = @src.mol_to_smiles(mol)
@@ -131,12 +144,14 @@ test "canonical_smiles_ethanol" {
   assert_true(smi.length() > 0)
 }
 
+///|
 test "canonical_smiles_benzene" {
   let mol = @src.parse_smiles("c1ccccc1")
   let smi = @src.mol_to_smiles(mol)
   assert_true(smi.length() > 0)
 }
 
+///|
 test "molecular_weight_ethanol" {
   let mol = @src.parse_smiles("CCO")
   let mw = @src.mol_molecular_weight(mol)
@@ -146,6 +161,7 @@ test "molecular_weight_ethanol" {
   assert_true(mw > 39.0 && mw < 41.0)
 }
 
+///|
 test "logp_ethanol" {
   let mol = @src.parse_smiles("CCO")
   let logp = @src.mol_logp(mol)
@@ -153,6 +169,7 @@ test "logp_ethanol" {
   assert_true(logp > -10.0 && logp < 10.0)
 }
 
+///|
 test "tpsa_ethanol" {
   let mol = @src.parse_smiles("CCO")
   let tpsa = @src.mol_tpsa(mol)
@@ -160,6 +177,7 @@ test "tpsa_ethanol" {
   assert_true(tpsa > 0.0)
 }
 
+///|
 test "hbd_count_ethanol" {
   let mol = @src.parse_smiles("CCO")
   let hbd = @src.mol_hbd_count(mol)
@@ -167,6 +185,7 @@ test "hbd_count_ethanol" {
   assert_eq(hbd, 1)
 }
 
+///|
 test "hba_count_ethanol" {
   let mol = @src.parse_smiles("CCO")
   let hba = @src.mol_hba_count(mol)
@@ -174,6 +193,7 @@ test "hba_count_ethanol" {
   assert_eq(hba, 1)
 }
 
+///|
 test "hba_count_pyridine" {
   let mol = @src.parse_smiles("c1ccncc1")
   let hba = @src.mol_hba_count(mol)
@@ -181,6 +201,7 @@ test "hba_count_pyridine" {
   assert_eq(hba, 1)
 }
 
+///|
 test "rotatable_bonds_ethane" {
   let mol = @src.parse_smiles("CC")
   let rb = @src.mol_rotatable_bonds(mol)
@@ -188,6 +209,7 @@ test "rotatable_bonds_ethane" {
   assert_eq(rb, 0)
 }
 
+///|
 test "rotatable_bonds_propane" {
   let mol = @src.parse_smiles("CCC")
   let rb = @src.mol_rotatable_bonds(mol)
@@ -195,12 +217,14 @@ test "rotatable_bonds_propane" {
   assert_eq(rb, 0)
 }
 
+///|
 test "formal_charge" {
   let mol = @src.parse_smiles("CCO")
   let fc = @src.mol_formal_charge(mol)
   assert_eq(fc, 0)
 }
 
+///|
 test "fraction_sp3_ethanol" {
   let mol = @src.parse_smiles("CCO")
   let fsp3 = @src.mol_fraction_sp3(mol)
@@ -208,6 +232,7 @@ test "fraction_sp3_ethanol" {
   assert_true(fsp3 > 0.99)
 }
 
+///|
 test "fraction_sp3_benzene" {
   let mol = @src.parse_smiles("c1ccccc1")
   let fsp3 = @src.mol_fraction_sp3(mol)
@@ -215,6 +240,7 @@ test "fraction_sp3_benzene" {
   assert_true(fsp3 < 0.01)
 }
 
+///|
 test "valence_electrons_ethanol" {
   let mol = @src.parse_smiles("CCO")
   let ve = @src.mol_valence_electrons(mol)
@@ -222,11 +248,13 @@ test "valence_electrons_ethanol" {
   assert_eq(ve, 14)
 }
 
+///|
 test "heavy_atom_count" {
   let mol = @src.parse_smiles("CCO")
   assert_eq(@src.mol_heavy_atom_count(mol), 3)
 }
 
+///|
 test "descriptor_report" {
   let mol = @src.parse_smiles("CCO")
   let report = @src.mol_descriptor_report(mol)
@@ -240,6 +268,7 @@ test "descriptor_report" {
 // MACCS fingerprint tests
 // ============================================================================
 
+///|
 test "maccs_bit_count_ethanol" {
   let mol = @src.parse_smiles("CCO")
   let bc = @src.maccs_bit_count(mol)
@@ -247,6 +276,7 @@ test "maccs_bit_count_ethanol" {
   assert_true(bc > 5)
 }
 
+///|
 test "maccs_fingerprint_length" {
   let mol = @src.parse_smiles("CCO")
   let fp = @src.maccs_fingerprint(mol)
@@ -254,12 +284,14 @@ test "maccs_fingerprint_length" {
   assert_eq(fp.length(), 167)
 }
 
+///|
 test "maccs_fingerprint_string_length" {
   let mol = @src.parse_smiles("CCO")
   let fps = @src.maccs_fingerprint_string(mol)
   assert_eq(fps.length(), 166)
 }
 
+///|
 test "maccs_bit1_always_set" {
   let mol = @src.parse_smiles("C")
   let fp = @src.maccs_fingerprint(mol)
@@ -267,6 +299,7 @@ test "maccs_bit1_always_set" {
   assert_true(fp[1])
 }
 
+///|
 test "maccs_oxygen_bit" {
   let mol = @src.parse_smiles("CCO")
   let fp = @src.maccs_fingerprint(mol)
@@ -274,6 +307,7 @@ test "maccs_oxygen_bit" {
   assert_true(fp[17])
 }
 
+///|
 test "maccs_no_oxygen" {
   let mol = @src.parse_smiles("CC")
   let fp = @src.maccs_fingerprint(mol)
@@ -281,6 +315,7 @@ test "maccs_no_oxygen" {
   assert_false(fp[17])
 }
 
+///|
 test "maccs_nitrogen_bit" {
   let mol = @src.parse_smiles("N")
   let fp = @src.maccs_fingerprint(mol)
@@ -288,6 +323,7 @@ test "maccs_nitrogen_bit" {
   assert_true(fp[24])
 }
 
+///|
 test "maccs_ring_bit_benzene" {
   let mol = @src.parse_smiles("c1ccccc1")
   let fp = @src.maccs_fingerprint(mol)
@@ -297,6 +333,7 @@ test "maccs_ring_bit_benzene" {
   assert_true(fp[65])
 }
 
+///|
 test "maccs_tanimoto_identical" {
   let mol1 = @src.parse_smiles("CCO")
   let mol2 = @src.parse_smiles("CCO")
@@ -305,6 +342,7 @@ test "maccs_tanimoto_identical" {
   assert_true(sim > 0.99)
 }
 
+///|
 test "maccs_tanimoto_different" {
   let mol1 = @src.parse_smiles("CCO")
   let mol2 = @src.parse_smiles("c1ccccc1")
@@ -314,6 +352,7 @@ test "maccs_tanimoto_different" {
   assert_true(sim >= 0.0)
 }
 
+///|
 test "maccs_fingerprint_int_nonzero" {
   let mol = @src.parse_smiles("CCO")
   let fpi = @src.maccs_fingerprint_int(mol)
@@ -325,96 +364,112 @@ test "maccs_fingerprint_int_nonzero" {
 // SMARTS tests
 // ============================================================================
 
+///|
 test "smarts_parse_carbon" {
   let pat = @src.smarts_parse("[#6]")
   assert_eq(pat.atoms.length(), 1)
   assert_true(pat.atoms[0].atomic_num is Some(_))
 }
 
+///|
 test "smarts_parse_wildcard" {
   let pat = @src.smarts_parse("[*]")
   assert_eq(pat.atoms.length(), 1)
   assert_true(pat.atoms[0].is_wildcard)
 }
 
+///|
 test "smarts_parse_ring" {
   let pat = @src.smarts_parse("[R]")
   assert_eq(pat.atoms.length(), 1)
   assert_true(pat.atoms[0].in_ring is Some(_))
 }
 
+///|
 test "smarts_parse_aromatic" {
   let pat = @src.smarts_parse("[a]")
   assert_eq(pat.atoms.length(), 1)
   assert_true(pat.atoms[0].aromatic is Some(_))
 }
 
+///|
 test "smarts_parse_multi_atom" {
   let pat = @src.smarts_parse("[#6]-[#6]")
   assert_eq(pat.atoms.length(), 2)
   assert_eq(pat.bonds.length(), 1)
 }
 
+///|
 test "smarts_match_carbon" {
   let mol = @src.parse_smiles("CCO")
   // [#6] should match carbon atoms
   assert_true(@src.smarts_match_str(mol, "[#6]"))
 }
 
+///|
 test "smarts_match_oxygen" {
   let mol = @src.parse_smiles("CCO")
   // [#8] should match oxygen
   assert_true(@src.smarts_match_str(mol, "[#8]"))
 }
 
+///|
 test "smarts_match_no_match" {
   let mol = @src.parse_smiles("CCO")
   // [#7] (nitrogen) should not match ethanol
   assert_false(@src.smarts_match_str(mol, "[#7]"))
 }
 
+///|
 test "smarts_match_wildcard" {
   let mol = @src.parse_smiles("CCO")
   // [*] matches any atom
   assert_true(@src.smarts_match_str(mol, "[*]"))
 }
 
+///|
 test "smarts_match_cc_bond" {
   let mol = @src.parse_smiles("CCO")
   // [#6]-[#6] should match C-C bond in ethanol
   assert_true(@src.smarts_match_str(mol, "[#6]-[#6]"))
 }
 
+///|
 test "smarts_match_co_bond" {
   let mol = @src.parse_smiles("CCO")
   // [#6]-[#8] should match C-O bond
   assert_true(@src.smarts_match_str(mol, "[#6]-[#8]"))
 }
 
+///|
 test "smarts_match_ring" {
   let mol = @src.parse_smiles("c1ccccc1")
   // [R] should match ring atoms in benzene
   assert_true(@src.smarts_match_str(mol, "[R]"))
 }
 
+///|
 test "smarts_match_ring_no_ring" {
   let mol = @src.parse_smiles("CCO")
   // [R] should not match any atom in ethanol
   assert_false(@src.smarts_match_str(mol, "[R]"))
 }
 
+///|
 test "smarts_match_aromatic" {
   let mol = @src.parse_smiles("c1ccccc1")
   // [a] should match aromatic atoms in benzene
   assert_true(@src.smarts_match_str(mol, "[a]"))
 }
 
+///|
 test "smarts_match_aromatic_no_arom" {
   let mol = @src.parse_smiles("CCO")
   // [a] should not match any atom in ethanol
   assert_false(@src.smarts_match_str(mol, "[a]"))
 }
 
+///|
 test "smarts_count_carbons" {
   let mol = @src.parse_smiles("CCO")
   // [#6] should match 2 carbon atoms
@@ -422,12 +477,14 @@ test "smarts_count_carbons" {
   assert_eq(count, 2)
 }
 
+///|
 test "smarts_count_oxygen" {
   let mol = @src.parse_smiles("CCO")
   let count = @src.smarts_count_matches_str(mol, "[#8]")
   assert_eq(count, 1)
 }
 
+///|
 test "smarts_find_matches" {
   let mol = @src.parse_smiles("CCO")
   let pat = @src.smarts_parse("[#6]")
@@ -435,30 +492,35 @@ test "smarts_find_matches" {
   assert_eq(matches.length(), 2)
 }
 
+///|
 test "smarts_double_bond" {
   let mol = @src.parse_smiles("C=CC")
   // [#6]=[#6] should match the C=C double bond
   assert_true(@src.smarts_match_str(mol, "[#6]=[#6]"))
 }
 
+///|
 test "smarts_triple_bond" {
   let mol = @src.parse_smiles("C#C")
   // [#6]#[#6] should match the C#C triple bond
   assert_true(@src.smarts_match_str(mol, "[#6]#[#6]"))
 }
 
+///|
 test "smarts_any_bond" {
   let mol = @src.parse_smiles("CCO")
   // [#6]~[#8] should match C-O with any bond
   assert_true(@src.smarts_match_str(mol, "[#6]~[#8]"))
 }
 
+///|
 test "smarts_degree_query" {
   let mol = @src.parse_smiles("CC(C)C")
   // [D3] should match the central carbon with degree 3
   assert_true(@src.smarts_match_str(mol, "[D3]"))
 }
 
+///|
 test "smarts_negation" {
   let mol = @src.parse_smiles("CCO")
   // [!#8] should match non-oxygen atoms (C, C)

@@ -7,7 +7,7 @@
 /// Stateful mock BLAST server: records request URLs and serves canned
 /// PUT / SearchInfo / Get responses.
 struct BlastMock {
-  mut info_calls : Int
+  mut info_calls : Int32
   statuses : Array[String]
   requests : Array[String]
   result : String

@@ -3,11 +3,7 @@
 
 ///|
 test "h5ad_dense_roundtrip" {
-  let x = [
-    [1.0, 0.0, 3.0],
-    [0.0, 5.0, 0.0],
-    [7.0, 0.0, 9.0],
-  ]
+  let x = [[1.0, 0.0, 3.0], [0.0, 5.0, 0.0], [7.0, 0.0, 9.0]]
   let ad = @src.AnnData::new(x, ["c1", "c2", "c3"], ["g1", "g2", "g3"])
   let json = @src.scanpy_write_h5ad(ad)
   let ad2 = match @src.scanpy_read_h5ad(json) {
@@ -168,8 +164,10 @@ test "h5ad_with_layers_roundtrip" {
 ///|
 test "h5ad_with_obsp_roundtrip" {
   let x = [[1.0, 2.0], [3.0, 4.0]]
-  let ad = @src.AnnData::new(x, ["c1", "c2"], ["g1", "g2"])
-    .set_obsp("connectivities", [[1.0, 0.5], [0.5, 1.0]])
+  let ad = @src.AnnData::new(x, ["c1", "c2"], ["g1", "g2"]).set_obsp(
+    "connectivities",
+    [[1.0, 0.5], [0.5, 1.0]],
+  )
   let json = @src.scanpy_write_h5ad(ad)
   let ad2 = match @src.scanpy_read_h5ad(json) {
     Some(a) => a
@@ -186,8 +184,10 @@ test "h5ad_with_obsp_roundtrip" {
 test "h5ad_double_roundtrip_stable" {
   // Write → read → write → read, second output should match first
   let x = [[1.0, 0.0, 3.0], [0.0, 5.0, 0.0]]
-  let ad = @src.AnnData::new(x, ["c1", "c2"], ["g1", "g2", "g3"])
-    .set_obs("batch", ["A", "B"])
+  let ad = @src.AnnData::new(x, ["c1", "c2"], ["g1", "g2", "g3"]).set_obs(
+    "batch",
+    ["A", "B"],
+  )
   let json1 = @src.scanpy_write_h5ad(ad)
   let ad1 = match @src.scanpy_read_h5ad(json1) {
     Some(a) => a

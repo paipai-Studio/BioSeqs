@@ -15,7 +15,11 @@ pub enum TraceDirection {
   Up // gap in seq2 (deletion): comes from (i-1, j)
   Left // gap in seq1 (insertion): comes from (i, j-1)
 } derive(Eq, Debug)
+
+///|
 pub extend TraceDirection with Eq::{equal, not_equal}
+
+///|
 pub extend TraceDirection with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -60,8 +64,8 @@ pub struct SWResult {
   aligned_seq2 : String
   match_line : String
   score : Double
-  start_pos1 : (Int, Int) // (start, end) in seq1, 0-based, end exclusive
-  start_pos2 : (Int, Int) // (start, end) in seq2
+  start_pos1 : (Int32, Int32) // (start, end) in seq1, 0-based, end exclusive
+  start_pos2 : (Int32, Int32) // (start, end) in seq2
   score_matrix : Array[Array[Double]]
   trace_matrix : Array[Array[TraceDirection]]
 }
@@ -92,13 +96,13 @@ pub fn SWResult::score(self : SWResult) -> Double {
 
 ///|
 /// Get start/end positions in sequence 1 (0-based, end exclusive).
-pub fn SWResult::pos1(self : SWResult) -> (Int, Int) {
+pub fn SWResult::pos1(self : SWResult) -> (Int32, Int32) {
   self.start_pos1
 }
 
 ///|
 /// Get start/end positions in sequence 2 (0-based, end exclusive).
-pub fn SWResult::pos2(self : SWResult) -> (Int, Int) {
+pub fn SWResult::pos2(self : SWResult) -> (Int32, Int32) {
   self.start_pos2
 }
 
@@ -116,13 +120,13 @@ pub fn SWResult::trace_matrix(self : SWResult) -> Array[Array[TraceDirection]] {
 
 ///|
 /// Get alignment length.
-pub fn SWResult::alignment_length(self : SWResult) -> Int {
+pub fn SWResult::alignment_length(self : SWResult) -> Int32 {
   self.aligned_seq1.length()
 }
 
 ///|
 /// Count the number of matches in the alignment.
-pub fn SWResult::num_matches(self : SWResult) -> Int {
+pub fn SWResult::num_matches(self : SWResult) -> Int32 {
   let mut count = 0
   for i = 0; i < self.match_line.length(); i = i + 1 {
     if self.match_line.unsafe_get(i).unsafe_to_char() == '|' {
@@ -157,7 +161,7 @@ pub fn SWResult::format(self : SWResult) -> String {
 ///|
 /// Format the alignment with line wrapping for long sequences.
 /// `width` — number of characters per line.
-pub fn SWResult::format_wrapped(self : SWResult, width : Int) -> String {
+pub fn SWResult::format_wrapped(self : SWResult, width : Int32) -> String {
   let buf = StringBuilder()
   let total = self.aligned_seq1.length()
   let mut start = 0

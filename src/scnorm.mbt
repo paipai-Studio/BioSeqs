@@ -13,6 +13,7 @@ pub enum SCnormMethod {
 }
 
 ///|
+
 ///|
 /// Result of quantile regression
 pub struct SCnormQuantFit {
@@ -510,7 +511,7 @@ pub fn sc_norm_loess_smooth(
 pub fn sc_norm_spline_smooth(
   x : Array[Double],
   y : Array[Double],
-  n_knots : Int,
+  n_knots : Int32,
 ) -> Array[Double] {
   let n = x.length()
   if n < 4 {
@@ -616,13 +617,13 @@ fn sc_norm_max(arr : Array[Double]) -> Double {
 
 ///|
 /// Get number of genes after filtering
-pub fn SCnormResult::sc_n_n_genes(self : SCnormResult) -> Int {
+pub fn SCnormResult::sc_n_n_genes(self : SCnormResult) -> Int32 {
   self.gene_ids.length()
 }
 
 ///|
 /// Get number of cells
-pub fn SCnormResult::sc_n_cells(self : SCnormResult) -> Int {
+pub fn SCnormResult::sc_n_cells(self : SCnormResult) -> Int32 {
   self.cell_ids.length()
 }
 
@@ -630,8 +631,8 @@ pub fn SCnormResult::sc_n_cells(self : SCnormResult) -> Int {
 /// Get a normalized count for a gene and cell
 pub fn SCnormResult::sc_norm_get_count(
   self : SCnormResult,
-  gene_idx : Int,
-  cell_idx : Int,
+  gene_idx : Int32,
+  cell_idx : Int32,
 ) -> Double {
   self.norm_matrix[gene_idx][cell_idx]
 }
@@ -640,7 +641,7 @@ pub fn SCnormResult::sc_norm_get_count(
 /// Get all normalized counts for a gene
 pub fn SCnormResult::sc_norm_get_gene(
   self : SCnormResult,
-  gene_idx : Int,
+  gene_idx : Int32,
 ) -> Array[Double] {
   self.norm_matrix[gene_idx].copy()
 }
@@ -649,7 +650,7 @@ pub fn SCnormResult::sc_norm_get_gene(
 /// Get all normalized counts for a cell
 pub fn SCnormResult::sc_norm_get_cell(
   self : SCnormResult,
-  cell_idx : Int,
+  cell_idx : Int32,
 ) -> Array[Double] {
   let result : Array[Double] = Array(capacity=0)
   let mut i = 0

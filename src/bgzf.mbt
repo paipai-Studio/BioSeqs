@@ -11,16 +11,16 @@ pub suberror BgzfError {
 
 ///|
 /// BGZF magic number (1f 8b 08 04).
-let bgzf_magic : Array[Int] = [0x1f, 0x8b, 0x08, 0x04]
+let bgzf_magic : Array[Int32] = [0x1f, 0x8b, 0x08, 0x04]
 
 ///|
 /// GZIP compression method: DEFLATE (8).
-let gzip_deflate_method : Int = 8
+let gzip_deflate_method : Int32 = 8
 
 ///|
 /// Fixed Huffman code lengths for literals/lengths (0-287).
 /// Values 0-143: 8 bits, 144-255: 9 bits, 256-279: 7 bits, 280-287: 8 bits.
-let fixed_literal_lengths : FixedArray[Int] = {
+let fixed_literal_lengths : FixedArray[Int32] = {
   let t = FixedArray::make(288, 0)
   for i in 0..<144 {
     t[i] = 8
@@ -39,7 +39,7 @@ let fixed_literal_lengths : FixedArray[Int] = {
 
 ///|
 /// Fixed Huffman code lengths for distances (0-31). All 5 bits.
-let fixed_distance_lengths : FixedArray[Int] = {
+let fixed_distance_lengths : FixedArray[Int32] = {
   let t = FixedArray::make(32, 0)
   for i in 0..<32 {
     t[i] = 5
@@ -51,8 +51,8 @@ let fixed_distance_lengths : FixedArray[Int] = {
 /// Bit reader for DEFLATE stream.
 priv struct BitReader {
   data : String
-  pos : Int
-  bit_pos : Int
+  pos : Int32
+  bit_pos : Int32
 }
 
 ///|
@@ -64,7 +64,7 @@ fn bit_reader_new(data : String) -> BitReader {
 ///|
 /// Read a single bit. DEFLATE packs bits LSB-first within each byte
 /// (RFC 1951 section 3.1.1), so bit 0 of a byte is read first.
-fn bit_reader_read_bit(br : BitReader) -> (Int, BitReader) {
+fn bit_reader_read_bit(br : BitReader) -> (Int32, BitReader) {
   if br.pos >= br.data.length() {
     return (0, br)
   }
@@ -83,7 +83,7 @@ fn bit_reader_read_bit(br : BitReader) -> (Int, BitReader) {
 /// Read n bits as a Huffman code (n <= 16). Huffman codes are serialised
 /// MSB-first: the first bit received is the most significant bit of the
 /// code value, so bits accumulate with the newest bit in the low position.
-fn bit_reader_read_bits(br : BitReader, n : Int) -> (Int, BitReader) {
+fn bit_reader_read_bits(br : BitReader, n : Int32) -> (Int32, BitReader) {
   let mut result = 0
   let mut remaining = n
   let mut reader = br
@@ -100,7 +100,7 @@ fn bit_reader_read_bits(br : BitReader, n : Int) -> (Int, BitReader) {
 /// Read n bits as a plain integer field (BTYPE, HLIT/HDIST/HCLEN, extra
 /// length/distance bits, ...). Such fields are packed LSB-first: the first
 /// bit received is the least significant bit of the value.
-fn bit_reader_read_value(br : BitReader, n : Int) -> (Int, BitReader) {
+fn bit_reader_read_value(br : BitReader, n : Int32) -> (Int32, BitReader) {
   let mut result = 0
   let mut bit_index = 0
   let mut reader = br
@@ -125,7 +125,7 @@ fn bit_reader_align(br : BitReader) -> BitReader {
 
 ///|
 /// Get remaining bytes in the reader.
-fn bit_reader_remaining(br : BitReader) -> Int {
+fn bit_reader_remaining(br : BitReader) -> Int32 {
   let bytes_remaining = br.data.length() - br.pos
   if br.bit_pos > 0 {
     bytes_remaining - 1
@@ -137,17 +137,17 @@ fn bit_reader_remaining(br : BitReader) -> Int {
 ///|
 /// Huffman decoder using a lookup table.
 priv struct HuffmanDecoder {
-  codes : FixedArray[Int]
-  lens : FixedArray[Int]
+  codes : FixedArray[Int32]
+  lens : FixedArray[Int32]
 }
 
 ///|
 /// Build a Huffman decoder from code lengths.
 fn build_huffman_decoder(
-  lengths : FixedArray[Int],
-  max_symbols : Int,
+  lengths : FixedArray[Int32],
+  max_symbols : Int32,
 ) -> HuffmanDecoder {
-  let bl_count : FixedArray[Int] = FixedArray::make(16, 0)
+  let bl_count : FixedArray[Int32] = FixedArray::make(16, 0)
   let mut i = 0
   while i < max_symbols {
     let len = lengths[i]
@@ -157,15 +157,15 @@ fn build_huffman_decoder(
     i = i + 1
   }
 
-  let next_code : FixedArray[Int] = FixedArray::make(16, 0)
+  let next_code : FixedArray[Int32] = FixedArray::make(16, 0)
   let mut code = 0
   for bits in 1..<16 {
     code = (code + bl_count[bits - 1]) << 1
     next_code[bits] = code
   }
 
-  let codes : FixedArray[Int] = FixedArray::make(65536, -1)
-  let lens : FixedArray[Int] = FixedArray::make(65536, 0)
+  let codes : FixedArray[Int32] = FixedArray::make(65536, -1)
+  let lens : FixedArray[Int32] = FixedArray::make(65536, 0)
   let mut i = 0
   while i < max_symbols {
     let len = lengths[i]
@@ -200,12 +200,16 @@ fn build_huffman_decoder(
 
 ///|
 /// Decode a symbol from bit reader using the Huffman decoder.
-fn bit_reader_advance(br : BitReader, n : Int) -> BitReader {
+fn bit_reader_advance(br : BitReader, n : Int32) -> BitReader {
   let total = br.pos * 8 + br.bit_pos + n
   BitReader::{ data: br.data, pos: total / 8, bit_pos: total % 8, }
 }
 
-fn huffman_decode(decoder : HuffmanDecoder, br : BitReader) -> (Int, BitReader) {
+///|
+fn huffman_decode(
+  decoder : HuffmanDecoder,
+  br : BitReader,
+) -> (Int32, BitReader) {
   let (bits12, _) = bit_reader_read_bits(br, 12)
   if decoder.codes[bits12] != -1 {
     (decoder.codes[bits12], bit_reader_advance(br, decoder.lens[bits12]))
@@ -217,7 +221,7 @@ fn huffman_decode(decoder : HuffmanDecoder, br : BitReader) -> (Int, BitReader) 
 
 ///|
 /// Length base values for LZ77 matches.
-let length_base : FixedArray[Int] = {
+let length_base : FixedArray[Int32] = {
   let t = FixedArray::make(30, 0)
   t[0] = 3
   t[1] = 4
@@ -254,7 +258,7 @@ let length_base : FixedArray[Int] = {
 
 ///|
 /// Length extra bits for LZ77 matches.
-let length_extra : FixedArray[Int] = {
+let length_extra : FixedArray[Int32] = {
   let t = FixedArray::make(30, 0)
   t[0] = 0
   t[1] = 0
@@ -291,7 +295,7 @@ let length_extra : FixedArray[Int] = {
 
 ///|
 /// Distance base values for LZ77 matches.
-let dist_base : FixedArray[Int] = {
+let dist_base : FixedArray[Int32] = {
   let t = FixedArray::make(30, 0)
   t[0] = 1
   t[1] = 2
@@ -328,7 +332,7 @@ let dist_base : FixedArray[Int] = {
 
 ///|
 /// Distance extra bits for LZ77 matches.
-let dist_extra : FixedArray[Int] = {
+let dist_extra : FixedArray[Int32] = {
   let t = FixedArray::make(30, 0)
   t[0] = 0
   t[1] = 0
@@ -365,7 +369,7 @@ let dist_extra : FixedArray[Int] = {
 
 ///|
 /// Decode raw DEFLATE data.
-fn deflate_decode(data : String, max_output : Int) -> String raise BgzfError {
+fn deflate_decode(data : String, max_output : Int32) -> String raise BgzfError {
   let output : FixedArray[UInt16] = FixedArray::make(max_output, 0)
   let mut reader = bit_reader_new(data)
   let mut out_pos = 0
@@ -453,7 +457,7 @@ fn deflate_decode(data : String, max_output : Int) -> String raise BgzfError {
         reader = r5
         let num_code_len = num_code_len + 4
 
-        let code_length_lengths : FixedArray[Int] = FixedArray::make(19, 0)
+        let code_length_lengths : FixedArray[Int32] = FixedArray::make(19, 0)
         let code_order = [
           16, 17, 18, 0, 8, 7, 9, 6, 10, 5, 11, 4, 12, 3, 13, 2, 14, 1, 15,
         ]
@@ -467,7 +471,7 @@ fn deflate_decode(data : String, max_output : Int) -> String raise BgzfError {
 
         let code_len_decoder = build_huffman_decoder(code_length_lengths, 19)
 
-        let lit_len_lengths : FixedArray[Int] = FixedArray::make(288, 0)
+        let lit_len_lengths : FixedArray[Int32] = FixedArray::make(288, 0)
         let mut j = 0
         while j < num_lit_len {
           let (sym, r7) = huffman_decode(code_len_decoder, reader)
@@ -509,7 +513,7 @@ fn deflate_decode(data : String, max_output : Int) -> String raise BgzfError {
           }
         }
 
-        let dist_lengths : FixedArray[Int] = FixedArray::make(32, 0)
+        let dist_lengths : FixedArray[Int32] = FixedArray::make(32, 0)
         j = 0
         while j < num_dist {
           let (sym, r7) = huffman_decode(code_len_decoder, reader)
@@ -602,7 +606,7 @@ fn deflate_decode(data : String, max_output : Int) -> String raise BgzfError {
 
 ///|
 /// Read a UInt32 (little-endian) from data at position.
-fn get_uint32_le(data : String, pos : Int) -> Int {
+fn get_uint32_le(data : String, pos : Int32) -> Int32 {
   let b0 = data.unsafe_get(pos).to_int() & 0xFF
   let b1 = data.unsafe_get(pos + 1).to_int() & 0xFF
   let b2 = data.unsafe_get(pos + 2).to_int() & 0xFF
@@ -615,8 +619,8 @@ fn get_uint32_le(data : String, pos : Int) -> Int {
 /// Returns (decompressed_data, next_block_pos).
 fn decompress_bgzf_block(
   data : String,
-  pos : Int,
-) -> (String, Int) raise BgzfError {
+  pos : Int32,
+) -> (String, Int32) raise BgzfError {
   let n = data.length()
   if pos + 18 > n {
     raise BgzfError("BGZF block too short")
@@ -764,15 +768,15 @@ pub fn parse_bam_from_bgzf_base64(
 /// most 65536 bytes; a stored DEFLATE block costs 31 bytes of overhead
 /// (18-byte gzip header with BC extra field + 5 stored-block header +
 /// 8-byte trailer).
-let bgzf_max_payload : Int = 65536 - 31 // 65505
+let bgzf_max_payload : Int32 = 65536 - 31 // 65505
 
 ///|
 /// Combine a compressed block start offset and an uncompressed offset
 /// within that block into a 64-bit BGZF virtual offset (as used by BAM/
 /// tabix indexing). Mirrors Biopython's `make_virtual_offset`.
 pub fn bgzf_make_virtual_offset(
-  block_offset : Int,
-  within_block : Int,
+  block_offset : Int32,
+  within_block : Int32,
 ) -> Int64 {
   (block_offset.to_int64() << 16) | (within_block & 0xFFFF).to_int64()
 }
@@ -780,7 +784,7 @@ pub fn bgzf_make_virtual_offset(
 ///|
 /// Split a virtual offset into (compressed block start offset, uncompressed
 /// offset within block). Mirrors Biopython's `split_virtual_offset`.
-pub fn bgzf_split_virtual_offset(virtual_offset : Int64) -> (Int, Int) {
+pub fn bgzf_split_virtual_offset(virtual_offset : Int64) -> (Int32, Int32) {
   let within = (virtual_offset & 0xFFFFL).to_int()
   let block = (virtual_offset >> 16).to_int()
   (block, within)
@@ -862,7 +866,7 @@ fn bgzf_eof_block() -> String {
 pub struct BgzfWriter {
   priv mut buffer : String
   priv output : StringBuilder
-  priv mut block_offset : Int
+  priv mut block_offset : Int32
   priv mut closed : Bool
 }
 
@@ -948,11 +952,13 @@ pub fn bgzf_compress(data : String) -> String raise BgzfError {
 /// Mirrors Biopython's BgzfBlocks tuples:
 /// (start_offset, block_length, data_offset, data_length).
 pub struct BgzfBlockInfo {
-  start_offset : Int
-  block_length : Int
-  data_offset : Int
-  data_length : Int
+  start_offset : Int32
+  block_length : Int32
+  data_offset : Int32
+  data_length : Int32
 } derive(Debug)
+
+///|
 pub extend BgzfBlockInfo with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -1003,9 +1009,9 @@ pub fn bgzf_blocks(data : String) -> Array[BgzfBlockInfo] raise BgzfError {
 pub struct BgzfReader {
   priv data : String
   priv blocks : Array[BgzfBlockInfo]
-  priv mut block_index : Int
-  priv mut within : Int
-  priv mut cached_index : Int
+  priv mut block_index : Int32
+  priv mut within : Int32
+  priv mut cached_index : Int32
   priv mut cached_text : String
 }
 
@@ -1085,7 +1091,7 @@ pub fn BgzfReader::seek(
 /// Read up to `size` bytes (or all remaining data if omitted).
 pub fn BgzfReader::read(
   self : BgzfReader,
-  size? : Int,
+  size? : Int32,
 ) -> String raise BgzfError {
   let result = StringBuilder()
   let mut remaining = size

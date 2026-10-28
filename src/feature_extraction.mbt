@@ -13,7 +13,7 @@ pub struct NucleotideComposition {
 ///|
 pub fn kmer_frequency(
   seq : String,
-  k : Int,
+  k : Int32,
   normalize : Bool,
 ) -> Map[String, Double] {
   let n = seq.length()
@@ -45,7 +45,7 @@ pub fn kmer_frequency(
 ///|
 pub fn dna_canonical_kmer_frequency(
   seq : String,
-  k : Int,
+  k : Int32,
   normalize : Bool,
 ) -> Map[String, Double] {
   let n = seq.length()
@@ -501,7 +501,7 @@ pub fn secondary_structure_propensity(seq : String) -> (Double, Double, Double) 
 ///|
 pub fn position_specific_features(
   seq : String,
-  n_positions : Int,
+  n_positions : Int32,
 ) -> Array[Double] {
   let len = seq.length()
   if len == 0 || n_positions <= 0 {
@@ -655,7 +655,7 @@ pub fn dna_feature_names() -> Array[String] {
 }
 
 ///|
-fn min_int(a : Int, b : Int) -> Int {
+fn min_int(a : Int32, b : Int32) -> Int32 {
   if a < b {
     a
   } else {

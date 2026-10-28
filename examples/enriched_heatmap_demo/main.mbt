@@ -20,7 +20,17 @@ fn main {
   let (signals, targets) = @bio.enriched_heatmap_sample()
   println("Signals: " + signals.length().to_string())
   println("Targets: " + targets.length().to_string())
-  println("Target 0: " + targets[0].chr + ":" + targets[0].start.to_string() + "-" + targets[0].end_.to_string() + " (" + targets[0].strand + ")")
+  println(
+    "Target 0: " +
+    targets[0].chr +
+    ":" +
+    targets[0].start.to_string() +
+    "-" +
+    targets[0].end_.to_string() +
+    " (" +
+    targets[0].strand +
+    ")",
+  )
   println("")
 
   // ------------------------------------------------------------------
@@ -42,7 +52,12 @@ fn main {
     keepHigh=1.0,
   )
   let mat = @bio.normalize_to_matrix(signals, targets, config)
-  println("Matrix dimensions: " + mat.nRows.to_string() + " x " + mat.nCols.to_string())
+  println(
+    "Matrix dimensions: " +
+    mat.nRows.to_string() +
+    " x " +
+    mat.nCols.to_string(),
+  )
   println("Upstream windows: " + mat.upstreamIndex.length().to_string())
   println("Downstream windows: " + mat.downstreamIndex.length().to_string())
   println("")
@@ -66,7 +81,12 @@ fn main {
     keepHigh=1.0,
   )
   let mat_t = @bio.normalize_to_matrix(signals, targets, config_t)
-  println("Matrix dimensions: " + mat_t.nRows.to_string() + " x " + mat_t.nCols.to_string())
+  println(
+    "Matrix dimensions: " +
+    mat_t.nRows.to_string() +
+    " x " +
+    mat_t.nCols.to_string(),
+  )
   println("Upstream windows: " + mat_t.upstreamIndex.length().to_string())
   println("Target windows: " + mat_t.targetIndex.length().to_string())
   println("Downstream windows: " + mat_t.downstreamIndex.length().to_string())
@@ -181,8 +201,18 @@ fn main {
     keepHigh=1.0,
   )
   let m_mat = @bio.normalize_to_matrix(m_signals, m_targets, m_config)
-  println("Minus strand target: " + m_targets[0].chr + ":" + m_targets[0].start.to_string() + " (" + m_targets[0].strand + ")")
-  println("Matrix: " + m_mat.nRows.to_string() + " x " + m_mat.nCols.to_string())
+  println(
+    "Minus strand target: " +
+    m_targets[0].chr +
+    ":" +
+    m_targets[0].start.to_string() +
+    " (" +
+    m_targets[0].strand +
+    ")",
+  )
+  println(
+    "Matrix: " + m_mat.nRows.to_string() + " x " + m_mat.nCols.to_string(),
+  )
   println("Window 0 (upstream, reversed): " + m_mat.matrix[0][0].to_string())
   println("Window 1 (downstream, reversed): " + m_mat.matrix[0][1].to_string())
   println("")
@@ -196,6 +226,7 @@ fn main {
   println("=== Demo complete ===")
 }
 
+///|
 fn array_mean(arr : Array[Double]) -> Double {
   if arr.length() == 0 {
     return 0.0

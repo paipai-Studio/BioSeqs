@@ -1,7 +1,6 @@
 ///|
 /// abstract_property_map demo - Unified residue property access.
 /// Inspired by Biopython Bio.PDB.AbstractPropertyMap.
-
 fn main {
   println("=== abstract_property_map Demo ===")
   println("")
@@ -34,7 +33,14 @@ fn main {
   // Step 4: Statistics
   println("--- Step 4: Statistics ---")
   let (count, min_v, max_v, mean, sum) = pm.stats_property("ASA")
-  println("ASA: count=" + count.to_string() + " min=" + min_v.to_string() + " max=" + max_v.to_string())
+  println(
+    "ASA: count=" +
+    count.to_string() +
+    " min=" +
+    min_v.to_string() +
+    " max=" +
+    max_v.to_string(),
+  )
   println("     mean=" + mean.to_string() + " sum=" + sum.to_string())
   println("")
 

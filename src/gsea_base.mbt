@@ -233,7 +233,7 @@ pub fn GmtGeneSet::with_annotation(
 }
 
 ///|
-pub fn GmtGeneSet::size(self : GmtGeneSet) -> Int {
+pub fn GmtGeneSet::size(self : GmtGeneSet) -> Int32 {
   self.gene_ids.length()
 }
 
@@ -251,7 +251,7 @@ pub fn GmtGeneSet::has_gene(self : GmtGeneSet, gene : String) -> Bool {
 // ---- set math --------------------------------------------------------------
 
 ///|
-pub fn gene_set_overlap(a : GmtGeneSet, b : GmtGeneSet) -> Int {
+pub fn gene_set_overlap(a : GmtGeneSet, b : GmtGeneSet) -> Int32 {
   let mut cnt = 0
   for g in a.gene_ids {
     if b.has_gene(g) {
@@ -352,7 +352,7 @@ pub fn gene_set_setdiff(a : GmtGeneSet, b : GmtGeneSet) -> Array[String] {
 pub struct GmtGeneSetCollection {
   sets : Array[GmtGeneSet]
   names : Array[String]
-  mut size : Int
+  mut size : Int32
 }
 
 ///|
@@ -385,7 +385,7 @@ pub fn GmtGeneSetCollection::by_name(
 ///|
 pub fn GmtGeneSetCollection::at(
   self : GmtGeneSetCollection,
-  i : Int,
+  i : Int32,
 ) -> GmtGeneSet? {
   if i < 0 || i >= self.sets.length() {
     None
@@ -397,8 +397,8 @@ pub fn GmtGeneSetCollection::at(
 ///|
 pub fn GmtGeneSetCollection::all_sizes(
   self : GmtGeneSetCollection,
-) -> Array[Int] {
-  let out : Array[Int] = Array(capacity=0)
+) -> Array[Int32] {
+  let out : Array[Int32] = Array(capacity=0)
   for s in self.sets {
     out.push(s.size())
   }
@@ -455,8 +455,8 @@ pub fn GmtGeneSetCollection::summary(self : GmtGeneSetCollection) -> String {
 ///|
 pub fn collection_filter_by_size(
   col : GmtGeneSetCollection,
-  min_size : Int,
-  max_size : Int,
+  min_size : Int32,
+  max_size : Int32,
 ) -> GmtGeneSetCollection {
   let kept : Array[GmtGeneSet] = Array(capacity=0)
   for s in col.sets {

@@ -32,7 +32,7 @@ pub struct BaiChunk {
 /// Per-reference binning data: a map of bin number to its chunk list, plus
 /// the linear index (smallest virtual offset every 16 kb).
 pub struct BaiReference {
-  bins : Map[Int, Array[BaiChunk]]
+  bins : Map[Int32, Array[BaiChunk]]
   linear : Array[Int64]
 }
 
@@ -42,7 +42,7 @@ pub struct BaiReference {
 /// `n_no_coor` is the number of records without coordinates (the trailing
 /// `uint64`), when present.
 pub struct BaiIndex {
-  n_ref : Int
+  n_ref : Int32
   references : Array[BaiReference]
   n_no_coor : Int64?
 }
@@ -59,8 +59,8 @@ pub struct BaiQueryResult {
 /// The list of bin numbers that may contain a half-open interval
 /// `[beg, end)`. Mirrors htslib's `reg2bins` (Heng Li): bin 0 is always
 /// included, followed by the five fixed-size levels.
-pub fn bai_reg2bins(beg : Int, end : Int) -> Array[Int] {
-  let bins : Array[Int] = []
+pub fn bai_reg2bins(beg : Int32, end : Int32) -> Array[Int32] {
+  let bins : Array[Int32] = []
   if beg >= end {
     return bins
   }
@@ -99,15 +99,15 @@ pub fn bai_reg2bins(beg : Int, end : Int) -> Array[Int] {
 // ---------------------------------------------------------------------------
 
 ///|
-fn bai_byte(data : String, pos : Int) -> Int64 {
+fn bai_byte(data : String, pos : Int32) -> Int64 {
   (data.unsafe_get(pos).to_int() & 0xFF).to_int64()
 }
 
 ///|
 fn bai_check_range(
   data : String,
-  pos : Int,
-  len : Int,
+  pos : Int32,
+  len : Int32,
   what : String,
 ) -> Unit raise BaiIndexError {
   if pos < 0 || pos + len > data.length() {
@@ -118,25 +118,25 @@ fn bai_check_range(
 }
 
 ///|
-fn bai_read_u32(data : String, pos : Int) -> Int raise BaiIndexError {
+fn bai_read_u32(data : String, pos : Int32) -> Int32 raise BaiIndexError {
   bai_check_range(data, pos, 4, "32-bit integer")
   (data.unsafe_get(pos).to_int() & 0xFF) |
-    ((data.unsafe_get(pos + 1).to_int() & 0xFF) << 8) |
-    ((data.unsafe_get(pos + 2).to_int() & 0xFF) << 16) |
-    ((data.unsafe_get(pos + 3).to_int() & 0xFF) << 24)
+  ((data.unsafe_get(pos + 1).to_int() & 0xFF) << 8) |
+  ((data.unsafe_get(pos + 2).to_int() & 0xFF) << 16) |
+  ((data.unsafe_get(pos + 3).to_int() & 0xFF) << 24)
 }
 
 ///|
-fn bai_read_u64(data : String, pos : Int) -> Int64 raise BaiIndexError {
+fn bai_read_u64(data : String, pos : Int32) -> Int64 raise BaiIndexError {
   bai_check_range(data, pos, 8, "64-bit integer")
   bai_byte(data, pos) |
-    (bai_byte(data, pos + 1) << 8) |
-    (bai_byte(data, pos + 2) << 16) |
-    (bai_byte(data, pos + 3) << 24) |
-    (bai_byte(data, pos + 4) << 32) |
-    (bai_byte(data, pos + 5) << 40) |
-    (bai_byte(data, pos + 6) << 48) |
-    (bai_byte(data, pos + 7) << 56)
+  (bai_byte(data, pos + 1) << 8) |
+  (bai_byte(data, pos + 2) << 16) |
+  (bai_byte(data, pos + 3) << 24) |
+  (bai_byte(data, pos + 4) << 32) |
+  (bai_byte(data, pos + 5) << 40) |
+  (bai_byte(data, pos + 6) << 48) |
+  (bai_byte(data, pos + 7) << 56)
 }
 
 ///|
@@ -145,9 +145,9 @@ fn bai_check_magic(data : String) -> Bool {
     return false
   }
   data.unsafe_get(0).to_int() == 0x42 &&
-    data.unsafe_get(1).to_int() == 0x41 &&
-    data.unsafe_get(2).to_int() == 0x49 &&
-    data.unsafe_get(3).to_int() == 0x01
+  data.unsafe_get(1).to_int() == 0x41 &&
+  data.unsafe_get(2).to_int() == 0x49 &&
+  data.unsafe_get(3).to_int() == 0x01
 }
 
 // ---------------------------------------------------------------------------
@@ -166,7 +166,7 @@ pub fn parse_bai(data : String) -> BaiIndex raise BaiIndexError {
   for r = 0; r < n_ref; r = r + 1 {
     let n_bin = bai_read_u32(data, pos)
     pos = pos + 4
-    let bins : Map[Int, Array[BaiChunk]] = Map([], capacity=n_bin)
+    let bins : Map[Int32, Array[BaiChunk]] = Map([], capacity=n_bin)
     for b = 0; b < n_bin; b = b + 1 {
       let bin = bai_read_u32(data, pos)
       pos = pos + 4
@@ -177,7 +177,7 @@ pub fn parse_bai(data : String) -> BaiIndex raise BaiIndexError {
         let beg = bai_read_u64(data, pos)
         let end = bai_read_u64(data, pos + 8)
         pos = pos + 16
-        chunks.push(BaiChunk::{ chunk_beg: beg, chunk_end: end })
+        chunks.push(BaiChunk::{ chunk_beg: beg, chunk_end: end, })
       }
       bins.set(bin, chunks)
     }
@@ -188,14 +188,14 @@ pub fn parse_bai(data : String) -> BaiIndex raise BaiIndexError {
       linear.push(bai_read_u64(data, pos))
       pos = pos + 8
     }
-    references.push(BaiReference::{ bins, linear })
+    references.push(BaiReference::{ bins, linear, })
   }
   let n_no_coor : Int64? = if pos + 8 <= data.length() {
     Some(bai_read_u64(data, pos))
   } else {
     None
   }
-  BaiIndex::{ n_ref, references, n_no_coor }
+  BaiIndex::{ n_ref, references, n_no_coor, }
 }
 
 ///|
@@ -206,9 +206,9 @@ pub fn parse_bai(data : String) -> BaiIndex raise BaiIndexError {
 /// scanning from) together with every chunk whose bin covers the interval.
 pub fn bai_query(
   index : BaiIndex,
-  ref_id : Int,
-  beg : Int,
-  end : Int,
+  ref_id : Int32,
+  beg : Int32,
+  end : Int32,
 ) -> BaiQueryResult raise BaiIndexError {
   if ref_id < 0 || ref_id >= index.references.length() {
     bai_fail("Reference id \{ref_id} is out of range (n_ref = \{index.n_ref})")
@@ -238,5 +238,5 @@ pub fn bai_query(
       None => ()
     }
   }
-  BaiQueryResult::{ min_off, chunks }
+  BaiQueryResult::{ min_off, chunks, }
 }

@@ -4,7 +4,7 @@
 
 ///|
 pub struct PeakSet {
-  peaks : Array[(String, Int, Int)]
+  peaks : Array[(String, Int32, Int32)]
   names : Array[String]
   annotation : Array[(String, String)]
 }
@@ -59,8 +59,8 @@ pub struct MotifEnrichment {
   enrichment_score : Double
   p_value : Double
   fdr : Double
-  n_peaks : Int
-  n_target_peaks : Int
+  n_peaks : Int32
+  n_target_peaks : Int32
 }
 
 ///|
@@ -69,12 +69,12 @@ pub struct VariabilityResult {
   variability_score : Double
   mean_deviation : Double
   sd_deviation : Double
-  rank : Int
+  rank : Int32
 }
 
 ///|
 pub fn PeakSet::new(
-  peaks : Array[(String, Int, Int)],
+  peaks : Array[(String, Int32, Int32)],
   names : Array[String],
 ) -> PeakSet {
   PeakSet::{ peaks, names, annotation: [], }
@@ -372,12 +372,12 @@ pub fn chromvar_score_motif(
 pub fn chromvar_motif_match(
   peaks : PeakSet,
   motifs : Array[ChromVARMotif],
-) -> Array[(String, Array[Int])] {
-  let result : Array[(String, Array[Int])] = Array(capacity=0)
+) -> Array[(String, Array[Int32])] {
+  let result : Array[(String, Array[Int32])] = Array(capacity=0)
   let mut i = 0
   while i < motifs.length() {
     let motif = motifs[i]
-    let peak_indices : Array[Int] = Array(capacity=0)
+    let peak_indices : Array[Int32] = Array(capacity=0)
     let mut j = 0
     while j < peaks.peaks.length() {
       let score = chromvar_score_motif(motif.pwm, peaks.names[j])
@@ -395,8 +395,8 @@ pub fn chromvar_motif_match(
 ///|
 pub fn chromvar_get_motif_peaks(
   motif_name : String,
-  motif_match : Array[(String, Array[Int])],
-) -> Array[Int] {
+  motif_match : Array[(String, Array[Int32])],
+) -> Array[Int32] {
   let mut i = 0
   while i < motif_match.length() {
     if motif_match[i].0 == motif_name {
@@ -410,8 +410,8 @@ pub fn chromvar_get_motif_peaks(
 ///|
 pub fn chromvar_deviation_score(
   counts : Array[Double],
-  motif_peaks : Array[Int],
-  all_peaks : Array[Int],
+  motif_peaks : Array[Int32],
+  all_peaks : Array[Int32],
 ) -> Double {
   let mut motif_sum = 0.0
   let mut motif_count = 0
@@ -464,7 +464,7 @@ pub fn chromvar_compute_deviations(
   let deviations : Array[Array[Double]] = Array(capacity=0)
   let motif_names : Array[String] = Array(capacity=0)
 
-  let peak_indices : Array[Int] = Array(capacity=0)
+  let peak_indices : Array[Int32] = Array(capacity=0)
   let mut j = 0
   while j < data.peak_set.peaks.length() {
     peak_indices.push(j)
@@ -537,7 +537,7 @@ pub fn chromvar_z_score(
 ///|
 pub fn chromvar_permutation_test(
   deviations : Array[Array[Double]],
-  n_perm : Int,
+  n_perm : Int32,
 ) -> Array[Double] {
   let n_motifs = deviations.length()
   let result : Array[Double] = Array(capacity=0)
@@ -568,7 +568,7 @@ pub fn chromvar_permutation_test(
 ///|
 pub fn chromvar_differential_deviation(
   deviations : Array[Array[Double]],
-  groups : Array[Int],
+  groups : Array[Int32],
 ) -> Array[(Double, Double)] {
   let n_motifs = deviations.length()
   let n_cells = if n_motifs > 0 { deviations[0].length() } else { 0 }
@@ -645,7 +645,7 @@ pub fn chromvar_variability(
   let n_motifs = deviations.length()
   let result : Array[VariabilityResult] = Array(capacity=0)
 
-  let variabilities : Array[(Double, Int)] = Array(capacity=0)
+  let variabilities : Array[(Double, Int32)] = Array(capacity=0)
   let mut i = 0
   while i < n_motifs {
     let sd = chromvar_std(deviations[i])
@@ -701,13 +701,13 @@ pub fn chromvar_annotate_peaks(peak_set : PeakSet, genome : String) -> PeakSet {
 ///|
 pub fn chromvar_filter_peaks(
   data : ChromVARData,
-  min_cells : Int,
-  min_counts : Int,
+  min_cells : Int32,
+  min_counts : Int32,
 ) -> ChromVARData {
   let n_peaks = data.peak_set.peaks.length()
   let n_cells = data.counts.length()
 
-  let filtered_peaks : Array[(String, Int, Int)] = Array(capacity=0)
+  let filtered_peaks : Array[(String, Int32, Int32)] = Array(capacity=0)
   let filtered_names : Array[String] = Array(capacity=0)
   let filtered_gc : Array[Double] = Array(capacity=0)
 
@@ -838,9 +838,9 @@ pub fn chromvar_find_highly_variable_motifs(
 pub fn chromvar_cluster_cells(
   deviations : Array[Array[Double]],
   _cluster_method : String,
-) -> Array[Int] {
+) -> Array[Int32] {
   let n_cells = if deviations.length() > 0 { deviations[0].length() } else { 0 }
-  let clusters : Array[Int] = Array(capacity=0)
+  let clusters : Array[Int32] = Array(capacity=0)
   let mut i = 0
   while i < n_cells {
     clusters.push(i % 3)
@@ -983,7 +983,7 @@ pub fn MotifEnrichment::to_string(self : MotifEnrichment) -> String {
 
 ///|
 pub fn chromvar_create_example_peak_set() -> PeakSet {
-  let peaks : Array[(String, Int, Int)] = Array(capacity=0)
+  let peaks : Array[(String, Int32, Int32)] = Array(capacity=0)
   let names : Array[String] = Array(capacity=0)
 
   let mut i = 0

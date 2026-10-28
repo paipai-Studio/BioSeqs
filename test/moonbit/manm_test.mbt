@@ -7,21 +7,30 @@
 fn make_tm_chain() -> @src.Chain {
   let residues : Array[@src.Residue] = Array(capacity=0)
   let coords = [
-    (0.0, 0.0, -15.0),   // 0: outside (lower)
-    (0.0, 0.0, -12.0),   // 1: membrane edge
-    (0.0, 0.0, -8.0),    // 2: membrane core
-    (0.0, 0.0, -4.0),    // 3: membrane core
-    (0.0, 0.0, 0.0),     // 4: membrane core
-    (0.0, 0.0, 4.0),     // 5: membrane core
-    (0.0, 0.0, 8.0),     // 6: membrane core
-    (0.0, 0.0, 12.0),    // 7: membrane edge
-    (0.0, 0.0, 15.0),    // 8: outside (upper)
-    (0.0, 0.0, 18.0),    // 9: outside (upper)
+    (0.0, 0.0, -15.0), // 0: outside (lower)
+    (0.0, 0.0, -12.0), // 1: membrane edge
+    (0.0, 0.0, -8.0), // 2: membrane core
+    (0.0, 0.0, -4.0), // 3: membrane core
+    (0.0, 0.0, 0.0), // 4: membrane core
+    (0.0, 0.0, 4.0), // 5: membrane core
+    (0.0, 0.0, 8.0), // 6: membrane core
+    (0.0, 0.0, 12.0), // 7: membrane edge
+    (0.0, 0.0, 15.0), // 8: outside (upper)
+    (0.0, 0.0, 18.0), // 9: outside (upper)
   ]
   for i = 0; i < 10; i = i + 1 {
     let (x, y, z) = coords[i]
-    let ca = @src.Atom::new(name="CA", coord=@src.Vector3::new(x, y, z), resname="ALA", chainid='A', resseq=i + 1, element="C")
-    let res = @src.Residue::new(resname="ALA", chainid='A', resseq=i + 1, atoms=[ca])
+    let ca = @src.Atom::new(
+      name="CA",
+      coord=@src.Vector3::new(x, y, z),
+      resname="ALA",
+      chainid='A',
+      resseq=i + 1,
+      element="C",
+    )
+    let res = @src.Residue::new(resname="ALA", chainid='A', resseq=i + 1, atoms=[
+      ca,
+    ])
     residues.push(res)
   }
   @src.Chain::new(id='A', residues~)
@@ -45,8 +54,17 @@ fn make_spread_chain() -> @src.Chain {
   ]
   for i = 0; i < 10; i = i + 1 {
     let (x, y, z) = coords[i]
-    let ca = @src.Atom::new(name="CA", coord=@src.Vector3::new(x, y, z), resname="GLY", chainid='A', resseq=i + 1, element="C")
-    let res = @src.Residue::new(resname="GLY", chainid='A', resseq=i + 1, atoms=[ca])
+    let ca = @src.Atom::new(
+      name="CA",
+      coord=@src.Vector3::new(x, y, z),
+      resname="GLY",
+      chainid='A',
+      resseq=i + 1,
+      element="C",
+    )
+    let res = @src.Residue::new(resname="GLY", chainid='A', resseq=i + 1, atoms=[
+      ca,
+    ])
     residues.push(res)
   }
   @src.Chain::new(id='A', residues~)
@@ -54,9 +72,10 @@ fn make_spread_chain() -> @src.Chain {
 
 // ===== mANM tests =====
 
+///|
 test "manm_construction" {
   let chain = make_spread_chain()
-  let mem_res = [2, 3, 4, 5]  // residues 2-5 in membrane
+  let mem_res = [2, 3, 4, 5] // residues 2-5 in membrane
   match @src.MANM::new(chain, mem_res) {
     Some(anm) => {
       assert_eq(@src.MANM::num_nodes(anm), 10)
@@ -67,6 +86,7 @@ test "manm_construction" {
   }
 }
 
+///|
 test "manm_custom_restraint" {
   let chain = make_spread_chain()
   let mem_res = [3, 4, 5]
@@ -80,6 +100,7 @@ test "manm_custom_restraint" {
   }
 }
 
+///|
 test "manm_eigenvalues" {
   let chain = make_spread_chain()
   let mem_res = [2, 3, 4, 5]
@@ -100,6 +121,7 @@ test "manm_eigenvalues" {
   }
 }
 
+///|
 test "manm_bfactors" {
   let chain = make_spread_chain()
   let mem_res = [2, 3, 4, 5]
@@ -115,6 +137,7 @@ test "manm_bfactors" {
   }
 }
 
+///|
 test "manm_fluctuations" {
   let chain = make_spread_chain()
   let mem_res = [2, 3, 4, 5]
@@ -130,6 +153,7 @@ test "manm_fluctuations" {
   }
 }
 
+///|
 test "manm_slow_modes" {
   let chain = make_spread_chain()
   let mem_res = [2, 3, 4, 5]
@@ -147,6 +171,7 @@ test "manm_slow_modes" {
   }
 }
 
+///|
 test "manm_cross_correlation" {
   let chain = make_spread_chain()
   let mem_res = [2, 3, 4, 5]
@@ -168,6 +193,7 @@ test "manm_cross_correlation" {
   }
 }
 
+///|
 test "manm_hessian_symmetric" {
   let chain = make_spread_chain()
   let mem_res = [2, 3, 4, 5]
@@ -185,12 +211,13 @@ test "manm_hessian_symmetric" {
   }
 }
 
+///|
 test "manm_no_membrane_equals_anm" {
   // With no membrane residues, mANM should match standard ANM
   let chain = make_spread_chain()
-  let empty_mem : Array[Int] = Array(capacity=0)
+  let empty_mem : Array[Int32] = Array(capacity=0)
   match @src.MANM::new(chain, empty_mem) {
-    Some(m_anm) => {
+    Some(m_anm) =>
       match @src.ANM::new(chain) {
         Some(std_anm) => {
           let m_bf = @src.MANM::predict_bfactors(m_anm)
@@ -201,17 +228,17 @@ test "manm_no_membrane_equals_anm" {
         }
         None => assert_true(false)
       }
-    }
     None => assert_true(false)
   }
 }
 
+///|
 test "manm_with_membrane_differs_from_anm" {
   // With membrane restraints, B-factors should differ from standard ANM
   let chain = make_spread_chain()
   let mem_res = [2, 3, 4, 5]
   match @src.MANM::new(chain, mem_res, k_membrane=2.0) {
-    Some(m_anm) => {
+    Some(m_anm) =>
       match @src.ANM::new(chain) {
         Some(std_anm) => {
           let m_bf = @src.MANM::predict_bfactors(m_anm)
@@ -224,18 +251,18 @@ test "manm_with_membrane_differs_from_anm" {
         }
         None => assert_true(false)
       }
-    }
     None => assert_true(false)
   }
 }
 
+///|
 test "manm_stronger_restraint_reduces_fluctuation" {
   // Stronger membrane restraint should reduce z-fluctuations of
   // membrane residues relative to non-membrane residues
   let chain = make_spread_chain()
   let mem_res = [4]
   match @src.MANM::new(chain, mem_res, k_membrane=0.1) {
-    Some(weak) => {
+    Some(weak) =>
       match @src.MANM::new(chain, mem_res, k_membrane=10.0) {
         Some(strong) => {
           let bf_weak = @src.MANM::predict_bfactors(weak)
@@ -251,11 +278,11 @@ test "manm_stronger_restraint_reduces_fluctuation" {
         }
         None => assert_true(false)
       }
-    }
     None => assert_true(false)
   }
 }
 
+///|
 test "manm_lateral_restraint" {
   let chain = make_spread_chain()
   let mem_res = [2, 3, 4, 5]
@@ -271,9 +298,17 @@ test "manm_lateral_restraint" {
   }
 }
 
+///|
 test "manm_too_few_residues" {
   let residues : Array[@src.Residue] = Array(capacity=0)
-  let ca = @src.Atom::new(name="CA", coord=@src.Vector3::new(0.0, 0.0, 0.0), resname="ALA", chainid='A', resseq=1, element="C")
+  let ca = @src.Atom::new(
+    name="CA",
+    coord=@src.Vector3::new(0.0, 0.0, 0.0),
+    resname="ALA",
+    chainid='A',
+    resseq=1,
+    element="C",
+  )
   let res = @src.Residue::new(resname="ALA", chainid='A', resseq=1, atoms=[ca])
   residues.push(res)
   let chain = @src.Chain::new(id='A', residues~)
@@ -283,6 +318,7 @@ test "manm_too_few_residues" {
   }
 }
 
+///|
 test "manm_residues_by_z" {
   let chain = make_tm_chain()
   let mem_res = @src.membrane_residues_by_z(chain, -12.0, 12.0)
@@ -294,10 +330,11 @@ test "manm_residues_by_z" {
   assert_eq(mem_res2.length(), 5)
 }
 
+///|
 test "manm_invalid_membrane_indices_ignored" {
   // Out-of-range indices should be silently ignored
   let chain = make_spread_chain()
-  let mem_res = [2, 3, 100, -1]  // 100 and -1 are invalid
+  let mem_res = [2, 3, 100, -1] // 100 and -1 are invalid
   match @src.MANM::new(chain, mem_res) {
     Some(anm) => {
       assert_eq(@src.MANM::num_nodes(anm), 10)

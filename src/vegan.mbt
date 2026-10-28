@@ -8,7 +8,7 @@
 ///|
 /// Sum of a sample's count vector as an Int (species abundances are whole
 /// numbers stored as Double).
-fn vegan_total(counts : Array[Double]) -> Int {
+fn vegan_total(counts : Array[Double]) -> Int32 {
   let mut s = 0
   for c in counts {
     s = s + c.to_int()
@@ -22,7 +22,7 @@ fn vegan_total(counts : Array[Double]) -> Int {
 /// `n` individuals the probability of being missed is
 /// `prod_{j=0}^{k-1} (N-n-j)/(N-j)` (a stable product ratio, no combinatorial
 /// overflow), so the expected richness is `sum_i (1 - miss_i)`.
-pub fn vegan_rarefy(counts : Array[Double], k : Int) -> Double {
+pub fn vegan_rarefy(counts : Array[Double], k : Int32) -> Double {
   let n_total = vegan_total(counts)
   if n_total <= 0 {
     return 0.0
@@ -41,7 +41,8 @@ pub fn vegan_rarefy(counts : Array[Double], k : Int) -> Double {
       let mut miss = 1.0
       for j = 0; j < sample; j = j + 1 {
         miss = miss *
-          (n_total - n_i - j).to_double() / (n_total - j).to_double()
+          (n_total - n_i - j).to_double() /
+          (n_total - j).to_double()
       }
       expected = expected + 1.0 - miss
     }
@@ -55,10 +56,10 @@ pub fn vegan_rarefy(counts : Array[Double], k : Int) -> Double {
 /// `step` and ending at full depth (where richness equals observed richness).
 pub fn vegan_rarefaction_curve(
   counts : Array[Double],
-  step? : Int = 1,
-) -> Array[(Int, Double)] {
+  step~ : Int32 = 1,
+) -> Array[(Int32, Double)] {
   let n_total = vegan_total(counts)
-  let result : Array[(Int, Double)] = Array(capacity=0)
+  let result : Array[(Int32, Double)] = Array(capacity=0)
   if n_total <= 0 {
     return result
   }
@@ -103,15 +104,35 @@ pub fn vegan_decostand(
     for j = 0; j < n; j = j + 1 {
       let v = row[j]
       let v_new = if method_ == "pa" {
-        if v > 0.0 { 1.0 } else { 0.0 }
+        if v > 0.0 {
+          1.0
+        } else {
+          0.0
+        }
       } else if method_ == "total" || method_ == "frequency" {
-        if total > 0.0 { v / total } else { 0.0 }
+        if total > 0.0 {
+          v / total
+        } else {
+          0.0
+        }
       } else if method_ == "max" {
-        if max_v > 0.0 { v / max_v } else { 0.0 }
+        if max_v > 0.0 {
+          v / max_v
+        } else {
+          0.0
+        }
       } else if method_ == "hellinger" {
-        if total > 0.0 && v > 0.0 { (v / total).sqrt() } else { 0.0 }
+        if total > 0.0 && v > 0.0 {
+          (v / total).sqrt()
+        } else {
+          0.0
+        }
       } else if method_ == "normalize" {
-        if norm > 0.0 { v / norm } else { 0.0 }
+        if norm > 0.0 {
+          v / norm
+        } else {
+          0.0
+        }
       } else {
         v
       }

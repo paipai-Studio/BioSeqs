@@ -35,7 +35,7 @@ pub fn Species::new(id : String, name? : String) -> Species {
     Some(n) => n
     None => id
   }
-  Species::{ id, name: nm }
+  Species::{ id, name: nm, }
 }
 
 ///|
@@ -100,7 +100,7 @@ pub fn Reaction::new(
     Some(r) => r
     None => false
   }
-  Reaction::{ id, reactants: clean, catalysts: cat, reversible: rev }
+  Reaction::{ id, reactants: clean, catalysts: cat, reversible: rev, }
 }
 
 ///|
@@ -148,7 +148,11 @@ pub fn Reaction::to_string(self : Reaction) -> String {
     i = i + 1
   }
   let arrow = if self.reversible { " <-> " } else { " --> " }
-  let lhs = if substrates.length() == 0 { "..." } else { substrates.join(" + ") }
+  let lhs = if substrates.length() == 0 {
+    "..."
+  } else {
+    substrates.join(" + ")
+  }
   let rhs = if products.length() == 0 { "..." } else { products.join(" + ") }
   lhs + arrow + rhs
 }
@@ -167,7 +171,7 @@ pub struct System {
 ///|
 /// Create a System from a slice of reactions.
 pub fn System::new(id : String, reactions : Array[Reaction]) -> System {
-  System::{ id, reactions }
+  System::{ id, reactions, }
 }
 
 ///|
@@ -200,7 +204,9 @@ pub fn System::reactions(self : System) -> Array[Reaction] {
 /// ``stoch[row_idx][col_idx]`` is the signed coefficient of
 /// species ``species[row_idx]`` in reaction ``reactions[col_idx]``.
 /// Negative ⇒ substrate, positive ⇒ product.
-pub fn System::stochiometry(self : System) -> (Array[String], Array[Reaction], Array[Array[Double]]) {
+pub fn System::stochiometry(
+  self : System,
+) -> (Array[String], Array[Reaction], Array[Array[Double]]) {
   let species = self.species()
   let reactions = self.reactions
   let n_sp = species.length()
@@ -269,7 +275,7 @@ pub fn Interaction::new(
     Some(l) => l
     None => ""
   }
-  Interaction::{ source, sink, label: lbl, data }
+  Interaction::{ source, sink, label: lbl, data, }
 }
 
 // ===========================================================================
@@ -293,7 +299,7 @@ pub struct Network {
 ///|
 /// Create an empty Network.
 pub fn Network::new() -> Network {
-  Network::{ nodes: Map([]), out_adj: Map([]), in_adj: Map([]) }
+  Network::{ nodes: Map([]), out_adj: Map([]), in_adj: Map([]), }
 }
 
 ///|
@@ -308,7 +314,11 @@ pub fn Network::add_species(self : Network, species : String) -> Unit {
   }
 }
 
-fn _pathway_get_or_empty(m : Map[String, Array[(String, String)]], key : String) -> Array[(String, String)] {
+///|
+fn _pathway_get_or_empty(
+  m : Map[String, Array[(String, String)]],
+  key : String,
+) -> Array[(String, String)] {
   match m.get(key) {
     Some(arr) => arr
     None => []

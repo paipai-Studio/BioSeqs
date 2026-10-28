@@ -37,8 +37,8 @@ fn align_bed_test_rejects(text : String) -> Bool {
 
 ///|
 fn align_bed_test_coordinate(
-  target : Int,
-  query : Int,
+  target : Int32,
+  query : Int32,
 ) -> @src.AlignBedCoordinate {
   @src.AlignBedCoordinate::create(target, query) catch {
     AlignBedError(message) => abort("valid BED coordinate failed: " + message)

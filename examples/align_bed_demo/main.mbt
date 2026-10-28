@@ -48,20 +48,16 @@ fn main {
   }
   println(
     "  text score=" +
-    text_score_document.alignments[0].score.unwrap().text_value().unwrap_or(
-      "missing",
-    ),
+    text_score_document.alignments[0].score
+    .unwrap()
+    .text_value()
+    .unwrap_or("missing"),
   )
 
   println("\n2. Inspect plus/minus target-query coordinate paths")
   println("  plus:  " + bed_coordinate_path_text(plus.coordinates))
   println("  minus: " + bed_coordinate_path_text(minus.coordinates))
-  println(
-    "  plus strand=" +
-    plus.strand() +
-    ", minus strand=" +
-    minus.strand(),
-  )
+  println("  plus strand=" + plus.strand() + ", minus strand=" + minus.strand())
 
   println("\n3. Reconstruct exon blocks and transcript sizes")
   for index = 0; index < plus.blocks().length(); index = index + 1 {

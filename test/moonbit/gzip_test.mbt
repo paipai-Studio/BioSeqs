@@ -2,7 +2,7 @@
 /// Tests for gzip decompression and the gzipped 10x-mtx path.
 
 ///|
-fn bytes_str(bytes : Array[Int]) -> String {
+fn bytes_str(bytes : Array[Int32]) -> String {
   let sb = StringBuilder()
   for b in bytes {
     sb.write_char(b.to_uint16().unsafe_to_char())
@@ -36,7 +36,9 @@ test "scanpy_read_10x_mtx_gz" {
   ])
   let features = "g1\tsym1\tGene Expression\ng2\tsym2\tGene Expression\ng3\tsym3\tAntibody Capture\n"
   let barcodes = "cell1\ncell2\n"
-  let adata = @src.scanpy_read_10x_mtx(mtx_gz, features, barcodes, "gene_symbols", true, true)
+  let adata = @src.scanpy_read_10x_mtx(
+    mtx_gz, features, barcodes, "gene_symbols", true, true,
+  )
   assert_eq(adata.n_obs(), 2)
   assert_eq(adata.n_vars(), 2)
   assert_true(@moonbit.assert_num_close(adata.x_matrix()[0][0], 10.0, 1.0e-9))

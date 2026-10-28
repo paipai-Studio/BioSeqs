@@ -138,11 +138,11 @@ test "build_consensus_empty" {
   }
 }
 
-
 // ============================================================
 // split_frequencies (DendroPy sumtrees split-frequency table)
 // ============================================================
 
+///|
 test "split_frequencies" {
   let trees = @src.create_example_trees()
   let freqs = @src.split_frequencies(trees)
@@ -160,6 +160,7 @@ test "split_frequencies" {
   assert_true(freqs[4].support >= 0.0 && freqs[4].support <= 1.0)
 }
 
+///|
 test "split_frequencies_sum_to_one_top" {
   // 单棵树：它的两个互补 split 都 support=1.0
   let tree = [@src.newick_to_tree("((A,B),(C,D));")]
@@ -169,6 +170,7 @@ test "split_frequencies_sum_to_one_top" {
   assert_eq(freqs[1].support, 1.0)
 }
 
+///|
 test "split_frequencies_empty" {
   assert_eq(@src.split_frequencies([]).length(), 0)
 }

@@ -76,7 +76,7 @@ pub fn FastTreeCommandline::set_nt(self : FastTreeCommandline) -> Unit {
 /// Read N multiple alignments in (-n, phylip interleaved).
 pub fn FastTreeCommandline::set_n(
   self : FastTreeCommandline,
-  count : Int,
+  count : Int32,
 ) -> Unit {
   self.flag("-n", value=Some(count.to_string()))
 }
@@ -100,7 +100,7 @@ pub fn FastTreeCommandline::set_pseudo(
 /// Set the number of resamples for support values (-boot).
 pub fn FastTreeCommandline::set_boot(
   self : FastTreeCommandline,
-  resamples : Int,
+  resamples : Int32,
 ) -> Unit {
   self.flag("-boot", value=Some(resamples.to_string()))
 }
@@ -136,7 +136,7 @@ pub fn FastTreeCommandline::set_nopr(self : FastTreeCommandline) -> Unit {
 /// Rounds of minimum-evolution nearest-neighbor interchanges (-nni [n]).
 pub fn FastTreeCommandline::set_nni(
   self : FastTreeCommandline,
-  rounds? : Int,
+  rounds? : Int32,
 ) -> Unit {
   self.flag("-nni", value=rounds.map(fn(n) { n.to_string() }))
 }
@@ -145,7 +145,7 @@ pub fn FastTreeCommandline::set_nni(
 /// Rounds of subtree-prune-regraft moves (-spr [n]).
 pub fn FastTreeCommandline::set_spr(
   self : FastTreeCommandline,
-  rounds? : Int,
+  rounds? : Int32,
 ) -> Unit {
   self.flag("-spr", value=rounds.map(fn(n) { n.to_string() }))
 }
@@ -172,7 +172,7 @@ pub fn FastTreeCommandline::set_nome(self : FastTreeCommandline) -> Unit {
 /// Use maximum-likelihood NNIs (-mlnni [n]).
 pub fn FastTreeCommandline::set_mlnni(
   self : FastTreeCommandline,
-  rounds? : Int,
+  rounds? : Int32,
 ) -> Unit {
   self.flag("-mlnni", value=rounds.map(fn(n) { n.to_string() }))
 }
@@ -181,7 +181,7 @@ pub fn FastTreeCommandline::set_mlnni(
 /// Set the level of ML-based topology improvement (-mlacc [n]).
 pub fn FastTreeCommandline::set_mlacc(
   self : FastTreeCommandline,
-  level? : Int,
+  level? : Int32,
 ) -> Unit {
   self.flag("-mlacc", value=level.map(fn(n) { n.to_string() }))
 }
@@ -208,7 +208,7 @@ pub fn FastTreeCommandline::set_gtr(self : FastTreeCommandline) -> Unit {
 /// Use a discrete-gamma model with n rate categories (-cat n).
 pub fn FastTreeCommandline::set_cat(
   self : FastTreeCommandline,
-  categories? : Int,
+  categories? : Int32,
 ) -> Unit {
   self.flag("-cat", value=categories.map(fn(n) { n.to_string() }))
 }
@@ -253,7 +253,7 @@ pub fn FastTreeCommandline::set_no2nd(self : FastTreeCommandline) -> Unit {
 /// Set the seed for tied ranks and bootstrap (-seed).
 pub fn FastTreeCommandline::set_seed(
   self : FastTreeCommandline,
-  seed : Int,
+  seed : Int32,
 ) -> Unit {
   self.flag("-seed", value=Some(seed.to_string()))
 }
@@ -319,7 +319,7 @@ pub fn FastTreeCommandline::set_gtrfreq(
 /// Set the maximum SPR move length (-sprlength).
 pub fn FastTreeCommandline::set_sprlength(
   self : FastTreeCommandline,
-  length : Int,
+  length : Int32,
 ) -> Unit {
   self.flag("-sprlength", value=Some(length.to_string()))
 }
@@ -395,7 +395,7 @@ pub fn PhymlCommandline::set_sequential(self : PhymlCommandline) -> Unit {
 /// Set the number of data sets to analyse (-n).
 pub fn PhymlCommandline::set_multiple(
   self : PhymlCommandline,
-  count : Int,
+  count : Int32,
 ) -> Unit {
   self.flag("-n", value=Some(count.to_string()))
 }
@@ -413,7 +413,7 @@ pub fn PhymlCommandline::set_pars(
 /// Set the number of bootstrap replicates (-b).
 pub fn PhymlCommandline::set_bootstrap(
   self : PhymlCommandline,
-  replicates : Int,
+  replicates : Int32,
 ) -> Unit {
   self.flag("-b", value=Some(replicates.to_string()))
 }
@@ -458,7 +458,7 @@ pub fn PhymlCommandline::set_prop_invar(
 /// Set the number of relative substitution rate categories (-c).
 pub fn PhymlCommandline::set_nclasses(
   self : PhymlCommandline,
-  classes : Int,
+  classes : Int32,
 ) -> Unit {
   self.flag("-c", value=Some(classes.to_string()))
 }
@@ -509,7 +509,7 @@ pub fn PhymlCommandline::set_rand_start(self : PhymlCommandline) -> Unit {
 /// Set the number of random starting trees (--n_rand_starts).
 pub fn PhymlCommandline::set_n_rand_starts(
   self : PhymlCommandline,
-  count : Int,
+  count : Int32,
 ) -> Unit {
   self.flag("--n_rand_starts", value=Some(count.to_string()))
 }
@@ -518,7 +518,7 @@ pub fn PhymlCommandline::set_n_rand_starts(
 /// Set the random seed (--r_seed).
 pub fn PhymlCommandline::set_r_seed(
   self : PhymlCommandline,
-  seed : Int,
+  seed : Int32,
 ) -> Unit {
   self.flag("--r_seed", value=Some(seed.to_string()))
 }
@@ -636,7 +636,7 @@ pub fn RaxmlCommandline::set_weight_filename(
 /// Set the random seed for bootstrapping (-b).
 pub fn RaxmlCommandline::set_bootstrap_seed(
   self : RaxmlCommandline,
-  seed : Int,
+  seed : Int32,
 ) -> Unit {
   self.flag("-b", value=Some(seed.to_string()))
 }
@@ -645,7 +645,7 @@ pub fn RaxmlCommandline::set_bootstrap_seed(
 /// Set the number of categories for the per-site rate model (-c).
 pub fn RaxmlCommandline::set_num_categories(
   self : RaxmlCommandline,
-  count : Int,
+  count : Int32,
 ) -> Unit {
   self.flag("-c", value=Some(count.to_string()))
 }
@@ -689,7 +689,7 @@ pub fn RaxmlCommandline::set_grouping_constraint(
 /// Set the number of rearrangement steps (-i).
 pub fn RaxmlCommandline::set_rearrangements(
   self : RaxmlCommandline,
-  count : Int,
+  count : Int32,
 ) -> Unit {
   self.flag("-i", value=Some(count.to_string()))
 }
@@ -756,7 +756,7 @@ pub fn RaxmlCommandline::set_partition_filename(
 /// Set the parsimony random seed (-p).
 pub fn RaxmlCommandline::set_parsimony_seed(
   self : RaxmlCommandline,
-  seed : Int,
+  seed : Int32,
 ) -> Unit {
   self.flag("-p", value=Some(seed.to_string()))
 }
@@ -792,7 +792,7 @@ pub fn RaxmlCommandline::set_starting_tree(
 /// Set the number of threads (-T).
 pub fn RaxmlCommandline::set_threads(
   self : RaxmlCommandline,
-  threads : Int,
+  threads : Int32,
 ) -> Unit {
   self.flag("-T", value=Some(threads.to_string()))
 }
@@ -801,7 +801,7 @@ pub fn RaxmlCommandline::set_threads(
 /// Set the number of bootstrap searches (-u).
 pub fn RaxmlCommandline::set_num_bootstrap_searches(
   self : RaxmlCommandline,
-  count : Int,
+  count : Int32,
 ) -> Unit {
   self.flag("-u", value=Some(count.to_string()))
 }
@@ -825,7 +825,7 @@ pub fn RaxmlCommandline::set_working_dir(
 /// Set the random seed for rapid bootstrapping (-x).
 pub fn RaxmlCommandline::set_rapid_bootstrap_seed(
   self : RaxmlCommandline,
-  seed : Int,
+  seed : Int32,
 ) -> Unit {
   self.flag("-x", value=Some(seed.to_string()))
 }
@@ -849,7 +849,7 @@ pub fn RaxmlCommandline::set_bipartition_filename(
 /// Set the number of bootstrap replicates (-N, also written -#).
 pub fn RaxmlCommandline::set_num_replicates(
   self : RaxmlCommandline,
-  count : Int,
+  count : Int32,
 ) -> Unit {
   self.flag("-N", value=Some(count.to_string()))
 }

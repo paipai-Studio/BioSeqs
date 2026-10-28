@@ -7,7 +7,7 @@
 
 test "itf8 single byte" {
   // 0..127 → 1 byte
-  let buf : Array[Int] = []
+  let buf : Array[Int32] = []
   @src.itf8_encode(0, buf)
   @src.itf8_encode(127, buf)
   assert_eq(buf.length(), 2)
@@ -15,7 +15,7 @@ test "itf8 single byte" {
   assert_eq(buf[1], 127)
 
   // decode back
-  
+
   let s2 = StringBuilder()
   s2.write_char(buf[0].to_uint16().unsafe_to_char())
   s2.write_char(buf[1].to_uint16().unsafe_to_char())
@@ -28,9 +28,10 @@ test "itf8 single byte" {
   assert_eq(p1, 2)
 }
 
+///|
 test "itf8 two bytes" {
   // 128..16383 → 2 bytes
-  let buf : Array[Int] = []
+  let buf : Array[Int32] = []
   @src.itf8_encode(128, buf)
   @src.itf8_encode(16383, buf)
   assert_eq(buf.length(), 4) // 2 + 2
@@ -46,9 +47,10 @@ test "itf8 two bytes" {
   assert_eq(v1, 16383)
 }
 
+///|
 test "itf8 three bytes" {
   // 16384..2097151 → 3 bytes
-  let buf : Array[Int] = []
+  let buf : Array[Int32] = []
   @src.itf8_encode(16384, buf)
   @src.itf8_encode(0x1FFFF, buf)
   assert_eq(buf.length(), 6) // 3 + 3
@@ -64,9 +66,10 @@ test "itf8 three bytes" {
   assert_eq(v1, 0x1FFFF)
 }
 
+///|
 test "itf8 four bytes" {
   // 2097152..268435455 → 4 bytes
-  let buf : Array[Int] = []
+  let buf : Array[Int32] = []
   @src.itf8_encode(0x1000000, buf)
   assert_eq(buf.length(), 4)
 
@@ -79,9 +82,10 @@ test "itf8 four bytes" {
   assert_eq(v, 0x1000000)
 }
 
+///|
 test "itf8 five bytes" {
   // > 268435455 → 5 bytes
-  let buf : Array[Int] = []
+  let buf : Array[Int32] = []
   @src.itf8_encode(0x10000000, buf)
   assert_eq(buf.length(), 5)
 
@@ -98,6 +102,7 @@ test "itf8 five bytes" {
 // CRAM round-trip: parse → write → parse
 // ============================================================
 
+///|
 test "cram roundtrip sample" {
   // Parse the sample CRAM content
   let original = @src.sample_cram_content()
@@ -135,6 +140,7 @@ test "cram roundtrip sample" {
 // CRAM → SAM conversion
 // ============================================================
 
+///|
 test "cram to_sam" {
   let file = @src.sample_cram_file().unwrap()
   let sam = file.to_sam()
@@ -155,6 +161,7 @@ test "cram to_sam" {
   assert_true(sam.contains("ATGCATGC"))
 }
 
+///|
 test "cram record flag helpers" {
   let file = @src.sample_cram_file().unwrap()
   let rec = file.records[0]

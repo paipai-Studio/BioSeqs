@@ -43,6 +43,7 @@ test "biom parse dense" {
   assert_eq(table.data[1][2], 1.0)
 }
 
+///|
 test "biom parse sparse" {
   // 稀疏格式：同上数据但用 [row, col, value] 三元组
   let json =
@@ -80,6 +81,7 @@ test "biom parse sparse" {
   assert_eq(table.data[1][2], 1.0)
 }
 
+///|
 test "biom roundtrip dense" {
   let original =
     #|{
@@ -114,6 +116,7 @@ test "biom roundtrip dense" {
   assert_eq(t2.data[1][1], 4.0)
 }
 
+///|
 test "biom roundtrip sparse" {
   // parse sparse → to_json (should emit sparse) → parse again
   let original =
@@ -148,6 +151,7 @@ test "biom roundtrip sparse" {
   assert_eq(t2.data[1][0], 0.0)
 }
 
+///|
 test "biom empty metadata" {
   // metadata 为 null 或缺失时应正常解析
   let json =
@@ -168,9 +172,12 @@ test "biom empty metadata" {
   assert_eq(t.data[0][0], 42.0)
 }
 
+///|
 test "json parser basic" {
   // 验证通用 JSON 解析器
-  let v = @src.parse_json("{\"a\": 1, \"b\": [true, false, null], \"c\": \"hello\"}")
+  let v = @src.parse_json(
+    "{\"a\": 1, \"b\": [true, false, null], \"c\": \"hello\"}",
+  )
   assert_true(v is Some(_))
   let j = v.unwrap()
   assert_true(j is @src.JsonObj(_))
@@ -185,6 +192,7 @@ test "json parser basic" {
 // Tests for BiomTable operations (new + parse + TSV + merge)
 // ============================================================
 
+///|
 test "biom new and accessors" {
   let table = @src.BiomTable::new(
     ["OTU1", "OTU2"],
@@ -199,6 +207,7 @@ test "biom new and accessors" {
   assert_eq(table.sample_ids[2], "S3")
 }
 
+///|
 test "biom get_value" {
   let table = @src.BiomTable::new(
     ["A", "B"],
@@ -216,6 +225,7 @@ test "biom get_value" {
   }
 }
 
+///|
 test "biom observation_index" {
   let table = @src.BiomTable::new(
     ["OTU1", "OTU2", "OTU3"],
@@ -228,6 +238,7 @@ test "biom observation_index" {
   assert_eq(table.observation_index("MISSING"), -1)
 }
 
+///|
 test "biom sample_index" {
   let table = @src.BiomTable::new(
     ["O1"],
@@ -240,6 +251,7 @@ test "biom sample_index" {
   assert_eq(table.sample_index("MISSING"), -1)
 }
 
+///|
 test "biom sample_sums" {
   let table = @src.BiomTable::new(
     ["O1", "O2"],
@@ -254,6 +266,7 @@ test "biom sample_sums" {
   assert_eq(sums[1], 7.0)
 }
 
+///|
 test "biom observation_sums" {
   let table = @src.BiomTable::new(
     ["O1", "O2"],
@@ -268,6 +281,7 @@ test "biom observation_sums" {
   assert_eq(sums[1], 6.0)
 }
 
+///|
 test "biom transform" {
   let table = @src.BiomTable::new(
     ["O1"],
@@ -282,6 +296,7 @@ test "biom transform" {
   assert_eq(table.data[0][0], 2.0)
 }
 
+///|
 test "biom normalize_samples" {
   let table = @src.BiomTable::new(
     ["O1", "O2"],
@@ -299,6 +314,7 @@ test "biom normalize_samples" {
   assert_eq(norm.data[1][1], 0.75)
 }
 
+///|
 test "biom filter_observations" {
   let table = @src.BiomTable::new(
     ["A", "B", "C"],
@@ -314,6 +330,7 @@ test "biom filter_observations" {
   assert_eq(filtered.data[1][0], 5.0)
 }
 
+///|
 test "biom filter_samples" {
   let table = @src.BiomTable::new(
     ["O1", "O2"],
@@ -329,6 +346,7 @@ test "biom filter_samples" {
   assert_eq(filtered.data[1][1], 6.0)
 }
 
+///|
 test "biom to_tsv" {
   let table = @src.BiomTable::new(
     ["OTU1", "OTU2"],
@@ -347,6 +365,7 @@ test "biom to_tsv" {
   assert_true(tsv.contains("Sample count: 2"))
 }
 
+///|
 test "biom from_tsv" {
   let tsv =
     #|#OTU ID	S1	S2	S3
@@ -367,6 +386,7 @@ test "biom from_tsv" {
   }
 }
 
+///|
 test "biom tsv roundtrip" {
   let original = @src.BiomTable::new(
     ["O1", "O2", "O3"],
@@ -388,6 +408,7 @@ test "biom tsv roundtrip" {
   }
 }
 
+///|
 test "biom merge" {
   let table_a = @src.BiomTable::new(
     ["O1", "O2"],

@@ -9,7 +9,7 @@ pub struct Compound {
   id : String
   name : String
   formula : String
-  charge : Int
+  charge : Int32
   smiles : String
   inchikey : String
   inchi : String
@@ -43,7 +43,7 @@ pub fn Compound::with_chemical(
   id : String,
   name : String,
   formula : String,
-  charge : Int,
+  charge : Int32,
   smiles : String,
 ) -> Compound {
   Compound::{
@@ -100,13 +100,13 @@ pub fn Compound::set_formula(self : Compound, formula : String) -> Compound {
 
 ///|
 /// Get charge.
-pub fn Compound::get_charge(self : Compound) -> Int {
+pub fn Compound::get_charge(self : Compound) -> Int32 {
   self.charge
 }
 
 ///|
 /// Set charge.
-pub fn Compound::set_charge(self : Compound, charge : Int) -> Compound {
+pub fn Compound::set_charge(self : Compound, charge : Int32) -> Compound {
   let c = self
   Compound::{
     id: c.id,
@@ -277,8 +277,8 @@ pub fn Compound::to_string(self : Compound) -> String {
 ///|
 /// Calculate molecular formula from a string representation.
 /// Supports formats like "C6H12O6" (glucose).
-pub fn parse_formula(formula : String) -> Map[String, Int] {
-  let counts : Map[String, Int] = Map([], capacity=20)
+pub fn parse_formula(formula : String) -> Map[String, Int32] {
+  let counts : Map[String, Int32] = Map([], capacity=20)
   let mut i = 0
   let len = formula.length()
 
@@ -323,7 +323,7 @@ pub fn parse_formula(formula : String) -> Map[String, Int] {
 
 ///|
 /// Get molecular formula as a string from parsed counts.
-pub fn formula_to_string(counts : Map[String, Int]) -> String {
+pub fn formula_to_string(counts : Map[String, Int32]) -> String {
   let mut result = ""
   let elements = [
     "C", "H", "N", "O", "S", "P", "Fe", "Mg", "Ca", "K", "Na", "Cl", "Br", "I",

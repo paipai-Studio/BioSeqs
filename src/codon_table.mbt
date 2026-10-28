@@ -9,7 +9,7 @@
 ///|
 /// Nucleotide to 2-bit encoding lookup table.
 /// A=0, C=1, G=2, T/U=3, 4 for ambiguous, -1 for invalid.
-pub let nuc_to_2bit_table : FixedArray[Int] = {
+pub let nuc_to_2bit_table : FixedArray[Int32] = {
   let t = FixedArray::make(256, -1)
   t[65] = 0
   t[97] = 0 // A, a
@@ -51,11 +51,12 @@ pub let nuc_to_2bit_table : FixedArray[Int] = {
 ///|
 /// Nucleotide to 2-bit encoding: A=0, C=1, G=2, T/U=3.
 /// Handles both uppercase and lowercase. Returns -1 for invalid nucleotides.
-pub fn nuc_to_2bit(c : UInt16) -> Int {
+pub fn nuc_to_2bit(c : UInt16) -> Int32 {
   nuc_to_2bit_table[c.to_int()]
 }
 
 ///|
+
 ///|
 /// FixedArray-based codon lookup table for fast translation.
 /// Index: c0*16 + c1*4 + c2 (2-bit encoding: A=0, C=1, G=2, T/U=3)

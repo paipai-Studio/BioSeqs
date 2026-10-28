@@ -34,8 +34,34 @@ fn main {
   let labels = @bio.get_channel_labels()
   println("Total channels: " + labels.length().to_string())
   // Show first 6 and last 6 labels
-  println("First 6: " + labels[0] + ", " + labels[1] + ", " + labels[2] + ", " + labels[3] + ", " + labels[4] + ", " + labels[5])
-  println("Last 6:  " + labels[90] + ", " + labels[91] + ", " + labels[92] + ", " + labels[93] + ", " + labels[94] + ", " + labels[95])
+  println(
+    "First 6: " +
+    labels[0] +
+    ", " +
+    labels[1] +
+    ", " +
+    labels[2] +
+    ", " +
+    labels[3] +
+    ", " +
+    labels[4] +
+    ", " +
+    labels[5],
+  )
+  println(
+    "Last 6:  " +
+    labels[90] +
+    ", " +
+    labels[91] +
+    ", " +
+    labels[92] +
+    ", " +
+    labels[93] +
+    ", " +
+    labels[94] +
+    ", " +
+    labels[95],
+  )
   println("")
 
   // ---- Section 4: Mutation type detection ----
@@ -70,7 +96,13 @@ fn main {
   println("Channels: " + matrix.channel_labels.length().to_string())
   let mut si = 0
   while si < matrix.sample_ids.length() {
-    println("  " + matrix.sample_ids[si] + ": " + matrix.total_mutations[si].to_string() + " total mutations")
+    println(
+      "  " +
+      matrix.sample_ids[si] +
+      ": " +
+      matrix.total_mutations[si].to_string() +
+      " total mutations",
+    )
     si = si + 1
   }
   println("")
@@ -113,7 +145,14 @@ fn main {
       total = total + sig.probabilities[pi]
       pi = pi + 1
     }
-    println("  " + sig.id + ": " + sig.probabilities.length().to_string() + " channels, total prob = " + total.to_string())
+    println(
+      "  " +
+      sig.id +
+      ": " +
+      sig.probabilities.length().to_string() +
+      " channels, total prob = " +
+      total.to_string(),
+    )
     sj = sj + 1
   }
   println("")

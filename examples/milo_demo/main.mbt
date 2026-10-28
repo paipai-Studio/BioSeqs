@@ -1,5 +1,5 @@
 ///|
-fn format_ints(values : Array[Int]) -> String {
+fn format_ints(values : Array[Int32]) -> String {
   let mut output = "["
   for index in 0..<values.length() {
     if index > 0 {

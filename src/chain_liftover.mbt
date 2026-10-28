@@ -11,9 +11,9 @@
 /// Each block represents a stretch of aligned bases between target and query,
 /// followed by an unaligned gap in each sequence.
 pub struct ChainBlock {
-  size : Int
-  dt : Int
-  dq : Int
+  size : Int32
+  dt : Int32
+  dq : Int32
 }
 
 ///|
@@ -21,17 +21,17 @@ pub struct ChainBlock {
 /// of the target genome and a region of the query genome.
 pub struct ChainAlignment {
   t_name : String
-  score : Int
+  score : Int32
   t_plus : Bool
-  t_size : Int
-  t_start : Int
-  t_end : Int
+  t_size : Int32
+  t_start : Int32
+  t_end : Int32
   q_name : String
-  q_size : Int
+  q_size : Int32
   q_strand : String
-  q_start : Int
-  q_end : Int
-  id : Int
+  q_start : Int32
+  q_end : Int32
+  id : Int32
   blocks : Array[ChainBlock]
 }
 
@@ -105,7 +105,11 @@ pub fn cl_parse_chain(content : String) -> ChainFile {
 ///
 /// Returns the corresponding query position, or None if the position falls
 /// in an unaligned gap or is outside any chain alignment.
-pub fn cl_liftover_pos(chains : ChainFile, chrom : String, pos : Int) -> Int? {
+pub fn cl_liftover_pos(
+  chains : ChainFile,
+  chrom : String,
+  pos : Int32,
+) -> Int32? {
   let chain = cl_find_chain_for_pos(chains, chrom, pos)
   match chain {
     None => None
@@ -147,9 +151,9 @@ pub fn cl_liftover_pos(chains : ChainFile, chrom : String, pos : Int) -> Int? {
 pub fn cl_liftover_range(
   chains : ChainFile,
   chrom : String,
-  start : Int,
-  end : Int,
-) -> (Int, Int)? {
+  start : Int32,
+  end : Int32,
+) -> (Int32, Int32)? {
   if start >= end {
     return None
   }
@@ -164,8 +168,8 @@ pub fn cl_liftover_range(
 
       let mut target_offset = ch.t_start
       let mut query_offset = ch.q_start
-      let mut mapped_start : Int? = None
-      let mut mapped_end : Int? = None
+      let mut mapped_start : Int32? = None
+      let mut mapped_end : Int32? = None
 
       let mut i = 0
       while i < ch.blocks.length() {
@@ -220,8 +224,8 @@ pub fn cl_liftover_range(
 ///
 /// Returns a Map with keys: "total_block_size", "num_blocks",
 /// "total_gap_target", "total_gap_query", "aligned_target", "aligned_query".
-pub fn cl_get_chain_summary(chain : ChainAlignment) -> Map[String, Int] {
-  let summary : Map[String, Int] = Map([], capacity=6)
+pub fn cl_get_chain_summary(chain : ChainAlignment) -> Map[String, Int32] {
+  let summary : Map[String, Int32] = Map([], capacity=6)
   let mut total_block_size = 0
   let mut total_gap_target = 0
   let mut total_gap_query = 0
@@ -287,7 +291,7 @@ pub fn cl_chain_to_string(chain : ChainAlignment) -> String {
 pub fn cl_find_chain_for_pos(
   chains : ChainFile,
   chrom : String,
-  pos : Int,
+  pos : Int32,
 ) -> ChainAlignment? {
   let mut i = 0
   while i < chains.alignments.length() {
@@ -391,17 +395,17 @@ fn cl_split_spaces(s : String) -> Array[String] {
 /// Internal struct for parsed chain header fields.
 priv struct ChainHeader {
   t_name : String
-  score : Int
-  t_size : Int
+  score : Int32
+  t_size : Int32
   t_plus : Bool
-  t_start : Int
-  t_end : Int
+  t_start : Int32
+  t_end : Int32
   q_name : String
-  q_size : Int
+  q_size : Int32
   q_strand : String
-  q_start : Int
-  q_end : Int
-  id : Int
+  q_start : Int32
+  q_end : Int32
+  id : Int32
 }
 
 ///|
@@ -409,8 +413,8 @@ priv struct ChainHeader {
 /// of the next line to process.
 fn cl_parse_chain_header(
   lines : Array[String],
-  start_idx : Int,
-) -> (ChainHeader, Int) {
+  start_idx : Int32,
+) -> (ChainHeader, Int32) {
   let line = lines[start_idx]
   let fields = cl_split_spaces(line)
 
@@ -472,7 +476,7 @@ fn cl_parse_chain_header(
 /// space-delimited integers: size, dt, dq.
 fn cl_parse_chain_blocks(
   lines : Array[String],
-  start_idx : Int,
+  start_idx : Int32,
 ) -> Array[ChainBlock] {
   let blocks : Array[ChainBlock] = Array(capacity=0)
   let mut i = start_idx
@@ -515,7 +519,7 @@ fn cl_parse_chain_blocks(
 
 ///|
 /// Skip to the next chain header line (or end of file).
-fn cl_skip_to_next_chain(lines : Array[String], from : Int) -> Int {
+fn cl_skip_to_next_chain(lines : Array[String], from : Int32) -> Int32 {
   let mut i = from
   while i < lines.length() {
     let trimmed = cl_trim(lines[i])
@@ -529,7 +533,7 @@ fn cl_skip_to_next_chain(lines : Array[String], from : Int) -> Int {
 
 ///|
 /// Parse an integer safely, returning 0 for invalid input.
-fn cl_parse_int_safe(s : String) -> Int {
+fn cl_parse_int_safe(s : String) -> Int32 {
   let n = s.length()
   if n == 0 {
     return 0
@@ -552,13 +556,13 @@ fn cl_parse_int_safe(s : String) -> Int {
 /// Create a simple chain alignment for testing purposes.
 fn cl_make_test_chain(
   t_name : String,
-  t_start : Int,
-  t_end : Int,
+  t_start : Int32,
+  t_end : Int32,
   q_name : String,
-  q_start : Int,
-  q_end : Int,
+  q_start : Int32,
+  q_end : Int32,
   blocks : Array[ChainBlock],
-  id : Int,
+  id : Int32,
 ) -> ChainAlignment {
   ChainAlignment::{
     t_name,

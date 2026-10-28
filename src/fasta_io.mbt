@@ -14,7 +14,7 @@
 
 ///|
 /// Default line width for wrapping FASTA sequence output (matches BioPython).
-let fasta_line_width : Int = 60
+let fasta_line_width : Int32 = 60
 
 ///|
 /// Parse FASTA format text and return an array of SeqRecord objects.
@@ -229,7 +229,7 @@ pub fn simple_fasta_parser(content : String) -> Array[(String, String)] {
 ///   ```
 pub fn fastq_general_parser(
   content : String,
-) -> Array[(String, String, Array[Int])] {
+) -> Array[(String, String, Array[Int32])] {
   let records = Array(capacity=0)
   let lines = content.split("\n").to_array()
   let n_lines = lines.length()
@@ -262,7 +262,7 @@ pub fn fastq_general_parser(
     if q_end > 0 && quals_line.unsafe_get(q_end - 1) == cr {
       q_end = q_end - 1
     }
-    let quals : Array[Int] = Array(capacity=0)
+    let quals : Array[Int32] = Array(capacity=0)
     for i = 0; i < q_end; i = i + 1 {
       quals.push(quals_line.unsafe_get(i).to_int() - 33)
     }
@@ -331,7 +331,7 @@ pub fn fasta_two_line_parser(content : String) -> Array[(String, String)] {
 ///   ```
 pub fn fastq_two_line_parser(
   content : String,
-) -> Array[(String, String, Array[Int])] {
+) -> Array[(String, String, Array[Int32])] {
   let records = Array(capacity=0)
   let lines = content.split("\n").to_array()
   let at : UInt16 = '@'.to_int().to_uint16()
@@ -368,7 +368,7 @@ pub fn fastq_two_line_parser(
     } else {
       ""
     }
-    let quals : Array[Int] = Array(capacity=0)
+    let quals : Array[Int32] = Array(capacity=0)
     if i + 1 < lines.length() {
       let line1 = lines[i + 1]
       let n1 = line1.length()
@@ -412,7 +412,7 @@ pub fn fasta_two_line_iterator(content : String) -> Array[SeqRecord] {
 ///   - otherwise: id + " " + description
 pub fn write_fasta_record(
   record : SeqRecord,
-  width? : Int = fasta_line_width,
+  width~ : Int32 = fasta_line_width,
 ) -> String {
   let buf = StringBuilder()
   buf.write_char('>')
@@ -435,7 +435,7 @@ pub fn write_fasta_record(
 /// line width (see `write_fasta` for the default-width variant).
 pub fn write_fasta_records(
   records : Array[SeqRecord],
-  width? : Int = fasta_line_width,
+  width~ : Int32 = fasta_line_width,
 ) -> String {
   let buf = StringBuilder()
   for rec in records {

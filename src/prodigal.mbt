@@ -22,42 +22,42 @@
 /// A predicted gene.
 pub struct ProdigalGene {
   seqid : String
-  start : Int         // 1-based start position (inclusive)
-  end_ : Int          // 1-based end position (inclusive)
-  strand : String     // "+" or "-"
-  frame : Int         // 0, 1, or 2
+  start : Int32 // 1-based start position (inclusive)
+  end_ : Int32 // 1-based end position (inclusive)
+  strand : String // "+" or "-"
+  frame : Int32 // 0, 1, or 2
   start_codon : String
   stop_codon : String
-  length : Int        // gene length in nucleotides (including stop)
-  score : Double      // overall gene score
-  partial : Bool      // partial gene at sequence boundary
-  rbs_score : Double  // RBS motif score
+  length : Int32 // gene length in nucleotides (including stop)
+  score : Double // overall gene score
+  partial : Bool // partial gene at sequence boundary
+  rbs_score : Double // RBS motif score
   gc_content : Double // GC content of the gene
-  protein : String    // translated protein sequence
-  gene_id : String    // assigned gene ID
+  protein : String // translated protein sequence
+  gene_id : String // assigned gene ID
 }
 
 ///|
 /// Gene prediction result.
 pub struct ProdigalResult {
   seqid : String
-  sequence_length : Int
+  sequence_length : Int32
   genes : Array[ProdigalGene]
   method_ : String
-  num_genes : Int
+  num_genes : Int32
   mean_gc : Double
 }
 
 ///|
 /// Parameters for gene prediction.
 pub struct ProdigalParams {
-  min_gene_len : Int      // minimum gene length (nt)
-  max_overlap : Int       // maximum allowed overlap (nt)
+  min_gene_len : Int32 // minimum gene length (nt)
+  max_overlap : Int32 // maximum allowed overlap (nt)
   start_codons : Array[String]
   stop_codons : Array[String]
-  use_rbs : Bool          // use RBS scoring
-  allow_partial : Bool    // allow partial genes at boundaries
-  closed_ends : Bool      // closed ends (no partial genes)
+  use_rbs : Bool // use RBS scoring
+  allow_partial : Bool // allow partial genes at boundaries
+  closed_ends : Bool // closed ends (no partial genes)
 }
 
 ///|
@@ -77,8 +77,8 @@ pub fn prodigal_default_params() -> ProdigalParams {
 ///|
 /// Create custom parameters.
 pub fn prodigal_params(
-  min_gene_len : Int,
-  max_overlap : Int,
+  min_gene_len : Int32,
+  max_overlap : Int32,
 ) -> ProdigalParams {
   {
     min_gene_len,
@@ -94,8 +94,8 @@ pub fn prodigal_params(
 ///|
 /// Create ProdigalParams with all fields specified.
 pub fn prodigal_params_full(
-  min_gene_len : Int,
-  max_overlap : Int,
+  min_gene_len : Int32,
+  max_overlap : Int32,
   start_codons : Array[String],
   stop_codons : Array[String],
   use_rbs : Bool,
@@ -120,10 +120,10 @@ pub fn prodigal_params_full(
 ///|
 /// An ORF candidate found during scanning.
 struct OrfCandidate {
-  start_pos : Int    // 0-based start position in the original sequence
-  end_pos : Int      // 0-based end position (exclusive) in the original sequence
-  strand : String    // "+" or "-"
-  frame : Int        // 0, 1, or 2
+  start_pos : Int32 // 0-based start position in the original sequence
+  end_pos : Int32 // 0-based end position (exclusive) in the original sequence
+  strand : String // "+" or "-"
+  frame : Int32 // 0, 1, or 2
   start_codon : String
   stop_codon : String
   partial_start : Bool
@@ -143,7 +143,7 @@ fn is_codon(codon : String, codons : Array[String]) -> Bool {
 
 ///|
 /// Extract a substring of length n starting at position i.
-fn extract_codon(seq : String, i : Int, n : Int) -> String {
+fn extract_codon(seq : String, i : Int32, n : Int32) -> String {
   if i < 0 || i + n > seq.length() {
     return ""
   }
@@ -158,7 +158,7 @@ fn extract_codon(seq : String, i : Int, n : Int) -> String {
 /// Find all ORFs in one forward frame.
 fn find_orfs_forward_frame(
   seq : String,
-  frame : Int,
+  frame : Int32,
   params : ProdigalParams,
 ) -> Array[OrfCandidate] {
   let n = seq.length()
@@ -181,7 +181,7 @@ fn find_orfs_forward_frame(
               strand: "+",
               frame,
               start_codon: codon,
-              stop_codon: stop_codon,
+              stop_codon,
               partial_start: false,
               partial_end: false,
             })
@@ -193,7 +193,7 @@ fn find_orfs_forward_frame(
         }
         j += 3
       }
-      if !(found_stop) {
+      if !found_stop {
         // Partial ORF (no stop codon found before end)
         if params.allow_partial && n - i >= params.min_gene_len {
           result.push({
@@ -222,7 +222,7 @@ fn find_orfs_forward_frame(
 fn find_orfs_reverse_frame(
   _seq : String,
   rc_seq : String,
-  frame : Int,
+  frame : Int32,
   params : ProdigalParams,
 ) -> Array[OrfCandidate] {
   let n = rc_seq.length()
@@ -241,14 +241,14 @@ fn find_orfs_reverse_frame(
             // Map back to forward strand coordinates
             // rc position i corresponds to forward position n - 1 - (i + len - 1)
             let fwd_start = n - (j + 3) // 0-based start on forward strand
-            let fwd_end = n - i         // 0-based end (exclusive) on forward strand
+            let fwd_end = n - i // 0-based end (exclusive) on forward strand
             result.push({
               start_pos: fwd_start,
               end_pos: fwd_end,
               strand: "-",
               frame,
               start_codon: codon,
-              stop_codon: stop_codon,
+              stop_codon,
               partial_start: false,
               partial_end: false,
             })
@@ -259,7 +259,7 @@ fn find_orfs_reverse_frame(
         }
         j += 3
       }
-      if !(found_stop) {
+      if !found_stop {
         if params.allow_partial && n - i >= params.min_gene_len {
           let fwd_start = 0
           let fwd_end = n - i
@@ -286,10 +286,7 @@ fn find_orfs_reverse_frame(
 
 ///|
 /// Find all ORFs in all 6 reading frames.
-fn find_all_orfs(
-  seq : String,
-  params : ProdigalParams,
-) -> Array[OrfCandidate] {
+fn find_all_orfs(seq : String, params : ProdigalParams) -> Array[OrfCandidate] {
   let rc_seq = reverse_complement(seq)
   let result : Array[OrfCandidate] = Array(capacity=0)
   // Forward frames 0, 1, 2
@@ -318,22 +315,70 @@ fn find_all_orfs(
 fn genetic_code() -> Map[String, String] {
   let code : Map[String, String] = Map([], capacity=0)
   let pairs = [
-    ("TTT", "F"), ("TTC", "F"), ("TTA", "L"), ("TTG", "L"),
-    ("CTT", "L"), ("CTC", "L"), ("CTA", "L"), ("CTG", "L"),
-    ("ATT", "I"), ("ATC", "I"), ("ATA", "I"), ("ATG", "M"),
-    ("GTT", "V"), ("GTC", "V"), ("GTA", "V"), ("GTG", "V"),
-    ("TCT", "S"), ("TCC", "S"), ("TCA", "S"), ("TCG", "S"),
-    ("CCT", "P"), ("CCC", "P"), ("CCA", "P"), ("CCG", "P"),
-    ("ACT", "T"), ("ACC", "T"), ("ACA", "T"), ("ACG", "T"),
-    ("GCT", "A"), ("GCC", "A"), ("GCA", "A"), ("GCG", "A"),
-    ("TAT", "Y"), ("TAC", "Y"), ("TAA", "*"), ("TAG", "*"),
-    ("CAT", "H"), ("CAC", "H"), ("CAA", "Q"), ("CAG", "Q"),
-    ("AAT", "N"), ("AAC", "N"), ("AAA", "K"), ("AAG", "K"),
-    ("GAT", "D"), ("GAC", "D"), ("GAA", "E"), ("GAG", "E"),
-    ("TGT", "C"), ("TGC", "C"), ("TGA", "*"), ("TGG", "W"),
-    ("CGT", "R"), ("CGC", "R"), ("CGA", "R"), ("CGG", "R"),
-    ("AGT", "S"), ("AGC", "S"), ("AGA", "R"), ("AGG", "R"),
-    ("GGT", "G"), ("GGC", "G"), ("GGA", "G"), ("GGG", "G"),
+    ("TTT", "F"),
+    ("TTC", "F"),
+    ("TTA", "L"),
+    ("TTG", "L"),
+    ("CTT", "L"),
+    ("CTC", "L"),
+    ("CTA", "L"),
+    ("CTG", "L"),
+    ("ATT", "I"),
+    ("ATC", "I"),
+    ("ATA", "I"),
+    ("ATG", "M"),
+    ("GTT", "V"),
+    ("GTC", "V"),
+    ("GTA", "V"),
+    ("GTG", "V"),
+    ("TCT", "S"),
+    ("TCC", "S"),
+    ("TCA", "S"),
+    ("TCG", "S"),
+    ("CCT", "P"),
+    ("CCC", "P"),
+    ("CCA", "P"),
+    ("CCG", "P"),
+    ("ACT", "T"),
+    ("ACC", "T"),
+    ("ACA", "T"),
+    ("ACG", "T"),
+    ("GCT", "A"),
+    ("GCC", "A"),
+    ("GCA", "A"),
+    ("GCG", "A"),
+    ("TAT", "Y"),
+    ("TAC", "Y"),
+    ("TAA", "*"),
+    ("TAG", "*"),
+    ("CAT", "H"),
+    ("CAC", "H"),
+    ("CAA", "Q"),
+    ("CAG", "Q"),
+    ("AAT", "N"),
+    ("AAC", "N"),
+    ("AAA", "K"),
+    ("AAG", "K"),
+    ("GAT", "D"),
+    ("GAC", "D"),
+    ("GAA", "E"),
+    ("GAG", "E"),
+    ("TGT", "C"),
+    ("TGC", "C"),
+    ("TGA", "*"),
+    ("TGG", "W"),
+    ("CGT", "R"),
+    ("CGC", "R"),
+    ("CGA", "R"),
+    ("CGG", "R"),
+    ("AGT", "S"),
+    ("AGC", "S"),
+    ("AGA", "R"),
+    ("AGG", "R"),
+    ("GGT", "G"),
+    ("GGC", "G"),
+    ("GGA", "G"),
+    ("GGG", "G"),
   ]
   for (codon, aa) in pairs {
     code[codon] = aa
@@ -366,7 +411,7 @@ fn translate_seq(seq : String) -> String {
 
 ///|
 /// Extract a subsequence from a string.
-fn subseq(seq : String, start : Int, end_ : Int) -> String {
+fn subseq(seq : String, start : Int32, end_ : Int32) -> String {
   let buf : StringBuilder = StringBuilder()
   for i = start; i < end_; i = i + 1 {
     if i >= 0 && i < seq.length() {
@@ -402,7 +447,7 @@ fn codon_bias_score(seq : String) -> Double {
     return 0.0
   }
   // Count codons
-  let counts : Map[String, Int] = Map([], capacity=0)
+  let counts : Map[String, Int32] = Map([], capacity=0)
   let mut total_codons = 0
   let mut i = 0
   while i + 2 < n {
@@ -422,12 +467,12 @@ fn codon_bias_score(seq : String) -> Double {
   // Score: reward ATG starts and common codons
   // Simple heuristic: prefer genes with more "common" bacterial codons
   let common_codons = [
-    "ATG", "GTG", "TTG",  // start codons
-    "CTG", "ATC", "GTC",  // common Leu, Ile, Val
-    "GCT", "GCC", "ACC",  // common Ala, Thr
-    "TTC", "TAC", "TGC",  // common Phe, Tyr, Cys
-    "CAG", "AAC", "GAC",  // common Gln, Asn, Asp
-    "GTG", "GCG", "CCG",  // common Val, Ala, Pro
+    "ATG", "GTG", "TTG", // start codons
+     "CTG", "ATC", "GTC", // common Leu, Ile, Val
+     "GCT", "GCC", "ACC", // common Ala, Thr
+     "TTC", "TAC", "TGC", // common Phe, Tyr, Cys
+     "CAG", "AAC", "GAC", // common Gln, Asn, Asp
+     "GTG", "GCG", "CCG", // common Val, Ala, Pro
   ]
   let mut score = 0.0
   for (codon, count) in counts {
@@ -450,11 +495,7 @@ fn codon_bias_score(seq : String) -> Double {
 ///|
 /// Score RBS (Shine-Dalgarno) motif upstream of start codon.
 /// Looks for AGGAGG-like motifs in the -20 to -4 region.
-fn rbs_score(
-  seq : String,
-  start_pos : Int,
-  strand : String,
-) -> Double {
+fn rbs_score(seq : String, start_pos : Int32, strand : String) -> Double {
   // Extract upstream region (20 nt before start)
   let upstream_start = if start_pos >= 20 { start_pos - 20 } else { 0 }
   let upstream_end = start_pos
@@ -466,8 +507,8 @@ fn rbs_score(
   }
   // Search for Shine-Dalgarno motifs
   let rbs_motifs = [
-    "AGGAGG", "AGGAG", "GGAGG", "GAGGT", "AGGUG",
-    "GGAG", "AGGA", "GAGG", "TAAGG", "AGGU",
+    "AGGAGG", "AGGAG", "GGAGG", "GAGGT", "AGGUG", "GGAG", "AGGA", "GAGG", "TAAGG",
+    "AGGU",
   ]
   let mut best_score = 0.0
   for motif in rbs_motifs {
@@ -511,7 +552,7 @@ fn score_orf(
   seq : String,
   rc_seq : String,
   params : ProdigalParams,
-  gene_idx : Int,
+  gene_idx : Int32,
   seqid : String,
 ) -> (ProdigalGene, Double) {
   // Extract the gene sequence
@@ -537,8 +578,8 @@ fn score_orf(
   let gene_id = "gene_" + seqid + "_" + gene_idx.to_string()
   let gene : ProdigalGene = {
     seqid,
-    start: orf.start_pos + 1,  // 1-based
-    end_: orf.end_pos,          // 1-based (end_pos is exclusive 0-based = inclusive 1-based)
+    start: orf.start_pos + 1, // 1-based
+    end_: orf.end_pos, // 1-based (end_pos is exclusive 0-based = inclusive 1-based)
     strand: orf.strand,
     frame: orf.frame,
     start_codon: orf.start_codon,
@@ -571,8 +612,12 @@ fn _orfs_overlap(a : OrfCandidate, b : OrfCandidate) -> Bool {
 
 ///|
 /// Compute overlap length between two ORF candidates.
-fn _overlap_len(a : OrfCandidate, b : OrfCandidate) -> Int {
-  let overlap_start = if a.start_pos > b.start_pos { a.start_pos } else { b.start_pos }
+fn _overlap_len(a : OrfCandidate, b : OrfCandidate) -> Int32 {
+  let overlap_start = if a.start_pos > b.start_pos {
+    a.start_pos
+  } else {
+    b.start_pos
+  }
   let overlap_end = if a.end_pos < b.end_pos { a.end_pos } else { b.end_pos }
   if overlap_end > overlap_start {
     overlap_end - overlap_start
@@ -587,10 +632,12 @@ fn _overlap_len(a : OrfCandidate, b : OrfCandidate) -> Int {
 /// (or overlap by less than max_overlap).
 fn select_genes(
   candidates : Array[(ProdigalGene, Double)],
-  max_overlap : Int,
+  max_overlap : Int32,
 ) -> Array[ProdigalGene] {
   // Copy and sort by score descending
-  let sorted : Array[(ProdigalGene, Double)] = Array(capacity=candidates.length())
+  let sorted : Array[(ProdigalGene, Double)] = Array(
+    capacity=candidates.length(),
+  )
   for i = 0; i < candidates.length(); i = i + 1 {
     sorted.push(candidates[i])
   }
@@ -646,10 +693,7 @@ fn select_genes(
 
 ///|
 /// Predict genes in a bacterial sequence.
-pub fn prodigal_predict(
-  sequence : String,
-  seqid : String,
-) -> ProdigalResult {
+pub fn prodigal_predict(sequence : String, seqid : String) -> ProdigalResult {
   prodigal_predict_with_params(sequence, seqid, prodigal_default_params())
 }
 
@@ -712,7 +756,9 @@ pub fn prodigal_predict_with_params(
 pub fn prodigal_to_gff(result : ProdigalResult) -> String {
   let buf : StringBuilder = StringBuilder()
   buf.write_string("##gff-version 3\\n")
-  buf.write_string("##feature-ontology https://github.com/The-Sequence-Ontology/SO-Ontologies/blob/v3.2/Features.md\\n")
+  buf.write_string(
+    "##feature-ontology https://github.com/The-Sequence-Ontology/SO-Ontologies/blob/v3.2/Features.md\\n",
+  )
   buf.write_string("##sequence-region ")
   buf.write_string(result.seqid)
   buf.write_string(" 1 ")
@@ -865,7 +911,9 @@ pub fn prodigal_summary(result : ProdigalResult) -> String {
     buf.write_string((total_len / result.num_genes).to_string())
     buf.write_string(" nt\\n")
     buf.write_string("Coding density: ")
-    buf.write_string((total_len.to_double() / result.sequence_length.to_double() * 100.0).to_string())
+    buf.write_string(
+      (total_len.to_double() / result.sequence_length.to_double() * 100.0).to_string(),
+    )
     buf.write_string("%\\n")
   }
   buf.to_string()

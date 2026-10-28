@@ -26,7 +26,11 @@ pub enum GlmLink {
   Log
   Logit
 } derive(Eq, Debug)
+
+///|
 pub extend GlmLink with Eq::{equal, not_equal}
+
+///|
 pub extend GlmLink with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -39,7 +43,11 @@ pub enum GlmFamily {
   /// Binomial with a single trial (Bernoulli), V(mu) = mu(1-mu).
   Binomial
 } derive(Eq, Debug)
+
+///|
 pub extend GlmFamily with Eq::{equal, not_equal}
+
+///|
 pub extend GlmFamily with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -49,26 +57,32 @@ pub fn glm_link_identity() -> GlmLink {
   GlmLink::Identity
 }
 
+///|
 pub fn glm_link_log() -> GlmLink {
   GlmLink::Log
 }
 
+///|
 pub fn glm_link_logit() -> GlmLink {
   GlmLink::Logit
 }
 
+///|
 pub fn glm_family_gaussian() -> GlmFamily {
   GlmFamily::Gaussian
 }
 
+///|
 pub fn glm_family_poisson() -> GlmFamily {
   GlmFamily::Poisson
 }
 
+///|
 pub fn glm_family_negative_binomial(phi : Double) -> GlmFamily {
   GlmFamily::NegativeBinomial(phi)
 }
 
+///|
 pub fn glm_family_binomial() -> GlmFamily {
   GlmFamily::Binomial
 }
@@ -166,7 +180,7 @@ pub fn glm_default_link(family : GlmFamily) -> GlmLink {
 
 ///|
 /// Allocate a rows x cols matrix of Double (distinct inner arrays).
-fn glm_dmatrix(rows : Int, cols : Int) -> Array[Array[Double]] {
+fn glm_dmatrix(rows : Int32, cols : Int32) -> Array[Array[Double]] {
   let m : Array[Array[Double]] = Array::make(rows, Array::make(0, 0.0))
   for i in 0..<rows {
     m[i] = Array::make(cols, 0.0)
@@ -178,7 +192,7 @@ fn glm_dmatrix(rows : Int, cols : Int) -> Array[Array[Double]] {
 /// Xᵀ W X for design matrix X (n×p) and diagonal weights W (n).
 fn glm_xtwx(
   x : Array[Array[Double]],
-  w : Array[Double]
+  w : Array[Double],
 ) -> Array[Array[Double]] {
   let n = x.length()
   let p = if n > 0 { x[0].length() } else { 0 }
@@ -200,7 +214,7 @@ fn glm_xtwx(
 fn glm_xtwz(
   x : Array[Array[Double]],
   w : Array[Double],
-  z : Array[Double]
+  z : Array[Double],
 ) -> Array[Double] {
   let n = x.length()
   let p = if n > 0 { x[0].length() } else { 0 }
@@ -242,32 +256,26 @@ fn glm_solve(a : Array[Array[Double]], b : Array[Double]) -> Array[Double] {
 fn glm_deviance_one(family : GlmFamily, y : Double, mu : Double) -> Double {
   match family {
     Gaussian => (y - mu) * (y - mu)
-    Poisson => {
+    Poisson =>
       if y <= 0.0 {
         2.0 * mu
       } else {
         2.0 * (y * @math.ln(y / glm_pos(mu)) - (y - mu))
       }
-    }
     NegativeBinomial(phi) => {
       let ph = if phi > 0.0 { phi } else { 1.0 }
       let m = glm_pos(mu)
       if y <= 0.0 {
         2.0 * ph * @math.ln((m + ph) / ph)
       } else {
-        2.0 * (
-          y * @math.ln(y / m) -
-          (y + ph) * @math.ln((y + ph) / (m + ph))
-        )
+        2.0 * (y * @math.ln(y / m) - (y + ph) * @math.ln((y + ph) / (m + ph)))
       }
     }
     Binomial => {
       let m = glm_clamp01(mu)
       let ym = glm_pos(y)
-      2.0 * (
-        ym * @math.ln(ym / m) +
-        (1.0 - ym) * @math.ln((1.0 - ym) / (1.0 - m))
-      )
+      2.0 *
+      (ym * @math.ln(ym / m) + (1.0 - ym) * @math.ln((1.0 - ym) / (1.0 - m)))
     }
   }
 }
@@ -277,20 +285,16 @@ fn glm_deviance_one(family : GlmFamily, y : Double, mu : Double) -> Double {
 /// in likelihood-ratio comparisons; Gaussian uses the MLE variance).
 fn glm_loglik_one(family : GlmFamily, y : Double, mu : Double) -> Double {
   match family {
-    Gaussian => {
+    Gaussian =>
       // loglik under MLE sigma^2 is handled at the aggregate level; return
       // the quadratic part here (scaled in glm_total_loglik).
       -(y - mu) * (y - mu)
-    }
-    Poisson => {
+    Poisson =>
       if y <= 0.0 {
         -mu
       } else {
-        y * @math.ln(glm_pos(mu)) -
-        mu -
-        bsseq_ln_gamma(y + 1.0)
+        y * @math.ln(glm_pos(mu)) - mu - bsseq_ln_gamma(y + 1.0)
       }
-    }
     NegativeBinomial(phi) => {
       let ph = if phi > 0.0 { phi } else { 1.0 }
       let m = glm_pos(mu)
@@ -321,10 +325,10 @@ pub struct GlmResult {
   covariance : Array[Array[Double]]
   log_likelihood : Double
   deviance : Double
-  df_residual : Int
-  n_obs : Int
+  df_residual : Int32
+  n_obs : Int32
   converged : Bool
-  iterations : Int
+  iterations : Int32
   /// Estimated dispersion (scale) parameter.
   scale : Double
 }
@@ -335,30 +339,37 @@ pub fn GlmResult::coefficients(self : GlmResult) -> Array[Double] {
   self.coefficients
 }
 
+///|
 pub fn GlmResult::std_errors(self : GlmResult) -> Array[Double] {
   self.std_errors
 }
 
+///|
 pub fn GlmResult::covariance(self : GlmResult) -> Array[Array[Double]] {
   self.covariance
 }
 
+///|
 pub fn GlmResult::log_likelihood(self : GlmResult) -> Double {
   self.log_likelihood
 }
 
+///|
 pub fn GlmResult::deviance(self : GlmResult) -> Double {
   self.deviance
 }
 
-pub fn GlmResult::df_residual(self : GlmResult) -> Int {
+///|
+pub fn GlmResult::df_residual(self : GlmResult) -> Int32 {
   self.df_residual
 }
 
+///|
 pub fn GlmResult::converged(self : GlmResult) -> Bool {
   self.converged
 }
 
+///|
 pub fn GlmResult::scale(self : GlmResult) -> Double {
   self.scale
 }
@@ -395,7 +406,7 @@ pub fn glm_fit_irls(
   y : Array[Double],
   family : GlmFamily,
   link~ : GlmLink? = None,
-  max_iter~ : Int = 25,
+  max_iter~ : Int32 = 25,
   tol~ : Double = 1.0e-8,
 ) -> GlmResult {
   let link = match link {
@@ -408,22 +419,25 @@ pub fn glm_fit_irls(
   // Initialize mu (mean) from y.
   let mu : Array[Double] = Array::make(n, 0.0)
   match family {
-    Gaussian => {
+    Gaussian =>
       for i in 0..<n {
         mu[i] = y[i]
       }
-    }
-    Binomial => {
+    Binomial =>
       for i in 0..<n {
-        let ym = if y[i] <= 0.0 { 0.1 } else { if y[i] >= 1.0 { 0.9 } else { y[i] } }
+        let ym = if y[i] <= 0.0 {
+          0.1
+        } else if y[i] >= 1.0 {
+          0.9
+        } else {
+          y[i]
+        }
         mu[i] = (ym + 0.5) / 2.0
       }
-    }
-    _ => {
+    _ =>
       for i in 0..<n {
         mu[i] = if y[i] <= 0.0 { 0.1 } else { y[i] }
       }
-    }
   }
 
   let mut beta : Array[Double] = Array::make(p, 0.0)
@@ -431,25 +445,20 @@ pub fn glm_fit_irls(
   let mut iters = 0
   let mut w_final : Array[Double] = Array::make(n, 1.0)
 
-  for it in 1..=max_iter {
+  for it in 1..<=max_iter {
     // eta = X beta, mu = g^-1(eta).
     let eta = glm_linear_predictor(x, beta)
     for i in 0..<n {
       mu[i] = glm_inverse_link(link, eta[i])
       // clamp mu for families that require positivity
       match family {
-        Poisson | NegativeBinomial(_) => {
-          if mu[i] <= 0.0 {
-            mu[i] = 1.0e-12
-          }
-        }
-        Binomial => {
+        Poisson | NegativeBinomial(_) => if mu[i] <= 0.0 { mu[i] = 1.0e-12 }
+        Binomial =>
           if mu[i] < 0.000001 {
             mu[i] = 0.000001
           } else if mu[i] > 0.999999 {
             mu[i] = 0.999999
           }
-        }
         Gaussian => ()
       }
     }
@@ -494,16 +503,13 @@ pub fn glm_fit_irls(
   for i in 0..<n {
     mu[i] = glm_inverse_link(link, eta[i])
     match family {
-      Poisson | NegativeBinomial(_) => if mu[i] <= 0.0 {
-        mu[i] = 1.0e-12
-      }
-      Binomial => {
+      Poisson | NegativeBinomial(_) => if mu[i] <= 0.0 { mu[i] = 1.0e-12 }
+      Binomial =>
         if mu[i] < 0.000001 {
           mu[i] = 0.000001
         } else if mu[i] > 0.999999 {
           mu[i] = 0.999999
         }
-      }
       Gaussian => ()
     }
   }
@@ -513,13 +519,12 @@ pub fn glm_fit_irls(
   let mut scale = 1.0
   let deviance = glm_total_deviance(family, y, mu)
   match family {
-    Gaussian => {
+    Gaussian =>
       if df_residual > 0 {
         scale = deviance / df_residual.to_double()
       } else {
         scale = 1.0
       }
-    }
     _ => scale = 1.0
   }
 
@@ -551,7 +556,10 @@ pub fn glm_fit_irls(
 
 ///|
 /// X beta.
-fn glm_linear_predictor(x : Array[Array[Double]], beta : Array[Double]) -> Array[Double] {
+fn glm_linear_predictor(
+  x : Array[Array[Double]],
+  beta : Array[Double],
+) -> Array[Double] {
   let n = x.length()
   let eta = Array::make(n, 0.0)
   for i in 0..<n {
@@ -570,7 +578,7 @@ fn glm_linear_predictor(x : Array[Array[Double]], beta : Array[Double]) -> Array
 fn glm_total_deviance(
   family : GlmFamily,
   y : Array[Double],
-  mu : Array[Double]
+  mu : Array[Double],
 ) -> Double {
   let mut d = 0.0
   for i in 0..<y.length() {
@@ -585,7 +593,7 @@ fn glm_total_loglik(
   family : GlmFamily,
   y : Array[Double],
   mu : Array[Double],
-  deviance : Double
+  deviance : Double,
 ) -> Double {
   match family {
     Gaussian => {
@@ -594,7 +602,8 @@ fn glm_total_loglik(
         return 0.0
       }
       let v = deviance / n.to_double()
-      -n.to_double() / 2.0 * @math.ln(2.0 * 3.141592653589793 * v) - n.to_double() / 2.0
+      -n.to_double() / 2.0 * @math.ln(2.0 * 3.141592653589793 * v) -
+      n.to_double() / 2.0
     }
     _ => {
       let mut ll = 0.0
@@ -608,7 +617,10 @@ fn glm_total_loglik(
 
 ///|
 /// Scale a matrix by a scalar.
-fn glm_matrix_scale(a : Array[Array[Double]], s : Double) -> Array[Array[Double]] {
+fn glm_matrix_scale(
+  a : Array[Array[Double]],
+  s : Double,
+) -> Array[Array[Double]] {
   let n = a.length()
   let out : Array[Array[Double]] = Array(capacity=0)
   for i in 0..<n {
@@ -629,18 +641,21 @@ fn glm_matrix_scale(a : Array[Array[Double]], s : Double) -> Array[Array[Double]
 /// A Wald test result (single coefficient or omnibus).
 pub struct WaldResult {
   statistic : Double
-  df : Int
+  df : Int32
   p_value : Double
 }
 
+///|
 pub fn WaldResult::statistic(self : WaldResult) -> Double {
   self.statistic
 }
 
-pub fn WaldResult::df(self : WaldResult) -> Int {
+///|
+pub fn WaldResult::df(self : WaldResult) -> Int32 {
   self.df
 }
 
+///|
 pub fn WaldResult::p_value(self : WaldResult) -> Double {
   self.p_value
 }
@@ -648,12 +663,12 @@ pub fn WaldResult::p_value(self : WaldResult) -> Double {
 ///|
 /// Single-coefficient Wald test: z = beta_j / se_j, two-sided normal p-value.
 /// Tests H0: beta_j = 0.
-pub fn glm_wald_test(result : GlmResult, coef_idx : Int) -> WaldResult {
+pub fn glm_wald_test(result : GlmResult, coef_idx : Int32) -> WaldResult {
   let b = result.coefficients[coef_idx]
   let se = result.std_errors[coef_idx]
   let z = if se > 0.0 { b / se } else { 0.0 }
   let p = stat_pvalue_zscore(z)
-  WaldResult::{ statistic: z, df: 1, p_value: p }
+  WaldResult::{ statistic: z, df: 1, p_value: p, }
 }
 
 ///|
@@ -661,10 +676,13 @@ pub fn glm_wald_test(result : GlmResult, coef_idx : Int) -> WaldResult {
 ///
 /// Wald statistic = beta_Cᵀ cov_C⁻¹ beta_C ~ chi-square with k = indices.length()
 /// degrees of freedom.
-pub fn glm_wald_omnibus(result : GlmResult, indices : Array[Int]) -> WaldResult {
+pub fn glm_wald_omnibus(
+  result : GlmResult,
+  indices : Array[Int32],
+) -> WaldResult {
   let k = indices.length()
   if k == 0 {
-    return WaldResult::{ statistic: 0.0, df: 0, p_value: 1.0 }
+    return WaldResult::{ statistic: 0.0, df: 0, p_value: 1.0, }
   }
   // Build sub-vector beta_C and sub-matrix cov_C.
   let beta_c = Array::make(k, 0.0)
@@ -689,7 +707,7 @@ pub fn glm_wald_omnibus(result : GlmResult, indices : Array[Int]) -> WaldResult 
     stat = 0.0
   }
   let p = 1.0 - stat_chi2_cdf(stat, k)
-  WaldResult::{ statistic: stat, df: k, p_value: p }
+  WaldResult::{ statistic: stat, df: k, p_value: p, }
 }
 
 // ============================================================
@@ -700,18 +718,21 @@ pub fn glm_wald_omnibus(result : GlmResult, indices : Array[Int]) -> WaldResult 
 /// Likelihood-ratio test result comparing two nested models.
 pub struct LrtResult {
   statistic : Double
-  df : Int
+  df : Int32
   p_value : Double
 }
 
+///|
 pub fn LrtResult::statistic(self : LrtResult) -> Double {
   self.statistic
 }
 
-pub fn LrtResult::df(self : LrtResult) -> Int {
+///|
+pub fn LrtResult::df(self : LrtResult) -> Int32 {
   self.df
 }
 
+///|
 pub fn LrtResult::p_value(self : LrtResult) -> Double {
   self.p_value
 }
@@ -730,5 +751,5 @@ pub fn glm_lrt_compare(full : GlmResult, reduced : GlmResult) -> LrtResult {
   let df = df_full - df_reduced
   let s = if stat < 0.0 { 0.0 } else { stat }
   let p = if df > 0 { 1.0 - stat_chi2_cdf(s, df) } else { 1.0 }
-  LrtResult::{ statistic: s, df, p_value: p }
+  LrtResult::{ statistic: s, df, p_value: p, }
 }

@@ -35,19 +35,15 @@ pub(all) struct XcpPeak {
 pub fn xcp_chrom_new(
   rt : Array[Double],
   intensity : Array[Double],
-  label? : String = "",
+  label~ : String = "",
 ) -> XcpChromatogram {
-  XcpChromatogram::{
-    rt: rt,
-    intensity: intensity,
-    label: label,
-  }
+  XcpChromatogram::{ rt, intensity, label, }
 }
 
 ///|
 pub fn xcp_baseline_rolling_min(
   intensity : Array[Double],
-  window_size : Int,
+  window_size : Int32,
 ) -> Array[Double] {
   let n = intensity.length()
   let result : Array[Double] = Array::make(n, 0.0)
@@ -57,7 +53,7 @@ pub fn xcp_baseline_rolling_min(
     let hi = if i + half < n { i + half } else { n - 1 }
     let mut mn = intensity[lo]
     let j_start = lo + 1
-    for j in j_start..=hi {
+    for j in j_start..<=hi {
       if intensity[j] < mn {
         mn = intensity[j]
       }
@@ -70,7 +66,7 @@ pub fn xcp_baseline_rolling_min(
 ///|
 pub fn xcp_baseline_rolling_median(
   intensity : Array[Double],
-  window_size : Int,
+  window_size : Int32,
 ) -> Array[Double] {
   let n = intensity.length()
   let result : Array[Double] = Array::make(n, 0.0)
@@ -135,8 +131,8 @@ pub fn xcp_gaussian(x : Double, mu : Double, sigma : Double) -> Double {
 fn xcp_fit_gaussian(
   rt : Array[Double],
   intensity : Array[Double],
-  lo : Int,
-  hi : Int,
+  lo : Int32,
+  hi : Int32,
 ) -> (Double, Double, Double, Double) {
   let n = hi - lo + 1
   if n < 3 {
@@ -145,7 +141,7 @@ fn xcp_fit_gaussian(
   let mut sum_int = 0.0
   let mut sum_rt_int = 0.0
   let mut max_int = 0.0
-  for i in lo..=hi {
+  for i in lo..<=hi {
     sum_int = sum_int + intensity[i]
     sum_rt_int = sum_rt_int + rt[i] * intensity[i]
     if intensity[i] > max_int {
@@ -157,16 +153,20 @@ fn xcp_fit_gaussian(
   }
   let mu = sum_rt_int / sum_int
   let mut variance = 0.0
-  for i in lo..=hi {
+  for i in lo..<=hi {
     let d = rt[i] - mu
     variance = variance + intensity[i] * d * d
   }
   variance = variance / sum_int
-  let sigma = if variance > 0.0 { variance.sqrt() } else { (rt[hi] - rt[lo]) / 4.0 }
+  let sigma = if variance > 0.0 {
+    variance.sqrt()
+  } else {
+    (rt[hi] - rt[lo]) / 4.0
+  }
   let mut ss_res = 0.0
   let mut ss_tot = 0.0
   let mean_int = sum_int / n.to_double()
-  for i in lo..=hi {
+  for i in lo..<=hi {
     let fitted = max_int * xcp_gaussian(rt[i], mu, sigma)
     let resid = intensity[i] - fitted
     ss_res = ss_res + resid * resid
@@ -180,10 +180,10 @@ fn xcp_fit_gaussian(
 ///|
 pub fn xcp_centwave(
   chrom : XcpChromatogram,
-  snr_threshold? : Double = 3.0,
-  min_peak_width? : Double = 0.0,
-  max_peak_width? : Double = 1000.0,
-  noise? : Double = 0.0,
+  snr_threshold~ : Double = 3.0,
+  min_peak_width~ : Double = 0.0,
+  max_peak_width~ : Double = 1000.0,
+  noise~ : Double = 0.0,
 ) -> Array[XcpPeak] {
   let rt = chrom.rt
   let intensity = chrom.intensity
@@ -205,20 +205,22 @@ pub fn xcp_centwave(
       let end = i - 1
       let region_len = end - start + 1
       if region_len >= 3 {
-
         let mut apex_int = intensity[start]
-        for k in start..=end {
+        for k in start..<=end {
           if intensity[k] > apex_int {
             apex_int = intensity[k]
-
           }
         }
-          let (mu, sigma, _amp, _r2) = xcp_fit_gaussian(rt, intensity, start, end)
+        let (mu, sigma, _amp, _r2) = xcp_fit_gaussian(rt, intensity, start, end)
         let fwhm = 2.3554820045 * sigma
         let rt_min = mu - 1.177741 * sigma
         let rt_max = mu + 1.177741 * sigma
         let rt_min_clamped = if rt_min >= rt[0] { rt_min } else { rt[0] }
-        let rt_max_clamped = if rt_max <= rt[n - 1] { rt_max } else { rt[n - 1] }
+        let rt_max_clamped = if rt_max <= rt[n - 1] {
+          rt_max
+        } else {
+          rt[n - 1]
+        }
         let width = rt_max_clamped - rt_min_clamped
         if width >= min_peak_width && width <= max_peak_width {
           let mut area = 0.0
@@ -227,7 +229,11 @@ pub fn xcp_centwave(
             area = area + 0.5 * (intensity[k] + intensity[k + 1]) * dt
           }
           let local_noise = xcp_noise_mad(intensity)
-          let snr_val = if local_noise > 0.000000000001 { apex_int / local_noise } else { 0.0 }
+          let snr_val = if local_noise > 0.000000000001 {
+            apex_int / local_noise
+          } else {
+            0.0
+          }
           if snr_val >= snr_threshold {
             peaks.push(XcpPeak::{
               mz: 0.0,
@@ -235,9 +241,9 @@ pub fn xcp_centwave(
               rtmin: rt_min_clamped,
               rtmax: rt_max_clamped,
               intensity: apex_int,
-              area: area,
+              area,
               snr: snr_val,
-              fwhm: fwhm,
+              fwhm,
               peak_method: "centWave",
             })
           }
@@ -255,9 +261,9 @@ pub fn xcp_centwave(
 ///|
 pub fn xcp_matched_filter(
   chrom : XcpChromatogram,
-  window_size? : Int = 5,
-  snr_threshold? : Double = 3.0,
-  noise? : Double = 0.0,
+  window_size~ : Int32 = 5,
+  snr_threshold~ : Double = 3.0,
+  noise~ : Double = 0.0,
 ) -> Array[XcpPeak] {
   let rt = chrom.rt
   let intensity = chrom.intensity
@@ -276,7 +282,7 @@ pub fn xcp_matched_filter(
     let hi = if i + half < n { i + half } else { n - 1 }
     let mut sum = 0.0
     let mut cnt = 0
-    for j in lo..=hi {
+    for j in lo..<=hi {
       sum = sum + intensity[j]
       cnt = cnt + 1
     }
@@ -285,20 +291,26 @@ pub fn xcp_matched_filter(
 
   let mut i = 1
   while i < n - 1 {
-    if smoothed[i] > threshold && smoothed[i] > smoothed[i - 1] && smoothed[i] >= smoothed[i + 1] {
+    if smoothed[i] > threshold &&
+      smoothed[i] > smoothed[i - 1] &&
+      smoothed[i] >= smoothed[i + 1] {
       let apex_idx = i
       let apex_int = intensity[apex_idx]
       let mut left = apex_idx
       while left > 0 && intensity[left - 1] > threshold {
         left = left - 1
-        if left > 0 && intensity[left] < intensity[left - 1] && intensity[left] < intensity[left + 1] {
+        if left > 0 &&
+          intensity[left] < intensity[left - 1] &&
+          intensity[left] < intensity[left + 1] {
           break
         }
       }
       let mut right = apex_idx
       while right < n - 1 && intensity[right + 1] > threshold {
         right = right + 1
-        if right < n - 1 && intensity[right] < intensity[right - 1] && intensity[right] < intensity[right + 1] {
+        if right < n - 1 &&
+          intensity[right] < intensity[right - 1] &&
+          intensity[right] < intensity[right + 1] {
           break
         }
       }
@@ -307,7 +319,11 @@ pub fn xcp_matched_filter(
         let dt = rt[k + 1] - rt[k]
         area = area + 0.5 * (intensity[k] + intensity[k + 1]) * dt
       }
-      let snr_val = if noise_est > 0.000000000001 { apex_int / noise_est } else { 0.0 }
+      let snr_val = if noise_est > 0.000000000001 {
+        apex_int / noise_est
+      } else {
+        0.0
+      }
       if snr_val >= snr_threshold {
         let fwhm = rt[right] - rt[left]
         peaks.push(XcpPeak::{
@@ -316,9 +332,9 @@ pub fn xcp_matched_filter(
           rtmin: rt[left],
           rtmax: rt[right],
           intensity: apex_int,
-          area: area,
+          area,
           snr: snr_val,
-          fwhm: fwhm,
+          fwhm,
           peak_method: "matchedFilter",
         })
       }
@@ -335,7 +351,7 @@ pub fn xcp_matched_filter(
 ///|
 pub fn xcp_merge_peaks(
   peaks : Array[XcpPeak],
-  min_overlap? : Double = 0.0,
+  min_overlap~ : Double = 0.0,
 ) -> Array[XcpPeak] {
   let n = peaks.length()
   if n <= 1 {
@@ -354,16 +370,29 @@ pub fn xcp_merge_peaks(
     let overlap = current.rtmax - next.rtmin
     if overlap > min_overlap {
       let total_int = current.intensity + next.intensity
-      let new_rt = (current.rt * current.intensity + next.rt * next.intensity) / total_int
-      let new_apex = if current.intensity > next.intensity { current.intensity } else { next.intensity }
+      let new_rt = (current.rt * current.intensity + next.rt * next.intensity) /
+        total_int
+      let new_apex = if current.intensity > next.intensity {
+        current.intensity
+      } else {
+        next.intensity
+      }
       current = XcpPeak::{
         mz: current.mz,
         rt: new_rt,
         rtmin: current.rtmin,
-        rtmax: if next.rtmax > current.rtmax { next.rtmax } else { current.rtmax },
+        rtmax: if next.rtmax > current.rtmax {
+          next.rtmax
+        } else {
+          current.rtmax
+        },
         intensity: new_apex,
         area: current.area + next.area,
-        snr: if current.snr > next.snr { current.snr } else { next.snr },
+        snr: if current.snr > next.snr {
+          current.snr
+        } else {
+          next.snr
+        },
         fwhm: current.rtmax - current.rtmin,
         peak_method: current.peak_method + "+" + next.peak_method,
       }
@@ -407,8 +436,8 @@ pub fn xcp_export_peaks(peaks : Array[XcpPeak]) -> String {
 pub fn xcp_ascii_plot(
   chrom : XcpChromatogram,
   peaks : Array[XcpPeak],
-  width? : Int = 60,
-  height? : Int = 20,
+  width~ : Int32 = 60,
+  height~ : Int32 = 20,
 ) -> String {
   let n = chrom.intensity.length()
   if n == 0 {
@@ -417,8 +446,12 @@ pub fn xcp_ascii_plot(
   let mut mn = chrom.intensity[0]
   let mut mx = chrom.intensity[0]
   for v in chrom.intensity {
-    if v < mn { mn = v }
-    if v > mx { mx = v }
+    if v < mn {
+      mn = v
+    }
+    if v > mx {
+      mx = v
+    }
   }
   if mx - mn < 0.000000000001 {
     return ""
@@ -474,7 +507,9 @@ pub fn xcp_tic_stats(intensity : Array[Double]) -> (Double, Double, Double) {
   let n = intensity.length()
   for v in intensity {
     total = total + v
-    if v > mx { mx = v }
+    if v > mx {
+      mx = v
+    }
   }
   let mean = if n > 0 { total / n.to_double() } else { 0.0 }
   (total, mx, mean)

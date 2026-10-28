@@ -35,7 +35,7 @@ fn main {
   // 3. Column block processing
   // ------------------------------------------------------------------
   println("=== 3. Column block processing (block_size=2) ===")
-  @bio.bmat_apply_col_blocks(bmat, 2, (block) => {
+  @bio.bmat_apply_col_blocks(bmat, 2, block => {
     println(
       "  Col block: cols \{@bio.BmatBlock::col_start(block)}-\{@bio.BmatBlock::col_end(block)} (\{@bio.BmatBlock::block_ncol(block)} cols x \{@bio.BmatBlock::block_nrow(block)} rows)",
     )
@@ -48,7 +48,7 @@ fn main {
   // 4. Row block processing
   // ------------------------------------------------------------------
   println("=== 4. Row block processing (block_size=2) ===")
-  @bio.bmat_apply_row_blocks(bmat, 2, (block) => {
+  @bio.bmat_apply_row_blocks(bmat, 2, block => {
     println(
       "  Row block: rows \{@bio.BmatBlock::row_start(block)}-\{@bio.BmatBlock::row_end(block)} (\{@bio.BmatBlock::block_nrow(block)} rows x \{@bio.BmatBlock::block_ncol(block)} cols)",
     )
@@ -69,9 +69,7 @@ fn main {
       let v = val.unwrap()
       let r = @bio.BmatIterator::cur_row(iter)
       let c = @bio.BmatIterator::cur_col(iter)
-      println(
-        "  [\{r}, \{c}] = \{v}",
-      )
+      println("  [\{r}, \{c}] = \{v}")
       count = count + 1
     }
   }
@@ -83,8 +81,12 @@ fn main {
   // ------------------------------------------------------------------
   println("=== 6. Transpose ===")
   let transposed = @bio.bmat_transpose(bmat)
-  println("Original: \{@bio.Bmat::dim_rows(bmat)} x \{@bio.Bmat::dim_cols(bmat)}")
-  println("Transposed: \{@bio.Bmat::dim_rows(transposed)} x \{@bio.Bmat::dim_cols(transposed)}")
+  println(
+    "Original: \{@bio.Bmat::dim_rows(bmat)} x \{@bio.Bmat::dim_cols(bmat)}",
+  )
+  println(
+    "Transposed: \{@bio.Bmat::dim_rows(transposed)} x \{@bio.Bmat::dim_cols(transposed)}",
+  )
   println(@bio.Bmat::to_string(transposed))
   println("")
 
@@ -95,8 +97,12 @@ fn main {
   let extra = @bio.bmat_from_array([[10.0], [20.0], [30.0]])
   let bound_cols = @bio.bmat_bind_cols(bmat, extra)
   println("Left: \{@bio.Bmat::dim_rows(bmat)} x \{@bio.Bmat::dim_cols(bmat)}")
-  println("Right: \{@bio.Bmat::dim_rows(extra)} x \{@bio.Bmat::dim_cols(extra)}")
-  println("Bound: \{@bio.Bmat::dim_rows(bound_cols)} x \{@bio.Bmat::dim_cols(bound_cols)}")
+  println(
+    "Right: \{@bio.Bmat::dim_rows(extra)} x \{@bio.Bmat::dim_cols(extra)}",
+  )
+  println(
+    "Bound: \{@bio.Bmat::dim_rows(bound_cols)} x \{@bio.Bmat::dim_cols(bound_cols)}",
+  )
   println(@bio.Bmat::to_string(bound_cols))
   println("")
 
@@ -107,8 +113,12 @@ fn main {
   let extra_row = @bio.bmat_from_array([[100.0, 200.0, 300.0]])
   let bound_rows = @bio.bmat_bind_rows(bmat, extra_row)
   println("Top: \{@bio.Bmat::dim_rows(bmat)} x \{@bio.Bmat::dim_cols(bmat)}")
-  println("Bottom: \{@bio.Bmat::dim_rows(extra_row)} x \{@bio.Bmat::dim_cols(extra_row)}")
-  println("Bound: \{@bio.Bmat::dim_rows(bound_rows)} x \{@bio.Bmat::dim_cols(bound_rows)}")
+  println(
+    "Bottom: \{@bio.Bmat::dim_rows(extra_row)} x \{@bio.Bmat::dim_cols(extra_row)}",
+  )
+  println(
+    "Bound: \{@bio.Bmat::dim_rows(bound_rows)} x \{@bio.Bmat::dim_cols(bound_rows)}",
+  )
   println(@bio.Bmat::to_string(bound_rows))
   println("")
 
@@ -125,10 +135,10 @@ fn main {
   // 10. Element-wise operations
   // ------------------------------------------------------------------
   println("=== 10. Element-wise operations ===")
-  let doubled = @bio.bmat_apply_elementwise(bmat, (x) => { x * 2.0 })
+  let doubled = @bio.bmat_apply_elementwise(bmat, x => x * 2.0)
   println("Doubled:")
   println(@bio.Bmat::to_string(doubled))
-  let squared = @bio.bmat_apply_elementwise(bmat, (x) => { x * x })
+  let squared = @bio.bmat_apply_elementwise(bmat, x => x * x)
   println("Squared:")
   println(@bio.Bmat::to_string(squared))
   println("")

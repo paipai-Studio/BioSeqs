@@ -20,10 +20,14 @@
 ///
 /// If both n and width are specified, width takes precedence.
 /// Returns a new GRanges with the tiled sub-ranges.
-pub fn granges_tile(gr : GRanges, n? : Int = 0, width? : Int = 0) -> GRanges {
+pub fn granges_tile(
+  gr : GRanges,
+  n~ : Int32 = 0,
+  width~ : Int32 = 0,
+) -> GRanges {
   let n_ranges = gr.seqnames.length()
   let result_seqnames : Array[String] = Array(capacity=0)
-  let result_ranges : Array[(Int, Int)] = Array(capacity=0)
+  let result_ranges : Array[(Int32, Int32)] = Array(capacity=0)
   let result_strands : Array[Strand] = Array(capacity=0)
 
   for i = 0; i < n_ranges; i = i + 1 {
@@ -83,12 +87,12 @@ pub fn granges_tile(gr : GRanges, n? : Int = 0, width? : Int = 0) -> GRanges {
 /// Returns a new GRanges with the sliding windows.
 pub fn granges_sliding_windows(
   gr : GRanges,
-  width : Int,
-  step : Int,
+  width : Int32,
+  step : Int32,
 ) -> GRanges {
   let n_ranges = gr.seqnames.length()
   let result_seqnames : Array[String] = Array(capacity=0)
-  let result_ranges : Array[(Int, Int)] = Array(capacity=0)
+  let result_ranges : Array[(Int32, Int32)] = Array(capacity=0)
   let result_strands : Array[Strand] = Array(capacity=0)
 
   for i = 0; i < n_ranges; i = i + 1 {
@@ -124,9 +128,12 @@ pub fn granges_sliding_windows(
 /// - width: Width of each tile
 ///
 /// Returns a GRanges with tiles covering the entire genome.
-pub fn tile_genome(seqlengths : Array[(String, Int)], width : Int) -> GRanges {
+pub fn tile_genome(
+  seqlengths : Array[(String, Int32)],
+  width : Int32,
+) -> GRanges {
   let result_seqnames : Array[String] = Array(capacity=0)
-  let result_ranges : Array[(Int, Int)] = Array(capacity=0)
+  let result_ranges : Array[(Int32, Int32)] = Array(capacity=0)
   let result_strands : Array[Strand] = Array(capacity=0)
 
   for pair in seqlengths {
@@ -158,10 +165,10 @@ pub fn tile_genome(seqlengths : Array[(String, Int)], width : Int) -> GRanges {
 /// - n: Number of tiles per range
 ///
 /// Returns a new GRanges with exactly n tiles per input range.
-pub fn tile_by_ranges(gr : GRanges, n : Int) -> GRanges {
+pub fn tile_by_ranges(gr : GRanges, n : Int32) -> GRanges {
   let n_ranges = gr.seqnames.length()
   let result_seqnames : Array[String] = Array(capacity=0)
-  let result_ranges : Array[(Int, Int)] = Array(capacity=0)
+  let result_ranges : Array[(Int32, Int32)] = Array(capacity=0)
   let result_strands : Array[Strand] = Array(capacity=0)
 
   for i = 0; i < n_ranges; i = i + 1 {
@@ -202,14 +209,14 @@ pub fn tile_by_ranges(gr : GRanges, n : Int) -> GRanges {
 pub fn coverage_by_window(
   gr : GRanges,
   seqname : String,
-  seqlength : Int,
-  width : Int,
-  step : Int,
-) -> Array[(Int, Int, Int)] {
-  let result : Array[(Int, Int, Int)] = Array(capacity=0)
+  seqlength : Int32,
+  width : Int32,
+  step : Int32,
+) -> Array[(Int32, Int32, Int32)] {
+  let result : Array[(Int32, Int32, Int32)] = Array(capacity=0)
 
   // Filter ranges for this chromosome
-  let chrom_ranges : Array[(Int, Int)] = Array(capacity=0)
+  let chrom_ranges : Array[(Int32, Int32)] = Array(capacity=0)
   for i = 0; i < gr.seqnames.length(); i = i + 1 {
     if gr.seqnames[i] == seqname {
       chrom_ranges.push((gr.starts[i], gr.ends[i]))
@@ -253,13 +260,13 @@ pub fn coverage_by_window(
 /// Returns array of (chrom, bin_start, bin_end, count, density).
 pub fn bin_genome(
   gr : GRanges,
-  seqlengths : Array[(String, Int)],
-  bin_width : Int,
-) -> Array[(String, Int, Int, Int, Double)] {
-  let result : Array[(String, Int, Int, Int, Double)] = Array(capacity=0)
+  seqlengths : Array[(String, Int32)],
+  bin_width : Int32,
+) -> Array[(String, Int32, Int32, Int32, Double)] {
+  let result : Array[(String, Int32, Int32, Int32, Double)] = Array(capacity=0)
 
   // Group ranges by chromosome
-  let chrom_map : Map[String, Array[(Int, Int)]] = Map(
+  let chrom_map : Map[String, Array[(Int32, Int32)]] = Map(
     [],
     capacity=seqlengths.length(),
   )
@@ -269,7 +276,7 @@ pub fn bin_genome(
     match ranges {
       Some(arr) => arr.push((gr.starts[i], gr.ends[i]))
       None => {
-        let arr : Array[(Int, Int)] = [(gr.starts[i], gr.ends[i])]
+        let arr : Array[(Int32, Int32)] = [(gr.starts[i], gr.ends[i])]
         chrom_map.set(chrom, arr)
       }
     }
@@ -321,12 +328,12 @@ pub fn bin_genome(
 /// - fix: "start", "end", or "center"
 pub fn granges_resize_advanced(
   gr : GRanges,
-  width : Int,
+  width : Int32,
   fix : String,
 ) -> GRanges {
   let n = gr.seqnames.length()
-  let new_starts : Array[Int] = Array::make(n, 0)
-  let new_ends : Array[Int] = Array::make(n, 0)
+  let new_starts : Array[Int32] = Array::make(n, 0)
+  let new_ends : Array[Int32] = Array::make(n, 0)
 
   for i = 0; i < n; i = i + 1 {
     let start = gr.starts[i]
@@ -372,12 +379,12 @@ pub fn granges_resize_advanced(
 /// - downstream: Number of bases to extend downstream
 pub fn granges_promoters(
   gr : GRanges,
-  upstream : Int,
-  downstream : Int,
+  upstream : Int32,
+  downstream : Int32,
 ) -> GRanges {
   let n = gr.seqnames.length()
-  let new_starts : Array[Int] = Array::make(n, 0)
-  let new_ends : Array[Int] = Array::make(n, 0)
+  let new_starts : Array[Int32] = Array::make(n, 0)
+  let new_ends : Array[Int32] = Array::make(n, 0)
 
   for i = 0; i < n; i = i + 1 {
     let start = gr.starts[i]
@@ -396,7 +403,7 @@ pub fn granges_promoters(
     }
   }
 
-  let new_widths : Array[Int] = Array::make(n, 0)
+  let new_widths : Array[Int32] = Array::make(n, 0)
   for i = 0; i < n; i = i + 1 {
     new_widths[i] = new_ends[i] - new_starts[i] + 1
   }
@@ -421,25 +428,25 @@ pub fn granges_promoters(
 /// - end_limit: Maximum position (0 means no limit)
 pub fn granges_gaps(
   gr : GRanges,
-  start_limit? : Int = 1,
-  end_limit? : Int = 0,
+  start_limit~ : Int32 = 1,
+  end_limit~ : Int32 = 0,
 ) -> GRanges {
   // Group ranges by chromosome
-  let chrom_map : Map[String, Array[(Int, Int)]] = Map([], capacity=4)
+  let chrom_map : Map[String, Array[(Int32, Int32)]] = Map([], capacity=4)
   for i = 0; i < gr.seqnames.length(); i = i + 1 {
     let chrom = gr.seqnames[i]
     let ranges = chrom_map.get(chrom)
     match ranges {
       Some(arr) => arr.push((gr.starts[i], gr.ends[i]))
       None => {
-        let arr : Array[(Int, Int)] = [(gr.starts[i], gr.ends[i])]
+        let arr : Array[(Int32, Int32)] = [(gr.starts[i], gr.ends[i])]
         chrom_map.set(chrom, arr)
       }
     }
   }
 
   let result_seqnames : Array[String] = Array(capacity=0)
-  let result_ranges : Array[(Int, Int)] = Array(capacity=0)
+  let result_ranges : Array[(Int32, Int32)] = Array(capacity=0)
   let result_strands : Array[Strand] = Array(capacity=0)
 
   // For each chromosome, sort ranges and find gaps
@@ -484,7 +491,7 @@ pub fn granges_gaps(
 
 ///|
 /// Sort an array of (start, end) ranges by start position.
-fn sort_ranges(ranges : Array[(Int, Int)]) -> Array[(Int, Int)] {
+fn sort_ranges(ranges : Array[(Int32, Int32)]) -> Array[(Int32, Int32)] {
   let result = ranges.copy()
   let n = result.length()
   let mut i = 0
@@ -507,17 +514,17 @@ fn sort_ranges(ranges : Array[(Int, Int)]) -> Array[(Int, Int)] {
 /// Subtract ranges: find regions in gr1 not covered by gr2.
 pub fn granges_subtract(gr1 : GRanges, gr2 : GRanges) -> GRanges {
   let result_seqnames : Array[String] = Array(capacity=0)
-  let result_ranges : Array[(Int, Int)] = Array(capacity=0)
+  let result_ranges : Array[(Int32, Int32)] = Array(capacity=0)
   let result_strands : Array[Strand] = Array(capacity=0)
 
   for i = 0; i < gr1.seqnames.length(); i = i + 1 {
     let chrom = gr1.seqnames[i]
-    let mut segments : Array[(Int, Int)] = [(gr1.starts[i], gr1.ends[i])]
+    let mut segments : Array[(Int32, Int32)] = [(gr1.starts[i], gr1.ends[i])]
 
     // Subtract each range from gr2 that overlaps
     for j = 0; j < gr2.seqnames.length(); j = j + 1 {
       if gr2.seqnames[j] == chrom {
-        let new_segments : Array[(Int, Int)] = Array(capacity=0)
+        let new_segments : Array[(Int32, Int32)] = Array(capacity=0)
         for seg in segments {
           let (s, e) = seg
           let sub_s = gr2.starts[j]

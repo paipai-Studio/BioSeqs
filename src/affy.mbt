@@ -22,8 +22,8 @@ pub struct AffyBatch {
   probe_set_ids : Array[String]
   probe_sets : Array[ProbeSet]
   sample_names : Array[String]
-  n_samples : Int
-  n_probe_sets : Int
+  n_samples : Int32
+  n_probe_sets : Int32
 }
 
 ///|
@@ -48,7 +48,7 @@ pub fn AffyBatch::new(
 }
 
 ///|
-pub fn AffyBatch::n_probes_per_set(self : AffyBatch) -> Int {
+pub fn AffyBatch::n_probes_per_set(self : AffyBatch) -> Int32 {
   if self.probe_sets.length() > 0 {
     self.probe_sets[0].pm_intensities.length()
   } else {
@@ -125,7 +125,7 @@ fn quantile_normalize(data : Array[Array[Double]]) -> Array[Array[Double]] {
   while i < n_rows {
     let row = data[i]
     let sorted_row = sort_doubles(row)
-    let ranks : Array[Int] = Array(capacity=0)
+    let ranks : Array[Int32] = Array(capacity=0)
     let mut m = 0
     while m < row.length() {
       let val = row[m]

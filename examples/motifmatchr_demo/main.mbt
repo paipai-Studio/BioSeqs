@@ -4,16 +4,22 @@ fn main {
 
   let motif = @src.motifmatchr_sample_motif()
   let seqs = @src.motifmatchr_sample_sequences()
-  println("\n1. Motif: " + motif.name + " (width=" + motif.len().to_string() + ")")
+  println(
+    "\n1. Motif: " + motif.name + " (width=" + motif.len().to_string() + ")",
+  )
   println("   Sequences: " + seqs.length().to_string())
 
   println("\n2. Matching motifs (cutoff = -5.0)")
-  let results = @src.match_motifs([motif], seqs, cutoff=(-5.0))
+  let results = @src.match_motifs([motif], seqs, cutoff=-5.0)
   let r = results[0]
   for i in 0..<r.seq_names.length() {
     println(
-      "   " + r.seq_names[i] + ": hits=" + r.counts[i].to_string() +
-      ", max_score=" + r.max_scores[i].to_string(),
+      "   " +
+      r.seq_names[i] +
+      ": hits=" +
+      r.counts[i].to_string() +
+      ", max_score=" +
+      r.max_scores[i].to_string(),
     )
   }
 

@@ -15,10 +15,10 @@ pub struct GroFrame {
 ///|
 /// A single atom in a GRO frame.
 pub struct GroAtom {
-  res_id : Int
+  res_id : Int32
   res_name : String
   atom_name : String
-  atom_id : Int
+  atom_id : Int32
   x : Double // nm
   y : Double // nm
   z : Double // nm
@@ -62,12 +62,12 @@ pub fn gro_parse(content : String) -> GroFrame {
       }
     }
   }
-  GroFrame::{ atoms, box }
+  GroFrame::{ atoms, box, }
 }
 
 ///|
 /// Safe substring: clamp end to line length.
-fn gro_safe_slice(line : StringView, start : Int, end : Int) -> StringView {
+fn gro_safe_slice(line : StringView, start : Int32, end : Int32) -> StringView {
   let len = line.length()
   let s = if start < len { start } else { len }
   let e = if end < len { end } else { len }
@@ -110,7 +110,7 @@ fn parse_gro_atom_line(line : StringView) -> GroAtom {
     }
     // Sanity check: res_name should be alphabetic, not numeric
     if res_name.length() > 0 && res_id > 0 {
-      return GroAtom::{ res_id, res_name, atom_name, atom_id, x, y, z }
+      return GroAtom::{ res_id, res_name, atom_name, atom_id, x, y, z, }
     }
   }
   // Fallback: space-delimited
@@ -180,7 +180,7 @@ pub fn gro_write(frame : GroFrame) -> String {
 
 ///|
 /// Format a GRO atom line (fixed-column).
-fn format_gro_atom_line(a : GroAtom, _serial : Int) -> String {
+fn format_gro_atom_line(a : GroAtom, _serial : Int32) -> String {
   let sb = StringBuilder()
   // res_id (5 chars, right-aligned)
   sb.write_string(format_int_right(a.res_id, 5))
@@ -203,7 +203,10 @@ fn format_gro_num(x : Double) -> String {
   let s = x.to_string()
   // Find decimal point
   let dot_opt = s.find(".")
-  let dot = match dot_opt { Some(d) => d; None => -1 }
+  let dot = match dot_opt {
+    Some(d) => d
+    None => -1
+  }
   if dot < 0 {
     // No decimal point
     return s + ".000"
@@ -225,7 +228,7 @@ fn format_gro_num(x : Double) -> String {
 
 ///|
 /// Format integer right-aligned in n chars.
-fn format_int_right(n : Int, width : Int) -> String {
+fn format_int_right(n : Int32, width : Int32) -> String {
   let s = n.to_string()
   if s.length() >= width {
     return s
@@ -235,7 +238,7 @@ fn format_int_right(n : Int, width : Int) -> String {
 
 ///|
 /// Format string left-aligned in n chars.
-fn format_str_left(s : String, width : Int) -> String {
+fn format_str_left(s : String, width : Int32) -> String {
   if s.length() >= width {
     return s
   }

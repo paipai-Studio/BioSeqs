@@ -101,7 +101,7 @@ test "compute_batch_mixing_score" {
     raw_data.push(cell)
   }
 
-  let raw_batch_indices : Array[Int] = Array(capacity=0)
+  let raw_batch_indices : Array[Int32] = Array(capacity=0)
   let mut idx = 0
   while idx < 50 {
     raw_batch_indices.push(0)
@@ -132,7 +132,7 @@ test "rescale_batches_correction_effect" {
     raw_data.push(cell)
   }
 
-  let raw_batch_indices : Array[Int] = Array(capacity=0)
+  let raw_batch_indices : Array[Int32] = Array(capacity=0)
   let mut idx = 0
   while idx < 50 {
     raw_batch_indices.push(0)
@@ -169,7 +169,7 @@ test "fast_mnn_correction_effect" {
     raw_data.push(cell)
   }
 
-  let raw_batch_indices : Array[Int] = Array(capacity=0)
+  let raw_batch_indices : Array[Int32] = Array(capacity=0)
   let mut idx = 0
   while idx < 50 {
     raw_batch_indices.push(0)

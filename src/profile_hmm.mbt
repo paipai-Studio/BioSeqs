@@ -32,7 +32,7 @@
 pub struct ProfileHMM {
   alphabet : Array[String]
   /// Number of match states nmat.
-  length : Int
+  length : Int32
   /// Emission probabilities: match_emit[k-1] = P(residue | M_k), k = 1..nmat.
   match_emit : Array[Map[String, Double]]
   /// Emission probabilities: insert_emit[k] = P(residue | I_k), k = 0..nmat.
@@ -55,13 +55,15 @@ pub struct ProfileHMM {
   /// Background (null) residue frequencies.
   background : Map[String, Double]
   /// Number of sequences the profile was built from.
-  n_seqs : Int
+  n_seqs : Int32
 } derive(Debug)
+
+///|
 pub extend ProfileHMM with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Get the number of match states (profile length).
-pub fn ProfileHMM::length(self : ProfileHMM) -> Int {
+pub fn ProfileHMM::length(self : ProfileHMM) -> Int32 {
   self.length
 }
 
@@ -73,13 +75,17 @@ pub fn ProfileHMM::alphabet(self : ProfileHMM) -> Array[String] {
 
 ///|
 /// Get the number of sequences used to build the profile.
-pub fn ProfileHMM::n_seqs(self : ProfileHMM) -> Int {
+pub fn ProfileHMM::n_seqs(self : ProfileHMM) -> Int32 {
   self.n_seqs
 }
 
 ///|
 /// Emission probability P(residue | M_k) for match state k (1-based).
-pub fn ProfileHMM::match_emission(self : ProfileHMM, k : Int, res : String) -> Double {
+pub fn ProfileHMM::match_emission(
+  self : ProfileHMM,
+  k : Int32,
+  res : String,
+) -> Double {
   if k < 1 || k > self.length {
     return 0.0
   }
@@ -88,7 +94,11 @@ pub fn ProfileHMM::match_emission(self : ProfileHMM, k : Int, res : String) -> D
 
 ///|
 /// Emission probability P(residue | I_k) for insert state k (0-based, 0..L).
-pub fn ProfileHMM::insert_emission(self : ProfileHMM, k : Int, res : String) -> Double {
+pub fn ProfileHMM::insert_emission(
+  self : ProfileHMM,
+  k : Int32,
+  res : String,
+) -> Double {
   if k < 0 || k > self.length {
     return 0.0
   }
@@ -102,8 +112,10 @@ pub fn ProfileHMM::insert_emission(self : ProfileHMM, k : Int, res : String) -> 
 ///|
 /// Standard 20 amino-acid alphabet (uppercase, one-letter strings).
 pub fn profile_aa_alphabet() -> Array[String] {
-  ["A", "C", "D", "E", "F", "G", "H", "I", "K", "nmat", "M", "N", "P", "Q", "R", "S",
-    "T", "V", "W", "Y"]
+  [
+    "A", "C", "D", "E", "F", "G", "H", "I", "K", "nmat", "M", "N", "P", "Q", "R",
+    "S", "T", "V", "W", "Y",
+  ]
 }
 
 ///|
@@ -114,7 +126,7 @@ pub fn profile_dna_alphabet() -> Array[String] {
 
 ///|
 /// Is a byte a gap character ('-' alignment gap or '.' insert gap)?
-fn profile_is_gap(c : Int) -> Bool {
+fn profile_is_gap(c : Int32) -> Bool {
   c == '-'.to_int() || c == '.'.to_int()
 }
 
@@ -162,10 +174,9 @@ fn profile_logadd(a : Double, b : Double) -> Double {
   }
 }
 
-
 ///|
 /// Allocate a rows x cols matrix of Double (distinct inner arrays).
-fn prof_dmatrix(rows : Int, cols : Int) -> Array[Array[Double]] {
+fn prof_dmatrix(rows : Int32, cols : Int32) -> Array[Array[Double]] {
   let m : Array[Array[Double]] = Array::make(rows, Array::make(0, 0.0))
   for i in 0..<rows {
     m[i] = Array::make(cols, 0.0)
@@ -175,8 +186,8 @@ fn prof_dmatrix(rows : Int, cols : Int) -> Array[Array[Double]] {
 
 ///|
 /// Allocate a rows x cols matrix of Int (distinct inner arrays).
-fn prof_imatrix(rows : Int, cols : Int) -> Array[Array[Int]] {
-  let m : Array[Array[Int]] = Array::make(rows, Array::make(0, 0))
+fn prof_imatrix(rows : Int32, cols : Int32) -> Array[Array[Int32]] {
+  let m : Array[Array[Int32]] = Array::make(rows, Array::make(0, 0))
   for i in 0..<rows {
     m[i] = Array::make(cols, 0)
   }
@@ -223,11 +234,15 @@ fn profile_background(
 ///|
 /// Internal path state for transition counting.
 enum PState {
-  M(Int) // M_k, k >= 1
-  I(Int) // I_k, k >= 0
-  D(Int) // D_k, k >= 1
+  M(Int32) // M_k, k >= 1
+  I(Int32) // I_k, k >= 0
+  D(Int32) // D_k, k >= 1
 } derive(Eq, Debug)
+
+///|
 pub extend PState with Eq::{equal, not_equal}
+
+///|
 pub extend PState with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -236,7 +251,7 @@ pub extend PState with @moonbitlang/core/debug.Debug::{to_repr}
 fn profile_count_transition(
   from : PState,
   to : PState,
-  nmat : Int,
+  nmat : Int32,
   mm_c : Array[Double],
   mi_c : Array[Double],
   md_c : Array[Double],
@@ -248,34 +263,32 @@ fn profile_count_transition(
   match from {
     M(k) =>
       match to {
-        M(k2) => if k2 == k + 1 && k <= nmat - 1 {
-          mm_c[k - 1] = mm_c[k - 1] + 1.0
-        }
-        I(k2) => if k2 == k {
-          mi_c[k - 1] = mi_c[k - 1] + 1.0
-        }
-        D(k2) => if k2 == k + 1 && k <= nmat - 1 {
-          md_c[k - 1] = md_c[k - 1] + 1.0
-        }
+        M(k2) =>
+          if k2 == k + 1 && k <= nmat - 1 {
+            mm_c[k - 1] = mm_c[k - 1] + 1.0
+          }
+        I(k2) => if k2 == k { mi_c[k - 1] = mi_c[k - 1] + 1.0 }
+        D(k2) =>
+          if k2 == k + 1 && k <= nmat - 1 {
+            md_c[k - 1] = md_c[k - 1] + 1.0
+          }
       }
     I(k) =>
       match to {
-        M(k2) => if k2 == k + 1 && k <= nmat - 1 {
-          im_c[k] = im_c[k] + 1.0
-        }
-        I(k2) => if k2 == k {
-          ii_c[k] = ii_c[k] + 1.0
-        }
+        M(k2) => if k2 == k + 1 && k <= nmat - 1 { im_c[k] = im_c[k] + 1.0 }
+        I(k2) => if k2 == k { ii_c[k] = ii_c[k] + 1.0 }
         _ => ()
       }
     D(k) =>
       match to {
-        M(k2) => if k2 == k + 1 && k <= nmat - 1 {
-          dm_c[k - 1] = dm_c[k - 1] + 1.0
-        }
-        D(k2) => if k2 == k + 1 && k <= nmat - 1 {
-          dd_c[k - 1] = dd_c[k - 1] + 1.0
-        }
+        M(k2) =>
+          if k2 == k + 1 && k <= nmat - 1 {
+            dm_c[k - 1] = dm_c[k - 1] + 1.0
+          }
+        D(k2) =>
+          if k2 == k + 1 && k <= nmat - 1 {
+            dd_c[k - 1] = dd_c[k - 1] + 1.0
+          }
         _ => ()
       }
   }
@@ -320,8 +333,8 @@ pub fn build_profile_hmm(
   }
 
   // Column -> match index (1-based, 0 if insert) and insert index (0-based).
-  let match_no : Array[Int] = Array::make(width, 0)
-  let col_to_insert : Array[Int] = Array::make(width, 0)
+  let match_no : Array[Int32] = Array::make(width, 0)
+  let col_to_insert : Array[Int32] = Array::make(width, 0)
   let mut seen = 0
   for c in 0..<width {
     if col_is_match[c] {
@@ -333,23 +346,57 @@ pub fn build_profile_hmm(
   }
 
   // Emission counters.
-  let match_count : Array[Map[String, Double]] = Array::make(n_match, Map([], capacity=0))
+  let match_count : Array[Map[String, Double]] = Array::make(
+    n_match,
+    Map([], capacity=0),
+  )
   for k in 0..<n_match {
     match_count[k] = Map([], capacity=10)
   }
-  let insert_count : Array[Map[String, Double]] = Array::make(n_match + 1, Map([], capacity=0))
+  let insert_count : Array[Map[String, Double]] = Array::make(
+    n_match + 1,
+    Map([], capacity=0),
+  )
   for k in 0..<=n_match {
     insert_count[k] = Map([], capacity=10)
   }
 
   // Transition counters (arrays for mutability).
-  let mm_c : Array[Double] = Array::make(if n_match > 1 { n_match - 1 } else { 0 }, 0.0)
+  let mm_c : Array[Double] = Array::make(
+    if n_match > 1 {
+      n_match - 1
+    } else {
+      0
+    },
+    0.0,
+  )
   let mi_c : Array[Double] = Array::make(n_match, 0.0)
-  let md_c : Array[Double] = Array::make(if n_match > 1 { n_match - 1 } else { 0 }, 0.0)
+  let md_c : Array[Double] = Array::make(
+    if n_match > 1 {
+      n_match - 1
+    } else {
+      0
+    },
+    0.0,
+  )
   let im_c : Array[Double] = Array::make(n_match, 0.0)
   let ii_c : Array[Double] = Array::make(n_match + 1, 0.0)
-  let dm_c : Array[Double] = Array::make(if n_match > 1 { n_match - 1 } else { 0 }, 0.0)
-  let dd_c : Array[Double] = Array::make(if n_match > 1 { n_match - 1 } else { 0 }, 0.0)
+  let dm_c : Array[Double] = Array::make(
+    if n_match > 1 {
+      n_match - 1
+    } else {
+      0
+    },
+    0.0,
+  )
+  let dd_c : Array[Double] = Array::make(
+    if n_match > 1 {
+      n_match - 1
+    } else {
+      0
+    },
+    0.0,
+  )
 
   // Walk each sequence: build the M/I/D path, count emissions + transitions.
   for r in 0..<n {
@@ -377,8 +424,16 @@ pub fn build_profile_hmm(
     let mut t = 0
     while t + 1 < path.length() {
       profile_count_transition(
-        path[t], path[t + 1], n_match,
-        mm_c, mi_c, md_c, im_c, ii_c, dm_c, dd_c,
+        path[t],
+        path[t + 1],
+        n_match,
+        mm_c,
+        mi_c,
+        md_c,
+        im_c,
+        ii_c,
+        dm_c,
+        dd_c,
       )
       t = t + 1
     }
@@ -406,12 +461,15 @@ pub fn build_profile_hmm(
     let counts = insert_count[k]
     let mut total = 0.0
     for res in alphabet {
-      total = total + (profile_get(counts, res) + alpha * profile_get(background, res))
+      total = total +
+        (profile_get(counts, res) + alpha * profile_get(background, res))
     }
     let emit : Map[String, Double] = Map([], capacity=alphabet.length())
     for res in alphabet {
-      emit[res] =
-        (profile_get(counts, res) + alpha * profile_get(background, res)) / total
+      emit[res] = (
+          profile_get(counts, res) + alpha * profile_get(background, res)
+        ) /
+        total
     }
     insert_count[k] = emit
   }
@@ -419,15 +477,43 @@ pub fn build_profile_hmm(
   // Normalize transitions per origin. For M_k the outgoing states are M_{k+1}
   // (k<nmat), I_k, and D_{k+1} (k<nmat). For I_k they are M_{k+1} (k<nmat) and I_k.
   // For D_k they are M_{k+1} (k<nmat) and D_{k+1} (k<nmat).
-  let mm_p : Array[Double] = Array::make(if n_match > 1 { n_match - 1 } else { 0 }, 0.0)
+  let mm_p : Array[Double] = Array::make(
+    if n_match > 1 {
+      n_match - 1
+    } else {
+      0
+    },
+    0.0,
+  )
   let mi_p : Array[Double] = Array::make(n_match, 0.0)
-  let md_p : Array[Double] = Array::make(if n_match > 1 { n_match - 1 } else { 0 }, 0.0)
+  let md_p : Array[Double] = Array::make(
+    if n_match > 1 {
+      n_match - 1
+    } else {
+      0
+    },
+    0.0,
+  )
   let im_p : Array[Double] = Array::make(n_match, 0.0)
   let ii_p : Array[Double] = Array::make(n_match + 1, 0.0)
-  let dm_p : Array[Double] = Array::make(if n_match > 1 { n_match - 1 } else { 0 }, 0.0)
-  let dd_p : Array[Double] = Array::make(if n_match > 1 { n_match - 1 } else { 0 }, 0.0)
+  let dm_p : Array[Double] = Array::make(
+    if n_match > 1 {
+      n_match - 1
+    } else {
+      0
+    },
+    0.0,
+  )
+  let dd_p : Array[Double] = Array::make(
+    if n_match > 1 {
+      n_match - 1
+    } else {
+      0
+    },
+    0.0,
+  )
 
-  for k in 1..=n_match {
+  for k in 1..<=n_match {
     // M_k origin
     let mut m_total = 0.0
     if k < n_match {
@@ -443,7 +529,7 @@ pub fn build_profile_hmm(
     }
     mi_p[k - 1] = (mi_c[k - 1] + alpha) / m_total
   }
-  for k in 0..=n_match {
+  for k in 0..<=n_match {
     // I_k origin
     let mut i_total = 0.0
     if k < n_match {
@@ -455,7 +541,7 @@ pub fn build_profile_hmm(
     }
     ii_p[k] = (ii_c[k] + alpha) / i_total
   }
-  for k in 1..=n_match {
+  for k in 1..<=n_match {
     // D_k origin
     let mut d_total = 0.0
     if k < n_match {
@@ -533,26 +619,10 @@ pub fn profile_viterbi(profile : ProfileHMM, seq : String) -> ViterbiResult {
   let neg = -1.0e300
 
   // Transitions in log space.
-  let l_mm = if nmat > 1 {
-    Array::make(nmat - 1, 0.0)
-  } else {
-    []
-  }
-  let l_md = if nmat > 1 {
-    Array::make(nmat - 1, 0.0)
-  } else {
-    []
-  }
-  let l_dm = if nmat > 1 {
-    Array::make(nmat - 1, 0.0)
-  } else {
-    []
-  }
-  let l_dd = if nmat > 1 {
-    Array::make(nmat - 1, 0.0)
-  } else {
-    []
-  }
+  let l_mm = if nmat > 1 { Array::make(nmat - 1, 0.0) } else { [] }
+  let l_md = if nmat > 1 { Array::make(nmat - 1, 0.0) } else { [] }
+  let l_dm = if nmat > 1 { Array::make(nmat - 1, 0.0) } else { [] }
+  let l_dd = if nmat > 1 { Array::make(nmat - 1, 0.0) } else { [] }
   let l_mi = Array::make(nmat, 0.0)
   let l_im = Array::make(nmat, 0.0)
   let l_ii = Array::make(nmat + 1, 0.0)
@@ -574,9 +644,9 @@ pub fn profile_viterbi(profile : ProfileHMM, seq : String) -> ViterbiResult {
   let iv : Array[Array[Double]] = prof_dmatrix(m + 1, nmat + 1)
   let dv : Array[Array[Double]] = prof_dmatrix(m + 1, nmat)
   // Traceback (encoded predecessor: 0=start, 1=M, 2=I, 3=D).
-  let tbM : Array[Array[Int]] = prof_imatrix(m + 1, nmat)
-  let tbI : Array[Array[Int]] = prof_imatrix(m + 1, nmat + 1)
-  let tbD : Array[Array[Int]] = prof_imatrix(m + 1, nmat)
+  let tbM : Array[Array[Int32]] = prof_imatrix(m + 1, nmat)
+  let tbI : Array[Array[Int32]] = prof_imatrix(m + 1, nmat + 1)
+  let tbD : Array[Array[Int32]] = prof_imatrix(m + 1, nmat)
 
   // Initialize i = 0.
   for k in 0..<nmat {
@@ -588,11 +658,15 @@ pub fn profile_viterbi(profile : ProfileHMM, seq : String) -> ViterbiResult {
   }
 
   // Fill.
-  for i in 1..=m {
+  for i in 1..<=m {
     let res = seq[i - 1:i].to_owned()
     // Match states.
-    for k in 1..=nmat {
-      let em = profile_emit_score(profile.match_emit[k - 1], profile.background, res)
+    for k in 1..<=nmat {
+      let em = profile_emit_score(
+        profile.match_emit[k - 1],
+        profile.background,
+        res,
+      )
       let mut best = 0.0 // local start
       let mut best_pred = 0
       if k > 1 {
@@ -616,8 +690,12 @@ pub fn profile_viterbi(profile : ProfileHMM, seq : String) -> ViterbiResult {
       tbM[i][k - 1] = best_pred
     }
     // Insert states.
-    for k in 0..=nmat {
-      let em = profile_emit_score(profile.insert_emit[k], profile.background, res)
+    for k in 0..<=nmat {
+      let em = profile_emit_score(
+        profile.insert_emit[k],
+        profile.background,
+        res,
+      )
       let mut best = if k == 0 { 0.0 } else { neg }
       let mut best_pred = 0
       if k >= 1 {
@@ -636,7 +714,7 @@ pub fn profile_viterbi(profile : ProfileHMM, seq : String) -> ViterbiResult {
       tbI[i][k] = best_pred
     }
     // Delete states.
-    for k in 1..=nmat {
+    for k in 1..<=nmat {
       let mut best = neg
       let mut best_pred = 0
       if k == 1 {
@@ -665,7 +743,7 @@ pub fn profile_viterbi(profile : ProfileHMM, seq : String) -> ViterbiResult {
   let mut best_state = 0 // 1=M, 2=I, 3=D
   let mut best_k = 0
   let mut best_score = 0.0
-  for k in 1..=nmat {
+  for k in 1..<=nmat {
     if mv[m][k - 1] > best_score {
       best_score = mv[m][k - 1]
       best_state = 1
@@ -686,7 +764,7 @@ pub fn profile_viterbi(profile : ProfileHMM, seq : String) -> ViterbiResult {
   }
 
   // Traceback to collect residues + states.
-  let residues : Array[Int] = [] // 1-based residue positions (reversed)
+  let residues : Array[Int32] = [] // 1-based residue positions (reversed)
   let states : Array[String] = []
   let mut si = best_i
   let mut sk = best_k
@@ -788,26 +866,10 @@ pub fn profile_forward_score(profile : ProfileHMM, seq : String) -> Double {
   let m = seq.length()
   let neg = -1.0e300
 
-  let l_mm = if nmat > 1 {
-    Array::make(nmat - 1, 0.0)
-  } else {
-    []
-  }
-  let l_md = if nmat > 1 {
-    Array::make(nmat - 1, 0.0)
-  } else {
-    []
-  }
-  let l_dm = if nmat > 1 {
-    Array::make(nmat - 1, 0.0)
-  } else {
-    []
-  }
-  let l_dd = if nmat > 1 {
-    Array::make(nmat - 1, 0.0)
-  } else {
-    []
-  }
+  let l_mm = if nmat > 1 { Array::make(nmat - 1, 0.0) } else { [] }
+  let l_md = if nmat > 1 { Array::make(nmat - 1, 0.0) } else { [] }
+  let l_dm = if nmat > 1 { Array::make(nmat - 1, 0.0) } else { [] }
+  let l_dd = if nmat > 1 { Array::make(nmat - 1, 0.0) } else { [] }
   let l_mi = Array::make(nmat, 0.0)
   let l_im = Array::make(nmat, 0.0)
   let l_ii = Array::make(nmat + 1, 0.0)
@@ -836,24 +898,35 @@ pub fn profile_forward_score(profile : ProfileHMM, seq : String) -> Double {
     iv[0][k] = if k == 0 { 0.0 } else { neg }
   }
 
-  for i in 1..=m {
+  for i in 1..<=m {
     let res = seq[i - 1:i].to_owned()
-    for k in 1..=nmat {
-      let em = profile_emit_score(profile.match_emit[k - 1], profile.background, res)
+    for k in 1..<=nmat {
+      let em = profile_emit_score(
+        profile.match_emit[k - 1],
+        profile.background,
+        res,
+      )
       let mut acc = 0.0 // local start
       if k > 1 {
         acc = profile_logadd(
           acc,
           profile_logadd(
             mv[i - 1][k - 2] + l_mm[k - 2],
-            profile_logadd(iv[i - 1][k - 2] + l_im[k - 2], dv[i - 1][k - 2] + l_dm[k - 2]),
+            profile_logadd(
+              iv[i - 1][k - 2] + l_im[k - 2],
+              dv[i - 1][k - 2] + l_dm[k - 2],
+            ),
           ),
         )
       }
       mv[i][k - 1] = em + acc
     }
-    for k in 0..=nmat {
-      let em = profile_emit_score(profile.insert_emit[k], profile.background, res)
+    for k in 0..<=nmat {
+      let em = profile_emit_score(
+        profile.insert_emit[k],
+        profile.background,
+        res,
+      )
       let mut acc = if k == 0 { 0.0 } else { neg }
       if k >= 1 {
         acc = profile_logadd(acc, mv[i - 1][k - 1] + l_mi[k - 1])
@@ -861,7 +934,7 @@ pub fn profile_forward_score(profile : ProfileHMM, seq : String) -> Double {
       acc = profile_logadd(acc, iv[i - 1][k] + l_ii[k])
       iv[i][k] = em + acc
     }
-    for k in 1..=nmat {
+    for k in 1..<=nmat {
       let mut acc = neg
       if k == 1 {
         acc = 0.0
@@ -878,7 +951,7 @@ pub fn profile_forward_score(profile : ProfileHMM, seq : String) -> Double {
 
   // Free exit: sum over all terminal states.
   let mut total = 0.0 // empty alignment
-  for k in 1..=nmat {
+  for k in 1..<=nmat {
     total = profile_logadd(total, mv[m][k - 1])
     total = profile_logadd(total, dv[m][k - 1])
   }
@@ -906,10 +979,12 @@ pub fn HmmHit::name(self : HmmHit) -> String {
   self.name
 }
 
+///|
 pub fn HmmHit::score(self : HmmHit) -> Double {
   self.score
 }
 
+///|
 pub fn HmmHit::evalue(self : HmmHit) -> Double {
   self.evalue
 }
@@ -928,7 +1003,7 @@ pub fn hmmer_search(
   profile : ProfileHMM,
   names : Array[String],
   seqs : Array[String],
-  db_size~ : Int = 0,
+  db_size~ : Int32 = 0,
 ) -> Array[HmmHit] {
   let n = names.length()
   let db = if db_size > 0 { db_size } else { n }
@@ -936,7 +1011,7 @@ pub fn hmmer_search(
   for i in 0..<n {
     let score = profile_forward_score(profile, seqs[i])
     let evalue = db.to_double() * @math.pow(2.0, -score)
-    hits.push(HmmHit::{ name: names[i], score, evalue })
+    hits.push(HmmHit::{ name: names[i], score, evalue, })
   }
   hits.sort_by(fn(a, b) {
     if a.score > b.score {

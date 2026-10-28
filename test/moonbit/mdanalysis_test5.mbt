@@ -2,7 +2,12 @@
 test "mdanalysis tors alpha" {
   // Simple 4-atom chain along z-axis
   // O3' at (0,0,0), P at (1,0,0), O5' at (1,1,0), C5' at (1,1,1)
-  let a = @src.mdanalysis_tors_alpha([0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [1.0, 1.0, 0.0], [1.0, 1.0, 1.0])
+  let a = @src.mdanalysis_tors_alpha(
+    [0.0, 0.0, 0.0],
+    [1.0, 0.0, 0.0],
+    [1.0, 1.0, 0.0],
+    [1.0, 1.0, 1.0],
+  )
   // Should be a valid angle in [0, 360)
   assert_true(a >= 0.0)
   assert_true(a < 360.0)
@@ -27,7 +32,9 @@ test "mdanalysis tors all 7" {
   let next : Map[String, Array[Double]] = Map([])
   next["P"] = [4.0, 2.0, 3.0]
   next["O5'"] = [4.5, 3.0, 3.0]
-  let (alpha, beta, gamma, delta, eps, zeta, chi) = @src.mdanalysis_tors_all(prev, atoms, next)
+  let (alpha, beta, gamma, delta, eps, zeta, chi) = @src.mdanalysis_tors_all(
+    prev, atoms, next,
+  )
   // All should be in [0, 360)
   for a in [alpha, beta, gamma, delta, eps, zeta, chi] {
     assert_true(a >= 0.0)
@@ -57,7 +64,7 @@ test "mdanalysis phase cp c3_endo" {
   let o4p = [0.0, 0.0, 0.0]
   let c1p = [1.5, 0.0, 0.0]
   let c2p = [2.0, 1.2, 0.0]
-  let c3p = [1.0, 2.0, 0.5]  // C3' puckered up (endo)
+  let c3p = [1.0, 2.0, 0.5] // C3' puckered up (endo)
   let c4p = [0.0, 1.2, 0.0]
   let phase = @src.mdanalysis_phase_cp([o4p, c1p, c2p, c3p, c4p])
   assert_true(phase >= 0.0)
@@ -123,7 +130,9 @@ test "mdanalysis bat root" {
   let p0 = [0.0, 0.0, 0.0]
   let p1 = [1.0, 0.0, 0.0]
   let p2 = [1.0, 1.0, 0.0]
-  let (phi, theta, _omega, r01, r12, a012) = @src.mdanalysis_bat_root(p0, p1, p2)
+  let (phi, theta, _omega, r01, r12, a012) = @src.mdanalysis_bat_root(
+    p0, p1, p2,
+  )
   // r01 = dist(p0,p1) = 1.0
   assert_true((r01 - 1.0).abs() < 1.0e-9)
   // r12 = dist(p1,p2) = 1.0
@@ -143,7 +152,9 @@ test "mdanalysis bat internal" {
   let ag2 = [[1.0, 0.0, 0.0], [1.0, 0.0, 0.0]]
   let ag3 = [[1.0, 1.0, 0.0], [1.0, 1.0, 0.0]]
   let ag4 = [[1.0, 1.0, 1.0], [1.0, 1.0, 1.0]]
-  let (bonds, angles, torsions) = @src.mdanalysis_bat_internal(ag1, ag2, ag3, ag4)
+  let (bonds, angles, torsions) = @src.mdanalysis_bat_internal(
+    ag1, ag2, ag3, ag4,
+  )
   assert_eq(bonds.length(), 2)
   assert_eq(angles.length(), 2)
   assert_eq(torsions.length(), 2)

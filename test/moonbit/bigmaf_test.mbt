@@ -11,8 +11,8 @@ fn bigmaf_test_data() -> (
 
 ///|
 fn bigmaf_test_file(
-  compress? : Bool = true,
-  items_per_slot? : Int = 2,
+  compress~ : Bool = true,
+  items_per_slot~ : Int32 = 2,
 ) -> @src.BigMafFile {
   let (reference, targets, blocks) = bigmaf_test_data()
   let config = @src.BigMafWriteConfig::create(
@@ -32,12 +32,12 @@ fn bigmaf_test_file(
 
 ///|
 fn bigmaf_test_component(
-  source? : String = "hg38.chr1",
-  start? : Int = 10,
-  size? : Int = 4,
-  strand? : String = "+",
-  source_size? : Int = 100,
-  text? : String = "AC-GT",
+  source~ : String = "hg38.chr1",
+  start~ : Int32 = 10,
+  size~ : Int32 = 4,
+  strand~ : String = "+",
+  source_size~ : Int32 = 100,
+  text~ : String = "AC-GT",
 ) -> @src.BigMafComponent {
   @src.BigMafComponent::create(source, start, size, strand, source_size, text) catch {
     _ => abort("test component should be valid")
@@ -46,7 +46,7 @@ fn bigmaf_test_component(
 
 ///|
 fn bigmaf_test_block(
-  component? : @src.BigMafComponent = bigmaf_test_component(),
+  component~ : @src.BigMafComponent = bigmaf_test_component(),
 ) -> @src.BigMafBlock {
   @src.BigMafBlock::create([component]) catch {
     _ => abort("test block should be valid")
@@ -57,7 +57,7 @@ fn bigmaf_test_block(
 fn bigmaf_test_close(
   actual : Double,
   expected : Double,
-  tolerance? : Double = 1.0e-12,
+  tolerance~ : Double = 1.0e-12,
 ) -> Unit {
   if (actual - expected).abs() > tolerance {
     abort(
@@ -72,8 +72,8 @@ fn bigmaf_test_close(
 ///|
 fn bigmaf_test_custom_bytes(
   payloads : Array[String],
-  intervals : Array[(Int, Int)],
-) -> Array[Int] {
+  intervals : Array[(Int32, Int32)],
+) -> Array[Int32] {
   let target = @src.BigBedTarget::create("chr1", 100) catch {
     _ => abort("custom target should be valid")
   }

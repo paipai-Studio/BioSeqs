@@ -6,8 +6,8 @@
 
 ///|
 pub struct EssentialDynamics {
-  n_conformations : Int
-  n_coords : Int // 3 * n_atoms
+  n_conformations : Int32
+  n_coords : Int32 // 3 * n_atoms
   mean_coords : Array[Double] // mean structure
   eigenvalues : Array[Double] // sorted descending
   eigenvectors : Array[Array[Double]] // principal components
@@ -46,7 +46,7 @@ pub fn EssentialDynamics::new(
   let use_dual = n_conf < n_coords
   let dim = if use_dual { n_conf } else { n_coords }
   // Build the smaller matrix for eigen-decomposition
-  let cov = Array::makei(dim, { _ => Array::make(dim, 0.0) })
+  let cov = Array::makei(dim, _ => Array::make(dim, 0.0))
   if use_dual {
     // Build X * X^T (n_conf x n_conf)
     for i = 0; i < n_conf; i = i + 1 {
@@ -78,7 +78,7 @@ pub fn EssentialDynamics::new(
   // Eigen-decomposition
   let (evals, evecs) = linalg_jacobi(cov, dim, 200)
   // Sort by eigenvalue (descending) using insertion sort
-  let indices = Array::makei(dim, { i => i })
+  let indices = Array::makei(dim, i => i)
   for sort_i = 1; sort_i < dim; sort_i = sort_i + 1 {
     let key = indices[sort_i]
     let key_val = evals[key]
@@ -90,7 +90,7 @@ pub fn EssentialDynamics::new(
     indices[sort_j + 1] = key
   }
   let sorted_evals = Array::make(dim, 0.0)
-  let sorted_evecs = Array::makei(dim, { _ => Array::make(dim, 0.0) })
+  let sorted_evecs = Array::makei(dim, _ => Array::make(dim, 0.0))
   for idx = 0; idx < dim; idx = idx + 1 {
     let src = indices[idx]
     sorted_evals[idx] = evals[src]
@@ -101,7 +101,7 @@ pub fn EssentialDynamics::new(
   // If dual approach, convert eigenvectors back to n_coords space
   let (final_evecs, final_evals) = if use_dual {
     // V_full = X^T * V_dual / sqrt(lambda)
-    let fe = Array::makei(dim, { _ => Array::make(n_coords, 0.0) })
+    let fe = Array::makei(dim, _ => Array::make(n_coords, 0.0))
     for k = 0; k < dim; k = k + 1 {
       let lam = sorted_evals[k]
       if lam > 1.0e-10 {
@@ -121,7 +121,7 @@ pub fn EssentialDynamics::new(
   }
   // Project conformations onto PCs
   let n_pcs = if dim < n_coords { dim } else { n_coords }
-  let projections = Array::makei(n_conf, { _ => Array::make(n_pcs, 0.0) })
+  let projections = Array::makei(n_conf, _ => Array::make(n_pcs, 0.0))
   for c = 0; c < n_conf; c = c + 1 {
     for k = 0; k < n_pcs; k = k + 1 {
       let mut s = 0.0
@@ -151,19 +151,25 @@ pub fn EssentialDynamics::new(
 
 ///|
 /// Get eigenvalues (variances along PCs).
-pub fn EssentialDynamics::get_eigenvalues(self : EssentialDynamics) -> Array[Double] {
+pub fn EssentialDynamics::get_eigenvalues(
+  self : EssentialDynamics,
+) -> Array[Double] {
   self.eigenvalues
 }
 
 ///|
 /// Get eigenvectors (principal components).
-pub fn EssentialDynamics::get_eigenvectors(self : EssentialDynamics) -> Array[Array[Double]] {
+pub fn EssentialDynamics::get_eigenvectors(
+  self : EssentialDynamics,
+) -> Array[Array[Double]] {
   self.eigenvectors
 }
 
 ///|
 /// Get projections of conformations onto PCs.
-pub fn EssentialDynamics::get_projections(self : EssentialDynamics) -> Array[Array[Double]] {
+pub fn EssentialDynamics::get_projections(
+  self : EssentialDynamics,
+) -> Array[Array[Double]] {
   self.projections
 }
 
@@ -178,12 +184,14 @@ pub fn EssentialDynamics::get_mean(self : EssentialDynamics) -> Array[Double] {
 /// Returns fraction of total variance.
 pub fn EssentialDynamics::variance_explained(
   self : EssentialDynamics,
-  k : Int,
+  k : Int32,
 ) -> Double {
   if self.total_variance < 1.0e-20 {
     return 0.0
   }
-  let max_k = if k < self.eigenvalues.length() { k } else {
+  let max_k = if k < self.eigenvalues.length() {
+    k
+  } else {
     self.eigenvalues.length()
   }
   let mut sum = 0.0
@@ -199,8 +207,8 @@ pub fn EssentialDynamics::variance_explained(
 /// Number of essential modes (those with significant variance).
 pub fn EssentialDynamics::num_essential_modes(
   self : EssentialDynamics,
-  threshold? : Double = 0.95,
-) -> Int {
+  threshold~ : Double = 0.95,
+) -> Int32 {
   let total = self.total_variance
   if total < 1.0e-20 {
     return 0
@@ -220,9 +228,11 @@ pub fn EssentialDynamics::num_essential_modes(
 pub fn EssentialDynamics::project(
   self : EssentialDynamics,
   coords : Array[Double],
-  k : Int,
+  k : Int32,
 ) -> Array[Double] {
-  let max_k = if k < self.eigenvalues.length() { k } else {
+  let max_k = if k < self.eigenvalues.length() {
+    k
+  } else {
     self.eigenvalues.length()
   }
   let result = Array::make(max_k, 0.0)
@@ -274,11 +284,13 @@ pub fn EssentialDynamics::rmsf(self : EssentialDynamics) -> Array[Double] {
     }
     for i = 0; i < n_atoms; i = i + 1 {
       let i3 = 3 * i
-      result[i] = result[i] + lam * (
-        self.eigenvectors[k][i3] * self.eigenvectors[k][i3] +
-        self.eigenvectors[k][i3 + 1] * self.eigenvectors[k][i3 + 1] +
-        self.eigenvectors[k][i3 + 2] * self.eigenvectors[k][i3 + 2]
-      )
+      result[i] = result[i] +
+        lam *
+        (
+          self.eigenvectors[k][i3] * self.eigenvectors[k][i3] +
+          self.eigenvectors[k][i3 + 1] * self.eigenvectors[k][i3 + 1] +
+          self.eigenvectors[k][i3 + 2] * self.eigenvectors[k][i3 + 2]
+        )
     }
   }
   for i = 0; i < n_atoms; i = i + 1 {

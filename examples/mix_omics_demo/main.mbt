@@ -64,7 +64,9 @@ fn main {
   let n_traits = 3
   println("  Gene expression (X): \{n_samples} samples x \{n_genes} genes")
   println("  Clinical traits (Y): \{n_samples} samples x \{n_traits} traits")
-  println("  X[0] (first 5 genes): [\{x_data[0][0]}, \{x_data[0][1]}, \{x_data[0][2]}, \{x_data[0][3]}, \{x_data[0][4]}]")
+  println(
+    "  X[0] (first 5 genes): [\{x_data[0][0]}, \{x_data[0][1]}, \{x_data[0][2]}, \{x_data[0][3]}, \{x_data[0][4]}]",
+  )
   println("  Y[0]: [\{y_data[0][0]}, \{y_data[0][1]}, \{y_data[0][2]}]")
   println("")
 
@@ -72,7 +74,9 @@ fn main {
   println("--- 2. PLS Regression (2 components) ---")
 
   let pls_opts = @bio.pls_options_full(2, "regression", true, 500, 1.0e-6)
-  println("  Options: ncomp=\{pls_opts.ncomp}, mode=\{pls_opts.mode}, scale=\{pls_opts.scale}")
+  println(
+    "  Options: ncomp=\{pls_opts.ncomp}, mode=\{pls_opts.mode}, scale=\{pls_opts.scale}",
+  )
 
   let pls_result = @bio.run_pls(x_data, y_data, pls_opts)
 
@@ -80,13 +84,17 @@ fn main {
   println("")
   println("  X Scores (first 5 samples):")
   for i = 0; i < 5; i = i + 1 {
-    println("    Sample \{i}: [\{pls_result.x_scores[i][0]}, \{pls_result.x_scores[i][1]}]")
+    println(
+      "    Sample \{i}: [\{pls_result.x_scores[i][0]}, \{pls_result.x_scores[i][1]}]",
+    )
   }
 
   println("")
   println("  Y Scores (first 5 samples):")
   for i = 0; i < 5; i = i + 1 {
-    println("    Sample \{i}: [\{pls_result.y_scores[i][0]}, \{pls_result.y_scores[i][1]}]")
+    println(
+      "    Sample \{i}: [\{pls_result.y_scores[i][0]}, \{pls_result.y_scores[i][1]}]",
+    )
   }
 
   // Display loadings
@@ -94,9 +102,14 @@ fn main {
   println("  X Loadings (gene weights):")
   println("    Gene     Comp1        Comp2")
   println("    ----     ------       ------")
-  let gene_names = ["GeneA", "GeneB", "GeneC", "GeneD", "GeneE", "GeneF", "GeneG", "GeneH", "GeneI", "GeneJ"]
+  let gene_names = [
+    "GeneA", "GeneB", "GeneC", "GeneD", "GeneE", "GeneF", "GeneG", "GeneH", "GeneI",
+    "GeneJ",
+  ]
   for j = 0; j < n_genes; j = j + 1 {
-    println("    \{gene_names[j]}  \{pls_result.x_loadings[j][0]}  \{pls_result.x_loadings[j][1]}")
+    println(
+      "    \{gene_names[j]}  \{pls_result.x_loadings[j][0]}  \{pls_result.x_loadings[j][1]}",
+    )
   }
 
   println("")
@@ -105,7 +118,9 @@ fn main {
   println("    ----     ------       ------")
   let trait_names = ["Trait1", "Trait2", "Trait3"]
   for k = 0; k < n_traits; k = k + 1 {
-    println("    \{trait_names[k]}  \{pls_result.y_loadings[k][0]}  \{pls_result.y_loadings[k][1]}")
+    println(
+      "    \{trait_names[k]}  \{pls_result.y_loadings[k][0]}  \{pls_result.y_loadings[k][1]}",
+    )
   }
 
   // Explained variance
@@ -113,7 +128,9 @@ fn main {
   println("  Explained Variance:")
   for comp = 0; comp < pls_result.ncomp; comp = comp + 1 {
     let (x_var, y_var) = pls_result.explained_variance[comp]
-    println("    Component \{comp + 1}: X = \{x_var} (\{x_var * 100.0}%), Y = \{y_var} (\{y_var * 100.0}%)")
+    println(
+      "    Component \{comp + 1}: X = \{x_var} (\{x_var * 100.0}%), Y = \{y_var} (\{y_var * 100.0}%)",
+    )
   }
   println("")
 
@@ -121,7 +138,9 @@ fn main {
   println("--- 3. Sparse PLS (sPLS) with Variable Selection ---")
 
   let spls_opts = @bio.spls_options_full(2, [5, 5], [2, 2], true, 500, 1.0e-6)
-  println("  Options: ncomp=\{spls_opts.ncomp}, keep_x=\{spls_opts.keep_x}, keep_y=\{spls_opts.keep_y}")
+  println(
+    "  Options: ncomp=\{spls_opts.ncomp}, keep_x=\{spls_opts.keep_x}, keep_y=\{spls_opts.keep_y}",
+  )
 
   let spls_result = @bio.run_spls(x_data, y_data, spls_opts)
 
@@ -168,7 +187,9 @@ fn main {
   println("    Gene     Comp1        Comp2")
   println("    ----     ------       ------")
   for j = 0; j < n_genes; j = j + 1 {
-    println("    \{gene_names[j]}  \{spls_result.x_loadings[j][0]}  \{spls_result.x_loadings[j][1]}")
+    println(
+      "    \{gene_names[j]}  \{spls_result.x_loadings[j][0]}  \{spls_result.x_loadings[j][1]}",
+    )
   }
 
   // Explained variance
@@ -176,7 +197,9 @@ fn main {
   println("  sPLS Explained Variance:")
   for comp = 0; comp < spls_result.ncomp; comp = comp + 1 {
     let (x_var, y_var) = spls_result.explained_variance[comp]
-    println("    Component \{comp + 1}: X = \{x_var} (\{x_var * 100.0}%), Y = \{y_var} (\{y_var * 100.0}%)")
+    println(
+      "    Component \{comp + 1}: X = \{x_var} (\{x_var * 100.0}%), Y = \{y_var} (\{y_var * 100.0}%)",
+    )
   }
   println("")
 
@@ -242,7 +265,9 @@ fn main {
     500,
     1.0e-6,
   )
-  println("  Options: ncomp=\{diablo_opts.ncomp}, n_blocks=2, scale=\{diablo_opts.scale}")
+  println(
+    "  Options: ncomp=\{diablo_opts.ncomp}, n_blocks=2, scale=\{diablo_opts.scale}",
+  )
   println("  Keep variables per component:")
   for comp = 0; comp < diablo_opts.ncomp; comp = comp + 1 {
     let kv = diablo_opts.keep_variables[comp]
@@ -256,7 +281,9 @@ fn main {
   for b = 0; b < diablo_result.n_blocks; b = b + 1 {
     println("    \{block_names[b]}:")
     for i = 0; i < 5; i = i + 1 {
-      println("      Sample \{i}: [\{diablo_result.block_scores[b][i][0]}, \{diablo_result.block_scores[b][i][1]}]")
+      println(
+        "      Sample \{i}: [\{diablo_result.block_scores[b][i][0]}, \{diablo_result.block_scores[b][i][1]}]",
+      )
     }
   }
 
@@ -273,7 +300,9 @@ fn main {
     println("      Feature   Comp1        Comp2")
     println("      ------    ------       ------")
     for j = 0; j < pb; j = j + 1 {
-      println("      \{feature_names[j]}  \{diablo_result.block_loadings[b][j][0]}  \{diablo_result.block_loadings[b][j][1]}")
+      println(
+        "      \{feature_names[j]}  \{diablo_result.block_loadings[b][j][0]}  \{diablo_result.block_loadings[b][j][1]}",
+      )
     }
   }
 
@@ -312,7 +341,9 @@ fn main {
   println("    Gene     PLS          sPLS")
   println("    ----     ---          ----")
   for j = 0; j < 5; j = j + 1 {
-    println("    \{gene_names[j]}  \{pls_result.x_loadings[j][0]}  \{spls_result.x_loadings[j][0]}")
+    println(
+      "    \{gene_names[j]}  \{pls_result.x_loadings[j][0]}  \{spls_result.x_loadings[j][0]}",
+    )
   }
 
   println("")
@@ -329,8 +360,12 @@ fn main {
   println("  Key differences:")
   println("    - PLS uses all variables, sPLS selects top-k per component")
   println("    - sPLS sets unselected variable loadings to exactly 0")
-  println("    - sPLS provides variable selection via x_selected/y_selected flags")
-  println("    - PLS may explain slightly more variance but includes noise variables")
+  println(
+    "    - sPLS provides variable selection via x_selected/y_selected flags",
+  )
+  println(
+    "    - PLS may explain slightly more variance but includes noise variables",
+  )
 
   println("")
   println("=== Demo Complete ===")

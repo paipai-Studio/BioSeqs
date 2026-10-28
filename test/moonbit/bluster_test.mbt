@@ -16,8 +16,8 @@ fn bluster_test_some(value : Double?) -> Double {
 }
 
 ///|
-fn bluster_test_unique_count(values : Array[Int]) -> Int {
-  let unique : Array[Int] = []
+fn bluster_test_unique_count(values : Array[Int32]) -> Int32 {
+  let unique : Array[Int32] = []
   for value in values {
     let mut found = false
     for existing in unique {

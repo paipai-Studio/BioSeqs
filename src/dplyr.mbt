@@ -11,7 +11,7 @@ pub enum DataType {
 
 ///|
 pub enum DataValue {
-  IntValue(Int)
+  IntValue(Int32)
   DoubleValue(Double)
   StringValue(String)
   BoolValue(Bool)
@@ -27,8 +27,8 @@ pub struct Column {
 ///|
 pub struct DataFrame {
   columns : Array[Column]
-  nrow : Int
-  ncol : Int
+  nrow : Int32
+  ncol : Int32
 }
 
 ///|
@@ -52,7 +52,7 @@ pub fn data_type_bool() -> DataType {
 }
 
 ///|
-pub fn data_value_int(v : Int) -> DataValue {
+pub fn data_value_int(v : Int32) -> DataValue {
   DataValue::IntValue(v)
 }
 
@@ -88,12 +88,12 @@ pub fn dataframe(columns : Array[Column]) -> DataFrame {
 }
 
 ///|
-pub fn dataframe_nrow(df : DataFrame) -> Int {
+pub fn dataframe_nrow(df : DataFrame) -> Int32 {
   df.nrow
 }
 
 ///|
-pub fn dataframe_ncol(df : DataFrame) -> Int {
+pub fn dataframe_ncol(df : DataFrame) -> Int32 {
   df.ncol
 }
 
@@ -121,7 +121,7 @@ pub fn dataframe_get_column(df : DataFrame, name : String) -> Column? {
 }
 
 ///|
-pub fn dataframe_get_column_index(df : DataFrame, name : String) -> Int? {
+pub fn dataframe_get_column_index(df : DataFrame, name : String) -> Int32? {
   let mut i = 0
   while i < df.ncol {
     if df.columns[i].name == name {
@@ -152,9 +152,9 @@ pub fn dataframe_select(
 ///|
 pub fn dataframe_filter(
   df : DataFrame,
-  predicate : (DataFrame, Int) -> Bool,
+  predicate : (DataFrame, Int32) -> Bool,
 ) -> DataFrame {
-  let keep : Array[Int] = []
+  let keep : Array[Int32] = []
   let mut i = 0
   while i < df.nrow {
     if predicate(df, i) {
@@ -186,7 +186,7 @@ pub fn dataframe_filter(
 ///|
 pub fn dataframe_mutate(
   df : DataFrame,
-  new_columns : Array[(String, DataType, (DataFrame, Int) -> DataValue)],
+  new_columns : Array[(String, DataType, (DataFrame, Int32) -> DataValue)],
 ) -> DataFrame {
   let all_cols : Array[Column] = []
   let mut i = 0
@@ -284,7 +284,7 @@ pub fn dataframe_arrange(
   }
   let col_idx = col_idx_opt.unwrap()
 
-  let indices : Array[Int] = []
+  let indices : Array[Int32] = []
   let mut i = 0
   while i < df.nrow {
     indices.push(i)
@@ -344,7 +344,7 @@ pub fn dataframe_group_by(
   let col_idx = col_idx_opt.unwrap()
 
   let group_names : Array[String] = []
-  let group_indices : Array[Array[Int]] = []
+  let group_indices : Array[Array[Int32]] = []
 
   let mut i = 0
   while i < df.nrow {
@@ -465,8 +465,8 @@ pub fn dataframe_inner_join(
   let col1_idx = col1_idx_opt.unwrap()
   let col2_idx = col2_idx_opt.unwrap()
 
-  let result_rows : Array[Int] = []
-  let result_rows2 : Array[Int] = []
+  let result_rows : Array[Int32] = []
+  let result_rows2 : Array[Int32] = []
 
   let mut i = 0
   while i < df1.nrow {
@@ -554,8 +554,8 @@ pub fn dataframe_left_join(
   let col1_idx = col1_idx_opt.unwrap()
   let col2_idx = col2_idx_opt.unwrap()
 
-  let result_rows : Array[Int] = []
-  let result_rows2 : Array[Int] = []
+  let result_rows : Array[Int32] = []
+  let result_rows2 : Array[Int32] = []
 
   let mut i = 0
   while i < df1.nrow {

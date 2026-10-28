@@ -1,7 +1,6 @@
 ///|
 /// msigdbr demo - MSigDB gene set collections, GMT I/O and ID mapping.
 /// Inspired by Bioconductor {msigdbr}.
-
 fn main {
   println("=== msigdbr Demo: MSigDB Gene Set Collections ===")
   println("")
@@ -11,8 +10,13 @@ fn main {
   let catalog = @src.msig_catalog()
   for col in catalog {
     println(
-      "  [" + col.category.code() + "] " + col.subcategory +
-      " - " + col.size().to_string() + " sets",
+      "  [" +
+      col.category.code() +
+      "] " +
+      col.subcategory +
+      " - " +
+      col.size().to_string() +
+      " sets",
     )
   }
   println("  total sets: " + @src.msig_catalog_size(catalog).to_string())
@@ -56,7 +60,11 @@ fn main {
 
   // Step 4: symbol -> Entrez mapping
   println("--- Step 4: Gene ID Mapping ---")
-  let table = @src.msig_id_table([("TP53", "7157"), ("BRCA1", "672"), ("BAX", "581")])
+  let table = @src.msig_id_table([
+    ("TP53", "7157"),
+    ("BRCA1", "672"),
+    ("BAX", "581"),
+  ])
   let mapped = @src.msig_symbol_to_entrez(@src.msig_ontology_go_bp(), table)
   match @src.msig_lookup([mapped], "GO_APOPTOTIC_PROCESS") {
     Some(gs) => {

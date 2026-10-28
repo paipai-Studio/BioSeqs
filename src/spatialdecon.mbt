@@ -11,6 +11,8 @@ pub struct SpatialDeconProfile {
   cell_types : Array[String]
   values : Array[Array[Double]]
 } derive(Debug)
+
+///|
 pub extend SpatialDeconProfile with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -21,6 +23,8 @@ pub struct SpatialDeconData {
   background : Array[Array[Double]]
   weights : Array[Array[Double]]
 } derive(Debug)
+
+///|
 pub extend SpatialDeconData with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -32,11 +36,13 @@ pub struct SpatialDeconConfig {
   profile_quantile : Double
   profile_target : Double
   refit_outliers : Bool
-  max_iterations : Int
-  line_search_steps : Int
+  max_iterations : Int32
+  line_search_steps : Int32
   tolerance : Double
   ridge : Double
 } derive(Debug)
+
+///|
 pub extend SpatialDeconConfig with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -48,6 +54,8 @@ pub struct SpatialDeconAbundance {
   standard_error : Double
   p_value : Double
 } derive(Debug)
+
+///|
 pub extend SpatialDeconAbundance with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -69,10 +77,12 @@ pub struct SpatialDeconResult {
   objectives : Array[Double]
   rmse : Array[Double]
   correlations : Array[Double]
-  iterations : Array[Int]
+  iterations : Array[Int32]
   converged : Array[Bool]
   config : SpatialDeconConfig
 } derive(Debug)
+
+///|
 pub extend SpatialDeconResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -80,6 +90,8 @@ pub struct SpatialDeconCellMerge {
   name : String
   members : Array[String]
 } derive(Debug)
+
+///|
 pub extend SpatialDeconCellMerge with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -93,10 +105,14 @@ pub struct SpatialDeconReverseResult {
   correlations : Array[Double]
   residual_sds : Array[Double]
   objectives : Array[Double]
-  iterations : Array[Int]
+  iterations : Array[Int32]
   converged : Array[Bool]
 } derive(Debug)
-pub extend SpatialDeconReverseResult with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend SpatialDeconReverseResult with @moonbitlang/core/debug.Debug::{
+  to_repr,
+}
 
 ///|
 pub struct SpatialDeconSpatialExperimentOutput {
@@ -128,7 +144,7 @@ priv struct SdSolve {
   covariance : Array[Array[Double]]
   fitted : Array[Double]
   objective : Double
-  iterations : Int
+  iterations : Int32
   converged : Bool
 }
 
@@ -156,7 +172,7 @@ fn sd_copy_bool_matrix(matrix : Array[Array[Bool]]) -> Array[Array[Bool]] {
 }
 
 ///|
-fn sd_zero_matrix(rows : Int, columns : Int) -> Array[Array[Double]] {
+fn sd_zero_matrix(rows : Int32, columns : Int32) -> Array[Array[Double]] {
   let matrix : Array[Array[Double]] = []
   for _ in 0..<rows {
     matrix.push(Array::make(columns, 0.0))
@@ -165,7 +181,7 @@ fn sd_zero_matrix(rows : Int, columns : Int) -> Array[Array[Double]] {
 }
 
 ///|
-fn sd_bool_matrix(rows : Int, columns : Int) -> Array[Array[Bool]] {
+fn sd_bool_matrix(rows : Int32, columns : Int32) -> Array[Array[Bool]] {
   let matrix : Array[Array[Bool]] = []
   for _ in 0..<rows {
     matrix.push(Array::make(columns, false))
@@ -184,7 +200,7 @@ fn sd_contains_string(values : Array[String], target : String) -> Bool {
 }
 
 ///|
-fn sd_string_index(values : Array[String], target : String) -> Int {
+fn sd_string_index(values : Array[String], target : String) -> Int32 {
   for index in 0..<values.length() {
     if values[index] == target {
       return index
@@ -218,8 +234,8 @@ fn sd_validate_names(
 ///|
 fn sd_validate_matrix(
   matrix : Array[Array[Double]],
-  rows : Int,
-  columns : Int,
+  rows : Int32,
+  columns : Int32,
   label : String,
   allow_zero : Bool,
 ) -> Unit raise SpatialDeconError {
@@ -282,8 +298,8 @@ pub fn SpatialDeconData::create(
   gene_names : Array[String],
   spot_ids : Array[String],
   values : Array[Array[Double]],
-  background? : Array[Array[Double]] = [],
-  weights? : Array[Array[Double]] = [],
+  background~ : Array[Array[Double]] = [],
+  weights~ : Array[Array[Double]] = [],
 ) -> SpatialDeconData raise SpatialDeconError {
   sd_validate_names(gene_names, "SpatialDecon data gene names")
   sd_validate_names(spot_ids, "SpatialDecon spot identifiers")
@@ -339,7 +355,7 @@ pub fn SpatialDeconData::with_scalar_background(
   spot_ids : Array[String],
   values : Array[Array[Double]],
   background : Double,
-  weights? : Array[Array[Double]] = [],
+  weights~ : Array[Array[Double]] = [],
 ) -> SpatialDeconData raise SpatialDeconError {
   if !sd_is_finite(background) || background < 0.0 {
     raise SpatialDeconError(
@@ -380,17 +396,17 @@ pub fn SpatialDeconConfig::default() -> SpatialDeconConfig {
 
 ///|
 pub fn SpatialDeconConfig::create(
-  residual_threshold? : Double = 3.0,
-  lower_threshold? : Double = 0.5,
-  signal_floor? : Double = 1.0e-4,
-  rescale_profile? : Bool = true,
-  profile_quantile? : Double = 0.99,
-  profile_target? : Double = 2.0,
-  refit_outliers? : Bool = true,
-  max_iterations? : Int = 1000,
-  line_search_steps? : Int = 30,
-  tolerance? : Double = 1.0e-8,
-  ridge? : Double = 1.0e-8,
+  residual_threshold~ : Double = 3.0,
+  lower_threshold~ : Double = 0.5,
+  signal_floor~ : Double = 1.0e-4,
+  rescale_profile~ : Bool = true,
+  profile_quantile~ : Double = 0.99,
+  profile_target~ : Double = 2.0,
+  refit_outliers~ : Bool = true,
+  max_iterations~ : Int32 = 1000,
+  line_search_steps~ : Int32 = 30,
+  tolerance~ : Double = 1.0e-8,
+  ridge~ : Double = 1.0e-8,
 ) -> SpatialDeconConfig raise SpatialDeconError {
   if !sd_is_finite(residual_threshold) || residual_threshold <= 0.0 {
     raise SpatialDeconError(
@@ -459,22 +475,22 @@ pub fn SpatialDeconCellMerge::create(
 }
 
 ///|
-pub fn SpatialDeconProfile::n_genes(self : SpatialDeconProfile) -> Int {
+pub fn SpatialDeconProfile::n_genes(self : SpatialDeconProfile) -> Int32 {
   self.gene_names.length()
 }
 
 ///|
-pub fn SpatialDeconProfile::n_cell_types(self : SpatialDeconProfile) -> Int {
+pub fn SpatialDeconProfile::n_cell_types(self : SpatialDeconProfile) -> Int32 {
   self.cell_types.length()
 }
 
 ///|
-pub fn SpatialDeconData::n_genes(self : SpatialDeconData) -> Int {
+pub fn SpatialDeconData::n_genes(self : SpatialDeconData) -> Int32 {
   self.gene_names.length()
 }
 
 ///|
-pub fn SpatialDeconData::n_spots(self : SpatialDeconData) -> Int {
+pub fn SpatialDeconData::n_spots(self : SpatialDeconData) -> Int32 {
   self.spot_ids.length()
 }
 
@@ -1104,8 +1120,8 @@ fn sd_scaled_cell_counts(
 pub fn spatial_decon(
   data : SpatialDeconData,
   profile : SpatialDeconProfile,
-  nuclei_counts? : Array[Double] = [],
-  config? : SpatialDeconConfig = SpatialDeconConfig::default(),
+  nuclei_counts~ : Array[Double] = [],
+  config~ : SpatialDeconConfig = SpatialDeconConfig::default(),
 ) -> SpatialDeconResult raise SpatialDeconError {
   if nuclei_counts.length() != 0 &&
     nuclei_counts.length() != data.spot_ids.length() {
@@ -1321,17 +1337,17 @@ pub fn spatial_decon(
 }
 
 ///|
-pub fn SpatialDeconResult::n_genes(self : SpatialDeconResult) -> Int {
+pub fn SpatialDeconResult::n_genes(self : SpatialDeconResult) -> Int32 {
   self.gene_names.length()
 }
 
 ///|
-pub fn SpatialDeconResult::n_spots(self : SpatialDeconResult) -> Int {
+pub fn SpatialDeconResult::n_spots(self : SpatialDeconResult) -> Int32 {
   self.spot_ids.length()
 }
 
 ///|
-pub fn SpatialDeconResult::n_cell_types(self : SpatialDeconResult) -> Int {
+pub fn SpatialDeconResult::n_cell_types(self : SpatialDeconResult) -> Int32 {
   self.cell_types.length()
 }
 
@@ -1354,7 +1370,7 @@ pub fn SpatialDeconResult::abundance_for(
 pub fn SpatialDeconResult::top_cell_types(
   self : SpatialDeconResult,
   spot_id : String,
-  limit? : Int = 5,
+  limit~ : Int32 = 5,
 ) -> Array[SpatialDeconAbundance] raise SpatialDeconError {
   if limit <= 0 {
     raise SpatialDeconError("SpatialDecon ranking limit must be positive")
@@ -1580,7 +1596,7 @@ pub fn spatial_decon_background(
   }
   let output = sd_zero_matrix(gene_names.length(), spot_ids.length())
   for pool in pools {
-    let negatives : Array[Int] = []
+    let negatives : Array[Int32] = []
     for gene in 0..<gene_names.length() {
       if probe_pools[gene] == pool &&
         sd_contains_string(negative_genes, gene_names[gene]) {
@@ -1616,11 +1632,11 @@ pub fn create_spatial_decon_profile(
   cell_ids : Array[String],
   cell_types : Array[String],
   counts : Array[Array[Double]],
-  normalize? : Bool = false,
-  scaling_factor? : Double = 5.0,
-  min_cells? : Int = 15,
-  min_genes? : Int = 100,
-  gene_filter? : Array[String] = [],
+  normalize~ : Bool = false,
+  scaling_factor~ : Double = 5.0,
+  min_cells~ : Int32 = 15,
+  min_genes~ : Int32 = 100,
+  gene_filter~ : Array[String] = [],
 ) -> SpatialDeconProfile raise SpatialDeconError {
   sd_validate_names(gene_names, "SpatialDecon single-cell gene names")
   sd_validate_names(cell_ids, "SpatialDecon single-cell identifiers")
@@ -1685,9 +1701,9 @@ pub fn create_spatial_decon_profile(
     }
   }
   let retained_types : Array[String] = []
-  let retained_cells : Array[Array[Int]] = []
+  let retained_cells : Array[Array[Int32]] = []
   for cell_type in ordered_types {
-    let indices : Array[Int] = []
+    let indices : Array[Int32] = []
     for cell in 0..<cell_ids.length() {
       if cell_types[cell] == cell_type &&
         expressed[cell] > min_genes &&
@@ -1705,7 +1721,7 @@ pub fn create_spatial_decon_profile(
       "SpatialDecon profile filtering removed every cell type",
     )
   }
-  let selected_genes : Array[Int] = []
+  let selected_genes : Array[Int32] = []
   for gene in 0..<gene_names.length() {
     if gene_filter.length() == 0 ||
       sd_contains_string(gene_filter, gene_names[gene]) {
@@ -1754,7 +1770,7 @@ pub fn create_spatial_decon_profile(
 pub fn reverse_spatial_decon(
   data : SpatialDeconData,
   result : SpatialDeconResult,
-  epsilon? : Double = 0.0,
+  epsilon~ : Double = 0.0,
 ) -> SpatialDeconReverseResult raise SpatialDeconError {
   if data.spot_ids != result.spot_ids {
     raise SpatialDeconError(
@@ -1767,7 +1783,7 @@ pub fn reverse_spatial_decon(
     )
   }
   let active_types : Array[String] = []
-  let active_indices : Array[Int] = []
+  let active_indices : Array[Int32] = []
   for cell_type in 0..<result.cell_types.length() {
     if sd_sample_sd(result.beta[cell_type]) > 1.0e-14 {
       active_types.push(result.cell_types[cell_type])
@@ -1912,7 +1928,7 @@ fn sd_copy_spatial_experiment(
 ///|
 fn sd_experiment_gene_names(
   experiment : SpatialExperiment,
-  rows : Int,
+  rows : Int32,
   key : String,
 ) -> Array[String] raise SpatialDeconError {
   if experiment.row_data.length() != 0 && experiment.row_data.length() != rows {
@@ -1948,7 +1964,7 @@ fn sd_experiment_gene_names(
 ///|
 fn sd_experiment_spot_ids(
   experiment : SpatialExperiment,
-  columns : Int,
+  columns : Int32,
   key : String,
 ) -> Array[String] raise SpatialDeconError {
   if experiment.col_data.length() != 0 &&
@@ -1986,16 +2002,16 @@ fn sd_experiment_spot_ids(
 pub fn spatial_decon_spatial_experiment(
   experiment : SpatialExperiment,
   profile : SpatialDeconProfile,
-  assay_name? : String = "counts",
-  background_assay_name? : String = "",
-  weight_assay_name? : String = "",
-  gene_id_key? : String = "gene_id",
-  spot_id_key? : String = "spot_id",
-  abundance_prefix? : String = "SpatialDecon:",
-  proportion_prefix? : String = "SpatialDeconProp:",
-  scalar_background? : Double = 0.0,
-  nuclei_counts? : Array[Double] = [],
-  config? : SpatialDeconConfig = SpatialDeconConfig::default(),
+  assay_name~ : String = "counts",
+  background_assay_name~ : String = "",
+  weight_assay_name~ : String = "",
+  gene_id_key~ : String = "gene_id",
+  spot_id_key~ : String = "spot_id",
+  abundance_prefix~ : String = "SpatialDecon:",
+  proportion_prefix~ : String = "SpatialDeconProp:",
+  scalar_background~ : Double = 0.0,
+  nuclei_counts~ : Array[Double] = [],
+  config~ : SpatialDeconConfig = SpatialDeconConfig::default(),
 ) -> SpatialDeconSpatialExperimentOutput raise SpatialDeconError {
   if assay_name.length() == 0 ||
     abundance_prefix.length() == 0 ||

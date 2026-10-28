@@ -24,7 +24,7 @@
 /// Expression value: can be numeric, string, or undefined.
 pub struct ExprVal {
   is_str : Bool
-  is_true : Int
+  is_true : Int32
   d : Double
   s : String
 }
@@ -32,19 +32,28 @@ pub struct ExprVal {
 ///|
 /// Create a numeric value.
 pub fn ExprVal::num(d : Double) -> ExprVal {
-  ExprVal::{ is_str: false, is_true: if d != 0.0 { 1 } else { 0 }, d, s: "" }
+  ExprVal::{ is_str: false, is_true: if d != 0.0 { 1 } else { 0 }, d, s: "", }
 }
 
 ///|
 /// Create a string value.
 pub fn ExprVal::str(s : String) -> ExprVal {
-  ExprVal::{ is_str: true, is_true: if s.length() > 0 { 1 } else { 0 }, d: 0.0, s }
+  ExprVal::{
+    is_str: true,
+    is_true: if s.length() > 0 {
+      1
+    } else {
+      0
+    },
+    d: 0.0,
+    s,
+  }
 }
 
 ///|
 /// Create an undefined value.
 pub fn ExprVal::undef() -> ExprVal {
-  ExprVal::{ is_str: false, is_true: -1, d: 0.0, s: "" }
+  ExprVal::{ is_str: false, is_true: -1, d: 0.0, s: "", }
 }
 
 ///|
@@ -56,7 +65,9 @@ fn ExprVal::exists(self : ExprVal) -> Bool {
 ///|
 /// Check if value exists and is truthy.
 fn ExprVal::exists_t(self : ExprVal) -> Bool {
-  self.is_true > 0 || (self.is_true == 0 && self.is_str && self.s.length() > 0) || (self.is_true == 0 && !(self.is_str) && self.d != 0.0)
+  self.is_true > 0 ||
+  (self.is_true == 0 && self.is_str && self.s.length() > 0) ||
+  (self.is_true == 0 && !self.is_str && self.d != 0.0)
 }
 
 ///|
@@ -68,16 +79,16 @@ pub struct HtsFilter {
 ///|
 /// Create a filter from an expression string.
 pub fn hts_filter_init(expr : String) -> HtsFilter {
-  HtsFilter::{ expr }
+  HtsFilter::{ expr, }
 }
 
 ///|
 /// Parser state for recursive descent parsing.
 struct Parser {
   chars : Array[Char]
-  mut pos : Int
+  mut pos : Int32
   symbols : Map[String, ExprVal]
-  mut depth : Int
+  mut depth : Int32
 }
 
 ///|
@@ -120,23 +131,31 @@ fn Parser::parse_number(self : Parser) -> ExprVal? {
   let n = self.chars.length()
   // Optional sign handled by unary_expr
   // Digits
-  while self.pos < n && self.chars[self.pos] >= '0' && self.chars[self.pos] <= '9' {
+  while self.pos < n &&
+        self.chars[self.pos] >= '0' &&
+        self.chars[self.pos] <= '9' {
     self.pos = self.pos + 1
   }
   // Fractional part
   if self.pos < n && self.chars[self.pos] == '.' {
     self.pos = self.pos + 1
-    while self.pos < n && self.chars[self.pos] >= '0' && self.chars[self.pos] <= '9' {
+    while self.pos < n &&
+          self.chars[self.pos] >= '0' &&
+          self.chars[self.pos] <= '9' {
       self.pos = self.pos + 1
     }
   }
   // Exponent
-  if self.pos < n && (self.chars[self.pos] == 'e' || self.chars[self.pos] == 'E') {
+  if self.pos < n &&
+    (self.chars[self.pos] == 'e' || self.chars[self.pos] == 'E') {
     self.pos = self.pos + 1
-    if self.pos < n && (self.chars[self.pos] == '+' || self.chars[self.pos] == '-') {
+    if self.pos < n &&
+      (self.chars[self.pos] == '+' || self.chars[self.pos] == '-') {
       self.pos = self.pos + 1
     }
-    while self.pos < n && self.chars[self.pos] >= '0' && self.chars[self.pos] <= '9' {
+    while self.pos < n &&
+          self.chars[self.pos] >= '0' &&
+          self.chars[self.pos] <= '9' {
       self.pos = self.pos + 1
     }
   }
@@ -195,19 +214,20 @@ fn Parser::parse_identifier(self : Parser) -> String {
   let n = self.chars.length()
   while self.pos < n {
     let c = self.chars[self.pos]
-    if (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '_' {
+    if (c >= 'a' && c <= 'z') ||
+      (c >= 'A' && c <= 'Z') ||
+      (c >= '0' && c <= '9') ||
+      c == '_' {
       self.pos = self.pos + 1
     } else {
       break
     }
   }
-  {
-    let sb2 = StringBuilder()
-    for i = start; i < self.pos; i = i + 1 {
-      sb2.write_char(self.chars[i])
-    }
-    sb2.to_string()
+  let sb2 = StringBuilder()
+  for i = start; i < self.pos; i = i + 1 {
+    sb2.write_char(self.chars[i])
   }
+  sb2.to_string()
 }
 
 ///|
@@ -248,13 +268,13 @@ fn Parser::parse_func(self : Parser, name : String) -> ExprVal? {
   // Apply function
   match name {
     "length" => {
-      if !(result.is_str) {
+      if !result.is_str {
         return None
       }
       result = ExprVal::num(result.s.length().to_double())
     }
     "min" => {
-      if !(result.is_str) {
+      if !result.is_str {
         return None
       }
       let mut v = 999999
@@ -264,10 +284,14 @@ fn Parser::parse_func(self : Parser, name : String) -> ExprVal? {
           v = c
         }
       }
-      result = if v == 999999 { ExprVal::undef() } else { ExprVal::num(v.to_double()) }
+      result = if v == 999999 {
+        ExprVal::undef()
+      } else {
+        ExprVal::num(v.to_double())
+      }
     }
     "max" => {
-      if !(result.is_str) {
+      if !result.is_str {
         return None
       }
       let mut v = -1
@@ -277,17 +301,25 @@ fn Parser::parse_func(self : Parser, name : String) -> ExprVal? {
           v = c
         }
       }
-      result = if v == -1 { ExprVal::undef() } else { ExprVal::num(v.to_double()) }
+      result = if v == -1 {
+        ExprVal::undef()
+      } else {
+        ExprVal::num(v.to_double())
+      }
     }
     "avg" => {
-      if !(result.is_str) {
+      if !result.is_str {
         return None
       }
       let mut sum = 0.0
       for i = 0; i < result.s.length(); i = i + 1 {
         sum = sum + result.s.unsafe_get(i).to_int().to_double()
       }
-      let avg = if result.s.length() > 0 { sum / result.s.length().to_double() } else { 0.0 }
+      let avg = if result.s.length() > 0 {
+        sum / result.s.length().to_double()
+      } else {
+        0.0
+      }
       result = ExprVal::num(avg)
     }
     "sqrt" => {
@@ -308,7 +340,7 @@ fn Parser::parse_func(self : Parser, name : String) -> ExprVal? {
       }
       result = ExprVal::num(@math.ln(result.d))
     }
-    "pow" => {
+    "pow" =>
       match arg2 {
         Some(v2) => {
           if result.is_str || v2.is_str {
@@ -318,21 +350,28 @@ fn Parser::parse_func(self : Parser, name : String) -> ExprVal? {
         }
         None => return None
       }
-    }
     "exists" => {
       let exists = result.exists()
-      result = ExprVal::{ is_str: false, is_true: if exists { 1 } else { 0 }, d: if exists { 1.0 } else { 0.0 }, s: "" }
-    }
-    "default" => {
-      match arg2 {
-        Some(v2) => {
-          if !(result.exists()) {
-            result = v2
-          }
-        }
-        None => return None
+      result = ExprVal::{
+        is_str: false,
+        is_true: if exists {
+          1
+        } else {
+          0
+        },
+        d: if exists {
+          1.0
+        } else {
+          0.0
+        },
+        s: "",
       }
     }
+    "default" =>
+      match arg2 {
+        Some(v2) => if !result.exists() { result = v2 }
+        None => return None
+      }
     _ => return None
   }
   Some(result)
@@ -392,7 +431,7 @@ fn Parser::parse_unary(self : Parser) -> ExprVal? {
     match self.parse_simple() {
       Some(v0) => {
         let mut v = v0
-        if !(v.exists()) {
+        if !v.exists() {
           return Some(ExprVal::undef())
         }
         if v.is_str {
@@ -408,27 +447,26 @@ fn Parser::parse_unary(self : Parser) -> ExprVal? {
   } else if c == '!' {
     self.pos = self.pos + 1
     match self.parse_unary() {
-      Some(v) => {
+      Some(v) =>
         if v.is_true > 0 {
           Some(ExprVal::num(0.0))
-        } else if !(v.exists()) {
+        } else if !v.exists() {
           Some(ExprVal::num(1.0))
         } else if v.is_str {
           Some(ExprVal::num(if v.s.length() == 0 { 1.0 } else { 0.0 }))
         } else {
           Some(ExprVal::num(if v.d == 0.0 { 1.0 } else { 0.0 }))
         }
-      }
       None => None
     }
   } else if c == '~' {
     self.pos = self.pos + 1
     match self.parse_unary() {
       Some(v) => {
-        if !(v.exists()) || v.is_str {
+        if !v.exists() || v.is_str {
           return Some(ExprVal::undef())
         }
-        Some(ExprVal::num((v.d.to_int().lnot()).to_double()))
+        Some(ExprVal::num(v.d.to_int().lnot().to_double()))
       }
       None => None
     }
@@ -450,7 +488,7 @@ fn Parser::parse_mul(self : Parser) -> ExprVal? {
           self.pos = self.pos + 1
           match self.parse_unary() {
             Some(v) => {
-              if !(v.exists()) || !(result.exists()) || v.is_str || result.is_str {
+              if !v.exists() || !result.exists() || v.is_str || result.is_str {
                 return Some(ExprVal::undef())
               }
               match c {
@@ -460,7 +498,9 @@ fn Parser::parse_mul(self : Parser) -> ExprVal? {
                   if v.d == 0.0 {
                     return Some(ExprVal::undef())
                   }
-                  result = ExprVal::num((result.d.to_int() % v.d.to_int()).to_double())
+                  result = ExprVal::num(
+                    (result.d.to_int() % v.d.to_int()).to_double(),
+                  )
                 }
                 _ => break
               }
@@ -490,7 +530,7 @@ fn Parser::parse_add(self : Parser) -> ExprVal? {
           self.pos = self.pos + 1
           match self.parse_mul() {
             Some(v) => {
-              if !(v.exists()) || !(result.exists()) || v.is_str || result.is_str {
+              if !v.exists() || !result.exists() || v.is_str || result.is_str {
                 return Some(ExprVal::undef())
               }
               match c {
@@ -523,10 +563,12 @@ fn Parser::parse_bitand(self : Parser) -> ExprVal? {
           self.pos = self.pos + 1
           match self.parse_add() {
             Some(v) => {
-              if !(v.exists()) || !(result.exists()) || v.is_str || result.is_str {
+              if !v.exists() || !result.exists() || v.is_str || result.is_str {
                 return Some(ExprVal::undef())
               }
-              result = ExprVal::num((result.d.to_int() & v.d.to_int()).to_double())
+              result = ExprVal::num(
+                (result.d.to_int() & v.d.to_int()).to_double(),
+              )
             }
             None => return None
           }
@@ -552,10 +594,12 @@ fn Parser::parse_bitxor(self : Parser) -> ExprVal? {
           self.pos = self.pos + 1
           match self.parse_bitand() {
             Some(v) => {
-              if !(v.exists()) || !(result.exists()) || v.is_str || result.is_str {
+              if !v.exists() || !result.exists() || v.is_str || result.is_str {
                 return Some(ExprVal::undef())
               }
-              result = ExprVal::num((result.d.to_int() ^ v.d.to_int()).to_double())
+              result = ExprVal::num(
+                (result.d.to_int() ^ v.d.to_int()).to_double(),
+              )
             }
             None => return None
           }
@@ -581,10 +625,12 @@ fn Parser::parse_bitor(self : Parser) -> ExprVal? {
           self.pos = self.pos + 1
           match self.parse_bitxor() {
             Some(v) => {
-              if !(v.exists()) || !(result.exists()) || v.is_str || result.is_str {
+              if !v.exists() || !result.exists() || v.is_str || result.is_str {
                 return Some(ExprVal::undef())
               }
-              result = ExprVal::num((result.d.to_int() | v.d.to_int()).to_double())
+              result = ExprVal::num(
+                (result.d.to_int() | v.d.to_int()).to_double(),
+              )
             }
             None => return None
           }
@@ -611,7 +657,7 @@ fn Parser::parse_cmp(self : Parser) -> ExprVal? {
         self.pos = self.pos + 2
         match self.parse_bitor() {
           Some(v) => {
-            if !(v.exists()) || !(result.exists()) {
+            if !v.exists() || !result.exists() {
               return Some(ExprVal::undef())
             }
             if result.is_str && v.is_str {
@@ -629,7 +675,7 @@ fn Parser::parse_cmp(self : Parser) -> ExprVal? {
         self.pos = self.pos + 1
         match self.parse_bitor() {
           Some(v) => {
-            if !(v.exists()) || !(result.exists()) {
+            if !v.exists() || !result.exists() {
               return Some(ExprVal::undef())
             }
             if result.is_str && v.is_str {
@@ -647,7 +693,7 @@ fn Parser::parse_cmp(self : Parser) -> ExprVal? {
         self.pos = self.pos + 2
         match self.parse_bitor() {
           Some(v) => {
-            if !(v.exists()) || !(result.exists()) {
+            if !v.exists() || !result.exists() {
               return Some(ExprVal::undef())
             }
             if result.is_str && v.is_str {
@@ -665,7 +711,7 @@ fn Parser::parse_cmp(self : Parser) -> ExprVal? {
         self.pos = self.pos + 1
         match self.parse_bitor() {
           Some(v) => {
-            if !(v.exists()) || !(result.exists()) {
+            if !v.exists() || !result.exists() {
               return Some(ExprVal::undef())
             }
             if result.is_str && v.is_str {
@@ -699,7 +745,7 @@ fn Parser::parse_eq(self : Parser) -> ExprVal? {
         self.pos = self.pos + 2
         match self.parse_cmp() {
           Some(v) => {
-            if !(v.exists()) || !(result.exists()) {
+            if !v.exists() || !result.exists() {
               return Some(ExprVal::undef())
             }
             if result.is_str && v.is_str {
@@ -716,7 +762,7 @@ fn Parser::parse_eq(self : Parser) -> ExprVal? {
         self.pos = self.pos + 2
         match self.parse_cmp() {
           Some(v) => {
-            if !(v.exists()) || !(result.exists()) {
+            if !v.exists() || !result.exists() {
               return Some(ExprVal::undef())
             }
             if result.is_str && v.is_str {
@@ -810,7 +856,7 @@ pub fn hts_filter_eval(
   symbols : Map[String, ExprVal],
 ) -> ExprVal {
   let chars = filter.expr.to_array()
-  let parser = Parser::{ chars, pos: 0, symbols, depth: 0 }
+  let parser = Parser::{ chars, pos: 0, symbols, depth: 0, }
   let result = parser.parse_expression()
   if result.is_empty() {
     return ExprVal::undef()
@@ -818,11 +864,11 @@ pub fn hts_filter_eval(
   let v = result[0]
   // Final evaluation: strings are true if non-null, numbers are true if nonzero
   if v.is_str {
-    let is_true = if v.is_true > 0 { 1 } else { 1 }  // strings are true
-    ExprVal::{ is_str: true, is_true, d: is_true.to_double(), s: v.s }
+    let is_true = if v.is_true > 0 { 1 } else { 1 } // strings are true
+    ExprVal::{ is_str: true, is_true, d: is_true.to_double(), s: v.s, }
   } else if v.exists() {
     let is_true = if v.d != 0.0 { 1 } else { 0 }
-    ExprVal::{ is_str: false, is_true, d: v.d, s: "" }
+    ExprVal::{ is_str: false, is_true, d: v.d, s: "", }
   } else {
     v
   }

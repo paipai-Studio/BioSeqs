@@ -12,7 +12,7 @@
 /// splatSimulate defaults.
 pub struct SplatParams {
   /// Number of genes to simulate.
-  n_genes : Int
+  n_genes : Int32
   /// Gamma shape for base gene means (mean.shape).
   mean_shape : Double
   /// Gamma rate for base gene means (mean.rate).
@@ -24,7 +24,7 @@ pub struct SplatParams {
   /// Common biological coefficient of variation (bcv.common).
   bcv_common : Double
   /// Cells per group; an empty array means one group with all cells.
-  group_cells : Array[Int]
+  group_cells : Array[Int32]
   /// Fraction of genes that are differentially expressed per group (de.prob).
   de_prob : Double
   /// Fraction of DE genes down-regulated (de.downProb).
@@ -34,7 +34,7 @@ pub struct SplatParams {
   /// Scale of log-normal DE factor (de.facScale).
   de_fac_scale : Double
   /// Cells per batch; an empty array means a single batch.
-  batch_cells : Array[Int]
+  batch_cells : Array[Int32]
   /// Location of log-normal batch factor (batch.facLoc).
   batch_fac_loc : Double
   /// Scale of log-normal batch factor (batch.facScale).
@@ -49,7 +49,7 @@ pub struct SplatParams {
   /// Simulate the first group as a pseudotime path.
   enable_path : Bool
   /// Path length (number of cells along the path when enable_path).
-  n_path_steps : Int
+  n_path_steps : Int32
   /// Scale of log-normal end-state shift for path genes (path.skew style).
   path_shift_scale : Double
   /// Fraction of genes that change along the path.
@@ -88,28 +88,28 @@ pub fn SplatParams::default() -> SplatParams {
 /// Build parameters with an explicit gene/cell count; optional arguments
 /// override the splatter defaults.
 pub fn SplatParams::create(
-  n_genes : Int,
-  n_cells : Int,
-  mean_shape? : Double = 0.6,
-  mean_rate? : Double = 0.3,
-  lib_loc? : Double = 11.0,
-  lib_scale? : Double = 0.2,
-  bcv_common? : Double = 0.1,
-  group_cells? : Array[Int] = [],
-  de_prob? : Double = 0.1,
-  de_down_prob? : Double = 0.5,
-  de_fac_loc? : Double = 0.1,
-  de_fac_scale? : Double = 0.4,
-  batch_cells? : Array[Int] = [],
-  batch_fac_loc? : Double = 0.1,
-  batch_fac_scale? : Double = 0.5,
-  dropout_mid? : Double = 2.0,
-  dropout_shape? : Double = -1.0,
-  enable_dropout? : Bool = false,
-  enable_path? : Bool = false,
-  n_path_steps? : Int = 10,
-  path_shift_scale? : Double = 0.1,
-  path_probability? : Double = 0.5,
+  n_genes : Int32,
+  n_cells : Int32,
+  mean_shape~ : Double = 0.6,
+  mean_rate~ : Double = 0.3,
+  lib_loc~ : Double = 11.0,
+  lib_scale~ : Double = 0.2,
+  bcv_common~ : Double = 0.1,
+  group_cells~ : Array[Int32] = [],
+  de_prob~ : Double = 0.1,
+  de_down_prob~ : Double = 0.5,
+  de_fac_loc~ : Double = 0.1,
+  de_fac_scale~ : Double = 0.4,
+  batch_cells~ : Array[Int32] = [],
+  batch_fac_loc~ : Double = 0.1,
+  batch_fac_scale~ : Double = 0.5,
+  dropout_mid~ : Double = 2.0,
+  dropout_shape~ : Double = -1.0,
+  enable_dropout~ : Bool = false,
+  enable_path~ : Bool = false,
+  n_path_steps~ : Int32 = 10,
+  path_shift_scale~ : Double = 0.1,
+  path_probability~ : Double = 0.5,
 ) -> SplatParams {
   let effective_groups = if group_cells.length() > 0 {
     group_cells
@@ -145,19 +145,19 @@ pub fn SplatParams::create(
 /// Simulated dataset.
 pub struct SplatResult {
   /// Counts matrix, rows = genes, columns = cells.
-  counts : Array[Array[Int]]
+  counts : Array[Array[Int32]]
   /// Base gene means (gamma draws, before DE/batch effects).
   gene_base_means : Array[Double]
   /// Library size factor per cell (multiplicative).
   cell_lib_factors : Array[Double]
   /// Group index of each cell.
-  cell_group : Array[Int]
+  cell_group : Array[Int32]
   /// Batch index of each cell.
-  cell_batch : Array[Int]
+  cell_batch : Array[Int32]
   /// Pseudotime progress of each cell in [0, 1] (0 for non-path cells).
   cell_pseudotime : Array[Double]
   /// Number of (gene, cell) dropout zero events.
-  n_dropout_events : Int
+  n_dropout_events : Int32
   /// Final per-group gene log-means: log_means[group][gene].
   group_log_means : Array[Array[Double]]
 }
@@ -165,7 +165,7 @@ pub struct SplatResult {
 ///|
 /// Deterministic LCG (Park-Miller style, as used elsewhere in the
 /// codebase). Returns (next_state, uniform in (0, 1)).
-pub fn splat_lcg(state : Int) -> (Int, Double) {
+pub fn splat_lcg(state : Int32) -> (Int32, Double) {
   let normalized = (state - 1) % 2147483646 + 1
   let quotient = normalized / 44488
   let remainder = normalized % 44488
@@ -176,7 +176,7 @@ pub fn splat_lcg(state : Int) -> (Int, Double) {
 
 ///|
 /// Standard normal via Box-Muller.
-pub fn splat_normal(state : Int) -> (Int, Double) {
+pub fn splat_normal(state : Int32) -> (Int32, Double) {
   let (state1, raw1) = splat_lcg(state)
   let (state2, raw2) = splat_lcg(state1)
   let first = raw1.max(1.0e-15)
@@ -187,7 +187,7 @@ pub fn splat_normal(state : Int) -> (Int, Double) {
 
 ///|
 /// Gamma sample (Marsaglia-Tsang), shape > 0.
-pub fn splat_gamma(shape : Double, state : Int) -> (Int, Double) {
+pub fn splat_gamma(shape : Double, state : Int32) -> (Int32, Double) {
   if shape < 1.0 {
     let (state1, uniform) = splat_lcg(state)
     let (state2, sampled) = splat_gamma(shape + 1.0, state1)
@@ -219,7 +219,7 @@ pub fn splat_gamma(shape : Double, state : Int) -> (Int, Double) {
 ///|
 /// Poisson sample. Knuth's method for small lambda, transformed-rejection
 /// style normal approximation for large lambda.
-pub fn splat_poisson(lambda : Double, state : Int) -> (Int, Int) {
+pub fn splat_poisson(lambda : Double, state : Int32) -> (Int32, Int32) {
   if lambda <= 0.0 {
     return (state, 0)
   }
@@ -246,7 +246,11 @@ pub fn splat_poisson(lambda : Double, state : Int) -> (Int, Int) {
 
 ///|
 /// Log-normal sample: exp(normal(loc, scale)).
-fn splat_lognormal(loc : Double, scale : Double, state : Int) -> (Int, Double) {
+fn splat_lognormal(
+  loc : Double,
+  scale : Double,
+  state : Int32,
+) -> (Int32, Double) {
   let (state1, normal) = splat_normal(state)
   (state1, @math.exp(loc + scale * normal))
 }
@@ -265,12 +269,12 @@ fn splat_dropout_probability(
 /// Draw DE / batch multiplicative factors: `n` selections, each factor is
 /// a log-normal(loc, scale) applied as an up or down shift.
 fn splat_draw_factors(
-  n : Int,
+  n : Int32,
   down_probability : Double,
   loc : Double,
   scale : Double,
-  state : Int,
-) -> (Int, Array[Double]) {
+  state : Int32,
+) -> (Int32, Array[Double]) {
   let mut current = state
   let factors : Array[Double] = Array(capacity=n)
   for _i in 0..<n {
@@ -292,12 +296,12 @@ fn splat_draw_factors(
 ///|
 /// Select gene indices below a uniform probability threshold.
 fn splat_select_genes(
-  n_genes : Int,
+  n_genes : Int32,
   probability : Double,
-  state : Int,
-) -> (Int, Array[Int]) {
+  state : Int32,
+) -> (Int32, Array[Int32]) {
   let mut current = state
-  let selected : Array[Int] = []
+  let selected : Array[Int32] = []
   for g in 0..<n_genes {
     let (s1, uniform) = splat_lcg(current)
     current = s1
@@ -310,8 +314,8 @@ fn splat_select_genes(
 
 ///|
 /// Expand per-group / per-batch cell-count arrays into per-cell indices.
-fn splat_expand_cells(counts_per_unit : Array[Int]) -> Array[Int] {
-  let out : Array[Int] = []
+fn splat_expand_cells(counts_per_unit : Array[Int32]) -> Array[Int32] {
+  let out : Array[Int32] = []
   for unit in 0..<counts_per_unit.length() {
     for _c in 0..<counts_per_unit[unit] {
       out.push(unit)
@@ -322,7 +326,7 @@ fn splat_expand_cells(counts_per_unit : Array[Int]) -> Array[Int] {
 
 ///|
 /// Run the splat simulation.
-pub fn splat_simulate(params : SplatParams, seed : Int) -> SplatResult {
+pub fn splat_simulate(params : SplatParams, seed : Int32) -> SplatResult {
   let mut state = if seed <= 0 { 1 } else { seed }
   let n_genes = params.n_genes
   // 1. base gene means
@@ -346,7 +350,7 @@ pub fn splat_simulate(params : SplatParams, seed : Int) -> SplatResult {
     [n_cells]
   }
   // align batches to the total number of cells by trimming/extending
-  let effective_batch_cells : Array[Int] = Array(capacity=0)
+  let effective_batch_cells : Array[Int32] = Array(capacity=0)
   let mut assigned = 0
   for c in batch_cells {
     if assigned >= n_cells {
@@ -460,9 +464,9 @@ pub fn splat_simulate(params : SplatParams, seed : Int) -> SplatResult {
   }
   // 6. counts: NB(mu = exp(log_mean) * batch_factor * lib_factor, dispersion)
   //    dispersion = bcv_common + 1/sqrt(mean)
-  let counts : Array[Array[Int]] = Array(capacity=n_genes)
+  let counts : Array[Array[Int32]] = Array(capacity=n_genes)
   for g in 0..<n_genes {
-    let row : Array[Int] = Array(capacity=n_cells)
+    let row : Array[Int32] = Array(capacity=n_cells)
     for c in 0..<n_cells {
       let group = cell_group[c]
       let batch = cell_batch[c]

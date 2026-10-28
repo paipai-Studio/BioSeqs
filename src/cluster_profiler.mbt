@@ -1,8 +1,8 @@
 ///|
 pub struct ClusterProfilerResult {
   terms : Array[ClusterProfilerTerm]
-  query_count : Int
-  background_count : Int
+  query_count : Int32
+  background_count : Int32
   organism : String
   keytype : String
 }
@@ -11,7 +11,7 @@ pub struct ClusterProfilerResult {
 pub struct ClusterProfilerTerm {
   term_id : String
   term_name : String
-  gene_count : Int
+  gene_count : Int32
   genes : Array[String]
   p_value : Double
   adjusted_p_value : Double
@@ -214,7 +214,7 @@ pub fn cp_filter_results(
 ///|
 pub fn cp_get_top_terms(
   result : ClusterProfilerResult,
-  n : Int,
+  n : Int32,
 ) -> Array[ClusterProfilerTerm] {
   let top : Array[ClusterProfilerTerm] = []
   let mut i = 0
@@ -226,7 +226,7 @@ pub fn cp_get_top_terms(
 }
 
 ///|
-pub fn cp_dotplot(result : ClusterProfilerResult, n : Int) -> String {
+pub fn cp_dotplot(result : ClusterProfilerResult, n : Int32) -> String {
   let mut plot = "Enrichment Dot Plot:\n"
   plot = plot + "Term\tGene Ratio\tP-value\tGene Count\n"
 
@@ -393,7 +393,7 @@ pub fn cp_simplify(
 }
 
 ///|
-pub fn cp_cnetplot(result : ClusterProfilerResult, n : Int) -> String {
+pub fn cp_cnetplot(result : ClusterProfilerResult, n : Int32) -> String {
   let mut plot = "Category-Network Plot:\n"
   plot = plot + "Nodes: Genes and Terms\n"
   plot = plot + "Edges: Gene-Term associations\n\n"

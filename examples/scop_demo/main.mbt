@@ -22,7 +22,13 @@ fn main {
   println("========================")
   let scop = @bio.Scop::new(cla_records, des_records, hie_records)
   println("Root sunid: " + scop.root().sunid().to_string())
-  println("Root type: " + scop.root().nodetype() + " (" + @bio.scop_node_type_name(scop.root().nodetype()) + ")")
+  println(
+    "Root type: " +
+    scop.root().nodetype() +
+    " (" +
+    @bio.scop_node_type_name(scop.root().nodetype()) +
+    ")",
+  )
   println("Total domains: " + scop.get_domains().length().to_string())
 
   // 3. Look up domain by sid
@@ -42,7 +48,9 @@ fn main {
       println("PDB ID (residues): " + r.pdbid())
       println("Fragments: " + r.fragments().length().to_string())
       for frag in r.fragments() {
-        println("  Chain " + frag.chain() + ": " + frag.start() + "-" + frag.end_())
+        println(
+          "  Chain " + frag.chain() + ": " + frag.start() + "-" + frag.end_(),
+        )
       }
     }
   }
@@ -57,7 +65,14 @@ fn main {
       let asc = scop.get_ascendent(domain, t)
       if asc is Some(_) {
         let n = asc.unwrap()
-        println(t + ": sunid=" + n.sunid().to_string() + " desc=\"" + n.description() + "\"")
+        println(
+          t +
+          ": sunid=" +
+          n.sunid().to_string() +
+          " desc=\"" +
+          n.description() +
+          "\"",
+        )
       }
     }
   }
@@ -94,7 +109,8 @@ fn main {
   println("\n=== Demo Complete ===")
 }
 
-fn count_lines(s : String) -> Int {
+///|
+fn count_lines(s : String) -> Int32 {
   let mut count = 1
   for i = 0; i < s.length(); i = i + 1 {
     if s.unsafe_get(i).to_int() == '\n'.to_int() {

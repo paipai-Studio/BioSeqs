@@ -236,7 +236,7 @@ pub fn write_fasta_alignment(align : Alignment) -> String {
 }
 
 ///|
-pub fn alignment_length(align : Alignment) -> Int {
+pub fn alignment_length(align : Alignment) -> Int32 {
   if align.sequences.length() > 0 {
     align.sequences[0].1.length()
   } else {
@@ -245,7 +245,7 @@ pub fn alignment_length(align : Alignment) -> Int {
 }
 
 ///|
-pub fn num_sequences(align : Alignment) -> Int {
+pub fn num_sequences(align : Alignment) -> Int32 {
   align.sequences.length()
 }
 
@@ -260,12 +260,12 @@ pub fn get_sequence(align : Alignment, name : String) -> String? {
 }
 
 ///|
-pub fn column_consensus(align : Alignment, column : Int) -> String {
+pub fn column_consensus(align : Alignment, column : Int32) -> String {
   if align.sequences.length() == 0 || column >= align.sequences[0].1.length() {
     return "N"
   }
 
-  let counts : Map[String, Int] = Map([], capacity=4)
+  let counts : Map[String, Int32] = Map([], capacity=4)
 
   for i = 0; i < align.sequences.length(); i = i + 1 {
     let c = substring(align.sequences[i].1, column, 1)

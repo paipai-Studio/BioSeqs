@@ -26,7 +26,11 @@ pub struct AlignmentGapScores {
   open_right_deletion_score : Double
   extend_right_deletion_score : Double
 } derive(Eq, Debug)
+
+///|
 pub extend AlignmentGapScores with Eq::{equal, not_equal}
+
+///|
 pub extend AlignmentGapScores with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -160,11 +164,11 @@ pub struct AlignmentCountsConfig {
 
 ///|
 pub fn AlignmentCountsConfig::create(
-  wildcard? : Char? = None,
-  substitution_matrix? : @data.SubstitutionMatrix? = None,
-  match_score? : Double? = None,
-  mismatch_score? : Double? = None,
-  gap_scores? : AlignmentGapScores? = None,
+  wildcard~ : Char? = None,
+  substitution_matrix~ : @data.SubstitutionMatrix? = None,
+  match_score~ : Double? = None,
+  mismatch_score~ : Double? = None,
+  gap_scores~ : AlignmentGapScores? = None,
 ) -> AlignmentCountsConfig raise AlignmentCountsError {
   match (match_score, mismatch_score) {
     (Some(match_value), Some(mismatch_value)) => {
@@ -215,7 +219,7 @@ pub fn AlignmentCountsConfig::with_wildcard(
 /// Configure substitution scoring and positive-match counting.
 pub fn AlignmentCountsConfig::with_matrix(
   matrix : @data.SubstitutionMatrix,
-  wildcard? : Char? = None,
+  wildcard~ : Char? = None,
 ) -> AlignmentCountsConfig {
   AlignmentCountsConfig::{
     wildcard,
@@ -232,7 +236,7 @@ pub fn AlignmentCountsConfig::scored(
   match_score~ : Double,
   mismatch_score~ : Double,
   gap_scores~ : AlignmentGapScores,
-  wildcard? : Char? = None,
+  wildcard~ : Char? = None,
 ) -> AlignmentCountsConfig raise AlignmentCountsError {
   alignment_counts_validate_score(match_score, "match score")
   alignment_counts_validate_score(mismatch_score, "mismatch score")
@@ -250,7 +254,7 @@ pub fn AlignmentCountsConfig::scored(
 pub fn AlignmentCountsConfig::scored_matrix(
   matrix~ : @data.SubstitutionMatrix,
   gap_scores~ : AlignmentGapScores,
-  wildcard? : Char? = None,
+  wildcard~ : Char? = None,
 ) -> AlignmentCountsConfig {
   AlignmentCountsConfig::{
     wildcard,
@@ -264,153 +268,155 @@ pub fn AlignmentCountsConfig::scored_matrix(
 ///|
 /// Detailed counts and optional scores for a coordinate alignment.
 pub struct AlignmentCounts {
-  open_left_insertions : Int
-  extend_left_insertions : Int
-  open_left_deletions : Int
-  extend_left_deletions : Int
-  open_internal_insertions : Int
-  extend_internal_insertions : Int
-  open_internal_deletions : Int
-  extend_internal_deletions : Int
-  open_right_insertions : Int
-  extend_right_insertions : Int
-  open_right_deletions : Int
-  extend_right_deletions : Int
-  aligned : Int
-  identities : Int
-  mismatches : Int
-  positives : Int?
+  open_left_insertions : Int32
+  extend_left_insertions : Int32
+  open_left_deletions : Int32
+  extend_left_deletions : Int32
+  open_internal_insertions : Int32
+  extend_internal_insertions : Int32
+  open_internal_deletions : Int32
+  extend_internal_deletions : Int32
+  open_right_insertions : Int32
+  extend_right_insertions : Int32
+  open_right_deletions : Int32
+  extend_right_deletions : Int32
+  aligned : Int32
+  identities : Int32
+  mismatches : Int32
+  positives : Int32?
   gap_score : Double?
   substitution_score : Double?
   score : Double?
 } derive(Debug)
+
+///|
 pub extend AlignmentCounts with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
-pub fn AlignmentCounts::left_insertions(self : AlignmentCounts) -> Int {
+pub fn AlignmentCounts::left_insertions(self : AlignmentCounts) -> Int32 {
   self.open_left_insertions + self.extend_left_insertions
 }
 
 ///|
-pub fn AlignmentCounts::internal_insertions(self : AlignmentCounts) -> Int {
+pub fn AlignmentCounts::internal_insertions(self : AlignmentCounts) -> Int32 {
   self.open_internal_insertions + self.extend_internal_insertions
 }
 
 ///|
-pub fn AlignmentCounts::right_insertions(self : AlignmentCounts) -> Int {
+pub fn AlignmentCounts::right_insertions(self : AlignmentCounts) -> Int32 {
   self.open_right_insertions + self.extend_right_insertions
 }
 
 ///|
-pub fn AlignmentCounts::left_deletions(self : AlignmentCounts) -> Int {
+pub fn AlignmentCounts::left_deletions(self : AlignmentCounts) -> Int32 {
   self.open_left_deletions + self.extend_left_deletions
 }
 
 ///|
-pub fn AlignmentCounts::internal_deletions(self : AlignmentCounts) -> Int {
+pub fn AlignmentCounts::internal_deletions(self : AlignmentCounts) -> Int32 {
   self.open_internal_deletions + self.extend_internal_deletions
 }
 
 ///|
-pub fn AlignmentCounts::right_deletions(self : AlignmentCounts) -> Int {
+pub fn AlignmentCounts::right_deletions(self : AlignmentCounts) -> Int32 {
   self.open_right_deletions + self.extend_right_deletions
 }
 
 ///|
-pub fn AlignmentCounts::open_insertions(self : AlignmentCounts) -> Int {
+pub fn AlignmentCounts::open_insertions(self : AlignmentCounts) -> Int32 {
   self.open_left_insertions +
   self.open_internal_insertions +
   self.open_right_insertions
 }
 
 ///|
-pub fn AlignmentCounts::extend_insertions(self : AlignmentCounts) -> Int {
+pub fn AlignmentCounts::extend_insertions(self : AlignmentCounts) -> Int32 {
   self.extend_left_insertions +
   self.extend_internal_insertions +
   self.extend_right_insertions
 }
 
 ///|
-pub fn AlignmentCounts::insertions(self : AlignmentCounts) -> Int {
+pub fn AlignmentCounts::insertions(self : AlignmentCounts) -> Int32 {
   self.open_insertions() + self.extend_insertions()
 }
 
 ///|
-pub fn AlignmentCounts::open_deletions(self : AlignmentCounts) -> Int {
+pub fn AlignmentCounts::open_deletions(self : AlignmentCounts) -> Int32 {
   self.open_left_deletions +
   self.open_internal_deletions +
   self.open_right_deletions
 }
 
 ///|
-pub fn AlignmentCounts::extend_deletions(self : AlignmentCounts) -> Int {
+pub fn AlignmentCounts::extend_deletions(self : AlignmentCounts) -> Int32 {
   self.extend_left_deletions +
   self.extend_internal_deletions +
   self.extend_right_deletions
 }
 
 ///|
-pub fn AlignmentCounts::deletions(self : AlignmentCounts) -> Int {
+pub fn AlignmentCounts::deletions(self : AlignmentCounts) -> Int32 {
   self.open_deletions() + self.extend_deletions()
 }
 
 ///|
-pub fn AlignmentCounts::open_left_gaps(self : AlignmentCounts) -> Int {
+pub fn AlignmentCounts::open_left_gaps(self : AlignmentCounts) -> Int32 {
   self.open_left_insertions + self.open_left_deletions
 }
 
 ///|
-pub fn AlignmentCounts::extend_left_gaps(self : AlignmentCounts) -> Int {
+pub fn AlignmentCounts::extend_left_gaps(self : AlignmentCounts) -> Int32 {
   self.extend_left_insertions + self.extend_left_deletions
 }
 
 ///|
-pub fn AlignmentCounts::left_gaps(self : AlignmentCounts) -> Int {
+pub fn AlignmentCounts::left_gaps(self : AlignmentCounts) -> Int32 {
   self.open_left_gaps() + self.extend_left_gaps()
 }
 
 ///|
-pub fn AlignmentCounts::open_internal_gaps(self : AlignmentCounts) -> Int {
+pub fn AlignmentCounts::open_internal_gaps(self : AlignmentCounts) -> Int32 {
   self.open_internal_insertions + self.open_internal_deletions
 }
 
 ///|
-pub fn AlignmentCounts::extend_internal_gaps(self : AlignmentCounts) -> Int {
+pub fn AlignmentCounts::extend_internal_gaps(self : AlignmentCounts) -> Int32 {
   self.extend_internal_insertions + self.extend_internal_deletions
 }
 
 ///|
-pub fn AlignmentCounts::internal_gaps(self : AlignmentCounts) -> Int {
+pub fn AlignmentCounts::internal_gaps(self : AlignmentCounts) -> Int32 {
   self.open_internal_gaps() + self.extend_internal_gaps()
 }
 
 ///|
-pub fn AlignmentCounts::open_right_gaps(self : AlignmentCounts) -> Int {
+pub fn AlignmentCounts::open_right_gaps(self : AlignmentCounts) -> Int32 {
   self.open_right_insertions + self.open_right_deletions
 }
 
 ///|
-pub fn AlignmentCounts::extend_right_gaps(self : AlignmentCounts) -> Int {
+pub fn AlignmentCounts::extend_right_gaps(self : AlignmentCounts) -> Int32 {
   self.extend_right_insertions + self.extend_right_deletions
 }
 
 ///|
-pub fn AlignmentCounts::right_gaps(self : AlignmentCounts) -> Int {
+pub fn AlignmentCounts::right_gaps(self : AlignmentCounts) -> Int32 {
   self.open_right_gaps() + self.extend_right_gaps()
 }
 
 ///|
-pub fn AlignmentCounts::open_gaps(self : AlignmentCounts) -> Int {
+pub fn AlignmentCounts::open_gaps(self : AlignmentCounts) -> Int32 {
   self.open_insertions() + self.open_deletions()
 }
 
 ///|
-pub fn AlignmentCounts::extend_gaps(self : AlignmentCounts) -> Int {
+pub fn AlignmentCounts::extend_gaps(self : AlignmentCounts) -> Int32 {
   self.extend_insertions() + self.extend_deletions()
 }
 
 ///|
-pub fn AlignmentCounts::gaps(self : AlignmentCounts) -> Int {
+pub fn AlignmentCounts::gaps(self : AlignmentCounts) -> Int32 {
   self.open_gaps() + self.extend_gaps()
 }
 
@@ -429,22 +435,22 @@ pub fn AlignmentCounts::summary(self : AlignmentCounts) -> String {
 
 ///|
 priv struct AlignmentCountsAccumulator {
-  mut open_left_insertions : Int
-  mut extend_left_insertions : Int
-  mut open_left_deletions : Int
-  mut extend_left_deletions : Int
-  mut open_internal_insertions : Int
-  mut extend_internal_insertions : Int
-  mut open_internal_deletions : Int
-  mut extend_internal_deletions : Int
-  mut open_right_insertions : Int
-  mut extend_right_insertions : Int
-  mut open_right_deletions : Int
-  mut extend_right_deletions : Int
-  mut aligned : Int
-  mut identities : Int
-  mut mismatches : Int
-  mut positives : Int
+  mut open_left_insertions : Int32
+  mut extend_left_insertions : Int32
+  mut open_left_deletions : Int32
+  mut extend_left_deletions : Int32
+  mut open_internal_insertions : Int32
+  mut extend_internal_insertions : Int32
+  mut open_internal_deletions : Int32
+  mut extend_internal_deletions : Int32
+  mut open_right_insertions : Int32
+  mut extend_right_insertions : Int32
+  mut open_right_deletions : Int32
+  mut extend_right_deletions : Int32
+  mut aligned : Int32
+  mut identities : Int32
+  mut mismatches : Int32
+  mut positives : Int32
   mut matrix_score : Double
 }
 
@@ -473,11 +479,11 @@ fn alignment_counts_accumulator() -> AlignmentCountsAccumulator {
 
 ///|
 fn alignment_counts_normalize_coordinates(
-  coordinates : Array[Int],
-  sequence_length : Int,
+  coordinates : Array[Int32],
+  sequence_length : Int32,
   reverse : Bool,
-) -> Array[Int] {
-  let normalized : Array[Int] = []
+) -> Array[Int32] {
+  let normalized : Array[Int32] = []
   for coordinate in coordinates {
     normalized.push(
       if reverse {
@@ -510,8 +516,8 @@ fn alignment_counts_complement(value : Char) -> Char {
 ///|
 fn alignment_counts_residue(
   sequence : String,
-  sequence_length : Int,
-  position : Int,
+  sequence_length : Int32,
+  position : Int32,
   reverse : Bool,
 ) -> Char {
   if reverse {
@@ -528,11 +534,11 @@ fn alignment_counts_add_gap(
   counts : AlignmentCountsAccumulator,
   insertion : Bool,
   continuation : Bool,
-  start : Int,
-  end : Int,
-  left : Int,
-  right : Int,
-  size : Int,
+  start : Int32,
+  end : Int32,
+  left : Int32,
+  right : Int32,
+  size : Int32,
 ) -> Unit {
   let side = if start == left { 0 } else if end == right { 2 } else { 1 }
   let open = if continuation { 0 } else { 1 }
@@ -605,12 +611,12 @@ fn alignment_counts_add_residues(
 fn alignment_counts_add_pair(
   counts : AlignmentCountsAccumulator,
   first_sequence : String,
-  first_length : Int,
-  first_coordinates : Array[Int],
+  first_length : Int32,
+  first_coordinates : Array[Int32],
   first_reverse : Bool,
   second_sequence : String,
-  second_length : Int,
-  second_coordinates : Array[Int],
+  second_length : Int32,
+  second_coordinates : Array[Int32],
   second_reverse : Bool,
   config : AlignmentCountsConfig,
 ) -> Unit raise AlignmentCountsError {
@@ -792,7 +798,7 @@ fn alignment_counts_finish(
 /// Calculate Biopython-style detailed statistics for a pairwise alignment.
 pub fn CoordinatePairwiseAlignment::alignment_counts(
   self : CoordinatePairwiseAlignment,
-  config? : AlignmentCountsConfig = AlignmentCountsConfig::default(),
+  config~ : AlignmentCountsConfig = AlignmentCountsConfig::default(),
 ) -> AlignmentCounts raise AlignmentCountsError {
   let counts = alignment_counts_accumulator()
   alignment_counts_add_pair(
@@ -814,7 +820,7 @@ pub fn CoordinatePairwiseAlignment::alignment_counts(
 /// Sum detailed statistics over every unordered pair of MSA rows.
 pub fn CoordinateMultipleAlignment::alignment_counts(
   self : CoordinateMultipleAlignment,
-  config? : AlignmentCountsConfig = AlignmentCountsConfig::default(),
+  config~ : AlignmentCountsConfig = AlignmentCountsConfig::default(),
 ) -> AlignmentCounts raise AlignmentCountsError {
   if self.names.length() != self.sequences.length() ||
     self.names.length() != self.coordinates.length() {

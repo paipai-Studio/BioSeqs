@@ -42,7 +42,7 @@ fn main {
   let clusters = @src.leiden_clustering(adjacency, weights, 1.0)
   println("  Number of clusters: " + clusters.n_clusters.to_string())
 
-  let cluster_counts : Map[Int, Int] = Map([], capacity=clusters.n_clusters)
+  let cluster_counts : Map[Int32, Int32] = Map([], capacity=clusters.n_clusters)
   i = 0
   while i < clusters.clusters.length() {
     let c = clusters.clusters[i]

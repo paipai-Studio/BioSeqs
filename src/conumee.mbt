@@ -4,24 +4,27 @@
 /// 对应 Bioconductor conumee：包装 DNAcopy 的 CBS 分段、提供基因注释、
 /// 样本间比较、质量控制（MAD/noise）、ASCII/SVG 可视化与 TSV 导出。
 
+///|
 /// 拷贝数探针数据。
 pub(all) struct CnmProbe {
   chr : String
-  pos : Int
+  pos : Int32
   logratio : Double
 }
 
+///|
 /// 分段结果。
 pub(all) struct CnmSegment {
   chr : String
-  start : Int
-  end : Int
-  n_probes : Int
+  start : Int32
+  end : Int32
+  n_probes : Int32
   mean_logratio : Double
   copy_number : Double
   genes : Array[String]
 }
 
+///|
 /// 样本拷贝数结果。
 pub(all) struct CnmSample {
   sample_id : String
@@ -30,15 +33,17 @@ pub(all) struct CnmSample {
   qc : CnmQC
 }
 
+///|
 /// 质量控制指标。
 pub(all) struct CnmQC {
-  n_probes : Int
-  n_segments : Int
+  n_probes : Int32
+  n_segments : Int32
   median_logratio : Double
   mad_logratio : Double
   noise_score : Double
 }
 
+///|
 /// 样本间比较结果。
 pub(all) struct CnmComparison {
   sample_a : String
@@ -49,24 +54,38 @@ pub(all) struct CnmComparison {
   correlation : Double
 }
 
+///|
 /// 构造探针。
-pub fn CnmProbe::new(chr : String, pos : Int, logratio : Double) -> CnmProbe {
-  CnmProbe::{ chr: chr, pos: pos, logratio: logratio }
+pub fn CnmProbe::new(chr : String, pos : Int32, logratio : Double) -> CnmProbe {
+  CnmProbe::{ chr, pos, logratio, }
 }
 
+///|
 /// 构造样本。
-pub fn CnmSample::new(sample_id : String, probes : Array[CnmProbe]) -> CnmSample {
+pub fn CnmSample::new(
+  sample_id : String,
+  probes : Array[CnmProbe],
+) -> CnmSample {
   CnmSample::{
-    sample_id: sample_id, probes: probes, segments: [],
-    qc: CnmQC::{ n_probes: 0, n_segments: 0, median_logratio: 0.0, mad_logratio: 0.0, noise_score: 0.0 },
+    sample_id,
+    probes,
+    segments: [],
+    qc: CnmQC::{
+      n_probes: 0,
+      n_segments: 0,
+      median_logratio: 0.0,
+      mad_logratio: 0.0,
+      noise_score: 0.0,
+    },
   }
 }
 
+///|
 /// 从三个平行数组构造样本（长度不一致返回 None）。
 pub fn cnm_from_arrays(
   sample_id : String,
   chr : Array[String],
-  pos : Array[Int],
+  pos : Array[Int32],
   logratio : Array[Double],
 ) -> CnmSample? {
   let n = chr.length()
@@ -80,6 +99,7 @@ pub fn cnm_from_arrays(
   Some(CnmSample::new(sample_id, probes))
 }
 
+///|
 /// 中位数。
 pub fn cnm_median(vals : Array[Double]) -> Double {
   let n = vals.length()
@@ -101,13 +121,14 @@ pub fn cnm_median(vals : Array[Double]) -> Double {
       sorted[min_idx] = tmp
     }
   }
-  if (n % 2) == 1 {
+  if n % 2 == 1 {
     sorted[(n - 1) / 2]
   } else {
     (sorted[n / 2 - 1] + sorted[n / 2]) / 2.0
   }
 }
 
+///|
 /// MAD（中位数绝对偏差 × 1.4826）。
 pub fn cnm_mad(vals : Array[Double]) -> Double {
   let n = vals.length()
@@ -123,13 +144,14 @@ pub fn cnm_mad(vals : Array[Double]) -> Double {
   cnm_median(devs) * 1.4826
 }
 
+///|
 /// CBS 分段（复用 DNAcopy）。
 pub fn cnm_segment(
   sample : CnmSample,
-  alpha? : Double = 0.01,
-  nperm? : Int = 10000,
-  min_width? : Int = 2,
-  undo_sd? : Double = 3.0,
+  alpha~ : Double = 0.01,
+  nperm~ : Int32 = 10000,
+  min_width~ : Int32 = 2,
+  undo_sd~ : Double = 3.0,
 ) -> CnmSample {
   if sample.probes.length() == 0 {
     return sample
@@ -137,7 +159,7 @@ pub fn cnm_segment(
   // 构建 Cna
   let n = sample.probes.length()
   let chrom_arr : Array[String] = Array(capacity=0)
-  let pos_arr : Array[Int] = Array(capacity=0)
+  let pos_arr : Array[Int32] = Array(capacity=0)
   let lr_arr : Array[Double] = Array(capacity=0)
   for p in sample.probes {
     chrom_arr.push(p.chr)
@@ -148,24 +170,26 @@ pub fn cnm_segment(
     SeqError(_) => return sample
   }
   let opts = DnaCopyOptions::of(
-    alpha=alpha,
-    nperm=nperm,
-    min_width=min_width,
+    alpha~,
+    nperm~,
+    min_width~,
     undo_splits="sdundo",
-    undo_sd=undo_sd,
+    undo_sd~,
     seed=42,
   )
-  let result = segment(cna, options=opts) catch {
-    SeqError(_) => return sample
-  }
+  let result = segment(cna, options=opts) catch { SeqError(_) => return sample }
   // 转换分段
   let segments : Array[CnmSegment] = Array(capacity=0)
   for seg in result.segments {
     let cn = 2.0 * @math.pow(2.0, seg.seg_mean)
     segments.push(CnmSegment::{
-      chr: seg.chrom, start: seg.start, end: seg.end,
-      n_probes: seg.num_mark, mean_logratio: seg.seg_mean,
-      copy_number: cn, genes: [],
+      chr: seg.chrom,
+      start: seg.start,
+      end: seg.end,
+      n_probes: seg.num_mark,
+      mean_logratio: seg.seg_mean,
+      copy_number: cn,
+      genes: [],
     })
   }
   // QC
@@ -181,13 +205,19 @@ pub fn cnm_segment(
     mad_logratio: mad,
     noise_score: mad,
   }
-  CnmSample::{ sample_id: sample.sample_id, probes: sample.probes, segments: segments, qc: qc }
+  CnmSample::{
+    sample_id: sample.sample_id,
+    probes: sample.probes,
+    segments,
+    qc,
+  }
 }
 
+///|
 /// 为分段添加基因注释（基于重叠）。
 pub fn cnm_annotate_genes(
   sample : CnmSample,
-  gene_positions : Array[(String, Int, Int, String)],  // (chr, start, end, gene)
+  gene_positions : Array[(String, Int32, Int32, String)], // (chr, start, end, gene)
 ) -> CnmSample {
   let annotated : Array[CnmSegment] = Array(capacity=0)
   for seg in sample.segments {
@@ -202,19 +232,29 @@ pub fn cnm_annotate_genes(
       }
     }
     annotated.push(CnmSegment::{
-      chr: seg.chr, start: seg.start, end: seg.end,
-      n_probes: seg.n_probes, mean_logratio: seg.mean_logratio,
-      copy_number: seg.copy_number, genes: genes,
+      chr: seg.chr,
+      start: seg.start,
+      end: seg.end,
+      n_probes: seg.n_probes,
+      mean_logratio: seg.mean_logratio,
+      copy_number: seg.copy_number,
+      genes,
     })
   }
-  CnmSample::{ sample_id: sample.sample_id, probes: sample.probes, segments: annotated, qc: sample.qc }
+  CnmSample::{
+    sample_id: sample.sample_id,
+    probes: sample.probes,
+    segments: annotated,
+    qc: sample.qc,
+  }
 }
 
+///|
 /// 筛出拷贝数异常的分段（gain / loss）。
 pub fn cnm_filter_segments(
   sample : CnmSample,
-  gain_threshold? : Double = 2.5,
-  loss_threshold? : Double = 1.5,
+  gain_threshold~ : Double = 2.5,
+  loss_threshold~ : Double = 1.5,
 ) -> Array[CnmSegment] {
   let gain = gain_threshold
   let loss = loss_threshold
@@ -227,11 +267,13 @@ pub fn cnm_filter_segments(
   filtered
 }
 
+///|
 /// 分段键（chr:start:end）。
 fn cnm_seg_key(seg : CnmSegment) -> String {
   seg.chr + ":" + seg.start.to_string() + ":" + seg.end.to_string()
 }
 
+///|
 /// 两样本比较。
 pub fn cnm_compare_samples(a : CnmSample, b : CnmSample) -> CnmComparison {
   // 探针水平相关性
@@ -264,7 +306,7 @@ pub fn cnm_compare_samples(a : CnmSample, b : CnmSample) -> CnmComparison {
     correlation = if denom > 0.0 { numer / denom } else { 0.0 }
   }
   // 分段比较
-  let b_keys : Map[String, Int] = Map([], capacity=b.segments.length())
+  let b_keys : Map[String, Int32] = Map([], capacity=b.segments.length())
   for sb in b.segments {
     b_keys.set(cnm_seg_key(sb), 1)
   }
@@ -277,51 +319,67 @@ pub fn cnm_compare_samples(a : CnmSample, b : CnmSample) -> CnmComparison {
       unique_a.push(sa)
     }
   }
-  let a_keys : Map[String, Int] = Map([], capacity=a.segments.length())
+  let a_keys : Map[String, Int32] = Map([], capacity=a.segments.length())
   for sa in a.segments {
     a_keys.set(cnm_seg_key(sa), 1)
   }
   let unique_b : Array[CnmSegment] = Array(capacity=0)
   for sb in b.segments {
-    if !(a_keys.contains(cnm_seg_key(sb))) {
+    if !a_keys.contains(cnm_seg_key(sb)) {
       unique_b.push(sb)
     }
   }
   CnmComparison::{
-    sample_a: a.sample_id, sample_b: b.sample_id,
-    shared_segments: shared, unique_a: unique_a, unique_b: unique_b,
-    correlation: correlation,
+    sample_a: a.sample_id,
+    sample_b: b.sample_id,
+    shared_segments: shared,
+    unique_a,
+    unique_b,
+    correlation,
   }
 }
 
+///|
 /// 分段 TSV 导出。
 pub fn cnm_segments_tsv(segments : Array[CnmSegment]) -> String {
   let sb = StringBuilder()
-  sb.write_string("chr\tstart\tend\tn_probes\tmean_logratio\tcopy_number\tgenes\n")
+  sb.write_string(
+    "chr\tstart\tend\tn_probes\tmean_logratio\tcopy_number\tgenes\n",
+  )
   for seg in segments {
     let mut gene_list = ""
     for i in 0..<seg.genes.length() {
-      if i > 0 { gene_list = gene_list + "," }
+      if i > 0 {
+        gene_list = gene_list + ","
+      }
       gene_list = gene_list + seg.genes[i]
     }
     sb.write_string(
-      seg.chr + "\t" +
-      seg.start.to_string() + "\t" +
-      seg.end.to_string() + "\t" +
-      seg.n_probes.to_string() + "\t" +
-      seg.mean_logratio.to_string() + "\t" +
-      seg.copy_number.to_string() + "\t" +
-      gene_list + "\n",
+      seg.chr +
+      "\t" +
+      seg.start.to_string() +
+      "\t" +
+      seg.end.to_string() +
+      "\t" +
+      seg.n_probes.to_string() +
+      "\t" +
+      seg.mean_logratio.to_string() +
+      "\t" +
+      seg.copy_number.to_string() +
+      "\t" +
+      gene_list +
+      "\n",
     )
   }
   sb.to_string()
 }
 
+///|
 /// ASCII 拷贝数图（+ gain / . normal / - loss）。
 pub fn cnm_ascii_plot(
   segments : Array[CnmSegment],
   chr : String,
-  width? : Int = 60,
+  width~ : Int32 = 60,
 ) -> String {
   let width = width
   let chr_segs : Array[CnmSegment] = Array(capacity=0)
@@ -336,8 +394,12 @@ pub fn cnm_ascii_plot(
   let mut min_pos = chr_segs[0].start
   let mut max_pos = chr_segs[0].end
   for seg in chr_segs {
-    if seg.start < min_pos { min_pos = seg.start }
-    if seg.end > max_pos { max_pos = seg.end }
+    if seg.start < min_pos {
+      min_pos = seg.start
+    }
+    if seg.end > max_pos {
+      max_pos = seg.end
+    }
   }
   let range = max_pos - min_pos + 1
   let scale = width.to_double() / range.to_double()

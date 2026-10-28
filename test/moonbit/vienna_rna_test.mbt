@@ -46,7 +46,9 @@ test "vienna bp probability no pairs" {
 test "vienna mea basic" {
   // Create a simple bp probability matrix
   // 4 bases, strong P(0,3) and P(1,2)
-  let prob : Array[Array[Double]] = Array::makei(4, fn(_) { Array::make(4, 0.0) })
+  let prob : Array[Array[Double]] = Array::makei(4, fn(_) {
+    Array::make(4, 0.0)
+  })
   prob[0][3] = 0.9
   prob[3][0] = 0.9
   prob[1][2] = 0.8
@@ -58,8 +60,12 @@ test "vienna mea basic" {
   let mut n_open = 0
   let mut n_close = 0
   for c in arr {
-    if c == '(' { n_open = n_open + 1 }
-    if c == ')' { n_close = n_close + 1 }
+    if c == '(' {
+      n_open = n_open + 1
+    }
+    if c == ')' {
+      n_close = n_close + 1
+    }
   }
   assert_eq(n_open, 2)
   assert_eq(n_close, 2)
@@ -179,4 +185,3 @@ test "vienna tree representation mixed" {
   let t = @src.vienna_tree_representation("(..).")
   assert_eq(t, "(UU)U")
 }
-

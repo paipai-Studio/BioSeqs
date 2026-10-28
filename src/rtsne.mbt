@@ -8,15 +8,15 @@
 pub struct TsneConfig {
   perplexity : Double
   theta : Double
-  max_iter : Int
-  dims : Int
+  max_iter : Int32
+  dims : Int32
   eta : Double
   exaggeration_factor : Double
   momentum : Double
   final_momentum : Double
-  mom_switch_iter : Int
-  stop_lying_iter : Int
-  random_seed : Int
+  mom_switch_iter : Int32
+  stop_lying_iter : Int32
+  random_seed : Int32
 }
 
 ///|
@@ -39,9 +39,9 @@ pub fn TsneConfig::new() -> TsneConfig {
 ///|
 pub fn TsneConfig::new_custom(
   perplexity : Double,
-  max_iter : Int,
-  dims : Int,
-  random_seed : Int,
+  max_iter : Int32,
+  dims : Int32,
+  random_seed : Int32,
 ) -> TsneConfig {
   TsneConfig::{
     perplexity,
@@ -63,12 +63,16 @@ pub fn TsneConfig::new_custom(
 pub struct TsneResult {
   embedding : Array[Array[Double]]
   costs : Array[Double]
-  n_iter : Int
+  n_iter : Int32
 }
 
 ///|
 pub fn TsneResult::new() -> TsneResult {
-  TsneResult::{ embedding: Array(capacity=0), costs: Array(capacity=0), n_iter: 0, }
+  TsneResult::{
+    embedding: Array(capacity=0),
+    costs: Array(capacity=0),
+    n_iter: 0,
+  }
 }
 
 // ============================================================
@@ -138,7 +142,7 @@ fn rtsne_euclidean_distance(x : Array[Double], y : Array[Double]) -> Double {
 fn compute_p_ji(
   distances : Array[Double],
   perplexity : Double,
-  n : Int,
+  n : Int32,
 ) -> Array[Double] {
   let p : Array[Double] = Array(capacity=0)
   let mut i = 0
@@ -521,8 +525,8 @@ fn pseudo_random(seed : Double) -> Double {
 ///|
 /// Create sample data for testing/demo.
 pub fn create_tsne_test_data(
-  n_samples : Int,
-  n_features : Int,
+  n_samples : Int32,
+  n_features : Int32,
 ) -> Array[Array[Double]] {
   let data : Array[Array[Double]] = Array(capacity=0)
 

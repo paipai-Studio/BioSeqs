@@ -145,7 +145,7 @@ fn compute_covariance_matrix(x : Array[Array[Double]]) -> Array[Array[Double]] {
 ///|
 fn power_iteration_pca(
   cov : Array[Array[Double]],
-  n_components : Int,
+  n_components : Int32,
 ) -> (Array[Array[Double]], Array[Double]) {
   let p = cov.length()
   if p == 0 {
@@ -334,9 +334,9 @@ pub struct FullPCAResult {
   eigenvalues : Array[Double]
   variance_explained : Array[Double]
   cumulative_variance : Array[Double]
-  n_samples : Int
-  n_variables : Int
-  n_components : Int
+  n_samples : Int32
+  n_variables : Int32
+  n_components : Int32
   center : Array[Double]
   scale : Array[Double]
   used_scaling : Bool
@@ -345,7 +345,7 @@ pub struct FullPCAResult {
 ///|
 pub fn pcatools_run_pca(
   data : Array[Array[Double]],
-  n_components : Int,
+  n_components : Int32,
   scale : Bool,
 ) -> FullPCAResult {
   let (centered, means, sds) = center_and_scale_cols(data, scale)
@@ -425,8 +425,8 @@ pub fn pcatools_summary(res : FullPCAResult) -> String {
 ///|
 pub fn scree_plot_ascii(
   res : FullPCAResult,
-  height? : Int = 8,
-  width_per_pc? : Int = 3,
+  height~ : Int32 = 8,
+  width_per_pc~ : Int32 = 3,
 ) -> String {
   let k = res.variance_explained.length()
   if k == 0 {
@@ -486,11 +486,11 @@ pub fn scree_plot_ascii(
 
 ///|
 pub struct BiplotOptions {
-  pc_x : Int
-  pc_y : Int
-  width : Int
-  height : Int
-  max_loadings : Int
+  pc_x : Int32
+  pc_y : Int32
+  width : Int32
+  height : Int32
+  max_loadings : Int32
 }
 
 ///|
@@ -501,7 +501,7 @@ pub fn BiplotOptions::new() -> BiplotOptions {
 ///|
 pub fn pca_biplot_ascii(
   res : FullPCAResult,
-  opts? : BiplotOptions = BiplotOptions::new(),
+  opts~ : BiplotOptions = BiplotOptions::new(),
 ) -> String {
   let buf = StringBuilder()
   if res.scores.length() == 0 || res.n_components < 2 {
@@ -543,10 +543,10 @@ pub fn pca_biplot_ascii(
   let yr = if ymax - ymin == 0.0 { 1.0 } else { ymax - ymin }
   let w = if opts.width < 10 { 10 } else { opts.width }
   let h = if opts.height < 5 { 5 } else { opts.height }
-  let grid : Array[Array[Int]] = Array(capacity=0)
+  let grid : Array[Array[Int32]] = Array(capacity=0)
   let mut _r = 0
   while _r < h {
-    let row : Array[Int] = Array(capacity=0)
+    let row : Array[Int32] = Array(capacity=0)
     let mut _cc = 0
     while _cc < w {
       row.push(' '.to_int())
@@ -589,7 +589,7 @@ pub fn pca_biplot_ascii(
   // loadings
   let loadings_nrow = res.loadings.length()
   if loadings_nrow > 0 && iy < res.loadings[0].length() {
-    let ranked : Array[(Int, Double)] = Array(capacity=0)
+    let ranked : Array[(Int32, Double)] = Array(capacity=0)
     let mut idx = 0
     while idx < loadings_nrow {
       let lx = res.loadings[idx][ix]
@@ -597,7 +597,7 @@ pub fn pca_biplot_ascii(
       ranked.push((idx, lx * lx + ly * ly))
       idx = idx + 1
     }
-    ranked.sort_by(fn(p : (Int, Double), q : (Int, Double)) -> Int {
+    ranked.sort_by(fn(p : (Int32, Double), q : (Int32, Double)) -> Int32 {
       if p.1 > q.1 {
         -1
       } else if p.1 < q.1 {
@@ -672,9 +672,9 @@ pub fn pca_biplot_ascii(
 
 ///|
 pub struct PCAOutlierResult {
-  indices : Array[Int]
+  indices : Array[Int32]
   scores : Array[Double]
-  n_tested : Int
+  n_tested : Int32
   cutoff : Double
 }
 
@@ -687,7 +687,7 @@ fn quantile_simple(xs_in : Array[Double], q : Double) -> Double {
   for x in xs_in {
     xs.push(x)
   }
-  xs.sort_by(fn(a : Double, b : Double) -> Int {
+  xs.sort_by(fn(a : Double, b : Double) -> Int32 {
     if a < b {
       -1
     } else if a > b {
@@ -708,8 +708,8 @@ fn quantile_simple(xs_in : Array[Double], q : Double) -> Double {
 ///|
 pub fn find_pca_outliers(
   res : FullPCAResult,
-  n_pcs? : Int = 5,
-  quantile_cutoff? : Double = 0.975,
+  n_pcs~ : Int32 = 5,
+  quantile_cutoff~ : Double = 0.975,
 ) -> PCAOutlierResult {
   let n = res.scores.length()
   let k_total = res.n_components
@@ -740,7 +740,7 @@ pub fn find_pca_outliers(
     _tot = _tot + d2
   }
   let cutoff = quantile_simple(distances, quantile_cutoff)
-  let outliers : Array[Int] = Array(capacity=0)
+  let outliers : Array[Int32] = Array(capacity=0)
   let out_scores : Array[Double] = Array(capacity=0)
   let mut i = 0
   while i < distances.length() {
@@ -765,7 +765,7 @@ pub fn find_pca_outliers(
 pub fn variable_correlations(
   data : Array[Array[Double]],
   res : FullPCAResult,
-  which_pcs? : Int = 5,
+  which_pcs~ : Int32 = 5,
 ) -> Array[Array[Double]] {
   let n = data.length()
   if n == 0 {

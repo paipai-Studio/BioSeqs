@@ -27,19 +27,21 @@ pub struct SeqRecord {
   id : String
   name : String
   description : String
-  letter_annotations : Map[String, Array[Int]]
+  letter_annotations : Map[String, Array[Int32]]
   annotations : Map[String, String]
   features : Array[SeqFeature]
 } derive(Eq)
+
+///|
 pub extend SeqRecord with Eq::{equal, not_equal}
 
 ///|
 /// Construct a SeqRecord with the given sequence and metadata.
 pub fn SeqRecord::new(
   seq : Seq,
-  id? : String = "<unknown id>",
-  name? : String = "<unknown name>",
-  description? : String = "<unknown description>",
+  id~ : String = "<unknown id>",
+  name~ : String = "<unknown name>",
+  description~ : String = "<unknown description>",
 ) -> SeqRecord {
   SeqRecord::{
     seq,
@@ -71,9 +73,9 @@ pub fn SeqRecord::from_seq(seq : Seq) -> SeqRecord {
 /// Returns a new SeqRecord (does not mutate the original).
 pub fn SeqRecord::set_phred_quality(
   self : SeqRecord,
-  quals : Array[Int],
+  quals : Array[Int32],
 ) -> SeqRecord {
-  let new_annotations : Map[String, Array[Int]] = Map(
+  let new_annotations : Map[String, Array[Int32]] = Map(
     [],
     capacity=self.letter_annotations.length() + 1,
   )
@@ -86,13 +88,13 @@ pub fn SeqRecord::set_phred_quality(
 
 ///|
 /// Get the phred quality scores, if present.
-pub fn SeqRecord::phred_quality(self : SeqRecord) -> Array[Int]? {
+pub fn SeqRecord::phred_quality(self : SeqRecord) -> Array[Int32]? {
   self.letter_annotations.get("phred_quality")
 }
 
 ///|
 /// Return the sequence length.
-pub fn SeqRecord::length(self : SeqRecord) -> Int {
+pub fn SeqRecord::length(self : SeqRecord) -> Int32 {
   self.seq.length()
 }
 

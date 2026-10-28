@@ -18,17 +18,17 @@
 ///|
 /// Represents a single mass spectrum from a PCD file.
 pub struct PcdSpectrum {
-  scan_number : Int
+  scan_number : Int32
   rt : Double
   mz_values : Array[Double]
   intensity_values : Array[Double]
   mut precursor_mz : Double?
-  mut precursor_charge : Int?
+  mut precursor_charge : Int32?
 }
 
 ///|
 /// Construct a PcdSpectrum.
-pub fn PcdSpectrum::new(scan_number : Int, rt? : Double = 0.0) -> PcdSpectrum {
+pub fn PcdSpectrum::new(scan_number : Int32, rt~ : Double = 0.0) -> PcdSpectrum {
   PcdSpectrum::{
     scan_number,
     rt,
@@ -49,7 +49,7 @@ pub fn PcdSpectrum::set_precursor_mz(self : PcdSpectrum, mz : Double?) -> Unit {
 /// Set precursor charge.
 pub fn PcdSpectrum::set_precursor_charge(
   self : PcdSpectrum,
-  charge : Int?,
+  charge : Int32?,
 ) -> Unit {
   self.precursor_charge = charge
 }
@@ -67,7 +67,7 @@ pub fn PcdSpectrum::add_peak(
 
 ///|
 /// Get the number of peaks in this spectrum.
-pub fn PcdSpectrum::num_peaks(self : PcdSpectrum) -> Int {
+pub fn PcdSpectrum::num_peaks(self : PcdSpectrum) -> Int32 {
   self.mz_values.length()
 }
 
@@ -91,8 +91,8 @@ pub fn PcdSpectrum::total_intensity(self : PcdSpectrum) -> Double {
 /// Represents a complete PCD file with metadata and spectra.
 pub struct PcdFile {
   mut version : String
-  mut num_spectra : Int
-  mut num_peaks : Int
+  mut num_spectra : Int32
+  mut num_peaks : Int32
   spectra : Array[PcdSpectrum]
   metadata : Map[String, String]
 }
@@ -146,7 +146,10 @@ pub fn PcdFile::update_counts(self : PcdFile) -> Unit {
 
 ///|
 /// Get a spectrum by scan number.
-pub fn PcdFile::get_spectrum(self : PcdFile, scan_number : Int) -> PcdSpectrum? {
+pub fn PcdFile::get_spectrum(
+  self : PcdFile,
+  scan_number : Int32,
+) -> PcdSpectrum? {
   let mut i = 0
   while i < self.spectra.length() {
     if self.spectra[i].scan_number == scan_number {
@@ -166,7 +169,7 @@ pub fn PcdFile::get_spectrum(self : PcdFile, scan_number : Int) -> PcdSpectrum? 
 pub struct PcdPeak {
   mz : Double
   intensity : Double
-  charge : Int?
+  charge : Int32?
 }
 
 ///|
@@ -174,7 +177,7 @@ pub struct PcdPeak {
 pub fn PcdPeak::new(
   mz : Double,
   intensity : Double,
-  charge? : Int = 0,
+  charge~ : Int32 = 0,
 ) -> PcdPeak {
   let charge_opt = if charge > 0 { Some(charge) } else { None }
   PcdPeak::{ mz, intensity, charge: charge_opt, }
@@ -266,7 +269,7 @@ fn pcd_parse_scan_line(line : String) -> PcdSpectrum {
   let mut scan_number = 0
   let mut rt = 0.0
   let mut pepmass_mz : Double? = None
-  let mut pepmass_charge : Int? = None
+  let mut pepmass_charge : Int32? = None
   let mut i = 0
   while i < parts.length() {
     let part = parts[i]
@@ -385,8 +388,8 @@ pub fn pcd_bpc(file : PcdFile) -> Array[Double] {
 pub fn pcd_find_peaks_above(
   file : PcdFile,
   threshold : Double,
-) -> Array[(Int, Double, Double)] {
-  let peaks : Array[(Int, Double, Double)] = Array(capacity=0)
+) -> Array[(Int32, Double, Double)] {
+  let peaks : Array[(Int32, Double, Double)] = Array(capacity=0)
   let mut i = 0
   while i < file.spectra.length() {
     let s = file.spectra[i]
@@ -424,13 +427,13 @@ pub fn pcd_spectrum_by_mz(
 
 ///|
 /// Get the total number of peaks across all spectra.
-pub fn pcd_total_peaks(file : PcdFile) -> Int {
+pub fn pcd_total_peaks(file : PcdFile) -> Int32 {
   file.num_peaks
 }
 
 ///|
 /// Get the number of spectra in the file.
-pub fn pcd_num_spectra(file : PcdFile) -> Int {
+pub fn pcd_num_spectra(file : PcdFile) -> Int32 {
   file.num_spectra
 }
 
@@ -582,7 +585,7 @@ fn pcd_split_whitespace(line : String) -> Array[String] {
 
 ///|
 /// Parse an integer from a string, returning 0 on failure.
-fn pcd_parse_int(s : String) -> Int {
+fn pcd_parse_int(s : String) -> Int32 {
   let sv = s.to_string().trim()
   let n = sv.length()
   if n == 0 {

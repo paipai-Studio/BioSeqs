@@ -19,7 +19,9 @@ fn main {
   println("=== 1. Sample Data ===")
   let (pScreen, pConfirmation) = @bio.stage_r_sample()
   println("Genes: " + pScreen.length().to_string())
-  println("Confirmation hypotheses per gene: " + pConfirmation[0].length().to_string())
+  println(
+    "Confirmation hypotheses per gene: " + pConfirmation[0].length().to_string(),
+  )
   println("Screening p-values: " + p_screen_to_string(pScreen))
   println("")
 
@@ -31,7 +33,14 @@ fn main {
   println("BH-adjusted screening p-values:")
   let mut i = 0
   while i < bh_adj.length() {
-    println("  Gene " + i.to_string() + ": raw=" + pScreen[i].to_string() + ", adj=" + bh_adj[i].to_string())
+    println(
+      "  Gene " +
+      i.to_string() +
+      ": raw=" +
+      pScreen[i].to_string() +
+      ", adj=" +
+      bh_adj[i].to_string(),
+    )
     i = i + 1
   }
   println("")
@@ -57,7 +66,9 @@ fn main {
   )
   let result = @bio.stage_wise_adjustment(pScreen, pConfirmation, config)
   println("Total genes: " + result.nGenes.to_string())
-  println("Significant genes (screening): " + result.nSignificantGenes.to_string())
+  println(
+    "Significant genes (screening): " + result.nSignificantGenes.to_string(),
+  )
   println("Adjusted alpha (R/G * alpha): " + result.alphaAdjusted.to_string())
   println("")
 
@@ -68,7 +79,9 @@ fn main {
   let sig_genes = @bio.get_significant_genes(result)
   println("Significant gene indices: " + int_array_to_string(sig_genes))
   let sig_hyps = @bio.get_significant_hypotheses(result)
-  println("Significant confirmation hypotheses: " + sig_hyps.length().to_string())
+  println(
+    "Significant confirmation hypotheses: " + sig_hyps.length().to_string(),
+  )
   let mut h = 0
   while h < sig_hyps.length() {
     let (g, j) = sig_hyps[h]
@@ -104,10 +117,16 @@ fn main {
   let mut m = 0
   while m < methods.length() {
     let (name, method_) = methods[m]
-    let cfg = @bio.StageRConfig::new(alpha=0.05, pScreenAdjusted=false, stageMethod=method_)
+    let cfg = @bio.StageRConfig::new(
+      alpha=0.05,
+      pScreenAdjusted=false,
+      stageMethod=method_,
+    )
     let res = @bio.stage_wise_adjustment(pScreen, pConfirmation, cfg)
     let sigs = @bio.get_significant_hypotheses(res)
-    println("  " + name + ": " + sigs.length().to_string() + " significant hypotheses")
+    println(
+      "  " + name + ": " + sigs.length().to_string() + " significant hypotheses",
+    )
     m = m + 1
   }
   println("")
@@ -121,6 +140,7 @@ fn main {
   println("=== Demo complete ===")
 }
 
+///|
 fn p_screen_to_string(arr : Array[Double]) -> String {
   let buf = StringBuilder()
   buf.write_string("[")
@@ -136,6 +156,7 @@ fn p_screen_to_string(arr : Array[Double]) -> String {
   buf.to_string()
 }
 
+///|
 fn p_conf_to_string(arr : Array[Double]) -> String {
   let buf = StringBuilder()
   buf.write_string("[")
@@ -151,7 +172,8 @@ fn p_conf_to_string(arr : Array[Double]) -> String {
   buf.to_string()
 }
 
-fn int_array_to_string(arr : Array[Int]) -> String {
+///|
+fn int_array_to_string(arr : Array[Int32]) -> String {
   let buf = StringBuilder()
   buf.write_string("[")
   let mut i = 0
@@ -166,6 +188,7 @@ fn int_array_to_string(arr : Array[Int]) -> String {
   buf.to_string()
 }
 
+///|
 fn bool_row_to_string(row : Array[Bool]) -> String {
   let buf = StringBuilder()
   buf.write_string("[")

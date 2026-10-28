@@ -4,7 +4,9 @@
 /// Run: moon run examples/dmrcate_demo
 fn main {
   println("=== DMRcate Module Demo ===")
-  println("Differentially Methylated Region calling with spatial kernel smoothing")
+  println(
+    "Differentially Methylated Region calling with spatial kernel smoothing",
+  )
   println("Reference: Peters TJ et al. (2015) Epigenetics & Chromatin 8:6")
   println("")
 
@@ -17,7 +19,7 @@ fn main {
   let n_cpgs = 10
   let n_samples = 6
   let beta_values : Array[Array[Double]] = Array(capacity=0)
-  let positions : Array[Int] = Array(capacity=0)
+  let positions : Array[Int32] = Array(capacity=0)
   let chr : Array[String] = Array(capacity=0)
 
   let mut i = 0
@@ -69,7 +71,12 @@ fn main {
   // 2. Run DMRcate analysis
   // ------------------------------------------------------------------
   println("=== 2. Run DMRcate analysis ===")
-  let result = @src.dmrcate_test(input, lambda=1000, c_scale=2.0, fdr_threshold=0.05)
+  let result = @src.dmrcate_test(
+    input,
+    lambda=1000,
+    c_scale=2.0,
+    fdr_threshold=0.05,
+  )
   println("CpG sites tested: \{result.n_cpgs()}")
   println("DMRs called: \{result.n_dmrs()}")
   println("")

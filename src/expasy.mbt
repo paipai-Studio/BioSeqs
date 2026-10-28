@@ -48,7 +48,7 @@ pub struct ExPASyEntry {
   description : String
   keywords : Array[String]
   sequence : String
-  length : Int
+  length : Int32
   ec_numbers : Array[String]
   references : Array[(String, String)]
 }

@@ -9,7 +9,7 @@
 //   6. Karplus–Schulz flexibility prediction.
 
 ///|
-fn paa_demo_round(value : Double, digits : Int) -> Double {
+fn paa_demo_round(value : Double, digits : Int32) -> Double {
   let scale = @math.pow(10.0, digits.to_double())
   (value * scale).round() / scale
 }
@@ -72,10 +72,7 @@ fn main {
     for region in regions {
       let (start, end) = region
       println(
-        "  Disordered region: " +
-        start.to_string() +
-        "-" +
-        end.to_string(),
+        "  Disordered region: " + start.to_string() + "-" + end.to_string(),
       )
     }
   } else {
@@ -104,7 +101,7 @@ fn main {
     for region in cc_regions {
       let (start, end) = region
       println(
-        "  Coiled-coil region: " + start.to_string() + "-" + end.to_string()
+        "  Coiled-coil region: " + start.to_string() + "-" + end.to_string(),
       )
     }
   } else {

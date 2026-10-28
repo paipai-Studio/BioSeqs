@@ -292,13 +292,13 @@ pub fn is_protein(seq : String) -> Bool {
 }
 
 ///|
-pub fn count_kmers(seq : String, k : Int) -> Map[String, Int] {
+pub fn count_kmers(seq : String, k : Int32) -> Map[String, Int32] {
   if k <= 0 || seq.length() < k {
     return Map([], capacity=0)
   }
 
   let total = seq.length() - k + 1
-  let counts : Map[String, Int] = Map([], capacity=total)
+  let counts : Map[String, Int32] = Map([], capacity=total)
 
   for i = 0; i <= seq.length() - k; i = i + 1 {
     let kmer = seq[i:i + k].to_owned()
@@ -316,7 +316,7 @@ pub fn sequtils_shannon_entropy(seq : String) -> Double {
     return 0.0
   }
 
-  let counts : Map[String, Int] = Map([], capacity=seq.length())
+  let counts : Map[String, Int32] = Map([], capacity=seq.length())
   for i = 0; i < seq.length(); i = i + 1 {
     let c = seq[i:i + 1].to_owned()
     match counts.get(c) {
@@ -389,13 +389,13 @@ pub fn ambiguity_codes(seq : String) -> String {
 }
 
 ///|
-pub fn codon_usage(seq : String) -> Map[String, Int] {
+pub fn codon_usage(seq : String) -> Map[String, Int32] {
   if seq.length() < 3 {
     return Map([], capacity=0)
   }
 
   let total = seq.length() / 3
-  let usage : Map[String, Int] = Map([], capacity=total)
+  let usage : Map[String, Int32] = Map([], capacity=total)
   let mut i = 0
   while i + 3 <= seq.length() {
     let codon = seq[i:i + 3].to_owned()
@@ -431,8 +431,8 @@ pub fn reverse_complement(seq : String) -> String {
 /// GC skew = (G - C) / (G + C)
 pub fn gc_skew(
   seq : String,
-  window_size : Int,
-  step_size : Int,
+  window_size : Int32,
+  step_size : Int32,
 ) -> Array[Double] {
   let result : Array[Double] = Array(capacity=0)
   let len = seq.length()
@@ -472,8 +472,8 @@ pub fn gc_skew(
 /// AT skew = (A - T) / (A + T)
 pub fn at_skew(
   seq : String,
-  window_size : Int,
-  step_size : Int,
+  window_size : Int32,
+  step_size : Int32,
 ) -> Array[Double] {
   let result : Array[Double] = Array(capacity=0)
   let len = seq.length()
@@ -529,7 +529,7 @@ pub fn sequence_similarity(seq1 : String, seq2 : String) -> Double {
 
 ///|
 /// Calculate the edit distance (Levenshtein distance) between two sequences.
-pub fn edit_distance(seq1 : String, seq2 : String) -> Int {
+pub fn edit_distance(seq1 : String, seq2 : String) -> Int32 {
   let m = seq1.length()
   let n = seq2.length()
 
@@ -541,7 +541,7 @@ pub fn edit_distance(seq1 : String, seq2 : String) -> Int {
   }
 
   // Dynamic programming approach
-  let dp : Array[Array[Int]] = Array::make(m + 1, Array::make(0, 0))
+  let dp : Array[Array[Int32]] = Array::make(m + 1, Array::make(0, 0))
   let mut idx = 0
   while idx < m + 1 {
     dp[idx] = Array::make(n + 1, 0)
@@ -591,7 +591,7 @@ fn min_val(a : Double, b : Double) -> Double {
 }
 
 ///|
-fn min_val_int(a : Int, b : Int) -> Int {
+fn min_val_int(a : Int32, b : Int32) -> Int32 {
   if a < b {
     a
   } else {
@@ -600,6 +600,6 @@ fn min_val_int(a : Int, b : Int) -> Int {
 }
 
 ///|
-fn min_val3(a : Int, b : Int, c : Int) -> Int {
+fn min_val3(a : Int32, b : Int32, c : Int32) -> Int32 {
   min_val_int(min_val_int(a, b), c)
 }

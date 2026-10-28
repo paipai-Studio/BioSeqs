@@ -36,9 +36,7 @@ test "parse_bcf_header" {
 
 ///|
 test "parse_bcf_records" {
-  let f = @src.parse_bcf(bcf_fixture()) catch {
-    _ => abort("BCF should parse")
-  }
+  let f = @src.parse_bcf(bcf_fixture()) catch { _ => abort("BCF should parse") }
   assert_eq(f.records.length(), 2)
 
   let r = f.records[0]
@@ -131,7 +129,8 @@ test "parse_bcf_records" {
     }
     _ => abort("expected GT int")
   }
-  match (r2.formats[1].values[0], r2.formats[1].values[1], r2.formats[1].values[2]) {
+  match
+    (r2.formats[1].values[0], r2.formats[1].values[1], r2.formats[1].values[2]) {
     (BcfInt(a), BcfInt(b), BcfInt(c)) => {
       assert_eq(a, 0)
       assert_eq(b, 3)
@@ -151,12 +150,14 @@ test "parse_bcf_bad_magic" {
   }
   assert_true(r)
 }
+
 ///|
 fn bcf_val_eq(a : @src.BcfValue, b : @src.BcfValue) -> Bool {
   match (a, b) {
     (@src.BcfFlag, @src.BcfFlag) => true
     (@src.BcfInt(x), @src.BcfInt(y)) => x == y
-    (@src.BcfFloat(x), @src.BcfFloat(y)) => @moonbit.assert_num_close(x, y, 1.0e-6)
+    (@src.BcfFloat(x), @src.BcfFloat(y)) =>
+      @moonbit.assert_num_close(x, y, 1.0e-6)
     (@src.BcfStr(x), @src.BcfStr(y)) => x == y
     _ => false
   }
@@ -164,9 +165,7 @@ fn bcf_val_eq(a : @src.BcfValue, b : @src.BcfValue) -> Bool {
 
 ///|
 test "bcf_roundtrip" {
-  let f = @src.parse_bcf(bcf_fixture()) catch {
-    _ => abort("BCF should parse")
-  }
+  let f = @src.parse_bcf(bcf_fixture()) catch { _ => abort("BCF should parse") }
   let bytes = f.to_bcf_bytes()
   let g = @src.parse_bcf(bytes) catch {
     _ => abort("round-tripped BCF should parse")
@@ -195,7 +194,8 @@ test "bcf_roundtrip" {
     assert_eq(a.n_fmt, b.n_fmt)
     match (a.qual, b.qual) {
       (None, None) => ()
-      (Some(qa), Some(qb)) => assert_true(@moonbit.assert_num_close(qa, qb, 1.0e-5))
+      (Some(qa), Some(qb)) =>
+        assert_true(@moonbit.assert_num_close(qa, qb, 1.0e-5))
       _ => assert_true(false)
     }
     assert_eq(a.info.length(), b.info.length())

@@ -18,8 +18,17 @@ fn make_test_chain_cc() -> @src.Chain {
   ]
   for i = 0; i < 10; i = i + 1 {
     let (x, y, z) = coords[i]
-    let ca = @src.Atom::new(name="CA", coord=@src.Vector3::new(x, y, z), resname="GLY", chainid='A', resseq=i + 1, element="C")
-    let res = @src.Residue::new(resname="GLY", chainid='A', resseq=i + 1, atoms=[ca])
+    let ca = @src.Atom::new(
+      name="CA",
+      coord=@src.Vector3::new(x, y, z),
+      resname="GLY",
+      chainid='A',
+      resseq=i + 1,
+      element="C",
+    )
+    let res = @src.Residue::new(resname="GLY", chainid='A', resseq=i + 1, atoms=[
+      ca,
+    ])
     residues.push(res)
   }
   @src.Chain::new(id='A', residues~)
@@ -37,8 +46,17 @@ fn make_small_chain_cc() -> @src.Chain {
   ]
   for i = 0; i < 5; i = i + 1 {
     let (x, y, z) = coords[i]
-    let ca = @src.Atom::new(name="CA", coord=@src.Vector3::new(x, y, z), resname="ALA", chainid='A', resseq=i + 1, element="C")
-    let res = @src.Residue::new(resname="ALA", chainid='A', resseq=i + 1, atoms=[ca])
+    let ca = @src.Atom::new(
+      name="CA",
+      coord=@src.Vector3::new(x, y, z),
+      resname="ALA",
+      chainid='A',
+      resseq=i + 1,
+      element="C",
+    )
+    let res = @src.Residue::new(resname="ALA", chainid='A', resseq=i + 1, atoms=[
+      ca,
+    ])
     residues.push(res)
   }
   @src.Chain::new(id='A', residues~)
@@ -85,28 +103,27 @@ fn make_crystal_p1_large() -> @src.CrystalInfo {
 
 // ===== ccANM tests =====
 
+///|
 test "ccanm_construction_p21" {
   let chain = make_test_chain_cc()
   let crystal = make_crystal_p21()
   match @src.CcANM::new(chain, crystal) {
-    Some(anm) => {
-      assert_eq(@src.CcANM::num_nodes(anm), 10)
-    }
+    Some(anm) => assert_eq(@src.CcANM::num_nodes(anm), 10)
     None => assert_true(false)
   }
 }
 
+///|
 test "ccanm_construction_p212121" {
   let chain = make_test_chain_cc()
   let crystal = make_crystal_p212121()
   match @src.CcANM::new(chain, crystal) {
-    Some(anm) => {
-      assert_eq(@src.CcANM::num_nodes(anm), 10)
-    }
+    Some(anm) => assert_eq(@src.CcANM::num_nodes(anm), 10)
     None => assert_true(false)
   }
 }
 
+///|
 test "ccanm_eigenvalues" {
   let chain = make_test_chain_cc()
   let crystal = make_crystal_p21()
@@ -125,6 +142,7 @@ test "ccanm_eigenvalues" {
   }
 }
 
+///|
 test "ccanm_bfactors" {
   let chain = make_test_chain_cc()
   let crystal = make_crystal_p21()
@@ -140,6 +158,7 @@ test "ccanm_bfactors" {
   }
 }
 
+///|
 test "ccanm_fluctuations" {
   let chain = make_test_chain_cc()
   let crystal = make_crystal_p212121()
@@ -155,6 +174,7 @@ test "ccanm_fluctuations" {
   }
 }
 
+///|
 test "ccanm_slow_modes" {
   let chain = make_test_chain_cc()
   let crystal = make_crystal_p21()
@@ -172,6 +192,7 @@ test "ccanm_slow_modes" {
   }
 }
 
+///|
 test "ccanm_cross_correlation" {
   let chain = make_test_chain_cc()
   let crystal = make_crystal_p21()
@@ -193,6 +214,7 @@ test "ccanm_cross_correlation" {
   }
 }
 
+///|
 test "ccanm_hessian_symmetric" {
   let chain = make_small_chain_cc()
   let crystal = make_crystal_p21()
@@ -210,11 +232,12 @@ test "ccanm_hessian_symmetric" {
   }
 }
 
+///|
 test "ccanm_p1_equals_standard_anm" {
   let chain = make_test_chain_cc()
   let crystal = make_crystal_p1_large()
   match @src.CcANM::new(chain, crystal) {
-    Some(cc_anm) => {
+    Some(cc_anm) =>
       match @src.ANM::new(chain) {
         Some(std_anm) => {
           let cc_bf = @src.CcANM::predict_bfactors(cc_anm)
@@ -225,17 +248,17 @@ test "ccanm_p1_equals_standard_anm" {
         }
         None => assert_true(false)
       }
-    }
     None => assert_true(false)
   }
 }
 
+///|
 test "ccanm_p21_differs_from_p1" {
   let chain = make_test_chain_cc()
   let crystal_p21 = make_crystal_p21()
   let crystal_p1 = make_crystal_p1_large()
   match @src.CcANM::new(chain, crystal_p21) {
-    Some(anm_p21) => {
+    Some(anm_p21) =>
       match @src.CcANM::new(chain, crystal_p1) {
         Some(anm_p1) => {
           let bf_p21 = @src.CcANM::predict_bfactors(anm_p21)
@@ -248,14 +271,21 @@ test "ccanm_p21_differs_from_p1" {
         }
         None => assert_true(false)
       }
-    }
     None => assert_true(false)
   }
 }
 
+///|
 test "ccanm_too_few_residues" {
   let residues : Array[@src.Residue] = Array(capacity=0)
-  let ca = @src.Atom::new(name="CA", coord=@src.Vector3::new(0.0, 0.0, 0.0), resname="ALA", chainid='A', resseq=1, element="C")
+  let ca = @src.Atom::new(
+    name="CA",
+    coord=@src.Vector3::new(0.0, 0.0, 0.0),
+    resname="ALA",
+    chainid='A',
+    resseq=1,
+    element="C",
+  )
   let res = @src.Residue::new(resname="ALA", chainid='A', resseq=1, atoms=[ca])
   residues.push(res)
   let chain = @src.Chain::new(id='A', residues~)
@@ -266,6 +296,7 @@ test "ccanm_too_few_residues" {
   }
 }
 
+///|
 test "ccanm_spacegroup_helpers" {
   let p1 = @src.spacegroup_p1()
   assert_eq(p1.length(), 1)

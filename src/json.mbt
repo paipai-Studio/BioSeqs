@@ -12,11 +12,13 @@ pub(all) enum JsonValue {
   JsonArr(Array[JsonValue])
   JsonObj(Map[String, JsonValue])
 } derive(Debug)
+
+///|
 pub extend JsonValue with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Skip JSON whitespace (space, tab, LF, CR).
-fn json_ws(s : String, pos : Int) -> Int {
+fn json_ws(s : String, pos : Int32) -> Int32 {
   let mut p = pos
   while p < s.length() {
     let c = s.unsafe_get(p).to_int()
@@ -32,10 +34,10 @@ fn json_ws(s : String, pos : Int) -> Int {
 ///|
 fn json_parse_literal(
   s : String,
-  pos : Int,
+  pos : Int32,
   lit : String,
   value : JsonValue,
-) -> (JsonValue?, Int) {
+) -> (JsonValue?, Int32) {
   if pos + lit.length() > s.length() {
     return (None, pos)
   }
@@ -46,7 +48,7 @@ fn json_parse_literal(
 }
 
 ///|
-fn json_hex(s : String, pos : Int) -> Int? {
+fn json_hex(s : String, pos : Int32) -> Int32? {
   if pos + 4 > s.length() {
     return None
   }
@@ -68,7 +70,7 @@ fn json_hex(s : String, pos : Int) -> Int? {
 }
 
 ///|
-fn json_parse_string(s : String, pos : Int) -> (JsonValue?, Int) {
+fn json_parse_string(s : String, pos : Int32) -> (JsonValue?, Int32) {
   // pos 指向开头的 `"`, 前进到内容
   let mut p = pos + 1
   let sb = StringBuilder()
@@ -120,7 +122,7 @@ fn json_parse_string(s : String, pos : Int) -> (JsonValue?, Int) {
 }
 
 ///|
-fn json_parse_number(s : String, pos : Int) -> (JsonValue?, Int) {
+fn json_parse_number(s : String, pos : Int32) -> (JsonValue?, Int32) {
   let mut p = pos
   let start = p
   if p < s.length() && s.unsafe_get(p).to_int() == 45 {
@@ -149,7 +151,8 @@ fn json_parse_number(s : String, pos : Int) -> (JsonValue?, Int) {
     let c = s.unsafe_get(p).to_int()
     if c == 101 || c == 69 {
       p = p + 1
-      if p < s.length() && (s.unsafe_get(p).to_int() == 43 || s.unsafe_get(p).to_int() == 45) {
+      if p < s.length() &&
+        (s.unsafe_get(p).to_int() == 43 || s.unsafe_get(p).to_int() == 45) {
         p = p + 1
       }
       while p < s.length() {
@@ -171,7 +174,7 @@ fn json_parse_number(s : String, pos : Int) -> (JsonValue?, Int) {
 }
 
 ///|
-fn json_parse_object(s : String, pos : Int) -> (JsonValue?, Int) {
+fn json_parse_object(s : String, pos : Int32) -> (JsonValue?, Int32) {
   let mut p = json_ws(s, pos + 1)
   let m : Map[String, JsonValue] = Map([], capacity=8)
   if p < s.length() && s.unsafe_get(p).to_int() == 125 {
@@ -214,7 +217,7 @@ fn json_parse_object(s : String, pos : Int) -> (JsonValue?, Int) {
 }
 
 ///|
-fn json_parse_array(s : String, pos : Int) -> (JsonValue?, Int) {
+fn json_parse_array(s : String, pos : Int32) -> (JsonValue?, Int32) {
   let mut p = json_ws(s, pos + 1)
   let arr : Array[JsonValue] = []
   if p < s.length() && s.unsafe_get(p).to_int() == 93 {
@@ -243,7 +246,7 @@ fn json_parse_array(s : String, pos : Int) -> (JsonValue?, Int) {
 }
 
 ///|
-fn json_parse_value(s : String, pos : Int) -> (JsonValue?, Int) {
+fn json_parse_value(s : String, pos : Int32) -> (JsonValue?, Int32) {
   let p = json_ws(s, pos)
   if p >= s.length() {
     return (None, p)
@@ -289,13 +292,12 @@ pub fn json_to_string(value : JsonValue) -> String {
   match value {
     JsonNull => "null"
     JsonBool(b) => if b { "true" } else { "false" }
-    JsonNum(d) => {
+    JsonNum(d) =>
       if d == d.to_int().to_double() && d.abs() < 9.007199254740992e15 {
         d.to_int().to_string()
       } else {
         d.to_string()
       }
-    }
     JsonStr(s) => "\"" + json_escape_str(s) + "\""
     JsonArr(a) => {
       let sb = StringBuilder()
@@ -314,7 +316,7 @@ pub fn json_to_string(value : JsonValue) -> String {
       sb.write_char('{')
       let mut first = true
       for kv in m {
-        if !(first) {
+        if !first {
           sb.write_char(',')
         }
         first = false

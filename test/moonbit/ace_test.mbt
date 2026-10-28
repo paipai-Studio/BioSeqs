@@ -54,7 +54,7 @@ test "ace_contig_new" {
 
 ///|
 test "ace_alignment_new" {
-  let qual : Array[Int] = [30, 30, 30]
+  let qual : Array[Int32] = [30, 30, 30]
   let ali = @src.AceAlignment::new("contig1", 10, "ATC", qual)
   assert_eq(ali.contig_id, "contig1")
   assert_eq(ali.start_position, 10)
@@ -676,7 +676,7 @@ test "ace_roundtrip_coverage" {
 
 ///|
 test "ace_quality_to_string_format" {
-  let qual : Array[Int] = [10, 20, 30]
+  let qual : Array[Int32] = [10, 20, 30]
   let read = @src.AceRead::new("read1", "ACG", qual, 1, 3, "+", "", "", "")
   let contig = @src.AceContig::new(
     "contig1",

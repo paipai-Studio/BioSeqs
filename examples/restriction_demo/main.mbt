@@ -7,7 +7,7 @@
 /// overhang classification, compatible ends and isoschizomer relationships.
 ///
 /// Run with: moon run examples/restriction_demo
-fn fmt_cuts(cuts : Array[Int]) -> String {
+fn fmt_cuts(cuts : Array[Int32]) -> String {
   if cuts.length() == 0 {
     "-"
   } else {
@@ -56,10 +56,14 @@ fn fmt_strs(xs : Array[String]) -> String {
 
 ///|
 /// Fragment lengths of a digest from sorted cut positions.
-fn digest_lengths(cuts : Array[Int], length : Int, linear : Bool) -> Array[Int] {
+fn digest_lengths(
+  cuts : Array[Int32],
+  length : Int32,
+  linear : Bool,
+) -> Array[Int32] {
   let c = cuts.copy()
   c.sort()
-  let r : Array[Int] = []
+  let r : Array[Int32] = []
   if c.length() == 0 {
     r.push(length)
     return r
@@ -166,7 +170,7 @@ fn main raise {
   println("== double digest (EcoRI + BamHI), linear ==")
   let eco_cuts = ecori.search(construct)
   let bam_cuts = @bio.require_bio_restriction_enzyme("BamHI").search(construct)
-  let both : Array[Int] = []
+  let both : Array[Int32] = []
   for x in eco_cuts {
     both.push(x)
   }
@@ -253,7 +257,7 @@ fn main raise {
   println("enzymes cutting in region 20..40: " + window_names)
   println(
     "enzymes that do not cut anywhere: " +
-      analysis.do_not_cut(1, construct.length() + 1).length().to_string(),
+    analysis.do_not_cut(1, construct.length() + 1).length().to_string(),
   )
   println("")
 

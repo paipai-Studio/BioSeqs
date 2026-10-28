@@ -80,7 +80,7 @@ pub fn IgRecord::description(self : IgRecord) -> String {
 
 ///|
 /// Sequence length in nucleotides / amino acids.
-pub fn IgRecord::length(self : IgRecord) -> Int {
+pub fn IgRecord::length(self : IgRecord) -> Int32 {
   self.sequence.length()
 }
 
@@ -330,7 +330,7 @@ fn ig_join_lines(parts : Array[String]) -> String {
 
 ///|
 /// Default line width for wrapping IntelliGenetics sequence output.
-let ig_line_width : Int = 60
+let ig_line_width : Int32 = 60
 
 ///|
 /// Render an `IgRecord` to IntelliGenetics text (without a trailing blank line).
@@ -349,7 +349,7 @@ pub fn ig_record_to_string(record : IgRecord) -> String {
 ///|
 /// Render an `IgRecord` with a custom sequence line width. A width <= 0
 /// disables wrapping (the sequence is emitted on a single line).
-pub fn ig_record_to_string_width(record : IgRecord, width : Int) -> String {
+pub fn ig_record_to_string_width(record : IgRecord, width : Int32) -> String {
   let buf = StringBuilder()
   // Comment lines.
   if record.comment.length() > 0 {

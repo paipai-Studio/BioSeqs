@@ -13,8 +13,14 @@ pub enum SlingshotClusterDistance {
   SlingshotScaledDiagonal
   SlingshotScaledFull
 } derive(Eq, Debug)
+
+///|
 pub extend SlingshotClusterDistance with Eq::{equal, not_equal}
-pub extend SlingshotClusterDistance with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend SlingshotClusterDistance with @moonbitlang/core/debug.Debug::{
+  to_repr,
+}
 
 ///|
 pub enum SlingshotCurveExtension {
@@ -22,7 +28,11 @@ pub enum SlingshotCurveExtension {
   SlingshotExtendLine
   SlingshotExtendPc1
 } derive(Eq, Debug)
+
+///|
 pub extend SlingshotCurveExtension with Eq::{equal, not_equal}
+
+///|
 pub extend SlingshotCurveExtension with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -68,32 +78,34 @@ pub struct SlingshotAdvancedConfig {
   extension : SlingshotCurveExtension
   reweight : Bool
   reassign : Bool
-  max_iterations : Int
+  max_iterations : Int32
   tolerance : Double
   smoother_span : Double
-  curve_points : Int
+  curve_points : Int32
   covariance_ridge : Double
 } derive(Debug)
+
+///|
 pub extend SlingshotAdvancedConfig with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub fn SlingshotAdvancedConfig::create(
-  start_clusters? : Array[String] = [],
-  end_clusters? : Array[String] = [],
-  distance? : SlingshotClusterDistance = SlingshotScaledFull,
-  use_median? : Bool = false,
-  omega? : Double = -1.0,
-  automatic_omega? : Bool = false,
-  omega_scale? : Double = 1.5,
-  shrink? : Double = 1.0,
-  extension? : SlingshotCurveExtension = SlingshotExtendLine,
-  reweight? : Bool = true,
-  reassign? : Bool = true,
-  max_iterations? : Int = 15,
-  tolerance? : Double = 0.001,
-  smoother_span? : Double = 0.3,
-  curve_points? : Int = 100,
-  covariance_ridge? : Double = 1.0e-6,
+  start_clusters~ : Array[String] = [],
+  end_clusters~ : Array[String] = [],
+  distance~ : SlingshotClusterDistance = SlingshotScaledFull,
+  use_median~ : Bool = false,
+  omega~ : Double = -1.0,
+  automatic_omega~ : Bool = false,
+  omega_scale~ : Double = 1.5,
+  shrink~ : Double = 1.0,
+  extension~ : SlingshotCurveExtension = SlingshotExtendLine,
+  reweight~ : Bool = true,
+  reassign~ : Bool = true,
+  max_iterations~ : Int32 = 15,
+  tolerance~ : Double = 0.001,
+  smoother_span~ : Double = 0.3,
+  curve_points~ : Int32 = 100,
+  covariance_ridge~ : Double = 1.0e-6,
 ) -> SlingshotAdvancedConfig raise SlingshotAdvancedError {
   if !is_finite(omega) || omega < -1.0 {
     slingshot_adv_fail("slingshot omega must be -1 or non-negative")
@@ -110,9 +122,7 @@ pub fn SlingshotAdvancedConfig::create(
   if !is_finite(tolerance) || tolerance <= 0.0 {
     slingshot_adv_fail("slingshot tolerance must be positive")
   }
-  if !is_finite(smoother_span) ||
-    smoother_span <= 0.0 ||
-    smoother_span > 1.0 {
+  if !is_finite(smoother_span) || smoother_span <= 0.0 || smoother_span > 1.0 {
     slingshot_adv_fail("slingshot smoother span must be in (0, 1]")
   }
   if curve_points < 2 {
@@ -158,15 +168,21 @@ pub struct SlingshotClusterSummary {
   covariance : Array[Array[Double]]
   size : Double
 } derive(Debug)
+
+///|
 pub extend SlingshotClusterSummary with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct SlingshotLineageEdge {
-  from : Int
-  to : Int
+  from : Int32
+  to : Int32
   distance : Double
 } derive(Eq, Debug)
+
+///|
 pub extend SlingshotLineageEdge with Eq::{equal, not_equal}
+
+///|
 pub extend SlingshotLineageEdge with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -177,24 +193,28 @@ pub struct SlingshotLineageModel {
   clusters : Array[SlingshotClusterSummary]
   distance_matrix : Array[Array[Double]]
   edges : Array[SlingshotLineageEdge]
-  components : Array[Int]
-  roots : Array[Int]
-  lineages : Array[Array[Int]]
+  components : Array[Int32]
+  roots : Array[Int32]
+  lineages : Array[Array[Int32]]
   initial_weights : Array[Array[Double]]
   omega_threshold : Double
 } derive(Debug)
+
+///|
 pub extend SlingshotLineageModel with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct SlingshotAdvancedCurve {
   name : String
-  lineage : Array[Int]
+  lineage : Array[Int32]
   points : Array[Array[Double]]
   pseudotime : Array[Double]
   distances : Array[Double]
   weights : Array[Double]
   length : Double
 } derive(Debug)
+
+///|
 pub extend SlingshotAdvancedCurve with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -205,11 +225,13 @@ pub struct SlingshotAdvancedResult {
   weights : Array[Array[Double]]
   average_pseudotime : Array[Double]
   branch_ids : Array[String]
-  iterations : Int
+  iterations : Int32
   converged : Bool
   total_distance : Double
   config : SlingshotAdvancedConfig
 } derive(Debug)
+
+///|
 pub extend SlingshotAdvancedResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -220,6 +242,8 @@ pub struct SlingshotProjection {
   average_pseudotime : Array[Double]
   branch_ids : Array[String]
 } derive(Debug)
+
+///|
 pub extend SlingshotProjection with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -235,8 +259,8 @@ fn slingshot_adv_fail(message : String) -> Unit raise SlingshotAdvancedError {
 
 ///|
 fn slingshot_adv_double_matrix(
-  rows : Int,
-  columns : Int,
+  rows : Int32,
+  columns : Int32,
   value : Double,
 ) -> Array[Array[Double]] {
   let output : Array[Array[Double]] = []
@@ -248,8 +272,8 @@ fn slingshot_adv_double_matrix(
 
 ///|
 fn slingshot_adv_optional_matrix(
-  rows : Int,
-  columns : Int,
+  rows : Int32,
+  columns : Int32,
 ) -> Array[Array[Double?]] {
   let output : Array[Array[Double?]] = []
   for _ in 0..<rows {
@@ -269,7 +293,7 @@ fn slingshot_adv_copy_matrix(
 fn slingshot_adv_shape(
   matrix : Array[Array[Double]],
   name : String,
-) -> (Int, Int) raise SlingshotAdvancedError {
+) -> (Int32, Int32) raise SlingshotAdvancedError {
   if matrix.length() == 0 {
     slingshot_adv_fail(name + " must contain at least one row")
   }
@@ -302,7 +326,7 @@ fn slingshot_adv_unique_labels(labels : Array[String]) -> Array[String] {
 }
 
 ///|
-fn slingshot_adv_label_index(names : Array[String], name : String) -> Int {
+fn slingshot_adv_label_index(names : Array[String], name : String) -> Int32 {
   for index in 0..<names.length() {
     if names[index] == name {
       return index
@@ -334,7 +358,7 @@ fn slingshot_adv_validate_cluster_names(
 fn slingshot_adv_normalize_weights(
   weights : Array[Array[Double]],
   cluster_names : Array[String],
-  cells : Int,
+  cells : Int32,
 ) -> Array[Array[Double]] raise SlingshotAdvancedError {
   if weights.length() != cells {
     slingshot_adv_fail("slingshot cluster weights must have one row per cell")
@@ -378,7 +402,7 @@ fn slingshot_adv_normalize_weights(
 fn slingshot_adv_weighted_mean(
   coordinates : Array[Array[Double]],
   weights : Array[Array[Double]],
-  cluster : Int,
+  cluster : Int32,
 ) -> Array[Double] {
   let dimensions = coordinates[0].length()
   let center = Array::make(dimensions, 0.0)
@@ -401,12 +425,12 @@ fn slingshot_adv_weighted_mean(
 fn slingshot_adv_weighted_median(
   coordinates : Array[Array[Double]],
   weights : Array[Array[Double]],
-  cluster : Int,
+  cluster : Int32,
 ) -> Array[Double] {
   let dimensions = coordinates[0].length()
   let center : Array[Double] = []
   for dimension in 0..<dimensions {
-    let entries : Array[(Double, Double, Int)] = []
+    let entries : Array[(Double, Double, Int32)] = []
     let mut total = 0.0
     for cell in 0..<coordinates.length() {
       let weight = weights[cell][cluster]
@@ -416,9 +440,9 @@ fn slingshot_adv_weighted_median(
       }
     }
     entries.sort_by(fn(
-      left : (Double, Double, Int),
-      right : (Double, Double, Int),
-    ) -> Int {
+      left : (Double, Double, Int32),
+      right : (Double, Double, Int32),
+    ) -> Int32 {
       if left.0 < right.0 {
         -1
       } else if left.0 > right.0 {
@@ -449,7 +473,7 @@ fn slingshot_adv_weighted_median(
 fn slingshot_adv_covariance(
   coordinates : Array[Array[Double]],
   weights : Array[Array[Double]],
-  cluster : Int,
+  cluster : Int32,
   center : Array[Double],
   ridge : Double,
 ) -> Array[Array[Double]] {
@@ -665,7 +689,7 @@ fn slingshot_adv_distance_matrix(
 }
 
 ///|
-fn slingshot_adv_find(parent : Array[Int], node : Int) -> Int {
+fn slingshot_adv_find(parent : Array[Int32], node : Int32) -> Int32 {
   let mut current = node
   while parent[current] != current {
     current = parent[current]
@@ -675,10 +699,10 @@ fn slingshot_adv_find(parent : Array[Int], node : Int) -> Int {
 
 ///|
 fn slingshot_adv_union(
-  parent : Array[Int],
-  ranks : Array[Int],
-  left : Int,
-  right : Int,
+  parent : Array[Int32],
+  ranks : Array[Int32],
+  left : Int32,
+  right : Int32,
 ) -> Unit {
   let left_root = slingshot_adv_find(parent, left)
   let right_root = slingshot_adv_find(parent, right)
@@ -712,7 +736,7 @@ fn slingshot_adv_sorted_edges(
   output.sort_by(fn(
     left : SlingshotLineageEdge,
     right : SlingshotLineageEdge,
-  ) -> Int {
+  ) -> Int32 {
     if left.distance < right.distance {
       -1
     } else if left.distance > right.distance {
@@ -793,7 +817,7 @@ fn slingshot_adv_median(values : Array[Double]) -> Double {
     return 0.0
   }
   let sorted = values.copy()
-  sorted.sort_by(fn(left : Double, right : Double) -> Int {
+  sorted.sort_by(fn(left : Double, right : Double) -> Int32 {
     if left < right {
       -1
     } else if left > right {
@@ -826,9 +850,9 @@ fn slingshot_adv_resolve_omega(
 
 ///|
 fn slingshot_adv_components(
-  nodes : Int,
+  nodes : Int32,
   edges : Array[SlingshotLineageEdge],
-) -> Array[Int] {
+) -> Array[Int32] {
   let parent = Array::make(nodes, 0)
   let ranks = Array::make(nodes, 0)
   for node in 0..<nodes {
@@ -837,7 +861,7 @@ fn slingshot_adv_components(
   for edge in edges {
     slingshot_adv_union(parent, ranks, edge.from, edge.to)
   }
-  let root_to_component : Map[Int, Int] = Map([])
+  let root_to_component : Map[Int32, Int32] = Map([])
   let output = Array::make(nodes, 0)
   let mut next = 0
   for node in 0..<nodes {
@@ -856,10 +880,10 @@ fn slingshot_adv_components(
 
 ///|
 fn slingshot_adv_adjacency(
-  nodes : Int,
+  nodes : Int32,
   edges : Array[SlingshotLineageEdge],
-) -> Array[Array[Int]] {
-  let output : Array[Array[Int]] = []
+) -> Array[Array[Int32]] {
+  let output : Array[Array[Int32]] = []
   for _ in 0..<nodes {
     output.push([])
   }
@@ -875,13 +899,13 @@ fn slingshot_adv_adjacency(
 
 ///|
 fn slingshot_adv_path(
-  adjacency : Array[Array[Int]],
-  start : Int,
-  end : Int,
-) -> Array[Int] {
+  adjacency : Array[Array[Int32]],
+  start : Int32,
+  end : Int32,
+) -> Array[Int32] {
   let previous = Array::make(adjacency.length(), -1)
   let visited = Array::make(adjacency.length(), false)
-  let queue : Array[Int] = [start]
+  let queue : Array[Int32] = [start]
   visited[start] = true
   let mut head = 0
   while head < queue.length() {
@@ -901,7 +925,7 @@ fn slingshot_adv_path(
   if !visited[end] {
     return []
   }
-  let reverse : Array[Int] = []
+  let reverse : Array[Int32] = []
   let mut current = end
   while current >= 0 {
     reverse.push(current)
@@ -910,7 +934,7 @@ fn slingshot_adv_path(
     }
     current = previous[current]
   }
-  let output : Array[Int] = []
+  let output : Array[Int32] = []
   let mut index = reverse.length() - 1
   while index >= 0 {
     output.push(reverse[index])
@@ -921,11 +945,11 @@ fn slingshot_adv_path(
 
 ///|
 fn slingshot_adv_choose_root(
-  nodes : Array[Int],
-  adjacency : Array[Array[Int]],
+  nodes : Array[Int32],
+  adjacency : Array[Array[Int32]],
   cluster_names : Array[String],
   starts : Array[String],
-) -> Int {
+) -> Int32 {
   for name in starts {
     let index = slingshot_adv_label_index(cluster_names, name)
     if nodes.contains(index) {
@@ -966,18 +990,18 @@ fn slingshot_adv_choose_root(
 fn slingshot_adv_lineages(
   cluster_names : Array[String],
   edges : Array[SlingshotLineageEdge],
-  components : Array[Int],
+  components : Array[Int32],
   config : SlingshotAdvancedConfig,
-) -> (Array[Int], Array[Array[Int]]) {
+) -> (Array[Int32], Array[Array[Int32]]) {
   let adjacency = slingshot_adv_adjacency(cluster_names.length(), edges)
   let mut component_count = 0
   for component in components {
     component_count = component_count.max(component + 1)
   }
-  let roots : Array[Int] = []
-  let lineages : Array[Array[Int]] = []
+  let roots : Array[Int32] = []
+  let lineages : Array[Array[Int32]] = []
   for component in 0..<component_count {
-    let nodes : Array[Int] = []
+    let nodes : Array[Int32] = []
     for node in 0..<components.length() {
       if components[node] == component {
         nodes.push(node)
@@ -1009,7 +1033,7 @@ fn slingshot_adv_lineages(
       }
     }
   }
-  lineages.sort_by(fn(left : Array[Int], right : Array[Int]) -> Int {
+  lineages.sort_by(fn(left : Array[Int32], right : Array[Int32]) -> Int32 {
     if left.length() > right.length() {
       -1
     } else if left.length() < right.length() {
@@ -1031,7 +1055,7 @@ fn slingshot_adv_lineages(
 ///|
 fn slingshot_adv_initial_weights(
   cluster_weights : Array[Array[Double]],
-  lineages : Array[Array[Int]],
+  lineages : Array[Array[Int32]],
 ) -> Array[Array[Double]] {
   let output = slingshot_adv_double_matrix(
     cluster_weights.length(),
@@ -1145,7 +1169,7 @@ fn slingshot_adv_interpolate(
 ///|
 fn slingshot_adv_resample(
   points : Array[Array[Double]],
-  count : Int,
+  count : Int32,
 ) -> Array[Array[Double]] {
   if count == 1 {
     return [points[0].copy()]
@@ -1246,7 +1270,7 @@ fn slingshot_adv_dot(left : Array[Double], right : Array[Double]) -> Double {
 ///|
 fn slingshot_adv_endpoint_extension(
   model : SlingshotLineageModel,
-  lineage : Array[Int],
+  lineage : Array[Int32],
   config : SlingshotAdvancedConfig,
 ) -> Array[Array[Double]] {
   let points : Array[Array[Double]] = []
@@ -1421,7 +1445,7 @@ fn slingshot_adv_smooth_curve(
   coordinates : Array[Array[Double]],
   pseudotime : Array[Double],
   weights : Array[Double],
-  points : Int,
+  points : Int32,
   span : Double,
 ) -> Array[Array[Double]] {
   let dimensions = coordinates[0].length()
@@ -1461,7 +1485,7 @@ fn slingshot_adv_distance_ranks(
 ) -> Array[Array[Double]] {
   let cells = distances.length()
   let lineages = if cells > 0 { distances[0].length() } else { 0 }
-  let entries : Array[(Double, Int, Int, Double)] = []
+  let entries : Array[(Double, Int32, Int32, Double)] = []
   let mut total = 0.0
   for cell in 0..<cells {
     let mut row_total = 0.0
@@ -1479,9 +1503,9 @@ fn slingshot_adv_distance_ranks(
     }
   }
   entries.sort_by(fn(
-    left : (Double, Int, Int, Double),
-    right : (Double, Int, Int, Double),
-  ) -> Int {
+    left : (Double, Int32, Int32, Double),
+    right : (Double, Int32, Int32, Double),
+  ) -> Int32 {
     if left.0 < right.0 {
       -1
     } else if left.0 > right.0 {
@@ -1572,7 +1596,10 @@ fn slingshot_adv_update_weights(
 }
 
 ///|
-fn slingshot_adv_shared_prefix(left : Array[Int], right : Array[Int]) -> Int {
+fn slingshot_adv_shared_prefix(
+  left : Array[Int32],
+  right : Array[Int32],
+) -> Int32 {
   let limit = left.length().min(right.length())
   let mut shared = 0
   while shared < limit && left[shared] == right[shared] {
@@ -1584,7 +1611,7 @@ fn slingshot_adv_shared_prefix(left : Array[Int], right : Array[Int]) -> Int {
 ///|
 fn slingshot_adv_shrink_curves(
   curves : Array[Array[Array[Double]]],
-  lineages : Array[Array[Int]],
+  lineages : Array[Array[Int32]],
   shrink : Double,
 ) -> Array[Array[Array[Double]]] {
   if shrink <= 0.0 || curves.length() <= 1 {
@@ -1595,7 +1622,7 @@ fn slingshot_adv_shrink_curves(
     for point in 0..<curves[lineage].length() {
       let fraction = point.to_double() /
         (curves[lineage].length() - 1).to_double()
-      let partners : Array[Int] = [lineage]
+      let partners : Array[Int32] = [lineage]
       let thresholds : Array[Double] = [1.0]
       for other in 0..<curves.length() {
         if other != lineage {
@@ -1683,7 +1710,7 @@ fn slingshot_adv_build_output(
   model : SlingshotLineageModel,
   curves : Array[SlingshotAdvancedCurve],
   weights : Array[Array[Double]],
-  iterations : Int,
+  iterations : Int32,
   converged : Bool,
   total_distance : Double,
   config : SlingshotAdvancedConfig,
@@ -1885,7 +1912,7 @@ fn slingshot_adv_branch_ids_from_weights(
 ///|
 pub fn slingshot_branch_ids(
   result : SlingshotAdvancedResult,
-  threshold? : Double = -1.0,
+  threshold~ : Double = -1.0,
 ) -> Array[String] raise SlingshotAdvancedError {
   if !is_finite(threshold) || threshold > 1.0 || threshold < -1.0 {
     slingshot_adv_fail("slingshot branch threshold must be in [0, 1]")
@@ -1921,7 +1948,7 @@ fn slingshot_adv_quantile(
     return 1.0
   }
   let sorted = values.copy()
-  sorted.sort_by(fn(left : Double, right : Double) -> Int {
+  sorted.sort_by(fn(left : Double, right : Double) -> Int32 {
     if left < right {
       -1
     } else if left > right {
@@ -2062,9 +2089,9 @@ fn slingshot_adv_copy_sce(
 pub fn slingshot_advanced_sce(
   experiment : SingleCellExperiment,
   config : SlingshotAdvancedConfig,
-  reduced_dim_name? : String = "PCA",
-  cluster_column? : String = "cluster",
-  output_prefix? : String = "slingshot",
+  reduced_dim_name~ : String = "PCA",
+  cluster_column~ : String = "cluster",
+  output_prefix~ : String = "slingshot",
 ) -> SlingshotAdvancedSceOutput raise SlingshotAdvancedError {
   if reduced_dim_name.length() == 0 ||
     cluster_column.length() == 0 ||
@@ -2131,7 +2158,9 @@ pub fn slingshot_advanced_sce(
 }
 
 ///|
-pub fn SlingshotLineageModel::lineages_string(result : SlingshotLineageModel) -> Array[Array[String]] {
+pub fn SlingshotLineageModel::lineages_string(
+  result : SlingshotLineageModel,
+) -> Array[Array[String]] {
   let out : Array[Array[String]] = []
   let mut i = 0
   while i < result.lineages.length() {
@@ -2149,7 +2178,9 @@ pub fn SlingshotLineageModel::lineages_string(result : SlingshotLineageModel) ->
 }
 
 ///|
-pub fn SlingshotLineageModel::roots_string(result : SlingshotLineageModel) -> Array[String] {
+pub fn SlingshotLineageModel::roots_string(
+  result : SlingshotLineageModel,
+) -> Array[String] {
   let out : Array[String] = []
   let mut i = 0
   while i < result.roots.length() {
@@ -2160,67 +2191,93 @@ pub fn SlingshotLineageModel::roots_string(result : SlingshotLineageModel) -> Ar
 }
 
 ///|
-pub fn SlingshotLineageModel::edges(result : SlingshotLineageModel) -> Array[SlingshotLineageEdge] {
+pub fn SlingshotLineageModel::edges(
+  result : SlingshotLineageModel,
+) -> Array[SlingshotLineageEdge] {
   result.edges.copy()
 }
 
 ///|
-pub fn SlingshotLineageModel::cluster_names(result : SlingshotLineageModel) -> Array[String] {
+pub fn SlingshotLineageModel::cluster_names(
+  result : SlingshotLineageModel,
+) -> Array[String] {
   result.cluster_names.copy()
 }
 
 ///|
-pub fn SlingshotAdvancedResult::lineages_string(result : SlingshotAdvancedResult) -> Array[Array[String]] {
+pub fn SlingshotAdvancedResult::lineages_string(
+  result : SlingshotAdvancedResult,
+) -> Array[Array[String]] {
   SlingshotLineageModel::lineages_string(result.lineage_model)
 }
 
 ///|
-pub fn SlingshotAdvancedResult::roots_string(result : SlingshotAdvancedResult) -> Array[String] {
+pub fn SlingshotAdvancedResult::roots_string(
+  result : SlingshotAdvancedResult,
+) -> Array[String] {
   SlingshotLineageModel::roots_string(result.lineage_model)
 }
 
 ///|
-pub fn SlingshotAdvancedResult::curves(result : SlingshotAdvancedResult) -> Array[SlingshotAdvancedCurve] {
+pub fn SlingshotAdvancedResult::curves(
+  result : SlingshotAdvancedResult,
+) -> Array[SlingshotAdvancedCurve] {
   result.curves.copy()
 }
 
 ///|
-pub fn SlingshotAdvancedResult::converged(result : SlingshotAdvancedResult) -> Bool {
+pub fn SlingshotAdvancedResult::converged(
+  result : SlingshotAdvancedResult,
+) -> Bool {
   result.converged
 }
 
 ///|
-pub fn SlingshotAdvancedResult::iterations(result : SlingshotAdvancedResult) -> Int {
+pub fn SlingshotAdvancedResult::iterations(
+  result : SlingshotAdvancedResult,
+) -> Int32 {
   result.iterations
 }
 
 ///|
-pub fn SlingshotAdvancedCurve::points(result : SlingshotAdvancedCurve) -> Array[Array[Double]] {
+pub fn SlingshotAdvancedCurve::points(
+  result : SlingshotAdvancedCurve,
+) -> Array[Array[Double]] {
   result.points.copy()
 }
 
 ///|
-pub fn SlingshotAdvancedCurve::pseudotime(result : SlingshotAdvancedCurve) -> Array[Double] {
+pub fn SlingshotAdvancedCurve::pseudotime(
+  result : SlingshotAdvancedCurve,
+) -> Array[Double] {
   result.pseudotime.copy()
 }
 
 ///|
-pub fn SlingshotAdvancedCurve::distances(result : SlingshotAdvancedCurve) -> Array[Double] {
+pub fn SlingshotAdvancedCurve::distances(
+  result : SlingshotAdvancedCurve,
+) -> Array[Double] {
   result.distances.copy()
 }
 
 ///|
-pub fn SlingshotAdvancedCurve::weights(result : SlingshotAdvancedCurve) -> Array[Double] {
+pub fn SlingshotAdvancedCurve::weights(
+  result : SlingshotAdvancedCurve,
+) -> Array[Double] {
   result.weights.copy()
 }
 
 ///|
-pub fn SlingshotAdvancedCurve::curve_length(result : SlingshotAdvancedCurve) -> Double {
+pub fn SlingshotAdvancedCurve::curve_length(
+  result : SlingshotAdvancedCurve,
+) -> Double {
   result.length
 }
 
 ///|
-pub fn SlingshotAdvancedCurve::curve_name(result : SlingshotAdvancedCurve) -> String {
+pub fn SlingshotAdvancedCurve::curve_name(
+  result : SlingshotAdvancedCurve,
+) -> String {
   result.name
 }
 

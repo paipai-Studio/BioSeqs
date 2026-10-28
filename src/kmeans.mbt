@@ -4,15 +4,15 @@ pub type Point = Array[Double]
 
 ///|
 pub struct KMeans {
-  k : Int
+  k : Int32
   centroids : Array[Point]
-  labels : Array[Int]
-  max_iter : Int
+  labels : Array[Int32]
+  max_iter : Int32
   tol : Double
 }
 
 ///|
-pub fn KMeans::new(k : Int, max_iter : Int, tol : Double) -> KMeans {
+pub fn KMeans::new(k : Int32, max_iter : Int32, tol : Double) -> KMeans {
   KMeans::{ k, centroids: [], labels: [], max_iter, tol, }
 }
 
@@ -68,7 +68,7 @@ pub fn cosine_distance(a : Point, b : Point) -> Double {
 pub fn assign_clusters(
   data : Array[Point],
   centroids : Array[Point],
-) -> Array[Int] {
+) -> Array[Int32] {
   let labels = []
 
   for point in data {
@@ -92,8 +92,8 @@ pub fn assign_clusters(
 ///|
 pub fn update_centroids(
   data : Array[Point],
-  labels : Array[Int],
-  k : Int,
+  labels : Array[Int32],
+  k : Int32,
 ) -> Array[Point] {
   let n = data.length()
   let dim = if n > 0 { data[0].length() } else { 0 }
@@ -165,12 +165,12 @@ pub fn KMeans::fit(self : KMeans, data : Array[Point]) -> KMeans {
 }
 
 ///|
-pub fn KMeans::predict(self : KMeans, data : Array[Point]) -> Array[Int] {
+pub fn KMeans::predict(self : KMeans, data : Array[Point]) -> Array[Int32] {
   assign_clusters(data, self.centroids)
 }
 
 ///|
-pub fn KMeans::predict_single(self : KMeans, point : Point) -> Int {
+pub fn KMeans::predict_single(self : KMeans, point : Point) -> Int32 {
   let mut min_dist = 1000000000000000000000000000000000.0
   let mut min_idx = 0
 
@@ -191,7 +191,7 @@ pub fn KMeans::get_centroids(self : KMeans) -> Array[Point] {
 }
 
 ///|
-pub fn KMeans::get_labels(self : KMeans) -> Array[Int] {
+pub fn KMeans::get_labels(self : KMeans) -> Array[Int32] {
   self.labels
 }
 
@@ -209,7 +209,7 @@ pub fn KMeans::inertia(self : KMeans, data : Array[Point]) -> Double {
 }
 
 ///|
-pub fn silhouette_score(data : Array[Point], labels : Array[Int]) -> Double {
+pub fn silhouette_score(data : Array[Point], labels : Array[Int32]) -> Double {
   let n = data.length()
   if n == 0 {
     return 0.0
@@ -274,13 +274,17 @@ pub fn silhouette_score(data : Array[Point], labels : Array[Int]) -> Double {
 }
 
 ///|
-pub fn cluster_gene_expression(data : Array[Point], k : Int) -> KMeans {
+pub fn cluster_gene_expression(data : Array[Point], k : Int32) -> KMeans {
   let kmeans = KMeans::new(k, 100, 0.000001)
   kmeans.fit(data)
 }
 
 ///|
-pub fn find_optimal_k(data : Array[Point], min_k : Int, max_k : Int) -> Int {
+pub fn find_optimal_k(
+  data : Array[Point],
+  min_k : Int32,
+  max_k : Int32,
+) -> Int32 {
   let mut best_k = min_k
   let mut best_silhouette = -1.0
 

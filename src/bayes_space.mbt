@@ -21,8 +21,8 @@
 /// Spatial coordinates for a single spot.
 pub struct SpotCoord {
   spot_id : String
-  row : Int // array row index
-  col : Int // array column index
+  row : Int32 // array row index
+  col : Int32 // array column index
   x : Double // continuous x coordinate (e.g. pixel)
   y : Double // continuous y coordinate
 }
@@ -31,8 +31,8 @@ pub struct SpotCoord {
 /// Create a SpotCoord.
 pub fn spot_coord(
   spot_id : String,
-  row : Int,
-  col : Int,
+  row : Int32,
+  col : Int32,
   x : Double,
   y : Double,
 ) -> SpotCoord {
@@ -43,11 +43,11 @@ pub fn spot_coord(
 /// BayesSpace clustering result.
 pub struct BayesSpaceResult {
   spot_ids : Array[String]
-  clusters : Array[Int] // cluster assignment per spot (0..q-1)
-  q : Int // number of clusters
+  clusters : Array[Int32] // cluster assignment per spot (0..q-1)
+  q : Int32 // number of clusters
   cluster_centers : Array[Array[Double]] // q × n_features matrix
   responsibilities : Array[Array[Double]] // n_spots × q soft assignments
-  n_iterations : Int
+  n_iterations : Int32
   log_likelihood : Double
   converged : Bool
 }
@@ -59,17 +59,19 @@ pub struct BayesSpaceResult {
 /// For square-grid compatibility we also include (r±1, c±1) as neighbors.
 ///
 /// Returns neighbor_indices[i] = list of spot indices that are neighbors of spot i.
-pub fn bayes_space_hex_neighbors(spots : Array[SpotCoord]) -> Array[Array[Int]] {
+pub fn bayes_space_hex_neighbors(
+  spots : Array[SpotCoord],
+) -> Array[Array[Int32]] {
   let n = spots.length()
   // Build a map from (row, col) to spot index
-  let coord_map : Map[String, Int] = Map([])
+  let coord_map : Map[String, Int32] = Map([])
   let mut i = 0
   while i < n {
     let key = spots[i].row.to_string() + "," + spots[i].col.to_string()
     coord_map.set(key, i)
     i = i + 1
   }
-  let neighbors : Array[Array[Int]] = Array(capacity=0)
+  let neighbors : Array[Array[Int32]] = Array(capacity=0)
   let mut k = 0
   while k < n {
     neighbors.push(Array(capacity=0))
@@ -109,16 +111,16 @@ pub fn bayes_space_hex_neighbors(spots : Array[SpotCoord]) -> Array[Array[Int]] 
 /// Build a square-grid neighbor list (4-connectivity).
 pub fn bayes_space_square_neighbors(
   spots : Array[SpotCoord],
-) -> Array[Array[Int]] {
+) -> Array[Array[Int32]] {
   let n = spots.length()
-  let coord_map : Map[String, Int] = Map([])
+  let coord_map : Map[String, Int32] = Map([])
   let mut i = 0
   while i < n {
     let key = spots[i].row.to_string() + "," + spots[i].col.to_string()
     coord_map.set(key, i)
     i = i + 1
   }
-  let neighbors : Array[Array[Int]] = Array(capacity=0)
+  let neighbors : Array[Array[Int32]] = Array(capacity=0)
   let mut k = 0
   while k < n {
     neighbors.push(Array(capacity=0))
@@ -147,15 +149,14 @@ pub fn bayes_space_square_neighbors(
 ///|
 /// Simple deterministic pseudo-random number generator (Linear Congruential).
 priv struct BayesRng {
-  mut state : Int
+  mut state : Int32
 }
 
 ///|
-fn bayes_rng_next(rng : BayesRng) -> Int {
+fn bayes_rng_next(rng : BayesRng) -> Int32 {
   rng.state = (rng.state * 1103515245 + 12345) & 0x7fffffff
   rng.state
 }
-
 
 ///|
 /// Log of the Student's t-distribution density at point x given location mu,
@@ -186,7 +187,7 @@ fn bayes_space_log_t_density(
 /// Initialize cluster centers using k-means++ seeding for well-separated starts.
 fn bayes_space_init_centers(
   expression : Array[Array[Double]],
-  q : Int,
+  q : Int32,
   rng : BayesRng,
 ) -> Array[Array[Double]] {
   let n = expression.length()
@@ -279,13 +280,13 @@ fn bayes_space_euclidean(a : Array[Double], b : Array[Double]) -> Double {
 pub fn bayes_space_run(
   expression : Array[Array[Double]],
   spots : Array[SpotCoord],
-  q : Int,
-  neighbors : Array[Array[Int]],
-  max_iters? : Int = 50,
-  gamma? : Double = 1.0,
-  df? : Double = 6.0,
-  seed? : Int = 42,
-  tol? : Double = 1.0e-4,
+  q : Int32,
+  neighbors : Array[Array[Int32]],
+  max_iters~ : Int32 = 50,
+  gamma~ : Double = 1.0,
+  df~ : Double = 6.0,
+  seed~ : Int32 = 42,
+  tol~ : Double = 1.0e-4,
 ) -> BayesSpaceResult {
   let n_spots = expression.length()
   let n_features = if n_spots > 0 { expression[0].length() } else { 0 }
@@ -490,7 +491,7 @@ pub fn bayes_space_run(
   }
 
   // Final hard assignments
-  let clusters : Array[Int] = Array::make(n_spots, 0)
+  let clusters : Array[Int32] = Array::make(n_spots, 0)
   let spot_ids : Array[String] = Array::make(n_spots, "")
   i = 0
   while i < n_spots {
@@ -526,7 +527,7 @@ pub fn bayes_space_run(
 pub fn bayes_space_get_cluster(
   result : BayesSpaceResult,
   spot_id : String,
-) -> Int {
+) -> Int32 {
   let mut i = 0
   while i < result.spot_ids.length() {
     if result.spot_ids[i] == spot_id {
@@ -541,7 +542,7 @@ pub fn bayes_space_get_cluster(
 /// Get all spot IDs assigned to a given cluster.
 pub fn bayes_space_spots_in_cluster(
   result : BayesSpaceResult,
-  cluster : Int,
+  cluster : Int32,
 ) -> Array[String] {
   let out : Array[String] = []
   let mut i = 0
@@ -556,7 +557,7 @@ pub fn bayes_space_spots_in_cluster(
 
 ///|
 /// Count spots per cluster.
-pub fn bayes_space_cluster_counts(result : BayesSpaceResult) -> Array[Int] {
+pub fn bayes_space_cluster_counts(result : BayesSpaceResult) -> Array[Int32] {
   let counts = Array::make(result.q, 0)
   let mut i = 0
   while i < result.clusters.length() {

@@ -2,48 +2,62 @@
 /// Helper: create a cysteine residue with backbone + SG atoms.
 fn make_cys(
   chainid : Char,
-  resseq : Int,
+  resseq : Int32,
   n_pos : @src.Vector3,
   ca_pos : @src.Vector3,
   cb_pos : @src.Vector3,
   sg_pos : @src.Vector3,
 ) -> @src.Residue {
   let atoms = [
-    @src.Atom::new(name="N", coord=n_pos, resname="CYS", chainid=chainid, resseq=resseq),
-    @src.Atom::new(name="CA", coord=ca_pos, resname="CYS", chainid=chainid, resseq=resseq),
-    @src.Atom::new(name="CB", coord=cb_pos, resname="CYS", chainid=chainid, resseq=resseq),
-    @src.Atom::new(name="SG", coord=sg_pos, resname="CYS", chainid=chainid, resseq=resseq),
+    @src.Atom::new(name="N", coord=n_pos, resname="CYS", chainid~, resseq~),
+    @src.Atom::new(name="CA", coord=ca_pos, resname="CYS", chainid~, resseq~),
+    @src.Atom::new(name="CB", coord=cb_pos, resname="CYS", chainid~, resseq~),
+    @src.Atom::new(name="SG", coord=sg_pos, resname="CYS", chainid~, resseq~),
   ]
-  @src.Residue::new(resname="CYS", chainid=chainid, resseq=resseq, atoms~)
+  @src.Residue::new(resname="CYS", chainid~, resseq~, atoms~)
 }
 
 ///|
 /// Helper: create a non-cysteine residue.
 fn make_gly(
   chainid : Char,
-  resseq : Int,
+  resseq : Int32,
   ca_pos : @src.Vector3,
 ) -> @src.Residue {
   let atoms = [
-    @src.Atom::new(name="N", coord=@src.Vector3::new(ca_pos.x - 1.5, ca_pos.y, ca_pos.z), resname="GLY", chainid=chainid, resseq=resseq),
-    @src.Atom::new(name="CA", coord=ca_pos, resname="GLY", chainid=chainid, resseq=resseq),
-    @src.Atom::new(name="C", coord=@src.Vector3::new(ca_pos.x + 1.5, ca_pos.y, ca_pos.z), resname="GLY", chainid=chainid, resseq=resseq),
+    @src.Atom::new(
+      name="N",
+      coord=@src.Vector3::new(ca_pos.x - 1.5, ca_pos.y, ca_pos.z),
+      resname="GLY",
+      chainid~,
+      resseq~,
+    ),
+    @src.Atom::new(name="CA", coord=ca_pos, resname="GLY", chainid~, resseq~),
+    @src.Atom::new(
+      name="C",
+      coord=@src.Vector3::new(ca_pos.x + 1.5, ca_pos.y, ca_pos.z),
+      resname="GLY",
+      chainid~,
+      resseq~,
+    ),
   ]
-  @src.Residue::new(resname="GLY", chainid=chainid, resseq=resseq, atoms~)
+  @src.Residue::new(resname="GLY", chainid~, resseq~, atoms~)
 }
 
 ///|
 test "disulfide: find disulfide bond" {
   // Two cysteines with SG atoms 2.05 Å apart
   let cys1 = make_cys(
-    'A', 1,
+    'A',
+    1,
     @src.Vector3::new(0.0, 0.0, 0.0),
     @src.Vector3::new(1.5, 0.0, 0.0),
     @src.Vector3::new(2.0, 1.0, 0.0),
     @src.Vector3::new(3.0, 1.5, 0.0),
   )
   let cys2 = make_cys(
-    'A', 2,
+    'A',
+    2,
     @src.Vector3::new(6.0, 0.0, 0.0),
     @src.Vector3::new(5.0, 0.0, 0.0),
     @src.Vector3::new(4.0, 1.0, 0.0),
@@ -58,14 +72,16 @@ test "disulfide: find disulfide bond" {
 ///|
 test "disulfide: no disulfide (distant Cys)" {
   let cys1 = make_cys(
-    'A', 1,
+    'A',
+    1,
     @src.Vector3::new(0.0, 0.0, 0.0),
     @src.Vector3::new(1.5, 0.0, 0.0),
     @src.Vector3::new(2.0, 1.0, 0.0),
     @src.Vector3::new(3.0, 1.5, 0.0),
   )
   let cys2 = make_cys(
-    'A', 2,
+    'A',
+    2,
     @src.Vector3::new(20.0, 0.0, 0.0),
     @src.Vector3::new(18.5, 0.0, 0.0),
     @src.Vector3::new(17.0, 1.0, 0.0),
@@ -88,7 +104,8 @@ test "disulfide: no cysteines" {
 ///|
 test "disulfide: single cysteine" {
   let cys1 = make_cys(
-    'A', 1,
+    'A',
+    1,
     @src.Vector3::new(0.0, 0.0, 0.0),
     @src.Vector3::new(1.5, 0.0, 0.0),
     @src.Vector3::new(2.0, 1.0, 0.0),
@@ -102,14 +119,16 @@ test "disulfide: single cysteine" {
 ///|
 test "disulfide: oxidation state" {
   let cys1 = make_cys(
-    'A', 1,
+    'A',
+    1,
     @src.Vector3::new(0.0, 0.0, 0.0),
     @src.Vector3::new(1.5, 0.0, 0.0),
     @src.Vector3::new(2.0, 1.0, 0.0),
     @src.Vector3::new(3.0, 1.5, 0.0),
   )
   let cys2 = make_cys(
-    'A', 2,
+    'A',
+    2,
     @src.Vector3::new(6.0, 0.0, 0.0),
     @src.Vector3::new(5.0, 0.0, 0.0),
     @src.Vector3::new(4.0, 1.0, 0.0),
@@ -124,14 +143,16 @@ test "disulfide: oxidation state" {
 ///|
 test "disulfide: sg_sg_distance" {
   let cys1 = make_cys(
-    'A', 1,
+    'A',
+    1,
     @src.Vector3::new(0.0, 0.0, 0.0),
     @src.Vector3::new(1.5, 0.0, 0.0),
     @src.Vector3::new(2.0, 1.0, 0.0),
     @src.Vector3::new(0.0, 0.0, 0.0),
   )
   let cys2 = make_cys(
-    'A', 2,
+    'A',
+    2,
     @src.Vector3::new(10.0, 0.0, 0.0),
     @src.Vector3::new(8.5, 0.0, 0.0),
     @src.Vector3::new(7.0, 1.0, 0.0),
@@ -146,14 +167,16 @@ test "disulfide: sg_sg_distance" {
 ///|
 test "disulfide: distance cutoff filtering" {
   let cys1 = make_cys(
-    'A', 1,
+    'A',
+    1,
     @src.Vector3::new(0.0, 0.0, 0.0),
     @src.Vector3::new(1.5, 0.0, 0.0),
     @src.Vector3::new(2.0, 1.0, 0.0),
     @src.Vector3::new(0.0, 0.0, 0.0),
   )
   let cys2 = make_cys(
-    'A', 2,
+    'A',
+    2,
     @src.Vector3::new(10.0, 0.0, 0.0),
     @src.Vector3::new(8.5, 0.0, 0.0),
     @src.Vector3::new(7.0, 1.0, 0.0),
@@ -178,14 +201,16 @@ test "disulfide: summary output" {
 ///|
 test "disulfide: chi angles present" {
   let cys1 = make_cys(
-    'A', 1,
+    'A',
+    1,
     @src.Vector3::new(0.0, 0.0, 0.0),
     @src.Vector3::new(1.5, 0.0, 0.0),
     @src.Vector3::new(2.0, 1.0, 0.0),
     @src.Vector3::new(3.0, 1.5, 0.0),
   )
   let cys2 = make_cys(
-    'A', 2,
+    'A',
+    2,
     @src.Vector3::new(6.0, 0.0, 0.0),
     @src.Vector3::new(5.0, 0.0, 0.0),
     @src.Vector3::new(4.0, 1.0, 0.0),
@@ -204,14 +229,16 @@ test "disulfide: chi angles present" {
 ///|
 test "disulfide: resseq and chainid" {
   let cys1 = make_cys(
-    'B', 10,
+    'B',
+    10,
     @src.Vector3::new(0.0, 0.0, 0.0),
     @src.Vector3::new(1.5, 0.0, 0.0),
     @src.Vector3::new(2.0, 1.0, 0.0),
     @src.Vector3::new(3.0, 1.5, 0.0),
   )
   let cys2 = make_cys(
-    'B', 20,
+    'B',
+    20,
     @src.Vector3::new(6.0, 0.0, 0.0),
     @src.Vector3::new(5.0, 0.0, 0.0),
     @src.Vector3::new(4.0, 1.0, 0.0),

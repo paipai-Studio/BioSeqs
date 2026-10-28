@@ -143,7 +143,7 @@ fn protein_shannon_entropy(freqs : Array[Double]) -> Double {
 ///|
 fn protein_aa_frequency_at(
   alignment : Array[String],
-  pos : Int,
+  pos : Int32,
 ) -> Array[Double] {
   let freqs : Array[Double] = Array(capacity=0)
   let n = alignment.length().to_double()
@@ -159,7 +159,7 @@ fn protein_aa_frequency_at(
       let c = if char_code >= 97 && char_code <= 122 {
         (char_code - 32).unsafe_to_char()
       } else {
-        (char_code).unsafe_to_char()
+        char_code.unsafe_to_char()
       }
       let count = match aa_map.get(c) {
         Some(v) => v + 1.0
@@ -210,7 +210,7 @@ pub fn protein_conservation(alignment : Array[String]) -> Array[Double] {
 /// Returns array of hydropathy values averaged over a sliding window.
 pub fn protein_hydropathy(
   sequence : String,
-  window? : Int = 7,
+  window~ : Int32 = 7,
 ) -> Array[Double] {
   let seq = sequence.to_upper()
   let w = if window <= 0 { 7 } else { window }
@@ -301,8 +301,8 @@ pub fn protein_antigenicity(sequence : String) -> Array[Double] {
 /// Returns array of scores: positive = transmembrane, negative = inside/outside.
 pub fn protein_transmembrane(
   sequence : String,
-  window? : Int = 19,
-  threshold? : Double = 1.6,
+  window~ : Int32 = 19,
+  threshold~ : Double = 1.6,
 ) -> Array[Double] {
   ignore(threshold)
   let seq = sequence.to_upper()
@@ -412,7 +412,9 @@ pub fn protein_summary(sequence : String) -> String {
     sorted_keys.push(keys[ki])
     ki = ki + 1
   }
-  sorted_keys.sort_by(fn(a : Char, b : Char) -> Int { a.to_int() - b.to_int() })
+  sorted_keys.sort_by(fn(a : Char, b : Char) -> Int32 {
+    a.to_int() - b.to_int()
+  })
   out = out + "\nAmino Acid Composition:\n"
   let mut si = 0
   while si < sorted_keys.length() {

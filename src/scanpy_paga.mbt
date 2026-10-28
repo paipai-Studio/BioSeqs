@@ -5,7 +5,7 @@
 ///|
 pub fn scanpy_paga(
   graph : SparseGraph,
-  labels : Array[Int],
+  labels : Array[Int32],
 ) -> Array[Array[Double]] {
   let n = graph.num_vertices()
   if n == 0 {
@@ -59,7 +59,13 @@ pub fn scanpy_paga(
       let expected = (es[i] * ns[j].to_double() + es[j] * ns[i].to_double()) /
         (n - 1).to_double()
       let scaled = if expected != 0.0 { v / expected } else { 1.0 }
-      conn[i][j] = if scaled > 1.0 { 1.0 } else if scaled < 0.0 { 0.0 } else { scaled }
+      conn[i][j] = if scaled > 1.0 {
+        1.0
+      } else if scaled < 0.0 {
+        0.0
+      } else {
+        scaled
+      }
     }
   }
   conn

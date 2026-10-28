@@ -22,7 +22,7 @@ pub fn VariantType::show(self : VariantType) -> String {
 ///|
 pub struct VariantAnnotation {
   chrom : String
-  pos : Int
+  pos : Int32
   ref_allele : String
   alt_allele : String
   variant_type : VariantType
@@ -30,7 +30,7 @@ pub struct VariantAnnotation {
   gene_name : String
   transcript_id : String
   exon_id : String
-  cds_position : Int
+  cds_position : Int32
   aa_change : String
   codon_change : String
   consequence : String
@@ -39,7 +39,7 @@ pub struct VariantAnnotation {
 ///|
 pub fn VariantAnnotation::new(
   chrom : String,
-  pos : Int,
+  pos : Int32,
   ref_allele : String,
   alt_allele : String,
   variant_type : VariantType,
@@ -47,7 +47,7 @@ pub fn VariantAnnotation::new(
   gene_name : String,
   transcript_id : String,
   exon_id : String,
-  cds_position : Int,
+  cds_position : Int32,
   aa_change : String,
   codon_change : String,
   consequence : String,
@@ -176,13 +176,13 @@ pub fn locate_variants(
 ///|
 pub struct CodingPrediction {
   chrom : String
-  pos : Int
+  pos : Int32
   ref_allele : String
   alt_allele : String
   gene_id : String
   transcript_id : String
-  cds_pos : Int
-  codon_pos : Int
+  cds_pos : Int32
+  codon_pos : Int32
   original_codon : String
   mutated_codon : String
   original_aa : String
@@ -194,13 +194,13 @@ pub struct CodingPrediction {
 ///|
 pub fn CodingPrediction::new(
   chrom : String,
-  pos : Int,
+  pos : Int32,
   ref_allele : String,
   alt_allele : String,
   gene_id : String,
   transcript_id : String,
-  cds_pos : Int,
-  codon_pos : Int,
+  cds_pos : Int32,
+  codon_pos : Int32,
   original_codon : String,
   mutated_codon : String,
   original_aa : String,
@@ -432,18 +432,18 @@ pub fn predict_coding(
 
 ///|
 pub struct VariantSummary {
-  mut total_variants : Int
-  mut snp_count : Int
-  mut insertion_count : Int
-  mut deletion_count : Int
-  mut indel_count : Int
-  mut coding_variants : Int
-  mut non_coding_variants : Int
-  mut synonymous_count : Int
-  mut missense_count : Int
-  mut nonsense_count : Int
+  mut total_variants : Int32
+  mut snp_count : Int32
+  mut insertion_count : Int32
+  mut deletion_count : Int32
+  mut indel_count : Int32
+  mut coding_variants : Int32
+  mut non_coding_variants : Int32
+  mut synonymous_count : Int32
+  mut missense_count : Int32
+  mut nonsense_count : Int32
   gene_ids : Array[String]
-  gene_counts : Array[Int]
+  gene_counts : Array[Int32]
 }
 
 ///|

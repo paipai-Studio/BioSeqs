@@ -896,9 +896,9 @@ pub fn ESearchResult::new(
   retmax~ : String,
   retstart~ : String,
   ids~ : Array[String],
-  translation? : String? = None,
-  query_key? : String? = None,
-  web_env? : String? = None,
+  translation~ : String? = None,
+  query_key~ : String? = None,
+  web_env~ : String? = None,
 ) -> ESearchResult {
   { count, retmax, retstart, ids, translation, query_key, web_env, }
 }
@@ -1205,12 +1205,12 @@ pub fn EntrezClient::einfo(
 /// matching records.
 pub struct EGQueryRow {
   dbname : String
-  count : Int
+  count : Int32
 }
 
 ///|
 /// Create an EGQueryRow.
-pub fn EGQueryRow::new(dbname~ : String, count~ : Int) -> EGQueryRow {
+pub fn EGQueryRow::new(dbname~ : String, count~ : Int32) -> EGQueryRow {
   { dbname, count, }
 }
 
@@ -1222,7 +1222,7 @@ pub fn EGQueryRow::dbname(self : EGQueryRow) -> String {
 
 ///|
 /// Get the number of matching records in the database.
-pub fn EGQueryRow::count(self : EGQueryRow) -> Int {
+pub fn EGQueryRow::count(self : EGQueryRow) -> Int32 {
   self.count
 }
 
@@ -1256,7 +1256,7 @@ pub fn EGQueryResult::rows(self : EGQueryResult) -> Array[EGQueryRow] {
 
 ///|
 /// Look up the count for one database (None when the database is absent).
-pub fn EGQueryResult::get(self : EGQueryResult, dbname : String) -> Int? {
+pub fn EGQueryResult::get(self : EGQueryResult, dbname : String) -> Int32? {
   for row in self.rows {
     if row.dbname == dbname {
       return Some(row.count)
@@ -1280,7 +1280,7 @@ pub fn parse_egquery(xml : String) -> EGQueryResult {
 }
 
 ///|
-fn parse_int_or(text : String, default : Int) -> Int {
+fn parse_int_or(text : String, default : Int32) -> Int32 {
   let trimmed = text.trim().to_owned()
   if trimmed.length() == 0 {
     return default

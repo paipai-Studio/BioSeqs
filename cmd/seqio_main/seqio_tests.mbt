@@ -31,7 +31,7 @@ fn json_string(s : String) -> String {
 ///|
 /// Convert a SeqRecord to a JSON object string, matching BioPython's
 /// record_to_dict. Key order: id, name, description, seq, length[, qual].
-fn record_to_json(rec : @lib.SeqRecord, include_qual? : Bool = false) -> String {
+fn record_to_json(rec : @lib.SeqRecord, include_qual~ : Bool = false) -> String {
   let buf = StringBuilder()
   buf.write_string("{\"id\": ")
   buf.write_string(json_string(rec.id))
@@ -45,7 +45,7 @@ fn record_to_json(rec : @lib.SeqRecord, include_qual? : Bool = false) -> String 
   buf.write_string(rec.length().to_string())
   if include_qual {
     buf.write_string(", \"qual\": ")
-    let quals : Array[Int] = match rec.phred_quality() {
+    let quals : Array[Int32] = match rec.phred_quality() {
       Some(q) => q
       None => Array(capacity=0)
     }
@@ -66,7 +66,7 @@ fn record_to_json(rec : @lib.SeqRecord, include_qual? : Bool = false) -> String 
 /// Convert an array of SeqRecords to a JSON array string.
 fn records_to_json(
   records : Array[@lib.SeqRecord],
-  include_qual? : Bool = false,
+  include_qual~ : Bool = false,
 ) -> String {
   let buf = StringBuilder()
   buf.write_char('[')
@@ -103,7 +103,9 @@ fn seqio_test() -> Unit {
     "\n@seq2 Another description\nACGTACGT\n+\nIIIIIIII\n@seq3 No quality worth mentioning\natggcc\n+\n;;;;;;\n"
 
   // 1. parse_fasta_multiple
-  let recs = @lib.seqio_parse(fasta_multi, "fasta") catch { _ => Array(capacity=0) }
+  let recs = @lib.seqio_parse(fasta_multi, "fasta") catch {
+    _ => Array(capacity=0)
+  }
   emit("parse_fasta_multiple", records_to_json(recs))
 
   // 2. parse_fasta_lowercase
@@ -185,7 +187,7 @@ fn seqio_test() -> Unit {
   emit("parse_fastq", records_to_json(fq_recs, include_qual=true))
 
   // 9. write_fastq
-  let fq1_quals : Array[Int] = Array(capacity=0)
+  let fq1_quals : Array[Int32] = Array(capacity=0)
   for i = 0; i < 39; i = i + 1 {
     fq1_quals.push(40)
   }

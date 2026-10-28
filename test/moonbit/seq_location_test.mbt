@@ -133,8 +133,8 @@ test "compound_location_basic" {
 
 ///|
 test "compound_from_simple" {
-  let starts : Array[Int] = [0, 200, 500]
-  let ends : Array[Int] = [100, 350, 600]
+  let starts : Array[Int32] = [0, 200, 500]
+  let ends : Array[Int32] = [100, 350, 600]
   let cl = @src.compound_from_simple(starts, ends, strand="+")
   assert_eq(cl.is_compound(), true)
   assert_eq(cl.parts().length(), 3)

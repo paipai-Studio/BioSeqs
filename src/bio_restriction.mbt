@@ -18,23 +18,25 @@
 pub struct BioRestrictionEnzyme {
   name : String
   site : String
-  size : Int
-  fst5 : Int?
-  fst3 : Int?
-  scd5 : Int?
-  scd3 : Int?
+  size : Int32
+  fst5 : Int32?
+  fst3 : Int32?
+  scd5 : Int32?
+  scd3 : Int32?
   /// Signed overhang length: negative = 5' overhang, positive = 3' overhang,
   /// 0 = blunt, None = unknown.
-  ovhg : Int?
+  ovhg : Int32?
   ovhgseq : String
   /// Theoretical frequency: one cut per x bases.
   freq : Double
   supplier_codes : String
   palindromic : Bool
   /// 0 = defined, 1 = ambiguous overhang, 2 = not defined (uncharacterised).
-  spec : Int
+  spec : Int32
   elucidation : String
 } derive(Eq)
+
+///|
 pub extend BioRestrictionEnzyme with Eq::{equal, not_equal}
 
 ///|
@@ -76,7 +78,7 @@ pub let bio_restriction_enzyme_map : Map[String, BioRestrictionEnzyme] = {
 
 ///|
 /// Number of characterised / ambiguous / uncharacterised enzymes.
-pub fn bio_restriction_enzyme_count() -> Int {
+pub fn bio_restriction_enzyme_count() -> Int32 {
   @data.restriction_db_size
 }
 
@@ -159,7 +161,7 @@ fn restriction_format_seq(seq : String) -> String raise SeqError {
 /// Does a degenerate IUPAC pattern character match the concrete sequence
 /// character? Pattern N matches any character, mirroring the regex "." of
 /// Biopython compsite.
-fn restriction_iupac_match(p : Int, s : Int) -> Bool {
+fn restriction_iupac_match(p : Int32, s : Int32) -> Bool {
   match p {
     65 => s == 65 // A
     67 => s == 67 // C
@@ -183,7 +185,7 @@ fn restriction_iupac_match(p : Int, s : Int) -> Bool {
 }
 
 ///|
-fn restriction_complement_code(c : Int) -> Int {
+fn restriction_complement_code(c : Int32) -> Int32 {
   match c {
     65 => 84 // A -> T
     84 => 65 // T -> A
@@ -220,7 +222,7 @@ fn restriction_rc(site : StringView) -> String {
 ///|
 fn restriction_window_match(
   scan : String,
-  pos : Int,
+  pos : Int32,
   pattern : StringView,
 ) -> Bool {
   for j in 0..<pattern.length() {
@@ -234,7 +236,11 @@ fn restriction_window_match(
 }
 
 ///|
-fn restriction_any_alt(scan : String, pos : Int, alts : Array[String]) -> Bool {
+fn restriction_any_alt(
+  scan : String,
+  pos : Int32,
+  alts : Array[String],
+) -> Bool {
   for a in alts {
     if restriction_window_match(scan, pos, a) {
       return true
@@ -245,7 +251,7 @@ fn restriction_any_alt(scan : String, pos : Int, alts : Array[String]) -> Bool {
 
 ///|
 /// Number of double strand cuts: 0 (uncharacterised), 1 or 2.
-fn restriction_ncuts(e : BioRestrictionEnzyme) -> Int {
+fn restriction_ncuts(e : BioRestrictionEnzyme) -> Int32 {
   match e.fst5 {
     None => 0
     Some(_) =>
@@ -258,7 +264,7 @@ fn restriction_ncuts(e : BioRestrictionEnzyme) -> Int {
 
 ///|
 /// Overhang kind: 0 unknown, 1 blunt, 2 = 5' overhang, 3 = 3' overhang.
-fn restriction_end_kind(e : BioRestrictionEnzyme) -> Int {
+fn restriction_end_kind(e : BioRestrictionEnzyme) -> Int32 {
   match e.ovhg {
     None => 0
     Some(0) => 1
@@ -272,7 +278,7 @@ fn restriction_search_formatted(
   e : BioRestrictionEnzyme,
   f : String,
   linear : Bool,
-) -> Array[Int] {
+) -> Array[Int32] {
   let n = f.length()
   let size = e.size
   let alts : Array[String] = []
@@ -290,8 +296,8 @@ fn restriction_search_formatted(
     f + substring(f, 0, extra)
   }
   let ncuts = restriction_ncuts(e)
-  let forward : Array[Int] = []
-  let reverse : Array[Int] = []
+  let forward : Array[Int32] = []
+  let reverse : Array[Int32] = []
   let last = scan.length() - size
   let mut i = 0
   while i <= last {
@@ -338,7 +344,7 @@ fn restriction_search_formatted(
     }
     i = i + 1
   }
-  let results : Array[Int] = []
+  let results : Array[Int32] = []
   for v in forward {
     results.push(v)
   }
@@ -355,7 +361,7 @@ fn restriction_search_formatted(
     if ncuts != 0 {
       match e.ovhg {
         Some(ov) => {
-          let kept : Array[Int] = []
+          let kept : Array[Int32] = []
           for c in results {
             if 1 < c && c <= n && 1 < c - ov && c - ov <= n {
               kept.push(c)
@@ -394,8 +400,8 @@ fn restriction_search_formatted(
 pub fn BioRestrictionEnzyme::search(
   self : BioRestrictionEnzyme,
   seq : String,
-  linear? : Bool = true,
-) -> Array[Int] raise SeqError {
+  linear~ : Bool = true,
+) -> Array[Int32] raise SeqError {
   let f = restriction_format_seq(seq)
   restriction_search_formatted(self, f, linear)
 }
@@ -405,7 +411,7 @@ pub fn BioRestrictionEnzyme::search(
 pub fn BioRestrictionEnzyme::catalyse(
   self : BioRestrictionEnzyme,
   seq : String,
-  linear? : Bool = true,
+  linear~ : Bool = true,
 ) -> Array[String] raise SeqError {
   let f = restriction_format_seq(seq)
   if restriction_ncuts(self) == 0 {
@@ -460,7 +466,7 @@ pub fn BioRestrictionEnzyme::frequency(self : BioRestrictionEnzyme) -> Double {
 /// Characteristic tuple `(fst5, fst3, scd5, scd3, site)`.
 pub fn BioRestrictionEnzyme::characteristic(
   self : BioRestrictionEnzyme,
-) -> (Int?, Int?, Int?, Int?, String) {
+) -> (Int32?, Int32?, Int32?, Int32?, String) {
   (self.fst5, self.fst3, self.scd5, self.scd3, self.site)
 }
 
@@ -645,7 +651,7 @@ pub fn BioRestrictionEnzyme::isoschizomers(
 
 ///|
 /// Overhang matching classes used by Biopython's Ambiguous._mod2.
-fn restriction_overhang_class(c : Int) -> String? {
+fn restriction_overhang_class(c : Int32) -> String? {
   match c {
     82 => Some("ABDGHKMNSRWV") // R
     89 => Some("CBDHKMNSTWVY") // Y
@@ -803,8 +809,8 @@ pub fn BioRestrictionEnzyme::compatible_ends(
 pub fn bio_restriction_search(
   enzyme : BioRestrictionEnzyme,
   seq : String,
-  linear? : Bool = true,
-) -> Array[Int] raise SeqError {
+  linear~ : Bool = true,
+) -> Array[Int32] raise SeqError {
   enzyme.search(seq, linear~)
 }
 
@@ -813,7 +819,7 @@ pub fn bio_restriction_search(
 pub fn bio_restriction_catalyse(
   enzyme : BioRestrictionEnzyme,
   seq : String,
-  linear? : Bool = true,
+  linear~ : Bool = true,
 ) -> Array[String] raise SeqError {
   enzyme.catalyse(seq, linear~)
 }
@@ -889,7 +895,7 @@ pub fn noncommercial_enzymes() -> RestrictionBatch {
 }
 
 ///|
-pub fn RestrictionBatch::length(self : RestrictionBatch) -> Int {
+pub fn RestrictionBatch::length(self : RestrictionBatch) -> Int32 {
   self.names.length()
 }
 
@@ -950,7 +956,7 @@ pub fn RestrictionBatch::remove(self : RestrictionBatch, name : String) -> Unit 
 /// Lexicographic (code point) comparison, matching Python's ``sorted`` for
 /// enzyme names. MoonBit's native ``String`` ordering is length-first, so the
 /// default ``sort`` cannot be used here.
-fn restriction_name_cmp(a : String, b : String) -> Int {
+fn restriction_name_cmp(a : String, b : String) -> Int32 {
   let n = if a.length() < b.length() { a.length() } else { b.length() }
   let mut cmp = 0
   let mut i = 0
@@ -1004,10 +1010,10 @@ pub fn RestrictionBatch::enzymes(
 pub fn RestrictionBatch::search(
   self : RestrictionBatch,
   seq : String,
-  linear? : Bool = true,
-) -> Map[String, Array[Int]] raise SeqError {
+  linear~ : Bool = true,
+) -> Map[String, Array[Int32]] raise SeqError {
   let f = restriction_format_seq(seq)
-  let m : Map[String, Array[Int]] = Map([], capacity=self.names.length() + 1)
+  let m : Map[String, Array[Int32]] = Map([], capacity=self.names.length() + 1)
   for n in self.names {
     let e = require_bio_restriction_enzyme(n)
     m[n] = restriction_search_formatted(e, f, linear)
@@ -1024,18 +1030,18 @@ pub fn RestrictionBatch::search(
 /// Biopython's Analysis class.
 pub struct RestrictionAnalysis {
   batch : RestrictionBatch
-  sequence_length : Int
-  results : Map[String, Array[Int]]
+  sequence_length : Int32
+  results : Map[String, Array[Int32]]
 }
 
 ///|
 pub fn RestrictionAnalysis::new(
   batch~ : RestrictionBatch,
   seq~ : String,
-  linear? : Bool = true,
+  linear~ : Bool = true,
 ) -> RestrictionAnalysis raise SeqError {
   let f = restriction_format_seq(seq)
-  let results : Map[String, Array[Int]] = Map([], capacity=batch.length() + 1)
+  let results : Map[String, Array[Int32]] = Map([], capacity=batch.length() + 1)
   for n in batch.names {
     let e = require_bio_restriction_enzyme(n)
     results[n] = restriction_search_formatted(e, f, linear)
@@ -1044,8 +1050,10 @@ pub fn RestrictionAnalysis::new(
 }
 
 ///|
-fn restriction_copy_map(m : Map[String, Array[Int]]) -> Map[String, Array[Int]] {
-  let r : Map[String, Array[Int]] = Map([], capacity=m.length() + 1)
+fn restriction_copy_map(
+  m : Map[String, Array[Int32]],
+) -> Map[String, Array[Int32]] {
+  let r : Map[String, Array[Int32]] = Map([], capacity=m.length() + 1)
   for k, v in m {
     r[k] = v
   }
@@ -1056,15 +1064,18 @@ fn restriction_copy_map(m : Map[String, Array[Int]]) -> Map[String, Array[Int]] 
 /// Full enzyme -> cut sites map.
 pub fn RestrictionAnalysis::full(
   self : RestrictionAnalysis,
-) -> Map[String, Array[Int]] {
+) -> Map[String, Array[Int32]] {
   restriction_copy_map(self.results)
 }
 
 ///|
 pub fn RestrictionAnalysis::with_sites(
   self : RestrictionAnalysis,
-) -> Map[String, Array[Int]] {
-  let r : Map[String, Array[Int]] = Map([], capacity=self.results.length() + 1)
+) -> Map[String, Array[Int32]] {
+  let r : Map[String, Array[Int32]] = Map(
+    [],
+    capacity=self.results.length() + 1,
+  )
   for k, v in self.results {
     if v.length() > 0 {
       r[k] = v
@@ -1076,8 +1087,11 @@ pub fn RestrictionAnalysis::with_sites(
 ///|
 pub fn RestrictionAnalysis::without_site(
   self : RestrictionAnalysis,
-) -> Map[String, Array[Int]] {
-  let r : Map[String, Array[Int]] = Map([], capacity=self.results.length() + 1)
+) -> Map[String, Array[Int32]] {
+  let r : Map[String, Array[Int32]] = Map(
+    [],
+    capacity=self.results.length() + 1,
+  )
   for k, v in self.results {
     if v.length() == 0 {
       r[k] = v
@@ -1089,9 +1103,12 @@ pub fn RestrictionAnalysis::without_site(
 ///|
 pub fn RestrictionAnalysis::with_n_sites(
   self : RestrictionAnalysis,
-  n : Int,
-) -> Map[String, Array[Int]] {
-  let r : Map[String, Array[Int]] = Map([], capacity=self.results.length() + 1)
+  n : Int32,
+) -> Map[String, Array[Int32]] {
+  let r : Map[String, Array[Int32]] = Map(
+    [],
+    capacity=self.results.length() + 1,
+  )
   for k, v in self.results {
     if v.length() == n {
       r[k] = v
@@ -1104,8 +1121,8 @@ pub fn RestrictionAnalysis::with_n_sites(
 fn restriction_analysis_filter(
   analysis : RestrictionAnalysis,
   pred : (BioRestrictionEnzyme) -> Bool,
-) -> Map[String, Array[Int]] {
-  let r : Map[String, Array[Int]] = Map(
+) -> Map[String, Array[Int32]] {
+  let r : Map[String, Array[Int32]] = Map(
     [],
     capacity=analysis.results.length() + 1,
   )
@@ -1121,35 +1138,35 @@ fn restriction_analysis_filter(
 ///|
 pub fn RestrictionAnalysis::blunt(
   self : RestrictionAnalysis,
-) -> Map[String, Array[Int]] {
+) -> Map[String, Array[Int32]] {
   restriction_analysis_filter(self, fn(e) { e.is_blunt() })
 }
 
 ///|
 pub fn RestrictionAnalysis::overhang5(
   self : RestrictionAnalysis,
-) -> Map[String, Array[Int]] {
+) -> Map[String, Array[Int32]] {
   restriction_analysis_filter(self, fn(e) { e.is_5overhang() })
 }
 
 ///|
 pub fn RestrictionAnalysis::overhang3(
   self : RestrictionAnalysis,
-) -> Map[String, Array[Int]] {
+) -> Map[String, Array[Int32]] {
   restriction_analysis_filter(self, fn(e) { e.is_3overhang() })
 }
 
 ///|
 pub fn RestrictionAnalysis::defined(
   self : RestrictionAnalysis,
-) -> Map[String, Array[Int]] {
+) -> Map[String, Array[Int32]] {
   restriction_analysis_filter(self, fn(e) { e.is_defined() })
 }
 
 ///|
 pub fn RestrictionAnalysis::ambiguous(
   self : RestrictionAnalysis,
-) -> Map[String, Array[Int]] {
+) -> Map[String, Array[Int32]] {
   restriction_analysis_filter(self, fn(e) { e.is_ambiguous() })
 }
 
@@ -1158,9 +1175,9 @@ pub fn RestrictionAnalysis::ambiguous(
 /// swap if reversed).
 fn restriction_boundaries(
   analysis : RestrictionAnalysis,
-  start : Int,
-  end : Int,
-) -> (Int, Int)? {
+  start : Int32,
+  end : Int32,
+) -> (Int32, Int32)? {
   let mut s = start
   let mut e = end
   if s < 1 {
@@ -1185,12 +1202,12 @@ fn restriction_boundaries(
 /// Enzymes whose cuts are all within `[start, end)` (at least one cut).
 pub fn RestrictionAnalysis::only_between(
   self : RestrictionAnalysis,
-  start : Int,
-  end : Int,
-) -> Map[String, Array[Int]] {
+  start : Int32,
+  end : Int32,
+) -> Map[String, Array[Int32]] {
   match restriction_boundaries(self, start, end) {
     Some((s, e)) => {
-      let r : Map[String, Array[Int]] = Map(
+      let r : Map[String, Array[Int32]] = Map(
         [],
         capacity=self.results.length() + 1,
       )
@@ -1219,12 +1236,12 @@ pub fn RestrictionAnalysis::only_between(
 /// Enzymes that cut at least once within `[start, end)` (all cuts returned).
 pub fn RestrictionAnalysis::between(
   self : RestrictionAnalysis,
-  start : Int,
-  end : Int,
-) -> Map[String, Array[Int]] {
+  start : Int32,
+  end : Int32,
+) -> Map[String, Array[Int32]] {
   match restriction_boundaries(self, start, end) {
     Some((s, e)) => {
-      let r : Map[String, Array[Int]] = Map(
+      let r : Map[String, Array[Int32]] = Map(
         [],
         capacity=self.results.length() + 1,
       )
@@ -1252,13 +1269,13 @@ pub fn RestrictionAnalysis::between(
 /// region: `site >= start || site <= end`.
 pub fn RestrictionAnalysis::show_only_between(
   self : RestrictionAnalysis,
-  start : Int,
-  end : Int,
-) -> Map[String, Array[Int]] {
+  start : Int32,
+  end : Int32,
+) -> Map[String, Array[Int32]] {
   let candidate = self.between(start, end)
-  let r : Map[String, Array[Int]] = Map([], capacity=candidate.length() + 1)
+  let r : Map[String, Array[Int32]] = Map([], capacity=candidate.length() + 1)
   for k, v in candidate {
-    let kept : Array[Int] = []
+    let kept : Array[Int32] = []
     for site in v {
       let ok = if start <= end {
         start <= site && site <= end
@@ -1278,12 +1295,12 @@ pub fn RestrictionAnalysis::show_only_between(
 /// Enzymes with at least one cut, none of which lie within `[start, end)`.
 pub fn RestrictionAnalysis::only_outside(
   self : RestrictionAnalysis,
-  start : Int,
-  end : Int,
-) -> Map[String, Array[Int]] {
+  start : Int32,
+  end : Int32,
+) -> Map[String, Array[Int32]] {
   match restriction_boundaries(self, start, end) {
     Some((s, e)) => {
-      let r : Map[String, Array[Int]] = Map(
+      let r : Map[String, Array[Int32]] = Map(
         [],
         capacity=self.results.length() + 1,
       )
@@ -1312,12 +1329,12 @@ pub fn RestrictionAnalysis::only_outside(
 /// Enzymes with at least one cut outside `[start, end)`.
 pub fn RestrictionAnalysis::outside(
   self : RestrictionAnalysis,
-  start : Int,
-  end : Int,
-) -> Map[String, Array[Int]] {
+  start : Int32,
+  end : Int32,
+) -> Map[String, Array[Int32]] {
   match restriction_boundaries(self, start, end) {
     Some((s, e)) => {
-      let r : Map[String, Array[Int]] = Map(
+      let r : Map[String, Array[Int32]] = Map(
         [],
         capacity=self.results.length() + 1,
       )
@@ -1344,9 +1361,9 @@ pub fn RestrictionAnalysis::outside(
 /// site plus enzymes cutting only outside the region.
 pub fn RestrictionAnalysis::do_not_cut(
   self : RestrictionAnalysis,
-  start : Int,
-  end : Int,
-) -> Map[String, Array[Int]] {
+  start : Int32,
+  end : Int32,
+) -> Map[String, Array[Int32]] {
   let r = self.without_site()
   let outside_map = self.only_outside(start, end)
   for k, v in outside_map {

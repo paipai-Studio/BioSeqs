@@ -56,7 +56,9 @@ fn _log_expectation_score(
   for a, fa in freqs1 {
     for b, fb in freqs2 {
       if a != '-' && b != '-' {
-        let s = matrix.get_score_case_insensitive(a.to_string(), b.to_string()).to_double()
+        let s = matrix
+          .get_score_case_insensitive(a.to_string(), b.to_string())
+          .to_double()
         total += fa * fb * s
       }
     }
@@ -70,8 +72,8 @@ fn _log_expectation_score(
 /// and computes the LE-based distance.
 fn le_distance(
   aligned_seqs : Array[String],
-  i : Int,
-  j : Int,
+  i : Int32,
+  j : Int32,
   _matrix : @data.SubstitutionMatrix,
 ) -> Double {
   let seq_i = remove_gaps_from_seq(aligned_seqs[i])
@@ -79,14 +81,22 @@ fn le_distance(
   // Simple identity-based distance
   let mut matches = 0
   let mut total = 0
-  let min_len = if seq_i.length() < seq_j.length() { seq_i.length() } else { seq_j.length() }
+  let min_len = if seq_i.length() < seq_j.length() {
+    seq_i.length()
+  } else {
+    seq_j.length()
+  }
   for k = 0; k < min_len; k = k + 1 {
     total += 1
     if seq_i[k] == seq_j[k] {
       matches += 1
     }
   }
-  let max_len = if seq_i.length() > seq_j.length() { seq_i.length() } else { seq_j.length() }
+  let max_len = if seq_i.length() > seq_j.length() {
+    seq_i.length()
+  } else {
+    seq_j.length()
+  }
   total += max_len - min_len
   if total == 0 {
     return 1.0
@@ -135,11 +145,11 @@ fn le_distance_matrix(
 fn subtree_sequences(
   tree : MsaTreeNode,
   sequences : Array[String],
-) -> Array[Int] {
+) -> Array[Int32] {
   if tree.is_leaf {
     return [tree.seq_index]
   }
-  let result : Array[Int] = []
+  let result : Array[Int32] = []
   for child in tree.children {
     let child_seqs = subtree_sequences(child, sequences)
     for s in child_seqs {
@@ -151,7 +161,10 @@ fn subtree_sequences(
 
 ///|
 /// Extract a subset of aligned sequences by index.
-fn extract_subset(alignment : Array[String], indices : Array[Int]) -> Array[String] {
+fn extract_subset(
+  alignment : Array[String],
+  indices : Array[Int32],
+) -> Array[String] {
   let result : Array[String] = []
   for idx in indices {
     result.push(alignment[idx])
@@ -182,10 +195,9 @@ fn muscle_sp_score(
         if c1 == '-' || c2 == '-' {
           total += -4.0
         } else {
-          total += matrix.get_score_case_insensitive(
-            c1.to_string(),
-            c2.to_string(),
-          ).to_double()
+          total += matrix
+            .get_score_case_insensitive(c1.to_string(), c2.to_string())
+            .to_double()
         }
       }
     }
@@ -237,7 +249,7 @@ fn collect_refinements(
   let children = node.children
   if children.length() >= 2 {
     let group1_indices = subtree_sequences(children[0], [])
-    let group2_indices : Array[Int] = []
+    let group2_indices : Array[Int32] = []
     for ci = 1; ci < children.length(); ci = ci + 1 {
       let child_seqs = subtree_sequences(children[ci], [])
       for s in child_seqs {
@@ -316,10 +328,15 @@ pub fn muscle_align(
 ) -> MsaResult {
   let n = sequences.length()
   if n == 0 {
-    return { aligned_sequences: [], names: [], score: 0.0, method_: "muscle" }
+    return { aligned_sequences: [], names: [], score: 0.0, method_: "muscle", }
   }
   if n == 1 {
-    return { aligned_sequences: [sequences[0]], names, score: 0.0, method_: "muscle" }
+    return {
+      aligned_sequences: [sequences[0]],
+      names,
+      score: 0.0,
+      method_: "muscle",
+    }
   }
   let matrix = @data.blosum62()
   let gap_open = -10.0
@@ -327,20 +344,24 @@ pub fn muscle_align(
   // Stage 1: Draft progressive
   let dist1 = mafft_distance_matrix(sequences, k)
   let tree1 = mafft_upgma_tree(dist1)
-  let (draft_raw, order1) = muscle_progressive(tree1, sequences, matrix, gap_open)
+  let (draft_raw, order1) = muscle_progressive(
+    tree1, sequences, matrix, gap_open,
+  )
   let draft = reorder_alignment(draft_raw, order1)
   let draft_cleaned = remove_all_gap_cols(draft)
   // Stage 2: Improved progressive using LE distance
   let dist2 = le_distance_matrix(draft_cleaned, matrix)
   let tree2 = mafft_upgma_tree(dist2)
-  let (improved_raw, order2) = muscle_progressive(tree2, sequences, matrix, gap_open)
+  let (improved_raw, order2) = muscle_progressive(
+    tree2, sequences, matrix, gap_open,
+  )
   let improved = reorder_alignment(improved_raw, order2)
   let improved_cleaned = remove_all_gap_cols(improved)
   // Stage 3: Refinement
   let refined = muscle_refine(improved_cleaned, tree2, matrix, gap_open)
   let cleaned = remove_all_gap_cols(refined)
   let score = muscle_sp_score(cleaned, matrix)
-  { aligned_sequences: cleaned, names, score, method_: "muscle" }
+  { aligned_sequences: cleaned, names, score, method_: "muscle", }
 }
 
 ///|
@@ -348,26 +369,35 @@ pub fn muscle_align(
 pub fn muscle_align_with_params(
   sequences : Array[String],
   names : Array[String],
-  k : Int,
+  k : Int32,
   gap_open : Double,
-  num_refine_rounds : Int,
+  num_refine_rounds : Int32,
 ) -> MsaResult {
   let n = sequences.length()
   if n == 0 {
-    return { aligned_sequences: [], names: [], score: 0.0, method_: "muscle" }
+    return { aligned_sequences: [], names: [], score: 0.0, method_: "muscle", }
   }
   if n == 1 {
-    return { aligned_sequences: [sequences[0]], names, score: 0.0, method_: "muscle" }
+    return {
+      aligned_sequences: [sequences[0]],
+      names,
+      score: 0.0,
+      method_: "muscle",
+    }
   }
   let matrix = @data.blosum62()
   let dist1 = mafft_distance_matrix(sequences, k)
   let tree1 = mafft_upgma_tree(dist1)
-  let (draft_raw, order1) = muscle_progressive(tree1, sequences, matrix, gap_open)
+  let (draft_raw, order1) = muscle_progressive(
+    tree1, sequences, matrix, gap_open,
+  )
   let draft = reorder_alignment(draft_raw, order1)
   let draft_cleaned = remove_all_gap_cols(draft)
   let dist2 = le_distance_matrix(draft_cleaned, matrix)
   let tree2 = mafft_upgma_tree(dist2)
-  let (improved_raw, order2) = muscle_progressive(tree2, sequences, matrix, gap_open)
+  let (improved_raw, order2) = muscle_progressive(
+    tree2, sequences, matrix, gap_open,
+  )
   let improved = reorder_alignment(improved_raw, order2)
   let improved_cleaned = remove_all_gap_cols(improved)
   let mut refined = improved_cleaned
@@ -376,7 +406,7 @@ pub fn muscle_align_with_params(
   }
   let cleaned = remove_all_gap_cols(refined)
   let score = muscle_sp_score(cleaned, matrix)
-  { aligned_sequences: cleaned, names, score, method_: "muscle" }
+  { aligned_sequences: cleaned, names, score, method_: "muscle", }
 }
 
 ///|
@@ -386,18 +416,15 @@ fn muscle_progressive(
   sequences : Array[String],
   matrix : @data.SubstitutionMatrix,
   gap_open : Double,
-) -> (Array[String], Array[Int]) {
+) -> (Array[String], Array[Int32]) {
   if tree.is_leaf {
     return ([sequences[tree.seq_index]], [tree.seq_index])
   }
   let mut result : Array[String] = []
-  let mut order : Array[Int] = []
+  let mut order : Array[Int32] = []
   for child in tree.children {
     let (child_profile, child_order) = muscle_progressive(
-      child,
-      sequences,
-      matrix,
-      gap_open,
+      child, sequences, matrix, gap_open,
     )
     if result.length() == 0 {
       result = child_profile
@@ -420,10 +447,20 @@ pub fn muscle_stage1(
 ) -> MsaResult {
   let n = sequences.length()
   if n == 0 {
-    return { aligned_sequences: [], names: [], score: 0.0, method_: "muscle-s1" }
+    return {
+      aligned_sequences: [],
+      names: [],
+      score: 0.0,
+      method_: "muscle-s1",
+    }
   }
   if n == 1 {
-    return { aligned_sequences: [sequences[0]], names, score: 0.0, method_: "muscle-s1" }
+    return {
+      aligned_sequences: [sequences[0]],
+      names,
+      score: 0.0,
+      method_: "muscle-s1",
+    }
   }
   let matrix = @data.blosum62()
   let gap_open = -10.0
@@ -434,7 +471,7 @@ pub fn muscle_stage1(
   let draft = reorder_alignment(draft_raw, order)
   let cleaned = remove_all_gap_cols(draft)
   let score = muscle_sp_score(cleaned, matrix)
-  { aligned_sequences: cleaned, names, score, method_: "muscle-s1" }
+  { aligned_sequences: cleaned, names, score, method_: "muscle-s1", }
 }
 
 ///|
@@ -445,24 +482,38 @@ pub fn muscle_stage2(
 ) -> MsaResult {
   let n = sequences.length()
   if n == 0 {
-    return { aligned_sequences: [], names: [], score: 0.0, method_: "muscle-s2" }
+    return {
+      aligned_sequences: [],
+      names: [],
+      score: 0.0,
+      method_: "muscle-s2",
+    }
   }
   if n == 1 {
-    return { aligned_sequences: [sequences[0]], names, score: 0.0, method_: "muscle-s2" }
+    return {
+      aligned_sequences: [sequences[0]],
+      names,
+      score: 0.0,
+      method_: "muscle-s2",
+    }
   }
   let matrix = @data.blosum62()
   let gap_open = -10.0
   let k = 6
   let dist1 = mafft_distance_matrix(sequences, k)
   let tree1 = mafft_upgma_tree(dist1)
-  let (draft_raw, order1) = muscle_progressive(tree1, sequences, matrix, gap_open)
+  let (draft_raw, order1) = muscle_progressive(
+    tree1, sequences, matrix, gap_open,
+  )
   let draft = reorder_alignment(draft_raw, order1)
   let draft_cleaned = remove_all_gap_cols(draft)
   let dist2 = le_distance_matrix(draft_cleaned, matrix)
   let tree2 = mafft_upgma_tree(dist2)
-  let (improved_raw, order2) = muscle_progressive(tree2, sequences, matrix, gap_open)
+  let (improved_raw, order2) = muscle_progressive(
+    tree2, sequences, matrix, gap_open,
+  )
   let improved = reorder_alignment(improved_raw, order2)
   let cleaned = remove_all_gap_cols(improved)
   let score = muscle_sp_score(cleaned, matrix)
-  { aligned_sequences: cleaned, names, score, method_: "muscle-s2" }
+  { aligned_sequences: cleaned, names, score, method_: "muscle-s2", }
 }

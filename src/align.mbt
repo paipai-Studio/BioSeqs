@@ -23,6 +23,8 @@ pub struct MultipleSeqAlignment {
   annotations : Map[String, String]
   column_annotations : Map[String, Array[String]]
 } derive(Eq)
+
+///|
 pub extend MultipleSeqAlignment with Eq::{equal, not_equal}
 
 ///|
@@ -30,8 +32,8 @@ pub extend MultipleSeqAlignment with Eq::{equal, not_equal}
 /// All sequences must have the same length.
 pub fn MultipleSeqAlignment::new(
   records : Array[SeqRecord],
-  annotations? : Map[String, String] = Map([], capacity=0),
-  column_annotations? : Map[String, Array[String]] = Map([], capacity=0),
+  annotations~ : Map[String, String] = Map([], capacity=0),
+  column_annotations~ : Map[String, Array[String]] = Map([], capacity=0),
 ) -> MultipleSeqAlignment raise AlignIOError {
   if records.length() > 0 {
     let first_len = records[0].length()
@@ -48,7 +50,7 @@ pub fn MultipleSeqAlignment::new(
 
 ///|
 /// Return the number of sequences (rows) in the alignment.
-pub fn MultipleSeqAlignment::num_records(self : MultipleSeqAlignment) -> Int {
+pub fn MultipleSeqAlignment::num_records(self : MultipleSeqAlignment) -> Int32 {
   self.records.length()
 }
 
@@ -56,7 +58,7 @@ pub fn MultipleSeqAlignment::num_records(self : MultipleSeqAlignment) -> Int {
 /// Return the number of columns in the alignment.
 pub fn MultipleSeqAlignment::get_alignment_length(
   self : MultipleSeqAlignment,
-) -> Int {
+) -> Int32 {
   if self.records.length() == 0 {
     0
   } else {
@@ -68,7 +70,7 @@ pub fn MultipleSeqAlignment::get_alignment_length(
 /// Access the SeqRecord at index `i`.
 pub fn MultipleSeqAlignment::get(
   self : MultipleSeqAlignment,
-  i : Int,
+  i : Int32,
 ) -> SeqRecord? {
   if i >= 0 && i < self.records.length() {
     Some(self.records[i])
@@ -81,7 +83,7 @@ pub fn MultipleSeqAlignment::get(
 /// Get the column at position `col` as a String.
 pub fn MultipleSeqAlignment::column(
   self : MultipleSeqAlignment,
-  col : Int,
+  col : Int32,
 ) -> String? {
   if self.records.length() == 0 {
     return None
@@ -104,10 +106,10 @@ pub fn MultipleSeqAlignment::column(
 /// Returns a new MultipleSeqAlignment with the specified rows and columns.
 pub fn MultipleSeqAlignment::slice(
   self : MultipleSeqAlignment,
-  row_start? : Int = 0,
-  row_end? : Int = -1,
-  col_start? : Int = 0,
-  col_end? : Int = -1,
+  row_start~ : Int32 = 0,
+  row_end~ : Int32 = -1,
+  col_start~ : Int32 = 0,
+  col_end~ : Int32 = -1,
 ) -> MultipleSeqAlignment {
   let n_rows = self.records.length()
   let n_cols = self.get_alignment_length()

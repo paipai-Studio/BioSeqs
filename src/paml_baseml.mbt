@@ -15,7 +15,11 @@ pub struct BasemlOption {
   name : String
   value : String
 } derive(Eq, Debug)
+
+///|
 pub extend BasemlOption with Eq::{equal, not_equal}
+
+///|
 pub extend BasemlOption with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -26,7 +30,11 @@ pub struct BasemlControl {
   tree_file : String
   options : Array[BasemlOption]
 } derive(Eq, Debug)
+
+///|
 pub extend BasemlControl with Eq::{equal, not_equal}
+
+///|
 pub extend BasemlControl with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -37,7 +45,11 @@ pub struct BasemlBaseFrequencies {
   adenine : Double
   guanine : Double
 } derive(Eq, Debug)
+
+///|
 pub extend BasemlBaseFrequencies with Eq::{equal, not_equal}
+
+///|
 pub extend BasemlBaseFrequencies with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -47,7 +59,11 @@ pub struct BasemlQMatrix {
   average_ts_tv : Double?
   rows : Array[Array[Double]]
 } derive(Eq, Debug)
+
+///|
 pub extend BasemlQMatrix with Eq::{equal, not_equal}
+
+///|
 pub extend BasemlQMatrix with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -59,18 +75,26 @@ pub struct BasemlBranchParameter {
   transitions : Double
   transversions : Double
 } derive(Eq, Debug)
+
+///|
 pub extend BasemlBranchParameter with Eq::{equal, not_equal}
+
+///|
 pub extend BasemlBranchParameter with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Frequency parameters and optional realized frequencies for one node.
 pub struct BasemlNodeFrequencies {
-  node : Int
+  node : Int32
   root : Bool
   frequency_parameters : Array[Double]
   base_frequencies : BasemlBaseFrequencies?
 } derive(Eq, Debug)
+
+///|
 pub extend BasemlNodeFrequencies with Eq::{equal, not_equal}
+
+///|
 pub extend BasemlNodeFrequencies with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -80,7 +104,7 @@ pub struct BasemlResults {
   model_description : String
   ln_l_max : Double?
   ln_likelihood : Double
-  parameter_count : Int
+  parameter_count : Int32
   parameter_list : Array[Double]
   standard_errors : Array[Double]
   tree_length : Double
@@ -97,19 +121,27 @@ pub struct BasemlResults {
   base_frequencies : BasemlBaseFrequencies?
   nodes : Array[BasemlNodeFrequencies]
 } derive(Eq, Debug)
+
+///|
 pub extend BasemlResults with Eq::{equal, not_equal}
+
+///|
 pub extend BasemlResults with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Likelihood-ratio comparison between nested BASEML models.
 pub struct BasemlLikelihoodRatio {
   statistic : Double
-  degrees_of_freedom : Int
+  degrees_of_freedom : Int32
   p_value : Double
   alpha : Double
   significant : Bool
 } derive(Eq, Debug)
+
+///|
 pub extend BasemlLikelihoodRatio with Eq::{equal, not_equal}
+
+///|
 pub extend BasemlLikelihoodRatio with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -118,7 +150,7 @@ fn baseml_fail(message : String) -> Unit raise BasemlError {
 }
 
 ///|
-fn baseml_parse_int(text : String, label : String) -> Int raise BasemlError {
+fn baseml_parse_int(text : String, label : String) -> Int32 raise BasemlError {
   codeml_parse_int(text, label) catch {
     CodemlError(_) => {
       baseml_fail(label + " must be an integer")
@@ -264,7 +296,7 @@ fn baseml_is_double_option(name : String) -> Bool {
 ///|
 fn baseml_validate_bounded_option(
   name : String,
-  value : Int,
+  value : Int32,
 ) -> Unit raise BasemlError {
   match name {
     "model" =>
@@ -459,7 +491,7 @@ pub fn BasemlControl::option(self : BasemlControl, name : String) -> String? {
 }
 
 ///|
-pub fn BasemlControl::model_number(self : BasemlControl) -> Int? {
+pub fn BasemlControl::model_number(self : BasemlControl) -> Int32? {
   match self.option("model") {
     Some(value) => {
       let words = codeml_words(value)
@@ -490,7 +522,7 @@ pub fn BasemlControl::model_options(self : BasemlControl) -> String {
 
 ///|
 /// Return PAML's name for a BASEML model number.
-pub fn baseml_model_name(model : Int) -> String raise BasemlError {
+pub fn baseml_model_name(model : Int32) -> String raise BasemlError {
   match model {
     0 => "JC69"
     1 => "K80"
@@ -521,7 +553,7 @@ fn baseml_frequencies(values : Array[Double]) -> BasemlBaseFrequencies {
 }
 
 ///|
-fn baseml_after_delimiter(line : String, delimiter : Int) -> String {
+fn baseml_after_delimiter(line : String, delimiter : Int32) -> String {
   let index = codeml_index_of_char(line, delimiter, 0)
   if index < 0 {
     ""
@@ -613,7 +645,7 @@ fn baseml_node_from_line(line : String) -> BasemlNodeFrequencies? {
 ///|
 fn baseml_set_root(
   nodes : Array[BasemlNodeFrequencies],
-  root : Int,
+  root : Int32,
 ) -> Array[BasemlNodeFrequencies] {
   let updated : Array[BasemlNodeFrequencies] = []
   for node in nodes {
@@ -1075,7 +1107,7 @@ pub fn BasemlBranchParameter::transversions(
 }
 
 ///|
-pub fn BasemlNodeFrequencies::node(self : BasemlNodeFrequencies) -> Int {
+pub fn BasemlNodeFrequencies::node(self : BasemlNodeFrequencies) -> Int32 {
   self.node
 }
 
@@ -1119,7 +1151,7 @@ pub fn BasemlResults::ln_likelihood(self : BasemlResults) -> Double {
 }
 
 ///|
-pub fn BasemlResults::parameter_count(self : BasemlResults) -> Int {
+pub fn BasemlResults::parameter_count(self : BasemlResults) -> Int32 {
   self.parameter_count
 }
 
@@ -1216,7 +1248,7 @@ pub fn BasemlResults::aic(self : BasemlResults) -> Double {
 /// Bayesian information criterion.
 pub fn BasemlResults::bic(
   self : BasemlResults,
-  observations : Int,
+  observations : Int32,
 ) -> Double raise BasemlError {
   if observations <= 0 {
     baseml_fail("BASEML BIC observations must be positive")
@@ -1230,7 +1262,7 @@ pub fn BasemlResults::bic(
 pub fn baseml_likelihood_ratio(
   null_model : BasemlResults,
   alternative_model : BasemlResults,
-  alpha? : Double = 0.05,
+  alpha~ : Double = 0.05,
 ) -> BasemlLikelihoodRatio raise BasemlError {
   if alpha <= 0.0 || alpha >= 1.0 || alpha.is_nan() {
     baseml_fail("BASEML LRT alpha must be between 0 and 1")
@@ -1266,7 +1298,7 @@ pub fn BasemlLikelihoodRatio::statistic(self : BasemlLikelihoodRatio) -> Double 
 ///|
 pub fn BasemlLikelihoodRatio::degrees_of_freedom(
   self : BasemlLikelihoodRatio,
-) -> Int {
+) -> Int32 {
   self.degrees_of_freedom
 }
 

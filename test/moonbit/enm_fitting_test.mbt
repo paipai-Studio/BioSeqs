@@ -10,8 +10,17 @@ fn make_fit_chain() -> @src.Chain {
     let x = 1.5 * @math.cos(angle)
     let y = 1.5 * @math.sin(angle)
     let z = r.to_double() * 2.3
-    let ca = @src.Atom::new(name="CA", coord=@src.Vector3::new(x, y, z), resname="ALA", chainid='A', resseq=r + 1, element="C")
-    let res = @src.Residue::new(resname="ALA", chainid='A', resseq=r + 1, atoms=[ca])
+    let ca = @src.Atom::new(
+      name="CA",
+      coord=@src.Vector3::new(x, y, z),
+      resname="ALA",
+      chainid='A',
+      resseq=r + 1,
+      element="C",
+    )
+    let res = @src.Residue::new(resname="ALA", chainid='A', resseq=r + 1, atoms=[
+      ca,
+    ])
     residues.push(res)
   }
   @src.Chain::new(id='A', residues~)
@@ -19,7 +28,11 @@ fn make_fit_chain() -> @src.Chain {
 
 ///|
 /// Generate synthetic B-factors from ANM with known parameters.
-fn make_synthetic_bfactors(chain : @src.Chain, cutoff : Double, gamma : Double) -> Array[Double] {
+fn make_synthetic_bfactors(
+  chain : @src.Chain,
+  cutoff : Double,
+  gamma : Double,
+) -> Array[Double] {
   match @src.ANM::new(chain, cutoff~, gamma~) {
     Some(anm) => @src.ANM::predict_bfactors(anm)
     None => Array::make(8, 0.0)
@@ -28,6 +41,7 @@ fn make_synthetic_bfactors(chain : @src.Chain, cutoff : Double, gamma : Double) 
 
 // ===== fit_gamma =====
 
+///|
 test "fit_gamma_basic" {
   let predicted = [1.0, 2.0, 3.0, 4.0, 5.0]
   let observed = [2.0, 4.0, 6.0, 8.0, 10.0]
@@ -36,6 +50,7 @@ test "fit_gamma_basic" {
   assert_true((gamma - 2.0).abs() < 0.001)
 }
 
+///|
 test "fit_gamma_identity" {
   let predicted = [1.0, 2.0, 3.0, 4.0, 5.0]
   let observed = [1.0, 2.0, 3.0, 4.0, 5.0]
@@ -43,6 +58,7 @@ test "fit_gamma_identity" {
   assert_true((gamma - 1.0).abs() < 0.001)
 }
 
+///|
 test "fit_gamma_zero" {
   let predicted = [0.0, 0.0, 0.0]
   let observed = [1.0, 2.0, 3.0]
@@ -50,6 +66,7 @@ test "fit_gamma_zero" {
   assert_true((gamma - 1.0).abs() < 0.001)
 }
 
+///|
 test "fit_gamma_recovers_known" {
   let chain = make_fit_chain()
   let true_gamma = 3.5
@@ -68,6 +85,7 @@ test "fit_gamma_recovers_known" {
 
 // ===== fit_quality =====
 
+///|
 test "fit_quality_perfect" {
   let predicted = [1.0, 2.0, 3.0, 4.0, 5.0]
   let observed = [1.0, 2.0, 3.0, 4.0, 5.0]
@@ -76,6 +94,7 @@ test "fit_quality_perfect" {
   assert_true(rms < 0.001)
 }
 
+///|
 test "fit_quality_anticorrelated" {
   let predicted = [1.0, 2.0, 3.0, 4.0, 5.0]
   let observed = [5.0, 4.0, 3.0, 2.0, 1.0]
@@ -83,6 +102,7 @@ test "fit_quality_anticorrelated" {
   assert_true((corr + 1.0).abs() < 0.001)
 }
 
+///|
 test "fit_quality_rms" {
   let predicted = [1.0, 2.0, 3.0]
   let observed = [2.0, 3.0, 4.0]
@@ -93,6 +113,7 @@ test "fit_quality_rms" {
 
 // ===== scale_bfactors =====
 
+///|
 test "scale_bfactors" {
   let pred = [1.0, 2.0, 3.0]
   let scaled = @src.scale_bfactors(pred, 2.5)
@@ -103,6 +124,7 @@ test "scale_bfactors" {
 
 // ===== fit_cutoff =====
 
+///|
 test "fit_cutoff_finds_known" {
   let chain = make_fit_chain()
   let true_cutoff = 8.0
@@ -112,25 +134,28 @@ test "fit_cutoff_finds_known" {
   match @src.fit_cutoff(chain, observed, cutoffs) {
     Some(result) => {
       // Should find cutoff close to 8.0
-      assert_true((@src.ENMFitResult::get_cutoff(result) - true_cutoff).abs() < 2.0)
+      assert_true(
+        (@src.ENMFitResult::get_cutoff(result) - true_cutoff).abs() < 2.0,
+      )
       assert_true(@src.ENMFitResult::get_correlation(result) > 0.9)
     }
     None => assert_true(false)
   }
 }
 
+///|
 test "fit_cutoff_returns_best" {
   let chain = make_fit_chain()
   let observed = make_synthetic_bfactors(chain, 10.0, 1.0)
   let cutoffs = [7.0, 10.0, 13.0]
   match @src.fit_cutoff(chain, observed, cutoffs) {
-    Some(result) => {
+    Some(result) =>
       assert_true(@src.ENMFitResult::get_correlation(result) > 0.0)
-    }
     None => assert_true(false)
   }
 }
 
+///|
 test "fit_cutoff_empty" {
   let chain = make_fit_chain()
   let observed = [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0]
@@ -142,6 +167,7 @@ test "fit_cutoff_empty" {
 
 // ===== fit_cutoff_gamma =====
 
+///|
 test "fit_cutoff_gamma_all" {
   let chain = make_fit_chain()
   let observed = make_synthetic_bfactors(chain, 10.0, 2.0)
@@ -150,13 +176,12 @@ test "fit_cutoff_gamma_all" {
   assert_true(results.length() >= 1)
   // Best should be at cutoff=10
   match @src.best_fit(results) {
-    Some(best) => {
-      assert_true(@src.ENMFitResult::get_correlation(best) > 0.5)
-    }
+    Some(best) => assert_true(@src.ENMFitResult::get_correlation(best) > 0.5)
     None => assert_true(false)
   }
 }
 
+///|
 test "best_fit_empty" {
   match @src.best_fit([]) {
     Some(_) => assert_true(false)
@@ -166,6 +191,7 @@ test "best_fit_empty" {
 
 // ===== fit_cutoff_gnm =====
 
+///|
 test "fit_cutoff_gnm" {
   let chain = make_fit_chain()
   // Generate B-factors from GNM
@@ -174,9 +200,8 @@ test "fit_cutoff_gnm" {
       let observed = @src.GNM::predict_bfactors(gnm)
       let cutoffs = [7.0, 10.0, 13.0]
       match @src.fit_cutoff_gnm(chain, observed, cutoffs) {
-        Some(result) => {
+        Some(result) =>
           assert_true(@src.ENMFitResult::get_correlation(result) > 0.5)
-        }
         None => assert_true(false)
       }
     }
@@ -186,11 +211,9 @@ test "fit_cutoff_gnm" {
 
 // ===== Mode matching =====
 
+///|
 test "match_modes_identity" {
-  let modes = [
-    [1.0, 0.0, 0.0],
-    [0.0, 1.0, 0.0],
-  ]
+  let modes = [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0]]
   let overlap = @src.match_modes(modes, modes)
   // Identity: diagonal should be 1.0
   assert_true((overlap[0][0] - 1.0).abs() < 0.001)
@@ -198,6 +221,7 @@ test "match_modes_identity" {
   assert_true(overlap[0][1] < 0.001)
 }
 
+///|
 test "match_modes_orthogonal" {
   let modes_a = [[1.0, 0.0, 0.0]]
   let modes_b = [[0.0, 1.0, 0.0]]
@@ -205,49 +229,36 @@ test "match_modes_orthogonal" {
   assert_true(overlap[0][0] < 0.001)
 }
 
+///|
 test "enm_effective_overlap" {
-  let modes = [
-    [1.0, 0.0, 0.0],
-    [0.0, 1.0, 0.0],
-  ]
+  let modes = [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0]]
   let overlap = @src.match_modes(modes, modes)
   let eff = @src.enm_effective_overlap(overlap)
   assert_true((eff - 1.0).abs() < 0.001)
 }
 
+///|
 test "mode_matching_score" {
-  let modes = [
-    [1.0, 0.0, 0.0],
-    [0.0, 1.0, 0.0],
-  ]
+  let modes = [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0]]
   let overlap = @src.match_modes(modes, modes)
   let score = @src.mode_matching_score(overlap)
   assert_true((score - 1.0).abs() < 0.001)
 }
 
+///|
 test "enm_cumulative_overlap" {
-  let modes_a = [
-    [1.0, 0.0, 0.0],
-    [0.0, 1.0, 0.0],
-  ]
-  let modes_b = [
-    [1.0, 0.0, 0.0],
-    [0.0, 1.0, 0.0],
-  ]
+  let modes_a = [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0]]
+  let modes_b = [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0]]
   let cum = @src.enm_cumulative_overlap(modes_a, modes_b)
   assert_eq(cum.length(), 2)
   assert_true((cum[0] - 1.0).abs() < 0.001)
   assert_true((cum[1] - 1.0).abs() < 0.001)
 }
 
+///|
 test "enm_cumulative_overlap_partial" {
-  let modes_a = [
-    [0.6, 0.8, 0.0],
-  ]
-  let modes_b = [
-    [1.0, 0.0, 0.0],
-    [0.0, 1.0, 0.0],
-  ]
+  let modes_a = [[0.6, 0.8, 0.0]]
+  let modes_b = [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0]]
   let cum = @src.enm_cumulative_overlap(modes_a, modes_b)
   // Mode a is in span of modes_b, so cumulative overlap = 1
   assert_true((cum[0] - 1.0).abs() < 0.001)
@@ -255,6 +266,7 @@ test "enm_cumulative_overlap_partial" {
 
 // ===== Cross-validation =====
 
+///|
 test "loo_cross_validate" {
   let predicted = [1.0, 2.0, 3.0, 4.0, 5.0]
   let observed = [2.0, 4.0, 6.0, 8.0, 10.0]
@@ -266,6 +278,7 @@ test "loo_cross_validate" {
   }
 }
 
+///|
 test "loo_cross_validate_noisy" {
   let predicted = [1.0, 2.0, 3.0, 4.0, 5.0]
   let observed = [2.1, 3.9, 6.2, 7.8, 10.1]
@@ -277,6 +290,7 @@ test "loo_cross_validate_noisy" {
   }
 }
 
+///|
 test "kfold_cross_validate" {
   let predicted = [1.0, 2.0, 3.0, 4.0, 5.0, 6.0]
   let observed = [2.0, 4.0, 6.0, 8.0, 10.0, 12.0]
@@ -288,6 +302,7 @@ test "kfold_cross_validate" {
 
 // ===== fit_beta =====
 
+///|
 test "fit_beta_finds_known" {
   let chain = make_fit_chain()
   // Generate B-factors from betaANM with beta=2
@@ -309,6 +324,7 @@ test "fit_beta_finds_known" {
 
 // ===== compare_anm_gnm =====
 
+///|
 test "compare_anm_gnm" {
   let chain = make_fit_chain()
   let observed = make_synthetic_bfactors(chain, 10.0, 1.0)
@@ -319,6 +335,7 @@ test "compare_anm_gnm" {
 
 // ===== correlation_profile =====
 
+///|
 test "correlation_profile" {
   let chain = make_fit_chain()
   let observed = make_synthetic_bfactors(chain, 10.0, 1.0)
@@ -333,6 +350,7 @@ test "correlation_profile" {
 
 // ===== ENMFitResult accessors =====
 
+///|
 test "enm_fit_result_accessors" {
   let chain = make_fit_chain()
   let observed = make_synthetic_bfactors(chain, 10.0, 1.0)

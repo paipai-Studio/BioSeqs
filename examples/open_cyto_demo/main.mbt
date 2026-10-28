@@ -3,8 +3,7 @@
 ///
 /// Demonstrates template-driven gating on synthetic flow cytometry data
 /// using mindensity and flowClust gating methods.
-
-fn main() -> Unit {
+fn main {
   println("=== openCyto Gating Pipeline Demo ===\n")
 
   // Create synthetic flow cytometry data
@@ -19,19 +18,19 @@ fn main() -> Unit {
     let events : Array[Array[Double]] = Array(capacity=0)
     // 500 events: mix of negative and positive populations
     for i in 0..<500 {
-      let fsc = 100.0 + (i.to_double() * 0.3)
-      let ssc = 80.0 + (i.to_double() * 0.2)
+      let fsc = 100.0 + i.to_double() * 0.3
+      let ssc = 80.0 + i.to_double() * 0.2
       // First 250 events: FITC-negative (low FITC), PE-negative
       // Last 250 events: FITC-positive (high FITC), PE-positive
       let fitc = if i < 250 {
-        10.0 + (i.to_double() % 50.0) * 0.3
+        10.0 + i.to_double() % 50.0 * 0.3
       } else {
-        200.0 + (i.to_double() % 50.0) * 0.5
+        200.0 + i.to_double() % 50.0 * 0.5
       }
       let pe = if i < 250 {
-        5.0 + (i.to_double() % 30.0) * 0.2
+        5.0 + i.to_double() % 30.0 * 0.2
       } else {
-        150.0 + (i.to_double() % 30.0) * 0.4
+        150.0 + i.to_double() % 30.0 * 0.4
       }
       events.push([fsc, ssc, fitc, pe])
     }
@@ -39,7 +38,7 @@ fn main() -> Unit {
   }
 
   let flowset = @bio.OcFlowSet::new(
-    sample_names=sample_names,
+    sample_names~,
     channel_names=channels,
     data=all_data,
   )
@@ -90,7 +89,17 @@ fn main() -> Unit {
     if rule.dims.length() > 1 {
       dims_str = rule.dims[0] + ", " + rule.dims[1]
     }
-    println("  " + rule.parent + " -> " + rule.child + " (" + rule.method_ + " on " + dims_str + ")")
+    println(
+      "  " +
+      rule.parent +
+      " -> " +
+      rule.child +
+      " (" +
+      rule.method_ +
+      " on " +
+      dims_str +
+      ")",
+    )
   }
   println("")
 
@@ -145,19 +154,48 @@ fn main() -> Unit {
 
   // mindensity on FITC channel
   let fitc_vals = @bio.oc_extract_channel(flowset.data[0], 2)
-  let mindensity_gate = @bio.oc_mindensity(fitc_vals, "FITC-A", Map([], capacity=4))
-  println("mindensity gate on FITC-A: [" + mindensity_gate.min1.to_string() + ", " + mindensity_gate.max1.to_string() + "]")
+  let mindensity_gate = @bio.oc_mindensity(
+    fitc_vals,
+    "FITC-A",
+    Map([], capacity=4),
+  )
+  println(
+    "mindensity gate on FITC-A: [" +
+    mindensity_gate.min1.to_string() +
+    ", " +
+    mindensity_gate.max1.to_string() +
+    "]",
+  )
 
   // tailgate on PE channel
   let pe_vals = @bio.oc_extract_channel(flowset.data[0], 3)
   let tail_args : Map[String, Double] = Map([], capacity=4)
   tail_args["quantile"] = 0.95
   let tail_gate = @bio.oc_tailgate(pe_vals, "PE-A", tail_args)
-  println("tailgate gate on PE-A (q=0.95): [" + tail_gate.min1.to_string() + ", " + tail_gate.max1.to_string() + "]")
+  println(
+    "tailgate gate on PE-A (q=0.95): [" +
+    tail_gate.min1.to_string() +
+    ", " +
+    tail_gate.max1.to_string() +
+    "]",
+  )
 
   // flowClust 1D on FITC
-  let fc_gate = @bio.oc_flow_clust(fitc_vals, [], "FITC-A", None, Map([], capacity=4), 2)
-  println("flowClust 1D gate on FITC-A (K=2): [" + fc_gate.min1.to_string() + ", " + fc_gate.max1.to_string() + "]")
+  let fc_gate = @bio.oc_flow_clust(
+    fitc_vals,
+    [],
+    "FITC-A",
+    None,
+    Map([], capacity=4),
+    2,
+  )
+  println(
+    "flowClust 1D gate on FITC-A (K=2): [" +
+    fc_gate.min1.to_string() +
+    ", " +
+    fc_gate.max1.to_string() +
+    "]",
+  )
 
   // KDE demonstration
   let h = @bio.oc_bandwidth_silverman(fitc_vals)

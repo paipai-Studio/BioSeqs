@@ -18,7 +18,7 @@ fn maccs_has_element(mol : Molecule, symbol : String) -> Bool {
 
 ///|
 /// Count atoms of a given element.
-fn maccs_count_element(mol : Molecule, symbol : String) -> Int {
+fn maccs_count_element(mol : Molecule, symbol : String) -> Int32 {
   let mut count = 0
   for a in mol.atoms {
     if a.symbol == symbol {
@@ -30,7 +30,7 @@ fn maccs_count_element(mol : Molecule, symbol : String) -> Int {
 
 ///|
 /// Check if molecule has a bond of the given order.
-fn maccs_has_bond_order(mol : Molecule, order : Int) -> Bool {
+fn maccs_has_bond_order(mol : Molecule, order : Int32) -> Bool {
   for b in mol.bonds {
     if b.order == order {
       return true
@@ -41,7 +41,7 @@ fn maccs_has_bond_order(mol : Molecule, order : Int) -> Bool {
 
 ///|
 /// Count bonds of a given order.
-fn maccs_count_bond_order(mol : Molecule, order : Int) -> Int {
+fn maccs_count_bond_order(mol : Molecule, order : Int32) -> Int32 {
   let mut count = 0
   for b in mol.bonds {
     if b.order == order {
@@ -53,7 +53,7 @@ fn maccs_count_bond_order(mol : Molecule, order : Int) -> Int {
 
 ///|
 /// Check if molecule has a ring of the given size.
-fn maccs_has_ring_size(mol : Molecule, size : Int) -> Bool {
+fn maccs_has_ring_size(mol : Molecule, size : Int32) -> Bool {
   let rings = mol_find_rings(mol)
   for ring in rings {
     if ring.length() == size {
@@ -65,7 +65,7 @@ fn maccs_has_ring_size(mol : Molecule, size : Int) -> Bool {
 
 ///|
 /// Check if molecule has an atom with specific degree.
-fn maccs_has_degree(mol : Molecule, degree : Int) -> Bool {
+fn maccs_has_degree(mol : Molecule, degree : Int32) -> Bool {
   let n = mol.atoms.length()
   for k = 0; k < n; k = k + 1 {
     if mol_degree(mol, k) == degree {
@@ -80,7 +80,7 @@ fn maccs_has_degree(mol : Molecule, degree : Int) -> Bool {
 fn maccs_has_atom_degree(
   mol : Molecule,
   symbol : String,
-  degree : Int,
+  degree : Int32,
 ) -> Bool {
   let n = mol.atoms.length()
   for k = 0; k < n; k = k + 1 {
@@ -107,7 +107,7 @@ fn maccs_has_aromatic(mol : Molecule, symbol : String) -> Bool {
 fn maccs_has_path(
   mol : Molecule,
   start_symbol : String,
-  length : Int,
+  length : Int32,
 ) -> Bool {
   let n = mol.atoms.length()
   let neighbors = mol_adjacency(mol)
@@ -124,14 +124,14 @@ fn maccs_has_path(
 ///|
 /// BFS to check if there's a path of at least `length` bonds from src.
 fn maccs_bfs_path(
-  neighbors : Array[Array[(Int, Int)]],
-  src : Int,
-  length : Int,
+  neighbors : Array[Array[(Int32, Int32)]],
+  src : Int32,
+  length : Int32,
 ) -> Bool {
   let n = neighbors.length()
   let dist = Array::make(n, -1)
   dist[src] = 0
-  let queue : Array[Int] = [src]
+  let queue : Array[Int32] = [src]
   let mut head = 0
   while head < queue.length() {
     let u = queue[head]
@@ -151,12 +151,7 @@ fn maccs_bfs_path(
 
 ///|
 /// Check for X-C-Y pattern (two-hop path with specific elements).
-fn maccs_has_xcy(
-  mol : Molecule,
-  x : String,
-  c : String,
-  y : String,
-) -> Bool {
+fn maccs_has_xcy(mol : Molecule, x : String, c : String, y : String) -> Bool {
   let n = mol.atoms.length()
   let neighbors = mol_adjacency(mol)
   for k = 0; k < n; k = k + 1 {
@@ -181,7 +176,7 @@ fn maccs_has_xcy(
 
 ///|
 /// Count atoms in rings.
-fn maccs_count_ring_atoms(mol : Molecule) -> Int {
+fn maccs_count_ring_atoms(mol : Molecule) -> Int32 {
   let n = mol.atoms.length()
   let mut count = 0
   for k = 0; k < n; k = k + 1 {
@@ -194,7 +189,7 @@ fn maccs_count_ring_atoms(mol : Molecule) -> Int {
 
 ///|
 /// Evaluate a single MACCS key against a molecule.
-fn maccs_eval_key(mol : Molecule, bit : Int) -> Bool {
+fn maccs_eval_key(mol : Molecule, bit : Int32) -> Bool {
   match bit {
     1 => true
     2 => maccs_has_element(mol, "F")
@@ -407,7 +402,7 @@ pub fn maccs_fingerprint_string(mol : Molecule) -> String {
 
 ///|
 /// Count number of set bits in MACCS fingerprint.
-pub fn maccs_bit_count(mol : Molecule) -> Int {
+pub fn maccs_bit_count(mol : Molecule) -> Int32 {
   let bits = maccs_fingerprint(mol)
   let mut count = 0
   for bit = 1; bit <= 166; bit = bit + 1 {

@@ -9,7 +9,7 @@ pub struct Motif {
 
 ///|
 pub struct MotifHit {
-  position : Int
+  position : Int32
   score : Double
   strand : String
   sequence : String
@@ -39,7 +39,7 @@ pub fn Motif::new(
 
 ///|
 pub fn MotifHit::new(
-  position : Int,
+  position : Int32,
   score : Double,
   strand : String,
   sequence : String,
@@ -48,7 +48,7 @@ pub fn MotifHit::new(
 }
 
 ///|
-pub fn count_matrix(sites : Array[String]) -> Array[Array[Int]] {
+pub fn count_matrix(sites : Array[String]) -> Array[Array[Int32]] {
   if sites.length() == 0 {
     return []
   }
@@ -76,7 +76,7 @@ pub fn count_matrix(sites : Array[String]) -> Array[Array[Int]] {
 
 ///|
 pub fn pwm_from_counts(
-  counts : Array[Array[Int]],
+  counts : Array[Array[Int32]],
   pseudocount : Double,
 ) -> Array[Array[Double]] {
   if counts.length() == 0 {
@@ -427,13 +427,13 @@ pub fn motif_total_ic(motif : Motif) -> Double {
 /// Returns an array of (position, letter, frequency, information_content).
 pub fn generate_logo_data(
   sequences : Array[String],
-) -> Array[(Int, String, Double, Double)] {
+) -> Array[(Int32, String, Double, Double)] {
   if sequences.length() == 0 {
     return Array(capacity=0)
   }
 
   let width = sequences[0].length()
-  let logo_data : Array[(Int, String, Double, Double)] = Array(capacity=0)
+  let logo_data : Array[(Int32, String, Double, Double)] = Array(capacity=0)
 
   let alphabet = ["A", "C", "G", "T"]
   let n = sequences.length().to_double()
@@ -533,13 +533,13 @@ pub fn motif_pearson_correlation(motif1 : Motif, motif2 : Motif) -> Double {
 pub fn motif_enrichment(
   motifs : Array[Motif],
   sequences : Array[String],
-  background? : Array[String] = [],
+  background~ : Array[String] = [],
 ) -> Array[(String, Double, Double)] {
   ignore(background)
   let results : Array[(String, Double, Double)] = Array(capacity=0)
 
   // Count motif occurrences in target sequences
-  let motif_counts : Map[String, Int] = Map([], capacity=motifs.length())
+  let motif_counts : Map[String, Int32] = Map([], capacity=motifs.length())
   let seq_lengths : Map[String, Double] = Map([], capacity=motifs.length())
 
   let mut mi = 0
@@ -629,8 +629,8 @@ pub fn motif_gc_content(motif : Motif) -> Double {
 /// Generate a random motif with given properties.
 pub fn generate_random_motif(
   name : String,
-  length : Int,
-  gc_content? : Double = 0.5,
+  length : Int32,
+  gc_content~ : Double = 0.5,
 ) -> Motif {
   let pwm = Array::make(length, Array::make(4, 0.0))
 

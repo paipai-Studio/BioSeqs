@@ -1,25 +1,37 @@
 ///|
 /// codon_utils.mbt 测试
 /// frozen values 由 Python 精确生成并验证
-
 fn _cu_eq(a : Double, b : Double) -> Bool {
   let tol = 0.0001
   let d = a - b
-  if d < 0.0 { -d <= tol } else { d <= tol }
+  if d < 0.0 {
+    -d <= tol
+  } else {
+    d <= tol
+  }
 }
 
 // ============ 测试序列 ============
+
+///|
 let _GLOBIN : String = "ATGGTGCATCTGACTCCTGAGGAGAAGTCTGCCGTTACTGCCCTGTGGGGCAAGGTGAACGTGGATGAAGTTGGTGGTGAGGCCCTGGGCAG"
+
+///|
 let _SIMPLE : String = "ATGGCCATTGTAATGGGCCGCTGAAAGGGTGCCCGATAG"
+
+///|
 let _REF_SET : Array[String] = [
   "ATGGCCAAGCACGTGAGCGTGGAGAAGGTGGCCGAGTGCAAGAGCACCGGCACCCTGAACGGCACCGAGAAGGTGGAGGTGCTGGACAC",
   "ATGGCCTACATCGGCTGCGTGCTGAACAAGCACGAGAAGGACGACGTGATGGTCGTCAACGACCCGTGCGTGACCCACAAGCCCGAG",
   "ATGGCCGACAAGACCAAGGGCTGCGTGAAGCTGATCGTGAACGACGTGTTTGACCGGCTGATCGGCTTCGAGCACTGCTGCGCTGAC",
 ]
+
+///|
 let _TEST_GENE : String = "ATGGCCAAGATGATCGGCTACGTGCAGCGCGGCGTCGACGCCACCCTGGCCGAGATGCGCAAGGCCGGCATCACCGTGGCC"
 
 // ============ reverse_complement 验证 ============
 
+///|
 test "rc_basic" {
   assert_true(@src.reverse_complement("ATGGCC") == "GGCCAT")
   assert_true(@src.reverse_complement("AAAA") == "TTTT")
@@ -28,6 +40,7 @@ test "rc_basic" {
 
 // ============ GC123 ============
 
+///|
 test "gc123_globin" {
   let gc = @src.seq_gc123(_GLOBIN)
   assert_true(_cu_eq(gc[0], 0.733333))
@@ -35,6 +48,7 @@ test "gc123_globin" {
   assert_true(_cu_eq(gc[2], 0.633333))
 }
 
+///|
 test "gc123_simple" {
   let gc = @src.seq_gc123(_SIMPLE)
   assert_true(_cu_eq(gc[0], 0.538462))
@@ -42,6 +56,7 @@ test "gc123_simple" {
   assert_true(_cu_eq(gc[2], 0.615385))
 }
 
+///|
 test "gc123_test_gene" {
   let gc = @src.seq_gc123(_TEST_GENE)
   assert_true(_cu_eq(gc[0], 0.629630))
@@ -49,25 +64,29 @@ test "gc123_test_gene" {
   assert_true(_cu_eq(gc[2], 1.000000))
 }
 
+///|
 test "gc123_empty" {
   let gc = @src.seq_gc123("")
   assert_true(gc[0] == 0.0 && gc[1] == 0.0 && gc[2] == 0.0)
 }
 
+///|
 test "gc123_short" {
   let gc = @src.seq_gc123("AT")
   assert_true(gc[0] == 0.0 && gc[1] == 0.0 && gc[2] == 0.0)
 }
 
+///|
 test "gc123_single_codon" {
   let gc = @src.seq_gc123("ATG")
-  assert_true(gc[0] == 0.0)  // A
-  assert_true(gc[1] == 0.0)  // T
-  assert_true(gc[2] == 1.0)  // G
+  assert_true(gc[0] == 0.0) // A
+  assert_true(gc[1] == 0.0) // T
+  assert_true(gc[2] == 1.0) // G
 }
 
 // ============ 六框翻译 ============
 
+///|
 test "six_frame_globin_fwd" {
   let frames = @src.seq_six_frame_translations(_GLOBIN)
   assert_true(frames[0].frame_id == "Fwd-1")
@@ -81,6 +100,7 @@ test "six_frame_globin_fwd" {
   assert_true(frames[2].protein == "GASDS*GEVCRYCPVGQGERG*SWW*GPGQ")
 }
 
+///|
 test "six_frame_globin_rev" {
   let frames = @src.seq_six_frame_translations(_GLOBIN)
   assert_true(frames[3].frame_id == "Rev-1")
@@ -94,11 +114,13 @@ test "six_frame_globin_rev" {
   assert_true(frames[5].protein == "AQGLTTNFIHVHLAPQGSNGRLLLRSQMHH")
 }
 
+///|
 test "six_frame_simple_fwd1" {
   let frames = @src.seq_six_frame_translations(_SIMPLE)
   assert_true(frames[0].protein == "MAIVMGR*KGAR*")
 }
 
+///|
 test "six_frame_test_gene_all6" {
   let frames = @src.seq_six_frame_translations(_TEST_GENE)
   assert_true(frames.length() == 6)
@@ -110,6 +132,7 @@ test "six_frame_test_gene_all6" {
 
 // ============ 密码子表切换 ============
 
+///|
 test "codon_table_mito_table2" {
   let seq_mito = "ATGATACGATGAGCCACTGA"
   let f1 = @src.seq_six_frame_translations(seq_mito, table=1)
@@ -118,6 +141,7 @@ test "codon_table_mito_table2" {
   assert_true(f2[0].protein == "MMRWAT")
 }
 
+///|
 test "codon_table_yeast_mito_table3" {
   let f1 = @src.seq_six_frame_translations("ATGCTG", table=1)
   assert_true(f1[0].protein == "ML")
@@ -125,6 +149,7 @@ test "codon_table_yeast_mito_table3" {
   assert_true(f3[0].protein == "MT")
 }
 
+///|
 test "codon_table_accessor" {
   let t1 = @src.codon_table(1)
   assert_true(t1["ATG"] == "M")
@@ -143,12 +168,14 @@ test "codon_table_accessor" {
 
 // ============ CAI 权重 ============
 
+///|
 test "cai_weights_globin_self" {
   let w = @src.cai_weights([_GLOBIN])
   assert_true(_cu_eq(w["ATG"], 1.0))
   assert_true(w.length() > 0)
 }
 
+///|
 test "cai_weights_ref_set" {
   let w = @src.cai_weights(_REF_SET)
   assert_true(_cu_eq(w["ATG"], 1.0))
@@ -162,6 +189,7 @@ test "cai_weights_ref_set" {
   }
 }
 
+///|
 test "cai_weights_empty_ref" {
   let w = @src.cai_weights([])
   assert_true(w["ATG"] == 1.0)
@@ -170,30 +198,35 @@ test "cai_weights_empty_ref" {
 
 // ============ CAI ============
 
+///|
 test "cai_globin_self" {
   let w = @src.cai_weights([_GLOBIN])
   let cai = @src.codon_adaptation_index(_GLOBIN, w)
   assert_true(_cu_eq(cai, 0.938332))
 }
 
+///|
 test "cai_simple_self" {
   let w = @src.cai_weights([_SIMPLE])
   let cai = @src.codon_adaptation_index(_SIMPLE, w)
   assert_true(_cu_eq(cai, 1.0))
 }
 
+///|
 test "cai_test_gene_with_ref" {
   let w = @src.cai_weights(_REF_SET)
   let cai = @src.codon_adaptation_index(_TEST_GENE, w)
   assert_true(_cu_eq(cai, 0.934083))
 }
 
+///|
 test "cai_empty" {
   let w = @src.cai_weights(["ATG"])
   let cai = @src.codon_adaptation_index("", w)
   assert_true(cai == 0.0)
 }
 
+///|
 test "cai_short" {
   let w = @src.cai_weights(["ATG"])
   let cai = @src.codon_adaptation_index("A", w)
@@ -202,21 +235,25 @@ test "cai_short" {
 
 // ============ Nc/ENC ============
 
+///|
 test "enc_globin" {
   let nc = @src.seq_enc_wright(_GLOBIN)
   assert_true(_cu_eq(nc, 44.5))
 }
 
+///|
 test "enc_simple" {
   let nc = @src.seq_enc_wright(_SIMPLE)
   assert_true(_cu_eq(nc, 56.0))
 }
 
+///|
 test "enc_test_gene" {
   let nc = @src.seq_enc_wright(_TEST_GENE)
   assert_true(_cu_eq(nc, 41.0))
 }
 
+///|
 test "enc_diverse_sequence" {
   let diverse = "ATGGCCAAGATGATCGGCTACGTGCAGCGCGGCGTCGACGCCACCCTGGCCGAGATGCGCAAGGCCGGCATCACCGTGGCCAAAGTTTGGGCA"
   let nc = @src.seq_enc_wright(diverse)
@@ -225,6 +262,7 @@ test "enc_diverse_sequence" {
 
 // ============ 六框结构验证 ============
 
+///|
 test "six_frame_structure" {
   let frames = @src.seq_six_frame_translations("ATG")
   assert_true(frames.length() == 6)
@@ -236,6 +274,7 @@ test "six_frame_structure" {
   assert_true(frames[5].frame_id == "Rev-3")
 }
 
+///|
 test "six_frame_short_seq" {
   let frames = @src.seq_six_frame_translations("ATG")
   assert_true(frames[0].protein == "M")
@@ -245,6 +284,7 @@ test "six_frame_short_seq" {
 
 // ============ CAI 边界 ============
 
+///|
 test "cai_single_codon_ref" {
   let w = @src.cai_weights(["ATGGCC"])
   assert_true(_cu_eq(w["ATG"], 1.0))

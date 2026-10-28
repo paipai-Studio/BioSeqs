@@ -35,7 +35,9 @@ fn main {
     for i = 0; i < illumina_records.length(); i = i + 1 {
       let r = illumina_records[i]
       let quals = r.letter_annotations["phred_quality"]
-      println("  [\{r.id}] seq=\{r.seq.to_string()} quals=" + array_to_string(quals))
+      println(
+        "  [\{r.id}] seq=\{r.seq.to_string()} quals=" + array_to_string(quals),
+      )
     }
 
     // Write back to Illumina FASTQ
@@ -56,7 +58,9 @@ fn main {
     for i = 0; i < solexa_records.length(); i = i + 1 {
       let r = solexa_records[i]
       let quals = r.letter_annotations["phred_quality"]
-      println("  [\{r.id}] seq=\{r.seq.to_string()} quals=" + array_to_string(quals))
+      println(
+        "  [\{r.id}] seq=\{r.seq.to_string()} quals=" + array_to_string(quals),
+      )
     }
 
     // Write back to Solexa FASTQ
@@ -84,12 +88,16 @@ fn main {
   println("\n=== PairedFastaQualIterator ===")
   let fasta_content = ">seq1\nACGT\n>seq2\nTGCA\n"
   let qual_for_pair = ">seq1\n10 20 30 40\n>seq2\n50 60 70 80\n"
-  let paired_records = @bio.paired_fasta_qual_iterator(fasta_content, qual_for_pair)
+  let paired_records = @bio.paired_fasta_qual_iterator(
+    fasta_content, qual_for_pair,
+  )
   println("  Paired \{paired_records.length()} records")
   for i = 0; i < paired_records.length(); i = i + 1 {
     let r = paired_records[i]
     let quals = r.letter_annotations["phred_quality"]
-    println("  [\{r.id}] seq=\{r.seq.to_string()} quals=" + array_to_string(quals))
+    println(
+      "  [\{r.id}] seq=\{r.seq.to_string()} quals=" + array_to_string(quals),
+    )
   }
 
   // === SeqIO Unified Interface (QUAL, FASTQ variants) ===
@@ -103,14 +111,18 @@ fn main {
 
   try {
     let illumina_via_seqio = @bio.seqio_parse(illumina_fastq, "fastq-illumina")
-    println("  seqio_parse(\"fastq-illumina\"): \{illumina_via_seqio.length()} records")
+    println(
+      "  seqio_parse(\"fastq-illumina\"): \{illumina_via_seqio.length()} records",
+    )
   } catch {
     _ => println("  seqio_parse(\"fastq-illumina\") error")
   }
 
   try {
     let solexa_via_seqio = @bio.seqio_parse(solexa_fastq, "fastq-solexa")
-    println("  seqio_parse(\"fastq-solexa\"): \{solexa_via_seqio.length()} records")
+    println(
+      "  seqio_parse(\"fastq-solexa\"): \{solexa_via_seqio.length()} records",
+    )
   } catch {
     _ => println("  seqio_parse(\"fastq-solexa\") error")
   }
@@ -139,7 +151,7 @@ fn main {
 
 ///|
 /// Helper: convert an Array[Int] to a display string like "[10, 20, 30]"
-fn array_to_string(arr : Array[Int]) -> String {
+fn array_to_string(arr : Array[Int32]) -> String {
   let buf = StringBuilder()
   buf.write_char('[')
   for i = 0; i < arr.length(); i = i + 1 {

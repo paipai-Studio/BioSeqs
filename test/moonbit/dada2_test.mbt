@@ -46,7 +46,11 @@ test "dada2 dereplicate basic" {
 ///|
 test "dada2 dereplicate with quality" {
   let seqs = ["ACGT", "ACGT", "ACGT"]
-  let quals = [[10.0, 20.0, 30.0, 40.0], [20.0, 20.0, 30.0, 40.0], [30.0, 20.0, 30.0, 40.0]]
+  let quals = [
+    [10.0, 20.0, 30.0, 40.0],
+    [20.0, 20.0, 30.0, 40.0],
+    [30.0, 20.0, 30.0, 40.0],
+  ]
   let derep = @src.dereplicate(seqs, quals)
   assert_eq(derep.uniques[0].abundance, 3)
   // Average quality: pos0 = (10+20+30)/3 = 20
@@ -55,11 +59,7 @@ test "dada2 dereplicate with quality" {
 
 ///|
 test "dada2 quality profile" {
-  let quals = [
-    [10.0, 20.0, 30.0],
-    [20.0, 30.0, 40.0],
-    [30.0, 40.0, 50.0],
-  ]
+  let quals = [[10.0, 20.0, 30.0], [20.0, 30.0, 40.0], [30.0, 40.0, 50.0]]
   let profile = @src.quality_profile(quals)
   assert_eq(profile.positions, 3)
   // Mean: pos0 = (10+20+30)/3 = 20
@@ -211,7 +211,10 @@ test "dada2 make sequence table" {
   let model = @src.learn_errors(derep, 40)
   let result1 = @src.dada_inference(derep, model)
   let result2 = @src.dada_inference(derep, model)
-  let table = @src.make_sequence_table([("sample1", result1), ("sample2", result2)])
+  let table = @src.make_sequence_table([
+    ("sample1", result1),
+    ("sample2", result2),
+  ])
   assert_true(table.n_asvs >= 1)
   assert_eq(table.n_samples, 2)
 }

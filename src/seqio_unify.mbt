@@ -82,7 +82,7 @@ fn unify_swiss_to_record(entry : SwissProtRecord) -> SeqRecord {
       quals[k] = [v]
     }
     let location : FeatureLocation? = if f.start > 0 || f.end > 0 {
-      try Some(FeatureLocation::new_exact(f.start, f.end)) catch {
+      Some(FeatureLocation::new_exact(f.start, f.end)) catch {
         _ => None
       }
     } else {
@@ -136,9 +136,7 @@ pub fn parse_swiss_records(
 ///|
 /// Parse UniProt XML content into SeqRecords, bridging the existing
 /// `parse_uniprot_xml` + `uniprot_to_seqrecord` pair.
-pub fn parse_uniprot_xml_records(
-  content : String,
-) -> Array[SeqRecord] {
+pub fn parse_uniprot_xml_records(content : String) -> Array[SeqRecord] {
   if content.trim() == "" {
     return []
   }
@@ -158,9 +156,7 @@ pub fn parse_uniprot_xml_records(
 ///|
 /// Parse SeqXML content into SeqRecords, bridging the existing
 /// `seqxml_parse` + `seqxml_to_seq_records` pair.
-pub fn parse_seqxml_records(
-  content : String,
-) -> Array[SeqRecord] {
+pub fn parse_seqxml_records(content : String) -> Array[SeqRecord] {
   if content.trim() == "" {
     return []
   }
@@ -170,9 +166,7 @@ pub fn parse_seqxml_records(
 ///|
 /// Parse IMGT content into SeqRecords: one record per IMGT entry with the
 /// 13 header fields mirrored into annotations (spec design 1.2.3).
-pub fn parse_imgt_records(
-  content : String,
-) -> Array[SeqRecord] {
+pub fn parse_imgt_records(content : String) -> Array[SeqRecord] {
   if content.trim() == "" {
     return []
   }
@@ -350,7 +344,7 @@ pub fn parse_phd_records(content : String) -> Array[SeqRecord] {
   let records : Array[SeqRecord] = Array(capacity=0)
   for read in file.reads {
     let bases = StringBuilder()
-    let qualities : Array[Int] = Array(capacity=0)
+    let qualities : Array[Int32] = Array(capacity=0)
     for base in read.bases {
       bases.write_string(base.base)
       qualities.push(base.quality)
@@ -427,9 +421,7 @@ pub fn parse_gfa_records(content : String) -> Array[SeqRecord] {
 ///|
 /// Parse PDB SEQRES content into SeqRecords (bridged; the underlying
 /// parser already produces SeqRecord).
-pub fn parse_pdb_seqres_records(
-  content : String,
-) -> Array[SeqRecord] {
+pub fn parse_pdb_seqres_records(content : String) -> Array[SeqRecord] {
   if content.trim() == "" {
     return []
   }
@@ -439,9 +431,7 @@ pub fn parse_pdb_seqres_records(
 ///|
 /// Parse PDB ATOM content into SeqRecords (bridged; the underlying parser
 /// already produces SeqRecord).
-pub fn parse_pdb_atom_records(
-  content : String,
-) -> Array[SeqRecord] {
+pub fn parse_pdb_atom_records(content : String) -> Array[SeqRecord] {
   if content.trim() == "" {
     return []
   }

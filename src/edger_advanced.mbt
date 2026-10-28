@@ -26,7 +26,7 @@ pub struct QLFData {
   /// Library sizes (with norm factors applied)
   lib_size : Array[Double]
   /// Original counts
-  counts : Array[Array[Int]]
+  counts : Array[Array[Int32]]
 }
 
 ///|
@@ -39,8 +39,8 @@ pub struct QLFResult {
   /// F-statistic
   f_stat : Array[Double]
   /// Degrees of freedom (numerator, denominator)
-  df_num : Int
-  df_denom : Int
+  df_num : Int32
+  df_denom : Int32
   /// P-value from F-test
   p_value : Array[Double]
   /// FDR adjusted p-value
@@ -195,11 +195,11 @@ pub fn glm_qlf_fit(dge : DGEList) -> QLFData {
 /// Fit a negative binomial GLM using IRLS for a single gene.
 /// Returns (coefficients, fitted_values, deviance).
 fn fit_nb_glm(
-  counts : Array[Int],
+  counts : Array[Int32],
   design : Array[Array[Double]],
   eff_lib : Array[Double],
-  n_samples : Int,
-  n_coef : Int,
+  n_samples : Int32,
+  n_coef : Int32,
 ) -> (Array[Double], Array[Double], Double) {
   // Initialize coefficients
   let coefs : Array[Double] = Array::make(n_coef, 0.0)
@@ -323,7 +323,7 @@ fn fit_nb_glm(
 fn eta_from_coefs(
   coefs : Array[Double],
   design_row : Array[Double],
-  n_coef : Int,
+  n_coef : Int32,
 ) -> Double {
   let mut eta = 0.0
   for k = 0; k < n_coef; k = k + 1 {
@@ -339,8 +339,8 @@ fn solve_wls(
   design : Array[Array[Double]],
   weights : Array[Double],
   z : Array[Double],
-  n_samples : Int,
-  n_coef : Int,
+  n_samples : Int32,
+  n_coef : Int32,
 ) -> Array[Double] {
   if n_coef == 1 {
     // Simple weighted mean
@@ -390,7 +390,7 @@ fn solve_wls(
 /// - coef: Index of coefficient to test (default: 1, the group coefficient)
 ///
 /// Returns a QLFResult with F-statistics and p-values.
-pub fn glm_qlf_test(qlf_data : QLFData, coef? : Int = 1) -> QLFResult {
+pub fn glm_qlf_test(qlf_data : QLFData, coef~ : Int32 = 1) -> QLFResult {
   let n_genes = qlf_data.genes.length()
   let n_samples = qlf_data.group.length()
   let n_coef = if qlf_data.coefficients.length() > 0 {
@@ -488,7 +488,7 @@ pub fn glm_qlf_test(qlf_data : QLFData, coef? : Int = 1) -> QLFResult {
 /// Compute p-value from F-distribution using the survival function.
 /// F(df1, df2): P(F > f) = I_{df2/(df2 + df1*f)}(df2/2, df1/2)
 /// where I is the regularized incomplete beta function.
-fn f_distribution_pvalue(f : Double, df1 : Int, df2 : Int) -> Double {
+fn f_distribution_pvalue(f : Double, df1 : Int32, df2 : Int32) -> Double {
   if f <= 0.0 {
     return 1.0
   }
@@ -709,9 +709,9 @@ fn sort_array(arr : Array[Double]) -> Array[Double] {
 ///|
 /// Return indices that would sort the array in ascending order.
 /// NaN values are treated as the largest (placed at the end).
-fn sort_indices(arr : Array[Double]) -> Array[Int] {
+fn sort_indices(arr : Array[Double]) -> Array[Int32] {
   let n = arr.length()
-  let indices : Array[Int] = Array(capacity=0)
+  let indices : Array[Int32] = Array(capacity=0)
   let used : Array[Bool] = Array::make(n, false)
   let is_nan_arr : Array[Bool] = Array::make(n, false)
   let mut nan_count = 0
@@ -772,13 +772,13 @@ fn sort_indices(arr : Array[Double]) -> Array[Int] {
 pub fn camera(
   qlf_result : QLFResult,
   gene_set : Array[String],
-  n_perm? : Int = 1000,
+  n_perm~ : Int32 = 1000,
 ) -> (Double, Double, String) {
   ignore(n_perm)
   let n_genes = qlf_result.genes.length()
 
   // Identify genes in the set
-  let set_indices : Array[Int] = Array(capacity=0)
+  let set_indices : Array[Int32] = Array(capacity=0)
   let set_stats : Array[Double] = Array(capacity=0)
   let all_stats : Array[Double] = Array(capacity=0)
 
@@ -940,8 +940,8 @@ fn array_variance(arr : Array[Double]) -> Double {
 /// Get significant genes from QL F-test results.
 pub fn qlf_significant_genes(
   result : QLFResult,
-  alpha? : Double = 0.05,
-  lfc_threshold? : Double = 0.0,
+  alpha~ : Double = 0.05,
+  lfc_threshold~ : Double = 0.0,
 ) -> Array[String] {
   let genes : Array[String] = Array(capacity=0)
   for i = 0; i < result.genes.length(); i = i + 1 {
@@ -956,7 +956,7 @@ pub fn qlf_significant_genes(
 /// Get top genes from QL F-test results sorted by FDR.
 pub fn qlf_top_genes(
   result : QLFResult,
-  n? : Int = 10,
+  n~ : Int32 = 10,
 ) -> Array[(String, Double, Double, Double)] {
   let n_genes = result.genes.length()
   let actual_n = if n < n_genes { n } else { n_genes }

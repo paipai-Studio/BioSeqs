@@ -25,7 +25,9 @@ fn main {
   println("--- 2. SVDOptions Construction ---")
 
   let opts_default = @bio.svd_options_new()
-  println("  Default options: method=ExactSVD, rank=\{opts_default.rank}, tol=\{opts_default.tol}, max_iter=\{opts_default.max_iter}")
+  println(
+    "  Default options: method=ExactSVD, rank=\{opts_default.rank}, tol=\{opts_default.tol}, max_iter=\{opts_default.max_iter}",
+  )
 
   let opts_exact = @bio.svd_options_with_method(@bio.exact_svd_method())
   println("  ExactSVD options: method=ExactSVD")
@@ -36,8 +38,16 @@ fn main {
   let opts_rand = @bio.svd_options_with_method(@bio.randomized_method())
   println("  Randomized options: method=Randomized")
 
-  let opts_full = @bio.svd_options_full(3, 1.0e-8, 2000, 15, @bio.exact_svd_method())
-  println("  Full options: rank=\{opts_full.rank}, tol=\{opts_full.tol}, max_iter=\{opts_full.max_iter}, n_oversamples=\{opts_full.n_oversamples}")
+  let opts_full = @bio.svd_options_full(
+    3,
+    1.0e-8,
+    2000,
+    15,
+    @bio.exact_svd_method(),
+  )
+  println(
+    "  Full options: rank=\{opts_full.rank}, tol=\{opts_full.tol}, max_iter=\{opts_full.max_iter}, n_oversamples=\{opts_full.n_oversamples}",
+  )
   println("")
 
   // === 3. Run exact SVD ===
@@ -65,8 +75,15 @@ fn main {
   // === 4. Run IRLBA (falls back to exact SVD when rank >= min(nrow,ncol)) ===
   println("--- 4. IRLBA (Implicitly Restarted Lanczos Bidiagonalization) ---")
   let mn = if nrow < ncol { nrow } else { ncol }
-  println("  min(nrow, ncol) = \{mn}; using rank=\{mn} to ensure valid decomposition")
-  let result_irlba = @bio.run_svd(matrix, nrow, ncol, @bio.svd_options_full(mn, 1.0e-7, 1000, 10, @bio.irlba_method()))
+  println(
+    "  min(nrow, ncol) = \{mn}; using rank=\{mn} to ensure valid decomposition",
+  )
+  let result_irlba = @bio.run_svd(
+    matrix,
+    nrow,
+    ncol,
+    @bio.svd_options_full(mn, 1.0e-7, 1000, 10, @bio.irlba_method()),
+  )
   let d_irlba = @bio.sv_result_d(result_irlba)
   println("  Singular values:")
   for i = 0; i < d_irlba.length(); i = i + 1 {
@@ -79,14 +96,21 @@ fn main {
 
   // === 5. Run Randomized SVD ===
   println("--- 5. Randomized SVD ---")
-  let result_rand = @bio.run_svd(matrix, nrow, ncol, @bio.svd_options_full(mn, 1.0e-7, 1000, 10, @bio.randomized_method()))
+  let result_rand = @bio.run_svd(
+    matrix,
+    nrow,
+    ncol,
+    @bio.svd_options_full(mn, 1.0e-7, 1000, 10, @bio.randomized_method()),
+  )
   let d_rand = @bio.sv_result_d(result_rand)
   println("  Singular values:")
   for i = 0; i < d_rand.length(); i = i + 1 {
     println("    d[\{i}] = \{d_rand[i]}")
   }
   println("  Rank: \{@bio.sv_result_rank(result_rand)}")
-  println("  Note: When rank >= min(nrow,ncol), Randomized SVD falls back to exact SVD")
+  println(
+    "  Note: When rank >= min(nrow,ncol), Randomized SVD falls back to exact SVD",
+  )
   println("  opts_rand default rank: \{opts_rand.rank}, method: Randomized")
   println("")
 
@@ -95,15 +119,25 @@ fn main {
   println("  Comparing singular values from ExactSVD, IRLBA, and Randomized:")
   println("  Method           d[0]         d[1]         d[2]         d[3]")
   println("  ----             ------       ------       ------       ------")
-  println("  ExactSVD         \{d_exact[0]}  \{d_exact[1]}  \{d_exact[2]}  \{d_exact[3]}")
-  println("  IRLBA            \{d_irlba[0]}  \{d_irlba[1]}  \{d_irlba[2]}  \{d_irlba[3]}")
-  println("  Randomized       \{d_rand[0]}  \{d_rand[1]}  \{d_rand[2]}  \{d_rand[3]}")
+  println(
+    "  ExactSVD         \{d_exact[0]}  \{d_exact[1]}  \{d_exact[2]}  \{d_exact[3]}",
+  )
+  println(
+    "  IRLBA            \{d_irlba[0]}  \{d_irlba[1]}  \{d_irlba[2]}  \{d_irlba[3]}",
+  )
+  println(
+    "  Randomized       \{d_rand[0]}  \{d_rand[1]}  \{d_rand[2]}  \{d_rand[3]}",
+  )
 
   // Verify all methods produce the same results
   let mut all_match = true
   for i = 0; i < d_exact.length(); i = i + 1 {
-    if (d_exact[i] - d_irlba[i]).abs() > 0.01 { all_match = false }
-    if (d_exact[i] - d_rand[i]).abs() > 0.01 { all_match = false }
+    if (d_exact[i] - d_irlba[i]).abs() > 0.01 {
+      all_match = false
+    }
+    if (d_exact[i] - d_rand[i]).abs() > 0.01 {
+      all_match = false
+    }
   }
   println("")
   println("  All methods produce consistent results: \{all_match}")
@@ -201,7 +235,9 @@ fn main {
     let d_sq = d_exact[i] * d_exact[i]
     let contrib = d_sq / total_var * 100.0
     cum_var = cum_var + contrib
-    println("    Component \{i}: d^2 = \{d_sq}, variance = \{contrib}%, cumulative = \{cum_var}%")
+    println(
+      "    Component \{i}: d^2 = \{d_sq}, variance = \{contrib}%, cumulative = \{cum_var}%",
+    )
   }
   println("")
 
@@ -222,8 +258,12 @@ fn main {
   println("  sv_result_ncol: \{@bio.sv_result_ncol(result_exact)}")
   println("  sv_result_rank: \{@bio.sv_result_rank(result_exact)}")
   println("  sv_result_d length: \{@bio.sv_result_d(result_exact).length()}")
-  println("  sv_result_u dimensions: \{@bio.sv_result_u(result_exact).length()} x \{@bio.sv_result_u(result_exact)[0].length()}")
-  println("  sv_result_v dimensions: \{@bio.sv_result_v(result_exact).length()} x \{@bio.sv_result_v(result_exact)[0].length()}")
+  println(
+    "  sv_result_u dimensions: \{@bio.sv_result_u(result_exact).length()} x \{@bio.sv_result_u(result_exact)[0].length()}",
+  )
+  println(
+    "  sv_result_v dimensions: \{@bio.sv_result_v(result_exact).length()} x \{@bio.sv_result_v(result_exact)[0].length()}",
+  )
   println("")
 
   println("=== Demo Complete ===")

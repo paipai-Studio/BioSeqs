@@ -13,13 +13,17 @@ fn main {
   println("   Genes: \{data.gene_names.length().to_string()}")
   println("   Samples: \{data.sample_names.length().to_string()}")
   println("   Conditions: 3 replicates per condition (0=Control, 1=Treatment)")
-  println("   DE genes: GeneA-GeneE (up), GeneF-GeneJ (down), GeneK-GeneT (equal)")
+  println(
+    "   DE genes: GeneA-GeneE (up), GeneF-GeneJ (down), GeneK-GeneT (equal)",
+  )
   println("")
 
   println("2. Estimating size factors (median-of-ratios method)...")
   let data_sf = @src.ebseq_estimate_size_factors(data)
   for i = 0; i < data_sf.sample_names.length(); i = i + 1 {
-    println("   \{data_sf.sample_names[i]}: \{data_sf.size_factors[i].to_string()}")
+    println(
+      "   \{data_sf.sample_names[i]}: \{data_sf.size_factors[i].to_string()}",
+    )
   }
   println("")
 
@@ -35,7 +39,9 @@ fn main {
 
   println("4. Running EBSeq DE test (PPDE threshold = 0.95)...")
   let res = @src.ebseq_test(data_disp, threshold=0.95)
-  println("   Results computed for \{res.gene_names.length().to_string()} genes")
+  println(
+    "   Results computed for \{res.gene_names.length().to_string()} genes",
+  )
   println("")
 
   println("5. Differential expression summary:")
@@ -84,7 +90,9 @@ fn main {
   let gene_names = ["UpGene", "EqGene", "DownGene"]
   let sample_names = ["C1_R1", "C1_R2", "C1_R3", "C2_R1", "C2_R2", "C2_R3"]
   let conditions = [0, 0, 0, 1, 1, 1]
-  let custom = @src.EBSeqDataSet::new(counts, gene_names, sample_names, conditions)
+  let custom = @src.EBSeqDataSet::new(
+    counts, gene_names, sample_names, conditions,
+  )
   let custom_sf = @src.ebseq_estimate_size_factors(custom)
   let custom_disp = @src.ebseq_estimate_dispersion(custom_sf)
   let custom_res = @src.ebseq_test(custom_disp, threshold=0.5)

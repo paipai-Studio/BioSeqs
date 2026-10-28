@@ -12,11 +12,12 @@ fn main {
   println("   Genes: " + input.gene_names.length().to_string())
   println("   Samples: " + input.sample_names.length().to_string())
   println(
-    "   SNP names: " + input.snp_names.iter().map(fn (s) { s }).collect().join(", "),
+    "   SNP names: " +
+    input.snp_names.iter().map(fn(s) { s }).collect().join(", "),
   )
   println(
     "   Gene names: " +
-    input.gene_names.iter().map(fn (s) { s }).collect().join(", ") +
+    input.gene_names.iter().map(fn(s) { s }).collect().join(", ") +
     "\n",
   )
 
@@ -24,7 +25,9 @@ fn main {
   println("2. Running eQTL analysis (p-value threshold = 0.05)...")
   let output = @src.matrixeqtl_run(input)
   println("   Total tests performed: " + output.n_tests.to_string())
-  println("   Significant associations: " + output.results.length().to_string() + "\n")
+  println(
+    "   Significant associations: " + output.results.length().to_string() + "\n",
+  )
 
   // 3. Print top associations
   println("3. Top eQTL associations (sorted by p-value):")
@@ -82,19 +85,21 @@ fn main {
   ]
 
   let custom_input = @src.MatrixEQTLInput::new(
-    snps,
-    gene_expression,
-    snp_names,
-    gene_names,
-    sample_names,
+    snps, gene_expression, snp_names, gene_names, sample_names,
   )
   println("   Custom dataset: 3 SNPs x 4 Genes x 10 Samples\n")
 
   // 5. Run analysis with stricter threshold
-  println("5. Running eQTL analysis on custom data (p-value threshold = 0.01)...")
+  println(
+    "5. Running eQTL analysis on custom data (p-value threshold = 0.01)...",
+  )
   let custom_output = @src.matrixeqtl_run(custom_input, pv_threshold=0.01)
   println("   Total tests performed: " + custom_output.n_tests.to_string())
-  println("   Significant associations (p < 0.01): " + custom_output.results.length().to_string() + "\n")
+  println(
+    "   Significant associations (p < 0.01): " +
+    custom_output.results.length().to_string() +
+    "\n",
+  )
 
   // 6. Print custom results
   println("6. Significant eQTL associations from custom data:")
@@ -129,10 +134,13 @@ fn main {
   println("7. Benjamini-Hochberg FDR correction example...")
   let raw_p_values = [0.001, 0.01, 0.03, 0.05, 0.12, 0.45, 0.67, 0.89]
   let fdr_adjusted = @src.matrixeqtl_bh_fdr(raw_p_values)
-  println("   Raw p-values:  " + raw_p_values.iter().map(fn (v) { v.to_string() }).collect().join(", "))
+  println(
+    "   Raw p-values:  " +
+    raw_p_values.iter().map(fn(v) { v.to_string() }).collect().join(", "),
+  )
   println(
     "   FDR adjusted:  " +
-    fdr_adjusted.iter().map(fn (v) { v.to_string() }).collect().join(", ") +
+    fdr_adjusted.iter().map(fn(v) { v.to_string() }).collect().join(", ") +
     "\n",
   )
 
@@ -141,11 +149,16 @@ fn main {
   let snp_dosage = [0.0, 1.0, 1.0, 2.0, 0.0, 1.0, 2.0, 1.0]
   let expr_values = [5.0, 6.5, 6.2, 8.0, 4.8, 6.3, 7.8, 6.4]
   let (beta, t_stat, p_value) = @src.matrixeqtl_linear_regression(
-    snp_dosage,
-    expr_values,
+    snp_dosage, expr_values,
   )
-  println("   SNP dosage:  " + snp_dosage.iter().map(fn (v) { v.to_string() }).collect().join(", "))
-  println("   Expression:  " + expr_values.iter().map(fn (v) { v.to_string() }).collect().join(", "))
+  println(
+    "   SNP dosage:  " +
+    snp_dosage.iter().map(fn(v) { v.to_string() }).collect().join(", "),
+  )
+  println(
+    "   Expression:  " +
+    expr_values.iter().map(fn(v) { v.to_string() }).collect().join(", "),
+  )
   println("   Beta (effect size): " + beta.to_string())
   println("   t-statistic: " + t_stat.to_string())
   println("   p-value: " + p_value.to_string())

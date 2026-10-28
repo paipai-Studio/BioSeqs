@@ -37,12 +37,7 @@ test "scanpy_neighbors" {
 ///|
 test "scanpy_neighbors_with_distances" {
   // Two clusters
-  let x = [
-    [0.0, 0.0],
-    [0.0, 0.1],
-    [5.0, 5.0],
-    [5.0, 5.1],
-  ]
+  let x = [[0.0, 0.0], [0.0, 0.1], [5.0, 5.0], [5.0, 5.1]]
   let result = @src.scanpy_neighbors_with_distances(x, 2)
   // Distances graph
   let dist = result.distances.to_dense()
@@ -78,12 +73,7 @@ test "scanpy_neighbors_with_distances" {
 
 ///|
 test "scanpy_neighbors_gauss_symmetric" {
-  let x = [
-    [0.0, 0.0],
-    [1.0, 0.0],
-    [2.0, 0.0],
-    [5.0, 0.0],
-  ]
+  let x = [[0.0, 0.0], [1.0, 0.0], [2.0, 0.0], [5.0, 0.0]]
   let g = @src.scanpy_neighbors_gauss(x, 3)
   let conn = g.to_dense()
   assert_eq(conn.length(), 4)
@@ -112,11 +102,7 @@ test "scanpy_neighbors_gauss_symmetric" {
 test "scanpy_neighbors_gauss_vs_umap" {
   // Both methods should produce symmetric matrices with 1 on diagonal,
   // but the actual connectivity values differ.
-  let x = [
-    [0.0, 0.0],
-    [0.5, 0.0],
-    [1.0, 0.0],
-  ]
+  let x = [[0.0, 0.0], [0.5, 0.0], [1.0, 0.0]]
   let g_umap = @src.scanpy_neighbors(x, 2)
   let g_gauss = @src.scanpy_neighbors_gauss(x, 2)
   let umap = g_umap.to_dense()

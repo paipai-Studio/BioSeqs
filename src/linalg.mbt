@@ -15,8 +15,8 @@
 /// leaves them (not sorted).
 pub fn linalg_jacobi(
   matrix : Array[Array[Double]],
-  n : Int,
-  max_iter : Int,
+  n : Int32,
+  max_iter : Int32,
 ) -> (Array[Double], Array[Array[Double]]) {
   let a : Array[Array[Double]] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {
@@ -106,7 +106,7 @@ pub fn linalg_jacobi(
 pub fn linalg_sort_eigen(
   eigenvalues : Array[Double],
   eigenvectors : Array[Array[Double]],
-  n : Int,
+  n : Int32,
 ) -> (Array[Double], Array[Array[Double]]) {
   let indices = Array::make(n, 0)
   for i = 0; i < n; i = i + 1 {

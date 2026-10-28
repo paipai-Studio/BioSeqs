@@ -2,7 +2,7 @@
 /// Tests for the AnnData single-cell container.
 
 ///|
-fn ads_col(values : Array[String]?, i : Int) -> String {
+fn ads_col(values : Array[String]?, i : Int32) -> String {
   match values {
     Some(arr) => if i < arr.length() { arr[i] } else { "MISSING" }
     None => "MISSING"
@@ -37,11 +37,7 @@ test "anndata_set_and_get_columns" {
 
 ///|
 test "anndata_subset" {
-  let x = [
-    [1.0, 2.0, 3.0, 4.0],
-    [5.0, 6.0, 7.0, 8.0],
-    [9.0, 10.0, 11.0, 12.0],
-  ]
+  let x = [[1.0, 2.0, 3.0, 4.0], [5.0, 6.0, 7.0, 8.0], [9.0, 10.0, 11.0, 12.0]]
   let ad = @src.AnnData::new(x, ["c1", "c2", "c3"], ["g1", "g2", "g3", "g4"])
     .set_obs("batch", ["A", "B", "A"])
     .set_var("gene", ["G1", "G2", "G3", "G4"])
@@ -75,7 +71,9 @@ test "anndata_subset" {
 ///|
 test "anndata_copy_is_deep" {
   let x = [[1.0, 2.0], [3.0, 4.0]]
-  let ad = @src.AnnData::new(x, ["c1", "c2"], ["g1", "g2"]).set_obs("batch", ["A", "B"])
+  let ad = @src.AnnData::new(x, ["c1", "c2"], ["g1", "g2"]).set_obs("batch", [
+    "A", "B",
+  ])
   let cp = ad.copy()
   let cp2 = cp.set_obs("batch", ["X", "Y"])
   // original obs unchanged by mutating the copy

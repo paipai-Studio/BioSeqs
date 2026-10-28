@@ -212,7 +212,7 @@ fn pdb_trim_string(s : StringView) -> String {
 
 ///|
 /// Fast integer parser for PDB format (no error checking).
-pub fn pdb_parse_int_fast(s : StringView) -> Int {
+pub fn pdb_parse_int_fast(s : StringView) -> Int32 {
   let n = s.length()
   if n == 0 {
     return 0
@@ -242,7 +242,6 @@ pub fn pdb_parse_int_fast(s : StringView) -> Int {
     result
   }
 }
-
 
 ///|
 /// Fast double parser for PDB format (no error checking).
@@ -296,7 +295,6 @@ pub fn pdb_parse_double_fast(s : StringView) -> Double {
     final_result
   }
 }
-
 
 ///|
 /// Write a Structure to PDB format string.
@@ -384,7 +382,7 @@ fn write_atom_line(atom : Atom, is_hetatm : Bool) -> String {
 
 ///|
 /// Pad string to the left.
-fn pad_left(s : String, width : Int, pad_char : Char) -> String {
+fn pad_left(s : String, width : Int32, pad_char : Char) -> String {
   let n = s.length()
   if n >= width {
     s
@@ -395,7 +393,7 @@ fn pad_left(s : String, width : Int, pad_char : Char) -> String {
 
 ///|
 /// Pad string to the right.
-fn pad_right(s : String, width : Int, pad_char : Char) -> String {
+fn pad_right(s : String, width : Int32, pad_char : Char) -> String {
   let n = s.length()
   if n >= width {
     s
@@ -406,7 +404,7 @@ fn pad_right(s : String, width : Int, pad_char : Char) -> String {
 
 ///|
 /// Format a double with specified width and precision.
-fn format_double(value : Double, width : Int, precision : Int) -> String {
+fn format_double(value : Double, width : Int32, precision : Int32) -> String {
   let s = value.to_string()
   let parts = s.split(".").to_array()
   let int_part = if parts.length() > 0 { parts[0].to_owned() } else { "0" }

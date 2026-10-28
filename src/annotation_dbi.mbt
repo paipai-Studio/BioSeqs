@@ -13,8 +13,8 @@ pub struct GeneInfo {
   symbol : String
   description : String
   chr : String
-  start : Int
-  end : Int
+  start : Int32
+  end : Int32
   strand : String
   biotype : String
 }
@@ -25,8 +25,8 @@ pub fn GeneInfo::new(
   symbol : String,
   description : String,
   chr : String,
-  start : Int,
-  end : Int,
+  start : Int32,
+  end : Int32,
   strand : String,
   biotype : String,
 ) -> GeneInfo {
@@ -243,17 +243,17 @@ pub fn annotation_dbi_columns(_db : AnnotationDb) -> Array[String] {
 }
 
 ///|
-pub fn nrow(db : AnnotationDb) -> Int {
+pub fn nrow(db : AnnotationDb) -> Int32 {
   db.gene_info.length()
 }
 
 ///|
-pub fn ncol(_db : AnnotationDb) -> Int {
+pub fn ncol(_db : AnnotationDb) -> Int32 {
   8
 }
 
 ///|
-pub fn head(db : AnnotationDb, n : Int) -> Array[GeneInfo] {
+pub fn head(db : AnnotationDb, n : Int32) -> Array[GeneInfo] {
   let result : Array[GeneInfo] = []
   let keys = db.gene_info.keys().collect()
 

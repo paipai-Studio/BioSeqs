@@ -40,7 +40,7 @@ pub fn generate_2d_coords(mol : Molecule) -> Array[(Double, Double)] {
   }
   // Step 2: Layout non-ring atoms (BFS from placed atoms)
   let neighbors = mol_adjacency(mol)
-  let queue : Array[Int] = Array(capacity=0)
+  let queue : Array[Int32] = Array(capacity=0)
   for k = 0; k < n; k = k + 1 {
     if placed[k] {
       queue.push(k)
@@ -52,9 +52,9 @@ pub fn generate_2d_coords(mol : Molecule) -> Array[(Double, Double)] {
     head = head + 1
     let (cx, cy) = coords[current]
     // Count unplaced neighbors
-    let unplaced : Array[Int] = Array(capacity=0)
+    let unplaced : Array[Int32] = Array(capacity=0)
     for (nb, _) in neighbors[current] {
-      if !(placed[nb]) {
+      if !placed[nb] {
         unplaced.push(nb)
       }
     }
@@ -76,7 +76,7 @@ pub fn generate_2d_coords(mol : Molecule) -> Array[(Double, Double)] {
   }
   // Step 3: Handle any remaining unplaced atoms (disconnected)
   for k = 0; k < n; k = k + 1 {
-    if !(placed[k]) {
+    if !placed[k] {
       coords[k] = (k.to_double() * 2.0, 0.0)
       placed[k] = true
     }
@@ -90,7 +90,7 @@ pub fn generate_2d_points(mol : Molecule) -> Array[Point2D] {
   let coords = generate_2d_coords(mol)
   let points : Array[Point2D] = Array(capacity=0)
   for (x, y) in coords {
-    points.push(Point2D::{ x, y })
+    points.push(Point2D::{ x, y, })
   }
   points
 }

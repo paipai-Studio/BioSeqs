@@ -5,7 +5,7 @@
 /// relabelled to dense 0..k−1.
 
 ///|
-pub fn scanpy_louvain(graph : SparseGraph) -> Array[Int] {
+pub fn scanpy_louvain(graph : SparseGraph) -> Array[Int32] {
   let n = graph.n
   if n == 0 {
     return []
@@ -30,7 +30,7 @@ pub fn scanpy_louvain(graph : SparseGraph) -> Array[Int] {
   for i = 0; i < n; i = i + 1 {
     comm[i] = i
   }
-  let stot : Map[Int, Double] = Map([], capacity=32)
+  let stot : Map[Int32, Double] = Map([], capacity=32)
   for i = 0; i < n; i = i + 1 {
     stot.set(i, deg[i])
   }
@@ -43,7 +43,7 @@ pub fn scanpy_louvain(graph : SparseGraph) -> Array[Int] {
       let k_u = deg[u]
       let cu = comm[u]
       // k_u,in per neighbour community
-      let kin : Map[Int, Double] = Map([], capacity=16)
+      let kin : Map[Int32, Double] = Map([], capacity=16)
       for nb in graph.adj[u] {
         let cv = comm[nb.0]
         match kin.get(cv) {
@@ -111,7 +111,7 @@ pub fn scanpy_louvain(graph : SparseGraph) -> Array[Int] {
   }
 
   // relabel to dense 0..k−1
-  let mapping : Map[Int, Int] = Map([], capacity=32)
+  let mapping : Map[Int32, Int32] = Map([], capacity=32)
   let mut nc = 0
   for u = 0; u < n; u = u + 1 {
     match mapping.get(comm[u]) {
@@ -133,7 +133,7 @@ pub fn scanpy_louvain(graph : SparseGraph) -> Array[Int] {
 /// Leiden-style connectivity refinement: run Louvain local moving, then split
 /// any disconnected community (in the induced subgraph) into its connected
 /// components, guaranteeing every returned community is connected.
-pub fn scanpy_leiden(graph : SparseGraph) -> Array[Int] {
+pub fn scanpy_leiden(graph : SparseGraph) -> Array[Int32] {
   let n = graph.n
   let base = scanpy_louvain(graph)
   let out = Array::make(n, 0)
@@ -144,7 +144,7 @@ pub fn scanpy_leiden(graph : SparseGraph) -> Array[Int] {
       continue
     }
     let comm = base[seed]
-    let frontier : Array[Int] = Array(capacity=0)
+    let frontier : Array[Int32] = Array(capacity=0)
     frontier.push(seed)
     visited[seed] = true
     let mut head = 0
@@ -154,7 +154,7 @@ pub fn scanpy_leiden(graph : SparseGraph) -> Array[Int] {
       out[u] = next_label
       for nb in graph.adj[u] {
         let v = nb.0
-        if !(visited[v]) && base[v] == comm {
+        if !visited[v] && base[v] == comm {
           visited[v] = true
           frontier.push(v)
         }

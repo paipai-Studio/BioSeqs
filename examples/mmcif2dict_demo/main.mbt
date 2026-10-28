@@ -7,8 +7,7 @@
 
 ///|
 fn main raise {
-  let cif =
-    "data_1abc\n" +
+  let cif = "data_1abc\n" +
     "# a comment line\n" +
     "_struct.entry_id 1ABC\n" +
     "_struct.title 'A small structure'\n" +
@@ -25,7 +24,11 @@ fn main raise {
     ";\n"
   let d = @src.mmcif2dict_parse(cif)
   println("data block = \{d.get("data_").unwrap_or([])[0]}")
-  for key in ["_struct.entry_id", "_struct.title", "_atom_site.id", "_atom_site.Cartn_x", "_note.text"] {
+  for
+    key in [
+      "_struct.entry_id", "_struct.title", "_atom_site.id", "_atom_site.Cartn_x",
+      "_note.text",
+    ] {
     match d.get(key) {
       Some(vals) => println("\{key} -> \{vals.length()} value(s)")
       None => println("\{key} -> (absent)")

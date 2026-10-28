@@ -165,7 +165,13 @@ test "prodigal gene GC content" {
 
 ///|
 test "prodigal gene coordinates valid" {
-  let seq = "ATG" + "GCT".repeat(20) + "TAA" + "GGG" + "ATG" + "GAA".repeat(20) + "TGA"
+  let seq = "ATG" +
+    "GCT".repeat(20) +
+    "TAA" +
+    "GGG" +
+    "ATG" +
+    "GAA".repeat(20) +
+    "TGA"
   let result = @src.prodigal_predict(seq, "seq1")
   for gene in result.genes {
     assert_true(gene.start >= 1)
@@ -190,9 +196,17 @@ test "prodigal genes sorted by position" {
 ///|
 test "prodigal all 6 frames" {
   // Create a sequence with genes in different frames
-  let seq = "ATG" + "GCT".repeat(20) + "TAA" +
-    "A" + "ATG" + "GAA".repeat(20) + "TAG" +
-    "AA" + "ATG" + "GGC".repeat(20) + "TGA"
+  let seq = "ATG" +
+    "GCT".repeat(20) +
+    "TAA" +
+    "A" +
+    "ATG" +
+    "GAA".repeat(20) +
+    "TAG" +
+    "AA" +
+    "ATG" +
+    "GGC".repeat(20) +
+    "TGA"
   let result = @src.prodigal_predict(seq, "seq1")
   assert_true(result.num_genes >= 1)
 }
@@ -201,7 +215,13 @@ test "prodigal all 6 frames" {
 test "prodigal gene with GTG start" {
   // GTG is an alternative start codon in bacteria
   let params = @src.prodigal_params_full(
-    60, 60, ["ATG", "GTG", "TTG"], ["TAA", "TAG", "TGA"], true, true, false,
+    60,
+    60,
+    ["ATG", "GTG", "TTG"],
+    ["TAA", "TAG", "TGA"],
+    true,
+    true,
+    false,
   )
   let seq = "GTG" + "GCT".repeat(20) + "TAA"
   let result = @src.prodigal_predict_with_params(seq, "seq1", params)

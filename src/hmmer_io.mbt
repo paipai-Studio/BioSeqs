@@ -70,7 +70,7 @@ fn hmmer_io_parse_double(s : String) -> Double {
 }
 
 ///|
-fn hmmer_io_parse_int(s : String) -> Int {
+fn hmmer_io_parse_int(s : String) -> Int32 {
   parse_int(s)
 }
 
@@ -318,17 +318,17 @@ priv struct HmmerDomHit {
   query_acc : String
   evalue_full : Double
   score_full : Double
-  dom_idx : Int
-  dom_total : Int
+  dom_idx : Int32
+  dom_total : Int32
   c_evalue : Double
   i_evalue : Double
   score_dom : Double
-  hmm_from : Int
-  hmm_to : Int
-  ali_from : Int
-  ali_to : Int
-  env_from : Int
-  env_to : Int
+  hmm_from : Int32
+  hmm_to : Int32
+  ali_from : Int32
+  ali_to : Int32
+  env_from : Int32
+  env_to : Int32
   description : String
 }
 
@@ -654,7 +654,7 @@ pub fn hmmer3_text_sample() -> String {
 ///|
 /// Return the number of HSP fragments across all hits in a QueryResult.
 /// (Convenience alias; same semantics as count_hsps in search_io.mbt.)
-pub fn hmmer_io_count_hsps(qr : QueryResult) -> Int {
+pub fn hmmer_io_count_hsps(qr : QueryResult) -> Int32 {
   let mut total = 0
   let mut i = 0
   while i < qr.hits.length() {

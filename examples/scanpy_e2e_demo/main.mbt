@@ -9,7 +9,7 @@ fn fmt_d(row : Array[Double]) -> String {
   let sb = StringBuilder()
   let mut first = true
   for x in row {
-    if !(first) {
+    if !first {
       sb.write_char(' ')
     }
     sb.write_string(x.to_string())
@@ -19,11 +19,11 @@ fn fmt_d(row : Array[Double]) -> String {
 }
 
 ///|
-fn fmt_i(row : Array[Int]) -> String {
+fn fmt_i(row : Array[Int32]) -> String {
   let sb = StringBuilder()
   let mut first = true
   for x in row {
-    if !(first) {
+    if !first {
       sb.write_char(' ')
     }
     sb.write_string(x.to_string())
@@ -51,8 +51,12 @@ fn main {
   let barcodes = "cell1\ncell2\ncell3\ncell4\ncell5\ncell6\n"
 
   // sc.read_10x_mtx (mtx is genes×cells here; transposed to cells×genes)
-  let adata = @src.scanpy_read_10x_mtx(mtx, features, barcodes, "gene_symbols", true, true)
-  println("read_10x_mtx -> AnnData \{adata.n_obs()} cells x \{adata.n_vars()} genes")
+  let adata = @src.scanpy_read_10x_mtx(
+    mtx, features, barcodes, "gene_symbols", true, true,
+  )
+  println(
+    "read_10x_mtx -> AnnData \{adata.n_obs()} cells x \{adata.n_vars()} genes",
+  )
 
   // sc.pp.normalize_total + sc.pp.log1p
   let norm = @src.scanpy_normalize_total(adata.x_matrix(), 10000.0)

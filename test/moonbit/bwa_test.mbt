@@ -69,8 +69,12 @@ test "fm_locate finds positions" {
   let mut has_1 = false
   let mut has_3 = false
   for p in positions {
-    if p == 1 { has_1 = true }
-    if p == 3 { has_3 = true }
+    if p == 1 {
+      has_1 = true
+    }
+    if p == 3 {
+      has_3 = true
+    }
   }
   assert_true(has_1)
   assert_true(has_3)

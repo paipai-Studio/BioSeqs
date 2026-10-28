@@ -18,16 +18,16 @@
 /// Position representation enum.
 /// Each variant represents a different type of sequence position.
 pub enum Pos {
-  ExactPosition(Int)
-  BeforePosition(Int)
-  AfterPosition(Int)
-  OneOfPosition(Int, Array[Pos])
-  WithinPosition(Int, Pos, Pos)
+  ExactPosition(Int32)
+  BeforePosition(Int32)
+  AfterPosition(Int32)
+  OneOfPosition(Int32, Array[Pos])
+  WithinPosition(Int32, Pos, Pos)
 }
 
 ///|
 /// Get the numeric value of the position.
-pub fn pos_get(pos : Pos) -> Int {
+pub fn pos_get(pos : Pos) -> Int32 {
   match pos {
     ExactPosition(p) => p
     BeforePosition(p) => p
@@ -76,31 +76,31 @@ pub fn pos_is_exact(pos : Pos) -> Bool {
 
 ///|
 /// Create an exact position.
-pub fn exact_position(pos : Int) -> Pos {
+pub fn exact_position(pos : Int32) -> Pos {
   ExactPosition(pos)
 }
 
 ///|
 /// Create a before position.
-pub fn before_position(pos : Int) -> Pos {
+pub fn before_position(pos : Int32) -> Pos {
   BeforePosition(pos)
 }
 
 ///|
 /// Create an after position.
-pub fn after_position(pos : Int) -> Pos {
+pub fn after_position(pos : Int32) -> Pos {
   AfterPosition(pos)
 }
 
 ///|
 /// Create a one-of position.
-pub fn one_of_position(pos : Int, options : Array[Pos]) -> Pos {
+pub fn one_of_position(pos : Int32, options : Array[Pos]) -> Pos {
   OneOfPosition(pos, options)
 }
 
 ///|
 /// Create a within position.
-pub fn within_position(pos : Int, left : Pos, right : Pos) -> Pos {
+pub fn within_position(pos : Int32, left : Pos, right : Pos) -> Pos {
   WithinPosition(pos, left, right)
 }
 
@@ -120,8 +120,8 @@ pub enum Loc {
 pub fn simple_location(
   start_pos : Pos,
   end_pos : Pos,
-  strand? : String = "+",
-  ref_id? : String = "",
+  strand~ : String = "+",
+  ref_id~ : String = "",
 ) -> Loc {
   SimpleLocation(start_pos, end_pos, strand, ref_id)
 }
@@ -130,8 +130,8 @@ pub fn simple_location(
 /// Create a compound location.
 pub fn compound_location(
   locs : Array[Loc],
-  strand? : String = "+",
-  ref_id? : String = "",
+  strand~ : String = "+",
+  ref_id~ : String = "",
 ) -> Loc {
   CompoundLocation(locs, strand, ref_id)
 }
@@ -139,9 +139,9 @@ pub fn compound_location(
 ///|
 /// Create a compound location from arrays of start/end positions.
 pub fn compound_from_simple(
-  starts : Array[Int],
-  ends : Array[Int],
-  strand? : String = "+",
+  starts : Array[Int32],
+  ends : Array[Int32],
+  strand~ : String = "+",
 ) -> Loc {
   let locs : Array[Loc] = Array(capacity=0)
   let mut i = 0
@@ -156,7 +156,7 @@ pub fn compound_from_simple(
 
 ///|
 /// Get the start position (0-based).
-pub fn loc_start(loc : Loc) -> Int {
+pub fn loc_start(loc : Loc) -> Int32 {
   match loc {
     SimpleLocation(sp, _, _, _) => pos_get(sp)
     CompoundLocation(locs, _, _) => {
@@ -170,7 +170,7 @@ pub fn loc_start(loc : Loc) -> Int {
 
 ///|
 /// Get the end position (0-based, exclusive).
-pub fn loc_end(loc : Loc) -> Int {
+pub fn loc_end(loc : Loc) -> Int32 {
   match loc {
     SimpleLocation(_, ep, _, _) => pos_get(ep)
     CompoundLocation(locs, _, _) => {
@@ -194,7 +194,7 @@ pub fn loc_strand(loc : Loc) -> String {
 
 ///|
 /// Get the length of the location.
-pub fn loc_len(loc : Loc) -> Int {
+pub fn loc_len(loc : Loc) -> Int32 {
   match loc {
     SimpleLocation(sp, ep, _, _) => {
       let e = pos_get(ep)
@@ -267,7 +267,7 @@ pub fn loc_overlaps(loc : Loc, other : Loc) -> Bool {
 
 ///|
 /// Check if this location contains a position.
-pub fn loc_contains(loc : Loc, pos : Int) -> Bool {
+pub fn loc_contains(loc : Loc, pos : Int32) -> Bool {
   match loc {
     SimpleLocation(sp, ep, _, _) => {
       let s = pos_get(sp)
@@ -342,7 +342,7 @@ pub fn loc_to_one_based(loc : Loc) -> String {
 
 ///|
 /// Get the numeric value of the position.
-pub fn Pos::get(self : Pos) -> Int {
+pub fn Pos::get(self : Pos) -> Int32 {
   pos_get(self)
 }
 
@@ -364,13 +364,13 @@ pub fn Pos::is_exact(self : Pos) -> Bool {
 
 ///|
 /// Get the start position (0-based).
-pub fn Loc::start(self : Loc) -> Int {
+pub fn Loc::start(self : Loc) -> Int32 {
   loc_start(self)
 }
 
 ///|
 /// Get the end position (0-based, exclusive).
-pub fn Loc::end(self : Loc) -> Int {
+pub fn Loc::end(self : Loc) -> Int32 {
   loc_end(self)
 }
 
@@ -382,7 +382,7 @@ pub fn Loc::strand(self : Loc) -> String {
 
 ///|
 /// Get the length of the location.
-pub fn Loc::len(self : Loc) -> Int {
+pub fn Loc::len(self : Loc) -> Int32 {
   loc_len(self)
 }
 
@@ -406,7 +406,7 @@ pub fn Loc::overlaps(self : Loc, other : Loc) -> Bool {
 
 ///|
 /// Check if this location contains a position.
-pub fn Loc::contains(self : Loc, pos : Int) -> Bool {
+pub fn Loc::contains(self : Loc, pos : Int32) -> Bool {
   loc_contains(self, pos)
 }
 
@@ -435,9 +435,9 @@ pub fn location_to_genbank(loc : Loc) -> String {
 ///|
 /// Create a simple location from 1-based GenBank coordinates.
 pub fn from_genbank_coords(
-  start : Int,
-  end_ : Int,
-  strand? : String = "+",
+  start : Int32,
+  end_ : Int32,
+  strand~ : String = "+",
 ) -> Loc {
   let sp = exact_position(start - 1)
   let ep = exact_position(end_)
@@ -464,7 +464,7 @@ pub fn parse_genbank_location(loc_str : String) -> Loc {
 
 ///|
 /// Parse an integer from a trimmed string view, returning 1 on failure.
-fn parse_int_trimmed(sv : StringView) -> Int {
+fn parse_int_trimmed(sv : StringView) -> Int32 {
   let s = sv.trim().to_owned()
   let n = s.length()
   if n == 0 {

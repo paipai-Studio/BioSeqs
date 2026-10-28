@@ -53,9 +53,9 @@ pub struct VolcanoResult {
   title : String
   x_label : String
   y_label : String
-  n_up : Int
-  n_down : Int
-  n_nonsig : Int
+  n_up : Int32
+  n_down : Int32
+  n_nonsig : Int32
 }
 
 ///|
@@ -74,11 +74,11 @@ pub fn volcano_plot(
   gene_ids : Array[String],
   log2fc_values : Array[Double],
   p_values : Array[Double],
-  p_cutoff? : Double = 0.05,
-  fc_cutoff? : Double = 1.0,
-  title? : String = "",
-  x_label? : String = "log2 Fold Change",
-  y_label? : String = "-log10(p-value)",
+  p_cutoff~ : Double = 0.05,
+  fc_cutoff~ : Double = 1.0,
+  title~ : String = "",
+  x_label~ : String = "log2 Fold Change",
+  y_label~ : String = "-log10(p-value)",
 ) -> VolcanoResult {
   let n = gene_ids.length()
   let genes : Array[VolcanoGene] = Array(capacity=0)
@@ -150,25 +150,25 @@ pub fn volcano_plot_default(
 
 ///|
 /// Get the number of genes.
-pub fn VolcanoResult::get_n_genes(self : VolcanoResult) -> Int {
+pub fn VolcanoResult::get_n_genes(self : VolcanoResult) -> Int32 {
   self.genes.length()
 }
 
 ///|
 /// Get the number of up-regulated genes.
-pub fn VolcanoResult::get_n_up(self : VolcanoResult) -> Int {
+pub fn VolcanoResult::get_n_up(self : VolcanoResult) -> Int32 {
   self.n_up
 }
 
 ///|
 /// Get the number of down-regulated genes.
-pub fn VolcanoResult::get_n_down(self : VolcanoResult) -> Int {
+pub fn VolcanoResult::get_n_down(self : VolcanoResult) -> Int32 {
   self.n_down
 }
 
 ///|
 /// Get the number of non-significant genes.
-pub fn VolcanoResult::get_n_nonsig(self : VolcanoResult) -> Int {
+pub fn VolcanoResult::get_n_nonsig(self : VolcanoResult) -> Int32 {
   self.n_nonsig
 }
 
@@ -210,7 +210,7 @@ pub fn VolcanoResult::get_significant_genes(
 /// Get top significant genes by p-value.
 pub fn VolcanoResult::get_top_genes(
   self : VolcanoResult,
-  n : Int,
+  n : Int32,
 ) -> Array[VolcanoGene] {
   let sig = self.get_significant_genes()
   let sorted = sig.copy()
@@ -280,8 +280,8 @@ pub fn neg_log10_p(p_val : Double) -> Double {
 /// Format the volcano result as an ASCII visualization.
 pub fn VolcanoResult::to_ascii(
   self : VolcanoResult,
-  width? : Int = 60,
-  height? : Int = 20,
+  width~ : Int32 = 60,
+  height~ : Int32 = 20,
 ) -> String {
   let w = if width < 20 { 60 } else { width }
   let h = if height < 10 { 20 } else { height }
@@ -429,7 +429,7 @@ pub fn VolcanoResult::summary(self : VolcanoResult) -> String {
 
 ///|
 /// Create sample data for demo purposes.
-pub fn volcano_sample(n_genes : Int) -> VolcanoResult {
+pub fn volcano_sample(n_genes : Int32) -> VolcanoResult {
   let n = if n_genes < 10 { 10 } else { n_genes }
   let ids : Array[String] = Array(capacity=0)
   let lfcs : Array[Double] = Array(capacity=0)

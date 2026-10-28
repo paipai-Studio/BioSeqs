@@ -1,7 +1,6 @@
 ///|
 /// treeio demo - Phylogenetic tree I/O parsers and utilities.
 /// Inspired by Bioconductor treeio package.
-
 fn main {
   println("=== treeio Demo: Phylogenetic Tree I/O ===")
   println("")
@@ -12,7 +11,15 @@ fn main {
   println("Input: " + newick)
   let tree = @src.treeio_parse_newick(newick)
   let (n_total, n_tips, n_internal) = @src.treeio_tree_stats(tree)
-  println("Nodes: " + n_total.to_string() + " (tips=" + n_tips.to_string() + ", internal=" + n_internal.to_string() + ")")
+  println(
+    "Nodes: " +
+    n_total.to_string() +
+    " (tips=" +
+    n_tips.to_string() +
+    ", internal=" +
+    n_internal.to_string() +
+    ")",
+  )
   println("Rooted: " + @src.treeio_is_rooted(tree).to_string())
   println("Binary: " + @src.treeio_is_binary(tree).to_string())
   println("Total branch length: " + @src.treeio_total_length(tree).to_string())
@@ -32,7 +39,13 @@ fn main {
   println("Input: " + beast_newick)
   let beast_tree = @src.treeio_parse_beast(beast_newick)
   let (bt_total, bt_tips, _) = @src.treeio_tree_stats(beast_tree)
-  println("Parsed Beast tree: " + bt_total.to_string() + " nodes, " + bt_tips.to_string() + " tips")
+  println(
+    "Parsed Beast tree: " +
+    bt_total.to_string() +
+    " nodes, " +
+    bt_tips.to_string() +
+    " tips",
+  )
   println("")
 
   // Step 4: jplace format
@@ -40,7 +53,13 @@ fn main {
 
   let jplace = "{\"tree\":\"((A:0.1,B:0.2):0.3,C:0.4);\",\"placements\":[{\"p\":[[1,0.5,0.01,0.02,0.03]],\"n\":[\"seq1\"]}],\"fields\":[\"edge_num\",\"likelihood\",\"like_weight_ratio\",\"pendant_length\",\"distal_length\"]}"
   let jp = @src.treeio_parse_jplace(jplace)
-  println("Parsed jplace: " + jp.placements.length().to_string() + " placements, " + jp.n_places.to_string() + " places")
+  println(
+    "Parsed jplace: " +
+    jp.placements.length().to_string() +
+    " placements, " +
+    jp.n_places.to_string() +
+    " places",
+  )
   println("")
 
   // Step 5: r8s format
@@ -55,14 +74,28 @@ fn main {
   let phylip = "4\nA    0.1\nB    0.2\nC    0.3\nD    0.4"
   let phylip_tree = @src.treeio_parse_phylip(phylip)
   let (pt_total, pt_tips, _) = @src.treeio_tree_stats(phylip_tree)
-  println("Parsed phylip: " + pt_total.to_string() + " nodes, " + pt_tips.to_string() + " tips")
+  println(
+    "Parsed phylip: " +
+    pt_total.to_string() +
+    " nodes, " +
+    pt_tips.to_string() +
+    " tips",
+  )
   println("")
 
   // Step 7: Example tree
   println("--- Step 7: Example Tree ---")
   let ex = @src.treeio_example_tree()
   let (ex_total, ex_tips, ex_internal) = @src.treeio_tree_stats(ex)
-  println("Example tree: " + ex_total.to_string() + " nodes (tips=" + ex_tips.to_string() + ", internal=" + ex_internal.to_string() + ")")
+  println(
+    "Example tree: " +
+    ex_total.to_string() +
+    " nodes (tips=" +
+    ex_tips.to_string() +
+    ", internal=" +
+    ex_internal.to_string() +
+    ")",
+  )
   println("Newick: " + @src.treeio_write_newick(ex))
   println("")
 

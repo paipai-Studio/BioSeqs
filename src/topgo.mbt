@@ -6,10 +6,10 @@ pub struct TopGOTerm {
   go_id : String
   name : String
   namespace_ : String
-  level : Int
+  level : Int32
   parents : Array[String]
   children : Array[String]
-  gene_count : Int
+  gene_count : Int32
 }
 
 ///|
@@ -17,7 +17,7 @@ pub fn TopGOTerm::new(
   go_id : String,
   name : String,
   namespace_ : String,
-  level : Int,
+  level : Int32,
 ) -> TopGOTerm {
   TopGOTerm::{
     go_id,
@@ -94,12 +94,12 @@ pub struct TopGOEnrichmentResult {
   go_id : String
   term_name : String
   namespace_ : String
-  level : Int
+  level : Int32
   p_value : Double
   adjusted_p_value : Double
   enrichment_score : Double
-  gene_count : Int
-  total_genes : Int
+  gene_count : Int32
+  total_genes : Int32
   algorithm : String
 }
 
@@ -108,12 +108,12 @@ pub fn TopGOEnrichmentResult::new(
   go_id : String,
   term_name : String,
   namespace_ : String,
-  level : Int,
+  level : Int32,
   p_value : Double,
   adjusted_p_value : Double,
   enrichment_score : Double,
-  gene_count : Int,
-  total_genes : Int,
+  gene_count : Int32,
+  total_genes : Int32,
   algorithm : String,
 ) -> TopGOEnrichmentResult {
   TopGOEnrichmentResult::{
@@ -132,10 +132,10 @@ pub fn TopGOEnrichmentResult::new(
 
 ///|
 pub fn topgo_fisher_exact(
-  count : Int,
-  total : Int,
-  bg_count : Int,
-  bg_total : Int,
+  count : Int32,
+  total : Int32,
+  bg_count : Int32,
+  bg_total : Int32,
 ) -> Double {
   let mut p = 1.0
   let max_x = if count < bg_count { count } else { bg_count }
@@ -164,7 +164,7 @@ pub fn topgo_fisher_exact(
 }
 
 ///|
-fn topgo_factorial(n : Int) -> Int {
+fn topgo_factorial(n : Int32) -> Int32 {
   if n <= 1 {
     1
   } else {

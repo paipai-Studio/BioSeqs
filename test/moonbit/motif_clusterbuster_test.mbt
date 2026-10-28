@@ -1,6 +1,5 @@
 ///|
 /// Tests for motif_clusterbuster module (Bio.motifs clusterbuster format).
-
 test "clusterbuster_parse basic" {
   let content = ">cluster1 2.5\nmotifA\n[0.7 0.1 0.1 0.1]\n[0.1 0.1 0.7 0.1]\n"
   let clusters = @src.clusterbuster_parse(content)
@@ -13,6 +12,7 @@ test "clusterbuster_parse basic" {
   assert_true((clusters[0].motifs[0].pfm[0][0] - 0.7).abs() < 1.0e-9)
 }
 
+///|
 test "clusterbuster_parse multiple clusters and motifs" {
   let content = ">cluster1 1.0\nmotifA\n[0.7 0.1 0.1 0.1]\nmotifB\n[0.3 0.2 0.2 0.3]\n>cluster2 2.0\nmotifC\n[0.1 0.1 0.1 0.7]\n"
   let clusters = @src.clusterbuster_parse(content)
@@ -22,12 +22,14 @@ test "clusterbuster_parse multiple clusters and motifs" {
   assert_eq(clusters[1].name, "cluster2")
 }
 
+///|
 test "clusterbuster_parse comments and blank lines" {
   let content = "# a comment\n\n>cluster1 1.0\nmotifA\n[0.7 0.1 0.1 0.1]\n"
   let clusters = @src.clusterbuster_parse(content)
   assert_eq(clusters.length(), 1)
 }
 
+///|
 test "clusterbuster_to_string roundtrip" {
   let content = ">cluster1 2.5\nmotifA\n[0.7 0.1 0.1 0.1]\n"
   let clusters = @src.clusterbuster_parse(content)
@@ -41,6 +43,7 @@ test "clusterbuster_to_string roundtrip" {
   assert_true((reparsed[0].score - 2.5).abs() < 1.0e-9)
 }
 
+///|
 test "clusterbuster_to_motif_pfm conversion" {
   let content = ">cluster1 1.0\nmotifA\n[0.7 0.1 0.1 0.1]\n[0.1 0.1 0.7 0.1]\n"
   let clusters = @src.clusterbuster_parse(content)
@@ -51,6 +54,7 @@ test "clusterbuster_to_motif_pfm conversion" {
   assert_true((pfm.counts[0][1] - 10.0).abs() < 1.0e-9)
 }
 
+///|
 test "motif_pfm_to_clusterbuster conversion" {
   let alphabet = ["A", "C", "G", "T"]
   let sites = ["AC", "AC", "AG"]
@@ -62,6 +66,7 @@ test "motif_pfm_to_clusterbuster conversion" {
   assert_true((cb.pfm[0][0] - 1.0).abs() < 1.0e-9)
 }
 
+///|
 test "clusterbuster_cluster_score" {
   let content = ">cluster1 1.0\nmotifA\n[0.7 0.1 0.1 0.1]\n[0.1 0.1 0.7 0.1]\n"
   let clusters = @src.clusterbuster_parse(content)
@@ -70,6 +75,7 @@ test "clusterbuster_cluster_score" {
   assert_true((score - 1.4).abs() < 1.0e-9)
 }
 
+///|
 test "clusterbuster_example" {
   let clusters = @src.clusterbuster_example()
   assert_eq(clusters.length(), 1)

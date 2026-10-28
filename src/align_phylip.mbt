@@ -17,7 +17,11 @@ pub(all) enum AlignPhylipLayout {
   PhylipSequential
   PhylipInterleaved
 } derive(Eq, Debug)
+
+///|
 pub extend AlignPhylipLayout with Eq::{equal, not_equal}
+
+///|
 pub extend AlignPhylipLayout with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -27,7 +31,11 @@ pub struct AlignPhylipSequence {
   sequence : String
   aligned_sequence : String
 } derive(Eq, Debug)
+
+///|
 pub extend AlignPhylipSequence with Eq::{equal, not_equal}
+
+///|
 pub extend AlignPhylipSequence with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -40,21 +48,29 @@ pub struct AlignPhylipAlignment {
   sequences : Array[AlignPhylipSequence]
   source_layout : AlignPhylipLayout
 } derive(Eq, Debug)
+
+///|
 pub extend AlignPhylipAlignment with Eq::{equal, not_equal}
+
+///|
 pub extend AlignPhylipAlignment with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Pairwise or all-pairs alignment statistics.
 pub struct AlignPhylipCounts {
-  pairs : Int
-  aligned : Int
-  identities : Int
-  mismatches : Int
-  gap_columns : Int
-  double_gap_columns : Int
-  gap_opens : Int
+  pairs : Int32
+  aligned : Int32
+  identities : Int32
+  mismatches : Int32
+  gap_columns : Int32
+  double_gap_columns : Int32
+  gap_opens : Int32
 } derive(Eq, Debug)
+
+///|
 pub extend AlignPhylipCounts with Eq::{equal, not_equal}
+
+///|
 pub extend AlignPhylipCounts with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -79,7 +95,7 @@ pub fn AlignPhylipSequence::create(
 /// Construct a validated modern PHYLIP alignment.
 pub fn AlignPhylipAlignment::create(
   sequences : Array[AlignPhylipSequence],
-  source_layout? : AlignPhylipLayout = PhylipSequential,
+  source_layout~ : AlignPhylipLayout = PhylipSequential,
 ) -> AlignPhylipAlignment raise AlignPhylipError {
   let copied : Array[AlignPhylipSequence] = []
   for sequence in sequences {
@@ -95,7 +111,7 @@ pub fn AlignPhylipAlignment::create(
 pub fn align_phylip_from_aligned(
   ids : Array[String],
   aligned_sequences : Array[String],
-  source_layout? : AlignPhylipLayout = PhylipSequential,
+  source_layout~ : AlignPhylipLayout = PhylipSequential,
 ) -> AlignPhylipAlignment raise AlignPhylipError {
   if ids.length() == 0 {
     raise AlignPhylipError(
@@ -189,9 +205,9 @@ pub fn align_phylip_parse(
 /// presentation without changing alignment coordinates.
 pub fn align_phylip_write(
   alignment : AlignPhylipAlignment,
-  layout? : AlignPhylipLayout = PhylipSequential,
-  block_width? : Int = 0,
-  group_width? : Int = 0,
+  layout~ : AlignPhylipLayout = PhylipSequential,
+  block_width~ : Int32 = 0,
+  group_width~ : Int32 = 0,
 ) -> String raise AlignPhylipError {
   align_phylip_validate_alignment(alignment)
   if block_width < 0 {
@@ -357,7 +373,9 @@ pub fn AlignPhylipAlignment::has_normalized_id_collisions(
 
 ///|
 /// Return the number of sequence rows.
-pub fn AlignPhylipAlignment::num_sequences(self : AlignPhylipAlignment) -> Int {
+pub fn AlignPhylipAlignment::num_sequences(
+  self : AlignPhylipAlignment,
+) -> Int32 {
   self.sequences.length()
 }
 
@@ -365,7 +383,7 @@ pub fn AlignPhylipAlignment::num_sequences(self : AlignPhylipAlignment) -> Int {
 /// Return the alignment width including gaps.
 pub fn AlignPhylipAlignment::alignment_length(
   self : AlignPhylipAlignment,
-) -> Int {
+) -> Int32 {
   if self.sequences.length() == 0 {
     0
   } else {
@@ -379,8 +397,8 @@ pub fn AlignPhylipAlignment::alignment_length(
 pub fn AlignPhylipAlignment::find_sequences(
   self : AlignPhylipAlignment,
   id : String,
-) -> Array[Int] {
-  let result : Array[Int] = []
+) -> Array[Int32] {
+  let result : Array[Int32] = []
   for index = 0; index < self.sequences.length(); index = index + 1 {
     if self.sequences[index].id == id {
       result.push(index)
@@ -393,7 +411,7 @@ pub fn AlignPhylipAlignment::find_sequences(
 /// Return one printed alignment column.
 pub fn AlignPhylipAlignment::column(
   self : AlignPhylipAlignment,
-  column : Int,
+  column : Int32,
 ) -> String? {
   if column < 0 || column >= self.alignment_length() {
     return None
@@ -411,9 +429,9 @@ pub fn AlignPhylipAlignment::column(
 /// Map a zero-based ungapped row position to an alignment column.
 pub fn AlignPhylipAlignment::sequence_position_to_column(
   self : AlignPhylipAlignment,
-  row : Int,
-  position : Int,
-) -> Int? {
+  row : Int32,
+  position : Int32,
+) -> Int32? {
   if row < 0 ||
     row >= self.sequences.length() ||
     position < 0 ||
@@ -437,9 +455,9 @@ pub fn AlignPhylipAlignment::sequence_position_to_column(
 /// Map one alignment column to a zero-based ungapped row position.
 pub fn AlignPhylipAlignment::column_to_sequence_position(
   self : AlignPhylipAlignment,
-  row : Int,
-  column : Int,
-) -> Int? {
+  row : Int32,
+  column : Int32,
+) -> Int32? {
   if row < 0 ||
     row >= self.sequences.length() ||
     column < 0 ||
@@ -463,10 +481,10 @@ pub fn AlignPhylipAlignment::column_to_sequence_position(
 /// Project one row position through the alignment to another row.
 pub fn AlignPhylipAlignment::map_position(
   self : AlignPhylipAlignment,
-  source_row : Int,
-  target_row : Int,
-  source_position : Int,
-) -> Int? {
+  source_row : Int32,
+  target_row : Int32,
+  source_position : Int32,
+) -> Int32? {
   if target_row < 0 || target_row >= self.sequences.length() {
     return None
   }
@@ -480,12 +498,12 @@ pub fn AlignPhylipAlignment::map_position(
 /// Return per-column residue positions for two rows.
 pub fn AlignPhylipAlignment::aligned_pairs(
   self : AlignPhylipAlignment,
-  first_row : Int,
-  second_row : Int,
-) -> Array[(Int?, Int?)] raise AlignPhylipError {
+  first_row : Int32,
+  second_row : Int32,
+) -> Array[(Int32?, Int32?)] raise AlignPhylipError {
   align_phylip_validate_row(self, first_row)
   align_phylip_validate_row(self, second_row)
-  let result : Array[(Int?, Int?)] = []
+  let result : Array[(Int32?, Int32?)] = []
   let mut first_position = 0
   let mut second_position = 0
   for column = 0; column < self.alignment_length(); column = column + 1 {
@@ -525,8 +543,8 @@ pub fn AlignPhylipAlignment::aligned_pairs(
 /// Return a compact Biopython-style coordinate path for all rows.
 pub fn AlignPhylipAlignment::coordinate_path(
   self : AlignPhylipAlignment,
-) -> Array[Array[Int]] {
-  let paths : Array[Array[Int]] = []
+) -> Array[Array[Int32]] {
+  let paths : Array[Array[Int32]] = []
   let coordinates = Array::make(self.sequences.length(), 0)
   for _row = 0; _row < self.sequences.length(); _row = _row + 1 {
     paths.push([0])
@@ -557,8 +575,8 @@ pub fn AlignPhylipAlignment::coordinate_path(
 /// Compute statistics for one pair of rows.
 pub fn AlignPhylipAlignment::pair_counts(
   self : AlignPhylipAlignment,
-  first_row : Int,
-  second_row : Int,
+  first_row : Int32,
+  second_row : Int32,
 ) -> AlignPhylipCounts raise AlignPhylipError {
   align_phylip_validate_row(self, first_row)
   align_phylip_validate_row(self, second_row)
@@ -634,7 +652,7 @@ pub fn AlignPhylipAlignment::occupancy(
 /// Calculate a majority residue consensus. Gaps do not vote.
 pub fn AlignPhylipAlignment::majority_consensus(
   self : AlignPhylipAlignment,
-  minimum_fraction? : Double = 0.0,
+  minimum_fraction~ : Double = 0.0,
 ) -> String raise AlignPhylipError {
   if minimum_fraction != minimum_fraction ||
     minimum_fraction < 0.0 ||
@@ -711,9 +729,9 @@ pub fn align_phylip_example_text() -> String {
 ///|
 fn align_phylip_parse_sequential(
   lines : Array[String],
-  last : Int,
-  number_of_sequences : Int,
-  number_of_columns : Int,
+  last : Int32,
+  number_of_sequences : Int32,
+  number_of_columns : Int32,
 ) -> Array[AlignPhylipSequence] raise AlignPhylipError {
   let result : Array[AlignPhylipSequence] = []
   let mut line_index = 1
@@ -766,9 +784,9 @@ fn align_phylip_parse_sequential(
 ///|
 fn align_phylip_parse_interleaved(
   lines : Array[String],
-  last : Int,
-  number_of_sequences : Int,
-  number_of_columns : Int,
+  last : Int32,
+  number_of_sequences : Int32,
+  number_of_columns : Int32,
 ) -> Array[AlignPhylipSequence] raise AlignPhylipError {
   let ids : Array[String] = []
   let builders : Array[StringBuilder] = []
@@ -917,8 +935,8 @@ fn align_phylip_validate_alignment(
 ///|
 fn align_phylip_count_pair(
   alignment : AlignPhylipAlignment,
-  first_row : Int,
-  second_row : Int,
+  first_row : Int32,
+  second_row : Int32,
 ) -> AlignPhylipCounts {
   let first = alignment.sequences[first_row].aligned_sequence
   let second = alignment.sequences[second_row].aligned_sequence
@@ -967,8 +985,8 @@ fn align_phylip_count_pair(
 ///|
 fn align_phylip_movement_changes(
   alignment : AlignPhylipAlignment,
-  first_column : Int,
-  second_column : Int,
+  first_column : Int32,
+  second_column : Int32,
 ) -> Bool {
   for sequence in alignment.sequences {
     let first_moves = sequence.aligned_sequence
@@ -998,7 +1016,7 @@ fn align_phylip_write_name(output : StringBuilder, name : String) -> Unit {
 fn align_phylip_write_grouped(
   output : StringBuilder,
   segment : String,
-  group_width : Int,
+  group_width : Int32,
 ) -> Unit {
   if group_width == 0 || group_width >= segment.length() {
     output.write_string(segment)
@@ -1054,7 +1072,7 @@ fn align_phylip_validate_segment(
 ///|
 fn align_phylip_validate_row(
   alignment : AlignPhylipAlignment,
-  row : Int,
+  row : Int32,
 ) -> Unit raise AlignPhylipError {
   if row < 0 || row >= alignment.sequences.length() {
     raise AlignPhylipError("PHYLIP row index is out of bounds")
@@ -1086,7 +1104,7 @@ fn align_phylip_remove_gaps(value : String) -> String {
 }
 
 ///|
-fn align_phylip_upper_code(code : Int) -> Int {
+fn align_phylip_upper_code(code : Int32) -> Int32 {
   if code >= 'a'.to_int() && code <= 'z'.to_int() {
     code - 'a'.to_int() + 'A'.to_int()
   } else {
@@ -1138,7 +1156,7 @@ fn align_phylip_split_whitespace(value : String) -> Array[String] {
 fn align_phylip_parse_positive_int(
   text : String,
   label : String,
-) -> Int raise AlignPhylipError {
+) -> Int32 raise AlignPhylipError {
   if text.length() == 0 {
     raise AlignPhylipError(label + " is empty")
   }
@@ -1161,7 +1179,7 @@ fn align_phylip_parse_positive_int(
 }
 
 ///|
-fn align_phylip_is_whitespace(code : Int) -> Bool {
+fn align_phylip_is_whitespace(code : Int32) -> Bool {
   code == ' '.to_int() ||
   code == '\t'.to_int() ||
   code == '\r'.to_int() ||

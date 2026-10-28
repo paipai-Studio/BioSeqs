@@ -10,11 +10,11 @@
 /// SMARTS atom query — conditions an atom must satisfy.
 pub struct SmartsAtom {
   element : String?
-  atomic_num : Int?
+  atomic_num : Int32?
   aromatic : Bool?
   in_ring : Bool?
-  degree : Int?
-  charge : Int?
+  degree : Int32?
+  charge : Int32?
   is_wildcard : Bool
   not_match : Bool
 }
@@ -22,7 +22,7 @@ pub struct SmartsAtom {
 ///|
 /// SMARTS bond query.
 pub struct SmartsBond {
-  order : Int
+  order : Int32
   is_any : Bool
 }
 
@@ -31,18 +31,18 @@ pub struct SmartsBond {
 pub struct SmartsPattern {
   atoms : Array[SmartsAtom]
   bonds : Array[SmartsBond]
-  branches : Array[(Int, SmartsPattern)]
+  branches : Array[(Int32, SmartsPattern)]
 }
 
 ///|
 /// Parse a SMARTS atom query from a bracket expression.
 fn smarts_parse_atom(s : String) -> SmartsAtom {
   let mut element : String? = None
-  let mut atomic_num : Int? = None
+  let mut atomic_num : Int32? = None
   let mut aromatic : Bool? = None
   let mut in_ring : Bool? = None
-  let mut degree : Int? = None
-  let mut charge : Int? = None
+  let mut degree : Int32? = None
+  let mut charge : Int32? = None
   let mut is_wildcard = false
   let mut not_match = false
   let s_chars = s.to_array()
@@ -167,7 +167,7 @@ fn smarts_parse_atom(s : String) -> SmartsAtom {
 
 ///|
 /// Atomic number to element symbol.
-fn atomic_num_to_symbol(n : Int) -> String {
+fn atomic_num_to_symbol(n : Int32) -> String {
   match n {
     1 => "H"
     5 => "B"
@@ -189,7 +189,7 @@ fn atomic_num_to_symbol(n : Int) -> String {
 /// Check if a molecule atom matches a SMARTS atom query.
 fn smarts_atom_matches(
   mol : Molecule,
-  atom_idx : Int,
+  atom_idx : Int32,
   query : SmartsAtom,
 ) -> Bool {
   let a = mol.atoms[atom_idx]
@@ -198,54 +198,33 @@ fn smarts_atom_matches(
     result = true
   } else {
     match query.element {
-      Some(elem) =>
-        if a.symbol != elem {
-          result = false
-        }
+      Some(elem) => if a.symbol != elem { result = false }
       None => ()
     }
     match query.atomic_num {
-      Some(num) =>
-        if a.symbol != atomic_num_to_symbol(num) {
-          result = false
-        }
+      Some(num) => if a.symbol != atomic_num_to_symbol(num) { result = false }
       None => ()
     }
     match query.aromatic {
-      Some(arom) =>
-        if a.aromatic != arom {
-          result = false
-        }
+      Some(arom) => if a.aromatic != arom { result = false }
       None => ()
     }
     match query.in_ring {
-      Some(true) =>
-        if !(mol_is_in_ring(mol, atom_idx)) {
-          result = false
-        }
-      Some(false) =>
-        if mol_is_in_ring(mol, atom_idx) {
-          result = false
-        }
+      Some(true) => if !mol_is_in_ring(mol, atom_idx) { result = false }
+      Some(false) => if mol_is_in_ring(mol, atom_idx) { result = false }
       None => ()
     }
     match query.degree {
-      Some(d) =>
-        if mol_degree(mol, atom_idx) != d {
-          result = false
-        }
+      Some(d) => if mol_degree(mol, atom_idx) != d { result = false }
       None => ()
     }
     match query.charge {
-      Some(c) =>
-        if a.charge != c {
-          result = false
-        }
+      Some(c) => if a.charge != c { result = false }
       None => ()
     }
   }
   if query.not_match {
-    !(result)
+    !result
   } else {
     result
   }
@@ -255,12 +234,12 @@ fn smarts_atom_matches(
 /// Parse a SMARTS bond query from a character.
 fn smarts_parse_bond(c : Char) -> SmartsBond {
   match c {
-    '-' => SmartsBond::{ order: 1, is_any: false }
-    '=' => SmartsBond::{ order: 2, is_any: false }
-    '#' => SmartsBond::{ order: 3, is_any: false }
-    '~' => SmartsBond::{ order: 0, is_any: true }
-    '/' => SmartsBond::{ order: 1, is_any: false }
-    _ => SmartsBond::{ order: 0, is_any: true }
+    '-' => SmartsBond::{ order: 1, is_any: false, }
+    '=' => SmartsBond::{ order: 2, is_any: false, }
+    '#' => SmartsBond::{ order: 3, is_any: false, }
+    '~' => SmartsBond::{ order: 0, is_any: true, }
+    '/' => SmartsBond::{ order: 1, is_any: false, }
+    _ => SmartsBond::{ order: 0, is_any: true, }
   }
 }
 
@@ -268,8 +247,8 @@ fn smarts_parse_bond(c : Char) -> SmartsBond {
 /// Check if a molecule bond matches a SMARTS bond query.
 fn smarts_bond_matches(
   mol : Molecule,
-  from : Int,
-  to : Int,
+  from : Int32,
+  to : Int32,
   query : SmartsBond,
 ) -> Bool {
   if query.is_any {
@@ -304,18 +283,17 @@ pub fn smarts_parse(s : String) -> SmartsPattern {
           bonds.push(b)
           last_bond = None
         }
-        None => {
+        None =>
           if atoms.length() > 1 {
-            bonds.push(SmartsBond::{ order: 0, is_any: true })
+            bonds.push(SmartsBond::{ order: 0, is_any: true, })
           }
-        }
       }
       i = j + 1
     } else if c == '=' || c == '#' || c == '-' || c == '~' || c == '/' {
       last_bond = Some(smarts_parse_bond(c))
       i = i + 1
     } else if c == '.' {
-      last_bond = Some(SmartsBond::{ order: 0, is_any: true })
+      last_bond = Some(SmartsBond::{ order: 0, is_any: true, })
       i = i + 1
     } else if c == '&' || c == '|' || c == ';' {
       i = i + 1
@@ -323,7 +301,7 @@ pub fn smarts_parse(s : String) -> SmartsPattern {
       i = i + 1
     }
   }
-  SmartsPattern::{ atoms, bonds, branches: [] }
+  SmartsPattern::{ atoms, bonds, branches: [], }
 }
 
 ///|
@@ -331,12 +309,12 @@ pub fn smarts_parse(s : String) -> SmartsPattern {
 fn smarts_match_from(
   mol : Molecule,
   pattern : SmartsPattern,
-  start_atom : Int,
+  start_atom : Int32,
 ) -> Bool {
   if pattern.atoms.length() == 0 {
     return false
   }
-  if !(smarts_atom_matches(mol, start_atom, pattern.atoms[0])) {
+  if !smarts_atom_matches(mol, start_atom, pattern.atoms[0]) {
     return false
   }
   if pattern.atoms.length() == 1 {
@@ -353,10 +331,10 @@ fn smarts_match_from(
 fn smarts_dfs(
   mol : Molecule,
   pattern : SmartsPattern,
-  pat_idx : Int,
-  prev_atom : Int,
+  pat_idx : Int32,
+  prev_atom : Int32,
   matched : Array[Bool],
-  neighbors : Array[Array[(Int, Int)]],
+  neighbors : Array[Array[(Int32, Int32)]],
 ) -> Bool {
   if pat_idx >= pattern.atoms.length() {
     return true
@@ -364,16 +342,16 @@ fn smarts_dfs(
   let bond_query = if pat_idx - 1 < pattern.bonds.length() {
     pattern.bonds[pat_idx - 1]
   } else {
-    SmartsBond::{ order: 0, is_any: true }
+    SmartsBond::{ order: 0, is_any: true, }
   }
   for (nb, _) in neighbors[prev_atom] {
     if matched[nb] {
       continue
     }
-    if !(smarts_bond_matches(mol, prev_atom, nb, bond_query)) {
+    if !smarts_bond_matches(mol, prev_atom, nb, bond_query) {
       continue
     }
-    if !(smarts_atom_matches(mol, nb, pattern.atoms[pat_idx])) {
+    if !smarts_atom_matches(mol, nb, pattern.atoms[pat_idx]) {
       continue
     }
     matched[nb] = true
@@ -406,7 +384,7 @@ pub fn smarts_match_str(mol : Molecule, smarts : String) -> Bool {
 
 ///|
 /// Count the number of distinct matches of a SMARTS pattern.
-pub fn smarts_count_matches(mol : Molecule, pattern : SmartsPattern) -> Int {
+pub fn smarts_count_matches(mol : Molecule, pattern : SmartsPattern) -> Int32 {
   let n = mol.atoms.length()
   let mut count = 0
   for k = 0; k < n; k = k + 1 {
@@ -419,7 +397,7 @@ pub fn smarts_count_matches(mol : Molecule, pattern : SmartsPattern) -> Int {
 
 ///|
 /// Count matches from a SMARTS string.
-pub fn smarts_count_matches_str(mol : Molecule, smarts : String) -> Int {
+pub fn smarts_count_matches_str(mol : Molecule, smarts : String) -> Int32 {
   let pattern = smarts_parse(smarts)
   smarts_count_matches(mol, pattern)
 }
@@ -429,9 +407,9 @@ pub fn smarts_count_matches_str(mol : Molecule, smarts : String) -> Int {
 pub fn smarts_find_matches(
   mol : Molecule,
   pattern : SmartsPattern,
-) -> Array[Int] {
+) -> Array[Int32] {
   let n = mol.atoms.length()
-  let result : Array[Int] = Array(capacity=0)
+  let result : Array[Int32] = Array(capacity=0)
   for k = 0; k < n; k = k + 1 {
     if smarts_match_from(mol, pattern, k) {
       result.push(k)

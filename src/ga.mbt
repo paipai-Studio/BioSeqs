@@ -22,15 +22,15 @@
 pub struct GAIndividual {
   sequence : String
   fitness : Double
-  generation : Int
-  id : Int
+  generation : Int32
+  id : Int32
 }
 
 ///|
 /// Population of individuals.
 pub struct GAPopulation {
   individuals : Array[GAIndividual]
-  generation : Int
+  generation : Int32
   best_fitness : Double
   avg_fitness : Double
   worst_fitness : Double
@@ -39,18 +39,18 @@ pub struct GAPopulation {
 ///|
 /// Configuration parameters for the GA.
 pub struct GAConfig {
-  population_size : Int
+  population_size : Int32
   mutation_rate : Double
   crossover_rate : Double
   elitism : Bool
-  tournament_size : Int
-  max_generations : Int
+  tournament_size : Int32
+  max_generations : Int32
   target_fitness : Double
-  sequence_length : Int
+  sequence_length : Int32
   alphabet : String
   target : String
   convergence_threshold : Double
-  seed : Int
+  seed : Int32
 }
 
 ///|
@@ -59,14 +59,14 @@ pub struct GAResult {
   best_individual : GAIndividual
   best_fitness_history : Array[Double]
   avg_fitness_history : Array[Double]
-  generation_reached : Int
+  generation_reached : Int32
   converged : Bool
 }
 
 ///|
 /// Statistics for a single generation.
 pub struct GAGenerationStats {
-  generation : Int
+  generation : Int32
   best_fitness : Double
   avg_fitness : Double
   worst_fitness : Double
@@ -76,11 +76,11 @@ pub struct GAGenerationStats {
 ///|
 /// Create a GAGenerationStats.
 pub fn GAGenerationStats::new(
-  generation~ : Int,
+  generation~ : Int32,
   best_fitness~ : Double,
   avg_fitness~ : Double,
-  worst_fitness? : Double = 0.0,
-  best_sequence? : String = "",
+  worst_fitness~ : Double = 0.0,
+  best_sequence~ : String = "",
 ) -> GAGenerationStats {
   GAGenerationStats::{
     generation,
@@ -99,9 +99,9 @@ pub fn GAGenerationStats::new(
 /// Create a GA individual.
 pub fn GAIndividual::new(
   sequence~ : String,
-  fitness? : Double = 0.0,
-  generation? : Int = 0,
-  id? : Int = 0,
+  fitness~ : Double = 0.0,
+  generation~ : Int32 = 0,
+  id~ : Int32 = 0,
 ) -> GAIndividual {
   GAIndividual::{ sequence, fitness, generation, id, }
 }
@@ -138,18 +138,18 @@ pub fn GAPopulation::new(individuals~ : Array[GAIndividual]) -> GAPopulation {
 ///|
 /// Create GA configuration.
 pub fn GAConfig::new(
-  population_size? : Int = 100,
-  mutation_rate? : Double = 0.01,
-  crossover_rate? : Double = 0.7,
-  elitism? : Bool = true,
-  tournament_size? : Int = 3,
-  max_generations? : Int = 500,
-  target_fitness? : Double = 1.0,
-  sequence_length? : Int = 100,
-  alphabet? : String = "ACGT",
-  target? : String = "",
-  convergence_threshold? : Double = 0.001,
-  seed? : Int = 42,
+  population_size~ : Int32 = 100,
+  mutation_rate~ : Double = 0.01,
+  crossover_rate~ : Double = 0.7,
+  elitism~ : Bool = true,
+  tournament_size~ : Int32 = 3,
+  max_generations~ : Int32 = 500,
+  target_fitness~ : Double = 1.0,
+  sequence_length~ : Int32 = 100,
+  alphabet~ : String = "ACGT",
+  target~ : String = "",
+  convergence_threshold~ : Double = 0.001,
+  seed~ : Int32 = 42,
 ) -> GAConfig {
   GAConfig::{
     population_size,
@@ -171,10 +171,10 @@ pub fn GAConfig::new(
 /// Create a GA result.
 pub fn GAResult::new(
   best_individual~ : GAIndividual,
-  best_fitness_history? : Array[Double] = [],
-  avg_fitness_history? : Array[Double] = [],
-  generation_reached? : Int = 0,
-  converged? : Bool = false,
+  best_fitness_history~ : Array[Double] = [],
+  avg_fitness_history~ : Array[Double] = [],
+  generation_reached~ : Int32 = 0,
+  converged~ : Bool = false,
 ) -> GAResult {
   GAResult::{
     best_individual,
@@ -191,7 +191,7 @@ pub fn GAResult::new(
 
 ///|
 /// Generate a random sequence from the given alphabet.
-pub fn ga_random_sequence(length : Int, alphabet : String) -> String {
+pub fn ga_random_sequence(length : Int32, alphabet : String) -> String {
   let n = alphabet.length()
   if n == 0 || length <= 0 {
     return ""
@@ -210,12 +210,12 @@ pub fn ga_random_sequence(length : Int, alphabet : String) -> String {
 ///|
 /// Simple pseudo-random number generator state.
 priv struct GARNGState {
-  state : Int
+  state : Int32
 }
 
 ///|
 /// Create a new RNG state.
-fn ga_rng_new(seed : Int) -> GARNGState {
+fn ga_rng_new(seed : Int32) -> GARNGState {
   GARNGState::{ state: seed, }
 }
 
@@ -238,7 +238,7 @@ pub fn ga_pseudo_random() -> Double {
 
 ///|
 /// Generate a random integer in [0, max).
-pub fn ga_rand_int(max : Int) -> Int {
+pub fn ga_rand_int(max : Int32) -> Int32 {
   let r = ga_pseudo_random()
   (r * max.to_double()).to_int()
 }
@@ -347,7 +347,7 @@ pub fn ga_find_best(pop : GAPopulation) -> GAIndividual {
 /// Tournament selection: select best individual from a random tournament.
 pub fn ga_tournament_select(
   individuals : Array[GAIndividual],
-  tournament_size : Int,
+  tournament_size : Int32,
 ) -> GAIndividual {
   let n = individuals.length()
   if n == 0 {
@@ -416,7 +416,7 @@ pub fn ga_roulette_select(individuals : Array[GAIndividual]) -> GAIndividual {
 pub fn ga_single_point_crossover(
   parent1 : GAIndividual,
   parent2 : GAIndividual,
-  point? : Int = 0,
+  point~ : Int32 = 0,
 ) -> (GAIndividual, GAIndividual) {
   let seq1 = parent1.sequence
   let seq2 = parent2.sequence
@@ -500,7 +500,7 @@ pub fn ga_two_point_crossover(
 pub fn ga_uniform_crossover(
   parent1 : GAIndividual,
   parent2 : GAIndividual,
-  swap_prob? : Double = 0.5,
+  swap_prob~ : Double = 0.5,
 ) -> (GAIndividual, GAIndividual) {
   let seq1 = parent1.sequence
   let seq2 = parent2.sequence
@@ -732,4 +732,3 @@ pub fn ga_evolve(
     converged~,
   )
 }
-

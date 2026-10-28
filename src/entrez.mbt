@@ -12,7 +12,11 @@ pub enum EntrezDB {
   SNP // Single nucleotide polymorphisms
   Taxonomy // Taxonomy data
 } derive(Eq, Debug)
+
+///|
 pub extend EntrezDB with Eq::{equal, not_equal}
+
+///|
 pub extend EntrezDB with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -147,8 +151,8 @@ pub struct GeneRecord {
   description : String
   organism : String
   chromosome : String
-  start : Int
-  end : Int
+  start : Int32
+  end : Int32
   strand : String
 }
 
@@ -160,8 +164,8 @@ pub fn GeneRecord::new(
   description~ : String,
   organism~ : String,
   chromosome~ : String,
-  start~ : Int,
-  end~ : Int,
+  start~ : Int32,
+  end~ : Int32,
   strand~ : String,
 ) -> GeneRecord {
   GeneRecord::{
@@ -184,7 +188,7 @@ pub struct TaxonomyRecord {
   common_name : String
   rank : String
   lineage : Array[String]
-  genetic_code : Int
+  genetic_code : Int32
 }
 
 ///|
@@ -195,7 +199,7 @@ pub fn TaxonomyRecord::new(
   common_name~ : String,
   rank~ : String,
   lineage~ : Array[String],
-  genetic_code~ : Int,
+  genetic_code~ : Int32,
 ) -> TaxonomyRecord {
   TaxonomyRecord::{
     tax_id,
@@ -212,7 +216,7 @@ pub fn TaxonomyRecord::new(
 pub fn esearch(
   db : EntrezDB,
   term : String,
-  retmax? : Int = 10,
+  retmax~ : Int32 = 10,
 ) -> Array[SearchResult] {
   let results : Array[SearchResult] = Array(capacity=0)
   match db {
@@ -562,8 +566,8 @@ pub fn einfo() -> Map[String, String] {
 
 ///|
 /// Simulated EGQuery: Global query for multiple databases.
-pub fn egquery(term : String) -> Array[(String, Int)] {
-  let results : Array[(String, Int)] = Array(capacity=0)
+pub fn egquery(term : String) -> Array[(String, Int32)] {
+  let results : Array[(String, Int32)] = Array(capacity=0)
   let mut count = 100
   if term.contains("CRISPR") || term.contains("crispr") {
     count = 5000
@@ -583,7 +587,7 @@ pub fn egquery(term : String) -> Array[(String, Int)] {
 /// Get gene information from NCBI (simulated).
 pub fn get_gene_info(
   gene_symbol : String,
-  organism? : String = "Homo sapiens",
+  organism~ : String = "Homo sapiens",
 ) -> GeneRecord? {
   ignore(organism)
   let lower = gene_symbol

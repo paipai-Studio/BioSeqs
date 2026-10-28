@@ -49,7 +49,11 @@ fn main {
     println("   Organism: \{entry.organism}")
     println("   Sequence length: \{entry.seq_length}")
     let seq_str = entry.sequence
-    let prefix = if seq_str.length() > 20 { seq_str[0:20] + "..." } else { seq_str }
+    let prefix = if seq_str.length() > 20 {
+      seq_str[0:20] + "..."
+    } else {
+      seq_str
+    }
     println("   Sequence (first 20 chars): \{prefix}")
 
     println("\n3. Gene names:")

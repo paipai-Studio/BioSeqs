@@ -1,7 +1,6 @@
 ///|
 /// primersearch demo - EMBOSS primer matching and PCR product prediction.
 /// Inspired by Biopython Bio.Emboss.PrimerSearch.
-
 fn main {
   println("=== primersearch Demo: Primer Matching & PCR ===")
   println("")
@@ -43,7 +42,14 @@ fn main {
   if result.products.length() > 0 {
     let size = result.products[0].product_size
     let filtered = @src.primersearch_filter_by_size(result, size - 5, size + 5)
-    println("Products within " + (size - 5).to_string() + "-" + (size + 5).to_string() + " bp: " + filtered.length().to_string())
+    println(
+      "Products within " +
+      (size - 5).to_string() +
+      "-" +
+      (size + 5).to_string() +
+      " bp: " +
+      filtered.length().to_string(),
+    )
   }
   println("")
 

@@ -17,13 +17,13 @@
 ///|
 /// One aligned block (fragment) of a BLAT HSP.
 pub struct BlatBlock {
-  query_start : Int
-  query_end : Int
-  hit_start : Int
-  hit_end : Int
+  query_start : Int32
+  query_end : Int32
+  hit_start : Int32
+  hit_end : Int32
   /// -1 / 0 / 1 for minus / unknown(protein) / plus
-  query_strand : Int
-  hit_strand : Int
+  query_strand : Int32
+  hit_strand : Int32
   query_seq : String
   hit_seq : String
 }
@@ -32,20 +32,20 @@ pub struct BlatBlock {
 /// One PSL row as a SearchIO-style HSP with block-level fragments.
 pub struct BlatHsp {
   blocks : Array[BlatBlock]
-  match_num : Int
-  mismatch_num : Int
-  match_rep_num : Int
-  n_num : Int
-  query_gapopen_num : Int
-  query_gap_num : Int
-  hit_gapopen_num : Int
-  hit_gap_num : Int
-  ident_num : Int
-  gapopen_num : Int
-  gap_num : Int
+  match_num : Int32
+  mismatch_num : Int32
+  match_rep_num : Int32
+  n_num : Int32
+  query_gapopen_num : Int32
+  query_gap_num : Int32
+  hit_gapopen_num : Int32
+  hit_gap_num : Int32
+  ident_num : Int32
+  gapopen_num : Int32
+  gap_num : Int32
   query_is_protein : Bool
   ident_pct : Double
-  score : Int
+  score : Int32
   /// Whether the source row carried a hit strand character
   has_hit_strand : Bool
 }
@@ -54,7 +54,7 @@ pub struct BlatHsp {
 /// One target sequence hit, with one or more HSP rows.
 pub struct BlatHit {
   id : String
-  seq_len : Int
+  seq_len : Int32
   hsps : Array[BlatHsp]
 }
 
@@ -62,7 +62,7 @@ pub struct BlatHit {
 /// All BLAT hits reported for one query sequence.
 pub struct BlatQueryResult {
   id : String
-  seq_len : Int
+  seq_len : Int32
   program : String
   hits : Array[BlatHit]
 }
@@ -70,35 +70,35 @@ pub struct BlatQueryResult {
 ///|
 /// Writer counters (queries, hits, HSPs, fragments written).
 pub struct BlatWriteStats {
-  qresults : Int
-  hits : Int
-  hsps : Int
-  fragments : Int
+  qresults : Int32
+  hits : Int32
+  hsps : Int32
+  fragments : Int32
 }
 
 ///|
 /// Raw values of one PSL/PSLX row, exactly as written in the file.
 priv struct BlatRow {
   qname : String
-  qsize : Int
+  qsize : Int32
   tname : String
-  tsize : Int
-  matches : Int
-  mismatches : Int
-  repmatches : Int
-  ncount : Int
-  qnuminsert : Int
-  qbaseinsert : Int
-  tnuminsert : Int
-  tbaseinsert : Int
+  tsize : Int32
+  matches : Int32
+  mismatches : Int32
+  repmatches : Int32
+  ncount : Int32
+  qnuminsert : Int32
+  qbaseinsert : Int32
+  tnuminsert : Int32
+  tbaseinsert : Int32
   strand : String
-  qstart : Int
-  qend : Int
-  tstart : Int
-  tend : Int
-  blocksizes : Array[Int]
-  qstarts : Array[Int]
-  tstarts : Array[Int]
+  qstart : Int32
+  qend : Int32
+  tstart : Int32
+  tend : Int32
+  blocksizes : Array[Int32]
+  qstarts : Array[Int32]
+  tstarts : Array[Int32]
   qseqs : Array[String]
   tseqs : Array[String]
   has_seqs : Bool
@@ -161,8 +161,8 @@ fn blat_fields(line : String) -> Array[String] {
 
 ///|
 /// Integer cast of a comma-separated value list ("10,20,").
-fn blat_csv_ints(csv : String) -> Array[Int] {
-  let out : Array[Int] = []
+fn blat_csv_ints(csv : String) -> Array[Int32] {
+  let out : Array[Int32] = []
   for item in csv.split(",") {
     if item.length() > 0 {
       out.push(parse_int(item.trim().to_owned()))
@@ -204,17 +204,17 @@ fn blat_is_data_row(line : String) -> Bool {
 /// Reorient minus-strand block starts into plus-strand coordinates.
 /// plus_coord = length - minus_coord - block_size
 fn blat_reorient_starts(
-  starts : Array[Int],
-  block_sizes : Array[Int],
-  seq_len : Int,
-  strand : Int,
-) -> Array[Int] raise SeqError {
+  starts : Array[Int32],
+  block_sizes : Array[Int32],
+  seq_len : Int32,
+  strand : Int32,
+) -> Array[Int32] raise SeqError {
   if starts.length() != block_sizes.length() {
     raise SeqError(
       "Unequal start coordinates and block sizes list (\{starts.length()} vs \{block_sizes.length()})",
     )
   }
-  let out : Array[Int] = []
+  let out : Array[Int32] = []
   if strand >= 0 {
     for start in starts {
       out.push(start)
@@ -250,7 +250,7 @@ fn blat_is_protein(psl : BlatRow) -> Bool {
 ///|
 /// UCSC millibad (thousandths of mismatching bases), protein-aware.
 fn blat_calc_millibad(psl : BlatRow, is_protein : Bool) -> Double {
-  let size_mul : Int = if is_protein { 3 } else { 1 }
+  let size_mul : Int32 = if is_protein { 3 } else { 1 }
   let qali_size = size_mul * (psl.qend - psl.qstart)
   let tali_size = psl.tend - psl.tstart
   let ali_size = if qali_size < tali_size { qali_size } else { tali_size }
@@ -276,8 +276,8 @@ fn blat_calc_millibad(psl : BlatRow, is_protein : Bool) -> Double {
 
 ///|
 /// UCSC BLAT score: matches + repMatches/2 - mismatches - inserts.
-fn blat_calc_score(psl : BlatRow, is_protein : Bool) -> Int {
-  let size_mul : Int = if is_protein { 3 } else { 1 }
+fn blat_calc_score(psl : BlatRow, is_protein : Bool) -> Int32 {
+  let size_mul : Int32 = if is_protein { 3 } else { 1 }
   size_mul * (psl.matches + (psl.repmatches >> 1)) -
   size_mul * psl.mismatches -
   psl.qnuminsert -
@@ -344,7 +344,7 @@ fn blat_parse_row(line : String, pslx : Bool) -> BlatRow raise SeqError {
 fn blat_create_hsp(psl : BlatRow) -> BlatHsp raise SeqError {
   let is_protein = blat_is_protein(psl)
   // protein queries have no query strand (0)
-  let qstrand : Int = if is_protein {
+  let qstrand : Int32 = if is_protein {
     0
   } else if psl.strand.unsafe_get(0) == '+' {
     1
@@ -353,12 +353,12 @@ fn blat_create_hsp(psl : BlatRow) -> BlatHsp raise SeqError {
   }
   // hit strand defaults to plus if absent
   let has_hit_strand = psl.strand.length() == 2
-  let hstrand : Int = if has_hit_strand && psl.strand.unsafe_get(1) == '-' {
+  let hstrand : Int32 = if has_hit_strand && psl.strand.unsafe_get(1) == '-' {
     -1
   } else {
     1
   }
-  let block_mul : Int = if is_protein { 3 } else { 1 }
+  let block_mul : Int32 = if is_protein { 3 } else { 1 }
   let qstarts = blat_reorient_starts(
     psl.qstarts,
     psl.blocksizes,
@@ -366,7 +366,7 @@ fn blat_create_hsp(psl : BlatRow) -> BlatHsp raise SeqError {
     qstrand,
   )
   let hstarts = if has_hit_strand {
-    let hit_sizes : Array[Int] = []
+    let hit_sizes : Array[Int32] = []
     for size in psl.blocksizes {
       hit_sizes.push(block_mul * size)
     }
@@ -438,7 +438,7 @@ fn blat_create_hsp(psl : BlatRow) -> BlatHsp raise SeqError {
 }
 
 ///|
-fn blat_range_start(blocks : Array[BlatBlock], query : Bool) -> Int {
+fn blat_range_start(blocks : Array[BlatBlock], query : Bool) -> Int32 {
   let mut best = blocks[0]
   for block in blocks {
     let value = if query { block.query_start } else { block.hit_start }
@@ -455,7 +455,7 @@ fn blat_range_start(blocks : Array[BlatBlock], query : Bool) -> Int {
 }
 
 ///|
-fn blat_range_end(blocks : Array[BlatBlock], query : Bool) -> Int {
+fn blat_range_end(blocks : Array[BlatBlock], query : Bool) -> Int32 {
   let mut best = blocks[0]
   for block in blocks {
     let value = if query { block.query_end } else { block.hit_end }
@@ -492,7 +492,7 @@ fn blat_merge_hit(hits : Array[BlatHit], hit : BlatHit) -> Unit {
 /// `Bio.SearchIO.parse(handle, "blat-psl")`. Header lines are skipped.
 pub fn blat_psl_parse(
   content : String,
-  pslx? : Bool = false,
+  pslx~ : Bool = false,
 ) -> Array[BlatQueryResult] raise SeqError {
   let lines : Array[String] = []
   for line in content.split("\n") {
@@ -594,7 +594,7 @@ pub fn blat_psl_header() -> String {
 }
 
 ///|
-fn blat_csv_join_ints(values : Array[Int]) -> String {
+fn blat_csv_join_ints(values : Array[Int32]) -> String {
   let sb = StringBuilder()
   let mut i = 0
   while i < values.length() {
@@ -624,8 +624,8 @@ fn blat_csv_join_strs(values : Array[String]) -> String {
 }
 
 ///|
-fn blat_hsp_query_span_all(hsp : BlatHsp) -> Array[Int] {
-  let out : Array[Int] = []
+fn blat_hsp_query_span_all(hsp : BlatHsp) -> Array[Int32] {
+  let out : Array[Int32] = []
   for block in hsp.blocks {
     out.push(block.query_end - block.query_start)
   }
@@ -633,8 +633,8 @@ fn blat_hsp_query_span_all(hsp : BlatHsp) -> Array[Int] {
 }
 
 ///|
-fn blat_hsp_hit_span_all(hsp : BlatHsp) -> Array[Int] {
-  let out : Array[Int] = []
+fn blat_hsp_hit_span_all(hsp : BlatHsp) -> Array[Int32] {
+  let out : Array[Int32] = []
   for block in hsp.blocks {
     out.push(block.hit_end - block.hit_start)
   }
@@ -648,7 +648,7 @@ fn blat_build_row(
   hsp : BlatHsp,
   pslx : Bool,
 ) -> String raise SeqError {
-  let block_mul : Int = if hsp.query_is_protein { 3 } else { 1 }
+  let block_mul : Int32 = if hsp.query_is_protein { 3 } else { 1 }
   let query_spans = blat_hsp_query_span_all(hsp)
   let hit_spans = blat_hsp_hit_span_all(hsp)
   // span check: hit block spans must be blocksize_multiplier * query spans
@@ -661,7 +661,7 @@ fn blat_build_row(
   }
   let qstrand0 = hsp.blocks[0].query_strand
   let mut strand = if qstrand0 >= 0 { "+" } else { "-" }
-  let qstart_list : Array[Int] = []
+  let qstart_list : Array[Int32] = []
   for block in hsp.blocks {
     qstart_list.push(block.query_start)
   }
@@ -679,7 +679,7 @@ fn blat_build_row(
   } else {
     strand = strand + "-"
   }
-  let hstart_list : Array[Int] = []
+  let hstart_list : Array[Int32] = []
   for block in hsp.blocks {
     hstart_list.push(block.hit_start)
   }
@@ -743,8 +743,8 @@ fn blat_build_row(
 /// emitted; pass `header=true` for the psLayout version 3 preamble.
 pub fn blat_psl_write(
   qresults : Array[BlatQueryResult],
-  header? : Bool = false,
-  pslx? : Bool = false,
+  header~ : Bool = false,
+  pslx~ : Bool = false,
 ) -> String raise SeqError {
   let sb = StringBuilder()
   if header {

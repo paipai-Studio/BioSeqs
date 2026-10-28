@@ -44,7 +44,7 @@ pub let mt_procs : Array[String] = [
 pub struct MTPAdjustResult {
   rawp : Array[Double]
   adjp : Map[String, Array[Double]]
-  index : Array[Int]
+  index : Array[Int32]
   h0_abh : Double
   h0_tsbh : Array[(Double, Double)]
 }
@@ -59,9 +59,9 @@ pub struct MTPAdjustResult {
 /// always sorted last and propagated as NaN.
 pub fn mt_rawp2adjp(
   rawp~ : Array[Double],
-  procs? : Array[String] = [],
-  alpha? : Array[Double] = [0.05],
-  na_rm? : Bool = false,
+  procs~ : Array[String] = [],
+  alpha~ : Array[Double] = [0.05],
+  na_rm~ : Bool = false,
 ) -> MTPAdjustResult raise SeqError {
   let procs = if procs.is_empty() { mt_procs } else { procs }
   let m = rawp.length()
@@ -78,7 +78,7 @@ pub fn mt_rawp2adjp(
     }
   }
   let mgood = if na_rm {
-    rawp.fold(init=0, fn(acc : Int, p : Double) -> Int {
+    rawp.fold(init=0, fn(acc : Int32, p : Double) -> Int32 {
       if p.is_nan() {
         acc
       } else {
@@ -266,8 +266,8 @@ pub fn mt_rawp2adjp(
 /// i-th hypothesis is rejected (NaN when the adjusted p is NaN).
 pub fn mt_reject(
   adjp~ : Array[Double],
-  alpha? : Double = 0.05,
-) -> (Int, Array[Bool?]) raise SeqError {
+  alpha~ : Double = 0.05,
+) -> (Int32, Array[Bool?]) raise SeqError {
   if adjp.length() == 0 {
     raise SeqError("mt_reject: adjp must have length > 0")
   }
@@ -332,7 +332,7 @@ pub fn mt_max_t(
     rawp[i] = c.to_double() / b.to_double()
   }
   // order hypotheses by descending observed statistic, enforce monotonicity
-  let order : Array[Int] = []
+  let order : Array[Int32] = []
   for i = 0; i < m; i = i + 1 {
     order.push(i)
   }
@@ -407,7 +407,7 @@ pub fn mt_min_p(
     }
     rawp[i] = cc.to_double() / b.to_double()
   }
-  let order : Array[Int] = []
+  let order : Array[Int32] = []
   for i = 0; i < m; i = i + 1 {
     order.push(i)
   }
@@ -427,7 +427,7 @@ pub fn mt_min_p(
 fn check_null_matrix(
   observed~ : Array[Double],
   null_stats~ : Array[Array[Double]],
-) -> (Int, Int) raise SeqError {
+) -> (Int32, Int32) raise SeqError {
   let m = observed.length()
   if m == 0 {
     raise SeqError("mt_max_t/mt_min_p: observed must be non-empty")
@@ -489,7 +489,7 @@ fn rmax_propagate_nan(x : Double, y : Double) -> Double {
 
 ///|
 /// R `(1-p)^n`: note `NA^0 == 1` in R, so exponent zero is exactly 1.
-fn sidak_pow(base : Double, n : Int) -> Double {
+fn sidak_pow(base : Double, n : Int32) -> Double {
   if n == 0 {
     1.0
   } else {
@@ -499,7 +499,7 @@ fn sidak_pow(base : Double, n : Int) -> Double {
 
 ///|
 /// Harmonic number H_n = sum(1/k, k=1..n); H_0 = 0 (as in R `sum(1/(1:0))`).
-fn harmonic_sum(n : Int) -> Double {
+fn harmonic_sum(n : Int32) -> Double {
   let mut s = 0.0
   for k = 1; k <= n; k = k + 1 {
     s = s + 1.0 / k.to_double()

@@ -51,9 +51,7 @@ fn writeext_split_annotation(value : String) -> Array[String] {
 /// Write records in Swiss-Prot flat file format. A minimal entry is
 /// emitted per record (ID/AC/DE/OS/KW/SQ plus the sequence block), which
 /// round-trips through parse_swiss_records.
-pub fn write_swiss_records(
-  records : Array[SeqRecord],
-) -> String {
+pub fn write_swiss_records(records : Array[SeqRecord]) -> String {
   let buf = StringBuilder()
   for rec in records {
     let seq = rec.seq.to_string()
@@ -166,9 +164,7 @@ fn writeext_location_string(feature : SeqFeature) -> String {
 /// InsdcRecord and reusing the existing record-level writer. Header
 /// metadata is sourced from annotations; features are preserved through
 /// the InsdcFeature feature table.
-pub fn write_embl_records(
-  records : Array[SeqRecord],
-) -> String {
+pub fn write_embl_records(records : Array[SeqRecord]) -> String {
   let buf = StringBuilder()
   for rec in records {
     let seq = rec.seq.to_string()
@@ -207,9 +203,7 @@ pub fn write_embl_records(
 /// Write records in IMGT format by rebuilding the 13-field header from
 /// annotations (the same keys parse_imgt_records emits) and reusing the
 /// existing imgt_write serializer.
-pub fn write_imgt_records(
-  records : Array[SeqRecord],
-) -> String {
+pub fn write_imgt_records(records : Array[SeqRecord]) -> String {
   let imgt_records : Array[ImgtRecord] = Array(capacity=0)
   for rec in records {
     let header = ImgtHeader::new(
@@ -242,9 +236,7 @@ pub fn write_ig_records(records : Array[SeqRecord]) -> String {
 ///|
 /// Write records in SeqXML format, reusing the existing SeqRecord ->
 /// SeqXmlDocument conversion and serializer.
-pub fn write_seqxml_records(
-  records : Array[SeqRecord],
-) -> String {
+pub fn write_seqxml_records(records : Array[SeqRecord]) -> String {
   seqxml_to_xml(seqxml_from_seq_records(records))
 }
 

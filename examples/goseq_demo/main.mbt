@@ -2,7 +2,6 @@
 /// goseq Demo - GO enrichment analysis with length bias correction.
 /// Demonstrates Wallenius non-central hypergeometric distribution
 /// for gene length bias correction in GO analysis.
-
 fn main {
   println("=== goseq Demo ===")
   println("")
@@ -13,7 +12,7 @@ fn main {
 
   let gene_names : Array[String] = Array(capacity=0)
   let gene_lengths : Array[Double] = Array(capacity=0)
-  let de_status : Array[Int] = Array(capacity=0)
+  let de_status : Array[Int32] = Array(capacity=0)
 
   // Short genes (500-1500 bp): 10% DE
   let mut i = 0
@@ -47,7 +46,9 @@ fn main {
     let mut count = 0
     let mut j = 0
     while j < n_genes {
-      if de_status[j] == 1 { count = count + 1 }
+      if de_status[j] == 1 {
+        count = count + 1
+      }
       j = j + 1
     }
     count
@@ -84,41 +85,51 @@ fn main {
       "apoptotic process",
       "BP",
       // Contains mostly short genes (few DE)
-      ["ShortGene_0", "ShortGene_1", "ShortGene_2", "ShortGene_3", "ShortGene_4",
-       "ShortGene_5", "ShortGene_10", "ShortGene_20", "ShortGene_30", "ShortGene_40"],
+      [
+        "ShortGene_0", "ShortGene_1", "ShortGene_2", "ShortGene_3", "ShortGene_4",
+        "ShortGene_5", "ShortGene_10", "ShortGene_20", "ShortGene_30", "ShortGene_40",
+      ],
     ),
     @src.GoseqGeneSet::new(
       "GO:0007049",
       "cell cycle",
       "BP",
       // Contains mostly medium genes (moderate DE)
-      ["MedGene_0", "MedGene_1", "MedGene_2", "MedGene_3", "MedGene_4",
-       "MedGene_10", "MedGene_20", "MedGene_30", "MedGene_40"],
+      [
+        "MedGene_0", "MedGene_1", "MedGene_2", "MedGene_3", "MedGene_4", "MedGene_10",
+        "MedGene_20", "MedGene_30", "MedGene_40",
+      ],
     ),
     @src.GoseqGeneSet::new(
       "GO:0008150",
       "biological process",
       "BP",
       // Contains mostly long genes (high DE)
-      ["LongGene_0", "LongGene_1", "LongGene_2", "LongGene_3", "LongGene_4",
-       "LongGene_10", "LongGene_20", "LongGene_30", "LongGene_40",
-       "LongGene_5", "LongGene_15", "LongGene_25"],
+      [
+        "LongGene_0", "LongGene_1", "LongGene_2", "LongGene_3", "LongGene_4", "LongGene_10",
+        "LongGene_20", "LongGene_30", "LongGene_40", "LongGene_5", "LongGene_15",
+        "LongGene_25",
+      ],
     ),
     @src.GoseqGeneSet::new(
       "GO:0003674",
       "molecular function",
       "MF",
       // Mixed composition
-      ["ShortGene_0", "MedGene_0", "LongGene_0", "ShortGene_10", "MedGene_10",
-       "LongGene_10", "ShortGene_20", "MedGene_20", "LongGene_20"],
+      [
+        "ShortGene_0", "MedGene_0", "LongGene_0", "ShortGene_10", "MedGene_10", "LongGene_10",
+        "ShortGene_20", "MedGene_20", "LongGene_20",
+      ],
     ),
     @src.GoseqGeneSet::new(
       "GO:0005575",
       "cellular component",
       "CC",
       // Only non-DE genes
-      ["ShortGene_40", "ShortGene_41", "ShortGene_42", "ShortGene_43",
-       "MedGene_40", "MedGene_41", "MedGene_42"],
+      [
+        "ShortGene_40", "ShortGene_41", "ShortGene_42", "ShortGene_43", "MedGene_40",
+        "MedGene_41", "MedGene_42",
+      ],
     ),
   ]
 
@@ -138,9 +149,7 @@ fn main {
   let mut k = 0
   while k < results.length() {
     let r = results[k]
-    println(
-      "  \{r.go_id} (\{r.ontology}) \{r.term_name}:",
-    )
+    println("  \{r.go_id} (\{r.ontology}) \{r.term_name}:")
     println(
       "    p-value=\{r.p_value.to_string()}, adjusted=\{r.adjusted_p_value.to_string()}",
     )
@@ -152,14 +161,18 @@ fn main {
 
   // 6. Filter significant results
   println("")
-  println("--- Step 6: Filter Significant Results (p.adj <= 0.05, overlap >= 2) ---")
+  println(
+    "--- Step 6: Filter Significant Results (p.adj <= 0.05, overlap >= 2) ---",
+  )
 
   let sig = @src.goseq_filter_results(results, 0.05, 2)
   if sig.length() == 0 {
     println("No significant terms at this threshold")
     // Relaxed threshold
     let relaxed = @src.goseq_filter_results(results, 0.5, 1)
-    println("Relaxed threshold (p.adj <= 0.5, overlap >= 1): \{relaxed.length().to_string()} terms")
+    println(
+      "Relaxed threshold (p.adj <= 0.5, overlap >= 1): \{relaxed.length().to_string()} terms",
+    )
     let mut m = 0
     while m < relaxed.length() {
       let r = relaxed[m]
@@ -194,7 +207,9 @@ fn main {
     let mut g = 0
     while g < n_genes {
       if gene_names[g] == term_with_bias.gene_ids[gi] {
-        if de_status[g] == 1 { term_de = term_de + 1 }
+        if de_status[g] == 1 {
+          term_de = term_de + 1
+        }
         term_total = term_total + 1
         _found = true
         g = n_genes // break
@@ -204,10 +219,14 @@ fn main {
     gi = gi + 1
   }
 
-  let wallenius_p = @src.wallenius_pvalue(term_de, term_total, n_de, n_genes, 1.5)
+  let wallenius_p = @src.wallenius_pvalue(
+    term_de, term_total, n_de, n_genes, 1.5,
+  )
   let hypergeo_p = @src.hypergeo_pvalue(term_de, term_total, n_de, n_genes)
   println("Term: \{term_with_bias.term_name} (GO term with length bias)")
-  println("  DE in term = \{term_de.to_string()}, term size = \{term_total.to_string()}")
+  println(
+    "  DE in term = \{term_de.to_string()}, term size = \{term_total.to_string()}",
+  )
   println("  Wallenius p-value (odds=1.5): \{wallenius_p.to_string()}")
   println("  Hypergeometric p-value:       \{hypergeo_p.to_string()}")
   println("  Difference: \{(hypergeo_p - wallenius_p).to_string()}")

@@ -52,7 +52,7 @@ fn skbio_alpha_entropy(probs : Array[Double]) -> Double {
 
 ///|
 /// `ln(n!)` via the factorial recurrence (exact for integer counts).
-fn skbio_alpha_log_factorial(n : Int) -> Double {
+fn skbio_alpha_log_factorial(n : Int32) -> Double {
   let mut s = 0.0
   let mut k = 1
   while k <= n {
@@ -89,13 +89,13 @@ fn skbio_alpha_sort_desc(a : Array[Double]) -> Array[Double] {
 ///|
 /// Observed species richness (number of nonzero taxa), a.k.a. `sobs` /
 /// `observed_otus`.
-pub fn skbio_alpha_sobs(counts : Array[Double]) -> Int {
+pub fn skbio_alpha_sobs(counts : Array[Double]) -> Int32 {
   skbio_alpha_nonzero(counts).length()
 }
 
 ///|
 /// Number of singletons (taxa observed exactly once).
-pub fn skbio_alpha_singles(counts : Array[Double]) -> Int {
+pub fn skbio_alpha_singles(counts : Array[Double]) -> Int32 {
   let c = skbio_alpha_nonzero(counts)
   let mut n = 0
   for v in c {
@@ -108,7 +108,7 @@ pub fn skbio_alpha_singles(counts : Array[Double]) -> Int {
 
 ///|
 /// Number of doubletons (taxa observed exactly twice).
-pub fn skbio_alpha_doubles(counts : Array[Double]) -> Int {
+pub fn skbio_alpha_doubles(counts : Array[Double]) -> Int32 {
   let c = skbio_alpha_nonzero(counts)
   let mut n = 0
   for v in c {
@@ -121,7 +121,7 @@ pub fn skbio_alpha_doubles(counts : Array[Double]) -> Int {
 
 ///|
 /// Observed taxa, singletons, and doubletons (`osd`).
-pub fn skbio_alpha_osd(counts : Array[Double]) -> (Int, Int, Int) {
+pub fn skbio_alpha_osd(counts : Array[Double]) -> (Int32, Int32, Int32) {
   (
     skbio_alpha_sobs(counts),
     skbio_alpha_singles(counts),
@@ -273,7 +273,9 @@ pub fn skbio_alpha_mcintosh_e(counts : Array[Double]) -> Double {
     sq = sq + v * v
   }
   let numerator = sq.sqrt()
-  let denom = ((n - s.to_double() + 1.0) * (n - s.to_double() + 1.0) + s.to_double() - 1.0).sqrt()
+  let denom = ((n - s.to_double() + 1.0) * (n - s.to_double() + 1.0) +
+  s.to_double() -
+  1.0).sqrt()
   numerator / denom
 }
 
@@ -428,11 +430,11 @@ pub fn skbio_alpha_hill(counts : Array[Double], order : Double) -> Double {
 /// via without-replacement rarefaction. Returns `(depth, expected_species)`.
 pub fn skbio_subsample_power(
   counts : Array[Double],
-  minimum : Int,
-  maximum : Int,
-  interval : Int,
-) -> Array[(Int, Double)] {
-  let out : Array[(Int, Double)] = Array(capacity=0)
+  minimum : Int32,
+  maximum : Int32,
+  interval : Int32,
+) -> Array[(Int32, Double)] {
+  let out : Array[(Int32, Double)] = Array(capacity=0)
   let mut d = minimum
   while d <= maximum {
     out.push((d, vegan_rarefy(counts, d)))

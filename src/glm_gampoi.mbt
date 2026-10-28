@@ -47,19 +47,19 @@ pub fn GlmDesign::new(
 
 ///|
 /// Get number of samples (rows).
-pub fn GlmDesign::n_samples(self : GlmDesign) -> Int {
+pub fn GlmDesign::n_samples(self : GlmDesign) -> Int32 {
   self.sample_names.length()
 }
 
 ///|
 /// Get number of coefficients (columns).
-pub fn GlmDesign::n_coefs(self : GlmDesign) -> Int {
+pub fn GlmDesign::n_coefs(self : GlmDesign) -> Int32 {
   self.coef_names.length()
 }
 
 ///|
 /// Get design matrix value at (i, j).
-pub fn GlmDesign::get(self : GlmDesign, i : Int, j : Int) -> Double {
+pub fn GlmDesign::get(self : GlmDesign, i : Int32, j : Int32) -> Double {
   self.matrix[i][j]
 }
 
@@ -75,7 +75,7 @@ pub struct GlmFit {
   /// Dispersion estimate
   dispersion : Double
   /// Residual degrees of freedom
-  df_residual : Int
+  df_residual : Int32
   /// Dispersion degrees of freedom
   df_dispersion : Double
 }
@@ -87,7 +87,7 @@ pub fn GlmFit::new(
   coefficients : Array[Double],
   std_errors : Array[Double],
   dispersion : Double,
-  df_residual : Int,
+  df_residual : Int32,
   df_dispersion : Double,
 ) -> GlmFit {
   { gene, coefficients, std_errors, dispersion, df_residual, df_dispersion, }
@@ -203,13 +203,13 @@ pub fn GlmPseudobulk::new(
 
 ///|
 /// Get number of genes.
-pub fn GlmPseudobulk::n_genes(self : GlmPseudobulk) -> Int {
+pub fn GlmPseudobulk::n_genes(self : GlmPseudobulk) -> Int32 {
   self.gene_names.length()
 }
 
 ///|
 /// Get number of groups.
-pub fn GlmPseudobulk::n_groups(self : GlmPseudobulk) -> Int {
+pub fn GlmPseudobulk::n_groups(self : GlmPseudobulk) -> Int32 {
   self.group_names.length()
 }
 
@@ -295,7 +295,7 @@ pub fn glm_pseudobulk(
 
   // Find unique groups
   let unique_groups : Array[String] = []
-  let group_map : Map[String, Int] = Map([], capacity=20)
+  let group_map : Map[String, Int32] = Map([], capacity=20)
   for i in 0..<group_labels.length() {
     let label = group_labels[i]
     if !group_map.contains(label) {
@@ -412,7 +412,7 @@ pub fn glm_test_de(
   gene_names : Array[String],
   design : GlmDesign,
   size_factors : Array[Double],
-  test_coef_index : Int,
+  test_coef_index : Int32,
 ) -> Array[GlmTestResult] {
   let n_genes = counts.length()
   let results : Array[GlmTestResult] = []
@@ -745,7 +745,7 @@ pub fn glm_bh_correct_array(pvalues : Array[Double]) -> Array[Double] {
   }
 
   // Create index-value pairs and sort by p-value
-  let indexed : Array[(Double, Int)] = []
+  let indexed : Array[(Double, Int32)] = []
   for i in 0..<n {
     indexed.push((pvalues[i], i))
   }
@@ -773,7 +773,7 @@ pub fn glm_bh_correct_array(pvalues : Array[Double]) -> Array[Double] {
 
 ///|
 /// Sort an array of (Double, Int) pairs by the first element (descending).
-pub fn glm_sort_pairs(arr : Array[(Double, Int)]) -> Unit {
+pub fn glm_sort_pairs(arr : Array[(Double, Int32)]) -> Unit {
   let n = arr.length()
   let n_minus_1 = n - 1
   for i in 0..<n_minus_1 {
@@ -798,7 +798,7 @@ pub fn glm_sort_pairs(arr : Array[(Double, Int)]) -> Unit {
 pub fn glm_solve_linear_system(
   a : Array[Array[Double]],
   b : Array[Double],
-  n : Int,
+  n : Int32,
 ) -> Array[Double] {
   // Augmented matrix
   let aug : Array[Array[Double]] = []
@@ -867,7 +867,7 @@ pub fn glm_solve_linear_system(
 /// Invert a matrix using Gauss-Jordan elimination.
 pub fn glm_invert_matrix(
   a : Array[Array[Double]],
-  n : Int,
+  n : Int32,
 ) -> Array[Array[Double]] {
   // Build augmented matrix [A | I]
   let aug : Array[Array[Double]] = []

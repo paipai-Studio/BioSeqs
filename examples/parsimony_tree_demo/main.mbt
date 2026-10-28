@@ -82,27 +82,33 @@ fn main raise {
     ("S6", "TTTGT"),
   ])
   let start = @bio.Tree::new(
-    node([
-      node([
-        node([
-          node([leaf("S1", 0.11), leaf("S3", 0.13)], 0.31),
-          leaf("S4", 0.14),
-        ], 0.32),
-        leaf("S5", 0.15),
-      ], 0.33),
-      node([leaf("S6", 0.16), leaf("S2", 0.12)], 0.34),
-    ], 0.02),
+    node(
+      [
+        node(
+          [
+            node(
+              [
+                node([leaf("S1", 0.11), leaf("S3", 0.13)], 0.31),
+                leaf("S4", 0.14),
+              ],
+              0.32,
+            ),
+            leaf("S5", 0.15),
+          ],
+          0.33,
+        ),
+        node([leaf("S6", 0.16), leaf("S2", 0.12)], 0.34),
+      ],
+      0.02,
+    ),
     rooted=true,
   )
-  let matrix = @bio.ParsimonyMatrix::new(
-    ["A", "C", "G", "T"],
-    [
-      [0.0, 5.0, 1.0, 5.0],
-      [5.0, 0.0, 5.0, 1.0],
-      [1.0, 5.0, 0.0, 5.0],
-      [5.0, 1.0, 5.0, 0.0],
-    ],
-  )
+  let matrix = @bio.ParsimonyMatrix::new(["A", "C", "G", "T"], [
+    [0.0, 5.0, 1.0, 5.0],
+    [5.0, 0.0, 5.0, 1.0],
+    [1.0, 5.0, 0.0, 5.0],
+    [5.0, 1.0, 5.0, 0.0],
+  ])
   let sankoff = @bio.ParsimonyScorer::new(matrix=Some(matrix))
   println("  start: " + start.root.to_newick())
   println("  Fitch score:   \{fitch.get_score(start, sankoff_alignment)}")
@@ -135,7 +141,9 @@ fn main raise {
     }
     round = round + 1
   }
-  println("  final Sankoff score: \{sankoff.get_score(work, sankoff_alignment)}")
+  println(
+    "  final Sankoff score: \{sankoff.get_score(work, sankoff_alignment)}",
+  )
   println("  final Fitch score:   \{fitch.get_score(work, sankoff_alignment)}")
   println("")
 
@@ -144,17 +152,14 @@ fn main raise {
   // -------------------------------------------------------------------------
   println("--- 7. Midpoint rooting of an unrooted 3-taxon tree ---")
   let star = @bio.Tree::new(
-    @bio.Clade::new(clades=[
-      leaf("A", 1.0),
-      leaf("B", 2.0),
-      leaf("C", 4.0),
-    ]),
+    @bio.Clade::new(clades=[leaf("A", 1.0), leaf("B", 2.0), leaf("C", 4.0)]),
     rooted=false,
   )
   println("  unrooted: " + star.root.to_newick())
   println("  midpoint: " + star.root_at_midpoint().root.to_newick())
 }
 
+///|
 fn make_map(pairs : Array[(String, String)]) -> Map[String, String] {
   let m : Map[String, String] = Map([])
   for p in pairs {
@@ -163,10 +168,12 @@ fn make_map(pairs : Array[(String, String)]) -> Map[String, String] {
   m
 }
 
+///|
 fn leaf(name : String, bl : Double) -> @bio.Clade {
   @bio.Clade::new(name=Some(name), branch_length=Some(bl))
 }
 
+///|
 fn node(children : Array[@bio.Clade], bl : Double) -> @bio.Clade {
   @bio.Clade::new(branch_length=Some(bl), clades=children)
 }

@@ -10,24 +10,25 @@ fn main {
   // ---- Section 1: Build first-order DNA Markov model ----
   println("=== 1. Build 1st-order Markov Model (DNA) ===")
   let dna_seqs = [
-    "ACGTACGTACGTACGT",
-    "CGTACGTACGTACGTA",
-    "GTACGTACGTACGTAC",
-    "TACGTACGTACGTACG",
-    "AAACCCAAACCCAAAC",
-    "CCCGGGCCCGGGCCCG",
+    "ACGTACGTACGTACGT", "CGTACGTACGTACGTA", "GTACGTACGTACGTAC", "TACGTACGTACGTACG",
+    "AAACCCAAACCCAAAC", "CCCGGGCCCGGGCCCG",
   ]
   let model1 = @bio.markov_build_model(dna_seqs, order=1)
   println("Training sequences: " + dna_seqs.length().to_string())
   println("States (alphabet): " + model1.states.length().to_string())
-  println("Transition contexts: " + model1.transition_probs.length().to_string())
+  println(
+    "Transition contexts: " + model1.transition_probs.length().to_string(),
+  )
   println("Pseudo-count smoothing: " + model1.pseudo_count.to_string())
   println("")
 
   // ---- Section 2: Build 2nd order model ----
   println("=== 2. Build 2nd-order Markov Model ===")
   let model2 = @bio.markov_build_model(dna_seqs, order=2)
-  println("Transition contexts (2-mers): " + model2.transition_probs.length().to_string())
+  println(
+    "Transition contexts (2-mers): " +
+    model2.transition_probs.length().to_string(),
+  )
   let test_dna = "ACGTACGT"
   let score1 = @bio.markov_score_sequence(model1, test_dna)
   let score2 = @bio.markov_score_sequence(model2, test_dna)
@@ -45,7 +46,16 @@ fn main {
     let position = model1.order + ppi
     let prev = test_dna[position - 1:position].to_owned()
     let next = test_dna[position:position + 1].to_owned()
-    println("  pos " + position.to_string() + ": P(" + next + " | " + prev + ")_log = " + per_pos[ppi].to_string())
+    println(
+      "  pos " +
+      position.to_string() +
+      ": P(" +
+      next +
+      " | " +
+      prev +
+      ")_log = " +
+      per_pos[ppi].to_string(),
+    )
     ppi = ppi + 1
   }
   println("")
@@ -54,30 +64,35 @@ fn main {
   println("=== 4. CpG Island Detection (Log-Odds Ratio) ===")
   // Build two models: one from CpG-rich sequences, one from background DNA
   let cpg_seqs = [
-    "CGCGCGCGCGCGCGCGC",
-    "GCGCGCGCGCGCGCGCG",
-    "ACGTACGTACGTACGTACGT",
-    "CGATCGATCGATCGATCGAT",
+    "CGCGCGCGCGCGCGCGC", "GCGCGCGCGCGCGCGCG", "ACGTACGTACGTACGTACGT", "CGATCGATCGATCGATCGAT",
     "CGCCGGCGCCGGCGCCGGCG",
   ]
   let bg_seqs = [
-    "ATATATATATATATATA",
-    "TATATATATATATATAT",
-    "AAATTTAAATTTAAA",
-    "GGCCTTAAGGCCGGCC",
+    "ATATATATATATATATA", "TATATATATATATATAT", "AAATTTAAATTTAAA", "GGCCTTAAGGCCGGCC",
     "TTCCCAAAACCCTTTT",
   ]
   let cpg_model = @bio.markov_build_model(cpg_seqs, order=1, pseudo_count=0.5)
-  let bg_model  = @bio.markov_build_model(bg_seqs, order=1, pseudo_count=0.5)
+  let bg_model = @bio.markov_build_model(bg_seqs, order=1, pseudo_count=0.5)
   let test_cpg = "CGCGCGCGCGCGC"
-  let test_at  = "ATATATATATATA"
+  let test_at = "ATATATATATATA"
   let test_mix = "ACGTACGTACGTACGT"
   println("Sequence: " + test_cpg + " (CpG-rich)")
-  println("  Log-odds (CpG / BG) = " + @bio.markov_log_odds(cpg_model, bg_model, test_cpg).to_string() + " (expected > 0)")
+  println(
+    "  Log-odds (CpG / BG) = " +
+    @bio.markov_log_odds(cpg_model, bg_model, test_cpg).to_string() +
+    " (expected > 0)",
+  )
   println("Sequence: " + test_at + " (AT-rich)")
-  println("  Log-odds (CpG / BG) = " + @bio.markov_log_odds(cpg_model, bg_model, test_at).to_string() + " (expected < 0)")
+  println(
+    "  Log-odds (CpG / BG) = " +
+    @bio.markov_log_odds(cpg_model, bg_model, test_at).to_string() +
+    " (expected < 0)",
+  )
   println("Sequence: " + test_mix + " (mixed)")
-  println("  Log-odds (CpG / BG) = " + @bio.markov_log_odds(cpg_model, bg_model, test_mix).to_string())
+  println(
+    "  Log-odds (CpG / BG) = " +
+    @bio.markov_log_odds(cpg_model, bg_model, test_mix).to_string(),
+  )
   println("")
 
   // ---- Section 5: Stationary distribution ----
@@ -105,13 +120,9 @@ fn main {
   // ---- Section 7: Protein Markov model ----
   println("=== 7. Protein Markov Model (order=1) ===")
   let protein_seqs = [
-    "MKVLFSAVLILFFVSTQAD",
-    "MAGWQVLTALIGAMLCGGP",
-    "MALMFAVLISVLLPQGEG",
-    "MKILAVLISLLLSPWAGS",
+    "MKVLFSAVLILFFVSTQAD", "MAGWQVLTALIGAMLCGGP", "MALMFAVLISVLLPQGEG", "MKILAVLISLLLSPWAGS",
   ]
-  let prot_model = @bio.MarkovModel::default_protein()
-    .set_pseudo_count(1.0)
+  let prot_model = @bio.MarkovModel::default_protein().set_pseudo_count(1.0)
   let trained_prot = @bio.markov_build_model(
     protein_seqs,
     order=1,
@@ -121,10 +132,18 @@ fn main {
   let unknown_prot = "XXXXXXXX"
   let test_prot = "MKVLFSAVLILF"
   println("States loaded: " + trained_prot.states.length().to_string())
-  println("Score on unseen prot: " + test_prot + " -> " +
-    @bio.markov_score_sequence(trained_prot, test_prot).to_string())
-  println("Score on non-AA chars: " + unknown_prot + " -> " +
-    @bio.markov_score_sequence(trained_prot, unknown_prot).to_string())
+  println(
+    "Score on unseen prot: " +
+    test_prot +
+    " -> " +
+    @bio.markov_score_sequence(trained_prot, test_prot).to_string(),
+  )
+  println(
+    "Score on non-AA chars: " +
+    unknown_prot +
+    " -> " +
+    @bio.markov_score_sequence(trained_prot, unknown_prot).to_string(),
+  )
   println("")
 
   // ---- Section 8: Order comparison with ChainType helpers ----

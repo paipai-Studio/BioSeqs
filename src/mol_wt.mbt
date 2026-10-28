@@ -275,7 +275,7 @@ pub fn mol_wt_isoelectric_point(sequence : String) -> Double {
 pub fn mol_weight_diff(
   seq1 : String,
   seq2 : String,
-  is_protein? : Bool = false,
+  is_protein~ : Bool = false,
 ) -> Double {
   let mw1 = if is_protein {
     mol_weight_protein(seq1)
@@ -294,7 +294,7 @@ pub fn mol_weight_diff(
 /// Generate a summary string for a sequence's molecular properties.
 pub fn mol_weight_summary(
   sequence : String,
-  is_protein? : Bool = false,
+  is_protein~ : Bool = false,
 ) -> String {
   let length = sequence.length()
   let mw = if is_protein {

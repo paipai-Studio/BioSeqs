@@ -1,3 +1,4 @@
+///|
 fn main {
   println("=== Bioconductor-style GSEABase Demo ===\n")
 
@@ -6,7 +7,13 @@ fn main {
   let gs1 = @bio.GmtGeneSet::with_annotation(
     "HALLMARK_APOPTOSIS",
     "Genes involved in apoptosis",
-    ["TP53".to_string(), "BAX".to_string(), "BCL2".to_string(), "CASP3".to_string(), "CASP8".to_string()],
+    [
+      "TP53".to_string(),
+      "BAX".to_string(),
+      "BCL2".to_string(),
+      "CASP3".to_string(),
+      "CASP8".to_string(),
+    ],
     ct,
     "human".to_string(),
     "H00001".to_string(),
@@ -23,7 +30,13 @@ fn main {
   let gs2 = @bio.GmtGeneSet::new(
     "HALLMARK_CELL_CYCLE",
     "Cell cycle related genes",
-    ["CDK1".to_string(), "CCNB1".to_string(), "TP53".to_string(), "BCL2".to_string(), "MYC".to_string()],
+    [
+      "CDK1".to_string(),
+      "CCNB1".to_string(),
+      "TP53".to_string(),
+      "BCL2".to_string(),
+      "MYC".to_string(),
+    ],
   )
   let size2 = @bio.GmtGeneSet::size(gs2)
   println("\n  gs2: \{gs2.name} [genes: \{size2}]")
@@ -66,13 +79,19 @@ fn main {
   }
 
   println("\n--- 5. Push additional sets ---")
-  let gs3 = @bio.GmtGeneSet::new("HALLMARK_DNA_REPAIR", "DNA repair genes", ["BRCA1".to_string(), "BRCA2".to_string(), "ATM".to_string()])
+  let gs3 = @bio.GmtGeneSet::new("HALLMARK_DNA_REPAIR", "DNA repair genes", [
+    "BRCA1".to_string(),
+    "BRCA2".to_string(),
+    "ATM".to_string(),
+  ])
   let col2 = @bio.GmtGeneSetCollection::push_s(col, gs3)
   println("  After push: \{col2.size} sets total")
   let mut names_s = "  All names: ".to_string()
   let mut ni = 0
   while ni < col2.names.length() {
-    if ni > 0 { names_s = names_s + ", " }
+    if ni > 0 {
+      names_s = names_s + ", "
+    }
     names_s = names_s + col2.names[ni]
     ni = ni + 1
   }

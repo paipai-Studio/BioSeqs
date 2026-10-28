@@ -7,7 +7,7 @@
 /// Observed heterozygosity per variant: `n_het / n_called` over non-missing
 /// calls (`allel.heterozygosity_observed`).
 pub fn skallel_heterozygosity_observed(
-  g : Array[Array[Array[Int]]],
+  g : Array[Array[Array[Int32]]],
   fill : Double,
 ) -> Array[Double] {
   let out : Array[Double] = Array(capacity=0)
@@ -39,7 +39,7 @@ pub fn skallel_heterozygosity_observed(
 /// allele frequencies do not sum to one.
 pub fn skallel_heterozygosity_expected(
   af : Array[Array[Double]],
-  ploidy : Int,
+  ploidy : Int32,
   fill : Double,
 ) -> Array[Double] {
   let out : Array[Double] = Array(capacity=0)
@@ -63,7 +63,7 @@ pub fn skallel_heterozygosity_expected(
 /// Inbreeding coefficient per variant (`F = 1 − Ho/He`, `allel.inbreeding_coefficient`).
 /// `fill` is used where the expected heterozygosity is zero (or no calls).
 pub fn skallel_inbreeding_coefficient(
-  g : Array[Array[Array[Int]]],
+  g : Array[Array[Array[Int32]]],
   fill : Double,
 ) -> Array[Double] {
   let mut max_allele = 0

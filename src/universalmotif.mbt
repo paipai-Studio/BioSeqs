@@ -25,6 +25,8 @@ pub(all) enum UMotifType {
   PWM
   ICM
 } derive(Eq)
+
+///|
 pub extend UMotifType with Eq::{equal, not_equal}
 
 ///|
@@ -67,6 +69,8 @@ pub(all) enum UTrimFrom {
   ULeft
   URight
 } derive(Eq)
+
+///|
 pub extend UTrimFrom with Eq::{equal, not_equal}
 
 ///|
@@ -101,15 +105,15 @@ pub fn UniversalMotif::new(
   alphabet : String,
   motif : Array[Array[Double]],
   motif_type : UMotifType,
-  nsites? : Double = 100.0,
-  pseudocount? : Double = 0.8,
-  bkg? : Array[Double] = [],
-  strand? : String = "+-",
-  altname? : String = "",
-  family? : String = "",
-  organism? : String = "",
-  bkgsites? : Double = 0.0,
-  extrainfo? : String = "",
+  nsites~ : Double = 100.0,
+  pseudocount~ : Double = 0.8,
+  bkg~ : Array[Double] = [],
+  strand~ : String = "+-",
+  altname~ : String = "",
+  family~ : String = "",
+  organism~ : String = "",
+  bkgsites~ : Double = 0.0,
+  extrainfo~ : String = "",
 ) -> UniversalMotif {
   let letters = um_alphabet_letters(alphabet)
   let n = letters.length()
@@ -169,13 +173,13 @@ pub fn um_alphabet_letters(alphabet : String) -> Array[String] {
 
 ///|
 /// Number of letters in the alphabet.
-pub fn um_alphabet_size(alphabet : String) -> Int {
+pub fn um_alphabet_size(alphabet : String) -> Int32 {
   um_alphabet_letters(alphabet).length()
 }
 
 ///|
 /// Default uniform background (1/n per letter).
-pub fn um_default_bkg(n : Int) -> Array[Double] {
+pub fn um_default_bkg(n : Int32) -> Array[Double] {
   if n <= 0 {
     return []
   }
@@ -224,8 +228,8 @@ fn um_copy_matrix(m : Array[Array[Double]]) -> Array[Array[Double]] {
 ///|
 /// Allocate an `rows x cols` Double matrix with independent rows.
 fn um_make_matrix(
-  rows : Int,
-  cols : Int,
+  rows : Int32,
+  cols : Int32,
   default : Double,
 ) -> Array[Array[Double]] {
   let m = Array(capacity=0)
@@ -240,10 +244,10 @@ fn um_make_matrix(
 ///|
 /// Allocate an `rows x cols` Int matrix with independent rows.
 fn um_make_matrix_int(
-  rows : Int,
-  cols : Int,
-  default : Int,
-) -> Array[Array[Int]] {
+  rows : Int32,
+  cols : Int32,
+  default : Int32,
+) -> Array[Array[Int32]] {
   let m = Array(capacity=0)
   let mut i = 0
   while i < rows {
@@ -301,7 +305,7 @@ pub fn pcm_to_ppm(
 pub fn ppm_to_pcm(
   ppm : Array[Array[Double]],
   nsites : Double,
-) -> Array[Array[Int]] {
+) -> Array[Array[Int32]] {
   let n_sites = if nsites <= 1.0 { 100.0 } else { nsites }
   if ppm.length() == 0 {
     return []
@@ -731,7 +735,7 @@ pub fn UniversalMotif::to_pwm(self : UniversalMotif) -> UniversalMotif {
 /// Convert a motif to ICM form.
 pub fn UniversalMotif::to_icm(
   self : UniversalMotif,
-  relative_entropy? : Bool = false,
+  relative_entropy~ : Bool = false,
 ) -> UniversalMotif {
   let ppm = um_to_ppm(
     self.motif,
@@ -993,7 +997,7 @@ fn combine_scores(scores : Array[Double], strat : UScoreStrat) -> Double {
     }
     UMedian => {
       let sorted = scores.copy()
-      sorted.sort_by(fn(a : Double, b : Double) -> Int {
+      sorted.sort_by(fn(a : Double, b : Double) -> Int32 {
         if a < b {
           -1
         } else if a > b {
@@ -1083,12 +1087,12 @@ pub fn compare_motifs(
   m1 : UniversalMotif,
   m2 : UniversalMotif,
   metric : UMetric,
-  min_overlap? : Int = 6,
-  min_mean_ic? : Double = 0.25,
-  score_strat? : UScoreStrat = UScoreStrat::USum,
-  normalise? : Bool = true,
-  try_rc? : Bool = true,
-  relative_entropy? : Bool = false,
+  min_overlap~ : Int32 = 6,
+  min_mean_ic~ : Double = 0.25,
+  score_strat~ : UScoreStrat = UScoreStrat::USum,
+  normalise~ : Bool = true,
+  try_rc~ : Bool = true,
+  relative_entropy~ : Bool = false,
 ) -> Double {
   let ppm1 = um_to_ppm(
     m1.motif,
@@ -1156,7 +1160,7 @@ fn um_score_alignment(
   nsites1 : Double,
   nsites2 : Double,
   metric : UMetric,
-  min_overlap : Int,
+  min_overlap : Int32,
   min_mean_ic : Double,
   score_strat : UScoreStrat,
   normalise : Bool,
@@ -1267,10 +1271,10 @@ fn um_pick_best(metric : UMetric, a : Double, b : Double) -> Double {
 /// `name` is inputs joined with `/`.
 pub fn merge_motifs(
   motifs : Array[UniversalMotif],
-  metric? : UMetric = UMetric::ALLR,
-  min_overlap? : Int = 6,
-  min_mean_ic? : Double = 0.25,
-  try_rc? : Bool = true,
+  metric~ : UMetric = UMetric::ALLR,
+  min_overlap~ : Int32 = 6,
+  min_mean_ic~ : Double = 0.25,
+  try_rc~ : Bool = true,
 ) -> UniversalMotif {
   if motifs.length() == 0 {
     return UniversalMotif::new("", "DNA", [], PCM)
@@ -1347,9 +1351,9 @@ fn um_merge_pair(
   ppm2 : Array[Array[Double]],
   bkg1 : Array[Double],
   bkg2 : Array[Double],
-  weight : Int,
+  weight : Int32,
   metric : UMetric,
-  min_overlap : Int,
+  min_overlap : Int32,
   min_mean_ic : Double,
   try_rc : Bool,
   alphabet : String,
@@ -1417,8 +1421,8 @@ fn um_merge_pair(
 fn acc_bkg_merge(
   bkg1 : Array[Double],
   bkg2 : Array[Double],
-  idx : Int,
-  weight : Int,
+  idx : Int32,
+  weight : Int32,
 ) -> Unit {
   bkg1[idx] = (bkg1[idx] * weight.to_double() + bkg2[idx]) /
     (weight.to_double() + 1.0)
@@ -1451,7 +1455,7 @@ fn um_rc_ppm(ppm : Array[Array[Double]]) -> Array[Array[Double]] {
 
 ///|
 priv struct UmOffset {
-  offset : Int
+  offset : Int32
   rc : Bool
   score : Double
 }
@@ -1466,7 +1470,7 @@ fn um_find_best_offset(
   nsites1 : Double,
   nsites2 : Double,
   metric : UMetric,
-  min_overlap : Int,
+  min_overlap : Int32,
   min_mean_ic : Double,
   try_rc : Bool,
   alphabet : String,
@@ -1551,8 +1555,8 @@ fn um_find_best_offset(
 /// controls left/right/both). `icscore` and `consensus` are recomputed.
 pub fn trim_motif(
   motif : UniversalMotif,
-  min_ic? : Double = 0.25,
-  trim_from? : UTrimFrom = UTrimFrom::UBoth,
+  min_ic~ : Double = 0.25,
+  trim_from~ : UTrimFrom = UTrimFrom::UBoth,
 ) -> UniversalMotif {
   let ppm = um_to_ppm(
     motif.motif,
@@ -1628,7 +1632,7 @@ pub fn trim_motif(
 
 ///|
 /// Format a probability to a fixed number of decimal places (round half-up).
-fn um_format_fixed(d : Double, decimals : Int) -> String {
+fn um_format_fixed(d : Double, decimals : Int32) -> String {
   let neg = d < 0.0
   let abs_d = if neg { -d } else { d }
   let scale = @math.pow(10.0, decimals.to_double())
@@ -1820,8 +1824,8 @@ pub fn read_meme(text : String) -> Array[UniversalMotif] {
 
 ///|
 priv struct UmLpmHeader {
-  alength : Int
-  width : Int
+  alength : Int32
+  width : Int32
   nsites : Double
 }
 

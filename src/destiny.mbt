@@ -16,7 +16,7 @@ pub struct CellData {
 pub struct DistanceMatrix {
   cells : Array[String]
   distances : Array[Array[Double]]
-  n_cells : Int
+  n_cells : Int32
 }
 
 ///|
@@ -210,7 +210,7 @@ pub fn find_sigma_automatic(dist_matrix : DistanceMatrix) -> Double {
 ///|
 pub fn compute_diffusion_map(
   cells : Array[CellData],
-  n_components : Int,
+  n_components : Int32,
   sigma : Double,
 ) -> DiffusionResult {
   let n = cells.length()
@@ -297,7 +297,7 @@ priv struct EigenResult {
 ///|
 fn destiny_eigen_decomposition(
   matrix : Array[Array[Double]],
-  n_components : Int,
+  n_components : Int32,
 ) -> EigenResult {
   let n = matrix.length()
 
@@ -384,7 +384,7 @@ fn destiny_eigen_decomposition(
 fn destiny_compute_embedding(
   eigen_vectors : Array[Array[Double]],
   eigen_values : Array[Double],
-  n_components : Int,
+  n_components : Int32,
 ) -> Array[Array[Double]] {
   // eigen_vectors has shape [n_components][n_cells]
   let n_components_actual = eigen_vectors.length()
@@ -419,7 +419,7 @@ fn destiny_compute_embedding(
 ///|
 pub fn destiny_create_embedding(
   cells : Array[CellData],
-  n_components : Int,
+  n_components : Int32,
 ) -> DiffusionResult {
   // Find optimal sigma
   let dist_matrix = compute_distance_matrix(cells, "euclidean")
@@ -432,8 +432,8 @@ pub fn destiny_create_embedding(
 ///|
 pub fn destiny_plot_coordinates(
   result : DiffusionResult,
-  component_x : Int,
-  component_y : Int,
+  component_x : Int32,
+  component_y : Int32,
 ) -> Array[(String, Double, Double)] {
   let coordinates : Array[(String, Double, Double)] = Array(capacity=0)
   let n = result.cell_ids.length()
@@ -479,7 +479,10 @@ pub fn destiny_summary(result : DiffusionResult) -> String {
 }
 
 ///|
-pub fn create_example_sc_data(n_cells : Int, n_genes : Int) -> Array[CellData] {
+pub fn create_example_sc_data(
+  n_cells : Int32,
+  n_genes : Int32,
+) -> Array[CellData] {
   let cells : Array[CellData] = Array(capacity=0)
 
   let mut i = 0

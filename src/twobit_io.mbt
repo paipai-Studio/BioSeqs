@@ -16,11 +16,11 @@
 
 ///|
 /// Magic number for the 2bit format: 0x1A412743 (stored as Int).
-let twobit_magic : Int = 0x1A412743
+let twobit_magic : Int32 = 0x1A412743
 
 ///|
 /// Supported 2bit format version (0).
-let twobit_version : Int = 0
+let twobit_version : Int32 = 0
 
 // ============================================================================
 // TwoBitNBlock - a contiguous region of N (unknown) bases
@@ -30,31 +30,31 @@ let twobit_version : Int = 0
 /// A block of N (unknown) bases within a sequence, defined by its 0-based
 /// start position and length.
 pub struct TwoBitNBlock {
-  start : Int
-  size : Int
+  start : Int32
+  size : Int32
 }
 
 ///|
 /// Construct an N-block at `start` spanning `size` bases.
-pub fn TwoBitNBlock::new(start : Int, size : Int) -> TwoBitNBlock {
+pub fn TwoBitNBlock::new(start : Int32, size : Int32) -> TwoBitNBlock {
   TwoBitNBlock::{ start, size, }
 }
 
 ///|
 /// 0-based start position of the N-block.
-pub fn TwoBitNBlock::start(self : TwoBitNBlock) -> Int {
+pub fn TwoBitNBlock::start(self : TwoBitNBlock) -> Int32 {
   self.start
 }
 
 ///|
 /// Number of N bases in the block.
-pub fn TwoBitNBlock::size(self : TwoBitNBlock) -> Int {
+pub fn TwoBitNBlock::size(self : TwoBitNBlock) -> Int32 {
   self.size
 }
 
 ///|
 /// Exclusive end position (start + size) of the N-block.
-pub fn TwoBitNBlock::end(self : TwoBitNBlock) -> Int {
+pub fn TwoBitNBlock::end(self : TwoBitNBlock) -> Int32 {
   self.start + self.size
 }
 
@@ -76,31 +76,31 @@ pub fn TwoBitNBlock::to_string(self : TwoBitNBlock) -> String {
 /// A block of soft-masked (lowercase) bases within a sequence, defined by
 /// its 0-based start position and length.
 pub struct TwoBitMaskBlock {
-  start : Int
-  size : Int
+  start : Int32
+  size : Int32
 }
 
 ///|
 /// Construct a mask-block at `start` spanning `size` bases.
-pub fn TwoBitMaskBlock::new(start : Int, size : Int) -> TwoBitMaskBlock {
+pub fn TwoBitMaskBlock::new(start : Int32, size : Int32) -> TwoBitMaskBlock {
   TwoBitMaskBlock::{ start, size, }
 }
 
 ///|
 /// 0-based start position of the mask-block.
-pub fn TwoBitMaskBlock::start(self : TwoBitMaskBlock) -> Int {
+pub fn TwoBitMaskBlock::start(self : TwoBitMaskBlock) -> Int32 {
   self.start
 }
 
 ///|
 /// Number of masked bases in the block.
-pub fn TwoBitMaskBlock::size(self : TwoBitMaskBlock) -> Int {
+pub fn TwoBitMaskBlock::size(self : TwoBitMaskBlock) -> Int32 {
   self.size
 }
 
 ///|
 /// Exclusive end position (start + size) of the mask-block.
-pub fn TwoBitMaskBlock::end(self : TwoBitMaskBlock) -> Int {
+pub fn TwoBitMaskBlock::end(self : TwoBitMaskBlock) -> Int32 {
   self.start + self.size
 }
 
@@ -123,8 +123,8 @@ pub fn TwoBitMaskBlock::to_string(self : TwoBitMaskBlock) -> String {
 /// N-blocks (unknown regions), and mask-blocks (lowercase regions).
 pub struct TwoBitSequence {
   name : String
-  dna_size : Int
-  mut packed_dna : Array[Int]
+  dna_size : Int32
+  mut packed_dna : Array[Int32]
   mut n_blocks : Array[TwoBitNBlock]
   mut mask_blocks : Array[TwoBitMaskBlock]
 }
@@ -133,7 +133,7 @@ pub struct TwoBitSequence {
 /// Construct a TwoBitSequence with the given name and DNA size. The packed
 /// DNA, N-blocks, and mask-blocks start empty and can be populated via
 /// `add_n_block`, `add_mask_block`, or by packing a sequence string.
-pub fn TwoBitSequence::new(name : String, dna_size : Int) -> TwoBitSequence {
+pub fn TwoBitSequence::new(name : String, dna_size : Int32) -> TwoBitSequence {
   TwoBitSequence::{
     name,
     dna_size,
@@ -151,13 +151,13 @@ pub fn TwoBitSequence::name(self : TwoBitSequence) -> String {
 
 ///|
 /// Number of bases in the sequence.
-pub fn TwoBitSequence::dna_size(self : TwoBitSequence) -> Int {
+pub fn TwoBitSequence::dna_size(self : TwoBitSequence) -> Int32 {
   self.dna_size
 }
 
 ///|
 /// Packed DNA bytes (each byte holds 4 bases, 2 bits each).
-pub fn TwoBitSequence::packed_dna(self : TwoBitSequence) -> Array[Int] {
+pub fn TwoBitSequence::packed_dna(self : TwoBitSequence) -> Array[Int32] {
   self.packed_dna.copy()
 }
 
@@ -179,8 +179,8 @@ pub fn TwoBitSequence::mask_blocks(
 /// Add an N-block covering `size` bases starting at `start`.
 pub fn TwoBitSequence::add_n_block(
   self : TwoBitSequence,
-  start : Int,
-  size : Int,
+  start : Int32,
+  size : Int32,
 ) -> Unit {
   self.n_blocks.push(TwoBitNBlock::new(start, size))
 }
@@ -189,21 +189,21 @@ pub fn TwoBitSequence::add_n_block(
 /// Add a mask-block covering `size` bases starting at `start`.
 pub fn TwoBitSequence::add_mask_block(
   self : TwoBitSequence,
-  start : Int,
-  size : Int,
+  start : Int32,
+  size : Int32,
 ) -> Unit {
   self.mask_blocks.push(TwoBitMaskBlock::new(start, size))
 }
 
 ///|
 /// Number of N-blocks.
-pub fn TwoBitSequence::n_block_count(self : TwoBitSequence) -> Int {
+pub fn TwoBitSequence::n_block_count(self : TwoBitSequence) -> Int32 {
   self.n_blocks.length()
 }
 
 ///|
 /// Number of mask-blocks.
-pub fn TwoBitSequence::mask_block_count(self : TwoBitSequence) -> Int {
+pub fn TwoBitSequence::mask_block_count(self : TwoBitSequence) -> Int32 {
   self.mask_blocks.length()
 }
 
@@ -215,7 +215,7 @@ pub fn TwoBitSequence::mask_block_count(self : TwoBitSequence) -> Int {
 /// A complete 2bit file containing one or more sequences.
 pub struct TwoBitFile {
   sequences : Array[TwoBitSequence]
-  version : Int
+  version : Int32
 }
 
 ///|
@@ -226,7 +226,7 @@ pub fn TwoBitFile::new() -> TwoBitFile {
 
 ///|
 /// Number of sequences in the file.
-pub fn TwoBitFile::n_sequences(self : TwoBitFile) -> Int {
+pub fn TwoBitFile::n_sequences(self : TwoBitFile) -> Int32 {
   self.sequences.length()
 }
 
@@ -238,7 +238,7 @@ pub fn TwoBitFile::sequences(self : TwoBitFile) -> Array[TwoBitSequence] {
 
 ///|
 /// Format version (always 0).
-pub fn TwoBitFile::version(self : TwoBitFile) -> Int {
+pub fn TwoBitFile::version(self : TwoBitFile) -> Int32 {
   self.version
 }
 
@@ -284,7 +284,7 @@ pub fn TwoBitFile::sequence_names(self : TwoBitFile) -> Array[String] {
 ///|
 /// Convert a nucleotide character to its 2-bit code:
 /// A -> 0, C -> 1, T -> 2, G -> 3. Returns -1 for N or any other character.
-pub fn twobit_base_to_code(base : Char) -> Int {
+pub fn twobit_base_to_code(base : Char) -> Int32 {
   let c = base.to_int()
   if c == 'A'.to_int() {
     0
@@ -302,7 +302,7 @@ pub fn twobit_base_to_code(base : Char) -> Int {
 ///|
 /// Convert a 2-bit code back to a nucleotide character:
 /// 0 -> A, 1 -> C, 2 -> T, 3 -> G.
-pub fn twobit_code_to_base(code : Int) -> Char {
+pub fn twobit_code_to_base(code : Int32) -> Char {
   if code == 0 {
     'A'
   } else if code == 1 {
@@ -323,8 +323,8 @@ pub fn twobit_code_to_base(code : Int) -> Char {
 ///   - N / n characters are recorded as N-blocks and packed as A (code 0).
 pub fn twobit_pack_sequence(
   sequence : String,
-) -> (Array[Int], Array[TwoBitNBlock], Array[TwoBitMaskBlock]) {
-  let packed : Array[Int] = Array(capacity=0)
+) -> (Array[Int32], Array[TwoBitNBlock], Array[TwoBitMaskBlock]) {
+  let packed : Array[Int32] = Array(capacity=0)
   let n_blocks : Array[TwoBitNBlock] = Array(capacity=0)
   let mask_blocks : Array[TwoBitMaskBlock] = Array(capacity=0)
   let len = sequence.length()
@@ -351,7 +351,7 @@ pub fn twobit_pack_sequence(
     let is_n = c == code_N || c == code_n
     let is_lower = c >= code_a && c <= code_z
     // Determine the 2-bit code for packing.
-    let code : Int = if is_n {
+    let code : Int32 = if is_n {
       0 // N packed as A
     } else {
       let upper_c = if is_lower { c - 32 } else { c }
@@ -416,13 +416,13 @@ pub fn twobit_pack_sequence(
 /// Applies N-blocks (replacing regions with 'N') and mask-blocks (converting
 /// regions to lowercase) after decoding the packed bases.
 pub fn twobit_unpack_sequence(
-  packed : Array[Int],
-  dna_size : Int,
+  packed : Array[Int32],
+  dna_size : Int32,
   n_blocks : Array[TwoBitNBlock],
   mask_blocks : Array[TwoBitMaskBlock],
 ) -> String {
   // Decode each base from the packed bytes into an array of ASCII codes.
-  let codes : Array[Int] = Array(capacity=0)
+  let codes : Array[Int32] = Array(capacity=0)
   for i in 0..<dna_size {
     let byte_idx = i / 4
     let shift = 6 - i % 4 * 2
@@ -452,7 +452,7 @@ pub fn twobit_unpack_sequence(
   // Build the result string.
   let sb = StringBuilder()
   for i in 0..<codes.length() {
-    sb.write_char(Int::unsafe_to_char(codes[i]))
+    sb.write_char(Int32::unsafe_to_char(codes[i]))
   }
   sb.to_string()
 }
@@ -463,13 +463,13 @@ pub fn twobit_unpack_sequence(
 
 ///|
 /// Encode a 32-bit unsigned integer as 4 little-endian bytes.
-fn twobit_encode_u32_le(v : Int) -> Array[Int] {
+fn twobit_encode_u32_le(v : Int32) -> Array[Int32] {
   [v & 0xFF, (v >> 8) & 0xFF, (v >> 16) & 0xFF, (v >> 24) & 0xFF]
 }
 
 ///|
 /// Read a 32-bit little-endian unsigned integer from a byte array at `pos`.
-fn twobit_read_u32_le(bytes : Array[Int], pos : Int) -> Int {
+fn twobit_read_u32_le(bytes : Array[Int32], pos : Int32) -> Int32 {
   bytes[pos] |
   (bytes[pos + 1] << 8) |
   (bytes[pos + 2] << 16) |
@@ -482,8 +482,8 @@ fn twobit_read_u32_le(bytes : Array[Int], pos : Int) -> Int {
 
 ///|
 /// Serialize a TwoBitFile to a byte array in 2bit binary format (little-endian).
-pub fn twobit_to_bytes(tbf : TwoBitFile) -> Array[Int] {
-  let bytes : Array[Int] = Array(capacity=0)
+pub fn twobit_to_bytes(tbf : TwoBitFile) -> Array[Int32] {
+  let bytes : Array[Int32] = Array(capacity=0)
   let seqs = tbf.sequences
   let n_seq = seqs.length()
   // Compute the total index size to determine sequence offsets.
@@ -492,7 +492,7 @@ pub fn twobit_to_bytes(tbf : TwoBitFile) -> Array[Int] {
     index_size = index_size + 1 + seqs[i].name.length() + 4
   }
   // Compute the absolute offset of each sequence's data block.
-  let offsets : Array[Int] = Array(capacity=0)
+  let offsets : Array[Int32] = Array(capacity=0)
   let mut current_offset = 16 + index_size // 16 = header size
   for i in 0..<n_seq {
     offsets.push(current_offset)
@@ -596,7 +596,7 @@ pub fn twobit_to_bytes(tbf : TwoBitFile) -> Array[Int] {
 ///
 /// Reads and validates the magic number, then parses the header, index, and
 /// per-sequence data.
-pub fn twobit_from_bytes(data : Array[Int]) -> TwoBitFile {
+pub fn twobit_from_bytes(data : Array[Int32]) -> TwoBitFile {
   // Read and validate magic number.
   let magic = twobit_read_u32_le(data, 0)
   if magic != twobit_magic {
@@ -606,14 +606,14 @@ pub fn twobit_from_bytes(data : Array[Int]) -> TwoBitFile {
   let seq_count = twobit_read_u32_le(data, 8)
   // Read the index.
   let names : Array[String] = Array(capacity=0)
-  let offsets : Array[Int] = Array(capacity=0)
+  let offsets : Array[Int32] = Array(capacity=0)
   let mut pos = 16
   for _ in 0..<seq_count {
     let name_len = data[pos]
     pos = pos + 1
     let name_sb = StringBuilder()
     for j in 0..<name_len {
-      name_sb.write_char(Int::unsafe_to_char(data[pos + j]))
+      name_sb.write_char(Int32::unsafe_to_char(data[pos + j]))
     }
     pos = pos + name_len
     names.push(name_sb.to_string())
@@ -626,7 +626,7 @@ pub fn twobit_from_bytes(data : Array[Int]) -> TwoBitFile {
     let p = offsets[i]
     let dna_size = twobit_read_u32_le(data, p)
     let packed_size = (dna_size + 3) / 4
-    let packed : Array[Int] = Array(capacity=0)
+    let packed : Array[Int32] = Array(capacity=0)
     let mut q = p + 4
     for _ in 0..<packed_size {
       packed.push(data[q])
@@ -666,17 +666,17 @@ pub fn twobit_from_bytes(data : Array[Int]) -> TwoBitFile {
 
 ///|
 /// Convert an integer 0-15 to a lowercase hex digit character.
-fn twobit_hex_digit(n : Int) -> Char {
+fn twobit_hex_digit(n : Int32) -> Char {
   if n < 10 {
-    Int::unsafe_to_char('0'.to_int() + n)
+    Int32::unsafe_to_char('0'.to_int() + n)
   } else {
-    Int::unsafe_to_char('a'.to_int() + (n - 10))
+    Int32::unsafe_to_char('a'.to_int() + (n - 10))
   }
 }
 
 ///|
 /// Convert a hex digit character's ASCII code to its integer value 0-15.
-fn twobit_hex_value(c : Int) -> Int {
+fn twobit_hex_value(c : Int32) -> Int32 {
   let code_0 = '0'.to_int()
   let code_9 = '9'.to_int()
   let code_a = 'a'.to_int()
@@ -711,7 +711,7 @@ pub fn twobit_write(tbf : TwoBitFile) -> String {
 ///|
 /// Deserialize a TwoBitFile from a hex string produced by `twobit_write`.
 pub fn twobit_read(data : String) -> TwoBitFile {
-  let bytes : Array[Int] = Array(capacity=0)
+  let bytes : Array[Int32] = Array(capacity=0)
   let len = data.length()
   let mut i = 0
   while i + 1 < len {

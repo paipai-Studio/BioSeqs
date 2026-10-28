@@ -1,7 +1,6 @@
 ///|
 /// Bio.SeqIO.SffIO Demo - Standard Flowgram Format binary parsing.
 /// Inspired by Biopython's Bio.SeqIO.SffIO module.
-
 fn main {
   println("=== Bio.SeqIO.SffIO Demo ===")
 
@@ -22,10 +21,16 @@ fn main {
   while i < sff.sff_n_reads() {
     let read = sff.sff_get_read(i)
     let mean_q = read.sff_mean_quality()
-    println("   " + read.sff_name() +
-      ": bases=" + read.sff_n_bases().to_string() +
-      ", sequence=" + read.sff_bases() +
-      ", mean_quality=" + mean_q.to_string())
+    println(
+      "   " +
+      read.sff_name() +
+      ": bases=" +
+      read.sff_n_bases().to_string() +
+      ", sequence=" +
+      read.sff_bases() +
+      ", mean_quality=" +
+      mean_q.to_string(),
+    )
     i = i + 1
   }
 
@@ -49,7 +54,10 @@ fn main {
     let parsed = parsed_opt.unwrap()
     println("   Parsed " + parsed.sff_n_reads().to_string() + " reads back")
     let parsed_header = parsed.sff_header()
-    println("   Flow chars match: " + (parsed_header.sff_flow_chars() == header.sff_flow_chars()).to_string())
+    println(
+      "   Flow chars match: " +
+      (parsed_header.sff_flow_chars() == header.sff_flow_chars()).to_string(),
+    )
     let r0 = parsed.sff_get_read(0)
     println("   Read 0 name: " + r0.sff_name())
     println("   Read 0 bases: " + r0.sff_bases())

@@ -13,16 +13,16 @@
 pub struct AnosimResult {
   statistic : Double
   p_value : Double
-  n : Int
-  num_groups : Int
+  n : Int32
+  num_groups : Int32
 }
 
 ///|
 pub struct PermanovaResult {
   statistic : Double
   p_value : Double
-  n : Int
-  num_groups : Int
+  n : Int32
+  num_groups : Int32
 }
 
 ///|
@@ -45,8 +45,8 @@ fn skbd_condensed(matrix : Array[Array[Double]]) -> Array[Double] {
 
 ///|
 /// Number of distinct group labels.
-fn skbd_num_groups(grouping : Array[Int]) -> Int {
-  let seen : Array[Int] = Array(capacity=0)
+fn skbd_num_groups(grouping : Array[Int32]) -> Int32 {
+  let seen : Array[Int32] = Array(capacity=0)
   for g in grouping {
     let mut found = false
     for s in seen {
@@ -100,13 +100,13 @@ fn skbd_rankdata_average(values : Array[Double]) -> Array[Double] {
 }
 
 ///|
-fn skbd_lcg(seed : Int) -> Int {
+fn skbd_lcg(seed : Int32) -> Int32 {
   (seed * 1103515245 + 12345) & 0x7FFFFFFF
 }
 
 ///|
 /// ANOSIM R statistic from pre-ranked condensed distances + grouping.
-fn skbd_anosim_r(ranks : Array[Double], grouping : Array[Int]) -> Double {
+fn skbd_anosim_r(ranks : Array[Double], grouping : Array[Int32]) -> Double {
   let n = grouping.length()
   let mut r_w_sum = 0.0
   let mut r_w_n = 0
@@ -134,9 +134,9 @@ fn skbd_anosim_r(ranks : Array[Double], grouping : Array[Int]) -> Double {
 /// Analysis of Similarities (ANOSIM).
 pub fn skbio_anosim(
   dm : Array[Array[Double]],
-  grouping : Array[Int],
-  permutations : Int,
-  seed : Int,
+  grouping : Array[Int32],
+  permutations : Int32,
+  seed : Int32,
 ) -> AnosimResult {
   let n = dm.length()
   let ranks = skbd_rankdata_average(skbd_condensed(dm))
@@ -163,16 +163,24 @@ pub fn skbio_anosim(
   } else {
     (count_better + 1).to_double() / (permutations + 1).to_double()
   }
-  AnosimResult::{ statistic: obs, p_value, n, num_groups: skbd_num_groups(grouping) }
+  AnosimResult::{
+    statistic: obs,
+    p_value,
+    n,
+    num_groups: skbd_num_groups(grouping),
+  }
 }
 
 ///|
 /// PERMANOVA within-group sum of squares (upper-triangle convention). A fixed
 /// factor of 2 cancels in the final F ratio, matching scikit-bio.
-fn skbd_permanova_s_w(dm : Array[Array[Double]], grouping : Array[Int]) -> Double {
+fn skbd_permanova_s_w(
+  dm : Array[Array[Double]],
+  grouping : Array[Int32],
+) -> Double {
   let n = dm.length()
   let mut s_w = 0.0
-  let seen : Array[Int] = Array(capacity=0)
+  let seen : Array[Int32] = Array(capacity=0)
   for g in grouping {
     let mut dup = false
     for s in seen {
@@ -209,7 +217,10 @@ fn skbd_permanova_s_w(dm : Array[Array[Double]], grouping : Array[Int]) -> Doubl
 
 ///|
 /// PERMANOVA pseudo-F statistic from a distance matrix + grouping.
-fn skbd_permanova_f(dm : Array[Array[Double]], grouping : Array[Int]) -> Double {
+fn skbd_permanova_f(
+  dm : Array[Array[Double]],
+  grouping : Array[Int32],
+) -> Double {
   let n = dm.length()
   let g = skbd_num_groups(grouping)
   let mut s_t = 0.0
@@ -221,7 +232,7 @@ fn skbd_permanova_f(dm : Array[Array[Double]], grouping : Array[Int]) -> Double 
   s_t = s_t / n.to_double()
   let s_w = skbd_permanova_s_w(dm, grouping)
   let s_a = s_t - s_w
-  let f = (s_a / (g - 1).to_double()) / (s_w / (n - g).to_double())
+  let f = s_a / (g - 1).to_double() / (s_w / (n - g).to_double())
   f
 }
 
@@ -229,9 +240,9 @@ fn skbd_permanova_f(dm : Array[Array[Double]], grouping : Array[Int]) -> Double 
 /// PERMANOVA.
 pub fn skbio_permanova(
   dm : Array[Array[Double]],
-  grouping : Array[Int],
-  permutations : Int,
-  seed : Int,
+  grouping : Array[Int32],
+  permutations : Int32,
+  seed : Int32,
 ) -> PermanovaResult {
   let n = dm.length()
   let obs = skbd_permanova_f(dm, grouping)
@@ -259,25 +270,26 @@ pub fn skbio_permanova(
   } else {
     (count_better + 1).to_double() / (permutations + 1).to_double()
   }
-  PermanovaResult::{ statistic: obs, p_value, n, num_groups: g }
+  PermanovaResult::{ statistic: obs, p_value, n, num_groups: g, }
 }
+
 ///|
 pub struct PermdispResult {
   statistic : Double
   p_value : Double
-  n : Int
-  num_groups : Int
+  n : Int32
+  num_groups : Int32
 }
 
 ///|
 /// Grouped distance-to-centroid arrays used by the one-way ANOVA.
 fn skbd_permdisp_distances(
   pc : Array[Array[Double]],
-  grouping : Array[Int],
+  grouping : Array[Int32],
 ) -> Array[Array[Double]] {
   let n = pc.length()
   let d = if n > 0 { pc[0].length() } else { 0 }
-  let seen : Array[Int] = Array(capacity=0)
+  let seen : Array[Int32] = Array(capacity=0)
   let result : Array[Array[Double]] = Array(capacity=0)
   for g in grouping {
     let mut dup = false
@@ -291,7 +303,7 @@ fn skbd_permdisp_distances(
       continue
     }
     seen.push(g)
-    let members : Array[Int] = Array(capacity=0)
+    let members : Array[Int32] = Array(capacity=0)
     for i = 0; i < n; i = i + 1 {
       if grouping[i] == g {
         members.push(i)
@@ -342,18 +354,22 @@ fn skbd_one_way_anova_f(dist_grouped : Array[Array[Double]]) -> Double {
       s = s + v
     }
     let mean_g = s / ng.to_double()
-    ss_between = ss_between + ng.to_double() * (mean_g - grand_mean) * (mean_g - grand_mean)
+    ss_between = ss_between +
+      ng.to_double() * (mean_g - grand_mean) * (mean_g - grand_mean)
     for v in g {
       ss_within = ss_within + (v - mean_g) * (v - mean_g)
     }
   }
   let df_between = a - 1
   let df_within = grand_n - a
-  (ss_between / df_between.to_double()) / (ss_within / df_within.to_double())
+  ss_between / df_between.to_double() / (ss_within / df_within.to_double())
 }
 
 ///|
-fn skbd_permdisp_f(pc : Array[Array[Double]], grouping : Array[Int]) -> Double {
+fn skbd_permdisp_f(
+  pc : Array[Array[Double]],
+  grouping : Array[Int32],
+) -> Double {
   skbd_one_way_anova_f(skbd_permdisp_distances(pc, grouping))
 }
 
@@ -361,9 +377,9 @@ fn skbd_permdisp_f(pc : Array[Array[Double]], grouping : Array[Int]) -> Double {
 /// PERMDISP (permutational multivariate dispersion, centroid test).
 pub fn skbio_permdisp(
   dm : Array[Array[Double]],
-  grouping : Array[Int],
-  permutations : Int,
-  seed : Int,
+  grouping : Array[Int32],
+  permutations : Int32,
+  seed : Int32,
 ) -> PermdispResult {
   let n = dm.length()
   // principal coordinates via PCoA (Gower centering + eigen)
@@ -405,12 +421,17 @@ pub fn skbio_permdisp(
   } else {
     (count_better + 1).to_double() / (permutations + 1).to_double()
   }
-  PermdispResult::{ statistic: obs, p_value, n, num_groups: skbd_num_groups(grouping) }
+  PermdispResult::{
+    statistic: obs,
+    p_value,
+    n,
+    num_groups: skbd_num_groups(grouping),
+  }
 }
 
 ///|
 pub struct BioenvResult {
-  best_subsets : Array[Array[Int]]
+  best_subsets : Array[Array[Int32]]
   correlations : Array[Double]
 }
 
@@ -449,7 +470,10 @@ fn skbd_standardize(a : Array[Array[Double]]) -> Array[Array[Double]] {
 
 ///|
 /// Condensed Euclidean distance over a selected subset of columns.
-fn skbd_euclidean_condensed(a : Array[Array[Double]], cols : Array[Int]) -> Array[Double] {
+fn skbd_euclidean_condensed(
+  a : Array[Array[Double]],
+  cols : Array[Int32],
+) -> Array[Double] {
   let n = a.length()
   let out : Array[Double] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {
@@ -473,8 +497,8 @@ fn skbd_spearman(x : Array[Double], y : Array[Double]) -> Double {
 
 ///|
 /// All k-element subsets of {0, .., n-1} (iterative combinations).
-fn skbd_combs(n : Int, k : Int) -> Array[Array[Int]] {
-  let result : Array[Array[Int]] = Array(capacity=0)
+fn skbd_combs(n : Int32, k : Int32) -> Array[Array[Int32]] {
+  let result : Array[Array[Int32]] = Array(capacity=0)
   let idx = Array::make(k, 0)
   for i = 0; i < k; i = i + 1 {
     idx[i] = i
@@ -501,15 +525,18 @@ fn skbd_combs(n : Int, k : Int) -> Array[Array[Int]] {
 ///|
 /// BioEnv: for each subset size, find the environmental-variable subset whose
 /// Euclidean distances best rank-correlate (Spearman) with the distance matrix.
-pub fn skbio_bioenv(dm : Array[Array[Double]], data : Array[Array[Double]]) -> BioenvResult {
+pub fn skbio_bioenv(
+  dm : Array[Array[Double]],
+  data : Array[Array[Double]],
+) -> BioenvResult {
   let p = if data.length() > 0 { data[0].length() } else { 0 }
   let data_std = skbd_standardize(data)
   let dm_flat = skbd_condensed(dm)
-  let best_subsets : Array[Array[Int]] = Array(capacity=0)
+  let best_subsets : Array[Array[Int32]] = Array(capacity=0)
   let correlations : Array[Double] = Array(capacity=0)
   for k = 1; k <= p; k = k + 1 {
     let mut best_rho = -2.0
-    let mut best_combo : Array[Int] = []
+    let mut best_combo : Array[Int32] = []
     for combo in skbd_combs(p, k) {
       let eucl = skbd_euclidean_condensed(data_std, combo)
       let rho = skbd_spearman(dm_flat, eucl)
@@ -521,9 +548,8 @@ pub fn skbio_bioenv(dm : Array[Array[Double]], data : Array[Array[Double]]) -> B
     best_subsets.push(best_combo)
     correlations.push(best_rho)
   }
-  BioenvResult::{ best_subsets, correlations }
+  BioenvResult::{ best_subsets, correlations, }
 }
-
 
 ///|
 /// Spatial median (L1 median) of a set of points via Weiszfeld iteration,
@@ -576,11 +602,11 @@ fn skbd_spatial_median(points : Array[Array[Double]]) -> Array[Double] {
 /// Grouped distance-to-spatial-median for PERMDISP's median variant.
 fn skbd_permdisp_distances_median(
   pc : Array[Array[Double]],
-  grouping : Array[Int],
+  grouping : Array[Int32],
 ) -> Array[Array[Double]] {
   let n = pc.length()
   let d = if n > 0 { pc[0].length() } else { 0 }
-  let seen : Array[Int] = Array(capacity=0)
+  let seen : Array[Int32] = Array(capacity=0)
   let result : Array[Array[Double]] = Array(capacity=0)
   for g in grouping {
     let mut dup = false
@@ -594,7 +620,7 @@ fn skbd_permdisp_distances_median(
       continue
     }
     seen.push(g)
-    let members : Array[Int] = Array(capacity=0)
+    let members : Array[Int32] = Array(capacity=0)
     let points : Array[Array[Double]] = Array(capacity=0)
     for i = 0; i < n; i = i + 1 {
       if grouping[i] == g {
@@ -623,9 +649,9 @@ fn skbd_permdisp_distances_median(
 /// two-sided).
 pub fn skbio_permdisp_median(
   dm : Array[Array[Double]],
-  grouping : Array[Int],
-  permutations : Int,
-  seed : Int,
+  grouping : Array[Int32],
+  permutations : Int32,
+  seed : Int32,
 ) -> PermdispResult {
   let n = dm.length()
   let b = skbio_center_distance_matrix(dm)
@@ -666,5 +692,10 @@ pub fn skbio_permdisp_median(
   } else {
     (count_better + 1).to_double() / (permutations + 1).to_double()
   }
-  PermdispResult::{ statistic: obs, p_value, n, num_groups: skbd_num_groups(grouping) }
+  PermdispResult::{
+    statistic: obs,
+    p_value,
+    n,
+    num_groups: skbd_num_groups(grouping),
+  }
 }

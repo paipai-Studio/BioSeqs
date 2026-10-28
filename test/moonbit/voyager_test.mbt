@@ -399,11 +399,11 @@ test "Voyager local Moran's I BH-FDR is monotonic non-decreasing in rank" {
   ) catch {
     _ => abort("local Moran's I should run")
   }
-  let indexed : Array[(Double, Int)] = []
+  let indexed : Array[(Double, Int32)] = []
   for index in 0..<result.n {
     indexed.push((result.p_values[index], index))
   }
-  indexed.sort_by(fn(a : (Double, Int), b : (Double, Int)) -> Int {
+  indexed.sort_by(fn(a : (Double, Int32), b : (Double, Int32)) -> Int32 {
     if a.0 < b.0 {
       -1
     } else if a.0 > b.0 {

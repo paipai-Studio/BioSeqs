@@ -8,18 +8,18 @@
 ///|
 /// MCS result: matched atom pairs and bond count.
 pub struct McsResult {
-  mapping : Array[(Int, Int)]  // (atom_in_mol1, atom_in_mol2)
-  num_atoms : Int
-  num_bonds : Int
+  mapping : Array[(Int32, Int32)] // (atom_in_mol1, atom_in_mol2)
+  num_atoms : Int32
+  num_bonds : Int32
 }
 
 ///|
 /// Check if two atoms are compatible for MCS matching.
 fn mcs_atom_compatible(
   mol1 : Molecule,
-  a1 : Int,
+  a1 : Int32,
   mol2 : Molecule,
-  a2 : Int,
+  a2 : Int32,
 ) -> Bool {
   mol1.atoms[a1].symbol == mol2.atoms[a2].symbol
 }
@@ -28,11 +28,11 @@ fn mcs_atom_compatible(
 /// Check if two atom pairs are bond-compatible in the product graph.
 fn mcs_bond_compatible(
   mol1 : Molecule,
-  a1 : Int,
-  b1 : Int,
+  a1 : Int32,
+  b1 : Int32,
   mol2 : Molecule,
-  a2 : Int,
-  b2 : Int,
+  a2 : Int32,
+  b2 : Int32,
 ) -> Bool {
   let o1 = mol_bond_order(mol1, a1, b1)
   let o2 = mol_bond_order(mol2, a2, b2)
@@ -49,11 +49,11 @@ fn mcs_bond_compatible(
 fn mcs_build_product_graph(
   mol1 : Molecule,
   mol2 : Molecule,
-) -> (Array[(Int, Int)], Array[Array[Int]]) {
+) -> (Array[(Int32, Int32)], Array[Array[Int32]]) {
   let n1 = mol1.atoms.length()
   let n2 = mol2.atoms.length()
   // Generate candidate node pairs
-  let nodes : Array[(Int, Int)] = Array(capacity=0)
+  let nodes : Array[(Int32, Int32)] = Array(capacity=0)
   for i = 0; i < n1; i = i + 1 {
     for j = 0; j < n2; j = j + 1 {
       if mcs_atom_compatible(mol1, i, mol2, j) {
@@ -63,7 +63,7 @@ fn mcs_build_product_graph(
   }
   // Build adjacency: edge between node pairs if bond-compatible
   let nn = nodes.length()
-  let adj : Array[Array[Int]] = Array::makei(nn, { _ => Array(capacity=0) })
+  let adj : Array[Array[Int32]] = Array::makei(nn, _ => Array(capacity=0))
   for i = 0; i < nn; i = i + 1 {
     for j = i + 1; j < nn; j = j + 1 {
       let (a1, a2) = nodes[i]
@@ -85,10 +85,10 @@ fn mcs_build_product_graph(
 /// Bron-Kerbosch maximum clique algorithm (with pivoting).
 /// Returns the largest clique found.
 fn mcs_bron_kerbosch(
-  adj : Array[Array[Int]],
-  r : Array[Int],
-  p : Array[Int],
-  best : Ref[Array[Int]],
+  adj : Array[Array[Int32]],
+  r : Array[Int32],
+  p : Array[Int32],
+  best : Ref[Array[Int32]],
 ) -> Unit {
   if p.length() == 0 {
     if r.length() > best.val.length() {
@@ -142,17 +142,17 @@ fn mcs_bron_kerbosch(
 pub fn find_mcs(mol1 : Molecule, mol2 : Molecule) -> McsResult {
   let (nodes, adj) = mcs_build_product_graph(mol1, mol2)
   if nodes.length() == 0 {
-    return McsResult::{ mapping: [], num_atoms: 0, num_bonds: 0 }
+    return McsResult::{ mapping: [], num_atoms: 0, num_bonds: 0, }
   }
   // Initial P = all nodes
-  let initial_p : Array[Int] = Array(capacity=0)
+  let initial_p : Array[Int32] = Array(capacity=0)
   for i = 0; i < nodes.length(); i = i + 1 {
     initial_p.push(i)
   }
   let best = Ref(Array(capacity=0))
   mcs_bron_kerbosch(adj, [], initial_p, best)
   // Build mapping from best clique
-  let mapping : Array[(Int, Int)] = Array(capacity=0)
+  let mapping : Array[(Int32, Int32)] = Array(capacity=0)
   for idx in best.val {
     mapping.push(nodes[idx])
   }
@@ -167,18 +167,18 @@ pub fn find_mcs(mol1 : Molecule, mol2 : Molecule) -> McsResult {
       }
     }
   }
-  McsResult::{ mapping, num_atoms: mapping.length(), num_bonds }
+  McsResult::{ mapping, num_atoms: mapping.length(), num_bonds, }
 }
 
 ///|
 /// MCS atom count (convenience).
-pub fn mcs_atom_count(mol1 : Molecule, mol2 : Molecule) -> Int {
+pub fn mcs_atom_count(mol1 : Molecule, mol2 : Molecule) -> Int32 {
   find_mcs(mol1, mol2).num_atoms
 }
 
 ///|
 /// MCS bond count (convenience).
-pub fn mcs_bond_count(mol1 : Molecule, mol2 : Molecule) -> Int {
+pub fn mcs_bond_count(mol1 : Molecule, mol2 : Molecule) -> Int32 {
   find_mcs(mol1, mol2).num_bonds
 }
 

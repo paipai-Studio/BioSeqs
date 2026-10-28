@@ -79,19 +79,19 @@ pub fn WellRecord::new(
 
 ///|
 /// Get number of time points.
-pub fn WellRecord::phen_n_points(self : WellRecord) -> Int {
+pub fn WellRecord::phen_n_points(self : WellRecord) -> Int32 {
   self.times.length()
 }
 
 ///|
 /// Get signal at a time index.
-pub fn WellRecord::phen_get_signal(self : WellRecord, idx : Int) -> Double {
+pub fn WellRecord::phen_get_signal(self : WellRecord, idx : Int32) -> Double {
   self.signals[idx]
 }
 
 ///|
 /// Get time at an index.
-pub fn WellRecord::phen_get_time(self : WellRecord, idx : Int) -> Double {
+pub fn WellRecord::phen_get_time(self : WellRecord, idx : Int32) -> Double {
   self.times[idx]
 }
 
@@ -197,7 +197,7 @@ pub fn PlateRecord::phen_add_well(
 
 ///|
 /// Get number of wells.
-pub fn PlateRecord::phen_n_wells(self : PlateRecord) -> Int {
+pub fn PlateRecord::phen_n_wells(self : PlateRecord) -> Int32 {
   self.wells.length()
 }
 
@@ -223,14 +223,14 @@ pub fn PlateRecord::phen_get_well(
 /// Get a well at an index.
 pub fn PlateRecord::phen_get_well_at(
   self : PlateRecord,
-  idx : Int,
+  idx : Int32,
 ) -> WellRecord {
   self.wells[idx]
 }
 
 ///|
 /// Number of time points in the plate.
-pub fn PlateRecord::phen_n_times(self : PlateRecord) -> Int {
+pub fn PlateRecord::phen_n_times(self : PlateRecord) -> Int32 {
   self.times.length()
 }
 
@@ -238,7 +238,7 @@ pub fn PlateRecord::phen_n_times(self : PlateRecord) -> Int {
 /// Get mean signal across all wells at a time index.
 pub fn PlateRecord::phen_mean_signal_at(
   self : PlateRecord,
-  time_idx : Int,
+  time_idx : Int32,
 ) -> Double {
   if self.wells.length() == 0 {
     return 0.0

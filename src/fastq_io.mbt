@@ -91,7 +91,7 @@ pub fn parse_fastq(content : String) -> Array[SeqRecord] raise SeqIOError {
 
     let seq_str = if trimmed1 > 0 { line1[0:trimmed1].to_owned() } else { "" }
 
-    let quals : FixedArray[Int] = FixedArray::make(trimmed3, 0)
+    let quals : FixedArray[Int32] = FixedArray::make(trimmed3, 0)
     for j = 0; j < trimmed3; j = j + 1 {
       quals[j] = line3.unsafe_get(j).to_int() - 33
     }
@@ -100,7 +100,7 @@ pub fn parse_fastq(content : String) -> Array[SeqRecord] raise SeqIOError {
       quals_arr.push(quals[j])
     }
 
-    let letter_ann : Map[String, Array[Int]] = Map([], capacity=1)
+    let letter_ann : Map[String, Array[Int32]] = Map([], capacity=1)
     letter_ann["phred_quality"] = quals_arr
     records.push(SeqRecord::{
       seq: Seq::new(seq_str),
@@ -190,7 +190,7 @@ pub fn parse_fastq_solexa(
 /// as phred_quality (converted from Solexa if needed based on offset).
 fn parse_fastq_offset(
   content : String,
-  offset : Int,
+  offset : Int32,
 ) -> Array[SeqRecord] raise SeqIOError {
   let records = Array(capacity=0)
   let lines = content.split("\n").to_array()
@@ -263,7 +263,7 @@ fn parse_fastq_offset(
 
     let seq_str = if trimmed1 > 0 { line1[0:trimmed1].to_owned() } else { "" }
 
-    let quals : FixedArray[Int] = FixedArray::make(trimmed3, 0)
+    let quals : FixedArray[Int32] = FixedArray::make(trimmed3, 0)
     for j = 0; j < trimmed3; j = j + 1 {
       quals[j] = line3.unsafe_get(j).to_int() - offset
     }
@@ -272,7 +272,7 @@ fn parse_fastq_offset(
       quals_arr.push(quals[j])
     }
 
-    let letter_ann : Map[String, Array[Int]] = Map([], capacity=1)
+    let letter_ann : Map[String, Array[Int32]] = Map([], capacity=1)
     letter_ann["phred_quality"] = quals_arr
     records.push(SeqRecord::{
       seq: Seq::new(seq_str),
@@ -318,7 +318,7 @@ pub fn write_fastq_solexa(
 /// Internal: write FASTQ with a given ASCII offset. Stores phred_quality scores.
 fn write_fastq_offset(
   records : Array[SeqRecord],
-  offset : Int,
+  offset : Int32,
 ) -> String raise SeqIOError {
   let buf = StringBuilder()
   for rec in records {
@@ -407,12 +407,12 @@ pub fn phred_quality_from_solexa(solexa_quality : Double) -> Double {
 
 ///|
 /// Convenience: convert a Double PHRED quality to a rounded integer Solexa score.
-pub fn solexa_quality_from_phred_int(phred_quality : Int) -> Int {
+pub fn solexa_quality_from_phred_int(phred_quality : Int32) -> Int32 {
   @math.round(solexa_quality_from_phred(phred_quality.to_double())).to_int()
 }
 
 ///|
 /// Convenience: convert a Double Solexa quality to a rounded integer PHRED score.
-pub fn phred_quality_from_solexa_int(solexa_quality : Int) -> Int {
+pub fn phred_quality_from_solexa_int(solexa_quality : Int32) -> Int32 {
   @math.round(phred_quality_from_solexa(solexa_quality.to_double())).to_int()
 }

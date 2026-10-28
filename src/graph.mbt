@@ -76,7 +76,12 @@ pub struct Graph {
 
 ///|
 pub fn Graph::new(name : String, graph_type : GraphType) -> Graph {
-  Graph::{ nodes: Array(capacity=0), edges: Array(capacity=0), graph_type, name, }
+  Graph::{
+    nodes: Array(capacity=0),
+    edges: Array(capacity=0),
+    graph_type,
+    name,
+  }
 }
 
 ///|
@@ -158,7 +163,7 @@ pub fn graph_get_neighbors(graph : Graph, node_id : String) -> Array[String] {
 }
 
 ///|
-pub fn graph_get_degree(graph : Graph, node_id : String) -> Int {
+pub fn graph_get_degree(graph : Graph, node_id : String) -> Int32 {
   let mut degree = 0
   let mut i = 0
   while i < graph.edges.length() {
@@ -176,12 +181,12 @@ pub fn graph_get_degree(graph : Graph, node_id : String) -> Int {
 }
 
 ///|
-pub fn graph_node_count(graph : Graph) -> Int {
+pub fn graph_node_count(graph : Graph) -> Int32 {
   graph.nodes.length()
 }
 
 ///|
-pub fn graph_edge_count(graph : Graph) -> Int {
+pub fn graph_edge_count(graph : Graph) -> Int32 {
   graph.edges.length()
 }
 
@@ -322,7 +327,7 @@ pub fn graph_summarize(graph : Graph) -> String {
   result = result + "Nodes: " + graph_node_count(graph).to_string() + "\n"
   result = result + "Edges: " + graph_edge_count(graph).to_string() + "\n\n"
 
-  let degrees : Array[Int] = Array(capacity=0)
+  let degrees : Array[Int32] = Array(capacity=0)
   let mut i = 0
   while i < graph.nodes.length() {
     let node = graph.nodes[i]

@@ -81,7 +81,10 @@ pub fn skbio_multi_replace(x : Array[Double]) -> Array[Double] {
 
 ///|
 /// Replace zeros using an explicit `delta`.
-pub fn skbio_multi_replace_delta(x : Array[Double], delta : Double) -> Array[Double] {
+pub fn skbio_multi_replace_delta(
+  x : Array[Double],
+  delta : Double,
+) -> Array[Double] {
   multi_replace_impl(x, delta)
 }
 
@@ -164,7 +167,7 @@ pub fn skbio_inner(x : Array[Double], y : Array[Double]) -> Double {
 ///|
 /// Additive log-ratio transform: alr(x) = ln(x_i / x_ref) for i ≠ ref
 /// (`alr` with `ref_idx`, default 0 = first component is the denominator).
-pub fn skbio_alr(x : Array[Double], ref_idx : Int) -> Array[Double] {
+pub fn skbio_alr(x : Array[Double], ref_idx : Int32) -> Array[Double] {
   let ref_l = comp_ln(x[ref_idx])
   let out : Array[Double] = Array(capacity=0)
   for i = 0; i < x.length(); i = i + 1 {
@@ -177,7 +180,7 @@ pub fn skbio_alr(x : Array[Double], ref_idx : Int) -> Array[Double] {
 
 ///|
 /// Inverse alr: insert 0 at `ref_idx`, then closure(exp(v - max(v))) (`alr_inv`).
-pub fn skbio_alr_inv(x : Array[Double], ref_idx : Int) -> Array[Double] {
+pub fn skbio_alr_inv(x : Array[Double], ref_idx : Int32) -> Array[Double] {
   let comp : Array[Double] = Array(capacity=0)
   for i = 0; i < ref_idx; i = i + 1 {
     comp.push(x[i])
@@ -192,7 +195,7 @@ pub fn skbio_alr_inv(x : Array[Double], ref_idx : Int) -> Array[Double] {
 ///|
 /// Default orthonormal ILR basis (shape `(n-1) × n`), the J. J. Egozcue basis
 /// built by Gram–Schmidt orthogonalization (scikit-bio `_gram_schmidt_basis`).
-pub fn skbio_gram_schmidt_basis(n : Int) -> Array[Array[Double]] {
+pub fn skbio_gram_schmidt_basis(n : Int32) -> Array[Array[Double]] {
   let out : Array[Array[Double]] = Array(capacity=0)
   for j = 0; j < n - 1; j = j + 1 {
     let i = j + 1
@@ -200,13 +203,7 @@ pub fn skbio_gram_schmidt_basis(n : Int) -> Array[Array[Double]] {
     let s = (id / (id + 1.0)).sqrt()
     let row : Array[Double] = Array(capacity=0)
     for d = 0; d < n; d = d + 1 {
-      let v = if d <= j {
-        1.0 / id * s
-      } else if d == i {
-        0.0 - s
-      } else {
-        0.0
-      }
+      let v = if d <= j { 1.0 / id * s } else if d == i { 0.0 - s } else { 0.0 }
       row.push(v)
     }
     out.push(row)
@@ -217,7 +214,10 @@ pub fn skbio_gram_schmidt_basis(n : Int) -> Array[Array[Double]] {
 ///|
 /// Isometric log-ratio transform: ilr(x) = clr(x) · basisᵀ. `basis` is
 /// `(n-1) × n`; use `skbio_gram_schmidt_basis(n)` for the default basis.
-pub fn skbio_ilr(x : Array[Double], basis : Array[Array[Double]]) -> Array[Double] {
+pub fn skbio_ilr(
+  x : Array[Double],
+  basis : Array[Array[Double]],
+) -> Array[Double] {
   let c = skbio_clr(x)
   let out : Array[Double] = Array(capacity=0)
   for j = 0; j < basis.length(); j = j + 1 {
@@ -234,7 +234,10 @@ pub fn skbio_ilr(x : Array[Double], basis : Array[Array[Double]]) -> Array[Doubl
 ///|
 /// Inverse isometric log-ratio: ilr_inv(x) = clr_inv(x · basis). `x` is
 /// `(n-1)`-dimensional and `basis` is `(n-1) × n`.
-pub fn skbio_ilr_inv(x : Array[Double], basis : Array[Array[Double]]) -> Array[Double] {
+pub fn skbio_ilr_inv(
+  x : Array[Double],
+  basis : Array[Array[Double]],
+) -> Array[Double] {
   let n = basis[0].length()
   let comp : Array[Double] = Array(capacity=0)
   for d = 0; d < n; d = d + 1 {
@@ -248,7 +251,7 @@ pub fn skbio_ilr_inv(x : Array[Double], basis : Array[Array[Double]]) -> Array[D
 }
 
 ///|
-fn comp_col_gmean(mat : Array[Array[Double]], col : Int) -> Double {
+fn comp_col_gmean(mat : Array[Array[Double]], col : Int32) -> Double {
   let mut s = 0.0
   let mut n = 0.0
   for row in mat {

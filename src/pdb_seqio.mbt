@@ -98,7 +98,7 @@ fn one_to_three_aa(one_letter : String) -> String {
 
 ///|
 /// Left-pad `s` with `pad_char` to reach `width`.
-fn pdb_pad_left(s : String, width : Int, pad_char : Char) -> String {
+fn pdb_pad_left(s : String, width : Int32, pad_char : Char) -> String {
   let n = s.length()
   if n >= width {
     s
@@ -329,7 +329,7 @@ pub fn extract_sequence_from_pdb_lines(
   chain_id : String,
 ) -> String {
   let seq_buf = StringBuilder()
-  let mut prev_resseq : Int? = None
+  let mut prev_resseq : Int32? = None
   let mut prev_icode : Char = ' '
   for line in lines {
     let n = line.length()
@@ -379,7 +379,7 @@ pub fn extract_sequence_from_pdb_lines(
 /// `PdbSeqresParser`.
 pub fn pdb_to_seqrecords(
   content : String,
-  source? : String = "atom",
+  source~ : String = "atom",
 ) -> Array[SeqRecord] {
   let lower = source.to_lower()
   if lower == "seqres" {

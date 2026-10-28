@@ -1,7 +1,6 @@
 ///|
 /// Bio.phenotype Demo - Phenotype microarray analysis.
 /// Inspired by Biopython's Bio.phenotype package.
-
 fn main {
   println("=== Bio.phenotype Demo ===")
 
@@ -22,11 +21,18 @@ fn main {
     let max_sig = well.phen_max_signal()
     let area = well.phen_area()
     let slope = well.phen_max_slope()
-    println("   " + well.well_id +
-      ": points=" + well.phen_n_points().to_string() +
-      ", max_signal=" + max_sig.to_string() +
-      ", area=" + area.to_string() +
-      ", max_slope=" + slope.to_string())
+    println(
+      "   " +
+      well.well_id +
+      ": points=" +
+      well.phen_n_points().to_string() +
+      ", max_signal=" +
+      max_sig.to_string() +
+      ", area=" +
+      area.to_string() +
+      ", max_slope=" +
+      slope.to_string(),
+    )
     i = i + 1
   }
 
@@ -59,7 +65,9 @@ fn main {
   let preds = @bio.phen_predict(fit, times)
   let mut j = 0
   while j < times.length() {
-    println("   t=" + times[j].to_string() + " -> predicted=" + preds[j].to_string())
+    println(
+      "   t=" + times[j].to_string() + " -> predicted=" + preds[j].to_string(),
+    )
     j = j + 1
   }
 
@@ -78,7 +86,9 @@ fn main {
       }
       m = m + 1
     }
-    println("   " + sub.well_ids[k] + ": max_subtracted_signal=" + max_sub.to_string())
+    println(
+      "   " + sub.well_ids[k] + ": max_subtracted_signal=" + max_sub.to_string(),
+    )
     k = k + 1
   }
 
@@ -90,7 +100,14 @@ fn main {
   println("   Parsed plate: " + csv_plate.plate_id)
   println("   Wells: " + csv_plate.phen_n_wells().to_string())
   let csv_well = csv_plate.phen_get_well("A02").unwrap()
-  println("   A02 signals: " + csv_well.signals[0].to_string() + ", " + csv_well.signals[1].to_string() + ", " + csv_well.signals[2].to_string())
+  println(
+    "   A02 signals: " +
+    csv_well.signals[0].to_string() +
+    ", " +
+    csv_well.signals[1].to_string() +
+    ", " +
+    csv_well.signals[2].to_string(),
+  )
 
   // 8. Parse JSON data
   println("")

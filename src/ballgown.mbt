@@ -10,7 +10,7 @@ pub struct BgTranscript {
   gene_name : String
   chr : String
   strand : String
-  num_exons : Int
+  num_exons : Int32
   fpkm : Array[Double]
   cov : Array[Double]
 }
@@ -20,8 +20,8 @@ pub struct BgTranscript {
 pub struct BgExon {
   id : String
   chr : String
-  start : Int
-  end : Int
+  start : Int32
+  end : Int32
   strand : String
   transcript_ids : Array[String]
 }
@@ -31,8 +31,8 @@ pub struct BgExon {
 pub struct BgIntron {
   id : String
   chr : String
-  start : Int
-  end : Int
+  start : Int32
+  end : Int32
   strand : String
   transcript_ids : Array[String]
 }
@@ -45,7 +45,7 @@ pub fn BgTranscript::new(
   gene_name : String,
   chr : String,
   strand : String,
-  num_exons : Int,
+  num_exons : Int32,
   fpkm : Array[Double],
   cov : Array[Double],
 ) -> BgTranscript {
@@ -57,8 +57,8 @@ pub fn BgTranscript::new(
 pub fn BgExon::new(
   id : String,
   chr : String,
-  start : Int,
-  end : Int,
+  start : Int32,
+  end : Int32,
   strand : String,
   transcript_ids : Array[String],
 ) -> BgExon {
@@ -70,8 +70,8 @@ pub fn BgExon::new(
 pub fn BgIntron::new(
   id : String,
   chr : String,
-  start : Int,
-  end : Int,
+  start : Int32,
+  end : Int32,
   strand : String,
   transcript_ids : Array[String],
 ) -> BgIntron {
@@ -306,7 +306,7 @@ fn fdr_correct(pvalues : Array[Double]) -> Array[Double] {
     return []
   }
 
-  let indexed : Array[(Int, Double)] = []
+  let indexed : Array[(Int32, Double)] = []
   for i = 0; i < n; i = i + 1 {
     indexed.push((i, pvalues[i]))
   }
@@ -349,15 +349,15 @@ fn fdr_correct(pvalues : Array[Double]) -> Array[Double] {
 /// feature can be "transcript", "gene", "exon", or "intron".
 pub fn stattest(
   bg : Ballgown,
-  group : Array[Int],
-  feature? : String = "transcript",
+  group : Array[Int32],
+  feature~ : String = "transcript",
 ) -> Array[DeResult] {
   let results : Array[DeResult] = []
   let pvalues : Array[Double] = []
   let n_samples = bg.sample_names.length()
 
-  let group1_idx : Array[Int] = []
-  let group2_idx : Array[Int] = []
+  let group1_idx : Array[Int32] = []
+  let group2_idx : Array[Int32] = []
   for i = 0; i < n_samples; i = i + 1 {
     if group[i] == 0 {
       group1_idx.push(i)
@@ -571,7 +571,7 @@ pub fn gene_expression(bg : Ballgown, gene_id : String) -> Array[Double] {
 /// Filter transcripts by expression threshold.
 pub fn filter_low_expression(
   bg : Ballgown,
-  min_fpkm? : Double = 1.0,
+  min_fpkm~ : Double = 1.0,
 ) -> Ballgown {
   let filtered_transcripts : Array[BgTranscript] = []
   for t in bg.transcripts {
@@ -642,8 +642,8 @@ pub fn sample_ballgown() -> Ballgown {
       }
 
       let transcript_ids_for_features = [tx_id]
-      let tx_exon_starts : Array[Int] = []
-      let tx_exon_ends : Array[Int] = []
+      let tx_exon_starts : Array[Int32] = []
+      let tx_exon_ends : Array[Int32] = []
 
       for e = 0; e < num_exons; e = e + 1 {
         let exon_start = current_pos + e * 200

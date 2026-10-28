@@ -1,6 +1,5 @@
 ///|
 /// Tests for motif_matrix module (Bio.motifs.matrix).
-
 test "motif_pfm_from_sites basic counts" {
   let alphabet = ["A", "C", "G", "T"]
   let sites = ["ACGT", "ACGT", "ACGA"]
@@ -15,6 +14,7 @@ test "motif_pfm_from_sites basic counts" {
   assert_eq(pfm.counts[2][2], 3.0)
 }
 
+///|
 test "motif_pfm_to_ppm normalization" {
   let alphabet = ["A", "C", "G", "T"]
   let sites = ["ACGT", "ACGT", "ACGA"]
@@ -23,7 +23,10 @@ test "motif_pfm_to_ppm normalization" {
   // Each position should sum to 1.0
   let mut p = 0
   while p < 4 {
-    let sum = ppm.values[p][0] + ppm.values[p][1] + ppm.values[p][2] + ppm.values[p][3]
+    let sum = ppm.values[p][0] +
+      ppm.values[p][1] +
+      ppm.values[p][2] +
+      ppm.values[p][3]
     assert_true((sum - 1.0).abs() < 1.0e-9)
     p = p + 1
   }
@@ -31,6 +34,7 @@ test "motif_pfm_to_ppm normalization" {
   assert_true((ppm.values[0][0] - 1.0).abs() < 1.0e-9)
 }
 
+///|
 test "motif_pfm_to_ppm with pseudocount" {
   let alphabet = ["A", "C", "G", "T"]
   let sites = ["ACGT"]
@@ -42,6 +46,7 @@ test "motif_pfm_to_ppm with pseudocount" {
   assert_true((ppm.values[0][1] - 0.2).abs() < 1.0e-9)
 }
 
+///|
 test "motif_ppm_to_pwm log_odds" {
   let alphabet = ["A", "C", "G", "T"]
   let sites = ["AAAA", "AAAA", "AAAA", "AAAA"]
@@ -53,6 +58,7 @@ test "motif_ppm_to_pwm log_odds" {
   assert_true(pwm.values[0][1] < 0.0)
 }
 
+///|
 test "motif_pwm_to_pssm rounding" {
   let alphabet = ["A", "C", "G", "T"]
   let sites = ["ACGT", "ACGT", "ACGA"]
@@ -63,14 +69,21 @@ test "motif_pwm_to_pssm rounding" {
   assert_eq(pssm.scale, 100.0)
 }
 
+///|
 test "motif_build_pssm pipeline" {
   let alphabet = ["A", "C", "G", "T"]
   let sites = ["ACGTT", "ACGTT", "ACGTA"]
-  let pssm = @src.motif_build_pssm(alphabet, sites, pseudocount=1.0, scale=100.0)
+  let pssm = @src.motif_build_pssm(
+    alphabet,
+    sites,
+    pseudocount=1.0,
+    scale=100.0,
+  )
   assert_eq(pssm.values.length(), 5)
   assert_eq(pssm.alphabet.length(), 4)
 }
 
+///|
 test "motif_ppm_ic_per_position" {
   let alphabet = ["A", "C", "G", "T"]
   let sites = ["AAAA", "AAAA", "AAAA", "AAAA"]
@@ -81,6 +94,7 @@ test "motif_ppm_ic_per_position" {
   assert_true((ic[0] - 2.0).abs() < 1.0e-9)
 }
 
+///|
 test "motif_ppm_total_ic" {
   let alphabet = ["A", "C", "G", "T"]
   let sites = ["AAAA", "AAAA", "AAAA", "AAAA"]
@@ -91,6 +105,7 @@ test "motif_ppm_total_ic" {
   assert_true((total - 8.0).abs() < 1.0e-9)
 }
 
+///|
 test "motif_pwm_score sequence" {
   let alphabet = ["A", "C", "G", "T"]
   let sites = ["ACGT", "ACGT", "ACGT"]
@@ -101,14 +116,21 @@ test "motif_pwm_score sequence" {
   assert_true(score > 0.0)
 }
 
+///|
 test "motif_pssm_score integer" {
   let alphabet = ["A", "C", "G", "T"]
   let sites = ["ACGT", "ACGT", "ACGT"]
-  let pssm = @src.motif_build_pssm(alphabet, sites, pseudocount=1.0, scale=100.0)
+  let pssm = @src.motif_build_pssm(
+    alphabet,
+    sites,
+    pseudocount=1.0,
+    scale=100.0,
+  )
   let score = @src.motif_pssm_score(pssm, "ACGT")
   assert_true(score > 0)
 }
 
+///|
 test "motif_pwm_scan threshold" {
   let alphabet = ["A", "C", "G", "T"]
   let sites = ["ACGT", "ACGT", "ACGT"]
@@ -118,6 +140,7 @@ test "motif_pwm_scan threshold" {
   assert_true(hits.length() >= 1)
 }
 
+///|
 test "motif_ppm_consensus" {
   let alphabet = ["A", "C", "G", "T"]
   let sites = ["ACGT", "ACGT", "ACGA"]
@@ -127,6 +150,7 @@ test "motif_ppm_consensus" {
   assert_eq(cons, "ACGT")
 }
 
+///|
 test "motif_pwm_reverse_complement" {
   let alphabet = ["A", "C", "G", "T"]
   let sites = ["ACGT", "ACGT", "ACGT"]
@@ -137,12 +161,14 @@ test "motif_pwm_reverse_complement" {
   assert_eq(rc.alphabet.length(), 4)
 }
 
+///|
 test "motif_matrix_example" {
   let pwm = @src.motif_matrix_example()
   assert_eq(pwm.values.length(), 5)
   assert_eq(pwm.alphabet.length(), 4)
 }
 
+///|
 test "motif_pfm_to_string format" {
   let alphabet = ["A", "C", "G", "T"]
   let sites = ["ACGT", "ACGT"]

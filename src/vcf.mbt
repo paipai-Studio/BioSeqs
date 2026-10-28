@@ -19,7 +19,7 @@ pub struct VcfFixedHeader {
 /// VCF record.
 pub struct VcfRecord {
   chrom : String
-  pos : Int
+  pos : Int32
   mut id : Array[String]
   ref_seq : String
   alt : Array[String]
@@ -248,13 +248,13 @@ pub fn parse_vcf(content : String) -> VcfFile {
 
 ///|
 /// Get number of records in VCF file.
-pub fn VcfFile::len(self : VcfFile) -> Int {
+pub fn VcfFile::len(self : VcfFile) -> Int32 {
   self.records.length()
 }
 
 ///|
 /// Get number of meta headers.
-pub fn VcfFile::num_meta_headers(self : VcfFile) -> Int {
+pub fn VcfFile::num_meta_headers(self : VcfFile) -> Int32 {
   self.meta_headers.length()
 }
 
@@ -326,6 +326,7 @@ pub fn VcfRecord::get_genotype(
     None => None
   }
 }
+
 ///|
 fn join_str_array(arr : Array[String], sep : String) -> String {
   if arr.length() == 0 {
@@ -334,7 +335,7 @@ fn join_str_array(arr : Array[String], sep : String) -> String {
   let buf = StringBuilder()
   let mut first = true
   for v in arr {
-    if !(first) {
+    if !first {
       buf.write_string(sep)
     }
     buf.write_string(v)
@@ -360,18 +361,17 @@ fn vcf_format_info(info : Map[String, String]) -> String {
   let buf = StringBuilder()
   let mut first = true
   for k in info.keys() {
-    if !(first) {
+    if !first {
       buf.write_string(";")
     }
     buf.write_string(k)
     match info.get(k) {
       None => ()
-      Some(v) => {
+      Some(v) =>
         if v != "" {
           buf.write_string("=")
           buf.write_string(v)
         }
-      }
     }
     first = false
   }
@@ -404,7 +404,7 @@ fn vcf_format_record(rec : VcfRecord, sample_names : Array[String]) -> String {
   let buf = StringBuilder()
   let mut first = true
   for p in parts {
-    if !(first) {
+    if !first {
       buf.write_string("\t")
     }
     buf.write_string(p)
@@ -433,7 +433,7 @@ pub fn VcfFile::to_string(self : VcfFile) -> String {
       let mut hline = "#"
       let mut first = true
       for col in fh.columns {
-        if !(first) {
+        if !first {
           hline = hline + "\t"
         }
         hline = hline + col
@@ -452,7 +452,7 @@ pub fn VcfFile::to_string(self : VcfFile) -> String {
   let buf = StringBuilder()
   let mut first = true
   for l in lines {
-    if !(first) {
+    if !first {
       buf.write_string("\n")
     }
     buf.write_string(l)

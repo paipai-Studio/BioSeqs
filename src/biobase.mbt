@@ -31,12 +31,12 @@ pub fn ExpressionSet::new(
 }
 
 ///|
-pub fn expression_set_nrow(eset : ExpressionSet) -> Int {
+pub fn expression_set_nrow(eset : ExpressionSet) -> Int32 {
   eset.assay_data.length()
 }
 
 ///|
-pub fn expression_set_ncol(eset : ExpressionSet) -> Int {
+pub fn expression_set_ncol(eset : ExpressionSet) -> Int32 {
   if eset.assay_data.length() > 0 {
     eset.assay_data[0].length()
   } else {
@@ -107,8 +107,8 @@ pub fn expression_set_get_annotation(eset : ExpressionSet) -> String {
 ///|
 pub fn expression_set_subset(
   eset : ExpressionSet,
-  rows : Array[Int],
-  cols : Array[Int],
+  rows : Array[Int32],
+  cols : Array[Int32],
 ) -> ExpressionSet {
   let new_assay : Array[Array[Double]] = Array(capacity=0)
   let mut i = 0
@@ -190,7 +190,7 @@ pub fn expression_set_filter_by_row(
   eset : ExpressionSet,
   threshold : Double,
 ) -> ExpressionSet {
-  let keep_rows : Array[Int] = Array(capacity=0)
+  let keep_rows : Array[Int32] = Array(capacity=0)
   let mut i = 0
   while i < eset.assay_data.length() {
     let mut max_val = 0.0
@@ -207,7 +207,7 @@ pub fn expression_set_filter_by_row(
     i = i + 1
   }
   let ncols = expression_set_ncol(eset)
-  let cols : Array[Int] = Array(capacity=0)
+  let cols : Array[Int32] = Array(capacity=0)
   i = 0
   while i < ncols {
     cols.push(i)
@@ -369,7 +369,7 @@ pub fn AnnotatedDataFrame::new(
 }
 
 ///|
-pub fn annotated_data_frame_nrow(adf : AnnotatedDataFrame) -> Int {
+pub fn annotated_data_frame_nrow(adf : AnnotatedDataFrame) -> Int32 {
   let keys = adf.data.keys().collect()
   if keys.length() > 0 {
     adf.data[keys[0]].length()
@@ -379,7 +379,7 @@ pub fn annotated_data_frame_nrow(adf : AnnotatedDataFrame) -> Int {
 }
 
 ///|
-pub fn annotated_data_frame_ncol(adf : AnnotatedDataFrame) -> Int {
+pub fn annotated_data_frame_ncol(adf : AnnotatedDataFrame) -> Int32 {
   adf.data.keys().collect().length()
 }
 

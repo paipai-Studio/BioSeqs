@@ -21,14 +21,16 @@ fn _gs_eq(a : Double, b : Double) -> Bool {
   abs < 1.0e-6
 }
 
+///|
 fn _gs_assert(value : Double, expected : Double, label : String) -> Unit {
-  if !(_gs_eq(value, expected)) {
+  if !_gs_eq(value, expected) {
     abort("\{label}: expected \{expected}, got \{value}")
   }
 }
 
 // ─── Example graph sanity ──────────────────────────────────────────────
 
+///|
 test "gosemsim_example_graph_structure" {
   let g = @src.gosemsim_example_graph()
   assert_true(g.root_id == "GO:0008150")
@@ -46,6 +48,7 @@ test "gosemsim_example_graph_structure" {
   }
 }
 
+///|
 test "gosemsim_ancestors_include_self_and_parents" {
   let g = @src.gosemsim_example_graph()
   let anc = g.ancestors("GO:0006810")
@@ -55,10 +58,18 @@ test "gosemsim_ancestors_include_self_and_parents" {
   let mut has_parent = false
   let mut has_grandparent = false
   for a in anc {
-    if a == "GO:0006810" { has_self = true }
-    if a == "GO:0008150" { has_root = true }
-    if a == "GO:0009987" { has_parent = true }
-    if a == "GO:0050896" { has_grandparent = true }
+    if a == "GO:0006810" {
+      has_self = true
+    }
+    if a == "GO:0008150" {
+      has_root = true
+    }
+    if a == "GO:0009987" {
+      has_parent = true
+    }
+    if a == "GO:0050896" {
+      has_grandparent = true
+    }
   }
   assert_true(has_self)
   assert_true(has_root)
@@ -68,48 +79,60 @@ test "gosemsim_ancestors_include_self_and_parents" {
 
 // ─── Resnik measure (frozen) ───────────────────────────────────────────
 
+///|
 test "gosemsim_resnik_self" {
   // Resnik(term) = IC(MICA) = IC(term) when self-compare
   _gs_assert(
     @src.gosemsim_term_sim(
       @src.gosemsim_example_graph(),
-      "GO:0006810", "GO:0006810", @src.resnik_measure(),
+      "GO:0006810",
+      "GO:0006810",
+      @src.resnik_measure(),
     ),
     0.7,
     "Resnik transport vs self",
   )
 }
 
+///|
 test "gosemsim_resnik_parent_child" {
   // MICA of GO:0006810(0.7) and GO:0009987(0.5) is GO:0009987 with IC=0.5
   _gs_assert(
     @src.gosemsim_term_sim(
       @src.gosemsim_example_graph(),
-      "GO:0006810", "GO:0009987", @src.resnik_measure(),
+      "GO:0006810",
+      "GO:0009987",
+      @src.resnik_measure(),
     ),
     0.5,
     "Resnik parent-child",
   )
 }
 
+///|
 test "gosemsim_resnik_sibling_subtree" {
   // MICA of GO:0006810 and GO:0007165 is GO:0050896 with IC=0.3
   _gs_assert(
     @src.gosemsim_term_sim(
       @src.gosemsim_example_graph(),
-      "GO:0006810", "GO:0007165", @src.resnik_measure(),
+      "GO:0006810",
+      "GO:0007165",
+      @src.resnik_measure(),
     ),
     0.3,
     "Resnik sibling_subtree",
   )
 }
 
+///|
 test "gosemsim_resnik_no_common_ancestor" {
   // GO:0006810 vs GO:0010467 — MICA is root with IC=0.0
   _gs_assert(
     @src.gosemsim_term_sim(
       @src.gosemsim_example_graph(),
-      "GO:0006810", "GO:0010467", @src.resnik_measure(),
+      "GO:0006810",
+      "GO:0010467",
+      @src.resnik_measure(),
     ),
     0.0,
     "Resnik no_common_ancestor",
@@ -118,38 +141,47 @@ test "gosemsim_resnik_no_common_ancestor" {
 
 // ─── Lin measure (frozen) ─────────────────────────────────────────────
 
+///|
 test "gosemsim_lin_self" {
   // Lin(self) = 2*IC/(IC+IC) = 1.0
   _gs_assert(
     @src.gosemsim_term_sim(
       @src.gosemsim_example_graph(),
-      "GO:0006810", "GO:0006810", @src.lin_measure(),
+      "GO:0006810",
+      "GO:0006810",
+      @src.lin_measure(),
     ),
     1.0,
     "Lin self",
   )
 }
 
+///|
 test "gosemsim_lin_parent_child" {
   // MICA IC=0.5, ic1=0.7, ic2=0.5
   // Lin = 2*0.5/(0.7+0.5) = 1.0/1.2 = 0.8333333...
   _gs_assert(
     @src.gosemsim_term_sim(
       @src.gosemsim_example_graph(),
-      "GO:0006810", "GO:0009987", @src.lin_measure(),
+      "GO:0006810",
+      "GO:0009987",
+      @src.lin_measure(),
     ),
     0.8333333333,
     "Lin parent-child",
   )
 }
 
+///|
 test "gosemsim_lin_sibling_subtree" {
   // MICA IC=0.3, ic1=0.7, ic2=0.6
   // Lin = 2*0.3/(0.7+0.6) = 0.6/1.3 = 0.46153846...
   _gs_assert(
     @src.gosemsim_term_sim(
       @src.gosemsim_example_graph(),
-      "GO:0006810", "GO:0007165", @src.lin_measure(),
+      "GO:0006810",
+      "GO:0007165",
+      @src.lin_measure(),
     ),
     0.4615384615,
     "Lin sibling_subtree",
@@ -158,19 +190,23 @@ test "gosemsim_lin_sibling_subtree" {
 
 // ─── Rel (Schlicker) measure (frozen) ──────────────────────────────────
 
+///|
 test "gosemsim_rel_self" {
   // Rel(self) = Lin(self) * (1 - exp(-IC)) = 1.0 * (1 - exp(-0.7))
   // = 1 - 0.496585 = 0.503415
   _gs_assert(
     @src.gosemsim_term_sim(
       @src.gosemsim_example_graph(),
-      "GO:0006810", "GO:0006810", @src.rel_measure(),
+      "GO:0006810",
+      "GO:0006810",
+      @src.rel_measure(),
     ),
     0.5034146963,
     "Rel self",
   )
 }
 
+///|
 test "gosemsim_rel_parent_child" {
   // Lin = 0.833333, MICA_IC = 0.5
   // Rel = 0.833333 * (1 - exp(-0.5)) = 0.833333 * (1 - 0.606531)
@@ -178,13 +214,16 @@ test "gosemsim_rel_parent_child" {
   _gs_assert(
     @src.gosemsim_term_sim(
       @src.gosemsim_example_graph(),
-      "GO:0006810", "GO:0009987", @src.rel_measure(),
+      "GO:0006810",
+      "GO:0009987",
+      @src.rel_measure(),
     ),
     0.3278907433,
     "Rel parent-child",
   )
 }
 
+///|
 test "gosemsim_rel_sibling_subtree" {
   // Lin = 0.461538, MICA_IC = 0.3
   // Rel = 0.461538 * (1 - exp(-0.3)) = 0.461538 * (1 - 0.740818)
@@ -192,7 +231,9 @@ test "gosemsim_rel_sibling_subtree" {
   _gs_assert(
     @src.gosemsim_term_sim(
       @src.gosemsim_example_graph(),
-      "GO:0006810", "GO:0007165", @src.rel_measure(),
+      "GO:0006810",
+      "GO:0007165",
+      @src.rel_measure(),
     ),
     0.1196218694,
     "Rel sibling_subtree",
@@ -201,64 +242,79 @@ test "gosemsim_rel_sibling_subtree" {
 
 // ─── Jiang measure (frozen, IC-based canonical formula) ───────────────
 
+///|
 test "gosemsim_jiang_self" {
   // Jiang(self) = 1 - min(1, IC + IC - 2*IC) = 1 - 0 = 1.0
   _gs_assert(
     @src.gosemsim_term_sim(
       @src.gosemsim_example_graph(),
-      "GO:0006810", "GO:0006810", @src.jiang_measure(),
+      "GO:0006810",
+      "GO:0006810",
+      @src.jiang_measure(),
     ),
     1.0,
     "Jiang self",
   )
 }
 
+///|
 test "gosemsim_jiang_parent_child" {
   // MICA IC = 0.5, ic1 = 0.7, ic2 = 0.5
   // Jiang = 1 - min(1, 0.7+0.5-2*0.5) = 1 - 0.2 = 0.8
   _gs_assert(
     @src.gosemsim_term_sim(
       @src.gosemsim_example_graph(),
-      "GO:0006810", "GO:0009987", @src.jiang_measure(),
+      "GO:0006810",
+      "GO:0009987",
+      @src.jiang_measure(),
     ),
     0.8,
     "Jiang parent-child",
   )
 }
 
+///|
 test "gosemsim_jiang_sibling_subtree" {
   // MICA IC = 0.3, ic1 = 0.7, ic2 = 0.6
   // Jiang = 1 - min(1, 0.7+0.6-2*0.3) = 1 - 0.7 = 0.3
   _gs_assert(
     @src.gosemsim_term_sim(
       @src.gosemsim_example_graph(),
-      "GO:0006810", "GO:0007165", @src.jiang_measure(),
+      "GO:0006810",
+      "GO:0007165",
+      @src.jiang_measure(),
     ),
     0.3,
     "Jiang sibling_subtree",
   )
 }
 
+///|
 test "gosemsim_jiang_distant_root_mica" {
   // GO:0007165(0.6) vs GO:0010467(0.35) — MICA is root, IC=0
   // Jiang = 1 - min(1, 0.6+0.35-0) = 1 - 0.95 = 0.05
   _gs_assert(
     @src.gosemsim_term_sim(
       @src.gosemsim_example_graph(),
-      "GO:0007165", "GO:0010467", @src.jiang_measure(),
+      "GO:0007165",
+      "GO:0010467",
+      @src.jiang_measure(),
     ),
     0.05,
     "Jiang distant with root MICA",
   )
 }
 
+///|
 test "gosemsim_jiang_no_common_root_is_zero" {
   // GO:0006810 vs GO:0010467 — MICA is root, IC=0
   // delta = 0.7 + 0.35 - 0 = 1.05 > 1.0 → Jiang = 0
   _gs_assert(
     @src.gosemsim_term_sim(
       @src.gosemsim_example_graph(),
-      "GO:0006810", "GO:0010467", @src.jiang_measure(),
+      "GO:0006810",
+      "GO:0010467",
+      @src.jiang_measure(),
     ),
     0.0,
     "Jiang delta exceeds 1.0",
@@ -267,48 +323,60 @@ test "gosemsim_jiang_no_common_root_is_zero" {
 
 // ─── Wang measure (frozen, canonical SV propagation) ──────────────────
 
+///|
 test "gosemsim_wang_self" {
   _gs_assert(
     @src.gosemsim_term_sim(
       @src.gosemsim_example_graph(),
-      "GO:0006810", "GO:0006810", @src.wang_measure(),
+      "GO:0006810",
+      "GO:0006810",
+      @src.wang_measure(),
     ),
     1.0,
     "Wang self",
   )
 }
 
+///|
 test "gosemsim_wang_parent_child" {
   // GO:0006810(transport, depth 3) vs GO:0009987(cellular_process, depth 2)
   // SV propagation: is_a weight=0.8, topNode SV forced to 0
   _gs_assert(
     @src.gosemsim_term_sim(
       @src.gosemsim_example_graph(),
-      "GO:0006810", "GO:0009987", @src.wang_measure(),
+      "GO:0006810",
+      "GO:0009987",
+      @src.wang_measure(),
     ),
     0.7641509434,
     "Wang parent-child",
   )
 }
 
+///|
 test "gosemsim_wang_sibling_subtree" {
   // GO:0006810 vs GO:0007165 — MICA is GO:0050896 (depth 1)
   _gs_assert(
     @src.gosemsim_term_sim(
       @src.gosemsim_example_graph(),
-      "GO:0006810", "GO:0007165", @src.wang_measure(),
+      "GO:0006810",
+      "GO:0007165",
+      @src.wang_measure(),
     ),
     0.2622950820,
     "Wang sibling_subtree",
   )
 }
 
+///|
 test "gosemsim_wang_no_common_ancestor" {
   // GO:0006810 vs GO:0010467 — no common ancestors except root (SV=0)
   _gs_assert(
     @src.gosemsim_term_sim(
       @src.gosemsim_example_graph(),
-      "GO:0006810", "GO:0010467", @src.wang_measure(),
+      "GO:0006810",
+      "GO:0010467",
+      @src.wang_measure(),
     ),
     0.0,
     "Wang no_common_ancestor",
@@ -317,11 +385,14 @@ test "gosemsim_wang_no_common_ancestor" {
 
 // ─── Missing / invalid term handling ─────────────────────────────────
 
+///|
 test "gosemsim_missing_term_returns_zero" {
   _gs_assert(
     @src.gosemsim_term_sim(
       @src.gosemsim_example_graph(),
-      "GO:9999999", "GO:0006810", @src.resnik_measure(),
+      "GO:9999999",
+      "GO:0006810",
+      @src.resnik_measure(),
     ),
     0.0,
     "missing term Resnik",
@@ -329,7 +400,9 @@ test "gosemsim_missing_term_returns_zero" {
   _gs_assert(
     @src.gosemsim_term_sim(
       @src.gosemsim_example_graph(),
-      "GO:9999999", "GO:0006810", @src.wang_measure(),
+      "GO:9999999",
+      "GO:0006810",
+      @src.wang_measure(),
     ),
     0.0,
     "missing term Wang",
@@ -338,6 +411,7 @@ test "gosemsim_missing_term_returns_zero" {
 
 // ─── Gene-level sim (combine methods) ─────────────────────────────────
 
+///|
 test "gosemsim_gen_sim_max" {
   let g = @src.gosemsim_example_graph()
   let go1 = ["GO:0006810", "GO:0007165"]
@@ -353,6 +427,7 @@ test "gosemsim_gen_sim_max" {
   )
 }
 
+///|
 test "gosemsim_gen_sim_avg" {
   let g = @src.gosemsim_example_graph()
   let go1 = ["GO:0006810", "GO:0007165"]
@@ -365,6 +440,7 @@ test "gosemsim_gen_sim_avg" {
   )
 }
 
+///|
 test "gosemsim_gen_sim_rcmax" {
   let g = @src.gosemsim_example_graph()
   let go1 = ["GO:0006810", "GO:0007165"]
@@ -382,6 +458,7 @@ test "gosemsim_gen_sim_rcmax" {
   )
 }
 
+///|
 test "gosemsim_gen_sim_bma" {
   let g = @src.gosemsim_example_graph()
   let go1 = ["GO:0006810", "GO:0007165"]
@@ -399,22 +476,32 @@ test "gosemsim_gen_sim_bma" {
   )
 }
 
+///|
 test "gosemsim_gen_sim_rcmax_eq" {
   let g = @src.gosemsim_example_graph()
   let go1 = ["GO:0006810", "GO:0007165"]
   let go2 = ["GO:0006810", "GO:0009987"]
   // BMA and rcmax.avg should be identical
   let bma = @src.gosemsim_gen_sim(
-    g, go1, go2, @src.resnik_measure(), combine="BMA",
+    g,
+    go1,
+    go2,
+    @src.resnik_measure(),
+    combine="BMA",
   )
   let rcmax_avg = @src.gosemsim_gen_sim(
-    g, go1, go2, @src.resnik_measure(), combine="rcmax.avg",
+    g,
+    go1,
+    go2,
+    @src.resnik_measure(),
+    combine="rcmax.avg",
   )
   assert_true(_gs_eq(bma, rcmax_avg))
 }
 
 // ─── Gene-level with Lin (different measure) ───────────────────────────
 
+///|
 test "gosemsim_gen_sim_lin_bma" {
   let g = @src.gosemsim_example_graph()
   let go1 = ["GO:0006810", "GO:0007165"]
@@ -436,16 +523,13 @@ test "gosemsim_gen_sim_lin_bma" {
 
 // ─── GOGraph operations ────────────────────────────────────────────────
 
+///|
 test "gosemsim_graph_add_term_updates_children" {
   let g = @src.GOGraph::new()
   let g1 = g.add_root("T:ROOT")
   let g2 = g1.add_term(@src.GOTermNode::new("T:ROOT", ic=0.0))
-  let g3 = g2.add_term(
-    @src.GOTermNode::new("T:A", ic=0.5, parents=["T:ROOT"]),
-  )
-  let g4 = g3.add_term(
-    @src.GOTermNode::new("T:B", ic=0.8, parents=["T:A"]),
-  )
+  let g3 = g2.add_term(@src.GOTermNode::new("T:A", ic=0.5, parents=["T:ROOT"]))
+  let g4 = g3.add_term(@src.GOTermNode::new("T:B", ic=0.8, parents=["T:A"]))
   match g4.get_term("T:A") {
     Some(term) => {
       assert_true(term.children.length() == 1)
@@ -457,6 +541,7 @@ test "gosemsim_graph_add_term_updates_children" {
 
 // ─── Measure constructors return correct variant ───────────────────────
 
+///|
 test "gosemsim_measure_constructors" {
   assert_true(@src.resnik_measure() == @src.resnik_measure())
   assert_true(@src.lin_measure() == @src.lin_measure())

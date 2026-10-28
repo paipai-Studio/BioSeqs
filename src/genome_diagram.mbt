@@ -78,11 +78,11 @@ pub struct DiagramStyle {
 
 ///|
 pub fn DiagramStyle::new(
-  circular? : Bool = false,
-  linear? : Bool = true,
-  scale? : Double = 1.0,
-  border? : Bool = true,
-  color_scheme? : String = "default",
+  circular~ : Bool = false,
+  linear~ : Bool = true,
+  scale~ : Double = 1.0,
+  border~ : Bool = true,
+  color_scheme~ : String = "default",
 ) -> DiagramStyle {
   DiagramStyle::{ circular, linear, scale, border, color_scheme, }
 }
@@ -146,35 +146,35 @@ pub fn DiagramStyle::set_color_scheme(
 ///|
 /// DiagramFeature: a feature on the diagram (nucleotide level).
 pub struct DiagramFeature {
-  start : Int
-  end : Int
+  start : Int32
+  end : Int32
   strand : String
   label : String
   color : String
   shape : FeatureShape
-  depth : Int
+  depth : Int32
 }
 
 ///|
 pub fn DiagramFeature::new(
-  start : Int,
-  end : Int,
-  strand? : String = "+",
-  label? : String = "",
-  color? : String = "#45B7D1",
-  shape? : FeatureShape = Rectangle,
-  depth? : Int = 0,
+  start : Int32,
+  end : Int32,
+  strand~ : String = "+",
+  label~ : String = "",
+  color~ : String = "#45B7D1",
+  shape~ : FeatureShape = Rectangle,
+  depth~ : Int32 = 0,
 ) -> DiagramFeature {
   DiagramFeature::{ start, end, strand, label, color, shape, depth, }
 }
 
 ///|
-pub fn DiagramFeature::start(self : DiagramFeature) -> Int {
+pub fn DiagramFeature::start(self : DiagramFeature) -> Int32 {
   self.start
 }
 
 ///|
-pub fn DiagramFeature::end(self : DiagramFeature) -> Int {
+pub fn DiagramFeature::end(self : DiagramFeature) -> Int32 {
   self.end
 }
 
@@ -199,7 +199,7 @@ pub fn DiagramFeature::shape(self : DiagramFeature) -> FeatureShape {
 }
 
 ///|
-pub fn DiagramFeature::depth(self : DiagramFeature) -> Int {
+pub fn DiagramFeature::depth(self : DiagramFeature) -> Int32 {
   self.depth
 }
 
@@ -222,7 +222,7 @@ pub fn DiagramFeature::with_label(
 ///|
 pub fn DiagramFeature::with_depth(
   self : DiagramFeature,
-  depth : Int,
+  depth : Int32,
 ) -> DiagramFeature {
   DiagramFeature::{ ..self, depth, }
 }
@@ -230,14 +230,14 @@ pub fn DiagramFeature::with_depth(
 ///|
 pub fn DiagramFeature::overlaps(
   self : DiagramFeature,
-  start : Int,
-  end : Int,
+  start : Int32,
+  end : Int32,
 ) -> Bool {
   self.start < end && self.end > start
 }
 
 ///|
-pub fn DiagramFeature::length(self : DiagramFeature) -> Int {
+pub fn DiagramFeature::length(self : DiagramFeature) -> Int32 {
   let diff = self.end - self.start
   if diff > 0 {
     diff
@@ -249,8 +249,8 @@ pub fn DiagramFeature::length(self : DiagramFeature) -> Int {
 ///|
 /// TrackFeature: a feature belonging to a track (amino acid level).
 pub struct TrackFeature {
-  start : Int
-  end : Int
+  start : Int32
+  end : Int32
   strand : String
   label : String
   color : String
@@ -259,23 +259,23 @@ pub struct TrackFeature {
 
 ///|
 pub fn TrackFeature::new(
-  start : Int,
-  end : Int,
-  strand? : String = "+",
-  label? : String = "",
-  color? : String = "#FF6B6B",
-  shape? : FeatureShape = Rectangle,
+  start : Int32,
+  end : Int32,
+  strand~ : String = "+",
+  label~ : String = "",
+  color~ : String = "#FF6B6B",
+  shape~ : FeatureShape = Rectangle,
 ) -> TrackFeature {
   TrackFeature::{ start, end, strand, label, color, shape, }
 }
 
 ///|
-pub fn TrackFeature::start(self : TrackFeature) -> Int {
+pub fn TrackFeature::start(self : TrackFeature) -> Int32 {
   self.start
 }
 
 ///|
-pub fn TrackFeature::end(self : TrackFeature) -> Int {
+pub fn TrackFeature::end(self : TrackFeature) -> Int32 {
   self.end
 }
 
@@ -316,7 +316,7 @@ pub fn TrackFeature::with_label(
 }
 
 ///|
-pub fn TrackFeature::length(self : TrackFeature) -> Int {
+pub fn TrackFeature::length(self : TrackFeature) -> Int32 {
   let diff = self.end - self.start
   if diff > 0 {
     diff
@@ -337,8 +337,8 @@ pub struct Track {
 ///|
 pub fn Track::new(
   name : String,
-  is_labeled? : Bool = true,
-  color_scheme? : String = "default",
+  is_labeled~ : Bool = true,
+  color_scheme~ : String = "default",
 ) -> Track {
   Track::{ name, features: [], is_labeled, color_scheme, }
 }
@@ -364,7 +364,7 @@ pub fn Track::color_scheme(self : Track) -> String {
 }
 
 ///|
-pub fn Track::feature_count(self : Track) -> Int {
+pub fn Track::feature_count(self : Track) -> Int32 {
   self.features.length()
 }
 
@@ -394,13 +394,13 @@ pub struct Diagram {
   tracks : Array[Track]
   features : Array[DiagramFeature]
   name : String
-  start : Int
-  end : Int
+  start : Int32
+  end : Int32
   style : DiagramStyle
 }
 
 ///|
-pub fn Diagram::new(name : String, start : Int, end : Int) -> Diagram {
+pub fn Diagram::new(name : String, start : Int32, end : Int32) -> Diagram {
   Diagram::{
     tracks: [],
     features: [],
@@ -417,12 +417,12 @@ pub fn Diagram::name(self : Diagram) -> String {
 }
 
 ///|
-pub fn Diagram::start(self : Diagram) -> Int {
+pub fn Diagram::start(self : Diagram) -> Int32 {
   self.start
 }
 
 ///|
-pub fn Diagram::end(self : Diagram) -> Int {
+pub fn Diagram::end(self : Diagram) -> Int32 {
   self.end
 }
 
@@ -442,7 +442,7 @@ pub fn Diagram::features(self : Diagram) -> Array[DiagramFeature] {
 }
 
 ///|
-pub fn Diagram::length(self : Diagram) -> Int {
+pub fn Diagram::length(self : Diagram) -> Int32 {
   let diff = self.end - self.start
   if diff > 0 {
     diff
@@ -452,12 +452,12 @@ pub fn Diagram::length(self : Diagram) -> Int {
 }
 
 ///|
-pub fn Diagram::track_count(self : Diagram) -> Int {
+pub fn Diagram::track_count(self : Diagram) -> Int32 {
   self.tracks.length()
 }
 
 ///|
-pub fn Diagram::feature_count(self : Diagram) -> Int {
+pub fn Diagram::feature_count(self : Diagram) -> Int32 {
   let mut count = self.features.length()
   for track in self.tracks {
     count = count + track.feature_count()
@@ -484,8 +484,8 @@ pub fn Diagram::add_track(self : Diagram, track_name : String) -> Diagram {
 ///|
 pub fn Diagram::add_feature_to_diagram(
   self : Diagram,
-  start : Int,
-  end : Int,
+  start : Int32,
+  end : Int32,
   strand : String,
   label : String,
   shape : FeatureShape,
@@ -503,8 +503,8 @@ pub fn Diagram::add_feature_to_diagram(
 pub fn Diagram::add_feature_to_track(
   self : Diagram,
   track_name : String,
-  start : Int,
-  end : Int,
+  start : Int32,
+  end : Int32,
   strand : String,
   label : String,
 ) -> Diagram {
@@ -536,8 +536,8 @@ pub fn Diagram::get_track_features(
 ///|
 pub fn Diagram::find_overlapping(
   self : Diagram,
-  start : Int,
-  end : Int,
+  start : Int32,
+  end : Int32,
 ) -> Array[DiagramFeature] {
   let result : Array[DiagramFeature] = []
   for feature in self.features {
@@ -549,7 +549,10 @@ pub fn Diagram::find_overlapping(
 }
 
 ///|
-pub fn Diagram::label_features_auto(self : Diagram, min_size : Int) -> Diagram {
+pub fn Diagram::label_features_auto(
+  self : Diagram,
+  min_size : Int32,
+) -> Diagram {
   let new_features : Array[DiagramFeature] = []
   for feature in self.features {
     let f = if feature.length() > min_size && feature.label() == "" {
@@ -563,7 +566,7 @@ pub fn Diagram::label_features_auto(self : Diagram, min_size : Int) -> Diagram {
 }
 
 ///|
-pub fn Diagram::to_svg(self : Diagram, width : Int, height : Int) -> String {
+pub fn Diagram::to_svg(self : Diagram, width : Int32, height : Int32) -> String {
   let len = self.length()
   if len == 0 {
     return ""
@@ -873,7 +876,7 @@ pub fn Diagram::to_svg(self : Diagram, width : Int, height : Int) -> String {
 
 ///|
 /// Create a new diagram with the given name and coordinate range.
-pub fn gd_create_diagram(name : String, start : Int, end : Int) -> Diagram {
+pub fn gd_create_diagram(name : String, start : Int32, end : Int32) -> Diagram {
   Diagram::new(name, start, end)
 }
 
@@ -887,8 +890,8 @@ pub fn gd_add_track(diagram : Diagram, track_name : String) -> Diagram {
 /// Add a diagram-level feature to the diagram.
 pub fn gd_add_feature(
   diagram : Diagram,
-  start : Int,
-  end : Int,
+  start : Int32,
+  end : Int32,
   strand : String,
   label : String,
   shape : FeatureShape,
@@ -901,8 +904,8 @@ pub fn gd_add_feature(
 pub fn gd_add_track_feature(
   diagram : Diagram,
   track_name : String,
-  start : Int,
-  end : Int,
+  start : Int32,
+  end : Int32,
   strand : String,
   label : String,
 ) -> Diagram {
@@ -928,33 +931,37 @@ pub fn gd_get_features(
 /// Find all diagram features overlapping the given range.
 pub fn gd_find_overlapping_features(
   diagram : Diagram,
-  start : Int,
-  end : Int,
+  start : Int32,
+  end : Int32,
 ) -> Array[DiagramFeature] {
   diagram.find_overlapping(start, end)
 }
 
 ///|
 /// Get the length of the diagram (end - start).
-pub fn gd_diagram_length(diagram : Diagram) -> Int {
+pub fn gd_diagram_length(diagram : Diagram) -> Int32 {
   diagram.length()
 }
 
 ///|
 /// Get the number of tracks in the diagram.
-pub fn gd_track_count(diagram : Diagram) -> Int {
+pub fn gd_track_count(diagram : Diagram) -> Int32 {
   diagram.track_count()
 }
 
 ///|
 /// Get the total number of features in the diagram.
-pub fn gd_feature_count(diagram : Diagram) -> Int {
+pub fn gd_feature_count(diagram : Diagram) -> Int32 {
   diagram.feature_count()
 }
 
 ///|
 /// Generate an SVG string representation of the diagram.
-pub fn gd_to_svg_string(diagram : Diagram, width : Int, height : Int) -> String {
+pub fn gd_to_svg_string(
+  diagram : Diagram,
+  width : Int32,
+  height : Int32,
+) -> String {
   diagram.to_svg(width, height)
 }
 
@@ -969,6 +976,6 @@ pub fn gd_set_feature_color(
 
 ///|
 /// Auto-label features larger than min_size that have no label.
-pub fn gd_label_features(diagram : Diagram, min_size : Int) -> Diagram {
+pub fn gd_label_features(diagram : Diagram, min_size : Int32) -> Diagram {
   diagram.label_features_auto(min_size)
 }

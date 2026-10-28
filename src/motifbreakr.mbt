@@ -15,7 +15,11 @@ pub(all) enum MotifbreakrEffect {
   Loss
   Neutral
 } derive(Eq, Debug)
+
+///|
 pub extend MotifbreakrEffect with Eq::{equal, not_equal}
+
+///|
 pub extend MotifbreakrEffect with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -23,21 +27,23 @@ pub extend MotifbreakrEffect with @moonbitlang/core/debug.Debug::{to_repr}
 pub struct MotifbreakrVariant {
   name : String
   chrom : String
-  position : Int
+  position : Int32
   ref_allele : String
   alt_allele : String
 } derive(Eq)
+
+///|
 pub extend MotifbreakrVariant with Eq::{equal, not_equal}
 
 ///|
 pub fn MotifbreakrVariant::new(
   name~ : String = "",
   chrom~ : String = "chr1",
-  position~ : Int,
+  position~ : Int32,
   ref_allele~ : String,
   alt_allele~ : String,
 ) -> MotifbreakrVariant {
-  MotifbreakrVariant::{ name, chrom, position, ref_allele, alt_allele }
+  MotifbreakrVariant::{ name, chrom, position, ref_allele, alt_allele, }
 }
 
 ///|
@@ -46,18 +52,20 @@ pub struct MotifbreakrResult {
   variant_name : String
   motif_name : String
   chrom : String
-  position : Int
+  position : Int32
   ref_score : Double
   alt_score : Double
   delta : Double
   effect : MotifbreakrEffect
   strand : String
 } derive(Eq)
+
+///|
 pub extend MotifbreakrResult with Eq::{equal, not_equal}
 
 ///|
 /// Index of a nucleotide in A,C,G,T ordering; returns -1 for non-ACGT.
-fn motifbreakr_base_idx(c : String) -> Int {
+fn motifbreakr_base_idx(c : String) -> Int32 {
   match c {
     "A" => 0
     "C" => 1
@@ -148,8 +156,8 @@ fn motifbreakr_pssm(
 fn motifbreakr_score_window(
   pssm : Array[Array[Double]],
   seq : String,
-  start : Int,
-  width : Int,
+  start : Int32,
+  width : Int32,
 ) -> Double {
   let mut total = 0.0
   for j in 0..<width {
@@ -166,7 +174,7 @@ fn motifbreakr_score_window(
 ///|
 /// Substitute `allele` at `pos` (0-based) in `seq`, returning a new
 /// string.  `pos` is the start position of the allele in the sequence.
-fn motifbreakr_substitute(seq : String, pos : Int, allele : String) -> String {
+fn motifbreakr_substitute(seq : String, pos : Int32, allele : String) -> String {
   let before = seq[0:pos].to_owned()
   let after = seq[pos + 1:].to_owned()
   before + allele + after
@@ -210,12 +218,8 @@ fn motifbreakr_eval_one(
     let alt_s = motifbreakr_score_window(pssm, alt_seq, w, width)
     let delta = alt_s - ref_s
     let abs_delta = if delta < 0.0 { 0.0 - delta } else { delta }
-    let abs_best = if best_delta < 0.0 {
-      0.0 - best_delta
-    } else {
-      best_delta
-    }
-    if abs_delta > abs_best || !(found) {
+    let abs_best = if best_delta < 0.0 { 0.0 - best_delta } else { best_delta }
+    if abs_delta > abs_best || !found {
       best_delta = delta
       best_ref = ref_s
       best_alt = alt_s
@@ -223,29 +227,27 @@ fn motifbreakr_eval_one(
       found = true
     }
   }
-  if !(found) {
+  if !found {
     return None
   }
   let effect = if best_delta > threshold {
     MotifbreakrEffect::Gain
-  } else if best_delta < (0.0 - threshold) {
+  } else if best_delta < 0.0 - threshold {
     MotifbreakrEffect::Loss
   } else {
     MotifbreakrEffect::Neutral
   }
-  Some(
-    MotifbreakrResult::{
-      variant_name: variant.name,
-      motif_name,
-      chrom: variant.chrom,
-      position: variant.position,
-      ref_score: best_ref,
-      alt_score: best_alt,
-      delta: best_delta,
-      effect,
-      strand: best_strand,
-    },
-  )
+  Some(MotifbreakrResult::{
+    variant_name: variant.name,
+    motif_name,
+    chrom: variant.chrom,
+    position: variant.position,
+    ref_score: best_ref,
+    alt_score: best_alt,
+    delta: best_delta,
+    effect,
+    strand: best_strand,
+  })
 }
 
 ///|
@@ -266,17 +268,15 @@ pub fn motif_break(
   for variant in variants {
     let seq = sequences.get(variant.chrom)
     match seq {
-      Some(s) => {
+      Some(s) =>
         for motif_idx in 0..<motifs.length() {
           let (motif_name, pwm) = motifs[motif_idx]
-          match motifbreakr_eval_one(
-            variant, motif_name, pwm, s, bg, threshold~,
-          ) {
+          match
+            motifbreakr_eval_one(variant, motif_name, pwm, s, bg, threshold~) {
             Some(r) => results.push(r)
             None => ()
           }
         }
-      }
       None => ()
     }
   }

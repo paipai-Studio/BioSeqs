@@ -29,7 +29,7 @@ pub fn bwt(s : String) -> String {
   let text = s + "$"
   let n = text.length()
   // Build suffix array (indices of rotation start positions).
-  let sa : Array[Int] = Array(capacity=0)
+  let sa : Array[Int32] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {
     sa.push(i)
   }
@@ -93,7 +93,7 @@ pub fn bwt_inverse(bwt_str : String) -> String {
 
 ///|
 /// Sort suffix array indices by their rotation text.
-fn bwt_suffix_sort(sa : Array[Int], text : String, n : Int) -> Unit {
+fn bwt_suffix_sort(sa : Array[Int32], text : String, n : Int32) -> Unit {
   for i = 0; i < n; i = i + 1 {
     let mut min_idx = i
     for j = i + 1; j < n; j = j + 1 {
@@ -109,7 +109,7 @@ fn bwt_suffix_sort(sa : Array[Int], text : String, n : Int) -> Unit {
 
 ///|
 /// Compare two suffixes starting at positions a and b.
-fn bwt_compare_suffix(a : Int, b : Int, text : String, n : Int) -> Int {
+fn bwt_compare_suffix(a : Int32, b : Int32, text : String, n : Int32) -> Int32 {
   for i = 0; i < n; i = i + 1 {
     let ca = text.unsafe_get((a + i) % n).unsafe_to_char()
     let cb = text.unsafe_get((b + i) % n).unsafe_to_char()
@@ -125,7 +125,7 @@ fn bwt_compare_suffix(a : Int, b : Int, text : String, n : Int) -> Int {
 ///|
 /// Compute rank of character c up to (and including) position pos in s.
 /// If pos < 0, returns 0.
-fn bwt_rank_up_to(s : String, c : Char, pos : Int) -> Int {
+fn bwt_rank_up_to(s : String, c : Char, pos : Int32) -> Int32 {
   if pos < 0 {
     return 0
   }
@@ -142,9 +142,9 @@ fn bwt_rank_up_to(s : String, c : Char, pos : Int) -> Int {
 ///|
 /// Compute C-table: for each character c, C[c] = number of characters
 /// lexicographically smaller than c.
-fn bwt_compute_c_table(bwt_str : String) -> Map[Char, Int] {
+fn bwt_compute_c_table(bwt_str : String) -> Map[Char, Int32] {
   // Count occurrences of each character.
-  let counts : Map[Char, Int] = Map([], capacity=0)
+  let counts : Map[Char, Int32] = Map([], capacity=0)
   for i = 0; i < bwt_str.length(); i = i + 1 {
     let c = bwt_str.unsafe_get(i).unsafe_to_char()
     match counts.get(c) {
@@ -169,7 +169,7 @@ fn bwt_compute_c_table(bwt_str : String) -> Map[Char, Int] {
     }
   }
   // Build C-table.
-  let c_table : Map[Char, Int] = Map([], capacity=0)
+  let c_table : Map[Char, Int32] = Map([], capacity=0)
   let mut cumulative = 0
   for i = 0; i < chars.length(); i = i + 1 {
     c_table[chars[i]] = cumulative
@@ -196,10 +196,10 @@ fn bwt_compute_c_table(bwt_str : String) -> Map[Char, Int] {
 /// - Suffix array (stored explicitly for accurate locate)
 pub struct FMIndex {
   bwt_str : String
-  c_table : Map[Char, Int]
-  occ : Map[Char, Array[Int]]
-  sa : Array[Int]
-  text_len : Int
+  c_table : Map[Char, Int32]
+  occ : Map[Char, Array[Int32]]
+  sa : Array[Int32]
+  text_len : Int32
 }
 
 ///|
@@ -212,18 +212,18 @@ pub fn FMIndex::new(text : String) -> FMIndex {
   let c_table = bwt_compute_c_table(bwt_str)
   // Build suffix array.
   let t = text + "$"
-  let sa_arr : Array[Int] = Array(capacity=0)
+  let sa_arr : Array[Int32] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {
     sa_arr.push(i)
   }
   bwt_suffix_sort(sa_arr, t, n)
   // Build full occurrence table:
   // occ[c][i] = number of occurrences of c in bwt[0..i] (inclusive)
-  let occ : Map[Char, Array[Int]] = Map([], capacity=0)
+  let occ : Map[Char, Array[Int32]] = Map([], capacity=0)
   let chars = c_table.keys().collect()
   for ci = 0; ci < chars.length(); ci = ci + 1 {
     let c = chars[ci]
-    let arr : Array[Int] = Array(capacity=0)
+    let arr : Array[Int32] = Array(capacity=0)
     let mut count = 0
     for i = 0; i < n; i = i + 1 {
       if bwt_str.unsafe_get(i).unsafe_to_char() == c {
@@ -244,7 +244,7 @@ pub fn FMIndex::bwt(self : FMIndex) -> String {
 
 ///|
 /// Get the length of the original text (including sentinel).
-pub fn FMIndex::len(self : FMIndex) -> Int {
+pub fn FMIndex::len(self : FMIndex) -> Int32 {
   self.text_len
 }
 
@@ -252,7 +252,7 @@ pub fn FMIndex::len(self : FMIndex) -> Int {
 /// Count the number of exact occurrences of `pattern` in the text.
 ///
 /// Uses backward search on the FM-index.
-pub fn FMIndex::count(self : FMIndex, pattern : String) -> Int {
+pub fn FMIndex::count(self : FMIndex, pattern : String) -> Int32 {
   let (l, r) = fm_backward_search_fn(self, pattern)
   if l > r {
     0
@@ -266,9 +266,9 @@ pub fn FMIndex::count(self : FMIndex, pattern : String) -> Int {
 ///
 /// Returns an array of starting positions (0-based) in the original text.
 /// Positions are sorted.
-pub fn FMIndex::locate(self : FMIndex, pattern : String) -> Array[Int] {
+pub fn FMIndex::locate(self : FMIndex, pattern : String) -> Array[Int32] {
   let (l, r) = fm_backward_search_fn(self, pattern)
-  let result : Array[Int] = Array(capacity=0)
+  let result : Array[Int32] = Array(capacity=0)
   if l > r {
     return result
   }
@@ -293,7 +293,7 @@ pub fn FMIndex::locate(self : FMIndex, pattern : String) -> Array[Int] {
 ///
 /// Given a position `i` in the BWT (last column), returns the
 /// corresponding position in the first column.
-pub fn FMIndex::lf(self : FMIndex, i : Int) -> Int {
+pub fn FMIndex::lf(self : FMIndex, i : Int32) -> Int32 {
   if i < 0 || i >= self.bwt_str.length() {
     return i
   }
@@ -313,7 +313,7 @@ pub fn FMIndex::lf(self : FMIndex, i : Int) -> Int {
 ///|
 /// Backward search: find the SA interval [l, r] containing all
 /// occurrences of `pattern`.
-fn fm_backward_search_fn(fm : FMIndex, pattern : String) -> (Int, Int) {
+fn fm_backward_search_fn(fm : FMIndex, pattern : String) -> (Int32, Int32) {
   let mut l = 0
   let mut r = fm.text_len - 1
   let mut i = pattern.length() - 1
@@ -346,8 +346,6 @@ fn fm_backward_search_fn(fm : FMIndex, pattern : String) -> (Int, Int) {
   (l, r)
 }
 
-
-
 // ---------------------------------------------------------------------------
 // Suffix array construction (explicit, for reference)
 // ---------------------------------------------------------------------------
@@ -358,10 +356,10 @@ fn fm_backward_search_fn(fm : FMIndex, pattern : String) -> (Int, Int) {
 /// The sentinel '$' is appended automatically.
 /// Returns an array of indices such that sa[i] is the starting position
 /// of the i-th lexicographically smallest suffix.
-pub fn suffix_array(text : String) -> Array[Int] {
+pub fn suffix_array(text : String) -> Array[Int32] {
   let t = text + "$"
   let n = t.length()
-  let sa : Array[Int] = Array(capacity=0)
+  let sa : Array[Int32] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {
     sa.push(i)
   }

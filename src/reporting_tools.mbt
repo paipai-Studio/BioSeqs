@@ -55,7 +55,7 @@ pub struct ReportSection {
   title : String
   content : String
   children : Array[ReportSection]
-  level : Int
+  level : Int32
 }
 
 ///|
@@ -223,13 +223,13 @@ pub fn ReportDocument::get_author(doc : ReportDocument) -> String {
 
 ///|
 /// Get the number of sections.
-pub fn ReportDocument::get_n_sections(doc : ReportDocument) -> Int {
+pub fn ReportDocument::get_n_sections(doc : ReportDocument) -> Int32 {
   doc.sections.length()
 }
 
 ///|
 /// Get the number of tables.
-pub fn ReportDocument::get_n_tables(doc : ReportDocument) -> Int {
+pub fn ReportDocument::get_n_tables(doc : ReportDocument) -> Int32 {
   doc.tables.length()
 }
 
@@ -291,7 +291,7 @@ pub fn ReportTable::get_column_names(table : ReportTable) -> Array[String] {
 
 ///|
 /// Get number of rows in a table.
-pub fn ReportTable::get_n_rows(table : ReportTable) -> Int {
+pub fn ReportTable::get_n_rows(table : ReportTable) -> Int32 {
   if table.columns.length() == 0 {
     0
   } else {
@@ -301,12 +301,12 @@ pub fn ReportTable::get_n_rows(table : ReportTable) -> Int {
 
 ///|
 /// Get number of columns.
-pub fn ReportTable::get_n_columns(table : ReportTable) -> Int {
+pub fn ReportTable::get_n_columns(table : ReportTable) -> Int32 {
   table.columns.length()
 }
 
 ///|
-fn rt_pad_right(s : String, width : Int) -> String {
+fn rt_pad_right(s : String, width : Int32) -> String {
   if s.length() >= width {
     s[0:width].to_owned()
   } else {
@@ -321,7 +321,7 @@ fn rt_pad_right(s : String, width : Int) -> String {
 }
 
 ///|
-fn rt_repeat_char(c : String, n : Int) -> String {
+fn rt_repeat_char(c : String, n : Int32) -> String {
   let mut result = ""
   let mut i = 0
   while i < n {
@@ -339,7 +339,7 @@ pub fn ReportTable::to_ascii(table : ReportTable) -> String {
   let n_rows = table.get_n_rows()
 
   // Calculate column widths based on max of name length and data value lengths
-  let widths : Array[Int] = Array(capacity=0)
+  let widths : Array[Int32] = Array(capacity=0)
   let mut ci = 0
   while ci < n_cols {
     let name_len = names[ci].length()

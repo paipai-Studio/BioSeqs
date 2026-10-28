@@ -1,6 +1,5 @@
 ///|
 /// Tests for MDAnalysis-style trajectory analysis (mdanalysis.mbt).
-
 test "mdanalysis_distance_array" {
   let c1 = [[0.0, 0.0, 0.0], [1.0, 0.0, 0.0]]
   let c2 = [[0.0, 0.0, 0.0], [0.0, 1.0, 0.0]]
@@ -11,13 +10,17 @@ test "mdanalysis_distance_array" {
   assert_true(@moonbit.assert_num_close(d[1][1], 2.0.sqrt(), 1.0e-9))
 }
 
+///|
 test "mdanalysis_rmsd_translation_invariant" {
   // 非共面 4 点，b 平移 +5 → 叠加后 RMSD = 0
   let a = [[0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]]
   let b = [[5.0, 5.0, 5.0], [6.0, 5.0, 5.0], [5.0, 6.0, 5.0], [5.0, 5.0, 6.0]]
-  assert_true(@moonbit.assert_num_close(@src.mdanalysis_rmsd(a, b), 0.0, 1.0e-6))
+  assert_true(
+    @moonbit.assert_num_close(@src.mdanalysis_rmsd(a, b), 0.0, 1.0e-6),
+  )
 }
 
+///|
 test "mdanalysis_rmsf" {
   let traj = [
     [[0.0, 0.0, 0.0], [1.0, 0.0, 0.0]],
@@ -29,6 +32,7 @@ test "mdanalysis_rmsf" {
   assert_true(@moonbit.assert_num_close(rmsf[1], 0.5, 1.0e-9))
 }
 
+///|
 test "mdanalysis_rdf_peak" {
   // 原点一个原子，距离 1 处两个原子；range_max=2, nbins=2 → 峰在 bin 1
   let c1 = [[0.0, 0.0, 0.0]]
@@ -39,6 +43,7 @@ test "mdanalysis_rdf_peak" {
   assert_true(g[1] > 0.0)
 }
 
+///|
 test "mdanalysis_msd_uniform" {
   // 匀速运动 x(t)=t → MSD = t²
   let traj = [

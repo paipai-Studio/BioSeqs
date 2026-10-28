@@ -15,8 +15,10 @@ pub struct BEclearMatrix {
   row_names : Array[String]
   col_names : Array[String]
   data : Array[Array[Double]]
-  batch : Map[String, Int]
+  batch : Map[String, Int32]
 } derive(Eq)
+
+///|
 pub extend BEclearMatrix with Eq::{equal, not_equal}
 
 ///|
@@ -24,20 +26,20 @@ pub fn BEclearMatrix::new(
   row_names~ : Array[String],
   col_names~ : Array[String],
   data~ : Array[Array[Double]],
-  batch~ : Map[String, Int],
+  batch~ : Map[String, Int32],
 ) -> BEclearMatrix {
-  BEclearMatrix::{ row_names, col_names, data, batch }
+  BEclearMatrix::{ row_names, col_names, data, batch, }
 }
 
 ///|
 /// Number of rows (features).
-pub fn BEclearMatrix::n_rows(self : BEclearMatrix) -> Int {
+pub fn BEclearMatrix::n_rows(self : BEclearMatrix) -> Int32 {
   self.row_names.length()
 }
 
 ///|
 /// Number of columns (samples).
-pub fn BEclearMatrix::n_cols(self : BEclearMatrix) -> Int {
+pub fn BEclearMatrix::n_cols(self : BEclearMatrix) -> Int32 {
   self.col_names.length()
 }
 
@@ -48,15 +50,7 @@ fn beclear_median(arr : Array[Double]) -> Double {
     return 0.0
   }
   let sorted = arr.copy()
-  sorted.sort_by(fn(a, b) {
-    if a < b {
-      -1
-    } else if a > b {
-      1
-    } else {
-      0
-    }
-  })
+  sorted.sort_by(fn(a, b) { if a < b { -1 } else if a > b { 1 } else { 0 } })
   let n = sorted.length()
   if n % 2 == 1 {
     sorted[n / 2]
@@ -64,7 +58,6 @@ fn beclear_median(arr : Array[Double]) -> Double {
     (sorted[n / 2 - 1] + sorted[n / 2]) / 2.0
   }
 }
-
 
 ///|
 /// Absolute value.
@@ -80,11 +73,13 @@ fn beclear_abs(x : Double) -> Double {
 /// Summary of batch effect analysis for one feature row.
 pub struct BEclearBatchSummary {
   row_name : String
-  batch_medians : Map[Int, Double]
+  batch_medians : Map[Int32, Double]
   overall_median : Double
   max_deviation : Double
   affected : Bool
 } derive(Eq)
+
+///|
 pub extend BEclearBatchSummary with Eq::{equal, not_equal}
 
 ///|
@@ -97,20 +92,19 @@ pub fn detect_batch_effect(
 ) -> Array[BEclearBatchSummary] {
   let summaries : Array[BEclearBatchSummary] = Array(capacity=0)
   for i in 0..<matrix.n_rows() {
-    let batch_values : Map[Int, Array[Double]] = Map([])
+    let batch_values : Map[Int32, Array[Double]] = Map([])
     for j in 0..<matrix.n_cols() {
       let col_name = matrix.col_names[j]
       match matrix.batch.get(col_name) {
-        Some(b) => {
+        Some(b) =>
           match batch_values.get(b) {
             Some(arr) => arr.push(matrix.data[i][j])
             None => batch_values.set(b, [matrix.data[i][j]])
           }
-        }
         None => ()
       }
     }
-    let batch_medians : Map[Int, Double] = Map([])
+    let batch_medians : Map[Int32, Double] = Map([])
     let all_values : Array[Double] = Array(capacity=0)
     for b in batch_values.keys() {
       match batch_values.get(b) {
@@ -137,15 +131,13 @@ pub fn detect_batch_effect(
         None => ()
       }
     }
-    summaries.push(
-      BEclearBatchSummary::{
-        row_name: matrix.row_names[i],
-        batch_medians,
-        overall_median: overall,
-        max_deviation: max_dev,
-        affected: max_dev > threshold,
-      },
-    )
+    summaries.push(BEclearBatchSummary::{
+      row_name: matrix.row_names[i],
+      batch_medians,
+      overall_median: overall,
+      max_deviation: max_dev,
+      affected: max_dev > threshold,
+    })
   }
   summaries
 }
@@ -159,19 +151,18 @@ pub fn detect_batch_effect(
 pub fn beclear_affected_blocks(
   matrix : BEclearMatrix,
   threshold~ : Double = 0.05,
-) -> Array[(Int, Int)] {
+) -> Array[(Int32, Int32)] {
   let summaries = detect_batch_effect(matrix, threshold~)
-  let blocks : Array[(Int, Int)] = Array(capacity=0)
+  let blocks : Array[(Int32, Int32)] = Array(capacity=0)
   for i in 0..<summaries.length() {
     let s = summaries[i]
     if s.affected {
       for b in s.batch_medians.keys() {
         match s.batch_medians.get(b) {
-          Some(med) => {
+          Some(med) =>
             if beclear_abs(med - s.overall_median) > threshold {
               blocks.push((i, b))
             }
-          }
           None => ()
         }
       }
@@ -187,19 +178,15 @@ pub fn beclear_affected_blocks(
 fn beclear_correct_block(
   data : Array[Array[Double]],
   matrix : BEclearMatrix,
-  row_idx : Int,
-  batch_id : Int,
+  row_idx : Int32,
+  batch_id : Int32,
   overall_median : Double,
 ) -> Unit {
   let batch_vals : Array[Double] = Array(capacity=0)
   for j in 0..<matrix.n_cols() {
     let col_name = matrix.col_names[j]
     match matrix.batch.get(col_name) {
-      Some(b) => {
-        if b == batch_id {
-          batch_vals.push(data[row_idx][j])
-        }
-      }
+      Some(b) => if b == batch_id { batch_vals.push(data[row_idx][j]) }
       None => ()
     }
   }
@@ -208,11 +195,10 @@ fn beclear_correct_block(
   for j in 0..<matrix.n_cols() {
     let col_name = matrix.col_names[j]
     match matrix.batch.get(col_name) {
-      Some(b) => {
+      Some(b) =>
         if b == batch_id {
           data[row_idx][j] = data[row_idx][j] + shift
         }
-      }
       None => ()
     }
   }
@@ -243,13 +229,10 @@ pub fn beclear(
     if s.affected {
       for b in s.batch_medians.keys() {
         match s.batch_medians.get(b) {
-          Some(med) => {
+          Some(med) =>
             if beclear_abs(med - s.overall_median) > threshold {
-              beclear_correct_block(
-                corrected, matrix, i, b, s.overall_median,
-              )
+              beclear_correct_block(corrected, matrix, i, b, s.overall_median)
             }
-          }
           None => ()
         }
       }
@@ -303,13 +286,9 @@ fn beclear_sqrt(x : Double) -> Double {
 pub fn beclear_sample_matrix() -> BEclearMatrix {
   let row_names = ["gene1", "gene2", "gene3"]
   let col_names = ["s1", "s2", "s3", "s4"]
-  let data = [
-    [1.0, 1.1, 1.5, 1.6],
-    [2.0, 2.1, 2.5, 2.6],
-    [3.0, 3.1, 3.5, 3.6],
-  ]
+  let data = [[1.0, 1.1, 1.5, 1.6], [2.0, 2.1, 2.5, 2.6], [3.0, 3.1, 3.5, 3.6]]
   let batch = {
-    let m : Map[String, Int] = Map([])
+    let m : Map[String, Int32] = Map([])
     m.set("s1", 1)
     m.set("s2", 1)
     m.set("s3", 2)

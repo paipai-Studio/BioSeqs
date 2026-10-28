@@ -30,7 +30,7 @@ pub struct GenomicFile {
   file_type : FileType
   index_path : String
   seqnames : Array[String]
-  seq_lengths : Map[String, Int]
+  seq_lengths : Map[String, Int32]
 }
 
 ///|
@@ -54,7 +54,7 @@ pub fn GenomicFile::new(
 pub fn GenomicFile::add_seqname(
   self : GenomicFile,
   seqname : String,
-  length : Int,
+  length : Int32,
 ) -> Unit {
   self.seqnames.push(seqname)
   self.seq_lengths[seqname] = length
@@ -84,7 +84,7 @@ pub fn GenomicFile::to_string(self : GenomicFile) -> String {
 pub struct GenomicFilesCollection {
   files : Array[GenomicFile]
   sample_names : Array[String]
-  mut yield_size : Int
+  mut yield_size : Int32
 }
 
 ///|
@@ -100,14 +100,14 @@ pub fn GenomicFilesCollection::new(
 /// Set the yield size (number of records per batch) for the collection.
 pub fn GenomicFilesCollection::set_yield_size(
   self : GenomicFilesCollection,
-  yield_size : Int,
+  yield_size : Int32,
 ) -> Unit {
   self.yield_size = yield_size
 }
 
 ///|
 /// Get the number of files in the collection.
-pub fn GenomicFilesCollection::length(self : GenomicFilesCollection) -> Int {
+pub fn GenomicFilesCollection::length(self : GenomicFilesCollection) -> Int32 {
   self.files.length()
 }
 
@@ -115,7 +115,7 @@ pub fn GenomicFilesCollection::length(self : GenomicFilesCollection) -> Int {
 /// ScanResult - results of scanning a file over a set of ranges.
 pub struct ScanResult {
   seqname : String
-  ranges : Array[(Int, Int)]
+  ranges : Array[(Int32, Int32)]
   values : Array[Array[Double]]
 }
 
@@ -129,7 +129,7 @@ pub fn ScanResult::new(seqname : String) -> ScanResult {
 /// Add a range and its associated values to the scan result.
 pub fn ScanResult::add(
   self : ScanResult,
-  range : (Int, Int),
+  range : (Int32, Int32),
   values : Array[Double],
 ) -> Unit {
   self.ranges.push(range)
@@ -170,8 +170,8 @@ pub fn ScanResult::to_string(self : ScanResult) -> String {
 /// ReduceResult - aggregated results after applying reduce function.
 pub struct ReduceResult {
   summary : Map[String, Double]
-  mut total_ranges : Int
-  mut total_values : Int
+  mut total_ranges : Int32
+  mut total_values : Int32
 }
 
 ///|
@@ -229,10 +229,10 @@ pub fn genomic_files_sqrt(x : Double) -> Double {
 ///|
 /// Check if two intervals [start1, end1] and [start2, end2] overlap.
 pub fn genomic_files_is_overlapping(
-  start1 : Int,
-  end1 : Int,
-  start2 : Int,
-  end2 : Int,
+  start1 : Int32,
+  end1 : Int32,
+  start2 : Int32,
+  end2 : Int32,
 ) -> Bool {
   start1 <= end2 && start2 <= end1
 }
@@ -242,7 +242,7 @@ pub fn genomic_files_is_overlapping(
 /// Returns (chrom, start, end, score). Score defaults to 0.0 if absent.
 pub fn genomic_files_parse_bed_line(
   line : String,
-) -> (String, Int, Int, Double) {
+) -> (String, Int32, Int32, Double) {
   let parts = split_by_char(line, 9)
   if parts.length() < 3 {
     return ("", 0, 0, 0.0)
@@ -268,7 +268,7 @@ pub fn genomic_files_parse_bed_line(
 /// Returns (chrom, pos, ref, alt). Skips header lines starting with '#'.
 pub fn genomic_files_parse_vcf_line(
   line : String,
-) -> (String, Int, String, String) {
+) -> (String, Int32, String, String) {
   if line.length() == 0 {
     return ("", 0, "", "")
   }
@@ -291,7 +291,7 @@ pub fn genomic_files_parse_vcf_line(
 /// Returns (rname, pos, mapq, cigar, qname) or empty values if header.
 pub fn genomic_files_parse_sam_line(
   line : String,
-) -> (String, Int, Int, String, String) {
+) -> (String, Int32, Int32, String, String) {
   if line.length() == 0 {
     return ("", 0, 0, "", "")
   }
@@ -317,7 +317,7 @@ pub fn genomic_files_parse_sam_line(
 /// otherwise a deterministic simulation based on range length is used.
 pub fn genomic_files_scan_bam(
   file : GenomicFile,
-  ranges : Array[(String, Int, Int)],
+  ranges : Array[(String, Int32, Int32)],
 ) -> ScanResult {
   if ranges.length() == 0 {
     return ScanResult::new("")
@@ -374,14 +374,14 @@ pub fn genomic_files_scan_bam(
 /// The file_path is treated as BED text content.
 pub fn genomic_files_scan_bed(
   file : GenomicFile,
-  ranges : Array[(String, Int, Int)],
+  ranges : Array[(String, Int32, Int32)],
 ) -> ScanResult {
   if ranges.length() == 0 {
     return ScanResult::new("")
   }
   let first_seqname = ranges[0].0
   let result = ScanResult::new(first_seqname)
-  let bed_features : Array[(String, Int, Int, Double)] = Array(capacity=0)
+  let bed_features : Array[(String, Int32, Int32, Double)] = Array(capacity=0)
   if contains(file.file_path, "\n") {
     let lines = split_by_char(file.file_path, '\n'.to_int())
     let mut j = 0
@@ -432,14 +432,16 @@ pub fn genomic_files_scan_bed(
 /// The file_path is treated as VCF text content.
 pub fn genomic_files_scan_vcf(
   file : GenomicFile,
-  ranges : Array[(String, Int, Int)],
+  ranges : Array[(String, Int32, Int32)],
 ) -> ScanResult {
   if ranges.length() == 0 {
     return ScanResult::new("")
   }
   let first_seqname = ranges[0].0
   let result = ScanResult::new(first_seqname)
-  let vcf_records : Array[(String, Int, String, String, Double)] = Array(capacity=0)
+  let vcf_records : Array[(String, Int32, String, String, Double)] = Array(
+    capacity=0,
+  )
   if contains(file.file_path, "\n") {
     let lines = split_by_char(file.file_path, '\n'.to_int())
     let mut j = 0
@@ -581,7 +583,7 @@ pub fn genomic_files_reduce_by_range(
 /// Returns an array of batch strings, each containing up to yield_size reads.
 pub fn genomic_files_yield_reads(
   file : GenomicFile,
-  yield_size : Int,
+  yield_size : Int32,
 ) -> Array[String] {
   let result : Array[String] = Array(capacity=0)
   if yield_size <= 0 {
@@ -633,9 +635,9 @@ pub fn genomic_files_yield_reads(
 /// Returns a Map keyed by "seqname:start-end" with read counts.
 pub fn genomic_files_count_reads(
   file : GenomicFile,
-  ranges : Array[(String, Int, Int)],
-) -> Map[String, Int] {
-  let result : Map[String, Int] = Map([], capacity=ranges.length())
+  ranges : Array[(String, Int32, Int32)],
+) -> Map[String, Int32] {
+  let result : Map[String, Int32] = Map([], capacity=ranges.length())
   let has_content = contains(file.file_path, "\n")
   let mut i = 0
   while i < ranges.length() {
@@ -675,7 +677,7 @@ pub fn genomic_files_count_reads(
 /// Returns an Array[Double] with mean coverage per range.
 pub fn genomic_files_coverage(
   file : GenomicFile,
-  ranges : Array[(String, Int, Int)],
+  ranges : Array[(String, Int32, Int32)],
 ) -> Array[Double] {
   let result : Array[Double] = Array::make(ranges.length(), 0.0)
   let has_content = contains(file.file_path, "\n")
@@ -728,7 +730,7 @@ pub fn genomic_files_coverage(
 /// Returns an Array[ScanResult], one per file in the collection.
 pub fn genomic_files_summarize_ranges(
   collection : GenomicFilesCollection,
-  ranges : Array[(String, Int, Int)],
+  ranges : Array[(String, Int32, Int32)],
 ) -> Array[ScanResult] {
   let result : Array[ScanResult] = Array(capacity=0)
   let mut i = 0
@@ -787,6 +789,6 @@ pub fn genomic_files_create_example_collection() -> GenomicFilesCollection {
 
 ///|
 /// Create example ranges for testing.
-pub fn genomic_files_create_example_ranges() -> Array[(String, Int, Int)] {
+pub fn genomic_files_create_example_ranges() -> Array[(String, Int32, Int32)] {
   [("chr1", 100, 200), ("chr1", 150, 250), ("chr2", 500, 600)]
 }

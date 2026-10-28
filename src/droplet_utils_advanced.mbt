@@ -10,55 +10,63 @@ pub suberror DropletUtilsAdvancedError {
 
 ///|
 pub struct DropletCountMatrix {
-  counts : Array[Array[Int]]
+  counts : Array[Array[Int32]]
   feature_names : Array[String]
   barcodes : Array[String]
 } derive(Debug)
+
+///|
 pub extend DropletCountMatrix with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct DropletUtilsConfig {
-  lower : Int
-  iterations : Int
+  lower : Int32
+  iterations : Int32
   fdr_threshold : Double
   retain : Double
-  by_rank : Int
-  ignore : Int
+  by_rank : Int32
+  ignore : Int32
   test_ambient : Bool
   alpha : Double
   estimate_alpha : Bool
-  rank_exclude : Int
+  rank_exclude : Int32
   rank_window : Double
   gradient_threshold : Double
   round_counts : Bool
-  seed : Int
+  seed : Int32
 } derive(Debug)
+
+///|
 pub extend DropletUtilsConfig with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct DropletAmbientProfile {
-  raw_counts : Array[Int]
+  raw_counts : Array[Int32]
   proportions : Array[Double]
   assumed_empty : Array[Bool]
-  lower : Int
-  total : Int
+  lower : Int32
+  total : Int32
 } derive(Debug)
+
+///|
 pub extend DropletAmbientProfile with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct DropletBarcodeRanks {
   barcodes : Array[String]
   ranks : Array[Double]
-  totals : Array[Int]
+  totals : Array[Int32]
   knee : Double
   inflection : Double
 } derive(Debug)
+
+///|
 pub extend DropletBarcodeRanks with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct DropletEmptyDropsResult {
   barcodes : Array[String]
-  totals : Array[Int]
+  totals : Array[Int32]
   log_probabilities : Array[Double?]
   p_values : Array[Double?]
   limited : Array[Bool?]
@@ -66,13 +74,15 @@ pub struct DropletEmptyDropsResult {
   calls : Array[Bool]
   always_retained : Array[Bool]
   ambient : DropletAmbientProfile
-  lower : Int
+  lower : Int32
   retain : Double
   alpha : Double
   alpha_estimated : Bool
-  iterations : Int
+  iterations : Int32
   fdr_threshold : Double
 } derive(Debug)
+
+///|
 pub extend DropletEmptyDropsResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -87,8 +97,8 @@ fn dua_fail(message : String) -> Unit raise DropletUtilsAdvancedError {
 }
 
 ///|
-fn dua_copy_int_matrix(values : Array[Array[Int]]) -> Array[Array[Int]] {
-  let output : Array[Array[Int]] = []
+fn dua_copy_int_matrix(values : Array[Array[Int32]]) -> Array[Array[Int32]] {
+  let output : Array[Array[Int32]] = []
   for row in values {
     output.push(row.copy())
   }
@@ -107,7 +117,7 @@ fn dua_copy_double_matrix(
 }
 
 ///|
-fn dua_default_names(prefix : String, count : Int) -> Array[String] {
+fn dua_default_names(prefix : String, count : Int32) -> Array[String] {
   let output : Array[String] = []
   for index in 0..<count {
     output.push(prefix + (index + 1).to_string())
@@ -118,7 +128,7 @@ fn dua_default_names(prefix : String, count : Int) -> Array[String] {
 ///|
 fn dua_prepare_names(
   supplied : Array[String],
-  count : Int,
+  count : Int32,
   prefix : String,
 ) -> Array[String] raise DropletUtilsAdvancedError {
   let names = if supplied.length() == 0 {
@@ -146,9 +156,9 @@ fn dua_prepare_names(
 
 ///|
 pub fn DropletCountMatrix::create(
-  counts : Array[Array[Int]],
-  feature_names? : Array[String] = [],
-  barcodes? : Array[String] = [],
+  counts : Array[Array[Int32]],
+  feature_names~ : Array[String] = [],
+  barcodes~ : Array[String] = [],
 ) -> DropletCountMatrix raise DropletUtilsAdvancedError {
   if counts.length() == 0 {
     dua_fail("DropletUtils count matrix must contain at least one feature")
@@ -157,12 +167,12 @@ pub fn DropletCountMatrix::create(
     dua_fail("DropletUtils count matrix must contain at least one barcode")
   }
   let barcode_count = counts[0].length()
-  let copied : Array[Array[Int]] = []
+  let copied : Array[Array[Int32]] = []
   for row in counts {
     if row.length() != barcode_count {
       dua_fail("DropletUtils count matrix must be rectangular")
     }
-    let output_row : Array[Int] = []
+    let output_row : Array[Int32] = []
     for value in row {
       if value < 0 {
         dua_fail("DropletUtils counts must be non-negative integers")
@@ -179,12 +189,12 @@ pub fn DropletCountMatrix::create(
 }
 
 ///|
-pub fn DropletCountMatrix::n_features(self : DropletCountMatrix) -> Int {
+pub fn DropletCountMatrix::n_features(self : DropletCountMatrix) -> Int32 {
   self.counts.length()
 }
 
 ///|
-pub fn DropletCountMatrix::n_barcodes(self : DropletCountMatrix) -> Int {
+pub fn DropletCountMatrix::n_barcodes(self : DropletCountMatrix) -> Int32 {
   if self.counts.length() == 0 {
     0
   } else {
@@ -195,14 +205,14 @@ pub fn DropletCountMatrix::n_barcodes(self : DropletCountMatrix) -> Int {
 ///|
 pub fn DropletCountMatrix::copy_counts(
   self : DropletCountMatrix,
-) -> Array[Array[Int]] {
+) -> Array[Array[Int32]] {
   dua_copy_int_matrix(self.counts)
 }
 
 ///|
 pub fn DropletCountMatrix::barcode_totals(
   self : DropletCountMatrix,
-) -> Array[Int] {
+) -> Array[Int32] {
   let totals = Array::make(self.n_barcodes(), 0)
   for feature in 0..<self.n_features() {
     for barcode in 0..<self.n_barcodes() {
@@ -215,7 +225,7 @@ pub fn DropletCountMatrix::barcode_totals(
 ///|
 pub fn DropletCountMatrix::feature_totals(
   self : DropletCountMatrix,
-) -> Array[Int] {
+) -> Array[Int32] {
   let totals = Array::make(self.n_features(), 0)
   for feature in 0..<self.n_features() {
     let mut total = 0
@@ -229,20 +239,20 @@ pub fn DropletCountMatrix::feature_totals(
 
 ///|
 pub fn DropletUtilsConfig::create(
-  lower? : Int = 100,
-  iterations? : Int = 10000,
-  fdr_threshold? : Double = 0.001,
-  retain? : Double = -1.0,
-  by_rank? : Int = 0,
-  ignore? : Int = -1,
-  test_ambient? : Bool = false,
-  alpha? : Double = -1.0,
-  estimate_alpha? : Bool = false,
-  rank_exclude? : Int = 50,
-  rank_window? : Double = 1.0,
-  gradient_threshold? : Double = -1.0,
-  round_counts? : Bool = true,
-  seed? : Int = 1,
+  lower~ : Int32 = 100,
+  iterations~ : Int32 = 10000,
+  fdr_threshold~ : Double = 0.001,
+  retain~ : Double = -1.0,
+  by_rank~ : Int32 = 0,
+  ignore~ : Int32 = -1,
+  test_ambient~ : Bool = false,
+  alpha~ : Double = -1.0,
+  estimate_alpha~ : Bool = false,
+  rank_exclude~ : Int32 = 50,
+  rank_window~ : Double = 1.0,
+  gradient_threshold~ : Double = -1.0,
+  round_counts~ : Bool = true,
+  seed~ : Int32 = 1,
 ) -> DropletUtilsConfig raise DropletUtilsAdvancedError {
   if lower < 0 {
     dua_fail("DropletUtils lower threshold must be non-negative")
@@ -250,9 +260,7 @@ pub fn DropletUtilsConfig::create(
   if iterations <= 0 {
     dua_fail("DropletUtils iterations must be positive")
   }
-  if !is_finite(fdr_threshold) ||
-    fdr_threshold <= 0.0 ||
-    fdr_threshold > 1.0 {
+  if !is_finite(fdr_threshold) || fdr_threshold <= 0.0 || fdr_threshold > 1.0 {
     dua_fail("DropletUtils FDR threshold must be in (0, 1]")
   }
   if !is_finite(retain) || (retain != -1.0 && retain <= 0.0) {
@@ -342,18 +350,18 @@ fn dua_log_gamma(value : Double) -> Double {
 }
 
 ///|
-fn dua_log_factorial(value : Int) -> Double {
+fn dua_log_factorial(value : Int32) -> Double {
   dua_log_gamma(value.to_double() + 1.0)
 }
 
 ///|
 pub fn droplet_utils_good_turing(
-  counts : Array[Int],
+  counts : Array[Int32],
 ) -> Array[Double] raise DropletUtilsAdvancedError {
   if counts.length() == 0 {
     dua_fail("DropletUtils Good-Turing input cannot be empty")
   }
-  let positive : Array[Int] = []
+  let positive : Array[Int32] = []
   let mut zero_count = 0
   let mut grand_total = 0
   for count in counts {
@@ -370,9 +378,9 @@ pub fn droplet_utils_good_turing(
   if grand_total == 0 {
     dua_fail("DropletUtils Good-Turing requires at least one count")
   }
-  positive.sort_by(fn(left : Int, right : Int) -> Int { left - right })
-  let observed : Array[Int] = []
-  let frequencies : Array[Int] = []
+  positive.sort_by(fn(left : Int32, right : Int32) -> Int32 { left - right })
+  let observed : Array[Int32] = []
+  let frequencies : Array[Int32] = []
   for count in positive {
     if observed.length() == 0 || observed[observed.length() - 1] != count {
       observed.push(count)
@@ -461,7 +469,7 @@ pub fn droplet_utils_good_turing(
   } else {
     0.0
   }
-  let lookup : Map[Int, Double] = Map([])
+  let lookup : Map[Int32, Double] = Map([])
   for index in 0..<point_count {
     lookup[observed[index]] = adjusted[index] * scale
   }
@@ -509,11 +517,11 @@ pub fn droplet_utils_good_turing(
 
 ///|
 fn dua_empty_mask(
-  totals : Array[Int],
-  lower : Int,
-  by_rank : Int,
+  totals : Array[Int32],
+  lower : Int32,
+  by_rank : Int32,
   known_empty : Array[Bool],
-) -> (Array[Bool], Int) raise DropletUtilsAdvancedError {
+) -> (Array[Bool], Int32) raise DropletUtilsAdvancedError {
   if known_empty.length() > 0 {
     if known_empty.length() != totals.length() {
       dua_fail(
@@ -536,11 +544,11 @@ fn dua_empty_mask(
     if by_rank >= totals.length() {
       dua_fail("DropletUtils by_rank must be smaller than barcode count")
     }
-    let order : Array[Int] = []
+    let order : Array[Int32] = []
     for index in 0..<totals.length() {
       order.push(index)
     }
-    order.sort_by(fn(left : Int, right : Int) -> Int {
+    order.sort_by(fn(left : Int32, right : Int32) -> Int32 {
       if totals[left] > totals[right] {
         -1
       } else if totals[left] < totals[right] {
@@ -570,9 +578,9 @@ fn dua_empty_mask(
 ///|
 pub fn droplet_utils_ambient_profile(
   data : DropletCountMatrix,
-  lower? : Int = 100,
-  by_rank? : Int = 0,
-  known_empty? : Array[Bool] = [],
+  lower~ : Int32 = 100,
+  by_rank~ : Int32 = 0,
+  known_empty~ : Array[Bool] = [],
 ) -> DropletAmbientProfile raise DropletUtilsAdvancedError {
   if lower < 0 || by_rank < 0 {
     dua_fail("DropletUtils ambient thresholds must be non-negative")
@@ -597,8 +605,8 @@ pub fn droplet_utils_ambient_profile(
   if ambient_total == 0 {
     dua_fail("DropletUtils has no counts for estimating the ambient profile")
   }
-  let active_indices : Array[Int] = []
-  let active_counts : Array[Int] = []
+  let active_indices : Array[Int32] = []
+  let active_counts : Array[Int32] = []
   for feature in 0..<data.n_features() {
     if all_feature_totals[feature] > 0 {
       active_indices.push(feature)
@@ -620,7 +628,7 @@ pub fn droplet_utils_ambient_profile(
 }
 
 ///|
-pub fn DropletAmbientProfile::n_empty(self : DropletAmbientProfile) -> Int {
+pub fn DropletAmbientProfile::n_empty(self : DropletAmbientProfile) -> Int32 {
   let mut count = 0
   for value in self.assumed_empty {
     if value {
@@ -669,10 +677,10 @@ fn dua_interpolate_curve(
 ///|
 pub fn droplet_utils_barcode_ranks(
   data : DropletCountMatrix,
-  lower? : Int = 100,
-  exclude_from? : Int = 50,
-  window? : Double = 1.0,
-  gradient_threshold? : Double = -1.0,
+  lower~ : Int32 = 100,
+  exclude_from~ : Int32 = 50,
+  window~ : Double = 1.0,
+  gradient_threshold~ : Double = -1.0,
 ) -> DropletBarcodeRanks raise DropletUtilsAdvancedError {
   if lower < 0 || exclude_from < 0 {
     dua_fail("DropletUtils barcode-rank thresholds must be non-negative")
@@ -684,11 +692,11 @@ pub fn droplet_utils_barcode_ranks(
     dua_fail("DropletUtils barcode-rank gradient must be finite")
   }
   let totals = data.barcode_totals()
-  let order : Array[Int] = []
+  let order : Array[Int32] = []
   for index in 0..<totals.length() {
     order.push(index)
   }
-  order.sort_by(fn(left : Int, right : Int) -> Int {
+  order.sort_by(fn(left : Int32, right : Int32) -> Int32 {
     if totals[left] > totals[right] {
       -1
     } else if totals[left] < totals[right] {
@@ -698,7 +706,7 @@ pub fn droplet_utils_barcode_ranks(
     }
   })
   let ranks = Array::make(totals.length(), 0.0)
-  let run_totals : Array[Int] = []
+  let run_totals : Array[Int32] = []
   let run_ranks : Array[Double] = []
   let mut position = 0
   while position < order.length() {
@@ -736,7 +744,7 @@ pub fn droplet_utils_barcode_ranks(
     step[index] = (dx * dx + dy * dy).sqrt()
     cumulative[index] = cumulative[index - 1] + step[index]
   }
-  let scan : Array[Int] = []
+  let scan : Array[Int32] = []
   for index in 0..<x.length() {
     if cumulative[index] + window <= cumulative[cumulative.length() - 1] {
       scan.push(index)
@@ -836,7 +844,7 @@ pub fn droplet_utils_barcode_ranks(
 
 ///|
 fn dua_validate_probability_input(
-  counts : Array[Int],
+  counts : Array[Int32],
   proportions : Array[Double],
   alpha : Double,
 ) -> Unit raise DropletUtilsAdvancedError {
@@ -873,7 +881,7 @@ fn dua_validate_probability_input(
 
 ///|
 fn dua_probability_data_component(
-  counts : Array[Int],
+  counts : Array[Int32],
   proportions : Array[Double],
   alpha : Double,
 ) -> Double {
@@ -899,9 +907,9 @@ fn dua_probability_data_component(
 
 ///|
 pub fn droplet_utils_log_probability(
-  counts : Array[Int],
+  counts : Array[Int32],
   proportions : Array[Double],
-  alpha? : Double = -1.0,
+  alpha~ : Double = -1.0,
 ) -> Double raise DropletUtilsAdvancedError {
   dua_validate_probability_input(counts, proportions, alpha)
   let mut total = 0
@@ -923,11 +931,11 @@ pub fn droplet_utils_log_probability(
 
 ///|
 priv struct DropletUtilsRng {
-  mut state : Int
+  mut state : Int32
 }
 
 ///|
-fn DropletUtilsRng::new(seed : Int) -> DropletUtilsRng {
+fn DropletUtilsRng::new(seed : Int32) -> DropletUtilsRng {
   let normalized = (seed - 1) % 2147483646 + 1
   DropletUtilsRng::{ state: normalized, }
 }
@@ -978,7 +986,7 @@ fn DropletUtilsRng::gamma(self : DropletUtilsRng, shape : Double) -> Double {
 fn DropletUtilsRng::categorical(
   self : DropletUtilsRng,
   weights : Array[Double],
-) -> Int {
+) -> Int32 {
   let mut total = 0.0
   for weight in weights {
     total = total + weight
@@ -999,18 +1007,18 @@ fn DropletUtilsRng::categorical(
 
 ///|
 fn dua_monte_carlo_extreme(
-  totals : Array[Int],
+  totals : Array[Int32],
   observed : Array[Double],
   ambient : Array[Double],
-  iterations : Int,
+  iterations : Int32,
   alpha : Double,
-  seed : Int,
-) -> Array[Int] {
-  let order : Array[Int] = []
+  seed : Int32,
+) -> Array[Int32] {
+  let order : Array[Int32] = []
   for index in 0..<totals.length() {
     order.push(index)
   }
-  order.sort_by(fn(left : Int, right : Int) -> Int {
+  order.sort_by(fn(left : Int32, right : Int32) -> Int32 {
     if totals[left] < totals[right] {
       -1
     } else if totals[left] > totals[right] {
@@ -1081,11 +1089,11 @@ fn dua_monte_carlo_extreme(
 
 ///|
 pub fn droplet_utils_monte_carlo_p_value(
-  counts : Array[Int],
+  counts : Array[Int32],
   proportions : Array[Double],
-  iterations? : Int = 1000,
-  alpha? : Double = -1.0,
-  seed? : Int = 1,
+  iterations~ : Int32 = 1000,
+  alpha~ : Double = -1.0,
+  seed~ : Int32 = 1,
 ) -> (Double, Bool) raise DropletUtilsAdvancedError {
   if iterations <= 0 || seed <= 0 {
     dua_fail("DropletUtils Monte Carlo iterations and seed must be positive")
@@ -1197,14 +1205,14 @@ pub fn droplet_utils_estimate_alpha(
 
 ///|
 fn dua_bh_adjust(values : Array[Double?]) -> Array[Double?] {
-  let indexed : Array[(Double, Int)] = []
+  let indexed : Array[(Double, Int32)] = []
   for index in 0..<values.length() {
     match values[index] {
       Some(value) => indexed.push((value.max(0.0).min(1.0), index))
       None => ()
     }
   }
-  indexed.sort_by(fn(left : (Double, Int), right : (Double, Int)) -> Int {
+  indexed.sort_by(fn(left : (Double, Int32), right : (Double, Int32)) -> Int32 {
     if left.0 < right.0 {
       -1
     } else if left.0 > right.0 {
@@ -1229,8 +1237,11 @@ fn dua_bh_adjust(values : Array[Double?]) -> Array[Double?] {
 }
 
 ///|
-fn dua_barcode_counts(data : DropletCountMatrix, barcode : Int) -> Array[Int] {
-  let output : Array[Int] = []
+fn dua_barcode_counts(
+  data : DropletCountMatrix,
+  barcode : Int32,
+) -> Array[Int32] {
+  let output : Array[Int32] = []
   for feature in 0..<data.n_features() {
     output.push(data.counts[feature][barcode])
   }
@@ -1240,8 +1251,8 @@ fn dua_barcode_counts(data : DropletCountMatrix, barcode : Int) -> Array[Int] {
 ///|
 pub fn droplet_utils_empty_drops(
   data : DropletCountMatrix,
-  known_empty? : Array[Bool] = [],
-  config? : DropletUtilsConfig = DropletUtilsConfig::default(),
+  known_empty~ : Array[Bool] = [],
+  config~ : DropletUtilsConfig = DropletUtilsConfig::default(),
 ) -> DropletEmptyDropsResult raise DropletUtilsAdvancedError {
   let ambient = droplet_utils_ambient_profile(
     data,
@@ -1255,8 +1266,8 @@ pub fn droplet_utils_empty_drops(
     config.alpha
   }
   let totals = data.barcode_totals()
-  let tested_indices : Array[Int] = []
-  let tested_totals : Array[Int] = []
+  let tested_indices : Array[Int32] = []
+  let tested_totals : Array[Int32] = []
   let observed_components : Array[Double] = []
   let log_probabilities : Array[Double?] = Array::make(data.n_barcodes(), None)
   for barcode in 0..<data.n_barcodes() {
@@ -1357,7 +1368,9 @@ pub fn droplet_utils_empty_drops(
 }
 
 ///|
-pub fn DropletEmptyDropsResult::n_called(self : DropletEmptyDropsResult) -> Int {
+pub fn DropletEmptyDropsResult::n_called(
+  self : DropletEmptyDropsResult,
+) -> Int32 {
   let mut count = 0
   for call in self.calls {
     if call {
@@ -1368,7 +1381,9 @@ pub fn DropletEmptyDropsResult::n_called(self : DropletEmptyDropsResult) -> Int 
 }
 
 ///|
-pub fn DropletEmptyDropsResult::n_tested(self : DropletEmptyDropsResult) -> Int {
+pub fn DropletEmptyDropsResult::n_tested(
+  self : DropletEmptyDropsResult,
+) -> Int32 {
   let mut count = 0
   for value in self.p_values {
     match value {
@@ -1383,7 +1398,7 @@ pub fn DropletEmptyDropsResult::n_tested(self : DropletEmptyDropsResult) -> Int 
 pub fn DropletEmptyDropsResult::index_of(
   self : DropletEmptyDropsResult,
   barcode : String,
-) -> Int? {
+) -> Int32? {
   for index in 0..<self.barcodes.length() {
     if self.barcodes[index] == barcode {
       return Some(index)
@@ -1447,9 +1462,9 @@ pub fn DropletEmptyDropsResult::filter(
   if selected_names.length() == 0 {
     dua_fail("DropletUtils result contains no called barcodes")
   }
-  let selected_counts : Array[Array[Int]] = []
+  let selected_counts : Array[Array[Int32]] = []
   for feature in 0..<data.n_features() {
-    let row : Array[Int] = []
+    let row : Array[Int32] = []
     for barcode in 0..<data.n_barcodes() {
       if self.calls[barcode] {
         row.push(data.counts[feature][barcode])
@@ -1513,10 +1528,10 @@ fn dua_option_double_string(value : Double?) -> String {
 ///|
 pub fn droplet_utils_empty_drops_sce(
   experiment : SingleCellExperiment,
-  assay_name? : String = "counts",
-  output_prefix? : String = "emptyDrops",
-  known_empty_column? : String = "",
-  config? : DropletUtilsConfig = DropletUtilsConfig::default(),
+  assay_name~ : String = "counts",
+  output_prefix~ : String = "emptyDrops",
+  known_empty_column~ : String = "",
+  config~ : DropletUtilsConfig = DropletUtilsConfig::default(),
 ) -> DropletUtilsSingleCellExperimentOutput raise DropletUtilsAdvancedError {
   if assay_name == "" || output_prefix == "" {
     dua_fail("DropletUtils assay name and output prefix cannot be empty")
@@ -1534,12 +1549,12 @@ pub fn droplet_utils_empty_drops_sce(
       "DropletUtils SingleCellExperiment names must match assay dimensions",
     )
   }
-  let counts : Array[Array[Int]] = []
+  let counts : Array[Array[Int32]] = []
   for row in assay {
     if row.length() != experiment.col_names.length() {
       dua_fail("DropletUtils SingleCellExperiment assay must be rectangular")
     }
-    let output_row : Array[Int] = []
+    let output_row : Array[Int32] = []
     for value in row {
       if !is_finite(value) || value < 0.0 {
         dua_fail(
@@ -1636,7 +1651,7 @@ pub fn droplet_utils_empty_drops_sce(
 pub fn droplet_utils_advanced_example() -> DropletCountMatrix raise DropletUtilsAdvancedError {
   let feature_count = 12
   let barcode_count = 64
-  let counts : Array[Array[Int]] = []
+  let counts : Array[Array[Int32]] = []
   for _ in 0..<feature_count {
     counts.push(Array::make(barcode_count, 0))
   }

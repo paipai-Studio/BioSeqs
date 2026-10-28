@@ -25,11 +25,7 @@ fn main {
   // Reference with PubMed
   println("=== Reference with PubMed ID ===")
   let r2 = @bio.BioReference::with_pubmed(
-    "CRISPR-Cas9 Advances",
-    "Doudna JA, Charpentier E",
-    "Science",
-    "2014",
-    "24700447",
+    "CRISPR-Cas9 Advances", "Doudna JA, Charpentier E", "Science", "2014", "24700447",
   )
   println("PubMed ID: " + r2.pubmed_id())
   println("Citation: " + r2.citation())
@@ -38,11 +34,8 @@ fn main {
   // Reference with DOI
   println("=== Reference with DOI ===")
   let r3 = @bio.BioReference::with_doi(
-    "AlphaFold Protein Structure Prediction",
-    "Jumper J, Evans R, Pritzel A",
-    "Nature",
-    "2021",
-    "10.1038/s41586-021-03819-2",
+    "AlphaFold Protein Structure Prediction", "Jumper J, Evans R, Pritzel A", "Nature",
+    "2021", "10.1038/s41586-021-03819-2",
   )
   println("DOI: " + r3.doi())
   println("Citation: " + r3.citation())
@@ -105,7 +98,15 @@ fn main {
   println("Sample references: " + sample.count().to_string())
   let mut i = 0
   while i < sample.count() {
-    println("  " + (i + 1).to_string() + ". " + sample.get(i).title() + " (" + sample.get(i).year() + ")")
+    println(
+      "  " +
+      (i + 1).to_string() +
+      ". " +
+      sample.get(i).title() +
+      " (" +
+      sample.get(i).year() +
+      ")",
+    )
     i = i + 1
   }
 }

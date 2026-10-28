@@ -49,7 +49,12 @@ test "bfc query by keyword" {
 ///|
 test "bfc needs update compares etag" {
   let cache = @src.BfcCache::new(cache_root="/tmp/t4")
-  let web = cache.add(rname="remote.h5", data="HDF5", rtype=@src.BfcResourceType::Web, etag="r1")
+  let web = cache.add(
+    rname="remote.h5",
+    data="HDF5",
+    rtype=@src.BfcResourceType::Web,
+    etag="r1",
+  )
   match cache.bfcneedsupdate(web.rid, "r1") {
     Some(false) => ()
     _ => assert_true(false)
@@ -107,10 +112,11 @@ test "bfc tags" {
   let e = cache.add(rname="anno.gff", data="##gff-version 3\n")
   assert_true(cache.set_tag(e.rid, "project", "demo"))
   match cache.get(e.rid) {
-    Some(got) => match got.tags.get("project") {
-      Some(v) => assert_eq(v, "demo")
-      None => assert_true(false)
-    }
+    Some(got) =>
+      match got.tags.get("project") {
+        Some(v) => assert_eq(v, "demo")
+        None => assert_true(false)
+      }
     None => assert_true(false)
   }
 }

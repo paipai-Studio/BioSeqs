@@ -53,7 +53,7 @@ fn fasta_sio_parse_double(s : String) -> Double {
 }
 
 ///|
-fn fasta_sio_parse_int(s : String) -> Int {
+fn fasta_sio_parse_int(s : String) -> Int32 {
   parse_int(s)
 }
 
@@ -389,13 +389,13 @@ priv struct FastaRow {
   query_id : String
   subject_id : String
   percent_identity : Double
-  alignment_length : Int
-  mismatches : Int
-  gap_openings : Int
-  query_start : Int
-  query_end : Int
-  subject_start : Int
-  subject_end : Int
+  alignment_length : Int32
+  mismatches : Int32
+  gap_openings : Int32
+  query_start : Int32
+  query_end : Int32
+  subject_start : Int32
+  subject_end : Int32
   evalue : Double
   bit_score : Double
 }

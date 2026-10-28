@@ -10,32 +10,38 @@ pub struct ScDblFinderConfig {
   expected_doublet_rate : Double
   doublet_rate_per_1000 : Double
   rate_uncertainty : Double
-  artificial_doublets : Int
-  selected_features : Int
-  dimensions : Int
-  neighbors : Int
-  iterations : Int
-  classifier_steps : Int
+  artificial_doublets : Int32
+  selected_features : Int32
+  dimensions : Int32
+  neighbors : Int32
+  iterations : Int32
+  classifier_steps : Int32
   learning_rate : Double
   regularization : Double
   stringency : Double
   random_fraction : Double
   half_size_fraction : Double
   unidentifiable_threshold : Double
-  cluster_count : Int
-  seed : Int
+  cluster_count : Int32
+  seed : Int32
 } derive(Debug)
+
+///|
 pub extend ScDblFinderConfig with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct ScDblFinderArtificialData {
   counts : Array[Array[Double]]
   names : Array[String]
-  parent_one : Array[Int]
-  parent_two : Array[Int]
+  parent_one : Array[Int32]
+  parent_two : Array[Int32]
   origins : Array[String]
 } derive(Debug)
-pub extend ScDblFinderArtificialData with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend ScDblFinderArtificialData with @moonbitlang/core/debug.Debug::{
+  to_repr,
+}
 
 ///|
 pub struct ScDblFinderThreshold {
@@ -45,6 +51,8 @@ pub struct ScDblFinderThreshold {
   false_negative_rate : Double
   called_rate : Double
 } derive(Debug)
+
+///|
 pub extend ScDblFinderThreshold with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -61,6 +69,8 @@ pub struct ScDblFinderCellResult {
   origin : String
   origin_ambiguity : Double
 } derive(Debug)
+
+///|
 pub extend ScDblFinderCellResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -82,28 +92,32 @@ pub struct ScDblFinderResult {
   origins : Array[String]
   origin_ambiguities : Array[Double]
   library_sizes : Array[Double]
-  detected_features : Array[Int]
-  features_above_two : Array[Int]
+  detected_features : Array[Int32]
+  features_above_two : Array[Int32]
   pca : Array[Array[Double]]
   selected_gene_names : Array[String]
   sample_ids : Array[String]
   thresholds : Array[ScDblFinderThreshold]
   expected_doublet_rates : Array[Double]
-  artificial_doublets : Int
-  classifier_iterations : Int
+  artificial_doublets : Int32
+  classifier_iterations : Int32
   config : ScDblFinderConfig
 } derive(Debug)
+
+///|
 pub extend ScDblFinderResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct ScDblFinderEnrichment {
   combination : String
-  observed : Int
+  observed : Int32
   expected : Double
   log2_enrichment : Double
   p_value : Double
   adjusted_p_value : Double
 } derive(Debug)
+
+///|
 pub extend ScDblFinderEnrichment with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -126,7 +140,7 @@ priv struct ScdfaKnnMetrics {
 
 ///|
 priv struct ScdfaCaptureFit {
-  global_indices : Array[Int]
+  global_indices : Array[Int32]
   scores : Array[Double]
   calls : Array[Bool]
   weighted_ratios : Array[Double]
@@ -139,13 +153,13 @@ priv struct ScdfaCaptureFit {
   origins : Array[String]
   ambiguities : Array[Double]
   library_sizes : Array[Double]
-  detected_features : Array[Int]
-  features_above_two : Array[Int]
+  detected_features : Array[Int32]
+  features_above_two : Array[Int32]
   pca : Array[Array[Double]]
-  selected_indices : Array[Int]
+  selected_indices : Array[Int32]
   threshold : ScDblFinderThreshold
   expected_rate : Double
-  artificial_count : Int
+  artificial_count : Int32
 }
 
 ///|
@@ -178,7 +192,7 @@ fn scdfa_contains_string(values : Array[String], query : String) -> Bool {
 }
 
 ///|
-fn scdfa_string_index(values : Array[String], query : String) -> Int {
+fn scdfa_string_index(values : Array[String], query : String) -> Int32 {
   for index in 0..<values.length() {
     if values[index] == query {
       return index
@@ -199,7 +213,7 @@ fn scdfa_unique_strings(values : Array[String]) -> Array[String] {
 }
 
 ///|
-fn scdfa_zero_matrix(rows : Int, columns : Int) -> Array[Array[Double]] {
+fn scdfa_zero_matrix(rows : Int32, columns : Int32) -> Array[Array[Double]] {
   let result = []
   for _ in 0..<rows {
     result.push(Array::make(columns, 0.0))
@@ -274,7 +288,7 @@ fn scdfa_sigmoid(value : Double) -> Double {
 ///|
 fn scdfa_validate_names(
   values : Array[String],
-  expected : Int,
+  expected : Int32,
   label : String,
 ) -> Unit raise ScDblFinderError {
   if values.length() != expected {
@@ -341,23 +355,23 @@ pub fn SingleCellData::create(
 
 ///|
 pub fn ScDblFinderConfig::create(
-  expected_doublet_rate? : Double = -1.0,
-  doublet_rate_per_1000? : Double = 0.008,
-  rate_uncertainty? : Double = -1.0,
-  artificial_doublets? : Int = 0,
-  selected_features? : Int = 1000,
-  dimensions? : Int = 20,
-  neighbors? : Int = 15,
-  iterations? : Int = 3,
-  classifier_steps? : Int = 300,
-  learning_rate? : Double = 0.15,
-  regularization? : Double = 0.01,
-  stringency? : Double = 0.5,
-  random_fraction? : Double = 0.1,
-  half_size_fraction? : Double = 0.25,
-  unidentifiable_threshold? : Double = 0.1,
-  cluster_count? : Int = 0,
-  seed? : Int = 1,
+  expected_doublet_rate~ : Double = -1.0,
+  doublet_rate_per_1000~ : Double = 0.008,
+  rate_uncertainty~ : Double = -1.0,
+  artificial_doublets~ : Int32 = 0,
+  selected_features~ : Int32 = 1000,
+  dimensions~ : Int32 = 20,
+  neighbors~ : Int32 = 15,
+  iterations~ : Int32 = 3,
+  classifier_steps~ : Int32 = 300,
+  learning_rate~ : Double = 0.15,
+  regularization~ : Double = 0.01,
+  stringency~ : Double = 0.5,
+  random_fraction~ : Double = 0.1,
+  half_size_fraction~ : Double = 0.25,
+  unidentifiable_threshold~ : Double = 0.1,
+  cluster_count~ : Int32 = 0,
+  seed~ : Int32 = 1,
 ) -> ScDblFinderConfig raise ScDblFinderError {
   if !scdfa_finite(expected_doublet_rate) ||
     expected_doublet_rate > 1.0 ||
@@ -458,8 +472,8 @@ pub fn ScDblFinderConfig::default() -> ScDblFinderConfig {
 
 ///|
 pub fn scdf_expected_doublet_rate(
-  cells : Int,
-  rate_per_1000? : Double = 0.008,
+  cells : Int32,
+  rate_per_1000~ : Double = 0.008,
 ) -> Double raise ScDblFinderError {
   if cells < 1 {
     scdfa_fail("scDblFinder cell count must be positive")
@@ -519,7 +533,7 @@ fn scdfa_library_sizes(counts : Array[Array[Double]]) -> Array[Double] {
 fn scdfa_detected_features(
   counts : Array[Array[Double]],
   threshold : Double,
-) -> Array[Int] {
+) -> Array[Int32] {
   let result = []
   for row in counts {
     let mut total = 0
@@ -536,8 +550,8 @@ fn scdfa_detected_features(
 ///|
 fn scdfa_selected_features(
   counts : Array[Array[Double]],
-  number : Int,
-) -> Array[Int] {
+  number : Int32,
+) -> Array[Int32] {
   let cells = counts.length()
   let genes = counts[0].length()
   let libraries = scdfa_library_sizes(counts)
@@ -597,9 +611,9 @@ fn scdfa_selected_features(
 ///|
 fn scdfa_processed_coordinates(
   counts : Array[Array[Double]],
-  real_cells : Int,
-  selected : Array[Int],
-  dimensions : Int,
+  real_cells : Int32,
+  selected : Array[Int32],
+  dimensions : Int32,
 ) -> Array[Array[Double]] {
   let libraries = scdfa_library_sizes(counts)
   let real_libraries = []
@@ -646,11 +660,11 @@ fn scdfa_origin_name(
 ///|
 pub fn scdf_generate_artificial_doublets(
   data : SingleCellData,
-  number : Int,
-  clusters? : Array[String] = [],
-  random_fraction? : Double = 0.1,
-  half_size_fraction? : Double = 0.25,
-  seed? : Int = 1,
+  number : Int32,
+  clusters~ : Array[String] = [],
+  random_fraction~ : Double = 0.1,
+  half_size_fraction~ : Double = 0.25,
+  seed~ : Int32 = 1,
 ) -> ScDblFinderArtificialData raise ScDblFinderError {
   scdfa_validate_data(data)
   if number < 1 {
@@ -670,7 +684,7 @@ pub fn scdf_generate_artificial_doublets(
     scdfa_fail("scDblFinder half_size_fraction must be in [0, 1]")
   }
   let libraries = scdfa_library_sizes(data.counts)
-  let eligible : Array[Int] = []
+  let eligible : Array[Int32] = []
   let lower = if libraries.length() >= 10 {
     scdfa_quantile(libraries, 0.05)
   } else {
@@ -691,8 +705,8 @@ pub fn scdf_generate_artificial_doublets(
   if eligible.length() < 2 {
     scdfa_fail("scDblFinder has fewer than two eligible cells")
   }
-  let random_candidates : Array[(Int, Int)] = []
-  let cross_candidates : Array[(Int, Int)] = []
+  let random_candidates : Array[(Int32, Int32)] = []
+  let cross_candidates : Array[(Int32, Int32)] = []
   for left in 0..<eligible.length() {
     for right in (left + 1)..<eligible.length() {
       let pair = (eligible[left], eligible[right])
@@ -757,9 +771,9 @@ fn scdfa_distance(first : Array[Double], second : Array[Double]) -> Double {
 ///|
 fn scdfa_insert_neighbor(
   distances : Array[Double],
-  indices : Array[Int],
+  indices : Array[Int32],
   distance : Double,
-  index : Int,
+  index : Int32,
 ) -> Unit {
   let mut position = distances.length()
   for current in 0..<distances.length() {
@@ -784,9 +798,9 @@ fn scdfa_insert_neighbor(
 ///|
 fn scdfa_knn_metrics(
   coordinates : Array[Array[Double]],
-  real_cells : Int,
+  real_cells : Int32,
   artificial_origins : Array[String],
-  neighbors : Int,
+  neighbors : Int32,
 ) -> ScdfaKnnMetrics {
   let total = coordinates.length()
   let k = if neighbors < total - 1 { neighbors } else { total - 1 }
@@ -881,8 +895,8 @@ fn scdfa_knn_metrics(
 ///|
 fn scdfa_cxds_scores(
   counts : Array[Array[Double]],
-  real_cells : Int,
-  selected : Array[Int],
+  real_cells : Int32,
+  selected : Array[Int32],
 ) -> Array[Double] {
   let feature_count = if selected.length() < 64 {
     selected.length()
@@ -1029,7 +1043,7 @@ fn scdfa_train_classifier(
   features : Array[Array[Double]],
   labels : Array[Bool],
   included : Array[Bool],
-  steps : Int,
+  steps : Int32,
   learning_rate : Double,
   regularization : Double,
 ) -> Array[Double] {
@@ -1149,8 +1163,8 @@ pub fn scdf_optimize_threshold(
   real_scores : Array[Double],
   artificial_scores : Array[Double],
   expected_rate : Double,
-  uncertainty? : Double = -1.0,
-  stringency? : Double = 0.5,
+  uncertainty~ : Double = -1.0,
+  stringency~ : Double = 0.5,
 ) -> ScDblFinderThreshold raise ScDblFinderError {
   if real_scores.length() == 0 || artificial_scores.length() == 0 {
     scdfa_fail("scDblFinder thresholding requires both score classes")
@@ -1217,10 +1231,10 @@ pub fn scdf_optimize_threshold(
 ///|
 fn scdfa_top_indices(
   values : Array[Double],
-  candidates : Array[Int],
-  limit : Int,
+  candidates : Array[Int32],
+  limit : Int32,
   descending : Bool,
-) -> Array[Int] {
+) -> Array[Int32] {
   let ordered = candidates.copy()
   for index in 1..<ordered.length() {
     let value = ordered[index]
@@ -1247,7 +1261,7 @@ fn scdfa_top_indices(
 ///|
 fn scdfa_fit_capture(
   data : SingleCellData,
-  global_indices : Array[Int],
+  global_indices : Array[Int32],
   clusters : Array[String],
   known_doublets : Array[Bool],
   config : ScDblFinderConfig,
@@ -1462,7 +1476,7 @@ fn scdfa_fit_capture(
 ///|
 fn scdfa_auto_clusters(
   data : SingleCellData,
-  count : Int,
+  count : Int32,
   config : ScDblFinderConfig,
 ) -> Array[String] {
   let selected = scdfa_selected_features(data.counts, config.selected_features)
@@ -1547,9 +1561,9 @@ fn scdfa_auto_clusters(
 ///|
 pub fn scdf_fast_cluster(
   data : SingleCellData,
-  cluster_count : Int,
-  dimensions? : Int = 20,
-  selected_features? : Int = 1000,
+  cluster_count : Int32,
+  dimensions~ : Int32 = 20,
+  selected_features~ : Int32 = 1000,
 ) -> Array[String] raise ScDblFinderError {
   scdfa_validate_data(data)
   if cluster_count < 2 || cluster_count > data.counts.length() {
@@ -1568,10 +1582,10 @@ pub fn scdf_fast_cluster(
 ///|
 pub fn sc_dbl_finder(
   data : SingleCellData,
-  clusters? : Array[String] = [],
-  samples? : Array[String] = [],
-  known_doublets? : Array[Bool] = [],
-  config? : ScDblFinderConfig = ScDblFinderConfig::default(),
+  clusters~ : Array[String] = [],
+  samples~ : Array[String] = [],
+  known_doublets~ : Array[Bool] = [],
+  config~ : ScDblFinderConfig = ScDblFinderConfig::default(),
 ) -> ScDblFinderResult raise ScDblFinderError {
   scdfa_validate_data(data)
   let cells = data.counts.length()
@@ -1629,7 +1643,7 @@ pub fn sc_dbl_finder(
   let pca : Array[Array[Double]] = Array::make(cells, [])
   let thresholds = []
   let expected_rates = []
-  let selected_indices : Array[Int] = []
+  let selected_indices : Array[Int32] = []
   let mut artificial_total = 0
   for sample_id in sample_ids {
     let indices = []
@@ -1709,12 +1723,12 @@ pub fn sc_dbl_finder(
 }
 
 ///|
-pub fn ScDblFinderResult::n_cells(self : ScDblFinderResult) -> Int {
+pub fn ScDblFinderResult::n_cells(self : ScDblFinderResult) -> Int32 {
   self.cell_names.length()
 }
 
 ///|
-pub fn ScDblFinderResult::n_doublets(self : ScDblFinderResult) -> Int {
+pub fn ScDblFinderResult::n_doublets(self : ScDblFinderResult) -> Int32 {
   let mut total = 0
   for call in self.calls {
     if call {
@@ -1760,7 +1774,7 @@ pub fn ScDblFinderResult::cell(
 ///|
 pub fn ScDblFinderResult::top_doublets(
   self : ScDblFinderResult,
-  limit? : Int = 10,
+  limit~ : Int32 = 10,
 ) -> Array[ScDblFinderCellResult] raise ScDblFinderError {
   if limit < 1 {
     scdfa_fail("scDblFinder top-doublet limit must be positive")
@@ -1842,7 +1856,7 @@ fn scdfa_normal_cdf(value : Double) -> Double {
 }
 
 ///|
-fn scdfa_poisson_upper(observed : Int, expected : Double) -> Double {
+fn scdfa_poisson_upper(observed : Int32, expected : Double) -> Double {
   if observed <= 0 {
     return 1.0
   }
@@ -2042,12 +2056,12 @@ fn scdfa_copy_sce(source : SingleCellExperiment) -> SingleCellExperiment {
 ///|
 pub fn sc_dbl_finder_single_cell_experiment(
   experiment : SingleCellExperiment,
-  assay_name? : String = "counts",
-  cluster_column? : String = "",
-  sample_column? : String = "",
-  known_doublet_column? : String = "",
-  output_prefix? : String = "scDblFinder",
-  config? : ScDblFinderConfig = ScDblFinderConfig::default(),
+  assay_name~ : String = "counts",
+  cluster_column~ : String = "",
+  sample_column~ : String = "",
+  known_doublet_column~ : String = "",
+  output_prefix~ : String = "scDblFinder",
+  config~ : ScDblFinderConfig = ScDblFinderConfig::default(),
 ) -> ScDblFinderSingleCellExperimentOutput raise ScDblFinderError {
   if assay_name == "" || output_prefix == "" {
     scdfa_fail("scDblFinder assay name and output prefix cannot be empty")

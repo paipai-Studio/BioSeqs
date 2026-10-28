@@ -18,11 +18,16 @@ fn main {
     [5.0, 7.0, 9.0, 11.0],
   ]
   let matrix = @bio.create_delayed_matrix(data, row_names, col_names)
-  println("Dimensions: " + matrix.nrow().to_string() +
-    " x " + matrix.ncol().to_string())
+  println(
+    "Dimensions: " +
+    matrix.nrow().to_string() +
+    " x " +
+    matrix.ncol().to_string(),
+  )
   let dims = matrix.dim()
-  println("Dim vector: [" + dims[0].to_string() +
-    ", " + dims[1].to_string() + "]")
+  println(
+    "Dim vector: [" + dims[0].to_string() + ", " + dims[1].to_string() + "]",
+  )
   println("Element [0,0]: " + matrix.get(0, 0).to_string())
   println("Element [2,3]: " + matrix.get(2, 3).to_string())
 
@@ -30,15 +35,13 @@ fn main {
   let row_means = @bio.dms_row_means(matrix)
   let mut ri = 0
   while ri < row_means.length() {
-    println("  row mean [" + row_names[ri] + "]: " +
-      row_means[ri].to_string())
+    println("  row mean [" + row_names[ri] + "]: " + row_means[ri].to_string())
     ri = ri + 1
   }
   let col_means = @bio.dms_col_means(matrix)
   let mut ci = 0
   while ci < col_means.length() {
-    println("  col mean [" + col_names[ci] + "]: " +
-      col_means[ci].to_string())
+    println("  col mean [" + col_names[ci] + "]: " + col_means[ci].to_string())
     ci = ci + 1
   }
 
@@ -46,15 +49,17 @@ fn main {
   let row_medians = @bio.row_medians(matrix)
   ri = 0
   while ri < row_medians.length() {
-    println("  row median [" + row_names[ri] + "]: " +
-      row_medians[ri].to_string())
+    println(
+      "  row median [" + row_names[ri] + "]: " + row_medians[ri].to_string(),
+    )
     ri = ri + 1
   }
   let col_medians = @bio.col_medians(matrix)
   ci = 0
   while ci < col_medians.length() {
-    println("  col median [" + col_names[ci] + "]: " +
-      col_medians[ci].to_string())
+    println(
+      "  col median [" + col_names[ci] + "]: " + col_medians[ci].to_string(),
+    )
     ci = ci + 1
   }
 
@@ -62,15 +67,13 @@ fn main {
   let row_vars = @bio.dms_row_vars(matrix)
   ri = 0
   while ri < row_vars.length() {
-    println("  row var_ [" + row_names[ri] + "]: " +
-      row_vars[ri].to_string())
+    println("  row var_ [" + row_names[ri] + "]: " + row_vars[ri].to_string())
     ri = ri + 1
   }
   let col_vars = @bio.col_vars(matrix)
   ci = 0
   while ci < col_vars.length() {
-    println("  col var_ [" + col_names[ci] + "]: " +
-      col_vars[ci].to_string())
+    println("  col var_ [" + col_names[ci] + "]: " + col_vars[ci].to_string())
     ci = ci + 1
   }
 
@@ -81,26 +84,29 @@ fn main {
     [10.0, 20.0, @double.not_a_number, 40.0],
     [5.0, 7.0, 9.0, 11.0],
   ]
-  let na_matrix = @bio.create_delayed_matrix(
-    na_data, row_names, col_names,
+  let na_matrix = @bio.create_delayed_matrix(na_data, row_names, col_names)
+  println(
+    "Dimensions with NAs: " +
+    na_matrix.nrow().to_string() +
+    " x " +
+    na_matrix.ncol().to_string(),
   )
-  println("Dimensions with NAs: " +
-    na_matrix.nrow().to_string() + " x " +
-    na_matrix.ncol().to_string())
 
   let na_row_means = @bio.dms_row_means(na_matrix)
   ri = 0
   while ri < na_row_means.length() {
-    println("  row mean [" + row_names[ri] + "]: " +
-      na_row_means[ri].to_string())
+    println(
+      "  row mean [" + row_names[ri] + "]: " + na_row_means[ri].to_string(),
+    )
     ri = ri + 1
   }
 
   let na_col_means = @bio.dms_col_means(na_matrix)
   ci = 0
   while ci < na_col_means.length() {
-    println("  col mean [" + col_names[ci] + "]: " +
-      na_col_means[ci].to_string())
+    println(
+      "  col mean [" + col_names[ci] + "]: " + na_col_means[ci].to_string(),
+    )
     ci = ci + 1
   }
 
@@ -110,13 +116,20 @@ fn main {
   let sub_matrix = @bio.delayed_matrix_subset(
     na_matrix, subset_rows, subset_cols,
   )
-  println("Subset dimensions: " +
-    sub_matrix.nrow().to_string() + " x " +
-    sub_matrix.ncol().to_string())
+  println(
+    "Subset dimensions: " +
+    sub_matrix.nrow().to_string() +
+    " x " +
+    sub_matrix.ncol().to_string(),
+  )
   let sub_dims = sub_matrix.dim()
-  println("Subset dim vector: [" +
-    sub_dims[0].to_string() + ", " +
-    sub_dims[1].to_string() + "]")
+  println(
+    "Subset dim vector: [" +
+    sub_dims[0].to_string() +
+    ", " +
+    sub_dims[1].to_string() +
+    "]",
+  )
 
   let sub_row_means = @bio.dms_row_means(sub_matrix)
   ri = 0
@@ -129,15 +142,13 @@ fn main {
   let row_counts = @bio.row_n(na_matrix)
   ri = 0
   while ri < row_counts.length() {
-    println("  row n [" + row_names[ri] + "]: " +
-      row_counts[ri].to_string())
+    println("  row n [" + row_names[ri] + "]: " + row_counts[ri].to_string())
     ri = ri + 1
   }
   let col_counts = @bio.col_n(na_matrix)
   ci = 0
   while ci < col_counts.length() {
-    println("  col n [" + col_names[ci] + "]: " +
-      col_counts[ci].to_string())
+    println("  col n [" + col_names[ci] + "]: " + col_counts[ci].to_string())
     ci = ci + 1
   }
 
@@ -145,8 +156,7 @@ fn main {
   let row_sums = @bio.row_allsums(matrix)
   ri = 0
   while ri < row_sums.length() {
-    println("  row sum [" + row_names[ri] + "]: " +
-      row_sums[ri].to_string())
+    println("  row sum [" + row_names[ri] + "]: " + row_sums[ri].to_string())
     ri = ri + 1
   }
 

@@ -131,6 +131,8 @@ pub fn flow_core_asinh(x : Double) -> Double {
 pub enum GateType {
   RectangleGate
 } derive(Eq)
+
+///|
 pub extend GateType with Eq::{equal, not_equal}
 
 ///|
@@ -141,6 +143,8 @@ pub enum TransformType {
   LogicleTransform
   LinearTransform
 } derive(Eq)
+
+///|
 pub extend TransformType with Eq::{equal, not_equal}
 
 ///|
@@ -168,8 +172,8 @@ pub struct FCSFile {
   text_segment : Map[String, String]
   data_segment : Array[Array[Double]]
   analysis_segment : String
-  n_events : Int
-  n_parameters : Int
+  n_events : Int32
+  n_parameters : Int32
   parameter_names : Array[String]
   parameter_ranges : Array[(Double, Double)]
 }
@@ -180,8 +184,8 @@ pub struct FlowFrame {
   exprs : Array[Array[Double]]
   params : Array[ParameterDescription]
   description : Map[String, String]
-  n_events : Int
-  n_params : Int
+  n_events : Int32
+  n_params : Int32
 }
 
 ///|
@@ -230,8 +234,8 @@ pub struct CompensationMatrix {
 /// Result of gating operation.
 pub struct GatingResult {
   filtered_events : Array[Array[Double]]
-  n_filtered : Int
-  n_total : Int
+  n_filtered : Int32
+  n_total : Int32
   percentages : Array[Double]
 }
 
@@ -488,8 +492,8 @@ pub fn CompensationMatrix::to_string(self : CompensationMatrix) -> String {
 /// Construct a new GatingResult.
 pub fn GatingResult::new(
   filtered_events : Array[Array[Double]],
-  n_filtered : Int,
-  n_total : Int,
+  n_filtered : Int32,
+  n_total : Int32,
   percentages : Array[Double],
 ) -> GatingResult {
   GatingResult::{ filtered_events, n_filtered, n_total, percentages, }
@@ -521,7 +525,7 @@ pub fn GatingResult::to_string(self : GatingResult) -> String {
 
 ///|
 /// Parse an integer from a string, returning 0 on failure.
-fn flow_core_parse_int(s : String) -> Int {
+fn flow_core_parse_int(s : String) -> Int32 {
   match parse_double(s) {
     Some(v) => v.to_int()
     None => 0
@@ -1081,7 +1085,7 @@ pub fn flow_core_compensate(
   if inv.length() == 0 {
     return frame
   }
-  let channel_indices : Array[Int] = Array(capacity=0)
+  let channel_indices : Array[Int32] = Array(capacity=0)
   let mut i = 0
   while i < comp_matrix.fluorochromes.length() {
     let fluor = comp_matrix.fluorochromes[i]
@@ -1185,7 +1189,7 @@ pub fn flow_core_point_in_ellipse(
 
 ///|
 /// Find the index of a parameter in a FlowFrame by name.
-fn flow_core_find_param(frame : FlowFrame, name : String) -> Int {
+fn flow_core_find_param(frame : FlowFrame, name : String) -> Int32 {
   let mut i = 0
   while i < frame.params.length() {
     if frame.params[i].name == name {
@@ -1202,7 +1206,7 @@ pub fn flow_core_rectangle_gate(frame : FlowFrame, gate : Gate) -> GatingResult 
   let filtered : Array[Array[Double]] = Array(capacity=0)
   let n_total = frame.exprs.length()
   let n_params = gate.parameters.length()
-  let param_indices : Array[Int] = Array(capacity=0)
+  let param_indices : Array[Int32] = Array(capacity=0)
   let mut i = 0
   while i < n_params {
     let idx = flow_core_find_param(frame, gate.parameters[i])

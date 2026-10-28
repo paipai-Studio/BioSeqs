@@ -14,14 +14,19 @@ fn main {
   println("Treatment samples: \{trt.length()}")
   let mut i = 0
   while i < ctrl.length() {
-    println("  Control \{ctrl[i].sample_id}: lib_size=\{ctrl[i].library_size()}, expressed=\{ctrl[i].n_expressed()}")
+    println(
+      "  Control \{ctrl[i].sample_id}: lib_size=\{ctrl[i].library_size()}, expressed=\{ctrl[i].n_expressed()}",
+    )
     i = i + 1
   }
   println("")
 
   // Normalization
   println("=== Normalization (TMM) ===")
-  let norm_ctrl = @bio.noiseq_normalize(ctrl, norm_method=@bio.noiseq_norm_tmm())
+  let norm_ctrl = @bio.noiseq_normalize(
+    ctrl,
+    norm_method=@bio.noiseq_norm_tmm(),
+  )
   let norm_trt = @bio.noiseq_normalize(trt, norm_method=@bio.noiseq_norm_tmm())
   println("Normalized control samples: \{norm_ctrl.length()}")
   println("Normalized treatment samples: \{norm_trt.length()}")
@@ -30,7 +35,8 @@ fn main {
   // Run NOISeq analysis
   println("=== NOISeqBio Analysis ===")
   let results = @bio.noiseq_run(
-    ctrl, trt,
+    ctrl,
+    trt,
     ds_method=@bio.noiseq_method_bio(),
     norm=@bio.noiseq_norm_tmm(),
     prob_threshold=0.3,
@@ -44,7 +50,9 @@ fn main {
   let mut j = 0
   while j < top.length() {
     let g = top[j]
-    println("  \{g.gene_id}: log2FC=\{g.log2fc}, prob=\{g.prob}, rank=\{g.ranking}")
+    println(
+      "  \{g.gene_id}: log2FC=\{g.log2fc}, prob=\{g.prob}, rank=\{g.ranking}",
+    )
     j = j + 1
   }
   println("")
@@ -90,9 +98,15 @@ fn main {
 
   // Normalization comparison
   println("=== Normalization Methods ===")
-  let norm_none = @bio.noiseq_normalize(ctrl, norm_method=@bio.noiseq_norm_none())
+  let norm_none = @bio.noiseq_normalize(
+    ctrl,
+    norm_method=@bio.noiseq_norm_none(),
+  )
   let norm_tmm = @bio.noiseq_normalize(ctrl, norm_method=@bio.noiseq_norm_tmm())
-  let norm_uq = @bio.noiseq_normalize(ctrl, norm_method=@bio.noiseq_norm_upper())
+  let norm_uq = @bio.noiseq_normalize(
+    ctrl,
+    norm_method=@bio.noiseq_norm_upper(),
+  )
   println("None: Gene1 = \{norm_none[0].get_count("Gene1")}")
   println("TMM: Gene1 = \{norm_tmm[0].get_count("Gene1")}")
   println("UpperQuartile: Gene1 = \{norm_uq[0].get_count("Gene1")}")

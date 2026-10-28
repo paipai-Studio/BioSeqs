@@ -1,12 +1,12 @@
 ///|
 /// Tests for quaternion_superimposer module (Bio.PDB.Superimposer - Quaternion method).
-
 test "qs_point_norm" {
   let p = @src.QsPoint::new(3.0, 4.0, 0.0)
   let n = @src.qs_point_norm(p)
   assert_true((n - 5.0).abs() < 1.0e-9)
 }
 
+///|
 test "qs_point_dot" {
   let a = @src.QsPoint::new(1.0, 0.0, 0.0)
   let b = @src.QsPoint::new(0.0, 1.0, 0.0)
@@ -14,6 +14,7 @@ test "qs_point_dot" {
   assert_eq(d, 0.0)
 }
 
+///|
 test "qs_point_cross" {
   let a = @src.QsPoint::new(1.0, 0.0, 0.0)
   let b = @src.QsPoint::new(0.0, 1.0, 0.0)
@@ -23,6 +24,7 @@ test "qs_point_cross" {
   assert_true((c.z - 1.0).abs() < 1.0e-9)
 }
 
+///|
 test "quaternion_identity" {
   let q = @src.quaternion_identity()
   assert_true((q.w - 1.0).abs() < 1.0e-9)
@@ -31,6 +33,7 @@ test "quaternion_identity" {
   assert_true(q.z.abs() < 1.0e-9)
 }
 
+///|
 test "quaternion_multiply" {
   let q1 = @src.quaternion_identity()
   let q2 = @src.quaternion_identity()
@@ -38,6 +41,7 @@ test "quaternion_multiply" {
   assert_true((q.w - 1.0).abs() < 1.0e-9)
 }
 
+///|
 test "quaternion_conjugate" {
   let q = @src.Quaternion::new(1.0, 2.0, 3.0, 4.0)
   let qc = @src.quaternion_conjugate(q)
@@ -47,6 +51,7 @@ test "quaternion_conjugate" {
   assert_true((qc.z + 4.0).abs() < 1.0e-9)
 }
 
+///|
 test "quaternion_to_matrix" {
   let q = @src.quaternion_identity()
   let mat = @src.quaternion_to_matrix(q)
@@ -56,6 +61,7 @@ test "quaternion_to_matrix" {
   assert_true((mat[2][2] - 1.0).abs() < 1.0e-9)
 }
 
+///|
 test "qs_centroid" {
   let points = [
     @src.QsPoint::new(0.0, 0.0, 0.0),
@@ -63,10 +69,11 @@ test "qs_centroid" {
     @src.QsPoint::new(0.0, 2.0, 0.0),
   ]
   let c = @src.qs_centroid(points)
-  assert_true((c.x - 2.0/3.0).abs() < 1.0e-9)
-  assert_true((c.y - 2.0/3.0).abs() < 1.0e-9)
+  assert_true((c.x - 2.0 / 3.0).abs() < 1.0e-9)
+  assert_true((c.y - 2.0 / 3.0).abs() < 1.0e-9)
 }
 
+///|
 test "qs_superimpose identical" {
   let a = [
     @src.QsPoint::new(1.0, 0.0, 0.0),
@@ -83,6 +90,7 @@ test "qs_superimpose identical" {
   assert_true(result.rmsd < 1.0e-9)
 }
 
+///|
 test "qs_superimpose rotated" {
   let a = [
     @src.QsPoint::new(1.0, 0.0, 0.0),
@@ -99,7 +107,7 @@ test "qs_superimpose rotated" {
   assert_true(result.rmsd < 1.0e-9)
 }
 
-
+///|
 test "qs_superimpose translated" {
   let a = [
     @src.QsPoint::new(1.0, 0.0, 0.0),
@@ -116,6 +124,7 @@ test "qs_superimpose translated" {
   assert_true(result.rmsd < 1.0e-9)
 }
 
+///|
 test "qs_superimpose empty" {
   let a : Array[@src.QsPoint] = []
   let b : Array[@src.QsPoint] = []
@@ -123,6 +132,7 @@ test "qs_superimpose empty" {
   assert_eq(result.rmsd, 0.0)
 }
 
+///|
 test "qs_apply_transform" {
   let points = [
     @src.QsPoint::new(1.0, 0.0, 0.0),
@@ -135,19 +145,15 @@ test "qs_apply_transform" {
   assert_true((transformed[1].y - 2.0).abs() < 1.0e-9)
 }
 
+///|
 test "qs_rmsd" {
-  let a = [
-    @src.QsPoint::new(0.0, 0.0, 0.0),
-    @src.QsPoint::new(1.0, 0.0, 0.0),
-  ]
-  let b = [
-    @src.QsPoint::new(0.0, 0.0, 0.0),
-    @src.QsPoint::new(1.0, 0.0, 0.0),
-  ]
+  let a = [@src.QsPoint::new(0.0, 0.0, 0.0), @src.QsPoint::new(1.0, 0.0, 0.0)]
+  let b = [@src.QsPoint::new(0.0, 0.0, 0.0), @src.QsPoint::new(1.0, 0.0, 0.0)]
   let rmsd = @src.qs_rmsd(a, b)
   assert_eq(rmsd, 0.0)
 }
 
+///|
 test "qs_example_structures" {
   let (a, b) = @src.qs_example_structures()
   assert_eq(a.length(), 3)
@@ -156,6 +162,7 @@ test "qs_example_structures" {
   assert_true(result.rmsd < 1.0e-9)
 }
 
+///|
 test "qs_superimpose_apply_transform_roundtrip" {
   let (a, b) = @src.qs_example_structures()
   let result = @src.qs_superimpose(a, b)
@@ -163,6 +170,7 @@ test "qs_superimpose_apply_transform_roundtrip" {
   assert_true(@src.qs_rmsd(fitted, a) < 1.0e-9)
 }
 
+///|
 test "qs_superimpose_rotation_is_proper" {
   let (a, b) = @src.qs_example_structures()
   let r = @src.qs_superimpose(a, b).rotation

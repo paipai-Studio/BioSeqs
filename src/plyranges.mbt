@@ -19,10 +19,10 @@
 /// A GRanges with metadata columns for tidy manipulation.
 pub struct TidifiedGRanges {
   seqnames : Array[String]
-  starts : Array[Int]
-  ends : Array[Int]
+  starts : Array[Int32]
+  ends : Array[Int32]
   strands : Array[String]
-  widths : Array[Int]
+  widths : Array[Int32]
   metadata : Map[String, Array[Double]]
   metadata_str : Map[String, Array[String]]
 }
@@ -30,12 +30,12 @@ pub struct TidifiedGRanges {
 ///|
 pub fn tgr_create(
   seqnames : Array[String],
-  starts : Array[Int],
-  ends : Array[Int],
+  starts : Array[Int32],
+  ends : Array[Int32],
   strands : Array[String],
 ) -> TidifiedGRanges {
   let n = seqnames.length()
-  let widths : Array[Int] = Array::make(n, 0)
+  let widths : Array[Int32] = Array::make(n, 0)
   let mut i = 0
   while i < n {
     widths[i] = ends[i] - starts[i] + 1
@@ -53,7 +53,7 @@ pub fn tgr_create(
 }
 
 ///|
-pub fn tgr_length(tgr : TidifiedGRanges) -> Int {
+pub fn tgr_length(tgr : TidifiedGRanges) -> Int32 {
   tgr.seqnames.length()
 }
 
@@ -97,8 +97,8 @@ pub fn tgr_filter_strand(
 /// Filter GRanges by width range [min_width, max_width] inclusive.
 pub fn tgr_filter_width(
   tgr : TidifiedGRanges,
-  min_width : Int,
-  max_width : Int,
+  min_width : Int32,
+  max_width : Int32,
 ) -> TidifiedGRanges {
   let n = tgr.seqnames.length()
   let keep : Array[Bool] = Array::make(n, false)
@@ -117,7 +117,7 @@ pub fn tgr_filter_width(
 /// Filter GRanges by start position >= min_start.
 pub fn tgr_filter_start(
   tgr : TidifiedGRanges,
-  min_start : Int,
+  min_start : Int32,
 ) -> TidifiedGRanges {
   let n = tgr.seqnames.length()
   let keep : Array[Bool] = Array::make(n, false)
@@ -133,7 +133,10 @@ pub fn tgr_filter_start(
 
 ///|
 /// Filter GRanges by end position <= max_end.
-pub fn tgr_filter_end(tgr : TidifiedGRanges, max_end : Int) -> TidifiedGRanges {
+pub fn tgr_filter_end(
+  tgr : TidifiedGRanges,
+  max_end : Int32,
+) -> TidifiedGRanges {
   let n = tgr.seqnames.length()
   let keep : Array[Bool] = Array::make(n, false)
   let mut i = 0
@@ -198,10 +201,10 @@ pub fn tgr_filter_metadata_str(
 pub fn tgr_subset(tgr : TidifiedGRanges, keep : Array[Bool]) -> TidifiedGRanges {
   let n = tgr.seqnames.length()
   let new_seqnames : Array[String] = Array(capacity=0)
-  let new_starts : Array[Int] = Array(capacity=0)
-  let new_ends : Array[Int] = Array(capacity=0)
+  let new_starts : Array[Int32] = Array(capacity=0)
+  let new_ends : Array[Int32] = Array(capacity=0)
   let new_strands : Array[String] = Array(capacity=0)
-  let new_widths : Array[Int] = Array(capacity=0)
+  let new_widths : Array[Int32] = Array(capacity=0)
   let mut i = 0
   while i < n {
     if keep[i] {
@@ -300,7 +303,7 @@ pub fn tgr_mutate_str(
 /// Arrange (sort) by sequence name then start position.
 pub fn tgr_arrange(tgr : TidifiedGRanges) -> TidifiedGRanges {
   let n = tgr.seqnames.length()
-  let indices : Array[Int] = Array::make(n, 0)
+  let indices : Array[Int32] = Array::make(n, 0)
   let mut i = 0
   while i < n {
     indices[i] = i
@@ -327,7 +330,7 @@ pub fn tgr_arrange(tgr : TidifiedGRanges) -> TidifiedGRanges {
 }
 
 ///|
-fn tgr_should_swap(tgr : TidifiedGRanges, ai : Int, aj : Int) -> Bool {
+fn tgr_should_swap(tgr : TidifiedGRanges, ai : Int32, aj : Int32) -> Bool {
   let si = tgr.seqnames[ai]
   let sj = tgr.seqnames[aj]
   if si > sj {
@@ -350,7 +353,7 @@ pub fn tgr_arrange_by_metadata(
     return tgr
   }
   let n = tgr.seqnames.length()
-  let indices : Array[Int] = Array::make(n, 0)
+  let indices : Array[Int32] = Array::make(n, 0)
   let mut i = 0
   while i < n {
     indices[i] = i
@@ -375,13 +378,16 @@ pub fn tgr_arrange_by_metadata(
 }
 
 ///|
-fn tgr_reorder(tgr : TidifiedGRanges, indices : Array[Int]) -> TidifiedGRanges {
+fn tgr_reorder(
+  tgr : TidifiedGRanges,
+  indices : Array[Int32],
+) -> TidifiedGRanges {
   let n = indices.length()
   let new_seqnames : Array[String] = Array::make(n, "")
-  let new_starts : Array[Int] = Array::make(n, 0)
-  let new_ends : Array[Int] = Array::make(n, 0)
+  let new_starts : Array[Int32] = Array::make(n, 0)
+  let new_ends : Array[Int32] = Array::make(n, 0)
   let new_strands : Array[String] = Array::make(n, "")
-  let new_widths : Array[Int] = Array::make(n, 0)
+  let new_widths : Array[Int32] = Array::make(n, 0)
   let mut i = 0
   while i < n {
     new_seqnames[i] = tgr.seqnames[indices[i]]
@@ -489,7 +495,7 @@ pub fn tgr_select(
 /// Group by a metadata string column and compute summary statistics.
 pub struct GroupSummary {
   group_value : String
-  group_count : Int
+  group_count : Int32
   mean_value : Map[String, Double]
   sum_value : Map[String, Double]
   min_value : Map[String, Double]
@@ -636,8 +642,8 @@ pub fn tgr_group_sum(
 pub fn tgr_join_overlap(
   left : TidifiedGRanges,
   right : TidifiedGRanges,
-) -> Array[(Int, Int)] {
-  let result : Array[(Int, Int)] = Array(capacity=0)
+) -> Array[(Int32, Int32)] {
+  let result : Array[(Int32, Int32)] = Array(capacity=0)
   let nl = left.seqnames.length()
   let nr = right.seqnames.length()
   let mut i = 0
@@ -762,11 +768,11 @@ pub fn tgr_anchor(tgr : TidifiedGRanges, anchor : String) -> TidifiedGRanges {
 
 ///|
 /// Stretch (resize) ranges by adding bases on each side.
-pub fn tgr_stretch(tgr : TidifiedGRanges, amount : Int) -> TidifiedGRanges {
+pub fn tgr_stretch(tgr : TidifiedGRanges, amount : Int32) -> TidifiedGRanges {
   let n = tgr.seqnames.length()
-  let new_starts : Array[Int] = Array::make(n, 0)
-  let new_ends : Array[Int] = Array::make(n, 0)
-  let new_widths : Array[Int] = Array::make(n, 0)
+  let new_starts : Array[Int32] = Array::make(n, 0)
+  let new_ends : Array[Int32] = Array::make(n, 0)
+  let new_widths : Array[Int32] = Array::make(n, 0)
   let mut i = 0
   while i < n {
     new_starts[i] = tgr.starts[i] - amount
@@ -790,11 +796,14 @@ pub fn tgr_stretch(tgr : TidifiedGRanges, amount : Int) -> TidifiedGRanges {
 
 ///|
 /// Resize to a fixed width, anchored at center.
-pub fn tgr_resize_fixed(tgr : TidifiedGRanges, width : Int) -> TidifiedGRanges {
+pub fn tgr_resize_fixed(
+  tgr : TidifiedGRanges,
+  width : Int32,
+) -> TidifiedGRanges {
   let n = tgr.seqnames.length()
-  let new_starts : Array[Int] = Array::make(n, 0)
-  let new_ends : Array[Int] = Array::make(n, 0)
-  let new_widths : Array[Int] = Array::make(n, 0)
+  let new_starts : Array[Int32] = Array::make(n, 0)
+  let new_ends : Array[Int32] = Array::make(n, 0)
+  let new_widths : Array[Int32] = Array::make(n, 0)
   let mut i = 0
   while i < n {
     let center = (tgr.starts[i] + tgr.ends[i]) / 2
@@ -819,10 +828,10 @@ pub fn tgr_resize_fixed(tgr : TidifiedGRanges, width : Int) -> TidifiedGRanges {
 
 ///|
 /// Shift ranges by a fixed amount.
-pub fn tgr_shift(tgr : TidifiedGRanges, amount : Int) -> TidifiedGRanges {
+pub fn tgr_shift(tgr : TidifiedGRanges, amount : Int32) -> TidifiedGRanges {
   let n = tgr.seqnames.length()
-  let new_starts : Array[Int] = Array::make(n, 0)
-  let new_ends : Array[Int] = Array::make(n, 0)
+  let new_starts : Array[Int32] = Array::make(n, 0)
+  let new_ends : Array[Int32] = Array::make(n, 0)
   let mut i = 0
   while i < n {
     new_starts[i] = tgr.starts[i] + amount
@@ -844,15 +853,15 @@ pub fn tgr_shift(tgr : TidifiedGRanges, amount : Int) -> TidifiedGRanges {
 /// Flank: create flanking regions around each range.
 pub fn tgr_flank(
   tgr : TidifiedGRanges,
-  upstream : Int,
-  downstream : Int,
+  upstream : Int32,
+  downstream : Int32,
 ) -> TidifiedGRanges {
   let n = tgr.seqnames.length()
   let new_seqnames : Array[String] = Array(capacity=0)
-  let new_starts : Array[Int] = Array(capacity=0)
-  let new_ends : Array[Int] = Array(capacity=0)
+  let new_starts : Array[Int32] = Array(capacity=0)
+  let new_ends : Array[Int32] = Array(capacity=0)
   let new_strands : Array[String] = Array(capacity=0)
-  let new_widths : Array[Int] = Array(capacity=0)
+  let new_widths : Array[Int32] = Array(capacity=0)
   let mut i = 0
   while i < n {
     // Upstream flank
@@ -947,12 +956,12 @@ pub fn tgr_compute_gc(
 pub fn tgr_intervene(
   sets : Array[TidifiedGRanges],
   set_names : Array[String],
-) -> Array[(String, Int)] {
+) -> Array[(String, Int32)] {
   let n = sets.length()
   if n == 0 {
     return []
   }
-  let result : Array[(String, Int)] = Array(capacity=0)
+  let result : Array[(String, Int32)] = Array(capacity=0)
   // Compute pairwise overlaps
   let mut i = 0
   while i < n {
@@ -991,13 +1000,13 @@ pub fn tgr_to_bed(tgr : TidifiedGRanges) -> String {
 ///|
 /// Summary statistics for TidifiedGRanges.
 pub struct TgrSummary {
-  n_ranges : Int
-  n_seqnames : Int
-  n_strands : Int
-  total_bases : Int
+  n_ranges : Int32
+  n_seqnames : Int32
+  n_strands : Int32
+  total_bases : Int32
   mean_width : Double
-  min_width : Int
-  max_width : Int
+  min_width : Int32
+  max_width : Int32
 }
 
 ///|
@@ -1087,10 +1096,10 @@ pub fn tgr_intersect(
 ) -> TidifiedGRanges {
   let overlaps = tgr_join_overlap(a, b)
   let result_seqnames : Array[String] = Array(capacity=0)
-  let result_starts : Array[Int] = Array(capacity=0)
-  let result_ends : Array[Int] = Array(capacity=0)
+  let result_starts : Array[Int32] = Array(capacity=0)
+  let result_ends : Array[Int32] = Array(capacity=0)
   let result_strands : Array[String] = Array(capacity=0)
-  let result_widths : Array[Int] = Array(capacity=0)
+  let result_widths : Array[Int32] = Array(capacity=0)
   for pair in overlaps {
     let i = pair.0
     let j = pair.1
@@ -1128,10 +1137,10 @@ pub fn tgr_union(a : TidifiedGRanges, b : TidifiedGRanges) -> TidifiedGRanges {
     b_overlapping[pair.1] = true
   }
   let result_seqnames : Array[String] = Array(capacity=0)
-  let result_starts : Array[Int] = Array(capacity=0)
-  let result_ends : Array[Int] = Array(capacity=0)
+  let result_starts : Array[Int32] = Array(capacity=0)
+  let result_ends : Array[Int32] = Array(capacity=0)
   let result_strands : Array[String] = Array(capacity=0)
-  let result_widths : Array[Int] = Array(capacity=0)
+  let result_widths : Array[Int32] = Array(capacity=0)
   // Add all from a
   let mut i = 0
   while i < a.seqnames.length() {
@@ -1170,9 +1179,9 @@ pub fn tgr_union(a : TidifiedGRanges, b : TidifiedGRanges) -> TidifiedGRanges {
 pub fn tgr_distance_to_nearest(
   query : TidifiedGRanges,
   subject : TidifiedGRanges,
-) -> Array[Int] {
+) -> Array[Int32] {
   let nq = query.seqnames.length()
-  let result : Array[Int] = Array::make(nq, 0)
+  let result : Array[Int32] = Array::make(nq, 0)
   let mut i = 0
   while i < nq {
     let qseq = query.seqnames[i]

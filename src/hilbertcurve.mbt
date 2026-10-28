@@ -3,23 +3,23 @@
 
 ///|
 pub struct HilbertCurve {
-  levels : Int
-  dimension : Int
-  max_coordinate : Int
+  levels : Int32
+  dimension : Int32
+  max_coordinate : Int32
 }
 
 ///|
-pub fn HilbertCurve::new(levels : Int, dimension : Int) -> HilbertCurve {
+pub fn HilbertCurve::new(levels : Int32, dimension : Int32) -> HilbertCurve {
   let max_coord = (1 << levels) - 1
   HilbertCurve::{ levels, dimension, max_coordinate: max_coord, }
 }
 
 ///|
-pub fn hilbert_encode(hc : HilbertCurve, coordinates : Array[Int]) -> Int {
+pub fn hilbert_encode(hc : HilbertCurve, coordinates : Array[Int32]) -> Int32 {
   let mut result = 0
   let mut s = 1 << (hc.levels - 1)
 
-  let x : Array[Int] = coordinates.copy()
+  let x : Array[Int32] = coordinates.copy()
   let n = hc.dimension
 
   while s > 0 {
@@ -44,12 +44,12 @@ pub fn hilbert_encode(hc : HilbertCurve, coordinates : Array[Int]) -> Int {
 }
 
 ///|
-fn bit_is_set(x : Int, mask : Int) -> Bool {
+fn bit_is_set(x : Int32, mask : Int32) -> Bool {
   (x & mask) != 0
 }
 
 ///|
-fn log2_int(x : Int) -> Int {
+fn log2_int(x : Int32) -> Int32 {
   let mut result = 0
   let mut value = x
   while value > 1 {
@@ -60,7 +60,7 @@ fn log2_int(x : Int) -> Int {
 }
 
 ///|
-fn hilbert_inverse(hc : HilbertCurve, x : Array[Int], s : Int) -> Unit {
+fn hilbert_inverse(hc : HilbertCurve, x : Array[Int32], s : Int32) -> Unit {
   let n = hc.dimension
 
   let shift_amount = log2_int(s)
@@ -86,8 +86,8 @@ fn hilbert_inverse(hc : HilbertCurve, x : Array[Int], s : Int) -> Unit {
 }
 
 ///|
-pub fn hilbert_decode(hc : HilbertCurve, index : Int) -> Array[Int] {
-  let x : Array[Int] = Array(capacity=0)
+pub fn hilbert_decode(hc : HilbertCurve, index : Int32) -> Array[Int32] {
+  let x : Array[Int32] = Array(capacity=0)
   let mut i = 0
   while i < hc.dimension {
     x.push(0)
@@ -122,10 +122,10 @@ pub fn hilbert_decode(hc : HilbertCurve, index : Int) -> Array[Int] {
 ///|
 pub fn hilbert_point_to_segment(
   hc : HilbertCurve,
-  start : Int,
-  end : Int,
-) -> Array[(Int, Int)] {
-  let segments : Array[(Int, Int)] = Array(capacity=0)
+  start : Int32,
+  end : Int32,
+) -> Array[(Int32, Int32)] {
+  let segments : Array[(Int32, Int32)] = Array(capacity=0)
 
   let mut i = start
   while i <= end {
@@ -142,9 +142,9 @@ pub fn hilbert_point_to_segment(
 ///|
 pub fn hilbert_distance(
   hc : HilbertCurve,
-  coord1 : Array[Int],
-  coord2 : Array[Int],
-) -> Int {
+  coord1 : Array[Int32],
+  coord2 : Array[Int32],
+) -> Int32 {
   let idx1 = hilbert_encode(hc, coord1)
   let idx2 = hilbert_encode(hc, coord2)
 
@@ -154,13 +154,13 @@ pub fn hilbert_distance(
 
 ///|
 pub fn hilbert_linearize_genome(
-  genome_length : Int,
-  levels : Int,
-) -> Array[(Int, Int)] {
+  genome_length : Int32,
+  levels : Int32,
+) -> Array[(Int32, Int32)] {
   let hc = HilbertCurve::new(levels, 2)
   let max_coord = (1 << levels) - 1
 
-  let segments : Array[(Int, Int)] = Array(capacity=0)
+  let segments : Array[(Int32, Int32)] = Array(capacity=0)
 
   let mut i = 0
   while i < genome_length {

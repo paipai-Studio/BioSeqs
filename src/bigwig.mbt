@@ -27,18 +27,22 @@ pub suberror BigWigError {
 ///|
 pub struct BigWigInterval {
   chrom : String
-  start : Int
-  end : Int
+  start : Int32
+  end : Int32
   value : Double
 } derive(Eq, Debug)
+
+///|
 pub extend BigWigInterval with Eq::{equal, not_equal}
+
+///|
 pub extend BigWigInterval with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub fn BigWigInterval::create(
   chrom : String,
-  start : Int,
-  end : Int,
+  start : Int32,
+  end : Int32,
   value : Double,
 ) -> BigWigInterval {
   BigWigInterval::{ chrom, start, end, value, }
@@ -47,74 +51,90 @@ pub fn BigWigInterval::create(
 ///|
 /// Aggregate statistics over a range (total summary or a zoom element).
 pub struct BigWigSummary {
-  valid_count : Int
+  valid_count : Int32
   min_val : Double
   max_val : Double
   sum_data : Double
   sum_squares : Double
 } derive(Eq, Debug)
+
+///|
 pub extend BigWigSummary with Eq::{equal, not_equal}
+
+///|
 pub extend BigWigSummary with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// One zoom (reduction) level: reduction width and file offsets.
 pub struct BigWigZoomHeader {
-  reduction_level : Int
-  data_offset : Int
-  index_offset : Int
+  reduction_level : Int32
+  data_offset : Int32
+  index_offset : Int32
 } derive(Eq, Debug)
+
+///|
 pub extend BigWigZoomHeader with Eq::{equal, not_equal}
+
+///|
 pub extend BigWigZoomHeader with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct BigWigHeader {
   little_endian : Bool
-  version : Int
-  zoom_levels : Int
-  chromosome_tree_offset : Int
-  full_data_offset : Int
-  full_index_offset : Int
-  total_summary_offset : Int
-  uncompress_buffer_size : Int
+  version : Int32
+  zoom_levels : Int32
+  chromosome_tree_offset : Int32
+  full_data_offset : Int32
+  full_index_offset : Int32
+  total_summary_offset : Int32
+  uncompress_buffer_size : Int32
 } derive(Eq, Debug)
+
+///|
 pub extend BigWigHeader with Eq::{equal, not_equal}
+
+///|
 pub extend BigWigHeader with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct BigWigWriteConfig {
-  block_size : Int
+  block_size : Int32
   compress : Bool
 } derive(Eq, Debug)
+
+///|
 pub extend BigWigWriteConfig with Eq::{equal, not_equal}
+
+///|
 pub extend BigWigWriteConfig with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct BigWigFile {
   header : BigWigHeader
   targets : Array[BigBedTarget]
-  source : Array[Int]
+  source : Array[Int32]
   blocks : Array[BigBedBlockIndex]
   zoom_headers : Array[BigWigZoomHeader]
   total_summary : BigWigSummary
-  section_count : Int
+  section_count : Int32
 }
 
 ///|
-let bigwig_magic : Int = 0x888FFC26
+let bigwig_magic : Int32 = 0x888FFC26
 
 ///|
 /// libBigWig on-disk section type codes (Kent/Kent-compatible 24-byte header).
-let bigwig_bed_graph : Int = 1
+let bigwig_bed_graph : Int32 = 1
 
 ///|
-let bigwig_variable_step : Int = 2
+let bigwig_variable_step : Int32 = 2
 
 ///|
-let bigwig_fixed_step : Int = 3
+let bigwig_fixed_step : Int32 = 3
 
 ///|
 /// Sections hold at most 32 KiB uncompressed; bedGraph items are 12 bytes.
-let bigwig_max_bedgraph_items : Int = 2728
+let bigwig_max_bedgraph_items : Int32 = 2728
 
 ///|
 fn[T] bigwig_wrap(operation : () -> T raise BigBedError) -> T raise BigWigError {
@@ -130,8 +150,8 @@ pub fn BigWigWriteConfig::default() -> BigWigWriteConfig {
 
 ///|
 pub fn BigWigWriteConfig::create(
-  compress? : Bool = true,
-  block_size? : Int = 64,
+  compress~ : Bool = true,
+  block_size~ : Int32 = 64,
 ) -> BigWigWriteConfig raise BigWigError {
   bigwig_wrap(fn() -> BigWigWriteConfig raise BigBedError {
     if block_size < 1 || block_size > 65535 {
@@ -150,7 +170,7 @@ pub fn BigWigWriteConfig::create(
 
 ///|
 /// Interpret a signed i32 read as its unsigned f64 magnitude.
-fn bigwig_u32_to_double(value : Int) -> Double {
+fn bigwig_u32_to_double(value : Int32) -> Double {
   if value < 0 {
     value.to_double() + 4294967296.0
   } else {
@@ -161,7 +181,7 @@ fn bigwig_u32_to_double(value : Int) -> Double {
 ///|
 /// Split a non-negative integer-valued Double in [0, 2^53) into its low and
 /// high 32-bit halves, rounding to nearest with ties to even.
-fn bigwig_split_52(value : Double) -> (Int, Int) {
+fn bigwig_split_52(value : Double) -> (Int32, Int32) {
   let scaled = value.round()
   let high = (scaled / 4294967296.0).floor().to_int()
   let low_full = scaled - high.to_double() * 4294967296.0
@@ -173,11 +193,11 @@ fn bigwig_split_52(value : Double) -> (Int, Int) {
 
 ///|
 /// Encode an f64 as (little-endian low 32 bits, high 32 bits).
-fn bigwig_f64_words(value : Double) -> (Int, Int) {
+fn bigwig_f64_words(value : Double) -> (Int32, Int32) {
   if value.is_nan() {
     return (0, 0x7FF80000)
   }
-  let sign_bit : Int = if value < 0.0 { 1 } else { 0 }
+  let sign_bit : Int32 = if value < 0.0 { 1 } else { 0 }
   let abs = if value < 0.0 { -value } else { value }
   if abs == 0.0 {
     return (0, sign_bit << 31)
@@ -220,7 +240,7 @@ fn bigwig_f64_words(value : Double) -> (Int, Int) {
 }
 
 ///|
-fn bigwig_f64_from_words(low : Int, high : Int) -> Double {
+fn bigwig_f64_from_words(low : Int32, high : Int32) -> Double {
   let sign = if high < 0 { -1.0 } else { 1.0 }
   let exponent = (high >> 20) & 0x7FF
   let mantissa_high = (high & 0x000FFFFF).to_double()
@@ -254,7 +274,7 @@ fn bigwig_f64_from_words(low : Int, high : Int) -> Double {
 }
 
 ///|
-fn bigwig_push_f64(output : Array[Int], value : Double) -> Unit {
+fn bigwig_push_f64(output : Array[Int32], value : Double) -> Unit {
   let (low, high) = bigwig_f64_words(value)
   bigbed_push_u32(output, low)
   bigbed_push_u32(output, high)
@@ -262,8 +282,8 @@ fn bigwig_push_f64(output : Array[Int], value : Double) -> Unit {
 
 ///|
 fn bigwig_read_f64(
-  data : Array[Int],
-  position : Int,
+  data : Array[Int32],
+  position : Int32,
   endian : BigBedEndian,
 ) -> Double raise BigBedError {
   if endian == BigBedLittleEndian {
@@ -279,11 +299,11 @@ fn bigwig_read_f64(
 
 ///|
 /// Encode an f64 value as IEEE 754 f32 bits (round to nearest, ties to even).
-fn bigwig_f32_bits(value : Double) -> Int {
+fn bigwig_f32_bits(value : Double) -> Int32 {
   if value.is_nan() {
     return 0x7FC00000
   }
-  let sign_bit : Int = if value < 0.0 { 1 } else { 0 }
+  let sign_bit : Int32 = if value < 0.0 { 1 } else { 0 }
   let mut abs = if value < 0.0 { -value } else { value }
   if abs == 0.0 {
     return sign_bit << 31
@@ -318,7 +338,7 @@ fn bigwig_f32_bits(value : Double) -> Int {
 }
 
 ///|
-fn bigwig_f32_from_bits(bits : Int) -> Double {
+fn bigwig_f32_from_bits(bits : Int32) -> Double {
   let sign = if bits < 0 { -1.0 } else { 1.0 }
   let exponent = (bits >> 23) & 0xFF
   let mantissa = (bits & 0x007FFFFF).to_double()
@@ -349,14 +369,14 @@ fn bigwig_f32_from_bits(bits : Int) -> Double {
 }
 
 ///|
-fn bigwig_push_f32(output : Array[Int], value : Double) -> Unit {
+fn bigwig_push_f32(output : Array[Int32], value : Double) -> Unit {
   bigbed_push_u32(output, bigwig_f32_bits(value))
 }
 
 ///|
 fn bigwig_read_f32(
-  data : Array[Int],
-  position : Int,
+  data : Array[Int32],
+  position : Int32,
   endian : BigBedEndian,
 ) -> Double raise BigBedError {
   bigwig_f32_from_bits(bigbed_read_u32(data, position, endian))
@@ -368,7 +388,7 @@ fn bigwig_read_f32(
 
 ///|
 fn bigwig_read_header(
-  data : Array[Int],
+  data : Array[Int32],
 ) -> (BigWigHeader, BigBedEndian) raise BigBedError {
   bigbed_check_range(data, 0, 64, "header")
   // bigWig shares the bbi container but uses magic 0x888FFC26, unlike BigBed.
@@ -431,8 +451,8 @@ fn bigwig_read_header(
 
 ///|
 fn bigwig_read_zoom_headers(
-  data : Array[Int],
-  count : Int,
+  data : Array[Int32],
+  count : Int32,
   endian : BigBedEndian,
 ) -> Array[BigWigZoomHeader] raise BigBedError {
   let headers : Array[BigWigZoomHeader] = []
@@ -455,8 +475,8 @@ fn bigwig_read_zoom_headers(
 
 ///|
 fn bigwig_read_summary(
-  data : Array[Int],
-  offset : Int,
+  data : Array[Int32],
+  offset : Int32,
   endian : BigBedEndian,
 ) -> BigWigSummary raise BigBedError {
   if offset == 0 {
@@ -479,7 +499,7 @@ fn bigwig_read_summary(
 }
 
 ///|
-pub fn bigwig_parse(data : Array[Int]) -> BigWigFile raise BigWigError {
+pub fn bigwig_parse(data : Array[Int32]) -> BigWigFile raise BigWigError {
   bigwig_wrap(fn() -> BigWigFile raise BigBedError {
     let (header, endian) = bigwig_read_header(data)
     let trailing = bigbed_read_u32(data, data.length() - 4, endian)
@@ -537,7 +557,7 @@ fn bigwig_decode_section(
   } else {
     BigBedBigEndian
   }
-  let payload : Array[Int] = []
+  let payload : Array[Int32] = []
   for i in block.data_offset..<(block.data_offset + block.data_size) {
     payload.push(file.source[i])
   }
@@ -617,7 +637,10 @@ fn bigwig_decode_section(
 }
 
 ///|
-fn bigwig_target_id(file : BigWigFile, chrom : String) -> Int raise BigBedError {
+fn bigwig_target_id(
+  file : BigWigFile,
+  chrom : String,
+) -> Int32 raise BigBedError {
   for i in 0..<file.targets.length() {
     if file.targets[i].name == chrom {
       return i
@@ -630,9 +653,9 @@ fn bigwig_target_id(file : BigWigFile, chrom : String) -> Int raise BigBedError 
 fn bigwig_query_bounds(
   file : BigWigFile,
   chrom : String,
-  start : Int,
-  end_ : Int?,
-) -> (Int, Int, Int) raise BigBedError {
+  start : Int32,
+  end_ : Int32?,
+) -> (Int32, Int32, Int32) raise BigBedError {
   let chrom_id = bigwig_target_id(file, chrom)
   let length = file.targets[chrom_id].length
   let qend = match end_ {
@@ -661,8 +684,8 @@ fn bigwig_query_bounds(
 pub fn BigWigFile::intervals(
   self : BigWigFile,
   chrom : String,
-  start? : Int = 0,
-  end_? : Int? = None,
+  start~ : Int32 = 0,
+  end_~ : Int32? = None,
 ) -> Array[BigWigInterval] raise BigWigError {
   bigwig_wrap(fn() -> Array[BigWigInterval] raise BigBedError {
     let (chrom_id, qstart, qend) = bigwig_query_bounds(self, chrom, start, end_)
@@ -686,8 +709,8 @@ pub fn BigWigFile::intervals(
 pub fn BigWigFile::values(
   self : BigWigFile,
   chrom : String,
-  start? : Int = 0,
-  end_? : Int? = None,
+  start~ : Int32 = 0,
+  end_~ : Int32? = None,
 ) -> Array[Double] raise BigWigError {
   bigwig_wrap(fn() -> Array[Double] raise BigBedError {
     let (chrom_id, qstart, qend) = bigwig_query_bounds(self, chrom, start, end_)
@@ -722,7 +745,7 @@ priv struct BigWigBin {
 }
 
 ///|
-fn bigwig_empty_bins(n_bins : Int) -> Array[BigWigBin] {
+fn bigwig_empty_bins(n_bins : Int32) -> Array[BigWigBin] {
   let bins : Array[BigWigBin] = []
   for _ in 0..<n_bins {
     bins.push(BigWigBin::{
@@ -737,7 +760,7 @@ fn bigwig_empty_bins(n_bins : Int) -> Array[BigWigBin] {
 }
 
 ///|
-fn bigwig_bin_add(bin : BigWigBin, value : Double, bases : Int) -> Unit {
+fn bigwig_bin_add(bin : BigWigBin, value : Double, bases : Int32) -> Unit {
   let weighted = value * bases.to_double()
   bin.sum_data = bin.sum_data + weighted
   bin.sum_squares = bin.sum_squares + value * weighted
@@ -758,7 +781,7 @@ fn bigwig_bin_add(bin : BigWigBin, value : Double, bases : Int) -> Unit {
 ///|
 /// Cumulative-floor bin boundary: bin i spans [bound(i), bound(i+1)) within
 /// a query of `total` bases split into `n_bins` bins (pyBigWig semantics).
-fn bigwig_bin_bound(total : Int, n_bins : Int, index : Int) -> Int {
+fn bigwig_bin_bound(total : Int32, n_bins : Int32, index : Int32) -> Int32 {
   let scaled = index.to_double() * total.to_double() / n_bins.to_double()
   scaled.floor().to_int()
 }
@@ -766,13 +789,17 @@ fn bigwig_bin_bound(total : Int, n_bins : Int, index : Int) -> Int {
 ///|
 /// Inverse boundary: the bin index containing a position `relative` bases
 /// into the query.
-fn bigwig_bin_index(total : Int, n_bins : Int, relative : Int) -> Int {
+fn bigwig_bin_index(total : Int32, n_bins : Int32, relative : Int32) -> Int32 {
   let scaled = relative.to_double() * n_bins.to_double() / total.to_double()
   scaled.floor().to_int()
 }
 
 ///|
-fn bigwig_stat_value(bin : BigWigBin, bin_span : Int, stat : String) -> Double? {
+fn bigwig_stat_value(
+  bin : BigWigBin,
+  bin_span : Int32,
+  stat : String,
+) -> Double? {
   if stat == "cov" {
     return Some(bin.count / bin_span.to_double())
   }
@@ -802,10 +829,10 @@ fn bigwig_stat_value(bin : BigWigBin, bin_span : Int, stat : String) -> Double? 
 ///|
 fn bigwig_raw_stats(
   file : BigWigFile,
-  chrom_id : Int,
-  qstart : Int,
-  qend : Int,
-  n_bins : Int,
+  chrom_id : Int32,
+  qstart : Int32,
+  qend : Int32,
+  n_bins : Int32,
   stat : String,
 ) -> Array[Double?] raise BigBedError {
   let bins = bigwig_empty_bins(n_bins)
@@ -851,10 +878,10 @@ fn bigwig_raw_stats(
 
 ///|
 priv struct BigWigZoomElement {
-  chrom_id : Int
-  start : Int
-  end : Int
-  valid_count : Int
+  chrom_id : Int32
+  start : Int32
+  end : Int32
+  valid_count : Int32
   min_val : Double
   max_val : Double
   sum_data : Double
@@ -864,15 +891,15 @@ priv struct BigWigZoomElement {
 ///|
 fn bigwig_decode_zoom_block(
   file : BigWigFile,
-  data_offset : Int,
-  data_size : Int,
+  data_offset : Int32,
+  data_size : Int32,
 ) -> Array[BigWigZoomElement] raise BigBedError {
   let endian = if file.header.little_endian {
     BigBedLittleEndian
   } else {
     BigBedBigEndian
   }
-  let payload : Array[Int] = []
+  let payload : Array[Int32] = []
   for i in data_offset..<(data_offset + data_size) {
     payload.push(file.source[i])
   }
@@ -941,7 +968,10 @@ fn bigwig_zoom_elements(
 }
 
 ///|
-fn bigwig_choose_zoom(file : BigWigFile, bin_width : Int) -> BigWigZoomHeader? {
+fn bigwig_choose_zoom(
+  file : BigWigFile,
+  bin_width : Int32,
+) -> BigWigZoomHeader? {
   let mut selected : BigWigZoomHeader? = None
   for zoom in file.zoom_headers {
     if zoom.reduction_level <= bin_width {
@@ -955,10 +985,10 @@ fn bigwig_choose_zoom(file : BigWigFile, bin_width : Int) -> BigWigZoomHeader? {
 fn bigwig_zoom_stats(
   file : BigWigFile,
   zoom : BigWigZoomHeader,
-  chrom_id : Int,
-  qstart : Int,
-  qend : Int,
-  n_bins : Int,
+  chrom_id : Int32,
+  qstart : Int32,
+  qend : Int32,
+  n_bins : Int32,
   stat : String,
 ) -> Array[Double?] raise BigBedError {
   let elements = bigwig_zoom_elements(file, zoom)
@@ -1028,10 +1058,10 @@ fn bigwig_zoom_stats(
 pub fn BigWigFile::stats(
   self : BigWigFile,
   chrom : String,
-  start? : Int = 0,
-  end_? : Int? = None,
-  n_bins? : Int = 1,
-  stat? : String = "mean",
+  start~ : Int32 = 0,
+  end_~ : Int32? = None,
+  n_bins~ : Int32 = 1,
+  stat~ : String = "mean",
 ) -> Array[Double?] raise BigWigError {
   bigwig_wrap(fn() -> Array[Double?] raise BigBedError {
     let (chrom_id, qstart, qend) = bigwig_query_bounds(self, chrom, start, end_)
@@ -1060,8 +1090,8 @@ pub fn BigWigFile::stats(
 // ---------------------------------------------------------------------------
 
 ///|
-pub fn BigWigFile::chroms(self : BigWigFile) -> Array[(String, Int)] {
-  let result : Array[(String, Int)] = []
+pub fn BigWigFile::chroms(self : BigWigFile) -> Array[(String, Int32)] {
+  let result : Array[(String, Int32)] = []
   for target in self.targets {
     result.push((target.name, target.length))
   }
@@ -1084,7 +1114,7 @@ pub fn BigWigFile::zoom_levels(self : BigWigFile) -> Array[BigWigZoomHeader] {
 }
 
 ///|
-pub fn BigWigFile::section_count(self : BigWigFile) -> Int {
+pub fn BigWigFile::section_count(self : BigWigFile) -> Int32 {
   self.section_count
 }
 
@@ -1096,7 +1126,7 @@ pub fn BigWigFile::section_count(self : BigWigFile) -> Int {
 fn bigwig_validate_inputs(
   targets : Array[BigBedTarget],
   intervals : Array[BigWigInterval],
-) -> Array[Int] raise BigBedError {
+) -> Array[Int32] raise BigBedError {
   if targets.length() == 0 {
     bigbed_fail("BigWig output requires at least one chromosome")
   }
@@ -1121,11 +1151,11 @@ fn bigwig_validate_inputs(
     }
   }
   // Resolve and sort every interval by (chrom id, start).
-  let order : Array[Int] = []
+  let order : Array[Int32] = []
   for i in 0..<intervals.length() {
     order.push(i)
   }
-  order.sort_by(fn(left : Int, right : Int) -> Int {
+  order.sort_by(fn(left : Int32, right : Int32) -> Int32 {
     let a = intervals[left]
     let b = intervals[right]
     let ia = bigbed_target_index(targets, a.chrom)
@@ -1189,10 +1219,10 @@ fn bigwig_validate_inputs(
 ///|
 fn bigwig_section_bytes(
   intervals : Array[BigWigInterval],
-  start_index : Int,
-  end_index : Int,
-  chrom_id : Int,
-) -> Array[Int] {
+  start_index : Int32,
+  end_index : Int32,
+  chrom_id : Int32,
+) -> Array[Int32] {
   let first = intervals[start_index]
   let mut section_end = first.end
   for i in (start_index + 1)..<end_index {
@@ -1200,7 +1230,7 @@ fn bigwig_section_bytes(
       section_end = intervals[i].end
     }
   }
-  let raw : Array[Int] = []
+  let raw : Array[Int32] = []
   bigbed_push_u32(raw, chrom_id)
   bigbed_push_u32(raw, first.start)
   bigbed_push_u32(raw, section_end)
@@ -1220,12 +1250,12 @@ fn bigwig_section_bytes(
 
 ///|
 fn bigwig_patch_header(
-  output : Array[Int],
-  chromosome_tree_offset : Int,
-  full_data_offset : Int,
-  full_index_offset : Int,
-  total_summary_offset : Int,
-  uncompress_buffer_size : Int,
+  output : Array[Int32],
+  chromosome_tree_offset : Int32,
+  full_data_offset : Int32,
+  full_index_offset : Int32,
+  total_summary_offset : Int32,
+  uncompress_buffer_size : Int32,
 ) -> Unit {
   bigbed_patch_u32(output, 0, bigwig_magic)
   bigbed_patch_u16(output, 4, 4)
@@ -1245,15 +1275,15 @@ fn bigwig_patch_header(
 pub fn bigwig_write(
   targets : Array[BigBedTarget],
   intervals : Array[BigWigInterval],
-  config? : BigWigWriteConfig = BigWigWriteConfig::default(),
-) -> Array[Int] raise BigWigError {
-  bigwig_wrap(fn() -> Array[Int] raise BigBedError {
+  config~ : BigWigWriteConfig = BigWigWriteConfig::default(),
+) -> Array[Int32] raise BigWigError {
+  bigwig_wrap(fn() -> Array[Int32] raise BigBedError {
     let order = bigwig_validate_inputs(targets, intervals)
     let sorted : Array[BigWigInterval] = []
     for index in order {
       sorted.push(intervals[index])
     }
-    let output : Array[Int] = Array::make(64, 0)
+    let output : Array[Int32] = Array::make(64, 0)
     let total_summary_offset = output.length()
     for _ in 0..<40 {
       output.push(0)
@@ -1268,7 +1298,7 @@ pub fn bigwig_write(
     // Build every data section first so the u64 section count can precede the
     // payloads in the output stream.
     // (chrom id, start base, end base, encoded payload) per section.
-    let sections : Array[(Int, Int, Int, Array[Int])] = []
+    let sections : Array[(Int32, Int32, Int32, Array[Int32])] = []
     let mut maximum_uncompressed = 0
     let mut index = 0
     while index < sorted.length() {
@@ -1336,7 +1366,7 @@ pub fn bigwig_write(
         interval.value * interval.value * width.to_double()
     }
     bigbed_patch_u64_local(output, total_summary_offset, valid_count)
-    let summary_bytes : Array[Int] = []
+    let summary_bytes : Array[Int32] = []
     bigwig_push_f64(summary_bytes, min_val)
     bigwig_push_f64(summary_bytes, max_val)
     bigwig_push_f64(summary_bytes, sum_data)

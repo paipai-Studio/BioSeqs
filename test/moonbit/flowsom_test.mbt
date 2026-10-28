@@ -16,8 +16,8 @@ fn flowsom_test_some(value : Double?) -> Double {
 }
 
 ///|
-fn flowsom_test_unique_count(values : Array[Int]) -> Int {
-  let unique : Array[Int] = []
+fn flowsom_test_unique_count(values : Array[Int32]) -> Int32 {
+  let unique : Array[Int32] = []
   for value in values {
     if !unique.contains(value) {
       unique.push(value)
@@ -27,7 +27,7 @@ fn flowsom_test_unique_count(values : Array[Int]) -> Int {
 }
 
 ///|
-fn flowsom_test_sum(values : Array[Int]) -> Int {
+fn flowsom_test_sum(values : Array[Int32]) -> Int32 {
   let mut total = 0
   for value in values {
     total = total + value
@@ -51,8 +51,8 @@ fn flowsom_test_data() -> Array[Array[Double]] {
 
 ///|
 fn flowsom_test_config(
-  metaclusters? : Int = 0,
-  seed? : Int = 31,
+  metaclusters~ : Int32 = 0,
+  seed~ : Int32 = 31,
 ) -> @src.FlowSomConfig {
   @src.FlowSomConfig::create(
     xdim=2,
@@ -73,8 +73,8 @@ fn flowsom_test_config(
 
 ///|
 fn flowsom_test_model(
-  metaclusters? : Int = 0,
-  seed? : Int = 31,
+  metaclusters~ : Int32 = 0,
+  seed~ : Int32 = 31,
 ) -> @src.FlowSomModel {
   @src.flowsom_train(
     flowsom_test_data(),
@@ -86,7 +86,7 @@ fn flowsom_test_model(
 }
 
 ///|
-fn flowsom_test_one_node_model(metaclusters? : Int = 0) -> @src.FlowSomModel {
+fn flowsom_test_one_node_model(metaclusters~ : Int32 = 0) -> @src.FlowSomModel {
   let config = @src.FlowSomConfig::create(
     xdim=1,
     ydim=1,

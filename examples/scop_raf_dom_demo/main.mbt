@@ -16,7 +16,14 @@ fn raf_line(
   flags : String,
   residues : Array[(String, String, String)],
 ) -> String {
-  let mut line = pdbid + chainid + " " + version + "    " + "26JUN9" + " " + flags
+  let mut line = pdbid +
+    chainid +
+    " " +
+    version +
+    "    " +
+    "26JUN9" +
+    " " +
+    flags
   while line.length() < 38 {
     line = line + " "
   }
@@ -34,13 +41,12 @@ fn raf_line(
 ///|
 fn main raise {
   println("=== 1. Parse a RAF sequence map ===")
-  let line = raf_line(
-    "1sct",
-    "A",
-    "0.01",
-    "150212",
-    [("1", "A", "A"), ("2", "G", "G"), ("10A", "K", "K"), ("11", "R", "R")],
-  )
+  let line = raf_line("1sct", "A", "0.01", "150212", [
+    ("1", "A", "A"),
+    ("2", "G", "G"),
+    ("10A", "K", "K"),
+    ("11", "R", "R"),
+  ])
   let seqmap = @src.scop_raf_seqmap_parse(line)
   println("pdbid:       \{seqmap.pdbid}")
   println("datestamp:   \{seqmap.pdb_datestamp}")
@@ -55,13 +61,9 @@ fn main raise {
   }
 
   println("\n=== 2. RAF index and domain sequence map ===")
-  let raf_text = line + "\n" + raf_line(
-    "1flp",
-    "_",
-    "0.01",
-    "150212",
-    [("5", "D", "D"), ("6", "E", "E")],
-  )
+  let raf_text = line +
+    "\n" +
+    raf_line("1flp", "_", "0.01", "150212", [("5", "D", "D"), ("6", "E", "E")])
   let index = @src.scop_raf_index(raf_text)
   println("index keys: \{index.keys().collect().to_string()}")
   // SCOP-style residue definition: residues 2 to 10A of chain A
@@ -81,7 +83,9 @@ fn main raise {
   let dom_text = "# comment lines start with '#'\nd1sctg_\t1sct\tg:\t1.001.001.001.001.001\nd1flp__\t1flp\t-\t1.001.001.001.001.002\n"
   let records = @src.scop_dom_parse(dom_text)
   for rec in records {
-    println("sid=\{rec.sid}  hierarchy=\{rec.hierarchy}  fragments=\{rec.residues.fragments().length()}")
+    println(
+      "sid=\{rec.sid}  hierarchy=\{rec.hierarchy}  fragments=\{rec.residues.fragments().length()}",
+    )
   }
   println("--- round trip ---")
   for rec in records {

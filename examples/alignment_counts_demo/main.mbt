@@ -1,5 +1,5 @@
 ///|
-fn show_optional_int(value : Int?) -> String {
+fn show_optional_int(value : Int32?) -> String {
   match value {
     Some(number) => number.to_string()
     None => "unknown"

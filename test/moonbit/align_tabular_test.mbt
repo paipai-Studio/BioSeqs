@@ -20,7 +20,7 @@ fn align_tabular_test_block(
   database : String,
   fields : Array[String],
   rows : Array[Array[String]],
-  hits : Int,
+  hits : Int32,
 ) -> String {
   let mut result = "# " +
     program +

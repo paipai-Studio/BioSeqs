@@ -8,11 +8,11 @@
 ///|
 /// Helix kink analysis result.
 pub(all) struct HelixKink {
-  kink_position : Int       // residue index where kink occurs
-  bend_angle : Double       // angle between pre/post axes (degrees)
-  wobble_angle : Double     // rotation around perpendicular axis (degrees)
-  face_shift : Double       // rotation around helix axis (degrees)
-  pre_kink_axis : Vector3  // helix axis direction before kink
+  kink_position : Int32 // residue index where kink occurs
+  bend_angle : Double // angle between pre/post axes (degrees)
+  wobble_angle : Double // rotation around perpendicular axis (degrees)
+  face_shift : Double // rotation around helix axis (degrees)
+  pre_kink_axis : Vector3 // helix axis direction before kink
   post_kink_axis : Vector3 // helix axis direction after kink
 }
 
@@ -20,7 +20,11 @@ pub(all) struct HelixKink {
 
 ///|
 fn hg_sqrt(x : Double) -> Double {
-  if x < 0.0 { 0.0 } else { x.sqrt() }
+  if x < 0.0 {
+    0.0
+  } else {
+    x.sqrt()
+  }
 }
 
 ///|
@@ -34,7 +38,10 @@ fn jacobi_eigen3x3(
   while i < 3 {
     let row = Array::make(3, 0.0)
     let mut j = 0
-    while j < 3 { row[j] = m[i][j]; j = j + 1 }
+    while j < 3 {
+      row[j] = m[i][j]
+      j = j + 1
+    }
     a.push(row)
     i = i + 1
   }
@@ -64,7 +71,9 @@ fn jacobi_eigen3x3(
       }
       p = p + 1
     }
-    if max_off < 0.0000000001 { break }
+    if max_off < 0.0000000001 {
+      break
+    }
     let ai = a[mi][mi]
     let aj = a[mj][mj]
     let aij = a[mi][mj]
@@ -104,14 +113,25 @@ fn jacobi_eigen3x3(
   for idx in indices {
     sorted.push((eigs[idx], idx))
   }
-  sorted.sort_by(fn(a, b) { if a.0 > b.0 { -1 } else if a.0 < b.0 { 1 } else { 0 } })
+  sorted.sort_by(fn(a, b) {
+    if a.0 > b.0 {
+      -1
+    } else if a.0 < b.0 {
+      1
+    } else {
+      0
+    }
+  })
   let evals = Array(capacity=3)
   let evecs = Array(capacity=3)
   for (eval, idx) in sorted {
     evals.push(eval)
     let vec = Array(capacity=3)
     let mut k = 0
-    while k < 3 { vec.push(v[k][idx]); k = k + 1 }
+    while k < 3 {
+      vec.push(v[k][idx])
+      k = k + 1
+    }
     evecs.push(vec)
   }
   (evals, evecs)
@@ -121,7 +141,9 @@ fn jacobi_eigen3x3(
 /// Compute centroid of a set of points.
 fn centroid(coords : Array[Vector3]) -> Vector3 {
   let n = coords.length()
-  if n == 0 { return Vector3::new(0.0, 0.0, 0.0) }
+  if n == 0 {
+    return Vector3::new(0.0, 0.0, 0.0)
+  }
   let mut sx = 0.0
   let mut sy = 0.0
   let mut sz = 0.0
@@ -135,7 +157,10 @@ fn centroid(coords : Array[Vector3]) -> Vector3 {
 
 ///|
 /// Compute 3x3 covariance matrix of points around their centroid.
-fn helix_covariance_matrix(coords : Array[Vector3], center : Vector3) -> Array[Array[Double]] {
+fn helix_covariance_matrix(
+  coords : Array[Vector3],
+  center : Vector3,
+) -> Array[Array[Double]] {
   let n = coords.length()
   let mut cxx = 0.0
   let mut cyy = 0.0
@@ -166,9 +191,7 @@ fn helix_covariance_matrix(coords : Array[Vector3], center : Vector3) -> Array[A
 /// Best-fit line through a set of 3D points.
 /// Returns (origin=centroid, direction=principal axis).
 /// The principal axis is the eigenvector with the largest eigenvalue.
-pub fn calc_best_fit_line(
-  coords : Array[Vector3],
-) -> (Vector3, Vector3) {
+pub fn calc_best_fit_line(coords : Array[Vector3]) -> (Vector3, Vector3) {
   let n = coords.length()
   if n == 0 {
     return (Vector3::new(0.0, 0.0, 0.0), Vector3::new(0.0, 0.0, 1.0))
@@ -195,9 +218,7 @@ pub fn calc_best_fit_line(
 /// Best-fit plane through a set of 3D points.
 /// Returns (origin=centroid, normal=plane normal).
 /// The normal is the eigenvector with the smallest eigenvalue.
-pub fn calc_best_fit_plane(
-  coords : Array[Vector3],
-) -> (Vector3, Vector3) {
+pub fn calc_best_fit_plane(coords : Array[Vector3]) -> (Vector3, Vector3) {
   let n = coords.length()
   if n == 0 {
     return (Vector3::new(0.0, 0.0, 0.0), Vector3::new(0.0, 0.0, 1.0))
@@ -210,7 +231,11 @@ pub fn calc_best_fit_plane(
   let (_evals, evecs) = jacobi_eigen3x3(cov)
   // Smallest eigenvalue is last (sorted descending)
   let normal_raw = Vector3::new(evecs[2][0], evecs[2][1], evecs[2][2])
-  let mag = hg_sqrt(normal_raw.x * normal_raw.x + normal_raw.y * normal_raw.y + normal_raw.z * normal_raw.z)
+  let mag = hg_sqrt(
+    normal_raw.x * normal_raw.x +
+    normal_raw.y * normal_raw.y +
+    normal_raw.z * normal_raw.z,
+  )
   let normal = if mag > 0.0 {
     Vector3::new(normal_raw.x / mag, normal_raw.y / mag, normal_raw.z / mag)
   } else {
@@ -222,9 +247,7 @@ pub fn calc_best_fit_plane(
 ///|
 /// Compute helix axis from CA coordinates.
 /// Wrapper around calc_best_fit_line.
-pub fn calc_helix_axis(
-  ca_coords : Array[Vector3],
-) -> (Vector3, Vector3) {
+pub fn calc_helix_axis(ca_coords : Array[Vector3]) -> (Vector3, Vector3) {
   calc_best_fit_line(ca_coords)
 }
 
@@ -269,11 +292,13 @@ fn vec_normalize(v : Vector3) -> Vector3 {
 /// - face_shift: rotation component around the average axis
 pub fn calc_helix_kink(
   ca_coords : Array[Vector3],
-  kink_position : Int,
+  kink_position : Int32,
 ) -> HelixKink? {
   let n = ca_coords.length()
   // Need at least 3 residues on each side
-  if kink_position < 6 || kink_position > n - 6 { return None }
+  if kink_position < 6 || kink_position > n - 6 {
+    return None
+  }
   let pre = Array(capacity=kink_position)
   let mut i = 0
   while i < kink_position {
@@ -293,34 +318,55 @@ pub fn calc_helix_kink(
   let clamped = if dot > 1.0 { 1.0 } else if dot < -1.0 { -1.0 } else { dot }
   let bend_angle = @math.acos(clamped) * 180.0 / 3.14159265358979323846
   // Average axis
-  let avg_axis = vec_normalize(Vector3::new(
-    pre_dir.x + post_dir.x,
-    pre_dir.y + post_dir.y,
-    pre_dir.z + post_dir.z,
-  ))
+  let avg_axis = vec_normalize(
+    Vector3::new(
+      pre_dir.x + post_dir.x,
+      pre_dir.y + post_dir.y,
+      pre_dir.z + post_dir.z,
+    ),
+  )
   // Wobble: component of post_dir perpendicular to avg_axis
-  let perp = vec_sub(post_dir, Vector3::new(
-    avg_axis.x * helix_vec_dot(post_dir, avg_axis),
-    avg_axis.y * helix_vec_dot(post_dir, avg_axis),
-    avg_axis.z * helix_vec_dot(post_dir, avg_axis),
-  ))
+  let perp = vec_sub(
+    post_dir,
+    Vector3::new(
+      avg_axis.x * helix_vec_dot(post_dir, avg_axis),
+      avg_axis.y * helix_vec_dot(post_dir, avg_axis),
+      avg_axis.z * helix_vec_dot(post_dir, avg_axis),
+    ),
+  )
   let perp_mag = hg_sqrt(perp.x * perp.x + perp.y * perp.y + perp.z * perp.z)
-  let wobble_angle = @math.atan2(perp_mag, helix_vec_dot(post_dir, avg_axis).abs()) * 180.0 / 3.14159265358979323846
+  let wobble_angle = @math.atan2(
+      perp_mag,
+      helix_vec_dot(post_dir, avg_axis).abs(),
+    ) *
+    180.0 /
+    3.14159265358979323846
   // Face-shift: rotation around the helix axis
   // Computed as the angle between the perpendicular components
   // of pre_dir and post_dir projected onto the plane normal to avg_axis
-  let pre_perp = vec_sub(pre_dir, Vector3::new(
-    avg_axis.x * helix_vec_dot(pre_dir, avg_axis),
-    avg_axis.y * helix_vec_dot(pre_dir, avg_axis),
-    avg_axis.z * helix_vec_dot(pre_dir, avg_axis),
-  ))
+  let pre_perp = vec_sub(
+    pre_dir,
+    Vector3::new(
+      avg_axis.x * helix_vec_dot(pre_dir, avg_axis),
+      avg_axis.y * helix_vec_dot(pre_dir, avg_axis),
+      avg_axis.z * helix_vec_dot(pre_dir, avg_axis),
+    ),
+  )
   let post_perp = perp
   let pre_perp_n = vec_normalize(pre_perp)
   let post_perp_n = vec_normalize(post_perp)
   let fs_dot = helix_vec_dot(pre_perp_n, post_perp_n)
-  let fs_clamped = if fs_dot > 1.0 { 1.0 } else if fs_dot < -1.0 { -1.0 } else { fs_dot }
+  let fs_clamped = if fs_dot > 1.0 {
+    1.0
+  } else if fs_dot < -1.0 {
+    -1.0
+  } else {
+    fs_dot
+  }
   let fs_cross = helix_vec_dot(vec_cross(pre_perp_n, post_perp_n), avg_axis)
-  let face_shift = @math.atan2(fs_cross, fs_clamped) * 180.0 / 3.14159265358979323846
+  let face_shift = @math.atan2(fs_cross, fs_clamped) *
+    180.0 /
+    3.14159265358979323846
   Some(HelixKink::{
     kink_position,
     bend_angle,
@@ -338,17 +384,14 @@ pub fn calc_helix_kink(
 /// positions where the bend exceeds a threshold.
 pub fn analyze_helix_kinks(
   ca_coords : Array[Vector3],
-  window_size? : Int = 4,
+  window_size~ : Int32 = 4,
 ) -> Array[HelixKink] {
   let n = ca_coords.length()
   let kinks = Array(capacity=0)
   let mut i = window_size
   while i < n - window_size {
     match calc_helix_kink(ca_coords, i) {
-      Some(kink) =>
-        if kink.bend_angle > 20.0 {
-          kinks.push(kink)
-        }
+      Some(kink) => if kink.bend_angle > 20.0 { kinks.push(kink) }
       None => ()
     }
     i = i + 1

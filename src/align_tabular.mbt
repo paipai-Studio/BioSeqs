@@ -17,7 +17,11 @@ pub enum AlignTabularTrace {
   Btop
   Cigar
 } derive(Eq, Debug)
+
+///|
 pub extend AlignTabularTrace with Eq::{equal, not_equal}
+
+///|
 pub extend AlignTabularTrace with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -30,7 +34,11 @@ pub enum AlignTabularOperation {
   QueryGap
   TargetGap
 } derive(Eq, Debug)
+
+///|
 pub extend AlignTabularOperation with Eq::{equal, not_equal}
+
+///|
 pub extend AlignTabularOperation with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -39,7 +47,11 @@ pub struct AlignTabularField {
   name : String
   value : String
 } derive(Eq, Debug)
+
+///|
 pub extend AlignTabularField with Eq::{equal, not_equal}
+
+///|
 pub extend AlignTabularField with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -51,7 +63,11 @@ pub struct AlignTabularMetadata {
   database : String
   rid : String
 } derive(Eq, Debug)
+
+///|
 pub extend AlignTabularMetadata with Eq::{equal, not_equal}
+
+///|
 pub extend AlignTabularMetadata with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -65,26 +81,28 @@ pub struct AlignTabularAlignment {
   query_id : String
   query_description : String
   target_id : String
-  query_length : Int?
-  target_length : Int?
-  query_start : Int?
-  query_end : Int?
-  target_start : Int?
-  target_end : Int?
+  query_length : Int32?
+  target_length : Int32?
+  query_start : Int32?
+  query_end : Int32?
+  target_start : Int32?
+  target_end : Int32?
   query_strand : Strand
   target_strand : Strand
   query_sequence : String
   target_sequence : String
-  target_coordinates : Array[Int]
-  query_coordinates : Array[Int]
+  target_coordinates : Array[Int32]
+  query_coordinates : Array[Int32]
   operations : Array[AlignTabularOperation]
   trace : AlignTabularTrace
   trace_text : String
   path_is_absolute : Bool
-  target_units_per_residue : Int
-  query_units_per_residue : Int
+  target_units_per_residue : Int32
+  query_units_per_residue : Int32
   fields : Array[AlignTabularField]
 } derive(Debug)
+
+///|
 pub extend AlignTabularAlignment with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -93,28 +111,32 @@ pub struct AlignTabularQueryResult {
   metadata : AlignTabularMetadata
   query_id : String
   query_description : String
-  query_length : Int?
+  query_length : Int32?
   query_unit : String
   field_names : Array[String]
-  declared_hits : Int
+  declared_hits : Int32
   alignments : Array[AlignTabularAlignment]
 } derive(Debug)
+
+///|
 pub extend AlignTabularQueryResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Complete parsed document.
 pub struct AlignTabularDocument {
   queries : Array[AlignTabularQueryResult]
-  processed_queries : Int?
+  processed_queries : Int32?
 } derive(Debug)
+
+///|
 pub extend AlignTabularDocument with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 priv struct AlignTabularRelativePath {
-  target_coordinates : Array[Int]
-  query_coordinates : Array[Int]
+  target_coordinates : Array[Int32]
+  query_coordinates : Array[Int32]
   operations : Array[AlignTabularOperation]
-  columns : Int
+  columns : Int32
 }
 
 ///|
@@ -191,7 +213,7 @@ fn align_tabular_split_whitespace(value : String) -> Array[String] {
 }
 
 ///|
-fn align_tabular_join(values : Array[String], start : Int) -> String {
+fn align_tabular_join(values : Array[String], start : Int32) -> String {
   let mut result = ""
   for index in start..<values.length() {
     if index > start {
@@ -203,11 +225,11 @@ fn align_tabular_join(values : Array[String], start : Int) -> String {
 }
 
 ///|
-fn align_tabular_last_delimiter(value : String, delimiter : String) -> Int? {
+fn align_tabular_last_delimiter(value : String, delimiter : String) -> Int32? {
   if delimiter.length() == 0 || delimiter.length() > value.length() {
     return None
   }
-  let mut found : Int? = None
+  let mut found : Int32? = None
   for start in 0..<=(value.length() - delimiter.length()) {
     let mut matches = true
     for offset in 0..<delimiter.length() {
@@ -228,7 +250,7 @@ fn align_tabular_last_delimiter(value : String, delimiter : String) -> Int? {
 fn align_tabular_parse_int(
   value : String,
   label : String,
-) -> Int raise AlignTabularError {
+) -> Int32 raise AlignTabularError {
   if value.length() == 0 {
     raise AlignTabularError("missing integer field " + label)
   }
@@ -377,7 +399,7 @@ fn align_tabular_parse_double(
 }
 
 ///|
-fn align_tabular_abs(value : Int) -> Int {
+fn align_tabular_abs(value : Int32) -> Int32 {
   if value < 0 {
     -value
   } else {
@@ -386,8 +408,8 @@ fn align_tabular_abs(value : Int) -> Int {
 }
 
 ///|
-fn align_tabular_copy_ints(values : Array[Int]) -> Array[Int] {
-  let result : Array[Int] = []
+fn align_tabular_copy_ints(values : Array[Int32]) -> Array[Int32] {
+  let result : Array[Int32] = []
   for value in values {
     result.push(value)
   }
@@ -476,7 +498,7 @@ fn align_tabular_field_value(
 fn align_tabular_optional_int(
   fields : Array[AlignTabularField],
   name : String,
-) -> Int? raise AlignTabularError {
+) -> Int32? raise AlignTabularError {
   match align_tabular_field_value(fields, name) {
     Some(value) => Some(align_tabular_parse_int(value, name))
     None => None
@@ -570,12 +592,12 @@ fn align_tabular_validate_field_names(
 
 ///|
 fn align_tabular_push_step(
-  target_coordinates : Array[Int],
-  query_coordinates : Array[Int],
+  target_coordinates : Array[Int32],
+  query_coordinates : Array[Int32],
   operations : Array[AlignTabularOperation],
   operation : AlignTabularOperation,
-  target_count : Int,
-  query_count : Int,
+  target_count : Int32,
+  query_count : Int32,
 ) -> Unit {
   let last = operations.length() - 1
   if last >= 0 && operations[last] == operation {
@@ -594,7 +616,7 @@ fn align_tabular_push_step(
 /// Parse a BLAST traceback operations (BTOP) string into a relative path.
 pub fn align_tabular_parse_btop(
   btop : String,
-) -> (Array[Int], Array[Int], Array[AlignTabularOperation]) raise AlignTabularError {
+) -> (Array[Int32], Array[Int32], Array[AlignTabularOperation]) raise AlignTabularError {
   if btop.length() == 0 {
     raise AlignTabularError("BTOP value must not be empty")
   }
@@ -684,7 +706,7 @@ pub fn align_tabular_parse_btop(
 /// residues present only in the query, matching Biopython's parser.
 pub fn align_tabular_parse_cigar(
   cigar : String,
-) -> (Array[Int], Array[Int], Array[AlignTabularOperation]) raise AlignTabularError {
+) -> (Array[Int32], Array[Int32], Array[AlignTabularOperation]) raise AlignTabularError {
   if cigar.length() == 0 {
     raise AlignTabularError("aln_code value must not be empty")
   }
@@ -789,7 +811,7 @@ fn align_tabular_path(
 }
 
 ///|
-fn align_tabular_axis_factor(program : String, query : Bool) -> Int {
+fn align_tabular_axis_factor(program : String, query : Bool) -> Int32 {
   if query {
     match program {
       "BLASTX" | "TBLASTX" | "FASTX" | "FASTY" => 3
@@ -805,10 +827,10 @@ fn align_tabular_axis_factor(program : String, query : Bool) -> Int {
 
 ///|
 fn align_tabular_interval(
-  reported_start : Int?,
-  reported_end : Int?,
+  reported_start : Int32?,
+  reported_end : Int32?,
   label : String,
-) -> (Int?, Int?, Strand) raise AlignTabularError {
+) -> (Int32?, Int32?, Strand) raise AlignTabularError {
   match (reported_start, reported_end) {
     (None, None) => (None, None, Strand::Star)
     (Some(first), Some(last)) => {
@@ -827,12 +849,12 @@ fn align_tabular_interval(
 
 ///|
 fn align_tabular_absolute_axis(
-  relative : Array[Int],
-  reported_start : Int,
-  reported_end : Int,
-  factor : Int,
+  relative : Array[Int32],
+  reported_start : Int32,
+  reported_end : Int32,
+  factor : Int32,
   label : String,
-) -> Array[Int] raise AlignTabularError {
+) -> Array[Int32] raise AlignTabularError {
   let consumed = relative[relative.length() - 1] - relative[0]
   let expected = align_tabular_abs(reported_end - reported_start) + 1
   if consumed * factor != expected {
@@ -846,7 +868,7 @@ fn align_tabular_absolute_axis(
   }
   let direction = if reported_start <= reported_end { 1 } else { -1 }
   let origin = if direction > 0 { reported_start - 1 } else { reported_start }
-  let result : Array[Int] = []
+  let result : Array[Int32] = []
   for coordinate in relative {
     result.push(origin + direction * coordinate * factor)
   }
@@ -854,8 +876,11 @@ fn align_tabular_absolute_axis(
 }
 
 ///|
-fn align_tabular_scale_axis(relative : Array[Int], factor : Int) -> Array[Int] {
-  let result : Array[Int] = []
+fn align_tabular_scale_axis(
+  relative : Array[Int32],
+  factor : Int32,
+) -> Array[Int32] {
+  let result : Array[Int32] = []
   for coordinate in relative {
     result.push(coordinate * factor)
   }
@@ -863,7 +888,7 @@ fn align_tabular_scale_axis(relative : Array[Int], factor : Int) -> Array[Int] {
 }
 
 ///|
-fn align_tabular_ungapped_length(sequence : String) -> Int {
+fn align_tabular_ungapped_length(sequence : String) -> Int32 {
   let mut length = 0
   for index in 0..<sequence.length() {
     if sequence.unsafe_get(index).to_int() != '-'.to_int() {
@@ -893,9 +918,9 @@ fn align_tabular_validate_sequence(
 fn align_tabular_parse_query_header(
   value : String,
   fasta_style : Bool,
-) -> (String, String, Int?, String) raise AlignTabularError {
+) -> (String, String, Int32?, String) raise AlignTabularError {
   let mut query_text = align_tabular_trim(value)
-  let mut length : Int? = None
+  let mut length : Int32? = None
   let mut unit = ""
   if fasta_style {
     match align_tabular_last_delimiter(query_text, " - ") {
@@ -936,7 +961,7 @@ fn align_tabular_fields_header(value : String) -> Array[String] {
 }
 
 ///|
-fn align_tabular_row_columns(line : String, expected : Int) -> Array[String] {
+fn align_tabular_row_columns(line : String, expected : Int32) -> Array[String] {
   let tabular = align_tabular_split_char(line, '\t')
   if tabular.length() == expected {
     let result : Array[String] = []
@@ -1037,7 +1062,7 @@ fn align_tabular_alignment_from_row(
   metadata : AlignTabularMetadata,
   header_query_id : String,
   header_description : String,
-  header_query_length : Int?,
+  header_query_length : Int32?,
   names : Array[String],
   line : String,
 ) -> AlignTabularAlignment raise AlignTabularError {
@@ -1143,8 +1168,8 @@ fn align_tabular_alignment_from_row(
   let path = align_tabular_path(fields)
   let query_factor = align_tabular_axis_factor(metadata.program, true)
   let target_factor = align_tabular_axis_factor(metadata.program, false)
-  let mut target_coordinates : Array[Int] = []
-  let mut query_coordinates : Array[Int] = []
+  let mut target_coordinates : Array[Int32] = []
+  let mut query_coordinates : Array[Int32] = []
   let mut operations : Array[AlignTabularOperation] = []
   let mut path_is_absolute = false
   let trace = if align_tabular_field_value(fields, "BTOP") is Some(_) {
@@ -1271,7 +1296,7 @@ fn align_tabular_alignment_from_row(
 ///|
 fn align_tabular_parse_processed(
   value : String,
-) -> Int? raise AlignTabularError {
+) -> Int32? raise AlignTabularError {
   let suffix = " queries"
   if !align_tabular_ends_with(value, suffix) {
     return None
@@ -1287,7 +1312,7 @@ fn align_tabular_parse_processed(
 }
 
 ///|
-fn align_tabular_parse_hits(value : String) -> Int? raise AlignTabularError {
+fn align_tabular_parse_hits(value : String) -> Int32? raise AlignTabularError {
   let suffix = " hits found"
   if !align_tabular_ends_with(value, suffix) {
     return None
@@ -1308,7 +1333,7 @@ pub fn align_tabular_parse(
   }
   let lines = align_tabular_split_char(content, '\n')
   let queries : Array[AlignTabularQueryResult] = []
-  let mut processed_queries : Int? = None
+  let mut processed_queries : Int32? = None
   let mut index = 0
   while index < lines.length() {
     let line = align_tabular_trim(lines[index])
@@ -1376,12 +1401,12 @@ pub fn align_tabular_parse(
     }
     let mut query_id = ""
     let mut query_description = ""
-    let mut query_length : Int? = None
+    let mut query_length : Int32? = None
     let mut query_unit = ""
     let mut database = ""
     let mut rid = ""
     let mut field_names : Array[String] = []
-    let mut declared_hits : Int? = None
+    let mut declared_hits : Int32? = None
     let mut has_query = false
     let mut has_database = false
     let mut has_rid = false
@@ -1488,7 +1513,7 @@ pub fn align_tabular_parse(
         " rows",
       )
     }
-    let mut inferred_query_length : Int? = None
+    let mut inferred_query_length : Int32? = None
     for alignment in alignments {
       if inferred_query_length is None && alignment.query_length is Some(_) {
         inferred_query_length = alignment.query_length
@@ -1543,7 +1568,7 @@ pub fn AlignTabularAlignment::field(
 pub fn AlignTabularAlignment::integer_field(
   self : AlignTabularAlignment,
   name : String,
-) -> Int? raise AlignTabularError {
+) -> Int32? raise AlignTabularError {
   align_tabular_optional_int(self.fields, name)
 }
 
@@ -1560,7 +1585,7 @@ pub fn AlignTabularAlignment::number_field(
 /// Number of printed alignment columns represented by the path.
 pub fn AlignTabularAlignment::alignment_columns(
   self : AlignTabularAlignment,
-) -> Int {
+) -> Int32 {
   let mut result = 0
   for index in 0..<self.operations.length() {
     let target = align_tabular_abs(
@@ -1580,7 +1605,7 @@ pub fn AlignTabularAlignment::alignment_columns(
 /// Number of aligned residue pairs represented by the path.
 pub fn AlignTabularAlignment::aligned_residues(
   self : AlignTabularAlignment,
-) -> Int {
+) -> Int32 {
   let mut result = 0
   for index in 0..<self.operations.length() {
     if self.operations[index] == AlignTabularOperation::Aligned {
@@ -1598,7 +1623,7 @@ pub fn AlignTabularAlignment::aligned_residues(
 /// Number of query-gap residues, i.e. residues present only in the target.
 pub fn AlignTabularAlignment::query_gap_residues(
   self : AlignTabularAlignment,
-) -> Int {
+) -> Int32 {
   let mut result = 0
   for index in 0..<self.operations.length() {
     if self.operations[index] == AlignTabularOperation::QueryGap {
@@ -1616,7 +1641,7 @@ pub fn AlignTabularAlignment::query_gap_residues(
 /// Number of target-gap residues, i.e. residues present only in the query.
 pub fn AlignTabularAlignment::target_gap_residues(
   self : AlignTabularAlignment,
-) -> Int {
+) -> Int32 {
   let mut result = 0
   for index in 0..<self.operations.length() {
     if self.operations[index] == AlignTabularOperation::TargetGap {
@@ -1632,7 +1657,7 @@ pub fn AlignTabularAlignment::target_gap_residues(
 
 ///|
 /// Number of distinct gap runs.
-pub fn AlignTabularAlignment::gap_events(self : AlignTabularAlignment) -> Int {
+pub fn AlignTabularAlignment::gap_events(self : AlignTabularAlignment) -> Int32 {
   let mut result = 0
   for operation in self.operations {
     if operation != AlignTabularOperation::Aligned {
@@ -1674,8 +1699,8 @@ pub fn AlignTabularAlignment::coordinate_alignment(
   let mut target = align_tabular_copy_ints(self.target_coordinates)
   let mut query = align_tabular_copy_ints(self.query_coordinates)
   if target[0] > target[target.length() - 1] {
-    let reversed_target : Array[Int] = []
-    let reversed_query : Array[Int] = []
+    let reversed_target : Array[Int32] = []
+    let reversed_query : Array[Int32] = []
     let mut index = target.length()
     while index > 0 {
       index = index - 1

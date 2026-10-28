@@ -16,11 +16,10 @@ test "skallel_patterson" {
   }
 
   // f3: T = (c-a)(c-b) - hc/sc ; B = 2*hc
-  let (t, b) = @src.skallel_patterson_f3(
-    [[2, 2], [2, 2]],
-    [[0, 4], [0, 4]],
-    [[0, 4], [0, 4]],
-  )
+  let (t, b) = @src.skallel_patterson_f3([[2, 2], [2, 2]], [[0, 4], [0, 4]], [
+    [0, 4],
+    [0, 4],
+  ])
   for i = 0; i < 2; i = i + 1 {
     assert_true(@moonbit.assert_num_close(t[i], 0.25 - 1.0 / 12.0, 1.0e-6))
     assert_true(@moonbit.assert_num_close(b[i], 2.0 / 3.0, 1.0e-6))
@@ -37,16 +36,18 @@ test "skallel_patterson" {
     assert_true(@moonbit.assert_num_close(num[i], -0.5, 1.0e-6))
     assert_true(@moonbit.assert_num_close(den[i], 0.5, 1.0e-6))
   }
-  assert_true(@moonbit.assert_num_close(
-    @src.skallel_patterson_d_average(
-      [[2, 2], [2, 2]],
-      [[0, 4], [0, 4]],
-      [[0, 4], [0, 4]],
-      [[4, 0], [4, 0]],
+  assert_true(
+    @moonbit.assert_num_close(
+      @src.skallel_patterson_d_average(
+        [[2, 2], [2, 2]],
+        [[0, 4], [0, 4]],
+        [[0, 4], [0, 4]],
+        [[4, 0], [4, 0]],
+      ),
+      -1.0,
+      1.0e-6,
     ),
-    -1.0,
-    1.0e-6,
-  ))
+  )
 }
 
 ///|

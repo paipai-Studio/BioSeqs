@@ -41,7 +41,9 @@ test "impute_by_col_median_basic" {
 
 ///|
 test "impute_locf_basic" {
-  let data = [[@double.not_a_number, 1.0, @double.not_a_number, 2.0, @double.not_a_number]]
+  let data = [
+    [@double.not_a_number, 1.0, @double.not_a_number, 2.0, @double.not_a_number],
+  ]
   let imputed = @src.impute_locf(data, by_row=true)
   assert_true(imputed[0][0].is_nan())
   assert_eq(imputed[0][2], 1.0)
@@ -50,7 +52,9 @@ test "impute_locf_basic" {
 
 ///|
 test "impute_nocb_basic" {
-  let data = [[@double.not_a_number, 1.0, @double.not_a_number, 2.0, @double.not_a_number]]
+  let data = [
+    [@double.not_a_number, 1.0, @double.not_a_number, 2.0, @double.not_a_number],
+  ]
   let imputed = @src.impute_nocb(data, by_row=true)
   assert_eq(imputed[0][0], 1.0)
   assert_eq(imputed[0][2], 2.0)
@@ -69,7 +73,10 @@ test "impute_na_by_zero" {
 
 ///|
 test "impute_na_stats" {
-  let data = [[1.0, @double.not_a_number, 3.0], [@double.not_a_number, @double.not_a_number, 6.0]]
+  let data = [
+    [1.0, @double.not_a_number, 3.0],
+    [@double.not_a_number, @double.not_a_number, 6.0],
+  ]
   let stats = @src.impute_na_stats(data)
   assert_eq(stats.total_rows, 2)
   assert_eq(stats.total_cols, 3)
@@ -99,7 +106,11 @@ test "impute_by_knn_no_na" {
 
 ///|
 test "impute_by_knn_simple" {
-  let data = [[1.0, @double.not_a_number, 3.0], [2.0, 5.0, 4.0], [3.0, 6.0, 7.0]]
+  let data = [
+    [1.0, @double.not_a_number, 3.0],
+    [2.0, 5.0, 4.0],
+    [3.0, 6.0, 7.0],
+  ]
   let imputed = @src.impute_by_knn_simple(data, 2)
   assert_true(!imputed[0][1].is_nan())
 }

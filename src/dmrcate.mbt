@@ -28,7 +28,7 @@
 /// sample_names: sample identifiers
 pub struct DMRcateInput {
   beta_values : Array[Array[Double]]
-  positions : Array[Int]
+  positions : Array[Int32]
   chr : Array[String]
   design : Array[Array[Double]]
   sample_names : Array[String]
@@ -38,7 +38,7 @@ pub struct DMRcateInput {
 /// Create a DMRcateInput.
 pub fn DMRcateInput::new(
   beta_values : Array[Array[Double]],
-  positions : Array[Int],
+  positions : Array[Int32],
   chr : Array[String],
   design : Array[Array[Double]],
   sample_names : Array[String],
@@ -48,13 +48,13 @@ pub fn DMRcateInput::new(
 
 ///|
 /// Number of CpG sites.
-pub fn DMRcateInput::n_cpgs(self : DMRcateInput) -> Int {
+pub fn DMRcateInput::n_cpgs(self : DMRcateInput) -> Int32 {
   self.beta_values.length()
 }
 
 ///|
 /// Number of samples.
-pub fn DMRcateInput::n_samples(self : DMRcateInput) -> Int {
+pub fn DMRcateInput::n_samples(self : DMRcateInput) -> Int32 {
   self.sample_names.length()
 }
 
@@ -63,7 +63,7 @@ pub fn DMRcateInput::n_samples(self : DMRcateInput) -> Int {
 pub struct CpGResult {
   cpg_name : String
   chr : String
-  pos : Int
+  pos : Int32
   beta : Double
   t_stat : Double
   p_value : Double
@@ -74,7 +74,7 @@ pub struct CpGResult {
 pub fn CpGResult::new(
   cpg_name : String,
   chr : String,
-  pos : Int,
+  pos : Int32,
   beta : Double,
   t_stat : Double,
   p_value : Double,
@@ -96,7 +96,7 @@ pub fn CpGResult::chr(self : CpGResult) -> String {
 
 ///|
 /// Genomic position.
-pub fn CpGResult::pos(self : CpGResult) -> Int {
+pub fn CpGResult::pos(self : CpGResult) -> Int32 {
   self.pos
 }
 
@@ -122,9 +122,9 @@ pub fn CpGResult::p_value(self : CpGResult) -> Double {
 /// A differentially methylated region.
 pub struct DMR {
   chr : String
-  start : Int
-  end_ : Int
-  n_cpgs : Int
+  start : Int32
+  end_ : Int32
+  n_cpgs : Int32
   mean_t : Double
   mean_beta : Double
   p_value : Double
@@ -135,9 +135,9 @@ pub struct DMR {
 /// Create a DMR.
 pub fn DMR::new(
   chr : String,
-  start : Int,
-  end_ : Int,
-  n_cpgs : Int,
+  start : Int32,
+  end_ : Int32,
+  n_cpgs : Int32,
   mean_t : Double,
   mean_beta : Double,
   p_value : Double,
@@ -154,19 +154,19 @@ pub fn DMR::chr(self : DMR) -> String {
 
 ///|
 /// Start position.
-pub fn DMR::start(self : DMR) -> Int {
+pub fn DMR::start(self : DMR) -> Int32 {
   self.start
 }
 
 ///|
 /// End position.
-pub fn DMR::end_(self : DMR) -> Int {
+pub fn DMR::end_(self : DMR) -> Int32 {
   self.end_
 }
 
 ///|
 /// Number of CpGs in the DMR.
-pub fn DMR::n_cpgs(self : DMR) -> Int {
+pub fn DMR::n_cpgs(self : DMR) -> Int32 {
   self.n_cpgs
 }
 
@@ -196,7 +196,7 @@ pub fn DMR::cpg_names(self : DMR) -> Array[String] {
 
 ///|
 /// Length of the DMR in base pairs.
-pub fn DMR::length(self : DMR) -> Int {
+pub fn DMR::length(self : DMR) -> Int32 {
   self.end_ - self.start
 }
 
@@ -250,13 +250,13 @@ pub fn DMRcateResult::dmrs(self : DMRcateResult) -> Array[DMR] {
 
 ///|
 /// Number of significant DMRs.
-pub fn DMRcateResult::n_dmrs(self : DMRcateResult) -> Int {
+pub fn DMRcateResult::n_dmrs(self : DMRcateResult) -> Int32 {
   self.dmrs.length()
 }
 
 ///|
 /// Number of CpG sites tested.
-pub fn DMRcateResult::n_cpgs(self : DMRcateResult) -> Int {
+pub fn DMRcateResult::n_cpgs(self : DMRcateResult) -> Int32 {
   self.cpg_results.length()
 }
 
@@ -432,7 +432,7 @@ fn dmrcate_bh_correct(p_values : Array[Double]) -> Array[Double] {
     return Array(capacity=0)
   }
   // Create index array and sort by p-value (selection sort)
-  let indices : Array[Int] = Array(capacity=0)
+  let indices : Array[Int32] = Array(capacity=0)
   let sorted_p : Array[Double] = Array(capacity=0)
   let mut i = 0
   while i < n {
@@ -501,7 +501,7 @@ fn dmrcate_lm_fit(
   Array[Double],
   Array[Double],
   Array[Double],
-  Int,
+  Int32,
 ) {
   let n_cpgs = y.length()
   if n_cpgs == 0 {
@@ -645,7 +645,7 @@ fn dmrcate_lm_fit(
 /// Estimate empirical Bayes prior parameters from per-gene residual variances.
 fn dmrcate_ebayes_prior(
   sigma : Array[Double],
-  df_residual : Int,
+  df_residual : Int32,
 ) -> (Double, Double) {
   let n = sigma.length()
   if n < 2 || df_residual <= 0 {
@@ -694,7 +694,7 @@ fn dmrcate_ebayes_prior(
 /// Matrix inverse using Gaussian elimination with partial pivoting.
 fn dmrcate_mat_inverse(
   a : Array[Array[Double]],
-  n : Int,
+  n : Int32,
 ) -> Array[Array[Double]] {
   if n == 0 {
     return Array(capacity=0)
@@ -832,14 +832,14 @@ fn dmrcate_kernel_smooth(
   let smoothed : Array[Double] = Array::make(n, 0.0)
 
   // Group CpGs by chromosome
-  let chr_groups : Map[String, Array[Int]] = Map([], capacity=16)
+  let chr_groups : Map[String, Array[Int32]] = Map([], capacity=16)
   let mut i = 0
   while i < n {
     let c = cpg_results[i].chr
     match chr_groups.get(c) {
       Some(arr) => arr.push(i)
       None => {
-        let arr : Array[Int] = [i]
+        let arr : Array[Int32] = [i]
         chr_groups[c] = arr
       }
     }
@@ -904,15 +904,15 @@ fn dmrcate_kernel_smooth(
 /// that are within lambda bp of each other.
 pub fn dmrcate_cluster_cpgs(
   cpg_results : Array[CpGResult],
-  lambda : Int,
-) -> Array[Array[Int]] {
+  lambda : Int32,
+) -> Array[Array[Int32]] {
   let n = cpg_results.length()
   if n == 0 {
     return Array(capacity=0)
   }
 
   // Sort CpG results by (chr, pos) using indices
-  let sorted_indices : Array[Int] = Array(capacity=0)
+  let sorted_indices : Array[Int32] = Array(capacity=0)
   let mut i = 0
   while i < n {
     sorted_indices.push(i)
@@ -945,8 +945,8 @@ pub fn dmrcate_cluster_cpgs(
   }
 
   // Cluster: group consecutive CpGs on same chr within lambda bp
-  let clusters : Array[Array[Int]] = Array(capacity=0)
-  let mut cluster : Array[Int] = Array(capacity=0)
+  let clusters : Array[Array[Int32]] = Array(capacity=0)
+  let mut cluster : Array[Int32] = Array(capacity=0)
 
   i = 0
   while i < n {
@@ -994,9 +994,9 @@ pub fn dmrcate_cluster_cpgs(
 /// Returns DMRcateResult with per-CpG results and called DMRs.
 pub fn dmrcate_test(
   input : DMRcateInput,
-  lambda? : Int = 1000,
-  c_scale? : Double = 2.0,
-  fdr_threshold? : Double = 0.05,
+  lambda~ : Int32 = 1000,
+  c_scale~ : Double = 2.0,
+  fdr_threshold~ : Double = 0.05,
 ) -> DMRcateResult {
   let n_cpgs = input.n_cpgs()
   if n_cpgs == 0 {
@@ -1090,7 +1090,7 @@ pub fn dmrcate_test(
   }
 
   // Step 7: Identify significant CpGs and cluster into DMRs
-  let sig_indices : Array[Int] = Array(capacity=0)
+  let sig_indices : Array[Int32] = Array(capacity=0)
   i = 0
   while i < n_cpgs {
     if adj_smoothed_p[i] < fdr_threshold {
@@ -1236,7 +1236,7 @@ pub fn dmrcate_spatial_autocorrelation(
 /// Filter DMRs by minimum number of CpGs and maximum p-value.
 pub fn dmrcate_filter_dmrs(
   dmrs : Array[DMR],
-  min_cpgs : Int,
+  min_cpgs : Int32,
   max_pvalue : Double,
 ) -> Array[DMR] {
   let filtered : Array[DMR] = Array(capacity=0)
@@ -1356,7 +1356,7 @@ pub fn dmrcate_example_data() -> DMRcateInput {
   let n_samples = 8
 
   let beta_values : Array[Array[Double]] = Array(capacity=0)
-  let positions : Array[Int] = Array(capacity=0)
+  let positions : Array[Int32] = Array(capacity=0)
   let chr : Array[String] = Array(capacity=0)
 
   let mut i = 0

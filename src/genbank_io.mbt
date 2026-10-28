@@ -291,7 +291,7 @@ pub fn write_genbank(records : Array[SeqRecord]) -> String {
 /// Build text wrapped into lines, returning the wrapped string.
 /// `indent` = chars already written (so we know where we are)
 /// `width`  = max chars per line
-fn build_wrapped(text : String, indent : Int, width : Int) -> String {
+fn build_wrapped(text : String, indent : Int32, width : Int32) -> String {
   let buf = StringBuilder()
   let total = text.length()
   let mut pos = 0

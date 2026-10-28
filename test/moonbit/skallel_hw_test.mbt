@@ -17,12 +17,7 @@ test "skallel_hw" {
   assert_true(@moonbit.assert_num_close(ho[3], 0.5, 1.0e-9))
 
   // expected heterozygosity: 0, 0.5, 2/3, 0.375
-  let af = [
-    [1.0],
-    [0.5, 0.5],
-    [1.0 / 3.0, 1.0 / 3.0, 1.0 / 3.0],
-    [0.75, 0.25],
-  ]
+  let af = [[1.0], [0.5, 0.5], [1.0 / 3.0, 1.0 / 3.0, 1.0 / 3.0], [0.75, 0.25]]
   let he = @src.skallel_heterozygosity_expected(af, 2, -1.0)
   assert_true(@moonbit.assert_num_close(he[0], 0.0, 1.0e-9))
   assert_true(@moonbit.assert_num_close(he[1], 0.5, 1.0e-9))

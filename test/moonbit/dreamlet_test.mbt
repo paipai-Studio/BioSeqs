@@ -6,7 +6,7 @@
 fn dreamlet_test_close(
   actual : Double,
   expected : Double,
-  tolerance? : Double = 1.0e-8,
+  tolerance~ : Double = 1.0e-8,
 ) -> Unit {
   if (actual - expected).abs() > tolerance {
     abort(
@@ -137,7 +137,7 @@ fn dreamlet_test_mixed_model() -> @src.DreamletModelSpec {
 }
 
 ///|
-fn dreamlet_test_processed(mixed? : Bool = false) -> @src.DreamletProcessedData {
+fn dreamlet_test_processed(mixed~ : Bool = false) -> @src.DreamletProcessedData {
   let model = if mixed {
     dreamlet_test_mixed_model()
   } else {

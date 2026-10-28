@@ -17,9 +17,9 @@
 
 ///|
 /// Count k-mer occurrences in a sequence.
-fn kmer_counts(seq : String, k : Int) -> Map[Int, Int] {
+fn kmer_counts(seq : String, k : Int32) -> Map[Int32, Int32] {
   let n = seq.length()
-  let counts : Map[Int, Int] = Map([], capacity=0)
+  let counts : Map[Int32, Int32] = Map([], capacity=0)
   if n < k {
     return counts
   }
@@ -53,7 +53,7 @@ fn kmer_counts(seq : String, k : Int) -> Map[Int, Int] {
 ///|
 /// K-mer distance between two sequences.
 /// Distance = 1 - (shared k-mers / total unique k-mers).
-pub fn mafft_kmer_distance(seq1 : String, seq2 : String, k : Int) -> Double {
+pub fn mafft_kmer_distance(seq1 : String, seq2 : String, k : Int32) -> Double {
   let c1 = kmer_counts(seq1, k)
   let c2 = kmer_counts(seq2, k)
   let mut shared = 0
@@ -61,13 +61,7 @@ pub fn mafft_kmer_distance(seq1 : String, seq2 : String, k : Int) -> Double {
   for key, v1 in c1 {
     total += v1
     match c2.get(key) {
-      Some(v2) => {
-        if v1 < v2 {
-          shared += v1
-        } else {
-          shared += v2
-        }
-      }
+      Some(v2) => if v1 < v2 { shared += v1 } else { shared += v2 }
       None => ()
     }
   }
@@ -87,7 +81,7 @@ pub fn mafft_kmer_distance(seq1 : String, seq2 : String, k : Int) -> Double {
 /// Build a k-mer distance matrix for a set of sequences.
 pub fn mafft_distance_matrix(
   sequences : Array[String],
-  k : Int,
+  k : Int32,
 ) -> Array[Array[Double]] {
   let n = sequences.length()
   let matrix : Array[Array[Double]] = Array(capacity=n)
@@ -116,26 +110,24 @@ pub fn mafft_distance_matrix(
 pub struct MsaTreeNode {
   children : Array[MsaTreeNode]
   is_leaf : Bool
-  seq_index : Int
+  seq_index : Int32
   height : Double
 }
 
 ///|
 /// Build a UPGMA guide tree from a distance matrix.
-pub fn mafft_upgma_tree(
-  distances : Array[Array[Double]],
-) -> MsaTreeNode {
+pub fn mafft_upgma_tree(distances : Array[Array[Double]]) -> MsaTreeNode {
   let n = distances.length()
   if n == 0 {
-    return { children: [], is_leaf: true, seq_index: -1, height: 0.0 }
+    return { children: [], is_leaf: true, seq_index: -1, height: 0.0, }
   }
   if n == 1 {
-    return { children: [], is_leaf: true, seq_index: 0, height: 0.0 }
+    return { children: [], is_leaf: true, seq_index: 0, height: 0.0, }
   }
   let clusters : Array[MsaTreeNode] = []
-  let weights : Array[Int] = Array::make(n, 1)
+  let weights : Array[Int32] = Array::make(n, 1)
   for i = 0; i < n; i = i + 1 {
-    clusters.push({ children: [], is_leaf: true, seq_index: i, height: 0.0 })
+    clusters.push({ children: [], is_leaf: true, seq_index: i, height: 0.0, })
   }
   let dist : Array[Array[Double]] = Array(capacity=n)
   for i = 0; i < n; i = i + 1 {
@@ -145,7 +137,7 @@ pub fn mafft_upgma_tree(
     }
     dist.push(row)
   }
-  let active : Array[Int] = Array::makei(n, fn(i) { i })
+  let active : Array[Int32] = Array::makei(n, fn(i) { i })
   while active.length() > 1 {
     let mut min_dist = 1.0e18
     let mut min_i = 0
@@ -205,7 +197,11 @@ pub fn mafft_upgma_tree(
 
 ///|
 /// Score for aligning two columns (characters, possibly gaps).
-fn mafft_col_score(c1 : Char, c2 : Char, matrix : @data.SubstitutionMatrix) -> Double {
+fn mafft_col_score(
+  c1 : Char,
+  c2 : Char,
+  matrix : @data.SubstitutionMatrix,
+) -> Double {
   if c1 == '-' && c2 == '-' {
     return 0.0
   }
@@ -258,7 +254,7 @@ pub fn mafft_align_profiles(
   let dp : Array[Array[Double]] = Array::makei(m + 1, fn(_i) {
     Array::make(n + 1, 0.0)
   })
-  let trace : Array[Array[Int]] = Array::makei(m + 1, fn(_i) {
+  let trace : Array[Array[Int32]] = Array::makei(m + 1, fn(_i) {
     Array::make(n + 1, 0)
   })
   let n1 = profile1.length()
@@ -286,10 +282,9 @@ pub fn mafft_align_profiles(
             }
             match_score += gap_open
           } else {
-            match_score += matrix.get_score_case_insensitive(
-              ca.to_string(),
-              cb.to_string(),
-            ).to_double()
+            match_score += matrix
+              .get_score_case_insensitive(ca.to_string(), cb.to_string())
+              .to_double()
           }
         }
       }
@@ -309,7 +304,7 @@ pub fn mafft_align_profiles(
     }
   }
   // Traceback: produce ops sequence (0=match, 1=up/gap-in-2, 2=left/gap-in-1)
-  let ops : Array[Int] = Array(capacity=0)
+  let ops : Array[Int32] = Array(capacity=0)
   let mut i = m
   let mut j = n
   while i > 0 || j > 0 {
@@ -347,7 +342,7 @@ pub fn mafft_align_profiles(
 /// Apply profile alignment ops to a sequence.
 /// ops: 0=match (take from both), 1=up (take from seq1, gap in seq2), 2=left (gap in seq1, take from seq2)
 /// side: 1 for seq from profile1, 2 for seq from profile2
-fn apply_profile_ops(seq : String, ops : Array[Int], side : Int) -> String {
+fn apply_profile_ops(seq : String, ops : Array[Int32], side : Int32) -> String {
   let buf : StringBuilder = StringBuilder()
   let mut si = 0
   for k = 0; k < ops.length(); k = k + 1 {
@@ -372,18 +367,16 @@ fn apply_profile_ops(seq : String, ops : Array[Int], side : Int) -> String {
       } else {
         buf.write_char('-')
       }
-    } else {
       // Left: gap in profile1, take from profile2
-      if side == 2 {
-        if si < seq.length() {
-          buf.write_char(seq[si].unsafe_to_char())
-        } else {
-          buf.write_char('-')
-        }
-        si += 1
+    } else if side == 2 {
+      if si < seq.length() {
+        buf.write_char(seq[si].unsafe_to_char())
       } else {
         buf.write_char('-')
       }
+      si += 1
+    } else {
+      buf.write_char('-')
     }
   }
   buf.to_string()
@@ -400,18 +393,15 @@ fn progressive_align(
   sequences : Array[String],
   matrix : @data.SubstitutionMatrix,
   gap_open : Double,
-) -> (Array[String], Array[Int]) {
+) -> (Array[String], Array[Int32]) {
   if tree.is_leaf {
     return ([sequences[tree.seq_index]], [tree.seq_index])
   }
   let mut result : Array[String] = []
-  let mut order : Array[Int] = []
+  let mut order : Array[Int32] = []
   for child in tree.children {
     let (child_profile, child_order) = progressive_align(
-      child,
-      sequences,
-      matrix,
-      gap_open,
+      child, sequences, matrix, gap_open,
     )
     if result.length() == 0 {
       result = child_profile
@@ -430,7 +420,7 @@ fn progressive_align(
 /// Reorder alignment to match original input order.
 fn reorder_alignment(
   alignment : Array[String],
-  order : Array[Int],
+  order : Array[Int32],
 ) -> Array[String] {
   let n = alignment.length()
   let result : Array[String] = Array::make(n, "")
@@ -446,7 +436,10 @@ fn reorder_alignment(
 
 ///|
 /// Compute the SP (sum-of-pairs) score of an alignment.
-fn sp_score(alignment : Array[String], matrix : @data.SubstitutionMatrix) -> Double {
+fn sp_score(
+  alignment : Array[String],
+  matrix : @data.SubstitutionMatrix,
+) -> Double {
   if alignment.length() < 2 {
     return 0.0
   }
@@ -564,10 +557,15 @@ pub fn mafft_align(
 ) -> MsaResult {
   let n = sequences.length()
   if n == 0 {
-    return { aligned_sequences: [], names: [], score: 0.0, method_: "mafft" }
+    return { aligned_sequences: [], names: [], score: 0.0, method_: "mafft", }
   }
   if n == 1 {
-    return { aligned_sequences: [sequences[0]], names, score: 0.0, method_: "mafft" }
+    return {
+      aligned_sequences: [sequences[0]],
+      names,
+      score: 0.0,
+      method_: "mafft",
+    }
   }
   let matrix = @data.blosum62()
   let gap_open = -10.0
@@ -577,13 +575,15 @@ pub fn mafft_align(
   // Step 2: UPGMA guide tree
   let tree = mafft_upgma_tree(dist)
   // Step 3: progressive alignment
-  let (alignment_raw, order) = progressive_align(tree, sequences, matrix, gap_open)
+  let (alignment_raw, order) = progressive_align(
+    tree, sequences, matrix, gap_open,
+  )
   let alignment = reorder_alignment(alignment_raw, order)
   // Step 4: iterative refinement
   let refined = refine_once(alignment, matrix, gap_open)
   let cleaned = remove_all_gap_columns(refined)
   let score = sp_score(cleaned, matrix)
-  { aligned_sequences: cleaned, names, score, method_: "mafft" }
+  { aligned_sequences: cleaned, names, score, method_: "mafft", }
 }
 
 ///|
@@ -591,21 +591,28 @@ pub fn mafft_align(
 pub fn mafft_align_with_params(
   sequences : Array[String],
   names : Array[String],
-  k : Int,
+  k : Int32,
   gap_open : Double,
-  num_refine_rounds : Int,
+  num_refine_rounds : Int32,
 ) -> MsaResult {
   let n = sequences.length()
   if n == 0 {
-    return { aligned_sequences: [], names: [], score: 0.0, method_: "mafft" }
+    return { aligned_sequences: [], names: [], score: 0.0, method_: "mafft", }
   }
   if n == 1 {
-    return { aligned_sequences: [sequences[0]], names, score: 0.0, method_: "mafft" }
+    return {
+      aligned_sequences: [sequences[0]],
+      names,
+      score: 0.0,
+      method_: "mafft",
+    }
   }
   let matrix = @data.blosum62()
   let dist = mafft_distance_matrix(sequences, k)
   let tree = mafft_upgma_tree(dist)
-  let (alignment_raw, order) = progressive_align(tree, sequences, matrix, gap_open)
+  let (alignment_raw, order) = progressive_align(
+    tree, sequences, matrix, gap_open,
+  )
   let alignment = reorder_alignment(alignment_raw, order)
   let mut refined = alignment
   for _i = 0; _i < num_refine_rounds; _i = _i + 1 {
@@ -613,7 +620,7 @@ pub fn mafft_align_with_params(
   }
   let cleaned = remove_all_gap_columns(refined)
   let score = sp_score(cleaned, matrix)
-  { aligned_sequences: cleaned, names, score, method_: "mafft" }
+  { aligned_sequences: cleaned, names, score, method_: "mafft", }
 }
 
 ///|
@@ -621,7 +628,11 @@ pub fn mafft_align_with_params(
 pub fn msa_to_fasta(result : MsaResult) -> String {
   let buf : StringBuilder = StringBuilder()
   for i = 0; i < result.aligned_sequences.length(); i = i + 1 {
-    let name = if i < result.names.length() { result.names[i] } else { "seq" + i.to_string() }
+    let name = if i < result.names.length() {
+      result.names[i]
+    } else {
+      "seq" + i.to_string()
+    }
     buf.write_string(">" + name + "\n")
     buf.write_string(result.aligned_sequences[i] + "\n")
   }
@@ -642,7 +653,11 @@ pub fn msa_to_clustal(result : MsaResult) -> String {
   while pos < m {
     let end = if pos + block_size < m { pos + block_size } else { m }
     for i = 0; i < n; i = i + 1 {
-      let name = if i < result.names.length() { result.names[i] } else { "seq" + i.to_string() }
+      let name = if i < result.names.length() {
+        result.names[i]
+      } else {
+        "seq" + i.to_string()
+      }
       let seq_part = result.aligned_sequences[i][pos:end].to_owned()
       buf.write_string(name + "\t" + seq_part + "\n")
     }

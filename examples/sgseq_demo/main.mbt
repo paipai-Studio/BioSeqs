@@ -22,17 +22,17 @@ fn main {
   for j in junctions {
     println(
       "  " +
-        j.chr +
-        ":" +
-        j.start.to_string() +
-        "-" +
-        j.end.to_string() +
-        " (" +
-        j.strand +
-        ") count=" +
-        j.count.to_string() +
-        " intron_len=" +
-        j.intron_length().to_string(),
+      j.chr +
+      ":" +
+      j.start.to_string() +
+      "-" +
+      j.end.to_string() +
+      " (" +
+      j.strand +
+      ") count=" +
+      j.count.to_string() +
+      " intron_len=" +
+      j.intron_length().to_string(),
     )
   }
   println("")
@@ -46,15 +46,15 @@ fn main {
   for e in exons {
     println(
       "  " +
-        e.chr +
-        ":" +
-        e.start.to_string() +
-        "-" +
-        e.end.to_string() +
-        " (" +
-        e.strand +
-        ") length=" +
-        e.length().to_string(),
+      e.chr +
+      ":" +
+      e.start.to_string() +
+      "-" +
+      e.end.to_string() +
+      " (" +
+      e.strand +
+      ") length=" +
+      e.length().to_string(),
     )
   }
   println("")
@@ -68,13 +68,13 @@ fn main {
   for e in graph_exons {
     println(
       "  " +
-        e.chr +
-        ":" +
-        e.start.to_string() +
-        "-" +
-        e.end.to_string() +
-        " length=" +
-        e.length().to_string(),
+      e.chr +
+      ":" +
+      e.start.to_string() +
+      "-" +
+      e.end.to_string() +
+      " length=" +
+      e.length().to_string(),
     )
   }
   println("")
@@ -129,13 +129,13 @@ fn main {
   for j in parsed {
     println(
       "  " +
-        j.chr +
-        ":" +
-        j.start.to_string() +
-        "-" +
-        j.end.to_string() +
-        " count=" +
-        j.count.to_string(),
+      j.chr +
+      ":" +
+      j.start.to_string() +
+      "-" +
+      j.end.to_string() +
+      " count=" +
+      j.count.to_string(),
     )
   }
   println("")
@@ -145,7 +145,13 @@ fn main {
   // ------------------------------------------------------------------
   println("=== 8. Filter Variants ===")
   let filtered = @bio.sgseq_filter_variants(variants, min_reads=10)
-  println("Variants with >= 10 reads: " + filtered.length().to_string() + " (out of " + variants.length().to_string() + ")")
+  println(
+    "Variants with >= 10 reads: " +
+    filtered.length().to_string() +
+    " (out of " +
+    variants.length().to_string() +
+    ")",
+  )
   println("")
 
   // ------------------------------------------------------------------

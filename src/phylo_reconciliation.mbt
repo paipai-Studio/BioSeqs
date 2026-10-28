@@ -9,9 +9,9 @@
 ///|
 /// Result of LCA mapping for one gene tree node.
 pub(all) struct LcaMapResult {
-  gene_leaves : String       // sorted gene leaf names in this subtree
-  species_leaves : String    // sorted species leaf names under the LCA node
-  is_duplication : Bool      // true if LCA map equals a child's LCA map
+  gene_leaves : String // sorted gene leaf names in this subtree
+  species_leaves : String // sorted species leaf names under the LCA node
+  is_duplication : Bool // true if LCA map equals a child's LCA map
   species_names : Array[String] // species names found in this subtree
 }
 
@@ -54,10 +54,7 @@ fn recon_collect_leaf_names(clade : Clade) -> Array[String] {
 }
 
 ///|
-fn recon_collect_leaf_names_rec(
-  clade : Clade,
-  out : Array[String]
-) -> Unit {
+fn recon_collect_leaf_names_rec(clade : Clade, out : Array[String]) -> Unit {
   if clade.is_terminal() {
     match clade.name {
       Some(n) => out.push(n)
@@ -127,7 +124,7 @@ fn recon_contains_all(clade : Clade, names : Array[String]) -> Bool {
     leaf_set.set(l, true)
   }
   for n in names {
-    if !(leaf_set.contains(n)) {
+    if !leaf_set.contains(n) {
       return false
     }
   }
@@ -140,7 +137,7 @@ fn recon_contains_all(clade : Clade, names : Array[String]) -> Bool {
 /// Returns the sorted leaf names of the LCA's subtree, or "" if not found.
 fn recon_find_lca_key(
   species_tree : Clade,
-  species_names : Array[String]
+  species_names : Array[String],
 ) -> String {
   if species_names.length() == 0 {
     return ""
@@ -161,11 +158,8 @@ fn recon_find_lca_key(
 
 ///|
 /// Find the deepest node whose subtree contains all given names.
-fn recon_find_lca_node(
-  clade : Clade,
-  names : Array[String]
-) -> Clade? {
-  if !(recon_contains_all(clade, names)) {
+fn recon_find_lca_node(clade : Clade, names : Array[String]) -> Clade? {
+  if !recon_contains_all(clade, names) {
     return None
   }
   // Check if any child contains all names (deeper LCA)
@@ -187,7 +181,7 @@ fn recon_find_lca_node(
 pub fn phylo_lca_mapping(
   gene_tree : Clade,
   species_tree : Clade,
-  sep : String
+  sep : String,
 ) -> Array[LcaMapResult] {
   let gene_to_species : Map[String, String] = Map([], capacity=0)
   phylo_lca_mapping_explicit(gene_tree, species_tree, gene_to_species, sep)
@@ -201,16 +195,14 @@ pub fn phylo_lca_mapping_explicit(
   gene_tree : Clade,
   species_tree : Clade,
   gene_to_species : Map[String, String],
-  sep : String
+  sep : String,
 ) -> Array[LcaMapResult] {
   let results : Array[LcaMapResult] = Array(capacity=0)
-  ignore(phylo_lca_mapping_rec(
-    gene_tree,
-    species_tree,
-    gene_to_species,
-    sep,
-    results
-  ))
+  ignore(
+    phylo_lca_mapping_rec(
+      gene_tree, species_tree, gene_to_species, sep, results,
+    ),
+  )
   results
 }
 
@@ -222,7 +214,7 @@ fn phylo_lca_mapping_rec(
   species_tree : Clade,
   gene_to_species : Map[String, String],
   sep : String,
-  out : Array[LcaMapResult]
+  out : Array[LcaMapResult],
 ) -> (String, String, Array[String]) {
   if node.is_terminal() {
     let gene_name = match node.name {
@@ -245,12 +237,10 @@ fn phylo_lca_mapping_rec(
     return (gene_key, species_key, species_names)
   }
   // Internal node: recurse into children
-  let child_results : Array[(String, String, Array[String])] = Array(
-    capacity=0
-  )
+  let child_results : Array[(String, String, Array[String])] = Array(capacity=0)
   for ch in node.clades {
     child_results.push(
-      phylo_lca_mapping_rec(ch, species_tree, gene_to_species, sep, out)
+      phylo_lca_mapping_rec(ch, species_tree, gene_to_species, sep, out),
     )
   }
   // Collect all gene leaf names and species names
@@ -288,7 +278,7 @@ fn phylo_lca_mapping_rec(
 
 ///|
 /// Count the number of duplications in an LCA mapping result.
-pub fn phylo_count_duplications(lca_maps : Array[LcaMapResult]) -> Int {
+pub fn phylo_count_duplications(lca_maps : Array[LcaMapResult]) -> Int32 {
   let mut count = 0
   for m in lca_maps {
     if m.is_duplication {
@@ -307,8 +297,8 @@ pub fn phylo_count_duplications(lca_maps : Array[LcaMapResult]) -> Int {
 pub fn phylo_count_losses(
   gene_tree : Clade,
   species_tree : Clade,
-  sep : String
-) -> Int {
+  sep : String,
+) -> Int32 {
   let gene_to_species : Map[String, String] = Map([], capacity=0)
   phylo_count_losses_explicit(gene_tree, species_tree, gene_to_species, sep)
 }
@@ -319,13 +309,10 @@ pub fn phylo_count_losses_explicit(
   gene_tree : Clade,
   species_tree : Clade,
   gene_to_species : Map[String, String],
-  sep : String
-) -> Int {
+  sep : String,
+) -> Int32 {
   let (_, _, losses) = phylo_count_losses_rec(
-    gene_tree,
-    species_tree,
-    gene_to_species,
-    sep
+    gene_tree, species_tree, gene_to_species, sep,
   )
   losses
 }
@@ -337,8 +324,8 @@ fn phylo_count_losses_rec(
   node : Clade,
   species_tree : Clade,
   gene_to_species : Map[String, String],
-  sep : String
-) -> (String, Array[String], Int) {
+  sep : String,
+) -> (String, Array[String], Int32) {
   if node.is_terminal() {
     let gene_name = match node.name {
       Some(n) => n
@@ -351,12 +338,10 @@ fn phylo_count_losses_rec(
     return (species_name + ",", [species_name], 0)
   }
   // Internal node: recurse into children
-  let child_results : Array[(String, Array[String], Int)] = Array(
-    capacity=0
-  )
+  let child_results : Array[(String, Array[String], Int32)] = Array(capacity=0)
   for ch in node.clades {
     child_results.push(
-      phylo_count_losses_rec(ch, species_tree, gene_to_species, sep)
+      phylo_count_losses_rec(ch, species_tree, gene_to_species, sep),
     )
   }
   // Collect all species names
@@ -420,16 +405,12 @@ fn recon_key_to_names(key : String) -> Array[String] {
 
 ///|
 /// Compute the depth of a node (identified by leaf key) in the species tree.
-fn recon_depth(species_tree : Clade, leaf_key : String) -> Int {
+fn recon_depth(species_tree : Clade, leaf_key : String) -> Int32 {
   recon_depth_rec(species_tree, leaf_key, 0)
 }
 
 ///|
-fn recon_depth_rec(
-  clade : Clade,
-  leaf_key : String,
-  depth : Int
-) -> Int {
+fn recon_depth_rec(clade : Clade, leaf_key : String, depth : Int32) -> Int32 {
   let my_leaves = recon_collect_leaf_names(clade)
   let my_key = recon_leaf_key(my_leaves)
   if my_key == leaf_key {
@@ -453,23 +434,23 @@ fn recon_depth_rec(
 ///|
 /// Per-node reconciliation information.
 pub(all) struct NodeReconciliation {
-  gene_leaves : String         // sorted gene leaf names in this subtree
-  species_leaves : String      // sorted species leaf names under LCA
-  is_duplication : Bool        // true if this node is a duplication
-  is_speciation : Bool         // true if this node is a speciation
-  edge_losses : Int            // losses on edges from this node to its children
+  gene_leaves : String // sorted gene leaf names in this subtree
+  species_leaves : String // sorted species leaf names under LCA
+  is_duplication : Bool // true if this node is a duplication
+  is_speciation : Bool // true if this node is a speciation
+  edge_losses : Int32 // losses on edges from this node to its children
   species_names : Array[String]
 }
 
 ///|
 /// Comprehensive reconciliation result.
 pub(all) struct ReconciliationResult {
-  duplication_count : Int
-  loss_count : Int
-  speciation_count : Int
-  total_cost : Int             // duplication_count + loss_count
-  node_count : Int             // total gene tree nodes
-  leaf_count : Int             // gene tree leaves
+  duplication_count : Int32
+  loss_count : Int32
+  speciation_count : Int32
+  total_cost : Int32 // duplication_count + loss_count
+  node_count : Int32 // total gene tree nodes
+  leaf_count : Int32 // gene tree leaves
   nodes : Array[NodeReconciliation]
 }
 
@@ -480,7 +461,7 @@ pub(all) struct ReconciliationResult {
 pub fn phylo_reconcile(
   gene_tree : Clade,
   species_tree : Clade,
-  sep : String
+  sep : String,
 ) -> ReconciliationResult {
   let gene_to_species : Map[String, String] = Map([], capacity=0)
   phylo_reconcile_explicit(gene_tree, species_tree, gene_to_species, sep)
@@ -492,16 +473,12 @@ pub fn phylo_reconcile_explicit(
   gene_tree : Clade,
   species_tree : Clade,
   gene_to_species : Map[String, String],
-  sep : String
+  sep : String,
 ) -> ReconciliationResult {
   // Build per-node reconciliation with edge losses
   let nodes : Array[NodeReconciliation] = Array(capacity=0)
   let (_, _, _edge_loss_map) = phylo_reconcile_rec(
-    gene_tree,
-    species_tree,
-    gene_to_species,
-    sep,
-    nodes
+    gene_tree, species_tree, gene_to_species, sep, nodes,
   )
   // Count summary statistics
   let mut dup_count = 0
@@ -537,8 +514,8 @@ fn phylo_reconcile_rec(
   species_tree : Clade,
   gene_to_species : Map[String, String],
   sep : String,
-  out : Array[NodeReconciliation]
-) -> (String, Array[String], Map[String, Int]) {
+  out : Array[NodeReconciliation],
+) -> (String, Array[String], Map[String, Int32]) {
   if node.is_terminal() {
     let gene_name = match node.name {
       Some(n) => n
@@ -558,16 +535,16 @@ fn phylo_reconcile_rec(
       edge_losses: 0,
       species_names: [species_name],
     })
-    let m : Map[String, Int] = Map([], capacity=0)
+    let m : Map[String, Int32] = Map([], capacity=0)
     return (species_key, [species_name], m)
   }
   // Internal node: recurse into children
-  let child_results : Array[(String, Array[String], Map[String, Int])] = Array(
-    capacity=0
+  let child_results : Array[(String, Array[String], Map[String, Int32])] = Array(
+    capacity=0,
   )
   for ch in node.clades {
     child_results.push(
-      phylo_reconcile_rec(ch, species_tree, gene_to_species, sep, out)
+      phylo_reconcile_rec(ch, species_tree, gene_to_species, sep, out),
     )
   }
   // Collect all species names
@@ -590,7 +567,7 @@ fn phylo_reconcile_rec(
       is_dup = true
     }
   }
-  let is_spec = !(is_dup) && child_results.length() > 1
+  let is_spec = !is_dup && child_results.length() > 1
   // Count edge losses
   let mut edge_losses = 0
   for cr in child_results {
@@ -620,7 +597,7 @@ fn phylo_reconcile_rec(
     species_names: dedup,
   })
   // Build edge loss map (gene_key → edge_losses for this node)
-  let loss_map : Map[String, Int] = Map([], capacity=0)
+  let loss_map : Map[String, Int32] = Map([], capacity=0)
   loss_map.set(gene_key, edge_losses)
   (parent_key, dedup, loss_map)
 }
@@ -687,10 +664,10 @@ pub fn phylo_reconciliation_summary(result : ReconciliationResult) -> String {
 ///|
 /// Gene relationship type.
 pub(all) enum GeneRelationship {
-  Ortholog       // diverged via speciation
-  Paralog        // diverged via duplication (out-paralog)
-  SuperParalog   // in-paralog: duplication within same species
-  UltraParalog   // super-paralog with no intervening speciation
+  Ortholog // diverged via speciation
+  Paralog // diverged via duplication (out-paralog)
+  SuperParalog // in-paralog: duplication within same species
+  UltraParalog // super-paralog with no intervening speciation
 }
 
 ///|
@@ -701,7 +678,7 @@ pub(all) struct PairClassification {
   species1 : String
   species2 : String
   relationship : GeneRelationship
-  lca_species : String   // species LCA of the gene-tree LCA node
+  lca_species : String // species LCA of the gene-tree LCA node
 }
 
 ///|
@@ -712,11 +689,11 @@ pub fn phylo_classify_pair(
   species_tree : Clade,
   gene1 : String,
   gene2 : String,
-  sep : String
+  sep : String,
 ) -> PairClassification? {
   let gene_to_species : Map[String, String] = Map([], capacity=0)
   phylo_classify_pair_explicit(
-    gene_tree, species_tree, gene_to_species, gene1, gene2, sep
+    gene_tree, species_tree, gene_to_species, gene1, gene2, sep,
   )
 }
 
@@ -728,7 +705,7 @@ pub fn phylo_classify_pair_explicit(
   gene_to_species : Map[String, String],
   gene1 : String,
   gene2 : String,
-  sep : String
+  sep : String,
 ) -> PairClassification? {
   // Find LCA of gene1 and gene2 in the gene tree
   let lca = recon_find_lca_node(gene_tree, [gene1, gene2])
@@ -746,7 +723,7 @@ pub fn phylo_classify_pair_explicit(
       }
       // Determine if LCA is a duplication
       let is_dup = phylo_is_duplication_node(
-        lca_node, species_tree, gene_to_species, sep
+        lca_node, species_tree, gene_to_species, sep,
       )
       // Get LCA's species map
       let lca_gene_leaves = recon_collect_leaf_names(lca_node)
@@ -760,14 +737,14 @@ pub fn phylo_classify_pair_explicit(
       }
       let lca_species_key = recon_find_lca_key(species_tree, lca_species_names)
       // Classify
-      let rel = if !(is_dup) {
+      let rel = if !is_dup {
         Ortholog
       } else if s1 == s2 {
         // Duplication within same species → super-paralog
         // Check for ultra-paralog: no speciation between dup and LCA of species
         if phylo_is_ultra_paralog(
-          gene_tree, lca_node, species_tree, gene_to_species, sep
-        ) {
+            gene_tree, lca_node, species_tree, gene_to_species, sep,
+          ) {
           UltraParalog
         } else {
           SuperParalog
@@ -794,7 +771,7 @@ fn phylo_is_duplication_node(
   node : Clade,
   species_tree : Clade,
   gene_to_species : Map[String, String],
-  sep : String
+  sep : String,
 ) -> Bool {
   if node.is_terminal() || node.clades.length() < 2 {
     return false
@@ -838,12 +815,12 @@ fn phylo_is_ultra_paralog(
   dup_node : Clade,
   species_tree : Clade,
   gene_to_species : Map[String, String],
-  sep : String
+  sep : String,
 ) -> Bool {
   // Find path from root to dup_node, check all ancestors are duplications
   let dup_key = recon_leaf_key(recon_collect_leaf_names(dup_node))
   phylo_check_ancestors(
-    gene_tree, dup_key, species_tree, gene_to_species, sep, true
+    gene_tree, dup_key, species_tree, gene_to_species, sep, true,
   )
 }
 
@@ -857,7 +834,7 @@ fn phylo_check_ancestors(
   species_tree : Clade,
   gene_to_species : Map[String, String],
   sep : String,
-  found_target : Bool
+  found_target : Bool,
 ) -> Bool {
   let my_key = recon_leaf_key(recon_collect_leaf_names(node))
   if my_key == target_key {
@@ -867,9 +844,7 @@ fn phylo_check_ancestors(
   if found_target {
     // We're above the target — check if this node is a duplication
     if node.clades.length() >= 2 {
-      if !(phylo_is_duplication_node(
-        node, species_tree, gene_to_species, sep
-      )) {
+      if !phylo_is_duplication_node(node, species_tree, gene_to_species, sep) {
         // Found a speciation ancestor → not ultra-paralog
         return false
       }
@@ -881,7 +856,7 @@ fn phylo_check_ancestors(
     // Check if target is in this subtree
     if phylo_key_contains(ch_key, target_key) {
       return phylo_check_ancestors(
-        ch, target_key, species_tree, gene_to_species, sep, true
+        ch, target_key, species_tree, gene_to_species, sep, true,
       )
     }
   }
@@ -898,7 +873,7 @@ fn phylo_key_contains(outer : String, inner : String) -> Bool {
     outer_set.set(n, true)
   }
   for n in inner_names {
-    if !(outer_set.contains(n)) {
+    if !outer_set.contains(n) {
       return false
     }
   }
@@ -910,10 +885,12 @@ fn phylo_key_contains(outer : String, inner : String) -> Bool {
 pub fn phylo_classify_all_pairs(
   gene_tree : Clade,
   species_tree : Clade,
-  sep : String
+  sep : String,
 ) -> Array[PairClassification] {
   let gene_to_species : Map[String, String] = Map([], capacity=0)
-  phylo_classify_all_pairs_explicit(gene_tree, species_tree, gene_to_species, sep)
+  phylo_classify_all_pairs_explicit(
+    gene_tree, species_tree, gene_to_species, sep,
+  )
 }
 
 ///|
@@ -922,15 +899,21 @@ pub fn phylo_classify_all_pairs_explicit(
   gene_tree : Clade,
   species_tree : Clade,
   gene_to_species : Map[String, String],
-  sep : String
+  sep : String,
 ) -> Array[PairClassification] {
   let leaves = recon_collect_leaf_names(gene_tree)
   let results : Array[PairClassification] = Array(capacity=0)
   for i in 0..<leaves.length() {
     for j in (i + 1)..<leaves.length() {
-      match phylo_classify_pair_explicit(
-        gene_tree, species_tree, gene_to_species, leaves[i], leaves[j], sep
-      ) {
+      match
+        phylo_classify_pair_explicit(
+          gene_tree,
+          species_tree,
+          gene_to_species,
+          leaves[i],
+          leaves[j],
+          sep,
+        ) {
         Some(cls) => results.push(cls)
         None => ()
       }
@@ -942,7 +925,7 @@ pub fn phylo_classify_all_pairs_explicit(
 ///|
 /// Extract only ortholog pairs from classifications.
 pub fn phylo_orthologs(
-  classifications : Array[PairClassification]
+  classifications : Array[PairClassification],
 ) -> Array[PairClassification] {
   let result : Array[PairClassification] = Array(capacity=0)
   for c in classifications {
@@ -957,7 +940,7 @@ pub fn phylo_orthologs(
 ///|
 /// Extract only paralog pairs (including super/ultra) from classifications.
 pub fn phylo_paralogs(
-  classifications : Array[PairClassification]
+  classifications : Array[PairClassification],
 ) -> Array[PairClassification] {
   let result : Array[PairClassification] = Array(capacity=0)
   for c in classifications {
@@ -997,7 +980,7 @@ pub fn phylo_pair_to_string(cls : PairClassification) -> String {
 ///|
 /// Format all pair classifications as a summary.
 pub fn phylo_pairs_summary(
-  classifications : Array[PairClassification]
+  classifications : Array[PairClassification],
 ) -> String {
   let mut ortho_count = 0
   let mut para_count = 0
@@ -1063,8 +1046,8 @@ pub struct Reconciliation {
   gene_tree : Clade
   species_tree : Clade
   sep : String
-  lca_maps : Array[LcaMapResult]           // pre-computed LCA mapping
-  depth_table : Map[String, Int]           // species leaf_key → depth
+  lca_maps : Array[LcaMapResult] // pre-computed LCA mapping
+  depth_table : Map[String, Int32] // species leaf_key → depth
   gene_to_species : Map[String, String]
 }
 
@@ -1074,7 +1057,7 @@ pub struct Reconciliation {
 pub fn Reconciliation::new(
   gene_tree : Clade,
   species_tree : Clade,
-  sep : String
+  sep : String,
 ) -> Reconciliation {
   let gene_to_species : Map[String, String] = Map([], capacity=0)
   Reconciliation::new_explicit(gene_tree, species_tree, gene_to_species, sep)
@@ -1086,14 +1069,14 @@ pub fn Reconciliation::new_explicit(
   gene_tree : Clade,
   species_tree : Clade,
   gene_to_species : Map[String, String],
-  sep : String
+  sep : String,
 ) -> Reconciliation {
   // Pre-compute LCA mapping (one traversal)
   let lca_maps = phylo_lca_mapping_explicit(
-    gene_tree, species_tree, gene_to_species, sep
+    gene_tree, species_tree, gene_to_species, sep,
   )
   // Pre-compute species depth table (one traversal)
-  let depth_table : Map[String, Int] = Map([], capacity=0)
+  let depth_table : Map[String, Int32] = Map([], capacity=0)
   recon_build_depth_table(species_tree, 0, depth_table)
   Reconciliation::{
     gene_tree,
@@ -1111,8 +1094,8 @@ pub fn Reconciliation::new_explicit(
 /// lookups with O(1) map lookups.
 fn recon_build_depth_table(
   clade : Clade,
-  depth : Int,
-  table : Map[String, Int]
+  depth : Int32,
+  table : Map[String, Int32],
 ) -> Unit {
   let leaves = recon_collect_leaf_names(clade)
   let key = recon_leaf_key(leaves)
@@ -1130,20 +1113,20 @@ pub fn Reconciliation::lca_maps(self : Reconciliation) -> Array[LcaMapResult] {
 
 ///|
 /// Count duplications from the pre-computed LCA mapping.
-pub fn Reconciliation::count_duplications(self : Reconciliation) -> Int {
+pub fn Reconciliation::count_duplications(self : Reconciliation) -> Int32 {
   phylo_count_duplications(self.lca_maps)
 }
 
 ///|
 /// Count losses using the pre-computed depth table (O(1) per depth query
 /// instead of O(n) tree traversal).
-pub fn Reconciliation::count_losses(self : Reconciliation) -> Int {
+pub fn Reconciliation::count_losses(self : Reconciliation) -> Int32 {
   let (_, _, losses) = recon_count_losses_cached(
     self.gene_tree,
     self.species_tree,
     self.gene_to_species,
     self.sep,
-    self.depth_table
+    self.depth_table,
   )
   losses
 }
@@ -1155,8 +1138,8 @@ fn recon_count_losses_cached(
   species_tree : Clade,
   gene_to_species : Map[String, String],
   sep : String,
-  depth_table : Map[String, Int]
-) -> (String, Array[String], Int) {
+  depth_table : Map[String, Int32],
+) -> (String, Array[String], Int32) {
   if node.is_terminal() {
     let gene_name = match node.name {
       Some(n) => n
@@ -1168,12 +1151,12 @@ fn recon_count_losses_cached(
     }
     return (species_name + ",", [species_name], 0)
   }
-  let child_results : Array[(String, Array[String], Int)] = Array(capacity=0)
+  let child_results : Array[(String, Array[String], Int32)] = Array(capacity=0)
   for ch in node.clades {
     child_results.push(
       recon_count_losses_cached(
-        ch, species_tree, gene_to_species, sep, depth_table
-      )
+        ch, species_tree, gene_to_species, sep, depth_table,
+      ),
     )
   }
   let unique_species : Map[String, Bool] = Map([], capacity=0)
@@ -1227,14 +1210,16 @@ fn recon_count_losses_cached(
 /// Full reconciliation with per-node detail, using cached depth table.
 pub fn Reconciliation::reconcile(self : Reconciliation) -> ReconciliationResult {
   let nodes : Array[NodeReconciliation] = Array(capacity=0)
-  ignore(recon_reconcile_cached(
-    self.gene_tree,
-    self.species_tree,
-    self.gene_to_species,
-    self.sep,
-    self.depth_table,
-    nodes
-  ))
+  ignore(
+    recon_reconcile_cached(
+      self.gene_tree,
+      self.species_tree,
+      self.gene_to_species,
+      self.sep,
+      self.depth_table,
+      nodes,
+    ),
+  )
   let mut dup_count = 0
   let mut spec_count = 0
   let mut total_losses = 0
@@ -1266,9 +1251,9 @@ fn recon_reconcile_cached(
   species_tree : Clade,
   gene_to_species : Map[String, String],
   sep : String,
-  depth_table : Map[String, Int],
-  out : Array[NodeReconciliation]
-) -> (String, Array[String], Map[String, Int]) {
+  depth_table : Map[String, Int32],
+  out : Array[NodeReconciliation],
+) -> (String, Array[String], Map[String, Int32]) {
   if node.is_terminal() {
     let gene_name = match node.name {
       Some(n) => n
@@ -1288,17 +1273,17 @@ fn recon_reconcile_cached(
       edge_losses: 0,
       species_names: [species_name],
     })
-    let m : Map[String, Int] = Map([], capacity=0)
+    let m : Map[String, Int32] = Map([], capacity=0)
     return (species_key, [species_name], m)
   }
-  let child_results : Array[(String, Array[String], Map[String, Int])] = Array(
-    capacity=0
+  let child_results : Array[(String, Array[String], Map[String, Int32])] = Array(
+    capacity=0,
   )
   for ch in node.clades {
     child_results.push(
       recon_reconcile_cached(
-        ch, species_tree, gene_to_species, sep, depth_table, out
-      )
+        ch, species_tree, gene_to_species, sep, depth_table, out,
+      ),
     )
   }
   let unique_species : Map[String, Bool] = Map([], capacity=0)
@@ -1319,7 +1304,7 @@ fn recon_reconcile_cached(
       is_dup = true
     }
   }
-  let is_spec = !(is_dup) && child_results.length() > 1
+  let is_spec = !is_dup && child_results.length() > 1
   let mut edge_loss = 0
   for cr in child_results {
     let child_key = cr.0
@@ -1354,7 +1339,7 @@ fn recon_reconcile_cached(
     edge_losses: edge_loss,
     species_names: dedup,
   })
-  let loss_map : Map[String, Int] = Map([], capacity=0)
+  let loss_map : Map[String, Int32] = Map([], capacity=0)
   loss_map.set(gene_key, edge_loss)
   (parent_key, dedup, loss_map)
 }
@@ -1363,13 +1348,13 @@ fn recon_reconcile_cached(
 /// Classify all gene pairs as ortholog/paralog.
 /// Reuses the pre-computed LCA mapping for duplication detection.
 pub fn Reconciliation::classify_all_pairs(
-  self : Reconciliation
+  self : Reconciliation,
 ) -> Array[PairClassification] {
   phylo_classify_all_pairs_explicit(
     self.gene_tree,
     self.species_tree,
     self.gene_to_species,
-    self.sep
+    self.sep,
   )
 }
 
@@ -1378,7 +1363,7 @@ pub fn Reconciliation::classify_all_pairs(
 pub fn Reconciliation::classify_pair(
   self : Reconciliation,
   gene1 : String,
-  gene2 : String
+  gene2 : String,
 ) -> PairClassification? {
   phylo_classify_pair_explicit(
     self.gene_tree,
@@ -1386,7 +1371,7 @@ pub fn Reconciliation::classify_pair(
     self.gene_to_species,
     gene1,
     gene2,
-    self.sep
+    self.sep,
   )
 }
 

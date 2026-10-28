@@ -11,13 +11,13 @@
 /// Generate n sequences of length L with segregating sites.
 /// seq[0] is all-A (ancestral). Each subsequent sequence introduces
 /// mutations at distinct positions.
-fn bench_make_sequences(n : Int, seq_len : Int) -> Array[String] {
+fn bench_make_sequences(n : Int32, seq_len : Int32) -> Array[String] {
   let seqs : Array[String] = Array(capacity=n)
   // Ancestral: all A
   let ancestral = "A".repeat(seq_len)
   seqs.push(ancestral)
   for i in 1..<n {
-    let chars : Array[Int] = Array(capacity=seq_len)
+    let chars : Array[Int32] = Array(capacity=seq_len)
     for _j in 0..<seq_len {
       chars.push(65) // 'A'
     }
@@ -38,7 +38,7 @@ fn bench_make_sequences(n : Int, seq_len : Int) -> Array[String] {
 
 ///|
 /// Generate a random-ish alignment with controlled diversity.
-fn bench_make_diverse_sequences(n : Int, seq_len : Int) -> Array[String] {
+fn bench_make_diverse_sequences(n : Int32, seq_len : Int32) -> Array[String] {
   let seqs : Array[String] = Array(capacity=n)
   for i in 0..<n {
     let mut s = ""
@@ -80,7 +80,7 @@ test "bench: SfsStats 20 seqs x 200 sites" {
   let _ = stats.fu_li_f()
   let _ = stats.fay_wu_h()
   let _ = stats.zeng_e()
-  assert_true(!(stats.tajima_d().is_nan()))
+  assert_true(!stats.tajima_d().is_nan())
 }
 
 ///|
@@ -90,7 +90,7 @@ test "bench: SfsStats 50 seqs x 500 sites" {
   let _ = stats.tajima_d()
   let _ = stats.fu_li_f()
   let _ = stats.fay_wu_h()
-  assert_true(!(stats.tajima_d().is_nan()))
+  assert_true(!stats.tajima_d().is_nan())
 }
 
 ///|
@@ -131,21 +131,25 @@ test "bench: all test statistics match separate" {
   // Tajima D
   let d_c = stats.tajima_d()
   let d_s = @src.phylo_tajima_d(
-    stats.segregating_sites(), stats.n_sequences(),
-    stats.nucleotide_diversity()
+    stats.segregating_sites(),
+    stats.n_sequences(),
+    stats.nucleotide_diversity(),
   )
   assert_true((d_c - d_s).abs() < 1.0e-10)
   // Fu Li D
   let fd_c = stats.fu_li_d()
   let fd_s = @src.phylo_fu_li_d(
-    stats.segregating_sites(), stats.n_sequences(),
-    stats.singleton_count()
+    stats.segregating_sites(),
+    stats.n_sequences(),
+    stats.singleton_count(),
   )
   assert_true((fd_c - fd_s).abs() < 1.0e-10)
   // Fay Wu H
   let h_c = stats.fay_wu_h()
   let h_s = @src.phylo_fay_wu_h(
-    stats.sfs(), stats.n_sequences(), stats.nucleotide_diversity()
+    stats.sfs(),
+    stats.n_sequences(),
+    stats.nucleotide_diversity(),
   )
   assert_true((h_c - h_s).abs() < 1.0e-10)
 }

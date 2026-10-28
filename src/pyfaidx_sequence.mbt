@@ -11,8 +11,8 @@
 pub struct PyfaidxSequence {
   name : String
   seq : String
-  start : Int?
-  end : Int?
+  start : Int32?
+  end : Int32?
   comp : Bool
 }
 
@@ -20,11 +20,11 @@ pub struct PyfaidxSequence {
 pub fn pyfaidx_seq_new(
   name : String,
   seq : String,
-  start : Int?,
-  end : Int?,
+  start : Int32?,
+  end : Int32?,
   comp : Bool,
 ) -> PyfaidxSequence {
-  PyfaidxSequence::{ name, seq, start, end, comp }
+  PyfaidxSequence::{ name, seq, start, end, comp, }
 }
 
 ///|
@@ -32,11 +32,11 @@ pub fn pyfaidx_seq_new(
 /// `(start, stop, step)`; for a negative step the `stop` may be `-1` (the
 /// "past the start" sentinel). `step` is never 0.
 pub fn pyfaidx_slice_indices(
-  start0 : Int?,
-  stop0 : Int?,
-  step0 : Int?,
-  length : Int,
-) -> (Int, Int, Int) raise PyfaidxError {
+  start0 : Int32?,
+  stop0 : Int32?,
+  step0 : Int32?,
+  length : Int32,
+) -> (Int32, Int32, Int32) raise PyfaidxError {
   let step = match step0 {
     Some(s) => s
     None => 1
@@ -44,7 +44,11 @@ pub fn pyfaidx_slice_indices(
   if step == 0 {
     raise PyfaidxError("slice step cannot be zero")
   }
-  let (defstart, defstop) = if step < 0 { (length - 1, -1) } else { (0, length) }
+  let (defstart, defstop) = if step < 0 {
+    (length - 1, -1)
+  } else {
+    (0, length)
+  }
   // CPython only wraps/clamps an *explicit* index; the None defaults
   // (including the -1 sentinel for a negative step) are taken as-is.
   let start = match start0 {
@@ -84,7 +88,12 @@ pub fn pyfaidx_slice_indices(
 
 ///|
 /// Extract a substring given normalized (start, stop, step) indices.
-fn pyfaidx_string_slice(s : String, sstart : Int, sstop : Int, sstep : Int) -> String {
+fn pyfaidx_string_slice(
+  s : String,
+  sstart : Int32,
+  sstop : Int32,
+  sstep : Int32,
+) -> String {
   let buf = StringBuilder()
   if sstep > 0 {
     let mut k = sstart
@@ -104,7 +113,7 @@ fn pyfaidx_string_slice(s : String, sstart : Int, sstop : Int, sstep : Int) -> S
 
 ///|
 /// Coordinate correction factor (``-1`` for 1-based records, ``0`` for 0-based).
-fn pyfaidx_correction_factor(seq : PyfaidxSequence) -> Int raise PyfaidxError {
+fn pyfaidx_correction_factor(seq : PyfaidxSequence) -> Int32 raise PyfaidxError {
   match (seq.start, seq.end) {
     (Some(s), Some(e)) => {
       let l = seq.seq.length()
@@ -127,7 +136,10 @@ fn pyfaidx_correction_factor(seq : PyfaidxSequence) -> Int raise PyfaidxError {
 
 ///|
 /// Integer indexing (`Sequence[i]`), with negative-index wrapping.
-pub fn pyfaidx_seq_getitem(seq : PyfaidxSequence, index : Int) -> PyfaidxSequence {
+pub fn pyfaidx_seq_getitem(
+  seq : PyfaidxSequence,
+  index : Int32,
+) -> PyfaidxSequence {
   let mut n = index
   if n < 0 {
     n = n + seq.seq.length()
@@ -148,14 +160,19 @@ pub fn pyfaidx_seq_getitem(seq : PyfaidxSequence, index : Int) -> PyfaidxSequenc
 /// Slice indexing (`Sequence[start:stop:step]`).
 pub fn pyfaidx_seq_slice(
   seq : PyfaidxSequence,
-  start0 : Int?,
-  stop0 : Int?,
-  step0 : Int?,
+  start0 : Int32?,
+  stop0 : Int32?,
+  step0 : Int32?,
 ) -> PyfaidxSequence raise PyfaidxError {
-  let (sstart, sstop, sstep) = pyfaidx_slice_indices(start0, stop0, step0, seq.seq.length())
+  let (sstart, sstop, sstep) = pyfaidx_slice_indices(
+    start0,
+    stop0,
+    step0,
+    seq.seq.length(),
+  )
   let sliced = pyfaidx_string_slice(seq.seq, sstart, sstop, sstep)
   match (seq.start, seq.end) {
-    (Some(self_start), Some(self_end)) => {
+    (Some(self_start), Some(self_end)) =>
       if sstep.abs() > 1 {
         pyfaidx_seq_new(seq.name, sliced, None, None, seq.comp)
       } else if sstep == -1 {
@@ -179,27 +196,32 @@ pub fn pyfaidx_seq_slice(
         }
         pyfaidx_seq_new(seq.name, sliced, Some(ns), Some(ne), seq.comp)
       }
-    }
     _ => pyfaidx_seq_new(seq.name, sliced, None, None, seq.comp)
   }
 }
 
 ///|
 /// Complement of a sequence (toggles the complement flag).
-pub fn pyfaidx_seq_complement(seq : PyfaidxSequence) -> PyfaidxSequence raise PyfaidxError {
+pub fn pyfaidx_seq_complement(
+  seq : PyfaidxSequence,
+) -> PyfaidxSequence raise PyfaidxError {
   let comp = pyfaidx_complement(seq.seq)
   pyfaidx_seq_new(seq.name, comp, seq.start, seq.end, !seq.comp)
 }
 
 ///|
 /// Reverse of a sequence (``seq[::-1]``).
-pub fn pyfaidx_seq_reverse(seq : PyfaidxSequence) -> PyfaidxSequence raise PyfaidxError {
+pub fn pyfaidx_seq_reverse(
+  seq : PyfaidxSequence,
+) -> PyfaidxSequence raise PyfaidxError {
   pyfaidx_seq_slice(seq, None, None, Some(-1))
 }
 
 ///|
 /// Reverse complement (``-seq``).
-pub fn pyfaidx_seq_neg(seq : PyfaidxSequence) -> PyfaidxSequence raise PyfaidxError {
+pub fn pyfaidx_seq_neg(
+  seq : PyfaidxSequence,
+) -> PyfaidxSequence raise PyfaidxError {
   pyfaidx_seq_complement(pyfaidx_seq_reverse(seq))
 }
 
@@ -208,7 +230,8 @@ pub fn pyfaidx_seq_neg(seq : PyfaidxSequence) -> PyfaidxSequence raise PyfaidxEr
 pub fn pyfaidx_seq_fancy_name(seq : PyfaidxSequence) -> String {
   let mut name = seq.name
   match (seq.start, seq.end) {
-    (Some(s), Some(e)) => name = name + ":" + s.to_string() + "-" + e.to_string()
+    (Some(s), Some(e)) =>
+      name = name + ":" + s.to_string() + "-" + e.to_string()
     _ => ()
   }
   if seq.comp {
@@ -219,17 +242,16 @@ pub fn pyfaidx_seq_fancy_name(seq : PyfaidxSequence) -> String {
 
 ///|
 /// `orientation`: 1 forward, -1 reverse, None otherwise.
-pub fn pyfaidx_seq_orientation(seq : PyfaidxSequence) -> Int? {
+pub fn pyfaidx_seq_orientation(seq : PyfaidxSequence) -> Int32? {
   match (seq.start, seq.end) {
-    (Some(s), Some(e)) => {
-      if s < e && !(seq.comp) {
+    (Some(s), Some(e)) =>
+      if s < e && !seq.comp {
         Some(1)
       } else if s > e && seq.comp {
         Some(-1)
       } else {
         None
       }
-    }
     _ => None
   }
 }
@@ -248,8 +270,11 @@ pub struct MutableFastaRecord {
 }
 
 ///|
-pub fn MutableFastaRecord::new(name : String, seq : String) -> MutableFastaRecord {
-  MutableFastaRecord::{ name, seq }
+pub fn MutableFastaRecord::new(
+  name : String,
+  seq : String,
+) -> MutableFastaRecord {
+  MutableFastaRecord::{ name, seq, }
 }
 
 ///|
@@ -258,7 +283,7 @@ pub fn MutableFastaRecord::get_name(self : MutableFastaRecord) -> String {
 }
 
 ///|
-pub fn MutableFastaRecord::length(self : MutableFastaRecord) -> Int {
+pub fn MutableFastaRecord::length(self : MutableFastaRecord) -> Int32 {
   self.seq.length()
 }
 
@@ -271,38 +296,41 @@ pub fn MutableFastaRecord::to_string(self : MutableFastaRecord) -> String {
 /// Replace `[start, end)` with `new_seq` (0-based half-open).
 pub fn MutableFastaRecord::replace(
   self : MutableFastaRecord,
-  start : Int,
-  end : Int,
+  start : Int32,
+  end : Int32,
   new_seq : String,
 ) -> MutableFastaRecord {
   let s = self.seq[0:start].to_owned() + new_seq + self.seq[end:].to_owned()
-  MutableFastaRecord::{ name: self.name, seq: s }
+  MutableFastaRecord::{ name: self.name, seq: s, }
 }
 
 ///|
 /// Delete `[start, end)` (0-based half-open).
 pub fn MutableFastaRecord::delete(
   self : MutableFastaRecord,
-  start : Int,
-  end : Int,
+  start : Int32,
+  end : Int32,
 ) -> MutableFastaRecord {
   let s = self.seq[0:start].to_owned() + self.seq[end:].to_owned()
-  MutableFastaRecord::{ name: self.name, seq: s }
+  MutableFastaRecord::{ name: self.name, seq: s, }
 }
 
 ///|
 /// Insert `new_seq` before 0-based position `pos`.
 pub fn MutableFastaRecord::insert(
   self : MutableFastaRecord,
-  pos : Int,
+  pos : Int32,
   new_seq : String,
 ) -> MutableFastaRecord {
   let s = self.seq[0:pos].to_owned() + new_seq + self.seq[pos:].to_owned()
-  MutableFastaRecord::{ name: self.name, seq: s }
+  MutableFastaRecord::{ name: self.name, seq: s, }
 }
 
 ///|
-fn pyfaidx_variant_pos_greater(a : (Int, String, String), b : (Int, String, String)) -> Bool {
+fn pyfaidx_variant_pos_greater(
+  a : (Int32, String, String),
+  b : (Int32, String, String),
+) -> Bool {
   a.0 > b.0
 }
 
@@ -313,7 +341,7 @@ fn pyfaidx_variant_pos_greater(a : (Int, String, String), b : (Int, String, Stri
 /// the highest position down so earlier edits do not shift later coordinates.
 pub fn pyfaidx_fasta_variant(
   ref_seq : String,
-  variants : Array[(Int, String, String)],
+  variants : Array[(Int32, String, String)],
 ) -> String {
   // 按 pos 降序（插入排序）
   let sorted = variants.copy()
@@ -331,7 +359,9 @@ pub fn pyfaidx_fasta_variant(
   let mut result = ref_seq
   for (pos, ref_base, alt) in sorted {
     let s = pos - 1
-    result = result[0:s].to_owned() + alt + result[s + ref_base.length():].to_owned()
+    result = result[0:s].to_owned() +
+      alt +
+      result[s + ref_base.length():].to_owned()
   }
   result
 }

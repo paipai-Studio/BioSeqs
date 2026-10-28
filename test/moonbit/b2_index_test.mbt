@@ -12,7 +12,7 @@ fn b2_internal(children : Array[@src.Clade]) -> @src.Clade {
 }
 
 ///|
-fn b2_balanced(n : Int) -> @src.Clade {
+fn b2_balanced(n : Int32) -> @src.Clade {
   if n <= 1 {
     return b2_leaf("L")
   }
@@ -21,7 +21,7 @@ fn b2_balanced(n : Int) -> @src.Clade {
 }
 
 ///|
-fn b2_caterpillar(n : Int) -> @src.Clade {
+fn b2_caterpillar(n : Int32) -> @src.Clade {
   if n <= 1 {
     return b2_leaf("L")
   }

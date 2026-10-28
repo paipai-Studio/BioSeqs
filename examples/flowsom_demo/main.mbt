@@ -1,5 +1,5 @@
 ///|
-fn flowsom_demo_ints(values : Array[Int]) -> String {
+fn flowsom_demo_ints(values : Array[Int32]) -> String {
   values.map(fn(value) { value.to_string() }).join(", ")
 }
 
@@ -12,7 +12,7 @@ fn flowsom_demo_optional(value : Double?) -> String {
 }
 
 ///|
-fn flowsom_demo_bool_count(values : Array[Bool]) -> Int {
+fn flowsom_demo_bool_count(values : Array[Bool]) -> Int32 {
   let mut total = 0
   for value in values {
     if value {

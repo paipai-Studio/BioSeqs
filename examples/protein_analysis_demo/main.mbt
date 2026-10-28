@@ -31,7 +31,9 @@ fn main {
     println("  Position " + (h + 1).to_string() + ": " + hydro[h].to_string())
     h = h + 1
   }
-  println("  ... (showing first 20 of " + hydro.length().to_string() + " values)")
+  println(
+    "  ... (showing first 20 of " + hydro.length().to_string() + " values)",
+  )
   println("")
 
   // Find hydrophobic regions (potential transmembrane domains)
@@ -39,7 +41,14 @@ fn main {
   let mut ht = 0
   while ht < hydro.length() {
     if hydro[ht] > 1.6 {
-      println("  Position " + (ht + 1).to_string() + "-" + (ht + 7).to_string() + ": " + hydro[ht].to_string())
+      println(
+        "  Position " +
+        (ht + 1).to_string() +
+        "-" +
+        (ht + 7).to_string() +
+        ": " +
+        hydro[ht].to_string(),
+      )
     }
     ht = ht + 1
   }
@@ -54,10 +63,14 @@ fn main {
   let mut s = 0
   while s < ss.length() && s < 50 {
     let residue = globin[s:s + 1].to_owned()
-    println("  Position " + (s + 1).to_string() + ": " + residue + " -> " + ss[s])
+    println(
+      "  Position " + (s + 1).to_string() + ": " + residue + " -> " + ss[s],
+    )
     s = s + 1
   }
-  println("  ... (showing first 50 of " + ss.length().to_string() + " residues)")
+  println(
+    "  ... (showing first 50 of " + ss.length().to_string() + " residues)",
+  )
 
   // Count structure types
   let mut helix = 0
@@ -66,10 +79,15 @@ fn main {
   let mut coil = 0
   let mut c = 0
   while c < ss.length() {
-    if ss[c] == "H" { helix = helix + 1 }
-    else if ss[c] == "E" { sheet = sheet + 1 }
-    else if ss[c] == "T" { turn = turn + 1 }
-    else { coil = coil + 1 }
+    if ss[c] == "H" {
+      helix = helix + 1
+    } else if ss[c] == "E" {
+      sheet = sheet + 1
+    } else if ss[c] == "T" {
+      turn = turn + 1
+    } else {
+      coil = coil + 1
+    }
     c = c + 1
   }
   println("")
@@ -89,12 +107,18 @@ fn main {
   let mut a = 0
   let mut positive_count = 0
   while a < antigen.length() {
-    if antigen[a] > 0.0 { positive_count = positive_count + 1 }
+    if antigen[a] > 0.0 {
+      positive_count = positive_count + 1
+    }
     a = a + 1
   }
   println("  Total residues: " + antigen.length().to_string())
   println("  Positive antigenic sites: " + positive_count.to_string())
-  println("  Percentage positive: " + ((positive_count.to_double() / antigen.length().to_double() * 100.0).to_string()) + "%")
+  println(
+    "  Percentage positive: " +
+    (positive_count.to_double() / antigen.length().to_double() * 100.0).to_string() +
+    "%",
+  )
   println("")
 
   // Show top antigenic regions
@@ -107,7 +131,14 @@ fn main {
         ar = ar + 1
       }
       let region = globin[start:ar].to_owned()
-      println("  Positions " + (start + 1).to_string() + "-" + ar.to_string() + ": " + region)
+      println(
+        "  Positions " +
+        (start + 1).to_string() +
+        "-" +
+        ar.to_string() +
+        ": " +
+        region,
+      )
     }
     ar = ar + 1
   }
@@ -122,7 +153,12 @@ fn main {
   println("Transmembrane propensity profile:")
   let mut tm_print = 0
   while tm_print < tm.length() && tm_print < 20 {
-    println("  Position " + (tm_print + 1).to_string() + ": " + tm[tm_print].to_string())
+    println(
+      "  Position " +
+      (tm_print + 1).to_string() +
+      ": " +
+      tm[tm_print].to_string(),
+    )
     tm_print = tm_print + 1
   }
   println("  ... (showing first 20 of " + tm.length().to_string() + " values)")
@@ -136,7 +172,7 @@ fn main {
   println("Amino acid frequencies:")
   let aa_list = comp.keys().collect()
   // Sort for consistent output
-  aa_list.sort_by(fn(a : Char, b : Char) -> Int { a.to_int() - b.to_int() })
+  aa_list.sort_by(fn(a : Char, b : Char) -> Int32 { a.to_int() - b.to_int() })
   let mut k = 0
   while k < aa_list.length() {
     let aa = aa_list[k]
@@ -151,17 +187,32 @@ fn main {
   // ------------------------------------------------------------------
   println("=== 6. Sequence Conservation ===")
   println("Testing conservation across an alignment:")
-  let alignment = ["MVLSPADKTNVKAAWGKVGAHAGEYGAEALER", "MVLSAADKTNVKAAWSKVGGHAGEYGAEALER", "MVLSPADKTNVKAAWGKVGAHAGEYGAEALER"]
+  let alignment = [
+    "MVLSPADKTNVKAAWGKVGAHAGEYGAEALER", "MVLSAADKTNVKAAWSKVGGHAGEYGAEALER", "MVLSPADKTNVKAAWGKVGAHAGEYGAEALER",
+  ]
   let cons = @bio.protein_conservation(alignment)
   println("Conservation scores (0-1, higher = more conserved):")
   let mut c2 = 0
   while c2 < cons.length() {
-    let bar = if cons[c2] > 0.8 { "*****" }
-      else if cons[c2] > 0.6 { "****" }
-      else if cons[c2] > 0.4 { "***" }
-      else if cons[c2] > 0.2 { "**" }
-      else { "*" }
-    println("  Position " + (c2 + 1).to_string() + ": " + cons[c2].to_string() + " " + bar)
+    let bar = if cons[c2] > 0.8 {
+      "*****"
+    } else if cons[c2] > 0.6 {
+      "****"
+    } else if cons[c2] > 0.4 {
+      "***"
+    } else if cons[c2] > 0.2 {
+      "**"
+    } else {
+      "*"
+    }
+    println(
+      "  Position " +
+      (c2 + 1).to_string() +
+      ": " +
+      cons[c2].to_string() +
+      " " +
+      bar,
+    )
     c2 = c2 + 1
   }
   println("")

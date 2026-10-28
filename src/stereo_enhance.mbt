@@ -8,7 +8,7 @@
 ///|
 /// Chirality result for a residue.
 pub(all) struct ChiralityResult {
-  resseq : Int
+  resseq : Int32
   resname : String
   has_chirality : Bool
   is_correct : Bool // true = L-amino acid, false = D-amino acid
@@ -18,8 +18,8 @@ pub(all) struct ChiralityResult {
 ///|
 /// Cis-peptide result.
 pub(all) struct CisPeptideResult {
-  resseq1 : Int
-  resseq2 : Int
+  resseq1 : Int32
+  resseq2 : Int32
   omega : Double // dihedral C(i-1)-N(i)-CA(i)-C(i)
   is_cis : Bool
 }
@@ -29,7 +29,7 @@ pub(all) struct CisPeptideResult {
 pub(all) struct BondValidationResult {
   atom1 : String
   atom2 : String
-  resseq : Int
+  resseq : Int32
   observed : Double
   expected : Double
   deviation : Double
@@ -42,7 +42,7 @@ pub(all) struct AngleValidationResult {
   atom1 : String
   atom2 : String
   atom3 : String
-  resseq : Int
+  resseq : Int32
   observed : Double
   expected : Double
   deviation : Double
@@ -52,7 +52,7 @@ pub(all) struct AngleValidationResult {
 ///|
 /// Peptide planarity result.
 pub(all) struct PeptidePlanarityResult {
-  resseq : Int
+  resseq : Int32
   omega : Double
   deviation_from_180 : Double
   is_planar : Bool
@@ -61,13 +61,13 @@ pub(all) struct PeptidePlanarityResult {
 ///|
 /// Comprehensive stereochemistry summary.
 pub(all) struct StereoSummary {
-  num_residues : Int
-  num_chiral : Int
-  num_wrong_chirality : Int
-  num_cis_peptides : Int
-  num_bond_outliers : Int
-  num_angle_outliers : Int
-  num_nonplanar_peptides : Int
+  num_residues : Int32
+  num_chiral : Int32
+  num_wrong_chirality : Int32
+  num_cis_peptides : Int32
+  num_bond_outliers : Int32
+  num_angle_outliers : Int32
+  num_nonplanar_peptides : Int32
 }
 
 ///|
@@ -75,7 +75,7 @@ pub(all) struct StereoSummary {
 /// Computes signed volume of tetrahedron formed by N, CA, C, CB.
 /// Positive volume = L-amino acid (correct), negative = D-amino acid.
 pub fn detect_chirality(
-  resseq : Int,
+  resseq : Int32,
   resname : String,
   n_pos : Vector3?,
   ca_pos : Vector3?,
@@ -93,17 +93,29 @@ pub fn detect_chirality(
       let vol = Vector3::dot(cross, v3) / 6.0
       let has_chirality = vol.abs() > 0.001
       let is_correct = vol > 0.0
-      ChiralityResult::{ resseq, resname, has_chirality, is_correct, volume: vol }
+      ChiralityResult::{
+        resseq,
+        resname,
+        has_chirality,
+        is_correct,
+        volume: vol,
+      }
     }
     _ =>
-      ChiralityResult::{ resseq, resname, has_chirality: false, is_correct: false, volume: 0.0 }
+      ChiralityResult::{
+        resseq,
+        resname,
+        has_chirality: false,
+        is_correct: false,
+        volume: 0.0,
+      }
   }
 }
 
 ///|
 /// Count cis-peptides from a list of omega angles.
 /// A cis-peptide has |omega| < 30°.
-pub fn count_cis_peptides(omega_angles : Array[CisPeptideResult]) -> Int {
+pub fn count_cis_peptides(omega_angles : Array[CisPeptideResult]) -> Int32 {
   let mut count = 0
   for r in omega_angles {
     if r.is_cis {
@@ -117,8 +129,8 @@ pub fn count_cis_peptides(omega_angles : Array[CisPeptideResult]) -> Int {
 /// Detect cis-peptide from omega dihedral angle.
 /// omega = dihedral(C_prev, N, CA, C)
 pub fn detect_cis_peptide(
-  resseq1 : Int,
-  resseq2 : Int,
+  resseq1 : Int32,
+  resseq2 : Int32,
   c_prev : Vector3?,
   n : Vector3?,
   ca : Vector3?,
@@ -128,9 +140,9 @@ pub fn detect_cis_peptide(
     (Some(cp), Some(n), Some(ca), Some(c)) => {
       let omega = calc_dihedral(cp, n, ca, c)
       let is_cis = omega.abs() < 30.0
-      CisPeptideResult::{ resseq1, resseq2, omega, is_cis }
+      CisPeptideResult::{ resseq1, resseq2, omega, is_cis, }
     }
-    _ => CisPeptideResult::{ resseq1, resseq2, omega: 0.0, is_cis: false }
+    _ => CisPeptideResult::{ resseq1, resseq2, omega: 0.0, is_cis: false, }
   }
 }
 
@@ -139,7 +151,7 @@ pub fn detect_cis_peptide(
 pub fn validate_bond_length(
   atom1 : String,
   atom2 : String,
-  resseq : Int,
+  resseq : Int32,
   pos1 : Vector3?,
   pos2 : Vector3?,
   expected : Double,
@@ -150,10 +162,26 @@ pub fn validate_bond_length(
       let observed = Vector3::distance_squared(p1, p2).sqrt()
       let deviation = observed - expected
       let is_outlier = deviation.abs() > tolerance
-      BondValidationResult::{ atom1, atom2, resseq, observed, expected, deviation, is_outlier }
+      BondValidationResult::{
+        atom1,
+        atom2,
+        resseq,
+        observed,
+        expected,
+        deviation,
+        is_outlier,
+      }
     }
     _ =>
-      BondValidationResult::{ atom1, atom2, resseq, observed: 0.0, expected, deviation: 0.0, is_outlier: false }
+      BondValidationResult::{
+        atom1,
+        atom2,
+        resseq,
+        observed: 0.0,
+        expected,
+        deviation: 0.0,
+        is_outlier: false,
+      }
   }
 }
 
@@ -163,7 +191,7 @@ pub fn validate_bond_angle(
   atom1 : String,
   atom2 : String,
   atom3 : String,
-  resseq : Int,
+  resseq : Int32,
   pos1 : Vector3?,
   pos2 : Vector3?,
   pos3 : Vector3?,
@@ -177,10 +205,27 @@ pub fn validate_bond_angle(
       let observed = Vector3::angle_degrees(v1, v2)
       let deviation = observed - expected
       let is_outlier = deviation.abs() > tolerance
-      AngleValidationResult::{ atom1, atom2, atom3, resseq, observed, expected, deviation, is_outlier }
+      AngleValidationResult::{
+        atom1,
+        atom2,
+        atom3,
+        resseq,
+        observed,
+        expected,
+        deviation,
+        is_outlier,
+      }
     }
-    _ => AngleValidationResult::{
-        atom1, atom2, atom3, resseq, observed: 0.0, expected, deviation: 0.0, is_outlier: false
+    _ =>
+      AngleValidationResult::{
+        atom1,
+        atom2,
+        atom3,
+        resseq,
+        observed: 0.0,
+        expected,
+        deviation: 0.0,
+        is_outlier: false,
       }
   }
 }
@@ -190,15 +235,19 @@ pub fn validate_bond_angle(
 /// Trans peptide: omega ≈ ±180°, cis: omega ≈ 0°.
 /// Non-planar if deviation from 0 or 180 exceeds threshold.
 pub fn peptide_planarity(
-  resseq : Int,
+  resseq : Int32,
   omega : Double,
   threshold : Double,
 ) -> PeptidePlanarityResult {
   let dev_from_180 = (omega.abs() - 180.0).abs()
   let dev_from_0 = omega.abs()
-  let deviation_from_180 = if dev_from_180 < dev_from_0 { dev_from_180 } else { dev_from_0 }
+  let deviation_from_180 = if dev_from_180 < dev_from_0 {
+    dev_from_180
+  } else {
+    dev_from_0
+  }
   let is_planar = deviation_from_180 < threshold
-  PeptidePlanarityResult::{ resseq, omega, deviation_from_180, is_planar }
+  PeptidePlanarityResult::{ resseq, omega, deviation_from_180, is_planar, }
 }
 
 ///|
@@ -220,7 +269,11 @@ pub fn standard_bond_length(atom1 : String, atom2 : String) -> Double {
 
 ///|
 /// Standard bond angles for protein backbone (in degrees).
-pub fn standard_bond_angle(_atom1 : String, atom2 : String, _atom3 : String) -> Double {
+pub fn standard_bond_angle(
+  _atom1 : String,
+  atom2 : String,
+  _atom3 : String,
+) -> Double {
   let a2 = to_lowercase(atom2) // central atom
   match a2 {
     "n" => 121.0 // C-N-CA
@@ -274,7 +327,7 @@ pub fn stereo_summary(
   for r in chirality_results {
     if r.has_chirality {
       num_chiral = num_chiral + 1
-      if !(r.is_correct) {
+      if !r.is_correct {
         num_wrong = num_wrong + 1
       }
     }
@@ -299,7 +352,7 @@ pub fn stereo_summary(
   }
   let mut num_nonplanar = 0
   for r in planarity_results {
-    if !(r.is_planar) {
+    if !r.is_planar {
       num_nonplanar = num_nonplanar + 1
     }
   }

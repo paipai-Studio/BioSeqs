@@ -209,13 +209,13 @@ pub fn scop_raf_index(text : String) -> Map[String, String] {
 
 ///|
 /// Number of residues in this sequence map.
-pub fn ScopSeqMap::length(self : ScopSeqMap) -> Int {
+pub fn ScopSeqMap::length(self : ScopSeqMap) -> Int32 {
   self.res.length()
 }
 
 ///|
 /// Get the residue at position i.
-pub fn ScopSeqMap::get(self : ScopSeqMap, i : Int) -> ScopRafRes {
+pub fn ScopSeqMap::get(self : ScopSeqMap, i : Int32) -> ScopRafRes {
   self.res[i]
 }
 
@@ -231,7 +231,7 @@ pub fn ScopSeqMap::index(
   self : ScopSeqMap,
   resid : String,
   chainid? : String,
-) -> Int raise ScopRafError {
+) -> Int32 raise ScopRafError {
   let cid = chainid.unwrap_or("_")
   for i in 0..<self.res.length() {
     if self.res[i].resid == resid && self.res[i].chainid == cid {
@@ -245,8 +245,8 @@ pub fn ScopSeqMap::index(
 /// Slice this SeqMap into a fragment [start, end).
 pub fn ScopSeqMap::slice(
   self : ScopSeqMap,
-  start : Int,
-  end_ : Int,
+  start : Int32,
+  end_ : Int32,
 ) -> ScopSeqMap {
   let res : Array[ScopRafRes] = Array(capacity=0)
   for i in start..<end_ {

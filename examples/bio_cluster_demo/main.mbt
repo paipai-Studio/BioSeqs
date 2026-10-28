@@ -5,8 +5,9 @@
 /// clustering, k-means/k-medoids, self-organizing maps, PCA, and the
 /// Eisen Cluster/TreeView Record file format.
 
+///|
 /// Format a Double to a String with a given number of decimal places.
-fn fmt(value : Double, decimals : Int) -> String {
+fn fmt(value : Double, decimals : Int32) -> String {
   let s = value.to_string()
   let parts = s.split(".").to_array()
   let int_part = if parts.length() > 0 { parts[0].to_owned() } else { "0" }
@@ -20,6 +21,7 @@ fn fmt(value : Double, decimals : Int) -> String {
   int_part + "." + padded_frac
 }
 
+///|
 fn print_vector(name : String, v : Array[Double]) -> Unit {
   let parts : Array[String] = Array(capacity=0)
   for x in v {
@@ -28,6 +30,7 @@ fn print_vector(name : String, v : Array[Double]) -> Unit {
   println("\{name}: [\{parts.join(", ")}]")
 }
 
+///|
 fn print_matrix(name : String, m : Array[Array[Double]]) -> Unit {
   println("\{name}:")
   for row in m {
@@ -39,7 +42,8 @@ fn print_matrix(name : String, m : Array[Array[Double]]) -> Unit {
   }
 }
 
-fn print_int_array(name : String, v : Array[Int]) -> Unit {
+///|
+fn print_int_array(name : String, v : Array[Int32]) -> Unit {
   let parts : Array[String] = Array(capacity=0)
   for x in v {
     parts.push("\{x}")
@@ -138,8 +142,10 @@ fn main raise {
   }
   println("genename = [\{names}]")
   let rt = rec.treecluster(method_="s")
-  print_int_array("Record.treecluster(method=\"s\") cut into 2",
-    rt.cut(nclusters=2))
+  print_int_array(
+    "Record.treecluster(method=\"s\") cut into 2",
+    rt.cut(nclusters=2),
+  )
   let rk = rec.kcluster(nclusters=2, initialid=[0, 0, 1, 1])
   print_int_array("Record.kcluster(nclusters=2)", rk.clusterid())
   let rcd = rec.clusterdistance(index1=[0], index2=[3], dist="e")

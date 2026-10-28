@@ -27,7 +27,7 @@ pub suberror GeneSetTestError {
 /// full statistic/expression vector.
 pub struct CameraGeneSet {
   name : String
-  indices : Array[Int]
+  indices : Array[Int32]
 }
 
 ///|
@@ -35,7 +35,7 @@ pub struct CameraGeneSet {
 /// the set is used.
 pub fn CameraGeneSet::create(
   name : String,
-  indices : Array[Int],
+  indices : Array[Int32],
 ) -> CameraGeneSet raise GeneSetTestError {
   if indices.length() == 0 {
     raise GeneSetTestError("gene set '" + name + "' is empty")
@@ -50,7 +50,7 @@ pub fn CameraGeneSet::name(self : CameraGeneSet) -> String {
 
 ///|
 /// Return a copy of the gene indices.
-pub fn CameraGeneSet::indices(self : CameraGeneSet) -> Array[Int] {
+pub fn CameraGeneSet::indices(self : CameraGeneSet) -> Array[Int32] {
   self.indices.copy()
 }
 
@@ -58,7 +58,7 @@ pub fn CameraGeneSet::indices(self : CameraGeneSet) -> Array[Int] {
 /// Result of a competitive gene-set test for one set.
 pub struct CameraResult {
   name : String
-  n_genes : Int
+  n_genes : Int32
   correlation : Double?
   direction : String
   p_value : Double
@@ -71,7 +71,7 @@ pub fn CameraResult::name(self : CameraResult) -> String {
 }
 
 ///|
-pub fn CameraResult::n_genes(self : CameraResult) -> Int {
+pub fn CameraResult::n_genes(self : CameraResult) -> Int32 {
   self.n_genes
 }
 
@@ -524,8 +524,8 @@ fn gst_check_finite(
 /// Validate gene-set indices against a universe of ``n_genes`` positions.
 fn gst_validated_indices(
   set : CameraGeneSet,
-  n_genes : Int,
-) -> Array[Int] raise GeneSetTestError {
+  n_genes : Int32,
+) -> Array[Int32] raise GeneSetTestError {
   let indices = set.indices
   let m = indices.length()
   if m == 0 {
@@ -581,7 +581,7 @@ fn gst_bh(p_values : Array[Double]) -> Array[Double] {
 
 ///|
 /// Stable sort of set positions by p-value (R order, ties keep input order).
-fn gst_order_by_p(p_values : Array[Double]) -> Array[Int] {
+fn gst_order_by_p(p_values : Array[Double]) -> Array[Int32] {
   let n = p_values.length()
   let order = Array::make(n, 0)
   let mut i = 0
@@ -621,10 +621,10 @@ fn gst_order_by_p(p_values : Array[Double]) -> Array[Int] {
 /// - ``correlation``: common pairwise correlation of statistics.
 /// - ``df``: degrees of freedom; ``None`` denotes infinite (standard normal).
 pub fn rank_sum_test_with_correlation(
-  index : Array[Int],
+  index : Array[Int32],
   statistics : Array[Double],
-  correlation? : Double = 0.0,
-  df? : Double? = Option::None,
+  correlation~ : Double = 0.0,
+  df~ : Double? = Option::None,
 ) -> (Double, Double) raise GeneSetTestError {
   let n = statistics.length()
   let n1 = index.length()
@@ -724,11 +724,11 @@ pub fn rank_sum_test_with_correlation(
 pub fn camera_pr(
   statistic : Array[Double],
   sets : Array[CameraGeneSet],
-  fixed_inter_gene_cor? : Double = 0.01,
-  per_set_inter_gene_cor? : Array[Double]? = Option::None,
-  use_ranks? : Bool = false,
-  directional? : Bool = true,
-  sort? : Bool = true,
+  fixed_inter_gene_cor~ : Double = 0.01,
+  per_set_inter_gene_cor~ : Array[Double]? = Option::None,
+  use_ranks~ : Bool = false,
+  directional~ : Bool = true,
+  sort~ : Bool = true,
 ) -> Array[CameraResult] raise GeneSetTestError {
   let g = statistic.length()
   if g < 3 {
@@ -851,7 +851,7 @@ pub fn camera_pr(
 /// Shared camera/cameraPR result assembly: direction, FDR, sorting.
 fn gst_assemble_results(
   sets : Array[CameraGeneSet],
-  n_genes : Array[Int],
+  n_genes : Array[Int32],
   down : Array[Double],
   up : Array[Double],
   cors : Array[Double],
@@ -918,8 +918,8 @@ fn gst_assemble_results(
 /// ``k`` is at ``q[k * n + i]``. Only the residual columns are returned.
 fn gst_qr_nullspace(
   design : Matrix,
-  n : Int,
-  p : Int,
+  n : Int32,
+  p : Int32,
 ) -> Array[Double] raise GeneSetTestError {
   let q = Array::make(n * n, 0.0)
   let mut ncols = 0
@@ -1023,12 +1023,12 @@ pub fn camera_default(
   y : Matrix,
   sets : Array[CameraGeneSet],
   design : Matrix,
-  contrast? : Int? = Option::None,
-  inter_gene_cor? : Double? = Some(0.01),
-  allow_negative_cor? : Bool = false,
-  use_ranks? : Bool = false,
-  directional? : Bool = true,
-  sort? : Bool = true,
+  contrast~ : Int32? = Option::None,
+  inter_gene_cor~ : Double? = Some(0.01),
+  allow_negative_cor~ : Bool = false,
+  use_ranks~ : Bool = false,
+  directional~ : Bool = true,
+  sort~ : Bool = true,
 ) -> Array[CameraResult] raise GeneSetTestError {
   let g = y.rows
   let n = y.cols

@@ -24,8 +24,8 @@ pub struct FgseaResult {
   padj : Double
   es : Double
   nes : Double
-  nMoreExtreme : Int
-  size : Int
+  nMoreExtreme : Int32
+  size : Int32
   leadingEdge : Array[String]
 }
 
@@ -37,8 +37,8 @@ pub fn FgseaResult::new(
   padj : Double,
   es : Double,
   nes : Double,
-  nMoreExtreme : Int,
-  size : Int,
+  nMoreExtreme : Int32,
+  size : Int32,
   leadingEdge : Array[String],
 ) -> FgseaResult {
   FgseaResult::{
@@ -65,7 +65,7 @@ fn calc_enrichment_score(
   ranks : Array[(String, Double)],
   gene_set : Array[String],
   _gene_map : Map[String, Double],
-) -> (Double, Int) {
+) -> (Double, Int32) {
   let n = ranks.length()
   let gene_in_set : Array[Bool] = []
   let mut set_size = 0
@@ -126,7 +126,7 @@ fn calc_enrichment_score(
 fn extract_leading_edge(
   ranks : Array[(String, Double)],
   gene_set : Array[String],
-  peak_pos : Int,
+  peak_pos : Int32,
   es_positive : Bool,
 ) -> Array[String] {
   let result : Array[String] = []
@@ -151,11 +151,11 @@ fn permute_es(
   ranks : Array[(String, Double)],
   gene_set : Array[String],
   _gene_map : Map[String, Double],
-  seed : Int,
+  seed : Int32,
 ) -> Double {
   let n = ranks.length()
   let perm_ranks : Array[(String, Double)] = []
-  let indices : Array[Int] = []
+  let indices : Array[Int32] = []
   for i = 0; i < n; i = i + 1 {
     indices.push(i)
   }
@@ -188,9 +188,9 @@ fn permute_es(
 pub fn fgsea(
   pathways : Array[GeneSet],
   stats : Array[(String, Double)],
-  nperm? : Int = 100,
-  min_size? : Int = 1,
-  max_size? : Int = 500,
+  nperm~ : Int32 = 100,
+  min_size~ : Int32 = 1,
+  max_size~ : Int32 = 500,
 ) -> Array[FgseaResult] {
   let gene_map = gene_stat_map(stats)
   let results : Array[FgseaResult] = []
@@ -306,7 +306,7 @@ pub fn rank_genes(
 /// Filter FGSEA results by adjusted p-value threshold.
 pub fn fgsea_filter(
   results : Array[FgseaResult],
-  padj_cutoff? : Double = 0.05,
+  padj_cutoff~ : Double = 0.05,
 ) -> Array[FgseaResult] {
   let filtered : Array[FgseaResult] = []
   for r in results {
@@ -321,7 +321,7 @@ pub fn fgsea_filter(
 /// Get top up-regulated gene sets (positive nes).
 pub fn fgsea_top_up(
   results : Array[FgseaResult],
-  n? : Int = 10,
+  n~ : Int32 = 10,
 ) -> Array[FgseaResult] {
   let up : Array[FgseaResult] = []
   for r in results {
@@ -351,7 +351,7 @@ pub fn fgsea_top_up(
 /// Get top down-regulated gene sets (negative nes).
 pub fn fgsea_top_down(
   results : Array[FgseaResult],
-  n? : Int = 10,
+  n~ : Int32 = 10,
 ) -> Array[FgseaResult] {
   let down : Array[FgseaResult] = []
   for r in results {
@@ -382,10 +382,10 @@ pub fn fgsea_top_down(
 pub fn fgsea_collapse_pathways(
   results : Array[FgseaResult],
   _pathways : Array[GeneSet],
-  threshold? : Double = 0.5,
-) -> Array[Array[Int]] {
+  threshold~ : Double = 0.5,
+) -> Array[Array[Int32]] {
   let n = results.length()
-  let clusters : Array[Array[Int]] = []
+  let clusters : Array[Array[Int32]] = []
   let assigned : Array[Bool] = []
   for i = 0; i < n; i = i + 1 {
     assigned.push(false)
@@ -396,7 +396,7 @@ pub fn fgsea_collapse_pathways(
       continue
     }
     assigned[i] = true
-    let cluster : Array[Int] = [i]
+    let cluster : Array[Int32] = [i]
     let le_i = results[i].leadingEdge
 
     for j = i + 1; j < n; j = j + 1 {

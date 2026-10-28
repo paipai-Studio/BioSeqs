@@ -6,7 +6,7 @@
 let csi_base64 = "Q1NJAQ4AAAAGAAAAJgAAAAIAAAABAAAAAgAAAAAAAAAjAAAAAAAAAAoAAABjaHIxAGNocjIAAgAAAAIAAABJkgAAeQAAAAAAAAABAAAAeQAAAAAAAACjAAAAAAAAAEqSBAAAAAAAAAAAAAIAAAB5AAAAAAAAAKMAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAIAAABJkgAAowAAAAAAAAABAAAAowAAAAAAAAAAAJ4AAAAAAEqSBAAAAAAAAAAAAAIAAACjAAAAAAAAAAAAngAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
 
 ///|
-fn csi_ints(a : Array[Int], b : Array[Int]) -> Bool {
+fn csi_ints(a : Array[Int32], b : Array[Int32]) -> Bool {
   if a.length() != b.length() {
     return false
   }
@@ -45,13 +45,26 @@ test "parse_csi_structure" {
 
 ///|
 test "csi_reg2bins_matches_htslib" {
-  assert_true(csi_ints(@src.csi_reg2bins(100, 101, 14, 6), [0, 1, 9, 73, 585, 4681, 37449]))
-  assert_true(csi_ints(@src.csi_reg2bins(100, 20000, 14, 6), [0, 1, 9, 73, 585, 4681, 37449, 37450]))
-  assert_true(csi_ints(@src.csi_reg2bins(0, 1000, 14, 6), [0, 1, 9, 73, 585, 4681, 37449]))
-  assert_true(csi_ints(@src.csi_reg2bins(16384, 16385, 14, 6), [0, 1, 9, 73, 585, 4681, 37450]))
+  assert_true(
+    csi_ints(@src.csi_reg2bins(100, 101, 14, 6), [0, 1, 9, 73, 585, 4681, 37449]),
+  )
+  assert_true(
+    csi_ints(@src.csi_reg2bins(100, 20000, 14, 6), [
+      0, 1, 9, 73, 585, 4681, 37449, 37450,
+    ]),
+  )
+  assert_true(
+    csi_ints(@src.csi_reg2bins(0, 1000, 14, 6), [0, 1, 9, 73, 585, 4681, 37449]),
+  )
+  assert_true(
+    csi_ints(@src.csi_reg2bins(16384, 16385, 14, 6), [
+      0, 1, 9, 73, 585, 4681, 37450,
+    ]),
+  )
   // empty region
   assert_eq(@src.csi_reg2bins(5, 5, 14, 6).length(), 0)
 }
+
 ///|
 test "csi_query" {
   let idx = @src.parse_csi(@src.base64_decode(csi_base64))

@@ -18,8 +18,12 @@ pub struct SkbioNode {
 }
 
 ///|
-pub fn SkbioNode::new(name : String?, length : Double, children : Array[SkbioNode]) -> SkbioNode {
-  SkbioNode::{ name, length, children }
+pub fn SkbioNode::new(
+  name : String?,
+  length : Double,
+  children : Array[SkbioNode],
+) -> SkbioNode {
+  SkbioNode::{ name, length, children, }
 }
 
 ///|
@@ -52,7 +56,7 @@ pub fn SkbioNode::tips(self : SkbioNode) -> Array[String] {
 
 ///|
 /// Parse `name[:length]` starting at `i`; returns (name, length, next_index).
-fn skbio_parse_label(s : String, i : Int) -> (String?, Double, Int) {
+fn skbio_parse_label(s : String, i : Int32) -> (String?, Double, Int32) {
   let n = s.length()
   let mut j = i
   let mut name = ""
@@ -87,7 +91,7 @@ fn skbio_parse_label(s : String, i : Int) -> (String?, Double, Int) {
 
 ///|
 /// Recursive-descent Newick node parser; returns (node, next_index).
-fn skbio_parse_node(s : String, i : Int) -> (SkbioNode, Int) {
+fn skbio_parse_node(s : String, i : Int32) -> (SkbioNode, Int32) {
   if char_at(s, i) == "(" {
     let mut j = i + 1
     let children : Array[SkbioNode] = Array(capacity=0)
@@ -102,10 +106,10 @@ fn skbio_parse_node(s : String, i : Int) -> (SkbioNode, Int) {
     // s[j] is now ')'
     let after_close = j + 1
     let (name, length, nj3) = skbio_parse_label(s, after_close)
-    (SkbioNode::{ name, length, children }, nj3)
+    (SkbioNode::{ name, length, children, }, nj3)
   } else {
     let (name, length, nj) = skbio_parse_label(s, i)
-    (SkbioNode::{ name, length, children: [] }, nj)
+    (SkbioNode::{ name, length, children: [], }, nj)
   }
 }
 
@@ -116,14 +120,14 @@ fn skbio_parse_node(s : String, i : Int) -> (SkbioNode, Int) {
 pub fn skbio_tree_read(newick : String) -> SkbioNode {
   let s = newick.trim().replace(old=";", new="").to_owned()
   if s.length() == 0 {
-    return SkbioNode::{ name: None, length: 0.0, children: [] }
+    return SkbioNode::{ name: None, length: 0.0, children: [], }
   }
   let (node, _) = skbio_parse_node(s, 0)
   node
 }
 
 ///|
-fn skbio_taxon_index(taxa : Array[String], name : String) -> Int {
+fn skbio_taxon_index(taxa : Array[String], name : String) -> Int32 {
   for i = 0; i < taxa.length(); i = i + 1 {
     if taxa[i] == name {
       return i
@@ -160,7 +164,9 @@ fn skbio_unifrac_accumulate(
     }
   }
   for child in node.children {
-    let (cu_sub, cv_sub) = skbio_unifrac_accumulate(child, taxa, u_counts, v_counts, lengths, cu, cv)
+    let (cu_sub, cv_sub) = skbio_unifrac_accumulate(
+      child, taxa, u_counts, v_counts, lengths, cu, cv,
+    )
     u = u + cu_sub
     v = v + cv_sub
   }
@@ -180,7 +186,9 @@ fn skbio_unifrac_arrays(
   let lengths : Array[Double] = Array(capacity=0)
   let cu : Array[Double] = Array(capacity=0)
   let cv : Array[Double] = Array(capacity=0)
-  let (_, _) = skbio_unifrac_accumulate(tree, taxa, u_counts, v_counts, lengths, cu, cv)
+  let (_, _) = skbio_unifrac_accumulate(
+    tree, taxa, u_counts, v_counts, lengths, cu, cv,
+  )
   (lengths, cu, cv)
 }
 
@@ -285,7 +293,7 @@ pub fn skbio_faith_pd(
 ) -> Double {
   let lengths : Array[Double] = Array(capacity=0)
   let observed : Array[Double] = Array(capacity=0)
-  let (_) = skbio_faith_accumulate(tree, taxa, counts, lengths, observed)
+  let _ = skbio_faith_accumulate(tree, taxa, counts, lengths, observed)
   let mut total = 0.0
   for i = 0; i < lengths.length(); i = i + 1 {
     if observed[i] > 0.0 {

@@ -5,6 +5,8 @@ pub struct SamHrecTag {
   key : String
   value : String
 } derive(Eq)
+
+///|
 pub extend SamHrecTag with Eq::{equal, not_equal}
 
 ///|
@@ -14,6 +16,8 @@ pub struct SamHrecLine {
   type_str : String
   tags : Array[SamHrecTag]
 } derive(Eq)
+
+///|
 pub extend SamHrecLine with Eq::{equal, not_equal}
 
 ///|
@@ -22,7 +26,7 @@ pub extend SamHrecLine with Eq::{equal, not_equal}
 pub struct SamHrecs {
   lines : Array[SamHrecLine]
   ref_names : Array[String]
-  ref_lengths : Array[Int]
+  ref_lengths : Array[Int32]
   rg_ids : Array[String]
   pg_ids : Array[String]
 }
@@ -70,18 +74,18 @@ fn parse_header_line(line : String) -> SamHrecLine? {
         value: field[colon + 1:].to_owned(),
       })
     } else if field.length() > 0 {
-      tags.push(SamHrecTag::{ key: field, value: "" })
+      tags.push(SamHrecTag::{ key: field, value: "", })
     }
     pos = end
   }
-  Some(SamHrecLine::{ type_str, tags })
+  Some(SamHrecLine::{ type_str, tags, })
 }
 
 ///|
 /// Rebuild indexes from lines.
 fn rebuild_indexes(lines : Array[SamHrecLine]) -> SamHrecs {
   let ref_names : Array[String] = []
-  let ref_lengths : Array[Int] = []
+  let ref_lengths : Array[Int32] = []
   let rg_ids : Array[String] = []
   let pg_ids : Array[String] = []
   for i = 0; i < lines.length(); i = i + 1 {
@@ -116,7 +120,7 @@ fn rebuild_indexes(lines : Array[SamHrecLine]) -> SamHrecs {
       }
     }
   }
-  SamHrecs::{ lines, ref_names, ref_lengths, rg_ids, pg_ids }
+  SamHrecs::{ lines, ref_names, ref_lengths, rg_ids, pg_ids, }
 }
 
 ///|
@@ -180,14 +184,14 @@ pub fn SamHrecs::to_text(self : SamHrecs) -> String {
 ///|
 /// Number of reference sequences (@SQ lines).
 /// Ported from htslib sam_hdr_nref().
-pub fn SamHrecs::nref(self : SamHrecs) -> Int {
+pub fn SamHrecs::nref(self : SamHrecs) -> Int32 {
   self.ref_names.length()
 }
 
 ///|
 /// Reference name to tid (0-based index).
 /// Ported from htslib sam_hdr_name2tid().
-pub fn SamHrecs::name2tid(self : SamHrecs, name : String) -> Int {
+pub fn SamHrecs::name2tid(self : SamHrecs, name : String) -> Int32 {
   for i = 0; i < self.ref_names.length(); i = i + 1 {
     if self.ref_names[i] == name {
       return i
@@ -199,7 +203,7 @@ pub fn SamHrecs::name2tid(self : SamHrecs, name : String) -> Int {
 ///|
 /// tid to reference name.
 /// Ported from htslib sam_hdr_tid2name().
-pub fn SamHrecs::tid2name(self : SamHrecs, tid : Int) -> String? {
+pub fn SamHrecs::tid2name(self : SamHrecs, tid : Int32) -> String? {
   if tid < 0 || tid >= self.ref_names.length() {
     return None
   }
@@ -209,7 +213,7 @@ pub fn SamHrecs::tid2name(self : SamHrecs, tid : Int) -> String? {
 ///|
 /// tid to reference length.
 /// Ported from htslib sam_hdr_tid2len().
-pub fn SamHrecs::tid2len(self : SamHrecs, tid : Int) -> Int {
+pub fn SamHrecs::tid2len(self : SamHrecs, tid : Int32) -> Int32 {
   if tid < 0 || tid >= self.ref_lengths.length() {
     return 0
   }
@@ -219,7 +223,7 @@ pub fn SamHrecs::tid2len(self : SamHrecs, tid : Int) -> Int {
 ///|
 /// Count lines of a given type (e.g. "SQ", "RG", "PG").
 /// Ported from htslib sam_hdr_count_lines().
-pub fn SamHrecs::count_lines(self : SamHrecs, type_str : String) -> Int {
+pub fn SamHrecs::count_lines(self : SamHrecs, type_str : String) -> Int32 {
   let mut count = 0
   for i = 0; i < self.lines.length(); i = i + 1 {
     if self.lines[i].type_str == type_str {
@@ -236,7 +240,7 @@ pub fn SamHrecs::find_line_id(
   self : SamHrecs,
   type_str : String,
   id_key : String,
-  id_value : String
+  id_value : String,
 ) -> SamHrecLine? {
   for i = 0; i < self.lines.length(); i = i + 1 {
     let line = self.lines[i]
@@ -261,7 +265,7 @@ pub fn SamHrecs::find_line_id(
 pub fn SamHrecs::find_line_pos(
   self : SamHrecs,
   type_str : String,
-  position : Int
+  position : Int32,
 ) -> SamHrecLine? {
   let mut idx = 0
   for i = 0; i < self.lines.length(); i = i + 1 {
@@ -283,7 +287,7 @@ pub fn SamHrecs::find_tag_id(
   type_str : String,
   id_key : String,
   id_value : String,
-  tag_key : String
+  tag_key : String,
 ) -> String? {
   match self.find_line_id(type_str, id_key, id_value) {
     Some(line) => {
@@ -304,8 +308,8 @@ pub fn SamHrecs::find_tag_id(
 pub fn SamHrecs::find_tag_pos(
   self : SamHrecs,
   type_str : String,
-  position : Int,
-  tag_key : String
+  position : Int32,
+  tag_key : String,
 ) -> String? {
   match self.find_line_pos(type_str, position) {
     Some(line) => {
@@ -371,7 +375,7 @@ pub fn SamHrecs::remove_line_id(
   self : SamHrecs,
   type_str : String,
   id_key : String,
-  id_value : String
+  id_value : String,
 ) -> SamHrecs {
   let new_lines = []
   let mut removed = false
@@ -408,7 +412,7 @@ pub fn SamHrecs::remove_line_id(
 pub fn SamHrecs::remove_line_pos(
   self : SamHrecs,
   type_str : String,
-  position : Int
+  position : Int32,
 ) -> SamHrecs {
   let new_lines = []
   let mut idx = 0
@@ -440,7 +444,7 @@ pub fn SamHrecs::update_line(
   id_key : String,
   id_value : String,
   tag_key : String,
-  new_value : String
+  new_value : String,
 ) -> SamHrecs {
   let new_lines = []
   let mut found = false
@@ -464,19 +468,16 @@ pub fn SamHrecs::update_line(
           if line.tags[j].key == tag_key {
             tag_exists = true
             if new_value.length() > 0 {
-              new_tags.push(SamHrecTag::{ key: tag_key, value: new_value })
+              new_tags.push(SamHrecTag::{ key: tag_key, value: new_value, })
             }
           } else {
             new_tags.push(line.tags[j])
           }
         }
         if !tag_exists && new_value.length() > 0 {
-          new_tags.push(SamHrecTag::{ key: tag_key, value: new_value })
+          new_tags.push(SamHrecTag::{ key: tag_key, value: new_value, })
         }
-        new_lines.push(SamHrecLine::{
-          type_str: line.type_str,
-          tags: new_tags,
-        })
+        new_lines.push(SamHrecLine::{ type_str: line.type_str, tags: new_tags, })
         continue
       }
     }
@@ -496,7 +497,7 @@ pub fn SamHrecs::remove_tag_id(
   type_str : String,
   id_key : String,
   id_value : String,
-  tag_key : String
+  tag_key : String,
 ) -> SamHrecs {
   self.update_line(type_str, id_key, id_value, tag_key, "")
 }
@@ -508,7 +509,7 @@ pub fn SamHrecs::remove_except(
   self : SamHrecs,
   type_str : String,
   id_key : String,
-  id_value : String
+  id_value : String,
 ) -> SamHrecs {
   let new_lines = []
   for i = 0; i < self.lines.length(); i = i + 1 {
@@ -539,8 +540,8 @@ pub fn SamHrecs::line_index(
   self : SamHrecs,
   type_str : String,
   id_key : String,
-  id_value : String
-) -> Int {
+  id_value : String,
+) -> Int32 {
   let mut idx = 0
   for i = 0; i < self.lines.length(); i = i + 1 {
     let line = self.lines[i]
@@ -563,7 +564,7 @@ pub fn SamHrecs::line_index(
 /// Get all line texts of a given type.
 pub fn SamHrecs::lines_of_type(
   self : SamHrecs,
-  type_str : String
+  type_str : String,
 ) -> Array[String] {
   let result = []
   for i = 0; i < self.lines.length(); i = i + 1 {

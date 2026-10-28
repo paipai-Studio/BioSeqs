@@ -9,16 +9,16 @@
 /// A heavy atom in a molecule graph.
 pub struct MolAtom {
   symbol : String
-  charge : Int
+  charge : Int32
   aromatic : Bool
 }
 
 ///|
 /// A bond between two atom indices.
 pub struct MolBond {
-  from : Int
-  to : Int
-  order : Int // 1 = single, 2 = double, 3 = triple
+  from : Int32
+  to : Int32
+  order : Int32 // 1 = single, 2 = double, 3 = triple
 }
 
 ///|
@@ -30,13 +30,13 @@ pub struct Molecule {
 
 ///|
 /// Number of atoms.
-pub fn Molecule::num_atoms(self : Molecule) -> Int {
+pub fn Molecule::num_atoms(self : Molecule) -> Int32 {
   self.atoms.length()
 }
 
 ///|
 /// Number of bonds.
-pub fn Molecule::num_bonds(self : Molecule) -> Int {
+pub fn Molecule::num_bonds(self : Molecule) -> Int32 {
   self.bonds.length()
 }
 
@@ -52,8 +52,8 @@ pub fn Molecule::atom_symbols(self : Molecule) -> Array[String] {
 
 ///|
 /// Bonds as `(from, to, order)` triples.
-pub fn Molecule::bond_triples(self : Molecule) -> Array[(Int, Int, Int)] {
-  let out : Array[(Int, Int, Int)] = Array(capacity=0)
+pub fn Molecule::bond_triples(self : Molecule) -> Array[(Int32, Int32, Int32)] {
+  let out : Array[(Int32, Int32, Int32)] = Array(capacity=0)
   for b in self.bonds {
     out.push((b.from, b.to, b.order))
   }
@@ -76,7 +76,7 @@ fn mol_is_digit(c : UInt16) -> Bool {
 }
 
 ///|
-fn mol_digit_value(c : UInt16) -> Int {
+fn mol_digit_value(c : UInt16) -> Int32 {
   (c - 48).to_int()
 }
 
@@ -122,7 +122,7 @@ fn mol_is_valid_element(s : String) -> Bool {
 }
 
 ///|
-fn mol_parse_element(s : String, i : Int) -> (String, Bool, Int) {
+fn mol_parse_element(s : String, i : Int32) -> (String, Bool, Int32) {
   let n = s.length()
   let c = s.unsafe_get(i)
   if mol_is_lower(c) {
@@ -185,8 +185,8 @@ fn mol_upper_symbol(c : UInt16) -> String {
 pub fn parse_smiles(smiles : String) -> Molecule {
   let atoms : Array[MolAtom] = Array(capacity=0)
   let bonds : Array[MolBond] = Array(capacity=0)
-  let ring : Map[Int, Int] = Map([], capacity=0)
-  let branch_stack : Array[Int] = Array(capacity=0)
+  let ring : Map[Int32, Int32] = Map([], capacity=0)
+  let branch_stack : Array[Int32] = Array(capacity=0)
   let mut prev = -1
   let mut pending_order = 1
 
@@ -198,9 +198,9 @@ pub fn parse_smiles(smiles : String) -> Molecule {
     if mol_is_upper(c) || mol_is_lower(c) || ci == 91 {
       let (symbol, aromatic, len) = mol_parse_element(smiles, i)
       let atom_idx = atoms.length()
-      atoms.push(MolAtom::{ symbol, charge: 0, aromatic })
+      atoms.push(MolAtom::{ symbol, charge: 0, aromatic, })
       if prev >= 0 {
-        bonds.push(MolBond::{ from: prev, to: atom_idx, order: pending_order })
+        bonds.push(MolBond::{ from: prev, to: atom_idx, order: pending_order, })
       }
       prev = atom_idx
       pending_order = 1
@@ -233,15 +233,15 @@ pub fn parse_smiles(smiles : String) -> Molecule {
       match ring.get(rn) {
         Some(open_atom) => {
           if prev >= 0 && prev != open_atom {
-            bonds.push(MolBond::{ from: prev, to: open_atom, order: pending_order })
+            bonds.push(MolBond::{
+              from: prev,
+              to: open_atom,
+              order: pending_order,
+            })
           }
           ring.remove(rn)
         }
-        None => {
-          if prev >= 0 {
-            ring.set(rn, prev)
-          }
-        }
+        None => if prev >= 0 { ring.set(rn, prev) }
       }
       pending_order = 1
       i = i + 1
@@ -249,14 +249,13 @@ pub fn parse_smiles(smiles : String) -> Molecule {
       i = i + 1
     }
   }
-  Molecule::{ atoms, bonds }
+  Molecule::{ atoms, bonds, }
 }
-
 
 ///|
 /// FNV-1a 32-bit hash over a string's code units, reduced to a non-negative
 /// 31-bit Int (Int64 intermediate avoids overflow).
-fn mol_string_hash(s : String) -> Int {
+fn mol_string_hash(s : String) -> Int32 {
   let mut h : Int64 = 2166136261L
   let n = s.length()
   let mut i = 0
@@ -311,14 +310,14 @@ fn mol_str_gt(a : String, b : String) -> Bool {
 /// Returns the multiset of environment hashes: one hash per atom at every
 /// radius from 0 up to `radius`. Identical molecular graphs yield identical
 /// multisets; different (sub)structures diverge as the radius grows.
-pub fn morgan_fingerprint(mol : Molecule, radius : Int) -> Array[Int] {
+pub fn morgan_fingerprint(mol : Molecule, radius : Int32) -> Array[Int32] {
   let n = mol.atoms.length()
   if n == 0 {
     return []
   }
 
   // 邻接表（邻居 + 键序）
-  let neighbors : Array[Array[(Int, Int)]] = Array(capacity=0)
+  let neighbors : Array[Array[(Int32, Int32)]] = Array(capacity=0)
   for _k = 0; _k < n; _k = _k + 1 {
     neighbors.push([])
   }
@@ -338,7 +337,7 @@ pub fn morgan_fingerprint(mol : Molecule, radius : Int) -> Array[Int] {
     )
   }
 
-  let fingerprint : Array[Int] = Array(capacity=0)
+  let fingerprint : Array[Int32] = Array(capacity=0)
   for k = 0; k < n; k = k + 1 {
     fingerprint.push(mol_string_hash(atom_inv[k]))
   }
@@ -377,9 +376,9 @@ pub fn morgan_fingerprint(mol : Molecule, radius : Int) -> Array[Int] {
 
 ///|
 /// Build an adjacency list: neighbors[i] = array of (neighbor, bond_order).
-pub fn mol_adjacency(mol : Molecule) -> Array[Array[(Int, Int)]] {
+pub fn mol_adjacency(mol : Molecule) -> Array[Array[(Int32, Int32)]] {
   let n = mol.atoms.length()
-  let neighbors : Array[Array[(Int, Int)]] = Array(capacity=0)
+  let neighbors : Array[Array[(Int32, Int32)]] = Array(capacity=0)
   for _k = 0; _k < n; _k = _k + 1 {
     neighbors.push([])
   }
@@ -393,13 +392,13 @@ pub fn mol_adjacency(mol : Molecule) -> Array[Array[(Int, Int)]] {
 ///|
 /// BFS shortest path from a single source. Returns dist array (-1 = unreachable).
 fn mol_bfs_single(
-  neighbors : Array[Array[(Int, Int)]],
-  src : Int,
-  n : Int,
-) -> Array[Int] {
+  neighbors : Array[Array[(Int32, Int32)]],
+  src : Int32,
+  n : Int32,
+) -> Array[Int32] {
   let dist = Array::make(n, -1)
   dist[src] = 0
-  let queue : Array[Int] = [src]
+  let queue : Array[Int32] = [src]
   let mut head = 0
   while head < queue.length() {
     let u = queue[head]
@@ -418,10 +417,10 @@ fn mol_bfs_single(
 /// Topological distance matrix (all-pairs shortest path via BFS).
 /// Returns n x n matrix; dist[i][j] = number of bonds between atoms i and j.
 /// -1 means unreachable (disconnected graph).
-pub fn mol_distance_matrix(mol : Molecule) -> Array[Array[Int]] {
+pub fn mol_distance_matrix(mol : Molecule) -> Array[Array[Int32]] {
   let n = mol.atoms.length()
   let neighbors = mol_adjacency(mol)
-  let matrix : Array[Array[Int]] = Array(capacity=0)
+  let matrix : Array[Array[Int32]] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {
     matrix.push(mol_bfs_single(neighbors, i, n))
   }
@@ -430,7 +429,7 @@ pub fn mol_distance_matrix(mol : Molecule) -> Array[Array[Int]] {
 
 ///|
 /// Get the bond order between two atoms (0 if not bonded).
-pub fn mol_bond_order(mol : Molecule, a : Int, b : Int) -> Int {
+pub fn mol_bond_order(mol : Molecule, a : Int32, b : Int32) -> Int32 {
   for bond in mol.bonds {
     if (bond.from == a && bond.to == b) || (bond.from == b && bond.to == a) {
       return bond.order
@@ -441,7 +440,7 @@ pub fn mol_bond_order(mol : Molecule, a : Int, b : Int) -> Int {
 
 ///|
 /// Degree (number of neighbors) of an atom.
-pub fn mol_degree(mol : Molecule, atom : Int) -> Int {
+pub fn mol_degree(mol : Molecule, atom : Int32) -> Int32 {
   let mut count = 0
   for b in mol.bonds {
     if b.from == atom || b.to == atom {
@@ -455,14 +454,14 @@ pub fn mol_degree(mol : Molecule, atom : Int) -> Int {
 /// Find all unique rings via cycle basis (SSSR-lite).
 /// For each non-tree edge, find the fundamental cycle.
 /// Returns array of rings, each ring is an array of atom indices.
-pub fn mol_find_rings(mol : Molecule) -> Array[Array[Int]] {
+pub fn mol_find_rings(mol : Molecule) -> Array[Array[Int32]] {
   let n = mol.atoms.length()
   let neighbors = mol_adjacency(mol)
   let parent = Array::make(n, -1)
   let visited = Array::make(n, false)
-  let tree_edges : Array[(Int, Int)] = Array(capacity=0)
-  let non_tree_edges : Array[(Int, Int)] = Array(capacity=0)
-  let queue : Array[Int] = Array(capacity=0)
+  let tree_edges : Array[(Int32, Int32)] = Array(capacity=0)
+  let non_tree_edges : Array[(Int32, Int32)] = Array(capacity=0)
+  let queue : Array[Int32] = Array(capacity=0)
   for start = 0; start < n; start = start + 1 {
     if visited[start] {
       continue
@@ -474,7 +473,7 @@ pub fn mol_find_rings(mol : Molecule) -> Array[Array[Int]] {
       let u = queue[head]
       head = head + 1
       for (v, _) in neighbors[u] {
-        if !(visited[v]) {
+        if !visited[v] {
           visited[v] = true
           parent[v] = u
           tree_edges.push((u, v))
@@ -487,14 +486,14 @@ pub fn mol_find_rings(mol : Molecule) -> Array[Array[Int]] {
               break
             }
           }
-          if !(is_tree) {
+          if !is_tree {
             non_tree_edges.push((u, v))
           }
         }
       }
     }
   }
-  let rings : Array[Array[Int]] = Array(capacity=0)
+  let rings : Array[Array[Int32]] = Array(capacity=0)
   for (u, v) in non_tree_edges {
     let path = mol_tree_path(parent, u, v)
     if path.length() > 2 {
@@ -506,24 +505,20 @@ pub fn mol_find_rings(mol : Molecule) -> Array[Array[Int]] {
 
 ///|
 /// Find path between two nodes in a tree via parent pointers.
-fn mol_tree_path(
-  parent : Array[Int],
-  u : Int,
-  v : Int,
-) -> Array[Int] {
-  let path_u : Array[Int] = Array(capacity=0)
+fn mol_tree_path(parent : Array[Int32], u : Int32, v : Int32) -> Array[Int32] {
+  let path_u : Array[Int32] = Array(capacity=0)
   let mut cur = u
   while cur != -1 {
     path_u.push(cur)
     cur = parent[cur]
   }
-  let path_v : Array[Int] = Array(capacity=0)
+  let path_v : Array[Int32] = Array(capacity=0)
   cur = v
   while cur != -1 {
     path_v.push(cur)
     cur = parent[cur]
   }
-  let set_u : Map[Int, Bool] = Map([], capacity=0)
+  let set_u : Map[Int32, Bool] = Map([], capacity=0)
   for a in path_u {
     set_u[a] = true
   }
@@ -542,7 +537,7 @@ fn mol_tree_path(
   if lca == -1 {
     return [u, v]
   }
-  let result : Array[Int] = Array(capacity=0)
+  let result : Array[Int32] = Array(capacity=0)
   let mut idx_u = 0
   while path_u[idx_u] != lca {
     result.push(path_u[idx_u])
@@ -559,7 +554,7 @@ fn mol_tree_path(
 
 ///|
 /// Check if an atom is in a ring.
-pub fn mol_is_in_ring(mol : Molecule, atom : Int) -> Bool {
+pub fn mol_is_in_ring(mol : Molecule, atom : Int32) -> Bool {
   let rings = mol_find_rings(mol)
   for ring in rings {
     for a in ring {
@@ -573,19 +568,16 @@ pub fn mol_is_in_ring(mol : Molecule, atom : Int) -> Bool {
 
 ///|
 /// Count the number of rings (ring count = number of fundamental cycles).
-pub fn mol_ring_count(mol : Molecule) -> Int {
+pub fn mol_ring_count(mol : Molecule) -> Int32 {
   mol_find_rings(mol).length()
 }
 
 ///|
 /// Check if a ring is aromatic (all atoms aromatic or Huckel 4n+2 rule).
-fn mol_is_aromatic_ring(
-  mol : Molecule,
-  ring : Array[Int],
-) -> Bool {
+fn mol_is_aromatic_ring(mol : Molecule, ring : Array[Int32]) -> Bool {
   let mut all_aromatic = true
   for a in ring {
-    if !(mol.atoms[a].aromatic) {
+    if !mol.atoms[a].aromatic {
       all_aromatic = false
     }
   }
@@ -629,7 +621,7 @@ fn mol_is_aromatic_ring(
 
 ///|
 /// Count aromatic rings.
-pub fn mol_aromatic_ring_count(mol : Molecule) -> Int {
+pub fn mol_aromatic_ring_count(mol : Molecule) -> Int32 {
   let rings = mol_find_rings(mol)
   let mut count = 0
   for ring in rings {
@@ -642,7 +634,7 @@ pub fn mol_aromatic_ring_count(mol : Molecule) -> Int {
 
 ///|
 /// Count saturated rings (all single bonds).
-pub fn mol_saturated_ring_count(mol : Molecule) -> Int {
+pub fn mol_saturated_ring_count(mol : Molecule) -> Int32 {
   let rings = mol_find_rings(mol)
   let mut count = 0
   for ring in rings {
@@ -672,7 +664,11 @@ pub fn mol_perceive_aromaticity(mol : Molecule) -> Molecule {
   let rings = mol_find_rings(mol)
   let new_atoms : Array[MolAtom] = Array(capacity=0)
   for a in mol.atoms {
-    new_atoms.push(MolAtom::{ symbol: a.symbol, charge: a.charge, aromatic: a.aromatic })
+    new_atoms.push(MolAtom::{
+      symbol: a.symbol,
+      charge: a.charge,
+      aromatic: a.aromatic,
+    })
   }
   for ring in rings {
     if mol_is_aromatic_ring(mol, ring) {
@@ -685,7 +681,7 @@ pub fn mol_perceive_aromaticity(mol : Molecule) -> Molecule {
       }
     }
   }
-  Molecule::{ atoms: new_atoms, bonds: mol.bonds }
+  Molecule::{ atoms: new_atoms, bonds: mol.bonds, }
 }
 
 ///|
@@ -694,10 +690,10 @@ pub fn mol_kekulize(mol : Molecule) -> Molecule {
   let rings = mol_find_rings(mol)
   let new_bonds : Array[MolBond] = Array(capacity=0)
   for b in mol.bonds {
-    new_bonds.push(MolBond::{ from: b.from, to: b.to, order: b.order })
+    new_bonds.push(MolBond::{ from: b.from, to: b.to, order: b.order, })
   }
   for ring in rings {
-    if !(mol_is_aromatic_ring(mol, ring)) {
+    if !mol_is_aromatic_ring(mol, ring) {
       continue
     }
     let rs = ring.length()
@@ -709,9 +705,9 @@ pub fn mol_kekulize(mol : Molecule) -> Molecule {
         let b = new_bonds[bi]
         if (b.from == a1 && b.to == a2) || (b.from == a2 && b.to == a1) {
           if i % 2 == 0 {
-            new_bonds[bi] = MolBond::{ from: b.from, to: b.to, order: 2 }
+            new_bonds[bi] = MolBond::{ from: b.from, to: b.to, order: 2, }
           } else {
-            new_bonds[bi] = MolBond::{ from: b.from, to: b.to, order: 1 }
+            new_bonds[bi] = MolBond::{ from: b.from, to: b.to, order: 1, }
           }
           break
         }
@@ -720,9 +716,13 @@ pub fn mol_kekulize(mol : Molecule) -> Molecule {
   }
   let new_atoms : Array[MolAtom] = Array(capacity=0)
   for a in mol.atoms {
-    new_atoms.push(MolAtom::{ symbol: a.symbol, charge: a.charge, aromatic: false })
+    new_atoms.push(MolAtom::{
+      symbol: a.symbol,
+      charge: a.charge,
+      aromatic: false,
+    })
   }
-  Molecule::{ atoms: new_atoms, bonds: new_bonds }
+  Molecule::{ atoms: new_atoms, bonds: new_bonds, }
 }
 
 // ============================================================================
@@ -731,10 +731,10 @@ pub fn mol_kekulize(mol : Molecule) -> Molecule {
 
 ///|
 /// Compute Morgan canonical ranks for atoms.
-fn mol_canonical_ranks(mol : Molecule) -> Array[Int] {
+fn mol_canonical_ranks(mol : Molecule) -> Array[Int32] {
   let n = mol.atoms.length()
   let neighbors = mol_adjacency(mol)
-  let mut invariants : Array[Int] = Array(capacity=0)
+  let mut invariants : Array[Int32] = Array(capacity=0)
   for k = 0; k < n; k = k + 1 {
     let a = mol.atoms[k]
     let deg = neighbors[k].length()
@@ -759,9 +759,9 @@ fn mol_canonical_ranks(mol : Molecule) -> Array[Int] {
   let mut iter = 0
   while changed && iter < n + 10 {
     changed = false
-    let new_inv : Array[Int] = Array(capacity=0)
+    let new_inv : Array[Int32] = Array(capacity=0)
     for k = 0; k < n; k = k + 1 {
-      let neighbor_invs : Array[Int] = Array(capacity=0)
+      let neighbor_invs : Array[Int32] = Array(capacity=0)
       for (nb, order) in neighbors[k] {
         neighbor_invs.push(invariants[nb] * 10 + order)
       }
@@ -788,7 +788,7 @@ fn mol_canonical_ranks(mol : Molecule) -> Array[Int] {
     invariants = new_inv
     iter = iter + 1
   }
-  let indices : Array[Int] = Array(capacity=0)
+  let indices : Array[Int32] = Array(capacity=0)
   for k = 0; k < n; k = k + 1 {
     indices.push(k)
   }
@@ -828,7 +828,7 @@ fn mol_smiles_symbol(a : MolAtom) -> String {
 
 ///|
 /// Bond symbol for SMILES output.
-fn mol_bond_symbol(order : Int, aromatic : Bool) -> String {
+fn mol_bond_symbol(order : Int32, aromatic : Bool) -> String {
   if aromatic {
     ""
   } else {
@@ -840,17 +840,18 @@ fn mol_bond_symbol(order : Int, aromatic : Bool) -> String {
     }
   }
 }
+
 ///|
 /// Recursive DFS helper for SMILES generation.
 fn mol_smiles_dfs(
   mol : Molecule,
-  atom : Int,
-  parent : Int,
+  atom : Int32,
+  parent : Int32,
   visited : Array[Bool],
-  neighbors : Array[Array[(Int, Int)]],
-  ranks : Array[Int],
-  ring_num : Map[(Int, Int), Int],
-  ring_counter : Ref[Int],
+  neighbors : Array[Array[(Int32, Int32)]],
+  ranks : Array[Int32],
+  ring_num : Map[(Int32, Int32), Int32],
+  ring_counter : Ref[Int32],
   result : StringBuilder,
 ) -> Unit {
   visited[atom] = true
@@ -861,12 +862,12 @@ fn mol_smiles_dfs(
   }
   result.write_string(mol_smiles_symbol(mol.atoms[atom]))
   // Collect ring closures and unvisited neighbors
-  let ring_neighbors : Array[Int] = Array(capacity=0)
-  let unvisited : Array[Int] = Array(capacity=0)
+  let ring_neighbors : Array[Int32] = Array(capacity=0)
+  let unvisited : Array[Int32] = Array(capacity=0)
   for (nb, _) in neighbors[atom] {
     if visited[nb] && nb != parent {
       ring_neighbors.push(nb)
-    } else if !(visited[nb]) {
+    } else if !visited[nb] {
       unvisited.push(nb)
     }
   }
@@ -897,7 +898,17 @@ fn mol_smiles_dfs(
     if i > 0 {
       result.write_string("(")
     }
-    mol_smiles_dfs(mol, unvisited[i], atom, visited, neighbors, ranks, ring_num, ring_counter, result)
+    mol_smiles_dfs(
+      mol,
+      unvisited[i],
+      atom,
+      visited,
+      neighbors,
+      ranks,
+      ring_num,
+      ring_counter,
+      result,
+    )
     if i > 0 {
       result.write_string(")")
     }
@@ -924,9 +935,11 @@ pub fn mol_to_smiles(mol : Molecule) -> String {
     }
   }
   let visited = Array::make(n, false)
-  let ring_num : Map[(Int, Int), Int] = Map([], capacity=0)
+  let ring_num : Map[(Int32, Int32), Int32] = Map([], capacity=0)
   let ring_counter = Ref(1)
   let result : StringBuilder = StringBuilder()
-  mol_smiles_dfs(mol, start, -1, visited, neighbors, ranks, ring_num, ring_counter, result)
+  mol_smiles_dfs(
+    mol, start, -1, visited, neighbors, ranks, ring_num, ring_counter, result,
+  )
   result.to_string()
 }

@@ -6,7 +6,7 @@
 //         verified readable by pyBigWig.
 
 ///|
-fn bigwig_nozoom_bytes() -> Array[Int] {
+fn bigwig_nozoom_bytes() -> Array[Int32] {
   [
     38, 252, 143, 136, 4, 0, 0, 0, 104, 0, 0, 0, 0, 0, 0, 0, 164, 0, 0, 0, 0, 0,
     0, 0, 228, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 64, 0, 0,
@@ -28,7 +28,7 @@ fn bigwig_nozoom_bytes() -> Array[Int] {
 }
 
 ///|
-fn bigwig_small_bytes() -> Array[Int] {
+fn bigwig_small_bytes() -> Array[Int32] {
   [
     38, 252, 143, 136, 4, 0, 1, 0, 88, 1, 0, 0, 0, 0, 0, 0, 148, 1, 0, 0, 0, 0, 0,
     0, 212, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 48, 1, 0, 0,
@@ -65,7 +65,7 @@ fn bigwig_small_bytes() -> Array[Int] {
 }
 
 ///|
-fn bigwig_custom_bytes() -> Array[Int] {
+fn bigwig_custom_bytes() -> Array[Int32] {
   [
     38, 252, 143, 136, 4, 0, 0, 0, 104, 0, 0, 0, 0, 0, 0, 0, 176, 0, 0, 0, 0, 0,
     0, 0, 32, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 64, 0, 0,

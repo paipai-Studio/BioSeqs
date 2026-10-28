@@ -33,7 +33,14 @@ fn main {
       bar = bar + "#"
       j = j + 1
     }
-    println("  bin " + i.to_string() + ": " + bins[i].reads.to_string() + " reads " + bar)
+    println(
+      "  bin " +
+      i.to_string() +
+      ": " +
+      bins[i].reads.to_string() +
+      " reads " +
+      bar,
+    )
     i = i + 1
   }
   println("  ... (bins 10-19 are CN0 region with low reads)")
@@ -49,7 +56,14 @@ fn main {
   println("Before/after correction (first 5 bins):")
   i = 0
   while i < 5 {
-    println("  bin " + i.to_string() + ": " + bins[i].reads.to_string() + " -> " + corrected[i].corrected_reads.to_string())
+    println(
+      "  bin " +
+      i.to_string() +
+      ": " +
+      bins[i].reads.to_string() +
+      " -> " +
+      corrected[i].corrected_reads.to_string(),
+    )
     i = i + 1
   }
   println("")
@@ -86,7 +100,9 @@ fn main {
   i = 0
   while i < 7 {
     if state_counts[i] > 0 {
-      println("  CN" + i.to_string() + ": " + state_counts[i].to_string() + " bins")
+      println(
+        "  CN" + i.to_string() + ": " + state_counts[i].to_string() + " bins",
+      )
     }
     i = i + 1
   }
@@ -105,18 +121,18 @@ fn main {
     if shown < 10 {
       println(
         "  " +
-          seg.chr +
-          ":" +
-          seg.start.to_string() +
-          "-" +
-          seg.end.to_string() +
-          " CN" +
-          seg.copy.to_string() +
-          " (" +
-          seg.num_bins.to_string() +
-          " bins, mean=" +
-          seg.mean_reads.to_string() +
-          ")",
+        seg.chr +
+        ":" +
+        seg.start.to_string() +
+        "-" +
+        seg.end.to_string() +
+        " CN" +
+        seg.copy.to_string() +
+        " (" +
+        seg.num_bins.to_string() +
+        " bins, mean=" +
+        seg.mean_reads.to_string() +
+        ")",
       )
       shown = shown + 1
     }
@@ -140,18 +156,18 @@ fn main {
       let cnv_type = if seg.copy < 2 { "LOSS" } else { "GAIN" }
       println(
         "  " +
-          cnv_type +
-          " CN" +
-          seg.copy.to_string() +
-          " at " +
-          seg.chr +
-          ":" +
-          seg.start.to_string() +
-          "-" +
-          seg.end.to_string() +
-          " (" +
-          seg.num_bins.to_string() +
-          " bins)",
+        cnv_type +
+        " CN" +
+        seg.copy.to_string() +
+        " at " +
+        seg.chr +
+        ":" +
+        seg.start.to_string() +
+        "-" +
+        seg.end.to_string() +
+        " (" +
+        seg.num_bins.to_string() +
+        " bins)",
       )
     }
   }

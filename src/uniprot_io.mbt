@@ -24,7 +24,7 @@ pub struct UniprotEntry {
   gene_names : Array[String]
   organism : String
   sequence : String
-  mut seq_length : Int
+  mut seq_length : Int32
   mut seq_mass : Double
   ec_numbers : Array[String]
   mut subcellular_location : Array[String]
@@ -68,7 +68,7 @@ pub struct UniprotReference {
 pub fn DbReference::new(
   database : String,
   id : String,
-  properties? : Map[String, String] = Map([], capacity=8),
+  properties~ : Map[String, String] = Map([], capacity=8),
 ) -> DbReference {
   DbReference::{ database, id, properties, }
 }
@@ -79,7 +79,7 @@ pub fn UniprotFeature::new(
   feature_type : String,
   description : String,
   location : String,
-  qualifiers? : Map[String, String] = Map([], capacity=8),
+  qualifiers~ : Map[String, String] = Map([], capacity=8),
 ) -> UniprotFeature {
   UniprotFeature::{ feature_type, description, location, qualifiers, }
 }
@@ -163,7 +163,7 @@ fn u_parse_float(s : String) -> Double {
 
 ///|
 /// Find the index of a substring in a string, returns -1 if not found.
-fn u_index_of(s : String, sub : String) -> Int {
+fn u_index_of(s : String, sub : String) -> Int32 {
   let n = s.length()
   let kn = sub.length()
   if kn == 0 || kn > n {
@@ -190,7 +190,7 @@ fn u_index_of(s : String, sub : String) -> Int {
 
 ///|
 /// Find the index of a substring from a starting position.
-fn u_index_of_from(s : String, sub : String, start : Int) -> Int {
+fn u_index_of_from(s : String, sub : String, start : Int32) -> Int32 {
   let n = s.length()
   let kn = sub.length()
   if kn == 0 || start > n - kn {
@@ -395,7 +395,7 @@ fn extract_protein_name(entry_xml : String) -> String {
 
 ///|
 /// Extract sequence and its attributes from entry XML.
-fn extract_sequence(entry_xml : String) -> (String, Int, Double) {
+fn extract_sequence(entry_xml : String) -> (String, Int32, Double) {
   let seq_block = extract_first_tag(entry_xml, "sequence")
   if seq_block.length() == 0 {
     return ("", 0, 0.0)

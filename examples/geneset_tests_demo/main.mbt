@@ -18,7 +18,7 @@ fn print_rows(title : String, rows : Array[@src.CameraResult]) -> Unit {
       Some(f) => fmt4(f)
     }
     println(
-      "  \{r.name()}  \{r.n_genes()}  \{cor}  \{r.direction()}  \{fmt4(r.p_value())}  \{fdr}"
+      "  \{r.name()}  \{r.n_genes()}  \{cor}  \{r.direction()}  \{fmt4(r.p_value())}  \{fdr}",
     )
   }
 }
@@ -60,13 +60,10 @@ fn main raise {
   let pr = @src.camera_pr(statistics, sets, sort=false)
   print_rows("2. cameraPR (parametric, fixed inter-gene correlation 0.01)", pr)
 
-  let pr_ranks = @src.camera_pr(
-    statistics,
-    sets,
-    use_ranks=true,
-    sort=false,
+  let pr_ranks = @src.camera_pr(statistics, sets, use_ranks=true, sort=false)
+  print_rows(
+    "3. cameraPR with use_ranks=true (Wilcoxon ranks, normal ref.)", pr_ranks,
   )
-  print_rows("3. cameraPR with use_ranks=true (Wilcoxon ranks, normal ref.)", pr_ranks)
 
   // ------------------------------------------------------------------
   // 4. camera.default: fit a linear model per gene first, moderate the
@@ -74,29 +71,17 @@ fn main raise {
   //    12 genes x 6 samples; two groups of three (columns 0-2, 3-5).
   //    Rows 0-2 are induced ~+2, rows 3-4 ~-2, the rest are background.
   // ------------------------------------------------------------------
-  let y = @src.Matrix::new(
-    12,
-    6,
-    [
-      -0.2, 0.1, 0.0, 2.1, 1.9, 2.0,
-      0.3, -0.1, 0.1, 2.2, 1.8, 2.1,
-      -0.1, 0.2, -0.2, 1.9, 2.0, 2.2,
-      0.0, -0.2, 0.1, -2.0, -1.8, -2.1,
-      0.2, 0.0, -0.1, -1.9, -2.1, -2.0,
-      0.1, -0.1, 0.1, -0.1, 0.1, -0.1,
-      -0.2, 0.2, -0.2, 0.2, -0.2, 0.2,
-      0.0, 0.1, -0.1, 0.0, -0.1, 0.1,
-      0.15, -0.05, 0.05, -0.15, 0.05, -0.05,
-      -0.1, 0.0, 0.1, 0.0, -0.1, 0.1,
-      0.05, 0.1, -0.15, -0.05, 0.15, -0.1,
-      -0.05, 0.05, 0.0, -0.1, 0.1, 0.0,
-    ],
-  )
-  let design = @src.Matrix::new(
-    6,
-    2,
-    [1.0, 0.0, 1.0, 0.0, 1.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0],
-  )
+  let y = @src.Matrix::new(12, 6, [
+    -0.2, 0.1, 0.0, 2.1, 1.9, 2.0, 0.3, -0.1, 0.1, 2.2, 1.8, 2.1, -0.1, 0.2, -0.2,
+    1.9, 2.0, 2.2, 0.0, -0.2, 0.1, -2.0, -1.8, -2.1, 0.2, 0.0, -0.1, -1.9, -2.1,
+    -2.0, 0.1, -0.1, 0.1, -0.1, 0.1, -0.1, -0.2, 0.2, -0.2, 0.2, -0.2, 0.2, 0.0,
+    0.1, -0.1, 0.0, -0.1, 0.1, 0.15, -0.05, 0.05, -0.15, 0.05, -0.05, -0.1, 0.0,
+    0.1, 0.0, -0.1, 0.1, 0.05, 0.1, -0.15, -0.05, 0.15, -0.1, -0.05, 0.05, 0.0, -0.1,
+    0.1, 0.0,
+  ])
+  let design = @src.Matrix::new(6, 2, [
+    1.0, 0.0, 1.0, 0.0, 1.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0,
+  ])
 
   let cam = @src.camera_default(
     y,
@@ -114,7 +99,9 @@ fn main raise {
     inter_gene_cor=Option::None,
     sort=false,
   )
-  print_rows("5. camera.default (inter-gene correlation estimated per set)", cam_est)
+  print_rows(
+    "5. camera.default (inter-gene correlation estimated per set)", cam_est,
+  )
 
   println("")
 }

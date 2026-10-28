@@ -44,6 +44,8 @@ pub enum NcbiBlastStatus {
   Failed
   Unknown
 } derive(Debug)
+
+///|
 pub extend NcbiBlastStatus with @moonbitlang/core/debug.Debug::{to_repr}
 
 // ============================================================================
@@ -83,7 +85,7 @@ pub fn qblast_quote(value : String) -> String {
 }
 
 ///|
-fn ncbi_blast_hex_digit(d : Int) -> String {
+fn ncbi_blast_hex_digit(d : Int32) -> String {
   match d {
     0 => "0"
     1 => "1"
@@ -158,20 +160,20 @@ pub fn qblast_put_url(
   program : String,
   database : String,
   query : String,
-  expect? : Double = 10.0,
-  hitlist_size? : Int = 500,
-  entrez_query? : String = "(none)",
-  format_type? : String = "XML",
-  descriptions? : Int = 500,
-  alignments? : Int = 500,
-  matrix_name? : String = "",
-  gap_costs? : String = "",
-  word_size? : Int = 0,
-  threshold? : Int = 0,
-  nucl_reward? : Int = 0,
-  nucl_penalty? : Int = 0,
-  megablast? : Bool = false,
-  ncbi_gi? : Bool = false,
+  expect~ : Double = 10.0,
+  hitlist_size~ : Int32 = 500,
+  entrez_query~ : String = "(none)",
+  format_type~ : String = "XML",
+  descriptions~ : Int32 = 500,
+  alignments~ : Int32 = 500,
+  matrix_name~ : String = "",
+  gap_costs~ : String = "",
+  word_size~ : Int32 = 0,
+  threshold~ : Int32 = 0,
+  nucl_reward~ : Int32 = 0,
+  nucl_penalty~ : Int32 = 0,
+  megablast~ : Bool = false,
+  ncbi_gi~ : Bool = false,
 ) -> String raise NcbiBlastError {
   qblast_validate_program(program)
   if database.length() == 0 {
@@ -238,7 +240,7 @@ pub fn qblast_search_info_url(rid : String) -> String {
 
 ///|
 /// Build the GET URL used to download the finished result.
-pub fn qblast_result_url(rid : String, format_type? : String = "XML") -> String {
+pub fn qblast_result_url(rid : String, format_type~ : String = "XML") -> String {
   let params : Array[(String, String)] = Array(capacity=0)
   params.push(("CMD", "Get"))
   params.push(("RID", rid))
@@ -286,7 +288,7 @@ fn ncbi_blast_scan_field(text : String, label : String) -> String? {
 
 ///|
 /// Parse a non-negative base-10 integer; returns 0 when there are no digits.
-fn ncbi_blast_atoi(value : String) -> Int {
+fn ncbi_blast_atoi(value : String) -> Int32 {
   let zero = '0'.to_int()
   let mut result = 0
   let mut found = false
@@ -308,7 +310,7 @@ fn ncbi_blast_atoi(value : String) -> Int {
 /// Parse a PUT response: returns (RID, RTOE seconds). Raises if absent.
 pub fn qblast_parse_put(
   response : String,
-) -> (String, Int) raise NcbiBlastError {
+) -> (String, Int32) raise NcbiBlastError {
   let rid = match ncbi_blast_scan_field(response, "RID") {
     Some(value) => value
     None =>
@@ -389,19 +391,19 @@ pub fn NcbiBlastClient::submit(
   program : String,
   database : String,
   query : String,
-  expect? : Double = 10.0,
-  hitlist_size? : Int = 500,
-  entrez_query? : String = "(none)",
-  format_type? : String = "XML",
-  matrix_name? : String = "",
-  gap_costs? : String = "",
-  word_size? : Int = 0,
-  threshold? : Int = 0,
-  nucl_reward? : Int = 0,
-  nucl_penalty? : Int = 0,
-  megablast? : Bool = false,
-  ncbi_gi? : Bool = false,
-) -> (String, Int) raise NcbiBlastError {
+  expect~ : Double = 10.0,
+  hitlist_size~ : Int32 = 500,
+  entrez_query~ : String = "(none)",
+  format_type~ : String = "XML",
+  matrix_name~ : String = "",
+  gap_costs~ : String = "",
+  word_size~ : Int32 = 0,
+  threshold~ : Int32 = 0,
+  nucl_reward~ : Int32 = 0,
+  nucl_penalty~ : Int32 = 0,
+  megablast~ : Bool = false,
+  ncbi_gi~ : Bool = false,
+) -> (String, Int32) raise NcbiBlastError {
   let url = qblast_put_url(
     program,
     database,
@@ -439,7 +441,7 @@ pub fn NcbiBlastClient::check_status(
 pub fn NcbiBlastClient::fetch_result(
   self : NcbiBlastClient,
   rid : String,
-  format_type? : String = "XML",
+  format_type~ : String = "XML",
 ) -> String raise NcbiBlastError {
   let url = qblast_result_url(rid, format_type~)
   self.call(url)
@@ -454,16 +456,16 @@ pub fn NcbiBlastClient::qblast(
   program : String,
   database : String,
   query : String,
-  max_polls? : Int = 120,
-  expect? : Double = 10.0,
-  hitlist_size? : Int = 500,
-  entrez_query? : String = "(none)",
-  format_type? : String = "XML",
-  matrix_name? : String = "",
-  gap_costs? : String = "",
-  word_size? : Int = 0,
-  megablast? : Bool = false,
-  ncbi_gi? : Bool = false,
+  max_polls~ : Int32 = 120,
+  expect~ : Double = 10.0,
+  hitlist_size~ : Int32 = 500,
+  entrez_query~ : String = "(none)",
+  format_type~ : String = "XML",
+  matrix_name~ : String = "",
+  gap_costs~ : String = "",
+  word_size~ : Int32 = 0,
+  megablast~ : Bool = false,
+  ncbi_gi~ : Bool = false,
 ) -> String raise NcbiBlastError {
   let (rid, rtoe) = self.submit(
     program,

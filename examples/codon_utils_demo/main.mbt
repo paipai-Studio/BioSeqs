@@ -3,7 +3,6 @@
 /// 密码子使用分析：GC123、六框翻译、CAI、Nc
 ///
 /// 对应 Biopython Bio.SeqUtils 核心功能
-
 fn main {
   let globin = "ATGGTGCATCTGACTCCTGAGGAGAAGTCTGCCGTTACTGCCCTGTGGGGCAAGGTGAACGTGGATGAAGTTGGTGGTGAGGCCCTGGGCAG"
 
@@ -13,7 +12,9 @@ fn main {
   println("GC1(pos1): " + gc[0].to_string())
   println("GC2(pos2): " + gc[1].to_string())
   println("GC3(pos3): " + gc[2].to_string())
-  println("(密码子第三位 GC3 通常最高，因为简并密码子差异多在 wobble 位)")
+  println(
+    "(密码子第三位 GC3 通常最高，因为简并密码子差异多在 wobble 位)",
+  )
   println("")
 
   // 2. 六框翻译
@@ -29,8 +30,22 @@ fn main {
 
   // 3. 密码子表切换 (Vertebrate Mitochondrial)
   println("=== Vertebrate Mito 密码子表 (table=2) ===")
-  println("Table 1: ATA=" + @src.codon_table(1)["ATA"] + ", AGA=" + @src.codon_table(1)["AGA"] + ", TGA=" + @src.codon_table(1)["TGA"])
-  println("Table 2: ATA=" + @src.codon_table(2)["ATA"] + ", AGA=" + @src.codon_table(2)["AGA"] + ", TGA=" + @src.codon_table(2)["TGA"])
+  println(
+    "Table 1: ATA=" +
+    @src.codon_table(1)["ATA"] +
+    ", AGA=" +
+    @src.codon_table(1)["AGA"] +
+    ", TGA=" +
+    @src.codon_table(1)["TGA"],
+  )
+  println(
+    "Table 2: ATA=" +
+    @src.codon_table(2)["ATA"] +
+    ", AGA=" +
+    @src.codon_table(2)["AGA"] +
+    ", TGA=" +
+    @src.codon_table(2)["TGA"],
+  )
   println("(Mito: ATA=M, AGA/AGG=*, TGA=W — 与标准表不同)")
   println("")
 

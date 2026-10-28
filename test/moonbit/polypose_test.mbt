@@ -1,6 +1,5 @@
 ///|
 /// Tests for polypose module (Bio.PDB.Polypose - multi-conformer structures).
-
 fn ppy_example_conformer_1() -> @src.PpyConformer {
   let a1 = @src.PpyAtom::new("CA", 1.0, 0.0, 0.0)
   let a2 = @src.PpyAtom::new("CA", 2.0, 0.0, 0.0)
@@ -11,6 +10,7 @@ fn ppy_example_conformer_1() -> @src.PpyConformer {
   @src.PpyConformer::new("conf1", [r1, r2, r3])
 }
 
+///|
 fn ppy_example_conformer_2() -> @src.PpyConformer {
   let a1 = @src.PpyAtom::new("CA", 1.0, 0.1, 0.0)
   let a2 = @src.PpyAtom::new("CA", 2.1, 0.0, 0.0)
@@ -21,6 +21,7 @@ fn ppy_example_conformer_2() -> @src.PpyConformer {
   @src.PpyConformer::new("conf2", [r1, r2, r3])
 }
 
+///|
 test "ppy_conformer_residues" {
   let c = ppy_example_conformer_1()
   let rs = @src.ppy_conformer_residues(c)
@@ -28,6 +29,7 @@ test "ppy_conformer_residues" {
   assert_eq(rs[0].resname, "ALA")
 }
 
+///|
 test "ppy_find_residue" {
   let c = ppy_example_conformer_1()
   match @src.ppy_find_residue(c, 2) {
@@ -36,6 +38,7 @@ test "ppy_find_residue" {
   }
 }
 
+///|
 test "ppy_atom" {
   let c = ppy_example_conformer_1()
   match @src.ppy_atom(@src.ppy_find_residue(c, 1).unwrap(), "CA") {
@@ -44,6 +47,7 @@ test "ppy_atom" {
   }
 }
 
+///|
 test "ppy_coords" {
   let c = ppy_example_conformer_1()
   let cs = @src.ppy_coords(c, "CA")
@@ -52,6 +56,7 @@ test "ppy_coords" {
   assert_true((cs[2].x - 3.0).abs() < 1.0e-9)
 }
 
+///|
 test "ppy_kabsch_rmsd" {
   let a = @src.ppy_coords(ppy_example_conformer_1(), "CA")
   let b = @src.ppy_coords(ppy_example_conformer_2(), "CA")
@@ -60,6 +65,7 @@ test "ppy_kabsch_rmsd" {
   assert_true(d < 0.5)
 }
 
+///|
 test "ppy_pairwise_rmsds" {
   let st = @src.ppy_new("nmr")
   let st1 = @src.ppy_add_conformer(st, ppy_example_conformer_1())
@@ -75,6 +81,7 @@ test "ppy_pairwise_rmsds" {
   }
 }
 
+///|
 test "ppy_convergence" {
   let st = @src.ppy_new("nmr")
   let st1 = @src.ppy_add_conformer(st, ppy_example_conformer_1())
@@ -89,6 +96,7 @@ test "ppy_convergence" {
   }
 }
 
+///|
 test "ppy_altloc_residue_count" {
   let a1 = @src.PpyAtom::new("CA", 1.0, 0.0, 0.0, altloc="A")
   let a2 = @src.PpyAtom::new("CA", 1.0, 0.1, 0.0, altloc="B")
@@ -97,6 +105,7 @@ test "ppy_altloc_residue_count" {
   assert_eq(n, 1)
 }
 
+///|
 test "ppy_structure_coords_consistent" {
   let st = @src.ppy_new("nmr")
   let st1 = @src.ppy_add_conformer(st, ppy_example_conformer_1())

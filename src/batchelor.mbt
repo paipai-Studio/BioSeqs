@@ -6,16 +6,16 @@
 ///|
 pub struct BatchCorrectionResult {
   corrected : Array[Array[Double]]
-  batch_indices : Array[Int]
-  mnn_pairs : Array[(Int, Int)]
+  batch_indices : Array[Int32]
+  mnn_pairs : Array[(Int32, Int32)]
   var_explained : Array[Double]
 }
 
 ///|
 pub fn BatchCorrectionResult::new(
   corrected : Array[Array[Double]],
-  batch_indices : Array[Int],
-  mnn_pairs : Array[(Int, Int)],
+  batch_indices : Array[Int32],
+  mnn_pairs : Array[(Int32, Int32)],
   var_explained : Array[Double],
 ) -> BatchCorrectionResult {
   BatchCorrectionResult::{ corrected, batch_indices, mnn_pairs, var_explained, }
@@ -31,7 +31,7 @@ pub fn rescale_batches(
     return BatchCorrectionResult::new([], [], [], [])
   }
 
-  let n_cells_per_batch : Array[Int] = Array(capacity=0)
+  let n_cells_per_batch : Array[Int32] = Array(capacity=0)
   let n_genes = batches[0][0].length()
 
   let mut total_cells = 0
@@ -90,7 +90,7 @@ pub fn rescale_batches(
   }
 
   let corrected : Array[Array[Double]] = Array(capacity=0)
-  let batch_indices : Array[Int] = Array(capacity=0)
+  let batch_indices : Array[Int32] = Array(capacity=0)
   let mut r = 0
   while r < n_batches {
     let batch = batches[r]
@@ -123,16 +123,16 @@ pub fn rescale_batches(
 pub fn find_mutual_nearest_neighbors(
   batch1 : Array[Array[Double]],
   batch2 : Array[Array[Double]],
-  k : Int,
-) -> Array[(Int, Int)] {
+  k : Int32,
+) -> Array[(Int32, Int32)] {
   let n_cells1 = batch1.length()
   let n_cells2 = batch2.length()
 
-  let n1_to_n2 : Array[Array[Int]] = Array(capacity=0)
+  let n1_to_n2 : Array[Array[Int32]] = Array(capacity=0)
   let mut i = 0
   while i < n_cells1 {
     let cell = batch1[i]
-    let distances : Array[(Double, Int)] = Array(capacity=0)
+    let distances : Array[(Double, Int32)] = Array(capacity=0)
     let mut j = 0
     while j < n_cells2 {
       let other = batch2[j]
@@ -160,7 +160,7 @@ pub fn find_mutual_nearest_neighbors(
       l = l + 1
     }
 
-    let nn : Array[Int] = Array(capacity=0)
+    let nn : Array[Int32] = Array(capacity=0)
     let mut n_neighbors = 0
     while n_neighbors < k && n_neighbors < distances.length() {
       nn.push(distances[n_neighbors].1)
@@ -170,11 +170,11 @@ pub fn find_mutual_nearest_neighbors(
     i = i + 1
   }
 
-  let n2_to_n1 : Array[Array[Int]] = Array(capacity=0)
+  let n2_to_n1 : Array[Array[Int32]] = Array(capacity=0)
   let mut n = 0
   while n < n_cells2 {
     let cell = batch2[n]
-    let distances : Array[(Double, Int)] = Array(capacity=0)
+    let distances : Array[(Double, Int32)] = Array(capacity=0)
     let mut o = 0
     while o < n_cells1 {
       let other = batch1[o]
@@ -202,7 +202,7 @@ pub fn find_mutual_nearest_neighbors(
       p = p + 1
     }
 
-    let nn : Array[Int] = Array(capacity=0)
+    let nn : Array[Int32] = Array(capacity=0)
     let mut n_neighbors = 0
     while n_neighbors < k && n_neighbors < distances.length() {
       nn.push(distances[n_neighbors].1)
@@ -212,7 +212,7 @@ pub fn find_mutual_nearest_neighbors(
     n = n + 1
   }
 
-  let mnn_pairs : Array[(Int, Int)] = Array(capacity=0)
+  let mnn_pairs : Array[(Int32, Int32)] = Array(capacity=0)
   let mut r = 0
   while r < n_cells1 {
     let neighbors = n1_to_n2[r]
@@ -223,7 +223,7 @@ pub fn find_mutual_nearest_neighbors(
       let mut t = 0
       while t < reverse_neighbors.length() {
         if reverse_neighbors[t] == r {
-          let already_exists = mnn_pairs.any(fn(pair : (Int, Int)) {
+          let already_exists = mnn_pairs.any(fn(pair : (Int32, Int32)) {
             pair.0 == r && pair.1 == n2_idx
           })
           if !already_exists {
@@ -245,8 +245,8 @@ pub fn find_mutual_nearest_neighbors(
 pub fn fast_mnn(
   batches : Array[Array[Array[Double]]],
   _batch_names : Array[String],
-  k : Int,
-  d : Int,
+  k : Int32,
+  d : Int32,
 ) -> BatchCorrectionResult {
   let n_batches = batches.length()
   if n_batches == 0 {
@@ -256,7 +256,7 @@ pub fn fast_mnn(
   let n_genes = batches[0][0].length()
 
   let all_cells : Array[Array[Double]] = Array(capacity=0)
-  let batch_indices : Array[Int] = Array(capacity=0)
+  let batch_indices : Array[Int32] = Array(capacity=0)
   let mut i = 0
   while i < n_batches {
     let batch = batches[i]
@@ -466,7 +466,7 @@ pub fn fast_mnn(
     ii = ii + 1
   }
 
-  let all_mnn_pairs : Array[(Int, Int)] = Array(capacity=0)
+  let all_mnn_pairs : Array[(Int32, Int32)] = Array(capacity=0)
   let mut kk = 0
   while kk < n_batches - 1 {
     let ll = kk + 1
@@ -490,8 +490,8 @@ pub fn fast_mnn(
 
     let mnn = find_mutual_nearest_neighbors(batch1, batch2, k)
 
-    let batch1_indices : Array[Int] = Array(capacity=0)
-    let batch2_indices : Array[Int] = Array(capacity=0)
+    let batch1_indices : Array[Int32] = Array(capacity=0)
+    let batch2_indices : Array[Int32] = Array(capacity=0)
     for pair in mnn {
       batch1_indices.push(pair.0)
       batch2_indices.push(pair.1)
@@ -516,7 +516,7 @@ pub fn fast_mnn(
         qq = qq + 1
       }
 
-      let batch1_global_indices : Array[Int] = Array(capacity=0)
+      let batch1_global_indices : Array[Int32] = Array(capacity=0)
       let mut rr = 0
       let mut count = 0
       while rr < n_cells {
@@ -593,9 +593,9 @@ pub fn fast_mnn(
 
 ///|
 pub fn batchelor_create_example_data(
-  n_batches : Int,
-  n_cells_per_batch : Int,
-  n_genes : Int,
+  n_batches : Int32,
+  n_cells_per_batch : Int32,
+  n_genes : Int32,
   batch_effect : Double,
 ) -> (Array[Array[Array[Double]]], Array[String]) {
   let batches : Array[Array[Array[Double]]] = Array(capacity=0)
@@ -648,7 +648,7 @@ pub fn batchelor_create_example_data(
 ///|
 pub fn compute_batch_mixing_score(
   corrected : Array[Array[Double]],
-  batch_indices : Array[Int],
+  batch_indices : Array[Int32],
 ) -> Double {
   let n_cells = corrected.length()
   let n_dims = if n_cells > 0 { corrected[0].length() } else { 0 }
@@ -657,7 +657,7 @@ pub fn compute_batch_mixing_score(
     return 0.0
   }
 
-  let unique_batches : Array[Int] = Array(capacity=0)
+  let unique_batches : Array[Int32] = Array(capacity=0)
   for idx in batch_indices {
     let mut exists = false
     for u in unique_batches {
@@ -675,7 +675,7 @@ pub fn compute_batch_mixing_score(
   let mut score = 0.0
   let mut i = 0
   while i < n_cells {
-    let distances : Array[(Double, Int)] = Array(capacity=0)
+    let distances : Array[(Double, Int32)] = Array(capacity=0)
     let mut j = 0
     while j < n_cells {
       if i != j {

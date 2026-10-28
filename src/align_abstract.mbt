@@ -39,9 +39,9 @@ pub struct AbstractAlignment {
   /// Whether alignment has been validated
   validated : Bool
   /// Number of sequences
-  n_seqs : Int
+  n_seqs : Int32
   /// Alignment length
-  alignment_length : Int
+  alignment_length : Int32
 }
 
 ///|
@@ -154,7 +154,6 @@ fn char_to_upper(c : UInt16) -> UInt16 {
   }
 }
 
-
 ///|
 /// Convert a UInt16 character code to its 1-character String representation.
 fn u16_to_str(c : UInt16) -> String {
@@ -242,7 +241,7 @@ fn char_in_array(c : UInt16, arr : Array[UInt16]) -> Bool {
 
 ///|
 /// Get sequence count.
-pub fn AbstractAlignment::abstract_n_seqs(self : AbstractAlignment) -> Int {
+pub fn AbstractAlignment::abstract_n_seqs(self : AbstractAlignment) -> Int32 {
   self.n_seqs
 }
 
@@ -250,7 +249,7 @@ pub fn AbstractAlignment::abstract_n_seqs(self : AbstractAlignment) -> Int {
 /// Get alignment length.
 pub fn AbstractAlignment::abstract_alignment_length(
   self : AbstractAlignment,
-) -> Int {
+) -> Int32 {
   self.alignment_length
 }
 
@@ -258,7 +257,7 @@ pub fn AbstractAlignment::abstract_alignment_length(
 /// Get a sequence by index.
 pub fn AbstractAlignment::abstract_get_seq(
   self : AbstractAlignment,
-  idx : Int,
+  idx : Int32,
 ) -> String {
   if idx >= 0 && idx < self.n_seqs {
     self.sequences[idx]
@@ -271,7 +270,7 @@ pub fn AbstractAlignment::abstract_get_seq(
 /// Get sequence identifier by index.
 pub fn AbstractAlignment::abstract_get_id(
   self : AbstractAlignment,
-  idx : Int,
+  idx : Int32,
 ) -> String {
   if idx >= 0 && idx < self.n_seqs {
     self.identifiers[idx]
@@ -284,7 +283,7 @@ pub fn AbstractAlignment::abstract_get_id(
 /// Get a column from the alignment (array of characters).
 pub fn AbstractAlignment::abstract_get_column(
   self : AbstractAlignment,
-  col_idx : Int,
+  col_idx : Int32,
 ) -> Array[UInt16] {
   let column : Array[UInt16] = Array(capacity=0)
   if col_idx >= 0 && col_idx < self.alignment_length {
@@ -308,11 +307,11 @@ pub fn AbstractAlignment::abstract_type(
 ///|
 /// Column statistics for an alignment position.
 pub struct AlignAbstractColumnStats {
-  column_index : Int
+  column_index : Int32
   conservation : Double
   diversity : Double
   gap_fraction : Double
-  n_unique_chars : Int
+  n_unique_chars : Int32
   consensus_char : UInt16
 }
 
@@ -320,7 +319,7 @@ pub struct AlignAbstractColumnStats {
 /// Compute column statistics for a given alignment column.
 pub fn abstract_column_stats(
   alignment : AbstractAlignment,
-  col_idx : Int,
+  col_idx : Int32,
 ) -> AlignAbstractColumnStats {
   let column = alignment.abstract_get_column(col_idx)
   let n = column.length()
@@ -336,7 +335,7 @@ pub fn abstract_column_stats(
   }
 
   // Count character frequencies
-  let counts : Map[UInt16, Int] = Map([], capacity=20)
+  let counts : Map[UInt16, Int32] = Map([], capacity=20)
   let mut gap_count = 0
   for c in column {
     let upper = char_to_upper(c)
@@ -409,7 +408,7 @@ pub fn abstract_all_column_stats(
 /// Get the consensus sequence of the alignment (using most common character per column).
 pub fn abstract_consensus_sequence(
   alignment : AbstractAlignment,
-  threshold? : Double = 0.5,
+  threshold~ : Double = 0.5,
 ) -> String {
   let mut consensus = ""
   let mut i = 0
@@ -522,7 +521,7 @@ pub fn abstract_coverage(alignment : AbstractAlignment) -> Double {
 
 ///|
 /// Calculate the number of parsimony-informative sites.
-pub fn abstract_parsimony_sites(alignment : AbstractAlignment) -> Int {
+pub fn abstract_parsimony_sites(alignment : AbstractAlignment) -> Int32 {
   let mut count = 0
   let mut col = 0
   while col < alignment.alignment_length {
@@ -535,9 +534,9 @@ pub fn abstract_parsimony_sites(alignment : AbstractAlignment) -> Int {
 }
 
 ///|
-fn is_parsimony_informative(alignment : AbstractAlignment, col : Int) -> Bool {
+fn is_parsimony_informative(alignment : AbstractAlignment, col : Int32) -> Bool {
   let column = alignment.abstract_get_column(col)
-  let counts : Map[UInt16, Int] = Map([], capacity=20)
+  let counts : Map[UInt16, Int32] = Map([], capacity=20)
   for c in column {
     let upper = char_to_upper(c)
     if upper != 45 && upper != 46 {
@@ -559,7 +558,7 @@ fn is_parsimony_informative(alignment : AbstractAlignment, col : Int) -> Bool {
 
 ///|
 /// Calculate the number of variable sites.
-pub fn abstract_variable_sites(alignment : AbstractAlignment) -> Int {
+pub fn abstract_variable_sites(alignment : AbstractAlignment) -> Int32 {
   let mut count = 0
   let mut col = 0
   while col < alignment.alignment_length {
@@ -572,7 +571,7 @@ pub fn abstract_variable_sites(alignment : AbstractAlignment) -> Int {
 }
 
 ///|
-fn is_variable_site(alignment : AbstractAlignment, col : Int) -> Bool {
+fn is_variable_site(alignment : AbstractAlignment, col : Int32) -> Bool {
   let column = alignment.abstract_get_column(col)
   if column.length() == 0 {
     return false
@@ -588,7 +587,7 @@ fn is_variable_site(alignment : AbstractAlignment, col : Int) -> Bool {
 
 ///|
 /// Calculate the number of singleton sites.
-pub fn abstract_singleton_sites(alignment : AbstractAlignment) -> Int {
+pub fn abstract_singleton_sites(alignment : AbstractAlignment) -> Int32 {
   let mut count = 0
   let mut col = 0
   while col < alignment.alignment_length {
@@ -601,9 +600,9 @@ pub fn abstract_singleton_sites(alignment : AbstractAlignment) -> Int {
 }
 
 ///|
-fn is_singleton_site(alignment : AbstractAlignment, col : Int) -> Bool {
+fn is_singleton_site(alignment : AbstractAlignment, col : Int32) -> Bool {
   let column = alignment.abstract_get_column(col)
-  let counts : Map[UInt16, Int] = Map([], capacity=20)
+  let counts : Map[UInt16, Int32] = Map([], capacity=20)
   for c in column {
     let upper = char_to_upper(c)
     if upper != 45 && upper != 46 {
@@ -683,7 +682,7 @@ pub fn abstract_filter_gaps(
   alignment : AbstractAlignment,
   max_gap_fraction : Double,
 ) -> AbstractAlignment {
-  let keep_columns : Array[Int] = Array(capacity=0)
+  let keep_columns : Array[Int32] = Array(capacity=0)
   let mut col = 0
   while col < alignment.alignment_length {
     let stats = abstract_column_stats(alignment, col)
@@ -721,7 +720,7 @@ pub fn abstract_filter_coverage(
   alignment : AbstractAlignment,
   min_coverage : Double,
 ) -> AbstractAlignment {
-  let keep_seqs : Array[Int] = Array(capacity=0)
+  let keep_seqs : Array[Int32] = Array(capacity=0)
   let mut idx = 0
   while idx < alignment.n_seqs {
     let seq = alignment.sequences[idx]
@@ -759,8 +758,8 @@ pub fn abstract_filter_coverage(
 /// Trim alignment to include only the region between start and end columns.
 pub fn abstract_trim(
   alignment : AbstractAlignment,
-  start : Int,
-  end : Int,
+  start : Int32,
+  end : Int32,
 ) -> AbstractAlignment {
   let s = if start > 0 { start } else { 0 }
   let e = if end < alignment.alignment_length - 1 {

@@ -113,7 +113,7 @@ pub fn mdanalysis_rmsf(traj : Array[Array[Array[Double]]]) -> Array[Double] {
 pub fn mdanalysis_rdf(
   coords1 : Array[Array[Double]],
   coords2 : Array[Array[Double]],
-  nbins : Int,
+  nbins : Int32,
   range_max : Double,
 ) -> (Array[Double], Array[Double]) {
   let n1 = coords1.length()
@@ -137,7 +137,8 @@ pub fn mdanalysis_rdf(
   for b = 0; b < nbins; b = b + 1 {
     let r_in = b.to_double() * dr
     let r_out = (b + 1).to_double() * dr
-    let shell = 4.1887902047863905 * (r_out * r_out * r_out - r_in * r_in * r_in)
+    let shell = 4.1887902047863905 *
+      (r_out * r_out * r_out - r_in * r_in * r_in)
     centers[b] = (r_in + r_out) / 2.0
     if shell > 0.0 && n1 > 0 && n2 > 0 {
       g[b] = hist[b] * v_total / (n1.to_double() * n2.to_double() * shell)
@@ -179,12 +180,12 @@ pub fn mdanalysis_msd(traj : Array[Array[Array[Double]]]) -> Array[Double] {
 /// Returns `(donor_idx, hydrogen_idx, acceptor_idx, d_a_dist, dha_angle_deg)`.
 pub fn mdanalysis_hydrogen_bonds(
   coords : Array[Array[Double]],
-  donor_hydrogen_pairs : Array[(Int, Int)],
-  acceptors : Array[Int],
+  donor_hydrogen_pairs : Array[(Int32, Int32)],
+  acceptors : Array[Int32],
   d_a_cutoff : Double,
   angle_cutoff_deg : Double,
-) -> Array[(Int, Int, Int, Double, Double)] {
-  let result : Array[(Int, Int, Int, Double, Double)] = Array(capacity=0)
+) -> Array[(Int32, Int32, Int32, Double, Double)] {
+  let result : Array[(Int32, Int32, Int32, Double, Double)] = Array(capacity=0)
   for pair in donor_hydrogen_pairs {
     let (d_idx, h_idx) = pair
     let d = coords[d_idx]
@@ -266,9 +267,9 @@ pub fn mdanalysis_contacts(
   coords_a : Array[Array[Double]],
   coords_b : Array[Array[Double]],
   cutoff : Double,
-) -> Array[(Int, Int)] {
+) -> Array[(Int32, Int32)] {
   let cutoff_sq = cutoff * cutoff
-  let pairs : Array[(Int, Int)] = Array(capacity=0)
+  let pairs : Array[(Int32, Int32)] = Array(capacity=0)
   for i = 0; i < coords_a.length(); i = i + 1 {
     for j = 0; j < coords_b.length(); j = j + 1 {
       if mda_sq_dist(coords_a[i], coords_b[j]) <= cutoff_sq {
@@ -316,7 +317,7 @@ pub fn mdanalysis_contact_fraction(
         // soft: r0 from reference
         let r0_sq = mda_sq_dist(reference_a[i], reference_b[j])
         let ratio = r0_sq / r_sq
-        q = q + (1.0 / (1.0 + ratio * ratio * ratio))
+        q = q + 1.0 / (1.0 + ratio * ratio * ratio)
       }
     }
     result.push(q / n_native.to_double())
@@ -341,7 +342,7 @@ pub fn mdanalysis_ramachandran_region(phi : Double, psi : Double) -> String {
   // β-sheet:               φ ≈ -120°, ψ ≈ 120°
   // Left-handed α-helix:   φ ≈ 60°, ψ ≈ 45°
   // Core regions (generous rectangles)
-  
+
   let abs_psi = psi.abs()
   // αR core: φ ∈ [-90, -30], ψ ∈ [-70, -10]
   if phi >= -90.0 && phi <= -30.0 && psi >= -70.0 && psi <= -10.0 {
@@ -380,24 +381,20 @@ pub fn mdanalysis_ramachandran_region(phi : Double, psi : Double) -> String {
 /// - `regions[f]` = array of `"core"` / `"allowed"` / `"outlier"` for each residue
 pub fn mdanalysis_ramachandran(
   backbone_frames : Array[Array[(Array[Double], Array[Double], Array[Double])]],
-) -> (
-    Array[Array[(Double?, Double?)]],
-    Array[Array[String?]],
-  ) {
-  let all_angles : Array[Array[(Double?, Double?)]] = Array(capacity=
-    backbone_frames.length()
+) -> (Array[Array[(Double?, Double?)]], Array[Array[String?]]) {
+  let all_angles : Array[Array[(Double?, Double?)]] = Array(
+    capacity=backbone_frames.length(),
   )
-  let all_regions : Array[Array[String?]] = Array(capacity=
-    backbone_frames.length()
+  let all_regions : Array[Array[String?]] = Array(
+    capacity=backbone_frames.length(),
   )
   for frame in backbone_frames {
     let angles = mdanalysis_phi_psi(frame)
     let regions : Array[String?] = Array(capacity=angles.length())
     for pair in angles {
       match pair {
-        (Some(phi), Some(psi)) => regions.push(
-            Some(mdanalysis_ramachandran_region(phi, psi)),
-          )
+        (Some(phi), Some(psi)) =>
+          regions.push(Some(mdanalysis_ramachandran_region(phi, psi)))
         _ => regions.push(None)
       }
     }
@@ -419,8 +416,8 @@ pub fn mdanalysis_ramachandran(
 /// its weight to the bin instead of 1.  Returns the bin counts/weights.
 pub fn mdanalysis_linear_density_1d(
   coords : Array[Array[Double]],
-  axis : Int,
-  nbins : Int,
+  axis : Int32,
+  nbins : Int32,
   xmin : Double,
   xmax : Double,
   weights : Array[Double]?,
@@ -452,7 +449,7 @@ pub fn mdanalysis_linear_density_1d(
 /// If `weights` is provided, it is used for all three histograms.
 pub fn mdanalysis_linear_density(
   coords : Array[Array[Double]],
-  nbins : Int,
+  nbins : Int32,
   box : Array[Double],
   weights : Array[Double]?,
 ) -> (Array[Double], Array[Double], Array[Double]) {
@@ -641,7 +638,7 @@ pub fn mdanalysis_pca(
   // Eigendecomposition (symmetric → Jacobi)
   let (evals, evects) = eigh_symmetric(cov, n_atoms)
   // Sort descending
-  let indices : Array[Int] = []
+  let indices : Array[Int32] = []
   for i = 0; i < n_atoms; i = i + 1 {
     indices.push(i)
   }
@@ -697,7 +694,9 @@ pub fn mdanalysis_gnm_kirchhoff(
   cutoff : Double,
 ) -> Array[Array[Double]] {
   let n = positions.length()
-  let matrix : Array[Array[Double]] = Array::makei(n, fn(_) { Array::make(n, 0.0) })
+  let matrix : Array[Array[Double]] = Array::makei(n, fn(_) {
+    Array::make(n, 0.0)
+  })
   let cutoff_sq = cutoff * cutoff
   for i = 0; i < n; i = i + 1 {
     for j = i + 1; j < n; j = j + 1 {
@@ -731,7 +730,7 @@ pub fn mdanalysis_gnm(
   let matrix = mdanalysis_gnm_kirchhoff(positions, cutoff)
   let (evals, evects) = eigh_symmetric(matrix, n)
   // Sort ascending (smallest mode first — mode 0 ≈ 0)
-  let indices : Array[Int] = []
+  let indices : Array[Int32] = []
   for i = 0; i < n; i = i + 1 {
     indices.push(i)
   }
@@ -869,7 +868,13 @@ pub fn mdanalysis_helix_analysis(
     let twist = @math.acos(cos_theta[i])
     twists_rad.push(twist)
     local_twists.push(twist * 180.0 / @math.PI)
-    local_nres_per_turn.push(if twist > 0.0 { 2.0 * @math.PI / twist } else { 0.0 })
+    local_nres_per_turn.push(
+      if twist > 0.0 {
+        2.0 * @math.PI / twist
+      } else {
+        0.0
+      },
+    )
   }
   // local_axes: cross product of adjacent bisectors, normalized → (N-3, 3)
   let local_axes : Array[Array[Double]] = Array(capacity=n_windows)
@@ -938,7 +943,11 @@ fn mda_dihedral_mod360(
 ) -> Double {
   let d = chem_dihedral_angle(a1, a2, a3, a4)
   let r = d % 360.0
-  if r < 0.0 { r + 360.0 } else { r }
+  if r < 0.0 {
+    r + 360.0
+  } else {
+    r
+  }
 }
 
 ///|
@@ -1028,13 +1037,48 @@ pub fn mdanalysis_tors_all(
   atoms : Map[String, Array[Double]],
   atoms_next : Map[String, Array[Double]],
 ) -> (Double, Double, Double, Double, Double, Double, Double) {
-  let alpha = mda_dihedral_mod360(atoms_prev["O3'"], atoms["P"], atoms["O5'"], atoms["C5'"])
-  let beta = mda_dihedral_mod360(atoms["P"], atoms["O5'"], atoms["C5'"], atoms["C4'"])
-  let gamma = mda_dihedral_mod360(atoms["O5'"], atoms["C5'"], atoms["C4'"], atoms["C3'"])
-  let delta = mda_dihedral_mod360(atoms["C5'"], atoms["C4'"], atoms["C3'"], atoms["O3'"])
-  let eps = mda_dihedral_mod360(atoms["C4'"], atoms["C3'"], atoms["O3'"], atoms_next["P"])
-  let zeta = mda_dihedral_mod360(atoms["C3'"], atoms["O3'"], atoms_next["P"], atoms_next["O5'"])
-  let chi = mda_dihedral_mod360(atoms["O4'"], atoms["C1'"], atoms["N9"], atoms["C4"])
+  let alpha = mda_dihedral_mod360(
+    atoms_prev["O3'"],
+    atoms["P"],
+    atoms["O5'"],
+    atoms["C5'"],
+  )
+  let beta = mda_dihedral_mod360(
+    atoms["P"],
+    atoms["O5'"],
+    atoms["C5'"],
+    atoms["C4'"],
+  )
+  let gamma = mda_dihedral_mod360(
+    atoms["O5'"],
+    atoms["C5'"],
+    atoms["C4'"],
+    atoms["C3'"],
+  )
+  let delta = mda_dihedral_mod360(
+    atoms["C5'"],
+    atoms["C4'"],
+    atoms["C3'"],
+    atoms["O3'"],
+  )
+  let eps = mda_dihedral_mod360(
+    atoms["C4'"],
+    atoms["C3'"],
+    atoms["O3'"],
+    atoms_next["P"],
+  )
+  let zeta = mda_dihedral_mod360(
+    atoms["C3'"],
+    atoms["O3'"],
+    atoms_next["P"],
+    atoms_next["O5'"],
+  )
+  let chi = mda_dihedral_mod360(
+    atoms["O4'"],
+    atoms["C1'"],
+    atoms["N9"],
+    atoms["C4"],
+  )
   (alpha, beta, gamma, delta, eps, zeta, chi)
 }
 
@@ -1046,9 +1090,7 @@ pub fn mdanalysis_tors_all(
 /// Sugar pucker phase angle using the CP (Cremer-Pople) method.
 /// `sugar_atoms` = [O4', C1', C2', C3', C4'] — the 5 ribose ring atoms.
 /// Returns phase angle in degrees [0, 360).
-pub fn mdanalysis_phase_cp(
-  sugar_atoms : Array[Array[Double]],
-) -> Double {
+pub fn mdanalysis_phase_cp(sugar_atoms : Array[Array[Double]]) -> Double {
   if sugar_atoms.length() < 5 {
     return 0.0
   }
@@ -1114,7 +1156,11 @@ pub fn mdanalysis_phase_cp(
   c_val = c_val * sqrt_2_5
   let phase = (@math.atan2(d_val, c_val) + @math.PI / 2.0) * 180.0 / @math.PI
   let result = phase % 360.0
-  if result < 0.0 { result + 360.0 } else { result }
+  if result < 0.0 {
+    result + 360.0
+  } else {
+    result
+  }
 }
 
 ///|
@@ -1122,9 +1168,7 @@ pub fn mdanalysis_phase_cp(
 /// `sugar_atoms` = [O4', C1', C2', C3', C4'] — the 5 ribose ring atoms.
 /// Computes 5 pseudo-torsion angles from consecutive quadruples,
 /// then Fourier-transforms them. Returns phase angle in degrees [0, 360).
-pub fn mdanalysis_phase_as(
-  sugar_atoms : Array[Array[Double]],
-) -> Double {
+pub fn mdanalysis_phase_as(sugar_atoms : Array[Array[Double]]) -> Double {
   if sugar_atoms.length() < 5 {
     return 0.0
   }
@@ -1153,7 +1197,11 @@ pub fn mdanalysis_phase_as(
   a_val = a_val * 2.0 / 5.0
   let phase = @math.atan2(b_val, a_val) * 180.0 / @math.PI
   let result = phase % 360.0
-  if result < 0.0 { result + 360.0 } else { result }
+  if result < 0.0 {
+    result + 360.0
+  } else {
+    result
+  }
 }
 
 // ============================================================================
@@ -1169,14 +1217,14 @@ pub fn mdanalysis_phase_as(
 pub fn mdanalysis_leaflet_finder(
   head_positions : Array[Array[Double]],
   cutoff : Double,
-) -> Array[Int] {
+) -> Array[Int32] {
   let n = head_positions.length()
   if n == 0 {
     return []
   }
   // Union-Find
-  let parent : Array[Int] = Array::makei(n, fn(i) { i })
-  let find = fn(parent : Array[Int], x : Int) -> Int {
+  let parent : Array[Int32] = Array::makei(n, fn(i) { i })
+  let find = fn(parent : Array[Int32], x : Int32) -> Int32 {
     let mut root = x
     while parent[root] != root {
       root = parent[root]
@@ -1202,7 +1250,7 @@ pub fn mdanalysis_leaflet_finder(
     }
   }
   // Assign leaflet indices
-  let labels : Array[Int] = Array::make(n, -1)
+  let labels : Array[Int32] = Array::make(n, -1)
   let mut n_leaflets = 0
   for i = 0; i < n; i = i + 1 {
     let root = find(parent, i)
@@ -1240,7 +1288,13 @@ pub fn mdanalysis_bat_root(
   let dot = v01[0] * v21[0] + v01[1] * v21[1] + v01[2] * v21[2]
   let cos_a = if r01 > 0.0 && r12 > 0.0 {
     let c = dot / (r01 * r12)
-    if c > 1.0 { 1.0 } else if c < -1.0 { -1.0 } else { c }
+    if c > 1.0 {
+      1.0
+    } else if c < -1.0 {
+      -1.0
+    } else {
+      c
+    }
   } else {
     1.0
   }
@@ -1281,19 +1335,35 @@ pub fn mdanalysis_bat_internal(
     let dz = ag2[i][2] - ag1[i][2]
     bonds.push((dx * dx + dy * dy + dz * dz).sqrt())
     // Angle: ag1[i]-ag2[i]-ag3[i]
-    let v1 = [ag1[i][0] - ag2[i][0], ag1[i][1] - ag2[i][1], ag1[i][2] - ag2[i][2]]
-    let v2 = [ag3[i][0] - ag2[i][0], ag3[i][1] - ag2[i][1], ag3[i][2] - ag2[i][2]]
+    let v1 = [
+      ag1[i][0] - ag2[i][0],
+      ag1[i][1] - ag2[i][1],
+      ag1[i][2] - ag2[i][2],
+    ]
+    let v2 = [
+      ag3[i][0] - ag2[i][0],
+      ag3[i][1] - ag2[i][1],
+      ag3[i][2] - ag2[i][2],
+    ]
     let m1 = (v1[0] * v1[0] + v1[1] * v1[1] + v1[2] * v1[2]).sqrt()
     let m2 = (v2[0] * v2[0] + v2[1] * v2[1] + v2[2] * v2[2]).sqrt()
     let cos_ang = if m1 > 0.0 && m2 > 0.0 {
       let c = (v1[0] * v2[0] + v1[1] * v2[1] + v1[2] * v2[2]) / (m1 * m2)
-      if c > 1.0 { 1.0 } else if c < -1.0 { -1.0 } else { c }
+      if c > 1.0 {
+        1.0
+      } else if c < -1.0 {
+        -1.0
+      } else {
+        c
+      }
     } else {
       1.0
     }
     angles.push(@math.acos(cos_ang))
     // Torsion: ag1[i]-ag2[i]-ag3[i]-ag4[i]
-    torsions.push(chem_dihedral_angle(ag1[i], ag2[i], ag3[i], ag4[i]) * @math.PI / 180.0)
+    torsions.push(
+      chem_dihedral_angle(ag1[i], ag2[i], ag3[i], ag4[i]) * @math.PI / 180.0,
+    )
   }
   (bonds, angles, torsions)
 }
@@ -1308,7 +1378,7 @@ pub struct MdanalysisDensityResult {
   /// Grid values (bins_x × bins_y × bins_z), row-major
   grid : Array[Double]
   /// Number of bins per dimension
-  bins : (Int, Int, Int)
+  bins : (Int32, Int32, Int32)
   /// Grid edges (min/max per dimension)
   edges : (Array[Double], Array[Double], Array[Double])
   /// Voxel volume
@@ -1324,7 +1394,7 @@ pub fn mdanalysis_density(
   frames : Array[Array[Array[Double]]],
   grid_min : Array[Double],
   grid_max : Array[Double],
-  bins : (Int, Int, Int),
+  bins : (Int32, Int32, Int32),
 ) -> MdanalysisDensityResult {
   let (nx, ny, nz) = bins
   let n_frames = frames.length()
@@ -1362,7 +1432,8 @@ pub fn mdanalysis_density(
       let iy = ((atom[1] - grid_min[1]) / dy).floor().to_int()
       let iz = ((atom[2] - grid_min[2]) / dz).floor().to_int()
       if ix >= 0 && ix < nx && iy >= 0 && iy < ny && iz >= 0 && iz < nz {
-        grid[ix * ny * nz + iy * nz + iz] = grid[ix * ny * nz + iy * nz + iz] + 1.0
+        grid[ix * ny * nz + iy * nz + iz] = grid[ix * ny * nz + iy * nz + iz] +
+          1.0
       }
     }
   }
@@ -1409,11 +1480,13 @@ pub fn mdanalysis_diffusionmap(
 ) -> MdanalysisDiffusionMapResult {
   let n = dist_matrix.length()
   if n < 2 {
-    return MdanalysisDiffusionMapResult::{ eigenvalues: [], eigenvectors: [] }
+    return MdanalysisDiffusionMapResult::{ eigenvalues: [], eigenvectors: [], }
   }
   let eps = if epsilon > 0.0 { epsilon } else { 1.0 }
   // Kernel K = exp(-D^2 / epsilon)
-  let kernel : Array[Array[Double]] = Array::makei(n, fn(_) { Array::make(n, 0.0) })
+  let kernel : Array[Array[Double]] = Array::makei(n, fn(_) {
+    Array::make(n, 0.0)
+  })
   for i = 0; i < n; i = i + 1 {
     for j = 0; j < n; j = j + 1 {
       let d = dist_matrix[i][j]
@@ -1430,7 +1503,9 @@ pub fn mdanalysis_diffusionmap(
     row_sum[i] = s
   }
   // Diffusion matrix: diff = D_inv * K, then symmetrize for Jacobi
-  let diff : Array[Array[Double]] = Array::makei(n, fn(_) { Array::make(n, 0.0) })
+  let diff : Array[Array[Double]] = Array::makei(n, fn(_) {
+    Array::make(n, 0.0)
+  })
   for i = 0; i < n; i = i + 1 {
     for j = 0; j < n; j = j + 1 {
       let val = if row_sum[i] > 0.0 { kernel[i][j] / row_sum[i] } else { 0.0 }
@@ -1447,12 +1522,18 @@ pub fn mdanalysis_diffusionmap(
   // Eigendecomposition
   let (evals, evects) = eigh_symmetric(sym, n)
   // Sort descending
-  let indices : Array[Int] = []
+  let indices : Array[Int32] = []
   for i = 0; i < n; i = i + 1 {
     indices.push(i)
   }
   indices.sort_by(fn(a, b) {
-    if evals[b] > evals[a] { 1 } else if evals[b] < evals[a] { -1 } else { 0 }
+    if evals[b] > evals[a] {
+      1
+    } else if evals[b] < evals[a] {
+      -1
+    } else {
+      0
+    }
   })
   let sorted_evals : Array[Double] = Array(capacity=n)
   let sorted_evects : Array[Array[Double]] = Array(capacity=n)
@@ -1474,7 +1555,7 @@ pub fn mdanalysis_diffusionmap(
 /// Returns n_frames × n_eigenvectors embedding coordinates.
 pub fn mdanalysis_diffusionmap_transform(
   result : MdanalysisDiffusionMapResult,
-  n_eigenvectors : Int,
+  n_eigenvectors : Int32,
   time : Double,
 ) -> Array[Array[Double]] {
   let n = result.eigenvalues.length()

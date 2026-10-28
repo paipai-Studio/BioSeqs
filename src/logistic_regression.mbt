@@ -34,7 +34,7 @@ pub fn LogisticRegressionModel::beta(
 /// Number of weights (including bias).
 pub fn LogisticRegressionModel::n_weights(
   self : LogisticRegressionModel,
-) -> Int {
+) -> Int32 {
   self.beta.length()
 }
 
@@ -159,7 +159,7 @@ fn lr_solve(matrix : Array[Array[Double]], b : Array[Double]) -> Array[Double]? 
 /// Returns a trained `LogisticRegressionModel`.
 pub fn logistic_regression_train(
   xs : Array[Array[Double]],
-  ys : Array[Int],
+  ys : Array[Int32],
 ) -> LogisticRegressionModel {
   let n = xs.length()
   // Each observation gets a leading constant 1.0 for the bias term.
@@ -273,7 +273,7 @@ pub fn logistic_regression_calculate(
 pub fn logistic_regression_classify(
   model : LogisticRegressionModel,
   x : Array[Double],
-) -> Int {
+) -> Int32 {
   let probs = logistic_regression_calculate(model, x)
   if probs[0] > probs[1] {
     0
@@ -290,7 +290,7 @@ pub fn logistic_regression_classify(
 /// Sample training data for operon prediction (Biopython tutorial example).
 /// Each observation: [intergenic_distance, expression_score].
 /// Label 1 = same operon (OP), 0 = different operon (NOP).
-pub fn logistic_regression_sample_data() -> (Array[Array[Double]], Array[Int]) {
+pub fn logistic_regression_sample_data() -> (Array[Array[Double]], Array[Int32]) {
   let xs = [
     [-53.0, -200.78],
     [117.0, -267.14],

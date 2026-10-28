@@ -26,13 +26,13 @@ pub fn Experiment::new(
 
 ///|
 /// Get number of rows.
-pub fn Experiment::nrow(self : Experiment) -> Int {
+pub fn Experiment::nrow(self : Experiment) -> Int32 {
   self.data.length()
 }
 
 ///|
 /// Get number of columns.
-pub fn Experiment::ncol(self : Experiment) -> Int {
+pub fn Experiment::ncol(self : Experiment) -> Int32 {
   if self.data.length() > 0 {
     self.data[0].length()
   } else {
@@ -91,7 +91,7 @@ pub fn MultiAssayExperiment::new(
   experiments~ : Array[Experiment],
   sample_map~ : SampleMap,
   col_data~ : Array[(String, Map[String, String])],
-  metadata? : Map[String, String] = Map([]),
+  metadata~ : Map[String, String] = Map([]),
 ) -> MultiAssayExperiment {
   MultiAssayExperiment::{ experiments, sample_map, col_data, metadata, }
 }
@@ -122,7 +122,7 @@ pub fn MultiAssayExperiment::experiment_names(
 /// Get number of experiments.
 pub fn MultiAssayExperiment::num_experiments(
   self : MultiAssayExperiment,
-) -> Int {
+) -> Int32 {
   self.experiments.length()
 }
 
@@ -136,7 +136,7 @@ pub fn MultiAssayExperiment::primary_ids(
 
 ///|
 /// Get number of primary samples.
-pub fn MultiAssayExperiment::num_samples(self : MultiAssayExperiment) -> Int {
+pub fn MultiAssayExperiment::num_samples(self : MultiAssayExperiment) -> Int32 {
   self.primary_ids().length()
 }
 
@@ -322,7 +322,7 @@ pub fn MultiAssayExperiment::colnames(
 /// Get dimensions of all experiments.
 pub fn MultiAssayExperiment::dims(
   self : MultiAssayExperiment,
-) -> Array[(String, Int, Int)] {
+) -> Array[(String, Int32, Int32)] {
   self.experiments.map(fn(e) { (e.name, e.nrow(), e.ncol()) })
 }
 

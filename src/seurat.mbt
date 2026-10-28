@@ -4,7 +4,7 @@
 
 ///|
 pub struct SeuratObject {
-  counts : Array[Array[Int]]
+  counts : Array[Array[Int32]]
   data : Array[Array[Double]]
   scaled_data : Array[Array[Double]]
   row_names : Array[String]
@@ -14,14 +14,14 @@ pub struct SeuratObject {
   pca : Array[Array[Double]]
   pca_loadings : Array[Array[Double]]
   var_explained : Array[Double]
-  neighbors : Array[Array[Int]]
-  clusters : Array[Int]
+  neighbors : Array[Array[Int32]]
+  clusters : Array[Int32]
   umap : Array[Array[Double]]
 }
 
 ///|
 pub fn SeuratObject::new(
-  counts : Array[Array[Int]],
+  counts : Array[Array[Int32]],
   row_names : Array[String],
   col_names : Array[String],
 ) -> SeuratObject {
@@ -93,7 +93,7 @@ pub fn find_variable_features(obj : SeuratObject) -> SeuratObject {
   let n_genes = obj.row_names.length()
   let _n_cells = obj.col_names.length()
 
-  let gene_indices : Array[(Double, Int)] = Array(capacity=0)
+  let gene_indices : Array[(Double, Int32)] = Array(capacity=0)
   let mut k = 0
   while k < n_genes {
     let row_data = obj.data[k]
@@ -158,7 +158,7 @@ pub fn run_pca(obj : SeuratObject) -> SeuratObject {
     obj.row_names
   }
 
-  let feature_indices : Array[Int] = Array(capacity=0)
+  let feature_indices : Array[Int32] = Array(capacity=0)
   for feature in use_features {
     let mut idx = 0
     while idx < n_genes {
@@ -207,10 +207,10 @@ pub fn run_pca(obj : SeuratObject) -> SeuratObject {
 ///|
 fn compute_pca_simple(
   scaled_data : Array[Array[Double]],
-  feature_indices : Array[Int],
-  n_features : Int,
-  n_cells : Int,
-  npcs : Int,
+  feature_indices : Array[Int32],
+  n_features : Int32,
+  n_cells : Int32,
+  npcs : Int32,
 ) -> Array[Array[Double]] {
   let pca : Array[Array[Double]] = Array(capacity=0)
 
@@ -260,14 +260,14 @@ pub fn find_neighbors(obj : SeuratObject) -> SeuratObject {
 ///|
 fn find_neighbors_helper(
   _pca : Array[Array[Double]],
-  n_cells : Int,
-  _n_dims : Int,
-  k_param : Int,
-) -> Array[Array[Int]] {
-  let neighbors : Array[Array[Int]] = Array(capacity=0)
+  n_cells : Int32,
+  _n_dims : Int32,
+  k_param : Int32,
+) -> Array[Array[Int32]] {
+  let neighbors : Array[Array[Int32]] = Array(capacity=0)
   let mut j = 0
   while j < n_cells {
-    let nn : Array[Int] = Array(capacity=0)
+    let nn : Array[Int32] = Array(capacity=0)
     let mut count = 0
     let mut n = 0
     while count < k_param && n < n_cells {
@@ -283,7 +283,6 @@ fn find_neighbors_helper(
   neighbors
 }
 
-
 ///|
 pub fn find_clusters(obj : SeuratObject) -> SeuratObject {
   let n_cells = obj.col_names.length()
@@ -292,7 +291,7 @@ pub fn find_clusters(obj : SeuratObject) -> SeuratObject {
     return obj
   }
 
-  let clusters : Array[Int] = Array(capacity=0)
+  let clusters : Array[Int32] = Array(capacity=0)
   let n_clusters = 4
   let mut i = 0
   while i < n_cells {
@@ -317,7 +316,10 @@ pub fn run_umap(obj : SeuratObject) -> SeuratObject {
 }
 
 ///|
-fn init_umap_coords(n_cells : Int, n_components : Int) -> Array[Array[Double]] {
+fn init_umap_coords(
+  n_cells : Int32,
+  n_components : Int32,
+) -> Array[Array[Double]] {
   let coords : Array[Array[Double]] = Array(capacity=0)
   let mut seed = 42
   let mut i = 0
@@ -344,15 +346,15 @@ fn init_umap_coords(n_cells : Int, n_components : Int) -> Array[Array[Double]] {
 
 ///|
 pub struct IntegrationAnchor {
-  cell1 : Int
-  cell2 : Int
+  cell1 : Int32
+  cell2 : Int32
   score : Double
 }
 
 ///|
 pub fn IntegrationAnchor::new(
-  cell1 : Int,
-  cell2 : Int,
+  cell1 : Int32,
+  cell2 : Int32,
   score : Double,
 ) -> IntegrationAnchor {
   IntegrationAnchor::{ cell1, cell2, score, }
@@ -361,15 +363,15 @@ pub fn IntegrationAnchor::new(
 ///|
 pub struct IntegrationAnchors {
   anchors : Array[IntegrationAnchor]
-  reference_indices : Array[Int]
-  query_indices : Array[Int]
+  reference_indices : Array[Int32]
+  query_indices : Array[Int32]
 }
 
 ///|
 pub fn IntegrationAnchors::new(
   anchors : Array[IntegrationAnchor],
-  reference_indices : Array[Int],
-  query_indices : Array[Int],
+  reference_indices : Array[Int32],
+  query_indices : Array[Int32],
 ) -> IntegrationAnchors {
   IntegrationAnchors::{ anchors, reference_indices, query_indices, }
 }
@@ -378,14 +380,14 @@ pub fn IntegrationAnchors::new(
 pub fn find_integration_anchors(
   reference_obj : SeuratObject,
   query_obj : SeuratObject,
-  dims : Array[Int],
+  dims : Array[Int32],
 ) -> IntegrationAnchors {
   let n_ref_cells = reference_obj.col_names.length()
   let n_query_cells = query_obj.col_names.length()
 
   let anchors : Array[IntegrationAnchor] = Array(capacity=0)
-  let reference_indices : Array[Int] = Array(capacity=0)
-  let query_indices : Array[Int] = Array(capacity=0)
+  let reference_indices : Array[Int32] = Array(capacity=0)
+  let query_indices : Array[Int32] = Array(capacity=0)
 
   if reference_obj.pca.length() == 0 || query_obj.pca.length() == 0 {
     return IntegrationAnchors::new(anchors, reference_indices, query_indices)
@@ -467,7 +469,7 @@ pub fn integrate_data(
   let n_query_cells = query_obj.col_names.length()
   let _n_total_cells = n_ref_cells + n_query_cells
 
-  let integrated_counts : Array[Array[Int]] = Array(capacity=0)
+  let integrated_counts : Array[Array[Int32]] = Array(capacity=0)
   let row_names : Array[String] = Array(capacity=0)
   let col_names : Array[String] = Array(capacity=0)
 
@@ -487,7 +489,7 @@ pub fn integrate_data(
 
     row_names.push(gene)
 
-    let gene_counts : Array[Int] = Array(capacity=0)
+    let gene_counts : Array[Int32] = Array(capacity=0)
     let mut j = 0
     while j < n_ref_cells {
       gene_counts.push(reference_obj.counts[ref_idx][j])
@@ -518,7 +520,7 @@ pub fn integrate_data(
     integrated_counts, row_names, col_names,
   )
 
-  let clusters : Array[Int] = Array(capacity=0)
+  let clusters : Array[Int32] = Array(capacity=0)
   let mut n = 0
   while n < n_ref_cells {
     clusters.push(reference_obj.clusters[n])
@@ -586,9 +588,9 @@ pub fn find_all_markers(obj : SeuratObject) -> Array[MarkerResult] {
 ///|
 pub fn get_top_markers(
   markers : Array[MarkerResult],
-  n : Int,
+  n : Int32,
 ) -> Array[MarkerResult] {
-  let indexed : Array[(Double, Int)] = Array(capacity=0)
+  let indexed : Array[(Double, Int32)] = Array(capacity=0)
   let mut i = 0
   while i < markers.length() {
     indexed.push((markers[i].adjusted_p_value, i))
@@ -608,11 +610,9 @@ pub fn get_top_markers(
 }
 
 ///|
-fn sort_by_p_value(arr : Array[(Double, Int)]) -> Array[(Double, Int)] {
+fn sort_by_p_value(arr : Array[(Double, Int32)]) -> Array[(Double, Int32)] {
   stat_sort_indices_asc(arr)
 }
-
-
 
 ///|
 pub fn seurat_create_example_data() -> SeuratObject {
@@ -620,7 +620,7 @@ pub fn seurat_create_example_data() -> SeuratObject {
   let n_genes = 500
   let n_clusters = 4
 
-  let counts : Array[Array[Int]] = Array(capacity=0)
+  let counts : Array[Array[Int32]] = Array(capacity=0)
   let row_names : Array[String] = Array(capacity=0)
   let col_names : Array[String] = Array(capacity=0)
 
@@ -628,7 +628,7 @@ pub fn seurat_create_example_data() -> SeuratObject {
   let mut i = 0
   while i < n_genes {
     row_names.push("gene_" + i.to_string())
-    let gene_counts : Array[Int] = Array(capacity=0)
+    let gene_counts : Array[Int32] = Array(capacity=0)
 
     let mut j = 0
     while j < n_cells {
@@ -667,7 +667,7 @@ pub fn seurat_create_example_data() -> SeuratObject {
 
   let obj = SeuratObject::new(counts, row_names, col_names)
 
-  let clusters : Array[Int] = Array(capacity=0)
+  let clusters : Array[Int32] = Array(capacity=0)
   let mut m = 0
   while m < n_cells {
     clusters.push(m / (n_cells / n_clusters))

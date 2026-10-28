@@ -18,7 +18,11 @@ pub(all) enum BfcResourceType {
   Remote
   Web
 } derive(Eq, Debug)
+
+///|
 pub extend BfcResourceType with Eq::{equal, not_equal}
+
+///|
 pub extend BfcResourceType with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -31,12 +35,16 @@ pub struct BfcEntry {
   etag : String
   expires : String
   checksum : String
-  size : Int
-  create_time : Int
-  access_time : Int
+  size : Int32
+  create_time : Int32
+  access_time : Int32
   tags : Map[String, String]
 } derive(Eq, Debug)
+
+///|
 pub extend BfcEntry with Eq::{equal, not_equal}
+
+///|
 pub extend BfcEntry with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -44,11 +52,15 @@ pub extend BfcEntry with @moonbitlang/core/debug.Debug::{to_repr}
 pub struct BfcCache {
   cache_root : String
   entries : Map[String, BfcEntry]
-  mut hits : Int
-  mut misses : Int
-  mut next_rid : Int
+  mut hits : Int32
+  mut misses : Int32
+  mut next_rid : Int32
 } derive(Eq, Debug)
+
+///|
 pub extend BfcCache with Eq::{equal, not_equal}
+
+///|
 pub extend BfcCache with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -146,18 +158,14 @@ pub fn BfcCache::remove(self : BfcCache, rid : String) -> Bool {
 
 ///|
 /// Fuzzy search over rname and fpath (`bfcquery`).
-pub fn BfcCache::bfcquery(
-  self : BfcCache,
-  keyword : String,
-) -> Array[BfcEntry] {
+pub fn BfcCache::bfcquery(self : BfcCache, keyword : String) -> Array[BfcEntry] {
   let results : Array[BfcEntry] = Array(capacity=0)
   for rid in self.entries.keys() {
     match self.entries.get(rid) {
-      Some(e) => {
+      Some(e) =>
         if e.rname.contains(keyword) || e.fpath.contains(keyword) {
           results.push(e)
         }
-      }
       None => ()
     }
   }
@@ -173,13 +181,12 @@ pub fn BfcCache::bfcneedsupdate(
   remote_etag : String,
 ) -> Bool? {
   match self.entries.get(rid) {
-    Some(e) => {
+    Some(e) =>
       if e.rtype is Web {
         Some(e.etag != remote_etag)
       } else {
         Some(false)
       }
-    }
     None => None
   }
 }
@@ -200,7 +207,11 @@ pub fn BfcCache::update(
         rname: e.rname,
         fpath: e.fpath,
         rtype: e.rtype,
-        etag: if etag != "" { etag } else { e.etag },
+        etag: if etag != "" {
+          etag
+        } else {
+          e.etag
+        },
         expires: e.expires,
         checksum: bfc_checksum(data),
         size: data.length(),
@@ -236,15 +247,11 @@ pub fn BfcCache::set_tag(
 ///|
 /// Remove all entries whose `expires` field equals `marker` (used to
 /// simulate `cleanbfc` expiry sweeping).
-pub fn BfcCache::clean_cache(self : BfcCache, marker : String) -> Int {
+pub fn BfcCache::clean_cache(self : BfcCache, marker : String) -> Int32 {
   let doomed : Array[String] = Array(capacity=0)
   for rid in self.entries.keys() {
     match self.entries.get(rid) {
-      Some(e) => {
-        if e.expires == marker {
-          doomed.push(rid)
-        }
-      }
+      Some(e) => if e.expires == marker { doomed.push(rid) }
       None => ()
     }
   }
@@ -256,7 +263,7 @@ pub fn BfcCache::clean_cache(self : BfcCache, marker : String) -> Int {
 
 ///|
 /// Number of cached resources.
-pub fn BfcCache::length(self : BfcCache) -> Int {
+pub fn BfcCache::length(self : BfcCache) -> Int32 {
   self.entries.length()
 }
 

@@ -125,7 +125,7 @@ pub struct SwfdrScience {
   beta : Double
   z : Array[Double?]
   n0 : Array[Double]
-  n : Array[Int]
+  n : Array[Int32]
 }
 
 ///|
@@ -154,7 +154,7 @@ pub fn SwfdrScience::n0(self : SwfdrScience) -> Array[Double] {
 }
 
 ///|
-pub fn SwfdrScience::n(self : SwfdrScience) -> Array[Int] {
+pub fn SwfdrScience::n(self : SwfdrScience) -> Array[Int32] {
   self.n
 }
 
@@ -164,7 +164,7 @@ pub fn SwfdrScience::n(self : SwfdrScience) -> Array[Int] {
 
 ///|
 /// Allocate an r x c zero matrix with independent rows.
-fn _sw_mat(r : Int, c : Int) -> Array[Array[Double]] {
+fn _sw_mat(r : Int32, c : Int32) -> Array[Array[Double]] {
   let m : Array[Array[Double]] = []
   for _ in 0..<r {
     m.push(Array::make(c, 0.0))
@@ -360,7 +360,7 @@ fn _sw_chol_inverse(m : Array[Array[Double]]) -> Array[Array[Double]]? {
 /// R findInterval(x, knots, rightmost.closed=TRUE, all.inside=TRUE):
 /// index i (0-based) with knots[i] <= x < knots[i+1], clamped to
 /// [0, length(knots)-2].
-fn _sw_find_interval(knots : Array[Double], x : Double) -> Int {
+fn _sw_find_interval(knots : Array[Double], x : Double) -> Int32 {
   let m = knots.length()
   let mut lo = 0
   let mut hi = m - 1
@@ -385,7 +385,7 @@ fn _sw_find_interval(knots : Array[Double], x : Double) -> Int {
 fn _sw_cxb_table(
   knots : Array[Double],
   x : Double,
-  ord : Int,
+  ord : Int32,
 ) -> Array[Array[Double]] {
   let m = knots.length()
   let levels : Array[Array[Double]] = []
@@ -420,7 +420,11 @@ fn _sw_cxb_table(
 
 ///|
 /// Order-`ord` B-spline basis values (length length(knots) - ord) at x.
-fn _sw_cxb_basis(knots : Array[Double], x : Double, ord : Int) -> Array[Double] {
+fn _sw_cxb_basis(
+  knots : Array[Double],
+  x : Double,
+  ord : Int32,
+) -> Array[Double] {
   _sw_cxb_table(knots, x, ord)[ord - 1].copy()
 }
 
@@ -474,7 +478,7 @@ fn _sw_sgram(knots : Array[Double]) -> Array[Array[Double]] {
     if wpt != 0.0 {
       let mid = (t1 + t2) / 2.0
       let brow = _sw_cxb_basis(knots, mid, 4)
-      let idx : Array[Int] = []
+      let idx : Array[Int32] = []
       let mut j = 0
       while j < nb {
         if brow[j].abs() > 1.0e-13 {
@@ -483,8 +487,8 @@ fn _sw_sgram(knots : Array[Double]) -> Array[Array[Double]] {
         j = j + 1
       }
       // at most the 4 cubic basis functions are nonzero on a span
-      let ii : Array[Int] = if idx.length() > 4 {
-        let tail4 : Array[Int] = []
+      let ii : Array[Int32] = if idx.length() > 4 {
+        let tail4 : Array[Int32] = []
         let mut t = idx.length() - 4
         while t < idx.length() {
           tail4.push(idx[t])
@@ -974,7 +978,7 @@ fn _sw_optimize_multiplier(
 /// the trace of the smoother equals 2 + `smooth_df` degrees of freedom.
 pub fn swfdr_unit_spline_matrix(
   x : Array[Double],
-  smooth_df : Int,
+  smooth_df : Int32,
 ) -> Array[Array[Double]] {
   let bmat = swfdr_bs_unit(x)
   let nbs = bmat[0].length()
@@ -1378,7 +1382,7 @@ fn _sw_check_inputs(
   p : Array[Double],
   lambda : Array[Double],
   xopt : Array[Array[Double]]?,
-  smooth_df : Int,
+  smooth_df : Int32,
 ) -> Array[Array[Double]] raise SwfdrError {
   if p.length() == 0 {
     raise SwfdrError("p must be numeric in range [0, 1]\n")
@@ -1529,12 +1533,12 @@ pub fn swfdr_design_matrix(
 ///   - smoothing:  "unit.spline" (default) or "smooth.spline"
 pub fn swfdr_lm_pi0(
   p : Array[Double],
-  lambda? : Array[Double]? = None,
-  x? : Array[Array[Double]]? = None,
-  type_? : String = "logistic",
-  smooth_df? : Int = 3,
-  threshold? : Bool = true,
-  smoothing? : String = "unit.spline",
+  lambda~ : Array[Double]? = None,
+  x~ : Array[Array[Double]]? = None,
+  type_~ : String = "logistic",
+  smooth_df~ : Int32 = 3,
+  threshold~ : Bool = true,
+  smoothing~ : String = "unit.spline",
 ) -> SwfdrPi0 raise SwfdrError {
   let lams0 = match lambda {
     Some(v) => v
@@ -1690,13 +1694,13 @@ pub fn swfdr_lm_pi0(
 ///   - threshold:  truncate pi0 estimates into [0, 1]
 pub fn swfdr_lm_qvalue(
   p : Array[Double],
-  x? : Array[Array[Double]]? = None,
-  pfdr? : Bool = false,
-  pi0? : SwfdrPi0? = None,
-  smoothing? : String = "unit.spline",
-  lambda? : Array[Double]? = None,
-  smooth_df? : Int = 3,
-  threshold? : Bool = true,
+  x~ : Array[Array[Double]]? = None,
+  pfdr~ : Bool = false,
+  pi0~ : SwfdrPi0? = None,
+  smoothing~ : String = "unit.spline",
+  lambda~ : Array[Double]? = None,
+  smooth_df~ : Int32 = 3,
+  threshold~ : Bool = true,
 ) -> SwfdrQvalue raise SwfdrError {
   let pi0_result = match pi0 {
     Some(v) => v
@@ -1704,13 +1708,13 @@ pub fn swfdr_lm_qvalue(
   }
   let n = p.length()
   // stable order: decreasing p, increasing original index for ties
-  let order : Array[Int] = []
+  let order : Array[Int32] = []
   let mut i = 0
   while i < n {
     order.push(i)
     i = i + 1
   }
-  order.sort_by(fn(a : Int, b : Int) -> Int {
+  order.sort_by(fn(a : Int32, b : Int32) -> Int32 {
     if p[a] > p[b] {
       -1
     } else if p[a] < p[b] {
@@ -1753,7 +1757,7 @@ pub fn swfdr_lm_qvalue(
 /// Bin the rounded p-values into (0,.005], (.005,.015], ..., (.045,.05].
 /// Values exactly 0 are moved to 1e-10 (first bin); values exactly 0.05 are
 /// moved below 0 (dropped), reproducing the R source quirks.
-fn _sw_rounded_counts(pp : Array[Double], rr : Array[Int]) -> Array[Int] {
+fn _sw_rounded_counts(pp : Array[Double], rr : Array[Int32]) -> Array[Int32] {
   let edges = [0.0, 0.005, 0.015, 0.025, 0.035, 0.045, 0.05]
   let counts = Array::make(6, 0)
   let mut i = 0
@@ -1786,8 +1790,8 @@ fn _sw_rounded_counts(pp : Array[Double], rr : Array[Int]) -> Array[Int] {
 /// Negative log-likelihood minimized in the M-step (R ll(a,b)).
 fn _sw_em_negll(
   pp : Array[Double],
-  tt : Array[Int],
-  rr : Array[Int],
+  tt : Array[Int32],
+  rr : Array[Int32],
   z : Array[Double?],
   n1 : Array[Double],
   a : Double,
@@ -1841,8 +1845,8 @@ fn _sw_em_negll(
 /// iterates, so the full L-BFGS-B machinery is ported in swfdr_lbfgs.mbt.
 fn _sw_em_mstep(
   pp : Array[Double],
-  tt : Array[Int],
-  rr : Array[Int],
+  tt : Array[Int32],
+  rr : Array[Int32],
   z : Array[Double?],
   n1 : Array[Double],
 ) -> (Double, Double) {
@@ -1876,12 +1880,12 @@ fn _sw_em_mstep(
 ///   - num_em_iterations:  EM iterations (default 100)
 pub fn swfdr_calculate(
   p_values : Array[Double],
-  truncated : Array[Int],
-  rounded : Array[Int],
-  pi0? : Double = 0.5,
-  alpha? : Double = 1.0,
-  beta? : Double = 50.0,
-  num_em_iterations? : Int = 100,
+  truncated : Array[Int32],
+  rounded : Array[Int32],
+  pi0~ : Double = 0.5,
+  alpha~ : Double = 1.0,
+  beta~ : Double = 50.0,
+  num_em_iterations~ : Int32 = 100,
 ) -> SwfdrScience raise SwfdrError {
   let pp = p_values
   let tt = truncated

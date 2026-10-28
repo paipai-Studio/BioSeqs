@@ -51,7 +51,7 @@ pub struct HubResource {
   version : String
   description : String
   source_url : String
-  file_size : Int
+  file_size : Int32
   cache_path : String
   metadata : Map[String, String]
 }
@@ -65,7 +65,7 @@ pub fn HubResource::new(
   version : String,
   description : String,
   source_url : String,
-  file_size : Int,
+  file_size : Int32,
 ) -> HubResource {
   HubResource::{
     resource_id,
@@ -206,7 +206,7 @@ pub fn annotation_hub_get_resource(
 }
 
 ///|
-pub fn annotation_hub_count(hub : AnnotationHub) -> Int {
+pub fn annotation_hub_count(hub : AnnotationHub) -> Int32 {
   hub.resources.length()
 }
 
@@ -221,7 +221,7 @@ pub fn annotation_hub_summarize(hub : AnnotationHub) -> String {
   result = result + "Cache directory: " + hub.cache_dir + "\n"
   result = result + "Default genome: " + hub.default_genome + "\n\n"
 
-  let type_counts : Map[String, Int] = Map([], capacity=7)
+  let type_counts : Map[String, Int32] = Map([], capacity=7)
   let type_names : Array[String] = Array(capacity=0)
   let mut i = 0
   while i < hub.resources.length() {

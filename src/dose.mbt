@@ -29,7 +29,7 @@
 ///|
 /// Log-factorial ln(n!) computed by summation of natural logs.
 /// Returns 0.0 for n ≤ 1; no overflow for large n because the logs stay small.
-fn dose_log_factorial(n : Int) -> Double {
+fn dose_log_factorial(n : Int32) -> Double {
   if n <= 1 {
     return 0.0
   }
@@ -45,7 +45,7 @@ fn dose_log_factorial(n : Int) -> Double {
 ///|
 /// Log binomial coefficient ln C(n, k) = ln(n!) − ln(k!) − ln((n−k)!).
 /// Returns a very negative sentinel (−1e300) when k is out of range.
-fn dose_log_binom(n : Int, k : Int) -> Double {
+fn dose_log_binom(n : Int32, k : Int32) -> Double {
   if k < 0 || k > n {
     return -1.0e300
   }
@@ -77,10 +77,10 @@ pub struct FisherExactResult {
 /// cell) whenever any cell is zero, matching the convention in
 /// Bioconductor DOSE and R's ``fisher.test``.
 pub fn fisher_exact_two_sided(
-  a : Int,
-  b : Int,
-  c : Int,
-  d : Int,
+  a : Int32,
+  b : Int32,
+  c : Int32,
+  d : Int32,
 ) -> FisherExactResult {
   dose_fisher_impl(a, b, c, d, "two-sided")
 }
@@ -88,10 +88,10 @@ pub fn fisher_exact_two_sided(
 ///|
 /// One-sided Fisher's exact test for enrichment ("greater" tail, P(X ≥ a)).
 pub fn fisher_exact_greater(
-  a : Int,
-  b : Int,
-  c : Int,
-  d : Int,
+  a : Int32,
+  b : Int32,
+  c : Int32,
+  d : Int32,
 ) -> FisherExactResult {
   dose_fisher_impl(a, b, c, d, "greater")
 }
@@ -99,10 +99,10 @@ pub fn fisher_exact_greater(
 ///|
 /// One-sided Fisher's exact test for depletion ("less" tail, P(X ≤ a)).
 pub fn fisher_exact_less(
-  a : Int,
-  b : Int,
-  c : Int,
-  d : Int,
+  a : Int32,
+  b : Int32,
+  c : Int32,
+  d : Int32,
 ) -> FisherExactResult {
   dose_fisher_impl(a, b, c, d, "less")
 }
@@ -110,10 +110,10 @@ pub fn fisher_exact_less(
 ///|
 /// Internal implementation shared by the three public Fisher wrappers.
 fn dose_fisher_impl(
-  a : Int,
-  b : Int,
-  c : Int,
-  d : Int,
+  a : Int32,
+  b : Int32,
+  c : Int32,
+  d : Int32,
   test_type : String,
 ) -> FisherExactResult {
   let n_total = a + b + c + d
@@ -164,7 +164,7 @@ fn dose_fisher_impl(
     p_value = 0.0
   }
 
-  FisherExactResult::{ p_value, odds_ratio }
+  FisherExactResult::{ p_value, odds_ratio, }
 }
 
 // ===========================================================================
@@ -184,10 +184,10 @@ fn dose_fisher_impl(
 /// (n_bg, term_size, query_size) distribution. This is numerically
 /// identical to ``fisher_exact_greater`` on the 2x2 table above.
 pub fn dose_hypergeometric_test(
-  overlap : Int,
-  query_size : Int,
-  term_size : Int,
-  background_size : Int,
+  overlap : Int32,
+  query_size : Int32,
+  term_size : Int32,
+  background_size : Int32,
 ) -> Double {
   let k = overlap
   let m = query_size
@@ -227,7 +227,7 @@ pub fn dose_bh_fdr(p_values : Array[Double]) -> Array[Double] {
     indexed[i] = [p_values[i], i.to_double()]
     i = i + 1
   }
-  indexed.sort_by(fn(a : Array[Double], b : Array[Double]) -> Int {
+  indexed.sort_by(fn(a : Array[Double], b : Array[Double]) -> Int32 {
     if a[0] < b[0] {
       -1
     } else if a[0] > b[0] {
@@ -286,10 +286,10 @@ pub fn dose_bonferroni(p_values : Array[Double]) -> Array[Double] {
 /// ``query_size``, ``term_size``, and ``background_size`` are
 /// strictly positive; otherwise the result is ``@double.not_a_number``.
 pub fn dose_fold_enrichment(
-  overlap : Int,
-  query_size : Int,
-  term_size : Int,
-  background_size : Int,
+  overlap : Int32,
+  query_size : Int32,
+  term_size : Int32,
+  background_size : Int32,
 ) -> Double {
   if overlap <= 0 {
     return 0.0
@@ -313,10 +313,10 @@ pub fn dose_fold_enrichment(
 /// With Haldane–Anscombe 0.5-cell correction whenever any cell is zero,
 /// matching the convention in Bioconductor DOSE.
 pub fn dose_odds_ratio(
-  overlap : Int,
-  query_size : Int,
-  term_size : Int,
-  background_size : Int,
+  overlap : Int32,
+  query_size : Int32,
+  term_size : Int32,
+  background_size : Int32,
 ) -> Double {
   let a = overlap
   let b = query_size - overlap
@@ -334,9 +334,9 @@ pub fn dose_odds_ratio(
 pub struct DOSETerm {
   term_id : String
   term_name : String
-  gene_count : Int
+  gene_count : Int32
   genes : Array[String]
-  overlap_count : Int
+  overlap_count : Int32
   p_value : Double
   adjusted_p_value : Double
   fold_enrichment : Double
@@ -347,9 +347,9 @@ pub struct DOSETerm {
 /// Full enrichment result (one row per term, sorted by adjusted p).
 pub struct DOSEResult {
   terms : Array[DOSETerm]
-  query_count : Int
-  background_count : Int
-  n_terms : Int
+  query_count : Int32
+  background_count : Int32
+  n_terms : Int32
 }
 
 // ===========================================================================
@@ -372,7 +372,7 @@ pub fn enrich_disease_fisher(
   gene_list : Array[String],
   gene_database : Map[String, Array[String]],
   background_genes : Array[String],
-  p_adjust_method? : String = "BH",
+  p_adjust_method~ : String = "BH",
 ) -> DOSEResult {
   let n_query = gene_list.length()
   let n_bg = background_genes.length()
@@ -389,8 +389,13 @@ pub fn enrich_disease_fisher(
   let n_terms = term_ids.length()
 
   // Collect overlaps and store raw p-values per term.
-  let rows : Array[Array[Double]] = Array::make(n_terms, [0.0, 0.0, 0.0, 0.0, 0.0])
-  let overlap_genes : Array[Array[String]] = Array::make(n_terms, Array(capacity=0))
+  let rows : Array[Array[Double]] = Array::make(n_terms, [
+    0.0, 0.0, 0.0, 0.0, 0.0,
+  ])
+  let overlap_genes : Array[Array[String]] = Array::make(
+    n_terms,
+    Array(capacity=0),
+  )
 
   i = 0
   while i < n_terms {
@@ -431,9 +436,12 @@ pub fn enrich_disease_fisher(
     let d = nb_eff - ms_eff - (m_eff - k_overlap)
     let fr = dose_fisher_impl(a, b, c, d, "greater")
 
-    let fe = if k_overlap == 0 { 0.0 } else {
-      k_overlap.to_double() * nb_eff.to_double() /
-        (m_eff.to_double() * ms_eff.to_double())
+    let fe = if k_overlap == 0 {
+      0.0
+    } else {
+      k_overlap.to_double() *
+      nb_eff.to_double() /
+      (m_eff.to_double() * ms_eff.to_double())
     }
     let or_val = if a == 0 || b == 0 || c == 0 || d == 0 {
       let a2 = a.to_double() + 0.5
@@ -483,19 +491,17 @@ pub fn enrich_disease_fisher(
     i = i + 1
   }
 
-  term_objs.sort_by(fn(x : DOSETerm, y : DOSETerm) -> Int {
+  term_objs.sort_by(fn(x : DOSETerm, y : DOSETerm) -> Int32 {
     if x.adjusted_p_value < y.adjusted_p_value {
       -1
     } else if x.adjusted_p_value > y.adjusted_p_value {
       1
+    } else if x.fold_enrichment > y.fold_enrichment {
+      -1
+    } else if x.fold_enrichment < y.fold_enrichment {
+      1
     } else {
-      if x.fold_enrichment > y.fold_enrichment {
-        -1
-      } else if x.fold_enrichment < y.fold_enrichment {
-        1
-      } else {
-        0
-      }
+      0
     }
   })
 
@@ -544,7 +550,7 @@ pub fn dose_filter_by_adjp(result : DOSEResult, cutoff : Double) -> DOSEResult {
 
 ///|
 /// Keep at most ``n`` top terms (lowest adjusted p-value).
-pub fn dose_top_terms(result : DOSEResult, n : Int) -> DOSEResult {
+pub fn dose_top_terms(result : DOSEResult, n : Int32) -> DOSEResult {
   let top : Array[DOSETerm] = Array(capacity=0)
   let mut i = 0
   while i < result.terms.length() && i < n {

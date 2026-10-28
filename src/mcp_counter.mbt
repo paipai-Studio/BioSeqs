@@ -224,7 +224,7 @@ pub fn mcp_run(
   gene_names : Array[String],
   sample_names : Array[String],
   expression : Array[Array[Double]],
-  populations? : Array[McpCellPopulation] = mcp_default_populations(),
+  populations~ : Array[McpCellPopulation] = mcp_default_populations(),
 ) -> McpResult {
   let n_samples = sample_names.length()
   let pop_names : Array[String] = []

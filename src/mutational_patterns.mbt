@@ -108,7 +108,7 @@ pub fn trinucleotide_contexts() -> Array[String] {
 /// A single somatic mutation record.
 pub struct SomaticMutation {
   chromosome : String
-  position : Int
+  position : Int32
   ref_base : String
   alt_base : String
   /// e.g., "ACT" (ref is middle)
@@ -125,9 +125,9 @@ pub struct MutationMatrix {
   /// 96 channel labels (e.g., "A[C>A]A", "A[C>A]C", ...)
   channel_labels : Array[String]
   /// Count matrix: 96 rows × n_samples columns
-  counts : Array[Array[Int]]
+  counts : Array[Array[Int32]]
   /// per-sample total
-  total_mutations : Array[Int]
+  total_mutations : Array[Int32]
 }
 
 ///|
@@ -142,7 +142,7 @@ pub struct MutSigProfile {
 /// Create a SomaticMutation.
 pub fn SomaticMutation::new(
   chromosome : String,
-  position : Int,
+  position : Int32,
   ref_base : String,
   alt_base : String,
   trinucleotide_context : String,
@@ -253,7 +253,7 @@ pub fn get_channel_index(
   ref_base : String,
   alt_base : String,
   trinucleotide : String,
-) -> Int {
+) -> Int32 {
   let norm_ctx = normalize_context(trinucleotide)
   let mtype = get_mutation_type(ref_base, alt_base)
   // Find type index (0-5)
@@ -298,10 +298,10 @@ pub fn build_mutation_matrix(
   let n_samples = sample_ids.length()
   let channel_labels = get_channel_labels()
   // Initialize count matrix
-  let counts : Array[Array[Int]] = Array(capacity=0)
+  let counts : Array[Array[Int32]] = Array(capacity=0)
   let mut i = 0
   while i < n_channels {
-    let row : Array[Int] = Array(capacity=0)
+    let row : Array[Int32] = Array(capacity=0)
     let mut j = 0
     while j < n_samples {
       row.push(0)
@@ -311,7 +311,7 @@ pub fn build_mutation_matrix(
     i = i + 1
   }
   // Build sample index lookup
-  let sample_idx : Map[String, Int] = Map([])
+  let sample_idx : Map[String, Int32] = Map([])
   let mut si = 0
   while si < n_samples {
     sample_idx.set(sample_ids[si], si)
@@ -335,7 +335,7 @@ pub fn build_mutation_matrix(
     mi = mi + 1
   }
   // Calculate per-sample totals
-  let totals : Array[Int] = Array(capacity=0)
+  let totals : Array[Int32] = Array(capacity=0)
   let mut sj = 0
   while sj < n_samples {
     let mut total = 0
@@ -359,9 +359,9 @@ pub fn build_mutation_matrix(
 /// Get a specific count from the matrix.
 pub fn MutationMatrix::get_count(
   self : MutationMatrix,
-  channel_idx : Int,
-  sample_idx : Int,
-) -> Int {
+  channel_idx : Int32,
+  sample_idx : Int32,
+) -> Int32 {
   if channel_idx < 0 || channel_idx >= self.counts.length() {
     return 0
   }
@@ -428,8 +428,8 @@ pub fn cosine_similarity(vec1 : Array[Double], vec2 : Array[Double]) -> Double {
 /// Compute cosine similarity between two samples in a mutation matrix.
 pub fn MutationMatrix::sample_cosine_similarity(
   self : MutationMatrix,
-  sample_idx1 : Int,
-  sample_idx2 : Int,
+  sample_idx1 : Int32,
+  sample_idx2 : Int32,
 ) -> Double {
   let n_channels = self.counts.length()
   let vec1 : Array[Double] = Array(capacity=0)

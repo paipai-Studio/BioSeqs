@@ -30,7 +30,7 @@ pub fn gffutils_within(f1 : GFFFeature, f2 : GFFFeature) -> Bool {
 ///|
 /// Distance in bases between two features (0 if they overlap; otherwise the
 /// gap length in 1-based inclusive coordinates).
-pub fn gffutils_distance(f1 : GFFFeature, f2 : GFFFeature) -> Int {
+pub fn gffutils_distance(f1 : GFFFeature, f2 : GFFFeature) -> Int32 {
   if gffutils_overlaps(f1, f2) {
     0
   } else if f1.end < f2.start {
@@ -84,7 +84,10 @@ fn gffutils_parent_ids(f : GFFFeature) -> Array[String] {
 ///|
 /// Immediate children of a feature: features whose `Parent` attribute lists the
 /// given feature ID.
-pub fn gffutils_children(record : GFFRecord, feature_id : String) -> Array[GFFFeature] {
+pub fn gffutils_children(
+  record : GFFRecord,
+  feature_id : String,
+) -> Array[GFFFeature] {
   let out : Array[GFFFeature] = Array(capacity=0)
   for f in record.features {
     for p in gffutils_parent_ids(f) {
@@ -100,7 +103,10 @@ pub fn gffutils_children(record : GFFRecord, feature_id : String) -> Array[GFFFe
 ///|
 /// Immediate parents of a feature: the features listed in its `Parent`
 /// attribute.
-pub fn gffutils_parents(record : GFFRecord, feature_id : String) -> Array[GFFFeature] {
+pub fn gffutils_parents(
+  record : GFFRecord,
+  feature_id : String,
+) -> Array[GFFFeature] {
   let wanted : Map[String, Bool] = Map([], capacity=0)
   for f in record.features {
     match f.get_id() {
@@ -130,7 +136,10 @@ pub fn gffutils_parents(record : GFFRecord, feature_id : String) -> Array[GFFFea
 ///|
 /// All transitive descendants of a feature (breadth-first via the `Parent`
 /// attribute).
-pub fn gffutils_all_children(record : GFFRecord, feature_id : String) -> Array[GFFFeature] {
+pub fn gffutils_all_children(
+  record : GFFRecord,
+  feature_id : String,
+) -> Array[GFFFeature] {
   let seen : Map[String, Bool] = Map([], capacity=0)
   let out : Array[GFFFeature] = Array(capacity=0)
   let mut frontier = gffutils_children(record, feature_id)
@@ -158,7 +167,10 @@ pub fn gffutils_all_children(record : GFFRecord, feature_id : String) -> Array[G
 
 ///|
 /// All transitive ancestors of a feature (via the `Parent` attribute).
-pub fn gffutils_all_parents(record : GFFRecord, feature_id : String) -> Array[GFFFeature] {
+pub fn gffutils_all_parents(
+  record : GFFRecord,
+  feature_id : String,
+) -> Array[GFFFeature] {
   let seen : Map[String, Bool] = Map([], capacity=0)
   let out : Array[GFFFeature] = Array(capacity=0)
   let mut frontier = gffutils_parents(record, feature_id)
@@ -183,7 +195,6 @@ pub fn gffutils_all_parents(record : GFFRecord, feature_id : String) -> Array[GF
   }
   out
 }
-
 
 ///|
 fn gffutils_lt(a : GFFFeature, b : GFFFeature) -> Bool {
@@ -223,10 +234,13 @@ fn gffutils_sort_features(record : GFFRecord) -> Array[GFFFeature] {
 /// min_dist` — into larger features. A merged feature carries the first
 /// component's attributes plus a fresh `ID` of the form `<featuretype>_<N>` and
 /// a comma-joined `source`; standalone features are returned unchanged.
-pub fn gffutils_merge(record : GFFRecord, min_dist? : Int = 1) -> Array[GFFFeature] {
+pub fn gffutils_merge(
+  record : GFFRecord,
+  min_dist~ : Int32 = 1,
+) -> Array[GFFFeature] {
   let sorted = gffutils_sort_features(record)
   let out : Array[GFFFeature] = Array(capacity=0)
-  let counters : Map[String, Int] = Map([], capacity=0)
+  let counters : Map[String, Int32] = Map([], capacity=0)
   let mut i = 0
   while i < sorted.length() {
     let first = sorted[i]
@@ -236,8 +250,10 @@ pub fn gffutils_merge(record : GFFRecord, min_dist? : Int = 1) -> Array[GFFFeatu
     let mut j = i + 1
     while j < sorted.length() {
       let cur = sorted[j]
-      if cur.seqid == first.seqid && cur.strand == first.strand &&
-        cur.feature_type == first.feature_type && cur.start <= max_end + min_dist {
+      if cur.seqid == first.seqid &&
+        cur.strand == first.strand &&
+        cur.feature_type == first.feature_type &&
+        cur.start <= max_end + min_dist {
         if cur.end > max_end {
           max_end = cur.end
         }
@@ -270,7 +286,7 @@ pub fn gffutils_merge(record : GFFRecord, min_dist? : Int = 1) -> Array[GFFFeatu
           Some(_) => ()
           None => {
             seen_src.set(ch.source, true)
-            if !(first_src) {
+            if !first_src {
               src_sb.write_char(',')
             }
             src_sb.write_string(ch.source)
@@ -283,19 +299,17 @@ pub fn gffutils_merge(record : GFFRecord, min_dist? : Int = 1) -> Array[GFFFeatu
         attrs.set(k, v)
       }
       attrs.set("ID", new_id)
-      out.push(
-        GFFFeature::{
-          seqid: first.seqid,
-          source: src_sb.to_string(),
-          feature_type: ft,
-          start: first.start,
-          end: max_end,
-          score: first.score,
-          strand: first.strand,
-          phase: first.phase,
-          attributes: attrs,
-        },
-      )
+      out.push(GFFFeature::{
+        seqid: first.seqid,
+        source: src_sb.to_string(),
+        feature_type: ft,
+        start: first.start,
+        end: max_end,
+        score: first.score,
+        strand: first.strand,
+        phase: first.phase,
+        attributes: attrs,
+      })
     }
     i = j
   }
@@ -315,8 +329,17 @@ pub fn gffutils_to_bed(feature : GFFFeature) -> String {
     Some(s) => s.to_string()
   }
   let strand = if feature.strand.length() == 0 { "." } else { feature.strand }
-  feature.seqid + "\t" + (feature.start - 1).to_string() + "\t" +
-    feature.end.to_string() + "\t" + name + "\t" + score + "\t" + strand
+  feature.seqid +
+  "\t" +
+  (feature.start - 1).to_string() +
+  "\t" +
+  feature.end.to_string() +
+  "\t" +
+  name +
+  "\t" +
+  score +
+  "\t" +
+  strand
 }
 
 ///|
@@ -325,7 +348,7 @@ pub fn gffutils_record_to_bed(record : GFFRecord) -> String {
   let sb = StringBuilder()
   let mut first = true
   for f in record.features {
-    if !(first) {
+    if !first {
       sb.write_char('\n')
     }
     sb.write_string(gffutils_to_bed(f))
@@ -344,8 +367,8 @@ pub fn gffutils_record_to_bed(record : GFFRecord) -> String {
 pub fn gffutils_region(
   record : GFFRecord,
   seqid : String,
-  start : Int,
-  end : Int,
+  start : Int32,
+  end : Int32,
   completely_within~ : Bool = false,
 ) -> Array[GFFFeature] {
   let out : Array[GFFFeature] = Array(capacity=0)
@@ -357,10 +380,8 @@ pub fn gffutils_region(
       if f.start >= start && f.end <= end {
         out.push(f)
       }
-    } else {
-      if f.start <= end && f.end >= start {
-        out.push(f)
-      }
+    } else if f.start <= end && f.end >= start {
+      out.push(f)
     }
   }
   out

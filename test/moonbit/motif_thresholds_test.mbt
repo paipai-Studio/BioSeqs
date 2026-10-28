@@ -7,7 +7,7 @@
 fn mscd_approx(
   left : Double,
   right : Double,
-  tolerance? : Double = 1.0e-9,
+  tolerance~ : Double = 1.0e-9,
 ) -> Bool {
   (left - right).abs() <= tolerance
 }
@@ -71,7 +71,7 @@ fn mscd_biased_pssm() -> Array[Array[Double]] {
 }
 
 ///|
-fn mscd_counts8() -> Array[Array[Int]] {
+fn mscd_counts8() -> Array[Array[Int32]] {
   [
     [7, 1, 7, 2, 6, 1, 5, 3],
     [1, 6, 1, 1, 2, 7, 2, 4],
@@ -81,7 +81,7 @@ fn mscd_counts8() -> Array[Array[Int]] {
 }
 
 ///|
-fn mscd_argmax(values : Array[Double]) -> Int {
+fn mscd_argmax(values : Array[Double]) -> Int32 {
   let mut best = 0
   for i in 1..<values.length() {
     if values[i] > values[best] {

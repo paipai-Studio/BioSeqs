@@ -30,8 +30,8 @@ pub struct GOEnrichmentResult {
   odds_ratio : Double
   gene_ratio : String
   bg_ratio : String
-  count : Int
-  bg_count : Int
+  count : Int32
+  bg_count : Int32
   genes : Array[String]
 }
 
@@ -45,8 +45,8 @@ pub fn GOEnrichmentResult::new(
   odds_ratio : Double,
   gene_ratio : String,
   bg_ratio : String,
-  count : Int,
-  bg_count : Int,
+  count : Int32,
+  bg_count : Int32,
   genes : Array[String],
 ) -> GOEnrichmentResult {
   GOEnrichmentResult::{
@@ -65,7 +65,7 @@ pub fn GOEnrichmentResult::new(
 }
 
 ///|
-fn log_factorial(n : Int) -> Double {
+fn log_factorial(n : Int32) -> Double {
   if n <= 1 {
     return 0.0
   }
@@ -79,7 +79,7 @@ fn log_factorial(n : Int) -> Double {
 }
 
 ///|
-fn log_choose(n : Int, k : Int) -> Double {
+fn log_choose(n : Int32, k : Int32) -> Double {
   if k < 0 || k > n {
     return 0.0
   }
@@ -90,7 +90,12 @@ fn log_choose(n : Int, k : Int) -> Double {
 }
 
 ///|
-pub fn hypergeometric_test(x : Int, m : Int, n : Int, k : Int) -> Double {
+pub fn hypergeometric_test(
+  x : Int32,
+  m : Int32,
+  n : Int32,
+  k : Int32,
+) -> Double {
   let max_x = if m < k { m } else { k }
   let min_x = if n + k - m > 0 { n + k - m } else { 0 }
 
@@ -122,7 +127,7 @@ pub fn hypergeometric_test(x : Int, m : Int, n : Int, k : Int) -> Double {
 }
 
 ///|
-pub fn fishers_exact_test(a : Int, b : Int, c : Int, d : Int) -> Double {
+pub fn fishers_exact_test(a : Int32, b : Int32, c : Int32, d : Int32) -> Double {
   let n = a + b + c + d
   let log_prob = log_choose(a + b, a) +
     log_choose(c + d, c) +
@@ -154,14 +159,14 @@ pub fn bh_correction(p_values : Array[Double]) -> Array[Double] {
     return Array(capacity=0)
   }
 
-  let indices : Array[Int] = Array(capacity=0)
+  let indices : Array[Int32] = Array(capacity=0)
   let mut i = 0
   while i < n {
     indices.push(i)
     i = i + 1
   }
 
-  let sorted_with_idx : Array[(Double, Int)] = Array(capacity=0)
+  let sorted_with_idx : Array[(Double, Int32)] = Array(capacity=0)
   i = 0
   while i < n {
     sorted_with_idx.push((p_values[i], indices[i]))
@@ -219,7 +224,7 @@ pub fn bh_correction(p_values : Array[Double]) -> Array[Double] {
 pub fn go_enrich(
   genes : Array[String],
   go_terms : Array[GOTerm],
-  universe_size : Int,
+  universe_size : Int32,
 ) -> Array[GOEnrichmentResult] {
   let gene_set = Array(capacity=0)
   let mut i = 0
@@ -323,7 +328,7 @@ pub fn go_enrich(
 pub fn filter_enrichment(
   results : Array[GOEnrichmentResult],
   p_adjust_cutoff : Double,
-  min_count : Int,
+  min_count : Int32,
 ) -> Array[GOEnrichmentResult] {
   let filtered : Array[GOEnrichmentResult] = Array(capacity=0)
   let mut i = 0

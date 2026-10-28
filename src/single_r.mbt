@@ -27,8 +27,8 @@ pub struct ReferenceDataset {
   profiles : Array[ReferenceProfile]
   cell_types : Array[String]
   gene_names : Array[String]
-  n_genes : Int
-  n_profiles : Int
+  n_genes : Int32
+  n_profiles : Int32
 }
 
 ///|
@@ -37,8 +37,8 @@ pub struct SingleRData {
   counts : Array[Array[Double]]
   gene_names : Array[String]
   cell_names : Array[String]
-  n_cells : Int
-  n_genes : Int
+  n_cells : Int32
+  n_genes : Int32
 }
 
 ///|
@@ -72,7 +72,7 @@ pub struct SingleRFullResult {
 /// Parameters for SingleR annotation.
 pub struct SingleRParams {
   method_ : String
-  n_top_scores : Int
+  n_top_scores : Int32
   fine_tune : Bool
   min_score : Double
   quantile_score : Bool
@@ -157,7 +157,7 @@ pub fn single_r_pearson_correlation(
 /// Compute rank values for an array (average ranks for ties).
 pub fn single_r_rank_values(values : Array[Double]) -> Array[Double] {
   let n = values.length()
-  let ranked : Array[(Double, Int)] = Array(capacity=0)
+  let ranked : Array[(Double, Int32)] = Array(capacity=0)
   let mut i = 0
   while i < n {
     ranked.push((values[i], i))
@@ -190,7 +190,7 @@ pub fn single_r_rank_values(values : Array[Double]) -> Array[Double] {
 
 ///|
 /// Sort array of tuples by first element (descending order).
-fn single_r_sort_array(arr : Array[(Double, Int)]) -> Array[(Double, Int)] {
+fn single_r_sort_array(arr : Array[(Double, Int32)]) -> Array[(Double, Int32)] {
   let n = arr.length()
   let result = arr.copy()
   let mut i = 1
@@ -210,8 +210,8 @@ fn single_r_sort_array(arr : Array[(Double, Int)]) -> Array[(Double, Int)] {
 ///|
 /// Sort array of (Int, Double) tuples by the Double value (descending).
 fn single_r_sort_int_double_array(
-  arr : Array[(Int, Double)],
-) -> Array[(Int, Double)] {
+  arr : Array[(Int32, Double)],
+) -> Array[(Int32, Double)] {
   let n = arr.length()
   let result = arr.copy()
   let mut i = 1
@@ -322,11 +322,17 @@ pub fn SingleRParams::with_method(method_ : String) -> SingleRParams {
 pub fn SingleRParams::with_all(
   fine_tune : Bool,
   method_ : String,
-  n_top_scores : Int,
+  n_top_scores : Int32,
   min_score : Double,
   quantile_score : Bool,
 ) -> SingleRParams {
-  SingleRParams::{ method_, n_top_scores, fine_tune, min_score, quantile_score, }
+  SingleRParams::{
+    method_,
+    n_top_scores,
+    fine_tune,
+    min_score,
+    quantile_score,
+  }
 }
 
 ///|
@@ -352,10 +358,10 @@ pub fn single_r_compute_correlations(
 /// Get the top N scores and their indices.
 pub fn single_r_get_top_scores(
   scores : Array[Double],
-  n : Int,
-) -> Array[(Int, Double)] {
+  n : Int32,
+) -> Array[(Int32, Double)] {
   let n_scores = scores.length()
-  let top : Array[(Int, Double)] = Array(capacity=0)
+  let top : Array[(Int32, Double)] = Array(capacity=0)
 
   let mut i = 0
   while i < n_scores {
@@ -366,7 +372,7 @@ pub fn single_r_get_top_scores(
   // Sort by score descending
   let sorted = single_r_sort_int_double_array(top)
 
-  let result : Array[(Int, Double)] = Array(capacity=0)
+  let result : Array[(Int32, Double)] = Array(capacity=0)
   let limit = if n < sorted.length() { n } else { sorted.length() }
   let mut l = 0
   while l < limit {
@@ -382,7 +388,7 @@ pub fn single_r_get_top_scores(
 pub fn single_r_aggregate_scores_by_type(
   scores : Array[Double],
   reference : ReferenceDataset,
-  n_top : Int,
+  n_top : Int32,
 ) -> Map[String, Double] {
   let unique_types : Map[String, Array[Double]] = Map(
     [],
@@ -499,7 +505,7 @@ pub fn single_r_fine_tune_annotation(
   cell_expression : Array[Double],
   reference : ReferenceDataset,
   initial_label : String,
-  _n_markers : Int,
+  _n_markers : Int32,
   method_ : String,
 ) -> (String, Double) {
   // Find profiles matching the initial label
@@ -751,7 +757,7 @@ pub fn single_r_annotate_cells(
 /// Extract expression profile for a single cell.
 fn single_r_get_cell_expression(
   data : SingleRData,
-  cell_idx : Int,
+  cell_idx : Int32,
 ) -> Array[Double] {
   let n_genes = data.n_genes
   let expr : Array[Double] = Array(capacity=0)
@@ -1019,7 +1025,7 @@ pub fn single_r_annotation_summary(
   result : SingleRFullResult,
 ) -> Map[String, Double] {
   let n_cells = result.cell_ids.length()
-  let label_counts : Map[String, Int] = Map([], capacity=10)
+  let label_counts : Map[String, Int32] = Map([], capacity=10)
 
   let mut i = 0
   while i < n_cells {

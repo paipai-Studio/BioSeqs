@@ -43,12 +43,12 @@
 pub struct InterproScanRecord {
   protein_id : String
   md5 : String
-  seq_length : Int
+  seq_length : Int32
   analysis : String
   signature_acc : String
   signature_desc : String
-  start_pos : Int
-  stop_pos : Int
+  start_pos : Int32
+  stop_pos : Int32
   score : Double
   status : String
   date : String
@@ -62,12 +62,12 @@ pub struct InterproScanRecord {
 pub fn InterproScanRecord::new(
   protein_id~ : String,
   md5~ : String,
-  seq_length~ : Int,
+  seq_length~ : Int32,
   analysis~ : String,
   signature_acc~ : String,
   signature_desc~ : String,
-  start_pos~ : Int,
-  stop_pos~ : Int,
+  start_pos~ : Int32,
+  stop_pos~ : Int32,
   score~ : Double,
   status~ : String,
   date~ : String,
@@ -111,7 +111,7 @@ pub fn InterproScanRecord::md5(self : InterproScanRecord) -> String {
 
 ///|
 /// Get the sequence length column.
-pub fn InterproScanRecord::seq_length(self : InterproScanRecord) -> Int {
+pub fn InterproScanRecord::seq_length(self : InterproScanRecord) -> Int32 {
   self.seq_length
 }
 
@@ -135,13 +135,13 @@ pub fn InterproScanRecord::signature_desc(self : InterproScanRecord) -> String {
 
 ///|
 /// Get the start position column.
-pub fn InterproScanRecord::start_pos(self : InterproScanRecord) -> Int {
+pub fn InterproScanRecord::start_pos(self : InterproScanRecord) -> Int32 {
   self.start_pos
 }
 
 ///|
 /// Get the stop position column.
-pub fn InterproScanRecord::stop_pos(self : InterproScanRecord) -> Int {
+pub fn InterproScanRecord::stop_pos(self : InterproScanRecord) -> Int32 {
   self.stop_pos
 }
 
@@ -698,7 +698,7 @@ pub fn interproscan_group_by_protein(
   records : Array[InterproScanRecord],
 ) -> Array[(String, Array[InterproScanRecord])] {
   let groups : Array[(String, Array[InterproScanRecord])] = Array(capacity=0)
-  let indices : Map[String, Int] = Map([], capacity=0)
+  let indices : Map[String, Int32] = Map([], capacity=0)
   for r in records {
     let pid = r.protein_id
     if indices.contains(pid) {

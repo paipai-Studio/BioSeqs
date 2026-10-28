@@ -32,7 +32,14 @@ fn main {
   let mut i = 0
   while i < record.motifs.length() {
     let m = record.motifs[i]
-    println("  Motif " + (i + 1).to_string() + ": id=" + m.id + ", width=" + m.width.to_string())
+    println(
+      "  Motif " +
+      (i + 1).to_string() +
+      ": id=" +
+      m.id +
+      ", width=" +
+      m.width.to_string(),
+    )
     i = i + 1
   }
   println("")
@@ -78,7 +85,17 @@ fn main {
   while si < record.sequences.length() {
     let seq = record.sequences[si]
     match seq.best_match() {
-      Some(m) => println("  " + seq.name + ": motif=" + m.motif_id + ", pos=" + m.position.to_string() + ", p=" + m.pvalue.to_string())
+      Some(m) =>
+        println(
+          "  " +
+          seq.name +
+          ": motif=" +
+          m.motif_id +
+          ", pos=" +
+          m.position.to_string() +
+          ", p=" +
+          m.pvalue.to_string(),
+        )
       None => println("  " + seq.name + ": no matches")
     }
     si = si + 1
@@ -92,7 +109,8 @@ fn main {
   if record.sequences.length() > 0 {
     let name = record.sequences[0].name
     match record.find_sequence(name) {
-      Some(seq) => println("  Found '" + name + "': E=" + seq.combined_evalue.to_string())
+      Some(seq) =>
+        println("  Found '" + name + "': E=" + seq.combined_evalue.to_string())
       None => println("  Not found: " + name)
     }
     match record.find_sequence("nonexistent") {
@@ -109,11 +127,20 @@ fn main {
   if record.motifs.length() > 0 {
     let motif_id = record.motifs[0].id
     let matches = record.motif_matches(motif_id)
-    println("  Motif '" + motif_id + "' matches: " + matches.length().to_string())
+    println(
+      "  Motif '" + motif_id + "' matches: " + matches.length().to_string(),
+    )
     let mut m = 0
     while m < matches.length() {
       let mt = matches[m]
-      println("    pos=" + mt.position.to_string() + ", p=" + mt.pvalue.to_string() + ", strand=" + mt.strand)
+      println(
+        "    pos=" +
+        mt.position.to_string() +
+        ", p=" +
+        mt.pvalue.to_string() +
+        ", strand=" +
+        mt.strand,
+      )
       m = m + 1
     }
   }

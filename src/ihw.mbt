@@ -25,8 +25,10 @@ pub struct IHWResult {
   weights : Array[Double]
   covariates : Array[Double]
   alpha : Double
-  n_attempts : Int
+  n_attempts : Int32
 } derive(Eq)
+
+///|
 pub extend IHWResult with Eq::{equal, not_equal}
 
 ///|
@@ -37,7 +39,7 @@ pub fn IHWResult::new(
   weights : Array[Double],
   covariates : Array[Double],
   alpha : Double,
-  n_attempts : Int,
+  n_attempts : Int32,
 ) -> IHWResult {
   IHWResult::{
     p_values,
@@ -81,7 +83,7 @@ pub fn IHWResult::alpha(self : IHWResult) -> Double {
 
 ///|
 /// Get the number of iterations performed.
-pub fn IHWResult::n_attempts(self : IHWResult) -> Int {
+pub fn IHWResult::n_attempts(self : IHWResult) -> Int32 {
   self.n_attempts
 }
 
@@ -97,9 +99,11 @@ pub fn IHWResult::n_attempts(self : IHWResult) -> Int {
 /// - scale_type: "global" (equal weights) or "local" (covariate-dependent)
 pub struct IHWConfig {
   alpha : Double
-  n_attempts : Int
+  n_attempts : Int32
   scale_type : String
 } derive(Eq)
+
+///|
 pub extend IHWConfig with Eq::{equal, not_equal}
 
 ///|
@@ -110,9 +114,9 @@ pub extend IHWConfig with Eq::{equal, not_equal}
 ///   - n_attempts: max iterations, default 10
 ///   - scale_type: "global" or "local", default "local"
 pub fn IHWConfig::new(
-  alpha? : Double = 0.05,
-  n_attempts? : Int = 10,
-  scale_type? : String = "local",
+  alpha~ : Double = 0.05,
+  n_attempts~ : Int32 = 10,
+  scale_type~ : String = "local",
 ) -> IHWConfig {
   IHWConfig::{ alpha, n_attempts, scale_type, }
 }
@@ -125,7 +129,7 @@ pub fn IHWConfig::alpha(self : IHWConfig) -> Double {
 
 ///|
 /// Get the number of attempts.
-pub fn IHWConfig::n_attempts(self : IHWConfig) -> Int {
+pub fn IHWConfig::n_attempts(self : IHWConfig) -> Int32 {
   self.n_attempts
 }
 
@@ -218,7 +222,7 @@ fn weighted_bonferroni_reject(
   p_values : Array[Double],
   weights : Array[Double],
   alpha : Double,
-) -> (Int, Array[Bool]) {
+) -> (Int32, Array[Bool]) {
   let n = p_values.length()
   let sum_w = ihw_sum_weights(weights)
   let rejects : Array[Bool] = Array::make(n, false)
@@ -253,9 +257,9 @@ fn ihw_sum_weights(weights : Array[Double]) -> Double {
 ///|
 /// Assign hypotheses to bins based on covariate quantiles.
 /// Returns bin indices (0 to n_bins-1) for each hypothesis.
-fn bin_covariates(covariates : Array[Double], n_bins : Int) -> Array[Int] {
+fn bin_covariates(covariates : Array[Double], n_bins : Int32) -> Array[Int32] {
   let n = covariates.length()
-  let result : Array[Int] = Array::make(n, 0)
+  let result : Array[Int32] = Array::make(n, 0)
   if n <= n_bins || n_bins <= 1 {
     return Array::make(n, 0)
   }
@@ -265,7 +269,7 @@ fn bin_covariates(covariates : Array[Double], n_bins : Int) -> Array[Int] {
     indexed[i] = [covariates[i], i.to_double()]
     i = i + 1
   }
-  indexed.sort_by(fn(a : Array[Double], b : Array[Double]) -> Int {
+  indexed.sort_by(fn(a : Array[Double], b : Array[Double]) -> Int32 {
     if a[0] < b[0] {
       -1
     } else if a[0] > b[0] {
@@ -291,16 +295,16 @@ fn bin_covariates(covariates : Array[Double], n_bins : Int) -> Array[Int] {
 /// Bins with more rejections get higher weights.
 fn estimate_bin_weights(
   p_values : Array[Double],
-  bins : Array[Int],
-  n_bins : Int,
+  bins : Array[Int32],
+  n_bins : Int32,
   alpha : Double,
 ) -> Array[Double] {
   let n = p_values.length()
   let weights : Array[Double] = Array::make(n, 0.0)
   let n_total = n.to_double()
 
-  let bin_reject : Array[Int] = Array::make(n_bins, 0)
-  let bin_total : Array[Int] = Array::make(n_bins, 0)
+  let bin_reject : Array[Int32] = Array::make(n_bins, 0)
+  let bin_total : Array[Int32] = Array::make(n_bins, 0)
   let mut i = 0
   while i < n {
     let b = bins[i]
@@ -637,7 +641,7 @@ pub fn storey_ihw(
     temp[i] = [p_values[i], i.to_double()]
     i = i + 1
   }
-  temp.sort_by(fn(a : Array[Double], b : Array[Double]) -> Int {
+  temp.sort_by(fn(a : Array[Double], b : Array[Double]) -> Int32 {
     if a[0] < b[0] {
       -1
     } else if a[0] > b[0] {

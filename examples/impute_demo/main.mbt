@@ -1,3 +1,4 @@
+///|
 fn main {
   println("=== Bioconductor-style impute Demo ===\n")
 
@@ -18,7 +19,9 @@ fn main {
     let mut s = "  row[\{r}]: [".to_string()
     let mut c = 0
     while c < row.length() {
-      if c > 0 { s = s + ", " }
+      if c > 0 {
+        s = s + ", "
+      }
       s = s + row[c].to_string()
       c = c + 1
     }
@@ -35,7 +38,9 @@ fn main {
     let mut s = "  row[\{i}]: [".to_string()
     let mut c = 0
     while c < row.length() {
-      if c > 0 { s = s + ", " }
+      if c > 0 {
+        s = s + ", "
+      }
       s = s + row[c].to_string()
       c = c + 1
     }
@@ -52,7 +57,9 @@ fn main {
     let mut s = "  row[\{j}]: [".to_string()
     let mut c = 0
     while c < row.length() {
-      if c > 0 { s = s + ", " }
+      if c > 0 {
+        s = s + ", "
+      }
       let v = row[c]
       s = s + (if v.is_nan() { "NA".to_string() } else { v.to_string() })
       c = c + 1
@@ -70,7 +77,9 @@ fn main {
     let mut s = "  row[\{k}]: [".to_string()
     let mut c = 0
     while c < row.length() {
-      if c > 0 { s = s + ", " }
+      if c > 0 {
+        s = s + ", "
+      }
       let v = row[c]
       s = s + (if v.is_nan() { "NA".to_string() } else { v.to_string() })
       c = c + 1
@@ -89,7 +98,9 @@ fn main {
     let mut s = "  row[\{m}]: [".to_string()
     let mut c = 0
     while c < row.length() {
-      if c > 0 { s = s + ", " }
+      if c > 0 {
+        s = s + ", "
+      }
       s = s + row[c].to_string()
       c = c + 1
     }

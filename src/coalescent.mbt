@@ -13,17 +13,17 @@
 ///|
 /// Result of a coalescent simulation.
 pub(all) struct CoalescentResult {
-  tree : Clade                // the simulated coalescent tree
-  coalescent_times : Array[Double]  // times of each coalescent event
-  total_depth : Double       // time from present to MRCA
-  n_lineages : Int            // number of starting lineages
+  tree : Clade // the simulated coalescent tree
+  coalescent_times : Array[Double] // times of each coalescent event
+  total_depth : Double // time from present to MRCA
+  n_lineages : Int32 // number of starting lineages
 }
 
 ///|
 /// Simulate a Kingman coalescent tree with n lineages.
 /// Uses the standard coalescent (Ne=1, haploid).
 /// Branch lengths are in coalescent time units.
-pub fn phylo_simulate_coalescent(n : Int, rng : Rng) -> CoalescentResult {
+pub fn phylo_simulate_coalescent(n : Int32, rng : Rng) -> CoalescentResult {
   phylo_simulate_coalescent_ne(n, 1.0, rng)
 }
 
@@ -31,9 +31,9 @@ pub fn phylo_simulate_coalescent(n : Int, rng : Rng) -> CoalescentResult {
 /// Simulate a Kingman coalescent tree with effective population size Ne.
 /// For diploid: waiting time with k lineages ~ Exp(k*(k-1)/(2*Ne)).
 pub fn phylo_simulate_coalescent_ne(
-  n : Int,
+  n : Int32,
   ne : Double,
-  rng : Rng
+  rng : Rng,
 ) -> CoalescentResult {
   if n <= 0 {
     return CoalescentResult::{
@@ -101,7 +101,7 @@ pub fn phylo_simulate_coalescent_ne(
       clades=[child1, child2],
     )
     // Replace idx1 with new node, remove idx2
-    active[idx1] = CoalescentLineage::{ clade: new_node, time: current_time }
+    active[idx1] = CoalescentLineage::{ clade: new_node, time: current_time, }
     // Remove idx2 by swapping with last and popping
     let last = k - 1
     if idx2 != last {
@@ -140,10 +140,10 @@ fn set_branch_length(clade : Clade, bl : Double) -> Clade {
 ///|
 /// Simulate multiple coalescent replicates and return the mean tree depth.
 pub fn phylo_coalescent_mean_depth(
-  n : Int,
+  n : Int32,
   ne : Double,
-  replicates : Int,
-  rng : Rng
+  replicates : Int32,
+  rng : Rng,
 ) -> Double {
   if replicates <= 0 {
     return 0.0
@@ -159,7 +159,7 @@ pub fn phylo_coalescent_mean_depth(
 ///|
 /// Expected total depth of Kingman coalescent with n lineages.
 /// E[T_total] = 2 * (1 - 1/n) for haploid (Ne=1).
-pub fn phylo_coalescent_expected_depth(n : Int) -> Double {
+pub fn phylo_coalescent_expected_depth(n : Int32) -> Double {
   if n <= 1 {
     return 0.0
   }
@@ -169,7 +169,7 @@ pub fn phylo_coalescent_expected_depth(n : Int) -> Double {
 ///|
 /// Expected number of segregating sites (Watterson's estimator).
 /// E[S] = theta * H_{n-1}, where H_{n-1} = sum_{i=1}^{n-1} 1/i.
-pub fn phylo_watterson_expected(n : Int, theta : Double) -> Double {
+pub fn phylo_watterson_expected(n : Int32, theta : Double) -> Double {
   if n <= 1 {
     return 0.0
   }
@@ -209,8 +209,8 @@ pub fn phylo_draw_rectangular(tree : Clade) -> String {
 fn phylo_rect_helper(
   node : Clade,
   prefix : String,
-  depth : Int,
-  lines : Array[String]
+  depth : Int32,
+  lines : Array[String],
 ) -> Unit {
   let bl_str = match node.branch_length {
     Some(bl) => {
@@ -270,7 +270,7 @@ fn phylo_draw_ascii_helper(
   node : Clade,
   prefix : String,
   is_last : Bool,
-  buf : StringBuilder
+  buf : StringBuilder,
 ) -> Unit {
   let name = match node.name {
     Some(n) => n
@@ -323,7 +323,7 @@ fn phylo_draw_cladogram_helper(
   node : Clade,
   prefix : String,
   is_last : Bool,
-  buf : StringBuilder
+  buf : StringBuilder,
 ) -> Unit {
   let name = match node.name {
     Some(n) => n
@@ -349,7 +349,7 @@ fn phylo_draw_cladogram_helper(
 ///|
 /// Draw a tree with a horizontal bar chart showing branch lengths.
 /// Each leaf gets a horizontal bar proportional to its total depth.
-pub fn phylo_draw_barplot(tree : Clade, max_bar_width : Int) -> String {
+pub fn phylo_draw_barplot(tree : Clade, max_bar_width : Int32) -> String {
   // Collect leaves with their depths
   let leaves : Array[(String, Double)] = Array(capacity=0)
   phylo_collect_leaf_depths(tree, 0.0, leaves)
@@ -385,7 +385,7 @@ pub fn phylo_draw_barplot(tree : Clade, max_bar_width : Int) -> String {
 fn phylo_collect_leaf_depths(
   node : Clade,
   current_depth : Double,
-  out : Array[(String, Double)]
+  out : Array[(String, Double)],
 ) -> Unit {
   let bl = match node.branch_length {
     Some(b) => b
@@ -450,7 +450,7 @@ pub fn phylo_coalescent_summary(result : CoalescentResult) -> String {
 ///|
 /// Expected unfolded SFS: array of E[ξ_i] for i = 1..n-1.
 /// Under the standard neutral coalescent, E[ξ_i] = θ / i.
-pub fn phylo_expected_sfs(n : Int, theta : Double) -> Array[Double] {
+pub fn phylo_expected_sfs(n : Int32, theta : Double) -> Array[Double] {
   if n <= 1 {
     return []
   }
@@ -464,7 +464,7 @@ pub fn phylo_expected_sfs(n : Int, theta : Double) -> Array[Double] {
 ///|
 /// Expected folded SFS: array of E[η_i] for i = 1..floor(n/2).
 /// η_i = ξ_i + ξ_{n-i} for i < n/2, η_i = ξ_i for i = n/2.
-pub fn phylo_expected_sfs_folded(n : Int, theta : Double) -> Array[Double] {
+pub fn phylo_expected_sfs_folded(n : Int32, theta : Double) -> Array[Double] {
   if n <= 1 {
     return []
   }
@@ -487,13 +487,13 @@ pub fn phylo_expected_sfs_folded(n : Int, theta : Double) -> Array[Double] {
 /// `sequences` is an array of equal-length strings (DNA).
 /// Ancestral state is taken as the first sequence's base at each position.
 /// Returns array of counts for derived allele frequency i = 1..n-1.
-pub fn phylo_observed_sfs(sequences : Array[String]) -> Array[Int] {
+pub fn phylo_observed_sfs(sequences : Array[String]) -> Array[Int32] {
   let n = sequences.length()
   if n <= 1 {
     return []
   }
   let seq_len = sequences[0].length()
-  let sfs : Array[Int] = Array(capacity=n - 1)
+  let sfs : Array[Int32] = Array(capacity=n - 1)
   for _ in 1..<n {
     sfs.push(0)
   }
@@ -516,20 +516,20 @@ pub fn phylo_observed_sfs(sequences : Array[String]) -> Array[Int] {
 /// Observe folded SFS from aligned sequences.
 /// For each segregating site, the minor allele count is min(derived, n-derived).
 /// Returns array of counts for minor allele frequency i = 1..floor(n/2).
-pub fn phylo_observed_sfs_folded(sequences : Array[String]) -> Array[Int] {
+pub fn phylo_observed_sfs_folded(sequences : Array[String]) -> Array[Int32] {
   let n = sequences.length()
   if n <= 1 {
     return []
   }
   let seq_len = sequences[0].length()
   let half = n / 2
-  let sfs : Array[Int] = Array(capacity=half)
+  let sfs : Array[Int32] = Array(capacity=half)
   for _ in 1..<(half + 1) {
     sfs.push(0)
   }
   for pos in 0..<seq_len {
     // Count allele frequencies
-    let counts : Map[Int, Int] = Map([], capacity=4)
+    let counts : Map[Int32, Int32] = Map([], capacity=4)
     for i in 0..<n {
       let c = sequences[i].char_to_at(pos)
       match counts.get(c) {
@@ -555,13 +555,13 @@ pub fn phylo_observed_sfs_folded(sequences : Array[String]) -> Array[Int] {
 
 ///|
 /// Helper: get character code at position.
-fn String::char_to_at(self : String, pos : Int) -> Int {
+fn String::char_to_at(self : String, pos : Int32) -> Int32 {
   self.unsafe_get(pos).to_int()
 }
 
 ///|
 /// Count segregating sites from aligned sequences.
-pub fn phylo_segregating_sites(sequences : Array[String]) -> Int {
+pub fn phylo_segregating_sites(sequences : Array[String]) -> Int32 {
   let n = sequences.length()
   if n <= 1 {
     return 0
@@ -585,7 +585,7 @@ pub fn phylo_segregating_sites(sequences : Array[String]) -> Int {
 
 ///|
 /// Count singletons (derived allele frequency = 1) from aligned sequences.
-pub fn phylo_count_singletons(sequences : Array[String]) -> Int {
+pub fn phylo_count_singletons(sequences : Array[String]) -> Int32 {
   let n = sequences.length()
   if n <= 1 {
     return 0
@@ -609,7 +609,7 @@ pub fn phylo_count_singletons(sequences : Array[String]) -> Int {
 
 ///|
 /// Watterson's estimator: θ_W = S / H_{n-1}.
-pub fn phylo_watterson_theta(s : Int, n : Int) -> Double {
+pub fn phylo_watterson_theta(s : Int32, n : Int32) -> Double {
   if n <= 1 || s == 0 {
     return 0.0
   }
@@ -646,16 +646,16 @@ pub fn phylo_pi(sequences : Array[String]) -> Double {
 ///|
 /// Tajima's D test statistic.
 /// D = (π - S/a1) / sqrt(e1*S + e2*S*(S-1))
-pub fn phylo_tajima_d(s : Int, n : Int, pi : Double) -> Double {
+pub fn phylo_tajima_d(s : Int32, n : Int32, pi : Double) -> Double {
   if n <= 1 || s == 0 {
     return 0.0
   }
   let a1 = sfs_harmonic(n - 1)
   let a2 = sfs_harmonic_sq(n - 1)
   let b1 = (n.to_double() + 1.0) / (3.0 * (n.to_double() - 1.0))
-  let b2 = 2.0 * (
-    n.to_double() * n.to_double() + n.to_double() + 3.0
-  ) / (9.0 * n.to_double() * (n.to_double() - 1.0))
+  let b2 = 2.0 *
+    (n.to_double() * n.to_double() + n.to_double() + 3.0) /
+    (9.0 * n.to_double() * (n.to_double() - 1.0))
   let c1 = b1 - 1.0 / a1
   let c2 = b2 - (n.to_double() + 2.0) / (a1 * n.to_double()) + a2 / (a1 * a1)
   let e1 = c1 / a1
@@ -673,13 +673,14 @@ pub fn phylo_tajima_d(s : Int, n : Int, pi : Double) -> Double {
 /// Fu and Li's D test statistic.
 /// D_FL = (S - a_n*η) / sqrt(u_D*S + v_D*S²)
 /// where η = number of singletons (external mutations).
-pub fn phylo_fu_li_d(s : Int, n : Int, singletons : Int) -> Double {
+pub fn phylo_fu_li_d(s : Int32, n : Int32, singletons : Int32) -> Double {
   if n <= 2 || s == 0 {
     return 0.0
   }
   let a_n = sfs_harmonic(n - 1)
   let b_n = sfs_harmonic_sq(n - 1) // sum of 1/i^2
-  let v_d = 1.0 + a_n * a_n / (b_n * (n.to_double() - 2.0)) -
+  let v_d = 1.0 +
+    a_n * a_n / (b_n * (n.to_double() - 2.0)) -
     2.0 * a_n / ((n.to_double() - 1.0) * b_n)
   let u_d = a_n - 1.0 - v_d
   let s_d = s.to_double()
@@ -696,24 +697,28 @@ pub fn phylo_fu_li_d(s : Int, n : Int, singletons : Int) -> Double {
 /// Fu and Li's F test statistic.
 /// F_FL = (π - η) / sqrt(u_F*S + v_F*S²)
 pub fn phylo_fu_li_f(
-  s : Int,
-  n : Int,
+  s : Int32,
+  n : Int32,
   pi : Double,
-  singletons : Int
+  singletons : Int32,
 ) -> Double {
   if n <= 2 || s == 0 {
     return 0.0
   }
   let a_n = sfs_harmonic(n - 1)
   let b_n = sfs_harmonic_sq(n - 1) // sum of 1/i^2
-  let v_f = 1.0 + (n.to_double() * n.to_double() - 3.0 * n.to_double() + 2.0) /
+  let v_f = 1.0 +
+    (n.to_double() * n.to_double() - 3.0 * n.to_double() + 2.0) /
     (3.0 * (n.to_double() - 1.0) * (n.to_double() - 2.0)) -
     2.0 * a_n / (n.to_double() - 1.0) +
     2.0 * a_n * a_n / ((n.to_double() - 1.0) * (n.to_double() - 1.0) * b_n)
-  let u_f = 1.0 + (n.to_double() + 1.0) / (3.0 * (n.to_double() - 1.0)) -
-    4.0 * (n.to_double() + 1.0) / (
-      (n.to_double() - 1.0) * (n.to_double() - 1.0)
-    ) * (a_n - 1.0) - v_f
+  let u_f = 1.0 +
+    (n.to_double() + 1.0) / (3.0 * (n.to_double() - 1.0)) -
+    4.0 *
+    (n.to_double() + 1.0) /
+    ((n.to_double() - 1.0) * (n.to_double() - 1.0)) *
+    (a_n - 1.0) -
+    v_f
   let s_d = s.to_double()
   let eta = singletons.to_double()
   let numerator = pi - eta
@@ -728,7 +733,7 @@ pub fn phylo_fu_li_f(
 /// Fay and Wu's H test statistic.
 /// H = π - θ_H, where θ_H = (2 / (n(n-1))) * Σ i² * ξ_i
 /// `sfs` is the observed unfolded SFS (counts for i=1..n-1).
-pub fn phylo_fay_wu_h(sfs : Array[Int], n : Int, pi : Double) -> Double {
+pub fn phylo_fay_wu_h(sfs : Array[Int32], n : Int32, pi : Double) -> Double {
   if n <= 1 || sfs.length() == 0 {
     return 0.0
   }
@@ -744,7 +749,7 @@ pub fn phylo_fay_wu_h(sfs : Array[Int], n : Int, pi : Double) -> Double {
 ///|
 /// Zeng's E test statistic (E = θ_π - θ_L).
 /// θ_L = (1 / (n-1)) * Σ i * ξ_i
-pub fn phylo_zeng_e(sfs : Array[Int], n : Int, pi : Double) -> Double {
+pub fn phylo_zeng_e(sfs : Array[Int32], n : Int32, pi : Double) -> Double {
   if n <= 1 || sfs.length() == 0 {
     return 0.0
   }
@@ -760,7 +765,7 @@ pub fn phylo_zeng_e(sfs : Array[Int], n : Int, pi : Double) -> Double {
 ///|
 /// Sturge's rule for optimal number of bins for SFS histogram.
 /// k = 1 + log2(n)
-pub fn phylo_sfs_num_bins(n : Int) -> Int {
+pub fn phylo_sfs_num_bins(n : Int32) -> Int32 {
   if n <= 1 {
     return 0
   }
@@ -796,7 +801,7 @@ pub fn phylo_sfs_to_string(sfs : Array[Double]) -> String {
 
 ///|
 /// Harmonic number H_k = sum_{i=1}^{k} 1/i.
-fn sfs_harmonic(k : Int) -> Double {
+fn sfs_harmonic(k : Int32) -> Double {
   let mut h = 0.0
   for i in 1..<(k + 1) {
     h = h + 1.0 / i.to_double()
@@ -806,7 +811,7 @@ fn sfs_harmonic(k : Int) -> Double {
 
 ///|
 /// Sum of 1/i^2 for i=1..k.
-fn sfs_harmonic_sq(k : Int) -> Double {
+fn sfs_harmonic_sq(k : Int32) -> Double {
   let mut h = 0.0
   for i in 1..<(k + 1) {
     let d = i.to_double()
@@ -851,11 +856,11 @@ fn sfs_sqrt(x : Double) -> Double {
 ///   let h = stats.fay_wu_h()
 ///   let e = stats.zeng_e()
 pub struct SfsStats {
-  n : Int                        // number of sequences
-  sfs : Array[Int]               // observed SFS (ξ_1, ξ_2, ..., ξ_{n-1})
-  s : Int                        // segregating sites = Σ ξ_i
-  pi : Double                    // nucleotide diversity
-  singletons : Int               // η = ξ_1
+  n : Int32 // number of sequences
+  sfs : Array[Int32] // observed SFS (ξ_1, ξ_2, ..., ξ_{n-1})
+  s : Int32 // segregating sites = Σ ξ_i
+  pi : Double // nucleotide diversity
+  singletons : Int32 // η = ξ_1
 }
 
 ///|
@@ -864,11 +869,11 @@ pub struct SfsStats {
 pub fn SfsStats::from_sequences(sequences : Array[String]) -> SfsStats {
   let n = sequences.length()
   if n <= 1 {
-    return SfsStats::{ n, sfs: [], s: 0, pi: 0.0, singletons: 0 }
+    return SfsStats::{ n, sfs: [], s: 0, pi: 0.0, singletons: 0, }
   }
   let seq_len = sequences[0].length()
   // SFS: ξ_1 .. ξ_{n-1}
-  let sfs : Array[Int] = Array(capacity=n - 1)
+  let sfs : Array[Int32] = Array(capacity=n - 1)
   for _ in 1..<n {
     sfs.push(0)
   }
@@ -883,7 +888,7 @@ pub fn SfsStats::from_sequences(sequences : Array[String]) -> SfsStats {
     // For π: count pairwise differences at this position
     // d(i,j) = 1 if seq[i][pos] != seq[j][pos]
     // Instead of nested loop per position, collect allele counts
-    let allele_counts : Map[Int, Int] = Map([], capacity=4)
+    let allele_counts : Map[Int32, Int32] = Map([], capacity=4)
     for i in 0..<n {
       let c = sequences[i].char_to_at(pos)
       match allele_counts.get(c) {
@@ -919,24 +924,24 @@ pub fn SfsStats::from_sequences(sequences : Array[String]) -> SfsStats {
   } else {
     0.0
   }
-  SfsStats::{ n, sfs, s, pi, singletons }
+  SfsStats::{ n, sfs, s, pi, singletons, }
 }
 
 ///|
 /// Number of sequences.
-pub fn SfsStats::n_sequences(self : SfsStats) -> Int {
+pub fn SfsStats::n_sequences(self : SfsStats) -> Int32 {
   self.n
 }
 
 ///|
 /// Segregating sites S = Σ ξ_i.
-pub fn SfsStats::segregating_sites(self : SfsStats) -> Int {
+pub fn SfsStats::segregating_sites(self : SfsStats) -> Int32 {
   self.s
 }
 
 ///|
 /// Observed SFS array (ξ_1, ..., ξ_{n-1}).
-pub fn SfsStats::sfs(self : SfsStats) -> Array[Int] {
+pub fn SfsStats::sfs(self : SfsStats) -> Array[Int32] {
   self.sfs
 }
 
@@ -948,7 +953,7 @@ pub fn SfsStats::nucleotide_diversity(self : SfsStats) -> Double {
 
 ///|
 /// Singleton count η = ξ_1.
-pub fn SfsStats::singleton_count(self : SfsStats) -> Int {
+pub fn SfsStats::singleton_count(self : SfsStats) -> Int32 {
   self.singletons
 }
 

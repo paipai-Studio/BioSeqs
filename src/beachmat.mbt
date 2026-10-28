@@ -26,8 +26,8 @@ enum BmatStorageMode {
 ///|
 /// Parameters for matrix access.
 pub struct BmatParam {
-  row_block_size : Int
-  col_block_size : Int
+  row_block_size : Int32
+  col_block_size : Int32
   cache_data : Bool
   storage_mode : BmatStorageMode
 }
@@ -45,7 +45,10 @@ pub fn BmatParam::new() -> BmatParam {
 
 ///|
 /// Create parameters with specific block sizes.
-pub fn BmatParam::with_blocks(row_block : Int, col_block : Int) -> BmatParam {
+pub fn BmatParam::with_blocks(
+  row_block : Int32,
+  col_block : Int32,
+) -> BmatParam {
   {
     row_block_size: row_block,
     col_block_size: col_block,
@@ -56,7 +59,7 @@ pub fn BmatParam::with_blocks(row_block : Int, col_block : Int) -> BmatParam {
 
 ///|
 /// Create parameters for column-wise access.
-pub fn BmatParam::column_param(block_size : Int) -> BmatParam {
+pub fn BmatParam::column_param(block_size : Int32) -> BmatParam {
   {
     row_block_size: 0,
     col_block_size: block_size,
@@ -67,7 +70,7 @@ pub fn BmatParam::column_param(block_size : Int) -> BmatParam {
 
 ///|
 /// Create parameters for row-wise access.
-pub fn BmatParam::row_param(block_size : Int) -> BmatParam {
+pub fn BmatParam::row_param(block_size : Int32) -> BmatParam {
   {
     row_block_size: block_size,
     col_block_size: 0,
@@ -78,13 +81,13 @@ pub fn BmatParam::row_param(block_size : Int) -> BmatParam {
 
 ///|
 /// Get row block size.
-pub fn BmatParam::row_block_size(self : BmatParam) -> Int {
+pub fn BmatParam::row_block_size(self : BmatParam) -> Int32 {
   self.row_block_size
 }
 
 ///|
 /// Get column block size.
-pub fn BmatParam::col_block_size(self : BmatParam) -> Int {
+pub fn BmatParam::col_block_size(self : BmatParam) -> Int32 {
   self.col_block_size
 }
 
@@ -95,8 +98,8 @@ pub fn BmatParam::col_block_size(self : BmatParam) -> Int {
 ///|
 /// A matrix accessor that provides block-wise and random access.
 pub struct Bmat {
-  dim_rows : Int
-  dim_cols : Int
+  dim_rows : Int32
+  dim_cols : Int32
   data : Array[Double]
   param : BmatParam
 }
@@ -120,38 +123,38 @@ pub fn Bmat::new(data : Array[Array[Double]], param : BmatParam) -> Bmat {
 
 ///|
 /// Create a zero-filled Bmat.
-pub fn Bmat::zeros(dim_rows : Int, dim_cols : Int) -> Bmat {
+pub fn Bmat::zeros(dim_rows : Int32, dim_cols : Int32) -> Bmat {
   let data = Array::make(dim_rows * dim_cols, 0.0)
   { dim_rows, dim_cols, data, param: BmatParam::new(), }
 }
 
 ///|
 /// Get number of rows.
-pub fn Bmat::dim_rows(self : Bmat) -> Int {
+pub fn Bmat::dim_rows(self : Bmat) -> Int32 {
   self.dim_rows
 }
 
 ///|
 /// Get number of columns.
-pub fn Bmat::dim_cols(self : Bmat) -> Int {
+pub fn Bmat::dim_cols(self : Bmat) -> Int32 {
   self.dim_cols
 }
 
 ///|
 /// Get element at (row, col).
-pub fn Bmat::get(self : Bmat, row : Int, col : Int) -> Double {
+pub fn Bmat::get(self : Bmat, row : Int32, col : Int32) -> Double {
   self.data[row * self.dim_cols + col]
 }
 
 ///|
 /// Set element at (row, col).
-pub fn Bmat::set(self : Bmat, row : Int, col : Int, val : Double) -> Unit {
+pub fn Bmat::set(self : Bmat, row : Int32, col : Int32, val : Double) -> Unit {
   self.data[row * self.dim_cols + col] = val
 }
 
 ///|
 /// Get a column as an array.
-pub fn Bmat::get_col(self : Bmat, col : Int) -> Array[Double] {
+pub fn Bmat::get_col(self : Bmat, col : Int32) -> Array[Double] {
   let result : Array[Double] = []
   for i in 0..<self.dim_rows {
     result.push(self.data[i * self.dim_cols + col])
@@ -161,7 +164,7 @@ pub fn Bmat::get_col(self : Bmat, col : Int) -> Array[Double] {
 
 ///|
 /// Get a row as an array.
-pub fn Bmat::get_row(self : Bmat, row : Int) -> Array[Double] {
+pub fn Bmat::get_row(self : Bmat, row : Int32) -> Array[Double] {
   let result : Array[Double] = []
   for j in 0..<self.dim_cols {
     result.push(self.data[row * self.dim_cols + j])
@@ -176,34 +179,34 @@ pub fn Bmat::get_row(self : Bmat, row : Int) -> Array[Double] {
 ///|
 /// A block of data from a Bmat.
 pub struct BmatBlock {
-  row_start : Int
-  row_end : Int
-  col_start : Int
-  col_end : Int
+  row_start : Int32
+  row_end : Int32
+  col_start : Int32
+  col_end : Int32
   block_data : Array[Array[Double]]
 }
 
 ///|
 /// Get start row.
-pub fn BmatBlock::row_start(self : BmatBlock) -> Int {
+pub fn BmatBlock::row_start(self : BmatBlock) -> Int32 {
   self.row_start
 }
 
 ///|
 /// Get end row.
-pub fn BmatBlock::row_end(self : BmatBlock) -> Int {
+pub fn BmatBlock::row_end(self : BmatBlock) -> Int32 {
   self.row_end
 }
 
 ///|
 /// Get start col.
-pub fn BmatBlock::col_start(self : BmatBlock) -> Int {
+pub fn BmatBlock::col_start(self : BmatBlock) -> Int32 {
   self.col_start
 }
 
 ///|
 /// Get end col.
-pub fn BmatBlock::col_end(self : BmatBlock) -> Int {
+pub fn BmatBlock::col_end(self : BmatBlock) -> Int32 {
   self.col_end
 }
 
@@ -215,13 +218,13 @@ pub fn BmatBlock::get_data(self : BmatBlock) -> Array[Array[Double]] {
 
 ///|
 /// Number of rows in the block.
-pub fn BmatBlock::block_nrow(self : BmatBlock) -> Int {
+pub fn BmatBlock::block_nrow(self : BmatBlock) -> Int32 {
   self.row_end - self.row_start
 }
 
 ///|
 /// Number of columns in the block.
-pub fn BmatBlock::block_ncol(self : BmatBlock) -> Int {
+pub fn BmatBlock::block_ncol(self : BmatBlock) -> Int32 {
   self.col_end - self.col_start
 }
 
@@ -229,7 +232,7 @@ pub fn BmatBlock::block_ncol(self : BmatBlock) -> Int {
 /// Iterate over column blocks and apply a function to each block.
 pub fn bmat_apply_col_blocks(
   bmat : Bmat,
-  col_block_size : Int,
+  col_block_size : Int32,
   apply_fn : (BmatBlock) -> Unit,
 ) -> Unit {
   let n_cols = bmat.dim_cols
@@ -268,7 +271,7 @@ pub fn bmat_apply_col_blocks(
 /// Iterate over row blocks and apply a function to each block.
 pub fn bmat_apply_row_blocks(
   bmat : Bmat,
-  row_block_size : Int,
+  row_block_size : Int32,
   apply_fn : (BmatBlock) -> Unit,
 ) -> Unit {
   let n_rows = bmat.dim_rows
@@ -305,7 +308,10 @@ pub fn bmat_apply_row_blocks(
 
 ///|
 /// Iterate over the full matrix and apply a function.
-pub fn bmat_foreach(bmat : Bmat, iter_fn : (Int, Int, Double) -> Unit) -> Unit {
+pub fn bmat_foreach(
+  bmat : Bmat,
+  iter_fn : (Int32, Int32, Double) -> Unit,
+) -> Unit {
   let mut i = 0
   while i < bmat.dim_rows {
     let mut j = 0
@@ -325,9 +331,9 @@ pub fn bmat_foreach(bmat : Bmat, iter_fn : (Int, Int, Double) -> Unit) -> Unit {
 /// A linear iterator over all elements in a Bmat.
 pub struct BmatIterator {
   data : Array[Double]
-  total_cols : Int
-  total : Int
-  mut pos : Int
+  total_cols : Int32
+  total : Int32
+  mut pos : Int32
 }
 
 ///|
@@ -360,7 +366,7 @@ pub fn BmatIterator::next(self : BmatIterator) -> Double? {
 
 ///|
 /// Get current row index.
-pub fn BmatIterator::cur_row(self : BmatIterator) -> Int {
+pub fn BmatIterator::cur_row(self : BmatIterator) -> Int32 {
   if self.total_cols == 0 {
     0
   } else {
@@ -370,7 +376,7 @@ pub fn BmatIterator::cur_row(self : BmatIterator) -> Int {
 
 ///|
 /// Get current column index.
-pub fn BmatIterator::cur_col(self : BmatIterator) -> Int {
+pub fn BmatIterator::cur_col(self : BmatIterator) -> Int32 {
   if self.total_cols == 0 {
     0
   } else {
@@ -406,10 +412,10 @@ pub fn bmat_to_array(bmat : Bmat) -> Array[Array[Double]] {
 /// Subset a Bmat to a specific range.
 pub fn bmat_subset(
   bmat : Bmat,
-  row_start : Int,
-  row_end : Int,
-  col_start : Int,
-  col_end : Int,
+  row_start : Int32,
+  row_end : Int32,
+  col_start : Int32,
+  col_end : Int32,
 ) -> Bmat {
   let new_data : Array[Array[Double]] = []
   let mut i = row_start

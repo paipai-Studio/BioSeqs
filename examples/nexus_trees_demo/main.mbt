@@ -1,7 +1,6 @@
 ///|
 /// nexus_trees demo - NEXUS TREES block parsing and tree collection.
 /// Inspired by Biopython Bio.Nexus.Trees and Bio.Nexus.Nodes.
-
 fn main {
   println("=== nexus_trees Demo: NEXUS Tree Collection ===")
   println("")
@@ -14,7 +13,16 @@ fn main {
   let mut i = 0
   while i < collection.trees.length() {
     let tree = collection.trees[i]
-    println("  " + tree.name + ": " + tree.node_count().to_string() + " nodes, " + tree.n_taxa.to_string() + " taxa, rooted=" + tree.rooted.to_string())
+    println(
+      "  " +
+      tree.name +
+      ": " +
+      tree.node_count().to_string() +
+      " nodes, " +
+      tree.n_taxa.to_string() +
+      " taxa, rooted=" +
+      tree.rooted.to_string(),
+    )
     i = i + 1
   }
   println("")
@@ -31,7 +39,9 @@ fn main {
   println("Leaves: " + leaves.length().to_string())
   let mut j = 0
   while j < leaves.length() {
-    println("  " + leaves[j].taxon + " (node " + leaves[j].node_id.to_string() + ")")
+    println(
+      "  " + leaves[j].taxon + " (node " + leaves[j].node_id.to_string() + ")",
+    )
     j = j + 1
   }
   println("Total branch length: " + tree.total_length().to_string())
@@ -49,7 +59,9 @@ fn main {
 
   // Step 5: Rooted flag
   println("--- Step 5: Rooted Flag ---")
-  let rooted_collection = @src.nexus_trees_from_newicks([("t1", "[&R]((A:0.1,B:0.2):0.3,C:0.4);")])
+  let rooted_collection = @src.nexus_trees_from_newicks([
+    ("t1", "[&R]((A:0.1,B:0.2):0.3,C:0.4);"),
+  ])
   println("Rooted tree: " + rooted_collection.trees[0].rooted.to_string())
   println("")
 

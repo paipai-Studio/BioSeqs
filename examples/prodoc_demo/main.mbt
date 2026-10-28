@@ -16,13 +16,14 @@ fn main raise {
     println("  text: \{r.text}")
     for j = 0; j < r.references.length(); j = j + 1 {
       let reference = r.references[j]
-      println("  [\{reference.number}] \{reference.authors} \{reference.citation}")
+      println(
+        "  [\{reference.number}] \{reference.authors} \{reference.citation}",
+      )
     }
   }
 
   println("\n=== 2. Read a single record ===")
-  let single =
-    "{PDOC00001}\n{PS00001; ASN_GLYCOSYLATION}\n{BEGIN}\nSome text.\n{END}\n"
+  let single = "{PDOC00001}\n{PS00001; ASN_GLYCOSYLATION}\n{BEGIN}\nSome text.\n{END}\n"
   match @src.prodoc_read(single) {
     Some(r) => println("accession = \{r.accession}, text = \{r.text}")
     None => println("(empty document)")

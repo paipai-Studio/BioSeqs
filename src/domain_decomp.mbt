@@ -8,16 +8,16 @@
 ///|
 /// A structural domain.
 pub struct Domain {
-  id : Int
-  residues : Array[Int]
-  size : Int
+  id : Int32
+  residues : Array[Int32]
+  size : Int32
 }
 
 ///|
 /// Domain decomposition result.
 pub struct DomainDecomposition {
-  n : Int
-  num_domains : Int
+  n : Int32
+  num_domains : Int32
   domains : Array[Domain]
   // Rigidity profile: how rigid each residue is [0, 1]
   rigidity : Array[Double]
@@ -31,7 +31,7 @@ pub struct DomainDecomposition {
 /// Cluster residues with identical sign patterns.
 pub fn DomainDecomposition::from_gnm(
   gnm : GNM,
-  num_slow_modes : Int,
+  num_slow_modes : Int32,
 ) -> DomainDecomposition {
   let n = gnm.num_nodes()
   let k = if num_slow_modes > 0 && num_slow_modes < n {
@@ -41,7 +41,9 @@ pub fn DomainDecomposition::from_gnm(
   }
   let modes = gnm.slow_modes(k)
   // Build sign patterns
-  let sign_patterns : Array[Array[Int]] = Array::makei(n, { _ => Array::make(k, 0) })
+  let sign_patterns : Array[Array[Int32]] = Array::makei(n, _ => {
+    Array::make(k, 0)
+  })
   for i = 0; i < n; i = i + 1 {
     for j = 0; j < k && j < modes.length(); j = j + 1 {
       let (_, _, evec) = modes[j]
@@ -62,7 +64,7 @@ pub fn DomainDecomposition::from_gnm(
       continue
     }
     // Find all residues with same pattern
-    let residues : Array[Int] = []
+    let residues : Array[Int32] = []
     for j = i; j < n; j = j + 1 {
       if domain_id[j] >= 0 {
         continue
@@ -79,7 +81,11 @@ pub fn DomainDecomposition::from_gnm(
         residues.push(j)
       }
     }
-    domains.push(Domain::{ id: domains.length(), residues, size: residues.length() })
+    domains.push(Domain::{
+      id: domains.length(),
+      residues,
+      size: residues.length(),
+    })
   }
   // Rigidity profile from B-factors (inverse: low B-factor = rigid)
   let bfactors = gnm.predict_bfactors()
@@ -102,7 +108,7 @@ pub fn DomainDecomposition::from_gnm(
       rigidity[i] = 0.5
     }
   }
-  DomainDecomposition::{ n, num_domains: domains.length(), domains, rigidity }
+  DomainDecomposition::{ n, num_domains: domains.length(), domains, rigidity, }
 }
 
 ///|
@@ -111,7 +117,7 @@ pub fn DomainDecomposition::from_gnm(
 /// amplitudes before sign clustering.
 pub fn DomainDecomposition::from_anm(
   anm : ANM,
-  num_slow_modes : Int,
+  num_slow_modes : Int32,
 ) -> DomainDecomposition {
   let n = anm.num_nodes()
   let k = if num_slow_modes > 0 && num_slow_modes < n {
@@ -121,7 +127,9 @@ pub fn DomainDecomposition::from_anm(
   }
   let modes = anm.slow_modes(k)
   // Build per-residue amplitudes from 3N eigenvectors
-  let amplitudes : Array[Array[Double]] = Array::makei(n, { _ => Array::make(k, 0.0) })
+  let amplitudes : Array[Array[Double]] = Array::makei(n, _ => {
+    Array::make(k, 0.0)
+  })
   for i = 0; i < n; i = i + 1 {
     for j = 0; j < k && j < modes.length(); j = j + 1 {
       let (_, _, evec) = modes[j]
@@ -133,7 +141,9 @@ pub fn DomainDecomposition::from_anm(
     }
   }
   // Sign patterns based on amplitude magnitude
-  let sign_patterns : Array[Array[Int]] = Array::makei(n, { _ => Array::make(k, 0) })
+  let sign_patterns : Array[Array[Int32]] = Array::makei(n, _ => {
+    Array::make(k, 0)
+  })
   for j = 0; j < k && j < modes.length(); j = j + 1 {
     let (_, _, evec) = modes[j]
     for i = 0; i < n; i = i + 1 {
@@ -155,7 +165,7 @@ pub fn DomainDecomposition::from_anm(
     if domain_id[i] >= 0 {
       continue
     }
-    let residues : Array[Int] = []
+    let residues : Array[Int32] = []
     for j = i; j < n; j = j + 1 {
       if domain_id[j] >= 0 {
         continue
@@ -172,7 +182,11 @@ pub fn DomainDecomposition::from_anm(
         residues.push(j)
       }
     }
-    domains.push(Domain::{ id: domains.length(), residues, size: residues.length() })
+    domains.push(Domain::{
+      id: domains.length(),
+      residues,
+      size: residues.length(),
+    })
   }
   // Rigidity from fluctuations
   let fluctuations = anm.fluctuations()
@@ -195,12 +209,14 @@ pub fn DomainDecomposition::from_anm(
       rigidity[i] = 0.5
     }
   }
-  DomainDecomposition::{ n, num_domains: domains.length(), domains, rigidity }
+  DomainDecomposition::{ n, num_domains: domains.length(), domains, rigidity, }
 }
 
 ///|
 /// Get all domains.
-pub fn DomainDecomposition::domains(self : DomainDecomposition) -> Array[Domain] {
+pub fn DomainDecomposition::domains(
+  self : DomainDecomposition,
+) -> Array[Domain] {
   self.domains
 }
 
@@ -208,8 +224,8 @@ pub fn DomainDecomposition::domains(self : DomainDecomposition) -> Array[Domain]
 /// Get domain boundaries: residue indices where domain changes.
 pub fn DomainDecomposition::domain_boundaries(
   self : DomainDecomposition,
-) -> Array[Int] {
-  let boundaries : Array[Int] = []
+) -> Array[Int32] {
+  let boundaries : Array[Int32] = []
   // Build residue → domain map
   let res_domain = Array::make(self.n, -1)
   for d = 0; d < self.domains.length(); d = d + 1 {
@@ -218,7 +234,9 @@ pub fn DomainDecomposition::domain_boundaries(
     }
   }
   for i = 1; i < self.n; i = i + 1 {
-    if res_domain[i] != res_domain[i - 1] && res_domain[i] >= 0 && res_domain[i - 1] >= 0 {
+    if res_domain[i] != res_domain[i - 1] &&
+      res_domain[i] >= 0 &&
+      res_domain[i - 1] >= 0 {
       boundaries.push(i)
     }
   }
@@ -227,7 +245,7 @@ pub fn DomainDecomposition::domain_boundaries(
 
 ///|
 /// Number of domains.
-pub fn DomainDecomposition::num_domains(self : DomainDecomposition) -> Int {
+pub fn DomainDecomposition::num_domains(self : DomainDecomposition) -> Int32 {
   self.num_domains
 }
 
@@ -243,8 +261,8 @@ pub fn DomainDecomposition::rigidity_profile(
 /// Get domain ID for a residue.
 pub fn DomainDecomposition::domain_of(
   self : DomainDecomposition,
-  residue_idx : Int,
-) -> Int {
+  residue_idx : Int32,
+) -> Int32 {
   for d = 0; d < self.domains.length(); d = d + 1 {
     for r in self.domains[d].residues {
       if r == residue_idx {
@@ -259,7 +277,7 @@ pub fn DomainDecomposition::domain_of(
 /// Largest domain size.
 pub fn DomainDecomposition::largest_domain_size(
   self : DomainDecomposition,
-) -> Int {
+) -> Int32 {
   let mut max_size = 0
   for d = 0; d < self.domains.length(); d = d + 1 {
     if self.domains[d].size > max_size {
@@ -271,7 +289,9 @@ pub fn DomainDecomposition::largest_domain_size(
 
 ///|
 /// Domain size distribution.
-pub fn DomainDecomposition::domain_sizes(self : DomainDecomposition) -> Array[Int] {
+pub fn DomainDecomposition::domain_sizes(
+  self : DomainDecomposition,
+) -> Array[Int32] {
   let sizes = Array::make(self.domains.length(), 0)
   for d = 0; d < self.domains.length(); d = d + 1 {
     sizes[d] = self.domains[d].size

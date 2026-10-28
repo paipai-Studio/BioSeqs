@@ -102,10 +102,10 @@ pub fn sv_type_label(t : SvType) -> String {
 /// (mate_chrom, mate_pos) for paired BND records.
 pub struct SvBreakend {
   chrom : String
-  pos : Int
+  pos : Int32
   strand : String // "+" or "-"
   mate_chrom : String // empty if no mate
-  mate_pos : Int // -1 if no mate
+  mate_pos : Int32 // -1 if no mate
   mate_strand : String // "+" or "-" or "" if no mate
   mate_id : String // ID of the partner breakend (empty if unknown)
 }
@@ -114,10 +114,10 @@ pub struct SvBreakend {
 /// Construct an SvBreakend with mate information.
 pub fn SvBreakend::new(
   chrom : String,
-  pos : Int,
+  pos : Int32,
   strand : String,
   mate_chrom : String,
-  mate_pos : Int,
+  mate_pos : Int32,
   mate_strand : String,
 ) -> SvBreakend {
   SvBreakend::{
@@ -137,7 +137,7 @@ pub fn SvBreakend::chrom(self : SvBreakend) -> String {
 }
 
 ///|
-pub fn SvBreakend::pos(self : SvBreakend) -> Int {
+pub fn SvBreakend::pos(self : SvBreakend) -> Int32 {
   self.pos
 }
 
@@ -152,7 +152,7 @@ pub fn SvBreakend::mate_chrom(self : SvBreakend) -> String {
 }
 
 ///|
-pub fn SvBreakend::mate_pos(self : SvBreakend) -> Int {
+pub fn SvBreakend::mate_pos(self : SvBreakend) -> Int32 {
   self.mate_pos
 }
 
@@ -190,10 +190,10 @@ pub fn SvBreakend::is_inter_chromosomal(self : SvBreakend) -> Bool {
 pub struct SvRecord {
   id : String
   chrom : String
-  pos : Int
+  pos : Int32
   sv_type : SvType
-  end : Int // END coordinate from INFO
-  svlen : Int // SVLEN from INFO (negative for DEL, positive for DUP)
+  end : Int32 // END coordinate from INFO
+  svlen : Int32 // SVLEN from INFO (negative for DEL, positive for DUP)
   breakend : SvBreakend? // present for BND records
   quality : Double // QUAL field (NaN if missing)
   filter : String // FILTER field
@@ -204,10 +204,10 @@ pub struct SvRecord {
 pub fn SvRecord::new(
   id : String,
   chrom : String,
-  pos : Int,
+  pos : Int32,
   sv_type : SvType,
-  end_pos : Int,
-  svlen : Int,
+  end_pos : Int32,
+  svlen : Int32,
   breakend : SvBreakend?,
   quality : Double,
   filter : String,
@@ -236,7 +236,7 @@ pub fn SvRecord::chrom(self : SvRecord) -> String {
 }
 
 ///|
-pub fn SvRecord::pos(self : SvRecord) -> Int {
+pub fn SvRecord::pos(self : SvRecord) -> Int32 {
   self.pos
 }
 
@@ -246,12 +246,12 @@ pub fn SvRecord::sv_type(self : SvRecord) -> SvType {
 }
 
 ///|
-pub fn SvRecord::end(self : SvRecord) -> Int {
+pub fn SvRecord::end(self : SvRecord) -> Int32 {
   self.end
 }
 
 ///|
-pub fn SvRecord::svlen(self : SvRecord) -> Int {
+pub fn SvRecord::svlen(self : SvRecord) -> Int32 {
   self.svlen
 }
 
@@ -289,7 +289,7 @@ pub fn SvRecord::is_inter_chromosomal(self : SvRecord) -> Bool {
 ///|
 /// Size of the SV (absolute value of svlen). Returns 0 for BND/TRA
 /// records without a defined length.
-pub fn SvRecord::size(self : SvRecord) -> Int {
+pub fn SvRecord::size(self : SvRecord) -> Int32 {
   self.svlen.abs()
 }
 
@@ -324,7 +324,7 @@ fn sv_trim(s : String) -> String {
 
 ///|
 /// Reverse find: return the index of the last occurrence of `ch` in `s`.
-fn sv_rfind(s : String, ch : String) -> Int? {
+fn sv_rfind(s : String, ch : String) -> Int32? {
   let n = s.length()
   let mut i = n - 1
   while i >= 0 {
@@ -348,7 +348,11 @@ fn sv_rfind(s : String, ch : String) -> Int? {
 /// where `t` is the joining nucleotide and `p` is `chrom:pos`.
 ///
 /// Returns Some(SvBreakend) if parsing succeeds, None otherwise.
-pub fn sv_parse_bnd_alt(alt : String, chrom : String, pos : Int) -> SvBreakend? {
+pub fn sv_parse_bnd_alt(
+  alt : String,
+  chrom : String,
+  pos : Int32,
+) -> SvBreakend? {
   let trimmed = sv_trim(alt)
   let n = trimmed.length()
   if n < 4 {
@@ -424,7 +428,7 @@ pub fn sv_parse_bnd_alt(alt : String, chrom : String, pos : Int) -> SvBreakend? 
 
 ///|
 /// Parse a "chrom:pos" location string.
-fn sv_parse_location(loc : String) -> (String, Int) {
+fn sv_parse_location(loc : String) -> (String, Int32) {
   // Find the last colon (chrom may contain colons in some notations,
   // but typically not).
   let colon_pos = sv_rfind(loc, ":")
@@ -627,8 +631,8 @@ pub fn sv_are_partners(a : SvRecord, b : SvRecord) -> Bool {
 pub struct SvGeneRegion {
   gene : String
   chrom : String
-  start : Int
-  end : Int
+  start : Int32
+  end : Int32
   strand : String
 }
 
@@ -637,8 +641,8 @@ pub struct SvGeneRegion {
 pub fn SvGeneRegion::new(
   gene : String,
   chrom : String,
-  start : Int,
-  end : Int,
+  start : Int32,
+  end : Int32,
   strand : String,
 ) -> SvGeneRegion {
   SvGeneRegion::{ gene, chrom, start, end, strand, }
@@ -655,12 +659,12 @@ pub fn SvGeneRegion::chrom(self : SvGeneRegion) -> String {
 }
 
 ///|
-pub fn SvGeneRegion::start(self : SvGeneRegion) -> Int {
+pub fn SvGeneRegion::start(self : SvGeneRegion) -> Int32 {
   self.start
 }
 
 ///|
-pub fn SvGeneRegion::end(self : SvGeneRegion) -> Int {
+pub fn SvGeneRegion::end(self : SvGeneRegion) -> Int32 {
   self.end
 }
 
@@ -675,8 +679,8 @@ pub fn SvGeneRegion::strand(self : SvGeneRegion) -> String {
 fn SvGeneRegion::overlaps(
   self : SvGeneRegion,
   qchrom : String,
-  qstart : Int,
-  qend : Int,
+  qstart : Int32,
+  qend : Int32,
 ) -> Bool {
   self.chrom == qchrom && self.start <= qend && self.end >= qstart
 }
@@ -790,7 +794,7 @@ pub fn sv_filter_by_quality(
 /// size >= min_size. BND/TRA records (size 0) are always excluded.
 pub fn sv_filter_by_size(
   records : Array[SvRecord],
-  min_size : Int,
+  min_size : Int32,
 ) -> Array[SvRecord] {
   let result : Array[SvRecord] = Array(capacity=0)
   for rec in records {
@@ -822,8 +826,8 @@ pub fn sv_filter_by_type(
 
 ///|
 /// Count SV records by type. Returns a map from type label to count.
-pub fn sv_count_by_type(records : Array[SvRecord]) -> Map[String, Int] {
-  let counts : Map[String, Int] = Map([], capacity=6)
+pub fn sv_count_by_type(records : Array[SvRecord]) -> Map[String, Int32] {
+  let counts : Map[String, Int32] = Map([], capacity=6)
   for rec in records {
     let label = sv_type_label(rec.sv_type)
     counts[label] = counts.get_or_default(label, 0) + 1

@@ -95,12 +95,12 @@ pub fn ps_set_metadata(ps : Phyloseq, key : String, value : String) -> Phyloseq 
 }
 
 ///|
-pub fn ps_num_otus(ps : Phyloseq) -> Int {
+pub fn ps_num_otus(ps : Phyloseq) -> Int32 {
   ps.otus.length()
 }
 
 ///|
-pub fn ps_num_samples(ps : Phyloseq) -> Int {
+pub fn ps_num_samples(ps : Phyloseq) -> Int32 {
   ps.samples.length()
 }
 
@@ -265,7 +265,7 @@ pub fn ps_relative_abundance(ps : Phyloseq) -> Phyloseq {
 }
 
 ///|
-pub fn ps_rarefy(ps : Phyloseq, depth : Int) -> Phyloseq {
+pub fn ps_rarefy(ps : Phyloseq, depth : Int32) -> Phyloseq {
   let rarefied = Phyloseq::new()
 
   let mut i = 0

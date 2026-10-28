@@ -4,7 +4,9 @@
 /// Run: moon run examples/matrix_generics_demo
 fn main {
   println("=== MatrixGenerics Module Demo ===")
-  println(" efficient row and column summary statistics for matrix-like objects")
+  println(
+    " efficient row and column summary statistics for matrix-like objects",
+  )
   println(" Reference: Bioconductor MatrixGenerics package")
   println("")
 
@@ -12,8 +14,14 @@ fn main {
   // 1. Create a sample matrix
   // ------------------------------------------------------------------
   println("=== 1. Create sample matrix ===")
-  let mat = @bio.MgMatrix::new([[1.0, 2.0, 3.0], [4.0, 5.0, 6.0], [7.0, 8.0, 9.0]])
-  println("Dimensions: \{@bio.MgMatrix::dim_rows(mat)} rows x \{@bio.MgMatrix::dim_cols(mat)} cols")
+  let mat = @bio.MgMatrix::new([
+    [1.0, 2.0, 3.0],
+    [4.0, 5.0, 6.0],
+    [7.0, 8.0, 9.0],
+  ])
+  println(
+    "Dimensions: \{@bio.MgMatrix::dim_rows(mat)} rows x \{@bio.MgMatrix::dim_cols(mat)} cols",
+  )
   println("Matrix data:")
   for i in 0..<@bio.MgMatrix::dim_rows(mat) {
     let row = @bio.MgMatrix::get_row(mat, i)
@@ -71,7 +79,7 @@ fn main {
   // 5. Block processing with mg_block_apply_rows
   // ------------------------------------------------------------------
   println("=== 5. Block processing (block_size=2, row_means) ===")
-  let block_result = @bio.mg_block_apply_rows(mat, 2, (block) => {
+  let block_result = @bio.mg_block_apply_rows(mat, 2, block => {
     @bio.mg_row_means(block)
   })
   println("Block-applied row means: \{block_result}")

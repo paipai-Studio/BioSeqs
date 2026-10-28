@@ -9,7 +9,7 @@
 ///|
 /// Map a nucleotide code unit to a state index (0=A,1=C,2=G,3=T); -1 for
 /// gaps/unknown characters. Lower-case is folded to upper-case.
-fn ml_base_to_state(c : UInt16) -> Int {
+fn ml_base_to_state(c : UInt16) -> Int32 {
   let upper = if c >= 97 && c <= 122 { c - 32 } else { c }
   if upper == 65 {
     0
@@ -39,7 +39,10 @@ fn ml_jc_diff(t : Double) -> Double {
 ///|
 /// Build a per-site map (taxon name -> nucleotide code unit) from the aligned
 /// sequences for one column.
-fn ml_build_site(alignment : Map[String, String], col : Int) -> Map[String, UInt16] {
+fn ml_build_site(
+  alignment : Map[String, String],
+  col : Int32,
+) -> Map[String, UInt16] {
   let site : Map[String, UInt16] = Map([], capacity=0)
   for (name, seq) in alignment {
     if col < seq.length() {
@@ -106,7 +109,7 @@ fn ml_node_likelihood(
 pub fn ml_tree_log_likelihood(
   tree : Tree,
   alignment : Map[String, String],
-  branch_length? : Double = 0.1,
+  branch_length~ : Double = 0.1,
 ) -> Double {
   let seqs = alignment.values().collect()
   if seqs.length() == 0 {
@@ -118,7 +121,8 @@ pub fn ml_tree_log_likelihood(
     let site = ml_build_site(alignment, col)
     let root_lik = ml_node_likelihood(tree.root, site, branch_length)
     // stationary distribution pi = 1/4 each
-    let site_lik = 0.25 * (root_lik[0] + root_lik[1] + root_lik[2] + root_lik[3])
+    let site_lik = 0.25 *
+      (root_lik[0] + root_lik[1] + root_lik[2] + root_lik[3])
     if site_lik > 0.0 {
       total = total + @math.ln(site_lik)
     }
@@ -134,11 +138,15 @@ pub fn ml_tree_log_likelihood(
 pub fn ml_nni_search(
   starting_tree : Tree,
   alignment : Map[String, String],
-  branch_length? : Double = 0.1,
-  max_iter? : Int = 100,
+  branch_length~ : Double = 0.1,
+  max_iter~ : Int32 = 100,
 ) -> Tree {
   let mut best_tree = starting_tree
-  let mut best_score = ml_tree_log_likelihood(best_tree, alignment, branch_length~)
+  let mut best_score = ml_tree_log_likelihood(
+    best_tree,
+    alignment,
+    branch_length~,
+  )
   let mut iter = 0
   while iter < max_iter {
     let mut improved = false
@@ -156,7 +164,7 @@ pub fn ml_nni_search(
       best_tree = local_best
       improved = true
     }
-    if !(improved) {
+    if !improved {
       break
     }
     iter = iter + 1

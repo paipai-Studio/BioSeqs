@@ -19,11 +19,17 @@ fn main {
 
   // 2. Display read distribution in known enriched regions.
   println("2. Read distribution in candidate enriched regions:")
-  let regions = [("chr1", 1000, 1500), ("chr1", 5000, 5500), ("chr1", 9000, 9500)]
+  let regions = [
+    ("chr1", 1000, 1500),
+    ("chr1", 5000, 5500),
+    ("chr1", 9000, 9500),
+  ]
   for region in regions {
     let t = @bio.count_reads_in_window(treatment, region.0, region.1, region.2)
     let c = @bio.count_reads_in_window(control, region.0, region.1, region.2)
-    println("   \{region.0}:\{region.1}-\{region.2}  treatment=\{t}  control=\{c}")
+    println(
+      "   \{region.0}:\{region.1}-\{region.2}  treatment=\{t}  control=\{c}",
+    )
   }
   println("")
 

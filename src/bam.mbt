@@ -10,7 +10,7 @@ pub suberror BamError {
 
 ///|
 /// BAM magic number (BAM\1).
-let bam_magic : Array[Int] = [66, 65, 77, 1]
+let bam_magic : Array[Int32] = [66, 65, 77, 1]
 
 ///|
 /// Check if data starts with BAM magic number.
@@ -42,8 +42,10 @@ pub fn is_bgzf(data : String) -> Bool {
 /// Reference sequence entry from BAM header.
 pub struct BamReference {
   name : String
-  length : Int
+  length : Int32
 } derive(Eq)
+
+///|
 pub extend BamReference with Eq::{equal, not_equal}
 
 ///|
@@ -66,24 +68,28 @@ pub enum BamCigarOp {
   Equal
   Diff
 } derive(Eq)
+
+///|
 pub extend BamCigarOp with Eq::{equal, not_equal}
 
 ///|
 /// CIGAR element: operation + length.
 pub struct BamCigarElement {
   op : BamCigarOp
-  length : Int
+  length : Int32
 } derive(Eq)
+
+///|
 pub extend BamCigarElement with Eq::{equal, not_equal}
 
 ///|
 /// A typed value of a BAM auxiliary tag.
 pub enum BamTagValue {
   Char(Char)
-  Int(Int)
+  Int(Int32)
   Float(Double)
   Str(String)
-  IntArray(Array[Int])
+  IntArray(Array[Int32])
   FloatArray(Array[Double])
 }
 
@@ -98,17 +104,17 @@ pub struct BamTag {
 ///|
 /// BAM alignment record.
 pub struct BamRecord {
-  ref_id : Int
-  pos : Int
-  bin : Int
-  mapq : Int
-  flag : Int
-  l_read_name : Int
-  cigar_len : Int
-  l_seq : Int
-  next_ref_id : Int
-  next_pos : Int
-  tlen : Int
+  ref_id : Int32
+  pos : Int32
+  bin : Int32
+  mapq : Int32
+  flag : Int32
+  l_read_name : Int32
+  cigar_len : Int32
+  l_seq : Int32
+  next_ref_id : Int32
+  next_pos : Int32
+  tlen : Int32
   qname : String
   cigar : FixedArray[BamCigarElement]
   seq : String
@@ -125,7 +131,7 @@ pub struct BamFile {
 
 ///|
 /// Convert BAM CIGAR operation code to enum.
-fn cigar_op_from_code(code : Int) -> BamCigarOp {
+fn cigar_op_from_code(code : Int32) -> BamCigarOp {
   match code {
     0 => BamCigarOp::Match
     1 => BamCigarOp::Insert
@@ -142,14 +148,14 @@ fn cigar_op_from_code(code : Int) -> BamCigarOp {
 
 ///|
 /// Read an Int from data at position, advance position.
-fn read_int8(data : String, pos : Int) -> (Int, Int) {
+fn read_int8(data : String, pos : Int32) -> (Int32, Int32) {
   let val = data.unsafe_get(pos).to_int() & 0xFF
   (val, pos + 1)
 }
 
 ///|
 /// Read a UInt16 (little-endian) from data at position, advance position.
-fn read_uint16_le(data : String, pos : Int) -> (Int, Int) {
+fn read_uint16_le(data : String, pos : Int32) -> (Int32, Int32) {
   let b0 = data.unsafe_get(pos).to_int() & 0xFF
   let b1 = data.unsafe_get(pos + 1).to_int() & 0xFF
   let val = ((b1 << 8) | b0) & 0xFFFF
@@ -158,7 +164,7 @@ fn read_uint16_le(data : String, pos : Int) -> (Int, Int) {
 
 ///|
 /// Read an Int32 (little-endian) from data at position, advance position.
-fn read_int32_le(data : String, pos : Int) -> (Int, Int) {
+fn read_int32_le(data : String, pos : Int32) -> (Int32, Int32) {
   let b0 = data.unsafe_get(pos).to_int() & 0xFF
   let b1 = data.unsafe_get(pos + 1).to_int() & 0xFF
   let b2 = data.unsafe_get(pos + 2).to_int() & 0xFF
@@ -169,7 +175,7 @@ fn read_int32_le(data : String, pos : Int) -> (Int, Int) {
 
 ///|
 /// Read a UInt32 (little-endian) from data at position, advance position.
-fn read_uint32_le(data : String, pos : Int) -> (Int, Int) {
+fn read_uint32_le(data : String, pos : Int32) -> (Int32, Int32) {
   let b0 = data.unsafe_get(pos).to_int() & 0xFF
   let b1 = data.unsafe_get(pos + 1).to_int() & 0xFF
   let b2 = data.unsafe_get(pos + 2).to_int() & 0xFF
@@ -180,7 +186,7 @@ fn read_uint32_le(data : String, pos : Int) -> (Int, Int) {
 
 ///|
 /// Read a null-terminated string from data at position, advance position.
-fn read_cstring(data : String, pos : Int) -> (String, Int) {
+fn read_cstring(data : String, pos : Int32) -> (String, Int32) {
   let mut end = pos
   while end < data.length() && data.unsafe_get(end) != 0 {
     end = end + 1
@@ -191,7 +197,7 @@ fn read_cstring(data : String, pos : Int) -> (String, Int) {
 
 ///|
 /// Read a signed int8.
-fn read_int8_signed(data : String, pos : Int) -> (Int, Int) {
+fn read_int8_signed(data : String, pos : Int32) -> (Int32, Int32) {
   let b = data.unsafe_get(pos).to_int() & 0xFF
   let v = if b >= 128 { b - 256 } else { b }
   (v, pos + 1)
@@ -199,7 +205,7 @@ fn read_int8_signed(data : String, pos : Int) -> (Int, Int) {
 
 ///|
 /// Read a signed int16 (little-endian).
-fn read_int16_le(data : String, pos : Int) -> (Int, Int) {
+fn read_int16_le(data : String, pos : Int32) -> (Int32, Int32) {
   let (u, np) = read_uint16_le(data, pos)
   let v = if u >= 32768 { u - 65536 } else { u }
   (v, np)
@@ -207,7 +213,7 @@ fn read_int16_le(data : String, pos : Int) -> (Int, Int) {
 
 ///|
 /// Read an IEEE 754 float32 (4 little-endian bytes) as a Double.
-fn read_float32_le(data : String, pos : Int) -> (Double, Int) {
+fn read_float32_le(data : String, pos : Int32) -> (Double, Int32) {
   let b0 = data.unsafe_get(pos).to_int() & 0xFF
   let b1 = data.unsafe_get(pos + 1).to_int() & 0xFF
   let b2 = data.unsafe_get(pos + 2).to_int() & 0xFF
@@ -220,7 +226,9 @@ fn read_float32_le(data : String, pos : Int) -> (Double, Int) {
   } else if exponent == 0 {
     sign * mantissa.to_double() * @math.pow(2.0, -149.0)
   } else {
-    sign * (1.0 + mantissa.to_double() / 8388608.0) * @math.pow(2.0, (exponent - 127).to_double())
+    sign *
+    (1.0 + mantissa.to_double() / 8388608.0) *
+    @math.pow(2.0, (exponent - 127).to_double())
   }
   (v, pos + 4)
 }
@@ -229,9 +237,9 @@ fn read_float32_le(data : String, pos : Int) -> (Double, Int) {
 /// Parse BAM auxiliary tags from `pos` until `end`.
 fn parse_bam_tags(
   data : String,
-  pos : Int,
-  end : Int,
-) -> (Array[BamTag], Int) raise BamError {
+  pos : Int32,
+  end : Int32,
+) -> (Array[BamTag], Int32) raise BamError {
   let tags : Array[BamTag] = Array(capacity=0)
   let mut p = pos
   while p < end {
@@ -245,39 +253,43 @@ fn parse_bam_tags(
       if p + 1 > end {
         raise BamError("Truncated A tag")
       }
-      tags.push(BamTag::{ name, type_code, value: BamTagValue::Char(data.unsafe_get(p).unsafe_to_char()) })
+      tags.push(BamTag::{
+        name,
+        type_code,
+        value: BamTagValue::Char(data.unsafe_get(p).unsafe_to_char()),
+      })
       p = p + 1
     } else if type_code == 'c' {
       let (v, np) = read_int8_signed(data, p)
-      tags.push(BamTag::{ name, type_code, value: BamTagValue::Int(v) })
+      tags.push(BamTag::{ name, type_code, value: BamTagValue::Int(v), })
       p = np
     } else if type_code == 'C' {
       let (v, np) = read_int8(data, p)
-      tags.push(BamTag::{ name, type_code, value: BamTagValue::Int(v) })
+      tags.push(BamTag::{ name, type_code, value: BamTagValue::Int(v), })
       p = np
     } else if type_code == 's' {
       let (v, np) = read_int16_le(data, p)
-      tags.push(BamTag::{ name, type_code, value: BamTagValue::Int(v) })
+      tags.push(BamTag::{ name, type_code, value: BamTagValue::Int(v), })
       p = np
     } else if type_code == 'S' {
       let (v, np) = read_uint16_le(data, p)
-      tags.push(BamTag::{ name, type_code, value: BamTagValue::Int(v) })
+      tags.push(BamTag::{ name, type_code, value: BamTagValue::Int(v), })
       p = np
     } else if type_code == 'i' {
       let (v, np) = read_int32_le(data, p)
-      tags.push(BamTag::{ name, type_code, value: BamTagValue::Int(v) })
+      tags.push(BamTag::{ name, type_code, value: BamTagValue::Int(v), })
       p = np
     } else if type_code == 'I' {
       let (v, np) = read_uint32_le(data, p)
-      tags.push(BamTag::{ name, type_code, value: BamTagValue::Int(v) })
+      tags.push(BamTag::{ name, type_code, value: BamTagValue::Int(v), })
       p = np
     } else if type_code == 'f' {
       let (v, np) = read_float32_le(data, p)
-      tags.push(BamTag::{ name, type_code, value: BamTagValue::Float(v) })
+      tags.push(BamTag::{ name, type_code, value: BamTagValue::Float(v), })
       p = np
     } else if type_code == 'Z' || type_code == 'H' {
       let (v, np) = read_cstring(data, p)
-      tags.push(BamTag::{ name, type_code, value: BamTagValue::Str(v) })
+      tags.push(BamTag::{ name, type_code, value: BamTagValue::Str(v), })
       p = np
     } else if type_code == 'B' {
       if p + 1 > end {
@@ -294,9 +306,13 @@ fn parse_bam_tags(
           arr.push(v)
           p = np2
         }
-        tags.push(BamTag::{ name, type_code, value: BamTagValue::FloatArray(arr) })
+        tags.push(BamTag::{
+          name,
+          type_code,
+          value: BamTagValue::FloatArray(arr),
+        })
       } else {
-        let arr : Array[Int] = Array(capacity=0)
+        let arr : Array[Int32] = Array(capacity=0)
         for _j = 0; _j < count; _j = _j + 1 {
           let pair = if subtype == 'c' {
             read_int8_signed(data, p)
@@ -316,7 +332,11 @@ fn parse_bam_tags(
           arr.push(pair.0)
           p = pair.1
         }
-        tags.push(BamTag::{ name, type_code, value: BamTagValue::IntArray(arr) })
+        tags.push(BamTag::{
+          name,
+          type_code,
+          value: BamTagValue::IntArray(arr),
+        })
       }
     } else {
       raise BamError("Unknown BAM tag type")
@@ -328,7 +348,7 @@ fn parse_bam_tags(
 ///|
 /// Decode BAM sequence from 4-bit encoding.
 /// Each byte encodes 2 nucleotides: high nibble first.
-fn decode_bam_seq(encoded : String, length : Int) -> String {
+fn decode_bam_seq(encoded : String, length : Int32) -> String {
   let lookup = "=ACMGRSVTWYHKDBN"
   let buf : FixedArray[UInt16] = FixedArray::make(length, 0)
   let mut i = 0
@@ -344,7 +364,7 @@ fn decode_bam_seq(encoded : String, length : Int) -> String {
 
 ///|
 /// Decode BAM quality from Phred+33 encoding.
-fn decode_bam_qual(encoded : String, length : Int) -> String {
+fn decode_bam_qual(encoded : String, length : Int32) -> String {
   let buf : FixedArray[UInt16] = FixedArray::make(length, 0)
   let mut i = 0
   while i < length {
@@ -359,8 +379,8 @@ fn decode_bam_qual(encoded : String, length : Int) -> String {
 /// Parse the BAM header section.
 fn parse_bam_header(
   data : String,
-  pos : Int,
-) -> (BamHeader, Int) raise BamError {
+  pos : Int32,
+) -> (BamHeader, Int32) raise BamError {
   let (l_text, pos1) = read_int32_le(data, pos)
 
   if pos1 + l_text > data.length() {
@@ -400,9 +420,9 @@ fn parse_bam_header(
 /// Parse a single BAM alignment record (standard htslib layout).
 fn parse_bam_record(
   data : String,
-  pos : Int,
-  end : Int,
-) -> (BamRecord, Int) raise BamError {
+  pos : Int32,
+  end : Int32,
+) -> (BamRecord, Int32) raise BamError {
   let (ref_id, pos1) = read_int32_le(data, pos)
   let (pos_val, pos2) = read_int32_le(data, pos1)
   let (bin_mq_nl, pos3) = read_uint32_le(data, pos2)
@@ -480,6 +500,8 @@ fn parse_bam_record(
     pos11,
   )
 }
+
+///|
 pub fn parse_bam(data : String) -> BamFile raise BamError {
   let n = data.length()
   if n < 4 {
@@ -631,13 +653,13 @@ pub fn BamRecord::get_tag(self : BamRecord, tag : String) -> BamTagValue? {
 
 ///|
 /// Get number of records in BAM file.
-pub fn BamFile::len(self : BamFile) -> Int {
+pub fn BamFile::len(self : BamFile) -> Int32 {
   self.records.length()
 }
 
 ///|
 /// Get number of reference sequences.
-pub fn BamFile::num_references(self : BamFile) -> Int {
+pub fn BamFile::num_references(self : BamFile) -> Int32 {
   self.header.references.length()
 }
 
@@ -653,7 +675,7 @@ pub fn BamFile::get_reference_names(self : BamFile) -> Array[String] {
 
 ///|
 /// Get reference length by name.
-pub fn BamFile::get_reference_length(self : BamFile, name : String) -> Int? {
+pub fn BamFile::get_reference_length(self : BamFile, name : String) -> Int32? {
   for ref_ in self.header.references {
     if ref_.name == name {
       return Some(ref_.length)
@@ -680,7 +702,7 @@ pub fn try_parse_bam_base64(base64_str : String) -> BamFile? {
 
 ///|
 /// Base64 decoding table.
-let base64_table : FixedArray[Int] = {
+let base64_table : FixedArray[Int32] = {
   let t = FixedArray::make(256, -1)
   let chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
   for i = 0; i < chars.length(); i = i + 1 {
@@ -741,7 +763,7 @@ pub fn base64_decode(s : String) -> String {
 
 ///|
 /// Get the end position of the alignment (similar to SAM).
-pub fn BamRecord::get_end(self : BamRecord) -> Int {
+pub fn BamRecord::get_end(self : BamRecord) -> Int32 {
   if self.pos == 0 || self.cigar.length() == 0 {
     return 0
   }
@@ -765,7 +787,7 @@ pub fn BamRecord::get_end(self : BamRecord) -> Int {
 
 ///|
 /// Calculate the alignment length (similar to SAM).
-pub fn BamRecord::get_alignment_length(self : BamRecord) -> Int {
+pub fn BamRecord::get_alignment_length(self : BamRecord) -> Int32 {
   let mut length = 0
   let mut i = 0
   while i < self.cigar.length() {
@@ -835,13 +857,13 @@ pub suberror CramError {
 
 ///|
 /// CRAM magic number (CRAM\0).
-let cram_magic : Array[Int] = [67, 82, 65, 77]
+let cram_magic : Array[Int32] = [67, 82, 65, 77]
 
 ///|
 /// CRAM format version.
 pub struct CramVersion {
-  major : Int
-  minor : Int
+  major : Int32
+  minor : Int32
 }
 
 ///|
@@ -867,14 +889,14 @@ pub enum CramCompression {
   Bzip2
   Lzma
   None
-  Unknown(Int)
+  Unknown(Int32)
 }
 
 ///|
 /// CRAM reference sequence entry.
 pub struct CramReference {
   name : String
-  length : Int
+  length : Int32
   md5 : String
   uri : String
 }
@@ -883,10 +905,10 @@ pub struct CramReference {
 /// CRAM file header structure.
 pub struct CramHeader {
   version : CramVersion
-  reference_count : Int
+  reference_count : Int32
   references : Array[CramReference]
   compression : CramCompression
-  stream_count : Int
+  stream_count : Int32
   stream_info : Array[String]
   sam_header : String
 }
@@ -901,9 +923,9 @@ pub struct CramTag {
 ///|
 /// CRAM read features (encoding information).
 pub struct CramReadFeatures {
-  read_group : Int
-  flags : Int
-  mapping_quality : Int
+  read_group : Int32
+  flags : Int32
+  mapping_quality : Int32
   read_name : String
   cigar : Array[BamCigarElement]
   sequence : String
@@ -914,8 +936,8 @@ pub struct CramReadFeatures {
 ///|
 /// CRAM alignment record.
 pub struct CramRecord {
-  ref_id : Int
-  pos : Int
+  ref_id : Int32
+  pos : Int32
   read_features : CramReadFeatures
 }
 
@@ -928,10 +950,7 @@ pub struct CramFile {
 
 ///|
 /// Parse CRAM version from data.
-fn cram_parse_version(
-  data : String,
-  pos : Int,
-) -> (CramVersion, Int) {
+fn cram_parse_version(data : String, pos : Int32) -> (CramVersion, Int32) {
   let (major, pos1) = read_uint32_le(data, pos)
   let (minor, pos2) = read_uint32_le(data, pos1)
   (CramVersion::{ major, minor, }, pos2)
@@ -939,7 +958,7 @@ fn cram_parse_version(
 
 ///|
 /// Parse CRAM compression type.
-fn cram_parse_compression(code : Int) -> CramCompression {
+fn cram_parse_compression(code : Int32) -> CramCompression {
   match code {
     0 => CramCompression::None
     1 => CramCompression::Gzip
@@ -953,8 +972,8 @@ fn cram_parse_compression(code : Int) -> CramCompression {
 /// Parse CRAM header.
 fn cram_parse_header(
   data : String,
-  pos : Int,
-) -> (CramHeader, Int) raise CramError {
+  pos : Int32,
+) -> (CramHeader, Int32) raise CramError {
   let (version, pos1) = cram_parse_version(data, pos)
   let (ref_count, pos2) = read_uint32_le(data, pos1)
   let (compression_code, pos3) = read_uint32_le(data, pos2)
@@ -1009,8 +1028,8 @@ fn cram_parse_header(
 /// Parse CRAM read features.
 fn cram_parse_read_features(
   data : String,
-  pos : Int,
-) -> (CramReadFeatures, Int) raise CramError {
+  pos : Int32,
+) -> (CramReadFeatures, Int32) raise CramError {
   let (read_group, pos1) = read_uint32_le(data, pos)
   let (flags, pos2) = read_uint32_le(data, pos1)
   let (mapq, pos3) = read_int8(data, pos2)
@@ -1081,8 +1100,8 @@ fn cram_parse_read_features(
 /// Parse CRAM record.
 fn cram_parse_record(
   data : String,
-  pos : Int,
-) -> (CramRecord, Int) raise CramError {
+  pos : Int32,
+) -> (CramRecord, Int32) raise CramError {
   let (ref_id, pos1) = read_int32_le(data, pos)
   let (pos_val, pos2) = read_int32_le(data, pos1)
   let (read_features, pos3) = cram_parse_read_features(data, pos2)
@@ -1198,13 +1217,13 @@ pub fn CramFile::to_bam(self : CramFile) -> BamFile {
 
 ///|
 /// Get number of records in CRAM file.
-pub fn CramFile::len(self : CramFile) -> Int {
+pub fn CramFile::len(self : CramFile) -> Int32 {
   self.records.length()
 }
 
 ///|
 /// Get number of reference sequences.
-pub fn CramFile::num_references(self : CramFile) -> Int {
+pub fn CramFile::num_references(self : CramFile) -> Int32 {
   self.header.references.length()
 }
 
@@ -1222,7 +1241,7 @@ pub fn CramFile::get_reference_names(self : CramFile) -> Array[String] {
 
 ///|
 /// Get reference length by name.
-pub fn CramFile::get_reference_length(self : CramFile, name : String) -> Int? {
+pub fn CramFile::get_reference_length(self : CramFile, name : String) -> Int32? {
   let mut i = 0
   while i < self.header.references.length() {
     if self.header.references[i].name == name {
@@ -1286,7 +1305,7 @@ pub fn CramRecord::get_reference_name(
 /// Sample CRAM content for testing.
 pub fn sample_cram_content() -> String {
   // Build CRAM binary programmatically (avoids manual escape-sequence errors).
-  let buf : Array[Int] = []
+  let buf : Array[Int32] = []
   // Magic "CRAM"
   buf.push(67)
   buf.push(82)
@@ -1317,11 +1336,11 @@ pub fn sample_cram_content() -> String {
   buf.push(0)
   buf.push(0)
   // ref: name="chr1" (cstring), length=100, md5="" (cstring), uri="" (cstring)
-  buf.push(99)   // c
-  buf.push(104)  // h
-  buf.push(114)  // r
-  buf.push(49)   // 1
-  buf.push(0)    // null
+  buf.push(99) // c
+  buf.push(104) // h
+  buf.push(114) // r
+  buf.push(49) // 1
+  buf.push(0) // null
   // ref_length=100 = 0x64
   buf.push(100)
   buf.push(0)
@@ -1341,7 +1360,7 @@ pub fn sample_cram_content() -> String {
     buf.push(hdr.unsafe_get(i).to_int() & 0xFF)
   }
   // Record body (built separately to know its size)
-  let body : Array[Int] = []
+  let body : Array[Int32] = []
   // ref_id=0 (int32_le)
   body.push(0)
   body.push(0)
@@ -1369,11 +1388,11 @@ pub fn sample_cram_content() -> String {
   body.push(0)
   body.push(0)
   body.push(0)
-  body.push(114)  // r
-  body.push(101)  // e
-  body.push(97)   // a
-  body.push(100)  // d
-  body.push(49)   // 1
+  body.push(114) // r
+  body.push(101) // e
+  body.push(97) // a
+  body.push(100) // d
+  body.push(49) // 1
   // cigar: count=1, val=100M = (100<<4)|0 = 1600 = 0x640
   body.push(1)
   body.push(0)
@@ -1388,21 +1407,21 @@ pub fn sample_cram_content() -> String {
   body.push(0)
   body.push(0)
   body.push(0)
-  body.push(65)   // A
-  body.push(84)   // T
-  body.push(71)   // G
-  body.push(67)   // C
-  body.push(65)   // A
-  body.push(84)   // T
-  body.push(71)   // G
-  body.push(67)   // C
+  body.push(65) // A
+  body.push(84) // T
+  body.push(71) // G
+  body.push(67) // C
+  body.push(65) // A
+  body.push(84) // T
+  body.push(71) // G
+  body.push(67) // C
   // qual: len=8, "!!!!!!!!"
   body.push(8)
   body.push(0)
   body.push(0)
   body.push(0)
   for _ in 0..<8 {
-    body.push(33)  // !
+    body.push(33) // !
   }
   // tags: count=0
   body.push(0)
@@ -1434,19 +1453,22 @@ pub fn sample_cram_file() -> CramFile? {
 
 ///|
 /// 0-based (inclusive) reference start position.
-pub fn BamRecord::reference_start(self : BamRecord) -> Int {
+pub fn BamRecord::reference_start(self : BamRecord) -> Int32 {
   self.pos
 }
 
 ///|
 /// 0-based (exclusive) reference end position.
-pub fn BamRecord::reference_end(self : BamRecord) -> Int {
+pub fn BamRecord::reference_end(self : BamRecord) -> Int32 {
   let mut end = self.pos
   for i = 0; i < self.cigar.length(); i = i + 1 {
     let el = self.cigar[i]
     match el.op {
-      BamCigarOp::Match | BamCigarOp::Delete | BamCigarOp::Skip | BamCigarOp::Equal | BamCigarOp::Diff =>
-        end = end + el.length
+      BamCigarOp::Match
+      | BamCigarOp::Delete
+      | BamCigarOp::Skip
+      | BamCigarOp::Equal
+      | BamCigarOp::Diff => end = end + el.length
       _ => ()
     }
   }
@@ -1457,8 +1479,11 @@ pub fn BamRecord::reference_end(self : BamRecord) -> Int {
 /// Reference positions covered by the read. Aligned bases (M/=/X) contribute a
 /// position; with `full_length`, insertions/soft clips contribute `None`
 /// placeholders. Deletions/skips are skipped entirely.
-pub fn BamRecord::get_reference_positions(self : BamRecord, full_length : Bool) -> Array[Int?] {
-  let out : Array[Int?] = Array(capacity=0)
+pub fn BamRecord::get_reference_positions(
+  self : BamRecord,
+  full_length : Bool,
+) -> Array[Int32?] {
+  let out : Array[Int32?] = Array(capacity=0)
   let mut rpos = self.pos
   for i = 0; i < self.cigar.length(); i = i + 1 {
     let el = self.cigar[i]
@@ -1472,7 +1497,7 @@ pub fn BamRecord::get_reference_positions(self : BamRecord, full_length : Bool) 
         }
         rpos = rpos + n
       }
-      BamCigarOp::Insert | BamCigarOp::SoftClip => {
+      BamCigarOp::Insert | BamCigarOp::SoftClip =>
         if full_length {
           let mut k = 0
           while k < n {
@@ -1480,7 +1505,6 @@ pub fn BamRecord::get_reference_positions(self : BamRecord, full_length : Bool) 
             k = k + 1
           }
         }
-      }
       BamCigarOp::Delete | BamCigarOp::Skip => rpos = rpos + n
       BamCigarOp::HardClip | BamCigarOp::Pad => ()
     }
@@ -1490,7 +1514,11 @@ pub fn BamRecord::get_reference_positions(self : BamRecord, full_length : Bool) 
 
 ///|
 /// Number of aligned (M/=/X) reference bases of the read overlapping [beg, end).
-pub fn BamRecord::get_overlap(self : BamRecord, beg : Int, end : Int) -> Int {
+pub fn BamRecord::get_overlap(
+  self : BamRecord,
+  beg : Int32,
+  end : Int32,
+) -> Int32 {
   let mut overlap = 0
   let mut rpos = self.pos
   for i = 0; i < self.cigar.length(); i = i + 1 {
@@ -1519,8 +1547,11 @@ pub fn BamRecord::get_overlap(self : BamRecord, beg : Int, end : Int) -> Int {
 /// Query↔reference coordinate pairs. Insertions/soft clips yield
 /// `(query, None)`, deletions/skips `(None, ref)`. With `matches_only`, only
 /// aligned pairs (M/=/X) are kept.
-pub fn BamRecord::get_aligned_pairs(self : BamRecord, matches_only : Bool) -> Array[(Int?, Int?)] {
-  let out : Array[(Int?, Int?)] = Array(capacity=0)
+pub fn BamRecord::get_aligned_pairs(
+  self : BamRecord,
+  matches_only : Bool,
+) -> Array[(Int32?, Int32?)] {
+  let out : Array[(Int32?, Int32?)] = Array(capacity=0)
   let mut qpos = 0
   let mut rpos = self.pos
   for i = 0; i < self.cigar.length(); i = i + 1 {
@@ -1537,7 +1568,7 @@ pub fn BamRecord::get_aligned_pairs(self : BamRecord, matches_only : Bool) -> Ar
         rpos = rpos + n
       }
       BamCigarOp::Insert | BamCigarOp::SoftClip => {
-        if !(matches_only) {
+        if !matches_only {
           let mut k = 0
           while k < n {
             out.push((Some(qpos + k), None))
@@ -1547,7 +1578,7 @@ pub fn BamRecord::get_aligned_pairs(self : BamRecord, matches_only : Bool) -> Ar
         qpos = qpos + n
       }
       BamCigarOp::Delete | BamCigarOp::Skip => {
-        if !(matches_only) {
+        if !matches_only {
           let mut k = 0
           while k < n {
             out.push((None, Some(rpos + k)))
@@ -1564,24 +1595,24 @@ pub fn BamRecord::get_aligned_pairs(self : BamRecord, matches_only : Bool) -> Ar
 
 ///|
 pub struct PileupRead {
-  record_index : Int
-  query_position : Int?
+  record_index : Int32
+  query_position : Int32?
   is_del : Bool
   is_refskip : Bool
-  indel : Int
+  indel : Int32
 }
 
 ///|
 pub struct PileupColumn {
-  reference_pos : Int
-  nsegments : Int
+  reference_pos : Int32
+  nsegments : Int32
   pileups : Array[PileupRead]
 }
 
 ///|
 /// The state of a record at reference position `p`, or None if it does not
 /// cover `p`. Returns (query_position, is_del, is_refskip, indel).
-fn bam_pileup_state(r : BamRecord, p : Int) -> (Int?, Bool, Bool, Int)? {
+fn bam_pileup_state(r : BamRecord, p : Int32) -> (Int32?, Bool, Bool, Int32)? {
   let mut qpos = 0
   let mut rpos = r.pos
   let mut i = 0
@@ -1597,7 +1628,7 @@ fn bam_pileup_state(r : BamRecord, p : Int) -> (Int?, Bool, Bool, Int)? {
             if i + 1 < r.cigar.length() {
               match r.cigar[i + 1].op {
                 BamCigarOp::Insert => r.cigar[i + 1].length
-                BamCigarOp::Delete => -(r.cigar[i + 1].length)
+                BamCigarOp::Delete => -r.cigar[i + 1].length
                 _ => 0
               }
             } else {
@@ -1638,8 +1669,8 @@ fn bam_pileup_state(r : BamRecord, p : Int) -> (Int?, Bool, Bool, Int)? {
 pub fn BamFile::pileup(
   self : BamFile,
   contig : String,
-  start : Int,
-  stop : Int,
+  start : Int32,
+  stop : Int32,
 ) -> Array[PileupColumn] {
   let mut ref_id = -1
   for j = 0; j < self.header.references.length(); j = j + 1 {
@@ -1657,16 +1688,23 @@ pub fn BamFile::pileup(
         continue
       }
       match bam_pileup_state(r, p) {
-        Some((qp, is_del, is_refskip, ind)) => {
-          pileups.push(
-            PileupRead::{ record_index: i, query_position: qp, is_del, is_refskip, indel: ind },
-          )
-        }
+        Some((qp, is_del, is_refskip, ind)) =>
+          pileups.push(PileupRead::{
+            record_index: i,
+            query_position: qp,
+            is_del,
+            is_refskip,
+            indel: ind,
+          })
         None => ()
       }
     }
     if pileups.length() > 0 {
-      columns.push(PileupColumn::{ reference_pos: p, nsegments: pileups.length(), pileups })
+      columns.push(PileupColumn::{
+        reference_pos: p,
+        nsegments: pileups.length(),
+        pileups,
+      })
     }
   }
   columns
@@ -1686,20 +1724,23 @@ pub fn BamRecord::query_qualities(self : BamRecord) -> String {
 
 ///|
 /// Stored query length (`l_seq`).
-pub fn BamRecord::query_length(self : BamRecord) -> Int {
+pub fn BamRecord::query_length(self : BamRecord) -> Int32 {
   self.l_seq
 }
 
 ///|
 /// Query length inferred from the CIGAR (M + I + S + = + X), matching htslib's
 /// `bam_cigar2qlen`.
-pub fn BamRecord::infer_query_length(self : BamRecord) -> Int {
+pub fn BamRecord::infer_query_length(self : BamRecord) -> Int32 {
   let mut length = 0
   for i = 0; i < self.cigar.length(); i = i + 1 {
     let el = self.cigar[i]
     match el.op {
-      BamCigarOp::Match | BamCigarOp::Insert | BamCigarOp::SoftClip | BamCigarOp::Equal | BamCigarOp::Diff =>
-        length = length + el.length
+      BamCigarOp::Match
+      | BamCigarOp::Insert
+      | BamCigarOp::SoftClip
+      | BamCigarOp::Equal
+      | BamCigarOp::Diff => length = length + el.length
       _ => ()
     }
   }
@@ -1708,22 +1749,22 @@ pub fn BamRecord::infer_query_length(self : BamRecord) -> Int {
 
 ///|
 pub struct FlagstatResult {
-  total : Int
-  primary : Int
-  secondary : Int
-  supplementary : Int
-  duplicates : Int
-  primary_duplicates : Int
-  mapped : Int
-  primary_mapped : Int
-  paired : Int
-  read1 : Int
-  read2 : Int
-  properly_paired : Int
-  both_mapped : Int
-  singletons : Int
-  mate_diff_chr : Int
-  mate_diff_chr_mapq5 : Int
+  total : Int32
+  primary : Int32
+  secondary : Int32
+  supplementary : Int32
+  duplicates : Int32
+  primary_duplicates : Int32
+  mapped : Int32
+  primary_mapped : Int32
+  paired : Int32
+  read1 : Int32
+  read2 : Int32
+  properly_paired : Int32
+  both_mapped : Int32
+  singletons : Int32
+  mate_diff_chr : Int32
+  mate_diff_chr_mapq5 : Int32
 }
 
 ///|
@@ -1793,15 +1834,32 @@ pub fn BamFile::flagstat(self : BamFile) -> FlagstatResult {
       duplicates = duplicates + 1
     }
   }
-  FlagstatResult::{ total, primary, secondary, supplementary, duplicates, primary_duplicates, mapped, primary_mapped, paired, read1, read2, properly_paired, both_mapped, singletons, mate_diff_chr, mate_diff_chr_mapq5 }
+  FlagstatResult::{
+    total,
+    primary,
+    secondary,
+    supplementary,
+    duplicates,
+    primary_duplicates,
+    mapped,
+    primary_mapped,
+    paired,
+    read1,
+    read2,
+    properly_paired,
+    both_mapped,
+    singletons,
+    mate_diff_chr,
+    mate_diff_chr_mapq5,
+  }
 }
 
 ///|
 pub struct IdxstatsResult {
   ref_name : String
-  ref_length : Int
-  mapped : Int
-  unmapped : Int
+  ref_length : Int32
+  mapped : Int32
+  unmapped : Int32
 }
 
 ///|
@@ -1821,19 +1879,28 @@ pub fn BamFile::idxstats(self : BamFile) -> Array[IdxstatsResult] {
   }
   let out : Array[IdxstatsResult] = Array(capacity=0)
   for i = 0; i < nref; i = i + 1 {
-    out.push(
-      IdxstatsResult::{ ref_name: self.header.references[i].name, ref_length: self.header.references[i].length, mapped: mapped_cnt[i], unmapped: unmapped_cnt[i] },
-    )
+    out.push(IdxstatsResult::{
+      ref_name: self.header.references[i].name,
+      ref_length: self.header.references[i].length,
+      mapped: mapped_cnt[i],
+      unmapped: unmapped_cnt[i],
+    })
   }
-  out.push(IdxstatsResult::{ ref_name: "*", ref_length: 0, mapped: mapped_cnt[nref], unmapped: unmapped_cnt[nref] })
+  out.push(IdxstatsResult::{
+    ref_name: "*",
+    ref_length: 0,
+    mapped: mapped_cnt[nref],
+    unmapped: unmapped_cnt[nref],
+  })
   out
 }
+
 ///|
 pub struct MpileupLine {
   chrom : String
-  pos : Int
+  pos : Int32
   ref_base : String
-  depth : Int
+  depth : Int32
   bases : String
   quals : String
 }
@@ -1843,7 +1910,7 @@ pub struct MpileupLine {
 /// quality byte that follows the `^` read-start marker (and any other raw
 /// base-quality byte), which `char_at` cannot produce for non-alphabetic
 /// codes.
-fn char_from_code(c : Int) -> String {
+fn char_from_code(c : Int32) -> String {
   let buf : FixedArray[UInt16] = FixedArray::make(1, 0)
   buf[0] = c.to_uint16()
   unsafe_from_uint16_fixedarray(buf)
@@ -1865,8 +1932,8 @@ fn char_from_code(c : Int) -> String {
 pub fn BamFile::mpileup(
   self : BamFile,
   contig : String,
-  start : Int,
-  stop : Int,
+  start : Int32,
+  stop : Int32,
   ref_seq : String,
 ) -> Array[MpileupLine] {
   let columns = self.pileup(contig, start, stop)
@@ -1909,7 +1976,13 @@ pub fn BamFile::mpileup(
               bases.write_char(if rev { ',' } else { '.' })
               quals.write_string(qual_char)
             } else {
-              bases.write_string(if rev { to_lowercase(read_base) } else { read_base })
+              bases.write_string(
+                if rev {
+                  to_lowercase(read_base)
+                } else {
+                  read_base
+                },
+              )
               quals.write_string(qual_char)
             }
           }
@@ -1934,16 +2007,14 @@ pub fn BamFile::mpileup(
         bases.write_char('$')
       }
     }
-    lines.push(
-      MpileupLine::{
-        chrom: contig,
-        pos: p + 1,
-        ref_base,
-        depth: col.pileups.length(),
-        bases: bases.to_string(),
-        quals: quals.to_string(),
-      },
-    )
+    lines.push(MpileupLine::{
+      chrom: contig,
+      pos: p + 1,
+      ref_base,
+      depth: col.pileups.length(),
+      bases: bases.to_string(),
+      quals: quals.to_string(),
+    })
   }
   lines
 }
@@ -1955,7 +2026,7 @@ pub fn BamFile::mpileup(
 ///|
 /// Construct a BamFile from a header and records.
 pub fn BamFile::new(header : BamHeader, records : Array[BamRecord]) -> BamFile {
-  BamFile::{ header, records }
+  BamFile::{ header, records, }
 }
 
 ///|
@@ -1974,7 +2045,7 @@ pub fn bam_sort(bam : BamFile) -> BamFile {
     records[j + 1] = key
     i = i + 1
   }
-  BamFile::{ header: bam.header, records }
+  BamFile::{ header: bam.header, records, }
 }
 
 ///|
@@ -1992,7 +2063,10 @@ fn bam_record_less(a : BamRecord, b : BamRecord) -> Bool {
 pub fn bam_merge(files : Array[BamFile]) -> BamFile {
   if files.length() == 0 {
     return BamFile::{
-      header: BamHeader::{ text: "", references: FixedArray::make(0, BamReference::{ name: "", length: 0, }) },
+      header: BamHeader::{
+        text: "",
+        references: FixedArray::make(0, BamReference::{ name: "", length: 0, }),
+      },
       records: [],
     }
   }
@@ -2003,14 +2077,14 @@ pub fn bam_merge(files : Array[BamFile]) -> BamFile {
       records.push(r)
     }
   }
-  BamFile::{ header, records }
+  BamFile::{ header, records, }
 }
 
 ///|
 /// Per-base coverage depth on one contig — `samtools depth`. Returns
 /// `(1-based position, depth)` for positions with depth > 0, via a difference
 /// array over each record's reference span.
-pub fn bam_depth(bam : BamFile, contig : String) -> Array[(Int, Int)] {
+pub fn bam_depth(bam : BamFile, contig : String) -> Array[(Int32, Int32)] {
   let mut ref_id = -1
   let mut ref_len = 0
   for j = 0; j < bam.header.references.length(); j = j + 1 {
@@ -2023,7 +2097,7 @@ pub fn bam_depth(bam : BamFile, contig : String) -> Array[(Int, Int)] {
   if ref_id < 0 {
     return []
   }
-  let diff : Array[Int] = Array::make(ref_len + 1, 0)
+  let diff : Array[Int32] = Array::make(ref_len + 1, 0)
   for r in bam.records {
     if r.ref_id != ref_id {
       continue
@@ -2035,7 +2109,7 @@ pub fn bam_depth(bam : BamFile, contig : String) -> Array[(Int, Int)] {
       diff[e] = diff[e] - 1
     }
   }
-  let out : Array[(Int, Int)] = Array(capacity=0)
+  let out : Array[(Int32, Int32)] = Array(capacity=0)
   let mut depth = 0
   let mut p = 0
   while p < ref_len {
@@ -2057,14 +2131,14 @@ pub fn bam_fastq(bam : BamFile) -> String raise SeqIOError {
     if rec.is_unmapped() {
       continue
     }
-    let qual_arr : Array[Int] = Array(capacity=0)
+    let qual_arr : Array[Int32] = Array(capacity=0)
     let qn = rec.qual.length()
     let mut qi = 0
     while qi < qn {
       qual_arr.push(rec.qual.unsafe_get(qi).to_int() - 33)
       qi = qi + 1
     }
-    let letter_ann : Map[String, Array[Int]] = Map([], capacity=0)
+    let letter_ann : Map[String, Array[Int32]] = Map([], capacity=0)
     letter_ann.set("phred_quality", qual_arr)
     records.push(SeqRecord::{
       seq: Seq::new(rec.seq),
@@ -2079,13 +2153,12 @@ pub fn bam_fastq(bam : BamFile) -> String raise SeqIOError {
   write_fastq(records)
 }
 
-
 // ============================================================================
 // samtools 子命令：markdup / stats
 // ============================================================================
 
 ///|
-fn bam_record_with_flag(rec : BamRecord, flag : Int) -> BamRecord {
+fn bam_record_with_flag(rec : BamRecord, flag : Int32) -> BamRecord {
   BamRecord::{
     ref_id: rec.ref_id,
     pos: rec.pos,
@@ -2130,15 +2203,15 @@ pub fn bam_markdup(bam : BamFile) -> BamFile {
     }
     i = i + 1
   }
-  BamFile::{ header: bam.header, records: out }
+  BamFile::{ header: bam.header, records: out, }
 }
 
 ///|
 /// Summary statistics.
 pub struct BamStatsResult {
-  total_reads : Int
-  mapped_reads : Int
-  duplicate_reads : Int
+  total_reads : Int32
+  mapped_reads : Int32
+  duplicate_reads : Int32
   avg_read_length : Double
 }
 
@@ -2152,7 +2225,7 @@ pub fn bam_stats(bam : BamFile) -> BamStatsResult {
   let mut total_len = 0
   for r in bam.records {
     total = total + 1
-    if !(r.is_unmapped()) {
+    if !r.is_unmapped() {
       mapped = mapped + 1
     }
     if r.is_duplicate() {
@@ -2165,9 +2238,13 @@ pub fn bam_stats(bam : BamFile) -> BamStatsResult {
   } else {
     total_len.to_double() / total.to_double()
   }
-  BamStatsResult::{ total_reads: total, mapped_reads: mapped, duplicate_reads: dup, avg_read_length: avg }
+  BamStatsResult::{
+    total_reads: total,
+    mapped_reads: mapped,
+    duplicate_reads: dup,
+    avg_read_length: avg,
+  }
 }
-
 
 // ============================================================================
 // pysam 高频访问：fetch / count_coverage / get_base_counts
@@ -2180,8 +2257,8 @@ pub fn bam_stats(bam : BamFile) -> BamStatsResult {
 pub fn bam_fetch(
   bam : BamFile,
   contig : String,
-  start : Int,
-  stop : Int,
+  start : Int32,
+  stop : Int32,
 ) -> Array[BamRecord] {
   let mut ref_id = -1
   for j = 0; j < bam.header.references.length(); j = j + 1 {
@@ -2207,9 +2284,9 @@ pub fn bam_fetch(
 pub fn bam_count_coverage(
   bam : BamFile,
   contig : String,
-  start : Int,
-  stop : Int,
-) -> (Array[Int], Array[Int], Array[Int], Array[Int]) {
+  start : Int32,
+  stop : Int32,
+) -> (Array[Int32], Array[Int32], Array[Int32], Array[Int32]) {
   let n = stop - start
   let a = Array::make(n, 0)
   let c = Array::make(n, 0)
@@ -2253,8 +2330,8 @@ pub fn bam_count_coverage(
 pub fn bam_get_base_counts(
   bam : BamFile,
   contig : String,
-  pos : Int,
-) -> (Int, Int, Int, Int) {
+  pos : Int32,
+) -> (Int32, Int32, Int32, Int32) {
   let (a, c, g, t) = bam_count_coverage(bam, contig, pos, pos + 1)
   let va = if a.length() > 0 { a[0] } else { 0 }
   let vc = if c.length() > 0 { c[0] } else { 0 }
@@ -2262,7 +2339,6 @@ pub fn bam_get_base_counts(
   let vt = if t.length() > 0 { t[0] } else { 0 }
   (va, vc, vg, vt)
 }
-
 
 // ============================================================================
 // get_alignment_quality（NM tag 校准）

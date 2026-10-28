@@ -13,8 +13,12 @@ fn main {
   for i in 0..<dm.length() {
     for j in (i + 1)..<dm.length() {
       println(
-        "   " + motifs[i].name + " vs " + motifs[j].name +
-        ": " + dm[i][j].to_string(),
+        "   " +
+        motifs[i].name +
+        " vs " +
+        motifs[j].name +
+        ": " +
+        dm[i][j].to_string(),
       )
     }
   }

@@ -112,7 +112,10 @@ test "msstats_summarize_linear" {
     features,
     normalization=@src.ms_norm_none(),
   )
-  let summarized = @src.ms_summarize(processed, method_=@src.ms_summary_linear())
+  let summarized = @src.ms_summarize(
+    processed,
+    method_=@src.ms_summary_linear(),
+  )
   // Mean of log2(1024)=10 and log2(4096)=12 is 11
   assert_true((summarized[0].log2_abundance - 11.0).abs() < 0.01)
 }

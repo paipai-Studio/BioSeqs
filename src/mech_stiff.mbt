@@ -12,7 +12,7 @@
 ///|
 /// Mechanical stiffness analysis result.
 pub struct MechStiff {
-  n : Int
+  n : Int32
   stiffness_matrix : Array[Array[Double]]
   residue_stiffness : Array[Double]
   effective_springs : Array[Array[Double]]
@@ -27,8 +27,8 @@ pub struct MechStiff {
 /// - gamma: spring constant (default 1.0)
 pub fn MechStiff::new(
   chain : Chain,
-  cutoff? : Double = 15.0,
-  gamma? : Double = 1.0,
+  cutoff~ : Double = 15.0,
+  gamma~ : Double = 1.0,
 ) -> MechStiff? {
   let anm = ANM::new(chain, cutoff~, gamma~)
   match anm {
@@ -41,19 +41,23 @@ pub fn MechStiff::new(
       // K[i][j] = Σ_k λ_k * V[i][k] * V[j][k]
       // Skip zero eigenvalues (rigid body modes)
       let n_modes = eigenvalues.length()
-      let k_matrix : Array[Array[Double]] = Array::makei(dim, { _ =>
+      let k_matrix : Array[Array[Double]] = Array::makei(dim, _ => {
         Array::make(dim, 0.0)
       })
       let mut mode = 0
       while mode < n_modes {
         let lambda = eigenvalues[mode]
-        if lambda < 0.0000000001 { mode = mode + 1; continue }
+        if lambda < 0.0000000001 {
+          mode = mode + 1
+          continue
+        }
         let mut i = 0
         while i < dim {
           let vi = eigenvectors[i][mode]
           let mut j = 0
           while j < dim {
-            k_matrix[i][j] = k_matrix[i][j] + lambda * vi * eigenvectors[j][mode]
+            k_matrix[i][j] = k_matrix[i][j] +
+              lambda * vi * eigenvectors[j][mode]
             j = j + 1
           }
           i = i + 1
@@ -62,7 +66,7 @@ pub fn MechStiff::new(
       }
       // Effective spring constants between residues
       // S[i][j] = ||K[3i:3i+3, 3j:3j+3]||_F (Frobenius norm)
-      let springs : Array[Array[Double]] = Array::makei(n, { _ =>
+      let springs : Array[Array[Double]] = Array::makei(n, _ => {
         Array::make(n, 0.0)
       })
       let mut ri = 0
@@ -103,7 +107,9 @@ pub fn MechStiff::new(
         r = r + 1
       }
       Some(MechStiff::{
-        n, stiffness_matrix: k_matrix, residue_stiffness: residue_stiff,
+        n,
+        stiffness_matrix: k_matrix,
+        residue_stiffness: residue_stiff,
         effective_springs: springs,
       })
     }
@@ -115,10 +121,10 @@ pub fn MechStiff::new(
 /// Get the 3×3 stiffness block between residues i and j.
 pub fn MechStiff::stiffness_between(
   self : MechStiff,
-  i : Int,
-  j : Int,
+  i : Int32,
+  j : Int32,
 ) -> Array[Array[Double]] {
-  let block = Array::makei(3, { _ => Array::make(3, 0.0) })
+  let block = Array::makei(3, _ => Array::make(3, 0.0))
   let mut bi = 0
   while bi < 3 {
     let mut bj = 0
@@ -135,8 +141,8 @@ pub fn MechStiff::stiffness_between(
 /// Get the effective spring constant between residues i and j.
 pub fn MechStiff::effective_spring(
   self : MechStiff,
-  i : Int,
-  j : Int,
+  i : Int32,
+  j : Int32,
 ) -> Double {
   self.effective_springs[i][j]
 }
@@ -149,7 +155,7 @@ pub fn MechStiff::stiffness_profile(self : MechStiff) -> Array[Double] {
 
 ///|
 /// Get the number of residues.
-pub fn MechStiff::num_residues(self : MechStiff) -> Int {
+pub fn MechStiff::num_residues(self : MechStiff) -> Int32 {
   self.n
 }
 
@@ -169,7 +175,9 @@ pub fn MechStiff::get_springs(self : MechStiff) -> Array[Array[Double]] {
 /// Compute the stiffness-based distance profile.
 /// For each residue pair, the mechanical distance is 1/S[i][j].
 /// Returns the mean mechanical distance for each residue.
-pub fn MechStiff::mechanical_distance_profile(self : MechStiff) -> Array[Double] {
+pub fn MechStiff::mechanical_distance_profile(
+  self : MechStiff,
+) -> Array[Double] {
   let n = self.n
   let result = Array::make(n, 0.0)
   let mut i = 0
@@ -196,11 +204,15 @@ pub fn MechStiff::mechanical_distance_profile(self : MechStiff) -> Array[Double]
 ///|
 /// Identify stiff residues (above average stiffness).
 /// Returns indices of residues with above-average stiffness.
-pub fn MechStiff::stiff_residues(self : MechStiff) -> Array[Int] {
+pub fn MechStiff::stiff_residues(self : MechStiff) -> Array[Int32] {
   let n = self.n
   let mut mean = 0.0
-  for s in self.residue_stiffness { mean = mean + s }
-  if n > 0 { mean = mean / n.to_double() }
+  for s in self.residue_stiffness {
+    mean = mean + s
+  }
+  if n > 0 {
+    mean = mean / n.to_double()
+  }
   let result = Array(capacity=0)
   let mut i = 0
   while i < n {

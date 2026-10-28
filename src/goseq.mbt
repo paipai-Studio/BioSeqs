@@ -12,10 +12,10 @@ pub struct GoseqResult {
   ontology : String
   p_value : Double
   adjusted_p_value : Double
-  overlap : Int
-  num_de_in_term : Int
-  num_in_term : Int
-  num_de : Int
+  overlap : Int32
+  num_de_in_term : Int32
+  num_in_term : Int32
+  num_de : Int32
   term_genes : Array[String]
 }
 
@@ -26,10 +26,10 @@ pub fn GoseqResult::new(
   ontology : String,
   p_value : Double,
   adjusted_p_value : Double,
-  overlap : Int,
-  num_de_in_term : Int,
-  num_in_term : Int,
-  num_de : Int,
+  overlap : Int32,
+  num_de_in_term : Int32,
+  num_in_term : Int32,
+  num_de : Int32,
   term_genes : Array[String],
 ) -> GoseqResult {
   GoseqResult::{
@@ -74,7 +74,7 @@ fn goseq_lgamma_stirling(x : Double) -> Double {
 }
 
 ///|
-fn goseq_log_choose(n : Int, k : Int) -> Double {
+fn goseq_log_choose(n : Int32, k : Int32) -> Double {
   if k < 0 || k > n {
     return 0.0
   }
@@ -98,10 +98,10 @@ fn goseq_log_choose(n : Int, k : Int) -> Double {
 ///   n_total - total number of genes in the universe
 ///   odds - odds ratio for the GO term (from PWF)
 pub fn wallenius_pvalue(
-  k : Int,
-  m : Int,
-  n : Int,
-  n_total : Int,
+  k : Int32,
+  m : Int32,
+  n : Int32,
+  n_total : Int32,
   odds : Double,
 ) -> Double {
   if odds <= 0.0 || odds == 1.0 {
@@ -173,7 +173,12 @@ pub fn wallenius_pvalue(
 
 ///|
 /// Standard hypergeometric p-value P(X >= k) (no bias correction).
-pub fn hypergeo_pvalue(k : Int, m : Int, n : Int, n_total : Int) -> Double {
+pub fn hypergeo_pvalue(
+  k : Int32,
+  m : Int32,
+  n : Int32,
+  n_total : Int32,
+) -> Double {
   let upper = if m < n { m } else { n }
   if k > upper {
     return 1.0
@@ -228,8 +233,8 @@ pub fn hypergeo_pvalue(k : Int, m : Int, n : Int, n_total : Int) -> Double {
 /// Returns the fitted probabilities (PWF values) for each gene.
 pub fn goseq_nullp(
   gene_lengths : Array[Double],
-  de_status : Array[Int],
-  f? : Double = 0.6667,
+  de_status : Array[Int32],
+  f~ : Double = 0.6667,
 ) -> Array[Double] {
   let n = gene_lengths.length()
   if n == 0 {
@@ -237,7 +242,7 @@ pub fn goseq_nullp(
   }
 
   // Sort gene lengths and DE status together
-  let sorted_pairs : Array[(Double, Int)] = Array(capacity=0)
+  let sorted_pairs : Array[(Double, Int32)] = Array(capacity=0)
   let mut i = 0
   while i < n {
     sorted_pairs.push((gene_lengths[i], de_status[i]))
@@ -295,8 +300,8 @@ pub fn goseq_nullp(
 ///
 /// Returns the Wallenius odds ratio ω.
 fn goseq_calculate_odds(
-  term_gene_indices : Array[Int],
-  all_gene_indices : Array[Int],
+  term_gene_indices : Array[Int32],
+  all_gene_indices : Array[Int32],
   pwf : Array[Double],
 ) -> Double {
   let n_term = term_gene_indices.length()
@@ -321,7 +326,7 @@ fn goseq_calculate_odds(
   }
 
   // Calculate mean odds for genes not in the term
-  let in_term_set : Map[Int, Bool] = Map([], capacity=n_term)
+  let in_term_set : Map[Int32, Bool] = Map([], capacity=n_term)
   i = 0
   while i < n_term {
     in_term_set.set(term_gene_indices[i], true)
@@ -372,14 +377,14 @@ fn goseq_bh_correction(p_values : Array[Double]) -> Array[Double] {
     return Array(capacity=0)
   }
 
-  let indices : Array[Int] = Array(capacity=0)
+  let indices : Array[Int32] = Array(capacity=0)
   let mut i = 0
   while i < n {
     indices.push(i)
     i = i + 1
   }
 
-  let sorted_with_idx : Array[(Double, Int)] = Array(capacity=0)
+  let sorted_with_idx : Array[(Double, Int32)] = Array(capacity=0)
   i = 0
   while i < n {
     sorted_with_idx.push((p_values[i], indices[i]))
@@ -462,9 +467,9 @@ pub fn GoseqGeneSet::new(
 pub fn goseq(
   gene_names : Array[String],
   gene_lengths : Array[Double],
-  de_status : Array[Int],
+  de_status : Array[Int32],
   go_sets : Array[GoseqGeneSet],
-  f? : Double = 0.6667,
+  f~ : Double = 0.6667,
 ) -> Array[GoseqResult] {
   let n = gene_names.length()
   if n == 0 {
@@ -475,7 +480,7 @@ pub fn goseq(
   let pwf = goseq_nullp(gene_lengths, de_status, f~)
 
   // Step 2: Build gene name -> index map
-  let gene_to_idx : Map[String, Int] = Map([], capacity=n)
+  let gene_to_idx : Map[String, Int32] = Map([], capacity=n)
   let mut i = 0
   while i < n {
     gene_to_idx.set(gene_names[i], i)
@@ -496,7 +501,7 @@ pub fn goseq(
   let results : Array[GoseqResult] = Array(capacity=0)
   let p_values : Array[Double] = Array(capacity=0)
 
-  let all_indices : Array[Int] = Array(capacity=0)
+  let all_indices : Array[Int32] = Array(capacity=0)
   i = 0
   while i < n {
     all_indices.push(i)
@@ -508,7 +513,7 @@ pub fn goseq(
     let go_set = go_sets[gs]
 
     // Find indices of genes in this GO term that are in our gene list
-    let term_gene_indices : Array[Int] = Array(capacity=0)
+    let term_gene_indices : Array[Int32] = Array(capacity=0)
     let term_genes_in_list : Array[String] = Array(capacity=0)
     let mut gi = 0
     while gi < go_set.gene_ids.length() {
@@ -613,7 +618,7 @@ pub fn goseq(
 pub fn goseq_filter_results(
   results : Array[GoseqResult],
   p_adjust_cutoff : Double,
-  min_overlap : Int,
+  min_overlap : Int32,
 ) -> Array[GoseqResult] {
   let filtered : Array[GoseqResult] = Array(capacity=0)
   let mut i = 0

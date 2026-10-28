@@ -8,7 +8,7 @@
 fn gstt_approx(
   left : Double,
   right : Double,
-  tolerance? : Double = 1.0e-9,
+  tolerance~ : Double = 1.0e-9,
 ) -> Bool {
   (left - right).abs() <= tolerance
 }
@@ -40,7 +40,7 @@ fn gstt_statistic_s() -> Array[Double] {
 
 ///|
 /// R index c(1,3,5,7,9,11), converted to zero-based.
-fn gstt_index_six() -> Array[Int] {
+fn gstt_index_six() -> Array[Int32] {
   [0, 2, 4, 6, 8, 10]
 }
 
@@ -87,7 +87,7 @@ test "rankSumTestWithCorrelation average-rank tie correction" {
     }
     rep += 1
   }
-  let idx : Array[Int] = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+  let idx : Array[Int32] = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
   let (down0, up0) = @src.rank_sum_test_with_correlation(idx, stats)
   assert_true(gstt_approx(down0, 0.17659512415857861))
   assert_true(gstt_approx(up0, 0.83144492834555495))
@@ -118,11 +118,11 @@ fn gstt_sets() -> Array[@src.CameraGeneSet] raise @src.GeneSetTestError {
 fn gstt_check_row(
   row : @src.CameraResult,
   name~ : String,
-  n_genes~ : Int,
+  n_genes~ : Int32,
   direction~ : String,
   p_value~ : Double,
   fdr~ : Double,
-  tolerance? : Double = 1.0e-9,
+  tolerance~ : Double = 1.0e-9,
 ) -> Unit raise Error {
   assert_eq(row.name(), name)
   assert_eq(row.n_genes(), n_genes)

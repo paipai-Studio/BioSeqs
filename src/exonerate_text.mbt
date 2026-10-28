@@ -18,16 +18,24 @@ pub(all) enum ExonerateTextStrand {
   ExonerateTextReverse
   ExonerateTextProtein
 } derive(Eq, Debug)
+
+///|
 pub extend ExonerateTextStrand with Eq::{equal, not_equal}
+
+///|
 pub extend ExonerateTextStrand with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// A normalized zero-based half-open coordinate range.
 pub struct ExonerateTextRange {
-  start : Int
-  end : Int
+  start : Int32
+  end : Int32
 } derive(Eq, Debug)
+
+///|
 pub extend ExonerateTextRange with Eq::{equal, not_equal}
+
+///|
 pub extend ExonerateTextRange with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -37,7 +45,11 @@ pub struct ExonerateTextMetadata {
   command_line : String
   hostname : String
 } derive(Eq, Debug)
+
+///|
 pub extend ExonerateTextMetadata with Eq::{equal, not_equal}
+
+///|
 pub extend ExonerateTextMetadata with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -52,37 +64,45 @@ pub struct ExonerateTextFragment {
   similarity : String
   query_annotation : String?
   hit_annotation : String?
-  query_start : Int
-  query_end : Int
-  hit_start : Int
-  hit_end : Int
+  query_start : Int32
+  query_end : Int32
+  hit_start : Int32
+  hit_end : Int32
   query_strand : ExonerateTextStrand
   hit_strand : ExonerateTextStrand
-  query_frame : Int
-  hit_frame : Int
-  phase : Int
-  query_step : Int
-  hit_step : Int
+  query_frame : Int32
+  hit_frame : Int32
+  phase : Int32
+  query_step : Int32
+  hit_step : Int32
 } derive(Eq, Debug)
+
+///|
 pub extend ExonerateTextFragment with Eq::{equal, not_equal}
+
+///|
 pub extend ExonerateTextFragment with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// One Exonerate high-scoring pair, potentially split into many fragments.
 pub struct ExonerateTextHsp {
-  score : Int
+  score : Int32
   model : String
-  query_start : Int
-  query_end : Int
-  hit_start : Int
-  hit_end : Int
+  query_start : Int32
+  query_end : Int32
+  hit_start : Int32
+  hit_end : Int32
   query_strand : ExonerateTextStrand
   hit_strand : ExonerateTextStrand
   fragments : Array[ExonerateTextFragment]
   query_split_codons : Array[ExonerateTextRange]
   hit_split_codons : Array[ExonerateTextRange]
 } derive(Eq, Debug)
+
+///|
 pub extend ExonerateTextHsp with Eq::{equal, not_equal}
+
+///|
 pub extend ExonerateTextHsp with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -92,7 +112,11 @@ pub struct ExonerateTextHit {
   description : String
   hsps : Array[ExonerateTextHsp]
 } derive(Eq, Debug)
+
+///|
 pub extend ExonerateTextHit with Eq::{equal, not_equal}
+
+///|
 pub extend ExonerateTextHit with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -103,8 +127,14 @@ pub struct ExonerateTextQueryResult {
   model : String
   hits : Array[ExonerateTextHit]
 } derive(Eq, Debug)
+
+///|
 pub extend ExonerateTextQueryResult with Eq::{equal, not_equal}
-pub extend ExonerateTextQueryResult with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend ExonerateTextQueryResult with @moonbitlang/core/debug.Debug::{
+  to_repr,
+}
 
 ///|
 /// A complete Exonerate human-readable report.
@@ -112,31 +142,39 @@ pub struct ExonerateTextDocument {
   metadata : ExonerateTextMetadata
   queries : Array[ExonerateTextQueryResult]
 } derive(Eq, Debug)
+
+///|
 pub extend ExonerateTextDocument with Eq::{equal, not_equal}
+
+///|
 pub extend ExonerateTextDocument with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Aggregate statistics for one HSP.
 pub struct ExonerateTextCounts {
-  fragments : Int
-  alignment_columns : Int
-  identities : Int
-  positives : Int
-  mismatches : Int
-  gap_columns : Int
-  query_gap_opens : Int
-  hit_gap_opens : Int
-  introns_or_ner_gaps : Int
-  frameshift_gaps : Int
+  fragments : Int32
+  alignment_columns : Int32
+  identities : Int32
+  positives : Int32
+  mismatches : Int32
+  gap_columns : Int32
+  query_gap_opens : Int32
+  hit_gap_opens : Int32
+  introns_or_ner_gaps : Int32
+  frameshift_gaps : Int32
 } derive(Eq, Debug)
+
+///|
 pub extend ExonerateTextCounts with Eq::{equal, not_equal}
+
+///|
 pub extend ExonerateTextCounts with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Construct a normalized coordinate range.
 pub fn ExonerateTextRange::create(
-  start : Int,
-  end : Int,
+  start : Int32,
+  end : Int32,
 ) -> ExonerateTextRange raise ExonerateTextError {
   if start < 0 || end < start {
     raise ExonerateTextError(
@@ -199,12 +237,14 @@ pub fn exonerate_text_parse(
 }
 
 ///|
-pub fn ExonerateTextDocument::num_queries(self : ExonerateTextDocument) -> Int {
+pub fn ExonerateTextDocument::num_queries(
+  self : ExonerateTextDocument,
+) -> Int32 {
   self.queries.length()
 }
 
 ///|
-pub fn ExonerateTextDocument::num_hits(self : ExonerateTextDocument) -> Int {
+pub fn ExonerateTextDocument::num_hits(self : ExonerateTextDocument) -> Int32 {
   let mut count = 0
   for query in self.queries {
     count = count + query.hits.length()
@@ -213,7 +253,7 @@ pub fn ExonerateTextDocument::num_hits(self : ExonerateTextDocument) -> Int {
 }
 
 ///|
-pub fn ExonerateTextDocument::num_hsps(self : ExonerateTextDocument) -> Int {
+pub fn ExonerateTextDocument::num_hsps(self : ExonerateTextDocument) -> Int32 {
   let mut count = 0
   for query in self.queries {
     for hit in query.hits {
@@ -298,7 +338,7 @@ pub fn ExonerateTextQueryResult::find_hit(
 }
 
 ///|
-pub fn ExonerateTextHsp::num_fragments(self : ExonerateTextHsp) -> Int {
+pub fn ExonerateTextHsp::num_fragments(self : ExonerateTextHsp) -> Int32 {
   self.fragments.length()
 }
 
@@ -431,8 +471,8 @@ pub fn ExonerateTextHsp::counts(self : ExonerateTextHsp) -> ExonerateTextCounts 
 /// Map an aligned residue index to its query coordinate.
 pub fn ExonerateTextFragment::query_position(
   self : ExonerateTextFragment,
-  aligned_index : Int,
-) -> Int? {
+  aligned_index : Int32,
+) -> Int32? {
   exonerate_text_fragment_position(
     self.query_sequence,
     aligned_index,
@@ -447,8 +487,8 @@ pub fn ExonerateTextFragment::query_position(
 /// Map an aligned residue index to its hit coordinate.
 pub fn ExonerateTextFragment::hit_position(
   self : ExonerateTextFragment,
-  aligned_index : Int,
-) -> Int? {
+  aligned_index : Int32,
+) -> Int32? {
   exonerate_text_fragment_position(
     self.hit_sequence,
     aligned_index,
@@ -508,29 +548,29 @@ priv struct ExonerateTextHeader {
   hit_id : String
   hit_description : String
   model : String
-  score : Int
-  query_raw_start : Int
-  query_raw_end : Int
-  hit_raw_start : Int
-  hit_raw_end : Int
+  score : Int32
+  query_raw_start : Int32
+  query_raw_end : Int32
+  hit_raw_start : Int32
+  hit_raw_end : Int32
   query_strand : ExonerateTextStrand
   hit_strand : ExonerateTextStrand
-  body_start : Int
+  body_start : Int32
 }
 
 ///|
 priv struct ExonerateTextRowMap {
-  query : Int
-  similarity : Int
-  hit : Int
-  query_annotation : Int
-  hit_annotation : Int
+  query : Int32
+  similarity : Int32
+  hit : Int32
+  query_annotation : Int32
+  hit_annotation : Int32
 }
 
 ///|
 priv struct ExonerateTextSpan {
-  start : Int
-  end : Int
+  start : Int32
+  end : Int32
 }
 
 ///|
@@ -540,18 +580,18 @@ priv struct ExonerateTextRawFragment {
   similarity : String
   query_annotation : String?
   hit_annotation : String?
-  query_start : Int
-  query_end : Int
-  hit_start : Int
-  hit_end : Int
-  phase : Int
+  query_start : Int32
+  query_end : Int32
+  hit_start : Int32
+  hit_end : Int32
+  phase : Int32
 }
 
 ///|
 fn exonerate_text_parse_alignment(
   lines : Array[String],
-  start : Int,
-  stop : Int,
+  start : Int32,
+  stop : Int32,
 ) -> ExonerateTextParsedAlignment raise ExonerateTextError {
   let header = exonerate_text_parse_header(lines, start, stop)
   let raw_blocks = exonerate_text_read_physical_blocks(
@@ -576,8 +616,8 @@ fn exonerate_text_parse_alignment(
       "Exonerate alignment contains no sequence fragment",
     )
   }
-  let query_gaps : Array[Int] = []
-  let hit_gaps : Array[Int] = []
+  let query_gaps : Array[Int32] = []
+  let hit_gaps : Array[Int32] = []
   for separator in separators {
     if has_ner {
       query_gaps.push(
@@ -639,8 +679,8 @@ fn exonerate_text_parse_alignment(
 ///|
 fn exonerate_text_parse_header(
   lines : Array[String],
-  start : Int,
-  stop : Int,
+  start : Int32,
+  stop : Int32,
 ) -> ExonerateTextHeader raise ExonerateTextError {
   let mut query_value = ""
   let mut hit_value = ""
@@ -727,8 +767,8 @@ fn exonerate_text_parse_header(
 ///|
 fn exonerate_text_read_physical_blocks(
   lines : Array[String],
-  start : Int,
-  stop : Int,
+  start : Int32,
+  stop : Int32,
 ) -> Array[Array[String]] raise ExonerateTextError {
   let result : Array[Array[String]] = []
   let mut index = start
@@ -837,7 +877,7 @@ fn exonerate_text_stitch_rows(
 
 ///|
 fn exonerate_text_row_map(
-  count : Int,
+  count : Int32,
   model : String,
 ) -> ExonerateTextRowMap raise ExonerateTextError {
   if count == 3 {
@@ -891,8 +931,8 @@ fn exonerate_text_build_fragments(
   rows : Array[String],
   row_map : ExonerateTextRowMap,
   blocks : Array[ExonerateTextSpan],
-  query_gaps : Array[Int],
-  hit_gaps : Array[Int],
+  query_gaps : Array[Int32],
+  hit_gaps : Array[Int32],
   header : ExonerateTextHeader,
 ) -> ExonerateTextHsp raise ExonerateTextError {
   let raw_fragments : Array[ExonerateTextRawFragment] = []
@@ -1101,12 +1141,12 @@ fn exonerate_text_make_raw_fragment(
   similarity : String,
   query_annotation : String?,
   hit_annotation : String?,
-  query_cursor : Int,
-  hit_cursor : Int,
-  query_direction : Int,
-  hit_direction : Int,
-  phase_offset : Int,
-) -> (ExonerateTextRawFragment, Int, Int) {
+  query_cursor : Int32,
+  hit_cursor : Int32,
+  query_direction : Int32,
+  hit_direction : Int32,
+  phase_offset : Int32,
+) -> (ExonerateTextRawFragment, Int32, Int32) {
   let query_units = exonerate_text_raw_units(query)
   let hit_units = exonerate_text_raw_units(hit)
   let query_next = query_cursor + query_units * query_direction
@@ -1387,8 +1427,8 @@ fn exonerate_text_find_intron_spans(
 ///|
 fn exonerate_text_expand_splice_flanks(
   sequence : String,
-  raw_start : Int,
-  raw_end : Int,
+  raw_start : Int32,
+  raw_end : Int32,
 ) -> ExonerateTextSpan {
   let mut start = raw_start
   let mut moved = 0
@@ -1411,7 +1451,7 @@ fn exonerate_text_expand_splice_flanks(
 
 ///|
 fn exonerate_text_complement_spans(
-  length : Int,
+  length : Int32,
   separators : Array[ExonerateTextSpan],
 ) -> Array[ExonerateTextSpan] raise ExonerateTextError {
   let result : Array[ExonerateTextSpan] = []
@@ -1436,9 +1476,9 @@ fn exonerate_text_complement_spans(
 ///|
 fn exonerate_text_bp_lengths(
   text : String,
-) -> Array[Int] raise ExonerateTextError {
+) -> Array[Int32] raise ExonerateTextError {
   let fields = exonerate_text_split_whitespace(text)
-  let result : Array[Int] = []
+  let result : Array[Int32] = []
   for index = 0; index + 1 < fields.length(); index = index + 1 {
     if fields[index + 1] == "bp" {
       result.push(
@@ -1453,7 +1493,7 @@ fn exonerate_text_bp_lengths(
 fn exonerate_text_parse_ner_gap(
   text : String,
   axis : String,
-) -> Int raise ExonerateTextError {
+) -> Int32 raise ExonerateTextError {
   let mut start = -1
   let mut end = -1
   for index = 0; index < text.length(); index = index + 1 {
@@ -1498,7 +1538,7 @@ fn exonerate_text_hash_runs(text : String) -> Array[ExonerateTextSpan] {
 }
 
 ///|
-fn exonerate_text_split_codon_moves(sequence : String) -> (Int, Int) {
+fn exonerate_text_split_codon_moves(sequence : String) -> (Int32, Int32) {
   let mut suffix = 0
   if sequence.length() >= 3 &&
     sequence.unsafe_get(sequence.length() - 1).to_int() == '}'.to_int() {
@@ -1529,9 +1569,9 @@ fn exonerate_text_split_codon_moves(sequence : String) -> (Int, Int) {
 ///|
 fn exonerate_text_append_split_codons(
   output : Array[ExonerateTextRange],
-  moves : (Int, Int),
-  raw_start : Int,
-  raw_end : Int,
+  moves : (Int32, Int32),
+  raw_start : Int32,
+  raw_end : Int32,
   strand : ExonerateTextStrand,
 ) -> Unit {
   let direction = exonerate_text_direction(strand)
@@ -1554,7 +1594,7 @@ fn exonerate_text_append_split_codons(
 }
 
 ///|
-fn exonerate_text_aa_sequence(sequence : String, phase : Int) -> String {
+fn exonerate_text_aa_sequence(sequence : String, phase : Int32) -> String {
   let output = StringBuilder()
   let mut index = 0
   if phase > 0 && sequence.length() > 0 {
@@ -1575,7 +1615,7 @@ fn exonerate_text_aa_sequence(sequence : String, phase : Int) -> String {
 ///|
 fn exonerate_text_triplet_annotation(
   annotation : String,
-  phase : Int,
+  phase : Int32,
 ) -> String {
   let output = StringBuilder()
   let mut index = 0
@@ -1657,7 +1697,7 @@ fn exonerate_text_annotation_code(value : String) -> Char {
 }
 
 ///|
-fn exonerate_text_frame(start : Int, strand : ExonerateTextStrand) -> Int {
+fn exonerate_text_frame(start : Int32, strand : ExonerateTextStrand) -> Int32 {
   match strand {
     ExonerateTextProtein => 0
     ExonerateTextForward => start % 3 + 1
@@ -1666,7 +1706,7 @@ fn exonerate_text_frame(start : Int, strand : ExonerateTextStrand) -> Int {
 }
 
 ///|
-fn exonerate_text_raw_units(sequence : String) -> Int {
+fn exonerate_text_raw_units(sequence : String) -> Int32 {
   let mut count = 0
   for index = 0; index < sequence.length(); index = index + 1 {
     let code = sequence.unsafe_get(index).to_int()
@@ -1682,7 +1722,10 @@ fn exonerate_text_raw_units(sequence : String) -> Int {
 }
 
 ///|
-fn exonerate_text_complete_residue_units(sequence : String, phase : Int) -> Int {
+fn exonerate_text_complete_residue_units(
+  sequence : String,
+  phase : Int32,
+) -> Int32 {
   let mut index = exonerate_text_min(phase, sequence.length())
   let mut count = 0
   while index + 3 <= sequence.length() {
@@ -1742,12 +1785,12 @@ fn exonerate_text_inter_ranges(
 ///|
 fn exonerate_text_fragment_position(
   sequence : String,
-  aligned_index : Int,
-  start : Int,
-  end : Int,
+  aligned_index : Int32,
+  start : Int32,
+  end : Int32,
   strand : ExonerateTextStrand,
-  step : Int,
-) -> Int? {
+  step : Int32,
+) -> Int32? {
   if aligned_index < 0 || aligned_index >= sequence.length() {
     return None
   }
@@ -1770,8 +1813,8 @@ fn exonerate_text_fragment_position(
 ///|
 fn exonerate_text_similarity_positive(
   similarity : String,
-  index : Int,
-  sequence_width : Int,
+  index : Int32,
+  sequence_width : Int32,
 ) -> Bool {
   if similarity.length() == sequence_width && index < similarity.length() {
     let code = similarity.unsafe_get(index).to_int()
@@ -1782,7 +1825,7 @@ fn exonerate_text_similarity_positive(
 }
 
 ///|
-fn exonerate_text_coordinate_layout(line : String) -> (Int, Int)? {
+fn exonerate_text_coordinate_layout(line : String) -> (Int32, Int32)? {
   let mut first = -1
   let mut last = -1
   for index = 0; index < line.length(); index = index + 1 {
@@ -1819,8 +1862,8 @@ fn exonerate_text_coordinate_layout(line : String) -> (Int, Int)? {
 ///|
 fn exonerate_text_fixed_slice(
   line : String,
-  start : Int,
-  width : Int,
+  start : Int32,
+  width : Int32,
 ) -> String raise ExonerateTextError {
   if start < 0 || width <= 0 || start + width > line.length() {
     raise ExonerateTextError(
@@ -1934,7 +1977,7 @@ fn exonerate_text_strand(
 fn exonerate_text_parse_range(
   value : String,
   label : String,
-) -> (Int, Int) raise ExonerateTextError {
+) -> (Int32, Int32) raise ExonerateTextError {
   let arrow = exonerate_text_find_substring(value, "->", 0)
   if arrow < 0 {
     raise ExonerateTextError("Exonerate " + label + " range must contain ->")
@@ -1949,8 +1992,8 @@ fn exonerate_text_parse_range(
 
 ///|
 fn exonerate_text_validate_orientation(
-  start : Int,
-  end : Int,
+  start : Int32,
+  end : Int32,
   strand : ExonerateTextStrand,
   label : String,
 ) -> Unit raise ExonerateTextError {
@@ -1979,7 +2022,7 @@ fn exonerate_text_validate_orientation(
 fn exonerate_text_parse_nonnegative_int(
   text : String,
   label : String,
-) -> Int raise ExonerateTextError {
+) -> Int32 raise ExonerateTextError {
   if text.length() == 0 {
     raise ExonerateTextError(label + " is empty")
   }
@@ -2004,8 +2047,8 @@ fn exonerate_text_parse_nonnegative_int(
 fn exonerate_text_find_substring(
   text : String,
   pattern : String,
-  from : Int,
-) -> Int {
+  from : Int32,
+) -> Int32 {
   if pattern.length() == 0 {
     return from
   }
@@ -2028,7 +2071,7 @@ fn exonerate_text_find_substring(
 }
 
 ///|
-fn exonerate_text_find_dot_run(text : String, from : Int) -> (Int, Int) {
+fn exonerate_text_find_dot_run(text : String, from : Int32) -> (Int32, Int32) {
   let mut index = if from < 0 { 0 } else { from }
   while index < text.length() {
     if text.unsafe_get(index).to_int() == '.'.to_int() {
@@ -2062,8 +2105,8 @@ fn exonerate_text_remove_braces(text : String) -> String {
 ///|
 fn exonerate_text_option_slice(
   value : String?,
-  start : Int,
-  end : Int,
+  start : Int32,
+  end : Int32,
 ) -> String? {
   match value {
     Some(text) => Some(text[start:end].to_owned())
@@ -2077,7 +2120,7 @@ fn exonerate_text_after_prefix(value : String, prefix : String) -> String {
 }
 
 ///|
-fn exonerate_text_direction(strand : ExonerateTextStrand) -> Int {
+fn exonerate_text_direction(strand : ExonerateTextStrand) -> Int32 {
   if strand == ExonerateTextReverse {
     -1
   } else {
@@ -2086,7 +2129,7 @@ fn exonerate_text_direction(strand : ExonerateTextStrand) -> Int {
 }
 
 ///|
-fn exonerate_text_is_splice_flank(code : Int) -> Bool {
+fn exonerate_text_is_splice_flank(code : Int32) -> Bool {
   code == ' '.to_int() ||
   code == 'a'.to_int() ||
   code == 't'.to_int() ||
@@ -2131,7 +2174,7 @@ fn exonerate_text_split_whitespace(value : String) -> Array[String] {
 }
 
 ///|
-fn exonerate_text_is_whitespace(code : Int) -> Bool {
+fn exonerate_text_is_whitespace(code : Int32) -> Bool {
   code == ' '.to_int() ||
   code == '\t'.to_int() ||
   code == '\r'.to_int() ||
@@ -2139,7 +2182,7 @@ fn exonerate_text_is_whitespace(code : Int) -> Bool {
 }
 
 ///|
-fn exonerate_text_upper(code : Int) -> Int {
+fn exonerate_text_upper(code : Int32) -> Int32 {
   if code >= 'a'.to_int() && code <= 'z'.to_int() {
     code - 'a'.to_int() + 'A'.to_int()
   } else {
@@ -2148,7 +2191,7 @@ fn exonerate_text_upper(code : Int) -> Int {
 }
 
 ///|
-fn exonerate_text_min(first : Int, second : Int) -> Int {
+fn exonerate_text_min(first : Int32, second : Int32) -> Int32 {
   if first < second {
     first
   } else {
@@ -2157,7 +2200,7 @@ fn exonerate_text_min(first : Int, second : Int) -> Int {
 }
 
 ///|
-fn exonerate_text_max(first : Int, second : Int) -> Int {
+fn exonerate_text_max(first : Int32, second : Int32) -> Int32 {
   if first > second {
     first
   } else {

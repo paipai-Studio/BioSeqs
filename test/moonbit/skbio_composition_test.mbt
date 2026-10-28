@@ -29,10 +29,7 @@ test "skbio_multi_replace" {
 ///|
 test "skbio_perturb" {
   // doctest: perturb([1/3,1/3,1/3], [1/2,1/2,1]) = [.25,.25,.5]
-  let r = @src.skbio_perturb(
-    [1.0 / 3.0, 1.0 / 3.0, 1.0 / 3.0],
-    [0.5, 0.5, 1.0],
-  )
+  let r = @src.skbio_perturb([1.0 / 3.0, 1.0 / 3.0, 1.0 / 3.0], [0.5, 0.5, 1.0])
   assert_true(@moonbit.assert_num_close(r[0], 0.25, 1.0e-9))
   assert_true(@moonbit.assert_num_close(r[1], 0.25, 1.0e-9))
   assert_true(@moonbit.assert_num_close(r[2], 0.5, 1.0e-9))
@@ -41,10 +38,12 @@ test "skbio_perturb" {
 ///|
 test "skbio_perturb_inv" {
   // doctest: perturb_inv([.1,.3,.4,.2], [1/6,1/6,1/3,1/3]) = [.14285714,.42857143,.28571429,.14285714]
-  let r = @src.skbio_perturb_inv(
-    [0.1, 0.3, 0.4, 0.2],
-    [1.0 / 6.0, 1.0 / 6.0, 1.0 / 3.0, 1.0 / 3.0],
-  )
+  let r = @src.skbio_perturb_inv([0.1, 0.3, 0.4, 0.2], [
+    1.0 / 6.0,
+    1.0 / 6.0,
+    1.0 / 3.0,
+    1.0 / 3.0,
+  ])
   assert_true(@moonbit.assert_num_close(r[0], 0.14285714, 1.0e-8))
   assert_true(@moonbit.assert_num_close(r[1], 0.42857143, 1.0e-8))
   assert_true(@moonbit.assert_num_close(r[2], 0.28571429, 1.0e-8))

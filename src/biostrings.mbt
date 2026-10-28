@@ -44,37 +44,37 @@ let iupac_nucleotide_map : Map[UInt16, Array[UInt16]] = Map([
 
 ///|
 pub struct NucleotideFreq {
-  a : Int
-  c : Int
-  g : Int
-  t : Int
-  other : Int
-  n : Int
+  a : Int32
+  c : Int32
+  g : Int32
+  t : Int32
+  other : Int32
+  n : Int32
 }
 
 ///|
 pub struct AminoAcidFreq {
-  a : Int
-  c : Int
-  d : Int
-  e : Int
-  f : Int
-  g : Int
-  h : Int
-  i : Int
-  k : Int
-  l : Int
-  m : Int
-  n : Int
-  p : Int
-  q : Int
-  r : Int
-  s : Int
-  t : Int
-  v : Int
-  w : Int
-  y : Int
-  other : Int
+  a : Int32
+  c : Int32
+  d : Int32
+  e : Int32
+  f : Int32
+  g : Int32
+  h : Int32
+  i : Int32
+  k : Int32
+  l : Int32
+  m : Int32
+  n : Int32
+  p : Int32
+  q : Int32
+  r : Int32
+  s : Int32
+  t : Int32
+  v : Int32
+  w : Int32
+  y : Int32
+  other : Int32
 }
 
 ///|
@@ -111,7 +111,7 @@ pub fn letter_frequency_dna(seq : String) -> NucleotideFreq {
 
 ///|
 pub fn letter_frequency_aa(seq : String) -> AminoAcidFreq {
-  let counts : FixedArray[Int] = FixedArray::make(21, 0)
+  let counts : FixedArray[Int32] = FixedArray::make(21, 0)
 
   let mut i = 0
   while i < seq.length() {
@@ -192,7 +192,7 @@ pub fn letter_frequency_aa(seq : String) -> AminoAcidFreq {
 ///|
 pub fn oligonucleotide_frequency(
   seq : String,
-  k : Int,
+  k : Int32,
   normalize : Bool,
 ) -> Map[String, Double] {
   let n = seq.length()
@@ -298,7 +298,10 @@ pub fn rscu(seq : String) -> Map[String, Double] {
 }
 
 ///|
-pub fn gc_content_by_position(seq : String, window_size : Int) -> Array[Double] {
+pub fn gc_content_by_position(
+  seq : String,
+  window_size : Int32,
+) -> Array[Double] {
   let n = seq.length()
   if window_size <= 0 || n == 0 {
     return Array(capacity=0)
@@ -345,7 +348,7 @@ pub fn shannon_entropy(seq : String) -> Double {
     return 0.0
   }
 
-  let freq : Map[UInt16, Int] = Map([], capacity=4)
+  let freq : Map[UInt16, Int32] = Map([], capacity=4)
 
   let mut i = 0
   while i < n {
@@ -381,7 +384,7 @@ pub fn dust_complexity(seq : String) -> Double {
   while i <= n - window_size {
     let window = seq[i:i + window_size]
 
-    let triples : Map[String, Int] = Map([], capacity=64)
+    let triples : Map[String, Int32] = Map([], capacity=64)
     let mut j = 0
     while j <= window_size - 3 {
       let triple = window[j:j + 3].to_owned()
@@ -413,7 +416,7 @@ pub fn dust_complexity(seq : String) -> Double {
 }
 
 ///|
-pub fn iupac_match(pattern : String, subject : String) -> Array[(Int, Int)] {
+pub fn iupac_match(pattern : String, subject : String) -> Array[(Int32, Int32)] {
   let result = Array(capacity=0)
   let n = subject.length()
   let m = pattern.length()
@@ -519,7 +522,7 @@ pub fn tm_nn(seq : String) -> Double {
 }
 
 ///|
-pub fn nedit_at(pattern : String, subject : String, fixed : Bool) -> Int {
+pub fn nedit_at(pattern : String, subject : String, fixed : Bool) -> Int32 {
   let n = pattern.length()
   let m = subject.length()
   let min_len = if n < m { n } else { m }
@@ -659,12 +662,12 @@ pub fn iupac_reverse_complement(seq : String) -> String {
 ///|
 /// A single match hit with position, count, and mismatched positions.
 pub struct MatchHit {
-  start : Int
-  end : Int
-  width : Int
-  mismatches : Int
-  inserted : Int
-  deleted : Int
+  start : Int32
+  end : Int32
+  width : Int32
+  mismatches : Int32
+  inserted : Int32
+  deleted : Int32
 }
 
 ///|
@@ -673,31 +676,31 @@ pub struct MatchPatternResult {
   hits : Array[MatchHit]
   pattern : String
   subject : String
-  max_mismatches : Int
+  max_mismatches : Int32
   with_indels : Bool
 }
 
 ///|
 /// Get number of matches found.
-pub fn MatchPatternResult::n_matches(self : MatchPatternResult) -> Int {
+pub fn MatchPatternResult::n_matches(self : MatchPatternResult) -> Int32 {
   self.hits.length()
 }
 
 ///|
 /// Get all match starts.
-pub fn MatchPatternResult::starts(self : MatchPatternResult) -> Array[Int] {
+pub fn MatchPatternResult::starts(self : MatchPatternResult) -> Array[Int32] {
   self.hits.map(fn(h) { h.start })
 }
 
 ///|
 /// Get all match ends.
-pub fn MatchPatternResult::ends(self : MatchPatternResult) -> Array[Int] {
+pub fn MatchPatternResult::ends(self : MatchPatternResult) -> Array[Int32] {
   self.hits.map(fn(h) { h.end })
 }
 
 ///|
 /// Get all match widths.
-pub fn MatchPatternResult::widths(self : MatchPatternResult) -> Array[Int] {
+pub fn MatchPatternResult::widths(self : MatchPatternResult) -> Array[Int32] {
   self.hits.map(fn(h) { h.width })
 }
 
@@ -705,7 +708,7 @@ pub fn MatchPatternResult::widths(self : MatchPatternResult) -> Array[Int] {
 /// Get all mismatch counts.
 pub fn MatchPatternResult::mismatch_counts(
   self : MatchPatternResult,
-) -> Array[Int] {
+) -> Array[Int32] {
   self.hits.map(fn(h) { h.mismatches })
 }
 
@@ -716,8 +719,8 @@ pub fn MatchPatternResult::mismatch_counts(
 pub fn match_pattern(
   pattern~ : String,
   subject~ : String,
-  max_mismatches? : Int = 0,
-  with_indels? : Bool = false,
+  max_mismatches~ : Int32 = 0,
+  with_indels~ : Bool = false,
 ) -> MatchPatternResult {
   let n = pattern.length()
   let m = subject.length()
@@ -776,8 +779,8 @@ pub fn match_pattern(
 pub fn vmatch_pattern(
   pattern~ : String,
   subjects~ : Array[String],
-  max_mismatches? : Int = 0,
-  with_indels? : Bool = false,
+  max_mismatches~ : Int32 = 0,
+  with_indels~ : Bool = false,
 ) -> Array[MatchPatternResult] {
   subjects.map(fn(subj) {
     match_pattern(pattern~, subject=subj, max_mismatches~, with_indels~)
@@ -788,9 +791,9 @@ pub fn vmatch_pattern(
 /// Find palindromic sequences (reverse complement equals itself).
 pub fn find_palindromes(
   seq~ : String,
-  min_length? : Int = 4,
-) -> Array[(Int, Int)] {
-  let results : Array[(Int, Int)] = Array(capacity=0)
+  min_length~ : Int32 = 4,
+) -> Array[(Int32, Int32)] {
+  let results : Array[(Int32, Int32)] = Array(capacity=0)
   let n = seq.length()
 
   let mut i = 0
@@ -814,11 +817,11 @@ pub fn find_palindromes(
 /// Find direct repeats in a sequence.
 pub fn find_direct_repeats(
   seq~ : String,
-  min_unit_length? : Int = 2,
-  max_unit_length? : Int = 10,
-  min_copies? : Int = 2,
-) -> Array[(Int, Int, Int)] {
-  let results : Array[(Int, Int, Int)] = Array(capacity=0)
+  min_unit_length~ : Int32 = 2,
+  max_unit_length~ : Int32 = 10,
+  min_copies~ : Int32 = 2,
+) -> Array[(Int32, Int32, Int32)] {
+  let results : Array[(Int32, Int32, Int32)] = Array(capacity=0)
   let n = seq.length()
 
   let mut unit_len = min_unit_length
@@ -852,9 +855,9 @@ pub fn find_direct_repeats(
 /// Find inverted repeats in a sequence.
 pub fn find_inverted_repeats(
   seq~ : String,
-  min_length? : Int = 4,
-) -> Array[(Int, Int, Int, Int)] {
-  let results : Array[(Int, Int, Int, Int)] = Array(capacity=0)
+  min_length~ : Int32 = 4,
+) -> Array[(Int32, Int32, Int32, Int32)] {
+  let results : Array[(Int32, Int32, Int32, Int32)] = Array(capacity=0)
   let n = seq.length()
 
   let mut i = 0
@@ -878,10 +881,10 @@ pub fn find_inverted_repeats(
 
 ///|
 /// Find all occurrences of a motif allowing IUPAC ambiguity codes.
-pub fn find_motif_iupac(pattern : String, subject : String) -> Array[Int] {
+pub fn find_motif_iupac(pattern : String, subject : String) -> Array[Int32] {
   let n = pattern.length()
   let m = subject.length()
-  let positions : Array[Int] = Array(capacity=0)
+  let positions : Array[Int32] = Array(capacity=0)
 
   if n == 0 || m < n {
     return positions
@@ -917,10 +920,10 @@ pub fn find_motif_iupac(pattern : String, subject : String) -> Array[Int] {
 /// Calculate GC content in sliding windows.
 pub fn gc_content_sliding(
   seq~ : String,
-  window_size? : Int = 100,
-  step? : Int = 10,
-) -> Array[(Int, Double)] {
-  let results : Array[(Int, Double)] = Array(capacity=0)
+  window_size~ : Int32 = 100,
+  step~ : Int32 = 10,
+) -> Array[(Int32, Double)] {
+  let results : Array[(Int32, Double)] = Array(capacity=0)
   let n = seq.length()
 
   if n < window_size {
@@ -942,10 +945,10 @@ pub fn gc_content_sliding(
 /// Calculate melting temperature in sliding windows.
 pub fn tm_sliding(
   seq~ : String,
-  window_size? : Int = 100,
-  step? : Int = 10,
-) -> Array[(Int, Double)] {
-  let results : Array[(Int, Double)] = Array(capacity=0)
+  window_size~ : Int32 = 100,
+  step~ : Int32 = 10,
+) -> Array[(Int32, Double)] {
+  let results : Array[(Int32, Double)] = Array(capacity=0)
   let n = seq.length()
 
   if n < window_size {
@@ -967,9 +970,9 @@ pub fn tm_sliding(
 /// Compute per-position letter frequency matrix.
 /// Returns a map of nucleotide letters to arrays of per-position counts.
 /// Similar to Bioconductor's letterFrequency function.
-pub fn letter_frequency_matrix(seq : String) -> Map[String, Array[Int]] {
+pub fn letter_frequency_matrix(seq : String) -> Map[String, Array[Int32]] {
   let n = seq.length()
-  let matrix : Map[String, Array[Int]] = Map([], capacity=8)
+  let matrix : Map[String, Array[Int32]] = Map([], capacity=8)
 
   // Initialize for DNA alphabet
   let bases = [
@@ -1023,7 +1026,7 @@ pub fn biostrings_consensus_sequence(alignment : Array[String]) -> String {
   let result : FixedArray[UInt16] = FixedArray::make(seq_len, 0)
   let mut pos = 0
   while pos < seq_len {
-    let counts : Map[UInt16, Int] = Map([], capacity=20)
+    let counts : Map[UInt16, Int32] = Map([], capacity=20)
     let mut s = 0
     while s < n_seqs {
       let letter = alignment[s][pos]
@@ -1051,7 +1054,7 @@ pub fn biostrings_consensus_sequence(alignment : Array[String]) -> String {
 ///|
 /// Translate DNA/RNA sequence to protein (amino acid sequence).
 /// Uses standard genetic code.
-pub fn biostrings_translate(seq : String, frame? : Int = 0) -> String {
+pub fn biostrings_translate(seq : String, frame~ : Int32 = 0) -> String {
   let n = seq.length()
   let offset = if frame >= 0 && frame < 3 { frame } else { 0 }
   let aa_count = (n - offset) / 3
@@ -1187,7 +1190,7 @@ pub fn biostrings_reverse_complement(seq : String) -> String {
 /// Based on letter frequencies and pattern length.
 pub fn expected_matches(
   pattern : String,
-  seq_length : Int,
+  seq_length : Int32,
   gc_content : Double,
 ) -> Double {
   let n = pattern.length()
@@ -1229,13 +1232,13 @@ pub fn expected_matches(
 
 ///|
 /// Calculate sequence complexity (Shannon entropy of oligonucleotide frequencies).
-pub fn sequence_complexity(seq : String, word_size : Int) -> Double {
+pub fn sequence_complexity(seq : String, word_size : Int32) -> Double {
   let n = seq.length()
   if n < word_size || word_size < 1 {
     return 0.0
   }
 
-  let counts : Map[String, Int] = Map([], capacity=n)
+  let counts : Map[String, Int32] = Map([], capacity=n)
   let total_positions = n - word_size + 1
 
   let mut i = 0

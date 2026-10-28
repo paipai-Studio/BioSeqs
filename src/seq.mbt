@@ -20,7 +20,7 @@ pub suberror SeqError {
 /// Find the first index of `sub` at or after `from` (code-unit index), or
 /// None. Uses `unsafe_get` (O(1)) instead of `get_char` (O(n)) for speed.
 /// For ASCII biological sequences, code-unit index == character index.
-fn find_from(s : String, sub : String, from : Int) -> Int? {
+fn find_from(s : String, sub : String, from : Int32) -> Int32? {
   let n = s.length()
   let m = sub.length()
   if m == 0 {
@@ -56,7 +56,11 @@ fn find_from(s : String, sub : String, from : Int) -> Int? {
 pub struct Seq {
   data : String
 } derive(Eq, Hash)
+
+///|
 pub extend Seq with Eq::{equal, not_equal}
+
+///|
 pub extend Seq with Hash::{hash, hash_combine}
 
 ///|
@@ -85,7 +89,7 @@ pub fn Seq::repr(self : Seq) -> String {
 
 ///|
 /// Number of characters in the sequence.
-pub fn Seq::length(self : Seq) -> Int {
+pub fn Seq::length(self : Seq) -> Int32 {
   self.data.char_length()
 }
 
@@ -95,6 +99,8 @@ pub fn Seq::length(self : Seq) -> Int {
 pub impl Add for Seq with fn add(self, other) {
   Seq::{ data: self.data + other.data, }
 }
+
+///|
 pub extend Seq with Add::{add}
 
 ///|
@@ -106,7 +112,7 @@ pub fn Seq::add_str(self : Seq, other : String) -> Seq {
 ///|
 /// Repeat the sequence `n` times. (The `*` operator is not used because
 /// MoonBit's Mul trait requires both operands to be the same type.)
-pub fn Seq::mul(self : Seq, n : Int) -> Seq {
+pub fn Seq::mul(self : Seq, n : Int32) -> Seq {
   if n <= 0 {
     Seq::{ data: "", }
   } else {
@@ -117,13 +123,13 @@ pub fn Seq::mul(self : Seq, n : Int) -> Seq {
 ///|
 /// Return a subsequence from [start, end) (character indices). Matches
 /// Python slicing semantics for non-negative bounds.
-pub fn Seq::slice(self : Seq, start~ : Int, end~ : Int) -> Seq {
+pub fn Seq::slice(self : Seq, start~ : Int32, end~ : Int32) -> Seq {
   Seq::{ data: self.data[start:end].to_owned(), }
 }
 
 ///|
 /// Return the character at position `i`, or None if out of bounds.
-pub fn Seq::get_char(self : Seq, i : Int) -> Char? {
+pub fn Seq::get_char(self : Seq, i : Int32) -> Char? {
   self.data.get_char(i)
 }
 
@@ -142,7 +148,7 @@ pub fn Seq::lower(self : Seq) -> Seq {
 ///|
 /// Count non-overlapping occurrences of `sub` in the full sequence, like
 /// BioPython's Seq.count.
-pub fn Seq::count(self : Seq, sub : String) -> Int {
+pub fn Seq::count(self : Seq, sub : String) -> Int32 {
   let sub_len = sub.length()
   if sub_len == 0 {
     return self.data.length() + 1
@@ -166,7 +172,7 @@ pub fn Seq::count(self : Seq, sub : String) -> Int {
 ///|
 /// Count occurrences of `sub`, including overlaps. Mirrors BioPython's
 /// Seq.count_overlap.
-pub fn Seq::count_overlap(self : Seq, sub : String) -> Int {
+pub fn Seq::count_overlap(self : Seq, sub : String) -> Int32 {
   let sub_len = sub.length()
   if sub_len == 0 {
     return self.data.length() + 1
@@ -190,7 +196,7 @@ pub fn Seq::count_overlap(self : Seq, sub : String) -> Int {
 ///|
 /// Find the first index of `sub`, or -1 if not found (Python str.find
 /// semantics).
-pub fn Seq::find(self : Seq, sub : String) -> Int {
+pub fn Seq::find(self : Seq, sub : String) -> Int32 {
   match self.data.find(sub) {
     Some(p) => p
     None => -1
@@ -199,7 +205,7 @@ pub fn Seq::find(self : Seq, sub : String) -> Int {
 
 ///|
 /// Find the last index of `sub`, or -1 if not found.
-pub fn Seq::rfind(self : Seq, sub : String) -> Int {
+pub fn Seq::rfind(self : Seq, sub : String) -> Int32 {
   match self.data.rev_find(sub) {
     Some(p) => p
     None => -1
@@ -253,19 +259,19 @@ pub fn Seq::contains(self : Seq, sub : String) -> Bool {
 ///|
 /// Remove leading and trailing characters in `chars` (default: whitespace),
 /// like Seq.strip.
-pub fn Seq::strip(self : Seq, chars? : String = " ") -> Seq {
+pub fn Seq::strip(self : Seq, chars~ : String = " ") -> Seq {
   Seq::{ data: self.data.trim(chars~).to_owned(), }
 }
 
 ///|
 /// Remove leading characters in `chars`.
-pub fn Seq::lstrip(self : Seq, chars? : String = " ") -> Seq {
+pub fn Seq::lstrip(self : Seq, chars~ : String = " ") -> Seq {
   Seq::{ data: self.data.trim_start(chars~).to_owned(), }
 }
 
 ///|
 /// Remove trailing characters in `chars`.
-pub fn Seq::rstrip(self : Seq, chars? : String = " ") -> Seq {
+pub fn Seq::rstrip(self : Seq, chars~ : String = " ") -> Seq {
   Seq::{ data: self.data.trim_end(chars~).to_owned(), }
 }
 
@@ -397,10 +403,10 @@ pub fn Seq::back_transcribe(self : Seq) -> Seq {
 ///|
 pub fn Seq::translate(
   self : Seq,
-  stop_symbol? : Char = '*',
-  to_stop? : Bool = false,
-  cds? : Bool = false,
-  gap? : Char = '-',
+  stop_symbol~ : Char = '*',
+  to_stop~ : Bool = false,
+  cds~ : Bool = false,
+  gap~ : Char = '-',
 ) -> Seq raise SeqError {
   let seq = self.data
   let n = seq.length()
@@ -526,7 +532,7 @@ pub fn Seq::translate(
 ///|
 /// Read 3 characters starting at index `i` as a String. Used only for error
 /// messages.
-fn codon_to_string(seq : String, i : Int) -> String {
+fn codon_to_string(seq : String, i : Int32) -> String {
   let buf = StringBuilder(size_hint=3)
   buf.write_char(seq.unsafe_get(i).unsafe_to_char())
   buf.write_char(seq.unsafe_get(i + 1).unsafe_to_char())
@@ -534,15 +540,9 @@ fn codon_to_string(seq : String, i : Int) -> String {
   buf.to_string()
 }
 
-
-
-
-
-
-
 ///|
 /// Fast version of is_stop_codon_at that uses already-read UInt16 values.
-fn is_stop_codon_fast(seq : String, i : Int) -> Bool {
+fn is_stop_codon_fast(seq : String, i : Int32) -> Bool {
   let c0 = seq.unsafe_get(i)
   let c1 = seq.unsafe_get(i + 1)
   let c2 = seq.unsafe_get(i + 2)
@@ -556,7 +556,7 @@ fn is_stop_codon_fast(seq : String, i : Int) -> Bool {
 
 ///|
 /// Fast version of is_start_codon_at that uses already-read UInt16 values.
-fn is_start_codon_fast(seq : String, i : Int) -> Bool {
+fn is_start_codon_fast(seq : String, i : Int32) -> Bool {
   let c0 = seq.unsafe_get(i)
   let c1 = seq.unsafe_get(i + 1)
   let c2 = seq.unsafe_get(i + 2)
@@ -567,7 +567,6 @@ fn is_start_codon_fast(seq : String, i : Int) -> Bool {
   let g = 'G'.to_int().to_uint16()
   (c0 == a || c0 == c || c0 == t || c0 == u) && (c1 == t || c1 == u) && c2 == g
 }
-
 
 // ---------------------------------------------------------------------------
 // MutableSeq - Mutable counterpart to Seq, mirroring Bio.Seq.MutableSeq
@@ -616,19 +615,19 @@ pub fn MutableSeq::to_seq(self : MutableSeq) -> Seq {
 
 ///|
 /// Number of characters in the sequence.
-pub fn MutableSeq::length(self : MutableSeq) -> Int {
+pub fn MutableSeq::length(self : MutableSeq) -> Int32 {
   self.data.length()
 }
 
 ///|
 /// Get the character at position `i`.
-pub fn MutableSeq::get(self : MutableSeq, i : Int) -> Char {
+pub fn MutableSeq::get(self : MutableSeq, i : Int32) -> Char {
   self.data[i]
 }
 
 ///|
 /// Set the character at position `i`.
-pub fn MutableSeq::set(self : MutableSeq, i : Int, c : Char) -> Unit {
+pub fn MutableSeq::set(self : MutableSeq, i : Int32, c : Char) -> Unit {
   self.data[i] = c
 }
 
@@ -648,7 +647,7 @@ pub fn MutableSeq::append(self : MutableSeq, other : MutableSeq) -> Unit {
 
 ///|
 /// Insert a character at position `i`, shifting subsequent characters.
-pub fn MutableSeq::insert(self : MutableSeq, i : Int, c : Char) -> Unit {
+pub fn MutableSeq::insert(self : MutableSeq, i : Int32, c : Char) -> Unit {
   let new_data = Array(capacity=0)
   let mut idx = 0
   while idx < i && idx < self.data.length() {
@@ -665,7 +664,7 @@ pub fn MutableSeq::insert(self : MutableSeq, i : Int, c : Char) -> Unit {
 
 ///|
 /// Delete the character at position `i`.
-pub fn MutableSeq::delete(self : MutableSeq, i : Int) -> Unit {
+pub fn MutableSeq::delete(self : MutableSeq, i : Int32) -> Unit {
   let new_data = Array(capacity=0)
   let mut idx = 0
   while idx < self.data.length() {
@@ -681,8 +680,8 @@ pub fn MutableSeq::delete(self : MutableSeq, i : Int) -> Unit {
 /// Delete characters in range [start, end).
 pub fn MutableSeq::delete_range(
   self : MutableSeq,
-  start : Int,
-  end : Int,
+  start : Int32,
+  end : Int32,
 ) -> Unit {
   let new_data = Array(capacity=0)
   let mut idx = 0
@@ -752,9 +751,9 @@ pub fn MutableSeq::back_transcribe(self : MutableSeq) -> MutableSeq {
 /// Translate to protein as a new MutableSeq.
 pub fn MutableSeq::translate(
   self : MutableSeq,
-  stop_symbol? : Char = '*',
-  to_stop? : Bool = false,
-  cds? : Bool = false,
+  stop_symbol~ : Char = '*',
+  to_stop~ : Bool = false,
+  cds~ : Bool = false,
 ) -> MutableSeq raise SeqError {
   let result = self.to_seq().translate(stop_symbol~, to_stop~, cds~)
   MutableSeq::new(result.data)
@@ -774,12 +773,12 @@ pub fn MutableSeq::lower(self : MutableSeq) -> MutableSeq {
 
 ///|
 /// Count non-overlapping occurrences of `sub`.
-pub fn MutableSeq::count(self : MutableSeq, sub : String) -> Int {
+pub fn MutableSeq::count(self : MutableSeq, sub : String) -> Int32 {
   self.to_seq().count(sub)
 }
 
 ///|
 /// Count overlapping occurrences of `sub`.
-pub fn MutableSeq::count_overlap(self : MutableSeq, sub : String) -> Int {
+pub fn MutableSeq::count_overlap(self : MutableSeq, sub : String) -> Int32 {
   self.to_seq().count_overlap(sub)
 }

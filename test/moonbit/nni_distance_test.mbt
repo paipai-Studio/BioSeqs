@@ -8,7 +8,11 @@ fn nnid_leaf(name : String) -> @src.Clade {
 
 ///|
 fn nnid_internal(children : Array[@src.Clade]) -> @src.Clade {
-  @src.Clade::new(name=Some("internal"), clades=children, branch_length=Some(1.0))
+  @src.Clade::new(
+    name=Some("internal"),
+    clades=children,
+    branch_length=Some(1.0),
+  )
 }
 
 ///|

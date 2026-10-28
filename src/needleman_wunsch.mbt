@@ -19,7 +19,11 @@ pub enum NWTrace {
   Left // gap in seq1 (insertion): comes from (i, j-1)
   Start // only used at (0, 0) to terminate traceback
 } derive(Eq, Debug)
+
+///|
 pub extend NWTrace with Eq::{equal, not_equal}
+
+///|
 pub extend NWTrace with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -104,13 +108,13 @@ pub fn NWResult::trace_matrix(self : NWResult) -> Array[Array[NWTrace]] {
 
 ///|
 /// Get alignment length (both aligned sequences have the same length).
-pub fn NWResult::alignment_length(self : NWResult) -> Int {
+pub fn NWResult::alignment_length(self : NWResult) -> Int32 {
   self.aligned_seq1.length()
 }
 
 ///|
 /// Count the number of matches in the alignment.
-pub fn NWResult::num_matches(self : NWResult) -> Int {
+pub fn NWResult::num_matches(self : NWResult) -> Int32 {
   let mut count = 0
   for i = 0; i < self.match_line.length(); i = i + 1 {
     if self.match_line.unsafe_get(i).unsafe_to_char() == '|' {
@@ -122,7 +126,7 @@ pub fn NWResult::num_matches(self : NWResult) -> Int {
 
 ///|
 /// Count the number of mismatches (excluding gaps).
-pub fn NWResult::num_mismatches(self : NWResult) -> Int {
+pub fn NWResult::num_mismatches(self : NWResult) -> Int32 {
   let mut count = 0
   for i = 0; i < self.match_line.length(); i = i + 1 {
     if self.match_line.unsafe_get(i).unsafe_to_char() == '.' {
@@ -134,7 +138,7 @@ pub fn NWResult::num_mismatches(self : NWResult) -> Int {
 
 ///|
 /// Count the number of gap positions in sequence 1.
-pub fn NWResult::num_gaps_seq1(self : NWResult) -> Int {
+pub fn NWResult::num_gaps_seq1(self : NWResult) -> Int32 {
   let mut count = 0
   for i = 0; i < self.aligned_seq1.length(); i = i + 1 {
     if self.aligned_seq1.unsafe_get(i).unsafe_to_char() == '-' {
@@ -146,7 +150,7 @@ pub fn NWResult::num_gaps_seq1(self : NWResult) -> Int {
 
 ///|
 /// Count the number of gap positions in sequence 2.
-pub fn NWResult::num_gaps_seq2(self : NWResult) -> Int {
+pub fn NWResult::num_gaps_seq2(self : NWResult) -> Int32 {
   let mut count = 0
   for i = 0; i < self.aligned_seq2.length(); i = i + 1 {
     if self.aligned_seq2.unsafe_get(i).unsafe_to_char() == '-' {
@@ -181,7 +185,7 @@ pub fn NWResult::format(self : NWResult) -> String {
 ///|
 /// Format the alignment with line wrapping for long sequences.
 /// `width` — number of characters per line.
-pub fn NWResult::format_wrapped(self : NWResult, width : Int) -> String {
+pub fn NWResult::format_wrapped(self : NWResult, width : Int32) -> String {
   let buf = StringBuilder()
   let total = self.aligned_seq1.length()
   let mut start = 0

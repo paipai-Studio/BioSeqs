@@ -37,8 +37,13 @@ pub struct DockQResult {
 
 // ─── helpers ───────────────────────────────────────────────
 
+///|
 fn mq_sqrt(x : Double) -> Double {
-  if x < 0.0 { 0.0 } else { x.sqrt() }
+  if x < 0.0 {
+    0.0
+  } else {
+    x.sqrt()
+  }
 }
 
 ///|
@@ -71,7 +76,7 @@ fn transform_point(
 fn superpose_subset(
   ref_coords : Array[Vector3],
   model_coords : Array[Vector3],
-  indices : Array[Int],
+  indices : Array[Int32],
 ) -> Array[Vector3] {
   let ref_sub = Array(capacity=indices.length())
   let mod_sub = Array(capacity=indices.length())
@@ -101,10 +106,12 @@ fn gdt_maximize(
   ref_coords : Array[Vector3],
   model_coords : Array[Vector3],
   threshold : Double,
-  seed_indices : Array[Int],
+  seed_indices : Array[Int32],
 ) -> Double {
   let n = ref_coords.length()
-  if n == 0 { return 0.0 }
+  if n == 0 {
+    return 0.0
+  }
   let mut current = seed_indices
   let mut iter = 0
   while iter < 50 {
@@ -113,7 +120,9 @@ fn gdt_maximize(
     let mut i = 0
     while i < n {
       let d = ref_coords[i].distance(transformed[i])
-      if d <= threshold { new_set.push(i) }
+      if d <= threshold {
+        new_set.push(i)
+      }
       i = i + 1
     }
     if new_set.length() > current.length() {
@@ -128,7 +137,9 @@ fn gdt_maximize(
   let mut i = 0
   while i < n {
     let d = ref_coords[i].distance(transformed[i])
-    if d <= threshold { count = count + 1 }
+    if d <= threshold {
+      count = count + 1
+    }
     i = i + 1
   }
   count.to_double() / n.to_double() * 100.0
@@ -144,7 +155,10 @@ fn gdt_for_threshold(
   if n < 3 {
     let all_indices = Array(capacity=n)
     let mut i = 0
-    while i < n { all_indices.push(i); i = i + 1 }
+    while i < n {
+      all_indices.push(i)
+      i = i + 1
+    }
     return gdt_maximize(ref_coords, model_coords, threshold, all_indices)
   }
   let mut best = 0.0
@@ -153,7 +167,9 @@ fn gdt_for_threshold(
   while start < n - 2 {
     let seed = [start, start + 1, start + 2]
     let score = gdt_maximize(ref_coords, model_coords, threshold, seed)
-    if score > best { best = score }
+    if score > best {
+      best = score
+    }
     start = start + step
   }
   best
@@ -169,7 +185,15 @@ pub fn calc_gdt_ts(
 ) -> GDTResult {
   let n = ref_coords.length()
   if n == 0 || n != model_coords.length() {
-    return GDTResult::{ gdt_ts: 0.0, gdt_ha: 0.0, p05: 0.0, p1: 0.0, p2: 0.0, p4: 0.0, p8: 0.0 }
+    return GDTResult::{
+      gdt_ts: 0.0,
+      gdt_ha: 0.0,
+      p05: 0.0,
+      p1: 0.0,
+      p2: 0.0,
+      p4: 0.0,
+      p8: 0.0,
+    }
   }
   let p05 = gdt_for_threshold(ref_coords, model_coords, 0.5)
   let p1 = gdt_for_threshold(ref_coords, model_coords, 1.0)
@@ -178,7 +202,7 @@ pub fn calc_gdt_ts(
   let p8 = gdt_for_threshold(ref_coords, model_coords, 8.0)
   let gdt_ts = (p1 + p2 + p4 + p8) / 4.0
   let gdt_ha = (p05 + p1 + p2 + p4) / 4.0
-  GDTResult::{ gdt_ts, gdt_ha, p05, p1, p2, p4, p8 }
+  GDTResult::{ gdt_ts, gdt_ha, p05, p1, p2, p4, p8, }
 }
 
 // ─── lDDT ──────────────────────────────────────────────────
@@ -190,12 +214,12 @@ pub fn calc_gdt_ts(
 pub fn calc_lddt(
   ref_coords : Array[Vector3],
   model_coords : Array[Vector3],
-  cutoff? : Double = 15.0,
+  cutoff~ : Double = 15.0,
 ) -> LDDTResult {
   let n = ref_coords.length()
   let thresholds = [0.5, 1.0, 2.0, 4.0]
   if n == 0 || n != model_coords.length() {
-    return LDDTResult::{ lddt: 0.0, per_residue: [], cutoff, thresholds }
+    return LDDTResult::{ lddt: 0.0, per_residue: [], cutoff, thresholds, }
   }
   let per_residue = Array::make(n, 0.0)
   let mut total_score = 0.0
@@ -206,14 +230,22 @@ pub fn calc_lddt(
     let mut pair_count = 0
     let mut j = 0
     while j < n {
-      if i == j { j = j + 1; continue }
+      if i == j {
+        j = j + 1
+        continue
+      }
       let d_ref = ref_coords[i].distance(ref_coords[j])
-      if d_ref > cutoff { j = j + 1; continue }
+      if d_ref > cutoff {
+        j = j + 1
+        continue
+      }
       let d_model = model_coords[i].distance(model_coords[j])
       let diff = (d_model - d_ref).abs()
       let mut thresh_sum = 0.0
       for t in thresholds {
-        if diff < t { thresh_sum = thresh_sum + 1.0 }
+        if diff < t {
+          thresh_sum = thresh_sum + 1.0
+        }
       }
       score_sum = score_sum + thresh_sum / thresholds.length().to_double()
       pair_count = pair_count + 1
@@ -232,8 +264,10 @@ pub fn calc_lddt(
   }
   let lddt = if count_residues > 0 {
     total_score / count_residues.to_double()
-  } else { 0.0 }
-  LDDTResult::{ lddt, per_residue, cutoff, thresholds }
+  } else {
+    0.0
+  }
+  LDDTResult::{ lddt, per_residue, cutoff, thresholds, }
 }
 
 // ─── DRMSD ─────────────────────────────────────────────────
@@ -246,7 +280,9 @@ pub fn calc_drmsd(
   model_coords : Array[Vector3],
 ) -> Double {
   let n = ref_coords.length()
-  if n < 2 || n != model_coords.length() { return 0.0 }
+  if n < 2 || n != model_coords.length() {
+    return 0.0
+  }
   let mut sum_sq = 0.0
   let mut count = 0
   let mut i = 0
@@ -262,7 +298,9 @@ pub fn calc_drmsd(
     }
     i = i + 1
   }
-  if count == 0 { return 0.0 }
+  if count == 0 {
+    return 0.0
+  }
   mq_sqrt(sum_sq / count.to_double())
 }
 
@@ -276,12 +314,24 @@ pub fn calc_dockq(
   ligand_ref : Array[Vector3],
   receptor_model : Array[Vector3],
   ligand_model : Array[Vector3],
-  contact_cutoff? : Double = 5.0,
+  contact_cutoff~ : Double = 5.0,
 ) -> DockQResult {
-  let empty = DockQResult::{ dockq: 0.0, fnat: 0.0, fnonnat: 1.0, irms: 0.0, lrms: 0.0 }
-  if receptor_ref.length() == 0 || ligand_ref.length() == 0 { return empty }
-  if receptor_ref.length() != receptor_model.length() { return empty }
-  if ligand_ref.length() != ligand_model.length() { return empty }
+  let empty = DockQResult::{
+    dockq: 0.0,
+    fnat: 0.0,
+    fnonnat: 1.0,
+    irms: 0.0,
+    lrms: 0.0,
+  }
+  if receptor_ref.length() == 0 || ligand_ref.length() == 0 {
+    return empty
+  }
+  if receptor_ref.length() != receptor_model.length() {
+    return empty
+  }
+  if ligand_ref.length() != ligand_model.length() {
+    return empty
+  }
   // Native contacts
   let native_contacts = Array(capacity=0)
   let mut i = 0
@@ -289,7 +339,9 @@ pub fn calc_dockq(
     let mut j = 0
     while j < ligand_ref.length() {
       let d = receptor_ref[i].distance(ligand_ref[j])
-      if d <= contact_cutoff { native_contacts.push((i, j)) }
+      if d <= contact_cutoff {
+        native_contacts.push((i, j))
+      }
       j = j + 1
     }
     i = i + 1
@@ -301,7 +353,9 @@ pub fn calc_dockq(
     let mut j = 0
     while j < ligand_model.length() {
       let d = receptor_model[i].distance(ligand_model[j])
-      if d <= contact_cutoff { model_contacts.push((i, j)) }
+      if d <= contact_cutoff {
+        model_contacts.push((i, j))
+      }
       j = j + 1
     }
     i = i + 1
@@ -310,28 +364,45 @@ pub fn calc_dockq(
   let mut native_preserved = 0
   for (ri, lj) in native_contacts {
     let d_model = receptor_model[ri].distance(ligand_model[lj])
-    if d_model <= contact_cutoff { native_preserved = native_preserved + 1 }
+    if d_model <= contact_cutoff {
+      native_preserved = native_preserved + 1
+    }
   }
   let fnat = if native_contacts.length() > 0 {
     native_preserved.to_double() / native_contacts.length().to_double()
-  } else { 0.0 }
+  } else {
+    0.0
+  }
   // Fnonnat
   let mut non_native = 0
   for (ri, lj) in model_contacts {
     let mut is_native = false
     for (nri, nlj) in native_contacts {
-      if nri == ri && nlj == lj { is_native = true; break }
+      if nri == ri && nlj == lj {
+        is_native = true
+        break
+      }
     }
-    if !(is_native) { non_native = non_native + 1 }
+    if !is_native {
+      non_native = non_native + 1
+    }
   }
   let fnonnat = if model_contacts.length() > 0 {
     non_native.to_double() / model_contacts.length().to_double()
-  } else { 1.0 }
+  } else {
+    1.0
+  }
   // iRMS: interface RMSD
   let rec_iface = Map([])
   let lig_iface = Map([])
-  for (ri, lj) in native_contacts { rec_iface[ri] = true; lig_iface[lj] = true }
-  for (ri, lj) in model_contacts { rec_iface[ri] = true; lig_iface[lj] = true }
+  for (ri, lj) in native_contacts {
+    rec_iface[ri] = true
+    lig_iface[lj] = true
+  }
+  for (ri, lj) in model_contacts {
+    rec_iface[ri] = true
+    lig_iface[lj] = true
+  }
   let ref_interface = Array(capacity=0)
   let mod_interface = Array(capacity=0)
   for ri in rec_iface.keys() {
@@ -348,7 +419,9 @@ pub fn calc_dockq(
       to_qcp_coords(mod_interface),
     )
     sup.get_rmsd()
-  } else { 0.0 }
+  } else {
+    0.0
+  }
   // LRMS: ligand RMSD after superposing receptor
   let rec_sup = QCPSuperimposer::new().set(
     to_qcp_coords(receptor_ref),
@@ -371,5 +444,5 @@ pub fn calc_dockq(
   // DockQ
   let z = 0.05 * (40.0 * fnat - irms - 0.5 * lrms)
   let dockq = 2.0 / (1.0 + @math.exp(-z))
-  DockQResult::{ dockq, fnat, fnonnat, irms, lrms }
+  DockQResult::{ dockq, fnat, fnonnat, irms, lrms, }
 }

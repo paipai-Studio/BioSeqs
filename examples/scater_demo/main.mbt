@@ -5,14 +5,17 @@ fn main {
   let n_cells = 10
   let n_genes = 20
 
-  let counts : Array[Array[Int]] = Array::make(n_cells, Array::make(n_genes, 0))
+  let counts : Array[Array[Int32]] = Array::make(
+    n_cells,
+    Array::make(n_genes, 0),
+  )
   let cell_ids : Array[String] = Array::make(n_cells, "")
   let gene_names : Array[String] = Array::make(n_genes, "")
 
   let mut i = 0
   while i < n_cells {
     cell_ids[i] = "Cell" + i.to_string()
-    let row : Array[Int] = Array::make(n_genes, 0)
+    let row : Array[Int32] = Array::make(n_genes, 0)
     let mut j = 0
     while j < n_genes {
       row[j] = (i * 7 + j * 13) % 100

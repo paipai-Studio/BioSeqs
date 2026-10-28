@@ -15,7 +15,11 @@ pub struct Yn00Option {
   name : String
   value : String
 } derive(Eq, Debug)
+
+///|
 pub extend Yn00Option with Eq::{equal, not_equal}
+
+///|
 pub extend Yn00Option with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -25,7 +29,11 @@ pub struct Yn00Control {
   output_file : String
   options : Array[Yn00Option]
 } derive(Eq, Debug)
+
+///|
 pub extend Yn00Control with Eq::{equal, not_equal}
+
+///|
 pub extend Yn00Control with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -35,7 +43,11 @@ pub struct Yn00Ng86Estimate {
   dn : Double
   ds : Double
 } derive(Eq, Debug)
+
+///|
 pub extend Yn00Ng86Estimate with Eq::{equal, not_equal}
+
+///|
 pub extend Yn00Ng86Estimate with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -51,7 +63,11 @@ pub struct Yn00YangNielsenEstimate {
   ds : Double
   ds_standard_error : Double
 } derive(Eq, Debug)
+
+///|
 pub extend Yn00YangNielsenEstimate with Eq::{equal, not_equal}
+
+///|
 pub extend Yn00YangNielsenEstimate with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -68,7 +84,11 @@ pub struct Yn00CountingEstimate {
   nonsynonymous_sites : Double?
   rho : Double?
 } derive(Eq, Debug)
+
+///|
 pub extend Yn00CountingEstimate with Eq::{equal, not_equal}
+
+///|
 pub extend Yn00CountingEstimate with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -82,7 +102,11 @@ pub struct Yn00PairResult {
   lwl85_modified : Yn00CountingEstimate
   lpb93 : Yn00CountingEstimate
 } derive(Eq, Debug)
+
+///|
 pub extend Yn00PairResult with Eq::{equal, not_equal}
+
+///|
 pub extend Yn00PairResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -91,25 +115,33 @@ pub struct Yn00DistanceMatrix {
   names : Array[String]
   values : Array[Array[Double?]]
 } derive(Eq, Debug)
+
+///|
 pub extend Yn00DistanceMatrix with Eq::{equal, not_equal}
+
+///|
 pub extend Yn00DistanceMatrix with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Parsed YN00 pairwise results.
 pub struct Yn00Results {
   alignment_file : String
-  sequence_count : Int
-  codon_count : Int
+  sequence_count : Int32
+  codon_count : Int32
   sequence_names : Array[String]
   pairs : Array[Yn00PairResult]
 } derive(Eq, Debug)
+
+///|
 pub extend Yn00Results with Eq::{equal, not_equal}
+
+///|
 pub extend Yn00Results with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 priv struct Yn00PairBuilder {
-  first_index : Int
-  second_index : Int
+  first_index : Int32
+  second_index : Int32
   mut comparison_seen : Bool
   mut ng86 : Yn00Ng86Estimate?
   mut yang_nielsen : Yn00YangNielsenEstimate?
@@ -124,7 +156,7 @@ fn yn00_fail(message : String) -> Unit raise Yn00Error {
 }
 
 ///|
-fn yn00_parse_int(text : String, label : String) -> Int raise Yn00Error {
+fn yn00_parse_int(text : String, label : String) -> Int32 raise Yn00Error {
   codeml_parse_int(text, label) catch {
     CodemlError(_) => {
       yn00_fail(label + " must be an integer")
@@ -194,7 +226,7 @@ fn yn00_allowed_option(name : String) -> Bool {
 }
 
 ///|
-fn yn00_validate_option(name : String, value : Int) -> Unit raise Yn00Error {
+fn yn00_validate_option(name : String, value : Int32) -> Unit raise Yn00Error {
   match name {
     "verbose" | "weighting" | "commonf3x4" =>
       if value < 0 || value > 1 {
@@ -319,7 +351,7 @@ pub fn Yn00Control::option(self : Yn00Control, name : String) -> String? {
 }
 
 ///|
-fn yn00_pair_position(first_index : Int, second_index : Int) -> Int {
+fn yn00_pair_position(first_index : Int32, second_index : Int32) -> Int32 {
   let larger = if first_index > second_index {
     first_index
   } else {
@@ -334,7 +366,7 @@ fn yn00_pair_position(first_index : Int, second_index : Int) -> Int {
 }
 
 ///|
-fn yn00_builders(sequence_count : Int) -> Array[Yn00PairBuilder] {
+fn yn00_builders(sequence_count : Int32) -> Array[Yn00PairBuilder] {
   let output : Array[Yn00PairBuilder] = []
   for second_index in 1..<sequence_count {
     for first_index in 0..<second_index {
@@ -356,7 +388,7 @@ fn yn00_builders(sequence_count : Int) -> Array[Yn00PairBuilder] {
 ///|
 fn yn00_assign_name(
   names : Array[String],
-  index : Int,
+  index : Int32,
   name : String,
 ) -> Unit raise Yn00Error {
   if index < 0 || index >= names.length() {
@@ -385,7 +417,7 @@ fn yn00_assign_name(
 ///|
 fn yn00_comparison_header(
   line : String,
-) -> (Int, String, Int, String)? raise Yn00Error {
+) -> (Int32, String, Int32, String)? raise Yn00Error {
   let value = codeml_trim(line)
   let first_open = codeml_index_of_char(value, '('.to_int(), 0)
   if first_open <= 0 {
@@ -521,11 +553,11 @@ fn yn00_counting_estimate(
 ///|
 fn yn00_parse_counting_section(
   lines : Array[String],
-  start : Int,
+  start : Int32,
   names : Array[String],
   builders : Array[Yn00PairBuilder],
 ) -> Unit raise Yn00Error {
-  let mut current : Int? = None
+  let mut current : Int32? = None
   for line_index in start..<lines.length() {
     let trimmed = codeml_trim(lines[line_index])
     match yn00_comparison_header(trimmed) {
@@ -600,9 +632,9 @@ fn yn00_parse_counting_section(
 ///|
 fn yn00_parse_yang_nielsen_section(
   lines : Array[String],
-  start : Int,
-  end : Int,
-  sequence_count : Int,
+  start : Int32,
+  end : Int32,
+  sequence_count : Int32,
   builders : Array[Yn00PairBuilder],
 ) -> Unit raise Yn00Error {
   for line_index in start..<end {
@@ -658,7 +690,7 @@ fn yn00_parse_yang_nielsen_section(
 ///|
 fn yn00_parse_ng_remainder(
   remainder : String,
-  expected : Int,
+  expected : Int32,
 ) -> Array[Yn00Ng86Estimate] raise Yn00Error {
   let estimates : Array[Yn00Ng86Estimate] = []
   let mut cursor = 0
@@ -700,8 +732,8 @@ fn yn00_parse_ng_remainder(
 ///|
 fn yn00_parse_ng86_section(
   lines : Array[String],
-  start : Int,
-  end : Int,
+  start : Int32,
+  end : Int32,
   names : Array[String],
   builders : Array[Yn00PairBuilder],
 ) -> Unit raise Yn00Error {
@@ -742,7 +774,9 @@ fn yn00_parse_ng86_section(
 }
 
 ///|
-fn yn00_find_sections(lines : Array[String]) -> (Int, Int, Int) raise Yn00Error {
+fn yn00_find_sections(
+  lines : Array[String],
+) -> (Int32, Int32, Int32) raise Yn00Error {
   let mut section_a = -1
   let mut section_b = -1
   let mut section_c = -1
@@ -774,8 +808,8 @@ fn yn00_find_sections(lines : Array[String]) -> (Int, Int, Int) raise Yn00Error 
 ///|
 fn yn00_metadata(
   lines : Array[String],
-  section_a : Int,
-) -> (String, Int, Int) raise Yn00Error {
+  section_a : Int32,
+) -> (String, Int32, Int32) raise Yn00Error {
   let mut alignment_file = ""
   let mut sequence_count = -1
   let mut codon_count = -1
@@ -1090,12 +1124,12 @@ pub fn Yn00Results::alignment_file(self : Yn00Results) -> String {
 }
 
 ///|
-pub fn Yn00Results::sequence_count(self : Yn00Results) -> Int {
+pub fn Yn00Results::sequence_count(self : Yn00Results) -> Int32 {
   self.sequence_count
 }
 
 ///|
-pub fn Yn00Results::codon_count(self : Yn00Results) -> Int {
+pub fn Yn00Results::codon_count(self : Yn00Results) -> Int32 {
   self.codon_count
 }
 

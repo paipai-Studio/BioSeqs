@@ -27,12 +27,7 @@ fn main {
   let edge3 = @bio.NeXMLEdge::new("e3", "n1", "n4", length=Some(0.2))
   let edges = [edge1, edge2, edge3]
   let tree = @bio.NeXMLTree::new(
-    "tree1",
-    "Primates Tree",
-    "FloatTree",
-    true,
-    nodes,
-    edges,
+    "tree1", "Primates Tree", "FloatTree", true, nodes, edges,
   )
   println("   Tree ID: \{tree.id}")
   println("   Tree name: \{tree.name}")
@@ -46,10 +41,7 @@ fn main {
 
   // 4. Create full NeXML document
   println("\n3. Creating NeXML document:")
-  let doc = @bio.NeXMLDocument::new(
-    version="0.9",
-    generator="BioSeqs",
-  )
+  let doc = @bio.NeXMLDocument::new(version="0.9", generator="BioSeqs")
   println("   Version: \{doc.version}")
   println("   Generator: \{doc.generator}")
   println("   OTU blocks: \{doc.otus_blocks.length()}")
@@ -65,7 +57,11 @@ fn main {
   let xml = @bio.nexml_to_xml(doc)
   println("   XML length: \{xml.length()} characters")
   println("   First 200 chars:")
-  let preview = if xml.length() > 200 { xml[0:200].to_owned() + "..." } else { xml }
+  let preview = if xml.length() > 200 {
+    xml[0:200].to_owned() + "..."
+  } else {
+    xml
+  }
   println("   \{preview}")
 
   // 7. Utility functions

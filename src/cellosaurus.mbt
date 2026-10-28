@@ -16,6 +16,8 @@ pub struct CellosaurusCrossReference {
   database : String
   accession : String
 } derive(Eq)
+
+///|
 pub extend CellosaurusCrossReference with Eq::{equal, not_equal}
 
 ///|
@@ -51,28 +53,30 @@ pub struct CellosaurusRecord {
   category : String
   date : String
 } derive(Eq)
+
+///|
 pub extend CellosaurusRecord with Eq::{equal, not_equal}
 
 ///|
 /// Create a Cellosaurus record.
 pub fn CellosaurusRecord::new(
   identifier~ : String,
-  accession? : String = "",
-  secondary_accessions? : String = "",
-  synonyms? : String = "",
-  cross_references? : Array[CellosaurusCrossReference] = [],
-  reference_identifiers? : Array[String] = [],
-  web_pages? : Array[String] = [],
-  comments? : Array[String] = [],
-  str_profiles? : Array[String] = [],
-  diseases? : Array[String] = [],
-  species? : Array[String] = [],
-  hierarchy? : Array[String] = [],
-  same_individual? : Array[String] = [],
-  sex? : String = "",
-  age? : String = "",
-  category? : String = "",
-  date? : String = "",
+  accession~ : String = "",
+  secondary_accessions~ : String = "",
+  synonyms~ : String = "",
+  cross_references~ : Array[CellosaurusCrossReference] = [],
+  reference_identifiers~ : Array[String] = [],
+  web_pages~ : Array[String] = [],
+  comments~ : Array[String] = [],
+  str_profiles~ : Array[String] = [],
+  diseases~ : Array[String] = [],
+  species~ : Array[String] = [],
+  hierarchy~ : Array[String] = [],
+  same_individual~ : Array[String] = [],
+  sex~ : String = "",
+  age~ : String = "",
+  category~ : String = "",
+  date~ : String = "",
 ) -> CellosaurusRecord {
   CellosaurusRecord::{
     identifier,
@@ -360,7 +364,7 @@ fn cellosaurus_apply_field(
   builder : CellosaurusBuilder,
   code : String,
   value : String,
-  line_number~ : Int,
+  line_number~ : Int32,
 ) -> Unit raise CellosaurusError {
   match code {
     "AC" => builder.accession = builder.accession + value

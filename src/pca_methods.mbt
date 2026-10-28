@@ -22,9 +22,11 @@ pub struct PcaMethodsResult {
 // Small dense-matrix helpers (rows × columns)
 // ---------------------------------------------------------------------------
 
-
 ///|
-fn pm_mul(a : Array[Array[Double]], b : Array[Array[Double]]) -> Array[Array[Double]] {
+fn pm_mul(
+  a : Array[Array[Double]],
+  b : Array[Array[Double]],
+) -> Array[Array[Double]] {
   let m = a.length()
   let n = if m > 0 { a[0].length() } else { 0 }
   let p = if b.length() > 0 { b[0].length() } else { 0 }
@@ -58,7 +60,7 @@ fn pm_transpose(a : Array[Array[Double]]) -> Array[Array[Double]] {
 }
 
 ///|
-fn pm_identity(n : Int) -> Array[Array[Double]] {
+fn pm_identity(n : Int32) -> Array[Array[Double]] {
   let m : Array[Array[Double]] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {
     let row = Array::make(n, 0.0)
@@ -187,7 +189,9 @@ fn pm_orth(a : Array[Array[Double]]) -> Array[Array[Double]] {
 ///|
 /// Correct Jacobi eigenvalue decomposition for a symmetric matrix. Columns of
 /// the returned matrix are the eigenvectors.
-fn pm_eigh_sym(a : Array[Array[Double]]) -> (Array[Double], Array[Array[Double]]) {
+fn pm_eigh_sym(
+  a : Array[Array[Double]],
+) -> (Array[Double], Array[Array[Double]]) {
   linalg_jacobi(a, a.length(), 100 * a.length() * a.length())
 }
 
@@ -196,7 +200,7 @@ fn pm_eigh_sym(a : Array[Array[Double]]) -> (Array[Double], Array[Array[Double]]
 /// matrix.
 fn pm_top_eigen(
   a : Array[Array[Double]],
-  k : Int,
+  k : Int32,
 ) -> (Array[Double], Array[Array[Double]]) {
   let n = a.length()
   let (evals, evecs) = pm_eigh_sym(a)
@@ -277,8 +281,8 @@ fn pm_r2cum(
 /// Probabilistic PCA with missing-value EM.
 pub fn ppca(
   matrix~ : Array[Array[Double]],
-  n_pcs~ : Int,
-  max_iterations~ : Int,
+  n_pcs~ : Int32,
+  max_iterations~ : Int32,
   threshold~ : Double,
 ) -> PcaMethodsResult {
   let n = matrix.length()
@@ -354,12 +358,16 @@ pub fn ppca(
     ctc = pm_mul(pm_transpose(c), c)
     // ss = (sum((c x^T - m^T)^2) + N*sum(ctc * sx) + missing*ss_old)/(N*D)
     let diff2 = pm_sub(pm_mul(c, pm_transpose(x)), pm_transpose(m))
-    ss = pm_sum_sq(diff2) + n.to_double() * pm_sum_ew(ctc, sx) + missing.to_double() * ss_old
+    ss = pm_sum_sq(diff2) +
+      n.to_double() * pm_sum_ew(ctc, sx) +
+      missing.to_double() * ss_old
     ss = ss / (n * d).to_double()
     // objective (for convergence)
     let log_det = pm_log_det(sx)
-    let objective = n.to_double() * (d.to_double() * @math.ln(ss) + pm_trace(sx) - log_det) +
-      pm_trace(sum_xtx) - missing.to_double() * @math.ln(ss_old)
+    let objective = n.to_double() *
+      (d.to_double() * @math.ln(ss) + pm_trace(sx) - log_det) +
+      pm_trace(sum_xtx) -
+      missing.to_double() * @math.ln(ss_old)
     let rel_ch = (1.0 - objective / old).abs()
     old = objective
     count = count + 1
@@ -394,8 +402,8 @@ pub fn ppca(
 /// Bayesian PCA with automatic relevance determination and missing-value imputation.
 pub fn bpca(
   matrix~ : Array[Array[Double]],
-  n_pcs~ : Int,
-  max_steps~ : Int,
+  n_pcs~ : Int32,
+  max_steps~ : Int32,
   threshold~ : Double,
 ) -> PcaMethodsResult {
   let rows = matrix.length()
@@ -420,8 +428,8 @@ pub fn bpca(
     yest.push(yr)
   }
   // row_miss / row_nomiss
-  let row_miss : Array[Int] = []
-  let row_nomiss : Array[Int] = []
+  let row_miss : Array[Int32] = []
+  let row_nomiss : Array[Int32] = []
   for i = 0; i < rows; i = i + 1 {
     let mut has = false
     for j = 0; j < cols; j = j + 1 {
@@ -462,13 +470,20 @@ pub fn bpca(
   }
   let covy_trace = pm_trace(covy)
   let mut tau = 1.0 / (covy_trace - pm_sum(evals))
-  tau = if tau > 1.0e10 { 1.0e10 } else if tau < 1.0e-10 { 1.0e-10 } else { tau }
+  tau = if tau > 1.0e10 {
+    1.0e10
+  } else if tau < 1.0e-10 {
+    1.0e-10
+  } else {
+    tau
+  }
   let galpha0 = 1.0e-10
   let balpha0 = 1.0
   let alpha = Array::make(k, 0.0)
   let pa_norms = pm_col_norms_sq(pa)
   for l = 0; l < k; l = l + 1 {
-    alpha[l] = (2.0 * galpha0 + cols.to_double()) / (tau * pa_norms[l] + 2.0 * galpha0 / balpha0)
+    alpha[l] = (2.0 * galpha0 + cols.to_double()) /
+      (tau * pa_norms[l] + 2.0 * galpha0 / balpha0)
   }
   let gmu0 = 0.001
   let btau0 = 1.0
@@ -503,7 +518,10 @@ pub fn bpca(
         dy.push(row)
       }
       // x = tau * Rxinv * PA^T * dy^T  (k × n_c)
-      let x = pm_scale(pm_mul(pm_mul(rxinv, pm_transpose(pa)), pm_transpose(dy)), tau)
+      let x = pm_scale(
+        pm_mul(pm_mul(rxinv, pm_transpose(pa)), pm_transpose(dy)),
+        tau,
+      )
       // T = dy^T x^T  (d × k)
       let t = pm_mul(pm_transpose(dy), pm_transpose(x))
       for j = 0; j < cols; j = j + 1 {
@@ -517,7 +535,7 @@ pub fn bpca(
     for idx in row_miss {
       // dyo = observed entries of (row_i - mean), row vector 1×d_o
       let dyo_vals : Array[Double] = []
-      let obs : Array[Int] = []
+      let obs : Array[Int32] = []
       for j = 0; j < cols; j = j + 1 {
         if !nan[idx][j] {
           obs.push(j)
@@ -548,11 +566,11 @@ pub fn bpca(
       let rxinv2 = pm_inverse(rx2)
       // ex = tau * Wo^T dyo^T (k×1)
       let dyo_mat : Array[Array[Double]] = Array(capacity=0)
-      dyo_mat.push(dyo_vals)  // 1×d_o
+      dyo_mat.push(dyo_vals) // 1×d_o
       let ex = pm_scale(pm_mul(pm_transpose(wo), pm_transpose(dyo_mat)), tau)
-      let xx = pm_mul(rxinv2, ex)  // k×1
+      let xx = pm_mul(rxinv2, ex) // k×1
       // dym = Wm xx (d_m×1)
-      let dym = pm_mul(wm, xx)     // d_m×1
+      let dym = pm_mul(wm, xx) // d_m×1
       // full dy row (1×d): observed + imputed
       let dyrow = Array::make(cols, 0.0)
       let mut mcnt = 0
@@ -616,7 +634,9 @@ pub fn bpca(
     for i = 0; i < k; i = i + 1 {
       let row = Array::make(k, 0.0)
       for j = 0; j < k; j = j + 1 {
-        row[j] = rxinv_full[i][j] + tau * tpat_pa_rxinv[i][j] + (if i == j { alpha[i] } else { 0.0 }) / rows.to_double()
+        row[j] = rxinv_full[i][j] +
+          tau * tpat_pa_rxinv[i][j] +
+          (if i == j { alpha[i] } else { 0.0 }) / rows.to_double()
       }
       dw.push(row)
     }
@@ -629,7 +649,9 @@ pub fn bpca(
       mean_sq = mean_sq + mean[j] * mean[j]
     }
     let num = cols.to_double() + 2.0 * gtau0 / rows.to_double()
-    let den = trs - pm_trace(tpapa) + (mean_sq * gmu0 + 2.0 * gtau0 / btau0) / rows.to_double()
+    let den = trs -
+      pm_trace(tpapa) +
+      (mean_sq * gmu0 + 2.0 * gtau0 / btau0) / rows.to_double()
     tau = num / den
     // SigW = Dwinv * (cols/rows)
     for i = 0; i < k; i = i + 1 {
@@ -640,7 +662,8 @@ pub fn bpca(
     // alpha = (2*galpha0 + cols) / (tau*diag(PA^T PA) + diag(SigW) + 2*galpha0/balpha0)
     let pa_norms2 = pm_col_norms_sq(pa)
     for l = 0; l < k; l = l + 1 {
-      alpha[l] = (2.0 * galpha0 + cols.to_double()) / (tau * pa_norms2[l] + sigw[l][l] + 2.0 * galpha0 / balpha0)
+      alpha[l] = (2.0 * galpha0 + cols.to_double()) /
+        (tau * pa_norms2[l] + sigw[l][l] + 2.0 * galpha0 / balpha0)
     }
     if step % 10 == 0 {
       let dtau = (@math.log10(tau) - @math.log10(tauold)).abs()
@@ -665,7 +688,10 @@ pub fn bpca(
 // ---------------------------------------------------------------------------
 
 ///|
-fn pm_plus_identity_scaled(a : Array[Array[Double]], s : Double) -> Array[Array[Double]] {
+fn pm_plus_identity_scaled(
+  a : Array[Array[Double]],
+  s : Double,
+) -> Array[Array[Double]] {
   let n = a.length()
   let out : Array[Array[Double]] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {
@@ -693,7 +719,10 @@ fn pm_scale(a : Array[Array[Double]], s : Double) -> Array[Array[Double]] {
 }
 
 ///|
-fn pm_add(a : Array[Array[Double]], b : Array[Array[Double]]) -> Array[Array[Double]] {
+fn pm_add(
+  a : Array[Array[Double]],
+  b : Array[Array[Double]],
+) -> Array[Array[Double]] {
   let out : Array[Array[Double]] = Array(capacity=0)
   for i = 0; i < a.length(); i = i + 1 {
     let row = Array::make(a[i].length(), 0.0)
@@ -706,7 +735,10 @@ fn pm_add(a : Array[Array[Double]], b : Array[Array[Double]]) -> Array[Array[Dou
 }
 
 ///|
-fn pm_sub(a : Array[Array[Double]], b : Array[Array[Double]]) -> Array[Array[Double]] {
+fn pm_sub(
+  a : Array[Array[Double]],
+  b : Array[Array[Double]],
+) -> Array[Array[Double]] {
   let out : Array[Array[Double]] = Array(capacity=0)
   for i = 0; i < a.length(); i = i + 1 {
     let row = Array::make(a[i].length(), 0.0)

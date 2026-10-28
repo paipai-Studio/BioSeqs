@@ -99,9 +99,11 @@ test "minimap_align_batch multiple queries" {
   let ref_seq = "ACGTACGTACGTACGTACGTACGTACGTACGT"
   let refs = [@src.MinimapRefSeq::new("ref1", ref_seq)]
   let index = @src.minimap_index_build(refs, 4, 5)
-  let queries = [("q1", "ACGTACGTACGT"), ("q2", "ACGTACGTACGT"), ("q3", "TTACGTACGTAC")]
+  let queries = [
+    ("q1", "ACGTACGTACGT"),
+    ("q2", "ACGTACGTACGT"),
+    ("q3", "TTACGTACGTAC"),
+  ]
   let sam = @src.minimap_align_batch(index, queries)
   assert_true(sam.length() > 0)
 }
-
-

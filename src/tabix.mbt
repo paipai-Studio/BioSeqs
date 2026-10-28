@@ -27,13 +27,13 @@ fn[T] tbx_fail(msg : String) -> T raise TabixError {
 /// character; `skip` the number of header lines; `names` the reference
 /// sequence names. The per-reference binning is identical to BAI.
 pub struct TabixIndex {
-  n_ref : Int
-  format : Int
-  col_seq : Int
-  col_beg : Int
-  col_end : Int
-  meta : Int
-  skip : Int
+  n_ref : Int32
+  format : Int32
+  col_seq : Int32
+  col_beg : Int32
+  col_end : Int32
+  meta : Int32
+  skip : Int32
   names : Array[String]
   references : Array[BaiReference]
 }
@@ -43,15 +43,15 @@ pub struct TabixIndex {
 // ---------------------------------------------------------------------------
 
 ///|
-fn tbx_byte(data : String, pos : Int) -> Int64 {
+fn tbx_byte(data : String, pos : Int32) -> Int64 {
   (data.unsafe_get(pos).to_int() & 0xFF).to_int64()
 }
 
 ///|
 fn tbx_check_range(
   data : String,
-  pos : Int,
-  len : Int,
+  pos : Int32,
+  len : Int32,
   what : String,
 ) -> Unit raise TabixError {
   if pos < 0 || pos + len > data.length() {
@@ -62,25 +62,25 @@ fn tbx_check_range(
 }
 
 ///|
-fn tbx_read_u32(data : String, pos : Int) -> Int raise TabixError {
+fn tbx_read_u32(data : String, pos : Int32) -> Int32 raise TabixError {
   tbx_check_range(data, pos, 4, "32-bit integer")
   (data.unsafe_get(pos).to_int() & 0xFF) |
-    ((data.unsafe_get(pos + 1).to_int() & 0xFF) << 8) |
-    ((data.unsafe_get(pos + 2).to_int() & 0xFF) << 16) |
-    ((data.unsafe_get(pos + 3).to_int() & 0xFF) << 24)
+  ((data.unsafe_get(pos + 1).to_int() & 0xFF) << 8) |
+  ((data.unsafe_get(pos + 2).to_int() & 0xFF) << 16) |
+  ((data.unsafe_get(pos + 3).to_int() & 0xFF) << 24)
 }
 
 ///|
-fn tbx_read_u64(data : String, pos : Int) -> Int64 raise TabixError {
+fn tbx_read_u64(data : String, pos : Int32) -> Int64 raise TabixError {
   tbx_check_range(data, pos, 8, "64-bit integer")
   tbx_byte(data, pos) |
-    (tbx_byte(data, pos + 1) << 8) |
-    (tbx_byte(data, pos + 2) << 16) |
-    (tbx_byte(data, pos + 3) << 24) |
-    (tbx_byte(data, pos + 4) << 32) |
-    (tbx_byte(data, pos + 5) << 40) |
-    (tbx_byte(data, pos + 6) << 48) |
-    (tbx_byte(data, pos + 7) << 56)
+  (tbx_byte(data, pos + 1) << 8) |
+  (tbx_byte(data, pos + 2) << 16) |
+  (tbx_byte(data, pos + 3) << 24) |
+  (tbx_byte(data, pos + 4) << 32) |
+  (tbx_byte(data, pos + 5) << 40) |
+  (tbx_byte(data, pos + 6) << 48) |
+  (tbx_byte(data, pos + 7) << 56)
 }
 
 ///|
@@ -89,14 +89,14 @@ fn tbx_check_magic(data : String) -> Bool {
     return false
   }
   data.unsafe_get(0).to_int() == 0x54 &&
-    data.unsafe_get(1).to_int() == 0x42 &&
-    data.unsafe_get(2).to_int() == 0x49 &&
-    data.unsafe_get(3).to_int() == 0x01
+  data.unsafe_get(1).to_int() == 0x42 &&
+  data.unsafe_get(2).to_int() == 0x49 &&
+  data.unsafe_get(3).to_int() == 0x01
 }
 
 ///|
 /// Split the NUL-terminated sequence names (total `l_nm` bytes).
-fn tbx_parse_names(data : String, pos : Int, l_nm : Int) -> Array[String] {
+fn tbx_parse_names(data : String, pos : Int32, l_nm : Int32) -> Array[String] {
   let names : Array[String] = []
   let mut cur = StringBuilder()
   for i = 0; i < l_nm; i = i + 1 {
@@ -135,7 +135,7 @@ pub fn parse_tabix(data : String) -> TabixIndex raise TabixError {
   for r = 0; r < n_ref; r = r + 1 {
     let n_bin = tbx_read_u32(data, pos)
     pos = pos + 4
-    let bins : Map[Int, Array[BaiChunk]] = Map([], capacity=n_bin)
+    let bins : Map[Int32, Array[BaiChunk]] = Map([], capacity=n_bin)
     for b = 0; b < n_bin; b = b + 1 {
       let bin = tbx_read_u32(data, pos)
       pos = pos + 4
@@ -146,7 +146,7 @@ pub fn parse_tabix(data : String) -> TabixIndex raise TabixError {
         let beg = tbx_read_u64(data, pos)
         let end = tbx_read_u64(data, pos + 8)
         pos = pos + 16
-        chunks.push(BaiChunk::{ chunk_beg: beg, chunk_end: end })
+        chunks.push(BaiChunk::{ chunk_beg: beg, chunk_end: end, })
       }
       bins.set(bin, chunks)
     }
@@ -157,7 +157,7 @@ pub fn parse_tabix(data : String) -> TabixIndex raise TabixError {
       linear.push(tbx_read_u64(data, pos))
       pos = pos + 8
     }
-    references.push(BaiReference::{ bins, linear })
+    references.push(BaiReference::{ bins, linear, })
   }
   TabixIndex::{
     n_ref,
@@ -180,9 +180,9 @@ pub fn parse_tabix(data : String) -> TabixIndex raise TabixError {
 /// chunk (BGZF virtual offsets), ready for `BgzfReader::seek`.
 pub fn tabix_query(
   index : TabixIndex,
-  ref_id : Int,
-  beg : Int,
-  end : Int,
+  ref_id : Int32,
+  beg : Int32,
+  end : Int32,
 ) -> BaiQueryResult raise TabixError {
   if ref_id < 0 || ref_id >= index.references.length() {
     tbx_fail("Reference id \{ref_id} is out of range (n_ref = \{index.n_ref})")
@@ -212,5 +212,5 @@ pub fn tabix_query(
       None => ()
     }
   }
-  BaiQueryResult::{ min_off, chunks }
+  BaiQueryResult::{ min_off, chunks, }
 }

@@ -1,6 +1,5 @@
 ///|
 /// Tests for ebimage module (Image processing).
-
 test "ebi_image_new" {
   let img = @src.EbiImage::new(10, 8)
   assert_eq(img.width, 10)
@@ -8,6 +7,7 @@ test "ebi_image_new" {
   assert_eq(img.data.length(), 80)
 }
 
+///|
 test "ebi_image_from_rows" {
   let rows = [[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]]
   let img = @src.EbiImage::from_rows(rows)
@@ -17,6 +17,7 @@ test "ebi_image_from_rows" {
   assert_true((img.data[5] - 6.0).abs() < 1.0e-9)
 }
 
+///|
 test "ebi_image_to_rows_roundtrip" {
   let rows = [[1.0, 2.0], [3.0, 4.0]]
   let img = @src.EbiImage::from_rows(rows)
@@ -26,6 +27,7 @@ test "ebi_image_to_rows_roundtrip" {
   assert_true((out[1][1] - 4.0).abs() < 1.0e-9)
 }
 
+///|
 test "ebi_image_get_set" {
   let img = @src.EbiImage::new(5, 5)
   @src.EbiImage::set(img, 2, 3, 7.5)
@@ -37,6 +39,7 @@ test "ebi_image_get_set" {
   assert_true(@src.EbiImage::get(img, 0, 0) == 0.0)
 }
 
+///|
 test "ebi_min_max" {
   let img = @src.ebi_example_image()
   let mn = @src.ebi_min(img)
@@ -46,6 +49,7 @@ test "ebi_min_max" {
   assert_true(mx <= 1.0)
 }
 
+///|
 test "ebi_mean_sd" {
   let img = @src.ebi_example_image()
   let m = @src.ebi_mean(img)
@@ -54,6 +58,7 @@ test "ebi_mean_sd" {
   assert_true(s > 0.0)
 }
 
+///|
 test "ebi_normalize" {
   let img = @src.ebi_example_image()
   let norm = @src.ebi_normalize(img)
@@ -63,6 +68,7 @@ test "ebi_normalize" {
   assert_true((mx - 1.0).abs() < 1.0e-9)
 }
 
+///|
 test "ebi_otsu_threshold" {
   let img = @src.ebi_example_image()
   let t = @src.ebi_otsu_threshold(img)
@@ -79,6 +85,7 @@ test "ebi_otsu_threshold" {
   assert_true(ones > 0 && ones < 256)
 }
 
+///|
 test "ebi_threshold" {
   let img = @src.ebi_example_image()
   let binary = @src.ebi_threshold(img, 0.5)
@@ -90,6 +97,7 @@ test "ebi_threshold" {
   assert_true(mn >= 0.0)
 }
 
+///|
 test "ebi_threshold_otsu" {
   let img = @src.ebi_example_image()
   let binary = @src.ebi_threshold_otsu(img)
@@ -102,6 +110,7 @@ test "ebi_threshold_otsu" {
   assert_true(ones > 0)
 }
 
+///|
 test "ebi_gaussian_blur" {
   let img = @src.ebi_example_image()
   let blurred = @src.ebi_gaussian_blur(img, 1.0)
@@ -111,6 +120,7 @@ test "ebi_gaussian_blur" {
   assert_true(mx > 0.0 && mx <= @src.ebi_max(img) + 1.0e-9)
 }
 
+///|
 test "ebi_sobel_gradient" {
   let img = @src.ebi_example_image()
   let grad = @src.ebi_sobel_gradient(img)
@@ -120,12 +130,14 @@ test "ebi_sobel_gradient" {
   assert_true(mx > 0.0)
 }
 
+///|
 test "ebi_se_sizes" {
   assert_eq(@src.ebi_se_cross().length(), 4)
   assert_eq(@src.ebi_se_square().length(), 8)
   assert_true(@src.ebi_se_disk(1).length() >= 4)
 }
 
+///|
 test "ebi_erode_dilate_bounds" {
   let img = @src.ebi_example_image()
   let se = @src.ebi_se_cross()
@@ -137,6 +149,7 @@ test "ebi_erode_dilate_bounds" {
   assert_true(@src.ebi_min(dilated) >= @src.ebi_min(img))
 }
 
+///|
 test "ebi_open_close" {
   let img = @src.ebi_example_image()
   let se = @src.ebi_se_cross()
@@ -146,6 +159,7 @@ test "ebi_open_close" {
   assert_eq(closed.height, img.height)
 }
 
+///|
 test "ebi_label_two_objects" {
   let img = @src.ebi_example_image()
   let binary = @src.ebi_threshold_otsu(img)
@@ -157,6 +171,7 @@ test "ebi_label_two_objects" {
   }
 }
 
+///|
 test "ebi_label_4_vs_8_connectivity" {
   let rows = [[0.0, 1.0, 0.0], [0.0, 0.0, 1.0], [0.0, 0.0, 0.0]]
   let img = @src.EbiImage::from_rows(rows)
@@ -166,6 +181,7 @@ test "ebi_label_4_vs_8_connectivity" {
   assert_eq(count4, 2)
 }
 
+///|
 test "ebi_object_features" {
   let img = @src.ebi_example_image()
   let binary = @src.ebi_threshold_otsu(img)
@@ -181,6 +197,7 @@ test "ebi_object_features" {
   }
 }
 
+///|
 test "ebi_watershed" {
   let img = @src.ebi_example_image()
   let binary = @src.ebi_threshold_otsu(img)
@@ -192,6 +209,7 @@ test "ebi_watershed" {
   }
 }
 
+///|
 test "ebi_to_ascii" {
   let img = @src.ebi_example_image()
   let ascii = @src.ebi_to_ascii(img)
@@ -199,6 +217,7 @@ test "ebi_to_ascii" {
   assert_true(ascii.contains("\n"))
 }
 
+///|
 test "ebi_example_image" {
   let img = @src.ebi_example_image()
   assert_eq(img.width, 16)

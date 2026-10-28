@@ -1,17 +1,18 @@
 ///|
 /// Tests for msigdbr module (MSigDB gene set collections).
-
 test "msig_category_code" {
   assert_eq(@src.MsigCategory::code(@src.MsigHallmark), "H")
   assert_eq(@src.MsigCategory::code(@src.MsigCurated), "C2")
   assert_eq(@src.MsigCategory::code(@src.MsigOntology), "C5")
 }
 
+///|
 test "msig_category_label" {
   let l = @src.MsigCategory::label(@src.MsigHallmark)
   assert_true(l.contains("Hallmark"))
 }
 
+///|
 test "msig_category_from_string" {
   let h = @src.msig_category_from_string("hallmark")
   assert_eq(@src.MsigCategory::code(h), "H")
@@ -23,6 +24,7 @@ test "msig_category_from_string" {
   assert_eq(@src.MsigCategory::code(other), "other")
 }
 
+///|
 test "msig_hallmark" {
   let col = @src.msig_hallmark()
   assert_true(col.size() >= 5)
@@ -33,18 +35,21 @@ test "msig_hallmark" {
   }
 }
 
+///|
 test "msig_curated_canonical" {
   let col = @src.msig_curated_canonical()
   assert_true(col.size() >= 3)
   assert_true(col.category is @src.MsigCurated)
 }
 
+///|
 test "msig_ontology_go_bp" {
   let col = @src.msig_ontology_go_bp()
   assert_true(col.size() >= 3)
   assert_true(col.category is @src.MsigOntology)
 }
 
+///|
 test "msig_catalog" {
   let catalog = @src.msig_catalog()
   assert_eq(catalog.length(), 3)
@@ -52,6 +57,7 @@ test "msig_catalog" {
   assert_true(total >= 11)
 }
 
+///|
 test "msig_lookup" {
   let catalog = @src.msig_catalog()
   let gs = @src.msig_lookup(catalog, "HALLMARK_TNFA_SIGNALING_VIA_NFKB")
@@ -63,6 +69,7 @@ test "msig_lookup" {
   assert_true(@src.msig_lookup(catalog, "NONEXISTENT_SET") is None)
 }
 
+///|
 test "msig_filter_by_size" {
   let col = @src.msig_hallmark()
   let big = @src.msig_filter_by_size(col, 12, 1000)
@@ -73,6 +80,7 @@ test "msig_filter_by_size" {
   assert_eq(all.size(), col.size())
 }
 
+///|
 test "msig_to_gmt_roundtrip" {
   let col = @src.msig_hallmark()
   let gmt = @src.msig_to_gmt(col)
@@ -84,6 +92,7 @@ test "msig_to_gmt_roundtrip" {
   }
 }
 
+///|
 test "msig_id_table" {
   let pairs = [("TP53", "7157"), ("BRCA1", "672")]
   let table = @src.msig_id_table(pairs)
@@ -98,6 +107,7 @@ test "msig_id_table" {
   assert_true(table.get("EGFR") is None)
 }
 
+///|
 test "msig_map_ids" {
   let gs = @src.GmtGeneSet::new("test", "test set", ["TP53", "BRCA1", "EGFR"])
   let table = @src.msig_id_table([("TP53", "7157"), ("BRCA1", "672")])
@@ -107,6 +117,7 @@ test "msig_map_ids" {
   assert_eq(mapped.gene_ids[2], "EGFR")
 }
 
+///|
 test "msig_map_collection" {
   let col = @src.msig_hallmark()
   let table = @src.msig_id_table([("TP53", "7157")])
@@ -123,6 +134,7 @@ test "msig_map_collection" {
   assert_true(found)
 }
 
+///|
 test "msig_gene_frequency" {
   let col = @src.msig_hallmark()
   let freq = @src.msig_gene_frequency(col)
@@ -131,6 +143,7 @@ test "msig_gene_frequency" {
   assert_true(tp53 is Some(_))
 }
 
+///|
 test "msig_shared_genes" {
   let a = @src.GmtGeneSet::new("a", "a", ["TP53", "BRCA1", "EGFR"])
   let b = @src.GmtGeneSet::new("b", "b", ["TP53", "MYC", "KRAS"])
@@ -139,6 +152,7 @@ test "msig_shared_genes" {
   assert_eq(shared[0], "TP53")
 }
 
+///|
 test "msig_jaccard" {
   let a = @src.GmtGeneSet::new("a", "a", ["TP53", "BRCA1", "EGFR"])
   let b = @src.GmtGeneSet::new("b", "b", ["TP53", "MYC", "KRAS"])
@@ -148,6 +162,7 @@ test "msig_jaccard" {
   assert_true((same - 1.0).abs() < 1.0e-9)
 }
 
+///|
 test "msig_summary" {
   let col = @src.msig_hallmark()
   let s = @src.msig_summary(col)

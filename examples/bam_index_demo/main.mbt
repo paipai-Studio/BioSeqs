@@ -12,7 +12,9 @@ fn main raise {
   let bins_a = @src.bai_reg2bins(0, 100)
   println("reg2bins(0, 100) -> \{bins_a.length()} bins: 0 1 9 73 585 4681")
   let bins_b = @src.bai_reg2bins(500000, 520000)
-  println("reg2bins(500000, 520000) -> [\{bins_b[0]}, \{bins_b[4]}, \{bins_b[5]}, \{bins_b[6]}]")
+  println(
+    "reg2bins(500000, 520000) -> [\{bins_b[0]}, \{bins_b[4]}, \{bins_b[5]}, \{bins_b[6]}]",
+  )
 
   println("\n=== 2. Parse a BAI index ===")
   let idx = @src.parse_bai(
@@ -23,7 +25,9 @@ fn main raise {
   println("n_ref = \{idx.n_ref}")
   for i = 0; i < idx.references.length(); i = i + 1 {
     let r = idx.references[i]
-    println("  ref \{i}: \{r.bins.length()} bins, \{r.linear.length()} linear entries")
+    println(
+      "  ref \{i}: \{r.bins.length()} bins, \{r.linear.length()} linear entries",
+    )
   }
 
   println("\n=== 3. Query a region on ref 0 ===")

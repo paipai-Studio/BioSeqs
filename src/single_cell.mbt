@@ -18,20 +18,25 @@ pub fn SimpleSCE::new(
   col_data : Array[Array[String]],
   row_data : Array[Array[String]],
 ) -> SimpleSCE {
-  SimpleSCE::{ assays, col_data, row_data, reduced_dimensions: Array(capacity=0), }
+  SimpleSCE::{
+    assays,
+    col_data,
+    row_data,
+    reduced_dimensions: Array(capacity=0),
+  }
 }
 
 ///|
 pub struct QCMetrics {
   n_umi : Array[Double]
-  n_genes : Array[Int]
+  n_genes : Array[Int32]
   mito_percent : Array[Double]
 }
 
 ///|
 pub fn QCMetrics::new(
   n_umi : Array[Double],
-  n_genes : Array[Int],
+  n_genes : Array[Int32],
   mito_percent : Array[Double],
 ) -> QCMetrics {
   QCMetrics::{ n_umi, n_genes, mito_percent, }
@@ -46,7 +51,7 @@ pub fn calculate_qc_metrics(
   let n_genes = if n_cells > 0 { counts[0].length() } else { 0 }
 
   let n_umi : Array[Double] = Array(capacity=0)
-  let n_gene_arr : Array[Int] = Array(capacity=0)
+  let n_gene_arr : Array[Int32] = Array(capacity=0)
   let mito_percent_arr : Array[Double] = Array(capacity=0)
 
   let mut i = 0
@@ -88,9 +93,9 @@ pub fn calculate_qc_metrics(
 pub fn filter_cells(
   counts : Array[Array[Double]],
   qc : QCMetrics,
-  min_n_umi : Int,
-  max_n_umi : Int,
-  min_n_genes : Int,
+  min_n_umi : Int32,
+  max_n_umi : Int32,
+  min_n_genes : Int32,
   max_mito_percent : Double,
 ) -> Array[Array[Double]] {
   let filtered : Array[Array[Double]] = Array(capacity=0)
@@ -279,7 +284,7 @@ fn center_matrix(m : Array[Array[Double]]) -> Array[Array[Double]] {
 ///|
 pub fn pca_power_iteration(
   data : Array[Array[Double]],
-  n_components : Int,
+  n_components : Int32,
 ) -> (Array[Array[Double]], Array[Double]) {
   let centered = center_matrix(data)
   let mut cov = matmul(transpose(centered), centered)
@@ -360,8 +365,8 @@ pub fn pca_power_iteration(
 ///|
 pub fn find_variable_genes(
   normalized : Array[Array[Double]],
-  n_top_genes : Int,
-) -> Array[Int] {
+  n_top_genes : Int32,
+) -> Array[Int32] {
   let n_genes = if normalized.length() > 0 { normalized[0].length() } else { 0 }
   let n_cells = normalized.length()
 
@@ -391,7 +396,7 @@ pub fn find_variable_genes(
     i = i + 1
   }
 
-  let gene_vars : Array[(Double, Int)] = Array(capacity=0)
+  let gene_vars : Array[(Double, Int32)] = Array(capacity=0)
   i = 0
   while i < n_genes {
     gene_vars.push((vars[i], i))
@@ -412,7 +417,7 @@ pub fn find_variable_genes(
     j = j + 1
   }
 
-  let top_indices : Array[Int] = Array(capacity=0)
+  let top_indices : Array[Int32] = Array(capacity=0)
   i = 0
   while i < n_top_genes && i < gene_vars.length() {
     top_indices.push(gene_vars[i].1)
@@ -425,7 +430,7 @@ pub fn find_variable_genes(
 ///|
 pub fn select_genes_by_indices(
   data : Array[Array[Double]],
-  indices : Array[Int],
+  indices : Array[Int32],
 ) -> Array[Array[Double]] {
   let n_cells = data.length()
   let n_selected = indices.length()

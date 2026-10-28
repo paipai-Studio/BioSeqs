@@ -3,7 +3,12 @@ test "mdanalysis density basic" {
   // 2 frames, 2 atoms each, in a 2×2×2 grid
   let f1 = [[0.5, 0.5, 0.5], [1.5, 0.5, 0.5]]
   let f2 = [[0.5, 0.5, 0.5], [1.5, 0.5, 0.5]]
-  let result = @src.mdanalysis_density([f1, f2], [0.0, 0.0, 0.0], [2.0, 1.0, 1.0], (2, 1, 1))
+  let result = @src.mdanalysis_density(
+    [f1, f2],
+    [0.0, 0.0, 0.0],
+    [2.0, 1.0, 1.0],
+    (2, 1, 1),
+  )
   assert_eq(result.bins.0, 2)
   assert_eq(result.bins.1, 1)
   assert_eq(result.bins.2, 1)
@@ -21,7 +26,12 @@ test "mdanalysis density basic" {
 test "mdanalysis density out of bounds" {
   // Atom outside grid → not counted
   let f1 = [[5.0, 5.0, 5.0]]
-  let result = @src.mdanalysis_density([f1], [0.0, 0.0, 0.0], [2.0, 2.0, 2.0], (2, 2, 2))
+  let result = @src.mdanalysis_density(
+    [f1],
+    [0.0, 0.0, 0.0],
+    [2.0, 2.0, 2.0],
+    (2, 2, 2),
+  )
   // All bins should be 0
   for i = 0; i < 8; i = i + 1 {
     assert_true(result.grid[i] < 1.0e-15)
@@ -30,14 +40,24 @@ test "mdanalysis density out of bounds" {
 
 ///|
 test "mdanalysis density empty" {
-  let result = @src.mdanalysis_density([], [0.0, 0.0, 0.0], [1.0, 1.0, 1.0], (1, 1, 1))
+  let result = @src.mdanalysis_density(
+    [],
+    [0.0, 0.0, 0.0],
+    [1.0, 1.0, 1.0],
+    (1, 1, 1),
+  )
   assert_eq(result.grid.length(), 0)
 }
 
 ///|
 test "mdanalysis density voxel volume" {
   // 3×3×3 grid in a 3×3×3 box → voxel = 1.0
-  let result = @src.mdanalysis_density([[[0.5, 0.5, 0.5]]], [0.0, 0.0, 0.0], [3.0, 3.0, 3.0], (3, 3, 3))
+  let result = @src.mdanalysis_density(
+    [[[0.5, 0.5, 0.5]]],
+    [0.0, 0.0, 0.0],
+    [3.0, 3.0, 3.0],
+    (3, 3, 3),
+  )
   assert_true((result.voxel_volume - 1.0).abs() < 1.0e-9)
   // 1 atom in bin (0,0,0), 1 frame → density = 1/(1*1.0) = 1.0
   assert_true((result.grid[0] - 1.0).abs() < 1.0e-9)
@@ -47,11 +67,7 @@ test "mdanalysis density voxel volume" {
 test "mdanalysis diffusionmap basic" {
   // 3 frames with known distances
   // Frame 0-1: dist=1, Frame 1-2: dist=1, Frame 0-2: dist=2
-  let dist = [
-    [0.0, 1.0, 2.0],
-    [1.0, 0.0, 1.0],
-    [2.0, 1.0, 0.0],
-  ]
+  let dist = [[0.0, 1.0, 2.0], [1.0, 0.0, 1.0], [2.0, 1.0, 0.0]]
   let result = @src.mdanalysis_diffusionmap(dist, 1.0)
   assert_eq(result.eigenvalues.length(), 3)
   assert_eq(result.eigenvectors.length(), 3)
@@ -65,11 +81,7 @@ test "mdanalysis diffusionmap basic" {
 ///|
 test "mdanalysis diffusionmap identical frames" {
   // All frames identical → all distances 0 → kernel all 1
-  let dist = [
-    [0.0, 0.0, 0.0],
-    [0.0, 0.0, 0.0],
-    [0.0, 0.0, 0.0],
-  ]
+  let dist = [[0.0, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]]
   let result = @src.mdanalysis_diffusionmap(dist, 1.0)
   assert_eq(result.eigenvalues.length(), 3)
   // All eigenvalues should be ~1 (uniform kernel → identity-like)
@@ -80,11 +92,7 @@ test "mdanalysis diffusionmap identical frames" {
 
 ///|
 test "mdanalysis diffusionmap transform" {
-  let dist = [
-    [0.0, 1.0, 2.0],
-    [1.0, 0.0, 1.0],
-    [2.0, 1.0, 0.0],
-  ]
+  let dist = [[0.0, 1.0, 2.0], [1.0, 0.0, 1.0], [2.0, 1.0, 0.0]]
   let result = @src.mdanalysis_diffusionmap(dist, 1.0)
   let embedding = @src.mdanalysis_diffusionmap_transform(result, 2, 1.0)
   // 3 frames × 2 eigenvectors

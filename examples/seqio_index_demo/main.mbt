@@ -3,8 +3,7 @@
 /// scan a FASTA file once, map record ids to byte offsets, then fetch
 /// individual records by id without re-parsing the whole file.
 fn main {
-  let fasta =
-    ">BRCA1 human breast cancer gene\n" +
+  let fasta = ">BRCA1 human breast cancer gene\n" +
     "ATGGATTTATCTGCTCTTCGCGTTGAAGAAGTACAAAATGTCATTAATGCTATGCAGAAAATCTTAGAG\n" +
     "CGTCCCTGGTCTTCAGGGACTAATATTATCATTTGTAGT\n" +
     ">TP53 tumor suppressor\n" +
@@ -15,9 +14,7 @@ fn main {
     "CTCTGGAGGAAAAGAAAGTTTGCCAAGGCACGAGTAACAAG\n"
 
   // ---- Build the index ----------------------------------------------------
-  let index = try {
-    @src.seqio_index(fasta, "fasta")
-  } catch {
+  let index = @src.seqio_index(fasta, "fasta") catch {
     @src.SeqIOError(msg) => {
       println("indexing failed: " + msg)
       return
@@ -42,12 +39,16 @@ fn main {
       let raw = index.get_raw(fasta, id)
       let record = index.get(fasta, id)
       println("")
-      println("--- record " + id + " (" + raw.length().to_string() + " raw bytes) ---")
+      println(
+        "--- record " + id + " (" + raw.length().to_string() + " raw bytes) ---",
+      )
       println("description : " + record.description)
       println(
         "sequence    : " +
         record.seq.to_string()[0:30].to_owned() +
-        "... (" + record.seq.to_string().length().to_string() + " bp)",
+        "... (" +
+        record.seq.to_string().length().to_string() +
+        " bp)",
       )
     } catch {
       @src.SeqIOError(msg) => println("failed to fetch " + id + ": " + msg)

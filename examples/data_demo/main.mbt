@@ -62,9 +62,13 @@ fn main {
   // Amino acid properties
   println("=== Amino Acid Properties ===")
   let ala = @bio.amino_acid_properties("A")
-  println("Ala: property=\{ala.property}, charge=\{ala.charge}, hydropathy=\{ala.hydropathy}")
+  println(
+    "Ala: property=\{ala.property}, charge=\{ala.charge}, hydropathy=\{ala.hydropathy}",
+  )
   let arg = @bio.amino_acid_properties("R")
-  println("Arg: property=\{arg.property}, charge=\{arg.charge}, hydropathy=\{arg.hydropathy}")
+  println(
+    "Arg: property=\{arg.property}, charge=\{arg.charge}, hydropathy=\{arg.hydropathy}",
+  )
   let unknown = @bio.amino_acid_properties("X")
   println("Unknown: property=\{unknown.property}")
   println("")
@@ -92,7 +96,9 @@ fn main {
   let rev = @bio.reverse_codon_table()
   println("Total amino acids: \{rev.length()}")
   println("M (Met) codons: \{rev.get("M").unwrap()}")
-  println("L (Leu) codons: \{rev.get("L").unwrap()} (count: \{rev.get("L").unwrap().length()})")
+  println(
+    "L (Leu) codons: \{rev.get("L").unwrap()} (count: \{rev.get("L").unwrap().length()})",
+  )
   println("* (Stop) codons: \{rev.get("*").unwrap()}")
   println("")
 

@@ -32,19 +32,19 @@ fn impute_is_na(x : Double) -> Bool {
 
 ///|
 pub struct ImputeNAStats {
-  total_rows : Int
-  total_cols : Int
-  total_na : Int
+  total_rows : Int32
+  total_cols : Int32
+  total_na : Int32
   na_fraction : Double
-  rows_with_na : Int
-  cols_with_na : Int
-  row_na_counts : Array[Int]
-  col_na_counts : Array[Int]
+  rows_with_na : Int32
+  cols_with_na : Int32
+  row_na_counts : Array[Int32]
+  col_na_counts : Array[Int32]
 }
 
 ///|
 pub struct KNNImputeParam {
-  mut k : Int
+  mut k : Int32
   by_row : Bool
   eps : Double
   max_value : Double?
@@ -63,7 +63,7 @@ pub fn KNNImputeParam::new() -> KNNImputeParam {
 }
 
 ///|
-pub fn KNNImputeParam::with_k(k : Int) -> KNNImputeParam {
+pub fn KNNImputeParam::with_k(k : Int32) -> KNNImputeParam {
   let p = KNNImputeParam::new()
   if k >= 1 {
     p.k = k
@@ -127,8 +127,8 @@ pub fn impute_na_stats(mat : Array[Array[Double]]) -> ImputeNAStats {
   let rows = mat.length()
   let cols = if rows == 0 { 0 } else { mat[0].length() }
   let mut total = 0
-  let row_counts : Array[Int] = Array(capacity=0)
-  let col_counts : Array[Int] = Array::make(cols, 0)
+  let row_counts : Array[Int32] = Array(capacity=0)
+  let col_counts : Array[Int32] = Array::make(cols, 0)
   let mut r_na = 0
   for i = 0; i < rows; i = i + 1 {
     let mut rc = 0
@@ -205,7 +205,7 @@ fn impute_median_clean(arr : Array[Double]) -> Double {
       clean.push(x)
     }
   }
-  clean.sort_by(fn(a : Double, b : Double) -> Int {
+  clean.sort_by(fn(a : Double, b : Double) -> Int32 {
     if a < b {
       -1
     } else if a > b {
@@ -430,7 +430,7 @@ pub fn apply_value_clamp(
 ///|
 pub fn impute_locf(
   mat : Array[Array[Double]],
-  by_row? : Bool = true,
+  by_row~ : Bool = true,
 ) -> Array[Array[Double]] {
   let base = if by_row {
     impute_copy_matrix(mat)
@@ -459,7 +459,7 @@ pub fn impute_locf(
 ///|
 pub fn impute_nocb(
   mat : Array[Array[Double]],
-  by_row? : Bool = true,
+  by_row~ : Bool = true,
 ) -> Array[Array[Double]] {
   let base = if by_row {
     impute_copy_matrix(mat)
@@ -541,10 +541,10 @@ fn impute_compute_all_pair_distances(
 ///|
 fn impute_choose_k_neighbors(
   dist_row : Array[Double],
-  k : Int,
-  self_i : Int,
-) -> Array[(Int, Double)] {
-  let pairs : Array[(Int, Double)] = Array(capacity=0)
+  k : Int32,
+  self_i : Int32,
+) -> Array[(Int32, Double)] {
+  let pairs : Array[(Int32, Double)] = Array(capacity=0)
   let n = dist_row.length()
   for i = 0; i < n; i = i + 1 {
     if i == self_i {
@@ -552,7 +552,7 @@ fn impute_choose_k_neighbors(
     }
     pairs.push((i, dist_row[i]))
   }
-  pairs.sort_by(fn(p : (Int, Double), q : (Int, Double)) -> Int {
+  pairs.sort_by(fn(p : (Int32, Double), q : (Int32, Double)) -> Int32 {
     if p.1 < q.1 {
       -1
     } else if p.1 > q.1 {
@@ -562,7 +562,7 @@ fn impute_choose_k_neighbors(
     }
   })
   let m = if k < pairs.length() { k } else { pairs.length() }
-  let out : Array[(Int, Double)] = Array(capacity=0)
+  let out : Array[(Int32, Double)] = Array(capacity=0)
   for i = 0; i < m; i = i + 1 {
     out.push(pairs[i])
   }
@@ -571,9 +571,9 @@ fn impute_choose_k_neighbors(
 
 ///|
 fn impute_weighted_average(
-  neighbors : Array[(Int, Double)],
+  neighbors : Array[(Int32, Double)],
   m : Array[Array[Double]],
-  j : Int,
+  j : Int32,
   eps : Double,
 ) -> Double {
   let mut num = 0.0
@@ -627,7 +627,7 @@ pub fn impute_by_knn(
 ///|
 pub fn impute_by_knn_simple(
   mat : Array[Array[Double]],
-  k : Int,
+  k : Int32,
 ) -> Array[Array[Double]] {
   let p = KNNImputeParam::new()
   p.k = k

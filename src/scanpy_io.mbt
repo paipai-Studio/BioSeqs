@@ -7,7 +7,7 @@
 /// Make a list of names unique by appending `-1`, `-2`, … to later duplicate
 /// occurrences, matching `anndata.utils.make_index_unique`.
 pub fn scanpy_make_index_unique(names : Array[String]) -> Array[String] {
-  let counts : Map[String, Int] = Map([], capacity=64)
+  let counts : Map[String, Int32] = Map([], capacity=64)
   let out : Array[String] = Array(capacity=0)
   for name in names {
     match counts.get(name) {
@@ -31,7 +31,7 @@ pub fn scanpy_make_index_unique(names : Array[String]) -> Array[String] {
 /// `general` / `symmetric` storage.
 pub fn scanpy_parse_mtx(
   content : String,
-) -> (Array[Array[Double]], Int, Int) {
+) -> (Array[Array[Double]], Int32, Int32) {
   let lines = content.split("\n").to_array()
   let n_lines = lines.length()
   let mut i = 0
@@ -189,8 +189,8 @@ pub fn scanpy_read_10x_mtx(
   }
 
   // Determine which gene columns to keep
-  let keep : Array[Int] = if gex_only {
-    let k : Array[Int] = Array(capacity=0)
+  let keep : Array[Int32] = if gex_only {
+    let k : Array[Int32] = Array(capacity=0)
     for gi = 0; gi < feature_types.length(); gi = gi + 1 {
       if feature_types[gi] == "Gene Expression" {
         k.push(gi)
@@ -198,7 +198,7 @@ pub fn scanpy_read_10x_mtx(
     }
     k
   } else {
-    let k : Array[Int] = Array(capacity=n_genes)
+    let k : Array[Int32] = Array(capacity=n_genes)
     for gi = 0; gi < n_genes; gi = gi + 1 {
       k.push(gi)
     }
@@ -337,7 +337,10 @@ pub fn scanpy_write_h5ad(adata : AnnData) -> String {
         values.push(JsonNum(entry.value))
       }
       let sparse_obj : Map[String, JsonValue] = Map([], capacity=3)
-      sparse_obj["dims"] = h5ad_strs_to_json([dims[0].to_string(), dims[1].to_string()])
+      sparse_obj["dims"] = h5ad_strs_to_json([
+        dims[0].to_string(),
+        dims[1].to_string(),
+      ])
       // Actually dims should be numbers
       let dims_arr : Array[JsonValue] = Array(capacity=2)
       dims_arr.push(JsonNum(dims[0].to_double()))
@@ -347,9 +350,7 @@ pub fn scanpy_write_h5ad(adata : AnnData) -> String {
       sparse_obj["values"] = JsonArr(values)
       root["X_sparse"] = JsonObj(sparse_obj)
     }
-    None => {
-      root["X"] = h5ad_mat_to_json(adata.x)
-    }
+    None => root["X"] = h5ad_mat_to_json(adata.x)
   }
   root["obs_names"] = h5ad_strs_to_json(adata.obs_names)
   root["var_names"] = h5ad_strs_to_json(adata.var_names)
@@ -426,12 +427,13 @@ fn h5ad_json_to_strs(v : JsonValue) -> Array[String] {
 fn h5ad_json_to_str_map(v : JsonValue) -> Map[String, Array[String]] {
   let out : Map[String, Array[String]] = Map([], capacity=4)
   match v {
-    JsonObj(m) => {
+    JsonObj(m) =>
       for kv in m {
         out[kv.0] = h5ad_json_to_strs(kv.1)
       }
+    _ => {
+      let _ = 0
     }
-    _ => { let _ = 0 }
   }
   out
 }
@@ -441,12 +443,13 @@ fn h5ad_json_to_str_map(v : JsonValue) -> Map[String, Array[String]] {
 fn h5ad_json_to_mat_map(v : JsonValue) -> Map[String, Array[Array[Double]]] {
   let out : Map[String, Array[Array[Double]]] = Map([], capacity=4)
   match v {
-    JsonObj(m) => {
+    JsonObj(m) =>
       for kv in m {
         out[kv.0] = h5ad_json_to_mat(kv.1)
       }
+    _ => {
+      let _ = 0
     }
-    _ => { let _ = 0 }
   }
   out
 }
@@ -456,12 +459,13 @@ fn h5ad_json_to_mat_map(v : JsonValue) -> Map[String, Array[Array[Double]]] {
 fn h5ad_json_to_uns(v : JsonValue) -> Map[String, JsonValue] {
   let out : Map[String, JsonValue] = Map([], capacity=4)
   match v {
-    JsonObj(m) => {
+    JsonObj(m) =>
       for kv in m {
         out[kv.0] = kv.1
       }
+    _ => {
+      let _ = 0
     }
-    _ => { let _ = 0 }
   }
   out
 }
@@ -528,31 +532,34 @@ pub fn scanpy_read_h5ad(content : String) -> AnnData? {
             }
             _ => [0, 0]
           }
-          let coords : Array[Array[Int]] = Array(capacity=0)
+          let coords : Array[Array[Int32]] = Array(capacity=0)
           match sparse_obj.get("coords") {
-            Some(JsonArr(ca)) => {
+            Some(JsonArr(ca)) =>
               for c in ca {
                 match c {
-                  JsonArr(pair) => {
+                  JsonArr(pair) =>
                     coords.push([
                       h5ad_json_to_num(pair[0]).to_int(),
                       h5ad_json_to_num(pair[1]).to_int(),
                     ])
+                  _ => {
+                    let _ = 0
                   }
-                  _ => { let _ = 0 }
                 }
               }
+            _ => {
+              let _ = 0
             }
-            _ => { let _ = 0 }
           }
           let values : Array[Double] = Array(capacity=0)
           match sparse_obj.get("values") {
-            Some(JsonArr(va)) => {
+            Some(JsonArr(va)) =>
               for v in va {
                 values.push(h5ad_json_to_num(v))
               }
+            _ => {
+              let _ = 0
             }
-            _ => { let _ = 0 }
           }
           let sparse = SparseArray::from_coo(dims, coords, values) catch {
             _ => return None
@@ -624,7 +631,6 @@ pub fn scanpy_read_h5ad(content : String) -> AnnData? {
   }
 }
 
-
 // ============================================================================
 // Compact binary h5ad format (BH5AD)
 //
@@ -656,28 +662,28 @@ pub fn scanpy_read_h5ad(content : String) -> AnnData? {
 ///|
 /// Binary buffer writer (little-endian).
 struct BinWriter {
-  buf : Array[Int]
+  buf : Array[Int32]
 }
 
 ///|
 fn BinWriter::new() -> BinWriter {
-  BinWriter::{ buf: [] }
+  BinWriter::{ buf: [], }
 }
 
 ///|
-fn BinWriter::write_byte(self : BinWriter, b : Int) -> Unit {
+fn BinWriter::write_byte(self : BinWriter, b : Int32) -> Unit {
   self.buf.push(b & 0xFF)
 }
 
 ///|
-fn BinWriter::write_bytes(self : BinWriter, bytes : Array[Int]) -> Unit {
+fn BinWriter::write_bytes(self : BinWriter, bytes : Array[Int32]) -> Unit {
   for b in bytes {
     self.buf.push(b & 0xFF)
   }
 }
 
 ///|
-fn BinWriter::write_int32(self : BinWriter, v : Int) -> Unit {
+fn BinWriter::write_int32(self : BinWriter, v : Int32) -> Unit {
   self.buf.push(v & 0xFF)
   self.buf.push((v >> 8) & 0xFF)
   self.buf.push((v >> 16) & 0xFF)
@@ -708,7 +714,10 @@ fn BinWriter::write_str_array(self : BinWriter, arr : Array[String]) -> Unit {
 }
 
 ///|
-fn BinWriter::write_matrix(self : BinWriter, mat : Array[Array[Double]]) -> Unit {
+fn BinWriter::write_matrix(
+  self : BinWriter,
+  mat : Array[Array[Double]],
+) -> Unit {
   let rows = mat.length()
   let cols = if rows > 0 { mat[0].length() } else { 0 }
   self.write_int32(rows)
@@ -762,17 +771,17 @@ fn BinWriter::write_uns_map(
 ///|
 /// Binary buffer reader (little-endian).
 struct BinReader {
-  buf : Array[Int]
-  mut pos : Int
+  buf : Array[Int32]
+  mut pos : Int32
 }
 
 ///|
-fn BinReader::new(buf : Array[Int]) -> BinReader {
-  BinReader::{ buf, pos: 0 }
+fn BinReader::new(buf : Array[Int32]) -> BinReader {
+  BinReader::{ buf, pos: 0, }
 }
 
 ///|
-fn BinReader::read_byte(self : BinReader) -> Int {
+fn BinReader::read_byte(self : BinReader) -> Int32 {
   if self.pos >= self.buf.length() {
     return 0
   }
@@ -782,7 +791,7 @@ fn BinReader::read_byte(self : BinReader) -> Int {
 }
 
 ///|
-fn BinReader::read_int32(self : BinReader) -> Int {
+fn BinReader::read_int32(self : BinReader) -> Int32 {
   let b0 = self.read_byte()
   let b1 = self.read_byte()
   let b2 = self.read_byte()
@@ -850,7 +859,9 @@ fn BinReader::read_str_map(self : BinReader) -> Map[String, Array[String]] {
 }
 
 ///|
-fn BinReader::read_mat_map(self : BinReader) -> Map[String, Array[Array[Double]]] {
+fn BinReader::read_mat_map(
+  self : BinReader,
+) -> Map[String, Array[Array[Double]]] {
   let n = self.read_int32()
   let out : Map[String, Array[Array[Double]]] = Map([], capacity=n)
   for _i = 0; _i < n; _i = _i + 1 {
@@ -878,7 +889,7 @@ fn BinReader::read_uns_map(self : BinReader) -> Map[String, JsonValue] {
 ///|
 /// Serialize an AnnData to a compact binary format (Array[Int] of bytes).
 /// Supports both dense and sparse X storage.
-pub fn scanpy_write_h5ad_binary(adata : AnnData) -> Array[Int] {
+pub fn scanpy_write_h5ad_binary(adata : AnnData) -> Array[Int32] {
   let w = BinWriter::new()
   // Magic + version + flags
   w.write_bytes([66, 72, 53, 65, 68]) // "BH5AD"
@@ -904,13 +915,12 @@ pub fn scanpy_write_h5ad_binary(adata : AnnData) -> Array[Int] {
         w.write_float64(entry.value)
       }
     }
-    None => {
+    None =>
       for row in adata.x {
         for v in row {
           w.write_float64(v)
         }
       }
-    }
   }
   // Names
   w.write_str_array(adata.obs_names)
@@ -930,11 +940,12 @@ pub fn scanpy_write_h5ad_binary(adata : AnnData) -> Array[Int] {
 ///|
 /// Deserialize a binary h5ad (Array[Int] of bytes) back to an AnnData.
 /// Returns `None` if the magic header is invalid.
+
 ///|
 /// Deserialize a binary h5ad (Array[Int] of bytes) back to an AnnData.
 /// Returns `None` if the magic header is invalid.
 /// Supports both dense and sparse X storage.
-pub fn scanpy_read_h5ad_binary(buf : Array[Int]) -> AnnData? {
+pub fn scanpy_read_h5ad_binary(buf : Array[Int32]) -> AnnData? {
   let r = BinReader::new(buf)
   // Check magic "BH5AD"
   if r.read_byte() != 66 ||
@@ -970,7 +981,7 @@ pub fn scanpy_read_h5ad_binary(buf : Array[Int]) -> AnnData? {
     mat
   }
   // Sparse coords + values (empty if dense)
-  let sp_coords : Array[Array[Int]] = Array(capacity=0)
+  let sp_coords : Array[Array[Int32]] = Array(capacity=0)
   let sp_values : Array[Double] = Array(capacity=0)
   if is_sparse {
     let nnz = r.read_int32()

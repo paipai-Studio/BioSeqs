@@ -15,8 +15,14 @@ test "scanpy_louvain_two_clusters" {
   let labels = @src.scanpy_louvain(@src.sparse_graph_from_dense(a))
   assert_eq(labels.length(), 6)
   // nodes 0,1,2 form one community; 3,4,5 another
-  assert_eq((labels[0], labels[1], labels[2]), (labels[0], labels[0], labels[0]))
-  assert_eq((labels[3], labels[4], labels[5]), (labels[3], labels[3], labels[3]))
+  assert_eq(
+    (labels[0], labels[1], labels[2]),
+    (labels[0], labels[0], labels[0]),
+  )
+  assert_eq(
+    (labels[3], labels[4], labels[5]),
+    (labels[3], labels[3], labels[3]),
+  )
   assert_true(labels[0] != labels[3])
 }
 

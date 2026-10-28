@@ -126,7 +126,7 @@ pub struct BetaCountParams {
 /// ``sort(character)`` in the C locale. MoonBit's native ``String`` order is
 /// length-first, so the default ``sort`` cannot be used for cluster, sample
 /// or group names.
-fn spk_str_cmp(a : String, b : String) -> Int {
+fn spk_str_cmp(a : String, b : String) -> Int32 {
   let n = if a.length() < b.length() { a.length() } else { b.length() }
   let mut cmp = 0
   let mut i = 0
@@ -166,7 +166,7 @@ fn spk_sorted_unique(values : Array[String]) -> Array[String] {
 ///|
 /// Binary search for ``key`` in a lexicographically sorted array; returns
 /// the index or -1.
-fn spk_find_sorted(names : Array[String], key : String) -> Int {
+fn spk_find_sorted(names : Array[String], key : String) -> Int32 {
   let mut lo = 0
   let mut hi = names.length()
   while lo < hi {
@@ -192,7 +192,7 @@ fn spk_find_sorted(names : Array[String], key : String) -> Int {
 pub fn get_transformed_props(
   clusters : Array[String],
   samples : Array[String],
-  transform? : String = "logit",
+  transform~ : String = "logit",
 ) -> TransformedProps raise PropellerError {
   let n = clusters.length()
   if n == 0 || samples.length() == 0 {
@@ -320,7 +320,7 @@ fn spk_lm_fit(y : Matrix, x : Matrix) -> SpkLM raise PropellerError {
 
 ///|
 /// Columns of ``x`` selected by 0-based indices.
-fn spk_select_columns(x : Matrix, cols : Array[Int]) -> Matrix {
+fn spk_select_columns(x : Matrix, cols : Array[Int32]) -> Matrix {
   let out = Matrix::zeros(x.rows, cols.length())
   for i in 0..<x.rows {
     for j in 0..<cols.length() {
@@ -426,7 +426,7 @@ fn spk_quantile7(sorted_asc : Array[Double], p : Double) -> Double {
 
 ///|
 /// Stable ascending order (R order).
-fn spk_order(v : Array[Double]) -> Array[Int] {
+fn spk_order(v : Array[Double]) -> Array[Int32] {
   let n = v.length()
   let order = Array::make(n, 0)
   for i in 0..<n {
@@ -1117,7 +1117,7 @@ pub fn propeller_ttest_model(
   proportions : Matrix,
   design : Matrix,
   contrasts : Array[Double],
-  robust? : Bool = true,
+  robust~ : Bool = true,
 ) -> PropellerTModel raise PropellerError {
   let g = transformed.rows
   let p = design.cols
@@ -1199,8 +1199,8 @@ pub fn propeller_ttest(
   pl : TransformedProps,
   design : Matrix,
   contrasts : Array[Double],
-  robust? : Bool = true,
-  sort? : Bool = true,
+  robust~ : Bool = true,
+  sort~ : Bool = true,
 ) -> Array[PropellerTRow] raise PropellerError {
   let model = propeller_ttest_model(
     pl.transformed,
@@ -1255,8 +1255,8 @@ pub fn propeller_anova_model(
   transformed : Matrix,
   proportions : Matrix,
   design : Matrix,
-  coef? : Array[Int]? = None,
-  robust? : Bool = true,
+  coef~ : Array[Int32]? = None,
+  robust~ : Bool = true,
 ) -> PropellerAnovaModel raise PropellerError {
   let g = transformed.rows
   let n = design.rows
@@ -1402,9 +1402,9 @@ pub fn propeller_anova_model(
 pub fn propeller_anova(
   pl : TransformedProps,
   design : Matrix,
-  coef? : Array[Int]? = None,
-  robust? : Bool = true,
-  sort? : Bool = true,
+  coef~ : Array[Int32]? = None,
+  robust~ : Bool = true,
+  sort~ : Bool = true,
 ) -> Array[PropellerAnovaRow] raise PropellerError {
   let model = propeller_anova_model(
     pl.transformed,
@@ -1465,8 +1465,8 @@ pub fn propeller(
   clusters : Array[String],
   samples : Array[String],
   groups : Array[String],
-  transform? : String = "logit",
-  robust? : Bool = true,
+  transform~ : String = "logit",
+  robust~ : Bool = true,
 ) -> Array[PropellerRow] raise PropellerError {
   let n = clusters.length()
   if n == 0 || samples.length() != n || groups.length() != n {
@@ -1593,9 +1593,9 @@ pub fn estimate_beta_param(x : Array[Double]) -> BetaMom raise PropellerError {
 /// added before the log2 transformation.
 pub fn propeller_norm_counts(
   counts : Matrix,
-  log? : Bool = false,
-  prior_count? : Double = 0.5,
-  lib_size? : Array[Double]? = None,
+  log~ : Bool = false,
+  prior_count~ : Double = 0.5,
+  lib_size~ : Array[Double]? = None,
 ) -> Matrix {
   let k = counts.rows
   let s = counts.cols

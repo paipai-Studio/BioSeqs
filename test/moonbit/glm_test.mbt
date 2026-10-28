@@ -15,6 +15,7 @@ fn glm_design(xs : Array[Double]) -> Array[Array[Double]] {
   @src.glm_add_intercept(raw)
 }
 
+///|
 fn approx(a : Double, b : Double, tol : Double) -> Bool {
   let d = a - b
   if d < 0.0 {
@@ -28,6 +29,7 @@ fn approx(a : Double, b : Double, tol : Double) -> Bool {
 // Gaussian (linear regression, identity link)
 // ============================================================
 
+///|
 test "glm_gaussian_recovers_coefficients" {
   // y = 2 + 3x (exact, no noise) -> should recover [2, 3].
   let xs = [0.0, 1.0, 2.0, 3.0, 4.0, 5.0]
@@ -41,6 +43,7 @@ test "glm_gaussian_recovers_coefficients" {
   assert_true(result.converged())
 }
 
+///|
 test "glm_gaussian_intercept_only_is_mean" {
   // Intercept-only linear model = the mean of y.
   let xs = [1.0, 2.0, 3.0, 4.0, 5.0, 6.0]
@@ -60,6 +63,7 @@ test "glm_gaussian_intercept_only_is_mean" {
 // Poisson (log link)
 // ============================================================
 
+///|
 test "glm_poisson_fits_positive_slope" {
   // Counts roughly increasing with x.
   let xs = [1.0, 2.0, 3.0, 4.0, 5.0, 6.0]
@@ -74,6 +78,7 @@ test "glm_poisson_fits_positive_slope" {
   assert_true(result.deviance() >= 0.0)
 }
 
+///|
 test "glm_poisson_log_likelihood_finite" {
   let xs = [1.0, 2.0, 3.0, 4.0]
   let ys = [2.0, 4.0, 7.0, 10.0]
@@ -82,13 +87,14 @@ test "glm_poisson_log_likelihood_finite" {
   // Log-likelihood should be a finite negative number.
   let ll = result.log_likelihood()
   assert_true(ll < 0.0)
-  assert_true(!(ll.is_nan()))
+  assert_true(!ll.is_nan())
 }
 
 // ============================================================
 // Binomial / logistic (logit link)
 // ============================================================
 
+///|
 test "glm_binomial_separates_classes" {
   // Strongly separable labels: y=0 for small x, y=1 for large x.
   let xs = [0.0, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5]
@@ -106,6 +112,7 @@ test "glm_binomial_separates_classes" {
 // Negative binomial (log link)
 // ============================================================
 
+///|
 test "glm_negative_binomial_runs" {
   let xs = [1.0, 2.0, 3.0, 4.0, 5.0]
   let ys = [3.0, 6.0, 9.0, 15.0, 21.0]
@@ -122,6 +129,7 @@ test "glm_negative_binomial_runs" {
 // Wald tests
 // ============================================================
 
+///|
 test "glm_wald_test_slope_significant" {
   // y strongly depends on x -> slope Wald test significant.
   let xs = [0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0]
@@ -134,6 +142,7 @@ test "glm_wald_test_slope_significant" {
   assert_true(wald.statistic() > 10.0)
 }
 
+///|
 test "glm_wald_omnibus_joint" {
   // Two predictors, both relevant -> omnibus Wald test significant.
   let x1 = [1.0, 2.0, 3.0, 4.0, 5.0, 6.0]
@@ -156,6 +165,7 @@ test "glm_wald_omnibus_joint" {
 // Likelihood-ratio test (LRT)
 // ============================================================
 
+///|
 test "glm_lrt_full_beats_reduced" {
   // y = 2 + 3x: the full model (with x) should fit much better than the
   // intercept-only reduced model.
@@ -174,6 +184,7 @@ test "glm_lrt_full_beats_reduced" {
   assert_true(lrt.p_value() < 0.001)
 }
 
+///|
 test "glm_lrt_no_effect_nonsignificant" {
   // y independent of x (pure noise): model with x should not significantly
   // improve over intercept-only. (Noise is symmetric, LRT p should not be tiny.)
@@ -197,36 +208,62 @@ test "glm_lrt_no_effect_nonsignificant" {
 // Link / variance helpers
 // ============================================================
 
+///|
 test "glm_link_and_inverse_identity" {
   assert_eq(@src.glm_link(@src.glm_link_identity(), 3.5), 3.5)
   assert_eq(@src.glm_inverse_link(@src.glm_link_identity(), -1.2), -1.2)
 }
 
+///|
 test "glm_link_and_inverse_log" {
   // log(2) and exp(log 2) = 2
-  assert_true(approx(@src.glm_link(@src.glm_link_log(), 2.0), @math.ln(2.0), 1.0e-9))
-  assert_true(approx(@src.glm_inverse_link(@src.glm_link_log(), @math.ln(2.0)), 2.0, 1.0e-9))
+  assert_true(
+    approx(@src.glm_link(@src.glm_link_log(), 2.0), @math.ln(2.0), 1.0e-9),
+  )
+  assert_true(
+    approx(
+      @src.glm_inverse_link(@src.glm_link_log(), @math.ln(2.0)),
+      2.0,
+      1.0e-9,
+    ),
+  )
 }
 
+///|
 test "glm_variance_functions" {
   // Gaussian variance = 1
   assert_eq(@src.glm_variance(@src.glm_family_gaussian(), 5.0), 1.0)
   // Poisson variance = mu
-  assert_true(approx(@src.glm_variance(@src.glm_family_poisson(), 7.0), 7.0, 1.0e-12))
+  assert_true(
+    approx(@src.glm_variance(@src.glm_family_poisson(), 7.0), 7.0, 1.0e-12),
+  )
   // Binomial variance = mu(1-mu)
-  assert_true(approx(@src.glm_variance(@src.glm_family_binomial(), 0.3), 0.21, 1.0e-12))
+  assert_true(
+    approx(@src.glm_variance(@src.glm_family_binomial(), 0.3), 0.21, 1.0e-12),
+  )
 }
 
+///|
 test "glm_default_links" {
-  assert_eq(@src.glm_default_link(@src.glm_family_gaussian()), @src.glm_link_identity())
-  assert_eq(@src.glm_default_link(@src.glm_family_poisson()), @src.glm_link_log())
-  assert_eq(@src.glm_default_link(@src.glm_family_binomial()), @src.glm_link_logit())
+  assert_eq(
+    @src.glm_default_link(@src.glm_family_gaussian()),
+    @src.glm_link_identity(),
+  )
+  assert_eq(
+    @src.glm_default_link(@src.glm_family_poisson()),
+    @src.glm_link_log(),
+  )
+  assert_eq(
+    @src.glm_default_link(@src.glm_family_binomial()),
+    @src.glm_link_logit(),
+  )
 }
 
 // ============================================================
 // 解析解对拍（验证 IRLS 正确性，而非仅自查一致）
 // ============================================================
 
+///|
 test "glm_ols_matches_analytic_closed_form" {
   // y = 0.8 + 2.3x 的最小二乘精确解（数据 y=[1,3,5,8], x=[0,1,2,3]）
   let xs = [0.0, 1.0, 2.0, 3.0]
@@ -243,6 +280,7 @@ test "glm_ols_matches_analytic_closed_form" {
   assert_eq(result.df_residual(), 2)
 }
 
+///|
 test "glm_ols_wald_matches_t_statistic" {
   // SE(beta1) = sqrt(scale * [(X'X)^-1]_11) = sqrt(0.15 * 0.2) = sqrt(0.03)
   // z = 2.3 / sqrt(0.03) ≈ 13.279
@@ -255,6 +293,7 @@ test "glm_ols_wald_matches_t_statistic" {
   assert_true(wald.p_value() < 0.0001)
 }
 
+///|
 test "glm_poisson_intercept_matches_log_mean" {
   // Poisson(intercept only)：beta0 = ln(mean(y))，这是 MLE 的解析解。
   let ys = [1.0, 2.0, 3.0, 4.0]
@@ -266,6 +305,7 @@ test "glm_poisson_intercept_matches_log_mean" {
   assert_true(approx(result.coefficients()[0], @math.ln(2.5), 1.0e-4))
 }
 
+///|
 test "glm_logistic_intercept_matches_logit" {
   // Binomial/Bernoulli(intercept only)：beta0 = logit(mean(y))，解析解。
   let ys = [0.0, 0.0, 1.0, 1.0, 1.0]

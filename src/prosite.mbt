@@ -33,8 +33,8 @@ pub fn PrositePattern::new(
 pub struct PrositeMatch {
   pattern_accession : String
   pattern_name : String
-  start : Int
-  end : Int
+  start : Int32
+  end : Int32
   matched_sequence : String
   score : Double
 }
@@ -43,8 +43,8 @@ pub struct PrositeMatch {
 pub fn PrositeMatch::new(
   pattern_accession : String,
   pattern_name : String,
-  start : Int,
-  end : Int,
+  start : Int32,
+  end : Int32,
   matched_sequence : String,
 ) -> PrositeMatch {
   PrositeMatch::{
@@ -68,7 +68,7 @@ pub struct PrositeEntry {
   taxonomic_range : String
   created : String
   modified : String
-  entries_with_motif : Int
+  entries_with_motif : Int32
   literature_references : Array[String]
 }
 

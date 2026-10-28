@@ -10,7 +10,7 @@
 ///|
 /// Result of a GNM calculation.
 pub struct GNM {
-  n : Int
+  n : Int32
   cutoff : Double
   gamma : Double
   kirchhoff : Array[Array[Double]]
@@ -24,8 +24,8 @@ pub struct GNM {
 /// gamma: spring constant (default 1.0)
 pub fn GNM::new(
   chain : Chain,
-  cutoff? : Double = 10.0,
-  gamma? : Double = 1.0,
+  cutoff~ : Double = 10.0,
+  gamma~ : Double = 1.0,
 ) -> GNM? {
   let residues = chain.get_residues()
   let ca_coords : Array[Vector3] = Array(capacity=0)
@@ -40,7 +40,9 @@ pub fn GNM::new(
     return None
   }
   // Build Kirchhoff matrix: off-diagonal = -gamma if in contact, diagonal = sum of contacts
-  let kirchhoff : Array[Array[Double]] = Array::makei(n, { _ => Array::make(n, 0.0) })
+  let kirchhoff : Array[Array[Double]] = Array::makei(n, _ => {
+    Array::make(n, 0.0)
+  })
   let mut i = 0
   while i < n {
     let mut j = i + 1
@@ -66,7 +68,7 @@ pub fn GNM::new(
   }
   // Eigen-decompose (skip first zero eigenvalue mode)
   let (eigenvalues, eigenvectors) = linalg_jacobi(kirchhoff, n, 200)
-  Some(GNM::{ n, cutoff, gamma, kirchhoff, eigenvalues, eigenvectors })
+  Some(GNM::{ n, cutoff, gamma, kirchhoff, eigenvalues, eigenvectors, })
 }
 
 ///|
@@ -108,7 +110,7 @@ pub fn GNM::predict_bfactors(self : GNM) -> Array[Double] {
   let n = self.n
   let bfactors = Array::make(n, 0.0)
   // Sort eigenvalue indices ascending, skip first (near-zero)
-  let indices = Array::makei(n, { i => i })
+  let indices = Array::makei(n, i => i)
   // Sort indices by eigenvalue
   for i = 1; i < n; i = i + 1 {
     let key = indices[i]
@@ -150,9 +152,12 @@ pub fn GNM::fluctuations(self : GNM) -> Array[Double] {
 ///|
 /// Get the k slowest modes (smallest non-zero eigenvalues).
 /// Returns array of (mode_index, eigenvalue, eigenvector).
-pub fn GNM::slow_modes(self : GNM, k : Int) -> Array[(Int, Double, Array[Double])] {
+pub fn GNM::slow_modes(
+  self : GNM,
+  k : Int32,
+) -> Array[(Int32, Double, Array[Double])] {
   let n = self.n
-  let indices = Array::makei(n, { i => i })
+  let indices = Array::makei(n, i => i)
   for i = 1; i < n; i = i + 1 {
     let key = indices[i]
     let key_val = self.eigenvalues[key]
@@ -163,7 +168,7 @@ pub fn GNM::slow_modes(self : GNM, k : Int) -> Array[(Int, Double, Array[Double]
     }
     indices[j + 1] = key
   }
-  let result : Array[(Int, Double, Array[Double])] = Array(capacity=0)
+  let result : Array[(Int32, Double, Array[Double])] = Array(capacity=0)
   let count = if k < n - 1 { k } else { n - 1 }
   for m = 1; m <= count; m = m + 1 {
     let idx = indices[m]
@@ -179,13 +184,13 @@ pub fn GNM::slow_modes(self : GNM, k : Int) -> Array[(Int, Double, Array[Double]
 
 ///|
 /// Number of residues (CA atoms).
-pub fn GNM::num_nodes(self : GNM) -> Int {
+pub fn GNM::num_nodes(self : GNM) -> Int32 {
   self.n
 }
 
 ///|
 /// Contact count (number of non-zero off-diagonal elements / 2).
-pub fn GNM::num_contacts(self : GNM) -> Int {
+pub fn GNM::num_contacts(self : GNM) -> Int32 {
   let mut count = 0
   for i = 0; i < self.n; i = i + 1 {
     for j = i + 1; j < self.n; j = j + 1 {
@@ -201,11 +206,11 @@ pub fn GNM::num_contacts(self : GNM) -> Int {
 /// Build Kirchhoff matrix directly from CA coordinates.
 pub fn gnm_kirchhoff(
   coords : Array[Vector3],
-  cutoff? : Double = 10.0,
-  gamma? : Double = 1.0,
+  cutoff~ : Double = 10.0,
+  gamma~ : Double = 1.0,
 ) -> Array[Array[Double]] {
   let n = coords.length()
-  let mat : Array[Array[Double]] = Array::makei(n, { _ => Array::make(n, 0.0) })
+  let mat : Array[Array[Double]] = Array::makei(n, _ => Array::make(n, 0.0))
   let mut i = 0
   while i < n {
     let mut j = i + 1

@@ -34,7 +34,7 @@ fn vsn_copy(mat : Array[Array[Double]]) -> Array[Array[Double]] {
 }
 
 ///|
-fn vsn_col_mean_sd(mat : Array[Array[Double]], j : Int) -> (Double, Double) {
+fn vsn_col_mean_sd(mat : Array[Array[Double]], j : Int32) -> (Double, Double) {
   let mut s = 0.0
   let mut s2 = 0.0
   let mut c = 0
@@ -74,9 +74,9 @@ pub struct VSNResult {
 
 ///|
 pub struct VSNControl {
-  n_bins : Int
-  min_bin_count : Int
-  max_iter : Int
+  n_bins : Int32
+  min_bin_count : Int32
+  max_iter : Int32
   lts_frac : Double
 }
 
@@ -115,7 +115,7 @@ fn vsn_lm(
   x : Array[Double],
   y : Array[Double],
   lts_frac : Double,
-  max_iter : Int,
+  max_iter : Int32,
 ) -> (Double, Double) {
   let n = x.length()
   if n == 0 {
@@ -142,14 +142,14 @@ fn vsn_lm(
   let mut a = (sy - b * sx) / n.to_double()
   let mut _it = 0
   while _it < max_iter {
-    let resid : Array[(Int, Double)] = Array(capacity=0)
+    let resid : Array[(Int32, Double)] = Array(capacity=0)
     let mut i2 = 0
     while i2 < n {
       let e = y[i2] - (a + b * x[i2])
       resid.push((i2, e * e))
       i2 = i2 + 1
     }
-    resid.sort_by(fn(p : (Int, Double), q : (Int, Double)) -> Int {
+    resid.sort_by(fn(p : (Int32, Double), q : (Int32, Double)) -> Int32 {
       if p.1 < q.1 {
         -1
       } else if p.1 > q.1 {
@@ -200,7 +200,7 @@ fn vsn_lm(
 ///|
 fn vsn_fit_col(
   mat : Array[Array[Double]],
-  j : Int,
+  j : Int32,
   ctrl : VSNControl,
 ) -> (VSNColParam, Array[(Double, Double)]) {
   let n = mat.length()
@@ -243,7 +243,7 @@ fn vsn_fit_col(
     order.push((xs[ii], ys[ii]))
     ii = ii + 1
   }
-  order.sort_by(fn(p : (Double, Double), q : (Double, Double)) -> Int {
+  order.sort_by(fn(p : (Double, Double), q : (Double, Double)) -> Int32 {
     if p.0 < q.0 {
       -1
     } else if p.0 > q.0 {
@@ -387,13 +387,13 @@ pub fn vsn_fit_and_report(mat : Array[Array[Double]]) -> VSNResult {
 pub struct MeanSDBin {
   mean_x : Double
   sd_y : Double
-  count : Int
+  count : Int32
 }
 
 ///|
 pub fn mean_sd_bins(
   mat : Array[Array[Double]],
-  n_bins : Int,
+  n_bins : Int32,
 ) -> Array[MeanSDBin] {
   let n = mat.length()
   if n == 0 {
@@ -414,7 +414,7 @@ pub fn mean_sd_bins(
     }
     i = i + 1
   }
-  pts.sort_by(fn(p : (Double, Double), q : (Double, Double)) -> Int {
+  pts.sort_by(fn(p : (Double, Double), q : (Double, Double)) -> Int32 {
     if p.0 < q.0 {
       -1
     } else if p.0 > q.0 {
@@ -450,7 +450,10 @@ pub fn mean_sd_bins(
 }
 
 ///|
-pub fn mean_sd_ascii(mat : Array[Array[Double]], n_bins? : Int = 40) -> String {
+pub fn mean_sd_ascii(
+  mat : Array[Array[Double]],
+  n_bins~ : Int32 = 40,
+) -> String {
   let bins = mean_sd_bins(mat, n_bins)
   let width = 40
   let height = 10
@@ -477,7 +480,7 @@ pub fn mean_sd_ascii(mat : Array[Array[Double]], n_bins? : Int = 40) -> String {
   }
   let xr = if xmax - xmin == 0.0 { 1.0 } else { xmax - xmin }
   let yr = if ymax - ymin == 0.0 { 1.0 } else { ymax - ymin }
-  let grid : Array[Array[Int]] = Array::make(
+  let grid : Array[Array[Int32]] = Array::make(
     height,
     Array::make(width, ' '.to_int()),
   )
@@ -548,7 +551,7 @@ pub fn summarize_vsn_fit(fit : VSNResult) -> String {
 ///|
 pub fn vsn_denoise(
   mat : Array[Array[Double]],
-  frac_of_median_var? : Double = 0.05,
+  frac_of_median_var~ : Double = 0.05,
 ) -> Array[Array[Double]] {
   let out = vsn_copy(mat)
   if out.length() == 0 {
@@ -566,7 +569,7 @@ pub fn vsn_denoise(
   for v in vars {
     sorted_vars.push(v)
   }
-  sorted_vars.sort_by(fn(a : Double, b : Double) -> Int {
+  sorted_vars.sort_by(fn(a : Double, b : Double) -> Int32 {
     if a < b {
       -1
     } else if a > b {

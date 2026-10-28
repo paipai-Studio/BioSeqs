@@ -10,10 +10,12 @@ pub struct SVResult {
   d : Array[Double]
   u : Array[Array[Double]]
   v : Array[Array[Double]]
-  nrow : Int
-  ncol : Int
-  rank : Int
+  nrow : Int32
+  ncol : Int32
+  rank : Int32
 } derive(Eq)
+
+///|
 pub extend SVResult with Eq::{equal, not_equal}
 
 ///|
@@ -23,7 +25,11 @@ pub enum SVDMethod {
   IRLBA
   Randomized
 } derive(Eq, Debug)
+
+///|
 pub extend SVDMethod with Eq::{equal, not_equal}
+
+///|
 pub extend SVDMethod with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -48,12 +54,16 @@ pub fn randomized_method() -> SVDMethod {
 /// Options for SVD computation.
 pub struct SVDOptions {
   method_ : SVDMethod
-  rank : Int
+  rank : Int32
   tol : Double
-  max_iter : Int
-  n_oversamples : Int
+  max_iter : Int32
+  n_oversamples : Int32
 } derive(Eq, Debug)
+
+///|
 pub extend SVDOptions with Eq::{equal, not_equal}
+
+///|
 pub extend SVDOptions with @moonbitlang/core/debug.Debug::{to_repr}
 
 // ============================================================================
@@ -63,12 +73,12 @@ pub extend SVDOptions with @moonbitlang/core/debug.Debug::{to_repr}
 ///|
 /// Simple Linear Congruential Generator state.
 priv struct RNGState {
-  state : Int
+  state : Int32
 }
 
 ///|
 /// Create a new RNG state with seed.
-fn rng_new(seed : Int) -> RNGState {
+fn rng_new(seed : Int32) -> RNGState {
   RNGState::{ state: seed, }
 }
 
@@ -99,8 +109,8 @@ fn rng_normal(state : RNGState) -> (RNGState, Double) {
 /// Matrix is stored in row-major order: data[i * ncol + j].
 pub fn svd_mat_vec(
   matrix : Array[Double],
-  nrow : Int,
-  ncol : Int,
+  nrow : Int32,
+  ncol : Int32,
   x : Array[Double],
 ) -> Array[Double] {
   let result = Array::make(nrow, 0.0)
@@ -119,8 +129,8 @@ pub fn svd_mat_vec(
 /// Matrix is stored in row-major order: data[i * ncol + j].
 pub fn svd_mat_t_vec(
   matrix : Array[Double],
-  nrow : Int,
-  ncol : Int,
+  nrow : Int32,
+  ncol : Int32,
   x : Array[Double],
 ) -> Array[Double] {
   let result = Array::make(ncol, 0.0)
@@ -139,10 +149,10 @@ pub fn svd_mat_t_vec(
 /// matrix is row-major (nrow x ncol), other is (ncol x other_cols).
 pub fn svd_mat_mat(
   matrix : Array[Double],
-  nrow : Int,
-  ncol : Int,
+  nrow : Int32,
+  ncol : Int32,
   other : Array[Array[Double]],
-  other_cols : Int,
+  other_cols : Int32,
 ) -> Array[Array[Double]] {
   let result : Array[Array[Double]] = Array(capacity=0)
   for i = 0; i < nrow; i = i + 1 {
@@ -164,8 +174,8 @@ pub fn svd_mat_mat(
 /// Matrix is stored in row-major order: data[i * ncol + j].
 pub fn svd_transpose(
   matrix : Array[Double],
-  nrow : Int,
-  ncol : Int,
+  nrow : Int32,
+  ncol : Int32,
 ) -> Array[Array[Double]] {
   let result : Array[Array[Double]] = Array(capacity=0)
   for i = 0; i < ncol; i = i + 1 {
@@ -184,10 +194,10 @@ pub fn svd_transpose(
 /// Returns C as (nrow_a x ncol_b) 2D array.
 pub fn svd_multiply(
   a : Array[Array[Double]],
-  nrow_a : Int,
-  ncol_a : Int,
+  nrow_a : Int32,
+  ncol_a : Int32,
   b : Array[Array[Double]],
-  ncol_b : Int,
+  ncol_b : Int32,
 ) -> Array[Array[Double]] {
   let result : Array[Array[Double]] = Array(capacity=0)
   for i = 0; i < nrow_a; i = i + 1 {
@@ -209,8 +219,8 @@ pub fn svd_multiply(
 /// Returns an ncol x ncol symmetric matrix as 2D array.
 fn svd_ata(
   matrix : Array[Double],
-  nrow : Int,
-  ncol : Int,
+  nrow : Int32,
+  ncol : Int32,
 ) -> Array[Array[Double]] {
   let result : Array[Array[Double]] = Array(capacity=0)
   for i = 0; i < ncol; i = i + 1 {
@@ -234,8 +244,8 @@ fn svd_ata(
 /// Returns an nrow x nrow symmetric matrix as 2D array.
 fn svd_aat(
   matrix : Array[Double],
-  nrow : Int,
-  ncol : Int,
+  nrow : Int32,
+  ncol : Int32,
 ) -> Array[Array[Double]] {
   let result : Array[Array[Double]] = Array(capacity=0)
   for i = 0; i < nrow; i = i + 1 {
@@ -264,8 +274,8 @@ fn svd_aat(
 /// Convergence tolerance: off-diagonal elements < tol.
 pub fn jacobi_rotation(
   matrix : Array[Array[Double]],
-  n : Int,
-  max_iter : Int,
+  n : Int32,
+  max_iter : Int32,
 ) -> (Array[Double], Array[Array[Double]]) {
   linalg_jacobi(matrix, n, max_iter)
 }
@@ -275,7 +285,7 @@ pub fn jacobi_rotation(
 /// Uses Jacobi eigenvalue algorithm.
 pub fn eigh_symmetric(
   matrix : Array[Array[Double]],
-  n : Int,
+  n : Int32,
 ) -> (Array[Double], Array[Array[Double]]) {
   linalg_jacobi(matrix, n, 100)
 }
@@ -285,7 +295,7 @@ pub fn eigh_symmetric(
 fn sort_eigen(
   eigenvalues : Array[Double],
   eigenvectors : Array[Array[Double]],
-  n : Int,
+  n : Int32,
 ) -> (Array[Double], Array[Array[Double]]) {
   let indices = Array::make(n, 0)
   for i = 0; i < n; i = i + 1 {
@@ -326,7 +336,7 @@ fn sort_eigen(
 ///|
 /// Generate a random Gaussian matrix (rows x cols).
 /// Uses Box-Muller transform with LCG.
-pub fn svd_random_matrix(rows : Int, cols : Int) -> Array[Array[Double]] {
+pub fn svd_random_matrix(rows : Int32, cols : Int32) -> Array[Array[Double]] {
   let mut rng = rng_new(42)
   let result : Array[Array[Double]] = Array(capacity=0)
   for i = 0; i < rows; i = i + 1 {
@@ -346,7 +356,7 @@ pub fn svd_random_matrix(rows : Int, cols : Int) -> Array[Array[Double]] {
 /// A is (n x n) matrix. Returns (Q, R) where Q is orthogonal and R is upper triangular.
 pub fn svd_qr_decompose(
   a : Array[Array[Double]],
-  n : Int,
+  n : Int32,
 ) -> (Array[Array[Double]], Array[Array[Double]]) {
   let r : Array[Array[Double]] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {
@@ -405,8 +415,8 @@ pub fn svd_qr_decompose(
 /// Returns Q (n×k, orthonormal columns) and R (k×k, upper triangular).
 fn svd_qr_decompose_rect(
   a : Array[Array[Double]],
-  n : Int,
-  k : Int,
+  n : Int32,
+  k : Int32,
 ) -> (Array[Array[Double]], Array[Array[Double]]) {
   let r : Array[Array[Double]] = Array(capacity=0)
   for i = 0; i < k; i = i + 1 {
@@ -484,10 +494,10 @@ pub fn svd_options_with_method(method_ : SVDMethod) -> SVDOptions {
 ///|
 /// Create SVD options with all parameters.
 pub fn svd_options_full(
-  rank : Int,
+  rank : Int32,
   tol : Double,
-  max_iter : Int,
-  n_oversamples : Int,
+  max_iter : Int32,
+  n_oversamples : Int32,
   method_ : SVDMethod,
 ) -> SVDOptions {
   SVDOptions::{ method_, rank, tol, max_iter, n_oversamples, }
@@ -503,9 +513,9 @@ pub fn svd_options_full(
 /// Returns SVResult with singular values sorted descending.
 pub fn run_exact_svd(
   matrix : Array[Double],
-  nrow : Int,
-  ncol : Int,
-  rank : Int,
+  nrow : Int32,
+  ncol : Int32,
+  rank : Int32,
 ) -> SVResult {
   let mn = if nrow < ncol { nrow } else { ncol }
   let effective_rank = if rank <= 0 || rank > mn { mn } else { rank }
@@ -610,7 +620,7 @@ pub fn run_exact_svd(
 fn svd_bidiagonal_small(
   diag : Array[Double],
   offdiag : Array[Double],
-  n : Int,
+  n : Int32,
 ) -> (Array[Double], Array[Array[Double]], Array[Array[Double]]) {
   let ncol = n
   let nrow = n
@@ -672,9 +682,9 @@ fn svd_bidiagonal_small(
 /// Computes the largest singular values of a matrix.
 pub fn run_irlba(
   matrix : Array[Double],
-  nrow : Int,
-  ncol : Int,
-  rank : Int,
+  nrow : Int32,
+  ncol : Int32,
+  rank : Int32,
   options : SVDOptions,
 ) -> SVResult {
   let mn = if nrow < ncol { nrow } else { ncol }
@@ -910,9 +920,9 @@ pub fn run_irlba(
 /// Uses random projection to reduce dimensions before computing SVD.
 pub fn run_randomized_svd(
   matrix : Array[Double],
-  nrow : Int,
-  ncol : Int,
-  rank : Int,
+  nrow : Int32,
+  ncol : Int32,
+  rank : Int32,
   options : SVDOptions,
 ) -> SVResult {
   let mn = if nrow < ncol { nrow } else { ncol }
@@ -1014,8 +1024,8 @@ pub fn run_randomized_svd(
 /// Dispatches to appropriate SVD method based on options.method.
 pub fn run_svd(
   matrix : Array[Double],
-  nrow : Int,
-  ncol : Int,
+  nrow : Int32,
+  ncol : Int32,
   options : SVDOptions,
 ) -> SVResult {
   match options.method_ {
@@ -1031,9 +1041,9 @@ pub fn sv_result_new(
   d : Array[Double],
   u : Array[Array[Double]],
   v : Array[Array[Double]],
-  nrow : Int,
-  ncol : Int,
-  rank : Int,
+  nrow : Int32,
+  ncol : Int32,
+  rank : Int32,
 ) -> SVResult {
   SVResult::{ d, u, v, nrow, ncol, rank, }
 }
@@ -1058,25 +1068,25 @@ pub fn sv_result_v(result : SVResult) -> Array[Array[Double]] {
 
 ///|
 /// Get number of rows from SVResult.
-pub fn sv_result_nrow(result : SVResult) -> Int {
+pub fn sv_result_nrow(result : SVResult) -> Int32 {
   result.nrow
 }
 
 ///|
 /// Get number of columns from SVResult.
-pub fn sv_result_ncol(result : SVResult) -> Int {
+pub fn sv_result_ncol(result : SVResult) -> Int32 {
   result.ncol
 }
 
 ///|
 /// Get rank from SVResult.
-pub fn sv_result_rank(result : SVResult) -> Int {
+pub fn sv_result_rank(result : SVResult) -> Int32 {
   result.rank
 }
 
 ///|
 /// Create example matrix for testing SVD.
-pub fn create_test_matrix() -> (Array[Double], Int, Int) {
+pub fn create_test_matrix() -> (Array[Double], Int32, Int32) {
   let nrow = 5
   let ncol = 4
   let data = [
@@ -1090,9 +1100,9 @@ pub fn create_test_matrix() -> (Array[Double], Int, Int) {
 /// Compute truncated SVD returning only top k components.
 pub fn run_svd_truncated(
   matrix : Array[Double],
-  nrow : Int,
-  ncol : Int,
-  k : Int,
+  nrow : Int32,
+  ncol : Int32,
+  k : Int32,
 ) -> SVResult {
   let opts = svd_options_full(k, 1.0e-7, 1000, 10, ExactSVD)
   run_svd(matrix, nrow, ncol, opts)

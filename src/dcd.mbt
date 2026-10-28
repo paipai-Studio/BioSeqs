@@ -12,21 +12,28 @@ pub struct Trajectory {
 
 ///|
 pub fn Trajectory::new(frames : Array[Array[Array[Double]]]) -> Trajectory {
-  Trajectory::{ frames }
+  Trajectory::{ frames, }
 }
 
 ///|
-pub fn Trajectory::num_frames(self : Trajectory) -> Int {
+pub fn Trajectory::num_frames(self : Trajectory) -> Int32 {
   self.frames.length()
 }
 
 ///|
-pub fn Trajectory::num_atoms(self : Trajectory) -> Int {
-  if self.frames.length() == 0 { 0 } else { self.frames[0].length() }
+pub fn Trajectory::num_atoms(self : Trajectory) -> Int32 {
+  if self.frames.length() == 0 {
+    0
+  } else {
+    self.frames[0].length()
+  }
 }
 
 ///|
-pub fn Trajectory::get_frame(self : Trajectory, i : Int) -> Array[Array[Double]] {
+pub fn Trajectory::get_frame(
+  self : Trajectory,
+  i : Int32,
+) -> Array[Array[Double]] {
   self.frames[i]
 }
 
@@ -35,7 +42,7 @@ pub fn Trajectory::get_frame(self : Trajectory, i : Int) -> Array[Array[Double]]
 // ---------------------------------------------------------------------------
 
 ///|
-fn dcd_read_int32_le(data : String, pos : Int) -> (Int, Int) {
+fn dcd_read_int32_le(data : String, pos : Int32) -> (Int32, Int32) {
   let b0 = data.unsafe_get(pos).to_int() & 0xFF
   let b1 = data.unsafe_get(pos + 1).to_int() & 0xFF
   let b2 = data.unsafe_get(pos + 2).to_int() & 0xFF
@@ -44,7 +51,7 @@ fn dcd_read_int32_le(data : String, pos : Int) -> (Int, Int) {
 }
 
 ///|
-fn dcd_read_f32_le(data : String, pos : Int) -> (Double, Int) {
+fn dcd_read_f32_le(data : String, pos : Int32) -> (Double, Int32) {
   let b0 = data.unsafe_get(pos).to_int() & 0xFF
   let b1 = data.unsafe_get(pos + 1).to_int() & 0xFF
   let b2 = data.unsafe_get(pos + 2).to_int() & 0xFF
@@ -57,26 +64,28 @@ fn dcd_read_f32_le(data : String, pos : Int) -> (Double, Int) {
   } else if exponent == 0 {
     sign * mantissa.to_double() * @math.pow(2.0, -149.0)
   } else {
-    sign * (1.0 + mantissa.to_double() / 8388608.0) * @math.pow(2.0, (exponent - 127).to_double())
+    sign *
+    (1.0 + mantissa.to_double() / 8388608.0) *
+    @math.pow(2.0, (exponent - 127).to_double())
   }
   (v, pos + 4)
 }
 
 ///|
-fn dcd_write_i32(sb : StringBuilder, v : Int) -> Unit {
-  sb.write_char(((v & 0xFF).to_uint16()).unsafe_to_char())
-  sb.write_char((((v >> 8) & 0xFF).to_uint16()).unsafe_to_char())
-  sb.write_char((((v >> 16) & 0xFF).to_uint16()).unsafe_to_char())
-  sb.write_char((((v >> 24) & 0xFF).to_uint16()).unsafe_to_char())
+fn dcd_write_i32(sb : StringBuilder, v : Int32) -> Unit {
+  sb.write_char((v & 0xFF).to_uint16().unsafe_to_char())
+  sb.write_char(((v >> 8) & 0xFF).to_uint16().unsafe_to_char())
+  sb.write_char(((v >> 16) & 0xFF).to_uint16().unsafe_to_char())
+  sb.write_char(((v >> 24) & 0xFF).to_uint16().unsafe_to_char())
 }
 
 ///|
-fn dcd_f32_bits(v : Double) -> Int {
+fn dcd_f32_bits(v : Double) -> Int32 {
   if v != v {
     return 0x7FC00000
   }
   if v == 0.0 {
-    return if (1.0 / v) < 0.0 { 0x80000000 } else { 0 }
+    return if 1.0 / v < 0.0 { 0x80000000 } else { 0 }
   }
   if v > 3.4028234663852886e38 {
     return 0x7F800000
@@ -117,7 +126,7 @@ fn dcd_write_f32(sb : StringBuilder, v : Double) -> Unit {
 }
 
 ///|
-fn dcd_write_title(sb : StringBuilder, n : Int) -> Unit {
+fn dcd_write_title(sb : StringBuilder, n : Int32) -> Unit {
   let title = "BioSeqs DCD"
   let mut i = 0
   while i < n {
@@ -145,28 +154,28 @@ pub fn write_dcd(traj : Trajectory) -> String {
   dcd_write_i32(sb, 84)
   sb.write_string("CORD")
   dcd_write_i32(sb, n_frames) // NSET
-  dcd_write_i32(sb, 0)        // ISTART
-  dcd_write_i32(sb, 1)        // NSAVC
-  dcd_write_i32(sb, 0)        // NAMNF
+  dcd_write_i32(sb, 0) // ISTART
+  dcd_write_i32(sb, 1) // NSAVC
+  dcd_write_i32(sb, 0) // NAMNF
   let mut k = 0
   while k < 5 {
     dcd_write_i32(sb, 0)
     k = k + 1
   }
-  dcd_write_i32(sb, 0)        // NDEGF
+  dcd_write_i32(sb, 0) // NDEGF
   let mut k2 = 0
   while k2 < 4 {
     dcd_write_i32(sb, 0)
     k2 = k2 + 1
   }
-  dcd_write_i32(sb, n_atoms)  // NATOM
-  dcd_write_i32(sb, n_atoms)  // NFREAT
+  dcd_write_i32(sb, n_atoms) // NATOM
+  dcd_write_i32(sb, n_atoms) // NFREAT
   let mut k3 = 0
   while k3 < 3 {
     dcd_write_i32(sb, 0)
     k3 = k3 + 1
   }
-  dcd_write_i32(sb, 0)        // delt
+  dcd_write_i32(sb, 0) // delt
   dcd_write_i32(sb, 84)
 
   // two title records (80 bytes each)

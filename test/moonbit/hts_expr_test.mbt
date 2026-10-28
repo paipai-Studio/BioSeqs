@@ -37,9 +37,7 @@ test "expr boolean or" {
 ///|
 test "expr variable lookup" {
   let f = @src.hts_filter_init("QUAL > 30")
-  let symbols : Map[String, @src.ExprVal] = {
-    "QUAL": @src.ExprVal::num(40.0)
-  }
+  let symbols : Map[String, @src.ExprVal] = { "QUAL": @src.ExprVal::num(40.0) }
   let r = @src.hts_filter_eval(f, symbols)
   assert_true((r.d - 1.0).abs() < 0.000001)
 }
@@ -49,11 +47,11 @@ test "expr variable filter" {
   let f = @src.hts_filter_init("QUAL > 30 && DP > 10")
   let symbols_pass : Map[String, @src.ExprVal] = {
     "QUAL": @src.ExprVal::num(40.0),
-    "DP": @src.ExprVal::num(15.0)
+    "DP": @src.ExprVal::num(15.0),
   }
   let symbols_fail : Map[String, @src.ExprVal] = {
     "QUAL": @src.ExprVal::num(20.0),
-    "DP": @src.ExprVal::num(15.0)
+    "DP": @src.ExprVal::num(15.0),
   }
   assert_true(@src.hts_filter_test(f, symbols_pass))
   assert_false(@src.hts_filter_test(f, symbols_fail))
@@ -63,10 +61,10 @@ test "expr variable filter" {
 test "expr bitwise and" {
   let f = @src.hts_filter_init("FLAG & 4")
   let symbols_unmapped : Map[String, @src.ExprVal] = {
-    "FLAG": @src.ExprVal::num(4.0)
+    "FLAG": @src.ExprVal::num(4.0),
   }
   let symbols_mapped : Map[String, @src.ExprVal] = {
-    "FLAG": @src.ExprVal::num(0.0)
+    "FLAG": @src.ExprVal::num(0.0),
   }
   assert_true(@src.hts_filter_test(f, symbols_unmapped))
   assert_false(@src.hts_filter_test(f, symbols_mapped))
@@ -155,7 +153,7 @@ test "expr func pow" {
 test "expr func length" {
   let f = @src.hts_filter_init("length(SEQ)")
   let symbols : Map[String, @src.ExprVal] = {
-    "SEQ": @src.ExprVal::str("ACGTACGT")
+    "SEQ": @src.ExprVal::str("ACGTACGT"),
   }
   let r = @src.hts_filter_eval(f, symbols)
   assert_true((r.d - 8.0).abs() < 0.000001)
@@ -167,11 +165,11 @@ test "expr complex filter" {
   let f = @src.hts_filter_init("MAPQ >= 20 && FLAG & 4 == 0")
   let symbols_pass : Map[String, @src.ExprVal] = {
     "MAPQ": @src.ExprVal::num(30.0),
-    "FLAG": @src.ExprVal::num(0.0)
+    "FLAG": @src.ExprVal::num(0.0),
   }
   let symbols_fail : Map[String, @src.ExprVal] = {
     "MAPQ": @src.ExprVal::num(30.0),
-    "FLAG": @src.ExprVal::num(4.0)
+    "FLAG": @src.ExprVal::num(4.0),
   }
   assert_true(@src.hts_filter_test(f, symbols_pass))
   assert_false(@src.hts_filter_test(f, symbols_fail))
@@ -190,4 +188,3 @@ test "ExprVal constructors" {
   let u = @src.ExprVal::undef()
   assert_eq(u.is_true, -1)
 }
-

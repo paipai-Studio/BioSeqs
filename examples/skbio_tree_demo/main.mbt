@@ -17,6 +17,8 @@ fn main {
   let taxa = ["U1", "U2", "U3", "U4", "U5", "U6", "U7", "U8"]
   let u = [1.0, 0.0, 0.0, 4.0, 1.0, 2.0, 3.0, 0.0]
   let v = [0.0, 1.0, 1.0, 6.0, 0.0, 1.0, 0.0, 0.0]
-  println("unweighted UniFrac = \{@src.skbio_unweighted_unifrac(u, v, taxa, t)}")
+  println(
+    "unweighted UniFrac = \{@src.skbio_unweighted_unifrac(u, v, taxa, t)}",
+  )
   println("weighted   UniFrac = \{@src.skbio_weighted_unifrac(u, v, taxa, t)}")
 }

@@ -3,106 +3,349 @@
 
 ///|
 /// Build a minimal ARG residue with charged atoms.
-fn make_arg(resseq : Int, nz_x : Double, nz_y : Double, nz_z : Double) -> @src.Residue {
+fn make_arg(
+  resseq : Int32,
+  nz_x : Double,
+  nz_y : Double,
+  nz_z : Double,
+) -> @src.Residue {
   let atoms = [
-    @src.Atom::new(name="N", coord=@src.Vector3::new(0.0, 0.0, 0.0), resname="ARG", resseq=resseq),
-    @src.Atom::new(name="CA", coord=@src.Vector3::new(1.5, 0.0, 0.0), resname="ARG", resseq=resseq),
-    @src.Atom::new(name="CB", coord=@src.Vector3::new(2.0, 1.0, 0.0), resname="ARG", resseq=resseq),
-    @src.Atom::new(name="NE", coord=@src.Vector3::new(nz_x, nz_y, nz_z), resname="ARG", resseq=resseq),
-    @src.Atom::new(name="NH1", coord=@src.Vector3::new(nz_x + 0.5, nz_y, nz_z), resname="ARG", resseq=resseq),
-    @src.Atom::new(name="NH2", coord=@src.Vector3::new(nz_x - 0.5, nz_y, nz_z), resname="ARG", resseq=resseq),
+    @src.Atom::new(
+      name="N",
+      coord=@src.Vector3::new(0.0, 0.0, 0.0),
+      resname="ARG",
+      resseq~,
+    ),
+    @src.Atom::new(
+      name="CA",
+      coord=@src.Vector3::new(1.5, 0.0, 0.0),
+      resname="ARG",
+      resseq~,
+    ),
+    @src.Atom::new(
+      name="CB",
+      coord=@src.Vector3::new(2.0, 1.0, 0.0),
+      resname="ARG",
+      resseq~,
+    ),
+    @src.Atom::new(
+      name="NE",
+      coord=@src.Vector3::new(nz_x, nz_y, nz_z),
+      resname="ARG",
+      resseq~,
+    ),
+    @src.Atom::new(
+      name="NH1",
+      coord=@src.Vector3::new(nz_x + 0.5, nz_y, nz_z),
+      resname="ARG",
+      resseq~,
+    ),
+    @src.Atom::new(
+      name="NH2",
+      coord=@src.Vector3::new(nz_x - 0.5, nz_y, nz_z),
+      resname="ARG",
+      resseq~,
+    ),
   ]
-  @src.Residue::new(resname="ARG", chainid='A', resseq=resseq, atoms=atoms)
+  @src.Residue::new(resname="ARG", chainid='A', resseq~, atoms~)
 }
 
 ///|
 /// Build a minimal ASP residue with charged atoms.
-fn make_asp(resseq : Int, od_x : Double, od_y : Double, od_z : Double) -> @src.Residue {
+fn make_asp(
+  resseq : Int32,
+  od_x : Double,
+  od_y : Double,
+  od_z : Double,
+) -> @src.Residue {
   let atoms = [
-    @src.Atom::new(name="N", coord=@src.Vector3::new(0.0, 0.0, 0.0), resname="ASP", resseq=resseq),
-    @src.Atom::new(name="CA", coord=@src.Vector3::new(1.5, 0.0, 0.0), resname="ASP", resseq=resseq),
-    @src.Atom::new(name="CB", coord=@src.Vector3::new(2.0, 1.0, 0.0), resname="ASP", resseq=resseq),
-    @src.Atom::new(name="OD1", coord=@src.Vector3::new(od_x, od_y, od_z), resname="ASP", resseq=resseq),
-    @src.Atom::new(name="OD2", coord=@src.Vector3::new(od_x + 0.5, od_y, od_z), resname="ASP", resseq=resseq),
+    @src.Atom::new(
+      name="N",
+      coord=@src.Vector3::new(0.0, 0.0, 0.0),
+      resname="ASP",
+      resseq~,
+    ),
+    @src.Atom::new(
+      name="CA",
+      coord=@src.Vector3::new(1.5, 0.0, 0.0),
+      resname="ASP",
+      resseq~,
+    ),
+    @src.Atom::new(
+      name="CB",
+      coord=@src.Vector3::new(2.0, 1.0, 0.0),
+      resname="ASP",
+      resseq~,
+    ),
+    @src.Atom::new(
+      name="OD1",
+      coord=@src.Vector3::new(od_x, od_y, od_z),
+      resname="ASP",
+      resseq~,
+    ),
+    @src.Atom::new(
+      name="OD2",
+      coord=@src.Vector3::new(od_x + 0.5, od_y, od_z),
+      resname="ASP",
+      resseq~,
+    ),
   ]
-  @src.Residue::new(resname="ASP", chainid='A', resseq=resseq, atoms=atoms)
+  @src.Residue::new(resname="ASP", chainid='A', resseq~, atoms~)
 }
 
 ///|
 /// Build a minimal LYS residue.
-fn make_lys(resseq : Int, nz_x : Double, nz_y : Double, nz_z : Double) -> @src.Residue {
+fn make_lys(
+  resseq : Int32,
+  nz_x : Double,
+  nz_y : Double,
+  nz_z : Double,
+) -> @src.Residue {
   let atoms = [
-    @src.Atom::new(name="N", coord=@src.Vector3::new(0.0, 0.0, 0.0), resname="LYS", resseq=resseq),
-    @src.Atom::new(name="CA", coord=@src.Vector3::new(1.5, 0.0, 0.0), resname="LYS", resseq=resseq),
-    @src.Atom::new(name="CB", coord=@src.Vector3::new(2.0, 1.0, 0.0), resname="LYS", resseq=resseq),
-    @src.Atom::new(name="NZ", coord=@src.Vector3::new(nz_x, nz_y, nz_z), resname="LYS", resseq=resseq),
+    @src.Atom::new(
+      name="N",
+      coord=@src.Vector3::new(0.0, 0.0, 0.0),
+      resname="LYS",
+      resseq~,
+    ),
+    @src.Atom::new(
+      name="CA",
+      coord=@src.Vector3::new(1.5, 0.0, 0.0),
+      resname="LYS",
+      resseq~,
+    ),
+    @src.Atom::new(
+      name="CB",
+      coord=@src.Vector3::new(2.0, 1.0, 0.0),
+      resname="LYS",
+      resseq~,
+    ),
+    @src.Atom::new(
+      name="NZ",
+      coord=@src.Vector3::new(nz_x, nz_y, nz_z),
+      resname="LYS",
+      resseq~,
+    ),
   ]
-  @src.Residue::new(resname="LYS", chainid='A', resseq=resseq, atoms=atoms)
+  @src.Residue::new(resname="LYS", chainid='A', resseq~, atoms~)
 }
 
 ///|
 /// Build a minimal PHE residue with ring atoms in xy-plane.
-fn make_phe(resseq : Int, cx : Double, cy : Double, cz : Double) -> @src.Residue {
+fn make_phe(
+  resseq : Int32,
+  cx : Double,
+  cy : Double,
+  cz : Double,
+) -> @src.Residue {
   let atoms = [
-    @src.Atom::new(name="N", coord=@src.Vector3::new(cx, cy, cz), resname="PHE", resseq=resseq),
-    @src.Atom::new(name="CA", coord=@src.Vector3::new(cx + 1.5, cy, cz), resname="PHE", resseq=resseq),
-    @src.Atom::new(name="CB", coord=@src.Vector3::new(cx + 2.0, cy + 1.0, cz), resname="PHE", resseq=resseq),
-    @src.Atom::new(name="CG", coord=@src.Vector3::new(cx + 2.0, cy + 2.0, cz), resname="PHE", resseq=resseq),
-    @src.Atom::new(name="CD1", coord=@src.Vector3::new(cx + 2.7, cy + 2.7, cz), resname="PHE", resseq=resseq),
-    @src.Atom::new(name="CD2", coord=@src.Vector3::new(cx + 1.3, cy + 2.7, cz), resname="PHE", resseq=resseq),
-    @src.Atom::new(name="CE1", coord=@src.Vector3::new(cx + 2.7, cy + 4.0, cz), resname="PHE", resseq=resseq),
-    @src.Atom::new(name="CE2", coord=@src.Vector3::new(cx + 1.3, cy + 4.0, cz), resname="PHE", resseq=resseq),
-    @src.Atom::new(name="CZ", coord=@src.Vector3::new(cx + 2.0, cy + 4.5, cz), resname="PHE", resseq=resseq),
+    @src.Atom::new(
+      name="N",
+      coord=@src.Vector3::new(cx, cy, cz),
+      resname="PHE",
+      resseq~,
+    ),
+    @src.Atom::new(
+      name="CA",
+      coord=@src.Vector3::new(cx + 1.5, cy, cz),
+      resname="PHE",
+      resseq~,
+    ),
+    @src.Atom::new(
+      name="CB",
+      coord=@src.Vector3::new(cx + 2.0, cy + 1.0, cz),
+      resname="PHE",
+      resseq~,
+    ),
+    @src.Atom::new(
+      name="CG",
+      coord=@src.Vector3::new(cx + 2.0, cy + 2.0, cz),
+      resname="PHE",
+      resseq~,
+    ),
+    @src.Atom::new(
+      name="CD1",
+      coord=@src.Vector3::new(cx + 2.7, cy + 2.7, cz),
+      resname="PHE",
+      resseq~,
+    ),
+    @src.Atom::new(
+      name="CD2",
+      coord=@src.Vector3::new(cx + 1.3, cy + 2.7, cz),
+      resname="PHE",
+      resseq~,
+    ),
+    @src.Atom::new(
+      name="CE1",
+      coord=@src.Vector3::new(cx + 2.7, cy + 4.0, cz),
+      resname="PHE",
+      resseq~,
+    ),
+    @src.Atom::new(
+      name="CE2",
+      coord=@src.Vector3::new(cx + 1.3, cy + 4.0, cz),
+      resname="PHE",
+      resseq~,
+    ),
+    @src.Atom::new(
+      name="CZ",
+      coord=@src.Vector3::new(cx + 2.0, cy + 4.5, cz),
+      resname="PHE",
+      resseq~,
+    ),
   ]
-  @src.Residue::new(resname="PHE", chainid='A', resseq=resseq, atoms=atoms)
+  @src.Residue::new(resname="PHE", chainid='A', resseq~, atoms~)
 }
 
 ///|
 /// Build a minimal VAL residue.
-fn make_val(resseq : Int, cx : Double, cy : Double, cz : Double) -> @src.Residue {
+fn make_val(
+  resseq : Int32,
+  cx : Double,
+  cy : Double,
+  cz : Double,
+) -> @src.Residue {
   let atoms = [
-    @src.Atom::new(name="N", coord=@src.Vector3::new(cx, cy, cz), resname="VAL", resseq=resseq),
-    @src.Atom::new(name="CA", coord=@src.Vector3::new(cx + 1.5, cy, cz), resname="VAL", resseq=resseq),
-    @src.Atom::new(name="CB", coord=@src.Vector3::new(cx + 2.0, cy + 1.0, cz), resname="VAL", resseq=resseq),
-    @src.Atom::new(name="CG1", coord=@src.Vector3::new(cx + 2.5, cy + 2.0, cz), resname="VAL", resseq=resseq),
-    @src.Atom::new(name="CG2", coord=@src.Vector3::new(cx + 1.5, cy + 2.0, cz), resname="VAL", resseq=resseq),
+    @src.Atom::new(
+      name="N",
+      coord=@src.Vector3::new(cx, cy, cz),
+      resname="VAL",
+      resseq~,
+    ),
+    @src.Atom::new(
+      name="CA",
+      coord=@src.Vector3::new(cx + 1.5, cy, cz),
+      resname="VAL",
+      resseq~,
+    ),
+    @src.Atom::new(
+      name="CB",
+      coord=@src.Vector3::new(cx + 2.0, cy + 1.0, cz),
+      resname="VAL",
+      resseq~,
+    ),
+    @src.Atom::new(
+      name="CG1",
+      coord=@src.Vector3::new(cx + 2.5, cy + 2.0, cz),
+      resname="VAL",
+      resseq~,
+    ),
+    @src.Atom::new(
+      name="CG2",
+      coord=@src.Vector3::new(cx + 1.5, cy + 2.0, cz),
+      resname="VAL",
+      resseq~,
+    ),
   ]
-  @src.Residue::new(resname="VAL", chainid='A', resseq=resseq, atoms=atoms)
+  @src.Residue::new(resname="VAL", chainid='A', resseq~, atoms~)
 }
 
 ///|
 /// Build a minimal LEU residue.
-fn make_leu(resseq : Int, cx : Double, cy : Double, cz : Double) -> @src.Residue {
+fn make_leu(
+  resseq : Int32,
+  cx : Double,
+  cy : Double,
+  cz : Double,
+) -> @src.Residue {
   let atoms = [
-    @src.Atom::new(name="N", coord=@src.Vector3::new(cx, cy, cz), resname="LEU", resseq=resseq),
-    @src.Atom::new(name="CA", coord=@src.Vector3::new(cx + 1.5, cy, cz), resname="LEU", resseq=resseq),
-    @src.Atom::new(name="CB", coord=@src.Vector3::new(cx + 2.0, cy + 1.0, cz), resname="LEU", resseq=resseq),
-    @src.Atom::new(name="CG", coord=@src.Vector3::new(cx + 2.5, cy + 2.0, cz), resname="LEU", resseq=resseq),
-    @src.Atom::new(name="CD1", coord=@src.Vector3::new(cx + 3.0, cy + 3.0, cz), resname="LEU", resseq=resseq),
-    @src.Atom::new(name="CD2", coord=@src.Vector3::new(cx + 2.0, cy + 3.0, cz), resname="LEU", resseq=resseq),
+    @src.Atom::new(
+      name="N",
+      coord=@src.Vector3::new(cx, cy, cz),
+      resname="LEU",
+      resseq~,
+    ),
+    @src.Atom::new(
+      name="CA",
+      coord=@src.Vector3::new(cx + 1.5, cy, cz),
+      resname="LEU",
+      resseq~,
+    ),
+    @src.Atom::new(
+      name="CB",
+      coord=@src.Vector3::new(cx + 2.0, cy + 1.0, cz),
+      resname="LEU",
+      resseq~,
+    ),
+    @src.Atom::new(
+      name="CG",
+      coord=@src.Vector3::new(cx + 2.5, cy + 2.0, cz),
+      resname="LEU",
+      resseq~,
+    ),
+    @src.Atom::new(
+      name="CD1",
+      coord=@src.Vector3::new(cx + 3.0, cy + 3.0, cz),
+      resname="LEU",
+      resseq~,
+    ),
+    @src.Atom::new(
+      name="CD2",
+      coord=@src.Vector3::new(cx + 2.0, cy + 3.0, cz),
+      resname="LEU",
+      resseq~,
+    ),
   ]
-  @src.Residue::new(resname="LEU", chainid='A', resseq=resseq, atoms=atoms)
+  @src.Residue::new(resname="LEU", chainid='A', resseq~, atoms~)
 }
 
 ///|
 /// Build a water molecule.
-fn make_water(resseq : Int, x : Double, y : Double, z : Double) -> @src.Residue {
+fn make_water(
+  resseq : Int32,
+  x : Double,
+  y : Double,
+  z : Double,
+) -> @src.Residue {
   let atoms = [
-    @src.Atom::new(name="O", coord=@src.Vector3::new(x, y, z), resname="HOH", resseq=resseq),
+    @src.Atom::new(
+      name="O",
+      coord=@src.Vector3::new(x, y, z),
+      resname="HOH",
+      resseq~,
+    ),
   ]
-  @src.Residue::new(resname="HOH", chainid='A', resseq=resseq, atoms=atoms)
+  @src.Residue::new(resname="HOH", chainid='A', resseq~, atoms~)
 }
 
 ///|
 /// Build a GLY residue with N and O atoms.
-fn make_gly_full(resseq : Int, n_x : Double, n_y : Double, n_z : Double, o_x : Double, o_y : Double, o_z : Double) -> @src.Residue {
+fn make_gly_full(
+  resseq : Int32,
+  n_x : Double,
+  n_y : Double,
+  n_z : Double,
+  o_x : Double,
+  o_y : Double,
+  o_z : Double,
+) -> @src.Residue {
   let atoms = [
-    @src.Atom::new(name="N", coord=@src.Vector3::new(n_x, n_y, n_z), resname="GLY", resseq=resseq),
-    @src.Atom::new(name="CA", coord=@src.Vector3::new(n_x + 1.5, n_y, n_z), resname="GLY", resseq=resseq),
-    @src.Atom::new(name="C", coord=@src.Vector3::new(n_x + 2.5, n_y, n_z), resname="GLY", resseq=resseq),
-    @src.Atom::new(name="O", coord=@src.Vector3::new(o_x, o_y, o_z), resname="GLY", resseq=resseq),
+    @src.Atom::new(
+      name="N",
+      coord=@src.Vector3::new(n_x, n_y, n_z),
+      resname="GLY",
+      resseq~,
+    ),
+    @src.Atom::new(
+      name="CA",
+      coord=@src.Vector3::new(n_x + 1.5, n_y, n_z),
+      resname="GLY",
+      resseq~,
+    ),
+    @src.Atom::new(
+      name="C",
+      coord=@src.Vector3::new(n_x + 2.5, n_y, n_z),
+      resname="GLY",
+      resseq~,
+    ),
+    @src.Atom::new(
+      name="O",
+      coord=@src.Vector3::new(o_x, o_y, o_z),
+      resname="GLY",
+      resseq~,
+    ),
   ]
-  @src.Residue::new(resname="GLY", chainid='A', resseq=resseq, atoms=atoms)
+  @src.Residue::new(resname="GLY", chainid='A', resseq~, atoms~)
 }
 
 // ─── Salt Bridge Tests ─────────────────────────────────────
@@ -245,7 +488,7 @@ test "insty: water bridge" {
   // Two GLY residues with O atoms near a water
   let gly1 = make_gly_full(1, 0.0, 0.0, 0.0, 3.0, 0.0, 0.0)
   let gly2 = make_gly_full(2, 6.0, 0.0, 0.0, 6.0, 0.0, 0.0)
-  let water = make_water(100, 4.5, 0.0, 0.0)  // O at 4.5
+  let water = make_water(100, 4.5, 0.0, 0.0) // O at 4.5
   let chain = @src.Chain::new(id='A', residues=[gly1, gly2, water])
   let bridges = @src.find_water_bridges(chain)
   // Water O at 4.5, gly1 O at 3.0 → d=1.5; gly2 O at 6.0 → d=1.5

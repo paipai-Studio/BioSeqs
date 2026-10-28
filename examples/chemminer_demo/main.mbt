@@ -4,7 +4,9 @@
 /// Run: moon run examples/chemminer_demo
 fn main {
   println("=== ChemmineR Module Demo ===")
-  println("Cheminformatics: SDF parsing, molecular descriptors, fingerprints, similarity")
+  println(
+    "Cheminformatics: SDF parsing, molecular descriptors, fingerprints, similarity",
+  )
   println("Reference: Backman et al. (2011) Bioinformatics 27:2400-1")
   println("")
 
@@ -53,12 +55,16 @@ fn main {
   // ------------------------------------------------------------------
   println("=== 3. Substructure Search ===")
   let is_benzene_in_aspirin = @bio.chem_substructure_match(benzene, aspirin)
-  println("Benzene is substructure of Aspirin: " + is_benzene_in_aspirin.to_string())
+  println(
+    "Benzene is substructure of Aspirin: " + is_benzene_in_aspirin.to_string(),
+  )
   let is_water_in_ethanol = @bio.chem_substructure_match(
     @bio.chem_sample_water(),
     ethanol,
   )
-  println("Water is substructure of Ethanol: " + is_water_in_ethanol.to_string())
+  println(
+    "Water is substructure of Ethanol: " + is_water_in_ethanol.to_string(),
+  )
   println("")
 
   // ------------------------------------------------------------------
@@ -69,12 +75,22 @@ fn main {
   let parsed = @bio.chem_parse_sdf(sdf_text)
   println("Parsed " + parsed.length().to_string() + " molecule(s) from SDF")
   for mol in parsed {
-    println("  " + mol.name() + ": " + mol.n_atoms().to_string() + " atoms, " + mol.n_bonds().to_string() + " bonds")
+    println(
+      "  " +
+      mol.name() +
+      ": " +
+      mol.n_atoms().to_string() +
+      " atoms, " +
+      mol.n_bonds().to_string() +
+      " bonds",
+    )
   }
   println("")
   let reserialized = @bio.chem_molecule_to_sdf(parsed[0])
   let reparsed = @bio.chem_parse_sdf(reserialized)
-  println("Round-trip: parsed " + reparsed.length().to_string() + " molecule(s)")
+  println(
+    "Round-trip: parsed " + reparsed.length().to_string() + " molecule(s)",
+  )
   println("  Name: " + reparsed[0].name())
   println("  Atoms: " + reparsed[0].n_atoms().to_string())
   println("  Bonds: " + reparsed[0].n_bonds().to_string())

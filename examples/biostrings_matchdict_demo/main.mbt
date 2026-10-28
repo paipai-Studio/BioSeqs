@@ -14,7 +14,7 @@ fn main {
   // Restriction enzymes recognize specific short DNA sequences
   let patterns = ["GAATTC", "AAGCTT", "GGATCC", "GTCGAC"]
   let enzyme_names = ["EcoRI", "HindIII", "BamHI", "SalI"]
-  let pdict = @bio.bmd_create_pdict(patterns=patterns)
+  let pdict = @bio.bmd_create_pdict(patterns~)
   println("   Patterns loaded: \{pdict.patterns.length()}")
   let mut p = 0
   while p < patterns.length() {
@@ -26,7 +26,7 @@ fn main {
   println("2. Matching patterns against a DNA sequence")
   let subject = "ATGCGAATTCTTAAGCTTGGATCCGTCGACATGC"
   println("   Subject: \{subject}")
-  let match_result = @bio.bmd_match_pdict(pdict=pdict, subject=subject)
+  let match_result = @bio.bmd_match_pdict(pdict~, subject~)
   println("   Total hits found: \{match_result.hits.length()}")
   let mut h = 0
   while h < match_result.hits.length() {
@@ -40,7 +40,7 @@ fn main {
   println("")
   println("3. Matching with allowed mismatches")
   // Create a PDict allowing 1 mismatch
-  let pdict_mm = @bio.bmd_create_pdict(patterns=patterns, max_mismatches=1)
+  let pdict_mm = @bio.bmd_create_pdict(patterns~, max_mismatches=1)
   let mm_result = @bio.bmd_match_pdict(
     pdict=pdict_mm,
     subject="ATGCGAATTXCTTAAGCTTGGATCC",
@@ -58,10 +58,7 @@ fn main {
   println("")
   println("4. Vectorized countPattern across multiple sequences")
   let subjects = [
-    "GAATTCGAATTCGAATTC",
-    "AAGCTTGCATGCAAGCTT",
-    "TTTTTTTTTTTTTTTTTT",
-    "GAATTCAAGCTTGGATCC",
+    "GAATTCGAATTCGAATTC", "AAGCTTGCATGCAAGCTT", "TTTTTTTTTTTTTTTTTT", "GAATTCAAGCTTGGATCC",
   ]
   println("   Subjects (\{subjects.length()} sequences):")
   let mut s = 0
@@ -70,10 +67,7 @@ fn main {
     s = s + 1
   }
 
-  let vcount_result = @bio.bmd_vcount_pattern(
-    pattern="GAATTC",
-    subjects=subjects,
-  )
+  let vcount_result = @bio.bmd_vcount_pattern(pattern="GAATTC", subjects~)
   println("")
   println("   vcountPattern for \"GAATTC\":")
   println("     Total occurrences: \{vcount_result.total}")
@@ -88,12 +82,14 @@ fn main {
   let multi_patterns = ["GAATTC", "AAGCTT"]
   let multi_results = @bio.bmd_vmatch_pattern(
     patterns=multi_patterns,
-    subjects=subjects,
+    subjects~,
   )
   let mut mp = 0
   while mp < multi_results.length() {
     let r = multi_results[mp]
-    println("     Pattern \"\{r.pattern}\": total=\{r.total}, counts=\{r.counts}")
+    println(
+      "     Pattern \"\{r.pattern}\": total=\{r.total}, counts=\{r.counts}",
+    )
     mp = mp + 1
   }
 
@@ -101,7 +97,7 @@ fn main {
   println("6. which/which_index: finding subjects with matches")
   // Create a PDict with a single pattern for which/which_index
   let pdict_single = @bio.bmd_create_pdict(patterns=["GAATTC"])
-  let which_result = @bio.bmd_which(pdict=pdict_single, subjects=subjects)
+  let which_result = @bio.bmd_which(pdict=pdict_single, subjects~)
   println("   which() results (GAATTC in each subject):")
   s = 0
   while s < which_result.length() {
@@ -109,12 +105,12 @@ fn main {
     s = s + 1
   }
 
-  let which_indices = @bio.bmd_which_index(pdict=pdict_single, subjects=subjects)
+  let which_indices = @bio.bmd_which_index(pdict=pdict_single, subjects~)
   println("   which_index() returns matching indices: \{which_indices}")
 
   println("")
   println("7. Counting total pattern occurrences")
-  let total = @bio.bmd_count_occurrences(pdict=pdict, subject=subject)
+  let total = @bio.bmd_count_occurrences(pdict~, subject~)
   println("   Total pattern occurrences in subject: \{total}")
 
   println("")

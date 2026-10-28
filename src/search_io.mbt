@@ -3,14 +3,14 @@
 
 ///|
 pub struct HSPFragment {
-  query_start : Int
-  query_end : Int
-  hit_start : Int
-  hit_end : Int
+  query_start : Int32
+  query_end : Int32
+  hit_start : Int32
+  hit_end : Int32
   query_strand : Strand
   hit_strand : Strand
-  aln_span : Int
-  gap_num : Int
+  aln_span : Int32
+  gap_num : Int32
   bitscore : Double
   evalue : Double
   query_seq : String
@@ -20,14 +20,14 @@ pub struct HSPFragment {
 
 ///|
 pub fn HSPFragment::new(
-  query_start : Int,
-  query_end : Int,
-  hit_start : Int,
-  hit_end : Int,
+  query_start : Int32,
+  query_end : Int32,
+  hit_start : Int32,
+  hit_end : Int32,
   query_strand : Strand,
   hit_strand : Strand,
-  aln_span : Int,
-  gap_num : Int,
+  aln_span : Int32,
+  gap_num : Int32,
   bitscore : Double,
   evalue : Double,
   query_seq : String,
@@ -99,7 +99,7 @@ pub fn Hit::new(
 pub struct QueryResult {
   id : String
   description : String
-  seq_len : Int
+  seq_len : Int32
   hits : Array[Hit]
   program : String
   version : String
@@ -110,7 +110,7 @@ pub struct QueryResult {
 pub fn QueryResult::new(
   id : String,
   description : String,
-  seq_len : Int,
+  seq_len : Int32,
   hits : Array[Hit],
   program : String,
   version : String,
@@ -385,7 +385,7 @@ pub fn blast_to_searchio(
 }
 
 ///|
-pub fn top_hits(qr : QueryResult, n : Int, threshold : Double) -> Array[Hit] {
+pub fn top_hits(qr : QueryResult, n : Int32, threshold : Double) -> Array[Hit] {
   let filtered : Array[Hit] = Array(capacity=0)
 
   let mut i = 0
@@ -429,7 +429,7 @@ pub fn top_hits(qr : QueryResult, n : Int, threshold : Double) -> Array[Hit] {
 }
 
 ///|
-pub fn count_hsps(qr : QueryResult) -> Int {
+pub fn count_hsps(qr : QueryResult) -> Int32 {
   let mut total = 0
   let mut i = 0
   while i < qr.hits.length() {

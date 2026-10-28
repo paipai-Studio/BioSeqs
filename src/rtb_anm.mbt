@@ -7,10 +7,10 @@
 ///|
 /// RTB-ANM result.
 pub struct RTBANM {
-  n_residues : Int // total residues
-  n_blocks : Int // number of blocks
-  block_sizes : Array[Int] // size of each block
-  block_assignments : Array[Int] // block index for each residue
+  n_residues : Int32 // total residues
+  n_blocks : Int32 // number of blocks
+  block_sizes : Array[Int32] // size of each block
+  block_assignments : Array[Int32] // block index for each residue
   eigenvalues : Array[Double]
   eigenvectors : Array[Array[Double]] // in reduced space (6N_b)
   full_eigenvectors : Array[Array[Double]] // projected back to 3N
@@ -23,17 +23,17 @@ pub struct RTBANM {
 /// Each block contributes 6 degrees of freedom (3 translation + 3 rotation).
 pub fn RTBANM::new(
   ca_coords : Array[Vector3],
-  block_size? : Int = 10,
-  cutoff? : Double = 15.0,
-  gamma? : Double = 1.0,
+  block_size~ : Int32 = 10,
+  cutoff~ : Double = 15.0,
+  gamma~ : Double = 1.0,
 ) -> RTBANM? {
   let n = ca_coords.length()
   if n < 3 {
     return None
   }
   // Partition into blocks
-  let block_assignments : Array[Int] = Array::make(n, 0)
-  let block_sizes : Array[Int] = Array(capacity=0)
+  let block_assignments : Array[Int32] = Array::make(n, 0)
+  let block_sizes : Array[Int32] = Array(capacity=0)
   let _n_blocks = (n + block_size - 1) / block_size
   let mut current_block = 0
   let mut count_in_block = 0
@@ -53,7 +53,7 @@ pub fn RTBANM::new(
   let dim_reduced = 6 * nb
   let dim_full = 3 * n
   // Build full Hessian (3N x 3N)
-  let h : Array[Array[Double]] = Array::makei(dim_full, { _ =>
+  let h : Array[Array[Double]] = Array::makei(dim_full, _ => {
     Array::make(dim_full, 0.0)
   })
   let mut i = 0
@@ -118,12 +118,10 @@ pub fn RTBANM::new(
   }
   // Build projection matrix P (3N x 6N_b)
   // For each block, 6 columns: [tx, ty, tz, rx, ry, rz]
-  let p = Array::makei(dim_full, { _ =>
-    Array::make(dim_reduced, 0.0)
-  })
+  let p = Array::makei(dim_full, _ => Array::make(dim_reduced, 0.0))
   for b = 0; b < nb; b = b + 1 {
     // Collect residues in this block
-    let block_residues : Array[Int] = Array(capacity=0)
+    let block_residues : Array[Int32] = Array(capacity=0)
     for r = 0; r < n; r = r + 1 {
       if block_assignments[r] == b {
         block_residues.push(r)
@@ -171,9 +169,7 @@ pub fn RTBANM::new(
   }
   // Reduced Hessian: H_red = P^T * H * P
   // First compute HP = H * P (3N x 6N_b)
-  let hp = Array::makei(dim_full, { _ =>
-    Array::make(dim_reduced, 0.0)
-  })
+  let hp = Array::makei(dim_full, _ => Array::make(dim_reduced, 0.0))
   for row = 0; row < dim_full; row = row + 1 {
     for col = 0; col < dim_reduced; col = col + 1 {
       let mut s = 0.0
@@ -184,9 +180,7 @@ pub fn RTBANM::new(
     }
   }
   // H_red = P^T * HP (6N_b x 6N_b)
-  let h_red = Array::makei(dim_reduced, { _ =>
-    Array::make(dim_reduced, 0.0)
-  })
+  let h_red = Array::makei(dim_reduced, _ => Array::make(dim_reduced, 0.0))
   for i2 = 0; i2 < dim_reduced; i2 = i2 + 1 {
     for j2 = 0; j2 < dim_reduced; j2 = j2 + 1 {
       let mut s = 0.0
@@ -199,7 +193,7 @@ pub fn RTBANM::new(
   // Eigen-decomposition of reduced Hessian
   let (eigenvalues, eigenvectors) = linalg_jacobi(h_red, dim_reduced, 200)
   // Sort by eigenvalue (ascending) using insertion sort
-  let indices = Array::makei(dim_reduced, { i => i })
+  let indices = Array::makei(dim_reduced, i => i)
   for sort_i = 1; sort_i < dim_reduced; sort_i = sort_i + 1 {
     let key = indices[sort_i]
     let key_val = eigenvalues[key]
@@ -211,7 +205,7 @@ pub fn RTBANM::new(
     indices[sort_j + 1] = key
   }
   let sorted_evals = Array::make(dim_reduced, 0.0)
-  let sorted_evecs = Array::makei(dim_reduced, { _ =>
+  let sorted_evecs = Array::makei(dim_reduced, _ => {
     Array::make(dim_reduced, 0.0)
   })
   for idx = 0; idx < dim_reduced; idx = idx + 1 {
@@ -222,9 +216,7 @@ pub fn RTBANM::new(
     }
   }
   // Project eigenvectors back to full space: V_full = P * V_red
-  let full_evecs = Array::makei(dim_reduced, { _ =>
-    Array::make(dim_full, 0.0)
-  })
+  let full_evecs = Array::makei(dim_reduced, _ => Array::make(dim_full, 0.0))
   for mode = 0; mode < dim_reduced; mode = mode + 1 {
     for j = 0; j < dim_full; j = j + 1 {
       let mut s = 0.0
@@ -248,13 +240,13 @@ pub fn RTBANM::new(
 
 ///|
 /// Get number of blocks.
-pub fn RTBANM::num_blocks(self : RTBANM) -> Int {
+pub fn RTBANM::num_blocks(self : RTBANM) -> Int32 {
   self.n_blocks
 }
 
 ///|
 /// Get number of residues.
-pub fn RTBANM::num_residues(self : RTBANM) -> Int {
+pub fn RTBANM::num_residues(self : RTBANM) -> Int32 {
   self.n_residues
 }
 
@@ -291,7 +283,8 @@ pub fn RTBANM::predict_bfactors(self : RTBANM) -> Array[Double] {
     for i = 0; i < n; i = i + 1 {
       let i3 = 3 * i
       let v = self.full_eigenvectors[k]
-      bf[i] = bf[i] + (v[i3] * v[i3] + v[i3 + 1] * v[i3 + 1] + v[i3 + 2] * v[i3 + 2]) / lam
+      bf[i] = bf[i] +
+        (v[i3] * v[i3] + v[i3 + 1] * v[i3 + 1] + v[i3 + 2] * v[i3 + 2]) / lam
     }
   }
   bf
@@ -299,6 +292,6 @@ pub fn RTBANM::predict_bfactors(self : RTBANM) -> Array[Double] {
 
 ///|
 /// Get block sizes.
-pub fn RTBANM::get_block_sizes(self : RTBANM) -> Array[Int] {
+pub fn RTBANM::get_block_sizes(self : RTBANM) -> Array[Int32] {
   self.block_sizes
 }

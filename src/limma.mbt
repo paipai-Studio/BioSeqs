@@ -8,22 +8,22 @@
 ///|
 /// Simple matrix type for linear algebra operations.
 pub struct Matrix {
-  rows : Int
-  cols : Int
+  rows : Int32
+  cols : Int32
   data : Array[Double]
 }
 
 ///|
 /// Create a matrix from flat array.
-pub fn Matrix::new(rows : Int, cols : Int, data : Array[Double]) -> Matrix {
+pub fn Matrix::new(rows : Int32, cols : Int32, data : Array[Double]) -> Matrix {
   Matrix::{ rows, cols, data, }
 }
 
 ///|
 /// Create a matrix from 2D array.
 pub fn Matrix::from_2d(
-  rows : Int,
-  cols : Int,
+  rows : Int32,
+  cols : Int32,
   data : Array[Array[Double]],
 ) -> Matrix {
   let flat = Array::make(rows * cols, 0.0)
@@ -41,14 +41,14 @@ pub fn Matrix::from_2d(
 
 ///|
 /// Create a zero matrix.
-pub fn Matrix::zeros(rows : Int, cols : Int) -> Matrix {
+pub fn Matrix::zeros(rows : Int32, cols : Int32) -> Matrix {
   let data = Array::make(rows * cols, 0.0)
   Matrix::{ rows, cols, data, }
 }
 
 ///|
 /// Create an identity matrix.
-pub fn Matrix::identity(n : Int) -> Matrix {
+pub fn Matrix::identity(n : Int32) -> Matrix {
   let data = Array::make(n * n, 0.0)
   let mut i = 0
   while i < n {
@@ -60,13 +60,18 @@ pub fn Matrix::identity(n : Int) -> Matrix {
 
 ///|
 /// Get element at (row, col).
-pub fn Matrix::get(self : Matrix, row : Int, col : Int) -> Double {
+pub fn Matrix::get(self : Matrix, row : Int32, col : Int32) -> Double {
   self.data[row * self.cols + col]
 }
 
 ///|
 /// Set element at (row, col).
-pub fn Matrix::set(self : Matrix, row : Int, col : Int, value : Double) -> Unit {
+pub fn Matrix::set(
+  self : Matrix,
+  row : Int32,
+  col : Int32,
+  value : Double,
+) -> Unit {
   self.data[row * self.cols + col] = value
 }
 
@@ -402,7 +407,7 @@ pub struct MArrayLM {
   coefficients : Matrix
   stdev_unscaled : Matrix
   sigma : Array[Double]
-  df_residual : Int
+  df_residual : Int32
   design : Matrix
   effects : Matrix
   fit : Matrix
@@ -414,7 +419,7 @@ pub fn MArrayLM::new(
   coefficients : Matrix,
   stdev_unscaled : Matrix,
   sigma : Array[Double],
-  df_residual : Int,
+  df_residual : Int32,
   design : Matrix,
   effects : Matrix,
   fit : Matrix,
@@ -436,14 +441,14 @@ pub struct EBayesResult {
   coefficients : Matrix
   stdev_unscaled : Matrix
   sigma : Array[Double]
-  df_residual : Int
+  df_residual : Int32
   design : Matrix
   t : Matrix
   p_value : Matrix
   lods : Matrix
   f : Array[Double]
   f_p_value : Array[Double]
-  df_total : Int
+  df_total : Int32
   proportion : Double
   prior_df : Double
   prior_var : Double
@@ -455,14 +460,14 @@ pub fn EBayesResult::new(
   coefficients : Matrix,
   stdev_unscaled : Matrix,
   sigma : Array[Double],
-  df_residual : Int,
+  df_residual : Int32,
   design : Matrix,
   t : Matrix,
   p_value : Matrix,
   lods : Matrix,
   f : Array[Double],
   f_p_value : Array[Double],
-  df_total : Int,
+  df_total : Int32,
   proportion : Double,
   prior_df : Double,
   prior_var : Double,
@@ -800,8 +805,8 @@ pub fn ebayes(fit : MArrayLM, proportion : Double) -> EBayesResult {
 /// Extract top differentially expressed genes.
 pub fn top_table(
   fit : EBayesResult,
-  coef : Int,
-  number : Int,
+  coef : Int32,
+  number : Int32,
   adjust_mode : String,
 ) -> Array[TopTableRow] {
   let n_genes = fit.coefficients.rows
@@ -1174,7 +1179,7 @@ pub fn voom(counts : Matrix, _design : Matrix) -> Matrix {
 pub fn limma_remove_batch_effect(
   y : Matrix,
   batch : Array[String],
-  group? : Array[String] = Array(capacity=0),
+  group~ : Array[String] = Array(capacity=0),
 ) -> Matrix {
   let n_genes = y.rows
   let n_samples = y.cols
@@ -1325,7 +1330,7 @@ pub fn limma_remove_batch_effect(
 
 ///|
 /// Find index of a batch label in the unique batches array.
-fn find_batch_index(label : String, unique : Array[String]) -> Int {
+fn find_batch_index(label : String, unique : Array[String]) -> Int32 {
   let mut i = 0
   while i < unique.length() {
     if unique[i] == label {
@@ -1341,7 +1346,7 @@ fn find_batch_index(label : String, unique : Array[String]) -> Int {
 fn solve_linear_system(
   a_data : Array[Double],
   b : Array[Double],
-  n : Int,
+  n : Int32,
 ) -> Array[Double] {
   // Create augmented matrix
   let aug_data = Array::make(n * (n + 1), 0.0)
@@ -1558,7 +1563,7 @@ pub fn treat(
 ///|
 /// Compute distances for multidimensional scaling (MDS) plot.
 /// Returns distance matrix between samples based on top variable genes.
-pub fn plot_mds_distances(y : Matrix, n_top_genes : Int) -> Matrix {
+pub fn plot_mds_distances(y : Matrix, n_top_genes : Int32) -> Matrix {
   let n_genes = y.rows
   let n_samples = y.cols
 
@@ -1582,7 +1587,7 @@ pub fn plot_mds_distances(y : Matrix, n_top_genes : Int) -> Matrix {
 
   // Find top variable genes
   let n_top = if n_top_genes < n_genes { n_top_genes } else { n_genes }
-  let top_indices : Array[Int] = Array(capacity=0)
+  let top_indices : Array[Int32] = Array(capacity=0)
   let used : Array[Bool] = Array::make(n_genes, false)
 
   i = 0
@@ -1684,7 +1689,7 @@ pub fn limma_rpkm(counts : Matrix, gene_lengths : Array[Double]) -> Matrix {
 /// counts: genes x samples matrix of read counts.
 /// log: if true, returns log2-transformed values.
 /// Returns normalized matrix.
-pub fn limma_cpm(counts : Matrix, log? : Bool = true) -> Matrix {
+pub fn limma_cpm(counts : Matrix, log~ : Bool = true) -> Matrix {
   let n_genes = counts.rows
   let n_samples = counts.cols
 
@@ -1822,7 +1827,7 @@ pub fn limma_quantile_normalize(y : Matrix) -> Matrix {
 pub fn limma_combat(
   y : Matrix,
   batch : Array[String],
-  group? : Array[String] = Array(capacity=0),
+  group~ : Array[String] = Array(capacity=0),
 ) -> Matrix {
   ignore(group)
   let n_genes = y.rows
@@ -1879,7 +1884,7 @@ pub fn limma_combat(
   while b < n_batches {
     let batch_label = unique_batches[b]
     // Find sample indices in this batch
-    let batch_indices : Array[Int] = Array(capacity=0)
+    let batch_indices : Array[Int32] = Array(capacity=0)
     let mut s = 0
     while s < n_samples {
       if batch[s] == batch_label {

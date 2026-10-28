@@ -131,4 +131,3 @@ test "parse_mm_tag no_ml_tag" {
   assert_eq(all[0].qual, -1)
   assert_eq(all[1].qual, -1)
 }
-

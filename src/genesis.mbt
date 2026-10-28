@@ -7,7 +7,7 @@
 pub struct GSKinshipResult {
   kinship_matrix : Array[Array[Double]]
   sample_ids : Array[String]
-  n_samples : Int
+  n_samples : Int32
 }
 
 ///|
@@ -15,7 +15,7 @@ pub struct GSKinshipResult {
 pub fn GSKinshipResult::new(
   kinship_matrix : Array[Array[Double]],
   sample_ids : Array[String],
-  n_samples : Int,
+  n_samples : Int32,
 ) -> GSKinshipResult {
   GSKinshipResult::{ kinship_matrix, sample_ids, n_samples, }
 }
@@ -142,7 +142,7 @@ pub fn gs_estimate_kinship(genotypes : Array[Array[Double]]) -> GSKinshipResult 
 /// Perform PCA on genotype data.
 pub fn gs_pca(
   genotypes : Array[Array[Double]],
-  n_components : Int,
+  n_components : Int32,
 ) -> GSPcaResult {
   let n = genotypes.length()
   let m = if n > 0 { genotypes[0].length() } else { 0 }
@@ -262,7 +262,7 @@ pub fn gs_pca(
 /// Power iteration for eigenvalue decomposition.
 pub fn gs_power_iteration(
   matrix : Array[Array[Double]],
-  n_components : Int,
+  n_components : Int32,
 ) -> Array[Array[Double]] {
   let n = matrix.length()
   let components : Array[Array[Double]] = Array(capacity=0)
@@ -336,7 +336,7 @@ pub fn gs_power_iteration(
 /// Calculate genetic distance matrix.
 pub fn gs_calculate_genetic_distance(
   genotypes : Array[Array[Double]],
-  distance_type? : String = "euclidean",
+  distance_type~ : String = "euclidean",
 ) -> GSDistanceResult {
   let n = genotypes.length()
 
@@ -447,7 +447,7 @@ pub fn bio_estimate_kinship(
 ///|
 pub fn bio_pca(
   genotypes : Array[Array[Double]],
-  n_components : Int,
+  n_components : Int32,
 ) -> GSPcaResult {
   gs_pca(genotypes, n_components)
 }

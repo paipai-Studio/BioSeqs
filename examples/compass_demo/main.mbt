@@ -8,9 +8,7 @@
 fn main {
   println("=== COMPASS Module Demo ===")
   println("Profile-profile alignment output parser")
-  println(
-    "Reference: Sadreyev RI et al. (2003) Protein Sci 12(10):2262-72",
-  )
+  println("Reference: Sadreyev RI et al. (2003) Protein Sci 12(10):2262-72")
   println("")
 
   // ------------------------------------------------------------------
@@ -70,8 +68,7 @@ fn main {
     println("  Consensus:     " + r.consensus_line())
     println("  Aligned template: " + r.aligned_template())
     println(
-      "  Alignment length: " +
-      @bio.compass_alignment_length(r).to_string(),
+      "  Alignment length: " + @bio.compass_alignment_length(r).to_string(),
     )
     println("")
   }
@@ -82,9 +79,7 @@ fn main {
   println("=== 4. Filter by E-value <= 1e-06 ===")
   let significant = @bio.compass_filter_by_evalue(records, 1.0e-06)
   println(
-    "Found " +
-    significant.length().to_string() +
-    " significant alignment(s):",
+    "Found " + significant.length().to_string() + " significant alignment(s):",
   )
   for r in significant {
     println(

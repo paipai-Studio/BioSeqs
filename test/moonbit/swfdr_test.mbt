@@ -85,7 +85,7 @@ fn sw_pp() -> Array[Double] {
 
 ///|
 /// truncated flags: positions 51-55 (1-based) are truncated upper bounds
-fn sw_tt() -> Array[Int] {
+fn sw_tt() -> Array[Int32] {
   let v = Array::make(60, 0)
   let mut i = 50
   while i < 55 {
@@ -97,7 +97,7 @@ fn sw_tt() -> Array[Int] {
 
 ///|
 /// rounded flags: positions 41-50, 56, 57 (1-based) are rounded
-fn sw_rr() -> Array[Int] {
+fn sw_rr() -> Array[Int32] {
   let v = Array::make(60, 0)
   let mut i = 40
   while i < 50 {
@@ -167,7 +167,7 @@ fn sw_expect(
 ///|
 fn sw_expect_row(
   m : Array[Array[Double]],
-  row : Int,
+  row : Int32,
   want : Array[Double],
   tol : Double,
 ) -> Unit raise {
@@ -647,7 +647,7 @@ test "swfdr_unit_spline_matrix_l8" {
 ///|
 fn sw_expect_col(
   m : Array[Array[Double]],
-  col : Int,
+  col : Int32,
   want : Array[Double],
   tol : Double,
 ) -> Unit raise {

@@ -10,13 +10,13 @@
 ///|
 /// A Mol2 atom.
 pub(all) struct Mol2Atom {
-  serial : Int
+  serial : Int32
   name : String
   x : Double
   y : Double
   z : Double
   sybyl_type : String
-  subst_id : Int
+  subst_id : Int32
   subst_name : String
   charge : Double
 }
@@ -24,9 +24,9 @@ pub(all) struct Mol2Atom {
 ///|
 /// A Mol2 bond.
 pub(all) struct Mol2Bond {
-  serial : Int
-  origin : Int
-  target : Int
+  serial : Int32
+  origin : Int32
+  target : Int32
   bond_type : String
 }
 
@@ -42,18 +42,14 @@ pub struct Mol2Molecule {
 
 ///|
 fn mol2_pd(s : String) -> Double {
-  try {
-    @string.parse_double(s)
-  } catch {
+  @string.parse_double(s) catch {
     _ => 0.0
   }
 }
 
 ///|
-fn mol2_pi(s : String) -> Int {
-  try {
-    @string.parse_int(s)
-  } catch {
+fn mol2_pi(s : String) -> Int32 {
+  @string.parse_int(s) catch {
     _ => 0
   }
 }
@@ -170,10 +166,26 @@ pub fn parse_mol2(content : String) -> Array[Mol2Molecule] {
                 x: mol2_pd(parts[2]),
                 y: mol2_pd(parts[3]),
                 z: mol2_pd(parts[4]),
-                sybyl_type: if parts.length() > 5 { parts[5] } else { "" },
-                subst_id: if parts.length() > 6 { mol2_pi(parts[6]) } else { 0 },
-                subst_name: if parts.length() > 7 { parts[7] } else { "" },
-                charge: if parts.length() > 8 { mol2_pd(parts[8]) } else { 0.0 },
+                sybyl_type: if parts.length() > 5 {
+                  parts[5]
+                } else {
+                  ""
+                },
+                subst_id: if parts.length() > 6 {
+                  mol2_pi(parts[6])
+                } else {
+                  0
+                },
+                subst_name: if parts.length() > 7 {
+                  parts[7]
+                } else {
+                  ""
+                },
+                charge: if parts.length() > 8 {
+                  mol2_pd(parts[8])
+                } else {
+                  0.0
+                },
               })
             }
             i = i + 1
@@ -211,7 +223,13 @@ pub fn parse_mol2(content : String) -> Array[Mol2Molecule] {
           i = i + 1
         }
       }
-      molecules.push(Mol2Molecule::{ name, atoms, bonds, mol_type, charge_type })
+      molecules.push(Mol2Molecule::{
+        name,
+        atoms,
+        bonds,
+        mol_type,
+        charge_type,
+      })
     } else {
       i = i + 1
     }
@@ -274,7 +292,7 @@ pub fn mol2_to_string(mol : Mol2Molecule) -> String {
 ///|
 /// Convert a Mol2Molecule to a Chain (grouping by subst_id).
 pub fn mol2_to_chain(mol : Mol2Molecule) -> Chain {
-  let subst_map : Map[Int, Array[Mol2Atom]] = Map([])
+  let subst_map : Map[Int32, Array[Mol2Atom]] = Map([])
   for atom in mol.atoms {
     let key = atom.subst_id
     match subst_map.get(key) {
@@ -282,7 +300,7 @@ pub fn mol2_to_chain(mol : Mol2Molecule) -> Chain {
       None => subst_map[key] = [atom]
     }
   }
-  let subst_ids : Array[Int] = Array(capacity=0)
+  let subst_ids : Array[Int32] = Array(capacity=0)
   for k, _ in subst_map {
     subst_ids.push(k)
   }
@@ -299,17 +317,25 @@ pub fn mol2_to_chain(mol : Mol2Molecule) -> Chain {
         let pdb_atoms : Array[Atom] = Array(capacity=0)
         for a in atoms {
           let elem_parts = a.sybyl_type.split(".").to_array()
-          let elem = if elem_parts.length() > 0 { elem_parts[0].to_owned() } else { "C" }
-          pdb_atoms.push(Atom::new(
-            name=a.name,
-            coord=Vector3::new(a.x, a.y, a.z),
-            resname~,
-            chainid='A',
-            resseq=sid,
-            element=elem,
-          ))
+          let elem = if elem_parts.length() > 0 {
+            elem_parts[0].to_owned()
+          } else {
+            "C"
+          }
+          pdb_atoms.push(
+            Atom::new(
+              name=a.name,
+              coord=Vector3::new(a.x, a.y, a.z),
+              resname~,
+              chainid='A',
+              resseq=sid,
+              element=elem,
+            ),
+          )
         }
-        residues.push(Residue::new(resname~, chainid='A', resseq=sid, atoms=pdb_atoms))
+        residues.push(
+          Residue::new(resname~, chainid='A', resseq=sid, atoms=pdb_atoms),
+        )
       }
       None => ()
     }
@@ -320,7 +346,7 @@ pub fn mol2_to_chain(mol : Mol2Molecule) -> Chain {
 // ===== SDF writer (using existing SdfMolecule from chemminer) =====
 
 ///|
-fn format_int_3d(n : Int) -> String {
+fn format_int_3d(n : Int32) -> String {
   if n >= 0 && n < 10 {
     "  " + n.to_string()
   } else if n >= 10 && n < 100 {
@@ -350,7 +376,7 @@ fn format_double_10d(d : Double) -> String {
 }
 
 ///|
-fn mol2_pad_left(s : String, width : Int) -> String {
+fn mol2_pad_left(s : String, width : Int32) -> String {
   if s.length() >= width {
     s
   } else {
@@ -428,7 +454,9 @@ pub fn sdf_to_chain(mol : SdfMolecule) -> Chain {
       resseq=i + 1,
       element=a.symbol,
     )
-    residues.push(Residue::new(resname~, chainid='A', resseq=i + 1, atoms=[atom]))
+    residues.push(
+      Residue::new(resname~, chainid='A', resseq=i + 1, atoms=[atom]),
+    )
   }
   Chain::new(id='A', residues~)
 }
@@ -459,7 +487,13 @@ pub fn chain_to_mol2(chain : Chain, name : String) -> Mol2Molecule {
       serial = serial + 1
     }
   }
-  Mol2Molecule::{ name, atoms, bonds, mol_type: "SMALL", charge_type: "NO_CHARGES" }
+  Mol2Molecule::{
+    name,
+    atoms,
+    bonds,
+    mol_type: "SMALL",
+    charge_type: "NO_CHARGES",
+  }
 }
 
 ///|
@@ -469,7 +503,9 @@ pub fn chain_to_sdf(chain : Chain, name : String) -> SdfMolecule {
   let residues = chain.get_residues()
   for res in residues {
     for atom in res.get_atoms() {
-      atoms.push(SdfAtom::new(atom.element, atom.coord.x, atom.coord.y, atom.coord.z, 0))
+      atoms.push(
+        SdfAtom::new(atom.element, atom.coord.x, atom.coord.y, atom.coord.z, 0),
+      )
     }
   }
   SdfMolecule::new(name, atoms, [])
@@ -493,12 +529,12 @@ pub fn Mol2Molecule::get_bonds(self : Mol2Molecule) -> Array[Mol2Bond] {
 }
 
 ///|
-pub fn Mol2Molecule::num_atoms(self : Mol2Molecule) -> Int {
+pub fn Mol2Molecule::num_atoms(self : Mol2Molecule) -> Int32 {
   self.atoms.length()
 }
 
 ///|
-pub fn Mol2Molecule::num_bonds(self : Mol2Molecule) -> Int {
+pub fn Mol2Molecule::num_bonds(self : Mol2Molecule) -> Int32 {
   self.bonds.length()
 }
 
@@ -515,7 +551,7 @@ pub fn Mol2Molecule::get_charge_type(self : Mol2Molecule) -> String {
 // ===== Mol2Atom accessors =====
 
 ///|
-pub fn Mol2Atom::get_serial(self : Mol2Atom) -> Int {
+pub fn Mol2Atom::get_serial(self : Mol2Atom) -> Int32 {
   self.serial
 }
 
@@ -545,7 +581,7 @@ pub fn Mol2Atom::get_sybyl_type(self : Mol2Atom) -> String {
 }
 
 ///|
-pub fn Mol2Atom::get_subst_id(self : Mol2Atom) -> Int {
+pub fn Mol2Atom::get_subst_id(self : Mol2Atom) -> Int32 {
   self.subst_id
 }
 
@@ -562,17 +598,17 @@ pub fn Mol2Atom::get_charge(self : Mol2Atom) -> Double {
 // ===== Mol2Bond accessors =====
 
 ///|
-pub fn Mol2Bond::get_serial(self : Mol2Bond) -> Int {
+pub fn Mol2Bond::get_serial(self : Mol2Bond) -> Int32 {
   self.serial
 }
 
 ///|
-pub fn Mol2Bond::get_origin(self : Mol2Bond) -> Int {
+pub fn Mol2Bond::get_origin(self : Mol2Bond) -> Int32 {
   self.origin
 }
 
 ///|
-pub fn Mol2Bond::get_target(self : Mol2Bond) -> Int {
+pub fn Mol2Bond::get_target(self : Mol2Bond) -> Int32 {
   self.target
 }
 

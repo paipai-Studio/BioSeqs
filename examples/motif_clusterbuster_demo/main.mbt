@@ -1,7 +1,6 @@
 ///|
 /// motif_clusterbuster demo - ClusterBuster clustered motif format.
 /// Inspired by Biopython Bio.motifs (clusterbuster support).
-
 fn main {
   println("=== motif_clusterbuster Demo: Clustered Motifs ===")
   println("")
@@ -14,7 +13,15 @@ fn main {
   let mut c = 0
   while c < clusters.length() {
     let cl = clusters[c]
-    println("  " + cl.name + " (score=" + cl.score.to_string() + ") has " + cl.motifs.length().to_string() + " motifs")
+    println(
+      "  " +
+      cl.name +
+      " (score=" +
+      cl.score.to_string() +
+      ") has " +
+      cl.motifs.length().to_string() +
+      " motifs",
+    )
     c = c + 1
   }
   println("")
@@ -27,10 +34,28 @@ fn main {
     let mut m = 0
     while m < cl.motifs.length() {
       let motif = cl.motifs[m]
-      println("  " + motif.name + " (" + motif.pfm.length().to_string() + " positions)")
+      println(
+        "  " +
+        motif.name +
+        " (" +
+        motif.pfm.length().to_string() +
+        " positions)",
+      )
       let mut p = 0
       while p < motif.pfm.length() {
-        println("    pos " + p.to_string() + ": [" + motif.pfm[p][0].to_string() + " " + motif.pfm[p][1].to_string() + " " + motif.pfm[p][2].to_string() + " " + motif.pfm[p][3].to_string() + "]")
+        println(
+          "    pos " +
+          p.to_string() +
+          ": [" +
+          motif.pfm[p][0].to_string() +
+          " " +
+          motif.pfm[p][1].to_string() +
+          " " +
+          motif.pfm[p][2].to_string() +
+          " " +
+          motif.pfm[p][3].to_string() +
+          "]",
+        )
         p = p + 1
       }
       m = m + 1

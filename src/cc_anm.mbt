@@ -19,17 +19,17 @@
 ///|
 /// Symmetry operation in fractional coordinates: x' = R·x + t.
 pub(all) struct SymmetryOp {
-  rot : Array[Array[Double]]  // 3×3 rotation in fractional coords
-  trans : Array[Double]       // 3D translation in fractional coords
+  rot : Array[Array[Double]] // 3×3 rotation in fractional coords
+  trans : Array[Double] // 3D translation in fractional coords
 }
 
 ///|
 /// Crystal unit cell + space-group symmetry operations.
 pub(all) struct CrystalInfo {
-  a : Double           // unit cell length (Å)
+  a : Double // unit cell length (Å)
   b : Double
   c : Double
-  alpha : Double       // unit cell angle (degrees)
+  alpha : Double // unit cell angle (degrees)
   beta : Double
   gamma : Double
   sym_ops : Array[SymmetryOp]
@@ -37,7 +37,7 @@ pub(all) struct CrystalInfo {
 
 ///|
 pub struct CcANM {
-  n : Int
+  n : Int32
   cutoff : Double
   gamma : Double
   hessian : Array[Array[Double]]
@@ -70,7 +70,8 @@ fn build_orthogonal_matrix(
   let m13 = c * cb
   let m22 = b * sg
   let m23 = c * (ca - cb * cg) / sg
-  let m33 = c * ((1.0 - cb * cb - (ca - cb * cg) * (ca - cb * cg) / (sg * sg)).sqrt())
+  let m33 = c *
+    (1.0 - cb * cb - (ca - cb * cg) * (ca - cb * cg) / (sg * sg)).sqrt()
   let m : Array[Array[Double]] = [
     [m11, m12, m13],
     [0.0, m22, m23],
@@ -127,9 +128,9 @@ fn apply_symmetry(
 pub fn CcANM::new(
   chain : Chain,
   crystal : CrystalInfo,
-  cutoff? : Double = 15.0,
-  gamma? : Double = 1.0,
-  ncell? : Int = 2,
+  cutoff~ : Double = 15.0,
+  gamma~ : Double = 1.0,
+  ncell~ : Int32 = 2,
 ) -> CcANM? {
   let residues = chain.get_residues()
   let ca_coords : Array[Vector3] = Array(capacity=0)
@@ -144,7 +145,7 @@ pub fn CcANM::new(
     return None
   }
   let dim = 3 * n
-  let h : Array[Array[Double]] = Array::makei(dim, { _ => Array::make(dim, 0.0) })
+  let h : Array[Array[Double]] = Array::makei(dim, _ => Array::make(dim, 0.0))
 
   // Step 1: Standard intra-chain ANM Hessian
   let mut i = 0
@@ -167,8 +168,12 @@ pub fn CcANM::new(
 
   // Step 2: Crystal contact contributions
   let (m, m_inv) = build_orthogonal_matrix(
-    crystal.a, crystal.b, crystal.c,
-    crystal.alpha, crystal.beta, crystal.gamma,
+    crystal.a,
+    crystal.b,
+    crystal.c,
+    crystal.alpha,
+    crystal.beta,
+    crystal.gamma,
   )
   for sym_idx = 0; sym_idx < crystal.sym_ops.length(); sym_idx = sym_idx + 1 {
     let op = crystal.sym_ops[sym_idx]
@@ -178,9 +183,15 @@ pub fn CcANM::new(
         for nc = -ncell; nc <= ncell; nc = nc + 1 {
           // Skip identity (na=0, nb=0, nc=0, sym=identity) handled by step 1
           // For non-identity symmetry ops with zero translation, we skip the identity check
-          let is_identity = (op.rot[0][0] == 1.0 && op.rot[1][1] == 1.0 && op.rot[2][2] == 1.0 &&
-            op.trans[0] == 0.0 && op.trans[1] == 0.0 && op.trans[2] == 0.0 &&
-            na == 0 && nb == 0 && nc == 0)
+          let is_identity = op.rot[0][0] == 1.0 &&
+            op.rot[1][1] == 1.0 &&
+            op.rot[2][2] == 1.0 &&
+            op.trans[0] == 0.0 &&
+            op.trans[1] == 0.0 &&
+            op.trans[2] == 0.0 &&
+            na == 0 &&
+            nb == 0 &&
+            nc == 0
           if is_identity {
             continue
           }
@@ -188,8 +199,13 @@ pub fn CcANM::new(
           // Then check contacts with all original atoms i
           for k = 0; k < n; k = k + 1 {
             let (sx, sy, sz) = apply_symmetry(
-              ca_coords[k].x, ca_coords[k].y, ca_coords[k].z,
-              op.rot, op.trans, m, m_inv,
+              ca_coords[k].x,
+              ca_coords[k].y,
+              ca_coords[k].z,
+              op.rot,
+              op.trans,
+              m,
+              m_inv,
             )
             // Add unit cell translation
             let na_d = na.to_double()
@@ -220,7 +236,7 @@ pub fn CcANM::new(
 
   let max_iter = if dim > 100 { dim * 20 } else { 200 }
   let (eigenvalues, eigenvectors) = linalg_jacobi(h, dim, max_iter)
-  Some(CcANM::{ n, cutoff, gamma, hessian: h, eigenvalues, eigenvectors })
+  Some(CcANM::{ n, cutoff, gamma, hessian: h, eigenvalues, eigenvectors, })
 }
 
 ///|
@@ -228,9 +244,9 @@ pub fn CcANM::new(
 /// H_ij -= g * [dx*dx ...], H_ii +=, H_jj +=
 fn add_hessian_contact(
   h : Array[Array[Double]],
-  i : Int,
-  j : Int,
-  _n : Int,
+  i : Int32,
+  j : Int32,
+  _n : Int32,
   g : Double,
   dx : Double,
   dy : Double,
@@ -324,7 +340,7 @@ pub fn CcANM::predict_bfactors(self : CcANM) -> Array[Double] {
   let n = self.n
   let dim = 3 * n
   let bfactors = Array::make(n, 0.0)
-  let indices = Array::makei(dim, { i => i })
+  let indices = Array::makei(dim, i => i)
   for i = 1; i < dim; i = i + 1 {
     let key = indices[i]
     let key_val = self.eigenvalues[key]
@@ -365,11 +381,11 @@ pub fn CcANM::fluctuations(self : CcANM) -> Array[Double] {
 /// Get the k slowest non-trivial modes (skip 6 zero modes).
 pub fn CcANM::slow_modes(
   self : CcANM,
-  k : Int,
-) -> Array[(Int, Double, Array[Double])] {
+  k : Int32,
+) -> Array[(Int32, Double, Array[Double])] {
   let n = self.n
   let dim = 3 * n
-  let indices = Array::makei(dim, { i => i })
+  let indices = Array::makei(dim, i => i)
   for i = 1; i < dim; i = i + 1 {
     let key = indices[i]
     let key_val = self.eigenvalues[key]
@@ -380,7 +396,7 @@ pub fn CcANM::slow_modes(
     }
     indices[j + 1] = key
   }
-  let result : Array[(Int, Double, Array[Double])] = Array(capacity=0)
+  let result : Array[(Int32, Double, Array[Double])] = Array(capacity=0)
   let count = if k < dim - 6 { k } else { dim - 6 }
   for m = 6; m < 6 + count; m = m + 1 {
     let idx = indices[m]
@@ -399,8 +415,8 @@ pub fn CcANM::slow_modes(
 pub fn CcANM::cross_correlation(self : CcANM) -> Array[Array[Double]] {
   let n = self.n
   let dim = 3 * n
-  let corr : Array[Array[Double]] = Array::makei(n, { _ => Array::make(n, 0.0) })
-  let indices = Array::makei(dim, { i => i })
+  let corr : Array[Array[Double]] = Array::makei(n, _ => Array::make(n, 0.0))
+  let indices = Array::makei(dim, i => i)
   for i = 1; i < dim; i = i + 1 {
     let key = indices[i]
     let key_val = self.eigenvalues[key]
@@ -444,7 +460,7 @@ pub fn CcANM::cross_correlation(self : CcANM) -> Array[Array[Double]] {
 
 ///|
 /// Number of nodes.
-pub fn CcANM::num_nodes(self : CcANM) -> Int {
+pub fn CcANM::num_nodes(self : CcANM) -> Int32 {
   self.n
 }
 

@@ -13,18 +13,18 @@
 
 ///|
 
+///|
 /// A labeled training sample with an n-dimensional feature vector.
 pub struct KnnSample {
   features : Array[Double]
   label : String
 } derive(Eq)
+
+///|
 pub extend KnnSample with Eq::{equal, not_equal}
 
 ///|
-pub fn KnnSample::new(
-  features~ : Array[Double],
-  label~ : String,
-) -> KnnSample {
+pub fn KnnSample::new(features~ : Array[Double], label~ : String) -> KnnSample {
   KnnSample::{ features, label, }
 }
 
@@ -34,6 +34,8 @@ pub struct KnnVote {
   label : String
   weight : Double
 } derive(Eq)
+
+///|
 pub extend KnnVote with Eq::{equal, not_equal}
 
 ///|
@@ -42,6 +44,8 @@ pub struct KnnClassification {
   label : String
   votes : Array[KnnVote]
 } derive(Eq)
+
+///|
 pub extend KnnClassification with Eq::{equal, not_equal}
 
 ///|
@@ -100,7 +104,7 @@ fn knn_exact_match_label(
   let winners : Array[String] = Array(capacity=0)
   for sample in train {
     if knn_distance(sample.features, query) == 0.0 {
-      if !(winners.contains(sample.label)) {
+      if !winners.contains(sample.label) {
         winners.push(sample.label)
       }
     }
@@ -120,7 +124,7 @@ fn knn_exact_match_label(
 /// mirroring `Bio.kNN.classify` internals.
 pub fn knn_classify_votes(
   train : Array[KnnSample],
-  k : Int,
+  k : Int32,
   query : Array[Double],
 ) -> Array[KnnVote] {
   let distances : Array[(Double, String)] = Array(capacity=0)
@@ -138,7 +142,7 @@ pub fn knn_classify_votes(
       // matching the reference "return immediately" semantics.
       continue
     }
-    if !(votes.contains(label)) {
+    if !votes.contains(label) {
       votes.set(label, 0.0)
       order.push(label)
     }
@@ -157,7 +161,7 @@ pub fn knn_classify_votes(
 /// winning label (the equivalent of `Bio.kNN.classify`).
 pub fn knn_classify(
   train : Array[KnnSample],
-  k : Int,
+  k : Int32,
   query : Array[Double],
 ) -> String {
   match knn_exact_match_label(train, query) {
@@ -176,19 +180,21 @@ pub fn knn_classify(
 /// Full classification result including the vote table.
 pub fn knn_classify_full(
   train : Array[KnnSample],
-  k : Int,
+  k : Int32,
   query : Array[Double],
 ) -> KnnClassification {
   match knn_exact_match_label(train, query) {
     Some(label) =>
-      return KnnClassification::new(label~, votes=[KnnVote::{ label, weight: 1.0, }])
+      return KnnClassification::new(label~, votes=[
+        KnnVote::{ label, weight: 1.0, },
+      ])
     None => ()
   }
   let votes = knn_classify_votes(train, k, query)
   if votes.is_empty() {
     KnnClassification::new(label="", votes=[])
   } else {
-    KnnClassification::new(label=votes[0].label, votes~, )
+    KnnClassification::new(label=votes[0].label, votes~)
   }
 }
 
@@ -196,7 +202,7 @@ pub fn knn_classify_full(
 /// Normalized vote probabilities (weights divided by their sum).
 pub fn knn_classify_probs(
   train : Array[KnnSample],
-  k : Int,
+  k : Int32,
   query : Array[Double],
 ) -> Array[KnnVote] {
   match knn_exact_match_label(train, query) {
@@ -216,7 +222,7 @@ pub fn knn_classify_probs(
 
 ///|
 /// Leave-one-out cross validation accuracy on the training set.
-pub fn knn_loo_accuracy(train : Array[KnnSample], k : Int) -> Double {
+pub fn knn_loo_accuracy(train : Array[KnnSample], k : Int32) -> Double {
   if train.is_empty() {
     return 0.0
   }
@@ -240,7 +246,7 @@ pub fn knn_loo_accuracy(train : Array[KnnSample], k : Int) -> Double {
 pub fn knn_labels(train : Array[KnnSample]) -> Array[String] {
   let labels : Array[String] = Array(capacity=0)
   for sample in train {
-    if !(labels.contains(sample.label)) {
+    if !labels.contains(sample.label) {
       labels.push(sample.label)
     }
   }
@@ -254,16 +260,16 @@ pub fn knn_labels(train : Array[KnnSample]) -> Array[String] {
 /// `labels[j]`.
 pub fn knn_confusion_matrix(
   train : Array[KnnSample],
-  k : Int,
-) -> (Array[String], Array[Array[Int]]) {
+  k : Int32,
+) -> (Array[String], Array[Array[Int32]]) {
   let labels = knn_labels(train)
-  let index : Map[String, Int] = Map([], capacity=labels.length())
+  let index : Map[String, Int32] = Map([], capacity=labels.length())
   for i in 0..<labels.length() {
     index.set(labels[i], i)
   }
-  let matrix : Array[Array[Int]] = Array(capacity=0)
+  let matrix : Array[Array[Int32]] = Array(capacity=0)
   for _i in 0..<labels.length() {
-    let row : Array[Int] = Array(capacity=0)
+    let row : Array[Int32] = Array(capacity=0)
     for _j in 0..<labels.length() {
       row.push(0)
     }
@@ -358,7 +364,7 @@ pub fn knn_normalize_samples(
 }
 
 ///|
-fn compare_double(a : Double, b : Double) -> Int {
+fn compare_double(a : Double, b : Double) -> Int32 {
   if a < b {
     -1
   } else if a > b {

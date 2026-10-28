@@ -4,7 +4,7 @@
 /// mirror implementing the SNPRelate formulas.
 
 ///|
-fn snp_test_dosages() -> Array[Array[Int]] {
+fn snp_test_dosages() -> Array[Array[Int32]] {
   [
     [0, 0, 2, 2], // SNP0, p=0.5
     [0, 1, 1, 2], // SNP1, p=0.5

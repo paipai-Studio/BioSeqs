@@ -10,7 +10,7 @@
 ///|
 pub struct AnnData {
   x : Array[Array[Double]]
-  x_sparse : SparseArray?            // sparse storage (when set, x is empty)
+  x_sparse : SparseArray? // sparse storage (when set, x is empty)
   obs : Map[String, Array[String]]
   variables : Map[String, Array[String]]
   layers : Map[String, Array[Array[Double]]]
@@ -49,49 +49,59 @@ pub fn AnnData::new(
 }
 
 ///|
-pub fn AnnData::n_obs(self : AnnData) -> Int {
+pub fn AnnData::n_obs(self : AnnData) -> Int32 {
   match self.x_sparse {
     Some(s) => {
       let dims = s.dim()
-      if dims.length() >= 1 { dims[0] } else { 0 }
+      if dims.length() >= 1 {
+        dims[0]
+      } else {
+        0
+      }
     }
     None => self.x.length()
   }
 }
 
 ///|
-pub fn AnnData::n_vars(self : AnnData) -> Int {
+pub fn AnnData::n_vars(self : AnnData) -> Int32 {
   match self.x_sparse {
     Some(s) => {
       let dims = s.dim()
-      if dims.length() >= 2 { dims[1] } else { 0 }
-    }
-    None => {
-      if self.x.length() == 0 {
-        0
+      if dims.length() >= 2 {
+        dims[1]
       } else {
-        self.x[0].length()
+        0
       }
     }
+    None => if self.x.length() == 0 { 0 } else { self.x[0].length() }
   }
 }
 
 ///|
 /// (n_obs, n_vars) shape, matching `AnnData.shape`.
-pub fn AnnData::shape(self : AnnData) -> (Int, Int) {
+pub fn AnnData::shape(self : AnnData) -> (Int32, Int32) {
   (self.n_obs(), self.n_vars())
 }
 
 ///|
 /// Set an observation (cell) annotation column. Returns `self` for chaining.
-pub fn AnnData::set_obs(self : AnnData, key : String, values : Array[String]) -> AnnData {
+pub fn AnnData::set_obs(
+  self : AnnData,
+  key : String,
+  values : Array[String],
+) -> AnnData {
   self.obs[key] = values
   self
 }
 
 ///|
 /// Set a variable (gene) annotation column. Returns `self` for chaining.
-pub fn AnnData::set_var(self : AnnData, key : String, values : Array[String]) -> AnnData {
+pub fn AnnData::set_var(
+  self : AnnData,
+  key : String,
+  values : Array[String],
+) -> AnnData {
   self.variables[key] = values
   self
 }
@@ -183,7 +193,7 @@ pub fn AnnData::var_column(self : AnnData, key : String) -> Array[String]? {
 }
 
 ///|
-fn pick_strs(a : Array[String], idx : Array[Int]) -> Array[String] {
+fn pick_strs(a : Array[String], idx : Array[Int32]) -> Array[String] {
   let out : Array[String] = Array(capacity=0)
   for i in idx {
     if i < a.length() {
@@ -196,7 +206,10 @@ fn pick_strs(a : Array[String], idx : Array[Int]) -> Array[String] {
 }
 
 ///|
-fn pick_rows(mat : Array[Array[Double]], idx : Array[Int]) -> Array[Array[Double]] {
+fn pick_rows(
+  mat : Array[Array[Double]],
+  idx : Array[Int32],
+) -> Array[Array[Double]] {
   let out : Array[Array[Double]] = Array(capacity=0)
   for i in idx {
     if i < mat.length() {
@@ -211,8 +224,8 @@ fn pick_rows(mat : Array[Array[Double]], idx : Array[Int]) -> Array[Array[Double
 ///|
 fn pick_rc(
   mat : Array[Array[Double]],
-  r_idx : Array[Int],
-  c_idx : Array[Int],
+  r_idx : Array[Int32],
+  c_idx : Array[Int32],
 ) -> Array[Array[Double]] {
   let out : Array[Array[Double]] = Array(capacity=0)
   for r in r_idx {
@@ -234,7 +247,7 @@ fn pick_rc(
 ///|
 fn pick_str_map_rows(
   m : Map[String, Array[String]],
-  idx : Array[Int],
+  idx : Array[Int32],
 ) -> Map[String, Array[String]] {
   let keys = m.keys().collect()
   let out : Map[String, Array[String]] = Map([], capacity=keys.length())
@@ -247,7 +260,7 @@ fn pick_str_map_rows(
 ///|
 fn pick_rows_map(
   m : Map[String, Array[Array[Double]]],
-  idx : Array[Int],
+  idx : Array[Int32],
 ) -> Map[String, Array[Array[Double]]] {
   let keys = m.keys().collect()
   let out : Map[String, Array[Array[Double]]] = Map([], capacity=keys.length())
@@ -260,8 +273,8 @@ fn pick_rows_map(
 ///|
 fn pick_rc_map(
   m : Map[String, Array[Array[Double]]],
-  r_idx : Array[Int],
-  c_idx : Array[Int],
+  r_idx : Array[Int32],
+  c_idx : Array[Int32],
 ) -> Map[String, Array[Array[Double]]] {
   let keys = m.keys().collect()
   let out : Map[String, Array[Array[Double]]] = Map([], capacity=keys.length())
@@ -274,7 +287,7 @@ fn pick_rc_map(
 ///|
 fn pick_square_map(
   m : Map[String, Array[Array[Double]]],
-  idx : Array[Int],
+  idx : Array[Int32],
 ) -> Map[String, Array[Array[Double]]] {
   let keys = m.keys().collect()
   let out : Map[String, Array[Array[Double]]] = Map([], capacity=keys.length())
@@ -291,13 +304,11 @@ fn pick_square_map(
 /// `var_names` reindexed. `uns` is carried over unchanged.
 pub fn AnnData::subset(
   self : AnnData,
-  obs_idx : Array[Int],
-  var_idx : Array[Int],
+  obs_idx : Array[Int32],
+  var_idx : Array[Int32],
 ) -> AnnData {
   let x_sparse_new = match self.x_sparse {
-    Some(s) => {
-      Some(s.subset([obs_idx, var_idx]) catch { _ => s })
-    }
+    Some(s) => Some(s.subset([obs_idx, var_idx]) catch { _ => s })
     None => None
   }
   AnnData::{
@@ -330,7 +341,9 @@ fn copy_str_map(m : Map[String, Array[String]]) -> Map[String, Array[String]] {
 }
 
 ///|
-fn copy_mat_map(m : Map[String, Array[Array[Double]]]) -> Map[String, Array[Array[Double]]] {
+fn copy_mat_map(
+  m : Map[String, Array[Array[Double]]],
+) -> Map[String, Array[Array[Double]]] {
   let keys = m.keys().collect()
   let out : Map[String, Array[Array[Double]]] = Map([], capacity=keys.length())
   for k in keys {
@@ -360,10 +373,11 @@ pub fn AnnData::copy(self : AnnData) -> AnnData {
     uns: copy_uns_map(self.uns),
   }
 }
+
 ///|
 /// Indices `0..n-1`.
-fn range(n : Int) -> Array[Int] {
-  let out : Array[Int] = Array(capacity=0)
+fn range(n : Int32) -> Array[Int32] {
+  let out : Array[Int32] = Array(capacity=0)
   let mut i = 0
   while i < n {
     out.push(i)
@@ -387,9 +401,7 @@ fn copy_uns_map(m : Map[String, JsonValue]) -> Map[String, JsonValue] {
 /// If sparse storage is used, materializes the dense matrix on demand.
 pub fn AnnData::x_matrix(self : AnnData) -> Array[Array[Double]] {
   match self.x_sparse {
-    Some(s) => {
-      s.to_dense_matrix() catch { _ => [] }
-    }
+    Some(s) => s.to_dense_matrix() catch { _ => [] }
     None => self.x
   }
 }
@@ -417,7 +429,10 @@ pub fn AnnData::get_uns(self : AnnData, key : String) -> JsonValue? {
 
 ///|
 /// Layer matrix, or `None` if absent.
-pub fn AnnData::get_layer(self : AnnData, name : String) -> Array[Array[Double]]? {
+pub fn AnnData::get_layer(
+  self : AnnData,
+  name : String,
+) -> Array[Array[Double]]? {
   match self.layers.get(name) {
     Some(v) => Some(v)
     None => None
@@ -426,7 +441,10 @@ pub fn AnnData::get_layer(self : AnnData, name : String) -> Array[Array[Double]]
 
 ///|
 /// Cell embedding matrix, or `None` if absent.
-pub fn AnnData::get_obsm(self : AnnData, name : String) -> Array[Array[Double]]? {
+pub fn AnnData::get_obsm(
+  self : AnnData,
+  name : String,
+) -> Array[Array[Double]]? {
   match self.obsm.get(name) {
     Some(v) => Some(v)
     None => None
@@ -435,13 +453,15 @@ pub fn AnnData::get_obsm(self : AnnData, name : String) -> Array[Array[Double]]?
 
 ///|
 /// Gene embedding matrix, or `None` if absent.
-pub fn AnnData::get_varm(self : AnnData, name : String) -> Array[Array[Double]]? {
+pub fn AnnData::get_varm(
+  self : AnnData,
+  name : String,
+) -> Array[Array[Double]]? {
   match self.varm.get(name) {
     Some(v) => Some(v)
     None => None
   }
 }
-
 
 // ============================================================================
 // Sparse storage support (P3 optimization)
@@ -494,7 +514,7 @@ pub fn AnnData::get_sparse(self : AnnData) -> SparseArray? {
 ///|
 /// Number of non-zero entries in the expression matrix.
 /// For dense storage, counts non-zero elements in `x`.
-pub fn AnnData::nnz(self : AnnData) -> Int {
+pub fn AnnData::nnz(self : AnnData) -> Int32 {
   match self.x_sparse {
     Some(s) => s.nnzero()
     None => {
@@ -649,16 +669,15 @@ pub fn AnnData::to_dense(self : AnnData) -> AnnData {
 ///|
 /// Get a single element `x[i, j]` from the expression matrix.
 /// Works for both sparse and dense storage.
-pub fn AnnData::get_x(self : AnnData, i : Int, j : Int) -> Double {
+pub fn AnnData::get_x(self : AnnData, i : Int32, j : Int32) -> Double {
   match self.x_sparse {
     Some(s) => s.get([i, j]) catch { _ => 0.0 }
-    None => {
+    None =>
       if i < self.x.length() && j < self.x[i].length() {
         self.x[i][j]
       } else {
         0.0
       }
-    }
   }
 }
 

@@ -41,6 +41,7 @@ fn lca_species_tree4b() -> @src.Clade {
   ])
 }
 
+///|
 test "lca: extract species with separator" {
   assert_eq(@src.phylo_extract_species("Human_001", "_"), "Human")
   assert_eq(@src.phylo_extract_species("Mouse_gene1", "_"), "Mouse")

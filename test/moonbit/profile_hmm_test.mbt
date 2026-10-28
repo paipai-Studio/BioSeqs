@@ -13,13 +13,12 @@ fn prof_test_msa() -> Array[String] {
   // A clean, valid alignment: 4 same-length sequences with two point
   // mutations relative to the consensus "ACGTACGTACGT".
   [
-    "ACGTACGTACGT",
-    "ACGTACGTACGT",
-    "TCGTACGTACGT", // T at position 1 instead of A
-    "ACGTACGTACGA", // A at position 12 instead of T
+    "ACGTACGTACGT", "ACGTACGTACGT", "TCGTACGTACGT", // T at position 1 instead of A
+     "ACGTACGTACGA", // A at position 12 instead of T
   ]
 }
 
+///|
 fn prof_dna() -> Array[String] {
   @src.profile_dna_alphabet()
 }
@@ -28,6 +27,7 @@ fn prof_dna() -> Array[String] {
 // Construction tests
 // ============================================================
 
+///|
 test "build_profile_hmm_basic" {
   let msa = prof_test_msa()
   let profile = @src.build_profile_hmm(msa, prof_dna())
@@ -36,6 +36,7 @@ test "build_profile_hmm_basic" {
   assert_true(profile.length() > 0)
 }
 
+///|
 test "build_profile_hmm_match_emission_sums_to_one" {
   let msa = prof_test_msa()
   let profile = @src.build_profile_hmm(msa, prof_dna())
@@ -52,6 +53,7 @@ test "build_profile_hmm_match_emission_sums_to_one" {
   }
 }
 
+///|
 test "build_profile_hmm_consensus_scores_highest" {
   // The consensus sequence (matching most columns) should score higher than
   // unrelated or heavily-mutated sequences.
@@ -70,6 +72,7 @@ test "build_profile_hmm_consensus_scores_highest" {
   assert_true(s_consensus > s_random)
 }
 
+///|
 test "profile_forward_score_identical_non_negative" {
   let msa = prof_test_msa()
   let profile = @src.build_profile_hmm(msa, prof_dna())
@@ -82,6 +85,7 @@ test "profile_forward_score_identical_non_negative" {
 // Viterbi tests
 // ============================================================
 
+///|
 test "profile_viterbi_returns_alignment" {
   let msa = prof_test_msa()
   let profile = @src.build_profile_hmm(msa, prof_dna())
@@ -102,6 +106,7 @@ test "profile_viterbi_returns_alignment" {
   assert_true(p.contains("M") || p.contains("I") || p.contains("D"))
 }
 
+///|
 test "profile_viterbi_score_consistency" {
   // Viterbi score should be <= forward score (Viterbi is the single best path,
   // forward sums over all paths).
@@ -116,6 +121,7 @@ test "profile_viterbi_score_consistency" {
 // Search / ranking tests
 // ============================================================
 
+///|
 test "hmmer_search_ranks_consensus_first" {
   let msa = prof_test_msa()
   let profile = @src.build_profile_hmm(msa, prof_dna())
@@ -130,6 +136,7 @@ test "hmmer_search_ranks_consensus_first" {
   assert_true(hits[1].score >= hits[2].score)
 }
 
+///|
 test "hmmer_search_evalue_small_for_best" {
   let msa = prof_test_msa()
   let profile = @src.build_profile_hmm(msa, prof_dna())
@@ -140,6 +147,7 @@ test "hmmer_search_evalue_small_for_best" {
   assert_true(hits[0].evalue < hits[1].evalue)
 }
 
+///|
 test "hmmer_search_empty_input" {
   let msa = prof_test_msa()
   let profile = @src.build_profile_hmm(msa, prof_dna())
@@ -151,6 +159,7 @@ test "hmmer_search_empty_input" {
 // Background model test
 // ============================================================
 
+///|
 test "profile_aa_alphabet_length" {
   let aa = @src.profile_aa_alphabet()
   assert_eq(aa.length(), 20)
@@ -162,6 +171,7 @@ test "profile_aa_alphabet_length" {
 // Insert / delete handling: single-column MSA edge cases
 // ============================================================
 
+///|
 test "build_profile_hmm_single_column" {
   // A single conserved column.
   let msa = ["A", "A", "A"]
@@ -174,15 +184,11 @@ test "build_profile_hmm_single_column" {
   assert_true(sA > sT)
 }
 
+///|
 test "build_profile_hmm_insert_column_detection" {
   // A column that is mostly gaps should be classified as an insert column.
   // 4 sequences, one column has only 1 residue (gap fraction 3/4 = 0.75 > 0.5).
-  let msa = [
-    "AC-A",
-    "AC-A",
-    "ACTA",
-    "AC-A",
-  ]
+  let msa = ["AC-A", "AC-A", "ACTA", "AC-A"]
   let profile = @src.build_profile_hmm(msa, prof_dna())
   // Only 3 columns are match columns (the 3rd is insert)
   assert_eq(profile.length(), 3)

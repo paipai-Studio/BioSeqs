@@ -11,31 +11,33 @@ pub suberror MastAdvancedError {
 
 ///|
 pub struct MastAdvancedConfig {
-  max_iterations : Int
+  max_iterations : Int32
   tolerance : Double
   cauchy_prior_scale : Double
   ridge : Double
   empirical_bayes : Bool
   ebayes_use_full_model : Bool
   maximum_prior_df : Double
-  minimum_detected : Int
+  minimum_detected : Int32
   minimum_probability : Double
   fdr_threshold : Double
 } derive(Debug)
+
+///|
 pub extend MastAdvancedConfig with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub fn MastAdvancedConfig::create(
-  max_iterations? : Int = 100,
-  tolerance? : Double = 1.0e-8,
-  cauchy_prior_scale? : Double = 2.5,
-  ridge? : Double = 1.0e-8,
-  empirical_bayes? : Bool = true,
-  ebayes_use_full_model? : Bool = false,
-  maximum_prior_df? : Double = 1000.0,
-  minimum_detected? : Int = 2,
-  minimum_probability? : Double = 1.0e-9,
-  fdr_threshold? : Double = 0.05,
+  max_iterations~ : Int32 = 100,
+  tolerance~ : Double = 1.0e-8,
+  cauchy_prior_scale~ : Double = 2.5,
+  ridge~ : Double = 1.0e-8,
+  empirical_bayes~ : Bool = true,
+  ebayes_use_full_model~ : Bool = false,
+  maximum_prior_df~ : Double = 1000.0,
+  minimum_detected~ : Int32 = 2,
+  minimum_probability~ : Double = 1.0e-9,
+  fdr_threshold~ : Double = 0.05,
 ) -> MastAdvancedConfig raise MastAdvancedError {
   if max_iterations < 1 {
     raise MastAdvancedError("max_iterations must be positive")
@@ -100,20 +102,22 @@ pub struct MastAdvancedData {
   coefficient_names : Array[String]
   cdr : Array[Double]
   detection_limit : Double
-  n_genes : Int
-  n_cells : Int
-  n_coefficients : Int
+  n_genes : Int32
+  n_cells : Int32
+  n_coefficients : Int32
 } derive(Debug)
+
+///|
 pub extend MastAdvancedData with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct MastAdvancedResult {
   gene_names : Array[String]
   coefficient_names : Array[String]
-  tested_coefficients : Array[Int]
+  tested_coefficients : Array[Int32]
   tested_names : Array[String]
   detection_rates : Array[Double]
-  n_detected : Array[Int]
+  n_detected : Array[Int32]
   discrete_coefficients : Array[Array[Double]]
   continuous_coefficients : Array[Array[Double]]
   discrete_standard_errors : Array[Array[Double]]
@@ -138,6 +142,8 @@ pub struct MastAdvancedResult {
   empirical_bayes : Bool
   fdr_threshold : Double
 } derive(Debug)
+
+///|
 pub extend MastAdvancedResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -151,7 +157,7 @@ priv struct MastAdvCoreFit {
   coefficients : Array[Double]
   covariance : Array[Array[Double]]
   log_likelihood : Double
-  residual_df : Int
+  residual_df : Int32
   raw_variance : Double
   moderated_variance : Double
   converged : Bool
@@ -159,7 +165,7 @@ priv struct MastAdvCoreFit {
 }
 
 ///|
-fn mast_adv_zero_matrix(rows : Int, columns : Int) -> Array[Array[Double]] {
+fn mast_adv_zero_matrix(rows : Int32, columns : Int32) -> Array[Array[Double]] {
   let output : Array[Array[Double]] = []
   for _ in 0..<rows {
     output.push(Array::make(columns, 0.0))
@@ -191,7 +197,7 @@ fn mast_adv_copy_string_map(
 ///|
 fn mast_adv_prepare_names(
   supplied : Array[String],
-  length : Int,
+  length : Int32,
   prefix : String,
 ) -> Array[String] raise MastAdvancedError {
   if supplied.length() != 0 && supplied.length() != length {
@@ -218,7 +224,7 @@ fn mast_adv_prepare_names(
 ///|
 fn mast_adv_validate_expression(
   expression : Array[Array[Double]],
-) -> (Int, Int) raise MastAdvancedError {
+) -> (Int32, Int32) raise MastAdvancedError {
   if expression.length() == 0 {
     raise MastAdvancedError("expression must contain at least one gene")
   }
@@ -242,7 +248,7 @@ fn mast_adv_validate_expression(
 }
 
 ///|
-fn mast_adv_matrix_rank(matrix : Array[Array[Double]]) -> Int {
+fn mast_adv_matrix_rank(matrix : Array[Array[Double]]) -> Int32 {
   if matrix.length() == 0 || matrix[0].length() == 0 {
     return 0
   }
@@ -312,11 +318,11 @@ pub fn MastAdvancedData::create(
   expression : Array[Array[Double]],
   design : Array[Array[Double]],
   coefficient_names : Array[String],
-  gene_names? : Array[String] = [],
-  cell_names? : Array[String] = [],
-  detection_limit? : Double = 0.0,
-  include_cdr? : Bool = true,
-  cdr_name? : String = "cngeneson",
+  gene_names~ : Array[String] = [],
+  cell_names~ : Array[String] = [],
+  detection_limit~ : Double = 0.0,
+  include_cdr~ : Bool = true,
+  cdr_name~ : String = "cngeneson",
 ) -> MastAdvancedData raise MastAdvancedError {
   let (genes, cells) = mast_adv_validate_expression(expression)
   if !is_finite(detection_limit) || detection_limit < 0.0 {
@@ -385,11 +391,11 @@ pub fn MastAdvancedData::create(
 pub fn mast_advanced_from_groups(
   expression : Array[Array[Double]],
   groups : Array[String],
-  reference? : String = "",
-  gene_names? : Array[String] = [],
-  cell_names? : Array[String] = [],
-  detection_limit? : Double = 0.0,
-  include_cdr? : Bool = true,
+  reference~ : String = "",
+  gene_names~ : Array[String] = [],
+  cell_names~ : Array[String] = [],
+  detection_limit~ : Double = 0.0,
+  include_cdr~ : Bool = true,
 ) -> MastAdvancedData raise MastAdvancedError {
   let (_, cells) = mast_adv_validate_expression(expression)
   if groups.length() != cells {
@@ -983,7 +989,7 @@ fn mast_adv_estimate_ebayes(
 ///|
 fn mast_adv_select_columns(
   design : Array[Array[Double]],
-  keep : Array[Int],
+  keep : Array[Int32],
 ) -> Array[Array[Double]] {
   let output : Array[Array[Double]] = []
   for row in design {
@@ -1061,7 +1067,7 @@ fn mast_adv_upper_gamma_q(a : Double, x : Double) -> Double {
 
 ///|
 fn mast_adv_bh(values : Array[Double?]) -> Array[Double?] {
-  let indices : Array[Int] = []
+  let indices : Array[Int32] = []
   for index in 0..<values.length() {
     if values[index] is Some(_) {
       indices.push(index)
@@ -1111,7 +1117,7 @@ fn mast_adv_standard_errors(covariance : Array[Array[Double]]) -> Array[Double] 
 fn mast_adv_marginal_effect(
   discrete : MastAdvCoreFit,
   continuous : MastAdvCoreFit,
-  tested : Int,
+  tested : Int32,
 ) -> (Double, Double)? {
   if !discrete.fitted ||
     !continuous.fitted ||
@@ -1157,8 +1163,8 @@ fn mast_adv_marginal_effect(
 ///|
 pub fn mast_advanced_zlm(
   data : MastAdvancedData,
-  tested_coefficients : Array[Int],
-  config? : MastAdvancedConfig = MastAdvancedConfig::default(),
+  tested_coefficients : Array[Int32],
+  config~ : MastAdvancedConfig = MastAdvancedConfig::default(),
 ) -> MastAdvancedResult raise MastAdvancedError {
   if tested_coefficients.length() == 0 {
     raise MastAdvancedError("tested_coefficients cannot be empty")
@@ -1176,7 +1182,7 @@ pub fn mast_advanced_zlm(
       }
     }
   }
-  let kept : Array[Int] = []
+  let kept : Array[Int32] = []
   for coefficient in 0..<data.n_coefficients {
     if !tested.contains(coefficient) {
       kept.push(coefficient)
@@ -1341,7 +1347,7 @@ pub fn mast_advanced_zlm(
 pub fn MastAdvancedResult::index_of(
   self : MastAdvancedResult,
   gene_name : String,
-) -> Int? {
+) -> Int32? {
   for index in 0..<self.gene_names.length() {
     if self.gene_names[index] == gene_name {
       return Some(index)
@@ -1351,7 +1357,7 @@ pub fn MastAdvancedResult::index_of(
 }
 
 ///|
-pub fn MastAdvancedResult::n_tested(self : MastAdvancedResult) -> Int {
+pub fn MastAdvancedResult::n_tested(self : MastAdvancedResult) -> Int32 {
   let mut count = 0
   for value in self.hurdle_p_values {
     if value is Some(_) {
@@ -1364,8 +1370,8 @@ pub fn MastAdvancedResult::n_tested(self : MastAdvancedResult) -> Int {
 ///|
 pub fn MastAdvancedResult::n_significant(
   self : MastAdvancedResult,
-  threshold? : Double = -1.0,
-) -> Int {
+  threshold~ : Double = -1.0,
+) -> Int32 {
   let selected = if threshold < 0.0 { self.fdr_threshold } else { threshold }
   let mut count = 0
   for value in self.hurdle_fdr {
@@ -1380,7 +1386,7 @@ pub fn MastAdvancedResult::n_significant(
 ///|
 pub fn MastAdvancedResult::significant_genes(
   self : MastAdvancedResult,
-  threshold? : Double = -1.0,
+  threshold~ : Double = -1.0,
 ) -> Array[String] {
   let selected = if threshold < 0.0 { self.fdr_threshold } else { threshold }
   let output : Array[String] = []
@@ -1399,12 +1405,12 @@ pub fn MastAdvancedResult::significant_genes(
 ///|
 pub fn MastAdvancedResult::top_genes(
   self : MastAdvancedResult,
-  number : Int,
+  number : Int32,
 ) -> Array[String] {
   if number <= 0 {
     return []
   }
-  let indices : Array[Int] = []
+  let indices : Array[Int32] = []
   for index in 0..<self.gene_names.length() {
     if self.hurdle_p_values[index] is Some(_) {
       indices.push(index)
@@ -1496,12 +1502,12 @@ fn mast_adv_copy_sce(experiment : SingleCellExperiment) -> SingleCellExperiment 
 pub fn mast_advanced_zlm_sce(
   experiment : SingleCellExperiment,
   group_column : String,
-  assay_name? : String = "logcounts",
-  reference? : String = "",
-  output_prefix? : String = "mast",
-  detection_limit? : Double = 0.0,
-  include_cdr? : Bool = true,
-  config? : MastAdvancedConfig = MastAdvancedConfig::default(),
+  assay_name~ : String = "logcounts",
+  reference~ : String = "",
+  output_prefix~ : String = "mast",
+  detection_limit~ : Double = 0.0,
+  include_cdr~ : Bool = true,
+  config~ : MastAdvancedConfig = MastAdvancedConfig::default(),
 ) -> MastAdvancedSCEOutput raise MastAdvancedError {
   if output_prefix.trim().length() == 0 {
     raise MastAdvancedError("output_prefix cannot be empty")
@@ -1524,7 +1530,7 @@ pub fn mast_advanced_zlm_sce(
     detection_limit~,
     include_cdr~,
   )
-  let tested : Array[Int] = []
+  let tested : Array[Int32] = []
   let upper = if include_cdr {
     data.n_coefficients - 1
   } else {
@@ -1592,7 +1598,7 @@ pub fn mast_advanced_zlm_sce(
 }
 
 ///|
-pub fn mast_advanced_example() -> (MastAdvancedData, Array[Int]) raise MastAdvancedError {
+pub fn mast_advanced_example() -> (MastAdvancedData, Array[Int32]) raise MastAdvancedError {
   let genes = 8
   let cells = 48
   let expression = mast_adv_zero_matrix(genes, cells)

@@ -1,6 +1,5 @@
 ///|
 /// Tests for ic_rebuild module (Bio.PDB.ic_rebuild - NeRF algorithm).
-
 test "ic_point_distance" {
   let a = @src.IcPoint::new(0.0, 0.0, 0.0)
   let b = @src.IcPoint::new(3.0, 4.0, 0.0)
@@ -8,6 +7,7 @@ test "ic_point_distance" {
   assert_true((d - 5.0).abs() < 1.0e-9)
 }
 
+///|
 test "ic_point_cross" {
   let a = @src.IcPoint::new(1.0, 0.0, 0.0)
   let b = @src.IcPoint::new(0.0, 1.0, 0.0)
@@ -18,6 +18,7 @@ test "ic_point_cross" {
   assert_true(c.y.abs() < 1.0e-9)
 }
 
+///|
 test "ic_point_normalize" {
   let a = @src.IcPoint::new(3.0, 0.0, 0.0)
   let n = @src.ic_point_normalize(a)
@@ -26,6 +27,7 @@ test "ic_point_normalize" {
   assert_true(n.z.abs() < 1.0e-9)
 }
 
+///|
 test "ic_nerf collinear" {
   // Non-collinear reference: A=(0,0,0), B=(1,0,0), C=(2,1,0)
   // bond_length=1, bond_angle=pi (180°, collinear), dihedral=0
@@ -39,6 +41,7 @@ test "ic_nerf collinear" {
   assert_true((dist - 1.0).abs() < 1.0e-6)
 }
 
+///|
 test "ic_nerf right_angle" {
   // Non-collinear reference: A=(0,0,0), B=(1,0,0), C=(1,1,0)
   // bond_length=1, bond_angle=pi/2 (90°), dihedral=0
@@ -51,7 +54,7 @@ test "ic_nerf right_angle" {
   assert_true((dist - 1.0).abs() < 1.0e-6)
 }
 
-
+///|
 test "ic_compute_bond_length" {
   let a = @src.IcPoint::new(0.0, 0.0, 0.0)
   let b = @src.IcPoint::new(0.0, 0.0, 1.5)
@@ -59,6 +62,7 @@ test "ic_compute_bond_length" {
   assert_true((bl - 1.5).abs() < 1.0e-9)
 }
 
+///|
 test "ic_compute_bond_angle" {
   // a=(0,0,0), b=(1,0,0), c=(1,1,0): angle at b = 90°
   let a = @src.IcPoint::new(0.0, 0.0, 0.0)
@@ -69,6 +73,7 @@ test "ic_compute_bond_angle" {
   assert_true((ba - pi_half).abs() < 1.0e-6)
 }
 
+///|
 test "ic_compute_dihedral planar" {
   // Four atoms in a zigzag planar arrangement
   let a = @src.IcPoint::new(0.0, 0.0, 0.0)
@@ -80,6 +85,7 @@ test "ic_compute_dihedral planar" {
   assert_true(dh.abs() < 1.0e-6 || (dh.abs() - 3.14159265358979).abs() < 1.0e-6)
 }
 
+///|
 test "ic_compute_dihedral perpendicular" {
   // a=(0,0,0), b=(1,0,0), c=(1,1,0), d=(1,1,1): dihedral = 90°
   let a = @src.IcPoint::new(0.0, 0.0, 0.0)
@@ -91,18 +97,25 @@ test "ic_compute_dihedral perpendicular" {
   assert_true((dh - pi_half).abs() < 1.0e-6 || (dh + pi_half).abs() < 1.0e-6)
 }
 
+///|
 test "ic_rebuild_chain basic" {
   let p0 = @src.IcPoint::new(0.0, 0.0, 0.0)
   let p1 = @src.IcPoint::new(1.5, 0.0, 0.0)
   let p2 = @src.IcPoint::new(2.5, 1.0, 0.0)
   let ics : Array[@src.IcInternalCoord] = [
-    @src.IcInternalCoord::{ atom_name: "D", bond_length: 1.46, bond_angle: 1.91, dihedral: -0.52 },
+    @src.IcInternalCoord::{
+      atom_name: "D",
+      bond_length: 1.46,
+      bond_angle: 1.91,
+      dihedral: -0.52,
+    },
   ]
   let result = @src.ic_rebuild_chain([p0, p1, p2], ics)
   assert_eq(result.length(), 4)
   assert_eq(result[3].name, "D")
 }
 
+///|
 test "ic_verify_roundtrip" {
   // Build a chain of 6 atoms with known coordinates (non-degenerate)
   let positions : Array[@src.IcPoint] = [
@@ -116,7 +129,12 @@ test "ic_verify_roundtrip" {
   // Verify each internal coord extraction + NeRF rebuild for atom 3
   let bl = @src.ic_compute_bond_length(positions[2], positions[3])
   let ba = @src.ic_compute_bond_angle(positions[1], positions[2], positions[3])
-  let dh = @src.ic_compute_dihedral(positions[0], positions[1], positions[2], positions[3])
+  let dh = @src.ic_compute_dihedral(
+    positions[0],
+    positions[1],
+    positions[2],
+    positions[3],
+  )
   let d = @src.ic_nerf(positions[0], positions[1], positions[2], bl, ba, dh)
   let dev = @src.ic_point_distance(positions[3], d)
   // Single atom rebuild should be near-exact
@@ -126,6 +144,7 @@ test "ic_verify_roundtrip" {
   assert_true(full_dev < 1.0e-6)
 }
 
+///|
 test "ic_rebuild_example" {
   let result = @src.ic_rebuild_example()
   assert_eq(result.length(), 6)

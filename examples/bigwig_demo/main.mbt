@@ -28,7 +28,7 @@ fn main {
   let config = @src.BigWigWriteConfig::create(block_size=64, compress=true) catch {
     _ => abort("failed to create BigWig configuration")
   }
-  let bytes = @src.bigwig_write(targets, intervals, config=config) catch {
+  let bytes = @src.bigwig_write(targets, intervals, config~) catch {
     _ => abort("failed to write BigWig")
   }
   let file = @src.bigwig_parse(bytes) catch {

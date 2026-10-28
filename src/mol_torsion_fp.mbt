@@ -8,7 +8,7 @@
 
 ///|
 /// Atom invariant for torsion encoding: element + degree + aromaticity.
-fn torsion_atom_invariant(mol : Molecule, atom : Int) -> Int {
+fn torsion_atom_invariant(mol : Molecule, atom : Int32) -> Int32 {
   let a = mol.atoms[atom]
   let elem = match a.symbol {
     "C" => 6
@@ -30,7 +30,7 @@ fn torsion_atom_invariant(mol : Molecule, atom : Int) -> Int {
 
 ///|
 /// FNV-1a hash for a torsion path.
-fn torsion_hash(values : Array[Int]) -> Int64 {
+fn torsion_hash(values : Array[Int32]) -> Int64 {
   let mut h : Int64 = 1469598103934665603L
   for v in values {
     h = h ^ v.to_int64()
@@ -42,12 +42,9 @@ fn torsion_hash(values : Array[Int]) -> Int64 {
 ///|
 /// Encode a 4-atom torsion path as a hash.
 /// The path is canonicalized by comparing forward and reverse.
-fn torsion_encode(
-  mol : Molecule,
-  path : Array[Int],
-) -> Int64 {
+fn torsion_encode(mol : Molecule, path : Array[Int32]) -> Int64 {
   // Forward encoding: [inv0, bond01, inv1, bond12, inv2, bond23, inv3]
-  let forward : Array[Int] = Array(capacity=0)
+  let forward : Array[Int32] = Array(capacity=0)
   forward.push(torsion_atom_invariant(mol, path[0]))
   forward.push(mol_bond_order(mol, path[0], path[1]))
   forward.push(torsion_atom_invariant(mol, path[1]))
@@ -56,7 +53,7 @@ fn torsion_encode(
   forward.push(mol_bond_order(mol, path[2], path[3]))
   forward.push(torsion_atom_invariant(mol, path[3]))
   // Reverse encoding
-  let reverse : Array[Int] = Array(capacity=0)
+  let reverse : Array[Int32] = Array(capacity=0)
   reverse.push(torsion_atom_invariant(mol, path[3]))
   reverse.push(mol_bond_order(mol, path[2], path[3]))
   reverse.push(torsion_atom_invariant(mol, path[2]))
@@ -77,10 +74,10 @@ fn torsion_encode(
 ///|
 /// Enumerate all 4-atom linear paths in the molecule.
 /// A path visits each atom at most once (no backtracking).
-fn torsion_find_paths(mol : Molecule) -> Array[Array[Int]] {
+fn torsion_find_paths(mol : Molecule) -> Array[Array[Int32]] {
   let n = mol.atoms.length()
   let neighbors = mol_adjacency(mol)
-  let paths : Array[Array[Int]] = Array(capacity=0)
+  let paths : Array[Array[Int32]] = Array(capacity=0)
   // DFS from each starting atom
   for start = 0; start < n; start = start + 1 {
     torsion_dfs_paths(mol, neighbors, [start], paths)
@@ -92,9 +89,9 @@ fn torsion_find_paths(mol : Molecule) -> Array[Array[Int]] {
 /// DFS to extend paths to length 4.
 fn torsion_dfs_paths(
   mol : Molecule,
-  neighbors : Array[Array[(Int, Int)]],
-  current : Array[Int],
-  paths : Array[Array[Int]],
+  neighbors : Array[Array[(Int32, Int32)]],
+  current : Array[Int32],
+  paths : Array[Array[Int32]],
 ) -> Unit {
   if current.length() == 4 {
     // Add a copy of the path
@@ -145,16 +142,13 @@ pub fn topological_torsion_fingerprint(mol : Molecule) -> Array[Int64] {
 
 ///|
 /// Count number of unique torsions.
-pub fn topological_torsion_count(mol : Molecule) -> Int {
+pub fn topological_torsion_count(mol : Molecule) -> Int32 {
   topological_torsion_fingerprint(mol).length()
 }
 
 ///|
 /// Tanimoto similarity between two torsion fingerprints.
-pub fn torsion_tanimoto(
-  mol1 : Molecule,
-  mol2 : Molecule,
-) -> Double {
+pub fn torsion_tanimoto(mol1 : Molecule, mol2 : Molecule) -> Double {
   let fp1 = topological_torsion_fingerprint(mol1)
   let fp2 = topological_torsion_fingerprint(mol2)
   let set1 : Map[Int64, Bool] = Map([], capacity=0)

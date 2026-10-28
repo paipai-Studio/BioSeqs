@@ -25,7 +25,10 @@ test "skallel_e2e_vcf_ld_pca_ihs" {
 
   // haplotypes -> iHS
   let h = @src.skallel_gt_to_haplotypes(g)
-  assert_eq((h[0][0], h[0][1], h[0][2], h[0][3], h[0][4], h[0][5]), (0, 0, 1, 1, 0, 0))
+  assert_eq(
+    (h[0][0], h[0][1], h[0][2], h[0][3], h[0][4], h[0][5]),
+    (0, 0, 1, 1, 0, 0),
+  )
   let ihs = @src.skallel_ihs(h, [100, 200, 300, 400], 0.0, false)
   assert_eq(ihs.length(), 4)
 

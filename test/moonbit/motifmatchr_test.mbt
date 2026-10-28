@@ -16,12 +16,7 @@ test "motifmatchr_revcomp mixed case passthrough" {
 
 ///|
 test "motifmatchr_pwm_from_counts basic" {
-  let pfm = [
-    [10, 0, 0, 0],
-    [0, 10, 0, 0],
-    [0, 0, 10, 0],
-    [0, 0, 0, 10],
-  ]
+  let pfm = [[10, 0, 0, 0], [0, 10, 0, 0], [0, 0, 10, 0], [0, 0, 0, 10]]
   let pwm = @src.motif_pwm_from_counts(pfm)
   assert_eq(pwm.length(), 4)
   assert_eq(pwm[0].length(), 4)
@@ -31,12 +26,7 @@ test "motifmatchr_pwm_from_counts basic" {
 
 ///|
 test "motifmatchr_pssm_from_pwm high info motif" {
-  let pfm = [
-    [10, 0, 0, 0],
-    [0, 10, 0, 0],
-    [0, 0, 10, 0],
-    [0, 0, 0, 10],
-  ]
+  let pfm = [[10, 0, 0, 0], [0, 10, 0, 0], [0, 0, 10, 0], [0, 0, 0, 10]]
   let pwm = @src.motif_pwm_from_counts(pfm)
   let pssm = @src.motif_pssm_from_pwm(pwm)
   assert_eq(pssm.length(), 4)
@@ -48,7 +38,7 @@ test "motifmatchr_pssm_from_pwm high info motif" {
 test "motifmatchr_match_motifs finds ACGT" {
   let motif = @src.motifmatchr_sample_motif()
   let seqs = @src.motifmatchr_sample_sequences()
-  let results = @src.match_motifs([motif], seqs, cutoff=(-5.0))
+  let results = @src.match_motifs([motif], seqs, cutoff=-5.0)
   assert_eq(results.length(), 1)
   let r = results[0]
   assert_eq(r.seq_names.length(), 4)
@@ -59,7 +49,7 @@ test "motifmatchr_match_motifs finds ACGT" {
 test "motifmatchr_match_motifs hit_positions" {
   let motif = @src.motifmatchr_sample_motif()
   let seqs = ["GGGACGTGGG"]
-  let results = @src.match_motifs([motif], seqs, cutoff=(-5.0))
+  let results = @src.match_motifs([motif], seqs, cutoff=-5.0)
   let positions = results[0].hit_positions()
   assert_true(positions.length() > 0)
 }
@@ -86,7 +76,7 @@ test "motifmatchr_match_motifs custom seq_names" {
     [motif],
     ["ACGTACGT"],
     seq_names=["myseq"],
-    cutoff=(-5.0),
+    cutoff=-5.0,
   )
   assert_eq(results[0].seq_names[0], "myseq")
 }
@@ -94,7 +84,7 @@ test "motifmatchr_match_motifs custom seq_names" {
 ///|
 test "motifmatchr_best_score positive for matching seq" {
   let motif = @src.motifmatchr_sample_motif()
-  let results = @src.match_motifs([motif], ["ACGTACGT"], cutoff=(-5.0))
+  let results = @src.match_motifs([motif], ["ACGTACGT"], cutoff=-5.0)
   assert_true(results[0].best_score() > 0.0)
 }
 

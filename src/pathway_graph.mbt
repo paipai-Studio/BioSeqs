@@ -46,7 +46,7 @@ pub struct PathwayGraph {
 ///|
 /// Create an empty PathwayGraph.
 pub fn PathwayGraph::new() -> PathwayGraph {
-  PathwayGraph::{ nodes: Map([]), edge_map: Map([]) }
+  PathwayGraph::{ nodes: Map([]), edge_map: Map([]), }
 }
 
 ///|
@@ -59,7 +59,12 @@ pub fn PathwayGraph::add_node(self : PathwayGraph, label : String) -> Unit {
 /// Add a directed edge ``from -> to`` identified by ``label``.
 /// Both endpoints are auto-registered as nodes.  Duplicate edge
 /// labels are silently ignored (PathwayGraph invariant).
-pub fn PathwayGraph::add_edge(self : PathwayGraph, from_node : String, to_node : String, label : String) -> Unit {
+pub fn PathwayGraph::add_edge(
+  self : PathwayGraph,
+  from_node : String,
+  to_node : String,
+  label : String,
+) -> Unit {
   self.add_node(from_node)
   self.add_node(to_node)
   if !self.edge_map.contains(label) {
@@ -82,13 +87,19 @@ pub fn PathwayGraph::labels(self : PathwayGraph) -> Array[String] {
 ///|
 /// Returns the single ``(source, target)`` pair registered under
 /// ``label``.
-pub fn PathwayGraph::edges(self : PathwayGraph, label : String) -> (String, String) {
+pub fn PathwayGraph::edges(
+  self : PathwayGraph,
+  label : String,
+) -> (String, String) {
   self.edge_map[label]
 }
 
 ///|
 /// All edge labels that leave ``node``.
-pub fn PathwayGraph::children(self : PathwayGraph, node : String) -> Array[String] {
+pub fn PathwayGraph::children(
+  self : PathwayGraph,
+  node : String,
+) -> Array[String] {
   let result : Array[String] = Array(capacity=0)
   let keys = self.edge_map.keys().collect()
   let mut i = 0
@@ -105,7 +116,10 @@ pub fn PathwayGraph::children(self : PathwayGraph, node : String) -> Array[Strin
 
 ///|
 /// All edge labels that arrive at ``node``.
-pub fn PathwayGraph::parents(self : PathwayGraph, node : String) -> Array[String] {
+pub fn PathwayGraph::parents(
+  self : PathwayGraph,
+  node : String,
+) -> Array[String] {
   let result : Array[String] = Array(capacity=0)
   let keys = self.edge_map.keys().collect()
   let mut i = 0
@@ -122,7 +136,10 @@ pub fn PathwayGraph::parents(self : PathwayGraph, node : String) -> Array[String
 
 ///|
 /// ``(target, edge_label)`` pairs for every edge leaving ``node``.
-pub fn PathwayGraph::child_edges(self : PathwayGraph, node : String) -> Array[(String, String)] {
+pub fn PathwayGraph::child_edges(
+  self : PathwayGraph,
+  node : String,
+) -> Array[(String, String)] {
   let result : Array[(String, String)] = Array(capacity=0)
   let keys = self.edge_map.keys().collect()
   let mut i = 0
@@ -139,7 +156,10 @@ pub fn PathwayGraph::child_edges(self : PathwayGraph, node : String) -> Array[(S
 
 ///|
 /// ``(source, edge_label)`` pairs for every edge arriving at ``node``.
-pub fn PathwayGraph::parent_edges(self : PathwayGraph, node : String) -> Array[(String, String)] {
+pub fn PathwayGraph::parent_edges(
+  self : PathwayGraph,
+  node : String,
+) -> Array[(String, String)] {
   let result : Array[(String, String)] = Array(capacity=0)
   let keys = self.edge_map.keys().collect()
   let mut i = 0
@@ -172,16 +192,23 @@ pub struct PathwayMultiGraph {
 ///|
 /// Create an empty PathwayMultiGraph.
 pub fn PathwayMultiGraph::new() -> PathwayMultiGraph {
-  PathwayMultiGraph::{ nodes: Map([]), edge_map: Map([]) }
+  PathwayMultiGraph::{ nodes: Map([]), edge_map: Map([]), }
 }
 
 ///|
 /// Register a node (no-op if already present).
-pub fn PathwayMultiGraph::add_node(self : PathwayMultiGraph, label : String) -> Unit {
+pub fn PathwayMultiGraph::add_node(
+  self : PathwayMultiGraph,
+  label : String,
+) -> Unit {
   self.nodes[label] = true
 }
 
-fn _pmg_get_edge_list(m : Map[String, Array[(String, String)]], label : String) -> Array[(String, String)] {
+///|
+fn _pmg_get_edge_list(
+  m : Map[String, Array[(String, String)]],
+  label : String,
+) -> Array[(String, String)] {
   match m.get(label) {
     Some(arr) => arr
     None => []
@@ -191,7 +218,12 @@ fn _pmg_get_edge_list(m : Map[String, Array[(String, String)]], label : String) 
 ///|
 /// Add a directed edge ``from -> to`` labelled by ``label``.
 /// Duplicate labels are **allowed** (PathwayMultiGraph invariant).
-pub fn PathwayMultiGraph::add_edge(self : PathwayMultiGraph, from_node : String, to_node : String, label : String) -> Unit {
+pub fn PathwayMultiGraph::add_edge(
+  self : PathwayMultiGraph,
+  from_node : String,
+  to_node : String,
+  label : String,
+) -> Unit {
   self.add_node(from_node)
   self.add_node(to_node)
   let list = _pmg_get_edge_list(self.edge_map, label)
@@ -215,13 +247,19 @@ pub fn PathwayMultiGraph::labels(self : PathwayMultiGraph) -> Array[String] {
 /// All ``(source, target)`` pairs registered under ``label``.
 /// Returns an Array because PathwayMultiGraph allows parallel edges
 /// with the same label.
-pub fn PathwayMultiGraph::edges(self : PathwayMultiGraph, label : String) -> Array[(String, String)] {
+pub fn PathwayMultiGraph::edges(
+  self : PathwayMultiGraph,
+  label : String,
+) -> Array[(String, String)] {
   _pmg_get_edge_list(self.edge_map, label)
 }
 
 ///|
 /// All distinct edge labels that leave ``node``.
-pub fn PathwayMultiGraph::children(self : PathwayMultiGraph, node : String) -> Array[String] {
+pub fn PathwayMultiGraph::children(
+  self : PathwayMultiGraph,
+  node : String,
+) -> Array[String] {
   let result : Array[String] = Array(capacity=0)
   let seen : Map[String, Bool] = Map([])
   let keys = self.edge_map.keys().collect()
@@ -245,7 +283,10 @@ pub fn PathwayMultiGraph::children(self : PathwayMultiGraph, node : String) -> A
 
 ///|
 /// All distinct edge labels that arrive at ``node``.
-pub fn PathwayMultiGraph::parents(self : PathwayMultiGraph, node : String) -> Array[String] {
+pub fn PathwayMultiGraph::parents(
+  self : PathwayMultiGraph,
+  node : String,
+) -> Array[String] {
   let result : Array[String] = Array(capacity=0)
   let seen : Map[String, Bool] = Map([])
   let keys = self.edge_map.keys().collect()
@@ -270,7 +311,10 @@ pub fn PathwayMultiGraph::parents(self : PathwayMultiGraph, node : String) -> Ar
 ///|
 /// ``(target, edge_label)`` pairs for every edge leaving ``node``.
 /// For parallel edges this returns **one entry per physical edge**.
-pub fn PathwayMultiGraph::child_edges(self : PathwayMultiGraph, node : String) -> Array[(String, String)] {
+pub fn PathwayMultiGraph::child_edges(
+  self : PathwayMultiGraph,
+  node : String,
+) -> Array[(String, String)] {
   let result : Array[(String, String)] = Array(capacity=0)
   let keys = self.edge_map.keys().collect()
   let mut i = 0
@@ -292,7 +336,10 @@ pub fn PathwayMultiGraph::child_edges(self : PathwayMultiGraph, node : String) -
 
 ///|
 /// ``(source, edge_label)`` pairs for every edge arriving at ``node``.
-pub fn PathwayMultiGraph::parent_edges(self : PathwayMultiGraph, node : String) -> Array[(String, String)] {
+pub fn PathwayMultiGraph::parent_edges(
+  self : PathwayMultiGraph,
+  node : String,
+) -> Array[(String, String)] {
   let result : Array[(String, String)] = Array(capacity=0)
   let keys = self.edge_map.keys().collect()
   let mut i = 0
@@ -316,6 +363,7 @@ pub fn PathwayMultiGraph::parent_edges(self : PathwayMultiGraph, node : String) 
 // Adjacency helpers (used by BFS / DFS)
 // ===========================================================================
 
+///|
 fn _pg_neighbors(g : PathwayGraph, node : String) -> Array[String] {
   let result : Array[String] = Array(capacity=0)
   let keys = g.edge_map.keys().collect()
@@ -330,6 +378,7 @@ fn _pg_neighbors(g : PathwayGraph, node : String) -> Array[String] {
   result
 }
 
+///|
 fn _pmg_neighbors(g : PathwayMultiGraph, node : String) -> Array[String] {
   let result : Array[String] = Array(capacity=0)
   let keys = g.edge_map.keys().collect()

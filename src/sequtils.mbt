@@ -3,10 +3,10 @@
 
 ///|
 /// CheckSum module
-let crc32_table : Array[Int] = make_crc32_table()
+let crc32_table : Array[Int32] = make_crc32_table()
 
 ///|
-fn make_crc32_table() -> Array[Int] {
+fn make_crc32_table() -> Array[Int32] {
   let table = Array(capacity=0)
   let mut i = 0
   while i < 256 {
@@ -27,7 +27,7 @@ fn make_crc32_table() -> Array[Int] {
 }
 
 ///|
-pub fn crc32(seq : String) -> Int {
+pub fn crc32(seq : String) -> Int32 {
   let mut crc = 0xFFFFFFFF
   let mut i = 0
   while i < seq.length() {
@@ -40,7 +40,7 @@ pub fn crc32(seq : String) -> Int {
 }
 
 ///|
-pub fn gcg(seq : String) -> Int {
+pub fn gcg(seq : String) -> Int32 {
   let mut index = 0
   let mut checksum = 0
   let mut i = 0
@@ -115,13 +115,13 @@ pub fn seguid(seq : String) -> String {
 
 ///|
 /// SHA1 implementation
-pub fn sha1_string(s : String) -> Array[Int] {
+pub fn sha1_string(s : String) -> Array[Int32] {
   let bytes = string_to_bytes(s)
   sha1(bytes)
 }
 
 ///|
-pub fn string_to_bytes(s : String) -> Array[Int] {
+pub fn string_to_bytes(s : String) -> Array[Int32] {
   let result = Array(capacity=0)
   let mut i = 0
   while i < s.length() {
@@ -135,7 +135,7 @@ pub fn string_to_bytes(s : String) -> Array[Int] {
 }
 
 ///|
-pub fn bytes_to_base64(bytes : Array[Int]) -> String {
+pub fn bytes_to_base64(bytes : Array[Int32]) -> String {
   let chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
   let buf = StringBuilder()
   let mut i = 0
@@ -189,12 +189,12 @@ pub fn bytes_to_base64(bytes : Array[Int]) -> String {
 }
 
 ///|
-fn u32(x : Int) -> Int {
+fn u32(x : Int32) -> Int32 {
   x & 0xFFFFFFFF
 }
 
 ///|
-fn u32_shr(a : Int, shift : Int) -> Int {
+fn u32_shr(a : Int32, shift : Int32) -> Int32 {
   let mask = 0xFFFFFFFF
   let masked = a & mask
   let mut result = 0
@@ -212,22 +212,22 @@ fn u32_shr(a : Int, shift : Int) -> Int {
 }
 
 ///|
-fn rotl5(x : Int) -> Int {
+fn rotl5(x : Int32) -> Int32 {
   u32((x << 5) | u32_shr(x, 27))
 }
 
 ///|
-fn rotl30(x : Int) -> Int {
+fn rotl30(x : Int32) -> Int32 {
   u32((x << 30) | u32_shr(x, 2))
 }
 
 ///|
-fn rotl1(x : Int) -> Int {
+fn rotl1(x : Int32) -> Int32 {
   u32((x << 1) | u32_shr(x, 31))
 }
 
 ///|
-pub fn sha1(message : Array[Int]) -> Array[Int] {
+pub fn sha1(message : Array[Int32]) -> Array[Int32] {
   let mut h0 = 0x67452301
   let mut h1 = 0xEFCDAB89
   let mut h2 = 0x98BADCFE
@@ -374,6 +374,8 @@ pub fn gc(seq : String) -> Double {
 pub struct ProteinAnalysis {
   sequence : String
 } derive(Eq)
+
+///|
 pub extend ProteinAnalysis with Eq::{equal, not_equal}
 
 ///|
@@ -384,7 +386,7 @@ pub fn ProteinAnalysis::new(sequence : String) -> ProteinAnalysis {
 ///|
 pub fn ProteinAnalysis::count_amino_acids(
   self : ProteinAnalysis,
-) -> Map[Char, Int] {
+) -> Map[Char, Int32] {
   let counts = Map([], capacity=20)
   let mut i = 0
   while i < self.sequence.length() {

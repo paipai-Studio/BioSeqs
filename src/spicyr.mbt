@@ -14,7 +14,11 @@ pub enum SpicyModelKind {
   WeightedLinear
   WeightedRandomIntercept
 } derive(Eq, Debug)
+
+///|
 pub extend SpicyModelKind with Eq::{equal, not_equal}
+
+///|
 pub extend SpicyModelKind with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -24,7 +28,11 @@ pub struct SpicyCell {
   x : Double
   y : Double
 } derive(Eq, Debug)
+
+///|
 pub extend SpicyCell with Eq::{equal, not_equal}
+
+///|
 pub extend SpicyCell with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -53,14 +61,16 @@ pub struct SpicyImageMetadata {
   subject : String
   covariates : Map[String, Double]
 } derive(Debug)
+
+///|
 pub extend SpicyImageMetadata with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub fn SpicyImageMetadata::create(
   image_id : String,
   condition : String,
-  subject? : String = "",
-  covariates? : Map[String, Double] = Map([]),
+  subject~ : String = "",
+  covariates~ : Map[String, Double] = Map([]),
 ) -> SpicyImageMetadata raise SpicyError {
   if image_id == "" {
     raise SpicyError("spicyR metadata image ID must not be empty")
@@ -87,7 +97,11 @@ pub struct SpicyPair {
   from_cell_type : String
   to_cell_type : String
 } derive(Eq, Debug)
+
+///|
 pub extend SpicyPair with Eq::{equal, not_equal}
+
+///|
 pub extend SpicyPair with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -116,23 +130,25 @@ pub struct SpicyConfig {
   window_padding : Double
   fdr_threshold : Double
   reference_condition : String
-  max_iterations : Int
+  max_iterations : Int32
   tolerance : Double
 } derive(Debug)
+
+///|
 pub extend SpicyConfig with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub fn SpicyConfig::create(
-  radii? : Array[Double] = [20.0, 50.0, 100.0],
-  edge_correction? : Bool = true,
-  include_zero_cells? : Bool = false,
-  use_weights? : Bool = true,
-  weight_factor? : Double = 1.0,
-  window_padding? : Double = 0.0,
-  fdr_threshold? : Double = 0.05,
-  reference_condition? : String = "",
-  max_iterations? : Int = 100,
-  tolerance? : Double = 0.005,
+  radii~ : Array[Double] = [20.0, 50.0, 100.0],
+  edge_correction~ : Bool = true,
+  include_zero_cells~ : Bool = false,
+  use_weights~ : Bool = true,
+  weight_factor~ : Double = 1.0,
+  window_padding~ : Double = 0.0,
+  fdr_threshold~ : Double = 0.05,
+  reference_condition~ : String = "",
+  max_iterations~ : Int32 = 100,
+  tolerance~ : Double = 0.005,
 ) -> SpicyConfig raise SpicyError {
   if radii.length() == 0 {
     raise SpicyError("spicyR radii must not be empty")
@@ -204,12 +220,14 @@ pub struct SpicyAssociation {
   radii : Array[Double]
   l_values : Array[Double]
   statistic : Double
-  from_count : Int
-  to_count : Int
+  from_count : Int32
+  to_count : Int32
   observed : Bool
   available : Bool
   weight : Double
 } derive(Debug)
+
+///|
 pub extend SpicyAssociation with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -218,10 +236,10 @@ pub fn SpicyAssociation::create(
   from_cell_type : String,
   to_cell_type : String,
   statistic : Double,
-  from_count? : Int = 1,
-  to_count? : Int = 1,
-  observed? : Bool = true,
-  available? : Bool = true,
+  from_count~ : Int32 = 1,
+  to_count~ : Int32 = 1,
+  observed~ : Bool = true,
+  available~ : Bool = true,
 ) -> SpicyAssociation raise SpicyError {
   if image_id == "" {
     raise SpicyError("spicyR association image ID must not be empty")
@@ -261,6 +279,8 @@ pub struct SpicyConditionResult {
   adjusted_p_value : Double
   converged : Bool
 } derive(Debug)
+
+///|
 pub extend SpicyConditionResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -273,6 +293,8 @@ pub struct SpicyPairResult {
   residual_variance : Double
   associations : Array[SpicyAssociation]
 } derive(Debug)
+
+///|
 pub extend SpicyPairResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -283,6 +305,8 @@ pub struct SpicyResult {
   pairs : Array[SpicyPairResult]
   config : SpicyConfig
 } derive(Debug)
+
+///|
 pub extend SpicyResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -306,7 +330,7 @@ fn spicy_is_finite(value : Double) -> Bool {
 }
 
 ///|
-fn spicy_find_string(values : Array[String], target : String) -> Int {
+fn spicy_find_string(values : Array[String], target : String) -> Int32 {
   for index in 0..<values.length() {
     if values[index] == target {
       return index
@@ -478,8 +502,8 @@ fn spicy_circle_window_fraction(
 fn spicy_pair_indices(
   cells : Array[SpicyCell],
   cell_type : String,
-) -> Array[Int] {
-  let output : Array[Int] = []
+) -> Array[Int32] {
+  let output : Array[Int32] = []
   for index in 0..<cells.length() {
     if cells[index].cell_type == cell_type {
       output.push(index)
@@ -644,7 +668,7 @@ pub fn spicy_pairwise(
   cells : Array[SpicyCell],
   metadata : Array[SpicyImageMetadata],
   pair : SpicyPair,
-  config? : SpicyConfig = SpicyConfig::default(),
+  config~ : SpicyConfig = SpicyConfig::default(),
 ) -> Array[SpicyAssociation] raise SpicyError {
   spicy_validate_metadata(cells, metadata)
   let types = spicy_cell_types(cells)
@@ -833,11 +857,11 @@ fn spicy_build_design(
 ///|
 fn spicy_bh_adjust(p_values : Array[Double]) -> Array[Double] {
   let count = p_values.length()
-  let order : Array[Int] = []
+  let order : Array[Int32] = []
   for index in 0..<count {
     order.push(index)
   }
-  order.sort_by(fn(left : Int, right : Int) -> Int {
+  order.sort_by(fn(left : Int32, right : Int32) -> Int32 {
     if p_values[left] < p_values[right] {
       -1
     } else if p_values[left] > p_values[right] {
@@ -1043,8 +1067,8 @@ fn spicy_adjust_pair_results(
 pub fn spicy_fit_associations(
   associations : Array[SpicyAssociation],
   metadata : Array[SpicyImageMetadata],
-  covariate_names? : Array[String] = [],
-  config? : SpicyConfig = SpicyConfig::default(),
+  covariate_names~ : Array[String] = [],
+  config~ : SpicyConfig = SpicyConfig::default(),
 ) -> SpicyResult raise SpicyError {
   if associations.length() == 0 {
     raise SpicyError("spicyR associations must not be empty")
@@ -1124,9 +1148,9 @@ pub fn spicy_fit_associations(
 pub fn spicyr(
   cells : Array[SpicyCell],
   metadata : Array[SpicyImageMetadata],
-  pairs? : Array[SpicyPair] = [],
-  covariate_names? : Array[String] = [],
-  config? : SpicyConfig = SpicyConfig::default(),
+  pairs~ : Array[SpicyPair] = [],
+  covariate_names~ : Array[String] = [],
+  config~ : SpicyConfig = SpicyConfig::default(),
 ) -> SpicyResult raise SpicyError {
   spicy_validate_metadata(cells, metadata)
   let selected_pairs = spicy_resolve_pairs(cells, pairs)
@@ -1188,12 +1212,12 @@ pub fn SpicyResult::pair(
 }
 
 ///|
-pub fn SpicyResult::n_pairs(self : SpicyResult) -> Int {
+pub fn SpicyResult::n_pairs(self : SpicyResult) -> Int32 {
   self.pairs.length()
 }
 
 ///|
-pub fn SpicyResult::n_images(self : SpicyResult) -> Int {
+pub fn SpicyResult::n_images(self : SpicyResult) -> Int32 {
   self.image_ids.length()
 }
 
@@ -1201,7 +1225,7 @@ pub fn SpicyResult::n_images(self : SpicyResult) -> Int {
 pub fn SpicyResult::significant(
   self : SpicyResult,
   condition_level : String,
-  threshold? : Double = -1.0,
+  threshold~ : Double = -1.0,
 ) -> Array[SpicyPairResult] raise SpicyError {
   let selected_threshold = if threshold < 0.0 {
     self.config.fdr_threshold
@@ -1234,7 +1258,7 @@ pub fn SpicyResult::significant(
 pub fn SpicyResult::top(
   self : SpicyResult,
   condition_level : String,
-  limit? : Int = 10,
+  limit~ : Int32 = 10,
 ) -> Array[SpicyPairResult] raise SpicyError {
   if limit < 0 {
     raise SpicyError("spicyR top-pair limit must be non-negative")
@@ -1244,7 +1268,7 @@ pub fn SpicyResult::top(
     raise SpicyError("spicyR requested condition contrast is absent")
   }
   let output = self.pairs.copy()
-  output.sort_by(fn(left : SpicyPairResult, right : SpicyPairResult) -> Int {
+  output.sort_by(fn(left : SpicyPairResult, right : SpicyPairResult) -> Int32 {
     let left_p = match left.condition(condition_level) {
       Some(value) => value.p_value
       None => 1.0
@@ -1324,7 +1348,7 @@ fn spicy_copy_spatial_experiment(
 fn spicy_required_column(
   column : Map[String, String],
   key : String,
-  row : Int,
+  row : Int32,
 ) -> String raise SpicyError {
   match column.get(key) {
     Some(value) =>
@@ -1348,13 +1372,13 @@ fn spicy_required_column(
 ///|
 pub fn spicyr_spatial_experiment(
   experiment : SpatialExperiment,
-  image_id_key? : String = "imageID",
-  cell_type_key? : String = "cellType",
-  condition_key? : String = "condition",
-  subject_key? : String = "",
-  covariate_keys? : Array[String] = [],
-  pairs? : Array[SpicyPair] = [],
-  config? : SpicyConfig = SpicyConfig::default(),
+  image_id_key~ : String = "imageID",
+  cell_type_key~ : String = "cellType",
+  condition_key~ : String = "condition",
+  subject_key~ : String = "",
+  covariate_keys~ : Array[String] = [],
+  pairs~ : Array[SpicyPair] = [],
+  config~ : SpicyConfig = SpicyConfig::default(),
 ) -> SpicySpatialExperimentOutput raise SpicyError {
   if experiment.col_data.length() == 0 {
     raise SpicyError("spicyR SpatialExperiment col_data must not be empty")
@@ -1369,7 +1393,7 @@ pub fn spicyr_spatial_experiment(
   }
   let cells : Array[SpicyCell] = []
   let metadata : Array[SpicyImageMetadata] = []
-  let metadata_indices : Map[String, Int] = Map([])
+  let metadata_indices : Map[String, Int32] = Map([])
   for row in 0..<experiment.col_data.length() {
     let column = experiment.col_data[row]
     let image_id = spicy_required_column(column, image_id_key, row)

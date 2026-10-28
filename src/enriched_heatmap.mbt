@@ -29,16 +29,16 @@
 /// A genomic interval with an associated signal value.
 pub struct GenomicSignal {
   chr : String
-  start : Int // 1-based start
-  end_ : Int // 1-based end (inclusive)
+  start : Int32 // 1-based start
+  end_ : Int32 // 1-based end (inclusive)
   value : Double
 }
 
 ///|
 pub fn GenomicSignal::new(
   chr : String,
-  start : Int,
-  end_ : Int,
+  start : Int32,
+  end_ : Int32,
   value : Double,
 ) -> GenomicSignal {
   GenomicSignal::{ chr, start, end_, value, }
@@ -48,16 +48,16 @@ pub fn GenomicSignal::new(
 /// A target genomic region (e.g. TSS, promoter).
 pub struct TargetRegion {
   chr : String
-  start : Int // 1-based start
-  end_ : Int // 1-based end (inclusive)
+  start : Int32 // 1-based start
+  end_ : Int32 // 1-based end (inclusive)
   strand : String // "+" or "-"
 }
 
 ///|
 pub fn TargetRegion::new(
   chr : String,
-  start : Int,
-  end_ : Int,
+  start : Int32,
+  end_ : Int32,
   strand : String,
 ) -> TargetRegion {
   TargetRegion::{ chr, start, end_, strand, }
@@ -96,13 +96,13 @@ pub fn mean_mode_coverage() -> MeanMode {
 /// Configuration for signal normalization.
 pub struct EnrichedHeatmapConfig {
   /// Upstream extension in bp.
-  extendUp : Int
+  extendUp : Int32
   /// Downstream extension in bp.
-  extendDown : Int
+  extendDown : Int32
   /// Window size in bp for splitting flanking regions.
-  w : Int
+  w : Int32
   /// Number of windows for the target body (0 = no target body).
-  k : Int
+  k : Int32
   /// Mean computation mode.
   meanMode : MeanMode
   /// Whether to include target body columns.
@@ -110,7 +110,7 @@ pub struct EnrichedHeatmapConfig {
   /// Whether to apply row-wise smoothing.
   smooth : Bool
   /// Smoothing window size (number of columns).
-  smoothWindow : Int
+  smoothWindow : Int32
   /// Background value for windows with no signal overlap.
   background : Double
   /// Whether to flip upstream to downstream for single-point targets.
@@ -123,18 +123,18 @@ pub struct EnrichedHeatmapConfig {
 
 ///|
 pub fn EnrichedHeatmapConfig::new(
-  extendUp? : Int = 5000,
-  extendDown? : Int = 5000,
-  w? : Int = 100,
-  k? : Int = 0,
-  meanMode? : MeanMode = Absolute,
-  includeTarget? : Bool = false,
-  smooth? : Bool = false,
-  smoothWindow? : Int = 5,
-  background? : Double = 0.0,
-  flipUpstream? : Bool = false,
-  keepLow? : Double = 0.0,
-  keepHigh? : Double = 1.0,
+  extendUp~ : Int32 = 5000,
+  extendDown~ : Int32 = 5000,
+  w~ : Int32 = 100,
+  k~ : Int32 = 0,
+  meanMode~ : MeanMode = Absolute,
+  includeTarget~ : Bool = false,
+  smooth~ : Bool = false,
+  smoothWindow~ : Int32 = 5,
+  background~ : Double = 0.0,
+  flipUpstream~ : Bool = false,
+  keepLow~ : Double = 0.0,
+  keepHigh~ : Double = 1.0,
 ) -> EnrichedHeatmapConfig {
   EnrichedHeatmapConfig::{
     extendUp,
@@ -158,27 +158,27 @@ pub struct NormalizedMatrix {
   /// n_targets × n_cols signal matrix.
   matrix : Array[Array[Double]]
   /// Column indices for upstream region.
-  upstreamIndex : Array[Int]
+  upstreamIndex : Array[Int32]
   /// Column indices for target body.
-  targetIndex : Array[Int]
+  targetIndex : Array[Int32]
   /// Column indices for downstream region.
-  downstreamIndex : Array[Int]
+  downstreamIndex : Array[Int32]
   /// Extension in bp [up, down].
-  extent : (Int, Int)
+  extent : (Int32, Int32)
   /// Whether smoothing was applied.
   smooth : Bool
   /// Background value used.
   background : Double
   /// Number of rows (targets).
-  nRows : Int
+  nRows : Int32
   /// Number of columns (windows).
-  nCols : Int
+  nCols : Int32
   /// Signal name (for labeling).
   signalName : String
   /// Target name (for labeling).
   targetName : String
   /// Indices of rows where smoothing failed.
-  failedRows : Array[Int]
+  failedRows : Array[Int32]
 }
 
 // ============================================================================
@@ -189,10 +189,10 @@ pub struct NormalizedMatrix {
 /// A genomic window with a reference to its parent target.
 priv struct Window {
   chr : String
-  start : Int
-  end_ : Int
-  targetIndex : Int // index of the parent target region
-  windowIndex : Int // window index within the target (0-based)
+  start : Int32
+  end_ : Int32
+  targetIndex : Int32 // index of the parent target region
+  windowIndex : Int32 // window index within the target (0-based)
 }
 
 ///|
@@ -285,13 +285,13 @@ fn make_windows(
 
 ///|
 /// Check if two intervals overlap (1-based, inclusive).
-fn overlaps(s1 : Int, e1 : Int, s2 : Int, e2 : Int) -> Bool {
+fn overlaps(s1 : Int32, e1 : Int32, s2 : Int32, e2 : Int32) -> Bool {
   s1 <= e2 && s2 <= e1
 }
 
 ///|
 /// Compute overlap width (1-based inclusive).
-fn overlap_width(s1 : Int, e1 : Int, s2 : Int, e2 : Int) -> Int {
+fn overlap_width(s1 : Int32, e1 : Int32, s2 : Int32, e2 : Int32) -> Int32 {
   let lo = if s1 > s2 { s1 } else { s2 }
   let hi = if e1 < e2 { e1 } else { e2 }
   if hi >= lo {
@@ -315,7 +315,7 @@ fn compute_window_mean(
   }
   // Find overlapping signals.
   let values : Array[Double] = []
-  let widths : Array[Int] = []
+  let widths : Array[Int32] = []
   let mut total_overlap = 0
   let mut si = 0
   while si < signals.length() {
@@ -404,7 +404,7 @@ fn compute_window_mean(
 
 ///|
 /// Apply moving-average smoothing to a row of the matrix.
-fn smooth_row(row : Array[Double], window : Int) -> Array[Double] {
+fn smooth_row(row : Array[Double], window : Int32) -> Array[Double] {
   let n = row.length()
   if n == 0 || window <= 1 {
     return row
@@ -564,9 +564,9 @@ pub fn normalize_to_matrix(
   let n_cols = n_up + n_target + n_down
 
   // Compute column indices.
-  let upstreamIndex : Array[Int] = []
-  let targetIndex : Array[Int] = []
-  let downstreamIndex : Array[Int] = []
+  let upstreamIndex : Array[Int32] = []
+  let targetIndex : Array[Int32] = []
+  let downstreamIndex : Array[Int32] = []
   let mut ci = 0
   while ci < n_up {
     upstreamIndex.push(ci)
@@ -605,7 +605,7 @@ pub fn normalize_to_matrix(
   }
 
   // Apply smoothing if requested.
-  let failedRows : Array[Int] = []
+  let failedRows : Array[Int32] = []
   let final_matrix = if config.smooth {
     let smoothed : Array[Array[Double]] = []
     let mut ri = 0

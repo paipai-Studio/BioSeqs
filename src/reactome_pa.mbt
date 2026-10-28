@@ -2,7 +2,7 @@
 pub struct ReactomePathway {
   pathway_id : String
   pathway_name : String
-  gene_count : Int
+  gene_count : Int32
   genes : Array[String]
   p_value : Double
   adjusted_p_value : Double
@@ -13,8 +13,8 @@ pub struct ReactomePathway {
 ///|
 pub struct ReactomeResult {
   pathways : Array[ReactomePathway]
-  background_count : Int
-  query_count : Int
+  background_count : Int32
+  query_count : Int32
 }
 
 ///|
@@ -85,7 +85,7 @@ pub fn enrich_reactome(
 }
 
 ///|
-fn reactome_count_overlap(a : Array[String], b : Array[String]) -> Int {
+fn reactome_count_overlap(a : Array[String], b : Array[String]) -> Int32 {
   let mut count = 0
   let mut i = 0
   while i < a.length() {
@@ -144,7 +144,7 @@ pub fn reactome_filter_results(
 ///|
 pub fn get_top_pathways(
   result : ReactomeResult,
-  n : Int,
+  n : Int32,
 ) -> Array[ReactomePathway] {
   let top : Array[ReactomePathway] = []
   let mut i = 0

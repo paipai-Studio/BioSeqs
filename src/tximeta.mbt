@@ -17,9 +17,13 @@ pub struct TximetaTxome {
   organism : String
   release : String
   source : String
-   versioned_tags : Array[String]
+  versioned_tags : Array[String]
 } derive(Eq, Debug)
+
+///|
 pub extend TximetaTxome with Eq::{equal, not_equal}
+
+///|
 pub extend TximetaTxome with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -31,7 +35,7 @@ pub fn TximetaTxome::new(
   source~ : String,
   versioned_tags~ : Array[String] = [],
 ) -> TximetaTxome {
-  TximetaTxome::{ sha, genome, organism, release, source, versioned_tags }
+  TximetaTxome::{ sha, genome, organism, release, source, versioned_tags, }
 }
 
 ///|
@@ -39,20 +43,24 @@ pub fn TximetaTxome::new(
 pub struct TximetaData {
   sample_names : Array[String]
   transcript_names : Array[String]
-  counts : Array[Array[Int]]
+  counts : Array[Array[Int32]]
   abundance : Array[Array[Double]]
   coldata : Map[String, Map[String, String]]
   txome : TximetaTxome?
-   linked : Bool
+  linked : Bool
 } derive(Eq, Debug)
+
+///|
 pub extend TximetaData with Eq::{equal, not_equal}
+
+///|
 pub extend TximetaData with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub fn TximetaData::new(
   sample_names~ : Array[String],
   transcript_names~ : Array[String],
-  counts~ : Array[Array[Int]],
+  counts~ : Array[Array[Int32]],
   abundance~ : Array[Array[Double]],
   coldata~ : Map[String, Map[String, String]] = {
     let m : Map[String, Map[String, String]] = Map([])
@@ -72,23 +80,20 @@ pub fn TximetaData::new(
 
 ///|
 /// Number of samples.
-pub fn TximetaData::n_samples(self : TximetaData) -> Int {
+pub fn TximetaData::n_samples(self : TximetaData) -> Int32 {
   self.sample_names.length()
 }
 
 ///|
 /// Number of transcripts.
-pub fn TximetaData::n_transcripts(self : TximetaData) -> Int {
+pub fn TximetaData::n_transcripts(self : TximetaData) -> Int32 {
   self.transcript_names.length()
 }
 
 ///|
 /// Link the quantification to a known transcriptome
 /// (`linkTxome`).  Returns a new linked data object.
-pub fn link_txome(
-  data : TximetaData,
-  txome : TximetaTxome,
-) -> TximetaData {
+pub fn link_txome(data : TximetaData, txome : TximetaTxome) -> TximetaData {
   TximetaData::{
     sample_names: data.sample_names,
     transcript_names: data.transcript_names,
@@ -116,14 +121,13 @@ pub fn tximeta_metadata(data : TximetaData) -> Map[String, String] {
   let meta : Map[String, String] = Map([])
   for sample in data.coldata.keys() {
     match data.coldata.get(sample) {
-      Some(cols) => {
+      Some(cols) =>
         for k in cols.keys() {
           match cols.get(k) {
             Some(v) => meta.set(sample + "." + k, v)
             None => ()
           }
         }
-      }
       None => ()
     }
   }
@@ -136,10 +140,7 @@ pub fn tximeta_metadata(data : TximetaData) -> Map[String, String] {
       meta.set("txome.source", t.source)
       let mut idx = 0
       while idx < t.versioned_tags.length() {
-        meta.set(
-          "txome.tag." + idx.to_string(),
-          t.versioned_tags[idx],
-        )
+        meta.set("txome.tag." + idx.to_string(), t.versioned_tags[idx])
         idx += 1
       }
     }
@@ -156,24 +157,23 @@ pub fn tximeta_metadata(data : TximetaData) -> Map[String, String] {
 pub fn tximeta_summarize_to_gene(
   data : TximetaData,
   tx2gene~ : Map[String, String],
-) -> (Array[String], Array[Array[Int]], Array[Array[Double]]) {
+) -> (Array[String], Array[Array[Int32]], Array[Array[Double]]) {
   let gene_order : Array[String] = Array(capacity=0)
-  let gene_index : Map[String, Int] = Map([])
+  let gene_index : Map[String, Int32] = Map([])
   for i in 0..<data.transcript_names.length() {
     let tx = data.transcript_names[i]
     match tx2gene.get(tx) {
-      Some(g) => {
+      Some(g) =>
         if gene_index.get(g) is None {
           gene_index.set(g, gene_order.length())
           gene_order.push(g)
         }
-      }
       None => ()
     }
   }
   let n_genes = gene_order.length()
   let n_samples = data.sample_names.length()
-  let gene_counts : Array[Array[Int]] = Array(capacity=0)
+  let gene_counts : Array[Array[Int32]] = Array(capacity=0)
   let gene_abundance : Array[Array[Double]] = Array(capacity=0)
   for _g in 0..<n_genes {
     gene_counts.push(Array::make(n_samples, 0))
@@ -182,7 +182,7 @@ pub fn tximeta_summarize_to_gene(
   for i in 0..<data.transcript_names.length() {
     let tx = data.transcript_names[i]
     match tx2gene.get(tx) {
-      Some(g) => {
+      Some(g) =>
         match gene_index.get(g) {
           Some(row) => {
             let row_counts = gene_counts[row]
@@ -200,7 +200,6 @@ pub fn tximeta_summarize_to_gene(
           }
           None => ()
         }
-      }
       None => ()
     }
   }
@@ -211,23 +210,22 @@ pub fn tximeta_summarize_to_gene(
 /// Human-readable summary of the imported data.
 pub fn tximeta_data_summary(data : TximetaData) -> String {
   let mut out = "TximetaData: " +
-  data.n_samples().to_string() +
-  " samples x " +
-  data.n_transcripts().to_string() +
-  " transcripts"
+    data.n_samples().to_string() +
+    " samples x " +
+    data.n_transcripts().to_string() +
+    " transcripts"
   match data.txome {
-    Some(t) => {
+    Some(t) =>
       out = out +
-      " | txome: " +
-      t.organism +
-      " " +
-      t.genome +
-      " (release " +
-      t.release +
-      ", sha " +
-      t.sha +
-      ")"
-    }
+        " | txome: " +
+        t.organism +
+        " " +
+        t.genome +
+        " (release " +
+        t.release +
+        ", sha " +
+        t.sha +
+        ")"
     None => out = out + " | txome: unlinked"
   }
   out
@@ -238,11 +236,7 @@ pub fn tximeta_data_summary(data : TximetaData) -> String {
 pub fn tximeta_sample_data() -> TximetaData {
   let samples = ["ctrl1", "ctrl2", "treated1", "treated2"]
   let transcripts = ["ENST1", "ENST2", "ENST3"]
-  let counts = [
-    [10, 12, 40, 45],
-    [100, 110, 95, 90],
-    [5, 4, 20, 22],
-  ]
+  let counts = [[10, 12, 40, 45], [100, 110, 95, 90], [5, 4, 20, 22]]
   let abundance = [
     [1.0, 1.2, 4.0, 4.5],
     [10.0, 11.0, 9.5, 9.0],
@@ -264,9 +258,9 @@ pub fn tximeta_sample_data() -> TximetaData {
   let data = TximetaData::new(
     sample_names=samples,
     transcript_names=transcripts,
-    counts=counts,
-    abundance=abundance,
-    coldata=coldata,
+    counts~,
+    abundance~,
+    coldata~,
   )
   link_txome(
     data,

@@ -5,8 +5,10 @@
 ///|
 test "anndata_set_varm" {
   let x = [[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]]
-  let ad = @src.AnnData::new(x, ["c1", "c2"], ["g1", "g2", "g3"])
-    .set_varm("VF", [[1.0, 0.0], [0.0, 1.0], [0.5, 0.5]])
+  let ad = @src.AnnData::new(x, ["c1", "c2"], ["g1", "g2", "g3"]).set_varm(
+    "VF",
+    [[1.0, 0.0], [0.0, 1.0], [0.5, 0.5]],
+  )
   let vf = ad.get_varm("VF")
   match vf {
     Some(m) => {
@@ -28,8 +30,10 @@ test "anndata_set_varm" {
 ///|
 test "anndata_set_varp" {
   let x = [[1.0, 2.0], [3.0, 4.0]]
-  let ad = @src.AnnData::new(x, ["c1", "c2"], ["g1", "g2"])
-    .set_varp("correlation", [[1.0, 0.8], [0.8, 1.0]])
+  let ad = @src.AnnData::new(x, ["c1", "c2"], ["g1", "g2"]).set_varp(
+    "correlation",
+    [[1.0, 0.8], [0.8, 1.0]],
+  )
   let corr = ad.varp["correlation"]
   assert_eq(corr[0][0], 1.0)
   assert_eq(corr[0][1], 0.8)
@@ -92,11 +96,7 @@ test "anndata_get_layer_and_obsm" {
 
 ///|
 test "h5ad_binary_dense_roundtrip" {
-  let x = [
-    [1.0, 0.0, 3.0],
-    [0.0, 5.0, 0.0],
-    [7.0, 0.0, 9.0],
-  ]
+  let x = [[1.0, 0.0, 3.0], [0.0, 5.0, 0.0], [7.0, 0.0, 9.0]]
   let ad = @src.AnnData::new(x, ["c1", "c2", "c3"], ["g1", "g2", "g3"])
     .set_obs("batch", ["A", "B", "A"])
     .set_var("type", ["G", "G", "G"])
@@ -131,8 +131,10 @@ test "h5ad_binary_sparse_roundtrip" {
   let s = @src.SparseArray::from_coo([3, 3], coords, values) catch {
     _ => abort("sparse construction failed")
   }
-  let ad = @src.AnnData::new_sparse(s, ["c1", "c2", "c3"], ["g1", "g2", "g3"])
-    .set_obs("tissue", ["brain", "liver", "heart"])
+  let ad = @src.AnnData::new_sparse(s, ["c1", "c2", "c3"], ["g1", "g2", "g3"]).set_obs(
+    "tissue",
+    ["brain", "liver", "heart"],
+  )
   let bytes = @src.scanpy_write_h5ad_binary(ad)
   let ad2 = match @src.scanpy_read_h5ad_binary(bytes) {
     Some(a) => a

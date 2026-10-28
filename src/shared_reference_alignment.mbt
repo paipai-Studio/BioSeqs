@@ -18,10 +18,14 @@ pub struct SharedReferenceSequence {
   description : String
   sequence : String
   aligned_sequence : String
-  start : Int
-  end : Int
+  start : Int32
+  end : Int32
 } derive(Eq, Debug)
+
+///|
 pub extend SharedReferenceSequence with Eq::{equal, not_equal}
+
+///|
 pub extend SharedReferenceSequence with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -31,23 +35,31 @@ pub struct SharedReferenceInput {
   reference_description : String
   reference : String
   aligned_reference : String
-  reference_start : Int
-  reference_end : Int
+  reference_start : Int32
+  reference_end : Int32
   queries : Array[SharedReferenceSequence]
 } derive(Eq, Debug)
+
+///|
 pub extend SharedReferenceInput with Eq::{equal, not_equal}
+
+///|
 pub extend SharedReferenceInput with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Counts comparing one merged query row with the shared reference.
 pub struct SharedReferenceCounts {
-  identities : Int
-  mismatches : Int
-  insertions : Int
-  deletions : Int
-  aligned_pairs : Int
+  identities : Int32
+  mismatches : Int32
+  insertions : Int32
+  deletions : Int32
+  aligned_pairs : Int32
 } derive(Eq, Debug)
+
+///|
 pub extend SharedReferenceCounts with Eq::{equal, not_equal}
+
+///|
 pub extend SharedReferenceCounts with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -56,14 +68,20 @@ pub struct SharedReferenceAlignment {
   reference_name : String
   reference_description : String
   reference : String
-  reference_start : Int
-  reference_end : Int
+  reference_start : Int32
+  reference_end : Int32
   aligned_reference : String
   queries : Array[SharedReferenceSequence]
-  insertion_widths : Array[Int]
+  insertion_widths : Array[Int32]
 } derive(Eq, Debug)
+
+///|
 pub extend SharedReferenceAlignment with Eq::{equal, not_equal}
-pub extend SharedReferenceAlignment with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend SharedReferenceAlignment with @moonbitlang/core/debug.Debug::{
+  to_repr,
+}
 
 ///|
 /// Remove gap characters from an aligned sequence.
@@ -110,8 +128,8 @@ fn shared_reference_validate_sequence(
 /// Return a byte-based substring after validating its bounds.
 fn shared_reference_substring(
   sequence : String,
-  start : Int,
-  end : Int,
+  start : Int32,
+  end : Int32,
 ) -> String raise SharedReferenceAlignmentError {
   if start < 0 || end < start || end > sequence.length() {
     raise SharedReferenceAlignmentError(
@@ -129,9 +147,9 @@ fn shared_reference_substring(
 pub fn shared_reference_sequence(
   name : String,
   aligned_sequence : String,
-  description? : String = "",
-  sequence? : String = "",
-  start? : Int = 0,
+  description~ : String = "",
+  sequence~ : String = "",
+  start~ : Int32 = 0,
 ) -> SharedReferenceSequence raise SharedReferenceAlignmentError {
   if start < 0 {
     raise SharedReferenceAlignmentError("query start must be non-negative")
@@ -174,9 +192,9 @@ pub fn shared_reference_input(
   reference : String,
   aligned_reference : String,
   queries : Array[SharedReferenceSequence],
-  reference_name? : String = "reference",
-  reference_description? : String = "",
-  reference_start? : Int = 0,
+  reference_name~ : String = "reference",
+  reference_description~ : String = "",
+  reference_start~ : Int32 = 0,
 ) -> SharedReferenceInput raise SharedReferenceAlignmentError {
   if reference.length() == 0 {
     raise SharedReferenceAlignmentError("reference sequence must not be empty")
@@ -232,10 +250,10 @@ pub fn shared_reference_input(
 /// Adapt an existing BioSeqs PairwiseAlignment to a shared-reference input.
 pub fn shared_reference_input_from_pairwise(
   alignment : PairwiseAlignment,
-  reference_name? : String = "reference",
-  reference_description? : String = "",
-  query_name? : String = "query",
-  query_description? : String = "",
+  reference_name~ : String = "reference",
+  reference_description~ : String = "",
+  query_name~ : String = "query",
+  query_description~ : String = "",
 ) -> SharedReferenceInput raise SharedReferenceAlignmentError {
   let query = shared_reference_sequence(
     query_name,
@@ -269,8 +287,8 @@ pub fn shared_reference_input_from_pairwise(
 /// Count reference-gap columns at every boundary in one input alignment.
 fn shared_reference_slot_widths(
   aligned_reference : String,
-  span : Int,
-) -> Array[Int] raise SharedReferenceAlignmentError {
+  span : Int32,
+) -> Array[Int32] raise SharedReferenceAlignmentError {
   let widths = Array::make(span + 1, 0)
   let mut reference_offset = 0
   let mut column = 0
@@ -300,9 +318,9 @@ fn shared_reference_slot_widths(
 /// Render a reference row with synchronized insertion slots.
 fn shared_reference_render_reference(
   reference : String,
-  reference_start : Int,
-  span : Int,
-  insertion_widths : Array[Int],
+  reference_start : Int32,
+  span : Int32,
+  insertion_widths : Array[Int32],
 ) -> String {
   let result = StringBuilder()
   let mut boundary = 0
@@ -323,8 +341,8 @@ fn shared_reference_render_reference(
 fn shared_reference_project_query(
   aligned_reference : String,
   aligned_query : String,
-  span : Int,
-  insertion_widths : Array[Int],
+  span : Int32,
+  insertion_widths : Array[Int32],
 ) -> String raise SharedReferenceAlignmentError {
   let insertions : Array[StringBuilder] = []
   let bases = Array::make(span, '-')
@@ -467,7 +485,7 @@ pub fn alignments_with_same_reference(
 /// Return the number of rows, including the reference.
 pub fn SharedReferenceAlignment::num_sequences(
   self : SharedReferenceAlignment,
-) -> Int {
+) -> Int32 {
   self.queries.length() + 1
 }
 
@@ -475,7 +493,7 @@ pub fn SharedReferenceAlignment::num_sequences(
 /// Return the number of query rows.
 pub fn SharedReferenceAlignment::num_queries(
   self : SharedReferenceAlignment,
-) -> Int {
+) -> Int32 {
   self.queries.length()
 }
 
@@ -483,7 +501,7 @@ pub fn SharedReferenceAlignment::num_queries(
 /// Return the number of alignment columns.
 pub fn SharedReferenceAlignment::alignment_length(
   self : SharedReferenceAlignment,
-) -> Int {
+) -> Int32 {
   self.aligned_reference.length()
 }
 
@@ -491,7 +509,7 @@ pub fn SharedReferenceAlignment::alignment_length(
 /// Return an aligned row by MSA row index; row zero is the reference.
 pub fn SharedReferenceAlignment::row(
   self : SharedReferenceAlignment,
-  index : Int,
+  index : Int32,
 ) -> String? {
   if index == 0 {
     Some(self.aligned_reference)
@@ -506,7 +524,7 @@ pub fn SharedReferenceAlignment::row(
 /// Return a row name by MSA row index.
 pub fn SharedReferenceAlignment::row_name(
   self : SharedReferenceAlignment,
-  index : Int,
+  index : Int32,
 ) -> String? {
   if index == 0 {
     Some(self.reference_name)
@@ -535,7 +553,7 @@ pub fn SharedReferenceAlignment::find_query(
 /// Return a column containing the reference followed by all queries.
 pub fn SharedReferenceAlignment::column(
   self : SharedReferenceAlignment,
-  index : Int,
+  index : Int32,
 ) -> String? {
   if index < 0 || index >= self.alignment_length() {
     return None
@@ -552,8 +570,8 @@ pub fn SharedReferenceAlignment::column(
 /// Map an absolute reference position to an alignment column.
 pub fn SharedReferenceAlignment::reference_to_column(
   self : SharedReferenceAlignment,
-  position : Int,
-) -> Int? {
+  position : Int32,
+) -> Int32? {
   if position < self.reference_start || position >= self.reference_end {
     return None
   }
@@ -576,8 +594,8 @@ pub fn SharedReferenceAlignment::reference_to_column(
 /// Map an alignment column to an absolute reference position.
 pub fn SharedReferenceAlignment::column_to_reference(
   self : SharedReferenceAlignment,
-  column : Int,
-) -> Int? {
+  column : Int32,
+) -> Int32? {
   if column < 0 || column >= self.alignment_length() {
     return None
   }
@@ -602,9 +620,9 @@ pub fn SharedReferenceAlignment::column_to_reference(
 /// Map an absolute query position to an alignment column.
 pub fn SharedReferenceAlignment::query_to_column(
   self : SharedReferenceAlignment,
-  query_index : Int,
-  position : Int,
-) -> Int? {
+  query_index : Int32,
+  position : Int32,
+) -> Int32? {
   if query_index < 0 || query_index >= self.queries.length() {
     return None
   }
@@ -631,9 +649,9 @@ pub fn SharedReferenceAlignment::query_to_column(
 /// Map an alignment column to an absolute query position.
 pub fn SharedReferenceAlignment::column_to_query(
   self : SharedReferenceAlignment,
-  query_index : Int,
-  column : Int,
-) -> Int? {
+  query_index : Int32,
+  column : Int32,
+) -> Int32? {
   if query_index < 0 ||
     query_index >= self.queries.length() ||
     column < 0 ||
@@ -662,9 +680,9 @@ pub fn SharedReferenceAlignment::column_to_query(
 /// Map an absolute query position through the MSA to the reference.
 pub fn SharedReferenceAlignment::query_to_reference(
   self : SharedReferenceAlignment,
-  query_index : Int,
-  position : Int,
-) -> Int? {
+  query_index : Int32,
+  position : Int32,
+) -> Int32? {
   match self.query_to_column(query_index, position) {
     Some(column) => self.column_to_reference(column)
     None => None
@@ -675,9 +693,9 @@ pub fn SharedReferenceAlignment::query_to_reference(
 /// Map an absolute reference position through the MSA to one query.
 pub fn SharedReferenceAlignment::reference_to_query(
   self : SharedReferenceAlignment,
-  query_index : Int,
-  position : Int,
-) -> Int? {
+  query_index : Int32,
+  position : Int32,
+) -> Int32? {
   match self.reference_to_column(position) {
     Some(column) => self.column_to_query(query_index, column)
     None => None
@@ -688,7 +706,7 @@ pub fn SharedReferenceAlignment::reference_to_query(
 /// Count matches, mismatches, insertions, and deletions for one query.
 pub fn SharedReferenceAlignment::counts(
   self : SharedReferenceAlignment,
-  query_index : Int,
+  query_index : Int32,
 ) -> SharedReferenceCounts? {
   if query_index < 0 || query_index >= self.queries.length() {
     return None

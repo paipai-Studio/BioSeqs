@@ -14,15 +14,15 @@
 /// A disulfide bond between two cysteine residues.
 pub(all) struct DisulfideBond {
   chainid1 : Char
-  resseq1 : Int
+  resseq1 : Int32
   chainid2 : Char
-  resseq2 : Int
-  sg_sg_distance : Double  // S-S bond length (Å)
-  chi1 : Double            // N-CA-CB-SG (degrees)
-  chi2 : Double            // CA-CB-SG-SG'
-  chi_ss : Double          // CB-SG-SG'-CB'
-  chi2p : Double           // SG-SG'-CB'-CA'
-  chi1p : Double           // SG'-CB'-CA'-N'
+  resseq2 : Int32
+  sg_sg_distance : Double // S-S bond length (Å)
+  chi1 : Double // N-CA-CB-SG (degrees)
+  chi2 : Double // CA-CB-SG-SG'
+  chi_ss : Double // CB-SG-SG'-CB'
+  chi2p : Double // SG-SG'-CB'-CA'
+  chi1p : Double // SG'-CB'-CA'-N'
   oxidation_state : String // "oxidized" or "reduced"
 }
 
@@ -34,7 +34,7 @@ pub(all) struct DisulfideBond {
 /// Computes five dihedral angles for each bond.
 pub fn find_disulfide_bonds(
   chain : Chain,
-  distance_cutoff? : Double = 2.5,
+  distance_cutoff~ : Double = 2.5,
 ) -> Array[DisulfideBond] {
   let residues = chain.get_residues()
   // Collect cysteine residues with SG atoms
@@ -101,7 +101,9 @@ fn compute_disulfide_bond(
       cb1.unwrap().get_coord(),
       sg1c,
     )
-  } else { 0.0 }
+  } else {
+    0.0
+  }
   let chi2 = if ca1 is Some(_) && cb1 is Some(_) {
     calc_dihedral(
       ca1.unwrap().get_coord(),
@@ -109,7 +111,9 @@ fn compute_disulfide_bond(
       sg1c,
       sg2c,
     )
-  } else { 0.0 }
+  } else {
+    0.0
+  }
   let chi_ss = if cb1 is Some(_) && cb2 is Some(_) {
     calc_dihedral(
       cb1.unwrap().get_coord(),
@@ -117,7 +121,9 @@ fn compute_disulfide_bond(
       sg2c,
       cb2.unwrap().get_coord(),
     )
-  } else { 0.0 }
+  } else {
+    0.0
+  }
   let chi2p = if ca2 is Some(_) && cb2 is Some(_) {
     calc_dihedral(
       sg1c,
@@ -125,7 +131,9 @@ fn compute_disulfide_bond(
       cb2.unwrap().get_coord(),
       ca2.unwrap().get_coord(),
     )
-  } else { 0.0 }
+  } else {
+    0.0
+  }
   let chi1p = if n2 is Some(_) && ca2 is Some(_) && cb2 is Some(_) {
     calc_dihedral(
       sg2c,
@@ -133,12 +141,10 @@ fn compute_disulfide_bond(
       ca2.unwrap().get_coord(),
       n2.unwrap().get_coord(),
     )
-  } else { 0.0 }
-  let oxidation = if sg_sg_dist < 3.0 {
-    "oxidized"
   } else {
-    "reduced"
+    0.0
   }
+  let oxidation = if sg_sg_dist < 3.0 { "oxidized" } else { "reduced" }
   Some(DisulfideBond::{
     chainid1: res1.chainid,
     resseq1: res1.resseq,
@@ -164,15 +170,27 @@ pub fn format_disulfide_bond(bond : DisulfideBond) -> String {
   let chi1p_str = bond.chi1p.to_string()
   let dist_str = bond.sg_sg_distance.to_string()
   "SS-bond: " +
-    bond.chainid1.to_string() + bond.resseq1.to_string() + "-" +
-    bond.chainid2.to_string() + bond.resseq2.to_string() +
-    "  d=" + dist_str + " Å" +
-    "  chi1=" + chi1_str +
-    "  chi2=" + chi2_str +
-    "  chiSS=" + chi_ss_str +
-    "  chi2'=" + chi2p_str +
-    "  chi1'=" + chi1p_str +
-    "  [" + bond.oxidation_state + "]"
+  bond.chainid1.to_string() +
+  bond.resseq1.to_string() +
+  "-" +
+  bond.chainid2.to_string() +
+  bond.resseq2.to_string() +
+  "  d=" +
+  dist_str +
+  " Å" +
+  "  chi1=" +
+  chi1_str +
+  "  chi2=" +
+  chi2_str +
+  "  chiSS=" +
+  chi_ss_str +
+  "  chi2'=" +
+  chi2p_str +
+  "  chi1'=" +
+  chi1p_str +
+  "  [" +
+  bond.oxidation_state +
+  "]"
 }
 
 ///|

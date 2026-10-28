@@ -130,12 +130,12 @@ pub fn MsigCollection::new(
   subcategory : String,
   sets : Array[GmtGeneSet],
 ) -> MsigCollection {
-  MsigCollection::{ category, subcategory, sets }
+  MsigCollection::{ category, subcategory, sets, }
 }
 
 ///|
 /// Number of gene sets in the collection.
-pub fn MsigCollection::size(self : MsigCollection) -> Int {
+pub fn MsigCollection::size(self : MsigCollection) -> Int32 {
   self.sets.length()
 }
 
@@ -157,12 +157,7 @@ fn msig_set(
 ) -> GmtGeneSet {
   let id = "\{name}@\{subcategory}"
   GmtGeneSet::with_annotation(
-    name,
-    description,
-    genes,
-    collection_type,
-    "Homo sapiens",
-    id,
+    name, description, genes, collection_type, "Homo sapiens", id,
   )
 }
 
@@ -177,8 +172,8 @@ pub fn msig_hallmark() -> MsigCollection {
       "HALLMARK_TNFA_SIGNALING_VIA_NFKB",
       "Genes regulated by NF-kB in response to TNF",
       [
-        "NFKB1", "NFKB2", "RELA", "RELB", "TNF", "IL6", "CXCL8", "CCL2",
-        "ICAM1", "BIRC3", "NFKBIA", "TNFAIP3", "JUN", "FOS", "ATF3", "CEBPB",
+        "NFKB1", "NFKB2", "RELA", "RELB", "TNF", "IL6", "CXCL8", "CCL2", "ICAM1",
+        "BIRC3", "NFKBIA", "TNFAIP3", "JUN", "FOS", "ATF3", "CEBPB",
       ],
       GeneSetCollectionType::Hallmark,
       "H",
@@ -189,8 +184,8 @@ pub fn msig_hallmark() -> MsigCollection {
       "HALLMARK_P53_PATHWAY",
       "Genes involved in p53 pathways and networks",
       [
-        "TP53", "CDKN1A", "MDM2", "BAX", "GADD45A", "BBC3", "RRM2B", "SESN1",
-        "TIGAR", "ZMAT3", "DDB2", "FAS", "TNFRSF10B",
+        "TP53", "CDKN1A", "MDM2", "BAX", "GADD45A", "BBC3", "RRM2B", "SESN1", "TIGAR",
+        "ZMAT3", "DDB2", "FAS", "TNFRSF10B",
       ],
       GeneSetCollectionType::Hallmark,
       "H",
@@ -201,8 +196,8 @@ pub fn msig_hallmark() -> MsigCollection {
       "HALLMARK_APOPTOSIS",
       "Genes mediating programmed cell death",
       [
-        "BAX", "BAK1", "CASP3", "CASP7", "CASP8", "CASP9", "BID", "BCL2L11",
-        "PMAIP1", "BBC3", "FAS", "TNFRSF10B", "DIABLO",
+        "BAX", "BAK1", "CASP3", "CASP7", "CASP8", "CASP9", "BID", "BCL2L11", "PMAIP1",
+        "BBC3", "FAS", "TNFRSF10B", "DIABLO",
       ],
       GeneSetCollectionType::Hallmark,
       "H",
@@ -213,8 +208,8 @@ pub fn msig_hallmark() -> MsigCollection {
       "HALLMARK_E2F_TARGETS",
       "Genes regulated by E2F transcription factors",
       [
-        "MCM2", "MCM3", "MCM4", "MCM5", "MCM6", "MCM7", "PCNA", "CDC6", "CDT1",
-        "ORC1", "CCNA2", "CCNE1", "E2F1", "E2F2", "MCM8",
+        "MCM2", "MCM3", "MCM4", "MCM5", "MCM6", "MCM7", "PCNA", "CDC6", "CDT1", "ORC1",
+        "CCNA2", "CCNE1", "E2F1", "E2F2", "MCM8",
       ],
       GeneSetCollectionType::Hallmark,
       "H",
@@ -225,8 +220,8 @@ pub fn msig_hallmark() -> MsigCollection {
       "HALLMARK_G2M_CHECKPOINT",
       "Genes involved in the G2/M checkpoint",
       [
-        "CCNB1", "CCNB2", "CDK1", "CDC20", "CDC25C", "AURKA", "AURKB", "BUB1",
-        "MAD2L1", "PLK1", "TOP2A", "CCNA2", "MKI67",
+        "CCNB1", "CCNB2", "CDK1", "CDC20", "CDC25C", "AURKA", "AURKB", "BUB1", "MAD2L1",
+        "PLK1", "TOP2A", "CCNA2", "MKI67",
       ],
       GeneSetCollectionType::Hallmark,
       "H",
@@ -237,8 +232,8 @@ pub fn msig_hallmark() -> MsigCollection {
       "HALLMARK_INFLAMMATORY_RESPONSE",
       "Genes defining the inflammatory response",
       [
-        "IL6", "CXCL8", "CCL2", "IL1B", "TNF", "CXCL1", "CXCL2", "CCL20",
-        "IL1A", "PTGS2", "CXCL6", "CCL5", "IL6R",
+        "IL6", "CXCL8", "CCL2", "IL1B", "TNF", "CXCL1", "CXCL2", "CCL20", "IL1A",
+        "PTGS2", "CXCL6", "CCL5", "IL6R",
       ],
       GeneSetCollectionType::Hallmark,
       "H",
@@ -256,8 +251,8 @@ pub fn msig_curated_canonical() -> MsigCollection {
       "KEGG_CELL_CYCLE",
       "KEGG cell cycle pathway",
       [
-        "CDK1", "CDK2", "CDK4", "CDK6", "CDKN1A", "CDKN1B", "CCNA2", "CCNB1",
-        "CCND1", "CCNE1", "CDC25A", "CDC25B", "E2F1", "RB1", "MCM2", "PCNA",
+        "CDK1", "CDK2", "CDK4", "CDK6", "CDKN1A", "CDKN1B", "CCNA2", "CCNB1", "CCND1",
+        "CCNE1", "CDC25A", "CDC25B", "E2F1", "RB1", "MCM2", "PCNA",
       ],
       GeneSetCollectionType::Canonical,
       "CP:KEGG",
@@ -268,8 +263,8 @@ pub fn msig_curated_canonical() -> MsigCollection {
       "KEGG_APOPTOSIS",
       "KEGG apoptosis pathway",
       [
-        "TP53", "BAX", "BAK1", "BID", "CASP3", "CASP6", "CASP7", "CASP8",
-        "CASP9", "CASP10", "CYCS", "APAF1", "BCL2", "BCL2L1", "FAS", "TNFRSF10B",
+        "TP53", "BAX", "BAK1", "BID", "CASP3", "CASP6", "CASP7", "CASP8", "CASP9",
+        "CASP10", "CYCS", "APAF1", "BCL2", "BCL2L1", "FAS", "TNFRSF10B",
       ],
       GeneSetCollectionType::Canonical,
       "CP:KEGG",
@@ -280,8 +275,8 @@ pub fn msig_curated_canonical() -> MsigCollection {
       "REACTOME_DNA_REPLICATION",
       "Reactome DNA replication",
       [
-        "MCM2", "MCM3", "MCM4", "MCM5", "MCM6", "MCM7", "PCNA", "RPA1", "RPA2",
-        "RPA3", "POLA1", "POLD1", "POLE", "RFC1", "RFC2", "LIG1",
+        "MCM2", "MCM3", "MCM4", "MCM5", "MCM6", "MCM7", "PCNA", "RPA1", "RPA2", "RPA3",
+        "POLA1", "POLD1", "POLE", "RFC1", "RFC2", "LIG1",
       ],
       GeneSetCollectionType::Canonical,
       "CP:REACTOME",
@@ -292,8 +287,8 @@ pub fn msig_curated_canonical() -> MsigCollection {
       "REACTOME_CELL_CYCLE",
       "Reactome cell cycle",
       [
-        "CDK1", "CDK2", "CCNA2", "CCNB1", "CCNE1", "CDC20", "CDC25A", "CDC25C",
-        "PLK1", "AURKA", "BUB1", "MAD2L1", "ESPL1", "ANAPC1", "SKP1",
+        "CDK1", "CDK2", "CCNA2", "CCNB1", "CCNE1", "CDC20", "CDC25A", "CDC25C", "PLK1",
+        "AURKA", "BUB1", "MAD2L1", "ESPL1", "ANAPC1", "SKP1",
       ],
       GeneSetCollectionType::Canonical,
       "CP:REACTOME",
@@ -311,8 +306,8 @@ pub fn msig_ontology_go_bp() -> MsigCollection {
       "GO_APOPTOTIC_PROCESS",
       "GO:0006915 apoptotic process",
       [
-        "TP53", "BAX", "BAK1", "CASP3", "CASP8", "CASP9", "BID", "BBC3",
-        "PMAIP1", "FAS", "CYCS", "APAF1",
+        "TP53", "BAX", "BAK1", "CASP3", "CASP8", "CASP9", "BID", "BBC3", "PMAIP1",
+        "FAS", "CYCS", "APAF1",
       ],
       GeneSetCollectionType::GO_BiologicalProcess,
       "GO:BP",
@@ -323,8 +318,8 @@ pub fn msig_ontology_go_bp() -> MsigCollection {
       "GO_DNA_REPAIR",
       "GO:0006281 DNA repair",
       [
-        "TP53", "BRCA1", "BRCA2", "RAD51", "ATM", "ATR", "CHEK1", "CHEK2",
-        "XRCC1", "PARP1", "MLH1", "MSH2", "MSH6",
+        "TP53", "BRCA1", "BRCA2", "RAD51", "ATM", "ATR", "CHEK1", "CHEK2", "XRCC1",
+        "PARP1", "MLH1", "MSH2", "MSH6",
       ],
       GeneSetCollectionType::GO_BiologicalProcess,
       "GO:BP",
@@ -335,8 +330,8 @@ pub fn msig_ontology_go_bp() -> MsigCollection {
       "GO_IMMUNE_RESPONSE",
       "GO:0006955 immune response",
       [
-        "IL6", "TNF", "IFNG", "IL1B", "CXCL8", "CCL2", "CD4", "CD8A", "CD19",
-        "TLR4", "MYD88", "NFKB1", "STAT1",
+        "IL6", "TNF", "IFNG", "IL1B", "CXCL8", "CCL2", "CD4", "CD8A", "CD19", "TLR4",
+        "MYD88", "NFKB1", "STAT1",
       ],
       GeneSetCollectionType::GO_BiologicalProcess,
       "GO:BP",
@@ -353,7 +348,7 @@ pub fn msig_catalog() -> Array[MsigCollection] {
 
 ///|
 /// Total number of gene sets across a catalog.
-pub fn msig_catalog_size(catalog : Array[MsigCollection]) -> Int {
+pub fn msig_catalog_size(catalog : Array[MsigCollection]) -> Int32 {
   let mut total = 0
   for col in catalog {
     total = total + col.size()
@@ -381,8 +376,8 @@ pub fn msig_lookup(
 /// Keep only gene sets whose size lies in [min_size, max_size].
 pub fn msig_filter_by_size(
   col : MsigCollection,
-  min_size : Int,
-  max_size : Int,
+  min_size : Int32,
+  max_size : Int32,
 ) -> MsigCollection {
   let kept : Array[GmtGeneSet] = []
   for s in col.sets {
@@ -482,8 +477,8 @@ pub fn msig_entrez_to_symbol(
 
 ///|
 /// How many sets each gene belongs to (useful for identifying hub genes).
-pub fn msig_gene_frequency(col : MsigCollection) -> Map[String, Int] {
-  let freq : Map[String, Int] = Map([], capacity=256)
+pub fn msig_gene_frequency(col : MsigCollection) -> Map[String, Int32] {
+  let freq : Map[String, Int32] = Map([], capacity=256)
   for s in col.sets {
     for g in s.gene_ids {
       let cur = freq.get(g).unwrap_or(0)

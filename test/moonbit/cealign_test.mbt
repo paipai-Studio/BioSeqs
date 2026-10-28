@@ -2,14 +2,14 @@
 /// Tests for Biopython Bio.PDB.cealign-compatible structure alignment.
 
 ///|
-fn ce_test_aligner(window_size : Int, max_gap : Int) -> @src.CEAligner {
+fn ce_test_aligner(window_size : Int32, max_gap : Int32) -> @src.CEAligner {
   @src.CEAligner::new(window_size~, max_gap~) catch {
     _ => abort("valid CEAligner parameters should be accepted")
   }
 }
 
 ///|
-fn ce_test_curve(count : Int) -> Array[@src.Vector3] {
+fn ce_test_curve(count : Int32) -> Array[@src.Vector3] {
   let coordinates : Array[@src.Vector3] = []
   let mut index = 0
   while index < count {

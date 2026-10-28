@@ -7,7 +7,7 @@
 let bam_geom_base64 = "QkFNAS0AAABASEQJVk46MS42CVNPOmNvb3JkaW5hdGUKQFNRCVNOOmNocjEJTE46MTAwMAoBAAAABQAAAGNocjEA6AMAAC0AAAAAAAAACgAAAAM8SRIBAAAABAAAAP//////////AAAAAHIxAEAAAAASSP////87AAAAAAAAAAoAAAADPEkSAwAAAAgAAAD//////////wAAAAByMgBAAAAAIQAAACAAAAASSBJI//////////83AAAAAAAAAAoAAAADPEkSAwAAAAUAAAD//////////wAAAAByMwAwAAAAEgAAACAAAAASSED//////zwAAAAAAAAACgAAAAM8SRIEAAAABgAAAP//////////AAAAAHI0ACAAAAARAAAAEAAAACQAAAASSBL///////8+AAAAAAAAAAoAAAADPEkSBAAAAAcAAAD//////////wAAAAByNQAkAAAAMAAAABMAAAAgAAAAEkgSgP////////9AAAAAAAAAAAoAAAADPEkSBQAAAAYAAAD//////////wAAAAByNgAUAAAAIAAAABIAAAAQAAAAJAAAABJIEv///////zsAAAAAAAAACgAAAAM8SRIDAAAACAAAAP//////////AAAAAHI3AFcAAAAYAAAAIAAAABJIEkj//////////w=="
 
 ///|
-fn opt_ints(a : Array[Int?], b : Array[Int?]) -> Bool {
+fn opt_ints(a : Array[Int32?], b : Array[Int32?]) -> Bool {
   if a.length() != b.length() {
     return false
   }
@@ -36,14 +36,63 @@ test "bam_reference_end" {
 test "bam_get_reference_positions" {
   let bam = @src.parse_bam_base64(bam_geom_base64)
   // 4M2I2M: insertions skipped by default, None placeholders with full_length
-  assert_true(opt_ints(bam.records[1].get_reference_positions(false), [Some(10), Some(11), Some(12), Some(13), Some(14), Some(15)]))
-  assert_true(opt_ints(bam.records[1].get_reference_positions(true), [Some(10), Some(11), Some(12), Some(13), None, None, Some(14), Some(15)]))
+  assert_true(
+    opt_ints(bam.records[1].get_reference_positions(false), [
+      Some(10),
+      Some(11),
+      Some(12),
+      Some(13),
+      Some(14),
+      Some(15),
+    ]),
+  )
+  assert_true(
+    opt_ints(bam.records[1].get_reference_positions(true), [
+      Some(10),
+      Some(11),
+      Some(12),
+      Some(13),
+      None,
+      None,
+      Some(14),
+      Some(15),
+    ]),
+  )
   // 3M1D2M: deletion position excluded
-  assert_true(opt_ints(bam.records[2].get_reference_positions(false), [Some(10), Some(11), Some(12), Some(14), Some(15)]))
+  assert_true(
+    opt_ints(bam.records[2].get_reference_positions(false), [
+      Some(10),
+      Some(11),
+      Some(12),
+      Some(14),
+      Some(15),
+    ]),
+  )
   // 2S3M1N2M: soft clips None, skip excluded
-  assert_true(opt_ints(bam.records[4].get_reference_positions(true), [None, None, Some(10), Some(11), Some(12), Some(14), Some(15)]))
+  assert_true(
+    opt_ints(bam.records[4].get_reference_positions(true), [
+      None,
+      None,
+      Some(10),
+      Some(11),
+      Some(12),
+      Some(14),
+      Some(15),
+    ]),
+  )
   // 5=1X2M: = and X emit positions
-  assert_true(opt_ints(bam.records[6].get_reference_positions(false), [Some(10), Some(11), Some(12), Some(13), Some(14), Some(15), Some(16), Some(17)]))
+  assert_true(
+    opt_ints(bam.records[6].get_reference_positions(false), [
+      Some(10),
+      Some(11),
+      Some(12),
+      Some(13),
+      Some(14),
+      Some(15),
+      Some(16),
+      Some(17),
+    ]),
+  )
 }
 
 ///|

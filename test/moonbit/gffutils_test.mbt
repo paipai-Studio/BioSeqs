@@ -33,10 +33,10 @@ test "gffutils_intervals" {
   let exon1 = @src.GFFFeature::new("chr1", "src", "exon", 100, 200, "+")
   let exon2 = @src.GFFFeature::new("chr1", "src", "exon", 300, 400, "+")
   assert_true(@src.gffutils_overlaps(gene1, exon1))
-  assert_true(!(@src.gffutils_overlaps(gene1, gene2)))
+  assert_true(!@src.gffutils_overlaps(gene1, gene2))
   assert_true(@src.gffutils_contains(gene1, exon1))
   assert_true(@src.gffutils_within(exon1, gene1))
-  assert_true(!(@src.gffutils_contains(exon1, gene1)))
+  assert_true(!@src.gffutils_contains(exon1, gene1))
   assert_eq(@src.gffutils_distance(exon1, gene1), 0)
   assert_eq(@src.gffutils_distance(exon1, exon2), 99)
 }
@@ -46,12 +46,17 @@ test "gffutils_merge" {
   let f1 = @src.GFFFeature::new("chr1", "src", "exon", 100, 200, "+")
   let f2 = @src.GFFFeature::new("chr1", "src", "exon", 201, 300, "+")
   let f3 = @src.GFFFeature::new("chr1", "src", "exon", 500, 600, "+")
-  let rec = @src.GFFRecord::new().add_feature(f1).add_feature(f2).add_feature(f3)
+  let rec = @src.GFFRecord::new()
+    .add_feature(f1)
+    .add_feature(f2)
+    .add_feature(f3)
   let merged = @src.gffutils_merge(rec)
   assert_eq(merged.length(), 2)
   assert_eq((merged[0].start, merged[0].end), (100, 300))
   assert_eq((merged[1].start, merged[1].end), (500, 600))
-}///|
+} ///|
+
+///|
 test "gffutils_merge_full" {
   let rec = @src.bio_parse_gff(
     "chr1\tsrc\texon\t100\t200\t.\t+\t.\tID=exonA;gene=g1\n" +
@@ -102,27 +107,42 @@ test "gffutils_to_bed" {
 // gffutils region / interfeatures
 // ============================================================
 
+///|
 test "gffutils_region_overlap" {
   let gene = @src.GFFFeature::new("chr1", "src", "gene", 100, 500, "+")
   let exon1 = @src.GFFFeature::new("chr1", "src", "exon", 150, 200, "+")
   let exon2 = @src.GFFFeature::new("chr1", "src", "exon", 300, 350, "+")
   let other = @src.GFFFeature::new("chr2", "src", "gene", 50, 150, "+")
-  let rec = @src.GFFRecord::new().add_feature(gene).add_feature(exon1).add_feature(exon2).add_feature(other)
+  let rec = @src.GFFRecord::new()
+    .add_feature(gene)
+    .add_feature(exon1)
+    .add_feature(exon2)
+    .add_feature(other)
 
   // 重叠 140-360：gene + exon1 + exon2；chr2 的不同 seqid 不算
   let hits = @src.gffutils_region(rec, "chr1", 140, 360)
   assert_eq(hits.length(), 3)
 
   // 完全包含在 140-360：exon1(150-200) + exon2(300-350)，gene(100-500) 不算
-  let within = @src.gffutils_region(rec, "chr1", 140, 360, completely_within=true)
+  let within = @src.gffutils_region(
+    rec,
+    "chr1",
+    140,
+    360,
+    completely_within=true,
+  )
   assert_eq(within.length(), 2)
 }
 
+///|
 test "gffutils_interfeatures" {
   let f1 = @src.GFFFeature::new("chr1", "src", "exon", 100, 200, "+")
   let f2 = @src.GFFFeature::new("chr1", "src", "exon", 300, 400, "+")
   let f3 = @src.GFFFeature::new("chr1", "src", "exon", 500, 600, "+")
-  let rec = @src.GFFRecord::new().add_feature(f1).add_feature(f2).add_feature(f3)
+  let rec = @src.GFFRecord::new()
+    .add_feature(f1)
+    .add_feature(f2)
+    .add_feature(f3)
 
   let pairs = @src.gffutils_interfeatures(rec)
   assert_eq(pairs.length(), 2)
@@ -134,6 +154,7 @@ test "gffutils_interfeatures" {
   assert_eq(pairs[1].1.start, 500)
 }
 
+///|
 test "gffutils_interfeatures_cross_seqid" {
   let a = @src.GFFFeature::new("chr1", "src", "exon", 100, 200, "+")
   let b = @src.GFFFeature::new("chr2", "src", "exon", 100, 200, "+")

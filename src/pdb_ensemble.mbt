@@ -17,9 +17,9 @@
 /// Atom mapping between a reference and a mobile structure.
 /// ref_indices[i] and mob_indices[i] are paired atoms.
 pub struct AtomMap {
-  ref_indices : Array[Int]
-  mob_indices : Array[Int]
-  n_mapped : Int
+  ref_indices : Array[Int32]
+  mob_indices : Array[Int32]
+  n_mapped : Int32
 }
 
 ///|
@@ -29,46 +29,46 @@ pub fn AtomMap::new(
   ref_atoms : Array[Atom],
   mob_atoms : Array[Atom],
 ) -> AtomMap {
-  let ref_indices : Array[Int] = Array(capacity=0)
-  let mob_indices : Array[Int] = Array(capacity=0)
+  let ref_indices : Array[Int32] = Array(capacity=0)
+  let mob_indices : Array[Int32] = Array(capacity=0)
   // For each reference atom, find matching mobile atom
   for i = 0; i < ref_atoms.length(); i = i + 1 {
     let ra = ref_atoms[i]
     for j = 0; j < mob_atoms.length(); j = j + 1 {
       let ma = mob_atoms[j]
       if ra.chainid == ma.chainid &&
-         ra.resseq == ma.resseq &&
-         ra.name == ma.name {
+        ra.resseq == ma.resseq &&
+        ra.name == ma.name {
         ref_indices.push(i)
         mob_indices.push(j)
         break
       }
     }
   }
-  AtomMap::{ ref_indices, mob_indices, n_mapped: ref_indices.length() }
+  AtomMap::{ ref_indices, mob_indices, n_mapped: ref_indices.length(), }
 }
 
 ///|
 /// Number of mapped atom pairs.
-pub fn AtomMap::num_mapped(self : AtomMap) -> Int {
+pub fn AtomMap::num_mapped(self : AtomMap) -> Int32 {
   self.n_mapped
 }
 
 ///|
 /// Get the reference indices.
-pub fn AtomMap::ref_indices(self : AtomMap) -> Array[Int] {
+pub fn AtomMap::ref_indices(self : AtomMap) -> Array[Int32] {
   self.ref_indices
 }
 
 ///|
 /// Get the mobile indices.
-pub fn AtomMap::mob_indices(self : AtomMap) -> Array[Int] {
+pub fn AtomMap::mob_indices(self : AtomMap) -> Array[Int32] {
   self.mob_indices
 }
 
 ///|
 /// Coverage: fraction of reference atoms mapped.
-pub fn AtomMap::coverage(self : AtomMap, n_ref : Int) -> Double {
+pub fn AtomMap::coverage(self : AtomMap, n_ref : Int32) -> Double {
   if n_ref == 0 {
     return 0.0
   }
@@ -82,11 +82,11 @@ pub fn AtomMap::coverage(self : AtomMap, n_ref : Int) -> Double {
 /// Stores a reference structure and multiple coordinate sets,
 /// each mapped to the reference atom ordering.
 pub struct PDBEnsemble {
-  n_atoms : Int
+  n_atoms : Int32
   // Reference atom metadata for mapping
   atom_names : Array[String]
   atom_chains : Array[Char]
-  atom_resseqs : Array[Int]
+  atom_resseqs : Array[Int32]
   // Reference coordinates
   ref_coords : Array[Vector3]
   // All conformation coordinates (mapped to reference ordering)
@@ -115,7 +115,7 @@ pub fn PDBEnsemble::new(ref_chain : Chain, calpha_only : Bool) -> PDBEnsemble? {
   }
   let names : Array[String] = Array(capacity=n)
   let chains : Array[Char] = Array(capacity=n)
-  let resseqs : Array[Int] = Array(capacity=n)
+  let resseqs : Array[Int32] = Array(capacity=n)
   let coords : Array[Vector3] = Array(capacity=n)
   let wts : Array[Double] = Array(capacity=n)
   for i = 0; i < n; i = i + 1 {
@@ -157,14 +157,17 @@ fn get_ca_atoms(chain : Chain) -> Array[Atom] {
 /// Missing atoms are filled with NaN.
 pub fn PDBEnsemble::add_chain(self : PDBEnsemble, chain : Chain) -> PDBEnsemble {
   let mob_atoms = chain.get_atoms()
-  let coords : Array[Vector3] = Array::make(self.n_atoms, Vector3::new(999999.999, 999999.999, 999999.999))
+  let coords : Array[Vector3] = Array::make(
+    self.n_atoms,
+    Vector3::new(999999.999, 999999.999, 999999.999),
+  )
   // Build a quick lookup: (chainid, resseq, name) → coord
   for j = 0; j < mob_atoms.length(); j = j + 1 {
     let ma = mob_atoms[j]
     for i = 0; i < self.n_atoms; i = i + 1 {
       if self.atom_chains[i] == ma.chainid &&
-         self.atom_resseqs[i] == ma.resseq &&
-         self.atom_names[i] == ma.name {
+        self.atom_resseqs[i] == ma.resseq &&
+        self.atom_names[i] == ma.name {
         coords[i] = ma.coord
         break
       }
@@ -175,18 +178,24 @@ pub fn PDBEnsemble::add_chain(self : PDBEnsemble, chain : Chain) -> PDBEnsemble 
     new_coordsets.push(c)
   }
   new_coordsets.push(coords)
-  PDBEnsemble::{ ..self, coordsets: new_coordsets, is_aligned: false }
+  PDBEnsemble::{ ..self, coordsets: new_coordsets, is_aligned: false, }
 }
 
 ///|
 /// Add a conformation from raw coordinates (already in reference ordering).
-pub fn PDBEnsemble::add_coordset(self : PDBEnsemble, coords : Array[Vector3]) -> PDBEnsemble {
+pub fn PDBEnsemble::add_coordset(
+  self : PDBEnsemble,
+  coords : Array[Vector3],
+) -> PDBEnsemble {
   let n = if coords.length() < self.n_atoms {
     coords.length()
   } else {
     self.n_atoms
   }
-  let full : Array[Vector3] = Array::make(self.n_atoms, Vector3::new(999999.999, 999999.999, 999999.999))
+  let full : Array[Vector3] = Array::make(
+    self.n_atoms,
+    Vector3::new(999999.999, 999999.999, 999999.999),
+  )
   for i = 0; i < n; i = i + 1 {
     full[i] = coords[i]
   }
@@ -195,7 +204,7 @@ pub fn PDBEnsemble::add_coordset(self : PDBEnsemble, coords : Array[Vector3]) ->
     new_coordsets.push(c)
   }
   new_coordsets.push(full)
-  PDBEnsemble::{ ..self, coordsets: new_coordsets, is_aligned: false }
+  PDBEnsemble::{ ..self, coordsets: new_coordsets, is_aligned: false, }
 }
 
 ///|
@@ -205,7 +214,10 @@ pub fn PDBEnsemble::add_mapped(
   mob_atoms : Array[Atom],
   map : AtomMap,
 ) -> PDBEnsemble {
-  let coords : Array[Vector3] = Array::make(self.n_atoms, Vector3::new(999999.999, 999999.999, 999999.999))
+  let coords : Array[Vector3] = Array::make(
+    self.n_atoms,
+    Vector3::new(999999.999, 999999.999, 999999.999),
+  )
   for k = 0; k < map.n_mapped; k = k + 1 {
     let ri = map.ref_indices[k]
     let mi = map.mob_indices[k]
@@ -218,7 +230,7 @@ pub fn PDBEnsemble::add_mapped(
     new_coordsets.push(c)
   }
   new_coordsets.push(coords)
-  PDBEnsemble::{ ..self, coordsets: new_coordsets, is_aligned: false }
+  PDBEnsemble::{ ..self, coordsets: new_coordsets, is_aligned: false, }
 }
 
 // ===== Superimposition =====
@@ -228,7 +240,7 @@ pub fn PDBEnsemble::add_mapped(
 /// Uses weighted Kabsch algorithm.
 pub fn PDBEnsemble::superimpose(self : PDBEnsemble) -> PDBEnsemble {
   if self.coordsets.length() == 0 {
-    return PDBEnsemble::{ ..self, is_aligned: true }
+    return PDBEnsemble::{ ..self, is_aligned: true, }
   }
   let aligned : Array[Array[Vector3]] = Array(capacity=0)
   for conf = 0; conf < self.coordsets.length(); conf = conf + 1 {
@@ -238,7 +250,10 @@ pub fn PDBEnsemble::superimpose(self : PDBEnsemble) -> PDBEnsemble {
       aligned.push(copy_coords(self.coordsets[conf]))
     } else {
       let (rot, trans) = vector_superposition_transform(mapped_mob, mapped_ref)
-      let transformed : Array[Vector3] = Array::make(self.n_atoms, Vector3::new(999999.999, 999999.999, 999999.999))
+      let transformed : Array[Vector3] = Array::make(
+        self.n_atoms,
+        Vector3::new(999999.999, 999999.999, 999999.999),
+      )
       for i = 0; i < self.n_atoms; i = i + 1 {
         let c = self.coordsets[conf][i]
         if is_valid_coord(c) {
@@ -248,12 +263,15 @@ pub fn PDBEnsemble::superimpose(self : PDBEnsemble) -> PDBEnsemble {
       aligned.push(transformed)
     }
   }
-  PDBEnsemble::{ ..self, aligned, is_aligned: true }
+  PDBEnsemble::{ ..self, aligned, is_aligned: true, }
 }
 
 ///|
 /// Get mapped (non-NaN) coordinates for a conformation.
-fn get_mapped_coords(ens : PDBEnsemble, conf : Int) -> (Array[Vector3], Array[Vector3]) {
+fn get_mapped_coords(
+  ens : PDBEnsemble,
+  conf : Int32,
+) -> (Array[Vector3], Array[Vector3]) {
   let reference : Array[Vector3] = Array(capacity=0)
   let mob : Array[Vector3] = Array(capacity=0)
   for i = 0; i < ens.n_atoms; i = i + 1 {
@@ -286,7 +304,10 @@ fn copy_coords(coords : Array[Vector3]) -> Array[Vector3] {
 ///|
 /// Get the aligned coordinates for a conformation.
 /// If not yet superimposed, returns original coordinates.
-pub fn PDBEnsemble::get_coords(self : PDBEnsemble, conf : Int) -> Array[Vector3] {
+pub fn PDBEnsemble::get_coords(
+  self : PDBEnsemble,
+  conf : Int32,
+) -> Array[Vector3] {
   if self.is_aligned && conf < self.aligned.length() {
     self.aligned[conf]
   } else if conf < self.coordsets.length() {
@@ -304,13 +325,13 @@ pub fn PDBEnsemble::get_ref_coords(self : PDBEnsemble) -> Array[Vector3] {
 
 ///|
 /// Number of atoms in the reference.
-pub fn PDBEnsemble::num_atoms(self : PDBEnsemble) -> Int {
+pub fn PDBEnsemble::num_atoms(self : PDBEnsemble) -> Int32 {
   self.n_atoms
 }
 
 ///|
 /// Number of conformations.
-pub fn PDBEnsemble::num_conformations(self : PDBEnsemble) -> Int {
+pub fn PDBEnsemble::num_conformations(self : PDBEnsemble) -> Int32 {
   self.coordsets.length()
 }
 
@@ -350,7 +371,9 @@ pub fn PDBEnsemble::get_rmsd(self : PDBEnsemble) -> Array[Double] {
 /// Returns n_conf × n_conf matrix.
 pub fn PDBEnsemble::get_rmsd_matrix(self : PDBEnsemble) -> Array[Array[Double]] {
   let n_conf = self.coordsets.length()
-  let matrix : Array[Array[Double]] = Array::makei(n_conf, _ => Array::make(n_conf, 0.0))
+  let matrix : Array[Array[Double]] = Array::makei(n_conf, _ => {
+    Array::make(n_conf, 0.0)
+  })
   for i = 0; i < n_conf; i = i + 1 {
     let ci = self.get_coords(i)
     for j = i + 1; j < n_conf; j = j + 1 {
@@ -387,7 +410,7 @@ pub fn PDBEnsemble::get_rmsf(self : PDBEnsemble) -> Array[Double] {
   }
   // Compute mean position
   let mean : Array[Vector3] = Array::make(self.n_atoms, Vector3::zero())
-  let counts : Array[Int] = Array::make(self.n_atoms, 0)
+  let counts : Array[Int32] = Array::make(self.n_atoms, 0)
   for conf = 0; conf < n_conf; conf = conf + 1 {
     let coords = self.get_coords(conf)
     for i = 0; i < self.n_atoms; i = i + 1 {
@@ -428,7 +451,7 @@ pub fn PDBEnsemble::get_mean_structure(self : PDBEnsemble) -> Array[Vector3] {
   if n_conf == 0 {
     return self.ref_coords
   }
-  let counts : Array[Int] = Array::make(self.n_atoms, 0)
+  let counts : Array[Int32] = Array::make(self.n_atoms, 0)
   for conf = 0; conf < n_conf; conf = conf + 1 {
     let coords = self.get_coords(conf)
     for i = 0; i < self.n_atoms; i = i + 1 {
@@ -457,7 +480,7 @@ pub fn PDBEnsemble::get_coord_deviations(self : PDBEnsemble) -> Array[Double] {
     return dev
   }
   let mean = self.get_mean_structure()
-  let counts : Array[Int] = Array::make(self.n_atoms, 0)
+  let counts : Array[Int32] = Array::make(self.n_atoms, 0)
   for conf = 0; conf < n_conf; conf = conf + 1 {
     let coords = self.get_coords(conf)
     for i = 0; i < self.n_atoms; i = i + 1 {
@@ -478,7 +501,10 @@ pub fn PDBEnsemble::get_coord_deviations(self : PDBEnsemble) -> Array[Double] {
 
 ///|
 /// Set weights for superimposition.
-pub fn PDBEnsemble::set_weights(self : PDBEnsemble, weights : Array[Double]) -> PDBEnsemble {
+pub fn PDBEnsemble::set_weights(
+  self : PDBEnsemble,
+  weights : Array[Double],
+) -> PDBEnsemble {
   let n = if weights.length() < self.n_atoms {
     weights.length()
   } else {
@@ -488,7 +514,7 @@ pub fn PDBEnsemble::set_weights(self : PDBEnsemble, weights : Array[Double]) -> 
   for i = 0; i < n; i = i + 1 {
     wts[i] = weights[i]
   }
-  PDBEnsemble::{ ..self, weights: wts }
+  PDBEnsemble::{ ..self, weights: wts, }
 }
 
 ///|
@@ -499,14 +525,17 @@ pub fn PDBEnsemble::get_weights(self : PDBEnsemble) -> Array[Double] {
 
 ///|
 /// Remove a conformation by index.
-pub fn PDBEnsemble::remove_conformation(self : PDBEnsemble, index : Int) -> PDBEnsemble {
+pub fn PDBEnsemble::remove_conformation(
+  self : PDBEnsemble,
+  index : Int32,
+) -> PDBEnsemble {
   let new_coordsets : Array[Array[Vector3]] = Array(capacity=0)
   for i = 0; i < self.coordsets.length(); i = i + 1 {
     if i != index {
       new_coordsets.push(self.coordsets[i])
     }
   }
-  PDBEnsemble::{ ..self, coordsets: new_coordsets, is_aligned: false }
+  PDBEnsemble::{ ..self, coordsets: new_coordsets, is_aligned: false, }
 }
 
 ///|
@@ -523,7 +552,7 @@ pub fn PDBEnsemble::get_atom_chains(self : PDBEnsemble) -> Array[Char] {
 
 ///|
 /// Get the atom residue numbers.
-pub fn PDBEnsemble::get_atom_resseqs(self : PDBEnsemble) -> Array[Int] {
+pub fn PDBEnsemble::get_atom_resseqs(self : PDBEnsemble) -> Array[Int32] {
   self.atom_resseqs
 }
 
@@ -546,7 +575,10 @@ pub fn PDBEnsemble::get_coverage(self : PDBEnsemble) -> Array[Double] {
 ///|
 /// Build a PDBEnsemble from multiple chains.
 /// First chain is the reference; remaining chains are added as conformations.
-pub fn PDBEnsemble::from_chains(chains : Array[Chain], calpha_only : Bool) -> PDBEnsemble? {
+pub fn PDBEnsemble::from_chains(
+  chains : Array[Chain],
+  calpha_only : Bool,
+) -> PDBEnsemble? {
   if chains.length() == 0 {
     return None
   }
@@ -564,19 +596,29 @@ pub fn PDBEnsemble::from_chains(chains : Array[Chain], calpha_only : Bool) -> PD
 
 ///|
 /// Iterative superimposition: align, compute mean, re-align to mean.
-pub fn PDBEnsemble::iterative_superimpose(self : PDBEnsemble, n_iter : Int) -> PDBEnsemble {
+pub fn PDBEnsemble::iterative_superimpose(
+  self : PDBEnsemble,
+  n_iter : Int32,
+) -> PDBEnsemble {
   let mut result = self.superimpose()
   for iter = 0; iter < n_iter; iter = iter + 1 {
     let mean = result.get_mean_structure()
     // Re-align each conformation to the mean
     let new_aligned : Array[Array[Vector3]] = Array(capacity=0)
     for conf = 0; conf < result.coordsets.length(); conf = conf + 1 {
-      let (mapped_ref, mapped_mob) = get_mapped_coords_to_mean(result, conf, mean)
+      let (mapped_ref, mapped_mob) = get_mapped_coords_to_mean(
+        result, conf, mean,
+      )
       if mapped_ref.length() < 3 {
         new_aligned.push(copy_coords(result.coordsets[conf]))
       } else {
-        let (rot, trans) = vector_superposition_transform(mapped_mob, mapped_ref)
-        let transformed : Array[Vector3] = Array::make(result.n_atoms, Vector3::new(999999.999, 999999.999, 999999.999))
+        let (rot, trans) = vector_superposition_transform(
+          mapped_mob, mapped_ref,
+        )
+        let transformed : Array[Vector3] = Array::make(
+          result.n_atoms,
+          Vector3::new(999999.999, 999999.999, 999999.999),
+        )
         for i = 0; i < result.n_atoms; i = i + 1 {
           let c = result.coordsets[conf][i]
           if is_valid_coord(c) {
@@ -586,7 +628,7 @@ pub fn PDBEnsemble::iterative_superimpose(self : PDBEnsemble, n_iter : Int) -> P
         new_aligned.push(transformed)
       }
     }
-    result = PDBEnsemble::{ ..result, aligned: new_aligned, is_aligned: true }
+    result = PDBEnsemble::{ ..result, aligned: new_aligned, is_aligned: true, }
   }
   result
 }
@@ -594,7 +636,7 @@ pub fn PDBEnsemble::iterative_superimpose(self : PDBEnsemble, n_iter : Int) -> P
 ///|
 fn get_mapped_coords_to_mean(
   ens : PDBEnsemble,
-  conf : Int,
+  conf : Int32,
   mean : Array[Vector3],
 ) -> (Array[Vector3], Array[Vector3]) {
   let reference : Array[Vector3] = Array(capacity=0)

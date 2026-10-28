@@ -23,7 +23,10 @@ test "scanprosite_url_quote_plus" {
 ///|
 test "scanprosite_url_extra_params" {
   assert_eq(
-    @src.scanprosite_url(seq="MKWVTF", params=[("db", "sp"), ("sig", "P-x(2)-G")]),
+    @src.scanprosite_url(seq="MKWVTF", params=[
+      ("db", "sp"),
+      ("sig", "P-x(2)-G"),
+    ]),
     "https://prosite.expasy.org/cgi-bin/prosite/scanprosite/PSScan.cgi?seq=MKWVTF&output=xml&db=sp&sig=P-x%282%29-G",
   )
 }
@@ -70,8 +73,7 @@ test "scanprosite_read_sample" {
 
 ///|
 test "scanprosite_read_unknown_element_goes_to_extras" {
-  let xml =
-    "<scanprosite_response><matchset n_match=\"1\" n_seq=\"1\"><match><sequence_ac>X</sequence_ac><start>5</start><stop>9</stop><custom_tag>hello</custom_tag></match></matchset></scanprosite_response>"
+  let xml = "<scanprosite_response><matchset n_match=\"1\" n_seq=\"1\"><match><sequence_ac>X</sequence_ac><start>5</start><stop>9</stop><custom_tag>hello</custom_tag></match></matchset></scanprosite_response>"
   let record = @src.scanprosite_read(xml) catch {
     _ => abort("compact XML should parse")
   }

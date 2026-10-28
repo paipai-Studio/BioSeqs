@@ -12,7 +12,7 @@ fn nni_internal(children : Array[@src.Clade]) -> @src.Clade {
 }
 
 ///|
-fn nni_count_leaves(clade : @src.Clade) -> Int {
+fn nni_count_leaves(clade : @src.Clade) -> Int32 {
   if clade.is_terminal() {
     return 1
   }
@@ -56,7 +56,7 @@ fn nni_same_leaves(a : @src.Clade, b : @src.Clade) -> Bool {
         found = true
       }
     }
-    if !(found) {
+    if !found {
       return false
     }
   }

@@ -158,7 +158,7 @@ pub fn get_leaves(node : TreeNode) -> Array[String] {
 }
 
 ///|
-pub fn get_leaf_count(node : TreeNode) -> Int {
+pub fn get_leaf_count(node : TreeNode) -> Int32 {
   let mut count = 0
   let stack : Array[TreeNode] = Array(capacity=0)
 
@@ -183,7 +183,7 @@ pub fn get_leaf_count(node : TreeNode) -> Int {
 }
 
 ///|
-pub fn get_node_count(node : TreeNode) -> Int {
+pub fn get_node_count(node : TreeNode) -> Int32 {
   let mut count = 0
   let stack : Array[TreeNode] = Array(capacity=0)
 

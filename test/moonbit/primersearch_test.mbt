@@ -1,6 +1,5 @@
 ///|
 /// Tests for primersearch module (Bio.Emboss.PrimerSearch).
-
 test "primersearch_read_primers" {
   let content = "# comment line\nGeneA ATGAAACGTT TTACAGCTAA\nGeneB GGCCTTAACC GGAATTCCGG\n"
   let pairs = @src.primersearch_read_primers(content)
@@ -10,12 +9,14 @@ test "primersearch_read_primers" {
   assert_eq(pairs[0].reverse, "TTACAGCTAA")
 }
 
+///|
 test "primersearch_revcomp" {
   assert_eq(@src.primersearch_revcomp("ACGT"), "ACGT")
   assert_eq(@src.primersearch_revcomp("AAAA"), "TTTT")
   assert_eq(@src.primersearch_revcomp("ATGC"), "GCAT")
 }
 
+///|
 test "primersearch_find_hits exact" {
   let seq = "GGGATGAAACGTTCCCTTTACAGCTAAAGGG"
   let hits = @src.primersearch_find_hits(seq, "ATGAAACGTT")
@@ -26,6 +27,7 @@ test "primersearch_find_hits exact" {
   assert_eq(hits[0].mismatches, 0)
 }
 
+///|
 test "primersearch_find_hits with mismatches" {
   let seq = "GGGATGAAACGTTCCCTTTACAGCTAAAGGG"
   // "ATGAAACGTA" differs at last base from target
@@ -36,6 +38,7 @@ test "primersearch_find_hits with mismatches" {
   assert_eq(hits1[0].mismatches, 1)
 }
 
+///|
 test "primersearch_run product" {
   let primers = @src.primersearch_example_primers()
   let seqs = @src.primersearch_example_sequences()
@@ -50,6 +53,7 @@ test "primersearch_run product" {
   assert_true(prod.product_size > 0)
 }
 
+///|
 test "primersearch_no_hit" {
   let primers = [@src.PrimerPair::new("NoHit", "AAAAAAAAAA", "CCCCCCCCCC")]
   let seqs = @src.primersearch_example_sequences()
@@ -57,7 +61,7 @@ test "primersearch_no_hit" {
   assert_eq(result.products.length(), 0)
 }
 
-
+///|
 test "primersearch_to_string" {
   let primers = @src.primersearch_example_primers()
   let seqs = @src.primersearch_example_sequences()
@@ -68,17 +72,27 @@ test "primersearch_to_string" {
   assert_true(s.contains("chr1"))
 }
 
+///|
 test "primersearch_filter_by_size" {
   let primers = @src.primersearch_example_primers()
   let seqs = @src.primersearch_example_sequences()
   let result = @src.primersearch_run(primers, seqs)
   let prod = result.products[0]
-  let in_range = @src.primersearch_filter_by_size(result, prod.product_size, prod.product_size)
+  let in_range = @src.primersearch_filter_by_size(
+    result,
+    prod.product_size,
+    prod.product_size,
+  )
   assert_eq(in_range.length(), 1)
-  let out_range = @src.primersearch_filter_by_size(result, prod.product_size + 1000, prod.product_size + 2000)
+  let out_range = @src.primersearch_filter_by_size(
+    result,
+    prod.product_size + 1000,
+    prod.product_size + 2000,
+  )
   assert_eq(out_range.length(), 0)
 }
 
+///|
 test "primersearch no hit" {
   let primers = [@src.PrimerPair::new("NoHit", "AAAAAAAAAA", "CCCCCCCCCC")]
   let seqs = @src.primersearch_example_sequences()

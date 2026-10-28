@@ -49,20 +49,17 @@ fn json_as_arr(v : JsonValue) -> Array[JsonValue]? {
 
 ///|
 /// Extract (id, metadata) from a BIOM row/column entry.
-fn biom_id_metadata(
-  entry : JsonValue,
-) -> (String, Map[String, JsonValue])? {
+fn biom_id_metadata(entry : JsonValue) -> (String, Map[String, JsonValue])? {
   let m = match json_as_obj(entry) {
     Some(x) => x
     None => return None
   }
   let id = match m.get("id") {
-    Some(x) => {
+    Some(x) =>
       match json_as_str(x) {
         Some(s) => s
         None => return None
       }
-    }
     None => return None
   }
   let meta = match m.get("metadata") {
@@ -214,34 +211,33 @@ pub fn BiomTable::to_json(self : BiomTable) -> String {
     cols.push(JsonObj(m))
   }
 
-  let data_node : JsonValue =
-    if self.matrix_type == "sparse" {
-      let entries : Array[JsonValue] = []
-      for i = 0; i < n_rows; i = i + 1 {
-        for j = 0; j < n_cols; j = j + 1 {
-          if self.data[i][j] != 0.0 {
-            entries.push(
-              JsonArr([
-                JsonNum(i.to_double()),
-                JsonNum(j.to_double()),
-                JsonNum(self.data[i][j]),
-              ]),
-            )
-          }
+  let data_node : JsonValue = if self.matrix_type == "sparse" {
+    let entries : Array[JsonValue] = []
+    for i = 0; i < n_rows; i = i + 1 {
+      for j = 0; j < n_cols; j = j + 1 {
+        if self.data[i][j] != 0.0 {
+          entries.push(
+            JsonArr([
+              JsonNum(i.to_double()),
+              JsonNum(j.to_double()),
+              JsonNum(self.data[i][j]),
+            ]),
+          )
         }
       }
-      JsonArr(entries)
-    } else {
-      let rows_d : Array[JsonValue] = []
-      for i = 0; i < n_rows; i = i + 1 {
-        let vals : Array[JsonValue] = []
-        for j = 0; j < n_cols; j = j + 1 {
-          vals.push(JsonNum(self.data[i][j]))
-        }
-        rows_d.push(JsonArr(vals))
-      }
-      JsonArr(rows_d)
     }
+    JsonArr(entries)
+  } else {
+    let rows_d : Array[JsonValue] = []
+    for i = 0; i < n_rows; i = i + 1 {
+      let vals : Array[JsonValue] = []
+      for j = 0; j < n_cols; j = j + 1 {
+        vals.push(JsonNum(self.data[i][j]))
+      }
+      rows_d.push(JsonArr(vals))
+    }
+    JsonArr(rows_d)
+  }
 
   let root : Map[String, JsonValue] = Map([], capacity=8)
   root.set("id", JsonStr(self.table_id))
@@ -296,13 +292,13 @@ pub fn BiomTable::new(
 
 ///|
 /// Number of observations (rows).
-pub fn BiomTable::n_observations(self : BiomTable) -> Int {
+pub fn BiomTable::n_observations(self : BiomTable) -> Int32 {
   self.observation_ids.length()
 }
 
 ///|
 /// Number of samples (columns).
-pub fn BiomTable::n_samples(self : BiomTable) -> Int {
+pub fn BiomTable::n_samples(self : BiomTable) -> Int32 {
   self.sample_ids.length()
 }
 
@@ -310,8 +306,8 @@ pub fn BiomTable::n_samples(self : BiomTable) -> Int {
 /// Get a cell value by observation index and sample index.
 pub fn BiomTable::get_value(
   self : BiomTable,
-  obs_idx : Int,
-  samp_idx : Int
+  obs_idx : Int32,
+  samp_idx : Int32,
 ) -> Double? {
   if obs_idx >= 0 && obs_idx < self.data.length() {
     let row = self.data[obs_idx]
@@ -324,7 +320,7 @@ pub fn BiomTable::get_value(
 
 ///|
 /// Find the index of an observation ID, or -1 if not found.
-pub fn BiomTable::observation_index(self : BiomTable, id : String) -> Int {
+pub fn BiomTable::observation_index(self : BiomTable, id : String) -> Int32 {
   for i in 0..<self.observation_ids.length() {
     if self.observation_ids[i] == id {
       return i
@@ -335,7 +331,7 @@ pub fn BiomTable::observation_index(self : BiomTable, id : String) -> Int {
 
 ///|
 /// Find the index of a sample ID, or -1 if not found.
-pub fn BiomTable::sample_index(self : BiomTable, id : String) -> Int {
+pub fn BiomTable::sample_index(self : BiomTable, id : String) -> Int32 {
   for i in 0..<self.sample_ids.length() {
     if self.sample_ids[i] == id {
       return i
@@ -388,7 +384,7 @@ pub fn BiomTable::observation_sums(self : BiomTable) -> Array[Double] {
 /// Example: `table.transform(fn(v) { if v > 0.0 { @math.log2(v + 1.0) } else { 0.0 } })`
 pub fn BiomTable::transform(
   self : BiomTable,
-  f : (Double, Int) -> Double
+  f : (Double, Int32) -> Double,
 ) -> BiomTable {
   let new_data : Array[Array[Double]] = []
   for i in 0..<self.data.length() {
@@ -435,7 +431,7 @@ pub fn BiomTable::normalize_samples(self : BiomTable) -> BiomTable {
 /// Returns a new BiomTable containing only the specified observations.
 pub fn BiomTable::filter_observations(
   self : BiomTable,
-  keep_ids : Array[String]
+  keep_ids : Array[String],
 ) -> BiomTable {
   let new_ids : Array[String] = []
   let new_meta : Array[Map[String, JsonValue]] = []
@@ -465,9 +461,9 @@ pub fn BiomTable::filter_observations(
 /// Returns a new BiomTable containing only the specified samples.
 pub fn BiomTable::filter_samples(
   self : BiomTable,
-  keep_ids : Array[String]
+  keep_ids : Array[String],
 ) -> BiomTable {
-  let keep_indices : Array[Int] = []
+  let keep_indices : Array[Int32] = []
   for id in keep_ids {
     let idx = self.sample_index(id)
     if idx >= 0 {
@@ -574,7 +570,7 @@ fn biom_parse_double(s : String) -> Double {
       } else {
         int_part = int_part * 10.0 + digit
       }
-    } else if c == 46 && !(in_frac) { // '.'
+    } else if c == 46 && !in_frac { // '.'
       in_frac = true
     } else if c == 101 || c == 69 { // 'e' or 'E'
       // Simple exponent handling
@@ -584,11 +580,15 @@ fn biom_parse_double(s : String) -> Double {
     }
     i = i + 1
   }
-  if !(seen_digit) {
+  if !seen_digit {
     return 0.0
   }
   let result = int_part + frac_part
-  if neg { -result } else { result }
+  if neg {
+    -result
+  } else {
+    result
+  }
 }
 
 ///|
@@ -617,7 +617,7 @@ pub fn parse_biom_tsv(text : String) -> BiomTable? {
     k = 0
     while k < lines.length() {
       let line = lines[k].trim()
-      if line.length() > 0 && !(line.has_prefix("#")) {
+      if line.length() > 0 && !line.has_prefix("#") {
         header_idx = k
         break
       }
@@ -680,36 +680,33 @@ pub fn parse_biom_tsv(text : String) -> BiomTable? {
 /// Missing cells (present in one table but not the other) are filled
 /// with 0.0. Observation/sample metadata is taken from whichever table
 /// has it (table `a` takes priority).
-pub fn BiomTable::merge(
-  self : BiomTable,
-  other : BiomTable
-) -> BiomTable {
+pub fn BiomTable::merge(self : BiomTable, other : BiomTable) -> BiomTable {
   // Union of sample IDs
   let all_sample_ids : Array[String] = []
-  let samp_seen : Map[String, Int] = Map([], capacity=0)
+  let samp_seen : Map[String, Int32] = Map([], capacity=0)
   for id in self.sample_ids {
-    if !(samp_seen.contains(id)) {
+    if !samp_seen.contains(id) {
       samp_seen[id] = all_sample_ids.length()
       all_sample_ids.push(id)
     }
   }
   for id in other.sample_ids {
-    if !(samp_seen.contains(id)) {
+    if !samp_seen.contains(id) {
       samp_seen[id] = all_sample_ids.length()
       all_sample_ids.push(id)
     }
   }
   // Union of observation IDs
   let all_obs_ids : Array[String] = []
-  let obs_seen : Map[String, Int] = Map([], capacity=0)
+  let obs_seen : Map[String, Int32] = Map([], capacity=0)
   for id in self.observation_ids {
-    if !(obs_seen.contains(id)) {
+    if !obs_seen.contains(id) {
       obs_seen[id] = all_obs_ids.length()
       all_obs_ids.push(id)
     }
   }
   for id in other.observation_ids {
-    if !(obs_seen.contains(id)) {
+    if !obs_seen.contains(id) {
       obs_seen[id] = all_obs_ids.length()
       all_obs_ids.push(id)
     }

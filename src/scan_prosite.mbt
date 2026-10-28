@@ -41,8 +41,8 @@ pub struct ScanPrositeMatch {
   mut sequence_id : String
   mut sequence_db : String
   mut signature_ac : String
-  mut start : Int
-  mut stop : Int
+  mut start : Int32
+  mut stop : Int32
   mut level : String
   mut level_tag : String
   extras : Map[String, String]
@@ -71,10 +71,10 @@ pub fn ScanPrositeMatch::new() -> ScanPrositeMatch {
 /// fields on Biopython's ``Record``; Biopython leaves them unset (None) and
 /// this port does the same.
 pub struct ScanPrositeRecord {
-  mut n_match : Int
-  mut n_seq : Int
-  capped : Int?
-  warning : Int?
+  mut n_match : Int32
+  mut n_seq : Int32
+  capped : Int32?
+  warning : Int32?
   matches : Array[ScanPrositeMatch]
 }
 
@@ -94,7 +94,7 @@ pub fn ScanPrositeRecord::new() -> ScanPrositeRecord {
 // ---------------------------------------------------------------------------
 
 ///|
-fn sp_is_ws(cp : Int) -> Bool {
+fn sp_is_ws(cp : Int32) -> Bool {
   cp == 32 || cp == 9 || cp == 10 || cp == 13 || cp == 11 || cp == 12
 }
 
@@ -139,7 +139,7 @@ fn sp_split_ws(s : String) -> Array[String] {
 ///|
 /// Index of the first occurrence of code point `cp` at or after `from`, or
 /// -1 when absent.
-fn sp_index_of_char_from(s : String, from : Int, cp : Int) -> Int {
+fn sp_index_of_char_from(s : String, from : Int32, cp : Int32) -> Int32 {
   let mut i = from
   while i < s.length() {
     if s.unsafe_get(i).to_int() == cp {
@@ -152,7 +152,7 @@ fn sp_index_of_char_from(s : String, from : Int, cp : Int) -> Int {
 
 ///|
 /// Index of the first occurrence of code point `cp`, or -1 when absent.
-fn sp_index_of_char(s : String, cp : Int) -> Int {
+fn sp_index_of_char(s : String, cp : Int32) -> Int32 {
   sp_index_of_char_from(s, 0, cp)
 }
 
@@ -231,7 +231,7 @@ pub fn scanprosite_scan(
   params? : Array[(String, String)],
 ) -> String raise ScanPrositeError {
   let url = scanprosite_url(seq~, output?, mirror?, params?)
-  (fetch)(url, None)
+  fetch(url, None)
 }
 
 // ---------------------------------------------------------------------------
@@ -325,11 +325,11 @@ priv struct SpNode {
 /// Parse one element (and its subtree) starting at token `pos`.
 fn sp_parse_node(
   tokens : Array[SpXmlToken],
-  pos : Int,
-) -> (SpNode, Int) raise ScanPrositeError {
+  pos : Int32,
+) -> (SpNode, Int32) raise ScanPrositeError {
   match tokens[pos] {
     Open(name, attrs) => {
-      let node = SpNode::{ name, attrs, children: [], text: "" }
+      let node = SpNode::{ name, attrs, children: [], text: "", }
       let mut i = pos + 1
       let tb = StringBuilder()
       while i < tokens.length() {
@@ -395,7 +395,9 @@ fn sp_build_match(node : SpNode) -> ScanPrositeMatch {
 /// Like Biopython's ScanProsite.read(), the document must begin directly
 /// with ``<scanprosite_response>``; otherwise the raw text is reported in a
 /// ScanPrositeError (Biopython raises ValueError with the same payload).
-pub fn scanprosite_read(xml : String) -> ScanPrositeRecord raise ScanPrositeError {
+pub fn scanprosite_read(
+  xml : String,
+) -> ScanPrositeRecord raise ScanPrositeError {
   if !starts_with(xml, 0, "<scanprosite_response>") {
     sp_fail(xml)
   }

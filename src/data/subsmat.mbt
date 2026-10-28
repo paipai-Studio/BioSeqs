@@ -41,7 +41,7 @@ pub fn matrix_pam30() -> MatrixType {
 /// Substitution matrix structure.
 pub struct SubstitutionMatrix {
   name : String
-  data : Map[String, Map[String, Int]]
+  data : Map[String, Map[String, Int32]]
   alphabet : Array[String]
 }
 
@@ -49,7 +49,7 @@ pub struct SubstitutionMatrix {
 /// Create a substitution matrix.
 pub fn SubstitutionMatrix::new(
   name : String,
-  data : Map[String, Map[String, Int]],
+  data : Map[String, Map[String, Int32]],
   alphabet : Array[String],
 ) -> SubstitutionMatrix {
   SubstitutionMatrix::{ name, data, alphabet, }
@@ -74,7 +74,7 @@ pub fn SubstitutionMatrix::get_score(
   self : SubstitutionMatrix,
   aa1 : String,
   aa2 : String,
-) -> Int {
+) -> Int32 {
   let row = self.data.get(aa1)
   if row is None {
     return 0
@@ -92,7 +92,7 @@ pub fn SubstitutionMatrix::get_score_case_insensitive(
   self : SubstitutionMatrix,
   aa1 : String,
   aa2 : String,
-) -> Int {
+) -> Int32 {
   self.get_score(aa1.to_upper(), aa2.to_upper())
 }
 
@@ -117,7 +117,7 @@ pub fn standard_aa_alphabet() -> Array[String] {
 ///|
 /// BLOSUM62 substitution matrix.
 /// Derived from Henikoff & Henikoff (1992).
-fn blosum62_data() -> Map[String, Map[String, Int]] {
+fn blosum62_data() -> Map[String, Map[String, Int32]] {
   let m = Map([], capacity=20)
 
   m["A"] = Map([
@@ -566,7 +566,7 @@ fn blosum62_data() -> Map[String, Map[String, Int]] {
 
 ///|
 /// BLOSUM45 substitution matrix.
-fn blosum45_data() -> Map[String, Map[String, Int]] {
+fn blosum45_data() -> Map[String, Map[String, Int32]] {
   let m = Map([], capacity=20)
 
   m["A"] = Map([
@@ -1015,7 +1015,7 @@ fn blosum45_data() -> Map[String, Map[String, Int]] {
 
 ///|
 /// PAM250 substitution matrix.
-fn pam250_data() -> Map[String, Map[String, Int]] {
+fn pam250_data() -> Map[String, Map[String, Int32]] {
   let m = Map([], capacity=20)
 
   m["A"] = Map([
@@ -1464,7 +1464,7 @@ fn pam250_data() -> Map[String, Map[String, Int]] {
 
 ///|
 /// PAM30 substitution matrix.
-fn pam30_data() -> Map[String, Map[String, Int]] {
+fn pam30_data() -> Map[String, Map[String, Int32]] {
   let m = Map([], capacity=20)
 
   m["A"] = Map([
@@ -1945,7 +1945,6 @@ pub fn get_matrix(matrix_type : MatrixType) -> SubstitutionMatrix {
     MatrixType::PAM30 => pam30()
   }
 }
-
 
 ///|
 /// Format substitution matrix to string.

@@ -63,16 +63,16 @@ pub fn TrimResult::new(
 /// - allowed_mismatches: Number of allowed mismatches in adapter alignment
 pub struct AdapterConfig {
   adapters : Array[String]
-  min_overlap : Int
-  allowed_mismatches : Int
+  min_overlap : Int32
+  allowed_mismatches : Int32
 }
 
 ///|
 /// Construct an AdapterConfig with the given parameters.
 pub fn AdapterConfig::new(
   adapters : Array[String],
-  min_overlap : Int,
-  allowed_mismatches : Int,
+  min_overlap : Int32,
+  allowed_mismatches : Int32,
 ) -> AdapterConfig {
   AdapterConfig::{ adapters, min_overlap, allowed_mismatches, }
 }
@@ -85,19 +85,19 @@ pub fn AdapterConfig::new(
 /// - window_size: Sliding window size for quality filtering
 /// - avg_quality: Minimum average quality for the sliding window
 pub struct QualityConfig {
-  min_quality : Int
-  min_length : Int
-  window_size : Int
-  avg_quality : Int
+  min_quality : Int32
+  min_length : Int32
+  window_size : Int32
+  avg_quality : Int32
 }
 
 ///|
 /// Construct a QualityConfig with the given parameters.
 pub fn QualityConfig::new(
-  min_quality : Int,
-  min_length : Int,
-  window_size : Int,
-  avg_quality : Int,
+  min_quality : Int32,
+  min_length : Int32,
+  window_size : Int32,
+  avg_quality : Int32,
 ) -> QualityConfig {
   QualityConfig::{ min_quality, min_length, window_size, avg_quality, }
 }
@@ -108,12 +108,12 @@ pub fn QualityConfig::new(
 /// Provides counts of total, kept, trimmed, and discarded reads,
 /// along with total base pairs and GC content before and after trimming.
 pub struct TrimStatistics {
-  total_reads : Int
-  kept_reads : Int
-  trimmed_reads : Int
-  discarded_reads : Int
-  total_bp_before : Int
-  total_bp_after : Int
+  total_reads : Int32
+  kept_reads : Int32
+  trimmed_reads : Int32
+  discarded_reads : Int32
+  total_bp_before : Int32
+  total_bp_after : Int32
   gc_content_before : Double
   gc_content_after : Double
 }
@@ -121,12 +121,12 @@ pub struct TrimStatistics {
 ///|
 /// Construct a TrimStatistics with the given fields.
 pub fn TrimStatistics::new(
-  total_reads : Int,
-  kept_reads : Int,
-  trimmed_reads : Int,
-  discarded_reads : Int,
-  total_bp_before : Int,
-  total_bp_after : Int,
+  total_reads : Int32,
+  kept_reads : Int32,
+  trimmed_reads : Int32,
+  discarded_reads : Int32,
+  total_bp_before : Int32,
+  total_bp_after : Int32,
   gc_content_before : Double,
   gc_content_after : Double,
 ) -> TrimStatistics {
@@ -144,7 +144,7 @@ pub fn TrimStatistics::new(
 
 ///|
 /// Convert a quality character (Phred+33) to its numeric quality score.
-fn sqt_phred(c : UInt16) -> Int {
+fn sqt_phred(c : UInt16) -> Int32 {
   c.to_int() - 33
 }
 
@@ -181,7 +181,7 @@ fn sqt_gc_content(seq : String) -> Double {
 pub fn sqt_quality_trim(
   seq : String,
   qual : String,
-  min_qual? : Int = 20,
+  min_qual~ : Int32 = 20,
 ) -> (String, String) {
   let len = seq.length()
   if len == 0 {
@@ -224,7 +224,7 @@ pub fn sqt_trim_adapter(
   seq : String,
   qual : String,
   adapter : String,
-  allowed_mismatches? : Int = 0,
+  allowed_mismatches~ : Int32 = 0,
 ) -> (String, String) {
   let seq_len = seq.length()
   let adapter_len = adapter.length()
@@ -282,7 +282,7 @@ pub fn sqt_trim_adapter(
 pub fn sqt_trim_poly_a(
   seq : String,
   qual : String,
-  min_tail? : Int = 3,
+  min_tail~ : Int32 = 3,
 ) -> (String, String) {
   let len = seq.length()
   if len == 0 {
@@ -335,7 +335,7 @@ pub fn sqt_trim_poly_a(
 pub fn sqt_trim_by_length(
   seq : String,
   qual : String,
-  min_length? : Int = 50,
+  min_length~ : Int32 = 50,
 ) -> (String, String)? {
   if seq.length() >= min_length {
     Some((seq, qual))
@@ -352,8 +352,8 @@ pub fn sqt_trim_by_length(
 pub fn sqt_trim_by_gc(
   seq : String,
   qual : String,
-  gc_min? : Double = 0.3,
-  gc_max? : Double = 0.7,
+  gc_min~ : Double = 0.3,
+  gc_max~ : Double = 0.7,
 ) -> (String, String)? {
   let gc = sqt_gc_content(seq)
   if gc >= gc_min && gc <= gc_max {

@@ -142,7 +142,7 @@ pub fn calc_chao1(counts : Array[Double]) -> Double {
 
 ///|
 /// Calculate ACE (Abundance-based Coverage Estimator) richness.
-pub fn calc_ace(counts : Array[Double], threshold : Int) -> Double {
+pub fn calc_ace(counts : Array[Double], threshold : Int32) -> Double {
   let mut n_rare = 0.0
   let mut s_rare = 0.0
   let mut s_abund = 0.0
@@ -663,8 +663,8 @@ pub fn DAResult::new(
 pub fn differential_abundance(
   otu_table : Array[Array[Double]],
   taxa_names : Array[String],
-  group1_indices : Array[Int],
-  group2_indices : Array[Int],
+  group1_indices : Array[Int32],
+  group2_indices : Array[Int32],
 ) -> Array[DAResult] {
   let results : Array[DAResult] = Array(capacity=0)
 
@@ -862,7 +862,7 @@ fn micro_bh_correction(p_values : Array[Double]) -> Array[Double] {
   }
 
   // Create indexed pairs
-  let indices : Array[Int] = Array(capacity=0)
+  let indices : Array[Int32] = Array(capacity=0)
   let sorted_p : Array[Double] = Array(capacity=0)
 
   // Simple bubble sort (since n may be small)

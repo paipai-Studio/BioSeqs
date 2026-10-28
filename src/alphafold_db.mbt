@@ -29,9 +29,9 @@ pub struct AlphafoldPrediction {
   uniprot_accession : String
   uniprot_name : String
   gene : String
-  uniprot_start : Int
-  uniprot_end : Int
-  latest_version : Int
+  uniprot_start : Int32
+  uniprot_end : Int32
+  latest_version : Int32
   fields : Map[String, String]
 }
 
@@ -60,12 +60,12 @@ pub fn alphafold_cif_file_name(cif_url : String) -> String {
 // ---------------------------------------------------------------------------
 
 ///|
-fn af_is_json_ws(cp : Int) -> Bool {
+fn af_is_json_ws(cp : Int32) -> Bool {
   cp == 32 || cp == 9 || cp == 10 || cp == 13
 }
 
 ///|
-fn af_skip_ws(s : String, i : Int) -> Int {
+fn af_skip_ws(s : String, i : Int32) -> Int32 {
   let mut j = i
   while j < s.length() && af_is_json_ws(s.unsafe_get(j).to_int()) {
     j = j + 1
@@ -74,7 +74,7 @@ fn af_skip_ws(s : String, i : Int) -> Int {
 }
 
 ///|
-fn af_hex4(s : String, i : Int) -> Int raise AlphafoldError {
+fn af_hex4(s : String, i : Int32) -> Int32 raise AlphafoldError {
   let mut v = 0
   for k = 0; k < 4; k = k + 1 {
     let c = s.unsafe_get(i + k).to_int()
@@ -95,7 +95,10 @@ fn af_hex4(s : String, i : Int) -> Int raise AlphafoldError {
 ///|
 /// Parse a JSON string starting at the opening quote (handles common escapes
 /// and \uXXXX). Returns (string, next index).
-fn af_parse_string(s : String, i : Int) -> (String, Int) raise AlphafoldError {
+fn af_parse_string(
+  s : String,
+  i : Int32,
+) -> (String, Int32) raise AlphafoldError {
   let buf = StringBuilder()
   let mut j = i + 1
   while j < s.length() {
@@ -107,7 +110,7 @@ fn af_parse_string(s : String, i : Int) -> (String, Int) raise AlphafoldError {
       let e = s.unsafe_get(j + 1).to_int()
       if e == 117 {
         let code = af_hex4(s, j + 2)
-        buf.write_char((code).unsafe_to_char())
+        buf.write_char(code.unsafe_to_char())
         j = j + 6
         continue
       }
@@ -142,7 +145,10 @@ fn af_parse_string(s : String, i : Int) -> (String, Int) raise AlphafoldError {
 ///|
 /// Parse a JSON value (string, number, true/false, null) into its text form.
 /// Numbers are kept verbatim; `null` becomes the empty string.
-fn af_parse_value(s : String, i : Int) -> (String, Int) raise AlphafoldError {
+fn af_parse_value(
+  s : String,
+  i : Int32,
+) -> (String, Int32) raise AlphafoldError {
   if s.unsafe_get(i).to_int() == 34 {
     return af_parse_string(s, i)
   }
@@ -167,8 +173,8 @@ fn af_parse_value(s : String, i : Int) -> (String, Int) raise AlphafoldError {
 /// Parse a JSON object into a string map. Assumes `s[i] == '{'`.
 fn af_parse_object(
   s : String,
-  i : Int,
-) -> (Map[String, String], Int) raise AlphafoldError {
+  i : Int32,
+) -> (Map[String, String], Int32) raise AlphafoldError {
   let m : Map[String, String] = Map([], capacity=16)
   let mut j = af_skip_ws(s, i + 1)
   if s.unsafe_get(j).to_int() == 125 {
@@ -200,8 +206,8 @@ fn af_parse_object(
 /// Parse a JSON array of objects into a list of string maps.
 fn af_parse_array(
   s : String,
-  i : Int,
-) -> (Array[Map[String, String]], Int) raise AlphafoldError {
+  i : Int32,
+) -> (Array[Map[String, String]], Int32) raise AlphafoldError {
   let arr : Array[Map[String, String]] = []
   let mut j = af_skip_ws(s, i + 1)
   if s.unsafe_get(j).to_int() == 93 {
@@ -266,7 +272,7 @@ pub fn alphafold_get_predictions(
   qualifier~ : String,
 ) -> Array[AlphafoldPrediction] raise AlphafoldError {
   let url = alphafold_predictions_url(qualifier)
-  let json = (fetch)(url, None)
+  let json = fetch(url, None)
   alphafold_parse_predictions(json)
 }
 

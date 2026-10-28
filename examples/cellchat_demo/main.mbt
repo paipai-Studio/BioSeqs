@@ -18,9 +18,13 @@ fn main {
   let mut c_count = 0
   let mut i = 0
   while i < cell_types.length() {
-    if cell_types[i] == "TypeA" { a_count = a_count + 1 }
-    else if cell_types[i] == "TypeB" { b_count = b_count + 1 }
-    else { c_count = c_count + 1 }
+    if cell_types[i] == "TypeA" {
+      a_count = a_count + 1
+    } else if cell_types[i] == "TypeB" {
+      b_count = b_count + 1
+    } else {
+      c_count = c_count + 1
+    }
     i = i + 1
   }
   println("  TypeA: " + a_count.to_string() + " cells")
@@ -42,7 +46,14 @@ fn main {
 
   // ---- Section 3: Run CellChat analysis ----
   println("=== 3. Run CellChat Analysis (10 permutations) ===")
-  let result = @bio.cellchat_analyze(expr, cell_types, gene_names, db, n_permutations=10, seed=42)
+  let result = @bio.cellchat_analyze(
+    expr,
+    cell_types,
+    gene_names,
+    db,
+    n_permutations=10,
+    seed=42,
+  )
   println("Total scored interactions: " + result.scores.length().to_string())
   println("Cell types analyzed: " + result.cell_types.length().to_string())
   println("Permutations: " + result.n_permutations.to_string())
@@ -55,10 +66,24 @@ fn main {
   while ti < top.length() {
     let s = top[ti]
     let sig = if s.p_value < 0.05 { "*" } else { "" }
-    println("  " + (ti + 1).to_string() + ". " + s.source_celltype + " -> " + s.target_celltype +
-      " : " + s.ligand + "(" + s.receptor + ")" +
-      " | score=" + s.score.to_string() +
-      " | p=" + s.p_value.to_string() + sig)
+    println(
+      "  " +
+      (ti + 1).to_string() +
+      ". " +
+      s.source_celltype +
+      " -> " +
+      s.target_celltype +
+      " : " +
+      s.ligand +
+      "(" +
+      s.receptor +
+      ")" +
+      " | score=" +
+      s.score.to_string() +
+      " | p=" +
+      s.p_value.to_string() +
+      sig,
+    )
     ti = ti + 1
   }
   println("")
@@ -71,9 +96,19 @@ fn main {
     let mut si = 0
     while si < sig.length() && si < 5 {
       let s = sig[si]
-      println("  " + s.ligand + "->" + s.receptor +
-        " : " + s.source_celltype + " -> " + s.target_celltype +
-        " (score=" + s.score.to_string() + ")")
+      println(
+        "  " +
+        s.ligand +
+        "->" +
+        s.receptor +
+        " : " +
+        s.source_celltype +
+        " -> " +
+        s.target_celltype +
+        " (score=" +
+        s.score.to_string() +
+        ")",
+      )
       si = si + 1
     }
   }

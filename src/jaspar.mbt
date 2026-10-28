@@ -24,10 +24,10 @@
 pub struct JasparMatrix {
   id : String
   name : String
-  pfm : Array[Array[Int]] // 4 rows (A,C,G,T/U) x width columns
+  pfm : Array[Array[Int32]] // 4 rows (A,C,G,T/U) x width columns
   alphabet : Array[String] // ["A", "C", "G", "T"] or ["A", "C", "G", "U"]
-  width : Int
-  mut total_counts : Int // Total count per position (should be constant)
+  width : Int32
+  mut total_counts : Int32 // Total count per position (should be constant)
   mut collection : String // e.g., "CORE", "POLII"
   species : Array[String] // Species taxonomy
   pubmed_ids : Array[String] // PubMed references
@@ -39,8 +39,8 @@ pub struct JasparMatrix {
 pub fn JasparMatrix::new(
   id : String,
   name : String,
-  pfm : Array[Array[Int]],
-  alphabet? : Array[String] = ["A", "C", "G", "T"],
+  pfm : Array[Array[Int32]],
+  alphabet~ : Array[String] = ["A", "C", "G", "T"],
 ) -> JasparMatrix {
   let width = if pfm.length() > 0 { pfm[0].length() } else { 0 }
   JasparMatrix::{
@@ -134,7 +134,7 @@ pub fn JasparMatrix::iupac_consensus(self : JasparMatrix) -> String {
 
 ///|
 /// Calculate total count at a column position.
-fn get_col_total(matrix : JasparMatrix, col : Int) -> Int {
+fn get_col_total(matrix : JasparMatrix, col : Int32) -> Int32 {
   let mut total = 0
   let mut row = 0
   while row < matrix.alphabet.length() {
@@ -161,7 +161,7 @@ fn array_set_equals(a : Array[String], b : Array[String]) -> Bool {
 
 ///|
 /// Find the index of a substring in a string, returns -1 if not found.
-fn j_index_of(s : String, sub : String) -> Int {
+fn j_index_of(s : String, sub : String) -> Int32 {
   let n = s.length()
   let kn = sub.length()
   if kn == 0 || kn > n {
@@ -191,7 +191,7 @@ fn j_index_of(s : String, sub : String) -> Int {
 /// Uses background frequency of 0.25 for each base.
 pub fn JasparMatrix::to_pwm(
   self : JasparMatrix,
-  pseudocount? : Double = 0.01,
+  pseudocount~ : Double = 0.01,
 ) -> Array[Array[Double]] {
   let pwm = Array(capacity=0)
   let bg = 0.25
@@ -253,11 +253,11 @@ pub fn JasparMatrix::total_information(self : JasparMatrix) -> Double {
 pub fn JasparMatrix::scan_sequence(
   self : JasparMatrix,
   sequence : String,
-) -> Array[(Int, Double, String)] {
+) -> Array[(Int32, Double, String)] {
   let pwm = self.to_pwm()
   let upper_seq = sequence.to_upper()
   let seq_len = upper_seq.length()
-  let results : Array[(Int, Double, String)] = Array(capacity=0)
+  let results : Array[(Int32, Double, String)] = Array(capacity=0)
   if seq_len < self.width {
     return results
   }
@@ -279,7 +279,7 @@ pub fn JasparMatrix::scan_sequence(
     if valid {
       let subseq_view = upper_seq[i:i + self.width]
       let subseq = subseq_view.to_owned()
-      let tuple : (Int, Double, String) = (i, score, subseq)
+      let tuple : (Int32, Double, String) = (i, score, subseq)
       results.push(tuple)
     }
     i = i + 1
@@ -289,7 +289,7 @@ pub fn JasparMatrix::scan_sequence(
 
 ///|
 /// Find the index of a base in the alphabet.
-fn find_base_index(matrix : JasparMatrix, base : String) -> Int {
+fn find_base_index(matrix : JasparMatrix, base : String) -> Int32 {
   let mut i = 0
   while i < matrix.alphabet.length() {
     if matrix.alphabet[i] == base {
@@ -303,8 +303,8 @@ fn find_base_index(matrix : JasparMatrix, base : String) -> Int {
 ///|
 /// Sort scanning results by score (descending).
 pub fn jaspar_sort_results(
-  results : Array[(Int, Double, String)],
-) -> Array[(Int, Double, String)] {
+  results : Array[(Int32, Double, String)],
+) -> Array[(Int32, Double, String)] {
   let sorted = results
   let mut i = 0
   while i < sorted.length() - 1 {
@@ -362,7 +362,7 @@ pub fn parse_jaspar(content : String) -> Array[JasparMatrix] {
       let id = if parts.length() > 0 { parts[0] } else { "" }
       let name = if parts.length() > 1 { parts[1] } else { "" }
       // Parse the 4 rows of the matrix
-      let pfm : Array[Array[Int]] = Array(capacity=0)
+      let pfm : Array[Array[Int32]] = Array(capacity=0)
       let bases = ["A", "C", "G", "T"]
       let mut row_idx = 0
       let mut j = i + 1
@@ -410,8 +410,8 @@ pub fn parse_jaspar(content : String) -> Array[JasparMatrix] {
 
 ///|
 /// Parse a space-separated string of integers into an array.
-fn parse_int_array(s : String) -> Array[Int] {
-  let result : Array[Int] = Array(capacity=0)
+fn parse_int_array(s : String) -> Array[Int32] {
+  let result : Array[Int32] = Array(capacity=0)
   let parts = s.split(" ").to_array()
   for p in parts {
     let trimmed = p.trim().to_owned()
@@ -449,7 +449,7 @@ pub fn jaspar_get_matrix(
     }
   }
   // Return a default empty matrix
-  let empty_pfm : Array[Array[Int]] = Array(capacity=0)
+  let empty_pfm : Array[Array[Int32]] = Array(capacity=0)
   JasparMatrix::new("", "", empty_pfm)
 }
 

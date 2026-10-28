@@ -22,7 +22,9 @@ fn main {
 
   // Create heatmap input
   let input = @src.pheatmap_input(mat, row_names, col_names)
-  println("Created heatmap input with \{input.mat.length()} rows x \{input.mat[0].length()} cols")
+  println(
+    "Created heatmap input with \{input.mat.length()} rows x \{input.mat[0].length()} cols",
+  )
 
   // Set title
   let with_title = @src.pheatmap_set_title(input, "Gene Expression Heatmap")
@@ -33,12 +35,20 @@ fn main {
   println("Set font size to \{nice_font.font_size}")
 
   // Compute distance matrix
-  let dist = @src.pheatmap_distance_matrix(mat, @src.distance_method_euclidean())
+  let dist = @src.pheatmap_distance_matrix(
+    mat,
+    @src.distance_method_euclidean(),
+  )
   println("Distance matrix computed (\{dist.length()}x\{dist[0].length()})")
 
   // Compute column distance
-  let col_dist = @src.pheatmap_column_distance_matrix(mat, @src.distance_method_euclidean())
-  println("Column distance matrix computed (\{col_dist.length()}x\{col_dist[0].length()})")
+  let col_dist = @src.pheatmap_column_distance_matrix(
+    mat,
+    @src.distance_method_euclidean(),
+  )
+  println(
+    "Column distance matrix computed (\{col_dist.length()}x\{col_dist[0].length()})",
+  )
 
   // Render the heatmap
   let result = @src.pheatmap_render(nice_font)

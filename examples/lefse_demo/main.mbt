@@ -13,20 +13,17 @@ fn main {
   // -----------------------------------------------------------------------
   println("1. Creating microbiome abundance data:")
   let feature_names = [
-    "Bacteroides", "Prevotella", "Faecalibacterium", "Roseburia",
-    "Eubacterium", "Ruminococcus",
+    "Bacteroides", "Prevotella", "Faecalibacterium", "Roseburia", "Eubacterium",
+    "Ruminococcus",
   ]
   let sample_names = [
-    "H1", "H2", "H3", "H4", "H5",
-    "D1", "D2", "D3", "D4", "D5",
+    "H1", "H2", "H3", "H4", "H5", "D1", "D2", "D3", "D4", "D5",
   ]
   let classes = [
-    "Healthy", "Healthy", "Healthy", "Healthy", "Healthy",
-    "Disease", "Disease", "Disease", "Disease", "Disease",
+    "Healthy", "Healthy", "Healthy", "Healthy", "Healthy", "Disease", "Disease",
+    "Disease", "Disease", "Disease",
   ]
-  let subclasses : Array[String] = [
-    "", "", "", "", "", "", "", "", "", "",
-  ]
+  let subclasses : Array[String] = ["", "", "", "", "", "", "", "", "", ""]
   // Bacteroides and Prevotella are elevated in Disease
   let features = [
     [10.0, 12.0, 11.0, 13.0, 10.0, 100.0, 102.0, 101.0, 103.0, 100.0],
@@ -91,7 +88,9 @@ fn main {
   for r in output.results() {
     if r.is_significant() {
       found_sig = true
-      println("   \{r.feature_name()}: class=\{r.class_name()}, KW p=\{r.kw_pvalue()}, LDA=\{r.lda_score()}")
+      println(
+        "   \{r.feature_name()}: class=\{r.class_name()}, KW p=\{r.kw_pvalue()}, LDA=\{r.lda_score()}",
+      )
     }
   }
   if !found_sig {
@@ -105,7 +104,9 @@ fn main {
   println("7. All per-feature results:")
   for r in output.results() {
     let sig_label = if r.is_significant() { " *" } else { "" }
-    println("   \{r.feature_name()}: class=\{r.class_name()}, KW p=\{r.kw_pvalue()}, LDA=\{r.lda_score()}\{sig_label}")
+    println(
+      "   \{r.feature_name()}: class=\{r.class_name()}, KW p=\{r.kw_pvalue()}, LDA=\{r.lda_score()}\{sig_label}",
+    )
   }
   println("")
 
@@ -120,7 +121,9 @@ fn main {
   println("   Significant biomarkers: \{sample_output.n_significant()}")
   for r in sample_output.results() {
     if r.is_significant() {
-      println("   -> \{r.feature_name()} (\{r.class_name()}): LDA=\{r.lda_score()}, p=\{r.kw_pvalue()}")
+      println(
+        "   -> \{r.feature_name()} (\{r.class_name()}): LDA=\{r.lda_score()}, p=\{r.kw_pvalue()}",
+      )
     }
   }
   println("")

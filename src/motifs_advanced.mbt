@@ -17,6 +17,8 @@ pub struct JasparMotif {
   pwm : Array[Array[Double]]
   alphabet : Array[String]
 } derive(Eq)
+
+///|
 pub extend JasparMotif with Eq::{equal, not_equal}
 
 ///|
@@ -30,26 +32,32 @@ pub struct TransfacMotif {
   alphabet : Array[String]
   binding_sites : Array[String]
 } derive(Eq)
+
+///|
 pub extend TransfacMotif with Eq::{equal, not_equal}
 
 ///|
 /// Motif alignment result.
 pub struct MotifAlignmentResult {
   score : Double
-  offset : Int
+  offset : Int32
   strand : String
-  aligned_length : Int
+  aligned_length : Int32
 } derive(Eq)
+
+///|
 pub extend MotifAlignmentResult with Eq::{equal, not_equal}
 
 ///|
 /// Clustered motif group.
 pub struct MotifCluster {
-  cluster_id : Int
+  cluster_id : Int32
   motifs : Array[String]
   representative : String
   avg_similarity : Double
 } derive(Eq)
+
+///|
 pub extend MotifCluster with Eq::{equal, not_equal}
 
 ///|
@@ -106,16 +114,16 @@ pub fn TransfacMotif::new(
 ///|
 pub fn MotifAlignmentResult::new(
   score : Double,
-  offset : Int,
+  offset : Int32,
   strand : String,
-  aligned_length : Int,
+  aligned_length : Int32,
 ) -> MotifAlignmentResult {
   MotifAlignmentResult::{ score, offset, strand, aligned_length, }
 }
 
 ///|
 pub fn MotifCluster::new(
-  cluster_id : Int,
+  cluster_id : Int32,
   motifs : Array[String],
   representative : String,
   avg_similarity : Double,
@@ -200,7 +208,7 @@ fn adv_sqrt(x : Double) -> Double {
 }
 
 ///|
-fn adv_index_of(s : String, sub : String) -> Int {
+fn adv_index_of(s : String, sub : String) -> Int32 {
   let s_len = s.length()
   let sub_len = sub.length()
   if sub_len == 0 || s_len < sub_len {
@@ -553,8 +561,8 @@ pub fn optimal_motif_alignment(
 fn calculate_alignment_score(
   pwm1 : Array[Array[Double]],
   pwm2 : Array[Array[Double]],
-  offset : Int,
-) -> (Double, Int) {
+  offset : Int32,
+) -> (Double, Int32) {
   let len1 = pwm1.length()
   let len2 = pwm2.length()
   let mut score = 0.0
@@ -731,7 +739,7 @@ pub fn cluster_motifs(
   for i = 0; i < n; i = i + 1 {
     if !assigned[i] {
       let cluster_members : Array[String] = Array(capacity=0)
-      let cluster_indices : Array[Int] = Array(capacity=0)
+      let cluster_indices : Array[Int32] = Array(capacity=0)
 
       for j = i; j < n; j = j + 1 {
         if !assigned[j] {
@@ -783,7 +791,7 @@ pub fn cluster_motifs(
 
 ///|
 /// Calculate optimal pseudocount based on sequence count and information content.
-pub fn optimal_pseudocount(num_sequences : Int, width : Int) -> Double {
+pub fn optimal_pseudocount(num_sequences : Int32, width : Int32) -> Double {
   let n = num_sequences.to_double()
   let w = width.to_double()
   let sqrt_n = adv_sqrt(n)
@@ -844,8 +852,8 @@ pub fn shuffle_motif_columns(
 ///|
 /// Create a motif with randomized nucleotide frequencies for each position.
 pub fn randomize_motif(
-  width : Int,
-  alphabet_size : Int,
+  width : Int32,
+  alphabet_size : Int32,
 ) -> Array[Array[Double]] {
   let pwm = Array::make(width, Array::make(0, 0.0))
   for idx in 0..<width {

@@ -17,11 +17,41 @@ fn make_t2_chain() -> @src.Chain {
   ]
   for i = 0; i < 8; i = i + 1 {
     let (x, y, z) = coords[i]
-    let ca = @src.Atom::new(name="CA", coord=@src.Vector3::new(x, y, z), resname="ALA", chainid='A', resseq=i + 1, element="C")
-    let n_atom = @src.Atom::new(name="N", coord=@src.Vector3::new(x - 0.5, y, z - 0.3), resname="ALA", chainid='A', resseq=i + 1, element="N")
-    let c_atom = @src.Atom::new(name="C", coord=@src.Vector3::new(x + 0.5, y, z + 0.3), resname="ALA", chainid='A', resseq=i + 1, element="C")
-    let o_atom = @src.Atom::new(name="O", coord=@src.Vector3::new(x + 0.7, y + 0.2, z + 0.5), resname="ALA", chainid='A', resseq=i + 1, element="O")
-    let res = @src.Residue::new(resname="ALA", chainid='A', resseq=i + 1, atoms=[n_atom, ca, c_atom, o_atom])
+    let ca = @src.Atom::new(
+      name="CA",
+      coord=@src.Vector3::new(x, y, z),
+      resname="ALA",
+      chainid='A',
+      resseq=i + 1,
+      element="C",
+    )
+    let n_atom = @src.Atom::new(
+      name="N",
+      coord=@src.Vector3::new(x - 0.5, y, z - 0.3),
+      resname="ALA",
+      chainid='A',
+      resseq=i + 1,
+      element="N",
+    )
+    let c_atom = @src.Atom::new(
+      name="C",
+      coord=@src.Vector3::new(x + 0.5, y, z + 0.3),
+      resname="ALA",
+      chainid='A',
+      resseq=i + 1,
+      element="C",
+    )
+    let o_atom = @src.Atom::new(
+      name="O",
+      coord=@src.Vector3::new(x + 0.7, y + 0.2, z + 0.5),
+      resname="ALA",
+      chainid='A',
+      resseq=i + 1,
+      element="O",
+    )
+    let res = @src.Residue::new(resname="ALA", chainid='A', resseq=i + 1, atoms=[
+      n_atom, ca, c_atom, o_atom,
+    ])
     residues.push(res)
   }
   @src.Chain::new(id='A', residues~)
@@ -29,6 +59,7 @@ fn make_t2_chain() -> @src.Chain {
 
 // === Normal Mode Analysis ===
 
+///|
 test "mode_analysis_from_gnm" {
   let chain = make_t2_chain()
   match @src.GNM::new(chain) {
@@ -40,6 +71,7 @@ test "mode_analysis_from_gnm" {
   }
 }
 
+///|
 test "mode_analysis_from_anm" {
   let chain = make_t2_chain()
   match @src.ANM::new(chain) {
@@ -51,6 +83,7 @@ test "mode_analysis_from_anm" {
   }
 }
 
+///|
 test "mode_analysis_eigenvalue" {
   let chain = make_t2_chain()
   match @src.GNM::new(chain) {
@@ -63,6 +96,7 @@ test "mode_analysis_eigenvalue" {
   }
 }
 
+///|
 test "mode_analysis_eigenvector_length" {
   let chain = make_t2_chain()
   match @src.GNM::new(chain) {
@@ -75,6 +109,7 @@ test "mode_analysis_eigenvector_length" {
   }
 }
 
+///|
 test "mode_analysis_collectivity" {
   let chain = make_t2_chain()
   match @src.GNM::new(chain) {
@@ -87,6 +122,7 @@ test "mode_analysis_collectivity" {
   }
 }
 
+///|
 test "mode_analysis_participation_ratio" {
   let chain = make_t2_chain()
   match @src.GNM::new(chain) {
@@ -99,6 +135,7 @@ test "mode_analysis_participation_ratio" {
   }
 }
 
+///|
 test "mode_analysis_project" {
   let chain = make_t2_chain()
   match @src.GNM::new(chain) {
@@ -112,6 +149,7 @@ test "mode_analysis_project" {
   }
 }
 
+///|
 test "mode_analysis_deformation" {
   let chain = make_t2_chain()
   match @src.GNM::new(chain) {
@@ -124,6 +162,7 @@ test "mode_analysis_deformation" {
   }
 }
 
+///|
 test "mode_analysis_bfactors_correlation" {
   let chain = make_t2_chain()
   match @src.GNM::new(chain) {
@@ -137,6 +176,7 @@ test "mode_analysis_bfactors_correlation" {
   }
 }
 
+///|
 test "mode_analysis_mode_energy" {
   let chain = make_t2_chain()
   match @src.GNM::new(chain) {
@@ -151,6 +191,7 @@ test "mode_analysis_mode_energy" {
 
 // === Perturbation Response ===
 
+///|
 test "perturbation_from_gnm" {
   let chain = make_t2_chain()
   match @src.GNM::new(chain) {
@@ -162,6 +203,7 @@ test "perturbation_from_gnm" {
   }
 }
 
+///|
 test "perturbation_from_anm" {
   let chain = make_t2_chain()
   match @src.ANM::new(chain) {
@@ -173,6 +215,7 @@ test "perturbation_from_anm" {
   }
 }
 
+///|
 test "perturbation_response_matrix_shape" {
   let chain = make_t2_chain()
   match @src.GNM::new(chain) {
@@ -186,6 +229,7 @@ test "perturbation_response_matrix_shape" {
   }
 }
 
+///|
 test "perturbation_sensitivity" {
   let chain = make_t2_chain()
   match @src.GNM::new(chain) {
@@ -198,6 +242,7 @@ test "perturbation_sensitivity" {
   }
 }
 
+///|
 test "perturbation_effectiveness" {
   let chain = make_t2_chain()
   match @src.GNM::new(chain) {
@@ -210,6 +255,7 @@ test "perturbation_effectiveness" {
   }
 }
 
+///|
 test "perturbation_profile_length" {
   let chain = make_t2_chain()
   match @src.GNM::new(chain) {
@@ -222,6 +268,7 @@ test "perturbation_profile_length" {
   }
 }
 
+///|
 test "perturbation_hotspot_residues" {
   let chain = make_t2_chain()
   match @src.GNM::new(chain) {
@@ -234,6 +281,7 @@ test "perturbation_hotspot_residues" {
   }
 }
 
+///|
 test "perturbation_dfi" {
   let chain = make_t2_chain()
   match @src.GNM::new(chain) {
@@ -246,6 +294,7 @@ test "perturbation_dfi" {
   }
 }
 
+///|
 test "perturbation_dfi_profile" {
   let chain = make_t2_chain()
   match @src.GNM::new(chain) {
@@ -260,6 +309,7 @@ test "perturbation_dfi_profile" {
 
 // === Domain Decomposition ===
 
+///|
 test "domain_decomp_from_gnm" {
   let chain = make_t2_chain()
   match @src.GNM::new(chain) {
@@ -271,6 +321,7 @@ test "domain_decomp_from_gnm" {
   }
 }
 
+///|
 test "domain_decomp_from_anm" {
   let chain = make_t2_chain()
   match @src.ANM::new(chain) {
@@ -282,6 +333,7 @@ test "domain_decomp_from_anm" {
   }
 }
 
+///|
 test "domain_decomp_domains" {
   let chain = make_t2_chain()
   match @src.GNM::new(chain) {
@@ -294,6 +346,7 @@ test "domain_decomp_domains" {
   }
 }
 
+///|
 test "domain_decomp_domain_sizes" {
   let chain = make_t2_chain()
   match @src.GNM::new(chain) {
@@ -313,6 +366,7 @@ test "domain_decomp_domain_sizes" {
   }
 }
 
+///|
 test "domain_decomp_rigidity_profile" {
   let chain = make_t2_chain()
   match @src.GNM::new(chain) {
@@ -325,6 +379,7 @@ test "domain_decomp_rigidity_profile" {
   }
 }
 
+///|
 test "domain_decomp_largest_domain" {
   let chain = make_t2_chain()
   match @src.GNM::new(chain) {
@@ -337,6 +392,7 @@ test "domain_decomp_largest_domain" {
   }
 }
 
+///|
 test "domain_decomp_domain_of" {
   let chain = make_t2_chain()
   match @src.GNM::new(chain) {
@@ -351,63 +407,75 @@ test "domain_decomp_domain_of" {
 
 // === Rotamer Analysis ===
 
+///|
 test "classify_rotamer_trans" {
   let bin = @src.classify_rotamer_angle(180.0)
   assert_true(bin is @src.Trans)
 }
 
+///|
 test "classify_rotamer_gauche_plus" {
   let bin = @src.classify_rotamer_angle(60.0)
   assert_true(bin is @src.GauchePlus)
 }
 
+///|
 test "classify_rotamer_gauche_minus" {
   let bin = @src.classify_rotamer_angle(-60.0)
   assert_true(bin is @src.GaucheMinus)
 }
 
+///|
 test "classify_rotamer_near_trans" {
   let bin = @src.classify_rotamer_angle(170.0)
   assert_true(bin is @src.Trans)
 }
 
+///|
 test "rotamer_deviation_zero_at_center" {
   let d = @src.rotamer_deviation(180.0)
   assert_true(d < 0.01)
 }
 
+///|
 test "rotamer_deviation_nonzero" {
   let d = @src.rotamer_deviation(90.0)
   assert_true(d > 20.0)
 }
 
+///|
 test "rotamer_bin_name" {
   assert_eq(@src.rotamer_bin_name(@src.Trans), "trans")
   assert_eq(@src.rotamer_bin_name(@src.GauchePlus), "gauche+")
   assert_eq(@src.rotamer_bin_name(@src.GaucheMinus), "gauche-")
 }
 
+///|
 test "has_chi1_serine" {
   assert_true(@src.has_chi1("SER"))
-  assert_true(!(@src.has_chi1("GLY")))
-  assert_true(!(@src.has_chi1("ALA")))
+  assert_true(!@src.has_chi1("GLY"))
+  assert_true(!@src.has_chi1("ALA"))
 }
 
+///|
 test "has_chi2_valine" {
-  assert_true(!(@src.has_chi2("VAL")))
+  assert_true(!@src.has_chi2("VAL"))
   assert_true(@src.has_chi2("PHE"))
 }
 
+///|
 test "has_chi3_lysine" {
   assert_true(@src.has_chi3("LYS"))
-  assert_true(!(@src.has_chi3("VAL")))
+  assert_true(!@src.has_chi3("VAL"))
 }
 
+///|
 test "has_chi4_arginine" {
   assert_true(@src.has_chi4("ARG"))
-  assert_true(!(@src.has_chi4("MET")))
+  assert_true(!@src.has_chi4("MET"))
 }
 
+///|
 test "compute_chi_angles_basic" {
   let n = Some(@src.Vector3::new(0.0, 0.0, 0.0))
   let ca = Some(@src.Vector3::new(1.5, 0.0, 0.0))
@@ -417,9 +485,18 @@ test "compute_chi_angles_basic" {
   assert_true(chi1 == chi1)
 }
 
+///|
 test "compute_chi_angles_missing" {
   let nan = 0.0 / 0.0
-  let (chi1, chi2, chi3, chi4) = @src.compute_chi_angles(None, None, None, None, None, None, None)
+  let (chi1, chi2, chi3, chi4) = @src.compute_chi_angles(
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+  )
   assert_true(chi1 != chi1)
   assert_true(chi2 != chi2)
   assert_true(chi3 != chi3)
@@ -427,18 +504,21 @@ test "compute_chi_angles_missing" {
   ignore(nan)
 }
 
+///|
 test "classify_rotamer_outlier" {
   let nan = 0.0 / 0.0
   let r = @src.classify_rotamer(1, "SER", 0.0, nan, nan, nan)
   assert_true(r.is_outlier)
 }
 
+///|
 test "classify_rotamer_normal" {
   let nan = 0.0 / 0.0
   let r = @src.classify_rotamer(1, "SER", 60.0, nan, nan, nan)
-  assert_true(!(r.is_outlier))
+  assert_true(!r.is_outlier)
 }
 
+///|
 test "rotamer_outliers_filter" {
   let nan = 0.0 / 0.0
   let r1 = @src.classify_rotamer(1, "SER", 60.0, nan, nan, nan)
@@ -447,6 +527,7 @@ test "rotamer_outliers_filter" {
   assert_eq(outliers.length(), 1)
 }
 
+///|
 test "rotamer_summary_counts" {
   let nan = 0.0 / 0.0
   let r1 = @src.classify_rotamer(1, "SER", 60.0, nan, nan, nan)
@@ -460,6 +541,7 @@ test "rotamer_summary_counts" {
   assert_eq(gm, 1)
 }
 
+///|
 test "rotamer_probability_proline" {
   let p = @src.rotamer_probability("PRO", @src.GaucheMinus, @src.Trans)
   assert_true(p > 0.0)
@@ -467,6 +549,7 @@ test "rotamer_probability_proline" {
 
 // === Stereochemistry ===
 
+///|
 test "detect_chirality_l_amino" {
   let n = Some(@src.Vector3::new(0.0, 0.0, 0.0))
   let ca = Some(@src.Vector3::new(1.0, 0.0, 0.0))
@@ -476,42 +559,63 @@ test "detect_chirality_l_amino" {
   assert_true(r.has_chirality)
 }
 
+///|
 test "detect_chirality_missing" {
   let r = @src.detect_chirality(1, "GLY", None, None, None, None)
-  assert_true(!(r.has_chirality))
+  assert_true(!r.has_chirality)
 }
 
+///|
 test "detect_cis_peptide_trans" {
   let cp = Some(@src.Vector3::new(0.0, 0.0, 0.0))
   let n = Some(@src.Vector3::new(1.0, 0.0, 0.0))
   let ca = Some(@src.Vector3::new(1.5, 0.5, 0.0))
   let c = Some(@src.Vector3::new(2.0, 0.0, 0.0))
   let r = @src.detect_cis_peptide(1, 2, cp, n, ca, c)
-  assert_true(!(r.is_cis))
+  assert_true(!r.is_cis)
 }
 
+///|
 test "detect_cis_peptide_missing" {
   let r = @src.detect_cis_peptide(1, 2, None, None, None, None)
-  assert_true(!(r.is_cis))
+  assert_true(!r.is_cis)
 }
 
+///|
 test "count_cis_peptides" {
   let nan = 0.0 / 0.0
   ignore(nan)
-  let r1 = @src.CisPeptideResult::{ resseq1: 1, resseq2: 2, omega: 180.0, is_cis: false }
-  let r2 = @src.CisPeptideResult::{ resseq1: 2, resseq2: 3, omega: 0.0, is_cis: true }
-  let r3 = @src.CisPeptideResult::{ resseq1: 3, resseq2: 4, omega: 10.0, is_cis: true }
+  let r1 = @src.CisPeptideResult::{
+    resseq1: 1,
+    resseq2: 2,
+    omega: 180.0,
+    is_cis: false,
+  }
+  let r2 = @src.CisPeptideResult::{
+    resseq1: 2,
+    resseq2: 3,
+    omega: 0.0,
+    is_cis: true,
+  }
+  let r3 = @src.CisPeptideResult::{
+    resseq1: 3,
+    resseq2: 4,
+    omega: 10.0,
+    is_cis: true,
+  }
   let count = @src.count_cis_peptides([r1, r2, r3])
   assert_eq(count, 2)
 }
 
+///|
 test "validate_bond_length_normal" {
   let p1 = Some(@src.Vector3::new(0.0, 0.0, 0.0))
   let p2 = Some(@src.Vector3::new(1.5, 0.0, 0.0))
   let r = @src.validate_bond_length("CA", "CB", 1, p1, p2, 1.54, 0.1)
-  assert_true(!(r.is_outlier))
+  assert_true(!r.is_outlier)
 }
 
+///|
 test "validate_bond_length_outlier" {
   let p1 = Some(@src.Vector3::new(0.0, 0.0, 0.0))
   let p2 = Some(@src.Vector3::new(3.0, 0.0, 0.0))
@@ -519,19 +623,22 @@ test "validate_bond_length_outlier" {
   assert_true(r.is_outlier)
 }
 
+///|
 test "validate_bond_length_missing" {
   let r = @src.validate_bond_length("CA", "CB", 1, None, None, 1.54, 0.1)
-  assert_true(!(r.is_outlier))
+  assert_true(!r.is_outlier)
 }
 
+///|
 test "validate_bond_angle_normal" {
   let p1 = Some(@src.Vector3::new(1.0, 0.0, 0.0))
   let p2 = Some(@src.Vector3::new(0.0, 0.0, 0.0))
   let p3 = Some(@src.Vector3::new(0.0, 1.0, 0.0))
   let r = @src.validate_bond_angle("N", "CA", "C", 1, p1, p2, p3, 90.0, 15.0)
-  assert_true(!(r.is_outlier))
+  assert_true(!r.is_outlier)
 }
 
+///|
 test "validate_bond_angle_outlier" {
   let p1 = Some(@src.Vector3::new(1.0, 0.0, 0.0))
   let p2 = Some(@src.Vector3::new(0.0, 0.0, 0.0))
@@ -540,51 +647,136 @@ test "validate_bond_angle_outlier" {
   assert_true(r.is_outlier)
 }
 
+///|
 test "peptide_planarity_trans" {
   let r = @src.peptide_planarity(1, 180.0, 10.0)
   assert_true(r.is_planar)
 }
 
+///|
 test "peptide_planarity_nonplanar" {
   let r = @src.peptide_planarity(1, 90.0, 10.0)
-  assert_true(!(r.is_planar))
+  assert_true(!r.is_planar)
 }
 
+///|
 test "standard_bond_length_peptide" {
   let l = @src.standard_bond_length("C", "N")
   assert_true((l - 1.33).abs() < 0.001)
 }
 
+///|
 test "standard_bond_length_ca_cb" {
   let l = @src.standard_bond_length("CA", "CB")
   assert_true((l - 1.54).abs() < 0.001)
 }
 
+///|
 test "standard_bond_angle_ca" {
   let a = @src.standard_bond_angle("N", "CA", "C")
   assert_true((a - 110.0).abs() < 0.001)
 }
 
+///|
 test "validate_bond_lengths_filter" {
-  let r1 = @src.BondValidationResult::{ atom1: "CA", atom2: "CB", resseq: 1, observed: 1.54, expected: 1.54, deviation: 0.0, is_outlier: false }
-  let r2 = @src.BondValidationResult::{ atom1: "CA", atom2: "CB", resseq: 2, observed: 3.0, expected: 1.54, deviation: 1.46, is_outlier: true }
+  let r1 = @src.BondValidationResult::{
+    atom1: "CA",
+    atom2: "CB",
+    resseq: 1,
+    observed: 1.54,
+    expected: 1.54,
+    deviation: 0.0,
+    is_outlier: false,
+  }
+  let r2 = @src.BondValidationResult::{
+    atom1: "CA",
+    atom2: "CB",
+    resseq: 2,
+    observed: 3.0,
+    expected: 1.54,
+    deviation: 1.46,
+    is_outlier: true,
+  }
   let outliers = @src.validate_bond_lengths([r1, r2])
   assert_eq(outliers.length(), 1)
 }
 
+///|
 test "validate_bond_angles_filter" {
-  let r1 = @src.AngleValidationResult::{ atom1: "N", atom2: "CA", atom3: "C", resseq: 1, observed: 110.0, expected: 110.0, deviation: 0.0, is_outlier: false }
-  let r2 = @src.AngleValidationResult::{ atom1: "N", atom2: "CA", atom3: "C", resseq: 2, observed: 90.0, expected: 110.0, deviation: -20.0, is_outlier: true }
+  let r1 = @src.AngleValidationResult::{
+    atom1: "N",
+    atom2: "CA",
+    atom3: "C",
+    resseq: 1,
+    observed: 110.0,
+    expected: 110.0,
+    deviation: 0.0,
+    is_outlier: false,
+  }
+  let r2 = @src.AngleValidationResult::{
+    atom1: "N",
+    atom2: "CA",
+    atom3: "C",
+    resseq: 2,
+    observed: 90.0,
+    expected: 110.0,
+    deviation: -20.0,
+    is_outlier: true,
+  }
   let outliers = @src.validate_bond_angles([r1, r2])
   assert_eq(outliers.length(), 1)
 }
 
+///|
 test "stereo_summary_basic" {
-  let chir = [@src.ChiralityResult::{ resseq: 1, resname: "ALA", has_chirality: true, is_correct: true, volume: 1.0 }]
-  let cis = [@src.CisPeptideResult::{ resseq1: 1, resseq2: 2, omega: 180.0, is_cis: false }]
-  let bonds = [@src.BondValidationResult::{ atom1: "CA", atom2: "CB", resseq: 1, observed: 1.54, expected: 1.54, deviation: 0.0, is_outlier: false }]
-  let angles = [@src.AngleValidationResult::{ atom1: "N", atom2: "CA", atom3: "C", resseq: 1, observed: 110.0, expected: 110.0, deviation: 0.0, is_outlier: false }]
-  let planarity = [@src.PeptidePlanarityResult::{ resseq: 1, omega: 180.0, deviation_from_180: 0.0, is_planar: true }]
+  let chir = [
+    @src.ChiralityResult::{
+      resseq: 1,
+      resname: "ALA",
+      has_chirality: true,
+      is_correct: true,
+      volume: 1.0,
+    },
+  ]
+  let cis = [
+    @src.CisPeptideResult::{
+      resseq1: 1,
+      resseq2: 2,
+      omega: 180.0,
+      is_cis: false,
+    },
+  ]
+  let bonds = [
+    @src.BondValidationResult::{
+      atom1: "CA",
+      atom2: "CB",
+      resseq: 1,
+      observed: 1.54,
+      expected: 1.54,
+      deviation: 0.0,
+      is_outlier: false,
+    },
+  ]
+  let angles = [
+    @src.AngleValidationResult::{
+      atom1: "N",
+      atom2: "CA",
+      atom3: "C",
+      resseq: 1,
+      observed: 110.0,
+      expected: 110.0,
+      deviation: 0.0,
+      is_outlier: false,
+    },
+  ]
+  let planarity = [
+    @src.PeptidePlanarityResult::{
+      resseq: 1,
+      omega: 180.0,
+      deviation_from_180: 0.0,
+      is_planar: true,
+    },
+  ]
   let s = @src.stereo_summary(chir, cis, bonds, angles, planarity)
   assert_eq(s.num_residues, 1)
   assert_eq(s.num_chiral, 1)
@@ -595,22 +787,57 @@ test "stereo_summary_basic" {
   assert_eq(s.num_nonplanar_peptides, 0)
 }
 
+///|
 test "stereo_summary_with_issues" {
   let chir = [
-    @src.ChiralityResult::{ resseq: 1, resname: "ALA", has_chirality: true, is_correct: true, volume: 1.0 },
-    @src.ChiralityResult::{ resseq: 2, resname: "ALA", has_chirality: true, is_correct: false, volume: -1.0 },
+    @src.ChiralityResult::{
+      resseq: 1,
+      resname: "ALA",
+      has_chirality: true,
+      is_correct: true,
+      volume: 1.0,
+    },
+    @src.ChiralityResult::{
+      resseq: 2,
+      resname: "ALA",
+      has_chirality: true,
+      is_correct: false,
+      volume: -1.0,
+    },
   ]
   let cis = [
-    @src.CisPeptideResult::{ resseq1: 1, resseq2: 2, omega: 0.0, is_cis: true },
+    @src.CisPeptideResult::{ resseq1: 1, resseq2: 2, omega: 0.0, is_cis: true, },
   ]
   let bonds = [
-    @src.BondValidationResult::{ atom1: "CA", atom2: "CB", resseq: 1, observed: 3.0, expected: 1.54, deviation: 1.46, is_outlier: true },
+    @src.BondValidationResult::{
+      atom1: "CA",
+      atom2: "CB",
+      resseq: 1,
+      observed: 3.0,
+      expected: 1.54,
+      deviation: 1.46,
+      is_outlier: true,
+    },
   ]
   let angles = [
-    @src.AngleValidationResult::{ atom1: "N", atom2: "CA", atom3: "C", resseq: 1, observed: 90.0, expected: 110.0, deviation: -20.0, is_outlier: true },
+    @src.AngleValidationResult::{
+      atom1: "N",
+      atom2: "CA",
+      atom3: "C",
+      resseq: 1,
+      observed: 90.0,
+      expected: 110.0,
+      deviation: -20.0,
+      is_outlier: true,
+    },
   ]
   let planarity = [
-    @src.PeptidePlanarityResult::{ resseq: 1, omega: 90.0, deviation_from_180: 90.0, is_planar: false },
+    @src.PeptidePlanarityResult::{
+      resseq: 1,
+      omega: 90.0,
+      deviation_from_180: 90.0,
+      is_planar: false,
+    },
   ]
   let s = @src.stereo_summary(chir, cis, bonds, angles, planarity)
   assert_eq(s.num_residues, 2)

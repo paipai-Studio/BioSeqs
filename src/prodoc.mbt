@@ -33,7 +33,7 @@ pub struct ProdocReference {
 
 ///|
 pub fn ProdocReference::new() -> ProdocReference {
-  ProdocReference::{ number: "", authors: "", citation: "" }
+  ProdocReference::{ number: "", authors: "", citation: "", }
 }
 
 ///|
@@ -50,12 +50,7 @@ pub struct ProdocRecord {
 
 ///|
 pub fn ProdocRecord::new() -> ProdocRecord {
-  ProdocRecord::{
-    accession: "",
-    prosite_refs: [],
-    text: "",
-    references: [],
-  }
+  ProdocRecord::{ accession: "", prosite_refs: [], text: "", references: [], }
 }
 
 // ---------------------------------------------------------------------------
@@ -63,7 +58,7 @@ pub fn ProdocRecord::new() -> ProdocRecord {
 // ---------------------------------------------------------------------------
 
 ///|
-fn pd_is_ws(cp : Int) -> Bool {
+fn pd_is_ws(cp : Int32) -> Bool {
   cp == 32 || cp == 9 || cp == 10 || cp == 13 || cp == 11 || cp == 12
 }
 
@@ -191,8 +186,8 @@ fn pd_read_reference_line(
 /// remain; otherwise the record and the index just past the record.
 fn pd_next_record(
   lines : Array[String],
-  start : Int,
-) -> (ProdocRecord?, Int) raise ProdocError {
+  start : Int32,
+) -> (ProdocRecord?, Int32) raise ProdocError {
   let n = lines.length()
   let mut i = start
   // Skip blank lines and "//" separators between records.

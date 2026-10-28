@@ -13,7 +13,11 @@ fn ru_leaf0(name : String) -> @src.Clade {
 
 ///|
 fn ru_internal(children : Array[@src.Clade], bl : Double) -> @src.Clade {
-  @src.Clade::new(name=Some("internal"), branch_length=Some(bl), clades=children)
+  @src.Clade::new(
+    name=Some("internal"),
+    branch_length=Some(bl),
+    clades=children,
+  )
 }
 
 ///|
@@ -22,7 +26,7 @@ fn ru_internal0(children : Array[@src.Clade]) -> @src.Clade {
 }
 
 ///|
-fn ru_count_leaves(clade : @src.Clade) -> Int {
+fn ru_count_leaves(clade : @src.Clade) -> Int32 {
   if clade.is_terminal() {
     return 1
   }
@@ -85,7 +89,11 @@ test "unroot: two-leaf tree unchanged" {
 ///|
 test "unroot: root with 3 children unchanged" {
   // Already unrooted (trifurcation at root)
-  let tree = ru_internal0([ru_leaf("A", 1.0), ru_leaf("B", 1.0), ru_leaf("C", 1.0)])
+  let tree = ru_internal0([
+    ru_leaf("A", 1.0),
+    ru_leaf("B", 1.0),
+    ru_leaf("C", 1.0),
+  ])
   let result = @src.phylo_unroot(tree)
   assert_eq(result.clades.length(), 3)
 }
@@ -131,9 +139,7 @@ test "unroot: combined branch length" {
   let mut found_combined = false
   for ch in result.clades {
     match ch.branch_length {
-      Some(v) => if (v - 5.0).abs() < 0.0001 {
-        found_combined = true
-      }
+      Some(v) => if (v - 5.0).abs() < 0.0001 { found_combined = true }
       None => ()
     }
   }
@@ -146,7 +152,10 @@ test "unroot: caterpillar" {
   // After unroot: (B,(C,D)) becomes root, A attached as sibling
   let tree = ru_internal0([
     ru_leaf("A", 1.0),
-    ru_internal0([ru_leaf("B", 1.0), ru_internal0([ru_leaf("C", 1.0), ru_leaf("D", 1.0)])]),
+    ru_internal0([
+      ru_leaf("B", 1.0),
+      ru_internal0([ru_leaf("C", 1.0), ru_leaf("D", 1.0)]),
+    ]),
   ])
   let result = @src.phylo_unroot(tree)
   assert_eq(ru_count_leaves(result), 4)
@@ -181,9 +190,7 @@ test "root_at_leaf: outgroup becomes direct child" {
   for ch in result.clades {
     if ch.is_terminal() {
       match ch.name {
-        Some(n) => if n == "C" {
-          c_is_direct = true
-        }
+        Some(n) => if n == "C" { c_is_direct = true }
         None => ()
       }
     }
@@ -220,7 +227,10 @@ test "root_at_leaf: leaf not found returns original" {
 test "root_at_leaf: star tree" {
   // (A, B, C, D) — root at C
   let tree = ru_internal0([
-    ru_leaf("A", 1.0), ru_leaf("B", 2.0), ru_leaf("C", 3.0), ru_leaf("D", 1.0),
+    ru_leaf("A", 1.0),
+    ru_leaf("B", 2.0),
+    ru_leaf("C", 3.0),
+    ru_leaf("D", 1.0),
   ])
   let result = @src.phylo_root_at_leaf(tree, "C")
   assert_eq(ru_count_leaves(result), 4)
@@ -232,7 +242,10 @@ test "root_at_leaf: caterpillar" {
   // (A,(B,(C,D))) — root at D
   let tree = ru_internal0([
     ru_leaf("A", 1.0),
-    ru_internal0([ru_leaf("B", 1.0), ru_internal0([ru_leaf("C", 1.0), ru_leaf("D", 1.0)])]),
+    ru_internal0([
+      ru_leaf("B", 1.0),
+      ru_internal0([ru_leaf("C", 1.0), ru_leaf("D", 1.0)]),
+    ]),
   ])
   let result = @src.phylo_root_at_leaf(tree, "D")
   assert_eq(ru_count_leaves(result), 4)
@@ -242,9 +255,7 @@ test "root_at_leaf: caterpillar" {
   for ch in result.clades {
     if ch.is_terminal() {
       match ch.name {
-        Some(n) => if n == "D" {
-          d_is_direct = true
-        }
+        Some(n) => if n == "D" { d_is_direct = true }
         None => ()
       }
     }
@@ -256,7 +267,9 @@ test "root_at_leaf: caterpillar" {
 test "root_unroot_roundtrip: root then unroot" {
   // Start with unrooted (trifurcation), root at A, then unroot
   let tree = ru_internal0([
-    ru_leaf("A", 1.0), ru_leaf("B", 1.0), ru_leaf("C", 1.0),
+    ru_leaf("A", 1.0),
+    ru_leaf("B", 1.0),
+    ru_leaf("C", 1.0),
   ])
   let rooted = @src.phylo_root_at_leaf(tree, "A")
   let unrooted = @src.phylo_unroot(rooted)

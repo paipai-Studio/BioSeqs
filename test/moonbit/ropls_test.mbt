@@ -20,7 +20,7 @@ fn ropls_vec_close(a : Array[Double], b : Array[Double], tol : Double) -> Bool {
     return false
   }
   for i in 0..<a.length() {
-    if !(ropls_close(a[i], b[i], tol)) {
+    if !ropls_close(a[i], b[i], tol) {
       return false
     }
   }
@@ -41,7 +41,7 @@ fn ropls_mat_close(
       return false
     }
     for j in 0..<a[i].length() {
-      if !(ropls_close(a[i][j], b[i][j], tol)) {
+      if !ropls_close(a[i][j], b[i][j], tol) {
         return false
       }
     }
@@ -274,10 +274,10 @@ let e_pca3_r2x : Array[Double] = [0.402, 0.217, 0.195]
 let e_pca3_r2xc : Array[Double] = [0.402, 0.619, 0.814]
 
 ///|
-let e_pca3_iters : Array[Int] = [23, 93, 21]
+let e_pca3_iters : Array[Int32] = [23, 93, 21]
 
 ///|
-let e_pca3_ncomp : Int = 3
+let e_pca3_ncomp : Int32 = 3
 
 ///|
 let e_pca3_xmean : Array[Double] = [
@@ -339,10 +339,10 @@ let e_pca_auto_r2x : Array[Double] = [0.402, 0.217]
 let e_pca_auto_r2xc : Array[Double] = [0.402, 0.619]
 
 ///|
-let e_pca_auto_iters : Array[Int] = [23, 93]
+let e_pca_auto_iters : Array[Int32] = [23, 93]
 
 ///|
-let e_pca_auto_ncomp : Int = 2
+let e_pca_auto_ncomp : Int32 = 2
 
 ///|
 let e_pca_auto_xmean : Array[Double] = [
@@ -404,10 +404,10 @@ let e_pca_center_r2x : Array[Double] = [0.515, 0.255]
 let e_pca_center_r2xc : Array[Double] = [0.515, 0.771]
 
 ///|
-let e_pca_center_iters : Array[Int] = [20, 22]
+let e_pca_center_iters : Array[Int32] = [20, 22]
 
 ///|
-let e_pca_center_ncomp : Int = 2
+let e_pca_center_ncomp : Int32 = 2
 
 ///|
 let e_pca_center_xmean : Array[Double] = [
@@ -466,10 +466,10 @@ let e_pca_pareto_r2x : Array[Double] = [0.443, 0.234]
 let e_pca_pareto_r2xc : Array[Double] = [0.443, 0.677]
 
 ///|
-let e_pca_pareto_iters : Array[Int] = [20, 53]
+let e_pca_pareto_iters : Array[Int32] = [20, 53]
 
 ///|
-let e_pca_pareto_ncomp : Int = 2
+let e_pca_pareto_ncomp : Int32 = 2
 
 ///|
 let e_pca_pareto_xmean : Array[Double] = [
@@ -531,10 +531,10 @@ let e_pca_none_r2x : Array[Double] = [0.474, 0.341]
 let e_pca_none_r2xc : Array[Double] = [0.474, 0.815]
 
 ///|
-let e_pca_none_iters : Array[Int] = [33, 14]
+let e_pca_none_iters : Array[Int32] = [33, 14]
 
 ///|
-let e_pca_none_ncomp : Int = 2
+let e_pca_none_ncomp : Int32 = 2
 
 ///|
 let e_pca_none_xmean : Array[Double] = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
@@ -735,10 +735,10 @@ let e_pls1_2_sig : Array[String] = ["R1", "R1"]
 let e_pls1_2_tot : Array[Double] = [0.595, 0.966, 0.899, 0.828]
 
 ///|
-let e_pls1_2_pre : Int = 2
+let e_pls1_2_pre : Int32 = 2
 
 ///|
-let e_pls1_2_ort : Int = 0
+let e_pls1_2_ort : Int32 = 0
 
 ///|
 let e_pls1_1_T : Array[Array[Double]] = [
@@ -931,10 +931,10 @@ let e_pls1_1_sig : Array[String] = ["R1"]
 let e_pls1_1_tot : Array[Double] = [0.384, 0.895, 0.794, 1.42]
 
 ///|
-let e_pls1_1_pre : Int = 1
+let e_pls1_1_pre : Int32 = 1
 
 ///|
-let e_pls1_1_ort : Int = 0
+let e_pls1_1_ort : Int32 = 0
 
 ///|
 let e_pls2_2_T : Array[Array[Double]] = [
@@ -1130,10 +1130,10 @@ let e_pls2_2_sig : Array[String] = ["R1", "R1"]
 let e_pls2_2_tot : Array[Double] = [0.609, 0.931, 0.872, 0.635]
 
 ///|
-let e_pls2_2_pre : Int = 2
+let e_pls2_2_pre : Int32 = 2
 
 ///|
-let e_pls2_2_ort : Int = 0
+let e_pls2_2_ort : Int32 = 0
 
 ///|
 let e_plsda2_2_T : Array[Array[Double]] = [
@@ -1328,10 +1328,10 @@ let e_plsda2_2_sig : Array[String] = ["R1", "R1"]
 let e_plsda2_2_tot : Array[Double] = [0.556, 0.829, 0.659, 0.221]
 
 ///|
-let e_plsda2_2_pre : Int = 2
+let e_plsda2_2_pre : Int32 = 2
 
 ///|
-let e_plsda2_2_ort : Int = 0
+let e_plsda2_2_ort : Int32 = 0
 
 ///|
 let e_plsda2_2_fitted : Array[String] = [
@@ -1538,10 +1538,10 @@ let e_plsda3_2_sig : Array[String] = ["R1", "R1"]
 let e_plsda3_2_tot : Array[Double] = [0.419, 0.742, 0.423, 0.256]
 
 ///|
-let e_plsda3_2_pre : Int = 2
+let e_plsda3_2_pre : Int32 = 2
 
 ///|
-let e_plsda3_2_ort : Int = 0
+let e_plsda3_2_ort : Int32 = 0
 
 ///|
 let e_plsda3_2_fitted : Array[String] = [
@@ -1743,10 +1743,10 @@ let e_pls1_auto_sig : Array[String] = ["R1", "R1"]
 let e_pls1_auto_tot : Array[Double] = [0.595, 0.966, 0.899, 0.828]
 
 ///|
-let e_pls1_auto_pre : Int = 2
+let e_pls1_auto_pre : Int32 = 2
 
 ///|
-let e_pls1_auto_ort : Int = 0
+let e_pls1_auto_ort : Int32 = 0
 
 ///|
 let e_opls1_T : Array[Array[Double]] = [
@@ -1981,10 +1981,10 @@ let e_opls1_sig : Array[String] = ["R1", "R1", "NA"]
 let e_opls1_tot : Array[Double] = [0.595, 0.966, 0.918, 0.828]
 
 ///|
-let e_opls1_pre : Int = 1
+let e_opls1_pre : Int32 = 1
 
 ///|
-let e_opls1_ort : Int = 1
+let e_opls1_ort : Int32 = 1
 
 ///|
 let e_oplsda2_T : Array[Array[Double]] = [
@@ -2219,10 +2219,10 @@ let e_oplsda2_sig : Array[String] = ["R1", "R1", "NA"]
 let e_oplsda2_tot : Array[Double] = [0.556, 0.829, 0.697, 0.221]
 
 ///|
-let e_oplsda2_pre : Int = 1
+let e_oplsda2_pre : Int32 = 1
 
 ///|
-let e_oplsda2_ort : Int = 1
+let e_oplsda2_ort : Int32 = 1
 
 ///|
 let e_oplsda2_fitted : Array[String] = [
@@ -2246,7 +2246,7 @@ let e_pred_da : Array[String] = [
 ]
 
 ///|
-let ropls_perms : Array[Array[Int]] = [
+let ropls_perms : Array[Array[Int32]] = [
   [
     9, 18, 6, 1, 14, 7, 2, 22, 5, 19, 16, 10, 23, 17, 3, 13, 20, 21, 15, 12, 0, 4,
     8, 11,
@@ -2363,7 +2363,7 @@ let e_perm_pr2y : Double = 0.05
 let e_perm_pq2 : Double = 0.05
 
 ///|
-let ropls_permds : Array[Array[Int]] = [
+let ropls_permds : Array[Array[Int32]] = [
   [
     1, 15, 16, 4, 11, 6, 2, 10, 18, 12, 23, 0, 7, 22, 5, 17, 8, 19, 13, 3, 14, 9,
     20, 21,
@@ -2933,7 +2933,7 @@ test "ropls input validation rejects invalid calls" {
   } catch {
     _ => true
   }
-  let empty_perms : Array[Array[Int]] = Array(capacity=0)
+  let empty_perms : Array[Array[Int32]] = Array(capacity=0)
   let ok7 = try {
     ignore(
       @src.ropls_permutation(

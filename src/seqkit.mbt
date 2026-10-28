@@ -40,7 +40,7 @@ pub fn seqkit_remove_gaps(seq : String) -> String {
   let buf = StringBuilder()
   for i = 0; i < seq.length(); i = i + 1 {
     let c = seq.unsafe_get(i).unsafe_to_char()
-    if !(is_gap_char(c)) {
+    if !is_gap_char(c) {
       buf.write_char(c)
     }
   }
@@ -55,7 +55,7 @@ pub fn seqkit_fq2fa(records : Array[SeqRecord]) -> String {
 }
 
 ///|
-fn phred_to_qual(quals : Array[Int]) -> String {
+fn phred_to_qual(quals : Array[Int32]) -> String {
   let buf = StringBuilder()
   for q in quals {
     buf.write_char((q + 33).to_uint16().unsafe_to_char())
@@ -70,7 +70,7 @@ pub fn seqkit_fx2tab(records : Array[SeqRecord], is_fastq : Bool) -> String {
   let buf = StringBuilder()
   let mut first = true
   for rec in records {
-    if !(first) {
+    if !first {
       buf.write_char('\n')
     }
     buf.write_string(rec.id)
@@ -111,8 +111,10 @@ pub fn seqkit_tab2fx(content : String) -> String {
     }
   }
   buf.to_string()
-}///|
+} ///|
 /// Build the `.fai` (FASTA index) text for a FASTA (`seqkit faidx`).
+
+///|
 pub fn seqkit_faidx(fasta_content : String) -> String {
   write_fai(build_fai(fasta_content))
 }
@@ -121,7 +123,12 @@ pub fn seqkit_faidx(fasta_content : String) -> String {
 /// Extract a subsequence by 1-based inclusive coordinates (`seqkit subseq
 /// -r start:end`, positive coordinates only). Returns "" for an unknown
 /// chromosome or an out-of-range region.
-pub fn seqkit_subseq(fasta : Fasta, chrom : String, start : Int, end : Int) -> String {
+pub fn seqkit_subseq(
+  fasta : Fasta,
+  chrom : String,
+  start : Int32,
+  end : Int32,
+) -> String {
   if start < 1 || end < start {
     return ""
   }
@@ -146,7 +153,7 @@ pub fn seqkit_subseq(fasta : Fasta, chrom : String, start : Int, end : Int) -> S
 ///|
 /// Find the first occurrence of `sub` in `s`; returns the 0-based start index
 /// or -1 when absent. Naive scan (no regex).
-fn seqkit_index_of(s : String, sub : String) -> Int {
+fn seqkit_index_of(s : String, sub : String) -> Int32 {
   let m = sub.length()
   if m == 0 {
     return 0
@@ -195,7 +202,6 @@ pub fn seqkit_amplicon(
   Some(seq[start:end].to_owned())
 }
 
-
 // ============================================================================
 // seqkit bam
 // ============================================================================
@@ -238,11 +244,5 @@ pub fn seqkit_bam_to_fasta(
   skip_secondary~ : Bool = true,
   skip_supplementary~ : Bool = true,
 ) -> String {
-  write_fasta(
-    seqkit_bam_to_records(
-      bam,
-      skip_secondary=skip_secondary,
-      skip_supplementary=skip_supplementary,
-    ),
-  )
+  write_fasta(seqkit_bam_to_records(bam, skip_secondary~, skip_supplementary~))
 }

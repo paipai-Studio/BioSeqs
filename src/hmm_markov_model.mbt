@@ -30,12 +30,12 @@ fn[T] hmm_fail(msg : String) -> T raise HmmError {
 // ---------------------------------------------------------------------------
 
 ///|
-let hmm_rng_state : Ref[Int] = Ref(123456789)
+let hmm_rng_state : Ref[Int32] = Ref(123456789)
 
 ///|
 /// Seed the internal random number generator used by the builder's
 /// set_random_* methods. The generator is deterministic (Park-Miller).
-pub fn hmm_seed(seed : Int) -> Unit {
+pub fn hmm_seed(seed : Int32) -> Unit {
   hmm_rng_state.val = if seed <= 0 { 123456789 } else { seed % 2147483647 }
 }
 
@@ -59,7 +59,7 @@ fn hmm_uniform() -> Double {
 
 ///|
 /// Return an array of n random numbers summing to 1.0.
-fn hmm_gen_random_array(n : Int) -> Array[Double] {
+fn hmm_gen_random_array(n : Int32) -> Array[Double] {
   let rand_array : Array[Double] = Array(capacity=n)
   let mut total = 0.0
   for i = 0; i < n; i = i + 1 {
@@ -157,7 +157,7 @@ fn hmm_copy2(
 }
 
 ///|
-fn hmm_map2_size(m : Map[String, Map[String, Double]]) -> Int {
+fn hmm_map2_size(m : Map[String, Map[String, Double]]) -> Int32 {
   let mut n = 0
   for _k1, inner in m {
     n = n + inner.length()
@@ -206,8 +206,7 @@ pub fn MarkovModelBuilder::new(
   for s in state_alphabet {
     states.push(s)
   }
-  let emissions : Array[String] = Array(capacity=emission_alphabet.length(),
-  )
+  let emissions : Array[String] = Array(capacity=emission_alphabet.length())
   for s in emission_alphabet {
     emissions.push(s)
   }
@@ -249,7 +248,8 @@ pub fn MarkovModelBuilder::get_markov_model(
   for k, v in self.initial_prob {
     initial.set(k, v)
   }
-  let order : Array[(String, String)] = Array(capacity=self.transition_order.length(),
+  let order : Array[(String, String)] = Array(
+    capacity=self.transition_order.length(),
   )
   for key in self.transition_order {
     order.push(key)
@@ -601,7 +601,7 @@ pub fn MarkovModelBuilder::set_emission_pseudocount(
 
 ///|
 /// Number of currently allowed transitions.
-pub fn MarkovModelBuilder::transition_count(self : MarkovModelBuilder) -> Int {
+pub fn MarkovModelBuilder::transition_count(self : MarkovModelBuilder) -> Int32 {
   self.transition_order.length()
 }
 
@@ -609,7 +609,7 @@ pub fn MarkovModelBuilder::transition_count(self : MarkovModelBuilder) -> Int {
 /// Number of allowed (state, emission) pairs.
 pub fn MarkovModelBuilder::emission_pair_count(
   self : MarkovModelBuilder,
-) -> Int {
+) -> Int32 {
   hmm_map2_size(self.emission_prob)
 }
 
@@ -875,7 +875,7 @@ fn hmm_log_transform_1(
 ///|
 /// Maximum likelihood variable container keyed by (state, position).
 pub struct HmmDpVars {
-  priv values : Map[String, Map[Int, Double]]
+  priv values : Map[String, Map[Int32, Double]]
 }
 
 ///|
@@ -884,7 +884,7 @@ pub struct HmmDpVars {
 pub fn HmmDpVars::get(
   self : HmmDpVars,
   state : String,
-  pos : Int,
+  pos : Int32,
 ) -> Double raise HmmError {
   match self.values.get(state) {
     Some(inner) =>
@@ -902,13 +902,13 @@ pub fn HmmDpVars::get(
 fn HmmDpVars::set(
   self : HmmDpVars,
   state : String,
-  pos : Int,
+  pos : Int32,
   value : Double,
 ) -> Unit {
   match self.values.get(state) {
     Some(inner) => inner.set(pos, value)
     None => {
-      let inner : Map[Int, Double] = Map([], capacity=16)
+      let inner : Map[Int32, Double] = Map([], capacity=16)
       inner.set(pos, value)
       self.values.set(state, inner)
     }
@@ -1084,7 +1084,7 @@ pub fn HiddenMarkovModel::viterbi(
 pub struct ScaledDp {
   priv mm : HiddenMarkovModel
   priv seq : TrainingSequence
-  priv s_values : Map[Int, Double]
+  priv s_values : Map[Int32, Double]
 }
 
 ///|
@@ -1103,7 +1103,7 @@ pub fn ScaledDp::new(
 /// Calculate the next scaling variable for a sequence position.
 fn ScaledDp::calculate_s_value(
   self : ScaledDp,
-  seq_pos : Int,
+  seq_pos : Int32,
   previous_vars : HmmDpVars,
 ) -> Double raise HmmError {
   let state_letters = self.mm.state_alphabet
@@ -1135,7 +1135,7 @@ fn ScaledDp::calculate_s_value(
 fn ScaledDp::forward_recursion(
   self : ScaledDp,
   cur_state : String,
-  sequence_pos : Int,
+  sequence_pos : Int32,
   forward_vars : HmmDpVars,
 ) -> Double? raise HmmError {
   // calculate the s value, if we haven't done so already
@@ -1179,7 +1179,7 @@ fn ScaledDp::forward_recursion(
 fn ScaledDp::backward_recursion(
   self : ScaledDp,
   cur_state : String,
-  sequence_pos : Int,
+  sequence_pos : Int32,
   backward_vars : HmmDpVars,
 ) -> Double? raise HmmError {
   // calculate the s value, if we haven't done so already
@@ -1381,7 +1381,7 @@ fn hmm_ml_estimator(
       all_ordered.push((k1, k2))
     }
   }
-  all_ordered.sort_by(fn(a : (String, String), b : (String, String)) -> Int {
+  all_ordered.sort_by(fn(a : (String, String), b : (String, String)) -> Int32 {
     let c = a.0.compare(b.0)
     if c != 0 {
       c
@@ -1469,7 +1469,7 @@ pub fn BaumWelchTrainer::new(
 pub fn BaumWelchTrainer::train(
   self : BaumWelchTrainer,
   training_seqs : Array[TrainingSequence],
-  stopping_criteria : (Double, Int) -> Bool,
+  stopping_criteria : (Double, Int32) -> Bool,
 ) -> HiddenMarkovModel raise HmmError {
   let mut prev_log_likelihood : Double? = None
   let mut num_iterations = 1

@@ -43,7 +43,7 @@ fn lefse_rank(data : Array[Double]) -> Array[Double] {
   let result : Array[Double] = Array::make(n, 0.0)
 
   // Build indexed array: [value, original_index]
-  let indexed : Array[(Double, Int)] = Array(capacity=0)
+  let indexed : Array[(Double, Int32)] = Array(capacity=0)
   let mut i = 0
   while i < n {
     indexed.push((data[i], i))
@@ -51,7 +51,7 @@ fn lefse_rank(data : Array[Double]) -> Array[Double] {
   }
 
   // Sort by value ascending
-  indexed.sort_by(fn(a : (Double, Int), b : (Double, Int)) -> Int {
+  indexed.sort_by(fn(a : (Double, Int32), b : (Double, Int32)) -> Int32 {
     if a.0 < b.0 {
       -1
     } else if a.0 > b.0 {
@@ -118,7 +118,7 @@ fn lefse_pvalue_z(z : Double) -> Double {
 /// Chi-square survival function (upper tail p-value) using the
 /// Wilson-Hilferty approximation for chi-square distribution with df degrees
 /// of freedom.
-fn lefse_chi2_sf(x : Double, df : Int) -> Double {
+fn lefse_chi2_sf(x : Double, df : Int32) -> Double {
   if x <= 0.0 || df <= 0 {
     return 1.0
   }
@@ -174,7 +174,7 @@ pub fn lefse_kruskal_wallis(groups : Array[Array[Double]]) -> (Double, Double) {
 
   // Combine all values and compute ranks
   let combined : Array[Double] = Array(capacity=0)
-  let group_sizes : Array[Int] = Array(capacity=0)
+  let group_sizes : Array[Int32] = Array(capacity=0)
   let mut total_n = 0
   i = 0
   while i < k {
@@ -375,7 +375,7 @@ pub fn lefse_wilcoxon_rank_sum(
 /// If any mean is zero or negative, a small pseudocount is added.
 pub fn lefse_lda_score(
   class_means : Array[Double],
-  best_class_idx : Int,
+  best_class_idx : Int32,
 ) -> Double {
   let k = class_means.length()
   if k < 2 || best_class_idx < 0 || best_class_idx >= k {
@@ -512,14 +512,14 @@ pub fn LEfSeResult::is_significant(self : LEfSeResult) -> Bool {
 /// Output of LEfSe analysis containing all per-feature results.
 pub struct LEfSeOutput {
   results : Array[LEfSeResult]
-  n_significant : Int
+  n_significant : Int32
 }
 
 ///|
 /// Construct an LEfSeOutput.
 pub fn LEfSeOutput::new(
   results : Array[LEfSeResult],
-  n_significant : Int,
+  n_significant : Int32,
 ) -> LEfSeOutput {
   LEfSeOutput::{ results, n_significant, }
 }
@@ -530,7 +530,7 @@ pub fn LEfSeOutput::results(self : LEfSeOutput) -> Array[LEfSeResult] {
 }
 
 ///|
-pub fn LEfSeOutput::n_significant(self : LEfSeOutput) -> Int {
+pub fn LEfSeOutput::n_significant(self : LEfSeOutput) -> Int32 {
   self.n_significant
 }
 
@@ -556,8 +556,8 @@ pub fn LEfSeOutput::n_significant(self : LEfSeOutput) -> Int {
 /// significant biomarkers.
 pub fn lefse_run(
   input : LEfSeInput,
-  alpha? : Double = 0.05,
-  lda_threshold? : Double = 2.0,
+  alpha~ : Double = 0.05,
+  lda_threshold~ : Double = 2.0,
 ) -> LEfSeOutput {
   let n_features = input.features.length()
   let n_samples = input.sample_names.length()
@@ -578,10 +578,10 @@ pub fn lefse_run(
   let has_subclasses = lefse_has_subclasses(input.subclasses)
 
   // Build class-to-sample-index mapping
-  let class_indices : Array[Array[Int]] = Array(capacity=0)
+  let class_indices : Array[Array[Int32]] = Array(capacity=0)
   let mut ci = 0
   while ci < n_classes {
-    let indices : Array[Int] = Array(capacity=0)
+    let indices : Array[Int32] = Array(capacity=0)
     let mut j = 0
     while j < n_samples {
       if input.classes[j] == unique_classes[ci] {
@@ -733,9 +733,9 @@ fn lefse_build_subclass_info(
   classes : Array[String],
   subclasses : Array[String],
   unique_classes : Array[String],
-) -> Array[(String, String, Array[Int])] {
+) -> Array[(String, String, Array[Int32])] {
   let n = classes.length()
-  let info : Array[(String, String, Array[Int])] = Array(capacity=0)
+  let info : Array[(String, String, Array[Int32])] = Array(capacity=0)
 
   // Collect all unique subclass labels
   let unique_subclasses = lefse_unique_strings(subclasses)
@@ -747,7 +747,7 @@ fn lefse_build_subclass_info(
     let mut ci = 0
     while ci < unique_classes.length() {
       let cls = unique_classes[ci]
-      let indices : Array[Int] = Array(capacity=0)
+      let indices : Array[Int32] = Array(capacity=0)
       let mut j = 0
       while j < n {
         if subclasses[j] == sub && classes[j] == cls {
@@ -774,7 +774,7 @@ fn lefse_build_subclass_info(
 /// EVERY subclass that has samples in both classes of the pair.
 fn lefse_subclass_wilcoxon(
   feature_values : Array[Double],
-  subclass_info : Array[(String, String, Array[Int])],
+  subclass_info : Array[(String, String, Array[Int32])],
   alpha : Double,
 ) -> Bool {
   // Group by subclass
@@ -876,11 +876,11 @@ fn lefse_subclass_wilcoxon(
 ///|
 /// Get sample indices for a given (subclass, class) pair from subclass_info.
 fn lefse_get_subclass_class_indices(
-  subclass_info : Array[(String, String, Array[Int])],
+  subclass_info : Array[(String, String, Array[Int32])],
   subclass : String,
   class_ : String,
-) -> Array[Int] {
-  let result : Array[Int] = Array(capacity=0)
+) -> Array[Int32] {
+  let result : Array[Int32] = Array(capacity=0)
   let mut i = 0
   while i < subclass_info.length() {
     if subclass_info[i].0 == subclass && subclass_info[i].1 == class_ {

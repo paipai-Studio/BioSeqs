@@ -17,6 +17,8 @@ pub struct UniGeneExtraField {
   key : String
   value : String
 } derive(Eq)
+
+///|
 pub extend UniGeneExtraField with Eq::{equal, not_equal}
 
 ///|
@@ -43,20 +45,22 @@ pub struct UniGeneSequence {
   image_id : String
   extra_fields : Array[UniGeneExtraField]
 } derive(Eq)
+
+///|
 pub extend UniGeneSequence with Eq::{equal, not_equal}
 
 ///|
 pub fn UniGeneSequence::new(
-  accession? : String = "",
-  nucleotide_id? : String = "",
-  protein_id? : String = "",
-  clone_id? : String = "",
-  read_end? : String = "",
-  library_id? : String = "",
-  mgc? : String = "",
-  sequence_type? : String = "",
-  trace? : String = "",
-  extra_fields? : Array[UniGeneExtraField] = [],
+  accession~ : String = "",
+  nucleotide_id~ : String = "",
+  protein_id~ : String = "",
+  clone_id~ : String = "",
+  read_end~ : String = "",
+  library_id~ : String = "",
+  mgc~ : String = "",
+  sequence_type~ : String = "",
+  trace~ : String = "",
+  extra_fields~ : Array[UniGeneExtraField] = [],
 ) -> UniGeneSequence {
   let image_id = unigene_image_id(clone_id)
   UniGeneSequence::{
@@ -121,16 +125,18 @@ pub struct UniGeneProteinSimilarity {
   alignment_length : String
   extra_fields : Array[UniGeneExtraField]
 } derive(Eq)
+
+///|
 pub extend UniGeneProteinSimilarity with Eq::{equal, not_equal}
 
 ///|
 pub fn UniGeneProteinSimilarity::new(
-  organism? : String = "",
-  protein_gi? : String = "",
-  protein_id? : String = "",
-  percent? : String = "",
-  alignment_length? : String = "",
-  extra_fields? : Array[UniGeneExtraField] = [],
+  organism~ : String = "",
+  protein_gi~ : String = "",
+  protein_id~ : String = "",
+  percent~ : String = "",
+  alignment_length~ : String = "",
+  extra_fields~ : Array[UniGeneExtraField] = [],
 ) -> UniGeneProteinSimilarity {
   UniGeneProteinSimilarity::{
     organism,
@@ -181,13 +187,15 @@ pub struct UniGeneSTS {
   unists : String
   extra_fields : Array[UniGeneExtraField]
 } derive(Eq)
+
+///|
 pub extend UniGeneSTS with Eq::{equal, not_equal}
 
 ///|
 pub fn UniGeneSTS::new(
-  accession? : String = "",
-  unists? : String = "",
-  extra_fields? : Array[UniGeneExtraField] = [],
+  accession~ : String = "",
+  unists~ : String = "",
+  extra_fields~ : Array[UniGeneExtraField] = [],
 ) -> UniGeneSTS {
   UniGeneSTS::{ accession, unists, extra_fields, }
 }
@@ -219,13 +227,15 @@ pub struct UniGeneTranscriptMap {
   radiation_hybrid_panel : String
   extra_fields : Array[UniGeneExtraField]
 } derive(Eq)
+
+///|
 pub extend UniGeneTranscriptMap with Eq::{equal, not_equal}
 
 ///|
 pub fn UniGeneTranscriptMap::new(
-  marker? : String = "",
-  radiation_hybrid_panel? : String = "",
-  extra_fields? : Array[UniGeneExtraField] = [],
+  marker~ : String = "",
+  radiation_hybrid_panel~ : String = "",
+  extra_fields~ : Array[UniGeneExtraField] = [],
 ) -> UniGeneTranscriptMap {
   UniGeneTranscriptMap::{ marker, radiation_hybrid_panel, extra_fields, }
 }
@@ -272,28 +282,30 @@ pub struct UniGeneRecord {
   sequences : Array[UniGeneSequence]
   sts : Array[UniGeneSTS]
   transcript_maps : Array[UniGeneTranscriptMap]
-  declared_sequence_count : Int
+  declared_sequence_count : Int32
 } derive(Eq)
+
+///|
 pub extend UniGeneRecord with Eq::{equal, not_equal}
 
 ///|
 pub fn UniGeneRecord::new(
   identifier~ : String,
-  species? : String = "",
-  title? : String = "",
-  symbol? : String = "",
-  cytoband? : String = "",
-  expression? : Array[String] = [],
-  restricted_expression? : Array[String] = [],
-  genomic_terminus? : String = "",
-  gene_id? : String = "",
-  locuslink? : String = "",
-  homology? : Bool? = None,
-  chromosome? : String = "",
-  protein_similarities? : Array[UniGeneProteinSimilarity] = [],
-  sequences? : Array[UniGeneSequence] = [],
-  sts? : Array[UniGeneSTS] = [],
-  transcript_maps? : Array[UniGeneTranscriptMap] = [],
+  species~ : String = "",
+  title~ : String = "",
+  symbol~ : String = "",
+  cytoband~ : String = "",
+  expression~ : Array[String] = [],
+  restricted_expression~ : Array[String] = [],
+  genomic_terminus~ : String = "",
+  gene_id~ : String = "",
+  locuslink~ : String = "",
+  homology~ : Bool? = None,
+  chromosome~ : String = "",
+  protein_similarities~ : Array[UniGeneProteinSimilarity] = [],
+  sequences~ : Array[UniGeneSequence] = [],
+  sts~ : Array[UniGeneSTS] = [],
+  transcript_maps~ : Array[UniGeneTranscriptMap] = [],
 ) -> UniGeneRecord {
   UniGeneRecord::{
     identifier,
@@ -557,7 +569,7 @@ priv struct UniGeneBuilder {
   sequences : Array[UniGeneSequence]
   sts : Array[UniGeneSTS]
   transcript_maps : Array[UniGeneTranscriptMap]
-  mut declared_sequence_count : Int
+  mut declared_sequence_count : Int32
   mut has_sequence_count : Bool
 }
 
@@ -629,7 +641,7 @@ fn unigene_apply_field(
   builder : UniGeneBuilder,
   tag : String,
   value : String,
-  line_number~ : Int,
+  line_number~ : Int32,
 ) -> Unit raise UniGeneError {
   match tag {
     "TITLE" => builder.title = value
@@ -687,7 +699,7 @@ fn unigene_apply_field(
 ///|
 fn unigene_parse_sequence(
   value : String,
-  line_number~ : Int,
+  line_number~ : Int32,
 ) -> UniGeneSequence raise UniGeneError {
   let fields = unigene_parse_fields(
     value,
@@ -717,7 +729,7 @@ fn unigene_parse_sequence(
 ///|
 fn unigene_parse_protein_similarity(
   value : String,
-  line_number~ : Int,
+  line_number~ : Int32,
 ) -> UniGeneProteinSimilarity raise UniGeneError {
   let fields = unigene_parse_fields(
     value,
@@ -743,7 +755,7 @@ fn unigene_parse_protein_similarity(
 ///|
 fn unigene_parse_sts(
   value : String,
-  line_number~ : Int,
+  line_number~ : Int32,
 ) -> UniGeneSTS raise UniGeneError {
   let fields = unigene_parse_fields(
     value,
@@ -766,7 +778,7 @@ fn unigene_parse_sts(
 ///|
 fn unigene_parse_transcript_map(
   value : String,
-  line_number~ : Int,
+  line_number~ : Int32,
 ) -> UniGeneTranscriptMap raise UniGeneError {
   let fields = unigene_parse_fields(
     value,
@@ -789,7 +801,7 @@ fn unigene_parse_transcript_map(
 ///|
 fn unigene_split_line(
   line : String,
-  line_number~ : Int,
+  line_number~ : Int32,
 ) -> (String, String) raise UniGeneError {
   if line.length() < 12 {
     raise UniGeneError(
@@ -924,7 +936,7 @@ fn unigene_is_known_protein_key(key : String) -> Bool {
 fn unigene_parse_nonnegative_int(
   value : String,
   context~ : String,
-) -> Int raise UniGeneError {
+) -> Int32 raise UniGeneError {
   if value.length() == 0 {
     raise UniGeneError("Missing integer value for " + context)
   }

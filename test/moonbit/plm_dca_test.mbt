@@ -7,19 +7,12 @@ fn make_protein_aln() -> Array[String] {
   // Small alignment with some coevolution signal
   // Positions 1 and 4 are correlated (A-A or C-C)
   [
-    "ACDEACDE",
-    "ACDEACDE",
-    "CCDECCDE",
-    "CCDECCDE",
-    "ACDEACDE",
-    "CCDECCDE",
-    "ADDEADDE",
-    "ADDEADDE",
-    "CDDECDDE",
-    "CDDECDDE",
+    "ACDEACDE", "ACDEACDE", "CCDECCDE", "CCDECCDE", "ACDEACDE", "CCDECCDE", "ADDEADDE",
+    "ADDEADDE", "CDDECDDE", "CDDECDDE",
   ]
 }
 
+///|
 test "PlmDCAConfig default_protein" {
   let c = @src.PlmDCAConfig::default_protein()
   assert_eq(c.alphabet, "protein")
@@ -30,6 +23,7 @@ test "PlmDCAConfig default_protein" {
   assert_true(c.tol > 0.0)
 }
 
+///|
 test "PlmDCAConfig default_dna" {
   let c = @src.PlmDCAConfig::default_dna()
   assert_eq(c.alphabet, "dna")
@@ -37,6 +31,7 @@ test "PlmDCAConfig default_dna" {
   assert_true(c.lambda_j > 0.0)
 }
 
+///|
 test "plm_dca basic shape" {
   let aln = make_protein_aln()
   let config = @src.PlmDCAConfig::default_protein()
@@ -56,6 +51,7 @@ test "plm_dca basic shape" {
   assert_eq(result.di_scores[0].length(), 8)
 }
 
+///|
 test "plm_dca fn_scores non-negative" {
   let aln = make_protein_aln()
   let config = @src.PlmDCAConfig::default_protein()
@@ -67,6 +63,7 @@ test "plm_dca fn_scores non-negative" {
   }
 }
 
+///|
 test "plm_dca di_scores non-negative" {
   let aln = make_protein_aln()
   let config = @src.PlmDCAConfig::default_protein()
@@ -80,6 +77,7 @@ test "plm_dca di_scores non-negative" {
   }
 }
 
+///|
 test "plm_dca fn_scores symmetric" {
   let aln = make_protein_aln()
   let config = @src.PlmDCAConfig::default_protein()
@@ -92,6 +90,7 @@ test "plm_dca fn_scores symmetric" {
   }
 }
 
+///|
 test "plm_dca di_scores symmetric" {
   let aln = make_protein_aln()
   let config = @src.PlmDCAConfig::default_protein()
@@ -104,6 +103,7 @@ test "plm_dca di_scores symmetric" {
   }
 }
 
+///|
 test "plm_dca diagonal zero" {
   let aln = make_protein_aln()
   let config = @src.PlmDCAConfig::default_protein()
@@ -113,6 +113,7 @@ test "plm_dca diagonal zero" {
   }
 }
 
+///|
 test "plm_dca coupling matrix symmetric" {
   let aln = make_protein_aln()
   let config = @src.PlmDCAConfig::default_protein()
@@ -120,10 +121,11 @@ test "plm_dca coupling matrix symmetric" {
   // J_ij(a,b) should equal J_ji(b,a) after symmetrization
   let q = 21
   for i = 0; i < 8; i = i + 1 {
-    for j = (i + 1); j < 8; j = j + 1 {
+    for j = i + 1; j < 8; j = j + 1 {
       for a = 0; a < q; a = a + 1 {
         for b = 0; b < q; b = b + 1 {
-          let diff = (result.couplings[i][j][a][b] - result.couplings[j][i][b][a]).abs()
+          let diff = (result.couplings[i][j][a][b] -
+          result.couplings[j][i][b][a]).abs()
           assert_true(diff < 1.0e-10)
         }
       }
@@ -131,6 +133,7 @@ test "plm_dca coupling matrix symmetric" {
   }
 }
 
+///|
 test "plm_dca fields zero-sum gauge" {
   let aln = make_protein_aln()
   let config = @src.PlmDCAConfig::default_protein()
@@ -145,6 +148,7 @@ test "plm_dca fields zero-sum gauge" {
   }
 }
 
+///|
 test "plm_dca coupling zero-sum gauge" {
   let aln = make_protein_aln()
   let config = @src.PlmDCAConfig::default_protein()
@@ -152,7 +156,7 @@ test "plm_dca coupling zero-sum gauge" {
   let q = 21
   // Row sums and column sums should be ~0
   for i = 0; i < 8; i = i + 1 {
-    for j = (i + 1); j < 8; j = j + 1 {
+    for j = i + 1; j < 8; j = j + 1 {
       for a = 0; a < q; a = a + 1 {
         let mut row_sum = 0.0
         for b = 0; b < q; b = b + 1 {
@@ -171,6 +175,7 @@ test "plm_dca coupling zero-sum gauge" {
   }
 }
 
+///|
 test "plm_dca coevolution signal detected" {
   // Positions 0 and 4 are correlated: A-A or C-C
   let aln = make_protein_aln()
@@ -184,6 +189,7 @@ test "plm_dca coevolution signal detected" {
   assert_true(fn_04 > fn_01)
 }
 
+///|
 test "plm_dca identity alignment low couplings" {
   // All identical sequences → no coevolution signal
   let aln = ["ACDEACDE", "ACDEACDE", "ACDEACDE", "ACDEACDE"]
@@ -199,15 +205,11 @@ test "plm_dca identity alignment low couplings" {
   }
 }
 
+///|
 test "plm_dca random alignment moderate couplings" {
   // Diverse alignment with no correlation
   let aln = [
-    "ACDEFGHI",
-    "KLMNPQRS",
-    "TVWYACDE",
-    "FGHIKLMM",
-    "NPQRSTVW",
-    "YACDEFGH",
+    "ACDEFGHI", "KLMNPQRS", "TVWYACDE", "FGHIKLMM", "NPQRSTVW", "YACDEFGH",
   ]
   let config = @src.PlmDCAConfig::default_protein()
   let result = @src.plm_dca(aln, config)
@@ -221,15 +223,10 @@ test "plm_dca random alignment moderate couplings" {
   }
 }
 
+///|
 test "plm_dca DNA alignment" {
   let aln = [
-    "ACGTACGT",
-    "ACGTACGT",
-    "TGACTGAC",
-    "TGACTGAC",
-    "ACGTACGT",
-    "TGACTGAC",
-    "ACGTACGT",
+    "ACGTACGT", "ACGTACGT", "TGACTGAC", "TGACTGAC", "ACGTACGT", "TGACTGAC", "ACGTACGT",
     "TGACTGAC",
   ]
   let config = @src.PlmDCAConfig::default_dna()
@@ -248,6 +245,7 @@ test "plm_dca DNA alignment" {
   }
 }
 
+///|
 test "plm_rank_contacts" {
   let aln = make_protein_aln()
   let config = @src.PlmDCAConfig::default_protein()
@@ -266,6 +264,7 @@ test "plm_rank_contacts" {
   }
 }
 
+///|
 test "plm_dca single sequence" {
   let aln = ["ACDEACDE"]
   let config = @src.PlmDCAConfig::default_protein()
@@ -275,6 +274,7 @@ test "plm_dca single sequence" {
   assert_true(result.m_eff > 0.0)
 }
 
+///|
 test "plm_dca two sequences" {
   let aln = ["ACDEACDE", "CCDECCDE"]
   let config = @src.PlmDCAConfig::default_protein()
@@ -289,6 +289,7 @@ test "plm_dca two sequences" {
   }
 }
 
+///|
 test "plm_dca vs mfDCA ranking correlation" {
   // Both methods should identify the same top contact (pos 0, pos 4)
   let aln = make_protein_aln()
@@ -314,11 +315,11 @@ test "plm_dca vs mfDCA ranking correlation" {
   }
 }
 
+///|
 test "plm_dca m_eff with reweighting" {
   // Many identical sequences → low m_eff
   let aln = [
-    "ACDEACDE", "ACDEACDE", "ACDEACDE",
-    "CCDECCDE", "CCDECCDE", "CCDECCDE",
+    "ACDEACDE", "ACDEACDE", "ACDEACDE", "CCDECCDE", "CCDECCDE", "CCDECCDE",
   ]
   let config = @src.PlmDCAConfig::default_protein()
   let result = @src.plm_dca(aln, config)
@@ -327,6 +328,7 @@ test "plm_dca m_eff with reweighting" {
   assert_true(result.m_eff > 1.0)
 }
 
+///|
 test "plm_dca custom config" {
   let aln = make_protein_aln()
   let config = @src.PlmDCAConfig::{

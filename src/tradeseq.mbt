@@ -47,8 +47,8 @@ pub struct DifferentialExpressionResult {
 ///|
 pub struct TradeSeqResult {
   gene_results : Array[DifferentialExpressionResult]
-  n_genes : Int
-  n_significant : Int
+  n_genes : Int32
+  n_significant : Int32
   fdr_threshold : Double
 }
 
@@ -66,8 +66,8 @@ pub struct TrajectoryData {
   points : Array[TrajectoryPoint]
   genes : Array[String]
   conditions : Array[String]
-  n_points : Int
-  n_genes : Int
+  n_points : Int32
+  n_genes : Int32
 }
 
 ///|
@@ -143,7 +143,7 @@ pub fn TrajectoryData::add_gene(
 }
 
 ///|
-pub fn fit_gam(gene_data : GeneExpressionData, n_knots : Int) -> GAMFit {
+pub fn fit_gam(gene_data : GeneExpressionData, n_knots : Int32) -> GAMFit {
   let n = gene_data.expression.length()
   let expression = gene_data.expression
   let pseudotime = gene_data.pseudotime
@@ -295,7 +295,7 @@ pub fn run_tradeseq_analysis(
   trajectory_data : TrajectoryData,
   genes : Array[String],
   conditions : Array[String],
-  _n_knots : Int,
+  _n_knots : Int32,
   fdr : Double,
 ) -> TradeSeqResult {
   let gene_results : Array[DifferentialExpressionResult] = Array(capacity=0)
@@ -397,8 +397,8 @@ pub fn run_tradeseq_analysis(
 pub fn calculate_gene_smooth(
   trajectory_data : TrajectoryData,
   gene : String,
-  n_knots : Int,
-  n_points : Int,
+  n_knots : Int32,
+  n_points : Int32,
 ) -> SmoothResult {
   let expression : Array[Double] = Array(capacity=0)
   let pseudotime : Array[Double] = Array(capacity=0)
@@ -580,9 +580,9 @@ fn tradeseq_contains_string(arr : Array[String], value : String) -> Bool {
 }
 
 ///|
-fn tradeseq_sort_indices(arr : Array[Double]) -> Array[Int] {
+fn tradeseq_sort_indices(arr : Array[Double]) -> Array[Int32] {
   let n = arr.length()
-  let indices : Array[Int] = Array(capacity=0)
+  let indices : Array[Int32] = Array(capacity=0)
   let values : Array[Double] = Array(capacity=0)
 
   // Copy values and indices
@@ -619,7 +619,7 @@ fn tradeseq_sort_indices(arr : Array[Double]) -> Array[Int] {
 ///|
 fn tradeseq_create_basis(
   pseudotime : Array[Double],
-  n_knots : Int,
+  n_knots : Int32,
 ) -> Array[Array[Double]] {
   let n = pseudotime.length()
   let n_basis = n_knots + 2 // Interior knots + boundary
@@ -771,9 +771,9 @@ fn tradeseq_normal_cdf(x : Double) -> Double {
 ///|
 fn tradeseq_sort_by_pvalue(
   results : Array[DifferentialExpressionResult],
-) -> Array[Int] {
+) -> Array[Int32] {
   let n = results.length()
-  let indices : Array[Int] = Array(capacity=0)
+  let indices : Array[Int32] = Array(capacity=0)
   let values : Array[Double] = Array(capacity=0)
 
   // Initialize
@@ -866,7 +866,7 @@ fn tradeseq_bh_correction(
 }
 
 ///|
-fn tradeseq_find_gene_index(genes : Array[String], gene : String) -> Int {
+fn tradeseq_find_gene_index(genes : Array[String], gene : String) -> Int32 {
   let mut i = 0
   while i < genes.length() {
     if genes[i] == gene {

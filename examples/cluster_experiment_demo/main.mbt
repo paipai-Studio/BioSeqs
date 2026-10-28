@@ -3,8 +3,7 @@
 ///
 /// Demonstrates consensus and sequential clustering on synthetic
 /// high-dimensional biological data using the RSEC pipeline.
-
-fn main() -> Unit {
+fn main {
   println("=== clusterExperiment RSEC Demo ===\n")
 
   // Create synthetic data: 3 well-separated clusters in 5D space
@@ -54,11 +53,18 @@ fn main() -> Unit {
 
   // Step 1: clusterMany - ensemble of clusterings
   let ensemble = @bio.ce_cluster_many(data, params)
-  println("clusterMany: generated " + ensemble.length().to_string() + " clusterings")
+  println(
+    "clusterMany: generated " + ensemble.length().to_string() + " clusterings",
+  )
 
   // Step 2: Co-clustering matrix
   let cocluster = @bio.ce_cocluster_matrix(ensemble, data.length())
-  println("Co-clustering matrix: " + cocluster.length().to_string() + "x" + cocluster.length().to_string())
+  println(
+    "Co-clustering matrix: " +
+    cocluster.length().to_string() +
+    "x" +
+    cocluster.length().to_string(),
+  )
 
   // Print a small sample of the co-clustering matrix
   println("\nCo-clustering matrix (first 5x5 block):")
@@ -77,17 +83,30 @@ fn main() -> Unit {
   let mut ci = 0
   while ci < consensus_sizes.length() {
     let (id, size) = consensus_sizes[ci]
-    println("  cluster " + id.to_string() + ": " + size.to_string() + " samples")
+    println(
+      "  cluster " + id.to_string() + ": " + size.to_string() + " samples",
+    )
     ci = ci + 1
   }
 
   // Step 4: Dendrogram
   let dendro = @bio.ce_make_dendrogram(data, consensus_labels)
-  println("\nDendrogram built: " + (if dendro is Some(_) { "yes" } else { "no" }))
+  println(
+    "\nDendrogram built: " + (if dendro is Some(_) { "yes" } else { "no" }),
+  )
 
   // Step 5: Merge clusters by significance
-  let (merged_labels, merge_info) = @bio.ce_merge_clusters(data, consensus_labels, dendro, params.merge_cutoff)
-  println("Merge clusters: " + merge_info.length().to_string() + " merge steps evaluated")
+  let (merged_labels, merge_info) = @bio.ce_merge_clusters(
+    data,
+    consensus_labels,
+    dendro,
+    params.merge_cutoff,
+  )
+  println(
+    "Merge clusters: " +
+    merge_info.length().to_string() +
+    " merge steps evaluated",
+  )
   let mut merged_count = 0
   for info in merge_info {
     if info.merged {
@@ -97,7 +116,12 @@ fn main() -> Unit {
   println("  " + merged_count.to_string() + " merges applied")
 
   // Step 6: Sequential clustering
-  let seq_labels = @bio.ce_sequential_cluster(data, merged_labels, params.sequential_alpha, params.sequential_beta)
+  let seq_labels = @bio.ce_sequential_cluster(
+    data,
+    merged_labels,
+    params.sequential_alpha,
+    params.sequential_beta,
+  )
   let n_seq = @bio.ce_count_clusters(seq_labels)
   println("\nSequential clustering: " + n_seq.to_string() + " final clusters")
 

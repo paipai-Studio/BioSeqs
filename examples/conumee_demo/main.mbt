@@ -1,6 +1,5 @@
 ///|
 /// Demo for conumee module: copy number unified interface.
-
 fn main {
   println("=== conumee Demo: Copy Number Analysis ===")
   println("")
@@ -20,7 +19,12 @@ fn main {
     @src.CnmProbe::new("chr2", 2000, 0.4),
   ]
   let sample = @src.CnmSample::new("sample1", probes)
-  println("Sample: " + sample.sample_id + ", probes=" + sample.probes.length().to_string())
+  println(
+    "Sample: " +
+    sample.sample_id +
+    ", probes=" +
+    sample.probes.length().to_string(),
+  )
   println("")
 
   // Example 2: CBS segmentation
@@ -29,8 +33,19 @@ fn main {
   println("Segments found: " + segged.segments.length().to_string())
   for i in 0..<segged.segments.length() {
     let seg = segged.segments[i]
-    println("  " + seg.chr + ":" + seg.start.to_string() + "-" + seg.end.to_string() +
-            " CN=" + seg.copy_number.to_string() + " (n=" + seg.n_probes.to_string() + ")")
+    println(
+      "  " +
+      seg.chr +
+      ":" +
+      seg.start.to_string() +
+      "-" +
+      seg.end.to_string() +
+      " CN=" +
+      seg.copy_number.to_string() +
+      " (n=" +
+      seg.n_probes.to_string() +
+      ")",
+    )
   }
   println("")
 
@@ -55,21 +70,42 @@ fn main {
   for i in 0..<annotated.segments.length() {
     let seg = annotated.segments[i]
     if seg.genes.length() > 0 {
-      println("  Segment " + seg.chr + ":" + seg.start.to_string() + " -> " +
-              seg.genes.length().to_string() + " genes")
+      println(
+        "  Segment " +
+        seg.chr +
+        ":" +
+        seg.start.to_string() +
+        " -> " +
+        seg.genes.length().to_string() +
+        " genes",
+      )
     }
   }
   println("")
 
   // Example 5: Filter segments
   println("--- Step 5: Filter CNVs ---")
-  let gains = @src.cnm_filter_segments(annotated, gain_threshold=2.5, loss_threshold=1.5)
+  let gains = @src.cnm_filter_segments(
+    annotated,
+    gain_threshold=2.5,
+    loss_threshold=1.5,
+  )
   println("CNV segments: " + gains.length().to_string())
   for i in 0..<gains.length() {
     let seg = gains[i]
     let label = if seg.copy_number >= 2.5 { "gain" } else { "loss" }
-    println("  " + label + ": " + seg.chr + ":" + seg.start.to_string() + "-" + seg.end.to_string() +
-            " CN=" + seg.copy_number.to_string())
+    println(
+      "  " +
+      label +
+      ": " +
+      seg.chr +
+      ":" +
+      seg.start.to_string() +
+      "-" +
+      seg.end.to_string() +
+      " CN=" +
+      seg.copy_number.to_string(),
+    )
   }
   println("")
 
@@ -101,8 +137,12 @@ fn main {
   let cmp = @src.cnm_compare_samples(segged, seg2)
   println("Comparison: " + cmp.sample_a + " vs " + cmp.sample_b)
   println("  Shared segments: " + cmp.shared_segments.length().to_string())
-  println("  Unique to " + cmp.sample_a + ": " + cmp.unique_a.length().to_string())
-  println("  Unique to " + cmp.sample_b + ": " + cmp.unique_b.length().to_string())
+  println(
+    "  Unique to " + cmp.sample_a + ": " + cmp.unique_a.length().to_string(),
+  )
+  println(
+    "  Unique to " + cmp.sample_b + ": " + cmp.unique_b.length().to_string(),
+  )
   println("  Correlation: " + cmp.correlation.to_string())
   println("")
 

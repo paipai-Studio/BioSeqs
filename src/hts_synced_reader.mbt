@@ -2,9 +2,11 @@
 /// A single genomic interval (0-based, half-open [start, end]).
 /// Ported from htslib synced_bcf_reader.c region1_t.
 pub struct Region1 {
-  start : Int
-  end : Int
+  start : Int32
+  end : Int32
 } derive(Eq)
+
+///|
 pub extend Region1 with Eq::{equal, not_equal}
 
 ///|
@@ -13,7 +15,7 @@ pub extend Region1 with Eq::{equal, not_equal}
 pub struct SeqRegions {
   seq_name : String
   regs : Array[Region1]
-  creg : Int // current active region index, -1 = none
+  creg : Int32 // current active region index, -1 = none
 }
 
 ///|
@@ -22,24 +24,21 @@ pub struct SeqRegions {
 /// Ported from htslib synced_bcf_reader.c bcf_sr_regions_t (in-memory part).
 pub struct BcfSrRegions {
   seqs : Array[SeqRegions]
-  iseq : Int // current sequence index
-  start : Int // current region start (0-based)
-  end : Int // current region end (0-based)
-  prev_seq : Int
-  prev_start : Int
-  prev_end : Int
+  iseq : Int32 // current sequence index
+  start : Int32 // current region start (0-based)
+  end : Int32 // current region end (0-based)
+  prev_seq : Int32
+  prev_start : Int32
+  prev_end : Int32
 }
 
 ///|
 /// Maximum coordinate value (analogous to MAX_CSI_COOR in htslib).
-let max_csi_coor : Int = 1073741823 // (1 << 30) - 1
+let max_csi_coor : Int32 = 1073741823 // (1 << 30) - 1
 
 ///|
 /// Find or create a sequence index in the regions collection.
-fn _find_or_add_seq(
-  seqs : Array[SeqRegions],
-  name : String
-) -> Int {
+fn _find_or_add_seq(seqs : Array[SeqRegions], name : String) -> Int32 {
   for i = 0; i < seqs.length(); i = i + 1 {
     if seqs[i].seq_name == name {
       return i
@@ -55,8 +54,8 @@ fn _find_or_add_seq(
 pub fn BcfSrRegions::add_region(
   self : BcfSrRegions,
   chr : String,
-  start : Int,
-  end : Int
+  start : Int32,
+  end : Int32,
 ) -> BcfSrRegions {
   let mut s = start
   let mut e = end
@@ -77,14 +76,14 @@ pub fn BcfSrRegions::add_region(
   }
   if found_idx < 0 {
     found_idx = new_seqs.length()
-    new_seqs.push(SeqRegions::{ seq_name: chr, regs: [], creg: -1 })
+    new_seqs.push(SeqRegions::{ seq_name: chr, regs: [], creg: -1, })
   }
   let seq = new_seqs[found_idx]
   let new_regs = []
   for i = 0; i < seq.regs.length(); i = i + 1 {
     new_regs.push(seq.regs[i])
   }
-  new_regs.push(Region1::{ start: s, end: e })
+  new_regs.push(Region1::{ start: s, end: e, })
   new_seqs[found_idx] = SeqRegions::{
     seq_name: seq.seq_name,
     regs: new_regs,
@@ -140,8 +139,8 @@ pub fn bcf_sr_regions_init_string(regions_str : String) -> BcfSrRegions {
     } else {
       let mut end_chr = pos
       while end_chr < n &&
-        regions_str[end_chr] != ',' &&
-        regions_str[end_chr] != ':' {
+            regions_str[end_chr] != ',' &&
+            regions_str[end_chr] != ':' {
         end_chr = end_chr + 1
       }
       chr = regions_str[pos:end_chr].to_owned()
@@ -158,9 +157,7 @@ pub fn bcf_sr_regions_init_string(regions_str : String) -> BcfSrRegions {
       pos = pos + 1
       // Parse "from"
       let from_start = pos
-      while pos < n &&
-        regions_str[pos] != '-' &&
-        regions_str[pos] != ',' {
+      while pos < n && regions_str[pos] != '-' && regions_str[pos] != ',' {
         pos = pos + 1
       }
       let from = parse_int(regions_str[from_start:pos].to_owned())
@@ -174,7 +171,11 @@ pub fn bcf_sr_regions_init_string(regions_str : String) -> BcfSrRegions {
         if pos == to_start {
           result = result.add_region(chr, from, max_csi_coor)
         } else {
-          result = result.add_region(chr, from, parse_int(regions_str[to_start:pos].to_owned()))
+          result = result.add_region(
+            chr,
+            from,
+            parse_int(regions_str[to_start:pos].to_owned()),
+          )
         }
       } else {
         // Single position: from == to
@@ -215,7 +216,7 @@ pub fn BcfSrRegions::sort_and_merge(self : BcfSrRegions) -> BcfSrRegions {
       let mut j = i2 + 1
       while j < regs.length() && current.end >= regs[j].start {
         if current.end < regs[j].end {
-          current = Region1::{ start: current.start, end: regs[j].end }
+          current = Region1::{ start: current.start, end: regs[j].end, }
         }
         j = j + 1
       }
@@ -246,9 +247,9 @@ pub fn BcfSrRegions::sort_and_merge(self : BcfSrRegions) -> BcfSrRegions {
 pub fn BcfSrRegions::overlap(
   self : BcfSrRegions,
   seq : String,
-  start : Int,
-  end : Int
-) -> Int {
+  start : Int32,
+  end : Int32,
+) -> Int32 {
   // Find sequence index
   let mut iseq = -1
   for i = 0; i < self.seqs.length(); i = i + 1 {
@@ -277,13 +278,13 @@ pub fn BcfSrRegions::overlap(
 
 ///|
 /// Get the number of sequences.
-pub fn BcfSrRegions::nseqs(self : BcfSrRegions) -> Int {
+pub fn BcfSrRegions::nseqs(self : BcfSrRegions) -> Int32 {
   self.seqs.length()
 }
 
 ///|
 /// Get sequence name by index.
-pub fn BcfSrRegions::seq_name(self : BcfSrRegions, idx : Int) -> String? {
+pub fn BcfSrRegions::seq_name(self : BcfSrRegions, idx : Int32) -> String? {
   if idx < 0 || idx >= self.seqs.length() {
     return None
   }
@@ -292,7 +293,7 @@ pub fn BcfSrRegions::seq_name(self : BcfSrRegions, idx : Int) -> String? {
 
 ///|
 /// Get the number of regions for a sequence.
-pub fn BcfSrRegions::nregs_for_seq(self : BcfSrRegions, seq : String) -> Int {
+pub fn BcfSrRegions::nregs_for_seq(self : BcfSrRegions, seq : String) -> Int32 {
   for i = 0; i < self.seqs.length(); i = i + 1 {
     if self.seqs[i].seq_name == seq {
       return self.seqs[i].regs.length()
@@ -305,8 +306,8 @@ pub fn BcfSrRegions::nregs_for_seq(self : BcfSrRegions, seq : String) -> Int {
 /// Get all regions for a sequence as (start, end) pairs (0-based).
 pub fn BcfSrRegions::get_regs(
   self : BcfSrRegions,
-  seq : String
-) -> Array[(Int, Int)] {
+  seq : String,
+) -> Array[(Int32, Int32)] {
   for i = 0; i < self.seqs.length(); i = i + 1 {
     if self.seqs[i].seq_name == seq {
       let result = []
@@ -326,38 +327,72 @@ pub fn BcfSrRegions::get_regs(
 
 ///|
 /// Variant type flags (ported from bcf_sr_sort.c SR_* defines).
-pub let sr_ref : Int = 1
-pub let sr_snp : Int = 2
-pub let sr_indel : Int = 4
-pub let sr_other : Int = 8
+pub let sr_ref : Int32 = 1
+
+///|
+pub let sr_snp : Int32 = 2
+
+///|
+pub let sr_indel : Int32 = 4
+
+///|
+pub let sr_other : Int32 = 8
 
 ///|
 /// Pair logic flags (ported from htslib BCF_SR_PAIR_* defines).
-pub let bcf_sr_pair_snps : Int = 1
-pub let bcf_sr_pair_indels : Int = 2
-pub let bcf_sr_pair_any : Int = 4
-pub let bcf_sr_pair_some : Int = 8
-pub let bcf_sr_pair_snp_ref : Int = 16
-pub let bcf_sr_pair_indel_ref : Int = 32
-pub let bcf_sr_pair_exact : Int = 64
-pub let bcf_sr_pair_id : Int = 128
-pub let bcf_sr_pair_both : Int = 3 // SNPS | INDELS
-pub let bcf_sr_pair_both_ref : Int = 51 // SNPS|INDELS|SNP_REF|INDEL_REF
+pub let bcf_sr_pair_snps : Int32 = 1
+
+///|
+pub let bcf_sr_pair_indels : Int32 = 2
+
+///|
+pub let bcf_sr_pair_any : Int32 = 4
+
+///|
+pub let bcf_sr_pair_some : Int32 = 8
+
+///|
+pub let bcf_sr_pair_snp_ref : Int32 = 16
+
+///|
+pub let bcf_sr_pair_indel_ref : Int32 = 32
+
+///|
+pub let bcf_sr_pair_exact : Int32 = 64
+
+///|
+pub let bcf_sr_pair_id : Int32 = 128
+
+///|
+pub let bcf_sr_pair_both : Int32 = 3 // SNPS | INDELS
+
+///|
+pub let bcf_sr_pair_both_ref : Int32 = 51 // SNPS|INDELS|SNP_REF|INDEL_REF
 
 ///|
 /// Collapse flags (legacy, mapped to pair logic).
-pub let collapse_none : Int = 0
-pub let collapse_snps : Int = 1
-pub let collapse_indels : Int = 2
-pub let collapse_any : Int = 4
-pub let collapse_some : Int = 8
-pub let collapse_both : Int = 3
+pub let collapse_none : Int32 = 0
+
+///|
+pub let collapse_snps : Int32 = 1
+
+///|
+pub let collapse_indels : Int32 = 2
+
+///|
+pub let collapse_any : Int32 = 4
+
+///|
+pub let collapse_some : Int32 = 8
+
+///|
+pub let collapse_both : Int32 = 3
 
 ///|
 /// Classify an allele as SNP, indel, ref, or other.
 /// Returns one of sr_ref, sr_snp, sr_indel, sr_other.
 /// Ported from bcf_sr_sort.c variant type classification.
-pub fn classify_allele(ref_allele : String, alt_allele : String) -> Int {
+pub fn classify_allele(ref_allele : String, alt_allele : String) -> Int32 {
   if alt_allele == "." || alt_allele == "" {
     return sr_ref
   }
@@ -394,7 +429,7 @@ pub fn classify_allele(ref_allele : String, alt_allele : String) -> Int {
 ///|
 /// Classify a variant given REF and all ALTs.
 /// Returns the combined type (bitwise OR of all allele types).
-pub fn classify_variant(ref_allele : String, alts : Array[String]) -> Int {
+pub fn classify_variant(ref_allele : String, alts : Array[String]) -> Int32 {
   let mut vtype = 0
   for i = 0; i < alts.length(); i = i + 1 {
     vtype = vtype | classify_allele(ref_allele, alts[i])
@@ -408,35 +443,55 @@ pub fn classify_variant(ref_allele : String, alts : Array[String]) -> Int {
 ///|
 /// Check if two variant types are compatible given pair logic.
 /// Ported from bcf_sr_sort.c bcf_sr_init_scores() scoring.
-pub fn pair_compatible(type_a : Int, type_b : Int, pair_logic : Int) -> Bool {
+pub fn pair_compatible(
+  type_a : Int32,
+  type_b : Int32,
+  pair_logic : Int32,
+) -> Bool {
   let mut pair = pair_logic
   if (pair & bcf_sr_pair_any) != 0 {
-    pair = pair | bcf_sr_pair_snps | bcf_sr_pair_indels | bcf_sr_pair_snp_ref | bcf_sr_pair_indel_ref
+    pair = pair |
+      bcf_sr_pair_snps |
+      bcf_sr_pair_indels |
+      bcf_sr_pair_snp_ref |
+      bcf_sr_pair_indel_ref
   }
   if (pair & bcf_sr_pair_exact) != 0 {
     // Exact match required — only same type
     return type_a == type_b
   }
   // SNP-SNP
-  if (type_a & sr_snp) != 0 && (type_b & sr_snp) != 0 && (pair & bcf_sr_pair_snps) != 0 {
+  if (type_a & sr_snp) != 0 &&
+    (type_b & sr_snp) != 0 &&
+    (pair & bcf_sr_pair_snps) != 0 {
     return true
   }
   // INDEL-INDEL
-  if (type_a & sr_indel) != 0 && (type_b & sr_indel) != 0 && (pair & bcf_sr_pair_indels) != 0 {
+  if (type_a & sr_indel) != 0 &&
+    (type_b & sr_indel) != 0 &&
+    (pair & bcf_sr_pair_indels) != 0 {
     return true
   }
   // SNP-REF
-  if (type_a & sr_snp) != 0 && (type_b & sr_ref) != 0 && (pair & bcf_sr_pair_snp_ref) != 0 {
+  if (type_a & sr_snp) != 0 &&
+    (type_b & sr_ref) != 0 &&
+    (pair & bcf_sr_pair_snp_ref) != 0 {
     return true
   }
-  if (type_a & sr_ref) != 0 && (type_b & sr_snp) != 0 && (pair & bcf_sr_pair_snp_ref) != 0 {
+  if (type_a & sr_ref) != 0 &&
+    (type_b & sr_snp) != 0 &&
+    (pair & bcf_sr_pair_snp_ref) != 0 {
     return true
   }
   // INDEL-REF
-  if (type_a & sr_indel) != 0 && (type_b & sr_ref) != 0 && (pair & bcf_sr_pair_indel_ref) != 0 {
+  if (type_a & sr_indel) != 0 &&
+    (type_b & sr_ref) != 0 &&
+    (pair & bcf_sr_pair_indel_ref) != 0 {
     return true
   }
-  if (type_a & sr_ref) != 0 && (type_b & sr_indel) != 0 && (pair & bcf_sr_pair_indel_ref) != 0 {
+  if (type_a & sr_ref) != 0 &&
+    (type_b & sr_indel) != 0 &&
+    (pair & bcf_sr_pair_indel_ref) != 0 {
     return true
   }
   // ANY allows any combination
@@ -455,11 +510,13 @@ pub fn pair_compatible(type_a : Int, type_b : Int, pair_logic : Int) -> Bool {
 /// A minimal VCF variant record for synced reading.
 pub struct SyncVariant {
   chrom : String
-  pos : Int // 0-based position
+  pos : Int32 // 0-based position
   ref_allele : String
   alts : Array[String]
   id : String
 } derive(Eq)
+
+///|
 pub extend SyncVariant with Eq::{equal, not_equal}
 
 ///|
@@ -467,7 +524,7 @@ pub extend SyncVariant with Eq::{equal, not_equal}
 pub struct SyncReader {
   name : String
   buffer : Array[SyncVariant]
-  pos : Int // current position in buffer
+  pos : Int32 // current position in buffer
 }
 
 ///|
@@ -476,22 +533,40 @@ pub struct SyncReader {
 pub struct BcfSrs {
   readers : Array[SyncReader]
   has_line : Array[Bool]
-  pair_logic : Int
-  errnum : Int
+  pair_logic : Int32
+  errnum : Int32
 }
 
 ///|
 /// Error codes (ported from bcf_sr_error enum).
-pub let bcf_sr_ok : Int = 0
-pub let bcf_sr_open_failed : Int = 1
-pub let not_bgzf : Int = 2
-pub let idx_load_failed : Int = 3
-pub let file_type_error : Int = 4
-pub let api_usage_error : Int = 5
-pub let header_error : Int = 6
-pub let vcf_parse_error : Int = 7
-pub let bcf_read_error : Int = 8
-pub let noidx_error : Int = 9
+pub let bcf_sr_ok : Int32 = 0
+
+///|
+pub let bcf_sr_open_failed : Int32 = 1
+
+///|
+pub let not_bgzf : Int32 = 2
+
+///|
+pub let idx_load_failed : Int32 = 3
+
+///|
+pub let file_type_error : Int32 = 4
+
+///|
+pub let api_usage_error : Int32 = 5
+
+///|
+pub let header_error : Int32 = 6
+
+///|
+pub let vcf_parse_error : Int32 = 7
+
+///|
+pub let bcf_read_error : Int32 = 8
+
+///|
+pub let noidx_error : Int32 = 9
 
 ///|
 /// Initialize a synced reader.
@@ -508,8 +583,13 @@ pub fn bcf_sr_init() -> BcfSrs {
 ///|
 /// Set pair logic (collapse mode).
 /// Ported from htslib bcf_sr_set_opt(BCF_SR_PAIR_LOGIC).
-pub fn BcfSrs::set_pair_logic(self : BcfSrs, logic : Int) -> BcfSrs {
-  BcfSrs::{ readers: self.readers, has_line: self.has_line, pair_logic: logic, errnum: self.errnum }
+pub fn BcfSrs::set_pair_logic(self : BcfSrs, logic : Int32) -> BcfSrs {
+  BcfSrs::{
+    readers: self.readers,
+    has_line: self.has_line,
+    pair_logic: logic,
+    errnum: self.errnum,
+  }
 }
 
 ///|
@@ -518,13 +598,13 @@ pub fn BcfSrs::set_pair_logic(self : BcfSrs, logic : Int) -> BcfSrs {
 pub fn BcfSrs::add_reader(
   self : BcfSrs,
   name : String,
-  variants : Array[SyncVariant]
+  variants : Array[SyncVariant],
 ) -> BcfSrs {
   let new_readers = []
   for i = 0; i < self.readers.length(); i = i + 1 {
     new_readers.push(self.readers[i])
   }
-  new_readers.push(SyncReader::{ name, buffer: variants, pos: 0 })
+  new_readers.push(SyncReader::{ name, buffer: variants, pos: 0, })
   let new_has_line = []
   for i = 0; i < self.has_line.length(); i = i + 1 {
     new_has_line.push(self.has_line[i])
@@ -540,14 +620,14 @@ pub fn BcfSrs::add_reader(
 
 ///|
 /// Number of readers.
-pub fn BcfSrs::nreaders(self : BcfSrs) -> Int {
+pub fn BcfSrs::nreaders(self : BcfSrs) -> Int32 {
   self.readers.length()
 }
 
 ///|
 /// Get the current line for a given reader, or None.
 /// Ported from htslib bcf_sr_get_line().
-pub fn BcfSrs::get_line(self : BcfSrs, idx : Int) -> SyncVariant? {
+pub fn BcfSrs::get_line(self : BcfSrs, idx : Int32) -> SyncVariant? {
   if idx < 0 || idx >= self.has_line.length() {
     return None
   }
@@ -564,7 +644,7 @@ pub fn BcfSrs::get_line(self : BcfSrs, idx : Int) -> SyncVariant? {
 ///|
 /// Check if a reader has a line at the current position.
 /// Ported from htslib bcf_sr_has_line macro.
-pub fn BcfSrs::has_line_at(self : BcfSrs, idx : Int) -> Bool {
+pub fn BcfSrs::has_line_at(self : BcfSrs, idx : Int32) -> Bool {
   if idx < 0 || idx >= self.has_line.length() {
     return false
   }
@@ -577,7 +657,7 @@ pub fn BcfSrs::has_line_at(self : BcfSrs, idx : Int) -> Bool {
 fn variants_compatible(
   a : SyncVariant,
   b : SyncVariant,
-  pair_logic : Int
+  pair_logic : Int32,
 ) -> Bool {
   // Must be at same position
   if a.pos != b.pos {
@@ -616,7 +696,7 @@ fn variants_compatible(
 /// Advance to the next synchronized line.
 /// Returns the number of readers with a line at this position, or 0 if done.
 /// Ported from htslib bcf_sr_next_line() / next_line().
-pub fn BcfSrs::next_line(self : BcfSrs) -> (BcfSrs, Int) {
+pub fn BcfSrs::next_line(self : BcfSrs) -> (BcfSrs, Int32) {
   let n = self.readers.length()
   if n == 0 {
     return (self, 0)
@@ -733,7 +813,7 @@ pub fn BcfSrs::next_line(self : BcfSrs) -> (BcfSrs, Int) {
     // Recurse with updated state
     let updated = BcfSrs::{
       readers: new_readers,
-      has_line: has_line,
+      has_line,
       pair_logic: self.pair_logic,
       errnum: self.errnum,
     }
@@ -742,7 +822,7 @@ pub fn BcfSrs::next_line(self : BcfSrs) -> (BcfSrs, Int) {
   (
     BcfSrs::{
       readers: new_readers,
-      has_line: has_line,
+      has_line,
       pair_logic: self.pair_logic,
       errnum: self.errnum,
     },
@@ -754,10 +834,10 @@ pub fn BcfSrs::next_line(self : BcfSrs) -> (BcfSrs, Int) {
 /// Constructor for SyncVariant (for use from test package).
 pub fn SyncVariant::make(
   chrom : String,
-  pos : Int,
+  pos : Int32,
   ref_allele : String,
   alts : Array[String],
-  id : String
+  id : String,
 ) -> SyncVariant {
-  SyncVariant::{ chrom, pos, ref_allele, alts, id }
+  SyncVariant::{ chrom, pos, ref_allele, alts, id, }
 }

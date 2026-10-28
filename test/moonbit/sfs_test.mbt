@@ -1,23 +1,22 @@
 ///|
 /// Tests for Site Frequency Spectrum (SFS).
-
 test "sfs: expected unfolded basic" {
   // E[ξ_i] = θ / i
   let sfs = @src.phylo_expected_sfs(5, 1.0)
   assert_eq(sfs.length(), 4)
-  assert_true((sfs[0] - 1.0).abs() < 0.001)  // θ/1 = 1
-  assert_true((sfs[1] - 0.5).abs() < 0.001)  // θ/2 = 0.5
-  assert_true((sfs[2] - (1.0 / 3.0)).abs() < 0.001)  // θ/3
-  assert_true((sfs[3] - 0.25).abs() < 0.001)  // θ/4
+  assert_true((sfs[0] - 1.0).abs() < 0.001) // θ/1 = 1
+  assert_true((sfs[1] - 0.5).abs() < 0.001) // θ/2 = 0.5
+  assert_true((sfs[2] - 1.0 / 3.0).abs() < 0.001) // θ/3
+  assert_true((sfs[3] - 0.25).abs() < 0.001) // θ/4
 }
 
 ///|
 test "sfs: expected unfolded with theta" {
   let sfs = @src.phylo_expected_sfs(4, 10.0)
   assert_eq(sfs.length(), 3)
-  assert_true((sfs[0] - 10.0).abs() < 0.001)  // 10/1
-  assert_true((sfs[1] - 5.0).abs() < 0.001)   // 10/2
-  assert_true((sfs[2] - (10.0 / 3.0)).abs() < 0.001)  // 10/3
+  assert_true((sfs[0] - 10.0).abs() < 0.001) // 10/1
+  assert_true((sfs[1] - 5.0).abs() < 0.001) // 10/2
+  assert_true((sfs[2] - 10.0 / 3.0).abs() < 0.001) // 10/3
 }
 
 ///|
@@ -28,7 +27,7 @@ test "sfs: expected folded" {
   let sfs = @src.phylo_expected_sfs_folded(5, 1.0)
   assert_eq(sfs.length(), 2)
   assert_true((sfs[0] - 1.25).abs() < 0.001)
-  assert_true((sfs[1] - (5.0 / 6.0)).abs() < 0.001)
+  assert_true((sfs[1] - 5.0 / 6.0).abs() < 0.001)
 }
 
 ///|
@@ -55,12 +54,7 @@ test "sfs: observed sfs basic" {
   // Seq1: AAATA (1 derived at pos 3)
   // Seq2: ATAAA (1 derived at pos 2) → singleton
   // Seq3: AATTA (1 derived at pos 2, 1 at pos 3) → doubleton
-  let seqs = [
-    "AAAAA",
-    "AAATA",
-    "ATAAA",
-    "AATTA",
-  ]
+  let seqs = ["AAAAA", "AAATA", "ATAAA", "AATTA"]
   let sfs = @src.phylo_observed_sfs(seqs)
   // n=4 → SFS has 3 entries (i=1,2,3)
   assert_eq(sfs.length(), 3)
@@ -78,33 +72,27 @@ test "sfs: observed sfs basic" {
   // pos 2: A,A,A,T → singleton
   // pos 3: A,T,A,T → doubleton
   // SFS = [2, 1, 0]
-  assert_eq(sfs[0], 2)  // singletons
-  assert_eq(sfs[1], 1)  // doubletons
-  assert_eq(sfs[2], 0)  // tripletons
+  assert_eq(sfs[0], 2) // singletons
+  assert_eq(sfs[1], 1) // doubletons
+  assert_eq(sfs[2], 0) // tripletons
 }
 
 ///|
 test "sfs: observed sfs with singletons" {
   let seqs = [
-    "AAAA",
-    "ATAA",  // singleton at pos 1
-    "AATA",  // singleton at pos 2
-    "AAAT",  // singleton at pos 3
+    "AAAA", "ATAA", // singleton at pos 1
+     "AATA", // singleton at pos 2
+     "AAAT", // singleton at pos 3
   ]
   let sfs = @src.phylo_observed_sfs(seqs)
-  assert_eq(sfs[0], 3)  // 3 singletons
+  assert_eq(sfs[0], 3) // 3 singletons
   assert_eq(sfs[1], 0)
   assert_eq(sfs[2], 0)
 }
 
 ///|
 test "sfs: observed folded sfs" {
-  let seqs = [
-    "AAAA",
-    "ATAA",
-    "AATA",
-    "AAAT",
-  ]
+  let seqs = ["AAAA", "ATAA", "AATA", "AAAT"]
   let sfs = @src.phylo_observed_sfs_folded(seqs)
   // n=4, half=2 → 2 classes
   assert_eq(sfs.length(), 2)
@@ -115,24 +103,14 @@ test "sfs: observed folded sfs" {
 
 ///|
 test "sfs: segregating sites" {
-  let seqs = [
-    "AAAA",
-    "ATAA",
-    "AATA",
-    "AAAT",
-  ]
+  let seqs = ["AAAA", "ATAA", "AATA", "AAAT"]
   let s = @src.phylo_segregating_sites(seqs)
   assert_eq(s, 3)
 }
 
 ///|
 test "sfs: count singletons" {
-  let seqs = [
-    "AAAA",
-    "ATAA",
-    "AATA",
-    "AAAT",
-  ]
+  let seqs = ["AAAA", "ATAA", "AATA", "AAAT"]
   let s = @src.phylo_count_singletons(seqs)
   assert_eq(s, 3)
 }
@@ -175,7 +153,7 @@ test "sfs: tajima d basic" {
   // Simple test: n=10, S=5, π=0.5
   let d = @src.phylo_tajima_d(5, 10, 0.5)
   // Just check it produces a finite value
-  assert_true(d == d)  // not NaN
+  assert_true(d == d) // not NaN
 }
 
 ///|
@@ -187,13 +165,13 @@ test "sfs: tajima d zero segregating" {
 ///|
 test "sfs: fu li d basic" {
   let d = @src.phylo_fu_li_d(5, 10, 2)
-  assert_true(d == d)  // not NaN
+  assert_true(d == d) // not NaN
 }
 
 ///|
 test "sfs: fu li f basic" {
   let f = @src.phylo_fu_li_f(5, 10, 0.5, 2)
-  assert_true(f == f)  // not NaN
+  assert_true(f == f) // not NaN
 }
 
 ///|
@@ -261,16 +239,8 @@ test "sfs: tajima d negative with excess singletons" {
   // Excess rare variants → negative Tajima D
   // 10 sequences with many singletons
   let seqs = [
-    "AAAAAAAAAA",
-    "TAAAAAAAAA",
-    "ATAAAAAAAA",
-    "AATAAAAAAA",
-    "AAATAAAAAA",
-    "AAAATAAAAA",
-    "AAAAATAAAA",
-    "AAAAAATAAA",
-    "AAAAAAATAA",
-    "AAAAAAAATA",
+    "AAAAAAAAAA", "TAAAAAAAAA", "ATAAAAAAAA", "AATAAAAAAA", "AAATAAAAAA", "AAAATAAAAA",
+    "AAAAATAAAA", "AAAAAATAAA", "AAAAAAATAA", "AAAAAAAATA",
   ]
   let s = @src.phylo_segregating_sites(seqs)
   let pi = @src.phylo_pi(seqs)
@@ -327,7 +297,7 @@ test "sfs: fu li d n too small" {
   assert_eq(d, 0.0)
   // n=3 should work
   let d3 = @src.phylo_fu_li_d(5, 3, 1)
-  assert_true(!(d3.is_nan()))
+  assert_true(!d3.is_nan())
 }
 
 ///|
@@ -392,8 +362,9 @@ test "sfs stats: tajima d matches" {
   let stats = @src.SfsStats::from_sequences(seqs)
   let d_ctx = stats.tajima_d()
   let d_sep = @src.phylo_tajima_d(
-    stats.segregating_sites(), stats.n_sequences(),
-    stats.nucleotide_diversity()
+    stats.segregating_sites(),
+    stats.n_sequences(),
+    stats.nucleotide_diversity(),
   )
   assert_true((d_ctx - d_sep).abs() < 1.0e-10)
 }
@@ -404,8 +375,9 @@ test "sfs stats: fu li d matches" {
   let stats = @src.SfsStats::from_sequences(seqs)
   let d_ctx = stats.fu_li_d()
   let d_sep = @src.phylo_fu_li_d(
-    stats.segregating_sites(), stats.n_sequences(),
-    stats.singleton_count()
+    stats.segregating_sites(),
+    stats.n_sequences(),
+    stats.singleton_count(),
   )
   assert_true((d_ctx - d_sep).abs() < 1.0e-10)
 }
@@ -416,8 +388,10 @@ test "sfs stats: fu li f matches" {
   let stats = @src.SfsStats::from_sequences(seqs)
   let f_ctx = stats.fu_li_f()
   let f_sep = @src.phylo_fu_li_f(
-    stats.segregating_sites(), stats.n_sequences(),
-    stats.nucleotide_diversity(), stats.singleton_count()
+    stats.segregating_sites(),
+    stats.n_sequences(),
+    stats.nucleotide_diversity(),
+    stats.singleton_count(),
   )
   assert_true((f_ctx - f_sep).abs() < 1.0e-10)
 }
@@ -428,7 +402,9 @@ test "sfs stats: fay wu h matches" {
   let stats = @src.SfsStats::from_sequences(seqs)
   let h_ctx = stats.fay_wu_h()
   let h_sep = @src.phylo_fay_wu_h(
-    stats.sfs(), stats.n_sequences(), stats.nucleotide_diversity()
+    stats.sfs(),
+    stats.n_sequences(),
+    stats.nucleotide_diversity(),
   )
   assert_true((h_ctx - h_sep).abs() < 1.0e-10)
 }
@@ -439,7 +415,9 @@ test "sfs stats: zeng e matches" {
   let stats = @src.SfsStats::from_sequences(seqs)
   let e_ctx = stats.zeng_e()
   let e_sep = @src.phylo_zeng_e(
-    stats.sfs(), stats.n_sequences(), stats.nucleotide_diversity()
+    stats.sfs(),
+    stats.n_sequences(),
+    stats.nucleotide_diversity(),
   )
   assert_true((e_ctx - e_sep).abs() < 1.0e-10)
 }
@@ -457,11 +435,11 @@ test "sfs stats: all statistics from one pass" {
   let _ = stats.zeng_e()
   let _ = stats.watterson_theta()
   // Just verify no crash and values are finite
-  assert_true(!(stats.tajima_d().is_nan()))
-  assert_true(!(stats.fu_li_d().is_nan()))
-  assert_true(!(stats.fu_li_f().is_nan()))
-  assert_true(!(stats.fay_wu_h().is_nan()))
-  assert_true(!(stats.zeng_e().is_nan()))
+  assert_true(!stats.tajima_d().is_nan())
+  assert_true(!stats.fu_li_d().is_nan())
+  assert_true(!stats.fu_li_f().is_nan())
+  assert_true(!stats.fay_wu_h().is_nan())
+  assert_true(!stats.zeng_e().is_nan())
 }
 
 ///|

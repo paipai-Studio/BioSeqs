@@ -26,11 +26,13 @@ fn[T] bcf_fail(msg : String) -> T raise BcfError {
 
 ///|
 pub enum BcfValue {
-  BcfInt(Int)
+  BcfInt(Int32)
   BcfFloat(Double)
   BcfStr(String)
   BcfFlag
 } derive(Debug)
+
+///|
 pub extend BcfValue with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -39,44 +41,44 @@ pub extend BcfValue with @moonbitlang/core/debug.Debug::{to_repr}
 pub struct BcfHeader {
   text : String
   contig_names : Array[String]
-  contig_lengths : Array[Int?]
+  contig_lengths : Array[Int32?]
   id_names : Array[String]
-  filter_ids : Array[Int]
-  info_ids : Array[Int]
-  format_ids : Array[Int]
+  filter_ids : Array[Int32]
+  info_ids : Array[Int32]
+  format_ids : Array[Int32]
   sample_names : Array[String]
 }
 
 ///|
 pub struct BcfInfo {
-  key_id : Int
-  values_type : Int
+  key_id : Int32
+  values_type : Int32
   values : Array[BcfValue]
 }
 
 ///|
 pub struct BcfFormat {
-  key_id : Int
-  values_type : Int
-  values_per_sample : Int
+  key_id : Int32
+  values_type : Int32
+  values_per_sample : Int32
   values : Array[BcfValue]
 }
 
 ///|
 pub struct BcfRecord {
-  rid : Int
+  rid : Int32
   chrom : String
-  pos : Int
-  rlen : Int
+  pos : Int32
+  rlen : Int32
   qual : Double?
   id : String
   ref_seq : String
   alt : Array[String]
-  filter_ids : Array[Int]
+  filter_ids : Array[Int32]
   info : Array[BcfInfo]
   formats : Array[BcfFormat]
-  n_sample : Int
-  n_fmt : Int
+  n_sample : Int32
+  n_fmt : Int32
 }
 
 ///|
@@ -90,34 +92,36 @@ pub struct BcfFile {
 // ---------------------------------------------------------------------------
 
 ///|
-fn bcf_u8(data : String, pos : Int) -> Int {
+fn bcf_u8(data : String, pos : Int32) -> Int32 {
   data.unsafe_get(pos).to_int() & 0xFF
 }
 
 ///|
-fn bcf_check(data : String, pos : Int, len : Int) -> Unit raise BcfError {
+fn bcf_check(data : String, pos : Int32, len : Int32) -> Unit raise BcfError {
   if pos < 0 || pos + len > data.length() {
-    bcf_fail("Premature end of BCF data at offset \{pos} (length \{data.length()})")
+    bcf_fail(
+      "Premature end of BCF data at offset \{pos} (length \{data.length()})",
+    )
   }
 }
 
 ///|
-fn bcf_read_u16(data : String, pos : Int) -> Int raise BcfError {
+fn bcf_read_u16(data : String, pos : Int32) -> Int32 raise BcfError {
   bcf_check(data, pos, 2)
   bcf_u8(data, pos) | (bcf_u8(data, pos + 1) << 8)
 }
 
 ///|
-fn bcf_read_u32(data : String, pos : Int) -> Int raise BcfError {
+fn bcf_read_u32(data : String, pos : Int32) -> Int32 raise BcfError {
   bcf_check(data, pos, 4)
   bcf_u8(data, pos) |
-    (bcf_u8(data, pos + 1) << 8) |
-    (bcf_u8(data, pos + 2) << 16) |
-    (bcf_u8(data, pos + 3) << 24)
+  (bcf_u8(data, pos + 1) << 8) |
+  (bcf_u8(data, pos + 2) << 16) |
+  (bcf_u8(data, pos + 3) << 24)
 }
 
 ///|
-fn bcf_read_i8(data : String, pos : Int) -> Int {
+fn bcf_read_i8(data : String, pos : Int32) -> Int32 {
   let b = bcf_u8(data, pos)
   if b >= 128 {
     b - 256
@@ -127,7 +131,7 @@ fn bcf_read_i8(data : String, pos : Int) -> Int {
 }
 
 ///|
-fn bcf_read_i16(data : String, pos : Int) -> Int raise BcfError {
+fn bcf_read_i16(data : String, pos : Int32) -> Int32 raise BcfError {
   let v = bcf_read_u16(data, pos)
   if v >= 32768 {
     v - 65536
@@ -139,7 +143,7 @@ fn bcf_read_i16(data : String, pos : Int) -> Int raise BcfError {
 ///|
 /// Decode an IEEE 754 float32 (4 little-endian bytes) to a Double. Non-finite
 /// values (exponent all ones, e.g. the missing sentinel) become NaN.
-fn bcf_f32(b0 : Int, b1 : Int, b2 : Int, b3 : Int) -> Double {
+fn bcf_f32(b0 : Int32, b1 : Int32, b2 : Int32, b3 : Int32) -> Double {
   let sign = if b3 >= 128 { -1.0 } else { 1.0 }
   let exponent = (b3 & 0x7F) * 2 + (b2 >> 7)
   let mantissa = (b2 & 0x7F) * 65536 + b1 * 256 + b0
@@ -149,17 +153,21 @@ fn bcf_f32(b0 : Int, b1 : Int, b2 : Int, b3 : Int) -> Double {
   if exponent == 0 {
     sign * mantissa.to_double() * @math.pow(2.0, -149.0)
   } else {
-    sign * (1.0 + mantissa.to_double() / 8388608.0) * @math.pow(
-      2.0,
-      (exponent - 127).to_double(),
-    )
+    sign *
+    (1.0 + mantissa.to_double() / 8388608.0) *
+    @math.pow(2.0, (exponent - 127).to_double())
   }
 }
 
 ///|
-fn bcf_read_f32(data : String, pos : Int) -> Double raise BcfError {
+fn bcf_read_f32(data : String, pos : Int32) -> Double raise BcfError {
   bcf_check(data, pos, 4)
-  bcf_f32(bcf_u8(data, pos), bcf_u8(data, pos + 1), bcf_u8(data, pos + 2), bcf_u8(data, pos + 3))
+  bcf_f32(
+    bcf_u8(data, pos),
+    bcf_u8(data, pos + 1),
+    bcf_u8(data, pos + 2),
+    bcf_u8(data, pos + 3),
+  )
 }
 
 // ---------------------------------------------------------------------------
@@ -169,7 +177,10 @@ fn bcf_read_f32(data : String, pos : Int) -> Double raise BcfError {
 ///|
 /// Decode a size byte (`count<<4 | type`). When the high nibble is 15, the
 /// count is a typed integer that follows. Returns (count, type, next).
-fn bcf_read_size(data : String, pos : Int) -> (Int, Int, Int) raise BcfError {
+fn bcf_read_size(
+  data : String,
+  pos : Int32,
+) -> (Int32, Int32, Int32) raise BcfError {
   bcf_check(data, pos, 1)
   let b = bcf_u8(data, pos)
   let type_ = b & 0xF
@@ -184,7 +195,10 @@ fn bcf_read_size(data : String, pos : Int) -> (Int, Int, Int) raise BcfError {
 
 ///|
 /// Decode a single typed integer (a size byte `1<<4|type` + the value).
-fn bcf_read_typed_int(data : String, pos : Int) -> (Int, Int) raise BcfError {
+fn bcf_read_typed_int(
+  data : String,
+  pos : Int32,
+) -> (Int32, Int32) raise BcfError {
   bcf_check(data, pos, 2)
   let type_ = bcf_u8(data, pos) & 0xF
   if type_ == 1 {
@@ -205,10 +219,10 @@ fn bcf_read_typed_int(data : String, pos : Int) -> (Int, Int) raise BcfError {
 /// Decode `count` typed values of the given type. Returns (values, next).
 fn bcf_decode_values(
   data : String,
-  pos : Int,
-  count : Int,
-  type_ : Int,
-) -> (Array[BcfValue], Int) raise BcfError {
+  pos : Int32,
+  count : Int32,
+  type_ : Int32,
+) -> (Array[BcfValue], Int32) raise BcfError {
   let values : Array[BcfValue] = []
   let mut p = pos
   if type_ == 0 {
@@ -248,7 +262,10 @@ fn bcf_decode_values(
 
 ///|
 /// Decode a typed string (a size byte `count<<4 | CHAR` + `count` bytes).
-fn bcf_read_string(data : String, pos : Int) -> (String, Int) raise BcfError {
+fn bcf_read_string(
+  data : String,
+  pos : Int32,
+) -> (String, Int32) raise BcfError {
   let (count, type_, next) = bcf_read_size(data, pos)
   if type_ != 7 {
     bcf_fail("Expected string type, got \{type_}")
@@ -264,7 +281,10 @@ fn bcf_read_string(data : String, pos : Int) -> (String, Int) raise BcfError {
 ///|
 /// Decode a typed vector of integers (FILTER). A null vector or a single
 /// integer are both handled by the generic size byte.
-fn bcf_read_int_vector(data : String, pos : Int) -> (Array[Int], Int) raise BcfError {
+fn bcf_read_int_vector(
+  data : String,
+  pos : Int32,
+) -> (Array[Int32], Int32) raise BcfError {
   let (count, type_, next) = bcf_read_size(data, pos)
   if type_ == 0 {
     return ([], next)
@@ -273,7 +293,7 @@ fn bcf_read_int_vector(data : String, pos : Int) -> (Array[Int], Int) raise BcfE
     bcf_fail("Expected integer vector, got type \{type_}")
   }
   let width = if type_ == 1 { 1 } else if type_ == 2 { 2 } else { 4 }
-  let out : Array[Int] = []
+  let out : Array[Int32] = []
   let mut p = next
   for _i = 0; _i < count; _i = _i + 1 {
     let v = if type_ == 1 {
@@ -346,18 +366,24 @@ fn bcf_tag_value(line : String, tag : String) -> String {
 ///|
 fn bcf_parse_header_text(text : String) -> BcfHeader {
   let contig_names : Array[String] = []
-  let contig_lengths : Array[Int?] = []
+  let contig_lengths : Array[Int32?] = []
   let id_names : Array[String] = []
-  let filter_ids : Array[Int] = []
-  let info_ids : Array[Int] = []
-  let format_ids : Array[Int] = []
+  let filter_ids : Array[Int32] = []
+  let info_ids : Array[Int32] = []
+  let format_ids : Array[Int32] = []
   let sample_names : Array[String] = []
   let mut id_counter = 0
   for line in bcf_lines(text) {
     if starts_with(line, 0, "##contig=") {
       contig_names.push(bcf_tag_value(line, "ID"))
       let len = bcf_tag_value(line, "length")
-      contig_lengths.push(if len.length() == 0 { None } else { Some(parse_int(len)) })
+      contig_lengths.push(
+        if len.length() == 0 {
+          None
+        } else {
+          Some(parse_int(len))
+        },
+      )
     } else if starts_with(line, 0, "##FILTER=") {
       id_names.push(bcf_tag_value(line, "ID"))
       filter_ids.push(id_counter)
@@ -398,7 +424,7 @@ fn bcf_parse_header_text(text : String) -> BcfHeader {
 // ---------------------------------------------------------------------------
 
 ///|
-fn bcf_id_name(header : BcfHeader, id : Int) -> String {
+fn bcf_id_name(header : BcfHeader, id : Int32) -> String {
   if id >= 0 && id < header.id_names.length() {
     header.id_names[id]
   } else {
@@ -407,7 +433,7 @@ fn bcf_id_name(header : BcfHeader, id : Int) -> String {
 }
 
 ///|
-fn bcf_contig_name(header : BcfHeader, rid : Int) -> String {
+fn bcf_contig_name(header : BcfHeader, rid : Int32) -> String {
   if rid >= 0 && rid < header.contig_names.length() {
     header.contig_names[rid]
   } else {
@@ -420,9 +446,9 @@ fn bcf_contig_name(header : BcfHeader, rid : Int) -> String {
 /// resolution. Returns (record, next offset).
 fn bcf_parse_record(
   data : String,
-  off : Int,
+  off : Int32,
   header : BcfHeader,
-) -> (BcfRecord, Int) raise BcfError {
+) -> (BcfRecord, Int32) raise BcfError {
   bcf_check(data, off, 32)
   let l_shared = bcf_read_u32(data, off)
   let l_indiv = bcf_read_u32(data, off + 4)
@@ -476,7 +502,7 @@ fn bcf_parse_record(
     p = p7
     let (values, p8) = bcf_decode_values(data, p, count, type_)
     p = p8
-    info.push(BcfInfo::{ key_id, values_type: type_, values })
+    info.push(BcfInfo::{ key_id, values_type: type_, values, })
   }
 
   // individual block: FORMAT fields
@@ -544,12 +570,12 @@ pub fn parse_bcf(data : String) -> BcfFile raise BcfError {
     records.push(record)
     off = next
   }
-  BcfFile::{ header, records }
+  BcfFile::{ header, records, }
 }
 
 ///|
 /// Decode a packed GT integer to its allele index (None for missing).
-pub fn bcf_gt_allele(encoded : Int) -> Int? {
+pub fn bcf_gt_allele(encoded : Int32) -> Int32? {
   if encoded <= 0 {
     None
   } else {
@@ -559,24 +585,24 @@ pub fn bcf_gt_allele(encoded : Int) -> Int? {
 
 ///|
 /// Whether a packed GT integer marks a phased allele.
-pub fn bcf_gt_phased(encoded : Int) -> Bool {
+pub fn bcf_gt_phased(encoded : Int32) -> Bool {
   (encoded & 1) == 1
 }
 
 ///|
 /// The name for a FILTER/INFO/FORMAT id, falling back to the numeric id.
-pub fn BcfHeader::id_name(self : BcfHeader, id : Int) -> String {
+pub fn BcfHeader::id_name(self : BcfHeader, id : Int32) -> String {
   bcf_id_name(self, id)
 }
 
 ///|
 /// The contig name for a reference id, falling back to the numeric id.
-pub fn BcfHeader::contig_name(self : BcfHeader, rid : Int) -> String {
+pub fn BcfHeader::contig_name(self : BcfHeader, rid : Int32) -> String {
   bcf_contig_name(self, rid)
 }
 
 ///|
 /// The number of records in a parsed BCF file.
-pub fn BcfFile::len(self : BcfFile) -> Int {
+pub fn BcfFile::len(self : BcfFile) -> Int32 {
   self.records.length()
 }

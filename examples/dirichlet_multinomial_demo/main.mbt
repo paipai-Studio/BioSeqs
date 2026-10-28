@@ -1,5 +1,5 @@
 ///|
-fn example_counts() -> Array[Array[Int]] {
+fn example_counts() -> Array[Array[Int32]] {
   [
     [40, 3, 2],
     [35, 4, 1],

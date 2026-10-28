@@ -127,8 +127,8 @@ pub fn bio_isoform_calculate_usage(
 pub fn bio_isoform_calculate_dpsi(
   isoform1 : IsoformExpression,
   isoform2 : IsoformExpression,
-  condition1_indices : Array[Int],
-  condition2_indices : Array[Int],
+  condition1_indices : Array[Int32],
+  condition2_indices : Array[Int32],
 ) -> Double {
   let usage1 = bio_isoform_calculate_usage(isoform1)
   let usage2 = bio_isoform_calculate_usage(isoform2)
@@ -181,8 +181,8 @@ pub fn bio_isoform_calculate_dpsi(
 pub fn bio_isoform_calculate_dif(
   isoform1 : IsoformExpression,
   isoform2 : IsoformExpression,
-  condition1_indices : Array[Int],
-  condition2_indices : Array[Int],
+  condition1_indices : Array[Int32],
+  condition2_indices : Array[Int32],
 ) -> Double {
   let usage1 = bio_isoform_calculate_usage(isoform1)
   let usage2 = bio_isoform_calculate_usage(isoform2)
@@ -266,8 +266,8 @@ pub fn bio_isoform_find_switches(
   }
 
   let cond_len = data.conditions.length()
-  let condition1_indices : Array[Int] = Array(capacity=0)
-  let condition2_indices : Array[Int] = Array(capacity=0)
+  let condition1_indices : Array[Int32] = Array(capacity=0)
+  let condition2_indices : Array[Int32] = Array(capacity=0)
   let mut k = 0
   while k < cond_len {
     if data.conditions[k] == "control" {
@@ -395,8 +395,8 @@ fn calculate_pvalue(
   _dpsi : Double,
   iso1 : IsoformExpression,
   iso2 : IsoformExpression,
-  cond1 : Array[Int],
-  cond2 : Array[Int],
+  cond1 : Array[Int32],
+  cond2 : Array[Int32],
 ) -> Double {
   let usage1 = bio_isoform_calculate_usage(iso1)
   let usage2 = bio_isoform_calculate_usage(iso2)

@@ -19,8 +19,14 @@ pub enum MuscatAdvancedAggregation {
   ProportionDetected
   NumberDetected
 } derive(Eq, Debug)
+
+///|
 pub extend MuscatAdvancedAggregation with Eq::{equal, not_equal}
-pub extend MuscatAdvancedAggregation with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend MuscatAdvancedAggregation with @moonbitlang/core/debug.Debug::{
+  to_repr,
+}
 
 ///|
 pub fn muscat_sum_counts() -> MuscatAdvancedAggregation {
@@ -49,10 +55,10 @@ pub fn muscat_number_detected() -> MuscatAdvancedAggregation {
 
 ///|
 pub struct MuscatAdvancedConfig {
-  min_cells : Int
+  min_cells : Int32
   min_count : Double
-  min_samples : Int
-  max_iterations : Int
+  min_samples : Int32
+  max_iterations : Int32
   tolerance : Double
   minimum_dispersion : Double
   maximum_dispersion : Double
@@ -62,22 +68,24 @@ pub struct MuscatAdvancedConfig {
   lfc_threshold : Double
   detection_filter : Double
 } derive(Debug)
+
+///|
 pub extend MuscatAdvancedConfig with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub fn MuscatAdvancedConfig::create(
-  min_cells? : Int = 10,
-  min_count? : Double = 1.0,
-  min_samples? : Int = 2,
-  max_iterations? : Int = 100,
-  tolerance? : Double = 1.0e-8,
-  minimum_dispersion? : Double = 1.0e-8,
-  maximum_dispersion? : Double = 100.0,
-  dispersion_prior_df? : Double = 10.0,
-  ridge? : Double = 1.0e-8,
-  fdr_threshold? : Double = 0.05,
-  lfc_threshold? : Double = 0.0,
-  detection_filter? : Double = 0.9,
+  min_cells~ : Int32 = 10,
+  min_count~ : Double = 1.0,
+  min_samples~ : Int32 = 2,
+  max_iterations~ : Int32 = 100,
+  tolerance~ : Double = 1.0e-8,
+  minimum_dispersion~ : Double = 1.0e-8,
+  maximum_dispersion~ : Double = 100.0,
+  dispersion_prior_df~ : Double = 10.0,
+  ridge~ : Double = 1.0e-8,
+  fdr_threshold~ : Double = 0.05,
+  lfc_threshold~ : Double = 0.0,
+  detection_filter~ : Double = 0.9,
 ) -> MuscatAdvancedConfig raise MuscatAdvancedError {
   if min_cells < 0 {
     raise MuscatAdvancedError("min_cells must be non-negative")
@@ -171,6 +179,8 @@ pub struct MuscatAdvancedData {
   cluster_names : Array[String]
   group_names : Array[String]
 } derive(Debug)
+
+///|
 pub extend MuscatAdvancedData with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -180,12 +190,16 @@ pub struct MuscatAdvancedPseudoBulk {
   sample_names : Array[String]
   sample_groups : Array[String]
   cluster_names : Array[String]
-  cell_counts : Array[Array[Int]]
+  cell_counts : Array[Array[Int32]]
   library_sizes : Array[Array[Double]]
   aggregation : MuscatAdvancedAggregation
   scaled_cpm : Bool
 } derive(Debug)
-pub extend MuscatAdvancedPseudoBulk with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend MuscatAdvancedPseudoBulk with @moonbitlang/core/debug.Debug::{
+  to_repr,
+}
 
 ///|
 pub struct MuscatAdvancedDesign {
@@ -193,6 +207,8 @@ pub struct MuscatAdvancedDesign {
   sample_names : Array[String]
   coefficient_names : Array[String]
 } derive(Debug)
+
+///|
 pub extend MuscatAdvancedDesign with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -200,6 +216,8 @@ pub struct MuscatAdvancedContrast {
   values : Array[Double]
   name : String
 } derive(Debug)
+
+///|
 pub extend MuscatAdvancedContrast with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -218,10 +236,14 @@ pub struct MuscatAdvancedGeneResult {
   raw_dispersion : Double
   dispersion : Double
   mean_count : Double
-  n_samples : Int
+  n_samples : Int32
   converged : Bool
 } derive(Debug)
-pub extend MuscatAdvancedGeneResult with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend MuscatAdvancedGeneResult with @moonbitlang/core/debug.Debug::{
+  to_repr,
+}
 
 ///|
 pub struct MuscatAdvancedResults {
@@ -232,6 +254,8 @@ pub struct MuscatAdvancedResults {
   mode : String
   fdr_threshold : Double
 } derive(Debug)
+
+///|
 pub extend MuscatAdvancedResults with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -247,7 +271,11 @@ pub struct MuscatStagewiseGeneResult {
   mut dd_confirmation : Double
   mut classification : String
 } derive(Debug)
-pub extend MuscatStagewiseGeneResult with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend MuscatStagewiseGeneResult with @moonbitlang/core/debug.Debug::{
+  to_repr,
+}
 
 ///|
 pub struct MuscatStagewiseResults {
@@ -257,6 +285,8 @@ pub struct MuscatStagewiseResults {
   contrast_names : Array[String]
   alpha : Double
 } derive(Debug)
+
+///|
 pub extend MuscatStagewiseResults with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -284,7 +314,10 @@ fn muscat_adv_finite(value : Double) -> Bool {
 }
 
 ///|
-fn muscat_adv_zero_matrix(rows : Int, columns : Int) -> Array[Array[Double]] {
+fn muscat_adv_zero_matrix(
+  rows : Int32,
+  columns : Int32,
+) -> Array[Array[Double]] {
   let output : Array[Array[Double]] = []
   for _ in 0..<rows {
     output.push(Array::make(columns, 0.0))
@@ -323,7 +356,7 @@ fn muscat_adv_levels(
 ///|
 fn muscat_adv_names(
   supplied : Array[String],
-  length : Int,
+  length : Int32,
   prefix : String,
 ) -> Array[String] raise MuscatAdvancedError {
   if supplied.length() != 0 && supplied.length() != length {
@@ -353,8 +386,8 @@ pub fn MuscatAdvancedData::create(
   sample_ids : Array[String],
   cluster_ids : Array[String],
   group_ids : Array[String],
-  gene_names? : Array[String] = [],
-  cell_names? : Array[String] = [],
+  gene_names~ : Array[String] = [],
+  cell_names~ : Array[String] = [],
 ) -> MuscatAdvancedData raise MuscatAdvancedError {
   if counts.length() == 0 {
     raise MuscatAdvancedError("counts must contain at least one gene")
@@ -429,7 +462,7 @@ fn muscat_adv_median(values : Array[Double]) -> Double {
     return 0.0
   }
   let sorted = values.copy()
-  sorted.sort_by(fn(left : Double, right : Double) -> Int {
+  sorted.sort_by(fn(left : Double, right : Double) -> Int32 {
     if left < right {
       -1
     } else if left > right {
@@ -448,8 +481,8 @@ fn muscat_adv_median(values : Array[Double]) -> Double {
 ///|
 pub fn muscat_aggregate_advanced(
   data : MuscatAdvancedData,
-  aggregation? : MuscatAdvancedAggregation = SumCounts,
-  scale_cpm? : Bool = false,
+  aggregation~ : MuscatAdvancedAggregation = SumCounts,
+  scale_cpm~ : Bool = false,
 ) -> MuscatAdvancedPseudoBulk raise MuscatAdvancedError {
   if scale_cpm && aggregation == NumberDetected {
     raise MuscatAdvancedError(
@@ -460,14 +493,14 @@ pub fn muscat_aggregate_advanced(
   let samples = data.sample_names.length()
   let genes = data.gene_names.length()
   let values : Array[Array[Array[Double]]] = []
-  let cell_counts : Array[Array[Int]] = []
+  let cell_counts : Array[Array[Int32]] = []
   let library_sizes : Array[Array[Double]] = []
   for cluster in 0..<clusters {
     let cluster_values = muscat_adv_zero_matrix(genes, samples)
     let cluster_cells = Array::make(samples, 0)
     let cluster_libraries = Array::make(samples, 0.0)
     for sample in 0..<samples {
-      let selected : Array[Int] = []
+      let selected : Array[Int32] = []
       for cell in 0..<data.cell_names.length() {
         if data.cluster_ids[cell] == data.cluster_names[cluster] &&
           data.sample_ids[cell] == data.sample_names[sample] {
@@ -539,7 +572,7 @@ pub fn muscat_aggregate_advanced(
 }
 
 ///|
-fn muscat_adv_matrix_rank(matrix : Array[Array[Double]]) -> Int {
+fn muscat_adv_matrix_rank(matrix : Array[Array[Double]]) -> Int32 {
   if matrix.length() == 0 || matrix[0].length() == 0 {
     return 0
   }
@@ -632,7 +665,7 @@ pub fn MuscatAdvancedDesign::create(
 ///|
 pub fn muscat_group_design_advanced(
   pseudobulk : MuscatAdvancedPseudoBulk,
-  reference? : String = "",
+  reference~ : String = "",
 ) -> MuscatAdvancedDesign raise MuscatAdvancedError {
   let groups = muscat_adv_levels(
     pseudobulk.sample_groups,
@@ -877,11 +910,7 @@ fn muscat_adv_fit_gene(
       maximum_change = maximum_change.max(
         (updated[parameter] - coefficients[parameter]).abs(),
       )
-      coefficients[parameter] = clamp(
-        updated[parameter],
-        -30.0,
-        30.0,
-      )
+      coefficients[parameter] = clamp(updated[parameter], -30.0, 30.0)
     }
     if maximum_change < config.tolerance {
       converged = true
@@ -922,7 +951,7 @@ fn muscat_adv_fit_gene(
 fn muscat_adv_raw_dispersion(
   response : Array[Double],
   fitted : Array[Double],
-  residual_df : Int,
+  residual_df : Int32,
   config : MuscatAdvancedConfig,
 ) -> Double {
   if residual_df <= 0 {
@@ -965,11 +994,11 @@ fn muscat_adv_bh(values : Array[Double]) -> Array[Double] {
   if values.length() == 0 {
     return []
   }
-  let order : Array[Int] = []
+  let order : Array[Int32] = []
   for index in 0..<values.length() {
     order.push(index)
   }
-  order.sort_by(fn(left : Int, right : Int) -> Int {
+  order.sort_by(fn(left : Int32, right : Int32) -> Int32 {
     if values[left] < values[right] {
       -1
     } else if values[left] > values[right] {
@@ -1033,14 +1062,14 @@ fn muscat_adv_validate_fit_inputs(
 ///|
 fn muscat_adv_offsets(
   pseudobulk : MuscatAdvancedPseudoBulk,
-  cluster : Int,
-  active : Array[Int],
+  cluster : Int32,
+  active : Array[Int32],
   detection : Bool,
   config : MuscatAdvancedConfig,
 ) -> Array[Double] {
   let exposures = Array::make(active.length(), 1.0)
   if detection {
-    let eligible : Array[Int] = []
+    let eligible : Array[Int32] = []
     for gene in 0..<pseudobulk.gene_names.length() {
       let fractions : Array[Double] = []
       for sample in active {
@@ -1133,7 +1162,7 @@ fn muscat_adv_test(
   let parameters = design.coefficient_names.length()
   let mut any_tested = false
   for cluster in 0..<pseudobulk.cluster_names.length() {
-    let active : Array[Int] = []
+    let active : Array[Int32] = []
     for sample in 0..<pseudobulk.sample_names.length() {
       if pseudobulk.cell_counts[cluster][sample] >= config.min_cells &&
         pseudobulk.library_sizes[cluster][sample] > 0.0 {
@@ -1282,11 +1311,7 @@ fn muscat_adv_test(
           0.0
         }
         let p_value = if tested {
-          clamp(
-            2.0 * (1.0 - muscat_adv_normal_cdf(statistic.sqrt())),
-            0.0,
-            1.0,
-          )
+          clamp(2.0 * (1.0 - muscat_adv_normal_cdf(statistic.sqrt())), 0.0, 1.0)
         } else {
           1.0
         }
@@ -1329,7 +1354,7 @@ fn muscat_adv_test(
   }
   for contrast in contrasts {
     for cluster in pseudobulk.cluster_names {
-      let indices : Array[Int] = []
+      let indices : Array[Int32] = []
       let p_values : Array[Double] = []
       for index in 0..<results.length() {
         let result = results[index]
@@ -1345,7 +1370,7 @@ fn muscat_adv_test(
         results[indices[position]].local_fdr = adjusted[position]
       }
     }
-    let indices : Array[Int] = []
+    let indices : Array[Int32] = []
     let p_values : Array[Double] = []
     for index in 0..<results.length() {
       let result = results[index]
@@ -1374,7 +1399,7 @@ pub fn muscat_pbds_advanced(
   pseudobulk : MuscatAdvancedPseudoBulk,
   design : MuscatAdvancedDesign,
   contrasts : Array[MuscatAdvancedContrast],
-  config? : MuscatAdvancedConfig = MuscatAdvancedConfig::default(),
+  config~ : MuscatAdvancedConfig = MuscatAdvancedConfig::default(),
 ) -> MuscatAdvancedResults raise MuscatAdvancedError {
   muscat_adv_test(pseudobulk, design, contrasts, false, config)
 }
@@ -1384,7 +1409,7 @@ pub fn muscat_pbdd_advanced(
   pseudobulk : MuscatAdvancedPseudoBulk,
   design : MuscatAdvancedDesign,
   contrasts : Array[MuscatAdvancedContrast],
-  config? : MuscatAdvancedConfig = MuscatAdvancedConfig::default(),
+  config~ : MuscatAdvancedConfig = MuscatAdvancedConfig::default(),
 ) -> MuscatAdvancedResults raise MuscatAdvancedError {
   muscat_adv_test(pseudobulk, design, contrasts, true, config)
 }
@@ -1407,7 +1432,7 @@ pub fn MuscatAdvancedResults::get(
 }
 
 ///|
-pub fn MuscatAdvancedResults::n_tested(self : MuscatAdvancedResults) -> Int {
+pub fn MuscatAdvancedResults::n_tested(self : MuscatAdvancedResults) -> Int32 {
   let mut count = 0
   for result in self.results {
     if result.tested {
@@ -1420,8 +1445,8 @@ pub fn MuscatAdvancedResults::n_tested(self : MuscatAdvancedResults) -> Int {
 ///|
 pub fn MuscatAdvancedResults::n_significant(
   self : MuscatAdvancedResults,
-  global? : Bool = false,
-) -> Int {
+  global~ : Bool = false,
+) -> Int32 {
   let mut count = 0
   for result in self.results {
     let adjusted = if global { result.global_fdr } else { result.local_fdr }
@@ -1453,7 +1478,7 @@ pub fn MuscatAdvancedResults::summary(self : MuscatAdvancedResults) -> String {
 pub fn muscat_stagewise_ds_dd(
   ds_result : MuscatAdvancedResults,
   dd_result : MuscatAdvancedResults,
-  alpha? : Double = 0.05,
+  alpha~ : Double = 0.05,
 ) -> MuscatStagewiseResults raise MuscatAdvancedError {
   if !muscat_adv_finite(alpha) || alpha <= 0.0 || alpha > 1.0 {
     raise MuscatAdvancedError("stagewise alpha must be in (0, 1]")
@@ -1503,7 +1528,7 @@ pub fn muscat_stagewise_ds_dd(
     }
   }
   for contrast in ds_result.contrast_names {
-    let indices : Array[Int] = []
+    let indices : Array[Int32] = []
     let p_values : Array[Double] = []
     for index in 0..<output.length() {
       if output[index].contrast_name == contrast {
@@ -1587,7 +1612,7 @@ pub fn MuscatStagewiseResults::get(
 ///|
 pub fn MuscatStagewiseResults::n_confirmed(
   self : MuscatStagewiseResults,
-) -> Int {
+) -> Int32 {
   let mut count = 0
   for result in self.results {
     if result.classification == "DS" ||
@@ -1654,10 +1679,10 @@ pub fn muscat_advanced_sce(
   sample_column : String,
   cluster_column : String,
   group_column : String,
-  assay_name? : String = "counts",
-  reference? : String = "",
-  output_prefix? : String = "muscat",
-  config? : MuscatAdvancedConfig = MuscatAdvancedConfig::default(),
+  assay_name~ : String = "counts",
+  reference~ : String = "",
+  output_prefix~ : String = "muscat",
+  config~ : MuscatAdvancedConfig = MuscatAdvancedConfig::default(),
 ) -> MuscatAdvancedSCEOutput raise MuscatAdvancedError {
   if output_prefix.trim().length() == 0 {
     raise MuscatAdvancedError("output_prefix must not be empty")

@@ -40,7 +40,7 @@ pub(all) struct PlmDCAConfig {
   /// L2 regularization strength for couplings J_ij (typically 0.01–0.05)
   lambda_j : Double
   /// Maximum gradient descent iterations per site (typically 300–500)
-  max_iter : Int
+  max_iter : Int32
   /// Learning rate / step size (typically 0.01–0.05)
   learning_rate : Double
   /// Convergence tolerance on gradient norm (typically 1e-5)
@@ -62,9 +62,9 @@ pub(all) struct PlmDCAResult {
   /// Effective number of sequences after reweighting
   m_eff : Double
   /// Alignment length
-  align_len : Int
+  align_len : Int32
   /// Number of sequences
-  num_seqs : Int
+  num_seqs : Int32
 }
 
 ///|
@@ -126,12 +126,12 @@ fn plm_get_alphabet(alphabet : String) -> String {
 }
 
 ///|
-fn plm_get_q(alphabet : String) -> Int {
+fn plm_get_q(alphabet : String) -> Int32 {
   plm_get_alphabet(alphabet).length()
 }
 
 ///|
-fn plm_encode_char(c : Char, alphabet : String) -> Int {
+fn plm_encode_char(c : Char, alphabet : String) -> Int32 {
   let ab = plm_get_alphabet(alphabet)
   let s = ab.to_array()
   for i in 0..<s.length() {
@@ -146,7 +146,7 @@ fn plm_encode_char(c : Char, alphabet : String) -> Int {
 fn plm_encode_alignment(
   alignment : Array[String],
   alphabet : String,
-) -> Array[Array[Int]] {
+) -> Array[Array[Int32]] {
   let result = Array(capacity=alignment.length())
   for seq in alignment {
     let encoded = Array(capacity=seq.length())
@@ -286,12 +286,12 @@ fn plm_center_matrix(m : Array[Array[Double]]) -> Unit {
 ///
 /// Only stores j ≠ i (j == site_i entries are zero).
 fn optimize_site(
-  encoded : Array[Array[Int]],
+  encoded : Array[Array[Int32]],
   weights : Array[Double],
   m_eff : Double,
-  q : Int,
-  l : Int,
-  site_i : Int,
+  q : Int32,
+  l : Int32,
+  site_i : Int32,
   config : PlmDCAConfig,
 ) -> (Array[Double], Array[Array[Array[Double]]]) {
   let n = encoded.length()
@@ -444,7 +444,7 @@ fn plm_direct_information(
   fi_i : Array[Double],
   fi_j : Array[Double],
   j_mat : Array[Array[Double]],
-  q : Int,
+  q : Int32,
 ) -> Double {
   let log_vals = Array::make(q * q, 0.0)
   for a = 0; a < q; a = a + 1 {
@@ -486,11 +486,11 @@ fn plm_direct_information(
 ///|
 /// Compute empirical single-site frequencies (no pseudocount).
 fn plm_single_site_freqs(
-  encoded : Array[Array[Int]],
+  encoded : Array[Array[Int32]],
   weights : Array[Double],
   m_eff : Double,
-  q : Int,
-  l : Int,
+  q : Int32,
+  l : Int32,
 ) -> Array[Array[Double]] {
   let result = Array(capacity=l)
   for i = 0; i < l; i = i + 1 {
@@ -606,8 +606,8 @@ pub fn plm_dca(
 ///|
 /// A predicted residue-residue contact from plmDCA.
 pub(all) struct PlmContact {
-  pos_i : Int
-  pos_j : Int
+  pos_i : Int32
+  pos_j : Int32
   score : Double
 }
 
@@ -616,7 +616,7 @@ pub(all) struct PlmContact {
 /// Only includes pairs (i, j) with i < j and |i - j| >= min_seq_dist.
 pub fn plm_rank_contacts(
   result : PlmDCAResult,
-  min_seq_dist : Int,
+  min_seq_dist : Int32,
 ) -> Array[PlmContact] {
   let l = result.align_len
   let pairs = Array(capacity=0)

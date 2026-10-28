@@ -63,7 +63,7 @@ fn main {
 
 ///|
 /// Render a list of integers as "1, 2, 3" for display.
-fn join_positions(positions : Array[Int]) -> String {
+fn join_positions(positions : Array[Int32]) -> String {
   let buf = StringBuilder()
   for i = 0; i < positions.length(); i = i + 1 {
     if i > 0 {

@@ -41,9 +41,9 @@ fn mt_log2(x : Double) -> Double {
 /// equal-frequency boundary share a single bin, as with R's cut().
 fn minet_discretize_row(
   row : Array[Double],
-  nbin : Int,
+  nbin : Int32,
   disc_method : String,
-) -> Array[Int] {
+) -> Array[Int32] {
   let n = row.length()
   let values : Array[Double] = []
   let mut i = 0
@@ -52,7 +52,7 @@ fn minet_discretize_row(
     i = i + 1
   }
   // insertion-sort indices by value (n is small, gene profile length)
-  let order : Array[Int] = []
+  let order : Array[Int32] = []
   i = 0
   while i < n {
     order.push(i)
@@ -137,9 +137,9 @@ fn minet_discretize_row(
 /// "equalfreq" (default) or "equalwidth".
 pub fn minet_discretize(
   data : Array[Array[Double]],
-  disc_method? : String = "equalfreq",
-  nbin? : Int = 0,
-) -> Array[Array[Int]] raise SeqError {
+  disc_method~ : String = "equalfreq",
+  nbin~ : Int32 = 0,
+) -> Array[Array[Int32]] raise SeqError {
   if data.length() == 0 || data[0].length() == 0 {
     raise SeqError("minet_discretize: empty expression matrix")
   }
@@ -171,7 +171,7 @@ pub fn minet_discretize(
       "minet_discretize: nbin (\{nb}) exceeds number of samples (\{nsamples})",
     )
   }
-  let result : Array[Array[Int]] = []
+  let result : Array[Array[Int32]] = []
   i = 0
   while i < data.length() {
     result.push(minet_discretize_row(data[i], nb, disc_method))
@@ -191,16 +191,16 @@ pub fn minet_discretize(
 /// `k_levels` is the total number of factor levels (empty levels count);
 /// when 0 it is taken as the number of observed levels.
 pub fn minet_entropy(
-  x : Array[Int],
-  estimator? : String = "mi.mm",
-  k_levels? : Int = 0,
+  x : Array[Int32],
+  estimator~ : String = "mi.mm",
+  k_levels~ : Int32 = 0,
 ) -> Double raise SeqError {
   let n = x.length()
   if n == 0 {
     raise SeqError("minet_entropy: empty variable")
   }
   let mut max_level = 0
-  let counts : Map[Int, Int] = Map([])
+  let counts : Map[Int32, Int32] = Map([])
   let mut i = 0
   while i < n {
     let v = x[i]
@@ -300,15 +300,15 @@ pub fn minet_entropy(
 ///|
 /// Joint entropy H(X, Y) over the `kx * ky` contingency table.
 fn minet_joint_entropy(
-  x : Array[Int],
-  y : Array[Int],
+  x : Array[Int32],
+  y : Array[Int32],
   estimator : String,
-  kx : Int,
-  ky : Int,
+  kx : Int32,
+  ky : Int32,
 ) -> Double raise SeqError {
   let n = x.length()
   // contingency counts keyed by (bx, by)
-  let joint : Map[Int, Int] = Map([])
+  let joint : Map[Int32, Int32] = Map([])
   let mut nonempty = 0
   let mut max_bx = 0
   let mut max_by = 0
@@ -431,9 +431,9 @@ fn minet_joint_entropy(
 /// Mutual information I(X;Y) = H(X) + H(Y) - H(X,Y) in bits, using the
 /// given estimator consistently for marginals and the joint table.
 pub fn minet_mutual_information(
-  x : Array[Int],
-  y : Array[Int],
-  estimator? : String = "mi.mm",
+  x : Array[Int32],
+  y : Array[Int32],
+  estimator~ : String = "mi.mm",
 ) -> Double raise SeqError {
   if x.length() != y.length() || x.length() == 0 {
     raise SeqError(
@@ -457,8 +457,8 @@ pub fn minet_mutual_information(
 /// gene x sample matrix. The diagonal carries each variable's entropy,
 /// matching minet's build.mim().
 pub fn minet_build_mim(
-  disc : Array[Array[Int]],
-  estimator? : String = "mi.mm",
+  disc : Array[Array[Int32]],
+  estimator~ : String = "mi.mm",
 ) -> Array[Array[Double]] raise SeqError {
   let n_genes = disc.length()
   if n_genes == 0 {
@@ -503,7 +503,7 @@ pub fn minet_build_mim(
 /// default 0.1). The MIM is not modified; a pruned copy is returned.
 pub fn minet_aracne(
   mim : Array[Array[Double]],
-  eps? : Double = 0.1,
+  eps~ : Double = 0.1,
 ) -> Array[Array[Double]] {
   let n = mim.length()
   let net : Array[Array[Double]] = []
@@ -631,7 +631,7 @@ pub fn minet_mrnet(mim : Array[Array[Double]]) -> Array[Array[Double]] {
   let mut target = 0
   while target < n {
     // candidate list (gene indices except target)
-    let cands : Array[Int] = []
+    let cands : Array[Int32] = []
     let mut g = 0
     while g < n {
       if g != target {
@@ -639,7 +639,7 @@ pub fn minet_mrnet(mim : Array[Array[Double]]) -> Array[Array[Double]] {
       }
       g = g + 1
     }
-    let selected : Array[Int] = []
+    let selected : Array[Int32] = []
     while cands.length() > 0 {
       let mut best = 0
       let mut best_score = -1.0e300
@@ -693,11 +693,11 @@ pub fn minet_mrnet(mim : Array[Array[Double]]) -> Array[Array[Double]] {
 /// "mrnet", default "mrnet"). Rows are genes, columns samples.
 pub fn minet(
   data : Array[Array[Double]],
-  net_method? : String = "mrnet",
-  estimator? : String = "mi.mm",
-  disc? : String = "equalfreq",
-  nbin? : Int = 0,
-  eps? : Double = 0.1,
+  net_method~ : String = "mrnet",
+  estimator~ : String = "mi.mm",
+  disc~ : String = "equalfreq",
+  nbin~ : Int32 = 0,
+  eps~ : Double = 0.1,
 ) -> Array[Array[Double]] raise SeqError {
   let d = minet_discretize(data, disc_method=disc, nbin~)
   let mim = minet_build_mim(d, estimator~)
@@ -720,7 +720,7 @@ pub fn minet(
 /// F-score. Analogous to minet's validate().
 pub fn minet_validate(
   net : Array[Array[Double]],
-  reference : Array[Array[Int]],
+  reference : Array[Array[Int32]],
 ) -> MinetValidation raise SeqError {
   let n = net.length()
   if reference.length() != n {
@@ -728,7 +728,7 @@ pub fn minet_validate(
   }
   // collect upper-triangle edges
   let weights : Array[Double] = []
-  let truths : Array[Int] = []
+  let truths : Array[Int32] = []
   let mut i = 0
   while i < n {
     if net[i].length() != n || reference[i].length() != n {
@@ -744,7 +744,7 @@ pub fn minet_validate(
   }
   let m = weights.length()
   // sort indices by descending weight
-  let order : Array[Int] = []
+  let order : Array[Int32] = []
   let mut k = 0
   while k < m {
     order.push(k)

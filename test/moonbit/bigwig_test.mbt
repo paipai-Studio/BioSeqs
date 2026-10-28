@@ -1,5 +1,5 @@
 ///|
-fn bigwig_target(name : String, length : Int) -> @src.BigBedTarget {
+fn bigwig_target(name : String, length : Int32) -> @src.BigBedTarget {
   @src.BigBedTarget::create(name, length) catch {
     _ => abort("test chromosome should be valid")
   }
@@ -9,13 +9,13 @@ fn bigwig_target(name : String, length : Int) -> @src.BigBedTarget {
 fn bigwig_approx(
   left : Double,
   right : Double,
-  tolerance? : Double = 1.0e-9,
+  tolerance~ : Double = 1.0e-9,
 ) -> Bool {
   (left - right).abs() <= tolerance
 }
 
 ///|
-fn bigwig_lcg_values(count : Int) -> Array[Double] {
+fn bigwig_lcg_values(count : Int32) -> Array[Double] {
   let values : Array[Double] = []
   let mut seed = 1
   for _ in 0..<count {
@@ -36,7 +36,7 @@ fn bigwig_raises(operation : () -> Unit raise @src.BigWigError) -> Bool {
 }
 
 ///|
-fn bigwig_parsed(bytes : Array[Int]) -> @src.BigWigFile {
+fn bigwig_parsed(bytes : Array[Int32]) -> @src.BigWigFile {
   @src.bigwig_parse(bytes) catch {
     @src.BigWigError(msg) => abort("BigWig fixture should parse: " + msg)
   }
@@ -46,8 +46,8 @@ fn bigwig_parsed(bytes : Array[Int]) -> @src.BigWigFile {
 fn bigwig_query(
   file : @src.BigWigFile,
   chrom : String,
-  start? : Int = 0,
-  end_? : Int? = None,
+  start~ : Int32 = 0,
+  end_~ : Int32? = None,
 ) -> Array[@src.BigWigInterval] {
   file.intervals(chrom, start~, end_~) catch {
     _ => abort("BigWig interval query should not fail")
@@ -58,8 +58,8 @@ fn bigwig_query(
 fn bigwig_per_base(
   file : @src.BigWigFile,
   chrom : String,
-  start : Int,
-  end_ : Int,
+  start : Int32,
+  end_ : Int32,
 ) -> Array[Double] {
   file.values(chrom, start~, end_=Some(end_)) catch {
     _ => abort("BigWig values query should not fail")
@@ -70,10 +70,10 @@ fn bigwig_per_base(
 fn bigwig_binned(
   file : @src.BigWigFile,
   chrom : String,
-  start? : Int = 0,
-  end_? : Int? = None,
-  n_bins? : Int = 1,
-  stat? : String = "mean",
+  start~ : Int32 = 0,
+  end_~ : Int32? = None,
+  n_bins~ : Int32 = 1,
+  stat~ : String = "mean",
 ) -> Array[Double?] {
   file.stats(chrom, start~, end_~, n_bins~, stat~) catch {
     _ => abort("BigWig stats query should not fail")

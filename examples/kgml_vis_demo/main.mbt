@@ -36,7 +36,9 @@ fn main {
   }
   let svg_no_labels = @src.KgmlCanvas::new(pathway, options=opts).to_svg()
   println("  SVG length: " + svg_no_labels.length().to_string() + " chars")
-  println("  Has 'K00844' text: " + svg_no_labels.contains(">K00844<").to_string())
+  println(
+    "  Has 'K00844' text: " + svg_no_labels.contains(">K00844<").to_string(),
+  )
 
   println("\n5. Render without relations or reactions")
   let opts_min = @src.KgmlCanvasOptions::{

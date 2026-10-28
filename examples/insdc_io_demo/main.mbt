@@ -4,7 +4,6 @@
 /// Demonstrates Bio.SeqIO.InsdcIO module: parsing and writing GenBank
 /// and EMBL records, feature tables, and qualifier extraction.
 /// Inspired by BioPython's Bio.SeqIO.InsdcIO module.
-
 fn main {
   println("=== INSDC IO Demo ===")
   println("Bio.SeqIO.InsdcIO: GenBank/EMBL parsing and writing\n")
@@ -74,7 +73,9 @@ fn main {
     let f = record.features[fi]
     if f.feature_type == "CDS" {
       let gene = @bio.extract_gene_name(f).unwrap_or("(none)")
-      let product = @bio.extract_feature_qualifier(f, "product").unwrap_or("(none)")
+      let product = @bio.extract_feature_qualifier(f, "product").unwrap_or(
+        "(none)",
+      )
       let translation = @bio.extract_translation(f).unwrap_or("(none)")
       println("  /gene:        \{gene}")
       println("  /product:     \{product}")

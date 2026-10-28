@@ -444,8 +444,8 @@ pub fn tm_thermo_table(name : String) -> ThermoTable raise SeqError {
 /// name, "" for a blank zero table) with overridden entries. Port of
 /// Biopython `make_table`.
 pub fn tm_make_table(
-  base? : String = "",
-  values? : ThermoTable = Map([]),
+  base~ : String = "",
+  values~ : ThermoTable = Map([]),
 ) -> ThermoTable raise SeqError {
   let table : ThermoTable = if base == "" {
     thermo([
@@ -477,7 +477,7 @@ pub fn tm_make_table(
 }
 
 ///|
-fn mt_dots(n : Int) -> String {
+fn mt_dots(n : Int32) -> String {
   let sb = StringBuilder()
   let mut i = 0
   while i < n {
@@ -571,13 +571,13 @@ fn mt_reverse(s : String) -> String {
 /// additive entropy (cal/(mol*K)) term, methods 6-7 a term to add to
 /// 1/Tm(K). Na, K, Tris, Mg, dNTPs are millimolar concentrations.
 pub fn tm_salt_correction(
-  na? : Double = 0.0,
-  k? : Double = 0.0,
-  tris? : Double = 0.0,
-  mg? : Double = 0.0,
-  dntps? : Double = 0.0,
-  salt_method? : Int = 1,
-  seq? : String = "",
+  na~ : Double = 0.0,
+  k~ : Double = 0.0,
+  tris~ : Double = 0.0,
+  mg~ : Double = 0.0,
+  dntps~ : Double = 0.0,
+  salt_method~ : Int32 = 1,
+  seq~ : String = "",
 ) -> Double raise SeqError {
   if salt_method == 5 || salt_method == 6 || salt_method == 7 {
     if seq == "" {
@@ -672,12 +672,12 @@ pub fn tm_salt_correction(
 /// in percent (fmdmethod=1) or molar (fmdmethod=2, GC in percent).
 pub fn tm_chem_correction(
   melting_temp : Double,
-  dmso? : Double = 0.0,
-  fmd? : Double = 0.0,
-  dmso_factor? : Double = 0.75,
-  fmd_factor? : Double = 0.65,
-  fmd_method? : Int = 1,
-  gc? : Double = -1.0,
+  dmso~ : Double = 0.0,
+  fmd~ : Double = 0.0,
+  dmso_factor~ : Double = 0.75,
+  fmd_factor~ : Double = 0.65,
+  fmd_method~ : Int32 = 1,
+  gc~ : Double = -1.0,
 ) -> Double raise SeqError {
   let mut tm = melting_temp
   if dmso != 0.0 {
@@ -705,7 +705,7 @@ struct TmOptions {
   check : Bool
   strict : Bool
   c_seq : String
-  shift : Int
+  shift : Int32
   nn_table : String
   tmm_table : String
   imm_table : String
@@ -722,7 +722,7 @@ struct TmOptions {
   tris : Double
   mg : Double
   dntps : Double
-  saltcorr : Int
+  saltcorr : Int32
 }
 
 ///|
@@ -757,27 +757,27 @@ pub fn TmOptions::default() -> TmOptions {
 /// Construct options with explicit overrides; unset parameters keep the
 /// Biopython defaults (see `TmOptions::default`).
 pub fn TmOptions::of(
-  check? : Bool = true,
-  strict? : Bool = true,
-  c_seq? : String = "",
-  shift? : Int = 0,
-  nn_table? : String = "DNA_NN3",
-  tmm_table? : String = "DNA_TMM1",
-  imm_table? : String = "DNA_IMM1",
-  de_table? : String = "DNA_DE1",
-  nn_custom? : ThermoTable = Map([]),
-  tmm_custom? : ThermoTable = Map([]),
-  imm_custom? : ThermoTable = Map([]),
-  de_custom? : ThermoTable = Map([]),
-  dnac1? : Double = 25.0,
-  dnac2? : Double = 25.0,
-  selfcomp? : Bool = false,
-  na? : Double = 50.0,
-  k? : Double = 0.0,
-  tris? : Double = 0.0,
-  mg? : Double = 0.0,
-  dntps? : Double = 0.0,
-  saltcorr? : Int = 5,
+  check~ : Bool = true,
+  strict~ : Bool = true,
+  c_seq~ : String = "",
+  shift~ : Int32 = 0,
+  nn_table~ : String = "DNA_NN3",
+  tmm_table~ : String = "DNA_TMM1",
+  imm_table~ : String = "DNA_IMM1",
+  de_table~ : String = "DNA_DE1",
+  nn_custom~ : ThermoTable = Map([]),
+  tmm_custom~ : ThermoTable = Map([]),
+  imm_custom~ : ThermoTable = Map([]),
+  de_custom~ : ThermoTable = Map([]),
+  dnac1~ : Double = 25.0,
+  dnac2~ : Double = 25.0,
+  selfcomp~ : Bool = false,
+  na~ : Double = 50.0,
+  k~ : Double = 0.0,
+  tris~ : Double = 0.0,
+  mg~ : Double = 0.0,
+  dntps~ : Double = 0.0,
+  saltcorr~ : Int32 = 5,
 ) -> TmOptions {
   {
     check,
@@ -817,7 +817,6 @@ fn tm_resolve(
   }
 }
 
-
 ///|
 /// Raise or silently ignore a missing-neighbor condition (strict mode).
 fn tm_key_error(neighbors : String, strict : Bool) -> Unit raise SeqError {
@@ -833,14 +832,14 @@ fn tm_key_error(neighbors : String, strict : Bool) -> Unit raise SeqError {
 /// expected values unless `strict` is set. Port of Biopython `Tm_Wallace`.
 pub fn tm_wallace_full(
   seq : String,
-  options? : TmOptions = TmOptions::default(),
+  options~ : TmOptions = TmOptions::default(),
 ) -> Double raise SeqError {
   let s = if options.check {
     tm_check(seq, "Tm_Wallace")
   } else {
     seq.to_upper()
   }
-  let count = fn(b : String) -> Int {
+  let count = fn(b : String) -> Int32 {
     let mut n = 0
     let mut i = 0
     while i < s.length() {
@@ -851,7 +850,7 @@ pub fn tm_wallace_full(
     }
     n
   }
-  let count_any = fn(bs : Array[String]) -> Int {
+  let count_any = fn(bs : Array[String]) -> Int32 {
     let mut n = 0
     for b in bs {
       n = n + count(b)
@@ -878,9 +877,9 @@ pub fn tm_wallace_full(
 /// supplies a custom (A, B, C, D) tuple.
 pub fn tm_gc_full(
   seq : String,
-  valueset? : Int = 7,
-  userset? : (Double, Double, Double, Double)? = None,
-  options? : TmOptions = TmOptions::default(),
+  valueset~ : Int32 = 7,
+  userset~ : (Double, Double, Double, Double)? = None,
+  options~ : TmOptions = TmOptions::default(),
 ) -> Double raise SeqError {
   let opts = options
   // Tm_GC uses the valueset-assigned salt correction; saltcorr 5 (the Tm_NN
@@ -1014,7 +1013,7 @@ pub fn tm_gc_full(
 /// strand concentrations (dnac1/dnac2) and salt corrections 1-7.
 pub fn tm_nn_full(
   seq : String,
-  options? : TmOptions = TmOptions::default(),
+  options~ : TmOptions = TmOptions::default(),
 ) -> Double raise SeqError {
   let opts = options
   let nn_table = tm_resolve(opts.nn_custom, opts.nn_table)

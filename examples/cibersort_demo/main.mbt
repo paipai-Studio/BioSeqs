@@ -33,7 +33,9 @@ fn main {
   // ------------------------------------------------------------------
   println("=== 3. Run CIBERSORT deconvolution ===")
   let result = @bio.cib_run(sig, mix)
-  println("Deconvolution completed for \{result.sample_names().length()} samples")
+  println(
+    "Deconvolution completed for \{result.sample_names().length()} samples",
+  )
   println("")
 
   // ------------------------------------------------------------------
@@ -54,9 +56,7 @@ fn main {
           bar = bar + "#"
           bi = bi + 1
         }
-        println(
-          "  \{r.cell_types()[i]}: \{pct.to_string()}% \{bar}",
-        )
+        println("  \{r.cell_types()[i]}: \{pct.to_string()}% \{bar}")
       }
       i = i + 1
     }
@@ -93,11 +93,11 @@ fn main {
     ["TypeA", "TypeB"],
     [[1.0, 0.0], [0.5, 0.5], [0.0, 1.0]],
   )
-  let custom_mix = @bio.CibMixtureMatrix::new(
-    ["G1", "G2", "G3"],
-    ["Mix1"],
-    [[0.6], [0.5], [0.4]],
-  )
+  let custom_mix = @bio.CibMixtureMatrix::new(["G1", "G2", "G3"], ["Mix1"], [
+    [0.6],
+    [0.5],
+    [0.4],
+  ])
   let custom_result = @bio.cib_run(custom_sig, custom_mix)
   println("Custom deconvolution for \{custom_result.sample_names()[0]}:")
   let cr = custom_result.results()[0]

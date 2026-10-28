@@ -156,7 +156,7 @@ test "bc_kendall" {
 test "bc_euclid_missing_values" {
   // y[1] is missing: only x[0], x[2] contribute and they are equal -> 0
   let data : Array[Array[Double]] = [[1.0, 2.0, 3.0], [1.0, 0.0, 3.0]]
-  let mask : Array[Array[Int]] = [[1, 1, 1], [1, 0, 1]]
+  let mask : Array[Array[Int32]] = [[1, 1, 1], [1, 0, 1]]
   let d = @src.clusterdistance(data, mask~, index1=[0], index2=[1], dist="e")
   assert_true(bc_approx(d, 0.0, 1.0e-12))
 }
@@ -418,8 +418,13 @@ test "bc_clustercentroids_with_mask" {
     [5.0, 6.0],
     [7.0, 8.0],
   ]
-  let mask : Array[Array[Int]] = [[1, 1], [1, 1], [1, 0], [1, 1]]
-  let r = @src.clustercentroids(data, mask~, clusterid=[0, 1, 0, 1], method_="a")
+  let mask : Array[Array[Int32]] = [[1, 1], [1, 1], [1, 0], [1, 1]]
+  let r = @src.clustercentroids(
+    data,
+    mask~,
+    clusterid=[0, 1, 0, 1],
+    method_="a",
+  )
   // cluster 0: mean of [1,2] and [5,missing] = [3, 2]
   // cluster 1: mean of [3,4] and [7,8] = [5, 6]
   assert_true(bc_approx_mat(r.cdata(), [[3.0, 2.0], [5.0, 6.0]], 1.0e-12))
@@ -432,8 +437,8 @@ test "bc_clustercentroids_with_mask" {
 ///|
 test "bc_clusterdistance_methods" {
   let data : Array[Array[Double]] = [[0.0], [1.0], [5.0]]
-  let idx1 : Array[Int] = [0, 1]
-  let idx2 : Array[Int] = [2]
+  let idx1 : Array[Int32] = [0, 1]
+  let idx2 : Array[Int32] = [2]
   // means: (0.5 - 5)^2 = 20.25
   assert_true(
     bc_approx(
@@ -475,7 +480,7 @@ test "bc_clusterdistance_methods" {
     ),
   )
   // invalid index -> -1
-  let bad : Array[Int] = [99]
+  let bad : Array[Int32] = [99]
   assert_true(
     @src.clusterdistance(data, index1=bad, index2=idx2, method_="a") == -1.0,
   )

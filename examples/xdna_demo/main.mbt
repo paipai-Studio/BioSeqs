@@ -34,7 +34,9 @@ fn main {
     println("Record \{i}:")
     println("  name: \{rec.name()}")
     println("  sequence: \{rec.sequence()}")
-    println("  type: \{rec.seq_type().to_string()} (\{rec.seq_type().description()})")
+    println(
+      "  type: \{rec.seq_type().to_string()} (\{rec.seq_type().description()})",
+    )
     println("  checksum: \{rec.checksum()}")
     println("  annotations: '\{rec.annotations()}'")
   }
@@ -102,7 +104,9 @@ fn main {
   }
   println(byte_sb.to_string())
   let file2 = @bio.xdna_from_bytes(bytes)
-  println("Deserialized: n_records=\{file2.n_records()}, version=\{file2.version()}")
+  println(
+    "Deserialized: n_records=\{file2.n_records()}, version=\{file2.version()}",
+  )
   let recs2 = file2.records()
   let mut byte_ok = true
   if recs2.length() != records.length() {
@@ -152,7 +156,9 @@ fn main {
   println("Converted \{seq_records.length()} XdnaRecord(s) to SeqRecord(s)")
   for i in 0..<seq_records.length() {
     let rec = seq_records[i]
-    println("  Record \{i}: id=\{rec.id}, name=\{rec.name}, length=\{rec.seq.to_string().length()}")
+    println(
+      "  Record \{i}: id=\{rec.id}, name=\{rec.name}, length=\{rec.seq.to_string().length()}",
+    )
   }
   println("")
 
@@ -169,7 +175,9 @@ fn main {
   println("Built file: n_records=\{built_file.n_records()}")
   let built_recs = built_file.records()
   for i in 0..<built_recs.length() {
-    println("  Record \{i}: name=\{built_recs[i].name()}, sequence=\{built_recs[i].sequence()}, type=\{built_recs[i].seq_type().to_string()}")
+    println(
+      "  Record \{i}: name=\{built_recs[i].name()}, sequence=\{built_recs[i].sequence()}, type=\{built_recs[i].seq_type().to_string()}",
+    )
   }
   println("")
 

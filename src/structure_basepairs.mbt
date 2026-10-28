@@ -8,20 +8,28 @@
 ///|
 /// A detected base pair.
 pub struct BasePair {
-  residue1 : Int   // atom index of first base's representative atom
-  residue2 : Int   // atom index of second base's representative atom
+  residue1 : Int32 // atom index of first base's representative atom
+  residue2 : Int32 // atom index of second base's representative atom
   resname1 : String
   resname2 : String
-  pair_type : String  // "WC", "Wobble", "Hoogsteen", "Other"
-  distance : Double   // centroid distance (Å)
+  pair_type : String // "WC", "Wobble", "Hoogsteen", "Other"
+  distance : Double // centroid distance (Å)
 }
 
 ///|
 /// Check if residue name is a nucleic acid base.
 fn is_nucleobase(resname : String) -> Bool {
   let r = to_uppercase(resname)
-  r == "A" || r == "C" || r == "G" || r == "U" ||
-  r == "T" || r == "DA" || r == "DC" || r == "DG" || r == "DT" || r == "DU"
+  r == "A" ||
+  r == "C" ||
+  r == "G" ||
+  r == "U" ||
+  r == "T" ||
+  r == "DA" ||
+  r == "DC" ||
+  r == "DG" ||
+  r == "DT" ||
+  r == "DU"
 }
 
 ///|
@@ -50,13 +58,17 @@ pub fn detect_basepairs(
   max_distance~ : Double = 15.0,
 ) -> Array[BasePair] {
   // Find nucleobase representative atoms
-  let base_atoms : Array[(Int, String, String, Int, Char)] = Array(capacity=0)
+  let base_atoms : Array[(Int32, String, String, Int32, Char)] = Array(
+    capacity=0,
+  )
   // (atom_index, resname, rep_atom_name, resseq, chainid)
   for i = 0; i < atoms.length(); i = i + 1 {
     if is_nucleobase(atoms[i].resname) {
       let rep = base_rep_atom(atoms[i].resname)
       if atoms[i].name == rep {
-        base_atoms.push((i, atoms[i].resname, rep, atoms[i].resseq, atoms[i].chainid))
+        base_atoms.push(
+          (i, atoms[i].resname, rep, atoms[i].resseq, atoms[i].chainid),
+        )
       }
     }
   }
@@ -89,8 +101,18 @@ pub fn detect_basepairs(
           // N-H...O or N-H...N hydrogen bond: donor-acceptor ≤ 3.5 Å
           let an = to_uppercase(atoms[a].name)
           let bn = to_uppercase(atoms[b].name)
-          let a_is_donor = an == "N1" || an == "N2" || an == "N6" || an == "N7" || an == "O2" || an == "O4"
-          let b_is_acceptor = bn == "O2" || bn == "O4" || bn == "O6" || bn == "N1" || bn == "N3" || bn == "N7"
+          let a_is_donor = an == "N1" ||
+            an == "N2" ||
+            an == "N6" ||
+            an == "N7" ||
+            an == "O2" ||
+            an == "O4"
+          let b_is_acceptor = bn == "O2" ||
+            bn == "O4" ||
+            bn == "O6" ||
+            bn == "N1" ||
+            bn == "N3" ||
+            bn == "N7"
           if a_is_donor && b_is_acceptor && d <= 3.5 && d >= 2.5 {
             hbond_count = hbond_count + 1
           }
@@ -115,21 +137,28 @@ pub fn detect_basepairs(
 
 ///|
 /// Classify base pair type based on residue names and H-bond count.
-fn classify_basepair(rn1 : String, rn2 : String, hbond_count : Int) -> String {
+fn classify_basepair(rn1 : String, rn2 : String, hbond_count : Int32) -> String {
   let r1 = to_uppercase(rn1)
   let r2 = to_uppercase(rn2)
   // Normalize: canonical Watson-Crick pairs
-  let is_wc = (r1 == "A" && r2 == "U") || (r1 == "U" && r2 == "A") ||
-    (r1 == "A" && r2 == "T") || (r1 == "T" && r2 == "A") ||
-    (r1 == "G" && r2 == "C") || (r1 == "C" && r2 == "G") ||
-    (r1 == "DA" && r2 == "DT") || (r1 == "DT" && r2 == "DA") ||
-    (r1 == "DG" && r2 == "DC") || (r1 == "DC" && r2 == "DG")
+  let is_wc = (r1 == "A" && r2 == "U") ||
+    (r1 == "U" && r2 == "A") ||
+    (r1 == "A" && r2 == "T") ||
+    (r1 == "T" && r2 == "A") ||
+    (r1 == "G" && r2 == "C") ||
+    (r1 == "C" && r2 == "G") ||
+    (r1 == "DA" && r2 == "DT") ||
+    (r1 == "DT" && r2 == "DA") ||
+    (r1 == "DG" && r2 == "DC") ||
+    (r1 == "DC" && r2 == "DG")
   if is_wc && hbond_count >= 2 {
     return "WC"
   }
   // Wobble: G-U
-  let is_wobble = (r1 == "G" && r2 == "U") || (r1 == "U" && r2 == "G") ||
-    (r1 == "DG" && r2 == "DT") || (r1 == "DT" && r2 == "DG")
+  let is_wobble = (r1 == "G" && r2 == "U") ||
+    (r1 == "U" && r2 == "G") ||
+    (r1 == "DG" && r2 == "DT") ||
+    (r1 == "DT" && r2 == "DG")
   if is_wobble {
     return "Wobble"
   }

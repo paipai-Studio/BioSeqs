@@ -5,6 +5,7 @@
 /// for scatterplot smoothing. Inspired by Biopython's
 /// Bio.Statistics.lowess module (Cleveland 1979).
 
+///|
 /// Sine function via Taylor series with argument reduction to [-pi, pi].
 fn local_sin(x : Double) -> Double {
   let pi = 3.141592653589793
@@ -28,14 +29,16 @@ fn local_sin(x : Double) -> Double {
   sum
 }
 
+///|
 /// Deterministic pseudo-noise in [-0.2, 0.2] from an integer index.
-fn pseudo_noise(i : Int) -> Double {
+fn pseudo_noise(i : Int32) -> Double {
   let n = (i * 9301 + 49297) % 233280
   (n.to_double() / 233280.0 - 0.5) * 0.4
 }
 
+///|
 /// Format a Double to a fixed number of decimal places.
-fn fmt(value : Double, decimals : Int) -> String {
+fn fmt(value : Double, decimals : Int32) -> String {
   let s = value.to_string()
   let parts = s.split(".").to_array()
   let int_part = if parts.length() > 0 { parts[0].to_owned() } else { "0" }
@@ -49,6 +52,7 @@ fn fmt(value : Double, decimals : Int) -> String {
   int_part + "." + padded_frac
 }
 
+///|
 fn main {
   println("=== LOWESS Demo ===")
   println("Bio.Statistics.lowess: Locally Weighted Regression")
@@ -74,7 +78,14 @@ fn main {
   i = 0
   while i < n {
     if i % 5 == 0 {
-      println("  " + fmt(x[i], 2) + "     " + fmt(y[i], 6) + "    " + fmt(smoothed[i], 6))
+      println(
+        "  " +
+        fmt(x[i], 2) +
+        "     " +
+        fmt(y[i], 6) +
+        "    " +
+        fmt(smoothed[i], 6),
+      )
     }
     i = i + 1
   }
@@ -87,7 +98,13 @@ fn main {
   y_outlier[80] = 4.0
   println("  Injected outliers at i=20 (y=3.0), i=50 (y=-3.0), i=80 (y=4.0)")
   let smoothed_std = @bio.lowess(x, y_outlier, f=0.3, n_steps=0, delta=0.0)
-  let smoothed_rob = @bio.lowess_robust(x, y_outlier, f=0.3, n_steps=2, delta=0.0)
+  let smoothed_rob = @bio.lowess_robust(
+    x,
+    y_outlier,
+    f=0.3,
+    n_steps=2,
+    delta=0.0,
+  )
   println("  x       standard      robust")
   i = 0
   while i < n {
@@ -108,14 +125,19 @@ fn main {
   // === 4. lowess_smooth_series on time series ===
   println("\n=== 4. lowess_smooth_series on Time Series ===")
   let series = [
-    1.0, 3.0, 2.0, 5.0, 4.0, 6.0, 5.0, 8.0, 7.0, 9.0, 8.0, 11.0, 10.0, 12.0,
-    11.0, 14.0, 13.0, 15.0, 14.0, 17.0,
+    1.0, 3.0, 2.0, 5.0, 4.0, 6.0, 5.0, 8.0, 7.0, 9.0, 8.0, 11.0, 10.0, 12.0, 11.0,
+    14.0, 13.0, 15.0, 14.0, 17.0,
   ]
   let series_smoothed = @bio.lowess_smooth_series(series, window_frac=0.4)
   println("  idx   original   smoothed")
   i = 0
   while i < series.length() {
-    println("  \{i}      " + fmt(series[i], 2) + "        " + fmt(series_smoothed[i], 4))
+    println(
+      "  \{i}      " +
+      fmt(series[i], 2) +
+      "        " +
+      fmt(series_smoothed[i], 4),
+    )
     i = i + 1
   }
 
@@ -138,7 +160,9 @@ fn main {
   while i < u_vals.length() {
     let tw = @bio.lowess_tricube_weight(u_vals[i])
     let bw = @bio.lowess_bisquare_weight(u_vals[i])
-    println("  " + fmt(u_vals[i], 2) + "     " + fmt(tw, 6) + "    " + fmt(bw, 6))
+    println(
+      "  " + fmt(u_vals[i], 2) + "     " + fmt(tw, 6) + "    " + fmt(bw, 6),
+    )
     i = i + 1
   }
 

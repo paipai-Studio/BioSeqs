@@ -357,11 +357,11 @@ test "CodonAlign advanced BH-FDR is monotonic non-decreasing in rank" {
   let fdr = @src.codon_align_advanced_bh_fdr(p_values)
   assert_eq(fdr.length(), 5)
   // Sort p-values and verify FDR is non-decreasing in sorted order.
-  let indexed : Array[(Double, Int)] = []
+  let indexed : Array[(Double, Int32)] = []
   for i in 0..<p_values.length() {
     indexed.push((p_values[i], i))
   }
-  indexed.sort_by(fn(a : (Double, Int), b : (Double, Int)) -> Int {
+  indexed.sort_by(fn(a : (Double, Int32), b : (Double, Int32)) -> Int32 {
     if a.0 < b.0 {
       -1
     } else if a.0 > b.0 {

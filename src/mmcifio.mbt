@@ -20,7 +20,7 @@ pub fn mmcif_format_bfactor(b : Double) -> String {
 ///|
 /// Format a double with the specified precision (no width padding).
 /// Truncates (does not round) the fractional part to the given precision.
-fn mmcifio_format_double(value : Double, precision : Int) -> String {
+fn mmcifio_format_double(value : Double, precision : Int32) -> String {
   let s = value.to_string()
   let parts = s.split(".").to_array()
   let int_part = if parts.length() > 0 { parts[0].to_owned() } else { "0" }
@@ -102,7 +102,7 @@ fn mmcifio_replace_all(s : String, from : String, to : String) -> String {
 ///|
 /// Format a single atom line for the `_atom_site` loop using the
 /// `ATOM` group_PDB value.
-pub fn mmcif_format_atom(atom : Atom, atom_id : Int) -> String {
+pub fn mmcif_format_atom(atom : Atom, atom_id : Int32) -> String {
   mmcif_format_atom_with_group(atom, atom_id, "ATOM")
 }
 
@@ -111,7 +111,7 @@ pub fn mmcif_format_atom(atom : Atom, atom_id : Int) -> String {
 /// (`ATOM` or `HETATM`).
 pub fn mmcif_format_atom_with_group(
   atom : Atom,
-  atom_id : Int,
+  atom_id : Int32,
   group_pdb : String,
 ) -> String {
   let type_symbol = if atom.element.length() > 0 { atom.element } else { "?" }

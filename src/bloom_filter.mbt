@@ -14,7 +14,7 @@
 ///|
 /// Compute a hash using FNV-1a variant.
 /// Simple, deterministic, and fast for short strings (k-mers).
-fn fnv1a_hash(s : String) -> Int {
+fn fnv1a_hash(s : String) -> Int32 {
   let mut hash = 16777619 // FNV prime as offset (fits Int32)
   for i = 0; i < s.length(); i = i + 1 {
     hash = hash ^ s.unsafe_get(i).unsafe_to_char().to_int()
@@ -28,7 +28,7 @@ fn fnv1a_hash(s : String) -> Int {
 
 ///|
 /// Compute a second independent hash using a polynomial rolling hash.
-fn poly_hash(s : String) -> Int {
+fn poly_hash(s : String) -> Int32 {
   let mut hash = 0
   for i = 0; i < s.length(); i = i + 1 {
     hash = hash * 131 + s.unsafe_get(i).unsafe_to_char().to_int()
@@ -46,12 +46,12 @@ fn poly_hash(s : String) -> Int {
 /// Generate `num_hashes` independent bit positions from two base hashes
 /// using the double-hashing scheme: h_i = (h1 + i * h2) % bits.
 fn bloom_positions(
-  h1 : Int,
-  h2 : Int,
-  num_hashes : Int,
-  bits : Int,
-) -> Array[Int] {
-  let positions : Array[Int] = Array(capacity=0)
+  h1 : Int32,
+  h2 : Int32,
+  num_hashes : Int32,
+  bits : Int32,
+) -> Array[Int32] {
+  let positions : Array[Int32] = Array(capacity=0)
   for i = 0; i < num_hashes; i = i + 1 {
     let combined = h1 + i * h2
     let pos = combined % bits
@@ -67,27 +67,27 @@ fn bloom_positions(
 ///|
 /// Compact bit array backed by an Int array.
 struct BitArray {
-  bits : FixedArray[Int]
-  num_bits : Int
+  bits : FixedArray[Int32]
+  num_bits : Int32
 }
 
 ///|
-fn BitArray::new(num_bits : Int) -> BitArray {
+fn BitArray::new(num_bits : Int32) -> BitArray {
   BitArray::{ bits: FixedArray::make(num_bits, 0), num_bits, }
 }
 
 ///|
-fn BitArray::set(self : BitArray, idx : Int) -> Unit {
+fn BitArray::set(self : BitArray, idx : Int32) -> Unit {
   self.bits[idx] = 1
 }
 
 ///|
-fn BitArray::get(self : BitArray, idx : Int) -> Bool {
+fn BitArray::get(self : BitArray, idx : Int32) -> Bool {
   self.bits[idx] != 0
 }
 
 ///|
-fn BitArray::count_set(self : BitArray) -> Int {
+fn BitArray::count_set(self : BitArray) -> Int32 {
   let mut count = 0
   for i = 0; i < self.num_bits; i = i + 1 {
     if self.bits[i] != 0 {
@@ -111,9 +111,9 @@ fn BitArray::count_set(self : BitArray) -> Int {
 ///   *might* have been inserted (with probability `false_positive_rate`).
 pub struct BloomFilter {
   bit_array : BitArray
-  num_hashes : Int
-  num_bits : Int
-  mut count : Int // number of items inserted
+  num_hashes : Int32
+  num_bits : Int32
+  mut count : Int32 // number of items inserted
 }
 
 ///|
@@ -128,7 +128,7 @@ pub struct BloomFilter {
 /// Since MoonBit's `Double` lacks `log`/`exp`, we use a precomputed
 /// table for common FPR values and a fallback linear approximation.
 pub fn BloomFilter::new(
-  expected_items : Int,
+  expected_items : Int32,
   false_positive_rate : Double,
 ) -> BloomFilter {
   let n = expected_items.to_double()
@@ -173,8 +173,8 @@ pub fn BloomFilter::new(
 ///|
 /// Create a Bloom filter with a fixed number of bits and hash functions.
 pub fn BloomFilter::with_params(
-  num_bits : Int,
-  num_hashes : Int,
+  num_bits : Int32,
+  num_hashes : Int32,
 ) -> BloomFilter {
   BloomFilter::{
     bit_array: BitArray::new(num_bits),
@@ -215,25 +215,25 @@ pub fn BloomFilter::contains(self : BloomFilter, key : String) -> Bool {
 
 ///|
 /// Get the number of items inserted.
-pub fn BloomFilter::len(self : BloomFilter) -> Int {
+pub fn BloomFilter::len(self : BloomFilter) -> Int32 {
   self.count
 }
 
 ///|
 /// Get the number of bits in the filter.
-pub fn BloomFilter::capacity(self : BloomFilter) -> Int {
+pub fn BloomFilter::capacity(self : BloomFilter) -> Int32 {
   self.num_bits
 }
 
 ///|
 /// Get the number of hash functions used.
-pub fn BloomFilter::hash_count(self : BloomFilter) -> Int {
+pub fn BloomFilter::hash_count(self : BloomFilter) -> Int32 {
   self.num_hashes
 }
 
 ///|
 /// Get the number of bits currently set to 1.
-pub fn BloomFilter::bits_set(self : BloomFilter) -> Int {
+pub fn BloomFilter::bits_set(self : BloomFilter) -> Int32 {
   self.bit_array.count_set()
 }
 
@@ -284,7 +284,7 @@ pub fn BloomFilter::clear(self : BloomFilter) -> Unit {
 /// Result entry for a single k-mer count.
 pub struct KmerCount {
   kmer : String
-  count : Int
+  count : Int32
 }
 
 ///|
@@ -295,7 +295,7 @@ pub fn KmerCount::kmer(self : KmerCount) -> String {
 
 ///|
 /// Get the count value.
-pub fn KmerCount::count(self : KmerCount) -> Int {
+pub fn KmerCount::count(self : KmerCount) -> Int32 {
   self.count
 }
 
@@ -306,14 +306,14 @@ pub fn KmerCount::count(self : KmerCount) -> Int {
 /// For large datasets where approximate membership suffices, use
 /// `BloomFilter` instead.
 pub struct KmerCounter {
-  k : Int
-  counts : Map[String, Int]
-  mut total_kmers : Int
+  k : Int32
+  counts : Map[String, Int32]
+  mut total_kmers : Int32
 }
 
 ///|
 /// Create a k-mer counter for k-mer size `k`.
-pub fn KmerCounter::new(k : Int) -> KmerCounter {
+pub fn KmerCounter::new(k : Int32) -> KmerCounter {
   KmerCounter::{ k, counts: Map([], capacity=0), total_kmers: 0, }
 }
 
@@ -337,7 +337,7 @@ pub fn KmerCounter::count(self : KmerCounter, seq : String) -> Unit {
 
 ///|
 /// Get the count for a specific k-mer. Returns 0 if not found.
-pub fn KmerCounter::get(self : KmerCounter, kmer : String) -> Int {
+pub fn KmerCounter::get(self : KmerCounter, kmer : String) -> Int32 {
   match self.counts.get(kmer) {
     Some(v) => v
     None => 0
@@ -346,26 +346,26 @@ pub fn KmerCounter::get(self : KmerCounter, kmer : String) -> Int {
 
 ///|
 /// Get the total number of k-mers counted (including duplicates).
-pub fn KmerCounter::total(self : KmerCounter) -> Int {
+pub fn KmerCounter::total(self : KmerCounter) -> Int32 {
   self.total_kmers
 }
 
 ///|
 /// Get the number of unique k-mers.
-pub fn KmerCounter::unique(self : KmerCounter) -> Int {
+pub fn KmerCounter::unique(self : KmerCounter) -> Int32 {
   self.counts.length()
 }
 
 ///|
 /// Get the k value.
-pub fn KmerCounter::k(self : KmerCounter) -> Int {
+pub fn KmerCounter::k(self : KmerCounter) -> Int32 {
   self.k
 }
 
 ///|
 /// Get all k-mer counts as an array of `KmerCount` entries,
 /// sorted by count (descending).
-pub fn KmerCounter::top_k(self : KmerCounter, n : Int) -> Array[KmerCount] {
+pub fn KmerCounter::top_k(self : KmerCounter, n : Int32) -> Array[KmerCount] {
   let entries : Array[KmerCount] = Array(capacity=0)
   let keys = self.counts.keys().collect()
   for i = 0; i < keys.length(); i = i + 1 {
@@ -398,7 +398,7 @@ pub fn KmerCounter::top_k(self : KmerCounter, n : Int) -> Array[KmerCount] {
 
 ///|
 /// Remove element at index from array, returning a new array.
-fn remove_at(arr : Array[KmerCount], idx : Int) -> Array[KmerCount] {
+fn remove_at(arr : Array[KmerCount], idx : Int32) -> Array[KmerCount] {
   let result : Array[KmerCount] = Array(capacity=0)
   for i = 0; i < arr.length(); i = i + 1 {
     if i != idx {
@@ -419,15 +419,15 @@ fn remove_at(arr : Array[KmerCount], idx : Int) -> Array[KmerCount] {
 /// without storing exact counts. Memory-efficient for large genomes.
 pub struct BloomKmerFilter {
   bloom : BloomFilter
-  k : Int
+  k : Int32
 }
 
 ///|
 /// Create a Bloom-based k-mer filter for k-mer size `k`,
 /// sized for `expected_kmers` unique k-mers.
 pub fn BloomKmerFilter::new(
-  k : Int,
-  expected_kmers : Int,
+  k : Int32,
+  expected_kmers : Int32,
   false_positive_rate : Double,
 ) -> BloomKmerFilter {
   BloomKmerFilter::{
@@ -463,13 +463,13 @@ pub fn BloomKmerFilter::contains(self : BloomKmerFilter, kmer : String) -> Bool 
 
 ///|
 /// Get the k value.
-pub fn BloomKmerFilter::k(self : BloomKmerFilter) -> Int {
+pub fn BloomKmerFilter::k(self : BloomKmerFilter) -> Int32 {
   self.k
 }
 
 ///|
 /// Get the number of items inserted.
-pub fn BloomKmerFilter::len(self : BloomKmerFilter) -> Int {
+pub fn BloomKmerFilter::len(self : BloomKmerFilter) -> Int32 {
   self.bloom.len()
 }
 
@@ -481,13 +481,13 @@ pub fn BloomKmerFilter::estimated_fpr(self : BloomKmerFilter) -> Double {
 
 ///|
 /// Get the number of bits used by the underlying Bloom filter.
-pub fn BloomKmerFilter::capacity(self : BloomKmerFilter) -> Int {
+pub fn BloomKmerFilter::capacity(self : BloomKmerFilter) -> Int32 {
   self.bloom.capacity()
 }
 
 ///|
 /// Get the number of hash functions used.
-pub fn BloomKmerFilter::hash_count(self : BloomKmerFilter) -> Int {
+pub fn BloomKmerFilter::hash_count(self : BloomKmerFilter) -> Int32 {
   self.bloom.hash_count()
 }
 
@@ -500,7 +500,7 @@ pub fn BloomKmerFilter::hash_count(self : BloomKmerFilter) -> Int {
 pub fn BloomKmerFilter::count_distinct(
   self : BloomKmerFilter,
   seq : String,
-) -> (Int, Int) {
+) -> (Int32, Int32) {
   let n = seq.length()
   if self.k <= 0 || self.k > n {
     return (0, 0)

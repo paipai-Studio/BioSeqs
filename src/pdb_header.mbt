@@ -24,19 +24,19 @@ pub struct PDBHeader {
 ///|
 /// Construct a PDBHeader with default values.
 pub fn PDBHeader::new(
-  pdb_id? : String = "",
-  title? : String = "",
-  compound? : CompoundInfo = CompoundInfo::new(),
-  source? : SourceInfo = SourceInfo::new(),
-  keywords? : Array[String] = [],
-  resolution? : Double = 0.0,
-  rfactor? : Double = 0.0,
-  date_deposited? : String = "",
-  authors? : Array[String] = [],
-  journal? : String = "",
-  remark_lines? : Array[String] = [],
-  dbrefs? : Array[DBRefEntry] = [],
-  chain_ids? : Array[String] = [],
+  pdb_id~ : String = "",
+  title~ : String = "",
+  compound~ : CompoundInfo = CompoundInfo::new(),
+  source~ : SourceInfo = SourceInfo::new(),
+  keywords~ : Array[String] = [],
+  resolution~ : Double = 0.0,
+  rfactor~ : Double = 0.0,
+  date_deposited~ : String = "",
+  authors~ : Array[String] = [],
+  journal~ : String = "",
+  remark_lines~ : Array[String] = [],
+  dbrefs~ : Array[DBRefEntry] = [],
+  chain_ids~ : Array[String] = [],
 ) -> PDBHeader {
   PDBHeader::{
     pdb_id,
@@ -72,15 +72,15 @@ pub struct CompoundInfo {
 ///|
 /// Construct a CompoundInfo with default values.
 pub fn CompoundInfo::new(
-  molecule_id? : String = "",
-  chain_ids? : Array[String] = [],
-  compound_name? : String = "",
-  formula? : String = "",
-  ka? : String = "",
-  kb? : String = "",
-  ec_number? : String = "",
-  engineered? : Bool = false,
-  mutation? : Bool = false,
+  molecule_id~ : String = "",
+  chain_ids~ : Array[String] = [],
+  compound_name~ : String = "",
+  formula~ : String = "",
+  ka~ : String = "",
+  kb~ : String = "",
+  ec_number~ : String = "",
+  engineered~ : Bool = false,
+  mutation~ : Bool = false,
 ) -> CompoundInfo {
   CompoundInfo::{
     molecule_id,
@@ -110,13 +110,13 @@ pub struct SourceInfo {
 ///|
 /// Construct a SourceInfo with default values.
 pub fn SourceInfo::new(
-  source? : String = "",
-  organism_scientific? : String = "",
-  organism_common? : String = "",
-  strain? : String = "",
-  cell_line? : String = "",
-  tissue? : String = "",
-  tax_id? : String = "",
+  source~ : String = "",
+  organism_scientific~ : String = "",
+  organism_common~ : String = "",
+  strain~ : String = "",
+  cell_line~ : String = "",
+  tissue~ : String = "",
+  tax_id~ : String = "",
 ) -> SourceInfo {
   SourceInfo::{
     source,
@@ -140,9 +140,9 @@ pub struct DBRefEntry {
 ///|
 /// Construct a DBRefEntry with default values.
 pub fn DBRefEntry::new(
-  db_name? : String = "",
-  db_accession? : String = "",
-  db_id? : String = "",
+  db_name~ : String = "",
+  db_accession~ : String = "",
+  db_id~ : String = "",
 ) -> DBRefEntry {
   DBRefEntry::{ db_name, db_accession, db_id, }
 }
@@ -198,7 +198,7 @@ fn split_pdb_lines(text : String) -> Array[String] {
 fn extract_record_section(
   lines : Array[String],
   record_name : String,
-) -> (Int, Int) {
+) -> (Int32, Int32) {
   let mut start = -1
   let mut end = -1
   let mut i = 0
@@ -237,7 +237,7 @@ fn parse_semicolon_fields(text : String) -> Array[String] {
 /// So to extract columns start_col..end_col (inclusive), we use
 ///   line[start_col-1 : end_col]
 /// which gives indices start_col-1 .. end_col-1 (inclusive), length = end_col - start_col + 1.
-fn trim_pdb_field(line : String, start_col : Int, end_col : Int) -> String {
+fn trim_pdb_field(line : String, start_col : Int32, end_col : Int32) -> String {
   let start_idx = start_col - 1
   let end_idx = end_col
   if line.length() < start_idx {
@@ -353,7 +353,7 @@ fn strip_field_prefix(field : String) -> String {
 
 ///|
 /// Find the first colon position in a string.
-fn find_colon(s : String) -> Int {
+fn find_colon(s : String) -> Int32 {
   let mut i = 0
   while i < s.length() {
     if s.unsafe_get(i).to_int() == 58 {
@@ -367,7 +367,11 @@ fn find_colon(s : String) -> Int {
 ///|
 /// Join text content from a multi-line record section.
 /// Extracts text from cols 11-80 (index 10-80) of each line.
-fn join_record_text(lines : Array[String], start : Int, end : Int) -> String {
+fn join_record_text(
+  lines : Array[String],
+  start : Int32,
+  end : Int32,
+) -> String {
   let result = StringBuilder()
   let mut i = start
   while i <= end && i < lines.length() {
@@ -471,7 +475,7 @@ pub fn parse_header_record(line : String) -> (String, String, String) {
 
 ///|
 /// Parse multi-line TITLE record.
-pub fn parse_title_record(lines : Array[String], _start_idx : Int) -> String {
+pub fn parse_title_record(lines : Array[String], _start_idx : Int32) -> String {
   let (start, end) = extract_record_section(lines, "TITLE")
   if start < 0 {
     return ""
@@ -484,7 +488,7 @@ pub fn parse_title_record(lines : Array[String], _start_idx : Int) -> String {
 /// Parse multi-line COMPOUND record.
 pub fn parse_compound_record(
   lines : Array[String],
-  _start_idx : Int,
+  _start_idx : Int32,
 ) -> CompoundInfo {
   let (start, end) = extract_record_section(lines, "COMPND")
   if start < 0 {
@@ -546,7 +550,7 @@ pub fn parse_compound_record(
 /// Parse multi-line SOURCE record.
 pub fn parse_source_record(
   lines : Array[String],
-  _start_idx : Int,
+  _start_idx : Int32,
 ) -> SourceInfo {
   let (start, end) = extract_record_section(lines, "SOURCE")
   if start < 0 {
@@ -602,7 +606,7 @@ pub fn parse_source_record(
 /// Parse multi-line KEYWDS record.
 pub fn parse_keywords_record(
   lines : Array[String],
-  _start_idx : Int,
+  _start_idx : Int32,
 ) -> Array[String] {
   let (start, end) = extract_record_section(lines, "KEYWDS")
   if start < 0 {
@@ -655,7 +659,7 @@ pub fn parse_rfactor_record(line : String) -> Double {
 /// Returns array of author names (semicolon-separated).
 pub fn parse_authors_record(
   lines : Array[String],
-  _start_idx : Int,
+  _start_idx : Int32,
 ) -> Array[String] {
   let (start, end) = extract_record_section(lines, "AUTH")
   if start < 0 {
@@ -675,7 +679,10 @@ pub fn parse_authors_record(
 
 ///|
 /// Parse multi-line JRNL record.
-pub fn parse_journal_record(lines : Array[String], _start_idx : Int) -> String {
+pub fn parse_journal_record(
+  lines : Array[String],
+  _start_idx : Int32,
+) -> String {
   let (start, end) = extract_record_section(lines, "JRNL")
   if start < 0 {
     return ""
@@ -688,7 +695,7 @@ pub fn parse_journal_record(lines : Array[String], _start_idx : Int) -> String {
 /// Parse DBREF records.
 pub fn parse_dbref_record(
   lines : Array[String],
-  _start_idx : Int,
+  _start_idx : Int32,
 ) -> Array[DBRefEntry] {
   let result : Array[DBRefEntry] = []
   let (start, end) = extract_record_section(lines, "DBREF")
@@ -713,7 +720,7 @@ pub fn parse_dbref_record(
 /// Parse all REMARK records into an array of strings.
 pub fn parse_remark_records(
   lines : Array[String],
-  _start_idx : Int,
+  _start_idx : Int32,
 ) -> Array[String] {
   let result : Array[String] = []
   let (start, end) = extract_record_section(lines, "REMARK")
@@ -776,7 +783,7 @@ fn parse_rfactor_from_lines(lines : Array[String]) -> Double {
 
 ///|
 /// Find the position of a keyword in a line (case-insensitive).
-fn find_keyword(line : String, keyword : String) -> Int {
+fn find_keyword(line : String, keyword : String) -> Int32 {
   let line_upper = to_upper(line)
   let keyword_upper = to_upper(keyword)
   let kw_len = keyword_upper.length()

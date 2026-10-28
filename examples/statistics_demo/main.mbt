@@ -1,8 +1,9 @@
 // Demo for Bio.Statistics module
 
+///|
 fn main {
   println("=== Bio.Statistics Module Demo ===\n")
-  
+
   // Descriptive statistics
   let data = [2.0, 4.0, 4.0, 4.0, 5.0, 5.0, 7.0, 9.0]
   println("Data: \{data}")
@@ -13,21 +14,21 @@ fn main {
   println("Min: \{@bio.stat_min(data)}")
   println("Max: \{@bio.stat_max(data)}")
   println("Sum: \{@bio.stat_sum(data)}")
-  
+
   // Correlation analysis
   let x = [1.0, 2.0, 3.0, 4.0, 5.0]
   let y_pos = [2.0, 4.0, 6.0, 8.0, 10.0]
   let y_neg = [10.0, 8.0, 6.0, 4.0, 2.0]
-  
+
   println("\n=== Correlation Analysis ===")
   println("Positive correlation (x vs 2x):")
   println("  Pearson: \{@bio.stat_pearson_correlation(x, y_pos)}")
   println("  Spearman: \{@bio.stat_spearman_correlation(x, y_pos)}")
-  
+
   println("Negative correlation (x vs 20-2x):")
   println("  Pearson: \{@bio.stat_pearson_correlation(x, y_neg)}")
   println("  Spearman: \{@bio.stat_spearman_correlation(x, y_neg)}")
-  
+
   // Hypothesis testing
   let sample = [2.0, 3.0, 4.0, 5.0, 6.0]
   println("\n=== Hypothesis Testing ===")
@@ -35,12 +36,12 @@ fn main {
   println("One-sample t-test (mu0=3.0):")
   let t_stat = @bio.stat_t_statistic(sample, 3.0)
   println("  t-statistic: \{t_stat}")
-  
+
   // Confidence interval
   println("95% Confidence Interval:")
   let ci = @bio.stat_confidence_interval(sample)
   println("  [\{ci[0]}, \{ci[1]}]")
-  
+
   // Z-scores
   println("\n=== Z-Scores ===")
   let zscores = @bio.stat_zscores([1.0, 2.0, 3.0, 4.0, 5.0])
@@ -92,7 +93,9 @@ fn main {
   // Distribution functions
   println("\n=== Distribution Functions ===")
   println("Chi-square CDF(3.84, df=1): \{@bio.stat_chi2_cdf(3.84, 1)}")
-  println("Chi-square quantile(0.95, df=2): \{@bio.stat_chi2_quantile(0.95, 2)}")
+  println(
+    "Chi-square quantile(0.95, df=2): \{@bio.stat_chi2_quantile(0.95, 2)}",
+  )
   println("t-CDF(0, df=10): \{@bio.stat_t_cdf(0.0, 10.0)}")
   println("t-quantile(0.975, df=10): \{@bio.stat_t_quantile(0.975, 10.0)}")
   println("Normal quantile(0.975): \{@bio.stat_normal_quantile(0.975)}")
@@ -104,7 +107,9 @@ fn main {
   println("  t-statistic: \{t1_result.0}, p-value: \{t1_result.1}")
 
   println("Two-sample t-test (x vs y):")
-  let t2_result = @bio.stat_t_test_two_sample([2.1, 2.3, 2.2, 2.4, 2.0], [3.1, 3.3, 3.2, 3.4, 3.0])
+  let t2_result = @bio.stat_t_test_two_sample([2.1, 2.3, 2.2, 2.4, 2.0], [
+    3.1, 3.3, 3.2, 3.4, 3.0,
+  ])
   println("  t-statistic: \{t2_result.0}, p-value: \{t2_result.1}")
 
   // BH correction
@@ -114,11 +119,7 @@ fn main {
 
   // ANOVA
   println("\n=== One-way ANOVA ===")
-  let anova_samples = [
-    [1.0, 2.0, 3.0],
-    [2.0, 3.0, 4.0],
-    [8.0, 9.0, 10.0],
-  ]
+  let anova_samples = [[1.0, 2.0, 3.0], [2.0, 3.0, 4.0], [8.0, 9.0, 10.0]]
   let anova_result = @bio.stat_anova(anova_samples)
   println("  F-statistic: \{anova_result.0}, p-value: \{anova_result.1}")
 

@@ -5,11 +5,11 @@
 /// (sample S1) over variants 5–15, giving a positive iHS/nSL signal.
 
 ///|
-fn fmt_i(row : Array[Int]) -> String {
+fn fmt_i(row : Array[Int32]) -> String {
   let sb = StringBuilder()
   let mut first = true
   for x in row {
-    if !(first) {
+    if !first {
       sb.write_char(' ')
     }
     sb.write_string(x.to_string())
@@ -23,7 +23,7 @@ fn fmt_d(row : Array[Double]) -> String {
   let sb = StringBuilder()
   let mut first = true
   for x in row {
-    if !(first) {
+    if !first {
       sb.write_char(' ')
     }
     sb.write_string(x.to_string())
@@ -41,13 +41,15 @@ fn main {
   let h = @src.skallel_gt_to_haplotypes(g)
   let gn = @src.skallel_gt_to_n_alt(g, fill=-1)
 
-  let pos2 : Array[Int] = Array(capacity=0)
+  let pos2 : Array[Int32] = Array(capacity=0)
   for v = 0; v < 20; v = v + 1 {
     pos2.push(v + 1)
   }
 
   println("samples = \{samples}")
-  println("\n-- iHS (unstandardized; sweep peak expected near variants 3–11) --")
+  println(
+    "\n-- iHS (unstandardized; sweep peak expected near variants 3–11) --",
+  )
   println(fmt_d(@src.skallel_ihs(h, pos2, 0.0, false)))
   println("\n-- nSL (unstandardized) --")
   println(fmt_d(@src.skallel_nsl(h)))
@@ -63,7 +65,7 @@ fn main {
   }
   // --- SFS / Hardy–Weinberg / Patterson Fst ---
   let ac = @src.skallel_gt_count_alleles(g, 1)
-  let dac : Array[Int] = Array(capacity=0)
+  let dac : Array[Int32] = Array(capacity=0)
   for aci in ac {
     dac.push(aci[1])
   }
@@ -88,5 +90,4 @@ fn main {
     sd = sd + den[i]
   }
   println("averaged Fst = " + (sn / sd).to_string())
-
 }

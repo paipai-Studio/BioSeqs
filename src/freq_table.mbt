@@ -48,7 +48,7 @@ pub fn freq_table_freq_type() -> FreqTableType {
 pub struct FreqTable {
   alphabet : Array[String]
   data : Map[String, Double] // letter -> frequency
-  count : Map[String, Int] // letter -> count (may be empty)
+  count : Map[String, Int32] // letter -> count (may be empty)
 }
 
 ///|
@@ -66,7 +66,7 @@ pub fn FreqTable::new(
   alphabet : Array[String]?,
 ) -> FreqTable {
   let data : Map[String, Double] = Map([], capacity=16)
-  let count : Map[String, Int] = Map([], capacity=16)
+  let count : Map[String, Int32] = Map([], capacity=16)
   let alph : Array[String] = Array(capacity=0)
   // Determine the alphabet.
   match alphabet {
@@ -80,7 +80,7 @@ pub fn FreqTable::new(
       }
   }
   // Sort alphabet for deterministic order.
-  alph.sort_by(fn(a : String, b : String) -> Int {
+  alph.sort_by(fn(a : String, b : String) -> Int32 {
     if a < b {
       -1
     } else if a > b {
@@ -150,7 +150,7 @@ pub fn FreqTable::data(self : FreqTable) -> Map[String, Double] {
 ///|
 /// The count dictionary (letter -> count). May be empty when the table was
 /// constructed from a frequency file.
-pub fn FreqTable::count(self : FreqTable) -> Map[String, Int] {
+pub fn FreqTable::count(self : FreqTable) -> Map[String, Int32] {
   self.count
 }
 
@@ -164,7 +164,7 @@ pub fn FreqTable::frequency(self : FreqTable, letter : String) -> Double {
 ///|
 /// Look up the count for a letter. Returns 0 for letters not in the table
 /// or when no counts are available.
-pub fn FreqTable::count_of(self : FreqTable, letter : String) -> Int {
+pub fn FreqTable::count_of(self : FreqTable, letter : String) -> Int32 {
   self.count.get_or_default(letter, 0)
 }
 
@@ -177,7 +177,7 @@ pub fn FreqTable::has_counts(self : FreqTable) -> Bool {
 ///|
 /// Total number of letters represented by the underlying counts.
 /// Returns 0 when no counts are stored.
-pub fn FreqTable::total_count(self : FreqTable) -> Int {
+pub fn FreqTable::total_count(self : FreqTable) -> Int32 {
   let mut total = 0
   for k in self.count.keys() {
     total = total + self.count[k]
@@ -187,7 +187,7 @@ pub fn FreqTable::total_count(self : FreqTable) -> Int {
 
 ///|
 /// Number of letters in the alphabet.
-pub fn FreqTable::size(self : FreqTable) -> Int {
+pub fn FreqTable::size(self : FreqTable) -> Int32 {
   self.alphabet.length()
 }
 
@@ -317,7 +317,7 @@ pub fn freq_table_read_freq(text : String) -> FreqTable {
 
 ///|
 /// Build a `FreqTable` from a count dictionary (Map[String, Int]).
-pub fn freq_table_from_counts(counts : Map[String, Int]) -> FreqTable {
+pub fn freq_table_from_counts(counts : Map[String, Int32]) -> FreqTable {
   let in_dict : Map[String, Double] = Map([], capacity=counts.length())
   for k in counts.keys() {
     in_dict[k] = counts[k].to_double()
@@ -340,7 +340,7 @@ pub fn freq_table_from_sequence(
   sequence : String,
   alphabet : Array[String]?,
 ) -> FreqTable {
-  let counts : Map[String, Int] = Map([], capacity=16)
+  let counts : Map[String, Int32] = Map([], capacity=16)
   let restrict : Map[String, Bool] = Map([], capacity=0)
   match alphabet {
     Some(a) =>

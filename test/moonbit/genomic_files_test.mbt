@@ -146,7 +146,7 @@ test "genomic_files_create_example_collection" {
 ///|
 test "genomic_files_scan_bam_with_content" {
   let file = @src.genomic_files_create_example_file()
-  let ranges : Array[(String, Int, Int)] = [
+  let ranges : Array[(String, Int32, Int32)] = [
     ("chr1", 100, 200),
     ("chr2", 500, 600),
   ]
@@ -163,7 +163,7 @@ test "genomic_files_scan_bam_simulated" {
   // A path with no newlines triggers the deterministic simulation.
   let example = @src.genomic_files_create_example_file()
   let file = @src.GenomicFile::new("no_real_file.bam", example.file_type)
-  let ranges : Array[(String, Int, Int)] = [("chr1", 100, 299)]
+  let ranges : Array[(String, Int32, Int32)] = [("chr1", 100, 299)]
   let result = @src.genomic_files_scan_bam(file, ranges)
   assert_eq(result.ranges.length(), 1)
   // range_len = 200, read_count = 200/50 = 4.
@@ -175,7 +175,7 @@ test "genomic_files_scan_bed_with_content" {
   let content = "chr1\t100\t200\tf1\t10.0\nchr1\t150\t250\tf2\t20.0\nchr2\t500\t600\tf3\t15.0"
   let collection = @src.genomic_files_create_example_collection()
   let file = @src.GenomicFile::new(content, collection.files[1].file_type)
-  let ranges : Array[(String, Int, Int)] = [
+  let ranges : Array[(String, Int32, Int32)] = [
     ("chr1", 100, 250),
     ("chr2", 500, 600),
   ]
@@ -194,7 +194,7 @@ test "genomic_files_scan_vcf_with_content" {
   let content = "chr1\t100\tvar1\tA\tT\t30.0\tPASS\t.\nchr1\t180\tvar2\tG\tC\t40.5\tPASS\t.\nchr2\t520\tvar3\tC\tG\t25.0\tPASS\t."
   let collection = @src.genomic_files_create_example_collection()
   let file = @src.GenomicFile::new(content, collection.files[2].file_type)
-  let ranges : Array[(String, Int, Int)] = [
+  let ranges : Array[(String, Int32, Int32)] = [
     ("chr1", 100, 200),
     ("chr2", 500, 600),
   ]
@@ -256,7 +256,7 @@ test "genomic_files_yield_reads_empty" {
 ///|
 test "genomic_files_count_reads" {
   let file = @src.genomic_files_create_example_file()
-  let ranges : Array[(String, Int, Int)] = [
+  let ranges : Array[(String, Int32, Int32)] = [
     ("chr1", 100, 200),
     ("chr2", 500, 600),
   ]
@@ -274,7 +274,7 @@ test "genomic_files_count_reads" {
 ///|
 test "genomic_files_coverage" {
   let file = @src.genomic_files_create_example_file()
-  let ranges : Array[(String, Int, Int)] = [("chr1", 100, 200)]
+  let ranges : Array[(String, Int32, Int32)] = [("chr1", 100, 200)]
   let coverage = @src.genomic_files_coverage(file, ranges)
   assert_eq(coverage.length(), 1)
   // Coverage is total_depth / range_len. With three 100-bp reads covering
@@ -285,7 +285,7 @@ test "genomic_files_coverage" {
 ///|
 test "genomic_files_summarize_ranges" {
   let collection = @src.genomic_files_create_example_collection()
-  let ranges : Array[(String, Int, Int)] = [
+  let ranges : Array[(String, Int32, Int32)] = [
     ("chr1", 100, 200),
     ("chr2", 500, 600),
   ]

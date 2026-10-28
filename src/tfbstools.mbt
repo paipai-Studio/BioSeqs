@@ -5,6 +5,7 @@
 /// PFM→PWM 转换、序列扫描（正/反向链）、motif 富集分析
 /// （超几何检验 + BH-FDR 校正）、共识序列与信息含量。
 
+///|
 /// JASPAR 矩阵记录。
 pub(all) struct TfbsJasparMatrix {
   matrix_id : String
@@ -15,29 +16,32 @@ pub(all) struct TfbsJasparMatrix {
   pfm : Array[Array[Double]]
 }
 
+///|
 /// 扫描命中结果。
 pub(all) struct TfbsHit {
   sequence_id : String
-  start : Int
-  end : Int
+  start : Int32
+  end : Int32
   strand : String
   score : Double
   sequence : String
 }
 
+///|
 /// 富集结果。
 pub(all) struct TfbsEnrichResult {
   matrix_id : String
   tf_name : String
-  n_targets_hit : Int
-  n_background_hit : Int
-  total_targets : Int
-  total_background : Int
+  n_targets_hit : Int32
+  n_background_hit : Int32
+  total_targets : Int32
+  total_background : Int32
   fold_enrichment : Double
   p_value : Double
   adj_p : Double
 }
 
+///|
 /// 构造 JASPAR 矩阵。
 pub fn TfbsJasparMatrix::new(
   matrix_id : String,
@@ -45,20 +49,26 @@ pub fn TfbsJasparMatrix::new(
   pfm : Array[Array[Double]],
 ) -> TfbsJasparMatrix {
   TfbsJasparMatrix::{
-    matrix_id: matrix_id, name: name, pfm: pfm,
-    collection: "CORE", tax_group: "vertebrates", species: "",
+    matrix_id,
+    name,
+    pfm,
+    collection: "CORE",
+    tax_group: "vertebrates",
+    species: "",
   }
 }
 
+///|
 /// 矩阵宽度。
-pub fn tfbs_matrix_width(pfm : Array[Array[Double]]) -> Int {
+pub fn tfbs_matrix_width(pfm : Array[Array[Double]]) -> Int32 {
   pfm.length()
 }
 
+///|
 /// PFM 归一化（行归一化 + 伪计数）。
 pub fn tfbs_pfm_normalize(
   counts : Array[Array[Double]],
-  pseudocount? : Double = 0.8,
+  pseudocount~ : Double = 0.8,
 ) -> Array[Array[Double]] {
   let pseudo = pseudocount
   let out : Array[Array[Double]] = Array(capacity=0)
@@ -77,9 +87,11 @@ pub fn tfbs_pfm_normalize(
   out
 }
 
+///|
 /// 模块内 ln2 常量。
 let ln2 : Double = 0.6931471805599453
 
+///|
 /// PFM → PWM（log-odds，背景默认均匀 0.25）。
 pub fn tfbs_pfm_to_pwm(
   pfm : Array[Array[Double]],
@@ -92,7 +104,11 @@ pub fn tfbs_pfm_to_pwm(
     for j in 0..<4 {
       let p = pfm[i][j]
       let ratio = if bg[j] > 0.0 {
-        if p > 1.0e-9 { p / bg[j] } else { 1.0e-9 / bg[j] }
+        if p > 1.0e-9 {
+          p / bg[j]
+        } else {
+          1.0e-9 / bg[j]
+        }
       } else {
         1.0
       }
@@ -103,14 +119,22 @@ pub fn tfbs_pfm_to_pwm(
   out
 }
 
+///|
 /// 碱基索引 → 字符。
-fn tfbs_base_char(idx : Int) -> Char {
-  if idx == 0 { return 'A' }
-  if idx == 1 { return 'C' }
-  if idx == 2 { return 'G' }
+fn tfbs_base_char(idx : Int32) -> Char {
+  if idx == 0 {
+    return 'A'
+  }
+  if idx == 1 {
+    return 'C'
+  }
+  if idx == 2 {
+    return 'G'
+  }
   'T'
 }
 
+///|
 /// 共识序列。
 pub fn tfbs_consensus(pfm : Array[Array[Double]]) -> String {
   let sb = StringBuilder()
@@ -128,6 +152,7 @@ pub fn tfbs_consensus(pfm : Array[Array[Double]]) -> String {
   sb.to_string()
 }
 
+///|
 /// 信息含量（每位置 bits + 总 bits）。
 pub fn tfbs_info_content(pfm : Array[Array[Double]]) -> (Array[Double], Double) {
   let per_pos : Array[Double] = Array(capacity=0)
@@ -147,38 +172,56 @@ pub fn tfbs_info_content(pfm : Array[Array[Double]]) -> (Array[Double], Double) 
   (per_pos, total)
 }
 
+///|
 /// 字符 → 碱基索引（A/C/G/T，否则 -1）。
-fn tfbs_base_idx(b : Char) -> Int {
-  if b == 'A' || b == 'a' { return 0 }
-  if b == 'C' || b == 'c' { return 1 }
-  if b == 'G' || b == 'g' { return 2 }
-  if b == 'T' || b == 't' || b == 'U' || b == 'u' { return 3 }
+fn tfbs_base_idx(b : Char) -> Int32 {
+  if b == 'A' || b == 'a' {
+    return 0
+  }
+  if b == 'C' || b == 'c' {
+    return 1
+  }
+  if b == 'G' || b == 'g' {
+    return 2
+  }
+  if b == 'T' || b == 't' || b == 'U' || b == 'u' {
+    return 3
+  }
   -1
 }
 
+///|
 /// 反向互补。
 fn tfbs_reverse_complement(seq : String) -> String {
   let sb = StringBuilder()
   let mut i = seq.length() - 1
   while i >= 0 {
     let b = seq[i]
-    if b == 'A' || b == 'a' { sb.write_char('T') }
-    else if b == 'C' || b == 'c' { sb.write_char('G') }
-    else if b == 'G' || b == 'g' { sb.write_char('C') }
-    else if b == 'T' || b == 't' { sb.write_char('A') }
-    else if b == 'U' || b == 'u' { sb.write_char('A') }
-    else { sb.write_char('N') }
+    if b == 'A' || b == 'a' {
+      sb.write_char('T')
+    } else if b == 'C' || b == 'c' {
+      sb.write_char('G')
+    } else if b == 'G' || b == 'g' {
+      sb.write_char('C')
+    } else if b == 'T' || b == 't' {
+      sb.write_char('A')
+    } else if b == 'U' || b == 'u' {
+      sb.write_char('A')
+    } else {
+      sb.write_char('N')
+    }
     i = i - 1
   }
   sb.to_string()
 }
 
+///|
 /// 在序列上滑动窗口打分（正向 + 可选反向链）。
 pub fn tfbs_scan_sequence(
   sequence : String,
   pwm : Array[Array[Double]],
-  threshold? : Double = 0.0,
-  both_strands? : Bool = true,
+  threshold~ : Double = 0.0,
+  both_strands~ : Bool = true,
 ) -> Array[TfbsHit] {
   let threshold = threshold
   let both = both_strands
@@ -202,8 +245,12 @@ pub fn tfbs_scan_sequence(
     }
     if score >= threshold {
       hits.push(TfbsHit::{
-        sequence_id: "seq", start: start, end: end,
-        strand: "+", score: score, sequence: sub,
+        sequence_id: "seq",
+        start,
+        end,
+        strand: "+",
+        score,
+        sequence: sub,
       })
     }
   }
@@ -225,8 +272,12 @@ pub fn tfbs_scan_sequence(
         let orig_start = seq_len - (start + width)
         let orig_end = seq_len - start
         hits.push(TfbsHit::{
-          sequence_id: "seq", start: orig_start, end: orig_end,
-          strand: "-", score: score, sequence: sub,
+          sequence_id: "seq",
+          start: orig_start,
+          end: orig_end,
+          strand: "-",
+          score,
+          sequence: sub,
         })
       }
     }
@@ -234,27 +285,33 @@ pub fn tfbs_scan_sequence(
   hits
 }
 
+///|
 /// 批量扫描多序列。
 pub fn tfbs_scan_batch(
   sequences : Array[(String, String)],
   pwm : Array[Array[Double]],
-  threshold? : Double = 0.0,
+  threshold~ : Double = 0.0,
 ) -> Array[TfbsHit] {
   let threshold = threshold
   let all_hits : Array[TfbsHit] = Array(capacity=0)
   for entry in sequences {
     let (seq_id, seq) = entry
-    let hits = tfbs_scan_sequence(seq, pwm, threshold=threshold, both_strands=true)
+    let hits = tfbs_scan_sequence(seq, pwm, threshold~, both_strands=true)
     for h in hits {
       all_hits.push(TfbsHit::{
-        sequence_id: seq_id, start: h.start, end: h.end,
-        strand: h.strand, score: h.score, sequence: h.sequence,
+        sequence_id: seq_id,
+        start: h.start,
+        end: h.end,
+        strand: h.strand,
+        score: h.score,
+        sequence: h.sequence,
       })
     }
   }
   all_hits
 }
 
+///|
 /// 标准正态右尾概率 P(Z >= z)。
 fn tfbs_pnorm_tail(z : Double) -> Double {
   let abs_z = if z < 0.0 { -z } else { z }
@@ -265,19 +322,28 @@ fn tfbs_pnorm_tail(z : Double) -> Double {
   let c3 = 1.781477937
   let c4 = -1.821255978
   let c5 = 1.330274429
-  let poly = c1 * t + c2 * t * t + c3 * t * t * t + c4 * t * t * t * t + c5 * t * t * t * t * t
+  let poly = c1 * t +
+    c2 * t * t +
+    c3 * t * t * t +
+    c4 * t * t * t * t +
+    c5 * t * t * t * t * t
   let p = d * poly
-  if z > 0.0 { p } else { 1.0 - p }
+  if z > 0.0 {
+    p
+  } else {
+    1.0 - p
+  }
 }
 
+///|
 /// motif 富集分析（超几何检验，正态近似）。
 pub fn tfbs_enrich_hypergeometric(
   matrix_id : String,
   tf_name : String,
-  n_targets_hit : Int,
-  n_targets_total : Int,
-  n_background_hit : Int,
-  n_background_total : Int,
+  n_targets_hit : Int32,
+  n_targets_total : Int32,
+  n_background_hit : Int32,
+  n_background_total : Int32,
 ) -> TfbsEnrichResult {
   // 合并两组
   let total_pop = n_targets_total + n_background_total
@@ -290,7 +356,9 @@ pub fn tfbs_enrich_hypergeometric(
   }
   let q = 1.0 - p
   let mean = n_targets_total.to_double() * p
-  let variance = n_targets_total.to_double() * p * q *
+  let variance = n_targets_total.to_double() *
+    p *
+    q *
     (total_pop.to_double() - n_targets_total.to_double()) /
     (if total_pop > 1 { total_pop.to_double() - 1.0 } else { 1.0 })
   let p_value = if variance > 0.0 {
@@ -312,15 +380,23 @@ pub fn tfbs_enrich_hypergeometric(
   }
   let fold_enrichment = if bg_frac > 0.0 { target_frac / bg_frac } else { 1.0 }
   TfbsEnrichResult::{
-    matrix_id: matrix_id, tf_name: tf_name,
-    n_targets_hit: n_targets_hit, n_background_hit: n_background_hit,
-    total_targets: n_targets_total, total_background: n_background_total,
-    fold_enrichment: fold_enrichment, p_value: p_value, adj_p: p_value,
+    matrix_id,
+    tf_name,
+    n_targets_hit,
+    n_background_hit,
+    total_targets: n_targets_total,
+    total_background: n_background_total,
+    fold_enrichment,
+    p_value,
+    adj_p: p_value,
   }
 }
 
+///|
 /// BH-FDR 多重检验校正。
-pub fn tfbs_adjust_pvalues(results : Array[TfbsEnrichResult]) -> Array[TfbsEnrichResult] {
+pub fn tfbs_adjust_pvalues(
+  results : Array[TfbsEnrichResult],
+) -> Array[TfbsEnrichResult] {
   let n = results.length()
   if n == 0 {
     return []
@@ -342,15 +418,20 @@ pub fn tfbs_adjust_pvalues(results : Array[TfbsEnrichResult]) -> Array[TfbsEnric
     }
   }
   // BH 校正并构建新结果
-   let adjusted : Array[TfbsEnrichResult] = Array(capacity=0)
+  let adjusted : Array[TfbsEnrichResult] = Array(capacity=0)
   for i in 0..<n {
     let adj = sorted[i].p_value * n.to_double() / (i + 1).to_double()
     let adj_p = if adj > 1.0 { 1.0 } else { adj }
     adjusted.push(TfbsEnrichResult::{
-      matrix_id: sorted[i].matrix_id, tf_name: sorted[i].tf_name,
-      n_targets_hit: sorted[i].n_targets_hit, n_background_hit: sorted[i].n_background_hit,
-      total_targets: sorted[i].total_targets, total_background: sorted[i].total_background,
-      fold_enrichment: sorted[i].fold_enrichment, p_value: sorted[i].p_value, adj_p: adj_p,
+      matrix_id: sorted[i].matrix_id,
+      tf_name: sorted[i].tf_name,
+      n_targets_hit: sorted[i].n_targets_hit,
+      n_background_hit: sorted[i].n_background_hit,
+      total_targets: sorted[i].total_targets,
+      total_background: sorted[i].total_background,
+      fold_enrichment: sorted[i].fold_enrichment,
+      p_value: sorted[i].p_value,
+      adj_p,
     })
   }
   // 单调化（从后往前）
@@ -361,10 +442,15 @@ pub fn tfbs_adjust_pvalues(results : Array[TfbsEnrichResult]) -> Array[TfbsEnric
     if curr_adj > prev_adj {
       let item = adjusted[k]
       adjusted[k] = TfbsEnrichResult::{
-        matrix_id: item.matrix_id, tf_name: item.tf_name,
-        n_targets_hit: item.n_targets_hit, n_background_hit: item.n_background_hit,
-        total_targets: item.total_targets, total_background: item.total_background,
-        fold_enrichment: item.fold_enrichment, p_value: item.p_value, adj_p: prev_adj,
+        matrix_id: item.matrix_id,
+        tf_name: item.tf_name,
+        n_targets_hit: item.n_targets_hit,
+        n_background_hit: item.n_background_hit,
+        total_targets: item.total_targets,
+        total_background: item.total_background,
+        fold_enrichment: item.fold_enrichment,
+        p_value: item.p_value,
+        adj_p: prev_adj,
       }
     }
     k = k - 1
@@ -372,6 +458,7 @@ pub fn tfbs_adjust_pvalues(results : Array[TfbsEnrichResult]) -> Array[TfbsEnric
   adjusted
 }
 
+///|
 /// 内置示例 JASPAR 矩阵（多条）。
 pub fn tfbs_example_jaspar() -> Array[TfbsJasparMatrix] {
   [

@@ -31,13 +31,15 @@ pub struct InsdcFeature {
   location_str : String
   qualifiers : Map[String, Array[String]]
 } derive(Eq)
+
+///|
 pub extend InsdcFeature with Eq::{equal, not_equal}
 
 ///|
 /// INSDC record combining header metadata, features, and sequence.
 pub struct InsdcRecord {
   locus_name : String
-  sequence_length : Int
+  sequence_length : Int32
   molecule_type : String
   topology : String
   division : String
@@ -49,6 +51,8 @@ pub struct InsdcRecord {
   features : Array[InsdcFeature]
   sequence : String
 } derive(Eq)
+
+///|
 pub extend InsdcRecord with Eq::{equal, not_equal}
 
 // ---------------------------------------------------------------------------
@@ -120,7 +124,7 @@ fn insdc_split_whitespace(s : String) -> Array[String] {
 
 ///|
 /// Split a string on a single delimiter character code.
-fn insdc_split_char(s : String, delim : Int) -> Array[String] {
+fn insdc_split_char(s : String, delim : Int32) -> Array[String] {
   let result : Array[String] = Array(capacity=0)
   let n = s.length()
   let mut start = 0
@@ -402,7 +406,7 @@ pub fn parse_insdc_location(loc_str : String) -> String {
 /// quote on the first line and the closing quote on the last line.
 pub fn format_insdc_feature(
   feature : InsdcFeature,
-  indent : Int,
+  indent : Int32,
 ) -> Array[String] {
   let out : Array[String] = Array(capacity=0)
 
@@ -1292,7 +1296,7 @@ fn insdc_build_embl_sequence(seq : String) -> String {
 
 ///|
 /// Find the first index of a character code in a string, or -1 if absent.
-fn insdc_find_char(s : String, c : Int) -> Int {
+fn insdc_find_char(s : String, c : Int32) -> Int32 {
   let n = s.length()
   let mut i = 0
   while i < n {

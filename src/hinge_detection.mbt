@@ -20,8 +20,8 @@
 ///|
 /// A detected hinge site.
 pub struct HingeSite {
-  residue_idx : Int // index of the hinge residue
-  mode_idx : Int // which mode detected this hinge (-1 = multi-mode)
+  residue_idx : Int32 // index of the hinge residue
+  mode_idx : Int32 // which mode detected this hinge (-1 = multi-mode)
   magnitude : Double // displacement magnitude at the hinge (small)
   flank_left : Double // displacement of left flanking region
   flank_right : Double // displacement of right flanking region
@@ -30,22 +30,22 @@ pub struct HingeSite {
 ///|
 /// Construct a HingeSite.
 pub fn HingeSite::new(
-  residue_idx : Int,
-  mode_idx : Int,
+  residue_idx : Int32,
+  mode_idx : Int32,
   magnitude : Double,
   flank_left : Double,
   flank_right : Double,
 ) -> HingeSite {
-  HingeSite::{ residue_idx, mode_idx, magnitude, flank_left, flank_right }
+  HingeSite::{ residue_idx, mode_idx, magnitude, flank_left, flank_right, }
 }
 
 ///|
-pub fn HingeSite::get_residue_idx(self : HingeSite) -> Int {
+pub fn HingeSite::get_residue_idx(self : HingeSite) -> Int32 {
   self.residue_idx
 }
 
 ///|
-pub fn HingeSite::get_mode_idx(self : HingeSite) -> Int {
+pub fn HingeSite::get_mode_idx(self : HingeSite) -> Int32 {
   self.mode_idx
 }
 
@@ -65,7 +65,7 @@ pub fn HingeSite::get_magnitude(self : HingeSite) -> Double {
 /// have opposite signs.  The hinge residue is the one with smaller |mode|.
 pub fn detect_hinges_gnm(
   mode : Array[Double],
-  mode_idx : Int,
+  mode_idx : Int32,
 ) -> Array[HingeSite] {
   let n = mode.length()
   if n < 3 {
@@ -78,7 +78,13 @@ pub fn detect_hinges_gnm(
     if v0 * v1 < 0.0 {
       let hinge_res = if v0.abs() <= v1.abs() { i } else { i + 1 }
       let mag = mode[hinge_res].abs()
-      hinges.push(HingeSite::{ residue_idx: hinge_res, mode_idx, magnitude: mag, flank_left: v0.abs(), flank_right: v1.abs() })
+      hinges.push(HingeSite::{
+        residue_idx: hinge_res,
+        mode_idx,
+        magnitude: mag,
+        flank_left: v0.abs(),
+        flank_right: v1.abs(),
+      })
     }
   }
   hinges
@@ -91,8 +97,8 @@ pub fn detect_hinges_gnm(
 /// a threshold relative to the maximum.
 pub fn detect_hinges_gnm_local_min(
   mode : Array[Double],
-  mode_idx : Int,
-  threshold? : Double = 0.1,
+  mode_idx : Int32,
+  threshold~ : Double = 0.1,
 ) -> Array[HingeSite] {
   let n = mode.length()
   if n < 3 {
@@ -114,8 +120,16 @@ pub fn detect_hinges_gnm_local_min(
   let thresh = threshold * max_val
   let hinges : Array[HingeSite] = Array(capacity=0)
   for i = 1; i < n - 1; i = i + 1 {
-    if abs_mode[i] < abs_mode[i - 1] && abs_mode[i] < abs_mode[i + 1] && abs_mode[i] < thresh {
-      hinges.push(HingeSite::{ residue_idx: i, mode_idx, magnitude: abs_mode[i], flank_left: abs_mode[i - 1], flank_right: abs_mode[i + 1] })
+    if abs_mode[i] < abs_mode[i - 1] &&
+      abs_mode[i] < abs_mode[i + 1] &&
+      abs_mode[i] < thresh {
+      hinges.push(HingeSite::{
+        residue_idx: i,
+        mode_idx,
+        magnitude: abs_mode[i],
+        flank_left: abs_mode[i - 1],
+        flank_right: abs_mode[i + 1],
+      })
     }
   }
   hinges
@@ -134,7 +148,9 @@ pub fn anm_mode_magnitudes(mode : Array[Double]) -> Array[Double] {
   let mags = Array::make(n, 0.0)
   for i = 0; i < n; i = i + 1 {
     let i3 = 3 * i
-    mags[i] = (mode[i3] * mode[i3] + mode[i3 + 1] * mode[i3 + 1] + mode[i3 + 2] * mode[i3 + 2]).sqrt()
+    mags[i] = (mode[i3] * mode[i3] +
+    mode[i3 + 1] * mode[i3 + 1] +
+    mode[i3 + 2] * mode[i3 + 2]).sqrt()
   }
   mags
 }
@@ -146,8 +162,8 @@ pub fn anm_mode_magnitudes(mode : Array[Double]) -> Array[Double] {
 /// below a threshold relative to the maximum.
 pub fn detect_hinges_anm(
   mode : Array[Double],
-  mode_idx : Int,
-  threshold? : Double = 0.3,
+  mode_idx : Int32,
+  threshold~ : Double = 0.3,
 ) -> Array[HingeSite] {
   let mags = anm_mode_magnitudes(mode)
   let n = mags.length()
@@ -167,7 +183,13 @@ pub fn detect_hinges_anm(
   let hinges : Array[HingeSite] = Array(capacity=0)
   for i = 1; i < n - 1; i = i + 1 {
     if mags[i] < mags[i - 1] && mags[i] < mags[i + 1] && mags[i] < thresh {
-      hinges.push(HingeSite::{ residue_idx: i, mode_idx, magnitude: mags[i], flank_left: mags[i - 1], flank_right: mags[i + 1] })
+      hinges.push(HingeSite::{
+        residue_idx: i,
+        mode_idx,
+        magnitude: mags[i],
+        flank_left: mags[i - 1],
+        flank_right: mags[i + 1],
+      })
     }
   }
   hinges
@@ -184,10 +206,14 @@ pub fn detect_hinges_anm(
 /// `min_count` of the provided modes.
 pub fn detect_common_hinges_gnm(
   modes : Array[Array[Double]],
-  num_modes : Int,
-  min_count? : Int = 2,
+  num_modes : Int32,
+  min_count~ : Int32 = 2,
 ) -> Array[HingeSite] {
-  let n_modes = if num_modes < modes.length() { num_modes } else { modes.length() }
+  let n_modes = if num_modes < modes.length() {
+    num_modes
+  } else {
+    modes.length()
+  }
   if n_modes == 0 {
     return []
   }
@@ -207,7 +233,13 @@ pub fn detect_common_hinges_gnm(
   let result : Array[HingeSite] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {
     if counts[i] >= min_count {
-      result.push(HingeSite::{ residue_idx: i, mode_idx: -1, magnitude: min_mag[i], flank_left: counts[i].to_double(), flank_right: n_modes.to_double() })
+      result.push(HingeSite::{
+        residue_idx: i,
+        mode_idx: -1,
+        magnitude: min_mag[i],
+        flank_left: counts[i].to_double(),
+        flank_right: n_modes.to_double(),
+      })
     }
   }
   result
@@ -217,11 +249,15 @@ pub fn detect_common_hinges_gnm(
 /// Detect hinge sites common to multiple ANM slow modes.
 pub fn detect_common_hinges_anm(
   modes : Array[Array[Double]],
-  num_modes : Int,
-  min_count? : Int = 2,
-  threshold? : Double = 0.3,
+  num_modes : Int32,
+  min_count~ : Int32 = 2,
+  threshold~ : Double = 0.3,
 ) -> Array[HingeSite] {
-  let n_modes = if num_modes < modes.length() { num_modes } else { modes.length() }
+  let n_modes = if num_modes < modes.length() {
+    num_modes
+  } else {
+    modes.length()
+  }
   if n_modes == 0 {
     return []
   }
@@ -242,7 +278,13 @@ pub fn detect_common_hinges_anm(
   let result : Array[HingeSite] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {
     if counts[i] >= min_count {
-      result.push(HingeSite::{ residue_idx: i, mode_idx: -1, magnitude: min_mag[i], flank_left: counts[i].to_double(), flank_right: n_modes.to_double() })
+      result.push(HingeSite::{
+        residue_idx: i,
+        mode_idx: -1,
+        magnitude: min_mag[i],
+        flank_left: counts[i].to_double(),
+        flank_right: n_modes.to_double(),
+      })
     }
   }
   result
@@ -258,9 +300,13 @@ pub fn detect_common_hinges_anm(
 /// Score = fraction of modes in which the residue is a hinge.  Range [0, 1].
 pub fn hinge_scores_gnm(
   modes : Array[Array[Double]],
-  num_modes : Int,
+  num_modes : Int32,
 ) -> Array[Double] {
-  let n_modes = if num_modes < modes.length() { num_modes } else { modes.length() }
+  let n_modes = if num_modes < modes.length() {
+    num_modes
+  } else {
+    modes.length()
+  }
   if n_modes == 0 {
     return []
   }
@@ -283,10 +329,14 @@ pub fn hinge_scores_gnm(
 /// Compute a hinge score for each residue across multiple ANM modes.
 pub fn hinge_scores_anm(
   modes : Array[Array[Double]],
-  num_modes : Int,
-  threshold? : Double = 0.3,
+  num_modes : Int32,
+  threshold~ : Double = 0.3,
 ) -> Array[Double] {
-  let n_modes = if num_modes < modes.length() { num_modes } else { modes.length() }
+  let n_modes = if num_modes < modes.length() {
+    num_modes
+  } else {
+    modes.length()
+  }
   if n_modes == 0 {
     return []
   }
@@ -309,7 +359,10 @@ pub fn hinge_scores_anm(
 ///|
 /// Classify residues as hinge (true) or non-hinge (false) based on
 /// a score threshold.
-pub fn classify_hinges(scores : Array[Double], threshold : Double) -> Array[Bool] {
+pub fn classify_hinges(
+  scores : Array[Double],
+  threshold : Double,
+) -> Array[Bool] {
   let n = scores.length()
   let result = Array::make(n, false)
   for i = 0; i < n; i = i + 1 {
@@ -329,8 +382,8 @@ pub fn classify_hinges(scores : Array[Double], threshold : Double) -> Array[Bool
 /// and computes the angle between them.  Returns angle in degrees.
 pub fn hinge_angle(
   mode : Array[Double],
-  hinge_idx : Int,
-  window? : Int = 2,
+  hinge_idx : Int32,
+  window~ : Int32 = 2,
 ) -> Double {
   let dim = mode.length()
   let n = dim / 3
@@ -373,7 +426,13 @@ pub fn hinge_angle(
   }
   let dot = left_v.x * right_v.x + left_v.y * right_v.y + left_v.z * right_v.z
   let cos_theta = dot / (left_norm * right_norm)
-  let cos_clamped = if cos_theta > 1.0 { 1.0 } else { if cos_theta < -1.0 { -1.0 } else { cos_theta } }
+  let cos_clamped = if cos_theta > 1.0 {
+    1.0
+  } else if cos_theta < -1.0 {
+    -1.0
+  } else {
+    cos_theta
+  }
   let theta = @math.acos(cos_clamped)
   theta * 180.0 / 3.14159265358979323846
 }
@@ -385,8 +444,8 @@ pub fn hinge_angle(
 /// of the two flanking regions, normalized.
 pub fn hinge_axis(
   mode : Array[Double],
-  hinge_idx : Int,
-  window? : Int = 2,
+  hinge_idx : Int32,
+  window~ : Int32 = 2,
 ) -> Vector3 {
   let dim = mode.length()
   let n = dim / 3
@@ -440,7 +499,7 @@ pub fn hinge_axis(
 pub fn hinge_angles(
   mode : Array[Double],
   hinges : Array[HingeSite],
-  window? : Int = 2,
+  window~ : Int32 = 2,
 ) -> Array[Double] {
   let result : Array[Double] = Array(capacity=hinges.length())
   for h in hinges {
@@ -453,10 +512,10 @@ pub fn hinge_angles(
 /// Summary of hinge analysis: list of hinge residues with scores,
 /// angles, and axes for each mode.
 pub struct HingeAnalysis {
-  n_residues : Int
-  num_modes : Int
+  n_residues : Int32
+  num_modes : Int32
   scores : Array[Double] // per-residue hinge score [0, 1]
-  hinge_indices : Array[Int] // residues classified as hinges
+  hinge_indices : Array[Int32] // residues classified as hinges
   angles : Array[Double] // bending angle per hinge (degrees)
 }
 
@@ -464,14 +523,18 @@ pub struct HingeAnalysis {
 /// Run full hinge analysis on GNM slow modes.
 pub fn analyze_hinges_gnm(
   modes : Array[Array[Double]],
-  num_modes : Int,
-  score_threshold? : Double = 0.5,
+  num_modes : Int32,
+  score_threshold~ : Double = 0.5,
 ) -> HingeAnalysis {
-  let n_modes = if num_modes < modes.length() { num_modes } else { modes.length() }
+  let n_modes = if num_modes < modes.length() {
+    num_modes
+  } else {
+    modes.length()
+  }
   let n = if modes.length() > 0 { modes[0].length() } else { 0 }
   let scores = hinge_scores_gnm(modes, n_modes)
   let is_hinge = classify_hinges(scores, score_threshold)
-  let hinge_indices : Array[Int] = Array(capacity=0)
+  let hinge_indices : Array[Int32] = Array(capacity=0)
   let angles : Array[Double] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {
     if is_hinge[i] {
@@ -480,23 +543,33 @@ pub fn analyze_hinges_gnm(
       angles.push(0.0)
     }
   }
-  HingeAnalysis::{ n_residues: n, num_modes: n_modes, scores, hinge_indices, angles }
+  HingeAnalysis::{
+    n_residues: n,
+    num_modes: n_modes,
+    scores,
+    hinge_indices,
+    angles,
+  }
 }
 
 ///|
 /// Run full hinge analysis on ANM slow modes.
 pub fn analyze_hinges_anm(
   modes : Array[Array[Double]],
-  num_modes : Int,
-  score_threshold? : Double = 0.5,
-  threshold? : Double = 0.3,
+  num_modes : Int32,
+  score_threshold~ : Double = 0.5,
+  threshold~ : Double = 0.3,
 ) -> HingeAnalysis {
-  let n_modes = if num_modes < modes.length() { num_modes } else { modes.length() }
+  let n_modes = if num_modes < modes.length() {
+    num_modes
+  } else {
+    modes.length()
+  }
   let dim = if modes.length() > 0 { modes[0].length() } else { 0 }
   let n = dim / 3
   let scores = hinge_scores_anm(modes, n_modes, threshold~)
   let is_hinge = classify_hinges(scores, score_threshold)
-  let hinge_indices : Array[Int] = Array(capacity=0)
+  let hinge_indices : Array[Int32] = Array(capacity=0)
   let angles : Array[Double] = Array(capacity=0)
   // Use the slowest mode for angle computation
   for i = 0; i < n; i = i + 1 {
@@ -509,18 +582,24 @@ pub fn analyze_hinges_anm(
       }
     }
   }
-  HingeAnalysis::{ n_residues: n, num_modes: n_modes, scores, hinge_indices, angles }
+  HingeAnalysis::{
+    n_residues: n,
+    num_modes: n_modes,
+    scores,
+    hinge_indices,
+    angles,
+  }
 }
 
 ///|
 /// Get the number of hinge residues found.
-pub fn HingeAnalysis::num_hinges(self : HingeAnalysis) -> Int {
+pub fn HingeAnalysis::num_hinges(self : HingeAnalysis) -> Int32 {
   self.hinge_indices.length()
 }
 
 ///|
 /// Get the hinge residue indices.
-pub fn HingeAnalysis::get_hinge_indices(self : HingeAnalysis) -> Array[Int] {
+pub fn HingeAnalysis::get_hinge_indices(self : HingeAnalysis) -> Array[Int32] {
   self.hinge_indices
 }
 

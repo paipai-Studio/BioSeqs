@@ -3,6 +3,4 @@ import {
   "moonbitlang/core/math",
 }
 
-options(
-  "is-main": true,
-)
+pkgtype(kind: "executable")

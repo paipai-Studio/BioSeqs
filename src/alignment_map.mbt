@@ -12,14 +12,20 @@ pub suberror AlignmentMapError {
 ///|
 /// One aligned block in a coordinate-based pairwise alignment.
 pub struct CoordinateAlignmentBlock {
-  target_start : Int
-  target_end : Int
-  query_start : Int
-  query_end : Int
-  size : Int
+  target_start : Int32
+  target_end : Int32
+  query_start : Int32
+  query_end : Int32
+  size : Int32
 } derive(Eq, Debug)
+
+///|
 pub extend CoordinateAlignmentBlock with Eq::{equal, not_equal}
-pub extend CoordinateAlignmentBlock with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend CoordinateAlignmentBlock with @moonbitlang/core/debug.Debug::{
+  to_repr,
+}
 
 ///|
 /// Coordinate representation of a pairwise alignment.
@@ -32,40 +38,58 @@ pub struct CoordinatePairwiseAlignment {
   query_name : String
   target_sequence : String
   query_sequence : String
-  target_length : Int
-  query_length : Int
-  target_coordinates : Array[Int]
-  query_coordinates : Array[Int]
+  target_length : Int32
+  query_length : Int32
+  target_coordinates : Array[Int32]
+  query_coordinates : Array[Int32]
 } derive(Eq, Debug)
+
+///|
 pub extend CoordinatePairwiseAlignment with Eq::{equal, not_equal}
-pub extend CoordinatePairwiseAlignment with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend CoordinatePairwiseAlignment with @moonbitlang/core/debug.Debug::{
+  to_repr,
+}
 
 ///|
 /// Coordinate representation of a multiple sequence alignment.
 pub struct CoordinateMultipleAlignment {
   names : Array[String]
   sequences : Array[String]
-  coordinates : Array[Array[Int]]
+  coordinates : Array[Array[Int32]]
 } derive(Eq, Debug)
+
+///|
 pub extend CoordinateMultipleAlignment with Eq::{equal, not_equal}
-pub extend CoordinateMultipleAlignment with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend CoordinateMultipleAlignment with @moonbitlang/core/debug.Debug::{
+  to_repr,
+}
 
 ///|
 /// Basic alignment statistics derived from a coordinate path.
 pub struct CoordinateAlignmentCounts {
-  aligned : Int
-  target_gap_bases : Int
-  query_gap_bases : Int
-  target_gap_events : Int
-  query_gap_events : Int
-  blocks : Int
+  aligned : Int32
+  target_gap_bases : Int32
+  query_gap_bases : Int32
+  target_gap_events : Int32
+  query_gap_events : Int32
+  blocks : Int32
 } derive(Eq, Debug)
-pub extend CoordinateAlignmentCounts with Eq::{equal, not_equal}
-pub extend CoordinateAlignmentCounts with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
-fn alignment_map_copy_ints(values : Array[Int]) -> Array[Int] {
-  let copy : Array[Int] = []
+pub extend CoordinateAlignmentCounts with Eq::{equal, not_equal}
+
+///|
+pub extend CoordinateAlignmentCounts with @moonbitlang/core/debug.Debug::{
+  to_repr,
+}
+
+///|
+fn alignment_map_copy_ints(values : Array[Int32]) -> Array[Int32] {
+  let copy : Array[Int32] = []
   for value in values {
     copy.push(value)
   }
@@ -82,7 +106,7 @@ fn alignment_map_copy_strings(values : Array[String]) -> Array[String] {
 }
 
 ///|
-fn alignment_map_abs(value : Int) -> Int {
+fn alignment_map_abs(value : Int32) -> Int32 {
   if value < 0 {
     -value
   } else {
@@ -91,7 +115,7 @@ fn alignment_map_abs(value : Int) -> Int {
 }
 
 ///|
-fn alignment_map_min(left : Int, right : Int) -> Int {
+fn alignment_map_min(left : Int32, right : Int32) -> Int32 {
   if left < right {
     left
   } else {
@@ -100,7 +124,7 @@ fn alignment_map_min(left : Int, right : Int) -> Int {
 }
 
 ///|
-fn alignment_map_max(left : Int, right : Int) -> Int {
+fn alignment_map_max(left : Int32, right : Int32) -> Int32 {
   if left > right {
     left
   } else {
@@ -121,7 +145,7 @@ fn alignment_map_validate_name(
 ///|
 fn alignment_map_validate_sequence(
   sequence : String,
-  expected_length : Int,
+  expected_length : Int32,
   label : String,
 ) -> Unit raise AlignmentMapError {
   if expected_length < 0 {
@@ -145,10 +169,10 @@ fn alignment_map_validate_sequence(
 
 ///|
 fn alignment_map_validate_coordinates(
-  target_length : Int,
-  query_length : Int,
-  target_coordinates : Array[Int],
-  query_coordinates : Array[Int],
+  target_length : Int32,
+  query_length : Int32,
+  target_coordinates : Array[Int32],
+  query_coordinates : Array[Int32],
 ) -> Unit raise AlignmentMapError {
   if target_coordinates.length() != query_coordinates.length() {
     raise AlignmentMapError(
@@ -202,12 +226,12 @@ fn alignment_map_validate_coordinates(
 fn alignment_map_create(
   target_name : String,
   target_sequence : String,
-  target_length : Int,
+  target_length : Int32,
   query_name : String,
   query_sequence : String,
-  query_length : Int,
-  target_coordinates : Array[Int],
-  query_coordinates : Array[Int],
+  query_length : Int32,
+  target_coordinates : Array[Int32],
+  query_coordinates : Array[Int32],
 ) -> CoordinatePairwiseAlignment raise AlignmentMapError {
   alignment_map_validate_name(target_name, "target name")
   alignment_map_validate_name(query_name, "query name")
@@ -239,8 +263,8 @@ pub fn coordinate_pairwise_alignment(
   target_sequence : String,
   query_name : String,
   query_sequence : String,
-  target_coordinates : Array[Int],
-  query_coordinates : Array[Int],
+  target_coordinates : Array[Int32],
+  query_coordinates : Array[Int32],
 ) -> CoordinatePairwiseAlignment raise AlignmentMapError {
   alignment_map_create(
     target_name,
@@ -258,13 +282,13 @@ pub fn coordinate_pairwise_alignment(
 /// Construct an alignment when sequence text is unavailable.
 pub fn coordinate_pairwise_alignment_with_lengths(
   target_name : String,
-  target_length : Int,
+  target_length : Int32,
   query_name : String,
-  query_length : Int,
-  target_coordinates : Array[Int],
-  query_coordinates : Array[Int],
-  target_sequence? : String = "",
-  query_sequence? : String = "",
+  query_length : Int32,
+  target_coordinates : Array[Int32],
+  query_coordinates : Array[Int32],
+  target_sequence~ : String = "",
+  query_sequence~ : String = "",
 ) -> CoordinatePairwiseAlignment raise AlignmentMapError {
   alignment_map_create(
     target_name, target_sequence, target_length, query_name, query_sequence, query_length,
@@ -276,8 +300,8 @@ pub fn coordinate_pairwise_alignment_with_lengths(
 /// Adapt the repository's existing PairwiseAlignment representation.
 pub fn coordinate_alignment_from_pairwise(
   alignment : PairwiseAlignment,
-  target_name? : String = "target",
-  query_name? : String = "query",
+  target_name~ : String = "target",
+  query_name~ : String = "query",
 ) -> CoordinatePairwiseAlignment raise AlignmentMapError {
   if alignment.aligned_target.length() != alignment.aligned_query.length() {
     raise AlignmentMapError("aligned pairwise rows must have equal length")
@@ -312,8 +336,8 @@ pub fn coordinate_alignment_from_pairwise(
 }
 
 ///|
-fn alignment_map_reverse(values : Array[Int]) -> Array[Int] {
-  let result : Array[Int] = []
+fn alignment_map_reverse(values : Array[Int32]) -> Array[Int32] {
+  let result : Array[Int32] = []
   let mut index = values.length()
   while index > 0 {
     index = index - 1
@@ -324,10 +348,10 @@ fn alignment_map_reverse(values : Array[Int]) -> Array[Int] {
 
 ///|
 fn alignment_map_relationship(
-  target_coordinates : Array[Int],
-  query_coordinates : Array[Int],
+  target_coordinates : Array[Int32],
+  query_coordinates : Array[Int32],
   label : String,
-) -> Int raise AlignmentMapError {
+) -> Int32 raise AlignmentMapError {
   let mut relationship = 0
   let mut index = 0
   while index + 1 < target_coordinates.length() {
@@ -351,8 +375,8 @@ fn alignment_map_relationship(
 
 ///|
 fn alignment_map_validate_equal_steps(
-  target_coordinates : Array[Int],
-  query_coordinates : Array[Int],
+  target_coordinates : Array[Int32],
+  query_coordinates : Array[Int32],
   label : String,
 ) -> Unit raise AlignmentMapError {
   let mut index = 0
@@ -372,11 +396,11 @@ fn alignment_map_validate_equal_steps(
 ///|
 fn alignment_map_transform_against_reverse_middle(
   alignment : CoordinatePairwiseAlignment,
-) -> (Array[Int], Array[Int]) {
+) -> (Array[Int32], Array[Int32]) {
   let target_reversed = alignment_map_reverse(alignment.target_coordinates)
   let query_reversed = alignment_map_reverse(alignment.query_coordinates)
-  let targets : Array[Int] = []
-  let queries : Array[Int] = []
+  let targets : Array[Int32] = []
+  let queries : Array[Int32] = []
   for value in target_reversed {
     targets.push(alignment.target_length - value)
   }
@@ -427,14 +451,14 @@ pub fn CoordinatePairwiseAlignment::map(
   let mut coordinates2_query = alignment_map_copy_ints(next.query_coordinates)
   if relationship1 > 0 {
     if relationship2 < 0 {
-      let transformed : Array[Int] = []
+      let transformed : Array[Int32] = []
       for value in coordinates2_query {
         transformed.push(next.query_length - value)
       }
       coordinates2_query = transformed
     }
   } else {
-    let transformed_middle : Array[Int] = []
+    let transformed_middle : Array[Int32] = []
     for value in coordinates1_query {
       transformed_middle.push(self.query_length - value)
     }
@@ -446,7 +470,7 @@ pub fn CoordinatePairwiseAlignment::map(
       alignment_map_transform_against_reverse_middle(next)
     } else {
       let reversed_middle = alignment_map_reverse(next.target_coordinates)
-      let normalized_middle : Array[Int] = []
+      let normalized_middle : Array[Int32] = []
       for value in reversed_middle {
         normalized_middle.push(next.target_length - value)
       }
@@ -486,8 +510,8 @@ pub fn CoordinatePairwiseAlignment::map(
   let mut middle_start = coordinates1_query[first_segment]
   let mut outer_end = coordinates1_target[first_segment + 1]
   let mut middle_end = coordinates1_query[first_segment + 1]
-  let path_target : Array[Int] = []
-  let path_query : Array[Int] = []
+  let path_target : Array[Int32] = []
+  let path_query : Array[Int32] = []
   let mut output_target_end = 2147483647
   let mut output_query_end = 2147483647
   let mut second_target_start = 2147483647
@@ -557,7 +581,7 @@ pub fn CoordinatePairwiseAlignment::map(
     point2 = point2 + 1
   }
   if relationship1 != relationship2 {
-    let transformed : Array[Int] = []
+    let transformed : Array[Int32] = []
     for value in path_query {
       transformed.push(next.query_length - value)
     }
@@ -678,8 +702,8 @@ pub fn CoordinatePairwiseAlignment::counts(
 ///|
 pub fn CoordinatePairwiseAlignment::target_to_query(
   self : CoordinatePairwiseAlignment,
-  position : Int,
-) -> Int? {
+  position : Int32,
+) -> Int32? {
   let mut index = 0
   while index + 1 < self.target_coordinates.length() {
     let target_start = self.target_coordinates[index]
@@ -703,8 +727,8 @@ pub fn CoordinatePairwiseAlignment::target_to_query(
 ///|
 pub fn CoordinatePairwiseAlignment::query_to_target(
   self : CoordinatePairwiseAlignment,
-  position : Int,
-) -> Int? {
+  position : Int32,
+) -> Int32? {
   let mut index = 0
   while index + 1 < self.query_coordinates.length() {
     let target_start = self.target_coordinates[index]
@@ -732,7 +756,7 @@ pub fn CoordinatePairwiseAlignment::query_to_target(
 fn alignment_map_repeat(
   builder : StringBuilder,
   value : Char,
-  count : Int,
+  count : Int32,
 ) -> Unit {
   let mut index = 0
   while index < count {
@@ -762,8 +786,8 @@ fn alignment_map_complement(value : Char) -> Char {
 fn alignment_map_write_segment(
   builder : StringBuilder,
   sequence : String,
-  start : Int,
-  end : Int,
+  start : Int32,
+  end : Int32,
   complement_reverse : Bool,
 ) -> Unit {
   if end >= start {
@@ -792,7 +816,7 @@ fn alignment_map_write_segment(
 /// Render gapped rows when both sequence contents are available.
 pub fn CoordinatePairwiseAlignment::aligned_rows(
   self : CoordinatePairwiseAlignment,
-  complement_reverse? : Bool = true,
+  complement_reverse~ : Bool = true,
 ) -> (String, String)? {
   if self.target_sequence.length() == 0 || self.query_sequence.length() == 0 {
     return None
@@ -847,7 +871,7 @@ pub fn CoordinatePairwiseAlignment::aligned_rows(
 }
 
 ///|
-fn alignment_map_join_ints(values : Array[Int]) -> String {
+fn alignment_map_join_ints(values : Array[Int32]) -> String {
   let builder = StringBuilder()
   let mut index = 0
   while index < values.length() {
@@ -876,9 +900,9 @@ pub fn CoordinatePairwiseAlignment::to_psl(
     raise AlignmentMapError("cannot serialize an empty alignment as PSL")
   }
   let counts = self.counts()
-  let block_sizes : Array[Int] = []
-  let query_starts : Array[Int] = []
-  let target_starts : Array[Int] = []
+  let block_sizes : Array[Int32] = []
+  let query_starts : Array[Int32] = []
+  let target_starts : Array[Int32] = []
   let reverse = self.is_reverse()
   let mut query_min = self.query_length
   let mut query_max = 0
@@ -988,7 +1012,7 @@ pub fn coordinate_multiple_alignment(
   }
   let width = aligned_sequences[0].length()
   let sequences : Array[String] = []
-  let coordinates : Array[Array[Int]] = []
+  let coordinates : Array[Array[Int32]] = []
   let mut row_index = 0
   while row_index < names.length() {
     alignment_map_validate_name(names[row_index], "MSA row name")
@@ -1021,7 +1045,7 @@ pub fn coordinate_multiple_alignment(
 ///|
 fn alignment_map_factor(
   alignment : CoordinatePairwiseAlignment,
-) -> Int raise AlignmentMapError {
+) -> Int32 raise AlignmentMapError {
   let mut factor = 0
   let mut index = 0
   while index + 1 < alignment.target_coordinates.length() {
@@ -1144,7 +1168,7 @@ pub fn CoordinateMultipleAlignment::mapall(
   let projected : Array[CoordinatePairwiseAlignment] = []
   row_index = 0
   while row_index < mappings.length() {
-    let scaled_row : Array[Int] = []
+    let scaled_row : Array[Int32] = []
     for coordinate in self.coordinates[row_index] {
       scaled_row.push(factor * coordinate)
     }
@@ -1158,7 +1182,7 @@ pub fn CoordinateMultipleAlignment::mapall(
       master_coordinates,
       scaled_row,
     )
-    let scaled_target : Array[Int] = []
+    let scaled_target : Array[Int32] = []
     for coordinate in mappings[row_index].target_coordinates {
       scaled_target.push(factor * coordinate)
     }
@@ -1175,7 +1199,7 @@ pub fn CoordinateMultipleAlignment::mapall(
     projected.push(outer.map(inner))
     row_index = row_index + 1
   }
-  let output_coordinates : Array[Array[Int]] = []
+  let output_coordinates : Array[Array[Int32]] = []
   let indices = Array::make(projected.length(), 0)
   row_index = 0
   while row_index < projected.length() {
@@ -1255,14 +1279,14 @@ pub fn CoordinateMultipleAlignment::mapall(
 ///|
 pub fn CoordinateMultipleAlignment::num_sequences(
   self : CoordinateMultipleAlignment,
-) -> Int {
+) -> Int32 {
   self.sequences.length()
 }
 
 ///|
 pub fn CoordinateMultipleAlignment::alignment_length(
   self : CoordinateMultipleAlignment,
-) -> Int {
+) -> Int32 {
   if self.coordinates.length() == 0 || self.coordinates[0].length() < 2 {
     return 0
   }
@@ -1285,8 +1309,8 @@ pub fn CoordinateMultipleAlignment::alignment_length(
 ///|
 pub fn CoordinateMultipleAlignment::row(
   self : CoordinateMultipleAlignment,
-  index : Int,
-  complement_reverse? : Bool = true,
+  index : Int32,
+  complement_reverse~ : Bool = true,
 ) -> String? {
   if index < 0 ||
     index >= self.sequences.length() ||

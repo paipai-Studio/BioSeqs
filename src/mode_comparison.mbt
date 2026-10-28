@@ -26,7 +26,7 @@ pub fn mode_overlap(vec1 : Array[Double], vec2 : Array[Double]) -> Double {
 pub fn cumulative_overlap(
   mode : Array[Double],
   modes_set : Array[Array[Double]],
-  k : Int,
+  k : Int32,
 ) -> Double {
   let max_k = if k < modes_set.length() { k } else { modes_set.length() }
   let mut sum_sq = 0.0
@@ -125,7 +125,7 @@ pub fn subspace_angle(
     evecs2[0].length()
   }
   // Build projection matrix P = V1^T * V2 (n1 x n2)
-  let proj = Array::makei(n1, { _ => Array::make(n2, 0.0) })
+  let proj = Array::makei(n1, _ => Array::make(n2, 0.0))
   for i = 0; i < n1; i = i + 1 {
     for j = 0; j < n2; j = j + 1 {
       let mut s = 0.0
@@ -138,7 +138,7 @@ pub fn subspace_angle(
   // Compute P^T * P (n2 x n2) and find smallest eigenvalue
   // The smallest singular value = sqrt(smallest eigenvalue of P^T P)
   // Largest principal angle = acos(smallest singular value)
-  let ptp = Array::makei(n2, { _ => Array::make(n2, 0.0) })
+  let ptp = Array::makei(n2, _ => Array::make(n2, 0.0))
   for i = 0; i < n2; i = i + 1 {
     for j = 0; j < n2; j = j + 1 {
       let mut s = 0.0
@@ -178,7 +178,7 @@ pub fn overlap_matrix(
 ) -> Array[Array[Double]] {
   let n1 = modes1.length()
   let n2 = modes2.length()
-  let result = Array::makei(n1, { _ => Array::make(n2, 0.0) })
+  let result = Array::makei(n1, _ => Array::make(n2, 0.0))
   for i = 0; i < n1; i = i + 1 {
     for j = 0; j < n2; j = j + 1 {
       result[i][j] = mode_overlap(modes1[i], modes2[j])
@@ -193,7 +193,7 @@ pub fn overlap_matrix(
 pub fn effective_overlap(
   mode : Array[Double],
   modes_set : Array[Array[Double]],
-  k : Int,
+  k : Int32,
 ) -> Double {
   cumulative_overlap(mode, modes_set, k)
 }

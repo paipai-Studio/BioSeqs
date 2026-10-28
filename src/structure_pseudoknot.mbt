@@ -13,7 +13,7 @@
 /// Algorithm: iterative peeling — repeatedly extract the largest
 /// non-crossing subset (order 0), remove those pairs, repeat.
 /// The number of iterations is the pseudoknot order.
-pub fn pseudoknot_order(dot_bracket : String) -> Int {
+pub fn pseudoknot_order(dot_bracket : String) -> Int32 {
   let pairs = parse_dot_bracket_pairs(dot_bracket)
   if pairs.length() == 0 {
     return 0
@@ -28,11 +28,14 @@ pub fn pseudoknot_order(dot_bracket : String) -> Int {
       return order + remaining.length()
     }
     // Remove non_crossing from remaining
-    let nc_set : Map[(Int, Int), Bool] = Map([], capacity=non_crossing.length())
+    let nc_set : Map[(Int32, Int32), Bool] = Map(
+      [],
+      capacity=non_crossing.length(),
+    )
     for p in non_crossing {
       nc_set[p] = true
     }
-    let new_remaining : Array[(Int, Int)] = Array(capacity=0)
+    let new_remaining : Array[(Int32, Int32)] = Array(capacity=0)
     for p in remaining {
       match nc_set.get(p) {
         Some(_) => () // skip (it's in non_crossing)
@@ -48,35 +51,32 @@ pub fn pseudoknot_order(dot_bracket : String) -> Int {
 ///|
 /// Parse dot-bracket into list of base pairs (i, j) with i < j.
 /// Supports single-level pseudoknots with [] and {}.
-fn parse_dot_bracket_pairs(db : String) -> Array[(Int, Int)] {
-  let pairs : Array[(Int, Int)] = Array(capacity=0)
-  let stack_paren : Array[Int] = Array(capacity=0)
-  let stack_bracket : Array[Int] = Array(capacity=0)
-  let stack_brace : Array[Int] = Array(capacity=0)
+fn parse_dot_bracket_pairs(db : String) -> Array[(Int32, Int32)] {
+  let pairs : Array[(Int32, Int32)] = Array(capacity=0)
+  let stack_paren : Array[Int32] = Array(capacity=0)
+  let stack_bracket : Array[Int32] = Array(capacity=0)
+  let stack_brace : Array[Int32] = Array(capacity=0)
   for i = 0; i < db.length(); i = i + 1 {
     let c = db.unsafe_get(i).unsafe_to_char()
     match c {
       '(' => stack_paren.push(i)
-      ')' => {
+      ')' =>
         match stack_paren.pop() {
           Some(j) => pairs.push((j, i))
           None => ()
         }
-      }
       '[' => stack_bracket.push(i)
-      ']' => {
+      ']' =>
         match stack_bracket.pop() {
           Some(j) => pairs.push((j, i))
           None => ()
         }
-      }
       '{' => stack_brace.push(i)
-      '}' => {
+      '}' =>
         match stack_brace.pop() {
           Some(j) => pairs.push((j, i))
           None => ()
         }
-      }
       _ => ()
     }
   }
@@ -97,12 +97,12 @@ fn parse_dot_bracket_pairs(db : String) -> Array[(Int, Int)] {
 /// Extract the largest non-crossing subset of base pairs.
 /// Two pairs (i,j) and (k,l) cross if i < k < j < l or k < i < l < j.
 /// Uses a greedy algorithm: sort by j, then keep pairs that don't cross any kept pair.
-fn extract_non_crossing(pairs : Array[(Int, Int)]) -> Array[(Int, Int)] {
+fn extract_non_crossing(pairs : Array[(Int32, Int32)]) -> Array[(Int32, Int32)] {
   if pairs.length() == 0 {
     return Array(capacity=0)
   }
   // Sort by second element (j) ascending
-  let sorted : Array[(Int, Int)] = Array(capacity=pairs.length())
+  let sorted : Array[(Int32, Int32)] = Array(capacity=pairs.length())
   for p in pairs {
     sorted.push(p)
   }
@@ -116,7 +116,7 @@ fn extract_non_crossing(pairs : Array[(Int, Int)]) -> Array[(Int, Int)] {
     sorted[j + 1] = key
   }
   // Greedy: keep pairs that don't cross any already-kept pair
-  let result : Array[(Int, Int)] = Array(capacity=0)
+  let result : Array[(Int32, Int32)] = Array(capacity=0)
   for p in sorted {
     let mut crosses = false
     for q in result {
@@ -137,31 +137,34 @@ fn extract_non_crossing(pairs : Array[(Int, Int)]) -> Array[(Int, Int)] {
 ///|
 /// Annotate each base pair with its pseudoknot order level.
 /// Returns an array of order values, one per base pair (in input order).
-pub fn pseudoknot_order_levels(dot_bracket : String) -> Array[Int] {
+pub fn pseudoknot_order_levels(dot_bracket : String) -> Array[Int32] {
   let pairs = parse_dot_bracket_pairs(dot_bracket)
   let n = pairs.length()
   if n == 0 {
     return Array(capacity=0)
   }
-  let levels : Array[Int] = Array::make(n, 0)
-  let remaining : Array[Int] = Array(capacity=n)
+  let levels : Array[Int32] = Array::make(n, 0)
+  let remaining : Array[Int32] = Array(capacity=n)
   for i = 0; i < n; i = i + 1 {
     remaining.push(i)
   }
   let mut current_level = 0
   while remaining.length() > 0 {
     // Build remaining pairs
-    let rem_pairs : Array[(Int, Int)] = Array(capacity=remaining.length())
+    let rem_pairs : Array[(Int32, Int32)] = Array(capacity=remaining.length())
     for idx in remaining {
       rem_pairs.push(pairs[idx])
     }
     let non_crossing = extract_non_crossing(rem_pairs)
     // Mark non_crossing pairs with current level
-    let nc_set : Map[(Int, Int), Bool] = Map([], capacity=non_crossing.length())
+    let nc_set : Map[(Int32, Int32), Bool] = Map(
+      [],
+      capacity=non_crossing.length(),
+    )
     for p in non_crossing {
       nc_set[p] = true
     }
-    let new_remaining : Array[Int] = Array(capacity=0)
+    let new_remaining : Array[Int32] = Array(capacity=0)
     for idx in remaining {
       match nc_set.get(pairs[idx]) {
         Some(_) => levels[idx] = current_level

@@ -357,7 +357,7 @@ fn qv_close(a : Double, b : Double, tol : Double) -> Bool {
 
 ///|
 /// Deterministic near-uniform p-values: (i + 0.5) / n, i in 0..n.
-fn qv_uniform_pvalues(n : Int) -> Array[Double] {
+fn qv_uniform_pvalues(n : Int32) -> Array[Double] {
   let v = Array::make(n, 0.0)
   let mut i = 0
   while i < n {

@@ -7,7 +7,7 @@ fn align_mauve_demo_document() -> @bio.AlignMauveDocument {
 }
 
 ///|
-fn align_mauve_demo_path(values : Array[Int]) -> String {
+fn align_mauve_demo_path(values : Array[Int32]) -> String {
   "[" + values.map(fn(value) { value.to_string() }).join(", ") + "]"
 }
 

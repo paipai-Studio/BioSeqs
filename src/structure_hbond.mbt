@@ -11,15 +11,15 @@
 /// A detected hydrogen bond.
 pub struct HBond {
   donor_resname : String
-  donor_resseq : Int
+  donor_resseq : Int32
   donor_chainid : Char
-  donor_atom : String         // e.g. "N", "OG"
+  donor_atom : String // e.g. "N", "OG"
   acceptor_resname : String
-  acceptor_resseq : Int
+  acceptor_resseq : Int32
   acceptor_chainid : Char
-  acceptor_atom : String      // e.g. "O", "OD1"
-  distance : Double           // D-A distance (Å)
-  angle : Double              // D-H-A angle (degrees)
+  acceptor_atom : String // e.g. "O", "OD1"
+  distance : Double // D-A distance (Å)
+  angle : Double // D-H-A angle (degrees)
 }
 
 ///|
@@ -74,10 +74,7 @@ fn is_hbond_acceptor(resname : String, atom_name : String) -> Bool {
 /// Estimate hydrogen position for a donor N-H.
 /// Uses the preceding C=O geometry: H ≈ N + 1.01 * (N - C_prev) normalized.
 /// If no preceding C is available, places H along N→CA direction.
-fn estimate_h_position(
-  donor_coord : Vector3,
-  prev_coord : Vector3,
-) -> Vector3 {
+fn estimate_h_position(donor_coord : Vector3, prev_coord : Vector3) -> Vector3 {
   // Direction from previous atom (C) to N
   let dx = donor_coord.x - prev_coord.x
   let dy = donor_coord.y - prev_coord.y
@@ -112,13 +109,7 @@ fn angle_at(a : Vector3, b : Vector3, c : Vector3) -> Double {
   }
   let cos_a = dot / (n1 * n2)
   // Clamp to [-1, 1]
-  let c = if cos_a > 1.0 {
-    1.0
-  } else if cos_a < -1.0 {
-    -1.0
-  } else {
-    cos_a
-  }
+  let c = if cos_a > 1.0 { 1.0 } else if cos_a < -1.0 { -1.0 } else { cos_a }
   @math.acos(c) * 180.0 / 3.141592653589793
 }
 
@@ -151,7 +142,9 @@ pub fn detect_hbonds(
   for d in donors {
     for acc in acceptors {
       // Skip same-residue intra bonds
-      if d.chainid == acc.chainid && d.resseq == acc.resseq && d.resname == acc.resname {
+      if d.chainid == acc.chainid &&
+        d.resseq == acc.resseq &&
+        d.resname == acc.resname {
         continue
       }
       let dist = d.coord.distance(acc.coord)

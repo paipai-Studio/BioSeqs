@@ -38,11 +38,11 @@ priv struct CaaNg86Components {
   ds : Double // Jukes-Cantor corrected dS
   p_n : Double // pN = Nd / Nn (raw nonsyn difference proportion)
   p_s : Double // pS = Sd / Sn (raw syn difference proportion)
-  n_diff : Int // Nd — nonsynonymous differences
-  s_diff : Int // Sd — synonymous differences
+  n_diff : Int32 // Nd — nonsynonymous differences
+  s_diff : Int32 // Sd — synonymous differences
   n_sites : Double // Nn — nonsynonymous sites (averaged over both seqs)
   s_sites : Double // Sn — synonymous sites (averaged over both seqs)
-  n_codons : Int // number of valid codon pairs analysed
+  n_codons : Int32 // number of valid codon pairs analysed
 }
 
 ///|
@@ -155,6 +155,8 @@ pub struct SelectionTestResult {
   test_type : String // "positive" | "purifying" | "neutrality"
   conclusion : String // human-readable conclusion
 } derive(Debug)
+
+///|
 pub extend SelectionTestResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -213,7 +215,7 @@ pub fn SelectionTestResult::conclusion(self : SelectionTestResult) -> String {
 pub fn codon_test_selection(
   seq1 : String,
   seq2 : String,
-  test_type? : String = "positive",
+  test_type~ : String = "positive",
 ) -> SelectionTestResult raise CodonAlignAdvancedError {
   let comps = caa_ng86_components(seq1, seq2)
   let p_n = comps.p_n
@@ -293,7 +295,7 @@ pub fn codon_test_selection(
 
 ///|
 /// Log-factorial computed by summation of natural logs (no overflow).
-fn caa_log_factorial(n : Int) -> Double {
+fn caa_log_factorial(n : Int32) -> Double {
   if n <= 1 {
     return 0.0
   }
@@ -308,7 +310,7 @@ fn caa_log_factorial(n : Int) -> Double {
 
 ///|
 /// Log binomial coefficient ln C(n, k) = ln(n!) − ln(k!) − ln((n−k)!).
-fn caa_log_binom(n : Int, k : Int) -> Double {
+fn caa_log_binom(n : Int32, k : Int32) -> Double {
   if k < 0 || k > n {
     return -1.0e300
   }
@@ -330,10 +332,10 @@ fn caa_log_binom(n : Int, k : Int) -> Double {
 ///   - "greater"    — P(X ≥ a)
 ///   - "less"       — P(X ≤ a)
 fn caa_fisher_exact(
-  a : Int,
-  b : Int,
-  c : Int,
-  d : Int,
+  a : Int32,
+  b : Int32,
+  c : Int32,
+  d : Int32,
   test_type : String,
 ) -> (Double, Double) {
   let n = a + b + c + d
@@ -388,14 +390,18 @@ fn caa_fisher_exact(
 pub struct CodonNeutralityTestResult {
   p_value : Double
   odds_ratio : Double
-  n_diff : Int // nonsynonymous differences (Nd)
-  s_diff : Int // synonymous differences (Sd)
+  n_diff : Int32 // nonsynonymous differences (Nd)
+  s_diff : Int32 // synonymous differences (Sd)
   n_sites : Double // nonsynonymous sites (Nn)
   s_sites : Double // synonymous sites (Sn)
   test_type : String
   conclusion : String
 } derive(Debug)
-pub extend CodonNeutralityTestResult with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend CodonNeutralityTestResult with @moonbitlang/core/debug.Debug::{
+  to_repr,
+}
 
 ///|
 pub fn CodonNeutralityTestResult::p_value(
@@ -414,14 +420,14 @@ pub fn CodonNeutralityTestResult::odds_ratio(
 ///|
 pub fn CodonNeutralityTestResult::n_diff(
   self : CodonNeutralityTestResult,
-) -> Int {
+) -> Int32 {
   self.n_diff
 }
 
 ///|
 pub fn CodonNeutralityTestResult::s_diff(
   self : CodonNeutralityTestResult,
-) -> Int {
+) -> Int32 {
   self.s_diff
 }
 
@@ -465,7 +471,7 @@ pub fn CodonNeutralityTestResult::conclusion(
 pub fn codon_test_neutrality(
   seq1 : String,
   seq2 : String,
-  test_type? : String = "two-sided",
+  test_type~ : String = "two-sided",
 ) -> CodonNeutralityTestResult raise CodonAlignAdvancedError {
   let comps = caa_ng86_components(seq1, seq2)
   let nd = comps.n_diff
@@ -518,8 +524,10 @@ pub fn codon_test_neutrality(
 pub struct CodonAlignment {
   sequences : Array[String]
   names : Array[String]
-  n_codons : Int // number of codon columns (including gap columns)
+  n_codons : Int32 // number of codon columns (including gap columns)
 } derive(Debug)
+
+///|
 pub extend CodonAlignment with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -533,7 +541,7 @@ pub fn CodonAlignment::names(self : CodonAlignment) -> Array[String] {
 }
 
 ///|
-pub fn CodonAlignment::n_codons(self : CodonAlignment) -> Int {
+pub fn CodonAlignment::n_codons(self : CodonAlignment) -> Int32 {
   self.n_codons
 }
 
@@ -551,7 +559,7 @@ pub fn CodonAlignment::n_codons(self : CodonAlignment) -> Int {
 pub fn build_codon_alignment(
   protein_aln : Array[String],
   nucleotide_seqs : Array[String],
-  names? : Array[String] = [],
+  names~ : Array[String] = [],
 ) -> CodonAlignment raise CodonAlignAdvancedError {
   let n_seqs = protein_aln.length()
   if n_seqs == 0 {
@@ -641,22 +649,24 @@ pub fn build_codon_alignment(
 ///|
 /// One window of a sliding-window dN/dS scan.
 pub struct WindowDnDs {
-  start_codon : Int // 0-based start codon index
-  end_codon : Int // 0-based end codon index (exclusive)
+  start_codon : Int32 // 0-based start codon index
+  end_codon : Int32 // 0-based end codon index (exclusive)
   dn : Double
   ds : Double
   dnds : Double
-  n_codons : Int // number of valid codon pairs in the window
+  n_codons : Int32 // number of valid codon pairs in the window
 } derive(Debug)
+
+///|
 pub extend WindowDnDs with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
-pub fn WindowDnDs::start_codon(self : WindowDnDs) -> Int {
+pub fn WindowDnDs::start_codon(self : WindowDnDs) -> Int32 {
   self.start_codon
 }
 
 ///|
-pub fn WindowDnDs::end_codon(self : WindowDnDs) -> Int {
+pub fn WindowDnDs::end_codon(self : WindowDnDs) -> Int32 {
   self.end_codon
 }
 
@@ -676,7 +686,7 @@ pub fn WindowDnDs::dnds(self : WindowDnDs) -> Double {
 }
 
 ///|
-pub fn WindowDnDs::n_codons(self : WindowDnDs) -> Int {
+pub fn WindowDnDs::n_codons(self : WindowDnDs) -> Int32 {
   self.n_codons
 }
 
@@ -685,6 +695,8 @@ pub fn WindowDnDs::n_codons(self : WindowDnDs) -> Int {
 pub struct SlidingWindowResult {
   windows : Array[WindowDnDs]
 } derive(Debug)
+
+///|
 pub extend SlidingWindowResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -703,8 +715,8 @@ pub fn SlidingWindowResult::windows(
 pub fn sliding_window_dnds(
   seq1 : String,
   seq2 : String,
-  window_size? : Int = 10,
-  step_size? : Int = 5,
+  window_size~ : Int32 = 10,
+  step_size~ : Int32 = 5,
 ) -> SlidingWindowResult raise CodonAlignAdvancedError {
   if window_size < 3 {
     caa_fail("CodonAlign advanced sliding window requires window_size >= 3")
@@ -773,13 +785,13 @@ pub fn codon_align_advanced_bh_fdr(p_values : Array[Double]) -> Array[Double] {
   if count == 0 {
     return output
   }
-  let indexed : Array[(Double, Int)] = []
+  let indexed : Array[(Double, Int32)] = []
   for index in 0..<count {
     let pv = p_values[index]
     let clamped = if pv < 0.0 { 0.0 } else if pv > 1.0 { 1.0 } else { pv }
     indexed.push((clamped, index))
   }
-  indexed.sort_by(fn(left : (Double, Int), right : (Double, Int)) -> Int {
+  indexed.sort_by(fn(left : (Double, Int32), right : (Double, Int32)) -> Int32 {
     if left.0 < right.0 {
       -1
     } else if left.0 > right.0 {
@@ -818,6 +830,8 @@ pub struct KaksTableRow {
   fdr : Double
   conclusion : String
 } derive(Debug)
+
+///|
 pub extend KaksTableRow with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -874,8 +888,8 @@ pub fn KaksTableRow::conclusion(self : KaksTableRow) -> String {
 /// `fdr_threshold` (default 0.05) determines the "significant" conclusion.
 pub fn pairwise_kaks_table(
   sequences : Array[String],
-  names? : Array[String] = [],
-  fdr_threshold? : Double = 0.05,
+  names~ : Array[String] = [],
+  fdr_threshold~ : Double = 0.05,
 ) -> Array[KaksTableRow] raise CodonAlignAdvancedError {
   let n = sequences.length()
   if n < 2 {
@@ -892,7 +906,7 @@ pub fn pairwise_kaks_table(
     }
   }
   // Collect raw results and p-values.
-  let raw : Array[(Int, Int, SelectionTestResult)] = []
+  let raw : Array[(Int32, Int32, SelectionTestResult)] = []
   let p_values : Array[Double] = []
   let mut i = 0
   while i < n {

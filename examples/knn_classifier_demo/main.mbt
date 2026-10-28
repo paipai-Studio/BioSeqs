@@ -31,5 +31,7 @@ fn main {
 
   println("\n5. Feature normalization")
   let normalized = @src.knn_normalize_samples(train, mode="minmax")
-  println("  Min-max normalized first sample: " + normalized[0].features.to_string())
+  println(
+    "  Min-max normalized first sample: " + normalized[0].features.to_string(),
+  )
 }

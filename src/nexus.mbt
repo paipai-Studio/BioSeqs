@@ -249,7 +249,7 @@ pub fn NexusFile::get_distance_matrix(
 }
 
 ///|
-pub fn NexusFile::get_num_taxa(self : NexusFile) -> Int {
+pub fn NexusFile::get_num_taxa(self : NexusFile) -> Int32 {
   self.taxa.length()
 }
 

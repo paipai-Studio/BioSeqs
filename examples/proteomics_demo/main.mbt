@@ -34,14 +34,17 @@ fn main {
       pep.monoisotopic_mass.to_string() +
       ", avg: " +
       pep.average_mass.to_string() +
-      ")"
+      ")",
     )
     p = p + 1
   }
 
   println("\n=== Trypsin Digestion with Missed Cleavages (1) ===")
   let mc_result = @bio.proteomics_trypsin_digest(protein_seq, 1)
-  println("Number of peptides with 1 missed cleavage: " + mc_result.num_peptides.to_string())
+  println(
+    "Number of peptides with 1 missed cleavage: " +
+    mc_result.num_peptides.to_string(),
+  )
 
   println("\n=== Chymotrypsin Digestion ===")
   let chymo_result = @bio.proteomics_digest(protein_seq, "chymotrypsin")
@@ -70,7 +73,7 @@ fn main {
       ": m/z = " +
       pattern.masses[i2].to_string() +
       ", abundance = " +
-      pattern.abundances[i2].to_string()
+      pattern.abundances[i2].to_string(),
     )
     i2 = i2 + 1
   }
@@ -87,7 +90,7 @@ fn main {
       ": mono = " +
       frag.monoisotopic_mass.to_string() +
       ", avg = " +
-      frag.average_mass.to_string()
+      frag.average_mass.to_string(),
     )
     f = f + 1
   }

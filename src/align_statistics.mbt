@@ -8,10 +8,10 @@
 ///|
 /// Alignment statistics parameters.
 pub struct AlignStats {
-  lambda : Double    // Karlin-Altschul lambda
-  k : Double         // Karlin-Altschul K
-  h : Double         // relative entropy
-  score_mean : Double  // expected score per aligned position
+  lambda : Double // Karlin-Altschul lambda
+  k : Double // Karlin-Altschul K
+  h : Double // relative entropy
+  score_mean : Double // expected score per aligned position
 }
 
 ///|
@@ -24,8 +24,8 @@ pub struct AlignStats {
 ///   `stats` — pre-computed lambda, K, H
 pub fn evalue(
   score : Double,
-  m : Int,
-  n : Int,
+  m : Int32,
+  n : Int32,
   stats : AlignStats,
 ) -> Double {
   // E = K * m * n * exp(-lambda * S)
@@ -44,21 +44,14 @@ pub fn pvalue(e_value : Double) -> Double {
 ///|
 /// Compute bit-score from raw score.
 /// S' = (lambda * S - ln(K)) / ln(2)
-pub fn bit_score(
-  score : Double,
-  stats : AlignStats,
-) -> Double {
+pub fn bit_score(score : Double, stats : AlignStats) -> Double {
   (stats.lambda * score - @math.ln(stats.k)) / 0.6931471805599453
 }
 
 ///|
 /// Compute E-value from bit-score.
 /// E = m * n / 2^S'
-pub fn evalue_from_bitscore(
-  bitscore : Double,
-  m : Int,
-  n : Int,
-) -> Double {
+pub fn evalue_from_bitscore(bitscore : Double, m : Int32, n : Int32) -> Double {
   let m_d = m.to_double()
   let n_d = n.to_double()
   m_d * n_d / pow2(bitscore)
@@ -112,7 +105,7 @@ pub fn estimate_karlin_altschul(
     }
     hi = hi * 2.0
   }
-  if !(found_upper) {
+  if !found_upper {
     return None
   }
   // Binary search
@@ -140,26 +133,21 @@ pub fn estimate_karlin_altschul(
   // K estimation (simplified): K ≈ 1.0 (conservative)
   // Full K estimation is complex; this is a rough approximation
   let k = 1.0
-  Some(AlignStats::{
-    lambda,
-    k,
-    h,
-    score_mean: expected_score,
-  })
+  Some(AlignStats::{ lambda, k, h, score_mean: expected_score, })
 }
 
 ///|
 /// Pre-computed BLASTN parameters (NCBI defaults).
 /// lambda = 1.37, K = 0.711, H = 1.31
 pub fn blastn_stats() -> AlignStats {
-  AlignStats::{ lambda: 1.37, k: 0.711, h: 1.31, score_mean: -1.0 }
+  AlignStats::{ lambda: 1.37, k: 0.711, h: 1.31, score_mean: -1.0, }
 }
 
 ///|
 /// Pre-computed BLOSUM62 parameters (NCBI defaults).
 /// lambda = 0.318, K = 0.134, H = 0.481
 pub fn blosum62_stats() -> AlignStats {
-  AlignStats::{ lambda: 0.318, k: 0.134, h: 0.481, score_mean: -0.52 }
+  AlignStats::{ lambda: 0.318, k: 0.134, h: 0.481, score_mean: -0.52, }
 }
 
 ///|

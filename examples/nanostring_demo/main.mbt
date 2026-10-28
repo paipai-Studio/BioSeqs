@@ -24,17 +24,17 @@ fn main {
   for s in samples {
     println(
       "  " +
-        s.sample_id() +
-        ": raw=" +
-        s.raw_counts().length().to_string() +
-        " pos_ctrl=" +
-        s.positive_controls().length().to_string() +
-        " neg_ctrl=" +
-        s.negative_controls().length().to_string() +
-        " hk=" +
-        s.housekeeping().length().to_string() +
-        " endo=" +
-        s.endogenous().length().to_string(),
+      s.sample_id() +
+      ": raw=" +
+      s.raw_counts().length().to_string() +
+      " pos_ctrl=" +
+      s.positive_controls().length().to_string() +
+      " neg_ctrl=" +
+      s.negative_controls().length().to_string() +
+      " hk=" +
+      s.housekeeping().length().to_string() +
+      " endo=" +
+      s.endogenous().length().to_string(),
     )
   }
   println("")
@@ -57,13 +57,13 @@ fn main {
   for r in pos_results {
     println(
       "  " +
-        r.sample_id() +
-        ": factor=" +
-        r.norm_factors()[0].to_string() +
-        " method=" +
-        r.method_() +
-        " first_count=" +
-        r.normalized_counts()[0].to_string(),
+      r.sample_id() +
+      ": factor=" +
+      r.norm_factors()[0].to_string() +
+      " method=" +
+      r.method_() +
+      " first_count=" +
+      r.normalized_counts()[0].to_string(),
     )
   }
   println("")
@@ -76,13 +76,13 @@ fn main {
   for r in neg_results {
     println(
       "  " +
-        r.sample_id() +
-        ": factor=" +
-        r.norm_factors()[0].to_string() +
-        " method=" +
-        r.method_() +
-        " first_count=" +
-        r.normalized_counts()[0].to_string(),
+      r.sample_id() +
+      ": factor=" +
+      r.norm_factors()[0].to_string() +
+      " method=" +
+      r.method_() +
+      " first_count=" +
+      r.normalized_counts()[0].to_string(),
     )
   }
   println("")
@@ -95,13 +95,13 @@ fn main {
   for r in hk_results {
     println(
       "  " +
-        r.sample_id() +
-        ": factor=" +
-        r.norm_factors()[0].to_string() +
-        " method=" +
-        r.method_() +
-        " first_count=" +
-        r.normalized_counts()[0].to_string(),
+      r.sample_id() +
+      ": factor=" +
+      r.norm_factors()[0].to_string() +
+      " method=" +
+      r.method_() +
+      " first_count=" +
+      r.normalized_counts()[0].to_string(),
     )
   }
   println("")
@@ -114,19 +114,22 @@ fn main {
   for r in content_results {
     let n_factors = r.norm_factors().length()
     let factors_str = if n_factors >= 2 {
-      "pos=" + r.norm_factors()[0].to_string() + ", hk=" + r.norm_factors()[1].to_string()
+      "pos=" +
+      r.norm_factors()[0].to_string() +
+      ", hk=" +
+      r.norm_factors()[1].to_string()
     } else {
       "factor=" + r.norm_factors()[0].to_string()
     }
     println(
       "  " +
-        r.sample_id() +
-        ": " +
-        factors_str +
-        " method=" +
-        r.method_() +
-        " first_count=" +
-        r.normalized_counts()[0].to_string(),
+      r.sample_id() +
+      ": " +
+      factors_str +
+      " method=" +
+      r.method_() +
+      " first_count=" +
+      r.normalized_counts()[0].to_string(),
     )
   }
   println("")
@@ -142,26 +145,31 @@ fn main {
   for i in 0..<samples.length() {
     println(
       "  " +
-        samples[i].sample_id() +
-        ": pass=" +
-        imaging[i].to_string() +
-        ", below_LOQ=" +
-        loq[i].to_string(),
+      samples[i].sample_id() +
+      ": pass=" +
+      imaging[i].to_string() +
+      ", below_LOQ=" +
+      loq[i].to_string(),
     )
   }
-  println("Positive control linearity: R^2=" + r_sq.to_string() + ", slope=" + slope.to_string())
+  println(
+    "Positive control linearity: R^2=" +
+    r_sq.to_string() +
+    ", slope=" +
+    slope.to_string(),
+  )
   println("")
 
   // ------------------------------------------------------------------
   // 8. Differential expression analysis
   // ------------------------------------------------------------------
   println("=== 8. Differential expression analysis ===")
-  let group : Array[Bool] = [
-    false, false, false, true, true, true,
-  ]
+  let group : Array[Bool] = [false, false, false, true, true, true]
   println("Group: 3 control (false) + 3 treatment (true)")
   let de_results = @bio.ns_differential_expression(
-    content_results, group, data.gene_names(),
+    content_results,
+    group,
+    data.gene_names(),
   )
   let mut n_sig = 0
   let mut n_up = 0
@@ -205,15 +213,15 @@ fn main {
     let flag = if r.significant() { "*" } else { " " }
     println(
       "  " +
-        flag +
-        " " +
-        r.gene() +
-        " logFC=" +
-        r.log_fc().to_string() +
-        " p=" +
-        r.p_value().to_string() +
-        " adjP=" +
-        r.adj_p_value().to_string(),
+      flag +
+      " " +
+      r.gene() +
+      " logFC=" +
+      r.log_fc().to_string() +
+      " p=" +
+      r.p_value().to_string() +
+      " adjP=" +
+      r.adj_p_value().to_string(),
     )
   }
   println("")

@@ -5,7 +5,7 @@
 
 ///|
 /// Parse an integer from a string, returning None on failure.
-fn hts_parse_int(s : String) -> Int? {
+fn hts_parse_int(s : String) -> Int32? {
   if s.length() == 0 {
     return None
   }
@@ -34,8 +34,8 @@ fn hts_parse_int(s : String) -> Int? {
 /// A single genomic interval (0-based, half-open [beg, end)).
 pub struct HtsRegion {
   chrom : String
-  beg : Int // 0-based start
-  end : Int // 0-based end (exclusive)
+  beg : Int32 // 0-based start
+  end : Int32 // 0-based end (exclusive)
 }
 
 ///|
@@ -53,7 +53,7 @@ pub fn hts_parse_region_str(s : String) -> HtsRegion? {
     }
   }
   if colon_idx == -1 {
-    return Some(HtsRegion::{ chrom: s, beg: 0, end: 0x7FFFFFFF })
+    return Some(HtsRegion::{ chrom: s, beg: 0, end: 0x7FFFFFFF, })
   }
   let chrom = s[:colon_idx].to_owned()
   let range_str = s[colon_idx + 1:].to_owned()
@@ -69,13 +69,14 @@ pub fn hts_parse_region_str(s : String) -> HtsRegion? {
     // chr1:100 → single position
     match hts_parse_int(range_str.to_string()) {
       None => None
-      Some(p) => Some(HtsRegion::{ chrom, beg: p - 1, end: p })
+      Some(p) => Some(HtsRegion::{ chrom, beg: p - 1, end: p, })
     }
   } else {
     let start_str = range_str[:dash_idx].to_owned()
     let stop_str = range_str[dash_idx + 1:].to_owned()
     match (hts_parse_int(start_str), hts_parse_int(stop_str)) {
-      (Some(s_val), Some(e_val)) => Some(HtsRegion::{ chrom, beg: s_val - 1, end: e_val })
+      (Some(s_val), Some(e_val)) =>
+        Some(HtsRegion::{ chrom, beg: s_val - 1, end: e_val, })
       _ => None
     }
   }
@@ -110,22 +111,27 @@ pub fn hts_parse_region_list(s : String) -> Array[HtsRegion] {
 /// Stores regions grouped by chromosome, sorted and merged.
 pub struct HtsRegIdx {
   // chromosome name → list of merged intervals
-  chroms : Map[String, Array[(Int, Int)]]
+  chroms : Map[String, Array[(Int32, Int32)]]
 }
 
 ///|
 /// Create an empty region index.
 pub fn HtsRegIdx::new() -> HtsRegIdx {
-  HtsRegIdx::{ chroms: Map([]) }
+  HtsRegIdx::{ chroms: Map([]), }
 }
 
 ///|
 /// Insert a single region into the index.
-pub fn HtsRegIdx::insert(self : HtsRegIdx, chrom : String, beg : Int, end : Int) -> Unit {
+pub fn HtsRegIdx::insert(
+  self : HtsRegIdx,
+  chrom : String,
+  beg : Int32,
+  end : Int32,
+) -> Unit {
   let intervals = match self.chroms.get(chrom) {
     Some(arr) => arr
     None => {
-      let arr : Array[(Int, Int)] = []
+      let arr : Array[(Int32, Int32)] = []
       self.chroms[chrom] = arr
       arr
     }
@@ -195,7 +201,7 @@ fn HtsRegIdx::compact(self : HtsRegIdx, chrom : String) -> Unit {
   })
   // Merge overlapping/adjacent
   let (i0b, i0e) = intervals[0]
-  let merged : Array[(Int, Int)] = [(i0b, i0e)]
+  let merged : Array[(Int32, Int32)] = [(i0b, i0e)]
   for i = 1; i < intervals.length(); i = i + 1 {
     let (lbeg, lend) = merged[merged.length() - 1]
     let (cbeg, cend) = intervals[i]
@@ -225,8 +231,8 @@ pub fn HtsRegIdx::compact_all(self : HtsRegIdx) -> Unit {
 pub fn HtsRegIdx::overlap(
   self : HtsRegIdx,
   chrom : String,
-  beg : Int,
-  end : Int,
+  beg : Int32,
+  end : Int32,
 ) -> Bool {
   let intervals = match self.chroms.get(chrom) {
     Some(arr) => arr
@@ -246,10 +252,10 @@ pub fn HtsRegIdx::overlap(
 pub fn HtsRegIdx::overlapping(
   self : HtsRegIdx,
   chrom : String,
-  beg : Int,
-  end : Int,
-) -> Array[(Int, Int)] {
-  let result : Array[(Int, Int)] = []
+  beg : Int32,
+  end : Int32,
+) -> Array[(Int32, Int32)] {
+  let result : Array[(Int32, Int32)] = []
   let intervals = match self.chroms.get(chrom) {
     Some(arr) => arr
     None => return result
@@ -265,7 +271,7 @@ pub fn HtsRegIdx::overlapping(
 
 ///|
 /// Get the number of regions for a given chromosome.
-pub fn HtsRegIdx::seq_nregs(self : HtsRegIdx, chrom : String) -> Int {
+pub fn HtsRegIdx::seq_nregs(self : HtsRegIdx, chrom : String) -> Int32 {
   match self.chroms.get(chrom) {
     Some(arr) => arr.length()
     None => 0
@@ -274,7 +280,7 @@ pub fn HtsRegIdx::seq_nregs(self : HtsRegIdx, chrom : String) -> Int {
 
 ///|
 /// Get the total number of regions across all chromosomes.
-pub fn HtsRegIdx::nregs(self : HtsRegIdx) -> Int {
+pub fn HtsRegIdx::nregs(self : HtsRegIdx) -> Int32 {
   let mut total = 0
   for v in self.chroms.values() {
     total = total + v.length()

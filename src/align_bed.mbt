@@ -15,41 +15,57 @@ pub enum AlignBedScore {
   AlignBedNumeric(Double)
   AlignBedText(String)
 } derive(Eq, Debug)
+
+///|
 pub extend AlignBedScore with Eq::{equal, not_equal}
+
+///|
 pub extend AlignBedScore with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// One point in the target/query absolute coordinate path.
 pub struct AlignBedCoordinate {
-  target : Int
-  query : Int
+  target : Int32
+  query : Int32
 } derive(Eq, Debug)
+
+///|
 pub extend AlignBedCoordinate with Eq::{equal, not_equal}
+
+///|
 pub extend AlignBedCoordinate with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// One aligned BED block in absolute target and query coordinates.
 pub struct AlignBedBlock {
-  target_start : Int
-  target_end : Int
-  query_start : Int
-  query_end : Int
+  target_start : Int32
+  target_end : Int32
+  query_start : Int32
+  query_end : Int32
 } derive(Eq, Debug)
+
+///|
 pub extend AlignBedBlock with Eq::{equal, not_equal}
+
+///|
 pub extend AlignBedBlock with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Coordinate-only alignment counts.
 pub struct AlignBedCounts {
-  aligned : Int
-  target_skip_bases : Int
-  query_skip_bases : Int
-  target_skip_opens : Int
-  query_skip_opens : Int
-  blocks : Int
-  columns : Int
+  aligned : Int32
+  target_skip_bases : Int32
+  query_skip_bases : Int32
+  target_skip_opens : Int32
+  query_skip_opens : Int32
+  blocks : Int32
+  columns : Int32
 } derive(Eq, Debug)
+
+///|
 pub extend AlignBedCounts with Eq::{equal, not_equal}
+
+///|
 pub extend AlignBedCounts with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -63,26 +79,34 @@ pub struct AlignBedAlignment {
   query_id : String?
   coordinates : Array[AlignBedCoordinate]
   score : AlignBedScore?
-  thick_start : Int?
-  thick_end : Int?
+  thick_start : Int32?
+  thick_end : Int32?
   item_rgb : String?
-  source_columns : Int
+  source_columns : Int32
 } derive(Eq, Debug)
+
+///|
 pub extend AlignBedAlignment with Eq::{equal, not_equal}
+
+///|
 pub extend AlignBedAlignment with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Summary across all records in a BED document.
 pub struct AlignBedSummary {
-  alignment_count : Int
-  target_count : Int
-  query_count : Int
-  plus_strand_count : Int
-  minus_strand_count : Int
-  aligned_bases : Int
-  target_skip_bases : Int
+  alignment_count : Int32
+  target_count : Int32
+  query_count : Int32
+  plus_strand_count : Int32
+  minus_strand_count : Int32
+  aligned_bases : Int32
+  target_skip_bases : Int32
 } derive(Eq, Debug)
+
+///|
 pub extend AlignBedSummary with Eq::{equal, not_equal}
+
+///|
 pub extend AlignBedSummary with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -90,7 +114,11 @@ pub extend AlignBedSummary with @moonbitlang/core/debug.Debug::{to_repr}
 pub struct AlignBedDocument {
   alignments : Array[AlignBedAlignment]
 } derive(Eq, Debug)
+
+///|
 pub extend AlignBedDocument with Eq::{equal, not_equal}
+
+///|
 pub extend AlignBedDocument with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -99,7 +127,7 @@ fn align_bed_fail(message : String) -> Unit raise AlignBedError {
 }
 
 ///|
-fn align_bed_abs(value : Int) -> Int {
+fn align_bed_abs(value : Int32) -> Int32 {
   if value < 0 {
     -value
   } else {
@@ -108,7 +136,7 @@ fn align_bed_abs(value : Int) -> Int {
 }
 
 ///|
-fn align_bed_min(left : Int, right : Int) -> Int {
+fn align_bed_min(left : Int32, right : Int32) -> Int32 {
   if left < right {
     left
   } else {
@@ -117,7 +145,7 @@ fn align_bed_min(left : Int, right : Int) -> Int {
 }
 
 ///|
-fn align_bed_max(left : Int, right : Int) -> Int {
+fn align_bed_max(left : Int32, right : Int32) -> Int32 {
   if left > right {
     left
   } else {
@@ -126,7 +154,7 @@ fn align_bed_max(left : Int, right : Int) -> Int {
 }
 
 ///|
-fn align_bed_sign(value : Int) -> Int {
+fn align_bed_sign(value : Int32) -> Int32 {
   if value < 0 {
     -1
   } else if value > 0 {
@@ -343,8 +371,8 @@ fn align_bed_validate_alignment(
 ///|
 /// Construct one coordinate point.
 pub fn AlignBedCoordinate::create(
-  target : Int,
-  query : Int,
+  target : Int32,
+  query : Int32,
 ) -> AlignBedCoordinate raise AlignBedError {
   if target < 0 || query < 0 {
     align_bed_fail("BED coordinates must be non-negative")
@@ -394,11 +422,11 @@ pub fn AlignBedAlignment::create(
   target_id : String,
   query_id : String?,
   coordinates : Array[AlignBedCoordinate],
-  score? : AlignBedScore? = None,
-  thick_start? : Int? = None,
-  thick_end? : Int? = None,
-  item_rgb? : String? = None,
-  source_columns? : Int = 12,
+  score~ : AlignBedScore? = None,
+  thick_start~ : Int32? = None,
+  thick_end~ : Int32? = None,
+  item_rgb~ : String? = None,
+  source_columns~ : Int32 = 12,
 ) -> AlignBedAlignment raise AlignBedError {
   let alignment = AlignBedAlignment::{
     target_id,
@@ -455,7 +483,7 @@ fn align_bed_split_lines(value : String) -> Array[String] {
 }
 
 ///|
-fn align_bed_is_whitespace(code : Int) -> Bool {
+fn align_bed_is_whitespace(code : Int32) -> Bool {
   code == ' '.to_int() ||
   code == '\t'.to_int() ||
   code == '\r'.to_int() ||
@@ -503,7 +531,7 @@ fn align_bed_split_whitespace(value : String) -> Array[String] {
 fn align_bed_parse_uint(
   value : String,
   label : String,
-) -> Int raise AlignBedError {
+) -> Int32 raise AlignBedError {
   if value.length() == 0 {
     align_bed_fail(label + " must be an unsigned integer")
   }
@@ -607,8 +635,8 @@ fn align_bed_parse_score(value : String) -> AlignBedScore raise AlignBedError {
 fn align_bed_parse_uint_list(
   value : String,
   label : String,
-) -> Array[Int] raise AlignBedError {
-  let values : Array[Int] = []
+) -> Array[Int32] raise AlignBedError {
+  let values : Array[Int32] = []
   let mut start = 0
   for index in 0..<value.length() {
     if value.unsafe_get(index).to_int() == ','.to_int() {
@@ -641,10 +669,10 @@ fn align_bed_parse_uint_list(
 
 ///|
 fn align_bed_validate_blocks(
-  span : Int,
-  count : Int,
-  sizes : Array[Int],
-  starts : Array[Int],
+  span : Int32,
+  count : Int32,
+  sizes : Array[Int32],
+  starts : Array[Int32],
 ) -> Unit raise AlignBedError {
   if count <= 0 {
     align_bed_fail("BED blockCount must be positive")
@@ -680,10 +708,10 @@ fn align_bed_validate_blocks(
 
 ///|
 fn align_bed_infer_starts(
-  span : Int,
-  sizes : Array[Int],
-) -> Array[Int] raise AlignBedError {
-  let starts : Array[Int] = []
+  span : Int32,
+  sizes : Array[Int32],
+) -> Array[Int32] raise AlignBedError {
+  let starts : Array[Int32] = []
   let mut position = 0
   for size in sizes {
     if size <= 0 || position > span || size > span - position {
@@ -702,10 +730,10 @@ fn align_bed_infer_starts(
 
 ///|
 fn align_bed_coordinates_from_blocks(
-  chrom_start : Int,
+  chrom_start : Int32,
   strand : String,
-  sizes : Array[Int],
-  starts : Array[Int],
+  sizes : Array[Int32],
+  starts : Array[Int32],
 ) -> Array[AlignBedCoordinate] {
   let coordinates : Array[AlignBedCoordinate] = []
   let mut query_position = 0
@@ -740,7 +768,7 @@ fn align_bed_coordinates_from_blocks(
 ///|
 fn align_bed_parse_line(
   line : String,
-  line_number : Int,
+  line_number : Int32,
 ) -> AlignBedAlignment raise AlignBedError {
   let words = align_bed_split_whitespace(line)
   let bed_columns = words.length()
@@ -799,8 +827,8 @@ fn align_bed_parse_line(
   } else {
     None
   }
-  let sizes : Array[Int] = []
-  let starts : Array[Int] = []
+  let sizes : Array[Int32] = []
+  let starts : Array[Int32] = []
   if bed_columns <= 9 {
     sizes.push(span)
     starts.push(0)
@@ -896,20 +924,20 @@ pub fn AlignBedAlignment::strand(self : AlignBedAlignment) -> String {
 
 ///|
 /// Return the first aligned target coordinate.
-pub fn AlignBedAlignment::target_start(self : AlignBedAlignment) -> Int {
+pub fn AlignBedAlignment::target_start(self : AlignBedAlignment) -> Int32 {
   self.blocks()[0].target_start
 }
 
 ///|
 /// Return the exclusive final aligned target coordinate.
-pub fn AlignBedAlignment::target_end(self : AlignBedAlignment) -> Int {
+pub fn AlignBedAlignment::target_end(self : AlignBedAlignment) -> Int32 {
   let blocks = self.blocks()
   blocks[blocks.length() - 1].target_end
 }
 
 ///|
 /// Return the query length represented by BED blocks.
-pub fn AlignBedAlignment::query_size(self : AlignBedAlignment) -> Int {
+pub fn AlignBedAlignment::query_size(self : AlignBedAlignment) -> Int32 {
   let mut size = 0
   for block in self.blocks() {
     size = size + (block.target_end - block.target_start)
@@ -919,13 +947,13 @@ pub fn AlignBedAlignment::query_size(self : AlignBedAlignment) -> Int {
 
 ///|
 /// Return the number of aligned target/query residues.
-pub fn AlignBedAlignment::aligned_bases(self : AlignBedAlignment) -> Int {
+pub fn AlignBedAlignment::aligned_bases(self : AlignBedAlignment) -> Int32 {
   self.query_size()
 }
 
 ///|
 /// Return the target span between the first and final aligned blocks.
-pub fn AlignBedAlignment::target_span(self : AlignBedAlignment) -> Int {
+pub fn AlignBedAlignment::target_span(self : AlignBedAlignment) -> Int32 {
   self.target_end() - self.target_start()
 }
 
@@ -967,12 +995,12 @@ pub fn AlignBedAlignment::counts(self : AlignBedAlignment) -> AlignBedCounts {
 
 ///|
 fn align_bed_map_on_segment(
-  source : Int,
-  source_start : Int,
-  source_end : Int,
-  destination_start : Int,
-  destination_end : Int,
-) -> Int? {
+  source : Int32,
+  source_start : Int32,
+  source_end : Int32,
+  destination_start : Int32,
+  destination_end : Int32,
+) -> Int32? {
   let source_step = source_end - source_start
   let destination_step = destination_end - destination_start
   if source_step == 0 ||
@@ -1002,8 +1030,8 @@ fn align_bed_map_on_segment(
 /// Map one target residue to the query, returning `None` in an intron/gap.
 pub fn AlignBedAlignment::map_target_position(
   self : AlignBedAlignment,
-  position : Int,
-) -> Int? {
+  position : Int32,
+) -> Int32? {
   if position < 0 {
     return None
   }
@@ -1029,8 +1057,8 @@ pub fn AlignBedAlignment::map_target_position(
 /// Map one query residue to the target, returning `None` in an unaligned gap.
 pub fn AlignBedAlignment::map_query_position(
   self : AlignBedAlignment,
-  position : Int,
-) -> Int? {
+  position : Int32,
+) -> Int32? {
   if position < 0 {
     return None
   }
@@ -1057,8 +1085,8 @@ pub fn AlignBedAlignment::map_query_position(
 pub fn AlignBedAlignment::overlaps(
   self : AlignBedAlignment,
   target_id : String,
-  start : Int,
-  end : Int,
+  start : Int32,
+  end : Int32,
 ) -> Bool {
   end > start &&
   self.target_id == target_id &&
@@ -1079,7 +1107,7 @@ fn align_bed_join_tabs(fields : Array[String]) -> String {
 }
 
 ///|
-fn align_bed_integer_list(values : Array[Int]) -> String {
+fn align_bed_integer_list(values : Array[Int32]) -> String {
   let output = StringBuilder()
   for value in values {
     output.write_string(value.to_string())
@@ -1100,7 +1128,7 @@ fn align_bed_score_text(score : AlignBedScore) -> String {
 /// Format one alignment using BED3 through BED12.
 pub fn align_bed_format(
   alignment : AlignBedAlignment,
-  bed_columns? : Int = 12,
+  bed_columns~ : Int32 = 12,
 ) -> String raise AlignBedError {
   if bed_columns < 3 || bed_columns > 12 {
     align_bed_fail("BED column count must be between 3 and 12")
@@ -1153,8 +1181,8 @@ pub fn align_bed_format(
   if bed_columns == 10 {
     return align_bed_join_tabs(fields) + "\n"
   }
-  let block_sizes : Array[Int] = []
-  let block_starts : Array[Int] = []
+  let block_sizes : Array[Int32] = []
+  let block_starts : Array[Int32] = []
   for block in blocks {
     block_sizes.push(block.target_end - block.target_start)
     block_starts.push(block.target_start - chrom_start)
@@ -1171,7 +1199,7 @@ pub fn align_bed_format(
 /// Serialize all records in a BED document.
 pub fn align_bed_write(
   document : AlignBedDocument,
-  bed_columns? : Int = 12,
+  bed_columns~ : Int32 = 12,
 ) -> String raise AlignBedError {
   let validated = AlignBedDocument::create(document.alignments)
   let output = StringBuilder()
@@ -1186,8 +1214,8 @@ pub fn align_bed_write(
 pub fn AlignBedDocument::search(
   self : AlignBedDocument,
   target_id : String,
-  start : Int,
-  end : Int,
+  start : Int32,
+  end : Int32,
 ) -> Array[AlignBedAlignment] raise AlignBedError {
   if start < 0 || end <= start {
     align_bed_fail("BED search interval must satisfy 0 <= start < end")

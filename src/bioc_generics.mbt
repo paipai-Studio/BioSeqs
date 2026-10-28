@@ -4,8 +4,9 @@
 /// Provides generic functions shared across Bioconductor packages.
 
 ///|
+
 ///|
-pub fn na_int() -> Int {
+pub fn na_int() -> Int32 {
   -2147483648
 }
 
@@ -20,7 +21,7 @@ pub fn na_string() -> String {
 }
 
 ///|
-pub fn is_na_int(x : Int) -> Bool {
+pub fn is_na_int(x : Int32) -> Bool {
   x == -2147483648
 }
 
@@ -35,7 +36,7 @@ pub fn is_na_string(x : String) -> Bool {
 }
 
 ///|
-pub fn any_na_int(arr : Array[Int]) -> Bool {
+pub fn any_na_int(arr : Array[Int32]) -> Bool {
   let mut i = 0
   while i < arr.length() {
     if is_na_int(arr[i]) {
@@ -71,8 +72,8 @@ pub fn any_na_string(arr : Array[String]) -> Bool {
 }
 
 ///|
-pub fn na_omit_int(arr : Array[Int]) -> Array[Int] {
-  let result : Array[Int] = Array(capacity=0)
+pub fn na_omit_int(arr : Array[Int32]) -> Array[Int32] {
+  let result : Array[Int32] = Array(capacity=0)
   let mut i = 0
   while i < arr.length() {
     if !is_na_int(arr[i]) {
@@ -110,8 +111,8 @@ pub fn na_omit_string(arr : Array[String]) -> Array[String] {
 }
 
 ///|
-pub fn which_int(arr : Array[Int], value : Int) -> Array[Int] {
-  let result : Array[Int] = Array(capacity=0)
+pub fn which_int(arr : Array[Int32], value : Int32) -> Array[Int32] {
+  let result : Array[Int32] = Array(capacity=0)
   let mut i = 0
   while i < arr.length() {
     if arr[i] == value {
@@ -123,8 +124,8 @@ pub fn which_int(arr : Array[Int], value : Int) -> Array[Int] {
 }
 
 ///|
-pub fn which_double(arr : Array[Double], value : Double) -> Array[Int] {
-  let result : Array[Int] = Array(capacity=0)
+pub fn which_double(arr : Array[Double], value : Double) -> Array[Int32] {
+  let result : Array[Int32] = Array(capacity=0)
   let mut i = 0
   while i < arr.length() {
     if arr[i] == value {
@@ -136,8 +137,8 @@ pub fn which_double(arr : Array[Double], value : Double) -> Array[Int] {
 }
 
 ///|
-pub fn which_bool(arr : Array[Bool]) -> Array[Int] {
-  let result : Array[Int] = Array(capacity=0)
+pub fn which_bool(arr : Array[Bool]) -> Array[Int32] {
+  let result : Array[Int32] = Array(capacity=0)
   let mut i = 0
   while i < arr.length() {
     if arr[i] {
@@ -149,9 +150,9 @@ pub fn which_bool(arr : Array[Bool]) -> Array[Int] {
 }
 
 ///|
-pub fn order_int(arr : Array[Int]) -> Array[Int] {
+pub fn order_int(arr : Array[Int32]) -> Array[Int32] {
   let n = arr.length()
-  let indices : Array[Int] = Array(capacity=0)
+  let indices : Array[Int32] = Array(capacity=0)
   let mut i = 0
   while i < n {
     indices.push(i)
@@ -178,9 +179,9 @@ pub fn order_int(arr : Array[Int]) -> Array[Int] {
 }
 
 ///|
-pub fn order_double(arr : Array[Double]) -> Array[Int] {
+pub fn order_double(arr : Array[Double]) -> Array[Int32] {
   let n = arr.length()
-  let indices : Array[Int] = Array(capacity=0)
+  let indices : Array[Int32] = Array(capacity=0)
   let mut i = 0
   while i < n {
     indices.push(i)
@@ -207,9 +208,9 @@ pub fn order_double(arr : Array[Double]) -> Array[Int] {
 }
 
 ///|
-pub fn sort_int(arr : Array[Int]) -> Array[Int] {
+pub fn sort_int(arr : Array[Int32]) -> Array[Int32] {
   let indices = order_int(arr)
-  let result : Array[Int] = Array(capacity=0)
+  let result : Array[Int32] = Array(capacity=0)
   let mut i = 0
   while i < indices.length() {
     result.push(arr[indices[i]])
@@ -231,8 +232,8 @@ pub fn sort_double(arr : Array[Double]) -> Array[Double] {
 }
 
 ///|
-pub fn unique_int(arr : Array[Int]) -> Array[Int] {
-  let result : Array[Int] = Array(capacity=0)
+pub fn unique_int(arr : Array[Int32]) -> Array[Int32] {
+  let result : Array[Int32] = Array(capacity=0)
   let seen = Map([], capacity=arr.length())
 
   let mut i = 0
@@ -282,8 +283,8 @@ pub fn unique_string(arr : Array[String]) -> Array[String] {
 }
 
 ///|
-pub fn match_int(x : Array[Int], table : Array[Int]) -> Array[Int] {
-  let result : Array[Int] = Array(capacity=0)
+pub fn match_int(x : Array[Int32], table : Array[Int32]) -> Array[Int32] {
+  let result : Array[Int32] = Array(capacity=0)
   let table_map = Map([], capacity=table.length())
 
   let mut i = 0
@@ -306,8 +307,8 @@ pub fn match_int(x : Array[Int], table : Array[Int]) -> Array[Int] {
 }
 
 ///|
-pub fn match_string(x : Array[String], table : Array[String]) -> Array[Int] {
-  let result : Array[Int] = Array(capacity=0)
+pub fn match_string(x : Array[String], table : Array[String]) -> Array[Int32] {
+  let result : Array[Int32] = Array(capacity=0)
   let table_map = Map([], capacity=table.length())
 
   let mut i = 0
@@ -330,8 +331,8 @@ pub fn match_string(x : Array[String], table : Array[String]) -> Array[Int] {
 }
 
 ///|
-pub fn intersect_int(x : Array[Int], y : Array[Int]) -> Array[Int] {
-  let result : Array[Int] = Array(capacity=0)
+pub fn intersect_int(x : Array[Int32], y : Array[Int32]) -> Array[Int32] {
+  let result : Array[Int32] = Array(capacity=0)
   let y_set = Map([], capacity=y.length())
 
   let mut i = 0
@@ -374,8 +375,8 @@ pub fn intersect_string(x : Array[String], y : Array[String]) -> Array[String] {
 }
 
 ///|
-pub fn union_int(x : Array[Int], y : Array[Int]) -> Array[Int] {
-  let result : Array[Int] = Array(capacity=0)
+pub fn union_int(x : Array[Int32], y : Array[Int32]) -> Array[Int32] {
+  let result : Array[Int32] = Array(capacity=0)
   let seen = Map([], capacity=x.length() + y.length())
 
   let mut i = 0
@@ -426,8 +427,8 @@ pub fn union_string(x : Array[String], y : Array[String]) -> Array[String] {
 }
 
 ///|
-pub fn setdiff_int(x : Array[Int], y : Array[Int]) -> Array[Int] {
-  let result : Array[Int] = Array(capacity=0)
+pub fn setdiff_int(x : Array[Int32], y : Array[Int32]) -> Array[Int32] {
+  let result : Array[Int32] = Array(capacity=0)
   let y_set = Map([], capacity=y.length())
 
   let mut i = 0
@@ -470,7 +471,7 @@ pub fn setdiff_string(x : Array[String], y : Array[String]) -> Array[String] {
 }
 
 ///|
-pub fn table_int(arr : Array[Int]) -> Map[String, Int] {
+pub fn table_int(arr : Array[Int32]) -> Map[String, Int32] {
   let result = Map([], capacity=arr.length())
 
   let mut i = 0
@@ -488,7 +489,7 @@ pub fn table_int(arr : Array[Int]) -> Map[String, Int] {
 }
 
 ///|
-pub fn table_string(arr : Array[String]) -> Map[String, Int] {
+pub fn table_string(arr : Array[String]) -> Map[String, Int32] {
   let result = Map([], capacity=arr.length())
 
   let mut i = 0
@@ -506,8 +507,8 @@ pub fn table_string(arr : Array[String]) -> Map[String, Int] {
 }
 
 ///|
-pub fn rev_int(arr : Array[Int]) -> Array[Int] {
-  let result : Array[Int] = Array(capacity=0)
+pub fn rev_int(arr : Array[Int32]) -> Array[Int32] {
+  let result : Array[Int32] = Array(capacity=0)
   let mut i = arr.length() - 1
   while i >= 0 {
     result.push(arr[i])
@@ -539,8 +540,8 @@ pub fn rev_string(arr : Array[String]) -> Array[String] {
 }
 
 ///|
-pub fn rep_int(x : Int, times : Int) -> Array[Int] {
-  let result : Array[Int] = Array(capacity=0)
+pub fn rep_int(x : Int32, times : Int32) -> Array[Int32] {
+  let result : Array[Int32] = Array(capacity=0)
   let mut i = 0
   while i < times {
     result.push(x)
@@ -550,7 +551,7 @@ pub fn rep_int(x : Int, times : Int) -> Array[Int] {
 }
 
 ///|
-pub fn rep_double(x : Double, times : Int) -> Array[Double] {
+pub fn rep_double(x : Double, times : Int32) -> Array[Double] {
   let result : Array[Double] = Array(capacity=0)
   let mut i = 0
   while i < times {
@@ -561,7 +562,7 @@ pub fn rep_double(x : Double, times : Int) -> Array[Double] {
 }
 
 ///|
-pub fn rep_string(x : String, times : Int) -> Array[String] {
+pub fn rep_string(x : String, times : Int32) -> Array[String] {
   let result : Array[String] = Array(capacity=0)
   let mut i = 0
   while i < times {
@@ -572,9 +573,9 @@ pub fn rep_string(x : String, times : Int) -> Array[String] {
 }
 
 ///|
-pub fn seq_int(from : Int, to : Int, by? : Int) -> Array[Int] {
+pub fn seq_int(from : Int32, to : Int32, by? : Int32) -> Array[Int32] {
   let step = if by is Some(_) { by.unwrap() } else { 1 }
-  let result : Array[Int] = Array(capacity=0)
+  let result : Array[Int32] = Array(capacity=0)
 
   if step > 0 {
     let mut i = from
@@ -616,8 +617,8 @@ pub fn seq_double(from : Double, to : Double, by? : Double) -> Array[Double] {
 }
 
 ///|
-pub fn head_int(arr : Array[Int], n : Int) -> Array[Int] {
-  let result : Array[Int] = Array(capacity=0)
+pub fn head_int(arr : Array[Int32], n : Int32) -> Array[Int32] {
+  let result : Array[Int32] = Array(capacity=0)
   let limit = if n < arr.length() { n } else { arr.length() }
   let mut i = 0
   while i < limit {
@@ -628,7 +629,7 @@ pub fn head_int(arr : Array[Int], n : Int) -> Array[Int] {
 }
 
 ///|
-pub fn head_double(arr : Array[Double], n : Int) -> Array[Double] {
+pub fn head_double(arr : Array[Double], n : Int32) -> Array[Double] {
   let result : Array[Double] = Array(capacity=0)
   let limit = if n < arr.length() { n } else { arr.length() }
   let mut i = 0
@@ -640,7 +641,7 @@ pub fn head_double(arr : Array[Double], n : Int) -> Array[Double] {
 }
 
 ///|
-pub fn head_string(arr : Array[String], n : Int) -> Array[String] {
+pub fn head_string(arr : Array[String], n : Int32) -> Array[String] {
   let result : Array[String] = Array(capacity=0)
   let limit = if n < arr.length() { n } else { arr.length() }
   let mut i = 0
@@ -652,8 +653,8 @@ pub fn head_string(arr : Array[String], n : Int) -> Array[String] {
 }
 
 ///|
-pub fn tail_int(arr : Array[Int], n : Int) -> Array[Int] {
-  let result : Array[Int] = Array(capacity=0)
+pub fn tail_int(arr : Array[Int32], n : Int32) -> Array[Int32] {
+  let result : Array[Int32] = Array(capacity=0)
   let start = if n < arr.length() { arr.length() - n } else { 0 }
   let mut i = start
   while i < arr.length() {
@@ -664,7 +665,7 @@ pub fn tail_int(arr : Array[Int], n : Int) -> Array[Int] {
 }
 
 ///|
-pub fn tail_double(arr : Array[Double], n : Int) -> Array[Double] {
+pub fn tail_double(arr : Array[Double], n : Int32) -> Array[Double] {
   let result : Array[Double] = Array(capacity=0)
   let start = if n < arr.length() { arr.length() - n } else { 0 }
   let mut i = start
@@ -676,7 +677,7 @@ pub fn tail_double(arr : Array[Double], n : Int) -> Array[Double] {
 }
 
 ///|
-pub fn tail_string(arr : Array[String], n : Int) -> Array[String] {
+pub fn tail_string(arr : Array[String], n : Int32) -> Array[String] {
   let result : Array[String] = Array(capacity=0)
   let start = if n < arr.length() { arr.length() - n } else { 0 }
   let mut i = start
@@ -688,17 +689,17 @@ pub fn tail_string(arr : Array[String], n : Int) -> Array[String] {
 }
 
 ///|
-pub fn length_int(arr : Array[Int]) -> Int {
+pub fn length_int(arr : Array[Int32]) -> Int32 {
   arr.length()
 }
 
 ///|
-pub fn length_double(arr : Array[Double]) -> Int {
+pub fn length_double(arr : Array[Double]) -> Int32 {
   arr.length()
 }
 
 ///|
-pub fn length_string(arr : Array[String]) -> Int {
+pub fn length_string(arr : Array[String]) -> Int32 {
   arr.length()
 }
 

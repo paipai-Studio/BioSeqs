@@ -33,7 +33,9 @@ test "mdanalysis contact fraction hard cut" {
   let f2_b = [[50.0, 0.0, 0.0], [6.0, 0.0, 0.0]]
   let frames_a = [f1_a, f2_a]
   let frames_b = [f1_b, f2_b]
-  let q = @src.mdanalysis_contact_fraction(ref_a, ref_b, frames_a, frames_b, 3.0, true)
+  let q = @src.mdanalysis_contact_fraction(
+    ref_a, ref_b, frames_a, frames_b, 3.0, true,
+  )
   assert_eq(q.length(), 2)
   // Frame 1: both contacts present → Q = 1.0
   assert_true((q[0] - 1.0).abs() < 1.0e-9)
@@ -121,7 +123,14 @@ test "mdanalysis linear density 1d" {
 test "mdanalysis linear density weighted" {
   let coords = [[0.5, 0.0, 0.0], [1.5, 0.0, 0.0]]
   let weights = [2.0, 3.0]
-  let hist = @src.mdanalysis_linear_density_1d(coords, 0, 2, 0.0, 2.0, Some(weights))
+  let hist = @src.mdanalysis_linear_density_1d(
+    coords,
+    0,
+    2,
+    0.0,
+    2.0,
+    Some(weights),
+  )
   // bin 0: x=0.5, weight=2.0
   // bin 1: x=1.5, weight=3.0
   assert_eq(hist[0], 2.0)

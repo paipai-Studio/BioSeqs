@@ -15,9 +15,9 @@ pub(all) struct NodePosRect {
   y : Double
   is_leaf : Bool
   branch_length : Double
-  depth : Int
+  depth : Int32
   confidence : Double?
-  children : Array[Int]
+  children : Array[Int32]
 }
 
 ///|
@@ -26,7 +26,7 @@ pub(all) struct TreeLayoutRect {
   nodes : Array[NodePosRect]
   width : Double
   height : Double
-  n_leaves : Int
+  n_leaves : Int32
 }
 
 ///|
@@ -39,9 +39,9 @@ pub(all) struct NodePosCirc {
   y : Double
   is_leaf : Bool
   branch_length : Double
-  depth : Int
+  depth : Int32
   confidence : Double?
-  children : Array[Int]
+  children : Array[Int32]
 }
 
 ///|
@@ -49,7 +49,7 @@ pub(all) struct NodePosCirc {
 pub(all) struct TreeLayoutCirc {
   nodes : Array[NodePosCirc]
   max_radius : Double
-  n_leaves : Int
+  n_leaves : Int32
   start_angle : Double
   end_angle : Double
 }
@@ -86,9 +86,9 @@ pub fn phylo_layout_rectangular(tree : Clade) -> TreeLayoutRect {
 fn layout_rect_rec(
   node : Clade,
   x : Double,
-  depth : Int,
-  out : Array[NodePosRect]
-) -> Int {
+  depth : Int32,
+  out : Array[NodePosRect],
+) -> Int32 {
   let bl = match node.branch_length {
     Some(b) => b
     None => 0.0
@@ -109,22 +109,22 @@ fn layout_rect_rec(
     confidence: node.confidence,
     children: [],
   })
-  let child_indices : Array[Int] = Array(capacity=0)
+  let child_indices : Array[Int32] = Array(capacity=0)
   for ch in node.clades {
     child_indices.push(layout_rect_rec(ch, my_x, depth + 1, out))
   }
-  out[my_idx] = NodePosRect::{ ..out[my_idx], children: child_indices }
+  out[my_idx] = NodePosRect::{ ..out[my_idx], children: child_indices, }
   my_idx
 }
 
 ///|
 fn layout_rect_assign_y(
   nodes : Array[NodePosRect],
-  idx : Int,
-  leaf_counter : Int
-) -> Int {
+  idx : Int32,
+  leaf_counter : Int32,
+) -> Int32 {
   if nodes[idx].is_leaf {
-    nodes[idx] = NodePosRect::{ ..nodes[idx], y: leaf_counter.to_double() }
+    nodes[idx] = NodePosRect::{ ..nodes[idx], y: leaf_counter.to_double(), }
     return leaf_counter + 1
   }
   let mut next_leaf = leaf_counter
@@ -138,13 +138,13 @@ fn layout_rect_assign_y(
       sum_y = sum_y + nodes[ci].y
     }
     let avg_y = sum_y / children.length().to_double()
-    nodes[idx] = NodePosRect::{ ..nodes[idx], y: avg_y }
+    nodes[idx] = NodePosRect::{ ..nodes[idx], y: avg_y, }
   }
   next_leaf
 }
 
 ///|
-fn rect_leaf_count(nodes : Array[NodePosRect]) -> Int {
+fn rect_leaf_count(nodes : Array[NodePosRect]) -> Int32 {
   let mut c = 0
   for n in nodes {
     if n.is_leaf {
@@ -169,7 +169,7 @@ pub fn phylo_layout_circular(tree : Clade) -> TreeLayoutCirc {
 pub fn phylo_layout_circular_range(
   tree : Clade,
   start_angle : Double,
-  end_angle : Double
+  end_angle : Double,
 ) -> TreeLayoutCirc {
   let nodes : Array[NodePosCirc] = Array(capacity=0)
   let _ = layout_circ_rec(tree, 0.0, 0, nodes)
@@ -184,7 +184,7 @@ pub fn phylo_layout_circular_range(
     }
   }
   let _ = layout_circ_assign_angle(
-    nodes, 0, 0, n_leaves, start_angle, end_angle
+    nodes, 0, 0, n_leaves, start_angle, end_angle,
   )
   let mut max_r = 0.0
   for n in nodes {
@@ -205,9 +205,9 @@ pub fn phylo_layout_circular_range(
 fn layout_circ_rec(
   node : Clade,
   radius : Double,
-  depth : Int,
-  out : Array[NodePosCirc]
-) -> Int {
+  depth : Int32,
+  out : Array[NodePosCirc],
+) -> Int32 {
   let bl = match node.branch_length {
     Some(b) => b
     None => 0.0
@@ -230,36 +230,36 @@ fn layout_circ_rec(
     confidence: node.confidence,
     children: [],
   })
-  let child_indices : Array[Int] = Array(capacity=0)
+  let child_indices : Array[Int32] = Array(capacity=0)
   for ch in node.clades {
     child_indices.push(layout_circ_rec(ch, my_r, depth + 1, out))
   }
-  out[my_idx] = NodePosCirc::{ ..out[my_idx], children: child_indices }
+  out[my_idx] = NodePosCirc::{ ..out[my_idx], children: child_indices, }
   my_idx
 }
 
 ///|
 fn layout_circ_assign_angle(
   nodes : Array[NodePosCirc],
-  idx : Int,
-  leaf_counter : Int,
-  n_leaves : Int,
+  idx : Int32,
+  leaf_counter : Int32,
+  n_leaves : Int32,
   start_angle : Double,
-  end_angle : Double
-) -> Int {
+  end_angle : Double,
+) -> Int32 {
   let angle_span = end_angle - start_angle
   if nodes[idx].is_leaf {
     let angle = start_angle +
       leaf_counter.to_double() / n_leaves.to_double() * angle_span
     let x = nodes[idx].radius * @math.cos(angle)
     let y = nodes[idx].radius * @math.sin(angle)
-    nodes[idx] = NodePosCirc::{ ..nodes[idx], angle, x, y }
+    nodes[idx] = NodePosCirc::{ ..nodes[idx], angle, x, y, }
     return leaf_counter + 1
   }
   let mut next_leaf = leaf_counter
   for ci in nodes[idx].children {
     next_leaf = layout_circ_assign_angle(
-      nodes, ci, next_leaf, n_leaves, start_angle, end_angle
+      nodes, ci, next_leaf, n_leaves, start_angle, end_angle,
     )
   }
   let children = nodes[idx].children
@@ -271,13 +271,13 @@ fn layout_circ_assign_angle(
     let avg_a = sum_a / children.length().to_double()
     let x = nodes[idx].radius * @math.cos(avg_a)
     let y = nodes[idx].radius * @math.sin(avg_a)
-    nodes[idx] = NodePosCirc::{ ..nodes[idx], angle: avg_a, x, y }
+    nodes[idx] = NodePosCirc::{ ..nodes[idx], angle: avg_a, x, y, }
   }
   next_leaf
 }
 
 ///|
-fn circ_leaf_count(nodes : Array[NodePosCirc]) -> Int {
+fn circ_leaf_count(nodes : Array[NodePosCirc]) -> Int32 {
   let mut c = 0
   for n in nodes {
     if n.is_leaf {
@@ -287,7 +287,6 @@ fn circ_leaf_count(nodes : Array[NodePosCirc]) -> Int {
   c
 }
 
-
 // =========================================================================
 // ASCII Rendering
 // =========================================================================
@@ -296,8 +295,8 @@ fn circ_leaf_count(nodes : Array[NodePosCirc]) -> Int {
 /// Render rectangular layout as ASCII art.
 pub fn phylo_render_rectangular(
   layout : TreeLayoutRect,
-  width : Int,
-  height : Int
+  width : Int32,
+  height : Int32,
 ) -> String {
   if width <= 0 || height <= 0 || layout.nodes.length() == 0 {
     return ""
@@ -347,7 +346,7 @@ pub fn phylo_render_rectangular(
     if gx >= 0 && gx < width && gy >= 0 && gy < height {
       if node.is_leaf && node.name != "" {
         grid[gy][gx] = first_char(node.name)
-      } else if !(node.is_leaf) && grid[gy][gx] == ' ' {
+      } else if !node.is_leaf && grid[gy][gx] == ' ' {
         grid[gy][gx] = '+'
       }
     }
@@ -359,8 +358,8 @@ pub fn phylo_render_rectangular(
 /// Render circular layout as ASCII art.
 pub fn phylo_render_circular(
   layout : TreeLayoutCirc,
-  width : Int,
-  height : Int
+  width : Int32,
+  height : Int32,
 ) -> String {
   if width <= 0 || height <= 0 || layout.nodes.length() == 0 {
     return ""
@@ -408,7 +407,7 @@ pub fn phylo_render_circular(
     if gx >= 0 && gx < width && gy >= 0 && gy < height {
       if node.is_leaf && node.name != "" {
         grid[gy][gx] = first_char(node.name)
-      } else if !(node.is_leaf) && grid[gy][gx] == ' ' {
+      } else if !node.is_leaf && grid[gy][gx] == ' ' {
         grid[gy][gx] = '+'
       }
     }
@@ -421,7 +420,7 @@ pub fn phylo_render_circular(
 // =========================================================================
 
 ///|
-fn make_grid(width : Int, height : Int) -> Array[Array[Char]] {
+fn make_grid(width : Int32, height : Int32) -> Array[Array[Char]] {
   let grid : Array[Array[Char]] = Array(capacity=height)
   for _ in 0..<height {
     let row : Array[Char] = Array(capacity=width)
@@ -434,7 +433,11 @@ fn make_grid(width : Int, height : Int) -> Array[Array[Char]] {
 }
 
 ///|
-fn grid_to_string(grid : Array[Array[Char]], width : Int, height : Int) -> String {
+fn grid_to_string(
+  grid : Array[Array[Char]],
+  width : Int32,
+  height : Int32,
+) -> String {
   let sb = StringBuilder()
   for y in 0..<height {
     for x in 0..<width {
@@ -449,12 +452,12 @@ fn grid_to_string(grid : Array[Array[Char]], width : Int, height : Int) -> Strin
 /// Bresenham line algorithm.
 fn draw_line_grid(
   grid : Array[Array[Char]],
-  x0 : Int,
-  y0 : Int,
-  x1 : Int,
-  y1 : Int,
-  width : Int,
-  height : Int
+  x0 : Int32,
+  y0 : Int32,
+  x1 : Int32,
+  y1 : Int32,
+  width : Int32,
+  height : Int32,
 ) -> Unit {
   let mut dx = x1 - x0
   let dy = y1 - y0
@@ -472,7 +475,7 @@ fn draw_line_grid(
   let mut x = x0
   let mut y = y0
   let mut done = false
-  while !(done) {
+  while !done {
     if x >= 0 && x < width && y >= 0 && y < height {
       if grid[y][x] == ' ' {
         grid[y][x] = '/'
@@ -514,8 +517,8 @@ fn first_char(s : String) -> Char {
 /// `width` and `height` are the SVG viewport dimensions in pixels.
 pub fn phylo_to_svg_rect(
   layout : TreeLayoutRect,
-  width : Int,
-  height : Int
+  width : Int32,
+  height : Int32,
 ) -> String {
   if width <= 0 || height <= 0 || layout.nodes.length() == 0 {
     return ""
@@ -534,8 +537,7 @@ pub fn phylo_to_svg_rect(
     1.0
   }
   let sb = StringBuilder()
-  sb.write_string(
-    "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"")
+  sb.write_string("<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"")
   sb.write_string(width.to_string())
   sb.write_string("\" height=\"")
   sb.write_string(height.to_string())
@@ -596,23 +598,18 @@ pub fn phylo_to_svg_rect(
 /// Uses the pre-computed (x, y) coordinates from TreeLayoutCirc.
 pub fn phylo_to_svg_circ(
   layout : TreeLayoutCirc,
-  width : Int,
-  height : Int
+  width : Int32,
+  height : Int32,
 ) -> String {
   if width <= 0 || height <= 0 || layout.nodes.length() == 0 {
     return ""
   }
   let cx = width / 2
   let cy = height / 2
-  let max_r = if layout.max_radius > 0.0 {
-    layout.max_radius
-  } else {
-    1.0
-  }
+  let max_r = if layout.max_radius > 0.0 { layout.max_radius } else { 1.0 }
   let scale = (width.to_double() / 2.0 - 20.0) / max_r
   let sb = StringBuilder()
-  sb.write_string(
-    "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"")
+  sb.write_string("<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"")
   sb.write_string(width.to_string())
   sb.write_string("\" height=\"")
   sb.write_string(height.to_string())

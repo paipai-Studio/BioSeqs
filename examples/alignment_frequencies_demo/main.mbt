@@ -59,7 +59,9 @@ fn main {
     j = j + 1
   }
   println("   consensus sequence : \{consensus}")
-  println("   conserved columns  : \{conserved} / \{counts.ncols} (>=75% identity)")
+  println(
+    "   conserved columns  : \{conserved} / \{counts.ncols} (>=75% identity)",
+  )
   println("")
 
   // ---- Section 3: sequence weights ------------------------------------
@@ -71,7 +73,9 @@ fn main {
   println("3) Weighted alignment (sequence weights 0.5 / 0.8 / 1.0)")
   println("   MSA: GTATC / AT--C / CTGTC")
   println(wsub.to_table())
-  println("   total weighted pair mass: \{lod_demo_fmt(wsub.total()).trim()} (unweighted would be 9.000)")
+  println(
+    "   total weighted pair mass: \{lod_demo_fmt(wsub.total()).trim()} (unweighted would be 9.000)",
+  )
   println("")
 
   // ---- Section 4: observed vs expected pair frequencies --------------
@@ -118,7 +122,7 @@ fn main {
 
 ///|
 /// Left-pad a string with spaces to the requested width.
-fn demo_pad_left(text : String, width : Int) -> String {
+fn demo_pad_left(text : String, width : Int32) -> String {
   let mut out = text
   while out.length() < width {
     out = " " + out

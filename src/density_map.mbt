@@ -17,7 +17,7 @@ pub suberror DensityMapError {
 // ---------------------------------------------------------------------------
 
 ///|
-fn dm_read_i32_le(data : String, pos : Int) -> Int {
+fn dm_read_i32_le(data : String, pos : Int32) -> Int32 {
   let b0 = data.unsafe_get(pos).to_int() & 0xFF
   let b1 = data.unsafe_get(pos + 1).to_int() & 0xFF
   let b2 = data.unsafe_get(pos + 2).to_int() & 0xFF
@@ -26,7 +26,7 @@ fn dm_read_i32_le(data : String, pos : Int) -> Int {
 }
 
 ///|
-fn dm_read_f32_le(data : String, pos : Int) -> Double {
+fn dm_read_f32_le(data : String, pos : Int32) -> Double {
   let b0 = data.unsafe_get(pos).to_int() & 0xFF
   let b1 = data.unsafe_get(pos + 1).to_int() & 0xFF
   let b2 = data.unsafe_get(pos + 2).to_int() & 0xFF
@@ -39,19 +39,18 @@ fn dm_read_f32_le(data : String, pos : Int) -> Double {
   } else if exponent == 0 {
     sign * mantissa.to_double() * @math.pow(2.0, -149.0)
   } else {
-    sign * (1.0 + mantissa.to_double() / 8388608.0) * @math.pow(
-      2.0,
-      (exponent - 127).to_double(),
-    )
+    sign *
+    (1.0 + mantissa.to_double() / 8388608.0) *
+    @math.pow(2.0, (exponent - 127).to_double())
   }
 }
 
 ///|
-fn dm_write_i32_le(sb : StringBuilder, v : Int) -> Unit {
-  sb.write_char(((v & 0xFF).to_uint16()).unsafe_to_char())
-  sb.write_char((((v >> 8) & 0xFF).to_uint16()).unsafe_to_char())
-  sb.write_char((((v >> 16) & 0xFF).to_uint16()).unsafe_to_char())
-  sb.write_char((((v >> 24) & 0xFF).to_uint16()).unsafe_to_char())
+fn dm_write_i32_le(sb : StringBuilder, v : Int32) -> Unit {
+  sb.write_char((v & 0xFF).to_uint16().unsafe_to_char())
+  sb.write_char(((v >> 8) & 0xFF).to_uint16().unsafe_to_char())
+  sb.write_char(((v >> 16) & 0xFF).to_uint16().unsafe_to_char())
+  sb.write_char(((v >> 24) & 0xFF).to_uint16().unsafe_to_char())
 }
 
 ///|
@@ -63,7 +62,7 @@ fn dm_write_f32_le(sb : StringBuilder, v : Double) -> Unit {
     sb.write_char('\u{00}')
     return
   }
-  let sign : Int = if v < 0.0 { 1 } else { 0 }
+  let sign : Int32 = if v < 0.0 { 1 } else { 0 }
   let absv = if v < 0.0 { -v } else { v }
   let log2v = @math.ln(absv) / @math.ln(2.0)
   let exponent = floor_d(log2v).to_int() + 127
@@ -78,7 +77,9 @@ fn dm_write_f32_le(sb : StringBuilder, v : Double) -> Unit {
     sb.write_char('\u{00}')
     sb.write_char('\u{00}')
     sb.write_char('\u{80}')
-    sb.write_char((if sign == 1 { 0xFF } else { 0x7F }).to_uint16().unsafe_to_char())
+    sb.write_char(
+      (if sign == 1 { 0xFF } else { 0x7F }).to_uint16().unsafe_to_char(),
+    )
     return
   }
   let pow2 = @math.pow(2.0, (exponent - 127).to_double())
@@ -88,10 +89,10 @@ fn dm_write_f32_le(sb : StringBuilder, v : Double) -> Unit {
   let b2 = ((exponent & 1) << 7) | (mantissa >> 16)
   let b1 = (mantissa >> 8) & 0xFF
   let b0 = mantissa & 0xFF
-  sb.write_char((b0.to_uint16()).unsafe_to_char())
-  sb.write_char((b1.to_uint16()).unsafe_to_char())
-  sb.write_char((b2.to_uint16()).unsafe_to_char())
-  sb.write_char((b3.to_uint16()).unsafe_to_char())
+  sb.write_char(b0.to_uint16().unsafe_to_char())
+  sb.write_char(b1.to_uint16().unsafe_to_char())
+  sb.write_char(b2.to_uint16().unsafe_to_char())
+  sb.write_char(b3.to_uint16().unsafe_to_char())
 }
 
 ///|
@@ -121,30 +122,30 @@ fn sin_d(deg : Double) -> Double {
 ///|
 pub(all) struct DensityMap {
   title : String
-  nx : Int // grid columns (fastest)
-  ny : Int // grid rows
-  nz : Int // grid sections (slowest)
-  mode : Int // data type (0=int8, 1=int16, 2=float32)
-  nxstart : Int
-  nystart : Int
-  nzstart : Int
-  mx : Int // unit-cell grid
-  my : Int
-  mz : Int
+  nx : Int32 // grid columns (fastest)
+  ny : Int32 // grid rows
+  nz : Int32 // grid sections (slowest)
+  mode : Int32 // data type (0=int8, 1=int16, 2=float32)
+  nxstart : Int32
+  nystart : Int32
+  nzstart : Int32
+  mx : Int32 // unit-cell grid
+  my : Int32
+  mz : Int32
   xlen : Double // cell lengths (Å)
   ylen : Double
   zlen : Double
   alpha : Double // cell angles (degrees)
   beta : Double
   gamma : Double
-  mapc : Int // axis mapping
-  mapr : Int
-  maps : Int
+  mapc : Int32 // axis mapping
+  mapr : Int32
+  maps : Int32
   dmin : Double // density stats (from header)
   dmax : Double
   dmean : Double
-  ispg : Int // space-group number
-  nsymbt : Int // symmetry-record bytes
+  ispg : Int32 // space-group number
+  nsymbt : Int32 // symmetry-record bytes
   origin_x : Double // origin in Å (MRC2000)
   origin_y : Double
   origin_z : Double
@@ -162,13 +163,13 @@ pub fn DensityMap::get_title(self : DensityMap) -> String {
 }
 
 ///|
-pub fn DensityMap::get_shape(self : DensityMap) -> (Int, Int, Int) {
+pub fn DensityMap::get_shape(self : DensityMap) -> (Int32, Int32, Int32) {
   (self.nx, self.ny, self.nz)
 }
 
 ///|
 pub fn DensityMap::get_cell(
-  self : DensityMap
+  self : DensityMap,
 ) -> (Double, Double, Double, Double, Double, Double) {
   (self.xlen, self.ylen, self.zlen, self.alpha, self.beta, self.gamma)
 }
@@ -179,12 +180,12 @@ pub fn DensityMap::get_origin(self : DensityMap) -> (Double, Double, Double) {
 }
 
 ///|
-pub fn DensityMap::get_space_group(self : DensityMap) -> Int {
+pub fn DensityMap::get_space_group(self : DensityMap) -> Int32 {
   self.ispg
 }
 
 ///|
-pub fn DensityMap::num_voxels(self : DensityMap) -> Int {
+pub fn DensityMap::num_voxels(self : DensityMap) -> Int32 {
   self.nx * self.ny * self.nz
 }
 
@@ -200,7 +201,12 @@ pub fn DensityMap::get_data(self : DensityMap) -> Array[Double] {
 ///|
 /// Direct grid access: density at grid point (i, j, k).
 /// Returns NaN for out-of-bounds indices.
-pub fn DensityMap::get(self : DensityMap, i : Int, j : Int, k : Int) -> Double {
+pub fn DensityMap::get(
+  self : DensityMap,
+  i : Int32,
+  j : Int32,
+  k : Int32,
+) -> Double {
   if i < 0 || i >= self.nx || j < 0 || j >= self.ny || k < 0 || k >= self.nz {
     return 0.0 / 0.0
   }
@@ -283,9 +289,9 @@ pub fn DensityMap::sample_grid(
   let dx = gx - i0.to_double()
   let dy = gy - j0.to_double()
   let dz = gz - k0.to_double()
-  let i0w = ((i0 % self.nx) + self.nx) % self.nx
-  let j0w = ((j0 % self.ny) + self.ny) % self.ny
-  let k0w = ((k0 % self.nz) + self.nz) % self.nz
+  let i0w = (i0 % self.nx + self.nx) % self.nx
+  let j0w = (j0 % self.ny + self.ny) % self.ny
+  let k0w = (k0 % self.nz + self.nz) % self.nz
   let i1w = (i0w + 1) % self.nx
   let j1w = (j0w + 1) % self.ny
   let k1w = (k0w + 1) % self.nz
@@ -325,7 +331,7 @@ pub fn DensityMap::sample_cart(
 ///|
 /// Recompute density statistics: (min, max, mean, std, rms).
 pub fn DensityMap::stats(
-  self : DensityMap
+  self : DensityMap,
 ) -> (Double, Double, Double, Double, Double) {
   let n = self.data.length()
   if n == 0 {
@@ -359,7 +365,7 @@ pub fn DensityMap::stats(
 
 ///|
 /// Count the number of grid points with density above `level`.
-pub fn DensityMap::count_above(self : DensityMap, level : Double) -> Int {
+pub fn DensityMap::count_above(self : DensityMap, level : Double) -> Int32 {
   let mut count = 0
   for i = 0; i < self.data.length(); i = i + 1 {
     if self.data[i] > level {
@@ -374,8 +380,8 @@ pub fn DensityMap::count_above(self : DensityMap, level : Double) -> Int {
 pub fn DensityMap::contour_points(
   self : DensityMap,
   level : Double,
-) -> Array[(Int, Int, Int, Double)] {
-  let result : Array[(Int, Int, Int, Double)] = Array(capacity=0)
+) -> Array[(Int32, Int32, Int32, Double)] {
+  let result : Array[(Int32, Int32, Int32, Double)] = Array(capacity=0)
   for k = 0; k < self.nz; k = k + 1 {
     for j = 0; j < self.ny; j = j + 1 {
       for i = 0; i < self.nx; i = i + 1 {
@@ -395,8 +401,8 @@ pub fn DensityMap::contour_points(
 pub fn DensityMap::find_peaks(
   self : DensityMap,
   min_density : Double,
-) -> Array[(Int, Int, Int, Double)] {
-  let result : Array[(Int, Int, Int, Double)] = Array(capacity=0)
+) -> Array[(Int32, Int32, Int32, Double)] {
+  let result : Array[(Int32, Int32, Int32, Double)] = Array(capacity=0)
   for k = 0; k < self.nz; k = k + 1 {
     for j = 0; j < self.ny; j = j + 1 {
       for i = 0; i < self.nx; i = i + 1 {
@@ -632,10 +638,19 @@ pub fn parse_ccp4(content : String) -> DensityMap raise DensityMapError {
   }
   // Validate
   if nx <= 0 || ny <= 0 || nz <= 0 {
-    raise DensityMapError("Invalid map dimensions: " + nx.to_string() + "x" + ny.to_string() + "x" + nz.to_string())
+    raise DensityMapError(
+      "Invalid map dimensions: " +
+      nx.to_string() +
+      "x" +
+      ny.to_string() +
+      "x" +
+      nz.to_string(),
+    )
   }
   if mode != 2 && mode != 0 && mode != 1 {
-    raise DensityMapError("Unsupported map mode: " + mode.to_string() + " (only 0/1/2 supported)")
+    raise DensityMapError(
+      "Unsupported map mode: " + mode.to_string() + " (only 0/1/2 supported)",
+    )
   }
   // Data starts after header + symmetry
   let data_start = 1024 + nsymbt
@@ -643,7 +658,12 @@ pub fn parse_ccp4(content : String) -> DensityMap raise DensityMapError {
   let bytes_per = if mode == 0 { 1 } else if mode == 1 { 2 } else { 4 }
   let expected = data_start + nvox * bytes_per
   if content.length() < expected {
-    raise DensityMapError("CCP4 map truncated: need " + expected.to_string() + " bytes, got " + content.length().to_string())
+    raise DensityMapError(
+      "CCP4 map truncated: need " +
+      expected.to_string() +
+      " bytes, got " +
+      content.length().to_string(),
+    )
   }
   // Read density data (x fastest, y middle, z slowest)
   let data : Array[Double] = Array(capacity=nvox)
@@ -679,7 +699,11 @@ pub fn parse_ccp4(content : String) -> DensityMap raise DensityMapError {
     let dx = xlen / mx.to_double()
     let dy = ylen / my.to_double()
     let dz = zlen / mz.to_double()
-    (nxstart.to_double() * dx, nystart.to_double() * dy, nzstart.to_double() * dz)
+    (
+      nxstart.to_double() * dx,
+      nystart.to_double() * dy,
+      nzstart.to_double() * dz,
+    )
   } else {
     (origin_x, origin_y, origin_z)
   }
@@ -810,9 +834,9 @@ pub fn write_ccp4(map : DensityMap) -> String {
 /// Cell is orthorhombic (alpha=beta=gamma=90), origin at (0,0,0).
 pub fn DensityMap::simple(
   title~ : String = "",
-  nx~ : Int,
-  ny~ : Int,
-  nz~ : Int,
+  nx~ : Int32,
+  ny~ : Int32,
+  nz~ : Int32,
   xlen~ : Double,
   ylen~ : Double,
   zlen~ : Double,
@@ -896,9 +920,12 @@ pub fn parse_xplor(content : String) -> DensityMap raise DensityMapError {
   if idx >= lines.length() {
     raise DensityMapError("X-PLOR: missing grid specification")
   }
-  let grid_parts = lines[idx].trim().split(" ").to_array().filter(
-    fn(s) { s.length() > 0 },
-  ).map(fn(s) { s.to_owned() })
+  let grid_parts = lines[idx]
+    .trim()
+    .split(" ")
+    .to_array()
+    .filter(fn(s) { s.length() > 0 })
+    .map(fn(s) { s.to_owned() })
   if grid_parts.length() < 9 {
     raise DensityMapError("X-PLOR: malformed grid line")
   }
@@ -916,9 +943,12 @@ pub fn parse_xplor(content : String) -> DensityMap raise DensityMapError {
   if idx >= lines.length() {
     raise DensityMapError("X-PLOR: missing cell parameters")
   }
-  let cell_parts = lines[idx].trim().split(" ").to_array().filter(
-    fn(s) { s.length() > 0 },
-  ).map(fn(s) { s.to_owned() })
+  let cell_parts = lines[idx]
+    .trim()
+    .split(" ")
+    .to_array()
+    .filter(fn(s) { s.length() > 0 })
+    .map(fn(s) { s.to_owned() })
   if cell_parts.length() < 6 {
     raise DensityMapError("X-PLOR: malformed cell line")
   }
@@ -948,9 +978,12 @@ pub fn parse_xplor(content : String) -> DensityMap raise DensityMapError {
     // Read ny rows
     let mut row = 0
     while row < ny && idx < lines.length() {
-      let parts = lines[idx].trim().split(" ").to_array().filter(
-        fn(s) { s.length() > 0 },
-      ).map(fn(s) { s.to_owned() })
+      let parts = lines[idx]
+        .trim()
+        .split(" ")
+        .to_array()
+        .filter(fn(s) { s.length() > 0 })
+        .map(fn(s) { s.to_owned() })
       for p in parts {
         if data.length() < nvox {
           data.push(dm_safe_parse_double(p))
@@ -962,7 +995,12 @@ pub fn parse_xplor(content : String) -> DensityMap raise DensityMapError {
     sec = sec + 1
   }
   if data.length() != nvox {
-    raise DensityMapError("X-PLOR: expected " + nvox.to_string() + " values, got " + data.length().to_string())
+    raise DensityMapError(
+      "X-PLOR: expected " +
+      nvox.to_string() +
+      " values, got " +
+      data.length().to_string(),
+    )
   }
   DensityMap::{
     title,
@@ -999,18 +1037,14 @@ pub fn parse_xplor(content : String) -> DensityMap raise DensityMapError {
 }
 
 ///|
-fn dm_safe_parse_int(s : String) -> Int {
-  let v : Int = @string.parse_int(s.trim()) catch {
-    _ => 0
-  }
+fn dm_safe_parse_int(s : String) -> Int32 {
+  let v : Int32 = @string.parse_int(s.trim()) catch { _ => 0 }
   v
 }
 
 ///|
 fn dm_safe_parse_double(s : String) -> Double {
-  let v : Double = @string.parse_double(s.trim()) catch {
-    _ => 0.0
-  }
+  let v : Double = @string.parse_double(s.trim()) catch { _ => 0.0 }
   v
 }
 
@@ -1032,9 +1066,9 @@ fn dm_safe_parse_double(s : String) -> Double {
 /// Returns a DensityMap.
 pub fn density_from_atoms(
   atoms : Array[Atom],
-  nx~ : Int,
-  ny~ : Int,
-  nz~ : Int,
+  nx~ : Int32,
+  ny~ : Int32,
+  nz~ : Int32,
   xlen~ : Double,
   ylen~ : Double,
   zlen~ : Double,
@@ -1052,7 +1086,8 @@ pub fn density_from_atoms(
   // Gaussian width: sigma = resolution / (2 * sqrt(2 * ln(2)))
   // B_total = 8 * pi^2 * sigma^2 + b_factor
   let sigma = resolution / (2.0 * (2.0 * @math.ln(2.0)).sqrt())
-  let b_total = 8.0 * 3.141592653589793 * 3.141592653589793 * sigma * sigma + b_factor
+  let b_total = 8.0 * 3.141592653589793 * 3.141592653589793 * sigma * sigma +
+    b_factor
   // For each atom, spread Gaussian onto nearby grid points
   // Cutoff: 3 * sigma in fractional coords
   let dx = xlen / nx.to_double()
@@ -1063,7 +1098,8 @@ pub fn density_from_atoms(
   let jcut = (cutoff / dy).to_int() + 1
   let kcut = (cutoff / dz).to_int() + 1
   // For orthorhombic cell (most common case)
-  let _inv_four_b = 1.0 / (4.0 * b_total / (8.0 * 3.141592653589793 * 3.141592653589793))
+  let _inv_four_b = 1.0 /
+    (4.0 * b_total / (8.0 * 3.141592653589793 * 3.141592653589793))
   // Actually: Gaussian = exp(-|r-ri|^2 / (2*sigma^2))
   // With B = 8*pi^2*sigma^2, sigma^2 = B/(8*pi^2)
   // 1/(2*sigma^2) = 4*pi^2/B
@@ -1101,9 +1137,8 @@ pub fn density_from_atoms(
             continue
           }
           let gauss = @math.exp(-r2 * inv_2sigma2)
-          data[gk * nx * ny + gj * nx + gi] = data[
-            gk * nx * ny + gj * nx + gi
-          ] + z.to_double() * gauss
+          data[gk * nx * ny + gj * nx + gi] = data[gk * nx * ny + gj * nx + gi] +
+            z.to_double() * gauss
         }
       }
     }
@@ -1144,7 +1179,7 @@ pub fn density_from_atoms(
 
 ///|
 /// Approximate atomic number from element symbol.
-fn atomic_number(element : String) -> Int {
+fn atomic_number(element : String) -> Int32 {
   let e = element.to_lower()
   match e {
     "h" => 1
@@ -1270,9 +1305,9 @@ pub fn DensityMap::correlation(
 /// Grid point to Cartesian coordinates (Å).
 pub fn DensityMap::grid_to_cart(
   self : DensityMap,
-  i : Int,
-  j : Int,
-  k : Int,
+  i : Int32,
+  j : Int32,
+  k : Int32,
 ) -> (Double, Double, Double) {
   let dx = self.xlen / self.mx.to_double()
   let dy = self.ylen / self.my.to_double()
@@ -1289,7 +1324,10 @@ pub fn DensityMap::voxel_volume(self : DensityMap) -> Double {
   let ca = cos_d(self.gamma)
   let cb = cos_d(self.beta)
   let cg = cos_d(self.alpha)
-  let vol = self.xlen * self.ylen * self.zlen * (1.0 - ca * ca - cb * cb - cg * cg + 2.0 * ca * cb * cg).sqrt()
+  let vol = self.xlen *
+    self.ylen *
+    self.zlen *
+    (1.0 - ca * ca - cb * cb - cg * cg + 2.0 * ca * cb * cg).sqrt()
   vol / (self.mx * self.my * self.mz).to_double()
 }
 

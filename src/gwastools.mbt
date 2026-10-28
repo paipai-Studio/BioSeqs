@@ -12,12 +12,17 @@ pub struct GwasAssocResult {
 ///|
 /// Minor allele frequency from genotype counts (hom_ref/het/hom_alt). Returns
 /// the smaller of the two allele frequencies (NaN for a zero-total locus).
-pub fn gwas_minor_allele_frequency(hom_ref : Int, het : Int, hom_alt : Int) -> Double {
+pub fn gwas_minor_allele_frequency(
+  hom_ref : Int32,
+  het : Int32,
+  hom_alt : Int32,
+) -> Double {
   let n = hom_ref + het + hom_alt
   if n == 0 {
     return 0.0 / 0.0
   }
-  let p_ref = (2.0 * hom_ref.to_double() + het.to_double()) / (2.0 * n.to_double())
+  let p_ref = (2.0 * hom_ref.to_double() + het.to_double()) /
+    (2.0 * n.to_double())
   let p_alt = 1.0 - p_ref
   if p_ref < p_alt {
     p_ref
@@ -29,7 +34,7 @@ pub fn gwas_minor_allele_frequency(hom_ref : Int, het : Int, hom_alt : Int) -> D
 ///|
 /// Missing call rate given the number of called genotypes vs total:
 /// `(total - called) / total` (NaN for a zero-total input).
-pub fn gwas_missing_call_rate(called : Int, total : Int) -> Double {
+pub fn gwas_missing_call_rate(called : Int32, total : Int32) -> Double {
   if total <= 0 {
     return 0.0 / 0.0
   }
@@ -39,7 +44,7 @@ pub fn gwas_missing_call_rate(called : Int, total : Int) -> Double {
 ///|
 /// Natural log of n! (n >= 0), exact for the moderate n seen in exact HWE
 /// testing; used to keep the HWE test numerically stable.
-fn ln_factorial(n : Int) -> Double {
+fn ln_factorial(n : Int32) -> Double {
   let mut s = 0.0
   let mut i = 2
   while i <= n {
@@ -52,8 +57,18 @@ fn ln_factorial(n : Int) -> Double {
 ///|
 /// Log-probability of a genotype configuration under HWE given allele counts:
 /// `ln[ n! (n_A!)(n_B!) 2^het / ((aa!)(het!)(bb!)(2n)!) ]`.
-fn hwe_lnp(n : Int, n_a : Int, n_b : Int, aa : Int, het : Int, bb : Int, ln2 : Double) -> Double {
-  ln_factorial(n) + ln_factorial(n_a) + ln_factorial(n_b) +
+fn hwe_lnp(
+  n : Int32,
+  n_a : Int32,
+  n_b : Int32,
+  aa : Int32,
+  het : Int32,
+  bb : Int32,
+  ln2 : Double,
+) -> Double {
+  ln_factorial(n) +
+  ln_factorial(n_a) +
+  ln_factorial(n_b) +
   het.to_double() * ln2 -
   ln_factorial(aa) -
   ln_factorial(het) -
@@ -66,7 +81,7 @@ fn hwe_lnp(n : Int, n_a : Int, n_b : Int, aa : Int, het : Int, bb : Int, ln2 : D
 /// the observed allele counts, sum the probabilities of every genotype
 /// configuration no more likely than the observed one. Returns the two-sided
 /// exact p-value.
-pub fn gwas_hwe_exact(hom_ref : Int, het : Int, hom_alt : Int) -> Double {
+pub fn gwas_hwe_exact(hom_ref : Int32, het : Int32, hom_alt : Int32) -> Double {
   let n = hom_ref + het + hom_alt
   if n == 0 {
     return 0.0 / 0.0
@@ -103,10 +118,10 @@ pub fn gwas_hwe_exact(hom_ref : Int, het : Int, hom_alt : Int) -> Double {
 /// statistic and its two-sided asymptotic p-value (normal approximation at
 /// `sqrt(chi2)`).
 pub fn gwas_chisq_assoc(
-  case_ref : Int,
-  case_alt : Int,
-  ctrl_ref : Int,
-  ctrl_alt : Int,
+  case_ref : Int32,
+  case_alt : Int32,
+  ctrl_ref : Int32,
+  ctrl_alt : Int32,
 ) -> GwasAssocResult {
   let a = case_ref.to_double()
   let c = case_alt.to_double()
@@ -114,7 +129,7 @@ pub fn gwas_chisq_assoc(
   let d = ctrl_alt.to_double()
   let n = a + b + c + d
   if n == 0.0 {
-    return GwasAssocResult::{ chi2: 0.0, p_value: 1.0 }
+    return GwasAssocResult::{ chi2: 0.0, p_value: 1.0, }
   }
   let denom = (a + b) * (c + d) * (a + c) * (b + d)
   let chi2 = if denom == 0.0 {
@@ -122,5 +137,5 @@ pub fn gwas_chisq_assoc(
   } else {
     n * (a * d - b * c) * (a * d - b * c) / denom
   }
-  GwasAssocResult::{ chi2, p_value: stat_pvalue_zscore(chi2.sqrt()) }
+  GwasAssocResult::{ chi2, p_value: stat_pvalue_zscore(chi2.sqrt()), }
 }

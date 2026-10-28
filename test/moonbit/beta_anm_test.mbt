@@ -13,11 +13,41 @@ fn make_test_chain_beta() -> @src.Chain {
   ]
   for i = 0; i < 5; i = i + 1 {
     let (x, y, z) = coords[i]
-    let ca = @src.Atom::new(name="CA", coord=@src.Vector3::new(x, y, z), resname="ALA", chainid='A', resseq=i + 1, element="C")
-    let n_atom = @src.Atom::new(name="N", coord=@src.Vector3::new(x - 0.5, y, z - 0.3), resname="ALA", chainid='A', resseq=i + 1, element="N")
-    let c_atom = @src.Atom::new(name="C", coord=@src.Vector3::new(x + 0.5, y, z + 0.3), resname="ALA", chainid='A', resseq=i + 1, element="C")
-    let o_atom = @src.Atom::new(name="O", coord=@src.Vector3::new(x + 0.7, y + 0.2, z + 0.5), resname="ALA", chainid='A', resseq=i + 1, element="O")
-    let res = @src.Residue::new(resname="ALA", chainid='A', resseq=i + 1, atoms=[n_atom, ca, c_atom, o_atom])
+    let ca = @src.Atom::new(
+      name="CA",
+      coord=@src.Vector3::new(x, y, z),
+      resname="ALA",
+      chainid='A',
+      resseq=i + 1,
+      element="C",
+    )
+    let n_atom = @src.Atom::new(
+      name="N",
+      coord=@src.Vector3::new(x - 0.5, y, z - 0.3),
+      resname="ALA",
+      chainid='A',
+      resseq=i + 1,
+      element="N",
+    )
+    let c_atom = @src.Atom::new(
+      name="C",
+      coord=@src.Vector3::new(x + 0.5, y, z + 0.3),
+      resname="ALA",
+      chainid='A',
+      resseq=i + 1,
+      element="C",
+    )
+    let o_atom = @src.Atom::new(
+      name="O",
+      coord=@src.Vector3::new(x + 0.7, y + 0.2, z + 0.5),
+      resname="ALA",
+      chainid='A',
+      resseq=i + 1,
+      element="O",
+    )
+    let res = @src.Residue::new(resname="ALA", chainid='A', resseq=i + 1, atoms=[
+      n_atom, ca, c_atom, o_atom,
+    ])
     residues.push(res)
   }
   @src.Chain::new(id='A', residues~)
@@ -40,8 +70,17 @@ fn make_larger_chain_beta() -> @src.Chain {
   ]
   for i = 0; i < 10; i = i + 1 {
     let (x, y, z) = coords[i]
-    let ca = @src.Atom::new(name="CA", coord=@src.Vector3::new(x, y, z), resname="GLY", chainid='A', resseq=i + 1, element="C")
-    let res = @src.Residue::new(resname="GLY", chainid='A', resseq=i + 1, atoms=[ca])
+    let ca = @src.Atom::new(
+      name="CA",
+      coord=@src.Vector3::new(x, y, z),
+      resname="GLY",
+      chainid='A',
+      resseq=i + 1,
+      element="C",
+    )
+    let res = @src.Residue::new(resname="GLY", chainid='A', resseq=i + 1, atoms=[
+      ca,
+    ])
     residues.push(res)
   }
   @src.Chain::new(id='A', residues~)
@@ -49,6 +88,7 @@ fn make_larger_chain_beta() -> @src.Chain {
 
 // ===== betaANM tests =====
 
+///|
 test "beta_anm_construction" {
   let chain = make_test_chain_beta()
   match @src.BetaANM::new(chain) {
@@ -60,16 +100,16 @@ test "beta_anm_construction" {
   }
 }
 
+///|
 test "beta_anm_custom_beta" {
   let chain = make_test_chain_beta()
   match @src.BetaANM::new(chain, beta=3.0) {
-    Some(anm) => {
-      assert_true(@src.BetaANM::beta_exponent(anm) - 3.0 < 0.001)
-    }
+    Some(anm) => assert_true(@src.BetaANM::beta_exponent(anm) - 3.0 < 0.001)
     None => assert_true(false)
   }
 }
 
+///|
 test "beta_anm_eigenvalues" {
   let chain = make_test_chain_beta()
   match @src.BetaANM::new(chain) {
@@ -90,6 +130,7 @@ test "beta_anm_eigenvalues" {
   }
 }
 
+///|
 test "beta_anm_bfactors" {
   let chain = make_larger_chain_beta()
   match @src.BetaANM::new(chain) {
@@ -104,6 +145,7 @@ test "beta_anm_bfactors" {
   }
 }
 
+///|
 test "beta_anm_fluctuations" {
   let chain = make_larger_chain_beta()
   match @src.BetaANM::new(chain) {
@@ -119,6 +161,7 @@ test "beta_anm_fluctuations" {
   }
 }
 
+///|
 test "beta_anm_slow_modes" {
   let chain = make_larger_chain_beta()
   match @src.BetaANM::new(chain) {
@@ -136,6 +179,7 @@ test "beta_anm_slow_modes" {
   }
 }
 
+///|
 test "beta_anm_cross_correlation" {
   let chain = make_larger_chain_beta()
   match @src.BetaANM::new(chain) {
@@ -158,6 +202,7 @@ test "beta_anm_cross_correlation" {
   }
 }
 
+///|
 test "beta_anm_hessian_symmetric" {
   let chain = make_test_chain_beta()
   match @src.BetaANM::new(chain) {
@@ -175,11 +220,12 @@ test "beta_anm_hessian_symmetric" {
   }
 }
 
+///|
 test "beta_anm_higher_beta_more_local" {
   let chain = make_larger_chain_beta()
   // Higher beta → more local interactions → different B-factor pattern
   match @src.BetaANM::new(chain, beta=1.0) {
-    Some(anm1) => {
+    Some(anm1) =>
       match @src.BetaANM::new(chain, beta=4.0) {
         Some(anm4) => {
           let bf1 = @src.BetaANM::predict_bfactors(anm1)
@@ -193,14 +239,21 @@ test "beta_anm_higher_beta_more_local" {
         }
         None => assert_true(false)
       }
-    }
     None => assert_true(false)
   }
 }
 
+///|
 test "beta_anm_too_few_residues" {
   let residues : Array[@src.Residue] = Array(capacity=0)
-  let ca = @src.Atom::new(name="CA", coord=@src.Vector3::new(0.0, 0.0, 0.0), resname="ALA", chainid='A', resseq=1, element="C")
+  let ca = @src.Atom::new(
+    name="CA",
+    coord=@src.Vector3::new(0.0, 0.0, 0.0),
+    resname="ALA",
+    chainid='A',
+    resseq=1,
+    element="C",
+  )
   let res = @src.Residue::new(resname="ALA", chainid='A', resseq=1, atoms=[ca])
   residues.push(res)
   let chain = @src.Chain::new(id='A', residues~)
@@ -212,16 +265,16 @@ test "beta_anm_too_few_residues" {
 
 // ===== pfANM tests =====
 
+///|
 test "pf_anm_construction" {
   let chain = make_test_chain_beta()
   match @src.PfANM::new(chain) {
-    Some(anm) => {
-      assert_eq(@src.PfANM::num_nodes(anm), 5)
-    }
+    Some(anm) => assert_eq(@src.PfANM::num_nodes(anm), 5)
     None => assert_true(false)
   }
 }
 
+///|
 test "pf_anm_eigenvalues" {
   let chain = make_test_chain_beta()
   match @src.PfANM::new(chain) {
@@ -241,6 +294,7 @@ test "pf_anm_eigenvalues" {
   }
 }
 
+///|
 test "pf_anm_bfactors" {
   let chain = make_larger_chain_beta()
   match @src.PfANM::new(chain) {
@@ -255,6 +309,7 @@ test "pf_anm_bfactors" {
   }
 }
 
+///|
 test "pf_anm_fluctuations" {
   let chain = make_larger_chain_beta()
   match @src.PfANM::new(chain) {
@@ -269,6 +324,7 @@ test "pf_anm_fluctuations" {
   }
 }
 
+///|
 test "pf_anm_slow_modes" {
   let chain = make_larger_chain_beta()
   match @src.PfANM::new(chain) {
@@ -285,6 +341,7 @@ test "pf_anm_slow_modes" {
   }
 }
 
+///|
 test "pf_anm_cross_correlation" {
   let chain = make_larger_chain_beta()
   match @src.PfANM::new(chain) {
@@ -305,6 +362,7 @@ test "pf_anm_cross_correlation" {
   }
 }
 
+///|
 test "pf_anm_hessian_symmetric" {
   let chain = make_test_chain_beta()
   match @src.PfANM::new(chain) {
@@ -321,6 +379,7 @@ test "pf_anm_hessian_symmetric" {
   }
 }
 
+///|
 test "pf_anm_no_cutoff_needed" {
   // pfANM with very large cutoff should still work
   let chain = make_larger_chain_beta()
@@ -336,9 +395,17 @@ test "pf_anm_no_cutoff_needed" {
   }
 }
 
+///|
 test "pf_anm_too_few_residues" {
   let residues : Array[@src.Residue] = Array(capacity=0)
-  let ca = @src.Atom::new(name="CA", coord=@src.Vector3::new(0.0, 0.0, 0.0), resname="ALA", chainid='A', resseq=1, element="C")
+  let ca = @src.Atom::new(
+    name="CA",
+    coord=@src.Vector3::new(0.0, 0.0, 0.0),
+    resname="ALA",
+    chainid='A',
+    resseq=1,
+    element="C",
+  )
   let res = @src.Residue::new(resname="ALA", chainid='A', resseq=1, atoms=[ca])
   residues.push(res)
   let chain = @src.Chain::new(id='A', residues~)
@@ -350,12 +417,13 @@ test "pf_anm_too_few_residues" {
 
 // ===== Comparison: betaANM vs ANM vs pfANM =====
 
+///|
 test "beta_vs_standard_anm_differs" {
   // With beta=0, betaANM should reduce to standard ANM
   // With beta>0, results should differ
   let chain = make_larger_chain_beta()
   match @src.ANM::new(chain) {
-    Some(std_anm) => {
+    Some(std_anm) =>
       match @src.BetaANM::new(chain, beta=2.0) {
         Some(beta_anm) => {
           let std_bf = @src.ANM::predict_bfactors(std_anm)
@@ -369,15 +437,15 @@ test "beta_vs_standard_anm_differs" {
         }
         None => assert_true(false)
       }
-    }
     None => assert_true(false)
   }
 }
 
+///|
 test "pf_vs_beta_differs" {
   let chain = make_larger_chain_beta()
   match @src.PfANM::new(chain) {
-    Some(pf_anm) => {
+    Some(pf_anm) =>
       match @src.BetaANM::new(chain, beta=2.0) {
         Some(beta_anm) => {
           let pf_bf = @src.PfANM::predict_bfactors(pf_anm)
@@ -390,7 +458,6 @@ test "pf_vs_beta_differs" {
         }
         None => assert_true(false)
       }
-    }
     None => assert_true(false)
   }
 }

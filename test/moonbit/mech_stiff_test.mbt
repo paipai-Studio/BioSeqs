@@ -3,18 +3,18 @@
 
 ///|
 /// Build a chain with CA atoms at given coordinates.
-fn ms_make_chain(coords : Array[(@src.Vector3, String, Int)]) -> @src.Chain {
+fn ms_make_chain(coords : Array[(@src.Vector3, String, Int32)]) -> @src.Chain {
   let residues = Array(capacity=coords.length())
   for (coord, resname, resseq) in coords {
     let atoms = [
-      @src.Atom::new(name="N", coord=coord, resname=resname, resseq=resseq),
-      @src.Atom::new(name="CA", coord=coord, resname=resname, resseq=resseq),
-      @src.Atom::new(name="C", coord=coord, resname=resname, resseq=resseq),
-      @src.Atom::new(name="O", coord=coord, resname=resname, resseq=resseq),
+      @src.Atom::new(name="N", coord~, resname~, resseq~),
+      @src.Atom::new(name="CA", coord~, resname~, resseq~),
+      @src.Atom::new(name="C", coord~, resname~, resseq~),
+      @src.Atom::new(name="O", coord~, resname~, resseq~),
     ]
-    residues.push(@src.Residue::new(resname=resname, chainid='A', resseq=resseq, atoms=atoms))
+    residues.push(@src.Residue::new(resname~, chainid='A', resseq~, atoms~))
   }
-  @src.Chain::new(id='A', residues=residues)
+  @src.Chain::new(id='A', residues~)
 }
 
 ///|

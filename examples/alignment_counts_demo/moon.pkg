@@ -1,6 +1,6 @@
 import {
   "IvanAXu/BioSeqs/src",
-  "IvanAXu/BioSeqs/src/data" @data,
+  "IvanAXu/BioSeqs/src/data",
 }
 
 pkgtype(kind: "executable")

@@ -28,7 +28,9 @@ test "scanpy_pca" {
       for j = 0; j < 3; j = j + 1 {
         dot = dot + pca.loadings[a][j] * pca.loadings[b][j]
       }
-      assert_true(@moonbit.assert_num_close(dot, if a == b { 1.0 } else { 0.0 }, 1.0e-6))
+      assert_true(
+        @moonbit.assert_num_close(dot, if a == b { 1.0 } else { 0.0 }, 1.0e-6),
+      )
     }
   }
 
@@ -44,6 +46,7 @@ test "scanpy_pca" {
     }
   }
 }
+
 ///|
 /// Empty matrix (0 rows) → all output arrays empty.
 test "scanpy_pca_empty_matrix" {

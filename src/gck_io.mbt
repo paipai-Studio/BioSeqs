@@ -40,11 +40,13 @@ pub enum GckSeqType {
   GckProtein
   GckUnknown
 } derive(Eq)
+
+///|
 pub extend GckSeqType with Eq::{equal, not_equal}
 
 ///|
 /// Convert a GCK sequence type to its integer code.
-pub fn GckSeqType::to_int(self : GckSeqType) -> Int {
+pub fn GckSeqType::to_int(self : GckSeqType) -> Int32 {
   match self {
     GckDna => 0
     GckRna => 1
@@ -55,7 +57,7 @@ pub fn GckSeqType::to_int(self : GckSeqType) -> Int {
 
 ///|
 /// Convert an integer code to a GCK sequence type.
-pub fn GckSeqType::from_int(code : Int) -> GckSeqType {
+pub fn GckSeqType::from_int(code : Int32) -> GckSeqType {
   match code {
     0 => GckDna
     1 => GckRna
@@ -80,8 +82,8 @@ pub fn GckSeqType::to_string(self : GckSeqType) -> String {
 pub struct GckFeature {
   name : String
   type_ : String // e.g. "CDS", "promoter", "terminator"
-  direction : Int // 0=none, 1=forward, 2=reverse
-  segments : Array[(Int, Int)] // (start, end) 0-based inclusive
+  direction : Int32 // 0=none, 1=forward, 2=reverse
+  segments : Array[(Int32, Int32)] // (start, end) 0-based inclusive
 }
 
 ///|
@@ -89,8 +91,8 @@ pub struct GckFeature {
 pub fn GckFeature::new(
   name~ : String,
   type_~ : String,
-  direction~ : Int,
-  segments~ : Array[(Int, Int)],
+  direction~ : Int32,
+  segments~ : Array[(Int32, Int32)],
 ) -> GckFeature {
   GckFeature::{ name, type_, direction, segments, }
 }
@@ -98,7 +100,7 @@ pub fn GckFeature::new(
 ///|
 /// A parsed GCK file.
 pub struct GckFile {
-  mut version : Int
+  mut version : Int32
   mut seq_type : GckSeqType
   mut is_circular : Bool
   mut sequence : String
@@ -119,7 +121,7 @@ pub fn GckFile::new() -> GckFile {
 
 ///|
 /// Set the version.
-pub fn GckFile::set_version(self : GckFile, v : Int) -> Unit {
+pub fn GckFile::set_version(self : GckFile, v : Int32) -> Unit {
   self.version = v
 }
 
@@ -153,7 +155,7 @@ pub fn GckFile::add_feature(self : GckFile, f : GckFeature) -> Unit {
 
 ///|
 /// Convert an integer 0-15 to a lowercase hex digit character.
-fn gck_hex_digit(n : Int) -> Char {
+fn gck_hex_digit(n : Int32) -> Char {
   if n < 10 {
     (48 + n).unsafe_to_char()
   } else {
@@ -163,7 +165,7 @@ fn gck_hex_digit(n : Int) -> Char {
 
 ///|
 /// Convert a hex digit character's ASCII code to its integer value 0-15.
-fn gck_hex_value(c : Int) -> Int {
+fn gck_hex_value(c : Int32) -> Int32 {
   if c >= 48 && c <= 57 {
     c - 48
   } else if c >= 65 && c <= 70 {
@@ -177,13 +179,13 @@ fn gck_hex_value(c : Int) -> Int {
 
 ///|
 /// Read a uint16 big-endian from a byte array.
-fn gck_read_u16_be(data : Array[Int], offset : Int) -> Int {
+fn gck_read_u16_be(data : Array[Int32], offset : Int32) -> Int32 {
   (data[offset] & 0xFF) * 256 + (data[offset + 1] & 0xFF)
 }
 
 ///|
 /// Read a uint32 big-endian from a byte array.
-fn gck_read_u32_be(data : Array[Int], offset : Int) -> Int {
+fn gck_read_u32_be(data : Array[Int32], offset : Int32) -> Int32 {
   (data[offset] & 0xFF) * 16777216 +
   (data[offset + 1] & 0xFF) * 65536 +
   (data[offset + 2] & 0xFF) * 256 +
@@ -192,14 +194,14 @@ fn gck_read_u32_be(data : Array[Int], offset : Int) -> Int {
 
 ///|
 /// Write a uint16 big-endian into a byte array at the given offset.
-fn gck_write_u16_be(data : Array[Int], offset : Int, value : Int) -> Unit {
+fn gck_write_u16_be(data : Array[Int32], offset : Int32, value : Int32) -> Unit {
   data[offset] = (value >> 8) & 0xFF
   data[offset + 1] = value & 0xFF
 }
 
 ///|
 /// Write a uint32 big-endian into a byte array at the given offset.
-fn gck_write_u32_be(data : Array[Int], offset : Int, value : Int) -> Unit {
+fn gck_write_u32_be(data : Array[Int32], offset : Int32, value : Int32) -> Unit {
   data[offset] = (value >> 24) & 0xFF
   data[offset + 1] = (value >> 16) & 0xFF
   data[offset + 2] = (value >> 8) & 0xFF
@@ -208,7 +210,7 @@ fn gck_write_u32_be(data : Array[Int], offset : Int, value : Int) -> Unit {
 
 ///|
 /// Convert a hex string to a byte array.
-fn gck_hex_to_bytes(hex : String) -> Array[Int] {
+fn gck_hex_to_bytes(hex : String) -> Array[Int32] {
   let n = hex.length()
   let bytes = Array::make(n / 2, 0)
   for i in 0..<bytes.length() {
@@ -221,7 +223,7 @@ fn gck_hex_to_bytes(hex : String) -> Array[Int] {
 
 ///|
 /// Convert a byte array to a lowercase hex string.
-fn gck_bytes_to_hex(data : Array[Int]) -> String {
+fn gck_bytes_to_hex(data : Array[Int32]) -> String {
   let sb = StringBuilder()
   for i in 0..<data.length() {
     let b = data[i] & 0xFF
@@ -233,18 +235,22 @@ fn gck_bytes_to_hex(data : Array[Int]) -> String {
 
 ///|
 /// Convert ASCII byte array slice to a string.
-fn gck_ascii_to_string(data : Array[Int], offset : Int, length : Int) -> String {
+fn gck_ascii_to_string(
+  data : Array[Int32],
+  offset : Int32,
+  length : Int32,
+) -> String {
   let sb = StringBuilder()
   for i in 0..<length {
     let b = data[offset + i] & 0xFF
-    sb.write_char((b).unsafe_to_char())
+    sb.write_char(b.unsafe_to_char())
   }
   sb.to_string()
 }
 
 ///|
 /// Convert a string to an ASCII byte array.
-fn gck_string_to_ascii(s : String) -> Array[Int] {
+fn gck_string_to_ascii(s : String) -> Array[Int32] {
   let n = s.length()
   let out = Array::make(n, 0)
   for i in 0..<n {
@@ -266,7 +272,7 @@ pub fn gck_parse(hex : String) -> GckFile {
 
 ///|
 /// Parse a GCK file from a byte array.
-pub fn gck_from_bytes(data : Array[Int]) -> GckFile {
+pub fn gck_from_bytes(data : Array[Int32]) -> GckFile {
   let file = GckFile::new()
   let n = data.length()
   if n < 14 {
@@ -353,7 +359,7 @@ pub fn gck_write(file : GckFile) -> String {
 
 ///|
 /// Serialize a GckFile to a byte array.
-pub fn gck_to_bytes(file : GckFile) -> Array[Int] {
+pub fn gck_to_bytes(file : GckFile) -> Array[Int32] {
   let out = Array(capacity=0)
   // Magic
   let magic = gck_string_to_ascii("GCK_FILE")
@@ -453,7 +459,7 @@ pub fn gck_from_seqrecord(rec : SeqRecord) -> GckFile {
 
 ///|
 /// Count features by type.
-pub fn gck_count_features_by_type(file : GckFile, type_name : String) -> Int {
+pub fn gck_count_features_by_type(file : GckFile, type_name : String) -> Int32 {
   let mut count = 0
   for f in file.features {
     if f.type_ == type_name {
@@ -465,7 +471,7 @@ pub fn gck_count_features_by_type(file : GckFile, type_name : String) -> Int {
 
 ///|
 /// Get the sequence length.
-pub fn gck_seq_length(file : GckFile) -> Int {
+pub fn gck_seq_length(file : GckFile) -> Int32 {
   file.sequence.length()
 }
 

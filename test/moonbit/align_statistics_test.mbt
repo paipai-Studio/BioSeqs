@@ -1,3 +1,4 @@
+///|
 test "align_stats_evalue" {
   // BLOSUM62 defaults
   let stats = @src.blosum62_stats()
@@ -10,6 +11,7 @@ test "align_stats_evalue" {
   assert_true(e < 1.0)
 }
 
+///|
 test "align_stats_pvalue" {
   // p = 1 - exp(-E)
   let p = @src.pvalue(0.01)
@@ -19,6 +21,7 @@ test "align_stats_pvalue" {
   assert_true(p_large > 0.99)
 }
 
+///|
 test "align_stats_bitscore" {
   let stats = @src.blosum62_stats()
   let bits = @src.bit_score(100.0, stats)
@@ -27,6 +30,7 @@ test "align_stats_bitscore" {
   assert_true(bits > 45.0 && bits < 55.0)
 }
 
+///|
 test "align_stats_blastn" {
   let stats = @src.blastn_stats()
   let e = @src.evalue(50.0, 100, 1000000, stats)
@@ -36,11 +40,12 @@ test "align_stats_blastn" {
   assert_true(e < 1.0)
 }
 
+///|
 test "align_stats_estimate" {
   // Simple scoring: match=2, mismatch=-1
   // Frequencies: 0.25 each for A, C, G, T
   let scores = [2.0, -1.0]
-  let freqs = [0.25, 0.75]  // 25% match, 75% mismatch
+  let freqs = [0.25, 0.75] // 25% match, 75% mismatch
   let result = @src.estimate_karlin_altschul(scores, freqs)
   assert_true(result is Some(_))
   match result {

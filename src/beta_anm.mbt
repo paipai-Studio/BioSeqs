@@ -14,7 +14,7 @@
 
 ///|
 pub struct BetaANM {
-  n : Int
+  n : Int32
   cutoff : Double
   gamma : Double
   beta : Double
@@ -31,9 +31,9 @@ pub struct BetaANM {
 /// * `beta`   — distance exponent, higher = more local (default 2.0)
 pub fn BetaANM::new(
   chain : Chain,
-  cutoff? : Double = 15.0,
-  gamma? : Double = 1.0,
-  beta? : Double = 2.0,
+  cutoff~ : Double = 15.0,
+  gamma~ : Double = 1.0,
+  beta~ : Double = 2.0,
 ) -> BetaANM? {
   let residues = chain.get_residues()
   let ca_coords : Array[Vector3] = Array(capacity=0)
@@ -48,7 +48,7 @@ pub fn BetaANM::new(
     return None
   }
   let dim = 3 * n
-  let h : Array[Array[Double]] = Array::makei(dim, { _ => Array::make(dim, 0.0) })
+  let h : Array[Array[Double]] = Array::makei(dim, _ => Array::make(dim, 0.0))
   let mut i = 0
   while i < n {
     let mut j = i + 1
@@ -112,7 +112,15 @@ pub fn BetaANM::new(
   }
   let max_iter = if dim > 100 { dim * 20 } else { 200 }
   let (eigenvalues, eigenvectors) = linalg_jacobi(h, dim, max_iter)
-  Some(BetaANM::{ n, cutoff, gamma, beta, hessian: h, eigenvalues, eigenvectors })
+  Some(BetaANM::{
+    n,
+    cutoff,
+    gamma,
+    beta,
+    hessian: h,
+    eigenvalues,
+    eigenvectors,
+  })
 }
 
 ///|
@@ -153,7 +161,7 @@ pub fn BetaANM::predict_bfactors(self : BetaANM) -> Array[Double] {
   let n = self.n
   let dim = 3 * n
   let bfactors = Array::make(n, 0.0)
-  let indices = Array::makei(dim, { i => i })
+  let indices = Array::makei(dim, i => i)
   for i = 1; i < dim; i = i + 1 {
     let key = indices[i]
     let key_val = self.eigenvalues[key]
@@ -194,11 +202,11 @@ pub fn BetaANM::fluctuations(self : BetaANM) -> Array[Double] {
 /// Get the k slowest non-trivial modes (skip 6 zero modes).
 pub fn BetaANM::slow_modes(
   self : BetaANM,
-  k : Int,
-) -> Array[(Int, Double, Array[Double])] {
+  k : Int32,
+) -> Array[(Int32, Double, Array[Double])] {
   let n = self.n
   let dim = 3 * n
-  let indices = Array::makei(dim, { i => i })
+  let indices = Array::makei(dim, i => i)
   for i = 1; i < dim; i = i + 1 {
     let key = indices[i]
     let key_val = self.eigenvalues[key]
@@ -209,7 +217,7 @@ pub fn BetaANM::slow_modes(
     }
     indices[j + 1] = key
   }
-  let result : Array[(Int, Double, Array[Double])] = Array(capacity=0)
+  let result : Array[(Int32, Double, Array[Double])] = Array(capacity=0)
   let count = if k < dim - 6 { k } else { dim - 6 }
   for m = 6; m < 6 + count; m = m + 1 {
     let idx = indices[m]
@@ -228,8 +236,8 @@ pub fn BetaANM::slow_modes(
 pub fn BetaANM::cross_correlation(self : BetaANM) -> Array[Array[Double]] {
   let n = self.n
   let dim = 3 * n
-  let corr : Array[Array[Double]] = Array::makei(n, { _ => Array::make(n, 0.0) })
-  let indices = Array::makei(dim, { i => i })
+  let corr : Array[Array[Double]] = Array::makei(n, _ => Array::make(n, 0.0))
+  let indices = Array::makei(dim, i => i)
   for i = 1; i < dim; i = i + 1 {
     let key = indices[i]
     let key_val = self.eigenvalues[key]
@@ -273,7 +281,7 @@ pub fn BetaANM::cross_correlation(self : BetaANM) -> Array[Array[Double]] {
 
 ///|
 /// Number of nodes.
-pub fn BetaANM::num_nodes(self : BetaANM) -> Int {
+pub fn BetaANM::num_nodes(self : BetaANM) -> Int32 {
   self.n
 }
 
@@ -300,7 +308,7 @@ pub fn BetaANM::beta_exponent(self : BetaANM) -> Double {
 
 ///|
 pub struct PfANM {
-  n : Int
+  n : Int32
   gamma : Double
   hessian : Array[Array[Double]]
   eigenvalues : Array[Double]
@@ -314,8 +322,8 @@ pub struct PfANM {
 /// * `cutoff` — practical cutoff to skip negligible pairs (default 30.0 Å)
 pub fn PfANM::new(
   chain : Chain,
-  gamma? : Double = 1.0,
-  cutoff? : Double = 30.0,
+  gamma~ : Double = 1.0,
+  cutoff~ : Double = 30.0,
 ) -> PfANM? {
   let residues = chain.get_residues()
   let ca_coords : Array[Vector3] = Array(capacity=0)
@@ -330,7 +338,7 @@ pub fn PfANM::new(
     return None
   }
   let dim = 3 * n
-  let h : Array[Array[Double]] = Array::makei(dim, { _ => Array::make(dim, 0.0) })
+  let h : Array[Array[Double]] = Array::makei(dim, _ => Array::make(dim, 0.0))
   let mut i = 0
   while i < n {
     let mut j = i + 1
@@ -396,7 +404,7 @@ pub fn PfANM::new(
   }
   let max_iter = if dim > 100 { dim * 20 } else { 200 }
   let (eigenvalues, eigenvectors) = linalg_jacobi(h, dim, max_iter)
-  Some(PfANM::{ n, gamma, hessian: h, eigenvalues, eigenvectors })
+  Some(PfANM::{ n, gamma, hessian: h, eigenvalues, eigenvectors, })
 }
 
 ///|
@@ -437,7 +445,7 @@ pub fn PfANM::predict_bfactors(self : PfANM) -> Array[Double] {
   let n = self.n
   let dim = 3 * n
   let bfactors = Array::make(n, 0.0)
-  let indices = Array::makei(dim, { i => i })
+  let indices = Array::makei(dim, i => i)
   for i = 1; i < dim; i = i + 1 {
     let key = indices[i]
     let key_val = self.eigenvalues[key]
@@ -478,11 +486,11 @@ pub fn PfANM::fluctuations(self : PfANM) -> Array[Double] {
 /// Get the k slowest non-trivial modes.
 pub fn PfANM::slow_modes(
   self : PfANM,
-  k : Int,
-) -> Array[(Int, Double, Array[Double])] {
+  k : Int32,
+) -> Array[(Int32, Double, Array[Double])] {
   let n = self.n
   let dim = 3 * n
-  let indices = Array::makei(dim, { i => i })
+  let indices = Array::makei(dim, i => i)
   for i = 1; i < dim; i = i + 1 {
     let key = indices[i]
     let key_val = self.eigenvalues[key]
@@ -493,7 +501,7 @@ pub fn PfANM::slow_modes(
     }
     indices[j + 1] = key
   }
-  let result : Array[(Int, Double, Array[Double])] = Array(capacity=0)
+  let result : Array[(Int32, Double, Array[Double])] = Array(capacity=0)
   let count = if k < dim - 6 { k } else { dim - 6 }
   for m = 6; m < 6 + count; m = m + 1 {
     let idx = indices[m]
@@ -512,8 +520,8 @@ pub fn PfANM::slow_modes(
 pub fn PfANM::cross_correlation(self : PfANM) -> Array[Array[Double]] {
   let n = self.n
   let dim = 3 * n
-  let corr : Array[Array[Double]] = Array::makei(n, { _ => Array::make(n, 0.0) })
-  let indices = Array::makei(dim, { i => i })
+  let corr : Array[Array[Double]] = Array::makei(n, _ => Array::make(n, 0.0))
+  let indices = Array::makei(dim, i => i)
   for i = 1; i < dim; i = i + 1 {
     let key = indices[i]
     let key_val = self.eigenvalues[key]
@@ -557,6 +565,6 @@ pub fn PfANM::cross_correlation(self : PfANM) -> Array[Array[Double]] {
 
 ///|
 /// Number of nodes.
-pub fn PfANM::num_nodes(self : PfANM) -> Int {
+pub fn PfANM::num_nodes(self : PfANM) -> Int32 {
   self.n
 }

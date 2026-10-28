@@ -6,47 +6,70 @@
 ///   shrunk = prior_var * lfc / (se2 + prior_var)
 ///
 /// DESeq2 1.34.x 算法，与硬编码 prior_var=0.5 的简化版不同
-
 fn _approx_eq(a : Double, b : Double) -> Bool {
   let tol = 0.0001
   let d = a - b
-  if d < 0.0 { -d <= tol } else { d <= tol }
+  if d < 0.0 {
+    -d <= tol
+  } else {
+    d <= tol
+  }
 }
 
+///|
 fn _close_eq(a : Double, b : Double) -> Bool {
   let tol = 0.02
   let d = a - b
-  if d < 0.0 { -d <= tol } else { d <= tol }
+  if d < 0.0 {
+    -d <= tol
+  } else {
+    d <= tol
+  }
 }
 
+///|
 fn _max2(a : Double, b : Double) -> Double {
-  if a > b { a } else { b }
+  if a > b {
+    a
+  } else {
+    b
+  }
 }
 
 // ============ 测试数据 ============
+
+///|
 let _RAW_LFC : Array[Double] = [
-  1.341186, -0.116017, -2.115288, 0.253867, 5.109699,
-  -0.214686, -0.768543, 0.056340, -0.940489, 1.170879,
+  1.341186, -0.116017, -2.115288, 0.253867, 5.109699, -0.214686, -0.768543, 0.056340,
+  -0.940489, 1.170879,
 ]
+
+///|
 let _RAW_SE : Array[Double] = [
-  0.349731, 0.124853, 0.493794, 0.100000, 0.722853,
-  0.100000, 0.224610, 0.100000, 0.319892, 0.300315,
+  0.349731, 0.124853, 0.493794, 0.100000, 0.722853, 0.100000, 0.224610, 0.100000,
+  0.319892, 0.300315,
 ]
 
 // Python frozen values
+
+///|
 let _PRIOR_VAR_FROZEN = 0.645236
 
+///|
 let _SHRUNK_LFC_FROZEN : Array[Double] = [
-  1.127463, -0.113280, -1.535158, 0.249993, 2.823340,
-  -0.211410, -0.712810, 0.055480, -0.811750, 1.027288,
+  1.127463, -0.113280, -1.535158, 0.249993, 2.823340, -0.211410, -0.712810, 0.055480,
+  -0.811750, 1.027288,
 ]
+
+///|
 let _SHRUNK_SE_FROZEN : Array[Double] = [
-  0.320657, 0.123372, 0.420666, 0.099234, 0.537321,
-  0.099234, 0.216313, 0.099234, 0.297192, 0.281298,
+  0.320657, 0.123372, 0.420666, 0.099234, 0.537321, 0.099234, 0.216313, 0.099234,
+  0.297192, 0.281298,
 ]
 
 // ============ prior_var 估计测试 ============
 
+///|
 test "deseq2_prior_var_estimate" {
   let prior_var = @src.estimate_prior_var_for_shrink(_RAW_LFC, _RAW_SE)
   assert_true(_approx_eq(prior_var, _PRIOR_VAR_FROZEN))
@@ -54,6 +77,7 @@ test "deseq2_prior_var_estimate" {
   assert_true(prior_var < 2.0)
 }
 
+///|
 test "deseq2_prior_var_monotone" {
   // 全 0 logFC → prior_var 应该被 cap 在 0.01
   let zero_lfcs : Array[Double] = Array::make(10, 0.0)
@@ -62,6 +86,7 @@ test "deseq2_prior_var_monotone" {
   assert_true(_approx_eq(pv, 0.01))
 }
 
+///|
 test "deseq2_prior_var_single_gene" {
   // 单基因 n=1: median = 唯一值
   // z^2 = (1.0/0.5)^2 = 4.0, median_se2 = 0.25
@@ -70,6 +95,7 @@ test "deseq2_prior_var_single_gene" {
   assert_true(_approx_eq(pv, 0.75))
 }
 
+///|
 test "deseq2_prior_var_empty_default" {
   let pv = @src.estimate_prior_var_for_shrink([], [])
   assert_true(pv == 0.5)
@@ -77,6 +103,7 @@ test "deseq2_prior_var_empty_default" {
 
 // ============ shrinkage 公式测试 ============
 
+///|
 test "deseq2_shrunk_lfc_frozen_values" {
   let prior_var = @src.estimate_prior_var_for_shrink(_RAW_LFC, _RAW_SE)
   let n = _RAW_LFC.length()
@@ -89,6 +116,7 @@ test "deseq2_shrunk_lfc_frozen_values" {
   }
 }
 
+///|
 test "deseq2_shrunk_se_frozen_values" {
   let prior_var = @src.estimate_prior_var_for_shrink(_RAW_LFC, _RAW_SE)
   let n = _RAW_LFC.length()
@@ -103,6 +131,7 @@ test "deseq2_shrunk_se_frozen_values" {
 
 // ============ shrinkage 行为测试 ============
 
+///|
 test "deseq2_shrinkage_towards_zero" {
   let prior_var = @src.estimate_prior_var_for_shrink(_RAW_LFC, _RAW_SE)
   let n = _RAW_LFC.length()
@@ -116,6 +145,7 @@ test "deseq2_shrinkage_towards_zero" {
   }
 }
 
+///|
 test "deseq2_low_se_less_shrinkage" {
   // shrink ratio = se2/(se2+prior_var) 越大 → shrink 越多
   // Gene4 (SE=0.1) 应该 shrink ratio 小 → 被 shrink 少
@@ -132,6 +162,7 @@ test "deseq2_low_se_less_shrinkage" {
   assert_true(shrink_ratio_5 > 0.3)
 }
 
+///|
 test "deseq2_extreme_prior_var_behavior" {
   let lfc = 1.0
   let se = 0.5
@@ -148,17 +179,19 @@ test "deseq2_extreme_prior_var_behavior" {
   assert_true(shrunk_low < 0.01)
 }
 
+///|
 test "deseq2_zero_lfc_no_change" {
   let pv = 0.5
   let shrunk = pv * 0.0 / (0.25 + pv)
   assert_true(_approx_eq(shrunk, 0.0))
 }
 
+///|
 test "deseq2_symmetric_shrinkage" {
   let pv = 0.5
   let se2 = 0.25
   let pos = pv * 2.0 / (se2 + pv)
-  let neg = pv * (-2.0) / (se2 + pv)
+  let neg = pv * -2.0 / (se2 + pv)
   assert_true(_approx_eq(pos.abs(), neg.abs()))
   assert_true(pos > 0.0)
   assert_true(neg < 0.0)

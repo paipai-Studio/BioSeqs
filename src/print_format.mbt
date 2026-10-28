@@ -9,25 +9,30 @@
 
 ///|
 pub struct PrintFormatConfig {
-  console_width : Int
-  name_width : Int
-  max_size : Int
-  indent : Int
+  console_width : Int32
+  name_width : Int32
+  max_size : Int32
+  indent : Int32
 }
 
 ///|
 /// The default layout, mirroring Biopython's class attributes.
 pub fn print_format_config_default() -> PrintFormatConfig {
-  PrintFormatConfig::{ console_width: 80, name_width: 10, max_size: 6, indent: 4 }
+  PrintFormatConfig::{
+    console_width: 80,
+    name_width: 10,
+    max_size: 6,
+    indent: 4,
+  }
 }
 
 ///|
-fn pf_linesize(cfg : PrintFormatConfig) -> Int {
-  (cfg.console_width - cfg.console_width % cfg.name_width) - cfg.name_width
+fn pf_linesize(cfg : PrintFormatConfig) -> Int32 {
+  cfg.console_width - cfg.console_width % cfg.name_width - cfg.name_width
 }
 
 ///|
-fn pf_repeat(s : String, n : Int) -> String {
+fn pf_repeat(s : String, n : Int32) -> String {
   let buf = StringBuilder()
   for i = 0; i < n; i = i + 1 {
     buf.write_string(s)
@@ -37,7 +42,7 @@ fn pf_repeat(s : String, n : Int) -> String {
 
 ///|
 /// Python str.ljust: left-justify to `width` with spaces.
-fn pf_ljust(s : String, width : Int) -> String {
+fn pf_ljust(s : String, width : Int32) -> String {
   if s.length() >= width {
     s
   } else {
@@ -47,7 +52,7 @@ fn pf_ljust(s : String, width : Int) -> String {
 
 ///|
 /// Python str.rjust: right-justify to `width` with spaces.
-fn pf_rjust(s : String, width : Int) -> String {
+fn pf_rjust(s : String, width : Int32) -> String {
   if s.length() >= width {
     s
   } else {
@@ -113,13 +118,18 @@ fn pf_complement(seq : String) -> String {
 ///|
 /// Split the results into cutting (non-empty) and non-cutting enzymes.
 fn pf_split(
-  dct : Map[String, Array[Int]],
-) -> (Array[(String, Array[Int])], Array[String]) {
-  let ls : Array[(String, Array[Int])] = []
+  dct : Map[String, Array[Int32]],
+) -> (Array[(String, Array[Int32])], Array[String]) {
+  let ls : Array[(String, Array[Int32])] = []
   let nc : Array[String] = []
   for name in dct.keys() {
     match dct.get(name) {
-      Some(sites) => if sites.length() > 0 { ls.push((name, sites)) } else { nc.push(name) }
+      Some(sites) =>
+        if sites.length() > 0 {
+          ls.push((name, sites))
+        } else {
+          nc.push(name)
+        }
       None => ()
     }
   }
@@ -129,7 +139,7 @@ fn pf_split(
 ///|
 /// Wrap a long "pos1, pos2, ... ." output into chunks of at most `linesize`
 /// characters that end with a comma or period.
-fn pf_wrap(output : String, linesize : Int) -> Array[String] {
+fn pf_wrap(output : String, linesize : Int32) -> Array[String] {
   let chunks : Array[String] = []
   let n = output.length()
   let mut start = 0
@@ -160,14 +170,17 @@ fn pf_wrap(output : String, linesize : Int) -> Array[String] {
 ///|
 /// Render one section of (name, sites) pairs in the "list" style.
 fn pf_next_section(
-  ls : Array[(String, Array[Int])],
+  ls : Array[(String, Array[Int32])],
   into : String,
   cfg : PrintFormatConfig,
 ) -> String {
   let indentation = "\n" + pf_repeat(" ", cfg.name_width + cfg.indent)
   let linesize = pf_linesize(cfg) - cfg.max_size
   let sorted = ls.copy()
-  sorted.sort_by(fn(a : (String, Array[Int]), b : (String, Array[Int])) -> Int {
+  sorted.sort_by(fn(
+    a : (String, Array[Int32]),
+    b : (String, Array[Int32]),
+  ) -> Int32 {
     a.0.compare(b.0)
   })
   let mut out = into
@@ -202,7 +215,7 @@ fn pf_make_nocut_only(
     return s1
   }
   let sorted = nc.copy()
-  sorted.sort_by(fn(a : String, b : String) -> Int { a.compare(b) })
+  sorted.sort_by(fn(a : String, b : String) -> Int32 { a.compare(b) })
   let linesize = pf_linesize(cfg)
   let mut stringsite = if s1.length() > 0 {
     s1
@@ -222,7 +235,7 @@ fn pf_make_nocut_only(
 
 ///|
 fn pf_make_list_only(
-  ls : Array[(String, Array[Int])],
+  ls : Array[(String, Array[Int32])],
   title : String,
   cfg : PrintFormatConfig,
 ) -> String {
@@ -235,7 +248,7 @@ fn pf_make_list_only(
 
 ///|
 fn pf_make_number_only(
-  ls : Array[(String, Array[Int])],
+  ls : Array[(String, Array[Int32])],
   title : String,
   cfg : PrintFormatConfig,
 ) -> String {
@@ -243,10 +256,13 @@ fn pf_make_number_only(
     return title
   }
   let sorted = ls.copy()
-  sorted.sort_by(fn(a : (String, Array[Int]), b : (String, Array[Int])) -> Int {
+  sorted.sort_by(fn(
+    a : (String, Array[Int32]),
+    b : (String, Array[Int32]),
+  ) -> Int32 {
     a.1.length().compare(b.1.length())
   })
-  let mut new_sect : Array[(String, Array[Int])] = []
+  let mut new_sect : Array[(String, Array[Int32])] = []
   let mut cur_len = 1
   let mut out = title
   let mut i = 0
@@ -271,7 +287,7 @@ fn pf_make_number_only(
 ///|
 /// Render the graphical sequence map (Port of _make_map_only).
 fn pf_make_map_only(
-  ls : Array[(String, Array[Int])],
+  ls : Array[(String, Array[Int32])],
   title : String,
   sequence : String,
   _cfg : PrintFormatConfig,
@@ -280,7 +296,7 @@ fn pf_make_map_only(
     return title
   }
   // position -> enzyme names
-  let enzymemap : Map[Int, Array[String]] = Map([], capacity=ls.length() + 1)
+  let enzymemap : Map[Int32, Array[String]] = Map([], capacity=ls.length() + 1)
   for (enzyme, cut) in ls {
     for c in cut {
       match enzymemap.get(c) {
@@ -296,22 +312,22 @@ fn pf_make_map_only(
       }
     }
   }
-  let mapping : Array[Int] = []
+  let mapping : Array[Int32] = []
   for pos in enzymemap.keys() {
     mapping.push(pos)
   }
-  mapping.sort_by(fn(a : Int, b : Int) -> Int { a.compare(b) })
+  mapping.sort_by(fn(a : Int32, b : Int32) -> Int32 { a.compare(b) })
 
   let length = sequence.length()
   // partition positions into 60 bp windows; x ends up as the last window end
-  let cutloc : Map[Int, Array[Int]] = Map([], capacity=8)
+  let cutloc : Map[Int32, Array[Int32]] = Map([], capacity=8)
   let mut remaining = mapping.copy()
   let mut x = 0
   let mut next = 60
   while next < length {
     let counter = next - 60
-    let loc : Array[Int] = []
-    let rem : Array[Int] = []
+    let loc : Array[Int32] = []
+    let rem : Array[Int32] = []
     for key in remaining {
       if key <= next {
         loc.push(key)
@@ -345,7 +361,10 @@ fn pf_make_map_only(
       let k = key % 60
       let lineo = line[0:k - 1].to_owned() + key.to_string() + s + "\n"
       line = line[0:k - 1].to_owned() + a + line[k:line.length()].to_owned()
-      let line2 = line[0:k - 1].to_owned() + a + line[k:line.length()].to_owned() + "\n"
+      let line2 = line[0:k - 1].to_owned() +
+        a +
+        line[k:line.length()].to_owned() +
+        "\n"
       map = map + lineo + line2
     }
     let mapunit = pf_join(
@@ -353,8 +372,10 @@ fn pf_make_map_only(
         sequence[win - 60:win].to_owned(),
         pf_repeat(a, 60),
         revsequence[win - 60:win].to_owned(),
-        pf_ljust((win - 59).to_string(), 15) + pf_repeat(" ", 30) +
-          pf_rjust(win.to_string(), 15) + "\n\n",
+        pf_ljust((win - 59).to_string(), 15) +
+        pf_repeat(" ", 30) +
+        pf_rjust(win.to_string(), 15) +
+        "\n\n",
       ],
       "\n",
     )
@@ -374,21 +395,29 @@ fn pf_make_map_only(
     let k = key % 60
     let lineo = line[0:k - 1].to_owned() + key.to_string() + s + "\n"
     line = line[0:k - 1].to_owned() + a + line[k:line.length()].to_owned()
-    let line2 = line[0:k - 1].to_owned() + a + line[k:line.length()].to_owned() + "\n"
+    let line2 = line[0:k - 1].to_owned() +
+      a +
+      line[k:line.length()].to_owned() +
+      "\n"
     map = map + lineo + line2
   }
-  let mapunit = sequence[x:length].to_owned() + "\n" +
-    pf_repeat(a, length - x) + "\n" +
-    revsequence[x:length].to_owned() + "\n" +
-    pf_ljust((x + 1).to_string(), 15) + pf_repeat(" ", length - x - 30) +
-    pf_rjust(length.to_string(), 15) + "\n\n"
+  let mapunit = sequence[x:length].to_owned() +
+    "\n" +
+    pf_repeat(a, length - x) +
+    "\n" +
+    revsequence[x:length].to_owned() +
+    "\n" +
+    pf_ljust((x + 1).to_string(), 15) +
+    pf_repeat(" ", length - x - 30) +
+    pf_rjust(length.to_string(), 15) +
+    "\n\n"
   map + mapunit
 }
 
 ///|
 /// Format the results as a list.
 pub fn print_format_list(
-  dct~ : Map[String, Array[Int]],
+  dct~ : Map[String, Array[Int32]],
   title~ : String,
   s1~ : String,
   config? : PrintFormatConfig,
@@ -401,7 +430,7 @@ pub fn print_format_list(
 ///|
 /// Format the results grouped by number of cutting sites.
 pub fn print_format_number(
-  dct~ : Map[String, Array[Int]],
+  dct~ : Map[String, Array[Int32]],
   title~ : String,
   s1~ : String,
   config? : PrintFormatConfig,
@@ -414,7 +443,7 @@ pub fn print_format_number(
 ///|
 /// Format the results as a graphical map of `sequence`.
 pub fn print_format_map(
-  dct~ : Map[String, Array[Int]],
+  dct~ : Map[String, Array[Int32]],
   sequence~ : String,
   title~ : String,
   s1~ : String,

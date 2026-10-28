@@ -7,26 +7,26 @@
 
 ///|
 pub struct SeqkitStats {
-  num_seqs : Int
-  sum_len : Int
-  min_len : Int
+  num_seqs : Int32
+  sum_len : Int32
+  min_len : Int32
   avg_len : Double
-  max_len : Int
-  q1 : Int
-  q2 : Int
-  q3 : Int
-  sum_gap : Int
-  n50 : Int
-  l50 : Int
+  max_len : Int32
+  q1 : Int32
+  q2 : Int32
+  q3 : Int32
+  sum_gap : Int32
+  n50 : Int32
+  l50 : Int32
   q20_pct : Double
   q30_pct : Double
   avg_qual : Double
   gc_pct : Double
-  sum_n : Int
+  sum_n : Int32
 }
 
 ///|
-fn stat_sort_asc(arr : Array[Int]) -> Array[Int] {
+fn stat_sort_asc(arr : Array[Int32]) -> Array[Int32] {
   let out = arr.copy()
   let mut i = 1
   while i < out.length() {
@@ -44,7 +44,7 @@ fn stat_sort_asc(arr : Array[Int]) -> Array[Int] {
 
 ///|
 /// Round to `n` decimal places (half-up, values here are non-negative).
-fn round_n(x : Double, n : Int) -> Double {
+fn round_n(x : Double, n : Int32) -> Double {
   let f = @math.pow(10.0, n.to_double())
   @math.floor(x * f + 0.5) / f
 }
@@ -56,7 +56,7 @@ fn log10(x : Double) -> Double {
 
 ///|
 /// Median of `sorted[lo:hi)` (sorted ascending); 0 for an empty slice.
-fn stat_median_range(sorted : Array[Int], lo : Int, hi : Int) -> Int {
+fn stat_median_range(sorted : Array[Int32], lo : Int32, hi : Int32) -> Int32 {
   let l = hi - lo
   if l == 0 {
     return 0
@@ -78,7 +78,7 @@ pub fn seqkit_stats(
   is_nucleotide : Bool,
   is_fastq : Bool,
 ) -> SeqkitStats {
-  let lengths : Array[Int] = Array(capacity=0)
+  let lengths : Array[Int32] = Array(capacity=0)
   let mut sum_len = 0
   let mut gc = 0
   let mut gap = 0
@@ -104,17 +104,15 @@ pub fn seqkit_stats(
         if c == "N" || c == "n" {
           n = n + 1
         }
-      } else {
-        if c == "X" || c == "x" {
-          n = n + 1
-        }
+      } else if c == "X" || c == "x" {
+        n = n + 1
       }
       i = i + 1
     }
     if is_fastq {
       match rec.letter_annotations.get("phred_quality") {
         None => ()
-        Some(quals) => {
+        Some(quals) =>
           for q in quals {
             if q >= 20 {
               q20 = q20 + 1
@@ -124,7 +122,6 @@ pub fn seqkit_stats(
             }
             err_sum = err_sum + @math.pow(10.0, (0.0 - q.to_double()) / 10.0)
           }
-        }
       }
     }
   }

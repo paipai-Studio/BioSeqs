@@ -36,7 +36,7 @@ pub struct CycloneResult {
 /// Parameters for Cyclone scoring.
 pub struct CycloneParams {
   min_score : Double
-  n_top_pairs : Int
+  n_top_pairs : Int32
 }
 
 ///|
@@ -49,7 +49,7 @@ pub fn CycloneParams::new() -> CycloneParams {
 /// Create custom Cyclone parameters.
 pub fn CycloneParams::with_params(
   min_score : Double,
-  n_top_pairs : Int,
+  n_top_pairs : Int32,
 ) -> CycloneParams {
   CycloneParams::{ min_score, n_top_pairs, }
 }
@@ -124,8 +124,8 @@ pub fn cyclone_get_phases(gene_pairs : Array[GenePair]) -> Array[String] {
 /// Count gene pairs for each phase.
 pub fn cyclone_count_pairs_by_phase(
   gene_pairs : Array[GenePair],
-) -> Map[String, Int] {
-  let counts : Map[String, Int] = Map([])
+) -> Map[String, Int32] {
+  let counts : Map[String, Int32] = Map([])
   for pair in gene_pairs {
     let current = counts.get(pair.phase).unwrap_or(0)
     counts.set(pair.phase, current + 1)
@@ -191,7 +191,7 @@ pub fn cyclone_score_cell(
 
 ///|
 /// Find the index of a gene in the gene names array.
-fn cyclone_find_gene_index(gene_names : Array[String], gene : String) -> Int {
+fn cyclone_find_gene_index(gene_names : Array[String], gene : String) -> Int32 {
   let n = gene_names.length()
   let mut i = 0
   while i < n {
@@ -288,7 +288,7 @@ pub fn cyclone_phase_distribution(
     return Map([])
   }
 
-  let phase_counts : Map[String, Int] = Map([])
+  let phase_counts : Map[String, Int32] = Map([])
   for result in results {
     let current = phase_counts.get(result.assigned_phase).unwrap_or(0)
     phase_counts.set(result.assigned_phase, current + 1)

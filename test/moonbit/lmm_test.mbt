@@ -1,6 +1,5 @@
 ///|
 /// Tests for linear mixed models (lmm.mbt).
-
 fn lmm_approx(a : Double, b : Double, tol : Double) -> Bool {
   let d = a - b
   if d < 0.0 {
@@ -12,7 +11,7 @@ fn lmm_approx(a : Double, b : Double, tol : Double) -> Bool {
 
 ///|
 /// n x 1 intercept-only design matrix.
-fn lmm_intercept(n : Int) -> Array[Array[Double]] {
+fn lmm_intercept(n : Int32) -> Array[Array[Double]] {
   let x : Array[Array[Double]] = []
   for _ in 0..<n {
     x.push([1.0])
@@ -22,7 +21,7 @@ fn lmm_intercept(n : Int) -> Array[Array[Double]] {
 
 ///|
 /// n x n identity matrix.
-fn lmm_identity(n : Int) -> Array[Array[Double]] {
+fn lmm_identity(n : Int32) -> Array[Array[Double]] {
   let m : Array[Array[Double]] = []
   for i in 0..<n {
     let row = Array::make(n, 0.0)
@@ -36,12 +35,9 @@ fn lmm_identity(n : Int) -> Array[Array[Double]] {
 // GRM computation
 // ============================================================
 
+///|
 test "lmm_compute_grm_symmetric" {
-  let g = [
-    [0.0, 1.0, 2.0],
-    [0.0, 1.0, 2.0],
-    [2.0, 1.0, 0.0],
-  ]
+  let g = [[0.0, 1.0, 2.0], [0.0, 1.0, 2.0], [2.0, 1.0, 0.0]]
   let k = @src.lmm_compute_grm(g)
   assert_eq(k.length(), 3)
   // Symmetry.
@@ -54,6 +50,7 @@ test "lmm_compute_grm_symmetric" {
   assert_true(k[2][2] > 0.0)
 }
 
+///|
 test "lmm_compute_grm_relatedness_direction" {
   let g = [
     [0.0, 1.0, 2.0],
@@ -72,6 +69,7 @@ test "lmm_compute_grm_relatedness_direction" {
 // LMM fit
 // ============================================================
 
+///|
 test "lmm_fit_intercept_only_mean" {
   // With identity kinship, the GLS fixed effect reduces to OLS: beta = mean(y).
   let n = 4
@@ -84,6 +82,7 @@ test "lmm_fit_intercept_only_mean" {
   assert_true(lmm_approx(model.beta()[0], 25.0, 1.0e-6))
 }
 
+///|
 test "lmm_fit_variance_components_finite" {
   // Structured kinship from a small GRM; components must be finite and non-negative.
   let g = [
@@ -99,19 +98,20 @@ test "lmm_fit_variance_components_finite" {
   let y = [1.0, 1.2, 2.1, 3.0, 2.2, 1.1]
   let x = lmm_intercept(n)
   let model = @src.lmm_fit(y, x, k)
-  assert_true(!(model.sigma2_g().is_nan()))
-  assert_true(!(model.sigma2_e().is_nan()))
+  assert_true(!model.sigma2_g().is_nan())
+  assert_true(!model.sigma2_e().is_nan())
   assert_true(model.sigma2_g() >= 0.0)
   assert_true(model.sigma2_e() >= 0.0)
   let h = model.heritability()
   assert_true(h >= 0.0 && h <= 1.0)
-  assert_true(!(model.log_likelihood().is_nan()))
+  assert_true(!model.log_likelihood().is_nan())
 }
 
 // ============================================================
 // Association testing (EMMAX)
 // ============================================================
 
+///|
 test "lmm_associate_finds_causal_signal" {
   // Strong linear effect of the causal SNP; a null SNP is uncorrelated.
   let n = 14
@@ -144,6 +144,7 @@ test "lmm_associate_finds_causal_signal" {
   assert_true(lmm_approx(results[0].beta(), 2.0, 0.5))
 }
 
+///|
 test "lmm_associate_more_samples_reduces_pvalue" {
   // A larger sample size with the same effect should give a smaller p-value.
   let n = 60
@@ -152,10 +153,10 @@ test "lmm_associate_more_samples_reduces_pvalue" {
   let y : Array[Double] = []
   for i in 0..<n {
     let c = (i % 3).to_double() // 0,1,2 cycling
-    let nu = ((i / 30) % 2).to_double() // block structure
+    let nu = (i / 30 % 2).to_double() // block structure
     causal.push(c)
     null_snp.push(nu)
-    y.push(1.0 + 1.5 * c + 0.3 * ((i % 5) - 2).to_double())
+    y.push(1.0 + 1.5 * c + 0.3 * (i % 5 - 2).to_double())
   }
   let x = lmm_intercept(n)
   let k = lmm_identity(n)
@@ -165,6 +166,7 @@ test "lmm_associate_more_samples_reduces_pvalue" {
   assert_true(results[1].p_value() > 0.05)
 }
 
+///|
 test "lmm_associate_structured_kinship" {
   // With a structured GRM, the association machinery should still run and
   // identify the causal SNP.
@@ -188,8 +190,8 @@ test "lmm_associate_structured_kinship" {
   let model = @src.lmm_fit(y, x, k)
   let results = @src.lmm_associate(model, [causal, null_snp])
   assert_eq(results.length(), 2)
-  assert_true(!(results[0].p_value().is_nan()))
-  assert_true(!(results[1].p_value().is_nan()))
+  assert_true(!results[0].p_value().is_nan())
+  assert_true(!results[1].p_value().is_nan())
   assert_true(results[0].p_value() < results[1].p_value())
 }
 
@@ -197,6 +199,7 @@ test "lmm_associate_structured_kinship" {
 // 解析解对拍：K=I 时 LMM beta 退化为 OLS
 // ============================================================
 
+///|
 test "lmm_identity_kinship_matches_ols" {
   // 同一组数据 y=0.8+2.3x；K=I 时 GLS 固定效应应退化为 OLS 解。
   let xs = [0.0, 1.0, 2.0, 3.0]

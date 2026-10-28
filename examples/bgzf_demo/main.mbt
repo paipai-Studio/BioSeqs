@@ -4,17 +4,14 @@
 ///  2. scan the stream with bgzf_blocks to inspect block layout,
 ///  3. read it back with BgzfReader: read/readline and virtual-offset seek.
 fn main {
-  let text =
-    ">chr1 demo chromosome\n" +
+  let text = ">chr1 demo chromosome\n" +
     "ACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTACGT\n" +
     "TTTTAAAACCCCGGGGACGTACGTACGTACGTACGTACGTACGTACGT\n" +
     ">chr2\n" +
     "NNNNACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTACGT\n"
 
   // ---- Compress -----------------------------------------------------------
-  let compressed = try {
-    @src.bgzf_compress(text)
-  } catch {
+  let compressed = @src.bgzf_compress(text) catch {
     @src.BgzfError(msg) => {
       println("compression failed: " + msg)
       return
@@ -24,9 +21,7 @@ fn main {
   println("compressed : " + compressed.length().to_string() + " bytes")
 
   // ---- Inspect blocks -----------------------------------------------------
-  let blocks = try {
-    @src.bgzf_blocks(compressed)
-  } catch {
+  let blocks = @src.bgzf_blocks(compressed) catch {
     @src.BgzfError(msg) => {
       println("block scan failed: " + msg)
       return
@@ -37,10 +32,15 @@ fn main {
   while i < blocks.length() {
     let b = blocks[i]
     println(
-      "  block " + i.to_string() +
-      ": file offset " + b.start_offset.to_string() +
-      ", on-disk " + b.block_length.to_string() +
-      " bytes, payload " + b.data_length.to_string() + " bytes",
+      "  block " +
+      i.to_string() +
+      ": file offset " +
+      b.start_offset.to_string() +
+      ", on-disk " +
+      b.block_length.to_string() +
+      " bytes, payload " +
+      b.data_length.to_string() +
+      " bytes",
     )
     i = i + 1
   }
@@ -61,8 +61,11 @@ fn main {
     reader.seek(checkpoint)
     let (coff, uoff) = @src.bgzf_split_virtual_offset(checkpoint)
     println(
-      "seeked back to block " + coff.to_string() +
-      " + " + uoff.to_string() + " bytes",
+      "seeked back to block " +
+      coff.to_string() +
+      " + " +
+      uoff.to_string() +
+      " bytes",
     )
     let line2 = reader.readline()
     println("next line  : " + line2)

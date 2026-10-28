@@ -5,6 +5,7 @@
 /// and differential methylation analysis for bisulfite sequencing data.
 
 ///|
+
 ///|
 /// Result of dispersion estimation
 pub struct DSSDispResult {
@@ -60,7 +61,7 @@ pub struct DSSMethylData {
   /// Chromosome
   chrom : Array[String]
   /// Position
-  pos : Array[Int]
+  pos : Array[Int32]
   /// Methylation counts
   meth_counts : Array[Array[Double]]
   /// Total counts
@@ -98,11 +99,11 @@ pub struct DSSDMRResult {
   /// Chromosome
   chrom : Array[String]
   /// Start position
-  start : Array[Int]
+  start : Array[Int32]
   /// End position
-  end : Array[Int]
+  end : Array[Int32]
   /// Number of CpGs in DMR
-  n_cpgs : Array[Int]
+  n_cpgs : Array[Int32]
   /// Mean methylation difference
   mean_delta : Array[Double]
   /// DMR statistics
@@ -157,21 +158,21 @@ pub fn DSSCountData::new(
 /// Get gene count for specific gene and sample
 pub fn DSSCountData::dss_get_count(
   self : DSSCountData,
-  gene_idx : Int,
-  sample_idx : Int,
+  gene_idx : Int32,
+  sample_idx : Int32,
 ) -> Double {
   self.counts[gene_idx][sample_idx]
 }
 
 ///|
 /// Get number of genes
-pub fn DSSCountData::dss_n_genes(self : DSSCountData) -> Int {
+pub fn DSSCountData::dss_n_genes(self : DSSCountData) -> Int32 {
   self.gene_ids.length()
 }
 
 ///|
 /// Get number of samples
-pub fn DSSCountData::dss_n_samples(self : DSSCountData) -> Int {
+pub fn DSSCountData::dss_n_samples(self : DSSCountData) -> Int32 {
   self.groups.length()
 }
 
@@ -207,7 +208,7 @@ pub fn DSSCountData::dss_normalize(self : DSSCountData) -> Array[Array[Double]] 
 pub fn DSSCountData::dss_filter_low_counts(
   self : DSSCountData,
   min_count : Double,
-  min_samples : Int,
+  min_samples : Int32,
 ) -> DSSCountData {
   let new_gene_ids : Array[String] = Array(capacity=0)
   let new_counts : Array[Array[Double]] = Array(capacity=0)
@@ -264,13 +265,13 @@ pub fn DSSDEResult::new(
 
 ///|
 /// Get number of genes
-pub fn DSSDEResult::dss_n_genes(self : DSSDEResult) -> Int {
+pub fn DSSDEResult::dss_n_genes(self : DSSDEResult) -> Int32 {
   self.gene_ids.length()
 }
 
 ///|
 /// Get significant gene count
-pub fn DSSDEResult::dss_n_significant(self : DSSDEResult) -> Int {
+pub fn DSSDEResult::dss_n_significant(self : DSSDEResult) -> Int32 {
   let mut count = 0
   let mut i = 0
   while i < self.significant.length() {
@@ -284,25 +285,28 @@ pub fn DSSDEResult::dss_n_significant(self : DSSDEResult) -> Int {
 
 ///|
 /// Get gene ID at index
-pub fn DSSDEResult::dss_get_gene_id(self : DSSDEResult, idx : Int) -> String {
+pub fn DSSDEResult::dss_get_gene_id(self : DSSDEResult, idx : Int32) -> String {
   self.gene_ids[idx]
 }
 
 ///|
 /// Get p-value at index
-pub fn DSSDEResult::dss_get_pvalue(self : DSSDEResult, idx : Int) -> Double {
+pub fn DSSDEResult::dss_get_pvalue(self : DSSDEResult, idx : Int32) -> Double {
   self.p_values[idx]
 }
 
 ///|
 /// Get adjusted p-value at index
-pub fn DSSDEResult::dss_get_adj_pvalue(self : DSSDEResult, idx : Int) -> Double {
+pub fn DSSDEResult::dss_get_adj_pvalue(
+  self : DSSDEResult,
+  idx : Int32,
+) -> Double {
   self.adj_p_values[idx]
 }
 
 ///|
 /// Get fold change at index (log2 scale)
-pub fn DSSDEResult::dss_get_logfc(self : DSSDEResult, idx : Int) -> Double {
+pub fn DSSDEResult::dss_get_logfc(self : DSSDEResult, idx : Int32) -> Double {
   if self.mean1[idx] > 0.0 && self.mean2[idx] > 0.0 {
     @math.log2(self.mean2[idx] / self.mean1[idx])
   } else {
@@ -317,7 +321,7 @@ pub fn DSSDEResult::dss_get_logfc(self : DSSDEResult, idx : Int) -> Double {
 pub fn DSSMethylData::new(
   cpg_ids : Array[String],
   chrom : Array[String],
-  pos : Array[Int],
+  pos : Array[Int32],
   meth_counts : Array[Array[Double]],
   total_counts : Array[Array[Double]],
   groups : Array[String],
@@ -327,13 +331,13 @@ pub fn DSSMethylData::new(
 
 ///|
 /// Get number of CpG sites
-pub fn DSSMethylData::dss_n_cpgs(self : DSSMethylData) -> Int {
+pub fn DSSMethylData::dss_n_cpgs(self : DSSMethylData) -> Int32 {
   self.cpg_ids.length()
 }
 
 ///|
 /// Get number of samples
-pub fn DSSMethylData::dss_n_samples(self : DSSMethylData) -> Int {
+pub fn DSSMethylData::dss_n_samples(self : DSSMethylData) -> Int32 {
   self.groups.length()
 }
 
@@ -341,8 +345,8 @@ pub fn DSSMethylData::dss_n_samples(self : DSSMethylData) -> Int {
 /// Calculate methylation proportion for a site and sample
 pub fn DSSMethylData::dss_get_meth_prop(
   self : DSSMethylData,
-  cpg_idx : Int,
-  sample_idx : Int,
+  cpg_idx : Int32,
+  sample_idx : Int32,
 ) -> Double {
   let total = self.total_counts[cpg_idx][sample_idx]
   if total > 0.0 {
@@ -380,13 +384,13 @@ pub fn DSSDMResult::new(
 
 ///|
 /// Get number of sites
-pub fn DSSDMResult::dss_n_sites(self : DSSDMResult) -> Int {
+pub fn DSSDMResult::dss_n_sites(self : DSSDMResult) -> Int32 {
   self.cpg_ids.length()
 }
 
 ///|
 /// Get significant site count
-pub fn DSSDMResult::dss_n_significant(self : DSSDMResult) -> Int {
+pub fn DSSDMResult::dss_n_significant(self : DSSDMResult) -> Int32 {
   let mut count = 0
   let mut i = 0
   while i < self.significant.length() {
@@ -400,7 +404,10 @@ pub fn DSSDMResult::dss_n_significant(self : DSSDMResult) -> Int {
 
 ///|
 /// Get delta methylation at index
-pub fn DSSDMResult::dss_get_delta_meth(self : DSSDMResult, idx : Int) -> Double {
+pub fn DSSDMResult::dss_get_delta_meth(
+  self : DSSDMResult,
+  idx : Int32,
+) -> Double {
   self.delta_meth[idx]
 }
 
@@ -411,9 +418,9 @@ pub fn DSSDMResult::dss_get_delta_meth(self : DSSDMResult, idx : Int) -> Double 
 pub fn DSSDMRResult::new(
   dmr_ids : Array[String],
   chrom : Array[String],
-  start : Array[Int],
-  end : Array[Int],
-  n_cpgs : Array[Int],
+  start : Array[Int32],
+  end : Array[Int32],
+  n_cpgs : Array[Int32],
   mean_delta : Array[Double],
   stats : Array[Double],
   p_values : Array[Double],
@@ -432,7 +439,7 @@ pub fn DSSDMRResult::new(
 
 ///|
 /// Get number of DMRs
-pub fn DSSDMRResult::dss_n_dmrs(self : DSSDMRResult) -> Int {
+pub fn DSSDMRResult::dss_n_dmrs(self : DSSDMRResult) -> Int32 {
   self.dmr_ids.length()
 }
 
@@ -440,8 +447,8 @@ pub fn DSSDMRResult::dss_n_dmrs(self : DSSDMRResult) -> Int {
 /// Get DMR at index
 pub fn DSSDMRResult::dss_get_dmr(
   self : DSSDMRResult,
-  idx : Int,
-) -> (String, String, Int, Int, Int, Double) {
+  idx : Int32,
+) -> (String, String, Int32, Int32, Int32, Double) {
   (
     self.dmr_ids[idx],
     self.chrom[idx],
@@ -544,8 +551,8 @@ pub fn dss_deseq(
   let n_samples = counts_data.dss_n_samples()
   let norm_counts = counts_data.dss_normalize()
 
-  let group1_idx : Array[Int] = Array(capacity=0)
-  let group2_idx : Array[Int] = Array(capacity=0)
+  let group1_idx : Array[Int32] = Array(capacity=0)
+  let group2_idx : Array[Int32] = Array(capacity=0)
 
   let mut j = 0
   while j < n_samples {
@@ -648,8 +655,8 @@ pub fn dss_dml(methyl_data : DSSMethylData) -> DSSDMResult {
   let n_sites = methyl_data.dss_n_cpgs()
   let n_samples = methyl_data.dss_n_samples()
 
-  let group1_idx : Array[Int] = Array(capacity=0)
-  let group2_idx : Array[Int] = Array(capacity=0)
+  let group1_idx : Array[Int32] = Array(capacity=0)
+  let group2_idx : Array[Int32] = Array(capacity=0)
 
   let mut j = 0
   while j < n_samples {
@@ -743,14 +750,14 @@ pub fn dss_dml(methyl_data : DSSMethylData) -> DSSDMResult {
 pub fn dss_dmr(
   methyl_data : DSSMethylData,
   dm_result : DSSDMResult,
-  min_cpgs : Int,
+  min_cpgs : Int32,
   min_delta : Double,
 ) -> DSSDMRResult {
   let dmr_ids : Array[String] = Array(capacity=0)
   let chrom_arr : Array[String] = Array(capacity=0)
-  let start_arr : Array[Int] = Array(capacity=0)
-  let end_arr : Array[Int] = Array(capacity=0)
-  let n_cpgs_arr : Array[Int] = Array(capacity=0)
+  let start_arr : Array[Int32] = Array(capacity=0)
+  let end_arr : Array[Int32] = Array(capacity=0)
+  let n_cpgs_arr : Array[Int32] = Array(capacity=0)
   let mean_delta_arr : Array[Double] = Array(capacity=0)
   let stats_arr : Array[Double] = Array(capacity=0)
   let p_values_arr : Array[Double] = Array(capacity=0)
@@ -859,7 +866,7 @@ fn dss_benjamini_hochberg(p_values : Array[Double]) -> Array[Double] {
   }
 
   // Create index array and sort by p-value
-  let indices : Array[Int] = Array(capacity=0)
+  let indices : Array[Int32] = Array(capacity=0)
   let sorted_pvals : Array[Double] = Array(capacity=0)
 
   let mut i = 0

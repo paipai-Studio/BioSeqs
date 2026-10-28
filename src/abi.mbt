@@ -23,65 +23,65 @@
 
 ///|
 /// ABIF magic number as 4-byte signature (0x41424946 = "ABIF").
-let abi_magic : Int = 0x41424946
+let abi_magic : Int32 = 0x41424946
 
 ///|
 /// ABIF version 1.0 (encoded as 0x0200).
-let abi_version_1 : Int = 0x0200
+let abi_version_1 : Int32 = 0x0200
 
 ///|
 /// Directory entry size in bytes (always 128 in ABIF).
-let _abi_dir_entry_size : Int = 128
+let _abi_dir_entry_size : Int32 = 128
 
 // ===== Element type codes =====
 
 ///|
 /// ABIF element type 1: byte (1 byte unsigned).
-let _abi_type_byte : Int = 1
+let _abi_type_byte : Int32 = 1
 
 ///|
 /// ABIF element type 2: char (1 byte signed).
-let abi_type_char : Int = 2
+let abi_type_char : Int32 = 2
 
 ///|
 /// ABIF element type 3: word (2 byte unsigned).
-let abi_type_word : Int = 3
+let abi_type_word : Int32 = 3
 
 ///|
 /// ABIF element type 4: short (2 byte signed).
-let _abi_type_short : Int = 4
+let _abi_type_short : Int32 = 4
 
 ///|
 /// ABIF element type 5: long (4 byte signed).
-let _abi_type_long : Int = 5
+let _abi_type_long : Int32 = 5
 
 ///|
 /// ABIF element type 7: float (4 bytes).
-let _abi_type_float : Int = 7
+let _abi_type_float : Int32 = 7
 
 ///|
 /// ABIF element type 8: double (8 bytes).
-let _abi_type_double : Int = 8
+let _abi_type_double : Int32 = 8
 
 ///|
 /// ABIF element type 10: date (4 bytes).
-let _abi_type_date : Int = 10
+let _abi_type_date : Int32 = 10
 
 ///|
 /// ABIF element type 11: time (4 bytes).
-let _abi_type_time : Int = 11
+let _abi_type_time : Int32 = 11
 
 ///|
 /// ABIF element type 12: pstring (Pascal string, length-prefixed).
-let abi_type_pstring : Int = 12
+let abi_type_pstring : Int32 = 12
 
 ///|
 /// ABIF element type 13: cstring (null-terminated string).
-let _abi_type_cstring : Int = 13
+let _abi_type_cstring : Int32 = 13
 
 ///|
 /// ABIF element type 18: bool (1 byte).
-let _abi_type_bool : Int = 18
+let _abi_type_bool : Int32 = 18
 
 // ===== Data structures =====
 
@@ -89,18 +89,18 @@ let _abi_type_bool : Int = 18
 /// A directory entry in an ABIF file (128 bytes in the binary file).
 pub struct AbiDirEntry {
   tag_name : String // 4-character tag name (e.g., "DATA", "PBAS")
-  tag_number : Int // tag number (1-based)
-  element_type : Int // ABIF element type code
-  element_size : Int // size of each element in bytes
-  num_elements : Int // number of elements
-  data_size : Int // total data size in bytes
-  data_offset : Int // offset in file (or 0 if data is inline)
-  inline_data : Array[Int] // inline data bytes (if data_size <= 4)
+  tag_number : Int32 // tag number (1-based)
+  element_type : Int32 // ABIF element type code
+  element_size : Int32 // size of each element in bytes
+  num_elements : Int32 // number of elements
+  data_size : Int32 // total data size in bytes
+  data_offset : Int32 // offset in file (or 0 if data is inline)
+  inline_data : Array[Int32] // inline data bytes (if data_size <= 4)
 }
 
 ///|
 /// Create a new AbiDirEntry.
-pub fn AbiDirEntry::new(tag_name : String, tag_number : Int) -> AbiDirEntry {
+pub fn AbiDirEntry::new(tag_name : String, tag_number : Int32) -> AbiDirEntry {
   AbiDirEntry::{
     tag_name,
     tag_number,
@@ -116,28 +116,28 @@ pub fn AbiDirEntry::new(tag_name : String, tag_number : Int) -> AbiDirEntry {
 ///|
 /// ABIF date (year, month, day).
 pub struct AbiDate {
-  year : Int
-  month : Int
-  day : Int
+  year : Int32
+  month : Int32
+  day : Int32
 }
 
 ///|
 /// Create a new AbiDate.
-pub fn AbiDate::new(year : Int, month : Int, day : Int) -> AbiDate {
+pub fn AbiDate::new(year : Int32, month : Int32, day : Int32) -> AbiDate {
   AbiDate::{ year, month, day, }
 }
 
 ///|
 /// ABIF time (hours, minutes, seconds).
 pub struct AbiTime {
-  hours : Int
-  minutes : Int
-  seconds : Int
+  hours : Int32
+  minutes : Int32
+  seconds : Int32
 }
 
 ///|
 /// Create a new AbiTime.
-pub fn AbiTime::new(hours : Int, minutes : Int, seconds : Int) -> AbiTime {
+pub fn AbiTime::new(hours : Int32, minutes : Int32, seconds : Int32) -> AbiTime {
   AbiTime::{ hours, minutes, seconds, }
 }
 
@@ -149,14 +149,14 @@ pub struct AbiTrace {
   mut run_name : String // RPrN tag: run name
   mut base_order : String // FWO_ tag: color wheel order (e.g., "GATC")
   mut bases : String // PBAS tag: called base sequence
-  mut base_positions : Array[Int] // PLOC tag: peak positions
-  mut qualities : Array[Int] // PCON tag: Phred quality values
-  traces : Array[Array[Int]] // DATA 1-4: raw trace arrays (4 channels)
+  mut base_positions : Array[Int32] // PLOC tag: peak positions
+  mut qualities : Array[Int32] // PCON tag: Phred quality values
+  traces : Array[Array[Int32]] // DATA 1-4: raw trace arrays (4 channels)
   mut trace_names : Array[String] // channel names corresponding to traces
   mut run_date : AbiDate // RUND tag: run start date
   mut run_time : AbiTime // RUNT tag: run start time
-  mut num_bases : Int // number of called bases
-  mut num_points : Int // number of trace data points per channel
+  mut num_bases : Int32 // number of called bases
+  mut num_points : Int32 // number of trace data points per channel
   mut directory : Array[AbiDirEntry] // parsed directory entries
 }
 
@@ -183,7 +183,7 @@ pub fn AbiTrace::new() -> AbiTrace {
 
 ///|
 /// Get the trace data for a specific base (G, A, T, or C).
-pub fn AbiTrace::trace_for_base(self : AbiTrace, base : String) -> Array[Int] {
+pub fn AbiTrace::trace_for_base(self : AbiTrace, base : String) -> Array[Int32] {
   let idx = abi_string_index_of(self.base_order, base)
   if idx >= 0 && idx < self.traces.length() {
     return self.traces[idx]
@@ -193,7 +193,7 @@ pub fn AbiTrace::trace_for_base(self : AbiTrace, base : String) -> Array[Int] {
 
 ///|
 /// Find the index of a substring in a string, returns -1 if not found.
-fn abi_string_index_of(s : String, sub : String) -> Int {
+fn abi_string_index_of(s : String, sub : String) -> Int32 {
   let n = s.length()
   let kn = sub.length()
   if kn == 0 || kn > n {
@@ -220,13 +220,13 @@ fn abi_string_index_of(s : String, sub : String) -> Int {
 
 ///|
 /// Get the length of the called sequence.
-pub fn AbiTrace::seq_length(self : AbiTrace) -> Int {
+pub fn AbiTrace::seq_length(self : AbiTrace) -> Int32 {
   self.bases.length()
 }
 
 ///|
 /// Get a formatted string of base positions.
-pub fn AbiTrace::peak_at(self : AbiTrace, index : Int) -> Int {
+pub fn AbiTrace::peak_at(self : AbiTrace, index : Int32) -> Int32 {
   if index < 0 || index >= self.base_positions.length() {
     return -1
   }
@@ -235,7 +235,7 @@ pub fn AbiTrace::peak_at(self : AbiTrace, index : Int) -> Int {
 
 ///|
 /// Get quality at a specific base index.
-pub fn AbiTrace::quality_at(self : AbiTrace, index : Int) -> Int {
+pub fn AbiTrace::quality_at(self : AbiTrace, index : Int32) -> Int32 {
   if index < 0 || index >= self.qualities.length() {
     return -1
   }
@@ -283,7 +283,7 @@ pub fn AbiTime::to_string(self : AbiTime) -> String {
 
 ///|
 /// Read a 32-bit big-endian unsigned integer from a byte array at a position.
-fn abi_read_u32(bytes : Array[Int], pos : Int) -> Int {
+fn abi_read_u32(bytes : Array[Int32], pos : Int32) -> Int32 {
   if pos + 3 >= bytes.length() {
     return 0
   }
@@ -295,7 +295,7 @@ fn abi_read_u32(bytes : Array[Int], pos : Int) -> Int {
 
 ///|
 /// Read a 16-bit big-endian unsigned integer from a byte array at a position.
-fn abi_read_u16(bytes : Array[Int], pos : Int) -> Int {
+fn abi_read_u16(bytes : Array[Int32], pos : Int32) -> Int32 {
   if pos + 1 >= bytes.length() {
     return 0
   }
@@ -304,7 +304,7 @@ fn abi_read_u16(bytes : Array[Int], pos : Int) -> Int {
 
 ///|
 /// Read a 32-bit signed integer from a byte array at a position.
-fn abi_read_i32(bytes : Array[Int], pos : Int) -> Int {
+fn abi_read_i32(bytes : Array[Int32], pos : Int32) -> Int32 {
   // Int is 32-bit signed in MoonBit, so the value from abi_read_u32
   // already wraps correctly for negative values due to overflow.
   abi_read_u32(bytes, pos)
@@ -312,7 +312,7 @@ fn abi_read_i32(bytes : Array[Int], pos : Int) -> Int {
 
 ///|
 /// Read a 16-bit signed integer from a byte array at a position.
-fn abi_read_i16(bytes : Array[Int], pos : Int) -> Int {
+fn abi_read_i16(bytes : Array[Int32], pos : Int32) -> Int32 {
   let v = abi_read_u16(bytes, pos)
   if (v & 0x8000) != 0 {
     v - 0x10000
@@ -323,14 +323,14 @@ fn abi_read_i16(bytes : Array[Int], pos : Int) -> Int {
 
 ///|
 /// Read a tag name (4 characters) from a byte array.
-fn abi_read_tag_name(bytes : Array[Int], pos : Int) -> String {
+fn abi_read_tag_name(bytes : Array[Int32], pos : Int32) -> String {
   let sb = StringBuilder()
   let mut i = 0
   while i < 4 {
     if pos + i < bytes.length() {
       let ch = bytes[pos + i]
       if ch > 0 {
-        sb.write_char((ch).unsafe_to_char())
+        sb.write_char(ch.unsafe_to_char())
       }
     }
     i = i + 1
@@ -340,14 +340,14 @@ fn abi_read_tag_name(bytes : Array[Int], pos : Int) -> String {
 
 ///|
 /// Read a string of given length from a byte array.
-fn abi_read_string(bytes : Array[Int], pos : Int, length : Int) -> String {
+fn abi_read_string(bytes : Array[Int32], pos : Int32, length : Int32) -> String {
   let sb = StringBuilder()
   let mut i = 0
   while i < length {
     if pos + i < bytes.length() {
       let ch = bytes[pos + i]
       if ch > 0 {
-        sb.write_char((ch).unsafe_to_char())
+        sb.write_char(ch.unsafe_to_char())
       }
     }
     i = i + 1
@@ -355,17 +355,14 @@ fn abi_read_string(bytes : Array[Int], pos : Int, length : Int) -> String {
   sb.to_string()
 }
 
-
 // ===== Directory parsing =====
-
-
 
 ///|
 /// Find a directory entry by tag name and number.
 fn abi_find_entry(
   entries : Array[AbiDirEntry],
   tag_name : String,
-  tag_number : Int,
+  tag_number : Int32,
 ) -> AbiDirEntry? {
   for entry in entries {
     if entry.tag_name == tag_name && entry.tag_number == tag_number {
@@ -377,8 +374,11 @@ fn abi_find_entry(
 
 ///|
 /// Read raw data bytes for a directory entry from the file bytes.
-fn abi_read_entry_data(bytes : Array[Int], entry : AbiDirEntry) -> Array[Int] {
-  let data : Array[Int] = Array(capacity=0)
+fn abi_read_entry_data(
+  bytes : Array[Int32],
+  entry : AbiDirEntry,
+) -> Array[Int32] {
+  let data : Array[Int32] = Array(capacity=0)
   // If data fits inline (data_size <= 4), use inline_data
   if entry.data_size <= 4 {
     let mut i = 0
@@ -405,8 +405,11 @@ fn abi_read_entry_data(bytes : Array[Int], entry : AbiDirEntry) -> Array[Int] {
 ///|
 /// Read trace data (array of Int) for a directory entry.
 /// Trace data is typically 2-byte (word) values.
-fn abi_read_trace_data(bytes : Array[Int], entry : AbiDirEntry) -> Array[Int] {
-  let data : Array[Int] = Array(capacity=0)
+fn abi_read_trace_data(
+  bytes : Array[Int32],
+  entry : AbiDirEntry,
+) -> Array[Int32] {
+  let data : Array[Int32] = Array(capacity=0)
   let raw = abi_read_entry_data(bytes, entry)
   // If element type is word (3) or short (4), read as 2-byte values
   if entry.element_size == 2 {
@@ -435,8 +438,11 @@ fn abi_read_trace_data(bytes : Array[Int], entry : AbiDirEntry) -> Array[Int] {
 
 ///|
 /// Read integer array data for a directory entry (e.g., base positions).
-fn abi_read_int_array(bytes : Array[Int], entry : AbiDirEntry) -> Array[Int] {
-  let data : Array[Int] = Array(capacity=0)
+fn abi_read_int_array(
+  bytes : Array[Int32],
+  entry : AbiDirEntry,
+) -> Array[Int32] {
+  let data : Array[Int32] = Array(capacity=0)
   let raw = abi_read_entry_data(bytes, entry)
   // For PLOC (base positions), element type is short (4), size 2
   if entry.element_size == 2 {
@@ -463,7 +469,7 @@ fn abi_read_int_array(bytes : Array[Int], entry : AbiDirEntry) -> Array[Int] {
 
 ///|
 /// Parse an ABIF date from raw bytes (2 bytes year, 1 byte month, 1 byte day).
-fn abi_parse_date(raw : Array[Int]) -> AbiDate {
+fn abi_parse_date(raw : Array[Int32]) -> AbiDate {
   if raw.length() < 4 {
     return AbiDate::new(0, 0, 0)
   }
@@ -476,7 +482,7 @@ fn abi_parse_date(raw : Array[Int]) -> AbiDate {
 
 ///|
 /// Parse an ABIF time from raw bytes (1 byte each: hours, minutes, seconds, hundredths).
-fn abi_parse_time(raw : Array[Int]) -> AbiTime {
+fn abi_parse_time(raw : Array[Int32]) -> AbiTime {
   if raw.length() < 3 {
     return AbiTime::new(0, 0, 0)
   }
@@ -489,7 +495,7 @@ fn abi_parse_time(raw : Array[Int]) -> AbiTime {
 /// Parse an ABIF binary byte array into an AbiTrace object.
 ///
 /// The byte array should contain the complete contents of an .ab1 file.
-pub fn abi_parse(bytes : Array[Int]) -> AbiTrace {
+pub fn abi_parse(bytes : Array[Int32]) -> AbiTrace {
   let trace = AbiTrace::new()
   // Minimum: 4 bytes magic + 2 bytes version + 4 bytes dir offset + 4 bytes num entries = 14 bytes
   if bytes.length() < 14 {
@@ -742,9 +748,9 @@ pub fn abi_parse(bytes : Array[Int]) -> AbiTrace {
 ///|
 /// Parse directory entries using 28-byte entry size (ABIF standard).
 fn abi_parse_directory_v2(
-  bytes : Array[Int],
-  dir_offset : Int,
-  num_entries : Int,
+  bytes : Array[Int32],
+  dir_offset : Int32,
+  num_entries : Int32,
 ) -> Array[AbiDirEntry] {
   let entries : Array[AbiDirEntry] = Array(capacity=0)
   let entry_size = 28 // Standard ABIF directory entry size
@@ -761,7 +767,7 @@ fn abi_parse_directory_v2(
 
 ///|
 /// Parse a single 28-byte directory entry (ABIF standard format).
-fn abi_parse_dir_entry_v2(bytes : Array[Int], pos : Int) -> AbiDirEntry {
+fn abi_parse_dir_entry_v2(bytes : Array[Int32], pos : Int32) -> AbiDirEntry {
   // 4 bytes: tag name
   let tag_name = abi_read_tag_name(bytes, pos)
   // 4 bytes: tag number
@@ -778,7 +784,7 @@ fn abi_parse_dir_entry_v2(bytes : Array[Int], pos : Int) -> AbiDirEntry {
   let data_offset = abi_read_u32(bytes, pos + 20)
   // 4 bytes: data handle (unused, bytes 24-27)
   // Inline data (if data_size <= 4, data is stored at offset 20)
-  let inline_data : Array[Int] = Array(capacity=0)
+  let inline_data : Array[Int32] = Array(capacity=0)
   if data_size <= 4 {
     let mut i = 0
     while i < 4 {
@@ -804,7 +810,7 @@ fn abi_parse_dir_entry_v2(bytes : Array[Int], pos : Int) -> AbiDirEntry {
 
 ///|
 /// Write a 32-bit big-endian unsigned integer to a byte array.
-fn abi_write_u32(bytes : Array[Int], value : Int) -> Unit {
+fn abi_write_u32(bytes : Array[Int32], value : Int32) -> Unit {
   bytes.push((value / 16777216) & 0xFF)
   bytes.push((value / 65536) & 0xFF)
   bytes.push((value / 256) & 0xFF)
@@ -813,15 +819,15 @@ fn abi_write_u32(bytes : Array[Int], value : Int) -> Unit {
 
 ///|
 /// Write a 16-bit big-endian unsigned integer to a byte array.
-fn abi_write_u16(bytes : Array[Int], value : Int) -> Unit {
+fn abi_write_u16(bytes : Array[Int32], value : Int32) -> Unit {
   bytes.push((value / 256) & 0xFF)
   bytes.push(value & 0xFF)
 }
 
 ///|
 /// Encode a string to bytes.
-fn abi_encode_string(s : String) -> Array[Int] {
-  let bytes : Array[Int] = Array(capacity=0)
+fn abi_encode_string(s : String) -> Array[Int32] {
+  let bytes : Array[Int32] = Array(capacity=0)
   let mut i = 0
   while i < s.length() {
     bytes.push(s[i].to_int())
@@ -834,8 +840,8 @@ fn abi_encode_string(s : String) -> Array[Int] {
 /// Encode an AbiTrace to a minimal ABIF binary byte array.
 ///
 /// This creates a valid ABIF file with the essential tags.
-pub fn abi_encode(trace : AbiTrace) -> Array[Int] {
-  let bytes : Array[Int] = Array(capacity=0)
+pub fn abi_encode(trace : AbiTrace) -> Array[Int32] {
+  let bytes : Array[Int32] = Array(capacity=0)
   // Header: "ABIF" + version (0x0200)
   abi_write_u32(bytes, abi_magic)
   abi_write_u16(bytes, abi_version_1)
@@ -878,7 +884,7 @@ pub fn abi_encode(trace : AbiTrace) -> Array[Int] {
   let mut data_pos = data_start
   // Helper to add a directory entry
   // We'll collect data separately and append after
-  let data_bytes : Array[Int] = Array(capacity=0)
+  let data_bytes : Array[Int32] = Array(capacity=0)
   let _ = data_bytes
   // For simplicity, just create a minimal valid structure
   // Directory entries (28 bytes each):
@@ -936,7 +942,7 @@ pub fn abi_encode(trace : AbiTrace) -> Array[Int] {
 
 ///|
 /// Write a 4-character tag name to a byte array.
-fn abi_write_tag_name(bytes : Array[Int], tag : String) -> Unit {
+fn abi_write_tag_name(bytes : Array[Int32], tag : String) -> Unit {
   let mut i = 0
   while i < 4 {
     if i < tag.length() {
@@ -954,8 +960,8 @@ fn abi_write_tag_name(bytes : Array[Int], tag : String) -> Unit {
 /// Create a sample ABI byte array for testing.
 ///
 /// This creates a minimal valid ABIF structure with a small sequence.
-pub fn abi_sample_bytes() -> Array[Int] {
-  let bytes : Array[Int] = Array(capacity=0)
+pub fn abi_sample_bytes() -> Array[Int32] {
+  let bytes : Array[Int32] = Array(capacity=0)
   // Magic: "ABIF"
   abi_write_u32(bytes, abi_magic)
   // Version: 0x0200
@@ -1017,10 +1023,10 @@ pub fn abi_sample_trace() -> AbiTrace {
   trace.base_positions = [10, 25, 40, 55, 70, 85, 100, 115, 130, 145, 160, 175]
   trace.qualities = [20, 30, 40, 35, 25, 45, 50, 30, 20, 35, 40, 45]
   // Trace data: 4 channels (G, A, T, C), each with some peaks
-  let g_trace : Array[Int] = Array(capacity=0)
-  let a_trace : Array[Int] = Array(capacity=0)
-  let t_trace : Array[Int] = Array(capacity=0)
-  let c_trace : Array[Int] = Array(capacity=0)
+  let g_trace : Array[Int32] = Array(capacity=0)
+  let a_trace : Array[Int32] = Array(capacity=0)
+  let t_trace : Array[Int32] = Array(capacity=0)
+  let c_trace : Array[Int32] = Array(capacity=0)
   let mut i = 0
   while i < 200 {
     // Simple peak patterns at base positions

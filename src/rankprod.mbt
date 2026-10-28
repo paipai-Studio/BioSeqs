@@ -34,7 +34,7 @@ pub suberror RankProdError {
 /// the package ``topGene`` table, rounded to four significant digits as the
 /// R function does via ``prettyNum``.
 pub struct RankProdTopTable {
-  indices : Array[Int]
+  indices : Array[Int32]
   statistic : Array[Double]
   fold_change : Array[Double]
   pfp : Array[Double]
@@ -43,7 +43,7 @@ pub struct RankProdTopTable {
 
 ///|
 /// Selected feature rows (0-based).
-pub fn RankProdTopTable::indices(self : RankProdTopTable) -> Array[Int] {
+pub fn RankProdTopTable::indices(self : RankProdTopTable) -> Array[Int32] {
   self.indices
 }
 
@@ -88,11 +88,11 @@ pub struct RankProdResult {
   /// rows in [observed, null draws ...], down direction (package
   /// RandomPairs_ranks).
   products_down : Array[Array[Double]]
-  groups : Array[Int]
-  n_features : Int
-  nrep : Int
-  n_valid : Int
-  random_pairs : Int
+  groups : Array[Int32]
+  n_features : Int32
+  nrep : Int32
+  n_valid : Int32
+  random_pairs : Int32
   calculate_product : Bool
   logged : Bool
 }
@@ -149,44 +149,48 @@ pub fn RankProdResult::rank_up(self : RankProdResult) -> Array[Double] {
 ///|
 /// Average fold change class1/class2 (log-unit difference when ``logged``,
 /// raw ratio otherwise).
-pub fn RankProdResult::average_fold_change(self : RankProdResult) -> Array[Double] {
+pub fn RankProdResult::average_fold_change(
+  self : RankProdResult,
+) -> Array[Double] {
   self.average_fold_change
 }
 
 ///|
 /// Per-pair products of ranks (random_pairs x n_features), down direction.
-pub fn RankProdResult::products_down(self : RankProdResult) -> Array[Array[Double]] {
+pub fn RankProdResult::products_down(
+  self : RankProdResult,
+) -> Array[Array[Double]] {
   self.products_down
 }
 
 ///|
 /// Remapped class labels per sample (0/1, or all 1 in the paired case).
-pub fn RankProdResult::groups(self : RankProdResult) -> Array[Int] {
+pub fn RankProdResult::groups(self : RankProdResult) -> Array[Int32] {
   self.groups
 }
 
 ///|
 /// Number of feature rows.
-pub fn RankProdResult::n_features(self : RankProdResult) -> Int {
+pub fn RankProdResult::n_features(self : RankProdResult) -> Int32 {
   self.n_features
 }
 
 ///|
 /// Number of within-pair comparisons the statistic averages over (size of the
 /// smaller class, or all samples in the one-class paired case).
-pub fn RankProdResult::nrep(self : RankProdResult) -> Int {
+pub fn RankProdResult::nrep(self : RankProdResult) -> Int32 {
   self.nrep
 }
 
 ///|
 /// Number of features retained after the ``min_valid_pairs`` exclusion.
-pub fn RankProdResult::n_valid(self : RankProdResult) -> Int {
+pub fn RankProdResult::n_valid(self : RankProdResult) -> Int32 {
   self.n_valid
 }
 
 ///|
 /// Number of (observed + null) pairings used.
-pub fn RankProdResult::random_pairs(self : RankProdResult) -> Int {
+pub fn RankProdResult::random_pairs(self : RankProdResult) -> Int32 {
   self.random_pairs
 }
 
@@ -201,21 +205,20 @@ pub fn RankProdResult::is_rank_product(self : RankProdResult) -> Bool {
 // value generator uses the byte-identical construction.
 // ---------------------------------------------------------------------------
 
+///|
 priv struct RpLcg {
   mut state : Int64
 }
 
-fn rp_lcg_init(seed : Int) -> RpLcg {
+///|
+fn rp_lcg_init(seed : Int32) -> RpLcg {
   let m = 4294967296L // 2^32
   let s0 = seed.to_int64()
-  let s = if s0 < 0 {
-    (s0 % m + m) % m
-  } else {
-    s0 % m
-  }
-  { state: s }
+  let s = if s0 < 0 { (s0 % m + m) % m } else { s0 % m }
+  { state: s, }
 }
 
+///|
 fn rp_lcg_next(rng : RpLcg) -> Int64 {
   // 1664525 * state stays below 2^53, so the arithmetic is exact in double on
   // the R side as well.
@@ -223,6 +226,7 @@ fn rp_lcg_next(rng : RpLcg) -> Int64 {
   rng.state
 }
 
+///|
 /// Fisher-Yates permutation of ``values`` (already sorted ascending).
 fn rp_lcg_shuffle(values : Array[Double], rng : RpLcg) -> Array[Double] {
   let n = values.length()
@@ -245,18 +249,21 @@ fn rp_lcg_shuffle(values : Array[Double], rng : RpLcg) -> Array[Double] {
 // Small numerical helpers
 // ---------------------------------------------------------------------------
 
+///|
 fn rp_nan() -> Double {
   0.0 / 0.0
 }
 
+///|
 fn rp_is_nan(x : Double) -> Bool {
   x.is_nan()
 }
 
+///|
 /// Stable ascending index order: ties keep the original index order; NaNs
 /// sort last. Mirrors R's stable order() / sort.list() ties.
-fn rp_stable_order(values : Array[Double]) -> Array[Int] {
-  let idx : Array[Int] = []
+fn rp_stable_order(values : Array[Double]) -> Array[Int32] {
+  let idx : Array[Int32] = []
   for i in 0..<values.length() {
     if !values[i].is_nan() {
       idx.push(i)
@@ -283,6 +290,7 @@ fn rp_stable_order(values : Array[Double]) -> Array[Int] {
   idx
 }
 
+///|
 /// The reference implementation composes the per-pairing geometric mean as
 /// ``exp(mean(log(ranks)))``; its libm rounds different summation orders 1-2
 /// ULP apart (and a different libm differs again), even when the underlying
@@ -290,8 +298,11 @@ fn rp_stable_order(values : Array[Double]) -> Array[Int] {
 /// sees bit-equal p-values/RPs and resolves them by ascending feature index.
 /// Values within this numerical-noise band are therefore treated as tied.
 let rp_tie_abs : Double = 1.0e-12
+
+///|
 let rp_tie_rel : Double = 1.0e-12
 
+///|
 /// Near-equality for cross-language tie detection: absolute tolerance for
 /// p-values in [0, 1], relative tolerance for rank statistics >= 1.
 fn rp_near(va : Double, vb : Double) -> Bool {
@@ -303,10 +314,11 @@ fn rp_near(va : Double, vb : Double) -> Bool {
   d <= rp_tie_rel * scale
 }
 
+///|
 /// Stable ascending order with ``rp_near`` ties resolved by index, mirroring
 /// R ``order()`` on values that are equal up to libm noise.
-fn rp_stable_order_tol(values : Array[Double]) -> Array[Int] {
-  let idx : Array[Int] = []
+fn rp_stable_order_tol(values : Array[Double]) -> Array[Int32] {
+  let idx : Array[Int32] = []
   for i in 0..<values.length() {
     if !values[i].is_nan() {
       idx.push(i)
@@ -326,6 +338,7 @@ fn rp_stable_order_tol(values : Array[Double]) -> Array[Int] {
   idx
 }
 
+///|
 /// Position ranks 1..m of the finite values (smallest = 1), stable on ties;
 /// NaN entries receive NaN. This is the package `output[order(v)] <- 1:m`
 /// construction (NOT average ranks).
@@ -344,10 +357,14 @@ fn rp_position_ranks(column : Array[Double]) -> Array[Double] {
   ranks
 }
 
+///|
 /// R's default rank() with ties averaged (ties.method = "average"); NaNs are
 /// left as NaN. With ``tol=true``, values within ``rp_near`` noise are treated
 /// as tied, matching R's exact-double ties across libm implementations.
-fn rp_average_ranks(values : Array[Double], tol~ : Bool = false) -> Array[Double] {
+fn rp_average_ranks(
+  values : Array[Double],
+  tol~ : Bool = false,
+) -> Array[Double] {
   let n = values.length()
   let ranks : Array[Double] = Array::make(n, rp_nan())
   let order = if tol {
@@ -371,12 +388,13 @@ fn rp_average_ranks(values : Array[Double], tol~ : Bool = false) -> Array[Double
       }
     }
     let mut j = k
-    while j + 1 < total && !rp_is_nan(values[order[j + 1]]) &&
-      same(values[order[j + 1]], values[i]) {
+    while j + 1 < total &&
+          !rp_is_nan(values[order[j + 1]]) &&
+          same(values[order[j + 1]], values[i]) {
       j += 1
     }
     // positions k+1 .. j+1 (1-based) are tied
-    let avg = ((k + 1) + (j + 1)).to_double() / 2.0
+    let avg = (k + 1 + (j + 1)).to_double() / 2.0
     let mut t = k
     while t <= j {
       ranks[order[t]] = avg
@@ -387,6 +405,7 @@ fn rp_average_ranks(values : Array[Double], tol~ : Bool = false) -> Array[Double
   ranks
 }
 
+///|
 /// Median of finite values, NaN removed (R median(x, na.rm = TRUE)); NaN when
 /// no finite value exists.
 fn rp_median_na(values : Array[Double]) -> Double {
@@ -402,6 +421,7 @@ fn rp_median_na(values : Array[Double]) -> Double {
   (finite[n / 2 - 1] + finite[n / 2]) / 2.0
 }
 
+///|
 /// Arithmetic mean of finite values.
 fn rp_mean_na(values : Array[Double]) -> Double {
   let mut acc = 0.0
@@ -418,6 +438,7 @@ fn rp_mean_na(values : Array[Double]) -> Double {
   acc / count.to_double()
 }
 
+///|
 /// Stable ascending sort of finite values (R sort() drops NaNs).
 fn rp_sorted(values : Array[Double]) -> Array[Double] {
   let finite : Array[Double] = values.filter(fn(v) { !rp_is_nan(v) })
@@ -425,6 +446,7 @@ fn rp_sorted(values : Array[Double]) -> Array[Double] {
   finite
 }
 
+///|
 /// log10 of a raw ratio; non-positive or missing operands yield NaN.
 fn rp_log10_ratio(v1 : Double, v2 : Double) -> Double {
   if rp_is_nan(v1) || rp_is_nan(v2) || v2 == 0.0 {
@@ -437,6 +459,7 @@ fn rp_log10_ratio(v1 : Double, v2 : Double) -> Double {
   @math.log10(r)
 }
 
+///|
 /// log10 of a single raw value (paired case).
 fn rp_log10_value(v : Double) -> Double {
   if rp_is_nan(v) || v <= 0.0 {
@@ -449,6 +472,7 @@ fn rp_log10_value(v : Double) -> Double {
 // Exact rank-product p-values: rankprodbounds (Eisinga et al. 2017)
 // ---------------------------------------------------------------------------
 
+///|
 priv struct RpParam {
   a : Array[Double]
   b : Array[Double]
@@ -457,6 +481,7 @@ priv struct RpParam {
   e : Double
 }
 
+///|
 /// Combine coefficient rows sharing the same (a, b) pair by summing c,
 /// keeping first-occurrence order (package makeunique).
 fn rp_make_unique(p : RpParam) -> RpParam {
@@ -479,16 +504,17 @@ fn rp_make_unique(p : RpParam) -> RpParam {
       uc[found] += p.c[i]
     }
   }
-  { a: ua, b: ub, c: uc, d: p.d, e: p.e }
+  { a: ua, b: ub, c: uc, d: p.d, e: p.e, }
 }
 
+///|
 /// Memoized coefficient recursion (package updateparam). ``delta`` is 0
 /// ("lower") or 1 ("upper").
 fn rp_update_param(
-  cache : Array[Array[Option[RpParam]]],
+  cache : Array[Array[RpParam?]],
   n : Double,
-  k : Int,
-  j : Int,
+  k : Int32,
+  j : Int32,
   delta : Double,
 ) -> RpParam {
   match cache[k][j] {
@@ -496,7 +522,7 @@ fn rp_update_param(
     None => {
       let logn = @math.ln(n)
       let p = if j == 0 {
-        { a: [], b: [], c: [], d: 0.0, e: @math.pow(n, k.to_double()) }
+        { a: [], b: [], c: [], d: 0.0, e: @math.pow(n, k.to_double()), }
       } else if k == j {
         let p00 = rp_update_param(cache, n, k - 1, j - 1, delta)
         let newa0 = p00.a.map(fn(x) { x + 1.0 })
@@ -518,7 +544,7 @@ fn rp_update_param(
         let newc0 = p00.a.mapi(fn(i, a) { p00.c[i] / (a + 1.0) })
         let newa1 = p01.a.map(fn(x) { x + 1.0 })
         let newc1 = p01.a.mapi(fn(i, a) { -p01.c[i] / (a + 1.0) })
-        let lognnkj = ((k - j).to_double()) * logn
+        let lognnkj = (k - j).to_double() * logn
         let e = n * p01.e + (delta - 1.0) * (p00.e - p01.e)
         // lognminb aligned with [newa0..., newa1...]
         let lognminb : Array[Double] = []
@@ -534,13 +560,17 @@ fn rp_update_param(
         for i in 0..<newa.length() {
           correction += newc[i] * @math.pow(lognminb[i], newa[i])
         }
-        let d = delta * p00.d + (1.0 - delta) * p01.d / n +
-          (p00.e - p01.e) / @math.exp(lognnkj) - correction
+        let d = delta * p00.d +
+          (1.0 - delta) * p01.d / n +
+          (p00.e - p01.e) / @math.exp(lognnkj) -
+          correction
         let q = {
           a: [1.0, 1.0] + p00.a + p01.a + newa,
           b: [0.0, 1.0] + p00.b + p01.b + p00.b.copy() + p01.b.copy(),
-          c: [p00.d, -p01.d] + p00.c.map(fn(x) { delta * x }) +
-            p01.c.map(fn(x) { (1.0 - delta) * x / n }) + newc,
+          c: [p00.d, -p01.d] +
+          p00.c.map(fn(x) { delta * x }) +
+          p01.c.map(fn(x) { (1.0 - delta) * x / n }) +
+          newc,
           d,
           e,
         }
@@ -552,13 +582,14 @@ fn rp_update_param(
   }
 }
 
+///|
 /// Exact CDF of the rank product at ``rho`` (the product of ranks) for ``n``
 /// features and ``k`` paired comparisons under bound ``delta`` (0 = lower,
 /// 1 = upper).
 fn rp_rank_product_bound(
   rho : Double,
-  n : Int,
-  k : Int,
+  n : Int32,
+  k : Int32,
   delta : Double,
 ) -> Double raise RankProdError {
   if rho < 1.0 || rho > @math.pow(n.to_double(), k.to_double()) + 1.0 {
@@ -568,7 +599,7 @@ fn rp_rank_product_bound(
   }
   let nd = n.to_double()
   let logn = @math.ln(nd)
-  let cache : Array[Array[Option[RpParam]]] = Array::make(k + 1, [])
+  let cache : Array[Array[RpParam?]] = Array::make(k + 1, [])
   for kk in 0..<(k + 1) {
     cache[kk] = Array::make(kk + 1, None)
   }
@@ -582,8 +613,7 @@ fn rp_rank_product_bound(
     let p = rp_update_param(cache, nd, k, j, delta)
     let mut total = p.e + p.d * rho
     for m in 0..<p.a.length() {
-      let base = @math.ln(rho) -
-        logn * (k.to_double() - j.to_double() + p.b[m])
+      let base = @math.ln(rho) - logn * (k.to_double() - j.to_double() + p.b[m])
       total += p.c[m] * rho * @math.pow(base, p.a[m])
     }
     total
@@ -598,8 +628,8 @@ fn rp_rank_product_bound(
 /// number of paired comparisons.
 pub fn rank_product_pvalue(
   rank : Double,
-  n : Int,
-  k : Int,
+  n : Int32,
+  k : Int32,
 ) -> Double raise RankProdError {
   let (upper, lower, _) = rank_product_pvalue_bounds(rank, n, k)
   (upper * lower).sqrt()
@@ -611,8 +641,8 @@ pub fn rank_product_pvalue(
 /// default ``Delta = "geometric"`` p-value.
 pub fn rank_product_pvalue_bounds(
   rank : Double,
-  n : Int,
-  k : Int,
+  n : Int32,
+  k : Int32,
 ) -> (Double, Double, Double) raise RankProdError {
   let rho = @math.pow(rank, k.to_double())
   let upper = rp_rank_product_bound(rho, n, k, 1.0)
@@ -625,6 +655,7 @@ pub fn rank_product_pvalue_bounds(
 // Exact rank-sum p-values: dice.sum.cdf/pdf (sum of n dice, each 1..s)
 // ---------------------------------------------------------------------------
 
+///|
 /// Stirling approximation to lgamma for positive reals; matches base R well
 /// enough for the non-integer ``choose`` fallback (all package call sites use
 /// integer arguments).
@@ -644,9 +675,10 @@ fn rp_lgamma(x_in : Double) -> Double {
   shift + ln_2pi + (x - 0.5) * @math.ln(x) - x + inv_12x - inv_360x3
 }
 
+///|
 /// Binomial coefficient C(n, k) matching R choose(): exact multiplicative
 /// formula for integer n, gamma ratio otherwise.
-fn rp_choose(n_in : Double, k : Int) -> Double {
+fn rp_choose(n_in : Double, k : Int32) -> Double {
   if k < 0 {
     return 0.0
   }
@@ -666,8 +698,9 @@ fn rp_choose(n_in : Double, k : Int) -> Double {
     }
   }
   @math.exp(
-    rp_lgamma(n_in + 1.0) - rp_lgamma(k.to_double() + 1.0) -
-      rp_lgamma(n_in - k.to_double() + 1.0),
+    rp_lgamma(n_in + 1.0) -
+    rp_lgamma(k.to_double() + 1.0) -
+    rp_lgamma(n_in - k.to_double() + 1.0),
   )
 }
 
@@ -675,7 +708,7 @@ fn rp_choose(n_in : Double, k : Int) -> Double {
 /// Exact CDF of the sum of ``n`` fair dice labelled 1..``s`` at total ``p``
 /// (package ``dice.sum.cdf``): P(sum <= p), evaluated by inclusion-exclusion
 /// in ordinary double precision.
-pub fn rank_sum_pvalue(p : Double, n : Int, s : Int) -> Double {
+pub fn rank_sum_pvalue(p : Double, n : Int32, s : Int32) -> Double {
   let a = (n * (s + 1) / 2).to_double() // trunc(n*(s+1)/2), positive domain
   let snd = s.to_double()
   let nnd = n.to_double()
@@ -705,7 +738,7 @@ pub fn rank_sum_pvalue(p : Double, n : Int, s : Int) -> Double {
 ///|
 /// Exact probability mass of the sum of ``n`` dice 1..``s`` at total ``p``
 /// (package ``dice.sum.pdf``).
-pub fn rank_sum_pmf(p : Double, n : Int, s : Int) -> Double {
+pub fn rank_sum_pmf(p : Double, n : Int32, s : Int32) -> Double {
   let snd = s.to_double()
   let nnd = n.to_double()
   let denom = @math.pow(snd, nnd)
@@ -744,13 +777,13 @@ pub fn rank_sum_pmf(p : Double, n : Int, s : Int) -> Double {
 ///   threshold (default ``floor(nrep/2)``) in either class are excluded.
 pub fn rank_products(
   data~ : Array[Array[Double]],
-  cl~ : Array[Int],
+  cl~ : Array[Int32],
   logged~ : Bool = true,
   calculate_product~ : Bool = true,
-  random_pairs~ : Int = -1,
-  seed~ : Int = 42,
+  random_pairs~ : Int32 = -1,
+  seed~ : Int32 = 42,
   na_rm~ : Bool = true,
-  min_valid_pairs~ : Int = -1,
+  min_valid_pairs~ : Int32 = -1,
 ) -> RankProdResult raise RankProdError {
   let ng = data.length()
   if ng == 0 {
@@ -769,7 +802,7 @@ pub fn rank_products(
   }
 
   // Class labels -> unique values, remapped like xyCall.
-  let levels : Array[Int] = []
+  let levels : Array[Int32] = []
   for c in cl {
     if !levels.contains(c) {
       levels.push(c)
@@ -780,8 +813,8 @@ pub fn rank_products(
     raise RankProdError("rank_products: more than two class labels")
   }
   let groups = Array::make(ns, 1)
-  let x_cols : Array[Int] = []
-  let y_cols : Array[Int] = []
+  let x_cols : Array[Int32] = []
+  let y_cols : Array[Int32] = []
   let two_class = levels.length() == 2
   if two_class {
     let lo = levels[0]
@@ -801,28 +834,12 @@ pub fn rank_products(
     }
   }
   let n1 = x_cols.length()
-  let n2 = if two_class {
-    y_cols.length()
-  } else {
-    0
-  }
-  let npairs = if n1 < n2 {
-    n1
-  } else {
-    n2
-  }
-  let nrep = if npairs == 0 {
-    ns
-  } else {
-    npairs
-  }
+  let n2 = if two_class { y_cols.length() } else { 0 }
+  let npairs = if n1 < n2 { n1 } else { n2 }
+  let nrep = if npairs == 0 { ns } else { npairs }
 
   // RandomPairs bookkeeping (0 -> 1, even -> +1).
-  let mut rpairs = if random_pairs < 0 {
-    npairs * npairs
-  } else {
-    random_pairs
-  }
+  let mut rpairs = if random_pairs < 0 { npairs * npairs } else { random_pairs }
   if rpairs == 0 {
     rpairs = 1
   }
@@ -835,13 +852,7 @@ pub fn rank_products(
 
   // Work on a mutable copy; mzmatch: +/- Inf and NaN both become NaN.
   let work : Array[Array[Double]] = data.map(fn(row) {
-    row.map(fn(v) {
-      if v.is_nan() || v.is_inf() {
-        rp_nan()
-      } else {
-        v
-      }
-    })
+    row.map(fn(v) { if v.is_nan() || v.is_inf() { rp_nan() } else { v } })
   })
 
   // detection.limit = smallest non-zero finite value.
@@ -885,12 +896,8 @@ pub fn rank_products(
   }
 
   // badrows / detection-limit replacement, only with active resampling.
-  let min_valid = if min_valid_pairs < 0 {
-    nrep / 2
-  } else {
-    min_valid_pairs
-  }
-  let badrows : Array[Int] = []
+  let min_valid = if min_valid_pairs < 0 { nrep / 2 } else { min_valid_pairs }
+  let badrows : Array[Int32] = []
   if rpairs > 1 {
     for g in 0..<ng {
       let na1 = gr1[g].filter(fn(v) { rp_is_nan(v) }).length()
@@ -900,16 +907,8 @@ pub fn rank_products(
         0
       }
       let valid1 = n1 - na1
-      let valid2 = if two_class {
-        n2 - na2
-      } else {
-        n1
-      }
-      let minv = if valid1 < valid2 {
-        valid1
-      } else {
-        valid2
-      }
+      let valid2 = if two_class { n2 - na2 } else { n1 }
+      let minv = if valid1 < valid2 { valid1 } else { valid2 }
       if min_valid > minv {
         badrows.push(g)
       }
@@ -950,11 +949,7 @@ pub fn rank_products(
           }
         }
       }
-      let med1 = if pool1.length() > 0 {
-        rp_median_na(pool1)
-      } else {
-        rp_nan()
-      }
+      let med1 = if pool1.length() > 0 { rp_median_na(pool1) } else { rp_nan() }
       for i in 0..<gr1[g].length() {
         if rp_is_nan(gr1[g][i]) {
           gr1[g][i] = med1
@@ -986,11 +981,7 @@ pub fn rank_products(
     let m1 = rp_mean_na(gr1[g])
     if two_class {
       let m2 = rp_mean_na(gr2[g])
-      ave_fc[g] = if logged {
-        m1 - m2
-      } else {
-        m1 / m2
-      }
+      ave_fc[g] = if logged { m1 - m2 } else { m1 / m2 }
     } else {
       ave_fc[g] = m1
     }
@@ -1007,20 +998,12 @@ pub fn rank_products(
       for p in 0..<nrep {
         let v1 = gr1[g][p]
         let v2 = gr2[g][p]
-        row.push(if logged {
-          v1 - v2
-        } else {
-          rp_log10_ratio(v1, v2)
-        })
+        row.push(if logged { v1 - v2 } else { rp_log10_ratio(v1, v2) })
       }
     } else {
       for p in 0..<nrep {
         let v1 = gr1[g][p]
-        row.push(if logged {
-          v1
-        } else {
-          rp_log10_value(v1)
-        })
+        row.push(if logged { v1 } else { rp_log10_value(v1) })
       }
     }
     observed[g] = row
@@ -1038,11 +1021,7 @@ pub fn rank_products(
     }
     for g in 0..<ng {
       let s1 = rp_sorted(gr1[g])
-      let s2 = if two_class {
-        rp_sorted(gr2[g])
-      } else {
-        []
-      }
+      let s2 = if two_class { rp_sorted(gr2[g]) } else { [] }
       for rp in 1..<rpairs {
         let p1 = rp_lcg_shuffle(s1, rng)
         let row : Array[Double] = []
@@ -1051,20 +1030,12 @@ pub fn rank_products(
           for p in 0..<nrep {
             let v1 = p1[p]
             let v2 = p2[p]
-            row.push(if logged {
-              v1 - v2
-            } else {
-              rp_log10_ratio(v1, v2)
-            })
+            row.push(if logged { v1 - v2 } else { rp_log10_ratio(v1, v2) })
           }
         } else {
           for p in 0..<nrep {
             let v = p1[p]
-            row.push(if logged {
-              v
-            } else {
-              rp_log10_value(v)
-            })
+            row.push(if logged { v } else { rp_log10_value(v) })
           }
         }
         null_lfc[rp - 1][g] = row
@@ -1078,11 +1049,7 @@ pub fn rank_products(
   let stat_matrix_down : Array[Array[Double]] = [] // rpairs x ng
   let stat_matrix_up : Array[Array[Double]] = []
   for rp in 0..<rpairs {
-    let lfc = if rp == 0 {
-      observed
-    } else {
-      null_lfc[rp - 1]
-    }
+    let lfc = if rp == 0 { observed } else { null_lfc[rp - 1] }
     for g in badrows {
       for c in 0..<lfc[g].length() {
         lfc[g][c] = rp_nan()
@@ -1109,7 +1076,7 @@ pub fn rank_products(
     }
     let row_down : Array[Double] = []
     let row_up : Array[Double] = []
-    let stat_of = fn(cols : Array[Array[Double]], g : Int) -> Double {
+    let stat_of = fn(cols : Array[Array[Double]], g : Int32) -> Double {
       let mut acc = 0.0
       let mut count = 0
       for col in cols {
@@ -1183,7 +1150,7 @@ pub fn rank_products(
   // Ties within libm noise keep ascending feature index, like R order().
   let pfp_from = fn(pv : Array[Double]) -> Array[Double] {
     let order = rp_stable_order_tol(pv)
-    let positions : Array[Int] = Array::make(ng, -1)
+    let positions : Array[Int32] = Array::make(ng, -1)
     let mut pos = 1
     for i in order {
       if rp_is_nan(pv[i]) {
@@ -1258,9 +1225,9 @@ pub fn rankprod_ori_rank(
   }
   let build = fn(
     a : Array[Array[Double]],
-    ka : Int,
+    ka : Int32,
     b : Array[Array[Double]],
-    kb : Int,
+    kb : Int32,
   ) -> Array[Array[Double]] {
     let np = ka * kb
     let ranks : Array[Array[Double]] = []
@@ -1295,6 +1262,7 @@ pub fn rankprod_ori_rank(
 // topGene
 // ---------------------------------------------------------------------------
 
+///|
 /// R ``signif(x, 4)``: round to four significant digits; mirrors the
 /// ``as.numeric(prettyNum(..., digits = 4))`` columns of the package topGene
 /// tables.
@@ -1314,13 +1282,15 @@ fn rp_signif4(x : Double) -> Double {
   rounded / factor
 }
 
+///|
 /// Indices of finite statistics in ascending order, index tiebreak (R
 /// ``sort(..., index.return = TRUE)`` drops NaNs). Statistics within libm
 /// noise are treated as tied and keep ascending index order.
-fn rp_top_order(stat : Array[Double]) -> Array[Int] {
+fn rp_top_order(stat : Array[Double]) -> Array[Int32] {
   rp_stable_order_tol(stat)
 }
 
+///|
 /// Build one top table for a direction.
 fn rp_build_top(
   stat : Array[Double],
@@ -1330,21 +1300,17 @@ fn rp_build_top(
   logged : Bool,
   logbase : Double,
   cutoff : Double?,
-  num_gene : Int?,
+  num_gene : Int32?,
   use_pfp : Bool,
 ) -> RankProdTopTable {
   let order = rp_top_order(stat)
-  let selected : Array[Int] = []
+  let selected : Array[Int32] = []
   match cutoff {
     Some(thr) => {
       let mut num_top = 0
       for t in 0..<order.length() {
         let g = order[t]
-        let m = if use_pfp {
-          pf[g]
-        } else {
-          pv[g]
-        }
+        let m = if use_pfp { pf[g] } else { pv[g] }
         if m < thr {
           num_top = t + 1
         }
@@ -1353,7 +1319,7 @@ fn rp_build_top(
         selected.push(order[t])
       }
     }
-    None => {
+    None =>
       match num_gene {
         Some(k) => {
           let kk = if k < 0 {
@@ -1369,18 +1335,13 @@ fn rp_build_top(
         }
         None => ()
       }
-    }
   }
   {
     indices: selected.copy(),
     statistic: selected.map(fn(g) { rp_signif4(stat[g]) }),
     fold_change: selected.map(fn(g) {
       let a = avefc[g]
-      let raw = if logged {
-        @math.pow(logbase, a)
-      } else {
-        a
-      }
+      let raw = if logged { @math.pow(logbase, a) } else { a }
       rp_signif4(raw)
     }),
     pfp: selected.map(fn(g) { rp_signif4(pf[g]) }),
@@ -1398,14 +1359,12 @@ fn rp_build_top(
 pub fn rankprod_top_genes(
   result~ : RankProdResult,
   cutoff~ : Double? = None,
-  num_gene~ : Int? = None,
+  num_gene~ : Int32? = None,
   method_~ : String = "pfp",
   logbase~ : Double = 2.0,
 ) -> (RankProdTopTable, RankProdTopTable) raise RankProdError {
   if cutoff is None && num_gene is None {
-    raise RankProdError(
-      "rankprod_top_genes: provide either cutoff or num_gene",
-    )
+    raise RankProdError("rankprod_top_genes: provide either cutoff or num_gene")
   }
   if !(cutoff is None) && !(num_gene is None) {
     raise RankProdError(

@@ -119,7 +119,7 @@ test "scop_residues_to_string_dash" {
 ///|
 test "scop_cla_record_creation" {
   let res = @src.scop_parse_residues("1hba A:1-141")
-  let hier : Map[String, Int] = Map([], capacity=8)
+  let hier : Map[String, Int32] = Map([], capacity=8)
   hier.set("cl", 100)
   hier.set("cf", 200)
   let r = @src.ClaRecord::new(

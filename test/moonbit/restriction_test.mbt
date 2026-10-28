@@ -80,7 +80,7 @@ fn br_enzyme(name : String) -> @src.BioRestrictionEnzyme {
 }
 
 ///|
-fn br_sites(m : Map[String, Array[Int]], key : String) -> Array[Int] {
+fn br_sites(m : Map[String, Array[Int32]], key : String) -> Array[Int32] {
   m.get(key).unwrap()
 }
 
@@ -89,7 +89,7 @@ fn br_search(
   e : @src.BioRestrictionEnzyme,
   seq : String,
   linear : Bool,
-) -> Array[Int] {
+) -> Array[Int32] {
   e.search(seq, linear~) catch {
     _ => abort("search should not raise here")
   }

@@ -38,7 +38,7 @@ fn str_contains(s : String, sub : String) -> Bool {
 
 ///|
 /// First `n` records (`seqkit head -n n`).
-pub fn seqkit_head(records : Array[SeqRecord], n : Int) -> Array[SeqRecord] {
+pub fn seqkit_head(records : Array[SeqRecord], n : Int32) -> Array[SeqRecord] {
   let out : Array[SeqRecord] = Array(capacity=0)
   let limit = if n < records.length() { n } else { records.length() }
   let mut i = 0
@@ -53,8 +53,8 @@ pub fn seqkit_head(records : Array[SeqRecord], n : Int) -> Array[SeqRecord] {
 /// Records in the 1-based inclusive range `[start, end]` (`seqkit range`).
 pub fn seqkit_range(
   records : Array[SeqRecord],
-  start : Int,
-  end : Int,
+  start : Int32,
+  end : Int32,
 ) -> Array[SeqRecord] {
   let out : Array[SeqRecord] = Array(capacity=0)
   let mut i = start - 1
@@ -159,7 +159,10 @@ pub fn seqkit_renumber(records : Array[SeqRecord]) -> Array[SeqRecord] {
 
 ///|
 /// Write each record `n` times (`seqkit duplicate -n n`).
-pub fn seqkit_duplicate(records : Array[SeqRecord], n : Int) -> Array[SeqRecord] {
+pub fn seqkit_duplicate(
+  records : Array[SeqRecord],
+  n : Int32,
+) -> Array[SeqRecord] {
   let out : Array[SeqRecord] = Array(capacity=0)
   for rec in records {
     for _k = 0; _k < n; _k = _k + 1 {
@@ -191,7 +194,10 @@ pub fn seqkit_rmdup(records : Array[SeqRecord]) -> Array[SeqRecord] {
 ///|
 /// Records of `a` whose full header also appears in `b` (`seqkit common`), in
 /// `a`'s order.
-pub fn seqkit_common(a : Array[SeqRecord], b : Array[SeqRecord]) -> Array[SeqRecord] {
+pub fn seqkit_common(
+  a : Array[SeqRecord],
+  b : Array[SeqRecord],
+) -> Array[SeqRecord] {
   let b_names : Map[String, Bool] = Map([], capacity=0)
   for rec in b {
     b_names.set(seqkit_full_name(rec), true)
@@ -204,11 +210,17 @@ pub fn seqkit_common(a : Array[SeqRecord], b : Array[SeqRecord]) -> Array[SeqRec
     }
   }
   out
-}///|
+} ///|
 /// Sliding-window subsequences (`seqkit sliding -W window -s step`,
 /// non-greedy): windows `[i, i+window)` for i = 0, step, 2·step, … while they
 /// fit; a partial trailing window is dropped.
-pub fn seqkit_sliding(seq : String, window : Int, step : Int) -> Array[String] {
+
+///|
+pub fn seqkit_sliding(
+  seq : String,
+  window : Int32,
+  step : Int32,
+) -> Array[String] {
   let out : Array[String] = Array(capacity=0)
   let l = seq.length()
   let mut i = 0
@@ -223,18 +235,14 @@ pub fn seqkit_sliding(seq : String, window : Int, step : Int) -> Array[String] {
 /// Translate a DNA/RNA sequence to protein (`seqkit translate -f frame`),
 /// forward frames 1/2/3 (frame 2/3 skip the leading 1/2 bases). Uses the
 /// standard codon table via `Seq::translate`.
-pub fn seqkit_translate(seq : String, frame : Int) -> String raise SeqError {
-  let s = if frame <= 1 {
-    seq
-  } else {
-    seq[frame - 1:seq.length()].to_owned()
-  }
+pub fn seqkit_translate(seq : String, frame : Int32) -> String raise SeqError {
+  let s = if frame <= 1 { seq } else { seq[frame - 1:seq.length()].to_owned() }
   Seq::new(s).translate().to_string()
 }
 
 ///|
 /// Point mutation: set the 1-based `pos`-th base to `base` (`seqkit mutate -p`).
-pub fn seqkit_mutate_point(seq : String, pos : Int, base : String) -> String {
+pub fn seqkit_mutate_point(seq : String, pos : Int32, base : String) -> String {
   let idx = pos - 1
   if idx < 0 || idx >= seq.length() {
     return seq
@@ -245,7 +253,7 @@ pub fn seqkit_mutate_point(seq : String, pos : Int, base : String) -> String {
 ///|
 /// Deletion: remove the 1-based inclusive range `[start, end]` (`seqkit mutate
 /// -d`).
-pub fn seqkit_mutate_delete(seq : String, start : Int, end : Int) -> String {
+pub fn seqkit_mutate_delete(seq : String, start : Int32, end : Int32) -> String {
   let s = start - 1
   if s < 0 || end > seq.length() || s >= end {
     return seq
@@ -256,7 +264,7 @@ pub fn seqkit_mutate_delete(seq : String, start : Int, end : Int) -> String {
 ///|
 /// Insertion: insert `ins` before the 0-based index `pos` (`seqkit mutate -i`;
 /// pos 0 = beginning, pos = length = end).
-pub fn seqkit_mutate_insert(seq : String, pos : Int, ins : String) -> String {
+pub fn seqkit_mutate_insert(seq : String, pos : Int32, ins : String) -> String {
   if pos < 0 || pos > seq.length() {
     return seq
   }
@@ -264,14 +272,17 @@ pub fn seqkit_mutate_insert(seq : String, pos : Int, ins : String) -> String {
 }
 
 ///|
-fn seqkit_lcg(seed : Int) -> Int {
+fn seqkit_lcg(seed : Int32) -> Int32 {
   (seed * 1103515245 + 12345) & 0x7FFFFFFF
 }
 
 ///|
 /// Deterministically shuffle records (`seqkit shuffle -s seed`, LCG-based
 /// Fisher–Yates).
-pub fn seqkit_shuffle(records : Array[SeqRecord], seed : Int) -> Array[SeqRecord] {
+pub fn seqkit_shuffle(
+  records : Array[SeqRecord],
+  seed : Int32,
+) -> Array[SeqRecord] {
   let out = records.copy()
   let mut s = seed
   let mut i = out.length() - 1
@@ -288,7 +299,11 @@ pub fn seqkit_shuffle(records : Array[SeqRecord], seed : Int) -> Array[SeqRecord
 
 ///|
 /// Randomly sample up to `n` records (`seqkit sample -n n`).
-pub fn seqkit_sample(records : Array[SeqRecord], n : Int, seed : Int) -> Array[SeqRecord] {
+pub fn seqkit_sample(
+  records : Array[SeqRecord],
+  n : Int32,
+  seed : Int32,
+) -> Array[SeqRecord] {
   seqkit_head(seqkit_shuffle(records, seed), n)
 }
 
@@ -312,7 +327,11 @@ pub fn seqkit_concat(groups : Array[Array[SeqRecord]]) -> Array[SeqRecord] {
 ///|
 /// Replace every occurrence of `pattern` with `replacement` in a string
 /// (literal substring replacement, no regex).
-fn seqkit_str_replace_all(s : String, pattern : String, replacement : String) -> String {
+fn seqkit_str_replace_all(
+  s : String,
+  pattern : String,
+  replacement : String,
+) -> String {
   if pattern.length() == 0 {
     return s
   }
@@ -334,7 +353,7 @@ fn seqkit_str_replace_all(s : String, pattern : String, replacement : String) ->
         matched = true
       }
     }
-    if !(matched) {
+    if !matched {
       sb.write_char(s.unsafe_get(i).unsafe_to_char())
       i = i + 1
     }

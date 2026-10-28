@@ -12,7 +12,7 @@
 pub struct CellList {
   cell_size : Double
   // Cell index → list of atom indices
-  cells : Map[(Int, Int, Int), Array[Int]]
+  cells : Map[(Int32, Int32, Int32), Array[Int32]]
   // Atom index → coordinate
   coords : Array[Array[Double]]
   // Bounding box
@@ -69,7 +69,7 @@ pub fn celllist_new(
     }
   }
   // Assign atoms to cells
-  let cells : Map[(Int, Int, Int), Array[Int]] = Map([], capacity=n)
+  let cells : Map[(Int32, Int32, Int32), Array[Int32]] = Map([], capacity=n)
   for i = 0; i < n; i = i + 1 {
     let cx = cell_index(coords[i][0], min_x, cell_size)
     let cy = cell_index(coords[i][1], min_y, cell_size)
@@ -78,7 +78,7 @@ pub fn celllist_new(
     match cells.get(key) {
       Some(arr) => arr.push(i)
       None => {
-        let arr : Array[Int] = [i]
+        let arr : Array[Int32] = [i]
         cells[key] = arr
       }
     }
@@ -94,7 +94,7 @@ pub fn celllist_new(
 
 ///|
 /// Compute cell index for a coordinate.
-fn cell_index(coord : Double, min_coord : Double, cell_size : Double) -> Int {
+fn cell_index(coord : Double, min_coord : Double, cell_size : Double) -> Int32 {
   ((coord - min_coord) / cell_size).to_int()
 }
 
@@ -103,9 +103,9 @@ fn cell_index(coord : Double, min_coord : Double, cell_size : Double) -> Int {
 /// Returns indices of neighbor atoms (excluding self).
 pub fn celllist_neighbors(
   cl : CellList,
-  center_idx : Int,
+  center_idx : Int32,
   radius : Double,
-) -> Array[Int] {
+) -> Array[Int32] {
   if center_idx < 0 || center_idx >= cl.coords.length() {
     return Array(capacity=0)
   }
@@ -124,16 +124,12 @@ pub fn celllist_neighbors_point(
   py : Double,
   pz : Double,
   radius : Double,
-  exclude_idx : Int,
-) -> Array[Int] {
-  let result : Array[Int] = Array(capacity=16)
+  exclude_idx : Int32,
+) -> Array[Int32] {
+  let result : Array[Int32] = Array(capacity=16)
   // Number of cells to search in each direction: ceil(radius / cell_size)
   let ratio = radius / cl.cell_size
-  let cell_r = if ratio <= 1.0 {
-    1
-  } else {
-    ratio.to_int() + 1
-  }
+  let cell_r = if ratio <= 1.0 { 1 } else { ratio.to_int() + 1 }
   let cxi = cell_index(px, cl.min_coord[0], cl.cell_size)
   let cyi = cell_index(py, cl.min_coord[1], cl.cell_size)
   let czi = cell_index(pz, cl.min_coord[2], cl.cell_size)
@@ -143,7 +139,7 @@ pub fn celllist_neighbors_point(
       for dz = -cell_r; dz <= cell_r; dz = dz + 1 {
         let key = (cxi + dx, cyi + dy, czi + dz)
         match cl.cells.get(key) {
-          Some(indices) => {
+          Some(indices) =>
             for j in indices {
               if j == exclude_idx {
                 continue
@@ -156,7 +152,6 @@ pub fn celllist_neighbors_point(
                 result.push(j)
               }
             }
-          }
           None => ()
         }
       }
@@ -171,8 +166,8 @@ pub fn celllist_neighbors_point(
 pub fn celllist_all_pairs(
   cl : CellList,
   radius : Double,
-) -> Array[(Int, Int)] {
-  let result : Array[(Int, Int)] = Array(capacity=0)
+) -> Array[(Int32, Int32)] {
+  let result : Array[(Int32, Int32)] = Array(capacity=0)
   let n = cl.coords.length()
   for i = 0; i < n; i = i + 1 {
     let neighbors = celllist_neighbors(cl, i, radius)

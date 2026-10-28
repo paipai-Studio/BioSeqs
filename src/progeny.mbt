@@ -86,7 +86,7 @@ pub fn progeny_mat_mul(
 
 ///|
 /// Create identity matrix of size n.
-pub fn progeny_identity(n : Int, scale : Double) -> Array[Array[Double]] {
+pub fn progeny_identity(n : Int32, scale : Double) -> Array[Array[Double]] {
   let result : Array[Array[Double]] = []
   let mut i = 0
   while i < n {

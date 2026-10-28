@@ -16,7 +16,7 @@
 pub struct DopeScore {
   total_score : Double
   per_residue : Array[Double]
-  num_pairs : Int
+  num_pairs : Int32
   normalized_score : Double
 }
 
@@ -27,14 +27,16 @@ pub struct DopePotential {
   energy : Array[Array[Double]]
   dist_cutoff : Double
   bin_size : Double
-  num_bins : Int
-  min_seq_sep : Int
+  num_bins : Int32
+  min_seq_sep : Int32
 }
 
 // 20 standard amino acids in canonical order
+
+///|
 let aa_names = [
-  "ALA", "ARG", "ASN", "ASP", "CYS", "GLN", "GLU", "GLY", "HIS", "ILE",
-  "LEU", "LYS", "MET", "PHE", "PRO", "SER", "THR", "TRP", "TYR", "VAL",
+  "ALA", "ARG", "ASN", "ASP", "CYS", "GLN", "GLU", "GLY", "HIS", "ILE", "LEU", "LYS",
+  "MET", "PHE", "PRO", "SER", "THR", "TRP", "TYR", "VAL",
 ]
 
 // Residue properties: (hydrophobicity, charge, aromatic, size_class)
@@ -42,14 +44,24 @@ let aa_names = [
 // charge: -1=negative, 0=neutral, 1=positive
 // aromatic: 0=no, 1=yes
 // size: 0=small, 1=medium, 2=large
+
+///|
 let aa_hydro = [1, 0, 0, 0, 1, 0, 0, 0, 0, 2, 2, 0, 1, 2, 1, 0, 0, 2, 1, 2]
-let dope_aa_charge = [0, 1, 0, -1, 0, 0, -1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0]
+
+///|
+let dope_aa_charge = [
+  0, 1, 0, -1, 0, 0, -1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0,
+]
+
+///|
 let aa_arom = [0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0]
+
+///|
 let aa_size = [0, 2, 1, 1, 0, 1, 1, 0, 1, 2, 2, 1, 1, 2, 1, 0, 0, 2, 2, 1]
 
 ///|
 /// Get amino acid index (0-19) from residue name, or -1 if non-standard.
-fn aa_index(resname : String) -> Int {
+fn aa_index(resname : String) -> Int32 {
   let upper = to_uppercase(resname)
   for i = 0; i < 20; i = i + 1 {
     if upper == aa_names[i] {
@@ -63,7 +75,7 @@ fn aa_index(resname : String) -> Int {
 /// Pair index for symmetric pair (i, j) with i <= j.
 /// For 20 amino acids: pair_index = i * 20 - i*(i-1)/2 + (j - i)
 /// Total pairs = 210
-fn pair_index(i : Int, j : Int) -> Int {
+fn pair_index(i : Int32, j : Int32) -> Int32 {
   let a = if i <= j { i } else { j }
   let b = if i <= j { j } else { i }
   a * 20 - a * (a - 1) / 2 + (b - a)
@@ -72,7 +84,7 @@ fn pair_index(i : Int, j : Int) -> Int {
 ///|
 /// Compute pair compatibility score from residue properties.
 /// Positive = favorable contact, negative = unfavorable.
-fn pair_compatibility(i : Int, j : Int) -> Double {
+fn pair_compatibility(i : Int32, j : Int32) -> Double {
   if i == j {
     // Same residue type
     if aa_arom[i] == 1 {
@@ -159,7 +171,7 @@ fn dist_energy(d : Double, compat : Double) -> Double {
 pub fn DopePotential::default() -> DopePotential {
   let num_bins = 30
   let num_pairs = 210
-  let energy : Array[Array[Double]] = Array::makei(num_pairs, { _ =>
+  let energy : Array[Array[Double]] = Array::makei(num_pairs, _ => {
     Array::make(num_bins, 0.0)
   })
   // Fill energy table
@@ -185,13 +197,13 @@ pub fn DopePotential::default() -> DopePotential {
 ///|
 /// Create a DOPE potential with custom parameters.
 pub fn DopePotential::new(
-  dist_cutoff? : Double = 15.0,
-  bin_size? : Double = 0.5,
-  min_seq_sep? : Int = 5,
+  dist_cutoff~ : Double = 15.0,
+  bin_size~ : Double = 0.5,
+  min_seq_sep~ : Int32 = 5,
 ) -> DopePotential {
   let num_bins = (dist_cutoff / bin_size).to_int()
   let num_pairs = 210
-  let energy : Array[Array[Double]] = Array::makei(num_pairs, { _ =>
+  let energy : Array[Array[Double]] = Array::makei(num_pairs, _ => {
     Array::make(num_bins, 0.0)
   })
   for i = 0; i < 20; i = i + 1 {
@@ -204,12 +216,12 @@ pub fn DopePotential::new(
       }
     }
   }
-  DopePotential::{ energy, dist_cutoff, bin_size, num_bins, min_seq_sep }
+  DopePotential::{ energy, dist_cutoff, bin_size, num_bins, min_seq_sep, }
 }
 
 ///|
 /// Get the distance bin for a given distance.
-fn dist_bin(d : Double, bin_size : Double, num_bins : Int) -> Int {
+fn dist_bin(d : Double, bin_size : Double, num_bins : Int32) -> Int32 {
   let b = (d / bin_size).to_int()
   if b < 0 {
     0
@@ -252,7 +264,7 @@ pub fn DopePotential::score(self : DopePotential, chain : Chain) -> DopeScore? {
   }
   // Collect Cα coordinates and residue types
   let coords : Array[Vector3] = Array(capacity=0)
-  let aa_idx : Array[Int] = Array(capacity=0)
+  let aa_idx : Array[Int32] = Array(capacity=0)
   for res in residues {
     match res.get_ca() {
       Some(ca) => {
@@ -343,8 +355,8 @@ pub fn DopePotential::compare(
 pub fn DopePotential::rank_models(
   self : DopePotential,
   chains : Array[Chain],
-) -> Array[(Int, Double)] {
-  let scored : Array[(Int, Double)] = Array(capacity=0)
+) -> Array[(Int32, Double)] {
+  let scored : Array[(Int32, Double)] = Array(capacity=0)
   for i = 0; i < chains.length(); i = i + 1 {
     match self.score(chains[i]) {
       Some(s) => scored.push((i, s.total_score))
@@ -368,9 +380,9 @@ pub fn DopePotential::rank_models(
 /// Get the raw energy table value for a specific pair and distance bin.
 pub fn DopePotential::get_energy(
   self : DopePotential,
-  aa1 : Int,
-  aa2 : Int,
-  bin : Int,
+  aa1 : Int32,
+  aa2 : Int32,
+  bin : Int32,
 ) -> Double {
   if aa1 < 0 || aa1 >= 20 || aa2 < 0 || aa2 >= 20 {
     return 0.0
@@ -384,19 +396,19 @@ pub fn DopePotential::get_energy(
 
 ///|
 /// Get amino acid index from name (public wrapper).
-pub fn dope_aa_index(resname : String) -> Int {
+pub fn dope_aa_index(resname : String) -> Int32 {
   aa_index(resname)
 }
 
 ///|
 /// Get pair index (public wrapper).
-pub fn dope_pair_index(i : Int, j : Int) -> Int {
+pub fn dope_pair_index(i : Int32, j : Int32) -> Int32 {
   pair_index(i, j)
 }
 
 ///|
 /// Get pair compatibility score (public wrapper).
-pub fn dope_pair_compatibility(i : Int, j : Int) -> Double {
+pub fn dope_pair_compatibility(i : Int32, j : Int32) -> Double {
   pair_compatibility(i, j)
 }
 
@@ -413,7 +425,7 @@ pub fn DopeScore::get_per_residue(self : DopeScore) -> Array[Double] {
 }
 
 ///|
-pub fn DopeScore::get_num_pairs(self : DopeScore) -> Int {
+pub fn DopeScore::get_num_pairs(self : DopeScore) -> Int32 {
   self.num_pairs
 }
 
@@ -425,9 +437,9 @@ pub fn DopeScore::get_normalized(self : DopeScore) -> Double {
 ///|
 /// Find the worst-scoring residues (highest per-residue energy).
 /// Returns indices sorted worst-first.
-pub fn DopeScore::worst_residues(self : DopeScore, k : Int) -> Array[Int] {
+pub fn DopeScore::worst_residues(self : DopeScore, k : Int32) -> Array[Int32] {
   let n = self.per_residue.length()
-  let indexed : Array[(Int, Double)] = Array(capacity=0)
+  let indexed : Array[(Int32, Double)] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {
     indexed.push((i, self.per_residue[i]))
   }
@@ -440,7 +452,7 @@ pub fn DopeScore::worst_residues(self : DopeScore, k : Int) -> Array[Int] {
       0
     }
   })
-  let result : Array[Int] = Array(capacity=0)
+  let result : Array[Int32] = Array(capacity=0)
   let count = if k < indexed.length() { k } else { indexed.length() }
   for i = 0; i < count; i = i + 1 {
     result.push(indexed[i].0)
@@ -450,9 +462,9 @@ pub fn DopeScore::worst_residues(self : DopeScore, k : Int) -> Array[Int] {
 
 ///|
 /// Find the best-scoring residues (lowest per-residue energy).
-pub fn DopeScore::best_residues(self : DopeScore, k : Int) -> Array[Int] {
+pub fn DopeScore::best_residues(self : DopeScore, k : Int32) -> Array[Int32] {
   let n = self.per_residue.length()
-  let indexed : Array[(Int, Double)] = Array(capacity=0)
+  let indexed : Array[(Int32, Double)] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {
     indexed.push((i, self.per_residue[i]))
   }
@@ -465,7 +477,7 @@ pub fn DopeScore::best_residues(self : DopeScore, k : Int) -> Array[Int] {
       0
     }
   })
-  let result : Array[Int] = Array(capacity=0)
+  let result : Array[Int32] = Array(capacity=0)
   let count = if k < indexed.length() { k } else { indexed.length() }
   for i = 0; i < count; i = i + 1 {
     result.push(indexed[i].0)

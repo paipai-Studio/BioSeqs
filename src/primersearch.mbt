@@ -16,8 +16,8 @@ pub struct PrimerPair {
 /// A single primer hit on a target sequence.
 pub struct PrimerHit {
   strand : String // "+" forward match, "-" reverse-complement match
-  position : Int
-  mismatches : Int
+  position : Int32
+  mismatches : Int32
 }
 
 ///|
@@ -27,21 +27,25 @@ pub struct PcrProduct {
   sequence_id : String
   fwd_hit : PrimerHit
   rev_hit : PrimerHit
-  product_size : Int
+  product_size : Int32
 }
 
 ///|
 /// Results of running primersearch: all products per sequence.
 pub struct PrimerSearchResult {
   products : Array[PcrProduct]
-  n_primers : Int
-  n_sequences : Int
+  n_primers : Int32
+  n_sequences : Int32
 }
 
 ///|
 /// Construct a primer pair.
-pub fn PrimerPair::new(name : String, forward : String, reverse : String) -> PrimerPair {
-  PrimerPair::{ name, forward, reverse }
+pub fn PrimerPair::new(
+  name : String,
+  forward : String,
+  reverse : String,
+) -> PrimerPair {
+  PrimerPair::{ name, forward, reverse, }
 }
 
 ///|
@@ -103,7 +107,7 @@ pub fn primersearch_revcomp(seq : String) -> String {
 
 ///|
 /// Count mismatches between two equal-length strings.
-fn primersearch_mismatches(a : String, b : String) -> Int {
+fn primersearch_mismatches(a : String, b : String) -> Int32 {
   let n = if a.length() < b.length() { a.length() } else { b.length() }
   let mut mm = 0
   let mut i = 0
@@ -122,7 +126,7 @@ fn primersearch_mismatches(a : String, b : String) -> Int {
 pub fn primersearch_find_hits(
   seq : String,
   primer : String,
-  max_mismatches~ : Int = 0
+  max_mismatches~ : Int32 = 0,
 ) -> Array[PrimerHit] {
   let hits : Array[PrimerHit] = []
   let plen = primer.length()
@@ -135,11 +139,11 @@ pub fn primersearch_find_hits(
     let window = seq[i:i + plen].to_owned()
     let mm_fwd = primersearch_mismatches(window, primer)
     if mm_fwd <= max_mismatches {
-      hits.push(PrimerHit::{ strand: "+", position: i, mismatches: mm_fwd })
+      hits.push(PrimerHit::{ strand: "+", position: i, mismatches: mm_fwd, })
     } else {
       let mm_rev = primersearch_mismatches(window, rc)
       if mm_rev <= max_mismatches {
-        hits.push(PrimerHit::{ strand: "-", position: i, mismatches: mm_rev })
+        hits.push(PrimerHit::{ strand: "-", position: i, mismatches: mm_rev, })
       }
     }
     i = i + 1
@@ -154,7 +158,7 @@ pub fn primersearch_find_hits(
 pub fn primersearch_run(
   primers : Array[PrimerPair],
   sequences : Array[(String, String)],
-  max_mismatches~ : Int = 0
+  max_mismatches~ : Int32 = 0,
 ) -> PrimerSearchResult {
   let products : Array[PcrProduct] = []
   let mut p = 0
@@ -174,17 +178,39 @@ pub fn primersearch_run(
         while ri < rev_hits.length() {
           let rh = rev_hits[ri]
           // Need opposite strands and fwd before rev (or rev before fwd)
-          let fwd_start = if fh.strand == "+" { fh.position } else { fh.position + pair.forward.length() - 1 }
-          let rev_end = if rh.strand == "-" { rh.position + pair.reverse.length() - 1 } else { rh.position }
+          let fwd_start = if fh.strand == "+" {
+            fh.position
+          } else {
+            fh.position + pair.forward.length() - 1
+          }
+          let rev_end = if rh.strand == "-" {
+            rh.position + pair.reverse.length() - 1
+          } else {
+            rh.position
+          }
           let rev_start = rh.position
           if fh.strand == "+" && rh.strand == "-" && rh.position >= fh.position {
             let size = rev_end - fwd_start + 1
-            products.push(PcrProduct::{ primer_name: pair.name, sequence_id: seq_id, fwd_hit: fh, rev_hit: rh, product_size: size })
-          } else if fh.strand == "-" && rh.strand == "+" && fh.position >= rh.position {
+            products.push(PcrProduct::{
+              primer_name: pair.name,
+              sequence_id: seq_id,
+              fwd_hit: fh,
+              rev_hit: rh,
+              product_size: size,
+            })
+          } else if fh.strand == "-" &&
+            rh.strand == "+" &&
+            fh.position >= rh.position {
             // Reverse orientation: product from rev primer to fwd primer
             let fwd_end = fh.position + pair.forward.length() - 1
             let size = fwd_end - rev_start + 1
-            products.push(PcrProduct::{ primer_name: pair.name, sequence_id: seq_id, fwd_hit: fh, rev_hit: rh, product_size: size })
+            products.push(PcrProduct::{
+              primer_name: pair.name,
+              sequence_id: seq_id,
+              fwd_hit: fh,
+              rev_hit: rh,
+              product_size: size,
+            })
           }
           ri = ri + 1
         }
@@ -194,7 +220,11 @@ pub fn primersearch_run(
     }
     p = p + 1
   }
-  PrimerSearchResult::{ products, n_primers: primers.length(), n_sequences: sequences.length() }
+  PrimerSearchResult::{
+    products,
+    n_primers: primers.length(),
+    n_sequences: sequences.length(),
+  }
 }
 
 ///|
@@ -232,8 +262,8 @@ pub fn primersearch_to_string(result : PrimerSearchResult) -> String {
 /// Filter products by size range [min_size, max_size].
 pub fn primersearch_filter_by_size(
   result : PrimerSearchResult,
-  min_size : Int,
-  max_size : Int
+  min_size : Int32,
+  max_size : Int32,
 ) -> Array[PcrProduct] {
   let filtered : Array[PcrProduct] = []
   let mut i = 0
@@ -250,15 +280,11 @@ pub fn primersearch_filter_by_size(
 ///|
 /// Example primers file content.
 pub fn primersearch_example_primers() -> Array[PrimerPair] {
-  [
-    PrimerPair::new("GeneA_F", "ATGAAACGTT", "TTACAGCTAA"),
-  ]
+  [PrimerPair::new("GeneA_F", "ATGAAACGTT", "TTACAGCTAA")]
 }
 
 ///|
 /// Example target sequences.
 pub fn primersearch_example_sequences() -> Array[(String, String)] {
-  [
-    ("chr1", "GGGATGAAACGTTCCCTTTACAGCTAAAGGG"),
-  ]
+  [("chr1", "GGGATGAAACGTTCCCTTTACAGCTAAAGGG")]
 }

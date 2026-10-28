@@ -1,7 +1,7 @@
+///|
 /// Demo: Bio.Pathway — a tiny glycolysis-like system.
 ///
 /// Run with: moon run examples/pathway_demo
-
 fn main {
   // ---- System with 3 reactions -------------------------------------
   let sys = @src.create_example_pathway()
@@ -45,8 +45,14 @@ fn main {
   println("=== Network (linear S -> A -> B -> P chain) ===")
   let net = @src.create_example_network()
   let nodes = net.species()
-  nodes.sort_by(fn(a : String, b : String) -> Int {
-    if a < b { -1 } else if a > b { 1 } else { 0 }
+  nodes.sort_by(fn(a : String, b : String) -> Int32 {
+    if a < b {
+      -1
+    } else if a > b {
+      1
+    } else {
+      0
+    }
   })
   let mut m = 0
   while m < nodes.length() {
@@ -55,7 +61,17 @@ fn main {
     let snk = net.sink(sp)
     let src_s = if src.length() == 0 { "none" } else { src.join(",") }
     let snk_s = if snk.length() == 0 { "none" } else { snk.join(",") }
-    println("  source(" + sp + ") = [" + src_s + "]   sink(" + sp + ") = [" + snk_s + "]")
+    println(
+      "  source(" +
+      sp +
+      ") = [" +
+      src_s +
+      "]   sink(" +
+      sp +
+      ") = [" +
+      snk_s +
+      "]",
+    )
     m = m + 1
   }
 
@@ -63,7 +79,11 @@ fn main {
   println("")
   println("=== Graph traversals (MultiGraph A->B->C->D->E + shortcut A->C) ===")
   let mg = @src.PathwayMultiGraph::new()
-  mg.add_node("A"); mg.add_node("B"); mg.add_node("C"); mg.add_node("D"); mg.add_node("E")
+  mg.add_node("A")
+  mg.add_node("B")
+  mg.add_node("C")
+  mg.add_node("D")
+  mg.add_node("E")
   mg.add_edge("A", "B", "e1")
   mg.add_edge("B", "C", "e2")
   mg.add_edge("C", "D", "e3")

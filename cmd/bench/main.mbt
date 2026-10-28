@@ -7,7 +7,7 @@
 ///|
 /// Generate a deterministic pseudo-random DNA sequence of length `n`
 /// using a simple LCG so results are reproducible across runs.
-fn gen_dna(n : Int) -> String {
+fn gen_dna(n : Int32) -> String {
   let buf = StringBuilder()
   let bases = ['A', 'C', 'G', 'T']
   let mut state = 12345
@@ -21,7 +21,7 @@ fn gen_dna(n : Int) -> String {
 
 ///|
 /// Measure how long `f` takes when called `iters` times; returns total us.
-fn bench(label : String, iters : Int, f : () -> Unit) -> Double {
+fn bench(label : String, iters : Int32, f : () -> Unit) -> Double {
   let ts = @mb.monotonic_clock_start()
   for i = 0; i < iters; i = i + 1 {
     f()
@@ -37,7 +37,7 @@ fn bench(label : String, iters : Int, f : () -> Unit) -> Double {
 ///|
 /// Measure how long `f` takes when called `iters` times; returns total us.
 /// Supports functions that may raise errors.
-fn bench_err(label : String, iters : Int, f : () -> Unit) -> Double {
+fn bench_err(label : String, iters : Int32, f : () -> Unit) -> Double {
   let ts = @mb.monotonic_clock_start()
   for i = 0; i < iters; i = i + 1 {
     f()
@@ -54,7 +54,7 @@ fn bench_err(label : String, iters : Int, f : () -> Unit) -> Double {
 
 ///|
 /// Generate a FASTA string with `n_records` records, each of length `seq_len`.
-fn gen_fasta(n_records : Int, seq_len : Int) -> String {
+fn gen_fasta(n_records : Int32, seq_len : Int32) -> String {
   let buf = StringBuilder()
   for i = 0; i < n_records; i = i + 1 {
     buf.write_char('>')
@@ -72,7 +72,7 @@ fn gen_fasta(n_records : Int, seq_len : Int) -> String {
 
 ///|
 /// Generate a FASTQ string with `n_records` records, each of length `seq_len`.
-fn gen_fastq(n_records : Int, seq_len : Int) -> String {
+fn gen_fastq(n_records : Int32, seq_len : Int32) -> String {
   let buf = StringBuilder()
   for i = 0; i < n_records; i = i + 1 {
     buf.write_char('@')
@@ -203,7 +203,9 @@ fn main {
   )
 
   // FASTQ write
-  let fq_records = @lib.parse_fastq(fastq_content) catch { _ => Array(capacity=0) }
+  let fq_records = @lib.parse_fastq(fastq_content) catch {
+    _ => Array(capacity=0)
+  }
   ignore(
     bench("write_fastq (100x1000)", iters_small, fn() {
       ignore(@lib.write_fastq(fq_records)) catch {

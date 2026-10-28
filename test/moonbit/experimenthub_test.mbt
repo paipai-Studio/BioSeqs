@@ -5,7 +5,7 @@
 fn ehres(
   title : String,
   species : String,
-  taxid : Int,
+  taxid : Int32,
   genome : String,
   desc : String,
   provider : String,
@@ -16,10 +16,19 @@ fn ehres(
 ///|
 fn eh_mk_resources() -> Array[@src.EhResource] {
   [
-    ehres("RNA-seq of human cell line", "Homo sapiens", 9606, "hg38", "bulk RNA-seq", "ENCODE"),
-    ehres("ChIP-seq peaks mouse", "Mus musculus", 10090, "mm10", "H3K27ac peaks", "ENCODE"),
-    ehres("ATAC-seq human PBMC", "Homo sapiens", 9606, "hg38", "single-cell ATAC", "10x Genomics"),
-    ehres("ChIP-seq peaks human", "Homo Sapiens", 9606, "hg19", "H3K4me3", "Roadmap"),
+    ehres(
+      "RNA-seq of human cell line", "Homo sapiens", 9606, "hg38", "bulk RNA-seq",
+      "ENCODE",
+    ),
+    ehres(
+      "ChIP-seq peaks mouse", "Mus musculus", 10090, "mm10", "H3K27ac peaks", "ENCODE",
+    ),
+    ehres(
+      "ATAC-seq human PBMC", "Homo sapiens", 9606, "hg38", "single-cell ATAC", "10x Genomics",
+    ),
+    ehres(
+      "ChIP-seq peaks human", "Homo Sapiens", 9606, "hg19", "H3K4me3", "Roadmap",
+    ),
   ]
 }
 

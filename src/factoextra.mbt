@@ -12,7 +12,7 @@
 
 ///|
 pub struct EigenValue {
-  dimension : Int
+  dimension : Int32
   eigenvalue : Double
   variance_explained : Double
   cumulative_variance : Double
@@ -37,9 +37,9 @@ pub struct PcaResult {
   eigenvalues : Array[EigenValue]
   ind : PcaIndResult
   var_ : PcaVarResult
-  n_ind : Int
-  n_var : Int
-  n_dims : Int
+  n_ind : Int32
+  n_var : Int32
+  n_dims : Int32
 }
 
 ///|
@@ -47,9 +47,9 @@ pub struct PcaResult {
 /// Returns eigenvalues, individual coordinates, and variable loadings.
 pub fn facto_pca(
   data : Array[Array[Double]],
-  center? : Bool = true,
-  scale? : Bool = true,
-  ncp? : Int = 0,
+  center~ : Bool = true,
+  scale~ : Bool = true,
+  ncp~ : Int32 = 0,
 ) -> PcaResult {
   let n = data.length()
   if n == 0 {
@@ -237,7 +237,7 @@ fn facto_center_scale(
 ///|
 fn facto_power_iteration(
   a : Array[Array[Double]],
-  n_components : Int,
+  n_components : Int32,
 ) -> (Array[Double], Array[Array[Double]]) {
   let n = a.length()
   if n == 0 {
@@ -339,7 +339,7 @@ fn facto_sort_eigen(
   eigenvectors : Array[Array[Double]],
 ) -> (Array[Double], Array[Array[Double]]) {
   let n = eigenvalues.length()
-  let indices : Array[Int] = Array::make(n, 0)
+  let indices : Array[Int32] = Array::make(n, 0)
   let mut i = 0
   while i < n {
     indices[i] = i
@@ -506,7 +506,7 @@ pub fn facto_get_pca_var(result : PcaResult) -> PcaVarResult {
 /// Get contribution of variables to a specific dimension.
 pub fn facto_var_contrib_dim(
   result : PcaResult,
-  dim : Int,
+  dim : Int32,
 ) -> Array[(String, Double)] {
   let d = dim - 1
   if d < 0 || d >= result.n_dims {
@@ -545,7 +545,7 @@ pub fn facto_var_contrib_dim(
 /// Get contribution of individuals to a specific dimension.
 pub fn facto_ind_contrib_dim(
   result : PcaResult,
-  dim : Int,
+  dim : Int32,
 ) -> Array[(String, Double)] {
   let d = dim - 1
   if d < 0 || d >= result.n_dims {
@@ -583,7 +583,7 @@ pub fn facto_ind_contrib_dim(
 /// Get cosine quality of representation for variables on a specific dimension.
 pub fn facto_var_cos2_dim(
   result : PcaResult,
-  dim : Int,
+  dim : Int32,
 ) -> Array[(String, Double)] {
   let d = dim - 1
   if d < 0 || d >= result.n_dims {
@@ -602,7 +602,7 @@ pub fn facto_var_cos2_dim(
 /// Get cosine quality of representation for individuals on a specific dimension.
 pub fn facto_ind_cos2_dim(
   result : PcaResult,
-  dim : Int,
+  dim : Int32,
 ) -> Array[(String, Double)] {
   let d = dim - 1
   if d < 0 || d >= result.n_dims {
@@ -619,7 +619,7 @@ pub fn facto_ind_cos2_dim(
 
 ///|
 pub struct DimDesc {
-  dimension : Int
+  dimension : Int32
   var_name : String
   correlation : Double
   p_value : Double
@@ -629,7 +629,7 @@ pub struct DimDesc {
 pub fn facto_dimdesc(
   data : Array[Array[Double]],
   result : PcaResult,
-  dim : Int,
+  dim : Int32,
 ) -> Array[DimDesc] {
   let d = dim - 1
   if d < 0 || d >= result.n_dims {
@@ -747,7 +747,7 @@ pub fn facto_total_inertia(result : PcaResult) -> Double {
 
 ///|
 /// Get the number of dimensions to retain based on threshold.
-pub fn facto_nb_dim(result : PcaResult, threshold : Double) -> Int {
+pub fn facto_nb_dim(result : PcaResult, threshold : Double) -> Int32 {
   let mut cum = 0.0
   let mut i = 0
   while i < result.eigenvalues.length() {
@@ -762,9 +762,9 @@ pub fn facto_nb_dim(result : PcaResult, threshold : Double) -> Int {
 
 ///|
 pub struct PcaSummary {
-  n_individuals : Int
-  n_variables : Int
-  n_dimensions : Int
+  n_individuals : Int32
+  n_variables : Int32
+  n_dimensions : Int32
   total_inertia : Double
   first_dim_variance : Double
 }

@@ -5,23 +5,23 @@
 ///|
 /// Represents an SC3 clustering result.
 pub struct SC3Result {
-  cluster_labels : Array[Int]
+  cluster_labels : Array[Int32]
   consensus_matrix : Array[Array[Double]]
-  k : Int
+  k : Int32
   silhouette_scores : Array[Double]
   gap_statistics : Array[Double]
-  optimal_k : Int
+  optimal_k : Int32
 }
 
 ///|
 /// Create a new SC3Result.
 pub fn SC3Result::new(
-  cluster_labels : Array[Int],
+  cluster_labels : Array[Int32],
   consensus_matrix : Array[Array[Double]],
-  k : Int,
+  k : Int32,
   silhouette_scores : Array[Double],
   gap_statistics : Array[Double],
-  optimal_k : Int,
+  optimal_k : Int32,
 ) -> SC3Result {
   SC3Result::{
     cluster_labels,
@@ -68,7 +68,7 @@ pub fn sc3_preprocess(data : Array[Array[Double]]) -> Array[Array[Double]] {
 /// Compute PCA on preprocessed data.
 pub fn sc3_pca(
   data : Array[Array[Double]],
-  n_components : Int,
+  n_components : Int32,
 ) -> Array[Array[Double]] {
   let n = data.length()
   let dim = if n > 0 { data[0].length() } else { 0 }
@@ -159,7 +159,7 @@ pub fn sc3_pca(
 /// Power iteration for eigenvalue decomposition.
 pub fn sc3_power_iteration(
   matrix : Array[Array[Double]],
-  n_components : Int,
+  n_components : Int32,
 ) -> Array[Array[Double]] {
   let n = matrix.length()
   let components : Array[Array[Double]] = Array(capacity=0)
@@ -233,8 +233,8 @@ pub fn sc3_power_iteration(
 /// Calculate consensus matrix.
 pub fn sc3_calculate_consensus_matrix(
   data : Array[Array[Double]],
-  k : Int,
-  n_iterations : Int,
+  k : Int32,
+  n_iterations : Int32,
 ) -> Array[Array[Double]] {
   let n = data.length()
 
@@ -285,7 +285,7 @@ pub fn sc3_calculate_consensus_matrix(
 
 ///|
 /// Perform k-means clustering.
-pub fn sc3_kmeans(data : Array[Array[Double]], k : Int) -> Array[Int] {
+pub fn sc3_kmeans(data : Array[Array[Double]], k : Int32) -> Array[Int32] {
   let n = data.length()
   let dim = if n > 0 { data[0].length() } else { 0 }
 
@@ -296,7 +296,7 @@ pub fn sc3_kmeans(data : Array[Array[Double]], k : Int) -> Array[Int] {
     c = c + 1
   }
 
-  let labels : Array[Int] = Array(capacity=0)
+  let labels : Array[Int32] = Array(capacity=0)
   let mut j = 0
   while j < n {
     labels.push(0)
@@ -386,8 +386,8 @@ pub fn sc3_euclidean_distance(v1 : Array[Double], v2 : Array[Double]) -> Double 
 /// Calculate silhouette scores.
 pub fn sc3_calculate_silhouette(
   data : Array[Array[Double]],
-  labels : Array[Int],
-  k : Int,
+  labels : Array[Int32],
+  k : Int32,
 ) -> Array[Double] {
   let n = data.length()
   let scores : Array[Double] = Array(capacity=0)
@@ -449,7 +449,7 @@ pub fn sc3_calculate_silhouette(
 /// Calculate gap statistics.
 pub fn sc3_calculate_gap_statistics(
   data : Array[Array[Double]],
-  k : Int,
+  k : Int32,
 ) -> Array[Double] {
   let _n = data.length()
 
@@ -478,7 +478,7 @@ pub fn sc3_calculate_gap_statistics(
 
 ///|
 /// Calculate within-cluster sum of squares.
-pub fn sc3_calculate_wcss(data : Array[Array[Double]], k : Int) -> Double {
+pub fn sc3_calculate_wcss(data : Array[Array[Double]], k : Int32) -> Double {
   let labels = sc3_kmeans(data, k)
   let n = data.length()
   let dim = if n > 0 { data[0].length() } else { 0 }
@@ -496,7 +496,7 @@ pub fn sc3_calculate_wcss(data : Array[Array[Double]], k : Int) -> Double {
     i = i + 1
   }
 
-  let counts : Array[Int] = Array(capacity=0)
+  let counts : Array[Int32] = Array(capacity=0)
   let mut c = 0
   while c < k {
     counts.push(0)
@@ -531,7 +531,8 @@ pub fn sc3_calculate_wcss(data : Array[Array[Double]], k : Int) -> Double {
   let mut s = 0
   while s < n {
     let label = labels[s]
-    wcss = wcss + @math.pow(sc3_euclidean_distance(data[s], centroids[label]), 2)
+    wcss = wcss +
+      @math.pow(sc3_euclidean_distance(data[s], centroids[label]), 2)
     s = s + 1
   }
 
@@ -542,7 +543,7 @@ pub fn sc3_calculate_wcss(data : Array[Array[Double]], k : Int) -> Double {
 /// Generate null data for gap statistics.
 pub fn sc3_generate_null_data(
   data : Array[Array[Double]],
-  seed : Int,
+  seed : Int32,
 ) -> Array[Array[Double]] {
   let n = data.length()
   let dim = if n > 0 { data[0].length() } else { 0 }
@@ -588,9 +589,9 @@ pub fn sc3_generate_null_data(
 /// Perform SC3 consensus clustering.
 pub fn sc3_consensus_cluster(
   data : Array[Array[Double]],
-  k : Int,
-  n_iterations? : Int = 100,
-  n_pcs? : Int = 50,
+  k : Int32,
+  n_iterations~ : Int32 = 100,
+  n_pcs~ : Int32 = 50,
 ) -> SC3Result {
   let processed = sc3_preprocess(data)
   let pcs = sc3_pca(processed, n_pcs)
@@ -619,14 +620,14 @@ pub fn sc3_consensus_cluster(
 
 ///|
 /// Bio API functions.
-pub fn bio_sc3_cluster(data : Array[Array[Double]], k : Int) -> SC3Result {
+pub fn bio_sc3_cluster(data : Array[Array[Double]], k : Int32) -> SC3Result {
   sc3_consensus_cluster(data, k)
 }
 
 ///|
 pub fn bio_sc3_pca(
   data : Array[Array[Double]],
-  n_components : Int,
+  n_components : Int32,
 ) -> Array[Array[Double]] {
   let processed = sc3_preprocess(data)
   sc3_pca(processed, n_components)
@@ -635,8 +636,8 @@ pub fn bio_sc3_pca(
 ///|
 pub fn bio_sc3_silhouette(
   data : Array[Array[Double]],
-  labels : Array[Int],
-  k : Int,
+  labels : Array[Int32],
+  k : Int32,
 ) -> Array[Double] {
   sc3_calculate_silhouette(data, labels, k)
 }

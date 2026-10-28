@@ -15,29 +15,31 @@ pub suberror HhrError {
 /// File-level metadata from the HHR header.
 pub struct HhrMetadata {
   query_name : String
-  match_columns : Int
-  sequence_count : Int
-  sequence_count_total : Int
+  match_columns : Int32
+  sequence_count : Int32
+  sequence_count_total : Int32
   neff : Double
   template_neff : Double?
-  searched_hmms : Int
+  searched_hmms : Int32
   run_date : String
   command_line : String
 } derive(Eq)
+
+///|
 pub extend HhrMetadata with Eq::{equal, not_equal}
 
 ///|
 /// Create HHR file-level metadata.
 pub fn HhrMetadata::new(
   query_name~ : String,
-  match_columns~ : Int,
-  sequence_count? : Int = 0,
-  sequence_count_total? : Int = 0,
-  neff? : Double = 0.0,
-  template_neff? : Double? = None,
-  searched_hmms? : Int = 0,
-  run_date? : String = "",
-  command_line? : String = "",
+  match_columns~ : Int32,
+  sequence_count~ : Int32 = 0,
+  sequence_count_total~ : Int32 = 0,
+  neff~ : Double = 0.0,
+  template_neff~ : Double? = None,
+  searched_hmms~ : Int32 = 0,
+  run_date~ : String = "",
+  command_line~ : String = "",
 ) -> HhrMetadata {
   HhrMetadata::{
     query_name,
@@ -58,7 +60,7 @@ pub fn HhrMetadata::new(
 /// Coordinates are 0-based and end-exclusive, matching Biopython's alignment
 /// coordinate convention.
 pub struct HhrHitSummary {
-  rank : Int
+  rank : Int32
   target_name : String
   description : String
   probability : Double
@@ -66,13 +68,15 @@ pub struct HhrHitSummary {
   pvalue : Double
   score : Double
   secondary_structure_score : Double
-  aligned_columns : Int
-  query_start : Int
-  query_end : Int
-  target_start : Int
-  target_end : Int
-  target_length : Int
+  aligned_columns : Int32
+  query_start : Int32
+  query_end : Int32
+  target_start : Int32
+  target_end : Int32
+  target_length : Int32
 } derive(Eq)
+
+///|
 pub extend HhrHitSummary with Eq::{equal, not_equal}
 
 ///|
@@ -81,12 +85,12 @@ pub extend HhrHitSummary with Eq::{equal, not_equal}
 /// Sequence and annotation strings contain alignment gaps and therefore all
 /// non-empty annotation strings have the same length as `query_sequence`.
 pub struct HhrAlignment {
-  rank : Int
+  rank : Int32
   query_name : String
-  query_length : Int
+  query_length : Int32
   target_name : String
   target_description : String
-  target_length : Int
+  target_length : Int32
   probability : Double
   evalue : Double
   pvalue : Double
@@ -95,11 +99,11 @@ pub struct HhrAlignment {
   identities : Double
   similarity : Double
   sum_probabilities : Double
-  aligned_columns : Int
-  query_start : Int
-  query_end : Int
-  target_start : Int
-  target_end : Int
+  aligned_columns : Int32
+  query_start : Int32
+  query_end : Int32
+  target_start : Int32
+  target_end : Int32
   query_sequence : String
   target_sequence : String
   query_consensus : String
@@ -110,6 +114,8 @@ pub struct HhrAlignment {
   column_score : String
   confidence : String
 } derive(Eq)
+
+///|
 pub extend HhrAlignment with Eq::{equal, not_equal}
 
 ///|
@@ -119,17 +125,19 @@ pub struct HhrRecord {
   hit_summaries : Array[HhrHitSummary]
   alignments : Array[HhrAlignment]
 } derive(Eq)
+
+///|
 pub extend HhrRecord with Eq::{equal, not_equal}
 
 ///|
 /// Return the number of detailed hit alignments.
-pub fn HhrRecord::num_hits(self : HhrRecord) -> Int {
+pub fn HhrRecord::num_hits(self : HhrRecord) -> Int32 {
   self.alignments.length()
 }
 
 ///|
 /// Return an alignment by zero-based result index.
-pub fn HhrRecord::get(self : HhrRecord, index : Int) -> HhrAlignment? {
+pub fn HhrRecord::get(self : HhrRecord, index : Int32) -> HhrAlignment? {
   if index < 0 || index >= self.alignments.length() {
     None
   } else {
@@ -225,7 +233,7 @@ pub fn HhrRecord::filter_by_evalue(
 
 ///|
 /// Return the number of alignment columns, including gap columns.
-pub fn HhrAlignment::alignment_length(self : HhrAlignment) -> Int {
+pub fn HhrAlignment::alignment_length(self : HhrAlignment) -> Int32 {
   self.query_sequence.length()
 }
 
@@ -243,7 +251,7 @@ pub fn HhrAlignment::ungapped_target(self : HhrAlignment) -> String {
 
 ///|
 /// Return exact identical residue columns, excluding gaps.
-pub fn HhrAlignment::identity_count(self : HhrAlignment) -> Int {
+pub fn HhrAlignment::identity_count(self : HhrAlignment) -> Int32 {
   let mut count = 0
   for i = 0; i < self.query_sequence.length(); i = i + 1 {
     let query = self.query_sequence.unsafe_get(i).to_int()
@@ -284,8 +292,8 @@ pub fn HhrAlignment::target_coverage(self : HhrAlignment) -> Double {
 /// is aligned to a target gap.
 pub fn HhrAlignment::query_to_target(
   self : HhrAlignment,
-  query_position : Int,
-) -> Int? {
+  query_position : Int32,
+) -> Int32? {
   if query_position < self.query_start || query_position >= self.query_end {
     return None
   }
@@ -314,19 +322,21 @@ pub fn HhrAlignment::query_to_target(
 /// Return per-column absolute coordinates.
 ///
 /// A gap is represented by `None`; residue coordinates are zero-based.
-pub fn HhrAlignment::aligned_pairs(self : HhrAlignment) -> Array[(Int?, Int?)] {
-  let pairs : Array[(Int?, Int?)] = []
+pub fn HhrAlignment::aligned_pairs(
+  self : HhrAlignment,
+) -> Array[(Int32?, Int32?)] {
+  let pairs : Array[(Int32?, Int32?)] = []
   let mut query_coordinate = self.query_start
   let mut target_coordinate = self.target_start
   for i = 0; i < self.query_sequence.length(); i = i + 1 {
     let query_gap = self.query_sequence.unsafe_get(i).to_int() == '-'.to_int()
     let target_gap = self.target_sequence.unsafe_get(i).to_int() == '-'.to_int()
-    let query_value : Int? = if query_gap {
+    let query_value : Int32? = if query_gap {
       None
     } else {
       Some(query_coordinate)
     }
-    let target_value : Int? = if target_gap {
+    let target_value : Int32? = if target_gap {
       None
     } else {
       Some(target_coordinate)
@@ -916,7 +926,7 @@ pub fn hhr_sample_text() -> String {
 
 ///|
 priv struct HhrAlignmentBuilder {
-  rank : Int
+  rank : Int32
   mut target_name : String
   mut target_description : String
   mut detail_target_name : String
@@ -926,14 +936,14 @@ priv struct HhrAlignmentBuilder {
   mut identities : Double
   mut similarity : Double
   mut sum_probabilities : Double
-  mut aligned_columns : Int
+  mut aligned_columns : Int32
   mut has_statistics : Bool
-  mut query_length : Int
-  mut target_length : Int
-  mut query_start : Int
-  mut query_end : Int
-  mut target_start : Int
-  mut target_end : Int
+  mut query_length : Int32
+  mut target_length : Int32
+  mut query_start : Int32
+  mut query_end : Int32
+  mut target_start : Int32
+  mut target_end : Int32
   mut query_sequence : String
   mut target_sequence : String
   mut query_consensus : String
@@ -943,11 +953,11 @@ priv struct HhrAlignmentBuilder {
   mut target_dssp : String
   mut column_score : String
   mut confidence : String
-  mut block_width : Int
+  mut block_width : Int32
 }
 
 ///|
-fn HhrAlignmentBuilder::new(rank : Int) -> HhrAlignmentBuilder {
+fn HhrAlignmentBuilder::new(rank : Int32) -> HhrAlignmentBuilder {
   HhrAlignmentBuilder::{
     rank,
     target_name: "",
@@ -983,17 +993,17 @@ fn HhrAlignmentBuilder::new(rank : Int) -> HhrAlignmentBuilder {
 ///|
 priv struct HhrSequencePart {
   name : String
-  start : Int
+  start : Int32
   sequence : String
-  end : Int
-  total : Int
+  end : Int32
+  total : Int32
 }
 
 ///|
 fn hhr_finish_alignment(
   builder : HhrAlignmentBuilder,
   query_name : String,
-  match_columns : Int,
+  match_columns : Int32,
   summaries : Array[HhrHitSummary],
 ) -> HhrAlignment raise HhrError {
   if builder.rank < 1 || builder.rank > summaries.length() {
@@ -1159,8 +1169,8 @@ fn hhr_finish_alignment(
 ///|
 fn hhr_parse_hit_summary(
   line : String,
-  expected_rank : Int,
-  line_number : Int,
+  expected_rank : Int32,
+  line_number : Int32,
 ) -> HhrHitSummary raise HhrError {
   let words = hhr_split_whitespace(line)
   if words.length() < 11 {
@@ -1246,7 +1256,7 @@ fn hhr_parse_hit_summary(
 fn hhr_parse_alignment_statistics(
   builder : HhrAlignmentBuilder,
   line : String,
-  line_number : Int,
+  line_number : Int32,
 ) -> Unit raise HhrError {
   if builder.has_statistics {
     raise HhrError(
@@ -1312,7 +1322,7 @@ fn hhr_parse_alignment_statistics(
 fn hhr_parse_sequence_line(
   line : String,
   kind : String,
-  line_number : Int,
+  line_number : Int32,
 ) -> HhrSequencePart raise HhrError {
   let words = hhr_split_whitespace(line)
   if words.length() != 6 {
@@ -1351,9 +1361,9 @@ fn hhr_parse_sequence_line(
 ///|
 fn hhr_validate_annotation(
   annotation : String,
-  width : Int,
+  width : Int32,
   name : String,
-  rank : Int,
+  rank : Int32,
 ) -> Unit raise HhrError {
   if annotation.length() > 0 && annotation.length() != width {
     raise HhrError(
@@ -1454,7 +1464,7 @@ fn hhr_is_rank_line(text : String) -> Bool {
 }
 
 ///|
-fn hhr_find_char(text : String, needle : Int) -> Int {
+fn hhr_find_char(text : String, needle : Int32) -> Int32 {
   for i = 0; i < text.length(); i = i + 1 {
     if text.unsafe_get(i).to_int() == needle {
       return i
@@ -1464,7 +1474,7 @@ fn hhr_find_char(text : String, needle : Int) -> Int {
 }
 
 ///|
-fn hhr_find_substring(text : String, needle : String) -> Int {
+fn hhr_find_substring(text : String, needle : String) -> Int32 {
   if needle.length() == 0 {
     return 0
   }
@@ -1490,8 +1500,8 @@ fn hhr_find_substring(text : String, needle : String) -> Int {
 fn hhr_parse_nonnegative_int(
   text : String,
   field : String,
-  line_number : Int,
-) -> Int raise HhrError {
+  line_number : Int32,
+) -> Int32 raise HhrError {
   if text.length() == 0 {
     raise HhrError("Empty " + field + " at line " + line_number.to_string())
   }
@@ -1510,7 +1520,7 @@ fn hhr_parse_nonnegative_int(
 fn hhr_parse_number(
   text : String,
   field : String,
-  line_number : Int,
+  line_number : Int32,
 ) -> Double raise HhrError {
   if text.length() == 0 {
     raise HhrError("Empty " + field + " at line " + line_number.to_string())
@@ -1542,8 +1552,8 @@ fn hhr_parse_number(
 fn hhr_parse_range(
   text : String,
   field : String,
-  line_number : Int,
-) -> (Int, Int) raise HhrError {
+  line_number : Int32,
+) -> (Int32, Int32) raise HhrError {
   let separator = hhr_find_char(text, '-'.to_int())
   if separator <= 0 || separator >= text.length() - 1 {
     raise HhrError("Invalid " + field + " at line " + line_number.to_string())
@@ -1568,8 +1578,8 @@ fn hhr_parse_range(
 fn hhr_parse_parenthesized_int(
   text : String,
   field : String,
-  line_number : Int,
-) -> Int raise HhrError {
+  line_number : Int32,
+) -> Int32 raise HhrError {
   if text.length() < 3 ||
     text.unsafe_get(0).to_int() != '('.to_int() ||
     text.unsafe_get(text.length() - 1).to_int() != ')'.to_int() {
@@ -1586,7 +1596,7 @@ fn hhr_parse_parenthesized_int(
 fn hhr_last_token(
   line : String,
   field : String,
-  line_number : Int,
+  line_number : Int32,
 ) -> String raise HhrError {
   let words = hhr_split_whitespace(line)
   if words.length() < 3 {
@@ -1598,9 +1608,9 @@ fn hhr_last_token(
 ///|
 fn hhr_suffix(
   line : String,
-  width : Int,
+  width : Int32,
   field : String,
-  line_number : Int,
+  line_number : Int32,
 ) -> String raise HhrError {
   if width < 0 || line.length() < width {
     raise HhrError("Short " + field + " at line " + line_number.to_string())
@@ -1609,7 +1619,7 @@ fn hhr_suffix(
 }
 
 ///|
-fn hhr_join_words(words : Array[String], start : Int, end : Int) -> String {
+fn hhr_join_words(words : Array[String], start : Int32, end : Int32) -> String {
   let output = StringBuilder()
   for i = start; i < end; i = i + 1 {
     if i > start {
@@ -1633,7 +1643,7 @@ fn hhr_remove_gaps(sequence : String) -> String {
 }
 
 ///|
-fn hhr_count_residues(sequence : String) -> Int {
+fn hhr_count_residues(sequence : String) -> Int32 {
   let mut count = 0
   for i = 0; i < sequence.length(); i = i + 1 {
     if sequence.unsafe_get(i).to_int() != '-'.to_int() {
@@ -1644,7 +1654,7 @@ fn hhr_count_residues(sequence : String) -> Int {
 }
 
 ///|
-fn hhr_count_paired_residues(query : String, target : String) -> Int {
+fn hhr_count_paired_residues(query : String, target : String) -> Int32 {
   let mut count = 0
   let width = if query.length() < target.length() {
     query.length()

@@ -27,7 +27,9 @@ pub struct ClusterBusterCluster {
 /// Parse a string of doubles inside brackets "[a b c d]".
 fn clusterbuster_parse_probs(line : String) -> Array[Double]? {
   let trimmed = line.trim(chars=" \t\r").to_owned()
-  if trimmed.length() < 2 || trimmed[0] != 91 || trimmed[trimmed.length() - 1] != 93 {
+  if trimmed.length() < 2 ||
+    trimmed[0] != 91 ||
+    trimmed[trimmed.length() - 1] != 93 {
     return None // '[' ... ']'
   }
   let inner = trimmed[1:trimmed.length() - 1].to_owned()
@@ -77,14 +79,14 @@ fn clusterbuster_atof_opt(s : String) -> Double? {
       } else {
         int_part = int_part * 10.0 + digit
       }
-    } else if c == 46 && !(in_frac) {
+    } else if c == 46 && !in_frac {
       in_frac = true
     } else if c == 101 || c == 69 {
       // scientific notation exponent: parse rest as int
       let exp_str = t[k + 1:t.length()].to_owned()
       match clusterbuster_atof_opt(exp_str) {
         Some(exp_v) => {
-          if !(any_digit) {
+          if !any_digit {
             return None
           }
           let base = int_part + frac_part
@@ -103,7 +105,7 @@ fn clusterbuster_atof_opt(s : String) -> Double? {
     }
     k = k + 1
   }
-  if !(any_digit) {
+  if !any_digit {
     return None
   }
   let value = int_part + frac_part
@@ -154,11 +156,11 @@ pub fn clusterbuster_parse(content : String) -> Array[ClusterBusterCluster] {
       } else {
         0.0
       }
-      current_cluster = Some(ClusterBusterCluster::{ name, score, motifs: [] })
+      current_cluster = Some(ClusterBusterCluster::{ name, score, motifs: [], })
     } else {
       // Either motif name or PFM row
       match clusterbuster_parse_probs(line) {
-        Some(probs) => {
+        Some(probs) =>
           // PFM row belongs to current motif
           match current_motif {
             Some(m) => {
@@ -167,19 +169,17 @@ pub fn clusterbuster_parse(content : String) -> Array[ClusterBusterCluster] {
             }
             None => ()
           }
-        }
         None => {
           // Motif name line: finalize previous motif first
           match current_cluster {
-            Some(cl) => {
+            Some(cl) =>
               match current_motif {
                 Some(m) => cl.motifs.push(m)
                 None => ()
               }
-            }
             None => ()
           }
-          current_motif = Some(ClusterBusterMotif::{ name: line, pfm: [] })
+          current_motif = Some(ClusterBusterMotif::{ name: line, pfm: [], })
         }
       }
     }
@@ -201,7 +201,9 @@ pub fn clusterbuster_parse(content : String) -> Array[ClusterBusterCluster] {
 
 ///|
 /// Serialize clusters to ClusterBuster format.
-pub fn clusterbuster_to_string(clusters : Array[ClusterBusterCluster]) -> String {
+pub fn clusterbuster_to_string(
+  clusters : Array[ClusterBusterCluster],
+) -> String {
   let sb = StringBuilder()
   let mut c = 0
   while c < clusters.length() {
@@ -258,11 +260,17 @@ pub fn clusterbuster_to_motif_pfm(motif : ClusterBusterMotif) -> MotifPFM {
 
 ///|
 /// Convert a MotifPFM to a ClusterBusterMotif (probabilities = counts / total).
-pub fn motif_pfm_to_clusterbuster(name : String, pfm : MotifPFM) -> ClusterBusterMotif {
+pub fn motif_pfm_to_clusterbuster(
+  name : String,
+  pfm : MotifPFM,
+) -> ClusterBusterMotif {
   let pfm_matrix : Array[Array[Double]] = []
   let mut p = 0
   while p < pfm.counts.length() {
-    let total = pfm.counts[p][0] + pfm.counts[p][1] + pfm.counts[p][2] + pfm.counts[p][3]
+    let total = pfm.counts[p][0] +
+      pfm.counts[p][1] +
+      pfm.counts[p][2] +
+      pfm.counts[p][3]
     let row : Array[Double] = Array::make(4, 0.0)
     let mut a = 0
     while a < 4 {
@@ -272,7 +280,7 @@ pub fn motif_pfm_to_clusterbuster(name : String, pfm : MotifPFM) -> ClusterBuste
     pfm_matrix.push(row)
     p = p + 1
   }
-  ClusterBusterMotif::{ name, pfm: pfm_matrix }
+  ClusterBusterMotif::{ name, pfm: pfm_matrix, }
 }
 
 ///|
@@ -303,5 +311,7 @@ pub fn clusterbuster_cluster_score(cluster : ClusterBusterCluster) -> Double {
 ///|
 /// Example ClusterBuster content.
 pub fn clusterbuster_example() -> Array[ClusterBusterCluster] {
-  clusterbuster_parse(">cluster1 2.5\nmotifA\n[0.7 0.1 0.1 0.1]\n[0.1 0.1 0.7 0.1]\n")
+  clusterbuster_parse(
+    ">cluster1 2.5\nmotifA\n[0.7 0.1 0.1 0.1]\n[0.1 0.1 0.7 0.1]\n",
+  )
 }

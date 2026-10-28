@@ -17,7 +17,7 @@ test "probaln_glocal exact match" {
 ///|
 test "probaln_glocal one_mismatch" {
   let reference = @src.seq_to_ints("ACGTACGT")
-  let query = @src.seq_to_ints("ACTTACGT")  // position 2: G->T
+  let query = @src.seq_to_ints("ACTTACGT") // position 2: G->T
   let qual = [30, 30, 30, 30, 30, 30, 30, 30]
   let params = @src.ProbalnPar::make(0.001, 0.1, 10)
   let result = @src.probaln_glocal(reference, query, qual, params)
@@ -29,7 +29,7 @@ test "probaln_glocal one_mismatch" {
 test "probaln_glocal insertion" {
   // Query has an extra base
   let reference = @src.seq_to_ints("ACGT")
-  let query = @src.seq_to_ints("ACAGT")  // A inserted at position 2
+  let query = @src.seq_to_ints("ACAGT") // A inserted at position 2
   let qual = [30, 30, 30, 30, 30]
   let params = @src.ProbalnPar::make(0.001, 0.1, 10)
   let result = @src.probaln_glocal(reference, query, qual, params)
@@ -38,9 +38,9 @@ test "probaln_glocal insertion" {
 
 ///|
 test "probaln_glocal empty" {
-  let reference : Array[Int] = []
-  let query : Array[Int] = []
-  let qual : Array[Int] = []
+  let reference : Array[Int32] = []
+  let query : Array[Int32] = []
+  let qual : Array[Int32] = []
   let params = @src.ProbalnPar::make(0.001, 0.1, 10)
   let result = @src.probaln_glocal(reference, query, qual, params)
   assert_eq(result.score, 0)
@@ -114,8 +114,8 @@ test "errmod_cal homozygous" {
   let q = @src.errmod_cal(em, bases, 4)
   // Homozygous AA should have low likelihood (good)
   // Heterozygous should have higher likelihood (worse)
-  assert_true(q[0] <= q[1])  // AA <= AC
-  assert_true(q[0] <= q[5])  // AA <= CC
+  assert_true(q[0] <= q[1]) // AA <= AC
+  assert_true(q[0] <= q[5]) // AA <= CC
 }
 
 ///|
@@ -127,8 +127,8 @@ test "errmod_cal mixed_bases" {
   let bases = [960, 960, 961, 961]
   let q = @src.errmod_cal(em, bases, 4)
   // Heterozygous AC should be better than homozygous AA or CC
-  assert_true(q[1] <= q[0])  // AC <= AA
-  assert_true(q[1] <= q[5])  // AC <= CC
+  assert_true(q[1] <= q[0]) // AC <= AA
+  assert_true(q[1] <= q[5]) // AC <= CC
 }
 
 ///|
@@ -146,7 +146,7 @@ test "sam_cap_mapq exact_match" {
   let reference = "ACGTACGTACGT"
   let query = "ACGTACGTACGT"
   let qual = [30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30]
-  let cigar = [(0, 12)]  // 12M
+  let cigar = [(0, 12)] // 12M
   let result = @src.sam_cap_mapq(reference, query, qual, cigar, 0, 40)
   // No mismatches, should return high quality
   assert_true(result >= 0)
@@ -155,7 +155,7 @@ test "sam_cap_mapq exact_match" {
 ///|
 test "sam_cap_mapq with_mismatch" {
   let reference = "ACGTACGTACGT"
-  let query = "ACTTACGTACGT"  // mismatch at position 2
+  let query = "ACTTACGTACGT" // mismatch at position 2
   let qual = [30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30]
   let cigar = [(0, 12)]
   let result = @src.sam_cap_mapq(reference, query, qual, cigar, 0, 40)
@@ -166,7 +166,7 @@ test "sam_cap_mapq with_mismatch" {
 ///|
 test "sam_cap_mapq many_mismatches" {
   let reference = "ACGTACGTACGT"
-  let query = "TTTTTTTTTTTT"  // many mismatches
+  let query = "TTTTTTTTTTTT" // many mismatches
   let qual = [30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30]
   let cigar = [(0, 12)]
   let result = @src.sam_cap_mapq(reference, query, qual, cigar, 0, 40)

@@ -42,8 +42,8 @@
 fn uppercase_string(s : String) -> String {
   let buf = StringBuilder()
   let n = s.length()
-  let a : Int = 'a'.to_int()
-  let z : Int = 'z'.to_int()
+  let a : Int32 = 'a'.to_int()
+  let z : Int32 = 'z'.to_int()
   for i = 0; i < n; i = i + 1 {
     let c = s.unsafe_get(i)
     let ci = c.to_int()

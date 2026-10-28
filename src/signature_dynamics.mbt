@@ -8,7 +8,7 @@
 ///|
 /// Dynamics signature for a protein.
 pub(all) struct DynamicsSignature {
-  n_residues : Int
+  n_residues : Int32
   slowest_mode_profile : Array[Double] // |eigenvector| of slowest mode
   msf_profile : Array[Double] // mean-square fluctuation per residue
   participation_profile : Array[Double] // participation ratio per mode
@@ -24,7 +24,7 @@ pub(all) struct DynamicsSignature {
 pub fn dynamics_signature(
   eigenvalues : Array[Double],
   eigenvectors : Array[Array[Double]],
-  n_modes? : Int = 5,
+  n_modes~ : Int32 = 5,
 ) -> DynamicsSignature {
   let n_modes_eff = if n_modes < eigenvalues.length() {
     n_modes
@@ -68,7 +68,7 @@ pub fn dynamics_signature(
       sum_4th = sum_4th + s * s
     }
     if sum_4th > 1.0e-20 {
-      participation[k] = (sum_sq * sum_sq) / (n_res.to_double() * sum_4th)
+      participation[k] = sum_sq * sum_sq / (n_res.to_double() * sum_4th)
     }
   }
   // Collectivity per mode (using exponential form)
@@ -83,7 +83,7 @@ pub fn dynamics_signature(
       sum_4th = sum_4th + s * s
     }
     if sum_4th > 1.0e-20 && sum_sq > 1.0e-20 {
-      let pr = (sum_sq * sum_sq) / (n_res.to_double() * sum_4th)
+      let pr = sum_sq * sum_sq / (n_res.to_double() * sum_4th)
       collectivity[k] = pr
     }
   }
@@ -120,7 +120,7 @@ pub fn dynamics_signature(
 /// Returns ranks (1-based, ties get average rank).
 pub fn rank_values(values : Array[Double]) -> Array[Double] {
   let n = values.length()
-  let indices = Array::makei(n, { i => i })
+  let indices = Array::makei(n, i => i)
   for sort_i = 1; sort_i < n; sort_i = sort_i + 1 {
     let key = indices[sort_i]
     let key_val = values[key]
@@ -260,7 +260,8 @@ pub fn signature_distance(
     }
   }
   // Participation profile distance
-  let np = if sig1.participation_profile.length() < sig2.participation_profile.length() {
+  let np = if sig1.participation_profile.length() <
+    sig2.participation_profile.length() {
     sig1.participation_profile.length()
   } else {
     sig2.participation_profile.length()

@@ -3,10 +3,7 @@
 
 ///|
 test "histogram bins count observations" {
-  let hist = @src.Histogram::from_data(
-    [1.0, 2.0, 3.0, 4.0, 5.0],
-    num_bins=5,
-  )
+  let hist = @src.Histogram::from_data([1.0, 2.0, 3.0, 4.0, 5.0], num_bins=5)
   assert_eq(hist.bins.length(), 5)
   for bin in hist.bins {
     assert_eq(bin.count, 1)
@@ -23,10 +20,7 @@ test "histogram collapses constant data" {
 
 ///|
 test "histogram max count" {
-  let hist = @src.Histogram::from_data(
-    [0.0, 0.0, 0.0, 1.0, 2.0],
-    num_bins=3,
-  )
+  let hist = @src.Histogram::from_data([0.0, 0.0, 0.0, 1.0, 2.0], num_bins=3)
   assert_eq(hist.max_count(), 3)
 }
 
@@ -40,12 +34,10 @@ test "histogram empty data" {
 ///|
 test "scatter plot svg contains circles" {
   let scatter = @src.ScatterPlot::new(series=[
-    @src.PlotSeries::new(
-      points=[@src.PlotPoint::new(x=0.0, y=0.0), @src.PlotPoint::new(
-        x=1.0,
-        y=1.0,
-      )],
-    ),
+    @src.PlotSeries::new(points=[
+      @src.PlotPoint::new(x=0.0, y=0.0),
+      @src.PlotPoint::new(x=1.0, y=1.0),
+    ]),
   ])
   let svg = @src.scatter_to_svg(scatter, width=200, height=200)
   assert_true(svg.contains("<svg"))
@@ -72,10 +64,7 @@ test "line plot svg contains polyline" {
 
 ///|
 test "histogram svg contains rects" {
-  let hist = @src.Histogram::from_data(
-    [1.0, 2.0, 3.0, 4.0, 5.0],
-    num_bins=5,
-  )
+  let hist = @src.Histogram::from_data([1.0, 2.0, 3.0, 4.0, 5.0], num_bins=5)
   let svg = @src.histogram_to_svg(hist, width=300, height=200)
   assert_true(svg.contains("<rect"))
   assert_true(svg.contains("<line"))
@@ -87,13 +76,9 @@ test "distribution page lays out multiple panels" {
   let scatter = @src.ScatterPlot::new(series=[
     @src.PlotSeries::new(points=[@src.PlotPoint::new(x=0.0, y=0.0)]),
   ])
-  let page = @src.DistributionPage::new(
-    title="Demo",
-    rows=1,
-    cols=2,
-  ).add_panel(@src.PlotPanel::HistPanel("Hist", hist)).add_panel(
-    @src.PlotPanel::ScatterPanel("Scatter", scatter),
-  )
+  let page = @src.DistributionPage::new(title="Demo", rows=1, cols=2)
+    .add_panel(@src.PlotPanel::HistPanel("Hist", hist))
+    .add_panel(@src.PlotPanel::ScatterPanel("Scatter", scatter))
   let svg = page.to_svg(width=600, height=300)
   assert_true(svg.contains("Demo"))
   assert_true(svg.contains("Hist"))

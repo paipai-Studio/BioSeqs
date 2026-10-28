@@ -35,8 +35,8 @@ pub struct GSVAScores {
 pub struct GSVAParams {
   method_ : String
   kcdf : String
-  min_size : Int
-  max_size : Int
+  min_size : Int32
+  max_size : Int32
   abs_ranking : Bool
   verbose : Bool
 }
@@ -311,8 +311,8 @@ fn gsva_erf(x : Double) -> Double {
 fn gsva_find_gene_indices(
   gene_set : GSVAGeneSet,
   gene_names : Array[String],
-) -> Array[Int] {
-  let indices : Array[Int] = []
+) -> Array[Int32] {
+  let indices : Array[Int32] = []
   let mut i = 0
   while i < gene_set.genes.length() {
     let gene = gene_set.genes[i]
@@ -334,8 +334,8 @@ fn gsva_find_gene_indices(
 pub fn gsva_filter_gene_sets(
   gene_sets : Array[GSVAGeneSet],
   gene_names : Array[String],
-  min_size : Int,
-  max_size : Int,
+  min_size : Int32,
+  max_size : Int32,
 ) -> Array[GSVAGeneSet] {
   let filtered : Array[GSVAGeneSet] = []
   let mut i = 0
@@ -361,7 +361,7 @@ pub fn gsva_rank_genes(
 
   let mut sample_idx = 0
   while sample_idx < n_samples {
-    let gene_values : Array[(Int, Double)] = []
+    let gene_values : Array[(Int32, Double)] = []
     let mut gene_idx = 0
     while gene_idx < n_genes {
       let val = if method_ == "abs" {
@@ -410,8 +410,8 @@ pub fn gsva_rank_genes(
 /// Calculate GSEA enrichment score.
 pub fn gsva_gsea_score(
   gene_ranks : Array[Double],
-  gene_set_indices : Array[Int],
-  n_genes : Int,
+  gene_set_indices : Array[Int32],
+  n_genes : Int32,
 ) -> Double {
   if gene_set_indices.length() == 0 {
     return 0.0
@@ -823,8 +823,8 @@ pub fn gsva_leading_edge(
 /// Perform permutation test for significance.
 pub fn gsva_permutation_test(
   scores : Array[Array[Double]],
-  groups : Array[Int],
-  n_perm : Int,
+  groups : Array[Int32],
+  n_perm : Int32,
 ) -> Array[Double] {
   let n_sets = scores.length()
   let pvalues = Array::make(n_sets, 1.0)
@@ -856,7 +856,7 @@ pub fn gsva_permutation_test(
 /// Compute difference between group means.
 fn gsva_compute_group_diff(
   scores : Array[Double],
-  groups : Array[Int],
+  groups : Array[Int32],
 ) -> Double {
   let group0 : Array[Double] = []
   let group1 : Array[Double] = []
@@ -876,7 +876,7 @@ fn gsva_compute_group_diff(
 
 ///|
 /// Permute group labels.
-fn gsva_permute_groups(groups : Array[Int], seed : Int) -> Array[Int] {
+fn gsva_permute_groups(groups : Array[Int32], seed : Int32) -> Array[Int32] {
   let n = groups.length()
   let permuted = Array::make(n, 0)
   let mut i = 0
@@ -949,7 +949,7 @@ pub fn gsva_compute_enrichment(
 /// Perform differential analysis between groups.
 pub fn gsva_differential_analysis(
   scores : Array[Array[Double]],
-  groups : Array[Int],
+  groups : Array[Int32],
 ) -> Array[(Double, Double)] {
   let n_sets = scores.length()
   let results = Array::make(n_sets, (0.0, 0.0))
@@ -1662,7 +1662,7 @@ pub struct GSVASurvivalResult {
 pub fn gsva_survival_analysis(
   scores : GSVAScores,
   survival_time : Array[Double],
-  event : Array[Int],
+  event : Array[Int32],
 ) -> Array[GSVASurvivalResult] {
   let n_sets = scores.scores.length()
   let results = Array::make(n_sets, GSVASurvivalResult::{
@@ -1759,7 +1759,7 @@ pub fn gsva_survival_analysis(
 pub fn gsva_survival_report(
   scores : GSVAScores,
   survival_time : Array[Double],
-  event : Array[Int],
+  event : Array[Int32],
 ) -> String {
   let mut report = "GSVA Survival Analysis Report\n"
   report = report + "=============================\n\n"
@@ -1856,7 +1856,7 @@ pub fn gsva_score_distribution(scores : GSVAScores) -> String {
   let range = max_val - min_val
 
   let bin_count = 20
-  let bins : Array[Int] = Array::make(bin_count, 0)
+  let bins : Array[Int32] = Array::make(bin_count, 0)
 
   i = 0
   while i < sorted_scores.length() {

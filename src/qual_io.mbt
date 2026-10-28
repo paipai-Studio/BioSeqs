@@ -84,12 +84,12 @@ pub fn parse_qual(content : String) -> Array[SeqRecord] {
 
 ///|
 /// Convert a QUAL header and quality scores array into a SeqRecord.
-fn qual_build_record(title : String, quals : Array[Int]) -> SeqRecord {
+fn qual_build_record(title : String, quals : Array[Int32]) -> SeqRecord {
   let (id, description) = match title.find(" ") {
     Some(pos) => (title[0:pos].to_owned(), title)
     None => (title, title)
   }
-  let letter_ann : Map[String, Array[Int]] = Map([], capacity=1)
+  let letter_ann : Map[String, Array[Int32]] = Map([], capacity=1)
   letter_ann["phred_quality"] = quals
   SeqRecord::{
     seq: Seq::new(make_n_string(quals.length())),
@@ -157,7 +157,7 @@ pub fn write_qual(records : Array[SeqRecord]) -> String raise SeqIOError {
 ///|
 /// Create a string of 'N' characters of the given length.
 /// Used for QUAL records where the sequence is undefined.
-fn make_n_string(length : Int) -> String {
+fn make_n_string(length : Int32) -> String {
   if length <= 0 {
     ""
   } else {

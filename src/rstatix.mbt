@@ -18,8 +18,8 @@ pub struct RstatixTTestResult {
   ci_high : Double
   estimate : Double
   se : Double
-  n1 : Int
-  n2 : Int
+  n1 : Int32
+  n2 : Int32
   method_name : String
   alternative : String
 }
@@ -33,7 +33,7 @@ pub struct RstatixCorTestResult {
   p_adj : Double
   ci_low : Double
   ci_high : Double
-  n : Int
+  n : Int32
   method_name : String
 }
 
@@ -41,7 +41,7 @@ pub struct RstatixCorTestResult {
 /// Result of ANOVA test.
 pub struct RstatixAnovaResult {
   source : String
-  df : Int
+  df : Int32
   ss : Double
   ms : Double
   f : Double
@@ -53,11 +53,11 @@ pub struct RstatixAnovaResult {
 /// Perform a one-sample or two-sample t-test (Welch's).
 pub fn rstatix_t_test(
   x : Array[Double],
-  y? : Array[Double] = [],
-  mu? : Double = 0.0,
-  alternative? : String = "two.sided",
-  paired? : Bool = false,
-  conf_level? : Double = 0.95,
+  y~ : Array[Double] = [],
+  mu~ : Double = 0.0,
+  alternative~ : String = "two.sided",
+  paired~ : Bool = false,
+  conf_level~ : Double = 0.95,
 ) -> RstatixTTestResult {
   let n1 = x.length()
   let is_two_sample = y.length() > 0
@@ -155,10 +155,10 @@ fn rstatix_t_test_one_sample(
 /// Perform a Wilcoxon rank-sum test.
 pub fn rstatix_wilcox_test(
   x : Array[Double],
-  y? : Array[Double] = [],
-  alternative? : String = "two.sided",
-  mu? : Double = 0.0,
-  paired? : Bool = false,
+  y~ : Array[Double] = [],
+  alternative~ : String = "two.sided",
+  mu~ : Double = 0.0,
+  paired~ : Bool = false,
 ) -> RstatixTTestResult {
   let is_two_sample = y.length() > 0
   if !is_two_sample {
@@ -339,8 +339,8 @@ fn rstatix_wilcox_rank_sum(
 pub fn rstatix_cor_test(
   x : Array[Double],
   y : Array[Double],
-  cor_method? : String = "pearson",
-  conf_level? : Double = 0.95,
+  cor_method~ : String = "pearson",
+  conf_level~ : Double = 0.95,
 ) -> RstatixCorTestResult {
   ignore(conf_level)
   let n = x.length()
@@ -410,7 +410,7 @@ pub fn rstatix_cor_test(
 /// One-way ANOVA.
 pub fn rstatix_anova_test(
   groups : Array[Array[Double]],
-  group_names? : Array[String] = [],
+  group_names~ : Array[String] = [],
 ) -> RstatixAnovaResult {
   ignore(group_names)
   let k = groups.length()
@@ -504,7 +504,7 @@ pub fn rstatix_anova_test(
 /// Kruskal-Wallis rank sum test.
 pub fn rstatix_kruskal_test(
   groups : Array[Array[Double]],
-  _group_names? : Array[String] = [],
+  _group_names~ : Array[String] = [],
 ) -> RstatixAnovaResult {
   let k = groups.length()
   if k < 3 {
@@ -568,7 +568,7 @@ pub fn rstatix_kruskal_test(
 /// Friedman rank sum test.
 pub fn rstatix_friedman_test(
   groups : Array[Array[Double]],
-  _group_names? : Array[String] = [],
+  _group_names~ : Array[String] = [],
 ) -> RstatixAnovaResult {
   let k = groups.length()
   if k < 3 {
@@ -637,7 +637,7 @@ pub fn rstatix_bh_correct(p_values : Array[Double]) -> Array[Double] {
     indices[i] = i
     i = i + 1
   }
-  indices.sort_by(fn(a : Int, b : Int) -> Int {
+  indices.sort_by(fn(a : Int32, b : Int32) -> Int32 {
     if p_values[a] < p_values[b] {
       -1
     } else if p_values[a] > p_values[b] {
@@ -703,7 +703,7 @@ pub fn rstatix_sample_data() -> Array[Array[Double]] {
 // ============ Private Helpers ============
 
 ///|
-fn rstatix_min_int(a : Int, b : Int) -> Int {
+fn rstatix_min_int(a : Int32, b : Int32) -> Int32 {
   if a < b {
     a
   } else {
@@ -831,7 +831,7 @@ fn rstatix_rank_array(data : Array[Double]) -> Array[Double] {
     indices[i] = i
     i = i + 1
   }
-  indices.sort_by(fn(a : Int, b : Int) -> Int {
+  indices.sort_by(fn(a : Int32, b : Int32) -> Int32 {
     if data[a] < data[b] {
       -1
     } else if data[a] > data[b] {
@@ -887,7 +887,7 @@ fn rstatix_kendall_tau(x : Array[Double], y : Array[Double]) -> Double {
 }
 
 ///|
-fn rstatix_compute_t_p(t : Double, df : Int, alt : String) -> Double {
+fn rstatix_compute_t_p(t : Double, df : Int32, alt : String) -> Double {
   let p_two = 2.0 * rstatix_t_dist_p(t.abs(), df)
   match alt {
     "greater" => if t > 0.0 { p_two / 2.0 } else { 1.0 - p_two / 2.0 }
@@ -897,7 +897,7 @@ fn rstatix_compute_t_p(t : Double, df : Int, alt : String) -> Double {
 }
 
 ///|
-fn rstatix_t_dist_p(t : Double, df : Int) -> Double {
+fn rstatix_t_dist_p(t : Double, df : Int32) -> Double {
   if df <= 0 || t.is_nan() {
     return @double.not_a_number
   }
@@ -997,13 +997,13 @@ fn rstatix_lgamma(x : Double) -> Double {
 }
 
 ///|
-fn rstatix_t_critical(alpha : Double, df : Int, alt : String) -> Double {
+fn rstatix_t_critical(alpha : Double, df : Int32, alt : String) -> Double {
   let a = if alt == "two.sided" { alpha / 2.0 } else { alpha }
   rstatix_approx_tc(a, df)
 }
 
 ///|
-fn rstatix_approx_tc(alpha : Double, df : Int) -> Double {
+fn rstatix_approx_tc(alpha : Double, df : Int32) -> Double {
   let z = rstatix_norm_q(1.0 - alpha)
   let df_d = df.to_double()
   z +
@@ -1069,7 +1069,7 @@ fn rstatix_norm_p(z : Double, alt : String) -> Double {
 }
 
 ///|
-fn rstatix_f_p(f : Double, df1 : Int, df2 : Int) -> Double {
+fn rstatix_f_p(f : Double, df1 : Int32, df2 : Int32) -> Double {
   if f <= 0.0 {
     return 1.0
   }
@@ -1078,7 +1078,7 @@ fn rstatix_f_p(f : Double, df1 : Int, df2 : Int) -> Double {
 }
 
 ///|
-fn rstatix_chi2_p(chi2 : Double, df : Int) -> Double {
+fn rstatix_chi2_p(chi2 : Double, df : Int32) -> Double {
   if chi2 <= 0.0 {
     return 1.0
   }

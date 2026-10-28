@@ -73,7 +73,11 @@ fn main {
     let mut col = 0
     while col < m.width {
       let row = StringBuilder()
-      let row_num = if col + 1 < 10 { "0" + (col + 1).to_string() } else { (col + 1).to_string() }
+      let row_num = if col + 1 < 10 {
+        "0" + (col + 1).to_string()
+      } else {
+        (col + 1).to_string()
+      }
       row.write_string("  " + row_num + "  ")
       let mut r = 0
       while r < m.pfm.length() {
@@ -111,7 +115,17 @@ fn main {
       let total = m.total_at(pos)
       let cons_base = m.consensus()[pos:pos + 1].to_owned()
       let cons_freq = m.frequency(cons_base, pos)
-      println("  pos " + pos.to_string() + ": total=" + total.to_string() + ", consensus=" + cons_base + " (" + cons_freq.to_string() + ")")
+      println(
+        "  pos " +
+        pos.to_string() +
+        ": total=" +
+        total.to_string() +
+        ", consensus=" +
+        cons_base +
+        " (" +
+        cons_freq.to_string() +
+        ")",
+      )
       pos = pos + 1
     }
   }
@@ -122,7 +136,8 @@ fn main {
   // ------------------------------------------------------------------
   println("=== 6. Find Motif by Accession ===")
   match record.find("T00001") {
-    Some(m) => println("  Found T00001: " + m.identifier + " (" + m.species + ")")
+    Some(m) =>
+      println("  Found T00001: " + m.identifier + " (" + m.species + ")")
     None => println("  T00001 not found")
   }
   match record.find("nonexistent") {
@@ -141,7 +156,9 @@ fn main {
     println("  C index: " + m.alphabet_index("C").to_string())
     println("  G index: " + m.alphabet_index("G").to_string())
     println("  T index: " + m.alphabet_index("T").to_string())
-    println("  N index: " + m.alphabet_index("N").to_string() + " (not in alphabet)")
+    println(
+      "  N index: " + m.alphabet_index("N").to_string() + " (not in alphabet)",
+    )
   }
   println("")
 
@@ -153,7 +170,13 @@ fn main {
     let m = record.motifs[0]
     let s = @bio.transfac_motif_full_to_string(m)
     let lines = s.split("\n").to_array()
-    println("  Serialized motif " + m.accession + " (" + lines.length().to_string() + " lines):")
+    println(
+      "  Serialized motif " +
+      m.accession +
+      " (" +
+      lines.length().to_string() +
+      " lines):",
+    )
     let mut l = 0
     while l < lines.length() && l < 10 {
       println("    " + lines[l].to_owned())
@@ -172,7 +195,12 @@ fn main {
   let mut ri = 0
   while ri < record.motifs.length() {
     let m = record.motifs[ri]
-    println("  Motif " + m.accession + " references: " + m.references.length().to_string())
+    println(
+      "  Motif " +
+      m.accession +
+      " references: " +
+      m.references.length().to_string(),
+    )
     let mut r = 0
     while r < m.references.length() {
       let ref_ = m.references[r]

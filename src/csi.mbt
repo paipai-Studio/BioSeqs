@@ -7,6 +7,7 @@
 /// overlapping record), there is NO linear index, and `n_no_coor` (unplaced
 /// records) is always written at the end.
 
+///|
 /// Error raised by CSI parsing.
 pub suberror CsiError {
   CsiError(String)
@@ -18,12 +19,17 @@ fn[T] csi_fail(msg : String) -> T raise CsiError {
 }
 
 ///|
-fn csi_byte(data : String, pos : Int) -> Int64 {
+fn csi_byte(data : String, pos : Int32) -> Int64 {
   (data.unsafe_get(pos).to_int() & 0xFF).to_int64()
 }
 
 ///|
-fn csi_check_range(data : String, pos : Int, len : Int, what : String) -> Unit raise CsiError {
+fn csi_check_range(
+  data : String,
+  pos : Int32,
+  len : Int32,
+  what : String,
+) -> Unit raise CsiError {
   if pos < 0 || pos + len > data.length() {
     csi_fail(
       "Cannot read \{what} at offset \{pos}: premature end (length \{data.length()})",
@@ -32,25 +38,25 @@ fn csi_check_range(data : String, pos : Int, len : Int, what : String) -> Unit r
 }
 
 ///|
-fn csi_read_u32(data : String, pos : Int) -> Int raise CsiError {
+fn csi_read_u32(data : String, pos : Int32) -> Int32 raise CsiError {
   csi_check_range(data, pos, 4, "u32")
   (data.unsafe_get(pos).to_int() & 0xFF) |
-    ((data.unsafe_get(pos + 1).to_int() & 0xFF) << 8) |
-    ((data.unsafe_get(pos + 2).to_int() & 0xFF) << 16) |
-    ((data.unsafe_get(pos + 3).to_int() & 0xFF) << 24)
+  ((data.unsafe_get(pos + 1).to_int() & 0xFF) << 8) |
+  ((data.unsafe_get(pos + 2).to_int() & 0xFF) << 16) |
+  ((data.unsafe_get(pos + 3).to_int() & 0xFF) << 24)
 }
 
 ///|
-fn csi_read_u64(data : String, pos : Int) -> Int64 raise CsiError {
+fn csi_read_u64(data : String, pos : Int32) -> Int64 raise CsiError {
   csi_check_range(data, pos, 8, "u64")
   csi_byte(data, pos) |
-    (csi_byte(data, pos + 1) << 8) |
-    (csi_byte(data, pos + 2) << 16) |
-    (csi_byte(data, pos + 3) << 24) |
-    (csi_byte(data, pos + 4) << 32) |
-    (csi_byte(data, pos + 5) << 40) |
-    (csi_byte(data, pos + 6) << 48) |
-    (csi_byte(data, pos + 7) << 56)
+  (csi_byte(data, pos + 1) << 8) |
+  (csi_byte(data, pos + 2) << 16) |
+  (csi_byte(data, pos + 3) << 24) |
+  (csi_byte(data, pos + 4) << 32) |
+  (csi_byte(data, pos + 5) << 40) |
+  (csi_byte(data, pos + 6) << 48) |
+  (csi_byte(data, pos + 7) << 56)
 }
 
 ///|
@@ -61,7 +67,7 @@ pub struct CsiChunk {
 
 ///|
 pub struct CsiBin {
-  bin : Int
+  bin : Int32
   loffset : Int64
   chunks : Array[CsiChunk]
 }
@@ -73,8 +79,8 @@ pub struct CsiReference {
 
 ///|
 pub struct CsiIndex {
-  min_shift : Int
-  n_lvls : Int
+  min_shift : Int32
+  n_lvls : Int32
   n_no_coor : Int64
   references : Array[CsiReference]
 }
@@ -94,7 +100,7 @@ pub fn is_csi_magic(data : String) -> Bool {
 ///|
 /// Parse a raw (decompressed) CSI index.
 pub fn parse_csi(data : String) -> CsiIndex raise CsiError {
-  if !(is_csi_magic(data)) {
+  if !is_csi_magic(data) {
     csi_fail("Invalid CSI magic")
   }
   let min_shift = csi_read_u32(data, 4)
@@ -121,25 +127,30 @@ pub fn parse_csi(data : String) -> CsiIndex raise CsiError {
         pos = pos + 8
         let end = csi_read_u64(data, pos)
         pos = pos + 8
-        chunks.push(CsiChunk::{ chunk_beg: beg, chunk_end: end })
+        chunks.push(CsiChunk::{ chunk_beg: beg, chunk_end: end, })
       }
-      bins.push(CsiBin::{ bin, loffset, chunks })
+      bins.push(CsiBin::{ bin, loffset, chunks, })
     }
-    references.push(CsiReference::{ bins })
+    references.push(CsiReference::{ bins, })
   }
   let n_no_coor = if pos + 8 <= data.length() {
     csi_read_u64(data, pos)
   } else {
     0L
   }
-  CsiIndex::{ min_shift, n_lvls, n_no_coor, references }
+  CsiIndex::{ min_shift, n_lvls, n_no_coor, references, }
 }
 
 ///|
 /// The list of bin numbers that may contain a half-open interval `[beg, end)`,
 /// generalized by `min_shift` and `n_lvls` (mirrors htslib `hts_reg2bins`).
-pub fn csi_reg2bins(beg : Int, end : Int, min_shift : Int, n_lvls : Int) -> Array[Int] {
-  let bins : Array[Int] = Array(capacity=0)
+pub fn csi_reg2bins(
+  beg : Int32,
+  end : Int32,
+  min_shift : Int32,
+  n_lvls : Int32,
+) -> Array[Int32] {
+  let bins : Array[Int32] = Array(capacity=0)
   if beg >= end {
     return bins
   }
@@ -159,6 +170,7 @@ pub fn csi_reg2bins(beg : Int, end : Int, min_shift : Int, n_lvls : Int) -> Arra
   }
   bins
 }
+
 ///|
 pub struct CsiQueryResult {
   min_off : Int64
@@ -166,12 +178,12 @@ pub struct CsiQueryResult {
 }
 
 ///|
-fn csi_bin_first(l : Int) -> Int {
+fn csi_bin_first(l : Int32) -> Int32 {
   ((1 << (3 * l)) - 1) / 7
 }
 
 ///|
-fn csi_find_bin(reference : CsiReference, bin : Int) -> CsiBin? {
+fn csi_find_bin(reference : CsiReference, bin : Int32) -> CsiBin? {
   for b in reference.bins {
     if b.bin == bin {
       return Some(b)
@@ -186,12 +198,14 @@ fn csi_find_bin(reference : CsiReference, bin : Int) -> CsiBin? {
 /// offset (htslib's `loff` walk: the first overlapping record's offset).
 pub fn csi_query(
   index : CsiIndex,
-  ref_id : Int,
-  beg : Int,
-  end : Int,
+  ref_id : Int32,
+  beg : Int32,
+  end : Int32,
 ) -> CsiQueryResult raise CsiError {
   if ref_id < 0 || ref_id >= index.references.length() {
-    csi_fail("Reference id \{ref_id} out of range (n_ref = \{index.references.length()})")
+    csi_fail(
+      "Reference id \{ref_id} out of range (n_ref = \{index.references.length()})",
+    )
   }
   if beg < 0 || end < beg {
     csi_fail("Invalid query interval [\{beg}, \{end})")
@@ -202,7 +216,7 @@ pub fn csi_query(
   let mut bin = csi_bin_first(index.n_lvls) + rel_off
   let mut min_off = 0L
   let mut found = false
-  while !(found) && bin != 0 {
+  while !found && bin != 0 {
     match csi_find_bin(reference, bin) {
       Some(b) => {
         min_off = b.loffset
@@ -219,7 +233,7 @@ pub fn csi_query(
       }
     }
   }
-  if !(found) {
+  if !found {
     match csi_find_bin(reference, 0) {
       Some(b) => min_off = b.loffset
       None => ()
@@ -237,5 +251,5 @@ pub fn csi_query(
       None => ()
     }
   }
-  CsiQueryResult::{ min_off, chunks }
+  CsiQueryResult::{ min_off, chunks, }
 }

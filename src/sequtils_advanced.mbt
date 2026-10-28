@@ -33,8 +33,8 @@ let sequtils_gc_values : Map[String, Double] = Map([
 ///|
 /// Count the (case-sensitive) occurrences of every character of `chars`
 /// in `seq`. Mirrors the sum(seq.count(x) ...) idiom in Biopython.
-fn sequtils_count_chars(seq : String, chars : String) -> Int {
-  let counts : Map[Int, Int] = Map([], capacity=64)
+fn sequtils_count_chars(seq : String, chars : String) -> Int32 {
+  let counts : Map[Int32, Int32] = Map([], capacity=64)
   for i = 0; i < seq.length(); i = i + 1 {
     let c = seq.unsafe_get(i).to_int()
     counts[c] = counts.get(c).unwrap_or(0) + 1
@@ -66,7 +66,7 @@ fn sequtils_count_chars(seq : String, chars : String) -> Int {
 /// Returns zero for an empty sequence.
 pub fn gc_fraction(
   seq : String,
-  ambiguous? : String = "remove",
+  ambiguous~ : String = "remove",
 ) -> Double raise SeqError {
   let gc = sequtils_count_chars(seq, "CGScgs").to_double()
   let length = if ambiguous == "remove" {
@@ -99,7 +99,11 @@ pub struct GC123Result {
   gc2 : Double
   gc3 : Double
 } derive(Eq, Debug)
+
+///|
 pub extend GC123Result with Eq::{equal, not_equal}
+
+///|
 pub extend GC123Result with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -112,7 +116,7 @@ pub extend GC123Result with @moonbitlang/core/debug.Debug::{to_repr}
 /// implementation returns all zeros instead.
 pub fn gc123(seq : String) -> GC123Result {
   // counts[nt][pos]: nt 0..3 = A, T, G, C; pos 0..2 = codon position.
-  let counts : FixedArray[FixedArray[Int]] = FixedArray::make(
+  let counts : FixedArray[FixedArray[Int32]] = FixedArray::make(
     4,
     FixedArray::make(3, 0),
   )
@@ -120,7 +124,7 @@ pub fn gc123(seq : String) -> GC123Result {
   for k = 0; k < 4; k = k + 1 {
     counts[k] = FixedArray::make(3, 0)
   }
-  let nts : Array[Int] = [
+  let nts : Array[Int32] = [
     'A'.to_int(),
     'T'.to_int(),
     'G'.to_int(),
@@ -143,7 +147,7 @@ pub fn gc123(seq : String) -> GC123Result {
     i = i + 3
   }
   // Position-wise GC percentage
-  let gc_at = fn(pos : Int) -> Double {
+  let gc_at = fn(pos : Int32) -> Double {
     let n = counts[0][pos] + counts[1][pos] + counts[2][pos] + counts[3][pos]
     if n == 0 {
       0.0
@@ -182,9 +186,13 @@ pub fn gc123(seq : String) -> GC123Result {
 /// Biopython) and the 0-based start positions of the (overlapping) matches.
 pub struct NtSearchResult {
   pattern : String
-  positions : Array[Int]
+  positions : Array[Int32]
 } derive(Eq, Debug)
+
+///|
 pub extend NtSearchResult with Eq::{equal, not_equal}
+
+///|
 pub extend NtSearchResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -228,11 +236,11 @@ pub fn nt_search(
   subseq : String,
 ) -> NtSearchResult raise SeqError {
   let pattern_buf = StringBuilder()
-  let basesets : Array[Array[Int]] = []
+  let basesets : Array[Array[Int32]] = []
   for i = 0; i < subseq.length(); i = i + 1 {
     let ci = subseq.unsafe_get(i).to_int()
     let upper = if ci >= 97 && ci <= 122 { ci - 32 } else { ci }
-    let key = (upper).unsafe_to_char().to_string()
+    let key = upper.unsafe_to_char().to_string()
     match sequtils_ambiguous_dna_values.get(key) {
       Some(value) => {
         if value.length() == 1 {
@@ -240,7 +248,7 @@ pub fn nt_search(
         } else {
           pattern_buf.write_string("[" + value + "]")
         }
-        let set : Array[Int] = []
+        let set : Array[Int32] = []
         for j = 0; j < value.length(); j = j + 1 {
           set.push(value.unsafe_get(j).to_int())
         }
@@ -249,13 +257,13 @@ pub fn nt_search(
       None =>
         raise SeqError(
           "not an IUPAC DNA nucleotide: '" +
-          (ci).unsafe_to_char().to_string() +
+          ci.unsafe_to_char().to_string() +
           "'",
         )
     }
   }
   let pattern = pattern_buf.to_string()
-  let positions : Array[Int] = []
+  let positions : Array[Int32] = []
   let plen = basesets.length()
   if plen > 0 {
     let limit = seq.length() - plen
@@ -301,7 +309,7 @@ fn sequtils_fmt2(x : Double) -> String {
 
 ///|
 /// Right-align an integer in a field of width 5 (Python "%5d").
-fn sequtils_pad5(n : Int) -> String {
+fn sequtils_pad5(n : Int32) -> String {
   let s = n.to_string()
   let buf = StringBuilder()
   for _i = 0; _i < 5 - s.length(); _i = _i + 1 {
@@ -333,7 +341,7 @@ fn sequtils_reverse_str(s : String) -> String {
 /// bundled) or if the sequence contains characters that cannot be translated.
 pub fn six_frame_translations(
   seq : String,
-  genetic_code? : Int = 1,
+  genetic_code~ : Int32 = 1,
 ) -> String raise SeqError {
   if genetic_code != 1 {
     raise SeqError(
@@ -402,7 +410,7 @@ pub fn six_frame_translations(
 
   // A frame slice formatted with the double-space separator, optionally
   // indented by `indent` leading spaces. Mirrors (" "*ind + "  ".join(...)).
-  let frame_line = fn(frame : String, start : Int, indent : Int) -> String {
+  let frame_line = fn(frame : String, start : Int32, indent : Int32) -> String {
     let stop = if start + 20 < frame.length() {
       start + 20
     } else {
@@ -433,7 +441,9 @@ pub fn six_frame_translations(
     res.write_string(frame_line(frames[1], p, 1) + "\n")
     res.write_string(frame_line(frames[0], p, 0) + "\n")
     // seq
-    res.write_string(subseq.to_lower().to_owned() + sequtils_pad5(gc.to_int()) + " %\n")
+    res.write_string(
+      subseq.to_lower().to_owned() + sequtils_pad5(gc.to_int()) + " %\n",
+    )
     res.write_string(csubseq.to_lower().to_owned() + "\n")
     // - frames
     res.write_string(frame_line(frames[4], p, 0) + "\n")
@@ -446,6 +456,6 @@ pub fn six_frame_translations(
 
 ///|
 /// Length helper kept local to avoid depending on String internals.
-fn length_of(s : String) -> Int {
+fn length_of(s : String) -> Int32 {
   s.length()
 }

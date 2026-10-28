@@ -5,11 +5,11 @@
 ///|
 pub struct DSSPRecord {
   chain_id : String
-  residue_number : Int
+  residue_number : Int32
   insertion_code : String
   amino_acid : String
   secondary_structure : String
-  solvent_accessibility : Int
+  solvent_accessibility : Int32
   phi : Double
   psi : Double
 }
@@ -17,11 +17,11 @@ pub struct DSSPRecord {
 ///|
 pub fn DSSPRecord::new(
   chain_id : String,
-  residue_number : Int,
+  residue_number : Int32,
   insertion_code : String,
   amino_acid : String,
   secondary_structure : String,
-  solvent_accessibility : Int,
+  solvent_accessibility : Int32,
   phi : Double,
   psi : Double,
 ) -> DSSPRecord {
@@ -136,8 +136,8 @@ fn classify_secondary_structure(amino_acid : String) -> String {
 pub fn calculate_solvent_accessibility(
   sequence : String,
   structure : String,
-) -> Array[Int] {
-  let result : Array[Int] = Array(capacity=0)
+) -> Array[Int32] {
+  let result : Array[Int32] = Array(capacity=0)
 
   let mut i = 0
   while i < sequence.length() {
@@ -157,9 +157,9 @@ pub fn calculate_solvent_accessibility(
 fn estimate_accessibility(
   amino_acid : String,
   secondary_structure : String,
-  position : Int,
-  total_length : Int,
-) -> Int {
+  position : Int32,
+  total_length : Int32,
+) -> Int32 {
   let max_accessibility = Map(
     [
       ("A", 129),
@@ -223,8 +223,8 @@ pub fn calculate_ramachandran_plot(
 ///|
 pub fn analyze_structure_composition(
   records : Array[DSSPRecord],
-) -> Map[String, Int] {
-  let composition : Map[String, Int] = Map(
+) -> Map[String, Int32] {
+  let composition : Map[String, Int32] = Map(
     [
       ("H", 0),
       ("B", 0),

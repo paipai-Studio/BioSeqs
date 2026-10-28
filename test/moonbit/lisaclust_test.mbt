@@ -31,11 +31,11 @@ fn lisa_test_cell(
 
 ///|
 fn lisa_test_config(
-  curve_kind? : @src.LisaCurveKind = @src.lisa_k_curve(),
-  edge_correction? : Bool = false,
-  window_kind? : @src.LisaWindowKind = @src.lisa_rectangle_window(),
-  n_clusters? : Int = 2,
-  region_prefix? : String = "region",
+  curve_kind~ : @src.LisaCurveKind = @src.lisa_k_curve(),
+  edge_correction~ : Bool = false,
+  window_kind~ : @src.LisaWindowKind = @src.lisa_rectangle_window(),
+  n_clusters~ : Int32 = 2,
+  region_prefix~ : String = "region",
 ) -> @src.LisaConfig {
   @src.LisaConfig::create(
     radii=[1.5, 4.0],
@@ -803,7 +803,7 @@ test "lisaClust: one-region clustering is supported" {
 test "lisaClust: example data has two balanced images and four types" {
   let cells = @src.lisaclust_example_data()
   assert_eq(cells.length(), 64)
-  let images : Map[String, Int] = Map([])
+  let images : Map[String, Int32] = Map([])
   let types : Map[String, Bool] = Map([])
   for cell in cells {
     images[cell.image_id] = match images.get(cell.image_id) {

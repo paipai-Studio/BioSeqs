@@ -9,17 +9,17 @@
 /// Result of scMerge batch correction.
 pub struct ScMergeResult {
   corrected_data : Array[Array[Double]]
-  seg_genes : Array[Int]
+  seg_genes : Array[Int32]
   estimated_batch_factors : Array[Array[Double]]
-  cell_type_labels : Array[Int]
+  cell_type_labels : Array[Int32]
 }
 
 ///|
 pub fn ScMergeResult::new(
   corrected_data : Array[Array[Double]],
-  seg_genes : Array[Int],
+  seg_genes : Array[Int32],
   estimated_batch_factors : Array[Array[Double]],
-  cell_type_labels : Array[Int],
+  cell_type_labels : Array[Int32],
 ) -> ScMergeResult {
   ScMergeResult::{
     corrected_data,
@@ -100,8 +100,8 @@ pub fn scm_zscore_matrix(data : Array[Array[Double]]) -> Array[Array[Double]] {
 /// Returns indices of the selected SEGs.
 pub fn scm_find_seg(
   batches : Array[Array[Array[Double]]],
-  n_seg? : Int = 500,
-) -> Array[Int] {
+  n_seg~ : Int32 = 500,
+) -> Array[Int32] {
   let n_batches = batches.length()
   if n_batches == 0 || batches[0].length() == 0 {
     return Array(capacity=0)
@@ -114,7 +114,10 @@ pub fn scm_find_seg(
   }
 
   // Compute gene-wise variance within each batch
-  let gene_variances : Array[Array[Double]] = Array::make(n_genes, Array(capacity=0))
+  let gene_variances : Array[Array[Double]] = Array::make(
+    n_genes,
+    Array(capacity=0),
+  )
   let mut g = 0
   while g < n_genes {
     let batch_variances : Array[Double] = Array::make(n_batches, 0.0)
@@ -137,7 +140,7 @@ pub fn scm_find_seg(
   }
 
   // Compute stability score: max variance across batches (lower is more stable)
-  let stability_scores : Array[(Double, Int)] = Array::make(n_genes, (0.0, 0))
+  let stability_scores : Array[(Double, Int32)] = Array::make(n_genes, (0.0, 0))
   g = 0
   while g < n_genes {
     let mut max_var = 0.0
@@ -169,7 +172,7 @@ pub fn scm_find_seg(
 
   // Select top n_seg genes
   let n_select = if n_seg < n_genes { n_seg } else { n_genes }
-  let seg_indices : Array[Int] = Array::make(n_select, 0)
+  let seg_indices : Array[Int32] = Array::make(n_select, 0)
   i = 0
   while i < n_select {
     seg_indices[i] = stability_scores[i].1
@@ -193,9 +196,9 @@ pub fn scm_find_seg(
 /// Returns corrected data (n_genes x n_cells_all).
 pub fn scm_ruv4(
   data : Array[Array[Double]],
-  batch_idx : Array[Int],
-  seg_genes : Array[Int],
-  n_factors : Int,
+  batch_idx : Array[Int32],
+  seg_genes : Array[Int32],
+  n_factors : Int32,
 ) -> Array[Array[Double]] {
   let n_genes = data.length()
   if n_genes == 0 {
@@ -326,7 +329,10 @@ pub fn scm_ruv4(
   }
 
   // Extract SEG residuals for SVD
-  let seg_residuals : Array[Array[Double]] = Array::make(n_seg, Array(capacity=0))
+  let seg_residuals : Array[Array[Double]] = Array::make(
+    n_seg,
+    Array(capacity=0),
+  )
   s = 0
   while s < n_seg {
     seg_residuals[s] = residuals[seg_genes[s]]
@@ -417,7 +423,7 @@ pub fn scm_ruv4(
 
 ///|
 /// Find the maximum batch index.
-fn scm_max_batch(batch_idx : Array[Int]) -> Int {
+fn scm_max_batch(batch_idx : Array[Int32]) -> Int32 {
   let mut max_val = 0
   let mut i = 0
   while i < batch_idx.length() {
@@ -433,7 +439,7 @@ fn scm_max_batch(batch_idx : Array[Int]) -> Int {
 /// Invert a square matrix using Gaussian elimination.
 pub fn scm_invert_matrix(
   matrix : Array[Array[Double]],
-  n : Int,
+  n : Int32,
 ) -> Array[Array[Double]] {
   // Augmented matrix [A | I]
   let aug : Array[Array[Double]] = Array::make(n, Array(capacity=0))
@@ -538,7 +544,7 @@ pub fn scm_invert_matrix(
 /// Returns the right singular vectors V (n_cells x k).
 pub fn scm_randomized_svd(
   matrix : Array[Array[Double]],
-  k : Int,
+  k : Int32,
 ) -> Array[Array[Double]] {
   let n_rows = matrix.length()
   if n_rows == 0 || k <= 0 {
@@ -682,8 +688,8 @@ pub fn scm_randomized_svd(
 /// Returns ScMergeResult with corrected data.
 pub fn scmerge(
   batches : Array[Array[Array[Double]]],
-  n_seg? : Int = 500,
-  n_factors? : Int = 2,
+  n_seg~ : Int32 = 500,
+  n_factors~ : Int32 = 2,
 ) -> ScMergeResult {
   let n_batches = batches.length()
   if n_batches == 0 {
@@ -699,7 +705,7 @@ pub fn scmerge(
   let seg_genes = scm_find_seg(batches, n_seg~)
 
   // Step 2: Combine all batches into one matrix
-  let total_cells : Array[Int] = Array::make(n_batches, 0)
+  let total_cells : Array[Int32] = Array::make(n_batches, 0)
   let mut total = 0
   let mut b = 0
   while b < n_batches {
@@ -731,7 +737,7 @@ pub fn scmerge(
   }
 
   // Build batch index for each cell
-  let batch_idx : Array[Int] = Array::make(total, 0)
+  let batch_idx : Array[Int32] = Array::make(total, 0)
   offset = 0
   b = 0
   while b < n_batches {
@@ -748,7 +754,7 @@ pub fn scmerge(
   let corrected_data = scm_ruv4(combined, batch_idx, seg_genes, n_factors)
 
   // Step 4: Estimate cell type labels (simplified: cluster within each batch)
-  let cell_type_labels : Array[Int] = Array::make(total, 0)
+  let cell_type_labels : Array[Int32] = Array::make(total, 0)
   offset = 0
   b = 0
   while b < n_batches {

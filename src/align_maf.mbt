@@ -18,7 +18,11 @@ pub struct AlignMafTrack {
   visibility : String?
   species_order : Array[String]
 } derive(Eq, Debug)
+
+///|
 pub extend AlignMafTrack with Eq::{equal, not_equal}
+
+///|
 pub extend AlignMafTrack with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -30,35 +34,51 @@ pub struct AlignMafDocument {
   track : AlignMafTrack?
   blocks : Array[BigMafBlock]
 } derive(Eq, Debug)
+
+///|
 pub extend AlignMafDocument with Eq::{equal, not_equal}
+
+///|
 pub extend AlignMafDocument with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct AlignMafCoordinate {
-  column : Int
-  positions : Array[Int]
+  column : Int32
+  positions : Array[Int32]
 } derive(Eq, Debug)
+
+///|
 pub extend AlignMafCoordinate with Eq::{equal, not_equal}
+
+///|
 pub extend AlignMafCoordinate with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct AlignMafIndexEntry {
-  block_index : Int
-  start : Int
-  end : Int
+  block_index : Int32
+  start : Int32
+  end : Int32
 } derive(Eq, Debug)
+
+///|
 pub extend AlignMafIndexEntry with Eq::{equal, not_equal}
+
+///|
 pub extend AlignMafIndexEntry with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct AlignMafIndex {
   reference : String
-  source_size : Int
+  source_size : Int32
   reference_strand : String
   entries : Array[AlignMafIndexEntry]
   blocks : Array[BigMafBlock]
 } derive(Eq, Debug)
+
+///|
 pub extend AlignMafIndex with Eq::{equal, not_equal}
+
+///|
 pub extend AlignMafIndex with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -66,31 +86,45 @@ pub struct AlignMafSplicedSequence {
   source : String
   text : String
 } derive(Eq, Debug)
+
+///|
 pub extend AlignMafSplicedSequence with Eq::{equal, not_equal}
+
+///|
 pub extend AlignMafSplicedSequence with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct AlignMafSplicedAlignment {
   reference : String
   strand : String
-  starts : Array[Int]
-  ends : Array[Int]
+  starts : Array[Int32]
+  ends : Array[Int32]
   sequences : Array[AlignMafSplicedSequence]
-  columns : Int
+  columns : Int32
 } derive(Eq, Debug)
+
+///|
 pub extend AlignMafSplicedAlignment with Eq::{equal, not_equal}
-pub extend AlignMafSplicedAlignment with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend AlignMafSplicedAlignment with @moonbitlang/core/debug.Debug::{
+  to_repr,
+}
 
 ///|
 pub struct AlignMafSummary {
-  block_count : Int
-  component_count : Int
-  empty_component_count : Int
-  aligned_columns : Int
-  reference_bases : Int
-  source_count : Int
+  block_count : Int32
+  component_count : Int32
+  empty_component_count : Int32
+  aligned_columns : Int32
+  reference_bases : Int32
+  source_count : Int32
 } derive(Eq, Debug)
+
+///|
 pub extend AlignMafSummary with Eq::{equal, not_equal}
+
+///|
 pub extend AlignMafSummary with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -99,7 +133,7 @@ fn align_maf_fail(message : String) -> Unit raise AlignMafError {
 }
 
 ///|
-fn align_maf_is_space(code : Int) -> Bool {
+fn align_maf_is_space(code : Int32) -> Bool {
   code == ' '.to_int() ||
   code == '\t'.to_int() ||
   code == '\r'.to_int() ||
@@ -259,7 +293,7 @@ fn align_maf_validate_token(
 fn align_maf_parse_uint(
   value : String,
   label : String,
-) -> Int raise AlignMafError {
+) -> Int32 raise AlignMafError {
   if value.length() == 0 {
     align_maf_fail(label + " must be an unsigned integer")
   }
@@ -384,8 +418,8 @@ fn align_maf_copy_blocks(values : Array[BigMafBlock]) -> Array[BigMafBlock] {
 }
 
 ///|
-fn align_maf_copy_ints(values : Array[Int]) -> Array[Int] {
-  let copied : Array[Int] = []
+fn align_maf_copy_ints(values : Array[Int32]) -> Array[Int32] {
+  let copied : Array[Int32] = []
   for value in values {
     copied.push(value)
   }
@@ -394,12 +428,12 @@ fn align_maf_copy_ints(values : Array[Int]) -> Array[Int] {
 
 ///|
 pub fn AlignMafTrack::create(
-  name? : String? = None,
-  description? : String? = None,
-  frames? : String? = None,
-  maf_dot? : String? = None,
-  visibility? : String? = None,
-  species_order? : Array[String] = [],
+  name~ : String? = None,
+  description~ : String? = None,
+  frames~ : String? = None,
+  maf_dot~ : String? = None,
+  visibility~ : String? = None,
+  species_order~ : Array[String] = [],
 ) -> AlignMafTrack raise AlignMafError {
   match name {
     Some(value) => align_maf_validate_scalar(value, "MAF track name")
@@ -445,11 +479,11 @@ pub fn AlignMafTrack::create(
 ///|
 pub fn AlignMafDocument::create(
   blocks : Array[BigMafBlock],
-  version? : String = "1",
-  scoring? : String? = None,
-  program? : String? = None,
-  comments? : Array[String] = [],
-  track? : AlignMafTrack? = None,
+  version~ : String = "1",
+  scoring~ : String? = None,
+  program~ : String? = None,
+  comments~ : Array[String] = [],
+  track~ : AlignMafTrack? = None,
 ) -> AlignMafDocument raise AlignMafError {
   if version != "1" {
     align_maf_fail("MAF version must be 1")
@@ -564,7 +598,7 @@ fn align_maf_parse_block(
     align_maf_fail("MAF alignment block must start with an 'a' line")
   }
   let mut score : Double? = None
-  let mut pass_number : Int? = None
+  let mut pass_number : Int32? = None
   for index in 1..<header.length() {
     let (key, value) = align_maf_key_value(header[index], "MAF alignment")
     if key == "score" {
@@ -955,7 +989,7 @@ fn align_maf_pattern_equal(left : Array[Bool], right : Array[Bool]) -> Bool {
 }
 
 ///|
-fn align_maf_column_pattern(block : BigMafBlock, column : Int) -> Array[Bool] {
+fn align_maf_column_pattern(block : BigMafBlock, column : Int32) -> Array[Bool] {
   let pattern : Array[Bool] = []
   for component in block.components {
     pattern.push(component.text.unsafe_get(column).to_int() != '-'.to_int())
@@ -964,8 +998,8 @@ fn align_maf_column_pattern(block : BigMafBlock, column : Int) -> Array[Bool] {
 }
 
 ///|
-fn align_maf_copy_positions(positions : Array[Int]) -> Array[Int] {
-  let copied : Array[Int] = []
+fn align_maf_copy_positions(positions : Array[Int32]) -> Array[Int32] {
+  let copied : Array[Int32] = []
   for position in positions {
     copied.push(position)
   }
@@ -977,7 +1011,7 @@ pub fn align_maf_coordinate_path(
   block : BigMafBlock,
 ) -> Array[AlignMafCoordinate] {
   let width = block.aligned_columns()
-  let positions : Array[Int] = []
+  let positions : Array[Int32] = []
   for component in block.components {
     positions.push(
       if component.strand == "+" {
@@ -1024,9 +1058,9 @@ pub fn align_maf_coordinate_path(
 pub fn align_maf_map_position(
   block : BigMafBlock,
   from_source : String,
-  position : Int,
+  position : Int32,
   to_source : String,
-) -> Int? raise AlignMafError {
+) -> Int32? raise AlignMafError {
   let from = match block.component(from_source) {
     Some(component) => component
     None => return None
@@ -1168,9 +1202,9 @@ pub fn AlignMafIndex::create(
 
 ///|
 fn align_maf_validate_range(
-  start : Int,
-  end : Int,
-  source_size : Int,
+  start : Int32,
+  end : Int32,
+  source_size : Int32,
 ) -> Unit raise AlignMafError {
   if start < 0 || end <= start || end > source_size {
     align_maf_fail(
@@ -1182,8 +1216,8 @@ fn align_maf_validate_range(
 ///|
 pub fn AlignMafIndex::search(
   self : AlignMafIndex,
-  start : Int,
-  end : Int,
+  start : Int32,
+  end : Int32,
 ) -> Array[BigMafBlock] raise AlignMafError {
   align_maf_validate_range(start, end, self.source_size)
   let blocks : Array[BigMafBlock] = []
@@ -1198,8 +1232,8 @@ pub fn AlignMafIndex::search(
 ///|
 pub fn AlignMafIndex::search_ranges(
   self : AlignMafIndex,
-  starts : Array[Int],
-  ends : Array[Int],
+  starts : Array[Int32],
+  ends : Array[Int32],
 ) -> Array[BigMafBlock] raise AlignMafError {
   if starts.length() == 0 || starts.length() != ends.length() {
     align_maf_fail("MAF range arrays must be non-empty and have equal lengths")
@@ -1223,12 +1257,12 @@ pub fn AlignMafIndex::search_ranges(
 }
 
 ///|
-pub fn AlignMafIndex::entry_count(self : AlignMafIndex) -> Int {
+pub fn AlignMafIndex::entry_count(self : AlignMafIndex) -> Int32 {
   self.entries.length()
 }
 
 ///|
-fn align_maf_repeat(value : String, count : Int) -> String {
+fn align_maf_repeat(value : String, count : Int32) -> String {
   let output = StringBuilder(size_hint=count)
   for _ in 0..<count {
     output.write_string(value)
@@ -1251,7 +1285,7 @@ fn align_maf_splice_sources(index : AlignMafIndex) -> Array[String] {
 }
 
 ///|
-fn align_maf_append_missing(texts : Array[String], count : Int) -> Unit {
+fn align_maf_append_missing(texts : Array[String], count : Int32) -> Unit {
   if count <= 0 {
     return
   }
@@ -1264,9 +1298,9 @@ fn align_maf_append_missing(texts : Array[String], count : Int) -> Unit {
 ///|
 pub fn AlignMafIndex::get_spliced(
   self : AlignMafIndex,
-  starts : Array[Int],
-  ends : Array[Int],
-  strand? : String = "+",
+  starts : Array[Int32],
+  ends : Array[Int32],
+  strand~ : String = "+",
 ) -> AlignMafSplicedAlignment raise AlignMafError {
   if starts.length() == 0 || starts.length() != ends.length() {
     align_maf_fail("MAF exon arrays must be non-empty and have equal lengths")
@@ -1397,7 +1431,7 @@ pub fn AlignMafSplicedAlignment::sequence(
 pub fn AlignMafSplicedAlignment::ungapped_length(
   self : AlignMafSplicedAlignment,
   source : String,
-) -> Int? {
+) -> Int32? {
   match self.sequence(source) {
     Some(text) => {
       let mut count = 0

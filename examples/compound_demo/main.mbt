@@ -18,7 +18,9 @@ fn main {
 
   // Compound with chemical properties
   println("=== Compound With Chemical Properties ===")
-  let c2 = @bio.Compound::with_chemical("C0001", "Glucose", "C6H12O6", 0, "C(C1C(C(C(C(O1)O)O)O)O)O")
+  let c2 = @bio.Compound::with_chemical(
+    "C0001", "Glucose", "C6H12O6", 0, "C(C1C(C(C(C(O1)O)O)O)O)O",
+  )
   println("Compound: \{c2.to_string()}")
   println("Formula: \{c2.get_formula()}")
   println("SMILES: \{c2.get_smiles()}")
@@ -28,7 +30,9 @@ fn main {
   println("=== Compound Setters ===")
   let c3 = @bio.Compound::new("C0001", "Test")
   let c3b = c3.set_formula("H2O").set_charge(1).set_smiles("O")
-  println("After setters: formula='\{c3b.get_formula()}', charge=\{c3b.get_charge()}, smiles='\{c3b.get_smiles()}'")
+  println(
+    "After setters: formula='\{c3b.get_formula()}', charge=\{c3b.get_charge()}, smiles='\{c3b.get_smiles()}'",
+  )
   println("")
 
   // Compound aliases
@@ -62,7 +66,9 @@ fn main {
   println("H2O: H=\{f1.get("H").unwrap()}, O=\{f1.get("O").unwrap()}")
 
   let f2 = @bio.parse_formula("C6H12O6")
-  println("C6H12O6: C=\{f2.get("C").unwrap()}, H=\{f2.get("H").unwrap()}, O=\{f2.get("O").unwrap()}")
+  println(
+    "C6H12O6: C=\{f2.get("C").unwrap()}, H=\{f2.get("H").unwrap()}, O=\{f2.get("O").unwrap()}",
+  )
 
   let f3 = @bio.parse_formula("Fe2O3")
   println("Fe2O3: Fe=\{f3.get("Fe").unwrap()}, O=\{f3.get("O").unwrap()}")
@@ -124,7 +130,9 @@ fn main {
   println("Reactions: \{p1.get_reactions().length()}")
   println("")
 
-  let glucose = @bio.Compound::with_chemical("C0003", "Glucose", "C6H12O6", 0, "CCO")
+  let glucose = @bio.Compound::with_chemical(
+    "C0003", "Glucose", "C6H12O6", 0, "CCO",
+  )
   let r6 = @bio.ChemicalReaction::new("R0001", "HK1 reaction")
   let p2 = p1.add_compound(glucose).add_reaction(r6)
   println("After additions:")
@@ -157,16 +165,22 @@ fn main {
   // Compound templates
   println("=== Compound Templates ===")
   let t_glucose = @bio.compound_glucose()
-  println("Glucose template: id=\{t_glucose.get_id()}, formula=\{t_glucose.get_formula()}")
+  println(
+    "Glucose template: id=\{t_glucose.get_id()}, formula=\{t_glucose.get_formula()}",
+  )
 
   let t_fructose = @bio.compound_fructose()
   println("Fructose template: id=\{t_fructose.get_id()}")
 
   let t_pyruvate = @bio.compound_pyruvate()
-  println("Pyruvate template: id=\{t_pyruvate.get_id()}, charge=\{t_pyruvate.get_charge()}")
+  println(
+    "Pyruvate template: id=\{t_pyruvate.get_id()}, charge=\{t_pyruvate.get_charge()}",
+  )
 
   let t_citrate = @bio.compound_citrate()
-  println("Citrate template: id=\{t_citrate.get_id()}, charge=\{t_citrate.get_charge()}")
+  println(
+    "Citrate template: id=\{t_citrate.get_id()}, charge=\{t_citrate.get_charge()}",
+  )
   println("")
 
   println("=== Done ===")

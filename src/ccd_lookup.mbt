@@ -22,7 +22,7 @@ pub struct CcdEntry {
 pub(all) struct CcdAtom {
   name : String
   element : String
-  charge : Int
+  charge : Int32
   leaving_atom : Bool
   aromatic : Bool
 }
@@ -54,7 +54,10 @@ pub fn ccd_one_letter(three_letter : String) -> String {
 /// Check if a 3-letter code is a standard amino acid.
 pub fn ccd_is_amino_acid(code : String) -> Bool {
   match ccd_standard_table().get(code) {
-    Some(entry) => entry.comp_type == "peptide linking" || entry.comp_type == "L-peptide linking" || entry.comp_type == "D-peptide linking"
+    Some(entry) =>
+      entry.comp_type == "peptide linking" ||
+      entry.comp_type == "L-peptide linking" ||
+      entry.comp_type == "D-peptide linking"
     None => false
   }
 }
@@ -63,7 +66,8 @@ pub fn ccd_is_amino_acid(code : String) -> Bool {
 /// Check if a 3-letter code is a nucleotide.
 pub fn ccd_is_nucleotide(code : String) -> Bool {
   match ccd_standard_table().get(code) {
-    Some(entry) => entry.comp_type == "DNA linking" || entry.comp_type == "RNA linking"
+    Some(entry) =>
+      entry.comp_type == "DNA linking" || entry.comp_type == "RNA linking"
     None => false
   }
 }
@@ -100,16 +104,16 @@ fn ccd_guess_element(atom_name : String) -> String {
   // Check 2-char elements first (metals, halogens with 2-letter symbols)
   if atom_name.length() >= 2 {
     let two = atom_name[0:2].to_owned()
-    let two_char = ["FE", "CL", "BR", "ZN", "MG", "MN", "CU", "NA", "NI", "CO",
-      "SE", "MO", "RU", "OS", "IR", "PT", "AU", "HG", "PB", "SR",
-      "BA", "AL", "SI", "LI", "BE", "NE", "AR", "KR", "XE", "CS",
-      "RA", "FR", "AC", "AG", "CD", "GA", "GE", "AS", "IN", "SN",
-      "SB", "TE", "BI", "PO", "AT", "RN", "RE", "RH", "PD", "TA",
-      "TI", "SC", "ZR", "NB", "TC", "ND", "TB", "DY", "HO", "ER",
-      "TM", "YB", "LU", "HF", "LA", "CE", "PR", "PM", "SM", "EU",
-      "GD", "PA", "NP", "PU", "AM", "CM", "BK", "CF", "ES", "FM",
-      "MD", "NO", "LR", "RF", "DB", "SG", "BH", "HS", "MT", "DS",
-      "RG", "CN", "FL", "LV", "HE"]
+    let two_char = [
+      "FE", "CL", "BR", "ZN", "MG", "MN", "CU", "NA", "NI", "CO", "SE", "MO", "RU",
+      "OS", "IR", "PT", "AU", "HG", "PB", "SR", "BA", "AL", "SI", "LI", "BE", "NE",
+      "AR", "KR", "XE", "CS", "RA", "FR", "AC", "AG", "CD", "GA", "GE", "AS", "IN",
+      "SN", "SB", "TE", "BI", "PO", "AT", "RN", "RE", "RH", "PD", "TA", "TI", "SC",
+      "ZR", "NB", "TC", "ND", "TB", "DY", "HO", "ER", "TM", "YB", "LU", "HF", "LA",
+      "CE", "PR", "PM", "SM", "EU", "GD", "PA", "NP", "PU", "AM", "CM", "BK", "CF",
+      "ES", "FM", "MD", "NO", "LR", "RF", "DB", "SG", "BH", "HS", "MT", "DS", "RG",
+      "CN", "FL", "LV", "HE",
+    ]
     for i = 0; i < two_char.length(); i = i + 1 {
       if two == two_char[i] {
         return two
@@ -118,20 +122,48 @@ fn ccd_guess_element(atom_name : String) -> String {
   }
   // Fall back to 1-char elements
   let c0 = atom_name.unsafe_get(0).unsafe_to_char()
-  if c0 == 'H' { return "H" }
-  if c0 == 'C' { return "C" }
-  if c0 == 'N' { return "N" }
-  if c0 == 'O' { return "O" }
-  if c0 == 'F' { return "F" }
-  if c0 == 'P' { return "P" }
-  if c0 == 'S' { return "S" }
-  if c0 == 'K' { return "K" }
-  if c0 == 'I' { return "I" }
-  if c0 == 'B' { return "B" }
-  if c0 == 'U' { return "U" }
-  if c0 == 'V' { return "V" }
-  if c0 == 'W' { return "W" }
-  if c0 == 'Y' { return "Y" }
+  if c0 == 'H' {
+    return "H"
+  }
+  if c0 == 'C' {
+    return "C"
+  }
+  if c0 == 'N' {
+    return "N"
+  }
+  if c0 == 'O' {
+    return "O"
+  }
+  if c0 == 'F' {
+    return "F"
+  }
+  if c0 == 'P' {
+    return "P"
+  }
+  if c0 == 'S' {
+    return "S"
+  }
+  if c0 == 'K' {
+    return "K"
+  }
+  if c0 == 'I' {
+    return "I"
+  }
+  if c0 == 'B' {
+    return "B"
+  }
+  if c0 == 'U' {
+    return "U"
+  }
+  if c0 == 'V' {
+    return "V"
+  }
+  if c0 == 'W' {
+    return "W"
+  }
+  if c0 == 'Y' {
+    return "Y"
+  }
   "C"
 }
 
@@ -158,8 +190,12 @@ fn ccd_standard_table() -> Map[String, CcdEntry] {
   ccd_add_aa(m, "TRP", "TRYPTOPHAN", "W", "C11 H12 N2 O2")
   ccd_add_aa(m, "TYR", "TYROSINE", "Y", "C9 H11 N O3")
   ccd_add_aa(m, "VAL", "VALINE", "V", "C5 H11 N O2")
-  ccd_add_special(m, "SEC", "SELENOCYSTEINE", "U", "C3 H7 N O2 Se", "L-peptide linking")
-  ccd_add_special(m, "PYL", "PYRROLYSINE", "O", "C12 H21 N3 O3", "L-peptide linking")
+  ccd_add_special(
+    m, "SEC", "SELENOCYSTEINE", "U", "C3 H7 N O2 Se", "L-peptide linking",
+  )
+  ccd_add_special(
+    m, "PYL", "PYRROLYSINE", "O", "C12 H21 N3 O3", "L-peptide linking",
+  )
   ccd_add_special(m, "ASX", "ASN/ASP", "B", "C4 H8 N2 O3", "peptide linking")
   ccd_add_special(m, "GLX", "GLN/GLU", "Z", "C5 H10 N2 O3", "peptide linking")
   ccd_add_special(m, "XAA", "UNKNOWN", "X", "C0 H0 N O", "peptide linking")
@@ -187,8 +223,12 @@ fn ccd_standard_table() -> Map[String, CcdEntry] {
   ccd_add_special(m, "GTP", "GTP", "", "C10 H16 N5 O14 P3", "non-polymer")
   ccd_add_special(m, "FAD", "FAD", "", "C27 H33 N9 O15 P2", "non-polymer")
   ccd_add_special(m, "NAD", "NAD", "", "C21 H27 N7 O14 P2", "non-polymer")
-  ccd_add_special(m, "COA", "COENZYME A", "", "C21 H36 N7 O16 P3 S", "non-polymer")
-  ccd_add_special(m, "PLP", "PYRIDOXAL PHOSPHATE", "", "C8 H10 N O6 P", "non-polymer")
+  ccd_add_special(
+    m, "COA", "COENZYME A", "", "C21 H36 N7 O16 P3 S", "non-polymer",
+  )
+  ccd_add_special(
+    m, "PLP", "PYRIDOXAL PHOSPHATE", "", "C8 H10 N O6 P", "non-polymer",
+  )
   ccd_add_special(m, "RET", "RETINAL", "", "C20 H28 O", "non-polymer")
   m
 }
@@ -224,7 +264,11 @@ fn ccd_add_nuc(
   m[id] = CcdEntry::{
     id,
     name,
-    comp_type: if is_dna { "DNA linking" } else { "RNA linking" },
+    comp_type: if is_dna {
+      "DNA linking"
+    } else {
+      "RNA linking"
+    },
     formula: "",
     atoms: [],
     bonds: [],
@@ -257,32 +301,129 @@ fn ccd_add_special(
 ///|
 fn ccd_aa_atoms(id : String) -> Array[CcdAtom] {
   let atoms : Array[CcdAtom] = [
-    CcdAtom::{ name: "N", element: "N", charge: 0, leaving_atom: true, aromatic: false },
-    CcdAtom::{ name: "CA", element: "C", charge: 0, leaving_atom: false, aromatic: false },
-    CcdAtom::{ name: "C", element: "C", charge: 0, leaving_atom: false, aromatic: false },
-    CcdAtom::{ name: "O", element: "O", charge: 0, leaving_atom: true, aromatic: false },
-    CcdAtom::{ name: "OXT", element: "O", charge: 0, leaving_atom: true, aromatic: false },
+    CcdAtom::{
+      name: "N",
+      element: "N",
+      charge: 0,
+      leaving_atom: true,
+      aromatic: false,
+    },
+    CcdAtom::{
+      name: "CA",
+      element: "C",
+      charge: 0,
+      leaving_atom: false,
+      aromatic: false,
+    },
+    CcdAtom::{
+      name: "C",
+      element: "C",
+      charge: 0,
+      leaving_atom: false,
+      aromatic: false,
+    },
+    CcdAtom::{
+      name: "O",
+      element: "O",
+      charge: 0,
+      leaving_atom: true,
+      aromatic: false,
+    },
+    CcdAtom::{
+      name: "OXT",
+      element: "O",
+      charge: 0,
+      leaving_atom: true,
+      aromatic: false,
+    },
   ]
   match id {
-    "ALA" => atoms.push(CcdAtom::{ name: "CB", element: "C", charge: 0, leaving_atom: false, aromatic: false })
+    "ALA" =>
+      atoms.push(CcdAtom::{
+        name: "CB",
+        element: "C",
+        charge: 0,
+        leaving_atom: false,
+        aromatic: false,
+      })
     "CYS" => {
-      atoms.push(CcdAtom::{ name: "CB", element: "C", charge: 0, leaving_atom: false, aromatic: false })
-      atoms.push(CcdAtom::{ name: "SG", element: "S", charge: 0, leaving_atom: false, aromatic: false })
+      atoms.push(CcdAtom::{
+        name: "CB",
+        element: "C",
+        charge: 0,
+        leaving_atom: false,
+        aromatic: false,
+      })
+      atoms.push(CcdAtom::{
+        name: "SG",
+        element: "S",
+        charge: 0,
+        leaving_atom: false,
+        aromatic: false,
+      })
     }
     "SER" => {
-      atoms.push(CcdAtom::{ name: "CB", element: "C", charge: 0, leaving_atom: false, aromatic: false })
-      atoms.push(CcdAtom::{ name: "OG", element: "O", charge: 0, leaving_atom: false, aromatic: false })
+      atoms.push(CcdAtom::{
+        name: "CB",
+        element: "C",
+        charge: 0,
+        leaving_atom: false,
+        aromatic: false,
+      })
+      atoms.push(CcdAtom::{
+        name: "OG",
+        element: "O",
+        charge: 0,
+        leaving_atom: false,
+        aromatic: false,
+      })
     }
     "THR" => {
-      atoms.push(CcdAtom::{ name: "CB", element: "C", charge: 0, leaving_atom: false, aromatic: false })
-      atoms.push(CcdAtom::{ name: "OG1", element: "O", charge: 0, leaving_atom: false, aromatic: false })
-      atoms.push(CcdAtom::{ name: "CG2", element: "C", charge: 0, leaving_atom: false, aromatic: false })
+      atoms.push(CcdAtom::{
+        name: "CB",
+        element: "C",
+        charge: 0,
+        leaving_atom: false,
+        aromatic: false,
+      })
+      atoms.push(CcdAtom::{
+        name: "OG1",
+        element: "O",
+        charge: 0,
+        leaving_atom: false,
+        aromatic: false,
+      })
+      atoms.push(CcdAtom::{
+        name: "CG2",
+        element: "C",
+        charge: 0,
+        leaving_atom: false,
+        aromatic: false,
+      })
     }
     "GLY" => ()
     "PRO" => {
-      atoms.push(CcdAtom::{ name: "CB", element: "C", charge: 0, leaving_atom: false, aromatic: false })
-      atoms.push(CcdAtom::{ name: "CG", element: "C", charge: 0, leaving_atom: false, aromatic: false })
-      atoms.push(CcdAtom::{ name: "CD", element: "C", charge: 0, leaving_atom: false, aromatic: false })
+      atoms.push(CcdAtom::{
+        name: "CB",
+        element: "C",
+        charge: 0,
+        leaving_atom: false,
+        aromatic: false,
+      })
+      atoms.push(CcdAtom::{
+        name: "CG",
+        element: "C",
+        charge: 0,
+        leaving_atom: false,
+        aromatic: false,
+      })
+      atoms.push(CcdAtom::{
+        name: "CD",
+        element: "C",
+        charge: 0,
+        leaving_atom: false,
+        aromatic: false,
+      })
     }
     _ => ()
   }

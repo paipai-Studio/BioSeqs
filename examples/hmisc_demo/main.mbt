@@ -31,25 +31,35 @@ fn main {
 
   // Pearson correlation
   println("=== Pearson Correlation ===")
-  let pearson_corr = @bio.hmisc_rcorr(data, names=names, cor_type=@bio.hmisc_cor_type_pearson())
+  let pearson_corr = @bio.hmisc_rcorr(
+    data,
+    names~,
+    cor_type=@bio.hmisc_cor_type_pearson(),
+  )
   println(@bio.hmisc_rcorr_summary(pearson_corr))
   println("")
 
   // Spearman correlation
   println("=== Spearman Correlation ===")
-  let spearman_corr = @bio.hmisc_rcorr(data, names=names, cor_type=@bio.hmisc_cor_type_spearman())
+  let spearman_corr = @bio.hmisc_rcorr(
+    data,
+    names~,
+    cor_type=@bio.hmisc_cor_type_spearman(),
+  )
   println(@bio.hmisc_rcorr_summary(spearman_corr))
   println("")
 
   // Variable clustering
   println("=== Variable Clustering ===")
-  let vc_result = @bio.hmisc_varclus(data, names=names, min_cluster_size=2)
+  let vc_result = @bio.hmisc_varclus(data, names~, min_cluster_size=2)
   println(@bio.hmisc_varclus_summary(vc_result))
   println("Merge steps: \{vc_result.merges.length()}")
   let mut j = 0
   while j < vc_result.heights.length() {
     let step = vc_result.merges[j]
-    println("  Step \{j}: merge \{step[0]} and \{step[1]} at height \{hmisc_fmt(vc_result.heights[j], 4)}")
+    println(
+      "  Step \{j}: merge \{step[0]} and \{step[1]} at height \{hmisc_fmt(vc_result.heights[j], 4)}",
+    )
     j = j + 1
   }
   println("")
@@ -72,7 +82,9 @@ fn main {
   println("Group 2 (X > 5): \{array_to_string(g2)}")
   let somers = @bio.hmisc_somers_d(g1, g2)
   println("Somers' d: \{hmisc_fmt(somers.d, 4)}")
-  println("  95% CI: [\{hmisc_fmt(somers.lower, 4)}, \{hmisc_fmt(somers.upper, 4)}]")
+  println(
+    "  95% CI: [\{hmisc_fmt(somers.lower, 4)}, \{hmisc_fmt(somers.upper, 4)}]",
+  )
   println("  n: \{somers.n}")
   println("")
 
@@ -101,6 +113,7 @@ fn main {
   println("=== Demo Complete ===")
 }
 
+///|
 fn array_to_string(arr : Array[Double]) -> String {
   let mut result = "["
   let mut i = 0
@@ -119,13 +132,18 @@ fn array_to_string(arr : Array[Double]) -> String {
   result
 }
 
-fn hmisc_fmt(value : Double, decimals : Int) -> String {
+///|
+fn hmisc_fmt(value : Double, decimals : Int32) -> String {
   if value.is_nan() {
     return "NaN"
   }
-  let rounded = (value * @math.pow(10.0, decimals.to_double())).round() / @math.pow(10.0, decimals.to_double())
+  let rounded = (value * @math.pow(10.0, decimals.to_double())).round() /
+    @math.pow(10.0, decimals.to_double())
   let int_part = rounded.to_int()
-  let dec_part = ((rounded - int_part.to_double()) * @math.pow(10.0, decimals.to_double())).round().to_int()
+  let dec_part = ((rounded - int_part.to_double()) *
+    @math.pow(10.0, decimals.to_double()))
+    .round()
+    .to_int()
   if decimals == 0 {
     return "\{int_part}"
   }
@@ -134,7 +152,8 @@ fn hmisc_fmt(value : Double, decimals : Int) -> String {
   "\{sign}\{int_part}.\{dec_str}"
 }
 
-fn pad_zeros(value : Int, length : Int) -> String {
+///|
+fn pad_zeros(value : Int32, length : Int32) -> String {
   let abs_val = value.abs()
   let s = "\{abs_val}"
   if s.length() >= length {

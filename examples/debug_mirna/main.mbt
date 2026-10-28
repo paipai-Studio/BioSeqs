@@ -1,9 +1,10 @@
+///|
 fn main {
   // Simple test with DNA
   let mirna = "ATGCATGC"
   let seed = @src.mir_extract_seed(mirna)
   println("mirna: " + mirna + " seed: " + seed)
-  
+
   // seed = "TGCATGC", rc = "GCATGCA"
   // UTR with "GCATGCA" preceded by A -> 8mer
   let utr = "AAGCATGCA"

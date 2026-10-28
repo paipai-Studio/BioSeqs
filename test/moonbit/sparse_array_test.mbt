@@ -641,16 +641,16 @@ test "sparse_array: addition of empty arrays" {
 ///|
 test "sparse_array: matmul with identity" {
   // 3×3 matrix × identity = original
-  let a = @src.SparseArray::from_coo(
-    [3, 3],
-    [[0, 0], [1, 2], [2, 1]],
-    [5.0, 7.0, 3.0],
-  ) catch { _ => abort("from_coo failed") }
-  let id = @src.SparseArray::from_coo(
-    [3, 3],
-    [[0, 0], [1, 1], [2, 2]],
-    [1.0, 1.0, 1.0],
-  ) catch { _ => abort("from_coo failed") }
+  let a = @src.SparseArray::from_coo([3, 3], [[0, 0], [1, 2], [2, 1]], [
+    5.0, 7.0, 3.0,
+  ]) catch {
+    _ => abort("from_coo failed")
+  }
+  let id = @src.SparseArray::from_coo([3, 3], [[0, 0], [1, 1], [2, 2]], [
+    1.0, 1.0, 1.0,
+  ]) catch {
+    _ => abort("from_coo failed")
+  }
   // matmul returns dense Array[Array[Double]]
   let c = a.matmul(id) catch { _ => abort("matmul failed") }
   assert_eq(c[0][0], 5.0)

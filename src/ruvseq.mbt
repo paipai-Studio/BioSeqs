@@ -103,7 +103,7 @@ pub fn RUVSeqData::log2_transform(self : RUVSeqData) -> RUVSeqData {
 pub fn RUVSeqData::get_gene_index(
   self : RUVSeqData,
   gene_name : String,
-) -> Int? {
+) -> Int32? {
   let mut i = 0
   while i < self.genes.length() {
     if self.genes[i] == gene_name {
@@ -118,7 +118,7 @@ pub fn RUVSeqData::get_gene_index(
 pub fn RUVSeqData::get_sample_index(
   self : RUVSeqData,
   sample_name : String,
-) -> Int? {
+) -> Int32? {
   let mut i = 0
   while i < self.samples.length() {
     if self.samples[i] == sample_name {
@@ -132,11 +132,11 @@ pub fn RUVSeqData::get_sample_index(
 ///|
 pub struct RUVFactors {
   factors : Array[Array[Double]]
-  k : Int
+  k : Int32
 }
 
 ///|
-pub fn RUVFactors::new(factors : Array[Array[Double]], k : Int) -> RUVFactors {
+pub fn RUVFactors::new(factors : Array[Array[Double]], k : Int32) -> RUVFactors {
   RUVFactors::{ factors, k, }
 }
 
@@ -144,7 +144,7 @@ pub fn RUVFactors::new(factors : Array[Array[Double]], k : Int) -> RUVFactors {
 pub fn ruvg(
   data : RUVSeqData,
   control_genes : Array[String],
-  k : Int,
+  k : Int32,
 ) -> RUVFactors {
   let n_samples = data.samples.length()
   let n_controls = control_genes.length()
@@ -234,7 +234,7 @@ pub fn ruvg(
 }
 
 ///|
-pub fn ruvs(data : RUVSeqData, k : Int) -> RUVFactors {
+pub fn ruvs(data : RUVSeqData, k : Int32) -> RUVFactors {
   let n_samples = data.samples.length()
   let n_genes = data.genes.length()
 

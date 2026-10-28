@@ -1,9 +1,9 @@
 ///|
 pub struct DelayedArray {
   data : Array[Array[Double]]
-  dim : Array[Int]
+  dim : Array[Int32]
   delayed_ops : Array[String]
-  chunk_size : Int
+  chunk_size : Int32
 }
 
 ///|
@@ -14,25 +14,25 @@ pub fn DelayedArray::new(data : Array[Array[Double]]) -> DelayedArray {
 }
 
 ///|
-pub fn DelayedArray::dim(self : DelayedArray) -> Array[Int] {
+pub fn DelayedArray::dim(self : DelayedArray) -> Array[Int32] {
   self.dim
 }
 
 ///|
-pub fn DelayedArray::nrow(self : DelayedArray) -> Int {
+pub fn DelayedArray::nrow(self : DelayedArray) -> Int32 {
   self.dim[0]
 }
 
 ///|
-pub fn DelayedArray::ncol(self : DelayedArray) -> Int {
+pub fn DelayedArray::ncol(self : DelayedArray) -> Int32 {
   self.dim[1]
 }
 
 ///|
 pub fn da_slice(
   darr : DelayedArray,
-  row_idx : Array[Int],
-  col_idx : Array[Int],
+  row_idx : Array[Int32],
+  col_idx : Array[Int32],
 ) -> DelayedArray {
   let new_data : Array[Array[Double]] = Array(capacity=0)
   let mut i = 0
@@ -75,7 +75,7 @@ pub fn da_transpose(darr : DelayedArray) -> DelayedArray {
 ///|
 pub fn da_subset_rows(
   darr : DelayedArray,
-  indices : Array[Int],
+  indices : Array[Int32],
 ) -> DelayedArray {
   let new_data : Array[Array[Double]] = Array(capacity=0)
   let mut i = 0
@@ -91,7 +91,7 @@ pub fn da_subset_rows(
 ///|
 pub fn da_subset_cols(
   darr : DelayedArray,
-  indices : Array[Int],
+  indices : Array[Int32],
 ) -> DelayedArray {
   let new_data : Array[Array[Double]] = Array(capacity=0)
   let mut i = 0

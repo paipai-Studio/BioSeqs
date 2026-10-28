@@ -1,5 +1,5 @@
 ///|
-fn integer_array_text(values : Array[Int]) -> String {
+fn integer_array_text(values : Array[Int32]) -> String {
   let output = StringBuilder()
   output.write_char('[')
   for index = 0; index < values.length(); index = index + 1 {

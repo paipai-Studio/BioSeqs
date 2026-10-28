@@ -160,11 +160,11 @@ test "guide_tree_leaf_count" {
   assert_eq(leaf_count, 4)
 }
 
-
 // ============================================================
 // substitution-matrix scoring (BLOSUM62)
 // ============================================================
 
+///|
 test "align_pairwise_with_matrix_blosum62" {
   let m = @src.subs_blosum62_matrix()
   // BLOSUM62[A][A] = 4；自比对不开 gap
@@ -180,6 +180,7 @@ test "align_pairwise_with_matrix_blosum62" {
   assert_true(@moonbit.assert_num_close(s2, 0.0, 1.0e-6))
 }
 
+///|
 test "progressive_alignment_with_matrix_basic" {
   let c = @src.align_cluster_new()
   let m = @src.subs_blosum62_matrix()
@@ -191,6 +192,7 @@ test "progressive_alignment_with_matrix_basic" {
   assert_true(msa.get_alignment_length() >= 4)
 }
 
+///|
 test "progressive_alignment_with_matrix_identical" {
   let c = @src.align_cluster_new()
   let m = @src.subs_blosum62_matrix()

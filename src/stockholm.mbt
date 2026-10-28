@@ -22,8 +22,8 @@ pub struct StockholmSequence {
   accession : String
   description : String
   aligned_seq : String
-  start : Int
-  end : Int
+  start : Int32
+  end : Int32
 }
 
 ///|
@@ -33,8 +33,8 @@ pub fn StockholmSequence::new(
   accession : String,
   description : String,
   aligned_seq : String,
-  start : Int,
-  end : Int,
+  start : Int32,
+  end : Int32,
 ) -> StockholmSequence {
   StockholmSequence::{ name, accession, description, aligned_seq, start, end, }
 }
@@ -499,7 +499,7 @@ pub fn stockholm_conservation(block : StockholmBlock) -> Array[Double] {
 
   let mut col = 0
   while col < len {
-    let counts : Map[String, Int] = Map([], capacity=20)
+    let counts : Map[String, Int32] = Map([], capacity=20)
     let mut non_gap = 0
 
     let mut si = 0
@@ -771,7 +771,7 @@ fn stockholm_parse_sequence_line(line : String) -> StockholmSequence? {
 }
 
 ///|
-fn stockholm_find_slash(s : String) -> Int {
+fn stockholm_find_slash(s : String) -> Int32 {
   let mut i = 0
   while i < s.length() {
     if s.unsafe_get(i).to_int() == '/'.to_int() {
@@ -783,7 +783,7 @@ fn stockholm_find_slash(s : String) -> Int {
 }
 
 ///|
-fn stockholm_find_dash(s : String) -> Int {
+fn stockholm_find_dash(s : String) -> Int32 {
   let mut i = 0
   while i < s.length() {
     if s.unsafe_get(i).to_int() == '-'.to_int() {
@@ -817,7 +817,7 @@ fn stockholm_build_block(
 }
 
 ///|
-fn stockholm_max_name_length(seqs : Array[StockholmSequence]) -> Int {
+fn stockholm_max_name_length(seqs : Array[StockholmSequence]) -> Int32 {
   let mut max_len = 0
   let mut i = 0
   while i < seqs.length() {

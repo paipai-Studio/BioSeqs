@@ -22,10 +22,42 @@ fn main {
   println("")
 
   let pred = @bio.dnashape_predict_all(seq)
-  println("MGW  mean: " + pred.mgw.mean().to_string() + " (range " + pred.mgw.min().to_string() + " to " + pred.mgw.max().to_string() + ")")
-  println("Roll mean: " + pred.roll.mean().to_string() + " (range " + pred.roll.min().to_string() + " to " + pred.roll.max().to_string() + ")")
-  println("ProT mean: " + pred.prot.mean().to_string() + " (range " + pred.prot.min().to_string() + " to " + pred.prot.max().to_string() + ")")
-  println("HelT mean: " + pred.helt.mean().to_string() + " (range " + pred.helt.min().to_string() + " to " + pred.helt.max().to_string() + ")")
+  println(
+    "MGW  mean: " +
+    pred.mgw.mean().to_string() +
+    " (range " +
+    pred.mgw.min().to_string() +
+    " to " +
+    pred.mgw.max().to_string() +
+    ")",
+  )
+  println(
+    "Roll mean: " +
+    pred.roll.mean().to_string() +
+    " (range " +
+    pred.roll.min().to_string() +
+    " to " +
+    pred.roll.max().to_string() +
+    ")",
+  )
+  println(
+    "ProT mean: " +
+    pred.prot.mean().to_string() +
+    " (range " +
+    pred.prot.min().to_string() +
+    " to " +
+    pred.prot.max().to_string() +
+    ")",
+  )
+  println(
+    "HelT mean: " +
+    pred.helt.mean().to_string() +
+    " (range " +
+    pred.helt.min().to_string() +
+    " to " +
+    pred.helt.max().to_string() +
+    ")",
+  )
   println("")
 
   // ------------------------------------------------------------------
@@ -39,7 +71,9 @@ fn main {
   let mgw_atract = @bio.dnashape_predict(atract, mgw_feat)
   let mgw_gc = @bio.dnashape_predict(gc_rich, mgw_feat)
 
-  println("A-tract MGW mean: " + mgw_atract.mean().to_string() + " (narrow groove)")
+  println(
+    "A-tract MGW mean: " + mgw_atract.mean().to_string() + " (narrow groove)",
+  )
   println("GC-rich MGW mean: " + mgw_gc.mean().to_string() + " (wide groove)")
   println("A-tracts have narrower minor groove than GC-rich sequences.")
   println("")
@@ -63,7 +97,10 @@ fn main {
   let comp_seq = "ATCGATCG"
   let counts = @bio.dnashape_dinuc_composition(comp_seq)
   println("Sequence: " + comp_seq)
-  let bases = ["AA", "AC", "AG", "AT", "CA", "CC", "CG", "CT", "GA", "GC", "GG", "GT", "TA", "TC", "TG", "TT"]
+  let bases = [
+    "AA", "AC", "AG", "AT", "CA", "CC", "CG", "CT", "GA", "GC", "GG", "GT", "TA",
+    "TC", "TG", "TT",
+  ]
   let mut i = 0
   while i < 16 {
     if counts[i] > 0 {
@@ -78,7 +115,9 @@ fn main {
   // ------------------------------------------------------------------
   println("=== 5. GC Content ===")
   println("A-tract GC content: " + @bio.dnashape_gc_content(atract).to_string())
-  println("GC-rich GC content: " + @bio.dnashape_gc_content(gc_rich).to_string())
+  println(
+    "GC-rich GC content: " + @bio.dnashape_gc_content(gc_rich).to_string(),
+  )
   println("")
 
   // ------------------------------------------------------------------

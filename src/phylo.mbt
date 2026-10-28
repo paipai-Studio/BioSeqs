@@ -79,11 +79,11 @@ pub struct Clade {
 ///|
 /// Construct a Clade with optional attributes.
 pub fn Clade::new(
-  branch_length? : Double? = None,
-  name? : String? = None,
-  confidence? : Double? = None,
-  clades? : Array[Clade] = [],
-  parent? : Clade? = None,
+  branch_length~ : Double? = None,
+  name~ : String? = None,
+  confidence~ : Double? = None,
+  clades~ : Array[Clade] = [],
+  parent~ : Clade? = None,
 ) -> Clade {
   let mut result = Clade::{
     branch_length,
@@ -133,7 +133,7 @@ pub fn Clade::is_terminal(self : Clade) -> Bool {
 
 ///|
 /// Return the number of terminal (leaf) nodes in this clade's subtree.
-pub fn Clade::count_terminals(self : Clade) -> Int {
+pub fn Clade::count_terminals(self : Clade) -> Int32 {
   if self.is_terminal() {
     1
   } else {
@@ -191,8 +191,8 @@ fn Clade::collect_nonterminals_into(
 /// Find all clades matching given attributes.
 pub fn Clade::find_clades(
   self : Clade,
-  name? : String? = None,
-  terminal? : Bool? = None,
+  name~ : String? = None,
+  terminal~ : Bool? = None,
 ) -> Array[Clade] {
   let result = Array(capacity=0)
   self.find_clades_into(name, terminal, result)
@@ -227,8 +227,8 @@ fn Clade::find_clades_into(
 /// Find the first clade matching given attributes, or None.
 pub fn Clade::find_any(
   self : Clade,
-  name? : String? = None,
-  terminal? : Bool? = None,
+  name~ : String? = None,
+  terminal~ : Bool? = None,
 ) -> Clade? {
   let match_name = if name is Some(_) { self.name == name } else { true }
   let match_terminal = if terminal is Some(_) {
@@ -295,7 +295,7 @@ pub fn Clade::get_path(self : Clade, name : String) -> Array[Clade]? {
 /// Calculate depths of all clades from this clade.
 pub fn Clade::depths(
   self : Clade,
-  current_depth? : Double? = None,
+  current_depth~ : Double? = None,
 ) -> Array[(String, Double)] {
   let result = Array(capacity=0)
   self.depths_helper(current_depth, result)
@@ -306,7 +306,7 @@ pub fn Clade::depths(
 /// Calculate depths and return as a Map for faster lookup.
 pub fn Clade::depths_map(
   self : Clade,
-  current_depth? : Double? = None,
+  current_depth~ : Double? = None,
 ) -> Map[String, Double] {
   let result : Map[String, Double] = Map([], capacity=16)
   self.depths_map_helper(current_depth, result)
@@ -371,9 +371,9 @@ pub struct Tree {
 /// Construct a Tree with root clade.
 pub fn Tree::new(
   root : Clade,
-  rooted? : Bool = false,
-  name? : String? = None,
-  weight? : Double = 1.0,
+  rooted~ : Bool = false,
+  name~ : String? = None,
+  weight~ : Double = 1.0,
 ) -> Tree {
   Tree::{ root, rooted, name, weight, results: Map([], capacity=0), }
 }
@@ -414,7 +414,7 @@ pub fn Tree::get_root(self : Tree) -> Clade {
 
 ///|
 /// Return the number of terminal (leaf) nodes in this tree.
-pub fn Tree::count_terminals(self : Tree) -> Int {
+pub fn Tree::count_terminals(self : Tree) -> Int32 {
   self.root.count_terminals()
 }
 
@@ -434,8 +434,8 @@ pub fn Tree::get_nonterminals(self : Tree) -> Array[Clade] {
 /// Find all clades matching given attributes.
 pub fn Tree::find_clades(
   self : Tree,
-  name? : String? = None,
-  terminal? : Bool? = None,
+  name~ : String? = None,
+  terminal~ : Bool? = None,
 ) -> Array[Clade] {
   self.root.find_clades(name~, terminal~)
 }
@@ -444,8 +444,8 @@ pub fn Tree::find_clades(
 /// Find the first clade matching given attributes, or None.
 pub fn Tree::find_any(
   self : Tree,
-  name? : String? = None,
-  terminal? : Bool? = None,
+  name~ : String? = None,
+  terminal~ : Bool? = None,
 ) -> Clade? {
   self.root.find_any(name~, terminal~)
 }

@@ -1,6 +1,5 @@
 ///|
 /// DECIPHER demo - Biological sequence analysis toolkit.
-
 fn main {
   println("=== DECIPHER Demo: Biological Sequence Analysis ===")
   println("")
@@ -25,7 +24,13 @@ fn main {
   let seqs = @src.create_example_sequences()
   let dist = @src.decipher_distance_matrix(seqs)
   println("Sequences: " + seqs.length().to_string())
-  println("Distance matrix (" + dist.length().to_string() + "x" + dist.length().to_string() + "):")
+  println(
+    "Distance matrix (" +
+    dist.length().to_string() +
+    "x" +
+    dist.length().to_string() +
+    "):",
+  )
   let mut i = 0
   while i < dist.length() {
     let sb = StringBuilder()
@@ -52,7 +57,13 @@ fn main {
   while ci < clusters.n_clusters {
     let members = clusters.clusters[ci]
     let sb = StringBuilder()
-    sb.write_string("  Cluster " + (ci + 1).to_string() + " (size=" + members.length().to_string() + "): ")
+    sb.write_string(
+      "  Cluster " +
+      (ci + 1).to_string() +
+      " (size=" +
+      members.length().to_string() +
+      "): ",
+    )
     let mut mi = 0
     while mi < members.length() {
       if mi > 0 {
@@ -83,7 +94,10 @@ fn main {
   while di < @src.db_size(db) {
     let entry = @src.db_get(db, di)
     match entry {
-      Some(e) => println("  [" + e.id.to_string() + "] " + e.description + ": " + e.sequence)
+      Some(e) =>
+        println(
+          "  [" + e.id.to_string() + "] " + e.description + ": " + e.sequence,
+        )
       None => println("  [empty]")
     }
     di = di + 1
@@ -102,10 +116,7 @@ fn main {
   // Step 7: Consensus Sequence
   println("--- Step 7: Consensus Sequence ---")
   let aligned_seqs = [
-    "ACGTACGTACGT",
-    "ACGTACGTACGT",
-    "ACGTACGTACGA",
-    "ACGTACGTACGT",
+    "ACGTACGTACGT", "ACGTACGTACGT", "ACGTACGTACGA", "ACGTACGTACGT",
   ]
   let cons = @src.decipher_consensus(aligned_seqs)
   println("Aligned sequences:")
@@ -129,7 +140,14 @@ fn main {
   let mut chi = 0
   while chi < all_seqs.length() {
     let status = if chimera_flags[chi] { "CHIMERA" } else { "clean" }
-    println("  " + all_seqs[chi] + " (abund=" + abundances[chi].to_string() + ") -> " + status)
+    println(
+      "  " +
+      all_seqs[chi] +
+      " (abund=" +
+      abundances[chi].to_string() +
+      ") -> " +
+      status,
+    )
     chi = chi + 1
   }
   println("")
@@ -142,7 +160,14 @@ fn main {
     let s = test_seqs[ti]
     let gc = @src.decipher_gc_content(s)
     let complexity = @src.decipher_complexity(s)
-    println("  " + s + ": GC=" + (gc * 100.0).to_string() + "%, complexity=" + complexity.to_string())
+    println(
+      "  " +
+      s +
+      ": GC=" +
+      (gc * 100.0).to_string() +
+      "%, complexity=" +
+      complexity.to_string(),
+    )
     ti = ti + 1
   }
   println("")

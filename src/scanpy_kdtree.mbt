@@ -17,11 +17,11 @@
 /// kd-tree node stored in a flat array for cache efficiency.  Children are
 /// referenced by index into the node array (-1 = no child).
 struct KdNode {
-  point_idx : Int       // index into original data
-  split_dim : Int       // split dimension (-1 for leaf)
-  split_val : Double    // split value at split_dim
-  mut left : Int        // left child index (-1 = none)
-  mut right : Int       // right child index (-1 = none)
+  point_idx : Int32 // index into original data
+  split_dim : Int32 // split dimension (-1 for leaf)
+  split_val : Double // split value at split_dim
+  mut left : Int32 // left child index (-1 = none)
+  mut right : Int32 // right child index (-1 = none)
 }
 
 ///|
@@ -29,15 +29,15 @@ struct KdNode {
 /// Returns a flat array of nodes (root = index 0, or empty if n == 0).
 fn scanpy_kdtree_build(
   data : Array[Array[Double]],
-  n : Int,
-  d : Int,
+  n : Int32,
+  d : Int32,
 ) -> Array[KdNode] {
   let nodes : Array[KdNode] = Array(capacity=n)
   if n == 0 || d == 0 {
     return nodes
   }
   // Working array of point indices, partitioned in-place during build
-  let work : Array[Int] = Array(capacity=n)
+  let work : Array[Int32] = Array(capacity=n)
   for i = 0; i < n; i = i + 1 {
     work.push(i)
   }
@@ -51,12 +51,12 @@ fn scanpy_kdtree_build(
 /// for an empty range.
 fn scanpy_kdtree_build_rec(
   data : Array[Array[Double]],
-  work : Array[Int],
-  lo : Int,
-  hi : Int,
-  d : Int,
+  work : Array[Int32],
+  lo : Int32,
+  hi : Int32,
+  d : Int32,
   nodes : Array[KdNode],
-) -> Int {
+) -> Int32 {
   if lo >= hi {
     return -1
   }
@@ -112,7 +112,14 @@ fn scanpy_kdtree_build_rec(
   })
   // Build left subtree [lo, mid) and right subtree [mid+1, hi)
   nodes[node_idx].left = scanpy_kdtree_build_rec(data, work, lo, mid, d, nodes)
-  nodes[node_idx].right = scanpy_kdtree_build_rec(data, work, mid + 1, hi, d, nodes)
+  nodes[node_idx].right = scanpy_kdtree_build_rec(
+    data,
+    work,
+    mid + 1,
+    hi,
+    d,
+    nodes,
+  )
   node_idx
 }
 
@@ -121,10 +128,10 @@ fn scanpy_kdtree_build_rec(
 /// Uses Lomuto partition with middle-element pivot.
 fn scanpy_kdtree_sort_sub(
   data : Array[Array[Double]],
-  work : Array[Int],
-  lo : Int,
-  hi : Int,
-  dim : Int,
+  work : Array[Int32],
+  lo : Int32,
+  hi : Int32,
+  dim : Int32,
 ) -> Unit {
   if lo + 1 >= hi {
     return
@@ -162,15 +169,15 @@ fn scanpy_kdtree_sort_sub(
 fn scanpy_kdtree_knn_query(
   nodes : Array[KdNode],
   data : Array[Array[Double]],
-  root : Int,
+  root : Int32,
   q : Array[Double],
-  k : Int,
-  d : Int,
-) -> (Array[Int], Array[Double]) {
+  k : Int32,
+  d : Int32,
+) -> (Array[Int32], Array[Double]) {
   // Sorted array of size <= k, ascending by (dist_sq, idx).
   // The last element is the "worst" (largest distance / largest index).
   let heap_dist : Array[Double] = Array(capacity=k)
-  let heap_idx : Array[Int] = Array(capacity=k)
+  let heap_idx : Array[Int32] = Array(capacity=k)
   scanpy_kdtree_knn_rec(nodes, data, root, q, k, d, heap_dist, heap_idx)
   (heap_idx, heap_dist)
 }
@@ -180,12 +187,12 @@ fn scanpy_kdtree_knn_query(
 fn scanpy_kdtree_knn_rec(
   nodes : Array[KdNode],
   data : Array[Array[Double]],
-  node_idx : Int,
+  node_idx : Int32,
   q : Array[Double],
-  k : Int,
-  d : Int,
+  k : Int32,
+  d : Int32,
   heap_dist : Array[Double],
-  heap_idx : Array[Int],
+  heap_idx : Array[Int32],
 ) -> Unit {
   if node_idx < 0 {
     return
@@ -236,10 +243,10 @@ fn scanpy_kdtree_knn_rec(
 /// brute-force argsort tie-breaking (smaller index wins on equal distance).
 fn scanpy_kdtree_heap_insert(
   heap_dist : Array[Double],
-  heap_idx : Array[Int],
-  k : Int,
+  heap_idx : Array[Int32],
+  k : Int32,
   dist_sq : Double,
-  idx : Int,
+  idx : Int32,
 ) -> Unit {
   let size = heap_dist.length()
   if size < k {
@@ -300,17 +307,24 @@ fn scanpy_kdtree_heap_insert(
 /// Distances are Euclidean (not squared).
 fn scanpy_knn_distances_kdtree(
   x : Array[Array[Double]],
-  k : Int,
-  n : Int,
-  d : Int,
-) -> (Array[Array[Int]], Array[Array[Double]]) {
+  k : Int32,
+  n : Int32,
+  d : Int32,
+) -> (Array[Array[Int32]], Array[Array[Double]]) {
   let nodes = scanpy_kdtree_build(x, n, d)
-  let idx_all : Array[Array[Int]] = Array(capacity=n)
+  let idx_all : Array[Array[Int32]] = Array(capacity=n)
   let d_all : Array[Array[Double]] = Array(capacity=n)
   for i = 0; i < n; i = i + 1 {
-    let (nbr_idx, nbr_dist_sq) = scanpy_kdtree_knn_query(nodes, x, 0, x[i], k, d)
+    let (nbr_idx, nbr_dist_sq) = scanpy_kdtree_knn_query(
+      nodes,
+      x,
+      0,
+      x[i],
+      k,
+      d,
+    )
     // Take sqrt to convert squared distances to Euclidean distances
-    let idx_row : Array[Int] = Array(capacity=k)
+    let idx_row : Array[Int32] = Array(capacity=k)
     let d_row : Array[Double] = Array(capacity=k)
     for t = 0; t < nbr_idx.length(); t = t + 1 {
       idx_row.push(nbr_idx[t])

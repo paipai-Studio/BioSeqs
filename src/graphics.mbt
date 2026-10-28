@@ -6,8 +6,8 @@
 ///|
 pub struct SeqLogo {
   sequences : Array[String]
-  height : Int
-  width : Int
+  height : Int32
+  width : Int32
   colors : Map[String, String]
 }
 
@@ -18,14 +18,14 @@ pub fn SeqLogo::new(sequences : Array[String]) -> SeqLogo {
 
 ///|
 pub struct LogoColumn {
-  position : Int
+  position : Int32
   letter_frequencies : Map[String, Double]
   information_content : Double
   letters : Array[(String, Double, Double)]
 }
 
 ///|
-pub fn LogoColumn::new(position : Int) -> LogoColumn {
+pub fn LogoColumn::new(position : Int32) -> LogoColumn {
   LogoColumn::{
     position,
     letter_frequencies: Map([], capacity=4),
@@ -37,7 +37,7 @@ pub fn LogoColumn::new(position : Int) -> LogoColumn {
 ///|
 pub struct AlignmentPlot {
   sequences : Array[(String, String)]
-  highlight_regions : Array[(Int, Int, String)]
+  highlight_regions : Array[(Int32, Int32, String)]
   consensus : String
   show_consensus : Bool
 }
@@ -54,15 +54,15 @@ pub fn AlignmentPlot::new(sequences : Array[(String, String)]) -> AlignmentPlot 
 
 ///|
 pub struct FeaturePlot {
-  features : Array[(String, Int, Int, String, String)]
-  sequence_length : Int
+  features : Array[(String, Int32, Int32, String, String)]
+  sequence_length : Int32
   colors : Map[String, String]
 }
 
 ///|
 pub fn FeaturePlot::new(
-  features : Array[(String, Int, Int, String, String)],
-  sequence_length : Int,
+  features : Array[(String, Int32, Int32, String, String)],
+  sequence_length : Int32,
 ) -> FeaturePlot {
   FeaturePlot::{ features, sequence_length, colors: get_feature_colors(), }
 }

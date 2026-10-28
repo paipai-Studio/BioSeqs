@@ -223,7 +223,7 @@ pub struct GfaContainment {
   container_orient : String
   contained : String
   contained_orient : String
-  position : Int
+  position : Int32
   overlap : String
   tags : Array[GfaTag]
 }
@@ -235,7 +235,7 @@ pub fn GfaContainment::new(
   container_orient : String,
   contained : String,
   contained_orient : String,
-  position : Int,
+  position : Int32,
   overlap : String,
   tags : Array[GfaTag],
 ) -> GfaContainment {
@@ -276,7 +276,7 @@ pub fn GfaContainment::contained_orient(self : GfaContainment) -> String {
 
 ///|
 /// 0-based start position of the contained segment within the container.
-pub fn GfaContainment::position(self : GfaContainment) -> Int {
+pub fn GfaContainment::position(self : GfaContainment) -> Int32 {
   self.position
 }
 
@@ -476,7 +476,7 @@ pub fn gfa_parse_tag(field : String) -> GfaTag? {
 ///|
 /// Parse all tag fields in `fields` starting from index `start`. Non-tag
 /// fields (those lacking two ':') are silently skipped.
-fn gfa_parse_tags(fields : Array[String], start : Int) -> Array[GfaTag] {
+fn gfa_parse_tags(fields : Array[String], start : Int32) -> Array[GfaTag] {
   let tags = Array(capacity=0)
   for i in start..<fields.length() {
     match gfa_parse_tag(fields[i]) {
@@ -786,19 +786,19 @@ pub fn gfa_to_string(graph : GfaGraph) -> String {
 
 ///|
 /// Number of segments in the graph.
-pub fn gfa_graph_n_segments(graph : GfaGraph) -> Int {
+pub fn gfa_graph_n_segments(graph : GfaGraph) -> Int32 {
   graph.segments.length()
 }
 
 ///|
 /// Number of links in the graph.
-pub fn gfa_graph_n_links(graph : GfaGraph) -> Int {
+pub fn gfa_graph_n_links(graph : GfaGraph) -> Int32 {
   graph.links.length()
 }
 
 ///|
 /// Number of paths in the graph.
-pub fn gfa_graph_n_paths(graph : GfaGraph) -> Int {
+pub fn gfa_graph_n_paths(graph : GfaGraph) -> Int32 {
   graph.paths.length()
 }
 

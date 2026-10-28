@@ -110,15 +110,15 @@ fn standardize_rows(
 /// Simplified implementation for batch adjustment.
 pub fn combat(
   dat : Array[Array[Double]],
-  batch : Array[Int],
-  mod? : Array[Array[Double]] = [],
+  batch : Array[Int32],
+  mod~ : Array[Array[Double]] = [],
 ) -> ComBatResult {
   ignore(mod)
   let nrow = dat.length()
   let ncol = dat[0].length()
 
   let batches = {
-    let unique : Array[Int] = []
+    let unique : Array[Int32] = []
     for b in batch {
       let mut found = false
       for u in unique {
@@ -293,7 +293,7 @@ pub fn combat(
 pub struct SvaResult {
   sv : Array[Array[Double]]
   pprob_gam : Array[Double]
-  n_sv : Int
+  n_sv : Int32
 }
 
 ///|
@@ -301,7 +301,7 @@ pub struct SvaResult {
 pub fn SvaResult::new(
   sv : Array[Array[Double]],
   pprob_gam : Array[Double],
-  n_sv : Int,
+  n_sv : Int32,
 ) -> SvaResult {
   SvaResult::{ sv, pprob_gam, n_sv, }
 }
@@ -310,7 +310,7 @@ pub fn SvaResult::new(
 /// Simple PCA using power iteration to get top components.
 fn pca_simple(
   mat : Array[Array[Double]],
-  n_components : Int,
+  n_components : Int32,
 ) -> (Array[Array[Double]], Array[Double]) {
   let nrow = mat.length()
   let ncol = mat[0].length()
@@ -396,7 +396,7 @@ fn pca_simple(
 
 ///|
 /// Estimate number of surrogate variables.
-fn num_sv(dat : Array[Array[Double]], _mod : Array[Array[Double]]) -> Int {
+fn num_sv(dat : Array[Array[Double]], _mod : Array[Array[Double]]) -> Int32 {
   let nrow = dat.length()
   let ncol = dat[0].length()
   let (s_data, _, _) = standardize_rows(dat)
@@ -436,8 +436,8 @@ fn num_sv(dat : Array[Array[Double]], _mod : Array[Array[Double]]) -> Int {
 pub fn sva(
   dat : Array[Array[Double]],
   mod : Array[Array[Double]],
-  _mod0? : Array[Array[Double]] = [],
-  n_sv? : Int = 0,
+  _mod0~ : Array[Array[Double]] = [],
+  n_sv~ : Int32 = 0,
 ) -> SvaResult {
   let nrow = dat.length()
   let ncol = dat[0].length()
@@ -497,13 +497,13 @@ pub fn sva(
 /// Remove batch effects using simple mean-centering per batch.
 pub fn combat_simple(
   dat : Array[Array[Double]],
-  batch : Array[Int],
+  batch : Array[Int32],
 ) -> Array[Array[Double]] {
   let nrow = dat.length()
   let ncol = dat[0].length()
 
   let batches = {
-    let unique : Array[Int] = []
+    let unique : Array[Int32] = []
     for b in batch {
       let mut found = false
       for u in unique {
@@ -525,7 +525,7 @@ pub fn combat_simple(
     let row = dat[i]
 
     let batch_means_arr : Array[Double] = []
-    let batch_counts_arr : Array[Int] = []
+    let batch_counts_arr : Array[Int32] = []
     for k = 0; k < n_batch; k = k + 1 {
       batch_means_arr.push(0.0)
       batch_counts_arr.push(0)
@@ -580,7 +580,7 @@ pub fn sample_expression_matrix() -> (
   Array[Array[Double]],
   Array[String],
   Array[String],
-  Array[Int],
+  Array[Int32],
 ) {
   let genes = [
     "GeneA", "GeneB", "GeneC", "GeneD", "GeneE", "GeneF", "GeneG", "GeneH", "GeneI",

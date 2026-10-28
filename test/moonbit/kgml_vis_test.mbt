@@ -57,8 +57,7 @@ test "kgml canvas draws relation lines" {
 test "kgml canvas draws reaction arrows for complete pathway" {
   // Custom pathway where both substrate and product compounds have entries,
   // so the reaction arrow can be rendered.
-  let xml =
-    "<?xml version=\"1.0\"?>\n" +
+  let xml = "<?xml version=\"1.0\"?>\n" +
     "<pathway name=\"path:ko00010\" org=\"ko\" number=\"00010\" title=\"Demo\">\n" +
     "<entry id=\"1\" name=\"cpd:C00001\" type=\"compound\">" +
     "<graphics name=\"C00001\" fgcolor=\"#000000\" bgcolor=\"#FFFFFF\" type=\"circle\" x=\"10\" y=\"10\" width=\"8\" height=\"8\"/>" +
@@ -87,7 +86,7 @@ test "kgml canvas options toggle labels" {
   }
   let svg = @src.KgmlCanvas::new(pathway, options=opts).to_svg()
   // Entry graphics name "K00844" should not appear when labels are off.
-  assert_true(!(svg.contains(">K00844<")))
+  assert_true(!svg.contains(">K00844<"))
 }
 
 ///|
@@ -99,7 +98,7 @@ test "kgml canvas options toggle relations" {
   }
   let svg = @src.KgmlCanvas::new(pathway, options=opts).to_svg()
   // Without relations the ECrel color should not appear.
-  assert_true(!(svg.contains("#1f77b4")))
+  assert_true(!svg.contains("#1f77b4"))
 }
 
 ///|

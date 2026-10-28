@@ -1,18 +1,20 @@
 ///|
 /// Tests for maximum-likelihood tree inference (ml_tree.mbt, JC69 model).
-
 fn mt_leaf(name : String) -> @src.Clade {
   @src.Clade::new(name=Some(name))
 }
 
+///|
 fn mt_internal(children : Array[@src.Clade]) -> @src.Clade {
   @src.Clade::new(clades=children)
 }
 
+///|
 fn mt_tree(root : @src.Clade) -> @src.Tree {
   @src.Tree::new(root, rooted=false)
 }
 
+///|
 fn mt_map(pairs : Array[(String, String)]) -> Map[String, String] {
   let m : Map[String, String] = Map([])
   for p in pairs {

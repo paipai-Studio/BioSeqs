@@ -8,7 +8,7 @@
 ///|
 /// Perturbation response analysis result.
 pub struct PerturbationResponse {
-  n : Int
+  n : Int32
   // Response matrix R[i][j] = displacement of residue i when
   // a unit perturbation is applied to residue j.
   response : Array[Array[Double]]
@@ -21,7 +21,7 @@ pub fn PerturbationResponse::from_gnm(gnm : GNM) -> PerturbationResponse {
   let n = gnm.num_nodes()
   let evals = gnm.get_eigenvalues()
   let evecs = gnm.get_eigenvectors()
-  let response : Array[Array[Double]] = Array::makei(n, { _ => Array::make(n, 0.0) })
+  let response : Array[Array[Double]] = Array::makei(n, _ => Array::make(n, 0.0))
   for k = 0; k < evals.length(); k = k + 1 {
     let lambda = evals[k]
     if lambda.abs() < 1.0e-10 {
@@ -34,7 +34,7 @@ pub fn PerturbationResponse::from_gnm(gnm : GNM) -> PerturbationResponse {
       }
     }
   }
-  PerturbationResponse::{ n, response }
+  PerturbationResponse::{ n, response, }
 }
 
 ///|
@@ -47,7 +47,9 @@ pub fn PerturbationResponse::from_anm(anm : ANM) -> PerturbationResponse {
   let evals = anm.get_eigenvalues()
   let evecs = anm.get_eigenvectors()
   // Full 3N×3N pseudo-inverse
-  let full_response : Array[Array[Double]] = Array::makei(dim, { _ => Array::make(dim, 0.0) })
+  let full_response : Array[Array[Double]] = Array::makei(dim, _ => {
+    Array::make(dim, 0.0)
+  })
   for k = 0; k < evals.length(); k = k + 1 {
     let lambda = evals[k]
     if lambda.abs() < 1.0e-10 {
@@ -56,12 +58,13 @@ pub fn PerturbationResponse::from_anm(anm : ANM) -> PerturbationResponse {
     let inv_lambda = 1.0 / lambda
     for i = 0; i < dim; i = i + 1 {
       for j = 0; j < dim; j = j + 1 {
-        full_response[i][j] = full_response[i][j] + inv_lambda * evecs[i][k] * evecs[j][k]
+        full_response[i][j] = full_response[i][j] +
+          inv_lambda * evecs[i][k] * evecs[j][k]
       }
     }
   }
   // Reduce to N×N: response[i][j] = sum of 3×3 block
-  let response : Array[Array[Double]] = Array::makei(n, { _ => Array::make(n, 0.0) })
+  let response : Array[Array[Double]] = Array::makei(n, _ => Array::make(n, 0.0))
   for i = 0; i < n; i = i + 1 {
     for j = 0; j < n; j = j + 1 {
       let mut s = 0.0
@@ -73,7 +76,7 @@ pub fn PerturbationResponse::from_anm(anm : ANM) -> PerturbationResponse {
       response[i][j] = s
     }
   }
-  PerturbationResponse::{ n, response }
+  PerturbationResponse::{ n, response, }
 }
 
 ///|
@@ -90,7 +93,7 @@ pub fn PerturbationResponse::response_matrix(
 /// sensitivity[i] = (1/N) * sum_j R[j][i]
 pub fn PerturbationResponse::sensitivity(
   self : PerturbationResponse,
-  residue_idx : Int,
+  residue_idx : Int32,
 ) -> Double {
   if residue_idx < 0 || residue_idx >= self.n {
     return 0.0
@@ -108,7 +111,7 @@ pub fn PerturbationResponse::sensitivity(
 /// effectiveness[i] = (1/N) * sum_j R[i][j]
 pub fn PerturbationResponse::effectiveness(
   self : PerturbationResponse,
-  residue_idx : Int,
+  residue_idx : Int32,
 ) -> Double {
   if residue_idx < 0 || residue_idx >= self.n {
     return 0.0
@@ -137,17 +140,17 @@ pub fn PerturbationResponse::perturbation_profile(
 /// Returns indices sorted by sensitivity descending.
 pub fn PerturbationResponse::hotspot_residues(
   self : PerturbationResponse,
-  top_k : Int,
-) -> Array[Int] {
-  let sensitivities = Array::makei(self.n, { i => (i, self.sensitivity(i)) })
+  top_k : Int32,
+) -> Array[Int32] {
+  let sensitivities = Array::makei(self.n, i => (i, self.sensitivity(i)))
   // Sort by sensitivity descending (simple selection sort)
-  let result : Array[Int] = []
+  let result : Array[Int32] = []
   let used = Array::make(self.n, false)
   for iter = 0; iter < top_k && iter < self.n; iter = iter + 1 {
     let mut best_idx = -1
     let mut best_val = -1.0
     for i = 0; i < self.n; i = i + 1 {
-      if !(used[i]) && sensitivities[i].1 > best_val {
+      if !used[i] && sensitivities[i].1 > best_val {
         best_val = sensitivities[i].1
         best_idx = i
       }
@@ -167,7 +170,7 @@ pub fn PerturbationResponse::cross_correlation(
   self : PerturbationResponse,
 ) -> Array[Array[Double]] {
   let n = self.n
-  let corr : Array[Array[Double]] = Array::makei(n, { _ => Array::make(n, 0.0) })
+  let corr : Array[Array[Double]] = Array::makei(n, _ => Array::make(n, 0.0))
   for i = 0; i < n; i = i + 1 {
     for j = 0; j < n; j = j + 1 {
       let denom = (self.response[i][i] * self.response[j][j]).abs()
@@ -181,14 +184,17 @@ pub fn PerturbationResponse::cross_correlation(
 
 ///|
 /// Number of residues.
-pub fn PerturbationResponse::num_residues(self : PerturbationResponse) -> Int {
+pub fn PerturbationResponse::num_residues(self : PerturbationResponse) -> Int32 {
   self.n
 }
 
 ///|
 /// Dynamic flexibility index (DFI) for residue i.
 /// DFI[i] = sum_j R[i][j] / sum_jk R[j][k]
-pub fn PerturbationResponse::dfi(self : PerturbationResponse, residue_idx : Int) -> Double {
+pub fn PerturbationResponse::dfi(
+  self : PerturbationResponse,
+  residue_idx : Int32,
+) -> Double {
   if residue_idx < 0 || residue_idx >= self.n {
     return 0.0
   }
@@ -210,7 +216,9 @@ pub fn PerturbationResponse::dfi(self : PerturbationResponse, residue_idx : Int)
 
 ///|
 /// DFI profile for all residues.
-pub fn PerturbationResponse::dfi_profile(self : PerturbationResponse) -> Array[Double] {
+pub fn PerturbationResponse::dfi_profile(
+  self : PerturbationResponse,
+) -> Array[Double] {
   let result = Array::make(self.n, 0.0)
   for i = 0; i < self.n; i = i + 1 {
     result[i] = self.dfi(i)

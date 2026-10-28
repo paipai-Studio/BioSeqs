@@ -3,7 +3,7 @@
 
 ///|
 /// Build a perfectly balanced binary tree with n leaves.
-fn shape_make_balanced(n : Int) -> @src.Clade {
+fn shape_make_balanced(n : Int32) -> @src.Clade {
   if n <= 1 {
     return @src.Clade::new(name=Some("leaf"))
   }
@@ -15,23 +15,20 @@ fn shape_make_balanced(n : Int) -> @src.Clade {
 
 ///|
 /// Build a maximally imbalanced (caterpillar) tree with n leaves.
-fn shape_make_caterpillar(n : Int) -> @src.Clade {
+fn shape_make_caterpillar(n : Int32) -> @src.Clade {
   if n <= 1 {
     return @src.Clade::new(name=Some("leaf"))
   }
   if n == 2 {
-    return @src.Clade::new(
-      name=Some("internal"),
-      clades=[@src.Clade::new(name=Some("leaf")), @src.Clade::new(name=Some("leaf"))],
-    )
-  }
-  @src.Clade::new(
-    name=Some("internal"),
-    clades=[
+    return @src.Clade::new(name=Some("internal"), clades=[
       @src.Clade::new(name=Some("leaf")),
-      shape_make_caterpillar(n - 1),
-    ],
-  )
+      @src.Clade::new(name=Some("leaf")),
+    ])
+  }
+  @src.Clade::new(name=Some("internal"), clades=[
+    @src.Clade::new(name=Some("leaf")),
+    shape_make_caterpillar(n - 1),
+  ])
 }
 
 ///|
@@ -182,7 +179,10 @@ test "colless_yule: matches manual calculation" {
   let tree = shape_make_caterpillar(4)
   let c = @src.dendropy_colless_yule(tree)
   let gamma = 0.5772156649015329
-  let expected = (3.0 - 4.0 * @math.ln(4.0) - 4.0 * (gamma - 1.0 - @math.ln(2.0))) / 4.0
+  let expected = (
+      3.0 - 4.0 * @math.ln(4.0) - 4.0 * (gamma - 1.0 - @math.ln(2.0))
+    ) /
+    4.0
   assert_true((c - expected).abs() < 0.0000000001)
 }
 

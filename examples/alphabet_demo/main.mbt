@@ -1,5 +1,6 @@
 // Demo for Bio.Alphabet module
 
+///|
 fn main {
   // Create IUPAC unambiguous DNA alphabet
   let dna = @bio.iupac_unambiguous_dna()
@@ -7,7 +8,7 @@ fn main {
   println("Name: \{dna.name}")
   println("Is gapped: \{dna.is_gapped}")
   println("Letters count: \{dna.letters.length()}")
-  
+
   // Validate characters
   println("\nValidating characters:")
   println("A valid: \{dna.is_valid("A")}")
@@ -15,7 +16,7 @@ fn main {
   println("G valid: \{dna.is_valid("G")}")
   println("T valid: \{dna.is_valid("T")}")
   println("U valid: \{dna.is_valid("U")}")
-  
+
   // Create IUPAC ambiguous DNA alphabet
   let ambiguous_dna = @bio.iupac_ambiguous_dna()
   println("\n=== IUPAC Ambiguous DNA Alphabet ===")
@@ -24,7 +25,7 @@ fn main {
   println("R valid: \{ambiguous_dna.is_valid("R")}")
   println("Y valid: \{ambiguous_dna.is_valid("Y")}")
   println("N valid: \{ambiguous_dna.is_valid("N")}")
-  
+
   // Create protein alphabet
   let protein = @bio.iupac_protein()
   println("\n=== IUPAC Protein Alphabet ===")
@@ -33,14 +34,14 @@ fn main {
   println("A valid: \{protein.is_valid("A")}")
   println("W valid: \{protein.is_valid("W")}")
   println("X valid: \{protein.is_valid("X")}")
-  
+
   // Create gapped DNA alphabet
   let gapped_dna = @bio.gapped_dna()
   println("\n=== Gapped DNA Alphabet ===")
   println("Name: \{gapped_dna.name}")
   println("Is gapped: \{gapped_dna.is_gapped}")
   println("- valid: \{gapped_dna.is_valid("-")}")
-  
+
   // Get codon mapping
   let mapping = @bio.three_to_one()
   println("\n=== Three to One Letter Code ===")
@@ -56,6 +57,6 @@ fn main {
   if ter is Some(v) {
     println("Ter -> \{v}")
   }
-  
+
   println("\nDemo completed successfully!")
 }

@@ -223,7 +223,12 @@ test "qf_aggregate_rows_sum" {
   qf.add_assay(
     @src.QfAssay::new("src", ["r0", "r1", "r2", "r3"], ["c0", "c1"], data),
   )
-  let mapping : Array[(Int, String)] = [(0, "A"), (1, "A"), (2, "B"), (3, "B")]
+  let mapping : Array[(Int32, String)] = [
+    (0, "A"),
+    (1, "A"),
+    (2, "B"),
+    (3, "B"),
+  ]
   let qf2 = @src.qf_aggregate(qf, "src", "agg", mapping, "sum")
   assert_eq(qf2.n_assays(), 2)
   match qf2.get_assay("agg") {
@@ -261,7 +266,12 @@ test "qf_aggregate_rows_mean" {
   qf.add_assay(
     @src.QfAssay::new("src", ["r0", "r1", "r2", "r3"], ["c0", "c1"], data),
   )
-  let mapping : Array[(Int, String)] = [(0, "A"), (1, "A"), (2, "B"), (3, "B")]
+  let mapping : Array[(Int32, String)] = [
+    (0, "A"),
+    (1, "A"),
+    (2, "B"),
+    (3, "B"),
+  ]
   let qf2 = @src.qf_aggregate(qf, "src", "agg", mapping, "mean")
   match qf2.get_assay("agg") {
     Some(a) => {
@@ -431,7 +441,7 @@ test "qf_normalize_quantiles" {
   // Compute sorted columns of normalized assay; they should be equal.
   let col0 = norm.get_col(0)
   let col1 = norm.get_col(1)
-  col0.sort_by(fn(a : Double, b : Double) -> Int {
+  col0.sort_by(fn(a : Double, b : Double) -> Int32 {
     if a < b {
       -1
     } else if a > b {
@@ -440,7 +450,7 @@ test "qf_normalize_quantiles" {
       0
     }
   })
-  col1.sort_by(fn(a : Double, b : Double) -> Int {
+  col1.sort_by(fn(a : Double, b : Double) -> Int32 {
     if a < b {
       -1
     } else if a > b {
@@ -539,7 +549,10 @@ test "qf_impute_knn" {
 ///|
 test "qf_impute_mean" {
   // Col means (skip NaN): col0 = (1+4)/2 = 2.5, col1 = 5.0, col2 = (3+6)/2 = 4.5
-  let data : Array[Array[Double]] = [[1.0, @double.not_a_number, 3.0], [4.0, 5.0, 6.0]]
+  let data : Array[Array[Double]] = [
+    [1.0, @double.not_a_number, 3.0],
+    [4.0, 5.0, 6.0],
+  ]
   let assay = @src.QfAssay::new("a", ["r0", "r1"], ["c0", "c1", "c2"], data)
   let imputed = @src.qf_impute_mean(assay)
   assert_true((imputed.get(0, 1) - 5.0).abs() < 0.001)
@@ -553,7 +566,10 @@ test "qf_impute_mean" {
 
 ///|
 test "qf_impute_zero" {
-  let data : Array[Array[Double]] = [[1.0, @double.not_a_number], [@double.not_a_number, 2.0]]
+  let data : Array[Array[Double]] = [
+    [1.0, @double.not_a_number],
+    [@double.not_a_number, 2.0],
+  ]
   let assay = @src.QfAssay::new("a", ["r0", "r1"], ["c0", "c1"], data)
   let imputed = @src.qf_impute_zero(assay)
   assert_true((imputed.get(0, 0) - 1.0).abs() < 0.001)
@@ -700,7 +716,7 @@ test "qf_edge_case_empty_qfeatures" {
   assert_eq(qf.n_features("anything"), 0)
   assert_eq(qf.n_samples("anything"), 0)
   // Aggregating from a missing assay should return the original qf unchanged.
-  let mapping : Array[(Int, String)] = [(0, "g")]
+  let mapping : Array[(Int32, String)] = [(0, "g")]
   let qf2 = @src.qf_aggregate(qf, "missing", "new", mapping, "sum")
   assert_eq(qf2.n_assays(), 0)
   let qf3 = @src.qf_filter_features(qf, "missing", [0])

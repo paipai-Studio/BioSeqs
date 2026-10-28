@@ -65,9 +65,9 @@ pub struct GOHyperGeoResult {
   fdr : Double
   odds_ratio : Double
   expected : Double
-  observed : Int
-  gene_count : Int
-  universe_count : Int
+  observed : Int32
+  gene_count : Int32
+  universe_count : Int32
 }
 
 ///|
@@ -79,9 +79,9 @@ pub fn GOHyperGeoResult::new(
   fdr : Double,
   odds_ratio : Double,
   expected : Double,
-  observed : Int,
-  gene_count : Int,
-  universe_count : Int,
+  observed : Int32,
+  gene_count : Int32,
+  universe_count : Int32,
 ) -> GOHyperGeoResult {
   GOHyperGeoResult::{
     go_id,
@@ -144,14 +144,14 @@ fn gostats_lgamma_stirling(x : Double) -> Double {
 ///|
 /// Log of binomial coefficient using lgamma:
 /// log C(n,k) = lgamma(n+1) - lgamma(k+1) - lgamma(n-k+1)
-pub fn gostats_log_choose(n : Int, k : Int) -> Double {
+pub fn gostats_log_choose(n : Int32, k : Int32) -> Double {
   if k < 0 || k > n {
     return 0.0
   }
   if k == 0 || k == n {
     return 0.0
   }
-  let nk : Int = n - k
+  let nk : Int32 = n - k
   gostats_lgamma(n.to_double() + 1.0) -
   gostats_lgamma(k.to_double() + 1.0) -
   gostats_lgamma(nk.to_double() + 1.0)
@@ -160,8 +160,13 @@ pub fn gostats_log_choose(n : Int, k : Int) -> Double {
 ///|
 /// Hypergeometric p-value: P(X >= k) = sum_{i=k}^{min(m,n)} C(m,i)*C(N-m,n-i)/C(N,n)
 /// N = universe size, m = genes in GO term, n = selected genes, k = overlap
-fn gostats_hypergeo_pvalue(n_univ : Int, m : Int, n : Int, k : Int) -> Double {
-  let upper : Int = if m < n { m } else { n }
+fn gostats_hypergeo_pvalue(
+  n_univ : Int32,
+  m : Int32,
+  n : Int32,
+  k : Int32,
+) -> Double {
+  let upper : Int32 = if m < n { m } else { n }
   if k > upper {
     return 1.0
   }
@@ -171,7 +176,7 @@ fn gostats_hypergeo_pvalue(n_univ : Int, m : Int, n : Int, k : Int) -> Double {
 
   let log_denom : Double = gostats_log_choose(n_univ, n)
   let mut log_max : Double = -1.0e300
-  let mut ii : Int = k
+  let mut ii : Int32 = k
   while ii <= upper {
     let log_term : Double = gostats_log_choose(m, ii) +
       gostats_log_choose(n_univ - m, n - ii) -
@@ -202,11 +207,16 @@ fn gostats_hypergeo_pvalue(n_univ : Int, m : Int, n : Int, k : Int) -> Double {
 
 ///|
 /// Compute odds ratio = (k * (N-m-n+k)) / ((m-k) * (n-k))
-fn gostats_odds_ratio(n_univ : Int, m : Int, n : Int, k : Int) -> Double {
-  let aa : Int = k
-  let bb : Int = m - k
-  let cc : Int = n - k
-  let dd : Int = n_univ - m - n + k
+fn gostats_odds_ratio(
+  n_univ : Int32,
+  m : Int32,
+  n : Int32,
+  k : Int32,
+) -> Double {
+  let aa : Int32 = k
+  let bb : Int32 = m - k
+  let cc : Int32 = n - k
+  let dd : Int32 = n_univ - m - n + k
   if aa > 0 && bb > 0 && cc > 0 && dd > 0 {
     aa.to_double() * dd.to_double() / (bb.to_double() * cc.to_double())
   } else {
@@ -217,24 +227,24 @@ fn gostats_odds_ratio(n_univ : Int, m : Int, n : Int, k : Int) -> Double {
 ///|
 /// Benjamini-Hochberg FDR correction for multiple testing.
 pub fn gostats_bh_fdr(p_values : Array[Double]) -> Array[Double] {
-  let nn : Int = p_values.length()
+  let nn : Int32 = p_values.length()
   if nn == 0 {
     return Array(capacity=0)
   }
 
-  let sorted_with_idx : Array[(Double, Int)] = Array(capacity=0)
-  let mut i : Int = 0
+  let sorted_with_idx : Array[(Double, Int32)] = Array(capacity=0)
+  let mut i : Int32 = 0
   while i < nn {
     sorted_with_idx.push((p_values[i], i))
     i = i + 1
   }
 
-  let mut j : Int = 0
+  let mut j : Int32 = 0
   while j < nn - 1 {
-    let mut kk : Int = j + 1
+    let mut kk : Int32 = j + 1
     while kk < nn {
       if sorted_with_idx[j].0 > sorted_with_idx[kk].0 {
-        let tmp : (Double, Int) = sorted_with_idx[j]
+        let tmp : (Double, Int32) = sorted_with_idx[j]
         sorted_with_idx[j] = sorted_with_idx[kk]
         sorted_with_idx[kk] = tmp
       }
@@ -262,7 +272,7 @@ pub fn gostats_bh_fdr(p_values : Array[Double]) -> Array[Double] {
   let bh_result : Array[Double] = Array::make(nn, 0.0)
   i = 0
   while i < nn {
-    let (_, original_idx) : (Double, Int) = sorted_with_idx[i]
+    let (_, original_idx) : (Double, Int32) = sorted_with_idx[i]
     bh_result[original_idx] = corrected_sorted[i]
     i = i + 1
   }
@@ -274,7 +284,7 @@ pub fn gostats_bh_fdr(p_values : Array[Double]) -> Array[Double] {
 /// Build a set from an array of strings for fast membership testing.
 fn gostats_string_set(arr : Array[String]) -> Map[String, Bool] {
   let s : Map[String, Bool] = Map([], capacity=arr.length())
-  let mut i : Int = 0
+  let mut i : Int32 = 0
   while i < arr.length() {
     s.set(arr[i], true)
     i = i + 1
@@ -287,9 +297,9 @@ fn gostats_string_set(arr : Array[String]) -> Map[String, Bool] {
 fn gostats_intersection_count(
   arr : Array[String],
   set : Map[String, Bool],
-) -> Int {
-  let mut count : Int = 0
-  let mut i : Int = 0
+) -> Int32 {
+  let mut count : Int32 = 0
+  let mut i : Int32 = 0
   while i < arr.length() {
     if set.contains(arr[i]) {
       count = count + 1
@@ -306,7 +316,7 @@ fn gostats_intersection_genes(
   set : Map[String, Bool],
 ) -> Array[String] {
   let inter_result : Array[String] = Array(capacity=0)
-  let mut i : Int = 0
+  let mut i : Int32 = 0
   while i < arr.length() {
     if set.contains(arr[i]) {
       inter_result.push(arr[i])
@@ -321,18 +331,18 @@ fn gostats_intersection_genes(
 /// Optionally filter by ontology ("BP", "MF", "CC"). Empty string means all.
 pub fn gostats_hypergeometric_test(
   hg_test : GOHyperGeoTest,
-  ontology? : String = "",
+  ontology~ : String = "",
 ) -> Array[GOHyperGeoResult] {
   let universe_set : Map[String, Bool] = gostats_string_set(hg_test.universe)
   let selected_set : Map[String, Bool] = gostats_string_set(hg_test.selected)
-  let n_univ : Int = hg_test.universe.length()
-  let n_sel : Int = hg_test.selected.length()
+  let n_univ : Int32 = hg_test.universe.length()
+  let n_sel : Int32 = hg_test.selected.length()
 
   let hyp_results : Array[GOHyperGeoResult] = Array(capacity=0)
   let hyp_p_values : Array[Double] = Array(capacity=0)
 
   let term_keys : Array[String] = hg_test.go_graph.terms.keys().collect()
-  let mut i : Int = 0
+  let mut i : Int32 = 0
   while i < term_keys.length() {
     let go_id : String = term_keys[i]
     let gterm : GOStatsTerm = hg_test.go_graph.terms.get(go_id).unwrap()
@@ -346,8 +356,8 @@ pub fn gostats_hypergeometric_test(
       gterm.gene_ids,
       universe_set,
     )
-    let m : Int = term_genes_in_univ.length()
-    let k_overlap : Int = gostats_intersection_count(
+    let m : Int32 = term_genes_in_univ.length()
+    let k_overlap : Int32 = gostats_intersection_count(
       term_genes_in_univ, selected_set,
     )
 
@@ -383,7 +393,7 @@ pub fn gostats_hypergeometric_test(
   }
 
   let fdr_vals : Array[Double] = gostats_bh_fdr(hyp_p_values)
-  let mut j : Int = 0
+  let mut j : Int32 = 0
   while j < hyp_results.length() {
     hyp_results[j] = GOHyperGeoResult::{
       go_id: hyp_results[j].go_id,
@@ -400,9 +410,9 @@ pub fn gostats_hypergeometric_test(
     j = j + 1
   }
 
-  let mut a : Int = 0
+  let mut a : Int32 = 0
   while a < hyp_results.length() - 1 {
-    let mut b : Int = a + 1
+    let mut b : Int32 = a + 1
     while b < hyp_results.length() {
       if hyp_results[a].p_value > hyp_results[b].p_value {
         let tmp : GOHyperGeoResult = hyp_results[a]
@@ -419,21 +429,21 @@ pub fn gostats_hypergeometric_test(
 
 ///|
 /// Compute the depth (distance from root) of a GO term in the graph via parent traversal.
-fn gostats_term_depth(go_graph : GOStatsGraph, go_id : String) -> Int {
+fn gostats_term_depth(go_graph : GOStatsGraph, go_id : String) -> Int32 {
   let visited : Map[String, Bool] = Map([], capacity=50)
   visited.set(go_id, true)
-  let depth_queue : Array[(String, Int)] = Array(capacity=0)
+  let depth_queue : Array[(String, Int32)] = Array(capacity=0)
   depth_queue.push((go_id, 0))
-  let mut max_depth : Int = 0
-  let mut idx : Int = 0
+  let mut max_depth : Int32 = 0
+  let mut idx : Int32 = 0
   while idx < depth_queue.length() {
-    let (cid, depth) : (String, Int) = depth_queue[idx]
+    let (cid, depth) : (String, Int32) = depth_queue[idx]
     if depth > max_depth {
       max_depth = depth
     }
     match go_graph.terms.get(cid) {
       Some(dterm) => {
-        let mut pi : Int = 0
+        let mut pi : Int32 = 0
         while pi < dterm.parent_ids.length() {
           let pid : String = dterm.parent_ids[pi]
           if go_graph.terms.contains(pid) && !visited.contains(pid) {
@@ -457,19 +467,19 @@ fn gostats_term_depth(go_graph : GOStatsGraph, go_id : String) -> Int {
 /// This reduces redundancy in the enrichment results.
 pub fn gostats_conditional_test(
   hg_test : GOHyperGeoTest,
-  ontology? : String = "",
-  fdr_threshold? : Double = 0.05,
+  ontology~ : String = "",
+  fdr_threshold~ : Double = 0.05,
 ) -> Array[GOHyperGeoResult] {
   let cond_universe_set : Map[String, Bool] = gostats_string_set(
     hg_test.universe,
   )
-  let cond_n_univ : Int = hg_test.universe.length()
-  let cond_n : Int = hg_test.selected.length()
+  let cond_n_univ : Int32 = hg_test.universe.length()
+  let cond_n : Int32 = hg_test.selected.length()
 
   let cond_term_keys : Array[String] = hg_test.go_graph.terms.keys().collect()
 
   let filtered_terms : Array[String] = Array(capacity=0)
-  let mut fi : Int = 0
+  let mut fi : Int32 = 0
   while fi < cond_term_keys.length() {
     let fid : String = cond_term_keys[fi]
     let fterm : GOStatsTerm = hg_test.go_graph.terms.get(fid).unwrap()
@@ -479,11 +489,14 @@ pub fn gostats_conditional_test(
     fi = fi + 1
   }
 
-  let term_level : Map[String, Int] = Map([], capacity=filtered_terms.length())
-  let mut ti : Int = 0
+  let term_level : Map[String, Int32] = Map(
+    [],
+    capacity=filtered_terms.length(),
+  )
+  let mut ti : Int32 = 0
   while ti < filtered_terms.length() {
     let tlid : String = filtered_terms[ti]
-    let level : Int = gostats_term_depth(hg_test.go_graph, tlid)
+    let level : Int32 = gostats_term_depth(hg_test.go_graph, tlid)
     term_level.set(tlid, level)
     ti = ti + 1
   }
@@ -495,12 +508,12 @@ pub fn gostats_conditional_test(
     ti = ti + 1
   }
 
-  let mut sa : Int = 0
+  let mut sa : Int32 = 0
   while sa < sorted_terms.length() - 1 {
-    let mut sb : Int = sa + 1
+    let mut sb : Int32 = sa + 1
     while sb < sorted_terms.length() {
-      let la : Int = term_level.get(sorted_terms[sa]).unwrap_or(0)
-      let lb : Int = term_level.get(sorted_terms[sb]).unwrap_or(0)
+      let la : Int32 = term_level.get(sorted_terms[sa]).unwrap_or(0)
+      let lb : Int32 = term_level.get(sorted_terms[sb]).unwrap_or(0)
       if la > lb {
         let stmp : String = sorted_terms[sa]
         sorted_terms[sa] = sorted_terms[sb]
@@ -515,7 +528,7 @@ pub fn gostats_conditional_test(
   let cond_results : Array[GOHyperGeoResult] = Array(capacity=0)
   let cond_p_values : Array[Double] = Array(capacity=0)
 
-  let mut si : Int = 0
+  let mut si : Int32 = 0
   while si < sorted_terms.length() {
     let sgo_id : String = sorted_terms[si]
     let sterm : GOStatsTerm = hg_test.go_graph.terms.get(sgo_id).unwrap()
@@ -525,7 +538,7 @@ pub fn gostats_conditional_test(
       cond_universe_set,
     )
     let effective_genes : Array[String] = Array(capacity=0)
-    let mut egi : Int = 0
+    let mut egi : Int32 = 0
     while egi < s_term_genes.length() {
       let egene : String = s_term_genes[egi]
       if !removed_genes.contains(egene) {
@@ -534,12 +547,12 @@ pub fn gostats_conditional_test(
       egi = egi + 1
     }
 
-    let em : Int = effective_genes.length()
+    let em : Int32 = effective_genes.length()
 
-    let mut eff_sel_count : Int = 0
+    let mut eff_sel_count : Int32 = 0
     egi = 0
     while egi < effective_genes.length() {
-      let mut ej : Int = 0
+      let mut ej : Int32 = 0
       while ej < hg_test.selected.length() {
         if effective_genes[egi] == hg_test.selected[ej] {
           eff_sel_count = eff_sel_count + 1
@@ -550,7 +563,7 @@ pub fn gostats_conditional_test(
       egi = egi + 1
     }
 
-    let ek : Int = eff_sel_count
+    let ek : Int32 = eff_sel_count
 
     if ek > 0 && em > 0 {
       let ep_val : Double = gostats_hypergeo_pvalue(cond_n_univ, em, cond_n, ek)
@@ -581,7 +594,7 @@ pub fn gostats_conditional_test(
   }
 
   let cond_fdr_vals : Array[Double] = gostats_bh_fdr(cond_p_values)
-  let mut ri : Int = 0
+  let mut ri : Int32 = 0
   while ri < cond_results.length() {
     cond_results[ri] = GOHyperGeoResult::{
       go_id: cond_results[ri].go_id,
@@ -603,7 +616,7 @@ pub fn gostats_conditional_test(
     if cond_results[ri].fdr <= fdr_threshold {
       match hg_test.go_graph.terms.get(cond_results[ri].go_id) {
         Some(sig_term) => {
-          let mut sgi : Int = 0
+          let mut sgi : Int32 = 0
           while sgi < sig_term.gene_ids.length() {
             removed_genes.set(sig_term.gene_ids[sgi], true)
             sgi = sgi + 1
@@ -615,9 +628,9 @@ pub fn gostats_conditional_test(
     ri = ri + 1
   }
 
-  let mut ca : Int = 0
+  let mut ca : Int32 = 0
   while ca < cond_results.length() - 1 {
-    let mut cb : Int = ca + 1
+    let mut cb : Int32 = ca + 1
     while cb < cond_results.length() {
       if cond_results[ca].p_value > cond_results[cb].p_value {
         let ctmp : GOHyperGeoResult = cond_results[ca]
@@ -637,10 +650,10 @@ pub fn gostats_conditional_test(
 pub fn gostats_filter_results(
   results : Array[GOHyperGeoResult],
   fdr_cutoff : Double,
-  min_observed : Int,
+  min_observed : Int32,
 ) -> Array[GOHyperGeoResult] {
   let filtered : Array[GOHyperGeoResult] = Array(capacity=0)
-  let mut i4 : Int = 0
+  let mut i4 : Int32 = 0
   while i4 < results.length() {
     let r : GOHyperGeoResult = results[i4]
     if r.fdr <= fdr_cutoff && r.observed >= min_observed {
@@ -657,8 +670,8 @@ pub fn gostats_summary(results : Array[GOHyperGeoResult]) -> String {
   let mut s : String = "GOstats Enrichment Results:\n"
   s = s + "Total terms tested: " + results.length().to_string() + "\n"
 
-  let mut sig_count : Int = 0
-  let mut i5 : Int = 0
+  let mut sig_count : Int32 = 0
+  let mut i5 : Int32 = 0
   while i5 < results.length() {
     if results[i5].fdr <= 0.05 {
       sig_count = sig_count + 1
@@ -667,9 +680,9 @@ pub fn gostats_summary(results : Array[GOHyperGeoResult]) -> String {
   }
   s = s + "Significant terms (FDR <= 0.05): " + sig_count.to_string() + "\n"
 
-  let mut bp_count : Int = 0
-  let mut mf_count : Int = 0
-  let mut cc_count : Int = 0
+  let mut bp_count : Int32 = 0
+  let mut mf_count : Int32 = 0
+  let mut cc_count : Int32 = 0
   i5 = 0
   while i5 < results.length() {
     let ont : String = results[i5].ontology

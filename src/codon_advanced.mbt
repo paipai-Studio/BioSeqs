@@ -137,7 +137,7 @@ pub let aa_to_codons : Map[String, Array[String]] = {
 ///|
 /// Compute codon frequencies from counts.
 /// Returns a Map mapping each codon to its frequency (count / total).
-fn compute_frequencies(counts : Map[String, Int]) -> Map[String, Double] {
+fn compute_frequencies(counts : Map[String, Int32]) -> Map[String, Double] {
   let freq = Map([], capacity=64)
   let keys = counts.keys().collect()
   let mut total = 0
@@ -162,14 +162,16 @@ fn compute_frequencies(counts : Map[String, Int]) -> Map[String, Double] {
 ///|
 /// CodonUsageTable: Maps codons to observed frequencies and counts.
 pub struct CodonUsageTable {
-  codon_counts : Map[String, Int]
-  total_codons : Int
+  codon_counts : Map[String, Int32]
+  total_codons : Int32
   frequencies : Map[String, Double]
 }
 
 ///|
 /// Create a new CodonUsageTable from raw counts.
-pub fn CodonUsageTable::new(codon_counts : Map[String, Int]) -> CodonUsageTable {
+pub fn CodonUsageTable::new(
+  codon_counts : Map[String, Int32],
+) -> CodonUsageTable {
   let frequencies = compute_frequencies(codon_counts.copy())
   let mut total = 0
   let keys = codon_counts.keys().collect()
@@ -186,7 +188,7 @@ pub fn CodonUsageTable::new(codon_counts : Map[String, Int]) -> CodonUsageTable 
 pub fn CodonUsageTable::get_count(
   usage : CodonUsageTable,
   codon : String,
-) -> Int {
+) -> Int32 {
   usage.codon_counts.get(codon).unwrap_or(0)
 }
 
@@ -201,13 +203,13 @@ pub fn CodonUsageTable::get_frequency(
 
 ///|
 /// Get the total number of codons analyzed.
-pub fn CodonUsageTable::total(usage : CodonUsageTable) -> Int {
+pub fn CodonUsageTable::total(usage : CodonUsageTable) -> Int32 {
   usage.total_codons
 }
 
 ///|
 /// Get all codon counts as a Map.
-pub fn CodonUsageTable::counts(usage : CodonUsageTable) -> Map[String, Int] {
+pub fn CodonUsageTable::counts(usage : CodonUsageTable) -> Map[String, Int32] {
   usage.codon_counts.copy()
 }
 
@@ -224,7 +226,7 @@ pub fn CodonUsageTable::frequencies(
 pub struct CAIResult {
   score : Double
   codon_scores : Map[String, Double]
-  sequence_length : Int
+  sequence_length : Int32
 }
 
 ///|
@@ -232,7 +234,7 @@ pub struct CAIResult {
 pub fn CAIResult::new(
   score : Double,
   codon_scores : Map[String, Double],
-  sequence_length : Int,
+  sequence_length : Int32,
 ) -> CAIResult {
   CAIResult::{ score, codon_scores, sequence_length, }
 }
@@ -253,14 +255,14 @@ pub fn CAIResult::codon_scores(result : CAIResult) -> Map[String, Double] {
 /// RSCUResult: Relative Synonymous Codon Usage values.
 pub struct RSCUResult {
   values : Map[String, Double]
-  total_counts : Map[String, Int]
+  total_counts : Map[String, Int32]
 }
 
 ///|
 /// Create a new RSCUResult.
 pub fn RSCUResult::new(
   values : Map[String, Double],
-  total_counts : Map[String, Int],
+  total_counts : Map[String, Int32],
 ) -> RSCUResult {
   RSCUResult::{ values, total_counts, }
 }
@@ -286,7 +288,7 @@ pub struct CodonBiasResult {
   bias_score : Double
   optimal_fraction : Double
   rare_fraction : Double
-  total_codons_analyzed : Int
+  total_codons_analyzed : Int32
 }
 
 ///|
@@ -298,7 +300,7 @@ pub fn CodonBiasResult::new(
   bias_score : Double,
   optimal_fraction : Double,
   rare_fraction : Double,
-  total_codons_analyzed : Int,
+  total_codons_analyzed : Int32,
 ) -> CodonBiasResult {
   CodonBiasResult::{
     enc,
@@ -689,7 +691,7 @@ fn calculate_bias_score(
 
 ///|
 /// Count stop codons in a sequence.
-fn count_stop_codons(seq : String) -> Int {
+fn count_stop_codons(seq : String) -> Int32 {
   let seq_upper = seq.to_upper()
   let len = seq_upper.length()
   let mut count = 0
@@ -1044,7 +1046,7 @@ pub fn codon_usage_to_string(usage : CodonUsageTable) -> String {
 
 ///|
 /// Count codons of a specific amino acid in a sequence.
-pub fn count_amino_acid_codons(seq : String, aa : String) -> Int {
+pub fn count_amino_acid_codons(seq : String, aa : String) -> Int32 {
   let seq_upper = seq.to_upper()
   let len = seq_upper.length()
   let codons = aa_to_codons.get(aa).unwrap_or([])

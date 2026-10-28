@@ -1,7 +1,5 @@
-import{
+import {
   "IvanAXu/BioSeqs/src" @bio,
 }
 
-options(
-  "is-main": true,
-)
+pkgtype(kind: "executable")

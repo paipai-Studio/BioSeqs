@@ -1,13 +1,16 @@
 ///|
 /// Genome Diagram Demo - Demonstrates genome diagram creation and SVG generation.
-
 fn main {
   println("=== Genome Diagram Demo ===")
 
   let diagram = @bio.gd_create_diagram("Example Genome", 0, 5000)
 
-  println("Created diagram: name=" + diagram.name() +
-    ", length=" + @bio.gd_diagram_length(diagram).to_string())
+  println(
+    "Created diagram: name=" +
+    diagram.name() +
+    ", length=" +
+    @bio.gd_diagram_length(diagram).to_string(),
+  )
 
   let diagram = @bio.gd_add_track(diagram, "Genes")
   let diagram = @bio.gd_add_track(diagram, "Exons")
@@ -15,27 +18,64 @@ fn main {
   println("Track count: " + @bio.gd_track_count(diagram).to_string())
 
   let diagram = @bio.gd_add_feature(
-    diagram, 100, 600, "+", "BRCA1", @bio.gd_arrow_shape(),
+    diagram,
+    100,
+    600,
+    "+",
+    "BRCA1",
+    @bio.gd_arrow_shape(),
   )
   let diagram = @bio.gd_add_feature(
-    diagram, 800, 1400, "-", "TP53", @bio.gd_arrow_shape(),
+    diagram,
+    800,
+    1400,
+    "-",
+    "TP53",
+    @bio.gd_arrow_shape(),
   )
   let diagram = @bio.gd_add_feature(
-    diagram, 1600, 1800, "+", "Promoter1", @bio.gd_diamond_shape(),
+    diagram,
+    1600,
+    1800,
+    "+",
+    "Promoter1",
+    @bio.gd_diamond_shape(),
   )
   let diagram = @bio.gd_add_feature(
-    diagram, 2000, 2800, "+", "EGFR", @bio.gd_arrow_shape(),
+    diagram,
+    2000,
+    2800,
+    "+",
+    "EGFR",
+    @bio.gd_arrow_shape(),
   )
   let diagram = @bio.gd_add_feature(
-    diagram, 3000, 3200, "-", "Enhancer1", @bio.gd_terminators_shape(),
+    diagram,
+    3000,
+    3200,
+    "-",
+    "Enhancer1",
+    @bio.gd_terminators_shape(),
   )
   let diagram = @bio.gd_add_feature(
-    diagram, 3500, 4200, "+", "MYC", @bio.gd_crossed_arrow_shape(),
+    diagram,
+    3500,
+    4200,
+    "+",
+    "MYC",
+    @bio.gd_crossed_arrow_shape(),
   )
   let diagram = @bio.gd_add_feature(
-    diagram, 4400, 4900, "-", "KRAS", @bio.gd_arrow_shape(),
+    diagram,
+    4400,
+    4900,
+    "-",
+    "KRAS",
+    @bio.gd_arrow_shape(),
   )
-  println("Diagram feature count: " + @bio.gd_feature_count(diagram).to_string())
+  println(
+    "Diagram feature count: " + @bio.gd_feature_count(diagram).to_string(),
+  )
 
   let diagram = @bio.gd_add_track_feature(
     diagram, "Genes", 100, 600, "+", "BRCA1_gene",
@@ -64,22 +104,29 @@ fn main {
   let diagram = @bio.gd_add_track_feature(
     diagram, "Regulatory", 3000, 3200, "-", "Enhancer1",
   )
-  println("Total feature count (including tracks): " +
-    @bio.gd_feature_count(diagram).to_string())
+  println(
+    "Total feature count (including tracks): " +
+    @bio.gd_feature_count(diagram).to_string(),
+  )
 
   let overlapping = @bio.gd_find_overlapping_features(diagram, 500, 900)
-  println("Features overlapping [500, 900]: " + overlapping.length().to_string())
+  println(
+    "Features overlapping [500, 900]: " + overlapping.length().to_string(),
+  )
   for feat in overlapping {
-    println("  - " + feat.label() + " [" +
-      feat.start().to_string() + ", " +
-      feat.end().to_string() + "] " +
-      feat.strand())
+    println(
+      "  - " +
+      feat.label() +
+      " [" +
+      feat.start().to_string() +
+      ", " +
+      feat.end().to_string() +
+      "] " +
+      feat.strand(),
+    )
   }
 
-  let style = @bio.DiagramStyle::new(
-    scale=2.0,
-    color_scheme="default",
-  )
+  let style = @bio.DiagramStyle::new(scale=2.0, color_scheme="default")
   let diagram = @bio.gd_set_style(diagram, style)
 
   let diagram = @bio.gd_label_features(diagram, 200)
@@ -96,8 +143,13 @@ fn main {
   println("")
   println("=== Diagram Statistics ===")
   println("Name: " + diagram.name())
-  println("Range: [" + diagram.start().to_string() +
-    ", " + diagram.end().to_string() + "]")
+  println(
+    "Range: [" +
+    diagram.start().to_string() +
+    ", " +
+    diagram.end().to_string() +
+    "]",
+  )
   println("Length: " + @bio.gd_diagram_length(diagram).to_string())
   println("Tracks: " + @bio.gd_track_count(diagram).to_string())
   println("Total features: " + @bio.gd_feature_count(diagram).to_string())
@@ -105,9 +157,15 @@ fn main {
   let gene_features = @bio.gd_get_features(diagram, "Genes")
   println("Gene track features: " + gene_features.length().to_string())
   for feat in gene_features {
-    println("  - " + feat.label() + " [" +
-      feat.start().to_string() + ", " +
-      feat.end().to_string() + "]")
+    println(
+      "  - " +
+      feat.label() +
+      " [" +
+      feat.start().to_string() +
+      ", " +
+      feat.end().to_string() +
+      "]",
+    )
   }
 
   println("")

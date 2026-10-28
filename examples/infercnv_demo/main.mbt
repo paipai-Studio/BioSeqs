@@ -17,10 +17,15 @@ fn main {
   let n_chr = 5
   let n_genes_per_chr = 40
   let (input, tumour_cats, normal_cats) = @bio.infercnv_sample_data(
-    n_tumour=n_tumour, n_normal=n_normal, n_chr=n_chr,
-    n_genes_per_chr=n_genes_per_chr, seed=2025,
+    n_tumour~,
+    n_normal~,
+    n_chr~,
+    n_genes_per_chr~,
+    seed=2025,
   )
-  println("Cells: \{input.n_cells}, Genes: \{input.n_genes}, Chromosomes: \{n_chr}")
+  println(
+    "Cells: \{input.n_cells}, Genes: \{input.n_genes}, Chromosomes: \{n_chr}",
+  )
   println("Tumour categories: \{tumour_cats}")
   println("Normal categories: \{normal_cats}")
   println("")
@@ -30,11 +35,13 @@ fn main {
   // ------------------------------------------------------------------
   println("=== 2. Method 1: Global-mean reference ===")
   let params_default = @bio.make_cnv_params(
-    21, 1.5, 0.05, @bio.ref_method_global_mean(), [],
+    21,
+    1.5,
+    0.05,
+    @bio.ref_method_global_mean(),
+    [],
   )
-  let res_global = @bio.run_infercnv(
-    input, params=params_default, excluded_chromosomes=[],
-  )
+  let res_global = @bio.run_infercnv(input, params=params_default, excluded_chromosomes=[])
   println("\{res_global.summary()}")
   let mut iter = 0
   while iter < res_global.per_cluster_cnv_score.length() {
@@ -49,18 +56,24 @@ fn main {
   // ------------------------------------------------------------------
   println("=== 3. Method 2: Reference-categories (use normal cells) ===")
   let params_cat = @bio.make_cnv_params(
-    21, 1.5, 0.05, @bio.ref_method_reference_categories(), normal_cats,
+    21,
+    1.5,
+    0.05,
+    @bio.ref_method_reference_categories(),
+    normal_cats,
   )
-  let res_cat = @bio.run_infercnv(
-    input, params=params_cat, excluded_chromosomes=["chrX", "chrY", "chrM"],
-  )
+  let res_cat = @bio.run_infercnv(input, params=params_cat, excluded_chromosomes=[
+    "chrX", "chrY", "chrM",
+  ])
   println("\{res_cat.summary()}")
   let t_score = res_cat.cluster_score("Tumour")
   let n_score = res_cat.cluster_score("Normal")
   println("  Tumour score: \{t_score}")
   println("  Normal score: \{n_score}")
   println("  Fold difference: \{t_score / n_score}x")
-  println("  Chromosomes kept after exclusion: \{res_cat.chromosome_list().length()}")
+  println(
+    "  Chromosomes kept after exclusion: \{res_cat.chromosome_list().length()}",
+  )
   println("")
 
   // ------------------------------------------------------------------
@@ -80,12 +93,16 @@ fn main {
   // ------------------------------------------------------------------
   println("=== 5. Predict malignant cells from CNV score ===")
   let flagged = res_cat.predict_tumour_cells("Normal", threshold_factor=1.3)
-  println("  Cells flagged as putatively tumour-like: \{flagged.length()}/\{res_cat.n_cells}")
+  println(
+    "  Cells flagged as putatively tumour-like: \{flagged.length()}/\{res_cat.n_cells}",
+  )
   // Ground truth: first n_tumour indices are tumour
   let mut true_pos = 0
   let mut j = 0
   while j < flagged.length() {
-    if flagged[j] < n_tumour { true_pos = true_pos + 1 }
+    if flagged[j] < n_tumour {
+      true_pos = true_pos + 1
+    }
     j = j + 1
   }
   let false_pos = flagged.length() - true_pos
@@ -102,8 +119,8 @@ fn main {
   if boundaries.length() >= 2 {
     let (chr1, s1, e1) = boundaries[0]
     let (chr2, s2, e2) = boundaries[1]
-    let mid1 = (s1 + e1) / 2          // midpoint of chr1 (deletion side)
-    let mid2 = (s2 + e2) / 2 + 5      // latter part of chr2 (amplification)
+    let mid1 = (s1 + e1) / 2 // midpoint of chr1 (deletion side)
+    let mid2 = (s2 + e2) / 2 + 5 // latter part of chr2 (amplification)
     // Average a few tumour cells vs normal cells
     let mut tumour_del = 0.0
     let mut tumour_amp = 0.0
@@ -119,9 +136,13 @@ fn main {
       s = s + 1
     }
     let ns = n_sample.to_double()
-    println("  Tumour avg chr1-first-half (deletion site) CNV = \{tumour_del / ns}")
+    println(
+      "  Tumour avg chr1-first-half (deletion site) CNV = \{tumour_del / ns}",
+    )
     println("  Normal avg chr1-first-half CNV = \{normal_del / ns}")
-    println("  Tumour avg chr2-second-half (amplification site) CNV = \{tumour_amp / ns}")
+    println(
+      "  Tumour avg chr2-second-half (amplification site) CNV = \{tumour_amp / ns}",
+    )
     println("  Normal avg chr2-second-half CNV = \{normal_amp / ns}")
     let _ = chr1
     let _ = chr2

@@ -9,8 +9,8 @@
 pub struct MAFMutation {
   hugo_symbol : String
   chromosome : String
-  start_position : Int
-  end_position : Int
+  start_position : Int32
+  end_position : Int32
   reference_allele : String
   tumor_seq_allele1 : String
   tumor_sample_barcode : String
@@ -26,20 +26,20 @@ pub struct MAFData {
 
 ///|
 pub struct MutationSpectrum {
-  snv_count : Int
-  indel_count : Int
-  complex_count : Int
+  snv_count : Int32
+  indel_count : Int32
+  complex_count : Int32
   transitions : Array[String]
   transversions : Array[String]
-  transition_count : Int
-  transversion_count : Int
+  transition_count : Int32
+  transversion_count : Int32
 }
 
 ///|
 pub struct TMBResult {
   tmb : Double
   coding_region_size : Double
-  total_mutations : Int
+  total_mutations : Int32
   per_sample_tmb : Map[String, Double]
 }
 
@@ -53,8 +53,8 @@ pub struct OncoplotData {
 ///|
 pub struct CoOccurrenceResult {
   pair : (String, String)
-  co_occurrence : Int
-  mutual_exclusivity : Int
+  co_occurrence : Int32
+  mutual_exclusivity : Int32
   p_value : Double
 }
 
@@ -68,8 +68,8 @@ pub struct MutationalSignature {
 pub fn MAFMutation::new(
   hugo_symbol : String,
   chromosome : String,
-  start_position : Int,
-  end_position : Int,
+  start_position : Int32,
+  end_position : Int32,
   reference_allele : String,
   tumor_seq_allele1 : String,
   tumor_sample_barcode : String,
@@ -165,17 +165,17 @@ pub fn MAFData::add_mutation(self : MAFData, mutation : MAFMutation) -> MAFData 
 }
 
 ///|
-pub fn MAFData::count_mutations(self : MAFData) -> Int {
+pub fn MAFData::count_mutations(self : MAFData) -> Int32 {
   self.mutations.length()
 }
 
 ///|
-pub fn MAFData::count_unique_genes(self : MAFData) -> Int {
+pub fn MAFData::count_unique_genes(self : MAFData) -> Int32 {
   self.gene_symbols.length()
 }
 
 ///|
-pub fn MAFData::count_unique_samples(self : MAFData) -> Int {
+pub fn MAFData::count_unique_samples(self : MAFData) -> Int32 {
   self.sample_barcodes.length()
 }
 
@@ -259,7 +259,7 @@ pub fn MAFData::filter_variant_type(
 }
 
 ///|
-pub fn MAFData::get_mutation_gene(self : MAFData, index : Int) -> String {
+pub fn MAFData::get_mutation_gene(self : MAFData, index : Int32) -> String {
   if index >= 0 && index < self.mutations.length() {
     self.mutations[index].hugo_symbol
   } else {
@@ -268,7 +268,7 @@ pub fn MAFData::get_mutation_gene(self : MAFData, index : Int) -> String {
 }
 
 ///|
-pub fn MAFData::get_mutation_sample(self : MAFData, index : Int) -> String {
+pub fn MAFData::get_mutation_sample(self : MAFData, index : Int32) -> String {
   if index >= 0 && index < self.mutations.length() {
     self.mutations[index].tumor_sample_barcode
   } else {
@@ -277,8 +277,8 @@ pub fn MAFData::get_mutation_sample(self : MAFData, index : Int) -> String {
 }
 
 ///|
-pub fn get_gene_mutation_counts(maf : MAFData) -> Map[String, Int] {
-  let counts : Map[String, Int] = Map([], capacity=0)
+pub fn get_gene_mutation_counts(maf : MAFData) -> Map[String, Int32] {
+  let counts : Map[String, Int32] = Map([], capacity=0)
   let mut i = 0
   while i < maf.mutations.length() {
     let mutation = maf.mutations[i]
@@ -290,8 +290,8 @@ pub fn get_gene_mutation_counts(maf : MAFData) -> Map[String, Int] {
 }
 
 ///|
-pub fn get_sample_mutation_counts(maf : MAFData) -> Map[String, Int] {
-  let counts : Map[String, Int] = Map([], capacity=0)
+pub fn get_sample_mutation_counts(maf : MAFData) -> Map[String, Int32] {
+  let counts : Map[String, Int32] = Map([], capacity=0)
   let mut i = 0
   while i < maf.mutations.length() {
     let mutation = maf.mutations[i]
@@ -382,7 +382,7 @@ pub fn calculate_tmb(maf : MAFData, coding_region_size : Double) -> TMBResult {
 }
 
 ///|
-pub fn generate_oncoplot_data(maf : MAFData, top_n : Int) -> OncoplotData {
+pub fn generate_oncoplot_data(maf : MAFData, top_n : Int32) -> OncoplotData {
   let gene_counts = get_gene_mutation_counts(maf)
   let sorted_genes = maftools_sort_by_count_desc(gene_counts, top_n)
   let samples = maf.sample_barcodes
@@ -655,7 +655,7 @@ fn maftools_contains_string(arr : Array[String], value : String) -> Bool {
 fn maftools_find_column_index(
   header : Array[String],
   column_name : String,
-) -> Int {
+) -> Int32 {
   let mut i = 0
   while i < header.length() {
     if header[i].to_upper() == column_name.to_upper() {
@@ -667,17 +667,17 @@ fn maftools_find_column_index(
 }
 
 ///|
-fn maftools_parse_int(s : String) -> Int {
+fn maftools_parse_int(s : String) -> Int32 {
   parse_int(s)
 }
 
 ///|
 fn maftools_sort_by_count_desc(
-  counts : Map[String, Int],
-  top_n : Int,
+  counts : Map[String, Int32],
+  top_n : Int32,
 ) -> Array[String] {
   let entries = counts.iter().collect()
-  let sorted : Array[(String, Int)] = Array(capacity=0)
+  let sorted : Array[(String, Int32)] = Array(capacity=0)
 
   let mut i = 0
   while i < entries.length() {

@@ -12,20 +12,20 @@
 pub struct ProbalnPar {
   d : Double
   e : Double
-  bw : Int
+  bw : Int32
 }
 
 ///|
-pub fn ProbalnPar::make(d : Double, e : Double, bw : Int) -> ProbalnPar {
-  ProbalnPar::{ d, e, bw }
+pub fn ProbalnPar::make(d : Double, e : Double, bw : Int32) -> ProbalnPar {
+  ProbalnPar::{ d, e, bw, }
 }
 
 ///|
 /// Result of probabilistic glocal alignment.
 pub struct ProbalnResult {
-  score : Int
-  state : Array[Int]
-  q : Array[Int]
+  score : Int32
+  state : Array[Int32]
+  q : Array[Int32]
 }
 
 ///|
@@ -35,13 +35,13 @@ let probaln_EI : Double = 0.25
 let probaln_EM : Double = 0.33333333333
 
 ///|
-fn set_u(bw : Int, i : Int, k : Int) -> Int {
+fn set_u(bw : Int32, i : Int32, k : Int32) -> Int32 {
   let x = if i - bw > 0 { i - bw } else { 0 }
   (k - x + 1) * 3
 }
 
 ///|
-pub fn base_to_int(base : Char) -> Int {
+pub fn base_to_int(base : Char) -> Int32 {
   match base {
     'A' | 'a' => 0
     'C' | 'c' => 1
@@ -52,7 +52,7 @@ pub fn base_to_int(base : Char) -> Int {
 }
 
 ///|
-pub fn seq_to_ints(seq : String) -> Array[Int] {
+pub fn seq_to_ints(seq : String) -> Array[Int32] {
   let result = Array::make(seq.length(), 4)
   for i = 0; i < seq.length(); i = i + 1 {
     result[i] = base_to_int(seq.unsafe_get(i).to_char().unwrap())
@@ -75,15 +75,19 @@ pub fn seq_to_ints(seq : String) -> Array[Int] {
 ///
 /// Returns: ProbalnResult with score, state, and quality arrays
 pub fn probaln_glocal(
-  reference : Array[Int],
-  query : Array[Int],
-  qual : Array[Int],
+  reference : Array[Int32],
+  query : Array[Int32],
+  qual : Array[Int32],
   params : ProbalnPar,
 ) -> ProbalnResult {
   let l_ref = reference.length()
   let l_query = query.length()
   if l_ref == 0 || l_query == 0 {
-    return ProbalnResult::{ score: 0, state: Array::make(l_query, 0), q: Array::make(l_query, 0) }
+    return ProbalnResult::{
+      score: 0,
+      state: Array::make(l_query, 0),
+      q: Array::make(l_query, 0),
+    }
   }
 
   let mut bw = if l_ref > l_query { l_ref } else { l_query }
@@ -100,7 +104,7 @@ pub fn probaln_glocal(
   let qual_prob = Array::make(l_query, 0.0)
   for i = 0; i < l_query; i = i + 1 {
     let q = if i < qual.length() { qual[i] } else { 30 }
-    qual_prob[i] = @math.pow(10.0, -(q.to_double()) / 10.0)
+    qual_prob[i] = @math.pow(10.0, -q.to_double() / 10.0)
   }
 
   let sM = 1.0 / (2.0 * l_query.to_double() + 2.0)
@@ -164,12 +168,7 @@ pub fn probaln_glocal(
       end = x_high
     }
 
-    let e_arr = [
-      qli * probaln_EM,
-      1.0 - qli,
-      1.0,
-      1.0,
-    ]
+    let e_arr = [qli * probaln_EM, 1.0 - qli, 1.0, 1.0]
     let m_scale = 1.0 / s[i - 1]
 
     let xm0 = m_scale * m[0]
@@ -188,8 +187,10 @@ pub fn probaln_glocal(
     for k = beg; k <= end; k = k + 1 {
       let cond = if reference[k - 1] > 3 || qyi > 3 {
         2 + (if reference[k - 1] == qyi { 1 } else { 0 })
+      } else if reference[k - 1] == qyi {
+        1
       } else {
-        if reference[k - 1] == qyi { 1 } else { 0 }
+        0
       }
 
       let z0 = xm0 * f[fi1_offset + yi]
@@ -201,7 +202,10 @@ pub fn probaln_glocal(
       f[fi_offset + xi] = e_arr[cond] * (z0 + z1 + z2)
       f[fi_offset + xi + 1] = z3 + z4
       f[fi_offset + xi + 2] = l_x0 + l_x2
-      sum = sum + f[fi_offset + xi] + f[fi_offset + xi + 1] + f[fi_offset + xi + 2]
+      sum = sum +
+        f[fi_offset + xi] +
+        f[fi_offset + xi + 1] +
+        f[fi_offset + xi + 2]
 
       l_x0 = m[2] * f[fi_offset + xi]
       l_x2 = m[8] * f[fi_offset + xi + 2]
@@ -270,12 +274,7 @@ pub fn probaln_glocal(
     let qli1 = qual_prob[i]
     let qyi1 = query[i]
 
-    let e_arr = [
-      qli1 * probaln_EM,
-      1.0 - qli1,
-      1.0,
-      1.0,
-    ]
+    let e_arr = [qli1 * probaln_EM, 1.0 - qli1, 1.0, 1.0]
 
     let u_start = set_u(bw, i, end)
     let v10_start = set_u(bw, i + 1, end)
@@ -292,14 +291,17 @@ pub fn probaln_glocal(
       } else {
         let cond = if reference[k] > 3 || qyi1 > 3 {
           2 + (if reference[k] == qyi1 { 1 } else { 0 })
+        } else if reference[k] == qyi1 {
+          1
         } else {
-          if reference[k] == qyi1 { 1 } else { 0 }
+          0
         }
         e_arr[cond] * b[bi1_offset + yi + 3]
       }
 
       b[bi_offset + xi + 1] = (e * m[3] + e4 * b[bi1_offset + yi + 1]) * n
-      b[bi_offset + xi] = (e * m[0] + e1 * b[bi1_offset + yi + 1] + m[2] * xi_5) * n
+      b[bi_offset + xi] = (e * m[0] + e1 * b[bi1_offset + yi + 1] + m[2] * xi_5) *
+        n
       b[bi_offset + xi + 2] = (e * m[6] + m[8] * xi_5) * y * n
       xi_5 = b[bi_offset + xi + 2]
 
@@ -359,7 +361,7 @@ pub fn probaln_glocal(
     q_arr[i - 1] = if qval > 100 { 99 } else { qval }
   }
 
-  ProbalnResult::{ score: pr_val, state, q: q_arr }
+  ProbalnResult::{ score: pr_val, state, q: q_arr, }
 }
 
 ///|
@@ -372,7 +374,7 @@ pub struct ErrMod {
 }
 
 ///|
-fn lfact(n : Int) -> Double {
+fn lfact(n : Int32) -> Double {
   if n <= 0 {
     return 0.0
   }
@@ -381,7 +383,7 @@ fn lfact(n : Int) -> Double {
 
 ///|
 /// Compute log binomial coefficient: log(n! / (k! * (n-k)!))
-fn logbinom(n : Int, k : Int) -> Double {
+fn logbinom(n : Int32, k : Int32) -> Double {
   if n <= 0 || k <= 0 || k > n {
     return 0.0
   }
@@ -407,20 +409,20 @@ pub fn errmod_init(depcorr : Double) -> ErrMod {
     }
   }
 
-  ErrMod::{ depcorr, fk, lhet }
+  ErrMod::{ depcorr, fk, lhet, }
 }
 
 ///|
 /// Compute beta value on demand (instead of precomputing 32MB table).
 /// beta[q][n][k] = -10/ln(10) * log(sum of binomial terms)
-fn errmod_beta(_em : ErrMod, qual : Int, n : Int, k : Int) -> Double {
+fn errmod_beta(_em : ErrMod, qual : Int32, n : Int32, k : Int32) -> Double {
   if n <= 0 || k > n {
     return 0.0
   }
   if k == n {
     return 1.0e300 // HUGE_VAL equivalent
   }
-  let e = @math.pow(10.0, -(qual.to_double()) / 10.0)
+  let e = @math.pow(10.0, -qual.to_double() / 10.0)
   let le = @math.ln(e)
   let le1 = @math.ln(1.0 - e)
   // sum1 starts at k=n: lC[n][n] + n*le
@@ -460,8 +462,8 @@ fn errmod_beta(_em : ErrMod, qual : Int, n : Int, k : Int) -> Double {
 /// Returns: m*m array of phred-scaled genotype likelihoods
 pub fn errmod_cal(
   em : ErrMod,
-  bases : Array[Int],
-  m : Int,
+  bases : Array[Int32],
+  m : Int32,
 ) -> Array[Double] {
   let n_orig = bases.length()
   let n = if n_orig > 255 { 255 } else { n_orig }
@@ -491,7 +493,8 @@ pub fn errmod_cal(
     let basestrand = b & 0x1f
     let base = b & 0xf
     fsum[base] = fsum[base] + em.fk[w[basestrand]]
-    bsum[base] = bsum[base] + em.fk[w[basestrand]] * errmod_beta(em, qual_capped, n, cnt[base])
+    bsum[base] = bsum[base] +
+      em.fk[w[basestrand]] * errmod_beta(em, qual_capped, n, cnt[base])
     cnt[base] = cnt[base] + 1
     w[basestrand] = w[basestrand] + 1
   }
@@ -560,11 +563,11 @@ pub fn errmod_cal(
 pub fn sam_cap_mapq(
   reference : String,
   query : String,
-  qual : Array[Int],
-  cigar_ops : Array[(Int, Int)],
-  pos : Int,
-  thres : Int,
-) -> Int {
+  qual : Array[Int32],
+  cigar_ops : Array[(Int32, Int32)],
+  pos : Int32,
+  thres : Int32,
+) -> Int32 {
   let thres = if thres < 0 { 40 } else { thres }
   let ref_len = reference.length()
   let mut mm = 0
@@ -582,7 +585,9 @@ pub fn sam_cap_mapq(
         if x + j >= ref_len {
           break
         }
-        let ref_base = base_to_int(reference.unsafe_get(x + j).to_char().unwrap())
+        let ref_base = base_to_int(
+          reference.unsafe_get(x + j).to_char().unwrap(),
+        )
         let query_base = base_to_int(query.unsafe_get(y + j).to_char().unwrap())
         let qval = if y + j < qual.length() { qual[y + j] } else { 30 }
         if ref_base != 4 && query_base != 4 && qval >= 13 {
@@ -626,6 +631,7 @@ pub fn sam_cap_mapq(
     return -1
   }
   let t_val = if t_val < 0.0 { 0.0 } else { t_val }
-  let result = ((thres.to_double() - t_val) / thres.to_double()).sqrt() * thres.to_double()
+  let result = ((thres.to_double() - t_val) / thres.to_double()).sqrt() *
+    thres.to_double()
   (result + 0.499).to_int()
 }

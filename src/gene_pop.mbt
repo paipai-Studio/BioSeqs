@@ -30,15 +30,18 @@
 /// A single genotype at one locus for one individual.
 pub struct GenePopGenotype {
   /// First allele code (0 = missing).
-  allele1 : Int
+  allele1 : Int32
   /// Second allele code; None for haploid loci.
-  allele2 : Int?
+  allele2 : Int32?
   /// True if this genotype represents missing data.
   is_missing : Bool
 }
 
 ///|
-pub fn GenePopGenotype::new(allele1 : Int, allele2 : Int?) -> GenePopGenotype {
+pub fn GenePopGenotype::new(
+  allele1 : Int32,
+  allele2 : Int32?,
+) -> GenePopGenotype {
   let missing = allele1 == 0 && (allele2 == Some(0) || allele2 == None)
   GenePopGenotype::{ allele1, allele2, is_missing: missing, }
 }
@@ -46,8 +49,8 @@ pub fn GenePopGenotype::new(allele1 : Int, allele2 : Int?) -> GenePopGenotype {
 ///|
 /// A diploid genotype (both alleles present).
 pub fn GenePopGenotype::diploid(
-  allele1 : Int,
-  allele2 : Int,
+  allele1 : Int32,
+  allele2 : Int32,
 ) -> GenePopGenotype {
   let missing = allele1 == 0 && allele2 == 0
   GenePopGenotype::{ allele1, allele2: Some(allele2), is_missing: missing, }
@@ -55,7 +58,7 @@ pub fn GenePopGenotype::diploid(
 
 ///|
 /// A haploid genotype (only one allele).
-pub fn GenePopGenotype::haploid(allele1 : Int) -> GenePopGenotype {
+pub fn GenePopGenotype::haploid(allele1 : Int32) -> GenePopGenotype {
   GenePopGenotype::{ allele1, allele2: None, is_missing: allele1 == 0, }
 }
 
@@ -97,7 +100,7 @@ pub struct GenePopRecord {
   loci_names : Array[String]
   populations : Array[GenePopPopulation]
   /// Number of digits per allele (2 or 3), 0 if unknown.
-  locus_digit_size : Int
+  locus_digit_size : Int32
 }
 
 ///|
@@ -105,7 +108,7 @@ pub fn GenePopRecord::new(
   title : String,
   loci_names : Array[String],
   populations : Array[GenePopPopulation],
-  locus_digit_size : Int,
+  locus_digit_size : Int32,
 ) -> GenePopRecord {
   GenePopRecord::{ title, loci_names, populations, locus_digit_size, }
 }
@@ -249,7 +252,7 @@ fn gp_parse_locus_token(token : String) -> GenePopGenotype {
 ///|
 /// Parse an allele string (e.g. "01", "001", "15", "999") into an Int.
 /// Returns 0 for empty/unparseable strings.
-fn gp_parse_allele(s : String) -> Int {
+fn gp_parse_allele(s : String) -> Int32 {
   let n = s.length()
   if n == 0 {
     return 0
@@ -272,7 +275,7 @@ fn gp_parse_allele(s : String) -> Int {
 ///|
 /// Determine the per-allele digit size (2 or 3) from a locus token.
 /// Returns 0 if it cannot be determined.
-fn gp_detect_digit_size(token : String) -> Int {
+fn gp_detect_digit_size(token : String) -> Int32 {
   let n = token.length()
   if n == 4 {
     return 2
@@ -285,7 +288,7 @@ fn gp_detect_digit_size(token : String) -> Int {
 
 ///|
 /// Format an allele as a zero-padded string of the given digit size.
-fn gp_format_allele(allele : Int, digit_size : Int) -> String {
+fn gp_format_allele(allele : Int32, digit_size : Int32) -> String {
   if digit_size == 3 {
     if allele < 10 {
       return "00" + allele.to_string()
@@ -419,7 +422,7 @@ pub fn parse_genepop(content : String) -> GenePopRecord {
 
 ///|
 /// Detect allele digit size from the first genotype in an individual.
-fn gp_detect_digit_size_from_ind(ind : GenePopIndividual) -> Int {
+fn gp_detect_digit_size_from_ind(ind : GenePopIndividual) -> Int32 {
   if ind.genotypes.length() == 0 {
     return 0
   }
@@ -472,7 +475,7 @@ fn gp_parse_individual(line : String) -> GenePopIndividual {
 
 ///|
 /// Find the first occurrence of a character in a string. Returns -1 if not found.
-fn gp_find_char(s : String, ch : Char) -> Int {
+fn gp_find_char(s : String, ch : Char) -> Int32 {
   let target = ch.to_int()
   let n = s.length()
   let mut i = 0
@@ -487,7 +490,7 @@ fn gp_find_char(s : String, ch : Char) -> Int {
 
 ///|
 /// Count the number of loci from the first individual in the first population.
-fn gp_count_loci(populations : Array[GenePopPopulation]) -> Int {
+fn gp_count_loci(populations : Array[GenePopPopulation]) -> Int32 {
   if populations.length() == 0 {
     return 0
   }
@@ -558,7 +561,7 @@ pub fn genepop_to_string(record : GenePopRecord) -> String {
 
 ///|
 /// Count the total number of individuals across all populations.
-pub fn genepop_total_individuals(record : GenePopRecord) -> Int {
+pub fn genepop_total_individuals(record : GenePopRecord) -> Int32 {
   let mut total = 0
   let mut i = 0
   while i < record.populations.length() {
@@ -570,13 +573,13 @@ pub fn genepop_total_individuals(record : GenePopRecord) -> Int {
 
 ///|
 /// Count the number of populations in the record.
-pub fn genepop_num_populations(record : GenePopRecord) -> Int {
+pub fn genepop_num_populations(record : GenePopRecord) -> Int32 {
   record.populations.length()
 }
 
 ///|
 /// Count the number of loci.
-pub fn genepop_num_loci(record : GenePopRecord) -> Int {
+pub fn genepop_num_loci(record : GenePopRecord) -> Int32 {
   record.loci_names.length()
 }
 
@@ -585,9 +588,9 @@ pub fn genepop_num_loci(record : GenePopRecord) -> Int {
 /// all populations. Returns a sorted array of allele codes.
 pub fn genepop_alleles_at_locus(
   record : GenePopRecord,
-  locus_index : Int,
-) -> Array[Int] {
-  let seen : Map[Int, Unit] = Map([], capacity=0)
+  locus_index : Int32,
+) -> Array[Int32] {
+  let seen : Map[Int32, Unit] = Map([], capacity=0)
   let mut i = 0
   while i < record.populations.length() {
     let pop = record.populations[i]
@@ -608,7 +611,7 @@ pub fn genepop_alleles_at_locus(
     }
     i = i + 1
   }
-  let result : Array[Int] = []
+  let result : Array[Int32] = []
   let keys = seen.keys()
   for k in keys {
     result.push(k)
@@ -637,9 +640,9 @@ pub fn genepop_alleles_at_locus(
 /// genotypes are excluded from the denominator.
 pub fn genepop_allele_frequencies(
   population : GenePopPopulation,
-  locus_index : Int,
-) -> Map[Int, Double] {
-  let counts : Map[Int, Int] = Map([], capacity=0)
+  locus_index : Int32,
+) -> Map[Int32, Double] {
+  let counts : Map[Int32, Int32] = Map([], capacity=0)
   let mut total = 0
   let mut i = 0
   while i < population.individuals.length() {
@@ -662,7 +665,7 @@ pub fn genepop_allele_frequencies(
     }
     i = i + 1
   }
-  let freqs : Map[Int, Double] = Map([], capacity=0)
+  let freqs : Map[Int32, Double] = Map([], capacity=0)
   if total == 0 {
     return freqs
   }
@@ -680,7 +683,7 @@ pub fn genepop_allele_frequencies(
 /// H_obs = (number of heterozygotes) / (number of non-missing genotypes).
 pub fn genepop_observed_heterozygosity(
   population : GenePopPopulation,
-  locus_index : Int,
+  locus_index : Int32,
 ) -> Double {
   let mut het = 0
   let mut total = 0
@@ -711,7 +714,7 @@ pub fn genepop_observed_heterozygosity(
 /// frequency of allele i.
 pub fn genepop_expected_heterozygosity(
   population : GenePopPopulation,
-  locus_index : Int,
+  locus_index : Int32,
 ) -> Double {
   let freqs = genepop_allele_frequencies(population, locus_index)
   let mut sum_sq = 0.0

@@ -32,7 +32,7 @@ pub fn SAPoint3D::distance(self : SAPoint3D, other : SAPoint3D) -> Double {
 /// A residue for StructureAlignment.
 pub struct SAResidue {
   resname : String
-  resseq : Int
+  resseq : Int32
   ca_coord : SAPoint3D
 }
 
@@ -40,7 +40,7 @@ pub struct SAResidue {
 /// Create a new SAResidue.
 pub fn SAResidue::new(
   resname : String,
-  resseq : Int,
+  resseq : Int32,
   ca_coord : SAPoint3D,
 ) -> SAResidue {
   SAResidue::{ resname, resseq, ca_coord, }
@@ -69,7 +69,7 @@ pub struct SAAlignmentResult {
   aligned_residues : Array[Array[SAResidue?]]
   rmsd : Double
   tm_score : Double
-  aligned_length : Int
+  aligned_length : Int32
 }
 
 ///|
@@ -79,7 +79,7 @@ pub fn SAAlignmentResult::new(
   aligned_residues : Array[Array[SAResidue?]],
   rmsd : Double,
   tm_score : Double,
-  aligned_length : Int,
+  aligned_length : Int32,
 ) -> SAAlignmentResult {
   SAAlignmentResult::{
     structure_ids,
@@ -124,7 +124,7 @@ pub fn sa_calculate_rmsd(
 pub fn sa_calculate_tm_score(
   residues1 : Array[SAPoint3D],
   residues2 : Array[SAPoint3D],
-  l_target : Int,
+  l_target : Int32,
 ) -> Double {
   if residues1.length() == 0 || residues2.length() == 0 {
     return 0.0
@@ -187,20 +187,20 @@ pub fn sa_calculate_distance_matrix(
 pub fn sa_dp_alignment(
   struct1 : SAStructure,
   struct2 : SAStructure,
-  gap_open? : Double = 5.0,
-  gap_extend? : Double = 1.0,
-) -> (Array[(Int, Int)], Double) {
+  gap_open~ : Double = 5.0,
+  gap_extend~ : Double = 1.0,
+) -> (Array[(Int32, Int32)], Double) {
   let dist_matrix = sa_calculate_distance_matrix(struct1, struct2)
   let len1 = struct1.residues.length()
   let len2 = struct2.residues.length()
 
   let score : Array[Array[Double]] = Array(capacity=0)
-  let trace : Array[Array[Int]] = Array(capacity=0)
+  let trace : Array[Array[Int32]] = Array(capacity=0)
 
   let mut i = 0
   while i <= len1 {
     let score_row : Array[Double] = Array(capacity=0)
-    let trace_row : Array[Int] = Array(capacity=0)
+    let trace_row : Array[Int32] = Array(capacity=0)
     let mut j = 0
     while j <= len2 {
       score_row.push(0.0)
@@ -252,7 +252,7 @@ pub fn sa_dp_alignment(
     i = i + 1
   }
 
-  let alignment : Array[(Int, Int)] = Array(capacity=0)
+  let alignment : Array[(Int32, Int32)] = Array(capacity=0)
   i = len1
   j = len2
 
@@ -269,7 +269,7 @@ pub fn sa_dp_alignment(
     }
   }
 
-  let reversed : Array[(Int, Int)] = Array(capacity=0)
+  let reversed : Array[(Int32, Int32)] = Array(capacity=0)
   let align_len = alignment.length()
   let mut k = 0
   while k < align_len {

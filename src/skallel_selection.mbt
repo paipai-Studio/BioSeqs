@@ -9,9 +9,9 @@
 
 ///|
 /// Reverse the variant (row) order of a haplotype array.
-fn reverse_variants(h : Array[Array[Int]]) -> Array[Array[Int]] {
+fn reverse_variants(h : Array[Array[Int32]]) -> Array[Array[Int32]] {
   let n = h.length()
-  let out : Array[Array[Int]] = Array(capacity=0)
+  let out : Array[Array[Int32]] = Array(capacity=0)
   let mut i = n - 1
   while i >= 0 {
     out.push(h[i])
@@ -36,7 +36,7 @@ fn reverse_doubles(a : Array[Double]) -> Array[Double] {
 /// Extended haplotype homozygosity (EHH) decay away from the first variant
 /// (`allel.ehh_decay`). `ehh[k]` is the fraction of haplotype pairs sharing a
 /// prefix of at least `k + 1` variants.
-pub fn skallel_ehh_decay(h : Array[Array[Int]]) -> Array[Double] {
+pub fn skallel_ehh_decay(h : Array[Array[Int32]]) -> Array[Double] {
   let n_variants = h.length()
   let n_hap = if n_variants > 0 { h[0].length() } else { 0 }
   let n_pairs = n_hap * (n_hap - 1) / 2
@@ -64,10 +64,10 @@ pub fn skallel_ehh_decay(h : Array[Array[Int]]) -> Array[Double] {
 
 ///|
 fn ssl2ihh(
-  ssl : Array[Int],
-  n_pairs : Int,
-  _l_max : Int,
-  variant_idx : Int,
+  ssl : Array[Int32],
+  n_pairs : Int32,
+  _l_max : Int32,
+  variant_idx : Int32,
   gaps : Array[Double],
   min_ehh : Double,
   include_edges : Bool,
@@ -113,7 +113,7 @@ fn ssl2ihh(
 /// variant, splitting reference (0) and alternate (1) haplotype pairs
 /// (scikit-allel's `ihh01_scan` forward pass).
 fn ihh01_scan(
-  h : Array[Array[Int]],
+  h : Array[Array[Int32]],
   gaps : Array[Double],
   min_ehh : Double,
   min_maf : Double,
@@ -193,8 +193,8 @@ fn ihh01_scan(
 /// Unstandardized integrated haplotype score (iHS) for each variant
 /// (`allel.ihs`), comparing iHH between the reference and alternate alleles.
 pub fn skallel_ihs(
-  h : Array[Array[Int]],
-  pos : Array[Int],
+  h : Array[Array[Int32]],
+  pos : Array[Int32],
   min_ehh : Double,
   include_edges : Bool,
 ) -> Array[Double] {
@@ -203,18 +203,20 @@ pub fn skallel_ihs(
     gaps.push((pos[k + 1] - pos[k]).to_double())
   }
   let (fwd0, fwd1) = ihh01_scan(h, gaps, min_ehh, 0.0, include_edges)
-  let (rev0, rev1) = ihh01_scan(reverse_variants(h), reverse_doubles(gaps), min_ehh, 0.0, include_edges)
+  let (rev0, rev1) = ihh01_scan(
+    reverse_variants(h),
+    reverse_doubles(gaps),
+    min_ehh,
+    0.0,
+    include_edges,
+  )
   let rev0r = reverse_doubles(rev0)
   let rev1r = reverse_doubles(rev1)
   let out = Array::make(h.length(), 0.0)
   for i = 0; i < h.length(); i = i + 1 {
     let ihh0 = fwd0[i] + rev0r[i]
     let ihh1 = fwd1[i] + rev1r[i]
-    out[i] = if ihh0 > 0.0 && ihh1 > 0.0 {
-      @math.ln(ihh1 / ihh0)
-    } else {
-      0.0
-    }
+    out[i] = if ihh0 > 0.0 && ihh1 > 0.0 { @math.ln(ihh1 / ihh0) } else { 0.0 }
   }
   out
 }
@@ -223,7 +225,7 @@ pub fn skallel_ihs(
 /// Number of segregating sites by length scan (scikit-allel's `nsl01_scan`
 /// forward pass), returning average shared-suffix lengths for reference (0)
 /// and alternate (1) haplotype pairs.
-fn nsl01_scan(h : Array[Array[Int]]) -> (Array[Double], Array[Double]) {
+fn nsl01_scan(h : Array[Array[Int32]]) -> (Array[Double], Array[Double]) {
   let n_variants = h.length()
   let n_hap = if n_variants > 0 { h[0].length() } else { 0 }
   let n_pairs = n_hap * (n_hap - 1) / 2
@@ -280,7 +282,7 @@ fn nsl01_scan(h : Array[Array[Int]]) -> (Array[Double], Array[Double]) {
 ///|
 /// Unstandardized number of segregating sites by length (nSL) for each
 /// variant, after Ferrer-Admetlla et al. (2014) (`allel.nsl`).
-pub fn skallel_nsl(h : Array[Array[Int]]) -> Array[Double] {
+pub fn skallel_nsl(h : Array[Array[Int32]]) -> Array[Double] {
   let (fwd0, fwd1) = nsl01_scan(h)
   let (rev0, rev1) = nsl01_scan(reverse_variants(h))
   let rev0r = reverse_doubles(rev0)
@@ -289,18 +291,14 @@ pub fn skallel_nsl(h : Array[Array[Int]]) -> Array[Double] {
   for i = 0; i < h.length(); i = i + 1 {
     let nsl0 = fwd0[i] + rev0r[i]
     let nsl1 = fwd1[i] + rev1r[i]
-    out[i] = if nsl0 > 0.0 && nsl1 > 0.0 {
-      @math.ln(nsl1 / nsl0)
-    } else {
-      0.0
-    }
+    out[i] = if nsl0 > 0.0 && nsl1 > 0.0 { @math.ln(nsl1 / nsl0) } else { 0.0 }
   }
   out
 }
 
 ///|
 /// Sort an integer array in place ascending (copying).
-fn sort_ints_asc_copy(arr : Array[Int]) -> Array[Int] {
+fn sort_ints_asc_copy(arr : Array[Int32]) -> Array[Int32] {
   let out = arr.copy()
   let mut i = 1
   while i < out.length() {
@@ -319,9 +317,9 @@ fn sort_ints_asc_copy(arr : Array[Int]) -> Array[Int] {
 ///|
 /// Make similar-sized allele-count bins (scikit-allel's
 /// `make_similar_sized_bins`).
-fn make_similar_sized_bins(x : Array[Int], n : Int) -> Array[Int] {
+fn make_similar_sized_bins(x : Array[Int32], n : Int32) -> Array[Int32] {
   let y = sort_ints_asc_copy(x)
-  let bins : Array[Int] = Array(capacity=0)
+  let bins : Array[Int32] = Array(capacity=0)
   if y.length() == 0 {
     return bins
   }
@@ -377,8 +375,8 @@ pub fn skallel_standardize(score : Array[Double]) -> Array[Double] {
 /// (`allel.standardize_by_allele_count`).
 pub fn skallel_standardize_by_allele_count(
   score : Array[Double],
-  aac : Array[Int],
-  n_bins : Int,
+  aac : Array[Int32],
+  n_bins : Int32,
 ) -> Array[Double] {
   let bins = make_similar_sized_bins(aac, n_bins)
   let out : Array[Double] = Array::make(score.length(), 0.0)
@@ -437,12 +435,14 @@ pub fn skallel_standardize_by_allele_count(
     }
   }
   out
-}///|
+} ///|
 /// Integrated haplotype homozygosity (iHH) scanning backwards from each
 /// variant over the whole sample (no reference/alternate split), matching
 /// scikit-allel's `ihh_scan`.
+
+///|
 pub fn skallel_ihh_scan(
-  h : Array[Array[Int]],
+  h : Array[Array[Int32]],
   gaps : Array[Double],
   min_ehh : Double,
   include_edges : Bool,
@@ -459,11 +459,7 @@ pub fn skallel_ihh_scan(
       let a1 = h[i][j]
       for k = j + 1; k < n_hap; k = k + 1 {
         let a2 = h[i][k]
-        let l = if a1 != a2 && a1 >= 0 && a2 >= 0 {
-          0
-        } else {
-          ssl[u] + 1
-        }
+        let l = if a1 != a2 && a1 >= 0 && a2 >= 0 { 0 } else { ssl[u] + 1 }
         ssl[u] = l
         u = u + 1
         if l > l_max {
@@ -474,10 +470,12 @@ pub fn skallel_ihh_scan(
     vihh[i] = ssl2ihh(ssl, n_pairs, l_max, i, gaps, min_ehh, include_edges)
   }
   vihh
-}///|
+} ///|
 /// Whole-population NSL scan (no reference/alternate split), matching
 /// scikit-allel's `nsl_scan`: average shared-suffix length over all pairs.
-fn nsl_scan(h : Array[Array[Int]]) -> Array[Double] {
+
+///|
+fn nsl_scan(h : Array[Array[Int32]]) -> Array[Double] {
   let n_variants = h.length()
   let n_hap = if n_variants > 0 { h[0].length() } else { 0 }
   let n_pairs = n_hap * (n_hap - 1) / 2
@@ -490,11 +488,7 @@ fn nsl_scan(h : Array[Array[Int]]) -> Array[Double] {
       let a1 = h[i][j]
       for k = j + 1; k < n_hap; k = k + 1 {
         let a2 = h[i][k]
-        let l = if a1 != a2 && a1 >= 0 && a2 >= 0 {
-          0
-        } else {
-          ssl[u] + 1
-        }
+        let l = if a1 != a2 && a1 >= 0 && a2 >= 0 { 0 } else { ssl[u] + 1 }
         ssl[u] = l
         ssl_sum = ssl_sum + l
         u = u + 1
@@ -513,9 +507,9 @@ fn nsl_scan(h : Array[Array[Int]]) -> Array[Double] {
 /// Cross-population extended haplotype homozygosity score (XPEHH): the log of
 /// the ratio of whole-population iHH between two populations (`allel.xpehh`).
 pub fn skallel_xpehh(
-  h1 : Array[Array[Int]],
-  h2 : Array[Array[Int]],
-  pos : Array[Int],
+  h1 : Array[Array[Int32]],
+  h2 : Array[Array[Int32]],
+  pos : Array[Int32],
   min_ehh : Double,
   include_edges : Bool,
 ) -> Array[Double] {
@@ -526,20 +520,26 @@ pub fn skallel_xpehh(
   let ihh1_fwd = skallel_ihh_scan(h1, gaps, min_ehh, include_edges)
   let ihh2_fwd = skallel_ihh_scan(h2, gaps, min_ehh, include_edges)
   let ihh1_rev = reverse_doubles(
-    skallel_ihh_scan(reverse_variants(h1), reverse_doubles(gaps), min_ehh, include_edges),
+    skallel_ihh_scan(
+      reverse_variants(h1),
+      reverse_doubles(gaps),
+      min_ehh,
+      include_edges,
+    ),
   )
   let ihh2_rev = reverse_doubles(
-    skallel_ihh_scan(reverse_variants(h2), reverse_doubles(gaps), min_ehh, include_edges),
+    skallel_ihh_scan(
+      reverse_variants(h2),
+      reverse_doubles(gaps),
+      min_ehh,
+      include_edges,
+    ),
   )
   let out = Array::make(h1.length(), 0.0)
   for i = 0; i < h1.length(); i = i + 1 {
     let ihh1 = ihh1_fwd[i] + ihh1_rev[i]
     let ihh2 = ihh2_fwd[i] + ihh2_rev[i]
-    out[i] = if ihh1 > 0.0 && ihh2 > 0.0 {
-      @math.ln(ihh1 / ihh2)
-    } else {
-      0.0
-    }
+    out[i] = if ihh1 > 0.0 && ihh2 > 0.0 { @math.ln(ihh1 / ihh2) } else { 0.0 }
   }
   out
 }
@@ -547,7 +547,10 @@ pub fn skallel_xpehh(
 ///|
 /// Cross-population NSL (XPNSL): the log of the ratio of whole-population nSL
 /// between two populations (`allel.xpnsl`).
-pub fn skallel_xpnsl(h1 : Array[Array[Int]], h2 : Array[Array[Int]]) -> Array[Double] {
+pub fn skallel_xpnsl(
+  h1 : Array[Array[Int32]],
+  h2 : Array[Array[Int32]],
+) -> Array[Double] {
   let fwd1 = nsl_scan(h1)
   let fwd2 = nsl_scan(h2)
   let rev1 = reverse_doubles(nsl_scan(reverse_variants(h1)))
@@ -556,11 +559,7 @@ pub fn skallel_xpnsl(h1 : Array[Array[Int]], h2 : Array[Array[Int]]) -> Array[Do
   for i = 0; i < h1.length(); i = i + 1 {
     let nsl1 = fwd1[i] + rev1[i]
     let nsl2 = fwd2[i] + rev2[i]
-    out[i] = if nsl1 > 0.0 && nsl2 > 0.0 {
-      @math.ln(nsl1 / nsl2)
-    } else {
-      0.0
-    }
+    out[i] = if nsl1 > 0.0 && nsl2 > 0.0 { @math.ln(nsl1 / nsl2) } else { 0.0 }
   }
   out
 }

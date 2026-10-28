@@ -8,8 +8,8 @@
 ///|
 /// A detected ring.
 pub struct Ring {
-  atom_indices : Array[Int]   // indices forming the ring (in order)
-  size : Int                   // number of atoms in ring
+  atom_indices : Array[Int32] // indices forming the ring (in order)
+  size : Int32 // number of atoms in ring
   is_aromatic : Bool
 }
 
@@ -22,12 +22,12 @@ pub struct Ring {
 ///   `tolerance` — bond distance tolerance (Å), default 0.4
 pub fn detect_rings(
   atoms : Array[Atom],
-  max_size~ : Int = 7,
+  max_size~ : Int32 = 7,
   tolerance~ : Double = 0.4,
 ) -> Array[Ring] {
   let n = atoms.length()
   // Build adjacency list based on covalent radii
-  let adj : Array[Array[Int]] = Array(capacity=n)
+  let adj : Array[Array[Int32]] = Array(capacity=n)
   for i = 0; i < n; i = i + 1 {
     adj.push(Array(capacity=4))
   }
@@ -44,14 +44,14 @@ pub fn detect_rings(
     }
   }
   // Find rings using DFS-based cycle detection
-  let rings : Array[Array[Int]] = Array(capacity=0)
+  let rings : Array[Array[Int32]] = Array(capacity=0)
   let visited : Array[Bool] = Array::make(n, false)
   for start = 0; start < n; start = start + 1 {
     if visited[start] {
       continue
     }
     // DFS to find cycles
-    let path : Array[Int] = Array(capacity=0)
+    let path : Array[Int32] = Array(capacity=0)
     dfs_find_rings(start, -1, adj, visited, path, rings, max_size)
   }
   // Deduplicate rings (same set of atoms = same ring)
@@ -72,13 +72,13 @@ pub fn detect_rings(
 ///|
 /// DFS to find rings in the molecular graph.
 fn dfs_find_rings(
-  current : Int,
-  parent : Int,
-  adj : Array[Array[Int]],
+  current : Int32,
+  parent : Int32,
+  adj : Array[Array[Int32]],
   visited : Array[Bool],
-  path : Array[Int],
-  rings : Array[Array[Int]],
-  max_size : Int,
+  path : Array[Int32],
+  rings : Array[Array[Int32]],
+  max_size : Int32,
 ) -> Unit {
   if path.length() > max_size {
     return
@@ -98,12 +98,12 @@ fn dfs_find_rings(
     }
     if found_idx >= 0 && path.length() - found_idx >= 3 {
       // Extract ring: path[found_idx..end]
-      let ring : Array[Int] = Array(capacity=path.length() - found_idx)
+      let ring : Array[Int32] = Array(capacity=path.length() - found_idx)
       for i = found_idx; i < path.length(); i = i + 1 {
         ring.push(path[i])
       }
       rings.push(ring)
-    } else if !(visited[neighbor]) {
+    } else if !visited[neighbor] {
       dfs_find_rings(neighbor, current, adj, visited, path, rings, max_size)
     }
   }
@@ -114,12 +114,12 @@ fn dfs_find_rings(
 
 ///|
 /// Deduplicate rings by atom set.
-fn deduplicate_rings(rings : Array[Array[Int]]) -> Array[Array[Int]] {
-  let result : Array[Array[Int]] = Array(capacity=0)
+fn deduplicate_rings(rings : Array[Array[Int32]]) -> Array[Array[Int32]] {
+  let result : Array[Array[Int32]] = Array(capacity=0)
   let seen : Map[String, Bool] = Map([], capacity=rings.length())
   for ring in rings {
     // Create canonical key: sorted atom indices joined
-    let sorted_atoms : Array[Int] = Array(capacity=ring.length())
+    let sorted_atoms : Array[Int32] = Array(capacity=ring.length())
     for a in ring {
       sorted_atoms.push(a)
     }
@@ -153,7 +153,7 @@ fn deduplicate_rings(rings : Array[Array[Int]]) -> Array[Array[Int]] {
 ///|
 /// Check if a ring is aromatic using Hückel's rule.
 /// Simplified: 5- or 6-membered ring with all sp2 carbons/nitrogens.
-fn is_aromatic_ring(atoms : Array[Atom], ring : Array[Int]) -> Bool {
+fn is_aromatic_ring(atoms : Array[Atom], ring : Array[Int32]) -> Bool {
   let size = ring.length()
   // Aromatic rings are typically 5 or 6 membered
   if size != 5 && size != 6 {

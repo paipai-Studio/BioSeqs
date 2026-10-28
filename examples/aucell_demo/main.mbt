@@ -7,18 +7,22 @@
 /// Run: moon run examples/aucell_demo/main.mbt
 fn main {
   // === Create synthetic single-cell expression data ===
-  let gene_names = ["TP53", "BRCA1", "MYC", "CCND1", "BCL2", "BAX", "CASP3", "CDK1", "E2F1", "RB1"]
-  let cell_names = ["CellTypeA_1", "CellTypeA_2", "CellTypeA_3", "CellTypeB_1", "CellTypeB_2", "CellTypeB_3"]
+  let gene_names = [
+    "TP53", "BRCA1", "MYC", "CCND1", "BCL2", "BAX", "CASP3", "CDK1", "E2F1", "RB1",
+  ]
+  let cell_names = [
+    "CellTypeA_1", "CellTypeA_2", "CellTypeA_3", "CellTypeB_1", "CellTypeB_2", "CellTypeB_3",
+  ]
 
   // Expression matrix (cells × genes)
   let expression : Array[Array[Double]] = [
     // TP53  BRCA1  MYC   CCND1  BCL2  BAX   CASP3  CDK1  E2F1  RB1
-    [10.0, 8.0, 2.0, 1.0, 9.0, 7.0, 8.0, 1.0, 2.0, 3.0],   // CellTypeA_1
-    [9.0, 7.0, 3.0, 2.0, 8.0, 6.0, 7.0, 2.0, 3.0, 4.0],    // CellTypeA_2
-    [11.0, 9.0, 1.0, 0.5, 10.0, 8.0, 9.0, 0.5, 1.0, 2.0],  // CellTypeA_3
-    [2.0, 3.0, 10.0, 9.0, 1.0, 2.0, 1.0, 10.0, 9.0, 8.0],  // CellTypeB_1
+    [10.0, 8.0, 2.0, 1.0, 9.0, 7.0, 8.0, 1.0, 2.0, 3.0], // CellTypeA_1
+    [9.0, 7.0, 3.0, 2.0, 8.0, 6.0, 7.0, 2.0, 3.0, 4.0], // CellTypeA_2
+    [11.0, 9.0, 1.0, 0.5, 10.0, 8.0, 9.0, 0.5, 1.0, 2.0], // CellTypeA_3
+    [2.0, 3.0, 10.0, 9.0, 1.0, 2.0, 1.0, 10.0, 9.0, 8.0], // CellTypeB_1
     [1.0, 2.0, 11.0, 10.0, 0.5, 1.0, 0.5, 11.0, 10.0, 9.0], // CellTypeB_2
-    [3.0, 4.0, 8.0, 7.0, 2.0, 3.0, 2.0, 8.0, 7.0, 6.0],    // CellTypeB_3
+    [3.0, 4.0, 8.0, 7.0, 2.0, 3.0, 2.0, 8.0, 7.0, 6.0], // CellTypeB_3
   ]
 
   // === Define gene sets (signatures) ===
@@ -90,7 +94,9 @@ fn main {
   let cell_scores = @bio.get_cell_scores(normalized, "CellTypeA_1")
   let mut cs = 0
   while cs < normalized.gene_set_names.length() {
-    println("  \{normalized.gene_set_names[cs]}: \{cell_scores[cs].to_string()}")
+    println(
+      "  \{normalized.gene_set_names[cs]}: \{cell_scores[cs].to_string()}",
+    )
     cs = cs + 1
   }
 

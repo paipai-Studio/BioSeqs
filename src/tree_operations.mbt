@@ -7,13 +7,13 @@
 ///|
 /// Ladderize direction.
 pub(all) enum LadderizeDirection {
-  LadderizeLeft  // smaller subtrees first (left)
+  LadderizeLeft // smaller subtrees first (left)
   LadderizeRight // larger subtrees first (right)
 }
 
 ///|
 /// Count the number of leaves in a subtree.
-pub fn phylo_count_leaves(clade : Clade) -> Int {
+pub fn phylo_count_leaves(clade : Clade) -> Int32 {
   if clade.is_terminal() {
     return 1
   }
@@ -29,10 +29,7 @@ pub fn phylo_count_leaves(clade : Clade) -> Int {
 /// Returns a new tree with sorted children.
 /// - LadderizeLeft: smaller subtrees first
 /// - LadderizeRight: larger subtrees first
-pub fn phylo_ladderize(
-  clade : Clade,
-  direction : LadderizeDirection,
-) -> Clade {
+pub fn phylo_ladderize(clade : Clade, direction : LadderizeDirection) -> Clade {
   if clade.is_terminal() {
     return clade
   }
@@ -58,7 +55,6 @@ pub fn phylo_ladderize(
   )
 }
 
-
 ///|
 // =========================================================================
 // Midpoint rooting (ete3 / DendroPy)
@@ -70,10 +66,10 @@ pub fn phylo_ladderize(
 ///|
 /// Flat node representation for tree manipulation.
 struct FlatNode {
-  id : Int
-  parent_id : Int // -1 for root
+  id : Int32
+  parent_id : Int32 // -1 for root
   branch_length : Double // length to parent
-  children : Array[Int]
+  children : Array[Int32]
   name : String?
   is_leaf : Bool
 }
@@ -89,10 +85,10 @@ fn flatten_tree(clade : Clade) -> Array[FlatNode] {
 ///|
 fn flatten_rec(
   clade : Clade,
-  parent_id : Int,
+  parent_id : Int32,
   branch_length : Double,
   nodes : Array[FlatNode],
-) -> Int {
+) -> Int32 {
   let id = nodes.length()
   let is_leaf = clade.is_terminal()
   let node = FlatNode::{
@@ -118,11 +114,9 @@ fn flatten_rec(
 ///|
 /// Build undirected adjacency list from flat nodes.
 /// Returns (neighbor_id, branch_length) pairs for each node.
-fn build_adjacency(
-  nodes : Array[FlatNode],
-) -> Array[Array[(Int, Double)]] {
+fn build_adjacency(nodes : Array[FlatNode]) -> Array[Array[(Int32, Double)]] {
   let n = nodes.length()
-  let adj : Array[Array[(Int, Double)]] = Array(capacity=n)
+  let adj : Array[Array[(Int32, Double)]] = Array(capacity=n)
   for _i in 0..<n {
     adj.push(Array(capacity=0))
   }
@@ -141,12 +135,12 @@ fn build_adjacency(
 /// BFS to find farthest node and record distances + predecessors.
 /// Returns (farthest_node_id, distance_array, predecessor_array).
 fn bfs_farthest(
-  start : Int,
-  adj : Array[Array[(Int, Double)]],
-  n : Int,
-) -> (Int, Array[Double], Array[Int]) {
+  start : Int32,
+  adj : Array[Array[(Int32, Double)]],
+  n : Int32,
+) -> (Int32, Array[Double], Array[Int32]) {
   let dist : Array[Double] = Array(capacity=n)
-  let pred : Array[Int] = Array(capacity=n)
+  let pred : Array[Int32] = Array(capacity=n)
   let visited : Array[Bool] = Array(capacity=n)
   for _i in 0..<n {
     dist.push(-1.0)
@@ -154,7 +148,7 @@ fn bfs_farthest(
     visited.push(false)
   }
   // Simple BFS using a queue (array-based)
-  let queue : Array[Int] = Array(capacity=n)
+  let queue : Array[Int32] = Array(capacity=n)
   queue.push(start)
   dist[start] = 0.0
   visited[start] = true
@@ -165,7 +159,7 @@ fn bfs_farthest(
     for pair in adj[u] {
       let v = pair.0
       let w = pair.1
-      if !(visited[v]) {
+      if !visited[v] {
         visited[v] = true
         dist[v] = dist[u] + w
         pred[v] = u
@@ -188,11 +182,11 @@ fn bfs_farthest(
 ///|
 /// Reconstruct path from start to end using predecessor array.
 fn reconstruct_path(
-  start : Int,
-  end : Int,
-  pred : Array[Int],
-) -> Array[Int] {
-  let path : Array[Int] = Array(capacity=0)
+  start : Int32,
+  end : Int32,
+  pred : Array[Int32],
+) -> Array[Int32] {
+  let path : Array[Int32] = Array(capacity=0)
   let mut cur = end
   while cur != start && cur != -1 {
     path.push(cur)
@@ -200,7 +194,7 @@ fn reconstruct_path(
   }
   path.push(start)
   // Reverse to get path from start to end
-  let result : Array[Int] = Array(capacity=path.length())
+  let result : Array[Int32] = Array(capacity=path.length())
   for i in 0..<path.length() {
     result.push(path[path.length() - 1 - i])
   }
@@ -211,11 +205,11 @@ fn reconstruct_path(
 /// Rebuild a Clade tree from the flat representation, rooted at new_root.
 /// `new_parent` is the parent id to avoid (for DFS direction).
 fn rebuild_clade(
-  node_id : Int,
-  parent_to_avoid : Int,
+  node_id : Int32,
+  parent_to_avoid : Int32,
   bl_to_parent : Double,
   nodes : Array[FlatNode],
-  adj : Array[Array[(Int, Double)]],
+  adj : Array[Array[(Int32, Double)]],
 ) -> Clade {
   let node = nodes[node_id]
   // Collect children (all neighbors except parent)
@@ -227,11 +221,7 @@ fn rebuild_clade(
       children.push(rebuild_clade(neighbor, node_id, bl, nodes, adj))
     }
   }
-  Clade::new(
-    branch_length=Some(bl_to_parent),
-    name=node.name,
-    clades=children,
-  )
+  Clade::new(branch_length=Some(bl_to_parent), name=node.name, clades=children)
 }
 
 ///|
@@ -305,26 +295,14 @@ pub fn phylo_midpoint_root(clade : Clade) -> Clade {
   // Midpoint is on the edge — split it and create a new root
   // Build subtree from edge_node_prev (avoiding edge_node_next)
   let subtree_prev = rebuild_clade(
-    edge_node_prev,
-    edge_node_next,
-    dist_to_mid_from_prev,
-    nodes,
-    adj,
+    edge_node_prev, edge_node_next, dist_to_mid_from_prev, nodes, adj,
   )
   // Build subtree from edge_node_next (avoiding edge_node_prev)
   let subtree_next = rebuild_clade(
-    edge_node_next,
-    edge_node_prev,
-    dist_from_next,
-    nodes,
-    adj,
+    edge_node_next, edge_node_prev, dist_from_next, nodes, adj,
   )
-  Clade::new(
-    name=Some("midpoint_root"),
-    clades=[subtree_prev, subtree_next],
-  )
+  Clade::new(name=Some("midpoint_root"), clades=[subtree_prev, subtree_next])
 }
-
 
 ///|
 // =========================================================================
@@ -357,11 +335,7 @@ pub fn phylo_unroot(clade : Clade) -> Clade {
   }
   let combined_bl = bl1 + bl2
   // Prefer internal node as new root (to keep root as internal node)
-  let (new_root, other) = if c1.is_terminal() {
-    (c2, c1)
-  } else {
-    (c1, c2)
-  }
+  let (new_root, other) = if c1.is_terminal() { (c2, c1) } else { (c1, c2) }
   // If both are leaves (2-leaf tree), can't meaningfully unroot
   if new_root.is_terminal() {
     return clade
@@ -401,9 +375,7 @@ pub fn phylo_root_at_leaf(clade : Clade, outgroup_name : String) -> Clade {
   for i in 0..<n {
     if nodes[i].is_leaf {
       match nodes[i].name {
-        Some(nm) => if nm == outgroup_name {
-          target_id = i
-        }
+        Some(nm) => if nm == outgroup_name { target_id = i }
         None => ()
       }
     }
@@ -449,11 +421,14 @@ pub fn phylo_root_at_leaf(clade : Clade, outgroup_name : String) -> Clade {
   // Let's split at the parent: outgroup keeps its branch_length,
   // and the rest of the tree is rebuilt from parent avoiding target.
   // Build subtree from target (the outgroup) — it's a leaf
-  let outgroup_subtree = rebuild_clade(target_id, parent_of_target, edge_len, nodes, adj)
+  let outgroup_subtree = rebuild_clade(
+    target_id, parent_of_target, edge_len, nodes, adj,
+  )
   // Build subtree from parent (everything except target)
   let rest_subtree = rebuild_clade(parent_of_target, target_id, 0.0, nodes, adj)
   // If rest_subtree has only 1 child, collapse it (unroot the rest)
-  let rest_final = if !(rest_subtree.is_terminal()) && rest_subtree.clades.length() == 1 {
+  let rest_final = if !rest_subtree.is_terminal() &&
+    rest_subtree.clades.length() == 1 {
     let child = rest_subtree.clades[0]
     let child_bl = match child.branch_length {
       Some(v) => v
@@ -472,12 +447,8 @@ pub fn phylo_root_at_leaf(clade : Clade, outgroup_name : String) -> Clade {
   } else {
     rest_subtree
   }
-  Clade::new(
-    name=Some("root"),
-    clades=[outgroup_subtree, rest_final],
-  )
+  Clade::new(name=Some("root"), clades=[outgroup_subtree, rest_final])
 }
-
 
 ///|
 // =========================================================================
@@ -492,10 +463,7 @@ pub fn phylo_root_at_leaf(clade : Clade, outgroup_name : String) -> Clade {
 /// `threshold`. A collapsed node's children are promoted to its parent.
 /// Nodes with no confidence value are kept (not collapsed).
 /// Returns a new tree.
-pub fn phylo_collapse_weak(
-  clade : Clade,
-  threshold : Double,
-) -> Clade {
+pub fn phylo_collapse_weak(clade : Clade, threshold : Double) -> Clade {
   if clade.is_terminal() {
     return clade
   }
@@ -506,7 +474,7 @@ pub fn phylo_collapse_weak(
   }
   // Now check: should this node be collapsed?
   match clade.confidence {
-    Some(conf) => {
+    Some(conf) =>
       if conf < threshold {
         // Collapse: promote all children to parent
         // But we need to merge branch lengths: each child's branch_length
@@ -521,12 +489,14 @@ pub fn phylo_collapse_weak(
             Some(v) => v
             None => 0.0
           }
-          promoted.push(Clade::new(
-            branch_length=Some(ch_bl + my_bl),
-            name=ch.name,
-            confidence=ch.confidence,
-            clades=ch.clades,
-          ))
+          promoted.push(
+            Clade::new(
+              branch_length=Some(ch_bl + my_bl),
+              name=ch.name,
+              confidence=ch.confidence,
+              clades=ch.clades,
+            ),
+          )
         }
         // Return a "pass-through" node: parent will flatten this
         // We can't return multiple nodes, so we return a virtual node
@@ -557,7 +527,6 @@ pub fn phylo_collapse_weak(
           clades=promoted,
         )
       }
-    }
     None => ()
   }
   // Not collapsed: return with processed children
@@ -573,10 +542,7 @@ pub fn phylo_collapse_weak(
 /// Collapse internal nodes with confidence below threshold, properly
 /// flattening promoted children into the parent's children array.
 /// This is the correct implementation that avoids wrapper nodes.
-pub fn phylo_collapse_weak_nodes(
-  clade : Clade,
-  threshold : Double,
-) -> Clade {
+pub fn phylo_collapse_weak_nodes(clade : Clade, threshold : Double) -> Clade {
   let children = collapse_rec(clade, threshold)
   // children is Array[Clade] — if 1 element, it's the tree
   // If multiple, wrap in a root
@@ -596,10 +562,7 @@ pub fn phylo_collapse_weak_nodes(
 /// If this node should be collapsed, its children are returned for
 /// the parent to absorb. Otherwise, returns a single-element array
 /// containing this node with processed children.
-fn collapse_rec(
-  clade : Clade,
-  threshold : Double,
-) -> Array[Clade] {
+fn collapse_rec(clade : Clade, threshold : Double) -> Array[Clade] {
   if clade.is_terminal() {
     return [clade]
   }
@@ -613,7 +576,7 @@ fn collapse_rec(
   }
   // Check if this node should be collapsed
   match clade.confidence {
-    Some(conf) => {
+    Some(conf) =>
       if conf < threshold {
         // Collapse: return children directly (they get promoted to parent)
         // Add this node's branch_length to each child
@@ -628,29 +591,31 @@ fn collapse_rec(
               Some(v) => v
               None => 0.0
             }
-            adjusted.push(Clade::new(
-              branch_length=Some(ch_bl + my_bl),
-              name=ch.name,
-              confidence=ch.confidence,
-              clades=ch.clades,
-            ))
+            adjusted.push(
+              Clade::new(
+                branch_length=Some(ch_bl + my_bl),
+                name=ch.name,
+                confidence=ch.confidence,
+                clades=ch.clades,
+              ),
+            )
           }
           return adjusted
         }
         return flat_children
       }
-    }
     None => ()
   }
   // Not collapsed: wrap children in this node
-  [Clade::new(
-    branch_length=clade.branch_length,
-    name=clade.name,
-    confidence=clade.confidence,
-    clades=flat_children,
-  )]
+  [
+    Clade::new(
+      branch_length=clade.branch_length,
+      name=clade.name,
+      confidence=clade.confidence,
+      clades=flat_children,
+    ),
+  ]
 }
-
 
 ///|
 // =========================================================================
@@ -678,7 +643,6 @@ pub fn phylo_scale_tree(clade : Clade, factor : Double) -> Clade {
   )
 }
 
-
 ///|
 // =========================================================================
 // Random tree generation (DendroPy / ete3)
@@ -696,7 +660,7 @@ pub struct Rng {
 ///|
 /// Create a new RNG with a seed.
 pub fn Rng::new(seed : UInt64) -> Rng {
-  Rng::{ state: seed }
+  Rng::{ state: seed, }
 }
 
 ///|
@@ -716,7 +680,7 @@ pub fn Rng::next_double(self : Rng) -> Double {
 
 ///|
 /// Random integer in [0, n).
-pub fn Rng::randint(self : Rng, n : Int) -> Int {
+pub fn Rng::randint(self : Rng, n : Int32) -> Int32 {
   if n <= 0 {
     return 0
   }
@@ -727,7 +691,7 @@ pub fn Rng::randint(self : Rng, n : Int) -> Int {
 /// Generate a random Yule tree with n leaves.
 /// At each step, a random leaf is chosen and split into two new leaves.
 /// Branch lengths are set to 1.0 (can be scaled afterwards).
-pub fn phylo_random_yule(n : Int, rng : Rng) -> Clade {
+pub fn phylo_random_yule(n : Int32, rng : Rng) -> Clade {
   if n <= 1 {
     return Clade::new(name=Some("t1"))
   }
@@ -744,7 +708,7 @@ pub fn phylo_random_yule(n : Int, rng : Rng) -> Clade {
 
 ///|
 /// Add a new leaf to a random leaf in the tree (Yule process).
-fn yule_add_leaf(tree : Clade, new_id : Int, rng : Rng) -> Clade {
+fn yule_add_leaf(tree : Clade, new_id : Int32, rng : Rng) -> Clade {
   // Count leaves
   let n_leaves = phylo_count_leaves(tree)
   // Pick a random leaf to split (0-indexed)
@@ -755,33 +719,30 @@ fn yule_add_leaf(tree : Clade, new_id : Int, rng : Rng) -> Clade {
 ///|
 /// Mutable counter for tracking leaf index during traversal.
 struct Counter {
-  mut val : Int
+  mut val : Int32
 }
 
 ///|
-fn Counter::new(v : Int) -> Counter {
-  Counter::{ val: v }
+fn Counter::new(v : Int32) -> Counter {
+  Counter::{ val: v, }
 }
 
 ///|
 /// Split the target-th leaf into a cherry with a new leaf.
 fn yule_split_leaf(
   clade : Clade,
-  target : Int,
-  new_id : Int,
+  target : Int32,
+  new_id : Int32,
   counter : Counter,
 ) -> Clade {
   if clade.is_terminal() {
     if counter.val == target {
       // Split this leaf into a cherry
       counter.val = counter.val + 1
-      return Clade::new(
-        name=Some("internal"),
-        clades=[
-          Clade::new(name=clade.name, branch_length=Some(1.0)),
-          Clade::new(name=Some("t" + new_id.to_string()), branch_length=Some(1.0)),
-        ],
-      )
+      return Clade::new(name=Some("internal"), clades=[
+        Clade::new(name=clade.name, branch_length=Some(1.0)),
+        Clade::new(name=Some("t" + new_id.to_string()), branch_length=Some(1.0)),
+      ])
     }
     counter.val = counter.val + 1
     return clade
@@ -803,18 +764,15 @@ fn yule_split_leaf(
 /// Generate a random PDA (uniform) tree with n leaves.
 /// At each step, a random edge is chosen and a new leaf is attached to it.
 /// For a rooted tree, edges include all branches (including the root stem).
-pub fn phylo_random_pda(n : Int, rng : Rng) -> Clade {
+pub fn phylo_random_pda(n : Int32, rng : Rng) -> Clade {
   if n <= 1 {
     return Clade::new(name=Some("t1"))
   }
   // Start with a 2-leaf tree
-  let mut tree = Clade::new(
-    name=Some("root"),
-    clades=[
-      Clade::new(name=Some("t1"), branch_length=Some(1.0)),
-      Clade::new(name=Some("t2"), branch_length=Some(1.0)),
-    ],
-  )
+  let mut tree = Clade::new(name=Some("root"), clades=[
+    Clade::new(name=Some("t1"), branch_length=Some(1.0)),
+    Clade::new(name=Some("t2"), branch_length=Some(1.0)),
+  ])
   for i in 2..<n {
     tree = pda_add_leaf(tree, i + 1, rng)
   }
@@ -825,7 +783,7 @@ pub fn phylo_random_pda(n : Int, rng : Rng) -> Clade {
 /// Add a new leaf to a random edge in the tree (PDA process).
 /// Edges = number of nodes (each node has one edge to its parent,
 /// plus one root stem edge).
-fn pda_add_leaf(tree : Clade, new_id : Int, rng : Rng) -> Clade {
+fn pda_add_leaf(tree : Clade, new_id : Int32, rng : Rng) -> Clade {
   // Count edges: for a rooted tree with k leaves, edges = 2*k - 1
   // (k-1 internal edges + k leaf edges + 1 root stem = 2k)
   // Actually for PDA on rooted trees, we count all edges including
@@ -846,8 +804,8 @@ fn pda_add_leaf(tree : Clade, new_id : Int, rng : Rng) -> Clade {
 /// the edge to its parent. We traverse in order.
 fn pda_insert_on_edge(
   clade : Clade,
-  target : Int,
-  new_id : Int,
+  target : Int32,
+  new_id : Int32,
   counter : Counter,
   include_root_stem : Bool,
 ) -> Clade {
@@ -856,13 +814,10 @@ fn pda_insert_on_edge(
     if counter.val == target {
       // Insert on root stem: create new root with old tree and new leaf
       counter.val = counter.val + 1
-      return Clade::new(
-        name=Some("root"),
-        clades=[
-          clade,
-          Clade::new(name=Some("t" + new_id.to_string()), branch_length=Some(1.0)),
-        ],
-      )
+      return Clade::new(name=Some("root"), clades=[
+        clade,
+        Clade::new(name=Some("t" + new_id.to_string()), branch_length=Some(1.0)),
+      ])
     }
     counter.val = counter.val + 1
   }
@@ -871,13 +826,10 @@ fn pda_insert_on_edge(
     if counter.val == target {
       // Insert on leaf edge: split this leaf into cherry
       counter.val = counter.val + 1
-      return Clade::new(
-        name=Some("internal"),
-        clades=[
-          Clade::new(name=clade.name, branch_length=Some(0.5)),
-          Clade::new(name=Some("t" + new_id.to_string()), branch_length=Some(0.5)),
-        ],
-      )
+      return Clade::new(name=Some("internal"), clades=[
+        Clade::new(name=clade.name, branch_length=Some(0.5)),
+        Clade::new(name=Some("t" + new_id.to_string()), branch_length=Some(0.5)),
+      ])
     }
     counter.val = counter.val + 1
     return clade
@@ -886,18 +838,15 @@ fn pda_insert_on_edge(
   if counter.val == target {
     // Insert on internal edge: split this node
     counter.val = counter.val + 1
-    return Clade::new(
-      name=Some("internal"),
-      clades=[
-        Clade::new(
-          branch_length=Some(0.5),
-          name=clade.name,
-          confidence=clade.confidence,
-          clades=clade.clades,
-        ),
-        Clade::new(name=Some("t" + new_id.to_string()), branch_length=Some(0.5)),
-      ],
-    )
+    return Clade::new(name=Some("internal"), clades=[
+      Clade::new(
+        branch_length=Some(0.5),
+        name=clade.name,
+        confidence=clade.confidence,
+        clades=clade.clades,
+      ),
+      Clade::new(name=Some("t" + new_id.to_string()), branch_length=Some(0.5)),
+    ])
   }
   counter.val = counter.val + 1
   // Recurse into children

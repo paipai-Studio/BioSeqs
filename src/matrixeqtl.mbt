@@ -66,14 +66,14 @@ pub fn MatrixEQTLResult::new(
 /// Output of MatrixEQTL analysis containing all significant results.
 pub struct MatrixEQTLOutput {
   results : Array[MatrixEQTLResult]
-  n_tests : Int
+  n_tests : Int32
 }
 
 ///|
 /// Create a MatrixEQTLOutput struct.
 pub fn MatrixEQTLOutput::new(
   results : Array[MatrixEQTLResult],
-  n_tests : Int,
+  n_tests : Int32,
 ) -> MatrixEQTLOutput {
   MatrixEQTLOutput::{ results, n_tests, }
 }
@@ -90,8 +90,6 @@ fn meqtl_mean(data : Array[Double]) -> Double {
   }
   sum / data.length().to_double()
 }
-
-
 
 ///|
 /// Approximate cumulative distribution function of the standard normal.
@@ -329,7 +327,7 @@ pub fn matrixeqtl_bh_fdr(p_values : Array[Double]) -> Array[Double] {
   }
 
   // Create index array and sort by p-value
-  let sorted_indices : Array[Int] = Array(capacity=0)
+  let sorted_indices : Array[Int32] = Array(capacity=0)
   for i = 0; i < m; i = i + 1 {
     sorted_indices.push(i)
   }
@@ -381,7 +379,7 @@ pub fn matrixeqtl_bh_fdr(p_values : Array[Double]) -> Array[Double] {
 /// FDR correction is applied to all tests.
 pub fn matrixeqtl_run(
   input : MatrixEQTLInput,
-  pv_threshold? : Double = 0.05,
+  pv_threshold~ : Double = 0.05,
 ) -> MatrixEQTLOutput {
   let n_snps = input.snps.length()
   let n_genes = input.gene_expression.length()

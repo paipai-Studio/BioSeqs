@@ -23,8 +23,12 @@ fn main {
   println(@src.skbio_alr([0.1, 0.3, 0.6], 0))
 
   println("\n=== Aitchison arithmetic ===")
-  println("perturb([1/3,1/3,1/3], [1/2,1/2,1]) = \{@src.skbio_perturb([1.0 / 3.0, 1.0 / 3.0, 1.0 / 3.0], [0.5, 0.5, 1.0])}")
-  println("inner([.1,.3,.4,.2], [.2,.4,.2,.2])  = \{@src.skbio_inner(x, [0.2, 0.4, 0.2, 0.2])}")
+  println(
+    "perturb([1/3,1/3,1/3], [1/2,1/2,1]) = \{@src.skbio_perturb([1.0 / 3.0, 1.0 / 3.0, 1.0 / 3.0], [0.5, 0.5, 1.0])}",
+  )
+  println(
+    "inner([.1,.3,.4,.2], [.2,.4,.2,.2])  = \{@src.skbio_inner(x, [0.2, 0.4, 0.2, 0.2])}",
+  )
 
   println("\n=== multi_replace (zero imputation) ===")
   println(@src.skbio_multi_replace([0.2, 0.4, 0.4, 0.0]))

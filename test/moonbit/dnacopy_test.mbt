@@ -5,7 +5,7 @@
 ///|
 /// Build a Cna with one probe per 1kb step starting at 1000.
 fn dc_make_cna(chrom : Array[String], vals : Array[Double]) -> @src.Cna raise {
-  let maploc : Array[Int] = []
+  let maploc : Array[Int32] = []
   let mut i = 0
   while i < vals.length() {
     maploc.push((i + 1) * 1000)

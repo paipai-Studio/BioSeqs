@@ -114,7 +114,7 @@ fn tgw_join_comma(ids : Array[String]) -> String {
 ///|
 /// Lexicographic comparison of two strings by code point, like Python's
 /// str comparison used by sorted().
-fn tgw_cmp_str(a : String, b : String) -> Int {
+fn tgw_cmp_str(a : String, b : String) -> Int32 {
   let ac = tgw_chars(a)
   let bc = tgw_chars(b)
   let n = if ac.length() < bc.length() { ac.length() } else { bc.length() }
@@ -138,7 +138,7 @@ fn tgw_cmp_str(a : String, b : String) -> Int {
 /// ", ".join(sorted(words)) for error messages.
 fn tgw_sorted_join(words : Array[String]) -> String {
   let sorted = words.copy()
-  sorted.sort_by(fn(a : String, b : String) -> Int { tgw_cmp_str(a, b) })
+  sorted.sort_by(fn(a : String, b : String) -> Int32 { tgw_cmp_str(a, b) })
   let buf = StringBuilder()
   for i, w in sorted {
     if i > 0 {
@@ -166,7 +166,7 @@ fn tgw_eq(a : Array[String], b : Array[String]) -> Bool {
 ///|
 /// Strict integer parsing (like Python int() on a stripped string):
 /// optional sign followed by decimal digits.
-fn tgw_parse_int(s : String) -> Int? {
+fn tgw_parse_int(s : String) -> Int32? {
   let chars = tgw_chars(s)
   let mut i = 0
   let mut sign = 1
@@ -198,7 +198,7 @@ fn tgw_parse_int(s : String) -> Int? {
 
 ///|
 /// Two-digit uppercase hexadecimal representation of a byte.
-fn tgw_hex2(byte : Int) -> String {
+fn tgw_hex2(byte : Int32) -> String {
   let digits = tgw_chars("0123456789ABCDEF")
   let buf = StringBuilder()
   buf.write_char(digits[byte >> 4])
@@ -209,7 +209,7 @@ fn tgw_hex2(byte : Int) -> String {
 ///|
 /// Percent-encode a single code point: ASCII bytes directly, larger code
 /// points first encoded as UTF-8. Matches urllib.parse.quote.
-fn tgw_quote_char(cp : Int, buf : StringBuilder) -> Unit {
+fn tgw_quote_char(cp : Int32, buf : StringBuilder) -> Unit {
   if cp < 0x80 {
     buf.write_string("%")
     buf.write_string(tgw_hex2(cp))
@@ -229,7 +229,7 @@ fn tgw_quote_char(cp : Int, buf : StringBuilder) -> Unit {
 }
 
 ///|
-fn tgw_quote_byte(byte : Int, buf : StringBuilder) -> Unit {
+fn tgw_quote_byte(byte : Int32, buf : StringBuilder) -> Unit {
   buf.write_string("%")
   buf.write_string(tgw_hex2(byte))
 }
@@ -327,8 +327,8 @@ pub fn togows_search_count_url(db~ : String, query~ : String) -> String {
 pub fn togows_search_url(
   db~ : String,
   query~ : String,
-  offset? : Int,
-  limit? : Int,
+  offset? : Int32,
+  limit? : Int32,
   format? : String,
 ) -> String raise TogoError {
   let has_offset = offset is Some(_)
@@ -659,7 +659,7 @@ pub fn TogoWSClient::search_count(
   self : TogoWSClient,
   db~ : String,
   query~ : String,
-) -> Int raise TogoError {
+) -> Int32 raise TogoError {
   let url = togows_search_count_url(db~, query~)
   let data = self.open_url(url)
   if data.length() == 0 {
@@ -685,8 +685,8 @@ pub fn TogoWSClient::search(
   self : TogoWSClient,
   db~ : String,
   query~ : String,
-  offset? : Int,
-  limit? : Int,
+  offset? : Int32,
+  limit? : Int32,
   format? : String,
 ) -> String raise TogoError {
   let url = togows_search_url(db~, query~, offset?, limit?, format?)
@@ -705,8 +705,8 @@ pub fn TogoWSClient::search_iter(
   self : TogoWSClient,
   db~ : String,
   query~ : String,
-  limit? : Int,
-  batch? : Int,
+  limit? : Int32,
+  batch? : Int32,
 ) -> Array[String] raise TogoError {
   let batch_size = batch.unwrap_or(100)
   let count = self.search_count(db~, query~)

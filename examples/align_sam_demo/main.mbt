@@ -11,7 +11,7 @@ fn demo_reference() -> String {
 }
 
 ///|
-fn optional_int(value : Int?) -> String {
+fn optional_int(value : Int32?) -> String {
   match value {
     Some(item) => item.to_string()
     None => "unknown"
@@ -19,7 +19,7 @@ fn optional_int(value : Int?) -> String {
 }
 
 ///|
-fn coordinate_text(values : Array[Int]) -> String {
+fn coordinate_text(values : Array[Int32]) -> String {
   let output = StringBuilder()
   output.write_char('[')
   for index in 0..<values.length() {

@@ -9,7 +9,11 @@ pub enum CodonSubstitution {
   NonSynonymous // dN - amino acid change
   Unknown // ambiguous or stop codon
 } derive(Eq, Debug)
+
+///|
 pub extend CodonSubstitution with Eq::{equal, not_equal}
+
+///|
 pub extend CodonSubstitution with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -43,17 +47,17 @@ pub fn codon_sub_unknown() -> CodonSubstitution {
 ///|
 /// Codon substitution counts.
 pub struct CodonSubCounts {
-  synonymous : Int
-  nonsynonymous : Int
-  total : Int
+  synonymous : Int32
+  nonsynonymous : Int32
+  total : Int32
 }
 
 ///|
 /// Construct CodonSubCounts.
 pub fn CodonSubCounts::new(
-  synonymous~ : Int,
-  nonsynonymous~ : Int,
-  total~ : Int,
+  synonymous~ : Int32,
+  nonsynonymous~ : Int32,
+  total~ : Int32,
 ) -> CodonSubCounts {
   CodonSubCounts::{ synonymous, nonsynonymous, total, }
 }
@@ -74,8 +78,8 @@ pub fn DnDsResult::new(
   dn~ : Double,
   ds~ : Double,
   dnds~ : Double,
-  dn_std? : Double? = None,
-  ds_std? : Double? = None,
+  dn_std~ : Double? = None,
+  ds_std~ : Double? = None,
 ) -> DnDsResult {
   DnDsResult::{ dn, ds, dnds, dn_std, ds_std, }
 }
@@ -441,8 +445,8 @@ pub fn pairwise_dnds(
 pub fn codon_usage_bias(seq : String) -> Map[String, Double] {
   let result : Map[String, Double] = Map([], capacity=64)
   let n = seq.length() / 3
-  let aa_counts : Map[String, Int] = Map([], capacity=20)
-  let codon_counts : Map[String, Int] = Map([], capacity=64)
+  let aa_counts : Map[String, Int32] = Map([], capacity=20)
+  let codon_counts : Map[String, Int32] = Map([], capacity=64)
   let mut i = 0
   while i < n {
     let start = i * 3
@@ -550,7 +554,7 @@ pub fn effective_number_of_codons(seq : String) -> Double {
 
 ///|
 /// Count occurrences of a specific codon in a sequence.
-fn count_codon_in_sequence(seq : String, codon : String) -> Int {
+fn count_codon_in_sequence(seq : String, codon : String) -> Int32 {
   let n = seq.length() / 3
   let mut count = 0
   let mut i = 0

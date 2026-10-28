@@ -2,8 +2,8 @@
 fn alignment_counts_pair(
   target : String,
   query : String,
-  target_coordinates : Array[Int],
-  query_coordinates : Array[Int],
+  target_coordinates : Array[Int32],
+  query_coordinates : Array[Int32],
 ) -> @src.CoordinatePairwiseAlignment {
   @src.coordinate_pairwise_alignment(
     "target", target, "query", query, target_coordinates, query_coordinates,
@@ -16,8 +16,8 @@ fn alignment_counts_pair(
 fn alignment_counts_basic(
   target : String,
   query : String,
-  target_coordinates : Array[Int],
-  query_coordinates : Array[Int],
+  target_coordinates : Array[Int32],
+  query_coordinates : Array[Int32],
 ) -> @src.AlignmentCounts {
   alignment_counts_pair(target, query, target_coordinates, query_coordinates).alignment_counts() catch {
     _ => abort("valid alignment should count")

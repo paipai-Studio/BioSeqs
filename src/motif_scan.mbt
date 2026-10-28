@@ -42,8 +42,8 @@ pub struct MotifMatch {
   motif_id : String
   motif_name : String
   sequence_id : String
-  start : Int // 0-based start position
-  end : Int // end position (exclusive)
+  start : Int32 // 0-based start position
+  end : Int32 // end position (exclusive)
   strand : String // "+" or "-"
   score : Double // log-likelihood score
   p_value : Double
@@ -56,8 +56,8 @@ pub fn PositionWeightMatrix::new(
   motif_id~ : String,
   motif_name~ : String,
   matrix~ : Array[Array[Double]],
-  background? : Array[Double] = [0.25, 0.25, 0.25, 0.25],
-  strand? : String = "+-",
+  background~ : Array[Double] = [0.25, 0.25, 0.25, 0.25],
+  strand~ : String = "+-",
 ) -> PositionWeightMatrix {
   PositionWeightMatrix::{ motif_id, motif_name, matrix, background, strand, }
 }
@@ -68,8 +68,8 @@ pub fn MotifMatch::new(
   motif_id~ : String,
   motif_name~ : String,
   sequence_id~ : String,
-  start~ : Int,
-  end~ : Int,
+  start~ : Int32,
+  end~ : Int32,
   strand~ : String,
   score~ : Double,
   p_value~ : Double,
@@ -95,7 +95,7 @@ pub fn MotifMatch::new(
 pub fn motif_scan_pwm_from_counts(
   motif_id : String,
   motif_name : String,
-  counts : Array[Array[Int]],
+  counts : Array[Array[Int32]],
   pseudocount : Double,
 ) -> PositionWeightMatrix {
   let n_bases = counts.length()
@@ -484,7 +484,11 @@ fn ms_log2(x : Double) -> Double {
 ///|
 /// Create a 2D array with distinct inner arrays (Array::make shares references
 /// for mutable element types, so each row must be allocated separately).
-fn ms_make_2d(rows : Int, cols : Int, init : Double) -> Array[Array[Double]] {
+fn ms_make_2d(
+  rows : Int32,
+  cols : Int32,
+  init : Double,
+) -> Array[Array[Double]] {
   let result : Array[Array[Double]] = Array(capacity=0)
   for _ in 0..<rows {
     result.push(Array::make(cols, init))
@@ -494,7 +498,7 @@ fn ms_make_2d(rows : Int, cols : Int, init : Double) -> Array[Array[Double]] {
 
 ///|
 /// Map a DNA base character to its index (A=0, C=1, G=2, T=3). Returns -1 for non-ACGT.
-fn ms_base_index(c : String) -> Int {
+fn ms_base_index(c : String) -> Int32 {
   let upper = c.to_upper()
   match upper {
     "A" => 0
@@ -507,7 +511,7 @@ fn ms_base_index(c : String) -> Int {
 
 ///|
 /// Clamp a bin index to [0, nbins - 1].
-fn ms_clamp_bin(idx : Int, nbins : Int) -> Int {
+fn ms_clamp_bin(idx : Int32, nbins : Int32) -> Int32 {
   if idx < 0 {
     0
   } else if idx >= nbins {

@@ -22,21 +22,21 @@ pub(all) struct ContactEvaluation {
   /// F1 = 2 * P * R / (P + R)
   f1 : Double
   /// True positives count
-  tp : Int
+  tp : Int32
   /// False positives count
-  fp : Int
+  fp : Int32
   /// False negatives count
-  fn_count : Int
+  fn_count : Int32
   /// Precision at top-K: [(k, precision), ...]
-  top_k_precisions : Array[(Int, Double)]
+  top_k_precisions : Array[(Int32, Double)]
   /// Mean 3D distance of true positive predictions (Å)
   mean_tp_dist : Double
   /// Mean 3D distance of false positive predictions (Å)
   mean_fp_dist : Double
   /// Number of predicted contacts
-  num_predicted : Int
+  num_predicted : Int32
   /// Number of true contacts
-  num_true : Int
+  num_true : Int32
 }
 
 ///|
@@ -47,9 +47,9 @@ pub(all) struct ContactEvaluation {
 /// Returns sorted array of (i, j) with i < j.
 pub fn extract_true_contacts(
   chain : Chain,
-  threshold? : Double = 8.0,
-  min_seq_dist? : Int = 5,
-) -> Array[(Int, Int)] {
+  threshold~ : Double = 8.0,
+  min_seq_dist~ : Int32 = 5,
+) -> Array[(Int32, Int32)] {
   let residues = chain.get_residues()
   let ca_coords : Array[Vector3] = Array(capacity=0)
   for res in residues {
@@ -78,9 +78,9 @@ pub fn extract_true_contacts(
 /// Returns array of (i, j, distance) for all qualifying pairs.
 pub fn extract_contacts_with_dist(
   chain : Chain,
-  threshold? : Double = 8.0,
-  min_seq_dist? : Int = 5,
-) -> Array[(Int, Int, Double)] {
+  threshold~ : Double = 8.0,
+  min_seq_dist~ : Int32 = 5,
+) -> Array[(Int32, Int32, Double)] {
   let residues = chain.get_residues()
   let ca_coords : Array[Vector3] = Array(capacity=0)
   for res in residues {
@@ -107,11 +107,7 @@ pub fn extract_contacts_with_dist(
 ///|
 /// Get CA-CA distance for a specific residue pair (i, j).
 /// Returns -1.0 if either residue lacks a CA atom.
-pub fn residue_ca_distance(
-  chain : Chain,
-  i : Int,
-  j : Int,
-) -> Double {
+pub fn residue_ca_distance(chain : Chain, i : Int32, j : Int32) -> Double {
   let residues = chain.get_residues()
   if i < 0 || i >= residues.length() || j < 0 || j >= residues.length() {
     return -1.0
@@ -129,17 +125,13 @@ pub fn residue_ca_distance(
 ///|
 /// Build a hash set of contact pairs for fast lookup.
 /// Key = i * 100000 + j (assuming i, j < 100000)
-fn contact_key(i : Int, j : Int) -> Int {
+fn contact_key(i : Int32, j : Int32) -> Int32 {
   i * 100000 + j
 }
 
 ///|
 /// Check if a pair (i, j) is in the true contact set.
-fn is_true_contact(
-  true_map : Map[Int, Unit],
-  i : Int,
-  j : Int,
-) -> Bool {
+fn is_true_contact(true_map : Map[Int32, Unit], i : Int32, j : Int32) -> Bool {
   let k1 = contact_key(i, j)
   let k2 = contact_key(j, i)
   true_map.contains(k1) || true_map.contains(k2)
@@ -153,11 +145,11 @@ fn is_true_contact(
 /// Evaluate predicted contacts against true contacts.
 /// predicted and true_contacts are arrays of (i, j) pairs with i < j.
 pub fn evaluate_contact_prediction(
-  predicted : Array[(Int, Int)],
-  true_contacts : Array[(Int, Int)],
+  predicted : Array[(Int32, Int32)],
+  true_contacts : Array[(Int32, Int32)],
 ) -> ContactEvaluation {
   // Build true contact set
-  let true_map : Map[Int, Unit] = Map([], capacity=0)
+  let true_map : Map[Int32, Unit] = Map([], capacity=0)
   for pair in true_contacts {
     let (i, j) = pair
     true_map.set(contact_key(i, j), ())
@@ -194,7 +186,7 @@ pub fn evaluate_contact_prediction(
     f1,
     tp,
     fp,
-    fn_count: fn_count,
+    fn_count,
     top_k_precisions: Array(capacity=0),
     mean_tp_dist: 0.0,
     mean_fp_dist: 0.0,
@@ -207,12 +199,12 @@ pub fn evaluate_contact_prediction(
 /// Evaluate predicted contacts with 3D distance information.
 /// Computes mean distances for TP and FP predictions.
 pub fn evaluate_with_distances(
-  predicted : Array[(Int, Int)],
-  true_contacts : Array[(Int, Int)],
+  predicted : Array[(Int32, Int32)],
+  true_contacts : Array[(Int32, Int32)],
   chain : Chain,
 ) -> ContactEvaluation {
   let base = evaluate_contact_prediction(predicted, true_contacts)
-  let true_map : Map[Int, Unit] = Map([], capacity=0)
+  let true_map : Map[Int32, Unit] = Map([], capacity=0)
   for pair in true_contacts {
     let (i, j) = pair
     true_map.set(contact_key(i, j), ())
@@ -236,8 +228,16 @@ pub fn evaluate_with_distances(
   }
   ContactEvaluation::{
     ..base,
-    mean_tp_dist: if tp_count > 0 { tp_dist_sum / tp_count.to_double() } else { 0.0 },
-    mean_fp_dist: if fp_count > 0 { fp_dist_sum / fp_count.to_double() } else { 0.0 },
+    mean_tp_dist: if tp_count > 0 {
+      tp_dist_sum / tp_count.to_double()
+    } else {
+      0.0
+    },
+    mean_fp_dist: if fp_count > 0 {
+      fp_dist_sum / fp_count.to_double()
+    } else {
+      0.0
+    },
   }
 }
 
@@ -250,9 +250,9 @@ pub fn evaluate_with_distances(
 /// Only includes pairs with i < j and |i - j| >= min_seq_dist.
 pub fn rank_dca_pairs(
   scores : Array[Array[Double]],
-  top_k : Int,
-  min_seq_dist : Int,
-) -> Array[(Int, Double)] {
+  top_k : Int32,
+  min_seq_dist : Int32,
+) -> Array[(Int32, Double)] {
   // Returns array of (pair_key, score) sorted descending
   let l = scores.length()
   let pairs = Array(capacity=0)
@@ -279,12 +279,16 @@ pub fn rank_dca_pairs(
     }
   }
   let k = if top_k < n { top_k } else { n }
-  { let r = Array(capacity=k); for i in 0..<k { r.push(pairs[i]) }; r }
+  let r = Array(capacity=k)
+  for i in 0..<k {
+    r.push(pairs[i])
+  }
+  r
 }
 
 ///|
 /// Decode a contact key back to (i, j).
-fn decode_key(key : Int) -> (Int, Int) {
+fn decode_key(key : Int32) -> (Int32, Int32) {
   (key / 100000, key % 100000)
 }
 
@@ -295,9 +299,9 @@ fn decode_key(key : Int) -> (Int, Int) {
 pub fn dca_structure_comparison(
   scores : Array[Array[Double]],
   chain : Chain,
-  top_k : Int,
-  threshold? : Double = 8.0,
-  min_seq_dist? : Int = 5,
+  top_k : Int32,
+  threshold~ : Double = 8.0,
+  min_seq_dist~ : Int32 = 5,
 ) -> ContactEvaluation {
   // Rank DCA scores
   let ranked = rank_dca_pairs(scores, top_k, min_seq_dist)
@@ -322,10 +326,10 @@ pub fn dca_structure_comparison(
 /// Returns array of (k, precision) for each k in k_values.
 pub fn top_k_precision_curve(
   scores : Array[Array[Double]],
-  true_contacts : Array[(Int, Int)],
-  k_values : Array[Int],
-  min_seq_dist : Int,
-) -> Array[(Int, Double)] {
+  true_contacts : Array[(Int32, Int32)],
+  k_values : Array[Int32],
+  min_seq_dist : Int32,
+) -> Array[(Int32, Double)] {
   let l = scores.length()
   // Rank all pairs
   let pairs = Array(capacity=0)
@@ -352,7 +356,7 @@ pub fn top_k_precision_curve(
     }
   }
   // Build true contact set
-  let true_map : Map[Int, Unit] = Map([], capacity=0)
+  let true_map : Map[Int32, Unit] = Map([], capacity=0)
   for pair in true_contacts {
     let (i, j) = pair
     true_map.set(contact_key(i, j), ())
@@ -386,10 +390,10 @@ pub fn top_k_precision_curve(
 pub fn stratified_evaluation(
   scores : Array[Array[Double]],
   chain : Chain,
-  separations : Array[Int],
-  top_k : Int,
-  threshold? : Double = 8.0,
-) -> Array[(Int, ContactEvaluation)] {
+  separations : Array[Int32],
+  top_k : Int32,
+  threshold~ : Double = 8.0,
+) -> Array[(Int32, ContactEvaluation)] {
   let result = Array(capacity=separations.length())
   for sep in separations {
     let eval = dca_structure_comparison(
@@ -483,7 +487,7 @@ pub fn contact_map_overlap(
 pub fn coupling_distance_correlation(
   scores : Array[Array[Double]],
   dist_matrix : Array[Array[Double]],
-  min_seq_dist : Int,
+  min_seq_dist : Int32,
 ) -> (Double, Double) {
   let l = scores.length()
   let score_vals = Array(capacity=0)
@@ -531,10 +535,7 @@ pub fn coupling_distance_correlation(
 
 ///|
 /// Compute Spearman rank correlation between two arrays.
-fn spearman_correlation(
-  x : Array[Double],
-  y : Array[Double],
-) -> Double {
+fn spearman_correlation(x : Array[Double], y : Array[Double]) -> Double {
   let n = x.length()
   if n < 2 {
     return 0.0
@@ -560,7 +561,11 @@ fn spearman_correlation(
     syy = syy + dy * dy
   }
   let denom = ce_sqrt(sxx * syy)
-  if denom > 0.0 { sxy / denom } else { 0.0 }
+  if denom > 0.0 {
+    sxy / denom
+  } else {
+    0.0
+  }
 }
 
 ///|
@@ -613,9 +618,9 @@ pub(all) struct ContactEvalReport {
   /// Overall evaluation (all separations)
   overall : ContactEvaluation
   /// Stratified by sequence separation
-  stratified : Array[(Int, ContactEvaluation)]
+  stratified : Array[(Int32, ContactEvaluation)]
   /// Top-K precision curve
-  precision_curve : Array[(Int, Double)]
+  precision_curve : Array[(Int32, Double)]
   /// Pearson correlation (score vs 1/distance)
   pearson_r : Double
   /// Spearman correlation (score vs 1/distance)
@@ -629,9 +634,9 @@ pub(all) struct ContactEvalReport {
 pub fn contact_eval_report(
   scores : Array[Array[Double]],
   chain : Chain,
-  top_k : Int,
-  threshold? : Double = 8.0,
-  min_seq_dist? : Int = 5,
+  top_k : Int32,
+  threshold~ : Double = 8.0,
+  min_seq_dist~ : Int32 = 5,
 ) -> ContactEvalReport {
   let overall = dca_structure_comparison(
     scores,
@@ -673,9 +678,7 @@ pub fn contact_eval_report(
     dist_matrix.push(row)
   }
   let (pearson_r, spearman_r) = coupling_distance_correlation(
-    scores,
-    dist_matrix,
-    min_seq_dist,
+    scores, dist_matrix, min_seq_dist,
   )
   // Build contact maps for Jaccard
   let l = scores.length()

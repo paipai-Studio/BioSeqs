@@ -7,12 +7,16 @@
 ///|
 /// Result of a k-nearest neighbor query.
 pub struct KNNResult {
-  indices : Array[Array[Int]]
+  indices : Array[Array[Int32]]
   distances : Array[Array[Double]]
-  n_query : Int
-  k : Int
+  n_query : Int32
+  k : Int32
 } derive(Eq, Debug)
+
+///|
 pub extend KNNResult with Eq::{equal, not_equal}
+
+///|
 pub extend KNNResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -22,7 +26,11 @@ pub enum NeighborSearchMethod {
   Annoy
   BruteForce
 } derive(Eq, Debug)
+
+///|
 pub extend NeighborSearchMethod with Eq::{equal, not_equal}
+
+///|
 pub extend NeighborSearchMethod with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -47,38 +55,50 @@ pub fn brute_force_method() -> NeighborSearchMethod {
 /// Options for k-nearest neighbor search.
 pub struct KNNOptions {
   method_ : NeighborSearchMethod
-  k : Int
+  k : Int32
   distance : String
-  n_trees : Int
-  search_k : Int
+  n_trees : Int32
+  search_k : Int32
 } derive(Eq, Debug)
+
+///|
 pub extend KNNOptions with Eq::{equal, not_equal}
+
+///|
 pub extend KNNOptions with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Index result for fast nearest neighbor lookup.
 pub struct IndexResult {
   method_ : NeighborSearchMethod
-  n_points : Int
-  n_dim : Int
+  n_points : Int32
+  n_dim : Int32
   data : Array[Array[Double]]
   centroids : Array[Array[Double]]
   tree_nodes : Array[AnnoyNode]
 } derive(Eq, Debug)
+
+///|
 pub extend IndexResult with Eq::{equal, not_equal}
+
+///|
 pub extend IndexResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// A node in the Annoy tree structure.
 pub struct AnnoyNode {
-  node_id : Int
+  node_id : Int32
   is_leaf : Bool
-  split_dim : Int
+  split_dim : Int32
   split_val : Double
-  children : Array[Int]
-  point_indices : Array[Int]
+  children : Array[Int32]
+  point_indices : Array[Int32]
 } derive(Eq, Debug)
+
+///|
 pub extend AnnoyNode with Eq::{equal, not_equal}
+
+///|
 pub extend AnnoyNode with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -97,7 +117,7 @@ pub fn knn_options_new() -> KNNOptions {
 /// Create KNN options with specified method and k value.
 pub fn knn_options_with_method(
   method_ : NeighborSearchMethod,
-  k : Int,
+  k : Int32,
 ) -> KNNOptions {
   let opts = knn_options_new()
   KNNOptions::{ ..opts, method_, k, }
@@ -107,10 +127,10 @@ pub fn knn_options_with_method(
 /// Create KNN options with all parameters specified.
 pub fn knn_options_full(
   method_ : NeighborSearchMethod,
-  k : Int,
+  k : Int32,
   distance : String,
-  n_trees : Int,
-  search_k : Int,
+  n_trees : Int32,
+  search_k : Int32,
 ) -> KNNOptions {
   KNNOptions::{ method_, k, distance, n_trees, search_k, }
 }
@@ -118,18 +138,18 @@ pub fn knn_options_full(
 ///|
 /// Linear congruential generator state for reproducible random numbers.
 priv struct LCG {
-  state : Int
+  state : Int32
 }
 
 ///|
 /// Create a new LCG with given seed.
-fn lcg_new(seed : Int) -> LCG {
+fn lcg_new(seed : Int32) -> LCG {
   LCG::{ state: if seed <= 0 { 12345 } else { seed }, }
 }
 
 ///|
 /// Generate next random integer from LCG.
-fn lcg_next(lcg : LCG) -> Int {
+fn lcg_next(lcg : LCG) -> Int32 {
   let next = lcg.state * 1103515245 + 12345
   let _ = LCG::{ state: next, }
   next
@@ -164,9 +184,9 @@ pub fn knn_compute_distance(
 /// Initialize centroids for k-means using random data points.
 fn km_init_centroids(
   data : Array[Array[Double]],
-  n_points : Int,
-  n_dim : Int,
-  n_clusters : Int,
+  n_points : Int32,
+  n_dim : Int32,
+  n_clusters : Int32,
 ) -> Array[Array[Double]] {
   let mut lcg = lcg_new(42)
   let centroids : Array[Array[Double]] = []
@@ -201,10 +221,10 @@ fn km_init_centroids(
 fn km_assign_points(
   data : Array[Array[Double]],
   centroids : Array[Array[Double]],
-  n_points : Int,
-  _n_dim : Int,
-  n_clusters : Int,
-) -> Array[Int] {
+  n_points : Int32,
+  _n_dim : Int32,
+  n_clusters : Int32,
+) -> Array[Int32] {
   let assignments = Array::make(n_points, 0)
   for i = 0; i < n_points; i = i + 1 {
     let point = data[i]
@@ -226,10 +246,10 @@ fn km_assign_points(
 /// Update centroids as the mean of assigned points.
 fn km_update_centroids(
   data : Array[Array[Double]],
-  assignments : Array[Int],
-  n_points : Int,
-  n_dim : Int,
-  n_clusters : Int,
+  assignments : Array[Int32],
+  n_points : Int32,
+  n_dim : Int32,
+  n_clusters : Int32,
 ) -> Array[Array[Double]] {
   let new_centroids : Array[Array[Double]] = []
   let counts = Array::make(n_clusters, 0)
@@ -257,11 +277,11 @@ fn km_update_centroids(
 /// Run k-means clustering on data.
 fn km_kmeans(
   data : Array[Array[Double]],
-  n_points : Int,
-  n_dim : Int,
-  n_clusters : Int,
-  max_iter : Int,
-) -> (Array[Array[Double]], Array[Int]) {
+  n_points : Int32,
+  n_dim : Int32,
+  n_clusters : Int32,
+  max_iter : Int32,
+) -> (Array[Array[Double]], Array[Int32]) {
   if n_points == 0 {
     return ([], [])
   }
@@ -299,8 +319,8 @@ fn km_kmeans(
 /// Build index for fast kNN lookup. Dispatches to the appropriate method.
 pub fn build_knn_index(
   data : Array[Array[Double]],
-  n_points : Int,
-  n_dim : Int,
+  n_points : Int32,
+  n_dim : Int32,
   options : KNNOptions,
 ) -> IndexResult {
   match options.method_ {
@@ -323,8 +343,8 @@ pub fn build_knn_index(
 /// Runs k-means clustering and stores centroids for fast lookup.
 pub fn build_kmknn_index(
   data : Array[Array[Double]],
-  n_points : Int,
-  n_dim : Int,
+  n_points : Int32,
+  n_dim : Int32,
   _options : KNNOptions,
 ) -> IndexResult {
   if n_points == 0 {
@@ -362,14 +382,14 @@ pub fn build_kmknn_index(
 /// Build a single Annoy tree recursively.
 fn build_single_annoy_tree(
   data : Array[Array[Double]],
-  point_indices : Array[Int],
-  n_dim : Int,
+  point_indices : Array[Int32],
+  n_dim : Int32,
   nodes : Array[AnnoyNode],
-  node_id_start : Int,
-  depth : Int,
-  max_depth : Int,
+  node_id_start : Int32,
+  depth : Int32,
+  max_depth : Int32,
   lcg : LCG,
-) -> (Array[AnnoyNode], Int, LCG) {
+) -> (Array[AnnoyNode], Int32, LCG) {
   let n = point_indices.length()
   let mut nodes_copy = nodes
   let mut current_lcg = lcg
@@ -420,8 +440,8 @@ fn build_single_annoy_tree(
 
   let split_val = min_val + rand_val * (max_val - min_val)
 
-  let left_indices : Array[Int] = []
-  let right_indices : Array[Int] = []
+  let left_indices : Array[Int32] = []
+  let right_indices : Array[Int32] = []
   for i = 0; i < n; i = i + 1 {
     let idx = point_indices[i]
     if data[idx][actual_dim] <= split_val {
@@ -495,8 +515,8 @@ fn build_single_annoy_tree(
 /// Build an Annoy-like approximate nearest neighbor index.
 pub fn build_annoy_index(
   data : Array[Array[Double]],
-  n_points : Int,
-  n_dim : Int,
+  n_points : Int32,
+  n_dim : Int32,
   options : KNNOptions,
 ) -> IndexResult {
   if n_points == 0 {
@@ -534,7 +554,7 @@ pub fn build_annoy_index(
   for t = 0; t < n_trees; t = t + 1 {
     let (new_lcg, _) = lcg_next_double(lcg)
     lcg = new_lcg
-    let shuffled : Array[Int] = []
+    let shuffled : Array[Int32] = []
     let mut indices_left = point_indices.copy()
     let mut shuf_lcg = lcg_new(100 + t)
     while indices_left.length() > 0 {
@@ -549,7 +569,7 @@ pub fn build_annoy_index(
         idx
       }
       shuffled.push(indices_left[actual_idx])
-      let new_left : Array[Int] = []
+      let new_left : Array[Int32] = []
       for i = 0; i < indices_left.length(); i = i + 1 {
         if i != actual_idx {
           new_left.push(indices_left[i])
@@ -580,10 +600,10 @@ pub fn build_annoy_index(
 /// Sort indices by their corresponding distances using quicksort.
 pub fn knn_quick_sort(
   data : Array[Double],
-  indices : Array[Int],
-  low : Int,
-  high : Int,
-) -> (Array[Int], Array[Double]) {
+  indices : Array[Int32],
+  low : Int32,
+  high : Int32,
+) -> (Array[Int32], Array[Double]) {
   let mut sorted_indices = indices.copy()
   let mut sorted_distances = data.copy()
   if low < high {
@@ -624,7 +644,10 @@ pub fn knn_quick_sort(
 
 ///|
 /// Find indices of the k smallest distances.
-pub fn knn_find_k_smallest(distances : Array[Double], k : Int) -> Array[Int] {
+pub fn knn_find_k_smallest(
+  distances : Array[Double],
+  k : Int32,
+) -> Array[Int32] {
   let n = distances.length()
   if k >= n {
     let result = Array::make(n, 0)
@@ -633,7 +656,7 @@ pub fn knn_find_k_smallest(distances : Array[Double], k : Int) -> Array[Int] {
     }
     return result
   }
-  let indices : Array[Int] = []
+  let indices : Array[Int32] = []
   for i = 0; i < n; i = i + 1 {
     indices.push(i)
   }
@@ -650,11 +673,11 @@ pub fn knn_find_k_smallest(distances : Array[Double], k : Int) -> Array[Int] {
 /// to all data points, sort, and return k nearest.
 pub fn knn_brute_force(
   data : Array[Array[Double]],
-  n_points : Int,
-  _n_dim : Int,
+  n_points : Int32,
+  _n_dim : Int32,
   query_data : Array[Array[Double]],
-  n_query : Int,
-  k : Int,
+  n_query : Int32,
+  k : Int32,
   distance : String,
 ) -> KNNResult {
   if n_query == 0 || n_points == 0 || k == 0 {
@@ -662,7 +685,7 @@ pub fn knn_brute_force(
     return KNNResult::{ indices: [], distances: [], n_query, k: actual_k, }
   }
   let actual_k = if k > n_points { n_points } else { k }
-  let all_indices : Array[Array[Int]] = []
+  let all_indices : Array[Array[Int32]] = []
   let all_distances : Array[Array[Double]] = []
   for q = 0; q < n_query; q = q + 1 {
     let query_point = query_data[q]
@@ -700,7 +723,7 @@ pub fn knn_brute_force(
 pub fn run_knn(
   index : IndexResult,
   query_data : Array[Array[Double]],
-  n_query : Int,
+  n_query : Int32,
   options : KNNOptions,
 ) -> KNNResult {
   match index.method_ {
@@ -725,7 +748,7 @@ pub fn run_knn(
 pub fn knn_kmknn(
   index : IndexResult,
   query_data : Array[Array[Double]],
-  n_query : Int,
+  n_query : Int32,
   options : KNNOptions,
 ) -> KNNResult {
   if n_query == 0 || index.n_points == 0 || options.k == 0 {
@@ -742,7 +765,7 @@ pub fn knn_kmknn(
     options.k
   }
   let n_clusters = index.centroids.length()
-  let all_indices : Array[Array[Int]] = []
+  let all_indices : Array[Array[Int32]] = []
   let all_distances : Array[Array[Double]] = []
 
   let point_cluster = Array::make(index.n_points, 0)
@@ -759,7 +782,7 @@ pub fn knn_kmknn(
     point_cluster[i] = min_c
   }
 
-  let cluster_points : Array[Array[Int]] = []
+  let cluster_points : Array[Array[Int32]] = []
   for c = 0; c < n_clusters; c = c + 1 {
     cluster_points.push([])
   }
@@ -784,7 +807,7 @@ pub fn knn_kmknn(
       n_clusters - 1,
     )
 
-    let candidates : Array[Int] = []
+    let candidates : Array[Int32] = []
     let mut cluster_idx = 0
     while candidates.length() < actual_k && cluster_idx < n_clusters {
       let c = sorted_c_idx[cluster_idx]
@@ -848,7 +871,7 @@ pub fn knn_kmknn(
 pub fn knn_annoy(
   index : IndexResult,
   query_data : Array[Array[Double]],
-  n_query : Int,
+  n_query : Int32,
   options : KNNOptions,
 ) -> KNNResult {
   if n_query == 0 || index.n_points == 0 || options.k == 0 {
@@ -870,12 +893,12 @@ pub fn knn_annoy(
   } else {
     0
   }
-  let all_indices : Array[Array[Int]] = []
+  let all_indices : Array[Array[Int32]] = []
   let all_distances : Array[Array[Double]] = []
 
   for q = 0; q < n_query; q = q + 1 {
     let query = query_data[q]
-    let candidates : Array[Int] = []
+    let candidates : Array[Int32] = []
 
     for t = 0; t < n_trees; t = t + 1 {
       let tree_base = t * nodes_per_tree
@@ -884,7 +907,7 @@ pub fn knn_annoy(
       } else {
         options.search_k
       }
-      let mut nodes_to_visit : Array[(Int, Double)] = []
+      let mut nodes_to_visit : Array[(Int32, Double)] = []
       let root_node = index.tree_nodes[tree_base]
       let root_dist = if root_node.is_leaf {
         0.0
@@ -898,7 +921,7 @@ pub fn knn_annoy(
       while nodes_to_visit.length() > 0 && visited_in_tree < search_k {
         let (node_idx, _) = nodes_to_visit[0]
         let node = index.tree_nodes[node_idx]
-        let new_visit : Array[(Int, Double)] = []
+        let new_visit : Array[(Int32, Double)] = []
         for i = 1; i < nodes_to_visit.length(); i = i + 1 {
           new_visit.push(nodes_to_visit[i])
         }

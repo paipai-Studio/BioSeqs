@@ -154,8 +154,8 @@ fn resolve_distance_model(
 /// for the identity model and `"-"`, `"*"` are skipped for matrix models
 /// (Biopython behavior); pass `skip_letters` to override.
 pub fn DistanceCalculator::new(
-  model? : String = "identity",
-  skip_letters? : Array[String]? = None,
+  model~ : String = "identity",
+  skip_letters~ : Array[String]? = None,
 ) -> DistanceCalculator raise SeqError {
   let (kind, scoring_matrix) = resolve_distance_model(model)
   let default_skip : Array[String] = match kind {
@@ -188,7 +188,7 @@ pub fn DistanceCalculator::model_name(self : DistanceCalculator) -> String {
 /// conversion is exact.
 fn codeunit_to_string(c : UInt16) -> String {
   let buf = StringBuilder()
-  buf.write_char((c.to_int()).unsafe_to_char())
+  buf.write_char(c.to_int().unsafe_to_char())
   buf.to_string()
 }
 
@@ -418,7 +418,7 @@ pub struct TreeConstructor {
 
 ///|
 /// Create a tree constructor with a specific method.
-pub fn TreeConstructor::new(tree_method? : String = "nj") -> TreeConstructor {
+pub fn TreeConstructor::new(tree_method~ : String = "nj") -> TreeConstructor {
   TreeConstructor::{ tree_method, }
 }
 
@@ -638,7 +638,7 @@ fn build_nj(distances : Array[Array[Double]], names : Array[String]) -> Clade {
     return Clade::new(clades=[c1, c2])
   }
 
-  let mut active : Array[Int] = Array(capacity=0)
+  let mut active : Array[Int32] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {
     active.push(i)
   }
@@ -695,7 +695,7 @@ fn build_nj(distances : Array[Array[Double]], names : Array[String]) -> Clade {
     let idx_new_node = next_id - 1
     nodes.push(new_node)
 
-    let keep_indices : Array[Int] = Array(capacity=0)
+    let keep_indices : Array[Int32] = Array(capacity=0)
     for k = 0; k < m; k = k + 1 {
       if k != min_i && k != min_j {
         keep_indices.push(k)
@@ -724,7 +724,7 @@ fn build_nj(distances : Array[Array[Double]], names : Array[String]) -> Clade {
     last_row.push(0.0)
     new_dist_matrix.push(last_row)
 
-    let new_active_list : Array[Int] = Array(capacity=0)
+    let new_active_list : Array[Int32] = Array(capacity=0)
     for k in keep_indices {
       new_active_list.push(active[k])
     }
@@ -762,7 +762,7 @@ fn copy_matrix(matrix : Array[Array[Double]]) -> Array[Array[Double]] {
 
 ///|
 /// Find the pair with minimum distance.
-fn find_min_pair(dist : Array[Array[Double]]) -> (Int, Int) {
+fn find_min_pair(dist : Array[Array[Double]]) -> (Int32, Int32) {
   let n = dist.length()
   let mut min_d = 100000000000000000000000000000.0
   let mut min_i = 0
@@ -783,7 +783,7 @@ fn find_min_pair(dist : Array[Array[Double]]) -> (Int, Int) {
 
 ///|
 /// Count leaf nodes in a tree.
-fn count_leaves(node : BuildNode) -> Int {
+fn count_leaves(node : BuildNode) -> Int32 {
   if node.children.length() == 0 {
     1
   } else {

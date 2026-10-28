@@ -117,16 +117,14 @@ fn kgml_bbox(pathway : KgmlPathway) -> (Double, Double, Double, Double) {
 ///|
 /// Build a `compound-id -> (cx, cy)` map from all entries whose `name`
 /// field carries space-separated KEGG identifiers.
-fn kgml_name_centers(
-  pathway : KgmlPathway,
-) -> Map[String, (Double, Double)] {
+fn kgml_name_centers(pathway : KgmlPathway) -> Map[String, (Double, Double)] {
   let centers : Map[String, (Double, Double)] = Map([])
   for entry in pathway.entries() {
     match kgml_entry_center(entry) {
       Some(center) =>
         for name_view in entry.name().split(" ") {
           let name = name_view.trim().to_owned()
-          if name.length() > 0 && !(centers.contains(name)) {
+          if name.length() > 0 && !centers.contains(name) {
             centers.set(name, center)
           }
         }
@@ -142,7 +140,7 @@ fn kgml_write_text(
   x : Double,
   y : Double,
   text : String,
-  size~ : Int = 9,
+  size~ : Int32 = 9,
   color~ : String = "#000000",
 ) -> Unit {
   svg.write_string(
@@ -185,11 +183,7 @@ fn kgml_write_line(
     "\" stroke-width=\"" +
     kgml_format_double(width) +
     "\"" +
-    (if dash.length() > 0 {
-      " stroke-dasharray=\"" + dash + "\""
-    } else {
-      ""
-    }) +
+    (if dash.length() > 0 { " stroke-dasharray=\"" + dash + "\"" } else { "" }) +
     "/>\n",
   )
 }
@@ -246,8 +240,8 @@ fn kgml_write_arrowhead(
 /// Render the pathway to an SVG document.
 pub fn KgmlCanvas::to_svg(
   self : KgmlCanvas,
-  width~ : Int = 600,
-  height~ : Int = 400,
+  width~ : Int32 = 600,
+  height~ : Int32 = 400,
 ) -> String {
   let svg = StringBuilder()
   svg.write_string(
@@ -376,9 +370,9 @@ pub fn KgmlCanvas::to_svg(
         (Some(entry1), Some(entry2)) =>
           match (kgml_entry_center(entry1), kgml_entry_center(entry2)) {
             (Some((x1, y1)), Some((x2, y2))) => {
-              let color = self.options.relation_colors.get(
-                relation.rtype(),
-              ).unwrap_or("#888888")
+              let color = self.options.relation_colors
+                .get(relation.rtype())
+                .unwrap_or("#888888")
               kgml_write_line(
                 svg,
                 sx(x1),
@@ -453,30 +447,29 @@ pub fn KgmlCanvas::to_svg(
 /// Returns `None` when the KGML fails to parse.
 pub fn kgml_to_svg(
   content : String,
-  width~ : Int = 600,
-  height~ : Int = 400,
+  width~ : Int32 = 600,
+  height~ : Int32 = 400,
 ) -> String? {
   match parse_kgml(content) {
-    Some(pathway) =>
-      Some(KgmlCanvas::new(pathway).to_svg(width~, height~))
+    Some(pathway) => Some(KgmlCanvas::new(pathway).to_svg(width~, height~))
     None => None
   }
 }
 
 ///|
 /// Count entries by type for a quick visual summary.
-pub fn kgml_entry_summary(pathway : KgmlPathway) -> Array[(String, Int)] {
-  let counts : Map[String, Int] = Map([])
+pub fn kgml_entry_summary(pathway : KgmlPathway) -> Array[(String, Int32)] {
+  let counts : Map[String, Int32] = Map([])
   let order : Array[String] = Array(capacity=0)
   for entry in pathway.entries() {
     let t = entry.etype()
-    if !(counts.contains(t)) {
+    if !counts.contains(t) {
       counts.set(t, 0)
       order.push(t)
     }
     counts.set(t, counts.get(t).unwrap_or(0) + 1)
   }
-  let result : Array[(String, Int)] = Array(capacity=0)
+  let result : Array[(String, Int32)] = Array(capacity=0)
   for t in order {
     result.push((t, counts.get(t).unwrap_or(0)))
   }

@@ -13,8 +13,24 @@ fn main {
   let atom1 = @bio.QCPAtomCoordinate::new(1.0, 0.0, 0.0)
   let atom2 = @bio.QCPAtomCoordinate::new(0.0, 1.0, 0.0)
   let atom3 = @bio.QCPAtomCoordinate::new(0.0, 0.0, 1.0)
-  println("  Atom1: (" + atom1.x.to_string() + ", " + atom1.y.to_string() + ", " + atom1.z.to_string() + ")")
-  println("  Atom2: (" + atom2.x.to_string() + ", " + atom2.y.to_string() + ", " + atom2.z.to_string() + ")")
+  println(
+    "  Atom1: (" +
+    atom1.x.to_string() +
+    ", " +
+    atom1.y.to_string() +
+    ", " +
+    atom1.z.to_string() +
+    ")",
+  )
+  println(
+    "  Atom2: (" +
+    atom2.x.to_string() +
+    ", " +
+    atom2.y.to_string() +
+    ", " +
+    atom2.z.to_string() +
+    ")",
+  )
   println("  Distance between atoms: " + atom1.distance(atom2).to_string())
   println("")
 
@@ -40,7 +56,15 @@ fn main {
   println("  Transformed coordinates:")
   let mut i = 0
   while i < transformed.length() {
-    println("    (" + transformed[i].x.to_string() + ", " + transformed[i].y.to_string() + ", " + transformed[i].z.to_string() + ")")
+    println(
+      "    (" +
+      transformed[i].x.to_string() +
+      ", " +
+      transformed[i].y.to_string() +
+      ", " +
+      transformed[i].z.to_string() +
+      ")",
+    )
     i = i + 1
   }
   println("")

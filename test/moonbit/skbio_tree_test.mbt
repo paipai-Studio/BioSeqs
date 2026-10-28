@@ -37,6 +37,7 @@ test "skbio_unifrac" {
 // faith_pd
 // ============================================================
 
+///|
 test "skbio_faith_pd" {
   // root(0) → node1(1.0) → [A(0.5), B(0.5)] + C(2.0)
   let a = @src.SkbioNode::new(Some("A"), 0.5, [])

@@ -127,7 +127,7 @@ pub fn create_test_tree() -> Array[LayoutNode] {
 
 ///|
 /// Compute the number of leaves under each node.
-pub fn ggtree_count_leaves(node : LayoutNode) -> Int {
+pub fn ggtree_count_leaves(node : LayoutNode) -> Int32 {
   if node.children.length() == 0 {
     1
   } else {
@@ -238,7 +238,6 @@ fn ggtree_collect_internal_ids_recursive(
   }
   result.push(node.id)
 }
-
 
 ///|
 /// Collect all node ids in the tree (for bounds computation).

@@ -9,13 +9,13 @@
 /// Value stored in a GDS node.
 pub(all) enum GdsValue {
   GdsString(String)
-  GdsInt(Int)
+  GdsInt(Int32)
   GdsDouble(Double)
   GdsStringArray(Array[String])
-  GdsIntArray(Array[Int])
+  GdsIntArray(Array[Int32])
   GdsDoubleArray(Array[Double])
-  GdsIntMatrix(Array[Array[Int]])
-  GdsInt3D(Array[Array[Array[Int]]])
+  GdsIntMatrix(Array[Array[Int32]])
+  GdsInt3D(Array[Array[Array[Int32]]])
 }
 
 ///|
@@ -168,9 +168,9 @@ fn gds_split_path(path : String) -> Array[String] {
 /// Parse one GT field token ("0/1", "1|0", "0", "./.") into two allele
 /// indices; missing alleles become -1. A haploid token ("0") duplicates
 /// the single allele into the first slot and leaves the second missing.
-fn gds_parse_gt_token(token : String) -> (Int, Int) {
+fn gds_parse_gt_token(token : String) -> (Int32, Int32) {
   let n = token.length()
-  let alleles : Array[Int] = []
+  let alleles : Array[Int32] = []
   let mut current = 0
   let mut has_digits = false
   let mut i = 0
@@ -219,10 +219,10 @@ pub fn seq_vcf2gds(vcf : VcfFile) -> SeqVarData {
 
   let variant_ids : Array[String] = Array(capacity=vcf.len())
   let chroms : Array[String] = Array(capacity=vcf.len())
-  let positions : Array[Int] = Array(capacity=vcf.len())
+  let positions : Array[Int32] = Array(capacity=vcf.len())
   let alleles : Array[Array[String]] = Array(capacity=vcf.len())
   // genotypes[variant][sample] = [a1, a2]
-  let genotypes : Array[Array[Array[Int]]] = Array(capacity=vcf.len())
+  let genotypes : Array[Array[Array[Int32]]] = Array(capacity=vcf.len())
 
   let mut v = 0
   while v < vcf.len() {
@@ -242,7 +242,7 @@ pub fn seq_vcf2gds(vcf : VcfFile) -> SeqVarData {
     }
     alleles.push(alts)
 
-    let per_sample : Array[Array[Int]] = Array(capacity=n_samples)
+    let per_sample : Array[Array[Int32]] = Array(capacity=n_samples)
     for s in 0..<n_samples {
       let name = sample_names[s]
       let mut a1 = -1
@@ -335,7 +335,7 @@ pub fn SeqVarData::new(file : GdsFile) -> SeqVarData {
 }
 
 ///|
-fn seq_gds_count(file : GdsFile, node : String) -> Int {
+fn seq_gds_count(file : GdsFile, node : String) -> Int32 {
   match file.try_get_node(node) {
     Some(node_ref) =>
       match node_ref.value {
@@ -349,7 +349,7 @@ fn seq_gds_count(file : GdsFile, node : String) -> Int {
 
 ///|
 /// Number of samples passing the current filter.
-pub fn SeqVarData::n_samples(self : SeqVarData) -> Int {
+pub fn SeqVarData::n_samples(self : SeqVarData) -> Int32 {
   let mut n = 0
   for keep in self.sample_filter {
     if keep {
@@ -361,13 +361,13 @@ pub fn SeqVarData::n_samples(self : SeqVarData) -> Int {
 
 ///|
 /// Total number of variants (unfiltered).
-pub fn SeqVarData::n_variants_total(self : SeqVarData) -> Int {
+pub fn SeqVarData::n_variants_total(self : SeqVarData) -> Int32 {
   seq_gds_count(self.file, "variant.id")
 }
 
 ///|
 /// Number of variants passing the current filter.
-pub fn SeqVarData::n_variants(self : SeqVarData) -> Int {
+pub fn SeqVarData::n_variants(self : SeqVarData) -> Int32 {
   let mut n = 0
   for keep in self.variant_filter {
     if keep {
@@ -397,8 +397,8 @@ pub fn SeqVarData::chromosomes(self : SeqVarData) -> Array[String] {
 
 ///|
 /// Filtered positions.
-pub fn SeqVarData::positions(self : SeqVarData) -> Array[Int] {
-  let out : Array[Int] = []
+pub fn SeqVarData::positions(self : SeqVarData) -> Array[Int32] {
+  let out : Array[Int32] = []
   match self.file.try_get_node("position") {
     Some(node_ref) =>
       match node_ref.value {
@@ -470,7 +470,7 @@ pub fn SeqVarData::reset_filter(self : SeqVarData) -> Unit {
 /// variant.id=...).
 pub fn SeqVarData::set_variant_filter(
   self : SeqVarData,
-  indices : Array[Int],
+  indices : Array[Int32],
 ) -> Unit raise SeqIOError {
   let total = self.n_variants_total()
   let keep = Array::make(total, false)
@@ -517,8 +517,8 @@ pub fn SeqVarData::set_variant_chrom_filter(
 /// Keep only variants inside the half-open position range [start, end).
 pub fn SeqVarData::set_variant_range_filter(
   self : SeqVarData,
-  start : Int,
-  end : Int,
+  start : Int32,
+  end : Int32,
 ) -> Unit {
   let total = self.n_variants_total()
   let keep = Array::make(total, false)
@@ -546,7 +546,7 @@ pub fn SeqVarData::set_variant_range_filter(
 /// sample.id=...).
 pub fn SeqVarData::set_sample_filter(
   self : SeqVarData,
-  indices : Array[Int],
+  indices : Array[Int32],
 ) -> Unit raise SeqIOError {
   let total = self.sample_filter.length()
   let keep = Array::make(total, false)
@@ -563,8 +563,8 @@ pub fn SeqVarData::set_sample_filter(
 /// Filtered genotype dosages: rows are variants, columns are filtered
 /// samples; value is the number of non-reference alleles (0/1/2) and -1
 /// marks missing calls. Haploid calls ("1") count the single allele.
-pub fn SeqVarData::genotype_dosages(self : SeqVarData) -> Array[Array[Int]] {
-  let dosages : Array[Array[Int]] = []
+pub fn SeqVarData::genotype_dosages(self : SeqVarData) -> Array[Array[Int32]] {
+  let dosages : Array[Array[Int32]] = []
   match self.file.try_get_node("genotype") {
     Some(node_ref) =>
       match node_ref.value {
@@ -572,7 +572,7 @@ pub fn SeqVarData::genotype_dosages(self : SeqVarData) -> Array[Array[Int]] {
           let mut v = 0
           while v < data.length() {
             if v < self.variant_filter.length() && self.variant_filter[v] {
-              let row : Array[Int] = []
+              let row : Array[Int32] = []
               let mut s = 0
               while s < data[v].length() {
                 if s < self.sample_filter.length() && self.sample_filter[s] {
@@ -678,9 +678,9 @@ pub fn SeqVarData::missing_rates(self : SeqVarData) -> Array[Double] {
 ///|
 /// Summary of the filtered dataset, mirroring seqSummary.
 pub struct SeqVarSummary {
-  n_samples : Int
-  n_variants : Int
-  n_chromosomes : Int
+  n_samples : Int32
+  n_variants : Int32
+  n_chromosomes : Int32
   mean_allele_frequency : Double
   mean_missing_rate : Double
 }
@@ -733,7 +733,7 @@ pub fn SeqVarData::summary(self : SeqVarData) -> SeqVarSummary {
 /// Apply a function to each filtered variant and collect the results.
 pub fn SeqVarData::apply_per_variant(
   self : SeqVarData,
-  f : (Array[Int], Int) -> Double,
+  f : (Array[Int32], Int32) -> Double,
 ) -> Array[Double] {
   let dosages = self.genotype_dosages()
   let out : Array[Double] = []

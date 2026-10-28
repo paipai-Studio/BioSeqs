@@ -46,8 +46,8 @@ fn zinbwave_test_model() -> @src.ZinbWaveModel {
 
 ///|
 fn zinbwave_test_matrix(
-  rows : Int,
-  columns : Int,
+  rows : Int32,
+  columns : Int32,
   value : Double,
 ) -> Array[Array[Double]] {
   let matrix : Array[Array[Double]] = []

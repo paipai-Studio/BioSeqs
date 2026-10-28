@@ -77,7 +77,7 @@ pub struct NOISeqResult {
   divergence : Double
   prob : Double
   significant : Bool
-  mut ranking : Int
+  mut ranking : Int32
 }
 
 ///|
@@ -85,8 +85,8 @@ pub struct NOISeqResult {
 pub struct NOISeqResults {
   results : Array[NOISeqResult]
   ds_method : NOISeqMethod
-  n_genes : Int
-  n_sig : Int
+  n_genes : Int32
+  n_sig : Int32
   prob_threshold : Double
   norm_method : NOISeqNorm
 }
@@ -94,9 +94,9 @@ pub struct NOISeqResults {
 ///|
 /// QC diagnostic result.
 pub struct NOISeqQC {
-  biotype_counts : Map[String, Int]
+  biotype_counts : Map[String, Int32]
   gc_content : Double
-  length_distribution : Map[String, Int]
+  length_distribution : Map[String, Int32]
   bias_detected : Bool
 }
 
@@ -161,7 +161,7 @@ pub fn NOISeqSample::library_size(self : NOISeqSample) -> Double {
 
 ///|
 /// Get number of expressed genes.
-pub fn NOISeqSample::n_expressed(self : NOISeqSample) -> Int {
+pub fn NOISeqSample::n_expressed(self : NOISeqSample) -> Int32 {
   let mut n = 0
   let key_list = self.counts.keys().collect()
   let mut i = 0
@@ -179,7 +179,7 @@ pub fn NOISeqSample::n_expressed(self : NOISeqSample) -> Int {
 /// Normalize counts using specified method.
 pub fn noiseq_normalize(
   samples : Array[NOISeqSample],
-  norm_method? : NOISeqNorm = NOISeqNorm::TMM,
+  norm_method~ : NOISeqNorm = NOISeqNorm::TMM,
 ) -> Array[NOISeqSample] {
   match norm_method {
     NOISeqNorm::None => samples
@@ -313,10 +313,10 @@ pub fn noiseq_normalize(
 pub fn noiseq_run(
   control_samples : Array[NOISeqSample],
   treatment_samples : Array[NOISeqSample],
-  ds_method? : NOISeqMethod = NOISeqMethod::NOISeqBio,
-  norm? : NOISeqNorm = NOISeqNorm::TMM,
-  prob_threshold? : Double = 0.8,
-  log2fc_threshold? : Double = 0.0,
+  ds_method~ : NOISeqMethod = NOISeqMethod::NOISeqBio,
+  norm~ : NOISeqNorm = NOISeqNorm::TMM,
+  prob_threshold~ : Double = 0.8,
+  log2fc_threshold~ : Double = 0.0,
 ) -> NOISeqResults {
   // Normalize
   let norm_ctrl = noiseq_normalize(control_samples, norm_method=norm)
@@ -523,7 +523,7 @@ fn noiseq_compute_prob(
 
 ///|
 /// Get number of results.
-pub fn NOISeqResults::get_n_results(self : NOISeqResults) -> Int {
+pub fn NOISeqResults::get_n_results(self : NOISeqResults) -> Int32 {
   self.results.length()
 }
 
@@ -547,7 +547,7 @@ pub fn NOISeqResults::get_significant(
 /// Get top N genes by probability.
 pub fn NOISeqResults::get_top_genes(
   self : NOISeqResults,
-  n : Int,
+  n : Int32,
 ) -> Array[NOISeqResult] {
   let result : Array[NOISeqResult] = Array(capacity=0)
   let take = if n < self.results.length() { n } else { self.results.length() }
@@ -614,9 +614,9 @@ pub fn NOISeqResults::summary(self : NOISeqResults) -> String {
 ///|
 /// Compute QC diagnostics for the data.
 pub fn noiseq_qc(samples : Array[NOISeqSample]) -> NOISeqQC {
-  let biotype_counts : Map[String, Int] = Map([])
+  let biotype_counts : Map[String, Int32] = Map([])
   let gc_content = 50.0 // Simplified: assume 50% GC on average
-  let length_dist : Map[String, Int] = Map([])
+  let length_dist : Map[String, Int32] = Map([])
 
   // Count genes per biotype (simplified: all genes are "protein_coding")
   let mut total_genes = 0

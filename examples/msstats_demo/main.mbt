@@ -28,7 +28,10 @@ fn main {
 
   // Data processing
   println("=== Data Processing (Median Normalization) ===")
-  let processed = @bio.ms_data_process(features, normalization=@bio.ms_norm_median())
+  let processed = @bio.ms_data_process(
+    features,
+    normalization=@bio.ms_norm_median(),
+  )
   println("Processed features: \{processed.length()}")
   println("  First feature intensity (log2): \{processed[0].intensity}")
   println("")
@@ -39,14 +42,20 @@ fn main {
   println("Protein-level results: \{summarized.length()}")
   let mut j = 0
   while j < summarized.length() {
-    println("  \{summarized[j].protein} [\{summarized[j].group}]: log2_abundance=\{summarized[j].log2_abundance}")
+    println(
+      "  \{summarized[j].protein} [\{summarized[j].group}]: log2_abundance=\{summarized[j].log2_abundance}",
+    )
     j = j + 1
   }
   println("")
 
   // Group comparison
   println("=== Group Comparison ===")
-  let results = @bio.ms_group_comparison(summarized, fdr_threshold=0.1, log2fc_threshold=0.5)
+  let results = @bio.ms_group_comparison(
+    summarized,
+    fdr_threshold=0.1,
+    log2fc_threshold=0.5,
+  )
   println(results.summary())
   println("")
 
@@ -56,7 +65,9 @@ fn main {
   let mut k = 0
   while k < top.length() {
     let r = top[k]
-    println("  \{r.protein}: log2FC=\{r.log2fc}, p_val=\{r.p_val}, p_adj=\{r.p_adj}, sig=\{r.significant}")
+    println(
+      "  \{r.protein}: log2FC=\{r.log2fc}, p_val=\{r.p_val}, p_adj=\{r.p_adj}, sig=\{r.significant}",
+    )
     k = k + 1
   }
   println("")
@@ -72,9 +83,18 @@ fn main {
 
   // Normalization methods comparison
   println("=== Normalization Methods ===")
-  let norm_none = @bio.ms_data_process(features, normalization=@bio.ms_norm_none())
-  let norm_med = @bio.ms_data_process(features, normalization=@bio.ms_norm_median())
-  let norm_qu = @bio.ms_data_process(features, normalization=@bio.ms_norm_quantile())
+  let norm_none = @bio.ms_data_process(
+    features,
+    normalization=@bio.ms_norm_none(),
+  )
+  let norm_med = @bio.ms_data_process(
+    features,
+    normalization=@bio.ms_norm_median(),
+  )
+  let norm_qu = @bio.ms_data_process(
+    features,
+    normalization=@bio.ms_norm_quantile(),
+  )
   println("None: first intensity=\{norm_none[0].intensity}")
   println("Median: first intensity=\{norm_med[0].intensity}")
   println("Quantile: first intensity=\{norm_qu[0].intensity}")

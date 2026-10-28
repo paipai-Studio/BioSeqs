@@ -25,9 +25,13 @@
 pub enum MSLevel {
   MS1
   MS2
-  MSn(Int)
+  MSn(Int32)
 } derive(Eq, Debug)
+
+///|
 pub extend MSLevel with Eq::{equal, not_equal}
+
+///|
 pub extend MSLevel with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -44,7 +48,7 @@ pub fn ms_level_ms2() -> MSLevel {
 
 ///|
 /// Create MSn level with specific n.
-pub fn ms_level_msn(n : Int) -> MSLevel {
+pub fn ms_level_msn(n : Int32) -> MSLevel {
   MSLevel::MSn(n)
 }
 
@@ -55,7 +59,11 @@ pub enum Polarity {
   Negative
   Unknown
 } derive(Eq, Debug)
+
+///|
 pub extend Polarity with Eq::{equal, not_equal}
+
+///|
 pub extend Polarity with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -99,11 +107,11 @@ pub struct Spectrum {
   ms_level : MSLevel
   polarity : Polarity
   rt : Double // retention time in seconds
-  scan_index : Int
+  scan_index : Int32
   precursor_mz : Double // for MS2
-  precursor_charge : Int // for MS2
+  precursor_charge : Int32 // for MS2
   tic : Double // total ion current
-  peaks_count : Int
+  peaks_count : Int32
   mut centroided : Bool
   processing_log : Array[ProcessingStep]
 }
@@ -166,7 +174,7 @@ pub fn Spectrum::empty() -> Spectrum {
 pub fn Spectrum::with_precursor(
   self : Spectrum,
   precursor_mz : Double,
-  precursor_charge : Int,
+  precursor_charge : Int32,
 ) -> Spectrum {
   Spectrum::{
     mz: self.mz,
@@ -198,7 +206,7 @@ pub fn Spectrum::intensity(self : Spectrum) -> Array[Double] {
 
 ///|
 /// Get number of peaks.
-pub fn Spectrum::peaks_count(self : Spectrum) -> Int {
+pub fn Spectrum::peaks_count(self : Spectrum) -> Int32 {
   self.peaks_count
 }
 
@@ -237,8 +245,8 @@ pub fn Spectrum::base_peak(self : Spectrum) -> (Double, Double) {
 pub fn Spectrum::find_peak(
   self : Spectrum,
   target_mz : Double,
-  ppm? : Double = 10.0,
-) -> Int {
+  ppm~ : Double = 10.0,
+) -> Int32 {
   let n = self.peaks_count
   if n == 0 {
     return -1
@@ -298,7 +306,7 @@ pub struct Chromatogram {
   intensity : Array[Double] // intensities
   mz_target : Double // target m/z (0 if full range)
   ppm_tolerance : Double
-  n_points : Int
+  n_points : Int32
   acquisition_mode : String // "MRM", "SIM", "XIC", etc.
 }
 
@@ -307,9 +315,9 @@ pub struct Chromatogram {
 pub fn Chromatogram::new(
   rt : Array[Double],
   intensity : Array[Double],
-  mz_target? : Double = 0.0,
-  ppm_tolerance? : Double = 10.0,
-  acquisition_mode? : String = "XIC",
+  mz_target~ : Double = 0.0,
+  ppm_tolerance~ : Double = 10.0,
+  acquisition_mode~ : String = "XIC",
 ) -> Chromatogram {
   let n = rt.length()
   Chromatogram::{
@@ -328,7 +336,7 @@ pub fn Chromatogram::new(
 
 ///|
 /// Get n_points.
-pub fn Chromatogram::n_points(self : Chromatogram) -> Int {
+pub fn Chromatogram::n_points(self : Chromatogram) -> Int32 {
   self.n_points
 }
 
@@ -408,7 +416,7 @@ pub struct MSnFeatureData {
   protein_accessions : Array[String]
   sequence : String // peptide sequence if applicable
   modifications : Array[String]
-  charge : Int
+  charge : Int32
   mz : Double
   rt : Double
   additional : Map[String, String]
@@ -420,7 +428,7 @@ pub fn MSnFeatureData::new(
   feature_name : String,
   protein_accessions : Array[String],
   sequence : String,
-  charge : Int,
+  charge : Int32,
   mz : Double,
   rt : Double,
 ) -> MSnFeatureData {
@@ -442,7 +450,7 @@ pub struct MSnSampleData {
   sample_name : String
   group : String
   subject : String
-  replicate : Int
+  replicate : Int32
   run : String
   acquisition_date : String
   additional : Map[String, String]
@@ -454,7 +462,7 @@ pub fn MSnSampleData::new(
   sample_name : String,
   group : String,
   subject : String,
-  replicate : Int,
+  replicate : Int32,
   run : String,
 ) -> MSnSampleData {
   MSnSampleData::{
@@ -479,8 +487,8 @@ pub struct MSnSet {
   exprs : Array[Array[Double]] // rows=features, cols=samples
   feature_data : Array[MSnFeatureData]
   sample_data : Array[MSnSampleData]
-  n_features : Int
-  n_samples : Int
+  n_features : Int32
+  n_samples : Int32
   processing_log : Array[ProcessingStep]
   mut is_log2 : Bool
 }
@@ -537,13 +545,13 @@ pub fn MSnSet::from_names(
 
 ///|
 /// Get n_features.
-pub fn MSnSet::n_features(self : MSnSet) -> Int {
+pub fn MSnSet::n_features(self : MSnSet) -> Int32 {
   self.n_features
 }
 
 ///|
 /// Get n_samples.
-pub fn MSnSet::n_samples(self : MSnSet) -> Int {
+pub fn MSnSet::n_samples(self : MSnSet) -> Int32 {
   self.n_samples
 }
 
@@ -620,7 +628,7 @@ fn mbn_abs(x : Double) -> Double {
 
 ///|
 /// Log2 transform intensities in MSnSet (with offset for zeros).
-pub fn MSnSet::log2_transform(self : MSnSet, offset? : Double = 1.0) -> MSnSet {
+pub fn MSnSet::log2_transform(self : MSnSet, offset~ : Double = 1.0) -> MSnSet {
   if self.is_log2 {
     return self
   }
@@ -650,7 +658,7 @@ pub fn MSnSet::log2_transform(self : MSnSet, offset? : Double = 1.0) -> MSnSet {
 ///          "zero" (set to 0), "min" (row min / 2)
 pub fn MSnSet::impute_missing(
   self : MSnSet,
-  method_? : String = "mean",
+  method_~ : String = "mean",
 ) -> MSnSet {
   let n_f = self.n_features
   let n_s = self.n_samples
@@ -708,7 +716,7 @@ pub fn MSnSet::impute_missing(
 /// Common for proteomics TMT data (sum normalization).
 pub fn MSnSet::normalize_sum(
   self : MSnSet,
-  target? : Double = 1000000.0,
+  target~ : Double = 1000000.0,
 ) -> MSnSet {
   let n_f = self.n_features
   let n_s = self.n_samples
@@ -794,10 +802,10 @@ pub fn MSnSet::normalize_median_center(self : MSnSet) -> MSnSet {
 /// Returns new MSnSet with one row per unique protein accession.
 pub fn MSnSet::summarize_to_proteins(
   self : MSnSet,
-  method_? : String = "sum",
+  method_~ : String = "sum",
 ) -> MSnSet {
   // Map from protein accession -> list of row indices
-  let protein_rows : Map[String, Array[Int]] = Map([], capacity=0)
+  let protein_rows : Map[String, Array[Int32]] = Map([], capacity=0)
   for i in 0..<self.n_features {
     let prots = self.feature_data[i].protein_accessions
     if prots.length() == 0 {
@@ -807,7 +815,7 @@ pub fn MSnSet::summarize_to_proteins(
         let existing = protein_rows.get(name)
         match existing {
           Some(arr) => {
-            let new_arr : Array[Int] = []
+            let new_arr : Array[Int32] = []
             for x in arr {
               new_arr.push(x)
             }
@@ -825,7 +833,7 @@ pub fn MSnSet::summarize_to_proteins(
           let existing = protein_rows.get(p)
           match existing {
             Some(arr) => {
-              let new_arr : Array[Int] = []
+              let new_arr : Array[Int32] = []
               for x in arr {
                 new_arr.push(x)
               }
@@ -908,7 +916,7 @@ pub fn MSnSet::summarize_to_proteins(
 /// Window size is the full window (will be made odd). Returns smoothed Spectrum.
 pub fn Spectrum::smooth_moving_average(
   self : Spectrum,
-  half_window? : Int = 2,
+  half_window~ : Int32 = 2,
 ) -> Spectrum {
   let n = self.peaks_count
   if n == 0 {
@@ -935,7 +943,7 @@ pub fn Spectrum::smooth_moving_average(
 /// subtract minimum from a sliding window.
 pub fn Spectrum::baseline_correct_minwin(
   self : Spectrum,
-  half_window? : Int = 20,
+  half_window~ : Int32 = 20,
 ) -> Spectrum {
   let n = self.peaks_count
   if n == 0 {
@@ -968,7 +976,7 @@ pub fn Spectrum::baseline_correct_minwin(
 /// Returns a new centroided Spectrum with only peak locations.
 pub fn Spectrum::centroid_simple(
   self : Spectrum,
-  snr_threshold? : Double = 3.0,
+  snr_threshold~ : Double = 3.0,
 ) -> Spectrum {
   let n = self.peaks_count
   if n < 3 {
@@ -1045,9 +1053,9 @@ fn mbn_sort_dbl(arr : Array[Double]) -> Array[Double] {
 /// Returns array of (sample_name, n_features_detected, total_intensity, median_intensity, coef_of_variation)
 pub fn MSnSet::sample_qc(
   self : MSnSet,
-) -> Array[(String, Int, Double, Double, Double)] {
+) -> Array[(String, Int32, Double, Double, Double)] {
   let n_s = self.n_samples
-  let result : Array[(String, Int, Double, Double, Double)] = []
+  let result : Array[(String, Int32, Double, Double, Double)] = []
   for j in 0..<n_s {
     let mut detected = 0
     let mut total = 0.0

@@ -75,7 +75,7 @@ pub struct PseudoBulk {
   sample_id : String
   cluster_id : String
   group_id : String
-  n_cells : Int
+  n_cells : Int32
   gene_counts : Map[String, Double]
 }
 
@@ -97,9 +97,9 @@ pub struct DSResult {
 pub struct DSResults {
   results : Array[DSResult]
   ds_method : DSMethod
-  n_genes : Int
-  n_clusters : Int
-  n_sig : Int
+  n_genes : Int32
+  n_clusters : Int32
+  n_sig : Int32
   fdr_threshold : Double
 }
 
@@ -108,8 +108,8 @@ pub struct DSResults {
 pub struct SampleQC {
   sample_id : String
   cluster_id : String
-  n_cells : Int
-  n_genes : Int
+  n_cells : Int32
+  n_genes : Int32
   total_counts : Double
   median_genes_per_cell : Double
 }
@@ -183,7 +183,7 @@ pub fn SingleCell::total_counts(self : SingleCell) -> Double {
 
 ///|
 /// Get number of expressed genes for a cell.
-pub fn SingleCell::n_expressed(self : SingleCell) -> Int {
+pub fn SingleCell::n_expressed(self : SingleCell) -> Int32 {
   let mut n = 0
   let keys = self.gene_counts.keys().collect()
   let mut i = 0
@@ -201,7 +201,7 @@ pub fn SingleCell::n_expressed(self : SingleCell) -> Int {
 /// Aggregate single cells into pseudo-bulk samples.
 pub fn aggregate_cells(
   cells : Array[SingleCell],
-  method_? : AggregationMethod = AggregationMethod::Sum,
+  method_~ : AggregationMethod = AggregationMethod::Sum,
 ) -> Array[PseudoBulk] {
   // Group cells by (sample_id, cluster_id)
   let groups : Map[String, Array[SingleCell]] = Map([])
@@ -339,7 +339,7 @@ pub fn PseudoBulk::total_counts(self : PseudoBulk) -> Double {
 
 ///|
 /// Get number of expressed genes from pseudo-bulk.
-pub fn PseudoBulk::n_expressed(self : PseudoBulk) -> Int {
+pub fn PseudoBulk::n_expressed(self : PseudoBulk) -> Int32 {
   let mut n = 0
   let keys = self.gene_counts.keys().collect()
   let mut i = 0
@@ -357,9 +357,9 @@ pub fn PseudoBulk::n_expressed(self : PseudoBulk) -> Int {
 /// Run differential state analysis on pseudo-bulk data.
 pub fn run_ds_analysis(
   pb_samples : Array[PseudoBulk],
-  method_? : DSMethod = DSMethod::EdgeR,
-  fdr_threshold? : Double = 0.05,
-  log2fc_threshold? : Double = 1.0,
+  method_~ : DSMethod = DSMethod::EdgeR,
+  fdr_threshold~ : Double = 0.05,
+  log2fc_threshold~ : Double = 1.0,
 ) -> DSResults {
   // Group by cluster_id
   let cluster_groups : Map[String, Array[PseudoBulk]] = Map([])
@@ -607,7 +607,7 @@ fn muscat_bh_adjust(p_values : Array[Double]) -> Array[Double] {
   }
 
   // Create index-value pairs and sort by p-value
-  let indexed : Array[(Int, Double)] = Array(capacity=0)
+  let indexed : Array[(Int32, Double)] = Array(capacity=0)
   let mut i = 0
   while i < n {
     indexed.push((i, p_values[i]))
@@ -659,7 +659,7 @@ fn muscat_bh_adjust(p_values : Array[Double]) -> Array[Double] {
 
 ///|
 /// Get number of results.
-pub fn DSResults::get_n_results(self : DSResults) -> Int {
+pub fn DSResults::get_n_results(self : DSResults) -> Int32 {
   self.results.length()
 }
 
@@ -696,7 +696,7 @@ pub fn DSResults::get_cluster_results(
 
 ///|
 /// Get top N genes by adjusted p-value.
-pub fn DSResults::get_top_genes(self : DSResults, n : Int) -> Array[DSResult] {
+pub fn DSResults::get_top_genes(self : DSResults, n : Int32) -> Array[DSResult] {
   let sorted = self.results.copy()
   let len = sorted.length()
   let mut i = 0

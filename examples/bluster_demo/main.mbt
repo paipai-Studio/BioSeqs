@@ -1,5 +1,5 @@
 ///|
-fn bluster_demo_ints(values : Array[Int]) -> String {
+fn bluster_demo_ints(values : Array[Int32]) -> String {
   values.map(fn(value) { value.to_string() }).join(", ")
 }
 

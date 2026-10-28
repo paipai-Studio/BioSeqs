@@ -6,7 +6,7 @@ pub struct EnrichTerm {
   adjusted_pvalue : Double
   enrichment_score : Double
   nes : Double
-  gene_count : Int
+  gene_count : Int32
   genes : Array[String]
 }
 
@@ -25,7 +25,7 @@ pub fn EnrichTerm::new(
   adjusted_pvalue : Double,
   enrichment_score : Double,
   nes : Double,
-  gene_count : Int,
+  gene_count : Int32,
   genes : Array[String],
 ) -> EnrichTerm {
   EnrichTerm::{
@@ -64,7 +64,7 @@ fn copy_enrich_term_array(arr : Array[EnrichTerm]) -> Array[EnrichTerm] {
 ///|
 fn set_enrich_term_array(
   arr : Array[EnrichTerm],
-  index : Int,
+  index : Int32,
   value : EnrichTerm,
 ) -> Array[EnrichTerm] {
   let len = arr.length()
@@ -200,7 +200,7 @@ fn sort_terms_by_nes(terms : Array[EnrichTerm]) -> Array[EnrichTerm] {
 ///|
 pub fn bio_enrichplot_barplot(
   data : EnrichResult,
-  top_n : Int,
+  top_n : Int32,
   value_type : String,
   title : String,
 ) -> String {
@@ -265,7 +265,7 @@ pub fn bio_enrichplot_barplot(
 ///|
 pub fn bio_enrichplot_dotplot(
   data : EnrichResult,
-  top_n : Int,
+  top_n : Int32,
   title : String,
 ) -> String {
   let terms = copy_enrich_term_array(data.terms)
@@ -318,8 +318,8 @@ pub fn bio_enrichplot_dotplot(
 ///|
 pub fn bio_enrichplot_heatmap(
   data : EnrichResult,
-  top_n : Int,
-  _gene_count : Int,
+  top_n : Int32,
+  _gene_count : Int32,
   title : String,
 ) -> String {
   let terms = copy_enrich_term_array(data.terms)
@@ -327,7 +327,7 @@ pub fn bio_enrichplot_heatmap(
 
   let n = if sorted.length() < top_n { sorted.length() } else { top_n }
 
-  let gene_count_map : Map[String, Int] = Map([], capacity=0)
+  let gene_count_map : Map[String, Int32] = Map([], capacity=0)
   let gene_counts = gene_count_map
 
   let mut i = 0
@@ -414,8 +414,6 @@ pub fn bio_enrichplot_heatmap(
   result
 }
 
-
-
 ///|
 fn contains_gene(genes : Array[String], gene : String) -> Bool {
   let mut i = 0
@@ -431,7 +429,7 @@ fn contains_gene(genes : Array[String], gene : String) -> Bool {
 ///|
 pub fn bio_enrichplot_cnetplot(
   data : EnrichResult,
-  top_n : Int,
+  top_n : Int32,
   title : String,
 ) -> String {
   let terms = copy_enrich_term_array(data.terms)
@@ -629,7 +627,7 @@ fn create_gene_hashmap(genes : Array[String]) -> Map[String, Bool] {
 fn count_intersection(
   set1 : Map[String, Bool],
   set2 : Map[String, Bool],
-) -> Int {
+) -> Int32 {
   let entries = set1.iter().collect()
   let len = entries.length()
   let mut count = 0
@@ -648,7 +646,7 @@ fn count_intersection(
 fn calculate_union_size(
   set1 : Map[String, Bool],
   set2 : Map[String, Bool],
-) -> Int {
+) -> Int32 {
   let entries1 = set1.iter().collect()
   let entries2 = set2.iter().collect()
 

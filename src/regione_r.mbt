@@ -18,19 +18,19 @@
 /// 1-based, so valid positions on a chromosome run from 1 to its length.
 pub struct GenomeLayout {
   chroms : Array[String]
-  lengths : Array[Int]
+  lengths : Array[Int32]
 }
 
 ///|
 /// Build a genome layout from (chromosome, length) pairs.
 pub fn GenomeLayout::new(
-  pairs : Array[(String, Int)],
+  pairs : Array[(String, Int32)],
 ) -> GenomeLayout raise SeqError {
   if pairs.length() == 0 {
     raise SeqError("genome layout must contain at least one chromosome")
   }
   let chroms : Array[String] = []
-  let lengths : Array[Int] = []
+  let lengths : Array[Int32] = []
   for pair in pairs {
     if pair.1 <= 0 {
       raise SeqError("chromosome length must be positive")
@@ -48,7 +48,7 @@ pub fn GenomeLayout::new(
 
 ///|
 /// Look up a chromosome index by name; -1 when absent.
-fn rr_chrom_index(genome : GenomeLayout, chrom : String) -> Int {
+fn rr_chrom_index(genome : GenomeLayout, chrom : String) -> Int32 {
   let mut i = 0
   while i < genome.chroms.length() {
     if genome.chroms[i] == chrom {
@@ -62,8 +62,8 @@ fn rr_chrom_index(genome : GenomeLayout, chrom : String) -> Int {
 ///|
 /// Permutation test options mirroring regioneR::permTest defaults.
 pub struct RegionPermOptions {
-  ntimes : Int
-  seed : Int
+  ntimes : Int32
+  seed : Int32
   alternative : String
   per_chromosome : Bool
   allow_overlaps : Bool
@@ -86,11 +86,11 @@ pub fn RegionPermOptions::default() -> RegionPermOptions {
 /// Construct options with explicit overrides; unset parameters keep the
 /// regioneR defaults.
 pub fn RegionPermOptions::of(
-  ntimes? : Int = 100,
-  seed? : Int = 1,
-  alternative? : String = "greater",
-  per_chromosome? : Bool = true,
-  allow_overlaps? : Bool = true,
+  ntimes~ : Int32 = 100,
+  seed~ : Int32 = 1,
+  alternative~ : String = "greater",
+  per_chromosome~ : Bool = true,
+  allow_overlaps~ : Bool = true,
 ) -> RegionPermOptions {
   { ntimes, seed, alternative, per_chromosome, allow_overlaps, }
 }
@@ -105,18 +105,18 @@ pub struct PermTestResult {
   z_score : Double
   p_value : Double
   alternative : String
-  ntimes : Int
+  ntimes : Int32
 }
 
 ///|
 /// Deterministic Lehmer (MINSTD) PRNG with Schrage decomposition for the
 /// randomizations - the same generator scheme used across this library.
 priv struct RrRng {
-  mut state : Int
+  mut state : Int32
 }
 
 ///|
-fn RrRng::new(seed : Int) -> RrRng {
+fn RrRng::new(seed : Int32) -> RrRng {
   // map any seed into [1, 2147483646], the valid multiplicative group
   let s = (seed - 1) % 2147483646 + 1
   let rng : RrRng = { state: if s > 0 { s } else { s + 2147483646 }, }
@@ -131,7 +131,7 @@ fn RrRng::new(seed : Int) -> RrRng {
 
 ///|
 /// Advance the generator and return the raw value in [1, 2147483646].
-fn RrRng::next(self : RrRng) -> Int {
+fn RrRng::next(self : RrRng) -> Int32 {
   let normalized = (self.state - 1) % 2147483646 + 1
   let quotient = normalized / 44488
   let remainder = normalized % 44488
@@ -149,7 +149,7 @@ fn RrRng::next_uniform(self : RrRng) -> Double {
 
 ///|
 /// Uniform integer in [0, bound).
-fn RrRng::next_bound(self : RrRng, bound : Int) -> Int {
+fn RrRng::next_bound(self : RrRng, bound : Int32) -> Int32 {
   let r = (self.next_uniform() * bound.to_double()).to_int()
   if r >= bound {
     bound - 1
@@ -163,8 +163,8 @@ fn RrRng::next_bound(self : RrRng, bound : Int) -> Int {
 ///|
 /// Merge and sort a set of intervals (1-based, inclusive) per chromosome.
 /// Returns a map from chromosome name to the sorted, merged interval list.
-fn rr_mask_by_chrom(mask : GRanges) -> Map[String, Array[(Int, Int)]] {
-  let raw : Map[String, Array[(Int, Int)]] = Map([])
+fn rr_mask_by_chrom(mask : GRanges) -> Map[String, Array[(Int32, Int32)]] {
+  let raw : Map[String, Array[(Int32, Int32)]] = Map([])
   let n = granges_length(mask)
   let mut i = 0
   while i < n {
@@ -175,9 +175,9 @@ fn rr_mask_by_chrom(mask : GRanges) -> Map[String, Array[(Int, Int)]] {
     }
     i = i + 1
   }
-  let merged : Map[String, Array[(Int, Int)]] = Map([])
+  let merged : Map[String, Array[(Int32, Int32)]] = Map([])
   for chrom, ivs in raw {
-    ivs.sort_by(fn(a : (Int, Int), b : (Int, Int)) -> Int {
+    ivs.sort_by(fn(a : (Int32, Int32), b : (Int32, Int32)) -> Int32 {
       let c = a.0.compare(b.0)
       if c == 0 {
         a.1.compare(b.1)
@@ -185,7 +185,7 @@ fn rr_mask_by_chrom(mask : GRanges) -> Map[String, Array[(Int, Int)]] {
         c
       }
     })
-    let out : Array[(Int, Int)] = []
+    let out : Array[(Int32, Int32)] = []
     for iv in ivs {
       if out.length() > 0 && iv.0 <= out[out.length() - 1].1 + 1 {
         // contiguous or overlapping: extend the last interval
@@ -225,7 +225,7 @@ fn rr_validate(a : GRanges, genome : GenomeLayout) -> String {
 ///|
 /// Number of valid start positions for a region of width `w` inside a
 /// sorted, merged allowed-interval list, plus the interval list itself.
-fn rr_total_starts(allowed : Array[(Int, Int)], w : Int) -> Int {
+fn rr_total_starts(allowed : Array[(Int32, Int32)], w : Int32) -> Int32 {
   let mut total = 0
   for iv in allowed {
     let avail = iv.1 - iv.0 + 1
@@ -241,10 +241,10 @@ fn rr_total_starts(allowed : Array[(Int, Int)], w : Int) -> Int {
 /// interval list, using `r` uniform in [0, total_starts). Returns the
 /// picked interval index together with the absolute start position.
 fn rr_pick_start(
-  allowed : Array[(Int, Int)],
-  w : Int,
-  r : Int,
-) -> (Int, Int) raise SeqError {
+  allowed : Array[(Int32, Int32)],
+  w : Int32,
+  r : Int32,
+) -> (Int32, Int32) raise SeqError {
   let mut remaining = r
   let mut idx = 0
   for iv in allowed {
@@ -265,8 +265,8 @@ fn rr_pick_start(
 /// Allowed intervals for one cache entry plus, in global-pool mode, the
 /// chromosome index each interval belongs to.
 priv struct RrAllowed {
-  ivs : Array[(Int, Int)]
-  chrom_ids : Array[Int]
+  ivs : Array[(Int32, Int32)]
+  chrom_ids : Array[Int32]
 }
 
 ///|
@@ -274,10 +274,10 @@ priv struct RrAllowed {
 /// len], appending to `ivs`; `chrom_ids` receives `ci` per interval.
 fn rr_collect_allowed(
   genome : GenomeLayout,
-  ci : Int,
-  mask_map : Map[String, Array[(Int, Int)]],
-  ivs : Array[(Int, Int)],
-  chrom_ids : Array[Int],
+  ci : Int32,
+  mask_map : Map[String, Array[(Int32, Int32)]],
+  ivs : Array[(Int32, Int32)],
+  chrom_ids : Array[Int32],
 ) -> Unit {
   let len = genome.lengths[ci]
   let masked = match mask_map.get(genome.chroms[ci]) {
@@ -311,7 +311,7 @@ fn rr_collect_allowed(
 fn rr_randomize_with_rng(
   a : GRanges,
   genome : GenomeLayout,
-  mask_map : Map[String, Array[(Int, Int)]],
+  mask_map : Map[String, Array[(Int32, Int32)]],
   per_chromosome : Bool,
   rng : RrRng,
 ) -> GRanges raise SeqError {
@@ -321,8 +321,8 @@ fn rr_randomize_with_rng(
   }
   let n = granges_length(a)
   let new_seqnames : Array[String] = []
-  let new_starts : Array[Int] = Array::make(n, 0)
-  let new_ends : Array[Int] = Array::make(n, 0)
+  let new_starts : Array[Int32] = Array::make(n, 0)
+  let new_ends : Array[Int32] = Array::make(n, 0)
   // cache of allowed-interval lists: per chromosome + width in
   // per-chromosome mode, per width across the whole genome otherwise
   let iv_cache : Map[String, RrAllowed] = Map([])
@@ -377,8 +377,8 @@ fn rr_randomize_with_rng(
 pub fn randomize_regions(
   a : GRanges,
   genome : GenomeLayout,
-  mask? : GRanges = granges([], [], []),
-  options? : RegionPermOptions = RegionPermOptions::default(),
+  mask~ : GRanges = granges([], [], []),
+  options~ : RegionPermOptions = RegionPermOptions::default(),
 ) -> GRanges raise SeqError {
   rr_randomize_with_rng(
     a,
@@ -398,7 +398,7 @@ pub fn randomize_regions(
 pub fn circular_randomize_regions(
   a : GRanges,
   genome : GenomeLayout,
-  options? : RegionPermOptions = RegionPermOptions::default(),
+  options~ : RegionPermOptions = RegionPermOptions::default(),
 ) -> GRanges raise SeqError {
   let msg = rr_validate(a, genome)
   if msg != "" {
@@ -406,8 +406,8 @@ pub fn circular_randomize_regions(
   }
   let rng = RrRng::new(options.seed)
   let n = granges_length(a)
-  let new_starts : Array[Int] = Array::make(n, 0)
-  let new_ends : Array[Int] = Array::make(n, 0)
+  let new_starts : Array[Int32] = Array::make(n, 0)
+  let new_ends : Array[Int32] = Array::make(n, 0)
   let mut i = 0
   while i < n {
     let w = a.ends[i] - a.starts[i] + 1
@@ -436,8 +436,8 @@ pub fn circular_randomize_regions(
 pub fn stat_num_overlaps(
   a : GRanges,
   b : GRanges,
-  count_once? : Bool = false,
-) -> Int {
+  count_once~ : Bool = false,
+) -> Int32 {
   let counts = count_overlaps(a, b)
   let mut total = 0
   for c in counts {
@@ -558,8 +558,8 @@ pub fn perm_test(
   b : GRanges,
   genome : GenomeLayout,
   statistic : (GRanges, GRanges) -> Double,
-  mask? : GRanges = granges([], [], []),
-  options? : RegionPermOptions = RegionPermOptions::default(),
+  mask~ : GRanges = granges([], [], []),
+  options~ : RegionPermOptions = RegionPermOptions::default(),
 ) -> PermTestResult raise SeqError {
   if options.ntimes <= 0 {
     raise SeqError("ntimes must be positive")
@@ -602,9 +602,9 @@ pub fn overlap_perm_test(
   a : GRanges,
   b : GRanges,
   genome : GenomeLayout,
-  mask? : GRanges = granges([], [], []),
-  count_once? : Bool = false,
-  options? : RegionPermOptions = RegionPermOptions::default(),
+  mask~ : GRanges = granges([], [], []),
+  count_once~ : Bool = false,
+  options~ : RegionPermOptions = RegionPermOptions::default(),
 ) -> PermTestResult raise SeqError {
   perm_test(
     a,

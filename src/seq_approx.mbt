@@ -8,10 +8,10 @@
 pub struct ApproxMatch {
   pattern : String
   query : String
-  start : Int
-  end : Int
-  mismatches : Int
-  score : Int
+  start : Int32
+  end : Int32
+  mismatches : Int32
+  score : Int32
   is_match : Bool
 }
 
@@ -29,25 +29,25 @@ pub fn ApproxMatch::get_query(self : ApproxMatch) -> String {
 
 ///|
 /// Get the start position of the match (0-based).
-pub fn ApproxMatch::get_start(self : ApproxMatch) -> Int {
+pub fn ApproxMatch::get_start(self : ApproxMatch) -> Int32 {
   self.start
 }
 
 ///|
 /// Get the end position of the match (exclusive, 0-based).
-pub fn ApproxMatch::get_end(self : ApproxMatch) -> Int {
+pub fn ApproxMatch::get_end(self : ApproxMatch) -> Int32 {
   self.end
 }
 
 ///|
 /// Get the number of mismatches in the alignment.
-pub fn ApproxMatch::get_mismatches(self : ApproxMatch) -> Int {
+pub fn ApproxMatch::get_mismatches(self : ApproxMatch) -> Int32 {
   self.mismatches
 }
 
 ///|
 /// Get the score of the match (positive = match, negative = mismatch).
-pub fn ApproxMatch::get_score(self : ApproxMatch) -> Int {
+pub fn ApproxMatch::get_score(self : ApproxMatch) -> Int32 {
   self.score
 }
 
@@ -73,10 +73,10 @@ pub fn ApproxMatch::to_string(self : ApproxMatch) -> String {
 pub fn approx_match_new(
   pattern : String,
   query : String,
-  start : Int,
-  end : Int,
-  mismatches : Int,
-  score : Int,
+  start : Int32,
+  end : Int32,
+  mismatches : Int32,
+  score : Int32,
   is_match : Bool,
 ) -> ApproxMatch {
   ApproxMatch::{ pattern, query, start, end, mismatches, score, is_match, }
@@ -84,7 +84,7 @@ pub fn approx_match_new(
 
 ///|
 /// Count mismatches between two equal-length strings.
-pub fn count_mismatches(s1 : String, s2 : String) -> Int {
+pub fn count_mismatches(s1 : String, s2 : String) -> Int32 {
   let len = if s1.length() < s2.length() { s1.length() } else { s2.length() }
   let mut count = 0
   let mut i = 0
@@ -105,7 +105,7 @@ pub fn count_mismatches(s1 : String, s2 : String) -> Int {
 pub fn approx_search(
   pattern : String,
   query : String,
-  max_mismatches : Int,
+  max_mismatches : Int32,
 ) -> ApproxMatch {
   let pat_len = pattern.length()
   let qry_len = query.length()
@@ -172,7 +172,7 @@ pub fn approx_search(
 pub fn approx_search_with_indels(
   pattern : String,
   query : String,
-  max_errors : Int,
+  max_errors : Int32,
 ) -> ApproxMatch {
   let pat_len = pattern.length()
   let qry_len = query.length()
@@ -268,7 +268,7 @@ pub fn approx_search_with_indels(
 ///|
 /// Calculate Levenshtein edit distance between two strings.
 /// Allowed operations: substitution, insertion, deletion (all cost 1).
-pub fn levenshtein_distance(s1 : String, s2 : String) -> Int {
+pub fn levenshtein_distance(s1 : String, s2 : String) -> Int32 {
   let len1 = s1.length()
   let len2 = s2.length()
 
@@ -279,14 +279,14 @@ pub fn levenshtein_distance(s1 : String, s2 : String) -> Int {
     return len1
   }
 
-  let mut prev : Array[Int] = Array(capacity=0)
+  let mut prev : Array[Int32] = Array(capacity=0)
   let mut i = 0
   while i <= len2 {
     prev.push(i)
     i = i + 1
   }
 
-  let mut row : Array[Int] = Array(capacity=0)
+  let mut row : Array[Int32] = Array(capacity=0)
   i = 1
   while i <= len1 {
     row = Array(capacity=0)
@@ -327,7 +327,7 @@ pub fn levenshtein_distance(s1 : String, s2 : String) -> Int {
 pub fn approx_find_all(
   pattern : String,
   query : String,
-  max_mismatches : Int,
+  max_mismatches : Int32,
 ) -> Array[ApproxMatch] {
   let pat_len = pattern.length()
   let qry_len = query.length()
@@ -366,9 +366,9 @@ pub fn approx_find_all(
 /// Approximate word search: split query into words and find approximate matches for each.
 pub struct ApproxWordResult {
   word : String
-  match_start : Int
-  match_end : Int
-  edit_distance : Int
+  match_start : Int32
+  match_end : Int32
+  edit_distance : Int32
   is_found : Bool
 }
 
@@ -377,7 +377,7 @@ pub struct ApproxWordResult {
 pub fn approx_word_search(
   word : String,
   text : String,
-  max_errors : Int,
+  max_errors : Int32,
 ) -> ApproxWordResult {
   let len = word.length()
   let text_len = text.length()

@@ -1,6 +1,5 @@
 ///|
 /// Demo for pgsea module: Parametric Gene Set Enrichment Analysis.
-
 fn main {
   println("=== pgsea Demo: Parametric Gene Set Enrichment ===")
   println("")
@@ -16,7 +15,13 @@ fn main {
   let genes = ["G1", "G2", "G3", "G4"]
   let sets = [("UP", ["G1", "G2"]), ("DOWN", ["G3"]), ("CONST", ["G4"])]
   let (matrix, names) = @src.pgsea_score_matrix(expr, genes, sets)
-  println("Score matrix: " + matrix.length().to_string() + " sets x " + matrix[0].length().to_string() + " samples")
+  println(
+    "Score matrix: " +
+    matrix.length().to_string() +
+    " sets x " +
+    matrix[0].length().to_string() +
+    " samples",
+  )
   println("Set names: " + names.to_string())
   for i in 0..<names.length() {
     println("  " + names[i] + " scores: " + matrix[i].to_string())
@@ -28,7 +33,14 @@ fn main {
   let labels = ["control", "control", "control", "treat", "treat", "treat"]
   let results = @src.pgsea_run(expr, genes, sets, labels, "control", "treat")
   for r in results {
-    println("  " + r.gene_set + ": t=" + r.t_stat.to_string() + ", p=" + r.p_value.to_string())
+    println(
+      "  " +
+      r.gene_set +
+      ": t=" +
+      r.t_stat.to_string() +
+      ", p=" +
+      r.p_value.to_string(),
+    )
   }
   println("")
 
@@ -44,7 +56,10 @@ fn main {
   // Example 4: Export TSV
   println("--- Step 4: Export TSV ---")
   let tsv = @src.pgsea_export(results)
-  println("TSV (first 200 chars): " + tsv[0:if tsv.length() > 200 { 200 } else { tsv.length() }].to_owned())
+  println(
+    "TSV (first 200 chars): " +
+    tsv[0:if tsv.length() > 200 { 200 } else { tsv.length() }].to_owned(),
+  )
   println("")
 
   // Example 5: t-distribution p-value

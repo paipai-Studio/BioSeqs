@@ -17,10 +17,10 @@ pub struct PLSResult {
   x_weights : Array[Array[Double]]
   y_weights : Array[Array[Double]]
   explained_variance : Array[(Double, Double)]
-  ncomp : Int
-  n : Int
-  p : Int
-  q : Int
+  ncomp : Int32
+  n : Int32
+  p : Int32
+  q : Int32
 }
 
 ///|
@@ -35,12 +35,12 @@ pub struct SPLSResult {
   x_selected : Array[Array[Bool]]
   y_selected : Array[Array[Bool]]
   explained_variance : Array[(Double, Double)]
-  keep_x : Array[Int]
-  keep_y : Array[Int]
-  ncomp : Int
-  n : Int
-  p : Int
-  q : Int
+  keep_x : Array[Int32]
+  keep_y : Array[Int32]
+  ncomp : Int32
+  n : Int32
+  p : Int32
+  q : Int32
 }
 
 ///|
@@ -50,48 +50,60 @@ pub struct DIABLOResult {
   block_loadings : Array[Array[Array[Double]]]
   block_weights : Array[Array[Array[Double]]]
   block_selected : Array[Array[Array[Bool]]]
-  ncomp : Int
-  n_blocks : Int
+  ncomp : Int32
+  n_blocks : Int32
   block_names : Array[String]
-  block_sizes : Array[Int]
+  block_sizes : Array[Int32]
 }
 
 ///|
 /// Options for PLS computation.
 pub struct PLSOptions {
-  ncomp : Int
+  ncomp : Int32
   mode : String
   scale : Bool
-  max_iter : Int
+  max_iter : Int32
   tol : Double
 } derive(Eq, Debug)
+
+///|
 pub extend PLSOptions with Eq::{equal, not_equal}
+
+///|
 pub extend PLSOptions with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Options for sparse PLS computation.
 pub struct SPLSOptions {
-  ncomp : Int
-  keep_x : Array[Int]
-  keep_y : Array[Int]
+  ncomp : Int32
+  keep_x : Array[Int32]
+  keep_y : Array[Int32]
   scale : Bool
-  max_iter : Int
+  max_iter : Int32
   tol : Double
 } derive(Eq, Debug)
+
+///|
 pub extend SPLSOptions with Eq::{equal, not_equal}
+
+///|
 pub extend SPLSOptions with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Options for DIABLO multi-block integration.
 pub struct DIABLOOptions {
-  ncomp : Int
-  keep_variables : Array[Array[Int]]
+  ncomp : Int32
+  keep_variables : Array[Array[Int32]]
   design : Array[Array[Double]]
   scale : Bool
-  max_iter : Int
+  max_iter : Int32
   tol : Double
 } derive(Eq, Debug)
+
+///|
 pub extend DIABLOOptions with Eq::{equal, not_equal}
+
+///|
 pub extend DIABLOOptions with @moonbitlang/core/debug.Debug::{to_repr}
 
 // ============================================================================
@@ -103,8 +115,8 @@ pub extend DIABLOOptions with @moonbitlang/core/debug.Debug::{to_repr}
 /// Returns scaled data, means and standard deviations.
 pub fn mix_scale_matrix(
   data : Array[Array[Double]],
-  n : Int,
-  p : Int,
+  n : Int32,
+  p : Int32,
 ) -> (Array[Array[Double]], Array[Double], Array[Double]) {
   let means = Array::make(p, 0.0)
   let stds = Array::make(p, 0.0)
@@ -145,8 +157,8 @@ pub fn mix_scale_matrix(
 /// Matrix-vector multiply: data (n x p) * x (p) -> result (n).
 pub fn mix_mat_vec(
   data : Array[Array[Double]],
-  n : Int,
-  p : Int,
+  n : Int32,
+  p : Int32,
   x : Array[Double],
 ) -> Array[Double] {
   let result = Array::make(n, 0.0)
@@ -164,8 +176,8 @@ pub fn mix_mat_vec(
 /// Transpose matrix-vector multiply: data^T (p x n) * x (n) -> result (p).
 pub fn mix_mat_t_vec(
   data : Array[Array[Double]],
-  n : Int,
-  p : Int,
+  n : Int32,
+  p : Int32,
   x : Array[Double],
 ) -> Array[Double] {
   let result = Array::make(p, 0.0)
@@ -208,8 +220,8 @@ pub fn mix_matrix_deflate(
   data : Array[Array[Double]],
   scores : Array[Double],
   loadings : Array[Double],
-  n : Int,
-  p : Int,
+  n : Int32,
+  p : Int32,
 ) -> Array[Array[Double]] {
   let result : Array[Array[Double]] = []
   for i = 0; i < n; i = i + 1 {
@@ -227,9 +239,9 @@ pub fn mix_matrix_deflate(
 pub fn mix_covariance_matrix(
   x : Array[Array[Double]],
   y : Array[Array[Double]],
-  n : Int,
-  p : Int,
-  q : Int,
+  n : Int32,
+  p : Int32,
+  q : Int32,
 ) -> Array[Array[Double]] {
   let result : Array[Array[Double]] = []
   for j = 0; j < p; j = j + 1 {
@@ -263,20 +275,20 @@ pub fn soft_threshold(x : Double, lambda : Double) -> Double {
 ///|
 /// Select top k variables by absolute loading value.
 /// Returns array of selected indices (length k or fewer).
-pub fn select_top_k(values : Array[Double], k : Int) -> Array[Int] {
+pub fn select_top_k(values : Array[Double], k : Int32) -> Array[Int32] {
   let n = values.length()
   if k <= 0 || n == 0 {
     return []
   }
   let effective_k = if k < n { k } else { n }
 
-  let indexed : Array[(Int, Double)] = []
+  let indexed : Array[(Int32, Double)] = []
   for i = 0; i < n; i = i + 1 {
     let abs_val = if values[i] < 0.0 { -values[i] } else { values[i] }
     indexed.push((i, abs_val))
   }
 
-  indexed.sort_by(fn(a : (Int, Double), b : (Int, Double)) -> Int {
+  indexed.sort_by(fn(a : (Int32, Double), b : (Int32, Double)) -> Int32 {
     if a.1 > b.1 {
       -1
     } else if a.1 < b.1 {
@@ -295,7 +307,11 @@ pub fn select_top_k(values : Array[Double], k : Int) -> Array[Int] {
 
 ///|
 /// Compute total variance of a matrix (sum of column variances).
-fn mix_total_variance(data : Array[Array[Double]], n : Int, p : Int) -> Double {
+fn mix_total_variance(
+  data : Array[Array[Double]],
+  n : Int32,
+  p : Int32,
+) -> Double {
   let mut total = 0.0
   for j = 0; j < p; j = j + 1 {
     let mut mean = 0.0
@@ -339,7 +355,7 @@ fn nipals_vec_norm(a : Array[Double], b : Array[Double]) -> Double {
 
 ///|
 /// Create a zero-initialized 2D array (n x p).
-fn make_zero_matrix(n : Int, p : Int) -> Array[Array[Double]] {
+fn make_zero_matrix(n : Int32, p : Int32) -> Array[Array[Double]] {
   let result : Array[Array[Double]] = []
   for i = 0; i < n; i = i + 1 {
     result.push(Array::make(p, 0.0))
@@ -350,9 +366,9 @@ fn make_zero_matrix(n : Int, p : Int) -> Array[Array[Double]] {
 ///|
 /// Create a zero-initialized 3D array (dim1 x dim2 x dim3).
 fn make_zero_tensor(
-  dim1 : Int,
-  dim2 : Int,
-  dim3 : Int,
+  dim1 : Int32,
+  dim2 : Int32,
+  dim3 : Int32,
 ) -> Array[Array[Array[Double]]] {
   let result : Array[Array[Array[Double]]] = []
   for i = 0; i < dim1; i = i + 1 {
@@ -384,10 +400,10 @@ pub fn pls_new() -> PLSOptions {
 ///|
 /// Create PLS options with all parameters.
 pub fn pls_options_full(
-  ncomp : Int,
+  ncomp : Int32,
   mode : String,
   scale : Bool,
-  max_iter : Int,
+  max_iter : Int32,
   tol : Double,
 ) -> PLSOptions {
   PLSOptions::{ ncomp, mode, scale, max_iter, tol, }
@@ -515,10 +531,10 @@ pub fn run_pls(
 pub fn pls_component(
   x : Array[Array[Double]],
   y : Array[Array[Double]],
-  n : Int,
-  p : Int,
-  q : Int,
-  max_iter : Int,
+  n : Int32,
+  p : Int32,
+  q : Int32,
+  max_iter : Int32,
   tol : Double,
 ) -> (
   Array[Double],
@@ -564,10 +580,10 @@ pub fn pls_component(
 pub fn nipals_pls(
   x : Array[Array[Double]],
   y : Array[Array[Double]],
-  n : Int,
-  p : Int,
-  q : Int,
-  max_iter : Int,
+  n : Int32,
+  p : Int32,
+  q : Int32,
+  max_iter : Int32,
   tol : Double,
 ) -> (Array[Double], Array[Double], Array[Double], Array[Double]) {
   let mut u = Array::make(n, 0.0)
@@ -643,11 +659,11 @@ pub fn spls_new() -> SPLSOptions {
 ///|
 /// Create sparse PLS options with all parameters.
 pub fn spls_options_full(
-  ncomp : Int,
-  keep_x : Array[Int],
-  keep_y : Array[Int],
+  ncomp : Int32,
+  keep_x : Array[Int32],
+  keep_y : Array[Int32],
   scale : Bool,
-  max_iter : Int,
+  max_iter : Int32,
   tol : Double,
 ) -> SPLSOptions {
   SPLSOptions::{ ncomp, keep_x, keep_y, scale, max_iter, tol, }
@@ -801,12 +817,12 @@ pub fn run_spls(
 pub fn spls_component(
   x : Array[Array[Double]],
   y : Array[Array[Double]],
-  n : Int,
-  p : Int,
-  q : Int,
-  keep_x : Int,
-  keep_y : Int,
-  max_iter : Int,
+  n : Int32,
+  p : Int32,
+  q : Int32,
+  keep_x : Int32,
+  keep_y : Int32,
+  max_iter : Int32,
   tol : Double,
 ) -> (
   Array[Double],
@@ -928,11 +944,11 @@ pub fn diablo_new() -> DIABLOOptions {
 ///|
 /// Create DIABLO options with all parameters.
 pub fn diablo_options_full(
-  ncomp : Int,
-  keep_variables : Array[Array[Int]],
+  ncomp : Int32,
+  keep_variables : Array[Array[Int32]],
   design : Array[Array[Double]],
   scale : Bool,
-  max_iter : Int,
+  max_iter : Int32,
   tol : Double,
 ) -> DIABLOOptions {
   DIABLOOptions::{ ncomp, keep_variables, design, scale, max_iter, tol, }
@@ -1058,12 +1074,12 @@ pub fn run_diablo(
 /// Compute single DIABLO component across all blocks.
 pub fn diablo_component(
   blocks : Array[Array[Array[Double]]],
-  n_blocks : Int,
-  n : Int,
-  block_sizes : Array[Int],
-  keep_variables : Array[Int],
+  n_blocks : Int32,
+  n : Int32,
+  block_sizes : Array[Int32],
+  keep_variables : Array[Int32],
   design : Array[Array[Double]],
-  max_iter : Int,
+  max_iter : Int32,
   tol : Double,
 ) -> (
   Array[Array[Double]],
@@ -1221,8 +1237,8 @@ pub fn diablo_update_scores(
   blocks : Array[Array[Array[Double]]],
   weights : Array[Array[Double]],
   _scores : Array[Array[Double]],
-  n_blocks : Int,
-  n : Int,
+  n_blocks : Int32,
+  n : Int32,
 ) -> Array[Array[Double]] {
   let block_sizes = Array::make(n_blocks, 0)
   for b = 0; b < n_blocks; b = b + 1 {

@@ -30,7 +30,7 @@ fn fisher_lgamma(z : Double) -> Double {
 
 ///|
 /// log binomial coefficient  ln C(n, k).
-fn fisher_lbinom(n : Int, k : Int) -> Double {
+fn fisher_lbinom(n : Int32, k : Int32) -> Double {
   if k == 0 || n == k {
     return 0.0
   }
@@ -41,22 +41,24 @@ fn fisher_lbinom(n : Int, k : Int) -> Double {
 
 ///|
 /// Hypergeometric probability P(X = n11) given margins n1_, n_1 and total n.
-fn fisher_hypergeo(n11 : Int, n1_ : Int, n_1 : Int, n : Int) -> Double {
+fn fisher_hypergeo(n11 : Int32, n1_ : Int32, n_1 : Int32, n : Int32) -> Double {
   @math.exp(
-    fisher_lbinom(n1_, n11) + fisher_lbinom(n - n1_, n_1 - n11) - fisher_lbinom(n, n_1),
+    fisher_lbinom(n1_, n11) +
+    fisher_lbinom(n - n1_, n_1 - n11) -
+    fisher_lbinom(n, n_1),
   )
 }
 
 ///|
-fn fisher_ratio(n11 : Int, n12 : Int, n21 : Int, n22 : Int) -> Double {
+fn fisher_ratio(n11 : Int32, n12 : Int32, n21 : Int32, n22 : Int32) -> Double {
   if n12 == 0 || n21 == 0 || n22 == 0 {
     return 0.0 / 0.0
   }
-  (n11.to_double() / n12.to_double()) / (n21.to_double() / n22.to_double())
+  n11.to_double() / n12.to_double() / (n21.to_double() / n22.to_double())
 }
 
 ///|
-fn fi_abs(v : Int) -> Int {
+fn fi_abs(v : Int32) -> Int32 {
   if v < 0 {
     0 - v
   } else {
@@ -69,7 +71,12 @@ fn fi_abs(v : Int) -> Int {
 /// `[[n11, n12], [n21, n22]]`, returning left-tail, right-tail and two-tailed
 /// p-values plus the odds-ratio-style `(n11/n12)/(n21/n22)` statistic (NaN on
 /// division by zero).
-pub fn fisher_exact(n11 : Int, n12 : Int, n21 : Int, n22 : Int) -> FisherResult {
+pub fn fisher_exact(
+  n11 : Int32,
+  n12 : Int32,
+  n21 : Int32,
+  n22 : Int32,
+) -> FisherResult {
   let n1_ = n11 + n12
   let n_1 = n11 + n21
   let n = n11 + n12 + n21 + n22
@@ -80,15 +87,15 @@ pub fn fisher_exact(n11 : Int, n12 : Int, n21 : Int, n22 : Int) -> FisherResult 
   }
   let ratio = fisher_ratio(n11, n12, n21, n22)
   if min == max {
-    return FisherResult::{ left: 1.0, right: 1.0, two_tail: 1.0, ratio }
+    return FisherResult::{ left: 1.0, right: 1.0, two_tail: 1.0, ratio, }
   }
   let q = fisher_hypergeo(n11, n1_, n_1, n)
   if q == 0.0 {
     // the table's probability underflowed: pick the side based on the mode
     if n11 * (n + 2) < (n_1 + 1) * (n1_ + 1) {
-      return FisherResult::{ left: 0.0, right: 1.0, two_tail: 0.0, ratio }
+      return FisherResult::{ left: 0.0, right: 1.0, two_tail: 0.0, ratio, }
     }
-    return FisherResult::{ left: 1.0, right: 0.0, two_tail: 0.0, ratio }
+    return FisherResult::{ left: 1.0, right: 0.0, two_tail: 0.0, ratio, }
   }
   // left tail
   let mut p = fisher_hypergeo(min, n1_, n_1, n)
@@ -129,7 +136,7 @@ pub fn fisher_exact(n11 : Int, n12 : Int, n21 : Int, n22 : Int) -> FisherResult 
   } else {
     left = 1.0 - right + q
   }
-  FisherResult::{ left, right, two_tail: two, ratio }
+  FisherResult::{ left, right, two_tail: two, ratio, }
 }
 
 ///|
@@ -140,7 +147,7 @@ pub fn fisher_exact(n11 : Int, n12 : Int, n21 : Int, n22 : Int) -> FisherResult 
 pub fn bedtools_fisher(
   a : Array[BedInterval],
   b : Array[BedInterval],
-  genome_size : Int,
+  genome_size : Int32,
 ) -> FisherResult {
   let a_count = a.length()
   let b_count = b.length()
@@ -172,11 +179,23 @@ pub fn bedtools_fisher(
   }
   let b_mean = q_mean + d_mean
   let n11 = overlap_count
-  let n12 = if a_count - overlap_count > 0 { a_count - overlap_count } else { 0 }
-  let n21 = if b_count - overlap_count > 0 { b_count - overlap_count } else { 0 }
+  let n12 = if a_count - overlap_count > 0 {
+    a_count - overlap_count
+  } else {
+    0
+  }
+  let n21 = if b_count - overlap_count > 0 {
+    b_count - overlap_count
+  } else {
+    0
+  }
   let n22_full_base = n21 + n12 + n11
   let n22_full_est = (genome_size.to_double() / b_mean).to_int()
-  let n22_full = if n22_full_base > n22_full_est { n22_full_base } else { n22_full_est }
+  let n22_full = if n22_full_base > n22_full_est {
+    n22_full_base
+  } else {
+    n22_full_est
+  }
   let n22 = if n22_full - n12 - n21 - n11 > 0 {
     n22_full - n12 - n21 - n11
   } else {

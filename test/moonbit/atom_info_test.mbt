@@ -1,3 +1,4 @@
+///|
 test "atom_mass_basic" {
   // Hydrogen
   let h = @src.atom_mass("H")
@@ -18,6 +19,7 @@ test "atom_mass_basic" {
   assert_eq(@src.atom_mass("c"), @src.atom_mass("C"))
 }
 
+///|
 test "atom_vdw_radius_basic" {
   // Carbon VdW radius ≈ 1.70 Å
   let c = @src.atom_vdw_radius("C")
@@ -29,6 +31,7 @@ test "atom_vdw_radius_basic" {
   assert_eq(@src.atom_vdw_radius("XX"), 0.0)
 }
 
+///|
 test "covalent_radius_basic" {
   // Carbon covalent radius ≈ 0.76 Å
   let c = @src.covalent_radius("C")
@@ -40,6 +43,7 @@ test "covalent_radius_basic" {
   assert_eq(@src.covalent_radius("XX"), 0.0)
 }
 
+///|
 test "formal_charge_basic" {
   // ASP OD1 → -1
   assert_eq(@src.formal_charge("ASP", "OD1"), -1)

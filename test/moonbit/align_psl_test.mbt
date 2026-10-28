@@ -35,8 +35,8 @@ fn psl_test_parse_raises(content : String) -> Bool {
 
 ///|
 fn psl_test_create_raises(
-  target_coordinates : Array[Int],
-  query_coordinates : Array[Int],
+  target_coordinates : Array[Int32],
+  query_coordinates : Array[Int32],
 ) -> Bool {
   try {
     ignore(

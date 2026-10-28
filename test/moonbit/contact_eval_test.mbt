@@ -31,9 +31,14 @@ fn get_test_chain() -> @src.Chain {
   chains[0]
 }
 
+///|
 test "extract_true_contacts basic" {
   let chain = get_test_chain()
-  let contacts = @src.extract_true_contacts(chain, threshold=5.0, min_seq_dist=3)
+  let contacts = @src.extract_true_contacts(
+    chain,
+    threshold=5.0,
+    min_seq_dist=3,
+  )
   // Should have contacts between the two strands
   assert_true(contacts.length() > 0)
   // All pairs should have i < j
@@ -43,6 +48,7 @@ test "extract_true_contacts basic" {
   }
 }
 
+///|
 test "extract_true_contacts threshold" {
   let chain = get_test_chain()
   // With very large threshold, many contacts
@@ -52,6 +58,7 @@ test "extract_true_contacts threshold" {
   assert_true(many.length() > few.length())
 }
 
+///|
 test "extract_true_contacts min_seq_dist" {
   let chain = get_test_chain()
   let close = @src.extract_true_contacts(chain, threshold=100.0, min_seq_dist=1)
@@ -60,6 +67,7 @@ test "extract_true_contacts min_seq_dist" {
   assert_true(far.length() <= close.length())
 }
 
+///|
 test "evaluate_contact_prediction perfect" {
   let true_contacts = [(0, 5), (1, 6), (2, 7), (3, 8)]
   let predicted = [(0, 5), (1, 6), (2, 7), (3, 8)]
@@ -72,6 +80,7 @@ test "evaluate_contact_prediction perfect" {
   assert_eq(eval.fn_count, 0)
 }
 
+///|
 test "evaluate_contact_prediction no overlap" {
   let true_contacts = [(0, 5), (1, 6), (2, 7), (3, 8)]
   let predicted = [(0, 1), (2, 3), (4, 5), (6, 7)]
@@ -83,6 +92,7 @@ test "evaluate_contact_prediction no overlap" {
   assert_eq(eval.fn_count, 4)
 }
 
+///|
 test "evaluate_contact_prediction partial" {
   let true_contacts = [(0, 5), (1, 6), (2, 7), (3, 8)]
   let predicted = [(0, 5), (1, 6), (0, 1), (2, 3)]
@@ -95,23 +105,26 @@ test "evaluate_contact_prediction partial" {
   assert_true((eval.recall - 0.5).abs() < 1.0e-10)
 }
 
+///|
 test "evaluate_contact_prediction empty predicted" {
   let true_contacts = [(0, 5), (1, 6)]
-  let predicted : Array[(Int, Int)] = []
+  let predicted : Array[(Int32, Int32)] = []
   let eval = @src.evaluate_contact_prediction(predicted, true_contacts)
   assert_true(eval.precision.abs() < 1.0e-10)
   assert_true(eval.recall.abs() < 1.0e-10)
   assert_eq(eval.tp, 0)
 }
 
+///|
 test "evaluate_contact_prediction empty true" {
-  let true_contacts : Array[(Int, Int)] = []
+  let true_contacts : Array[(Int32, Int32)] = []
   let predicted = [(0, 5), (1, 6)]
   let eval = @src.evaluate_contact_prediction(predicted, true_contacts)
   assert_true(eval.precision.abs() < 1.0e-10)
   assert_eq(eval.fp, 2)
 }
 
+///|
 test "residue_ca_distance" {
   let chain = get_test_chain()
   // Residues 0 and 1: (1,1,0) to (3,1,0) = 2.0
@@ -122,9 +135,14 @@ test "residue_ca_distance" {
   assert_true((d2 - 3.605551).abs() < 1.0e-4)
 }
 
+///|
 test "evaluate_with_distances" {
   let chain = get_test_chain()
-  let true_contacts = @src.extract_true_contacts(chain, threshold=5.0, min_seq_dist=3)
+  let true_contacts = @src.extract_true_contacts(
+    chain,
+    threshold=5.0,
+    min_seq_dist=3,
+  )
   let predicted = true_contacts
   let eval = @src.evaluate_with_distances(predicted, true_contacts, chain)
   // Perfect prediction
@@ -135,6 +153,7 @@ test "evaluate_with_distances" {
   assert_true(eval.mean_fp_dist.abs() < 1.0e-10)
 }
 
+///|
 test "dca_structure_comparison" {
   let chain = get_test_chain()
   // Create a simple score matrix that favors true contacts
@@ -158,12 +177,19 @@ test "dca_structure_comparison" {
       }
     }
   }
-  let eval = @src.dca_structure_comparison(scores, chain, 4, threshold=5.0, min_seq_dist=3)
+  let eval = @src.dca_structure_comparison(
+    scores,
+    chain,
+    4,
+    threshold=5.0,
+    min_seq_dist=3,
+  )
   // Should have high precision (all 4 predicted are true contacts)
   assert_true(eval.precision > 0.5)
   assert_eq(eval.num_predicted, 4)
 }
 
+///|
 test "top_k_precision_curve" {
   let true_contacts = [(0, 5), (1, 6), (2, 7), (3, 8)]
   // Score matrix: true contacts have score 10, others 1
@@ -191,12 +217,14 @@ test "top_k_precision_curve" {
   assert_true((prec4 - 1.0).abs() < 1.0e-10)
 }
 
+///|
 test "contact_map_jaccard identical" {
   let m = [[true, false], [false, true]]
   let j = @src.contact_map_jaccard(m, m)
   assert_true((j - 1.0).abs() < 1.0e-10)
 }
 
+///|
 test "contact_map_jaccard disjoint" {
   let m1 = [[true, false], [false, false]]
   let m2 = [[false, false], [false, true]]
@@ -204,6 +232,7 @@ test "contact_map_jaccard disjoint" {
   assert_true(j.abs() < 1.0e-10)
 }
 
+///|
 test "contact_map_jaccard partial" {
   let m1 = [[true, true], [true, false]]
   let m2 = [[true, false], [false, true]]
@@ -213,6 +242,7 @@ test "contact_map_jaccard partial" {
   assert_true((j - 0.25).abs() < 1.0e-10)
 }
 
+///|
 test "contact_map_overlap" {
   let m1 = [[true, true], [true, false]]
   let m2 = [[true, false], [false, true]]
@@ -222,6 +252,7 @@ test "contact_map_overlap" {
   assert_true((o - 0.5).abs() < 1.0e-10)
 }
 
+///|
 test "coupling_distance_correlation" {
   // Perfect anti-correlation: high score → short distance
   let scores = [[0.0, 10.0, 1.0], [10.0, 0.0, 5.0], [1.0, 5.0, 0.0]]
@@ -231,6 +262,7 @@ test "coupling_distance_correlation" {
   assert_true(pearson > 0.0)
 }
 
+///|
 test "stratified_evaluation" {
   let chain = get_test_chain()
   let n = 10
@@ -240,7 +272,13 @@ test "stratified_evaluation" {
   scores[8][0] = 10.0
   scores[1][7] = 10.0
   scores[7][1] = 10.0
-  let result = @src.stratified_evaluation(scores, chain, [3, 5], 4, threshold=5.0)
+  let result = @src.stratified_evaluation(
+    scores,
+    chain,
+    [3, 5],
+    4,
+    threshold=5.0,
+  )
   assert_eq(result.length(), 2)
   let (sep1, _) = result[0]
   assert_eq(sep1, 3)
@@ -248,6 +286,7 @@ test "stratified_evaluation" {
   assert_eq(sep2, 5)
 }
 
+///|
 test "contact_eval_report" {
   let chain = get_test_chain()
   let n = 10
@@ -270,7 +309,13 @@ test "contact_eval_report" {
       }
     }
   }
-  let report = @src.contact_eval_report(scores, chain, 4, threshold=5.0, min_seq_dist=3)
+  let report = @src.contact_eval_report(
+    scores,
+    chain,
+    4,
+    threshold=5.0,
+    min_seq_dist=3,
+  )
   assert_true(report.overall.precision >= 0.0)
   assert_true(report.overall.precision <= 1.0)
   assert_eq(report.stratified.length(), 3)
@@ -282,6 +327,7 @@ test "contact_eval_report" {
   assert_true(report.jaccard <= 1.0)
 }
 
+///|
 test "rank_dca_pairs" {
   let scores = [[0.0, 5.0, 1.0], [5.0, 0.0, 3.0], [1.0, 3.0, 0.0]]
   let ranked = @src.rank_dca_pairs(scores, 2, 1)

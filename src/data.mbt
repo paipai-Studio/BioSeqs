@@ -450,7 +450,7 @@ pub fn reverse_codon_table() -> Map[String, Array[String]] {
 
 ///|
 /// Calculate the number of synonymous codons for an amino acid.
-pub fn num_synonymous_codons(aa : String) -> Int {
+pub fn num_synonymous_codons(aa : String) -> Int32 {
   let rev = reverse_codon_table()
   match rev.get(aa) {
     Some(arr) => arr.length()

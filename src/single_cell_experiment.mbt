@@ -237,7 +237,7 @@ pub struct ReducedDimResult {
   method_ : String
   coordinates : Array[Array[Double]]
   variance_explained : Array[Double]
-  n_components : Int
+  n_components : Int32
 }
 
 ///|
@@ -695,7 +695,7 @@ fn sce_covariance(centered : Array[Array[Double]]) -> Array[Array[Double]] {
 /// Returns coordinates (n_samples x n_components) and variance explained.
 pub fn sce_compute_pca(
   logcounts : Array[Array[Double]],
-  n_components : Int,
+  n_components : Int32,
 ) -> ReducedDimResult {
   let n_genes = logcounts.length()
   let n_cells = if n_genes > 0 { logcounts[0].length() } else { 0 }
@@ -835,7 +835,7 @@ fn sce_matmul(
 /// This is a compact, deterministic implementation suitable for small datasets.
 pub fn sce_compute_tsne(
   logcounts : Array[Array[Double]],
-  perplexity : Int,
+  perplexity : Int32,
 ) -> ReducedDimResult {
   let n_genes = logcounts.length()
   let n_cells = if n_genes > 0 { logcounts[0].length() } else { 0 }
@@ -952,7 +952,7 @@ pub fn sce_compute_tsne(
 /// Uses PCA initialisation followed by a force-directed refinement.
 pub fn sce_compute_umap(
   logcounts : Array[Array[Double]],
-  n_components : Int,
+  n_components : Int32,
 ) -> ReducedDimResult {
   let n_genes = logcounts.length()
   let n_cells = if n_genes > 0 { logcounts[0].length() } else { 0 }
@@ -987,7 +987,7 @@ pub fn sce_compute_umap(
     )
     let mut a = 0
     while a < n {
-      let neighbors : Array[(Double, Int)] = Array(capacity=0)
+      let neighbors : Array[(Double, Int32)] = Array(capacity=0)
       let mut b = 0
       while b < n {
         if a != b {
@@ -1088,12 +1088,12 @@ pub fn sce_normalize(
 /// Filter genes (rows) expressed in at least `min_cells` cells.
 pub fn sce_filter_genes(
   sce : SingleCellExperiment,
-  min_cells : Int,
+  min_cells : Int32,
 ) -> SingleCellExperiment {
   let counts = sce_get_counts(sce)
   let n_genes = counts.length()
   let n_cells = if n_genes > 0 { counts[0].length() } else { 0 }
-  let keep : Array[Int] = Array(capacity=0)
+  let keep : Array[Int32] = Array(capacity=0)
   let mut i = 0
   while i < n_genes {
     let mut n_expressed = 0
@@ -1116,12 +1116,12 @@ pub fn sce_filter_genes(
 /// Filter cells (columns) expressing at least `min_genes` genes.
 pub fn sce_filter_cells(
   sce : SingleCellExperiment,
-  min_genes : Int,
+  min_genes : Int32,
 ) -> SingleCellExperiment {
   let counts = sce_get_counts(sce)
   let n_genes = counts.length()
   let n_cells = if n_genes > 0 { counts[0].length() } else { 0 }
-  let keep : Array[Int] = Array(capacity=0)
+  let keep : Array[Int32] = Array(capacity=0)
   let mut j = 0
   while j < n_cells {
     let mut n_expressed = 0
@@ -1168,7 +1168,7 @@ pub fn sce_get_col_data(
 /// Subset genes (rows) by index.
 pub fn sce_subset_genes(
   sce : SingleCellExperiment,
-  gene_indices : Array[Int],
+  gene_indices : Array[Int32],
 ) -> SingleCellExperiment {
   let assay_names = sce.assays.keys().collect()
   let new_assays : Map[String, Array[Array[Double]]] = Map(
@@ -1247,7 +1247,7 @@ pub fn sce_subset_genes(
 /// Subset cells (columns) by index.
 pub fn sce_subset_cells(
   sce : SingleCellExperiment,
-  cell_indices : Array[Int],
+  cell_indices : Array[Int32],
 ) -> SingleCellExperiment {
   let assay_names = sce.assays.keys().collect()
   let new_assays : Map[String, Array[Array[Double]]] = Map(
@@ -1353,14 +1353,14 @@ pub fn sce_subset_cells(
 
 ///|
 /// Number of genes (rows).
-pub fn sce_get_n_genes(sce : SingleCellExperiment) -> Int {
+pub fn sce_get_n_genes(sce : SingleCellExperiment) -> Int32 {
   let counts = sce_get_counts(sce)
   counts.length()
 }
 
 ///|
 /// Number of cells (columns).
-pub fn sce_get_n_cells(sce : SingleCellExperiment) -> Int {
+pub fn sce_get_n_cells(sce : SingleCellExperiment) -> Int32 {
   let counts = sce_get_counts(sce)
   if counts.length() > 0 {
     counts[0].length()

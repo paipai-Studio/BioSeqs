@@ -386,7 +386,7 @@ test "tab_in_sequence" {
 // ============================================================================
 
 ///|
-fn close_double(a : Double, b : Double, tol? : Double = 1.0e-6) -> Bool {
+fn close_double(a : Double, b : Double, tol~ : Double = 1.0e-6) -> Bool {
   (a - b).abs() < tol
 }
 

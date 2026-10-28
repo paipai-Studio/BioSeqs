@@ -28,14 +28,29 @@ fn main {
   if pw_opt is Some(_) {
     let pw = pw_opt.unwrap()
     for e in pw.entries() {
-      println("Entry " + e.id().to_string() + ": " + e.name() + " (type=" + e.etype() + ")")
+      println(
+        "Entry " +
+        e.id().to_string() +
+        ": " +
+        e.name() +
+        " (type=" +
+        e.etype() +
+        ")",
+      )
       if e.reaction().length() > 0 {
         println("  Reaction: " + e.reaction())
       }
       let g = e.graphics()
       if g is Some(_) {
         let gfx = g.unwrap()
-        println("  Graphics: type=" + gfx.gtype() + " x=" + gfx.x().to_string() + " y=" + gfx.y().to_string())
+        println(
+          "  Graphics: type=" +
+          gfx.gtype() +
+          " x=" +
+          gfx.x().to_string() +
+          " y=" +
+          gfx.y().to_string(),
+        )
         println("  Colors: fg=" + gfx.fgcolor() + " bg=" + gfx.bgcolor())
       }
     }
@@ -47,7 +62,15 @@ fn main {
   if pw_opt is Some(_) {
     let pw = pw_opt.unwrap()
     for r in pw.relations() {
-      println("Relation: " + r.entry1().to_string() + " -> " + r.entry2().to_string() + " (type=" + r.rtype() + ")")
+      println(
+        "Relation: " +
+        r.entry1().to_string() +
+        " -> " +
+        r.entry2().to_string() +
+        " (type=" +
+        r.rtype() +
+        ")",
+      )
       for st in r.subtypes() {
         println("  Subtype: " + st.name() + " = " + st.value())
       }

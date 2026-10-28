@@ -230,7 +230,7 @@ fn join(parts : Array[String]) -> String {
 }
 
 ///|
-fn rpad(s : String, width : Int) -> String {
+fn rpad(s : String, width : Int32) -> String {
   let mut out = s
   while out.length() < width {
     out += " "
@@ -239,7 +239,7 @@ fn rpad(s : String, width : Int) -> String {
 }
 
 ///|
-fn lpad(s : String, width : Int) -> String {
+fn lpad(s : String, width : Int32) -> String {
   let mut out = s
   while out.length() < width {
     out = " " + out
@@ -248,7 +248,7 @@ fn lpad(s : String, width : Int) -> String {
 }
 
 ///|
-fn cpad(s : String, width : Int) -> String {
+fn cpad(s : String, width : Int32) -> String {
   let mut out = s
   let mut left = true
   while out.length() < width {
@@ -264,7 +264,7 @@ fn cpad(s : String, width : Int) -> String {
 
 ///|
 /// Fixed-point rendering with ``d`` decimals (d up to 4).
-fn fd(x : Double, d : Int) -> String {
+fn fd(x : Double, d : Int32) -> String {
   let neg = x < 0.0
   let scale = if d == 0 {
     1.0

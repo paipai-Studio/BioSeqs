@@ -6,7 +6,12 @@
 
 ///|
 test "skbio_anosim_statistic_2groups" {
-  let dm = [[0.0, 1.0, 1.0, 4.0], [1.0, 0.0, 3.0, 2.0], [1.0, 3.0, 0.0, 3.0], [4.0, 2.0, 3.0, 0.0]]
+  let dm = [
+    [0.0, 1.0, 1.0, 4.0],
+    [1.0, 0.0, 3.0, 2.0],
+    [1.0, 3.0, 0.0, 3.0],
+    [4.0, 2.0, 3.0, 0.0],
+  ]
   let g = [0, 0, 1, 1]
   let r = @src.skbio_anosim(dm, g, 99, 42)
   assert_true(@moonbit.assert_num_close(r.statistic, 0.25, 1.0e-9))
@@ -17,7 +22,12 @@ test "skbio_anosim_statistic_2groups" {
 
 ///|
 test "skbio_permanova_statistic_2groups" {
-  let dm = [[0.0, 1.0, 1.0, 4.0], [1.0, 0.0, 3.0, 2.0], [1.0, 3.0, 0.0, 3.0], [4.0, 2.0, 3.0, 0.0]]
+  let dm = [
+    [0.0, 1.0, 1.0, 4.0],
+    [1.0, 0.0, 3.0, 2.0],
+    [1.0, 3.0, 0.0, 3.0],
+    [4.0, 2.0, 3.0, 0.0],
+  ]
   let g = [0, 0, 1, 1]
   let r = @src.skbio_permanova(dm, g, 99, 42)
   assert_true(@moonbit.assert_num_close(r.statistic, 2.0, 1.0e-9))
@@ -45,6 +55,7 @@ test "skbio_anosim_permanova_3groups" {
   assert_eq(p.num_groups, 3)
   assert_true(p.p_value > 0.0 && p.p_value <= 1.0)
 }
+
 ///|
 test "skbio_permdisp_statistic" {
   let dm = [
@@ -88,18 +99,20 @@ test "skbio_bioenv" {
   assert_eq(r.correlations.length(), 3)
   assert_true(@moonbit.assert_num_close(r.correlations[0], 0.132142857, 1.0e-6))
   assert_true(@moonbit.assert_num_close(r.correlations[1], 0.075, 1.0e-6))
-  assert_true(@moonbit.assert_num_close(r.correlations[2], -0.339285714, 1.0e-6))
+  assert_true(
+    @moonbit.assert_num_close(r.correlations[2], -0.339285714, 1.0e-6),
+  )
   // best subset: size1 = {v1} (col 0); size2 = {v1, v3} (cols 0, 2)
   assert_eq(r.best_subsets[0][0], 0)
   assert_eq(r.best_subsets[1][0], 0)
   assert_eq(r.best_subsets[1][1], 2)
 }
 
-
 // ============================================================
 // skbio_permdisp_median (spatial-median variant)
 // ============================================================
 
+///|
 test "skbio_permdisp_median_statistic" {
   let dm = [
     [0.0, 0.223607, 0.111803, 2.828427, 3.162278, 3.590265],

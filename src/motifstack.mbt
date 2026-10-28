@@ -15,7 +15,11 @@ pub struct StackMotif {
   name : String
   pwm : Array[Array[Double]]
 } derive(Eq, Debug)
+
+///|
 pub extend StackMotif with Eq::{equal, not_equal}
+
+///|
 pub extend StackMotif with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -23,12 +27,12 @@ pub fn StackMotif::new(
   name~ : String,
   pwm~ : Array[Array[Double]],
 ) -> StackMotif {
-  StackMotif::{ name, pwm }
+  StackMotif::{ name, pwm, }
 }
 
 ///|
 /// Length of the motif in columns.
-pub fn StackMotif::len(self : StackMotif) -> Int {
+pub fn StackMotif::len(self : StackMotif) -> Int32 {
   if self.pwm.is_empty() {
     0
   } else {
@@ -96,14 +100,8 @@ fn motifstack_sqrt(x : Double) -> Double {
 
 ///|
 /// Pearson distance (1 - r) between two motifs.
-pub fn motifstack_distance(
-  m1 : StackMotif,
-  m2 : StackMotif,
-) -> Double {
-  let r = motifstack_pearson(
-    motifstack_flatten(m1),
-    motifstack_flatten(m2),
-  )
+pub fn motifstack_distance(m1 : StackMotif, m2 : StackMotif) -> Double {
+  let r = motifstack_pearson(motifstack_flatten(m1), motifstack_flatten(m2))
   1.0 - r
 }
 
@@ -131,14 +129,14 @@ pub fn motifstack_distance_matrix(
 /// A node in the motif clustering tree: either a leaf holding a motif
 /// index or an internal merge with a linkage height.
 pub(all) enum MotifStackNode {
-  Leaf(Int)
+  Leaf(Int32)
   Merge(MotifStackNode, MotifStackNode, Double)
 }
 
 ///|
 /// Collect leaves of a subtree in order.
-pub fn MotifStackNode::leaves(self : MotifStackNode) -> Array[Int] {
-  let out : Array[Int] = Array(capacity=0)
+pub fn MotifStackNode::leaves(self : MotifStackNode) -> Array[Int32] {
+  let out : Array[Int32] = Array(capacity=0)
   match self {
     MotifStackNode::Leaf(i) => out.push(i)
     MotifStackNode::Merge(l, r, _) => {
@@ -167,9 +165,7 @@ pub fn MotifStackNode::height(self : MotifStackNode) -> Double {
 ///|
 /// Average-linkage hierarchical clustering over a symmetric distance
 /// matrix.  Returns the root node, or None for an empty collection.
-pub fn motifstack_hclust(
-  distances : Array[Array[Double]],
-) -> MotifStackNode? {
+pub fn motifstack_hclust(distances : Array[Array[Double]]) -> MotifStackNode? {
   let n = distances.length()
   if n == 0 {
     return None
@@ -178,7 +174,7 @@ pub fn motifstack_hclust(
     return Some(MotifStackNode::Leaf(0))
   }
   let clusters : Array[MotifStackNode] = Array(capacity=0)
-  let members : Array[Array[Int]] = Array(capacity=0)
+  let members : Array[Array[Int32]] = Array(capacity=0)
   for i in 0..<n {
     clusters.push(MotifStackNode::Leaf(i))
     members.push([i])
@@ -200,11 +196,7 @@ pub fn motifstack_hclust(
             count += 1
           }
         }
-        let avg = if count == 0 {
-          0.0
-        } else {
-          sum / count.to_double()
-        }
+        let avg = if count == 0 { 0.0 } else { sum / count.to_double() }
         if avg < best_d {
           best_d = avg
           best_i = a
@@ -212,14 +204,10 @@ pub fn motifstack_hclust(
         }
       }
     }
-    let node = MotifStackNode::Merge(
-      clusters[best_i],
-      clusters[best_j],
-      best_d,
-    )
+    let node = MotifStackNode::Merge(clusters[best_i], clusters[best_j], best_d)
     let merged_members = members[best_i] + members[best_j]
     let new_clusters : Array[MotifStackNode] = Array(capacity=0)
-    let new_members : Array[Array[Int]] = Array(capacity=0)
+    let new_members : Array[Array[Int32]] = Array(capacity=0)
     for a in 0..<m {
       if a != best_i && a != best_j {
         new_clusters.push(clusters[a])
@@ -243,7 +231,7 @@ pub fn motifstack_hclust(
 ///|
 /// Stack order for a motif collection: leaf order of its clustering
 /// tree.  Falls back to identity order when the tree cannot be built.
-pub fn motifstack_stack_order(motifs : Array[StackMotif]) -> Array[Int] {
+pub fn motifstack_stack_order(motifs : Array[StackMotif]) -> Array[Int32] {
   let distances = motifstack_distance_matrix(motifs)
   match motifstack_hclust(distances) {
     Some(root) => root.leaves()
@@ -321,10 +309,7 @@ fn motifstack_exp(x : Double) -> Double {
 /// Render one motif as an ASCII logo block: `rows` lines where column
 /// j shows the dominant base scaled by per-column IC, then a position
 /// ruler line.
-pub fn motifstack_ascii_logo(
-  motif : StackMotif,
-  rows~ : Int = 6,
-) -> String {
+pub fn motifstack_ascii_logo(motif : StackMotif, rows~ : Int32 = 6) -> String {
   let bases = ["A", "C", "G", "T"]
   let width = motif.len()
   let ics = motifstack_column_ic(motif)
@@ -377,7 +362,7 @@ pub fn motifstack_ascii_logo(
 /// name line followed by its ASCII logo block.
 pub fn motifstack_stack_ascii(
   motifs : Array[StackMotif],
-  rows~ : Int = 6,
+  rows~ : Int32 = 6,
 ) -> String {
   let order = motifstack_stack_order(motifs)
   let mut out = ""
@@ -392,32 +377,23 @@ pub fn motifstack_stack_ascii(
 ///|
 /// Two related PWMs plus one divergent motif, for demos and tests.
 pub fn motifstack_sample_motifs() -> Array[StackMotif] {
-  let m1 = StackMotif::new(
-    name="GATA1",
-    pwm=[
-      [0.1, 0.1, 0.8, 0.1, 0.1],
-      [0.1, 0.1, 0.1, 0.1, 0.8],
-      [0.7, 0.1, 0.1, 0.7, 0.1],
-      [0.1, 0.7, 0.0, 0.1, 0.0],
-    ],
-  )
-  let m2 = StackMotif::new(
-    name="GATA2",
-    pwm=[
-      [0.1, 0.1, 0.7, 0.1, 0.1],
-      [0.1, 0.1, 0.2, 0.1, 0.7],
-      [0.7, 0.1, 0.1, 0.7, 0.1],
-      [0.1, 0.7, 0.0, 0.1, 0.0],
-    ],
-  )
-  let m3 = StackMotif::new(
-    name="CTCF",
-    pwm=[
-      [0.6, 0.1, 0.1, 0.2],
-      [0.1, 0.1, 0.1, 0.7],
-      [0.2, 0.7, 0.1, 0.1],
-      [0.1, 0.1, 0.7, 0.0],
-    ],
-  )
+  let m1 = StackMotif::new(name="GATA1", pwm=[
+    [0.1, 0.1, 0.8, 0.1, 0.1],
+    [0.1, 0.1, 0.1, 0.1, 0.8],
+    [0.7, 0.1, 0.1, 0.7, 0.1],
+    [0.1, 0.7, 0.0, 0.1, 0.0],
+  ])
+  let m2 = StackMotif::new(name="GATA2", pwm=[
+    [0.1, 0.1, 0.7, 0.1, 0.1],
+    [0.1, 0.1, 0.2, 0.1, 0.7],
+    [0.7, 0.1, 0.1, 0.7, 0.1],
+    [0.1, 0.7, 0.0, 0.1, 0.0],
+  ])
+  let m3 = StackMotif::new(name="CTCF", pwm=[
+    [0.6, 0.1, 0.1, 0.2],
+    [0.1, 0.1, 0.1, 0.7],
+    [0.2, 0.7, 0.1, 0.1],
+    [0.1, 0.1, 0.7, 0.0],
+  ])
   [m1, m2, m3]
 }

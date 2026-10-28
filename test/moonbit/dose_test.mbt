@@ -238,7 +238,9 @@ test "dose_fold_enrichment_standard" {
   // k=12, m=30, M=40, N=200 → 12*200/(30*40) = 2400/1200 = 2.0
   assert_true(dose_near(@src.dose_fold_enrichment(12, 30, 40, 200), 2.0))
   // k=10, m=50, M=30, N=500 → 10*500/(50*30) = 5000/1500 = 3.3333...
-  assert_true(dose_near(@src.dose_fold_enrichment(10, 50, 30, 500), 3.33333333333333))
+  assert_true(
+    dose_near(@src.dose_fold_enrichment(10, 50, 30, 500), 3.33333333333333),
+  )
 }
 
 ///|
@@ -253,22 +255,33 @@ test "dose_fold_enrichment_zero" {
 ///|
 /// Build a tiny 3-term database and verify enrich_disease_fisher.
 /// Background size = 200 so log_factorial stays fast.
-fn mk_tiny_test_case() -> (Array[String], Map[String, Array[String]], Array[String]) {
-  let query : Array[String] = ["G01", "G02", "G03", "G04", "G05", "G06", "G07", "G08",
-                               "G09", "G10", "G11", "G12", "G13", "G14", "G15"]
+fn mk_tiny_test_case() -> (
+  Array[String],
+  Map[String, Array[String]],
+  Array[String],
+) {
+  let query : Array[String] = [
+    "G01", "G02", "G03", "G04", "G05", "G06", "G07", "G08", "G09", "G10", "G11",
+    "G12", "G13", "G14", "G15",
+  ]
   let db : Map[String, Array[String]] = Map([])
   // TERM_X: k=12 overlap (G01..G12), term size 20
-  let tx : Array[String] = ["G01","G02","G03","G04","G05","G06","G07","G08",
-                             "G09","G10","G11","G12","T01","T02","T03","T04",
-                             "T05","T06","T07","T08"]
+  let tx : Array[String] = [
+    "G01", "G02", "G03", "G04", "G05", "G06", "G07", "G08", "G09", "G10", "G11",
+    "G12", "T01", "T02", "T03", "T04", "T05", "T06", "T07", "T08",
+  ]
   db["TERM_X"] = tx
   // TERM_Y: k=5 overlap (G01..G05), term size 25
-  let ty : Array[String] = ["G01","G02","G03","G04","G05","T11","T12","T13","T14","T15",
-                             "T16","T17","T18","T19","T20","T21","T22","T23","T24","T25",
-                             "T26","T27","T28","T29","T30"]
+  let ty : Array[String] = [
+    "G01", "G02", "G03", "G04", "G05", "T11", "T12", "T13", "T14", "T15", "T16",
+    "T17", "T18", "T19", "T20", "T21", "T22", "T23", "T24", "T25", "T26", "T27",
+    "T28", "T29", "T30",
+  ]
   db["TERM_Y"] = ty
   // TERM_Z: k=0 overlap, term size 10
-  let tz : Array[String] = ["S01","S02","S03","S04","S05","S06","S07","S08","S09","S10"]
+  let tz : Array[String] = [
+    "S01", "S02", "S03", "S04", "S05", "S06", "S07", "S08", "S09", "S10",
+  ]
   db["TERM_Z"] = tz
   // Background: 200 genes including all term genes + query genes
   let bg : Array[String] = Array(capacity=0)
@@ -315,9 +328,15 @@ test "dose_enrichment_tiny_smoke" {
   let mut i = 0
   while i < result.terms.length() {
     let t = result.terms[i]
-    if t.term_id == "TERM_X" { found_x = true }
-    if t.term_id == "TERM_Y" { found_y = true }
-    if t.term_id == "TERM_Z" { found_z = true }
+    if t.term_id == "TERM_X" {
+      found_x = true
+    }
+    if t.term_id == "TERM_Y" {
+      found_y = true
+    }
+    if t.term_id == "TERM_Z" {
+      found_z = true
+    }
     i = i + 1
   }
   assert_true(found_x && found_y && found_z)
@@ -329,7 +348,7 @@ test "dose_enrichment_tiny_smoke" {
     if t.term_id == "TERM_X" {
       assert_true(t.overlap_count == 12)
       assert_true(t.gene_count == 20)
-      let expected_fe = 12.0 * 200.0 / (15.0 * 20.0)  // = 8.0
+      let expected_fe = 12.0 * 200.0 / (15.0 * 20.0) // = 8.0
       assert_true(dose_near(t.fold_enrichment, expected_fe))
     }
     i = i + 1
@@ -353,7 +372,8 @@ test "dose_enrichment_sorted_by_p_then_fe" {
   let mut ok = true
   let mut i = 1
   while i < result.terms.length() {
-    if result.terms[i].adjusted_p_value < result.terms[i - 1].adjusted_p_value - 1.0e-14 {
+    if result.terms[i].adjusted_p_value <
+      result.terms[i - 1].adjusted_p_value - 1.0e-14 {
       ok = false
     }
     i = i + 1

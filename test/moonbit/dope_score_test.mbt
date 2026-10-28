@@ -57,6 +57,7 @@ fn make_compact_chain(resnames : Array[String]) -> @src.Chain {
 
 // ===== aa_index =====
 
+///|
 test "dope_aa_index_standard" {
   assert_eq(@src.dope_aa_index("ALA"), 0)
   assert_eq(@src.dope_aa_index("VAL"), 19)
@@ -64,11 +65,13 @@ test "dope_aa_index_standard" {
   assert_eq(@src.dope_aa_index("CYS"), 4)
 }
 
+///|
 test "dope_aa_index_lowercase" {
   assert_eq(@src.dope_aa_index("ala"), 0)
   assert_eq(@src.dope_aa_index("cys"), 4)
 }
 
+///|
 test "dope_aa_index_nonstandard" {
   assert_eq(@src.dope_aa_index("XXX"), -1)
   assert_eq(@src.dope_aa_index("SEC"), -1)
@@ -76,6 +79,7 @@ test "dope_aa_index_nonstandard" {
 
 // ===== pair_index =====
 
+///|
 test "dope_pair_index_symmetric" {
   // pair_index(i, j) == pair_index(j, i)
   for i = 0; i < 20; i = i + 1 {
@@ -85,9 +89,10 @@ test "dope_pair_index_symmetric" {
   }
 }
 
+///|
 test "dope_pair_index_unique" {
   // All pairs should have unique indices
-  let seen : Map[Int, Unit] = Map([])
+  let seen : Map[Int32, Unit] = Map([])
   for i = 0; i < 20; i = i + 1 {
     for j = i; j < 20; j = j + 1 {
       let pidx = @src.dope_pair_index(i, j)
@@ -97,6 +102,7 @@ test "dope_pair_index_unique" {
   }
 }
 
+///|
 test "dope_pair_index_range" {
   // 210 unique pairs, indices 0..209
   for i = 0; i < 20; i = i + 1 {
@@ -109,30 +115,35 @@ test "dope_pair_index_range" {
 
 // ===== pair_compatibility =====
 
+///|
 test "dope_pair_compat_hydrophobic" {
   // ILE-VAL: both hydrophobic → favorable
   let compat = @src.dope_pair_compatibility(9, 19) // ILE, VAL
   assert_true(compat > 1.0)
 }
 
+///|
 test "dope_pair_compat_same_charge" {
   // ARG-LYS: both positive → unfavorable
   let compat = @src.dope_pair_compatibility(1, 11) // ARG, LYS
   assert_true(compat < 0.0)
 }
 
+///|
 test "dope_pair_compat_opposite_charge" {
   // ARG-ASP: opposite charge → favorable
   let compat = @src.dope_pair_compatibility(1, 3) // ARG, ASP
   assert_true(compat > 1.0)
 }
 
+///|
 test "dope_pair_compat_cysteine" {
   // CYS-CYS: disulfide → very favorable
   let compat = @src.dope_pair_compatibility(4, 4) // CYS, CYS
   assert_true(compat > 2.0)
 }
 
+///|
 test "dope_pair_compat_aromatic" {
   // TRP-TYR: aromatic stacking → favorable
   let compat = @src.dope_pair_compatibility(17, 18) // TRP, TYR
@@ -141,6 +152,7 @@ test "dope_pair_compat_aromatic" {
 
 // ===== DopePotential::default =====
 
+///|
 test "dope_potential_default" {
   let pot = @src.DopePotential::default()
   // Should have 210 pairs × 30 bins
@@ -152,6 +164,7 @@ test "dope_potential_default" {
 
 // ===== score_pair =====
 
+///|
 test "dope_score_pair_steric" {
   let pot = @src.DopePotential::default()
   // Very short distance → steric clash (positive energy)
@@ -159,6 +172,7 @@ test "dope_score_pair_steric" {
   assert_true(e > 0.0)
 }
 
+///|
 test "dope_score_pair_long" {
   let pot = @src.DopePotential::default()
   // Long distance → neutral (0.0)
@@ -166,12 +180,14 @@ test "dope_score_pair_long" {
   assert_true(e.abs() < 0.001)
 }
 
+///|
 test "dope_score_pair_nonstandard" {
   let pot = @src.DopePotential::default()
   let e = @src.DopePotential::score_pair(pot, "XXX", "YYY", 5.0)
   assert_true(e.abs() < 0.001)
 }
 
+///|
 test "dope_score_pair_hydrophobic_contact" {
   let pot = @src.DopePotential::default()
   // ILE-VAL at 5.0 Å: hydrophobic contact → negative (favorable)
@@ -179,6 +195,7 @@ test "dope_score_pair_hydrophobic_contact" {
   assert_true(e < 0.0)
 }
 
+///|
 test "dope_score_pair_same_charge_close" {
   let pot = @src.DopePotential::default()
   // ARG-LYS at 4.0 Å: same charge close → positive (unfavorable)
@@ -188,9 +205,12 @@ test "dope_score_pair_same_charge_close" {
 
 // ===== score (full chain) =====
 
+///|
 test "dope_score_chain" {
   let pot = @src.DopePotential::default()
-  let chain = make_compact_chain(["ALA", "VAL", "LEU", "ILE", "PHE", "TRP", "TYR", "MET"])
+  let chain = make_compact_chain([
+    "ALA", "VAL", "LEU", "ILE", "PHE", "TRP", "TYR", "MET",
+  ])
   match @src.DopePotential::score(pot, chain) {
     Some(result) => {
       assert_true(@src.DopeScore::get_num_pairs(result) > 0)
@@ -201,10 +221,13 @@ test "dope_score_chain" {
   }
 }
 
+///|
 test "dope_score_compact_better" {
   // Compact chain (residues close) should score differently from extended
   let pot = @src.DopePotential::default()
-  let resnames = ["ALA", "VAL", "LEU", "ILE", "PHE", "TRP", "TYR", "MET", "LEU", "VAL"]
+  let resnames = [
+    "ALA", "VAL", "LEU", "ILE", "PHE", "TRP", "TYR", "MET", "LEU", "VAL",
+  ]
   let extended = make_dope_chain(resnames)
   let compact = make_compact_chain(resnames)
   let s_ext = match @src.DopePotential::score(pot, extended) {
@@ -219,9 +242,12 @@ test "dope_score_compact_better" {
   assert_true((s_ext - s_comp).abs() > 0.01)
 }
 
+///|
 test "dope_score_normalized" {
   let pot = @src.DopePotential::default()
-  let chain = make_dope_chain(["ALA", "VAL", "LEU", "ILE", "PHE", "TRP", "TYR", "MET"])
+  let chain = make_dope_chain([
+    "ALA", "VAL", "LEU", "ILE", "PHE", "TRP", "TYR", "MET",
+  ])
   match @src.DopePotential::score(pot, chain) {
     Some(result) => {
       let total = @src.DopeScore::get_total(result)
@@ -235,6 +261,7 @@ test "dope_score_normalized" {
   }
 }
 
+///|
 test "dope_score_too_short" {
   let pot = @src.DopePotential::default()
   let chain = make_dope_chain(["ALA"])
@@ -246,9 +273,12 @@ test "dope_score_too_short" {
 
 // ===== score_profile =====
 
+///|
 test "dope_score_profile" {
   let pot = @src.DopePotential::default()
-  let chain = make_dope_chain(["ALA", "VAL", "LEU", "ILE", "PHE", "TRP", "TYR", "MET"])
+  let chain = make_dope_chain([
+    "ALA", "VAL", "LEU", "ILE", "PHE", "TRP", "TYR", "MET",
+  ])
   match @src.DopePotential::score_profile(pot, chain) {
     Some(profile) => assert_eq(profile.length(), 8)
     None => assert_true(false)
@@ -257,27 +287,33 @@ test "dope_score_profile" {
 
 // ===== compare =====
 
+///|
 test "dope_compare" {
   let pot = @src.DopePotential::default()
-  let resnames = ["ALA", "VAL", "LEU", "ILE", "PHE", "TRP", "TYR", "MET", "LEU", "VAL"]
+  let resnames = [
+    "ALA", "VAL", "LEU", "ILE", "PHE", "TRP", "TYR", "MET", "LEU", "VAL",
+  ]
   let chain1 = make_dope_chain(resnames)
   let chain2 = make_compact_chain(resnames)
   match @src.DopePotential::compare(pot, chain1, chain2) {
-    Some((s1, s2, diff)) => {
-      assert_true((diff - (s1 - s2)).abs() < 0.001)
-    }
+    Some((s1, s2, diff)) => assert_true((diff - (s1 - s2)).abs() < 0.001)
     None => assert_true(false)
   }
 }
 
 // ===== rank_models =====
 
+///|
 test "dope_rank_models" {
   let pot = @src.DopePotential::default()
-  let resnames = ["ALA", "VAL", "LEU", "ILE", "PHE", "TRP", "TYR", "MET", "LEU", "VAL"]
+  let resnames = [
+    "ALA", "VAL", "LEU", "ILE", "PHE", "TRP", "TYR", "MET", "LEU", "VAL",
+  ]
   let chain1 = make_dope_chain(resnames)
   let chain2 = make_compact_chain(resnames)
-  let chain3 = make_dope_chain(["GLY", "SER", "THR", "PRO", "GLY", "SER", "THR", "PRO", "GLY", "SER"])
+  let chain3 = make_dope_chain([
+    "GLY", "SER", "THR", "PRO", "GLY", "SER", "THR", "PRO", "GLY", "SER",
+  ])
   let ranked = @src.DopePotential::rank_models(pot, [chain1, chain2, chain3])
   assert_eq(ranked.length(), 3)
   // Should be sorted ascending (best first)
@@ -287,6 +323,7 @@ test "dope_rank_models" {
 
 // ===== get_energy =====
 
+///|
 test "dope_get_energy" {
   let pot = @src.DopePotential::default()
   let e = @src.DopePotential::get_energy(pot, 0, 0, 5) // ALA-ALA, bin 5
@@ -294,6 +331,7 @@ test "dope_get_energy" {
   assert_true(e > 0.0)
 }
 
+///|
 test "dope_get_energy_out_of_range" {
   let pot = @src.DopePotential::default()
   let e1 = @src.DopePotential::get_energy(pot, -1, 0, 5)
@@ -304,9 +342,12 @@ test "dope_get_energy_out_of_range" {
 
 // ===== worst/best residues =====
 
+///|
 test "dope_worst_residues" {
   let pot = @src.DopePotential::default()
-  let chain = make_dope_chain(["ALA", "VAL", "LEU", "ILE", "PHE", "TRP", "TYR", "MET"])
+  let chain = make_dope_chain([
+    "ALA", "VAL", "LEU", "ILE", "PHE", "TRP", "TYR", "MET",
+  ])
   match @src.DopePotential::score(pot, chain) {
     Some(result) => {
       let worst = @src.DopeScore::worst_residues(result, 3)
@@ -316,9 +357,12 @@ test "dope_worst_residues" {
   }
 }
 
+///|
 test "dope_best_residues" {
   let pot = @src.DopePotential::default()
-  let chain = make_dope_chain(["ALA", "VAL", "LEU", "ILE", "PHE", "TRP", "TYR", "MET"])
+  let chain = make_dope_chain([
+    "ALA", "VAL", "LEU", "ILE", "PHE", "TRP", "TYR", "MET",
+  ])
   match @src.DopePotential::score(pot, chain) {
     Some(result) => {
       let best = @src.DopeScore::best_residues(result, 3)
@@ -330,8 +374,13 @@ test "dope_best_residues" {
 
 // ===== DopePotential::new with custom params =====
 
+///|
 test "dope_potential_custom" {
-  let pot = @src.DopePotential::new(dist_cutoff=10.0, bin_size=1.0, min_seq_sep=3)
+  let pot = @src.DopePotential::new(
+    dist_cutoff=10.0,
+    bin_size=1.0,
+    min_seq_sep=3,
+  )
   assert_true((pot.dist_cutoff - 10.0).abs() < 0.001)
   assert_true((pot.bin_size - 1.0).abs() < 0.001)
   assert_eq(pot.min_seq_sep, 3)
@@ -339,11 +388,14 @@ test "dope_potential_custom" {
   assert_eq(pot.num_bins, 10)
 }
 
+///|
 test "dope_score_min_seq_sep" {
   // With min_seq_sep=3, more pairs should be counted
   let pot1 = @src.DopePotential::new(min_seq_sep=5)
   let pot2 = @src.DopePotential::new(min_seq_sep=3)
-  let chain = make_dope_chain(["ALA", "VAL", "LEU", "ILE", "PHE", "TRP", "TYR", "MET"])
+  let chain = make_dope_chain([
+    "ALA", "VAL", "LEU", "ILE", "PHE", "TRP", "TYR", "MET",
+  ])
   let n1 = match @src.DopePotential::score(pot1, chain) {
     Some(s) => @src.DopeScore::get_num_pairs(s)
     None => 0

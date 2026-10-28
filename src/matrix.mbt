@@ -13,19 +13,19 @@ pub enum BiocMatrixType {
 ///|
 pub struct BiocMatrix {
   matrix_type : BiocMatrixType
-  nrow : Int
-  ncol : Int
+  nrow : Int32
+  ncol : Int32
   data : Array[Double]
-  row_indices : Array[Int]
-  col_indices : Array[Int]
-  ptr : Array[Int]
+  row_indices : Array[Int32]
+  col_indices : Array[Int32]
+  ptr : Array[Int32]
 }
 
 ///|
 pub fn BiocMatrix::new(
   matrix_type : BiocMatrixType,
-  nrow : Int,
-  ncol : Int,
+  nrow : Int32,
+  ncol : Int32,
 ) -> BiocMatrix {
   BiocMatrix::{
     matrix_type,
@@ -67,18 +67,18 @@ pub fn BiocMatrix::dense_from_array(data : Array[Array[Double]]) -> BiocMatrix {
 
 ///|
 pub fn BiocMatrix::csc_from_triplets(
-  row_idx : Array[Int],
-  col_idx : Array[Int],
+  row_idx : Array[Int32],
+  col_idx : Array[Int32],
   values : Array[Double],
-  nrow : Int,
-  ncol : Int,
+  nrow : Int32,
+  ncol : Int32,
 ) -> BiocMatrix {
   let sorted_indices = sort_triplets(row_idx, col_idx, values)
   let sorted_rows = sorted_indices.0
   let sorted_cols = sorted_indices.1
   let sorted_values = sorted_indices.2
 
-  let ptr : Array[Int] = Array(capacity=0)
+  let ptr : Array[Int32] = Array(capacity=0)
   ptr.push(0)
 
   let mut current_col = 0
@@ -110,18 +110,18 @@ pub fn BiocMatrix::csc_from_triplets(
 
 ///|
 pub fn BiocMatrix::csr_from_triplets(
-  row_idx : Array[Int],
-  col_idx : Array[Int],
+  row_idx : Array[Int32],
+  col_idx : Array[Int32],
   values : Array[Double],
-  nrow : Int,
-  ncol : Int,
+  nrow : Int32,
+  ncol : Int32,
 ) -> BiocMatrix {
   let sorted_indices = sort_triplets_by_row(row_idx, col_idx, values)
   let sorted_rows = sorted_indices.0
   let sorted_cols = sorted_indices.1
   let sorted_values = sorted_indices.2
 
-  let ptr : Array[Int] = Array(capacity=0)
+  let ptr : Array[Int32] = Array(capacity=0)
   ptr.push(0)
 
   let mut current_row = 0
@@ -153,12 +153,12 @@ pub fn BiocMatrix::csr_from_triplets(
 
 ///|
 fn sort_triplets(
-  row_idx : Array[Int],
-  col_idx : Array[Int],
+  row_idx : Array[Int32],
+  col_idx : Array[Int32],
   values : Array[Double],
-) -> (Array[Int], Array[Int], Array[Double]) {
+) -> (Array[Int32], Array[Int32], Array[Double]) {
   let n = row_idx.length()
-  let indices : Array[Int] = Array(capacity=0)
+  let indices : Array[Int32] = Array(capacity=0)
   let mut i = 0
   while i < n {
     indices.push(i)
@@ -185,8 +185,8 @@ fn sort_triplets(
     }
   }
 
-  let sorted_rows : Array[Int] = Array(capacity=0)
-  let sorted_cols : Array[Int] = Array(capacity=0)
+  let sorted_rows : Array[Int32] = Array(capacity=0)
+  let sorted_cols : Array[Int32] = Array(capacity=0)
   let sorted_values : Array[Double] = Array(capacity=0)
 
   i = 0
@@ -202,12 +202,12 @@ fn sort_triplets(
 
 ///|
 fn sort_triplets_by_row(
-  row_idx : Array[Int],
-  col_idx : Array[Int],
+  row_idx : Array[Int32],
+  col_idx : Array[Int32],
   values : Array[Double],
-) -> (Array[Int], Array[Int], Array[Double]) {
+) -> (Array[Int32], Array[Int32], Array[Double]) {
   let n = row_idx.length()
-  let indices : Array[Int] = Array(capacity=0)
+  let indices : Array[Int32] = Array(capacity=0)
   let mut i = 0
   while i < n {
     indices.push(i)
@@ -234,8 +234,8 @@ fn sort_triplets_by_row(
     }
   }
 
-  let sorted_rows : Array[Int] = Array(capacity=0)
-  let sorted_cols : Array[Int] = Array(capacity=0)
+  let sorted_rows : Array[Int32] = Array(capacity=0)
+  let sorted_cols : Array[Int32] = Array(capacity=0)
   let sorted_values : Array[Double] = Array(capacity=0)
 
   i = 0
@@ -250,7 +250,7 @@ fn sort_triplets_by_row(
 }
 
 ///|
-pub fn BiocMatrix::get(self : BiocMatrix, i : Int, j : Int) -> Double {
+pub fn BiocMatrix::get(self : BiocMatrix, i : Int32, j : Int32) -> Double {
   if i < 0 || i >= self.nrow || j < 0 || j >= self.ncol {
     return 0.0
   }
@@ -294,8 +294,8 @@ pub fn BiocMatrix::get(self : BiocMatrix, i : Int, j : Int) -> Double {
 ///|
 pub fn BiocMatrix::set(
   self : BiocMatrix,
-  i : Int,
-  j : Int,
+  i : Int32,
+  j : Int32,
   value : Double,
 ) -> BiocMatrix {
   if i < 0 || i >= self.nrow || j < 0 || j >= self.ncol {
@@ -479,14 +479,14 @@ pub fn BiocMatrix::norm(self : BiocMatrix, p : Double) -> Double {
     BiocDenseMatrix => {
       let mut i = 0
       while i < self.data.length() {
-        sum = sum + @math.pow((self.data[i]).abs(), p)
+        sum = sum + @math.pow(self.data[i].abs(), p)
         i = i + 1
       }
     }
     BiocSparseMatrixCSC | BiocSparseMatrixCSR => {
       let mut i = 0
       while i < self.data.length() {
-        sum = sum + @math.pow((self.data[i]).abs(), p)
+        sum = sum + @math.pow(self.data[i].abs(), p)
         i = i + 1
       }
     }
@@ -496,22 +496,22 @@ pub fn BiocMatrix::norm(self : BiocMatrix, p : Double) -> Double {
 }
 
 ///|
-pub fn BiocMatrix::nrow(self : BiocMatrix) -> Int {
+pub fn BiocMatrix::nrow(self : BiocMatrix) -> Int32 {
   self.nrow
 }
 
 ///|
-pub fn BiocMatrix::ncol(self : BiocMatrix) -> Int {
+pub fn BiocMatrix::ncol(self : BiocMatrix) -> Int32 {
   self.ncol
 }
 
 ///|
-pub fn BiocMatrix::dim(self : BiocMatrix) -> (Int, Int) {
+pub fn BiocMatrix::dim(self : BiocMatrix) -> (Int32, Int32) {
   (self.nrow, self.ncol)
 }
 
 ///|
-pub fn BiocMatrix::nnz(self : BiocMatrix) -> Int {
+pub fn BiocMatrix::nnz(self : BiocMatrix) -> Int32 {
   self.data.length()
 }
 

@@ -4,7 +4,7 @@
 
 ///|
 pub struct DESeqDataSet {
-  counts : Array[Array[Int]]
+  counts : Array[Array[Int32]]
   row_names : Array[String]
   col_names : Array[String]
   design : Array[Array[Double]]
@@ -14,7 +14,7 @@ pub struct DESeqDataSet {
 
 ///|
 pub fn DESeqDataSet::new(
-  counts : Array[Array[Int]],
+  counts : Array[Array[Int32]],
   row_names : Array[String],
   col_names : Array[String],
   design : Array[Array[Double]],
@@ -255,7 +255,11 @@ fn pnorm(x : Double) -> Double {
 pub fn deseq(dds : DESeqDataSet) -> DESeqResults {
   let n_genes = dds.counts.length()
   let n_samples = dds.col_names.length()
-  let _n_coefs = if dds.design.length() > 0 { dds.design[0].length() } else { 0 }
+  let _n_coefs = if dds.design.length() > 0 {
+    dds.design[0].length()
+  } else {
+    0
+  }
 
   let base_mean : Array[Double] = Array(capacity=0)
   let log2_fold_change : Array[Double] = Array(capacity=0)
@@ -341,7 +345,7 @@ pub fn deseq(dds : DESeqDataSet) -> DESeqResults {
 }
 
 ///|
-pub fn results(dds : DESeqDataSet, _contrast? : Int = -1) -> DESeqResults {
+pub fn results(dds : DESeqDataSet, _contrast~ : Int32 = -1) -> DESeqResults {
   deseq(dds)
 }
 
@@ -352,7 +356,7 @@ fn deseq2_adjust_p_values(p_values : Array[Double]) -> Array[Double] {
     return []
   }
 
-  let indices : Array[Int] = Array(capacity=0)
+  let indices : Array[Int32] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {
     indices.push(i)
   }
@@ -447,12 +451,18 @@ fn _ds2_median(arr : Array[Double]) -> Double {
 /// 这比硬编码 prior_var=0.5 精确得多///|
 /// 公开：DESeq2 lfcShrink "normal" prior_var 估计
 /// （暴露为公开函数以便测试和直接调用）
-pub fn estimate_prior_var_for_shrink(logfcs : Array[Double], ses : Array[Double]) -> Double {
+pub fn estimate_prior_var_for_shrink(
+  logfcs : Array[Double],
+  ses : Array[Double],
+) -> Double {
   _ds2_estimate_prior_var(logfcs, ses)
 }
 
 ///|
-fn _ds2_estimate_prior_var(logfcs : Array[Double], ses : Array[Double]) -> Double {
+fn _ds2_estimate_prior_var(
+  logfcs : Array[Double],
+  ses : Array[Double],
+) -> Double {
   let n = logfcs.length()
   if n == 0 {
     return 0.5
@@ -511,7 +521,7 @@ fn _ds2_estimate_prior_var(logfcs : Array[Double], ses : Array[Double]) -> Doubl
 pub fn lfc_shrink(
   _dds : DESeqDataSet,
   res : DESeqResults,
-  coef? : Int = -1,
+  coef~ : Int32 = -1,
 ) -> DESeqResults {
   ignore(coef)
   let n_genes = res.log2_fold_change.length()
@@ -553,8 +563,8 @@ pub fn lfc_shrink(
 ///|
 pub fn significant_genes(
   results : DESeqResults,
-  alpha? : Double = 0.05,
-  lfc_threshold? : Double = 0.0,
+  alpha~ : Double = 0.05,
+  lfc_threshold~ : Double = 0.0,
 ) -> Array[String] {
   let genes : Array[String] = Array(capacity=0)
   for i = 0; i < results.row_names.length(); i = i + 1 {
@@ -569,12 +579,12 @@ pub fn significant_genes(
 ///|
 pub fn top_genes(
   results : DESeqResults,
-  n? : Int = 10,
+  n~ : Int32 = 10,
 ) -> Array[(String, Double, Double)] {
   let n_genes = results.row_names.length()
   let actual_n = if n < n_genes { n } else { n_genes }
 
-  let indices : Array[Int] = Array(capacity=0)
+  let indices : Array[Int32] = Array(capacity=0)
   for i = 0; i < n_genes; i = i + 1 {
     indices.push(i)
   }
@@ -612,9 +622,9 @@ pub fn sample_deseq_dataset() -> DESeqDataSet {
   ]
   let samples = ["Ctrl1", "Ctrl2", "Ctrl3", "Treat1", "Treat2", "Treat3"]
 
-  let counts : Array[Array[Int]] = Array(capacity=0)
+  let counts : Array[Array[Int32]] = Array(capacity=0)
   for i = 0; i < 20; i = i + 1 {
-    let row : Array[Int] = Array(capacity=0)
+    let row : Array[Int32] = Array(capacity=0)
     let base = 100.0 + i.to_double() * 50.0
 
     for j = 0; j < 3; j = j + 1 {

@@ -27,7 +27,7 @@ fn main {
     vals.push(level + wiggle[i % wiggle.length()])
     i = i + 1
   }
-  let maploc : Array[Int] = []
+  let maploc : Array[Int32] = []
   let chrom : Array[String] = Array::make(60, "chr1")
   let mut k = 0
   while k < 60 {
@@ -52,16 +52,10 @@ fn main {
   let vals2 : Array[Double] = []
   let mut j = 0
   while j < 30 {
-    vals2.push(if j < 10 {
-      0.0
-    } else if j < 20 {
-      0.2
-    } else {
-      1.0
-    })
+    vals2.push(if j < 10 { 0.0 } else if j < 20 { 0.2 } else { 1.0 })
     j = j + 1
   }
-  let maploc2 : Array[Int] = []
+  let maploc2 : Array[Int32] = []
   let mut k2 = 0
   while k2 < 30 {
     maploc2.push((k2 + 1) * 1000)
@@ -75,8 +69,14 @@ fn main {
   }
   let merged = @bio.segment(
     cna2,
-    options=@bio.DnaCopyOptions::of(nperm=1000, undo_splits="sdundo", undo_sd=10.0),
-  ) catch { _ => abort("segment failed") }
+    options=@bio.DnaCopyOptions::of(
+      nperm=1000,
+      undo_splits="sdundo",
+      undo_sd=10.0,
+    ),
+  ) catch {
+    _ => abort("segment failed")
+  }
   println("   without undo: \{plain.segments.length()} segments")
   for s in plain.segments {
     println("     \{s.start}-\{s.end} mean=\{s.seg_mean} (n=\{s.num_mark})")
@@ -89,7 +89,7 @@ fn main {
   // 3. Two chromosomes are segmented independently
   println("\n3. Multi-chromosome input")
   let chrom3 : Array[String] = []
-  let maploc3 : Array[Int] = []
+  let maploc3 : Array[Int32] = []
   let vals3 : Array[Double] = []
   // chrA: flat 0
   let mut m = 0
@@ -107,7 +107,9 @@ fn main {
     vals3.push(if m2 >= 8 && m2 < 14 { 1.0 } else { 0.0 })
     m2 = m2 + 1
   }
-  let cna3 = @bio.Cna::new(chrom3, maploc3, vals3) catch { _ => abort("bad CNA") }
+  let cna3 = @bio.Cna::new(chrom3, maploc3, vals3) catch {
+    _ => abort("bad CNA")
+  }
   let res3 = @bio.segment(cna3, options=@bio.DnaCopyOptions::of(nperm=1000)) catch {
     _ => abort("segment failed")
   }

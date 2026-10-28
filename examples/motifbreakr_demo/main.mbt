@@ -15,8 +15,16 @@ fn main {
   println("   Variants: " + variants.length().to_string())
   for v in variants {
     println(
-      "   " + v.name + ": " + v.chrom + ":" + v.position.to_string() +
-      " " + v.ref_allele + ">" + v.alt_allele,
+      "   " +
+      v.name +
+      ": " +
+      v.chrom +
+      ":" +
+      v.position.to_string() +
+      " " +
+      v.ref_allele +
+      ">" +
+      v.alt_allele,
     )
   }
 
@@ -29,11 +37,18 @@ fn main {
       @src.MotifbreakrEffect::Neutral => "NEUTRAL"
     }
     println(
-      "   " + r.variant_name + " vs " + r.motif_name +
-      ": ref=" + r.ref_score.to_string() +
-      ", alt=" + r.alt_score.to_string() +
-      ", delta=" + r.delta.to_string() +
-      " -> " + effect_str,
+      "   " +
+      r.variant_name +
+      " vs " +
+      r.motif_name +
+      ": ref=" +
+      r.ref_score.to_string() +
+      ", alt=" +
+      r.alt_score.to_string() +
+      ", delta=" +
+      r.delta.to_string() +
+      " -> " +
+      effect_str,
     )
   }
 

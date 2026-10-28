@@ -78,7 +78,9 @@ fn main {
   let results = @bio.approx_find_all("ACG", "AACGACGTCG", 0)
   println("Find all 'ACG' in 'AACGACGTCG' (exact): \{results.length()} matches")
   let results2 = @bio.approx_find_all("ACG", "AACGACGTCG", 1)
-  println("Find all 'ACG' in 'AACGACGTCG' (max 1 mismatch): \{results2.length()} matches")
+  println(
+    "Find all 'ACG' in 'AACGACGTCG' (max 1 mismatch): \{results2.length()} matches",
+  )
   println("")
 
   // Approx word search

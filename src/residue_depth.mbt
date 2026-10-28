@@ -86,7 +86,7 @@ pub fn RDAtom::new(
 /// A residue for ResidueDepth.
 pub struct RDResidue {
   resname : String
-  resseq : Int
+  resseq : Int32
   atoms : Array[RDAtom]
 }
 
@@ -94,7 +94,7 @@ pub struct RDResidue {
 /// Create a new RDResidue.
 pub fn RDResidue::new(
   resname : String,
-  resseq : Int,
+  resseq : Int32,
   atoms : Array[RDAtom],
 ) -> RDResidue {
   RDResidue::{ resname, resseq, atoms, }
@@ -141,7 +141,7 @@ pub fn RDResidue::get_ca(self : RDResidue) -> RDAtom? {
 ///|
 /// ResidueDepth result struct.
 pub struct RDResult {
-  resseq : Int
+  resseq : Int32
   resname : String
   ca_depth : Double
   com_depth : Double
@@ -152,7 +152,7 @@ pub struct RDResult {
 ///|
 /// Create a new RDResult.
 pub fn RDResult::new(
-  resseq : Int,
+  resseq : Int32,
   resname : String,
   ca_depth : Double,
   com_depth : Double,

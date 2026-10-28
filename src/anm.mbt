@@ -10,7 +10,7 @@
 ///|
 /// Result of an ANM calculation.
 pub struct ANM {
-  n : Int
+  n : Int32
   cutoff : Double
   gamma : Double
   hessian : Array[Array[Double]]
@@ -22,8 +22,8 @@ pub struct ANM {
 /// Build an ANM from a protein chain using CA atoms.
 pub fn ANM::new(
   chain : Chain,
-  cutoff? : Double = 15.0,
-  gamma? : Double = 1.0,
+  cutoff~ : Double = 15.0,
+  gamma~ : Double = 1.0,
 ) -> ANM? {
   let residues = chain.get_residues()
   let ca_coords : Array[Vector3] = Array(capacity=0)
@@ -38,7 +38,7 @@ pub fn ANM::new(
     return None
   }
   let dim = 3 * n
-  let h : Array[Array[Double]] = Array::makei(dim, { _ => Array::make(dim, 0.0) })
+  let h : Array[Array[Double]] = Array::makei(dim, _ => Array::make(dim, 0.0))
   // Build Hessian: for each pair (i,j) in contact,
   // H_ij = -gamma/d² * [dxdx dydy dzdz] (3×3 super-element)
   // H_ii = -sum_j H_ij
@@ -109,7 +109,7 @@ pub fn ANM::new(
   // Eigen-decompose (6 zero modes expected: 3 translation + 3 rotation)
   let max_iter = if dim > 100 { dim * 20 } else { 200 }
   let (eigenvalues, eigenvectors) = linalg_jacobi(h, dim, max_iter)
-  Some(ANM::{ n, cutoff, gamma, hessian: h, eigenvalues, eigenvectors })
+  Some(ANM::{ n, cutoff, gamma, hessian: h, eigenvalues, eigenvectors, })
 }
 
 ///|
@@ -151,7 +151,7 @@ pub fn ANM::predict_bfactors(self : ANM) -> Array[Double] {
   let dim = 3 * n
   let bfactors = Array::make(n, 0.0)
   // Sort eigenvalue indices ascending
-  let indices = Array::makei(dim, { i => i })
+  let indices = Array::makei(dim, i => i)
   for i = 1; i < dim; i = i + 1 {
     let key = indices[i]
     let key_val = self.eigenvalues[key]
@@ -192,10 +192,13 @@ pub fn ANM::fluctuations(self : ANM) -> Array[Double] {
 ///|
 /// Get the k slowest non-trivial modes.
 /// Returns array of (mode_index, eigenvalue, eigenvector).
-pub fn ANM::slow_modes(self : ANM, k : Int) -> Array[(Int, Double, Array[Double])] {
+pub fn ANM::slow_modes(
+  self : ANM,
+  k : Int32,
+) -> Array[(Int32, Double, Array[Double])] {
   let n = self.n
   let dim = 3 * n
-  let indices = Array::makei(dim, { i => i })
+  let indices = Array::makei(dim, i => i)
   for i = 1; i < dim; i = i + 1 {
     let key = indices[i]
     let key_val = self.eigenvalues[key]
@@ -206,7 +209,7 @@ pub fn ANM::slow_modes(self : ANM, k : Int) -> Array[(Int, Double, Array[Double]
     }
     indices[j + 1] = key
   }
-  let result : Array[(Int, Double, Array[Double])] = Array(capacity=0)
+  let result : Array[(Int32, Double, Array[Double])] = Array(capacity=0)
   let count = if k < dim - 6 { k } else { dim - 6 }
   for m = 6; m < 6 + count; m = m + 1 {
     let idx = indices[m]
@@ -226,8 +229,8 @@ pub fn ANM::slow_modes(self : ANM, k : Int) -> Array[(Int, Double, Array[Double]
 pub fn ANM::cross_correlation(self : ANM) -> Array[Array[Double]] {
   let n = self.n
   let dim = 3 * n
-  let corr : Array[Array[Double]] = Array::makei(n, { _ => Array::make(n, 0.0) })
-  let indices = Array::makei(dim, { i => i })
+  let corr : Array[Array[Double]] = Array::makei(n, _ => Array::make(n, 0.0))
+  let indices = Array::makei(dim, i => i)
   for i = 1; i < dim; i = i + 1 {
     let key = indices[i]
     let key_val = self.eigenvalues[key]
@@ -272,6 +275,6 @@ pub fn ANM::cross_correlation(self : ANM) -> Array[Array[Double]] {
 
 ///|
 /// Number of nodes (CA atoms).
-pub fn ANM::num_nodes(self : ANM) -> Int {
+pub fn ANM::num_nodes(self : ANM) -> Int32 {
   self.n
 }

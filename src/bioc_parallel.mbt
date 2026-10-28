@@ -3,26 +3,26 @@
 
 ///|
 pub struct BPPARAM {
-  workers : Int
+  workers : Int32
   progressbar : Bool
-  timeout : Int
+  timeout : Int32
   log_file : String
 }
 
 ///|
 pub fn BPPARAM::new(
-  workers : Int,
+  workers : Int32,
   progressbar : Bool,
-  timeout : Int,
+  timeout : Int32,
 ) -> BPPARAM {
   BPPARAM::{ workers, progressbar, timeout, log_file: "", }
 }
 
 ///|
 pub fn BPPARAM::new_with_log(
-  workers : Int,
+  workers : Int32,
   progressbar : Bool,
-  timeout : Int,
+  timeout : Int32,
   log_file : String,
 ) -> BPPARAM {
   BPPARAM::{ workers, progressbar, timeout, log_file, }
@@ -33,16 +33,16 @@ pub struct BPResult {
   success : Bool
   result : Double
   error : String
-  worker_id : Int
+  worker_id : Int32
 }
 
 ///|
-pub fn BPResult::success(result : Double, worker_id : Int) -> BPResult {
+pub fn BPResult::success(result : Double, worker_id : Int32) -> BPResult {
   BPResult::{ success: true, result, error: "", worker_id, }
 }
 
 ///|
-pub fn BPResult::error(error : String, worker_id : Int) -> BPResult {
+pub fn BPResult::error(error : String, worker_id : Int32) -> BPResult {
   BPResult::{ success: false, result: 0.0, error, worker_id, }
 }
 
@@ -50,11 +50,11 @@ pub fn BPResult::error(error : String, worker_id : Int) -> BPResult {
 pub struct Task {
   id : String
   data : Array[Double]
-  priority : Int
+  priority : Int32
 }
 
 ///|
-pub fn Task::new(id : String, data : Array[Double], priority : Int) -> Task {
+pub fn Task::new(id : String, data : Array[Double], priority : Int32) -> Task {
   Task::{ id, data, priority, }
 }
 
@@ -129,7 +129,7 @@ pub fn bp_mean(data : Array[Array[Double]], params : BPPARAM) -> Double {
 }
 
 ///|
-pub fn bp_mean_simple(data : Array[Double], workers : Int) -> Double {
+pub fn bp_mean_simple(data : Array[Double], workers : Int32) -> Double {
   let chunks = bp_parallelize(data, workers)
   let params = BPPARAM::new(workers, false, 120)
   bp_mean(chunks, params)
@@ -189,7 +189,7 @@ pub fn bp_rowsum(
 ///|
 pub fn bp_parallelize(
   data : Array[Double],
-  workers : Int,
+  workers : Int32,
 ) -> Array[Array[Double]] {
   let chunks : Array[Array[Double]] = Array(capacity=0)
 

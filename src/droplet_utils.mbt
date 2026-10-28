@@ -6,8 +6,8 @@
 ///|
 pub struct DropletStats {
   total_counts : Array[Double]
-  n_genes : Array[Int]
-  total_features_by_barcode : Array[(String, Double, Int)]
+  n_genes : Array[Int32]
+  total_features_by_barcode : Array[(String, Double, Int32)]
 }
 
 ///|
@@ -22,15 +22,15 @@ pub struct EmptyDropsResult {
 
 ///|
 pub fn calculate_droplet_stats(
-  counts : Array[Array[Int]],
+  counts : Array[Array[Int32]],
   barcodes : Array[String],
 ) -> DropletStats {
   let n_barcodes = counts.length()
   let n_genes = if n_barcodes > 0 { counts[0].length() } else { 0 }
 
   let total_counts : Array[Double] = Array(capacity=0)
-  let gene_counts : Array[Int] = Array(capacity=0)
-  let features : Array[(String, Double, Int)] = Array(capacity=0)
+  let gene_counts : Array[Int32] = Array(capacity=0)
+  let features : Array[(String, Double, Int32)] = Array(capacity=0)
 
   let mut i = 0
   while i < n_barcodes {
@@ -65,8 +65,8 @@ pub fn calculate_droplet_stats(
 }
 
 ///|
-pub fn barcode_ranking(total_counts : Array[Double]) -> Array[(Double, Int)] {
-  let ranked : Array[(Double, Int)] = Array(capacity=0)
+pub fn barcode_ranking(total_counts : Array[Double]) -> Array[(Double, Int32)] {
+  let ranked : Array[(Double, Int32)] = Array(capacity=0)
 
   let mut i = 0
   while i < total_counts.length() {
@@ -92,7 +92,7 @@ pub fn barcode_ranking(total_counts : Array[Double]) -> Array[(Double, Int)] {
 }
 
 ///|
-pub fn find_knee_point(ranked_counts : Array[(Double, Int)]) -> Int {
+pub fn find_knee_point(ranked_counts : Array[(Double, Int32)]) -> Int32 {
   if ranked_counts.length() < 3 {
     return 0
   }
@@ -137,18 +137,18 @@ pub fn find_knee_point(ranked_counts : Array[(Double, Int)]) -> Int {
 
 ///|
 pub fn empty_drops(
-  counts : Array[Array[Int]],
+  counts : Array[Array[Int32]],
   barcodes : Array[String],
-  lower : Int,
-  niters : Int,
+  lower : Int32,
+  niters : Int32,
 ) -> EmptyDropsResult {
   let n_barcodes = counts.length()
   let n_genes = if n_barcodes > 0 { counts[0].length() } else { 0 }
 
   let stats = calculate_droplet_stats(counts, barcodes)
 
-  let ambient_barcodes : Array[Array[Int]] = Array(capacity=0)
-  let ambient_indices : Array[Int] = Array(capacity=0)
+  let ambient_barcodes : Array[Array[Int32]] = Array(capacity=0)
+  let ambient_indices : Array[Int32] = Array(capacity=0)
 
   let mut i = 0
   while i < n_barcodes {
@@ -291,7 +291,7 @@ pub fn empty_drops(
 fn benjamini_hochberg(p_values : Array[Double]) -> Array[Double] {
   let n = p_values.length()
 
-  let indexed : Array[(Double, Int)] = Array(capacity=0)
+  let indexed : Array[(Double, Int32)] = Array(capacity=0)
   let mut i = 0
   while i < n {
     indexed.push((p_values[i], i))
@@ -337,11 +337,11 @@ fn benjamini_hochberg(p_values : Array[Double]) -> Array[Double] {
 
 ///|
 pub fn filter_cells_by_empty_drops(
-  counts : Array[Array[Int]],
+  counts : Array[Array[Int32]],
   barcodes : Array[String],
   result : EmptyDropsResult,
-) -> (Array[Array[Int]], Array[String]) {
-  let filtered_counts : Array[Array[Int]] = Array(capacity=0)
+) -> (Array[Array[Int32]], Array[String]) {
+  let filtered_counts : Array[Array[Int32]] = Array(capacity=0)
   let filtered_barcodes : Array[String] = Array(capacity=0)
 
   let barcode_map : Map[String, Bool] = Map(
@@ -375,23 +375,23 @@ pub fn filter_cells_by_empty_drops(
 }
 
 ///|
-pub fn estimate_cell_number(total_counts : Array[Double]) -> Int {
+pub fn estimate_cell_number(total_counts : Array[Double]) -> Int32 {
   let ranked = barcode_ranking(total_counts)
   let knee = find_knee_point(ranked)
   knee + 1
 }
 
 ///|
-pub fn create_example_droplet_data() -> (Array[Array[Int]], Array[String]) {
+pub fn create_example_droplet_data() -> (Array[Array[Int32]], Array[String]) {
   let n_barcodes = 100
   let n_genes = 500
 
-  let counts : Array[Array[Int]] = Array(capacity=0)
+  let counts : Array[Array[Int32]] = Array(capacity=0)
   let barcodes : Array[String] = Array(capacity=0)
 
   let mut i = 0
   while i < n_barcodes {
-    let row : Array[Int] = Array(capacity=0)
+    let row : Array[Int32] = Array(capacity=0)
     let s = i.to_string()
     let pad = "00000000"
     let padded = if s.length() < 8 {

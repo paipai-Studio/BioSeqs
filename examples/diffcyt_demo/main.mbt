@@ -38,7 +38,13 @@ fn main {
     cluster_counts[cell.cluster_id()] = cluster_counts[cell.cluster_id()] + 1
   }
   for i in 0..<n_clusters {
-    println("  Cluster " + i.to_string() + ": " + cluster_counts[i].to_string() + " cells")
+    println(
+      "  Cluster " +
+      i.to_string() +
+      ": " +
+      cluster_counts[i].to_string() +
+      " cells",
+    )
   }
   println("")
 
@@ -70,7 +76,12 @@ fn main {
     conditions_arr.push(cond_map.get(sid).unwrap_or(""))
   }
   let design = @bio.diffcyt_create_design_matrix(samples, conditions_arr)
-  println("Design matrix dimensions: " + design.length().to_string() + " x " + design[0].length().to_string())
+  println(
+    "Design matrix dimensions: " +
+    design.length().to_string() +
+    " x " +
+    design[0].length().to_string(),
+  )
   println("Columns: [intercept, condition_stim]")
   println("")
 
@@ -96,15 +107,15 @@ fn main {
     let sig = if r.significant() { "*" } else { "" }
     println(
       "  Cluster " +
-        r.cluster_id().to_string() +
-        ": logFC=" +
-        r.log_fc().to_string() +
-        " p=" +
-        r.p_value().to_string() +
-        " FDR=" +
-        r.fdr().to_string() +
-        " " +
-        sig,
+      r.cluster_id().to_string() +
+      ": logFC=" +
+      r.log_fc().to_string() +
+      " p=" +
+      r.p_value().to_string() +
+      " FDR=" +
+      r.fdr().to_string() +
+      " " +
+      sig,
     )
   }
   println("Significant DA clusters: " + summary.n_sig_da().to_string())
@@ -119,17 +130,17 @@ fn main {
     let sig = if r.significant() { "*" } else { "" }
     println(
       "  Cluster " +
-        r.cluster_id().to_string() +
-        " " +
-        r.marker_name() +
-        ": logFC=" +
-        r.log_fc().to_string() +
-        " p=" +
-        r.p_value().to_string() +
-        " FDR=" +
-        r.fdr().to_string() +
-        " " +
-        sig,
+      r.cluster_id().to_string() +
+      " " +
+      r.marker_name() +
+      ": logFC=" +
+      r.log_fc().to_string() +
+      " p=" +
+      r.p_value().to_string() +
+      " FDR=" +
+      r.fdr().to_string() +
+      " " +
+      sig,
     )
   }
   println("Significant DS results: " + summary.n_sig_ds().to_string())

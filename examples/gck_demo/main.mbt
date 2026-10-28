@@ -97,7 +97,9 @@ fn main {
   }
   println(byte_sb.to_string())
   // Verify magic bytes
-  println("Magic: \{bytes[0].to_char()} \{bytes[1].to_char()} \{bytes[2].to_char()} (should be G C K)")
+  println(
+    "Magic: \{bytes[0].to_char()} \{bytes[1].to_char()} \{bytes[2].to_char()} (should be G C K)",
+  )
   let file2 = @bio.gck_from_bytes(bytes)
   println("Deserialized: sequence length=\{@bio.gck_seq_length(file2)}")
   println("Bytes round-trip verify: \{file2.sequence == file.sequence}")
@@ -112,7 +114,9 @@ fn main {
   let hex_preview_len = if hex.length() < 40 { hex.length() } else { 40 }
   println("  first \{hex_preview_len} chars: \{hex[0:hex_preview_len]}")
   let file3 = @bio.gck_parse(hex)
-  println("Deserialized from hex: sequence length=\{@bio.gck_seq_length(file3)}")
+  println(
+    "Deserialized from hex: sequence length=\{@bio.gck_seq_length(file3)}",
+  )
   println("Hex round-trip verify: \{file3.sequence == file.sequence}")
   println("")
 
@@ -126,20 +130,14 @@ fn main {
   custom.set_version(1)
   custom.set_seq_type(@bio.GckSeqType::from_int(0))
   custom.add_feature(
-    @bio.GckFeature::new(
-      name="geneA",
-      type_="CDS",
-      direction=1,
-      segments=[(0, 8)],
-    ),
+    @bio.GckFeature::new(name="geneA", type_="CDS", direction=1, segments=[
+      (0, 8),
+    ]),
   )
   custom.add_feature(
-    @bio.GckFeature::new(
-      name="promoter1",
-      type_="promoter",
-      direction=1,
-      segments=[(10, 22)],
-    ),
+    @bio.GckFeature::new(name="promoter1", type_="promoter", direction=1, segments=[
+      (10, 22),
+    ]),
   )
   println("Custom file built:")
   println("  sequence: \{custom.sequence}")
@@ -162,7 +160,9 @@ fn main {
   println("SeqRecord sequence length: \{rec.seq.data.length()}")
   // Convert back
   let back = @bio.gck_from_seqrecord(rec)
-  println("Back-converted GckFile: sequence length=\{@bio.gck_seq_length(back)}")
+  println(
+    "Back-converted GckFile: sequence length=\{@bio.gck_seq_length(back)}",
+  )
   println("")
 
   // ------------------------------------------------------------------

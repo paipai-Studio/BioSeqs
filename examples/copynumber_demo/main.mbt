@@ -5,7 +5,7 @@
 /// multi-sample multiPCF with a shared segmentation.
 ///
 /// Run: moon run examples/copynumber_demo
-fn demo_rand(seed : Int) -> Double {
+fn demo_rand(seed : Int32) -> Double {
   let s = (1103515245 * seed + 12345) & 0x7FFFFFFF
   s.to_double() / 2147483647.0
 }
@@ -14,8 +14,8 @@ fn demo_rand(seed : Int) -> Double {
 /// One noisy 120-probe sample with four underlying levels (edges 30/60/90).
 fn make_profile(
   levels : Array[Double],
-  seed : Int,
-  spikes : Array[(Int, Double)],
+  seed : Int32,
+  spikes : Array[(Int32, Double)],
 ) -> Array[Double] {
   let n = 120
   let edges = [0, 30, 60, 90, n]
@@ -54,7 +54,7 @@ fn ascii_track(y : Array[Double]) -> String {
 
 ///|
 /// Right-align an integer in a fixed-width field.
-fn field_int(i : Int, width : Int) -> String {
+fn field_int(i : Int32, width : Int32) -> String {
   let sb = StringBuilder()
   let s = i.to_string()
   let mut n = s.length()

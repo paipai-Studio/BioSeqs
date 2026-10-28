@@ -4,7 +4,7 @@
 /// semantics, plus a brute-force check of the IntervalTree.
 
 ///|
-fn sort_ints(a : Array[Int]) -> Array[Int] {
+fn sort_ints(a : Array[Int32]) -> Array[Int32] {
   let out = a.copy()
   let mut i = 1
   while i < out.length() {
@@ -21,7 +21,7 @@ fn sort_ints(a : Array[Int]) -> Array[Int] {
 }
 
 ///|
-fn ints_eq(a : Array[Int], b : Array[Int]) -> Bool {
+fn ints_eq(a : Array[Int32], b : Array[Int32]) -> Bool {
   if a.length() != b.length() {
     return false
   }
@@ -34,7 +34,7 @@ fn ints_eq(a : Array[Int], b : Array[Int]) -> Bool {
 }
 
 ///|
-fn iv(chrom : String, start : Int, end : Int) -> @src.BedInterval {
+fn iv(chrom : String, start : Int32, end : Int32) -> @src.BedInterval {
   @src.BedInterval::new(chrom, start, end)
 }
 
@@ -61,7 +61,11 @@ test "bedtools_merge" {
 
 ///|
 test "bedtools_merge_unsorted_input" {
-  let merged = @src.bedtools_merge([iv("chr1", 10, 20), iv("chr1", 30, 40), iv("chr1", 25, 35)])
+  let merged = @src.bedtools_merge([
+    iv("chr1", 10, 20),
+    iv("chr1", 30, 40),
+    iv("chr1", 25, 35),
+  ])
   assert_eq(merged.length(), 2)
   assert_eq(merged[0].start, 10)
   assert_eq(merged[0].end, 20)
@@ -78,7 +82,9 @@ test "bedtools_intersect" {
   assert_eq(hit[0].start, 0)
   assert_eq(hit[1].start, 15)
   // no overlap
-  let none = @src.bedtools_intersect([iv("chr1", 0, 10), iv("chr1", 50, 60)], [iv("chr1", 20, 30)])
+  let none = @src.bedtools_intersect([iv("chr1", 0, 10), iv("chr1", 50, 60)], [
+    iv("chr1", 20, 30),
+  ])
   assert_eq(none.length(), 0)
 }
 
@@ -103,7 +109,7 @@ test "interval_tree_bruteforce" {
     rng = (rng * 1103515245 + 12345) & 0x7FFFFFFF
     let b = a + 1 + rng % 100
     let got = sort_ints(tree.query(a, b))
-    let want : Array[Int] = Array(capacity=0)
+    let want : Array[Int32] = Array(capacity=0)
     for i = 0; i < n; i = i + 1 {
       if starts[i] < b && ends[i] > a {
         want.push(i)
@@ -112,6 +118,7 @@ test "interval_tree_bruteforce" {
     assert_true(ints_eq(got, want))
   }
 }
+
 ///|
 test "bedtools_closest" {
   let a = [iv("chr1", 100, 200), iv("chr1", 500, 600), iv("chr1", 900, 1000)]
@@ -132,6 +139,7 @@ test "bedtools_closest" {
   assert_eq(r2[0].distance, 0)
 }
 
+///|
 test "bedtools_window" {
   let a = [iv("chr1", 100, 200), iv("chr1", 500, 600)]
   let b = [iv("chr1", 130, 140), iv("chr1", 230, 240), iv("chr1", 480, 490)]
@@ -144,7 +152,11 @@ test "bedtools_window" {
   assert_eq(r2.length(), 1)
   assert_eq(r2[0].start, 100)
   // A.end 下游附近命中（旧「围绕 start」语义会漏）
-  let r3 = @src.bedtools_window([iv("chr1", 100, 200)], [iv("chr1", 205, 210)], 10)
+  let r3 = @src.bedtools_window(
+    [iv("chr1", 100, 200)],
+    [iv("chr1", 205, 210)],
+    10,
+  )
   assert_eq(r3.length(), 1)
 }
 
@@ -188,7 +200,10 @@ test "bedtools_genomecov_bg" {
 test "bedtools_subtract_complement" {
   let sizes = [("chr1", 1000), ("chr2", 500)]
   // subtract
-  let s = @src.bedtools_subtract([iv("chr1", 0, 100)], [iv("chr1", 30, 50), iv("chr1", 70, 80)])
+  let s = @src.bedtools_subtract([iv("chr1", 0, 100)], [
+    iv("chr1", 30, 50),
+    iv("chr1", 70, 80),
+  ])
   assert_eq(s.length(), 3)
   assert_eq(s[0].start, 0)
   assert_eq(s[0].end, 30)
@@ -197,9 +212,15 @@ test "bedtools_subtract_complement" {
   assert_eq(s[2].start, 80)
   assert_eq(s[2].end, 100)
   // 全被覆盖 → 空
-  assert_eq(@src.bedtools_subtract([iv("chr1", 0, 100)], [iv("chr1", 0, 100)]).length(), 0)
+  assert_eq(
+    @src.bedtools_subtract([iv("chr1", 0, 100)], [iv("chr1", 0, 100)]).length(),
+    0,
+  )
   // complement
-  let c = @src.bedtools_complement([iv("chr1", 100, 200), iv("chr1", 300, 400)], sizes)
+  let c = @src.bedtools_complement(
+    [iv("chr1", 100, 200), iv("chr1", 300, 400)],
+    sizes,
+  )
   assert_eq(c.length(), 4)
   assert_eq(c[0].start, 0)
   assert_eq(c[0].end, 100)
@@ -249,7 +270,12 @@ test "bedtools_intersect_frac_stranded" {
   // strand：A '+'，B 一条 '+' 一条 '-'
   let sa = ["+"]
   let sb = ["+", "-"]
-  let hit = @src.bedtools_intersect_stranded([iv("chr1", 0, 10)], sa, [iv("chr1", 0, 10), iv("chr1", 0, 10)], sb)
+  let hit = @src.bedtools_intersect_stranded(
+    [iv("chr1", 0, 10)],
+    sa,
+    [iv("chr1", 0, 10), iv("chr1", 0, 10)],
+    sb,
+  )
   assert_eq(hit.length(), 1)
 }
 
@@ -297,6 +323,7 @@ test "bedtools_groupby" {
   let mx = @src.bedtools_groupby(records, [1], 4, "max")
   assert_true(@moonbit.assert_num_close(mx[0].value, 30.0, 1.0e-9))
 }
+
 ///|
 test "bedtools_map_text_ops" {
   let a = [iv("chr1", 0, 100)]
@@ -319,13 +346,39 @@ test "bedtools_map_numeric_extended" {
   let b = [iv("chr1", 0, 50), iv("chr1", 25, 75), iv("chr1", 200, 300)]
   let bv = [10.0, 20.0, 5.0]
   // overlap values: [10, 20]
-  assert_true(@moonbit.assert_num_close(@src.bedtools_map_median(a, b, bv)[0], 15.0, 1.0e-9))
+  assert_true(
+    @moonbit.assert_num_close(
+      @src.bedtools_map_median(a, b, bv)[0],
+      15.0,
+      1.0e-9,
+    ),
+  )
   // population stddev (÷N)
-  assert_true(@moonbit.assert_num_close(@src.bedtools_map_stdev(a, b, bv)[0], 5.0, 1.0e-9))
+  assert_true(
+    @moonbit.assert_num_close(@src.bedtools_map_stdev(a, b, bv)[0], 5.0, 1.0e-9),
+  )
   // sample stddev (÷N-1)
-  assert_true(@moonbit.assert_num_close(@src.bedtools_map_sstdev(a, b, bv)[0], 7.0710678118654755, 1.0e-9))
-  assert_true(@moonbit.assert_num_close(@src.bedtools_map_absmin(a, b, bv)[0], 10.0, 1.0e-9))
-  assert_true(@moonbit.assert_num_close(@src.bedtools_map_absmax(a, b, bv)[0], 20.0, 1.0e-9))
+  assert_true(
+    @moonbit.assert_num_close(
+      @src.bedtools_map_sstdev(a, b, bv)[0],
+      7.0710678118654755,
+      1.0e-9,
+    ),
+  )
+  assert_true(
+    @moonbit.assert_num_close(
+      @src.bedtools_map_absmin(a, b, bv)[0],
+      10.0,
+      1.0e-9,
+    ),
+  )
+  assert_true(
+    @moonbit.assert_num_close(
+      @src.bedtools_map_absmax(a, b, bv)[0],
+      20.0,
+      1.0e-9,
+    ),
+  )
 }
 
 ///|
@@ -340,7 +393,9 @@ test "bedtools_groupby_extended" {
   assert_true(@moonbit.assert_num_close(median[0].value, 20.0, 1.0e-9))
   assert_true(@moonbit.assert_num_close(median[1].value, 5.0, 1.0e-9))
   let stdev = @src.bedtools_groupby(records, [1], 4, "stdev")
-  assert_true(@moonbit.assert_num_close(stdev[0].value, 8.16496580927726, 1.0e-9))
+  assert_true(
+    @moonbit.assert_num_close(stdev[0].value, 8.16496580927726, 1.0e-9),
+  )
   assert_true(@moonbit.assert_num_close(stdev[1].value, 0.0, 1.0e-9))
   let sstdev = @src.bedtools_groupby(records, [1], 4, "sstdev")
   assert_true(@moonbit.assert_num_close(sstdev[0].value, 10.0, 1.0e-9))
@@ -366,21 +421,37 @@ test "bedtools_groupby_text" {
   assert_eq(mode[0].group[0], "chr1")
   assert_eq(mode[0].value, "a")
   assert_eq(mode[1].value, "c")
-  assert_eq(@src.bedtools_groupby_text(records, [1], 3, "antimode")[0].value, "b")
+  assert_eq(
+    @src.bedtools_groupby_text(records, [1], 3, "antimode")[0].value,
+    "b",
+  )
   let distinct = @src.bedtools_groupby_text(records, [1], 3, "distinct")
   assert_eq(distinct[0].value, "a,b")
   assert_eq(distinct[1].value, "c")
-  let distinct_only = @src.bedtools_groupby_text(records, [1], 3, "distinct_only")
+  let distinct_only = @src.bedtools_groupby_text(
+    records,
+    [1],
+    3,
+    "distinct_only",
+  )
   assert_eq(distinct_only[0].value, "b")
-  assert_eq(@src.bedtools_groupby_text(records, [1], 3, "collapse")[0].value, "a,b,a")
-  assert_eq(@src.bedtools_groupby_text(records, [1], 3, "concat")[0].value, "aba")
+  assert_eq(
+    @src.bedtools_groupby_text(records, [1], 3, "collapse")[0].value,
+    "a,b,a",
+  )
+  assert_eq(
+    @src.bedtools_groupby_text(records, [1], 3, "concat")[0].value,
+    "aba",
+  )
   let first = @src.bedtools_groupby_text(records, [1], 3, "first")
   assert_eq(first[0].value, "a")
   assert_eq(first[1].value, "c")
   let last = @src.bedtools_groupby_text(records, [1], 3, "last")
   assert_eq(last[0].value, "a")
   assert_eq(last[1].value, "c")
-}///|
+} ///|
+
+///|
 test "bedtools_intersect_opposite_strand" {
   let a = [iv("chr1", 0, 10)]
   let sa = ["+"]
@@ -397,21 +468,36 @@ test "bedtools_intersect_opposite_strand" {
   let sb3 = ["."]
   assert_eq(@src.bedtools_intersect_opposite_strand(a, sa, b3, sb3).length(), 0)
 }
+
 ///|
 test "bedtools_intersect_frac_b_reciprocal" {
   // A(0,100) vs B(90,110): overlap=10, B.len=20 → overlap/B = 0.5
   let a = [iv("chr1", 0, 100)]
   let frac_b_hit = @src.bedtools_intersect_frac_b(a, [iv("chr1", 90, 110)], 0.5)
   assert_eq(frac_b_hit.length(), 1)
-  let frac_b_miss = @src.bedtools_intersect_frac_b(a, [iv("chr1", 90, 110)], 0.6)
+  let frac_b_miss = @src.bedtools_intersect_frac_b(
+    a,
+    [iv("chr1", 90, 110)],
+    0.6,
+  )
   assert_eq(frac_b_miss.length(), 0)
   // reciprocal: A(0,100) vs B(80,200): overlap=20, A.len=100, B.len=120
   // overlap/A=0.2, overlap/B≈0.1667
-  let rec_hit = @src.bedtools_intersect_reciprocal(a, [iv("chr1", 80, 200)], 0.1)
+  let rec_hit = @src.bedtools_intersect_reciprocal(
+    a,
+    [iv("chr1", 80, 200)],
+    0.1,
+  )
   assert_eq(rec_hit.length(), 1)
-  let rec_miss = @src.bedtools_intersect_reciprocal(a, [iv("chr1", 80, 200)], 0.2)
+  let rec_miss = @src.bedtools_intersect_reciprocal(
+    a,
+    [iv("chr1", 80, 200)],
+    0.2,
+  )
   assert_eq(rec_miss.length(), 0)
-}///|
+} ///|
+
+///|
 test "bedtools_jaccard" {
   // a=[0,100), b=[50,150): a_len=100, b_len=100, overlap=50
   let r = @src.bedtools_jaccard([iv("chr1", 0, 100)], [iv("chr1", 50, 150)])
@@ -452,7 +538,9 @@ test "bedtools_makewindows_count" {
   // count larger than length -> skipped
   let w2 = @src.bedtools_makewindows_count([("chr1", 3)], 5)
   assert_eq(w2.length(), 0)
-}///|
+} ///|
+
+///|
 test "bedtools_reldist" {
   // B midpoints: [25, 75]
   let b = [iv("chr1", 0, 50), iv("chr1", 50, 100)]
@@ -467,7 +555,9 @@ test "bedtools_reldist" {
   assert_true(@moonbit.assert_num_close(r[0].fraction, 0.5, 1.0e-9))
   assert_eq(r[1].rel_dist, 0.5)
   assert_eq(r[1].count, 1)
-}///|
+} ///|
+
+///|
 test "bedtools_getfasta_nuc" {
   // chr1 = "AACCCGGGTNNX" (A2 C3 G3 T1 N2 X1, len 12)
   let fasta = @src.Fasta::from_content(">chr1\nAACCCGGGTNNX\n")
@@ -493,8 +583,10 @@ test "bedtools_getfasta_nuc" {
   // out-of-range interval is skipped
   let r2 = @src.bedtools_nuc(fasta, [iv("chr1", 0, 100)])
   assert_eq(r2.length(), 0)
-}///|
-fn ovl_b_start(r : @src.IntersectOverlap) -> Int {
+} ///|
+
+///|
+fn ovl_b_start(r : @src.IntersectOverlap) -> Int32 {
   match r.b {
     None => -1
     Some(bb) => bb.start
@@ -502,7 +594,7 @@ fn ovl_b_start(r : @src.IntersectOverlap) -> Int {
 }
 
 ///|
-fn loj_b_start(r : @src.IntersectLeftJoin) -> Int {
+fn loj_b_start(r : @src.IntersectLeftJoin) -> Int32 {
   match r.b {
     None => -1
     Some(bb) => bb.start
@@ -567,7 +659,9 @@ test "bedtools_intersect_wo_multi_overlap" {
   assert_eq(wo[1].overlap, 10)
   assert_eq(ovl_b_start(wo[2]), 30)
   assert_eq(wo[2].overlap, 10)
-}///|
+} ///|
+
+///|
 test "bedtools_intersect_overlap_and_v" {
   let a = [iv("chr1", 0, 10), iv("chr1", 15, 25), iv("chr1", 100, 110)]
   let b = [iv("chr1", 5, 20), iv("chr1", 200, 300)]
@@ -581,13 +675,17 @@ test "bedtools_intersect_overlap_and_v" {
   assert_eq(v.length(), 1)
   assert_eq(v[0].start, 100)
   assert_eq(v[0].end, 110)
-}///|
+} ///|
+
+///|
 test "bedtools_intersect_count_alias" {
   let a = [iv("chr1", 0, 100)]
   let b = [iv("chr1", 0, 50), iv("chr1", 25, 75), iv("chr1", 200, 300)]
   // `intersect_count` is an alias of `map_count` (-c semantics)
   assert_eq(@src.bedtools_intersect_count(a, b)[0], 2)
-}///|
+} ///|
+
+///|
 test "bedtools_intersect_wb_either" {
   let a = [iv("chr1", 0, 10), iv("chr1", 15, 25)]
   let b = [iv("chr1", 5, 20)]
@@ -607,6 +705,7 @@ test "bedtools_intersect_wb_either" {
 // bedtools sort / shuffle / random / annotate
 // ============================================================
 
+///|
 test "bedtools_sort" {
   let ivs = [iv("chr2", 0, 10), iv("chr1", 100, 200), iv("chr1", 0, 50)]
   let s = @src.bedtools_sort(ivs)
@@ -616,15 +715,17 @@ test "bedtools_sort" {
   assert_eq(s[2].chrom, "chr2")
 }
 
+///|
 test "bedtools_shuffle_keeps_length" {
-  let ivs = [iv("chr1", 100, 200)]  // 长度 100
+  let ivs = [iv("chr1", 100, 200)] // 长度 100
   let sizes = [("chr1", 1000)]
   let moved = @src.bedtools_shuffle(ivs, sizes, 42)
   assert_eq(moved.length(), 1)
-  assert_eq(moved[0].end - moved[0].start, 100)  // 长度保持
-  assert_true(moved[0].end <= 1000)  // 不越界
+  assert_eq(moved[0].end - moved[0].start, 100) // 长度保持
+  assert_true(moved[0].end <= 1000) // 不越界
 }
 
+///|
 test "bedtools_random" {
   let r = @src.bedtools_random(3, 10, [("chr1", 1000)], 7)
   assert_eq(r.length(), 3)
@@ -634,6 +735,7 @@ test "bedtools_random" {
   }
 }
 
+///|
 test "bedtools_annotate" {
   let a = [iv("chr1", 0, 100), iv("chr1", 200, 300)]
   let b = [iv("chr1", 50, 60), iv("chr1", 210, 220), iv("chr1", 500, 600)]
@@ -641,11 +743,11 @@ test "bedtools_annotate" {
   assert_eq(counts, [1, 1])
 }
 
-
 // ============================================================
 // bedtools cluster / unionbedg
 // ============================================================
 
+///|
 test "bedtools_cluster" {
   let ivs = [iv("chr1", 0, 100), iv("chr1", 50, 150), iv("chr1", 200, 300)]
   let clustered = @src.bedtools_cluster(ivs)
@@ -655,6 +757,7 @@ test "bedtools_cluster" {
   assert_eq(clustered[2].1, 2)
 }
 
+///|
 test "bedtools_cluster_transitive" {
   // A 与 B 重叠，B 与 C 重叠 → 三者同簇
   let ivs = [iv("chr1", 0, 10), iv("chr1", 5, 20), iv("chr1", 15, 30)]
@@ -664,6 +767,7 @@ test "bedtools_cluster_transitive" {
   assert_eq(clustered[2].1, 1)
 }
 
+///|
 test "bedtools_unionbedg" {
   let s1 = [(iv("chr1", 0, 100), 5.0)]
   let s2 = [(iv("chr1", 50, 150), 3.0)]

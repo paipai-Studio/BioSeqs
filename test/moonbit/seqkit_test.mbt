@@ -42,6 +42,7 @@ test "seqkit_fx2tab_tab2fx_fastq" {
 // seqkit amplicon
 // ============================================================
 
+///|
 test "seqkit_amplicon_basic" {
   // seq = AAACCCGGGTTT；fwd=AAA 在 0-2，rev=AAAC 的 rc=GTTT 在 8-11
   // amplicon = seq[3:8] = CCCGG
@@ -51,11 +52,13 @@ test "seqkit_amplicon_basic" {
   }
 }
 
+///|
 test "seqkit_amplicon_missing_primer" {
   assert_true(@src.seqkit_amplicon("ACGT", "TTT", "AAA") is None)
   assert_true(@src.seqkit_amplicon("ACGT", "ACG", "CCC") is None)
 }
 
+///|
 test "seqkit_amplicon_inverted_empty" {
   // rev primer 的反向互补出现在 fwd 之前 → 区域为空/inverted → None
   match @src.seqkit_amplicon("AAAACGTTT", "ACG", "TTT") {
@@ -64,13 +67,14 @@ test "seqkit_amplicon_inverted_empty" {
   }
 }
 
-
 // ============================================================
 // seqkit bam
 // ============================================================
 
+///|
 let seqkit_test_bam_base64 = "QkFNAR8AAABASEQJVk46MS42CkBTUQlTTjpjaHIxCUxOOjEwMDAKAQAAAAUAAABjaHIxAOgDAABNAAAAAAAAAGQAAAAGPEkSAQADAAgAAAD//////////wAAAAByZWFkMQCAAAAAEkgSSAAAAAAAAAAATk1pAAAAAE1EWjgAQVNpCAAAAFhTQStXAAAAAAAAAMgAAAAGFEkSAgAABgUAAAD//////////wAAAAByZWFkMgBAAAAAEQAAABJIEAAAAAAATk1pAQAAAEFTZgAAkEBSR1pncnAxAFhBQkMDAAAAAQIDRQAAAAAAAAAsAQAABihJEgEAEAAGAAAA//////////8AAAAAcmVhZDMAYAAAAP///wAAAAAAAE1DYwFTQ0P6U0lz/f9VSVNg6g=="
 
+///|
 test "seqkit_bam_to_records" {
   let bam = @src.parse_bam_base64(seqkit_test_bam_base64)
   // 样本无 secondary/supplementary，默认不过滤 → 3 条
@@ -84,6 +88,7 @@ test "seqkit_bam_to_records" {
   assert_eq(records[2].seq.to_string(), "NNNNNN")
 }
 
+///|
 test "seqkit_bam_to_fasta" {
   let bam = @src.parse_bam_base64(seqkit_test_bam_base64)
   let fa = @src.seqkit_bam_to_fasta(bam)

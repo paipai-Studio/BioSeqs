@@ -1,7 +1,6 @@
 ///|
 /// isoelectric_point demo - Protein isoelectric point (pI) calculation.
 /// Inspired by Biopython Bio.SeqUtils.IsoelectricPoint.
-
 fn main {
   println("=== isoelectric_point Demo: Protein pI Calculation ===")
   println("")
@@ -23,7 +22,9 @@ fn main {
   let mut i = 0
   while i < ph_values.length() {
     let charge = @src.mt_charge_at_ph_public(seq, ph_values[i])
-    println("  pH " + ph_values[i].to_string() + ": charge = " + charge.to_string())
+    println(
+      "  pH " + ph_values[i].to_string() + ": charge = " + charge.to_string(),
+    )
     i = i + 1
   }
   println("")

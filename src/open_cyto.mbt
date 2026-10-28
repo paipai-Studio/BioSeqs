@@ -115,7 +115,7 @@ pub fn OcFlowSet::new(
 /// Extract a single channel as a 1D array from a sample's event matrix.
 pub fn oc_extract_channel(
   events : Array[Array[Double]],
-  channel_idx : Int,
+  channel_idx : Int32,
 ) -> Array[Double] {
   let out = Array(capacity=0)
   for ev in events {
@@ -132,8 +132,8 @@ pub struct OcGatingResult {
   population : String
   sample : String
   gate : OcGate
-  parent_events : Int
-  child_events : Int
+  parent_events : Int32
+  child_events : Int32
   indices : Array[Bool] // per-parent-event membership flags
 }
 
@@ -143,8 +143,8 @@ pub fn OcGatingResult::new(
   population~ : String,
   sample~ : String,
   gate~ : OcGate,
-  parent_events~ : Int,
-  child_events~ : Int,
+  parent_events~ : Int32,
+  child_events~ : Int32,
   indices~ : Array[Bool],
 ) -> OcGatingResult {
   OcGatingResult::{
@@ -279,7 +279,7 @@ pub fn oc_kde_evaluate(data : Array[Double], x : Double, h : Double) -> Double {
 /// Returns (grid_x, density_y) pairs.
 pub fn oc_kde_grid(
   data : Array[Double],
-  n_points : Int,
+  n_points : Int32,
   h : Double,
 ) -> (Array[Double], Array[Double]) {
   let n = data.length()
@@ -360,7 +360,7 @@ pub fn oc_mindensity(
     return OcGate::new1d(dim~, min=oc_median(values), max=1.0e30)
   }
   // find local maxima (peaks)
-  let peaks : Array[Int] = Array(capacity=0)
+  let peaks : Array[Int32] = Array(capacity=0)
   for i in 1..<(gy.length() - 1) {
     if gy[i] > gy[i - 1] && gy[i] >= gy[i + 1] {
       peaks.push(i)
@@ -540,7 +540,7 @@ pub fn oc_flow_clust(
   dim1 : String,
   dim2 : String?,
   args : Map[String, Double],
-  n_clusters : Int,
+  n_clusters : Int32,
 ) -> OcGate {
   let n = values1.length()
   if n == 0 {
@@ -602,8 +602,8 @@ pub fn oc_flow_clust(
 /// Uses a simplified t-distribution (df=4 fixed) with Box-Cox.
 pub fn oc_em_t_mixture_1d(
   data : Array[Double],
-  n_clusters : Int,
-  max_iter : Int,
+  n_clusters : Int32,
+  max_iter : Int32,
 ) -> (Array[Double], Array[Double]) {
   let n = data.length()
   if n == 0 || n_clusters <= 0 {
@@ -672,8 +672,8 @@ pub fn oc_em_t_mixture_1d(
 pub fn oc_em_t_mixture_2d(
   data1 : Array[Double],
   data2 : Array[Double],
-  n_clusters : Int,
-  max_iter : Int,
+  n_clusters : Int32,
+  max_iter : Int32,
 ) -> (Array[Double], Array[Double]) {
   let n = data1.length()
   if n == 0 || n_clusters <= 0 {
@@ -877,7 +877,7 @@ pub fn oc_gate_flow_set(
         None => Array::make(n_events, true)
       }
       // gather parent events
-      let parent_event_indices : Array[Int] = Array(capacity=0)
+      let parent_event_indices : Array[Int32] = Array(capacity=0)
       for i in 0..<n_events {
         if parent_flags[i] {
           parent_event_indices.push(i)
@@ -1003,7 +1003,7 @@ pub fn oc_gate_flow_set(
 
 ///|
 /// Find the index of a channel by name.
-pub fn oc_resolve_channel(channels : Array[String], name : String) -> Int {
+pub fn oc_resolve_channel(channels : Array[String], name : String) -> Int32 {
   for i in 0..<channels.length() {
     if channels[i] == name {
       return i
@@ -1021,8 +1021,8 @@ pub fn oc_resolve_channel(channels : Array[String], name : String) -> Int {
 pub struct OcPopStat {
   population : String
   sample : String
-  count : Int
-  parent_count : Int
+  count : Int32
+  parent_count : Int32
   percent_of_parent : Double
   percent_of_total : Double
 }
@@ -1032,8 +1032,8 @@ pub struct OcPopStat {
 pub fn OcPopStat::new(
   population~ : String,
   sample~ : String,
-  count~ : Int,
-  parent_count~ : Int,
+  count~ : Int32,
+  parent_count~ : Int32,
   percent_of_parent~ : Double,
   percent_of_total~ : Double,
 ) -> OcPopStat {
@@ -1051,7 +1051,7 @@ pub fn OcPopStat::new(
 /// Compute population statistics from gating results.
 pub fn oc_population_stats(
   results : Array[OcGatingResult],
-  total_events : Int,
+  total_events : Int32,
 ) -> Array[OcPopStat] {
   let out : Array[OcPopStat] = Array(capacity=0)
   for r in results {

@@ -186,7 +186,7 @@ pub fn Vector3::negate(self : Vector3) -> Vector3 {
 
 ///|
 /// Check if vector is zero (within tolerance).
-pub fn Vector3::is_zero(self : Vector3, tol? : Double = 1.0e-10) -> Bool {
+pub fn Vector3::is_zero(self : Vector3, tol~ : Double = 1.0e-10) -> Bool {
   self.norm() < tol
 }
 
@@ -242,8 +242,8 @@ pub fn RotationMatrix3::identity() -> RotationMatrix3 {
 /// Access element at row,col.
 pub fn RotationMatrix3::get(
   self : RotationMatrix3,
-  row : Int,
-  col : Int,
+  row : Int32,
+  col : Int32,
 ) -> Double {
   match (row, col) {
     (0, 0) => self.m00
@@ -263,8 +263,8 @@ pub fn RotationMatrix3::get(
 /// Set element at row,col.
 pub fn RotationMatrix3::set(
   self : RotationMatrix3,
-  row : Int,
-  col : Int,
+  row : Int32,
+  col : Int32,
   value : Double,
 ) -> RotationMatrix3 {
   match (row, col) {
@@ -529,7 +529,7 @@ pub fn RotationMatrix3::inverse(self : RotationMatrix3) -> RotationMatrix3 {
 /// Check if matrix is a valid rotation matrix (orthogonal with det ~ 1).
 pub fn RotationMatrix3::is_rotation(
   self : RotationMatrix3,
-  tol? : Double = 1.0e-6,
+  tol~ : Double = 1.0e-6,
 ) -> Bool {
   let det = self.determinant()
   if (det.abs() - 1.0).abs() > tol {

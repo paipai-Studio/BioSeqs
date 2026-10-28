@@ -8,7 +8,11 @@ fn sprd_leaf(name : String) -> @src.Clade {
 
 ///|
 fn sprd_internal(children : Array[@src.Clade]) -> @src.Clade {
-  @src.Clade::new(name=Some("internal"), clades=children, branch_length=Some(1.0))
+  @src.Clade::new(
+    name=Some("internal"),
+    clades=children,
+    branch_length=Some(1.0),
+  )
 }
 
 ///|
@@ -125,6 +129,7 @@ fn sprd_balanced4_diffbl() -> @src.Clade {
   )
 }
 
+///|
 test "sprd: identical trees distance 0" {
   let t = sprd_balanced4()
   assert_eq(@src.dendropy_spr_distance(t, t), 0)

@@ -3,7 +3,13 @@ fn main {
   println("=== BEclear Demo ===")
 
   let m = @src.beclear_sample_matrix()
-  println("\n1. Input matrix: " + m.n_rows().to_string() + " genes x " + m.n_cols().to_string() + " samples")
+  println(
+    "\n1. Input matrix: " +
+    m.n_rows().to_string() +
+    " genes x " +
+    m.n_cols().to_string() +
+    " samples",
+  )
   for i in 0..<m.n_rows() {
     let mut row = ""
     for j in 0..<m.n_cols() {
@@ -16,7 +22,8 @@ fn main {
   for j in 0..<m.n_cols() {
     let b = m.batch.get(m.col_names[j])
     match b {
-      Some(batch_id) => println("   " + m.col_names[j] + " -> batch " + batch_id.to_string())
+      Some(batch_id) =>
+        println("   " + m.col_names[j] + " -> batch " + batch_id.to_string())
       None => println("   " + m.col_names[j] + " -> unassigned")
     }
   }
@@ -25,9 +32,12 @@ fn main {
   let summaries = @src.detect_batch_effect(m, threshold=0.05)
   for s in summaries {
     println(
-      "   " + s.row_name +
-      ": max_dev=" + s.max_deviation.to_string() +
-      ", affected=" + s.affected.to_string(),
+      "   " +
+      s.row_name +
+      ": max_dev=" +
+      s.max_deviation.to_string() +
+      ", affected=" +
+      s.affected.to_string(),
     )
   }
 

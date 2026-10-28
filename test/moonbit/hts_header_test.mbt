@@ -1,3 +1,4 @@
+///|
 test "hts_header parse basic HD SQ RG PG" {
   let hdr = "@HD\tVN:1.6\tSO:coordinate\n@SQ\tSN:chr1\tLN:249250621\n@SQ\tSN:chr2\tLN:243199373\n@RG\tID:rg1\tSM:sample1\tPL:ILLUMINA\n@PG\tID:bwa\tPN:bwa\tVN:0.7.17\n"
   let h = @src.sam_hrecs_parse(hdr)
@@ -8,6 +9,7 @@ test "hts_header parse basic HD SQ RG PG" {
   assert_eq(h.nref(), 2)
 }
 
+///|
 test "hts_header name2tid and tid2name" {
   let hdr = "@SQ\tSN:chr1\tLN:100\n@SQ\tSN:chr2\tLN:200\n@SQ\tSN:chr3\tLN:300\n"
   let h = @src.sam_hrecs_parse(hdr)
@@ -20,6 +22,7 @@ test "hts_header name2tid and tid2name" {
   assert_eq(h.tid2name(3), None)
 }
 
+///|
 test "hts_header tid2len" {
   let hdr = "@SQ\tSN:chr1\tLN:100\n@SQ\tSN:chr2\tLN:200\n"
   let h = @src.sam_hrecs_parse(hdr)
@@ -29,6 +32,7 @@ test "hts_header tid2len" {
   assert_eq(h.tid2len(5), 0)
 }
 
+///|
 test "hts_header to_text roundtrip" {
   let hdr = "@HD\tVN:1.6\tSO:coordinate\n@SQ\tSN:chr1\tLN:100\n"
   let h = @src.sam_hrecs_parse(hdr)
@@ -40,6 +44,7 @@ test "hts_header to_text roundtrip" {
   assert_eq(h2.tid2len(0), 100)
 }
 
+///|
 test "hts_header find_line_id" {
   let hdr = "@SQ\tSN:chr1\tLN:100\n@SQ\tSN:chr2\tLN:200\n@RG\tID:rg1\tSM:s1\n"
   let h = @src.sam_hrecs_parse(hdr)
@@ -51,6 +56,7 @@ test "hts_header find_line_id" {
   assert_true(line3 is Some(_))
 }
 
+///|
 test "hts_header find_line_pos" {
   let hdr = "@SQ\tSN:chr1\tLN:100\n@SQ\tSN:chr2\tLN:200\n@SQ\tSN:chr3\tLN:300\n"
   let h = @src.sam_hrecs_parse(hdr)
@@ -62,6 +68,7 @@ test "hts_header find_line_pos" {
   assert_true(line3 is None)
 }
 
+///|
 test "hts_header find_tag_id" {
   let hdr = "@SQ\tSN:chr1\tLN:100\n@RG\tID:rg1\tSM:sample1\tPL:ILLUMINA\n"
   let h = @src.sam_hrecs_parse(hdr)
@@ -71,6 +78,7 @@ test "hts_header find_tag_id" {
   assert_eq(h.find_tag_id("RG", "ID", "rgX", "SM"), None)
 }
 
+///|
 test "hts_header find_tag_pos" {
   let hdr = "@SQ\tSN:chr1\tLN:100\n@SQ\tSN:chr2\tLN:200\n"
   let h = @src.sam_hrecs_parse(hdr)
@@ -80,6 +88,7 @@ test "hts_header find_tag_pos" {
   assert_eq(h.find_tag_pos("SQ", 1, "LN").unwrap_or(""), "200")
 }
 
+///|
 test "hts_header add_line" {
   let hdr = "@HD\tVN:1.6\n"
   let h = @src.sam_hrecs_parse(hdr)
@@ -89,6 +98,7 @@ test "hts_header add_line" {
   assert_eq(h2.name2tid("chr1"), 0)
 }
 
+///|
 test "hts_header add_lines" {
   let hdr = "@HD\tVN:1.6\n"
   let h = @src.sam_hrecs_parse(hdr)
@@ -97,6 +107,7 @@ test "hts_header add_lines" {
   assert_eq(h2.nref(), 2)
 }
 
+///|
 test "hts_header remove_line_id" {
   let hdr = "@SQ\tSN:chr1\tLN:100\n@SQ\tSN:chr2\tLN:200\n"
   let h = @src.sam_hrecs_parse(hdr)
@@ -106,6 +117,7 @@ test "hts_header remove_line_id" {
   assert_eq(h2.name2tid("chr2"), 0)
 }
 
+///|
 test "hts_header remove_line_pos" {
   let hdr = "@SQ\tSN:chr1\tLN:100\n@SQ\tSN:chr2\tLN:200\n@SQ\tSN:chr3\tLN:300\n"
   let h = @src.sam_hrecs_parse(hdr)
@@ -116,6 +128,7 @@ test "hts_header remove_line_pos" {
   assert_eq(h2.name2tid("chr3"), 1)
 }
 
+///|
 test "hts_header update_line" {
   let hdr = "@SQ\tSN:chr1\tLN:100\n"
   let h = @src.sam_hrecs_parse(hdr)
@@ -125,6 +138,7 @@ test "hts_header update_line" {
   assert_eq(h3.find_tag_id("SQ", "SN", "chr1", "AS").unwrap_or(""), "GRCh38")
 }
 
+///|
 test "hts_header update_line remove tag" {
   let hdr = "@SQ\tSN:chr1\tLN:100\tAS:GRCh38\n"
   let h = @src.sam_hrecs_parse(hdr)
@@ -133,6 +147,7 @@ test "hts_header update_line remove tag" {
   assert_eq(h2.find_tag_id("SQ", "SN", "chr1", "LN").unwrap_or(""), "100")
 }
 
+///|
 test "hts_header remove_tag_id" {
   let hdr = "@RG\tID:rg1\tSM:sample1\tPL:ILLUMINA\n"
   let h = @src.sam_hrecs_parse(hdr)
@@ -141,6 +156,7 @@ test "hts_header remove_tag_id" {
   assert_eq(h2.find_tag_id("RG", "ID", "rg1", "SM").unwrap_or(""), "sample1")
 }
 
+///|
 test "hts_header remove_except" {
   let hdr = "@SQ\tSN:chr1\tLN:100\n@SQ\tSN:chr2\tLN:200\n@SQ\tSN:chr3\tLN:300\n"
   let h = @src.sam_hrecs_parse(hdr)
@@ -150,6 +166,7 @@ test "hts_header remove_except" {
   assert_eq(h2.name2tid("chr1"), -1)
 }
 
+///|
 test "hts_header line_index" {
   let hdr = "@SQ\tSN:chr1\tLN:100\n@SQ\tSN:chr2\tLN:200\n@SQ\tSN:chr3\tLN:300\n"
   let h = @src.sam_hrecs_parse(hdr)
@@ -159,6 +176,7 @@ test "hts_header line_index" {
   assert_eq(h.line_index("SQ", "SN", "chrX"), -1)
 }
 
+///|
 test "hts_header lines_of_type" {
   let hdr = "@SQ\tSN:chr1\tLN:100\n@RG\tID:rg1\tSM:s1\n@SQ\tSN:chr2\tLN:200\n"
   let h = @src.sam_hrecs_parse(hdr)
@@ -168,6 +186,7 @@ test "hts_header lines_of_type" {
   assert_eq(rg_lines.length(), 1)
 }
 
+///|
 test "hts_header ref_seq_names" {
   let hdr = "@SQ\tSN:chr1\tLN:100\n@SQ\tSN:chr2\tLN:200\n"
   let h = @src.sam_hrecs_parse(hdr)
@@ -177,6 +196,7 @@ test "hts_header ref_seq_names" {
   assert_eq(names[1], "chr2")
 }
 
+///|
 test "hts_header read_group_ids" {
   let hdr = "@RG\tID:rg1\tSM:s1\n@RG\tID:rg2\tSM:s2\n"
   let h = @src.sam_hrecs_parse(hdr)
@@ -186,6 +206,7 @@ test "hts_header read_group_ids" {
   assert_eq(ids[1], "rg2")
 }
 
+///|
 test "hts_header program_ids" {
   let hdr = "@PG\tID:bwa\tPN:bwa\n@PG\tID:samtools\tPN:samtools\n"
   let h = @src.sam_hrecs_parse(hdr)
@@ -195,6 +216,7 @@ test "hts_header program_ids" {
   assert_eq(ids[1], "samtools")
 }
 
+///|
 test "hts_header has_read_group has_program" {
   let hdr = "@RG\tID:rg1\tSM:s1\n@PG\tID:bwa\tPN:bwa\n"
   let h = @src.sam_hrecs_parse(hdr)
@@ -204,6 +226,7 @@ test "hts_header has_read_group has_program" {
   assert_false(h.has_program("samtools"))
 }
 
+///|
 test "hts_header sort_order group_order" {
   let hdr = "@HD\tVN:1.6\tSO:coordinate\tGO:query\n"
   let h = @src.sam_hrecs_parse(hdr)
@@ -211,6 +234,7 @@ test "hts_header sort_order group_order" {
   assert_eq(h.group_order(), "query")
 }
 
+///|
 test "hts_header sort_order unknown" {
   let hdr = "@HD\tVN:1.6\n"
   let h = @src.sam_hrecs_parse(hdr)
@@ -218,6 +242,7 @@ test "hts_header sort_order unknown" {
   assert_eq(h.group_order(), "none")
 }
 
+///|
 test "hts_header platform" {
   let hdr = "@RG\tID:rg1\tSM:s1\tPL:ILLUMINA\n"
   let h = @src.sam_hrecs_parse(hdr)
@@ -225,12 +250,14 @@ test "hts_header platform" {
   assert_eq(h.platform("rg2"), "unknown")
 }
 
+///|
 test "hts_header empty header" {
   let h = @src.sam_hrecs_parse("")
   assert_eq(h.count_lines("HD"), 0)
   assert_eq(h.nref(), 0)
 }
 
+///|
 test "hts_header CO comment line" {
   let hdr = "@HD\tVN:1.6\n@CO\tThis is a comment\n@SQ\tSN:chr1\tLN:100\n"
   let h = @src.sam_hrecs_parse(hdr)
@@ -240,6 +267,7 @@ test "hts_header CO comment line" {
   assert_eq(h.nref(), 1)
 }
 
+///|
 test "hts_header SamHrecLine to_text" {
   let hdr = "@SQ\tSN:chr1\tLN:100\n"
   let h = @src.sam_hrecs_parse(hdr)

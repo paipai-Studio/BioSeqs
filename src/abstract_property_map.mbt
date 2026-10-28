@@ -8,7 +8,7 @@
 /// Key: (chain_id, resseq, icode) uniquely identifies a residue.
 pub struct ResidueKey {
   chain_id : String
-  resseq : Int
+  resseq : Int32
   icode : String
 }
 
@@ -24,13 +24,17 @@ pub struct PropertyRecord {
 pub struct AbstractPropertyMap {
   records : Map[String, PropertyRecord]
   property_names : Array[String]
-  mut n_residues : Int
+  mut n_residues : Int32
 }
 
 ///|
 /// Construct a residue key.
-pub fn ResidueKey::new(chain_id : String, resseq : Int, icode~ : String = "") -> ResidueKey {
-  ResidueKey::{ chain_id, resseq, icode }
+pub fn ResidueKey::new(
+  chain_id : String,
+  resseq : Int32,
+  icode~ : String = "",
+) -> ResidueKey {
+  ResidueKey::{ chain_id, resseq, icode, }
 }
 
 ///|
@@ -41,8 +45,14 @@ pub fn residue_key_to_string(key : ResidueKey) -> String {
 
 ///|
 /// Construct an empty property map with known property names.
-pub fn AbstractPropertyMap::new(property_names : Array[String]) -> AbstractPropertyMap {
-  AbstractPropertyMap::{ records: Map([], capacity=64), property_names, n_residues: 0 }
+pub fn AbstractPropertyMap::new(
+  property_names : Array[String],
+) -> AbstractPropertyMap {
+  AbstractPropertyMap::{
+    records: Map([], capacity=64),
+    property_names,
+    n_residues: 0,
+  }
 }
 
 ///|
@@ -50,14 +60,14 @@ pub fn AbstractPropertyMap::new(property_names : Array[String]) -> AbstractPrope
 pub fn AbstractPropertyMap::add(
   self : AbstractPropertyMap,
   chain_id : String,
-  resseq : Int,
+  resseq : Int32,
   props : Map[String, String],
-  icode~ : String = ""
+  icode~ : String = "",
 ) -> Unit {
   let key = ResidueKey::new(chain_id, resseq, icode~)
   let skey = residue_key_to_string(key)
-  let record = PropertyRecord::{ key, props }
-  if !(self.records.contains(skey)) {
+  let record = PropertyRecord::{ key, props, }
+  if !self.records.contains(skey) {
     self.n_residues = self.n_residues + 1
   }
   self.records[skey] = record
@@ -68,9 +78,9 @@ pub fn AbstractPropertyMap::add(
 pub fn AbstractPropertyMap::get_property(
   self : AbstractPropertyMap,
   chain_id : String,
-  resseq : Int,
+  resseq : Int32,
   prop_name : String,
-  icode~ : String = ""
+  icode~ : String = "",
 ) -> String? {
   let key = ResidueKey::new(chain_id, resseq, icode~)
   let skey = residue_key_to_string(key)
@@ -85,8 +95,8 @@ pub fn AbstractPropertyMap::get_property(
 pub fn AbstractPropertyMap::get_residue(
   self : AbstractPropertyMap,
   chain_id : String,
-  resseq : Int,
-  icode~ : String = ""
+  resseq : Int32,
+  icode~ : String = "",
 ) -> Map[String, String]? {
   let key = ResidueKey::new(chain_id, resseq, icode~)
   let skey = residue_key_to_string(key)
@@ -101,8 +111,8 @@ pub fn AbstractPropertyMap::get_residue(
 pub fn AbstractPropertyMap::has_residue(
   self : AbstractPropertyMap,
   chain_id : String,
-  resseq : Int,
-  icode~ : String = ""
+  resseq : Int32,
+  icode~ : String = "",
 ) -> Bool {
   let key = ResidueKey::new(chain_id, resseq, icode~)
   self.records.contains(residue_key_to_string(key))
@@ -110,7 +120,9 @@ pub fn AbstractPropertyMap::has_residue(
 
 ///|
 /// Iterate all residue keys in the map.
-pub fn AbstractPropertyMap::keys(self : AbstractPropertyMap) -> Array[ResidueKey] {
+pub fn AbstractPropertyMap::keys(
+  self : AbstractPropertyMap,
+) -> Array[ResidueKey] {
   let result : Array[ResidueKey] = []
   for m in self.records.values() {
     result.push(m.key)
@@ -120,7 +132,9 @@ pub fn AbstractPropertyMap::keys(self : AbstractPropertyMap) -> Array[ResidueKey
 
 ///|
 /// Get all records as an array.
-pub fn AbstractPropertyMap::all_records(self : AbstractPropertyMap) -> Array[PropertyRecord] {
+pub fn AbstractPropertyMap::all_records(
+  self : AbstractPropertyMap,
+) -> Array[PropertyRecord] {
   let result : Array[PropertyRecord] = []
   for r in self.records.values() {
     result.push(r)
@@ -133,23 +147,30 @@ pub fn AbstractPropertyMap::all_records(self : AbstractPropertyMap) -> Array[Pro
 pub fn AbstractPropertyMap::filter_by_property(
   self : AbstractPropertyMap,
   prop_name : String,
-  predicate : (String) -> Bool
+  predicate : (String) -> Bool,
 ) -> AbstractPropertyMap {
   let result = AbstractPropertyMap::new(self.property_names)
   for record in self.records.values() {
     match record.props.get(prop_name) {
-      Some(val) => {
+      Some(val) =>
         if predicate(val) {
-          let props_copy : Map[String, String] = Map([], capacity=record.props.length())
+          let props_copy : Map[String, String] = Map(
+            [],
+            capacity=record.props.length(),
+          )
           for k in record.props.keys() {
             match record.props.get(k) {
               Some(v) => props_copy[k] = v
               None => continue
             }
           }
-          result.add(record.key.chain_id, record.key.resseq, props_copy, icode=record.key.icode)
+          result.add(
+            record.key.chain_id,
+            record.key.resseq,
+            props_copy,
+            icode=record.key.icode,
+          )
         }
-      }
       None => continue
     }
   }
@@ -161,8 +182,8 @@ pub fn AbstractPropertyMap::filter_by_property(
 ///   Returns (count, min, max, mean, sum).
 pub fn AbstractPropertyMap::stats_property(
   self : AbstractPropertyMap,
-  prop_name : String
-) -> (Int, Double, Double, Double, Double) {
+  prop_name : String,
+) -> (Int32, Double, Double, Double, Double) {
   let mut count = 0
   let mut sum = 0.0
   let mut min_v = 1.0e30
@@ -223,14 +244,14 @@ pub fn AbstractPropertyMap::to_tsv(self : AbstractPropertyMap) -> String {
 /// Merge two property maps (second overrides first on conflict).
 pub fn AbstractPropertyMap::merge(
   a : AbstractPropertyMap,
-  b : AbstractPropertyMap
+  b : AbstractPropertyMap,
 ) -> AbstractPropertyMap {
   let merged_names : Array[String] = []
   let seen : Map[String, Bool] = Map([], capacity=32)
   let mut i = 0
   while i < a.property_names.length() {
     let n = a.property_names[i]
-    if !(seen.contains(n)) {
+    if !seen.contains(n) {
       merged_names.push(n)
       seen[n] = true
     }
@@ -239,7 +260,7 @@ pub fn AbstractPropertyMap::merge(
   let mut j = 0
   while j < b.property_names.length() {
     let n = b.property_names[j]
-    if !(seen.contains(n)) {
+    if !seen.contains(n) {
       merged_names.push(n)
       seen[n] = true
     }
@@ -247,35 +268,50 @@ pub fn AbstractPropertyMap::merge(
   }
   let result = AbstractPropertyMap::new(merged_names)
   for record in a.records.values() {
-    let props_copy : Map[String, String] = Map([], capacity=record.props.length())
+    let props_copy : Map[String, String] = Map(
+      [],
+      capacity=record.props.length(),
+    )
     for k in record.props.keys() {
       match record.props.get(k) {
         Some(v) => props_copy[k] = v
         None => continue
       }
     }
-    result.add(record.key.chain_id, record.key.resseq, props_copy, icode=record.key.icode)
+    result.add(
+      record.key.chain_id,
+      record.key.resseq,
+      props_copy,
+      icode=record.key.icode,
+    )
   }
   for record in b.records.values() {
     let skey = residue_key_to_string(record.key)
     match result.records.get(skey) {
-      Some(existing) => {
+      Some(existing) =>
         for k in record.props.keys() {
           match record.props.get(k) {
             Some(v) => existing.props[k] = v
             None => continue
           }
         }
-      }
       None => {
-        let props_copy : Map[String, String] = Map([], capacity=record.props.length())
+        let props_copy : Map[String, String] = Map(
+          [],
+          capacity=record.props.length(),
+        )
         for k in record.props.keys() {
           match record.props.get(k) {
             Some(v) => props_copy[k] = v
             None => continue
           }
         }
-        result.add(record.key.chain_id, record.key.resseq, props_copy, icode=record.key.icode)
+        result.add(
+          record.key.chain_id,
+          record.key.resseq,
+          props_copy,
+          icode=record.key.icode,
+        )
       }
     }
   }

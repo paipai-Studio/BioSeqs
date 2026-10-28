@@ -17,7 +17,10 @@ test "prodoc_parse_two_records" {
   assert_eq(r0.prosite_refs[0].1, "ASN_GLYCOSYLATION")
   assert_eq(r0.prosite_refs[1].0, "PS00007")
   assert_eq(r0.prosite_refs[1].1, "PROTEIN_KINASE_ATP")
-  assert_eq(r0.text, "N-glycosylation site documentation.\nSecond paragraph line.\n")
+  assert_eq(
+    r0.text,
+    "N-glycosylation site documentation.\nSecond paragraph line.\n",
+  )
   assert_eq(r0.references.length(), 2)
   assert_eq(r0.references[0].number, "1")
   assert_eq(r0.references[0].authors, "Hunter, T., Plowman, G.D.")
@@ -27,7 +30,10 @@ test "prodoc_parse_two_records" {
   )
   assert_eq(r0.references[1].number, "E1")
   assert_eq(r0.references[1].authors, "")
-  assert_eq(r0.references[1].citation, "https://www.ebi.ac.uk/interpro/entry/PDOC00001/")
+  assert_eq(
+    r0.references[1].citation,
+    "https://www.ebi.ac.uk/interpro/entry/PDOC00001/",
+  )
 
   let r1 = records[1]
   assert_eq(r1.accession, "PDOC00002")
@@ -37,8 +43,14 @@ test "prodoc_parse_two_records" {
   assert_eq(r1.text, "Glycosaminoglycan attachment site.\n")
   assert_eq(r1.references.length(), 1)
   assert_eq(r1.references[0].number, "1")
-  assert_eq(r1.references[0].authors, "Bourdon, M.A., Krusius, T., Ruoslahti, E.")
-  assert_eq(r1.references[0].citation, "Identification and synthesis of a recognition signal.")
+  assert_eq(
+    r1.references[0].authors,
+    "Bourdon, M.A., Krusius, T., Ruoslahti, E.",
+  )
+  assert_eq(
+    r1.references[0].citation,
+    "Identification and synthesis of a recognition signal.",
+  )
 }
 
 ///|
@@ -52,8 +64,7 @@ test "prodoc_parse_skips_copyright" {
 
 ///|
 test "prodoc_read_single_record" {
-  let content =
-    "{PDOC00001}\n{PS00001; ASN_GLYCOSYLATION}\n{BEGIN}\nSome text.\n{END}\n"
+  let content = "{PDOC00001}\n{PS00001; ASN_GLYCOSYLATION}\n{BEGIN}\nSome text.\n{END}\n"
   let r = @src.prodoc_read(content) catch {
     _ => abort("single record should parse")
   }

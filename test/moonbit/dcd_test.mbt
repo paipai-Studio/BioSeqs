@@ -1,6 +1,5 @@
 ///|
 /// Tests for Trajectory + DCD write/read (dcd.mbt).
-
 test "trajectory_accessors" {
   let frames = [
     [[0.0, 1.0, 2.0], [3.0, 4.0, 5.0]],
@@ -12,6 +11,7 @@ test "trajectory_accessors" {
   assert_eq(t.get_frame(1)[0][0], 10.0)
 }
 
+///|
 test "dcd_roundtrip_integer_coords" {
   // 整数坐标在 float32 里精确表示 → 写读应逐位无损
   let frames = [
@@ -38,14 +38,15 @@ test "dcd_roundtrip_integer_coords" {
   }
 }
 
+///|
 test "dcd_roundtrip_fractional" {
   // 0.5 等二进分数也能精确表示
-  let frames = [
-    [[0.5, -0.25, 1.75], [2.5, -3.5, 0.0625]],
-  ]
+  let frames = [[[0.5, -0.25, 1.75], [2.5, -3.5, 0.0625]]]
   let t = @src.Trajectory::new(frames)
   let back = @src.parse_dcd(@src.write_dcd(t))
   assert_eq(back.num_atoms(), 2)
   assert_true(@moonbit.assert_num_close(back.get_frame(0)[0][1], -0.25, 1.0e-9))
-  assert_true(@moonbit.assert_num_close(back.get_frame(0)[1][2], 0.0625, 1.0e-9))
+  assert_true(
+    @moonbit.assert_num_close(back.get_frame(0)[1][2], 0.0625, 1.0e-9),
+  )
 }

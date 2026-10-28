@@ -11,46 +11,42 @@
 /// A tiny stateful mock server: one WAITING poll, then READY, then the
 /// "result" document.
 struct MockBlast {
-  mut polls : Int
+  mut polls : Int32
   requests : Array[String]
 }
 
+///|
 fn main {
-  let mock : MockBlast = { polls: 0, requests: [] }
+  let mock : MockBlast = { polls: 0, requests: [], }
 
-  let client = @src.NcbiBlastClient::new(
-    now=fn() { 0.0 },
-    fetch=fn(url) {
-      mock.requests.push(url)
-      if url.contains("CMD=Put") {
-        // Real NCBI answers with an RID and an estimated wait (RTOE).
-        "  RID = 9ZZKQ2A014  \n  RTOE = 15\n"
-      } else if url.contains("FORMAT_OBJECT=SearchInfo") {
-        let n = mock.polls
-        mock.polls = n + 1
-        if n < 1 {
-          "Status=WAITING\n"
-        } else {
-          "Status=READY\n"
-        }
+  let client = @src.NcbiBlastClient::new(now=fn() { 0.0 }, fetch=fn(url) {
+    mock.requests.push(url)
+    if url.contains("CMD=Put") {
+      // Real NCBI answers with an RID and an estimated wait (RTOE).
+      "  RID = 9ZZKQ2A014  \n  RTOE = 15\n"
+    } else if url.contains("FORMAT_OBJECT=SearchInfo") {
+      let n = mock.polls
+      mock.polls = n + 1
+      if n < 1 {
+        "Status=WAITING\n"
       } else {
-        "<?xml version=\"1.0\"?>\n<!DOCTYPE BlastOutput>\n<BlastOutput>\n" +
-        "  <BlastOutput_iterations>\n    ... mock hits ...\n" +
-        "  </BlastOutput_iterations>\n</BlastOutput>\n"
+        "Status=READY\n"
       }
-    },
-  )
+    } else {
+      "<?xml version=\"1.0\"?>\n<!DOCTYPE BlastOutput>\n<BlastOutput>\n" +
+      "  <BlastOutput_iterations>\n    ... mock hits ...\n" +
+      "  </BlastOutput_iterations>\n</BlastOutput>\n"
+    }
+  })
 
   // Inspect the URL Biopython would build for a blastn nr search.
-  let url = try {
-    @src.qblast_put_url(
-      "blastn",
-      "nr",
-      "ACGTACGTACGTACGT",
-      megablast=false,
-      hitlist_size=100,
-    )
-  } catch {
+  let url = @src.qblast_put_url(
+    "blastn",
+    "nr",
+    "ACGTACGTACGTACGT",
+    megablast=false,
+    hitlist_size=100,
+  ) catch {
     @src.NcbiBlastError(msg) => {
       println("URL build failed: " + msg)
       return
@@ -61,9 +57,12 @@ fn main {
   println("")
 
   // Run the whole submit -> poll -> fetch workflow.
-  let result = try {
-    client.qblast("blastn", "nr", "ACGTACGTACGTACGT", hitlist_size=100)
-  } catch {
+  let result = client.qblast(
+    "blastn",
+    "nr",
+    "ACGTACGTACGTACGT",
+    hitlist_size=100,
+  ) catch {
     @src.NcbiBlastError(msg) => {
       println("qblast failed: " + msg)
       return
@@ -81,11 +80,7 @@ fn main {
     } else {
       "result"
     }
-    let shown = if u.length() > 96 {
-      u[0:96].to_owned()
-    } else {
-      u
-    }
+    let shown = if u.length() > 96 { u[0:96].to_owned() } else { u }
     println("  " + kind + " : " + shown)
     i = i + 1
   }

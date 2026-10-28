@@ -6,7 +6,7 @@
 
 ///|
 /// Nucleotide encoding: A=0, C=1, G=2, T=3
-pub fn nt_to_int(c : Char) -> Int {
+pub fn nt_to_int(c : Char) -> Int32 {
   match c.to_int() {
     65 | 97 => 0 // A or a
     67 | 99 => 1 // C or c
@@ -18,7 +18,7 @@ pub fn nt_to_int(c : Char) -> Int {
 
 ///|
 /// Int to nucleotide character.
-pub fn int_to_nt(i : Int) -> String {
+pub fn int_to_nt(i : Int32) -> String {
   match i {
     0 => "A"
     1 => "C"
@@ -30,7 +30,7 @@ pub fn int_to_nt(i : Int) -> String {
 
 ///|
 /// Compute Hamming distance between two equal-length sequences.
-pub fn dada_hamming_distance(a : String, b : String) -> Int {
+pub fn dada_hamming_distance(a : String, b : String) -> Int32 {
   if a.length() != b.length() {
     return -1
   }
@@ -51,7 +51,7 @@ pub fn dada_hamming_distance(a : String, b : String) -> Int {
 /// Dereplicated sequence entry.
 pub struct DerepEntry {
   sequence : String
-  abundance : Int
+  abundance : Int32
   qual_scores : Array[Double] // average quality per position
 }
 
@@ -59,7 +59,7 @@ pub struct DerepEntry {
 /// Dereplication result.
 pub struct Dereplication {
   uniques : Array[DerepEntry]
-  total_reads : Int
+  total_reads : Int32
 }
 
 ///|
@@ -71,7 +71,10 @@ pub fn dereplicate(
   sequences : Array[String],
   quals : Array[Array[Double]],
 ) -> Dereplication {
-  let seq_map : Map[String, (Int, Array[Double])] = Map([], capacity=sequences.length())
+  let seq_map : Map[String, (Int32, Array[Double])] = Map(
+    [],
+    capacity=sequences.length(),
+  )
   let has_quals = quals.length() == sequences.length() && quals.length() > 0
   let mut i = 0
   while i < sequences.length() {
@@ -84,7 +87,9 @@ pub fn dereplicate(
         let mut j = 0
         let qlen = v.1.length()
         while j < qlen {
-          new_qual.push((v.1[j] * v.0.to_double() + quals[i][j]) / new_abund.to_double())
+          new_qual.push(
+            (v.1[j] * v.0.to_double() + quals[i][j]) / new_abund.to_double(),
+          )
           j = j + 1
         }
       }
@@ -108,7 +113,7 @@ pub fn dereplicate(
   while ki < keys.length() {
     let k = keys[ki]
     let v = seq_map[k]
-    entries.push(DerepEntry::{ sequence: k, abundance: v.0, qual_scores: v.1 })
+    entries.push(DerepEntry::{ sequence: k, abundance: v.0, qual_scores: v.1, })
     ki = ki + 1
   }
   // Sort by abundance descending
@@ -127,13 +132,13 @@ pub fn dereplicate(
     total = total + entries[ei].abundance
     ei = ei + 1
   }
-  Dereplication::{ uniques: entries, total_reads: total }
+  Dereplication::{ uniques: entries, total_reads: total, }
 }
 
 ///|
 /// Quality profile: per-position mean, min, max, and quartiles.
 pub struct QualityProfile {
-  positions : Int
+  positions : Int32
   mean : Array[Double]
   min : Array[Double]
   max : Array[Double]
@@ -145,7 +150,14 @@ pub struct QualityProfile {
 /// Compute quality profile from a set of quality arrays.
 pub fn quality_profile(quals : Array[Array[Double]]) -> QualityProfile {
   if quals.length() == 0 {
-    return QualityProfile::{ positions: 0, mean: [], min: [], max: [], q25: [], q75: [] }
+    return QualityProfile::{
+      positions: 0,
+      mean: [],
+      min: [],
+      max: [],
+      q25: [],
+      q75: [],
+    }
   }
   let n_pos = quals[0].length()
   let mean_arr : Array[Double] = Array::make(n_pos, 0.0)
@@ -180,15 +192,7 @@ pub fn quality_profile(quals : Array[Array[Double]]) -> QualityProfile {
       col.push(quals[k][j])
       k = k + 1
     }
-    col.sort_by(fn(a, b) {
-      if a < b {
-        -1
-      } else if a > b {
-        1
-      } else {
-        0
-      }
-    })
+    col.sort_by(fn(a, b) { if a < b { -1 } else if a > b { 1 } else { 0 } })
     let idx25 = (col.length() - 1).to_double() * 0.25
     let idx75 = (col.length() - 1).to_double() * 0.75
     let lo25 = idx25.floor().to_int()
@@ -198,16 +202,25 @@ pub fn quality_profile(quals : Array[Array[Double]]) -> QualityProfile {
     if lo25 == hi25 {
       q25_arr[j] = col[lo25]
     } else {
-      q25_arr[j] = col[lo25] + (col[hi25] - col[lo25]) * (idx25 - lo25.to_double())
+      q25_arr[j] = col[lo25] +
+        (col[hi25] - col[lo25]) * (idx25 - lo25.to_double())
     }
     if lo75 == hi75 {
       q75_arr[j] = col[lo75]
     } else {
-      q75_arr[j] = col[lo75] + (col[hi75] - col[lo75]) * (idx75 - lo75.to_double())
+      q75_arr[j] = col[lo75] +
+        (col[hi75] - col[lo75]) * (idx75 - lo75.to_double())
     }
     j = j + 1
   }
-  QualityProfile::{ positions: n_pos, mean: mean_arr, min: min_arr, max: max_arr, q25: q25_arr, q75: q75_arr }
+  QualityProfile::{
+    positions: n_pos,
+    mean: mean_arr,
+    min: min_arr,
+    max: max_arr,
+    q25: q25_arr,
+    q75: q75_arr,
+  }
 }
 
 ///|
@@ -217,20 +230,20 @@ pub fn quality_profile(quals : Array[Array[Double]]) -> QualityProfile {
 ///              GA(8), GC(9), GG(10), GT(11), TA(12), TC(13), TG(14), TT(15)
 pub struct ErrorModel {
   err_mat : Array[Array[Double]] // 16 x (max_qual+1)
-  max_qual : Int
-  n_reads : Int
+  max_qual : Int32
+  n_reads : Int32
 }
 
 ///|
 /// Get transition index from original nucleotide (0-3) to observed nucleotide (0-3).
-pub fn transition_index(from_nt : Int, to_nt : Int) -> Int {
+pub fn transition_index(from_nt : Int32, to_nt : Int32) -> Int32 {
   from_nt * 4 + to_nt
 }
 
 ///|
 /// Initialize error model with default rates (from dada2 loessErr initial estimates).
 /// Uses 41 quality levels (0-40).
-pub fn init_error_model(max_qual : Int) -> ErrorModel {
+pub fn init_error_model(max_qual : Int32) -> ErrorModel {
   let err_mat : Array[Array[Double]] = []
   let mut t = 0
   while t < 16 {
@@ -255,7 +268,7 @@ pub fn init_error_model(max_qual : Int) -> ErrorModel {
     err_mat.push(row)
     t = t + 1
   }
-  ErrorModel::{ err_mat, max_qual, n_reads: 0 }
+  ErrorModel::{ err_mat, max_qual, n_reads: 0, }
 }
 
 ///|
@@ -264,8 +277,8 @@ pub fn init_error_model(max_qual : Int) -> ErrorModel {
 /// Returns updated error model.
 /// err_counts[t][q] = (n_errors, n_total) for transition t at quality q
 pub fn loess_err(
-  err_counts : Array[Array[(Int, Int)]],
-  max_qual : Int,
+  err_counts : Array[Array[(Int32, Int32)]],
+  max_qual : Int32,
 ) -> ErrorModel {
   let err_mat : Array[Array[Double]] = []
   let mut t = 0
@@ -282,39 +295,35 @@ pub fn loess_err(
         } else {
           row[q] = 1.0 - 1.0e-3
         }
-      } else {
-        if n_total > 0 {
-          let rate = n_err.to_double() / n_total.to_double()
-          // Apply monotone constraint: error rate must decrease with quality
-          if q > 0 && rate > row[q - 1] {
-            row[q] = row[q - 1]
-          } else {
-            row[q] = rate
-          }
+      } else if n_total > 0 {
+        let rate = n_err.to_double() / n_total.to_double()
+        // Apply monotone constraint: error rate must decrease with quality
+        if q > 0 && rate > row[q - 1] {
+          row[q] = row[q - 1]
         } else {
-          // Interpolate from neighbors
-          if q > 0 {
-            row[q] = row[q - 1] * 0.5
-          } else {
-            row[q] = 1.0e-3
-          }
+          row[q] = rate
         }
+        // Interpolate from neighbors
+      } else if q > 0 {
+        row[q] = row[q - 1] * 0.5
+      } else {
+        row[q] = 1.0e-3
       }
       q = q + 1
     }
     err_mat.push(row)
     t = t + 1
   }
-  ErrorModel::{ err_mat, max_qual, n_reads: 0 }
+  ErrorModel::{ err_mat, max_qual, n_reads: 0, }
 }
 
 ///|
 /// Learn error model from data (simplified: one round of self-consistent learning).
 /// Given dereplicated sequences, estimate error rates.
-pub fn learn_errors(derep : Dereplication, max_qual : Int) -> ErrorModel {
+pub fn learn_errors(derep : Dereplication, max_qual : Int32) -> ErrorModel {
   // Count observed errors: assume most abundant sequences are "true"
   // and less abundant ones within small Hamming distance are errors
-  let err_counts : Array[Array[(Int, Int)]] = []
+  let err_counts : Array[Array[(Int32, Int32)]] = []
   let mut t = 0
   while t < 16 {
     err_counts.push(Array::make(max_qual + 1, (0, 0)))
@@ -346,7 +355,10 @@ pub fn learn_errors(derep : Dereplication, max_qual : Int) -> ErrorModel {
             }
             let q_clamped = if qual > max_qual { max_qual } else { qual }
             let (ne, nt_c) = err_counts[ti][q_clamped]
-            err_counts[ti][q_clamped] = (ne + seq_i.abundance, nt_c + seq_i.abundance)
+            err_counts[ti][q_clamped] = (
+              ne + seq_i.abundance,
+              nt_c + seq_i.abundance,
+            )
           }
           pos = pos + 1
         }
@@ -375,15 +387,15 @@ pub fn learn_errors(derep : Dereplication, max_qual : Int) -> ErrorModel {
     i = i + 1
   }
   let model = loess_err(err_counts, max_qual)
-  ErrorModel::{ err_mat: model.err_mat, max_qual, n_reads: derep.total_reads }
+  ErrorModel::{ err_mat: model.err_mat, max_qual, n_reads: derep.total_reads, }
 }
 
 ///|
 /// DADA partition: a cluster of sequences centered on a "center" sequence.
 pub struct Partition {
   center : String
-  abundance : Int
-  members : Array[(String, Int)] // (sequence, abundance) of all members
+  abundance : Int32
+  members : Array[(String, Int32)] // (sequence, abundance) of all members
 }
 
 ///|
@@ -391,8 +403,8 @@ pub struct Partition {
 pub struct DadaResult {
   partitions : Array[Partition]
   error_model : ErrorModel
-  n_clusters : Int
-  n_input_reads : Int
+  n_clusters : Int32
+  n_input_reads : Int32
 }
 
 ///|
@@ -401,7 +413,7 @@ pub struct DadaResult {
 pub fn expected_abundance(
   true_seq : String,
   error_seq : String,
-  true_abund : Int,
+  true_abund : Int32,
   model : ErrorModel,
 ) -> Double {
   let a_bytes = true_seq.to_array()
@@ -419,7 +431,7 @@ pub fn expected_abundance(
       if rate > 0.0 {
         log_prob = log_prob + @math.ln(rate)
       } else {
-        log_prob = log_prob + (-50.0)
+        log_prob = log_prob + -50.0
       }
     }
     pos = pos + 1
@@ -431,10 +443,7 @@ pub fn expected_abundance(
 /// P-value test: is the observed abundance of a sequence consistent with being an error?
 /// Uses the abundance p-value test from the DADA2 paper.
 /// If p < threshold, the sequence is NOT an error (it's a real variant).
-pub fn abundance_p_value(
-  observed : Int,
-  expected : Double,
-) -> Double {
+pub fn abundance_p_value(observed : Int32, expected : Double) -> Double {
   if expected <= 0.0 {
     return 0.0
   }
@@ -470,7 +479,12 @@ pub fn dada_inference(
 ) -> DadaResult {
   let uniques = derep.uniques
   if uniques.length() == 0 {
-    return DadaResult::{ partitions: [], error_model: model, n_clusters: 0, n_input_reads: 0 }
+    return DadaResult::{
+      partitions: [],
+      error_model: model,
+      n_clusters: 0,
+      n_input_reads: 0,
+    }
   }
   // Initialize: most abundant sequence is first partition center
   let partitions : Array[Partition] = []
@@ -480,7 +494,9 @@ pub fn dada_inference(
     if !assigned[i] {
       let center = uniques[i]
       assigned[i] = true
-      let members : Array[(String, Int)] = [(center.sequence, center.abundance)]
+      let members : Array[(String, Int32)] = [
+        (center.sequence, center.abundance),
+      ]
       // Try to assign remaining sequences to this partition
       let mut j = i + 1
       while j < uniques.length() {
@@ -488,7 +504,12 @@ pub fn dada_inference(
           let candidate = uniques[j]
           let dist = dada_hamming_distance(center.sequence, candidate.sequence)
           if dist >= 1 && dist <= 4 {
-            let exp_abund = expected_abundance(center.sequence, candidate.sequence, center.abundance, model)
+            let exp_abund = expected_abundance(
+              center.sequence,
+              candidate.sequence,
+              center.abundance,
+              model,
+            )
             let pval = abundance_p_value(candidate.abundance, exp_abund)
             // If p-value is large, it's consistent with being an error
             if pval > omega_a {
@@ -506,7 +527,11 @@ pub fn dada_inference(
         total_abund = total_abund + members[mi].1
         mi = mi + 1
       }
-      partitions.push(Partition::{ center: center.sequence, abundance: total_abund, members })
+      partitions.push(Partition::{
+        center: center.sequence,
+        abundance: total_abund,
+        members,
+      })
     }
     i = i + 1
   }
@@ -525,8 +550,8 @@ pub struct MergedPair {
   quality : Array[Double]
   forward : String
   reverse : String
-  overlap : Int
-  mismatch : Int
+  overlap : Int32
+  mismatch : Int32
   accepted : Bool
 }
 
@@ -561,7 +586,7 @@ pub fn dada_reverse_complement(seq : String) -> String {
 pub fn merge_pair(
   forward : String,
   reverse : String,
-  min_overlap~ : Int = 12,
+  min_overlap~ : Int32 = 12,
   max_mismatch_rate~ : Double = 0.1,
 ) -> MergedPair {
   let rc_reverse = dada_reverse_complement(reverse)
@@ -644,14 +669,20 @@ pub fn merge_pair(
 pub fn merge_pairs(
   forwards : Array[String],
   reverses : Array[String],
-  min_overlap~ : Int = 12,
+  min_overlap~ : Int32 = 12,
   max_mismatch_rate~ : Double = 0.1,
 ) -> Array[MergedPair] {
   let results : Array[MergedPair] = []
-  let n = if forwards.length() < reverses.length() { forwards.length() } else { reverses.length() }
+  let n = if forwards.length() < reverses.length() {
+    forwards.length()
+  } else {
+    reverses.length()
+  }
   let mut i = 0
   while i < n {
-    results.push(merge_pair(forwards[i], reverses[i], min_overlap=min_overlap, max_mismatch_rate=max_mismatch_rate))
+    results.push(
+      merge_pair(forwards[i], reverses[i], min_overlap~, max_mismatch_rate~),
+    )
     i = i + 1
   }
   results
@@ -728,12 +759,12 @@ pub fn is_bimera(
 /// Returns (non-chimeric ASVs, non-chimeric abundances, chimera flags).
 pub fn remove_chimeras(
   asvs : Array[String],
-  abundances : Array[Int],
-) -> (Array[String], Array[Int], Array[Bool]) {
+  abundances : Array[Int32],
+) -> (Array[String], Array[Int32], Array[Bool]) {
   let n = asvs.length()
   let is_chimera : Array[Bool] = Array::make(n, false)
   // Sort indices by abundance descending for parent candidates
-  let indices : Array[Int] = []
+  let indices : Array[Int32] = []
   let mut i = 0
   while i < n {
     indices.push(i)
@@ -776,7 +807,7 @@ pub fn remove_chimeras(
     idx = idx + 1
   }
   let clean_asvs : Array[String] = []
-  let clean_abund : Array[Int] = []
+  let clean_abund : Array[Int32] = []
   let mut j = 0
   while j < n {
     if !is_chimera[j] {
@@ -793,17 +824,19 @@ pub fn remove_chimeras(
 pub struct SequenceTable {
   asv_sequences : Array[String]
   sample_names : Array[String]
-  counts : Array[Array[Int]] // [asv][sample]
-  n_asvs : Int
-  n_samples : Int
+  counts : Array[Array[Int32]] // [asv][sample]
+  n_asvs : Int32
+  n_samples : Int32
 }
 
 ///|
 /// Make sequence table from per-sample DADA results.
 /// samples: array of (sample_name, DadaResult)
-pub fn make_sequence_table(samples : Array[(String, DadaResult)]) -> SequenceTable {
+pub fn make_sequence_table(
+  samples : Array[(String, DadaResult)],
+) -> SequenceTable {
   // Collect all unique ASV sequences across samples
-  let asv_set : Map[String, Int] = Map([], capacity=256)
+  let asv_set : Map[String, Int32] = Map([], capacity=256)
   let sample_names : Array[String] = []
   let mut si = 0
   while si < samples.length() {
@@ -828,7 +861,7 @@ pub fn make_sequence_table(samples : Array[(String, DadaResult)]) -> SequenceTab
   }
   let n_asvs = asv_sequences.length()
   let n_samples = sample_names.length()
-  let counts : Array[Array[Int]] = []
+  let counts : Array[Array[Int32]] = []
   let mut ai = 0
   while ai < n_asvs {
     counts.push(Array::make(n_samples, 0))
@@ -849,13 +882,13 @@ pub fn make_sequence_table(samples : Array[(String, DadaResult)]) -> SequenceTab
     }
     sj = sj + 1
   }
-  SequenceTable::{ asv_sequences, sample_names, counts, n_asvs, n_samples }
+  SequenceTable::{ asv_sequences, sample_names, counts, n_asvs, n_samples, }
 }
 
 ///|
 /// Get total counts per sample from sequence table.
-pub fn seq_table_sample_totals(table : SequenceTable) -> Array[Int] {
-  let totals : Array[Int] = Array::make(table.n_samples, 0)
+pub fn seq_table_sample_totals(table : SequenceTable) -> Array[Int32] {
+  let totals : Array[Int32] = Array::make(table.n_samples, 0)
   let mut ai = 0
   while ai < table.n_asvs {
     let mut si = 0
@@ -870,8 +903,8 @@ pub fn seq_table_sample_totals(table : SequenceTable) -> Array[Int] {
 
 ///|
 /// Get total counts per ASV from sequence table.
-pub fn seq_table_asv_totals(table : SequenceTable) -> Array[Int] {
-  let totals : Array[Int] = Array::make(table.n_asvs, 0)
+pub fn seq_table_asv_totals(table : SequenceTable) -> Array[Int32] {
+  let totals : Array[Int32] = Array::make(table.n_asvs, 0)
   let mut ai = 0
   while ai < table.n_asvs {
     let mut si = 0
@@ -906,16 +939,20 @@ pub struct RefEntry {
 pub fn assign_taxonomy(
   asvs : Array[String],
   ref_seqs : Array[RefEntry],
-  k~ : Int = 8,
+  k~ : Int32 = 8,
 ) -> Array[TaxonomyResult] {
   let results : Array[TaxonomyResult] = []
-  let n_levels = if ref_seqs.length() > 0 { ref_seqs[0].taxonomy.length() } else { 0 }
+  let n_levels = if ref_seqs.length() > 0 {
+    ref_seqs[0].taxonomy.length()
+  } else {
+    0
+  }
   // Build k-mer index for each reference sequence
-  let ref_kmers : Array[Map[String, Int]] = []
+  let ref_kmers : Array[Map[String, Int32]] = []
   let mut ri = 0
   while ri < ref_seqs.length() {
     let kmers = extract_kmers(ref_seqs[ri].sequence, k)
-    let km : Map[String, Int] = Map([], capacity=kmers.length())
+    let km : Map[String, Int32] = Map([], capacity=kmers.length())
     let mut ki = 0
     while ki < kmers.length() {
       let key = kmers[ki]
@@ -934,7 +971,7 @@ pub fn assign_taxonomy(
   while ai < asvs.length() {
     let asv = asvs[ai]
     let asv_kmers = extract_kmers(asv, k)
-    let asv_kmer_set : Map[String, Int] = Map([], capacity=asv_kmers.length())
+    let asv_kmer_set : Map[String, Int32] = Map([], capacity=asv_kmers.length())
     let mut ki = 0
     while ki < asv_kmers.length() {
       let key = asv_kmers[ki]
@@ -989,7 +1026,7 @@ pub fn assign_taxonomy(
     } else {
       best_tax
     }
-    results.push(TaxonomyResult::{ asv, taxonomy: tax, confidence })
+    results.push(TaxonomyResult::{ asv, taxonomy: tax, confidence, })
     ai = ai + 1
   }
   results
@@ -997,7 +1034,7 @@ pub fn assign_taxonomy(
 
 ///|
 /// Extract k-mers from a sequence.
-pub fn extract_kmers(seq : String, k : Int) -> Array[String] {
+pub fn extract_kmers(seq : String, k : Int32) -> Array[String] {
   let kmers : Array[String] = []
   if seq.length() < k {
     return kmers
@@ -1022,7 +1059,7 @@ pub fn extract_kmers(seq : String, k : Int) -> Array[String] {
 pub struct PipelineResult {
   seq_table : SequenceTable
   taxonomy : Array[TaxonomyResult]
-  n_chimeras_removed : Int
+  n_chimeras_removed : Int32
   error_model : ErrorModel
 }
 
@@ -1032,9 +1069,9 @@ pub struct PipelineResult {
 pub fn run_pipeline(
   samples : Array[(String, Array[String], Array[String])],
   ref_seqs : Array[RefEntry],
-  max_qual~ : Int = 40,
+  max_qual~ : Int32 = 40,
   omega_a~ : Double = 1.0e-40,
-  min_overlap~ : Int = 12,
+  min_overlap~ : Int32 = 12,
 ) -> PipelineResult {
   // Step 1: Merge pairs and collect per-sample ASVs
   let dada_results : Array[(String, DadaResult)] = []
@@ -1042,7 +1079,7 @@ pub fn run_pipeline(
   while si < samples.length() {
     let (name, fwd, rev) = samples[si]
     // Merge pairs
-    let merged = merge_pairs(fwd, rev, min_overlap=min_overlap)
+    let merged = merge_pairs(fwd, rev, min_overlap~)
     let good_seqs : Array[String] = []
     let mut mi = 0
     while mi < merged.length() {
@@ -1056,7 +1093,7 @@ pub fn run_pipeline(
     // Learn errors
     let model = learn_errors(derep, max_qual)
     // DADA inference
-    let dada = dada_inference(derep, model, omega_a=omega_a)
+    let dada = dada_inference(derep, model, omega_a~)
     dada_results.push((name, dada))
     si = si + 1
   }
@@ -1064,7 +1101,10 @@ pub fn run_pipeline(
   let table = make_sequence_table(dada_results)
   // Step 3: Remove chimeras
   let asv_totals = seq_table_asv_totals(table)
-  let (clean_asvs, _, chimera_flags) = remove_chimeras(table.asv_sequences, asv_totals)
+  let (clean_asvs, _, chimera_flags) = remove_chimeras(
+    table.asv_sequences,
+    asv_totals,
+  )
   let mut n_chim = 0
   let mut ci = 0
   while ci < chimera_flags.length() {
@@ -1091,9 +1131,12 @@ pub fn run_pipeline(
 
 ///|
 /// Filter sequence table by chimera flags (keep where flag is false).
-pub fn filter_table(table : SequenceTable, flags : Array[Bool]) -> SequenceTable {
+pub fn filter_table(
+  table : SequenceTable,
+  flags : Array[Bool],
+) -> SequenceTable {
   let asv_sequences : Array[String] = []
-  let counts : Array[Array[Int]] = []
+  let counts : Array[Array[Int32]] = []
   let mut i = 0
   while i < table.n_asvs {
     if !flags[i] {
@@ -1136,18 +1179,9 @@ pub fn seq_table_to_relative(table : SequenceTable) -> Array[Array[Double]] {
 /// Create example data for testing/demo.
 pub fn create_example_derep() -> Dereplication {
   let seqs = [
-    "ACGTACGTACGTACGT",
-    "ACGTACGTACGTACGT",
-    "ACGTACGTACGTACGT",
-    "ACGTACGTACGTACGA",
-    "ACGTACGTACGTACGA",
-    "ACGTACGTACGTACGT",
-    "TTGCGCGCATATATAT",
-    "TTGCGCGCATATATAT",
-    "TTGCGCGCATATATAT",
-    "TTGCGCGCATATATAT",
-    "TTGCGCGCATATATAC",
-    "ACGTACGTACGTACGT",
+    "ACGTACGTACGTACGT", "ACGTACGTACGTACGT", "ACGTACGTACGTACGT", "ACGTACGTACGTACGA",
+    "ACGTACGTACGTACGA", "ACGTACGTACGTACGT", "TTGCGCGCATATATAT", "TTGCGCGCATATATAT",
+    "TTGCGCGCATATATAT", "TTGCGCGCATATATAT", "TTGCGCGCATATATAC", "ACGTACGTACGTACGT",
   ]
   dereplicate(seqs, [])
 }
@@ -1156,8 +1190,26 @@ pub fn create_example_derep() -> Dereplication {
 /// Create example reference database for taxonomy.
 pub fn create_example_ref_db() -> Array[RefEntry] {
   [
-    RefEntry::{ sequence: "ACGTACGTACGTACGTACGTACGTACGTACGT", taxonomy: ["Bacteria", "Proteobacteria", "Gammaproteobacteria", "Enterobacterales", "Enterobacteriaceae", "Escherichia", "coli"] },
-    RefEntry::{ sequence: "TTGCGCGCATATATATGCGCGCGCATATATA", taxonomy: ["Bacteria", "Firmicutes", "Bacilli", "Lactobacillales", "Lactobacillaceae", "Lactobacillus", "plantarum"] },
-    RefEntry::{ sequence: "GCGCATATATATGCGCGCGCATATATATGCG", taxonomy: ["Bacteria", "Actinobacteria", "Actinomycetia", "Bifidobacteriales", "Bifidobacteriaceae", "Bifidobacterium", "longum"] },
+    RefEntry::{
+      sequence: "ACGTACGTACGTACGTACGTACGTACGTACGT",
+      taxonomy: [
+        "Bacteria", "Proteobacteria", "Gammaproteobacteria", "Enterobacterales",
+        "Enterobacteriaceae", "Escherichia", "coli",
+      ],
+    },
+    RefEntry::{
+      sequence: "TTGCGCGCATATATATGCGCGCGCATATATA",
+      taxonomy: [
+        "Bacteria", "Firmicutes", "Bacilli", "Lactobacillales", "Lactobacillaceae",
+        "Lactobacillus", "plantarum",
+      ],
+    },
+    RefEntry::{
+      sequence: "GCGCATATATATGCGCGCGCATATATATGCG",
+      taxonomy: [
+        "Bacteria", "Actinobacteria", "Actinomycetia", "Bifidobacteriales", "Bifidobacteriaceae",
+        "Bifidobacterium", "longum",
+      ],
+    },
   ]
 }

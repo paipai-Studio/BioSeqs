@@ -19,7 +19,7 @@
 /// - `110xxxxx xxxxxxxx xxxxxxxx`       → 3 bytes
 /// - `1110xxxx xxxxxxxx xxxxxxxx xxxxxxxx` → 4 bytes
 /// - `11110xxx xxxxxxxx xxxxxxxx xxxxxxxx xxxxxxxx` → 5 bytes
-pub fn itf8_encode(value : Int, buf : Array[Int]) -> Unit {
+pub fn itf8_encode(value : Int32, buf : Array[Int32]) -> Unit {
   let v = value & 0xFFFFFFFF
   if v <= 0x7F {
     buf.push(v)
@@ -47,7 +47,7 @@ pub fn itf8_encode(value : Int, buf : Array[Int]) -> Unit {
 ///|
 /// Decode an ITF-8 integer from a string at the given position.
 /// Returns `(value, new_position)` or `(-1, pos)` on error.
-pub fn itf8_decode(data : String, pos : Int) -> (Int, Int) {
+pub fn itf8_decode(data : String, pos : Int32) -> (Int32, Int32) {
   if pos >= data.length() {
     return (-1, pos)
   }
@@ -98,7 +98,7 @@ pub fn itf8_decode(data : String, pos : Int) -> (Int, Int) {
 ///|
 /// Encode a 64-bit integer as LTF-8 (1–9 bytes).
 /// Uses the same high-bit-prefix scheme as ITF-8 but extends to 9 bytes.
-pub fn ltf8_encode(value : Int, buf : Array[Int]) -> Unit {
+pub fn ltf8_encode(value : Int32, buf : Array[Int32]) -> Unit {
   // For MoonBit Int (32-bit on this platform), we only need up to 5 bytes.
   // The full 9-byte LTF-8 is for 64-bit values beyond Int range.
   itf8_encode(value, buf)
@@ -106,7 +106,7 @@ pub fn ltf8_encode(value : Int, buf : Array[Int]) -> Unit {
 
 ///|
 /// Decode an LTF-8 integer. Same as ITF-8 for 32-bit range.
-pub fn ltf8_decode(data : String, pos : Int) -> (Int, Int) {
+pub fn ltf8_decode(data : String, pos : Int32) -> (Int32, Int32) {
   itf8_decode(data, pos)
 }
 
@@ -115,7 +115,7 @@ pub fn ltf8_decode(data : String, pos : Int) -> (Int, Int) {
 // ============================================================
 
 ///|
-fn cram_write_u32_le(buf : Array[Int], v : Int) -> Unit {
+fn cram_write_u32_le(buf : Array[Int32], v : Int32) -> Unit {
   buf.push(v & 0xFF)
   buf.push((v >> 8) & 0xFF)
   buf.push((v >> 16) & 0xFF)
@@ -123,7 +123,7 @@ fn cram_write_u32_le(buf : Array[Int], v : Int) -> Unit {
 }
 
 ///|
-fn cram_write_cstring(buf : Array[Int], s : String) -> Unit {
+fn cram_write_cstring(buf : Array[Int32], s : String) -> Unit {
   for i = 0; i < s.length(); i = i + 1 {
     buf.push(s.unsafe_get(i).to_int() & 0xFF)
   }
@@ -131,7 +131,7 @@ fn cram_write_cstring(buf : Array[Int], s : String) -> Unit {
 }
 
 ///|
-fn cram_cigar_to_code(op : BamCigarOp, length : Int) -> Int {
+fn cram_cigar_to_code(op : BamCigarOp, length : Int32) -> Int32 {
   let op_code = match op {
     BamCigarOp::Match => 0
     BamCigarOp::Insert => 1
@@ -148,7 +148,7 @@ fn cram_cigar_to_code(op : BamCigarOp, length : Int) -> Int {
 
 ///|
 /// Serialize a `CramReadFeatures` to a byte array (matching the parse layout).
-fn cram_write_read_features(buf : Array[Int], rf : CramReadFeatures) -> Unit {
+fn cram_write_read_features(buf : Array[Int32], rf : CramReadFeatures) -> Unit {
   cram_write_u32_le(buf, rf.read_group)
   cram_write_u32_le(buf, rf.flags)
   buf.push(rf.mapping_quality & 0xFF) // int8
@@ -183,7 +183,7 @@ fn cram_write_read_features(buf : Array[Int], rf : CramReadFeatures) -> Unit {
 
 ///|
 /// Serialize a single `CramRecord` to a byte array (without the size prefix).
-fn cram_write_record_body(buf : Array[Int], rec : CramRecord) -> Unit {
+fn cram_write_record_body(buf : Array[Int32], rec : CramRecord) -> Unit {
   cram_write_u32_le(buf, rec.ref_id)
   cram_write_u32_le(buf, rec.pos)
   cram_write_read_features(buf, rec.read_features)
@@ -195,7 +195,7 @@ fn cram_write_record_body(buf : Array[Int], rec : CramRecord) -> Unit {
 /// The output can be re-parsed by `parse_cram` to recover the same data —
 /// a round-trip.
 pub fn CramFile::to_cram_bytes(self : CramFile) -> String {
-  let buf : Array[Int] = []
+  let buf : Array[Int32] = []
 
   // Magic
   buf.push(67) // C
@@ -245,7 +245,7 @@ pub fn CramFile::to_cram_bytes(self : CramFile) -> String {
 
   // Records (each prefixed with its body size)
   for i = 0; i < self.records.length(); i = i + 1 {
-    let body : Array[Int] = []
+    let body : Array[Int32] = []
     cram_write_record_body(body, self.records[i])
     cram_write_u32_le(buf, body.length())
     for j = 0; j < body.length(); j = j + 1 {
@@ -316,7 +316,7 @@ pub fn CramFile::to_sam(self : CramFile) -> String {
   // SAM header
   if self.header.sam_header.length() > 0 {
     sb.write_string(self.header.sam_header)
-    if !(self.header.sam_header.has_suffix("\n")) {
+    if !self.header.sam_header.has_suffix("\n") {
       sb.write_char('\n')
     }
   }

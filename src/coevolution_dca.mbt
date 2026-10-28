@@ -40,16 +40,16 @@ pub(all) struct DCAResult {
   /// Effective number of sequences after reweighting
   m_eff : Double
   /// Alignment length
-  align_len : Int
+  align_len : Int32
   /// Number of sequences
-  num_seqs : Int
+  num_seqs : Int32
 }
 
 ///|
 /// A predicted residue-residue contact.
 pub(all) struct Contact {
-  pos_i : Int
-  pos_j : Int
+  pos_i : Int32
+  pos_j : Int32
   score : Double
 }
 
@@ -66,11 +66,7 @@ pub fn DCAConfig::default_protein() -> DCAConfig {
 ///|
 /// Default config for DNA DCA.
 pub fn DCAConfig::default_dna() -> DCAConfig {
-  DCAConfig::{
-    alphabet: "dna",
-    pseudocount: 0.01,
-    reweight_threshold: 0.8,
-  }
+  DCAConfig::{ alphabet: "dna", pseudocount: 0.01, reweight_threshold: 0.8, }
 }
 
 // ---------------------------------------------------------------------------
@@ -98,6 +94,7 @@ fn coev_sqrt(x : Double) -> Double {
   guess
 }
 
+///|
 fn get_alphabet(alphabet : String) -> String {
   match alphabet {
     "protein" => "ACDEFGHIKLMNPQRSTVWY-"
@@ -108,14 +105,14 @@ fn get_alphabet(alphabet : String) -> String {
 
 ///|
 /// Get the number of states q for an alphabet.
-fn get_q(alphabet : String) -> Int {
+fn get_q(alphabet : String) -> Int32 {
   get_alphabet(alphabet).length()
 }
 
 ///|
 /// Encode a character to an index in the alphabet.
 /// Returns -1 if the character is not found.
-fn encode_char(c : Char, alphabet : String) -> Int {
+fn encode_char(c : Char, alphabet : String) -> Int32 {
   let ab = get_alphabet(alphabet)
   let s = ab.to_array()
   for i in 0..<s.length() {
@@ -133,7 +130,7 @@ fn encode_char(c : Char, alphabet : String) -> Int {
 pub fn encode_alignment(
   alignment : Array[String],
   alphabet : String,
-) -> Array[Array[Int]] {
+) -> Array[Array[Int32]] {
   let result = Array(capacity=alignment.length())
   for seq in alignment {
     let encoded = Array(capacity=seq.length())
@@ -202,8 +199,8 @@ pub fn effective_sequences(weights : Array[Double]) -> Double {
 /// Compute single-site frequencies f_i(a) with pseudocount.
 /// Returns a 2D array: freq[i][a] = frequency of state a at position i.
 pub fn single_site_frequencies(
-  encoded : Array[Array[Int]],
-  q : Int,
+  encoded : Array[Array[Int32]],
+  q : Int32,
   pseudocount : Double,
   weights : Array[Double],
   m_eff : Double,
@@ -236,8 +233,8 @@ pub fn single_site_frequencies(
 /// Compute pair frequencies f_ij(a,b) with pseudocount.
 /// Returns a 4D array: freq[i][j][a][b].
 pub fn pair_frequencies(
-  encoded : Array[Array[Int]],
-  q : Int,
+  encoded : Array[Array[Int32]],
+  q : Int32,
   pseudocount : Double,
   weights : Array[Double],
   m_eff : Double,
@@ -305,7 +302,7 @@ pub fn compute_mi(
         for b in 0..<q {
           let p = fij[i][j][a][b]
           if p > 0.0 && fi[i][a] > 0.0 && fi[j][b] > 0.0 {
-            s = s + p * (@math.ln(p / (fi[i][a] * fi[j][b])))
+            s = s + p * @math.ln(p / (fi[i][a] * fi[j][b]))
           }
         }
       }
@@ -388,8 +385,8 @@ pub fn compute_mi_apc(
 fn compute_covariance(
   fi : Array[Array[Double]],
   fij : Array[Array[Array[Array[Double]]]],
-  q : Int,
-  l : Int,
+  q : Int32,
+  l : Int32,
 ) -> Matrix {
   let qm = q - 1
   let size = qm * l
@@ -415,10 +412,10 @@ fn compute_covariance(
 /// sum_a J_ij(a,b) = 0.
 fn extract_couplings(
   inv_c : Matrix,
-  q : Int,
-  _l : Int,
-  i : Int,
-  j : Int,
+  q : Int32,
+  _l : Int32,
+  i : Int32,
+  j : Int32,
 ) -> Array[Array[Double]] {
   let qm = q - 1
   // J[a][b] for a,b in 0..q-1
@@ -489,7 +486,7 @@ pub fn direct_information(
   fi_i : Array[Double],
   fi_j : Array[Double],
   j_mat : Array[Array[Double]],
-  q : Int,
+  q : Int32,
 ) -> Double {
   // Compute the direct-coupling probability distribution
   // p_dir(a,b) = exp(J(a,b) + h_i(a) + h_j(b)) / Z
@@ -509,7 +506,7 @@ pub fn direct_information(
   // Log-sum-exp for numerical stability
   let mut max_val = log_vals[0]
   let qq = q * q
-  for k in (1)..<qq {
+  for k in 1..<qq {
     if log_vals[k] > max_val {
       max_val = log_vals[k]
     }
@@ -538,10 +535,7 @@ pub fn direct_information(
 ///|
 /// Run full Mean-Field DCA on an alignment.
 /// Returns MI, MI-APC, DCA Frobenius norm scores, and DI scores.
-pub fn mf_dca(
-  alignment : Array[String],
-  config : DCAConfig,
-) -> DCAResult {
+pub fn mf_dca(alignment : Array[String], config : DCAConfig) -> DCAResult {
   let q = get_q(config.alphabet)
   let n = alignment.length()
   let l = if n > 0 { alignment[0].length() } else { 0 }
@@ -551,7 +545,13 @@ pub fn mf_dca(
   let weights = sequence_weights(alignment, config.reweight_threshold)
   let m_eff = effective_sequences(weights)
   // Compute frequencies
-  let fi = single_site_frequencies(encoded, q, config.pseudocount, weights, m_eff)
+  let fi = single_site_frequencies(
+    encoded,
+    q,
+    config.pseudocount,
+    weights,
+    m_eff,
+  )
   let fij = pair_frequencies(encoded, q, config.pseudocount, weights, m_eff)
   // Compute MI (using empirical frequencies, no pseudocount)
   let mi = compute_mi(alignment, config.alphabet)
@@ -604,14 +604,14 @@ pub fn mf_dca(
 /// Only includes pairs (i, j) with i < j and |i - j| >= min_seq_dist.
 pub fn rank_couplings(
   scores : Array[Array[Double]],
-  min_seq_dist : Int,
+  min_seq_dist : Int32,
 ) -> Array[Contact] {
   let l = scores.length()
   let pairs = Array(capacity=0)
   for i in 0..<l {
     for j in (i + 1)..<l {
       if j - i >= min_seq_dist {
-        pairs.push(Contact::{ pos_i: i, pos_j: j, score: scores[i][j] })
+        pairs.push(Contact::{ pos_i: i, pos_j: j, score: scores[i][j], })
       }
     }
   }
@@ -645,8 +645,8 @@ fn sort_contacts_desc(arr : Array[Contact]) -> Array[Contact] {
 /// Only includes pairs with |i - j| >= min_seq_dist.
 pub fn predict_contacts(
   scores : Array[Array[Double]],
-  top_k : Int,
-  min_seq_dist : Int,
+  top_k : Int32,
+  min_seq_dist : Int32,
 ) -> Array[Contact] {
   let ranked = rank_couplings(scores, min_seq_dist)
   let k = if top_k < ranked.length() { top_k } else { ranked.length() }
@@ -662,9 +662,9 @@ pub fn predict_contacts(
 /// Returns (precision, recall, f1).
 pub fn evaluate_contacts(
   predicted : Array[Contact],
-  true_contacts : Array[(Int, Int)],
+  true_contacts : Array[(Int32, Int32)],
 ) -> (Double, Double, Double) {
-  let true_map : Map[Int, Unit] = Map([], capacity=0)
+  let true_map : Map[Int32, Unit] = Map([], capacity=0)
   for pair in true_contacts {
     let (i, j) = pair
     true_map.set(i * 100000 + j, ())
@@ -731,8 +731,8 @@ pub fn DCAResult::get_m_eff(self : DCAResult) -> Double {
 /// Predict top-k contacts from DCA scores.
 pub fn DCAResult::predict_contacts(
   self : DCAResult,
-  top_k : Int,
-  min_seq_dist : Int,
+  top_k : Int32,
+  min_seq_dist : Int32,
 ) -> Array[Contact] {
   predict_contacts(self.dca_scores, top_k, min_seq_dist)
 }
@@ -741,14 +741,14 @@ pub fn DCAResult::predict_contacts(
 /// Rank all residue pairs by DCA score.
 pub fn DCAResult::ranked_pairs(
   self : DCAResult,
-  min_seq_dist : Int,
+  min_seq_dist : Int32,
 ) -> Array[Contact] {
   rank_couplings(self.dca_scores, min_seq_dist)
 }
 
 ///|
 /// Get the top-scoring pair.
-pub fn DCAResult::top_pair(self : DCAResult, min_seq_dist : Int) -> Contact? {
+pub fn DCAResult::top_pair(self : DCAResult, min_seq_dist : Int32) -> Contact? {
   let ranked = rank_couplings(self.dca_scores, min_seq_dist)
   if ranked.length() > 0 {
     Some(ranked[0])

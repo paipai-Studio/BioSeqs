@@ -4,27 +4,27 @@
 ///|
 pub struct GAlignments {
   seqnames : Array[String]
-  starts : Array[Int]
-  ends : Array[Int]
+  starts : Array[Int32]
+  ends : Array[Int32]
   strands : Array[Strand]
-  widths : Array[Int]
+  widths : Array[Int32]
   qnames : Array[String]
-  mapqs : Array[Int]
-  flags : Array[Int]
+  mapqs : Array[Int32]
+  flags : Array[Int32]
 }
 
 ///|
 pub fn GAlignments::new(
   seqnames : Array[String],
-  starts : Array[Int],
-  ends : Array[Int],
+  starts : Array[Int32],
+  ends : Array[Int32],
   strands : Array[Strand],
   qnames : Array[String],
-  mapqs : Array[Int],
-  flags : Array[Int],
+  mapqs : Array[Int32],
+  flags : Array[Int32],
 ) -> GAlignments {
   let n = seqnames.length()
-  let widths : Array[Int] = Array::make(n, 0)
+  let widths : Array[Int32] = Array::make(n, 0)
   let mut i = 0
   while i < n {
     widths[i] = ends[i] - starts[i] + 1
@@ -43,22 +43,22 @@ pub fn GAlignments::new(
 }
 
 ///|
-pub fn GAlignments::length(self : GAlignments) -> Int {
+pub fn GAlignments::length(self : GAlignments) -> Int32 {
   self.seqnames.length()
 }
 
 ///|
 pub fn GAlignments::filter_by_mapq(
   self : GAlignments,
-  min_mapq : Int,
+  min_mapq : Int32,
 ) -> GAlignments {
   let seqnames : Array[String] = Array(capacity=0)
-  let starts : Array[Int] = Array(capacity=0)
-  let ends : Array[Int] = Array(capacity=0)
+  let starts : Array[Int32] = Array(capacity=0)
+  let ends : Array[Int32] = Array(capacity=0)
   let strands : Array[Strand] = Array(capacity=0)
   let qnames : Array[String] = Array(capacity=0)
-  let mapqs : Array[Int] = Array(capacity=0)
-  let flags : Array[Int] = Array(capacity=0)
+  let mapqs : Array[Int32] = Array(capacity=0)
+  let flags : Array[Int32] = Array(capacity=0)
 
   let mut i = 0
   while i < self.length() {
@@ -83,12 +83,12 @@ pub fn GAlignments::filter_by_strand(
   strand : Strand,
 ) -> GAlignments {
   let seqnames : Array[String] = Array(capacity=0)
-  let starts : Array[Int] = Array(capacity=0)
-  let ends : Array[Int] = Array(capacity=0)
+  let starts : Array[Int32] = Array(capacity=0)
+  let ends : Array[Int32] = Array(capacity=0)
   let strands : Array[Strand] = Array(capacity=0)
   let qnames : Array[String] = Array(capacity=0)
-  let mapqs : Array[Int] = Array(capacity=0)
-  let flags : Array[Int] = Array(capacity=0)
+  let mapqs : Array[Int32] = Array(capacity=0)
+  let flags : Array[Int32] = Array(capacity=0)
 
   let mut i = 0
   while i < self.length() {
@@ -110,7 +110,7 @@ pub fn GAlignments::filter_by_strand(
 ///|
 pub fn GAlignments::to_granges(self : GAlignments) -> GRanges {
   let n = self.length()
-  let ranges : Array[(Int, Int)] = Array::make(n, (0, 0))
+  let ranges : Array[(Int32, Int32)] = Array::make(n, (0, 0))
   let mut i = 0
   while i < n {
     ranges[i] = (self.starts[i], self.ends[i])
@@ -122,15 +122,15 @@ pub fn GAlignments::to_granges(self : GAlignments) -> GRanges {
 ///|
 pub struct Coverage {
   seqname : String
-  positions : Array[Int]
-  depths : Array[Int]
+  positions : Array[Int32]
+  depths : Array[Int32]
 }
 
 ///|
 pub fn coverage(galn : GAlignments) -> Array[Coverage] {
   let seqnames : Array[String] = Array(capacity=0)
-  let all_positions : Array[Array[Int]] = Array(capacity=0)
-  let all_depths : Array[Array[Int]] = Array(capacity=0)
+  let all_positions : Array[Array[Int32]] = Array(capacity=0)
+  let all_depths : Array[Array[Int32]] = Array(capacity=0)
 
   let mut i = 0
   while i < galn.length() {
@@ -209,8 +209,8 @@ pub fn coverage(galn : GAlignments) -> Array[Coverage] {
 ///|
 pub struct OverlapSummary {
   feature_id : String
-  mut count : Int
-  mut sum_width : Int
+  mut count : Int32
+  mut sum_width : Int32
   mut mean_width : Double
   mut coverage_fraction : Double
 }
@@ -218,8 +218,8 @@ pub struct OverlapSummary {
 ///|
 pub fn OverlapSummary::new(
   feature_id : String,
-  count : Int,
-  sum_width : Int,
+  count : Int32,
+  sum_width : Int32,
   mean_width : Double,
   coverage_fraction : Double,
 ) -> OverlapSummary {
@@ -233,7 +233,12 @@ pub fn OverlapSummary::new(
 }
 
 ///|
-fn ranges_overlap(start1 : Int, end1 : Int, start2 : Int, end2 : Int) -> Bool {
+fn ranges_overlap(
+  start1 : Int32,
+  end1 : Int32,
+  start2 : Int32,
+  end2 : Int32,
+) -> Bool {
   start1 <= end2 && start2 <= end1
 }
 
@@ -306,11 +311,11 @@ pub fn summarize_overlaps(
 ///|
 pub struct PileupElement {
   seqname : String
-  position : Int
-  mut depth : Int
+  position : Int32
+  mut depth : Int32
   ref_base : String
   alts : Array[String]
-  alt_counts : Array[Int]
+  alt_counts : Array[Int32]
 }
 
 ///|

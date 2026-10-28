@@ -44,7 +44,9 @@ fn main {
     g = g + 1
   }
   println("=== 1. Expression matrix ===")
-  println("genes: " + n_genes.to_string() + ", samples: " + n_samples.to_string())
+  println(
+    "genes: " + n_genes.to_string() + ", samples: " + n_samples.to_string(),
+  )
   println("")
 
   // ---- Section 2: discretize ----
@@ -63,9 +65,7 @@ fn main {
 
   // ---- Section 3: mutual information matrix ----
   println("=== 3. Mutual information matrix (Miller-Madow estimator, bits) ===")
-  let mim = @bio.minet_build_mim(disc) catch {
-    _ => abort("MIM build failed")
-  }
+  let mim = @bio.minet_build_mim(disc) catch { _ => abort("MIM build failed") }
   let mut header = "      "
   let mut gn = 0
   while gn < n_genes {
@@ -105,7 +105,12 @@ fn main {
       while ej < n_genes {
         if net[ei][ej] > 0.0 {
           println(
-            "  " + gene_names[ei] + " -- " + gene_names[ej] + "  weight=" + net[ei][ej].to_string(),
+            "  " +
+            gene_names[ei] +
+            " -- " +
+            gene_names[ej] +
+            "  weight=" +
+            net[ei][ej].to_string(),
           )
         }
         ej = ej + 1
@@ -118,7 +123,7 @@ fn main {
 
   // ---- Section 5: validate against the reference network ----
   // true edges: G0-G1, G0-G2, G1-G2 (program Z module), G4-G5 (program alt)
-  let reference : Array[Array[Int]] = []
+  let reference : Array[Array[Int32]] = []
   let mut ri = 0
   while ri < n_genes {
     reference.push(Array::make(n_genes, 0))
@@ -139,8 +144,14 @@ fn main {
       _ => abort("validation failed")
     }
     println(
-      "[" + name + "] AUROC=" + v.auc_roc.to_string() + "  AUPR=" + v.auc_pr.to_string() +
-        "  maxF=" + v.max_fscore.to_string(),
+      "[" +
+      name +
+      "] AUROC=" +
+      v.auc_roc.to_string() +
+      "  AUPR=" +
+      v.auc_pr.to_string() +
+      "  maxF=" +
+      v.max_fscore.to_string(),
     )
     vi = vi + 1
   }

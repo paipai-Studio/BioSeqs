@@ -69,7 +69,7 @@ pub fn unit_cell_volume(cell : UnitCell) -> Double {
 /// N_A = 6.02214076e23 /mol.
 pub fn crystal_density(
   cell : UnitCell,
-  z : Int,
+  z : Int32,
   molecular_weight : Double,
 ) -> Double {
   let v_ang3 = unit_cell_volume(cell)
@@ -200,13 +200,13 @@ pub fn cartesian_to_fractional(
 ///|
 /// A crystallographic space group.
 pub struct SpaceGroup {
-  number : Int // International Tables number (1-230)
+  number : Int32 // International Tables number (1-230)
   symbol : String // Hermann-Mauguin symbol, e.g. "P 21 21 21"
 }
 
 ///|
 /// Construct a SpaceGroup.
-pub fn SpaceGroup::new(number~ : Int, symbol~ : String) -> SpaceGroup {
+pub fn SpaceGroup::new(number~ : Int32, symbol~ : String) -> SpaceGroup {
   SpaceGroup::{ number, symbol, }
 }
 
@@ -215,7 +215,7 @@ pub fn SpaceGroup::new(number~ : Int, symbol~ : String) -> SpaceGroup {
 /// a small built-in table of the most common space groups; for unknown
 /// numbers a placeholder SpaceGroup with the given number and an empty
 /// symbol is returned.
-pub fn lookup_space_group(number : Int) -> SpaceGroup {
+pub fn lookup_space_group(number : Int32) -> SpaceGroup {
   match number {
     1 => SpaceGroup::new(number=1, symbol="P 1")
     2 => SpaceGroup::new(number=2, symbol="P -1")
@@ -263,8 +263,8 @@ pub fn CrystalAtom::new(
   x~ : Double,
   y~ : Double,
   z~ : Double,
-  occupancy? : Double = 1.0,
-  is_fractional? : Bool = true,
+  occupancy~ : Double = 1.0,
+  is_fractional~ : Bool = true,
 ) -> CrystalAtom {
   CrystalAtom::{ label, element, x, y, z, occupancy, is_fractional, }
 }
@@ -283,8 +283,8 @@ pub struct CrystalBond {
 pub fn CrystalBond::new(
   atom1~ : String,
   atom2~ : String,
-  bond_type? : String = "SINGLE",
-  distance? : Double = 0.0,
+  bond_type~ : String = "SINGLE",
+  distance~ : Double = 0.0,
 ) -> CrystalBond {
   CrystalBond::{ atom1, atom2, bond_type, distance, }
 }
@@ -297,7 +297,7 @@ pub struct CrystalStructure {
   space_group : SpaceGroup
   atoms : Array[CrystalAtom]
   bonds : Array[CrystalBond]
-  z : Int // number of formula units per unit cell
+  z : Int32 // number of formula units per unit cell
   molecular_weight : Double
 }
 
@@ -309,8 +309,8 @@ pub fn CrystalStructure::new(
   space_group~ : SpaceGroup,
   atoms~ : Array[CrystalAtom],
   bonds~ : Array[CrystalBond],
-  z? : Int = 1,
-  molecular_weight? : Double = 0.0,
+  z~ : Int32 = 1,
+  molecular_weight~ : Double = 0.0,
 ) -> CrystalStructure {
   CrystalStructure::{
     name,
@@ -814,12 +814,12 @@ pub fn format_crystal_structure(structure : CrystalStructure) -> String {
 /// Summary statistics for a crystal structure.
 pub struct CrystalSummary {
   name : String
-  n_atoms : Int
-  n_bonds : Int
+  n_atoms : Int32
+  n_bonds : Int32
   volume : Double
   density : Double
   space_group : String
-  z : Int
+  z : Int32
 }
 
 ///|
@@ -978,7 +978,7 @@ fn cif_tokenize(text : String) -> Array[String] {
 
 ///|
 /// Find the index of a header in a header array. Returns -1 if not found.
-fn cif_find_header(headers : Array[String], name : String) -> Int {
+fn cif_find_header(headers : Array[String], name : String) -> Int32 {
   for i in 0..<headers.length() {
     if headers[i] == name {
       return i
@@ -999,7 +999,7 @@ fn cif_get_scalar_double(block : CifBlock, name : String) -> Double {
 
 ///|
 /// Get a scalar int from a CifBlock, returning 0 if not present.
-fn cif_get_scalar_int(block : CifBlock, name : String) -> Int {
+fn cif_get_scalar_int(block : CifBlock, name : String) -> Int32 {
   let v = block.get_scalar(name)
   if v.length() == 0 {
     return 0
@@ -1036,7 +1036,7 @@ fn cif_parse_double(s : String) -> Double {
 
 ///|
 /// Parse an int from a CIF value string, stripping trailing uncertainty.
-fn cif_parse_int(s : String) -> Int {
+fn cif_parse_int(s : String) -> Int32 {
   let mut cleaned = ""
   let mut in_paren = false
   for i in 0..<s.length() {

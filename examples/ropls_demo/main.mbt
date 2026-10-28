@@ -4,11 +4,13 @@
 ///
 /// Run with: moon run examples/ropls_demo
 
+///|
 /// Round to 3 decimals for compact printed output.
 fn r3(v : Double) -> String {
   ((v * 1000.0).round() / 1000.0).to_string()
 }
 
+///|
 fn fmt_vec(v : Array[Double]) -> String {
   let s = StringBuilder()
   s.write_char('[')
@@ -22,6 +24,7 @@ fn fmt_vec(v : Array[Double]) -> String {
   s.to_string()
 }
 
+///|
 fn fmt_strs(v : Array[String]) -> String {
   let s = StringBuilder()
   s.write_char('[')
@@ -35,6 +38,7 @@ fn fmt_strs(v : Array[String]) -> String {
   s.to_string()
 }
 
+///|
 /// Deterministic two-group dataset (12 samples, 5 variables). Variables 0-2
 /// separate the groups; variables 3-4 are pure noise.
 fn make_x() -> Array[Array[Double]] {
@@ -53,6 +57,7 @@ fn make_x() -> Array[Array[Double]] {
   x
 }
 
+///|
 fn make_y(x : Array[Array[Double]]) -> Array[Array[Double]] {
   // Continuous response mostly driven by variables 0 and 2.
   let y : Array[Array[Double]] = Array(capacity=0)
@@ -62,6 +67,7 @@ fn make_y(x : Array[Array[Double]]) -> Array[Array[Double]] {
   y
 }
 
+///|
 fn main raise {
   let x = make_x()
   let labels : Array[String] = Array(capacity=0)
@@ -74,15 +80,23 @@ fn main raise {
   let pca = @src.ropls_pca(x, ncomp=2)
   println("R2X per component: " + fmt_vec(pca.r2x))
   println("R2X cumulative:    " + fmt_vec(pca.r2x_cum))
-  println("NIPALS iterations: " + pca.iters[0].to_string() + ", " +
-    pca.iters[1].to_string())
+  println(
+    "NIPALS iterations: " +
+    pca.iters[0].to_string() +
+    ", " +
+    pca.iters[1].to_string(),
+  )
 
   println("")
   println("== PLS regression (2 predictive components) ==")
   let pls = @src.ropls_fit(x, y=@src.RoplsY::Continuous(y), ncomp=2)
   println(
-    "R2X(cum)=" + fmt_vec(pls.r2x_cum) + " R2Y(cum)=" + fmt_vec(pls.r2y_cum) +
-      " Q2(cum)=" + fmt_vec(pls.q2_cum),
+    "R2X(cum)=" +
+    fmt_vec(pls.r2x_cum) +
+    " R2Y(cum)=" +
+    fmt_vec(pls.r2y_cum) +
+    " Q2(cum)=" +
+    fmt_vec(pls.q2_cum),
   )
   println("RMSEE = " + r3(pls.rmsee))
   println("VIP   = " + fmt_vec(pls.vip))
@@ -103,29 +117,39 @@ fn main raise {
 
   println("")
   println("== OPLS-DA (1 predictive + 1 orthogonal component) ==")
-  let oplsda =
-    @src.ropls_fit(x, y=@src.RoplsY::Classes(labels), ncomp=1, ortho=1)
+  let oplsda = @src.ropls_fit(
+    x,
+    y=@src.RoplsY::Classes(labels),
+    ncomp=1,
+    ortho=1,
+  )
   println(
-    "R2X(cum)=" + fmt_vec(oplsda.r2x_cum) + " R2Y(cum)=" +
-      fmt_vec(oplsda.r2y_cum) + " Q2(cum)=" + fmt_vec(oplsda.q2_cum),
+    "R2X(cum)=" +
+    fmt_vec(oplsda.r2x_cum) +
+    " R2Y(cum)=" +
+    fmt_vec(oplsda.r2y_cum) +
+    " Q2(cum)=" +
+    fmt_vec(oplsda.q2_cum),
   )
   println("orthogonal VIP: " + fmt_vec(oplsda.ortho_vip))
 
   println("")
   println("== Response permutation test (10 deterministic permutations) ==")
   let n = x.length()
-  let perms : Array[Array[Int]] = Array(capacity=0)
+  let perms : Array[Array[Int32]] = Array(capacity=0)
   for k in 0..<10 {
-    let p : Array[Int] = Array(capacity=0)
+    let p : Array[Int32] = Array(capacity=0)
     for i in 0..<n {
       p.push((i + 2 * k + 1) % n)
     }
     perms.push(p)
   }
-  let perm =
-    @src.ropls_permutation(x, y=@src.RoplsY::Continuous(y), perms=perms, ncomp=2)
-  println("observed R2Y=" + r3(perm.obs_r2y) +
-    " Q2=" + r3(perm.obs_q2))
-  println("p_R2Y=" + r3(perm.p_r2y) +
-    " p_Q2=" + r3(perm.p_q2))
+  let perm = @src.ropls_permutation(
+    x,
+    y=@src.RoplsY::Continuous(y),
+    perms~,
+    ncomp=2,
+  )
+  println("observed R2Y=" + r3(perm.obs_r2y) + " Q2=" + r3(perm.obs_q2))
+  println("p_R2Y=" + r3(perm.p_r2y) + " p_Q2=" + r3(perm.p_q2))
 }

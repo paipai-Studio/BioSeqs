@@ -10,15 +10,15 @@ pub struct SizeFactors {
 
 ///|
 pub struct LeidenClusterResult {
-  clusters : Array[Int]
+  clusters : Array[Int32]
   resolution : Double
-  n_clusters : Int
+  n_clusters : Int32
 }
 
 ///|
 pub struct ScoreMarkersResult {
   gene : Array[String]
-  cluster : Array[Int]
+  cluster : Array[Int32]
   avg_log2_fc : Array[Double]
   p_value : Array[Double]
   fdr : Array[Double]
@@ -26,8 +26,8 @@ pub struct ScoreMarkersResult {
 
 ///|
 pub fn compute_sum_factors(
-  counts : Array[Array[Int]],
-  sizes : Array[Int],
+  counts : Array[Array[Int32]],
+  sizes : Array[Int32],
 ) -> SizeFactors {
   let n_cells = counts.length()
   let n_genes = if n_cells > 0 { counts[0].length() } else { 0 }
@@ -73,10 +73,10 @@ pub fn compute_sum_factors(
       }
     }
 
-    let ranks : Array[Array[(Double, Int)]] = Array(capacity=0)
+    let ranks : Array[Array[(Double, Int32)]] = Array(capacity=0)
     let mut i = 0
     while i < n_genes {
-      let gene_ranks : Array[(Double, Int)] = Array(capacity=0)
+      let gene_ranks : Array[(Double, Int32)] = Array(capacity=0)
       let mut j = 0
       while j < n_cells {
         let norm_val = if current_sfs[j] > 0.0 {
@@ -109,11 +109,11 @@ pub fn compute_sum_factors(
       j = j + 1
     }
 
-    let subsets : Array[Array[Int]] = Array(capacity=0)
+    let subsets : Array[Array[Int32]] = Array(capacity=0)
     let mut seed = 0
     while subsets.length() < 100 {
-      let subset : Array[Int] = Array(capacity=0)
-      let used : Map[Int, Bool] = Map([], capacity=n_cells)
+      let subset : Array[Int32] = Array(capacity=0)
+      let used : Map[Int32, Bool] = Map([], capacity=n_cells)
 
       let mut m = 0
       while m < target_size && m < n_cells {
@@ -234,7 +234,7 @@ pub fn compute_sum_factors(
 
 ///|
 pub fn scran_log_normalize(
-  counts : Array[Array[Int]],
+  counts : Array[Array[Int32]],
   size_factors : Array[Double],
 ) -> Array[Array[Double]] {
   let n_cells = counts.length()
@@ -263,17 +263,17 @@ pub fn scran_log_normalize(
 ///|
 pub fn build_snn_graph(
   normalized : Array[Array[Double]],
-  k : Int,
-) -> (Array[Array[Int]], Array[Array[Double]]) {
+  k : Int32,
+) -> (Array[Array[Int32]], Array[Array[Double]]) {
   let n_cells = normalized.length()
   let n_genes = if n_cells > 0 { normalized[0].length() } else { 0 }
 
-  let adjacency : Array[Array[Int]] = Array::make(n_cells, [])
+  let adjacency : Array[Array[Int32]] = Array::make(n_cells, [])
   let weights : Array[Array[Double]] = Array::make(n_cells, [])
 
   let mut i = 0
   while i < n_cells {
-    let distances : Array[(Double, Int)] = Array(capacity=0)
+    let distances : Array[(Double, Int32)] = Array(capacity=0)
 
     let mut j = 0
     while j < n_cells {
@@ -307,7 +307,7 @@ pub fn build_snn_graph(
     } else {
       distances.length()
     }
-    let neighbors : Array[Int] = Array(capacity=0)
+    let neighbors : Array[Int32] = Array(capacity=0)
     let neighbor_weights : Array[Double] = Array(capacity=0)
 
     let mut j = 1
@@ -329,13 +329,13 @@ pub fn build_snn_graph(
 
 ///|
 pub fn leiden_clustering(
-  adjacency : Array[Array[Int]],
+  adjacency : Array[Array[Int32]],
   weights : Array[Array[Double]],
   resolution : Double,
 ) -> LeidenClusterResult {
   let n_cells = adjacency.length()
 
-  let clusters : Array[Int] = Array::make(n_cells, 0)
+  let clusters : Array[Int32] = Array::make(n_cells, 0)
   let mut i = 0
   while i < n_cells {
     clusters[i] = i
@@ -353,7 +353,7 @@ pub fn leiden_clustering(
       let mut best_cluster = current_cluster
       let mut best_gain = 0.0
 
-      let considered_clusters : Map[Int, Bool] = Map([], capacity=10)
+      let considered_clusters : Map[Int32, Bool] = Map([], capacity=10)
       considered_clusters[current_cluster] = true
 
       let mut j = 0
@@ -363,7 +363,7 @@ pub fn leiden_clustering(
         j = j + 1
       }
 
-      let keys_array : Array[Int] = Array(capacity=0)
+      let keys_array : Array[Int32] = Array(capacity=0)
       let keys_iter = considered_clusters.keys().collect()
       let mut k = 0
       while k < keys_iter.length() {
@@ -440,7 +440,7 @@ pub fn leiden_clustering(
     iter = iter + 1
   }
 
-  let cluster_ids : Map[Int, Int] = Map([], capacity=n_cells)
+  let cluster_ids : Map[Int32, Int32] = Map([], capacity=n_cells)
   let mut next_id = 0
   let mut i = 0
   while i < n_cells {
@@ -458,14 +458,14 @@ pub fn leiden_clustering(
 
 ///|
 pub fn score_markers(
-  counts : Array[Array[Int]],
-  clusters : Array[Int],
+  counts : Array[Array[Int32]],
+  clusters : Array[Int32],
   gene_names : Array[String],
 ) -> ScoreMarkersResult {
   let n_cells = counts.length()
   let n_genes = if n_cells > 0 { counts[0].length() } else { 0 }
 
-  let cluster_sizes : Map[Int, Int] = Map([], capacity=10)
+  let cluster_sizes : Map[Int32, Int32] = Map([], capacity=10)
   let mut i = 0
   while i < n_cells {
     let current = cluster_sizes.get(clusters[i])
@@ -478,7 +478,7 @@ pub fn score_markers(
   }
 
   let gene_result : Array[String] = Array(capacity=0)
-  let cluster_result : Array[Int] = Array(capacity=0)
+  let cluster_result : Array[Int32] = Array(capacity=0)
   let avg_log2_fc_result : Array[Double] = Array(capacity=0)
   let p_value_result : Array[Double] = Array(capacity=0)
 
@@ -553,10 +553,10 @@ pub fn score_markers(
 
 ///|
 fn scran_hypergeometric_test(
-  counts : Array[Array[Int]],
-  gene_idx : Int,
-  clusters : Array[Int],
-  cluster_id : Int,
+  counts : Array[Array[Int32]],
+  gene_idx : Int32,
+  clusters : Array[Int32],
+  cluster_id : Int32,
 ) -> Double {
   let n_cells = counts.length()
 
@@ -623,7 +623,7 @@ fn scran_hypergeometric_test(
 }
 
 ///|
-fn combination(n : Int, k : Int) -> Double {
+fn combination(n : Int32, k : Int32) -> Double {
   if k < 0 || k > n {
     return 0.0
   }
@@ -647,7 +647,7 @@ fn combination(n : Int, k : Int) -> Double {
 fn benjamini_hochberg_markers(p_values : Array[Double]) -> Array[Double] {
   let n = p_values.length()
 
-  let indexed : Array[(Double, Int)] = Array(capacity=0)
+  let indexed : Array[(Double, Int32)] = Array(capacity=0)
   let mut i = 0
   while i < n {
     indexed.push((p_values[i], i))
@@ -690,11 +690,11 @@ fn benjamini_hochberg_markers(p_values : Array[Double]) -> Array[Double] {
 }
 
 ///|
-pub fn create_example_scran_data() -> (Array[Array[Int]], Array[String]) {
+pub fn create_example_scran_data() -> (Array[Array[Int32]], Array[String]) {
   let n_cells = 100
   let n_genes = 500
 
-  let counts : Array[Array[Int]] = Array(capacity=0)
+  let counts : Array[Array[Int32]] = Array(capacity=0)
   let gene_names : Array[String] = Array(capacity=0)
 
   let mut i = 0
@@ -705,7 +705,7 @@ pub fn create_example_scran_data() -> (Array[Array[Int]], Array[String]) {
 
   let mut i = 0
   while i < n_cells {
-    let row : Array[Int] = Array(capacity=0)
+    let row : Array[Int32] = Array(capacity=0)
 
     let cluster = i / 20
 

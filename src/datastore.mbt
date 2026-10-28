@@ -67,8 +67,8 @@ pub struct Datastore {
   priv entries : Map[String, String]
   priv manifest : Map[String, String]
   priv tags : Map[String, String]
-  priv mut cache_hits : Int
-  priv mut cache_misses : Int
+  priv mut cache_hits : Int32
+  priv mut cache_misses : Int32
 }
 
 ///|
@@ -92,7 +92,7 @@ pub fn Datastore::root(self : Datastore) -> String {
 
 ///|
 /// Number of payloads held in the bag.
-pub fn Datastore::length(self : Datastore) -> Int {
+pub fn Datastore::length(self : Datastore) -> Int32 {
   self.entries.length()
 }
 
@@ -190,13 +190,13 @@ pub fn Datastore::fetch(
 
 ///|
 /// Number of cache hits recorded so far.
-pub fn Datastore::hits(self : Datastore) -> Int {
+pub fn Datastore::hits(self : Datastore) -> Int32 {
   self.cache_hits
 }
 
 ///|
 /// Number of cache misses recorded so far.
-pub fn Datastore::misses(self : Datastore) -> Int {
+pub fn Datastore::misses(self : Datastore) -> Int32 {
   self.cache_misses
 }
 
@@ -218,7 +218,7 @@ pub fn Datastore::entry(self : Datastore, name : String) -> DatastoreEntry? {
 
 ///|
 /// Total payload size in bytes (UTF-8), for BagIt's Payload-Oxum.
-pub fn Datastore::total_octets(self : Datastore) -> Int {
+pub fn Datastore::total_octets(self : Datastore) -> Int32 {
   let mut octets = 0
   for name in self.entries.keys() {
     match self.entries.get(name) {
@@ -378,7 +378,7 @@ pub fn md5_hex(text : String) -> String {
   while padded_len % 64 != 0 {
     padded_len = padded_len + 1
   }
-  let padded : Array[Int] = Array::make(padded_len, 0)
+  let padded : Array[Int32] = Array::make(padded_len, 0)
   for i in 0..<msg_len {
     padded[i] = bytes[i] & 0xFF
   }
@@ -389,7 +389,7 @@ pub fn md5_hex(text : String) -> String {
   padded[padded_len - 6] = (bit_len >> 16) & 0xFF
   padded[padded_len - 5] = (bit_len >> 24) & 0xFF
   // High 32 bits of the length stay zero for message sizes in memory.
-  let shifts : Array[Int] = [
+  let shifts : Array[Int32] = [
     7, 12, 17, 22, 7, 12, 17, 22, 7, 12, 17, 22, 7, 12, 17, 22, 5, 9, 14, 20, 5,
     9, 14, 20, 5, 9, 14, 20, 5, 9, 14, 20, 4, 11, 16, 23, 4, 11, 16, 23, 4, 11, 16,
     23, 4, 11, 16, 23, 6, 10, 15, 21, 6, 10, 15, 21, 6, 10, 15, 21, 6, 10, 15, 21,
@@ -401,7 +401,7 @@ pub fn md5_hex(text : String) -> String {
   let mut d0 = 271733878 // 0x10325476
   let nblocks = padded_len / 64
   for block in 0..<nblocks {
-    let m : Array[Int] = Array::make(16, 0)
+    let m : Array[Int32] = Array::make(16, 0)
     for j in 0..<16 {
       let off = block * 64 + j * 4
       m[j] = padded[off] |
@@ -455,8 +455,8 @@ pub fn md5_hex(text : String) -> String {
 
 ///|
 /// MD5 per-round constants K[i] = floor(|sin(i + 1)| * 2^32) as Int32.
-fn datastore_md5_k() -> Array[Int] {
-  let k : Array[Int] = Array::make(64, 0)
+fn datastore_md5_k() -> Array[Int32] {
+  let k : Array[Int32] = Array::make(64, 0)
   for i in 0..<64 {
     let v = @math.sin((i + 1).to_double()).abs() * 4294967296.0
     let vf = @math.floor(v)
@@ -471,19 +471,19 @@ fn datastore_md5_k() -> Array[Int] {
 
 ///|
 /// Rotate a 32-bit word left (Int arithmetic wraps modulo 2^32).
-fn datastore_rotl(x : Int, n : Int) -> Int {
+fn datastore_rotl(x : Int32, n : Int32) -> Int32 {
   (x << n) | datastore_lshr(x, 32 - n)
 }
 
 ///|
 /// Logical right shift for n in 1..31 built from the arithmetic shift.
-fn datastore_lshr(x : Int, n : Int) -> Int {
+fn datastore_lshr(x : Int32, n : Int32) -> Int32 {
   (x >> n) & ((1 << (32 - n)) - 1)
 }
 
 ///|
 /// One byte as two lowercase hex digits.
-fn datastore_byte_hex(b : Int) -> String {
+fn datastore_byte_hex(b : Int32) -> String {
   let digits = "0123456789abcdef"
   let hi = (b >> 4) & 0xF
   let lo = b & 0xF
@@ -492,8 +492,8 @@ fn datastore_byte_hex(b : Int) -> String {
 
 ///|
 /// Encode text as UTF-8 bytes (code units), combining surrogate pairs.
-fn datastore_utf8_bytes(text : String) -> Array[Int] {
-  let out : Array[Int] = []
+fn datastore_utf8_bytes(text : String) -> Array[Int32] {
+  let out : Array[Int32] = []
   let n = text.length()
   let mut i = 0
   while i < n {
@@ -514,7 +514,7 @@ fn datastore_utf8_bytes(text : String) -> Array[Int] {
 }
 
 ///|
-fn datastore_push_utf8(out : Array[Int], cp : Int) -> Unit {
+fn datastore_push_utf8(out : Array[Int32], cp : Int32) -> Unit {
   if cp < 0x80 {
     out.push(cp & 0xFF)
   } else if cp < 0x800 {
@@ -534,13 +534,13 @@ fn datastore_push_utf8(out : Array[Int], cp : Int) -> Unit {
 
 ///|
 /// UTF-8 byte length of a text.
-fn datastore_utf8_length(text : String) -> Int {
+fn datastore_utf8_length(text : String) -> Int32 {
   datastore_utf8_bytes(text).length()
 }
 
 ///|
 /// Minimal non-negative integer to string.
-fn datastore_int_to_string(v : Int) -> String {
+fn datastore_int_to_string(v : Int32) -> String {
   v.to_string()
 }
 

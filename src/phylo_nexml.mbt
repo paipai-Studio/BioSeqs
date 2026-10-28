@@ -13,6 +13,8 @@ pub struct NeXMLState {
   id : String
   symbol : String
 } derive(Eq)
+
+///|
 pub extend NeXMLState with Eq::{equal, not_equal}
 
 ///|
@@ -22,6 +24,8 @@ pub struct NeXMLCharacter {
   label : String
   states : Array[String]
 } derive(Eq)
+
+///|
 pub extend NeXMLCharacter with Eq::{equal, not_equal}
 
 ///|
@@ -33,6 +37,8 @@ pub struct NeXMLCharacters {
   characters : Array[NeXMLCharacter]
   matrix : Map[String, Array[String]]
 } derive(Eq)
+
+///|
 pub extend NeXMLCharacters with Eq::{equal, not_equal}
 
 ///|
@@ -41,6 +47,8 @@ pub struct NeXMLOTU {
   id : String
   label : String
 } derive(Eq)
+
+///|
 pub extend NeXMLOTU with Eq::{equal, not_equal}
 
 ///|
@@ -49,6 +57,8 @@ pub struct NeXMLOTUs {
   id : String
   otus : Array[NeXMLOTU]
 } derive(Eq)
+
+///|
 pub extend NeXMLOTUs with Eq::{equal, not_equal}
 
 ///|
@@ -59,6 +69,8 @@ pub struct NeXMLNode {
   otu : String
   length : Double?
 } derive(Eq)
+
+///|
 pub extend NeXMLNode with Eq::{equal, not_equal}
 
 ///|
@@ -69,6 +81,8 @@ pub struct NeXMLEdge {
   target : String
   length : Double?
 } derive(Eq)
+
+///|
 pub extend NeXMLEdge with Eq::{equal, not_equal}
 
 ///|
@@ -81,6 +95,8 @@ pub struct NeXMLTree {
   nodes : Array[NeXMLNode]
   edges : Array[NeXMLEdge]
 } derive(Eq)
+
+///|
 pub extend NeXMLTree with Eq::{equal, not_equal}
 
 ///|
@@ -90,6 +106,8 @@ pub struct NeXMLTrees {
   otus_id : String
   trees : Array[NeXMLTree]
 } derive(Eq)
+
+///|
 pub extend NeXMLTrees with Eq::{equal, not_equal}
 
 ///|
@@ -101,6 +119,8 @@ pub struct NeXMLDocument {
   characters_blocks : Array[NeXMLCharacters]
   trees_blocks : Array[NeXMLTrees]
 } derive(Eq)
+
+///|
 pub extend NeXMLDocument with Eq::{equal, not_equal}
 
 // ============================================================================
@@ -147,7 +167,7 @@ pub fn NeXMLNode::new(
   id : String,
   label : String,
   otu : String,
-  length? : Double? = None,
+  length~ : Double? = None,
 ) -> NeXMLNode {
   NeXMLNode::{ id, label, otu, length, }
 }
@@ -157,7 +177,7 @@ pub fn NeXMLEdge::new(
   id : String,
   source : String,
   target : String,
-  length? : Double? = None,
+  length~ : Double? = None,
 ) -> NeXMLEdge {
   NeXMLEdge::{ id, source, target, length, }
 }
@@ -185,8 +205,8 @@ pub fn NeXMLTrees::new(
 
 ///|
 pub fn NeXMLDocument::new(
-  version? : String = "0.9",
-  generator? : String = "",
+  version~ : String = "0.9",
+  generator~ : String = "",
 ) -> NeXMLDocument {
   NeXMLDocument::{
     version,
@@ -726,7 +746,7 @@ pub fn nexml_get_tree_names(doc : NeXMLDocument) -> Array[String] {
 
 ///|
 /// Get the number of trees in a NeXML document.
-pub fn nexml_get_tree_count(doc : NeXMLDocument) -> Int {
+pub fn nexml_get_tree_count(doc : NeXMLDocument) -> Int32 {
   let mut count = 0
   for i = 0; i < doc.trees_blocks.length(); i = i + 1 {
     count = count + doc.trees_blocks[i].trees.length()
@@ -736,7 +756,7 @@ pub fn nexml_get_tree_count(doc : NeXMLDocument) -> Int {
 
 ///|
 /// Get the number of OTUs in a NeXML document.
-pub fn nexml_get_otu_count(doc : NeXMLDocument) -> Int {
+pub fn nexml_get_otu_count(doc : NeXMLDocument) -> Int32 {
   let mut count = 0
   for i = 0; i < doc.otus_blocks.length(); i = i + 1 {
     count = count + doc.otus_blocks[i].otus.length()

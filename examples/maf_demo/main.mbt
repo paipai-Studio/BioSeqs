@@ -1,7 +1,6 @@
 ///|
 /// MAF (Multiple Alignment Format) Demo.
 /// Demonstrates parsing, writing, and analyzing MAF alignment data.
-
 fn main {
   println("=== MAF (Multiple Alignment Format) Demo ===\n")
 
@@ -33,7 +32,9 @@ fn main {
     let identity = @src.maf_block_percent_identity(block)
     let n_seqs = @src.maf_block_num_seqs(block)
     let aln_len = @src.maf_block_alignment_length(block)
-    println("   Block \{i}: %identity = \{identity}%, seqs = \{n_seqs}, columns = \{aln_len}")
+    println(
+      "   Block \{i}: %identity = \{identity}%, seqs = \{n_seqs}, columns = \{aln_len}",
+    )
     i = i + 1
   }
 
@@ -53,7 +54,9 @@ fn main {
   println("\n5. Filtering by minimum alignment length...")
   let filtered = @src.maf_filter_by_length(ali, 10)
   println("   Original blocks: \{@src.maf_num_blocks(ali)}")
-  println("   Filtered blocks (min length 10): \{@src.maf_num_blocks(filtered)}")
+  println(
+    "   Filtered blocks (min length 10): \{@src.maf_num_blocks(filtered)}",
+  )
   let mut j = 0
   while j < filtered.blocks.length() {
     let block = filtered.blocks[j]

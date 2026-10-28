@@ -51,7 +51,7 @@ fn trim_whitespace(s : String) -> String {
 /// Find the index of the matching closing parenthesis starting from `start`.
 /// The string at `start` should be an opening '('.
 /// Returns None if no matching paren is found.
-fn find_matching_paren(s : String, start : Int) -> Int? {
+fn find_matching_paren(s : String, start : Int32) -> Int32? {
   let n = s.length()
   let mut depth = 0
   let mut i = start
@@ -73,7 +73,10 @@ fn find_matching_paren(s : String, start : Int) -> Int? {
 ///|
 /// Parse a non-negative integer from a string starting at `pos`.
 /// Returns the parsed integer and the position after the last digit.
-fn parse_int_at(s : String, pos : Int) -> (Int, Int) raise LocationParserError {
+fn parse_int_at(
+  s : String,
+  pos : Int32,
+) -> (Int32, Int32) raise LocationParserError {
   let n = s.length()
   let mut i = pos
   let mut result = 0
@@ -276,7 +279,7 @@ pub fn CompoundLocation::compound_to_string(self : CompoundLocation) -> String {
 /// Determine the compound strand by checking all parts.
 /// If all parts share the same strand, return that strand.
 /// Otherwise return None.
-fn CompoundLocation::_compound_strand(self : CompoundLocation) -> Int? {
+fn CompoundLocation::_compound_strand(self : CompoundLocation) -> Int32? {
   if self.parts.length() == 0 {
     return None
   }
@@ -419,7 +422,7 @@ pub fn parse_simple_location(
 ///   - "complement(join(1..100,200..300))" → (ParsedCompoundLocation, -1)
 pub fn parse_complement_location(
   loc_string : String,
-) -> (ParsedLocation, Int) raise LocationParserError {
+) -> (ParsedLocation, Int32) raise LocationParserError {
   let trimmed = trim_whitespace(loc_string)
   let prefix = "complement("
   if !trimmed.has_prefix(prefix) {
@@ -539,8 +542,8 @@ pub fn parse_location_string(
 
 ///|
 /// Set the strand on a FeatureLocation, creating a new copy.
-fn _set_strand(loc : FeatureLocation, strand : Int) -> FeatureLocation {
-  let new_strand : Int? = if strand == 1 {
+fn _set_strand(loc : FeatureLocation, strand : Int32) -> FeatureLocation {
+  let new_strand : Int32? = if strand == 1 {
     Some(1)
   } else if strand == -1 {
     Some(-1)
@@ -572,6 +575,8 @@ pub struct SeqFeatureExtended {
   id : String
   description : String
 } derive(Eq)
+
+///|
 pub extend SeqFeatureExtended with Eq::{equal, not_equal}
 
 ///|
@@ -585,8 +590,8 @@ pub extend SeqFeatureExtended with Eq::{equal, not_equal}
 pub fn SeqFeatureExtended::new(
   location : FeatureLocation,
   type_ : String,
-  id? : String = "",
-  description? : String = "",
+  id~ : String = "",
+  description~ : String = "",
 ) -> SeqFeatureExtended {
   SeqFeatureExtended::{
     location,
@@ -749,7 +754,7 @@ pub fn feature_location_complement(loc : FeatureLocation) -> FeatureLocation {
 /// by updating both the main position and the fuzzy boundaries.
 pub fn feature_location_shift(
   loc : FeatureLocation,
-  offset : Int,
+  offset : Int32,
 ) -> FeatureLocation {
   let new_start = _shift_position(loc.start, offset)
   let new_end = _shift_position(loc.end, offset)
@@ -764,7 +769,7 @@ pub fn feature_location_shift(
 
 ///|
 /// Shift a single Position by the given offset.
-fn _shift_position(pos : Position, offset : Int) -> Position {
+fn _shift_position(pos : Position, offset : Int32) -> Position {
   match pos {
     ExactPosition(p) => ExactPosition(p + offset)
     WithinPosition(p, fs, fe) =>

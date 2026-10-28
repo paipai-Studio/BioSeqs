@@ -11,24 +11,36 @@
 /// Four tight 2D blobs of six points each (deterministic jitter).
 fn demo_blobs() -> Array[Array[Double]] {
   [
-    [-0.12545988, 0.45071431], [0.23199394, 0.09865848],
-    [-0.34398136, -0.34400548], [-0.44191639, 0.36617615],
-    [0.10111501, 0.20807258], [-0.47941551, 0.46990985],
-    [10.33244264, 9.71233911], [9.68182497, 9.68340451],
-    [9.80424224, 10.02475643], [9.93194502, 9.79122914],
-    [10.11185289, 9.63949386], [9.79214465, 9.86636184],
-    [-0.04393002, 10.28517596], [-0.30032622, 10.01423444],
-    [0.09241457, 9.54645041], [0.10754485, 9.67052412],
-    [-0.43494841, 10.44888554], [0.46563203, 10.30839735],
-    [9.80461377, -0.40232789], [10.18423303, -0.05984751],
-    [9.62203823, -0.00482309], [9.53438852, 0.40932040],
-    [9.75877998, 0.16252228], [9.81171108, 0.02006802],
+    [-0.12545988, 0.45071431],
+    [0.23199394, 0.09865848],
+    [-0.34398136, -0.34400548],
+    [-0.44191639, 0.36617615],
+    [0.10111501, 0.20807258],
+    [-0.47941551, 0.46990985],
+    [10.33244264, 9.71233911],
+    [9.68182497, 9.68340451],
+    [9.80424224, 10.02475643],
+    [9.93194502, 9.79122914],
+    [10.11185289, 9.63949386],
+    [9.79214465, 9.86636184],
+    [-0.04393002, 10.28517596],
+    [-0.30032622, 10.01423444],
+    [0.09241457, 9.54645041],
+    [0.10754485, 9.67052412],
+    [-0.43494841, 10.44888554],
+    [0.46563203, 10.30839735],
+    [9.80461377, -0.40232789],
+    [10.18423303, -0.05984751],
+    [9.62203823, -0.00482309],
+    [9.53438852, 0.40932040],
+    [9.75877998, 0.16252228],
+    [9.81171108, 0.02006802],
   ]
 }
 
 ///|
-fn cluster_sizes(res : @src.ApResult) -> Array[Int] {
-  let out : Array[Int] = []
+fn cluster_sizes(res : @src.ApResult) -> Array[Int32] {
+  let out : Array[Int32] = []
   for members in res.clusters() {
     out.push(members.length())
   }
@@ -41,7 +53,9 @@ fn print_result(title : String, res : @src.ApResult) -> Unit {
   println("exemplars (0-based): \{res.exemplars()}")
   println("cluster sizes:       \{cluster_sizes(res)}")
   println("iters:               \{res.iters()}  converged: \{res.converged()}")
-  println("netsim: \{res.netsim()} (dpsim=\{res.dpsim()}, expref=\{res.expref()})")
+  println(
+    "netsim: \{res.netsim()} (dpsim=\{res.dpsim()}, expref=\{res.expref()})",
+  )
   println("")
 }
 
@@ -75,7 +89,9 @@ fn main raise {
   println("p=+10   -> clusters: \{hi.num_clusters()}")
   // very low preference: a single consensus exemplar
   let lo = @src.apcluster(sim=s, p=Some(-100000.0))
-  println("p=-1e5  -> clusters: \{lo.num_clusters()} exemplar: \{lo.exemplars()}")
+  println(
+    "p=-1e5  -> clusters: \{lo.num_clusters()} exemplar: \{lo.exemplars()}",
+  )
   println("")
 
   println("=== 5. corSimMat: co-expression style grouping ===")
@@ -91,5 +107,7 @@ fn main raise {
   println("=== 6. Noise runs (deterministic with apcluster_seed) ===")
   @src.apcluster_seed(2026)
   let rn = @src.apcluster(sim=s, nonoise=5)
-  println("nonoise=5 -> clusters: \{rn.num_clusters()} exemplars: \{rn.exemplars()}")
+  println(
+    "nonoise=5 -> clusters: \{rn.num_clusters()} exemplars: \{rn.exemplars()}",
+  )
 }

@@ -65,9 +65,9 @@ pub struct StageRConfig {
 
 ///|
 pub fn StageRConfig::new(
-  alpha? : Double = 0.05,
-  pScreenAdjusted? : Bool = false,
-  stageMethod? : StageRMethod = Holm,
+  alpha~ : Double = 0.05,
+  pScreenAdjusted~ : Bool = false,
+  stageMethod~ : StageRMethod = Holm,
 ) -> StageRConfig {
   StageRConfig::{ alpha, pScreenAdjusted, stageMethod, }
 }
@@ -87,11 +87,11 @@ pub struct StageRResult {
   /// Adjusted alpha level for confirmation stage = (R/G) * alpha.
   alphaAdjusted : Double
   /// Number of significant genes (passing screening).
-  nSignificantGenes : Int
+  nSignificantGenes : Int32
   /// Total number of genes.
-  nGenes : Int
+  nGenes : Int32
   /// Number of confirmation hypotheses per gene.
-  nHypotheses : Int
+  nHypotheses : Int32
 }
 
 // ============================================================================
@@ -107,7 +107,7 @@ pub fn stage_r_bh_adjust(pvalues : Array[Double]) -> Array[Double] {
     return []
   }
   // Create index-value pairs and sort by p-value ascending.
-  let pairs : Array[(Int, Double)] = []
+  let pairs : Array[(Int32, Double)] = []
   let mut i = 0
   while i < n {
     pairs.push((i, pvalues[i]))
@@ -229,7 +229,7 @@ fn holm_stepdown(
     return []
   }
   // Create index-value pairs and sort by p-value ascending.
-  let pairs : Array[(Int, Double)] = []
+  let pairs : Array[(Int32, Double)] = []
   let mut i = 0
   while i < n {
     pairs.push((i, pvalues[i]))
@@ -271,7 +271,7 @@ fn holm_stepdown(
 
 ///|
 /// Compute the adjustment multiplier vector for a given method.
-fn get_adjustment_vector(method_ : StageRMethod, n : Int) -> Array[Double] {
+fn get_adjustment_vector(method_ : StageRMethod, n : Int32) -> Array[Double] {
   if method_ is None {
     let adj : Array[Double] = []
     let mut i = 0
@@ -451,8 +451,8 @@ pub fn get_results(result : StageRResult) -> Array[Array[Bool]] {
 
 ///|
 /// Get indices of significant genes (passing screening).
-pub fn get_significant_genes(result : StageRResult) -> Array[Int] {
-  let genes : Array[Int] = []
+pub fn get_significant_genes(result : StageRResult) -> Array[Int32] {
+  let genes : Array[Int32] = []
   let mut i = 0
   while i < result.nGenes {
     if result.pAdjScreen[i] <= result.alpha {
@@ -466,8 +466,10 @@ pub fn get_significant_genes(result : StageRResult) -> Array[Int] {
 ///|
 /// Get indices of significant confirmation hypotheses across all genes.
 /// Returns (gene_index, hypothesis_index) pairs.
-pub fn get_significant_hypotheses(result : StageRResult) -> Array[(Int, Int)] {
-  let sigs : Array[(Int, Int)] = []
+pub fn get_significant_hypotheses(
+  result : StageRResult,
+) -> Array[(Int32, Int32)] {
+  let sigs : Array[(Int32, Int32)] = []
   let mut i = 0
   while i < result.nGenes {
     if result.pAdjScreen[i] <= result.alpha {

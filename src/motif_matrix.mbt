@@ -32,7 +32,7 @@ pub struct MotifPWM {
 /// Position Specific Scoring Matrix: PWM rounded to integers for fast scanning.
 pub struct MotifPSSM {
   alphabet : Array[String]
-  values : Array[Array[Int]]
+  values : Array[Array[Int32]]
   background : Array[Double]
   pseudocount : Double
   scale : Double
@@ -42,15 +42,19 @@ pub struct MotifPSSM {
 /// Construct a PFM from raw count matrix (rows=positions, cols=alphabet order).
 pub fn MotifPFM::new(
   alphabet : Array[String],
-  counts : Array[Array[Double]]
+  counts : Array[Array[Double]],
 ) -> MotifPFM {
-  let n_seqs = if counts.length() > 0 { counts[0][0] + counts[0][1] + counts[0][2] + counts[0][3] } else { 0.0 }
-  MotifPFM::{ alphabet, counts, n_seqs }
+  let n_seqs = if counts.length() > 0 {
+    counts[0][0] + counts[0][1] + counts[0][2] + counts[0][3]
+  } else {
+    0.0
+  }
+  MotifPFM::{ alphabet, counts, n_seqs, }
 }
 
 ///|
 /// Create a 2D Double array with independent rows.
-fn motif_matrix_make2d(rows : Int, cols : Int) -> Array[Array[Double]] {
+fn motif_matrix_make2d(rows : Int32, cols : Int32) -> Array[Array[Double]] {
   let result : Array[Array[Double]] = []
   let mut i = 0
   while i < rows {
@@ -62,8 +66,8 @@ fn motif_matrix_make2d(rows : Int, cols : Int) -> Array[Array[Double]] {
 
 ///|
 /// Create a 2D Int array with independent rows.
-fn motif_matrix_make2d_int(rows : Int, cols : Int) -> Array[Array[Int]] {
-  let result : Array[Array[Int]] = []
+fn motif_matrix_make2d_int(rows : Int32, cols : Int32) -> Array[Array[Int32]] {
+  let result : Array[Array[Int32]] = []
   let mut i = 0
   while i < rows {
     result.push(Array::make(cols, 0))
@@ -74,7 +78,10 @@ fn motif_matrix_make2d_int(rows : Int, cols : Int) -> Array[Array[Int]] {
 
 ///|
 /// Construct a PFM from a list of binding sites (strings over alphabet).
-pub fn motif_pfm_from_sites(alphabet : Array[String], sites : Array[String]) -> MotifPFM {
+pub fn motif_pfm_from_sites(
+  alphabet : Array[String],
+  sites : Array[String],
+) -> MotifPFM {
   let n_alpha = alphabet.length()
   let n_pos = if sites.length() > 0 { sites[0].length() } else { 0 }
   let counts : Array[Array[Double]] = []
@@ -107,7 +114,10 @@ pub fn motif_pfm_from_sites(alphabet : Array[String], sites : Array[String]) -> 
 
 ///|
 /// Convert PFM to PPM by normalizing counts to probabilities.
-pub fn motif_pfm_to_ppm(pfm : MotifPFM, pseudocount~ : Double = 0.0) -> MotifPPM {
+pub fn motif_pfm_to_ppm(
+  pfm : MotifPFM,
+  pseudocount~ : Double = 0.0,
+) -> MotifPPM {
   let n_pos = pfm.counts.length()
   let n_alpha = pfm.alphabet.length()
   let values = motif_matrix_make2d(n_pos, n_alpha)
@@ -123,14 +133,14 @@ pub fn motif_pfm_to_ppm(pfm : MotifPFM, pseudocount~ : Double = 0.0) -> MotifPPM
     }
     p = p + 1
   }
-  MotifPPM::{ alphabet: pfm.alphabet, values, pseudocount }
+  MotifPPM::{ alphabet: pfm.alphabet, values, pseudocount, }
 }
 
 ///|
 /// Convert PPM to PWM using log-odds with background frequencies.
 pub fn motif_ppm_to_pwm(
   ppm : MotifPPM,
-  background~ : Array[Double] = []
+  background~ : Array[Double] = [],
 ) -> MotifPWM {
   let n_pos = ppm.values.length()
   let n_alpha = ppm.alphabet.length()
@@ -151,7 +161,12 @@ pub fn motif_ppm_to_pwm(
     }
     p = p + 1
   }
-  MotifPWM::{ alphabet: ppm.alphabet, values, background: bg, pseudocount: ppm.pseudocount }
+  MotifPWM::{
+    alphabet: ppm.alphabet,
+    values,
+    background: bg,
+    pseudocount: ppm.pseudocount,
+  }
 }
 
 ///|
@@ -159,7 +174,7 @@ pub fn motif_ppm_to_pwm(
 pub fn motif_pfm_to_pwm(
   pfm : MotifPFM,
   background~ : Array[Double] = [],
-  pseudocount~ : Double = 1.0
+  pseudocount~ : Double = 1.0,
 ) -> MotifPWM {
   let ppm = motif_pfm_to_ppm(pfm, pseudocount~)
   motif_ppm_to_pwm(ppm, background~)
@@ -182,7 +197,13 @@ pub fn motif_pwm_to_pssm(pwm : MotifPWM, scale~ : Double = 100.0) -> MotifPSSM {
     }
     p = p + 1
   }
-  MotifPSSM::{ alphabet: pwm.alphabet, values, background: pwm.background, pseudocount: pwm.pseudocount, scale }
+  MotifPSSM::{
+    alphabet: pwm.alphabet,
+    values,
+    background: pwm.background,
+    pseudocount: pwm.pseudocount,
+    scale,
+  }
 }
 
 ///|
@@ -192,7 +213,7 @@ pub fn motif_build_pssm(
   sites : Array[String],
   background~ : Array[Double] = [],
   pseudocount~ : Double = 1.0,
-  scale~ : Double = 100.0
+  scale~ : Double = 100.0,
 ) -> MotifPSSM {
   let pfm = motif_pfm_from_sites(alphabet, sites)
   let pwm = motif_pfm_to_pwm(pfm, background~, pseudocount~)
@@ -257,7 +278,7 @@ pub fn motif_pwm_score(pwm : MotifPWM, seq : String) -> Double {
       }
       a = a + 1
     }
-    if !(found) {
+    if !found {
       return -1.0e30
     }
     p = p + 1
@@ -267,7 +288,7 @@ pub fn motif_pwm_score(pwm : MotifPWM, seq : String) -> Double {
 
 ///|
 /// Score a sequence against a PSSM (integer score).
-pub fn motif_pssm_score(pssm : MotifPSSM, seq : String) -> Int {
+pub fn motif_pssm_score(pssm : MotifPSSM, seq : String) -> Int32 {
   let n_pos = pssm.values.length()
   if seq.length() < n_pos {
     return -2147483648
@@ -285,7 +306,7 @@ pub fn motif_pssm_score(pssm : MotifPSSM, seq : String) -> Int {
       }
       a = a + 1
     }
-    if !(found) {
+    if !found {
       return -2147483648
     }
     p = p + 1
@@ -298,10 +319,10 @@ pub fn motif_pssm_score(pssm : MotifPSSM, seq : String) -> Int {
 pub fn motif_pwm_scan(
   pwm : MotifPWM,
   seq : String,
-  threshold : Double
-) -> Array[(Int, Double)] {
+  threshold : Double,
+) -> Array[(Int32, Double)] {
   let n_pos = pwm.values.length()
-  let results : Array[(Int, Double)] = []
+  let results : Array[(Int32, Double)] = []
   let mut i = 0
   while i <= seq.length() - n_pos {
     let sub = seq[i:i + n_pos].to_owned()
@@ -379,7 +400,12 @@ pub fn motif_pwm_reverse_complement(pwm : MotifPWM) -> MotifPWM {
     }
     p = p + 1
   }
-  MotifPWM::{ alphabet: pwm.alphabet, values: rev_values, background: pwm.background, pseudocount: pwm.pseudocount }
+  MotifPWM::{
+    alphabet: pwm.alphabet,
+    values: rev_values,
+    background: pwm.background,
+    pseudocount: pwm.pseudocount,
+  }
 }
 
 ///|

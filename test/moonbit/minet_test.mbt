@@ -5,7 +5,7 @@
 /// runtime is required.
 
 ///|
-fn minet_close(a : Double, b : Double, tol? : Double = 1.0e-9) -> Bool {
+fn minet_close(a : Double, b : Double, tol~ : Double = 1.0e-9) -> Bool {
   (a - b).abs() < tol
 }
 
@@ -220,11 +220,11 @@ test "minet_network_methods_hand_matrix" {
 ///   G3 = G2 with sample 10 flipped; G4 independent (alternating).
 /// Direct links are G1-G2 and G2-G3; G1-G3 is indirect and should
 /// be pruned by DPI / downweighted by CLR / skipped by mRMR.
-fn minet_chain_genes() -> Array[Array[Int]] {
-  let g1 : Array[Int] = []
-  let g2 : Array[Int] = []
-  let g3 : Array[Int] = []
-  let g4 : Array[Int] = []
+fn minet_chain_genes() -> Array[Array[Int32]] {
+  let g1 : Array[Int32] = []
+  let g2 : Array[Int32] = []
+  let g3 : Array[Int32] = []
+  let g4 : Array[Int32] = []
   let mut i = 0
   while i < 20 {
     let v1 = if i < 10 { 1 } else { 2 }
@@ -349,7 +349,7 @@ test "minet_validate_scores" {
     [0.85, 0.0, 0.0, 0.0],
   ]
   // reference: only AB and BC are true edges
-  let reference : Array[Array[Int]] = [
+  let reference : Array[Array[Int32]] = [
     [0, 1, 0, 0],
     [1, 0, 1, 0],
     [0, 1, 0, 0],

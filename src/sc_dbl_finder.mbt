@@ -33,7 +33,7 @@ pub fn DoubletScore::new(
 ///|
 pub fn scdf_compute_doublet_score(
   data : SingleCellData,
-  _k : Int,
+  _k : Int32,
 ) -> Array[DoubletScore] {
   let n_cells = data.cell_names.length()
   let _n_genes = data.gene_names.length()
@@ -80,8 +80,8 @@ pub fn scdf_compute_distance(
 ///|
 pub fn scdf_find_nearest_neighbors(
   data : SingleCellData,
-  cell_idx : Int,
-  k : Int,
+  cell_idx : Int32,
+  k : Int32,
 ) -> Array[(String, Double)] {
   let n_cells = data.cell_names.length()
   let distances : Array[(String, Double)] = Array(capacity=0)
@@ -129,7 +129,11 @@ pub fn scdf_sort_by_distance(
 }
 
 ///|
-fn scdf_find_min(arr : Array[(String, Double)], start : Int, end : Int) -> Int {
+fn scdf_find_min(
+  arr : Array[(String, Double)],
+  start : Int32,
+  end : Int32,
+) -> Int32 {
   let mut min_idx = start
   let mut i = start + 1
   while i < end {
@@ -223,7 +227,7 @@ pub fn scdf_filter_doublets(
 ///|
 pub fn scdf_compute_pca(
   data : SingleCellData,
-  n_components : Int,
+  n_components : Int32,
 ) -> Array[Array[Double]] {
   let n_cells = data.cell_names.length()
   let n_genes = data.gene_names.length()

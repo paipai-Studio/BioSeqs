@@ -7,16 +7,16 @@
 /// Represents a frequency analysis result.
 pub struct FreqAnalysisResult {
   frequencies : Map[String, Double]
-  counts : Map[String, Int]
-  total_count : Int
+  counts : Map[String, Int32]
+  total_count : Int32
 }
 
 ///|
 /// Create a new frequency analysis result.
 pub fn FreqAnalysisResult::new(
   frequencies : Map[String, Double],
-  counts : Map[String, Int],
-  total_count : Int,
+  counts : Map[String, Int32],
+  total_count : Int32,
 ) -> FreqAnalysisResult {
   FreqAnalysisResult::{ frequencies, counts, total_count, }
 }
@@ -35,13 +35,15 @@ pub fn FreqAnalysisResult::fa_get_frequency(
 pub fn FreqAnalysisResult::fa_get_count(
   self : FreqAnalysisResult,
   pattern : String,
-) -> Int {
+) -> Int32 {
   self.counts.get_or_default(pattern, 0)
 }
 
 ///|
 /// Get total count.
-pub fn FreqAnalysisResult::fa_get_total_count(self : FreqAnalysisResult) -> Int {
+pub fn FreqAnalysisResult::fa_get_total_count(
+  self : FreqAnalysisResult,
+) -> Int32 {
   self.total_count
 }
 
@@ -59,7 +61,7 @@ pub fn FreqAnalysisResult::fa_get_patterns(
 
 ///|
 /// Count occurrences of a pattern in a sequence string.
-pub fn fa_count_pattern(sequence : String, pattern : String) -> Int {
+pub fn fa_count_pattern(sequence : String, pattern : String) -> Int32 {
   let pattern_len = pattern.length()
   if pattern_len == 0 || sequence.length() < pattern_len {
     return 0
@@ -79,8 +81,8 @@ pub fn fa_count_pattern(sequence : String, pattern : String) -> Int {
 
 ///|
 /// Count k-mer frequencies in a sequence string.
-pub fn fa_count_kmers(sequence : String, k : Int) -> FreqAnalysisResult {
-  let counts : Map[String, Int] = Map([], capacity=100)
+pub fn fa_count_kmers(sequence : String, k : Int32) -> FreqAnalysisResult {
+  let counts : Map[String, Int32] = Map([], capacity=100)
   let seq_len = sequence.length()
 
   if seq_len < k {
@@ -174,7 +176,7 @@ pub fn fa_dinucleotide_oe_ratio(sequence : String) -> Map[String, Double] {
 ///|
 /// Count codon usage frequencies in a coding sequence.
 pub fn fa_codon_usage(sequence : String) -> FreqAnalysisResult {
-  let counts : Map[String, Int] = Map([], capacity=64)
+  let counts : Map[String, Int32] = Map([], capacity=64)
   let seq_len = sequence.length()
 
   if seq_len < 3 {
@@ -240,9 +242,9 @@ pub fn fa_chi_square_test(
 /// Find the most overrepresented k-mer in a sequence.
 pub fn fa_find_overrepresented(
   sequence : String,
-  k : Int,
+  k : Int32,
 ) -> Map[String, Double] {
-  let counts : Map[String, Int] = Map([], capacity=100)
+  let counts : Map[String, Int32] = Map([], capacity=100)
   let seq_len = sequence.length()
 
   if seq_len < k {
@@ -282,8 +284,8 @@ pub fn fa_find_overrepresented(
 
 ///|
 /// Find all occurrences of a motif in a sequence.
-pub fn fa_find_motif(sequence : String, motif : String) -> Array[Int] {
-  let positions : Array[Int] = Array(capacity=0)
+pub fn fa_find_motif(sequence : String, motif : String) -> Array[Int32] {
+  let positions : Array[Int32] = Array(capacity=0)
   let motif_len = motif.length()
   let seq_len = sequence.length()
 

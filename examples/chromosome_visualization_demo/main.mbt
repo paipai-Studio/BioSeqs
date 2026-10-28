@@ -9,21 +9,9 @@ fn main {
   println("")
 
   println("1. Creating Chromosome Features")
-  let gene1 = @bio.ChrFeature::new(
-    name="BRCA1",
-    start=1000.0,
-    end=5000.0,
-  )
-  let gene2 = @bio.ChrFeature::new(
-    name="TP53",
-    start=10000.0,
-    end=15000.0,
-  )
-  let gene3 = @bio.ChrFeature::new(
-    name="EGFR",
-    start=20000.0,
-    end=25000.0,
-  )
+  let gene1 = @bio.ChrFeature::new(name="BRCA1", start=1000.0, end=5000.0)
+  let gene2 = @bio.ChrFeature::new(name="TP53", start=10000.0, end=15000.0)
+  let gene3 = @bio.ChrFeature::new(name="EGFR", start=20000.0, end=25000.0)
   println("   Created features:")
   println("     - BRCA1")
   println("     - TP53")
@@ -47,20 +35,14 @@ fn main {
     .add_feature(gene2)
     .add_feature(gene3)
   println("   Added 3 features to chromosome")
-  println("   Total features: " + chr1_with_features.features.length().to_string())
+  println(
+    "   Total features: " + chr1_with_features.features.length().to_string(),
+  )
   println("")
 
   println("4. Adding Regions and Bands")
-  let region1 = @bio.ChrRegion::new(
-    name="Region1",
-    start=0.0,
-    end=8000.0,
-  )
-  let region2 = @bio.ChrRegion::new(
-    name="Region2",
-    start=18000.0,
-    end=28000.0,
-  )
+  let region1 = @bio.ChrRegion::new(name="Region1", start=0.0, end=8000.0)
+  let region2 = @bio.ChrRegion::new(name="Region2", start=18000.0, end=28000.0)
   let chr_full = chr1_with_features
     .add_region(region1)
     .add_region(region2)
@@ -76,7 +58,10 @@ fn main {
   let all_features = chr_full.features
   let features_in_region = chr_full.features_in_region(5000.0, 12000.0)
   println("   All features: " + all_features.length().to_string())
-  println("   Features in region 5000-12000: " + features_in_region.length().to_string())
+  println(
+    "   Features in region 5000-12000: " +
+    features_in_region.length().to_string(),
+  )
   println("")
 
   println("6. Band Color Calculation")
@@ -103,7 +88,9 @@ fn main {
   println("")
 
   println("8. Generating SVG Output")
-  let svg_elements = @bio.chr_chromosome_to_svg(chr_full, layout, 50.0, 100.0, 0.02)
+  let svg_elements = @bio.chr_chromosome_to_svg(
+    chr_full, layout, 50.0, 100.0, 0.02,
+  )
   println("   SVG elements generated: " + svg_elements.length().to_string())
   println("   First element type: " + svg_elements[0].element_type)
   println("")
@@ -115,8 +102,12 @@ fn main {
     centromere_pos=0.0,
     is_circular=true,
   )
-  let bacterial_svg = @bio.chr_chromosome_to_svg(bacterial_chr, layout, 50.0, 100.0, 0.001)
-  println("   Circular chromosome SVG elements: " + bacterial_svg.length().to_string())
+  let bacterial_svg = @bio.chr_chromosome_to_svg(
+    bacterial_chr, layout, 50.0, 100.0, 0.001,
+  )
+  println(
+    "   Circular chromosome SVG elements: " + bacterial_svg.length().to_string(),
+  )
   println("")
 
   println("=== Demo completed successfully! ===")

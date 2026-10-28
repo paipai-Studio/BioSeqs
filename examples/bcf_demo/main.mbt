@@ -14,16 +14,18 @@ fn main raise {
   )
 
   println("=== header ===")
-  println("contigs: \{bcf.header.contig_names[0]}, \{bcf.header.contig_names[1]}")
-  println("filters: \{bcf.header.id_name(bcf.header.filter_ids[0])}, \{bcf.header.id_name(bcf.header.filter_ids[1])}")
+  println(
+    "contigs: \{bcf.header.contig_names[0]}, \{bcf.header.contig_names[1]}",
+  )
+  println(
+    "filters: \{bcf.header.id_name(bcf.header.filter_ids[0])}, \{bcf.header.id_name(bcf.header.filter_ids[1])}",
+  )
   println("samples: \{bcf.header.sample_names[0]}")
 
   println("\n=== records ===")
   for i = 0; i < bcf.records.length(); i = i + 1 {
     let r = bcf.records[i]
-    println(
-      "\{r.chrom}:\{r.pos} \{r.ref_seq}>\{r.alt[0]} id=\{r.id}",
-    )
+    println("\{r.chrom}:\{r.pos} \{r.ref_seq}>\{r.alt[0]} id=\{r.id}")
     for j = 0; j < r.info.length(); j = j + 1 {
       let inf = r.info[j]
       let name = bcf.header.id_name(inf.key_id)
@@ -41,7 +43,9 @@ fn main raise {
       if name == "GT" {
         match (fm.values[0], fm.values[1]) {
           (BcfInt(a), BcfInt(b)) =>
-            println("  FORMAT GT = \{@src.bcf_gt_allele(a)}/\{@src.bcf_gt_allele(b)}")
+            println(
+              "  FORMAT GT = \{@src.bcf_gt_allele(a)}/\{@src.bcf_gt_allele(b)}",
+            )
           _ => println("  FORMAT GT = ?")
         }
       }

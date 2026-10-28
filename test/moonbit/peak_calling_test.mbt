@@ -560,7 +560,7 @@ test "peak_calling_apply_fdr_monotonic" {
   for p in result {
     pairs.push((p.p_value, p.fdr))
   }
-  pairs.sort_by(fn(a : (Double, Double), b : (Double, Double)) -> Int {
+  pairs.sort_by(fn(a : (Double, Double), b : (Double, Double)) -> Int32 {
     if a.0 < b.0 {
       -1
     } else if a.0 > b.0 {

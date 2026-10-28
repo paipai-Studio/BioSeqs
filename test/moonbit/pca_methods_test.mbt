@@ -24,11 +24,14 @@ fn pm_data() -> Array[Array[Double]] {
   ]
 }
 
-
-
 ///|
 test "ppca_matches_reference" {
-  let r = @src.ppca(matrix=pm_data(), n_pcs=2, max_iterations=2000, threshold=1.0e-5)
+  let r = @src.ppca(
+    matrix=pm_data(),
+    n_pcs=2,
+    max_iterations=2000,
+    threshold=1.0e-5,
+  )
   // noise variance is invariant
   assert_true(@moonbit.assert_num_close(r.sigma2, 0.0009643751, 1.0e-6))
   // loadings (D×k) — magnitudes match the numpy reference
@@ -66,7 +69,12 @@ test "bpca_imputation_is_reasonable" {
 
 ///|
 test "ppca_bpca_shapes" {
-  let r = @src.ppca(matrix=pm_data(), n_pcs=2, max_iterations=2000, threshold=1.0e-5)
+  let r = @src.ppca(
+    matrix=pm_data(),
+    n_pcs=2,
+    max_iterations=2000,
+    threshold=1.0e-5,
+  )
   assert_eq(r.scores.length(), 8)
   assert_eq(r.scores[0].length(), 2)
   assert_eq(r.loadings.length(), 5)

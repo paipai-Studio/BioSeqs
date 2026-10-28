@@ -1,7 +1,6 @@
 ///|
 /// Bio.Blast.Applications Demo - BLAST command-line tool wrappers.
 /// Inspired by Biopython's Bio.Blast.Applications package.
-
 fn main {
   println("=== Bio.Blast.Applications Demo ===")
 
@@ -22,13 +21,17 @@ fn main {
   // 3. Quick builders
   println("")
   println("3. Quick BLAST command builders:")
-  let quick_blastp = @bio.blastapp_quick_blastp("myquery.fasta", "swissprot", "1e-10")
+  let quick_blastp = @bio.blastapp_quick_blastp(
+    "myquery.fasta", "swissprot", "1e-10",
+  )
   println("   Quick blastp: " + quick_blastp.blastapp_build_command())
   let quick_blastn = @bio.blastapp_quick_blastn("gene.fa", "nt", "1e-50")
   println("   Quick blastn: " + quick_blastn.blastapp_build_command())
   let quick_blastx = @bio.blastapp_quick_blastx("nt_query.fa", "nr", "1e-5")
   println("   Quick blastx: " + quick_blastx.blastapp_build_command())
-  let quick_tblastn = @bio.blastapp_quick_tblastn("protein.fa", "genome_db", "1e-5")
+  let quick_tblastn = @bio.blastapp_quick_tblastn(
+    "protein.fa", "genome_db", "1e-5",
+  )
   println("   Quick tblastn: " + quick_tblastn.blastapp_build_command())
 
   // 4. Makeblastdb command

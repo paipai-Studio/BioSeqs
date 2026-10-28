@@ -18,7 +18,7 @@ pub struct ReducedAlphabet {
   /// Name of the reduced alphabet
   name : String
   /// Number of groups
-  n_groups : Int
+  n_groups : Int32
   /// Mapping from single-letter amino acid code to group letter
   mapping : Map[String, String]
   /// Group definitions (which amino acids are in each group)
@@ -43,7 +43,7 @@ pub fn ReducedAlphabet::get_name(self : ReducedAlphabet) -> String {
 
 ///|
 /// Get the number of groups.
-pub fn ReducedAlphabet::get_n_groups(self : ReducedAlphabet) -> Int {
+pub fn ReducedAlphabet::get_n_groups(self : ReducedAlphabet) -> Int32 {
   self.n_groups
 }
 

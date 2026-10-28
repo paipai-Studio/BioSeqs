@@ -17,7 +17,10 @@ fn main {
 
   // intersect A against B
   let hit = @src.bedtools_intersect(
-    [@src.BedInterval::new("chr1", 0, 10), @src.BedInterval::new("chr1", 15, 25)],
+    [
+      @src.BedInterval::new("chr1", 0, 10),
+      @src.BedInterval::new("chr1", 15, 25),
+    ],
     [@src.BedInterval::new("chr1", 5, 20)],
   )
   println("=== intersect (A overlapping B) ===")
@@ -31,22 +34,35 @@ fn main {
 
   // closest / window
   let cl = @src.bedtools_closest(
-    [@src.BedInterval::new("chr1", 100, 200), @src.BedInterval::new("chr1", 500, 600)],
-    [@src.BedInterval::new("chr1", 250, 300), @src.BedInterval::new("chr1", 450, 480)],
+    [
+      @src.BedInterval::new("chr1", 100, 200),
+      @src.BedInterval::new("chr1", 500, 600),
+    ],
+    [
+      @src.BedInterval::new("chr1", 250, 300),
+      @src.BedInterval::new("chr1", 450, 480),
+    ],
   )
   for r in cl {
-    println("  closest: \{r.a.start}-\{r.a.end} -> \{r.b.start}-\{r.b.end} (d=\{r.distance})")
+    println(
+      "  closest: \{r.a.start}-\{r.a.end} -> \{r.b.start}-\{r.b.end} (d=\{r.distance})",
+    )
   }
 
   // coverage + genomecov
-  let cov = @src.bedtools_coverage(
-    [@src.BedInterval::new("chr1", 0, 10)],
-    [@src.BedInterval::new("chr1", 3, 7), @src.BedInterval::new("chr1", 6, 9)],
-  )
+  let cov = @src.bedtools_coverage([@src.BedInterval::new("chr1", 0, 10)], [
+    @src.BedInterval::new("chr1", 3, 7),
+    @src.BedInterval::new("chr1", 6, 9),
+  ])
   for c in cov {
-    println("  coverage: count=\{c.count} covered=\{c.bases_covered}/\{c.length} frac=\{c.fraction}")
+    println(
+      "  coverage: count=\{c.count} covered=\{c.bases_covered}/\{c.length} frac=\{c.fraction}",
+    )
   }
-  let segs = @src.bedtools_genomecov_bg([@src.BedInterval::new("chr1", 3, 7), @src.BedInterval::new("chr1", 6, 9)])
+  let segs = @src.bedtools_genomecov_bg([
+    @src.BedInterval::new("chr1", 3, 7),
+    @src.BedInterval::new("chr1", 6, 9),
+  ])
   for s in segs {
     println("  genomecov: \{s.chrom}:\{s.start}-\{s.end} depth=\{s.depth}")
   }

@@ -20,7 +20,7 @@
 /// Build suffix array by sorting suffix indices.
 /// O(n log n) via comparison-based sort.
 /// Returns SA where SA[i] = starting position of the i-th smallest suffix.
-pub fn bwa_suffix_array(text : String) -> Array[Int] {
+pub fn bwa_suffix_array(text : String) -> Array[Int32] {
   let n = text.length()
   let sa = Array::makei(n, fn(i) { i })
   sa.sort_by(fn(a, b) {
@@ -56,7 +56,7 @@ pub fn bwa_suffix_array(text : String) -> Array[Int] {
 ///|
 /// Compute BWT from text and suffix array.
 /// BWT[i] = text[SA[i] - 1] if SA[i] > 0, else '$' (sentinel).
-pub fn bwa_bwt(text : String, sa : Array[Int]) -> String {
+pub fn bwa_bwt(text : String, sa : Array[Int32]) -> String {
   let n = text.length()
   let buf : StringBuilder = StringBuilder()
   for i = 0; i < n; i = i + 1 {
@@ -84,11 +84,11 @@ pub fn bwa_bwt_from_text(text : String) -> String {
 /// FM-index structure.
 pub struct FmIndex {
   bwt : String
-  sa : Array[Int]        // suffix array (kept for locate)
-  c : Map[Char, Int]     // C[c] = number of chars < c in text
-  occ : Map[Char, Array[Int]]  // OCC[c][i] = count of c in BWT[0:i]
-  n : Int                // text length
-  sample_rate : Int      // SA sampling rate
+  sa : Array[Int32] // suffix array (kept for locate)
+  c : Map[Char, Int32] // C[c] = number of chars < c in text
+  occ : Map[Char, Array[Int32]] // OCC[c][i] = count of c in BWT[0:i]
+  n : Int32 // text length
+  sample_rate : Int32 // SA sampling rate
 }
 
 ///|
@@ -100,7 +100,7 @@ pub fn fm_index_build(text : String) -> FmIndex {
   let sa = bwa_suffix_array(ext)
   let bwt = bwa_bwt(ext, sa)
   // Build C array: C[c] = count of characters lexicographically less than c
-  let char_counts : Map[Char, Int] = Map([], capacity=0)
+  let char_counts : Map[Char, Int32] = Map([], capacity=0)
   for i = 0; i < n; i = i + 1 {
     let c = ext[i].unsafe_to_char()
     match char_counts.get(c) {
@@ -113,18 +113,16 @@ pub fn fm_index_build(text : String) -> FmIndex {
   for k, _v in char_counts {
     chars.push(k)
   }
-  chars.sort_by(fn(a, b) {
-    if a < b { -1 } else if a > b { 1 } else { 0 }
-  })
+  chars.sort_by(fn(a, b) { if a < b { -1 } else if a > b { 1 } else { 0 } })
   // C[c] = cumulative count of chars before c
-  let c_map : Map[Char, Int] = Map([])
+  let c_map : Map[Char, Int32] = Map([])
   let mut cum = 0
   for ch in chars {
     c_map[ch] = cum
     cum = cum + char_counts.get(ch).unwrap_or(0)
   }
   // Build OCC table: OCC[c][i] = number of c in BWT[0:i]
-  let occ : Map[Char, Array[Int]] = Map([], capacity=0)
+  let occ : Map[Char, Array[Int32]] = Map([], capacity=0)
   for ch in chars {
     occ[ch] = Array::make(n + 1, 0)
   }
@@ -143,7 +141,7 @@ pub fn fm_index_build(text : String) -> FmIndex {
       }
     }
   }
-  { bwt, sa, c: c_map, occ, n, sample_rate: 1 }
+  { bwt, sa, c: c_map, occ, n, sample_rate: 1, }
 }
 
 // ============================================================================
@@ -152,9 +150,9 @@ pub fn fm_index_build(text : String) -> FmIndex {
 
 ///|
 /// Occ(c, i): number of character c in BWT[0:i).
-fn fm_occ(index : FmIndex, c : Char, i : Int) -> Int {
+fn fm_occ(index : FmIndex, c : Char, i : Int32) -> Int32 {
   match index.occ.get(c) {
-    Some(arr) => {
+    Some(arr) =>
       if i < 0 {
         0
       } else if i > index.n {
@@ -162,14 +160,13 @@ fn fm_occ(index : FmIndex, c : Char, i : Int) -> Int {
       } else {
         arr[i]
       }
-    }
     None => 0
   }
 }
 
 ///|
 /// LF-mapping: LF(i) = C[BWT[i]] + Occ(BWT[i], i)
-fn _fm_lf(index : FmIndex, i : Int) -> Int {
+fn _fm_lf(index : FmIndex, i : Int32) -> Int32 {
   let c = index.bwt[i].unsafe_to_char()
   let c_val = match index.c.get(c) {
     Some(v) => v
@@ -182,7 +179,7 @@ fn _fm_lf(index : FmIndex, i : Int) -> Int {
 /// Backward search for exact pattern matching.
 /// Returns (left, right) such that SA[left..right] are all occurrences.
 /// Returns (-1, -1) if pattern not found.
-pub fn fm_backward_search(index : FmIndex, pattern : String) -> (Int, Int) {
+pub fn fm_backward_search(index : FmIndex, pattern : String) -> (Int32, Int32) {
   let m = pattern.length()
   if m == 0 {
     return (0, index.n)
@@ -209,12 +206,12 @@ pub fn fm_backward_search(index : FmIndex, pattern : String) -> (Int, Int) {
 ///|
 /// Locate all occurrences of a pattern in the text.
 /// Returns array of 0-based positions.
-pub fn fm_locate(index : FmIndex, pattern : String) -> Array[Int] {
+pub fn fm_locate(index : FmIndex, pattern : String) -> Array[Int32] {
   let (lo, hi) = fm_backward_search(index, pattern)
   if lo < 0 {
     return []
   }
-  let positions : Array[Int] = Array(capacity=0)
+  let positions : Array[Int32] = Array(capacity=0)
   for i = lo; i < hi; i = i + 1 {
     let pos = index.sa[i]
     // Filter out the sentinel position (last position in extended text)
@@ -233,10 +230,10 @@ pub fn fm_locate(index : FmIndex, pattern : String) -> Array[Int] {
 ///|
 /// A candidate in the backtracking search.
 struct BtEntry {
-  pos : Int      // position in pattern (from right)
-  lo : Int       // current interval [lo, hi)
-  hi : Int
-  edits : Int    // edits used so far
+  pos : Int32 // position in pattern (from right)
+  lo : Int32 // current interval [lo, hi)
+  hi : Int32
+  edits : Int32 // edits used so far
   cigar : Array[Char] // operations (reversed)
 }
 
@@ -244,9 +241,9 @@ struct BtEntry {
 /// Inexact backward search with edit distance ≤ max_edits.
 /// Returns array of (position, edit_distance, cigar_string).
 pub struct BwaHit {
-  pos : Int          // 0-based position in text
-  edits : Int        // edit distance
-  cigar : String     // CIGAR string
+  pos : Int32 // 0-based position in text
+  edits : Int32 // edit distance
+  cigar : String // CIGAR string
 }
 
 ///|
@@ -254,14 +251,14 @@ pub struct BwaHit {
 pub fn fm_inexact_search(
   index : FmIndex,
   pattern : String,
-  max_edits : Int,
+  max_edits : Int32,
 ) -> Array[BwaHit] {
   let m = pattern.length()
   if m == 0 {
     return []
   }
   let results : Array[BwaHit] = Array(capacity=0)
-  let seen : Map[Int, Bool] = Map([], capacity=0)
+  let seen : Map[Int32, Bool] = Map([], capacity=0)
   // BFS/DFS backtracking
   let stack : Array[BtEntry] = Array(capacity=0)
   stack.push({
@@ -285,13 +282,13 @@ pub fn fm_inexact_search(
           seen[sa_pos] = true
           let cigar_arr = entry.cigar
           {
-          let n = cigar_arr.length()
-          for i = 0; i < n / 2; i = i + 1 {
-            let tmp = cigar_arr[i]
-            cigar_arr[i] = cigar_arr[n - 1 - i]
-            cigar_arr[n - 1 - i] = tmp
+            let n = cigar_arr.length()
+            for i = 0; i < n / 2; i = i + 1 {
+              let tmp = cigar_arr[i]
+              cigar_arr[i] = cigar_arr[n - 1 - i]
+              cigar_arr[n - 1 - i] = tmp
+            }
           }
-        }
           results.push({
             pos: sa_pos,
             edits: entry.edits,
@@ -304,7 +301,6 @@ pub fn fm_inexact_search(
     let c = pattern[entry.pos].unsafe_to_char()
     // 1. Match (or mismatch)
     for ch, _occ_arr in index.occ {
-      
       let c_val = match index.c.get(ch) {
         Some(v) => v
         None => continue
@@ -408,7 +404,7 @@ pub struct BwaIndex {
 /// Build BWA index from a reference sequence.
 pub fn bwa_index_build(ref_name : String, ref_seq : String) -> BwaIndex {
   let fm = fm_index_build(ref_seq)
-  { ref_name, ref_seq, fm }
+  { ref_name, ref_seq, fm, }
 }
 
 ///|
@@ -416,11 +412,11 @@ pub fn bwa_index_build(ref_name : String, ref_seq : String) -> BwaIndex {
 /// Uses exact matching first, falls back to inexact if needed.
 pub struct BwaAlignment {
   ref_name : String
-  pos : Int          // 0-based position
-  strand : Int       // 0=forward, 1=reverse
-  edits : Int
+  pos : Int32 // 0-based position
+  strand : Int32 // 0=forward, 1=reverse
+  edits : Int32
   cigar : String
-  score : Int
+  score : Int32
 }
 
 ///|
@@ -482,7 +478,13 @@ pub fn bwa_align(index : BwaIndex, read : String) -> Array[BwaAlignment] {
   }
   // Sort by score descending
   results.sort_by(fn(a, b) {
-    if a.score > b.score { -1 } else if a.score < b.score { 1 } else { 0 }
+    if a.score > b.score {
+      -1
+    } else if a.score < b.score {
+      1
+    } else {
+      0
+    }
   })
   results
 }
@@ -505,7 +507,21 @@ pub fn bwa_to_sam(
     read_seq
   }
   let nm_tag = "NM:i:" + aln.edits.to_string()
-  read_name + "\t" + flag.to_string() + "\t" + aln.ref_name + "\t" + pos.to_string() + "\t" + mapq.to_string() + "\t" + cigar + "\t*\t0\t0\t" + seq + "\t*\t" + nm_tag
+  read_name +
+  "\t" +
+  flag.to_string() +
+  "\t" +
+  aln.ref_name +
+  "\t" +
+  pos.to_string() +
+  "\t" +
+  mapq.to_string() +
+  "\t" +
+  cigar +
+  "\t*\t0\t0\t" +
+  seq +
+  "\t*\t" +
+  nm_tag
 }
 
 ///|
@@ -516,7 +532,13 @@ pub fn bwa_align_batch(
 ) -> String {
   let buf : StringBuilder = StringBuilder()
   // SAM header
-  buf.write_string("@SQ\tSN:" + index.ref_name + "\tLN:" + index.ref_seq.length().to_string() + "\n")
+  buf.write_string(
+    "@SQ\tSN:" +
+    index.ref_name +
+    "\tLN:" +
+    index.ref_seq.length().to_string() +
+    "\n",
+  )
   for (name, seq) in reads {
     let results = bwa_align(index, seq)
     if results.length() == 0 {

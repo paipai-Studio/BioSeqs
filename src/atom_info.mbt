@@ -220,18 +220,19 @@ pub fn covalent_radius(element : String) -> Double {
 ///|
 /// Formal charge for common amino-acid atom types.
 /// Returns 0 for neutral/unknown.
-pub fn formal_charge(resname : String, atom_name : String) -> Int {
+pub fn formal_charge(resname : String, atom_name : String) -> Int32 {
   let r = to_uppercase(resname)
   let a = to_uppercase(atom_name)
   // Negative: carboxylate oxygens
-  if (r == "ASP" || r == "GLU") && (a == "OD1" || a == "OD2" || a == "OE1" || a == "OE2") {
+  if (r == "ASP" || r == "GLU") &&
+    (a == "OD1" || a == "OD2" || a == "OE1" || a == "OE2") {
     return -1
   }
   // Positive: amine nitrogens
   if a == "NZ" && r == "LYS" {
     return 1
   }
-  if a == "NH1" || a == "NH2" && r == "ARG" {
+  if a == "NH1" || (a == "NH2" && r == "ARG") {
     return 1
   }
   if a == "NE" && r == "ARG" {

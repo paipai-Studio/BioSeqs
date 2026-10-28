@@ -10,8 +10,8 @@
 ///|
 /// A conformational ensemble of CA coordinates.
 pub struct Ensemble {
-  n_res : Int
-  n_conf : Int
+  n_res : Int32
+  n_conf : Int32
   // coords[conf][res] = (x, y, z)
   coords : Array[Array[(Double, Double, Double)]]
   // Superimposed coords
@@ -22,8 +22,8 @@ pub struct Ensemble {
 ///|
 /// PCA result.
 pub struct EnsemblePCA {
-  n_res : Int
-  n_modes : Int
+  n_res : Int32
+  n_modes : Int32
   eigenvalues : Array[Double]
   eigenvectors : Array[Array[Double]] // 3N × n_modes
   variance_explained : Array[Double]
@@ -69,14 +69,20 @@ pub fn Ensemble::new(chains : Array[Chain]) -> Ensemble? {
     }
     aligned.push(copy)
   }
-  Some(Ensemble::{ n_res, n_conf, coords: all_coords, aligned, is_aligned: false })
+  Some(Ensemble::{
+    n_res,
+    n_conf,
+    coords: all_coords,
+    aligned,
+    is_aligned: false,
+  })
 }
 
 ///|
 /// Superimpose all conformations onto the first (reference).
 pub fn Ensemble::superimpose(self : Ensemble) -> Ensemble {
   if self.n_conf <= 1 {
-    return Ensemble::{ ..self, is_aligned: true }
+    return Ensemble::{ ..self, is_aligned: true, }
   }
   let reference = self.coords[0]
   let aligned : Array[Array[(Double, Double, Double)]] = Array(capacity=0)
@@ -96,17 +102,13 @@ pub fn Ensemble::superimpose(self : Ensemble) -> Ensemble {
     }
     aligned.push(shifted)
   }
-  Ensemble::{ ..self, aligned, is_aligned: true }
+  Ensemble::{ ..self, aligned, is_aligned: true, }
 }
 
 ///|
 /// Perform PCA on the ensemble.
 pub fn Ensemble::pca(self : Ensemble) -> EnsemblePCA? {
-  let ens = if self.is_aligned {
-    self
-  } else {
-    self.superimpose()
-  }
+  let ens = if self.is_aligned { self } else { self.superimpose() }
   let n = ens.n_res
   let m = ens.n_conf
   let dim = 3 * n
@@ -129,7 +131,7 @@ pub fn Ensemble::pca(self : Ensemble) -> EnsemblePCA? {
   }
   // Build covariance matrix (dim × dim)
   // C = (1/(m-1)) * sum_c (x_c - mean)(x_c - mean)^T
-  let cov : Array[Array[Double]] = Array::makei(dim, { _ => Array::make(dim, 0.0) })
+  let cov : Array[Array[Double]] = Array::makei(dim, _ => Array::make(dim, 0.0))
   for c = 0; c < m; c = c + 1 {
     // Displacement vector
     let disp = Array::make(dim, 0.0)
@@ -157,7 +159,7 @@ pub fn Ensemble::pca(self : Ensemble) -> EnsemblePCA? {
   let max_iter = if dim > 100 { dim * 20 } else { 200 }
   let (eigenvalues, eigenvectors) = linalg_jacobi(cov, dim, max_iter)
   // Sort descending
-  let indices = Array::makei(dim, { i => i })
+  let indices = Array::makei(dim, i => i)
   for i = 1; i < dim; i = i + 1 {
     let key = indices[i]
     let key_val = eigenvalues[key]
@@ -179,7 +181,9 @@ pub fn Ensemble::pca(self : Ensemble) -> EnsemblePCA? {
     n_modes = 1
   }
   let sorted_eigenvalues = Array::make(n_modes, 0.0)
-  let sorted_eigenvectors : Array[Array[Double]] = Array::makei(dim, { _ => Array::make(n_modes, 0.0) })
+  let sorted_eigenvectors : Array[Array[Double]] = Array::makei(dim, _ => {
+    Array::make(n_modes, 0.0)
+  })
   for k = 0; k < n_modes; k = k + 1 {
     sorted_eigenvalues[k] = eigenvalues[indices[k]]
     for i = 0; i < dim; i = i + 1 {
@@ -218,7 +222,9 @@ pub fn EnsemblePCA::get_eigenvalues(self : EnsemblePCA) -> Array[Double] {
 
 ///|
 /// Get eigenvectors (columns are PCs).
-pub fn EnsemblePCA::get_eigenvectors(self : EnsemblePCA) -> Array[Array[Double]] {
+pub fn EnsemblePCA::get_eigenvectors(
+  self : EnsemblePCA,
+) -> Array[Array[Double]] {
   self.eigenvectors
 }
 
@@ -230,7 +236,7 @@ pub fn EnsemblePCA::get_variance_explained(self : EnsemblePCA) -> Array[Double] 
 
 ///|
 /// Number of modes.
-pub fn EnsemblePCA::num_modes(self : EnsemblePCA) -> Int {
+pub fn EnsemblePCA::num_modes(self : EnsemblePCA) -> Int32 {
   self.n_modes
 }
 
@@ -264,31 +270,38 @@ pub fn EnsemblePCA::project(
 
 ///|
 /// Mean coordinates.
-pub fn EnsemblePCA::mean_structure(self : EnsemblePCA) -> Array[(Double, Double, Double)] {
+pub fn EnsemblePCA::mean_structure(
+  self : EnsemblePCA,
+) -> Array[(Double, Double, Double)] {
   self.mean_coords
 }
 
 ///|
 /// Number of conformations.
-pub fn Ensemble::num_conformations(self : Ensemble) -> Int {
+pub fn Ensemble::num_conformations(self : Ensemble) -> Int32 {
   self.n_conf
 }
 
 ///|
 /// Number of residues.
-pub fn Ensemble::num_residues(self : Ensemble) -> Int {
+pub fn Ensemble::num_residues(self : Ensemble) -> Int32 {
   self.n_res
 }
 
 ///|
 /// Get aligned coordinates for a specific conformation.
-pub fn Ensemble::get_aligned(self : Ensemble, conf : Int) -> Array[(Double, Double, Double)] {
+pub fn Ensemble::get_aligned(
+  self : Ensemble,
+  conf : Int32,
+) -> Array[(Double, Double, Double)] {
   self.aligned[conf]
 }
 
 ///|
 /// Compute 3D centroid.
-fn centroid_3d(coords : Array[(Double, Double, Double)]) -> (Double, Double, Double) {
+fn centroid_3d(
+  coords : Array[(Double, Double, Double)],
+) -> (Double, Double, Double) {
   let n = coords.length()
   if n == 0 {
     return (0.0, 0.0, 0.0)

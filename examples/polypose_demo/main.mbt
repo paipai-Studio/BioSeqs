@@ -1,6 +1,5 @@
 ///|
 /// Demo for polypose module: multi-conformer PDB structures (NMR ensembles).
-
 fn main {
   println("=== polypose Demo: Multi-Conformer Structures ===")
   println("")
@@ -22,8 +21,18 @@ fn main {
   let r5 = @src.PpyResidue::new("GLY", 2, [a5])
   let r6 = @src.PpyResidue::new("LEU", 3, [a6])
   let c2 = @src.PpyConformer::new("model_2", [r4, r5, r6])
-  println("Conformer 1: " + c1.conformer_id + ", residues=" + c1.residues.length().to_string())
-  println("Conformer 2: " + c2.conformer_id + ", residues=" + c2.residues.length().to_string())
+  println(
+    "Conformer 1: " +
+    c1.conformer_id +
+    ", residues=" +
+    c1.residues.length().to_string(),
+  )
+  println(
+    "Conformer 2: " +
+    c2.conformer_id +
+    ", residues=" +
+    c2.residues.length().to_string(),
+  )
   println("")
 
   // Example 2: Build a multi-conformer structure
@@ -31,7 +40,12 @@ fn main {
   let st0 = @src.ppy_new("nmr_bundle")
   let st1 = @src.ppy_add_conformer(st0, c1)
   let st = @src.ppy_add_conformer(st1, c2)
-  println("Structure: " + st.name + ", conformers=" + @src.ppy_n_conformers(st).to_string())
+  println(
+    "Structure: " +
+    st.name +
+    ", conformers=" +
+    @src.ppy_n_conformers(st).to_string(),
+  )
   println("")
 
   // Example 3: Extract Cα coordinates
@@ -40,7 +54,17 @@ fn main {
   let _coords2 = @src.ppy_coords(c2, "CA")
   println("Conformer 1 Cα coords: " + coords1.length().to_string() + " points")
   for i in 0..<coords1.length() {
-    println("  ALA " + (i+1).to_string() + ": (" + coords1[i].x.to_string() + ", " + coords1[i].y.to_string() + ", " + coords1[i].z.to_string() + ")")
+    println(
+      "  ALA " +
+      (i + 1).to_string() +
+      ": (" +
+      coords1[i].x.to_string() +
+      ", " +
+      coords1[i].y.to_string() +
+      ", " +
+      coords1[i].z.to_string() +
+      ")",
+    )
   }
   println("")
 
@@ -48,7 +72,12 @@ fn main {
   println("--- Step 4: Pairwise RMSD Matrix ---")
   match @src.ppy_pairwise_rmsds(st) {
     Some(mat) => {
-      println("RMSD matrix: " + mat.length().to_string() + " x " + mat[0].length().to_string())
+      println(
+        "RMSD matrix: " +
+        mat.length().to_string() +
+        " x " +
+        mat[0].length().to_string(),
+      )
       for i in 0..<mat.length() {
         let mut line = ""
         for j in 0..<mat[i].length() {
@@ -82,7 +111,17 @@ fn main {
     Some(avg) => {
       println("Average structure: " + avg.length().to_string() + " Cα points")
       for i in 0..<avg.length() {
-        println("  " + (i+1).to_string() + ": (" + avg[i].x.to_string() + ", " + avg[i].y.to_string() + ", " + avg[i].z.to_string() + ")")
+        println(
+          "  " +
+          (i + 1).to_string() +
+          ": (" +
+          avg[i].x.to_string() +
+          ", " +
+          avg[i].y.to_string() +
+          ", " +
+          avg[i].z.to_string() +
+          ")",
+        )
       }
     }
     None => println("Could not compute average structure")
@@ -97,7 +136,9 @@ fn main {
   let alt_c = @src.PpyConformer::new("alt_conf", [alt_r])
   let alt_ids = @src.ppy_altloc_ids(alt_r)
   println("altLoc IDs: " + alt_ids.to_string())
-  println("Residues with altLoc: " + @src.ppy_altloc_residue_count(alt_c).to_string())
+  println(
+    "Residues with altLoc: " + @src.ppy_altloc_residue_count(alt_c).to_string(),
+  )
   println("")
 
   println("=== polypose Demo Complete ===")

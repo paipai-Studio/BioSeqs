@@ -3,12 +3,16 @@
 
 ///|
 /// Build a residue with atoms at given positions.
-fn cav_make_res(resname : String, resseq : Int, atoms : Array[(@src.Vector3, String)]) -> @src.Residue {
+fn cav_make_res(
+  resname : String,
+  resseq : Int32,
+  atoms : Array[(@src.Vector3, String)],
+) -> @src.Residue {
   let atom_arr = Array(capacity=atoms.length())
   for (coord, name) in atoms {
-    atom_arr.push(@src.Atom::new(name=name, coord=coord, resname=resname, resseq=resseq))
+    atom_arr.push(@src.Atom::new(name~, coord~, resname~, resseq~))
   }
-  @src.Residue::new(resname=resname, chainid='A', resseq=resseq, atoms=atom_arr)
+  @src.Residue::new(resname~, chainid='A', resseq~, atoms=atom_arr)
 }
 
 ///|
@@ -36,7 +40,8 @@ test "cavifinder: solid protein no cavity" {
   let result = @src.find_cavities(chain, grid_spacing=1.5)
   // A compact cluster should have no significant cavities
   // (may have small gaps but not enclosed)
-  let has_large_cavity = result.cavities.length() > 0 && result.cavities[0].num_points > 5
+  let has_large_cavity = result.cavities.length() > 0 &&
+    result.cavities[0].num_points > 5
   assert_false(has_large_cavity)
 }
 

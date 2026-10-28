@@ -461,7 +461,7 @@ test "ihw_very_small_pvalues" {
 // ---------------------------------------------------------------------------
 
 ///|
-fn count_less_than(arr : Array[Double], threshold : Double) -> Int {
+fn count_less_than(arr : Array[Double], threshold : Double) -> Int32 {
   let mut count = 0
   let mut i = 0
   while i < arr.length() {

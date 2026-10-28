@@ -2,7 +2,6 @@
 /// scMerge Demo - Single-cell batch correction using RUV4.
 /// Demonstrates removal of unwanted variation (batch effects)
 /// from synthetic single-cell expression data.
-
 fn main {
   println("=== scMerge Demo ===")
   println("")
@@ -80,7 +79,9 @@ fn main {
 
   let result = @src.scmerge(batches, n_seg=2, n_factors=2)
 
-  println("Corrected data dimensions: \{result.corrected_data.length().to_string()} cells x \{result.corrected_data[0].length().to_string()} genes")
+  println(
+    "Corrected data dimensions: \{result.corrected_data.length().to_string()} cells x \{result.corrected_data[0].length().to_string()} genes",
+  )
 
   // 4. Show corrected batch means
   println("")
@@ -97,7 +98,9 @@ fn main {
       c = c + 1
     }
     let mean = gene0_sum / batch_size.to_double()
-    println("  Batch \{b.to_string()}: corrected mean (gene 0) = \{mean.to_string()}")
+    println(
+      "  Batch \{b.to_string()}: corrected mean (gene 0) = \{mean.to_string()}",
+    )
     offset = offset + batch_size
     b = b + 1
   }
@@ -136,7 +139,9 @@ fn main {
 
   println("")
   println("Summary:")
-  println("  Total cells corrected: \{result.corrected_data.length().to_string()}")
+  println(
+    "  Total cells corrected: \{result.corrected_data.length().to_string()}",
+  )
   println("  SEGs used: \{result.seg_genes.length().to_string()}")
   println("  Batch correction completed successfully")
 

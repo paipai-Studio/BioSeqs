@@ -275,10 +275,10 @@ fn codon_table_std() -> Map[String, String] {
 /// Find open reading frames (ORFs) in a DNA sequence.
 pub fn find_orfs(
   seq : String,
-  min_length? : Int = 30,
-) -> Array[(Int, Int, String)] {
+  min_length~ : Int32 = 30,
+) -> Array[(Int32, Int32, String)] {
   let s = seq.to_upper()
-  let result : Array[(Int, Int, String)] = Array(capacity=0)
+  let result : Array[(Int32, Int32, String)] = Array(capacity=0)
   let start_codons = ["ATG"]
   let stop_codons = ["TAA", "TAG", "TGA"]
   let n = s.length()
@@ -334,7 +334,7 @@ pub fn find_orfs(
 
 ///|
 /// Calculate the Hamming distance between two sequences.
-pub fn hamming_distance(seq1 : String, seq2 : String) -> Int {
+pub fn hamming_distance(seq1 : String, seq2 : String) -> Int32 {
   let s1 = seq1.to_upper()
   let s2 = seq2.to_upper()
   let mut dist = 0
@@ -355,16 +355,16 @@ pub fn hamming_distance(seq1 : String, seq2 : String) -> Int {
 
 ///|
 /// Calculate the Levenshtein distance between two sequences (EMBOSS version).
-pub fn emboss_levenshtein_distance(seq1 : String, seq2 : String) -> Int {
+pub fn emboss_levenshtein_distance(seq1 : String, seq2 : String) -> Int32 {
   let s1 = seq1.to_upper()
   let s2 = seq2.to_upper()
   let m = s1.length()
   let n = s2.length()
 
-  let matrix : Array[Array[Int]] = Array(capacity=0)
+  let matrix : Array[Array[Int32]] = Array(capacity=0)
   let mut i = 0
   while i <= m {
-    let row : Array[Int] = Array(capacity=0)
+    let row : Array[Int32] = Array(capacity=0)
     let mut j = 0
     while j <= n {
       row.push(0)
@@ -409,7 +409,7 @@ pub fn emboss_levenshtein_distance(seq1 : String, seq2 : String) -> Int {
 
 ///|
 /// Helper function: minimum of three integers.
-fn min3(a : Int, b : Int, c : Int) -> Int {
+fn min3(a : Int32, b : Int32, c : Int32) -> Int32 {
   let m = if a < b { a } else { b }
   if m < c {
     m
@@ -420,7 +420,7 @@ fn min3(a : Int, b : Int, c : Int) -> Int {
 
 ///|
 /// Count k-mers in a sequence.
-pub fn emboss_count_kmers(seq : String, k : Int) -> Map[String, Int] {
+pub fn emboss_count_kmers(seq : String, k : Int32) -> Map[String, Int32] {
   let s = seq.to_upper()
   let result = Map([], capacity=128)
   let n = s.length()

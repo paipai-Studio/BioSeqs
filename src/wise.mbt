@@ -33,6 +33,8 @@ pub enum WiseBlockType {
   WiseInsertion // insertion (gap in protein)
   WiseDeletion // deletion (gap in gene)
 } derive(Eq)
+
+///|
 pub extend WiseBlockType with Eq::{equal, not_equal}
 
 ///|
@@ -67,52 +69,52 @@ pub fn wise_make_block_type(name : String) -> WiseBlockType {
 ///|
 /// An exon in a gene prediction.
 pub struct WiseExon {
-  start : Int // gene start position (0-based)
-  end : Int // gene end position (0-based, inclusive)
-  phase : Int // reading frame phase (0, 1, or 2)
-  end_phase : Int // end phase (0, 1, or 2)
+  start : Int32 // gene start position (0-based)
+  end : Int32 // gene end position (0-based, inclusive)
+  phase : Int32 // reading frame phase (0, 1, or 2)
+  end_phase : Int32 // end phase (0, 1, or 2)
   score : Double // exon score
-  protein_start : Int // start position in protein
-  protein_end : Int // end position in protein
+  protein_start : Int32 // start position in protein
+  protein_end : Int32 // end position in protein
 }
 
 ///|
 /// Construct a WiseExon.
 pub fn WiseExon::new(
-  start? : Int = 0,
-  end? : Int = 0,
-  phase? : Int = 0,
-  end_phase? : Int = 0,
-  score? : Double = 0.0,
-  protein_start? : Int = 0,
-  protein_end? : Int = 0,
+  start~ : Int32 = 0,
+  end~ : Int32 = 0,
+  phase~ : Int32 = 0,
+  end_phase~ : Int32 = 0,
+  score~ : Double = 0.0,
+  protein_start~ : Int32 = 0,
+  protein_end~ : Int32 = 0,
 ) -> WiseExon {
   WiseExon::{ start, end, phase, end_phase, score, protein_start, protein_end, }
 }
 
 ///|
 /// Get the length of the exon in nucleotides.
-pub fn WiseExon::length(self : WiseExon) -> Int {
+pub fn WiseExon::length(self : WiseExon) -> Int32 {
   self.end - self.start + 1
 }
 
 ///|
 /// An intron between exons.
 pub struct WiseIntron {
-  start : Int // intron start position
-  end : Int // intron end position
+  start : Int32 // intron start position
+  end : Int32 // intron end position
   donor_score : Double // 5' splice site score
   acceptor_score : Double // 3' splice site score
-  length : Int
+  length : Int32
 }
 
 ///|
 /// Construct a WiseIntron.
 pub fn WiseIntron::new(
-  start? : Int = 0,
-  end? : Int = 0,
-  donor_score? : Double = 0.0,
-  acceptor_score? : Double = 0.0,
+  start~ : Int32 = 0,
+  end~ : Int32 = 0,
+  donor_score~ : Double = 0.0,
+  acceptor_score~ : Double = 0.0,
 ) -> WiseIntron {
   let len = if end >= start { end - start + 1 } else { 0 }
   WiseIntron::{ start, end, donor_score, acceptor_score, length: len, }
@@ -124,8 +126,8 @@ pub struct WiseAlignmentColumn {
   protein_char : Char // amino acid in protein
   gene_codon : String // 3-nucleotide codon
   match_type : String // " " = match, " " = mismatch, "*" = stop
-  gene_position : Int
-  protein_position : Int
+  gene_position : Int32
+  protein_position : Int32
 }
 
 ///|
@@ -133,9 +135,9 @@ pub struct WiseAlignmentColumn {
 pub fn WiseAlignmentColumn::new(
   protein_char~ : Char,
   gene_codon~ : String,
-  match_type? : String = " ",
-  gene_position? : Int = 0,
-  protein_position? : Int = 0,
+  match_type~ : String = " ",
+  gene_position~ : Int32 = 0,
+  protein_position~ : Int32 = 0,
 ) -> WiseAlignmentColumn {
   WiseAlignmentColumn::{
     protein_char,
@@ -223,19 +225,19 @@ pub fn WiseResult::get_alignment(
 
 ///|
 /// Get the number of exons.
-pub fn WiseResult::get_num_exons(self : WiseResult) -> Int {
+pub fn WiseResult::get_num_exons(self : WiseResult) -> Int32 {
   self.exons.length()
 }
 
 ///|
 /// Get the number of introns.
-pub fn WiseResult::get_num_introns(self : WiseResult) -> Int {
+pub fn WiseResult::get_num_introns(self : WiseResult) -> Int32 {
   self.introns.length()
 }
 
 ///|
 /// Get total gene length covered by exons.
-pub fn WiseResult::get_total_exon_length(self : WiseResult) -> Int {
+pub fn WiseResult::get_total_exon_length(self : WiseResult) -> Int32 {
   let mut total = 0
   for e in self.exons {
     total = total + e.length()
@@ -302,9 +304,9 @@ pub fn wise_parse(content : String) -> WiseResult {
     if trimmed.has_prefix("Bits:") {
       let parts = trimmed.split(":").to_array()
       if parts.length() >= 2 {
-        result.bits_score = parse_double(
-          parts[1].to_owned().trim().to_owned(),
-        ).unwrap_or(0.0)
+        result.bits_score = parse_double(parts[1].to_owned().trim().to_owned()).unwrap_or(
+          0.0,
+        )
       }
     }
     // Parse protein ID: "Protein: P12345"
@@ -400,9 +402,7 @@ fn wise_parse_exon_line(line : String) -> WiseExon? {
     let dash = protein_part.find("-")
     match dash {
       Some(dp) => {
-        protein_start = wise_extract_first_number(
-          protein_part[0:dp].to_owned(),
-        )
+        protein_start = wise_extract_first_number(protein_part[0:dp].to_owned())
         protein_end = wise_extract_first_number(
           protein_part[dp + 1:].to_owned(),
         )
@@ -448,7 +448,7 @@ fn wise_parse_intron_line(line : String) -> WiseIntron? {
 
 ///|
 /// Extract the last integer from a string.
-fn wise_extract_last_number(s : String) -> Int {
+fn wise_extract_last_number(s : String) -> Int32 {
   let mut result = 0
   let mut current = ""
   let chars = s.to_array()
@@ -469,7 +469,7 @@ fn wise_extract_last_number(s : String) -> Int {
 
 ///|
 /// Extract the first integer from a string.
-fn wise_extract_first_number(s : String) -> Int {
+fn wise_extract_first_number(s : String) -> Int32 {
   let chars = s.to_array()
   let mut current = ""
   for i in 0..<chars.length() {
@@ -707,8 +707,8 @@ pub fn wise_percent_identity(
 /// A GenomeWise segment result.
 pub struct GenomeWiseSegment {
   segment_id : String
-  start : Int
-  end : Int
+  start : Int32
+  end : Int32
   score : Double
   wise_result : WiseResult
 }
@@ -716,10 +716,10 @@ pub struct GenomeWiseSegment {
 ///|
 /// Construct a GenomeWiseSegment.
 pub fn GenomeWiseSegment::new(
-  segment_id? : String = "",
-  start? : Int = 0,
-  end? : Int = 0,
-  score? : Double = 0.0,
+  segment_id~ : String = "",
+  start~ : Int32 = 0,
+  end~ : Int32 = 0,
+  score~ : Double = 0.0,
 ) -> GenomeWiseSegment {
   GenomeWiseSegment::{
     segment_id,
@@ -763,7 +763,7 @@ pub fn GenomeWiseResult::get_segments(
 
 ///|
 /// Get the number of segments.
-pub fn GenomeWiseResult::get_num_segments(self : GenomeWiseResult) -> Int {
+pub fn GenomeWiseResult::get_num_segments(self : GenomeWiseResult) -> Int32 {
   self.segments.length()
 }
 

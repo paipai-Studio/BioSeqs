@@ -5,14 +5,14 @@
 pub struct ExonCount {
   gene_id : String
   exon_id : String
-  counts : Array[Int]
+  counts : Array[Int32]
 }
 
 ///|
 pub fn ExonCount::new(
   gene_id : String,
   exon_id : String,
-  counts : Array[Int],
+  counts : Array[Int32],
 ) -> ExonCount {
   ExonCount::{ gene_id, exon_id, counts, }
 }
@@ -89,7 +89,7 @@ pub fn dexseq_normalize_counts(dataset : DEXSeqDataSet) -> DEXSeqDataSet {
       i = i + 1
     }
     if total > 0 {
-      let norm_counts : Array[Int] = Array(capacity=0)
+      let norm_counts : Array[Int32] = Array(capacity=0)
       for count in ec.counts {
         norm_counts.push(count * 1000000 / total)
       }
@@ -112,8 +112,8 @@ pub fn dexseq_test_for_exon_usage(
 ) -> Array[DEXSeqResult] {
   let results : Array[DEXSeqResult] = Array(capacity=0)
 
-  let group0_indices : Array[Int] = Array(capacity=0)
-  let group1_indices : Array[Int] = Array(capacity=0)
+  let group0_indices : Array[Int32] = Array(capacity=0)
+  let group1_indices : Array[Int32] = Array(capacity=0)
 
   let mut i = 0
   while i < dataset.sample_groups.length() {

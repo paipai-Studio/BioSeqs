@@ -31,7 +31,7 @@
 
 ///|
 /// Map a base64 character code to its 6-bit value (-1 when invalid).
-fn b64_char_value(code : Int) -> Int {
+fn b64_char_value(code : Int32) -> Int32 {
   if code >= 65 && code <= 90 {
     // 'A'..'Z'
     code - 65
@@ -57,8 +57,8 @@ fn b64_char_value(code : Int) -> Int {
 /// padding layout, raising a plain SeqIOError message that the wrappers
 /// extend with the format name. ASCII whitespace is skipped between
 /// groups.
-fn b64_decode_impl(content : String) -> Array[Int] raise SeqIOError {
-  let sig : Array[Int] = Array(capacity=0)
+fn b64_decode_impl(content : String) -> Array[Int32] raise SeqIOError {
+  let sig : Array[Int32] = Array(capacity=0)
   let n = content.length()
   for i in 0..<n {
     let c = content.unsafe_get(i).to_int()
@@ -84,11 +84,11 @@ fn b64_decode_impl(content : String) -> Array[Int] raise SeqIOError {
   if alpha % 4 == 1 {
     raise SeqIOError("invalid base64 content")
   }
-  let out : Array[Int] = Array(capacity=0)
+  let out : Array[Int32] = Array(capacity=0)
   let mut i = 0
   while i < alpha {
     let chars = if i + 4 <= alpha { 4 } else { alpha - i }
-    let vals : Array[Int] = Array::make(4, 0)
+    let vals : Array[Int32] = Array::make(4, 0)
     for k in 0..<chars {
       let v = b64_char_value(sig[i + k])
       if v < 0 {
@@ -113,7 +113,7 @@ fn b64_decode_impl(content : String) -> Array[Int] raise SeqIOError {
 /// characters or misplaced padding raise SeqIOError instead of silently
 /// producing wrong bytes (spec 4.3.1; the legacy `base64_decode` used by
 /// BAM is intentionally untouched).
-pub fn base64_decode_strict(content : String) -> Array[Int] raise SeqIOError {
+pub fn base64_decode_strict(content : String) -> Array[Int32] raise SeqIOError {
   b64_decode_impl(content)
 }
 
@@ -122,8 +122,8 @@ pub fn base64_decode_strict(content : String) -> Array[Int] raise SeqIOError {
 fn unify_b64_decode(
   content : String,
   format : String,
-) -> Array[Int] raise SeqIOError {
-  try b64_decode_impl(content) catch {
+) -> Array[Int32] raise SeqIOError {
+  b64_decode_impl(content) catch {
     SeqIOError(msg) => raise SeqIOError(msg + " for " + format)
   }
 }

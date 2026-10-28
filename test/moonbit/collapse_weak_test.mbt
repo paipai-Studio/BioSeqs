@@ -18,11 +18,15 @@ fn cw_internal_conf(children : Array[@src.Clade], conf : Double) -> @src.Clade {
 
 ///|
 fn _cw_internal_bl(children : Array[@src.Clade], bl : Double) -> @src.Clade {
-  @src.Clade::new(name=Some("internal"), branch_length=Some(bl), clades=children)
+  @src.Clade::new(
+    name=Some("internal"),
+    branch_length=Some(bl),
+    clades=children,
+  )
 }
 
 ///|
-fn cw_count_leaves(clade : @src.Clade) -> Int {
+fn cw_count_leaves(clade : @src.Clade) -> Int32 {
   if clade.is_terminal() {
     return 1
   }
@@ -35,7 +39,7 @@ fn cw_count_leaves(clade : @src.Clade) -> Int {
 
 ///|
 /// Count internal nodes (non-leaf nodes).
-fn cw_count_internal(clade : @src.Clade) -> Int {
+fn cw_count_internal(clade : @src.Clade) -> Int32 {
   if clade.is_terminal() {
     return 0
   }
@@ -111,10 +115,10 @@ test "collapse: collapse all low support" {
 ///|
 test "collapse: preserves all leaves" {
   let tree = cw_internal([
-    cw_internal_conf([
-      cw_internal_conf([cw_leaf("A"), cw_leaf("B")], 20.0),
-      cw_leaf("C"),
-    ], 90.0),
+    cw_internal_conf(
+      [cw_internal_conf([cw_leaf("A"), cw_leaf("B")], 20.0), cw_leaf("C")],
+      90.0,
+    ),
     cw_internal_conf([cw_leaf("D"), cw_leaf("E")], 30.0),
   ])
   let result = @src.phylo_collapse_weak_nodes(tree, 50.0)
@@ -165,10 +169,10 @@ test "collapse: nested collapse" {
   // Both internal nodes with support < 50 collapse
   // Result: (A, B, C, D) — star tree
   let tree = cw_internal([
-    cw_internal_conf([
-      cw_internal_conf([cw_leaf("A"), cw_leaf("B")], 20.0),
-      cw_leaf("C"),
-    ], 30.0),
+    cw_internal_conf(
+      [cw_internal_conf([cw_leaf("A"), cw_leaf("B")], 20.0), cw_leaf("C")],
+      30.0,
+    ),
     cw_leaf("D"),
   ])
   let result = @src.phylo_collapse_weak_nodes(tree, 50.0)
@@ -182,10 +186,10 @@ test "collapse: partial nested collapse" {
   // Only the (A,B) node collapses; ((A,B),C) node stays (support 90)
   // Result: ((A,B,C):90, D) — root has 2 children, first has 3 children
   let tree = cw_internal([
-    cw_internal_conf([
-      cw_internal_conf([cw_leaf("A"), cw_leaf("B")], 20.0),
-      cw_leaf("C"),
-    ], 90.0),
+    cw_internal_conf(
+      [cw_internal_conf([cw_leaf("A"), cw_leaf("B")], 20.0), cw_leaf("C")],
+      90.0,
+    ),
     cw_leaf("D"),
   ])
   let result = @src.phylo_collapse_weak_nodes(tree, 50.0)
@@ -193,7 +197,7 @@ test "collapse: partial nested collapse" {
   // Root has 2 children: (A,B,C) and D
   assert_eq(result.clades.length(), 2)
   // First child should have 3 children (A, B, C)
-  assert_true(!(result.clades[0].is_terminal()))
+  assert_true(!result.clades[0].is_terminal())
   assert_eq(result.clades[0].clades.length(), 3)
 }
 
@@ -202,27 +206,27 @@ test "collapse: branch lengths merged" {
   // ((A:1,B:1):2, C:3) with support 30, threshold 50
   // After collapse: A gets bl=1+2=3, B gets bl=1+2=3
   let _tree = cw_internal([
-    cw_internal_conf([
-      @src.Clade::new(name=Some("A"), branch_length=Some(1.0)),
-      @src.Clade::new(name=Some("B"), branch_length=Some(1.0)),
-    ], 30.0),
+    cw_internal_conf(
+      [
+        @src.Clade::new(name=Some("A"), branch_length=Some(1.0)),
+        @src.Clade::new(name=Some("B"), branch_length=Some(1.0)),
+      ],
+      30.0,
+    ),
   ])
   // Add branch_length to the internal node
-  let tree_with_bl = @src.Clade::new(
-    name=Some("root"),
-    clades=[
-      @src.Clade::new(
-        name=Some("internal"),
-        confidence=Some(30.0),
-        branch_length=Some(2.0),
-        clades=[
-          @src.Clade::new(name=Some("A"), branch_length=Some(1.0)),
-          @src.Clade::new(name=Some("B"), branch_length=Some(1.0)),
-        ],
-      ),
-      @src.Clade::new(name=Some("C"), branch_length=Some(3.0)),
-    ],
-  )
+  let tree_with_bl = @src.Clade::new(name=Some("root"), clades=[
+    @src.Clade::new(
+      name=Some("internal"),
+      confidence=Some(30.0),
+      branch_length=Some(2.0),
+      clades=[
+        @src.Clade::new(name=Some("A"), branch_length=Some(1.0)),
+        @src.Clade::new(name=Some("B"), branch_length=Some(1.0)),
+      ],
+    ),
+    @src.Clade::new(name=Some("C"), branch_length=Some(3.0)),
+  ])
   let result = @src.phylo_collapse_weak_nodes(tree_with_bl, 50.0)
   assert_eq(cw_count_leaves(result), 3)
   // Root should have 3 children: A (bl=3), B (bl=3), C (bl=3)
@@ -230,11 +234,10 @@ test "collapse: branch lengths merged" {
   let mut found_merged = false
   for ch in result.clades {
     match (ch.name, ch.branch_length) {
-      (Some(n), Some(bl)) => {
+      (Some(n), Some(bl)) =>
         if (n == "A" || n == "B") && (bl - 3.0).abs() < 0.0001 {
           found_merged = true
         }
-      }
       _ => ()
     }
   }

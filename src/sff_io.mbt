@@ -8,15 +8,15 @@
 
 ///|
 /// SFF magic number: 0x2E736666 (".sff" in ASCII).
-let sff_magic : Int = 0x2E736666
+let sff_magic : Int32 = 0x2E736666
 
 ///|
 /// SFF version 1.0 (major=0, minor=1 encoded as 0x0001).
-let sff_version : Int = 0x0001
+let sff_version : Int32 = 0x0001
 
 ///|
 /// Flowgram format code 1 = unsigned 16-bit integer per flow value.
-let sff_flowgram_format_u16 : Int = 1
+let sff_flowgram_format_u16 : Int32 = 1
 
 // ===== Data structures =====
 
@@ -24,23 +24,23 @@ let sff_flowgram_format_u16 : Int = 1
 /// SFF common header (file-level metadata).
 pub struct SffHeader {
   /// Magic number (should be 0x2E736666)
-  magic : Int
+  magic : Int32
   /// Version (should be 0x0001)
-  version : Int
+  version : Int32
   /// Index offset in the file
-  index_offset : Int
+  index_offset : Int32
   /// Index length
-  index_length : Int
+  index_length : Int32
   /// Number of reads in the file
-  n_reads : Int
+  n_reads : Int32
   /// Header length (bytes, must be multiple of 8)
-  header_length : Int
+  header_length : Int32
   /// Key length
-  key_length : Int
+  key_length : Int32
   /// Number of flows
-  n_flows : Int
+  n_flows : Int32
   /// Flowgram format code (1 = u16)
-  flowgram_format : Int
+  flowgram_format : Int32
   /// Flow chars (e.g., "TACG" repeated)
   flow_chars : String
   /// Key sequence (e.g., "TCAG")
@@ -51,29 +51,29 @@ pub struct SffHeader {
 /// A single SFF read record.
 pub struct SffRead {
   /// Read header length (bytes, must be multiple of 8)
-  read_header_length : Int
+  read_header_length : Int32
   /// Name length
-  name_length : Int
+  name_length : Int32
   /// Number of bases
-  n_bases : Int
+  n_bases : Int32
   /// Clip quality left (1-based position)
-  clip_qual_left : Int
+  clip_qual_left : Int32
   /// Clip quality right
-  clip_qual_right : Int
+  clip_qual_right : Int32
   /// Clip adapter left
-  clip_adapter_left : Int
+  clip_adapter_left : Int32
   /// Clip adapter right
-  clip_adapter_right : Int
+  clip_adapter_right : Int32
   /// Read name
   name : String
   /// Flowgram values (one per flow, typically scaled u16 / 100.0)
   flowgram : Array[Double]
   /// Flow index per base (which flow produced each base)
-  flow_index : Array[Int]
+  flow_index : Array[Int32]
   /// Called bases (ACGT, possibly N)
   bases : String
   /// Per-base quality scores (Phred)
-  qualities : Array[Int]
+  qualities : Array[Int32]
 }
 
 ///|
@@ -88,8 +88,8 @@ pub struct SffFile {
 ///|
 /// Create a new SFF header.
 pub fn SffHeader::new(
-  n_reads : Int,
-  n_flows : Int,
+  n_reads : Int32,
+  n_flows : Int32,
   flow_chars : String,
   key_sequence : String,
 ) -> SffHeader {
@@ -114,13 +114,13 @@ pub fn SffHeader::new(
 
 ///|
 /// Get number of reads declared in the header.
-pub fn SffHeader::sff_n_reads(self : SffHeader) -> Int {
+pub fn SffHeader::sff_n_reads(self : SffHeader) -> Int32 {
   self.n_reads
 }
 
 ///|
 /// Get number of flows.
-pub fn SffHeader::sff_n_flows(self : SffHeader) -> Int {
+pub fn SffHeader::sff_n_flows(self : SffHeader) -> Int32 {
   self.n_flows
 }
 
@@ -186,13 +186,13 @@ pub fn SffHeader::sff_validate(self : SffHeader) -> Array[String] {
 pub fn SffRead::new(
   name : String,
   bases : String,
-  qualities : Array[Int],
+  qualities : Array[Int32],
   flowgram : Array[Double],
-  flow_index : Array[Int],
-  clip_qual_left : Int,
-  clip_qual_right : Int,
-  clip_adapter_left : Int,
-  clip_adapter_right : Int,
+  flow_index : Array[Int32],
+  clip_qual_left : Int32,
+  clip_qual_right : Int32,
+  clip_adapter_left : Int32,
+  clip_adapter_right : Int32,
 ) -> SffRead {
   let name_length = name.length()
   let n_bases = bases.length()
@@ -229,13 +229,13 @@ pub fn SffRead::sff_bases(self : SffRead) -> String {
 
 ///|
 /// Get number of bases.
-pub fn SffRead::sff_n_bases(self : SffRead) -> Int {
+pub fn SffRead::sff_n_bases(self : SffRead) -> Int32 {
   self.n_bases
 }
 
 ///|
 /// Get quality scores.
-pub fn SffRead::sff_qualities(self : SffRead) -> Array[Int] {
+pub fn SffRead::sff_qualities(self : SffRead) -> Array[Int32] {
   self.qualities.copy()
 }
 
@@ -247,7 +247,7 @@ pub fn SffRead::sff_flowgram(self : SffRead) -> Array[Double] {
 
 ///|
 /// Get flow index per base.
-pub fn SffRead::sff_flow_index(self : SffRead) -> Array[Int] {
+pub fn SffRead::sff_flow_index(self : SffRead) -> Array[Int32] {
   self.flow_index.copy()
 }
 
@@ -269,14 +269,14 @@ pub fn SffRead::sff_clipped_bases(self : SffRead) -> String {
 
 ///|
 /// Get the clipped quality scores.
-pub fn SffRead::sff_clipped_qualities(self : SffRead) -> Array[Int] {
+pub fn SffRead::sff_clipped_qualities(self : SffRead) -> Array[Int32] {
   let left = if self.clip_qual_left > 0 { self.clip_qual_left - 1 } else { 0 }
   let right = if self.clip_qual_right > 0 {
     self.clip_qual_right
   } else {
     self.n_bases
   }
-  let result : Array[Int] = Array(capacity=0)
+  let result : Array[Int32] = Array(capacity=0)
   if left >= right || left >= self.n_bases {
     return result
   }
@@ -327,13 +327,13 @@ pub fn SffFile::sff_reads(self : SffFile) -> Array[SffRead] {
 
 ///|
 /// Get number of reads.
-pub fn SffFile::sff_n_reads(self : SffFile) -> Int {
+pub fn SffFile::sff_n_reads(self : SffFile) -> Int32 {
   self.reads.length()
 }
 
 ///|
 /// Get a read by index.
-pub fn SffFile::sff_get_read(self : SffFile, idx : Int) -> SffRead {
+pub fn SffFile::sff_get_read(self : SffFile, idx : Int32) -> SffRead {
   self.reads[idx]
 }
 
@@ -354,7 +354,7 @@ pub fn SffFile::sff_find_read(self : SffFile, name : String) -> SffRead? {
 
 ///|
 /// Total number of bases across all reads.
-pub fn SffFile::sff_total_bases(self : SffFile) -> Int {
+pub fn SffFile::sff_total_bases(self : SffFile) -> Int32 {
   let mut total = 0
   let mut i = 0
   while i < self.reads.length() {
@@ -368,7 +368,7 @@ pub fn SffFile::sff_total_bases(self : SffFile) -> Int {
 
 ///|
 /// Pad a length up to the next multiple of 8.
-fn sff_pad_to_8(n : Int) -> Int {
+fn sff_pad_to_8(n : Int32) -> Int32 {
   let rem = n % 8
   if rem == 0 {
     n
@@ -379,20 +379,20 @@ fn sff_pad_to_8(n : Int) -> Int {
 
 ///|
 /// Encode a 32-bit unsigned integer as 4 big-endian bytes.
-fn sff_encode_u32(v : Int) -> Array[Int] {
+fn sff_encode_u32(v : Int32) -> Array[Int32] {
   [v / 16777216 % 256, v / 65536 % 256, v / 256 % 256, v % 256]
 }
 
 ///|
 /// Encode a 16-bit unsigned integer as 2 big-endian bytes.
-fn sff_encode_u16(v : Int) -> Array[Int] {
+fn sff_encode_u16(v : Int32) -> Array[Int32] {
   [v / 256 % 256, v % 256]
 }
 
 ///|
 /// Encode a 64-bit unsigned integer as 8 big-endian bytes.
 /// Note: MoonBit Int is 32-bit, so we only encode the low 32 bits with 4 leading zero bytes.
-fn sff_encode_u64(v : Int) -> Array[Int] {
+fn sff_encode_u64(v : Int32) -> Array[Int32] {
   // High 32 bits = 0 (our values fit in 32 bits), low 32 bits = v
   let low_bytes = sff_encode_u32(v)
   [0, 0, 0, 0, low_bytes[0], low_bytes[1], low_bytes[2], low_bytes[3]]
@@ -400,7 +400,7 @@ fn sff_encode_u64(v : Int) -> Array[Int] {
 
 ///|
 /// Read a 32-bit big-endian unsigned integer from a byte array at a position.
-fn sff_read_u32(bytes : Array[Int], pos : Int) -> Int {
+fn sff_read_u32(bytes : Array[Int32], pos : Int32) -> Int32 {
   bytes[pos] * 16777216 +
   bytes[pos + 1] * 65536 +
   bytes[pos + 2] * 256 +
@@ -409,22 +409,22 @@ fn sff_read_u32(bytes : Array[Int], pos : Int) -> Int {
 
 ///|
 /// Read a 16-bit big-endian unsigned integer from a byte array at a position.
-fn sff_read_u16(bytes : Array[Int], pos : Int) -> Int {
+fn sff_read_u16(bytes : Array[Int32], pos : Int32) -> Int32 {
   bytes[pos] * 256 + bytes[pos + 1]
 }
 
 ///|
 /// Read a 64-bit big-endian unsigned integer from a byte array at a position.
 /// Note: Only returns the low 32 bits (MoonBit Int is 32-bit).
-fn sff_read_u64(bytes : Array[Int], pos : Int) -> Int {
+fn sff_read_u64(bytes : Array[Int32], pos : Int32) -> Int32 {
   // High 32 bits at pos..pos+3 (ignored, assumed 0), low 32 bits at pos+4..pos+7
   sff_read_u32(bytes, pos + 4)
 }
 
 ///|
 /// Encode a string as ASCII bytes.
-fn sff_encode_string(s : String) -> Array[Int] {
-  let bytes : Array[Int] = Array(capacity=0)
+fn sff_encode_string(s : String) -> Array[Int32] {
+  let bytes : Array[Int32] = Array(capacity=0)
   let mut i = 0
   while i < s.length() {
     bytes.push(s[i].to_int())
@@ -437,8 +437,8 @@ fn sff_encode_string(s : String) -> Array[Int] {
 
 ///|
 /// Encode an SFF file as a byte array (big-endian binary format).
-pub fn sff_encode(file : SffFile) -> Array[Int] {
-  let bytes : Array[Int] = Array(capacity=0)
+pub fn sff_encode(file : SffFile) -> Array[Int32] {
+  let bytes : Array[Int32] = Array(capacity=0)
   // ===== Common Header (31 bytes fixed + flow_chars + key_sequence, padded to 8) =====
   // magic (4 bytes)
   let magic_bytes = sff_encode_u32(file.header.magic)
@@ -610,7 +610,7 @@ pub fn sff_encode(file : SffFile) -> Array[Int] {
 ///|
 /// Parse an SFF byte array into an SffFile.
 /// Returns Option to handle malformed input gracefully.
-pub fn sff_parse(bytes : Array[Int]) -> SffFile? {
+pub fn sff_parse(bytes : Array[Int32]) -> SffFile? {
   if bytes.length() < 31 {
     return None
   }
@@ -673,7 +673,7 @@ pub fn sff_parse(bytes : Array[Int]) -> SffFile? {
     }
     let flow_index_start = data_start + n_flows * 2
     // flow index per base: n_bases bytes
-    let flow_index : Array[Int] = Array(capacity=0)
+    let flow_index : Array[Int32] = Array(capacity=0)
     let mut fii = 0
     while fii < n_bases {
       flow_index.push(bytes[flow_index_start + fii])
@@ -684,7 +684,7 @@ pub fn sff_parse(bytes : Array[Int]) -> SffFile? {
     let bases = sff_read_string(bytes, bases_start, n_bases)
     let qual_start = bases_start + n_bases
     // quality scores: n_bases bytes
-    let qualities : Array[Int] = Array(capacity=0)
+    let qualities : Array[Int32] = Array(capacity=0)
     let mut qi = 0
     while qi < n_bases {
       qualities.push(bytes[qual_start + qi])
@@ -715,7 +715,7 @@ pub fn sff_parse(bytes : Array[Int]) -> SffFile? {
 
 ///|
 /// Read a fixed-length ASCII string from a byte array.
-fn sff_read_string(bytes : Array[Int], pos : Int, length : Int) -> String {
+fn sff_read_string(bytes : Array[Int32], pos : Int32, length : Int32) -> String {
   let mut s = ""
   let mut i = 0
   while i < length && pos + i < bytes.length() {

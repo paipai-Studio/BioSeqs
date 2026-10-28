@@ -337,7 +337,7 @@ pub fn GoaDatabase::created_by(self : GoaDatabase) -> String {
 
 ///|
 /// Number of records in the database.
-pub fn GoaDatabase::n_records(self : GoaDatabase) -> Int {
+pub fn GoaDatabase::n_records(self : GoaDatabase) -> Int32 {
   self.records.length()
 }
 
@@ -347,7 +347,7 @@ pub fn GoaDatabase::n_records(self : GoaDatabase) -> Int {
 
 ///|
 /// Find the first occurrence of a character in a string. Returns -1 if not found.
-fn goa_find_char(s : String, ch : Int) -> Int {
+fn goa_find_char(s : String, ch : Int32) -> Int32 {
   let n = s.length()
   let mut i = 0
   while i < n {
@@ -649,8 +649,8 @@ pub fn goa_unique_taxon_ids(db : GoaDatabase) -> Array[String] {
 ///|
 /// Count records grouped by aspect code. Keys are the raw aspect strings
 /// ("F", "P", "C", ...).
-pub fn goa_count_by_aspect(db : GoaDatabase) -> Map[String, Int] {
-  let counts : Map[String, Int] = Map([], capacity=0)
+pub fn goa_count_by_aspect(db : GoaDatabase) -> Map[String, Int32] {
+  let counts : Map[String, Int32] = Map([], capacity=0)
   let recs = db.records
   let mut i = 0
   while i < recs.length() {
@@ -667,8 +667,8 @@ pub fn goa_count_by_aspect(db : GoaDatabase) -> Map[String, Int] {
 
 ///|
 /// Count records grouped by evidence code.
-pub fn goa_count_by_evidence(db : GoaDatabase) -> Map[String, Int] {
-  let counts : Map[String, Int] = Map([], capacity=0)
+pub fn goa_count_by_evidence(db : GoaDatabase) -> Map[String, Int32] {
+  let counts : Map[String, Int32] = Map([], capacity=0)
   let recs = db.records
   let mut i = 0
   while i < recs.length() {

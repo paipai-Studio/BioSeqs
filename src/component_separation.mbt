@@ -31,15 +31,15 @@ pub(all) struct SeparationResult {
 ///|
 /// Summary counts for a SeparationResult.
 pub(all) struct SeparationSummary {
-  num_protein : Int
-  num_nucleic : Int
-  num_ligands : Int
-  num_waters : Int
-  num_ions : Int
-  num_other : Int
-  num_ligand_atoms : Int
-  num_water_atoms : Int
-  num_ion_atoms : Int
+  num_protein : Int32
+  num_nucleic : Int32
+  num_ligands : Int32
+  num_waters : Int32
+  num_ions : Int32
+  num_other : Int32
+  num_ligand_atoms : Int32
+  num_water_atoms : Int32
+  num_ion_atoms : Int32
 }
 
 // ---------------------------------------------------------------------------
@@ -50,8 +50,18 @@ pub(all) struct SeparationSummary {
 /// Check whether a residue name corresponds to a water molecule.
 pub fn is_water_resname(resname : String) -> Bool {
   match resname {
-    "HOH" | "WAT" | "TIP" | "TIP3" | "TIP4" | "TIP5" |
-    "DOD" | "SOL" | "H2O" | "D3O" | "WAT0" | "MOH" => true
+    "HOH"
+    | "WAT"
+    | "TIP"
+    | "TIP3"
+    | "TIP4"
+    | "TIP5"
+    | "DOD"
+    | "SOL"
+    | "H2O"
+    | "D3O"
+    | "WAT0"
+    | "MOH" => true
     _ => false
   }
 }
@@ -60,13 +70,65 @@ pub fn is_water_resname(resname : String) -> Bool {
 /// Known metal cation residue names (PDB 3-letter codes).
 fn is_metal_ion(resname : String) -> Bool {
   match resname {
-    "LI" | "NA" | "K" | "RB" | "CS" | "BE" | "MG" | "CA" | "SR" | "BA" |
-    "ZN" | "FE" | "CU" | "MN" | "NI" | "CO" | "CD" | "HG" | "PB" |
-    "AL" | "AG" | "AU" | "CR" | "MO" | "W" | "V" | "TI" | "PD" | "PT" |
-    "RU" | "RH" | "IR" | "OS" | "RE" | "NB" | "TA" | "ZR" | "GA" | "IN" |
-    "LA" | "CE" | "PR" | "ND" | "SM" | "EU" | "GD" | "TB" |
-    "DY" | "HO" | "ER" | "TM" | "YB" | "LU" | "TH" | "U" |
-    "AS" | "SE" | "TE" | "B" => true
+    "LI"
+    | "NA"
+    | "K"
+    | "RB"
+    | "CS"
+    | "BE"
+    | "MG"
+    | "CA"
+    | "SR"
+    | "BA"
+    | "ZN"
+    | "FE"
+    | "CU"
+    | "MN"
+    | "NI"
+    | "CO"
+    | "CD"
+    | "HG"
+    | "PB"
+    | "AL"
+    | "AG"
+    | "AU"
+    | "CR"
+    | "MO"
+    | "W"
+    | "V"
+    | "TI"
+    | "PD"
+    | "PT"
+    | "RU"
+    | "RH"
+    | "IR"
+    | "OS"
+    | "RE"
+    | "NB"
+    | "TA"
+    | "ZR"
+    | "GA"
+    | "IN"
+    | "LA"
+    | "CE"
+    | "PR"
+    | "ND"
+    | "SM"
+    | "EU"
+    | "GD"
+    | "TB"
+    | "DY"
+    | "HO"
+    | "ER"
+    | "TM"
+    | "YB"
+    | "LU"
+    | "TH"
+    | "U"
+    | "AS"
+    | "SE"
+    | "TE"
+    | "B" => true
     _ => false
   }
 }
@@ -132,10 +194,33 @@ fn is_halogen_element(element : String) -> Bool {
 /// Standard amino acid residue names (20 canonical + common modifications).
 fn is_standard_aa(resname : String) -> Bool {
   match resname {
-    "ALA" | "ARG" | "ASN" | "ASP" | "CYS" | "GLN" | "GLU" |
-    "GLY" | "HIS" | "ILE" | "LEU" | "LYS" | "MET" | "PHE" |
-    "PRO" | "SER" | "THR" | "TRP" | "TYR" | "VAL" |
-    "MSE" | "SEC" | "PYL" | "ASX" | "GLX" | "XLE" | "XAA" => true
+    "ALA"
+    | "ARG"
+    | "ASN"
+    | "ASP"
+    | "CYS"
+    | "GLN"
+    | "GLU"
+    | "GLY"
+    | "HIS"
+    | "ILE"
+    | "LEU"
+    | "LYS"
+    | "MET"
+    | "PHE"
+    | "PRO"
+    | "SER"
+    | "THR"
+    | "TRP"
+    | "TYR"
+    | "VAL"
+    | "MSE"
+    | "SEC"
+    | "PYL"
+    | "ASX"
+    | "GLX"
+    | "XLE"
+    | "XAA" => true
     _ => false
   }
 }
@@ -144,11 +229,31 @@ fn is_standard_aa(resname : String) -> Bool {
 /// Standard nucleic acid residue names.
 fn is_nucleic_resname(resname : String) -> Bool {
   match resname {
-    "DA" | "DC" | "DG" | "DT" | "DU" |
-    "A" | "C" | "G" | "T" | "U" |
-    "ADE" | "CYT" | "GUA" | "THY" | "URA" |
-    "PSU" | "H2U" | "5MU" | "OMU" | "1MA" | "2MA" |
-    "MIA" | "OMG" | "YYG" | "7MG" => true
+    "DA"
+    | "DC"
+    | "DG"
+    | "DT"
+    | "DU"
+    | "A"
+    | "C"
+    | "G"
+    | "T"
+    | "U"
+    | "ADE"
+    | "CYT"
+    | "GUA"
+    | "THY"
+    | "URA"
+    | "PSU"
+    | "H2U"
+    | "5MU"
+    | "OMU"
+    | "1MA"
+    | "2MA"
+    | "MIA"
+    | "OMG"
+    | "YYG"
+    | "7MG" => true
     _ => false
   }
 }
@@ -347,7 +452,7 @@ pub fn separate_chain(chain : Chain) -> SeparationResult {
       Other => other.push(res)
     }
   }
-  SeparationResult::{ protein, nucleic, ligands, waters, ions, other }
+  SeparationResult::{ protein, nucleic, ligands, waters, ions, other, }
 }
 
 ///|
@@ -380,7 +485,7 @@ pub fn separate_model(model : Model) -> SeparationResult {
       other.push(res)
     }
   }
-  SeparationResult::{ protein, nucleic, ligands, waters, ions, other }
+  SeparationResult::{ protein, nucleic, ligands, waters, ions, other, }
 }
 
 // ---------------------------------------------------------------------------
@@ -425,9 +530,13 @@ pub fn SeparationResult::get_other(self : SeparationResult) -> Array[Residue] {
 
 ///|
 /// Total number of residues.
-pub fn SeparationResult::total_residues(self : SeparationResult) -> Int {
-  self.protein.length() + self.nucleic.length() + self.ligands.length() +
-  self.waters.length() + self.ions.length() + self.other.length()
+pub fn SeparationResult::total_residues(self : SeparationResult) -> Int32 {
+  self.protein.length() +
+  self.nucleic.length() +
+  self.ligands.length() +
+  self.waters.length() +
+  self.ions.length() +
+  self.other.length()
 }
 
 ///|
@@ -499,9 +608,9 @@ pub fn SeparationSummary::to_string(self : SeparationSummary) -> String {
 pub(all) struct LigandMolecule {
   resname : String
   chainid : Char
-  resseqs : Array[Int]
+  resseqs : Array[Int32]
   residues : Array[Residue]
-  num_atoms : Int
+  num_atoms : Int32
 }
 
 ///|
@@ -600,7 +709,7 @@ pub fn LigandMolecule::get_atoms(self : LigandMolecule) -> Array[Atom] {
 
 ///|
 /// Count the number of atoms in a ligand molecule.
-pub fn LigandMolecule::num_atoms_(self : LigandMolecule) -> Int {
+pub fn LigandMolecule::num_atoms_(self : LigandMolecule) -> Int32 {
   self.num_atoms
 }
 
@@ -615,7 +724,7 @@ pub fn contacting_ligands(
   ligands : Array[LigandMolecule],
   protein_atoms : Array[Atom],
   cutoff : Double,
-) -> Array[Int] {
+) -> Array[Int32] {
   let cutoff_sq = cutoff * cutoff
   let result = Array(capacity=0)
   for i in 0..<ligands.length() {
@@ -649,7 +758,7 @@ pub fn ion_coordination(
   ion : Residue,
   protein_atoms : Array[Atom],
   cutoff : Double,
-) -> Array[Int] {
+) -> Array[Int32] {
   let cutoff_sq = cutoff * cutoff
   let result = Array(capacity=0)
   if ion.atoms.length() == 0 {

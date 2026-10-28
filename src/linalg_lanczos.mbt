@@ -7,8 +7,8 @@
 ///|
 pub fn linalg_lanczos_topk(
   mat_vec : (Array[Double]) -> Array[Double],
-  n : Int,
-  n_comps : Int,
+  n : Int32,
+  n_comps : Int32,
 ) -> (Array[Double], Array[Array[Double]]) {
   if n == 0 || n_comps <= 0 {
     return ([], [])

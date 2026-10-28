@@ -27,8 +27,8 @@ fn msf_test_raises(text : String) -> Bool {
 ///|
 fn msf_test_write_raises(
   alignment : @src.MsfAlignment,
-  block_width : Int,
-  group_width : Int,
+  block_width : Int32,
+  group_width : Int32,
   gap_character : String,
 ) -> Bool {
   try {
@@ -61,7 +61,7 @@ fn msf_test_sequence_raises(
   row : String,
   sequence_type : @src.MsfSequenceType,
   weight : Double,
-  checksum : Int,
+  checksum : Int32,
 ) -> Bool {
   try {
     ignore(

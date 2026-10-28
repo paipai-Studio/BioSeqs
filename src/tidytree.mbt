@@ -6,8 +6,8 @@
 ///|
 /// Tree tibble row: one row per node.
 pub struct TreeTibbleRow {
-  node : Int // node number
-  parent : Int // parent node number (-1 for root)
+  node : Int32 // node number
+  parent : Int32 // parent node number (-1 for root)
   branch_length : Double
   label : String
   isTip : Bool
@@ -22,9 +22,9 @@ pub struct TreeTibbleRow {
 /// Tree tibble: tidy representation of a tree.
 pub struct TreeTibble {
   rows : Array[TreeTibbleRow]
-  n_nodes : Int
-  n_tips : Int
-  root : Int
+  n_nodes : Int32
+  n_tips : Int32
+  root : Int32
 }
 
 ///|
@@ -78,7 +78,7 @@ pub fn tidy_as_tibble(tree : TreeioTreeData) -> TreeTibble {
 
 ///|
 /// Compute x coordinate (cumulative branch length from root).
-fn tidy_compute_x(tree : TreeioTreeData, node_id : Int) -> Double {
+fn tidy_compute_x(tree : TreeioTreeData, node_id : Int32) -> Double {
   let mut x = 0.0
   let mut current = node_id
   while current != tree.root && current >= 0 {
@@ -103,7 +103,7 @@ fn tidy_compute_x(tree : TreeioTreeData, node_id : Int) -> Double {
 fn tidy_compute_internal_y(
   tree : TreeioTreeData,
   rows : Array[TreeTibbleRow],
-  node_id : Int,
+  node_id : Int32,
 ) -> Double {
   // Find children
   let mut child_y_sum = 0.0
@@ -137,8 +137,8 @@ fn tidy_compute_internal_y(
 
 ///|
 /// Get all offspring (descendants) of a node.
-pub fn tidy_offspring(tree : TreeioTreeData, node_id : Int) -> Array[Int] {
-  let result : Array[Int] = []
+pub fn tidy_offspring(tree : TreeioTreeData, node_id : Int32) -> Array[Int32] {
+  let result : Array[Int32] = []
   tidy_offspring_rec(tree, node_id, result)
   result
 }
@@ -146,8 +146,8 @@ pub fn tidy_offspring(tree : TreeioTreeData, node_id : Int) -> Array[Int] {
 ///|
 fn tidy_offspring_rec(
   tree : TreeioTreeData,
-  node_id : Int,
-  result : Array[Int],
+  node_id : Int32,
+  result : Array[Int32],
 ) -> Unit {
   let mut i = 0
   while i < tree.nodes.length() {
@@ -166,7 +166,7 @@ fn tidy_offspring_rec(
 
 ///|
 /// Get direct children of a node.
-pub fn tidy_child(tree : TreeioTreeData, node_id : Int) -> Array[Int] {
+pub fn tidy_child(tree : TreeioTreeData, node_id : Int32) -> Array[Int32] {
   let mut i = 0
   while i < tree.nodes.length() {
     if tree.nodes[i].node_id == node_id {
@@ -179,7 +179,7 @@ pub fn tidy_child(tree : TreeioTreeData, node_id : Int) -> Array[Int] {
 
 ///|
 /// Get parent of a node.
-pub fn tidy_parent(tree : TreeioTreeData, node_id : Int) -> Int {
+pub fn tidy_parent(tree : TreeioTreeData, node_id : Int32) -> Int32 {
   let mut i = 0
   while i < tree.nodes.length() {
     if tree.nodes[i].node_id == node_id {
@@ -192,12 +192,12 @@ pub fn tidy_parent(tree : TreeioTreeData, node_id : Int) -> Int {
 
 ///|
 /// Get sibling of a node (other children of parent).
-pub fn tidy_sibling(tree : TreeioTreeData, node_id : Int) -> Array[Int] {
+pub fn tidy_sibling(tree : TreeioTreeData, node_id : Int32) -> Array[Int32] {
   let parent = tidy_parent(tree, node_id)
   if parent < 0 {
     return []
   }
-  let siblings : Array[Int] = []
+  let siblings : Array[Int32] = []
   let children = tidy_child(tree, parent)
   let mut i = 0
   while i < children.length() {
@@ -211,9 +211,13 @@ pub fn tidy_sibling(tree : TreeioTreeData, node_id : Int) -> Array[Int] {
 
 ///|
 /// Get most recent common ancestor (MRCA) of two nodes.
-pub fn tidy_mrca(tree : TreeioTreeData, node_a : Int, node_b : Int) -> Int {
+pub fn tidy_mrca(
+  tree : TreeioTreeData,
+  node_a : Int32,
+  node_b : Int32,
+) -> Int32 {
   // Get ancestors of node_a (including itself)
-  let ancestors_a : Array[Int] = []
+  let ancestors_a : Array[Int32] = []
   let mut current = node_a
   while current >= 0 {
     ancestors_a.push(current)
@@ -236,7 +240,7 @@ pub fn tidy_mrca(tree : TreeioTreeData, node_a : Int, node_b : Int) -> Int {
 
 ///|
 /// Check if a node is a leaf (tip).
-pub fn tidy_is_leaf(tree : TreeioTreeData, node_id : Int) -> Bool {
+pub fn tidy_is_leaf(tree : TreeioTreeData, node_id : Int32) -> Bool {
   let mut i = 0
   while i < tree.nodes.length() {
     if tree.nodes[i].node_id == node_id {
@@ -249,7 +253,7 @@ pub fn tidy_is_leaf(tree : TreeioTreeData, node_id : Int) -> Bool {
 
 ///|
 /// Get node depth (distance from root in number of edges).
-pub fn tidy_node_depth(tree : TreeioTreeData, node_id : Int) -> Int {
+pub fn tidy_node_depth(tree : TreeioTreeData, node_id : Int32) -> Int32 {
   let mut depth = 0
   let mut current = node_id
   while current != tree.root && current >= 0 {
@@ -261,8 +265,8 @@ pub fn tidy_node_depth(tree : TreeioTreeData, node_id : Int) -> Int {
 
 ///|
 /// Get all ancestors of a node (path to root).
-pub fn tidy_ancestors(tree : TreeioTreeData, node_id : Int) -> Array[Int] {
-  let ancestors : Array[Int] = []
+pub fn tidy_ancestors(tree : TreeioTreeData, node_id : Int32) -> Array[Int32] {
+  let ancestors : Array[Int32] = []
   let mut current = tidy_parent(tree, node_id)
   while current >= 0 {
     ancestors.push(current)
@@ -273,8 +277,8 @@ pub fn tidy_ancestors(tree : TreeioTreeData, node_id : Int) -> Array[Int] {
 
 ///|
 /// Get all tips (leaf nodes).
-pub fn tidy_tips(tree : TreeioTreeData) -> Array[Int] {
-  let tips : Array[Int] = []
+pub fn tidy_tips(tree : TreeioTreeData) -> Array[Int32] {
+  let tips : Array[Int32] = []
   let mut i = 0
   while i < tree.nodes.length() {
     if tree.nodes[i].is_leaf {
@@ -287,8 +291,8 @@ pub fn tidy_tips(tree : TreeioTreeData) -> Array[Int] {
 
 ///|
 /// Get all internal nodes.
-pub fn tidy_internal(tree : TreeioTreeData) -> Array[Int] {
-  let internal : Array[Int] = []
+pub fn tidy_internal(tree : TreeioTreeData) -> Array[Int32] {
+  let internal : Array[Int32] = []
   let mut i = 0
   while i < tree.nodes.length() {
     if !tree.nodes[i].is_leaf {
@@ -310,7 +314,12 @@ pub fn tidy_filter_tips(tibble : TreeTibble) -> TreeTibble {
     }
     i = i + 1
   }
-  TreeTibble::{ rows, n_nodes: rows.length(), n_tips: rows.length(), root: tibble.root }
+  TreeTibble::{
+    rows,
+    n_nodes: rows.length(),
+    n_tips: rows.length(),
+    root: tibble.root,
+  }
 }
 
 ///|
@@ -324,12 +333,12 @@ pub fn tidy_filter_internal(tibble : TreeTibble) -> TreeTibble {
     }
     i = i + 1
   }
-  TreeTibble::{ rows, n_nodes: rows.length(), n_tips: 0, root: tibble.root }
+  TreeTibble::{ rows, n_nodes: rows.length(), n_tips: 0, root: tibble.root, }
 }
 
 ///|
 /// Select specific nodes from tibble.
-pub fn tidy_select(tibble : TreeTibble, node_ids : Array[Int]) -> TreeTibble {
+pub fn tidy_select(tibble : TreeTibble, node_ids : Array[Int32]) -> TreeTibble {
   let rows : Array[TreeTibbleRow] = []
   let mut i = 0
   while i < tibble.rows.length() {
@@ -357,12 +366,12 @@ pub fn tidy_select(tibble : TreeTibble, node_ids : Array[Int]) -> TreeTibble {
     }
     count
   }
-  TreeTibble::{ rows, n_nodes: rows.length(), n_tips, root: tibble.root }
+  TreeTibble::{ rows, n_nodes: rows.length(), n_tips, root: tibble.root, }
 }
 
 ///|
 /// Get node by label.
-pub fn tidy_get_node_by_label(tree : TreeioTreeData, label : String) -> Int {
+pub fn tidy_get_node_by_label(tree : TreeioTreeData, label : String) -> Int32 {
   let mut i = 0
   while i < tree.nodes.length() {
     if tree.nodes[i].label == label {
@@ -375,7 +384,7 @@ pub fn tidy_get_node_by_label(tree : TreeioTreeData, label : String) -> Int {
 
 ///|
 /// Get label by node id.
-pub fn tidy_get_label(tree : TreeioTreeData, node_id : Int) -> String {
+pub fn tidy_get_label(tree : TreeioTreeData, node_id : Int32) -> String {
   let mut i = 0
   while i < tree.nodes.length() {
     if tree.nodes[i].node_id == node_id {
@@ -388,7 +397,7 @@ pub fn tidy_get_label(tree : TreeioTreeData, node_id : Int) -> String {
 
 ///|
 /// Get branch length between node and its parent.
-pub fn tidy_branch_length(tree : TreeioTreeData, node_id : Int) -> Double {
+pub fn tidy_branch_length(tree : TreeioTreeData, node_id : Int32) -> Double {
   let mut i = 0
   while i < tree.nodes.length() {
     if tree.nodes[i].node_id == node_id {
@@ -401,7 +410,7 @@ pub fn tidy_branch_length(tree : TreeioTreeData, node_id : Int) -> Double {
 
 ///|
 /// Calculate total branch length from node to root.
-pub fn tidy_dist_to_root(tree : TreeioTreeData, node_id : Int) -> Double {
+pub fn tidy_dist_to_root(tree : TreeioTreeData, node_id : Int32) -> Double {
   let mut dist = 0.0
   let mut current = node_id
   while current != tree.root && current >= 0 {
@@ -415,8 +424,8 @@ pub fn tidy_dist_to_root(tree : TreeioTreeData, node_id : Int) -> Double {
 /// Calculate patristic distance between two nodes.
 pub fn tidy_patristic_distance(
   tree : TreeioTreeData,
-  node_a : Int,
-  node_b : Int,
+  node_a : Int32,
+  node_b : Int32,
 ) -> Double {
   let mrca = tidy_mrca(tree, node_a, node_b)
   let dist_a = tidy_dist_to_root(tree, node_a) - tidy_dist_to_root(tree, mrca)
@@ -426,8 +435,8 @@ pub fn tidy_patristic_distance(
 
 ///|
 /// Reorder tree by post-order traversal.
-pub fn tidy_post_order(tree : TreeioTreeData) -> Array[Int] {
-  let result : Array[Int] = []
+pub fn tidy_post_order(tree : TreeioTreeData) -> Array[Int32] {
+  let result : Array[Int32] = []
   tidy_post_order_rec(tree, tree.root, result)
   result
 }
@@ -435,8 +444,8 @@ pub fn tidy_post_order(tree : TreeioTreeData) -> Array[Int] {
 ///|
 fn tidy_post_order_rec(
   tree : TreeioTreeData,
-  node_id : Int,
-  result : Array[Int],
+  node_id : Int32,
+  result : Array[Int32],
 ) -> Unit {
   let children = tidy_child(tree, node_id)
   let mut i = 0
@@ -449,8 +458,8 @@ fn tidy_post_order_rec(
 
 ///|
 /// Reorder tree by pre-order traversal.
-pub fn tidy_pre_order(tree : TreeioTreeData) -> Array[Int] {
-  let result : Array[Int] = []
+pub fn tidy_pre_order(tree : TreeioTreeData) -> Array[Int32] {
+  let result : Array[Int32] = []
   tidy_pre_order_rec(tree, tree.root, result)
   result
 }
@@ -458,8 +467,8 @@ pub fn tidy_pre_order(tree : TreeioTreeData) -> Array[Int] {
 ///|
 fn tidy_pre_order_rec(
   tree : TreeioTreeData,
-  node_id : Int,
-  result : Array[Int],
+  node_id : Int32,
+  result : Array[Int32],
 ) -> Unit {
   result.push(node_id)
   let children = tidy_child(tree, node_id)

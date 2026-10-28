@@ -11,41 +11,44 @@
 fn main raise {
   println("=== GScores: install two populations on chr1 ===")
   let gss = @src.GScores::new("phastCons7way", "hg38")
-  gss.set_scores(
-    "chr1",
-    "phastCons",
-    [100, 200, 300, 400],
-    [0.1, 0.5, 0.9, 0.4],
-  )
-  gss.set_scores(
-    "chr1",
-    "phyloP",
-    [100, 200, 300, 400],
-    [0.9, 0.7, 0.2, 0.2],
-  )
-  gss.set_scores(
-    "chr2",
-    "phastCons",
-    [150, 250, 350],
-    [0.6, 0.2, 0.8],
-  )
+  gss.set_scores("chr1", "phastCons", [100, 200, 300, 400], [0.1, 0.5, 0.9, 0.4])
+  gss.set_scores("chr1", "phyloP", [100, 200, 300, 400], [0.9, 0.7, 0.2, 0.2])
+  gss.set_scores("chr2", "phastCons", [150, 250, 350], [0.6, 0.2, 0.8])
   println("populations      : \{gss.populations()}")
   println("chr1 stored bases: \{gss.n_stored_positions("chr1")}")
   println("chr2 stored bases: \{gss.n_stored_positions("chr2")}")
 
   println("\n=== Per-position scores (step interpolation, default) ===")
-  println("phastCons chr1:100 = \{gss.score_at("chr1", 100, population="phastCons")}")
-  println("phastCons chr1:150 = \{gss.score_at("chr1", 150, population="phastCons")} (step: keeps 0.1)")
-  println("phastCons chr1:250 = \{gss.score_at("chr1", 250, population="phastCons")} (step: keeps 0.5)")
-  println("phyloP   chr1:250 = \{gss.score_at("chr1", 250, population="phyloP")}")
-  println("phastCons chr1:50  = \{gss.score_at("chr1", 50, population="phastCons")} (before first base: NaN)")
+  println(
+    "phastCons chr1:100 = \{gss.score_at("chr1", 100, population="phastCons")}",
+  )
+  println(
+    "phastCons chr1:150 = \{gss.score_at("chr1", 150, population="phastCons")} (step: keeps 0.1)",
+  )
+  println(
+    "phastCons chr1:250 = \{gss.score_at("chr1", 250, population="phastCons")} (step: keeps 0.5)",
+  )
+  println(
+    "phyloP   chr1:250 = \{gss.score_at("chr1", 250, population="phyloP")}",
+  )
+  println(
+    "phastCons chr1:50  = \{gss.score_at("chr1", 50, population="phastCons")} (before first base: NaN)",
+  )
 
   println("\n=== Linear interpolation between stored bases ===")
   gss.set_interpolation(@src.GsInterpolation::GsLinear)
-  println("phastCons chr1:150 = \{gss.score_at("chr1", 150, population="phastCons")} (0.1 -> 0.5 midpoint)")
-  println("phastCons chr1:250 = \{gss.score_at("chr1", 250, population="phastCons")}")
-  println("phastCons chr1:350 = \{gss.score_at("chr1", 350, population="phastCons")}")
-  println("phastCons chr1:450 = \{gss.score_at("chr1", 450, population="phastCons")} (clamped to last)")
+  println(
+    "phastCons chr1:150 = \{gss.score_at("chr1", 150, population="phastCons")} (0.1 -> 0.5 midpoint)",
+  )
+  println(
+    "phastCons chr1:250 = \{gss.score_at("chr1", 250, population="phastCons")}",
+  )
+  println(
+    "phastCons chr1:350 = \{gss.score_at("chr1", 350, population="phastCons")}",
+  )
+  println(
+    "phastCons chr1:450 = \{gss.score_at("chr1", 450, population="phastCons")} (clamped to last)",
+  )
 
   println("\n=== Range summaries (mean / min / max / median) ===")
   println(

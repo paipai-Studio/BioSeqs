@@ -17,6 +17,8 @@ pub struct MatchrMotif {
   name : String
   pwm : Array[Array[Double]]
 } derive(Eq)
+
+///|
 pub extend MatchrMotif with Eq::{equal, not_equal}
 
 ///|
@@ -29,7 +31,7 @@ pub fn MatchrMotif::new(
 
 ///|
 /// Length of the motif (number of columns).
-pub fn MatchrMotif::len(self : MatchrMotif) -> Int {
+pub fn MatchrMotif::len(self : MatchrMotif) -> Int32 {
   if self.pwm.is_empty() {
     0
   } else {
@@ -49,9 +51,11 @@ pub struct MotifMatches {
   seq_names : Array[String]
   hits : Array[Array[Bool]]
   scores : Array[Array[Double]]
-  counts : Array[Int]
+  counts : Array[Int32]
   max_scores : Array[Double]
 } derive(Eq)
+
+///|
 pub extend MotifMatches with Eq::{equal, not_equal}
 
 ///|
@@ -63,7 +67,7 @@ pub fn motifmatchr_default_bg() -> Array[Double] {
 ///|
 /// Index of a nucleotide character in the A, C, G, T ordering, or `-1`
 /// for non-ACGT characters (including N).
-fn motifmatchr_base_index(c : Int) -> Int {
+fn motifmatchr_base_index(c : Int32) -> Int32 {
   match c {
     65 => 0
     67 => 1
@@ -79,7 +83,7 @@ fn motifmatchr_base_index(c : Int) -> Int {
 /// `pseudocount` is distributed across bases according to `bg`. The
 /// resulting columns each sum to 1.
 pub fn motif_pwm_from_counts(
-  counts : Array[Array[Int]],
+  counts : Array[Array[Int32]],
   bg~ : Array[Double] = motifmatchr_default_bg(),
   pseudocount~ : Double = 0.8,
 ) -> Array[Array[Double]] {
@@ -205,8 +209,8 @@ pub fn motifmatchr_revcomp(seq : String) -> String {
 fn motifmatchr_score_window(
   pssm : Array[Array[Double]],
   seq : String,
-  start : Int,
-  width : Int,
+  start : Int32,
+  width : Int32,
 ) -> Double {
   let mut total = 0.0
   for j in 0..<width {
@@ -225,9 +229,9 @@ fn motifmatchr_score_window(
 fn motifmatchr_scan_one(
   pssm : Array[Array[Double]],
   seq : String,
-  width : Int,
+  width : Int32,
   cutoff : Double,
-) -> (Array[Bool], Array[Double], Int, Double) {
+) -> (Array[Bool], Array[Double], Int32, Double) {
   let n = seq.length()
   let hits : Array[Bool] = Array(capacity=0)
   let scores : Array[Double] = Array(capacity=0)
@@ -281,7 +285,7 @@ pub fn match_motifs(
     let width = motif.len()
     let hits_all : Array[Array[Bool]] = Array(capacity=0)
     let scores_all : Array[Array[Double]] = Array(capacity=0)
-    let counts : Array[Int] = Array(capacity=0)
+    let counts : Array[Int32] = Array(capacity=0)
     let max_scores : Array[Double] = Array(capacity=0)
     for seq in sequences {
       let (hits, scores, count, best) = motifmatchr_scan_one(
@@ -292,23 +296,21 @@ pub fn match_motifs(
       counts.push(count)
       max_scores.push(best)
     }
-    results.push(
-      MotifMatches::{
-        motif,
-        seq_names: names,
-        hits: hits_all,
-        scores: scores_all,
-        counts,
-        max_scores,
-      },
-    )
+    results.push(MotifMatches::{
+      motif,
+      seq_names: names,
+      hits: hits_all,
+      scores: scores_all,
+      counts,
+      max_scores,
+    })
   }
   results
 }
 
 ///|
 /// Total hit count for a motif across all sequences.
-pub fn MotifMatches::total_hits(self : MotifMatches) -> Int {
+pub fn MotifMatches::total_hits(self : MotifMatches) -> Int32 {
   let mut total = 0
   for c in self.counts {
     total += c
@@ -330,8 +332,10 @@ pub fn MotifMatches::best_score(self : MotifMatches) -> Double {
 
 ///|
 /// Hit matrix as a flat list of `(seq_index, position)` pairs.
-pub fn MotifMatches::hit_positions(self : MotifMatches) -> Array[(Int, Int)] {
-  let positions : Array[(Int, Int)] = Array(capacity=0)
+pub fn MotifMatches::hit_positions(
+  self : MotifMatches,
+) -> Array[(Int32, Int32)] {
+  let positions : Array[(Int32, Int32)] = Array(capacity=0)
   for seq_idx in 0..<self.hits.length() {
     for pos in 0..<self.hits[seq_idx].length() {
       if self.hits[seq_idx][pos] {
@@ -347,12 +351,7 @@ pub fn MotifMatches::hit_positions(self : MotifMatches) -> Array[(Int, Int)] {
 /// used by the demo and tests.
 pub fn motifmatchr_sample_motif() -> MatchrMotif {
   // PFM for ACGT: strong diagonal counts.
-  let pfm = [
-    [10, 0, 0, 0],
-    [0, 10, 0, 0],
-    [0, 0, 10, 0],
-    [0, 0, 0, 10],
-  ]
+  let pfm = [[10, 0, 0, 0], [0, 10, 0, 0], [0, 0, 10, 0], [0, 0, 0, 10]]
   let pwm = motif_pwm_from_counts(pfm)
   MatchrMotif::new(name="ACGT", pwm~)
 }

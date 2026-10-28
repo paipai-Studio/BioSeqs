@@ -39,9 +39,9 @@ test "skallel_joint_sfs_folded" {
   let j = @src.skallel_joint_sfs_folded(ac1, ac2, Some(4), Some(4))
   // dims (4//2+1) x (4//2+1) = 3x3; entries at (mac1,mac2): (0,2),(2,0),(0,1)
   assert_eq(j.length(), 3)
-  assert_eq(j[0], [0, 1, 1])  // (0,1)=1 and (0,2)=1
+  assert_eq(j[0], [0, 1, 1]) // (0,1)=1 and (0,2)=1
   assert_eq(j[1], [0, 0, 0])
-  assert_eq(j[2], [1, 0, 0])  // (2,0)=1
+  assert_eq(j[2], [1, 0, 0]) // (2,0)=1
 }
 
 ///|

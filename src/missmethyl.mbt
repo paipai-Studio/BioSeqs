@@ -178,7 +178,7 @@ fn mm_ln_factorial(x : Double) -> Double {
 
 ///|
 /// Multivariate hypergeometric PMF for a 2x2 table.
-fn mm_hypergeom_pmf(a : Int, b : Int, c : Int, d : Int) -> Double {
+fn mm_hypergeom_pmf(a : Int32, b : Int32, c : Int32, d : Int32) -> Double {
   let n = (a + b + c + d).to_double()
   if n <= 0.0 {
     return 0.0
@@ -215,13 +215,12 @@ fn mm_contains(arr : Array[String], val : String) -> Bool {
   false
 }
 
-
 ///|
 /// Intersection of two string arrays (unique, first-seen order).
 fn mm_intersect(a : Array[String], b : Array[String]) -> Array[String] {
   let result : Array[String] = Array(capacity=0)
   for v in a {
-    if mm_contains(b, v) && !(mm_contains(result, v)) {
+    if mm_contains(b, v) && !mm_contains(result, v) {
       result.push(v)
     }
   }
@@ -233,7 +232,7 @@ fn mm_intersect(a : Array[String], b : Array[String]) -> Array[String] {
 fn mm_unique_go_ids(db : MmGoDatabase) -> Array[String] {
   let result : Array[String] = Array(capacity=0)
   for entry in db.entries {
-    if !(mm_contains(result, entry.0)) {
+    if !mm_contains(result, entry.0) {
       result.push(entry.0)
     }
   }
@@ -260,7 +259,7 @@ fn mm_go_meta(db : MmGoDatabase, go_id : String) -> (String, String) {
 pub struct MmProbeAnnotation {
   probe_id : String
   chr : String
-  pos : Int
+  pos : Int32
   gene : String
   island_relation : String
   probe_type : String
@@ -271,7 +270,7 @@ pub struct MmProbeAnnotation {
 pub fn MmProbeAnnotation::new(
   probe_id : String,
   chr : String,
-  pos : Int,
+  pos : Int32,
   gene : String,
   island_relation : String,
   probe_type : String,
@@ -293,7 +292,7 @@ pub fn MmProbeAnnotation::chr(self : MmProbeAnnotation) -> String {
 
 ///|
 /// Genomic position.
-pub fn MmProbeAnnotation::pos(self : MmProbeAnnotation) -> Int {
+pub fn MmProbeAnnotation::pos(self : MmProbeAnnotation) -> Int32 {
   self.pos
 }
 
@@ -344,7 +343,7 @@ pub struct MmDmpResult {
   p_value : Double
   adj_p_value : Double
   chr : String
-  pos : Int
+  pos : Int32
   gene : String
 }
 
@@ -357,7 +356,7 @@ pub fn MmDmpResult::new(
   p_value : Double,
   adj_p_value : Double,
   chr : String,
-  pos : Int,
+  pos : Int32,
   gene : String,
 ) -> MmDmpResult {
   MmDmpResult::{
@@ -410,7 +409,7 @@ pub fn MmDmpResult::chr(self : MmDmpResult) -> String {
 
 ///|
 /// Genomic position.
-pub fn MmDmpResult::pos(self : MmDmpResult) -> Int {
+pub fn MmDmpResult::pos(self : MmDmpResult) -> Int32 {
   self.pos
 }
 
@@ -435,8 +434,8 @@ pub struct MmGoResult {
   go_id : String
   go_term : String
   ontology : String
-  n_probes : Int
-  n_sig_probes : Int
+  n_probes : Int32
+  n_sig_probes : Int32
   p_value : Double
   adj_p_value : Double
   expected : Double
@@ -448,8 +447,8 @@ pub fn MmGoResult::new(
   go_id : String,
   go_term : String,
   ontology : String,
-  n_probes : Int,
-  n_sig_probes : Int,
+  n_probes : Int32,
+  n_sig_probes : Int32,
   p_value : Double,
   adj_p_value : Double,
   expected : Double,
@@ -486,13 +485,13 @@ pub fn MmGoResult::ontology(self : MmGoResult) -> String {
 
 ///|
 /// Number of background probes annotated to this GO term.
-pub fn MmGoResult::n_probes(self : MmGoResult) -> Int {
+pub fn MmGoResult::n_probes(self : MmGoResult) -> Int32 {
   self.n_probes
 }
 
 ///|
 /// Number of significant probes annotated to this GO term.
-pub fn MmGoResult::n_sig_probes(self : MmGoResult) -> Int {
+pub fn MmGoResult::n_sig_probes(self : MmGoResult) -> Int32 {
   self.n_sig_probes
 }
 
@@ -546,7 +545,7 @@ pub fn MmGoDatabase::genes_for_go(
 ) -> Array[String] {
   let result : Array[String] = Array(capacity=0)
   for entry in self.entries {
-    if entry.0 == go_id && !(mm_contains(result, entry.1)) {
+    if entry.0 == go_id && !mm_contains(result, entry.1) {
       result.push(entry.1)
     }
   }
@@ -561,7 +560,7 @@ pub fn MmGoDatabase::go_for_gene(
 ) -> Array[String] {
   let result : Array[String] = Array(capacity=0)
   for entry in self.entries {
-    if entry.1 == gene && !(mm_contains(result, entry.0)) {
+    if entry.1 == gene && !mm_contains(result, entry.0) {
       result.push(entry.0)
     }
   }
@@ -679,7 +678,7 @@ pub fn mm_bh_correct(p_values : Array[Double]) -> Array[Double] {
 ///|
 /// Two-sided Fisher's exact test for a 2x2 contingency table.
 /// Table: [[a, b], [c, d]]. Returns the two-sided p-value.
-pub fn mm_fisher_exact(a : Int, b : Int, c : Int, d : Int) -> Double {
+pub fn mm_fisher_exact(a : Int32, b : Int32, c : Int32, d : Int32) -> Double {
   let n = a + b + c + d
   if n == 0 {
     return 1.0
@@ -791,8 +790,7 @@ pub fn mm_map_probes_to_genes(
 ) -> Array[String] {
   let result : Array[String] = Array(capacity=0)
   for ann in annotations {
-    if mm_contains(probes, ann.probe_id()) &&
-      !(mm_contains(result, ann.gene())) {
+    if mm_contains(probes, ann.probe_id()) && !mm_contains(result, ann.gene()) {
       result.push(ann.gene())
     }
   }
@@ -807,8 +805,7 @@ fn mm_probes_for_genes(
 ) -> Array[String] {
   let result : Array[String] = Array(capacity=0)
   for ann in annotations {
-    if mm_contains(genes, ann.gene()) &&
-      !(mm_contains(result, ann.probe_id())) {
+    if mm_contains(genes, ann.gene()) && !mm_contains(result, ann.probe_id()) {
       result.push(ann.probe_id())
     }
   }

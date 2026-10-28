@@ -105,12 +105,12 @@ fn bc_parse_double(s : String) -> Double {
 // ---------------------------------------------------------------------------
 
 ///|
-let bc_rng_state : Ref[Int] = Ref::Ref(987654321)
+let bc_rng_state : Ref[Int32] = Ref::Ref(987654321)
 
 ///|
 /// Seed the internal random number generator used by kcluster (npass > 1),
 /// kmedoids (npass > 1) and somcluster. The generator is deterministic.
-pub fn cluster_seed(seed : Int) -> Unit {
+pub fn cluster_seed(seed : Int32) -> Unit {
   bc_rng_state.val = if seed <= 0 { 987654321 } else { seed % 2147483647 }
 }
 
@@ -134,7 +134,7 @@ fn bc_uniform() -> Double {
 
 ///|
 /// Binomially distributed random number (counting method).
-fn bc_binomial(n : Int, p : Double) -> Int {
+fn bc_binomial(n : Int32, p : Double) -> Int32 {
   let mut count = 0
   for i = 0; i < n; i = i + 1 {
     if bc_uniform() < p {
@@ -148,9 +148,9 @@ fn bc_binomial(n : Int, p : Double) -> Int {
 /// Randomly assign elements to clusters, making sure each cluster receives
 /// at least one element (port of randomassign in cluster.c).
 fn bc_randomassign(
-  nclusters : Int,
-  nelements : Int,
-  clusterid : Array[Int],
+  nclusters : Int32,
+  nelements : Int32,
+  clusterid : Array[Int32],
 ) -> Unit {
   let mut k = 0
   let mut n = nelements - nclusters
@@ -189,7 +189,7 @@ fn bc_randomassign(
 ///|
 /// Median of the first n values in x (result identical to median() in
 /// cluster.c; implemented via sorting for clarity).
-fn bc_median(n : Int, x : Array[Double]) -> Double {
+fn bc_median(n : Int32, x : Array[Double]) -> Double {
   if n < 1 {
     return 0.0
   }
@@ -214,11 +214,11 @@ fn bc_median(n : Int, x : Array[Double]) -> Double {
 
 ///|
 /// Fill index with the positions of the data sorted in increasing order.
-fn bc_sort_index(n : Int, data : Array[Double], index : Array[Int]) -> Unit {
+fn bc_sort_index(n : Int32, data : Array[Double], index : Array[Int32]) -> Unit {
   for i = 0; i < n; i = i + 1 {
     index[i] = i
   }
-  index.sort_by(fn(a : Int, b : Int) -> Int {
+  index.sort_by(fn(a : Int32, b : Int32) -> Int32 {
     if data[a] < data[b] {
       -1
     } else if data[a] > data[b] {
@@ -234,7 +234,7 @@ fn bc_sort_index(n : Int, data : Array[Double], index : Array[Int]) -> Unit {
 /// same value get the same rank, equal to the average of the ranks had the
 /// elements been different (port of getrank in cluster.c).
 fn bc_getrank(
-  n : Int,
+  n : Int32,
   data : Array[Double],
   weight : Array[Double],
 ) -> Array[Double] {
@@ -242,7 +242,7 @@ fn bc_getrank(
   if n < 1 {
     return rank
   }
-  let index : Array[Int] = Array::make(n, 0)
+  let index : Array[Int32] = Array::make(n, 0)
   bc_sort_index(n, data, index)
   let mut total = 0.0
   let mut k = 0
@@ -277,15 +277,15 @@ fn bc_getrank(
 ///|
 /// Weighted Euclidean distance between two rows/columns (port of euclid).
 fn bc_euclid(
-  n : Int,
+  n : Int32,
   data1 : Array[Array[Double]],
   data2 : Array[Array[Double]],
-  mask1 : Array[Array[Int]],
-  mask2 : Array[Array[Int]],
+  mask1 : Array[Array[Int32]],
+  mask2 : Array[Array[Int32]],
   weight : Array[Double],
-  index1 : Int,
-  index2 : Int,
-  transpose : Int,
+  index1 : Int32,
+  index2 : Int32,
+  transpose : Int32,
 ) -> Double {
   let mut result = 0.0
   let mut tweight = 0.0
@@ -315,15 +315,15 @@ fn bc_euclid(
 ///|
 /// Weighted "City Block" distance between two rows/columns (port of cityblock).
 fn bc_cityblock(
-  n : Int,
+  n : Int32,
   data1 : Array[Array[Double]],
   data2 : Array[Array[Double]],
-  mask1 : Array[Array[Int]],
-  mask2 : Array[Array[Int]],
+  mask1 : Array[Array[Int32]],
+  mask2 : Array[Array[Int32]],
   weight : Array[Double],
-  index1 : Int,
-  index2 : Int,
-  transpose : Int,
+  index1 : Int32,
+  index2 : Int32,
+  transpose : Int32,
 ) -> Double {
   let mut result = 0.0
   let mut tweight = 0.0
@@ -355,15 +355,15 @@ fn bc_cityblock(
 /// selects |r| and `uncentered` uses zero means (port of correlation,
 /// acorrelation, ucorrelation and uacorrelation).
 fn bc_correlation_core(
-  n : Int,
+  n : Int32,
   data1 : Array[Array[Double]],
   data2 : Array[Array[Double]],
-  mask1 : Array[Array[Int]],
-  mask2 : Array[Array[Int]],
+  mask1 : Array[Array[Int32]],
+  mask2 : Array[Array[Int32]],
   weight : Array[Double],
-  index1 : Int,
-  index2 : Int,
-  transpose : Int,
+  index1 : Int32,
+  index2 : Int32,
+  transpose : Int32,
   absolute~ : Bool,
   uncentered~ : Bool,
 ) -> Double {
@@ -447,15 +447,15 @@ fn bc_correlation_core(
 
 ///|
 fn bc_correlation(
-  n : Int,
+  n : Int32,
   data1 : Array[Array[Double]],
   data2 : Array[Array[Double]],
-  mask1 : Array[Array[Int]],
-  mask2 : Array[Array[Int]],
+  mask1 : Array[Array[Int32]],
+  mask2 : Array[Array[Int32]],
   weight : Array[Double],
-  index1 : Int,
-  index2 : Int,
-  transpose : Int,
+  index1 : Int32,
+  index2 : Int32,
+  transpose : Int32,
 ) -> Double {
   bc_correlation_core(
     n,
@@ -474,15 +474,15 @@ fn bc_correlation(
 
 ///|
 fn bc_acorrelation(
-  n : Int,
+  n : Int32,
   data1 : Array[Array[Double]],
   data2 : Array[Array[Double]],
-  mask1 : Array[Array[Int]],
-  mask2 : Array[Array[Int]],
+  mask1 : Array[Array[Int32]],
+  mask2 : Array[Array[Int32]],
   weight : Array[Double],
-  index1 : Int,
-  index2 : Int,
-  transpose : Int,
+  index1 : Int32,
+  index2 : Int32,
+  transpose : Int32,
 ) -> Double {
   bc_correlation_core(
     n,
@@ -501,15 +501,15 @@ fn bc_acorrelation(
 
 ///|
 fn bc_ucorrelation(
-  n : Int,
+  n : Int32,
   data1 : Array[Array[Double]],
   data2 : Array[Array[Double]],
-  mask1 : Array[Array[Int]],
-  mask2 : Array[Array[Int]],
+  mask1 : Array[Array[Int32]],
+  mask2 : Array[Array[Int32]],
   weight : Array[Double],
-  index1 : Int,
-  index2 : Int,
-  transpose : Int,
+  index1 : Int32,
+  index2 : Int32,
+  transpose : Int32,
 ) -> Double {
   bc_correlation_core(
     n,
@@ -528,15 +528,15 @@ fn bc_ucorrelation(
 
 ///|
 fn bc_uacorrelation(
-  n : Int,
+  n : Int32,
   data1 : Array[Array[Double]],
   data2 : Array[Array[Double]],
-  mask1 : Array[Array[Int]],
-  mask2 : Array[Array[Int]],
+  mask1 : Array[Array[Int32]],
+  mask2 : Array[Array[Int32]],
   weight : Array[Double],
-  index1 : Int,
-  index2 : Int,
-  transpose : Int,
+  index1 : Int32,
+  index2 : Int32,
+  transpose : Int32,
 ) -> Double {
   bc_correlation_core(
     n,
@@ -556,15 +556,15 @@ fn bc_uacorrelation(
 ///|
 /// Spearman rank correlation distance, 1 - r_s (port of spearman).
 fn bc_spearman(
-  n : Int,
+  n : Int32,
   data1 : Array[Array[Double]],
   data2 : Array[Array[Double]],
-  mask1 : Array[Array[Int]],
-  mask2 : Array[Array[Int]],
+  mask1 : Array[Array[Int32]],
+  mask2 : Array[Array[Int32]],
   weight : Array[Double],
-  index1 : Int,
-  index2 : Int,
-  transpose : Int,
+  index1 : Int32,
+  index2 : Int32,
+  transpose : Int32,
 ) -> Double {
   let mut m = 0
   let tdata1 : Array[Double] = Array(capacity=0)
@@ -627,15 +627,15 @@ fn bc_spearman(
 ///|
 /// Kendall's tau distance, 1 - tau (port of kendall).
 fn bc_kendall(
-  n : Int,
+  n : Int32,
   data1 : Array[Array[Double]],
   data2 : Array[Array[Double]],
-  mask1 : Array[Array[Int]],
-  mask2 : Array[Array[Int]],
+  mask1 : Array[Array[Int32]],
+  mask2 : Array[Array[Int32]],
   weight : Array[Double],
-  index1 : Int,
-  index2 : Int,
-  transpose : Int,
+  index1 : Int32,
+  index2 : Int32,
+  transpose : Int32,
 ) -> Double {
   let mut con = 0.0
   let mut dis = 0.0
@@ -716,15 +716,15 @@ fn bc_kendall(
 
 ///|
 type BCMetric = (
-  Int,
+  Int32,
   Array[Array[Double]],
   Array[Array[Double]],
-  Array[Array[Int]],
-  Array[Array[Int]],
+  Array[Array[Int32]],
+  Array[Array[Int32]],
   Array[Double],
-  Int,
-  Int,
-  Int,
+  Int32,
+  Int32,
+  Int32,
 ) -> Double
 
 ///|
@@ -756,7 +756,7 @@ fn bc_setmetric(dist : String) -> BCMetric {
 /// element i of the result contains i values (matrix[i][j], j < i).
 pub fn distancematrix(
   data : Array[Array[Double]],
-  mask? : Array[Array[Int]],
+  mask? : Array[Array[Int32]],
   weight? : Array[Double],
   transpose? : Bool,
   dist? : String,
@@ -785,12 +785,11 @@ pub fn distancematrix(
   matrix
 }
 
-
 ///|
-fn bc_ones_mask(nrows : Int, ncolumns : Int) -> Array[Array[Int]] {
-  let mask : Array[Array[Int]] = Array(capacity=0)
+fn bc_ones_mask(nrows : Int32, ncolumns : Int32) -> Array[Array[Int32]] {
+  let mask : Array[Array[Int32]] = Array(capacity=0)
   for _i = 0; _i < nrows; _i = _i + 1 {
-    let row : Array[Int] = Array(capacity=0)
+    let row : Array[Int32] = Array(capacity=0)
     for _j = 0; _j < ncolumns; _j = _j + 1 {
       row.push(1)
     }
@@ -800,7 +799,7 @@ fn bc_ones_mask(nrows : Int, ncolumns : Int) -> Array[Array[Int]] {
 }
 
 ///|
-fn bc_ones_weight(n : Int) -> Array[Double] {
+fn bc_ones_weight(n : Int32) -> Array[Double] {
   Array::make(n, 1.0)
 }
 
@@ -824,9 +823,9 @@ fn bc_copy_distmatrix(
 /// Find the shortest distance between pairs of elements
 /// (port of find_closest_pair); returns (distance, ip, jp).
 fn bc_find_closest_pair(
-  n : Int,
+  n : Int32,
   distmatrix : Array[Array[Double]],
-) -> (Double, Int, Int) {
+) -> (Double, Int32, Int32) {
   let mut distance = distmatrix[1][0]
   let mut ip = 1
   let mut jp = 0
@@ -851,8 +850,8 @@ fn bc_find_closest_pair(
 /// One node in a hierarchical clustering tree. Elements are numbered
 /// 0..nelements-1; nodes are numbered -1..-(nelements-1).
 pub struct ClusterNode {
-  mut left : Int
-  mut right : Int
+  mut left : Int32
+  mut right : Int32
   mut distance : Double
 }
 
@@ -860,18 +859,18 @@ pub struct ClusterNode {
 /// Hierarchical clustering tree consisting of ClusterNode elements.
 pub struct ClusterTree {
   nodes : Array[ClusterNode]
-  nelements : Int
+  nelements : Int32
 }
 
 ///|
 /// Number of nodes in the tree (nelements - 1 for a complete tree).
-pub fn ClusterTree::length(self : ClusterTree) -> Int {
+pub fn ClusterTree::length(self : ClusterTree) -> Int32 {
   self.nodes.length()
 }
 
 ///|
 /// Access node i of the tree.
-pub fn ClusterTree::node(self : ClusterTree, i : Int) -> ClusterNode {
+pub fn ClusterTree::node(self : ClusterTree, i : Int32) -> ClusterNode {
   self.nodes[i]
 }
 
@@ -886,7 +885,7 @@ pub fn ClusterTree::all_nodes(self : ClusterTree) -> Array[ClusterNode] {
 /// and return the cluster number to which each element was assigned
 /// (port of cuttree). Clusters are numbered in the left-to-right order in
 /// which they appear in the tree.
-pub fn ClusterTree::cut(self : ClusterTree, nclusters? : Int) -> Array[Int] {
+pub fn ClusterTree::cut(self : ClusterTree, nclusters? : Int32) -> Array[Int32] {
   let n = nclusters.unwrap_or(self.nelements)
   let k = if n > self.nelements { self.nelements } else { n }
   bc_cuttree(self.nelements, self.nodes, k)
@@ -900,11 +899,11 @@ pub fn ClusterTree::cut(self : ClusterTree, nclusters? : Int) -> Array[Int] {
 pub fn ClusterTree::sort(
   self : ClusterTree,
   order? : Array[Double],
-) -> Array[Int] {
+) -> Array[Int32] {
   let nnodes = self.nodes.length()
   let nelements = nnodes + 1
   let ord = order.unwrap_or(Array::make(nelements, 1.0))
-  let indices : Array[Int] = Array::make(nelements, 0)
+  let indices : Array[Int32] = Array::make(nelements, 0)
   bc_sorttree(nnodes, self.nodes, ord, indices)
   indices
 }
@@ -912,11 +911,11 @@ pub fn ClusterTree::sort(
 ///|
 /// Port of cuttree in cluster.c.
 fn bc_cuttree(
-  nelements : Int,
+  nelements : Int32,
   tree : Array[ClusterNode],
-  nclusters : Int,
-) -> Array[Int] {
-  let clusterid : Array[Int] = Array::make(nelements, 0)
+  nclusters : Int32,
+) -> Array[Int32] {
+  let clusterid : Array[Int32] = Array::make(nelements, 0)
   if nclusters == 1 {
     for i = 0; i < nelements; i = i + 1 {
       clusterid[i] = 0
@@ -929,7 +928,7 @@ fn bc_cuttree(
     }
     return clusterid
   }
-  let parents : Array[Int] = Array::make(nelements - 1, 0)
+  let parents : Array[Int32] = Array::make(nelements - 1, 0)
   let mut i = -nelements + 1 // top node
   let mut k = -1
   let mut previous = nelements
@@ -970,12 +969,12 @@ fn bc_cuttree(
 ///|
 /// Port of sorttree in cluster.c.
 fn bc_sorttree(
-  nnodes : Int,
+  nnodes : Int32,
   tree : Array[ClusterNode],
   order : Array[Double],
-  indices : Array[Int],
+  indices : Array[Int32],
 ) -> Unit {
-  let nodecounts : Array[Int] = Array::make(nnodes, 0)
+  let nodecounts : Array[Int32] = Array::make(nnodes, 0)
   let nodeorder : Array[Double] = Array::make(nnodes, 0.0)
   for i = 0; i < nnodes; i = i + 1 {
     let i1 = tree[i].left
@@ -1029,12 +1028,12 @@ fn bc_sorttree(
 /// Pairwise single-linkage hierarchical clustering (SLINK algorithm,
 /// port of pslcluster in cluster.c, distance-matrix path).
 fn bc_pslcluster(
-  nelements : Int,
+  nelements : Int32,
   distmatrix : Array[Array[Double]],
 ) -> Array[ClusterNode] {
   let nnodes = nelements - 1
   let temp : Array[Double] = Array::make(nnodes, 0.0)
-  let vector : Array[Int] = Array::make(nnodes, 0)
+  let vector : Array[Int32] = Array::make(nnodes, 0)
   let result : Array[ClusterNode] = Array(capacity=0)
   for _i = 0; _i < nelements; _i = _i + 1 {
     result.push({ left: 0, right: 0, distance: bc_DBL_MAX, })
@@ -1073,7 +1072,7 @@ fn bc_pslcluster(
   for i = 0; i < nnodes; i = i + 1 {
     sorted.push(result[i])
   }
-  sorted.sort_by(fn(a : ClusterNode, b : ClusterNode) -> Int {
+  sorted.sort_by(fn(a : ClusterNode, b : ClusterNode) -> Int32 {
     if a.distance < b.distance {
       -1
     } else if a.distance > b.distance {
@@ -1086,7 +1085,7 @@ fn bc_pslcluster(
       0
     }
   })
-  let index : Array[Int] = Array::make(nelements, 0)
+  let index : Array[Int32] = Array::make(nelements, 0)
   for i = 0; i < nelements; i = i + 1 {
     index[i] = i
   }
@@ -1109,10 +1108,10 @@ fn bc_pslcluster(
 /// Pairwise maximum- (complete-) linkage clustering (port of pmlcluster).
 /// Note: this function modifies the contents of distmatrix.
 fn bc_pmlcluster(
-  nelements : Int,
+  nelements : Int32,
   distmatrix : Array[Array[Double]],
 ) -> Array[ClusterNode] {
-  let clusterid : Array[Int] = Array::make(nelements, 0)
+  let clusterid : Array[Int32] = Array::make(nelements, 0)
   let result : Array[ClusterNode] = Array(capacity=0)
   for _i = 0; _i < nelements - 1; _i = _i + 1 {
     result.push({ left: 0, right: 0, distance: 0.0, })
@@ -1157,11 +1156,11 @@ fn bc_pmlcluster(
 /// Pairwise average-linkage clustering (port of palcluster).
 /// Note: this function modifies the contents of distmatrix.
 fn bc_palcluster(
-  nelements : Int,
+  nelements : Int32,
   distmatrix : Array[Array[Double]],
 ) -> Array[ClusterNode] {
-  let clusterid : Array[Int] = Array::make(nelements, 0)
-  let number : Array[Int] = Array::make(nelements, 0)
+  let clusterid : Array[Int32] = Array::make(nelements, 0)
+  let number : Array[Int32] = Array::make(nelements, 0)
   let result : Array[ClusterNode] = Array(capacity=0)
   for _i = 0; _i < nelements - 1; _i = _i + 1 {
     result.push({ left: 0, right: 0, distance: 0.0, })
@@ -1225,30 +1224,30 @@ fn bc_palcluster(
 /// Pairwise centroid-linkage clustering (port of pclcluster).
 /// Note: this function modifies the contents of distmatrix.
 fn bc_pclcluster(
-  nrows : Int,
-  ncolumns : Int,
+  nrows : Int32,
+  ncolumns : Int32,
   data : Array[Array[Double]],
-  mask : Array[Array[Int]],
+  mask : Array[Array[Int32]],
   weight : Array[Double],
   distmatrix : Array[Array[Double]],
   dist : String,
-  transpose : Int,
+  transpose : Int32,
 ) -> Array[ClusterNode] {
   let nelements = if transpose == 0 { nrows } else { ncolumns }
   let ndata = if transpose == 0 { ncolumns } else { nrows }
   let nnodes = nelements - 1
   let metric = bc_setmetric(dist)
-  let distid : Array[Int] = Array::make(nelements, 0)
+  let distid : Array[Int32] = Array::make(nelements, 0)
   let result : Array[ClusterNode] = Array(capacity=0)
   for _i = 0; _i < nnodes; _i = _i + 1 {
     result.push({ left: 0, right: 0, distance: 0.0, })
   }
   // Storage for node data (a private copy of data and mask)
   let newdata : Array[Array[Double]] = Array(capacity=0)
-  let newmask : Array[Array[Int]] = Array(capacity=0)
+  let newmask : Array[Array[Int32]] = Array(capacity=0)
   for i = 0; i < nelements; i = i + 1 {
     let rowd : Array[Double] = Array(capacity=0)
-    let rowm : Array[Int] = Array(capacity=0)
+    let rowm : Array[Int32] = Array(capacity=0)
     for j = 0; j < ndata; j = j + 1 {
       if transpose == 0 {
         rowd.push(data[i][j])
@@ -1321,7 +1320,7 @@ fn bc_pclcluster(
 ///     "s" Spearman, "k" Kendall.
 pub fn treecluster(
   data : Array[Array[Double]],
-  mask? : Array[Array[Int]],
+  mask? : Array[Array[Int32]],
   weight? : Array[Double],
   transpose? : Bool,
   method_? : String,
@@ -1408,7 +1407,7 @@ pub fn treecluster_from_distance(
 /// Result of clustercentroids: the cluster centroids and their mask.
 pub struct CentroidsResult {
   cdata : Array[Array[Double]]
-  cmask : Array[Array[Int]]
+  cmask : Array[Array[Int32]]
 }
 
 ///|
@@ -1417,7 +1416,7 @@ pub fn CentroidsResult::cdata(self : CentroidsResult) -> Array[Array[Double]] {
 }
 
 ///|
-pub fn CentroidsResult::cmask(self : CentroidsResult) -> Array[Array[Int]] {
+pub fn CentroidsResult::cmask(self : CentroidsResult) -> Array[Array[Int32]] {
   self.cmask
 }
 
@@ -1425,15 +1424,15 @@ pub fn CentroidsResult::cmask(self : CentroidsResult) -> Array[Array[Int]] {
 /// Calculate the cluster centroids as the mean over all elements belonging
 /// to each cluster, for each dimension (port of getclustermeans).
 fn bc_getclustermeans(
-  nclusters : Int,
-  nrows : Int,
-  ncolumns : Int,
+  nclusters : Int32,
+  nrows : Int32,
+  ncolumns : Int32,
   data : Array[Array[Double]],
-  mask : Array[Array[Int]],
-  clusterid : Array[Int],
+  mask : Array[Array[Int32]],
+  clusterid : Array[Int32],
   cdata : Array[Array[Double]],
-  cmask : Array[Array[Int]],
-  transpose : Int,
+  cmask : Array[Array[Int32]],
+  transpose : Int32,
 ) -> Unit {
   if transpose == 0 {
     for i = 0; i < nclusters; i = i + 1 {
@@ -1490,15 +1489,15 @@ fn bc_getclustermeans(
 /// Calculate the cluster centroids as the median over all elements
 /// belonging to each cluster, for each dimension (port of getclustermedians).
 fn bc_getclustermedians(
-  nclusters : Int,
-  nrows : Int,
-  ncolumns : Int,
+  nclusters : Int32,
+  nrows : Int32,
+  ncolumns : Int32,
   data : Array[Array[Double]],
-  mask : Array[Array[Int]],
-  clusterid : Array[Int],
+  mask : Array[Array[Int32]],
+  clusterid : Array[Int32],
   cdata : Array[Array[Double]],
-  cmask : Array[Array[Int]],
-  transpose : Int,
+  cmask : Array[Array[Int32]],
+  transpose : Int32,
   cache : Array[Double],
 ) -> Unit {
   if transpose == 0 {
@@ -1546,11 +1545,11 @@ fn bc_getclustermedians(
 /// Calculate the medoids: the element of each cluster with the smallest sum
 /// of distances to the other elements (port of getclustermedoids).
 fn bc_getclustermedoids(
-  nclusters : Int,
-  nelements : Int,
+  nclusters : Int32,
+  nelements : Int32,
   distmatrix : Array[Array[Double]],
-  clusterid : Array[Int],
-  centroids : Array[Int],
+  clusterid : Array[Int32],
+  centroids : Array[Int32],
   errors : Array[Double],
 ) -> Unit {
   for j = 0; j < nclusters; j = j + 1 {
@@ -1583,29 +1582,29 @@ fn bc_getclustermedoids(
 /// EM iteration of k-means or k-median clustering (port of kmeans and
 /// kmedians in cluster.c). Returns (ifound, error).
 fn bc_kmeans(
-  nclusters : Int,
-  nrows : Int,
-  ncolumns : Int,
+  nclusters : Int32,
+  nrows : Int32,
+  ncolumns : Int32,
   data : Array[Array[Double]],
-  mask : Array[Array[Int]],
+  mask : Array[Array[Int32]],
   weight : Array[Double],
-  transpose : Int,
-  npass : Int,
+  transpose : Int32,
+  npass : Int32,
   dist : String,
   cdata : Array[Array[Double]],
-  cmask : Array[Array[Int]],
-  clusterid : Array[Int],
+  cmask : Array[Array[Int32]],
+  clusterid : Array[Int32],
   use_medians : Bool,
-) -> (Int, Double) {
+) -> (Int32, Double) {
   let nelements = if transpose == 0 { nrows } else { ncolumns }
   let ndata = if transpose == 0 { ncolumns } else { nrows }
   let metric = bc_setmetric(dist)
   let mut ifound = 1
   let mut error = bc_DBL_MAX
-  let tclusterid : Array[Int] = Array::make(nelements, 0)
-  let counts : Array[Int] = Array::make(nclusters, 0)
-  let mapping : Array[Int] = Array::make(nclusters, -1)
-  let saved : Array[Int] = Array::make(nelements, 0)
+  let tclusterid : Array[Int32] = Array::make(nelements, 0)
+  let counts : Array[Int32] = Array::make(nclusters, 0)
+  let mapping : Array[Int32] = Array::make(nclusters, -1)
+  let saved : Array[Int32] = Array::make(nelements, 0)
   let cache : Array[Double] = Array::make(nelements, 0.0)
   let mut ipass = 0
   while true {
@@ -1738,13 +1737,13 @@ fn bc_kmeans(
 /// Result of kcluster: cluster assignments, within-cluster sum of distances
 /// and the number of times the optimal solution was found.
 pub struct KClusterResult {
-  clusterid : Array[Int]
+  clusterid : Array[Int32]
   error : Double
-  ifound : Int
+  ifound : Int32
 }
 
 ///|
-pub fn KClusterResult::clusterid(self : KClusterResult) -> Array[Int] {
+pub fn KClusterResult::clusterid(self : KClusterResult) -> Array[Int32] {
   self.clusterid
 }
 
@@ -1754,7 +1753,7 @@ pub fn KClusterResult::error(self : KClusterResult) -> Double {
 }
 
 ///|
-pub fn KClusterResult::ifound(self : KClusterResult) -> Int {
+pub fn KClusterResult::ifound(self : KClusterResult) -> Int32 {
   self.ifound
 }
 
@@ -1769,14 +1768,14 @@ pub fn KClusterResult::ifound(self : KClusterResult) -> Int {
 /// solution with the lowest within-cluster sum of distances is kept.
 pub fn kcluster(
   data : Array[Array[Double]],
-  nclusters? : Int,
-  mask? : Array[Array[Int]],
+  nclusters? : Int32,
+  mask? : Array[Array[Int32]],
   weight? : Array[Double],
   transpose? : Bool,
-  npass? : Int,
+  npass? : Int32,
   method_? : String,
   dist? : String,
-  initialid? : Array[Int],
+  initialid? : Array[Int32],
 ) -> KClusterResult {
   let tr = transpose.unwrap_or(false)
   let nrows = data.length()
@@ -1787,10 +1786,10 @@ pub fn kcluster(
   let mut passes = npass.unwrap_or(1)
   let meth = method_.unwrap_or("a")
   let d = dist.unwrap_or("e")
-  let clusterid : Array[Int] = match initialid {
+  let clusterid : Array[Int32] = match initialid {
     Some(init) => {
       passes = 0 // deterministic single run from the given clustering
-      let arr : Array[Int] = Array(capacity=0)
+      let arr : Array[Int32] = Array(capacity=0)
       for i = 0; i < nelements; i = i + 1 {
         arr.push(init[i])
       }
@@ -1807,7 +1806,7 @@ pub fn kcluster(
   // Allocate space to store the centroid data
   let (crow, ccol) = if tr { (ndata, k) } else { (k, ndata) }
   let cdata : Array[Array[Double]] = Array(capacity=0)
-  let cmask : Array[Array[Int]] = Array(capacity=0)
+  let cmask : Array[Array[Int32]] = Array(capacity=0)
   for _i = 0; _i < crow; _i = _i + 1 {
     cdata.push(Array::make(ccol, 0.0))
     cmask.push(Array::make(ccol, 0))
@@ -1844,13 +1843,13 @@ pub fn kcluster(
 /// numbers of the cluster medoids), within-cluster sum of distances, and
 /// the number of times the optimal solution was found.
 pub struct KMedoidsResult {
-  clusterid : Array[Int]
+  clusterid : Array[Int32]
   error : Double
-  ifound : Int
+  ifound : Int32
 }
 
 ///|
-pub fn KMedoidsResult::clusterid(self : KMedoidsResult) -> Array[Int] {
+pub fn KMedoidsResult::clusterid(self : KMedoidsResult) -> Array[Int32] {
   self.clusterid
 }
 
@@ -1860,7 +1859,7 @@ pub fn KMedoidsResult::error(self : KMedoidsResult) -> Double {
 }
 
 ///|
-pub fn KMedoidsResult::ifound(self : KMedoidsResult) -> Int {
+pub fn KMedoidsResult::ifound(self : KMedoidsResult) -> Int32 {
   self.ifound
 }
 
@@ -1869,17 +1868,17 @@ pub fn KMedoidsResult::ifound(self : KMedoidsResult) -> Int {
 /// distance matrix (port of kmedoids in cluster.c).
 pub fn kmedoids(
   distance : Array[Array[Double]],
-  nclusters? : Int,
-  npass? : Int,
-  initialid? : Array[Int],
+  nclusters? : Int32,
+  npass? : Int32,
+  initialid? : Array[Int32],
 ) -> KMedoidsResult {
   let nelements = distance.length()
   let k = nclusters.unwrap_or(2)
   let mut passes = npass.unwrap_or(1)
-  let clusterid : Array[Int] = match initialid {
+  let clusterid : Array[Int32] = match initialid {
     Some(init) => {
       passes = 0
-      let arr : Array[Int] = Array(capacity=0)
+      let arr : Array[Int32] = Array(capacity=0)
       for i = 0; i < nelements; i = i + 1 {
         arr.push(init[i])
       }
@@ -1891,9 +1890,9 @@ pub fn kmedoids(
     // More clusters asked for than elements available
     return { clusterid, error: 0.0, ifound: 0, }
   }
-  let tclusterid : Array[Int] = Array::make(nelements, 0)
-  let saved : Array[Int] = Array::make(nelements, 0)
-  let centroids : Array[Int] = Array::make(k, 0)
+  let tclusterid : Array[Int32] = Array::make(nelements, 0)
+  let saved : Array[Int32] = Array::make(nelements, 0)
+  let centroids : Array[Int32] = Array::make(k, 0)
   let errors : Array[Double] = Array::make(k, 0.0)
   let mut ifound = 1
   let mut error = bc_DBL_MAX
@@ -2006,8 +2005,8 @@ pub fn kmedoids(
 /// otherwise nrows x nclusters.
 pub fn clustercentroids(
   data : Array[Array[Double]],
-  mask? : Array[Array[Int]],
-  clusterid? : Array[Int],
+  mask? : Array[Array[Int32]],
+  clusterid? : Array[Int32],
   method_? : String,
   transpose? : Bool,
 ) -> CentroidsResult {
@@ -2018,7 +2017,7 @@ pub fn clustercentroids(
   let ncolumns = if nrows > 0 { data[0].length() } else { 0 }
   let m = mask.unwrap_or(bc_ones_mask(nrows, ncolumns))
   let nelements = if tr { ncolumns } else { nrows }
-  let ids : Array[Int] = match clusterid {
+  let ids : Array[Int32] = match clusterid {
     Some(ids) => ids
     None => Array::make(nelements, 0)
   }
@@ -2029,7 +2028,7 @@ pub fn clustercentroids(
     }
   }
   let cdata : Array[Array[Double]] = Array(capacity=0)
-  let cmask : Array[Array[Int]] = Array(capacity=0)
+  let cmask : Array[Array[Int32]] = Array(capacity=0)
   if transpose_i == 0 {
     for _i = 0; _i < nclusters; _i = _i + 1 {
       cdata.push(Array::make(ncolumns, 0.0))
@@ -2073,10 +2072,10 @@ pub fn clustercentroids(
 /// -2.0 if the method is unknown (mirroring the C Clustering Library).
 pub fn clusterdistance(
   data : Array[Array[Double]],
-  mask? : Array[Array[Int]],
+  mask? : Array[Array[Int32]],
   weight? : Array[Double],
-  index1? : Array[Int],
-  index2? : Array[Int],
+  index1? : Array[Int32],
+  index2? : Array[Int32],
   method_? : String,
   dist? : String,
   transpose? : Bool,
@@ -2115,8 +2114,8 @@ pub fn clusterdistance(
     "a" => {
       // Distance between the arithmetic means of the two clusters
       let cdata : Array[Array[Double]] = Array(capacity=0)
-      let cmask : Array[Array[Int]] = Array(capacity=0)
-      let count : Array[Array[Int]] = Array(capacity=0)
+      let cmask : Array[Array[Int32]] = Array(capacity=0)
+      let count : Array[Array[Int32]] = Array(capacity=0)
       if transpose_i == 0 {
         for _i = 0; _i < 2; _i = _i + 1 {
           cdata.push(Array::make(ncolumns, 0.0))
@@ -2192,7 +2191,7 @@ pub fn clusterdistance(
     "m" => {
       // Distance between the medians of the two clusters
       let cdata : Array[Array[Double]] = Array(capacity=0)
-      let cmask : Array[Array[Int]] = Array(capacity=0)
+      let cmask : Array[Array[Int32]] = Array(capacity=0)
       if transpose_i == 0 {
         for _i = 0; _i < 2; _i = _i + 1 {
           cdata.push(Array::make(ncolumns, 0.0))
@@ -2333,12 +2332,12 @@ pub fn clusterdistance(
 /// was assigned, and the gene expression data vector for each node (cell) in
 /// the 2D grid.
 pub struct SomResult {
-  clusterid : Array[(Int, Int)]
+  clusterid : Array[(Int32, Int32)]
   celldata : Array[Array[Array[Double]]]
 }
 
 ///|
-pub fn SomResult::clusterid(self : SomResult) -> Array[(Int, Int)] {
+pub fn SomResult::clusterid(self : SomResult) -> Array[(Int32, Int32)] {
   self.clusterid
 }
 
@@ -2350,17 +2349,17 @@ pub fn SomResult::celldata(self : SomResult) -> Array[Array[Array[Double]]] {
 ///|
 /// Train the self-organizing map (port of somworker in cluster.c).
 fn bc_somworker(
-  nrows : Int,
-  ncolumns : Int,
+  nrows : Int32,
+  ncolumns : Int32,
   data : Array[Array[Double]],
-  mask : Array[Array[Int]],
+  mask : Array[Array[Int32]],
   weights : Array[Double],
-  transpose : Int,
-  nxgrid : Int,
-  nygrid : Int,
+  transpose : Int32,
+  nxgrid : Int32,
+  nygrid : Int32,
   inittau : Double,
   celldata : Array[Array[Array[Double]]],
-  niter : Int,
+  niter : Int32,
   dist : String,
 ) -> Unit {
   let nelements = if transpose == 0 { nrows } else { ncolumns }
@@ -2402,7 +2401,7 @@ fn bc_somworker(
     }
   }
   // Dummy mask (all ones) used when comparing data with cell vectors
-  let dummymask : Array[Array[Int]] = Array(capacity=0)
+  let dummymask : Array[Array[Int32]] = Array(capacity=0)
   if transpose == 0 {
     for _i = 0; _i < nygrid; _i = _i + 1 {
       dummymask.push(Array::make(ndata, 1))
@@ -2428,7 +2427,7 @@ fn bc_somworker(
     }
   }
   // Randomize the order in which genes or arrays will be used
-  let index : Array[Int] = Array::make(nelements, 0)
+  let index : Array[Int32] = Array::make(nelements, 0)
   for i = 0; i < nelements; i = i + 1 {
     index[i] = i
   }
@@ -2570,22 +2569,22 @@ fn bc_somworker(
 /// Assign each item to the closest cell of the trained SOM
 /// (port of somassign in cluster.c).
 fn bc_somassign(
-  nrows : Int,
-  ncolumns : Int,
+  nrows : Int32,
+  ncolumns : Int32,
   data : Array[Array[Double]],
-  mask : Array[Array[Int]],
+  mask : Array[Array[Int32]],
   weights : Array[Double],
-  transpose : Int,
-  nxgrid : Int,
-  nygrid : Int,
+  transpose : Int32,
+  nxgrid : Int32,
+  nygrid : Int32,
   celldata : Array[Array[Array[Double]]],
   dist : String,
-) -> Array[(Int, Int)] {
+) -> Array[(Int32, Int32)] {
   let ndata = if transpose == 0 { ncolumns } else { nrows }
   let metric = bc_setmetric(dist)
-  let clusterid : Array[(Int, Int)] = Array(capacity=0)
+  let clusterid : Array[(Int32, Int32)] = Array(capacity=0)
   if transpose == 0 {
-    let dummymask : Array[Array[Int]] = Array(capacity=0)
+    let dummymask : Array[Array[Int32]] = Array(capacity=0)
     for _i = 0; _i < nygrid; _i = _i + 1 {
       dummymask.push(Array::make(ncolumns, 1))
     }
@@ -2626,7 +2625,7 @@ fn bc_somassign(
       clusterid.push((ixbest, iybest))
     }
   } else {
-    let dummymask : Array[Array[Int]] = Array(capacity=0)
+    let dummymask : Array[Array[Int32]] = Array(capacity=0)
     for _i = 0; _i < nrows; _i = _i + 1 {
       dummymask.push(Array::make(1, 1))
     }
@@ -2678,13 +2677,13 @@ fn bc_somassign(
 /// cluster_seed() to make it reproducible.
 pub fn somcluster(
   data : Array[Array[Double]],
-  mask? : Array[Array[Int]],
+  mask? : Array[Array[Int32]],
   weight? : Array[Double],
   transpose? : Bool,
-  nxgrid? : Int,
-  nygrid? : Int,
+  nxgrid? : Int32,
+  nygrid? : Int32,
   inittau? : Double,
-  niter? : Int,
+  niter? : Int32,
   dist? : String,
 ) -> SomResult {
   let tr = transpose.unwrap_or(false)
@@ -2708,7 +2707,7 @@ pub fn somcluster(
     }
     celldata.push(plane)
   }
-  let clusterid : Array[(Int, Int)] = Array(capacity=0)
+  let clusterid : Array[(Int32, Int32)] = Array(capacity=0)
   if nobjects >= 2 {
     bc_somworker(
       nrows, ncolumns, data, m, w, transpose_i, nx, ny, tau, celldata, iters, d,
@@ -2772,12 +2771,12 @@ pub fn ClusterPcaResult::eigenvalues(self : ClusterPcaResult) -> Array[Double] {
 /// Returns 0 on success, and k (> 0) if the k-th singular value was not
 /// determined after 30 iterations.
 fn bc_svd(
-  m : Int,
-  n : Int,
+  m : Int32,
+  n : Int32,
   u : Array[Array[Double]],
   w : Array[Double],
   vt : Array[Array[Double]],
-) -> Int {
+) -> Int32 {
   let rv1 : Array[Double] = Array::make(n, 0.0)
   let mut ierr = 0
   let mut g = 0.0
@@ -3300,12 +3299,12 @@ fn bc_svd(
 /// (nrows >= ncolumns) or the principal component vectors (nrows <
 /// ncolumns); see bc_pca for the exact layout. Returns 0 on success.
 fn bc_pca_core(
-  nrows : Int,
-  ncolumns : Int,
+  nrows : Int32,
+  ncolumns : Int32,
   u : Array[Array[Double]],
   v : Array[Array[Double]],
   w : Array[Double],
-) -> Int {
+) -> Int32 {
   let error = bc_svd(nrows, ncolumns, u, w, v)
   if error == 0 {
     if nrows >= ncolumns {
@@ -3315,7 +3314,7 @@ fn bc_pca_core(
           u[i][j] = u[i][j] * s
         }
       }
-      let index : Array[Int] = Array::make(ncolumns, 0)
+      let index : Array[Int32] = Array::make(ncolumns, 0)
       bc_sort_index(ncolumns, w, index)
       for i = 0; i < ncolumns / 2; i = i + 1 {
         let j = index[i]
@@ -3353,7 +3352,7 @@ fn bc_pca_core(
           v[i][j] = v[i][j] * s
         }
       }
-      let index : Array[Int] = Array::make(nrows, 0)
+      let index : Array[Int32] = Array::make(nrows, 0)
       bc_sort_index(nrows, w, index)
       for i = 0; i < nrows / 2; i = i + 1 {
         let j = index[i]
@@ -3500,7 +3499,7 @@ pub fn cluster_pca(
 ///                 input file
 pub struct Record {
   data : Array[Array[Double]]
-  mask : Array[Array[Int]]?
+  mask : Array[Array[Int32]]?
   geneid : Array[String]
   genename : Array[String]?
   gweight : Array[Double]?
@@ -3517,7 +3516,7 @@ pub fn Record::data(self : Record) -> Array[Array[Double]] {
 }
 
 ///|
-pub fn Record::mask(self : Record) -> Array[Array[Int]]? {
+pub fn Record::mask(self : Record) -> Array[Array[Int32]]? {
   self.mask
 }
 
@@ -3644,7 +3643,7 @@ pub fn bio_cluster_read(content : String) -> Record raise ClusterError {
   let gweight : Array[Double] = Array(capacity=0)
   let gorder : Array[Double] = Array(capacity=0)
   let data : Array[Array[Double]] = Array(capacity=0)
-  let mask : Array[Array[Int]] = Array(capacity=0)
+  let mask : Array[Array[Int32]] = Array(capacity=0)
   let mut eweight : Array[Double]? = None
   let mut eorder : Array[Double]? = None
   let mut needmask = false
@@ -3672,7 +3671,7 @@ pub fn bio_cluster_read(content : String) -> Record raise ClusterError {
       continue
     }
     let rowdata : Array[Double] = Array(capacity=0)
-    let rowmask : Array[Int] = Array(capacity=0)
+    let rowmask : Array[Int32] = Array(capacity=0)
     for i = 0; i < n; i = i + 1 {
       let word = line[i]
       if i == 0 {
@@ -3695,7 +3694,7 @@ pub fn bio_cluster_read(content : String) -> Record raise ClusterError {
     data.push(rowdata)
     mask.push(rowmask)
   }
-  let mask_opt : Array[Array[Int]]? = if needmask { Some(mask) } else { None }
+  let mask_opt : Array[Array[Int32]]? = if needmask { Some(mask) } else { None }
   let gweight_opt : Array[Double]? = if gweight.length() > 0 {
     Some(gweight)
   } else {
@@ -3737,7 +3736,14 @@ pub fn Record::treecluster(
 ) -> ClusterTree {
   let tr = transpose.unwrap_or(false)
   let weight = if tr { self.gweight } else { self.eweight }
-  treecluster(self.data, mask?=self.mask, weight?, transpose=tr, method_?, dist?)
+  treecluster(
+    self.data,
+    mask?=self.mask,
+    weight?,
+    transpose=tr,
+    method_?,
+    dist?,
+  )
 }
 
 ///|
@@ -3745,12 +3751,12 @@ pub fn Record::treecluster(
 /// (see kcluster).
 pub fn Record::kcluster(
   self : Record,
-  nclusters? : Int,
+  nclusters? : Int32,
   transpose? : Bool,
-  npass? : Int,
+  npass? : Int32,
   method_? : String,
   dist? : String,
-  initialid? : Array[Int],
+  initialid? : Array[Int32],
 ) -> KClusterResult {
   let tr = transpose.unwrap_or(false)
   let weight = if tr { self.gweight } else { self.eweight }
@@ -3773,10 +3779,10 @@ pub fn Record::kcluster(
 pub fn Record::somcluster(
   self : Record,
   transpose? : Bool,
-  nxgrid? : Int,
-  nygrid? : Int,
+  nxgrid? : Int32,
+  nygrid? : Int32,
   inittau? : Double,
-  niter? : Int,
+  niter? : Int32,
   dist? : String,
 ) -> SomResult {
   let tr = transpose.unwrap_or(false)
@@ -3799,7 +3805,7 @@ pub fn Record::somcluster(
 /// (see clustercentroids).
 pub fn Record::clustercentroids(
   self : Record,
-  clusterid? : Array[Int],
+  clusterid? : Array[Int32],
   method_? : String,
   transpose? : Bool,
 ) -> CentroidsResult {
@@ -3811,8 +3817,8 @@ pub fn Record::clustercentroids(
 /// (see clusterdistance).
 pub fn Record::clusterdistance(
   self : Record,
-  index1? : Array[Int],
-  index2? : Array[Int],
+  index1? : Array[Int32],
+  index2? : Array[Int32],
   method_? : String,
   dist? : String,
   transpose? : Bool,

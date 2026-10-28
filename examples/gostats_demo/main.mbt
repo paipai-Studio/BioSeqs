@@ -1,6 +1,5 @@
 ///|
 /// GOstats Demo - Gene Ontology enrichment analysis using the hypergeometric test.
-
 fn main {
   println("=== GOstats Demo ===")
   println("")
@@ -14,8 +13,8 @@ fn main {
     "BP",
     [],
     [
-      "BRCA1", "BRCA2", "TP53", "EGFR", "MYC", "AKT1", "MAPK1", "STAT3",
-      "PIK3CA", "PTEN",
+      "BRCA1", "BRCA2", "TP53", "EGFR", "MYC", "AKT1", "MAPK1", "STAT3", "PIK3CA",
+      "PTEN",
     ],
   )
 
@@ -43,13 +42,9 @@ fn main {
     ["EGFR", "AKT1", "MAPK1", "STAT3", "PIK3CA"],
   )
 
-  let go_binding = @src.GOStatsTerm::new(
-    "GO:0005488",
-    "binding",
-    "MF",
-    [],
-    ["BRCA1", "TP53", "EGFR", "STAT3", "MAPK1", "MYC"],
-  )
+  let go_binding = @src.GOStatsTerm::new("GO:0005488", "binding", "MF", [], [
+    "BRCA1", "TP53", "EGFR", "STAT3", "MAPK1", "MYC",
+  ])
 
   let graph = @src.GOStatsGraph::new(Map([]))
   let graph = graph.add_term(go_bp_root)
@@ -65,9 +60,9 @@ fn main {
   println("--- Step 2: Define Gene Sets ---")
 
   let universe = [
-    "BRCA1", "BRCA2", "TP53", "EGFR", "MYC", "AKT1", "MAPK1", "STAT3",
-    "PIK3CA", "PTEN", "CDK4", "RB1", "APC", "VHL", "NF1", "HRAS", "KRAS",
-    "BRAF", "ERBB2", "FGFR1",
+    "BRCA1", "BRCA2", "TP53", "EGFR", "MYC", "AKT1", "MAPK1", "STAT3", "PIK3CA",
+    "PTEN", "CDK4", "RB1", "APC", "VHL", "NF1", "HRAS", "KRAS", "BRAF", "ERBB2",
+    "FGFR1",
   ]
 
   let selected = ["TP53", "PTEN", "AKT1", "PIK3CA", "BRCA1", "BRCA2", "MYC"]

@@ -21,7 +21,7 @@ priv struct BStr {
 }
 
 ///|
-fn bstr_ones(n : Int) -> BStr {
+fn bstr_ones(n : Int32) -> BStr {
   BStr::{ bits: Array::make(n, true), }
 }
 
@@ -66,7 +66,7 @@ fn bstr_xor(a : BStr, b : BStr) -> BStr {
 }
 
 ///|
-fn bstr_count_ones(bs : BStr) -> Int {
+fn bstr_count_ones(bs : BStr) -> Int32 {
   let mut n = 0
   for b in bs.bits {
     if b {
@@ -77,7 +77,7 @@ fn bstr_count_ones(bs : BStr) -> Int {
 }
 
 ///|
-fn bstr_index_one(bs : BStr) -> Array[Int] {
+fn bstr_index_one(bs : BStr) -> Array[Int32] {
   let idx = Array(capacity=0)
   for i in 0..<bs.bits.length() {
     if bs.bits[i] {
@@ -138,7 +138,7 @@ fn clade_to_bstr(
 
 ///|
 priv struct CladeCount {
-  count : Int
+  count : Int32
   bl_sum : Double
 }
 
@@ -309,7 +309,7 @@ pub fn consensus_strict(trees : Array[Tree]) -> Tree raise PhyloConsensusError {
 ///|
 priv struct MajorityEntry {
   key : String
-  count : Int
+  count : Int32
   bl_sum : Double
 }
 
@@ -321,7 +321,7 @@ priv struct MajorityEntry {
 /// average branch length over its occurrences (as in Biopython).
 pub fn consensus_majority(
   trees : Array[Tree],
-  cutoff? : Double = 0.0,
+  cutoff~ : Double = 0.0,
 ) -> Tree raise PhyloConsensusError {
   let (_, terms, counts) = count_clades(trees)
   let n = terms.length()
@@ -692,7 +692,7 @@ fn clade_top(start : Clade) -> Clade {
 pub fn tree_get_support(
   target : Tree,
   trees : Array[Tree],
-  len_trees? : Int? = None,
+  len_trees~ : Int32? = None,
 ) -> Tree raise PhyloConsensusError {
   let term_names = Array(capacity=0)
   for t in target.find_clades(terminal=Some(true)) {
@@ -706,7 +706,7 @@ pub fn tree_get_support(
   for c in target.find_clades(terminal=Some(false)) {
     target_keys.set(bstr_key(clade_to_bstr(c, term_names)), ())
   }
-  let seen : Map[String, Int] = Map([])
+  let seen : Map[String, Int32] = Map([])
   for k in target_keys.keys() {
     seen.set(k, 0)
   }
@@ -768,11 +768,11 @@ fn support_apply_clade(
 ///|
 /// Park-Miller minimal standard RNG, so column streams are reproducible.
 priv struct ParkMiller {
-  mut state : Int
+  mut state : Int32
 }
 
 ///|
-fn park_miller_next(rng : ParkMiller) -> Int {
+fn park_miller_next(rng : ParkMiller) -> Int32 {
   let hi = rng.state / 127773
   let lo = rng.state % 127773
   let mut s = 16807 * lo - 2836 * hi
@@ -789,10 +789,10 @@ fn park_miller_next(rng : ParkMiller) -> Int {
 /// standard PRNG).  Returned column-index arrays can be fed to
 /// [bootstrap_trees]; this keeps the random stream explicit and reproducible.
 pub fn bootstrap_column_indices(
-  length : Int,
-  times : Int,
-  seed? : Int = 42,
-) -> Array[Array[Int]] raise PhyloConsensusError {
+  length : Int32,
+  times : Int32,
+  seed~ : Int32 = 42,
+) -> Array[Array[Int32]] raise PhyloConsensusError {
   if length <= 0 {
     raise PhyloConsensusError("Alignment length must be positive")
   }
@@ -819,9 +819,9 @@ pub fn bootstrap_column_indices(
 pub fn bootstrap_trees(
   sequences : Array[String],
   names : Array[String],
-  columns : Array[Array[Int]],
-  model? : String = "identity",
-  tree_method? : String = "nj",
+  columns : Array[Array[Int32]],
+  model~ : String = "identity",
+  tree_method~ : String = "nj",
 ) -> Array[Tree] raise PhyloConsensusError {
   validate_alignment(sequences, names)
   if columns.is_empty() {
@@ -878,11 +878,11 @@ pub fn bootstrap_trees(
 pub fn bootstrap_consensus(
   sequences : Array[String],
   names : Array[String],
-  columns : Array[Array[Int]],
-  consensus? : String = "majority",
-  cutoff? : Double = 0.0,
-  model? : String = "identity",
-  tree_method? : String = "nj",
+  columns : Array[Array[Int32]],
+  consensus~ : String = "majority",
+  cutoff~ : Double = 0.0,
+  model~ : String = "identity",
+  tree_method~ : String = "nj",
 ) -> Tree raise PhyloConsensusError {
   let trees = bootstrap_trees(sequences, names, columns, model~, tree_method~)
   match consensus {
@@ -921,10 +921,10 @@ fn validate_alignment(
 }
 
 ///|
-fn resample_sequence(seq : String, columns : Array[Int]) -> String {
+fn resample_sequence(seq : String, columns : Array[Int32]) -> String {
   let sb = StringBuilder(size_hint=columns.length())
   for j in columns {
-    sb.write_char((seq.unsafe_get(j).to_int()).unsafe_to_char())
+    sb.write_char(seq.unsafe_get(j).to_int().unsafe_to_char())
   }
   sb.to_string()
 }
@@ -936,7 +936,7 @@ fn resample_sequence(seq : String, columns : Array[Int]) -> String {
 ///|
 /// Serialize a clade and its descendants to Newick, writing branch lengths
 /// when present and using ``confidence`` (or the name) as the internal label.
-pub fn Clade::to_newick(self : Clade, lengths? : Bool = true) -> String {
+pub fn Clade::to_newick(self : Clade, lengths~ : Bool = true) -> String {
   let sb = StringBuilder()
   write_consensus_newick(self, lengths, sb)
   sb.write_char(';')

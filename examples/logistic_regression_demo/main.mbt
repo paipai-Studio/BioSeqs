@@ -62,17 +62,17 @@ fn main {
     }
     println(
       "  " +
-        match_str +
-        " dist=" +
-        xs[i][0].to_string() +
-        " expr=" +
-        xs[i][1].to_string() +
-        " => P(OP)=" +
-        probs[1].to_string() +
-        " pred=" +
-        pred_label +
-        " actual=" +
-        label,
+      match_str +
+      " dist=" +
+      xs[i][0].to_string() +
+      " expr=" +
+      xs[i][1].to_string() +
+      " => P(OP)=" +
+      probs[1].to_string() +
+      " pred=" +
+      pred_label +
+      " actual=" +
+      label,
     )
   }
   println("Accuracy: " + correct.to_string() + "/" + xs.length().to_string())
@@ -91,17 +91,21 @@ fn main {
   for tc in test_cases {
     let pred = @bio.logistic_regression_classify(model, tc)
     let probs = @bio.logistic_regression_calculate(model, tc)
-    let label = if pred == 1 { "OP (same operon)" } else { "NOP (different operon)" }
+    let label = if pred == 1 {
+      "OP (same operon)"
+    } else {
+      "NOP (different operon)"
+    }
     println(
       "  dist=" +
-        tc[0].to_string() +
-        " expr=" +
-        tc[1].to_string() +
-        " => " +
-        label +
-        " (P=" +
-        probs[1].to_string() +
-        ")",
+      tc[0].to_string() +
+      " expr=" +
+      tc[1].to_string() +
+      " => " +
+      label +
+      " (P=" +
+      probs[1].to_string() +
+      ")",
     )
   }
   println("")

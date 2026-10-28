@@ -23,8 +23,8 @@ pub struct GRangesList {
 /// Construct and validate a grouped genomic-range collection.
 pub fn GRangesList::new(
   elements~ : Array[GRanges],
-  names? : Array[String] = [],
-  element_metadata? : Array[Map[String, String]] = [],
+  names~ : Array[String] = [],
+  element_metadata~ : Array[Map[String, String]] = [],
 ) -> GRangesList raise GRangesListError {
   match grl_validation_error(elements, names, element_metadata) {
     Some(message) => raise GRangesListError(message)
@@ -36,8 +36,8 @@ pub fn GRangesList::new(
 /// Function-style constructor matching the existing `granges` API.
 pub fn granges_list(
   elements : Array[GRanges],
-  names? : Array[String] = [],
-  element_metadata? : Array[Map[String, String]] = [],
+  names~ : Array[String] = [],
+  element_metadata~ : Array[Map[String, String]] = [],
 ) -> GRangesList raise GRangesListError {
   GRangesList::new(elements~, names~, element_metadata~)
 }
@@ -65,7 +65,7 @@ pub fn granges_split_as_list(
   }
   let elements : Array[GRanges] = []
   for name in names {
-    let indices : Array[Int] = []
+    let indices : Array[Int32] = []
     for index = 0; index < groups.length(); index = index + 1 {
       if groups[index] == name {
         indices.push(index)
@@ -80,9 +80,9 @@ pub fn granges_split_as_list(
 /// Partition a flat GRanges using explicit element lengths.
 pub fn granges_list_from_partition(
   ranges : GRanges,
-  element_lengths : Array[Int],
-  names? : Array[String] = [],
-  element_metadata? : Array[Map[String, String]] = [],
+  element_lengths : Array[Int32],
+  names~ : Array[String] = [],
+  element_metadata~ : Array[Map[String, String]] = [],
 ) -> GRangesList raise GRangesListError {
   match grl_range_validation_error(ranges) {
     Some(message) => raise GRangesListError(message)
@@ -122,7 +122,7 @@ pub fn granges_list_from_partition(
 
 ///|
 /// Return the number of compound features.
-pub fn GRangesList::length(self : GRangesList) -> Int {
+pub fn GRangesList::length(self : GRangesList) -> Int32 {
   self.elements.length()
 }
 
@@ -148,7 +148,7 @@ pub fn GRangesList::elements(self : GRangesList) -> Array[GRanges] {
 
 ///|
 /// Return the number of ranges in each compound feature.
-pub fn GRangesList::element_lengths(self : GRangesList) -> Array[Int] {
+pub fn GRangesList::element_lengths(self : GRangesList) -> Array[Int32] {
   self.elements.map(fn(element) { granges_length(element) })
 }
 
@@ -174,7 +174,7 @@ pub fn GRangesList::is_valid(self : GRangesList) -> Bool {
 
 ///|
 /// Return a copied GRanges element by zero-based index.
-pub fn GRangesList::get(self : GRangesList, index : Int) -> GRanges? {
+pub fn GRangesList::get(self : GRangesList, index : Int32) -> GRanges? {
   if index < 0 || index >= self.elements.length() {
     None
   } else {
@@ -197,7 +197,7 @@ pub fn GRangesList::get_by_name(self : GRangesList, name : String) -> GRanges? {
 /// Select, reorder, or duplicate outer list elements.
 pub fn GRangesList::subset(
   self : GRangesList,
-  indices : Array[Int],
+  indices : Array[Int32],
 ) -> GRangesList raise GRangesListError {
   grl_validate_indices(indices, self.elements.length())
   let elements = indices.map(fn(index) { grl_copy_ranges(self.elements[index]) })
@@ -345,7 +345,7 @@ pub fn GRangesList::parallel_concat(
 
 ///|
 /// Shift every member range while preserving group boundaries.
-pub fn GRangesList::shift(self : GRangesList, amount : Int) -> GRangesList {
+pub fn GRangesList::shift(self : GRangesList, amount : Int32) -> GRangesList {
   grl_map(self, fn(element) { granges_shift(element, amount) })
 }
 
@@ -353,8 +353,8 @@ pub fn GRangesList::shift(self : GRangesList, amount : Int) -> GRangesList {
 /// Narrow every member range using one-based relative coordinates.
 pub fn GRangesList::narrow(
   self : GRangesList,
-  start : Int,
-  end : Int,
+  start : Int32,
+  end : Int32,
 ) -> GRangesList {
   grl_map(self, fn(element) { granges_narrow(element, start, end) })
 }
@@ -363,7 +363,7 @@ pub fn GRangesList::narrow(
 /// Resize every member range.
 pub fn GRangesList::resize(
   self : GRangesList,
-  width : Int,
+  width : Int32,
   fix : String,
 ) -> GRangesList {
   grl_map(self, fn(element) { granges_resize(element, width, fix) })
@@ -373,7 +373,7 @@ pub fn GRangesList::resize(
 /// Create flanking ranges for every member range.
 pub fn GRangesList::flank(
   self : GRangesList,
-  width : Int,
+  width : Int32,
   start : Bool,
   both : Bool,
 ) -> GRangesList {
@@ -384,8 +384,8 @@ pub fn GRangesList::flank(
 /// Create strand-aware promoter ranges for every member range.
 pub fn GRangesList::promoters(
   self : GRangesList,
-  upstream? : Int = 2000,
-  downstream? : Int = 200,
+  upstream~ : Int32 = 2000,
+  downstream~ : Int32 = 200,
 ) -> GRangesList raise GRangesListError {
   if upstream < 0 || downstream < 0 {
     raise GRangesListError(
@@ -399,7 +399,7 @@ pub fn GRangesList::promoters(
 /// Reduce overlapping ranges independently within each feature.
 pub fn GRangesList::reduce(
   self : GRangesList,
-  min_gapwidth? : Int = 0,
+  min_gapwidth~ : Int32 = 0,
 ) -> GRangesList {
   grl_map(self, fn(element) { granges_reduce(element, min_gapwidth) })
 }
@@ -418,7 +418,7 @@ pub fn GRangesList::sort_ranges(self : GRangesList) -> GRangesList {
 
 ///|
 /// Calculate the sum of member widths for every compound feature.
-pub fn GRangesList::total_widths(self : GRangesList) -> Array[Int] {
+pub fn GRangesList::total_widths(self : GRangesList) -> Array[Int32] {
   self.elements.map(fn(element) {
     let mut total = 0
     for width in element.widths {
@@ -469,9 +469,9 @@ pub fn GRangesList::parallel_setdiff(
 pub fn GRangesList::find_overlaps(
   self : GRangesList,
   subject : GRanges,
-  ignore_strand? : Bool = false,
-) -> Array[(Int, Int)] {
-  let hits : Array[(Int, Int)] = []
+  ignore_strand~ : Bool = false,
+) -> Array[(Int32, Int32)] {
+  let hits : Array[(Int32, Int32)] = []
   for query_index = 0
       query_index < self.elements.length()
       query_index = query_index + 1 {
@@ -496,8 +496,8 @@ pub fn GRangesList::find_overlaps(
 pub fn GRangesList::count_overlaps(
   self : GRangesList,
   subject : GRanges,
-  ignore_strand? : Bool = false,
-) -> Array[Int] {
+  ignore_strand~ : Bool = false,
+) -> Array[Int32] {
   let counts = Array::make(self.length(), 0)
   for hit in self.find_overlaps(subject, ignore_strand~) {
     counts[hit.0] = counts[hit.0] + 1
@@ -510,7 +510,7 @@ pub fn GRangesList::count_overlaps(
 pub fn GRangesList::overlaps_any(
   self : GRangesList,
   subject : GRanges,
-  ignore_strand? : Bool = false,
+  ignore_strand~ : Bool = false,
 ) -> Array[Bool] {
   self.count_overlaps(subject, ignore_strand~).map(fn(count) { count > 0 })
 }
@@ -520,9 +520,9 @@ pub fn GRangesList::overlaps_any(
 pub fn GRangesList::subset_by_overlaps(
   self : GRangesList,
   subject : GRanges,
-  ignore_strand? : Bool = false,
+  ignore_strand~ : Bool = false,
 ) -> GRangesList raise GRangesListError {
-  let indices : Array[Int] = []
+  let indices : Array[Int32] = []
   let keep = self.overlaps_any(subject, ignore_strand~)
   for index = 0; index < keep.length(); index = index + 1 {
     if keep[index] {
@@ -537,9 +537,9 @@ pub fn GRangesList::subset_by_overlaps(
 pub fn GRangesList::find_group_overlaps(
   self : GRangesList,
   subject : GRangesList,
-  ignore_strand? : Bool = false,
-) -> Array[(Int, Int)] {
-  let hits : Array[(Int, Int)] = []
+  ignore_strand~ : Bool = false,
+) -> Array[(Int32, Int32)] {
+  let hits : Array[(Int32, Int32)] = []
   for query_index = 0
       query_index < self.length()
       query_index = query_index + 1 {
@@ -563,8 +563,8 @@ pub fn GRangesList::find_group_overlaps(
 pub fn GRangesList::count_group_overlaps(
   self : GRangesList,
   subject : GRangesList,
-  ignore_strand? : Bool = false,
-) -> Array[Int] {
+  ignore_strand~ : Bool = false,
+) -> Array[Int32] {
   let counts = Array::make(self.length(), 0)
   for hit in self.find_group_overlaps(subject, ignore_strand~) {
     counts[hit.0] = counts[hit.0] + 1
@@ -577,9 +577,9 @@ pub fn GRangesList::count_group_overlaps(
 pub fn granges_find_overlaps_list(
   query : GRanges,
   subject : GRangesList,
-  ignore_strand? : Bool = false,
-) -> Array[(Int, Int)] {
-  let hits : Array[(Int, Int)] = []
+  ignore_strand~ : Bool = false,
+) -> Array[(Int32, Int32)] {
+  let hits : Array[(Int32, Int32)] = []
   for query_index = 0
       query_index < granges_length(query)
       query_index = query_index + 1 {
@@ -604,8 +604,8 @@ pub fn granges_find_overlaps_list(
 pub fn GRangesList::nearest(
   self : GRangesList,
   subject : GRanges,
-  ignore_strand? : Bool = false,
-) -> Array[Int] {
+  ignore_strand~ : Bool = false,
+) -> Array[Int32] {
   let result = Array::make(self.length(), -1)
   for query_index = 0
       query_index < self.length()
@@ -625,8 +625,8 @@ pub fn GRangesList::nearest(
 pub fn GRangesList::distance_to_nearest(
   self : GRangesList,
   subject : GRanges,
-  ignore_strand? : Bool = false,
-) -> Array[Int] {
+  ignore_strand~ : Bool = false,
+) -> Array[Int32] {
   let result = Array::make(self.length(), -1)
   for query_index = 0
       query_index < self.length()
@@ -645,8 +645,8 @@ pub fn GRangesList::distance_to_nearest(
 /// Compute per-base coverage across all member ranges.
 pub fn GRangesList::coverage(
   self : GRangesList,
-  sequence_lengths : Map[String, Int],
-) -> Map[String, Array[Int]] {
+  sequence_lengths : Map[String, Int32],
+) -> Map[String, Array[Int32]] {
   coverage_granges(self.unlist(), sequence_lengths)
 }
 
@@ -724,8 +724,8 @@ fn grl_range_validation_error(ranges : GRanges) -> String? {
 
 ///|
 fn grl_validate_indices(
-  indices : Array[Int],
-  upper_bound : Int,
+  indices : Array[Int32],
+  upper_bound : Int32,
 ) -> Unit raise GRangesListError {
   for index in indices {
     if index < 0 || index >= upper_bound {
@@ -753,7 +753,7 @@ fn grl_copy_ranges(ranges : GRanges) -> GRanges {
 }
 
 ///|
-fn grl_take_ranges(ranges : GRanges, indices : Array[Int]) -> GRanges {
+fn grl_take_ranges(ranges : GRanges, indices : Array[Int32]) -> GRanges {
   let result = grl_empty_ranges()
   for index in indices {
     result.seqnames.push(ranges.seqnames[index])
@@ -766,8 +766,12 @@ fn grl_take_ranges(ranges : GRanges, indices : Array[Int]) -> GRanges {
 }
 
 ///|
-fn grl_take_contiguous(ranges : GRanges, offset : Int, length : Int) -> GRanges {
-  let indices : Array[Int] = []
+fn grl_take_contiguous(
+  ranges : GRanges,
+  offset : Int32,
+  length : Int32,
+) -> GRanges {
+  let indices : Array[Int32] = []
   for index = offset; index < offset + length; index = index + 1 {
     indices.push(index)
   }
@@ -883,9 +887,9 @@ fn grl_strands_compatible(
 ///|
 fn grl_ranges_overlap(
   query : GRanges,
-  query_index : Int,
+  query_index : Int32,
   subject : GRanges,
-  subject_index : Int,
+  subject_index : Int32,
   ignore_strand : Bool,
 ) -> Bool {
   query.seqnames[query_index] == subject.seqnames[subject_index] &&
@@ -902,7 +906,7 @@ fn grl_ranges_overlap(
 fn grl_element_overlaps_range(
   element : GRanges,
   subject : GRanges,
-  subject_index : Int,
+  subject_index : Int32,
   ignore_strand : Bool,
 ) -> Bool {
   for member_index = 0
@@ -935,11 +939,11 @@ fn grl_elements_overlap(
 
 ///|
 fn grl_interval_distance(
-  first_start : Int,
-  first_end : Int,
-  second_start : Int,
-  second_end : Int,
-) -> Int {
+  first_start : Int32,
+  first_end : Int32,
+  second_start : Int32,
+  second_end : Int32,
+) -> Int32 {
   if first_end < second_start {
     second_start - first_end - 1
   } else if second_end < first_start {
@@ -954,7 +958,7 @@ fn grl_nearest_for_element(
   element : GRanges,
   subject : GRanges,
   ignore_strand : Bool,
-) -> (Int, Int) {
+) -> (Int32, Int32) {
   let mut best_index = -1
   let mut best_distance = -1
   for member_index = 0

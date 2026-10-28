@@ -12,7 +12,7 @@ fn cherry_internal(children : Array[@src.Clade]) -> @src.Clade {
 }
 
 ///|
-fn cherry_balanced(n : Int) -> @src.Clade {
+fn cherry_balanced(n : Int32) -> @src.Clade {
   if n <= 1 {
     return cherry_leaf("L")
   }
@@ -21,7 +21,7 @@ fn cherry_balanced(n : Int) -> @src.Clade {
 }
 
 ///|
-fn cherry_caterpillar(n : Int) -> @src.Clade {
+fn cherry_caterpillar(n : Int32) -> @src.Clade {
   if n <= 1 {
     return cherry_leaf("L")
   }
@@ -73,7 +73,11 @@ test "cherry_count: caterpillar 4-leaf" {
 ///|
 test "cherry_count: star tree (no cherries)" {
   // Root with 3 leaves — no internal node has exactly 2 leaf children
-  let tree = cherry_internal([cherry_leaf("A"), cherry_leaf("B"), cherry_leaf("C")])
+  let tree = cherry_internal([
+    cherry_leaf("A"),
+    cherry_leaf("B"),
+    cherry_leaf("C"),
+  ])
   assert_eq(@src.dendropy_cherry_count(tree), 0)
 }
 
@@ -82,7 +86,10 @@ test "cherry_count: mixed tree" {
   // ((A,B),(C,(D,E))) — cherries: (A,B) and (D,E) = 2
   let tree = cherry_internal([
     cherry_internal([cherry_leaf("A"), cherry_leaf("B")]),
-    cherry_internal([cherry_leaf("C"), cherry_internal([cherry_leaf("D"), cherry_leaf("E")])]),
+    cherry_internal([
+      cherry_leaf("C"),
+      cherry_internal([cherry_leaf("D"), cherry_leaf("E")]),
+    ]),
   ])
   assert_eq(@src.dendropy_cherry_count(tree), 2)
 }

@@ -7,8 +7,7 @@ fn main {
 
   // 1. JASPAR PFM parsing
   println("1. JASPAR PFM parsing:")
-  let jaspar_pfm =
-    ">MA0001.1 E2F1\n" +
+  let jaspar_pfm = ">MA0001.1 E2F1\n" +
     "A  [ 45   0 100   0   0   0   0   0  10   0  10  35  90 ]\n" +
     "C  [  1   0   0   0   0   0   0  90  80  10   0  10   0 ]\n" +
     "G  [  0  50   0   0 100 100  10   0  10  80  90  45  10 ]\n" +
@@ -23,8 +22,7 @@ fn main {
 
   // 2. TRANSFAC parsing
   println("\n2. TRANSFAC format parsing:")
-  let transfac =
-    "ID  MA0002.1\n" +
+  let transfac = "ID  MA0002.1\n" +
     "NA  E2F1\n" +
     "PO    A   C   G   T\n" +
     "01  45   1   0  50\n" +
@@ -86,7 +84,9 @@ fn main {
   println("   Number of clusters: \{clusters.length()}")
   for i = 0; i < clusters.length(); i = i + 1 {
     let cluster = clusters[i]
-    println("   Cluster \{cluster.cluster_id}: \{cluster.motifs.length()} motifs")
+    println(
+      "   Cluster \{cluster.cluster_id}: \{cluster.motifs.length()} motifs",
+    )
     println("     Representative: \{cluster.representative}")
     println("     Avg similarity: \{cluster.avg_similarity}")
   }

@@ -21,8 +21,8 @@
 /// A single motif match at a specific position in a sequence.
 pub struct MastMotifMatch {
   motif_id : String // motif identifier
-  position : Int // start position (1-based)
-  length : Int // motif length
+  position : Int32 // start position (1-based)
+  length : Int32 // motif length
   pvalue : Double // p-value of the match
   score : Double // match score
   strand : String // strand ("+" or "-")
@@ -33,7 +33,7 @@ pub struct MastMotifMatch {
 /// Create a new MastMotifMatch.
 pub fn MastMotifMatch::new(
   motif_id : String,
-  position : Int,
+  position : Int32,
   pvalue : Double,
 ) -> MastMotifMatch {
   MastMotifMatch::{
@@ -52,7 +52,7 @@ pub fn MastMotifMatch::new(
 pub struct MastMotifSeq {
   name : String // sequence name
   mut description : String // sequence description
-  mut length : Int // sequence length
+  mut length : Int32 // sequence length
   mut combined_pvalue : Double // combined p-value
   mut combined_evalue : Double // combined E-value
   matches : Array[MastMotifMatch] // individual motif matches
@@ -84,7 +84,7 @@ pub fn MastMotifSeq::add_match(
 
 ///|
 /// Get the number of motif matches.
-pub fn MastMotifSeq::num_matches(self : MastMotifSeq) -> Int {
+pub fn MastMotifSeq::num_matches(self : MastMotifSeq) -> Int32 {
   self.matches.length()
 }
 
@@ -108,13 +108,13 @@ pub fn MastMotifSeq::best_match(self : MastMotifSeq) -> MastMotifMatch? {
 pub struct MastMotifInfo {
   id : String // motif identifier
   name : String // motif name
-  width : Int // motif width
+  width : Int32 // motif width
   alphabet : String // alphabet used
 }
 
 ///|
 /// Create a new MastMotifInfo.
-pub fn MastMotifInfo::new(id : String, width : Int) -> MastMotifInfo {
+pub fn MastMotifInfo::new(id : String, width : Int32) -> MastMotifInfo {
   MastMotifInfo::{ id, name: "", width, alphabet: "ACGT", }
 }
 
@@ -125,9 +125,9 @@ pub struct MastMotifRecord {
   mut database : String // database name
   motifs : Array[MastMotifInfo] // motifs used in search
   sequences : Array[MastMotifSeq] // sequences with matches
-  mut motif_count : Int // number of motifs
-  mut sequence_count : Int // number of sequences searched
-  mut hit_count : Int // number of sequences with hits
+  mut motif_count : Int32 // number of motifs
+  mut sequence_count : Int32 // number of sequences searched
+  mut hit_count : Int32 // number of sequences with hits
 }
 
 ///|
@@ -146,7 +146,7 @@ pub fn MastMotifRecord::new() -> MastMotifRecord {
 
 ///|
 /// Get the number of sequences with significant hits.
-pub fn MastMotifRecord::num_hits(self : MastMotifRecord) -> Int {
+pub fn MastMotifRecord::num_hits(self : MastMotifRecord) -> Int32 {
   self.sequences.length()
 }
 

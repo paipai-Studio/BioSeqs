@@ -17,16 +17,18 @@
 /// raw record length.
 pub struct SeqIndexEntry {
   key : String
-  offset : Int
-  length : Int
+  offset : Int32
+  length : Int32
 } derive(Debug)
+
+///|
 pub extend SeqIndexEntry with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub fn SeqIndexEntry::new(
   key : String,
-  offset : Int,
-  length : Int,
+  offset : Int32,
+  length : Int32,
 ) -> SeqIndexEntry {
   SeqIndexEntry::{ key, offset, length, }
 }
@@ -36,13 +38,15 @@ pub fn SeqIndexEntry::new(
 pub struct SeqIndex {
   format : String
   entries : Array[SeqIndexEntry]
-  positions : Map[String, Int]
+  positions : Map[String, Int32]
 } derive(Debug)
+
+///|
 pub extend SeqIndex with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Number of indexed records.
-pub fn SeqIndex::length(self : SeqIndex) -> Int {
+pub fn SeqIndex::length(self : SeqIndex) -> Int32 {
   self.entries.length()
 }
 
@@ -116,7 +120,7 @@ pub fn seqio_index(data : String, format : String) -> SeqIndex raise SeqIOError 
     "seqxml" => seq_index_scan_seqxml(data, lines)
     _ => raise SeqIOError("Cannot index format: " + format)
   }
-  let positions : Map[String, Int] = Map([], capacity=entries.length())
+  let positions : Map[String, Int32] = Map([], capacity=entries.length())
   let mut i = 0
   while i < entries.length() {
     positions.set(entries[i].key, i)
@@ -131,7 +135,7 @@ pub fn seqio_index(data : String, format : String) -> SeqIndex raise SeqIOError 
 
 ///|
 priv struct IndexedLine {
-  start : Int
+  start : Int32
   text : String
 }
 

@@ -3,5 +3,5 @@ import {
   "moonbitlang/core/math",
   "moonbitlang/core/double",
   "moonbitlang/core/string",
-  "IvanAXu/BioSeqs/src/data" @data,
+  "IvanAXu/BioSeqs/src/data",
 }

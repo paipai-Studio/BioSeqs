@@ -20,7 +20,7 @@ pub(all) enum GsInterpolation {
 /// Per-chromosome score series. Positions are sorted ascending; each
 /// population holds one score per stored position.
 pub struct GsChromosomeData {
-  mut positions : Array[Int]
+  mut positions : Array[Int32]
   populations : Map[String, Array[Double]]
 }
 
@@ -65,7 +65,7 @@ pub fn GScores::set_scores(
   self : GScores,
   seqname : String,
   population : String,
-  positions : Array[Int],
+  positions : Array[Int32],
   scores : Array[Double],
 ) -> Unit raise SeqIOError {
   if positions.length() != scores.length() {
@@ -83,7 +83,7 @@ pub fn GScores::set_scores(
     }
   }
   let n = positions.length()
-  let order : Array[Int] = Array(capacity=n)
+  let order : Array[Int32] = Array(capacity=n)
   for i in 0..<n {
     order.push(i)
   }
@@ -99,7 +99,7 @@ pub fn GScores::set_scores(
     order[j + 1] = key
     i = i + 1
   }
-  let sorted_positions : Array[Int] = Array(capacity=n)
+  let sorted_positions : Array[Int32] = Array(capacity=n)
   let sorted_scores : Array[Double] = Array(capacity=n)
   for idx in order {
     sorted_positions.push(positions[idx])
@@ -117,7 +117,7 @@ pub fn GScores::set_scores(
     chrom_data.populations.set(population, aligned)
   } else {
     // merge new positions with existing ones (they may be distinct)
-    let merged : Array[Int] = []
+    let merged : Array[Int32] = []
     let mut a = 0
     let mut b = 0
     let old = chrom_data.positions
@@ -166,10 +166,10 @@ pub fn GScores::set_scores(
 /// Align a score series defined on `src_positions` onto `dst_positions`;
 /// entries with no source position become NaN.
 fn gs_align_series(
-  src_positions : Array[Int],
+  src_positions : Array[Int32],
   src_scores : Array[Double],
-  dst_positions : Array[Int],
-  _dst_mirror : Array[Int],
+  dst_positions : Array[Int32],
+  _dst_mirror : Array[Int32],
 ) -> Array[Double] {
   let _ = _dst_mirror
   let out : Array[Double] = Array(capacity=dst_positions.length())
@@ -233,8 +233,8 @@ pub fn GScores::set_interpolation(
 pub fn GScores::score_at(
   self : GScores,
   seqname : String,
-  position : Int,
-  population? : String = "",
+  position : Int32,
+  population~ : String = "",
 ) -> Double {
   let pop = if population.length() > 0 {
     population
@@ -289,10 +289,10 @@ pub fn GScores::score_at(
 pub fn GScores::range_score(
   self : GScores,
   seqname : String,
-  start : Int,
-  end : Int,
-  summary? : String = "mean",
-  population? : String = "",
+  start : Int32,
+  end : Int32,
+  summary~ : String = "mean",
+  population~ : String = "",
 ) -> Double {
   let pop = if population.length() > 0 {
     population
@@ -374,10 +374,10 @@ pub fn GScores::range_score(
 pub fn gscores_fetch(
   gss : GScores,
   seqnames : Array[String],
-  starts : Array[Int],
-  ends : Array[Int],
-  summary? : String = "mean",
-  population? : String = "",
+  starts : Array[Int32],
+  ends : Array[Int32],
+  summary~ : String = "mean",
+  population~ : String = "",
 ) -> Array[Double] raise SeqIOError {
   if seqnames.length() != starts.length() || starts.length() != ends.length() {
     raise SeqIOError("gscores_fetch: seqnames/starts/ends length mismatch")
@@ -425,7 +425,7 @@ fn gs_median(values : Array[Double]) -> Double {
 
 ///|
 /// Number of stored positions on a chromosome (0 if unknown).
-pub fn GScores::n_stored_positions(self : GScores, seqname : String) -> Int {
+pub fn GScores::n_stored_positions(self : GScores, seqname : String) -> Int32 {
   match self.chromosomes.get(seqname) {
     Some(chrom_data) => chrom_data.positions.length()
     None => 0

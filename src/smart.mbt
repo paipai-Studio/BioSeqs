@@ -19,8 +19,8 @@ pub struct SmartDomain {
   domain_id : String
   domain_name : String
   domain_type : String
-  start : Int
-  end : Int
+  start : Int32
+  end : Int32
   evalue : Double
   sequence : String
   description : String
@@ -34,9 +34,9 @@ pub struct SmartDomain {
 pub fn SmartDomain::new(
   domain_id : String,
   domain_name : String,
-  start : Int,
-  end : Int,
-  evalue? : Double = 0.0,
+  start : Int32,
+  end : Int32,
+  evalue~ : Double = 0.0,
 ) -> SmartDomain {
   SmartDomain::{
     domain_id,
@@ -57,7 +57,7 @@ pub fn SmartDomain::new(
 /// Represents a complete SMART annotation result for a protein sequence.
 pub struct SmartResult {
   mut sequence_id : String
-  mut sequence_length : Int
+  mut sequence_length : Int32
   domains : Array[SmartDomain]
   pfam_domains : Array[SmartDomain]
   signal_peptides : Array[SmartDomain]
@@ -68,7 +68,7 @@ pub struct SmartResult {
 /// Construct a SmartResult.
 pub fn SmartResult::new(
   sequence_id : String,
-  sequence_length? : Int = 0,
+  sequence_length~ : Int32 = 0,
 ) -> SmartResult {
   SmartResult::{
     sequence_id,
@@ -197,8 +197,8 @@ pub fn smart_find_domains(
 /// Find all domains overlapping with a given region [start, end].
 pub fn smart_find_overlapping_domains(
   result : SmartResult,
-  start : Int,
-  end : Int,
+  start : Int32,
+  end : Int32,
 ) -> Array[SmartDomain] {
   let matches : Array[SmartDomain] = Array(capacity=0)
   let mut i = 0
@@ -251,7 +251,7 @@ pub fn smart_best_domain(result : SmartResult) -> SmartDomain? {
 
 ///|
 /// Get total number of domains (SMART + Pfam).
-pub fn smart_total_domains(result : SmartResult) -> Int {
+pub fn smart_total_domains(result : SmartResult) -> Int32 {
   result.domains.length() + result.pfam_domains.length()
 }
 
@@ -431,7 +431,7 @@ fn smart_extract_value(line : String) -> String {
 
 ///|
 /// Parse an integer from a string, returning 0 on failure.
-fn smart_parse_int(s : String) -> Int {
+fn smart_parse_int(s : String) -> Int32 {
   let sv = s.to_string().trim()
   let n = sv.length()
   if n == 0 {

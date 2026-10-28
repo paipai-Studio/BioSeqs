@@ -23,8 +23,12 @@ fn main raise {
   println("  JC69 distance (1 vs 2): \{fmt6(jc_calc.pairwise(seq1, seq2))}")
   println("  JC69 distance (1 vs 3): \{fmt6(jc_calc.pairwise(seq1, seq3))}")
   let kimura_calc = @bio.DistanceCalculator::new(model="kimura")
-  println("  Kimura distance (1 vs 2): \{fmt6(kimura_calc.pairwise(seq1, seq2))}")
-  println("  Kimura distance (1 vs 4): \{fmt6(kimura_calc.pairwise(seq1, seq4))}")
+  println(
+    "  Kimura distance (1 vs 2): \{fmt6(kimura_calc.pairwise(seq1, seq2))}",
+  )
+  println(
+    "  Kimura distance (1 vs 4): \{fmt6(kimura_calc.pairwise(seq1, seq4))}",
+  )
   println("")
 
   // === Example 2: identity model on the Biopython msa.phy alignment ===
@@ -38,17 +42,18 @@ fn main raise {
     ("Epsilon", "GAGATCTCCGCCC"),
   ]
   let id_calc = @bio.DistanceCalculator::new(model="identity")
-  print_distance_matrix(id_calc.get_distance(msa), ["Alpha", "Beta", "Gamma", "Delta", "Epsilon"])
+  print_distance_matrix(id_calc.get_distance(msa), [
+    "Alpha", "Beta", "Gamma", "Delta", "Epsilon",
+  ])
   println("")
 
   // === Example 3: BLOSUM62 protein scoring-matrix model ===
   println("--- 3. BLOSUM62 Scoring-Matrix Model ---")
 
   let blosum_calc = @bio.DistanceCalculator::new(model="blosum62")
-  print_distance_matrix(
-    blosum_calc.get_distance(msa),
-    ["Alpha", "Beta", "Gamma", "Delta", "Epsilon"],
-  )
+  print_distance_matrix(blosum_calc.get_distance(msa), [
+    "Alpha", "Beta", "Gamma", "Delta", "Epsilon",
+  ])
   println("")
 
   // === Example 4: DNA matrix models (blastn maps to the NUC.4.4 matrix) ===
@@ -69,21 +74,16 @@ fn main raise {
 
   // Columns with '-' or '*' are skipped by matrix models
   let gap_dist = blosum_calc.pairwise("AC-DE", "ACWDE")
-  println("  BLOSUM62 distance 'AC-DE' vs 'ACWDE' (gap column skipped): \{fmt6(gap_dist)}")
+  println(
+    "  BLOSUM62 distance 'AC-DE' vs 'ACWDE' (gap column skipped): \{fmt6(gap_dist)}",
+  )
   // The identity model skips nothing: gaps count as characters
   let id_gap_dist = id_calc.pairwise("A--A", "ACCA")
   println("  identity distance 'A--A' vs 'ACCA': \{fmt6(id_gap_dist)}")
   // Unknown models raise an error listing the available models
-  try {
-    ignore(@bio.DistanceCalculator::new(model="unknown_model"))
-  } catch {
+  ignore(@bio.DistanceCalculator::new(model="unknown_model")) catch {
     SeqError(msg) => {
-      let short =
-        if msg.length() > 70 {
-          msg[0:70] + "..."
-        } else {
-          msg
-        }
+      let short = if msg.length() > 70 { msg[0:70] + "..." } else { msg }
       println("  Unknown model raised: \{short}")
     }
   }
@@ -152,11 +152,7 @@ fn print_distance_matrix(
 /// Biopython distance-matrix presentation.
 fn fmt6(v : Double) -> String {
   let neg = v < 0.0
-  let av = if neg {
-    -v
-  } else {
-    v
-  }
+  let av = if neg { -v } else { v }
   let scaled = (av * 1.0e6).round()
   let whole = (scaled / 1.0e6).to_int()
   let mut frac = (scaled - whole.to_double() * 1.0e6).to_int()

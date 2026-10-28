@@ -1,3 +1,4 @@
+///|
 fn main {
   println("=== Bioconductor-style vsn Demo ===\n")
 
@@ -10,7 +11,9 @@ fn main {
     let y = @bio.glog(x, 1.0, 1.0)
     let yinv = @bio.glog_inv(y, 1.0, 1.0)
     let diff_abs = (x - yinv).abs()
-    println("    glog(\{x}) = \{y}  (inverse check: |x - glog_inv(y)| = \{diff_abs})")
+    println(
+      "    glog(\{x}) = \{y}  (inverse check: |x - glog_inv(y)| = \{diff_abs})",
+    )
     i = i + 1
   }
 
@@ -18,7 +21,7 @@ fn main {
   let data = [
     [100.0, 200.0, 150.0, 300.0],
     [150.0, 180.0, 160.0, 290.0],
-    [90.0,  210.0, 140.0, 310.0],
+    [90.0, 210.0, 140.0, 310.0],
     [110.0, 220.0, 155.0, 305.0],
     [120.0, 190.0, 145.0, 295.0],
     [5000.0, 8000.0, 6000.0, 9000.0],
@@ -35,7 +38,9 @@ fn main {
     let mut s2 = "    [".to_string()
     let mut c2 = 0
     while c2 < row.length() {
-      if c2 > 0 { s2 = s2 + ", " }
+      if c2 > 0 {
+        s2 = s2 + ", "
+      }
       s2 = s2 + row[c2].to_string()
       c2 = c2 + 1
     }
@@ -55,7 +60,9 @@ fn main {
     let mut s = "    row[\{r}]: [".to_string()
     let mut c = 0
     while c < row.length() {
-      if c > 0 { s = s + ", " }
+      if c > 0 {
+        s = s + ", "
+      }
       s = s + row[c].to_string()
       c = c + 1
     }
@@ -70,7 +77,9 @@ fn main {
   let mut b = 0
   while b < bins.length() {
     let bin = bins[b]
-    println("    bin[\{b}]: mean_x=\{bin.mean_x}, sd_y=\{bin.sd_y}, count=\{bin.count}")
+    println(
+      "    bin[\{b}]: mean_x=\{bin.mean_x}, sd_y=\{bin.sd_y}, count=\{bin.count}",
+    )
     b = b + 1
   }
 

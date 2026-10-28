@@ -37,18 +37,35 @@ fn main {
   println("")
 
   println("6. Pearson Correlation Test (Group 1 vs Group 2):")
-  let pearson_result = @bio.rstatix_cor_test(data[0], data[1], cor_method="pearson")
+  let pearson_result = @bio.rstatix_cor_test(
+    data[0],
+    data[1],
+    cor_method="pearson",
+  )
   println("   \{@bio.rstatix_cor_test_summary(pearson_result)}")
   println("")
 
   println("7. Spearman Correlation Test (Group 1 vs Group 2):")
-  let spearman_result = @bio.rstatix_cor_test(data[0], data[1], cor_method="spearman")
+  let spearman_result = @bio.rstatix_cor_test(
+    data[0],
+    data[1],
+    cor_method="spearman",
+  )
   println("   \{@bio.rstatix_cor_test_summary(spearman_result)}")
   println("")
 
   println("8. Benjamini-Hochberg (BH) Correction:")
-  let p_values = [t_test_result.p_value, wilcox_result.p_value, anova_result.p_value, kruskal_result.p_value, pearson_result.p_value, spearman_result.p_value]
-  let labels = ["t-test", "Wilcoxon", "ANOVA", "Kruskal-Wallis", "Pearson", "Spearman"]
+  let p_values = [
+    t_test_result.p_value,
+    wilcox_result.p_value,
+    anova_result.p_value,
+    kruskal_result.p_value,
+    pearson_result.p_value,
+    spearman_result.p_value,
+  ]
+  let labels = [
+    "t-test", "Wilcoxon", "ANOVA", "Kruskal-Wallis", "Pearson", "Spearman",
+  ]
   let bh_corrected = @bio.rstatix_bh_correct(p_values)
   println("   Raw p-values vs BH-adjusted p-values:")
   let mut i = 0
@@ -62,7 +79,9 @@ fn main {
   let bonf_corrected = @bio.rstatix_bonferroni(p_values)
   i = 0
   while i < p_values.length() {
-    println("     \{labels[i]}: raw = \{p_values[i]}, adj = \{bonf_corrected[i]}")
+    println(
+      "     \{labels[i]}: raw = \{p_values[i]}, adj = \{bonf_corrected[i]}",
+    )
     i = i + 1
   }
   println("")

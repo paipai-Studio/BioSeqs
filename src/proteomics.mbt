@@ -4,7 +4,7 @@
 
 ///|
 pub struct CleavageSite {
-  position : Int
+  position : Int32
   residue : String
   probability : Double
 }
@@ -20,22 +20,22 @@ pub struct PeptideMassResult {
   peptide_sequence : String
   monoisotopic_mass : Double
   average_mass : Double
-  start_position : Int
-  end_position : Int
+  start_position : Int32
+  end_position : Int32
 }
 
 ///|
 pub struct IsotopePattern {
   masses : Array[Double]
   abundances : Array[Double]
-  charge : Int
+  charge : Int32
 }
 
 ///|
 pub struct DigestResult {
   peptides : Array[PeptideMassResult]
   protein_mass : Double
-  num_peptides : Int
+  num_peptides : Int32
 }
 
 ///|
@@ -147,8 +147,8 @@ pub fn proteomics_available_enzymes() -> Array[String] {
 pub fn proteomics_cleavage_sites(
   protein_sequence : String,
   enzyme : String,
-) -> Array[Int] {
-  let sites : Array[Int] = Array(capacity=0)
+) -> Array[Int32] {
+  let sites : Array[Int32] = Array(capacity=0)
   let seq = protein_sequence.to_upper()
   let key = enzyme.to_lower()
 
@@ -196,13 +196,13 @@ pub fn proteomics_digest(
 
   let peptides : Array[PeptideMassResult] = Array(capacity=0)
 
-  let starts : Array[Int] = Array(capacity=0)
+  let starts : Array[Int32] = Array(capacity=0)
   starts.push(0)
   for site in sorted_sites {
     starts.push(site)
   }
 
-  let ends : Array[Int] = Array(capacity=0)
+  let ends : Array[Int32] = Array(capacity=0)
   for site in sorted_sites {
     ends.push(site)
   }
@@ -239,7 +239,7 @@ pub fn proteomics_digest(
 ///|
 pub fn proteomics_trypsin_digest(
   protein : String,
-  missed_cleavages : Int,
+  missed_cleavages : Int32,
 ) -> DigestResult {
   if missed_cleavages <= 0 {
     return proteomics_digest(protein, "trypsin")
@@ -251,13 +251,13 @@ pub fn proteomics_trypsin_digest(
 
   let peptides : Array[PeptideMassResult] = Array(capacity=0)
 
-  let starts : Array[Int] = Array(capacity=0)
+  let starts : Array[Int32] = Array(capacity=0)
   starts.push(0)
   for site in sorted_sites {
     starts.push(site)
   }
 
-  let ends : Array[Int] = Array(capacity=0)
+  let ends : Array[Int32] = Array(capacity=0)
   for site in sorted_sites {
     ends.push(site)
   }
@@ -363,7 +363,7 @@ pub fn proteomics_molecular_weight(peptide : String) -> Double {
 ///|
 pub fn proteomics_isotope_pattern(
   peptide : String,
-  charge : Int,
+  charge : Int32,
 ) -> IsotopePattern {
   let seq = peptide.to_upper()
   let n = seq.length()
@@ -417,8 +417,8 @@ pub fn proteomics_isotope_pattern(
 
 ///|
 fn proteomics_isotope_abundance(
-  peak_index : Int,
-  peptide_length : Int,
+  peak_index : Int32,
+  peptide_length : Int32,
 ) -> Double {
   if peptide_length <= 0 {
     return if peak_index == 0 { 1.0 } else { 0.0 }
@@ -437,7 +437,7 @@ fn proteomics_isotope_abundance(
 }
 
 ///|
-fn proteomics_log_factorial(n : Int) -> Double {
+fn proteomics_log_factorial(n : Int32) -> Double {
   if n <= 1 {
     return 0.0
   }
@@ -475,7 +475,7 @@ fn proteomics_exp_approx(x : Double) -> Double {
 }
 
 ///|
-fn proteomics_pow_approx(base : Double, exp : Int) -> Double {
+fn proteomics_pow_approx(base : Double, exp : Int32) -> Double {
   if exp <= 0 {
     return 1.0
   }
@@ -495,7 +495,7 @@ fn proteomics_pow_approx(base : Double, exp : Int) -> Double {
 ///|
 pub fn proteomics_fragment_ions(
   peptide : String,
-  charge : Int,
+  charge : Int32,
 ) -> Array[PeptideMassResult] {
   let seq = peptide.to_upper()
   let frags : Array[PeptideMassResult] = Array(capacity=0)
@@ -562,14 +562,14 @@ fn proteomics_contains_char(s : String, c : String) -> Bool {
 }
 
 ///|
-fn proteomics_sort_ints(arr : Array[Int]) -> Array[Int] {
+fn proteomics_sort_ints(arr : Array[Int32]) -> Array[Int32] {
   let result = arr
   ignore(proteomics_quick_sort(result, 0, result.length() - 1))
   result
 }
 
 ///|
-fn proteomics_quick_sort(arr : Array[Int], lo : Int, hi : Int) -> Int {
+fn proteomics_quick_sort(arr : Array[Int32], lo : Int32, hi : Int32) -> Int32 {
   if lo < hi {
     let p = proteomics_partition(arr, lo, hi)
     ignore(proteomics_quick_sort(arr, lo, p - 1))
@@ -579,7 +579,7 @@ fn proteomics_quick_sort(arr : Array[Int], lo : Int, hi : Int) -> Int {
 }
 
 ///|
-fn proteomics_partition(arr : Array[Int], lo : Int, hi : Int) -> Int {
+fn proteomics_partition(arr : Array[Int32], lo : Int32, hi : Int32) -> Int32 {
   let pivot = arr[hi]
   let mut i = lo - 1
   let mut j = lo

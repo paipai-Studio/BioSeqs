@@ -68,9 +68,7 @@ fn main {
     i = i + 1
   }
 
-  let bg_idealmm = @bio.gcrma_background_correction(
-    pm, mm, 0.5, "IdealMM",
-  )
+  let bg_idealmm = @bio.gcrma_background_correction(pm, mm, 0.5, "IdealMM")
   println("\n  Background correction (IdealMM, gc=0.5):")
   i = 0
   while i < bg_idealmm.length() {
@@ -78,9 +76,7 @@ fn main {
     i = i + 1
   }
 
-  let bg_express = @bio.gcrma_background_correction(
-    pm, mm, 0.5, "Express",
-  )
+  let bg_express = @bio.gcrma_background_correction(pm, mm, 0.5, "Express")
   println("\n  Background correction (Express, gc=0.5):")
   i = 0
   while i < bg_express.length() {
@@ -142,8 +138,10 @@ fn main {
     background_method="IdealMM",
     normalize=true,
   )
-  println("\n  Configuration: background_method=\{config.background_method}, " +
-    "normalize=\{config.normalize}")
+  println(
+    "\n  Configuration: background_method=\{config.background_method}, " +
+    "normalize=\{config.normalize}",
+  )
 
   let result = @bio.gcrma_process_with_config(cel_data, probes, config)
   println("\n  Processed expression matrix:")
@@ -170,7 +168,7 @@ fn main {
     [90.0, 160.0, 140.0],
     [110.0, 190.0, 170.0],
   ]
-  let probe_sets : Map[String, Array[Int]] = Map([], capacity=0)
+  let probe_sets : Map[String, Array[Int32]] = Map([], capacity=0)
   probe_sets.set("gene1_at", [0, 1, 2])
   probe_sets.set("gene2_at", [3, 4, 5])
   println("  Probe set definition:")

@@ -4,7 +4,7 @@
 
 ///|
 pub struct SNP {
-  position : Int
+  position : Int32
   ref_allele : String
   alt_allele : String
   quality : Double
@@ -13,7 +13,7 @@ pub struct SNP {
 
 ///|
 pub fn SNP::new(
-  position : Int,
+  position : Int32,
   ref_allele : String,
   alt_allele : String,
   quality : Double,
@@ -26,7 +26,7 @@ pub fn SNP::new(
 pub struct Mutation {
   gene : String
   protein : String
-  position : Int
+  position : Int32
   original_aa : String
   mutated_aa : String
   mutation_type : String
@@ -37,7 +37,7 @@ pub struct Mutation {
 pub fn Mutation::new(
   gene : String,
   protein : String,
-  position : Int,
+  position : Int32,
   original_aa : String,
   mutated_aa : String,
   mutation_type : String,
@@ -57,7 +57,7 @@ pub fn Mutation::new(
 ///|
 pub struct VariationRecord {
   chromosome : String
-  position : Int
+  position : Int32
   ref_allele : String
   alt_allele : String
   mutations : Array[Mutation]
@@ -66,7 +66,7 @@ pub struct VariationRecord {
 ///|
 pub fn VariationRecord::new(
   chromosome : String,
-  position : Int,
+  position : Int32,
   ref_allele : String,
   alt_allele : String,
   mutations : Array[Mutation],
@@ -78,7 +78,7 @@ pub fn VariationRecord::new(
 pub struct AminoAcidSubstitution {
   original : String
   mutated : String
-  blosum62_score : Int
+  blosum62_score : Int32
   grantham_distance : Double
 }
 
@@ -86,7 +86,7 @@ pub struct AminoAcidSubstitution {
 pub fn AminoAcidSubstitution::new(
   original : String,
   mutated : String,
-  blosum62_score : Int,
+  blosum62_score : Int32,
   grantham_distance : Double,
 ) -> AminoAcidSubstitution {
   AminoAcidSubstitution::{
@@ -98,8 +98,8 @@ pub fn AminoAcidSubstitution::new(
 }
 
 ///|
-fn blosum62_matrix() -> Map[String, Map[String, Int]] {
-  let matrix : Map[String, Map[String, Int]] = Map([], capacity=20)
+fn blosum62_matrix() -> Map[String, Map[String, Int32]] {
+  let matrix : Map[String, Map[String, Int32]] = Map([], capacity=20)
 
   let amino_acids = [
     "A", "R", "N", "D", "C", "Q", "E", "G", "H", "I", "L", "K", "M", "F", "P", "S",
@@ -138,7 +138,7 @@ fn blosum62_matrix() -> Map[String, Map[String, Int]] {
 
   let mut i = 0
   while i < amino_acids.length() {
-    let row_map : Map[String, Int] = Map([], capacity=20)
+    let row_map : Map[String, Int32] = Map([], capacity=20)
     let mut j = 0
     while j < amino_acids.length() {
       row_map.set(amino_acids[j], scores[i][j])
@@ -260,7 +260,7 @@ fn grantham_matrix() -> Map[String, Map[String, Double]] {
 
 ///|
 pub fn analyze_snp(
-  position : Int,
+  position : Int32,
   ref_allele : String,
   alt_allele : String,
   quality : Double,
@@ -274,7 +274,7 @@ pub fn detect_mutations(
   gene : String,
   protein : String,
   dna_sequence : String,
-  variant_position : Int,
+  variant_position : Int32,
   alt_allele : String,
 ) -> Array[Mutation] {
   let mutations : Array[Mutation] = Array(capacity=0)
@@ -314,7 +314,7 @@ pub fn detect_mutations(
 }
 
 ///|
-fn replace_char_at(s : String, idx : Int, replacement : String) -> String {
+fn replace_char_at(s : String, idx : Int32, replacement : String) -> String {
   if idx < 0 || idx >= s.length() || replacement.length() == 0 {
     return s
   }

@@ -100,10 +100,7 @@ test "decipher distance matrix" {
 ///|
 test "decipher id clusters" {
   let seqs = [
-    "ACGTACGTACGTACGTACGT",
-    "ACGTACGTACGTACGTACGA",
-    "ACGTACGTACGTACGTACGT",
-    "TTGCGCGCATATATATGCGC",
+    "ACGTACGTACGTACGTACGT", "ACGTACGTACGTACGTACGA", "ACGTACGTACGTACGTACGT", "TTGCGCGCATATATATGCGC",
     "TTGCGCGCATATATATGCGT",
   ]
   let result = @src.id_clusters(seqs, threshold=0.9)
@@ -166,11 +163,7 @@ test "decipher find chimeras" {
 
 ///|
 test "decipher consensus" {
-  let aligned = [
-    "ACGTACGT",
-    "ACGTACGT",
-    "ACGTACGA",
-  ]
+  let aligned = ["ACGTACGT", "ACGTACGT", "ACGTACGA"]
   let cons = @src.decipher_consensus(aligned)
   assert_eq(cons, "ACGTACGT")
 }

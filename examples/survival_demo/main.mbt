@@ -4,7 +4,9 @@
 /// Run: moon run examples/survival_demo
 fn main {
   println("=== Survival Analysis Module Demo ===")
-  println("Kaplan-Meier estimation, log-rank test, Cox proportional hazards model")
+  println(
+    "Kaplan-Meier estimation, log-rank test, Cox proportional hazards model",
+  )
   println("Reference: Therneau T (2023) A Package for Survival Analysis")
   println("")
 

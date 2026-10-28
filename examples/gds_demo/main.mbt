@@ -28,7 +28,7 @@ fn mean(values : Array[Double]) -> Double {
 }
 
 ///|
-fn mean_int(values : Array[Int]) -> Double {
+fn mean_int(values : Array[Int32]) -> Double {
   let mut total = 0
   for v in values {
     total = total + v
@@ -59,7 +59,11 @@ fn main raise {
   )
   let _ = file.add_node(
     "annotation/info/DP",
-    @src.GdsNode::leaf("DP", "read depth", @src.GdsValue::GdsIntArray([10, 20, 30])),
+    @src.GdsNode::leaf(
+      "DP",
+      "read depth",
+      @src.GdsValue::GdsIntArray([10, 20, 30]),
+    ),
   )
   println("has annotation/info/DP : \{file.has_node("annotation/info/DP")}")
   println("has sample.id          : \{file.has_node("sample.id")}")
@@ -75,9 +79,7 @@ fn main raise {
   let freqs = data.allele_frequencies()
   let rates = data.missing_rates()
   for v in 0..<freqs.length() {
-    println(
-      "variant \{v}: alt freq=\{freqs[v]}, missing rate=\{rates[v]}",
-    )
+    println("variant \{v}: alt freq=\{freqs[v]}, missing rate=\{rates[v]}")
   }
 
   println("\n=== seqSetFilter: keep only chromosome 2 ===")
@@ -98,11 +100,15 @@ fn main raise {
   println("\n=== Summary (seqSummary) ===")
   data.reset_filter()
   let summary = data.summary()
-  println("n_samples = \{summary.n_samples}, n_variants = \{summary.n_variants}")
+  println(
+    "n_samples = \{summary.n_samples}, n_variants = \{summary.n_variants}",
+  )
   println("n_chromosomes = \{summary.n_chromosomes}")
   println("mean allele frequency = \{summary.mean_allele_frequency}")
   println("mean missing rate     = \{summary.mean_missing_rate}")
-  println("mean dosage per variant = \{mean(data.apply_per_variant(fn(row, _i) { mean_int(row) }))}")
+  println(
+    "mean dosage per variant = \{mean(data.apply_per_variant(fn(row, _i) { mean_int(row) }))}",
+  )
 
   println("\n=== Range filter [100, 200) ===")
   data.set_variant_range_filter(100, 200)

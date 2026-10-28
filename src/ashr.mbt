@@ -21,8 +21,8 @@ pub struct AshrFit {
   prior_grid : Array[Double]
   prior_weights : Array[Double]
   log_likelihood : Double
-  iterations : Int
-  n : Int
+  iterations : Int32
+  n : Int32
 }
 
 // ---- univariate normal helpers -------------------------------------------
@@ -46,7 +46,7 @@ pub fn ashr_erf(x : Double) -> Double {
 ///|
 /// Standard normal cumulative distribution function.
 pub fn ashr_pnorm(x : Double) -> Double {
-  0.5 * (1.0 + ashr_erf(x / (2.0).sqrt()))
+  0.5 * (1.0 + ashr_erf(x / 2.0.sqrt()))
 }
 
 ///|
@@ -80,7 +80,7 @@ pub fn ashr_shrink(
   estimates : Array[Double],
   ses : Array[Double],
   grid_sd~ : Array[Double] = [0.0, 0.25, 0.5, 1.0, 2.0, 4.0, 8.0],
-  max_iter~ : Int = 200,
+  max_iter~ : Int32 = 200,
   tol~ : Double = 1.0e-8,
 ) -> AshrFit {
   let n = estimates.length()
@@ -217,7 +217,7 @@ pub fn ashr_shrink(
 pub fn ashr_shrink_z(
   z : Array[Double],
   grid_sd~ : Array[Double] = [0.0, 0.25, 0.5, 1.0, 2.0, 4.0, 8.0],
-  max_iter~ : Int = 200,
+  max_iter~ : Int32 = 200,
   tol~ : Double = 1.0e-8,
 ) -> AshrFit {
   let ses = Array::make(z.length(), 1.0)
@@ -228,7 +228,7 @@ pub fn ashr_shrink_z(
 
 ///|
 /// Number of observations whose lfsr is below the given cutoff.
-pub fn ashr_count_significant(fit : AshrFit, lfsr_cutoff : Double) -> Int {
+pub fn ashr_count_significant(fit : AshrFit, lfsr_cutoff : Double) -> Int32 {
   let mut count = 0
   for v in fit.lfsr {
     if v < lfsr_cutoff {
@@ -262,7 +262,7 @@ pub fn ashr_shrinkage_factor(
 
 ///|
 /// Index of the prior component carrying the largest weight.
-pub fn ashr_mode_component(fit : AshrFit) -> Int {
+pub fn ashr_mode_component(fit : AshrFit) -> Int32 {
   let mut best = 0
   let mut i = 1
   while i < fit.prior_weights.length() {
@@ -283,7 +283,9 @@ pub fn ashr_summary(fit : AshrFit) -> String {
   buf.write_string("  prior components (sd, weight):\n")
   let mut i = 0
   while i < fit.prior_grid.length() {
-    buf.write_string("    sd=\{fit.prior_grid[i]}  pi=\{fit.prior_weights[i]}\n")
+    buf.write_string(
+      "    sd=\{fit.prior_grid[i]}  pi=\{fit.prior_weights[i]}\n",
+    )
     i = i + 1
   }
   let mut n_sig = 0

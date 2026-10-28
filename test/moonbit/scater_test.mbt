@@ -134,7 +134,7 @@ test "scater_log_normalize_cpm" {
 
 ///|
 test "scater_find_hvgs" {
-  let counts : Array[Array[Int]] = Array::make(10, Array::make(20, 0))
+  let counts : Array[Array[Int32]] = Array::make(10, Array::make(20, 0))
   let log_expr = @src.scater_log_normalize_cpm(counts)
   let gene_names : Array[String] = Array::make(20, "")
   let mut i = 0
@@ -148,7 +148,7 @@ test "scater_find_hvgs" {
 
 ///|
 test "scater_run_pca" {
-  let counts : Array[Array[Int]] = Array::make(5, Array::make(10, 0))
+  let counts : Array[Array[Int32]] = Array::make(5, Array::make(10, 0))
   let mut i = 0
   while i < 5 {
     let mut j = 0

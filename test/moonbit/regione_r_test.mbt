@@ -4,7 +4,7 @@
 
 ///|
 /// Build a single-chromosome GRanges with star strands.
-fn rr_make(seqname : String, ranges : Array[(Int, Int)]) -> @src.GRanges {
+fn rr_make(seqname : String, ranges : Array[(Int32, Int32)]) -> @src.GRanges {
   let n = ranges.length()
   @src.granges(
     Array::make(n, seqname),
@@ -253,7 +253,7 @@ test "regioner_stat_mean_distance" {
 test "regioner_overlap_perm_test_associated" {
   let genome = rr_genome()
   // b: 20 probes of width 51 spaced 450 bases apart on chr1
-  let ranges : Array[(Int, Int)] = []
+  let ranges : Array[(Int32, Int32)] = []
   let mut k = 0
   while k < 20 {
     ranges.push((250 + k * 450, 300 + k * 450))
@@ -261,7 +261,7 @@ test "regioner_overlap_perm_test_associated" {
   }
   let b = rr_make("chr1", ranges)
   // a: the first 5 probes of b, so a is strongly associated with b
-  let a_ranges : Array[(Int, Int)] = []
+  let a_ranges : Array[(Int32, Int32)] = []
   let mut j = 0
   while j < 5 {
     a_ranges.push(ranges[j])

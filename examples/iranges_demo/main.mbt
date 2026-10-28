@@ -56,10 +56,18 @@ fn main {
   let ir_query = @src.iranges([1, 10], [5, 15])
   let ir_subject = @src.iranges([3, 8, 12], [8, 14, 18])
 
-  let any_overlaps = @src.find_overlaps_advanced(query=ir_query, subject=ir_subject, type_="any")
+  let any_overlaps = @src.find_overlaps_advanced(
+    query=ir_query,
+    subject=ir_subject,
+    type_="any",
+  )
   println("   Any overlap count: \{any_overlaps.length()}")
 
-  let within_overlaps = @src.find_overlaps_advanced(query=ir_query, subject=ir_subject, type_="within")
+  let within_overlaps = @src.find_overlaps_advanced(
+    query=ir_query,
+    subject=ir_subject,
+    type_="within",
+  )
   println("   Within overlap count: \{within_overlaps.length()}")
 
   println("\n9. IRanges nearest...")
@@ -96,7 +104,9 @@ fn main {
   println("   Distance to nearest for each range:")
   i = 0
   while i < ir_dn.starts.length() {
-    println("     Range \{i} (\{ir_dn.starts[i]}-\{ir_dn.ends[i]}): distance = \{distances_to_nearest[i]}")
+    println(
+      "     Range \{i} (\{ir_dn.starts[i]}-\{ir_dn.ends[i]}): distance = \{distances_to_nearest[i]}",
+    )
     i = i + 1
   }
 

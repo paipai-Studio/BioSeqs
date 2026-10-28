@@ -4,7 +4,7 @@
 /// operating on BioSeqs' `phylo.Clade` trees.
 
 ///|
-fn dendropy_count_leaves(clade : Clade) -> Int {
+fn dendropy_count_leaves(clade : Clade) -> Int32 {
   if clade.is_terminal() {
     1
   } else {
@@ -20,18 +20,18 @@ fn dendropy_count_leaves(clade : Clade) -> Int {
 /// Colless' tree imbalance index (un-normalized): the sum over internal
 /// bifurcating nodes of the absolute difference between the leaf counts of
 /// their two subtrees.
-pub fn dendropy_colless(clade : Clade) -> Int {
+pub fn dendropy_colless(clade : Clade) -> Int32 {
   dendropy_colless_rec(clade).1
 }
 
 ///|
-fn dendropy_colless_rec(clade : Clade) -> (Int, Int) {
+fn dendropy_colless_rec(clade : Clade) -> (Int32, Int32) {
   if clade.is_terminal() {
     return (1, 0)
   }
   let mut total = 0
   let mut csum = 0
-  let child_leaves : Array[Int] = Array(capacity=0)
+  let child_leaves : Array[Int32] = Array(capacity=0)
   for ch in clade.clades {
     let (leaves, cs) = dendropy_colless_rec(ch)
     total = total + leaves
@@ -47,12 +47,12 @@ fn dendropy_colless_rec(clade : Clade) -> (Int, Int) {
 ///|
 /// Sackin's index (un-normalized): the sum over terminal nodes of their depth
 /// (number of ancestors, i.e., edges from the root).
-pub fn dendropy_sackin(clade : Clade) -> Int {
+pub fn dendropy_sackin(clade : Clade) -> Int32 {
   dendropy_sackin_rec(clade, 0)
 }
 
 ///|
-fn dendropy_sackin_rec(clade : Clade, depth : Int) -> Int {
+fn dendropy_sackin_rec(clade : Clade, depth : Int32) -> Int32 {
   if clade.is_terminal() {
     depth
   } else {
@@ -153,7 +153,7 @@ fn dendropy_join(names : Array[String]) -> String {
   let sb = StringBuilder()
   let mut first = true
   for n in names {
-    if !(first) {
+    if !first {
       sb.write_char(',')
     }
     sb.write_string(n)
@@ -183,7 +183,10 @@ fn dendropy_leaf_names(clade : Clade) -> Array[String] {
 
 ///|
 /// Complement of `sub` within `all` (both sorted).
-fn dendropy_complement(all : Array[String], sub : Array[String]) -> Array[String] {
+fn dendropy_complement(
+  all : Array[String],
+  sub : Array[String],
+) -> Array[String] {
   let out : Array[String] = Array(capacity=0)
   let mut si = 0
   for x in all {
@@ -201,13 +204,12 @@ fn dendropy_complement(all : Array[String], sub : Array[String]) -> Array[String
 fn dendropy_split_rec(
   clade : Clade,
   all_names : Array[String],
-  n : Int,
+  n : Int32,
 ) -> (Array[String], Map[String, Bool]) {
   if clade.is_terminal() {
     match clade.name {
       None => ([], Map([], capacity=0))
-      Some(x) =>
-        ([x], Map([], capacity=0))
+      Some(x) => ([x], Map([], capacity=0))
     }
   } else {
     let keys : Map[String, Bool] = Map([], capacity=0)
@@ -246,7 +248,7 @@ fn dendropy_split_rec(
 ///|
 /// Unweighted Robinson–Foulds distance (symmetric difference) between two
 /// trees on the same leaf set (`dendropy.calculate.treecompare.symmetric_difference`).
-pub fn dendropy_symmetric_difference(clade1 : Clade, clade2 : Clade) -> Int {
+pub fn dendropy_symmetric_difference(clade1 : Clade, clade2 : Clade) -> Int32 {
   let all_names = dendropy_leaf_names(clade1)
   let n = all_names.length()
   let (_, s1) = dendropy_split_rec(clade1, all_names, n)
@@ -266,13 +268,15 @@ pub fn dendropy_symmetric_difference(clade1 : Clade, clade2 : Clade) -> Int {
     }
   }
   count
-}///|
+} ///|
 /// Canonical split → branch-length map: for each non-trivial bipartition, the
 /// length of the branch subtending the defining internal node (0.0 if absent).
+
+///|
 fn dendropy_split_lengths_rec(
   clade : Clade,
   all_names : Array[String],
-  n : Int,
+  n : Int32,
 ) -> (Array[String], Map[String, Double]) {
   if clade.is_terminal() {
     match clade.name {
@@ -320,7 +324,10 @@ fn dendropy_split_lengths_rec(
 /// Edge-weighted Robinson–Foulds distance: the sum, over all bipartitions in
 /// either tree, of the absolute difference in branch lengths (a missing
 /// bipartition contributes its own length).
-pub fn dendropy_weighted_robinson_foulds(clade1 : Clade, clade2 : Clade) -> Double {
+pub fn dendropy_weighted_robinson_foulds(
+  clade1 : Clade,
+  clade2 : Clade,
+) -> Double {
   let all = dendropy_leaf_names(clade1)
   let n = all.length()
   let (_, m1) = dendropy_split_lengths_rec(clade1, all, n)
@@ -396,7 +403,11 @@ fn dendropy_down(clade : Clade, name : String, acc : Double) -> Double? {
 ///|
 /// Patristic distance between two taxa: the sum of branch lengths along the
 /// path between them (`dendropy.calculate.treemeasure.patristic_distance`).
-pub fn dendropy_patristic_distance(clade : Clade, name1 : String, name2 : String) -> Double {
+pub fn dendropy_patristic_distance(
+  clade : Clade,
+  name1 : String,
+  name2 : String,
+) -> Double {
   match dendropy_lca_find(clade, name1, name2) {
     None => 0.0
     Some(lca) =>
@@ -468,7 +479,7 @@ fn dendropy_node_height(clade : Clade) -> Double {
 ///|
 /// Collect the heights of bifurcating internal nodes (speciation times) and
 /// return the number of leaves.
-fn dendropy_gamma_collect(clade : Clade, ages : Array[Double]) -> Int {
+fn dendropy_gamma_collect(clade : Clade, ages : Array[Double]) -> Int32 {
   if clade.is_terminal() {
     1
   } else {
@@ -636,7 +647,6 @@ pub fn dendropy_fusco_cronk(clade : Clade) -> Double {
   }
 }
 
-
 ///|
 // =========================================================================
 // s-shape statistic (Bortolussi et al. 2005 / Blum & François 2006)
@@ -647,7 +657,7 @@ pub fn dendropy_fusco_cronk(clade : Clade) -> Double {
 
 ///|
 /// Returns (total_leaves, sum_of_log(n_u - 1)) for the subtree.
-fn dendropy_shape_stat_rec(clade : Clade) -> (Int, Double) {
+fn dendropy_shape_stat_rec(clade : Clade) -> (Int32, Double) {
   if clade.is_terminal() {
     return (1, 0.0)
   }
@@ -685,7 +695,10 @@ pub fn dendropy_shape_statistic_yule(clade : Clade) -> Double {
     return 0.0
   }
   let sigma = dendropy_shape_statistic(clade)
-  let numerator = sigma - 1.204 * (n.to_double() + 1.0) + @math.ln(n.to_double()) + 2.0
+  let numerator = sigma -
+    1.204 * (n.to_double() + 1.0) +
+    @math.ln(n.to_double()) +
+    2.0
   let denom_sq = 0.168 * (n.to_double() + 1.0) - 0.71
   if denom_sq <= 0.0 {
     return 0.0
@@ -708,7 +721,10 @@ pub fn dendropy_shape_statistic_pda(clade : Clade) -> Double {
   let sigma = dendropy_shape_statistic(clade)
   let sqrt_n = nd.sqrt()
   let numerator = sigma - 2.03 * (nd + 1.0) + 3.545 * sqrt_n
-  let denom_sq = 1.570 * nd * @math.ln(nd) - 5.674 * nd + 3.602 * sqrt_n + 14.915
+  let denom_sq = 1.570 * nd * @math.ln(nd) -
+    5.674 * nd +
+    3.602 * sqrt_n +
+    14.915
   if denom_sq <= 0.0 {
     return 0.0
   }
@@ -721,6 +737,7 @@ pub fn dendropy_shape_statistic_pda(clade : Clade) -> Double {
 //   Source: DendroPy colless_tree_imbalance, apTreeshape colless.R
 // =========================================================================
 
+///|
 /// Euler–Mascheroni constant γ ≈ 0.5772156649
 let dendropy_euler_gamma : Double = 0.5772156649015329
 
@@ -735,7 +752,8 @@ pub fn dendropy_colless_yule(clade : Clade) -> Double {
   }
   let nd = n.to_double()
   let ic = dendropy_colless(clade).to_double()
-  (ic - nd * @math.ln(nd) - nd * (dendropy_euler_gamma - 1.0 - @math.ln(2.0))) / nd
+  (ic - nd * @math.ln(nd) - nd * (dendropy_euler_gamma - 1.0 - @math.ln(2.0))) /
+  nd
 }
 
 ///|
@@ -770,7 +788,7 @@ pub fn dendropy_sackin_yule(clade : Clade) -> Double {
   let s = dendropy_sackin(clade).to_double()
   // Compute harmonic sum H_n - 1 = Σ_{j=2}^{n} 1/j
   let mut h = 0.0
-  for j in 2..=n {
+  for j in 2..<=n {
     h = h + 1.0 / j.to_double()
   }
   (s - 2.0 * nd * h) / nd
@@ -789,7 +807,6 @@ pub fn dendropy_sackin_pda(clade : Clade) -> Double {
   s / nd.sqrt() * nd
 }
 
-
 ///|
 // =========================================================================
 // Colless-like index (Mir, Rotger & Rossello 2018)
@@ -804,7 +821,7 @@ pub fn dendropy_sackin_pda(clade : Clade) -> Double {
 /// Weight function f for f.size computation.
 pub(all) enum CollessLikeFSize {
   FExp // f(x) = e^x
-  FLn  // f(x) = ln(x + e)
+  FLn // f(x) = ln(x + e)
 }
 
 ///|
@@ -812,12 +829,12 @@ pub(all) enum CollessLikeFSize {
 pub(all) enum CollessLikeDissim {
   DMdm // mean deviation from median: Σ|x_i - median| / n
   DVar // sample variance: Σ(x_i - mean)^2 / (n-1)
-  DSd  // sample standard deviation: sqrt(var)
+  DSd // sample standard deviation: sqrt(var)
 }
 
 ///|
 /// Evaluate the weight function f at integer x.
-fn cl_fsize_eval(f : CollessLikeFSize, x : Int) -> Double {
+fn cl_fsize_eval(f : CollessLikeFSize, x : Int32) -> Double {
   match f {
     FExp => @math.exp(x.to_double())
     FLn => @math.ln(x.to_double() + @math.exp(1.0))
@@ -876,10 +893,7 @@ fn cl_dissim_eval(d : CollessLikeDissim, xs : Array[Double]) -> Double {
 ///|
 /// Compute f.size of a subtree: fs(T) = Σ_{v ∈ V(T)} f(deg+(v)).
 /// Returns (f_size, ) for the subtree rooted at clade.
-fn cl_compute_fsize(
-  clade : Clade,
-  f : CollessLikeFSize,
-) -> Double {
+fn cl_compute_fsize(clade : Clade, f : CollessLikeFSize) -> Double {
   let outdeg = clade.clades.length()
   let mut fs = cl_fsize_eval(f, outdeg)
   for ch in clade.clades {
@@ -929,7 +943,6 @@ fn cl_colless_like_rec(
   total
 }
 
-
 ///|
 // =========================================================================
 // Cherry count
@@ -941,7 +954,7 @@ fn cl_colless_like_rec(
 ///|
 /// Count the number of cherries in a rooted tree.
 /// A cherry is an internal node with exactly two children that are both leaves.
-pub fn dendropy_cherry_count(clade : Clade) -> Int {
+pub fn dendropy_cherry_count(clade : Clade) -> Int32 {
   if clade.is_terminal() {
     return 0
   }
@@ -958,7 +971,6 @@ pub fn dendropy_cherry_count(clade : Clade) -> Int {
   }
   count
 }
-
 
 ///|
 // =========================================================================
@@ -1019,14 +1031,14 @@ fn b2_collect_probs(
 /// one side has a single taxon.
 fn dendropy_collect_internal_splits(
   clade : Clade,
-  total_taxa : Int,
+  total_taxa : Int32,
   is_root : Bool,
-  out : Map[String, Double]
+  out : Map[String, Double],
 ) -> Unit {
   if clade.clades.length() == 0 {
     return
   }
-  if !(is_root) {
+  if !is_root {
     let k = clade.count_terminals()
     // Non-trivial: 2 ≤ k ≤ total-2
     if k >= 2 && k <= total_taxa - 2 {
@@ -1051,7 +1063,7 @@ fn dendropy_collect_internal_splits(
 /// excluded — only splits that affect topology contribute.
 pub fn dendropy_kuhner_felsenstein_distance(
   clade1 : Clade,
-  clade2 : Clade
+  clade2 : Clade,
 ) -> Double {
   let n1 = clade1.count_terminals()
   let n2 = clade2.count_terminals()
@@ -1073,13 +1085,12 @@ pub fn dendropy_kuhner_felsenstein_distance(
     sum_sq = sum_sq + d * d
   }
   for (key, l2) in s2 {
-    if !(s1.contains(key)) {
+    if !s1.contains(key) {
       sum_sq = sum_sq + l2 * l2
     }
   }
   sum_sq.sqrt()
 }
-
 
 ///|
 /// Canonical topology key: sorted non-trivial bipartition split keys.
@@ -1109,14 +1120,14 @@ fn dendropy_topology_key(clade : Clade) -> String {
 ///|
 fn dendropy_collect_topology_splits(
   clade : Clade,
-  total : Int,
+  total : Int32,
   is_root : Bool,
-  out : Array[String]
+  out : Array[String],
 ) -> Unit {
   if clade.clades.length() == 0 {
     return
   }
-  if !(is_root) {
+  if !is_root {
     let k = clade.count_terminals()
     if k >= 2 && k <= total - 2 {
       out.push(dendropy_split_key(clade))
@@ -1132,7 +1143,7 @@ fn dendropy_collect_topology_splits(
 /// transform tree1 into tree2 (topological, branch lengths ignored).
 /// Uses BFS over SPR-neighbor space; feasible for small trees (≤ ~8 taxa).
 /// Returns -1 if trees have different taxon counts.
-pub fn dendropy_spr_distance(clade1 : Clade, clade2 : Clade) -> Int {
+pub fn dendropy_spr_distance(clade1 : Clade, clade2 : Clade) -> Int32 {
   let n1 = clade1.count_terminals()
   let n2 = clade2.count_terminals()
   if n1 != n2 {
@@ -1151,7 +1162,7 @@ pub fn dendropy_spr_distance(clade1 : Clade, clade2 : Clade) -> Int {
   let visited : Map[String, Bool] = Map([], capacity=0)
   visited.set(key1, true)
   // Queue: array of (tree, distance)
-  let queue : Array[(Clade, Int)] = Array(capacity=0)
+  let queue : Array[(Clade, Int32)] = Array(capacity=0)
   queue.push((clade1, 0))
   let mut head = 0
   while head < queue.length() {
@@ -1164,7 +1175,7 @@ pub fn dendropy_spr_distance(clade1 : Clade, clade2 : Clade) -> Int {
       if nk == key2 {
         return next_dist
       }
-      if !(visited.contains(nk)) {
+      if !visited.contains(nk) {
         visited.set(nk, true)
         queue.push((nb, next_dist))
       }
@@ -1174,13 +1185,12 @@ pub fn dendropy_spr_distance(clade1 : Clade, clade2 : Clade) -> Int {
   -1
 }
 
-
 ///|
 /// NNI distance: minimum number of nearest-neighbor interchange moves to
 /// transform tree1 into tree2 (topological, branch lengths ignored).
 /// Uses BFS over NNI-neighbor space; feasible for small trees (≤ ~8 taxa).
 /// Returns -1 if trees have different taxon counts.
-pub fn dendropy_nni_distance(clade1 : Clade, clade2 : Clade) -> Int {
+pub fn dendropy_nni_distance(clade1 : Clade, clade2 : Clade) -> Int32 {
   let n1 = clade1.count_terminals()
   let n2 = clade2.count_terminals()
   if n1 != n2 {
@@ -1198,7 +1208,7 @@ pub fn dendropy_nni_distance(clade1 : Clade, clade2 : Clade) -> Int {
   // BFS
   let visited : Map[String, Bool] = Map([], capacity=0)
   visited.set(key1, true)
-  let queue : Array[(Clade, Int)] = Array(capacity=0)
+  let queue : Array[(Clade, Int32)] = Array(capacity=0)
   queue.push((clade1, 0))
   let mut head = 0
   while head < queue.length() {
@@ -1211,7 +1221,7 @@ pub fn dendropy_nni_distance(clade1 : Clade, clade2 : Clade) -> Int {
       if nk == key2 {
         return next_dist
       }
-      if !(visited.contains(nk)) {
+      if !visited.contains(nk) {
         visited.set(nk, true)
         queue.push((nb, next_dist))
       }

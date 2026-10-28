@@ -83,7 +83,9 @@ fn main {
   let mut k = 0
   while k < all_splits.length() {
     let supp = @bio.calculate_consensus_support(trees, all_splits[k])
-    println("     Split \{k + 1}: \{all_splits[k].hash()} (support: \{supp * 100.0}%)")
+    println(
+      "     Split \{k + 1}: \{all_splits[k].hash()} (support: \{supp * 100.0}%)",
+    )
     k = k + 1
   }
 

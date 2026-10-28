@@ -10,17 +10,17 @@
 ///|
 /// Result of PGSEA for one gene set.
 pub(all) struct PgseaResult {
-  gene_set : String            // gene set name
-  scores : Array[Double]       // score per sample (index-aligned with sample labels)
-  mean_control : Double        // mean score in control samples
-  mean_treatment : Double      // mean score in treatment samples
-  t_stat : Double              // Welch t statistic (treatment vs control)
-  p_value : Double             // two-sided p value
+  gene_set : String // gene set name
+  scores : Array[Double] // score per sample (index-aligned with sample labels)
+  mean_control : Double // mean score in control samples
+  mean_treatment : Double // mean score in treatment samples
+  t_stat : Double // Welch t statistic (treatment vs control)
+  p_value : Double // two-sided p value
 }
 
 ///|
 /// Number of samples in the expression data.
-fn pgsea_n_samples(expr : Array[Array[Double]]) -> Int {
+fn pgsea_n_samples(expr : Array[Array[Double]]) -> Int32 {
   if expr.length() == 0 {
     0
   } else {
@@ -30,7 +30,9 @@ fn pgsea_n_samples(expr : Array[Array[Double]]) -> Int {
 
 ///|
 /// Compute per-gene mean and standard deviation across all samples.
-fn pgsea_gene_stats(expr : Array[Array[Double]]) -> (Array[Double], Array[Double]) {
+fn pgsea_gene_stats(
+  expr : Array[Array[Double]],
+) -> (Array[Double], Array[Double]) {
   let n_genes = expr.length()
   let n_samples = pgsea_n_samples(expr)
   let means : Array[Double] = Array::make(n_genes, 0.0)
@@ -47,7 +49,11 @@ fn pgsea_gene_stats(expr : Array[Array[Double]]) -> (Array[Double], Array[Double
       let d = expr[g][s] - mean
       sq = sq + d * d
     }
-    let sd = if n_samples > 1 { (sq / (n_samples - 1).to_double()).sqrt() } else { 0.0 }
+    let sd = if n_samples > 1 {
+      (sq / (n_samples - 1).to_double()).sqrt()
+    } else {
+      0.0
+    }
     sds[g] = sd
   }
   (means, sds)
@@ -63,7 +69,7 @@ pub fn pgsea_score_one(
   expr : Array[Array[Double]],
   gene_names : Array[String],
   gene_set : Array[String],
-  sample_idx : Int,
+  sample_idx : Int32,
   means : Array[Double],
   sds : Array[Double],
 ) -> Double {
@@ -155,8 +161,16 @@ pub fn pgsea_run(
         treatment_scores.push(scores[s])
       }
     }
-    let mc = if control_scores.length() > 0 { pgsea_mean(control_scores) } else { 0.0 }
-    let mt = if treatment_scores.length() > 0 { pgsea_mean(treatment_scores) } else { 0.0 }
+    let mc = if control_scores.length() > 0 {
+      pgsea_mean(control_scores)
+    } else {
+      0.0
+    }
+    let mt = if treatment_scores.length() > 0 {
+      pgsea_mean(treatment_scores)
+    } else {
+      0.0
+    }
     let n1 = control_scores.length()
     let n2 = treatment_scores.length()
     let v1 = if n1 > 0 { pgsea_variance(control_scores) } else { 0.0 }
@@ -176,17 +190,21 @@ pub fn pgsea_run(
       let b = v2 / n2.to_double()
       let numer = (a + b) * (a + b)
       let denom = a * a / (n1 - 1).to_double() + b * b / (n2 - 1).to_double()
-      if denom < 1.0e-12 { 1.0 } else { numer / denom }
+      if denom < 1.0e-12 {
+        1.0
+      } else {
+        numer / denom
+      }
     } else {
       1.0
     }
     let p_val = pgsea_t_pvalue(t_stat, df)
     results.push(PgseaResult::{
       gene_set: set_names[i],
-      scores: scores,
+      scores,
       mean_control: mc,
       mean_treatment: mt,
-      t_stat: t_stat,
+      t_stat,
       p_value: p_val,
     })
   }
@@ -241,8 +259,13 @@ fn pgsea_incomplete_beta(a : Double, b : Double, x : Double) -> Double {
   if x >= 1.0 {
     return 1.0
   }
-  let bt = @math.exp(pgsea_lgamma(a + b) - pgsea_lgamma(a) - pgsea_lgamma(b) +
-    a * @math.ln(x) + b * @math.ln(1.0 - x))
+  let bt = @math.exp(
+    pgsea_lgamma(a + b) -
+    pgsea_lgamma(a) -
+    pgsea_lgamma(b) +
+    a * @math.ln(x) +
+    b * @math.ln(1.0 - x),
+  )
   let use_sym = if x < (a + 1.0) / (a + b + 2.0) {
     bt * pgsea_betacf(a, b, x) / a
   } else {
@@ -270,7 +293,9 @@ fn pgsea_betacf(a : Double, b : Double, x : Double) -> Double {
   let mut m = 1
   while m <= maxit {
     let m2 = 2 * m
-    let mut aa = m.to_double() * (b - m.to_double()) * x /
+    let mut aa = m.to_double() *
+      (b - m.to_double()) *
+      x /
       ((qam + m2.to_double()) * (a + m2.to_double()))
     d = 1.0 + aa * d
     if d.abs() < fpmin {
@@ -282,7 +307,9 @@ fn pgsea_betacf(a : Double, b : Double, x : Double) -> Double {
     }
     d = 1.0 / d
     h = h * d * c
-    aa = -(a + m.to_double()) * (qab + m.to_double()) * x /
+    aa = -(a + m.to_double()) *
+      (qab + m.to_double()) *
+      x /
       ((a + m2.to_double()) * (qap + m2.to_double()))
     d = 1.0 + aa * d
     if d.abs() < fpmin {
@@ -307,8 +334,8 @@ fn pgsea_betacf(a : Double, b : Double, x : Double) -> Double {
 /// Log-gamma function via Lanczos approximation.
 fn pgsea_lgamma(x : Double) -> Double {
   let cof : Array[Double] = [
-    76.18009172947146, -86.50532032941677, 24.01409824083091,
-    -1.231739572450155, 0.1208650973866179e-2, -0.5395239384953e-5,
+    76.18009172947146, -86.50532032941677, 24.01409824083091, -1.231739572450155,
+    0.1208650973866179e-2, -0.5395239384953e-5,
   ]
   let xx = x
   let mut y = x
@@ -324,7 +351,7 @@ fn pgsea_lgamma(x : Double) -> Double {
 
 ///|
 /// Convenience: top gene sets ranked by significance (smallest p-value).
-pub fn pgsea_top(results : Array[PgseaResult], k : Int) -> Array[PgseaResult] {
+pub fn pgsea_top(results : Array[PgseaResult], k : Int32) -> Array[PgseaResult] {
   let sorted : Array[PgseaResult] = Array(capacity=0)
   for r in results {
     sorted.push(r)
@@ -345,9 +372,16 @@ pub fn pgsea_export(results : Array[PgseaResult]) -> String {
   sb.write_string("gene_set\tmean_control\tmean_treatment\tt_stat\tp_value\n")
   for r in results {
     sb.write_string(
-      r.gene_set + "\t" + r.mean_control.to_string() + "\t" +
-      r.mean_treatment.to_string() + "\t" + r.t_stat.to_string() + "\t" +
-      r.p_value.to_string() + "\n"
+      r.gene_set +
+      "\t" +
+      r.mean_control.to_string() +
+      "\t" +
+      r.mean_treatment.to_string() +
+      "\t" +
+      r.t_stat.to_string() +
+      "\t" +
+      r.p_value.to_string() +
+      "\n",
     )
   }
   sb.to_string()

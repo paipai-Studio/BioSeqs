@@ -19,11 +19,11 @@
 ///|
 /// Number of character categories in the profile frequency matrix.
 /// Indices 0-25: A-Z, Index 26: gap '-'.
-const PROFILE_ALPHABET_SIZE : Int = 27
+const PROFILE_ALPHABET_SIZE : Int32 = 27
 
 ///|
 /// Map a UInt16 character code to its profile frequency index.
-fn char_to_profile_index(c : UInt16) -> Int {
+fn char_to_profile_index(c : UInt16) -> Int32 {
   if c == 45 {
     26
   } else {
@@ -38,7 +38,7 @@ fn char_to_profile_index(c : UInt16) -> Int {
 
 ///|
 /// Convert a profile index back to a UInt16 character code.
-fn profile_index_to_uint16(idx : Int) -> UInt16 {
+fn profile_index_to_uint16(idx : Int32) -> UInt16 {
   if idx >= 0 && idx <= 25 {
     (idx + 65).to_uint16()
   } else {
@@ -54,6 +54,8 @@ pub struct AlignClusterer {
   open_gap_penalty : Double
   extend_gap_penalty : Double
 } derive(Eq)
+
+///|
 pub extend AlignClusterer with Eq::{equal, not_equal}
 
 ///|
@@ -95,6 +97,8 @@ pub struct MSADistanceMatrix {
   matrix : Array[Array[Double]]
   sequence_ids : Array[String]
 } derive(Eq)
+
+///|
 pub extend MSADistanceMatrix with Eq::{equal, not_equal}
 
 ///|
@@ -126,8 +130,8 @@ pub fn MSADistanceMatrix::get_sequence_ids(
 /// Get the distance between two sequences by index.
 pub fn MSADistanceMatrix::get(
   self : MSADistanceMatrix,
-  i : Int,
-  j : Int,
+  i : Int32,
+  j : Int32,
 ) -> Double {
   self.matrix[i][j]
 }
@@ -135,17 +139,19 @@ pub fn MSADistanceMatrix::get(
 ///|
 /// A node in the guide tree.
 pub struct GuideTreeNode {
-  node_id : Int
-  children : Array[Int]
+  node_id : Int32
+  children : Array[Int32]
   height : Double
   is_leaf : Bool
-  sequence_index : Int
+  sequence_index : Int32
 } derive(Eq)
+
+///|
 pub extend GuideTreeNode with Eq::{equal, not_equal}
 
 ///|
 /// Create a leaf guide tree node.
-fn guide_tree_leaf(node_id : Int, sequence_index : Int) -> GuideTreeNode {
+fn guide_tree_leaf(node_id : Int32, sequence_index : Int32) -> GuideTreeNode {
   GuideTreeNode::{
     node_id,
     children: [],
@@ -158,8 +164,8 @@ fn guide_tree_leaf(node_id : Int, sequence_index : Int) -> GuideTreeNode {
 ///|
 /// Create an internal guide tree node.
 fn guide_tree_internal(
-  node_id : Int,
-  children : Array[Int],
+  node_id : Int32,
+  children : Array[Int32],
   height : Double,
 ) -> GuideTreeNode {
   GuideTreeNode::{
@@ -176,6 +182,8 @@ fn guide_tree_internal(
 pub struct GuideTree {
   nodes : Array[GuideTreeNode]
 } derive(Eq)
+
+///|
 pub extend GuideTree with Eq::{equal, not_equal}
 
 ///|
@@ -290,7 +298,7 @@ pub fn upgma_tree(distance_matrix : MSADistanceMatrix) -> GuideTree {
   }
 
   let mut dist = copy_distance_matrix(distance_matrix.matrix)
-  let mut active : Array[Int] = Array(capacity=0)
+  let mut active : Array[Int32] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {
     active.push(i)
   }
@@ -338,7 +346,7 @@ pub fn upgma_tree(distance_matrix : MSADistanceMatrix) -> GuideTree {
     }
     new_dists_row.push(0.0)
 
-    let new_active : Array[Int] = Array(capacity=0)
+    let new_active : Array[Int32] = Array(capacity=0)
     for k = 0; k < m; k = k + 1 {
       if k != min_i && k != min_j {
         new_active.push(active[k])
@@ -370,7 +378,10 @@ pub fn upgma_tree(distance_matrix : MSADistanceMatrix) -> GuideTree {
 
 ///|
 /// Count the number of leaf nodes under a given node.
-fn count_leaves_in_node(nodes : Array[GuideTreeNode], node_idx : Int) -> Int {
+fn count_leaves_in_node(
+  nodes : Array[GuideTreeNode],
+  node_idx : Int32,
+) -> Int32 {
   let node = nodes[node_idx]
   if node.is_leaf {
     1
@@ -436,10 +447,10 @@ pub fn align_pairwise_with_scoring(
   }
 
   let dp : Array[Array[Double]] = Array(capacity=0)
-  let trace : Array[Array[Int]] = Array(capacity=0)
+  let trace : Array[Array[Int32]] = Array(capacity=0)
   for i = 0; i <= n; i = i + 1 {
     let drow : Array[Double] = Array(capacity=0)
-    let trow : Array[Int] = Array(capacity=0)
+    let trow : Array[Int32] = Array(capacity=0)
     for j = 0; j <= m; j = j + 1 {
       drow.push(0.0)
       trow.push(0)
@@ -612,10 +623,10 @@ pub fn align_profiles(
   let len2 = profile2_matrix.length()
 
   let dp : Array[Array[Double]] = Array(capacity=0)
-  let trace : Array[Array[Int]] = Array(capacity=0)
+  let trace : Array[Array[Int32]] = Array(capacity=0)
   for i = 0; i <= len1; i = i + 1 {
     let drow : Array[Double] = Array(capacity=0)
-    let trow : Array[Int] = Array(capacity=0)
+    let trow : Array[Int32] = Array(capacity=0)
     for j = 0; j <= len2; j = j + 1 {
       drow.push(0.0)
       trow.push(0)
@@ -709,7 +720,7 @@ pub fn align_profiles(
 
 ///|
 /// Return the index of the maximum value in an array.
-fn argmax(arr : Array[Double]) -> Int {
+fn argmax(arr : Array[Double]) -> Int32 {
   if arr.length() == 0 {
     return 0
   }
@@ -756,13 +767,13 @@ pub fn progressive_alignment(
   let dist_matrix = build_distance_matrix(clusterer, sequences, sequence_ids)
   let tree = upgma_tree(dist_matrix)
 
-  let alignment_map : Map[Int, Array[String]] = Map([], capacity=n * 2)
+  let alignment_map : Map[Int32, Array[String]] = Map([], capacity=n * 2)
   for i = 0; i < n; i = i + 1 {
     alignment_map[i] = [sequences[i]]
   }
 
   let nodes = tree.nodes
-  let processed : Map[Int, Bool] = Map([], capacity=n * 2)
+  let processed : Map[Int32, Bool] = Map([], capacity=n * 2)
 
   let sorted_nodes = topological_sort_nodes(nodes)
   for node_idx in sorted_nodes {
@@ -876,13 +887,13 @@ fn create_msa_safe(records : Array[SeqRecord]) -> MultipleSeqAlignment {
 
 ///|
 /// Topologically sort guide tree nodes (leaves first, root last).
-fn topological_sort_nodes(nodes : Array[GuideTreeNode]) -> Array[Int] {
+fn topological_sort_nodes(nodes : Array[GuideTreeNode]) -> Array[Int32] {
   let n = nodes.length()
   let visited : Array[Bool] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {
     visited.push(false)
   }
-  let result : Array[Int] = Array(capacity=0)
+  let result : Array[Int32] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {
     if !visited[i] {
       topological_sort_visit(nodes, i, visited, result)
@@ -895,9 +906,9 @@ fn topological_sort_nodes(nodes : Array[GuideTreeNode]) -> Array[Int] {
 /// DFS helper for topological sorting.
 fn topological_sort_visit(
   nodes : Array[GuideTreeNode],
-  idx : Int,
+  idx : Int32,
   visited : Array[Bool],
-  result : Array[Int],
+  result : Array[Int32],
 ) -> Unit {
   visited[idx] = true
   let node = nodes[idx]
@@ -968,14 +979,13 @@ pub fn get_aligned_sequences(
 
 ///|
 /// Create a string of repeated characters.
-fn repeat_char(c : Char, n : Int) -> String {
+fn repeat_char(c : Char, n : Int32) -> String {
   let buf = StringBuilder(size_hint=n)
   for i = 0; i < n; i = i + 1 {
     buf.write_char(c)
   }
   buf.to_string()
 }
-
 
 // ============================================================================
 // Substitution-matrix scoring (ClustalW/muscle-style biological scoring)
@@ -993,7 +1003,11 @@ fn uint16_to_string(c : UInt16) -> String {
 /// First `UInt16` code unit of a string (used to map matrix alphabet labels
 /// back to profile indices).
 fn string_first_uint16(s : String) -> UInt16 {
-  if s.length() == 0 { 45 } else { s.unsafe_get(0) }
+  if s.length() == 0 {
+    45
+  } else {
+    s.unsafe_get(0)
+  }
 }
 
 ///|
@@ -1024,10 +1038,10 @@ pub fn align_pairwise_with_matrix(
   }
 
   let dp : Array[Array[Double]] = Array(capacity=0)
-  let trace : Array[Array[Int]] = Array(capacity=0)
+  let trace : Array[Array[Int32]] = Array(capacity=0)
   for i = 0; i <= n; i = i + 1 {
     let drow : Array[Double] = Array(capacity=0)
-    let trow : Array[Int] = Array(capacity=0)
+    let trow : Array[Int32] = Array(capacity=0)
     for j = 0; j <= m; j = j + 1 {
       drow.push(0.0)
       trow.push(0)
@@ -1051,7 +1065,10 @@ pub fn align_pairwise_with_matrix(
     for j = 1; j <= m; j = j + 1 {
       let c1 = seq1.unsafe_get(i - 1)
       let c2 = seq2.unsafe_get(j - 1)
-      let sub_score = matrix.get_score(uint16_to_string(c1), uint16_to_string(c2))
+      let sub_score = matrix.get_score(
+        uint16_to_string(c1),
+        uint16_to_string(c2),
+      )
 
       let diag = dp[i - 1][j - 1] + sub_score
       let up = dp[i - 1][j] +
@@ -1160,10 +1177,10 @@ pub fn align_profiles_with_matrix(
   let len2 = profile2_matrix.length()
 
   let dp : Array[Array[Double]] = Array(capacity=0)
-  let trace : Array[Array[Int]] = Array(capacity=0)
+  let trace : Array[Array[Int32]] = Array(capacity=0)
   for i = 0; i <= len1; i = i + 1 {
     let drow : Array[Double] = Array(capacity=0)
-    let trow : Array[Int] = Array(capacity=0)
+    let trow : Array[Int32] = Array(capacity=0)
     for j = 0; j <= len2; j = j + 1 {
       drow.push(0.0)
       trow.push(0)
@@ -1246,9 +1263,12 @@ pub fn align_profiles_with_matrix(
     }
   }
 
-  (reverse_string(r1.to_string()), reverse_string(r2.to_string()), dp[len1][len2])
+  (
+    reverse_string(r1.to_string()),
+    reverse_string(r2.to_string()),
+    dp[len1][len2],
+  )
 }
-
 
 ///|
 /// Progressive multiple sequence alignment scored by a substitution matrix
@@ -1274,13 +1294,13 @@ pub fn progressive_alignment_with_matrix(
   let dist_matrix = build_distance_matrix(clusterer, sequences, sequence_ids)
   let tree = upgma_tree(dist_matrix)
 
-  let alignment_map : Map[Int, Array[String]] = Map([], capacity=n * 2)
+  let alignment_map : Map[Int32, Array[String]] = Map([], capacity=n * 2)
   for i = 0; i < n; i = i + 1 {
     alignment_map[i] = [sequences[i]]
   }
 
   let nodes = tree.nodes
-  let processed : Map[Int, Bool] = Map([], capacity=n * 2)
+  let processed : Map[Int32, Bool] = Map([], capacity=n * 2)
   let sorted_nodes = topological_sort_nodes(nodes)
   let gap_penalty = -1.0
 
@@ -1348,7 +1368,12 @@ pub fn progressive_alignment_with_matrix(
       }
       let mut result = profiles[0]
       for i = 1; i < n; i = i + 1 {
-        let (a1, a2, _) = align_profiles_with_matrix(result, profiles[i], matrix, gap_penalty)
+        let (a1, a2, _) = align_profiles_with_matrix(
+          result,
+          profiles[i],
+          matrix,
+          gap_penalty,
+        )
         let new_result : Array[String] = Array(capacity=0)
         for s in result {
           new_result.push(apply_alignment_to_sequence(s, a1))

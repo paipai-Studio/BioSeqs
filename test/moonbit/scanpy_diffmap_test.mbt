@@ -23,6 +23,7 @@ test "scanpy_diffmap_two_clusters" {
   assert_true(@moonbit.assert_num_close(v[0][1], v[1][1], 1.0e-6))
   assert_true(v[3][1] * v[4][1] > 0.0)
 }
+
 ///|
 /// Empty graph (0 vertices) → empty eigen_basis and eigen_values.
 test "scanpy_diffmap_empty_graph" {

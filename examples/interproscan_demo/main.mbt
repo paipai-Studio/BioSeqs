@@ -5,7 +5,9 @@
 fn main {
   println("=== InterProScan Demo ===")
   println("InterProScan TSV output parser (14-column format)")
-  println("Reference: InterProScan 5 genome-scale protein function classification")
+  println(
+    "Reference: InterProScan 5 genome-scale protein function classification",
+  )
   println("")
 
   // ------------------------------------------------------------------
@@ -50,10 +52,14 @@ fn main {
   // 4. Filter by protein ID
   // ------------------------------------------------------------------
   println("=== 4. Filter by protein: sp|P12345|PROT_HUMAN ===")
-  let prot = @bio.interproscan_filter_by_protein(records, "sp|P12345|PROT_HUMAN")
+  let prot = @bio.interproscan_filter_by_protein(
+    records, "sp|P12345|PROT_HUMAN",
+  )
   println("Found \{prot.length()} record(s)")
   for r in prot {
-    println("  \{r.analysis()} | \{r.signature_acc()} | pos=\{r.start_pos()}-\{r.stop_pos()}")
+    println(
+      "  \{r.analysis()} | \{r.signature_acc()} | pos=\{r.start_pos()}-\{r.stop_pos()}",
+    )
   }
   println("")
 

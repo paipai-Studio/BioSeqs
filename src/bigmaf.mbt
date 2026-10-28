@@ -12,70 +12,94 @@ pub suberror BigMafError {
 ///|
 pub struct BigMafInsertion {
   left_status : String
-  left_count : Int
+  left_count : Int32
   right_status : String
-  right_count : Int
+  right_count : Int32
 } derive(Eq, Debug)
+
+///|
 pub extend BigMafInsertion with Eq::{equal, not_equal}
+
+///|
 pub extend BigMafInsertion with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct BigMafComponent {
   source : String
-  start : Int
-  size : Int
+  start : Int32
+  size : Int32
   strand : String
-  source_size : Int
+  source_size : Int32
   text : String
   insertion : BigMafInsertion?
   quality : String?
 } derive(Eq, Debug)
+
+///|
 pub extend BigMafComponent with Eq::{equal, not_equal}
+
+///|
 pub extend BigMafComponent with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct BigMafEmptyComponent {
   source : String
-  start : Int
-  size : Int
+  start : Int32
+  size : Int32
   strand : String
-  source_size : Int
+  source_size : Int32
   status : String
 } derive(Eq, Debug)
+
+///|
 pub extend BigMafEmptyComponent with Eq::{equal, not_equal}
+
+///|
 pub extend BigMafEmptyComponent with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct BigMafBlock {
   score : Double?
-  pass_number : Int?
+  pass_number : Int32?
   components : Array[BigMafComponent]
   empty_components : Array[BigMafEmptyComponent]
   comments : Array[String]
 } derive(Eq, Debug)
+
+///|
 pub extend BigMafBlock with Eq::{equal, not_equal}
+
+///|
 pub extend BigMafBlock with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct BigMafWriteConfig {
   compress : Bool
-  block_size : Int
-  items_per_slot : Int
+  block_size : Int32
+  items_per_slot : Int32
 } derive(Eq, Debug)
+
+///|
 pub extend BigMafWriteConfig with Eq::{equal, not_equal}
+
+///|
 pub extend BigMafWriteConfig with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct BigMafSummary {
-  alignment_count : Int
-  target_count : Int
-  component_count : Int
-  empty_component_count : Int
-  aligned_columns : Int
-  covered_reference_bases : Int
+  alignment_count : Int32
+  target_count : Int32
+  component_count : Int32
+  empty_component_count : Int32
+  aligned_columns : Int32
+  covered_reference_bases : Int32
   compressed : Bool
 } derive(Eq, Debug)
+
+///|
 pub extend BigMafSummary with Eq::{equal, not_equal}
+
+///|
 pub extend BigMafSummary with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -90,7 +114,7 @@ fn bigmaf_fail(message : String) -> Unit raise BigMafError {
 }
 
 ///|
-fn bigmaf_is_space(code : Int) -> Bool {
+fn bigmaf_is_space(code : Int32) -> Bool {
   code == ' '.to_int() ||
   code == '\t'.to_int() ||
   code == '\n'.to_int() ||
@@ -147,7 +171,7 @@ fn bigmaf_validate_comment(value : String) -> Unit raise BigMafError {
 }
 
 ///|
-fn bigmaf_parse_int(value : String, label : String) -> Int raise BigMafError {
+fn bigmaf_parse_int(value : String, label : String) -> Int32 raise BigMafError {
   if value.length() == 0 {
     bigmaf_fail("Missing integer for " + label)
   }
@@ -184,7 +208,7 @@ fn bigmaf_parse_double(
 }
 
 ///|
-fn bigmaf_non_gap_count(text : String) -> Int {
+fn bigmaf_non_gap_count(text : String) -> Int32 {
   let mut count = 0
   for index in 0..<text.length() {
     if text.unsafe_get(index).to_int() != '-'.to_int() {
@@ -240,9 +264,9 @@ fn bigmaf_source_parts(source : String) -> (String, String) raise BigMafError {
 ///|
 pub fn BigMafInsertion::create(
   left_status : String,
-  left_count : Int,
+  left_count : Int32,
   right_status : String,
-  right_count : Int,
+  right_count : Int32,
 ) -> BigMafInsertion raise BigMafError {
   if !bigmaf_insertion_status(left_status) ||
     !bigmaf_insertion_status(right_status) {
@@ -257,13 +281,13 @@ pub fn BigMafInsertion::create(
 ///|
 pub fn BigMafComponent::create(
   source : String,
-  start : Int,
-  size : Int,
+  start : Int32,
+  size : Int32,
   strand : String,
-  source_size : Int,
+  source_size : Int32,
   text : String,
-  insertion? : BigMafInsertion? = None,
-  quality? : String? = None,
+  insertion~ : BigMafInsertion? = None,
+  quality~ : String? = None,
 ) -> BigMafComponent raise BigMafError {
   bigmaf_validate_token(source, "MAF source")
   if start < 0 || size <= 0 || source_size <= 0 || start + size > source_size {
@@ -359,10 +383,10 @@ pub fn BigMafComponent::with_quality(
 ///|
 pub fn BigMafEmptyComponent::create(
   source : String,
-  start : Int,
-  size : Int,
+  start : Int32,
+  size : Int32,
   strand : String,
-  source_size : Int,
+  source_size : Int32,
   status : String,
 ) -> BigMafEmptyComponent raise BigMafError {
   bigmaf_validate_token(source, "MAF empty component source")
@@ -381,10 +405,10 @@ pub fn BigMafEmptyComponent::create(
 ///|
 pub fn BigMafBlock::create(
   components : Array[BigMafComponent],
-  score? : Double? = None,
-  pass_number? : Int? = None,
-  empty_components? : Array[BigMafEmptyComponent] = [],
-  comments? : Array[String] = [],
+  score~ : Double? = None,
+  pass_number~ : Int32? = None,
+  empty_components~ : Array[BigMafEmptyComponent] = [],
+  comments~ : Array[String] = [],
 ) -> BigMafBlock raise BigMafError {
   if components.length() == 0 {
     bigmaf_fail("BigMaf blocks require at least one aligned component")
@@ -447,9 +471,9 @@ pub fn BigMafBlock::create(
 
 ///|
 pub fn BigMafWriteConfig::create(
-  compress? : Bool = true,
-  block_size? : Int = 256,
-  items_per_slot? : Int = 512,
+  compress~ : Bool = true,
+  block_size~ : Int32 = 256,
+  items_per_slot~ : Int32 = 512,
 ) -> BigMafWriteConfig raise BigMafError {
   if block_size < 2 || block_size > 65535 {
     bigmaf_fail("BigMaf blockSize must be between 2 and 65535")
@@ -487,7 +511,9 @@ pub fn BigMafComponent::forward_sequence(self : BigMafComponent) -> String {
 }
 
 ///|
-pub fn BigMafComponent::forward_interval(self : BigMafComponent) -> (Int, Int) {
+pub fn BigMafComponent::forward_interval(
+  self : BigMafComponent,
+) -> (Int32, Int32) {
   if self.strand == "+" {
     (self.start, self.start + self.size)
   } else {
@@ -498,7 +524,7 @@ pub fn BigMafComponent::forward_interval(self : BigMafComponent) -> (Int, Int) {
 ///|
 pub fn BigMafEmptyComponent::forward_interval(
   self : BigMafEmptyComponent,
-) -> (Int, Int) {
+) -> (Int32, Int32) {
   if self.strand == "+" {
     (self.start, self.start + self.size)
   } else {
@@ -509,8 +535,8 @@ pub fn BigMafEmptyComponent::forward_interval(
 ///|
 pub fn BigMafComponent::column_to_source(
   self : BigMafComponent,
-  column : Int,
-) -> Int? raise BigMafError {
+  column : Int32,
+) -> Int32? raise BigMafError {
   if column < 0 || column >= self.text.length() {
     bigmaf_fail("MAF alignment column is out of range")
   }
@@ -533,8 +559,8 @@ pub fn BigMafComponent::column_to_source(
 ///|
 pub fn BigMafComponent::source_to_column(
   self : BigMafComponent,
-  position : Int,
-) -> Int? {
+  position : Int32,
+) -> Int32? {
   let (forward_start, forward_end) = self.forward_interval()
   if position < forward_start || position >= forward_end {
     return None
@@ -557,7 +583,7 @@ pub fn BigMafComponent::source_to_column(
 }
 
 ///|
-pub fn BigMafBlock::aligned_columns(self : BigMafBlock) -> Int {
+pub fn BigMafBlock::aligned_columns(self : BigMafBlock) -> Int32 {
   self.components[0].text.length()
 }
 
@@ -591,9 +617,9 @@ pub fn BigMafBlock::sources(self : BigMafBlock) -> Array[String] {
 ///|
 pub fn BigMafBlock::map_reference_to(
   self : BigMafBlock,
-  reference_position : Int,
+  reference_position : Int32,
   source : String,
-) -> Int? {
+) -> Int32? {
   match self.components[0].source_to_column(reference_position) {
     Some(column) =>
       match self.component(source) {
@@ -732,9 +758,9 @@ pub fn BigMafBlock::to_maf(self : BigMafBlock) -> String {
 ///|
 fn bigmaf_parse_score_line(
   words : Array[String],
-) -> (Double?, Int?) raise BigMafError {
+) -> (Double?, Int32?) raise BigMafError {
   let mut score : Double? = None
-  let mut pass_number : Int? = None
+  let mut pass_number : Int32? = None
   for index in 1..<words.length() {
     let field = words[index]
     let mut equal = -1
@@ -780,7 +806,7 @@ pub fn bigmaf_parse_block(text : String) -> BigMafBlock raise BigMafError {
   let empty_components : Array[BigMafEmptyComponent] = []
   let comments : Array[String] = []
   let mut score : Double? = None
-  let mut pass_number : Int? = None
+  let mut pass_number : Int32? = None
   let mut saw_alignment = false
   let mut last_component = -1
   for raw in lines {
@@ -923,7 +949,7 @@ pub fn bigmaf_schema() -> BigBedSchema {
 fn bigmaf_target_index(
   targets : Array[BigBedTarget],
   chromosome : String,
-) -> Int {
+) -> Int32 {
   for index in 0..<targets.length() {
     if targets[index].name == chromosome {
       return index
@@ -934,8 +960,8 @@ fn bigmaf_target_index(
 
 ///|
 fn bigmaf_wrap_bigbed(
-  operation : () -> Array[Int] raise BigBedError,
-) -> Array[Int] raise BigMafError {
+  operation : () -> Array[Int32] raise BigBedError,
+) -> Array[Int32] raise BigMafError {
   operation() catch {
     BigBedError(message) => raise BigMafError("BigBed: " + message)
   }
@@ -946,8 +972,8 @@ pub fn bigmaf_write(
   reference : String,
   targets : Array[BigBedTarget],
   blocks : Array[BigMafBlock],
-  config? : BigMafWriteConfig = BigMafWriteConfig::default(),
-) -> Array[Int] raise BigMafError {
+  config~ : BigMafWriteConfig = BigMafWriteConfig::default(),
+) -> Array[Int32] raise BigMafError {
   bigmaf_validate_token(reference, "BigMaf reference")
   for index in 0..<reference.length() {
     if reference.unsafe_get(index).to_int() == '.'.to_int() {
@@ -969,7 +995,7 @@ pub fn bigmaf_write(
     }
   }
   let records : Array[BigBedRecord] = []
-  let target_order : Array[Int] = []
+  let target_order : Array[Int32] = []
   for block in blocks {
     let validated = BigMafBlock::create(
       block.components,
@@ -1029,11 +1055,11 @@ pub fn bigmaf_write(
     records.push(record)
     target_order.push(target_index)
   }
-  let order : Array[Int] = []
+  let order : Array[Int32] = []
   for index in 0..<records.length() {
     order.push(index)
   }
-  order.sort_by(fn(left : Int, right : Int) -> Int {
+  order.sort_by(fn(left : Int32, right : Int32) -> Int32 {
     if target_order[left] < target_order[right] {
       -1
     } else if target_order[left] > target_order[right] {
@@ -1073,7 +1099,7 @@ pub fn bigmaf_write(
       BigBedWriteConfig::default()
     }
   }
-  bigmaf_wrap_bigbed(fn() -> Array[Int] raise BigBedError {
+  bigmaf_wrap_bigbed(fn() -> Array[Int32] raise BigBedError {
     bigbed_write(targets, sorted, config=bed_config)
   })
 }
@@ -1128,7 +1154,7 @@ fn bigmaf_decode_record(
 }
 
 ///|
-pub fn bigmaf_parse(data : Array[Int]) -> BigMafFile raise BigMafError {
+pub fn bigmaf_parse(data : Array[Int32]) -> BigMafFile raise BigMafError {
   let bed = bigbed_parse(data) catch {
     BigBedError(message) => {
       bigmaf_fail("BigBed: " + message)
@@ -1214,8 +1240,8 @@ fn bigmaf_query_chromosome(
 pub fn BigMafFile::search(
   self : BigMafFile,
   chromosome : String,
-  start? : Int = 0,
-  end? : Int = -1,
+  start~ : Int32 = 0,
+  end~ : Int32 = -1,
 ) -> Array[BigMafBlock] raise BigMafError {
   let resolved = bigmaf_query_chromosome(self, chromosome)
   let records = self.bed.search(resolved, start~, end~) catch {

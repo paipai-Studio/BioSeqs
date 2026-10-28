@@ -8,11 +8,11 @@
 ///|
 /// A PDBQT atom record.
 pub struct PdbqtAtom {
-  serial : Int
+  serial : Int32
   atom_name : String
   res_name : String
   chain : String
-  res_id : Int
+  res_id : Int32
   x : Double
   y : Double
   z : Double
@@ -21,7 +21,7 @@ pub struct PdbqtAtom {
   is_hetatm : Bool
   // For flexible docking: root/branch markers
   branch_marker : String // "", "ROOT", "ENDROOT", "BRANCH", "ENDBRANCH", "TORSDOF"
-  branch_data : (Int, Int) // For BRANCH: (start, end) atom serials
+  branch_data : (Int32, Int32) // For BRANCH: (start, end) atom serials
 }
 
 ///|
@@ -37,7 +37,10 @@ pub fn pdbqt_parse(content : String) -> Array[PdbqtAtom] {
     let rlen = trimmed.length()
     let cut = if rlen < 6 { rlen } else { 6 }
     let record = trimmed[0:cut]
-    if record == "ATOM  " || record == "ATOM" || record == "HETATM" || record == "HETATM" {
+    if record == "ATOM  " ||
+      record == "ATOM" ||
+      record == "HETATM" ||
+      record == "HETATM" {
       atoms.push(parse_pdbqt_atom_line(line))
     }
   }
@@ -50,21 +53,9 @@ fn parse_pdbqt_atom_line(line : StringView) -> PdbqtAtom {
   let len = line.length()
   let cut6 = if len < 6 { len } else { 6 }
   let is_hetatm = line[0:cut6].trim() == "HETATM"
-  let serial = if len >= 11 {
-    pdb_parse_int_fast(line[6:11].trim())
-  } else {
-    0
-  }
-  let atom_name = if len >= 16 {
-    line[12:16].trim().to_owned()
-  } else {
-    ""
-  }
-  let res_name = if len >= 20 {
-    line[17:20].trim().to_owned()
-  } else {
-    ""
-  }
+  let serial = if len >= 11 { pdb_parse_int_fast(line[6:11].trim()) } else { 0 }
+  let atom_name = if len >= 16 { line[12:16].trim().to_owned() } else { "" }
+  let res_name = if len >= 20 { line[17:20].trim().to_owned() } else { "" }
   let chain = if len >= 22 {
     let c = line[21:22]
     if c.trim().length() == 0 {
@@ -116,7 +107,7 @@ fn parse_pdbqt_atom_line(line : StringView) -> PdbqtAtom {
 
 ///|
 /// Parse partial charge and atom type from the tail of a PDBQT line.
-fn parse_pdbqt_charge_type(line : StringView, _len : Int) -> (Double, String) {
+fn parse_pdbqt_charge_type(line : StringView, _len : Int32) -> (Double, String) {
   // The last two whitespace-separated fields are charge and type
   let tokens : Array[StringView] = Array(capacity=0)
   let parts = line.split(" ")
@@ -151,7 +142,7 @@ pub fn pdbqt_write(atoms : Array[PdbqtAtom]) -> String {
 
 ///|
 /// Format a PDBQT ATOM/HETATM line.
-fn format_pdbqt_atom_line(a : PdbqtAtom, _serial : Int) -> String {
+fn format_pdbqt_atom_line(a : PdbqtAtom, _serial : Int32) -> String {
   let sb = StringBuilder()
   // Record name
   if a.is_hetatm {
@@ -195,7 +186,7 @@ fn format_pdbqt_atom_line(a : PdbqtAtom, _serial : Int) -> String {
 
 ///|
 /// Format integer right-aligned in width chars.
-fn format_int_field(n : Int, width : Int) -> String {
+fn format_int_field(n : Int32, width : Int32) -> String {
   let s = n.to_string()
   if s.length() >= width {
     return s
@@ -209,7 +200,7 @@ fn format_int_field(n : Int, width : Int) -> String {
 
 ///|
 /// Format string right-aligned in width chars.
-fn format_str_field(s : String, width : Int) -> String {
+fn format_str_field(s : String, width : Int32) -> String {
   if s.length() >= width {
     return s
   }
@@ -247,11 +238,14 @@ fn format_atom_name_field(name : String) -> String {
 
 ///|
 /// Format float in width chars with precision decimal places.
-fn format_float_field(x : Double, width : Int, precision : Int) -> String {
+fn format_float_field(x : Double, width : Int32, precision : Int32) -> String {
   // Format with precision decimal places
   let mut s = x.to_string()
   let dot_opt = s.find(".")
-  let dot = match dot_opt { Some(d) => d; None => -1 }
+  let dot = match dot_opt {
+    Some(d) => d
+    None => -1
+  }
   if dot < 0 {
     s = s + "."
     for _i = 0; _i < precision; _i = _i + 1 {

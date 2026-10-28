@@ -29,7 +29,7 @@ test "beclear_detect_batch_effect no effect with high threshold" {
   let m = @src.beclear_sample_matrix()
   let summaries = @src.detect_batch_effect(m, threshold=100.0)
   for s in summaries {
-    assert_true(!(s.affected))
+    assert_true(!s.affected)
   }
 }
 
@@ -57,17 +57,12 @@ test "beclear_score zero for no effect" {
   let col_names = ["s1", "s2"]
   let data = [[1.0, 1.0]]
   let batch = {
-    let b : Map[String, Int] = Map([])
+    let b : Map[String, Int32] = Map([])
     b.set("s1", 1)
     b.set("s2", 1)
     b
   }
-  let m = @src.BEclearMatrix::new(
-    row_names~,
-    col_names~,
-    data~,
-    batch~,
-  )
+  let m = @src.BEclearMatrix::new(row_names~, col_names~, data~, batch~)
   let score = @src.beclear_score(m, data)
   assert_true(score < 1.0e-9)
 }
@@ -95,23 +90,15 @@ test "beclear_detect_batch_effect batch medians" {
 test "beclear_idempotent on clean matrix" {
   let row_names = ["g1", "g2"]
   let col_names = ["s1", "s2", "s3"]
-  let data = [
-    [5.0, 5.1, 4.9],
-    [3.0, 3.1, 2.9],
-  ]
+  let data = [[5.0, 5.1, 4.9], [3.0, 3.1, 2.9]]
   let batch = {
-    let b : Map[String, Int] = Map([])
+    let b : Map[String, Int32] = Map([])
     b.set("s1", 1)
     b.set("s2", 1)
     b.set("s3", 1)
     b
   }
-  let m = @src.BEclearMatrix::new(
-    row_names~,
-    col_names~,
-    data~,
-    batch~,
-  )
+  let m = @src.BEclearMatrix::new(row_names~, col_names~, data~, batch~)
   let corrected = @src.beclear(m, threshold=0.05)
   for i in 0..<2 {
     for j in 0..<3 {

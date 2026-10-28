@@ -10,39 +10,39 @@
 ///|
 /// Result of `htseq_count`.
 pub struct HtseqCounts {
-  counts : Map[String, Int]
-  no_feature : Int
-  ambiguous : Int
-  not_aligned : Int
+  counts : Map[String, Int32]
+  no_feature : Int32
+  ambiguous : Int32
+  not_aligned : Int32
 }
 
 ///|
 /// Per-feature read counts.
-pub fn HtseqCounts::get_counts(self : HtseqCounts) -> Map[String, Int] {
+pub fn HtseqCounts::get_counts(self : HtseqCounts) -> Map[String, Int32] {
   self.counts
 }
 
 ///|
 /// Reads overlapping no feature.
-pub fn HtseqCounts::get_no_feature(self : HtseqCounts) -> Int {
+pub fn HtseqCounts::get_no_feature(self : HtseqCounts) -> Int32 {
   self.no_feature
 }
 
 ///|
 /// Reads overlapping multiple features (ambiguous under the current mode).
-pub fn HtseqCounts::get_ambiguous(self : HtseqCounts) -> Int {
+pub fn HtseqCounts::get_ambiguous(self : HtseqCounts) -> Int32 {
   self.ambiguous
 }
 
 ///|
 /// Reads that were unmapped.
-pub fn HtseqCounts::get_not_aligned(self : HtseqCounts) -> Int {
+pub fn HtseqCounts::get_not_aligned(self : HtseqCounts) -> Int32 {
   self.not_aligned
 }
 
 ///|
 /// Count of one feature, or 0 if absent.
-pub fn HtseqCounts::count_of(self : HtseqCounts, feature_id : String) -> Int {
+pub fn HtseqCounts::count_of(self : HtseqCounts, feature_id : String) -> Int32 {
   match self.counts.get(feature_id) {
     None => 0
     Some(c) => c
@@ -51,7 +51,7 @@ pub fn HtseqCounts::count_of(self : HtseqCounts, feature_id : String) -> Int {
 
 ///|
 /// A feature's identifier (GFF3 `ID` attribute, else a positional fallback).
-fn htseq_feature_id(f : GFFFeature, index : Int) -> String {
+fn htseq_feature_id(f : GFFFeature, index : Int32) -> String {
   match f.get_id() {
     Some(id) => id
     None => "feature_" + index.to_string()
@@ -61,8 +61,8 @@ fn htseq_feature_id(f : GFFFeature, index : Int) -> String {
 ///|
 /// Overlap test between a read (1-based inclusive) and a GFF feature.
 fn htseq_overlap(
-  start_1b : Int,
-  end_1b : Int,
+  start_1b : Int32,
+  end_1b : Int32,
   f : GFFFeature,
   mode : String,
 ) -> Bool {
@@ -81,10 +81,10 @@ fn htseq_overlap(
 pub fn htseq_count(
   bam : BamFile,
   features : Array[GFFFeature],
-  mode? : String = "union",
+  mode~ : String = "union",
 ) -> HtseqCounts {
   let header = bam.header
-  let counts : Map[String, Int] = Map([], capacity=0)
+  let counts : Map[String, Int32] = Map([], capacity=0)
   let mut no_feature = 0
   let mut ambiguous = 0
   let mut not_aligned = 0
@@ -98,7 +98,7 @@ pub fn htseq_count(
     let start_1b = rec.pos + 1
     let end_1b = rec.get_end() + 1
 
-    let hits : Array[Int] = Array(capacity=0)
+    let hits : Array[Int32] = Array(capacity=0)
     let mut k = 0
     while k < features.length() {
       let f = features[k]
@@ -122,5 +122,5 @@ pub fn htseq_count(
     }
   }
 
-  HtseqCounts::{ counts, no_feature, ambiguous, not_aligned }
+  HtseqCounts::{ counts, no_feature, ambiguous, not_aligned, }
 }

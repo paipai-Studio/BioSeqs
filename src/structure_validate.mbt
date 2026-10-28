@@ -5,8 +5,8 @@
 ///|
 /// A single clash between two atoms.
 pub struct Clash {
-  atom1_idx : Int
-  atom2_idx : Int
+  atom1_idx : Int32
+  atom2_idx : Int32
   atom1_name : String
   atom2_name : String
   distance : Double
@@ -18,15 +18,15 @@ pub struct Clash {
 /// Result of clash detection.
 pub struct ClashResult {
   clashes : Array[Clash]
-  num_clashes : Int
+  num_clashes : Int32
   clash_score : Double
 }
 
 ///|
 /// An inferred bond between two atoms.
 pub struct InferredBond {
-  atom1_idx : Int
-  atom2_idx : Int
+  atom1_idx : Int32
+  atom2_idx : Int32
   atom1_name : String
   atom2_name : String
   distance : Double
@@ -36,10 +36,10 @@ pub struct InferredBond {
 ///|
 /// Stereochemistry validation result.
 pub struct StereoValidation {
-  num_chiral_centers : Int
-  num_cis_peptides : Int
-  num_bad_bonds : Int
-  num_bad_angles : Int
+  num_chiral_centers : Int32
+  num_cis_peptides : Int32
+  num_bad_bonds : Int32
+  num_bad_angles : Int32
   issues : Array[String]
 }
 
@@ -49,7 +49,7 @@ pub struct StereoValidation {
 /// Default tolerance = 0.85 (standard in OpenStructure / MolProbity).
 pub fn detect_clashes(
   atoms : Array[Atom],
-  tolerance? : Double = 0.85,
+  tolerance~ : Double = 0.85,
 ) -> ClashResult {
   let n = atoms.length()
   let clashes : Array[Clash] = Array(capacity=0)
@@ -96,7 +96,7 @@ pub fn clash_score(atoms : Array[Atom]) -> Double {
 
 ///|
 /// Count number of clashes.
-pub fn count_clashes(atoms : Array[Atom]) -> Int {
+pub fn count_clashes(atoms : Array[Atom]) -> Int32 {
   detect_clashes(atoms).num_clashes
 }
 
@@ -107,8 +107,8 @@ pub fn count_clashes(atoms : Array[Atom]) -> Int {
 /// where cov_sum = covalent_radius(a1) + covalent_radius(a2).
 pub fn infer_bonds(
   atoms : Array[Atom],
-  min_factor? : Double = 0.4,
-  max_factor? : Double = 1.3,
+  min_factor~ : Double = 0.4,
+  max_factor~ : Double = 1.3,
 ) -> Array[InferredBond] {
   let n = atoms.length()
   let bonds : Array[InferredBond] = Array(capacity=0)
@@ -141,15 +141,15 @@ pub fn infer_bonds(
 
 ///|
 /// Count inferred bonds.
-pub fn count_inferred_bonds(atoms : Array[Atom]) -> Int {
+pub fn count_inferred_bonds(atoms : Array[Atom]) -> Int32 {
   infer_bonds(atoms).length()
 }
 
 ///|
 /// Get inferred bond list as (atom1_idx, atom2_idx) pairs.
-pub fn inferred_bonds_pairs(atoms : Array[Atom]) -> Array[(Int, Int)] {
+pub fn inferred_bonds_pairs(atoms : Array[Atom]) -> Array[(Int32, Int32)] {
   let bonds = infer_bonds(atoms)
-  let pairs : Array[(Int, Int)] = Array(capacity=0)
+  let pairs : Array[(Int32, Int32)] = Array(capacity=0)
   for b in bonds {
     pairs.push((b.atom1_idx, b.atom2_idx))
   }
@@ -176,7 +176,9 @@ pub fn validate_stereochemistry(chain : Chain) -> StereoValidation {
           // omega near 0° → cis peptide
           if omega.abs() < 30.0 {
             num_cis = num_cis + 1
-            issues.push("cis-peptide at residue " + residues[i].resseq.to_string())
+            issues.push(
+              "cis-peptide at residue " + residues[i].resseq.to_string(),
+            )
           }
         }
       }
@@ -203,7 +205,10 @@ pub fn validate_stereochemistry(chain : Chain) -> StereoValidation {
 
 ///|
 /// Check if a structure has any severe clashes.
-pub fn has_severe_clashes(atoms : Array[Atom], threshold? : Double = 0.4) -> Bool {
+pub fn has_severe_clashes(
+  atoms : Array[Atom],
+  threshold~ : Double = 0.4,
+) -> Bool {
   let result = detect_clashes(atoms)
   for clash in result.clashes {
     if clash.overlap > threshold {

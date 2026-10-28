@@ -263,8 +263,8 @@ test "pcoa single sample" {
 test "differential_abundance basic" {
   let otu_table = @src.create_example_otu_table()
   let taxa_names = @src.get_example_taxa_names()
-  let group1 : Array[Int] = [0, 1, 2]
-  let group2 : Array[Int] = [3, 4, 5]
+  let group1 : Array[Int32] = [0, 1, 2]
+  let group2 : Array[Int32] = [3, 4, 5]
 
   let results = @src.differential_abundance(
     otu_table, taxa_names, group1, group2,
@@ -280,8 +280,8 @@ test "differential_abundance basic" {
 test "differential_abundance log2_fc direction" {
   let otu_table = @src.create_example_otu_table()
   let taxa_names = @src.get_example_taxa_names()
-  let group1 : Array[Int] = [0, 1, 2] // control
-  let group2 : Array[Int] = [3, 4, 5] // treatment
+  let group1 : Array[Int32] = [0, 1, 2] // control
+  let group2 : Array[Int32] = [3, 4, 5] // treatment
 
   let results = @src.differential_abundance(
     otu_table, taxa_names, group1, group2,
@@ -297,8 +297,8 @@ test "differential_abundance log2_fc direction" {
 test "differential_abundance empty input" {
   let otu_table : Array[Array[Double]] = []
   let taxa_names : Array[String] = []
-  let group1 : Array[Int] = [0, 1]
-  let group2 : Array[Int] = [2, 3]
+  let group1 : Array[Int32] = [0, 1]
+  let group2 : Array[Int32] = [2, 3]
 
   let results = @src.differential_abundance(
     otu_table, taxa_names, group1, group2,

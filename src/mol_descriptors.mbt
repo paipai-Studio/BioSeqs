@@ -10,7 +10,7 @@
 /// Simplified table: (symbol, degree, aromatic) -> contribution.
 fn logp_atom_contribution(
   symbol : String,
-  degree : Int,
+  degree : Int32,
   aromatic : Bool,
   _in_ring : Bool,
 ) -> Double {
@@ -24,12 +24,16 @@ fn logp_atom_contribution(
     }
   } else {
     match symbol {
-      "C" =>
-        if degree == 4 { 0.20 } else if degree == 3 { 0.14 } else { 0.10 }
+      "C" => if degree == 4 { 0.20 } else if degree == 3 { 0.14 } else { 0.10 }
       "N" =>
-        if degree == 3 { -1.00 } else if degree == 2 { -0.50 } else { -1.50 }
-      "O" =>
-        if degree == 2 { -0.45 } else { -0.60 }
+        if degree == 3 {
+          -1.00
+        } else if degree == 2 {
+          -0.50
+        } else {
+          -1.50
+        }
+      "O" => if degree == 2 { -0.45 } else { -0.60 }
       "S" => -0.20
       "P" => 0.25
       "F" => -0.25
@@ -56,7 +60,7 @@ pub fn mol_logp(mol : Molecule) -> Double {
     let contrib = logp_atom_contribution(a.symbol, deg, a.aromatic, in_ring)
     logp = logp + contrib
     // Ring correction
-    if in_ring && !(a.aromatic) {
+    if in_ring && !a.aromatic {
       logp = logp - 0.05
     }
   }
@@ -76,8 +80,8 @@ pub fn mol_logp(mol : Molecule) -> Double {
 /// Based on atom type (N/O with specific neighbor patterns).
 fn tpsa_atom_contribution(
   symbol : String,
-  degree : Int,
-  _num_h_bonds : Int,
+  degree : Int32,
+  _num_h_bonds : Int32,
   in_ring : Bool,
 ) -> Double {
   // N types
@@ -128,7 +132,7 @@ pub fn mol_tpsa(mol : Molecule) -> Double {
 ///|
 /// Count H-bond donors (N-H or O-H bonds).
 /// An HBD is any N or O atom with at least one implicit H.
-pub fn mol_hbd_count(mol : Molecule) -> Int {
+pub fn mol_hbd_count(mol : Molecule) -> Int32 {
   let n = mol.num_atoms()
   let neighbors = mol_adjacency(mol)
   let mut count = 0
@@ -149,7 +153,7 @@ pub fn mol_hbd_count(mol : Molecule) -> Int {
 
 ///|
 /// Count H-bond acceptors (N or O atoms).
-pub fn mol_hba_count(mol : Molecule) -> Int {
+pub fn mol_hba_count(mol : Molecule) -> Int32 {
   let mut count = 0
   for a in mol.atoms {
     if a.symbol == "N" || a.symbol == "O" {
@@ -163,7 +167,7 @@ pub fn mol_hba_count(mol : Molecule) -> Int {
 /// Count rotatable bonds.
 /// A rotatable bond is a single bond, not in a ring, not to a terminal H,
 /// and both endpoints have at least 2 heavy neighbors.
-pub fn mol_rotatable_bonds(mol : Molecule) -> Int {
+pub fn mol_rotatable_bonds(mol : Molecule) -> Int32 {
   let _n = mol.num_atoms()
   let neighbors = mol_adjacency(mol)
   let mut count = 0
@@ -208,7 +212,7 @@ pub fn mol_rotatable_bonds(mol : Molecule) -> Int {
 
 ///|
 /// Calculate formal charge (sum of all atom charges).
-pub fn mol_formal_charge(mol : Molecule) -> Int {
+pub fn mol_formal_charge(mol : Molecule) -> Int32 {
   let mut charge = 0
   for a in mol.atoms {
     charge = charge + a.charge
@@ -234,7 +238,7 @@ pub fn mol_fraction_sp3(mol : Molecule) -> Double {
           all_single = false
         }
       }
-      if all_single && !(a.aromatic) {
+      if all_single && !a.aromatic {
         sp3_c = sp3_c + 1
       }
     }
@@ -247,7 +251,7 @@ pub fn mol_fraction_sp3(mol : Molecule) -> Double {
 
 ///|
 /// Count valence electrons of the molecule.
-pub fn mol_valence_electrons(mol : Molecule) -> Int {
+pub fn mol_valence_electrons(mol : Molecule) -> Int32 {
   let mut total = 0
   for a in mol.atoms {
     total = total + atom_valence_electrons(a.symbol)
@@ -257,7 +261,7 @@ pub fn mol_valence_electrons(mol : Molecule) -> Int {
 
 ///|
 /// Valence electrons for an element.
-fn atom_valence_electrons(symbol : String) -> Int {
+fn atom_valence_electrons(symbol : String) -> Int32 {
   match symbol {
     "H" => 1
     "C" => 4
@@ -277,7 +281,7 @@ fn atom_valence_electrons(symbol : String) -> Int {
 
 ///|
 /// Count heavy atoms (non-H).
-pub fn mol_heavy_atom_count(mol : Molecule) -> Int {
+pub fn mol_heavy_atom_count(mol : Molecule) -> Int32 {
   let mut count = 0
   for a in mol.atoms {
     if a.symbol != "H" {
@@ -319,13 +323,13 @@ fn atom_atomic_weight(symbol : String) -> Double {
 
 ///|
 /// Count total atoms.
-pub fn mol_num_atoms(mol : Molecule) -> Int {
+pub fn mol_num_atoms(mol : Molecule) -> Int32 {
   mol.num_atoms()
 }
 
 ///|
 /// Count total bonds.
-pub fn mol_num_bonds(mol : Molecule) -> Int {
+pub fn mol_num_bonds(mol : Molecule) -> Int32 {
   mol.num_bonds()
 }
 
@@ -336,19 +340,31 @@ pub fn mol_descriptor_report(mol : Molecule) -> String {
   sb.write_string("Molecular Descriptors\n")
   sb.write_string("=====================\n")
   sb.write_string("Atoms: " + mol_num_atoms(mol).to_string() + "\n")
-  sb.write_string("Heavy atoms: " + mol_heavy_atom_count(mol).to_string() + "\n")
+  sb.write_string(
+    "Heavy atoms: " + mol_heavy_atom_count(mol).to_string() + "\n",
+  )
   sb.write_string("Bonds: " + mol_num_bonds(mol).to_string() + "\n")
-  sb.write_string("Molecular weight: " + mol_molecular_weight(mol).to_string() + "\n")
+  sb.write_string(
+    "Molecular weight: " + mol_molecular_weight(mol).to_string() + "\n",
+  )
   sb.write_string("LogP: " + mol_logp(mol).to_string() + "\n")
   sb.write_string("TPSA: " + mol_tpsa(mol).to_string() + "\n")
   sb.write_string("HBD: " + mol_hbd_count(mol).to_string() + "\n")
   sb.write_string("HBA: " + mol_hba_count(mol).to_string() + "\n")
-  sb.write_string("Rotatable bonds: " + mol_rotatable_bonds(mol).to_string() + "\n")
+  sb.write_string(
+    "Rotatable bonds: " + mol_rotatable_bonds(mol).to_string() + "\n",
+  )
   sb.write_string("Formal charge: " + mol_formal_charge(mol).to_string() + "\n")
   sb.write_string("Fraction sp3: " + mol_fraction_sp3(mol).to_string() + "\n")
   sb.write_string("Rings: " + mol_ring_count(mol).to_string() + "\n")
-  sb.write_string("Aromatic rings: " + mol_aromatic_ring_count(mol).to_string() + "\n")
-  sb.write_string("Saturated rings: " + mol_saturated_ring_count(mol).to_string() + "\n")
-  sb.write_string("Valence electrons: " + mol_valence_electrons(mol).to_string() + "\n")
+  sb.write_string(
+    "Aromatic rings: " + mol_aromatic_ring_count(mol).to_string() + "\n",
+  )
+  sb.write_string(
+    "Saturated rings: " + mol_saturated_ring_count(mol).to_string() + "\n",
+  )
+  sb.write_string(
+    "Valence electrons: " + mol_valence_electrons(mol).to_string() + "\n",
+  )
   sb.to_string()
 }

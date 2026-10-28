@@ -23,23 +23,26 @@ pub suberror ParsimonyTreeError {
 // Mutable working node (Clade is immutable-with-copy in this package)
 // ---------------------------------------------------------------------------
 
+///|
 priv struct NniNode {
-  mut nid : Int
+  mut nid : Int32
   name : String?
   mut branch_length : Double?
   confidence : Double?
   children : Array[NniNode]
 }
 
+///|
 fn nni_new_node(
   name : String?,
   branch_length : Double?,
   confidence : Double?,
   children : Array[NniNode],
 ) -> NniNode {
-  NniNode::{ nid: -1, name, branch_length, confidence, children }
+  NniNode::{ nid: -1, name, branch_length, confidence, children, }
 }
 
+///|
 fn nni_from_clade(clade : Clade) -> NniNode {
   let children : Array[NniNode] = Array(capacity=0)
   for child in clade.clades {
@@ -48,6 +51,7 @@ fn nni_from_clade(clade : Clade) -> NniNode {
   nni_new_node(clade.name, clade.branch_length, clade.confidence, children)
 }
 
+///|
 fn nni_to_clade(node : NniNode) -> Clade {
   let children : Array[Clade] = Array(capacity=0)
   for child in node.children {
@@ -61,6 +65,7 @@ fn nni_to_clade(node : NniNode) -> Clade {
   )
 }
 
+///|
 fn nni_clone(node : NniNode) -> NniNode {
   let children : Array[NniNode] = Array(capacity=0)
   for child in node.children {
@@ -69,9 +74,10 @@ fn nni_clone(node : NniNode) -> NniNode {
   nni_new_node(node.name, node.branch_length, node.confidence, children)
 }
 
+///|
 fn nni_assign_ids(root : NniNode) -> Unit {
   let counter = Ref(0)
-  fn visit(node : NniNode, counter : Ref[Int]) -> Unit {
+  fn visit(node : NniNode, counter : Ref[Int32]) -> Unit {
     node.nid = counter.val
     counter.val = counter.val + 1
     for child in node.children {
@@ -81,7 +87,8 @@ fn nni_assign_ids(root : NniNode) -> Unit {
   visit(root, counter)
 }
 
-fn nni_find(root : NniNode, nid : Int) -> NniNode? {
+///|
+fn nni_find(root : NniNode, nid : Int32) -> NniNode? {
   if root.nid == nid {
     return Some(root)
   }
@@ -94,6 +101,7 @@ fn nni_find(root : NniNode, nid : Int) -> NniNode? {
   None
 }
 
+///|
 fn nni_collect_preorder(root : NniNode, out : Array[NniNode]) -> Unit {
   out.push(root)
   for child in root.children {
@@ -136,9 +144,9 @@ fn nni_nonterminals_level(root : NniNode) -> Array[NniNode] {
 
 ///|
 /// Map each node id (except the root) to its parent node.
-fn nni_parent_map(root : NniNode) -> Map[Int, NniNode] {
-  let parents : Map[Int, NniNode] = Map([])
-  fn visit(node : NniNode, parents : Map[Int, NniNode]) -> Unit {
+fn nni_parent_map(root : NniNode) -> Map[Int32, NniNode] {
+  let parents : Map[Int32, NniNode] = Map([])
+  fn visit(node : NniNode, parents : Map[Int32, NniNode]) -> Unit {
     for child in node.children {
       parents[child.nid] = node
       visit(child, parents)
@@ -148,7 +156,8 @@ fn nni_parent_map(root : NniNode) -> Map[Int, NniNode] {
   parents
 }
 
-fn nni_child_index(parent : NniNode, nid : Int) -> Int {
+///|
+fn nni_child_index(parent : NniNode, nid : Int32) -> Int32 {
   let mut i = 0
   while i < parent.children.length() {
     if parent.children[i].nid == nid {
@@ -161,10 +170,11 @@ fn nni_child_index(parent : NniNode, nid : Int) -> Int {
 
 ///|
 /// Remove the child at ``idx`` (Array.remove returns the removed value).
-fn nni_remove_at(children : Array[NniNode], idx : Int) -> Unit {
+fn nni_remove_at(children : Array[NniNode], idx : Int32) -> Unit {
   let _ = children.remove(idx)
 }
 
+///|
 fn nni_bl_or_zero(node : NniNode) -> Double {
   match node.branch_length {
     Some(v) => v
@@ -214,10 +224,11 @@ pub fn nni_get_neighbors(tree : Tree) -> Array[Tree] {
   nni_neighbors_of(work)
 }
 
+///|
 fn nni_neighbors_of(root : NniNode) -> Array[Tree] {
   let parents = nni_parent_map(root)
   let neighbors : Array[Tree] = Array(capacity=0)
-  let root_child_ids : Array[Int] = Array(capacity=0)
+  let root_child_ids : Array[Int32] = Array(capacity=0)
   let internals = nni_nonterminals_level(root)
   for clade in internals {
     if clade.nid == root.nid {
@@ -304,7 +315,11 @@ fn nni_neighbors_of(root : NniNode) -> Array[Tree] {
 
 ///|
 /// Full node path from the root (included) to the node with ``nid``.
-fn nni_root_path(root : NniNode, nid : Int, parents : Map[Int, NniNode]) -> Array[NniNode] {
+fn nni_root_path(
+  root : NniNode,
+  nid : Int32,
+  parents : Map[Int32, NniNode],
+) -> Array[NniNode] {
   let chain : Array[NniNode] = Array(capacity=0)
   let mut current = match nni_find(root, nid) {
     Some(node) => node
@@ -331,7 +346,7 @@ fn nni_root_path(root : NniNode, nid : Int, parents : Map[Int, NniNode]) -> Arra
 /// (possibly trifurcating) root; otherwise a new bifurcating root is created.
 fn nni_root_with_outgroup(
   root0 : NniNode,
-  outgroup_nid : Int,
+  outgroup_nid : Int32,
   outgroup_branch_length : Double?,
 ) -> NniNode {
   let root = nni_clone(root0)
@@ -349,34 +364,34 @@ fn nni_root_with_outgroup(
   let old_root_bl = root.branch_length
   let mut prev_blen = nni_bl_or_zero(outgroup)
 
-  let pair : (NniNode, NniNode) =
-    if outgroup.children.length() == 0 || outgroup_branch_length is Some(_) {
-      // create a new root with a (possibly zero-length) branch to the outgroup
-      let forced_bl = match outgroup_branch_length {
-        Some(v) => v
-        None => 0.0
-      }
-      outgroup.branch_length = Some(forced_bl)
-      let root_children : Array[NniNode] = [outgroup]
-      let nr = nni_new_node(None, old_root_bl, None, root_children)
-      if path.length() == 2 {
-        // outgroup is a direct child of the root
-        (nr, nr)
-      } else {
-        let parent = path[path.length() - 2]
-        let idx = nni_child_index(parent, outgroup.nid)
-        nni_remove_at(parent.children, idx)
-        let parent_old_bl = nni_bl_or_zero(parent)
-        parent.branch_length = Some(prev_blen - forced_bl)
-        prev_blen = parent_old_bl
-        nr.children.insert(0, parent)
-        (nr, parent)
-      }
-    } else {
-      // use the internal outgroup node as the new (trifurcating) root
-      outgroup.branch_length = old_root_bl
-      (outgroup, outgroup)
+  let pair : (NniNode, NniNode) = if outgroup.children.length() == 0 ||
+    outgroup_branch_length is Some(_) {
+    // create a new root with a (possibly zero-length) branch to the outgroup
+    let forced_bl = match outgroup_branch_length {
+      Some(v) => v
+      None => 0.0
     }
+    outgroup.branch_length = Some(forced_bl)
+    let root_children : Array[NniNode] = [outgroup]
+    let nr = nni_new_node(None, old_root_bl, None, root_children)
+    if path.length() == 2 {
+      // outgroup is a direct child of the root
+      (nr, nr)
+    } else {
+      let parent = path[path.length() - 2]
+      let idx = nni_child_index(parent, outgroup.nid)
+      nni_remove_at(parent.children, idx)
+      let parent_old_bl = nni_bl_or_zero(parent)
+      parent.branch_length = Some(prev_blen - forced_bl)
+      prev_blen = parent_old_bl
+      nr.children.insert(0, parent)
+      (nr, parent)
+    }
+  } else {
+    // use the internal outgroup node as the new (trifurcating) root
+    outgroup.branch_length = old_root_bl
+    (outgroup, outgroup)
+  }
   let new_root = pair.0
   let mut new_parent = pair.1
 
@@ -425,10 +440,8 @@ fn nni_root_with_outgroup(
 ///|
 /// Path of node ids from the root (excluded) to each node, with cumulative
 /// branch length from the root.
-fn nni_depths(
-  root : NniNode,
-) -> (Map[Int, Double], Map[Int, NniNode]) {
-  let depths : Map[Int, Double] = Map([])
+fn nni_depths(root : NniNode) -> (Map[Int32, Double], Map[Int32, NniNode]) {
+  let depths : Map[Int32, Double] = Map([])
   let parents = nni_parent_map(root)
   depths[root.nid] = nni_bl_or_zero(root)
   let order : Array[NniNode] = Array(capacity=0)
@@ -447,12 +460,12 @@ fn nni_depths(
 /// Distance between two nodes along the tree, using root depths and LCA.
 fn nni_pair_distance(
   root : NniNode,
-  id_a : Int,
-  id_b : Int,
-  depths : Map[Int, Double],
-  parents : Map[Int, NniNode],
+  id_a : Int32,
+  id_b : Int32,
+  depths : Map[Int32, Double],
+  parents : Map[Int32, NniNode],
 ) -> Double {
-  let ancestors : Map[Int, Unit] = Map([])
+  let ancestors : Map[Int32, Unit] = Map([])
   let mut cur = id_a
   while true {
     ancestors[cur] = ()
@@ -473,6 +486,7 @@ fn nni_pair_distance(
   depths[id_a] + depths[id_b] - 2.0 * depths[lca]
 }
 
+///|
 fn nni_root_at_midpoint(root0 : NniNode) -> NniNode {
   let root = nni_clone(root0)
   nni_assign_ids(root)
@@ -536,7 +550,11 @@ fn nni_root_at_midpoint(root0 : NniNode) -> NniNode {
   if !found {
     abort("root_at_midpoint: failed to find the midpoint")
   }
-  rerooted = nni_root_with_outgroup(rerooted, outgroup_node.nid, Some(outgroup_bl))
+  rerooted = nni_root_with_outgroup(
+    rerooted,
+    outgroup_node.nid,
+    Some(outgroup_bl),
+  )
   rerooted
 }
 
@@ -573,8 +591,10 @@ pub struct ParsimonyScorer {
 
 ///|
 /// Create a parsimony scorer; without a matrix Fitch scoring is used.
-pub fn ParsimonyScorer::new(matrix? : ParsimonyMatrix? = None) -> ParsimonyScorer {
-  ParsimonyScorer::{ matrix }
+pub fn ParsimonyScorer::new(
+  matrix~ : ParsimonyMatrix? = None,
+) -> ParsimonyScorer {
+  ParsimonyScorer::{ matrix, }
 }
 
 ///|
@@ -585,23 +605,22 @@ pub fn ParsimonyScorer::get_score(
   self : ParsimonyScorer,
   tree : Tree,
   alignment : Map[String, String],
-) -> Int raise ParsimonyTreeError {
+) -> Int32 raise ParsimonyTreeError {
   let work_root = nni_from_clade(tree.root)
   nni_assign_ids(work_root)
   if !nni_tree_bifurcating(work_root) {
     raise ParsimonyTreeError("The tree provided should be bifurcating.")
   }
-  let scored_tree =
-    if tree.rooted {
-      tree
-    } else {
-      Tree::new(
-        nni_to_clade(nni_root_at_midpoint(work_root)),
-        rooted=true,
-        name=tree.name,
-        weight=tree.weight,
-      )
-    }
+  let scored_tree = if tree.rooted {
+    tree
+  } else {
+    Tree::new(
+      nni_to_clade(nni_root_at_midpoint(work_root)),
+      rooted=true,
+      name=tree.name,
+      weight=tree.weight,
+    )
+  }
   // validate taxon names
   let term_names : Array[String] = Array(capacity=0)
   for tip in scored_tree.root.get_terminals() {
@@ -609,7 +628,7 @@ pub fn ParsimonyScorer::get_score(
       Some(n) => term_names.push(n)
       None =>
         raise ParsimonyTreeError(
-          "Taxon names of the input tree should be the same with the alignment."
+          "Taxon names of the input tree should be the same with the alignment.",
         )
     }
   }
@@ -618,14 +637,14 @@ pub fn ParsimonyScorer::get_score(
   align_names.sort()
   if term_names.length() != align_names.length() {
     raise ParsimonyTreeError(
-      "Taxon names of the input tree should be the same with the alignment."
+      "Taxon names of the input tree should be the same with the alignment.",
     )
   }
   let mut ni = 0
   while ni < term_names.length() {
     if term_names[ni] != align_names[ni] {
       raise ParsimonyTreeError(
-        "Taxon names of the input tree should be the same with the alignment."
+        "Taxon names of the input tree should be the same with the alignment.",
       )
     }
     ni = ni + 1
@@ -651,7 +670,7 @@ pub struct NNITreeSearcher {
 ///|
 /// Create an NNI searcher with the given parsimony scorer.
 pub fn NNITreeSearcher::new(scorer : ParsimonyScorer) -> NNITreeSearcher {
-  NNITreeSearcher::{ scorer }
+  NNITreeSearcher::{ scorer, }
 }
 
 ///|
@@ -664,12 +683,11 @@ pub fn NNITreeSearcher::search(
   starting_tree : Tree,
   alignment : Map[String, String],
 ) -> Tree raise ParsimonyTreeError {
-  let mut best_tree =
-    if starting_tree.rooted {
-      starting_tree
-    } else {
-      starting_tree.root_at_midpoint()
-    }
+  let mut best_tree = if starting_tree.rooted {
+    starting_tree
+  } else {
+    starting_tree.root_at_midpoint()
+  }
   while true {
     let mut best_score = self.scorer.get_score(best_tree, alignment)
     let temp = best_score
@@ -705,9 +723,9 @@ pub struct ParsimonyTreeConstructor {
 /// from identity distances is used.
 pub fn ParsimonyTreeConstructor::new(
   searcher : NNITreeSearcher,
-  starting_tree? : Tree? = None,
+  starting_tree~ : Tree? = None,
 ) -> ParsimonyTreeConstructor {
-  ParsimonyTreeConstructor::{ searcher, starting_tree }
+  ParsimonyTreeConstructor::{ searcher, starting_tree, }
 }
 
 // ---------------------------------------------------------------------------
@@ -719,7 +737,7 @@ pub fn ParsimonyTreeConstructor::new(
 /// MoonBit's native ``String`` order is length-first (shortlex), so the
 /// default ``sort`` would order taxon names differently from Biopython's
 /// alignment order and change UPGMA tie-breaking.
-fn nni_str_cmp(a : String, b : String) -> Int {
+fn nni_str_cmp(a : String, b : String) -> Int32 {
   let n = if a.length() < b.length() { a.length() } else { b.length() }
   let mut cmp = 0
   let mut i = 0
@@ -847,7 +865,7 @@ pub fn ParsimonyTreeConstructor::build_tree(
 ) -> Tree raise ParsimonyTreeError {
   let starting_tree = match self.starting_tree {
     Some(t) => t
-    None => {
+    None =>
       // default: UPGMA tree from identity distances (may raise SeqError)
       try {
         let pairs : Array[(String, String)] = alignment.to_array()
@@ -859,7 +877,6 @@ pub fn ParsimonyTreeConstructor::build_tree(
       } catch {
         SeqError(message) => raise ParsimonyTreeError(message)
       }
-    }
   }
   self.searcher.search(starting_tree, alignment)
 }

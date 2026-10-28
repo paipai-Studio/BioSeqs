@@ -31,7 +31,7 @@ pub struct GEOPlatform {
   gpl_id : String
   title : String
   organism : String
-  probe_count : Int
+  probe_count : Int32
 }
 
 ///|
@@ -80,7 +80,7 @@ pub fn geo_platform_new(
   gpl_id : String,
   title : String,
   organism : String,
-  probe_count : Int,
+  probe_count : Int32,
 ) -> GEOPlatform {
   GEOPlatform::{ gpl_id, title, organism, probe_count, }
 }

@@ -33,11 +33,7 @@ test "motifbreakr_motif_break basic" {
     m.set("chr1", seq)
     m
   }
-  let results = @src.motif_break(
-    variants,
-    [("GATA1", pwm)],
-    sequences,
-  )
+  let results = @src.motif_break(variants, [("GATA1", pwm)], sequences)
   assert_true(results.length() > 0)
   for r in results {
     assert_eq(r.chrom, "chr1")

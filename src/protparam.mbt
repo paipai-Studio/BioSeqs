@@ -310,7 +310,7 @@ pub fn ProteinAnalysis::amino_acid_composition(
 ///|
 pub struct SignalPeptideResult {
   has_signal_peptide : Bool
-  cleavage_site : Int?
+  cleavage_site : Int32?
   score : Double
 }
 
@@ -381,7 +381,7 @@ pub fn ProteinAnalysis::predict_signal_peptide(
 }
 
 ///|
-fn min(a : Int, b : Int) -> Int {
+fn min(a : Int32, b : Int32) -> Int32 {
   if a < b {
     a
   } else {
@@ -403,7 +403,7 @@ fn exp(x : Double) -> Double {
 }
 
 ///|
-pub fn ProteinAnalysis::length(self : ProteinAnalysis) -> Int {
+pub fn ProteinAnalysis::length(self : ProteinAnalysis) -> Int32 {
   self.sequence.length()
 }
 
@@ -481,8 +481,8 @@ pub fn ProteinAnalysis::flexibility(
 pub fn ProteinAnalysis::protein_scale(
   self : ProteinAnalysis,
   param_dict : Map[Char, Double],
-  window : Int,
-  edge? : Double = 1.0,
+  window : Int32,
+  edge~ : Double = 1.0,
 ) -> Array[Double] raise SeqError {
   if window < 1 {
     raise SeqError("protein_scale: window must be at least 1")
@@ -579,7 +579,7 @@ pub fn ProteinAnalysis::secondary_structure_fraction(
 /// (number of Cys // 2).
 pub fn ProteinAnalysis::molar_extinction_coefficient(
   self : ProteinAnalysis,
-) -> (Int, Int) {
+) -> (Int32, Int32) {
   let seq = self.sequence.to_upper()
   let mut n_w = 0
   let mut n_y = 0

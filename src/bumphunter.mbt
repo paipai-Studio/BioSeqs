@@ -25,7 +25,7 @@
 /// A single genomic position with a measured value for a set of samples.
 pub struct BumpPosition {
   chrom : String
-  pos : Int
+  pos : Int32
   values : Array[Double] // per-sample value (e.g. beta value)
 }
 
@@ -33,7 +33,7 @@ pub struct BumpPosition {
 /// Create a genomic position.
 pub fn BumpPosition::new(
   chrom : String,
-  pos : Int,
+  pos : Int32,
   values : Array[Double],
 ) -> BumpPosition {
   { chrom, pos, values, }
@@ -47,7 +47,7 @@ pub fn BumpPosition::chrom(self : BumpPosition) -> String {
 
 ///|
 /// Get position.
-pub fn BumpPosition::pos(self : BumpPosition) -> Int {
+pub fn BumpPosition::pos(self : BumpPosition) -> Int32 {
   self.pos
 }
 
@@ -62,24 +62,24 @@ pub fn BumpPosition::values(self : BumpPosition) -> Array[Double] {
 /// exceeds the cutoff threshold.
 pub struct BumpRegion {
   chrom : String
-  start : Int
-  end_ : Int
+  start : Int32
+  end_ : Int32
   value : Double // max |smoothed| within the bump
   area : Double // sum of smoothed values within the bump
-  index_start : Int // index into the position array
-  index_end : Int // index into the position array (inclusive)
+  index_start : Int32 // index into the position array
+  index_end : Int32 // index into the position array (inclusive)
 }
 
 ///|
 /// Create a bump region.
 pub fn BumpRegion::new(
   chrom : String,
-  start : Int,
-  end_ : Int,
+  start : Int32,
+  end_ : Int32,
   value : Double,
   area : Double,
-  index_start : Int,
-  index_end : Int,
+  index_start : Int32,
+  index_end : Int32,
 ) -> BumpRegion {
   { chrom, start, end_, value, area, index_start, index_end, }
 }
@@ -92,13 +92,13 @@ pub fn BumpRegion::chrom(self : BumpRegion) -> String {
 
 ///|
 /// Get start position.
-pub fn BumpRegion::start(self : BumpRegion) -> Int {
+pub fn BumpRegion::start(self : BumpRegion) -> Int32 {
   self.start
 }
 
 ///|
 /// Get end position.
-pub fn BumpRegion::end_(self : BumpRegion) -> Int {
+pub fn BumpRegion::end_(self : BumpRegion) -> Int32 {
   self.end_
 }
 
@@ -116,19 +116,19 @@ pub fn BumpRegion::area(self : BumpRegion) -> Double {
 
 ///|
 /// Get index start.
-pub fn BumpRegion::index_start(self : BumpRegion) -> Int {
+pub fn BumpRegion::index_start(self : BumpRegion) -> Int32 {
   self.index_start
 }
 
 ///|
 /// Get index end.
-pub fn BumpRegion::index_end(self : BumpRegion) -> Int {
+pub fn BumpRegion::index_end(self : BumpRegion) -> Int32 {
   self.index_end
 }
 
 ///|
 /// Length of the bump in genomic coordinates.
-pub fn BumpRegion::length(self : BumpRegion) -> Int {
+pub fn BumpRegion::length(self : BumpRegion) -> Int32 {
   self.end_ - self.start
 }
 
@@ -136,28 +136,28 @@ pub fn BumpRegion::length(self : BumpRegion) -> Int {
 /// A significant bump with permutation-based statistics.
 pub struct BumpResult {
   chrom : String
-  start : Int
-  end_ : Int
+  start : Int32
+  end_ : Int32
   value : Double
   area : Double
   p_value : Double // permutation-based p-value
   fdr : Double // false discovery rate
-  index_start : Int
-  index_end : Int
+  index_start : Int32
+  index_end : Int32
 }
 
 ///|
 /// Create a bump result.
 pub fn BumpResult::new(
   chrom : String,
-  start : Int,
-  end_ : Int,
+  start : Int32,
+  end_ : Int32,
   value : Double,
   area : Double,
   p_value : Double,
   fdr : Double,
-  index_start : Int,
-  index_end : Int,
+  index_start : Int32,
+  index_end : Int32,
 ) -> BumpResult {
   { chrom, start, end_, value, area, p_value, fdr, index_start, index_end, }
 }
@@ -170,13 +170,13 @@ pub fn BumpResult::chrom(self : BumpResult) -> String {
 
 ///|
 /// Get start position.
-pub fn BumpResult::start(self : BumpResult) -> Int {
+pub fn BumpResult::start(self : BumpResult) -> Int32 {
   self.start
 }
 
 ///|
 /// Get end position.
-pub fn BumpResult::end_(self : BumpResult) -> Int {
+pub fn BumpResult::end_(self : BumpResult) -> Int32 {
   self.end_
 }
 
@@ -206,13 +206,13 @@ pub fn BumpResult::fdr(self : BumpResult) -> Double {
 
 ///|
 /// Get index start.
-pub fn BumpResult::index_start(self : BumpResult) -> Int {
+pub fn BumpResult::index_start(self : BumpResult) -> Int32 {
   self.index_start
 }
 
 ///|
 /// Get index end.
-pub fn BumpResult::index_end(self : BumpResult) -> Int {
+pub fn BumpResult::index_end(self : BumpResult) -> Int32 {
   self.index_end
 }
 
@@ -226,7 +226,7 @@ pub fn BumpResult::index_end(self : BumpResult) -> Int {
 /// Returns an array of t-statistics, one per position.
 pub fn bump_compute_t_statistics_test(
   positions : Array[BumpPosition],
-  group1_size : Int,
+  group1_size : Int32,
 ) -> Array[Double] {
   let n = positions.length()
   let n1 = group1_size
@@ -257,7 +257,7 @@ pub fn bump_compute_t_statistics_test(
 ///|
 /// Smooth a signal using a running mean with the given half-window size.
 /// The smoothed value at position i is the mean of values in [i-k, i+k].
-pub fn bump_smooth_test(stats : Array[Double], k : Int) -> Array[Double] {
+pub fn bump_smooth_test(stats : Array[Double], k : Int32) -> Array[Double] {
   let n = stats.length()
   let smoothed : Array[Double] = Array::make(n, 0.0)
   if n == 0 {
@@ -343,12 +343,12 @@ fn bump_abs(x : Double) -> Double {
 /// (used for p-value estimation).
 fn bump_permutation_count(
   positions : Array[BumpPosition],
-  group1_size : Int,
-  k : Int,
+  group1_size : Int32,
+  k : Int32,
   cutoff : Double,
   threshold : Double,
-  seed : Int,
-) -> Int {
+  seed : Int32,
+) -> Int32 {
   let n = positions.length()
   if n == 0 {
     return 0
@@ -403,10 +403,10 @@ fn bump_permutation_count(
 /// Returns significant bumps with p-values and FDR.
 pub fn bump_hunt(
   positions : Array[BumpPosition],
-  group1_size : Int,
+  group1_size : Int32,
   cutoff : Double,
-  smooth_k : Int,
-  n_permutations : Int,
+  smooth_k : Int32,
+  n_permutations : Int32,
 ) -> Array[BumpResult] {
   let n = positions.length()
   if n == 0 || group1_size <= 0 {
@@ -422,7 +422,7 @@ pub fn bump_hunt(
     return []
   }
   // 4. Permutation testing for p-values
-  let total_perm_bumps : Array[Int] = Array::make(candidates.length(), 0)
+  let total_perm_bumps : Array[Int32] = Array::make(candidates.length(), 0)
   let mut total_perm_count = 0
   for p in 0..<n_permutations {
     let seed = 42 + p * 1009

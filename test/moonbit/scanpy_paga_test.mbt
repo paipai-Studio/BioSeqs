@@ -11,7 +11,7 @@ fn paga_path_graph() -> @src.SparseGraph {
   // 0 -- 1 -- 2 -- 3 -- 4
   let n = 5
   let diag = [1.0, 1.0, 1.0, 1.0, 1.0]
-  let adj : Array[Array[(Int, Double)]] = [
+  let adj : Array[Array[(Int32, Double)]] = [
     [(1, 1.0)],
     [(0, 1.0), (2, 1.0)],
     [(1, 1.0), (3, 1.0)],
@@ -47,7 +47,7 @@ test "paga_three_clusters_chain" {
   // Edges 1-2 and 3-4 connect the clusters in a chain.
   let n = 6
   let diag = [1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
-  let adj : Array[Array[(Int, Double)]] = [
+  let adj : Array[Array[(Int32, Double)]] = [
     [(1, 1.0)],
     [(0, 1.0), (2, 1.0)],
     [(1, 1.0), (3, 1.0)],
@@ -73,7 +73,7 @@ test "paga_disconnected_clusters" {
   // Graph: 0-1, 2-3 (two disconnected components)
   let n = 4
   let diag = [1.0, 1.0, 1.0, 1.0]
-  let adj : Array[Array[(Int, Double)]] = [
+  let adj : Array[Array[(Int32, Double)]] = [
     [(1, 1.0)],
     [(0, 1.0)],
     [(3, 1.0)],
@@ -110,7 +110,7 @@ test "paga_symmetry" {
   // Random-ish graph with 3 clusters, verify conn matrix is symmetric
   let n = 6
   let diag = [1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
-  let adj : Array[Array[(Int, Double)]] = [
+  let adj : Array[Array[(Int32, Double)]] = [
     [(1, 0.5), (2, 0.3), (3, 0.8)],
     [(0, 0.5), (2, 0.7), (4, 0.2)],
     [(0, 0.3), (1, 0.7), (5, 0.6)],
@@ -137,7 +137,7 @@ test "paga_clamped_to_unit" {
   // With very high weights, connectivity should be clamped to [0, 1]
   let n = 4
   let diag = [1.0, 1.0, 1.0, 1.0]
-  let adj : Array[Array[(Int, Double)]] = [
+  let adj : Array[Array[(Int32, Double)]] = [
     [(1, 100.0), (2, 100.0)],
     [(0, 100.0), (2, 100.0)],
     [(0, 100.0), (1, 100.0), (3, 100.0)],

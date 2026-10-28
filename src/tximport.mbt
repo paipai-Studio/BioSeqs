@@ -205,7 +205,7 @@ pub fn summarize_to_gene(
   tx2gene : Array[Tx2Gene],
   ignore_tx_version : Bool,
 ) -> TxImportData {
-  let gene_to_tx : Map[String, Array[Int]] = Map([], capacity=100)
+  let gene_to_tx : Map[String, Array[Int32]] = Map([], capacity=100)
 
   let mut i = 0
   while i < txi.tx_names.length() {
@@ -367,7 +367,7 @@ pub fn tx_import_data_summary(txi : TxImportData) -> String {
 }
 
 ///|
-fn count_unique(arr : Array[String]) -> Int {
+fn count_unique(arr : Array[String]) -> Int32 {
   let seen : Map[String, Bool] = Map([], capacity=arr.length())
   let mut count = 0
   let mut i = 0
@@ -389,7 +389,7 @@ pub fn tx_import_filter_low_expression(
   let nsample = txi.counts.length()
   let ntx = if nsample > 0 { txi.counts[0].length() } else { 0 }
 
-  let keep_tx : Array[Int] = Array(capacity=0)
+  let keep_tx : Array[Int32] = Array(capacity=0)
   let mut i = 0
   while i < ntx {
     let mut total = 0.0

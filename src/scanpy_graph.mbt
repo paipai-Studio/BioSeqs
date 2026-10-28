@@ -8,21 +8,23 @@
 
 ///|
 pub struct SparseGraph {
-  n : Int
+  n : Int32
   diag : Array[Double]
-  adj : Array[Array[(Int, Double)]]
+  adj : Array[Array[(Int32, Double)]]
 } derive(Eq)
+
+///|
 pub extend SparseGraph with Eq::{equal, not_equal}
 
 ///|
-pub fn SparseGraph::num_vertices(self : SparseGraph) -> Int {
+pub fn SparseGraph::num_vertices(self : SparseGraph) -> Int32 {
   self.n
 }
 
 ///|
 /// Weighted degree of vertex `i`: diagonal self-weight plus incident edge
 /// weights.
-pub fn SparseGraph::degree(self : SparseGraph, i : Int) -> Double {
+pub fn SparseGraph::degree(self : SparseGraph, i : Int32) -> Double {
   let mut s = self.diag[i]
   for v in self.adj[i] {
     s = s + v.1
@@ -56,7 +58,7 @@ pub fn SparseGraph::to_dense(self : SparseGraph) -> Array[Array[Double]] {
 pub fn sparse_graph_from_dense(m : Array[Array[Double]]) -> SparseGraph {
   let n = m.length()
   let diag : Array[Double] = Array(capacity=n)
-  let adj : Array[Array[(Int, Double)]] = Array(capacity=n)
+  let adj : Array[Array[(Int32, Double)]] = Array(capacity=n)
   for i = 0; i < n; i = i + 1 {
     diag.push(if i < m[i].length() { m[i][i] } else { 0.0 })
     adj.push([])
@@ -74,9 +76,9 @@ pub fn sparse_graph_from_dense(m : Array[Array[Double]]) -> SparseGraph {
 ///|
 /// Construct a SparseGraph from its components (for testing / direct use).
 pub fn SparseGraph::new(
-  n : Int,
+  n : Int32,
   diag : Array[Double],
-  adj : Array[Array[(Int, Double)]],
+  adj : Array[Array[(Int32, Double)]],
 ) -> SparseGraph {
-  SparseGraph::{ n, diag, adj }
+  SparseGraph::{ n, diag, adj, }
 }

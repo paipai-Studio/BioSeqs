@@ -7,9 +7,9 @@
 ///|
 /// Normal mode analysis result.
 pub struct ModeAnalysis {
-  n : Int
-  dim : Int // n for GNM, 3n for ANM
-  num_modes : Int
+  n : Int32
+  dim : Int32 // n for GNM, 3n for ANM
+  num_modes : Int32
   eigenvalues : Array[Double]
   eigenvectors : Array[Array[Double]] // dim × num_modes
 }
@@ -19,11 +19,11 @@ pub struct ModeAnalysis {
 pub fn ModeAnalysis::new(
   eigenvalues : Array[Double],
   eigenvectors : Array[Array[Double]],
-  n : Int,
-  dim : Int,
+  n : Int32,
+  dim : Int32,
 ) -> ModeAnalysis {
   let num_modes = eigenvalues.length()
-  ModeAnalysis::{ n, dim, num_modes, eigenvalues, eigenvectors }
+  ModeAnalysis::{ n, dim, num_modes, eigenvalues, eigenvectors, }
 }
 
 ///|
@@ -33,7 +33,9 @@ pub fn ModeAnalysis::from_gnm(gnm : GNM) -> ModeAnalysis {
   let modes = gnm.slow_modes(n - 1)
   let num_modes = modes.length()
   let eigenvalues = Array::make(num_modes, 0.0)
-  let eigenvectors : Array[Array[Double]] = Array::makei(n, { _ => Array::make(num_modes, 0.0) })
+  let eigenvectors : Array[Array[Double]] = Array::makei(n, _ => {
+    Array::make(num_modes, 0.0)
+  })
   for k = 0; k < num_modes; k = k + 1 {
     let (_, eval, evec) = modes[k]
     eigenvalues[k] = eval
@@ -41,7 +43,7 @@ pub fn ModeAnalysis::from_gnm(gnm : GNM) -> ModeAnalysis {
       eigenvectors[i][k] = evec[i]
     }
   }
-  ModeAnalysis::{ n, dim: n, num_modes, eigenvalues, eigenvectors }
+  ModeAnalysis::{ n, dim: n, num_modes, eigenvalues, eigenvectors, }
 }
 
 ///|
@@ -52,7 +54,9 @@ pub fn ModeAnalysis::from_anm(anm : ANM) -> ModeAnalysis {
   let modes = anm.slow_modes(dim - 6)
   let num_modes = modes.length()
   let eigenvalues = Array::make(num_modes, 0.0)
-  let eigenvectors : Array[Array[Double]] = Array::makei(dim, { _ => Array::make(num_modes, 0.0) })
+  let eigenvectors : Array[Array[Double]] = Array::makei(dim, _ => {
+    Array::make(num_modes, 0.0)
+  })
   for k = 0; k < num_modes; k = k + 1 {
     let (_, eval, evec) = modes[k]
     eigenvalues[k] = eval
@@ -60,7 +64,7 @@ pub fn ModeAnalysis::from_anm(anm : ANM) -> ModeAnalysis {
       eigenvectors[i][k] = evec[i]
     }
   }
-  ModeAnalysis::{ n, dim, num_modes, eigenvalues, eigenvectors }
+  ModeAnalysis::{ n, dim, num_modes, eigenvalues, eigenvectors, }
 }
 
 ///|
@@ -69,7 +73,7 @@ pub fn ModeAnalysis::from_anm(anm : ANM) -> ModeAnalysis {
 pub fn ModeAnalysis::project(
   self : ModeAnalysis,
   displacement : Array[Double],
-  mode_idx : Int,
+  mode_idx : Int32,
 ) -> Double {
   if mode_idx < 0 || mode_idx >= self.num_modes {
     return 0.0
@@ -87,7 +91,7 @@ pub fn ModeAnalysis::project(
 /// Returns Array[Double] of length dim.
 pub fn ModeAnalysis::deformation(
   self : ModeAnalysis,
-  mode_idx : Int,
+  mode_idx : Int32,
 ) -> Array[Double] {
   let result = Array::make(self.dim, 0.0)
   if mode_idx < 0 || mode_idx >= self.num_modes {
@@ -103,7 +107,10 @@ pub fn ModeAnalysis::deformation(
 /// Collectivity of mode k (Bruschweiler, 2003).
 /// Measures how many atoms participate in the mode.
 /// c_k = (1/N) * exp(-sum_i (v_k[i]^2 - <v_k^2>)^2 / (2*variance^2))
-pub fn ModeAnalysis::collectivity(self : ModeAnalysis, mode_idx : Int) -> Double {
+pub fn ModeAnalysis::collectivity(
+  self : ModeAnalysis,
+  mode_idx : Int32,
+) -> Double {
   if mode_idx < 0 || mode_idx >= self.num_modes {
     return 0.0
   }
@@ -116,9 +123,14 @@ pub fn ModeAnalysis::collectivity(self : ModeAnalysis, mode_idx : Int) -> Double
       s = self.eigenvectors[i][mode_idx] * self.eigenvectors[i][mode_idx]
     } else {
       // ANM: 3 components
-      s = self.eigenvectors[3 * i][mode_idx] * self.eigenvectors[3 * i][mode_idx]
-      s = s + self.eigenvectors[3 * i + 1][mode_idx] * self.eigenvectors[3 * i + 1][mode_idx]
-      s = s + self.eigenvectors[3 * i + 2][mode_idx] * self.eigenvectors[3 * i + 2][mode_idx]
+      s = self.eigenvectors[3 * i][mode_idx] *
+        self.eigenvectors[3 * i][mode_idx]
+      s = s +
+        self.eigenvectors[3 * i + 1][mode_idx] *
+        self.eigenvectors[3 * i + 1][mode_idx]
+      s = s +
+        self.eigenvectors[3 * i + 2][mode_idx] *
+        self.eigenvectors[3 * i + 2][mode_idx]
     }
     sq_amplitudes[i] = s
   }
@@ -159,7 +171,10 @@ pub fn ModeAnalysis::collectivity(self : ModeAnalysis, mode_idx : Int) -> Double
 ///|
 /// Participation ratio: PR_k = (sum_i v_k[i]^2)^2 / (N * sum_i v_k[i]^4)
 /// PR = 1 for uniform participation, PR ~ 1/N for localized.
-pub fn ModeAnalysis::participation_ratio(self : ModeAnalysis, mode_idx : Int) -> Double {
+pub fn ModeAnalysis::participation_ratio(
+  self : ModeAnalysis,
+  mode_idx : Int32,
+) -> Double {
   if mode_idx < 0 || mode_idx >= self.num_modes {
     return 0.0
   }
@@ -171,9 +186,14 @@ pub fn ModeAnalysis::participation_ratio(self : ModeAnalysis, mode_idx : Int) ->
     if self.dim == n {
       s = self.eigenvectors[i][mode_idx] * self.eigenvectors[i][mode_idx]
     } else {
-      s = self.eigenvectors[3 * i][mode_idx] * self.eigenvectors[3 * i][mode_idx]
-      s = s + self.eigenvectors[3 * i + 1][mode_idx] * self.eigenvectors[3 * i + 1][mode_idx]
-      s = s + self.eigenvectors[3 * i + 2][mode_idx] * self.eigenvectors[3 * i + 2][mode_idx]
+      s = self.eigenvectors[3 * i][mode_idx] *
+        self.eigenvectors[3 * i][mode_idx]
+      s = s +
+        self.eigenvectors[3 * i + 1][mode_idx] *
+        self.eigenvectors[3 * i + 1][mode_idx]
+      s = s +
+        self.eigenvectors[3 * i + 2][mode_idx] *
+        self.eigenvectors[3 * i + 2][mode_idx]
     }
     sum_sq = sum_sq + s
     sum_4th = sum_4th + s * s
@@ -181,7 +201,7 @@ pub fn ModeAnalysis::participation_ratio(self : ModeAnalysis, mode_idx : Int) ->
   if sum_4th < 1.0e-20 {
     return 0.0
   }
-  (sum_sq * sum_sq) / (n.to_double() * sum_4th)
+  sum_sq * sum_sq / (n.to_double() * sum_4th)
 }
 
 ///|
@@ -208,8 +228,10 @@ pub fn ModeAnalysis::bfactors_correlation(
         s = self.eigenvectors[i][k] * self.eigenvectors[i][k]
       } else {
         s = self.eigenvectors[3 * i][k] * self.eigenvectors[3 * i][k]
-        s = s + self.eigenvectors[3 * i + 1][k] * self.eigenvectors[3 * i + 1][k]
-        s = s + self.eigenvectors[3 * i + 2][k] * self.eigenvectors[3 * i + 2][k]
+        s = s +
+          self.eigenvectors[3 * i + 1][k] * self.eigenvectors[3 * i + 1][k]
+        s = s +
+          self.eigenvectors[3 * i + 2][k] * self.eigenvectors[3 * i + 2][k]
       }
       predicted[i] = predicted[i] + s / lambda
     }
@@ -241,13 +263,16 @@ pub fn ModeAnalysis::bfactors_correlation(
 
 ///|
 /// Number of modes.
-pub fn ModeAnalysis::num_modes(self : ModeAnalysis) -> Int {
+pub fn ModeAnalysis::num_modes(self : ModeAnalysis) -> Int32 {
   self.num_modes
 }
 
 ///|
 /// Get eigenvalue for mode k.
-pub fn ModeAnalysis::eigenvalue(self : ModeAnalysis, mode_idx : Int) -> Double {
+pub fn ModeAnalysis::eigenvalue(
+  self : ModeAnalysis,
+  mode_idx : Int32,
+) -> Double {
   if mode_idx < 0 || mode_idx >= self.num_modes {
     return 0.0
   }
@@ -256,7 +281,10 @@ pub fn ModeAnalysis::eigenvalue(self : ModeAnalysis, mode_idx : Int) -> Double {
 
 ///|
 /// Get eigenvector for mode k.
-pub fn ModeAnalysis::eigenvector(self : ModeAnalysis, mode_idx : Int) -> Array[Double] {
+pub fn ModeAnalysis::eigenvector(
+  self : ModeAnalysis,
+  mode_idx : Int32,
+) -> Array[Double] {
   self.deformation(mode_idx)
 }
 
@@ -265,7 +293,7 @@ pub fn ModeAnalysis::eigenvector(self : ModeAnalysis, mode_idx : Int) -> Array[D
 pub fn ModeAnalysis::mode_energy(
   self : ModeAnalysis,
   displacement : Array[Double],
-  mode_idx : Int,
+  mode_idx : Int32,
 ) -> Double {
   let proj = self.project(displacement, mode_idx)
   self.eigenvalues[mode_idx] * proj * proj

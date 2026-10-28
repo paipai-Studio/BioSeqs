@@ -1,5 +1,5 @@
 ///|
-fn coordinate_text(values : Array[Int]) -> String {
+fn coordinate_text(values : Array[Int32]) -> String {
   let output = StringBuilder()
   output.write_char('[')
   for index in 0..<values.length() {

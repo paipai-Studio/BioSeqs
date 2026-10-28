@@ -33,7 +33,7 @@ pub struct PdbmlAtom {
   b_factor : Double
   occupancy : Double
   altloc : String
-  serial_number : Int
+  serial_number : Int32
   element : String
 }
 
@@ -41,7 +41,7 @@ pub struct PdbmlAtom {
 pub struct PdbmlResidue {
   component_id : String
   hetero_field : String
-  sequence_id : Int
+  sequence_id : Int32
   insertion_code : String
   atoms : Array[PdbmlAtom]
 }
@@ -54,7 +54,7 @@ pub struct PdbmlChain {
 
 ///|
 pub struct PdbmlModel {
-  serial_number : Int
+  serial_number : Int32
   chains : Array[PdbmlChain]
 }
 
@@ -88,12 +88,12 @@ priv struct PdbmlXmlElem {
 }
 
 ///|
-fn pdbml_is_ws(cp : Int) -> Bool {
+fn pdbml_is_ws(cp : Int32) -> Bool {
   cp == 32 || cp == 9 || cp == 10 || cp == 13
 }
 
 ///|
-fn pdbml_skip_ws(s : String, i : Int) -> Int {
+fn pdbml_skip_ws(s : String, i : Int32) -> Int32 {
   let mut j = i
   while j < s.length() && pdbml_is_ws(s.unsafe_get(j).to_int()) {
     j = j + 1
@@ -102,13 +102,18 @@ fn pdbml_skip_ws(s : String, i : Int) -> Int {
 }
 
 ///|
-fn pdbml_is_name_char(cp : Int) -> Bool {
-  (cp >= 65 && cp <= 90) || (cp >= 97 && cp <= 122) || (cp >= 48 && cp <= 57) ||
-    cp == '_'.to_int() || cp == '.'.to_int() || cp == '-'.to_int() || cp == ':'.to_int()
+fn pdbml_is_name_char(cp : Int32) -> Bool {
+  (cp >= 65 && cp <= 90) ||
+  (cp >= 97 && cp <= 122) ||
+  (cp >= 48 && cp <= 57) ||
+  cp == '_'.to_int() ||
+  cp == '.'.to_int() ||
+  cp == '-'.to_int() ||
+  cp == ':'.to_int()
 }
 
 ///|
-fn pdbml_read_name(s : String, i : Int) -> (String, Int) {
+fn pdbml_read_name(s : String, i : Int32) -> (String, Int32) {
   let mut j = i
   while j < s.length() && pdbml_is_name_char(s.unsafe_get(j).to_int()) {
     j = j + 1
@@ -125,7 +130,9 @@ fn pdbml_local_name(name : String) -> String {
 
 ///|
 fn pdbml_is_ns_attr(name : String) -> Bool {
-  name == "xmlns" || starts_with(name, 0, "xmlns:") || starts_with(name, 0, "xsi:")
+  name == "xmlns" ||
+  starts_with(name, 0, "xmlns:") ||
+  starts_with(name, 0, "xsi:")
 }
 
 ///|
@@ -133,8 +140,8 @@ fn pdbml_is_ns_attr(name : String) -> Bool {
 /// attributes, self-closing flag, and index just past `>`.
 fn pdbml_parse_open_tag(
   s : String,
-  i : Int,
-) -> (String, Map[String, String], Bool, Int) raise PdbmlError {
+  i : Int32,
+) -> (String, Map[String, String], Bool, Int32) raise PdbmlError {
   let (tname, tk) = pdbml_read_name(s, i + 1)
   let local_ = pdbml_local_name(tname)
   let attrs : Map[String, String] = Map([], capacity=8)
@@ -176,13 +183,13 @@ fn pdbml_parse_open_tag(
 }
 
 ///|
-fn pdbml_parse_comment(s : String, i : Int) -> Int {
+fn pdbml_parse_comment(s : String, i : Int32) -> Int32 {
   // s[i..i+4] == "<!--"
   let mut k = i + 4
   while k + 2 < s.length() {
     if s.unsafe_get(k).to_int() == '-'.to_int() &&
-    s.unsafe_get(k + 1).to_int() == '-'.to_int() &&
-    s.unsafe_get(k + 2).to_int() == '>'.to_int() {
+      s.unsafe_get(k + 1).to_int() == '-'.to_int() &&
+      s.unsafe_get(k + 2).to_int() == '>'.to_int() {
       return k + 3
     }
     k = k + 1
@@ -194,13 +201,13 @@ fn pdbml_parse_comment(s : String, i : Int) -> Int {
 /// Parse an element starting at `<`. Returns the element and index past its end.
 fn pdbml_parse_element(
   s : String,
-  i : Int,
-) -> (PdbmlXmlElem, Int) raise PdbmlError {
+  i : Int32,
+) -> (PdbmlXmlElem, Int32) raise PdbmlError {
   let (name, attrs, self_closing, jj) = pdbml_parse_open_tag(s, i)
   let mut j = jj
   if self_closing {
     return (
-      PdbmlXmlElem::{ name, attributes: attrs, text: "", children: [] },
+      PdbmlXmlElem::{ name, attributes: attrs, text: "", children: [], },
       j,
     )
   }
@@ -219,14 +226,19 @@ fn pdbml_parse_element(
           pdbml_fail("Mismatched closing tag")
         }
         return (
-          PdbmlXmlElem::{ name, attributes: attrs, text: trim(text.to_string()), children },
+          PdbmlXmlElem::{
+            name,
+            attributes: attrs,
+            text: trim(text.to_string()),
+            children,
+          },
           k2 + 1,
         )
       }
       if j + 3 < s.length() &&
-      s.unsafe_get(j + 1).to_int() == '!'.to_int() &&
-      s.unsafe_get(j + 2).to_int() == '-'.to_int() &&
-      s.unsafe_get(j + 3).to_int() == '-'.to_int() {
+        s.unsafe_get(j + 1).to_int() == '!'.to_int() &&
+        s.unsafe_get(j + 2).to_int() == '-'.to_int() &&
+        s.unsafe_get(j + 3).to_int() == '-'.to_int() {
         let k2 = pdbml_parse_comment(s, j)
         j = k2
         continue
@@ -258,17 +270,17 @@ fn pdbml_parse_document(xml : String) -> PdbmlXmlElem raise PdbmlError {
       if i + 1 < xml.length() && xml.unsafe_get(i + 1).to_int() == '?'.to_int() {
         let mut k = i + 2
         while k + 1 < xml.length() &&
-        !(xml.unsafe_get(k).to_int() == '?'.to_int() &&
-        xml.unsafe_get(k + 1).to_int() == '>'.to_int()) {
+              !(xml.unsafe_get(k).to_int() == '?'.to_int() &&
+              xml.unsafe_get(k + 1).to_int() == '>'.to_int()) {
           k = k + 1
         }
         i = k + 2
         continue
       }
       if i + 3 < xml.length() &&
-      xml.unsafe_get(i + 1).to_int() == '!'.to_int() &&
-      xml.unsafe_get(i + 2).to_int() == '-'.to_int() &&
-      xml.unsafe_get(i + 3).to_int() == '-'.to_int() {
+        xml.unsafe_get(i + 1).to_int() == '!'.to_int() &&
+        xml.unsafe_get(i + 2).to_int() == '-'.to_int() &&
+        xml.unsafe_get(i + 3).to_int() == '-'.to_int() {
         let k = pdbml_parse_comment(xml, i)
         i = k
         continue
@@ -324,7 +336,11 @@ fn pdbml_path_text(root : PdbmlXmlElem, names : Array[String]) -> String {
 }
 
 ///|
-fn pdbml_attr_at_path(root : PdbmlXmlElem, names : Array[String], attr : String) -> String {
+fn pdbml_attr_at_path(
+  root : PdbmlXmlElem,
+  names : Array[String],
+  attr : String,
+) -> String {
   match pdbml_find_path(root, names) {
     Some(e) => e.attributes.get(attr).unwrap_or("")
     None => ""
@@ -363,19 +379,24 @@ fn pdbml_parse_resolution(root : PdbmlXmlElem) -> Double? {
 fn pdbml_parse_header(root : PdbmlXmlElem) -> PdbmlHeader {
   PdbmlHeader::{
     name: pdbml_path_text(root, ["structCategory", "struct", "title"]),
-    head: pdbml_path_text(root, ["struct_keywordsCategory", "struct_keywords", "text"]),
+    head: pdbml_path_text(root, [
+      "struct_keywordsCategory", "struct_keywords", "text",
+    ]),
     idcode: pdbml_attr_at_path(root, ["entryCategory", "entry"], "id"),
-    deposition_date: pdbml_path_text(
+    deposition_date: pdbml_path_text(root, [
+      "pdbx_database_statusCategory", "pdbx_database_status", "recvd_initial_deposition_date",
+    ]),
+    structure_method: pdbml_attr_at_path(
       root,
-      ["pdbx_database_statusCategory", "pdbx_database_status", "recvd_initial_deposition_date"],
+      ["exptlCategory", "exptl"],
+      "method",
     ),
-    structure_method: pdbml_attr_at_path(root, ["exptlCategory", "exptl"], "method"),
     resolution: pdbml_parse_resolution(root),
   }
 }
 
 ///|
-fn pdbml_parse_residue_id(elem : PdbmlXmlElem) -> (String, Int, String) {
+fn pdbml_parse_residue_id(elem : PdbmlXmlElem) -> (String, Int32, String) {
   let group = pdbml_child_text(elem, "group_PDB")
   let component_id = pdbml_child_text(elem, "label_comp_id")
   let hetero_field = if group == "HETATM" {
@@ -405,7 +426,9 @@ fn pdbml_parse_atom(elem : PdbmlXmlElem) -> PdbmlAtom {
     name,
     fullname: name,
     coord: [x, y, z],
-    b_factor: parse_double(pdbml_child_text(elem, "B_iso_or_equiv")).unwrap_or(0.0),
+    b_factor: parse_double(pdbml_child_text(elem, "B_iso_or_equiv")).unwrap_or(
+      0.0,
+    ),
     occupancy: parse_double(pdbml_child_text(elem, "occupancy")).unwrap_or(0.0),
     altloc,
     serial_number: parse_int(elem.attributes.get("id").unwrap_or("0")),
@@ -419,19 +442,21 @@ fn pdbml_parse_atom(elem : PdbmlXmlElem) -> PdbmlAtom {
 
 ///|
 priv struct PdbmlAtomEntry {
-  model_number : Int
+  model_number : Int32
   chain_id : String
   component_id : String
   hetero_field : String
-  sequence_id : Int
+  sequence_id : Int32
   insertion_code : String
   atom : PdbmlAtom
 }
 
 ///|
 fn pdbml_same_residue(a : PdbmlAtomEntry, b : PdbmlAtomEntry) -> Bool {
-  a.hetero_field == b.hetero_field && a.sequence_id == b.sequence_id &&
-    a.insertion_code == b.insertion_code && a.component_id == b.component_id
+  a.hetero_field == b.hetero_field &&
+  a.sequence_id == b.sequence_id &&
+  a.insertion_code == b.insertion_code &&
+  a.component_id == b.component_id
 }
 
 ///|
@@ -448,8 +473,10 @@ fn pdbml_group(entries : Array[PdbmlAtomEntry]) -> Array[PdbmlModel] {
       while i < n && entries[i].model_number == mn && entries[i].chain_id == cid {
         let key = entries[i]
         let atoms : Array[PdbmlAtom] = Array(capacity=0)
-        while i < n && entries[i].model_number == mn && entries[i].chain_id == cid &&
-        pdbml_same_residue(entries[i], key) {
+        while i < n &&
+              entries[i].model_number == mn &&
+              entries[i].chain_id == cid &&
+              pdbml_same_residue(entries[i], key) {
           atoms.push(entries[i].atom)
           i = i + 1
         }
@@ -461,9 +488,9 @@ fn pdbml_group(entries : Array[PdbmlAtomEntry]) -> Array[PdbmlModel] {
           atoms,
         })
       }
-      chains.push(PdbmlChain::{ chain_id: cid, residues })
+      chains.push(PdbmlChain::{ chain_id: cid, residues, })
     }
-    models.push(PdbmlModel::{ serial_number: mn, chains })
+    models.push(PdbmlModel::{ serial_number: mn, chains, })
   }
   models
 }
@@ -476,12 +503,14 @@ pub fn pdbml_get_structure(xml : String) -> PdbmlStructure raise PdbmlError {
   let header = pdbml_parse_header(root)
   let entries : Array[PdbmlAtomEntry] = Array(capacity=0)
   match pdbml_find_child(root, "atom_siteCategory") {
-    Some(category) => {
+    Some(category) =>
       for elem in category.children {
         if elem.name == "atom_site" {
           let (hetero, seq, ins) = pdbml_parse_residue_id(elem)
           entries.push(PdbmlAtomEntry::{
-            model_number: parse_int(pdbml_child_text(elem, "pdbx_PDB_model_num")),
+            model_number: parse_int(
+              pdbml_child_text(elem, "pdbx_PDB_model_num"),
+            ),
             chain_id: pdbml_child_text(elem, "auth_asym_id"),
             component_id: pdbml_child_text(elem, "label_comp_id"),
             hetero_field: hetero,
@@ -491,7 +520,6 @@ pub fn pdbml_get_structure(xml : String) -> PdbmlStructure raise PdbmlError {
           })
         }
       }
-    }
     None => ()
   }
   PdbmlStructure::{

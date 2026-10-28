@@ -19,7 +19,8 @@ fn tautomer_keto_enol(mol : Molecule) -> Array[Molecule] {
       continue
     }
     // Find C=O where C also has a C neighbor
-    let (c_atom, o_atom) = if mol.atoms[b.from].symbol == "C" && mol.atoms[b.to].symbol == "O" {
+    let (c_atom, o_atom) = if mol.atoms[b.from].symbol == "C" &&
+      mol.atoms[b.to].symbol == "O" {
       (b.from, b.to)
     } else if mol.atoms[b.to].symbol == "C" && mol.atoms[b.from].symbol == "O" {
       (b.to, b.from)
@@ -52,7 +53,8 @@ fn tautomer_enol_keto(mol : Molecule) -> Array[Molecule] {
       continue
     }
     // Find C=C where one C has an O neighbor (single bond)
-    let (c1, c2) = if mol.atoms[b.from].symbol == "C" && mol.atoms[b.to].symbol == "C" {
+    let (c1, c2) = if mol.atoms[b.from].symbol == "C" &&
+      mol.atoms[b.to].symbol == "C" {
       (b.from, b.to)
     } else {
       continue
@@ -85,7 +87,8 @@ fn tautomer_imine_amine(mol : Molecule) -> Array[Molecule] {
       continue
     }
     // Find C=N where N has a C neighbor
-    let (c_atom, n_atom) = if mol.atoms[b.from].symbol == "C" && mol.atoms[b.to].symbol == "N" {
+    let (c_atom, n_atom) = if mol.atoms[b.from].symbol == "C" &&
+      mol.atoms[b.to].symbol == "N" {
       (b.from, b.to)
     } else if mol.atoms[b.to].symbol == "C" && mol.atoms[b.from].symbol == "N" {
       (b.to, b.from)
@@ -110,23 +113,24 @@ fn tautomer_imine_amine(mol : Molecule) -> Array[Molecule] {
 /// Swap bond orders: bond1 becomes single, bond2 becomes double.
 fn tautomer_swap_bond_orders(
   mol : Molecule,
-  a1 : Int,
-  b1 : Int,
-  a2 : Int,
-  b2 : Int,
+  a1 : Int32,
+  b1 : Int32,
+  a2 : Int32,
+  b2 : Int32,
 ) -> Molecule {
   let new_bonds : Array[MolBond] = Array(capacity=0)
   for b in mol.bonds {
-    let new_order = if (b.from == a1 && b.to == b1) || (b.from == b1 && b.to == a1) {
+    let new_order = if (b.from == a1 && b.to == b1) ||
+      (b.from == b1 && b.to == a1) {
       1
     } else if (b.from == a2 && b.to == b2) || (b.from == b2 && b.to == a2) {
       2
     } else {
       b.order
     }
-    new_bonds.push(MolBond::{ from: b.from, to: b.to, order: new_order })
+    new_bonds.push(MolBond::{ from: b.from, to: b.to, order: new_order, })
   }
-  Molecule::{ atoms: mol.atoms, bonds: new_bonds }
+  Molecule::{ atoms: mol.atoms, bonds: new_bonds, }
 }
 
 ///|
@@ -139,7 +143,10 @@ fn tautomer_mol_key(mol : Molecule) -> String {
 /// Enumerate tautomers of a molecule.
 /// Applies all transform rules iteratively up to max_iterations.
 /// Returns a list of unique tautomers (including the input molecule).
-pub fn enumerate_tautomers(mol : Molecule, max_iterations : Int) -> Array[Molecule] {
+pub fn enumerate_tautomers(
+  mol : Molecule,
+  max_iterations : Int32,
+) -> Array[Molecule] {
   let tautomers : Array[Molecule] = [mol]
   let visited : Map[String, Bool] = Map([], capacity=0)
   visited[tautomer_mol_key(mol)] = true
@@ -195,6 +202,6 @@ pub fn enumerate_tautomers(mol : Molecule, max_iterations : Int) -> Array[Molecu
 
 ///|
 /// Count number of tautomers.
-pub fn tautomer_count(mol : Molecule, max_iterations : Int) -> Int {
+pub fn tautomer_count(mol : Molecule, max_iterations : Int32) -> Int32 {
   enumerate_tautomers(mol, max_iterations).length()
 }

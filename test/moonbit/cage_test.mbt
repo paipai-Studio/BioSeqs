@@ -1,6 +1,5 @@
 ///|
 /// Tests for cage module (CAGEr - CAGE data TSS analysis).
-
 fn cage_example_ctss() -> Array[@src.CageCtss] {
   [
     @src.CageCtss::new("chr1", 1000, "+", 50),
@@ -13,17 +12,23 @@ fn cage_example_ctss() -> Array[@src.CageCtss] {
   ]
 }
 
+///|
 test "cage_sample_total_tags" {
   let s = @src.CageSample::new("s1", cage_example_ctss())
   assert_eq(s.total_tags, 200)
 }
 
+///|
 test "cage_new_and_add" {
   let cs = @src.cage_new("test")
-  let cs1 = @src.cage_add_sample(cs, @src.CageSample::new("s1", cage_example_ctss()))
+  let cs1 = @src.cage_add_sample(
+    cs,
+    @src.CageSample::new("s1", cage_example_ctss()),
+  )
   assert_eq(@src.cage_n_samples(cs1), 1)
 }
 
+///|
 test "cage_normalize_tpm" {
   let s = @src.CageSample::new("s1", cage_example_ctss())
   let cs = @src.cage_add_sample(@src.cage_new("test"), s)
@@ -32,6 +37,7 @@ test "cage_normalize_tpm" {
   assert_true(s1.ctss[0].normalized > 0.0)
 }
 
+///|
 test "cage_cluster_basic" {
   let s = @src.CageSample::new("s1", cage_example_ctss())
   let cs = @src.cage_add_sample(@src.cage_new("test"), s)
@@ -39,6 +45,7 @@ test "cage_cluster_basic" {
   assert_true(clusters.length() > 0)
 }
 
+///|
 test "cage_cluster_shape" {
   let s = @src.CageSample::new("s1", cage_example_ctss())
   let cs = @src.cage_add_sample(@src.cage_new("test"), s)
@@ -49,15 +56,19 @@ test "cage_cluster_shape" {
   }
 }
 
+///|
 test "cage_cluster_summary" {
   let s = @src.CageSample::new("s1", cage_example_ctss())
   let cs = @src.cage_add_sample(@src.cage_new("test"), s)
   let clusters = @src.cage_cluster(cs)
-  let (n, total_tags, _avg_tags, _avg_ctss, _avg_shape) = @src.cage_cluster_summary(clusters)
+  let (n, total_tags, _avg_tags, _avg_ctss, _avg_shape) = @src.cage_cluster_summary(
+    clusters,
+  )
   assert_true(n >= 0)
   assert_true(total_tags >= 0)
 }
 
+///|
 test "cage_diff_tss" {
   let ctss1 = [@src.CageCtss::new("chr1", 1000, "+", 50)]
   let ctss2 = [@src.CageCtss::new("chr1", 1000, "+", 100)]
@@ -67,6 +78,7 @@ test "cage_diff_tss" {
   assert_true(diff.length() > 0)
 }
 
+///|
 test "cage_annotate_tss" {
   let ctss = [
     @src.CageCtss::new("chr1", 1000, "+", 50),
@@ -80,6 +92,7 @@ test "cage_annotate_tss" {
   assert_true(ann.length() >= 0)
 }
 
+///|
 test "cage_total_tags" {
   let s = @src.CageSample::new("s1", cage_example_ctss())
   let cs = @src.cage_add_sample(@src.cage_new("test"), s)

@@ -50,7 +50,7 @@ pub fn parse_pir(content : String) -> Array[SeqRecord] {
       // Parse header ">P1;NAME"
       let header = line[1:trimmed].to_owned()
       let hl = header.length()
-      let mut semi_pos : Int? = None
+      let mut semi_pos : Int32? = None
       for j = 0; j < hl; j = j + 1 {
         if header.unsafe_get(j) == semi {
           semi_pos = Some(j)

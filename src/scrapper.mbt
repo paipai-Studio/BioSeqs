@@ -14,13 +14,13 @@ pub suberror ScrapperError {
 ///|
 pub struct ScrapperNamedSubset {
   name : String
-  indices : Array[Int]
+  indices : Array[Int32]
 }
 
 ///|
 pub struct ScrapperRnaQcMetrics {
   sums : Array[Double]
-  detected : Array[Int]
+  detected : Array[Int32]
   subset_names : Array[String]
   subset_proportions : Array[Array[Double]]
 }
@@ -45,7 +45,11 @@ pub enum ScrapperCenterMode {
   Lowest
   PerBlock
 } derive(Eq, Debug)
+
+///|
 pub extend ScrapperCenterMode with Eq::{equal, not_equal}
+
+///|
 pub extend ScrapperCenterMode with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -73,17 +77,17 @@ pub struct ScrapperAggregateResult {
   factor_names : Array[String]
   combinations : Array[Array[String]]
   group_names : Array[String]
-  counts : Array[Int]
-  index : Array[Int]
+  counts : Array[Int32]
+  index : Array[Int32]
   sums : Array[Array[Double]]
-  detected : Array[Array[Int]]
+  detected : Array[Array[Int32]]
   medians : Array[Array[Double]]
 }
 
 ///|
 pub fn ScrapperNamedSubset::new(
   name : String,
-  indices : Array[Int],
+  indices : Array[Int32],
 ) -> ScrapperNamedSubset {
   ScrapperNamedSubset::{ name, indices: indices.copy(), }
 }
@@ -110,7 +114,7 @@ pub fn scrapper_center_per_block() -> ScrapperCenterMode {
 fn scrapper_matrix_shape(
   matrix : Array[Array[Double]],
   require_counts : Bool,
-) -> (Int, Int) raise ScrapperError {
+) -> (Int32, Int32) raise ScrapperError {
   let rows = matrix.length()
   let columns = if rows > 0 { matrix[0].length() } else { 0 }
   let mut row = 0
@@ -151,7 +155,7 @@ fn scrapper_median(values : Array[Double]) -> Double {
     return 0.0
   }
   let sorted = values.copy()
-  sorted.sort_by(fn(left : Double, right : Double) -> Int {
+  sorted.sort_by(fn(left : Double, right : Double) -> Int32 {
     if left < right {
       -1
     } else if left > right {
@@ -199,7 +203,7 @@ fn scrapper_mean(values : Array[Double]) -> Double {
 ///|
 fn scrapper_subset_masks(
   subsets : Array[ScrapperNamedSubset],
-  features : Int,
+  features : Int32,
 ) -> Array[Array[Bool]] raise ScrapperError {
   let masks : Array[Array[Bool]] = []
   let seen_names : Map[String, Bool] = Map([], capacity=subsets.length())
@@ -236,8 +240,8 @@ fn scrapper_subset_masks(
 /// assigned to subset `s`.
 pub fn scrapper_compute_rna_qc_metrics(
   counts : Array[Array[Double]],
-  subsets? : Array[ScrapperNamedSubset] = [],
-  detection_limit? : Double = 0.0,
+  subsets~ : Array[ScrapperNamedSubset] = [],
+  detection_limit~ : Double = 0.0,
 ) -> ScrapperRnaQcMetrics raise ScrapperError {
   let (features, cells) = scrapper_matrix_shape(counts, true)
   if !is_finite(detection_limit) {
@@ -297,9 +301,9 @@ pub fn scrapper_compute_rna_qc_metrics(
 
 ///|
 fn scrapper_block_layout(
-  cells : Int,
+  cells : Int32,
   blocks : Array[String],
-) -> (Array[String], Array[Int]) raise ScrapperError {
+) -> (Array[String], Array[Int32]) raise ScrapperError {
   if blocks.length() != 0 && blocks.length() != cells {
     raise ScrapperError(
       "scrapper block vector length must equal the number of cells",
@@ -309,7 +313,7 @@ fn scrapper_block_layout(
     return (["all"], Array::make(cells, 0))
   }
   let names : Array[String] = []
-  let mapping : Map[String, Int] = Map([], capacity=blocks.length())
+  let mapping : Map[String, Int32] = Map([], capacity=blocks.length())
   let index = Array::make(cells, 0)
   let mut cell = 0
   while cell < cells {
@@ -367,10 +371,10 @@ fn scrapper_threshold_tolerance(threshold : Double) -> Double {
 /// Suggest batch-aware RNA QC thresholds using median absolute deviations.
 pub fn scrapper_suggest_rna_qc_thresholds(
   metrics : ScrapperRnaQcMetrics,
-  blocks? : Array[String] = [],
-  sum_num_mads? : Double = 3.0,
-  detected_num_mads? : Double = 3.0,
-  subset_proportion_num_mads? : Double = 3.0,
+  blocks~ : Array[String] = [],
+  sum_num_mads~ : Double = 3.0,
+  detected_num_mads~ : Double = 3.0,
+  subset_proportion_num_mads~ : Double = 3.0,
 ) -> ScrapperRnaQcThresholds raise ScrapperError {
   let cells = metrics.sums.length()
   if metrics.detected.length() != cells {
@@ -453,7 +457,7 @@ pub fn scrapper_suggest_rna_qc_thresholds(
 pub fn scrapper_filter_rna_qc_metrics(
   thresholds : ScrapperRnaQcThresholds,
   metrics : ScrapperRnaQcMetrics,
-  blocks? : Array[String] = [],
+  blocks~ : Array[String] = [],
 ) -> Array[Bool] raise ScrapperError {
   let cells = metrics.sums.length()
   let (block_names, block_index) = scrapper_block_layout(cells, blocks)
@@ -502,11 +506,11 @@ pub fn scrapper_filter_rna_qc_metrics(
 /// Run RNA QC metric calculation, threshold suggestion and filtering.
 pub fn scrapper_quick_rna_qc(
   counts : Array[Array[Double]],
-  subsets? : Array[ScrapperNamedSubset] = [],
-  blocks? : Array[String] = [],
-  sum_num_mads? : Double = 3.0,
-  detected_num_mads? : Double = 3.0,
-  subset_proportion_num_mads? : Double = 3.0,
+  subsets~ : Array[ScrapperNamedSubset] = [],
+  blocks~ : Array[String] = [],
+  sum_num_mads~ : Double = 3.0,
+  detected_num_mads~ : Double = 3.0,
+  subset_proportion_num_mads~ : Double = 3.0,
 ) -> ScrapperRnaQcResult raise ScrapperError {
   let metrics = scrapper_compute_rna_qc_metrics(counts, subsets~)
   let thresholds = scrapper_suggest_rna_qc_thresholds(
@@ -524,7 +528,7 @@ pub fn scrapper_quick_rna_qc(
 /// Replace invalid size factors with a positive fallback.
 pub fn scrapper_sanitize_size_factors(
   size_factors : Array[Double],
-  fallback? : Double = 1.0,
+  fallback~ : Double = 1.0,
 ) -> Array[Double] raise ScrapperError {
   if !is_finite(fallback) || fallback <= 0.0 {
     raise ScrapperError("scrapper size-factor fallback must be positive")
@@ -544,8 +548,8 @@ pub fn scrapper_sanitize_size_factors(
 /// Center positive size factors at unity, optionally within or across blocks.
 pub fn scrapper_center_size_factors(
   size_factors : Array[Double],
-  blocks? : Array[String] = [],
-  mode? : ScrapperCenterMode = Lowest,
+  blocks~ : Array[String] = [],
+  mode~ : ScrapperCenterMode = Lowest,
 ) -> Array[Double] raise ScrapperError {
   if size_factors.length() == 0 {
     return []
@@ -610,8 +614,8 @@ pub fn scrapper_center_size_factors(
 /// Compute library-size factors and center them at unity.
 pub fn scrapper_library_size_factors(
   counts : Array[Array[Double]],
-  blocks? : Array[String] = [],
-  mode? : ScrapperCenterMode = Lowest,
+  blocks~ : Array[String] = [],
+  mode~ : ScrapperCenterMode = Lowest,
 ) -> Array[Double] raise ScrapperError {
   let (features, cells) = scrapper_matrix_shape(counts, true)
   if cells == 0 {
@@ -636,9 +640,9 @@ pub fn scrapper_library_size_factors(
 pub fn scrapper_normalize_counts(
   counts : Array[Array[Double]],
   size_factors : Array[Double],
-  log_transform? : Bool = true,
-  pseudo_count? : Double = 1.0,
-  log_base? : Double = 2.0,
+  log_transform~ : Bool = true,
+  pseudo_count~ : Double = 1.0,
+  log_base~ : Double = 2.0,
 ) -> Array[Array[Double]] raise ScrapperError {
   let (features, cells) = scrapper_matrix_shape(counts, true)
   if size_factors.length() != cells {
@@ -686,15 +690,18 @@ fn scrapper_lowess_at(
   x : Double,
   x_values : Array[Double],
   y_values : Array[Double],
-  window : Int,
+  window : Int32,
 ) -> Double {
-  let distances : Array[(Double, Int)] = []
+  let distances : Array[(Double, Int32)] = []
   let mut index = 0
   while index < x_values.length() {
     distances.push(((x_values[index] - x).abs(), index))
     index = index + 1
   }
-  distances.sort_by(fn(left : (Double, Int), right : (Double, Int)) -> Int {
+  distances.sort_by(fn(
+    left : (Double, Int32),
+    right : (Double, Int32),
+  ) -> Int32 {
     if left.0 < right.0 {
       -1
     } else if left.0 > right.0 {
@@ -757,11 +764,11 @@ fn scrapper_lowess_at(
 pub fn scrapper_fit_variance_trend(
   means : Array[Double],
   variances : Array[Double],
-  mean_filter? : Bool = true,
-  min_mean? : Double = 0.1,
-  transform? : Bool = true,
-  span? : Double = 0.3,
-  min_window_count? : Int = 5,
+  mean_filter~ : Bool = true,
+  min_mean~ : Double = 0.1,
+  transform~ : Bool = true,
+  span~ : Double = 0.3,
+  min_window_count~ : Int32 = 5,
 ) -> ScrapperVarianceTrend raise ScrapperError {
   if means.length() != variances.length() {
     raise ScrapperError(
@@ -842,11 +849,11 @@ pub fn scrapper_fit_variance_trend(
 /// Compute per-gene means/variances and fit the mean-variance trend.
 pub fn scrapper_model_gene_variances(
   expression : Array[Array[Double]],
-  mean_filter? : Bool = true,
-  min_mean? : Double = 0.1,
-  transform? : Bool = true,
-  span? : Double = 0.3,
-  min_window_count? : Int = 5,
+  mean_filter~ : Bool = true,
+  min_mean~ : Double = 0.1,
+  transform~ : Bool = true,
+  span~ : Double = 0.3,
+  min_window_count~ : Int32 = 5,
 ) -> ScrapperVarianceModel raise ScrapperError {
   let (features, cells) = scrapper_matrix_shape(expression, false)
   if features == 0 || cells == 0 {
@@ -892,19 +899,19 @@ pub fn scrapper_model_gene_variances(
 /// Select top genes from a variance-related statistic.
 pub fn scrapper_choose_highly_variable_genes(
   statistics : Array[Double],
-  top? : Int = 4000,
-  larger? : Bool = true,
-  keep_ties? : Bool = true,
-  use_bound? : Bool = true,
-  bound? : Double = 0.0,
-) -> Array[Int] raise ScrapperError {
+  top~ : Int32 = 4000,
+  larger~ : Bool = true,
+  keep_ties~ : Bool = true,
+  use_bound~ : Bool = true,
+  bound~ : Double = 0.0,
+) -> Array[Int32] raise ScrapperError {
   if top < 0 {
     raise ScrapperError("scrapper HVG top count must be non-negative")
   }
   if !is_finite(bound) {
     raise ScrapperError("scrapper HVG bound must be finite")
   }
-  let candidates : Array[(Int, Double)] = []
+  let candidates : Array[(Int32, Double)] = []
   let mut index = 0
   while index < statistics.length() {
     let value = statistics[index]
@@ -918,7 +925,10 @@ pub fn scrapper_choose_highly_variable_genes(
     }
     index = index + 1
   }
-  candidates.sort_by(fn(left : (Int, Double), right : (Int, Double)) -> Int {
+  candidates.sort_by(fn(
+    left : (Int32, Double),
+    right : (Int32, Double),
+  ) -> Int32 {
     if left.1 == right.1 {
       if left.0 < right.0 {
         -1
@@ -943,7 +953,7 @@ pub fn scrapper_choose_highly_variable_genes(
     return []
   }
   let target = if top < candidates.length() { top } else { candidates.length() }
-  let output : Array[Int] = []
+  let output : Array[Int32] = []
   index = 0
   while index < target {
     output.push(candidates[index].0)
@@ -963,10 +973,10 @@ pub fn scrapper_choose_highly_variable_genes(
 ///|
 pub fn ScrapperVarianceModel::highly_variable_genes(
   self : ScrapperVarianceModel,
-  top? : Int = 4000,
-  keep_ties? : Bool = true,
-  positive_only? : Bool = true,
-) -> Array[Int] raise ScrapperError {
+  top~ : Int32 = 4000,
+  keep_ties~ : Bool = true,
+  positive_only~ : Bool = true,
+) -> Array[Int32] raise ScrapperError {
   scrapper_choose_highly_variable_genes(
     self.residuals,
     top~,
@@ -1009,10 +1019,10 @@ fn scrapper_combination_name(
 pub fn scrapper_aggregate_across_cells(
   expression : Array[Array[Double]],
   factors : Array[ScrapperFactor],
-  compute_sum? : Bool = true,
-  compute_detected? : Bool = true,
-  compute_median? : Bool = false,
-  detection_limit? : Double = 0.0,
+  compute_sum~ : Bool = true,
+  compute_detected~ : Bool = true,
+  compute_median~ : Bool = false,
+  detection_limit~ : Double = 0.0,
 ) -> ScrapperAggregateResult raise ScrapperError {
   let (features, cells) = scrapper_matrix_shape(expression, false)
   if factors.length() == 0 {
@@ -1042,7 +1052,7 @@ pub fn scrapper_aggregate_across_cells(
   }
   let combinations : Array[Array[String]] = []
   let group_names : Array[String] = []
-  let mapping : Map[String, Int] = Map([], capacity=cells)
+  let mapping : Map[String, Int32] = Map([], capacity=cells)
   let index = Array::make(cells, 0)
   let mut cell = 0
   while cell < cells {
@@ -1076,7 +1086,7 @@ pub fn scrapper_aggregate_across_cells(
     cell = cell + 1
   }
   let sums : Array[Array[Double]] = []
-  let detected : Array[Array[Int]] = []
+  let detected : Array[Array[Int32]] = []
   let medians : Array[Array[Double]] = []
   let mut feature = 0
   while feature < features {
@@ -1160,7 +1170,9 @@ pub fn ScrapperAggregateResult::means(
 }
 
 ///|
-pub fn ScrapperAggregateResult::n_groups(self : ScrapperAggregateResult) -> Int {
+pub fn ScrapperAggregateResult::n_groups(
+  self : ScrapperAggregateResult,
+) -> Int32 {
   self.combinations.length()
 }
 
@@ -1265,12 +1277,12 @@ fn scrapper_clone_sce(
 /// Normalize an SCE's count assay into a new assay without mutating the input.
 pub fn scrapper_normalize_rna_counts_sce(
   sce : SingleCellExperiment,
-  size_factors? : Array[Double] = [],
-  assay_name? : String = "counts",
-  output_assay? : String = "logcounts",
-  blocks? : Array[String] = [],
-  mode? : ScrapperCenterMode = Lowest,
-  pseudo_count? : Double = 1.0,
+  size_factors~ : Array[Double] = [],
+  assay_name~ : String = "counts",
+  output_assay~ : String = "logcounts",
+  blocks~ : Array[String] = [],
+  mode~ : ScrapperCenterMode = Lowest,
+  pseudo_count~ : Double = 1.0,
 ) -> SingleCellExperiment raise ScrapperError {
   let counts = sce_get_assay(sce, assay_name)
   if counts.length() == 0 {
@@ -1299,12 +1311,12 @@ pub fn scrapper_normalize_rna_counts_sce(
 /// Run RNA QC on an SCE and return a copied SCE with QC columns plus results.
 pub fn scrapper_quick_rna_qc_sce(
   sce : SingleCellExperiment,
-  subsets? : Array[ScrapperNamedSubset] = [],
-  blocks? : Array[String] = [],
-  assay_name? : String = "counts",
-  sum_num_mads? : Double = 3.0,
-  detected_num_mads? : Double = 3.0,
-  subset_proportion_num_mads? : Double = 3.0,
+  subsets~ : Array[ScrapperNamedSubset] = [],
+  blocks~ : Array[String] = [],
+  assay_name~ : String = "counts",
+  sum_num_mads~ : Double = 3.0,
+  detected_num_mads~ : Double = 3.0,
+  subset_proportion_num_mads~ : Double = 3.0,
 ) -> (SingleCellExperiment, ScrapperRnaQcResult) raise ScrapperError {
   let counts = sce_get_assay(sce, assay_name)
   if counts.length() == 0 {
@@ -1363,7 +1375,7 @@ pub fn scrapper_sample_counts() -> Array[Array[Double]] {
 }
 
 ///|
-pub fn ScrapperRnaQcResult::retained_count(self : ScrapperRnaQcResult) -> Int {
+pub fn ScrapperRnaQcResult::retained_count(self : ScrapperRnaQcResult) -> Int32 {
   let mut retained = 0
   let mut cell = 0
   while cell < self.keep.length() {

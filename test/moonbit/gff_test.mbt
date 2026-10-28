@@ -131,11 +131,11 @@ test "GFFRecord::get_features_in_range" {
   assert_true(features.length() > 0)
 }
 
-
 // ============================================================
 // to_gff_line / count_features_of_type
 // ============================================================
 
+///|
 test "GFFFeature::to_gff_line" {
   let f = @src.GFFFeature::new("chr1", "src", "gene", 100, 500, "+")
     .set_score(0.5)
@@ -147,6 +147,7 @@ test "GFFFeature::to_gff_line" {
   assert_eq(line, "chr1\tsrc\tgene\t100\t500\t0.5\t+\t0\tID=g1;Name=Gene1")
 }
 
+///|
 test "GFFFeature::to_gff_line_default" {
   // 无 score/phase/属性 → 用 "." 占位
   let f = @src.GFFFeature::new("chr1", ".", "exon", 10, 20, "-")
@@ -154,11 +155,15 @@ test "GFFFeature::to_gff_line_default" {
   assert_eq(line, "chr1\t.\texon\t10\t20\t.\t-\t.")
 }
 
+///|
 test "GFFRecord::count_features_of_type" {
   let gene1 = @src.GFFFeature::new("chr1", "src", "gene", 100, 500, "+")
   let gene2 = @src.GFFFeature::new("chr1", "src", "gene", 600, 800, "+")
   let exon = @src.GFFFeature::new("chr1", "src", "exon", 100, 200, "+")
-  let rec = @src.GFFRecord::new().add_feature(gene1).add_feature(gene2).add_feature(exon)
+  let rec = @src.GFFRecord::new()
+    .add_feature(gene1)
+    .add_feature(gene2)
+    .add_feature(exon)
   assert_eq(rec.count_features_of_type("gene"), 2)
   assert_eq(rec.count_features_of_type("exon"), 1)
   assert_eq(rec.count_features_of_type("mRNA"), 0)

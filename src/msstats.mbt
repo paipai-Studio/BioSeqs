@@ -137,8 +137,8 @@ pub struct MSGroupResult {
 /// Container for group comparison results.
 pub struct MSGroupComparison {
   results : Array[MSGroupResult]
-  n_proteins : Int
-  n_sig : Int
+  n_proteins : Int32
+  n_sig : Int32
   fdr_threshold : Double
 }
 
@@ -146,8 +146,8 @@ pub struct MSGroupComparison {
 /// Sample size calculation result.
 pub struct MSSampleSize {
   desired_power : Double
-  n_samples : Int
-  n_proteins_detectable : Int
+  n_samples : Int32
+  n_proteins_detectable : Int32
   delta : Double
 }
 
@@ -201,8 +201,8 @@ pub fn MSFeature::new(
 /// Process MS data: filter, log-transform, normalize.
 pub fn ms_data_process(
   features : Array[MSFeature],
-  normalization? : MSNormalization = MSNormalization::Median,
-  log_transformed? : Bool = false,
+  normalization~ : MSNormalization = MSNormalization::Median,
+  log_transformed~ : Bool = false,
 ) -> Array[MSFeature] {
   // Deep copy
   let processed : Array[MSFeature] = Array(capacity=0)
@@ -362,7 +362,7 @@ pub fn ms_data_process(
 /// Summarize feature-level data to protein-level.
 pub fn ms_summarize(
   features : Array[MSFeature],
-  method_? : MSSummarization = MSSummarization::Tukey,
+  method_~ : MSSummarization = MSSummarization::Tukey,
 ) -> Array[MSProteinAbundance] {
   // Group by (protein, run)
   let groups : Map[String, Array[MSFeature]] = Map([])
@@ -460,8 +460,8 @@ pub fn ms_summarize(
 /// Perform group comparison (differential abundance testing).
 pub fn ms_group_comparison(
   abundances : Array[MSProteinAbundance],
-  fdr_threshold? : Double = 0.05,
-  log2fc_threshold? : Double = 1.0,
+  fdr_threshold~ : Double = 0.05,
+  log2fc_threshold~ : Double = 1.0,
 ) -> MSGroupComparison {
   // Group by protein
   let protein_groups : Map[String, Array[MSProteinAbundance]] = Map([])
@@ -656,7 +656,7 @@ fn ms_bh_adjust(p_values : Array[Double]) -> Array[Double] {
     return Array(capacity=0)
   }
 
-  let indexed : Array[(Int, Double)] = Array(capacity=0)
+  let indexed : Array[(Int32, Double)] = Array(capacity=0)
   let mut i = 0
   while i < n {
     indexed.push((i, p_values[i]))
@@ -706,7 +706,7 @@ fn ms_bh_adjust(p_values : Array[Double]) -> Array[Double] {
 
 ///|
 /// Get number of results.
-pub fn MSGroupComparison::get_n_results(self : MSGroupComparison) -> Int {
+pub fn MSGroupComparison::get_n_results(self : MSGroupComparison) -> Int32 {
   self.results.length()
 }
 
@@ -730,7 +730,7 @@ pub fn MSGroupComparison::get_significant(
 /// Get top N proteins by adjusted p-value.
 pub fn MSGroupComparison::get_top_proteins(
   self : MSGroupComparison,
-  n : Int,
+  n : Int32,
 ) -> Array[MSGroupResult] {
   let sorted = self.results.copy()
   let len = sorted.length()
@@ -777,8 +777,8 @@ pub fn MSGroupComparison::summary(self : MSGroupComparison) -> String {
 /// Calculate sample size for desired power.
 pub fn ms_design_sample_size(
   results : Array[MSGroupResult],
-  desired_power? : Double = 0.8,
-  n_samples? : Int = 0,
+  desired_power~ : Double = 0.8,
+  n_samples~ : Int32 = 0,
 ) -> MSSampleSize {
   // Simplified: use the median log2fc and SE to estimate power
   let n = results.length()

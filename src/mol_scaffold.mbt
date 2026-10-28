@@ -9,9 +9,9 @@
 ///|
 /// Result of Murcko scaffold extraction.
 pub struct MurckoResult {
-  scaffold_atoms : Array[Int]    // indices of scaffold atoms in original molecule
-  side_chain_atoms : Array[Int]  // indices of side chain atoms
-  num_rings : Int                // number of ring systems in scaffold
+  scaffold_atoms : Array[Int32] // indices of scaffold atoms in original molecule
+  side_chain_atoms : Array[Int32] // indices of side chain atoms
+  num_rings : Int32 // number of ring systems in scaffold
 }
 
 ///|
@@ -26,7 +26,7 @@ pub fn murcko_scaffold(mol : Molecule) -> MurckoResult {
   while changed {
     changed = false
     for k = 0; k < n; k = k + 1 {
-      if !(is_scaffold[k]) {
+      if !is_scaffold[k] {
         continue
       }
       // Count scaffold neighbors
@@ -43,8 +43,8 @@ pub fn murcko_scaffold(mol : Molecule) -> MurckoResult {
     }
   }
   // Collect results
-  let scaffold_atoms : Array[Int] = Array(capacity=0)
-  let side_chain_atoms : Array[Int] = Array(capacity=0)
+  let scaffold_atoms : Array[Int32] = Array(capacity=0)
+  let side_chain_atoms : Array[Int32] = Array(capacity=0)
   for k = 0; k < n; k = k + 1 {
     if is_scaffold[k] {
       scaffold_atoms.push(k)
@@ -58,7 +58,7 @@ pub fn murcko_scaffold(mol : Molecule) -> MurckoResult {
   for ring in rings {
     let mut all_scaffold = true
     for a in ring {
-      if !(is_scaffold[a]) {
+      if !is_scaffold[a] {
         all_scaffold = false
       }
     }
@@ -66,7 +66,7 @@ pub fn murcko_scaffold(mol : Molecule) -> MurckoResult {
       num_rings = num_rings + 1
     }
   }
-  MurckoResult::{ scaffold_atoms, side_chain_atoms, num_rings }
+  MurckoResult::{ scaffold_atoms, side_chain_atoms, num_rings, }
 }
 
 ///|
@@ -74,7 +74,7 @@ pub fn murcko_scaffold(mol : Molecule) -> MurckoResult {
 pub fn murcko_scaffold_mol(mol : Molecule) -> Molecule {
   let result = murcko_scaffold(mol)
   if result.scaffold_atoms.length() == 0 {
-    return Molecule::{ atoms: [], bonds: [] }
+    return Molecule::{ atoms: [], bonds: [], }
   }
   // Map old indices to new indices
   let n = mol.atoms.length()
@@ -91,15 +91,15 @@ pub fn murcko_scaffold_mol(mol : Molecule) -> Molecule {
     let nf = old_to_new[b.from]
     let nt = old_to_new[b.to]
     if nf >= 0 && nt >= 0 {
-      new_bonds.push(MolBond::{ from: nf, to: nt, order: b.order })
+      new_bonds.push(MolBond::{ from: nf, to: nt, order: b.order, })
     }
   }
-  Molecule::{ atoms: new_atoms, bonds: new_bonds }
+  Molecule::{ atoms: new_atoms, bonds: new_bonds, }
 }
 
 ///|
 /// Count side chain atoms.
-pub fn murcko_side_chain_count(mol : Molecule) -> Int {
+pub fn murcko_side_chain_count(mol : Molecule) -> Int32 {
   let result = murcko_scaffold(mol)
   result.side_chain_atoms.length()
 }

@@ -3,20 +3,24 @@
 
 ///|
 test "stackmotif construction and len" {
-  let m = @src.StackMotif::new(
-    name="M1",
-    pwm=[[0.5, 0.5], [0.5, 0.5], [0.0, 0.0], [0.0, 0.0]],
-  )
+  let m = @src.StackMotif::new(name="M1", pwm=[
+    [0.5, 0.5],
+    [0.5, 0.5],
+    [0.0, 0.0],
+    [0.0, 0.0],
+  ])
   assert_eq(m.name, "M1")
   assert_eq(m.len(), 2)
 }
 
 ///|
 test "stackmotif distance identical is zero" {
-  let m1 = @src.StackMotif::new(
-    name="A",
-    pwm=[[0.5, 0.5], [0.5, 0.5], [0.0, 0.0], [0.0, 0.0]],
-  )
+  let m1 = @src.StackMotif::new(name="A", pwm=[
+    [0.5, 0.5],
+    [0.5, 0.5],
+    [0.0, 0.0],
+    [0.0, 0.0],
+  ])
   assert_true(@src.motifstack_distance(m1, m1) < 1.0e-12)
 }
 
@@ -96,10 +100,12 @@ test "stackmotif stack order clusters GATA1 and GATA2 together" {
 
 ///|
 test "stackmotif column ic positive for non-uniform column" {
-  let m = @src.StackMotif::new(
-    name="info",
-    pwm=[[1.0, 0.0], [0.0, 1.0], [0.0, 0.0], [0.0, 0.0]],
-  )
+  let m = @src.StackMotif::new(name="info", pwm=[
+    [1.0, 0.0],
+    [0.0, 1.0],
+    [0.0, 0.0],
+    [0.0, 0.0],
+  ])
   let ics = @src.motifstack_column_ic(m)
   assert_eq(ics.length(), 2)
   assert_true(ics[0] > 0.0)
@@ -108,10 +114,12 @@ test "stackmotif column ic positive for non-uniform column" {
 
 ///|
 test "stackmotif column ic zero for uniform column" {
-  let m = @src.StackMotif::new(
-    name="uniform",
-    pwm=[[0.25, 0.25], [0.25, 0.25], [0.25, 0.25], [0.25, 0.25]],
-  )
+  let m = @src.StackMotif::new(name="uniform", pwm=[
+    [0.25, 0.25],
+    [0.25, 0.25],
+    [0.25, 0.25],
+    [0.25, 0.25],
+  ])
   let ics = @src.motifstack_column_ic(m)
   assert_true(ics[0] < 0.01)
   assert_true(ics[1] < 0.01)
@@ -136,10 +144,12 @@ test "stackmotif stack ascii contains motif names" {
 
 ///|
 test "stackmotif flatten length 4 * width" {
-  let m = @src.StackMotif::new(
-    name="x",
-    pwm=[[0.1, 0.2, 0.3], [0.1, 0.2, 0.3], [0.1, 0.2, 0.3], [0.1, 0.2, 0.3]],
-  )
+  let m = @src.StackMotif::new(name="x", pwm=[
+    [0.1, 0.2, 0.3],
+    [0.1, 0.2, 0.3],
+    [0.1, 0.2, 0.3],
+    [0.1, 0.2, 0.3],
+  ])
   let flat = @src.motifstack_flatten(m)
   assert_eq(flat.length(), 12)
 }

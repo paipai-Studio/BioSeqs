@@ -17,7 +17,7 @@ pub struct SnpVariantStats {
 ///|
 /// Compute per-SNP allele frequency (alternate), minor allele frequency
 /// and missing call rate.
-pub fn snpgds_snp_stats(dosages : Array[Array[Int]]) -> SnpVariantStats {
+pub fn snpgds_snp_stats(dosages : Array[Array[Int32]]) -> SnpVariantStats {
   let n_snp = dosages.length()
   let af : Array[Double] = Array(capacity=n_snp)
   let maf : Array[Double] = Array(capacity=n_snp)
@@ -50,8 +50,11 @@ pub fn snpgds_snp_stats(dosages : Array[Array[Int]]) -> SnpVariantStats {
 
 ///|
 /// Extract one sample's dosage column (across all SNPs).
-fn snp_sample_column(dosages : Array[Array[Int]], sample : Int) -> Array[Int] {
-  let col : Array[Int] = Array(capacity=dosages.length())
+fn snp_sample_column(
+  dosages : Array[Array[Int32]],
+  sample : Int32,
+) -> Array[Int32] {
+  let col : Array[Int32] = Array(capacity=dosages.length())
   for row in dosages {
     col.push(row[sample])
   }
@@ -64,9 +67,9 @@ fn snp_sample_column(dosages : Array[Array[Int]], sample : Int) -> Array[Int] {
 /// n valid loci, heterozygote count of sample i, heterozygote count of
 /// sample j) following SNPRelate's KING robust accumulator.
 fn snp_king_pair_accumulators(
-  row_i : Array[Int],
-  row_j : Array[Int],
-) -> (Int, Int, Int, Int, Int) {
+  row_i : Array[Int32],
+  row_j : Array[Int32],
+) -> (Int32, Int32, Int32, Int32, Int32) {
   let mut sum_sq = 0
   let mut ibs0 = 0
   let mut loci = 0
@@ -114,9 +117,9 @@ pub struct SnpKingResult {
 
 ///|
 /// Compute KING-robust kinship and IBS0 proportion matrices.
-pub fn snpgds_ibd_king(dosages : Array[Array[Int]]) -> SnpKingResult {
+pub fn snpgds_ibd_king(dosages : Array[Array[Int32]]) -> SnpKingResult {
   let n = if dosages.length() > 0 { dosages[0].length() } else { 0 }
-  let columns : Array[Array[Int]] = Array(capacity=n)
+  let columns : Array[Array[Int32]] = Array(capacity=n)
   let mut s = 0
   while s < n {
     columns.push(snp_sample_column(dosages, s))
@@ -171,11 +174,11 @@ pub struct SnpKingHomoResult {
 /// Compute KING homo k0/k1 matrices. Requires per-SNP alternate allele
 /// frequencies; pairs with zero frequency information yield 0.
 pub fn snpgds_ibd_king_homo(
-  dosages : Array[Array[Int]],
+  dosages : Array[Array[Int32]],
   allele_freqs : Array[Double],
 ) -> SnpKingHomoResult {
   let n = if dosages.length() > 0 { dosages[0].length() } else { 0 }
-  let columns : Array[Array[Int]] = Array(capacity=n)
+  let columns : Array[Array[Int32]] = Array(capacity=n)
   let mut s = 0
   while s < n {
     columns.push(snp_sample_column(dosages, s))
@@ -231,7 +234,7 @@ pub struct SnpIbsResult {
 
 ///|
 /// Compute IBS proportions and genetic distances between samples.
-pub fn snpgds_ibs(dosages : Array[Array[Int]]) -> SnpIbsResult {
+pub fn snpgds_ibs(dosages : Array[Array[Int32]]) -> SnpIbsResult {
   let n = if dosages.length() > 0 { dosages[0].length() } else { 0 }
   let ibs = snp_make_matrix(n, 0.0)
   let dist = snp_make_matrix(n, 0.0)
@@ -291,8 +294,8 @@ pub struct SnpPcaResult {
 /// treated as the population mean, and the covariance matrix is
 /// decomposed with a Jacobi eigen solver.
 pub fn snpgds_pca(
-  dosages : Array[Array[Int]],
-  n_components : Int,
+  dosages : Array[Array[Int32]],
+  n_components : Int32,
 ) -> SnpPcaResult {
   let stats = snpgds_snp_stats(dosages)
   let n_snp = dosages.length()
@@ -366,9 +369,9 @@ pub fn snpgds_pca(
 /// Pairwise linkage disequilibrium (method "corr": Pearson correlation
 /// of genotype dosages over pairwise-complete calls).
 pub fn snpgds_ld(
-  dosages : Array[Array[Int]],
-  snp_i : Int,
-  snp_j : Int,
+  dosages : Array[Array[Int32]],
+  snp_i : Int32,
+  snp_j : Int32,
 ) -> Double raise SeqIOError {
   if snp_i < 0 ||
     snp_j < 0 ||
@@ -424,8 +427,8 @@ pub fn snpgds_ld(
 ///|
 /// Result of LD pruning: indices of SNPs retained in file order.
 pub struct SnpLdPruneResult {
-  kept_indices : Array[Int]
-  removed_indices : Array[Int]
+  kept_indices : Array[Int32]
+  removed_indices : Array[Int32]
 }
 
 ///|
@@ -435,14 +438,14 @@ pub struct SnpLdPruneResult {
 /// exceeds `threshold`. SNPs with `maf <= maf_threshold` are skipped up
 /// front.
 pub fn snpgds_ld_pruning(
-  dosages : Array[Array[Int]],
+  dosages : Array[Array[Int32]],
   threshold : Double,
   maf_threshold : Double,
-  slide_max : Int,
+  slide_max : Int32,
 ) -> SnpLdPruneResult {
   let stats = snpgds_snp_stats(dosages)
-  let kept : Array[Int] = []
-  let removed : Array[Int] = []
+  let kept : Array[Int32] = []
+  let removed : Array[Int32] = []
   let n_snp = dosages.length()
   let mut i = 0
   while i < n_snp {
@@ -485,7 +488,7 @@ pub fn snpgds_ld_pruning(
 }
 
 ///|
-fn snp_make_matrix(n : Int, fill : Double) -> Array[Array[Double]] {
+fn snp_make_matrix(n : Int32, fill : Double) -> Array[Array[Double]] {
   let out : Array[Array[Double]] = Array(capacity=n)
   let mut i = 0
   while i < n {
@@ -501,7 +504,7 @@ fn snp_make_matrix(n : Int, fill : Double) -> Array[Array[Double]] {
 /// eigenvectors aligned to samples.
 fn snp_eigen_decomposition(
   matrix : Array[Array[Double]],
-  n_components : Int,
+  n_components : Int32,
 ) -> (Array[Double], Array[Array[Double]]) {
   let n = matrix.length()
   if n == 0 {
@@ -572,7 +575,7 @@ fn snp_eigen_decomposition(
     sweep = sweep + 1
   }
   // collect diagonal and sort descending
-  let diag : Array[(Double, Int)] = Array(capacity=0)
+  let diag : Array[(Double, Int32)] = Array(capacity=0)
   i = 0
   while i < n {
     diag.push((a[i][i], i))

@@ -23,7 +23,11 @@ pub enum SimMeasure {
   Jiang
   Wang
 } derive(Eq, Debug)
+
+///|
 pub extend SimMeasure with Eq::{equal, not_equal}
+
+///|
 pub extend SimMeasure with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -69,6 +73,8 @@ pub struct GOTermNode {
   parents : Array[String]
   children : Array[String]
 } derive(Debug)
+
+///|
 pub extend GOTermNode with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -105,9 +111,9 @@ pub fn GOTermNode::get_children(self : GOTermNode) -> Array[String] {
 /// Create a GO term node.
 pub fn GOTermNode::new(
   go_id : String,
-  ic? : Double = 0.0,
-  parents? : Array[String] = [],
-  term_name? : String = "",
+  ic~ : Double = 0.0,
+  parents~ : Array[String] = [],
+  term_name~ : String = "",
 ) -> GOTermNode {
   GOTermNode::{ go_id, term_name, ic, parents, children: [], }
 }
@@ -118,6 +124,8 @@ pub struct GOGraph {
   root_id : String
   terms : Map[String, GOTermNode]
 } derive(Debug)
+
+///|
 pub extend GOGraph with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -263,12 +271,11 @@ pub fn gosemsim_term_sim(
           }
         }
         Rel => {
-          let lin_v =
-            if ic1 + ic2 > 1.0e-15 {
-              2.0 * mica_ic / (ic1 + ic2)
-            } else {
-              0.0
-            }
+          let lin_v = if ic1 + ic2 > 1.0e-15 {
+            2.0 * mica_ic / (ic1 + ic2)
+          } else {
+            0.0
+          }
           lin_v * (1.0 - @math.exp(0.0 - mica_ic))
         }
         _ => 0.0
@@ -287,7 +294,11 @@ pub fn gosemsim_term_sim(
 /// the common ancestor of id1 and id2 with the highest IC.
 /// Returns (mica_id, mica_ic_orig).
 /// Falls back to root with IC=0.0 if no common ancestor found.
-fn gosemsim_mica(graph : GOGraph, id1 : String, id2 : String) -> (String, Double) {
+fn gosemsim_mica(
+  graph : GOGraph,
+  id1 : String,
+  id2 : String,
+) -> (String, Double) {
   let anc1 = graph.ancestors(id1)
   let anc2 = graph.ancestors(id2)
 
@@ -369,7 +380,10 @@ pub fn gosemsim_wang_sim(graph : GOGraph, id1 : String, id2 : String) -> Double 
 ///   topNode SV forced to 0.0
 ///
 /// Returns Map[node_id -> sv_value]
-fn gosemsim_compute_sv(graph : GOGraph, start_id : String) -> Map[String, Double] {
+fn gosemsim_compute_sv(
+  graph : GOGraph,
+  start_id : String,
+) -> Map[String, Double] {
   let sv : Map[String, Double] = Map([], capacity=16)
   sv.set(start_id, 1.0)
 
@@ -417,7 +431,10 @@ fn gosemsim_compute_sv(graph : GOGraph, start_id : String) -> Map[String, Double
 
 ///|
 /// Sum of SV values for common nodes across both maps.
-fn gosemsim_inter_sum(sv_a : Map[String, Double], sv_b : Map[String, Double]) -> Double {
+fn gosemsim_inter_sum(
+  sv_a : Map[String, Double],
+  sv_b : Map[String, Double],
+) -> Double {
   let mut total = 0.0
   for k in sv_a.keys().collect() {
     let va = sv_a.get_or_default(k, 0.0)
@@ -460,7 +477,7 @@ pub fn gosemsim_gen_sim(
   go_ids1 : Array[String],
   go_ids2 : Array[String],
   measure : SimMeasure,
-  combine? : String = "max",
+  combine~ : String = "max",
 ) -> Double {
   let sim_matrix = gosemsim_build_sim_matrix(graph, go_ids1, go_ids2, measure)
   match combine {

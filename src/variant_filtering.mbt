@@ -1,7 +1,7 @@
 ///|
 pub struct Variant {
   chr : String
-  pos : Int
+  pos : Int32
   id : String
   ref_allele : String
   alt_allele : String
@@ -14,11 +14,11 @@ pub struct Variant {
 ///|
 pub struct VariantFilteringParam {
   min_qual : Double
-  min_depth : Int
+  min_depth : Int32
   min_allele_freq : Double
   max_missing_rate : Double
   inheritance_mode : String
-  min_gq : Int
+  min_gq : Int32
   max_af_pop : Double
 }
 
@@ -26,7 +26,7 @@ pub struct VariantFilteringParam {
 pub struct VariantFilterResult {
   passed_variants : Array[Variant]
   filtered_variants : Array[(Variant, String)]
-  filter_stats : Map[String, Int]
+  filter_stats : Map[String, Int32]
 }
 
 ///|
@@ -40,7 +40,7 @@ pub struct GeneticModel {
 ///|
 pub fn Variant::new(
   chr : String,
-  pos : Int,
+  pos : Int32,
   id : String,
   ref_allele : String,
   alt_allele : String,
@@ -246,7 +246,7 @@ fn join_strings(arr : Array[String], sep : String) -> String {
 }
 
 ///|
-fn parse_info_int(info : Map[String, String], key : String) -> Int {
+fn parse_info_int(info : Map[String, String], key : String) -> Int32 {
   if info.contains(key) {
     parse_int(info.get(key).unwrap())
   } else {
@@ -271,7 +271,7 @@ fn parse_info_double(info : Map[String, String], key : String) -> Double {
 ///|
 fn check_genotype_quality(
   genotypes : Array[(String, String)],
-  min_gq : Int,
+  min_gq : Int32,
 ) -> Bool {
   let mut pass_count = 0
   let mut total = 0
@@ -641,7 +641,7 @@ pub fn bio_vfilter_summary(result : VariantFilterResult) -> String {
   let entries = result.filter_stats.iter().collect()
   let entries_len = entries.length()
 
-  let mut sorted : Array[(String, Int)] = Array(capacity=0)
+  let mut sorted : Array[(String, Int32)] = Array(capacity=0)
   let mut i = 0
   while i < entries_len {
     sorted.push(entries[i])
@@ -654,7 +654,7 @@ pub fn bio_vfilter_summary(result : VariantFilterResult) -> String {
     while k < entries_len {
       if sorted[k].1 > sorted[j].1 {
         let temp = sorted[j]
-        let new_arr : Array[(String, Int)] = Array(capacity=0)
+        let new_arr : Array[(String, Int32)] = Array(capacity=0)
         let mut m = 0
         while m < entries_len {
           if m == j {

@@ -20,10 +20,10 @@
 /// A single Hi-C contact between two genomic bins.
 pub struct HiCContact {
   chr : String
-  bin1 : Int // bin index (start position / bin_size)
-  bin2 : Int
-  mut count : Int
-  distance : Int // |bin2 - bin1|
+  bin1 : Int32 // bin index (start position / bin_size)
+  bin2 : Int32
+  mut count : Int32
+  distance : Int32 // |bin2 - bin1|
   mut gc_content : Double
   mut mappability : Double
 }
@@ -32,10 +32,10 @@ pub struct HiCContact {
 /// Create a new HiCContact.
 pub fn HiCContact::new(
   chr : String,
-  bin1 : Int,
-  bin2 : Int,
-  count : Int,
-  _bin_size : Int,
+  bin1 : Int32,
+  bin2 : Int32,
+  count : Int32,
+  _bin_size : Int32,
 ) -> HiCContact {
   let distance = if bin2 > bin1 { bin2 - bin1 } else { bin1 - bin2 }
   HiCContact::{
@@ -63,13 +63,13 @@ pub fn HiCContact::set_mappability(self : HiCContact, m : Double) -> Unit {
 
 ///|
 /// Accessor for distance.
-pub fn HiCContact::distance(self : HiCContact) -> Int {
+pub fn HiCContact::distance(self : HiCContact) -> Int32 {
   self.distance
 }
 
 ///|
 /// Accessor for count.
-pub fn HiCContact::count(self : HiCContact) -> Int {
+pub fn HiCContact::count(self : HiCContact) -> Int32 {
   self.count
 }
 
@@ -81,13 +81,13 @@ pub fn HiCContact::chr(self : HiCContact) -> String {
 
 ///|
 /// Accessor for bin1.
-pub fn HiCContact::bin1(self : HiCContact) -> Int {
+pub fn HiCContact::bin1(self : HiCContact) -> Int32 {
   self.bin1
 }
 
 ///|
 /// Accessor for bin2.
-pub fn HiCContact::bin2(self : HiCContact) -> Int {
+pub fn HiCContact::bin2(self : HiCContact) -> Int32 {
   self.bin2
 }
 
@@ -107,9 +107,9 @@ pub fn HiCContact::mappability(self : HiCContact) -> Double {
 /// Result of HiC-DC significance testing for one contact.
 pub struct HiCDCResult {
   chr : String
-  bin1 : Int
-  bin2 : Int
-  observed : Int
+  bin1 : Int32
+  bin2 : Int32
+  observed : Int32
   expected : Double
   log_fc : Double
   p_value : Double
@@ -119,7 +119,7 @@ pub struct HiCDCResult {
 
 ///|
 /// Accessor for observed count.
-pub fn HiCDCResult::observed(self : HiCDCResult) -> Int {
+pub fn HiCDCResult::observed(self : HiCDCResult) -> Int32 {
   self.observed
 }
 
@@ -155,13 +155,13 @@ pub fn HiCDCResult::chr(self : HiCDCResult) -> String {
 
 ///|
 /// Accessor for bin1.
-pub fn HiCDCResult::bin1(self : HiCDCResult) -> Int {
+pub fn HiCDCResult::bin1(self : HiCDCResult) -> Int32 {
   self.bin1
 }
 
 ///|
 /// Accessor for bin2.
-pub fn HiCDCResult::bin2(self : HiCDCResult) -> Int {
+pub fn HiCDCResult::bin2(self : HiCDCResult) -> Int32 {
   self.bin2
 }
 
@@ -175,13 +175,13 @@ pub fn HiCDCResult::log_fc(self : HiCDCResult) -> Double {
 /// A TAD boundary.
 pub struct TADBoundary {
   chr : String
-  bin : Int
+  bin : Int32
   directionality_index : Double
 }
 
 ///|
 /// Accessor for bin.
-pub fn TADBoundary::bin(self : TADBoundary) -> Int {
+pub fn TADBoundary::bin(self : TADBoundary) -> Int32 {
   self.bin
 }
 
@@ -201,14 +201,14 @@ pub fn TADBoundary::directionality_index(self : TADBoundary) -> Double {
 /// An A/B compartment call.
 pub struct CompartmentCall {
   chr : String
-  bin : Int
+  bin : Int32
   pc1 : Double
   compartment : String // "A" or "B"
 }
 
 ///|
 /// Accessor for bin.
-pub fn CompartmentCall::bin(self : CompartmentCall) -> Int {
+pub fn CompartmentCall::bin(self : CompartmentCall) -> Int32 {
   self.bin
 }
 
@@ -305,9 +305,6 @@ fn hc_normal_cdf(x : Double) -> Double {
     p
   }
 }
-
-
-
 
 // ===========================================================================
 // Negative binomial background model
@@ -565,8 +562,8 @@ pub fn hicdc_mark_significant(
 /// Returns array of DI values per bin.
 pub fn hicdc_directionality_index(
   contacts : Array[HiCContact],
-  n_bins : Int,
-  window : Int,
+  n_bins : Int32,
+  window : Int32,
 ) -> Array[Double] {
   // Build per-bin downstream and upstream contact sums.
   let downstream = Array::make(n_bins, 0.0)
@@ -605,8 +602,8 @@ pub fn hicdc_directionality_index(
 /// A boundary is detected where DI changes sign (from negative to positive).
 pub fn hicdc_call_tads(
   contacts : Array[HiCContact],
-  n_bins : Int,
-  window : Int,
+  n_bins : Int32,
+  window : Int32,
   chr : String,
 ) -> Array[TADBoundary] {
   let di = hicdc_directionality_index(contacts, n_bins, window)
@@ -635,7 +632,7 @@ pub fn hicdc_call_tads(
 /// Returns compartment calls for each bin.
 pub fn hicdc_call_compartments(
   contacts : Array[HiCContact],
-  n_bins : Int,
+  n_bins : Int32,
   chr : String,
 ) -> Array[CompartmentCall] {
   // Build contact matrix.
@@ -693,8 +690,8 @@ pub fn hicdc_call_compartments(
 /// Power iteration to find the first eigenvector of a matrix.
 fn hc_power_iteration(
   matrix : Array[Array[Double]],
-  n : Int,
-  max_iter : Int,
+  n : Int32,
+  max_iter : Int32,
 ) -> Array[Double] {
   let v = Array::make(n, 1.0)
   // Normalize initial vector.
@@ -978,7 +975,7 @@ pub fn hicdc_sample_data() -> Array[HiCContact] {
 
 ///|
 /// LCG random for sample data.
-fn hc_lcg_rand(state : Int) -> (Int, Double) {
+fn hc_lcg_rand(state : Int32) -> (Int32, Double) {
   let s = (state * 1103515245 + 12345) & 0x7FFFFFFF
   (s, (s % 1000000).to_double() / 1000000.0)
 }

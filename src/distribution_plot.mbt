@@ -14,6 +14,8 @@ pub struct PlotPoint {
   x : Double
   y : Double
 } derive(Eq)
+
+///|
 pub extend PlotPoint with Eq::{equal, not_equal}
 
 ///|
@@ -28,6 +30,8 @@ pub struct PlotSeries {
   color : String
   label : String
 } derive(Eq)
+
+///|
 pub extend PlotSeries with Eq::{equal, not_equal}
 
 ///|
@@ -44,8 +48,10 @@ pub fn PlotSeries::new(
 pub struct HistBin {
   lo : Double
   hi : Double
-  count : Int
+  count : Int32
 } derive(Eq)
+
+///|
 pub extend HistBin with Eq::{equal, not_equal}
 
 ///|
@@ -54,8 +60,10 @@ pub struct Histogram {
   bins : Array[HistBin]
   data_min : Double
   data_max : Double
-  total : Int
+  total : Int32
 } derive(Eq)
+
+///|
 pub extend Histogram with Eq::{equal, not_equal}
 
 ///|
@@ -65,7 +73,7 @@ pub extend Histogram with Eq::{equal, not_equal}
 /// equal the histogram collapses to a single bin spanning `[v, v+1)`.
 pub fn Histogram::from_data(
   data : Array[Double],
-  num_bins~ : Int = 20,
+  num_bins~ : Int32 = 20,
 ) -> Histogram {
   if data.is_empty() {
     return Histogram::{ bins: [], data_min: 0.0, data_max: 0.0, total: 0, }
@@ -84,10 +92,15 @@ pub fn Histogram::from_data(
   let n = if num_bins < 1 { 1 } else { num_bins }
   if span == 0.0 {
     let bins = [HistBin::{ lo, hi: lo + 1.0, count: data.length(), }]
-    return Histogram::{ bins, data_min: lo, data_max: hi, total: data.length(), }
+    return Histogram::{
+      bins,
+      data_min: lo,
+      data_max: hi,
+      total: data.length(),
+    }
   }
   let width = span / n.to_double()
-  let counts : Array[Int] = Array(capacity=0)
+  let counts : Array[Int32] = Array(capacity=0)
   for _i in 0..<n {
     counts.push(0)
   }
@@ -112,7 +125,7 @@ pub fn Histogram::from_data(
 
 ///|
 /// Maximum bin count (used to scale bar heights).
-pub fn Histogram::max_count(self : Histogram) -> Int {
+pub fn Histogram::max_count(self : Histogram) -> Int32 {
   let mut m = 0
   for bin in self.bins {
     if bin.count > m {
@@ -127,6 +140,8 @@ pub fn Histogram::max_count(self : Histogram) -> Int {
 pub struct ScatterPlot {
   series : Array[PlotSeries]
 } derive(Eq)
+
+///|
 pub extend ScatterPlot with Eq::{equal, not_equal}
 
 ///|
@@ -139,6 +154,8 @@ pub fn ScatterPlot::new(series~ : Array[PlotSeries]) -> ScatterPlot {
 pub struct LinePlot {
   series : Array[PlotSeries]
 } derive(Eq)
+
+///|
 pub extend LinePlot with Eq::{equal, not_equal}
 
 ///|
@@ -153,23 +170,27 @@ pub(all) enum PlotPanel {
   ScatterPanel(String, ScatterPlot)
   LinePanel(String, LinePlot)
 } derive(Eq)
+
+///|
 pub extend PlotPanel with Eq::{equal, not_equal}
 
 ///|
 /// A grid of panels rendered together, mirroring `DistributionPage`.
 pub struct DistributionPage {
   title : String
-  rows : Int
-  cols : Int
+  rows : Int32
+  cols : Int32
   panels : Array[PlotPanel]
 } derive(Eq)
+
+///|
 pub extend DistributionPage with Eq::{equal, not_equal}
 
 ///|
 pub fn DistributionPage::new(
   title~ : String,
-  rows~ : Int = 1,
-  cols~ : Int = 1,
+  rows~ : Int32 = 1,
+  cols~ : Int32 = 1,
 ) -> DistributionPage {
   DistributionPage::{ title, rows, cols, panels: [], }
 }
@@ -220,16 +241,14 @@ fn plot_nice_num(value : Double, round~ : Bool = false) -> Double {
     } else {
       10.0
     }
+  } else if v <= 1.0 {
+    1.0
+  } else if v <= 2.0 {
+    2.0
+  } else if v <= 5.0 {
+    5.0
   } else {
-    if v <= 1.0 {
-      1.0
-    } else if v <= 2.0 {
-      2.0
-    } else if v <= 5.0 {
-      5.0
-    } else {
-      10.0
-    }
+    10.0
   }
   let mut result = nice_fraction
   if exponent >= 0 {
@@ -246,7 +265,7 @@ fn plot_nice_num(value : Double, round~ : Bool = false) -> Double {
 
 ///|
 /// Generate roughly `target` tick values spanning `[lo, hi]`.
-fn plot_ticks(lo : Double, hi : Double, target~ : Int = 5) -> Array[Double] {
+fn plot_ticks(lo : Double, hi : Double, target~ : Int32 = 5) -> Array[Double] {
   if lo == hi {
     return [lo]
   }
@@ -293,7 +312,7 @@ fn plot_append_text(
   y : Double,
   text : String,
   anchor~ : String = "middle",
-  size~ : Int = 10,
+  size~ : Int32 = 10,
 ) -> Unit {
   svg.write_string(
     "<text x=\"" +
@@ -334,7 +353,11 @@ pub fn Histogram::svg_rect(
   } else {
     plot_w / (self.data_max - self.data_min)
   }
-  let y_scale = if max_count == 0 { 0.0 } else { plot_h / max_count.to_double() }
+  let y_scale = if max_count == 0 {
+    0.0
+  } else {
+    plot_h / max_count.to_double()
+  }
   for bin in self.bins {
     let bx = plot_x + (bin.lo - self.data_min) * x_scale
     let bw = (bin.hi - bin.lo) * x_scale
@@ -352,7 +375,13 @@ pub fn Histogram::svg_rect(
       "\" fill=\"#1f77b4\" stroke=\"none\"/>\n",
     )
   }
-  plot_append_axis(svg, plot_x, plot_y + plot_h, plot_x + plot_w, plot_y + plot_h)
+  plot_append_axis(
+    svg,
+    plot_x,
+    plot_y + plot_h,
+    plot_x + plot_w,
+    plot_y + plot_h,
+  )
   plot_append_axis(svg, plot_x, plot_y, plot_x, plot_y + plot_h)
   for tick in plot_ticks(self.data_min, self.data_max, target=4) {
     let tx = plot_x + (tick - self.data_min) * x_scale
@@ -397,7 +426,13 @@ pub fn ScatterPlot::svg_rect(
       )
     }
   }
-  plot_append_axis(svg, plot_x, plot_y + plot_h, plot_x + plot_w, plot_y + plot_h)
+  plot_append_axis(
+    svg,
+    plot_x,
+    plot_y + plot_h,
+    plot_x + plot_w,
+    plot_y + plot_h,
+  )
   plot_append_axis(svg, plot_x, plot_y, plot_x, plot_y + plot_h)
   svg.to_string()
 }
@@ -439,10 +474,18 @@ pub fn LinePlot::svg_rect(
       svg.write_string(plot_format_double(py))
     }
     svg.write_string(
-      "\" fill=\"none\" stroke=\"" + series.color + "\" stroke-width=\"1.5\"/>\n",
+      "\" fill=\"none\" stroke=\"" +
+      series.color +
+      "\" stroke-width=\"1.5\"/>\n",
     )
   }
-  plot_append_axis(svg, plot_x, plot_y + plot_h, plot_x + plot_w, plot_y + plot_h)
+  plot_append_axis(
+    svg,
+    plot_x,
+    plot_y + plot_h,
+    plot_x + plot_w,
+    plot_y + plot_h,
+  )
   plot_append_axis(svg, plot_x, plot_y, plot_x, plot_y + plot_h)
   svg.to_string()
 }
@@ -494,8 +537,8 @@ fn plot_bounds(series : Array[PlotSeries]) -> (Double, Double, Double, Double) {
 /// Render the full page to an SVG document of the given pixel size.
 pub fn DistributionPage::to_svg(
   self : DistributionPage,
-  width~ : Int = 600,
-  height~ : Int = 400,
+  width~ : Int32 = 600,
+  height~ : Int32 = 400,
 ) -> String {
   let svg = StringBuilder()
   svg.write_string(
@@ -509,7 +552,13 @@ pub fn DistributionPage::to_svg(
     height.to_string() +
     "\">\n",
   )
-  svg.write_string("<rect x=\"0\" y=\"0\" width=\"" + width.to_string() + "\" height=\"" + height.to_string() + "\" fill=\"white\"/>\n")
+  svg.write_string(
+    "<rect x=\"0\" y=\"0\" width=\"" +
+    width.to_string() +
+    "\" height=\"" +
+    height.to_string() +
+    "\" fill=\"white\"/>\n",
+  )
   let title_h = if self.title.length() > 0 { 18.0 } else { 0.0 }
   if title_h > 0.0 {
     plot_append_text(
@@ -536,39 +585,21 @@ pub fn DistributionPage::to_svg(
     let body = match panel {
       HistPanel(title, hist) =>
         if title.length() > 0 {
-          plot_append_text(
-            svg,
-            cx + cell_w / 2.0,
-            cy + 12.0,
-            title,
-            size=11,
-          )
+          plot_append_text(svg, cx + cell_w / 2.0, cy + 12.0, title, size=11)
           hist.svg_rect(cx, cy + 16.0, cell_w, cell_h - 16.0)
         } else {
           hist.svg_rect(cx, cy, cell_w, cell_h)
         }
       ScatterPanel(title, scatter) =>
         if title.length() > 0 {
-          plot_append_text(
-            svg,
-            cx + cell_w / 2.0,
-            cy + 12.0,
-            title,
-            size=11,
-          )
+          plot_append_text(svg, cx + cell_w / 2.0, cy + 12.0, title, size=11)
           scatter.svg_rect(cx, cy + 16.0, cell_w, cell_h - 16.0)
         } else {
           scatter.svg_rect(cx, cy, cell_w, cell_h)
         }
       LinePanel(title, line) =>
         if title.length() > 0 {
-          plot_append_text(
-            svg,
-            cx + cell_w / 2.0,
-            cy + 12.0,
-            title,
-            size=11,
-          )
+          plot_append_text(svg, cx + cell_w / 2.0, cy + 12.0, title, size=11)
           line.svg_rect(cx, cy + 16.0, cell_w, cell_h - 16.0)
         } else {
           line.svg_rect(cx, cy, cell_w, cell_h)
@@ -584,8 +615,8 @@ pub fn DistributionPage::to_svg(
 /// Convenience: render a single histogram to a standalone SVG document.
 pub fn histogram_to_svg(
   hist : Histogram,
-  width~ : Int = 400,
-  height~ : Int = 240,
+  width~ : Int32 = 400,
+  height~ : Int32 = 240,
   title~ : String = "",
 ) -> String {
   let page = DistributionPage::new(title~, rows=1, cols=1).add_panel(
@@ -598,8 +629,8 @@ pub fn histogram_to_svg(
 /// Convenience: render a single scatter plot to a standalone SVG document.
 pub fn scatter_to_svg(
   scatter : ScatterPlot,
-  width~ : Int = 400,
-  height~ : Int = 240,
+  width~ : Int32 = 400,
+  height~ : Int32 = 240,
   title~ : String = "",
 ) -> String {
   let page = DistributionPage::new(title~, rows=1, cols=1).add_panel(
@@ -612,8 +643,8 @@ pub fn scatter_to_svg(
 /// Convenience: render a single line plot to a standalone SVG document.
 pub fn line_to_svg(
   line : LinePlot,
-  width~ : Int = 400,
-  height~ : Int = 240,
+  width~ : Int32 = 400,
+  height~ : Int32 = 240,
   title~ : String = "",
 ) -> String {
   let page = DistributionPage::new(title~, rows=1, cols=1).add_panel(

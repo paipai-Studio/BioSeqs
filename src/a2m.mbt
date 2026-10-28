@@ -18,7 +18,11 @@ pub(all) enum A2mColumnState {
   A2mMatch
   A2mInsertion
 } derive(Eq, Debug)
+
+///|
 pub extend A2mColumnState with Eq::{equal, not_equal}
+
+///|
 pub extend A2mColumnState with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -32,7 +36,11 @@ pub struct A2mSequence {
   sequence : String
   aligned_sequence : String
 } derive(Eq, Debug)
+
+///|
 pub extend A2mSequence with Eq::{equal, not_equal}
+
+///|
 pub extend A2mSequence with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -44,7 +52,11 @@ pub struct A2mAlignment {
   sequences : Array[A2mSequence]
   states : String
 } derive(Eq, Debug)
+
+///|
 pub extend A2mAlignment with Eq::{equal, not_equal}
+
+///|
 pub extend A2mAlignment with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -54,27 +66,35 @@ pub extend A2mAlignment with @moonbitlang/core/debug.Debug::{to_repr}
 /// is before the first match column and slot `match_columns()` is after the
 /// final match column.
 pub struct A2mInsertionRun {
-  slot : Int
-  start_column : Int
-  end_column : Int
-  width : Int
+  slot : Int32
+  start_column : Int32
+  end_column : Int32
+  width : Int32
 } derive(Eq, Debug)
+
+///|
 pub extend A2mInsertionRun with Eq::{equal, not_equal}
+
+///|
 pub extend A2mInsertionRun with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Pairwise statistics for two rows in an A2M alignment.
 pub struct A2mPairCounts {
-  columns : Int
-  aligned : Int
-  identities : Int
-  mismatches : Int
-  gap_columns : Int
-  double_gap_columns : Int
-  match_aligned : Int
-  insertion_aligned : Int
+  columns : Int32
+  aligned : Int32
+  identities : Int32
+  mismatches : Int32
+  gap_columns : Int32
+  double_gap_columns : Int32
+  match_aligned : Int32
+  insertion_aligned : Int32
 } derive(Eq, Debug)
+
+///|
 pub extend A2mPairCounts with Eq::{equal, not_equal}
+
+///|
 pub extend A2mPairCounts with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -82,7 +102,7 @@ pub extend A2mPairCounts with @moonbitlang/core/debug.Debug::{to_repr}
 pub fn A2mSequence::create(
   id : String,
   aligned_sequence : String,
-  description? : String = "",
+  description~ : String = "",
 ) -> A2mSequence raise A2mError {
   a2m_validate_id(id)
   a2m_validate_description(description)
@@ -119,7 +139,7 @@ pub fn a2m_from_aligned(
   ids : Array[String],
   aligned_sequences : Array[String],
   states : String,
-  descriptions? : Array[String] = [],
+  descriptions~ : Array[String] = [],
 ) -> A2mAlignment raise A2mError {
   if ids.length() == 0 {
     raise A2mError("A2M alignment must contain at least one sequence")
@@ -265,7 +285,7 @@ pub fn a2m_parse(text : String) -> A2mAlignment raise A2mError {
 /// wrap rows without changing column states.
 pub fn a2m_write(
   alignment : A2mAlignment,
-  line_width? : Int = 0,
+  line_width~ : Int32 = 0,
 ) -> String raise A2mError {
   a2m_validate_alignment(alignment)
   if line_width < 0 {
@@ -304,19 +324,19 @@ pub fn a2m_write(
 
 ///|
 /// Return the number of rows.
-pub fn A2mAlignment::num_sequences(self : A2mAlignment) -> Int {
+pub fn A2mAlignment::num_sequences(self : A2mAlignment) -> Int32 {
   self.sequences.length()
 }
 
 ///|
 /// Return the number of alignment columns.
-pub fn A2mAlignment::alignment_length(self : A2mAlignment) -> Int {
+pub fn A2mAlignment::alignment_length(self : A2mAlignment) -> Int32 {
   self.states.length()
 }
 
 ///|
 /// Return the number of model match/deletion columns.
-pub fn A2mAlignment::match_columns(self : A2mAlignment) -> Int {
+pub fn A2mAlignment::match_columns(self : A2mAlignment) -> Int32 {
   let mut count = 0
   for index = 0; index < self.states.length(); index = index + 1 {
     if self.states.unsafe_get(index).to_int() == 'D'.to_int() {
@@ -328,7 +348,7 @@ pub fn A2mAlignment::match_columns(self : A2mAlignment) -> Int {
 
 ///|
 /// Return the number of insertion-state columns.
-pub fn A2mAlignment::insertion_columns(self : A2mAlignment) -> Int {
+pub fn A2mAlignment::insertion_columns(self : A2mAlignment) -> Int32 {
   self.alignment_length() - self.match_columns()
 }
 
@@ -336,7 +356,7 @@ pub fn A2mAlignment::insertion_columns(self : A2mAlignment) -> Int {
 /// Return a column state by zero-based alignment coordinate.
 pub fn A2mAlignment::column_state(
   self : A2mAlignment,
-  column : Int,
+  column : Int32,
 ) -> A2mColumnState? {
   if column < 0 || column >= self.states.length() {
     None
@@ -349,7 +369,7 @@ pub fn A2mAlignment::column_state(
 
 ///|
 /// Return all row characters at an alignment column.
-pub fn A2mAlignment::column(self : A2mAlignment, column : Int) -> String? {
+pub fn A2mAlignment::column(self : A2mAlignment, column : Int32) -> String? {
   if column < 0 || column >= self.states.length() {
     return None
   }
@@ -364,7 +384,7 @@ pub fn A2mAlignment::column(self : A2mAlignment, column : Int) -> String? {
 
 ///|
 /// Find the first row with an exact sequence identifier.
-pub fn A2mAlignment::find_sequence(self : A2mAlignment, id : String) -> Int? {
+pub fn A2mAlignment::find_sequence(self : A2mAlignment, id : String) -> Int32? {
   for index = 0; index < self.sequences.length(); index = index + 1 {
     if self.sequences[index].id == id {
       return Some(index)
@@ -377,7 +397,7 @@ pub fn A2mAlignment::find_sequence(self : A2mAlignment, id : String) -> Int? {
 /// Return a row in canonical A2M character form.
 pub fn A2mAlignment::encoded_sequence(
   self : A2mAlignment,
-  row : Int,
+  row : Int32,
 ) -> String? {
   if row < 0 || row >= self.sequences.length() {
     return None
@@ -401,9 +421,9 @@ pub fn A2mAlignment::encoded_sequence(
 /// Map an ungapped row coordinate to its alignment column.
 pub fn A2mAlignment::sequence_position_to_column(
   self : A2mAlignment,
-  row : Int,
-  position : Int,
-) -> Int? {
+  row : Int32,
+  position : Int32,
+) -> Int32? {
   if row < 0 || row >= self.sequences.length() || position < 0 {
     return None
   }
@@ -426,9 +446,9 @@ pub fn A2mAlignment::sequence_position_to_column(
 /// Gap columns return `None`.
 pub fn A2mAlignment::column_to_sequence_position(
   self : A2mAlignment,
-  row : Int,
-  column : Int,
-) -> Int? {
+  row : Int32,
+  column : Int32,
+) -> Int32? {
   if row < 0 ||
     row >= self.sequences.length() ||
     column < 0 ||
@@ -454,10 +474,10 @@ pub fn A2mAlignment::column_to_sequence_position(
 /// Returns `None` for out-of-range coordinates and target gaps.
 pub fn A2mAlignment::map_position(
   self : A2mAlignment,
-  source_row : Int,
-  target_row : Int,
-  source_position : Int,
-) -> Int? {
+  source_row : Int32,
+  target_row : Int32,
+  source_position : Int32,
+) -> Int32? {
   if target_row < 0 || target_row >= self.sequences.length() {
     return None
   }
@@ -473,25 +493,25 @@ pub fn A2mAlignment::map_position(
 /// Residues are represented by zero-based coordinates and gaps by `None`.
 pub fn A2mAlignment::aligned_pairs(
   self : A2mAlignment,
-  first_row : Int,
-  second_row : Int,
-) -> Array[(Int?, Int?)] raise A2mError {
+  first_row : Int32,
+  second_row : Int32,
+) -> Array[(Int32?, Int32?)] raise A2mError {
   a2m_validate_row(self, first_row)
   a2m_validate_row(self, second_row)
   let first = self.sequences[first_row].aligned_sequence
   let second = self.sequences[second_row].aligned_sequence
-  let result : Array[(Int?, Int?)] = []
+  let result : Array[(Int32?, Int32?)] = []
   let mut first_coordinate = 0
   let mut second_coordinate = 0
   for column = 0; column < self.states.length(); column = column + 1 {
     let first_gap = first.unsafe_get(column).to_int() == '-'.to_int()
     let second_gap = second.unsafe_get(column).to_int() == '-'.to_int()
-    let first_value : Int? = if first_gap {
+    let first_value : Int32? = if first_gap {
       None
     } else {
       Some(first_coordinate)
     }
-    let second_value : Int? = if second_gap {
+    let second_value : Int32? = if second_gap {
       None
     } else {
       Some(second_coordinate)
@@ -511,8 +531,8 @@ pub fn A2mAlignment::aligned_pairs(
 /// Compute pairwise identity, mismatch, and gap counts for two rows.
 pub fn A2mAlignment::pair_counts(
   self : A2mAlignment,
-  first_row : Int,
-  second_row : Int,
+  first_row : Int32,
+  second_row : Int32,
 ) -> A2mPairCounts raise A2mError {
   a2m_validate_row(self, first_row)
   a2m_validate_row(self, second_row)
@@ -607,8 +627,8 @@ pub fn A2mAlignment::insertion_runs(
 /// returns a model match-state consensus.
 pub fn A2mAlignment::consensus(
   self : A2mAlignment,
-  include_insertions? : Bool = true,
-  minimum_fraction? : Double = 0.0,
+  include_insertions~ : Bool = true,
+  minimum_fraction~ : Double = 0.0,
 ) -> String raise A2mError {
   if minimum_fraction != minimum_fraction ||
     minimum_fraction < 0.0 ||
@@ -709,8 +729,8 @@ pub fn A2mAlignment::match_projection(
 /// Extract a non-empty half-open range of alignment columns.
 pub fn A2mAlignment::slice_columns(
   self : A2mAlignment,
-  start : Int,
-  end : Int,
+  start : Int32,
+  end : Int32,
 ) -> A2mAlignment raise A2mError {
   if start < 0 || end <= start || end > self.states.length() {
     raise A2mError("A2M column slice is out of bounds or empty")
@@ -805,7 +825,10 @@ fn a2m_validate_alignment(alignment : A2mAlignment) -> Unit raise A2mError {
 }
 
 ///|
-fn a2m_validate_row(alignment : A2mAlignment, row : Int) -> Unit raise A2mError {
+fn a2m_validate_row(
+  alignment : A2mAlignment,
+  row : Int32,
+) -> Unit raise A2mError {
   if row < 0 || row >= alignment.sequences.length() {
     raise A2mError("A2M row index is out of bounds")
   }
@@ -912,17 +935,17 @@ fn a2m_normalize_lines(text : String) -> Array[String] {
 }
 
 ///|
-fn a2m_is_upper(code : Int) -> Bool {
+fn a2m_is_upper(code : Int32) -> Bool {
   code >= 'A'.to_int() && code <= 'Z'.to_int()
 }
 
 ///|
-fn a2m_is_lower(code : Int) -> Bool {
+fn a2m_is_lower(code : Int32) -> Bool {
   code >= 'a'.to_int() && code <= 'z'.to_int()
 }
 
 ///|
-fn a2m_upper_code(code : Int) -> Int {
+fn a2m_upper_code(code : Int32) -> Int32 {
   if a2m_is_lower(code) {
     code - ('a'.to_int() - 'A'.to_int())
   } else {
@@ -931,7 +954,7 @@ fn a2m_upper_code(code : Int) -> Int {
 }
 
 ///|
-fn a2m_lower_code(code : Int) -> Int {
+fn a2m_lower_code(code : Int32) -> Int32 {
   if a2m_is_upper(code) {
     code + ('a'.to_int() - 'A'.to_int())
   } else {

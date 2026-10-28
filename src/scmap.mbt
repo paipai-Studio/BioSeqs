@@ -192,7 +192,7 @@ pub fn ScmapAssignment::method_(self : ScmapAssignment) -> String {
 fn scmap_extract_cell(
   expression : Array[Array[Double]],
   _gene_names : Array[String],
-  cell_idx : Int,
+  cell_idx : Int32,
 ) -> Array[Double] {
   let n_genes = expression.length()
   let cell_expr : Array[Double] = Array::make(n_genes, 0.0)
@@ -208,7 +208,9 @@ fn scmap_extract_cell(
 ///|
 /// Compute the centroid (mean expression) for each cell type.
 /// Returns: cell_types × genes centroid matrix (as Array of cell-type vectors).
-fn scmap_centroids(reference : ScmapReference) -> Array[(String, Array[Double])] {
+fn scmap_centroids(
+  reference : ScmapReference,
+) -> Array[(String, Array[Double])] {
   let unique_types = reference.unique_cell_types()
   let n_genes = reference.gene_names.length()
   let centroids : Array[(String, Array[Double])] = []
@@ -307,7 +309,7 @@ pub fn scmap_cluster(
 pub fn scmap_cell(
   reference : ScmapReference,
   query : ScmapQuery,
-  k_neighbours : Int,
+  k_neighbours : Int32,
   threshold_fraction : Double,
 ) -> Array[ScmapAssignment] {
   let n_query = query.cell_names.length()
@@ -316,7 +318,7 @@ pub fn scmap_cell(
   for q in 0..<n_query {
     let query_vec = scmap_extract_cell(query.expression, query.gene_names, q)
     // Compute correlation with every reference cell
-    let corrs : Array[(Double, Int)] = [] // (correlation, ref_cell_idx)
+    let corrs : Array[(Double, Int32)] = [] // (correlation, ref_cell_idx)
     for r in 0..<n_ref {
       let ref_vec = scmap_extract_cell(
         reference.expression,
@@ -333,7 +335,7 @@ pub fn scmap_cell(
       corrs.length()
     }
     // Find top-k by partial selection sort
-    let top_k : Array[(Double, Int)] = []
+    let top_k : Array[(Double, Int32)] = []
     let used : Array[Bool] = Array::make(corrs.length(), false)
     for _ in 0..<k {
       let mut best_idx = -1
@@ -354,7 +356,7 @@ pub fn scmap_cell(
     }
     // Vote among top-k neighbours
     let unique_types = reference.unique_cell_types()
-    let votes : Array[Int] = Array::make(unique_types.length(), 0)
+    let votes : Array[Int32] = Array::make(unique_types.length(), 0)
     let mut best_corr = -2.0
     let mut second_best = -2.0
     for i in 0..<top_k.length() {
@@ -410,9 +412,9 @@ pub fn scmap_cell(
 /// Summarise classification results: count cells per assigned type.
 pub fn scmap_summary(
   assignments : Array[ScmapAssignment],
-) -> Array[(String, Int)] {
+) -> Array[(String, Int32)] {
   let types : Array[String] = []
-  let counts : Array[Int] = []
+  let counts : Array[Int32] = []
   for a in assignments {
     let mut found = false
     for i in 0..<types.length() {
@@ -427,7 +429,7 @@ pub fn scmap_summary(
       counts.push(1)
     }
   }
-  let result : Array[(String, Int)] = []
+  let result : Array[(String, Int32)] = []
   for i in 0..<types.length() {
     result.push((types[i], counts[i]))
   }

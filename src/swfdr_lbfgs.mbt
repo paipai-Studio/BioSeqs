@@ -20,11 +20,11 @@
 // ===========================================================================
 
 fn _lb_ddot(
-  n : Int,
+  n : Int32,
   x : Array[Double],
-  x0 : Int,
+  x0 : Int32,
   y : Array[Double],
-  y0 : Int,
+  y0 : Int32,
 ) -> Double {
   let mut s = 0.0
   let mut k = 0
@@ -37,11 +37,11 @@ fn _lb_ddot(
 
 ///|
 fn _lb_dcopy(
-  n : Int,
+  n : Int32,
   x : Array[Double],
-  x0 : Int,
+  x0 : Int32,
   y : Array[Double],
-  y0 : Int,
+  y0 : Int32,
 ) -> Unit {
   let mut k = 0
   while k < n {
@@ -52,12 +52,12 @@ fn _lb_dcopy(
 
 ///|
 fn _lb_daxpy(
-  n : Int,
+  n : Int32,
   alpha : Double,
   x : Array[Double],
-  x0 : Int,
+  x0 : Int32,
   y : Array[Double],
-  y0 : Int,
+  y0 : Int32,
 ) -> Unit {
   let mut k = 0
   while k < n {
@@ -67,7 +67,7 @@ fn _lb_daxpy(
 }
 
 ///|
-fn _lb_dscal(n : Int, alpha : Double, x : Array[Double], x0 : Int) -> Unit {
+fn _lb_dscal(n : Int32, alpha : Double, x : Array[Double], x0 : Int32) -> Unit {
   let mut k = 0
   while k < n {
     x[x0 + k] *= alpha
@@ -79,7 +79,7 @@ fn _lb_dscal(n : Int, alpha : Double, x : Array[Double], x0 : Int) -> Unit {
 /// Linpack dpofa: factor a symmetric positive definite matrix into an upper
 /// triangular factor r with a = r'r, overwriting the upper triangle.
 /// Returns 0 on success or the 1-based failing column.
-fn _lb_dpofa(a : Array[Double], a0 : Int, lda : Int, n : Int) -> Int {
+fn _lb_dpofa(a : Array[Double], a0 : Int32, lda : Int32, n : Int32) -> Int32 {
   let mut j = 0
   while j < n {
     let mut s = 0.0
@@ -110,12 +110,12 @@ fn _lb_dpofa(a : Array[Double], a0 : Int, lda : Int, n : Int) -> Int {
 /// Returns 0 on success or the 1-based index of a zero diagonal.
 fn _lb_dtrsl_11(
   t : Array[Double],
-  t0 : Int,
-  lda : Int,
-  n : Int,
+  t0 : Int32,
+  lda : Int32,
+  n : Int32,
   b : Array[Double],
-  b0 : Int,
-) -> Int {
+  b0 : Int32,
+) -> Int32 {
   let mut j = 0
   while j < n {
     if t[t0 + j + j * lda] == 0.0 {
@@ -138,12 +138,12 @@ fn _lb_dtrsl_11(
 /// reading the upper triangle). In place on b.
 fn _lb_dtrsl_01(
   t : Array[Double],
-  t0 : Int,
-  lda : Int,
-  n : Int,
+  t0 : Int32,
+  lda : Int32,
+  n : Int32,
   b : Array[Double],
-  b0 : Int,
-) -> Int {
+  b0 : Int32,
+) -> Int32 {
   let mut j = 0
   while j < n {
     if t[t0 + j + j * lda] == 0.0 {
@@ -305,7 +305,7 @@ fn _lb_dcstep(v : LbInterval, fp : Double, dp : Double) -> Unit {
 /// dcsrch state. status: 1 = FG (evaluate f,g at stp), 0 = CONVERGENCE,
 /// 2 = WARNING.
 priv struct LbDcsrch {
-  mut stage : Int
+  mut stage : Int32
   mut brackt : Bool
   mut finit : Double
   mut ginit : Double
@@ -320,7 +320,7 @@ priv struct LbDcsrch {
   mut stmax : Double
   mut width : Double
   mut width1 : Double
-  mut status : Int
+  mut status : Int32
   ftol : Double
   gtol : Double
   xtol : Double
@@ -505,8 +505,8 @@ fn LbDcsrch::_lb_dcsrch_apply(
 
 ///|
 priv struct Lbfgsb {
-  n : Int
-  m : Int
+  n : Int32
+  m : Int32
   factr : Double
   pgtol : Double
   ndeps : Double
@@ -515,24 +515,23 @@ priv struct Lbfgsb {
   mut cnstnd : Bool
   mut boxed : Bool
   mut updatd : Bool
-  mut nintol : Int
-  mut iback : Int
-  mut nskip : Int
-  mut head : Int // 1-based column pointer
-  mut col : Int
-  mut itail : Int
-  mut iter : Int
-  mut iupdat : Int
-  mut nint : Int
-  mut nfgv : Int
-  mut info : Int
-  mut ifun : Int
-  mut iword : Int
-  mut nfree : Int
-
-   mut nact : Int
-  mut ileave : Int // 1-based Fortran value (n+1 ..)
-  mut nenter : Int
+  mut nintol : Int32
+  mut iback : Int32
+  mut nskip : Int32
+  mut head : Int32 // 1-based column pointer
+  mut col : Int32
+  mut itail : Int32
+  mut iter : Int32
+  mut iupdat : Int32
+  mut nint : Int32
+  mut nfgv : Int32
+  mut info : Int32
+  mut ifun : Int32
+  mut iword : Int32
+  mut nfree : Int32
+  mut nact : Int32
+  mut ileave : Int32 // 1-based Fortran value (n+1 ..)
+  mut nenter : Int32
   mut theta : Double
   mut fold : Double
   mut tol : Double
@@ -557,15 +556,15 @@ priv struct Lbfgsb {
   d : Array[Double]
   t : Array[Double]
   wa : Array[Double]
-  indx : Array[Int]
-  iwhere : Array[Int]
-  indx2 : Array[Int]
+  indx : Array[Int32]
+  iwhere : Array[Int32]
+  indx2 : Array[Int32]
 }
 
 ///|
 fn _lbfgsb_new(
-  n : Int,
-  m : Int,
+  n : Int32,
+  m : Int32,
   factr : Double,
   pgtol : Double,
   ndeps : Double,
@@ -632,11 +631,12 @@ fn Lbfgsb::_lbfgsb_active(
   self : Lbfgsb,
   l : Array[Double],
   u : Array[Double],
-  nbd : Array[Int],
+  nbd : Array[Int32],
   x : Array[Double],
 ) -> Unit {
   let n = self.n
-  let _prjctd_read = self.prjctd; self.prjctd = false
+  let _prjctd_read = self.prjctd
+  self.prjctd = false
   self.cnstnd = false
   self.boxed = true
   let mut i = 0
@@ -681,7 +681,7 @@ fn Lbfgsb::_lbfgsb_projgr(
   self : Lbfgsb,
   l : Array[Double],
   u : Array[Double],
-  nbd : Array[Int],
+  nbd : Array[Int32],
   x : Array[Double],
   g : Array[Double],
 ) -> Unit {
@@ -761,10 +761,10 @@ fn Lbfgsb::_lbfgsb_freev(self : Lbfgsb, wrk : (Bool) -> Unit) -> Unit {
 ///|
 /// hpsolb: heapsort helper (nleft active breakpoints).
 fn _lb_hpsolb(
-  n : Int,
+  n : Int32,
   t : Array[Double],
-  iorder : Array[Int],
-  iheap : Int,
+  iorder : Array[Int32],
+  iheap : Int32,
 ) -> Unit {
   if n <= 0 {
     return
@@ -831,12 +831,12 @@ fn _lb_hpsolb(
 /// bmv: product of the 2m x 2m middle matrix with vector v, returned in p.
 fn Lbfgsb::_lbfgsb_bmv(
   self : Lbfgsb,
-  col : Int,
+  col : Int32,
   v : Array[Double],
-  v0 : Int,
+  v0 : Int32,
   p : Array[Double],
-  p0 : Int,
-) -> Int {
+  p0 : Int32,
+) -> Int32 {
   let m = self.m
   let sy = self.sy
   let wt = self.wt
@@ -896,16 +896,16 @@ fn Lbfgsb::_lbfgsb_cauchy(
   x : Array[Double],
   l : Array[Double],
   u : Array[Double],
-  nbd : Array[Int],
+  nbd : Array[Int32],
   g : Array[Double],
-  iorder : Array[Int],
+  iorder : Array[Int32],
   t : Array[Double],
   xcp : Array[Double],
-  p0 : Int,
-  c0 : Int,
-  wbp0 : Int,
-  v0 : Int,
-) -> Int {
+  p0 : Int32,
+  c0 : Int32,
+  wbp0 : Int32,
+  v0 : Int32,
+) -> Int32 {
   let n = self.n
   let m = self.m
   let col = self.col
@@ -1038,7 +1038,7 @@ fn Lbfgsb::_lbfgsb_cauchy(
   let mut searching = true
   while searching {
     let tj0 = tj
-    let mut ibp : Int = 0
+    let mut ibp : Int32 = 0
     if cit == 1 {
       tj = bkmin
       ibp = iorder[ibkmin - 1]
@@ -1135,7 +1135,7 @@ fn Lbfgsb::_lbfgsb_cauchy(
 
 ///|
 /// formt: T = theta*SS + L D^-1 L', Cholesky factorized in place.
-fn Lbfgsb::_lbfgsb_formt(self : Lbfgsb, col : Int) -> Int {
+fn Lbfgsb::_lbfgsb_formt(self : Lbfgsb, col : Int32) -> Int32 {
   let m = self.m
   let wt = self.wt
   let sy = self.sy
@@ -1231,7 +1231,7 @@ fn Lbfgsb::_lbfgsb_matupd(self : Lbfgsb, rr : Double, dr : Double) -> Unit {
 
 ///|
 /// formk: LEL^T factorization of the indefinite 2col x 2col matrix.
-fn Lbfgsb::_lbfgsb_formk(self : Lbfgsb) -> Int {
+fn Lbfgsb::_lbfgsb_formk(self : Lbfgsb) -> Int32 {
   let n = self.n
   let m = self.m
   let m2 = 2 * m
@@ -1462,7 +1462,7 @@ fn Lbfgsb::_lbfgsb_cmprlb(
   self : Lbfgsb,
   x : Array[Double],
   g : Array[Double],
-) -> Int {
+) -> Int32 {
   let n = self.n
   let m = self.m
   let col = self.col
@@ -1513,8 +1513,8 @@ fn Lbfgsb::_lbfgsb_subsm(
   self : Lbfgsb,
   l : Array[Double],
   u : Array[Double],
-  nbd : Array[Int],
-) -> Int {
+  nbd : Array[Int32],
+) -> Int32 {
   let n = self.n
   let m = self.m
   let ns = self.nfree
@@ -1687,10 +1687,10 @@ fn Lbfgsb::_lbfgsb_run(
   x : Array[Double],
   l : Array[Double],
   u : Array[Double],
-  nbd : Array[Int],
+  nbd : Array[Int32],
   obj : (Array[Double]) -> Double,
-  maxit : Int,
-) -> (Double, Int) {
+  maxit : Int32,
+) -> (Double, Int32) {
   let n = self.n
   // START: initialize scalars, project x, classify variables.
   self.col = 0
@@ -1701,15 +1701,18 @@ fn Lbfgsb::_lbfgsb_run(
   self.iback = 0
   self.itail = 0
   self.ifun = 0
-  let _iword_read = self.iword; self.iword = 0
+  let _iword_read = self.iword
+  self.iword = 0
   self.nact = 0
   self.ileave = 0
   self.nenter = 0
   self.iter = 0
   self.nfgv = 0
   self.nint = 0
-  let _nintol_read = self.nintol; self.nintol = 0
-  let _nskip_read = self.nskip; self.nskip = 0
+  let _nintol_read = self.nintol
+  self.nintol = 0
+  let _nskip_read = self.nskip
+  self.nskip = 0
   self.nfree = n
   self.tol = self.factr * self.epsmch
   self.info = 0
@@ -1755,7 +1758,8 @@ fn Lbfgsb::_lbfgsb_run(
       }
       self.nintol += self.nint
       self._lbfgsb_freev(fn(v : Bool) { wrk = v })
-      let _ = self.nact; self.nact = n - self.nfree
+      let _ = self.nact
+      self.nact = n - self.nfree
     }
     // L333: subspace minimization.
     if self.nfree != 0 && self.col != 0 {
@@ -1950,9 +1954,9 @@ fn _sw_lbfgsb_minimize(
   x0 : Array[Double],
   l : Array[Double],
   u : Array[Double],
-  nbd : Array[Int],
+  nbd : Array[Int32],
   obj : (Array[Double]) -> Double,
-) -> (Array[Double], Double, Int) {
+) -> (Array[Double], Double, Int32) {
   let n = x0.length()
   let x = x0.copy()
   let solver = _lbfgsb_new(n, 5, 1.0e7, 0.0, 1.0e-3)

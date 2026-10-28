@@ -1,13 +1,13 @@
 ///|
 /// Tests for orfik module (ORFik-style ORF detection).
-
 test "orff_kozak_score_perfect" {
   // gccRccAUGG: -3=A, +4=G, -2=C, -1=C
   let seq = "GCCGCCAUGG"
-  let score = @src.orff_kozak_score(seq, 6)  // ATG starts at position 6
+  let score = @src.orff_kozak_score(seq, 6) // ATG starts at position 6
   assert_true(score > 0.5)
 }
 
+///|
 test "orff_kozak_score_weak" {
   // No Kozak features: -2 and -1 are T (pyrimidine -> +0.15 each)
   let seq = "TTTTTTATGT"
@@ -15,6 +15,7 @@ test "orff_kozak_score_weak" {
   assert_eq(score, 0.3)
 }
 
+///|
 test "orff_find_all_orfs_basic" {
   let seq = "ATGAAATAAATGCCCTAGATGGGGGTGA"
   let orfs = @src.orff_find_all_orfs(seq, min_length=9)
@@ -23,48 +24,69 @@ test "orff_find_all_orfs_basic" {
   assert_eq(orfs[0].protein, "MK")
 }
 
+///|
 test "orff_find_all_orfs_min_length" {
-  let seq = "ATGTAATAA"  // Only 3 nt ORF
+  let seq = "ATGTAATAA" // Only 3 nt ORF
   let orfs = @src.orff_find_all_orfs(seq, min_length=30)
   assert_eq(orfs.length(), 0)
 }
 
+///|
 test "orff_translate_basic" {
   let seq = "ATGAAATAA"
   let protein = @src.orff_translate(seq)
   assert_eq(protein, "MK")
 }
 
+///|
 test "orff_classify_orf_cds" {
   let orf = @src.OrffORF::{
-    start: 10, stop: 40, frame: @src.OrffFrameF0,
-    length: 30, sequence: "", protein: "",
-    kozak_score: 0.0, orf_class: @src.OrffIntergenic,
+    start: 10,
+    stop: 40,
+    frame: @src.OrffFrameF0,
+    length: 30,
+    sequence: "",
+    protein: "",
+    kozak_score: 0.0,
+    orf_class: @src.OrffIntergenic,
   }
   let cls = @src.orff_classify_orf(orf, 10, 40)
   assert_eq(@src.orff_class_label(cls), "CDS")
 }
 
+///|
 test "orff_classify_orf_uorf" {
   let orf = @src.OrffORF::{
-    start: 5, stop: 20, frame: @src.OrffFrameF0,
-    length: 15, sequence: "", protein: "",
-    kozak_score: 0.0, orf_class: @src.OrffIntergenic,
+    start: 5,
+    stop: 20,
+    frame: @src.OrffFrameF0,
+    length: 15,
+    sequence: "",
+    protein: "",
+    kozak_score: 0.0,
+    orf_class: @src.OrffIntergenic,
   }
   let cls = @src.orff_classify_orf(orf, 25, 55)
   assert_eq(@src.orff_class_label(cls), "uORF")
 }
 
+///|
 test "orff_classify_orf_dorf" {
   let orf = @src.OrffORF::{
-    start: 50, stop: 70, frame: @src.OrffFrameF0,
-    length: 20, sequence: "", protein: "",
-    kozak_score: 0.0, orf_class: @src.OrffIntergenic,
+    start: 50,
+    stop: 70,
+    frame: @src.OrffFrameF0,
+    length: 20,
+    sequence: "",
+    protein: "",
+    kozak_score: 0.0,
+    orf_class: @src.OrffIntergenic,
   }
   let cls = @src.orff_classify_orf(orf, 10, 40)
   assert_eq(@src.orff_class_label(cls), "dORF")
 }
 
+///|
 test "orff_classify_all" {
   let seq = "ATGAAATAAATGCCCTAGATGGGGGTGA"
   let orfs = @src.orff_find_all_orfs(seq, min_length=9)
@@ -81,6 +103,7 @@ test "orff_classify_all" {
   assert_true(found_cds)
 }
 
+///|
 test "orff_find_uorfs" {
   // CDS starts at position 30
   let seq = "ATGAAATAAATGCCCTAGATGGGGGTGAAATAAATGCCCTAGATGGGGGTGA"
@@ -91,6 +114,7 @@ test "orff_find_uorfs" {
   }
 }
 
+///|
 test "orff_find_dorfs" {
   // CDS ends at position 30
   let seq = "ATGAAATAAATGCCCTAGATGGGGGTGAAATAAATGCCCTAGATGGGGGTGA"
@@ -100,6 +124,7 @@ test "orff_find_dorfs" {
   }
 }
 
+///|
 test "orff_filter_by_kozak" {
   let seq = "ATGAAATAAATGCCCTAG"
   let orfs = @src.orff_find_all_orfs(seq, min_length=9)
@@ -107,6 +132,7 @@ test "orff_filter_by_kozak" {
   assert_eq(filtered.length(), orfs.length())
 }
 
+///|
 test "orff_filter_by_aa_length" {
   let seq = "ATGAAATAAATGCCCTAG"
   let orfs = @src.orff_find_all_orfs(seq, min_length=9)
@@ -114,6 +140,7 @@ test "orff_filter_by_aa_length" {
   assert_true(filtered.length() > 0)
 }
 
+///|
 test "orff_count_by_frame" {
   let seq = "ATGAAATAAATGCCCTAG"
   let orfs = @src.orff_find_all_orfs(seq, min_length=9)
@@ -121,6 +148,7 @@ test "orff_count_by_frame" {
   assert_true(counts.get("F0").unwrap_or(0) > 0)
 }
 
+///|
 test "orff_export_orfs" {
   let seq = "ATGAAATAA"
   let orfs = @src.orff_find_all_orfs(seq, min_length=9)
@@ -129,10 +157,29 @@ test "orff_export_orfs" {
   assert_true(gff.contains("K"))
 }
 
+///|
 test "orff_overlapping_orfs" {
   let orfs = [
-    @src.OrffORF::{start: 10, stop: 40, frame: @src.OrffFrameF0, length: 30, sequence: "", protein: "", kozak_score: 0.0, orf_class: @src.OrffIntergenic},
-    @src.OrffORF::{start: 35, stop: 60, frame: @src.OrffFrameF1, length: 25, sequence: "", protein: "", kozak_score: 0.0, orf_class: @src.OrffIntergenic},
+    @src.OrffORF::{
+      start: 10,
+      stop: 40,
+      frame: @src.OrffFrameF0,
+      length: 30,
+      sequence: "",
+      protein: "",
+      kozak_score: 0.0,
+      orf_class: @src.OrffIntergenic,
+    },
+    @src.OrffORF::{
+      start: 35,
+      stop: 60,
+      frame: @src.OrffFrameF1,
+      length: 25,
+      sequence: "",
+      protein: "",
+      kozak_score: 0.0,
+      orf_class: @src.OrffIntergenic,
+    },
   ]
   let pairs = @src.orff_overlapping_orfs(orfs)
   assert_eq(pairs.length(), 1)

@@ -156,7 +156,7 @@ test "abi_parse_sample_bytes" {
 
 ///|
 test "abi_parse_empty_bytes" {
-  let bytes : Array[Int] = Array(capacity=0)
+  let bytes : Array[Int32] = Array(capacity=0)
   let trace = @src.abi_parse(bytes)
   // Empty input should return an empty trace
   assert_eq(trace.bases, "")
@@ -165,7 +165,7 @@ test "abi_parse_empty_bytes" {
 
 ///|
 test "abi_parse_bad_magic" {
-  let bytes : Array[Int] = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+  let bytes : Array[Int32] = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
   let trace = @src.abi_parse(bytes)
   // Bad magic should return an empty trace
   assert_eq(trace.bases, "")

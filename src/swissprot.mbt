@@ -14,7 +14,7 @@ pub struct SwissProtRecord {
   organism_id : String
   taxonomy : Array[String]
   sequence : String
-  seq_length : Int
+  seq_length : Int32
   seq_mass : Double
   keywords : Array[String]
   function : String
@@ -27,13 +27,13 @@ pub struct SwissProtRecord {
   features : Array[SwissProtFeature]
   date_created : String
   date_modified : String
-  version : Int
+  version : Int32
 }
 
 ///|
 /// A reference in a Swiss-Prot record.
 pub struct SwissProtReference {
-  number : Int
+  number : Int32
   title : String
   authors : Array[String]
   journal : String
@@ -46,15 +46,15 @@ pub struct SwissProtReference {
 pub struct SwissProtFeature {
   feature_type : String
   description : String
-  start : Int
-  end : Int
+  start : Int32
+  end : Int32
   qualifiers : Map[String, String]
 }
 
 ///|
 /// Create a new SwissProtReference.
 pub fn SwissProtReference::new(
-  number : Int,
+  number : Int32,
   title : String,
   authors : Array[String],
   journal : String,
@@ -69,8 +69,8 @@ pub fn SwissProtReference::new(
 pub fn SwissProtFeature::new(
   feature_type : String,
   description : String,
-  start : Int,
-  end : Int,
+  start : Int32,
+  end : Int32,
   qualifiers : Map[String, String],
 ) -> SwissProtFeature {
   SwissProtFeature::{ feature_type, description, start, end, qualifiers, }
@@ -516,7 +516,7 @@ fn clear_string_array(arr : Array[String]) -> Unit {
 
 ///|
 /// Find substring position in a string.
-fn find_substring(s : String, sub : String) -> Int {
+fn find_substring(s : String, sub : String) -> Int32 {
   let n = s.length()
   let m = sub.length()
   if m == 0 || m > n {
@@ -538,7 +538,7 @@ fn find_substring(s : String, sub : String) -> Int {
 
 ///|
 /// Find substring position from a start index.
-fn find_substring_from(s : String, sub : String, start : Int) -> Int {
+fn find_substring_from(s : String, sub : String, start : Int32) -> Int32 {
   let n = s.length()
   let m = sub.length()
   if m == 0 || m > n || start >= n {
@@ -560,7 +560,7 @@ fn find_substring_from(s : String, sub : String, start : Int) -> Int {
 
 ///|
 /// Find last occurrence of substring.
-fn find_substring_rev(s : String, sub : String) -> Int {
+fn find_substring_rev(s : String, sub : String) -> Int32 {
   let n = s.length()
   let m = sub.length()
   if m == 0 || m > n {

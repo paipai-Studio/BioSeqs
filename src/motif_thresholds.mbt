@@ -23,7 +23,7 @@ pub suberror MotifThresholdError {
 pub struct MotifScoreDistribution {
   min_score : Double
   step : Double
-  n_points : Int
+  n_points : Int32
   information_content : Double
   motif_density : Array[Double]
   background_density : Array[Double]
@@ -32,8 +32,8 @@ pub struct MotifScoreDistribution {
 ///|
 pub fn MotifScoreDistribution::from_pssm(
   pssm : Array[Array[Double]],
-  background? : Array[Double] = [0.25, 0.25, 0.25, 0.25],
-  precision? : Int = 1000,
+  background~ : Array[Double] = [0.25, 0.25, 0.25, 0.25],
+  precision~ : Int32 = 1000,
 ) -> MotifScoreDistribution raise MotifThresholdError {
   if pssm.length() != 4 {
     raise MotifThresholdError(
@@ -111,7 +111,7 @@ pub fn MotifScoreDistribution::from_pssm(
   let max_score = max_total
   let interval = (if max_score > 0.0 { max_score } else { 0.0 }) - min_score
   let step = interval / (n_points - 1).to_double()
-  let index_diff = fn(x : Double) -> Int {
+  let index_diff = fn(x : Double) -> Int32 {
     ((x + 0.5 * step) / step).floor().to_int()
   }
   let mut motif_density = Array::make(n_points, 0.0)
@@ -124,7 +124,7 @@ pub fn MotifScoreDistribution::from_pssm(
   }
   motif_density[initial_index] = 1.0
   background_density[initial_index] = 1.0
-  let add_index = fn(i : Int, j : Int) -> Int {
+  let add_index = fn(i : Int32, j : Int32) -> Int32 {
     let k = i + j
     if k < 0 {
       0
@@ -172,10 +172,10 @@ pub fn MotifScoreDistribution::from_pssm(
 /// ``(count + pseudocount) / (column_total + 4 * pseudocount)`` and the
 /// PSSM holds base-2 log-odds against ``background``.
 pub fn MotifScoreDistribution::from_counts(
-  counts : Array[Array[Int]],
-  background? : Array[Double] = [0.25, 0.25, 0.25, 0.25],
-  pseudocount? : Double = 0.0,
-  precision? : Int = 1000,
+  counts : Array[Array[Int32]],
+  background~ : Array[Double] = [0.25, 0.25, 0.25, 0.25],
+  pseudocount~ : Double = 0.0,
+  precision~ : Int32 = 1000,
 ) -> MotifScoreDistribution raise MotifThresholdError {
   if counts.length() != 4 {
     raise MotifThresholdError(
@@ -252,7 +252,7 @@ pub fn MotifScoreDistribution::step(self : MotifScoreDistribution) -> Double {
 
 ///|
 /// Number of grid bins (``precision * motif_length``).
-pub fn MotifScoreDistribution::n_points(self : MotifScoreDistribution) -> Int {
+pub fn MotifScoreDistribution::n_points(self : MotifScoreDistribution) -> Int32 {
   self.n_points
 }
 
@@ -285,7 +285,7 @@ pub fn MotifScoreDistribution::background_density(
 /// Score represented by grid bin ``index`` (``min_score + index * step``).
 pub fn MotifScoreDistribution::grid_score(
   self : MotifScoreDistribution,
-  index : Int,
+  index : Int32,
 ) -> Double {
   self.min_score + index.to_double() * self.step
 }
@@ -341,7 +341,7 @@ pub fn MotifScoreDistribution::threshold_fnr(
 /// ``FNR == FPR * rate_proportion`` (default equal rates).
 pub fn MotifScoreDistribution::threshold_balanced(
   self : MotifScoreDistribution,
-  rate_proportion? : Double = 1.0,
+  rate_proportion~ : Double = 1.0,
 ) -> Double raise MotifThresholdError {
   let (threshold, _) = self.threshold_balanced_with_rate(rate_proportion~)
   threshold
@@ -352,7 +352,7 @@ pub fn MotifScoreDistribution::threshold_balanced(
 /// rate at the selected threshold.
 pub fn MotifScoreDistribution::threshold_balanced_with_rate(
   self : MotifScoreDistribution,
-  rate_proportion? : Double = 1.0,
+  rate_proportion~ : Double = 1.0,
 ) -> (Double, Double) raise MotifThresholdError {
   if !motif_threshold_finite(rate_proportion) || rate_proportion < 0.0 {
     raise MotifThresholdError(

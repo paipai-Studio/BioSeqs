@@ -120,21 +120,21 @@ pub fn AbstractCommandline::build_command(self : AbstractCommandline) -> String 
 }
 
 ///|
-pub fn AbstractCommandline::run(_self : AbstractCommandline) -> Int {
+pub fn AbstractCommandline::run(_self : AbstractCommandline) -> Int32 {
   0
 }
 
 ///|
 pub struct CommandlineError {
   message : String
-  exit_code : Int
+  exit_code : Int32
   command : String
 }
 
 ///|
 pub fn CommandlineError::new(
   message : String,
-  exit_code : Int,
+  exit_code : Int32,
   command : String,
 ) -> CommandlineError {
   CommandlineError::{ message, exit_code, command, }

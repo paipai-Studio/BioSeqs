@@ -21,17 +21,17 @@ pub suberror XtcError {
 ///|
 /// A single frame (snapshot) from an XTC trajectory.
 pub(all) struct XtcFrame {
-  step : Int           // simulation step number
-  time : Double        // simulation time in ps
-  natoms : Int         // number of atoms
-  box : Array[Double]  // 9 elements: 3x3 box vectors (nm)
+  step : Int32 // simulation step number
+  time : Double // simulation time in ps
+  natoms : Int32 // number of atoms
+  box : Array[Double] // 9 elements: 3x3 box vectors (nm)
   coords : Array[Double] // 3*natoms: x0,y0,z0,x1,y1,z1,... (nm)
 }
 
 ///|
 /// Read an XTC trajectory from a byte array and return all frames.
 /// The byte array should contain raw XTC binary data (big-endian XDR).
-pub fn xtc_read(data : Array[Int]) -> Array[XtcFrame] raise XtcError {
+pub fn xtc_read(data : Array[Int32]) -> Array[XtcFrame] raise XtcError {
   let frames : Array[XtcFrame] = Array(capacity=0)
   let mut pos = 0
   let len = data.length()
@@ -54,7 +54,7 @@ pub fn xtc_read(data : Array[Int]) -> Array[XtcFrame] raise XtcError {
     pos = p5
     let (coords, p6) = xtc_read_coords(data, pos, natoms)
     pos = p6
-    frames.push(XtcFrame::{ step, time, natoms, box, coords })
+    frames.push(XtcFrame::{ step, time, natoms, box, coords, })
   }
   frames
 }
@@ -62,8 +62,8 @@ pub fn xtc_read(data : Array[Int]) -> Array[XtcFrame] raise XtcError {
 ///|
 /// Write a single XTC frame to a byte array (uncompressed).
 /// Returns the byte array containing the XDR-encoded frame.
-pub fn xtc_write_frame(frame : XtcFrame) -> Array[Int] raise XtcError {
-  let buf : Array[Int] = Array(capacity=0)
+pub fn xtc_write_frame(frame : XtcFrame) -> Array[Int32] raise XtcError {
+  let buf : Array[Int32] = Array(capacity=0)
   xtc_write_xdr_int(buf, 1995)
   xtc_write_xdr_int(buf, frame.natoms)
   xtc_write_xdr_int(buf, frame.step)
@@ -83,7 +83,10 @@ pub fn xtc_write_frame(frame : XtcFrame) -> Array[Int] raise XtcError {
 // === Internal XDR read helpers ===
 
 ///|
-fn xtc_read_xdr_int(data : Array[Int], pos : Int) -> (Int, Int) raise XtcError {
+fn xtc_read_xdr_int(
+  data : Array[Int32],
+  pos : Int32,
+) -> (Int32, Int32) raise XtcError {
   if pos + 4 > data.length() {
     raise XtcError("unexpected end of data reading int at pos \{pos}")
   }
@@ -96,7 +99,10 @@ fn xtc_read_xdr_int(data : Array[Int], pos : Int) -> (Int, Int) raise XtcError {
 }
 
 ///|
-fn xtc_read_xdr_float(data : Array[Int], pos : Int) -> (Double, Int) raise XtcError {
+fn xtc_read_xdr_float(
+  data : Array[Int32],
+  pos : Int32,
+) -> (Double, Int32) raise XtcError {
   if pos + 4 > data.length() {
     raise XtcError("unexpected end of data reading float at pos \{pos}")
   }
@@ -110,7 +116,10 @@ fn xtc_read_xdr_float(data : Array[Int], pos : Int) -> (Double, Int) raise XtcEr
 }
 
 ///|
-fn xtc_read_xdr_double(data : Array[Int], pos : Int) -> (Double, Int) raise XtcError {
+fn xtc_read_xdr_double(
+  data : Array[Int32],
+  pos : Int32,
+) -> (Double, Int32) raise XtcError {
   if pos + 8 > data.length() {
     raise XtcError("unexpected end of data reading double at pos \{pos}")
   }
@@ -122,18 +131,24 @@ fn xtc_read_xdr_double(data : Array[Int], pos : Int) -> (Double, Int) raise XtcE
   let b5 = data[pos + 5].to_uint64()
   let b6 = data[pos + 6].to_uint64()
   let b7 = data[pos + 7].to_uint64()
-  let bits = (b0 << 56) | (b1 << 48) | (b2 << 40) | (b3 << 32) |
-    (b4 << 24) | (b5 << 16) | (b6 << 8) | b7
+  let bits = (b0 << 56) |
+    (b1 << 48) |
+    (b2 << 40) |
+    (b3 << 32) |
+    (b4 << 24) |
+    (b5 << 16) |
+    (b6 << 8) |
+    b7
   let val = xtc_uint64_bits_to_double(bits)
   (val, pos + 8)
 }
 
 ///|
 fn xtc_read_xdr_floats(
-  data : Array[Int],
-  pos : Int,
-  count : Int,
-) -> (Array[Double], Int) raise XtcError {
+  data : Array[Int32],
+  pos : Int32,
+  count : Int32,
+) -> (Array[Double], Int32) raise XtcError {
   let result : Array[Double] = Array(capacity=count)
   let mut p = pos
   for i = 0; i < count; i = i + 1 {
@@ -146,10 +161,10 @@ fn xtc_read_xdr_floats(
 
 ///|
 fn xtc_read_coords(
-  data : Array[Int],
-  pos : Int,
-  natoms : Int,
-) -> (Array[Double], Int) raise XtcError {
+  data : Array[Int32],
+  pos : Int32,
+  natoms : Int32,
+) -> (Array[Double], Int32) raise XtcError {
   let (precision, p1) = xtc_read_xdr_float(data, pos)
   let mut p = p1
   let ncoords = natoms * 3
@@ -210,7 +225,7 @@ fn xtc_read_coords(
 // === XDR write helpers ===
 
 ///|
-fn xtc_write_xdr_int(buf : Array[Int], val : Int) -> Unit {
+fn xtc_write_xdr_int(buf : Array[Int32], val : Int32) -> Unit {
   buf.push((val >> 24) & 0xFF)
   buf.push((val >> 16) & 0xFF)
   buf.push((val >> 8) & 0xFF)
@@ -218,13 +233,13 @@ fn xtc_write_xdr_int(buf : Array[Int], val : Int) -> Unit {
 }
 
 ///|
-fn xtc_write_xdr_float(buf : Array[Int], val : Double) -> Unit {
+fn xtc_write_xdr_float(buf : Array[Int32], val : Double) -> Unit {
   let bits = xtc_float_to_int_bits(val)
   xtc_write_xdr_int(buf, bits)
 }
 
 ///|
-fn xtc_write_xdr_double(buf : Array[Int], val : Double) -> Unit {
+fn xtc_write_xdr_double(buf : Array[Int32], val : Double) -> Unit {
   let bits = xtc_double_to_uint64_bits(val)
   buf.push(((bits >> 56) & 0xFFUL).to_int())
   buf.push(((bits >> 48) & 0xFFUL).to_int())
@@ -239,7 +254,7 @@ fn xtc_write_xdr_double(buf : Array[Int], val : Double) -> Unit {
 // === IEEE 754 bit conversion ===
 
 ///|
-fn xtc_pow2(e : Int) -> Double {
+fn xtc_pow2(e : Int32) -> Double {
   if e >= 0 {
     let mut result = 1.0
     for i = 0; i < e; i = i + 1 {
@@ -256,7 +271,7 @@ fn xtc_pow2(e : Int) -> Double {
 }
 
 ///|
-fn xtc_int_bits_to_float(bits : Int) -> Double {
+fn xtc_int_bits_to_float(bits : Int32) -> Double {
   let sign = if ((bits >> 31) & 1) == 1 { -1.0 } else { 1.0 }
   let exp = (bits >> 23) & 0xFF
   let mant = bits & 0x7FFFFF
@@ -300,7 +315,7 @@ fn xtc_uint64_bits_to_double(bits : UInt64) -> Double {
 }
 
 ///|
-fn xtc_float_to_int_bits(val : Double) -> Int {
+fn xtc_float_to_int_bits(val : Double) -> Int32 {
   if val == 0.0 {
     return 0
   }
@@ -358,5 +373,7 @@ fn xtc_double_to_uint64_bits(val : Double) -> UInt64 {
     return sign << 63
   }
   let mant_bits = ((mant - 1.0) * 4503599627370496.0).to_uint64()
-  (sign << 63) | (biased_exp.to_uint64() << 52) | (mant_bits & 0xFFFFFFFFFFFFFUL)
+  (sign << 63) |
+  (biased_exp.to_uint64() << 52) |
+  (mant_bits & 0xFFFFFFFFFFFFFUL)
 }

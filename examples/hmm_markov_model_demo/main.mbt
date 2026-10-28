@@ -8,10 +8,9 @@
 ///|
 fn main raise {
   // A two-state CpG-style model: state "0" = neutral, state "1" = CpG island.
-  let builder = @src.MarkovModelBuilder::new(
-    state_alphabet=["0", "1"],
-    emission_alphabet=["A", "C", "G", "T"],
-  )
+  let builder = @src.MarkovModelBuilder::new(state_alphabet=["0", "1"], emission_alphabet=[
+    "A", "C", "G", "T",
+  ])
   builder.allow_all_transitions()
   let initial : Map[String, Double] = Map([], capacity=2)
   initial.set("0", 1.0)
@@ -21,23 +20,39 @@ fn main raise {
   builder.set_transition_score(from_state="1", to_state="0", probability=0.1)
   builder.set_transition_score(from_state="1", to_state="1", probability=0.9)
   for s in ["A", "C", "G", "T"] {
-    builder.set_emission_score(seq_state="0", emission_state=s, probability=0.25)
+    builder.set_emission_score(
+      seq_state="0",
+      emission_state=s,
+      probability=0.25,
+    )
   }
-  builder.set_emission_score(seq_state="1", emission_state="A", probability=0.125)
-  builder.set_emission_score(seq_state="1", emission_state="C", probability=0.375)
-  builder.set_emission_score(seq_state="1", emission_state="G", probability=0.375)
-  builder.set_emission_score(seq_state="1", emission_state="T", probability=0.125)
+  builder.set_emission_score(
+    seq_state="1",
+    emission_state="A",
+    probability=0.125,
+  )
+  builder.set_emission_score(
+    seq_state="1",
+    emission_state="C",
+    probability=0.375,
+  )
+  builder.set_emission_score(
+    seq_state="1",
+    emission_state="G",
+    probability=0.375,
+  )
+  builder.set_emission_score(
+    seq_state="1",
+    emission_state="T",
+    probability=0.125,
+  )
   let model = builder.get_markov_model()
 
   println("=== 1. MarkovModelBuilder ===")
   println("states:    \{model.get_state_alphabet()}")
   println("emissions: \{model.get_emission_alphabet()}")
-  println(
-    "transition 0 -> 1: \{model.get_transition_probability("0", "1")}",
-  )
-  println(
-    "emission 1 -> G:   \{model.get_emission_probability("1", "G")}",
-  )
+  println("transition 0 -> 1: \{model.get_transition_probability("0", "1")}")
+  println("emission 1 -> G:   \{model.get_emission_probability("1", "G")}")
 
   println("\n=== 2. Viterbi decoding ===")
   let sequence = ["A", "C", "G", "C", "G", "A", "T", "C"]
@@ -47,10 +62,7 @@ fn main raise {
   println("log prob:   \{decoded.prob()}")
 
   println("\n=== 3. Scaled forward algorithm ===")
-  let training_seq = @src.TrainingSequence::new(
-    emissions=sequence,
-    state_path=[],
-  )
+  let training_seq = @src.TrainingSequence::new(emissions=sequence, state_path=[])
   let dp = @src.ScaledDp::new(markov_model=model, sequence=training_seq)
   let forward = dp.forward_algorithm()
   println("P(sequence) = \{forward.seq_prob()}")
@@ -74,7 +86,10 @@ fn main raise {
     state_path=[],
   )
   let trainer = @src.BaumWelchTrainer::new(markov_model=model)
-  let trained = trainer.train([t1, t2], fn(change : Double, iterations : Int) {
+  let trained = trainer.train([t1, t2], fn(
+    change : Double,
+    iterations : Int32,
+  ) {
     change < 1.0e-12 || iterations >= 100
   })
   println(
@@ -88,15 +103,13 @@ fn main raise {
   )
 
   println("\n=== 6. Known-state training ===")
-  let known = @src.TrainingSequence::new(
-    emissions=["x", "y", "x"],
-    state_path=["A", "B", "B"],
-  )
+  let known = @src.TrainingSequence::new(emissions=["x", "y", "x"], state_path=[
+    "A", "B", "B",
+  ])
   // a small two-letter model to show state-path supervised training
-  let known_builder = @src.MarkovModelBuilder::new(
-    state_alphabet=["A", "B"],
-    emission_alphabet=["x", "y"],
-  )
+  let known_builder = @src.MarkovModelBuilder::new(state_alphabet=["A", "B"], emission_alphabet=[
+    "x", "y",
+  ])
   known_builder.allow_transition(from_state="A", to_state="B")
   known_builder.allow_transition(from_state="B", to_state="B")
   let known_initial : Map[String, Double] = Map([], capacity=2)

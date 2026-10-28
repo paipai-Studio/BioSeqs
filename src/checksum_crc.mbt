@@ -15,7 +15,7 @@
 
 ///|
 /// CRC32 table, reflected IEEE polynomial 0xEDB88320.
-let checksum_crc32_table : Array[UInt] = [
+let checksum_crc32_table : Array[UInt32] = [
   0x00000000U, 0x77073096U, 0xEE0E612CU, 0x990951BAU, 0x076DC419U, 0x706AF48FU, 0xE963A535U,
   0x9E6495A3U, 0x0EDB8832U, 0x79DCB8A4U, 0xE0D5E91EU, 0x97D2D988U, 0x09B64C2BU, 0x7EB17CBDU,
   0xE7B82D07U, 0x90BF1D91U, 0x1DB71064U, 0x6AB020F2U, 0xF3B97148U, 0x84BE41DEU, 0x1ADAD47DU,
@@ -57,7 +57,7 @@ let checksum_crc32_table : Array[UInt] = [
 
 ///|
 /// CRC64 high-register table (Biopython-compatible ECMA-182 derived table).
-let checksum_crc64_table_h : Array[UInt] = [
+let checksum_crc64_table_h : Array[UInt32] = [
   0x00000000U, 0x01B00000U, 0x03600000U, 0x02D00000U, 0x06C00000U, 0x07700000U, 0x05A00000U,
   0x04100000U, 0x0D800000U, 0x0C300000U, 0x0EE00000U, 0x0F500000U, 0x0B400000U, 0x0AF00000U,
   0x08200000U, 0x09900000U, 0x1B000000U, 0x1AB00000U, 0x18600000U, 0x19D00000U, 0x1DC00000U,
@@ -99,12 +99,12 @@ let checksum_crc64_table_h : Array[UInt] = [
 
 ///|
 /// Format a UInt as exactly 8 uppercase hexadecimal digits.
-fn crc_u32_to_hex8(value : UInt) -> String {
+fn crc_u32_to_hex8(value : UInt32) -> String {
   let digits = "0123456789ABCDEF"
   let buf = StringBuilder()
   for shift in [28, 24, 20, 16, 12, 8, 4, 0] {
     let nibble = ((value >> shift) & 0xFU).reinterpret_as_int()
-    buf.write_char((digits.unsafe_get(nibble).to_int()).unsafe_to_char())
+    buf.write_char(digits.unsafe_get(nibble).to_int().unsafe_to_char())
   }
   buf.to_string()
 }
@@ -117,12 +117,14 @@ fn crc_u32_to_hex8(value : UInt) -> String {
 /// decimal string of the 32-bit unsigned value.
 pub fn checksum_crc32(seq : String) -> CheckSumResult {
   let seq_upper = seq.to_upper()
-  let mut crc : UInt = 0xFFFFFFFFU
+  let mut crc : UInt32 = 0xFFFFFFFFU
   let mut idx = 0
   let n = seq_upper.length()
   while idx < n {
     let b = seq_upper.unsafe_get(idx).to_int() & 0xFF
-    crc = (crc >> 8) ^ checksum_crc32_table[(crc ^ b.reinterpret_as_uint()).reinterpret_as_int() & 0xFF]
+    crc = (crc >> 8) ^
+      checksum_crc32_table[(crc ^ b.reinterpret_as_uint()).reinterpret_as_int() &
+      0xFF]
     idx = idx + 1
   }
   crc = crc ^ 0xFFFFFFFFU
@@ -136,15 +138,15 @@ pub fn checksum_crc32(seq : String) -> CheckSumResult {
 /// input, returning a string like "CRC-71A87EBDB0000000".
 pub fn checksum_crc64(seq : String) -> CheckSumResult {
   let seq_upper = seq.to_upper()
-  let mut crcl : UInt = 0U
-  let mut crch : UInt = 0U
+  let mut crcl : UInt32 = 0U
+  let mut crch : UInt32 = 0U
   let mut idx = 0
   let n = seq_upper.length()
   while idx < n {
     let c = seq_upper.unsafe_get(idx).to_int()
-    let shr : UInt = (crch & 0xFFU) << 24
-    let temp1h : UInt = crch >> 8
-    let temp1l : UInt = (crcl >> 8) | shr
+    let shr : UInt32 = (crch & 0xFFU) << 24
+    let temp1h : UInt32 = crch >> 8
+    let temp1l : UInt32 = (crcl >> 8) | shr
     let idx_b = (crcl ^ c.reinterpret_as_uint()) & 0xFFU
     crch = temp1h ^ checksum_crc64_table_h[idx_b.reinterpret_as_int()]
     crcl = temp1l

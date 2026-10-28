@@ -21,7 +21,13 @@ fn vienna_bp_energy(b1 : Char, b2 : Char) -> Double {
     ((b2 == 'G' || b2 == 'g') && (b1 == 'C' || b1 == 'c'))
   let is_au = ((b1 == 'A' || b1 == 'a') && (b2 == 'U' || b2 == 'u')) ||
     ((b2 == 'A' || b2 == 'a') && (b1 == 'U' || b1 == 'u'))
-  if is_gc { -2.0 } else if is_au { -1.0 } else { -0.5 }
+  if is_gc {
+    -2.0
+  } else if is_au {
+    -1.0
+  } else {
+    -0.5
+  }
 }
 
 ///|
@@ -32,7 +38,7 @@ fn vienna_bp_energy(b1 : Char, b2 : Char) -> Double {
 pub fn vienna_partition_function(
   sequence : String,
   temperature : Double,
-  min_loop : Int,
+  min_loop : Int32,
 ) -> Array[Array[Double]] {
   let seq = sequence.to_array()
   let n = seq.length()
@@ -71,7 +77,7 @@ pub fn vienna_partition_function(
 pub fn vienna_bp_probability(
   sequence : String,
   temperature : Double,
-  min_loop : Int,
+  min_loop : Int32,
 ) -> Array[Array[Double]] {
   let seq = sequence.to_array()
   let n = seq.length()
@@ -84,7 +90,9 @@ pub fn vienna_bp_probability(
     return Array::makei(n, fn(_) { Array::make(n, 0.0) })
   }
   let kt = 0.00198717 * temperature
-  let prob : Array[Array[Double]] = Array::makei(n, fn(_) { Array::make(n, 0.0) })
+  let prob : Array[Array[Double]] = Array::makei(n, fn(_) {
+    Array::make(n, 0.0)
+  })
   let mut i = 0
   while i < n {
     let mut j = i + min_loop + 1
@@ -109,16 +117,13 @@ pub fn vienna_bp_probability(
 /// Maximum Expected Accuracy (MEA) structure from base pair probabilities.
 /// `gamma` is the pairing weight (higher → more pairs).
 /// Returns dot-bracket notation.
-pub fn vienna_mea(
-  bp_prob : Array[Array[Double]],
-  gamma : Double,
-) -> String {
+pub fn vienna_mea(bp_prob : Array[Array[Double]], gamma : Double) -> String {
   let n = bp_prob.length()
   if n == 0 {
     return ""
   }
   let m : Array[Array[Double]] = Array::makei(n, fn(_) { Array::make(n, 0.0) })
-  let bt : Array[Array[Int]] = Array::makei(n, fn(_) { Array::make(n, -1) })
+  let bt : Array[Array[Int32]] = Array::makei(n, fn(_) { Array::make(n, -1) })
   let mut length = 0
   while length < n {
     let mut i = 0
@@ -145,8 +150,8 @@ pub fn vienna_mea(
     length = length + 1
   }
   // Backtrack
-  let pairs : Array[Int] = Array::make(n, -1)
-  let stack : Array[(Int, Int)] = [(0, n - 1)]
+  let pairs : Array[Int32] = Array::make(n, -1)
+  let stack : Array[(Int32, Int32)] = [(0, n - 1)]
   while stack.length() > 0 {
     let (i, j) = stack[stack.length() - 1]
     ignore(stack.remove(stack.length() - 1))
@@ -188,12 +193,10 @@ pub fn vienna_mea(
 /// Generate mountain plot values from dot-bracket notation.
 /// Returns an array of (position, height) pairs.
 /// Height at position i = number of base pairs enclosing position i.
-pub fn vienna_mountain_plot(
-  dot_bracket : String,
-) -> Array[(Int, Int)] {
+pub fn vienna_mountain_plot(dot_bracket : String) -> Array[(Int32, Int32)] {
   let s = dot_bracket.to_array()
   let n = s.length()
-  let result : Array[(Int, Int)] = Array(capacity=n)
+  let result : Array[(Int32, Int32)] = Array(capacity=n)
   let mut depth = 0
   for i = 0; i < n; i = i + 1 {
     if s[i] == '(' {
@@ -212,18 +215,15 @@ pub fn vienna_mountain_plot(
 ///|
 /// Compute base pair distance between two secondary structures.
 /// d = |S1 \ S2| + |S2 \ S1| = number of pairs in one but not the other.
-pub fn vienna_bp_distance(
-  s1 : String,
-  s2 : String,
-) -> Int {
+pub fn vienna_bp_distance(s1 : String, s2 : String) -> Int32 {
   let a1 = s1.to_array()
   let a2 = s2.to_array()
   let n = a1.length()
   if a2.length() != n {
     return -1
   }
-  let pairs1 : Map[(Int, Int), Bool] = Map([])
-  let stack1 : Array[Int] = []
+  let pairs1 : Map[(Int32, Int32), Bool] = Map([])
+  let stack1 : Array[Int32] = []
   for i = 0; i < n; i = i + 1 {
     if a1[i] == '(' {
       stack1.push(i)
@@ -233,8 +233,8 @@ pub fn vienna_bp_distance(
       pairs1[(j, i)] = true
     }
   }
-  let pairs2 : Map[(Int, Int), Bool] = Map([])
-  let stack2 : Array[Int] = []
+  let pairs2 : Map[(Int32, Int32), Bool] = Map([])
+  let stack2 : Array[Int32] = []
   for i = 0; i < n; i = i + 1 {
     if a2[i] == '(' {
       stack2.push(i)
@@ -246,12 +246,12 @@ pub fn vienna_bp_distance(
   }
   let mut dist = 0
   for k in pairs1.keys() {
-    if !(pairs2.contains(k)) {
+    if !pairs2.contains(k) {
       dist = dist + 1
     }
   }
   for k in pairs2.keys() {
-    if !(pairs1.contains(k)) {
+    if !pairs1.contains(k) {
       dist = dist + 1
     }
   }
@@ -264,11 +264,11 @@ pub fn vienna_bp_distance(
 /// Returns (hairpin, interior, bulge, multiloop, external) counts.
 pub fn vienna_loop_types(
   dot_bracket : String,
-) -> (Int, Int, Int, Int, Int) {
+) -> (Int32, Int32, Int32, Int32, Int32) {
   let s = dot_bracket.to_array()
   let n = s.length()
-  let pair : Array[Int] = Array::make(n, -1)
-  let stack : Array[Int] = []
+  let pair : Array[Int32] = Array::make(n, -1)
+  let stack : Array[Int32] = []
   for i = 0; i < n; i = i + 1 {
     if s[i] == '(' {
       stack.push(i)
@@ -279,7 +279,7 @@ pub fn vienna_loop_types(
       pair[j] = i
     }
   }
-  let counts : Array[Int] = [0, 0, 0, 0, 0] // hairpin, interior, bulge, multiloop, external
+  let counts : Array[Int32] = [0, 0, 0, 0, 0] // hairpin, interior, bulge, multiloop, external
   let mut i = 0
   while i < n {
     if pair[i] > i {
@@ -309,12 +309,12 @@ pub fn vienna_loop_types(
 ///|
 /// Recursively classify loop enclosed by pair (i, j).
 fn vienna_loop_classify(
-  pair : Array[Int],
-  i : Int,
-  j : Int,
-  counts : Array[Int],
+  pair : Array[Int32],
+  i : Int32,
+  j : Int32,
+  counts : Array[Int32],
 ) -> Unit {
-  let inner_pairs : Array[(Int, Int)] = []
+  let inner_pairs : Array[(Int32, Int32)] = []
   let mut k = i + 1
   while k < j {
     if pair[k] > k && pair[k] < j {
@@ -355,8 +355,8 @@ pub fn vienna_structure_energy(
   let seq = sequence.to_array()
   let s = dot_bracket.to_array()
   let n = s.length()
-  let pair : Array[Int] = Array::make(n, -1)
-  let stack : Array[Int] = []
+  let pair : Array[Int32] = Array::make(n, -1)
+  let stack : Array[Int32] = []
   for i = 0; i < n; i = i + 1 {
     if s[i] == '(' {
       stack.push(i)
@@ -389,7 +389,7 @@ pub fn vienna_structure_energy(
           k = k + 1
         }
       }
-      if !(has_inner) {
+      if !has_inner {
         // Hairpin loop penalty
         energy = energy + 0.5 * unpaired_count.to_double()
       }
@@ -400,22 +400,18 @@ pub fn vienna_structure_energy(
   }
   energy
 }
+
 ///|
 /// Convert dot-bracket to tree representation (ViennaRNA style).
 /// Each base pair becomes an internal node, unpaired bases become leaves.
 /// Returns a nested string like "((.)(...))" -> "((U)(UUU))"
-pub fn vienna_tree_representation(
-  dot_bracket : String,
-) -> String {
+pub fn vienna_tree_representation(dot_bracket : String) -> String {
   let s = dot_bracket.to_array()
   vienna_tree_build(s, 0, s.length())
 }
 
-fn vienna_tree_build(
-  s : Array[Char],
-  i : Int,
-  n : Int,
-) -> String {
+///|
+fn vienna_tree_build(s : Array[Char], i : Int32, n : Int32) -> String {
   if i >= n {
     return ""
   }

@@ -21,14 +21,18 @@ fn main {
   let mut i = 0
   let mut st_preview = ""
   while i < 5 && i < stromal_preview.length() {
-    if i > 0 { st_preview = st_preview + ", " }
+    if i > 0 {
+      st_preview = st_preview + ", "
+    }
     st_preview = st_preview + stromal_preview[i]
     i = i + 1
   }
   i = 0
   let mut im_preview = ""
   while i < 5 && i < immune_preview.length() {
-    if i > 0 { im_preview = im_preview + ", " }
+    if i > 0 {
+      im_preview = im_preview + ", "
+    }
     im_preview = im_preview + immune_preview[i]
     i = i + 1
   }
@@ -121,10 +125,7 @@ fn main {
   // 7. Custom signature example
   // ------------------------------------------------------------------
   println("=== 7. Custom gene signature example ===")
-  let custom_sig = @bio.EstSignature::new(
-    ["G1", "G2", "G3"],
-    ["G3", "G4", "G5"],
-  )
+  let custom_sig = @bio.EstSignature::new(["G1", "G2", "G3"], ["G3", "G4", "G5"])
   let custom_expr = @bio.EstExpression::new(
     ["G1", "G2", "G3", "G4", "G5"],
     ["S1", "S2"],

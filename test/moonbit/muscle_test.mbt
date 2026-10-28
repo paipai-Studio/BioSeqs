@@ -50,11 +50,7 @@ test "muscle_align identical sequences" {
 
 ///|
 test "muscle_align with gaps needed" {
-  let seqs = [
-    "ACDEFGHIK",
-    "ACFGHIK",
-    "ACDEFGHIKL",
-  ]
+  let seqs = ["ACDEFGHIK", "ACFGHIK", "ACDEFGHIKL"]
   let names = ["s1", "s2", "s3"]
   let result = @src.muscle_align(seqs, names)
   assert_eq(result.aligned_sequences.length(), 3)
@@ -117,8 +113,7 @@ test "muscle_align preserves residues" {
 ///|
 test "muscle stage2 improves over stage1" {
   let seqs = [
-    "MVLSPADKTNVKAAWGKVGAHAGEYGAEALERMFLSFPTTKTYFPHFDLSHGSAQVKGHGKK",
-    "MVHLTPEEKSAVTALWGKVNVDEVGGEALGRLLVVYPWTQRFFESFGDLSTPDAVMGNPKV",
+    "MVLSPADKTNVKAAWGKVGAHAGEYGAEALERMFLSFPTTKTYFPHFDLSHGSAQVKGHGKK", "MVHLTPEEKSAVTALWGKVNVDEVGGEALGRLLVVYPWTQRFFESFGDLSTPDAVMGNPKV",
     "MVLSPADKTNVKAAWGKVGAHAGEYGAEALERMFLSFPTTKTYFPHFDLSHGSAQVKGHGKK",
   ]
   let names = ["hba1", "hbb1", "hba2"]
@@ -155,9 +150,7 @@ test "muscle MsaResult fields" {
 ///|
 test "muscle larger alignment" {
   let seqs = [
-    "KETAAAKFERQHMDSSSAASAA",
-    "KETAAAKFERQHMDSSTSAASAA",
-    "KETAAAKFERQHMDSAASAASAA",
+    "KETAAAKFERQHMDSSSAASAA", "KETAAAKFERQHMDSSTSAASAA", "KETAAAKFERQHMDSAASAASAA",
     "KETAAAKFERQHMDSSTSAASAA",
   ]
   let names = ["p1", "p2", "p3", "p4"]

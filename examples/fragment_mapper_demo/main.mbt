@@ -5,7 +5,6 @@
 /// using the Bio.PDB.FragmentMapper module.
 ///
 /// Run: moon run examples/fragment_mapper_demo/main.mbt
-
 fn main {
   // === 1. Classify DSSP secondary structure ===
   println("=== 1. DSSP Secondary Structure Classification ===")
@@ -34,7 +33,16 @@ fn main {
       turn_count = turn_count + 1
     }
   }
-  println("  Helix: " + helix_count.to_string() + ", Sheet: " + sheet_count.to_string() + ", Loop: " + loop_count.to_string() + ", Turn: " + turn_count.to_string())
+  println(
+    "  Helix: " +
+    helix_count.to_string() +
+    ", Sheet: " +
+    sheet_count.to_string() +
+    ", Loop: " +
+    loop_count.to_string() +
+    ", Turn: " +
+    turn_count.to_string(),
+  )
 
   // === 2. Assign fragments from sequence + SS ===
   println("\n=== 2. Fragment Assignment ===")
@@ -49,34 +57,60 @@ fn main {
     let frag_seq = @bio.fm_fragment_sequence(frag)
     let frag_type = @bio.fm_fragment_type(frag)
     println(
-      "    " + frag.id + ": type=" + frag_type.to_string() + ", residues " + start.to_string() + "-" + end.to_string() + ", length=" + frag.length().to_string() + ", seq=" + frag_seq,
+      "    " +
+      frag.id +
+      ": type=" +
+      frag_type.to_string() +
+      ", residues " +
+      start.to_string() +
+      "-" +
+      end.to_string() +
+      ", length=" +
+      frag.length().to_string() +
+      ", seq=" +
+      frag_seq,
     )
   }
 
   // === 3. Merge adjacent fragments ===
   println("\n=== 3. Merge Adjacent Fragments ===")
   let merged = @bio.fm_merge_fragments(result.fragments)
-  println("  Before merge: " + result.num_fragments().to_string() + " fragments")
+  println(
+    "  Before merge: " + result.num_fragments().to_string() + " fragments",
+  )
   println("  After merge:  " + merged.length().to_string() + " fragments")
 
   // === 4. Filter by length ===
   println("\n=== 4. Filter by Length (min 5 residues) ===")
   let filtered = @bio.fm_filter_by_length(merged, 5)
-  println("  After filtering (>= 5 residues): " + filtered.length().to_string() + " fragments")
+  println(
+    "  After filtering (>= 5 residues): " +
+    filtered.length().to_string() +
+    " fragments",
+  )
   for frag in filtered {
     println(
-      "    " + frag.id + ": type=" + frag.fragment_type.to_string() + ", length=" + frag.length().to_string(),
+      "    " +
+      frag.id +
+      ": type=" +
+      frag.fragment_type.to_string() +
+      ", length=" +
+      frag.length().to_string(),
     )
   }
 
   // === 5. Get fragment by ID ===
   println("\n=== 5. Get Fragment by ID ===")
   match @bio.fm_get_fragment(result, "fragment_0") {
-    Some(frag) => {
+    Some(frag) =>
       println(
-        "  Found fragment_0: residues " + frag.start_residue.to_string() + "-" + frag.end_residue.to_string() + ", type=" + frag.fragment_type.to_string(),
+        "  Found fragment_0: residues " +
+        frag.start_residue.to_string() +
+        "-" +
+        frag.end_residue.to_string() +
+        ", type=" +
+        frag.fragment_type.to_string(),
       )
-    }
     None => println("  fragment_0 not found")
   }
 
@@ -99,7 +133,16 @@ fn main {
   println("  Fragments: " + pdb_result.num_fragments().to_string())
   for frag in pdb_result.fragments {
     println(
-      "    " + frag.id + ": chain=" + frag.chain_id + ", residues " + frag.start_residue.to_string() + "-" + frag.end_residue.to_string() + ", atom_count=" + frag.residues.length().to_string(),
+      "    " +
+      frag.id +
+      ": chain=" +
+      frag.chain_id +
+      ", residues " +
+      frag.start_residue.to_string() +
+      "-" +
+      frag.end_residue.to_string() +
+      ", atom_count=" +
+      frag.residues.length().to_string(),
     )
   }
 
@@ -117,7 +160,7 @@ fn main {
   println("  Total positions: " + total.to_string())
   println("  Covered positions: " + covered.to_string())
   if total > 0 {
-    let pct = (covered.to_double() / total.to_double()) * 100.0
+    let pct = covered.to_double() / total.to_double() * 100.0
     println("  Coverage: " + pct.to_string() + "%")
   }
 

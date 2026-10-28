@@ -43,7 +43,7 @@ pub fn trie_value_of(v : String) -> TrieValue {
 /// The trie data structure.
 pub struct Trie {
   root : TrieNode
-  mut count : Int
+  mut count : Int32
 }
 
 ///|
@@ -128,7 +128,7 @@ pub fn trie_has_prefix(trie : Trie, prefix : String) -> Bool {
 
 ///|
 /// Get the number of keys in the trie.
-pub fn trie_size(trie : Trie) -> Int {
+pub fn trie_size(trie : Trie) -> Int32 {
   trie.count
 }
 
@@ -264,8 +264,8 @@ pub fn triefind_match_all(
 pub fn triefind_find(
   trie : Trie,
   text : String,
-) -> Array[(String, String, Int, Int)] {
-  let result : Array[(String, String, Int, Int)] = Array(capacity=0)
+) -> Array[(String, String, Int32, Int32)] {
+  let result : Array[(String, String, Int32, Int32)] = Array(capacity=0)
   let mut start = 0
   while start < text.length() {
     let matches = triefind_match_all(trie, text[start:text.length()].to_owned())
@@ -290,8 +290,8 @@ pub fn triefind_find(
 pub fn triefind_find_words(
   trie : Trie,
   text : String,
-) -> Array[(String, String, Int, Int)] {
-  let result : Array[(String, String, Int, Int)] = Array(capacity=0)
+) -> Array[(String, String, Int32, Int32)] {
+  let result : Array[(String, String, Int32, Int32)] = Array(capacity=0)
   let mut start = 0
   while start < text.length() {
     // Check if this position is at a word boundary

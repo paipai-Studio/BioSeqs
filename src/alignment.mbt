@@ -3,6 +3,8 @@
 pub struct DNA {
   seq : Seq
 } derive(Eq)
+
+///|
 pub extend DNA with Eq::{equal, not_equal}
 
 ///|
@@ -10,6 +12,8 @@ pub extend DNA with Eq::{equal, not_equal}
 pub struct RNA {
   seq : Seq
 } derive(Eq)
+
+///|
 pub extend RNA with Eq::{equal, not_equal}
 
 ///|
@@ -17,6 +21,8 @@ pub extend RNA with Eq::{equal, not_equal}
 pub struct Protein {
   seq : Seq
 } derive(Eq)
+
+///|
 pub extend Protein with Eq::{equal, not_equal}
 
 ///|
@@ -75,37 +81,37 @@ pub fn Protein::to_string(self : Protein) -> String {
 
 ///|
 /// Get length.
-pub fn DNA::length(self : DNA) -> Int {
+pub fn DNA::length(self : DNA) -> Int32 {
   self.seq.length()
 }
 
 ///|
 /// Get length.
-pub fn RNA::length(self : RNA) -> Int {
+pub fn RNA::length(self : RNA) -> Int32 {
   self.seq.length()
 }
 
 ///|
 /// Get length.
-pub fn Protein::length(self : Protein) -> Int {
+pub fn Protein::length(self : Protein) -> Int32 {
   self.seq.length()
 }
 
 ///|
 /// Get character at position.
-pub fn DNA::get_char(self : DNA, i : Int) -> Char? {
+pub fn DNA::get_char(self : DNA, i : Int32) -> Char? {
   self.seq.get_char(i)
 }
 
 ///|
 /// Get character at position.
-pub fn RNA::get_char(self : RNA, i : Int) -> Char? {
+pub fn RNA::get_char(self : RNA, i : Int32) -> Char? {
   self.seq.get_char(i)
 }
 
 ///|
 /// Get character at position.
-pub fn Protein::get_char(self : Protein, i : Int) -> Char? {
+pub fn Protein::get_char(self : Protein, i : Int32) -> Char? {
   self.seq.get_char(i)
 }
 
@@ -115,6 +121,8 @@ pub struct TabularMSA {
   records : Array[SeqRecord]
   dtype : String
 } derive(Eq)
+
+///|
 pub extend TabularMSA with Eq::{equal, not_equal}
 
 ///|
@@ -137,13 +145,13 @@ pub fn TabularMSA::from_dna(seqs : Array[DNA]) -> TabularMSA {
 
 ///|
 /// Return the number of sequences (rows) in the alignment.
-pub fn TabularMSA::num_records(self : TabularMSA) -> Int {
+pub fn TabularMSA::num_records(self : TabularMSA) -> Int32 {
   self.records.length()
 }
 
 ///|
 /// Return the length of the alignment (columns).
-pub fn TabularMSA::get_alignment_length(self : TabularMSA) -> Int {
+pub fn TabularMSA::get_alignment_length(self : TabularMSA) -> Int32 {
   if self.records.length() == 0 {
     0
   } else {
@@ -153,7 +161,7 @@ pub fn TabularMSA::get_alignment_length(self : TabularMSA) -> Int {
 
 ///|
 /// Get a column from the alignment.
-pub fn TabularMSA::column(self : TabularMSA, col : Int) -> String? {
+pub fn TabularMSA::column(self : TabularMSA, col : Int32) -> String? {
   let align_len = self.get_alignment_length()
   if col < 0 || col >= align_len {
     return None
@@ -222,7 +230,7 @@ pub fn TabularMSA::conservation(self : TabularMSA) -> Array[Double] {
 pub fn global_pairwise_align_nucleotide(
   seq1 : DNA,
   seq2 : DNA,
-) -> (TabularMSA, Double, (Int, Int), (Int, Int)) {
+) -> (TabularMSA, Double, (Int32, Int32), (Int32, Int32)) {
   let s1 = seq1.to_seq().to_string()
   let s2 = seq2.to_seq().to_string()
   let (msa_str, score) = global_align(s1, s2, 1, -1, -1)
@@ -241,7 +249,7 @@ pub fn global_pairwise_align_nucleotide(
 pub fn local_pairwise_align_nucleotide(
   seq1 : DNA,
   seq2 : DNA,
-) -> (TabularMSA, Double, (Int, Int), (Int, Int)) {
+) -> (TabularMSA, Double, (Int32, Int32), (Int32, Int32)) {
   let s1 = seq1.to_seq().to_string()
   let s2 = seq2.to_seq().to_string()
   let (msa_str, score, pos1, pos2) = local_align(s1, s2, 1, -1, -1)
@@ -255,7 +263,7 @@ pub fn local_pairwise_align_nucleotide(
 pub fn global_pairwise_align_protein(
   seq1 : Protein,
   seq2 : Protein,
-) -> (TabularMSA, Double, (Int, Int), (Int, Int)) {
+) -> (TabularMSA, Double, (Int32, Int32), (Int32, Int32)) {
   let s1 = seq1.to_seq().to_string()
   let s2 = seq2.to_seq().to_string()
   let (msa_str, score) = global_align(s1, s2, 1, -1, -1)
@@ -274,7 +282,7 @@ pub fn global_pairwise_align_protein(
 pub fn local_pairwise_align_protein(
   seq1 : Protein,
   seq2 : Protein,
-) -> (TabularMSA, Double, (Int, Int), (Int, Int)) {
+) -> (TabularMSA, Double, (Int32, Int32), (Int32, Int32)) {
   let s1 = seq1.to_seq().to_string()
   let s2 = seq2.to_seq().to_string()
   let (msa_str, score, pos1, pos2) = local_align(s1, s2, 1, -1, -1)
@@ -405,7 +413,7 @@ fn local_align(
   match_score : Double,
   mismatch_score : Double,
   gap_score : Double,
-) -> ((String, String), Double, (Int, Int), (Int, Int)) {
+) -> ((String, String), Double, (Int32, Int32), (Int32, Int32)) {
   let n = s1.length()
   let m = s2.length()
   let dp = Array(capacity=0)

@@ -10,7 +10,6 @@
 ///   read3: 6M, flag 0x10, tags MC:c:1 SC:C:250 SI:s:-3 UI:S:60000
 let test_bam_base64 = "QkFNAR8AAABASEQJVk46MS42CkBTUQlTTjpjaHIxCUxOOjEwMDAKAQAAAAUAAABjaHIxAOgDAABNAAAAAAAAAGQAAAAGPEkSAQADAAgAAAD//////////wAAAAByZWFkMQCAAAAAEkgSSAAAAAAAAAAATk1pAAAAAE1EWjgAQVNpCAAAAFhTQStXAAAAAAAAAMgAAAAGFEkSAgAABgUAAAD//////////wAAAAByZWFkMgBAAAAAEQAAABJIEAAAAAAATk1pAQAAAEFTZgAAkEBSR1pncnAxAFhBQkMDAAAAAQIDRQAAAAAAAAAsAQAABihJEgEAEAAGAAAA//////////8AAAAAcmVhZDMAYAAAAP///wAAAAAAAE1DYwFTQ0P6U0lz/f9VSVNg6g=="
 
-
 ///|
 test "bam_parse_header" {
   let bam = @src.parse_bam_base64(test_bam_base64)
@@ -77,7 +76,8 @@ test "bam_aux_tags" {
 
   let r2 = bam.records[1]
   match r2.get_tag("AS") {
-    Some(@src.BamTagValue::Float(v)) => assert_true(@moonbit.assert_close_e6(v, 4.5))
+    Some(@src.BamTagValue::Float(v)) =>
+      assert_true(@moonbit.assert_close_e6(v, 4.5))
     _ => abort("AS should be float 4.5")
   }
   match r2.get_tag("RG") {
@@ -185,6 +185,7 @@ test "bam_debug_magic" {
   let magic_ok = @src.is_bam_magic(raw_data)
   assert_true(magic_ok)
 }
+
 ///|
 test "bam_negative_int32_fields" {
   // next mate coordinates default to -1 (0xFFFFFFFF); confirm 32-bit two's
@@ -194,6 +195,7 @@ test "bam_negative_int32_fields" {
   assert_eq(bam.records[0].next_pos, -1)
   assert_eq(bam.records[0].tlen, 0)
 }
+
 ///|
 test "bam_write_roundtrip" {
   let bam = @src.parse_bam_base64(test_bam_base64)
@@ -211,6 +213,7 @@ test "bam_write_roundtrip" {
 // samtools 子命令：sort / merge / depth / fastq
 // ============================================================
 
+///|
 test "bam_sort" {
   let bam = @src.parse_bam_base64(test_bam_base64)
   // 手工乱序：swap 0 和 2（pos 100 与 300）
@@ -225,6 +228,7 @@ test "bam_sort" {
   assert_eq(sorted.records[2].pos, 300)
 }
 
+///|
 test "bam_merge" {
   let bam1 = @src.parse_bam_base64(test_bam_base64)
   let bam2 = @src.parse_bam_base64(test_bam_base64)
@@ -232,6 +236,7 @@ test "bam_merge" {
   assert_eq(merged.records.length(), 6)
 }
 
+///|
 test "bam_depth" {
   let bam = @src.parse_bam_base64(test_bam_base64)
   // read1 [100,108) read2 [200,204) read3 [300,306)（0-based），深度 1
@@ -243,19 +248,20 @@ test "bam_depth" {
   assert_eq(d[8], (201, 1))
 }
 
+///|
 test "bam_fastq" {
   let bam = @src.parse_bam_base64(test_bam_base64)
   let fq = @src.bam_fastq(bam)
   assert_true(fq.contains("@read1"))
-  assert_true(fq.contains("ACGTACGT"))  // read1 序列
+  assert_true(fq.contains("ACGTACGT")) // read1 序列
   assert_true(fq.contains("@read3"))
 }
-
 
 // ============================================================
 // samtools 子命令：markdup / stats
 // ============================================================
 
+///|
 test "bam_markdup" {
   let bam = @src.parse_bam_base64(test_bam_base64)
   // read1 两次 + read2（制造重复）
@@ -263,26 +269,27 @@ test "bam_markdup" {
   let dup_bam = @src.BamFile::new(bam.header, recs)
   let marked = @src.bam_markdup(dup_bam)
   // 第一个 read1 不标，第二个 read1 标 dup，read3 不标
-  assert_true(!(marked.records[0].is_duplicate()))
+  assert_true(!marked.records[0].is_duplicate())
   assert_true(marked.records[1].is_duplicate())
-  assert_true(!(marked.records[2].is_duplicate()))
+  assert_true(!marked.records[2].is_duplicate())
 }
 
+///|
 test "bam_stats" {
   let bam = @src.parse_bam_base64(test_bam_base64)
   let s = @src.bam_stats(bam)
   assert_eq(s.total_reads, 3)
   assert_eq(s.mapped_reads, 3)
-  assert_eq(s.duplicate_reads, 1)  // read2 是 duplicate
+  assert_eq(s.duplicate_reads, 1) // read2 是 duplicate
   // 平均读长 (8 + 5 + 6) / 3
   assert_true(@moonbit.assert_num_close(s.avg_read_length, 19.0 / 3.0, 1.0e-9))
 }
-
 
 // ============================================================
 // pysam 高频访问：fetch / count_coverage / get_base_counts
 // ============================================================
 
+///|
 test "bam_fetch" {
   let bam = @src.parse_bam_base64(test_bam_base64)
   // read1 覆盖 [100,108)，read2 [200,204)，read3 [300,306)
@@ -294,31 +301,39 @@ test "bam_fetch" {
   assert_eq(none.length(), 0)
 }
 
+///|
 test "bam_count_coverage" {
   let bam = @src.parse_bam_base64(test_bam_base64)
   // read1 seq=ACGTACGT 覆盖 [100,108)
   let (a, c, g, t) = @src.bam_count_coverage(bam, "chr1", 100, 108)
   assert_eq(a.length(), 8)
-  assert_eq(a[0], 1)  // pos100 = A
-  assert_eq(c[1], 1)  // pos101 = C
-  assert_eq(g[2], 1)  // pos102 = G
-  assert_eq(t[3], 1)  // pos103 = T
-  assert_eq(a[4], 1)  // pos104 = A
+  assert_eq(a[0], 1) // pos100 = A
+  assert_eq(c[1], 1) // pos101 = C
+  assert_eq(g[2], 1) // pos102 = G
+  assert_eq(t[3], 1) // pos103 = T
+  assert_eq(a[4], 1) // pos104 = A
 }
 
+///|
 test "bam_get_base_counts" {
   let bam = @src.parse_bam_base64(test_bam_base64)
-  assert_eq(@src.bam_get_base_counts(bam, "chr1", 100), (1, 0, 0, 0))  // A
-  assert_eq(@src.bam_get_base_counts(bam, "chr1", 101), (0, 1, 0, 0))  // C
+  assert_eq(@src.bam_get_base_counts(bam, "chr1", 100), (1, 0, 0, 0)) // A
+  assert_eq(@src.bam_get_base_counts(bam, "chr1", 101), (0, 1, 0, 0)) // C
 }
-
 
 // ============================================================
 // get_alignment_quality
 // ============================================================
 
+///|
 test "bam_alignment_quality" {
   let bam = @src.parse_bam_base64(test_bam_base64)
   // read1：mapq=60，NM:i:0 → quality = 60
-  assert_true(@moonbit.assert_num_close(@src.bam_alignment_quality(bam.records[0]), 60.0, 1.0e-9))
+  assert_true(
+    @moonbit.assert_num_close(
+      @src.bam_alignment_quality(bam.records[0]),
+      60.0,
+      1.0e-9,
+    ),
+  )
 }

@@ -10,7 +10,11 @@ pub enum ChainType {
   SecondOrder
   ThirdOrder
 } derive(Eq, Debug)
+
+///|
 pub extend ChainType with Eq::{equal, not_equal}
+
+///|
 pub extend ChainType with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -34,7 +38,7 @@ pub fn markov_third_order() -> ChainType {
 ///|
 /// Higher-order Markov chain model.
 pub struct MarkovModel {
-  order : Int
+  order : Int32
   chain_type : ChainType
   states : Array[String]
   transition_counts : Map[String, Map[String, Double]]
@@ -105,7 +109,7 @@ pub fn MarkovModel::default_protein() -> MarkovModel {
 
 ///|
 /// Set order, returning new model.
-pub fn MarkovModel::set_order(self : MarkovModel, val : Int) -> MarkovModel {
+pub fn MarkovModel::set_order(self : MarkovModel, val : Int32) -> MarkovModel {
   let ct = if val == 1 {
     FirstOrder
   } else if val == 2 {
@@ -206,9 +210,9 @@ fn markov_infer_states(sequences : Array[String]) -> Array[String] {
 /// Build a Markov chain model from training sequences.
 pub fn markov_build_model(
   sequences : Array[String],
-  order? : Int = 1,
-  states? : Array[String] = [],
-  pseudo_count? : Double = 1.0,
+  order~ : Int32 = 1,
+  states~ : Array[String] = [],
+  pseudo_count~ : Double = 1.0,
 ) -> MarkovModel {
   let actual_order = if order < 1 { 1 } else if order > 3 { 3 } else { order }
   let actual_states = if states.length() > 0 {
@@ -478,8 +482,8 @@ fn markov_weighted_sample(
 /// Generate a random sequence of given length from the model.
 pub fn markov_generate_sequence(
   model : MarkovModel,
-  length : Int,
-  seed? : Int = 0,
+  length : Int32,
+  seed~ : Int32 = 0,
 ) -> String {
   if length <= 0 {
     return ""
@@ -487,7 +491,7 @@ pub fn markov_generate_sequence(
 
   let mask = 0x7fffffff
   let modulus = 2147483647.0
-  let mut rng_state : Int = seed + length
+  let mut rng_state : Int32 = seed + length
 
   let n_states = model.states.length()
   let init_keys = model.initial_probs.keys().collect()

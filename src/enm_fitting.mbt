@@ -228,7 +228,9 @@ pub fn match_modes(
 ) -> Array[Array[Double]] {
   let na = modes_a.length()
   let nb = modes_b.length()
-  let overlap : Array[Array[Double]] = Array::makei(na, { _ => Array::make(nb, 0.0) })
+  let overlap : Array[Array[Double]] = Array::makei(na, _ => {
+    Array::make(nb, 0.0)
+  })
   for i = 0; i < na; i = i + 1 {
     for j = 0; j < nb; j = j + 1 {
       let mut dot = 0.0
@@ -300,11 +302,7 @@ pub fn enm_cumulative_overlap(
     let mut proj_sq = 0.0
     for b in modes_b {
       let mut dot = 0.0
-      let len = if a.length() < b.length() {
-        a.length()
-      } else {
-        b.length()
-      }
+      let len = if a.length() < b.length() { a.length() } else { b.length() }
       for k = 0; k < len; k = k + 1 {
         dot = dot + a[k] * b[k]
       }
@@ -344,11 +342,7 @@ pub fn loo_cross_validate(
       num = num + observed_bfactors[j] * predicted_msf[j]
       den = den + predicted_msf[j] * predicted_msf[j]
     }
-    let gamma = if den < 0.00000000000000000001 {
-      1.0
-    } else {
-      num / den
-    }
+    let gamma = if den < 0.00000000000000000001 { 1.0 } else { num / den }
     // Predict B-factor(i)
     let predicted = gamma * predicted_msf[i]
     residuals[i] = predicted - observed_bfactors[i]
@@ -363,7 +357,7 @@ pub fn loo_cross_validate(
 pub fn kfold_cross_validate(
   predicted_msf : Array[Double],
   observed_bfactors : Array[Double],
-  k : Int,
+  k : Int32,
 ) -> (Double, Double) {
   let n = if predicted_msf.length() < observed_bfactors.length() {
     predicted_msf.length()
@@ -377,11 +371,7 @@ pub fn kfold_cross_validate(
   let all_pred : Array[Double] = Array::make(n, 0.0)
   for fold = 0; fold < k; fold = fold + 1 {
     let start = fold * fold_size
-    let end = if fold == k - 1 {
-      n
-    } else {
-      (fold + 1) * fold_size
-    }
+    let end = if fold == k - 1 { n } else { (fold + 1) * fold_size }
     // Fit gamma without this fold
     let mut num = 0.0
     let mut den = 0.0
@@ -392,11 +382,7 @@ pub fn kfold_cross_validate(
       num = num + observed_bfactors[j] * predicted_msf[j]
       den = den + predicted_msf[j] * predicted_msf[j]
     }
-    let gamma = if den < 0.00000000000000000001 {
-      1.0
-    } else {
-      num / den
-    }
+    let gamma = if den < 0.00000000000000000001 { 1.0 } else { num / den }
     // Predict held-out fold
     for j = start; j < end; j = j + 1 {
       all_pred[j] = gamma * predicted_msf[j]
@@ -428,7 +414,9 @@ pub fn ENMFitResult::get_rms_error(self : ENMFitResult) -> Double {
 }
 
 ///|
-pub fn ENMFitResult::get_predicted_bfactors(self : ENMFitResult) -> Array[Double] {
+pub fn ENMFitResult::get_predicted_bfactors(
+  self : ENMFitResult,
+) -> Array[Double] {
   self.predicted_bfactors
 }
 

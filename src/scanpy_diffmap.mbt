@@ -12,13 +12,10 @@ pub struct ScanpyDiffmap {
 }
 
 ///|
-pub fn scanpy_diffmap(
-  graph : SparseGraph,
-  n_comps : Int,
-) -> ScanpyDiffmap {
+pub fn scanpy_diffmap(graph : SparseGraph, n_comps : Int32) -> ScanpyDiffmap {
   let n = graph.num_vertices()
   if n == 0 {
-    return ScanpyDiffmap::{ eigen_basis: [], eigen_values: [] }
+    return ScanpyDiffmap::{ eigen_basis: [], eigen_values: [], }
   }
   // degrees (diagonal self-weight + incident edge weights)
   let deg = Array::make(n, 0.0)
@@ -57,13 +54,14 @@ pub fn scanpy_diffmap(
     }
     basis.push(row)
   }
-  ScanpyDiffmap::{ eigen_basis: basis, eigen_values: vals }
+  ScanpyDiffmap::{ eigen_basis: basis, eigen_values: vals, }
 }
+
 ///|
 /// Diffusion pseudotime from a rooted diffusion map: the cumulative diffusion
 /// distance from the root cell, `Σ_t λ_t/(1−λ_t)·(ψ_t(i)−ψ_t(root))²` over the
 /// non-trivial diffusion components (`t ≥ 1`).
-pub fn scanpy_dpt(diffmap : ScanpyDiffmap, root : Int) -> Array[Double] {
+pub fn scanpy_dpt(diffmap : ScanpyDiffmap, root : Int32) -> Array[Double] {
   let n = diffmap.eigen_basis.length()
   let nc = diffmap.eigen_values.length()
   let out = Array::make(n, 0.0)
@@ -74,7 +72,7 @@ pub fn scanpy_dpt(diffmap : ScanpyDiffmap, root : Int) -> Array[Double] {
       let denom = 1.0 - lambda
       if denom > 1.0e-12 {
         let diff = diffmap.eigen_basis[i][t] - diffmap.eigen_basis[root][t]
-        acc = acc + (lambda / denom) * diff * diff
+        acc = acc + lambda / denom * diff * diff
       }
     }
     out[i] = acc

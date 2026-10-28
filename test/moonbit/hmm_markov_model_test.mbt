@@ -381,7 +381,10 @@ test "hmm_baum_welch_cpg" {
     state_path=[],
   )
   let trainer = @src.BaumWelchTrainer::new(markov_model=mm)
-  let trained = trainer.train([t1, t2], fn(change : Double, iterations : Int) {
+  let trained = trainer.train([t1, t2], fn(
+    change : Double,
+    iterations : Int32,
+  ) {
     change < 1.0e-12 || iterations >= 100
   })
   // reference values from the original Biopython implementation

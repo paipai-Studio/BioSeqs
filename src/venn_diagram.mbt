@@ -11,11 +11,11 @@
 /// The bitmask uses the i-th bit to indicate membership in set i.
 pub struct VennRegion {
   /// Unique identifier as a bitmask (e.g., 0b101 means in sets 0 and 2)
-  id : Int
+  id : Int32
   /// Elements in this region
   elements : Array[String]
   /// Count of elements
-  count : Int
+  count : Int32
   /// Description of which sets this region belongs to
   description : String
 }
@@ -24,17 +24,17 @@ pub struct VennRegion {
 /// Result of a Venn diagram analysis.
 pub struct VennDiagramResult {
   /// Number of sets
-  n_sets : Int
+  n_sets : Int32
   /// Set names
   set_names : Array[String]
   /// Set sizes (number of elements in each set)
-  set_sizes : Array[Int]
+  set_sizes : Array[Int32]
   /// All unique elements across all sets
   universe : Array[String]
   /// Regions of the Venn diagram
   regions : Array[VennRegion]
   /// Total elements in the universe
-  total_elements : Int
+  total_elements : Int32
   /// Euler characteristic (for layout validation)
   euler_char : Double
 }
@@ -50,7 +50,7 @@ pub struct VennDiagramResult {
 /// Returns: VennDiagramResult with region calculations.
 pub fn venn_diagram(
   sets : Array[Array[String]],
-  names? : Array[String] = [],
+  names~ : Array[String] = [],
 ) -> VennDiagramResult {
   let n_sets = sets.length()
   let set_names = if names.length() == n_sets {
@@ -146,7 +146,7 @@ fn build_universe(sets : Array[Array[String]]) -> Array[String] {
 
 ///|
 /// Compute the region ID (bitmask) for an element.
-fn compute_region_id(element : String, sets : Array[Array[String]]) -> Int {
+fn compute_region_id(element : String, sets : Array[Array[String]]) -> Int32 {
   let n = sets.length()
   let mut id = 0
   let mut i = 0
@@ -174,7 +174,7 @@ fn array_contains(arr : Array[String], elem : String) -> Bool {
 
 ///|
 /// Generate a human-readable description for a region.
-fn region_description(region_id : Int, set_names : Array[String]) -> String {
+fn region_description(region_id : Int32, set_names : Array[String]) -> String {
   if region_id == 0 {
     return "Outside all sets"
   }
@@ -210,7 +210,7 @@ fn region_description(region_id : Int, set_names : Array[String]) -> String {
 ///   E = number of edges
 ///   F = number of faces (regions)
 fn compute_euler_characteristic(
-  _n_sets : Int,
+  _n_sets : Int32,
   regions : Array[VennRegion],
 ) -> Double {
   // Simplified: just use number of non-empty regions
@@ -235,7 +235,7 @@ fn compute_euler_characteristic(
 /// For example, region 0b101 (5) means elements in set 0 and set 2 but not set 1.
 pub fn venn_get_region(
   result : VennDiagramResult,
-  region_id : Int,
+  region_id : Int32,
 ) -> Array[String] {
   let n = result.regions.length()
   if region_id >= 0 && region_id < n {
@@ -249,7 +249,7 @@ pub fn venn_get_region(
 /// Get elements only in a specific set (not in any other).
 pub fn venn_only_in_set(
   result : VennDiagramResult,
-  set_index : Int,
+  set_index : Int32,
 ) -> Array[String] {
   let region_id = 1 << set_index
   venn_get_region(result, region_id)
@@ -260,7 +260,7 @@ pub fn venn_only_in_set(
 /// Sets to include are specified as an array of set indices.
 pub fn venn_intersection_only(
   result : VennDiagramResult,
-  set_indices : Array[Int],
+  set_indices : Array[Int32],
 ) -> Array[String] {
   let mut region_id = 0
   let mut i = 0
@@ -302,8 +302,8 @@ pub fn venn_unique_to_each(result : VennDiagramResult) -> Array[Array[String]] {
 /// Returns overlap count, Jaccard index, and other similarity measures.
 pub fn venn_pairwise_overlap(
   result : VennDiagramResult,
-  set_i : Int,
-  set_j : Int,
+  set_i : Int32,
+  set_j : Int32,
 ) -> Map[String, Double] {
   let elements_i = venn_set_elements(result, set_i)
   let elements_j = venn_set_elements(result, set_j)
@@ -342,7 +342,7 @@ pub fn venn_pairwise_overlap(
 /// Get all elements in a specific set.
 fn venn_set_elements(
   result : VennDiagramResult,
-  set_index : Int,
+  set_index : Int32,
 ) -> Array[String] {
   let elements = Array(capacity=0)
   let region_id = 1 << set_index
@@ -365,7 +365,7 @@ fn venn_set_elements(
 
 ///|
 /// Count intersection of two string arrays.
-fn venn_count_intersection(a : Array[String], b : Array[String]) -> Int {
+fn venn_count_intersection(a : Array[String], b : Array[String]) -> Int32 {
   let mut count = 0
   let mut i = 0
   while i < a.length() {
@@ -425,8 +425,8 @@ pub fn venn_summary(result : VennDiagramResult) -> String {
 /// More efficient for large datasets where you only need region counts.
 pub fn venn_counts_only(
   sets : Array[Array[String]],
-  names? : Array[String] = [],
-) -> Array[Int] {
+  names~ : Array[String] = [],
+) -> Array[Int32] {
   ignore(names)
   let n_sets = sets.length()
   let n_regions = 1 << n_sets
@@ -487,8 +487,8 @@ pub fn venn_euler_layout(
 ///|
 /// Compute a approximate 2D position for a Venn region.
 fn compute_region_position(
-  region_id : Int,
-  n_sets : Int,
+  region_id : Int32,
+  n_sets : Int32,
 ) -> Map[String, Double] {
   // Place sets in a circle, then compute region positions as weighted average
   let m = Map([])
@@ -528,8 +528,8 @@ fn compute_region_position(
 pub fn venn_two_sets(
   set_a : Array[String],
   set_b : Array[String],
-  name_a? : String = "A",
-  name_b? : String = "B",
+  name_a~ : String = "A",
+  name_b~ : String = "B",
 ) -> VennDiagramResult {
   venn_diagram([set_a, set_b], names=[name_a, name_b])
 }
@@ -656,7 +656,7 @@ pub fn venn_sample_gene_names() -> Array[String] {
 
 ///|
 /// Format an integer as a hexadecimal string.
-fn hex_string(value : Int) -> String {
+fn hex_string(value : Int32) -> String {
   if value == 0 {
     return "0"
   }

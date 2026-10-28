@@ -2,7 +2,7 @@
 /// Tests for random tree generation (Yule / PDA).
 
 ///|
-fn rt_count_leaves(clade : @src.Clade) -> Int {
+fn rt_count_leaves(clade : @src.Clade) -> Int32 {
   if clade.is_terminal() {
     return 1
   }
@@ -23,7 +23,7 @@ fn rt_is_binary(clade : @src.Clade) -> Bool {
     return false
   }
   for ch in clade.clades {
-    if !(rt_is_binary(ch)) {
+    if !rt_is_binary(ch) {
       return false
     }
   }

@@ -44,7 +44,7 @@ pub struct BioReference {
   mut pubmed_id_val : String
   mut doi_val : String
   mut type_val : String
-  locations : Array[(Int, Int)]
+  locations : Array[(Int32, Int32)]
   mut comment : String
   mut data_pgr : String
 }
@@ -52,10 +52,10 @@ pub struct BioReference {
 ///|
 /// Create a new BioReference.
 pub fn BioReference::new(
-  title? : String = "",
-  authors? : String = "",
-  journal? : String = "",
-  year? : String = "",
+  title~ : String = "",
+  authors~ : String = "",
+  journal~ : String = "",
+  year~ : String = "",
 ) -> BioReference {
   BioReference::{
     title_val: title,
@@ -162,7 +162,18 @@ pub impl AbstractReference for BioReference with fn citation(
   }
   s
 }
-pub extend BioReference with AbstractReference::{title, authors, journal, year, pubmed_id, doi, reference_type, citation}
+
+///|
+pub extend BioReference with AbstractReference::{
+  title,
+  authors,
+  journal,
+  year,
+  pubmed_id,
+  doi,
+  reference_type,
+  citation,
+}
 
 // ============================================================================
 // BioReference Methods
@@ -214,21 +225,24 @@ pub fn BioReference::set_type(self : BioReference, type_ : String) -> Unit {
 /// Add a location (pair of start/end positions).
 pub fn BioReference::add_location(
   self : BioReference,
-  start : Int,
-  end_ : Int,
+  start : Int32,
+  end_ : Int32,
 ) -> Unit {
   self.locations.push((start, end_))
 }
 
 ///|
 /// Get number of locations.
-pub fn BioReference::get_n_locations(self : BioReference) -> Int {
+pub fn BioReference::get_n_locations(self : BioReference) -> Int32 {
   self.locations.length()
 }
 
 ///|
 /// Get location by index.
-pub fn BioReference::get_location(self : BioReference, idx : Int) -> (Int, Int) {
+pub fn BioReference::get_location(
+  self : BioReference,
+  idx : Int32,
+) -> (Int32, Int32) {
   if idx >= 0 && idx < self.locations.length() {
     self.locations[idx]
   } else {
@@ -278,19 +292,22 @@ pub fn ReferenceList::new() -> ReferenceList {
 
 ///|
 /// Add a reference.
-pub fn ReferenceList::add(self : ReferenceList, reference : BioReference) -> Unit {
+pub fn ReferenceList::add(
+  self : ReferenceList,
+  reference : BioReference,
+) -> Unit {
   self.refs.push(reference)
 }
 
 ///|
 /// Get number of references.
-pub fn ReferenceList::count(self : ReferenceList) -> Int {
+pub fn ReferenceList::count(self : ReferenceList) -> Int32 {
   self.refs.length()
 }
 
 ///|
 /// Get reference by index.
-pub fn ReferenceList::get(self : ReferenceList, idx : Int) -> BioReference {
+pub fn ReferenceList::get(self : ReferenceList, idx : Int32) -> BioReference {
   if idx >= 0 && idx < self.refs.length() {
     self.refs[idx]
   } else {
@@ -358,7 +375,11 @@ pub fn ReferenceList::bibliography(self : ReferenceList) -> String {
   let mut s = ""
   let mut i = 0
   while i < self.refs.length() {
-    s = s + (i + 1).to_string() + ". " + AbstractReference::citation(self.refs[i]) + "\n"
+    s = s +
+      (i + 1).to_string() +
+      ". " +
+      AbstractReference::citation(self.refs[i]) +
+      "\n"
     i = i + 1
   }
   s

@@ -110,15 +110,12 @@ test "dssp_full: empty chain" {
 
 ///|
 test "dssp_full: single residue" {
-  let res = @src.Residue::new(
-    resname="ALA", chainid='A', resseq=1,
-    atoms=[
-      @src.Atom::new(name="N", coord=@src.Vector3::new(0.0, 0.0, 0.0)),
-      @src.Atom::new(name="CA", coord=@src.Vector3::new(1.5, 0.0, 0.0)),
-      @src.Atom::new(name="C", coord=@src.Vector3::new(2.0, 1.5, 0.0)),
-      @src.Atom::new(name="O", coord=@src.Vector3::new(1.2, 2.3, 0.0)),
-    ],
-  )
+  let res = @src.Residue::new(resname="ALA", chainid='A', resseq=1, atoms=[
+    @src.Atom::new(name="N", coord=@src.Vector3::new(0.0, 0.0, 0.0)),
+    @src.Atom::new(name="CA", coord=@src.Vector3::new(1.5, 0.0, 0.0)),
+    @src.Atom::new(name="C", coord=@src.Vector3::new(2.0, 1.5, 0.0)),
+    @src.Atom::new(name="O", coord=@src.Vector3::new(1.2, 2.3, 0.0)),
+  ])
   let chain = @src.Chain::new(id='A', residues=[res])
   let entries = @src.dssp_assign(chain)
   assert_eq(entries.length(), 1)
@@ -128,24 +125,18 @@ test "dssp_full: single residue" {
 
 ///|
 test "dssp_full: two residues" {
-  let res1 = @src.Residue::new(
-    resname="ALA", chainid='A', resseq=1,
-    atoms=[
-      @src.Atom::new(name="N", coord=@src.Vector3::new(0.0, 0.0, 0.0)),
-      @src.Atom::new(name="CA", coord=@src.Vector3::new(1.5, 0.0, 0.0)),
-      @src.Atom::new(name="C", coord=@src.Vector3::new(2.0, 1.5, 0.0)),
-      @src.Atom::new(name="O", coord=@src.Vector3::new(1.2, 2.3, 0.0)),
-    ],
-  )
-  let res2 = @src.Residue::new(
-    resname="GLY", chainid='A', resseq=2,
-    atoms=[
-      @src.Atom::new(name="N", coord=@src.Vector3::new(3.3, 1.8, 0.0)),
-      @src.Atom::new(name="CA", coord=@src.Vector3::new(4.0, 3.0, 0.0)),
-      @src.Atom::new(name="C", coord=@src.Vector3::new(5.5, 2.8, 0.0)),
-      @src.Atom::new(name="O", coord=@src.Vector3::new(6.2, 3.7, 0.0)),
-    ],
-  )
+  let res1 = @src.Residue::new(resname="ALA", chainid='A', resseq=1, atoms=[
+    @src.Atom::new(name="N", coord=@src.Vector3::new(0.0, 0.0, 0.0)),
+    @src.Atom::new(name="CA", coord=@src.Vector3::new(1.5, 0.0, 0.0)),
+    @src.Atom::new(name="C", coord=@src.Vector3::new(2.0, 1.5, 0.0)),
+    @src.Atom::new(name="O", coord=@src.Vector3::new(1.2, 2.3, 0.0)),
+  ])
+  let res2 = @src.Residue::new(resname="GLY", chainid='A', resseq=2, atoms=[
+    @src.Atom::new(name="N", coord=@src.Vector3::new(3.3, 1.8, 0.0)),
+    @src.Atom::new(name="CA", coord=@src.Vector3::new(4.0, 3.0, 0.0)),
+    @src.Atom::new(name="C", coord=@src.Vector3::new(5.5, 2.8, 0.0)),
+    @src.Atom::new(name="O", coord=@src.Vector3::new(6.2, 3.7, 0.0)),
+  ])
   let chain = @src.Chain::new(id='A', residues=[res1, res2])
   let entries = @src.dssp_assign(chain)
   assert_eq(entries.length(), 2)
@@ -154,21 +145,15 @@ test "dssp_full: two residues" {
 ///|
 test "dssp_full: missing backbone atoms" {
   // Residue with only CA (missing N, C, O)
-  let res1 = @src.Residue::new(
-    resname="ALA", chainid='A', resseq=1,
-    atoms=[
-      @src.Atom::new(name="CA", coord=@src.Vector3::new(0.0, 0.0, 0.0)),
-    ],
-  )
-  let res2 = @src.Residue::new(
-    resname="GLY", chainid='A', resseq=2,
-    atoms=[
-      @src.Atom::new(name="N", coord=@src.Vector3::new(3.3, 1.8, 0.0)),
-      @src.Atom::new(name="CA", coord=@src.Vector3::new(4.0, 3.0, 0.0)),
-      @src.Atom::new(name="C", coord=@src.Vector3::new(5.5, 2.8, 0.0)),
-      @src.Atom::new(name="O", coord=@src.Vector3::new(6.2, 3.7, 0.0)),
-    ],
-  )
+  let res1 = @src.Residue::new(resname="ALA", chainid='A', resseq=1, atoms=[
+    @src.Atom::new(name="CA", coord=@src.Vector3::new(0.0, 0.0, 0.0)),
+  ])
+  let res2 = @src.Residue::new(resname="GLY", chainid='A', resseq=2, atoms=[
+    @src.Atom::new(name="N", coord=@src.Vector3::new(3.3, 1.8, 0.0)),
+    @src.Atom::new(name="CA", coord=@src.Vector3::new(4.0, 3.0, 0.0)),
+    @src.Atom::new(name="C", coord=@src.Vector3::new(5.5, 2.8, 0.0)),
+    @src.Atom::new(name="O", coord=@src.Vector3::new(6.2, 3.7, 0.0)),
+  ])
   let chain = @src.Chain::new(id='A', residues=[res1, res2])
   let entries = @src.dssp_assign(chain)
   assert_eq(entries.length(), 2)
@@ -201,7 +186,16 @@ test "dssp_full: ss_sequence" {
   // Each character should be a valid DSSP code
   for i = 0; i < seq.length(); i = i + 1 {
     let c = seq[i]
-    assert_true(c == 'H' || c == 'G' || c == 'I' || c == 'E' || c == 'B' || c == 'T' || c == 'S' || c == '-')
+    assert_true(
+      c == 'H' ||
+      c == 'G' ||
+      c == 'I' ||
+      c == 'E' ||
+      c == 'B' ||
+      c == 'T' ||
+      c == 'S' ||
+      c == '-',
+    )
   }
 }
 

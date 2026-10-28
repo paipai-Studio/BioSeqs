@@ -20,26 +20,26 @@
 /// Configuration for stochastic conformation sampling.
 pub struct SamplingConfig {
   kT : Double // Thermal energy (default 1.0, in units of kT)
-  num_modes : Int // Number of non-zero modes to use (0 = all available)
-  seed : Int // Random seed for reproducibility
+  num_modes : Int32 // Number of non-zero modes to use (0 = all available)
+  seed : Int32 // Random seed for reproducibility
   scale : Double // Overall scale factor applied to displacements
 }
 
 ///|
 /// Default sampling config: kT=1.0, all modes, seed=42, scale=1.0.
 pub fn SamplingConfig::default() -> SamplingConfig {
-  SamplingConfig::{ kT: 1.0, num_modes: 0, seed: 42, scale: 1.0 }
+  SamplingConfig::{ kT: 1.0, num_modes: 0, seed: 42, scale: 1.0, }
 }
 
 ///|
 /// Create a SamplingConfig with custom parameters.
 pub fn SamplingConfig::new(
-  kT? : Double = 1.0,
-  num_modes? : Int = 0,
-  seed? : Int = 42,
-  scale? : Double = 1.0,
+  kT~ : Double = 1.0,
+  num_modes~ : Int32 = 0,
+  seed~ : Int32 = 42,
+  scale~ : Double = 1.0,
 ) -> SamplingConfig {
-  SamplingConfig::{ kT, num_modes, seed, scale }
+  SamplingConfig::{ kT, num_modes, seed, scale, }
 }
 
 ///|
@@ -75,7 +75,7 @@ pub fn Conformation::new(
   coefficients : Array[Double],
   rmsd : Double,
 ) -> Conformation {
-  Conformation::{ coords, coefficients, rmsd }
+  Conformation::{ coords, coefficients, rmsd, }
 }
 
 // ============================================================================
@@ -90,17 +90,18 @@ priv struct SamplerRNG {
 
 ///|
 /// Create a new RNG with the given seed.
-fn sampler_rng_new(seed : Int) -> SamplerRNG {
+fn sampler_rng_new(seed : Int32) -> SamplerRNG {
   let s = if seed == 0 { 1 } else { seed }
-  SamplerRNG::{ state: s.to_int64() & 0x7FFFFFFFFFFFFFFF }
+  SamplerRNG::{ state: s.to_int64() & 0x7FFFFFFFFFFFFFFF, }
 }
 
 ///|
 /// Generate next uniform random number in [0, 1).
 fn sampler_rng_uniform(state : SamplerRNG) -> (SamplerRNG, Double) {
-  let next_state = (state.state * 6364136223846793005L + 1442695040888963407L) & 0x7FFFFFFFFFFFFFFF
+  let next_state = (state.state * 6364136223846793005L + 1442695040888963407L) &
+    0x7FFFFFFFFFFFFFFF
   let value = next_state.to_double() / 9223372036854775808.0
-  (SamplerRNG::{ state: next_state }, value)
+  (SamplerRNG::{ state: next_state, }, value)
 }
 
 ///|
@@ -138,14 +139,14 @@ pub fn calc_rmsd(coords1 : Array[Vector3], coords2 : Array[Vector3]) -> Double {
 ///|
 /// Calculate the mean coordinate over a set of conformations.
 pub fn mean_conformation(
-  conformations : Array[Conformation]
+  conformations : Array[Conformation],
 ) -> Array[Vector3]? {
   if conformations.length() == 0 {
     return None
   }
   let n = conformations.length()
   let n_atoms = conformations[0].coords.length()
-  let result : Array[Vector3] = Array::makei(n_atoms, { _ => Vector3::zero() })
+  let result : Array[Vector3] = Array::makei(n_atoms, _ => Vector3::zero())
   for conf in conformations {
     for i = 0; i < n_atoms; i = i + 1 {
       result[i] = Vector3::new(
@@ -198,10 +199,10 @@ pub fn ensemble_rmsf(conformations : Array[Conformation]) -> Array[Double] {
 ///|
 /// Calculate the RMSD matrix between all pairs of conformations.
 pub fn ensemble_rmsd_matrix(
-  conformations : Array[Conformation]
+  conformations : Array[Conformation],
 ) -> Array[Array[Double]] {
   let n = conformations.length()
-  let mat : Array[Array[Double]] = Array::makei(n, { _ => Array::make(n, 0.0) })
+  let mat : Array[Array[Double]] = Array::makei(n, _ => Array::make(n, 0.0))
   for i = 0; i < n; i = i + 1 {
     for j = i + 1; j < n; j = j + 1 {
       let r = calc_rmsd(conformations[i].coords, conformations[j].coords)
@@ -230,7 +231,7 @@ pub fn deform_mode(
   amplitude : Double,
 ) -> Array[Vector3] {
   let n = coords.length()
-  let result : Array[Vector3] = Array::makei(n, { _ => Vector3::zero() })
+  let result : Array[Vector3] = Array::makei(n, _ => Vector3::zero())
   let ev_len = eigenvector.length()
   if ev_len == 3 * n {
     // ANM: 3N eigenvector
@@ -266,7 +267,7 @@ pub fn deform_mode(
 pub fn traverse_mode(
   coords : Array[Vector3],
   eigenvector : Array[Double],
-  num_steps : Int,
+  num_steps : Int32,
   range : Double,
 ) -> Array[Array[Vector3]] {
   if num_steps <= 0 {
@@ -314,7 +315,7 @@ pub fn sample_anm_conformations(
   coords : Array[Vector3],
   eigenvalues : Array[Double],
   eigenvectors : Array[Array[Double]],
-  num_samples : Int,
+  num_samples : Int32,
   config : SamplingConfig,
 ) -> Array[Conformation] {
   let n = coords.length()
@@ -358,7 +359,7 @@ pub fn sample_anm_conformations(
         disp[i] = disp[i] + r_k * eigenvectors[i][mode_idx]
       }
     }
-    let new_coords : Array[Vector3] = Array::makei(n, { _ => Vector3::zero() })
+    let new_coords : Array[Vector3] = Array::makei(n, _ => Vector3::zero())
     for i = 0; i < n; i = i + 1 {
       let i3 = 3 * i
       new_coords[i] = Vector3::new(
@@ -368,7 +369,11 @@ pub fn sample_anm_conformations(
       )
     }
     let rmsd = calc_rmsd(coords, new_coords)
-    conformations.push(Conformation::{ coords: new_coords, coefficients: coeffs, rmsd })
+    conformations.push(Conformation::{
+      coords: new_coords,
+      coefficients: coeffs,
+      rmsd,
+    })
   }
   conformations
 }
@@ -386,7 +391,7 @@ pub fn sample_gnm_conformations(
   coords : Array[Vector3],
   eigenvalues : Array[Double],
   eigenvectors : Array[Array[Double]],
-  num_samples : Int,
+  num_samples : Int32,
   config : SamplingConfig,
 ) -> Array[Conformation] {
   let n = coords.length()
@@ -429,7 +434,7 @@ pub fn sample_gnm_conformations(
         disp[i] = disp[i] + r_k * eigenvectors[i][mode_idx]
       }
     }
-    let new_coords : Array[Vector3] = Array::makei(n, { _ => Vector3::zero() })
+    let new_coords : Array[Vector3] = Array::makei(n, _ => Vector3::zero())
     for i = 0; i < n; i = i + 1 {
       new_coords[i] = Vector3::new(
         coords[i].x + disp[i],
@@ -438,7 +443,11 @@ pub fn sample_gnm_conformations(
       )
     }
     let rmsd = calc_rmsd(coords, new_coords)
-    conformations.push(Conformation::{ coords: new_coords, coefficients: coeffs, rmsd })
+    conformations.push(Conformation::{
+      coords: new_coords,
+      coefficients: coeffs,
+      rmsd,
+    })
   }
   conformations
 }
@@ -452,12 +461,14 @@ pub fn sample_gnm_conformations(
 pub fn sample_from_anm(
   anm : ANM,
   coords : Array[Vector3],
-  num_samples : Int,
+  num_samples : Int32,
   config : SamplingConfig,
 ) -> Array[Conformation] {
   let eigenvalues = anm.get_eigenvalues()
   let eigenvectors = anm.get_eigenvectors()
-  sample_anm_conformations(coords, eigenvalues, eigenvectors, num_samples, config)
+  sample_anm_conformations(
+    coords, eigenvalues, eigenvectors, num_samples, config,
+  )
 }
 
 ///|
@@ -465,12 +476,14 @@ pub fn sample_from_anm(
 pub fn sample_from_gnm(
   gnm : GNM,
   coords : Array[Vector3],
-  num_samples : Int,
+  num_samples : Int32,
   config : SamplingConfig,
 ) -> Array[Conformation] {
   let eigenvalues = gnm.get_eigenvalues()
   let eigenvectors = gnm.get_eigenvectors()
-  sample_gnm_conformations(coords, eigenvalues, eigenvectors, num_samples, config)
+  sample_gnm_conformations(
+    coords, eigenvalues, eigenvectors, num_samples, config,
+  )
 }
 
 // ============================================================================
@@ -509,7 +522,7 @@ pub fn rmsd_stddev(conformations : Array[Conformation]) -> Double {
 ///|
 /// Find the conformation with the maximum RMSD.
 pub fn max_rmsd_conformation(
-  conformations : Array[Conformation]
+  conformations : Array[Conformation],
 ) -> Conformation? {
   if conformations.length() == 0 {
     return None
@@ -526,7 +539,7 @@ pub fn max_rmsd_conformation(
 ///|
 /// Find the conformation with the minimum RMSD.
 pub fn min_rmsd_conformation(
-  conformations : Array[Conformation]
+  conformations : Array[Conformation],
 ) -> Conformation? {
   if conformations.length() == 0 {
     return None

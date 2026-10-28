@@ -49,12 +49,16 @@ fn main {
 
   println("")
   println("4. Consensus sequence:")
-  let cs = @bio.ace_consensus_sequence(@bio.ace_get_contig(data, "contig1").unwrap())
+  let cs = @bio.ace_consensus_sequence(
+    @bio.ace_get_contig(data, "contig1").unwrap(),
+  )
   println("   First 20 chars: \{cs[0:20]}...")
 
   println("")
   println("5. Read coverage (first 10 positions):")
-  let cov = @bio.ace_read_coverage(@bio.ace_get_contig(data, "contig1").unwrap())
+  let cov = @bio.ace_read_coverage(
+    @bio.ace_get_contig(data, "contig1").unwrap(),
+  )
   let mut pos = 1
   while pos <= 10 {
     println("   Position \{pos}: depth \{cov.get(pos).unwrap_or(0)}")
@@ -67,7 +71,9 @@ fn main {
   let mut ri = 0
   while ri < reads.length() {
     let read = reads[ri]
-    println("   Read: \{read.read_id}, length: \{read.sequence_length}, strand: \{read.strand}")
+    println(
+      "   Read: \{read.read_id}, length: \{read.sequence_length}, strand: \{read.strand}",
+    )
     println("     Chemistry: \{read.chemistry}, Dye: \{read.dye}")
     println("     Quality: \{read.quality.length()} values")
     ri = ri + 1

@@ -46,16 +46,28 @@ pub fn kf_erfc(x : Double) -> Double {
   let expntl = @math.exp(z * z * -0.5)
   let p = if z < 10.0 / sqrt2 {
     let num = (((((p6 * z + p5) * z + p4) * z + p3) * z + p2) * z + p1) * z + p0
-    let den = ((((((q7 * z + q6) * z + q5) * z + q4) * z + q3) * z + q2) * z + q1) * z + q0
+    let den = (
+        (((((q7 * z + q6) * z + q5) * z + q4) * z + q3) * z + q2) * z + q1
+      ) *
+      z +
+      q0
     expntl * num / den
   } else {
-    expntl / 2.506628274631001 / (z + 1.0 / (z + 2.0 / (z + 3.0 / (z + 4.0 / (z + 0.65)))))
+    expntl /
+    2.506628274631001 /
+    (z + 1.0 / (z + 2.0 / (z + 3.0 / (z + 4.0 / (z + 0.65)))))
   }
-  if x > 0.0 { 2.0 * p } else { 2.0 * (1.0 - p) }
+  if x > 0.0 {
+    2.0 * p
+  } else {
+    2.0 * (1.0 - p)
+  }
 }
 
+///|
 let kf_gamma_eps : Double = 1.0e-14
 
+///|
 let kf_tiny : Double = 1.0e-290
 
 ///|
@@ -163,7 +175,15 @@ fn kf_betai_cf(a : Double, b : Double, x : Double) -> Double {
     }
     j = j + 1
   }
-  @math.exp(kf_lgamma(a + b) - kf_lgamma(a) - kf_lgamma(b) + a * @math.ln(x) + b * @math.ln(1.0 - x)) / a / f
+  @math.exp(
+    kf_lgamma(a + b) -
+    kf_lgamma(a) -
+    kf_lgamma(b) +
+    a * @math.ln(x) +
+    b * @math.ln(1.0 - x),
+  ) /
+  a /
+  f
 }
 
 ///|

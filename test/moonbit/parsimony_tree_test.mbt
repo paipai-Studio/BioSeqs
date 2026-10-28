@@ -12,22 +12,27 @@ fn pt_leaf(name : String, bl : Double) -> @src.Clade {
   @src.Clade::new(name=Some(name), branch_length=Some(bl))
 }
 
+///|
 fn pt_leaf0(name : String) -> @src.Clade {
   @src.Clade::new(name=Some(name))
 }
 
+///|
 fn pt_internal(children : Array[@src.Clade], bl : Double) -> @src.Clade {
   @src.Clade::new(branch_length=Some(bl), clades=children)
 }
 
+///|
 fn pt_internal0(children : Array[@src.Clade]) -> @src.Clade {
   @src.Clade::new(clades=children)
 }
 
+///|
 fn pt_tree(root : @src.Clade, rooted : Bool) -> @src.Tree {
-  @src.Tree::new(root, rooted=rooted)
+  @src.Tree::new(root, rooted~)
 }
 
+///|
 fn pt_map(pairs : Array[(String, String)]) -> Map[String, String] {
   let m : Map[String, String] = Map([])
   for p in pairs {
@@ -42,8 +47,8 @@ fn pt_map(pairs : Array[(String, String)]) -> Map[String, String] {
 /// and Biopython's shortest round-trip repr normalize to the same fixed form.
 fn pt_emit_fixed6(
   cs : Array[Char],
-  lo : Int,
-  hi : Int,
+  lo : Int32,
+  hi : Int32,
   sb : StringBuilder,
 ) -> Unit {
   let mut p = lo
@@ -156,7 +161,7 @@ fn pt_assert_climb(
   start : @src.Tree,
   alignment : Map[String, String],
   scorer : @src.ParsimonyScorer,
-  expected : Array[(Int, Array[Int], Int, String)],
+  expected : Array[(Int32, Array[Int32], Int32, String)],
 ) -> @src.Tree raise Error {
   let mut work = start
   let mut round = 0
@@ -165,7 +170,7 @@ fn pt_assert_climb(
     let mut best_score = scorer.get_score(work, alignment)
     assert_eq(best_score, exp.0)
     let neighbors = @src.nni_get_neighbors(work)
-    let scores : Array[Int] = Array(capacity=0)
+    let scores : Array[Int32] = Array(capacity=0)
     let mut accepted = -1
     let mut i = 0
     while i < neighbors.length() {
@@ -197,18 +202,16 @@ fn pt_assert_climb(
 ///|
 test "pt_balanced_four_taxon_scores_and_neighbors" {
   let t = pt_tree(
-    pt_internal([
-      pt_internal([pt_leaf("A", 0.1), pt_leaf("B", 0.2)], 0.3),
-      pt_internal([pt_leaf("C", 0.4), pt_leaf("D", 0.5)], 0.6),
-    ], 0.0),
+    pt_internal(
+      [
+        pt_internal([pt_leaf("A", 0.1), pt_leaf("B", 0.2)], 0.3),
+        pt_internal([pt_leaf("C", 0.4), pt_leaf("D", 0.5)], 0.6),
+      ],
+      0.0,
+    ),
     true,
   )
-  let aln = pt_map([
-    ("A", "AATA"),
-    ("B", "AATC"),
-    ("C", "GCGG"),
-    ("D", "GCGT"),
-  ])
+  let aln = pt_map([("A", "AATA"), ("B", "AATC"), ("C", "GCGG"), ("D", "GCGT")])
   let scorer = @src.ParsimonyScorer::new()
   assert_eq(scorer.get_score(t, aln), 6)
   let neighbors = @src.nni_get_neighbors(t)
@@ -227,15 +230,12 @@ test "pt_balanced_four_taxon_scores_and_neighbors" {
   )
   // no improving neighbor: search returns the starting topology unchanged
   let searcher = @src.NNITreeSearcher::new(scorer)
-  let result = try { searcher.search(t, aln) } catch {
+  let result = searcher.search(t, aln) catch {
     @src.ParsimonyTreeError(message) => abort(message)
   }
   assert_eq(result.is_rooted(), true)
   assert_eq(scorer.get_score(result, aln), 6)
-  assert_eq(
-    result.root.to_newick(lengths=false),
-    "((A,B),(C,D));",
-  )
+  assert_eq(result.root.to_newick(lengths=false), "((A,B),(C,D));")
 }
 
 // ============================================================================
@@ -245,21 +245,22 @@ test "pt_balanced_four_taxon_scores_and_neighbors" {
 ///|
 test "pt_pectinate_four_taxon_neighbors" {
   let t = pt_tree(
-    pt_internal([
-      pt_internal([
-        pt_internal([pt_leaf("A", 0.1), pt_leaf("B", 0.15)], 0.2),
-        pt_leaf("C", 0.25),
-      ], 0.3),
-      pt_leaf("D", 0.4),
-    ], 0.0),
+    pt_internal(
+      [
+        pt_internal(
+          [
+            pt_internal([pt_leaf("A", 0.1), pt_leaf("B", 0.15)], 0.2),
+            pt_leaf("C", 0.25),
+          ],
+          0.3,
+        ),
+        pt_leaf("D", 0.4),
+      ],
+      0.0,
+    ),
     true,
   )
-  let aln = pt_map([
-    ("A", "AATA"),
-    ("B", "AATC"),
-    ("C", "GCGG"),
-    ("D", "GCGT"),
-  ])
+  let aln = pt_map([("A", "AATA"), ("B", "AATC"), ("C", "GCGG"), ("D", "GCGT")])
   let scorer = @src.ParsimonyScorer::new()
   assert_eq(scorer.get_score(t, aln), 6)
   let neighbors = @src.nni_get_neighbors(t)
@@ -283,16 +284,25 @@ test "pt_pectinate_four_taxon_neighbors" {
 ///|
 test "pt_fitch_two_round_climb" {
   let t = pt_tree(
-    pt_internal([
-      pt_leaf("S1", 0.11),
-      pt_internal([
-        pt_leaf("S2", 0.12),
-        pt_internal([
-          pt_leaf("S3", 0.13),
-          pt_internal([pt_leaf("S4", 0.14), pt_leaf("S5", 0.15)], 0.25),
-        ], 0.23),
-      ], 0.21),
-    ], 0.02),
+    pt_internal(
+      [
+        pt_leaf("S1", 0.11),
+        pt_internal(
+          [
+            pt_leaf("S2", 0.12),
+            pt_internal(
+              [
+                pt_leaf("S3", 0.13),
+                pt_internal([pt_leaf("S4", 0.14), pt_leaf("S5", 0.15)], 0.25),
+              ],
+              0.23,
+            ),
+          ],
+          0.21,
+        ),
+      ],
+      0.02,
+    ),
     true,
   )
   let aln = pt_map([
@@ -322,7 +332,7 @@ test "pt_fitch_two_round_climb" {
     pt_norm6(neighbors[3].root.to_newick()),
     "(S1:0.110000,(S2:0.120000,(S4:0.140000,(S3:0.130000,S5:0.150000):0.250000):0.230000):0.210000):0.020000;",
   )
-  let expected : Array[(Int, Array[Int], Int, String)] = [
+  let expected : Array[(Int32, Array[Int32], Int32, String)] = [
     (
       8,
       [11, 11, 8, 7],
@@ -340,7 +350,7 @@ test "pt_fitch_two_round_climb" {
   // end-state neighbor scores [10, 10, 8, 8]
   let final_neighbors = @src.nni_get_neighbors(final_tree)
   assert_eq(
-    final_neighbors.map(fn(x) -> Int raise @src.ParsimonyTreeError {
+    final_neighbors.map(fn(x) -> Int32 raise @src.ParsimonyTreeError {
       scorer.get_score(x, aln)
     }),
     [10, 10, 8, 8],
@@ -351,6 +361,7 @@ test "pt_fitch_two_round_climb" {
 // Fixture B: 5-taxon unrooted NJ start -> midpoint root -> Fitch NNI
 // ============================================================================
 
+///|
 fn pt_biopython_msa() -> Array[(String, String)] {
   [
     ("Alpha", "AACGTGGCCACAT"),
@@ -365,14 +376,10 @@ fn pt_biopython_msa() -> Array[(String, String)] {
 test "pt_nj_unrooted_midpoint_and_search" {
   let pairs = pt_biopython_msa()
   let aln = pt_map(pairs)
-  let calculator = try {
-    @src.DistanceCalculator::new(model="identity")
-  } catch {
+  let calculator = @src.DistanceCalculator::new(model="identity") catch {
     @src.SeqError(message) => abort(message)
   }
-  let dm = try {
-    calculator.get_distance(pairs)
-  } catch {
+  let dm = calculator.get_distance(pairs) catch {
     @src.SeqError(message) => abort(message)
   }
   let names : Array[String] = pairs.map(fn(kv) { kv.0 })
@@ -392,23 +399,46 @@ test "pt_nj_unrooted_midpoint_and_search" {
   // frozen midpoint branch lengths (Biopython 1.88)
   let left = mid.root.clades[0]
   let right = mid.root.clades[1]
-  assert_true((left.branch_length.unwrap() - 0.07532051282051289).abs() < 0.000000000001)
-  assert_true((right.branch_length.unwrap() - 0.20352564102564097).abs() < 0.000000000001)
-  assert_true((left.clades[0].branch_length.unwrap() - 0.04807692307692307).abs() < 0.000000000001)
-  assert_true((left.clades[0].clades[0].branch_length.unwrap() - 0.18269230769230765).abs() < 0.000000000001)
-  assert_true((left.clades[0].clades[1].branch_length.unwrap() - 0.04807692307692307).abs() < 0.000000000001)
-  assert_true((left.clades[1].branch_length.unwrap() - 0.14423076923076922).abs() < 0.000000000001)
-  assert_true((right.clades[0].branch_length.unwrap() - 0.10256410256410259).abs() < 0.000000000001)
-  assert_true((right.clades[1].branch_length.unwrap() - 0.051282051282051266).abs() < 0.000000000001)
+  assert_true(
+    (left.branch_length.unwrap() - 0.07532051282051289).abs() < 0.000000000001,
+  )
+  assert_true(
+    (right.branch_length.unwrap() - 0.20352564102564097).abs() < 0.000000000001,
+  )
+  assert_true(
+    (left.clades[0].branch_length.unwrap() - 0.04807692307692307).abs() <
+    0.000000000001,
+  )
+  assert_true(
+    (left.clades[0].clades[0].branch_length.unwrap() - 0.18269230769230765).abs() <
+    0.000000000001,
+  )
+  assert_true(
+    (left.clades[0].clades[1].branch_length.unwrap() - 0.04807692307692307).abs() <
+    0.000000000001,
+  )
+  assert_true(
+    (left.clades[1].branch_length.unwrap() - 0.14423076923076922).abs() <
+    0.000000000001,
+  )
+  assert_true(
+    (right.clades[0].branch_length.unwrap() - 0.10256410256410259).abs() <
+    0.000000000001,
+  )
+  assert_true(
+    (right.clades[1].branch_length.unwrap() - 0.051282051282051266).abs() <
+    0.000000000001,
+  )
 
   // midpoint neighbor scores [16, 16, 13, 13], none strictly better
-  let mid_scores =
-    @src.nni_get_neighbors(mid).map(fn(x) -> Int raise @src.ParsimonyTreeError {
-      scorer.get_score(x, aln)
-    })
+  let mid_scores = @src.nni_get_neighbors(mid).map(fn(
+    x,
+  ) -> Int32 raise @src.ParsimonyTreeError {
+    scorer.get_score(x, aln)
+  })
   assert_eq(mid_scores, [16, 16, 13, 13])
   let searcher = @src.NNITreeSearcher::new(scorer)
-  let result = try { searcher.search(nj, aln) } catch {
+  let result = searcher.search(nj, aln) catch {
     @src.ParsimonyTreeError(message) => abort(message)
   }
   assert_eq(result.is_rooted(), true)
@@ -431,9 +461,7 @@ test "pt_default_upgma_start_and_constructor" {
   let ctor = @src.ParsimonyTreeConstructor::new(
     @src.NNITreeSearcher::new(@src.ParsimonyScorer::new()),
   )
-  let built = try {
-    ctor.build_tree(aln)
-  } catch {
+  let built = ctor.build_tree(aln) catch {
     @src.ParsimonyTreeError(message) => abort(message)
   }
   assert_eq(built.is_rooted(), true)
@@ -448,14 +476,37 @@ test "pt_default_upgma_start_and_constructor" {
   )
   let eps_delta = built.root.clades[0]
   let rest = built.root.clades[1]
-  assert_true((eps_delta.branch_length.unwrap() - 0.18749999999999994).abs() < 0.000000000001)
-  assert_true((eps_delta.clades[0].branch_length.unwrap() - 0.07692307692307693).abs() < 0.000000000001)
-  assert_true((eps_delta.clades[1].branch_length.unwrap() - 0.07692307692307693).abs() < 0.000000000001)
-  assert_true((rest.branch_length.unwrap() - 0.11057692307692304).abs() < 0.000000000001)
-  assert_true((rest.clades[0].branch_length.unwrap() - 0.038461538461538464).abs() < 0.000000000001)
-  assert_true((rest.clades[0].clades[0].branch_length.unwrap() - 0.11538461538461536).abs() < 0.000000000001)
-  assert_true((rest.clades[0].clades[1].branch_length.unwrap() - 0.11538461538461536).abs() < 0.000000000001)
-  assert_true((rest.clades[1].branch_length.unwrap() - 0.15384615384615383).abs() < 0.000000000001)
+  assert_true(
+    (eps_delta.branch_length.unwrap() - 0.18749999999999994).abs() <
+    0.000000000001,
+  )
+  assert_true(
+    (eps_delta.clades[0].branch_length.unwrap() - 0.07692307692307693).abs() <
+    0.000000000001,
+  )
+  assert_true(
+    (eps_delta.clades[1].branch_length.unwrap() - 0.07692307692307693).abs() <
+    0.000000000001,
+  )
+  assert_true(
+    (rest.branch_length.unwrap() - 0.11057692307692304).abs() < 0.000000000001,
+  )
+  assert_true(
+    (rest.clades[0].branch_length.unwrap() - 0.038461538461538464).abs() <
+    0.000000000001,
+  )
+  assert_true(
+    (rest.clades[0].clades[0].branch_length.unwrap() - 0.11538461538461536).abs() <
+    0.000000000001,
+  )
+  assert_true(
+    (rest.clades[0].clades[1].branch_length.unwrap() - 0.11538461538461536).abs() <
+    0.000000000001,
+  )
+  assert_true(
+    (rest.clades[1].branch_length.unwrap() - 0.15384615384615383).abs() <
+    0.000000000001,
+  )
   assert_eq(scorer.get_score(built, aln), 13)
 }
 
@@ -466,16 +517,25 @@ test "pt_default_upgma_start_and_constructor" {
 ///|
 test "pt_sankoff_five_round_climb" {
   let start = pt_tree(
-    pt_internal([
-      pt_internal([
-        pt_internal([
-          pt_internal([pt_leaf("S1", 0.11), pt_leaf("S3", 0.13)], 0.31),
-          pt_leaf("S4", 0.14),
-        ], 0.32),
-        pt_leaf("S5", 0.15),
-      ], 0.33),
-      pt_internal([pt_leaf("S6", 0.16), pt_leaf("S2", 0.12)], 0.34),
-    ], 0.02),
+    pt_internal(
+      [
+        pt_internal(
+          [
+            pt_internal(
+              [
+                pt_internal([pt_leaf("S1", 0.11), pt_leaf("S3", 0.13)], 0.31),
+                pt_leaf("S4", 0.14),
+              ],
+              0.32,
+            ),
+            pt_leaf("S5", 0.15),
+          ],
+          0.33,
+        ),
+        pt_internal([pt_leaf("S6", 0.16), pt_leaf("S2", 0.12)], 0.34),
+      ],
+      0.02,
+    ),
     true,
   )
   let aln = pt_map([
@@ -487,15 +547,12 @@ test "pt_sankoff_five_round_climb" {
     ("S6", "TTTGT"),
   ])
   // transitions A<->G, C<->T cost 1; transversions cost 5
-  let matrix = @src.ParsimonyMatrix::new(
-    ["A", "C", "G", "T"],
-    [
-      [0.0, 5.0, 1.0, 5.0],
-      [5.0, 0.0, 5.0, 1.0],
-      [1.0, 5.0, 0.0, 5.0],
-      [5.0, 1.0, 5.0, 0.0],
-    ],
-  )
+  let matrix = @src.ParsimonyMatrix::new(["A", "C", "G", "T"], [
+    [0.0, 5.0, 1.0, 5.0],
+    [5.0, 0.0, 5.0, 1.0],
+    [1.0, 5.0, 0.0, 5.0],
+    [5.0, 1.0, 5.0, 0.0],
+  ])
   let fitch = @src.ParsimonyScorer::new()
   let scorer = @src.ParsimonyScorer::new(matrix=Some(matrix))
   assert_eq(fitch.get_score(start, aln), 12)
@@ -503,7 +560,7 @@ test "pt_sankoff_five_round_climb" {
 
   let neighbors = @src.nni_get_neighbors(start)
   assert_eq(neighbors.length(), 6)
-  let nscores = neighbors.map(fn(x) -> Int raise @src.ParsimonyTreeError {
+  let nscores = neighbors.map(fn(x) -> Int32 raise @src.ParsimonyTreeError {
     scorer.get_score(x, aln)
   })
   assert_eq(nscores, [44, 52, 54, 54, 52, 52])
@@ -532,7 +589,7 @@ test "pt_sankoff_five_round_climb" {
     "((((S4:0.140000,S3:0.130000):0.310000,S1:0.110000):0.320000,S5:0.150000):0.330000,(S6:0.160000,S2:0.120000):0.340000):0.020000;",
   )
 
-  let expected : Array[(Int, Array[Int], Int, String)] = [
+  let expected : Array[(Int32, Array[Int32], Int32, String)] = [
     (
       52,
       [44, 52, 54, 54, 52, 52],
@@ -568,9 +625,7 @@ test "pt_sankoff_five_round_climb" {
   assert_eq(fitch.get_score(final_tree, aln), 8)
 
   // the public searcher reaches the same optimum
-  let result = try {
-    @src.NNITreeSearcher::new(scorer).search(start, aln)
-  } catch {
+  let result = @src.NNITreeSearcher::new(scorer).search(start, aln) catch {
     @src.ParsimonyTreeError(message) => abort(message)
   }
   assert_eq(scorer.get_score(result, aln), 32)
@@ -584,15 +639,14 @@ test "pt_sankoff_five_round_climb" {
 test "pt_root_at_midpoint_unrooted_trees" {
   // 3-tip trifurcating unrooted tree with unequal branches
   let star = pt_tree(
-    pt_internal0([
-      pt_leaf("A", 1.0),
-      pt_leaf("B", 2.0),
-      pt_leaf("C", 4.0),
-    ]),
+    pt_internal0([pt_leaf("A", 1.0), pt_leaf("B", 2.0), pt_leaf("C", 4.0)]),
     false,
   )
   let m1 = star.root_at_midpoint()
-  assert_eq(pt_norm6(m1.root.to_newick()), "((B:2.000000,A:1.000000):1.000000,C:3.000000);")
+  assert_eq(
+    pt_norm6(m1.root.to_newick()),
+    "((B:2.000000,A:1.000000):1.000000,C:3.000000);",
+  )
 
   // 4-tip case; diameter is tip D to any of A/B/C, midpoint on the D edge
   let t2 = pt_tree(
@@ -611,10 +665,7 @@ test "pt_root_at_midpoint_unrooted_trees" {
   assert_eq(m2.is_rooted(), true)
   // midpoint rooting does not mutate the input tree
   assert_eq(star.is_rooted(), false)
-  assert_eq(
-    star.root.to_newick(lengths=false),
-    "(A,B,C);",
-  )
+  assert_eq(star.root.to_newick(lengths=false), "(A,B,C);")
 }
 
 // ============================================================================
@@ -659,12 +710,7 @@ test "pt_rejects_non_bifurcating_and_mismatched_names" {
     ]),
     true,
   )
-  let aln2 = pt_map([
-    ("A", "X"),
-    ("B", "Y"),
-    ("C", "Z"),
-    ("E", "W"),
-  ])
+  let aln2 = pt_map([("A", "X"), ("B", "Y"), ("C", "Z"), ("E", "W")])
   let msg2 = try {
     ignore(scorer.get_score(t, aln2))
     "NO_ERROR"
@@ -672,27 +718,24 @@ test "pt_rejects_non_bifurcating_and_mismatched_names" {
     @src.ParsimonyTreeError(message) => message
   }
   assert_eq(
-    msg2,
-    "Taxon names of the input tree should be the same with the alignment.",
+    msg2, "Taxon names of the input tree should be the same with the alignment.",
   )
 }
 
 ///|
 test "pt_scorer_does_not_mutate_input_tree" {
   let t = pt_tree(
-    pt_internal([
-      pt_internal([pt_leaf("A", 0.1), pt_leaf("B", 0.2)], 0.3),
-      pt_internal([pt_leaf("C", 0.4), pt_leaf("D", 0.5)], 0.6),
-    ], 0.0),
+    pt_internal(
+      [
+        pt_internal([pt_leaf("A", 0.1), pt_leaf("B", 0.2)], 0.3),
+        pt_internal([pt_leaf("C", 0.4), pt_leaf("D", 0.5)], 0.6),
+      ],
+      0.0,
+    ),
     true,
   )
   let before = t.root.to_newick()
-  let aln = pt_map([
-    ("A", "AATA"),
-    ("B", "AATC"),
-    ("C", "GCGG"),
-    ("D", "GCGT"),
-  ])
+  let aln = pt_map([("A", "AATA"), ("B", "AATC"), ("C", "GCGG"), ("D", "GCGT")])
   let scorer = @src.ParsimonyScorer::new()
   assert_eq(scorer.get_score(t, aln), 6)
   assert_eq(scorer.get_score(t, aln), 6)

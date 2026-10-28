@@ -7,7 +7,7 @@
 ///|
 /// One step of the glibc LCG used to build the synthetic profiles, so the
 /// MoonBit input is bit-for-bit the same as the R verification input.
-fn cn_rand(seed : Int) -> Double {
+fn cn_rand(seed : Int32) -> Double {
   // Int arithmetic wraps on overflow, then mask to unsigned 31-bit modulus
   let s = (1103515245 * seed + 12345) & 0x7FFFFFFF
   s.to_double() / 2147483647.0
@@ -43,7 +43,7 @@ fn cn_make_sample() -> Array[Double] {
 ///|
 /// Independent-noise sample sharing the four level boundaries, matching the
 /// R verification samples s2/s3.
-fn cn_noisy(levels : Array[Double], seed : Int) -> Array[Double] {
+fn cn_noisy(levels : Array[Double], seed : Int32) -> Array[Double] {
   let n = 120
   let edges = [0, 30, 60, 90, n]
   let v : Array[Double] = []

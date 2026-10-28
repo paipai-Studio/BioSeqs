@@ -15,6 +15,8 @@ pub enum DreamletEffectKind {
   Categorical
   Random
 } derive(Debug)
+
+///|
 pub extend DreamletEffectKind with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -23,6 +25,8 @@ pub struct DreamletEffectSpec {
   kind : DreamletEffectKind
   reference : String
 } derive(Debug)
+
+///|
 pub extend DreamletEffectSpec with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -30,6 +34,8 @@ pub struct DreamletModelSpec {
   effects : Array[DreamletEffectSpec]
   intercept : Bool
 } derive(Debug)
+
+///|
 pub extend DreamletModelSpec with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -37,10 +43,12 @@ pub struct DreamletPseudobulkAssay {
   cluster_id : String
   sample_names : Array[String]
   counts : Array[Array[Double]]
-  cell_counts : Array[Int]
+  cell_counts : Array[Int32]
   library_sizes : Array[Double]
   metadata : Map[String, Array[String]]
 } derive(Debug)
+
+///|
 pub extend DreamletPseudobulkAssay with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -49,13 +57,15 @@ pub struct DreamletPseudobulk {
   sample_names : Array[String]
   assays : Array[DreamletPseudobulkAssay]
 } derive(Debug)
+
+///|
 pub extend DreamletPseudobulk with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct DreamletProcessConfig {
-  min_cells : Int
+  min_cells : Int32
   min_count : Double
-  min_samples : Int
+  min_samples : Int32
   min_prop : Double
   min_total_count : Double
   prior_count : Double
@@ -64,16 +74,20 @@ pub struct DreamletProcessConfig {
   sum_trim : Double
   use_poisson_initial_weights : Bool
   rescale_initial_weights : Bool
-  max_iterations : Int
+  max_iterations : Int32
   tolerance : Double
 } derive(Debug)
+
+///|
 pub extend DreamletProcessConfig with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct DreamletTmmResult {
   factors : Array[Double]
-  reference_sample : Int
+  reference_sample : Int32
 } derive(Debug)
+
+///|
 pub extend DreamletTmmResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -81,6 +95,8 @@ pub struct DreamletExclusion {
   cluster_id : String
   reason : String
 } derive(Debug)
+
+///|
 pub extend DreamletExclusion with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -89,7 +105,7 @@ pub struct DreamletProcessedAssay {
   sample_names : Array[String]
   gene_names : Array[String]
   counts : Array[Array[Double]]
-  cell_counts : Array[Int]
+  cell_counts : Array[Int32]
   library_sizes : Array[Double]
   norm_factors : Array[Double]
   effective_library_sizes : Array[Double]
@@ -107,6 +123,8 @@ pub struct DreamletProcessedAssay {
   voom_y : Array[Double]
   voom_fitted : Array[Double]
 } derive(Debug)
+
+///|
 pub extend DreamletProcessedAssay with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -115,6 +133,8 @@ pub struct DreamletProcessedData {
   exclusions : Array[DreamletExclusion]
   config : DreamletProcessConfig
 } derive(Debug)
+
+///|
 pub extend DreamletProcessedData with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -122,6 +142,8 @@ pub struct DreamletAssayResult {
   cluster_id : String
   result : DreamResult
 } derive(Debug)
+
+///|
 pub extend DreamletAssayResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -139,6 +161,8 @@ pub struct DreamletGeneResult {
   random_variances : Array[Double]
   residual_variance : Double
 } derive(Debug)
+
+///|
 pub extend DreamletGeneResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -149,6 +173,8 @@ pub struct DreamletResult {
   genes : Array[DreamletGeneResult]
   exclusions : Array[DreamletExclusion]
 } derive(Debug)
+
+///|
 pub extend DreamletResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -200,7 +226,7 @@ fn dreamlet_median(values : Array[Double]) -> Double {
     return 0.0
   }
   let sorted = values.copy()
-  sorted.sort_by(fn(left : Double, right : Double) -> Int {
+  sorted.sort_by(fn(left : Double, right : Double) -> Int32 {
     if left < right {
       -1
     } else if left > right {
@@ -223,7 +249,7 @@ fn dreamlet_quantile(values : Array[Double], probability : Double) -> Double {
     return 0.0
   }
   let sorted = values.copy()
-  sorted.sort_by(fn(left : Double, right : Double) -> Int {
+  sorted.sort_by(fn(left : Double, right : Double) -> Int32 {
     if left < right {
       -1
     } else if left > right {
@@ -262,7 +288,7 @@ fn dreamlet_validate_names(
 ///|
 fn dreamlet_validate_count_matrix(
   counts : Array[Array[Double]],
-  observations : Int,
+  observations : Int32,
   require_integer : Bool,
 ) -> Unit raise DreamletError {
   if counts.length() == 0 || observations == 0 {
@@ -297,7 +323,7 @@ pub fn dreamlet_numeric_effect(name : String) -> DreamletEffectSpec {
 ///|
 pub fn dreamlet_categorical_effect(
   name : String,
-  reference? : String = "",
+  reference~ : String = "",
 ) -> DreamletEffectSpec {
   DreamletEffectSpec::{
     name,
@@ -314,7 +340,7 @@ pub fn dreamlet_random_effect(name : String) -> DreamletEffectSpec {
 ///|
 pub fn dreamlet_model(
   effects : Array[DreamletEffectSpec],
-  intercept? : Bool = true,
+  intercept~ : Bool = true,
 ) -> DreamletModelSpec raise DreamletError {
   let seen : Map[String, Bool] = Map([], capacity=effects.length())
   let mut fixed_effects = 0
@@ -352,19 +378,19 @@ pub fn dreamlet_model(
 
 ///|
 pub fn DreamletProcessConfig::create(
-  min_cells? : Int = 5,
-  min_count? : Double = 5.0,
-  min_samples? : Int = 4,
-  min_prop? : Double = 0.4,
-  min_total_count? : Double = 15.0,
-  prior_count? : Double = 0.5,
-  span? : Double = 0.5,
-  logratio_trim? : Double = 0.3,
-  sum_trim? : Double = 0.05,
-  use_poisson_initial_weights? : Bool = true,
-  rescale_initial_weights? : Bool = false,
-  max_iterations? : Int = 100,
-  tolerance? : Double = 0.005,
+  min_cells~ : Int32 = 5,
+  min_count~ : Double = 5.0,
+  min_samples~ : Int32 = 4,
+  min_prop~ : Double = 0.4,
+  min_total_count~ : Double = 15.0,
+  prior_count~ : Double = 0.5,
+  span~ : Double = 0.5,
+  logratio_trim~ : Double = 0.3,
+  sum_trim~ : Double = 0.05,
+  use_poisson_initial_weights~ : Bool = true,
+  rescale_initial_weights~ : Bool = false,
+  max_iterations~ : Int32 = 100,
+  tolerance~ : Double = 0.005,
 ) -> DreamletProcessConfig raise DreamletError {
   if min_cells < 1 {
     dreamlet_fail("dreamlet min_cells must be positive")
@@ -387,9 +413,7 @@ pub fn DreamletProcessConfig::create(
   if !is_finite(span) || span <= 0.0 || span > 1.0 {
     dreamlet_fail("dreamlet LOWESS span must be in (0, 1]")
   }
-  if !is_finite(logratio_trim) ||
-    logratio_trim < 0.0 ||
-    logratio_trim >= 0.5 {
+  if !is_finite(logratio_trim) || logratio_trim < 0.0 || logratio_trim >= 0.5 {
     dreamlet_fail("dreamlet TMM log-ratio trim must be in [0, 0.5)")
   }
   if !is_finite(sum_trim) || sum_trim < 0.0 || sum_trim >= 0.5 {
@@ -444,7 +468,7 @@ pub fn dreamlet_aggregate_to_pseudobulk(
   cell_names : Array[String],
   sample_ids : Array[String],
   cluster_ids : Array[String],
-  cell_metadata? : Map[String, Array[String]] = Map([], capacity=0),
+  cell_metadata~ : Map[String, Array[String]] = Map([], capacity=0),
 ) -> DreamletPseudobulk raise DreamletError {
   let cells = cell_names.length()
   if gene_names.length() != counts.length() {
@@ -460,8 +484,8 @@ pub fn dreamlet_aggregate_to_pseudobulk(
   dreamlet_validate_count_matrix(counts, cells, true)
   let sample_names : Array[String] = []
   let cluster_names : Array[String] = []
-  let sample_index : Map[String, Int] = Map([], capacity=cells)
-  let cluster_index : Map[String, Int] = Map([], capacity=cells)
+  let sample_index : Map[String, Int32] = Map([], capacity=cells)
+  let cluster_index : Map[String, Int32] = Map([], capacity=cells)
   for cell in 0..<cells {
     let sample = sample_ids[cell]
     let cluster = cluster_ids[cell]
@@ -511,7 +535,7 @@ pub fn dreamlet_aggregate_to_pseudobulk(
     sample_metadata[key] = collapsed
   }
   let assay_counts : Array[Array[Array[Double]]] = []
-  let assay_cells : Array[Array[Int]] = []
+  let assay_cells : Array[Array[Int32]] = []
   for _ in cluster_names {
     let matrix : Array[Array[Double]] = []
     for _ in gene_names {
@@ -556,8 +580,8 @@ pub fn dreamlet_aggregate_sce(
   sce : SingleCellExperiment,
   sample_id : String,
   cluster_id : String,
-  assay? : String = "counts",
-  metadata_fields? : Array[String] = [],
+  assay~ : String = "counts",
+  metadata_fields~ : Array[String] = [],
 ) -> DreamletPseudobulk raise DreamletError {
   if sample_id == "" || cluster_id == "" || assay == "" {
     dreamlet_fail("dreamlet SCE field and assay names must not be empty")
@@ -603,7 +627,7 @@ pub fn dreamlet_aggregate_sce(
 }
 
 ///|
-fn dreamlet_tmm_rank(values : Array[Double], index : Int) -> Double {
+fn dreamlet_tmm_rank(values : Array[Double], index : Int32) -> Double {
   let mut less = 0
   let mut equal = 0
   for value in values {
@@ -620,8 +644,8 @@ fn dreamlet_tmm_rank(values : Array[Double], index : Int) -> Double {
 fn dreamlet_tmm_pair(
   counts : Array[Array[Double]],
   library_sizes : Array[Double],
-  sample : Int,
-  reference : Int,
+  sample : Int32,
+  reference : Int32,
   logratio_trim : Double,
   sum_trim : Double,
 ) -> Double {
@@ -687,8 +711,8 @@ fn dreamlet_tmm_pair(
 ///|
 pub fn dreamlet_tmm(
   counts : Array[Array[Double]],
-  logratio_trim? : Double = 0.3,
-  sum_trim? : Double = 0.05,
+  logratio_trim~ : Double = 0.3,
+  sum_trim~ : Double = 0.05,
 ) -> DreamletTmmResult raise DreamletError {
   if counts.length() == 0 || counts[0].length() == 0 {
     dreamlet_fail("dreamlet TMM requires a non-empty count matrix")
@@ -807,7 +831,7 @@ pub fn dreamlet_compute_norm_counts(
 pub fn dreamlet_compute_log_cpm(
   counts : Array[Array[Double]],
   effective_library_sizes : Array[Double],
-  prior_count? : Double = 0.5,
+  prior_count~ : Double = 0.5,
 ) -> Array[Array[Double]] raise DreamletError {
   if !is_finite(prior_count) || prior_count <= 0.0 {
     dreamlet_fail("dreamlet log CPM prior count must be finite and positive")
@@ -845,7 +869,7 @@ pub fn dreamlet_compute_log_cpm(
 ///|
 fn dreamlet_subset_metadata(
   metadata : Map[String, Array[String]],
-  indices : Array[Int],
+  indices : Array[Int32],
 ) -> Map[String, Array[String]] {
   let keys = metadata.keys().collect()
   let output : Map[String, Array[String]] = Map([], capacity=keys.length())
@@ -860,7 +884,7 @@ fn dreamlet_subset_metadata(
 }
 
 ///|
-fn dreamlet_unique_count(values : Array[String]) -> Int {
+fn dreamlet_unique_count(values : Array[String]) -> Int32 {
   let seen : Map[String, Bool] = Map([], capacity=values.length())
   for value in values {
     seen[value] = true
@@ -1013,7 +1037,7 @@ fn dreamlet_process_one(
   model : DreamletModelSpec,
   config : DreamletProcessConfig,
 ) -> DreamletProcessedAssay raise DreamletError {
-  let retained_samples : Array[Int] = []
+  let retained_samples : Array[Int32] = []
   let dropped_samples : Array[String] = []
   for sample in 0..<source.sample_names.length() {
     if source.cell_counts[sample] >= config.min_cells &&
@@ -1031,7 +1055,7 @@ fn dreamlet_process_one(
     )
   }
   let sample_names : Array[String] = []
-  let cell_counts : Array[Int] = []
+  let cell_counts : Array[Int32] = []
   let library_sizes : Array[Double] = []
   for index in retained_samples {
     sample_names.push(source.sample_names[index])
@@ -1065,7 +1089,7 @@ fn dreamlet_process_one(
     .ceil()
     .to_int()
     .max(1)
-  let retained_genes : Array[Int] = []
+  let retained_genes : Array[Int32] = []
   let dropped_genes : Array[String] = []
   for gene in 0..<retained_counts.length() {
     let mut total = 0.0
@@ -1147,7 +1171,7 @@ fn dreamlet_process_one(
   trend_points.sort_by(fn(
     left : (Double, Double),
     right : (Double, Double),
-  ) -> Int {
+  ) -> Int32 {
     if left.0 < right.0 {
       -1
     } else if left.0 > right.0 {
@@ -1223,7 +1247,7 @@ fn dreamlet_process_one(
 pub fn dreamlet_process_assays(
   pseudobulk : DreamletPseudobulk,
   model : DreamletModelSpec,
-  config? : DreamletProcessConfig = DreamletProcessConfig::default(),
+  config~ : DreamletProcessConfig = DreamletProcessConfig::default(),
 ) -> DreamletProcessedData raise DreamletError {
   if pseudobulk.assays.length() == 0 {
     dreamlet_fail("dreamlet pseudobulk object contains no assays")
@@ -1275,11 +1299,11 @@ pub fn dreamlet_process_assays(
 ///|
 fn dreamlet_bh_adjust(p_values : Array[Double]) -> Array[Double] {
   let count = p_values.length()
-  let order : Array[Int] = []
+  let order : Array[Int32] = []
   for index in 0..<count {
     order.push(index)
   }
-  order.sort_by(fn(left : Int, right : Int) -> Int {
+  order.sort_by(fn(left : Int32, right : Int32) -> Int32 {
     if p_values[left] < p_values[right] {
       -1
     } else if p_values[left] > p_values[right] {
@@ -1307,10 +1331,10 @@ fn dreamlet_bh_adjust(p_values : Array[Double]) -> Array[Double] {
 pub fn dreamlet(
   processed : DreamletProcessedData,
   coefficient_name : String,
-  contrast_name? : String = "",
-  reml? : Bool = true,
-  max_iterations? : Int = 100,
-  tolerance? : Double = 0.005,
+  contrast_name~ : String = "",
+  reml~ : Bool = true,
+  max_iterations~ : Int32 = 100,
+  tolerance~ : Double = 0.005,
 ) -> DreamletResult raise DreamletError {
   if coefficient_name == "" {
     dreamlet_fail("dreamlet coefficient name must not be empty")
@@ -1452,8 +1476,8 @@ pub fn DreamletResult::assay(
 ///|
 pub fn DreamletResult::top_table(
   self : DreamletResult,
-  maximum_fdr? : Double = 1.0,
-  cluster_id? : String = "",
+  maximum_fdr~ : Double = 1.0,
+  cluster_id~ : String = "",
 ) -> Array[DreamletGeneResult] raise DreamletError {
   if !is_finite(maximum_fdr) || maximum_fdr < 0.0 || maximum_fdr > 1.0 {
     dreamlet_fail("dreamlet maximum FDR must be between zero and one")
@@ -1468,7 +1492,7 @@ pub fn DreamletResult::top_table(
   selected.sort_by(fn(
     left : DreamletGeneResult,
     right : DreamletGeneResult,
-  ) -> Int {
+  ) -> Int32 {
     if left.p_value < right.p_value {
       -1
     } else if left.p_value > right.p_value {

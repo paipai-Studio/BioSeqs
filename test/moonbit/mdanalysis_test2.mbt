@@ -1,6 +1,5 @@
 ///|
 /// Tests for mdanalysis batch 2: hydrogen bonds and phi/psi dihedrals.
-
 test "mdanalysis_hydrogen_bonds" {
   // D=atom0(0,0,0) H=atom1(1,0,0)
   // A=atom2(2,0,0): D-A=2.0≤3.0, D-H-A=180°≥150° → 通过
@@ -15,7 +14,9 @@ test "mdanalysis_hydrogen_bonds" {
   ]
   let pairs = [(0, 1)]
   let acceptors = [2, 3, 4]
-  let hbonds = @src.mdanalysis_hydrogen_bonds(coords, pairs, acceptors, 3.0, 150.0)
+  let hbonds = @src.mdanalysis_hydrogen_bonds(
+    coords, pairs, acceptors, 3.0, 150.0,
+  )
   assert_eq(hbonds.length(), 1)
   let (d, h, a, dist, ang) = hbonds[0]
   assert_eq(d, 0)
@@ -25,6 +26,7 @@ test "mdanalysis_hydrogen_bonds" {
   assert_true(assert_num_close(ang, 180.0, 1.0e-6))
 }
 
+///|
 test "mdanalysis_phi_psi_planar" {
   // 3 残基全在 z=0 平面 → 所有二面角为 0° 或 ±180°（共面）
   let bb = [

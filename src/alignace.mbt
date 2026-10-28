@@ -35,16 +35,16 @@
 ///|
 /// A motif discovered by AlignACE, represented as a position frequency matrix.
 pub struct AlignAceMotif {
-  count_matrix : Array[Array[Int]] // 4 rows (A, C, G, T) × width columns
-  width : Int
-  num_sites : Int // total number of sites contributing
+  count_matrix : Array[Array[Int32]] // 4 rows (A, C, G, T) × width columns
+  width : Int32
+  num_sites : Int32 // total number of sites contributing
   consensus : String // consensus sequence derived from the matrix
   sites : Array[AlignAceSite] // individual sites matching this motif
 }
 
 ///|
 /// Construct an AlignAceMotif from a count matrix.
-pub fn AlignAceMotif::new(count_matrix : Array[Array[Int]]) -> AlignAceMotif {
+pub fn AlignAceMotif::new(count_matrix : Array[Array[Int32]]) -> AlignAceMotif {
   let width = if count_matrix.length() > 0 {
     count_matrix[0].length()
   } else {
@@ -72,7 +72,7 @@ pub fn AlignAceMotif::new(count_matrix : Array[Array[Int]]) -> AlignAceMotif {
 /// A single site matching an AlignACE motif.
 pub struct AlignAceSite {
   sequence_id : String
-  position : Int // 0-based start position in the original sequence
+  position : Int32 // 0-based start position in the original sequence
   strand : String // "+" or "-"
   sequence : String // the actual subsequence matching the motif
 }
@@ -81,7 +81,7 @@ pub struct AlignAceSite {
 /// Construct an AlignAceSite.
 pub fn AlignAceSite::new(
   sequence_id~ : String,
-  position~ : Int,
+  position~ : Int32,
   strand~ : String,
   sequence~ : String,
 ) -> AlignAceSite {
@@ -225,7 +225,7 @@ pub fn alignace_parse(text : String) -> AlignAceRecord {
 ///|
 /// Parse a motif matrix starting at the given line index.
 /// Returns Some(motif) if successful, None otherwise.
-fn alignace_parse_motif(lines : Array[String], start : Int) -> AlignAceMotif? {
+fn alignace_parse_motif(lines : Array[String], start : Int32) -> AlignAceMotif? {
   // Line 0: "i   T   G   A   C   T   C   G   A   T" (consensus letters)
   // Line 1: "    0   1   2   3   4   5   6   7   8   9" (column indices)
   // Line 2: "A   1   0   8   0   0   0   0   0   0   0"
@@ -233,7 +233,7 @@ fn alignace_parse_motif(lines : Array[String], start : Int) -> AlignAceMotif? {
   // Line 4: "G   0   8   0   0   0   0   0   8   0   0"
   // Line 5: "T   7   0   0   8   7   8   0   0   8   7"
   let base_rows = ["A", "C", "G", "T"]
-  let count_matrix : Array[Array[Int]] = Array(capacity=0)
+  let count_matrix : Array[Array[Int32]] = Array(capacity=0)
   for row_idx in 0..<4 {
     let line_idx = start + 2 + row_idx
     if line_idx >= lines.length() {
@@ -313,7 +313,7 @@ fn alignace_split_whitespace(s : String) -> Array[String] {
 ///|
 /// Compute the consensus sequence from a count matrix.
 /// Uses the base with the highest count at each position.
-fn alignace_consensus(count_matrix : Array[Array[Int]]) -> String {
+fn alignace_consensus(count_matrix : Array[Array[Int32]]) -> String {
   if count_matrix.length() < 4 {
     return ""
   }
@@ -491,7 +491,7 @@ fn alignace_write_motif(motif : AlignAceMotif) -> String {
 
 ///|
 /// Count the number of motifs in a record.
-pub fn alignace_num_motifs(record : AlignAceRecord) -> Int {
+pub fn alignace_num_motifs(record : AlignAceRecord) -> Int32 {
   record.motifs.length()
 }
 
@@ -499,7 +499,7 @@ pub fn alignace_num_motifs(record : AlignAceRecord) -> Int {
 /// Get a motif by index (0-based). Returns None if out of range.
 pub fn alignace_get_motif(
   record : AlignAceRecord,
-  index : Int,
+  index : Int32,
 ) -> AlignAceMotif? {
   if index >= 0 && index < record.motifs.length() {
     Some(record.motifs[index])

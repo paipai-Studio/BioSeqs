@@ -29,14 +29,18 @@ test "treeio write newick" {
 
 ///|
 test "treeio parse beast tree" {
-  let tree = @src.treeio_parse_beast("((A[&height=0.1]:0.1,B[&height=0.1]:0.2)[&height=0.3]:0.3,C[&height=0.1]:0.4);")
+  let tree = @src.treeio_parse_beast(
+    "((A[&height=0.1]:0.1,B[&height=0.1]:0.2)[&height=0.3]:0.3,C[&height=0.1]:0.4);",
+  )
   assert_eq(tree.format, "beast")
   assert_true(tree.n_tips >= 2)
 }
 
 ///|
 test "treeio parse jplace" {
-  let jplace = @src.treeio_parse_jplace("{\"tree\":\"((A:0.1,B:0.2):0.3,C:0.4);\",\"placements\":[]}")
+  let jplace = @src.treeio_parse_jplace(
+    "{\"tree\":\"((A:0.1,B:0.2):0.3,C:0.4);\",\"placements\":[]}",
+  )
   assert_true(jplace.tree.contains("A"))
 }
 

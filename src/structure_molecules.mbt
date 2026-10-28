@@ -6,9 +6,9 @@
 ///|
 /// A molecule identified in a structure: atom indices forming a connected component.
 pub struct ConnectedMolecule {
-  atom_indices : Array[Int]   // indices into the original atom array
-  center : Vector3            // geometric center
-  n_atoms : Int
+  atom_indices : Array[Int32] // indices into the original atom array
+  center : Vector3 // geometric center
+  n_atoms : Int32
 }
 
 ///|
@@ -25,12 +25,12 @@ pub fn detect_molecules(
 ) -> Array[ConnectedMolecule] {
   let n = atoms.length()
   // Union-find parent array
-  let parent : Array[Int] = Array(capacity=n)
+  let parent : Array[Int32] = Array(capacity=n)
   for i = 0; i < n; i = i + 1 {
     parent.push(i)
   }
   // Find with path compression
-  fn find(parent : Array[Int], x : Int) -> Int {
+  fn find(parent : Array[Int32], x : Int32) -> Int32 {
     let mut root = x
     while parent[root] != root {
       root = parent[root]
@@ -61,13 +61,13 @@ pub fn detect_molecules(
     }
   }
   // Group atoms by root
-  let groups : Map[Int, Array[Int]] = Map([], capacity=n)
+  let groups : Map[Int32, Array[Int32]] = Map([], capacity=n)
   for i = 0; i < n; i = i + 1 {
     let root = find(parent, i)
     match groups.get(root) {
       Some(arr) => arr.push(i)
       None => {
-        let arr : Array[Int] = Array(capacity=1)
+        let arr : Array[Int32] = Array(capacity=1)
         arr.push(i)
         groups[root] = arr
       }

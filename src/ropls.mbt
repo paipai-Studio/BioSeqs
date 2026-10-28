@@ -24,9 +24,9 @@ pub(all) enum RoplsY {
 ///|
 /// Result of NIPALS PCA.
 pub struct RoplsPcaResult {
-  n : Int
-  p : Int
-  ncomp : Int
+  n : Int32
+  p : Int32
+  ncomp : Int32
   scale : String
   /// Scores T (samples x components)
   scores : Array[Array[Double]]
@@ -39,11 +39,11 @@ pub struct RoplsPcaResult {
   /// Cumulative R2X
   r2x_cum : Array[Double]
   /// NIPALS iterations per component
-  iters : Array[Int]
+  iters : Array[Int32]
   x_mean : Array[Double]
   x_sd : Array[Double]
   /// Indices of removed near-zero variance variables
-  dropped : Array[Int]
+  dropped : Array[Int32]
 }
 
 ///|
@@ -51,15 +51,15 @@ pub struct RoplsPcaResult {
 pub struct RoplsModel {
   /// "PLS", "PLS-DA", "OPLS" or "OPLS-DA"
   kind : String
-  n : Int
-  p : Int
-  q : Int
+  n : Int32
+  p : Int32
+  q : Int32
   /// Number of predictive components
-  pre : Int
+  pre : Int32
   /// Number of orthogonal components
-  ort : Int
+  ort : Int32
   scale : String
-  crossval : Int
+  crossval : Int32
   /// Predictive scores T (n x pre)
   scores : Array[Array[Double]]
   /// X loadings P (p x pre)
@@ -110,13 +110,13 @@ pub struct RoplsModel {
   y_mean : Array[Double]
   y_sd : Array[Double]
   /// Indices of removed near-zero variance variables
-  dropped : Array[Int]
+  dropped : Array[Int32]
 }
 
 ///|
 /// Result of response permutation testing.
 pub struct RoplsPermResult {
-  nperm : Int
+  nperm : Int32
   /// Observed model cumulative R2Y
   obs_r2y : Double
   /// Observed model cumulative Q2
@@ -155,7 +155,7 @@ fn rop_copy_mat(m : Array[Array[Double]]) -> Array[Array[Double]] {
 }
 
 ///|
-fn[T] rop_take(a : Array[T], k : Int) -> Array[T] {
+fn[T] rop_take(a : Array[T], k : Int32) -> Array[T] {
   let out : Array[T] = []
   for i in 0..<k {
     out.push(a[i])
@@ -325,11 +325,11 @@ fn rop_jacobi_eigen(
   for i = 0; i < k; i = i + 1 {
     d[i] = a[i][i]
   }
-  let idx : Array[Int] = []
+  let idx : Array[Int32] = []
   for i in 0..<k {
     idx.push(i)
   }
-  idx.sort_by(fn(a : Int, b : Int) -> Int { d[b].compare(d[a]) })
+  idx.sort_by(fn(a : Int32, b : Int32) -> Int32 { d[b].compare(d[a]) })
   let dsorted = idx.map(fn(i) { d[i] })
   let vsorted : Array[Array[Double]] = Array::make(k, [])
   for i = 0; i < k; i = i + 1 {
@@ -397,7 +397,7 @@ fn rop_check_scale(scale : String) -> Unit raise {
 }
 
 ///|
-fn rop_check_rect(x : Array[Array[Double]]) -> (Int, Int) raise {
+fn rop_check_rect(x : Array[Array[Double]]) -> (Int32, Int32) raise {
   let n = x.length()
   if n == 0 {
     raise SeqError("ropls: empty X matrix")
@@ -478,11 +478,11 @@ fn rop_sum_sq(m : Array[Array[Double]]) -> Double {
 
 ///|
 /// Indices of variables with variance below the ropls epsilon threshold.
-fn rop_zero_var(x : Array[Array[Double]]) -> Array[Int] {
+fn rop_zero_var(x : Array[Array[Double]]) -> Array[Int32] {
   let n = x.length()
   let p = x[0].length()
   let eps = 2.220446049250313e-16
-  let dropped : Array[Int] = []
+  let dropped : Array[Int32] = []
   for j = 0; j < p; j = j + 1 {
     let col = Array::make(n, 0.0)
     for i = 0; i < n; i = i + 1 {
@@ -498,7 +498,7 @@ fn rop_zero_var(x : Array[Array[Double]]) -> Array[Int] {
 ///|
 fn rop_select_columns(
   x : Array[Array[Double]],
-  keep : Array[Int],
+  keep : Array[Int32],
 ) -> Array[Array[Double]] {
   let out : Array[Array[Double]] = Array::make(x.length(), [])
   for i = 0; i < x.length(); i = i + 1 {
@@ -523,8 +523,8 @@ fn rop_select_columns(
 ///   "center" or "none".
 pub fn ropls_pca(
   x : Array[Array[Double]],
-  ncomp? : Int = 0,
-  scale? : String = "standard",
+  ncomp~ : Int32 = 0,
+  scale~ : String = "standard",
 ) -> RoplsPcaResult raise {
   rop_check_scale(scale)
   let (n0, p0) = rop_check_rect(x)
@@ -536,10 +536,10 @@ pub fn ropls_pca(
   if pkept == 0 {
     raise SeqError("ropls: all X variables have near-zero variance")
   }
-  let keep : Array[Int] = []
+  let keep : Array[Int32] = []
   let drop_set = dropped.copy()
   for j = 0; j < p0; j = j + 1 {
-    if !(drop_set.contains(j)) {
+    if !drop_set.contains(j) {
       keep.push(j)
     }
   }
@@ -580,7 +580,7 @@ pub fn ropls_pca(
   let varv : Array[Double] = []
   let r2v : Array[Double] = []
   let cumv : Array[Double] = []
-  let iters : Array[Int] = []
+  let iters : Array[Int32] = []
   let mut selected = maxc
   for h in 0..<maxc {
     let mut told = xm.map(fn(row) { row[0] })
@@ -668,9 +668,9 @@ pub fn ropls_pca(
 
 ///|
 priv struct RoplsPrepared {
-  n : Int
-  p : Int
-  q : Int
+  n : Int32
+  p : Int32
+  q : Int32
   xs : Array[Array[Double]]
   ys : Array[Array[Double]]
   xmean : Array[Double]
@@ -679,7 +679,7 @@ priv struct RoplsPrepared {
   ysd : Array[Double]
   ssx : Double
   ssy : Double
-  dropped : Array[Int]
+  dropped : Array[Int32]
   classes : Array[String]
   da : Bool
 }
@@ -687,7 +687,7 @@ priv struct RoplsPrepared {
 ///|
 /// Lexicographic byte order (R's character ordering). MoonBit's built-in
 /// String comparison is shortlex (length first), which differs from R.
-fn rop_cmp_str(a : String, b : String) -> Int {
+fn rop_cmp_str(a : String, b : String) -> Int32 {
   let ca = a.to_array()
   let cb = b.to_array()
   let k = if ca.length() < cb.length() { ca.length() } else { cb.length() }
@@ -710,11 +710,11 @@ fn rop_dummy(
 ) -> (Array[String], Array[Array[Double]]) raise {
   let levels : Array[String] = []
   for lab in labels {
-    if !(levels.contains(lab)) {
+    if !levels.contains(lab) {
       levels.push(lab)
     }
   }
-  levels.sort_by(fn(a : String, b : String) -> Int { rop_cmp_str(a, b) })
+  levels.sort_by(fn(a : String, b : String) -> Int32 { rop_cmp_str(a, b) })
   if levels.length() < 2 {
     raise SeqError("ropls: classification requires at least 2 classes")
   }
@@ -737,7 +737,7 @@ fn rop_dummy(
           found = true
         }
       }
-      if !(found) {
+      if !found {
         raise SeqError("ropls: internal dummy coding error")
       }
     }
@@ -785,9 +785,9 @@ fn rop_prepare(
   if pkept == 0 {
     raise SeqError("ropls: all X variables have near-zero variance")
   }
-  let keep : Array[Int] = []
+  let keep : Array[Int32] = []
   for j = 0; j < p0; j = j + 1 {
-    if !(dropped.contains(j)) {
+    if !dropped.contains(j) {
       keep.push(j)
     }
   }
@@ -836,7 +836,7 @@ fn rop_pls_component(
   Array[Double],
   Array[Double],
   Array[Double],
-  Int,
+  Int32,
 ) {
   let n = x.length()
   let p = x[0].length()
@@ -913,15 +913,15 @@ fn rop_pls_component(
 fn rop_pls_press(
   xn : Array[Array[Double]],
   yn : Array[Array[Double]],
-  folds : Array[Array[Int]],
+  folds : Array[Array[Int32]],
 ) -> Double {
   let p = xn[0].length()
   let mut press = 0.0
   for fold in folds {
-    let tr : Array[Int] = []
+    let tr : Array[Int32] = []
     let testset = fold
     for i = 0; i < xn.length(); i = i + 1 {
-      if !(testset.contains(i)) {
+      if !testset.contains(i) {
         tr.push(i)
       }
     }
@@ -943,13 +943,13 @@ fn rop_pls_press(
 }
 
 ///|
-fn rop_make_folds(n : Int, k : Int) -> Array[Array[Int]] raise {
+fn rop_make_folds(n : Int32, k : Int32) -> Array[Array[Int32]] raise {
   if k < 2 || k > n {
     raise SeqError(
       "ropls: crossval folds must be between 2 and the sample count",
     )
   }
-  let folds : Array[Array[Int]] = Array::make(k, [])
+  let folds : Array[Array[Int32]] = Array::make(k, [])
   for i = 0; i < k; i = i + 1 {
     folds[i] = []
   }
@@ -982,14 +982,14 @@ priv struct RoplsPlsFit {
   r2y : Array[Double]
   q2 : Array[Double]
   sig : Array[String]
-  ncomp : Int
+  ncomp : Int32
 }
 
 ///|
 fn rop_fit_pls(
   pre0 : RoplsPrepared,
-  ncomp : Int,
-  crossval : Int,
+  ncomp : Int32,
+  crossval : Int32,
   autol : Bool,
 ) -> RoplsPlsFit raise {
   let n = pre0.n
@@ -1033,7 +1033,7 @@ fn rop_fit_pls(
   let r2y : Array[Double] = []
   let q2v : Array[Double] = []
   let sig : Array[String] = []
-  let iters : Array[Int] = []
+  let iters : Array[Int32] = []
   let threshold = if n > 100 { 0.0 } else { 0.05 }
   let mut rss = pre0.ssy
   let mut h = 0
@@ -1392,7 +1392,7 @@ fn rop_opls_tw(
       total = total + x
     }
   }
-  let keep : Array[Int] = []
+  let keep : Array[Int32] = []
   for k = 0; k < q; k = k + 1 {
     if d[k] > eps * total {
       keep.push(k)
@@ -1430,14 +1430,14 @@ priv struct RoplsOplsFit {
   q2 : Array[Double]
   q2_cum : Array[Double]
   sig : Array[String]
-  ort : Int
+  ort : Int32
 }
 
 ///|
 fn rop_fit_opls(
   pre0 : RoplsPrepared,
-  ortho_req : Int,
-  crossval : Int,
+  ortho_req : Int32,
+  crossval : Int32,
   autol : Bool,
 ) -> RoplsOplsFit raise {
   let n = pre0.n
@@ -1473,9 +1473,9 @@ fn rop_fit_opls(
   let tes_x : Array[Array[Array[Double]]] = []
   let tes_y : Array[Array[Array[Double]]] = []
   for fold in folds {
-    let tr : Array[Int] = []
+    let tr : Array[Int32] = []
     for i = 0; i < n; i = i + 1 {
-      if !(fold.contains(i)) {
+      if !fold.contains(i) {
         tr.push(i)
       }
     }
@@ -1842,10 +1842,10 @@ fn rop_classify(
 pub fn ropls_fit(
   x : Array[Array[Double]],
   y~ : RoplsY,
-  ncomp? : Int = 0,
-  ortho? : Int = 0,
-  scale? : String = "standard",
-  crossval? : Int = 7,
+  ncomp~ : Int32 = 0,
+  ortho~ : Int32 = 0,
+  scale~ : String = "standard",
+  crossval~ : Int32 = 7,
 ) -> RoplsModel raise {
   let pre0 = rop_prepare(x, y, scale)
   let da = pre0.da
@@ -2062,9 +2062,9 @@ fn rop_scale_new(
   }
   let mut mat = xnew
   if model.dropped.length() > 0 {
-    let keep : Array[Int] = []
+    let keep : Array[Int32] = []
     for j = 0; j < pfull; j = j + 1 {
-      if !(model.dropped.contains(j)) {
+      if !model.dropped.contains(j) {
         keep.push(j)
       }
     }
@@ -2136,11 +2136,11 @@ pub fn ropls_predict_classes(
 pub fn ropls_permutation(
   x : Array[Array[Double]],
   y~ : RoplsY,
-  perms~ : Array[Array[Int]],
-  ncomp? : Int = 1,
-  ortho? : Int = 0,
-  scale? : String = "standard",
-  crossval? : Int = 7,
+  perms~ : Array[Array[Int32]],
+  ncomp~ : Int32 = 1,
+  ortho~ : Int32 = 0,
+  scale~ : String = "standard",
+  crossval~ : Int32 = 7,
 ) -> RoplsPermResult raise {
   if perms.length() == 0 {
     raise SeqError("ropls: permutation test requires at least one permutation")

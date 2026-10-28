@@ -13,7 +13,7 @@ pub struct PackingAtom {
   y : Double
   z : Double
   residue_name : String
-  residue_seq : Int
+  residue_seq : Int32
   chain_id : Char
   atom_name : String
   element : String
@@ -26,12 +26,12 @@ pub fn PackingAtom::new(
   x~ : Double,
   y~ : Double,
   z~ : Double,
-  residue_name? : String = "UNK",
-  residue_seq? : Int = 1,
-  chain_id? : Char = ' ',
-  atom_name? : String = "",
-  element? : String = "",
-  vdw_radius? : Double = 1.7,
+  residue_name~ : String = "UNK",
+  residue_seq~ : Int32 = 1,
+  chain_id~ : Char = ' ',
+  atom_name~ : String = "",
+  element~ : String = "",
+  vdw_radius~ : Double = 1.7,
 ) -> PackingAtom {
   PackingAtom::{
     x,
@@ -85,22 +85,22 @@ pub fn SpherePoint::get_coords(self : SpherePoint) -> Array[Double] {
 /// Result of packing density calculation for a single residue.
 pub struct PackingResult {
   residue_name : String
-  residue_seq : Int
+  residue_seq : Int32
   chain_id : Char
   density : Double
-  n_contacting_atoms : Int
-  n_shell_points : Int
+  n_contacting_atoms : Int32
+  n_shell_points : Int32
 }
 
 ///|
 /// Construct a PackingResult.
 pub fn PackingResult::new(
   residue_name~ : String,
-  residue_seq~ : Int,
-  chain_id? : Char = ' ',
-  density? : Double = 0.0,
-  n_contacting_atoms? : Int = 0,
-  n_shell_points? : Int = 0,
+  residue_seq~ : Int32,
+  chain_id~ : Char = ' ',
+  density~ : Double = 0.0,
+  n_contacting_atoms~ : Int32 = 0,
+  n_shell_points~ : Int32 = 0,
 ) -> PackingResult {
   PackingResult::{
     residue_name,
@@ -132,22 +132,22 @@ pub struct PackingAnalysisResult {
   min_density : Double
   max_density : Double
   median_density : Double
-  n_residues : Int
-  n_buried : Int
-  n_exposed : Int
+  n_residues : Int32
+  n_buried : Int32
+  n_exposed : Int32
 }
 
 ///|
 /// Construct a PackingAnalysisResult.
 pub fn PackingAnalysisResult::new(
   results~ : Array[PackingResult],
-  mean_density? : Double = 0.0,
-  min_density? : Double = 0.0,
-  max_density? : Double = 0.0,
-  median_density? : Double = 0.0,
-  n_residues? : Int = 0,
-  n_buried? : Int = 0,
-  n_exposed? : Int = 0,
+  mean_density~ : Double = 0.0,
+  min_density~ : Double = 0.0,
+  max_density~ : Double = 0.0,
+  median_density~ : Double = 0.0,
+  n_residues~ : Int32 = 0,
+  n_buried~ : Int32 = 0,
+  n_exposed~ : Int32 = 0,
 ) -> PackingAnalysisResult {
   PackingAnalysisResult::{
     results,
@@ -188,7 +188,7 @@ pub fn PackingAnalysisResult::summary(self : PackingAnalysisResult) -> String {
 /// using the golden spiral (Fibonacci sphere) algorithm.
 /// n_points: number of points to generate (default 100).
 pub fn generate_packing_sphere_points(
-  n_points? : Int = 100,
+  n_points~ : Int32 = 100,
 ) -> Array[SpherePoint] {
   let points : Array[SpherePoint] = Array(capacity=0)
   let n = if n_points < 1 { 1 } else { n_points }
@@ -230,8 +230,8 @@ pub fn count_atoms_in_sphere(
   center : Array[Double],
   atoms : Array[PackingAtom],
   radius : Double,
-  exclude_index? : Int = -1,
-) -> Int {
+  exclude_index~ : Int32 = -1,
+) -> Int32 {
   let mut count = 0
   let mut i = 0
   while i < atoms.length() {
@@ -256,8 +256,8 @@ pub fn count_atoms_in_sphere(
 /// n_points: number of sphere points for shell (default 100).
 pub fn calculate_packing_density(
   atoms : Array[PackingAtom],
-  radius? : Double = 1.4,
-  n_points? : Int = 100,
+  radius~ : Double = 1.4,
+  n_points~ : Int32 = 100,
 ) -> PackingResult {
   if atoms.length() == 0 {
     return PackingResult::new(residue_name="", residue_seq=0)
@@ -320,8 +320,8 @@ pub fn calculate_packing_density(
 /// n_points: number of sphere points (default 100).
 pub fn packing_density_per_residue(
   atoms : Array[PackingAtom],
-  radius? : Double = 1.4,
-  n_points? : Int = 100,
+  radius~ : Double = 1.4,
+  n_points~ : Int32 = 100,
 ) -> PackingAnalysisResult {
   if atoms.length() == 0 {
     return PackingAnalysisResult::new(results=[])
@@ -425,8 +425,8 @@ pub fn packing_density_per_residue(
 /// n_points: number of sphere points per atom (default 100).
 pub fn calculate_packing_sasa(
   atoms : Array[PackingAtom],
-  probe_radius? : Double = 1.4,
-  n_points? : Int = 100,
+  probe_radius~ : Double = 1.4,
+  n_points~ : Int32 = 100,
 ) -> Double {
   let n = atoms.length()
   if n == 0 {
@@ -489,7 +489,7 @@ pub fn calculate_packing_sasa(
 /// scaled linearly.
 pub fn normalize_packing_density(
   density : PackingResult,
-  threshold? : Double = 1.0,
+  threshold~ : Double = 1.0,
 ) -> PackingResult {
   let norm_val = if threshold > 0.0 {
     if density.density > threshold {
@@ -517,7 +517,7 @@ pub fn normalize_packing_density(
 /// for residues whose density falls below the cutoff value.
 pub fn identify_low_packing(
   analysis : PackingAnalysisResult,
-  cutoff? : Double = 0.5,
+  cutoff~ : Double = 0.5,
 ) -> Array[String] {
   let low_residues : Array[String] = Array(capacity=0)
   let results = analysis.results
@@ -551,7 +551,7 @@ pub fn sphere_volume(radius : Double) -> Double {
 /// actual sphere volume to total volume.
 pub fn calculate_packing_efficiency(
   atoms : Array[PackingAtom],
-  container_radius? : Double = 100.0,
+  container_radius~ : Double = 100.0,
 ) -> Double {
   let n = atoms.length()
   if n == 0 {

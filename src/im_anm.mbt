@@ -30,7 +30,7 @@ pub(all) enum GammaCombine {
 ///|
 /// Result of a mixed ANM calculation.
 pub struct ImANM {
-  n : Int
+  n : Int32
   cutoff : Double
   gammas : Array[Double]
   combine : GammaCombine
@@ -73,8 +73,8 @@ fn combine_gammas(gi : Double, gj : Double, rule : GammaCombine) -> Double {
 pub fn ImANM::new(
   chain : Chain,
   gammas : Array[Double],
-  cutoff? : Double = 15.0,
-  combine? : GammaCombine = ArithmeticMean,
+  cutoff~ : Double = 15.0,
+  combine~ : GammaCombine = ArithmeticMean,
 ) -> ImANM? {
   let residues = chain.get_residues()
   let ca_coords : Array[Vector3] = Array(capacity=0)
@@ -92,7 +92,7 @@ pub fn ImANM::new(
     return None
   }
   let dim = 3 * n
-  let h : Array[Array[Double]] = Array::makei(dim, { _ => Array::make(dim, 0.0) })
+  let h : Array[Array[Double]] = Array::makei(dim, _ => Array::make(dim, 0.0))
   let mut i = 0
   while i < n {
     let mut j = i + 1
@@ -155,7 +155,15 @@ pub fn ImANM::new(
   }
   let max_iter = if dim > 100 { dim * 20 } else { 200 }
   let (eigenvalues, eigenvectors) = linalg_jacobi(h, dim, max_iter)
-  Some(ImANM::{ n, cutoff, gammas, combine, hessian: h, eigenvalues, eigenvectors })
+  Some(ImANM::{
+    n,
+    cutoff,
+    gammas,
+    combine,
+    hessian: h,
+    eigenvalues,
+    eigenvectors,
+  })
 }
 
 ///|
@@ -243,7 +251,13 @@ pub fn ImANM::predict_bfactors(self : ImANM) -> Array[Double] {
     let vec = pairs[k].1
     for i = 0; i < n; i = i + 1 {
       let i3 = 3 * i
-      bf[i] = bf[i] + (vec[i3] * vec[i3] + vec[i3 + 1] * vec[i3 + 1] + vec[i3 + 2] * vec[i3 + 2]) / lambda
+      bf[i] = bf[i] +
+        (
+          vec[i3] * vec[i3] +
+          vec[i3 + 1] * vec[i3 + 1] +
+          vec[i3 + 2] * vec[i3 + 2]
+        ) /
+        lambda
     }
   }
   bf
@@ -257,7 +271,10 @@ pub fn ImANM::fluctuations(self : ImANM) -> Array[Double] {
 
 ///|
 /// Get the k slowest non-trivial modes.
-pub fn ImANM::slow_modes(self : ImANM, k : Int) -> Array[(Int, Double, Array[Double])] {
+pub fn ImANM::slow_modes(
+  self : ImANM,
+  k : Int32,
+) -> Array[(Int32, Double, Array[Double])] {
   let dim = 3 * self.n
   let pairs : Array[(Double, Array[Double])] = Array(capacity=dim)
   for i = 0; i < dim; i = i + 1 {
@@ -277,7 +294,7 @@ pub fn ImANM::slow_modes(self : ImANM, k : Int) -> Array[(Int, Double, Array[Dou
     pairs[j + 1] = key
   }
   let kk = if k < dim - 6 { k } else { dim - 6 }
-  let result : Array[(Int, Double, Array[Double])] = Array(capacity=kk)
+  let result : Array[(Int32, Double, Array[Double])] = Array(capacity=kk)
   for idx = 0; idx < kk; idx = idx + 1 {
     let mode_idx = idx + 6
     result.push((mode_idx, pairs[mode_idx].0, pairs[mode_idx].1))
@@ -307,7 +324,7 @@ pub fn ImANM::cross_correlation(self : ImANM) -> Array[Array[Double]] {
     }
     pairs[j + 1] = key
   }
-  let corr : Array[Array[Double]] = Array::makei(n, { _ => Array::make(n, 0.0) })
+  let corr : Array[Array[Double]] = Array::makei(n, _ => Array::make(n, 0.0))
   for k = 6; k < dim; k = k + 1 {
     let lambda = pairs[k].0
     if lambda < 1.0e-10 {
@@ -318,7 +335,13 @@ pub fn ImANM::cross_correlation(self : ImANM) -> Array[Array[Double]] {
       let i3 = 3 * i
       for j = 0; j < n; j = j + 1 {
         let j3 = 3 * j
-        corr[i][j] = corr[i][j] + (vec[i3] * vec[j3] + vec[i3 + 1] * vec[j3 + 1] + vec[i3 + 2] * vec[j3 + 2]) / lambda
+        corr[i][j] = corr[i][j] +
+          (
+            vec[i3] * vec[j3] +
+            vec[i3 + 1] * vec[j3 + 1] +
+            vec[i3 + 2] * vec[j3 + 2]
+          ) /
+          lambda
       }
     }
   }
@@ -340,7 +363,7 @@ pub fn ImANM::cross_correlation(self : ImANM) -> Array[Array[Double]] {
 
 ///|
 /// Number of nodes (residues).
-pub fn ImANM::num_nodes(self : ImANM) -> Int {
+pub fn ImANM::num_nodes(self : ImANM) -> Int32 {
   self.n
 }
 
@@ -372,9 +395,9 @@ pub fn ImANM::get_combine_rule(self : ImANM) -> GammaCombine {
 /// Each region is (start_idx, end_idx, gamma_value) — inclusive range.
 /// Residues not covered by any region get `default_gamma`.
 pub fn gammas_by_region(
-  n : Int,
-  regions : Array[(Int, Int, Double)],
-  default_gamma? : Double = 1.0,
+  n : Int32,
+  regions : Array[(Int32, Int32, Double)],
+  default_gamma~ : Double = 1.0,
 ) -> Array[Double] {
   let gammas = Array::make(n, default_gamma)
   for region in regions {
@@ -396,7 +419,7 @@ pub fn gammas_by_region(
 /// B-factors of zero or negative are replaced by the mean of valid entries.
 pub fn gammas_from_bfactors(
   bfactors : Array[Double],
-  scale? : Double = 1.0,
+  scale~ : Double = 1.0,
 ) -> Array[Double] {
   let n = bfactors.length()
   if n == 0 {
@@ -428,11 +451,11 @@ pub fn gammas_from_bfactors(
 ///
 /// Typical values: helix/sheet are rigid (γ=1.0), coil is soft (γ=0.3).
 pub fn gammas_by_secondary_structure(
-  n : Int,
+  n : Int32,
   ss : Array[String],
-  helix_gamma? : Double = 1.0,
-  sheet_gamma? : Double = 1.0,
-  coil_gamma? : Double = 0.3,
+  helix_gamma~ : Double = 1.0,
+  sheet_gamma~ : Double = 1.0,
+  coil_gamma~ : Double = 0.3,
 ) -> Array[Double] {
   let gammas = Array::make(n, coil_gamma)
   let limit = if ss.length() < n { ss.length() } else { n }
@@ -457,7 +480,7 @@ pub fn gammas_by_secondary_structure(
 ///
 /// With uniform gamma and ArithmeticMean combine rule, imANM reduces
 /// to standard ANM.
-pub fn gammas_uniform(n : Int, gamma : Double) -> Array[Double] {
+pub fn gammas_uniform(n : Int32, gamma : Double) -> Array[Double] {
   Array::make(n, gamma)
 }
 
@@ -468,11 +491,11 @@ pub fn gammas_uniform(n : Int, gamma : Double) -> Array[Double] {
 ///
 /// Useful for modeling a locally stiffened or softened region.
 pub fn gammas_gaussian(
-  n : Int,
-  center : Int,
+  n : Int32,
+  center : Int32,
   sigma : Double,
-  base? : Double = 1.0,
-  amplitude? : Double = 1.0,
+  base~ : Double = 1.0,
+  amplitude~ : Double = 1.0,
 ) -> Array[Double] {
   let gammas = Array::make(n, 0.0)
   let two_sigma2 = 2.0 * sigma * sigma

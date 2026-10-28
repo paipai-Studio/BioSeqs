@@ -26,7 +26,7 @@
 
 ///|
 /// Default line width for wrapping IMGT sequence output (matches FASTA).
-let imgt_line_width : Int = 60
+let imgt_line_width : Int32 = 60
 
 // ============================================================================
 // ImgtHeader - the 13 pipe-separated fields of an IMGT header
@@ -327,7 +327,11 @@ pub fn imgt_parse_header(line : String) -> ImgtHeader? {
 
 ///|
 /// Return `fields[i]` if `i < count`, else "".
-fn imgt_field_or_empty(fields : Array[String], count : Int, i : Int) -> String {
+fn imgt_field_or_empty(
+  fields : Array[String],
+  count : Int32,
+  i : Int32,
+) -> String {
   if i < count {
     fields[i]
   } else {
@@ -435,7 +439,7 @@ pub fn imgt_write(records : Array[ImgtRecord]) -> String {
 
 ///|
 /// Number of IMGT records.
-pub fn imgt_n_records(records : Array[ImgtRecord]) -> Int {
+pub fn imgt_n_records(records : Array[ImgtRecord]) -> Int32 {
   records.length()
 }
 

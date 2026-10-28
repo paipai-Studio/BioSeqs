@@ -1,13 +1,14 @@
 ///|
 fn mk_variant(
   chrom : String,
-  pos : Int,
+  pos : Int32,
   ref_allele : String,
-  alts : Array[String]
+  alts : Array[String],
 ) -> @src.SyncVariant {
   @src.SyncVariant::make(chrom, pos, ref_allele, alts, ".")
 }
 
+///|
 test "synced_reader regions init string basic" {
   let r = @src.bcf_sr_regions_init_string("chr1:1000-2000,chr2:5000-6000")
   assert_eq(r.nseqs(), 2)
@@ -15,6 +16,7 @@ test "synced_reader regions init string basic" {
   assert_eq(r.nregs_for_seq("chr2"), 1)
 }
 
+///|
 test "synced_reader regions init whole chrom" {
   let r = @src.bcf_sr_regions_init_string("chr1,chr2,chr3")
   assert_eq(r.nseqs(), 3)
@@ -23,6 +25,7 @@ test "synced_reader regions init whole chrom" {
   assert_eq(r.nregs_for_seq("chr3"), 1)
 }
 
+///|
 test "synced_reader regions init single pos" {
   let r = @src.bcf_sr_regions_init_string("chr1:500")
   assert_eq(r.nseqs(), 1)
@@ -34,6 +37,7 @@ test "synced_reader regions init single pos" {
   assert_eq(regs[0].1, 499)
 }
 
+///|
 test "synced_reader regions init range" {
   let r = @src.bcf_sr_regions_init_string("chr1:1000-2000")
   let regs = r.get_regs("chr1")
@@ -43,6 +47,7 @@ test "synced_reader regions init range" {
   assert_eq(regs[0].1, 1999)
 }
 
+///|
 test "synced_reader regions merge overlapping" {
   let r = @src.bcf_sr_regions_init_string("chr1:1000-2000,chr1:1500-3000")
   let regs = r.get_regs("chr1")
@@ -52,6 +57,7 @@ test "synced_reader regions merge overlapping" {
   assert_eq(regs[0].1, 2999)
 }
 
+///|
 test "synced_reader regions merge adjacent" {
   let r = @src.bcf_sr_regions_init_string("chr1:1000-2000,chr1:2000-3000")
   let regs = r.get_regs("chr1")
@@ -59,6 +65,7 @@ test "synced_reader regions merge adjacent" {
   assert_eq(regs.length(), 1)
 }
 
+///|
 test "synced_reader regions no merge gap" {
   let r = @src.bcf_sr_regions_init_string("chr1:1000-2000,chr1:3000-4000")
   let regs = r.get_regs("chr1")
@@ -66,6 +73,7 @@ test "synced_reader regions no merge gap" {
   assert_eq(regs.length(), 2)
 }
 
+///|
 test "synced_reader regions overlap yes" {
   let r = @src.bcf_sr_regions_init_string("chr1:1000-2000")
   // 0-based: query [999, 1999]
@@ -74,23 +82,27 @@ test "synced_reader regions overlap yes" {
   assert_eq(r.overlap("chr1", 1999, 1999), 0)
 }
 
+///|
 test "synced_reader regions overlap no" {
   let r = @src.bcf_sr_regions_init_string("chr1:1000-2000")
   assert_eq(r.overlap("chr1", 500, 998), -1)
   assert_eq(r.overlap("chr1", 2000, 3000), -1)
 }
 
+///|
 test "synced_reader regions overlap wrong seq" {
   let r = @src.bcf_sr_regions_init_string("chr1:1000-2000")
   assert_eq(r.overlap("chr2", 1500, 1600), -1)
 }
 
+///|
 test "synced_reader regions weird name" {
   let r = @src.bcf_sr_regions_init_string("{chr-1}:1000-2000")
   assert_eq(r.nseqs(), 1)
   assert_eq(r.nregs_for_seq("chr-1"), 1)
 }
 
+///|
 test "synced_reader regions open ended" {
   let r = @src.bcf_sr_regions_init_string("chr1:1000-")
   let regs = r.get_regs("chr1")
@@ -100,22 +112,26 @@ test "synced_reader regions open ended" {
   assert_true(regs[0].1 > 1000000000)
 }
 
+///|
 test "synced_reader classify allele snp" {
   assert_eq(@src.classify_allele("A", "T"), @src.sr_snp)
   assert_eq(@src.classify_allele("G", "C"), @src.sr_snp)
 }
 
+///|
 test "synced_reader classify allele indel" {
   assert_eq(@src.classify_allele("A", "AT"), @src.sr_indel)
   assert_eq(@src.classify_allele("AT", "A"), @src.sr_indel)
   assert_eq(@src.classify_allele("A", "ATT"), @src.sr_indel)
 }
 
+///|
 test "synced_reader classify allele ref" {
   assert_eq(@src.classify_allele("A", "."), @src.sr_ref)
   assert_eq(@src.classify_allele("A", ""), @src.sr_ref)
 }
 
+///|
 test "synced_reader classify variant" {
   let vt = @src.classify_variant("A", ["T"])
   assert_true((vt & @src.sr_snp) != 0)
@@ -126,38 +142,42 @@ test "synced_reader classify variant" {
   assert_true((vt3 & @src.sr_indel) != 0)
 }
 
+///|
 test "synced_reader pair compatible snp snp" {
   let t = @src.sr_snp
   assert_true(@src.pair_compatible(t, t, @src.bcf_sr_pair_snps))
 }
 
+///|
 test "synced_reader pair compatible indel indel" {
   let t = @src.sr_indel
   assert_true(@src.pair_compatible(t, t, @src.bcf_sr_pair_indels))
 }
 
+///|
 test "synced_reader pair not compatible snp indel" {
   let ts = @src.sr_snp
   let ti = @src.sr_indel
   assert_false(@src.pair_compatible(ts, ti, @src.bcf_sr_pair_snps))
 }
 
+///|
 test "synced_reader pair compatible any" {
   assert_true(
-    @src.pair_compatible(@src.sr_snp, @src.sr_indel, @src.bcf_sr_pair_any)
+    @src.pair_compatible(@src.sr_snp, @src.sr_indel, @src.bcf_sr_pair_any),
   )
 }
 
+///|
 test "synced_reader pair compatible exact" {
   let t = @src.sr_snp
-  assert_true(
-    @src.pair_compatible(t, t, @src.bcf_sr_pair_exact)
-  )
+  assert_true(@src.pair_compatible(t, t, @src.bcf_sr_pair_exact))
   assert_false(
-    @src.pair_compatible(@src.sr_snp, @src.sr_indel, @src.bcf_sr_pair_exact)
+    @src.pair_compatible(@src.sr_snp, @src.sr_indel, @src.bcf_sr_pair_exact),
   )
 }
 
+///|
 test "synced_reader init and add" {
   let sr = @src.bcf_sr_init()
   assert_eq(sr.nreaders(), 0)
@@ -165,6 +185,7 @@ test "synced_reader init and add" {
   assert_eq(sr2.nreaders(), 1)
 }
 
+///|
 test "synced_reader next_line single file" {
   let sr = @src.bcf_sr_init()
   let variants = [
@@ -185,6 +206,7 @@ test "synced_reader next_line single file" {
   assert_eq(count3, 0)
 }
 
+///|
 test "synced_reader next_line two files sync" {
   let sr = @src.bcf_sr_init()
   let v1 = [
@@ -217,6 +239,7 @@ test "synced_reader next_line two files sync" {
   assert_eq(c4, 0)
 }
 
+///|
 test "synced_reader next_line different chroms" {
   let sr = @src.bcf_sr_init()
   let v1 = [
@@ -242,12 +265,14 @@ test "synced_reader next_line different chroms" {
   assert_eq(c4, 0)
 }
 
+///|
 test "synced_reader empty readers" {
   let sr = @src.bcf_sr_init()
   let (_, count) = sr.next_line()
   assert_eq(count, 0)
 }
 
+///|
 test "synced_reader empty variant list" {
   let sr = @src.bcf_sr_init()
   let sr2 = sr.add_reader("empty.vcf", [])
@@ -255,6 +280,7 @@ test "synced_reader empty variant list" {
   assert_eq(count, 0)
 }
 
+///|
 test "synced_reader get_line none" {
   let sr = @src.bcf_sr_init()
   let sr2 = sr.add_reader("f.vcf", [mk_variant("chr1", 100, "A", ["T"])])

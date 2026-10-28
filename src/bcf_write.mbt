@@ -6,7 +6,7 @@
 
 ///|
 /// Minimal int sub-type (1=i8, 2=i16, 3=i32) able to hold every value in `vs`.
-fn bcf_int_type(vs : Array[Int]) -> Int {
+fn bcf_int_type(vs : Array[Int32]) -> Int32 {
   let mut m = 0
   for v in vs {
     if v > m {
@@ -23,7 +23,7 @@ fn bcf_int_type(vs : Array[Int]) -> Int {
 }
 
 ///|
-fn bcf_tint_len(v : Int) -> Int {
+fn bcf_tint_len(v : Int32) -> Int32 {
   if v < 128 {
     2
   } else if v < 32768 {
@@ -34,7 +34,7 @@ fn bcf_tint_len(v : Int) -> Int {
 }
 
 ///|
-fn bcf_size_head_len(count : Int) -> Int {
+fn bcf_size_head_len(count : Int32) -> Int32 {
   if count < 15 {
     1
   } else {
@@ -43,12 +43,12 @@ fn bcf_size_head_len(count : Int) -> Int {
 }
 
 ///|
-fn bcf_str_len(s : String) -> Int {
+fn bcf_str_len(s : String) -> Int32 {
   bcf_size_head_len(s.length()) + s.length()
 }
 
 ///|
-fn bcf_ivec_len(vs : Array[Int]) -> Int {
+fn bcf_ivec_len(vs : Array[Int32]) -> Int32 {
   if vs.length() == 0 {
     1
   } else {
@@ -59,8 +59,8 @@ fn bcf_ivec_len(vs : Array[Int]) -> Int {
 }
 
 ///|
-fn bcf_values_to_ints(values : Array[BcfValue]) -> Array[Int] {
-  let out : Array[Int] = []
+fn bcf_values_to_ints(values : Array[BcfValue]) -> Array[Int32] {
+  let out : Array[Int32] = []
   for v in values {
     match v {
       BcfInt(x) => out.push(x)
@@ -71,7 +71,7 @@ fn bcf_values_to_ints(values : Array[BcfValue]) -> Array[Int] {
 }
 
 ///|
-fn bcf_val_len(values : Array[BcfValue]) -> Int {
+fn bcf_val_len(values : Array[BcfValue]) -> Int32 {
   match values[0] {
     BcfFlag => 1
     BcfStr(s) => bcf_str_len(s)
@@ -83,7 +83,7 @@ fn bcf_val_len(values : Array[BcfValue]) -> Int {
 ///|
 /// Write a typed integer (type byte 1/2/3 + value), used for ids and large
 /// counts.
-fn bcf_w_tint(buf : FixedArray[UInt16], pos : Int, v : Int) -> Int {
+fn bcf_w_tint(buf : FixedArray[UInt16], pos : Int32, v : Int32) -> Int32 {
   if v < 128 {
     buf[pos] = 0x01
     bam_write_u8(buf, pos + 1, v)
@@ -99,7 +99,12 @@ fn bcf_w_tint(buf : FixedArray[UInt16], pos : Int, v : Int) -> Int {
 ///|
 /// Write the typed-value size header (`count<<4|type`, with a typed-int count
 /// when `count >= 15`).
-fn bcf_w_size(buf : FixedArray[UInt16], pos : Int, count : Int, type_ : Int) -> Int {
+fn bcf_w_size(
+  buf : FixedArray[UInt16],
+  pos : Int32,
+  count : Int32,
+  type_ : Int32,
+) -> Int32 {
   if count < 15 {
     buf[pos] = ((count << 4) | type_).to_uint16()
     pos + 1
@@ -110,7 +115,7 @@ fn bcf_w_size(buf : FixedArray[UInt16], pos : Int, count : Int, type_ : Int) -> 
 }
 
 ///|
-fn bcf_w_string(buf : FixedArray[UInt16], pos : Int, s : String) -> Int {
+fn bcf_w_string(buf : FixedArray[UInt16], pos : Int32, s : String) -> Int32 {
   let p = bcf_w_size(buf, pos, s.length(), 7)
   let mut i = 0
   while i < s.length() {
@@ -121,7 +126,11 @@ fn bcf_w_string(buf : FixedArray[UInt16], pos : Int, s : String) -> Int {
 }
 
 ///|
-fn bcf_w_ivec(buf : FixedArray[UInt16], pos : Int, vs : Array[Int]) -> Int {
+fn bcf_w_ivec(
+  buf : FixedArray[UInt16],
+  pos : Int32,
+  vs : Array[Int32],
+) -> Int32 {
   if vs.length() == 0 {
     buf[pos] = 0x00
     return pos + 1
@@ -141,7 +150,11 @@ fn bcf_w_ivec(buf : FixedArray[UInt16], pos : Int, vs : Array[Int]) -> Int {
 }
 
 ///|
-fn bcf_w_value(buf : FixedArray[UInt16], pos : Int, values : Array[BcfValue]) -> Int {
+fn bcf_w_value(
+  buf : FixedArray[UInt16],
+  pos : Int32,
+  values : Array[BcfValue],
+) -> Int32 {
   match values[0] {
     BcfFlag => {
       buf[pos] = 0x00
@@ -165,12 +178,16 @@ fn bcf_w_value(buf : FixedArray[UInt16], pos : Int, values : Array[BcfValue]) ->
 ///|
 fn bcf_encode_record(rec : BcfRecord) -> String {
   // shared / individual byte lengths
-  let mut shared_len = (bcf_str_len(rec.id) + bcf_str_len(rec.ref_seq) + bcf_ivec_len(rec.filter_ids))
+  let mut shared_len = bcf_str_len(rec.id) +
+    bcf_str_len(rec.ref_seq) +
+    bcf_ivec_len(rec.filter_ids)
   for a in rec.alt {
     shared_len = shared_len + bcf_str_len(a)
   }
   for info in rec.info {
-    shared_len = shared_len + bcf_tint_len(info.key_id) + bcf_val_len(info.values)
+    shared_len = shared_len +
+      bcf_tint_len(info.key_id) +
+      bcf_val_len(info.values)
   }
   let mut indiv_len = 0
   for fmt in rec.formats {

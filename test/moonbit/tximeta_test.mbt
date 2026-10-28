@@ -72,7 +72,10 @@ test "tximeta metadata merge" {
 test "tximeta summarize to gene" {
   let data = @src.tximeta_sample_data()
   let tx2gene = @src.tximeta_sample_tx2gene()
-  let (genes, counts, abundance) = @src.tximeta_summarize_to_gene(data, tx2gene~)
+  let (genes, counts, abundance) = @src.tximeta_summarize_to_gene(
+    data,
+    tx2gene~,
+  )
   assert_eq(genes.length(), 2)
   let mut gene_a_row = -1
   for i in 0..<genes.length() {

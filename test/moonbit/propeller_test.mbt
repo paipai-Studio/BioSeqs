@@ -10,7 +10,7 @@
 fn spkt_approx(
   left : Double,
   right : Double,
-  tolerance? : Double = 1.0e-10,
+  tolerance~ : Double = 1.0e-10,
 ) -> Bool {
   let scale = 1.0 + right.abs()
   (left - right).abs() <= tolerance * scale
@@ -20,7 +20,7 @@ fn spkt_approx(
 fn spkt_vec(
   actual : Array[Double],
   want : Array[Double],
-  tolerance? : Double = 1.0e-10,
+  tolerance~ : Double = 1.0e-10,
 ) -> Unit {
   if actual.length() != want.length() {
     abort("length \{actual.length()} != \{want.length()}")
@@ -36,7 +36,7 @@ fn spkt_vec(
 fn spkt_mat(
   actual : @src.Matrix,
   want : Array[Array[Double]],
-  tolerance? : Double = 1.0e-10,
+  tolerance~ : Double = 1.0e-10,
 ) -> Unit {
   if actual.rows != want.length() || actual.cols != want[0].length() {
     abort(

@@ -16,7 +16,11 @@ pub struct BigBedField {
   name : String
   comment : String
 } derive(Eq, Debug)
+
+///|
 pub extend BigBedField with Eq::{equal, not_equal}
+
+///|
 pub extend BigBedField with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -25,90 +29,118 @@ pub struct BigBedSchema {
   comment : String
   fields : Array[BigBedField]
 } derive(Eq, Debug)
+
+///|
 pub extend BigBedSchema with Eq::{equal, not_equal}
+
+///|
 pub extend BigBedSchema with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct BigBedTarget {
   name : String
-  length : Int
+  length : Int32
 } derive(Eq, Debug)
+
+///|
 pub extend BigBedTarget with Eq::{equal, not_equal}
+
+///|
 pub extend BigBedTarget with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct BigBedRecord {
   chrom : String
-  chrom_start : Int
-  chrom_end : Int
+  chrom_start : Int32
+  chrom_end : Int32
   name : String
-  score : Int
+  score : Int32
   strand : String
-  thick_start : Int
-  thick_end : Int
+  thick_start : Int32
+  thick_end : Int32
   item_rgb : String
-  declared_block_count : Int
-  block_sizes : Array[Int]
-  block_starts : Array[Int]
+  declared_block_count : Int32
+  block_sizes : Array[Int32]
+  block_starts : Array[Int32]
   extra_fields : Array[String]
 } derive(Eq, Debug)
+
+///|
 pub extend BigBedRecord with Eq::{equal, not_equal}
+
+///|
 pub extend BigBedRecord with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct BigBedWriteConfig {
-  bed_columns : Int
-  items_per_slot : Int
-  block_size : Int
+  bed_columns : Int32
+  items_per_slot : Int32
+  block_size : Int32
   compress : Bool
   schema_name : String
   schema_comment : String
   custom_fields : Array[BigBedField]
 } derive(Eq, Debug)
+
+///|
 pub extend BigBedWriteConfig with Eq::{equal, not_equal}
+
+///|
 pub extend BigBedWriteConfig with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct BigBedHeader {
   little_endian : Bool
-  version : Int
-  zoom_levels : Int
-  chromosome_tree_offset : Int
-  full_data_offset : Int
-  full_index_offset : Int
-  field_count : Int
-  defined_field_count : Int
-  auto_sql_offset : Int
-  total_summary_offset : Int
-  uncompress_buffer_size : Int
-  extra_indices_offset : Int
+  version : Int32
+  zoom_levels : Int32
+  chromosome_tree_offset : Int32
+  full_data_offset : Int32
+  full_index_offset : Int32
+  field_count : Int32
+  defined_field_count : Int32
+  auto_sql_offset : Int32
+  total_summary_offset : Int32
+  uncompress_buffer_size : Int32
+  extra_indices_offset : Int32
 } derive(Eq, Debug)
+
+///|
 pub extend BigBedHeader with Eq::{equal, not_equal}
+
+///|
 pub extend BigBedHeader with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct BigBedBlockIndex {
-  start_chrom : Int
-  start_base : Int
-  end_chrom : Int
-  end_base : Int
-  data_offset : Int
-  data_size : Int
+  start_chrom : Int32
+  start_base : Int32
+  end_chrom : Int32
+  end_base : Int32
+  data_offset : Int32
+  data_size : Int32
 } derive(Eq, Debug)
+
+///|
 pub extend BigBedBlockIndex with Eq::{equal, not_equal}
+
+///|
 pub extend BigBedBlockIndex with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct BigBedSummary {
-  record_count : Int
-  target_count : Int
-  data_block_count : Int
-  covered_bases : Int
-  minimum_span : Int
-  maximum_span : Int
+  record_count : Int32
+  target_count : Int32
+  data_block_count : Int32
+  covered_bases : Int32
+  minimum_span : Int32
+  maximum_span : Int32
   compressed : Bool
 } derive(Eq, Debug)
+
+///|
 pub extend BigBedSummary with Eq::{equal, not_equal}
+
+///|
 pub extend BigBedSummary with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -116,9 +148,9 @@ pub struct BigBedFile {
   header : BigBedHeader
   schema : BigBedSchema
   targets : Array[BigBedTarget]
-  source : Array[Int]
+  source : Array[Int32]
   blocks : Array[BigBedBlockIndex]
-  record_count : Int
+  record_count : Int32
 }
 
 ///|
@@ -126,19 +158,21 @@ enum BigBedEndian {
   BigBedLittleEndian
   BigBedBigEndian
 } derive(Eq)
+
+///|
 pub extend BigBedEndian with Eq::{equal, not_equal}
 
 ///|
-let bigbed_magic : Int = 0x8789F2EB
+let bigbed_magic : Int32 = 0x8789F2EB
 
 ///|
-let bigbed_version : Int = 4
+let bigbed_version : Int32 = 4
 
 ///|
-let bigbed_chrom_tree_magic : Int = 0x78CA8C91
+let bigbed_chrom_tree_magic : Int32 = 0x78CA8C91
 
 ///|
-let bigbed_rtree_magic : Int = 0x2468ACE0
+let bigbed_rtree_magic : Int32 = 0x2468ACE0
 
 ///|
 let bigbed_standard_names : Array[String] = [
@@ -209,7 +243,7 @@ fn bigbed_validate_text(
 pub fn BigBedField::create(
   as_type : String,
   name : String,
-  comment? : String = "",
+  comment~ : String = "",
 ) -> BigBedField raise BigBedError {
   if !bigbed_is_supported_type(as_type) {
     bigbed_fail("Unsupported AutoSQL field type '" + as_type + "'")
@@ -222,7 +256,7 @@ pub fn BigBedField::create(
 }
 
 ///|
-fn bigbed_standard_fields(count : Int) -> Array[BigBedField] {
+fn bigbed_standard_fields(count : Int32) -> Array[BigBedField] {
   let fields : Array[BigBedField] = []
   for i in 0..<count {
     fields.push(BigBedField::{
@@ -258,7 +292,7 @@ pub fn BigBedSchema::create(
 
 ///|
 pub fn BigBedSchema::default(
-  bed_columns? : Int = 12,
+  bed_columns~ : Int32 = 12,
 ) -> BigBedSchema raise BigBedError {
   if bed_columns < 3 || bed_columns > 12 {
     bigbed_fail("BED column count must be between 3 and 12")
@@ -273,7 +307,7 @@ pub fn BigBedSchema::default(
 ///|
 pub fn BigBedTarget::create(
   name : String,
-  length : Int,
+  length : Int32,
 ) -> BigBedTarget raise BigBedError {
   if name.length() == 0 {
     bigbed_fail("BigBed target name must not be empty")
@@ -287,9 +321,9 @@ pub fn BigBedTarget::create(
 
 ///|
 fn bigbed_validate_blocks(
-  span : Int,
-  sizes : Array[Int],
-  starts : Array[Int],
+  span : Int32,
+  sizes : Array[Int32],
+  starts : Array[Int32],
 ) -> Unit raise BigBedError {
   if sizes.length() != starts.length() {
     bigbed_fail("BED block sizes and starts must have equal lengths")
@@ -322,18 +356,18 @@ fn bigbed_validate_blocks(
 ///|
 pub fn BigBedRecord::create(
   chrom : String,
-  chrom_start : Int,
-  chrom_end : Int,
-  name? : String = ".",
-  score? : Int = 0,
-  strand? : String = ".",
-  thick_start? : Int = -1,
-  thick_end? : Int = -1,
-  item_rgb? : String = "0",
-  block_count? : Int = -1,
-  block_sizes? : Array[Int] = [],
-  block_starts? : Array[Int] = [],
-  extra_fields? : Array[String] = [],
+  chrom_start : Int32,
+  chrom_end : Int32,
+  name~ : String = ".",
+  score~ : Int32 = 0,
+  strand~ : String = ".",
+  thick_start~ : Int32 = -1,
+  thick_end~ : Int32 = -1,
+  item_rgb~ : String = "0",
+  block_count~ : Int32 = -1,
+  block_sizes~ : Array[Int32] = [],
+  block_starts~ : Array[Int32] = [],
+  extra_fields~ : Array[String] = [],
 ) -> BigBedRecord raise BigBedError {
   if chrom.length() == 0 {
     bigbed_fail("BED chromosome must not be empty")
@@ -404,13 +438,13 @@ pub fn BigBedRecord::create(
 
 ///|
 pub fn BigBedWriteConfig::create(
-  bed_columns? : Int = 12,
-  items_per_slot? : Int = 512,
-  block_size? : Int = 256,
-  compress? : Bool = true,
-  schema_name? : String = "bed",
-  schema_comment? : String = "Browser Extensible Data",
-  custom_fields? : Array[BigBedField] = [],
+  bed_columns~ : Int32 = 12,
+  items_per_slot~ : Int32 = 512,
+  block_size~ : Int32 = 256,
+  compress~ : Bool = true,
+  schema_name~ : String = "bed",
+  schema_comment~ : String = "Browser Extensible Data",
+  custom_fields~ : Array[BigBedField] = [],
 ) -> BigBedWriteConfig raise BigBedError {
   if bed_columns < 3 || bed_columns > 12 {
     bigbed_fail("BED column count must be between 3 and 12")
@@ -469,17 +503,17 @@ pub fn BigBedWriteConfig::default() -> BigBedWriteConfig {
 }
 
 ///|
-pub fn BigBedRecord::span(self : BigBedRecord) -> Int {
+pub fn BigBedRecord::span(self : BigBedRecord) -> Int32 {
   self.chrom_end - self.chrom_start
 }
 
 ///|
-pub fn BigBedRecord::block_count(self : BigBedRecord) -> Int {
+pub fn BigBedRecord::block_count(self : BigBedRecord) -> Int32 {
   self.declared_block_count
 }
 
 ///|
-pub fn BigBedRecord::query_size(self : BigBedRecord) -> Int {
+pub fn BigBedRecord::query_size(self : BigBedRecord) -> Int32 {
   if self.block_sizes.length() == 0 ||
     self.block_sizes.length() != self.block_starts.length() {
     self.span()
@@ -496,16 +530,16 @@ pub fn BigBedRecord::query_size(self : BigBedRecord) -> Int {
 pub fn BigBedRecord::overlaps(
   self : BigBedRecord,
   chromosome : String,
-  start : Int,
-  end : Int,
+  start : Int32,
+  end : Int32,
 ) -> Bool {
   self.chrom == chromosome && self.chrom_start < end && start < self.chrom_end
 }
 
 ///|
-pub fn BigBedRecord::coordinates(self : BigBedRecord) -> Array[Array[Int]] {
-  let target : Array[Int] = []
-  let query : Array[Int] = []
+pub fn BigBedRecord::coordinates(self : BigBedRecord) -> Array[Array[Int32]] {
+  let target : Array[Int32] = []
+  let query : Array[Int32] = []
   let query_size = self.query_size()
   if self.block_sizes.length() == 0 ||
     self.block_sizes.length() != self.block_starts.length() {
@@ -543,7 +577,7 @@ pub fn BigBedRecord::annotation(
   self : BigBedRecord,
   schema : BigBedSchema,
   key : String,
-  bed_columns : Int,
+  bed_columns : Int32,
 ) -> String? {
   for i in 0..<self.extra_fields.length() {
     let field_index = bed_columns + i
@@ -591,7 +625,7 @@ pub fn BigBedSchema::to_auto_sql(self : BigBedSchema) -> String {
 }
 
 ///|
-fn bigbed_find_byte(text : String, code : Int, start : Int) -> Int {
+fn bigbed_find_byte(text : String, code : Int32, start : Int32) -> Int32 {
   for i in start..<text.length() {
     if text.unsafe_get(i).to_int() == code {
       return i
@@ -684,9 +718,9 @@ pub fn bigbed_parse_auto_sql(text : String) -> BigBedSchema raise BigBedError {
 
 ///|
 fn bigbed_check_range(
-  data : Array[Int],
-  position : Int,
-  size : Int,
+  data : Array[Int32],
+  position : Int32,
+  size : Int32,
   label : String,
 ) -> Unit raise BigBedError {
   if position < 0 || size < 0 || position > data.length() - size {
@@ -696,10 +730,10 @@ fn bigbed_check_range(
 
 ///|
 fn bigbed_read_u16(
-  data : Array[Int],
-  position : Int,
+  data : Array[Int32],
+  position : Int32,
   endian : BigBedEndian,
-) -> Int raise BigBedError {
+) -> Int32 raise BigBedError {
   bigbed_check_range(data, position, 2, "16-bit integer")
   if endian == BigBedLittleEndian {
     data[position] | (data[position + 1] << 8)
@@ -710,10 +744,10 @@ fn bigbed_read_u16(
 
 ///|
 fn bigbed_read_u32(
-  data : Array[Int],
-  position : Int,
+  data : Array[Int32],
+  position : Int32,
   endian : BigBedEndian,
-) -> Int raise BigBedError {
+) -> Int32 raise BigBedError {
   bigbed_check_range(data, position, 4, "32-bit integer")
   if endian == BigBedLittleEndian {
     data[position] |
@@ -730,10 +764,10 @@ fn bigbed_read_u32(
 
 ///|
 fn bigbed_read_u64_local(
-  data : Array[Int],
-  position : Int,
+  data : Array[Int32],
+  position : Int32,
   endian : BigBedEndian,
-) -> Int raise BigBedError {
+) -> Int32 raise BigBedError {
   let low_position = if endian == BigBedLittleEndian {
     position
   } else {
@@ -753,13 +787,13 @@ fn bigbed_read_u64_local(
 }
 
 ///|
-fn bigbed_push_u16(output : Array[Int], value : Int) -> Unit {
+fn bigbed_push_u16(output : Array[Int32], value : Int32) -> Unit {
   output.push(value & 0xFF)
   output.push((value >> 8) & 0xFF)
 }
 
 ///|
-fn bigbed_push_u32(output : Array[Int], value : Int) -> Unit {
+fn bigbed_push_u32(output : Array[Int32], value : Int32) -> Unit {
   output.push(value & 0xFF)
   output.push((value >> 8) & 0xFF)
   output.push((value >> 16) & 0xFF)
@@ -767,19 +801,27 @@ fn bigbed_push_u32(output : Array[Int], value : Int) -> Unit {
 }
 
 ///|
-fn bigbed_push_u64_local(output : Array[Int], value : Int) -> Unit {
+fn bigbed_push_u64_local(output : Array[Int32], value : Int32) -> Unit {
   bigbed_push_u32(output, value)
   bigbed_push_u32(output, 0)
 }
 
 ///|
-fn bigbed_patch_u16(output : Array[Int], position : Int, value : Int) -> Unit {
+fn bigbed_patch_u16(
+  output : Array[Int32],
+  position : Int32,
+  value : Int32,
+) -> Unit {
   output[position] = value & 0xFF
   output[position + 1] = (value >> 8) & 0xFF
 }
 
 ///|
-fn bigbed_patch_u32(output : Array[Int], position : Int, value : Int) -> Unit {
+fn bigbed_patch_u32(
+  output : Array[Int32],
+  position : Int32,
+  value : Int32,
+) -> Unit {
   output[position] = value & 0xFF
   output[position + 1] = (value >> 8) & 0xFF
   output[position + 2] = (value >> 16) & 0xFF
@@ -788,16 +830,16 @@ fn bigbed_patch_u32(output : Array[Int], position : Int, value : Int) -> Unit {
 
 ///|
 fn bigbed_patch_u64_local(
-  output : Array[Int],
-  position : Int,
-  value : Int,
+  output : Array[Int32],
+  position : Int32,
+  value : Int32,
 ) -> Unit {
   bigbed_patch_u32(output, position, value)
   bigbed_patch_u32(output, position + 4, 0)
 }
 
 ///|
-fn bigbed_push_text(output : Array[Int], value : String) -> Unit {
+fn bigbed_push_text(output : Array[Int32], value : String) -> Unit {
   for i in 0..<value.length() {
     output.push(value.unsafe_get(i).to_int() & 0xFF)
   }
@@ -805,24 +847,24 @@ fn bigbed_push_text(output : Array[Int], value : String) -> Unit {
 
 ///|
 fn bigbed_read_text(
-  data : Array[Int],
-  start : Int,
-  end : Int,
+  data : Array[Int32],
+  start : Int32,
+  end : Int32,
 ) -> String raise BigBedError {
   bigbed_check_range(data, start, end - start, "text")
   let builder = StringBuilder()
   for i in start..<end {
-    builder.write_char(Int::unsafe_to_char(data[i] & 0xFF))
+    builder.write_char(Int32::unsafe_to_char(data[i] & 0xFF))
   }
   builder.to_string()
 }
 
 ///|
 fn bigbed_read_c_string(
-  data : Array[Int],
-  start : Int,
-  limit : Int,
-) -> (String, Int) raise BigBedError {
+  data : Array[Int32],
+  start : Int32,
+  limit : Int32,
+) -> (String, Int32) raise BigBedError {
   if start < 0 || limit > data.length() || start >= limit {
     bigbed_fail("Invalid BigBed string bounds")
   }
@@ -840,7 +882,7 @@ fn bigbed_read_c_string(
 fn bigbed_parse_nonnegative_int(
   value : String,
   label : String,
-) -> Int raise BigBedError {
+) -> Int32 raise BigBedError {
   if value.length() == 0 {
     bigbed_fail("Missing integer for " + label)
   }
@@ -863,8 +905,8 @@ fn bigbed_parse_nonnegative_int(
 fn bigbed_parse_csv_ints(
   value : String,
   label : String,
-) -> Array[Int] raise BigBedError {
-  let values : Array[Int] = []
+) -> Array[Int32] raise BigBedError {
+  let values : Array[Int32] = []
   for word in split_by_char(value, ','.to_int()) {
     if word.length() > 0 {
       values.push(bigbed_parse_nonnegative_int(word, label))
@@ -874,7 +916,7 @@ fn bigbed_parse_csv_ints(
 }
 
 ///|
-fn bigbed_csv(values : Array[Int]) -> String {
+fn bigbed_csv(values : Array[Int32]) -> String {
   let output = StringBuilder()
   for value in values {
     output.write_string(value.to_string())
@@ -897,7 +939,7 @@ fn bigbed_schema_for_config(
 ///|
 fn bigbed_validate_schema(
   schema : BigBedSchema,
-  defined_fields : Int,
+  defined_fields : Int32,
 ) -> Unit raise BigBedError {
   if schema.fields.length() < defined_fields {
     bigbed_fail("AutoSQL schema has fewer fields than the BigBed header")
@@ -915,7 +957,7 @@ fn bigbed_validate_schema(
 }
 
 ///|
-fn bigbed_target_index(targets : Array[BigBedTarget], name : String) -> Int {
+fn bigbed_target_index(targets : Array[BigBedTarget], name : String) -> Int32 {
   for i in 0..<targets.length() {
     if targets[i].name == name {
       return i
@@ -988,7 +1030,7 @@ fn bigbed_validate_records(
 ///|
 fn bigbed_rest_fields(
   record : BigBedRecord,
-  bed_columns : Int,
+  bed_columns : Int32,
 ) -> Array[String] {
   let fields : Array[String] = []
   if bed_columns >= 4 {
@@ -1039,10 +1081,10 @@ fn bigbed_join_tabs(fields : Array[String]) -> String {
 ///|
 fn bigbed_record_bytes(
   record : BigBedRecord,
-  chrom_id : Int,
-  bed_columns : Int,
-) -> Array[Int] {
-  let output : Array[Int] = []
+  chrom_id : Int32,
+  bed_columns : Int32,
+) -> Array[Int32] {
+  let output : Array[Int32] = []
   bigbed_push_u32(output, chrom_id)
   bigbed_push_u32(output, record.chrom_start)
   bigbed_push_u32(output, record.chrom_end)
@@ -1055,7 +1097,7 @@ fn bigbed_record_bytes(
 }
 
 ///|
-fn bigbed_adler32(data : Array[Int]) -> Int {
+fn bigbed_adler32(data : Array[Int32]) -> Int32 {
   let mut a = 1
   let mut b = 0
   for byte in data {
@@ -1067,37 +1109,37 @@ fn bigbed_adler32(data : Array[Int]) -> Int {
 
 ///|
 priv struct BigBedBitReader {
-  data : Array[Int]
-  bit_position : Int
-  bit_limit : Int
+  data : Array[Int32]
+  bit_position : Int32
+  bit_limit : Int32
 }
 
 ///|
 priv struct BigBedHuffman {
-  counts : Array[Int]
-  symbols : Array[Int]
+  counts : Array[Int32]
+  symbols : Array[Int32]
 }
 
 ///|
-let bigbed_length_base : Array[Int] = [
+let bigbed_length_base : Array[Int32] = [
   3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 15, 17, 19, 23, 27, 31, 35, 43, 51, 59, 67, 83,
   99, 115, 131, 163, 195, 227, 258,
 ]
 
 ///|
-let bigbed_length_extra : Array[Int] = [
+let bigbed_length_extra : Array[Int32] = [
   0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5,
   5, 0,
 ]
 
 ///|
-let bigbed_distance_base : Array[Int] = [
+let bigbed_distance_base : Array[Int32] = [
   1, 2, 3, 4, 5, 7, 9, 13, 17, 25, 33, 49, 65, 97, 129, 193, 257, 385, 513, 769,
   1025, 1537, 2049, 3073, 4097, 6145, 8193, 12289, 16385, 24577,
 ]
 
 ///|
-let bigbed_distance_extra : Array[Int] = [
+let bigbed_distance_extra : Array[Int32] = [
   0, 0, 0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10, 10, 11, 11,
   12, 12, 13, 13,
 ]
@@ -1105,8 +1147,8 @@ let bigbed_distance_extra : Array[Int] = [
 ///|
 fn bigbed_read_deflate_bits(
   reader : BigBedBitReader,
-  count : Int,
-) -> (Int, BigBedBitReader) raise BigBedError {
+  count : Int32,
+) -> (Int32, BigBedBitReader) raise BigBedError {
   if count < 0 || count > 24 {
     bigbed_fail("Invalid DEFLATE bit count")
   }
@@ -1146,10 +1188,10 @@ fn bigbed_align_deflate_reader(
 
 ///|
 fn bigbed_build_huffman(
-  lengths : Array[Int],
+  lengths : Array[Int32],
   label : String,
 ) -> BigBedHuffman raise BigBedError {
-  let counts : Array[Int] = Array::make(16, 0)
+  let counts : Array[Int32] = Array::make(16, 0)
   for length in lengths {
     if length < 0 || length > 15 {
       bigbed_fail("Invalid " + label + " Huffman code length")
@@ -1166,12 +1208,12 @@ fn bigbed_build_huffman(
       bigbed_fail("Oversubscribed " + label + " Huffman tree")
     }
   }
-  let offsets : Array[Int] = Array::make(16, 0)
+  let offsets : Array[Int32] = Array::make(16, 0)
   for bits in 1..<15 {
     offsets[bits + 1] = offsets[bits] + counts[bits]
   }
   let next = offsets.copy()
-  let symbols : Array[Int] = Array::make(lengths.length() - counts[0], 0)
+  let symbols : Array[Int32] = Array::make(lengths.length() - counts[0], 0)
   for symbol in 0..<lengths.length() {
     let length = lengths[symbol]
     if length > 0 {
@@ -1186,7 +1228,7 @@ fn bigbed_build_huffman(
 fn bigbed_decode_huffman_symbol(
   tree : BigBedHuffman,
   input : BigBedBitReader,
-) -> (Int, BigBedBitReader) raise BigBedError {
+) -> (Int32, BigBedBitReader) raise BigBedError {
   let mut reader = input
   let mut code = 0
   let mut first = 0
@@ -1213,7 +1255,7 @@ fn bigbed_decode_huffman_symbol(
 
 ///|
 fn bigbed_fixed_huffman() -> (BigBedHuffman, BigBedHuffman) raise BigBedError {
-  let literal_lengths : Array[Int] = Array::make(288, 0)
+  let literal_lengths : Array[Int32] = Array::make(288, 0)
   for i in 0..<144 {
     literal_lengths[i] = 8
   }
@@ -1226,7 +1268,7 @@ fn bigbed_fixed_huffman() -> (BigBedHuffman, BigBedHuffman) raise BigBedError {
   for i in 280..<288 {
     literal_lengths[i] = 8
   }
-  let distance_lengths : Array[Int] = Array::make(32, 5)
+  let distance_lengths : Array[Int32] = Array::make(32, 5)
   (
     bigbed_build_huffman(literal_lengths, "fixed literal/length"),
     bigbed_build_huffman(distance_lengths, "fixed distance"),
@@ -1253,7 +1295,7 @@ fn bigbed_dynamic_huffman(
   let code_order = [
     16, 17, 18, 0, 8, 7, 9, 6, 10, 5, 11, 4, 12, 3, 13, 2, 14, 1, 15,
   ]
-  let code_lengths : Array[Int] = Array::make(19, 0)
+  let code_lengths : Array[Int32] = Array::make(19, 0)
   for i in 0..<code_count {
     let (length, next) = bigbed_read_deflate_bits(reader, 3)
     reader = next
@@ -1261,7 +1303,7 @@ fn bigbed_dynamic_huffman(
   }
   let code_tree = bigbed_build_huffman(code_lengths, "code-length")
   let total = literal_count + distance_count
-  let lengths : Array[Int] = Array::make(total, 0)
+  let lengths : Array[Int32] = Array::make(total, 0)
   let mut position = 0
   while position < total {
     let (symbol, next) = bigbed_decode_huffman_symbol(code_tree, reader)
@@ -1304,14 +1346,14 @@ fn bigbed_dynamic_huffman(
       bigbed_fail("Invalid DEFLATE code-length symbol")
     }
   }
-  let literal_lengths : Array[Int] = []
+  let literal_lengths : Array[Int32] = []
   for i in 0..<literal_count {
     literal_lengths.push(lengths[i])
   }
   if literal_lengths[256] == 0 {
     bigbed_fail("Dynamic DEFLATE tree has no end-of-block symbol")
   }
-  let distance_lengths : Array[Int] = []
+  let distance_lengths : Array[Int32] = []
   for i in 0..<distance_count {
     distance_lengths.push(lengths[literal_count + i])
   }
@@ -1327,8 +1369,8 @@ fn bigbed_inflate_huffman_block(
   input : BigBedBitReader,
   literal_tree : BigBedHuffman,
   distance_tree : BigBedHuffman,
-  output : Array[Int],
-  maximum_output : Int,
+  output : Array[Int32],
+  maximum_output : Int32,
 ) -> BigBedBitReader raise BigBedError {
   let mut reader = input
   let mut done = false
@@ -1381,8 +1423,8 @@ fn bigbed_inflate_huffman_block(
 }
 
 ///|
-fn bigbed_zlib_store(data : Array[Int]) -> Array[Int] {
-  let output : Array[Int] = [0x78, 0x01]
+fn bigbed_zlib_store(data : Array[Int32]) -> Array[Int32] {
+  let output : Array[Int32] = [0x78, 0x01]
   let mut position = 0
   if data.length() == 0 {
     output.push(1)
@@ -1411,9 +1453,9 @@ fn bigbed_zlib_store(data : Array[Int]) -> Array[Int] {
 
 ///|
 fn bigbed_zlib_unstore(
-  data : Array[Int],
-  maximum_output : Int,
-) -> Array[Int] raise BigBedError {
+  data : Array[Int32],
+  maximum_output : Int32,
+) -> Array[Int32] raise BigBedError {
   if data.length() < 8 {
     bigbed_fail("Truncated zlib data block")
   }
@@ -1426,7 +1468,7 @@ fn bigbed_zlib_unstore(
     bigbed_fail("Preset zlib dictionaries are not supported")
   }
   let payload_end = data.length() - 4
-  let output : Array[Int] = []
+  let output : Array[Int32] = []
   let mut reader = BigBedBitReader::{
     data,
     bit_position: 16,
@@ -1485,7 +1527,7 @@ fn bigbed_zlib_unstore(
 }
 
 ///|
-fn bigbed_append(output : Array[Int], source : Array[Int]) -> Unit {
+fn bigbed_append(output : Array[Int32], source : Array[Int32]) -> Unit {
   for byte in source {
     output.push(byte)
   }
@@ -1493,15 +1535,15 @@ fn bigbed_append(output : Array[Int], source : Array[Int]) -> Unit {
 
 ///|
 fn bigbed_patch_header(
-  output : Array[Int],
-  chromosome_tree_offset : Int,
-  full_data_offset : Int,
-  full_index_offset : Int,
-  field_count : Int,
-  defined_field_count : Int,
-  auto_sql_offset : Int,
-  total_summary_offset : Int,
-  uncompress_buffer_size : Int,
+  output : Array[Int32],
+  chromosome_tree_offset : Int32,
+  full_data_offset : Int32,
+  full_index_offset : Int32,
+  field_count : Int32,
+  defined_field_count : Int32,
+  auto_sql_offset : Int32,
+  total_summary_offset : Int32,
+  uncompress_buffer_size : Int32,
 ) -> Unit {
   bigbed_patch_u32(output, 0, bigbed_magic)
   bigbed_patch_u16(output, 4, bigbed_version)
@@ -1519,9 +1561,9 @@ fn bigbed_patch_header(
 
 ///|
 fn bigbed_write_tree_key(
-  output : Array[Int],
+  output : Array[Int32],
   key : String,
-  key_size : Int,
+  key_size : Int32,
 ) -> Unit {
   for i in 0..<key_size {
     output.push(
@@ -1535,7 +1577,7 @@ fn bigbed_write_tree_key(
 }
 
 ///|
-fn bigbed_tree_height(item_count : Int, block_size : Int) -> Int {
+fn bigbed_tree_height(item_count : Int32, block_size : Int32) -> Int32 {
   let mut height = 1
   let mut capacity = block_size
   while capacity < item_count {
@@ -1551,10 +1593,10 @@ fn bigbed_tree_height(item_count : Int, block_size : Int) -> Int {
 
 ///|
 fn bigbed_tree_capacity(
-  item_count : Int,
-  block_size : Int,
-  height : Int,
-) -> Int {
+  item_count : Int32,
+  block_size : Int32,
+  height : Int32,
+) -> Int32 {
   let mut capacity = 1
   for _ in 0..<height {
     capacity = if capacity > item_count / block_size {
@@ -1568,14 +1610,14 @@ fn bigbed_tree_capacity(
 
 ///|
 fn bigbed_write_chrom_node(
-  output : Array[Int],
+  output : Array[Int32],
   targets : Array[BigBedTarget],
-  order : Array[Int],
-  start : Int,
-  end : Int,
-  key_size : Int,
-  block_size : Int,
-  height : Int,
+  order : Array[Int32],
+  start : Int32,
+  end : Int32,
+  key_size : Int32,
+  block_size : Int32,
+  height : Int32,
 ) -> Unit {
   let count = end - start
   if height == 1 {
@@ -1596,9 +1638,9 @@ fn bigbed_write_chrom_node(
   output.push(0)
   output.push(0)
   bigbed_push_u16(output, child_count)
-  let patch_positions : Array[Int] = []
-  let child_starts : Array[Int] = []
-  let child_ends : Array[Int] = []
+  let patch_positions : Array[Int32] = []
+  let child_starts : Array[Int32] = []
+  let child_ends : Array[Int32] = []
   let mut cursor = start
   for child in 0..<child_count {
     let remaining_items = end - cursor
@@ -1630,9 +1672,9 @@ fn bigbed_write_chrom_node(
 
 ///|
 fn bigbed_write_chrom_tree(
-  output : Array[Int],
+  output : Array[Int32],
   targets : Array[BigBedTarget],
-  configured_block_size : Int,
+  configured_block_size : Int32,
 ) -> Unit {
   let mut key_size = 1
   for target in targets {
@@ -1640,11 +1682,11 @@ fn bigbed_write_chrom_tree(
       key_size = target.name.length()
     }
   }
-  let order : Array[Int] = []
+  let order : Array[Int32] = []
   for i in 0..<targets.length() {
     order.push(i)
   }
-  order.sort_by(fn(left : Int, right : Int) -> Int {
+  order.sort_by(fn(left : Int32, right : Int32) -> Int32 {
     if targets[left].name < targets[right].name {
       -1
     } else if targets[left].name > targets[right].name {
@@ -1674,9 +1716,9 @@ fn bigbed_write_chrom_tree(
 ///|
 fn bigbed_block_overlaps(
   block : BigBedBlockIndex,
-  chrom_id : Int,
-  start : Int,
-  end : Int,
+  chrom_id : Int32,
+  start : Int32,
+  end : Int32,
 ) -> Bool {
   let starts_before_query_end = block.start_chrom < chrom_id ||
     (block.start_chrom == chrom_id && block.start_base < end)
@@ -1688,9 +1730,9 @@ fn bigbed_block_overlaps(
 ///|
 fn bigbed_rtree_end(
   blocks : Array[BigBedBlockIndex],
-  start : Int,
-  end : Int,
-) -> (Int, Int) {
+  start : Int32,
+  end : Int32,
+) -> (Int32, Int32) {
   let mut end_chrom = blocks[start].end_chrom
   let mut end_base = blocks[start].end_base
   for i in (start + 1)..<end {
@@ -1706,12 +1748,12 @@ fn bigbed_rtree_end(
 
 ///|
 fn bigbed_write_rtree_node(
-  output : Array[Int],
+  output : Array[Int32],
   blocks : Array[BigBedBlockIndex],
-  start : Int,
-  end : Int,
-  block_size : Int,
-  height : Int,
+  start : Int32,
+  end : Int32,
+  block_size : Int32,
+  height : Int32,
 ) -> Unit {
   let count = end - start
   if height == 1 {
@@ -1734,9 +1776,9 @@ fn bigbed_write_rtree_node(
   output.push(0)
   output.push(0)
   bigbed_push_u16(output, child_count)
-  let patch_positions : Array[Int] = []
-  let child_starts : Array[Int] = []
-  let child_ends : Array[Int] = []
+  let patch_positions : Array[Int32] = []
+  let child_starts : Array[Int32] = []
+  let child_ends : Array[Int32] = []
   let mut cursor = start
   for child in 0..<child_count {
     let remaining_items = end - cursor
@@ -1770,12 +1812,12 @@ fn bigbed_write_rtree_node(
 
 ///|
 fn bigbed_write_rtree(
-  output : Array[Int],
+  output : Array[Int32],
   blocks : Array[BigBedBlockIndex],
-  configured_block_size : Int,
-  item_count : Int,
-  items_per_slot : Int,
-  end_file_offset : Int,
+  configured_block_size : Int32,
+  item_count : Int32,
+  items_per_slot : Int32,
+  end_file_offset : Int32,
 ) -> Unit {
   bigbed_push_u32(output, bigbed_rtree_magic)
   bigbed_push_u32(output, configured_block_size)
@@ -1814,11 +1856,11 @@ fn bigbed_write_rtree(
 pub fn bigbed_write(
   targets : Array[BigBedTarget],
   records : Array[BigBedRecord],
-  config? : BigBedWriteConfig = BigBedWriteConfig::default(),
-) -> Array[Int] raise BigBedError {
+  config~ : BigBedWriteConfig = BigBedWriteConfig::default(),
+) -> Array[Int32] raise BigBedError {
   bigbed_validate_records(targets, records, config)
   let schema = bigbed_schema_for_config(config)
-  let output : Array[Int] = Array::make(64, 0)
+  let output : Array[Int32] = Array::make(64, 0)
   let auto_sql_offset = output.length()
   bigbed_push_text(output, schema.to_auto_sql())
   output.push(0)
@@ -1841,7 +1883,7 @@ pub fn bigbed_write(
     } else {
       records.length()
     }
-    let raw : Array[Int] = []
+    let raw : Array[Int32] = []
     while record_index < block_end_index {
       let record = records[record_index]
       let chrom_id = bigbed_target_index(targets, record.chrom)
@@ -1906,7 +1948,7 @@ pub fn bigbed_write(
 }
 
 ///|
-fn bigbed_detect_endian(data : Array[Int]) -> BigBedEndian raise BigBedError {
+fn bigbed_detect_endian(data : Array[Int32]) -> BigBedEndian raise BigBedError {
   if data.length() < 4 {
     bigbed_fail("BigBed input is shorter than its magic number")
   }
@@ -1926,7 +1968,7 @@ fn bigbed_detect_endian(data : Array[Int]) -> BigBedEndian raise BigBedError {
 
 ///|
 fn bigbed_read_header(
-  data : Array[Int],
+  data : Array[Int32],
 ) -> (BigBedHeader, BigBedEndian) raise BigBedError {
   bigbed_check_range(data, 0, 64, "header")
   let endian = bigbed_detect_endian(data)
@@ -1971,9 +2013,9 @@ fn bigbed_read_header(
 
 ///|
 fn bigbed_read_key(
-  data : Array[Int],
-  position : Int,
-  key_size : Int,
+  data : Array[Int32],
+  position : Int32,
+  key_size : Int32,
 ) -> String raise BigBedError {
   bigbed_check_range(data, position, key_size, "B+ tree key")
   let mut end = position
@@ -1985,12 +2027,12 @@ fn bigbed_read_key(
 
 ///|
 fn bigbed_read_chrom_node(
-  data : Array[Int],
-  position : Int,
-  key_size : Int,
+  data : Array[Int32],
+  position : Int32,
+  key_size : Int32,
   endian : BigBedEndian,
   targets : Array[BigBedTarget?],
-  depth : Int,
+  depth : Int32,
 ) -> Unit raise BigBedError {
   if depth > 64 {
     bigbed_fail("BigBed chromosome B+ tree exceeds 64 levels")
@@ -2015,7 +2057,7 @@ fn bigbed_read_chrom_node(
       targets[chrom_id] = Some(BigBedTarget::create(name, chrom_size))
     }
   } else {
-    let children : Array[Int] = []
+    let children : Array[Int32] = []
     for _ in 0..<count {
       ignore(bigbed_read_key(data, cursor, key_size))
       cursor = cursor + key_size
@@ -2030,8 +2072,8 @@ fn bigbed_read_chrom_node(
 
 ///|
 fn bigbed_read_chrom_tree(
-  data : Array[Int],
-  offset : Int,
+  data : Array[Int32],
+  offset : Int32,
   endian : BigBedEndian,
 ) -> Array[BigBedTarget] raise BigBedError {
   bigbed_check_range(data, offset, 32, "chromosome B+ tree header")
@@ -2058,11 +2100,11 @@ fn bigbed_read_chrom_tree(
 
 ///|
 fn bigbed_read_rtree_node(
-  data : Array[Int],
-  position : Int,
+  data : Array[Int32],
+  position : Int32,
   endian : BigBedEndian,
   blocks : Array[BigBedBlockIndex],
-  depth : Int,
+  depth : Int32,
 ) -> Unit raise BigBedError {
   if depth > 64 {
     bigbed_fail("BigBed R-tree exceeds 64 levels")
@@ -2085,7 +2127,7 @@ fn bigbed_read_rtree_node(
       cursor = cursor + 32
     }
   } else {
-    let children : Array[Int] = []
+    let children : Array[Int32] = []
     for _ in 0..<count {
       bigbed_check_range(data, cursor, 24, "R-tree branch")
       children.push(bigbed_read_u64_local(data, cursor + 16, endian))
@@ -2099,10 +2141,10 @@ fn bigbed_read_rtree_node(
 
 ///|
 fn bigbed_read_rtree(
-  data : Array[Int],
-  offset : Int,
+  data : Array[Int32],
+  offset : Int32,
   endian : BigBedEndian,
-) -> (Array[BigBedBlockIndex], Int) raise BigBedError {
+) -> (Array[BigBedBlockIndex], Int32) raise BigBedError {
   bigbed_check_range(data, offset, 48, "R-tree header")
   if bigbed_read_u32(data, offset, endian) != bigbed_rtree_magic {
     bigbed_fail("Invalid BigBed R-tree magic number")
@@ -2123,7 +2165,7 @@ fn bigbed_read_rtree(
 
 ///|
 fn bigbed_read_schema(
-  data : Array[Int],
+  data : Array[Int32],
   header : BigBedHeader,
 ) -> BigBedSchema raise BigBedError {
   if header.auto_sql_offset == 0 {
@@ -2147,7 +2189,7 @@ fn bigbed_read_schema(
 }
 
 ///|
-pub fn bigbed_parse(data : Array[Int]) -> BigBedFile raise BigBedError {
+pub fn bigbed_parse(data : Array[Int32]) -> BigBedFile raise BigBedError {
   let (header, endian) = bigbed_read_header(data)
   let trailing = bigbed_read_u32(data, data.length() - 4, endian)
   if trailing != bigbed_magic {
@@ -2186,8 +2228,8 @@ pub fn bigbed_parse(data : Array[Int]) -> BigBedFile raise BigBedError {
 fn bigbed_decode_block(
   file : BigBedFile,
   block : BigBedBlockIndex,
-) -> Array[Int] raise BigBedError {
-  let payload : Array[Int] = []
+) -> Array[Int32] raise BigBedError {
+  let payload : Array[Int32] = []
   for i in block.data_offset..<(block.data_offset + block.data_size) {
     payload.push(file.source[i])
   }
@@ -2201,9 +2243,9 @@ fn bigbed_decode_block(
 ///|
 fn bigbed_record_from_words(
   file : BigBedFile,
-  chrom_id : Int,
-  chrom_start : Int,
-  chrom_end : Int,
+  chrom_id : Int32,
+  chrom_start : Int32,
+  chrom_end : Int32,
   words : Array[String],
 ) -> BigBedRecord raise BigBedError {
   if chrom_id < 0 || chrom_id >= file.targets.length() {
@@ -2331,8 +2373,8 @@ pub fn BigBedFile::records(
 pub fn BigBedFile::search(
   self : BigBedFile,
   chromosome : String,
-  start? : Int = 0,
-  end? : Int = -1,
+  start~ : Int32 = 0,
+  end~ : Int32 = -1,
 ) -> Array[BigBedRecord] raise BigBedError {
   let chrom_id = bigbed_target_index(self.targets, chromosome)
   if chrom_id < 0 {

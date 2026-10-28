@@ -3,7 +3,7 @@
 
 ///|
 /// Split string by character code.
-pub fn split_by_char(s : String, delim : Int) -> Array[String] {
+pub fn split_by_char(s : String, delim : Int32) -> Array[String] {
   let n = s.length()
   let mut count = 1
   let mut i = 0
@@ -34,7 +34,7 @@ pub fn split_by_char(s : String, delim : Int) -> Array[String] {
 
 ///|
 /// Parse integer from String.
-pub fn parse_int(s : String) -> Int {
+pub fn parse_int(s : String) -> Int32 {
   let n = s.length()
   if n == 0 {
     return 0
@@ -152,7 +152,7 @@ pub fn parse_semicolon_list(s : String) -> Array[String] {
 
 ///|
 /// Get character at position.
-pub fn char_at(s : String, idx : Int) -> String {
+pub fn char_at(s : String, idx : Int32) -> String {
   let c = s.unsafe_get(idx).to_int()
   if c >= 'A'.to_int() && c <= 'Z'.to_int() {
     let mut result = ""
@@ -236,7 +236,7 @@ pub fn char_at(s : String, idx : Int) -> String {
 
 ///|
 /// Substring function.
-pub fn substring(s : String, start : Int, len : Int) -> String {
+pub fn substring(s : String, start : Int32, len : Int32) -> String {
   let mut result = ""
   for i = 0; i < len && start + i < s.length(); i = i + 1 {
     result = result + char_at(s, start + i)
@@ -246,7 +246,7 @@ pub fn substring(s : String, start : Int, len : Int) -> String {
 
 ///|
 /// Check if string starts with prefix at position.
-pub fn starts_with(s : String, pos : Int, prefix : String) -> Bool {
+pub fn starts_with(s : String, pos : Int32, prefix : String) -> Bool {
   if pos + prefix.length() > s.length() {
     return false
   }
@@ -346,6 +346,7 @@ pub fn trim(s : String) -> String {
   }
   s[start:end].to_owned()
 }
+
 ///|
 /// Convert string to uppercase.
 pub fn to_uppercase(s : String) -> String {

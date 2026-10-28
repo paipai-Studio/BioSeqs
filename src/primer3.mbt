@@ -15,31 +15,31 @@
 ///|
 /// Configuration parameters for primer design.
 pub struct Primer3Config {
-  primer_length_min : Int
-  primer_length_max : Int
+  primer_length_min : Int32
+  primer_length_max : Int32
   tm_min : Double
   tm_max : Double
   gc_min : Double
   gc_max : Double
-  max_self_complement : Int
-  max_cross_complement : Int
+  max_self_complement : Int32
+  max_cross_complement : Int32
   salt_conc : Double // mol/L (Na+ equivalent)
-  flank : Int // minimal distance from template edges
+  flank : Int32 // minimal distance from template edges
 }
 
 ///|
 /// Build a `Primer3Config` with the given parameters.
 pub fn Primer3Config::new(
-  primer_length_min : Int,
-  primer_length_max : Int,
+  primer_length_min : Int32,
+  primer_length_max : Int32,
   tm_min : Double,
   tm_max : Double,
   gc_min : Double,
   gc_max : Double,
-  max_self_complement : Int,
-  max_cross_complement : Int,
+  max_self_complement : Int32,
+  max_cross_complement : Int32,
   salt_conc : Double,
-  flank : Int,
+  flank : Int32,
 ) -> Primer3Config {
   Primer3Config::{
     primer_length_min,
@@ -64,13 +64,13 @@ pub fn primer3_default_config() -> Primer3Config {
 
 ///|
 /// Minimum primer length.
-pub fn Primer3Config::primer_length_min(self : Primer3Config) -> Int {
+pub fn Primer3Config::primer_length_min(self : Primer3Config) -> Int32 {
   self.primer_length_min
 }
 
 ///|
 /// Maximum primer length.
-pub fn Primer3Config::primer_length_max(self : Primer3Config) -> Int {
+pub fn Primer3Config::primer_length_max(self : Primer3Config) -> Int32 {
   self.primer_length_max
 }
 
@@ -100,13 +100,13 @@ pub fn Primer3Config::gc_max(self : Primer3Config) -> Double {
 
 ///|
 /// Maximum allowed self-complementarity score.
-pub fn Primer3Config::max_self_complement(self : Primer3Config) -> Int {
+pub fn Primer3Config::max_self_complement(self : Primer3Config) -> Int32 {
   self.max_self_complement
 }
 
 ///|
 /// Maximum allowed cross-complementarity score.
-pub fn Primer3Config::max_cross_complement(self : Primer3Config) -> Int {
+pub fn Primer3Config::max_cross_complement(self : Primer3Config) -> Int32 {
   self.max_cross_complement
 }
 
@@ -118,7 +118,7 @@ pub fn Primer3Config::salt_conc(self : Primer3Config) -> Double {
 
 ///|
 /// Minimum distance from either end of the template.
-pub fn Primer3Config::flank(self : Primer3Config) -> Int {
+pub fn Primer3Config::flank(self : Primer3Config) -> Int32 {
   self.flank
 }
 
@@ -130,11 +130,11 @@ pub fn Primer3Config::flank(self : Primer3Config) -> Int {
 /// A primer candidate produced by `primer3_design_primers`.
 pub struct Primer3Result {
   sequence : String
-  start : Int // 0-based start in template
-  length : Int
+  start : Int32 // 0-based start in template
+  length : Int32
   tm : Double
   gc : Double
-  self_complement : Int
+  self_complement : Int32
   is_forward : Bool
   score : Double
 }
@@ -143,11 +143,11 @@ pub struct Primer3Result {
 /// Construct a `Primer3Result`.
 pub fn Primer3Result::new(
   sequence : String,
-  start : Int,
-  length : Int,
+  start : Int32,
+  length : Int32,
   tm : Double,
   gc : Double,
-  self_complement : Int,
+  self_complement : Int32,
   is_forward : Bool,
   score : Double,
 ) -> Primer3Result {
@@ -171,13 +171,13 @@ pub fn Primer3Result::sequence(self : Primer3Result) -> String {
 
 ///|
 /// 0-based start position in the template.
-pub fn Primer3Result::start(self : Primer3Result) -> Int {
+pub fn Primer3Result::start(self : Primer3Result) -> Int32 {
   self.start
 }
 
 ///|
 /// Primer length in nucleotides.
-pub fn Primer3Result::length(self : Primer3Result) -> Int {
+pub fn Primer3Result::length(self : Primer3Result) -> Int32 {
   self.length
 }
 
@@ -195,7 +195,7 @@ pub fn Primer3Result::gc(self : Primer3Result) -> Double {
 
 ///|
 /// Self-complementarity score (lower is better).
-pub fn Primer3Result::self_complement(self : Primer3Result) -> Int {
+pub fn Primer3Result::self_complement(self : Primer3Result) -> Int32 {
   self.self_complement
 }
 
@@ -324,7 +324,7 @@ fn primer3_pair(a : String, b : String) -> Bool {
 /// Score self-complementarity of a primer by sliding it against its own
 /// reverse complement. Returns the maximum number of paired bases found
 /// across all alignments. Lower scores are better.
-pub fn primer3_self_complement(seq : String) -> Int {
+pub fn primer3_self_complement(seq : String) -> Int32 {
   let n = seq.length()
   if n == 0 {
     return 0
@@ -359,7 +359,7 @@ pub fn primer3_self_complement(seq : String) -> Int {
 /// Score cross-dimer complementarity between two primers by sliding
 /// the reverse complement of seq2 against seq1 and counting paired bases.
 /// Returns the maximum paired count across all offsets.
-pub fn primer3_cross_dimer(seq1 : String, seq2 : String) -> Int {
+pub fn primer3_cross_dimer(seq1 : String, seq2 : String) -> Int32 {
   let n1 = seq1.length()
   let n2 = seq2.length()
   if n1 == 0 || n2 == 0 {
@@ -396,7 +396,7 @@ pub fn primer3_cross_dimer(seq1 : String, seq2 : String) -> Int {
 /// Detect hairpin potential by checking self-complementarity at the 3' end.
 /// Returns the self-complementarity score restricted to the last
 /// `end_len` bases of the primer.
-pub fn primer3_hairpin_3prime(seq : String, end_len : Int) -> Int {
+pub fn primer3_hairpin_3prime(seq : String, end_len : Int32) -> Int32 {
   let n = seq.length()
   if n == 0 || end_len <= 0 {
     return 0
@@ -419,7 +419,7 @@ pub fn primer3_score(
   _seq : String,
   tm : Double,
   gc : Double,
-  self_comp : Int,
+  self_comp : Int32,
   config : Primer3Config,
 ) -> Double {
   let tm_mid = (config.tm_min + config.tm_max) / 2.0
@@ -476,13 +476,13 @@ pub fn Primer3Design::reverse(self : Primer3Design) -> Array[Primer3Result] {
 
 ///|
 /// Number of forward candidates.
-pub fn Primer3Design::n_forward(self : Primer3Design) -> Int {
+pub fn Primer3Design::n_forward(self : Primer3Design) -> Int32 {
   self.forward.length()
 }
 
 ///|
 /// Number of reverse candidates.
-pub fn Primer3Design::n_reverse(self : Primer3Design) -> Int {
+pub fn Primer3Design::n_reverse(self : Primer3Design) -> Int32 {
   self.reverse.length()
 }
 
@@ -621,11 +621,11 @@ pub fn primer3_design_primers(
 /// Compute the amplicon length given a forward primer start/length and
 /// a reverse primer template start/length.
 pub fn primer3_amplicon_length(
-  fwd_start : Int,
-  _fwd_len : Int,
-  rev_start : Int,
-  rev_len : Int,
-) -> Int {
+  fwd_start : Int32,
+  _fwd_len : Int32,
+  rev_start : Int32,
+  rev_len : Int32,
+) -> Int32 {
   let amp_end = rev_start + rev_len // exclusive end
   amp_end - fwd_start
 }
@@ -635,7 +635,7 @@ pub fn primer3_amplicon_length(
 pub fn primer3_pair_amplicon_length(
   fwd : Primer3Result,
   rev : Primer3Result,
-) -> Int {
+) -> Int32 {
   primer3_amplicon_length(fwd.start(), fwd.length(), rev.start(), rev.length())
 }
 

@@ -37,7 +37,10 @@ test "seqkit_sort" {
   assert_eq(by_len[0].id, "s4")
   assert_eq(by_len[3].id, "s2")
   let by_name = @src.seqkit_sort_name(r)
-  assert_eq((by_name[0].id, by_name[1].id, by_name[2].id, by_name[3].id), ("s1", "s2", "s3", "s4"))
+  assert_eq(
+    (by_name[0].id, by_name[1].id, by_name[2].id, by_name[3].id),
+    ("s1", "s2", "s3", "s4"),
+  )
 }
 
 ///|
@@ -71,7 +74,9 @@ test "seqkit_faidx_subseq" {
   assert_eq(@src.seqkit_subseq(fasta, "chr1", 1, 8), "ACGTACGT")
   assert_eq(@src.seqkit_subseq(fasta, "chr1", 1, 100), "")
   assert_eq(@src.seqkit_subseq(fasta, "chrX", 1, 4), "")
-}///|
+} ///|
+
+///|
 test "seqkit_sliding_translate_mutate" {
   // sliding: "ACGTACGT", window 4, step 3 -> "ACGT","TACG"
   let win = @src.seqkit_sliding("ACGTACGT", 4, 3)
@@ -103,6 +108,7 @@ test "seqkit_shuffle_sample" {
 // seqkit concat / replace
 // ============================================================
 
+///|
 test "seqkit_concat" {
   let a = @src.parse_fasta(">a1\nAC\n>a2\nGT\n")
   let b = @src.parse_fasta(">b1\nTT\n")
@@ -113,6 +119,7 @@ test "seqkit_concat" {
   assert_eq(c[2].id, "b1")
 }
 
+///|
 test "seqkit_replace_name" {
   let r = @src.parse_fasta(">sample1_x desc\nAC\n>sample2_x\nGT\n")
   let out = @src.seqkit_replace_name(r, "_x", "")

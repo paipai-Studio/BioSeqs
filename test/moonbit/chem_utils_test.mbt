@@ -97,7 +97,7 @@ test "chem_dihedral_angle_180" {
 
 ///|
 test "chem_empirical_formula_water" {
-  let counts : Map[String, Int] = Map([], capacity=8)
+  let counts : Map[String, Int32] = Map([], capacity=8)
   counts["H"] = 2
   counts["O"] = 1
   let formula = @src.chem_empirical_formula(counts)

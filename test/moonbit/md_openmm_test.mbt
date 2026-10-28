@@ -1,3 +1,4 @@
+///|
 test "openmm langevin step reduces energy for stretched bond" {
   @src.md_seed_rng(42L)
   let positions = [[0.0, 0.0, 0.0], [1.5, 0.0, 0.0]]
@@ -12,6 +13,7 @@ test "openmm langevin step reduces energy for stretched bond" {
   assert_true(dx < 1.5)
 }
 
+///|
 test "openmd langevin finish updates velocities" {
   let velocities = [[0.0, 0.0, 0.0], [0.0, 0.0, 0.0]]
   let masses = [1.0, 1.0]
@@ -21,26 +23,33 @@ test "openmd langevin finish updates velocities" {
   assert_true(v_new[1][0] < 0.0)
 }
 
+///|
 test "openmm brownian step moves toward equilibrium" {
   let positions = [[0.0, 0.0, 0.0], [2.0, 0.0, 0.0]]
   let forces = [[100.0, 0.0, 0.0], [-100.0, 0.0, 0.0]]
   let masses = [1.0, 1.0]
-  let pos_new = @src.md_brownian_step(positions, forces, masses, 0.001, 300.0, 10.0)
+  let pos_new = @src.md_brownian_step(
+    positions, forces, masses, 0.001, 300.0, 10.0,
+  )
   assert_true(pos_new[0][0] > 0.0)
   assert_true(pos_new[1][0] < 2.0)
 }
 
+///|
 test "openmm brownian simulation returns temperatures" {
   let positions = [[0.0, 0.0, 0.0], [1.0, 0.0, 0.0]]
   let masses = [1.0, 1.0]
   let bonds = [(0, 1, 1.0, 100.0)]
-  let temps = @src.md_simulate_brownian(positions, masses, bonds, 0.001, 300.0, 10.0, 10)
+  let temps = @src.md_simulate_brownian(
+    positions, masses, bonds, 0.001, 300.0, 10.0, 10,
+  )
   assert_eq(temps.length(), 10)
   for i = 0; i < 10; i = i + 1 {
     assert_eq(temps[i], 300.0)
   }
 }
 
+///|
 test "openmm rbtorsion energy zero at default" {
   let positions = [
     [0.0, 0.0, 0.0],
@@ -53,6 +62,7 @@ test "openmm rbtorsion energy zero at default" {
   assert_true((e - 0.0).abs() < 1.0e-10)
 }
 
+///|
 test "openmm rbtorsion energy constant offset" {
   let positions = [
     [0.0, 0.0, 0.0],
@@ -65,6 +75,7 @@ test "openmm rbtorsion energy constant offset" {
   assert_true((e - 5.0).abs() < 1.0e-10)
 }
 
+///|
 test "openmm rbtorsion forces sum to zero" {
   let positions = [
     [0.0, 0.0, 0.0],
@@ -87,6 +98,7 @@ test "openmm rbtorsion forces sum to zero" {
   assert_true(fz.abs() < 1.0e-3)
 }
 
+///|
 test "openmm cmap energy bilinear interpolation" {
   let positions = [
     [0.0, 0.0, 0.0],
@@ -101,6 +113,7 @@ test "openmm cmap energy bilinear interpolation" {
   assert_true(e.abs() < 1.0e6)
 }
 
+///|
 test "openmm cmap energy zero grid" {
   let positions = [
     [0.0, 0.0, 0.0],
@@ -115,12 +128,9 @@ test "openmm cmap energy zero grid" {
   assert_true((e - 0.0).abs() < 1.0e-10)
 }
 
+///|
 test "openmm andersen thermostat returns correct size" {
-  let velocities = [
-    [1.0, 0.0, 0.0],
-    [0.0, 1.0, 0.0],
-    [0.0, 0.0, 1.0],
-  ]
+  let velocities = [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]]
   let masses = [1.0, 1.0, 1.0]
   let v_new = @src.md_andersen_thermostat(velocities, masses, 300.0, 1.0, 0.01)
   assert_eq(v_new.length(), 3)
@@ -129,6 +139,7 @@ test "openmm andersen thermostat returns correct size" {
   }
 }
 
+///|
 test "openmm andersen simulation returns temperatures" {
   let positions = [[0.0, 0.0, 0.0], [1.0, 0.0, 0.0]]
   let velocities = [[0.0, 0.0, 0.0], [0.0, 0.0, 0.0]]
@@ -140,12 +151,9 @@ test "openmm andersen simulation returns temperatures" {
   assert_eq(temps.length(), 5)
 }
 
+///|
 test "openmm remove com motion zero total momentum" {
-  let velocities = [
-    [1.0, 0.0, 0.0],
-    [-1.0, 0.0, 0.0],
-    [2.0, 0.0, 0.0],
-  ]
+  let velocities = [[1.0, 0.0, 0.0], [-1.0, 0.0, 0.0], [2.0, 0.0, 0.0]]
   let masses = [1.0, 1.0, 1.0]
   let v_new = @src.md_remove_com_motion(velocities, masses)
   let mut px = 0.0
@@ -161,11 +169,9 @@ test "openmm remove com motion zero total momentum" {
   assert_true(pz.abs() < 1.0e-10)
 }
 
+///|
 test "openmm remove com motion preserves relative velocity" {
-  let velocities = [
-    [1.0, 0.0, 0.0],
-    [3.0, 0.0, 0.0],
-  ]
+  let velocities = [[1.0, 0.0, 0.0], [3.0, 0.0, 0.0]]
   let masses = [1.0, 1.0]
   let v_new = @src.md_remove_com_motion(velocities, masses)
   let dv_before = velocities[1][0] - velocities[0][0]
@@ -173,6 +179,7 @@ test "openmm remove com motion preserves relative velocity" {
   assert_true((dv_before - dv_after).abs() < 1.0e-10)
 }
 
+///|
 test "openmm remove com angular removes rotation" {
   let positions = [
     [1.0, 0.0, 0.0],
@@ -195,24 +202,27 @@ test "openmm remove com angular removes rotation" {
   }
 }
 
+///|
 test "openmm pbc minimum image orthorhombic" {
   let dr = [6.0, 0.0, 0.0]
   let box = [10.0, 10.0, 10.0]
   let result = @src.md_pbc_minimum_image(dr, box)
-  assert_true((result[0] - (-4.0)).abs() < 1.0e-10)
+  assert_true((result[0] - -4.0).abs() < 1.0e-10)
   assert_true(result[1].abs() < 1.0e-10)
   assert_true(result[2].abs() < 1.0e-10)
 }
 
+///|
 test "openmm pbc minimum image no wrap needed" {
   let dr = [3.0, -2.0, 1.0]
   let box = [10.0, 10.0, 10.0]
   let result = @src.md_pbc_minimum_image(dr, box)
   assert_true((result[0] - 3.0).abs() < 1.0e-10)
-  assert_true((result[1] - (-2.0)).abs() < 1.0e-10)
+  assert_true((result[1] - -2.0).abs() < 1.0e-10)
   assert_true((result[2] - 1.0).abs() < 1.0e-10)
 }
 
+///|
 test "openmm pbc wrap position into unit cell" {
   let pos = [12.0, -3.0, 5.0]
   let box = [10.0, 10.0, 10.0]
@@ -222,6 +232,7 @@ test "openmm pbc wrap position into unit cell" {
   assert_true((result[2] - 5.0).abs() < 1.0e-10)
 }
 
+///|
 test "openmm pbc wrap all positions" {
   let positions = [[12.0, 0.0, 0.0], [-3.0, 5.0, 15.0]]
   let box = [10.0, 10.0, 10.0]
@@ -231,6 +242,7 @@ test "openmm pbc wrap all positions" {
   assert_true((result[1][2] - 5.0).abs() < 1.0e-10)
 }
 
+///|
 test "openmm pbc distance" {
   let pos1 = [0.0, 0.0, 0.0]
   let pos2 = [9.0, 0.0, 0.0]
@@ -239,6 +251,7 @@ test "openmm pbc distance" {
   assert_true((dist - 1.0).abs() < 1.0e-10)
 }
 
+///|
 test "openmm pbc no box no wrapping" {
   let dr = [100.0, 200.0, 300.0]
   let box = [0.0, 0.0, 0.0]
@@ -248,6 +261,7 @@ test "openmm pbc no box no wrapping" {
   assert_true((result[2] - 300.0).abs() < 1.0e-10)
 }
 
+///|
 test "openmm gbsa obc energy two atoms" {
   let positions = [[0.0, 0.0, 0.0], [3.0, 0.0, 0.0]]
   let charges = [1.0, -1.0]
@@ -262,6 +276,7 @@ test "openmm gbsa obc energy two atoms" {
   assert_true(e_sa >= 0.0)
 }
 
+///|
 test "openmm gbsa obc energy zero charges" {
   let positions = [[0.0, 0.0, 0.0], [3.0, 0.0, 0.0]]
   let charges = [0.0, 0.0]
@@ -274,6 +289,7 @@ test "openmm gbsa obc energy zero charges" {
   assert_true(e_gb.abs() < 1.0e-10)
 }
 
+///|
 test "openmm mc barostat step returns valid result" {
   let positions = [[0.0, 0.0, 0.0], [1.0, 0.0, 0.0]]
   let box = [10.0, 10.0, 10.0]
@@ -292,6 +308,7 @@ test "openmm mc barostat step returns valid result" {
   assert_true(box_new[2] > 0.0)
 }
 
+///|
 test "openmm seed rng produces reproducible sequence" {
   @src.md_seed_rng(42L)
   let v1 = @src.md_rand_double()
@@ -300,6 +317,7 @@ test "openmm seed rng produces reproducible sequence" {
   assert_true((v1 - v2).abs() < 1.0e-15)
 }
 
+///|
 test "openmm rand double in unit interval" {
   @src.md_seed_rng(123L)
   for _i = 0; _i < 100; _i = _i + 1 {

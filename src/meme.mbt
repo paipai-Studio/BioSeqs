@@ -31,8 +31,8 @@ pub struct MemeMotif {
   name : String // motif identifier (e.g., "motif1" or "1")
   mut alt_name : String // alternative name (may be empty)
   alphabet : String // e.g., "ACGT" or "ACDEFGHIKLMNPQRSTVWY"
-  mut width : Int // motif width (number of positions)
-  mut nsites : Int // number of sites used to build the motif
+  mut width : Int32 // motif width (number of positions)
+  mut nsites : Int32 // number of sites used to build the motif
   mut evalue : Double // E-value of the motif
   pspm : Array[Array[Double]] // position-specific probability matrix (width x alphabet_len)
   mut url : String // optional motif URL
@@ -44,7 +44,7 @@ pub struct MemeMotif {
 pub fn MemeMotif::new(
   name : String,
   pspm : Array[Array[Double]],
-  alphabet? : String = "ACGT",
+  alphabet~ : String = "ACGT",
 ) -> MemeMotif {
   let width = if pspm.length() > 0 { pspm.length() } else { 0 }
   MemeMotif::{
@@ -101,7 +101,7 @@ pub fn MemeMotif::alphabet_to_array(self : MemeMotif) -> Array[String] {
 pub fn MemeMotif::probability(
   self : MemeMotif,
   letter : String,
-  position : Int,
+  position : Int32,
 ) -> Double {
   if position < 0 || position >= self.pspm.length() {
     return 0.0
@@ -153,7 +153,7 @@ pub fn MemeRecord::new() -> MemeRecord {
 
 ///|
 /// Get the number of motifs.
-pub fn MemeRecord::num_motifs(self : MemeRecord) -> Int {
+pub fn MemeRecord::num_motifs(self : MemeRecord) -> Int32 {
   self.motifs.length()
 }
 
@@ -253,7 +253,7 @@ pub fn meme_parse(text : String) -> MemeRecord {
       m_name : String,
       m_alt_name : String,
       m_alphabet : String,
-      m_nsites : Int,
+      m_nsites : Int32,
       m_evalue : Double,
       m_url : String,
       m_strands : String,
@@ -282,11 +282,7 @@ pub fn meme_parse(text : String) -> MemeRecord {
       in_matrix = false
       matrix_rows = Array(capacity=0)
       let parts = line.split(" ").to_array()
-      m_name = if parts.length() >= 2 {
-        parts[1].trim().to_owned()
-      } else {
-        ""
-      }
+      m_name = if parts.length() >= 2 { parts[1].trim().to_owned() } else { "" }
       m_alt_name = if parts.length() >= 3 {
         parts[2].trim().to_owned()
       } else {
@@ -376,7 +372,7 @@ pub fn meme_parse(text : String) -> MemeRecord {
 
 ///|
 /// Find the index of a substring in a string, returns -1 if not found.
-fn meme_index_of(s : String, sub : String) -> Int {
+fn meme_index_of(s : String, sub : String) -> Int32 {
   let n = s.length()
   let kn = sub.length()
   if kn == 0 || kn > n {
@@ -403,7 +399,7 @@ fn meme_index_of(s : String, sub : String) -> Int {
 
 ///|
 /// Parse an integer field from a MEME header line (e.g., "w= 8").
-fn parse_meme_int_field(text : String, field : String) -> Int {
+fn parse_meme_int_field(text : String, field : String) -> Int32 {
   let idx = meme_index_of(text, field)
   if idx >= 0 {
     let rest = text[idx + field.length():].trim().to_owned()

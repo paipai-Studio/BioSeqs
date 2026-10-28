@@ -270,7 +270,7 @@ test "freq_table_read_freq_empty_text" {
 
 ///|
 test "freq_table_from_counts_basic" {
-  let counts : Map[String, Int] = Map([], capacity=4)
+  let counts : Map[String, Int32] = Map([], capacity=4)
   counts["A"] = 50
   counts["C"] = 37
   counts["G"] = 23

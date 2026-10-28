@@ -8,11 +8,11 @@ pub struct GFFFeature {
   seqid : String
   source : String
   feature_type : String
-  start : Int
-  end : Int
+  start : Int32
+  end : Int32
   score : Double?
   strand : String
-  phase : Int?
+  phase : Int32?
   attributes : Map[String, String]
 }
 
@@ -21,8 +21,8 @@ pub fn GFFFeature::new(
   seqid : String,
   source : String,
   feature_type : String,
-  start : Int,
-  end : Int,
+  start : Int32,
+  end : Int32,
   strand : String,
 ) -> GFFFeature {
   GFFFeature::{
@@ -54,7 +54,7 @@ pub fn GFFFeature::set_score(self : GFFFeature, score : Double) -> GFFFeature {
 }
 
 ///|
-pub fn GFFFeature::set_phase(self : GFFFeature, phase : Int) -> GFFFeature {
+pub fn GFFFeature::set_phase(self : GFFFeature, phase : Int32) -> GFFFeature {
   GFFFeature::{
     seqid: self.seqid,
     source: self.source,
@@ -114,7 +114,7 @@ pub fn GFFFeature::get_name(self : GFFFeature) -> String? {
 }
 
 ///|
-pub fn GFFFeature::length(self : GFFFeature) -> Int {
+pub fn GFFFeature::length(self : GFFFeature) -> Int32 {
   self.end - self.start + 1
 }
 
@@ -561,7 +561,7 @@ pub fn create_example_gff() -> GFFRecord {
 }
 
 ///|
-pub fn GFFRecord::count_features(self : GFFRecord) -> Int {
+pub fn GFFRecord::count_features(self : GFFRecord) -> Int32 {
   self.features.length()
 }
 
@@ -605,8 +605,8 @@ pub fn GFFRecord::get_unique_feature_types(self : GFFRecord) -> Array[String] {
 pub fn GFFRecord::get_features_in_range(
   self : GFFRecord,
   seqid : String,
-  start : Int,
-  end : Int,
+  start : Int32,
+  end : Int32,
 ) -> Array[GFFFeature] {
   let result : Array[GFFFeature] = Array(capacity=0)
   let mut i = 0
@@ -624,7 +624,7 @@ pub fn GFFRecord::get_features_in_range(
 pub fn GFFRecord::calculate_gene_length(
   self : GFFRecord,
   gene_id : String,
-) -> Int {
+) -> Int32 {
   let cds_features = self.get_cds_for_transcript(gene_id)
   let mut total_length = 0
   let mut i = 0
@@ -635,14 +635,21 @@ pub fn GFFRecord::calculate_gene_length(
   total_length
 }
 
-
 ///|
 /// Serialize a single feature to one GFF3 line (no trailing newline). This is
 /// `str(feature)` from Python gffutils; the 9th column (attributes) is emitted
 /// only when non-empty.
 pub fn GFFFeature::to_gff_line(self : GFFFeature) -> String {
-  let mut result = self.seqid + "\t" + self.source + "\t" + self.feature_type + "\t" +
-    self.start.to_string() + "\t" + self.end.to_string() + "\t"
+  let mut result = self.seqid +
+    "\t" +
+    self.source +
+    "\t" +
+    self.feature_type +
+    "\t" +
+    self.start.to_string() +
+    "\t" +
+    self.end.to_string() +
+    "\t"
 
   match self.score {
     Some(s) => result = result + s.to_string()
@@ -677,7 +684,7 @@ pub fn GFFFeature::to_gff_line(self : GFFFeature) -> String {
 pub fn GFFRecord::count_features_of_type(
   self : GFFRecord,
   feature_type : String,
-) -> Int {
+) -> Int32 {
   let mut n = 0
   let mut i = 0
   while i < self.features.length() {

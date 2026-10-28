@@ -6,7 +6,7 @@
 
 ///|
 /// Arg-sort a distance row ascending (indices, not values).
-fn scanpy_argsort(dist_row : Array[Double]) -> Array[Int] {
+fn scanpy_argsort(dist_row : Array[Double]) -> Array[Int32] {
   let n = dist_row.length()
   let idx = Array::make(n, 0)
   for t = 0; t < n; t = t + 1 {
@@ -38,8 +38,8 @@ fn scanpy_argsort(dist_row : Array[Double]) -> Array[Int] {
 /// ascending).
 fn scanpy_knn_distances(
   x : Array[Array[Double]],
-  k : Int,
-) -> (Array[Array[Int]], Array[Array[Double]]) {
+  k : Int32,
+) -> (Array[Array[Int32]], Array[Array[Double]]) {
   let n = x.length()
   if n == 0 {
     return (Array(capacity=0), Array(capacity=0))
@@ -59,10 +59,10 @@ fn scanpy_knn_distances(
 /// (d > 20 or n ≤ 64).
 fn scanpy_knn_distances_brute(
   x : Array[Array[Double]],
-  k : Int,
-) -> (Array[Array[Int]], Array[Array[Double]]) {
+  k : Int32,
+) -> (Array[Array[Int32]], Array[Array[Double]]) {
   let n = x.length()
-  let idx : Array[Array[Int]] = Array(capacity=n)
+  let idx : Array[Array[Int32]] = Array(capacity=n)
   let d : Array[Array[Double]] = Array(capacity=n)
   for i = 0; i < n; i = i + 1 {
     let row : Array[Double] = Array(capacity=n)
@@ -75,7 +75,7 @@ fn scanpy_knn_distances_brute(
       row.push(acc.sqrt())
     }
     let sorted = scanpy_argsort(row)
-    let idx_row : Array[Int] = Array(capacity=k)
+    let idx_row : Array[Int32] = Array(capacity=k)
     let d_row : Array[Double] = Array(capacity=k)
     for t = 0; t < k; t = t + 1 {
       idx_row.push(sorted[t])
@@ -93,7 +93,7 @@ fn scanpy_knn_distances_brute(
 /// is satisfied).
 fn scanpy_smooth_knn_dist(
   knn_dists : Array[Array[Double]],
-  k : Int,
+  k : Int32,
 ) -> (Array[Double], Array[Double]) {
   let n = knn_dists.length()
   let target = @math.log2(k.to_double())
@@ -132,27 +132,26 @@ fn scanpy_smooth_knn_dist(
 /// Compute the UMAP neighborhood connectivities (fuzzy simplicial set with
 /// `local_connectivity=1`, `set_op_mix_ratio=1`) and return them as a sparse
 /// symmetric graph (O(n·k) edges). Diagonal self-weights are 1.
-pub fn scanpy_neighbors(x : Array[Array[Double]], n_neighbors : Int) -> SparseGraph {
+pub fn scanpy_neighbors(
+  x : Array[Array[Double]],
+  n_neighbors : Int32,
+) -> SparseGraph {
   let n = x.length()
   if n == 0 {
-    return SparseGraph::{ n: 0, diag: [], adj: [] }
+    return SparseGraph::{ n: 0, diag: [], adj: [], }
   }
   let k = if n_neighbors < n { n_neighbors } else { n }
   let (knn_idx, knn_dists) = scanpy_knn_distances(x, k)
   let (rhos, sigmas) = scanpy_smooth_knn_dist(knn_dists, k)
 
   // directed membership strengths d (self = 1), stored per-vertex as Map[j -> w]
-  let directed : Array[Map[Int, Double]] = Array(capacity=n)
+  let directed : Array[Map[Int32, Double]] = Array(capacity=n)
   for i = 0; i < n; i = i + 1 {
-    let row : Map[Int, Double] = Map([], capacity=k)
+    let row : Map[Int32, Double] = Map([], capacity=k)
     for j = 1; j < k; j = j + 1 {
       let nb = knn_idx[i][j]
       let delta = knn_dists[i][j] - rhos[i]
-      let w = if delta > 0.0 {
-        @math.exp(-(delta / sigmas[i]))
-      } else {
-        1.0
-      }
+      let w = if delta > 0.0 { @math.exp(-(delta / sigmas[i])) } else { 1.0 }
       row.set(nb, w)
     }
     directed.push(row)
@@ -160,7 +159,7 @@ pub fn scanpy_neighbors(x : Array[Array[Double]], n_neighbors : Int) -> SparseGr
 
   // fuzzy union conn = d + dᵀ - d ∘ dᵀ, deduplicated undirected edges by a
   // canonical Int key (a * n + b with a < b).
-  let undirected : Map[Int, Double] = Map([], capacity=n * k)
+  let undirected : Map[Int32, Double] = Map([], capacity=n * k)
   for i = 0; i < n; i = i + 1 {
     for nb in directed[i] {
       let j = nb.0
@@ -187,7 +186,7 @@ pub fn scanpy_neighbors(x : Array[Array[Double]], n_neighbors : Int) -> SparseGr
 
   // diagonal self-weight = 1 (fuzzy union of a self-loop with itself)
   let diag : Array[Double] = Array::make(n, 1.0)
-  let adj : Array[Array[(Int, Double)]] = Array(capacity=n)
+  let adj : Array[Array[(Int32, Double)]] = Array(capacity=n)
   for i = 0; i < n; i = i + 1 {
     adj.push([])
   }
@@ -198,7 +197,7 @@ pub fn scanpy_neighbors(x : Array[Array[Double]], n_neighbors : Int) -> SparseGr
     adj[a].push((b, w))
     adj[b].push((a, w))
   }
-  SparseGraph::{ n, diag, adj }
+  SparseGraph::{ n, diag, adj, }
 }
 
 // ============================================================================
@@ -218,8 +217,8 @@ pub fn scanpy_neighbors(x : Array[Array[Double]], n_neighbors : Int) -> SparseGr
 /// Result of `scanpy_neighbors_with_distances`: the kNN distance graph and
 /// the UMAP connectivities graph, both as sparse symmetric matrices.
 pub struct ScanpyNeighborsResult {
-  distances : SparseGraph       // raw kNN distances (symmetric, 0 on diagonal)
-  connectivities : SparseGraph  // UMAP fuzzy simplicial set (1 on diagonal)
+  distances : SparseGraph // raw kNN distances (symmetric, 0 on diagonal)
+  connectivities : SparseGraph // UMAP fuzzy simplicial set (1 on diagonal)
 }
 
 ///|
@@ -234,13 +233,13 @@ pub struct ScanpyNeighborsResult {
 /// `scanpy_neighbors`.
 pub fn scanpy_neighbors_with_distances(
   x : Array[Array[Double]],
-  n_neighbors : Int,
+  n_neighbors : Int32,
 ) -> ScanpyNeighborsResult {
   let n = x.length()
   if n == 0 {
     return ScanpyNeighborsResult::{
-      distances: SparseGraph::{ n: 0, diag: [], adj: [] },
-      connectivities: SparseGraph::{ n: 0, diag: [], adj: [] },
+      distances: SparseGraph::{ n: 0, diag: [], adj: [], },
+      connectivities: SparseGraph::{ n: 0, diag: [], adj: [], },
     }
   }
   let k = if n_neighbors < n { n_neighbors } else { n }
@@ -250,7 +249,7 @@ pub fn scanpy_neighbors_with_distances(
   // --- Build distances graph (symmetrized by min) ---
   // For each vertex i, store kNN neighbors with distances. Symmetrize by
   // taking the minimum distance for each undirected edge.
-  let dist_edges : Map[Int, Double] = Map([], capacity=n * k)
+  let dist_edges : Map[Int32, Double] = Map([], capacity=n * k)
   for i = 0; i < n; i = i + 1 {
     for j = 1; j < k; j = j + 1 {
       let nb = knn_idx[i][j]
@@ -260,16 +259,12 @@ pub fn scanpy_neighbors_with_distances(
       let key = a * n + b
       match dist_edges.get(key) {
         None => dist_edges.set(key, d)
-        Some(existing) => {
-          if d < existing {
-            dist_edges.set(key, d)
-          }
-        }
+        Some(existing) => if d < existing { dist_edges.set(key, d) }
       }
     }
   }
   let dist_diag : Array[Double] = Array::make(n, 0.0)
-  let dist_adj : Array[Array[(Int, Double)]] = Array(capacity=n)
+  let dist_adj : Array[Array[(Int32, Double)]] = Array(capacity=n)
   for i = 0; i < n; i = i + 1 {
     dist_adj.push([])
   }
@@ -280,27 +275,23 @@ pub fn scanpy_neighbors_with_distances(
     dist_adj[a].push((b, w))
     dist_adj[b].push((a, w))
   }
-  let distances = SparseGraph::{ n, diag: dist_diag, adj: dist_adj }
+  let distances = SparseGraph::{ n, diag: dist_diag, adj: dist_adj, }
 
   // --- Build connectivities graph (UMAP fuzzy union) ---
   // directed membership strengths
-  let directed : Array[Map[Int, Double]] = Array(capacity=n)
+  let directed : Array[Map[Int32, Double]] = Array(capacity=n)
   for i = 0; i < n; i = i + 1 {
-    let row : Map[Int, Double] = Map([], capacity=k)
+    let row : Map[Int32, Double] = Map([], capacity=k)
     for j = 1; j < k; j = j + 1 {
       let nb = knn_idx[i][j]
       let delta = knn_dists[i][j] - rhos[i]
-      let w = if delta > 0.0 {
-        @math.exp(-(delta / sigmas[i]))
-      } else {
-        1.0
-      }
+      let w = if delta > 0.0 { @math.exp(-(delta / sigmas[i])) } else { 1.0 }
       row.set(nb, w)
     }
     directed.push(row)
   }
   // fuzzy union: conn = w_ij + w_ji - w_ij * w_ji
-  let undirected : Map[Int, Double] = Map([], capacity=n * k)
+  let undirected : Map[Int32, Double] = Map([], capacity=n * k)
   for i = 0; i < n; i = i + 1 {
     for nb in directed[i] {
       let j = nb.0
@@ -325,7 +316,7 @@ pub fn scanpy_neighbors_with_distances(
     }
   }
   let conn_diag : Array[Double] = Array::make(n, 1.0)
-  let conn_adj : Array[Array[(Int, Double)]] = Array(capacity=n)
+  let conn_adj : Array[Array[(Int32, Double)]] = Array(capacity=n)
   for i = 0; i < n; i = i + 1 {
     conn_adj.push([])
   }
@@ -336,9 +327,9 @@ pub fn scanpy_neighbors_with_distances(
     conn_adj[a].push((b, w))
     conn_adj[b].push((a, w))
   }
-  let connectivities = SparseGraph::{ n, diag: conn_diag, adj: conn_adj }
+  let connectivities = SparseGraph::{ n, diag: conn_diag, adj: conn_adj, }
 
-  ScanpyNeighborsResult::{ distances, connectivities }
+  ScanpyNeighborsResult::{ distances, connectivities, }
 }
 
 ///|
@@ -350,11 +341,11 @@ pub fn scanpy_neighbors_with_distances(
 /// alternative to `method='umap'`.
 pub fn scanpy_neighbors_gauss(
   x : Array[Array[Double]],
-  n_neighbors : Int,
+  n_neighbors : Int32,
 ) -> SparseGraph {
   let n = x.length()
   if n == 0 {
-    return SparseGraph::{ n: 0, diag: [], adj: [] }
+    return SparseGraph::{ n: 0, diag: [], adj: [], }
   }
   let k = if n_neighbors < n { n_neighbors } else { n }
   let (knn_idx, knn_dists) = scanpy_knn_distances(x, k)
@@ -369,7 +360,7 @@ pub fn scanpy_neighbors_gauss(
   let sigma_sq = if sigma > 0.0 { 2.0 * sigma * sigma } else { 1.0 }
 
   // Build connectivities: exp(-dist² / (2*sigma²))
-  let edges : Map[Int, Double] = Map([], capacity=n * k)
+  let edges : Map[Int32, Double] = Map([], capacity=n * k)
   for i = 0; i < n; i = i + 1 {
     for j = 1; j < k; j = j + 1 {
       let nb = knn_idx[i][j]
@@ -384,22 +375,14 @@ pub fn scanpy_neighbors_gauss(
       // symmetrize by taking the max (both directions should give same w
       // since distance is symmetric, but kNN membership may not be)
       match edges.get(key) {
-        None => {
-          if w > 0.0 {
-            edges.set(key, w)
-          }
-        }
-        Some(existing) => {
-          if w > existing {
-            edges.set(key, w)
-          }
-        }
+        None => if w > 0.0 { edges.set(key, w) }
+        Some(existing) => if w > existing { edges.set(key, w) }
       }
     }
   }
 
   let diag : Array[Double] = Array::make(n, 1.0)
-  let adj : Array[Array[(Int, Double)]] = Array(capacity=n)
+  let adj : Array[Array[(Int32, Double)]] = Array(capacity=n)
   for i = 0; i < n; i = i + 1 {
     adj.push([])
   }
@@ -410,5 +393,5 @@ pub fn scanpy_neighbors_gauss(
     adj[a].push((b, w))
     adj[b].push((a, w))
   }
-  SparseGraph::{ n, diag, adj }
+  SparseGraph::{ n, diag, adj, }
 }

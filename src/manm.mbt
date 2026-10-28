@@ -20,12 +20,12 @@
 
 ///|
 pub struct MANM {
-  n : Int
+  n : Int32
   cutoff : Double
   gamma : Double
   k_membrane : Double
   k_lateral : Double
-  n_membrane : Int
+  n_membrane : Int32
   hessian : Array[Array[Double]]
   eigenvalues : Array[Double]
   eigenvectors : Array[Array[Double]]
@@ -41,11 +41,11 @@ pub struct MANM {
 /// * `k_lateral`  — lateral lipid contact strength (default 0.0 = disabled)
 pub fn MANM::new(
   chain : Chain,
-  membrane_residues : Array[Int],
-  cutoff? : Double = 15.0,
-  gamma? : Double = 1.0,
-  k_membrane? : Double = 1.0,
-  k_lateral? : Double = 0.0,
+  membrane_residues : Array[Int32],
+  cutoff~ : Double = 15.0,
+  gamma~ : Double = 1.0,
+  k_membrane~ : Double = 1.0,
+  k_lateral~ : Double = 0.0,
 ) -> MANM? {
   let residues = chain.get_residues()
   let ca_coords : Array[Vector3] = Array(capacity=0)
@@ -60,7 +60,7 @@ pub fn MANM::new(
     return None
   }
   let dim = 3 * n
-  let h : Array[Array[Double]] = Array::makei(dim, { _ => Array::make(dim, 0.0) })
+  let h : Array[Array[Double]] = Array::makei(dim, _ => Array::make(dim, 0.0))
 
   // Step 1: Standard ANM Hessian (intra-protein contacts)
   let mut i = 0
@@ -160,16 +160,15 @@ pub fn membrane_residues_by_z(
   chain : Chain,
   z_min : Double,
   z_max : Double,
-) -> Array[Int] {
+) -> Array[Int32] {
   let residues = chain.get_residues()
-  let result : Array[Int] = Array(capacity=0)
+  let result : Array[Int32] = Array(capacity=0)
   for i = 0; i < residues.length(); i = i + 1 {
     match residues[i].get_ca() {
-      Some(ca) => {
+      Some(ca) =>
         if ca.coord.z >= z_min && ca.coord.z <= z_max {
           result.push(i)
         }
-      }
       None => ()
     }
   }
@@ -214,7 +213,7 @@ pub fn MANM::predict_bfactors(self : MANM) -> Array[Double] {
   let n = self.n
   let dim = 3 * n
   let bfactors = Array::make(n, 0.0)
-  let indices = Array::makei(dim, { i => i })
+  let indices = Array::makei(dim, i => i)
   for i = 1; i < dim; i = i + 1 {
     let key = indices[i]
     let key_val = self.eigenvalues[key]
@@ -255,11 +254,11 @@ pub fn MANM::fluctuations(self : MANM) -> Array[Double] {
 /// Get the k slowest non-trivial modes (skip 6 zero modes).
 pub fn MANM::slow_modes(
   self : MANM,
-  k : Int,
-) -> Array[(Int, Double, Array[Double])] {
+  k : Int32,
+) -> Array[(Int32, Double, Array[Double])] {
   let n = self.n
   let dim = 3 * n
-  let indices = Array::makei(dim, { i => i })
+  let indices = Array::makei(dim, i => i)
   for i = 1; i < dim; i = i + 1 {
     let key = indices[i]
     let key_val = self.eigenvalues[key]
@@ -270,7 +269,7 @@ pub fn MANM::slow_modes(
     }
     indices[j + 1] = key
   }
-  let result : Array[(Int, Double, Array[Double])] = Array(capacity=0)
+  let result : Array[(Int32, Double, Array[Double])] = Array(capacity=0)
   let count = if k < dim - 6 { k } else { dim - 6 }
   for m = 6; m < 6 + count; m = m + 1 {
     let idx = indices[m]
@@ -289,8 +288,8 @@ pub fn MANM::slow_modes(
 pub fn MANM::cross_correlation(self : MANM) -> Array[Array[Double]] {
   let n = self.n
   let dim = 3 * n
-  let corr : Array[Array[Double]] = Array::makei(n, { _ => Array::make(n, 0.0) })
-  let indices = Array::makei(dim, { i => i })
+  let corr : Array[Array[Double]] = Array::makei(n, _ => Array::make(n, 0.0))
+  let indices = Array::makei(dim, i => i)
   for i = 1; i < dim; i = i + 1 {
     let key = indices[i]
     let key_val = self.eigenvalues[key]
@@ -334,13 +333,13 @@ pub fn MANM::cross_correlation(self : MANM) -> Array[Array[Double]] {
 
 ///|
 /// Number of nodes.
-pub fn MANM::num_nodes(self : MANM) -> Int {
+pub fn MANM::num_nodes(self : MANM) -> Int32 {
   self.n
 }
 
 ///|
 /// Number of membrane-embedded residues.
-pub fn MANM::num_membrane(self : MANM) -> Int {
+pub fn MANM::num_membrane(self : MANM) -> Int32 {
   self.n_membrane
 }
 

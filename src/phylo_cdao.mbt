@@ -60,9 +60,9 @@ pub struct Cdaotree {
 /// Construct a Cdaotree.
 pub fn Cdaotree::new(
   id : String,
-  rooted? : Bool = false,
-  root_node_id? : String = "",
-  name? : String? = None,
+  rooted~ : Bool = false,
+  root_node_id~ : String = "",
+  name~ : String? = None,
 ) -> Cdaotree {
   Cdaotree::{ id, rooted, root_node_id, name, }
 }
@@ -82,11 +82,11 @@ pub struct CdaoNode {
 /// Construct a CdaoNode.
 pub fn CdaoNode::new(
   id : String,
-  children? : Array[String] = [],
-  parent_id? : String? = None,
-  tu_id? : String? = None,
-  branch_length? : Double? = None,
-  label? : String? = None,
+  children~ : Array[String] = [],
+  parent_id~ : String? = None,
+  tu_id~ : String? = None,
+  branch_length~ : Double? = None,
+  label~ : String? = None,
 ) -> CdaoNode {
   CdaoNode::{ id, children, parent_id, tu_id, branch_length, label, }
 }
@@ -100,7 +100,7 @@ pub struct CdaoTU {
 
 ///|
 /// Construct a CdaoTU.
-pub fn CdaoTU::new(id : String, label? : String? = None) -> CdaoTU {
+pub fn CdaoTU::new(id : String, label~ : String? = None) -> CdaoTU {
   CdaoTU::{ id, label, }
 }
 
@@ -280,11 +280,7 @@ fn cdao_parse_children(
       ""
     }
     if resource is Some(res) {
-      triples.push(CdaoTriple::{
-        subject,
-        predicate: tag_name,
-        object: res,
-      })
+      triples.push(CdaoTriple::{ subject, predicate: tag_name, object: res, })
     } else if text_content.length() > 0 {
       triples.push(CdaoTriple::{
         subject,
@@ -466,8 +462,8 @@ fn cdao_build_clade(doc : CdaoDocument, node_id : String) -> Clade {
 ///|
 /// Mutable counter holder for CDAO writer.
 priv struct CdaoWriteState {
-  mut node_counter : Int
-  mut tu_counter : Int
+  mut node_counter : Int32
+  mut tu_counter : Int32
   tu_map : Map[String, String]
 }
 
@@ -705,7 +701,7 @@ pub fn cdao_document_summary(doc : CdaoDocument) -> String {
 
 ///|
 /// Find the position of a substring, starting from a given index.
-fn cdao_find_substring(s : String, sub : String, start : Int) -> Int {
+fn cdao_find_substring(s : String, sub : String, start : Int32) -> Int32 {
   if start >= s.length() {
     return -1
   }

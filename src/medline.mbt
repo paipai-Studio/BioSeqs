@@ -261,7 +261,7 @@ pub fn get_publication_year(record : MedlineRecord) -> String {
 }
 
 ///|
-pub fn get_author_count(record : MedlineRecord) -> Int {
+pub fn get_author_count(record : MedlineRecord) -> Int32 {
   record.authors.length()
 }
 
@@ -340,8 +340,8 @@ fn medline_contains(s : String, substr : String) -> Bool {
 }
 
 ///|
-pub fn count_by_year(records : Array[MedlineRecord]) -> Array[(String, Int)] {
-  let year_counts : Array[(String, Int)] = Array(capacity=0)
+pub fn count_by_year(records : Array[MedlineRecord]) -> Array[(String, Int32)] {
+  let year_counts : Array[(String, Int32)] = Array(capacity=0)
 
   let mut i = 0
   while i < records.length() {

@@ -1,3 +1,4 @@
+///|
 fn main {
   // No Kozak features
   let seq = "TTTTTTATGT"

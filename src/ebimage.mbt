@@ -11,15 +11,15 @@
 ///|
 /// A single-channel (grayscale) image stored row-major with `data[y*width+x]`.
 pub struct EbiImage {
-  width : Int
-  height : Int
+  width : Int32
+  height : Int32
   data : Array[Double]
 }
 
 ///|
 /// Construct a zero-filled image.
-pub fn EbiImage::new(width : Int, height : Int) -> EbiImage {
-  EbiImage::{ width, height, data: Array::make(width * height, 0.0) }
+pub fn EbiImage::new(width : Int32, height : Int32) -> EbiImage {
+  EbiImage::{ width, height, data: Array::make(width * height, 0.0), }
 }
 
 ///|
@@ -36,7 +36,7 @@ pub fn EbiImage::from_rows(rows : Array[Array[Double]]) -> EbiImage {
       data.push(v)
     }
   }
-  EbiImage::{ width: w, height: h, data }
+  EbiImage::{ width: w, height: h, data, }
 }
 
 ///|
@@ -59,7 +59,7 @@ pub fn EbiImage::to_rows(self : EbiImage) -> Array[Array[Double]] {
 
 ///|
 /// Read a pixel (0.0 outside the image).
-pub fn EbiImage::get(self : EbiImage, x : Int, y : Int) -> Double {
+pub fn EbiImage::get(self : EbiImage, x : Int32, y : Int32) -> Double {
   if x < 0 || x >= self.width || y < 0 || y >= self.height {
     0.0
   } else {
@@ -69,7 +69,12 @@ pub fn EbiImage::get(self : EbiImage, x : Int, y : Int) -> Double {
 
 ///|
 /// Write a pixel (out-of-range coordinates are ignored).
-pub fn EbiImage::set(self : EbiImage, x : Int, y : Int, value : Double) -> Unit {
+pub fn EbiImage::set(
+  self : EbiImage,
+  x : Int32,
+  y : Int32,
+  value : Double,
+) -> Unit {
   if x >= 0 && x < self.width && y >= 0 && y < self.height {
     self.data[y * self.width + x] = value
   }
@@ -235,7 +240,11 @@ pub fn ebi_threshold_otsu(img : EbiImage) -> EbiImage {
 /// Separable Gaussian blur with clamped borders.
 pub fn ebi_gaussian_blur(img : EbiImage, sigma : Double) -> EbiImage {
   if img.width == 0 || img.height == 0 || sigma <= 0.0 {
-    return EbiImage::{ width: img.width, height: img.height, data: img.data.copy() }
+    return EbiImage::{
+      width: img.width,
+      height: img.height,
+      data: img.data.copy(),
+    }
   }
   let radius = {
     let r = @math.ceil(3.0 * sigma).to_int()
@@ -329,8 +338,8 @@ pub fn ebi_sobel_gradient(img : EbiImage) -> EbiImage {
       let bl = img.get(x - 1, y + 1)
       let bc = img.get(x, y + 1)
       let br = img.get(x + 1, y + 1)
-      let gx = (tr + 2.0 * mr + br) - (tl + 2.0 * ml + bl)
-      let gy = (bl + 2.0 * bc + br) - (tl + 2.0 * tc + tr)
+      let gx = tr + 2.0 * mr + br - (tl + 2.0 * ml + bl)
+      let gy = bl + 2.0 * bc + br - (tl + 2.0 * tc + tr)
       out.data[y * img.width + x] = (gx * gx + gy * gy).sqrt()
       x = x + 1
     }
@@ -343,20 +352,20 @@ pub fn ebi_sobel_gradient(img : EbiImage) -> EbiImage {
 
 ///|
 /// Cross-shaped structuring element (4-neighbourhood offsets).
-pub fn ebi_se_cross() -> Array[(Int, Int)] {
+pub fn ebi_se_cross() -> Array[(Int32, Int32)] {
   [(1, 0), (-1, 0), (0, 1), (0, -1)]
 }
 
 ///|
 /// Full 3x3 square structuring element (8-neighbourhood offsets).
-pub fn ebi_se_square() -> Array[(Int, Int)] {
+pub fn ebi_se_square() -> Array[(Int32, Int32)] {
   [(-1, -1), (0, -1), (1, -1), (-1, 0), (1, 0), (-1, 1), (0, 1), (1, 1)]
 }
 
 ///|
 /// Disk structuring element of the given radius.
-pub fn ebi_se_disk(radius : Int) -> Array[(Int, Int)] {
-  let offsets : Array[(Int, Int)] = []
+pub fn ebi_se_disk(radius : Int32) -> Array[(Int32, Int32)] {
+  let offsets : Array[(Int32, Int32)] = []
   let r = if radius < 1 { 1 } else { radius }
   let mut dy = -r
   while dy <= r {
@@ -374,7 +383,7 @@ pub fn ebi_se_disk(radius : Int) -> Array[(Int, Int)] {
 
 ///|
 /// Grayscale erosion (local minimum) with the given structuring element.
-pub fn ebi_erode(img : EbiImage, se : Array[(Int, Int)]) -> EbiImage {
+pub fn ebi_erode(img : EbiImage, se : Array[(Int32, Int32)]) -> EbiImage {
   let out = EbiImage::new(img.width, img.height)
   let mut y = 0
   while y < img.height {
@@ -397,7 +406,7 @@ pub fn ebi_erode(img : EbiImage, se : Array[(Int, Int)]) -> EbiImage {
 
 ///|
 /// Grayscale dilation (local maximum) with the given structuring element.
-pub fn ebi_dilate(img : EbiImage, se : Array[(Int, Int)]) -> EbiImage {
+pub fn ebi_dilate(img : EbiImage, se : Array[(Int32, Int32)]) -> EbiImage {
   let out = EbiImage::new(img.width, img.height)
   let mut y = 0
   while y < img.height {
@@ -420,13 +429,13 @@ pub fn ebi_dilate(img : EbiImage, se : Array[(Int, Int)]) -> EbiImage {
 
 ///|
 /// Morphological opening (erosion followed by dilation).
-pub fn ebi_open(img : EbiImage, se : Array[(Int, Int)]) -> EbiImage {
+pub fn ebi_open(img : EbiImage, se : Array[(Int32, Int32)]) -> EbiImage {
   ebi_dilate(ebi_erode(img, se), se)
 }
 
 ///|
 /// Morphological closing (dilation followed by erosion).
-pub fn ebi_close(img : EbiImage, se : Array[(Int, Int)]) -> EbiImage {
+pub fn ebi_close(img : EbiImage, se : Array[(Int32, Int32)]) -> EbiImage {
   ebi_erode(ebi_dilate(img, se), se)
 }
 
@@ -436,7 +445,10 @@ pub fn ebi_close(img : EbiImage, se : Array[(Int, Int)]) -> EbiImage {
 /// Label the non-zero (foreground) pixels of a binary image.
 /// `connectivity` must be 4 or 8. Background stays label 0 and component ids
 /// start at 1. Returns (labels, number of components).
-pub fn ebi_label(img : EbiImage, connectivity~ : Int = 8) -> (Array[Int], Int) {
+pub fn ebi_label(
+  img : EbiImage,
+  connectivity~ : Int32 = 8,
+) -> (Array[Int32], Int32) {
   let w = img.width
   let h = img.height
   let labels = Array::make(w * h, 0)
@@ -447,7 +459,7 @@ pub fn ebi_label(img : EbiImage, connectivity~ : Int = 8) -> (Array[Int], Int) {
   while idx < total {
     if img.data[idx] != 0.0 && labels[idx] == 0 {
       count = count + 1
-      let stack : Array[Int] = [idx]
+      let stack : Array[Int32] = [idx]
       labels[idx] = count
       while stack.length() > 0 {
         let cur = stack.pop().unwrap()
@@ -474,23 +486,23 @@ pub fn ebi_label(img : EbiImage, connectivity~ : Int = 8) -> (Array[Int], Int) {
 ///|
 /// Per-object morphology measurements.
 pub struct EbiObject {
-  label : Int
-  area : Int
+  label : Int32
+  area : Int32
   cx : Double
   cy : Double
-  min_x : Int
-  max_x : Int
-  min_y : Int
-  max_y : Int
+  min_x : Int32
+  max_x : Int32
+  min_y : Int32
+  max_y : Int32
 }
 
 ///|
 /// Compute area, centroid and bounding box for every labelled object.
 pub fn ebi_object_features(
-  labels : Array[Int],
-  width : Int,
-  height : Int,
-  count : Int,
+  labels : Array[Int32],
+  width : Int32,
+  height : Int32,
+  count : Int32,
 ) -> Array[EbiObject] {
   let areas = Array::make(count + 1, 0)
   let sum_x = Array::make(count + 1, 0)
@@ -533,18 +545,16 @@ pub fn ebi_object_features(
     let a = areas[l]
     let cx = if a > 0 { sum_x[l].to_double() / a.to_double() } else { 0.0 }
     let cy = if a > 0 { sum_y[l].to_double() / a.to_double() } else { 0.0 }
-    out.push(
-      EbiObject::{
-        label: l,
-        area: a,
-        cx,
-        cy,
-        min_x: min_x[l],
-        max_x: max_x[l],
-        min_y: min_y[l],
-        max_y: max_y[l],
-      },
-    )
+    out.push(EbiObject::{
+      label: l,
+      area: a,
+      cx,
+      cy,
+      min_x: min_x[l],
+      max_x: max_x[l],
+      min_y: min_y[l],
+      max_y: max_y[l],
+    })
     l = l + 1
   }
   out
@@ -557,7 +567,7 @@ pub fn ebi_object_features(
 /// gradient magnitude of the image. `markers` is a row-major label image where
 /// 0 marks unseeded pixels and positive values are seed labels. Returns the
 /// row-major label image after flooding.
-pub fn ebi_watershed(img : EbiImage, markers : Array[Int]) -> Array[Int] {
+pub fn ebi_watershed(img : EbiImage, markers : Array[Int32]) -> Array[Int32] {
   let w = img.width
   let h = img.height
   let total = w * h
@@ -566,7 +576,7 @@ pub fn ebi_watershed(img : EbiImage, markers : Array[Int]) -> Array[Int] {
     return labels
   }
   let grad = ebi_sobel_gradient(img)
-  let heap : Array[(Double, Int)] = []
+  let heap : Array[(Double, Int32)] = []
 
   let mut i = 0
   while i < total {

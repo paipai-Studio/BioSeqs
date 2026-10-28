@@ -1,7 +1,6 @@
 ///|
 /// Bio.PDB.PSEA Demo - Protein secondary structure prediction from CA coordinates.
 /// Inspired by Biopython's Bio.PDB.PSEA module.
-
 fn main {
   println("=== Bio.PDB.PSEA Demo ===")
 
@@ -40,7 +39,11 @@ fn main {
   println("   Bond angles: " + geom.bond_angles.length().to_string())
   println("   Dihedral angles: " + geom.dihedral_angles.length().to_string())
   if geom.dihedral_angles.length() > 0 {
-    println("   First dihedral angle: " + geom.dihedral_angles[0].to_string() + " degrees")
+    println(
+      "   First dihedral angle: " +
+      geom.dihedral_angles[0].to_string() +
+      " degrees",
+    )
   }
 
   // 5. Per-residue details
@@ -52,7 +55,16 @@ fn main {
     let res_name = helix_result.psea_get_res_name(i)
     let ss = helix_result.psea_get_ss(i)
     let conf = helix_result.psea_get_confidence(i)
-    println("   Residue " + res_num.to_string() + " (" + res_name + "): SS=" + ss + ", confidence=" + conf.to_string())
+    println(
+      "   Residue " +
+      res_num.to_string() +
+      " (" +
+      res_name +
+      "): SS=" +
+      ss +
+      ", confidence=" +
+      conf.to_string(),
+    )
     i = i + 1
   }
 

@@ -32,7 +32,7 @@ pub(all) struct IcRebuiltAtom {
 ///|
 /// Construct a point.
 pub fn IcPoint::new(x : Double, y : Double, z : Double) -> IcPoint {
-  IcPoint::{ x, y, z }
+  IcPoint::{ x, y, z, }
 }
 
 ///|
@@ -62,7 +62,7 @@ pub fn ic_point_cross(a : IcPoint, b : IcPoint) -> IcPoint {
   IcPoint::new(
     a.y * b.z - a.z * b.y,
     a.z * b.x - a.x * b.z,
-    a.x * b.y - a.y * b.x
+    a.x * b.y - a.y * b.x,
   )
 }
 
@@ -94,7 +94,7 @@ pub fn ic_nerf(
   c : IcPoint,
   bond_length : Double,
   bond_angle : Double,
-  dihedral : Double
+  dihedral : Double,
 ) -> IcPoint {
   // Step 1: compute local frame (bc_unit, n, m)
   let bc = ic_point_sub(c, b)
@@ -110,13 +110,13 @@ pub fn ic_nerf(
   let d2 = IcPoint::new(
     r * @math.cos(theta),
     r * @math.cos(phi) * @math.sin(theta),
-    r * @math.sin(phi) * @math.sin(theta)
+    r * @math.sin(phi) * @math.sin(theta),
   )
   // Step 3: transform to global frame: D = C + d2.x * bc_unit + d2.y * m + d2.z * n
   IcPoint::new(
     c.x + d2.x * bc_unit.x + d2.y * m.x + d2.z * n.x,
     c.y + d2.x * bc_unit.y + d2.y * m.y + d2.z * n.y,
-    c.z + d2.x * bc_unit.z + d2.y * m.z + d2.z * n.z
+    c.z + d2.x * bc_unit.z + d2.y * m.z + d2.z * n.z,
   )
 }
 
@@ -127,14 +127,17 @@ pub fn ic_nerf(
 ///   and internal_coords[i-3].
 pub fn ic_rebuild_chain(
   seed_positions : Array[IcPoint],
-  internal_coords : Array[IcInternalCoord]
+  internal_coords : Array[IcInternalCoord],
 ) -> Array[IcRebuiltAtom] {
   let result : Array[IcRebuiltAtom] = []
   let n_seed = seed_positions.length()
   // Emit seed atoms
   let mut i = 0
   while i < n_seed {
-    result.push(IcRebuiltAtom::{ name: "seed" + i.to_string(), pos: seed_positions[i] })
+    result.push(IcRebuiltAtom::{
+      name: "seed" + i.to_string(),
+      pos: seed_positions[i],
+    })
     i = i + 1
   }
   if n_seed < 3 {
@@ -148,7 +151,7 @@ pub fn ic_rebuild_chain(
     let b = seed_positions[n_seed - 2]
     let c = seed_positions[n_seed - 1]
     let d = ic_nerf(a, b, c, ic.bond_length, ic.bond_angle, ic.dihedral)
-    result.push(IcRebuiltAtom::{ name: ic.atom_name, pos: d })
+    result.push(IcRebuiltAtom::{ name: ic.atom_name, pos: d, })
     // Shift window: use last 3 positions as new seed
     seed_positions[n_seed - 3] = seed_positions[n_seed - 2]
     seed_positions[n_seed - 2] = seed_positions[n_seed - 1]
@@ -176,7 +179,13 @@ pub fn ic_compute_bond_angle(a : IcPoint, b : IcPoint, c : IcPoint) -> Double {
   }
   let cos_theta = dot / denom
   // Clamp for numerical safety
-  let clamped = if cos_theta > 1.0 { 1.0 } else if cos_theta < -1.0 { -1.0 } else { cos_theta }
+  let clamped = if cos_theta > 1.0 {
+    1.0
+  } else if cos_theta < -1.0 {
+    -1.0
+  } else {
+    cos_theta
+  }
   @math.acos(clamped)
 }
 
@@ -186,7 +195,7 @@ pub fn ic_compute_dihedral(
   a : IcPoint,
   b : IcPoint,
   c : IcPoint,
-  d : IcPoint
+  d : IcPoint,
 ) -> Double {
   // Use the same frame as NeRF to ensure sign consistency.
   let bc = ic_point_sub(c, b)
@@ -213,9 +222,23 @@ pub fn ic_verify_roundtrip(positions : Array[IcPoint]) -> Double {
   let mut i = 3
   while i < n {
     let bl = ic_compute_bond_length(positions[i - 1], positions[i])
-    let ba = ic_compute_bond_angle(positions[i - 2], positions[i - 1], positions[i])
-    let dh = ic_compute_dihedral(positions[i - 3], positions[i - 2], positions[i - 1], positions[i])
-    internal_coords.push(IcInternalCoord::{ atom_name: "atom" + i.to_string(), bond_length: bl, bond_angle: ba, dihedral: dh })
+    let ba = ic_compute_bond_angle(
+      positions[i - 2],
+      positions[i - 1],
+      positions[i],
+    )
+    let dh = ic_compute_dihedral(
+      positions[i - 3],
+      positions[i - 2],
+      positions[i - 1],
+      positions[i],
+    )
+    internal_coords.push(IcInternalCoord::{
+      atom_name: "atom" + i.to_string(),
+      bond_length: bl,
+      bond_angle: ba,
+      dihedral: dh,
+    })
     i = i + 1
   }
   // Rebuild
@@ -243,9 +266,24 @@ pub fn ic_rebuild_example() -> Array[IcRebuiltAtom] {
   let p2 = IcPoint::new(2.5, 1.0, 0.0)
   // Internal coords for 3 more atoms (ideal tetrahedral-ish)
   let ics : Array[IcInternalCoord] = [
-    IcInternalCoord::{ atom_name: "CA", bond_length: 1.46, bond_angle: 1.91, dihedral: -0.52 },
-    IcInternalCoord::{ atom_name: "CB", bond_length: 1.53, bond_angle: 1.91, dihedral: 1.57 },
-    IcInternalCoord::{ atom_name: "CG", bond_length: 1.50, bond_angle: 1.91, dihedral: -1.05 },
+    IcInternalCoord::{
+      atom_name: "CA",
+      bond_length: 1.46,
+      bond_angle: 1.91,
+      dihedral: -0.52,
+    },
+    IcInternalCoord::{
+      atom_name: "CB",
+      bond_length: 1.53,
+      bond_angle: 1.91,
+      dihedral: 1.57,
+    },
+    IcInternalCoord::{
+      atom_name: "CG",
+      bond_length: 1.50,
+      bond_angle: 1.91,
+      dihedral: -1.05,
+    },
   ]
   ic_rebuild_chain([p0, p1, p2], ics)
 }

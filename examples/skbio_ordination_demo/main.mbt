@@ -7,27 +7,58 @@
 ///|
 fn main {
   println("=== Principal Coordinate Analysis (PCoA) ===")
-  let dm = [[0.0, 1.0, 2.0, 3.0], [1.0, 0.0, 1.0, 2.0], [2.0, 1.0, 0.0, 1.0], [3.0, 2.0, 1.0, 0.0]]
+  let dm = [
+    [0.0, 1.0, 2.0, 3.0],
+    [1.0, 0.0, 1.0, 2.0],
+    [2.0, 1.0, 0.0, 1.0],
+    [3.0, 2.0, 1.0, 0.0],
+  ]
   let pcoa = @src.skbio_pcoa(dm)
   println("eigvals   : \{pcoa.eigvals}")
   println("prop. expl: \{pcoa.proportion_explained}")
 
-
   println("=== Canonical Correspondence Analysis (CCA, scaling=1) ===")
-  let y = [[1.0, 0.0, 2.0], [0.0, 3.0, 1.0], [2.0, 1.0, 0.0], [3.0, 1.0, 2.0], [1.0, 2.0, 3.0], [2.0, 0.0, 2.0]]
-  let x = [[0.5, 1.0], [1.0, 0.5], [1.5, 2.0], [2.5, 1.5], [1.0, 3.0], [2.0, 2.5]]
+  let y = [
+    [1.0, 0.0, 2.0],
+    [0.0, 3.0, 1.0],
+    [2.0, 1.0, 0.0],
+    [3.0, 1.0, 2.0],
+    [1.0, 2.0, 3.0],
+    [2.0, 0.0, 2.0],
+  ]
+  let x = [
+    [0.5, 1.0],
+    [1.0, 0.5],
+    [1.5, 2.0],
+    [2.5, 1.5],
+    [1.0, 3.0],
+    [2.0, 2.5],
+  ]
   let cca = @src.skbio_cca(y, x, 1)
   println("eigvals   : \{cca.eigvals}")
   println("prop. expl: \{cca.proportion_explained}")
 
   println("=== Redundancy Analysis (RDA, scaling=1) ===")
-  let y = [[1.0, 0.0, 2.0], [0.0, 3.0, 1.0], [2.0, 1.0, 0.0], [3.0, 1.0, 2.0], [1.0, 2.0, 3.0], [2.0, 0.0, 2.0]]
-  let x = [[0.5, 1.0], [1.0, 0.5], [1.5, 2.0], [2.5, 1.5], [1.0, 3.0], [2.0, 2.5]]
+  let y = [
+    [1.0, 0.0, 2.0],
+    [0.0, 3.0, 1.0],
+    [2.0, 1.0, 0.0],
+    [3.0, 1.0, 2.0],
+    [1.0, 2.0, 3.0],
+    [2.0, 0.0, 2.0],
+  ]
+  let x = [
+    [0.5, 1.0],
+    [1.0, 0.5],
+    [1.5, 2.0],
+    [2.5, 1.5],
+    [1.0, 3.0],
+    [2.0, 2.5],
+  ]
   let rda = @src.skbio_rda(y, x, 1)
   println("eigvals   : \{rda.eigvals}")
   println("prop. expl: \{rda.proportion_explained}")
   println("sample 0  : \{rda.sample_scores[0]}")
-
 
   println("=== center_distance_matrix ===")
   let dm = [[0.0, 1.0, 2.0], [1.0, 0.0, 1.0], [2.0, 1.0, 0.0]]
@@ -37,11 +68,7 @@ fn main {
   }
 
   println("\n=== Correspondence Analysis (scaling=1) ===")
-  let x = [
-    [1.0, 0.0, 2.0, 1.0],
-    [0.0, 3.0, 1.0, 0.0],
-    [2.0, 1.0, 0.0, 1.0],
-  ]
+  let x = [[1.0, 0.0, 2.0, 1.0], [0.0, 3.0, 1.0, 0.0], [2.0, 1.0, 0.0, 1.0]]
   let ca = @src.skbio_ca(x, 1)
   println("eigvals      : \{ca.eigvals}")
   println("prop. expl.  : \{ca.proportion_explained}")

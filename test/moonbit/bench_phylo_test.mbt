@@ -14,7 +14,7 @@
 
 ///|
 /// Build a balanced binary tree with n leaves.
-fn bench_build_tree(n_leaves : Int) -> @src.Clade {
+fn bench_build_tree(n_leaves : Int32) -> @src.Clade {
   if n_leaves <= 1 {
     return @src.Clade::new(name=Some("L0"))
   }
@@ -22,7 +22,7 @@ fn bench_build_tree(n_leaves : Int) -> @src.Clade {
 }
 
 ///|
-fn bench_build_tree_rec(start : Int, n_leaves : Int) -> @src.Clade {
+fn bench_build_tree_rec(start : Int32, n_leaves : Int32) -> @src.Clade {
   if n_leaves == 1 {
     return @src.Clade::new(name=Some("L" + start.to_string()))
   }
@@ -35,7 +35,7 @@ fn bench_build_tree_rec(start : Int, n_leaves : Int) -> @src.Clade {
 
 ///|
 /// Build a caterpillar (linear) tree with n leaves.
-fn bench_caterpillar(n_leaves : Int) -> @src.Clade {
+fn bench_caterpillar(n_leaves : Int32) -> @src.Clade {
   if n_leaves <= 1 {
     return @src.Clade::new(name=Some("C0"))
   }
@@ -47,18 +47,14 @@ fn bench_caterpillar(n_leaves : Int) -> @src.Clade {
 
 ///|
 /// Build a species tree and gene tree with duplications.
-fn bench_gene_species_trees(n_species : Int) -> (@src.Clade, @src.Clade) {
+fn bench_gene_species_trees(n_species : Int32) -> (@src.Clade, @src.Clade) {
   // Species tree: balanced binary with n_species leaves
   let species = bench_build_tree(n_species)
   // Gene tree: each species has 2 genes (duplication)
   let gene_leaves : Array[@src.Clade] = Array(capacity=n_species * 2)
   for i in 0..<n_species {
-    gene_leaves.push(
-      @src.Clade::new(name=Some("L" + i.to_string() + "_a"))
-    )
-    gene_leaves.push(
-      @src.Clade::new(name=Some("L" + i.to_string() + "_b"))
-    )
+    gene_leaves.push(@src.Clade::new(name=Some("L" + i.to_string() + "_a")))
+    gene_leaves.push(@src.Clade::new(name=Some("L" + i.to_string() + "_b")))
   }
   // Build a balanced gene tree from leaves
   let gene = bench_build_from_leaves(gene_leaves)
@@ -207,4 +203,3 @@ test "bench: cherry count 64 leaves" {
   let tree = bench_build_tree(64)
   let _ = @src.dendropy_cherry_count(tree)
 }
-

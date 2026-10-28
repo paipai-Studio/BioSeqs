@@ -5,8 +5,8 @@
 pub struct Gene {
   gene_id : String
   seqname : String
-  start : Int
-  end : Int
+  start : Int32
+  end : Int32
   strand : Strand
 }
 
@@ -14,8 +14,8 @@ pub struct Gene {
 pub fn Gene::new(
   gene_id : String,
   seqname : String,
-  start : Int,
-  end : Int,
+  start : Int32,
+  end : Int32,
   strand : Strand,
 ) -> Gene {
   Gene::{ gene_id, seqname, start, end, strand, }
@@ -26,8 +26,8 @@ pub struct Transcript {
   transcript_id : String
   gene_id : String
   seqname : String
-  start : Int
-  end : Int
+  start : Int32
+  end : Int32
   strand : Strand
 }
 
@@ -36,8 +36,8 @@ pub fn Transcript::new(
   transcript_id : String,
   gene_id : String,
   seqname : String,
-  start : Int,
-  end : Int,
+  start : Int32,
+  end : Int32,
   strand : Strand,
 ) -> Transcript {
   Transcript::{ transcript_id, gene_id, seqname, start, end, strand, }
@@ -49,10 +49,10 @@ pub struct Exon {
   transcript_id : String
   gene_id : String
   seqname : String
-  start : Int
-  end : Int
+  start : Int32
+  end : Int32
   strand : Strand
-  exon_rank : Int
+  exon_rank : Int32
 }
 
 ///|
@@ -61,10 +61,10 @@ pub fn Exon::new(
   transcript_id : String,
   gene_id : String,
   seqname : String,
-  start : Int,
-  end : Int,
+  start : Int32,
+  end : Int32,
   strand : Strand,
-  exon_rank : Int,
+  exon_rank : Int32,
 ) -> Exon {
   Exon::{
     exon_id,
@@ -84,10 +84,10 @@ pub struct CDS {
   transcript_id : String
   gene_id : String
   seqname : String
-  start : Int
-  end : Int
+  start : Int32
+  end : Int32
   strand : Strand
-  exon_rank : Int
+  exon_rank : Int32
 }
 
 ///|
@@ -96,10 +96,10 @@ pub fn CDS::new(
   transcript_id : String,
   gene_id : String,
   seqname : String,
-  start : Int,
-  end : Int,
+  start : Int32,
+  end : Int32,
   strand : Strand,
-  exon_rank : Int,
+  exon_rank : Int32,
 ) -> CDS {
   CDS::{
     cds_id,
@@ -151,7 +151,7 @@ pub fn txdb(
 pub fn genes(txdb : TxDb) -> GRanges {
   let n = txdb.genes.length()
   let seqnames : Array[String] = Array::make(n, "")
-  let ranges : Array[(Int, Int)] = Array::make(n, (0, 0))
+  let ranges : Array[(Int32, Int32)] = Array::make(n, (0, 0))
   let strands : Array[Strand] = Array::make(n, Strand::Star)
 
   let mut i = 0
@@ -170,7 +170,7 @@ pub fn genes(txdb : TxDb) -> GRanges {
 pub fn transcripts(txdb : TxDb) -> GRanges {
   let n = txdb.transcripts.length()
   let seqnames : Array[String] = Array::make(n, "")
-  let ranges : Array[(Int, Int)] = Array::make(n, (0, 0))
+  let ranges : Array[(Int32, Int32)] = Array::make(n, (0, 0))
   let strands : Array[Strand] = Array::make(n, Strand::Star)
 
   let mut i = 0
@@ -189,7 +189,7 @@ pub fn transcripts(txdb : TxDb) -> GRanges {
 pub fn exons(txdb : TxDb) -> GRanges {
   let n = txdb.exons.length()
   let seqnames : Array[String] = Array::make(n, "")
-  let ranges : Array[(Int, Int)] = Array::make(n, (0, 0))
+  let ranges : Array[(Int32, Int32)] = Array::make(n, (0, 0))
   let strands : Array[Strand] = Array::make(n, Strand::Star)
 
   let mut i = 0
@@ -208,7 +208,7 @@ pub fn exons(txdb : TxDb) -> GRanges {
 pub fn cds(txdb : TxDb) -> GRanges {
   let n = txdb.cds.length()
   let seqnames : Array[String] = Array::make(n, "")
-  let ranges : Array[(Int, Int)] = Array::make(n, (0, 0))
+  let ranges : Array[(Int32, Int32)] = Array::make(n, (0, 0))
   let strands : Array[Strand] = Array::make(n, Strand::Star)
 
   let mut i = 0
@@ -292,7 +292,7 @@ pub fn cds_by_transcript(txdb : TxDb) -> Map[String, Array[CDS]] {
 }
 
 ///|
-pub fn introns_by_transcript(txdb : TxDb) -> Map[String, Array[(Int, Int)]] {
+pub fn introns_by_transcript(txdb : TxDb) -> Map[String, Array[(Int32, Int32)]] {
   let result = Map([], capacity=32)
   let exons_map = exons_by_transcript(txdb)
   let keys = exons_map.keys().collect()
@@ -326,7 +326,7 @@ pub fn introns_by_transcript(txdb : TxDb) -> Map[String, Array[(Int, Int)]] {
         k = k + 1
       }
 
-      let introns : Array[(Int, Int)] = []
+      let introns : Array[(Int32, Int32)] = []
       let mut m = 0
       while m < n - 1 {
         let start = sorted[m].end + 1
@@ -357,7 +357,7 @@ pub fn find_transcript_by_id(txdb : TxDb, tx_id : String) -> Transcript? {
 }
 
 ///|
-pub fn find_min_cds_start(cds_regions : Array[CDS]) -> Int {
+pub fn find_min_cds_start(cds_regions : Array[CDS]) -> Int32 {
   if cds_regions.length() == 0 {
     return 0
   }
@@ -373,7 +373,7 @@ pub fn find_min_cds_start(cds_regions : Array[CDS]) -> Int {
 }
 
 ///|
-pub fn find_max_cds_end(cds_regions : Array[CDS]) -> Int {
+pub fn find_max_cds_end(cds_regions : Array[CDS]) -> Int32 {
   if cds_regions.length() == 0 {
     return 0
   }
@@ -592,11 +592,11 @@ pub fn three_prime_utrs(txdb : TxDb) -> GRanges {
 }
 
 ///|
-pub fn promoters(txdb : TxDb, upstream : Int, downstream : Int) -> GRanges {
+pub fn promoters(txdb : TxDb, upstream : Int32, downstream : Int32) -> GRanges {
   let txs = txdb.transcripts
   let n = txs.length()
   let seqnames : Array[String] = Array::make(n, "")
-  let ranges : Array[(Int, Int)] = Array::make(n, (0, 0))
+  let ranges : Array[(Int32, Int32)] = Array::make(n, (0, 0))
   let strands : Array[Strand] = Array::make(n, Strand::Star)
 
   let mut i = 0

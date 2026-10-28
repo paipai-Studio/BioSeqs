@@ -90,7 +90,7 @@ fn aldex2_test_unwrap(values : Array[Double]?) -> Array[Double] {
 ///|
 fn aldex2_test_median(values : Array[Double]) -> Double {
   let sorted = values.copy()
-  sorted.sort_by(fn(left : Double, right : Double) -> Int {
+  sorted.sort_by(fn(left : Double, right : Double) -> Int32 {
     if left < right {
       -1
     } else if left > right {
@@ -108,8 +108,8 @@ fn aldex2_test_median(values : Array[Double]) -> Double {
 
 ///|
 fn aldex2_test_scale(
-  sample_count : Int,
-  mc_samples : Int,
+  sample_count : Int32,
+  mc_samples : Int32,
   value : Double,
 ) -> Array[Array[Double]] {
   let scales : Array[Array[Double]] = []

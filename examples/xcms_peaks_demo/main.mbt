@@ -1,6 +1,5 @@
 ///|
 /// Demo for xcms_peaks module: xcms-style chromatographic peak detection.
-
 fn main {
   println("=== xcms_peaks Demo: Chromatographic Peak Detection ===")
   println("")
@@ -16,7 +15,7 @@ fn main {
     let x2 = (i - 70).to_double()
     let peak1 = 100.0 * @math.exp(-0.5 * x1 * x1 / 9.0)
     let peak2 = 80.0 * @math.exp(-0.5 * x2 * x2 / 4.0)
-    intensity[i] = peak1 + peak2 + 1.0  // + baseline
+    intensity[i] = peak1 + peak2 + 1.0 // + baseline
   }
   let chrom = @src.xcp_chrom_new(rt, intensity, label="test")
   println("Chromatogram: " + rt.length().to_string() + " points")
@@ -35,18 +34,36 @@ fn main {
   let peaks = @src.xcp_centwave(chrom, snr_threshold=3.0)
   println("Peaks found: " + peaks.length().to_string())
   for p in peaks {
-    println("  rt=" + p.rt.to_string() + " intensity=" + p.intensity.to_string() +
-            " snr=" + p.snr.to_string() + " fwhm=" + p.fwhm.to_string())
+    println(
+      "  rt=" +
+      p.rt.to_string() +
+      " intensity=" +
+      p.intensity.to_string() +
+      " snr=" +
+      p.snr.to_string() +
+      " fwhm=" +
+      p.fwhm.to_string(),
+    )
   }
   println("")
 
   // Example 4: matchedFilter peak detection
   println("--- Step 4: matchedFilter Peak Detection ---")
-  let peaks_mf = @src.xcp_matched_filter(chrom, window_size=5, snr_threshold=3.0)
+  let peaks_mf = @src.xcp_matched_filter(
+    chrom,
+    window_size=5,
+    snr_threshold=3.0,
+  )
   println("Peaks found: " + peaks_mf.length().to_string())
   for p in peaks_mf {
-    println("  rt=" + p.rt.to_string() + " intensity=" + p.intensity.to_string() +
-            " snr=" + p.snr.to_string())
+    println(
+      "  rt=" +
+      p.rt.to_string() +
+      " intensity=" +
+      p.intensity.to_string() +
+      " snr=" +
+      p.snr.to_string(),
+    )
   }
   println("")
 

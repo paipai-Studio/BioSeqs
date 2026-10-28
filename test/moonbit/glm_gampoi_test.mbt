@@ -445,7 +445,7 @@ test "glm_sort_pairs_single" {
 
 ///|
 test "glm_sort_pairs_empty" {
-  let arr : Array[(Double, Int)] = []
+  let arr : Array[(Double, Int32)] = []
   @src.glm_sort_pairs(arr)
   assert_eq(arr.length(), 0)
 }

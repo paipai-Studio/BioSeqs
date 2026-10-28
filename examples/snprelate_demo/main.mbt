@@ -10,7 +10,7 @@
 ///|
 /// 8 SNPs x 6 samples drawn from two ancestry clusters (samples 0-2 vs
 /// 3-5) with a missing call at SNP7/Sample4.
-fn demo_dosages() -> Array[Array[Int]] {
+fn demo_dosages() -> Array[Array[Int32]] {
   [
     [0, 1, 0, 2, 2, 2],
     [1, 1, 0, 2, 1, 2],
@@ -49,9 +49,7 @@ fn main raise {
   let homo = @src.snpgds_ibd_king_homo(dosages, stats.allele_frequency)
   for pair in pairs {
     let (i, j) = pair
-    println(
-      "pair (\{i},\{j}): k0=\{homo.k0[i][j]}, k1=\{homo.k1[i][j]}",
-    )
+    println("pair (\{i},\{j}): k0=\{homo.k0[i][j]}, k1=\{homo.k1[i][j]}")
   }
 
   println("\n=== snpgdsIBS / snpgdsDist ===")
@@ -71,7 +69,9 @@ fn main raise {
     )
   }
   let pc1 = pca.eigenvectors[0]
-  println("PC1 loadings: \{pc1[0]}, \{pc1[1]}, \{pc1[2]}, \{pc1[3]}, \{pc1[4]}, \{pc1[5]}")
+  println(
+    "PC1 loadings: \{pc1[0]}, \{pc1[1]}, \{pc1[2]}, \{pc1[3]}, \{pc1[4]}, \{pc1[5]}",
+  )
 
   println("\n=== snpgdsLD (corr) ===")
   let ld_pairs = [(0, 1), (0, 3), (1, 3), (3, 4)]

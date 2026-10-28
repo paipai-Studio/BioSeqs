@@ -56,27 +56,27 @@ pub fn sgseq_make_variant_type(name : String) -> SGSeqVariantType {
 /// A splice junction from split-read alignments.
 pub struct SGSeqJunction {
   chr : String
-  start : Int // donor (5') site (1-based, inclusive)
-  end : Int // acceptor (3') site (1-based, inclusive)
+  start : Int32 // donor (5') site (1-based, inclusive)
+  end : Int32 // acceptor (3') site (1-based, inclusive)
   strand : String // "+", "-", or "*"
-  count : Int // number of supporting reads
+  count : Int32 // number of supporting reads
 }
 
 ///|
 /// Construct a SGSeqJunction.
 pub fn SGSeqJunction::new(
   chr~ : String,
-  start~ : Int,
-  end~ : Int,
-  strand? : String = "+",
-  count? : Int = 1,
+  start~ : Int32,
+  end~ : Int32,
+  strand~ : String = "+",
+  count~ : Int32 = 1,
 ) -> SGSeqJunction {
   SGSeqJunction::{ chr, start, end, strand, count, }
 }
 
 ///|
 /// Get junction span (length of intron).
-pub fn SGSeqJunction::intron_length(self : SGSeqJunction) -> Int {
+pub fn SGSeqJunction::intron_length(self : SGSeqJunction) -> Int32 {
   self.end - self.start - 1
 }
 
@@ -102,10 +102,10 @@ pub fn SGSeqJunction::same_acceptor(
 /// An exon inferred from junction coordinates.
 pub struct SGSeqExon {
   chr : String
-  start : Int
-  end : Int
+  start : Int32
+  end : Int32
   strand : String
-  count : Int
+  count : Int32
   mut is_cassette : Bool // potentially skipped exon
 }
 
@@ -113,22 +113,22 @@ pub struct SGSeqExon {
 /// Construct a SGSeqExon.
 pub fn SGSeqExon::new(
   chr~ : String,
-  start~ : Int,
-  end~ : Int,
-  strand? : String = "+",
+  start~ : Int32,
+  end~ : Int32,
+  strand~ : String = "+",
 ) -> SGSeqExon {
   SGSeqExon::{ chr, start, end, strand, count: 0, is_cassette: false, }
 }
 
 ///|
 /// Get exon length.
-pub fn SGSeqExon::length(self : SGSeqExon) -> Int {
+pub fn SGSeqExon::length(self : SGSeqExon) -> Int32 {
   self.end - self.start + 1
 }
 
 ///|
 /// Check if this exon contains a position.
-pub fn SGSeqExon::contains(self : SGSeqExon, pos : Int) -> Bool {
+pub fn SGSeqExon::contains(self : SGSeqExon, pos : Int32) -> Bool {
   pos >= self.start && pos <= self.end
 }
 
@@ -137,10 +137,10 @@ pub fn SGSeqExon::contains(self : SGSeqExon, pos : Int) -> Bool {
 pub struct SGSeqFeature {
   type_ : String // "E" for exon, "J" for junction
   chr : String
-  start : Int
-  end : Int
+  start : Int32
+  end : Int32
   strand : String
-  count : Int
+  count : Int32
 }
 
 ///|
@@ -148,10 +148,10 @@ pub struct SGSeqFeature {
 pub fn SGSeqFeature::new(
   type_~ : String,
   chr~ : String,
-  start~ : Int,
-  end~ : Int,
-  strand? : String = "+",
-  count? : Int = 0,
+  start~ : Int32,
+  end~ : Int32,
+  strand~ : String = "+",
+  count~ : Int32 = 0,
 ) -> SGSeqFeature {
   SGSeqFeature::{ type_, chr, start, end, strand, count, }
 }
@@ -160,12 +160,12 @@ pub fn SGSeqFeature::new(
 /// A detected splice variant event.
 pub struct SGSeqVariant {
   chr : String
-  start : Int
-  end : Int
+  start : Int32
+  end : Int32
   strand : String
   variant_type : SGSeqVariantType
-  mut inclusion_count : Int // reads supporting inclusion
-  mut exclusion_count : Int // reads supporting exclusion
+  mut inclusion_count : Int32 // reads supporting inclusion
+  mut exclusion_count : Int32 // reads supporting exclusion
   mut psi : Double // Percent Spliced In (0..1)
   mut details : String // event-specific coordinates
 }
@@ -174,9 +174,9 @@ pub struct SGSeqVariant {
 /// Construct a SGSeqVariant.
 pub fn SGSeqVariant::new(
   chr~ : String,
-  start~ : Int,
-  end~ : Int,
-  strand? : String = "+",
+  start~ : Int32,
+  end~ : Int32,
+  strand~ : String = "+",
   variant_type~ : SGSeqVariantType,
 ) -> SGSeqVariant {
   SGSeqVariant::{
@@ -202,7 +202,7 @@ pub fn SGSeqVariant::type_name(self : SGSeqVariant) -> String {
 /// Set inclusion count.
 pub fn SGSeqVariant::set_inclusion_count(
   self : SGSeqVariant,
-  val : Int,
+  val : Int32,
 ) -> Unit {
   self.inclusion_count = val
 }
@@ -211,7 +211,7 @@ pub fn SGSeqVariant::set_inclusion_count(
 /// Set exclusion count.
 pub fn SGSeqVariant::set_exclusion_count(
   self : SGSeqVariant,
-  val : Int,
+  val : Int32,
 ) -> Unit {
   self.exclusion_count = val
 }
@@ -843,7 +843,7 @@ pub fn sgseq_quantify_psi(
 /// Filter variants by minimum read support.
 pub fn sgseq_filter_variants(
   variants : Array[SGSeqVariant],
-  min_reads? : Int = 10,
+  min_reads~ : Int32 = 10,
 ) -> Array[SGSeqVariant] {
   let result = Array(capacity=0)
   for v in variants {
@@ -910,8 +910,8 @@ pub fn sgseq_variant_to_string(v : SGSeqVariant) -> String {
 
 ///|
 /// Summarize variants by type.
-pub fn sgseq_summary(variants : Array[SGSeqVariant]) -> Map[String, Int] {
-  let counts : Map[String, Int] = Map([], capacity=5)
+pub fn sgseq_summary(variants : Array[SGSeqVariant]) -> Map[String, Int32] {
+  let counts : Map[String, Int32] = Map([], capacity=5)
   for v in variants {
     let name = v.type_name()
     let cur = counts.get(name).unwrap_or(0)

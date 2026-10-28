@@ -6,26 +6,31 @@
 /// A single Tn5 insertion fragment (BED-like 0-based half-open + cell barcode).
 pub struct SignacFragment {
   chrom : String
-  start : Int
-  end : Int
+  start : Int32
+  end : Int32
   cell : String
 }
 
 ///|
-pub fn SignacFragment::new(chrom : String, start : Int, end : Int, cell : String) -> SignacFragment {
-  SignacFragment::{ chrom, start, end, cell }
+pub fn SignacFragment::new(
+  chrom : String,
+  start : Int32,
+  end : Int32,
+  cell : String,
+) -> SignacFragment {
+  SignacFragment::{ chrom, start, end, cell, }
 }
 
 ///|
 /// A TSS location (0-based position).
 pub struct TssLoc {
   chrom : String
-  pos : Int
+  pos : Int32
 }
 
 ///|
-pub fn TssLoc::new(chrom : String, pos : Int) -> TssLoc {
-  TssLoc::{ chrom, pos }
+pub fn TssLoc::new(chrom : String, pos : Int32) -> TssLoc {
+  TssLoc::{ chrom, pos, }
 }
 
 ///|
@@ -33,11 +38,11 @@ pub fn TssLoc::new(chrom : String, pos : Int) -> TssLoc {
 pub struct FeatureMatrix {
   peaks : Array[BedInterval]
   cells : Array[String]
-  counts : Array[Array[Int]]
+  counts : Array[Array[Int32]]
 }
 
 ///|
-fn index_of(items : Array[String], key : String) -> Int {
+fn index_of(items : Array[String], key : String) -> Int32 {
   for i = 0; i < items.length(); i = i + 1 {
     if items[i] == key {
       return i
@@ -58,7 +63,7 @@ pub fn signac_feature_matrix(
 ) -> FeatureMatrix {
   let npeaks = peaks.length()
   let ncells = cells.length()
-  let counts : Array[Array[Int]] = Array::make(npeaks, Array(capacity=0))
+  let counts : Array[Array[Int32]] = Array::make(npeaks, Array(capacity=0))
   for pi = 0; pi < npeaks; pi = pi + 1 {
     counts[pi] = Array::make(ncells, 0)
   }
@@ -74,11 +79,16 @@ pub fn signac_feature_matrix(
       }
     }
   }
-  FeatureMatrix::{ peaks, cells, counts }
+  FeatureMatrix::{ peaks, cells, counts, }
 }
 
 ///|
-fn frag_overlaps_region(f : SignacFragment, chrom : String, s : Int, e : Int) -> Bool {
+fn frag_overlaps_region(
+  f : SignacFragment,
+  chrom : String,
+  s : Int32,
+  e : Int32,
+) -> Bool {
   f.chrom == chrom && f.start < e && s < f.end
 }
 
@@ -90,8 +100,8 @@ fn frag_overlaps_region(f : SignacFragment, chrom : String, s : Int, e : Int) ->
 pub fn signac_tss_enrichment(
   fragments : Array[SignacFragment],
   tss : Array[TssLoc],
-  tss_halfwin : Int,
-  flank : Int,
+  tss_halfwin : Int32,
+  flank : Int32,
 ) -> Double {
   let mut tss_count = 0
   let mut left_count = 0
@@ -101,13 +111,28 @@ pub fn signac_tss_enrichment(
       if f.chrom != t.chrom {
         continue
       }
-      if frag_overlaps_region(f, t.chrom, t.pos - tss_halfwin, t.pos + tss_halfwin) {
+      if frag_overlaps_region(
+          f,
+          t.chrom,
+          t.pos - tss_halfwin,
+          t.pos + tss_halfwin,
+        ) {
         tss_count = tss_count + 1
       }
-      if frag_overlaps_region(f, t.chrom, t.pos - tss_halfwin - flank, t.pos - tss_halfwin) {
+      if frag_overlaps_region(
+          f,
+          t.chrom,
+          t.pos - tss_halfwin - flank,
+          t.pos - tss_halfwin,
+        ) {
         left_count = left_count + 1
       }
-      if frag_overlaps_region(f, t.chrom, t.pos + tss_halfwin, t.pos + tss_halfwin + flank) {
+      if frag_overlaps_region(
+          f,
+          t.chrom,
+          t.pos + tss_halfwin,
+          t.pos + tss_halfwin + flank,
+        ) {
         right_count = right_count + 1
       }
     }
@@ -149,7 +174,7 @@ pub fn signac_nucleosome_signal(fragments : Array[SignacFragment]) -> Double {
 
 ///|
 /// Insertion-sort 事件列表（按位置升序，delta 不参与比较）。
-fn signac_sort_events(events : Array[(Int, Int)]) -> Array[(Int, Int)] {
+fn signac_sort_events(events : Array[(Int32, Int32)]) -> Array[(Int32, Int32)] {
   let out = events.copy()
   let mut i = 1
   while i < out.length() {
@@ -173,8 +198,8 @@ fn signac_sort_events(events : Array[(Int, Int)]) -> Array[(Int, Int)] {
 /// min_length` become peaks (0-based half-open).
 pub fn signac_call_peaks(
   fragments : Array[SignacFragment],
-  threshold : Int,
-  min_length : Int,
+  threshold : Int32,
+  min_length : Int32,
 ) -> Array[BedInterval] {
   // 去重染色体
   let chroms : Array[String] = Array(capacity=0)
@@ -186,7 +211,7 @@ pub fn signac_call_peaks(
 
   let result : Array[BedInterval] = Array(capacity=0)
   for chrom in chroms {
-    let events : Array[(Int, Int)] = Array(capacity=0)
+    let events : Array[(Int32, Int32)] = Array(capacity=0)
     for f in fragments {
       if f.chrom != chrom {
         continue
@@ -213,13 +238,11 @@ pub fn signac_call_peaks(
         if peak_start < 0 {
           peak_start = pos
         }
-      } else {
-        if peak_start >= 0 {
-          if pos - peak_start >= min_length {
-            result.push(BedInterval::new(chrom, peak_start, pos))
-          }
-          peak_start = -1
+      } else if peak_start >= 0 {
+        if pos - peak_start >= min_length {
+          result.push(BedInterval::new(chrom, peak_start, pos))
         }
+        peak_start = -1
       }
       i = j
     }
@@ -239,7 +262,7 @@ pub fn signac_call_peaks(
 pub struct GeneActivityMatrix {
   genes : Array[String]
   cells : Array[String]
-  activity : Array[Array[Int]]
+  activity : Array[Array[Int32]]
 }
 
 ///|
@@ -251,11 +274,11 @@ pub fn signac_gene_activity(
   fm : FeatureMatrix,
   genes : Array[BedInterval],
   gene_names : Array[String],
-  upstream : Int,
+  upstream : Int32,
 ) -> GeneActivityMatrix {
   let ngenes = genes.length()
   let ncells = fm.cells.length()
-  let activity : Array[Array[Int]] = Array::make(ngenes, Array(capacity=0))
+  let activity : Array[Array[Int32]] = Array::make(ngenes, Array(capacity=0))
   for gi = 0; gi < ngenes; gi = gi + 1 {
     activity[gi] = Array::make(ncells, 0)
   }
@@ -271,5 +294,5 @@ pub fn signac_gene_activity(
       }
     }
   }
-  GeneActivityMatrix::{ genes: gene_names, cells: fm.cells, activity }
+  GeneActivityMatrix::{ genes: gene_names, cells: fm.cells, activity, }
 }

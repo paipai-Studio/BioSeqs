@@ -17,8 +17,8 @@
 /// Local GRanges-compatible structure using String strands.
 pub struct GRangesLocal {
   seqnames : Array[String]
-  starts : Array[Int]
-  ends : Array[Int]
+  starts : Array[Int32]
+  ends : Array[Int32]
   strands : Array[String]
 }
 
@@ -26,27 +26,27 @@ pub struct GRangesLocal {
 /// Result of grg_gaps: gaps between ranges with lengths.
 pub struct GapResult {
   seqnames : Array[String]
-  starts : Array[Int]
-  ends : Array[Int]
-  gap_lengths : Array[Int]
+  starts : Array[Int32]
+  ends : Array[Int32]
+  gap_lengths : Array[Int32]
 }
 
 ///|
 /// Result of grg_disjoin: disjoined segments with segment ids.
 pub struct DisjoinResult {
   seqnames : Array[String]
-  starts : Array[Int]
-  ends : Array[Int]
-  segment_ids : Array[Int]
+  starts : Array[Int32]
+  ends : Array[Int32]
+  segment_ids : Array[Int32]
 }
 
 ///|
 /// Result of grg_reduce: merged ranges with merge count.
 pub struct GrgReduceResult {
   seqnames : Array[String]
-  starts : Array[Int]
-  ends : Array[Int]
-  merged_count : Array[Int]
+  starts : Array[Int32]
+  ends : Array[Int32]
+  merged_count : Array[Int32]
 }
 
 ///|
@@ -54,8 +54,8 @@ pub struct GrgReduceResult {
 /// When strands are not provided, all ranges default to "+".
 pub fn grg_granges(
   seqnames : Array[String],
-  starts : Array[Int],
-  ends : Array[Int],
+  starts : Array[Int32],
+  ends : Array[Int32],
   strands? : Array[String],
 ) -> GRangesLocal {
   let n = seqnames.length()
@@ -82,13 +82,13 @@ pub fn grg_empty() -> GRangesLocal {
 
 ///|
 /// Return the number of ranges in a GRangesLocal.
-pub fn grg_length(gr : GRangesLocal) -> Int {
+pub fn grg_length(gr : GRangesLocal) -> Int32 {
   gr.seqnames.length()
 }
 
 ///|
 /// Helper: sort an array of (start, end) pairs by start position.
-fn grg_sort_ranges(ranges : Array[(Int, Int)]) -> Array[(Int, Int)] {
+fn grg_sort_ranges(ranges : Array[(Int32, Int32)]) -> Array[(Int32, Int32)] {
   let n = ranges.length()
   let sorted = ranges.copy()
   let mut i = 0
@@ -109,7 +109,7 @@ fn grg_sort_ranges(ranges : Array[(Int, Int)]) -> Array[(Int, Int)] {
 
 ///|
 /// Helper: sort an array of integers (bubble sort).
-fn grg_sort_ints(arr : Array[Int]) -> Array[Int] {
+fn grg_sort_ints(arr : Array[Int32]) -> Array[Int32] {
   let n = arr.length()
   let sorted = arr.copy()
   let mut i = 0
@@ -138,11 +138,14 @@ fn grg_sort_ints(arr : Array[Int]) -> Array[Int] {
 /// Returns a GapResult with seqnames, starts, ends and gap_lengths.
 /// Gaps are the regions not covered by any range in gr, bounded by 1
 /// and the seqlength for that chromosome.
-pub fn grg_gaps(gr : GRangesLocal, seqlengths : Map[String, Int]) -> GapResult {
+pub fn grg_gaps(
+  gr : GRangesLocal,
+  seqlengths : Map[String, Int32],
+) -> GapResult {
   let result_seqnames : Array[String] = []
-  let result_starts : Array[Int] = []
-  let result_ends : Array[Int] = []
-  let result_lengths : Array[Int] = []
+  let result_starts : Array[Int32] = []
+  let result_ends : Array[Int32] = []
+  let result_lengths : Array[Int32] = []
 
   if gr.seqnames.length() == 0 {
     return GapResult::{
@@ -160,14 +163,14 @@ pub fn grg_gaps(gr : GRangesLocal, seqlengths : Map[String, Int]) -> GapResult {
     if !seen.contains(seqname) {
       seen[seqname] = ()
 
-      let seqlen : Int = if seqlengths.contains(seqname) {
+      let seqlen : Int32 = if seqlengths.contains(seqname) {
         seqlengths[seqname]
       } else {
         0
       }
 
       if seqlen > 0 {
-        let ranges : Array[(Int, Int)] = []
+        let ranges : Array[(Int32, Int32)] = []
         let mut j = 0
         while j < gr.seqnames.length() {
           if gr.seqnames[j] == seqname {
@@ -177,7 +180,7 @@ pub fn grg_gaps(gr : GRangesLocal, seqlengths : Map[String, Int]) -> GapResult {
         }
 
         let sorted = grg_sort_ranges(ranges)
-        let merged : Array[(Int, Int)] = []
+        let merged : Array[(Int32, Int32)] = []
         let mut k = 0
         while k < sorted.length() {
           let current = sorted[k]
@@ -244,11 +247,11 @@ pub fn grg_gaps(gr : GRangesLocal, seqlengths : Map[String, Int]) -> GapResult {
 ///
 /// Returns a GrgReduceResult where each merged region has a count
 /// of how many original ranges were merged into it.
-pub fn grg_reduce(gr : GRangesLocal, min_gap? : Int) -> GrgReduceResult {
+pub fn grg_reduce(gr : GRangesLocal, min_gap? : Int32) -> GrgReduceResult {
   let result_seqnames : Array[String] = []
-  let result_starts : Array[Int] = []
-  let result_ends : Array[Int] = []
-  let result_counts : Array[Int] = []
+  let result_starts : Array[Int32] = []
+  let result_ends : Array[Int32] = []
+  let result_counts : Array[Int32] = []
 
   if gr.seqnames.length() == 0 {
     return GrgReduceResult::{
@@ -271,7 +274,7 @@ pub fn grg_reduce(gr : GRangesLocal, min_gap? : Int) -> GrgReduceResult {
     if !seen.contains(seqname) {
       seen[seqname] = ()
 
-      let ranges : Array[(Int, Int)] = []
+      let ranges : Array[(Int32, Int32)] = []
       let mut j = 0
       while j < gr.seqnames.length() {
         if gr.seqnames[j] == seqname {
@@ -281,14 +284,14 @@ pub fn grg_reduce(gr : GRangesLocal, min_gap? : Int) -> GrgReduceResult {
       }
 
       let sorted = grg_sort_ranges(ranges)
-      let merged_starts : Array[Int] = []
-      let merged_ends : Array[Int] = []
-      let merged_counts : Array[Int] = []
+      let merged_starts : Array[Int32] = []
+      let merged_ends : Array[Int32] = []
+      let merged_counts : Array[Int32] = []
 
       let mut k = 0
       while k < sorted.length() {
         let current = sorted[k]
-        let cnt : Int = 1
+        let cnt : Int32 = 1
         if merged_starts.length() == 0 {
           merged_starts.push(current.0)
           merged_ends.push(current.1)
@@ -345,9 +348,9 @@ pub fn grg_reduce(gr : GRangesLocal, min_gap? : Int) -> GrgReduceResult {
 /// (segment_ids) within each sequence.
 pub fn grg_disjoin(gr : GRangesLocal) -> DisjoinResult {
   let result_seqnames : Array[String] = []
-  let result_starts : Array[Int] = []
-  let result_ends : Array[Int] = []
-  let result_ids : Array[Int] = []
+  let result_starts : Array[Int32] = []
+  let result_ends : Array[Int32] = []
+  let result_ids : Array[Int32] = []
 
   if gr.seqnames.length() == 0 {
     return DisjoinResult::{
@@ -365,7 +368,7 @@ pub fn grg_disjoin(gr : GRangesLocal) -> DisjoinResult {
     if !seen.contains(seqname) {
       seen[seqname] = ()
 
-      let breakpoints : Array[Int] = []
+      let breakpoints : Array[Int32] = []
       let mut j = 0
       while j < gr.seqnames.length() {
         if gr.seqnames[j] == seqname {
@@ -376,7 +379,7 @@ pub fn grg_disjoin(gr : GRangesLocal) -> DisjoinResult {
       }
 
       let sorted = grg_sort_ints(breakpoints)
-      let unique : Array[Int] = []
+      let unique : Array[Int32] = []
       let mut k = 0
       while k < sorted.length() {
         if k == 0 || sorted[k] != sorted[k - 1] {
@@ -418,8 +421,8 @@ pub fn grg_disjoin(gr : GRangesLocal) -> DisjoinResult {
 /// producing zero or more sub-ranges that belong exclusively to gr1.
 pub fn grg_setdiff(gr1 : GRangesLocal, gr2 : GRangesLocal) -> GRangesLocal {
   let seqnames : Array[String] = []
-  let starts : Array[Int] = []
-  let ends : Array[Int] = []
+  let starts : Array[Int32] = []
+  let ends : Array[Int32] = []
   let strands : Array[String] = []
 
   if gr1.seqnames.length() == 0 {
@@ -433,7 +436,7 @@ pub fn grg_setdiff(gr1 : GRangesLocal, gr2 : GRangesLocal) -> GRangesLocal {
     let end = gr1.ends[i]
     let strand = gr1.strands[i]
 
-    let mut remaining : Array[(Int, Int)] = [(start, end)]
+    let mut remaining : Array[(Int32, Int32)] = [(start, end)]
 
     let mut j = 0
     while j < gr2.seqnames.length() {
@@ -441,7 +444,7 @@ pub fn grg_setdiff(gr1 : GRangesLocal, gr2 : GRangesLocal) -> GRangesLocal {
         let exclude_start = gr2.starts[j]
         let exclude_end = gr2.ends[j]
 
-        let new_remaining : Array[(Int, Int)] = []
+        let new_remaining : Array[(Int32, Int32)] = []
         let mut k = 0
         while k < remaining.length() {
           let r = remaining[k]
@@ -484,8 +487,8 @@ pub fn grg_setdiff(gr1 : GRangesLocal, gr2 : GRangesLocal) -> GRangesLocal {
 /// on the same sequence, emit the overlapping sub-range.
 pub fn grg_intersect(gr1 : GRangesLocal, gr2 : GRangesLocal) -> GRangesLocal {
   let seqnames : Array[String] = []
-  let starts : Array[Int] = []
-  let ends : Array[Int] = []
+  let starts : Array[Int32] = []
+  let ends : Array[Int32] = []
   let strands : Array[String] = []
 
   if gr1.seqnames.length() == 0 || gr2.seqnames.length() == 0 {
@@ -531,8 +534,8 @@ pub fn grg_intersect(gr1 : GRangesLocal, gr2 : GRangesLocal) -> GRangesLocal {
 /// so that the output contains no overlapping ranges.
 pub fn grg_union(gr1 : GRangesLocal, gr2 : GRangesLocal) -> GRangesLocal {
   let combined_seqnames : Array[String] = []
-  let combined_starts : Array[Int] = []
-  let combined_ends : Array[Int] = []
+  let combined_starts : Array[Int32] = []
+  let combined_ends : Array[Int32] = []
   let combined_strands : Array[String] = []
 
   let mut i = 0
@@ -580,16 +583,16 @@ pub fn grg_union(gr1 : GRangesLocal, gr2 : GRangesLocal) -> GRangesLocal {
 /// where index i contains the number of ranges covering position i+1.
 pub fn grg_compute_coverage(
   gr : GRangesLocal,
-  seqlengths : Map[String, Int],
-) -> Map[String, Array[Int]] {
-  let result : Map[String, Array[Int]] = Map([], capacity=10)
+  seqlengths : Map[String, Int32],
+) -> Map[String, Array[Int32]] {
+  let result : Map[String, Array[Int32]] = Map([], capacity=10)
 
   let keys = seqlengths.keys().collect()
   let mut seq_idx = 0
   while seq_idx < keys.length() {
     let seqname = keys[seq_idx]
     let seqlen = seqlengths[seqname]
-    let cov : Array[Int] = Array::make(seqlen, 0)
+    let cov : Array[Int32] = Array::make(seqlen, 0)
 
     let mut i = 0
     while i < gr.seqnames.length() {
@@ -626,11 +629,11 @@ pub fn grg_compute_coverage(
 /// that fall entirely outside are removed.
 pub fn grg_trim(
   gr : GRangesLocal,
-  seqlengths : Map[String, Int],
+  seqlengths : Map[String, Int32],
 ) -> GRangesLocal {
   let seqnames : Array[String] = []
-  let starts : Array[Int] = []
-  let ends : Array[Int] = []
+  let starts : Array[Int32] = []
+  let ends : Array[Int32] = []
   let strands : Array[String] = []
 
   let mut i = 0
@@ -671,12 +674,12 @@ pub fn grg_trim(
 /// For "*" strand, both strands' promoters are combined.
 pub fn grg_promoters(
   gr : GRangesLocal,
-  upstream? : Int,
-  downstream? : Int,
+  upstream? : Int32,
+  downstream? : Int32,
 ) -> GRangesLocal {
   let seqnames : Array[String] = []
-  let starts : Array[Int] = []
-  let ends : Array[Int] = []
+  let starts : Array[Int32] = []
+  let ends : Array[Int32] = []
   let strands : Array[String] = []
 
   let up = match upstream {
@@ -753,7 +756,7 @@ test "grg_length_empty" {
 ///|
 test "grg_gaps_no_gaps_single_range" {
   let gr = grg_granges(["chr1"], [1], [100])
-  let sl : Map[String, Int] = Map([], capacity=1)
+  let sl : Map[String, Int32] = Map([], capacity=1)
   sl["chr1"] = 100
   let gaps = grg_gaps(gr, sl)
   assert_eq(gaps.seqnames.length(), 0)
@@ -762,7 +765,7 @@ test "grg_gaps_no_gaps_single_range" {
 ///|
 test "grg_gaps_finds_gaps_between_ranges" {
   let gr = grg_granges(["chr1", "chr1"], [1, 30], [10, 50])
-  let sl : Map[String, Int] = Map([], capacity=1)
+  let sl : Map[String, Int32] = Map([], capacity=1)
   sl["chr1"] = 100
   let gaps = grg_gaps(gr, sl)
   assert_eq(gaps.seqnames.length(), 2)
@@ -778,7 +781,7 @@ test "grg_gaps_finds_gaps_between_ranges" {
 ///|
 test "grg_gaps_empty_input" {
   let gr = grg_empty()
-  let sl : Map[String, Int] = Map([], capacity=1)
+  let sl : Map[String, Int32] = Map([], capacity=1)
   sl["chr1"] = 100
   let gaps = grg_gaps(gr, sl)
   assert_eq(gaps.seqnames.length(), 0)
@@ -787,7 +790,7 @@ test "grg_gaps_empty_input" {
 ///|
 test "grg_gaps_overlapping_ranges_merged" {
   let gr = grg_granges(["chr1", "chr1", "chr1"], [1, 5, 20], [10, 15, 30])
-  let sl : Map[String, Int] = Map([], capacity=1)
+  let sl : Map[String, Int32] = Map([], capacity=1)
   sl["chr1"] = 50
   let gaps = grg_gaps(gr, sl)
   assert_eq(gaps.seqnames.length(), 2)
@@ -936,7 +939,7 @@ test "grg_union_disjoint_ranges" {
 ///|
 test "grg_compute_coverage_basic" {
   let gr = grg_granges(["chr1", "chr1"], [1, 3], [5, 8])
-  let sl : Map[String, Int] = Map([], capacity=1)
+  let sl : Map[String, Int32] = Map([], capacity=1)
   sl["chr1"] = 10
   let cov = grg_compute_coverage(gr, sl)
   let arr = cov["chr1"]
@@ -950,7 +953,7 @@ test "grg_compute_coverage_basic" {
 ///|
 test "grg_compute_coverage_no_ranges" {
   let gr = grg_empty()
-  let sl : Map[String, Int] = Map([], capacity=1)
+  let sl : Map[String, Int32] = Map([], capacity=1)
   sl["chr1"] = 5
   let cov = grg_compute_coverage(gr, sl)
   let arr = cov["chr1"]
@@ -962,7 +965,7 @@ test "grg_compute_coverage_no_ranges" {
 ///|
 test "grg_trim_clips_beyond_chromosome" {
   let gr = grg_granges(["chr1", "chr1"], [-5, 8], [10, 30])
-  let sl : Map[String, Int] = Map([], capacity=1)
+  let sl : Map[String, Int32] = Map([], capacity=1)
   sl["chr1"] = 20
   let result = grg_trim(gr, sl)
   assert_eq(result.seqnames.length(), 2)
@@ -975,7 +978,7 @@ test "grg_trim_clips_beyond_chromosome" {
 ///|
 test "grg_trim_removes_completely_outside" {
   let gr = grg_granges(["chr1", "chr1"], [1, 25], [10, 30])
-  let sl : Map[String, Int] = Map([], capacity=1)
+  let sl : Map[String, Int32] = Map([], capacity=1)
   sl["chr1"] = 20
   let result = grg_trim(gr, sl)
   assert_eq(result.seqnames.length(), 1)
@@ -1027,7 +1030,7 @@ test "grg_setdiff_different_chromosomes" {
 ///|
 test "grg_gaps_multiple_chromosomes" {
   let gr = grg_granges(["chr1", "chr2"], [1, 1], [10, 10])
-  let sl : Map[String, Int] = Map([], capacity=2)
+  let sl : Map[String, Int32] = Map([], capacity=2)
   sl["chr1"] = 20
   sl["chr2"] = 30
   let gaps = grg_gaps(gr, sl)

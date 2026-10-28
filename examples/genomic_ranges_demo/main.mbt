@@ -172,17 +172,21 @@ fn main {
   println("")
 
   println("7. Precede & Follow")
-  let gr_query = @bio.granges(["chr1", "chr1", "chr2"], [(5, 10), (25, 30), (50, 55)], [
-    @bio.strand_plus(),
-    @bio.strand_plus(),
-    @bio.strand_plus(),
-  ])
-  let gr_subject = @bio.granges(["chr1", "chr1", "chr1", "chr2"], [(1, 3), (15, 20), (35, 40), (60, 65)], [
-    @bio.strand_plus(),
-    @bio.strand_plus(),
-    @bio.strand_plus(),
-    @bio.strand_plus(),
-  ])
+  let gr_query = @bio.granges(
+    ["chr1", "chr1", "chr2"],
+    [(5, 10), (25, 30), (50, 55)],
+    [@bio.strand_plus(), @bio.strand_plus(), @bio.strand_plus()],
+  )
+  let gr_subject = @bio.granges(
+    ["chr1", "chr1", "chr1", "chr2"],
+    [(1, 3), (15, 20), (35, 40), (60, 65)],
+    [
+      @bio.strand_plus(),
+      @bio.strand_plus(),
+      @bio.strand_plus(),
+      @bio.strand_plus(),
+    ],
+  )
 
   let precede_indices = @bio.precede(gr_query, gr_subject)
   println("precede indices: \{precede_indices}")
@@ -192,12 +196,12 @@ fn main {
   println("")
 
   println("8. Coverage Calculation")
-  let gr_cov = @bio.granges(["chr1", "chr1", "chr1"], [(5, 10), (8, 15), (20, 25)], [
-    @bio.strand_plus(),
-    @bio.strand_plus(),
-    @bio.strand_plus(),
-  ])
-  let seqlengths : Map[String, Int] = Map([], capacity=1)
+  let gr_cov = @bio.granges(
+    ["chr1", "chr1", "chr1"],
+    [(5, 10), (8, 15), (20, 25)],
+    [@bio.strand_plus(), @bio.strand_plus(), @bio.strand_plus()],
+  )
+  let seqlengths : Map[String, Int32] = Map([], capacity=1)
   seqlengths["chr1"] = 30
   let coverage = @bio.coverage_granges(gr_cov, seqlengths)
   println("Coverage for chr1 (length 30):")
@@ -206,16 +210,18 @@ fn main {
   println("")
 
   println("9. Distance to Nearest")
-  let gr_dn = @bio.granges(["chr1", "chr1", "chr1"], [(1, 5), (15, 20), (30, 35)], [
-    @bio.strand_plus(),
-    @bio.strand_plus(),
-    @bio.strand_plus(),
-  ])
+  let gr_dn = @bio.granges(
+    ["chr1", "chr1", "chr1"],
+    [(1, 5), (15, 20), (30, 35)],
+    [@bio.strand_plus(), @bio.strand_plus(), @bio.strand_plus()],
+  )
   let distances_to_nearest = @bio.distance_to_nearest(gr_dn)
   println("Distance to nearest for each range:")
   i = 0
   while i < gr_dn.starts.length() {
-    println("  Range \{i} (\{gr_dn.starts[i]}-\{gr_dn.ends[i]}): distance = \{distances_to_nearest[i]}")
+    println(
+      "  Range \{i} (\{gr_dn.starts[i]}-\{gr_dn.ends[i]}): distance = \{distances_to_nearest[i]}",
+    )
     i = i + 1
   }
 }

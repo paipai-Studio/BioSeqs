@@ -4,7 +4,7 @@
 /// Run with: moon run examples/blat_psl_demo
 
 ///|
-fn strand_label(value : Int) -> String {
+fn strand_label(value : Int32) -> String {
   if value > 0 {
     "+"
   } else if value < 0 {

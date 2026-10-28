@@ -20,7 +20,7 @@ pub struct CaResult {
 pub struct MantelResult {
   corr_coeff : Double
   p_value : Double
-  n : Int
+  n : Int32
 }
 
 // ---------------------------------------------------------------------------
@@ -43,7 +43,10 @@ fn skb_transpose(a : Array[Array[Double]]) -> Array[Array[Double]] {
 }
 
 ///|
-fn skb_mul(a : Array[Array[Double]], b : Array[Array[Double]]) -> Array[Array[Double]] {
+fn skb_mul(
+  a : Array[Array[Double]],
+  b : Array[Array[Double]],
+) -> Array[Array[Double]] {
   let m = a.length()
   let k = if m > 0 { a[0].length() } else { 0 }
   let n = if b.length() > 0 { b[0].length() } else { 0 }
@@ -178,7 +181,7 @@ fn skb_svd_qbar(
   let n = qbar.length()
   let m = if n > 0 { qbar[0].length() } else { 0 }
   let qbar_t = skb_transpose(qbar)
-  let s = skb_mul(qbar, qbar_t)  // n × n
+  let s = skb_mul(qbar, qbar_t) // n × n
   let (evals, evecs) = eigh_symmetric(s, n)
   let (sorted_evals, sorted_evecs) = skb_sort_eigen(evals, evecs)
 
@@ -235,7 +238,7 @@ fn skb_svd_qbar(
 
 ///|
 /// Correspondence Analysis of a contingency table.
-pub fn skbio_ca(x : Array[Array[Double]], scaling : Int) -> CaResult {
+pub fn skbio_ca(x : Array[Array[Double]], scaling : Int32) -> CaResult {
   let n = x.length()
   let m = if n > 0 { x[0].length() } else { 0 }
   let grand_total = skb_sum(x)
@@ -310,12 +313,7 @@ pub fn skbio_ca(x : Array[Array[Double]], scaling : Int) -> CaResult {
   let sample_scores = if scaling == 1 { f } else { v_hat }
   let feature_scores = if scaling == 1 { v } else { f_hat }
 
-  CaResult::{
-    eigvals,
-    sample_scores,
-    feature_scores,
-    proportion_explained,
-  }
+  CaResult::{ eigvals, sample_scores, feature_scores, proportion_explained, }
 }
 
 // ---------------------------------------------------------------------------
@@ -374,7 +372,7 @@ fn skb_pearson(a : Array[Double], b : Array[Double]) -> Double {
 
 ///|
 /// Deterministic LCG random source for the permutation test.
-fn skb_lcg(seed : Int) -> Int {
+fn skb_lcg(seed : Int32) -> Int32 {
   (seed * 1103515245 + 12345) & 0x7FFFFFFF
 }
 
@@ -382,7 +380,7 @@ fn skb_lcg(seed : Int) -> Int {
 /// Reorder a square distance matrix by permuting rows/columns together.
 fn skb_permute_matrix(
   matrix : Array[Array[Double]],
-  order : Array[Int],
+  order : Array[Int32],
 ) -> Array[Array[Double]] {
   let n = matrix.length()
   let out : Array[Array[Double]] = Array(capacity=0)
@@ -403,8 +401,8 @@ fn skb_permute_matrix(
 pub fn skbio_mantel(
   x : Array[Array[Double]],
   y : Array[Array[Double]],
-  permutations : Int,
-  seed : Int,
+  permutations : Int32,
+  seed : Int32,
 ) -> MantelResult {
   let n = x.length()
   let y_flat = skb_condensed(y)
@@ -445,8 +443,9 @@ pub fn skbio_mantel(
   } else {
     (count_better + 1).to_double() / (permutations + 1).to_double()
   }
-  MantelResult::{ corr_coeff: corr, p_value, n }
+  MantelResult::{ corr_coeff: corr, p_value, n, }
 }
+
 ///|
 pub struct RdaResult {
   eigvals : Array[Double]
@@ -478,7 +477,7 @@ fn skb_center_columns(a : Array[Array[Double]]) -> Array[Array[Double]] {
 pub fn skbio_rda(
   y : Array[Array[Double]],
   x : Array[Array[Double]],
-  scaling : Int,
+  scaling : Int32,
 ) -> RdaResult {
   let n = y.length()
   let p = if n > 0 { y[0].length() } else { 0 }
@@ -551,7 +550,7 @@ pub fn skbio_rda(
     }
     sample_scores.push(row)
   }
-  RdaResult::{ eigvals, proportion_explained, sample_scores, feature_scores }
+  RdaResult::{ eigvals, proportion_explained, sample_scores, feature_scores, }
 }
 
 ///|
@@ -608,7 +607,7 @@ fn skb_scale_weighted(
 pub fn skbio_cca(
   y : Array[Array[Double]],
   x : Array[Array[Double]],
-  scaling : Int,
+  scaling : Int32,
 ) -> CcaResult {
   let n = y.length()
   let p = if n > 0 { y[0].length() } else { 0 }
@@ -786,7 +785,7 @@ pub fn skbio_cca(
     }
     sample_scores.push(row)
   }
-  CcaResult::{ eigvals, proportion_explained, sample_scores, feature_scores }
+  CcaResult::{ eigvals, proportion_explained, sample_scores, feature_scores, }
 }
 
 ///|
@@ -824,7 +823,10 @@ pub fn skbio_f_matrix(e : Array[Array[Double]]) -> Array[Array[Double]] {
 
 ///|
 /// Column-wise mean and standard deviation (unweighted, axis=0).
-pub fn skbio_mean_and_std(a : Array[Array[Double]], ddof : Int) -> (Array[Double], Array[Double]) {
+pub fn skbio_mean_and_std(
+  a : Array[Array[Double]],
+  ddof : Int32,
+) -> (Array[Double], Array[Double]) {
   let n = a.length()
   let p = if n > 0 { a[0].length() } else { 0 }
   let means = Array::make(p, 0.0)
@@ -851,7 +853,7 @@ pub fn skbio_scale(
   a : Array[Array[Double]],
   with_mean : Bool,
   with_std : Bool,
-  ddof : Int,
+  ddof : Int32,
 ) -> Array[Array[Double]] {
   let n = a.length()
   let p = if n > 0 { a[0].length() } else { 0 }
@@ -880,7 +882,10 @@ pub fn skbio_scale(
 
 ///|
 /// Pearson correlation matrix between the columns of `x` and `y`.
-pub fn skbio_corr(x : Array[Array[Double]], y : Array[Array[Double]]) -> Array[Array[Double]] {
+pub fn skbio_corr(
+  x : Array[Array[Double]],
+  y : Array[Array[Double]],
+) -> Array[Array[Double]] {
   let n = x.length()
   let xs = skbio_scale(x, true, true, 0)
   let ys = skbio_scale(y, true, true, 0)
@@ -899,7 +904,7 @@ pub fn skbio_corr(x : Array[Array[Double]], y : Array[Array[Double]]) -> Array[A
 ///|
 /// Numerical rank: count of singular values above the tolerance
 /// `S.max() * max(m, n) * eps`.
-pub fn skbio_svd_rank(s : Array[Double], m : Int, n : Int) -> Int {
+pub fn skbio_svd_rank(s : Array[Double], m : Int32, n : Int32) -> Int32 {
   let mut smax = 0.0
   for v in s {
     if v > smax {
@@ -953,7 +958,7 @@ pub fn skbio_pcoa(dm : Array[Array[Double]]) -> PcoaResult {
     }
     samples.push(row)
   }
-  PcoaResult::{ eigvals: evals, proportion_explained, samples }
+  PcoaResult::{ eigvals: evals, proportion_explained, samples, }
 }
 
 ///|
@@ -989,7 +994,6 @@ pub fn skbio_pcoa_biplot(
   out
 }
 
-
 ///|
 /// Partial Mantel test: correlation between two distance matrices `x` and `y`
 /// while controlling for a third distance matrix `c`. The reported coefficient
@@ -999,8 +1003,8 @@ pub fn skbio_pwmantel(
   x : Array[Array[Double]],
   y : Array[Array[Double]],
   c : Array[Array[Double]],
-  permutations : Int,
-  seed : Int,
+  permutations : Int32,
+  seed : Int32,
 ) -> MantelResult {
   let n = x.length()
   let x_flat = skb_condensed(x)
@@ -1039,12 +1043,16 @@ pub fn skbio_pwmantel(
   } else {
     (count_better + 1).to_double() / (permutations + 1).to_double()
   }
-  MantelResult::{ corr_coeff: corr, p_value, n }
+  MantelResult::{ corr_coeff: corr, p_value, n, }
 }
 
 ///|
 /// Partial correlation of three vectors: corr(x, y) controlling for `c`.
-fn skb_partial_corr(x : Array[Double], y : Array[Double], c : Array[Double]) -> Double {
+fn skb_partial_corr(
+  x : Array[Double],
+  y : Array[Double],
+  c : Array[Double],
+) -> Double {
   let r_xy = skb_pearson(x, y)
   let r_xc = skb_pearson(x, c)
   let r_yc = skb_pearson(y, c)

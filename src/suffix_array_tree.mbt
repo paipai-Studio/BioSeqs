@@ -8,15 +8,15 @@
 ///|
 pub struct SuffixArray {
   text : String
-  sa : Array[Int]
+  sa : Array[Int32]
 }
 
 ///|
 pub fn SuffixArray::new(text : String) -> SuffixArray {
   let t = text + "$"
   let n = t.length()
-  let sa : Array[Int] = Array(capacity=0)
-  let rank : Array[Int] = Array(capacity=0)
+  let sa : Array[Int32] = Array(capacity=0)
+  let rank : Array[Int32] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {
     sa.push(i)
     rank.push(t.unsafe_get(i).unsafe_to_char().to_int())
@@ -35,10 +35,10 @@ pub fn SuffixArray::new(text : String) -> SuffixArray {
 
 ///|
 fn sa_sort_by_rank(
-  sa : Array[Int],
-  rank : Array[Int],
-  n : Int,
-  k : Int,
+  sa : Array[Int32],
+  rank : Array[Int32],
+  n : Int32,
+  k : Int32,
 ) -> Unit {
   for i = 0; i < n; i = i + 1 {
     let mut min_idx = i
@@ -54,7 +54,13 @@ fn sa_sort_by_rank(
 }
 
 ///|
-fn sa_compare(i : Int, j : Int, rank : Array[Int], n : Int, k : Int) -> Int {
+fn sa_compare(
+  i : Int32,
+  j : Int32,
+  rank : Array[Int32],
+  n : Int32,
+  k : Int32,
+) -> Int32 {
   let ri = rank[i]
   let rj = rank[j]
   if ri < rj {
@@ -75,12 +81,12 @@ fn sa_compare(i : Int, j : Int, rank : Array[Int], n : Int, k : Int) -> Int {
 
 ///|
 fn sa_compute_new_rank(
-  sa : Array[Int],
-  rank : Array[Int],
-  n : Int,
-  k : Int,
-) -> Array[Int] {
-  let new_rank : Array[Int] = Array(capacity=0)
+  sa : Array[Int32],
+  rank : Array[Int32],
+  n : Int32,
+  k : Int32,
+) -> Array[Int32] {
+  let new_rank : Array[Int32] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {
     new_rank.push(0)
   }
@@ -100,7 +106,7 @@ fn sa_compute_new_rank(
 }
 
 ///|
-pub fn SuffixArray::sa(self : SuffixArray) -> Array[Int] {
+pub fn SuffixArray::sa(self : SuffixArray) -> Array[Int32] {
   self.sa
 }
 
@@ -110,12 +116,12 @@ pub fn SuffixArray::text(self : SuffixArray) -> String {
 }
 
 ///|
-pub fn SuffixArray::len(self : SuffixArray) -> Int {
+pub fn SuffixArray::len(self : SuffixArray) -> Int32 {
   self.sa.length()
 }
 
 ///|
-pub fn SuffixArray::get_suffix(self : SuffixArray, i : Int) -> String {
+pub fn SuffixArray::get_suffix(self : SuffixArray, i : Int32) -> String {
   if i < 0 || i >= self.text.length() {
     return ""
   }
@@ -123,7 +129,10 @@ pub fn SuffixArray::get_suffix(self : SuffixArray, i : Int) -> String {
 }
 
 ///|
-pub fn SuffixArray::get_sorted_suffix(self : SuffixArray, idx : Int) -> String {
+pub fn SuffixArray::get_sorted_suffix(
+  self : SuffixArray,
+  idx : Int32,
+) -> String {
   if idx < 0 || idx >= self.sa.length() {
     return ""
   }
@@ -135,7 +144,7 @@ pub fn SuffixArray::get_sorted_suffix(self : SuffixArray, idx : Int) -> String {
 }
 
 ///|
-pub fn SuffixArray::find_lower(self : SuffixArray, pattern : String) -> Int {
+pub fn SuffixArray::find_lower(self : SuffixArray, pattern : String) -> Int32 {
   let n = self.sa.length()
   let m = pattern.length()
   let mut left = 0
@@ -164,7 +173,7 @@ pub fn SuffixArray::find_lower(self : SuffixArray, pattern : String) -> Int {
 }
 
 ///|
-pub fn SuffixArray::find_upper(self : SuffixArray, pattern : String) -> Int {
+pub fn SuffixArray::find_upper(self : SuffixArray, pattern : String) -> Int32 {
   let n = self.sa.length()
   let m = pattern.length()
   let mut left = 0
@@ -187,7 +196,7 @@ pub fn SuffixArray::find_upper(self : SuffixArray, pattern : String) -> Int {
 }
 
 ///|
-pub fn SuffixArray::count(self : SuffixArray, pattern : String) -> Int {
+pub fn SuffixArray::count(self : SuffixArray, pattern : String) -> Int32 {
   let lower = self.find_lower(pattern)
   let upper = self.find_upper(pattern)
   if lower == -1 || upper == -1 {
@@ -198,10 +207,13 @@ pub fn SuffixArray::count(self : SuffixArray, pattern : String) -> Int {
 }
 
 ///|
-pub fn SuffixArray::locate(self : SuffixArray, pattern : String) -> Array[Int] {
+pub fn SuffixArray::locate(
+  self : SuffixArray,
+  pattern : String,
+) -> Array[Int32] {
   let lower = self.find_lower(pattern)
   let upper = self.find_upper(pattern)
-  let result : Array[Int] = Array(capacity=0)
+  let result : Array[Int32] = Array(capacity=0)
   if lower == -1 || upper == -1 {
     return result
   }
@@ -213,7 +225,7 @@ pub fn SuffixArray::locate(self : SuffixArray, pattern : String) -> Array[Int] {
 }
 
 ///|
-fn sa_compare_pattern(suffix : String, pattern : String, m : Int) -> Int {
+fn sa_compare_pattern(suffix : String, pattern : String, m : Int32) -> Int32 {
   let n = suffix.length()
   for i = 0; i < m; i = i + 1 {
     if i >= n {
@@ -231,7 +243,7 @@ fn sa_compare_pattern(suffix : String, pattern : String, m : Int) -> Int {
 }
 
 ///|
-fn sa_sort_positions(positions : Array[Int]) -> Unit {
+fn sa_sort_positions(positions : Array[Int32]) -> Unit {
   let n = positions.length()
   for i = 0; i < n; i = i + 1 {
     let mut min_idx = i
@@ -252,21 +264,21 @@ fn sa_sort_positions(positions : Array[Int]) -> Unit {
 
 ///|
 pub struct LCPArray {
-  lcp : Array[Int]
+  lcp : Array[Int32]
 }
 
 ///|
 pub fn LCPArray::new(sa : SuffixArray) -> LCPArray {
   let n = sa.sa.length()
   let text = sa.text + "$"
-  let rank : Array[Int] = Array(capacity=0)
+  let rank : Array[Int32] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {
     rank.push(0)
   }
   for i = 0; i < n; i = i + 1 {
     rank[sa.sa[i]] = i
   }
-  let lcp : Array[Int] = Array(capacity=0)
+  let lcp : Array[Int32] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {
     lcp.push(0)
   }
@@ -281,10 +293,10 @@ pub fn LCPArray::new(sa : SuffixArray) -> LCPArray {
 fn lcp_kasai(
   text : String,
   sa : SuffixArray,
-  rank : Array[Int],
-  n : Int,
-) -> Array[Int] {
-  let k_values : Array[Int] = Array(capacity=0)
+  rank : Array[Int32],
+  n : Int32,
+) -> Array[Int32] {
+  let k_values : Array[Int32] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {
     k_values.push(0)
   }
@@ -309,12 +321,12 @@ fn lcp_kasai(
 }
 
 ///|
-pub fn LCPArray::lcp(self : LCPArray) -> Array[Int] {
+pub fn LCPArray::lcp(self : LCPArray) -> Array[Int32] {
   self.lcp
 }
 
 ///|
-pub fn LCPArray::get(self : LCPArray, i : Int) -> Int {
+pub fn LCPArray::get(self : LCPArray, i : Int32) -> Int32 {
   if i < 0 || i >= self.lcp.length() {
     0
   } else {
@@ -323,12 +335,12 @@ pub fn LCPArray::get(self : LCPArray, i : Int) -> Int {
 }
 
 ///|
-pub fn LCPArray::len(self : LCPArray) -> Int {
+pub fn LCPArray::len(self : LCPArray) -> Int32 {
   self.lcp.length()
 }
 
 ///|
-pub fn LCPArray::max_lcp(self : LCPArray) -> Int {
+pub fn LCPArray::max_lcp(self : LCPArray) -> Int32 {
   let mut max_val = 0
   for i = 0; i < self.lcp.length(); i = i + 1 {
     if self.lcp[i] > max_val {
@@ -345,7 +357,7 @@ pub fn LCPArray::max_lcp(self : LCPArray) -> Int {
 ///|
 pub struct SuffixTree {
   text : String
-  size : Int
+  size : Int32
 }
 
 ///|
@@ -370,7 +382,7 @@ pub fn SuffixTree::text(self : SuffixTree) -> String {
 }
 
 ///|
-pub fn SuffixTree::size(self : SuffixTree) -> Int {
+pub fn SuffixTree::size(self : SuffixTree) -> Int32 {
   self.size
 }
 
@@ -380,8 +392,8 @@ pub fn SuffixTree::contains(self : SuffixTree, pattern : String) -> Bool {
 }
 
 ///|
-pub fn SuffixTree::locate(self : SuffixTree, pattern : String) -> Array[Int] {
-  let positions : Array[Int] = Array(capacity=0)
+pub fn SuffixTree::locate(self : SuffixTree, pattern : String) -> Array[Int32] {
+  let positions : Array[Int32] = Array(capacity=0)
   let t = self.text + "$"
   let n = t.length()
   let m = pattern.length()
@@ -402,7 +414,7 @@ pub fn SuffixTree::locate(self : SuffixTree, pattern : String) -> Array[Int] {
 }
 
 ///|
-pub fn SuffixTree::count(self : SuffixTree, pattern : String) -> Int {
+pub fn SuffixTree::count(self : SuffixTree, pattern : String) -> Int32 {
   self.locate(pattern).length()
 }
 

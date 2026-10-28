@@ -22,7 +22,7 @@ fn pyfaidx_uppercase(s : String) -> String {
   for i = 0; i < s.length(); i = i + 1 {
     let c = s.unsafe_get(i).to_int()
     let u = if c >= 97 && c <= 122 { c - 32 } else { c }
-    buf.write_char((u).unsafe_to_char())
+    buf.write_char(u.unsafe_to_char())
   }
   buf.to_string()
 }
@@ -55,7 +55,7 @@ fn pyfaidx_ws_tokens(s : String) -> Array[String] {
 
 ///|
 /// Find the first occurrence of a byte/char, or -1.
-fn pyfaidx_index_of_char(s : String, target : Int) -> Int {
+fn pyfaidx_index_of_char(s : String, target : Int32) -> Int32 {
   for i = 0; i < s.length(); i = i + 1 {
     if s.unsafe_get(i).to_int() == target {
       return i
@@ -173,9 +173,21 @@ pub fn pyfaidx_gc_iupac(seq : String) -> Double {
   for i = 0; i < upper.length(); i = i + 1 {
     let c = upper.unsafe_get(i).unsafe_to_char()
     // filter: ACGTMRWSYKVHDBN
-    if c == 'A' || c == 'C' || c == 'G' || c == 'T' || c == 'M' || c == 'R' ||
-    c == 'W' || c == 'S' || c == 'Y' || c == 'K' || c == 'V' || c == 'H' ||
-    c == 'D' || c == 'B' || c == 'N' {
+    if c == 'A' ||
+      c == 'C' ||
+      c == 'G' ||
+      c == 'T' ||
+      c == 'M' ||
+      c == 'R' ||
+      c == 'W' ||
+      c == 'S' ||
+      c == 'Y' ||
+      c == 'K' ||
+      c == 'V' ||
+      c == 'H' ||
+      c == 'D' ||
+      c == 'B' ||
+      c == 'N' {
       n = n + 1
       if c == 'S' || c == 'C' || c == 'G' {
         gc = gc + 1.0
@@ -203,7 +215,7 @@ pub fn pyfaidx_gc_iupac(seq : String) -> Double {
 
 ///|
 /// Wrap a sequence into lines of `n` characters, each followed by a newline.
-pub fn pyfaidx_wrap_sequence(n : Int, seq : String) -> String {
+pub fn pyfaidx_wrap_sequence(n : Int32, seq : String) -> String {
   let buf = StringBuilder()
   let len = seq.length()
   let mut i = 0
@@ -219,7 +231,9 @@ pub fn pyfaidx_wrap_sequence(n : Int, seq : String) -> String {
 ///|
 /// Parse a BED entry into `(name, start, end)`; a `#`-comment yields
 /// `(None, None, None)`.
-pub fn pyfaidx_bed_split(entry : String) -> (String?, Int?, Int?) raise PyfaidxError {
+pub fn pyfaidx_bed_split(
+  entry : String,
+) -> (String?, Int32?, Int32?) raise PyfaidxError {
   if entry.length() > 0 && entry.unsafe_get(0).unsafe_to_char() == '#' {
     return (None, None, None)
   }
@@ -233,7 +247,7 @@ pub fn pyfaidx_bed_split(entry : String) -> (String?, Int?, Int?) raise PyfaidxE
 ///|
 /// Parse a UCSC region string `name:start-end` (1-based inclusive) into
 /// `(name, start-1, end)` (0-based half-open). Missing interval → `None`.
-pub fn pyfaidx_ucsc_split(region : String) -> (String, Int?, Int?) {
+pub fn pyfaidx_ucsc_split(region : String) -> (String, Int32?, Int32?) {
   let colon = pyfaidx_index_of_char(region, ':'.to_int())
   if colon < 0 {
     return (region, None, None)

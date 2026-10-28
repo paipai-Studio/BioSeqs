@@ -9,9 +9,9 @@ pub struct NucPosition {
   /// Chromosome
   chrom : String
   /// Start position
-  start : Int
+  start : Int32
   /// End position
-  end : Int
+  end : Int32
   /// Center position
   center : Double
   /// Width
@@ -28,8 +28,8 @@ pub struct NucPosition {
 /// Create new nucleosome position
 pub fn NucPosition::new(
   chrom : String,
-  start : Int,
-  end : Int,
+  start : Int32,
+  end : Int32,
   center : Double,
   width : Double,
   occupancy : Double,
@@ -56,13 +56,13 @@ pub fn NucPosition::nuc_chrom(self : NucPosition) -> String {
 
 ///|
 /// Get start position
-pub fn NucPosition::nuc_start(self : NucPosition) -> Int {
+pub fn NucPosition::nuc_start(self : NucPosition) -> Int32 {
   self.start
 }
 
 ///|
 /// Get end position
-pub fn NucPosition::nuc_end(self : NucPosition) -> Int {
+pub fn NucPosition::nuc_end(self : NucPosition) -> Int32 {
   self.end
 }
 
@@ -102,7 +102,7 @@ pub struct NucCallResult {
   /// Nucleosome positions
   nucleosomes : Array[NucPosition]
   /// Number of nucleosomes
-  n_nucleosomes : Int
+  n_nucleosomes : Int32
   /// Mean nucleosome spacing
   mean_spacing : Double
   /// Mean occupancy
@@ -115,7 +115,7 @@ pub struct NucCallResult {
 /// Create new call result
 pub fn NucCallResult::new(
   nucleosomes : Array[NucPosition],
-  n_nucleosomes : Int,
+  n_nucleosomes : Int32,
   mean_spacing : Double,
   mean_occupancy : Double,
   frac_well_positioned : Double,
@@ -131,13 +131,13 @@ pub fn NucCallResult::new(
 
 ///|
 /// Get number of nucleosomes
-pub fn NucCallResult::nuc_n_count(self : NucCallResult) -> Int {
+pub fn NucCallResult::nuc_n_count(self : NucCallResult) -> Int32 {
   self.n_nucleosomes
 }
 
 ///|
 /// Get nucleosome at index
-pub fn NucCallResult::nuc_get(self : NucCallResult, idx : Int) -> NucPosition {
+pub fn NucCallResult::nuc_get(self : NucCallResult, idx : Int32) -> NucPosition {
   self.nucleosomes[idx]
 }
 
@@ -196,7 +196,7 @@ pub struct NucDynamicResult {
   /// Fraction changed
   frac_changed : Double
   /// Direction of change (+1 gain, -1 loss)
-  direction : Int
+  direction : Int32
 }
 
 ///|
@@ -206,26 +206,26 @@ pub fn NucDynamicResult::new(
   gained : Array[NucPosition],
   lost : Array[NucPosition],
   frac_changed : Double,
-  direction : Int,
+  direction : Int32,
 ) -> NucDynamicResult {
   NucDynamicResult::{ shared, gained, lost, frac_changed, direction, }
 }
 
 ///|
 /// Get number of shared nucleosomes
-pub fn NucDynamicResult::nuc_n_shared(self : NucDynamicResult) -> Int {
+pub fn NucDynamicResult::nuc_n_shared(self : NucDynamicResult) -> Int32 {
   self.shared.length()
 }
 
 ///|
 /// Get number of gained nucleosomes
-pub fn NucDynamicResult::nuc_n_gained(self : NucDynamicResult) -> Int {
+pub fn NucDynamicResult::nuc_n_gained(self : NucDynamicResult) -> Int32 {
   self.gained.length()
 }
 
 ///|
 /// Get number of lost nucleosomes
-pub fn NucDynamicResult::nuc_n_lost(self : NucDynamicResult) -> Int {
+pub fn NucDynamicResult::nuc_n_lost(self : NucDynamicResult) -> Int32 {
   self.lost.length()
 }
 
@@ -237,22 +237,23 @@ pub fn NucDynamicResult::nuc_frac_changed(self : NucDynamicResult) -> Double {
 
 ///|
 /// Get direction
-pub fn NucDynamicResult::nuc_direction(self : NucDynamicResult) -> Int {
+pub fn NucDynamicResult::nuc_direction(self : NucDynamicResult) -> Int32 {
   self.direction
 }
 
 ///|
+
 ///|
 /// Nucleosome calling parameters
 pub struct NucCallParams {
   /// Smoothing window size
-  smooth_window : Int
+  smooth_window : Int32
   /// Peak detection threshold
   peak_threshold : Double
   /// Minimum distance between nucleosomes
-  min_distance : Int
+  min_distance : Int32
   /// Maximum distance between nucleosomes
-  max_distance : Int
+  max_distance : Int32
   /// Occupancy threshold
   occupancy_threshold : Double
   /// Width threshold for well-positioned
@@ -276,7 +277,7 @@ pub fn NucCallParams::new() -> NucCallParams {
 /// Set smoothing window
 pub fn NucCallParams::nuc_set_smooth_window(
   self : NucCallParams,
-  window : Int,
+  window : Int32,
 ) -> NucCallParams {
   NucCallParams::{
     smooth_window: window,
@@ -308,7 +309,7 @@ pub fn NucCallParams::nuc_set_peak_threshold(
 /// Set minimum distance
 pub fn NucCallParams::nuc_set_min_distance(
   self : NucCallParams,
-  dist : Int,
+  dist : Int32,
 ) -> NucCallParams {
   NucCallParams::{
     smooth_window: self.smooth_window,
@@ -344,11 +345,11 @@ pub struct NucSignalTrack {
   /// Signal values
   signal : Array[Double]
   /// Start position
-  start : Int
+  start : Int32
   /// Step size
-  step : Int
+  step : Int32
   /// Length
-  length : Int
+  length : Int32
 }
 
 ///|
@@ -356,8 +357,8 @@ pub struct NucSignalTrack {
 pub fn NucSignalTrack::new(
   chrom : String,
   signal : Array[Double],
-  start : Int,
-  step : Int,
+  start : Int32,
+  step : Int32,
 ) -> NucSignalTrack {
   NucSignalTrack::{ chrom, signal, start, step, length: signal.length(), }
 }
@@ -366,7 +367,7 @@ pub fn NucSignalTrack::new(
 /// Get signal value at position
 pub fn NucSignalTrack::nuc_get_signal(
   self : NucSignalTrack,
-  pos : Int,
+  pos : Int32,
 ) -> Double {
   let idx = (pos - self.start) / self.step
   if idx >= 0 && idx < self.length {
@@ -380,14 +381,14 @@ pub fn NucSignalTrack::nuc_get_signal(
 /// Get position for index
 pub fn NucSignalTrack::nuc_get_position(
   self : NucSignalTrack,
-  idx : Int,
-) -> Int {
+  idx : Int32,
+) -> Int32 {
   self.start + idx * self.step
 }
 
 ///|
 /// Get length
-pub fn NucSignalTrack::nuc_get_length(self : NucSignalTrack) -> Int {
+pub fn NucSignalTrack::nuc_get_length(self : NucSignalTrack) -> Int32 {
   self.length
 }
 
@@ -401,7 +402,7 @@ pub fn NucSignalTrack::nuc_get_chrom(self : NucSignalTrack) -> String {
 /// Smooth signal track
 pub fn nuc_smooth_signal(
   track : NucSignalTrack,
-  window : Int,
+  window : Int32,
 ) -> NucSignalTrack {
   let n = track.signal.length()
   let smoothed : Array[Double] = Array::make(n, 0.0)
@@ -434,10 +435,10 @@ pub fn nuc_smooth_signal(
 pub fn nuc_find_peaks(
   track : NucSignalTrack,
   threshold : Double,
-  min_distance : Int,
-) -> Array[Int] {
+  min_distance : Int32,
+) -> Array[Int32] {
   let n = track.signal.length()
-  let peaks : Array[Int] = Array(capacity=0)
+  let peaks : Array[Int32] = Array(capacity=0)
 
   let mut i = 1
   while i < n - 1 {
@@ -468,8 +469,8 @@ pub fn nuc_find_peaks(
 /// Calculate occupancy from signal
 pub fn nuc_calculate_occupancy(
   track : NucSignalTrack,
-  start_pos : Int,
-  end_pos : Int,
+  start_pos : Int32,
+  end_pos : Int32,
 ) -> Double {
   let n = track.signal.length()
   let start_idx = if start_pos >= track.start {
@@ -582,7 +583,7 @@ pub fn nuc_call_nucleosomes(
 /// Estimate peak width
 fn estimate_peak_width(
   track : NucSignalTrack,
-  center_idx : Int,
+  center_idx : Int32,
   threshold : Double,
 ) -> Double {
   let n = track.signal.length()
@@ -691,7 +692,7 @@ fn calculate_frac_well_positioned(nucleosomes : Array[NucPosition]) -> Double {
 pub fn nuc_compare_positioning(
   result1 : NucCallResult,
   result2 : NucCallResult,
-  tolerance : Int,
+  tolerance : Int32,
 ) -> NucDynamicResult {
   let shared : Array[NucPosition] = Array(capacity=0)
   let gained : Array[NucPosition] = Array(capacity=0)

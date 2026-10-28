@@ -19,6 +19,8 @@ pub struct StructureData {
   sequence : String
   residue_names : Array[String]
 } derive(Eq)
+
+///|
 pub extend StructureData with Eq::{equal, not_equal}
 
 ///|
@@ -60,7 +62,7 @@ pub fn StructureData::get_residue_names(self : StructureData) -> Array[String] {
 
 ///|
 /// Get the number of residues (CA atoms).
-pub fn StructureData::length(self : StructureData) -> Int {
+pub fn StructureData::length(self : StructureData) -> Int32 {
   self.ca_coordinates.length()
 }
 
@@ -143,7 +145,7 @@ pub fn AlignmentResult::get_total_rmsd(self : AlignmentResult) -> Double {
 
 ///|
 /// Get the alignment length (number of columns).
-pub fn AlignmentResult::alignment_length(self : AlignmentResult) -> Int {
+pub fn AlignmentResult::alignment_length(self : AlignmentResult) -> Int32 {
   if self.aligned_sequences.length() > 0 {
     self.aligned_sequences[0].length()
   } else {
@@ -156,7 +158,7 @@ pub fn AlignmentResult::alignment_length(self : AlignmentResult) -> Int {
 pub struct MAaligner {
   gap_opening : Double
   gap_extension : Double
-  max_iterations : Int
+  max_iterations : Int32
   rmsd_threshold : Double
 }
 
@@ -181,7 +183,7 @@ pub fn ma_aligner_new() -> MAaligner {
 pub fn ma_aligner_with_params(
   gap_open : Double,
   gap_ext : Double,
-  max_iter : Int,
+  max_iter : Int32,
   rmsd_thresh : Double,
 ) -> MAaligner {
   MAaligner::{
@@ -206,7 +208,7 @@ pub fn MAaligner::get_gap_extension(self : MAaligner) -> Double {
 
 ///|
 /// Get the maximum number of iterations.
-pub fn MAaligner::get_max_iterations(self : MAaligner) -> Int {
+pub fn MAaligner::get_max_iterations(self : MAaligner) -> Int32 {
   self.max_iterations
 }
 
@@ -611,10 +613,10 @@ pub fn find_corresponding_atoms(
   dist_mat1 : Array[Array[Double]],
   dist_mat2 : Array[Array[Double]],
   threshold : Double,
-) -> Array[(Int, Int)] {
+) -> Array[(Int32, Int32)] {
   let n = dist_mat1.length()
   let m = dist_mat2.length()
-  let correspondences : Array[(Int, Int)] = Array(capacity=0)
+  let correspondences : Array[(Int32, Int32)] = Array(capacity=0)
 
   let mut i = 0
   while i < n {
@@ -845,7 +847,7 @@ pub fn build_conservation_profile(
 
   let mut col = 0
   while col < aln_len {
-    let counts : Map[Char, Int] = Map([], capacity=20)
+    let counts : Map[Char, Int32] = Map([], capacity=20)
     let mut row = 0
     while row < n_seqs {
       let ch = aligned_sequences[row].unsafe_get(col).unsafe_to_char()
@@ -954,7 +956,7 @@ pub fn get_conservation(result : AlignmentResult) -> Array[Double] {
 pub fn iterate_alignment(
   _aligner : MAaligner,
   structures : Array[StructureData],
-  _iteration : Int,
+  _iteration : Int32,
 ) -> (Array[(Double, Double, Double)], Double) {
   let n = structures.length()
   if n == 0 {
@@ -1016,7 +1018,9 @@ pub fn align_multiple(
   }
 
   let ref_coords = structures[0].ca_coordinates.copy()
-  let mut aligned_all : Array[Array[(Double, Double, Double)]] = Array(capacity=0)
+  let mut aligned_all : Array[Array[(Double, Double, Double)]] = Array(
+    capacity=0,
+  )
   aligned_all.push(ref_coords.copy())
 
   let mut max_rmsd = 0.0

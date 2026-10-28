@@ -478,7 +478,7 @@ pub fn TaxonomyDatabase::get_all_genera(
 }
 
 ///|
-pub fn TaxonomyDatabase::count_taxa(self : TaxonomyDatabase) -> Int {
+pub fn TaxonomyDatabase::count_taxa(self : TaxonomyDatabase) -> Int32 {
   let entries = self.taxa.iter().collect()
   entries.length()
 }
@@ -529,7 +529,7 @@ pub fn TaxonomyDatabase::get_distance(
   self : TaxonomyDatabase,
   tax_id1 : String,
   tax_id2 : String,
-) -> Int {
+) -> Int32 {
   match self.get_common_ancestor(tax_id1, tax_id2) {
     Some(ancestor_id) => {
       let dist1 = get_distance_to_ancestor(self, tax_id1, ancestor_id)
@@ -545,7 +545,7 @@ fn get_distance_to_ancestor(
   db : TaxonomyDatabase,
   tax_id : String,
   ancestor_id : String,
-) -> Int {
+) -> Int32 {
   let ancestors = db.get_ancestors(tax_id)
   let mut distance = 0
   let mut i = 0

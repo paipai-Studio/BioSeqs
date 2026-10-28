@@ -5,7 +5,7 @@
 /// formulas from the R source code.
 
 ///|
-fn um_close(a : Double, b : Double, tol? : Double = 1.0e-6) -> Bool {
+fn um_close(a : Double, b : Double, tol~ : Double = 1.0e-6) -> Bool {
   (a - b).abs() < tol
 }
 
@@ -13,7 +13,7 @@ fn um_close(a : Double, b : Double, tol? : Double = 1.0e-6) -> Bool {
 fn um_close_matrix(
   a : Array[Array[Double]],
   b : Array[Array[Double]],
-  tol? : Double = 1.0e-6,
+  tol~ : Double = 1.0e-6,
 ) -> Bool {
   if a.length() != b.length() {
     return false

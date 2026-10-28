@@ -376,7 +376,7 @@ pub fn MmcifDataBlock::to_atoms(self : MmcifDataBlock) -> Array[Atom] {
 
 ///|
 /// Helper function: find index of string in array.
-fn mmcif_find_index(arr : Array[String], target : String) -> Int {
+fn mmcif_find_index(arr : Array[String], target : String) -> Int32 {
   let mut i = 0
   while i < arr.length() {
     if arr[i] == target {

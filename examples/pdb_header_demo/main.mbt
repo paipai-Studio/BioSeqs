@@ -9,7 +9,6 @@
 ///   - Demonstrate edge cases
 ///
 /// Run: moon run examples/pdb_header_demo/
-
 fn main {
   println("=== PDB Header Demo ===")
 
@@ -19,10 +18,9 @@ fn main {
   println("")
   println("--- 1. Sample PDB Header ---")
 
-  let header_line =
-    "HEADER      TRANS 05-JAN-21                      1ABC                           "
-  let pdb_text =
-    header_line + "\n" +
+  let header_line = "HEADER      TRANS 05-JAN-21                      1ABC                           "
+  let pdb_text = header_line +
+    "\n" +
     "TITLE     CRYSTAL STRUCTURE OF A TRANSFERASE ENZYME COMPLEXED WITH\n" +
     "TITLE     ITS SUBSTRATE AND COFACTOR\n" +
     "COMPND    1 ABC; A; ENGINEERED; MUTATION;\n" +
@@ -117,7 +115,9 @@ fn main {
   let dbrefs = header.dbrefs
   println("DBREF entries (\{dbrefs.length()}):")
   for dbref in dbrefs {
-    println("  DB: \{dbref.db_name} | Accession: \{dbref.db_accession} | ID: \{dbref.db_id}")
+    println(
+      "  DB: \{dbref.db_name} | Accession: \{dbref.db_accession} | ID: \{dbref.db_id}",
+    )
   }
 
   println("")
@@ -134,8 +134,7 @@ fn main {
   println("")
   println("--- 12. Individual Record Parsing ---")
 
-  let header_line =
-    "HEADER      TRANS 05-JAN-21                      1ABC                           "
+  let header_line = "HEADER      TRANS 05-JAN-21                      1ABC                           "
   let (pdb_id, date, classification) = @bio.parse_header_record(header_line)
   println("parse_header_record:")
   println("  PDB ID: \{pdb_id}")
@@ -165,8 +164,7 @@ fn main {
 
   println("")
   println("Minimal PDB (only HEADER record):")
-  let minimal_text =
-    "HEADER      LIGAN 01-JAN-20                      2XYZ                           \n"
+  let minimal_text = "HEADER      LIGAN 01-JAN-20                      2XYZ                           \n"
   let minimal = @bio.parse_pdb_header(minimal_text)
   println("  PDB ID: '\{minimal.pdb_id}'")
   println("  Title: '\{minimal.title}'")

@@ -14,7 +14,7 @@ fn main {
     @src.CswWindow::new("win_6", "chr1", 6000, 7000, [12.0, 18.0]),
     @src.CswWindow::new("win_7", "chr1", 7000, 8000, [20.0, 35.0]),
     @src.CswWindow::new("win_8", "chr1", 8000, 9000, [3.0, 5.0]),
-    @src.CswWindow::new("win_9", "chr1", 9000, 10000, [40.0, 60.0])
+    @src.CswWindow::new("win_9", "chr1", 9000, 10000, [40.0, 60.0]),
   ]
   println("   Created \{windows.length()} windows with 2 samples each")
 
@@ -23,7 +23,9 @@ fn main {
   let samples = ["control", "treatment"]
   let lib_sizes = [5000.0, 6000.0]
   let data = @src.CswDataSet::new(windows, samples, lib_sizes)
-  println("   Windows: \{data.csw_n_windows()}, Samples: \{data.csw_n_samples()}")
+  println(
+    "   Windows: \{data.csw_n_windows()}, Samples: \{data.csw_n_samples()}",
+  )
 
   // Library size normalization
   println("\n3. Library size normalization...")
@@ -40,7 +42,9 @@ fn main {
   println("\n5. Differential binding testing (control vs treatment)...")
   let result = @src.csw_test_differential(filtered, [0], [1], 0.1)
   println("   Tested \{result.log_fc.length()} windows")
-  println("   Significant windows (adj-p < 0.05): \{result.significant.filter(fn(x) { x }).length()}")
+  println(
+    "   Significant windows (adj-p < 0.05): \{result.significant.filter(fn(x) { x }).length()}",
+  )
 
   // Find regions
   println("\n6. Finding differential regions...")

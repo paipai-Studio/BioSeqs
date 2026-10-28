@@ -71,7 +71,7 @@ pub fn get_standard_code() -> Map[String, Array[String]] {
 ///|
 /// Count codon frequencies in a DNA sequence.
 /// Returns a Map mapping codon to count.
-pub fn count_codons(seq : String) -> Map[String, Int] {
+pub fn count_codons(seq : String) -> Map[String, Int32] {
   let counts = Map([], capacity=64)
   let seq_upper = seq.to_upper()
   let len = seq_upper.length()
@@ -89,7 +89,7 @@ pub fn count_codons(seq : String) -> Map[String, Int] {
 ///|
 /// Calculate Relative Synonymous Codon Usage (RSCU).
 /// RSCU = observed codon frequency / expected frequency (1/number of synonyms)
-pub fn codon_rscu(counts : Map[String, Int]) -> Map[String, Double] {
+pub fn codon_rscu(counts : Map[String, Int32]) -> Map[String, Double] {
   let rscu_map = Map([], capacity=64)
   let code = get_standard_code()
   let aa_list = code.keys().collect()
@@ -158,7 +158,7 @@ pub fn codon_cai(seq : String, optimal_codons : Map[String, Double]) -> Double {
 ///|
 /// Calculate Effective Number of Codons (ENC).
 /// ENC measures codon usage bias. Range: 20 (extreme bias) to 61 (no bias).
-pub fn codon_enc(counts : Map[String, Int]) -> Double {
+pub fn codon_enc(counts : Map[String, Int32]) -> Double {
   let mut sum_f2 = 0.0
   let code = get_standard_code()
   let aa_list = code.keys().collect()
@@ -372,7 +372,7 @@ pub fn codon_reverse_complement(codon : String) -> String {
 ///|
 /// CodonUsageResult struct to hold all codon usage statistics.
 pub struct CodonUsageResult {
-  codon_counts : Map[String, Int]
+  codon_counts : Map[String, Int32]
   rscu : Map[String, Double]
   cai : Double
   enc : Double
@@ -383,7 +383,7 @@ pub struct CodonUsageResult {
 ///|
 /// Create a CodonUsageResult.
 pub fn CodonUsageResult::new(
-  codon_counts : Map[String, Int],
+  codon_counts : Map[String, Int32],
   rscu : Map[String, Double],
   cai : Double,
   enc : Double,

@@ -66,10 +66,14 @@ pub fn ref_method_custom(ref_profile : Array[Double]) -> ReferenceMethod {
 pub struct GenePosition {
   gene_id : String
   chromosome : String
-  start : Int
-  end : Int
+  start : Int32
+  end : Int32
 } derive(Debug, Default)
+
+///|
 pub extend GenePosition with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
 pub extend GenePosition with Default::{default}
 
 ///|
@@ -77,8 +81,8 @@ pub extend GenePosition with Default::{default}
 pub fn gene_position(
   gene_id : String,
   chromosome : String,
-  start : Int,
-  end : Int,
+  start : Int32,
+  end : Int32,
 ) -> GenePosition {
   { gene_id, chromosome, start, end, }
 }
@@ -87,9 +91,13 @@ pub fn gene_position(
 /// An ordered gene set together with per-gene genomic positions.
 pub struct OrderedGenes {
   gene_order : Array[GenePosition] // sorted by chr, then start position
-  n_genes : Int
+  n_genes : Int32
 } derive(Debug, Default)
+
+///|
 pub extend OrderedGenes with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
 pub extend OrderedGenes with Default::{default}
 
 ///|
@@ -126,11 +134,7 @@ fn natural_chrom_key(chr : String) -> String {
   //   X -> "A0", Y -> "A1", M/MT -> "A2" (excluded by default anyway)
   //   other -> "B" + original
   let s = chr.to_lower()
-  let base = if s.has_prefix("chr") {
-    s[3:s.length()].to_owned()
-  } else {
-    s
-  }
+  let base = if s.has_prefix("chr") { s[3:s.length()].to_owned() } else { s }
   match parse_double(base) {
     Some(v) => {
       let n = v.to_int()
@@ -162,7 +166,7 @@ pub fn exclude_chromosomes(
   let lower_excluded = excluded.map(fn(s) -> String { s.to_lower() })
   let kept = og.gene_order.filter(fn(gp : GenePosition) -> Bool {
     let c = gp.chromosome.to_lower()
-    !(lower_excluded.contains(c))
+    !lower_excluded.contains(c)
   })
   ordered_genes(kept)
 }
@@ -177,7 +181,11 @@ pub struct CellAnnotation {
   cell_id : String
   category : String // e.g. cell type / sample label
 } derive(Debug, Default)
+
+///|
 pub extend CellAnnotation with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
 pub extend CellAnnotation with Default::{default}
 
 ///|
@@ -192,13 +200,17 @@ pub fn cell_annotation(cell_id : String, category : String) -> CellAnnotation {
 /// `ordered_genes.gene_order`. Values are expected to be log-normalized
 /// (typically log2(TP100K+1)). Use `log_normalize_counts` if you have raw counts.
 pub struct InferCNVInput {
-  n_cells : Int
-  n_genes : Int
+  n_cells : Int32
+  n_genes : Int32
   expression : Array[Array[Double]] // cell x gene (ordered)
   annotations : Array[CellAnnotation] // length n_cells
   ordered_genes : OrderedGenes
 } derive(Debug, Default)
+
+///|
 pub extend InferCNVInput with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
 pub extend InferCNVInput with Default::{default}
 
 // ============================================================================
@@ -210,7 +222,7 @@ pub extend InferCNVInput with Default::{default}
 /// Cells with zero total counts are preserved as zeros.
 pub fn log_normalize_counts(
   raw_counts : Array[Array[Double]],
-  target_sum? : Double = 100000.0,
+  target_sum~ : Double = 100000.0,
 ) -> Array[Array[Double]] {
   let n_cells = raw_counts.length()
   let out : Array[Array[Double]] = []
@@ -250,12 +262,12 @@ fn infercnv_array_sum(arr : Array[Double]) -> Double {
 ///|
 /// CNV inference result.
 pub struct CNVResult {
-  n_cells : Int
-  n_genes : Int
+  n_cells : Int32
+  n_genes : Int32
   cnv_matrix : Array[Array[Double]] // cell x gene (ordered)
   cell_ids : Array[String]
   gene_ids : Array[String]
-  chromosome_boundaries : Array[(String, Int, Int)] // (chr, start_idx, end_idx) per chromosome
+  chromosome_boundaries : Array[(String, Int32, Int32)] // (chr, start_idx, end_idx) per chromosome
   per_cell_cnv_score : Array[Double] // mean |CNV| of each cell across all genes
   per_cluster_cnv_score : Array[(String, Double)] // (category, mean score)
 }
@@ -263,7 +275,7 @@ pub struct CNVResult {
 ///|
 /// Parameters exposed to the user for controlling the infercnv pipeline.
 pub struct CNVParams {
-  window_size : Int // number of adjacent genes in smoothing window
+  window_size : Int32 // number of adjacent genes in smoothing window
   lfc_cap : Double // clip fold changes to +/- lfc_cap
   noise_threshold : Double // values with |x| < noise are set to 0
   reference_method : ReferenceMethod
@@ -285,7 +297,7 @@ pub fn default_cnv_params() -> CNVParams {
 ///|
 /// Create custom CNVParams from outside the package.
 pub fn make_cnv_params(
-  window_size : Int,
+  window_size : Int32,
   lfc_cap : Double,
   noise_threshold : Double,
   reference_method : ReferenceMethod,
@@ -367,8 +379,8 @@ fn mean_per_gene(matrix : Array[Array[Double]]) -> Array[Double] {
 }
 
 ///|
-fn cells_in_category(ann : Array[CellAnnotation], cat : String) -> Array[Int] {
-  let out : Array[Int] = []
+fn cells_in_category(ann : Array[CellAnnotation], cat : String) -> Array[Int32] {
+  let out : Array[Int32] = []
   for i in 0..<ann.length() {
     if ann[i].category == cat {
       out.push(i)
@@ -446,8 +458,8 @@ fn compute_lfc(
 // ============================================================================
 
 ///|
-fn chromosome_boundaries(og : OrderedGenes) -> Array[(String, Int, Int)] {
-  let result : Array[(String, Int, Int)] = []
+fn chromosome_boundaries(og : OrderedGenes) -> Array[(String, Int32, Int32)] {
+  let result : Array[(String, Int32, Int32)] = []
   if og.n_genes == 0 {
     return result
   }
@@ -468,7 +480,7 @@ fn chromosome_boundaries(og : OrderedGenes) -> Array[(String, Int, Int)] {
 /// Pyramidal weights of length 2*half + 1:
 ///   w[i] = (half + 1 - |i - half|) / (half + 1)
 /// Example half=2: [0.33, 0.66, 1.0, 0.66, 0.33]
-fn pyramidal_weights(half : Int) -> Array[Double] {
+fn pyramidal_weights(half : Int32) -> Array[Double] {
   let total = 2 * half + 1
   let w : Array[Double] = []
   let denom = (half + 1).to_double()
@@ -479,9 +491,8 @@ fn pyramidal_weights(half : Int) -> Array[Double] {
   w
 }
 
-
 ///|
-fn smooth_vector(vec : Array[Double], half_window : Int) -> Array[Double] {
+fn smooth_vector(vec : Array[Double], half_window : Int32) -> Array[Double] {
   let n = vec.length()
   if half_window <= 0 || n <= 1 {
     return vec.copy()
@@ -512,8 +523,8 @@ fn smooth_vector(vec : Array[Double], half_window : Int) -> Array[Double] {
 ///|
 fn smooth_per_chromosome(
   vec : Array[Double],
-  boundaries : Array[(String, Int, Int)],
-  window_size : Int,
+  boundaries : Array[(String, Int32, Int32)],
+  window_size : Int32,
 ) -> Array[Double] {
   let half = window_size / 2
   let result = vec.copy()
@@ -603,7 +614,7 @@ fn per_category_scores(
   // group indices by category using parallel arrays
   let cats : Array[String] = []
   let sums : Array[Double] = []
-  let counts : Array[Int] = []
+  let counts : Array[Int32] = []
   for i in 0..<ann.length() {
     let cat = ann[i].category
     let mut found = false
@@ -615,7 +626,7 @@ fn per_category_scores(
         break
       }
     }
-    if !(found) {
+    if !found {
       cats.push(cat)
       sums.push(scores[i])
       counts.push(1)
@@ -645,8 +656,8 @@ fn per_category_scores(
 ///   - excluded_chromosomes: chr names to drop (default [chrM, chrX, chrY])
 pub fn run_infercnv(
   input : InferCNVInput,
-  params? : CNVParams = default_cnv_params(),
-  excluded_chromosomes? : Array[String] = ["chrM", "chrX", "chrY"],
+  params~ : CNVParams = default_cnv_params(),
+  excluded_chromosomes~ : Array[String] = ["chrM", "chrX", "chrY"],
 ) -> CNVResult {
   // Step 1: filter out excluded chromosomes and reorder
   let filtered = exclude_chromosomes(input.ordered_genes, excluded_chromosomes)
@@ -659,7 +670,7 @@ pub fn run_infercnv(
   })
   // build index map
   let orig_keys : Array[String] = []
-  let orig_vals : Array[Int] = []
+  let orig_vals : Array[Int32] = []
   for j in 0..<original_gene_ids.length() {
     orig_keys.push(original_gene_ids[j])
     orig_vals.push(j)
@@ -744,11 +755,11 @@ pub fn run_infercnv(
 /// second half of chromosome 2 (high expression). Returns a tuple
 /// `(input, tumour_categories, normal_categories)`.
 pub fn infercnv_sample_data(
-  n_tumour? : Int = 40,
-  n_normal? : Int = 20,
-  n_chr? : Int = 4,
-  n_genes_per_chr? : Int = 40,
-  seed? : Int = 42,
+  n_tumour~ : Int32 = 40,
+  n_normal~ : Int32 = 20,
+  n_chr~ : Int32 = 4,
+  n_genes_per_chr~ : Int32 = 40,
+  seed~ : Int32 = 42,
 ) -> (InferCNVInput, Array[String], Array[String]) {
   let mut rng_state = seed
   let next_rand = fn() -> Double {
@@ -840,7 +851,7 @@ pub fn CNVResult::cluster_score(self : CNVResult, category : String) -> Double {
 /// Return the list of chromosome boundaries as triples (chr, start, end).
 pub fn CNVResult::chromosome_list(
   self : CNVResult,
-) -> Array[(String, Int, Int)] {
+) -> Array[(String, Int32, Int32)] {
   self.chromosome_boundaries.copy()
 }
 
@@ -877,7 +888,7 @@ pub fn CNVResult::summary(self : CNVResult) -> String {
 
 ///|
 /// Return CNV matrix value at cell index i, gene index j.
-pub fn CNVResult::at(self : CNVResult, i : Int, j : Int) -> Double {
+pub fn CNVResult::at(self : CNVResult, i : Int32, j : Int32) -> Double {
   if i < 0 || i >= self.n_cells || j < 0 || j >= self.n_genes {
     0.0
   } else {
@@ -892,11 +903,11 @@ pub fn CNVResult::at(self : CNVResult, i : Int, j : Int) -> Double {
 pub fn CNVResult::predict_tumour_cells(
   self : CNVResult,
   normal_category : String,
-  threshold_factor? : Double = 1.5,
-) -> Array[Int] {
+  threshold_factor~ : Double = 1.5,
+) -> Array[Int32] {
   let base = self.cluster_score(normal_category)
   let threshold = base * threshold_factor
-  let out : Array[Int] = []
+  let out : Array[Int32] = []
   for i in 0..<self.per_cell_cnv_score.length() {
     if self.per_cell_cnv_score[i] > threshold {
       out.push(i)

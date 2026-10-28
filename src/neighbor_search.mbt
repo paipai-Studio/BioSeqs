@@ -7,10 +7,10 @@
 /// A node in the KD-tree.
 struct KDNode {
   point : Vector3
-  atom_index : Int
+  atom_index : Int32
   left : KDNode?
   right : KDNode?
-  axis : Int
+  axis : Int32
 }
 
 ///|
@@ -18,14 +18,14 @@ struct KDNode {
 pub struct NeighborSearch {
   atoms : Array[Atom]
   root : KDNode?
-  atom_count : Int
+  atom_count : Int32
 }
 
 ///|
 /// Create a new NeighborSearch from a list of atoms.
 pub fn NeighborSearch::new(atoms : Array[Atom]) -> NeighborSearch {
   let n = atoms.length()
-  let indices : Array[Int] = Array(capacity=0)
+  let indices : Array[Int32] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {
     indices.push(i)
   }
@@ -37,8 +37,8 @@ pub fn NeighborSearch::new(atoms : Array[Atom]) -> NeighborSearch {
 /// Build a KD-tree from atom coordinates.
 fn build_kd_tree(
   atoms : Array[Atom],
-  indices : Array[Int],
-  depth : Int,
+  indices : Array[Int32],
+  depth : Int32,
 ) -> KDNode? {
   let n = indices.length()
   if n == 0 {
@@ -51,8 +51,8 @@ fn build_kd_tree(
 
   let median = n / 2
 
-  let left_indices : Array[Int] = Array(capacity=0)
-  let right_indices : Array[Int] = Array(capacity=0)
+  let left_indices : Array[Int32] = Array(capacity=0)
+  let right_indices : Array[Int32] = Array(capacity=0)
 
   for i = 0; i < median; i = i + 1 {
     left_indices.push(sorted_indices[i])
@@ -74,11 +74,11 @@ fn build_kd_tree(
 /// Sort indices by the value on a given axis.
 fn sort_indices_by_axis(
   atoms : Array[Atom],
-  indices : Array[Int],
-  axis : Int,
-) -> Array[Int] {
+  indices : Array[Int32],
+  axis : Int32,
+) -> Array[Int32] {
   let n = indices.length()
-  let result : Array[Int] = Array(capacity=0)
+  let result : Array[Int32] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {
     result.push(indices[i])
   }
@@ -106,7 +106,7 @@ fn sort_indices_by_axis(
 
 ///|
 /// Get coordinate value for a given axis (0=x, 1=y, 2=z).
-fn get_coord(v : Vector3, axis : Int) -> Double {
+fn get_coord(v : Vector3, axis : Int32) -> Double {
   if axis == 0 {
     v.x
   } else if axis == 1 {
@@ -123,7 +123,7 @@ pub fn NeighborSearch::search(
   center : Vector3,
   radius : Double,
 ) -> Array[Atom] {
-  let result_indices : Array[Int] = Array(capacity=0)
+  let result_indices : Array[Int32] = Array(capacity=0)
   match self.root {
     Some(root) => radius_search(root, center, radius, result_indices)
     None => ()
@@ -141,7 +141,7 @@ fn radius_search(
   node : KDNode,
   center : Vector3,
   radius : Double,
-  result : Array[Int],
+  result : Array[Int32],
 ) -> Unit {
   let dist = node.point.distance(center)
   if dist <= radius {
@@ -203,7 +203,7 @@ pub fn NeighborSearch::search_all(
 
 ///|
 /// Get the number of atoms in the search structure.
-pub fn NeighborSearch::size(self : NeighborSearch) -> Int {
+pub fn NeighborSearch::size(self : NeighborSearch) -> Int32 {
   self.atom_count
 }
 

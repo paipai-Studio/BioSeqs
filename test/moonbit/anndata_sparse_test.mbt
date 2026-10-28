@@ -20,7 +20,9 @@ fn ads_test_sparse_matrix() -> @src.SparseArray {
 ///|
 test "anndata_sparse_construct_shape" {
   let s = ads_test_sparse_matrix()
-  let ad = @src.AnnData::new_sparse(s, ["c1", "c2", "c3"], ["g1", "g2", "g3", "g4"])
+  let ad = @src.AnnData::new_sparse(s, ["c1", "c2", "c3"], [
+    "g1", "g2", "g3", "g4",
+  ])
   assert_eq(ad.n_obs(), 3)
   assert_eq(ad.n_vars(), 4)
   let (n, m) = ad.shape()
@@ -32,7 +34,9 @@ test "anndata_sparse_construct_shape" {
 ///|
 test "anndata_sparse_nnz_and_density" {
   let s = ads_test_sparse_matrix()
-  let ad = @src.AnnData::new_sparse(s, ["c1", "c2", "c3"], ["g1", "g2", "g3", "g4"])
+  let ad = @src.AnnData::new_sparse(s, ["c1", "c2", "c3"], [
+    "g1", "g2", "g3", "g4",
+  ])
   // 5 non-zero entries in a 3×4 = 12 matrix
   assert_eq(ad.nnz(), 5)
   let d = ad.density()
@@ -44,7 +48,9 @@ test "anndata_sparse_nnz_and_density" {
 ///|
 test "anndata_sparse_x_matrix_materialize" {
   let s = ads_test_sparse_matrix()
-  let ad = @src.AnnData::new_sparse(s, ["c1", "c2", "c3"], ["g1", "g2", "g3", "g4"])
+  let ad = @src.AnnData::new_sparse(s, ["c1", "c2", "c3"], [
+    "g1", "g2", "g3", "g4",
+  ])
   let dense = ad.x_matrix()
   assert_eq(dense.length(), 3)
   assert_eq(dense[0].length(), 4)
@@ -62,7 +68,9 @@ test "anndata_sparse_x_matrix_materialize" {
 ///|
 test "anndata_sparse_get_x" {
   let s = ads_test_sparse_matrix()
-  let ad = @src.AnnData::new_sparse(s, ["c1", "c2", "c3"], ["g1", "g2", "g3", "g4"])
+  let ad = @src.AnnData::new_sparse(s, ["c1", "c2", "c3"], [
+    "g1", "g2", "g3", "g4",
+  ])
   assert_eq(ad.get_x(0, 1), 2.0)
   assert_eq(ad.get_x(1, 2), 3.0)
   assert_eq(ad.get_x(2, 0), 1.0)
@@ -74,7 +82,9 @@ test "anndata_sparse_get_x" {
 ///|
 test "anndata_sparse_row_sums" {
   let s = ads_test_sparse_matrix()
-  let ad = @src.AnnData::new_sparse(s, ["c1", "c2", "c3"], ["g1", "g2", "g3", "g4"])
+  let ad = @src.AnnData::new_sparse(s, ["c1", "c2", "c3"], [
+    "g1", "g2", "g3", "g4",
+  ])
   let rs = ad.row_sums()
   assert_eq(rs.length(), 3)
   // row 0: 2 + 5 = 7
@@ -88,7 +98,9 @@ test "anndata_sparse_row_sums" {
 ///|
 test "anndata_sparse_col_sums" {
   let s = ads_test_sparse_matrix()
-  let ad = @src.AnnData::new_sparse(s, ["c1", "c2", "c3"], ["g1", "g2", "g3", "g4"])
+  let ad = @src.AnnData::new_sparse(s, ["c1", "c2", "c3"], [
+    "g1", "g2", "g3", "g4",
+  ])
   let cs = ad.col_sums()
   assert_eq(cs.length(), 4)
   // col 0: 1
@@ -104,7 +116,9 @@ test "anndata_sparse_col_sums" {
 ///|
 test "anndata_sparse_row_means" {
   let s = ads_test_sparse_matrix()
-  let ad = @src.AnnData::new_sparse(s, ["c1", "c2", "c3"], ["g1", "g2", "g3", "g4"])
+  let ad = @src.AnnData::new_sparse(s, ["c1", "c2", "c3"], [
+    "g1", "g2", "g3", "g4",
+  ])
   let rm = ad.row_means()
   // row 0: 7/4 = 1.75
   assert_eq(rm[0], 1.75)
@@ -117,18 +131,16 @@ test "anndata_sparse_row_means" {
 ///|
 test "anndata_sparse_x_sum" {
   let s = ads_test_sparse_matrix()
-  let ad = @src.AnnData::new_sparse(s, ["c1", "c2", "c3"], ["g1", "g2", "g3", "g4"])
+  let ad = @src.AnnData::new_sparse(s, ["c1", "c2", "c3"], [
+    "g1", "g2", "g3", "g4",
+  ])
   // 2 + 3 + 1 + 4 + 5 = 15
   assert_eq(ad.x_sum(), 15.0)
 }
 
 ///|
 test "anndata_dense_to_sparse_conversion" {
-  let x = [
-    [0.0, 2.0, 0.0, 0.0],
-    [0.0, 0.0, 3.0, 0.0],
-    [1.0, 0.0, 0.0, 4.0],
-  ]
+  let x = [[0.0, 2.0, 0.0, 0.0], [0.0, 0.0, 3.0, 0.0], [1.0, 0.0, 0.0, 4.0]]
   let ad = @src.AnnData::new(x, ["c1", "c2", "c3"], ["g1", "g2", "g3", "g4"])
   assert_false(ad.is_sparse())
   let sp = ad.to_sparse()
@@ -147,7 +159,9 @@ test "anndata_dense_to_sparse_conversion" {
 ///|
 test "anndata_sparse_to_dense_conversion" {
   let s = ads_test_sparse_matrix()
-  let ad = @src.AnnData::new_sparse(s, ["c1", "c2", "c3"], ["g1", "g2", "g3", "g4"])
+  let ad = @src.AnnData::new_sparse(s, ["c1", "c2", "c3"], [
+    "g1", "g2", "g3", "g4",
+  ])
   assert_true(ad.is_sparse())
   let dn = ad.to_dense()
   assert_false(dn.is_sparse())
@@ -163,7 +177,9 @@ test "anndata_sparse_to_dense_conversion" {
 ///|
 test "anndata_sparse_subset" {
   let s = ads_test_sparse_matrix()
-  let ad = @src.AnnData::new_sparse(s, ["c1", "c2", "c3"], ["g1", "g2", "g3", "g4"])
+  let ad = @src.AnnData::new_sparse(s, ["c1", "c2", "c3"], [
+    "g1", "g2", "g3", "g4",
+  ])
   // Subset rows [2, 0] × cols [0, 3]
   let sub = ad.subset([2, 0], [0, 3])
   assert_true(sub.is_sparse())
@@ -181,8 +197,9 @@ test "anndata_sparse_subset" {
 ///|
 test "anndata_sparse_copy_preserves_sparse" {
   let s = ads_test_sparse_matrix()
-  let ad = @src.AnnData::new_sparse(s, ["c1", "c2", "c3"], ["g1", "g2", "g3", "g4"])
-    .set_obs("batch", ["A", "B", "A"])
+  let ad = @src.AnnData::new_sparse(s, ["c1", "c2", "c3"], [
+    "g1", "g2", "g3", "g4",
+  ]).set_obs("batch", ["A", "B", "A"])
   let cp = ad.copy()
   assert_true(cp.is_sparse())
   assert_eq(cp.n_obs(), 3)
@@ -197,11 +214,7 @@ test "anndata_sparse_copy_preserves_sparse" {
 
 ///|
 test "anndata_dense_nnz" {
-  let x = [
-    [0.0, 2.0, 0.0],
-    [0.0, 0.0, 3.0],
-    [1.0, 0.0, 0.0],
-  ]
+  let x = [[0.0, 2.0, 0.0], [0.0, 0.0, 3.0], [1.0, 0.0, 0.0]]
   let ad = @src.AnnData::new(x, ["c1", "c2", "c3"], ["g1", "g2", "g3"])
   assert_eq(ad.nnz(), 3)
   assert_false(ad.is_sparse())
@@ -213,10 +226,7 @@ test "anndata_dense_nnz" {
 
 ///|
 test "anndata_dense_row_sums" {
-  let x = [
-    [1.0, 2.0, 3.0],
-    [4.0, 5.0, 6.0],
-  ]
+  let x = [[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]]
   let ad = @src.AnnData::new(x, ["c1", "c2"], ["g1", "g2", "g3"])
   let rs = ad.row_sums()
   assert_eq(rs[0], 6.0)
@@ -229,11 +239,7 @@ test "anndata_dense_row_sums" {
 
 ///|
 test "anndata_roundtrip_dense_sparse_dense" {
-  let x = [
-    [1.0, 0.0, 3.0, 0.0],
-    [0.0, 5.0, 0.0, 7.0],
-    [0.0, 0.0, 0.0, 0.0],
-  ]
+  let x = [[1.0, 0.0, 3.0, 0.0], [0.0, 5.0, 0.0, 7.0], [0.0, 0.0, 0.0, 0.0]]
   let ad = @src.AnnData::new(x, ["c1", "c2", "c3"], ["g1", "g2", "g3", "g4"])
   let sp = ad.to_sparse()
   let dn = sp.to_dense()

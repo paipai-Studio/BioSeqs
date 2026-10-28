@@ -53,7 +53,16 @@ fn main {
       None => ""
     }
     let child_count = node.children.length()
-    println("  " + node_id + " parent=" + parent_str + " children=" + child_count.to_string() + tu_str + bl_str)
+    println(
+      "  " +
+      node_id +
+      " parent=" +
+      parent_str +
+      " children=" +
+      child_count.to_string() +
+      tu_str +
+      bl_str,
+    )
     i = i + 1
   }
   println("")
@@ -74,7 +83,9 @@ fn main {
   // ------------------------------------------------------------------
   println("=== 4. Convert CDAO to Tree ===")
   let trees = @bio.cdao_to_trees(doc)
-  println("Converted " + trees.length().to_string() + " tree(s) from CDAO document")
+  println(
+    "Converted " + trees.length().to_string() + " tree(s) from CDAO document",
+  )
   if trees.length() > 0 {
     let tree = trees[0]
     println("Tree rooted: " + tree.rooted.to_string())
@@ -106,7 +117,11 @@ fn main {
   println("Output XML (" + cdao_xml.length().to_string() + " chars):")
   println("---")
   // Print first 500 characters
-  let display_len = if cdao_xml.length() > 500 { 500 } else { cdao_xml.length() }
+  let display_len = if cdao_xml.length() > 500 {
+    500
+  } else {
+    cdao_xml.length()
+  }
   println(cdao_xml[0:display_len].to_owned())
   if cdao_xml.length() > 500 {
     println("... (truncated)")
@@ -143,13 +158,34 @@ fn main {
   // ------------------------------------------------------------------
   println("=== 7. Build Custom CDAO Document ===")
   let custom_doc = @bio.CdaoDocument::new()
-  custom_doc.trees.push(@bio.Cdaotree::new("#mytree", rooted=true, root_node_id="#n1"))
+  custom_doc.trees.push(
+    @bio.Cdaotree::new("#mytree", rooted=true, root_node_id="#n1"),
+  )
   // Simple tree: ((X, Y), Z)
   custom_doc.nodes["#n1"] = @bio.CdaoNode::new("#n1", children=["#n2", "#n3"])
-  custom_doc.nodes["#n2"] = @bio.CdaoNode::new("#n2", children=["#n4", "#n5"], parent_id=Some("#n1"))
-  custom_doc.nodes["#n3"] = @bio.CdaoNode::new("#n3", parent_id=Some("#n1"), tu_id=Some("#tu3"), branch_length=Some(0.5))
-  custom_doc.nodes["#n4"] = @bio.CdaoNode::new("#n4", parent_id=Some("#n2"), tu_id=Some("#tu1"), branch_length=Some(1.0))
-  custom_doc.nodes["#n5"] = @bio.CdaoNode::new("#n5", parent_id=Some("#n2"), tu_id=Some("#tu2"), branch_length=Some(1.0))
+  custom_doc.nodes["#n2"] = @bio.CdaoNode::new(
+    "#n2",
+    children=["#n4", "#n5"],
+    parent_id=Some("#n1"),
+  )
+  custom_doc.nodes["#n3"] = @bio.CdaoNode::new(
+    "#n3",
+    parent_id=Some("#n1"),
+    tu_id=Some("#tu3"),
+    branch_length=Some(0.5),
+  )
+  custom_doc.nodes["#n4"] = @bio.CdaoNode::new(
+    "#n4",
+    parent_id=Some("#n2"),
+    tu_id=Some("#tu1"),
+    branch_length=Some(1.0),
+  )
+  custom_doc.nodes["#n5"] = @bio.CdaoNode::new(
+    "#n5",
+    parent_id=Some("#n2"),
+    tu_id=Some("#tu2"),
+    branch_length=Some(1.0),
+  )
   custom_doc.tus["#tu1"] = @bio.CdaoTU::new("#tu1", label=Some("X"))
   custom_doc.tus["#tu2"] = @bio.CdaoTU::new("#tu2", label=Some("Y"))
   custom_doc.tus["#tu3"] = @bio.CdaoTU::new("#tu3", label=Some("Z"))

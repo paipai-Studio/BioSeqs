@@ -21,31 +21,31 @@ fn[T] idat_fail(msg : String) -> T raise IdatError {
 
 ///|
 pub struct IdatResult {
-  version : Int
-  n_fields : Int
-  n_snps_read : Int
-  illumina_id : Array[Int]
-  mean : Array[Int]
-  sd : Array[Int]
-  n_beads : Array[Int]
+  version : Int32
+  n_fields : Int32
+  n_snps_read : Int32
+  illumina_id : Array[Int32]
+  mean : Array[Int32]
+  sd : Array[Int32]
+  n_beads : Array[Int32]
   barcode : String
   chip_type : String
 }
 
 ///|
-fn idat_u8(data : String, pos : Int) -> Int {
+fn idat_u8(data : String, pos : Int32) -> Int32 {
   data.unsafe_get(pos).to_int() & 0xFF
 }
 
 ///|
-fn idat_u16(data : String, pos : Int) -> Int {
+fn idat_u16(data : String, pos : Int32) -> Int32 {
   let b0 = data.unsafe_get(pos).to_int() & 0xFF
   let b1 = data.unsafe_get(pos + 1).to_int() & 0xFF
   b0 | (b1 << 8)
 }
 
 ///|
-fn idat_i32(data : String, pos : Int) -> Int {
+fn idat_i32(data : String, pos : Int32) -> Int32 {
   let b0 = data.unsafe_get(pos).to_int() & 0xFF
   let b1 = data.unsafe_get(pos + 1).to_int() & 0xFF
   let b2 = data.unsafe_get(pos + 2).to_int() & 0xFF
@@ -55,7 +55,7 @@ fn idat_i32(data : String, pos : Int) -> Int {
 
 ///|
 /// Read a little-endian int64 (unsigned; positive values in practice).
-fn idat_i64(data : String, pos : Int) -> Int {
+fn idat_i64(data : String, pos : Int32) -> Int32 {
   let mut v = 0
   let mut k = 0
   while k < 8 {
@@ -68,7 +68,10 @@ fn idat_i64(data : String, pos : Int) -> Int {
 ///|
 /// Read the variable-length byte count (7-bit groups, MSB = continuation),
 /// matching illuminaio's `readBytesToRead`.
-fn idat_read_var_length(data : String, pos : Int) -> (Int, Int) raise IdatError {
+fn idat_read_var_length(
+  data : String,
+  pos : Int32,
+) -> (Int32, Int32) raise IdatError {
   if pos >= data.length() {
     idat_fail("Truncated IDAT length prefix")
   }
@@ -83,7 +86,7 @@ fn idat_read_var_length(data : String, pos : Int) -> (Int, Int) raise IdatError 
     m = idat_u8(data, p)
     p = p + 1
     shift = shift + 7
-    let k = (m % 128) * (1 << shift)
+    let k = m % 128 * (1 << shift)
     n = n + k
   }
   (n, p)
@@ -91,7 +94,10 @@ fn idat_read_var_length(data : String, pos : Int) -> (Int, Int) raise IdatError 
 
 ///|
 /// Read a length-prefixed string field.
-fn idat_read_string(data : String, pos : Int) -> (String, Int) raise IdatError {
+fn idat_read_string(
+  data : String,
+  pos : Int32,
+) -> (String, Int32) raise IdatError {
   let (n, p) = idat_read_var_length(data, pos)
   if p + n > data.length() {
     idat_fail("Truncated IDAT string field")
@@ -106,10 +112,7 @@ fn idat_read_string(data : String, pos : Int) -> (String, Int) raise IdatError {
 }
 
 ///|
-fn idat_field_offset(
-  offsets : Map[Int, Int],
-  code : Int,
-) -> Int? {
+fn idat_field_offset(offsets : Map[Int32, Int32], code : Int32) -> Int32? {
   offsets.get(code)
 }
 
@@ -121,15 +124,15 @@ pub fn parse_idat(data : String) -> IdatResult raise IdatError {
   }
   // magic
   if data.unsafe_get(0).to_int() != 'I'.to_int() ||
-  data.unsafe_get(1).to_int() != 'D'.to_int() ||
-  data.unsafe_get(2).to_int() != 'A'.to_int() ||
-  data.unsafe_get(3).to_int() != 'T'.to_int() {
+    data.unsafe_get(1).to_int() != 'D'.to_int() ||
+    data.unsafe_get(2).to_int() != 'A'.to_int() ||
+    data.unsafe_get(3).to_int() != 'T'.to_int() {
     idat_fail("Not an IDAT file (bad magic)")
   }
   let version = idat_i64(data, 4)
   let n_fields = idat_i32(data, 12)
 
-  let offsets : Map[Int, Int] = Map([], capacity=n_fields)
+  let offsets : Map[Int32, Int32] = Map([], capacity=n_fields)
   let mut p = 16
   for _i = 0; _i < n_fields; _i = _i + 1 {
     if p + 10 > data.length() {
@@ -145,8 +148,8 @@ pub fn parse_idat(data : String) -> IdatResult raise IdatError {
   let ns_off = idat_field_offset(offsets, 1000).unwrap_or(0)
   let n_snps_read = idat_i32(data, ns_off)
 
-  let read_i32_array = fn(off : Int) -> Array[Int] {
-    let arr : Array[Int] = Array(capacity=0)
+  let read_i32_array = fn(off : Int32) -> Array[Int32] {
+    let arr : Array[Int32] = Array(capacity=0)
     let mut k = 0
     while k < n_snps_read {
       arr.push(idat_i32(data, off + 4 * k))
@@ -155,8 +158,8 @@ pub fn parse_idat(data : String) -> IdatResult raise IdatError {
     arr
   }
 
-  let read_u16_array = fn(off : Int) -> Array[Int] {
-    let arr : Array[Int] = Array(capacity=0)
+  let read_u16_array = fn(off : Int32) -> Array[Int32] {
+    let arr : Array[Int32] = Array(capacity=0)
     let mut k = 0
     while k < n_snps_read {
       arr.push(idat_u16(data, off + 2 * k))
@@ -165,8 +168,8 @@ pub fn parse_idat(data : String) -> IdatResult raise IdatError {
     arr
   }
 
-  let read_u8_array = fn(off : Int) -> Array[Int] {
-    let arr : Array[Int] = Array(capacity=0)
+  let read_u8_array = fn(off : Int32) -> Array[Int32] {
+    let arr : Array[Int32] = Array(capacity=0)
     let mut k = 0
     while k < n_snps_read {
       arr.push(idat_u8(data, off + k))

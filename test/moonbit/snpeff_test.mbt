@@ -2,7 +2,9 @@
 /// Helper: build a simple gene with one transcript for testing.
 fn build_test_annotation() -> @src.GenomeAnnotation {
   let ann = @src.GenomeAnnotation::new("test", "1.0", "test")
-  let gene = @src.GFGene::new("g1", "GENE1", "protein_coding", "chr1", 100, 500, "+", "")
+  let gene = @src.GFGene::new(
+    "g1", "GENE1", "protein_coding", "chr1", 100, 500, "+", "",
+  )
   let tx = @src.GFTranscript::new("t1", "TX1", "g1", "chr1", 100, 500, "+")
   tx.exons.push(@src.GFExon::new("e1", 1, "chr1", 100, 500, "+"))
   tx.cds.push(@src.GFExon::new("cds1", 1, "chr1", 103, 498, "+"))
@@ -44,22 +46,51 @@ fn make_vcf(text : String) -> @src.VcfFile {
 
 ///|
 /// Helper: make a single-variant VCF.
-fn _make_single_variant_vcf(chrom : String, pos : Int, ref_ : String, alt : String) -> @src.VcfFile {
-  let text =
-    "##fileformat=VCFv4.2\n#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\n" +
-    chrom + "\t" + pos.to_string() + "\t.\t" + ref_ + "\t" + alt + "\t.\t.\t.\n"
+fn _make_single_variant_vcf(
+  chrom : String,
+  pos : Int32,
+  ref_ : String,
+  alt : String,
+) -> @src.VcfFile {
+  let text = "##fileformat=VCFv4.2\n#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\n" +
+    chrom +
+    "\t" +
+    pos.to_string() +
+    "\t.\t" +
+    ref_ +
+    "\t" +
+    alt +
+    "\t.\t.\t.\n"
   make_vcf(text)
 }
 
 ///|
 test "snpeff_so_string" {
-  assert_eq(@src.snpeff_so_string(@src.SnpEffSO::MissenseVariant), "missense_variant")
+  assert_eq(
+    @src.snpeff_so_string(@src.SnpEffSO::MissenseVariant),
+    "missense_variant",
+  )
   assert_eq(@src.snpeff_so_string(@src.SnpEffSO::StopGained), "stop_gained")
-  assert_eq(@src.snpeff_so_string(@src.SnpEffSO::FrameshiftVariant), "frameshift_variant")
-  assert_eq(@src.snpeff_so_string(@src.SnpEffSO::SpliceDonorVariant), "splice_donor_variant")
-  assert_eq(@src.snpeff_so_string(@src.SnpEffSO::SynonymousVariant), "synonymous_variant")
-  assert_eq(@src.snpeff_so_string(@src.SnpEffSO::UpstreamVariant), "upstream_gene_variant")
-  assert_eq(@src.snpeff_so_string(@src.SnpEffSO::FivePrimeUTRVariant), "5_prime_UTR_variant")
+  assert_eq(
+    @src.snpeff_so_string(@src.SnpEffSO::FrameshiftVariant),
+    "frameshift_variant",
+  )
+  assert_eq(
+    @src.snpeff_so_string(@src.SnpEffSO::SpliceDonorVariant),
+    "splice_donor_variant",
+  )
+  assert_eq(
+    @src.snpeff_so_string(@src.SnpEffSO::SynonymousVariant),
+    "synonymous_variant",
+  )
+  assert_eq(
+    @src.snpeff_so_string(@src.SnpEffSO::UpstreamVariant),
+    "upstream_gene_variant",
+  )
+  assert_eq(
+    @src.snpeff_so_string(@src.SnpEffSO::FivePrimeUTRVariant),
+    "5_prime_UTR_variant",
+  )
 }
 
 ///|
@@ -72,15 +103,39 @@ test "snpeff_impact_string" {
 
 ///|
 test "snpeff_so_impact mapping" {
-  assert_true(@src.snpeff_so_impact(@src.SnpEffSO::StopGained) is @src.SnpEffImpact::High)
-  assert_true(@src.snpeff_so_impact(@src.SnpEffSO::StopLost) is @src.SnpEffImpact::High)
-  assert_true(@src.snpeff_so_impact(@src.SnpEffSO::StartLost) is @src.SnpEffImpact::High)
-  assert_true(@src.snpeff_so_impact(@src.SnpEffSO::FrameshiftVariant) is @src.SnpEffImpact::High)
-  assert_true(@src.snpeff_so_impact(@src.SnpEffSO::SpliceDonorVariant) is @src.SnpEffImpact::High)
-  assert_true(@src.snpeff_so_impact(@src.SnpEffSO::MissenseVariant) is @src.SnpEffImpact::Moderate)
-  assert_true(@src.snpeff_so_impact(@src.SnpEffSO::SynonymousVariant) is @src.SnpEffImpact::Low)
-  assert_true(@src.snpeff_so_impact(@src.SnpEffSO::UpstreamVariant) is @src.SnpEffImpact::Modifier)
-  assert_true(@src.snpeff_so_impact(@src.SnpEffSO::IntergenicVariant) is @src.SnpEffImpact::Modifier)
+  assert_true(
+    @src.snpeff_so_impact(@src.SnpEffSO::StopGained) is @src.SnpEffImpact::High,
+  )
+  assert_true(
+    @src.snpeff_so_impact(@src.SnpEffSO::StopLost) is @src.SnpEffImpact::High,
+  )
+  assert_true(
+    @src.snpeff_so_impact(@src.SnpEffSO::StartLost) is @src.SnpEffImpact::High,
+  )
+  assert_true(
+    @src.snpeff_so_impact(@src.SnpEffSO::FrameshiftVariant)
+    is @src.SnpEffImpact::High,
+  )
+  assert_true(
+    @src.snpeff_so_impact(@src.SnpEffSO::SpliceDonorVariant)
+    is @src.SnpEffImpact::High,
+  )
+  assert_true(
+    @src.snpeff_so_impact(@src.SnpEffSO::MissenseVariant)
+    is @src.SnpEffImpact::Moderate,
+  )
+  assert_true(
+    @src.snpeff_so_impact(@src.SnpEffSO::SynonymousVariant)
+    is @src.SnpEffImpact::Low,
+  )
+  assert_true(
+    @src.snpeff_so_impact(@src.SnpEffSO::UpstreamVariant)
+    is @src.SnpEffImpact::Modifier,
+  )
+  assert_true(
+    @src.snpeff_so_impact(@src.SnpEffSO::IntergenicVariant)
+    is @src.SnpEffImpact::Modifier,
+  )
 }
 
 ///|
@@ -149,7 +204,9 @@ test "snpeff predict start_lost" {
 test "snpeff predict frameshift" {
   let ann = build_test_annotation()
   let ref_seq = build_test_reference()
-  let effects = @src.snpeff_predict_variant("chr1", 110, "A", "AT", ann, ref_seq)
+  let effects = @src.snpeff_predict_variant(
+    "chr1", 110, "A", "AT", ann, ref_seq,
+  )
   assert_true(effects.length() >= 1)
   let mut has_frameshift = false
   for eff in effects {
@@ -194,7 +251,9 @@ test "snpeff predict 3prime_UTR" {
 test "snpeff predict intergenic downstream" {
   let ann = build_test_annotation()
   let ref_seq = build_test_reference()
-  let effects = @src.snpeff_predict_variant("chr1", 1000, "A", "G", ann, ref_seq)
+  let effects = @src.snpeff_predict_variant(
+    "chr1", 1000, "A", "G", ann, ref_seq,
+  )
   assert_true(effects.length() >= 1)
   let mut has_downstream = false
   for eff in effects {
@@ -291,8 +350,7 @@ test "snpeff ANN field multiple effects" {
 
 ///|
 test "snpeff_split_multiallelic" {
-  let text =
-    "##fileformat=VCFv4.2\n#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\n" +
+  let text = "##fileformat=VCFv4.2\n#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\n" +
     "chr1\t100\t.\tA\tT,G,C\t.\t.\t.\n"
   let vcf = make_vcf(text)
   let split = @src.snpeff_split_multiallelic(vcf)
@@ -306,8 +364,7 @@ test "snpeff_split_multiallelic" {
 test "snpeff end-to-end annotation" {
   let ann = build_test_annotation()
   let ref_seq = build_test_reference()
-  let text =
-    "##fileformat=VCFv4.2\n#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\n" +
+  let text = "##fileformat=VCFv4.2\n#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\n" +
     "chr1\t107\t.\tC\tT\t.\t.\t.\n" +
     "chr1\t1000\t.\tA\tG\t.\t.\t.\n"
   let vcf = make_vcf(text)
@@ -323,8 +380,7 @@ test "snpeff end-to-end annotation" {
 test "snpeff summary text" {
   let ann = build_test_annotation()
   let ref_seq = build_test_reference()
-  let text =
-    "##fileformat=VCFv4.2\n#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\n" +
+  let text = "##fileformat=VCFv4.2\n#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\n" +
     "chr1\t107\t.\tC\tT\t.\t.\t.\n"
   let vcf = make_vcf(text)
   let ref_map : Map[String, String] = Map([], capacity=0)
@@ -339,8 +395,7 @@ test "snpeff summary text" {
 test "snpeff count by impact" {
   let ann = build_test_annotation()
   let ref_seq = build_test_reference()
-  let text =
-    "##fileformat=VCFv4.2\n#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\n" +
+  let text = "##fileformat=VCFv4.2\n#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\n" +
     "chr1\t107\t.\tC\tT\t.\t.\t.\n" +
     "chr1\t1000\t.\tA\tG\t.\t.\t.\n"
   let vcf = make_vcf(text)
@@ -355,8 +410,7 @@ test "snpeff count by impact" {
 test "snpeff annotate VCF output" {
   let ann = build_test_annotation()
   let ref_seq = build_test_reference()
-  let text =
-    "##fileformat=VCFv4.2\n#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\n" +
+  let text = "##fileformat=VCFv4.2\n#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\n" +
     "chr1\t107\t.\tC\tT\t.\t.\t.\n"
   let vcf = make_vcf(text)
   let ref_map : Map[String, String] = Map([], capacity=0)

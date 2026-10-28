@@ -14,7 +14,11 @@ pub enum LisaCurveKind {
   LisaStandardizedK
   LisaCenteredL
 } derive(Eq, Debug)
+
+///|
 pub extend LisaCurveKind with Eq::{equal, not_equal}
+
+///|
 pub extend LisaCurveKind with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -32,7 +36,11 @@ pub enum LisaWindowKind {
   LisaRectangle
   LisaConvexHull
 } derive(Eq, Debug)
+
+///|
 pub extend LisaWindowKind with Eq::{equal, not_equal}
+
+///|
 pub extend LisaWindowKind with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -53,7 +61,11 @@ pub struct LisaCell {
   x : Double
   y : Double
 } derive(Eq, Debug)
+
+///|
 pub extend LisaCell with Eq::{equal, not_equal}
+
+///|
 pub extend LisaCell with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -88,32 +100,34 @@ pub struct LisaConfig {
   min_density : Double
   edge_correction : Bool
   window_padding : Double
-  edge_samples : Int
-  n_clusters : Int
-  n_starts : Int
-  max_iterations : Int
+  edge_samples : Int32
+  n_clusters : Int32
+  n_starts : Int32
+  max_iterations : Int32
   tolerance : Double
-  seed : Int
+  seed : Int32
   region_prefix : String
 } derive(Debug)
+
+///|
 pub extend LisaConfig with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub fn LisaConfig::create(
-  radii? : Array[Double] = [20.0, 50.0, 100.0],
-  curve_kind? : LisaCurveKind = LisaStandardizedK,
-  window_kind? : LisaWindowKind = LisaConvexHull,
-  bandwidth? : Double = 100000.0,
-  min_density? : Double = 0.05,
-  edge_correction? : Bool = true,
-  window_padding? : Double = 0.01,
-  edge_samples? : Int = 360,
-  n_clusters? : Int = 2,
-  n_starts? : Int = 10,
-  max_iterations? : Int = 100,
-  tolerance? : Double = 1.0e-8,
-  seed? : Int = 51773,
-  region_prefix? : String = "region",
+  radii~ : Array[Double] = [20.0, 50.0, 100.0],
+  curve_kind~ : LisaCurveKind = LisaStandardizedK,
+  window_kind~ : LisaWindowKind = LisaConvexHull,
+  bandwidth~ : Double = 100000.0,
+  min_density~ : Double = 0.05,
+  edge_correction~ : Bool = true,
+  window_padding~ : Double = 0.01,
+  edge_samples~ : Int32 = 360,
+  n_clusters~ : Int32 = 2,
+  n_starts~ : Int32 = 10,
+  max_iterations~ : Int32 = 100,
+  tolerance~ : Double = 1.0e-8,
+  seed~ : Int32 = 51773,
+  region_prefix~ : String = "region",
 ) -> LisaConfig raise LisaError {
   if radii.length() == 0 {
     raise LisaError("lisaClust radii must not be empty")
@@ -202,6 +216,8 @@ pub struct LisaImageWindow {
   area : Double
   max_radius : Double
 } derive(Debug)
+
+///|
 pub extend LisaImageWindow with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -209,6 +225,8 @@ pub struct LisaImageRadii {
   image_id : String
   radii : Array[Double]
 } derive(Debug)
+
+///|
 pub extend LisaImageRadii with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -224,15 +242,17 @@ pub struct LisaCurveSet {
   windows : Array[LisaImageWindow]
   curve_kind : LisaCurveKind
 } derive(Debug)
+
+///|
 pub extend LisaCurveSet with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
-pub fn LisaCurveSet::n_cells(self : LisaCurveSet) -> Int {
+pub fn LisaCurveSet::n_cells(self : LisaCurveSet) -> Int32 {
   self.cell_ids.length()
 }
 
 ///|
-pub fn LisaCurveSet::n_features(self : LisaCurveSet) -> Int {
+pub fn LisaCurveSet::n_features(self : LisaCurveSet) -> Int32 {
   self.feature_names.length()
 }
 
@@ -241,7 +261,7 @@ pub fn LisaCurveSet::feature_index(
   self : LisaCurveSet,
   target_cell_type : String,
   radius : Double,
-) -> Int {
+) -> Int32 {
   let mut type_index = -1
   for index in 0..<self.target_cell_types.length() {
     if self.target_cell_types[index] == target_cell_type {
@@ -296,45 +316,51 @@ pub fn LisaCurveSet::effective_radii_for_image(
 pub struct LisaRegionEnrichment {
   cell_type : String
   region : String
-  observed : Int
+  observed : Int32
   expected : Double
   relative_frequency : Double
 } derive(Debug)
+
+///|
 pub extend LisaRegionEnrichment with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct LisaRegionSummary {
   region : String
-  size : Int
+  size : Int32
   dominant_cell_type : String
   maximum_enrichment : Double
 } derive(Debug)
+
+///|
 pub extend LisaRegionSummary with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct LisaResult {
   curves : LisaCurveSet
-  labels : Array[Int]
+  labels : Array[Int32]
   regions : Array[String]
   centroids : Array[Array[Double]]
-  cluster_sizes : Array[Int]
+  cluster_sizes : Array[Int32]
   inertia : Double
   silhouette : Double
-  iterations : Int
+  iterations : Int32
   converged : Bool
   enrichment : Array[LisaRegionEnrichment]
   region_summaries : Array[LisaRegionSummary]
   config : LisaConfig
 } derive(Debug)
+
+///|
 pub extend LisaResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
-pub fn LisaResult::n_cells(self : LisaResult) -> Int {
+pub fn LisaResult::n_cells(self : LisaResult) -> Int32 {
   self.curves.n_cells()
 }
 
 ///|
-pub fn LisaResult::n_regions(self : LisaResult) -> Int {
+pub fn LisaResult::n_regions(self : LisaResult) -> Int32 {
   self.cluster_sizes.length()
 }
 
@@ -368,14 +394,13 @@ pub fn LisaResult::region_enrichment(
 ///|
 pub fn LisaResult::top_enrichments(
   self : LisaResult,
-  limit? : Int = 10,
-  minimum_relative_frequency? : Double = 0.0,
+  limit~ : Int32 = 10,
+  minimum_relative_frequency~ : Double = 0.0,
 ) -> Array[LisaRegionEnrichment] raise LisaError {
   if limit < 0 {
     raise LisaError("lisaClust enrichment limit must be non-negative")
   }
-  if !is_finite(minimum_relative_frequency) ||
-    minimum_relative_frequency < 0.0 {
+  if !is_finite(minimum_relative_frequency) || minimum_relative_frequency < 0.0 {
     raise LisaError("lisaClust enrichment threshold must be non-negative")
   }
   let selected : Array[LisaRegionEnrichment] = []
@@ -387,7 +412,7 @@ pub fn LisaResult::top_enrichments(
   selected.sort_by(fn(
     left : LisaRegionEnrichment,
     right : LisaRegionEnrichment,
-  ) -> Int {
+  ) -> Int32 {
     if left.relative_frequency > right.relative_frequency {
       -1
     } else if left.relative_frequency < right.relative_frequency {
@@ -448,9 +473,9 @@ fn lisa_unique_strings(values : Array[String]) -> Array[String] {
 ///|
 fn lisa_group_images(
   cells : Array[LisaCell],
-) -> (Array[String], Map[String, Array[Int]]) {
+) -> (Array[String], Map[String, Array[Int32]]) {
   let image_ids : Array[String] = []
-  let groups : Map[String, Array[Int]] = Map([])
+  let groups : Map[String, Array[Int32]] = Map([])
   for index in 0..<cells.length() {
     let image_id = cells[index].image_id
     match groups.get(image_id) {
@@ -499,7 +524,10 @@ fn lisa_convex_hull(
   points : Array[(Double, Double)],
 ) -> Array[(Double, Double)] {
   let sorted = points.copy()
-  sorted.sort_by(fn(left : (Double, Double), right : (Double, Double)) -> Int {
+  sorted.sort_by(fn(
+    left : (Double, Double),
+    right : (Double, Double),
+  ) -> Int32 {
     if left.0 < right.0 {
       -1
     } else if left.0 > right.0 {
@@ -605,7 +633,7 @@ fn lisa_expand_polygon(
 fn lisa_image_window(
   image_id : String,
   cells : Array[LisaCell],
-  indices : Array[Int],
+  indices : Array[Int32],
   config : LisaConfig,
 ) -> LisaImageWindow raise LisaError {
   if indices.length() < 2 {
@@ -703,7 +731,7 @@ fn lisa_visible_disc_fraction(
   cell : LisaCell,
   radius : Double,
   window : LisaImageWindow,
-  samples : Int,
+  samples : Int32,
 ) -> Double {
   let angle_step = 2.0 * @math.PI / samples.to_double()
   let mut area = 0.0
@@ -725,7 +753,7 @@ fn lisa_visible_disc_fraction(
 ///|
 fn lisa_density_weights(
   cells : Array[LisaCell],
-  indices : Array[Int],
+  indices : Array[Int32],
   bandwidth : Double,
   min_density : Double,
 ) -> Array[Double] {
@@ -779,7 +807,7 @@ fn lisa_feature_names(
 ///|
 pub fn lisa_curves(
   cells : Array[LisaCell],
-  config? : LisaConfig = LisaConfig::default(),
+  config~ : LisaConfig = LisaConfig::default(),
 ) -> LisaCurveSet raise LisaError {
   lisa_validate_cells(cells)
   let all_types : Array[String] = []
@@ -814,7 +842,7 @@ pub fn lisa_curves(
       config.bandwidth,
       config.min_density,
     )
-    let local_by_global : Map[Int, Int] = Map([])
+    let local_by_global : Map[Int32, Int32] = Map([])
     for local_ in 0..<indices.length() {
       local_by_global[indices[local_]] = local_
     }
@@ -903,8 +931,8 @@ fn lisa_squared_distance(left : Array[Double], right : Array[Double]) -> Double 
 ///|
 fn lisa_initialize_centroids(
   data : Array[Array[Double]],
-  clusters : Int,
-  first : Int,
+  clusters : Int32,
+  first : Int32,
 ) -> Array[Array[Double]] {
   let centroids : Array[Array[Double]] = [data[first].copy()]
   let selected = Array::make(data.length(), false)
@@ -940,7 +968,7 @@ fn lisa_initialize_centroids(
 fn lisa_assign_clusters(
   data : Array[Array[Double]],
   centroids : Array[Array[Double]],
-) -> (Array[Int], Double) {
+) -> (Array[Int32], Double) {
   let labels = Array::make(data.length(), 0)
   let mut inertia = 0.0
   for point in 0..<data.length() {
@@ -962,7 +990,7 @@ fn lisa_assign_clusters(
 ///|
 fn lisa_update_centroids(
   data : Array[Array[Double]],
-  labels : Array[Int],
+  labels : Array[Int32],
   old_centroids : Array[Array[Double]],
 ) -> Array[Array[Double]] {
   let clusters = old_centroids.length()
@@ -1007,10 +1035,10 @@ fn lisa_update_centroids(
 
 ///|
 priv struct LisaKmeansFit {
-  labels : Array[Int]
+  labels : Array[Int32]
   centroids : Array[Array[Double]]
   inertia : Double
-  iterations : Int
+  iterations : Int32
   converged : Bool
 }
 
@@ -1018,7 +1046,7 @@ priv struct LisaKmeansFit {
 fn lisa_kmeans_once(
   data : Array[Array[Double]],
   config : LisaConfig,
-  start : Int,
+  start : Int32,
 ) -> LisaKmeansFit {
   let first = (config.seed + start * 9973) % data.length()
   let mut centroids = lisa_initialize_centroids(data, config.n_clusters, first)
@@ -1061,7 +1089,7 @@ fn lisa_kmeans_once(
 ///|
 fn lisa_canonicalize_fit(fit : LisaKmeansFit) -> LisaKmeansFit {
   let mapping = Array::make(fit.centroids.length(), -1)
-  let order : Array[Int] = []
+  let order : Array[Int32] = []
   for label in fit.labels {
     if mapping[label] < 0 {
       mapping[label] = order.length()
@@ -1088,8 +1116,8 @@ fn lisa_canonicalize_fit(fit : LisaKmeansFit) -> LisaKmeansFit {
 ///|
 fn lisa_silhouette(
   data : Array[Array[Double]],
-  labels : Array[Int],
-  clusters : Int,
+  labels : Array[Int32],
+  clusters : Int32,
 ) -> Double {
   if clusters <= 1 || data.length() <= 1 {
     return 0.0
@@ -1131,11 +1159,11 @@ fn lisa_silhouette(
 ///|
 fn lisa_enrichment(
   curves : LisaCurveSet,
-  labels : Array[Int],
+  labels : Array[Int32],
   config : LisaConfig,
 ) -> (Array[LisaRegionEnrichment], Array[LisaRegionSummary]) {
   let cell_types = lisa_unique_strings(curves.cell_types)
-  let counts : Array[Array[Int]] = []
+  let counts : Array[Array[Int32]] = []
   for _ in cell_types {
     counts.push(Array::make(config.n_clusters, 0))
   }
@@ -1198,7 +1226,7 @@ fn lisa_enrichment(
 ///|
 pub fn lisaclust_from_curves(
   curves : LisaCurveSet,
-  config? : LisaConfig = LisaConfig::default(),
+  config~ : LisaConfig = LisaConfig::default(),
 ) -> LisaResult raise LisaError {
   if curves.n_cells() == 0 || curves.n_features() == 0 {
     raise LisaError("lisaClust clustering requires non-empty curves")
@@ -1269,7 +1297,7 @@ pub fn lisaclust_from_curves(
 ///|
 pub fn lisaclust(
   cells : Array[LisaCell],
-  config? : LisaConfig = LisaConfig::default(),
+  config~ : LisaConfig = LisaConfig::default(),
 ) -> LisaResult raise LisaError {
   let curves = lisa_curves(cells, config~)
   lisaclust_from_curves(curves, config~)
@@ -1318,7 +1346,7 @@ fn lisa_copy_spatial_experiment(
 fn lisa_required_column(
   column : Map[String, String],
   key : String,
-  row : Int,
+  row : Int32,
 ) -> String raise LisaError {
   match column.get(key) {
     Some(value) =>
@@ -1342,11 +1370,11 @@ fn lisa_required_column(
 ///|
 pub fn lisaclust_spatial_experiment(
   experiment : SpatialExperiment,
-  image_id_key? : String = "imageID",
-  cell_type_key? : String = "cellType",
-  cell_id_key? : String = "",
-  region_key? : String = "region",
-  config? : LisaConfig = LisaConfig::default(),
+  image_id_key~ : String = "imageID",
+  cell_type_key~ : String = "cellType",
+  cell_id_key~ : String = "",
+  region_key~ : String = "region",
+  config~ : LisaConfig = LisaConfig::default(),
 ) -> LisaSpatialExperimentOutput raise LisaError {
   if experiment.col_data.length() == 0 {
     raise LisaError("lisaClust SpatialExperiment col_data must not be empty")

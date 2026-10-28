@@ -4,7 +4,6 @@
 /// expected to be Some(1.5) here because this port fixes Biopython's
 /// `_parse_resolution_from` presence-check bug (Biopython always returns None).
 
-
 ///|
 fn pm_xml() -> String {
   "<PDBx:datablock xmlns:PDBx='http://pdbml.pdb.org/schema/pdbx-v50.xsd'>" +

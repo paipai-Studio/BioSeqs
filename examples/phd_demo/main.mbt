@@ -33,8 +33,16 @@ fn main {
   println("=== 3. Quality scores ===")
   let quals = read.quality()
   for i in 0..<quals.length() {
-    let marker = if quals[i] >= 40 { " (high)" } else if quals[i] >= 20 { " (medium)" } else { " (low)" }
-    println("  base " + (i + 1).to_string() + ": Q=" + quals[i].to_string() + marker)
+    let marker = if quals[i] >= 40 {
+      " (high)"
+    } else if quals[i] >= 20 {
+      " (medium)"
+    } else {
+      " (low)"
+    }
+    println(
+      "  base " + (i + 1).to_string() + ": Q=" + quals[i].to_string() + marker,
+    )
   }
   println("")
 
@@ -55,8 +63,21 @@ fn main {
   let c = read.comment()
   println("Chromatogram file: " + c.chromat_file())
   println("Phred version: " + c.phred_version())
-  println("Trace index range: " + c.trace_index_min().to_string() + "-" + c.trace_index_max().to_string())
-  println("Trim: " + c.trim_start().to_string() + "-" + c.trim_end().to_string() + " (prob=" + c.trim_prob().to_string() + ")")
+  println(
+    "Trace index range: " +
+    c.trace_index_min().to_string() +
+    "-" +
+    c.trace_index_max().to_string(),
+  )
+  println(
+    "Trim: " +
+    c.trim_start().to_string() +
+    "-" +
+    c.trim_end().to_string() +
+    " (prob=" +
+    c.trim_prob().to_string() +
+    ")",
+  )
   println("Chemistry: " + c.chemistry())
   println("Dye: " + c.dye())
   println("")

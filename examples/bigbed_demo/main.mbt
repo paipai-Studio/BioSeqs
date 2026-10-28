@@ -1,5 +1,5 @@
 ///|
-fn format_coordinate_path(path : Array[Array[Int]]) -> String {
+fn format_coordinate_path(path : Array[Array[Int32]]) -> String {
   let output = StringBuilder()
   output.write_string("[")
   for i in 0..<path.length() {

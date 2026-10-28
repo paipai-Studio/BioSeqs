@@ -6,7 +6,7 @@
 /// 列=基因）。
 
 ///|
-fn col_mean(x : Array[Array[Double]], j : Int) -> Double {
+fn col_mean(x : Array[Array[Double]], j : Int32) -> Double {
   let n = x.length()
   if n == 0 {
     return 0.0
@@ -21,7 +21,7 @@ fn col_mean(x : Array[Array[Double]], j : Int) -> Double {
 }
 
 ///|
-fn col_sample_var(x : Array[Array[Double]], j : Int, mean : Double) -> Double {
+fn col_sample_var(x : Array[Array[Double]], j : Int32, mean : Double) -> Double {
   let n = x.length()
   if n <= 1 {
     return 0.0
@@ -101,21 +101,11 @@ pub fn scanpy_scale(
     let std = if variance > 0.0 { variance.sqrt() } else { 0.0 }
     let mut r = 0
     while r < x.length() {
-      let z = if std == 0.0 {
-        0.0
-      } else {
-        (x[r][j] - mean) / std
-      }
+      let z = if std == 0.0 { 0.0 } else { (x[r][j] - mean) / std }
       let mut v = z
       match max_value {
         None => ()
-        Some(mx) => {
-          if v > mx {
-            v = mx
-          } else if v < -mx {
-            v = -mx
-          }
-        }
+        Some(mx) => if v > mx { v = mx } else if v < -mx { v = -mx }
       }
       out[r][j] = v
       r = r + 1
@@ -170,7 +160,7 @@ fn is_nan(v : Double) -> Bool {
 /// (n_bins=20, min_disp=0.5, min_mean=0.0125, max_mean=3).
 pub fn scanpy_highly_variable_genes(
   x : Array[Array[Double]],
-  n_bins : Int,
+  n_bins : Int32,
   min_mean : Double,
   max_mean : Double,
   min_disp : Double,
@@ -198,20 +188,26 @@ pub fn scanpy_highly_variable_genes(
     let mx = dmax(means)
     let width = if mx == mn { 1.0 } else { (mx - mn) / n_bins.to_double() }
     // per-bin accumulation of valid log-dispersions
-    let bin_count : Array[Int] = Array::make(n_bins, 0)
+    let bin_count : Array[Int32] = Array::make(n_bins, 0)
     let bin_sum : Array[Double] = Array::make(n_bins, 0.0)
     let bin_sumsq : Array[Double] = Array::make(n_bins, 0.0)
-    let gene_bin : Array[Int] = Array::make(n_genes, 0)
+    let gene_bin : Array[Int32] = Array::make(n_genes, 0)
     let mut g = 0
     while g < n_genes {
       let b = if width == 1.0 {
         0
       } else {
         let t = ((means[g] - mn) / width).to_int()
-        if t >= n_bins { n_bins - 1 } else if t < 0 { 0 } else { t }
+        if t >= n_bins {
+          n_bins - 1
+        } else if t < 0 {
+          0
+        } else {
+          t
+        }
       }
       gene_bin[g] = b
-      if !(is_nan(dispersions[g])) {
+      if !is_nan(dispersions[g]) {
         bin_count[b] = bin_count[b] + 1
         bin_sum[b] = bin_sum[b] + dispersions[g]
         bin_sumsq[b] = bin_sumsq[b] + dispersions[g] * dispersions[g]
@@ -225,11 +221,11 @@ pub fn scanpy_highly_variable_genes(
       if bin_count[b] >= 2 {
         let avg = bin_sum[b] / bin_count[b].to_double()
         let dev = ((bin_sumsq[b] - bin_count[b].to_double() * avg * avg) /
-          (bin_count[b] - 1).to_double()).sqrt()
-        if dev > 0.0 && !(is_nan(dispersions[k])) {
+        (bin_count[b] - 1).to_double()).sqrt()
+        if dev > 0.0 && !is_nan(dispersions[k]) {
           dispersions_norm[k] = (dispersions[k] - avg) / dev
         }
-      } else if !(is_nan(dispersions[k])) {
+      } else if !is_nan(dispersions[k]) {
         // single valid gene in bin -> normalized dispersion of 1
         dispersions_norm[k] = 1.0
       } else {
@@ -242,13 +238,16 @@ pub fn scanpy_highly_variable_genes(
   let highly_variable : Array[Bool] = Array::make(n_genes, false)
   let mut h = 0
   while h < n_genes {
-    if means[h] > min_mean && means[h] < max_mean && dispersions_norm[h] > min_disp {
+    if means[h] > min_mean &&
+      means[h] < max_mean &&
+      dispersions_norm[h] > min_disp {
       highly_variable[h] = true
     }
     h = h + 1
   }
-  HvgResult::{ means, dispersions, dispersions_norm, highly_variable }
+  HvgResult::{ means, dispersions, dispersions_norm, highly_variable, }
 }
+
 ///|
 /// Regress out unwanted sources of variation by linear least squares
 /// (`scanpy.pp.regress_out`, numeric covariates). Fits `X ~ [1, covariates]`
@@ -288,7 +287,6 @@ pub fn scanpy_regress_out(
   resid
 }
 
-
 // ============================================================================
 // filter_cells / filter_genes / one-hot / regress_out categorical
 // ============================================================================
@@ -298,7 +296,7 @@ pub fn scanpy_regress_out(
 /// `x` is n_obs × n_vars; a gene is "expressed" when its count is > 0.
 pub fn scanpy_filter_cells(
   x : Array[Array[Double]],
-  min_genes : Int,
+  min_genes : Int32,
 ) -> Array[Array[Double]] {
   let out : Array[Array[Double]] = Array(capacity=0)
   for row in x {
@@ -320,11 +318,11 @@ pub fn scanpy_filter_cells(
 /// `x` is n_obs × n_vars.
 pub fn scanpy_filter_genes(
   x : Array[Array[Double]],
-  min_cells : Int,
+  min_cells : Int32,
 ) -> Array[Array[Double]] {
   let n_cells = x.length()
   let n_genes = if n_cells > 0 { x[0].length() } else { 0 }
-  let expressed : Array[Int] = Array::make(n_genes, 0)
+  let expressed : Array[Int32] = Array::make(n_genes, 0)
   for j = 0; j < n_genes; j = j + 1 {
     let mut c = 0
     for i = 0; i < n_cells; i = i + 1 {

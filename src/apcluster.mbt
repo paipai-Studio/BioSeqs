@@ -40,12 +40,12 @@ fn[T] ap_fail(msg : String) -> T raise ApError {
 // ---------------------------------------------------------------------------
 
 ///|
-let ap_rng_state : Ref[Int] = Ref(777)
+let ap_rng_state : Ref[Int32] = Ref(777)
 
 ///|
 /// Seed the internal random number generator used for noise runs. The
 /// generator is deterministic (Park-Miller MINSTD).
-pub fn apcluster_seed(seed : Int) -> Unit {
+pub fn apcluster_seed(seed : Int32) -> Unit {
   ap_rng_state.val = if seed <= 0 { 777 } else { seed % 2147483647 }
 }
 
@@ -105,7 +105,7 @@ fn ap_median(v : Array[Double]) -> Double raise ApError {
 
 ///|
 /// Check that x is a non-empty rectangular matrix; return (n, p).
-fn ap_check_matrix(x : Array[Array[Double]]) -> (Int, Int) raise ApError {
+fn ap_check_matrix(x : Array[Array[Double]]) -> (Int32, Int32) raise ApError {
   let n = x.length()
   if n == 0 {
     ap_fail("empty input matrix")
@@ -124,7 +124,7 @@ fn ap_check_matrix(x : Array[Array[Double]]) -> (Int, Int) raise ApError {
 
 ///|
 /// Allocate an n x n matrix filled with 0.0 (independent rows).
-fn ap_zero_matrix(n : Int) -> Array[Array[Double]] {
+fn ap_zero_matrix(n : Int32) -> Array[Array[Double]] {
   let m : Array[Array[Double]] = Array(capacity=n)
   for _i in 0..<n {
     m.push(Array::make(n, 0.0))
@@ -153,7 +153,7 @@ fn ap_copy_matrix(m : Array[Array[Double]]) -> Array[Array[Double]] {
 /// the default argument negDistMat(r=2) of the R package.
 pub fn ap_minkowski_power(
   x : Array[Array[Double]],
-  r? : Double = 2.0,
+  r~ : Double = 2.0,
 ) -> Array[Array[Double]] raise ApError {
   let (n, p) = ap_check_matrix(x)
   let d = ap_zero_matrix(n)
@@ -178,7 +178,7 @@ pub fn ap_minkowski_power(
 /// the preference when running apcluster.
 pub fn ap_neg_dist_mat(
   x : Array[Array[Double]],
-  r? : Double = 2.0,
+  r~ : Double = 2.0,
 ) -> Array[Array[Double]] raise ApError {
   let d = ap_minkowski_power(x, r~)
   let n = d.length()
@@ -199,8 +199,8 @@ pub fn ap_neg_dist_mat(
 /// median of the off-diagonal d(i,j)^r values. Diagonal = 1.
 pub fn ap_exp_sim_mat(
   x : Array[Array[Double]],
-  r? : Double = 2.0,
-  w? : Double? = None,
+  r~ : Double = 2.0,
+  w~ : Double? = None,
 ) -> Array[Array[Double]] raise ApError {
   let d = ap_minkowski_power(x, r~)
   let n = d.length()
@@ -239,8 +239,8 @@ pub fn ap_exp_sim_mat(
 /// Diagonal = 1.
 pub fn ap_lin_sim_mat(
   x : Array[Array[Double]],
-  r? : Double = 2.0,
-  w? : Double? = None,
+  r~ : Double = 2.0,
+  w~ : Double? = None,
 ) -> Array[Array[Double]] raise ApError {
   let d = ap_minkowski_power(x, r~)
   let n = d.length()
@@ -278,11 +278,11 @@ pub fn ap_lin_sim_mat(
 fn ap_average_ranks(v : Array[Double]) -> Array[Double] {
   let p = v.length()
   // index-sort by value (stable; ties get adjacent positions)
-  let idx : Array[Int] = Array(capacity=p)
+  let idx : Array[Int32] = Array(capacity=p)
   for i = 0; i < p; i = i + 1 {
     idx.push(i)
   }
-  idx.sort_by(fn(a : Int, b : Int) -> Int {
+  idx.sort_by(fn(a : Int32, b : Int32) -> Int32 {
     if v[a] < v[b] {
       -1
     } else if v[a] > v[b] {
@@ -343,7 +343,7 @@ fn ap_pearson(
 /// average ranks of features within each row). Diagonal = 1.
 pub fn ap_cor_sim_mat(
   x : Array[Array[Double]],
-  method_? : String = "pearson",
+  method_~ : String = "pearson",
 ) -> Array[Array[Double]] raise ApError {
   let (n, p) = ap_check_matrix(x)
   // precompute transformed rows and their means
@@ -396,11 +396,11 @@ pub fn ap_cor_sim_mat(
 /// - sim: the similarity matrix used (diagonal overwritten with the
 ///   preferences).
 pub struct ApResult {
-  exemplars : Array[Int]
-  clusters : Array[Array[Int]]
-  labels : Array[Int]
+  exemplars : Array[Int32]
+  clusters : Array[Array[Int32]]
+  labels : Array[Int32]
   preferences : Array[Double]
-  iters : Int
+  iters : Int32
   converged : Bool
   dpsim : Double
   expref : Double
@@ -410,26 +410,26 @@ pub struct ApResult {
 
 ///|
 /// Accessor: exemplar indices (0-based), ascending.
-pub fn ApResult::exemplars(self : ApResult) -> Array[Int] {
+pub fn ApResult::exemplars(self : ApResult) -> Array[Int32] {
   self.exemplars
 }
 
 ///|
 /// Accessor: cluster member lists (same order as exemplars()), each sorted
 /// ascending.
-pub fn ApResult::clusters(self : ApResult) -> Array[Array[Int]] {
+pub fn ApResult::clusters(self : ApResult) -> Array[Array[Int32]] {
   self.clusters
 }
 
 ///|
 /// Accessor: label (exemplar index) of every input point.
-pub fn ApResult::labels(self : ApResult) -> Array[Int] {
+pub fn ApResult::labels(self : ApResult) -> Array[Int32] {
   self.labels
 }
 
 ///|
 /// Accessor: number of clusters found.
-pub fn ApResult::num_clusters(self : ApResult) -> Int {
+pub fn ApResult::num_clusters(self : ApResult) -> Int32 {
   self.exemplars.length()
 }
 
@@ -441,7 +441,7 @@ pub fn ApResult::preferences(self : ApResult) -> Array[Double] {
 
 ///|
 /// Accessor: iterations performed.
-pub fn ApResult::iters(self : ApResult) -> Int {
+pub fn ApResult::iters(self : ApResult) -> Int32 {
   self.iters
 }
 
@@ -528,10 +528,10 @@ fn ap_resolve_preferences(
 fn ap_run(
   sim0 : Array[Array[Double]],
   preferences : Array[Double],
-  maxits : Int,
-  convits : Int,
+  maxits : Int32,
+  convits : Int32,
   lam : Double,
-) -> (Array[Array[Double]], Array[Array[Double]], Int, Bool, Array[Int]) {
+) -> (Array[Array[Double]], Array[Array[Double]], Int32, Bool, Array[Int32]) {
   let n = sim0.length()
   // working similarity matrix with diagonal = preferences
   let s = ap_copy_matrix(sim0)
@@ -540,7 +540,7 @@ fn ap_run(
   }
   let a = ap_zero_matrix(n)
   let r = ap_zero_matrix(n)
-  let mut prev_exemplars : Array[Int] = []
+  let mut prev_exemplars : Array[Int32] = []
   let mut stable = 0
   let mut iters = 0
   let mut converged = false
@@ -601,7 +601,7 @@ fn ap_run(
       }
     }
     // --- current exemplar set ---
-    let exemplars : Array[Int] = []
+    let exemplars : Array[Int32] = []
     for i = 0; i < n; i = i + 1 {
       if a[i][i] + r[i][i] > 0.0 {
         exemplars.push(i)
@@ -664,9 +664,9 @@ fn ap_run(
 /// Build the ApResult from a completed run (exemplars, clusters, objective).
 fn ap_assemble(
   s : Array[Array[Double]],
-  labels : Array[Int],
+  labels : Array[Int32],
   preferences : Array[Double],
-  iters : Int,
+  iters : Int32,
   converged : Bool,
 ) -> ApResult {
   let n = s.length()
@@ -675,15 +675,15 @@ fn ap_assemble(
   for i = 0; i < n; i = i + 1 {
     is_ex[labels[i]] = true
   }
-  let exemplars : Array[Int] = []
+  let exemplars : Array[Int32] = []
   for i = 0; i < n; i = i + 1 {
     if is_ex[i] {
       exemplars.push(i)
     }
   }
-  let clusters : Array[Array[Int]] = Array(capacity=exemplars.length())
+  let clusters : Array[Array[Int32]] = Array(capacity=exemplars.length())
   for e in exemplars {
-    let members : Array[Int] = []
+    let members : Array[Int32] = []
     for i = 0; i < n; i = i + 1 {
       if labels[i] == e {
         members.push(i)
@@ -733,14 +733,14 @@ fn ap_assemble(
 ///   default 0.001).
 pub fn apcluster(
   sim~ : Array[Array[Double]],
-  p? : Double? = None,
-  q? : Double = 0.5,
-  preferences? : Array[Double]? = None,
-  maxits? : Int = 1000,
-  convits? : Int = 100,
-  lam? : Double = 0.9,
-  nonoise? : Int = 0,
-  noise_r? : Double = 0.001,
+  p~ : Double? = None,
+  q~ : Double = 0.5,
+  preferences~ : Array[Double]? = None,
+  maxits~ : Int32 = 1000,
+  convits~ : Int32 = 100,
+  lam~ : Double = 0.9,
+  nonoise~ : Int32 = 0,
+  noise_r~ : Double = 0.001,
 ) -> ApResult raise ApError {
   let n = sim.length()
   if n == 0 {
@@ -807,14 +807,14 @@ pub fn apcluster(
 pub fn apcluster_on_data(
   x~ : Array[Array[Double]],
   sim_fn~ : (Array[Array[Double]]) -> Array[Array[Double]] raise ApError,
-  p? : Double? = None,
-  q? : Double = 0.5,
-  preferences? : Array[Double]? = None,
-  maxits? : Int = 1000,
-  convits? : Int = 100,
-  lam? : Double = 0.9,
-  nonoise? : Int = 0,
-  noise_r? : Double = 0.001,
+  p~ : Double? = None,
+  q~ : Double = 0.5,
+  preferences~ : Array[Double]? = None,
+  maxits~ : Int32 = 1000,
+  convits~ : Int32 = 100,
+  lam~ : Double = 0.9,
+  nonoise~ : Int32 = 0,
+  noise_r~ : Double = 0.001,
 ) -> ApResult raise ApError {
   let sim = sim_fn(x)
   apcluster(
@@ -838,7 +838,11 @@ pub fn apcluster_on_data(
 /// Reassign every point formerly labelled `from` to exemplar `to`
 /// (used as a deterministic pruning fallback when bisection cannot produce
 /// exactly K clusters).
-fn ap_merge_labels(labels : Array[Int], from : Int, to : Int) -> Array[Int] {
+fn ap_merge_labels(
+  labels : Array[Int32],
+  from : Int32,
+  to : Int32,
+) -> Array[Int32] {
   let n = labels.length()
   let out = labels.copy()
   for i in 0..<n {
@@ -858,13 +862,13 @@ fn ap_merge_labels(labels : Array[Int], from : Int, to : Int) -> Array[Int] {
 /// and exact is true, ApError is raised (R: "could not find K clusters").
 pub fn apcluster_k(
   sim~ : Array[Array[Double]],
-  k~ : Int,
-  p? : Double? = None,
-  bimaxit? : Int = 100,
-  exact? : Bool = true,
-  maxits? : Int = 1000,
-  convits? : Int = 100,
-  lam? : Double = 0.9,
+  k~ : Int32,
+  p~ : Double? = None,
+  bimaxit~ : Int32 = 100,
+  exact~ : Bool = true,
+  maxits~ : Int32 = 1000,
+  convits~ : Int32 = 100,
+  lam~ : Double = 0.9,
 ) -> ApResult raise ApError {
   let n = sim.length()
   if k <= 0 {
@@ -948,7 +952,7 @@ pub fn apcluster_k(
         }
       }
       labels = ap_merge_labels(labels, best_b, best_a)
-      let new_ex : Array[Int] = []
+      let new_ex : Array[Int32] = []
       for e in exemplars {
         if e != best_b {
           new_ex.push(e)
@@ -976,12 +980,12 @@ pub fn apcluster_k(
 pub fn apcluster_k_on_data(
   x~ : Array[Array[Double]],
   sim_fn~ : (Array[Array[Double]]) -> Array[Array[Double]] raise ApError,
-  k~ : Int,
-  bimaxit? : Int = 100,
-  exact? : Bool = true,
-  maxits? : Int = 1000,
-  convits? : Int = 100,
-  lam? : Double = 0.9,
+  k~ : Int32,
+  bimaxit~ : Int32 = 100,
+  exact~ : Bool = true,
+  maxits~ : Int32 = 1000,
+  convits~ : Int32 = 100,
+  lam~ : Double = 0.9,
 ) -> ApResult raise ApError {
   let sim = sim_fn(x)
   apcluster_k(sim~, k~, bimaxit~, exact~, maxits~, convits~, lam~)

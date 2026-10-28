@@ -13,7 +13,7 @@ pub struct GageResult {
   gene_set_id : String
   gene_set_name : String
   /// Number of genes in the set
-  n_genes : Int
+  n_genes : Int32
   /// Mean fold change of the gene set
   mean_fc : Double
   /// Test statistic (t-value or z-score)
@@ -34,8 +34,8 @@ pub struct GageResult {
 /// Container for GAGE results.
 pub struct GageResults {
   results : Array[GageResult]
-  n_gene_sets : Int
-  n_significant : Int
+  n_gene_sets : Int32
+  n_significant : Int32
   fdr_threshold : Double
   /// Whether paired test was used
   paired : Bool
@@ -71,8 +71,8 @@ pub fn GageGeneSet::new(
 pub fn run_gage(
   gene_fcs : Map[String, Double],
   gene_sets : Array[GageGeneSet],
-  fdr_threshold? : Double = 0.05,
-  paired? : Bool = false,
+  fdr_threshold~ : Double = 0.05,
+  paired~ : Bool = false,
 ) -> GageResults {
   let all_results : Array[GageResult] = Array(capacity=0)
   let mut gsi = 0
@@ -222,7 +222,7 @@ fn gage_bh_adjust(p_values : Array[Double]) -> Array[Double] {
     return Array(capacity=0)
   }
   // Create index-value pairs and sort by p-value
-  let indexed : Array[(Int, Double)] = Array(capacity=0)
+  let indexed : Array[(Int32, Double)] = Array(capacity=0)
   let mut i = 0
   while i < n {
     indexed.push((i, p_values[i]))
@@ -314,7 +314,7 @@ pub fn GageResults::get_downregulated(self : GageResults) -> Array[GageResult] {
 /// Get top N gene sets by adjusted p-value.
 pub fn GageResults::get_top_sets(
   self : GageResults,
-  n : Int,
+  n : Int32,
 ) -> Array[GageResult] {
   let sorted = self.results.copy()
   let len = sorted.length()

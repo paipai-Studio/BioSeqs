@@ -3,7 +3,7 @@
 
 ///|
 pub struct MRexperiment {
-  counts : Array[Array[Int]]
+  counts : Array[Array[Int32]]
   taxa_names : Array[String]
   sample_names : Array[String]
   sample_data : Map[String, Array[String]]
@@ -11,7 +11,7 @@ pub struct MRexperiment {
 
 ///|
 pub fn MRexperiment::new(
-  counts : Array[Array[Int]],
+  counts : Array[Array[Int32]],
   taxa_names : Array[String],
   sample_names : Array[String],
 ) -> MRexperiment {
@@ -26,12 +26,12 @@ pub fn MRexperiment::new(
 ///|
 pub struct MRSampleData {
   group : String
-  depth : Int
+  depth : Int32
   covariates : Map[String, String]
 }
 
 ///|
-pub fn MRSampleData::new(group : String, depth : Int) -> MRSampleData {
+pub fn MRSampleData::new(group : String, depth : Int32) -> MRSampleData {
   MRSampleData::{ group, depth, covariates: Map([], capacity=5), }
 }
 
@@ -66,7 +66,7 @@ pub fn MGResult::new(
 
 ///|
 pub fn mg_normalize_counts(obj : MRexperiment) -> MRexperiment {
-  let total_counts : Array[Int] = Array(capacity=0)
+  let total_counts : Array[Int32] = Array(capacity=0)
   let mut j = 0
   while j < obj.sample_names.length() {
     let mut sum = 0
@@ -81,10 +81,10 @@ pub fn mg_normalize_counts(obj : MRexperiment) -> MRexperiment {
 
   let median_depth = median_int(total_counts)
 
-  let normalized : Array[Array[Int]] = Array(capacity=0)
+  let normalized : Array[Array[Int32]] = Array(capacity=0)
   let mut i = 0
   while i < obj.taxa_names.length() {
-    let row : Array[Int] = Array(capacity=0)
+    let row : Array[Int32] = Array(capacity=0)
     let mut j = 0
     while j < obj.sample_names.length() {
       if total_counts[j] > 0 {
@@ -107,7 +107,7 @@ pub fn mg_normalize_counts(obj : MRexperiment) -> MRexperiment {
 }
 
 ///|
-fn median_int(arr : Array[Int]) -> Int {
+fn median_int(arr : Array[Int32]) -> Int32 {
   let sorted = arr.copy()
   let mut swapped = true
   let mut n = sorted.length()
@@ -161,8 +161,8 @@ pub fn mg_test_zero_inflated(
 ) -> Array[MGResult] {
   let results : Array[MGResult] = Array(capacity=0)
 
-  let group0_indices : Array[Int] = Array(capacity=0)
-  let group1_indices : Array[Int] = Array(capacity=0)
+  let group0_indices : Array[Int32] = Array(capacity=0)
+  let group1_indices : Array[Int32] = Array(capacity=0)
 
   let mut i = 0
   while i < group.length() {

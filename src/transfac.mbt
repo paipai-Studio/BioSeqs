@@ -67,9 +67,9 @@ pub struct TransfacMotifFull {
   mut name : String // NA field (name of binding factor)
   mut species : String // OS field (species/taxon)
   mut taxonomic_class : String // OC field (taxonomic classification)
-  mut pfm : Array[Array[Int]] // position frequency matrix (width x 4 for A,C,G,T)
+  mut pfm : Array[Array[Int32]] // position frequency matrix (width x 4 for A,C,G,T)
   mut alphabet : Array[String] // alphabet (default: A,C,G,T)
-  mut width : Int // motif width
+  mut width : Int32 // motif width
   mut references : Array[TransfacReference] // references list
   mut binding_sites : Array[String] // BS field (binding sites)
   mut external_refs : Array[String] // DR field (external database references)
@@ -79,7 +79,7 @@ pub struct TransfacMotifFull {
 
 ///|
 /// Create a new TransfacMotifFull.
-pub fn TransfacMotifFull::new(accession? : String = "") -> TransfacMotifFull {
+pub fn TransfacMotifFull::new(accession~ : String = "") -> TransfacMotifFull {
   TransfacMotifFull::{
     accession,
     identifier: "",
@@ -126,8 +126,8 @@ pub fn TransfacMotifFull::consensus(self : TransfacMotifFull) -> String {
 /// Get the total count at a position (sum of all bases).
 pub fn TransfacMotifFull::total_at(
   self : TransfacMotifFull,
-  position : Int,
-) -> Int {
+  position : Int32,
+) -> Int32 {
   if position < 0 || position >= self.width {
     return 0
   }
@@ -145,7 +145,7 @@ pub fn TransfacMotifFull::total_at(
 pub fn TransfacMotifFull::frequency(
   self : TransfacMotifFull,
   base : String,
-  position : Int,
+  position : Int32,
 ) -> Double {
   let row_idx = self.alphabet_index(base)
   if row_idx < 0 || position < 0 || position >= self.width {
@@ -166,7 +166,7 @@ pub fn TransfacMotifFull::frequency(
 pub fn TransfacMotifFull::alphabet_index(
   self : TransfacMotifFull,
   base : String,
-) -> Int {
+) -> Int32 {
   let mut i = 0
   while i < self.alphabet.length() {
     if self.alphabet[i] == base {
@@ -192,7 +192,7 @@ pub fn TransfacRecordFull::new() -> TransfacRecordFull {
 
 ///|
 /// Get the number of motifs.
-pub fn TransfacRecordFull::num_motifs(self : TransfacRecordFull) -> Int {
+pub fn TransfacRecordFull::num_motifs(self : TransfacRecordFull) -> Int32 {
   self.motifs.length()
 }
 
@@ -235,7 +235,7 @@ pub fn transfac_parse_full(text : String) -> TransfacRecordFull {
   let mut m_binding_sites : Array[String] = Array(capacity=0)
   let mut m_external_refs : Array[String] = Array(capacity=0)
   let mut m_alphabet : Array[String] = ["A", "C", "G", "T"]
-  let mut m_pfm : Array[Array[Int]] = Array(capacity=0)
+  let mut m_pfm : Array[Array[Int32]] = Array(capacity=0)
   let mut m_references : Array[TransfacReference] = Array(capacity=0)
   let mut in_matrix = false
   // Reference building variables
@@ -251,11 +251,7 @@ pub fn transfac_parse_full(text : String) -> TransfacRecordFull {
       continue
     }
     // Get the two-letter field code
-    let field = if trimmed.length() >= 2 {
-      trimmed[0:2].to_owned()
-    } else {
-      ""
-    }
+    let field = if trimmed.length() >= 2 { trimmed[0:2].to_owned() } else { "" }
     let value = if trimmed.length() > 2 {
       trimmed[2:].trim().to_owned()
     } else {
@@ -490,7 +486,7 @@ pub fn transfac_parse_full(text : String) -> TransfacRecordFull {
       field[0:1].to_owned() <= "9" {
       // Parse the row number and counts
       let parts = trimmed.split(" ").to_array()
-      let counts : Array[Int] = Array(capacity=0)
+      let counts : Array[Int32] = Array(capacity=0)
       let mut first = true
       for p in parts {
         let s = p.trim().to_owned()
@@ -538,7 +534,7 @@ pub fn transfac_parse_full(text : String) -> TransfacRecordFull {
 
 ///|
 /// Calculate the width of a TRANSFAC PFM matrix.
-fn transfac_matrix_width(pfm : Array[Array[Int]]) -> Int {
+fn transfac_matrix_width(pfm : Array[Array[Int32]]) -> Int32 {
   if pfm.length() == 0 {
     return 0
   }

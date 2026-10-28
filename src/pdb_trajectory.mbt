@@ -15,12 +15,12 @@
 /// Atom metadata (names, resnames, chainids, …) is taken from the
 /// first model and assumed constant across frames.
 pub struct PDBTrajectory {
-  n_frames : Int
-  n_atoms : Int
+  n_frames : Int32
+  n_atoms : Int32
   atom_names : Array[String]
   resnames : Array[String]
   chainids : Array[Char]
-  resseqs : Array[Int]
+  resseqs : Array[Int32]
   elements : Array[String]
   bfactors : Array[Double]
   occupancies : Array[Double]
@@ -112,7 +112,7 @@ pub fn parse_pdb_trajectory(content : String) -> PDBTrajectory? {
 ///|
 /// Build a Model from a flat atom list by grouping consecutive atoms
 /// with the same (chainid, resseq) into residues and chains.
-fn build_model_from_atoms(model_id : Int, atoms : Array[Atom]) -> Model {
+fn build_model_from_atoms(model_id : Int32, atoms : Array[Atom]) -> Model {
   let chains : Array[Chain] = Array(capacity=0)
   let mut chain_residues : Array[Residue] = Array(capacity=0)
   let mut res_atoms : Array[Atom] = Array(capacity=0)
@@ -191,25 +191,31 @@ pub fn PDBTrajectory::to_structure(self : PDBTrajectory) -> Structure {
 
 ///|
 /// Number of frames (models).
-pub fn PDBTrajectory::num_frames(self : PDBTrajectory) -> Int {
+pub fn PDBTrajectory::num_frames(self : PDBTrajectory) -> Int32 {
   self.n_frames
 }
 
 ///|
 /// Number of atoms per frame.
-pub fn PDBTrajectory::num_atoms(self : PDBTrajectory) -> Int {
+pub fn PDBTrajectory::num_atoms(self : PDBTrajectory) -> Int32 {
   self.n_atoms
 }
 
 ///|
 /// Get coordinates of one frame: Array[Vector3] of length n_atoms.
-pub fn PDBTrajectory::get_frame(self : PDBTrajectory, i : Int) -> Array[Vector3] {
+pub fn PDBTrajectory::get_frame(
+  self : PDBTrajectory,
+  i : Int32,
+) -> Array[Vector3] {
   self.frames[i]
 }
 
 ///|
 /// Get coordinates of one atom across all frames: Array[Vector3] of length n_frames.
-pub fn PDBTrajectory::get_atom_coords(self : PDBTrajectory, atom_idx : Int) -> Array[Vector3] {
+pub fn PDBTrajectory::get_atom_coords(
+  self : PDBTrajectory,
+  atom_idx : Int32,
+) -> Array[Vector3] {
   let result : Array[Vector3] = Array(capacity=self.n_frames)
   for f = 0; f < self.n_frames; f = f + 1 {
     result.push(self.frames[f][atom_idx])
@@ -225,7 +231,9 @@ pub fn PDBTrajectory::get_coords(self : PDBTrajectory) -> Array[Array[Vector3]] 
 
 ///|
 /// Get all coordinates as flat double array [frame][atom][3].
-pub fn PDBTrajectory::get_coords_flat(self : PDBTrajectory) -> Array[Array[Array[Double]]] {
+pub fn PDBTrajectory::get_coords_flat(
+  self : PDBTrajectory,
+) -> Array[Array[Array[Double]]] {
   let result : Array[Array[Array[Double]]] = Array(capacity=self.n_frames)
   for f = 0; f < self.n_frames; f = f + 1 {
     let frame : Array[Array[Double]] = Array(capacity=self.n_atoms)
@@ -244,9 +252,9 @@ pub fn PDBTrajectory::get_coords_flat(self : PDBTrajectory) -> Array[Array[Array
 /// `slice(start, end, step)` — `end` is exclusive.
 pub fn PDBTrajectory::slice(
   self : PDBTrajectory,
-  start : Int,
-  end : Int,
-  step : Int,
+  start : Int32,
+  end : Int32,
+  step : Int32,
 ) -> PDBTrajectory {
   let s = if start < 0 { 0 } else { start }
   let e = if end > self.n_frames { self.n_frames } else { end }
@@ -287,7 +295,11 @@ pub fn PDBTrajectory::mean_coords(self : PDBTrajectory) -> Array[Vector3] {
   }
   let nf = self.n_frames.to_double()
   for i = 0; i < self.n_atoms; i = i + 1 {
-    result[i] = Vector3::new(result[i].x / nf, result[i].y / nf, result[i].z / nf)
+    result[i] = Vector3::new(
+      result[i].x / nf,
+      result[i].y / nf,
+      result[i].z / nf,
+    )
   }
   result
 }
@@ -315,7 +327,7 @@ fn traj_rmsd(a : Array[Vector3], b : Array[Vector3]) -> Double {
 /// Returns `n_frames × n_frames` matrix.  Diagonal is zero.
 pub fn PDBTrajectory::rmsd_matrix(self : PDBTrajectory) -> Array[Array[Double]] {
   let n = self.n_frames
-  let mat : Array[Array[Double]] = Array::makei(n, { _ => Array::make(n, 0.0) })
+  let mat : Array[Array[Double]] = Array::makei(n, _ => Array::make(n, 0.0))
   for i = 0; i < n; i = i + 1 {
     for j = i + 1; j < n; j = j + 1 {
       let r = traj_rmsd(self.frames[i], self.frames[j])
@@ -358,11 +370,13 @@ pub fn PDBTrajectory::deltag(self : PDBTrajectory) -> Array[Array[Vector3]] {
   for f = 0; f < self.n_frames; f = f + 1 {
     let frame : Array[Vector3] = Array(capacity=self.n_atoms)
     for i = 0; i < self.n_atoms; i = i + 1 {
-      frame.push(Vector3::new(
-        self.frames[f][i].x - mean[i].x,
-        self.frames[f][i].y - mean[i].y,
-        self.frames[f][i].z - mean[i].z,
-      ))
+      frame.push(
+        Vector3::new(
+          self.frames[f][i].x - mean[i].x,
+          self.frames[f][i].y - mean[i].y,
+          self.frames[f][i].z - mean[i].z,
+        ),
+      )
     }
     result.push(frame)
   }
@@ -376,7 +390,7 @@ pub fn PDBTrajectory::deltag(self : PDBTrajectory) -> Array[Array[Vector3]] {
 /// Returns a new PDBTrajectory with aligned coordinates.
 pub fn PDBTrajectory::superpose_frames(
   self : PDBTrajectory,
-  ref_coords? : Array[Vector3] = [],
+  ref_coords~ : Array[Vector3] = [],
 ) -> PDBTrajectory {
   let reference = if ref_coords.length() > 0 {
     ref_coords
@@ -448,11 +462,11 @@ pub fn PDBTrajectory::write_pdb(self : PDBTrajectory) -> String {
 ///|
 /// Format a single ATOM/HETATM line for trajectory output.
 fn write_traj_atom_line(
-  serial : Int,
+  serial : Int32,
   name : String,
   resname : String,
   chainid : Char,
-  resseq : Int,
+  resseq : Int32,
   coord : Vector3,
   occupancy : Double,
   bfactor : Double,
@@ -475,7 +489,13 @@ fn write_traj_atom_line(
   // Chain ID: col 22
   buf.write_char(chainid)
   // Residue seq: cols 23-26, right-justified
-  let resseq_str = if resseq > 9999 { "9999" } else { if resseq < 0 { "0" } else { resseq.to_string() } }
+  let resseq_str = if resseq > 9999 {
+    "9999"
+  } else if resseq < 0 {
+    "0"
+  } else {
+    resseq.to_string()
+  }
   buf.write_string(pad_left(resseq_str, 4, ' '))
   buf.write_char(' ')
   // X: cols 31-38, %8.3f
@@ -500,7 +520,7 @@ fn write_traj_atom_line(
 ///|
 /// Format a float as fixed-width with specified precision.
 /// Mimics C printf "%w.pf".
-fn format_float(val : Double, width : Int, precision : Int) -> String {
+fn format_float(val : Double, width : Int32, precision : Int32) -> String {
   // Handle sign
   let neg = val < 0.0
   let abs_val = if neg { -val } else { val }
@@ -523,11 +543,7 @@ fn format_float(val : Double, width : Int, precision : Int) -> String {
   } else {
     ""
   }
-  let num_str = if precision > 0 {
-    int_str + "." + frac_str
-  } else {
-    int_str
-  }
+  let num_str = if precision > 0 { int_str + "." + frac_str } else { int_str }
   let signed = if neg { "-" + num_str } else { num_str }
   pad_left(signed, width, ' ')
 }

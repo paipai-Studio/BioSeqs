@@ -23,7 +23,7 @@ pub fn md_rand_double() -> Double {
   x = x ^ (x >> 7)
   x = x ^ (x << 17)
   md_rand_state.val = x
-  ((x & 0xFFFFFFFFL).to_double() / 4294967296.0)
+  (x & 0xFFFFFFFFL).to_double() / 4294967296.0
 }
 
 ///|
@@ -124,12 +124,12 @@ pub fn md_simulate_langevin(
   positions : Array[Array[Double]],
   velocities : Array[Array[Double]],
   masses : Array[Double],
-  bonds : Array[(Int, Int, Double, Double)],
+  bonds : Array[(Int32, Int32, Double, Double)],
   dt : Double,
   temperature : Double,
   friction : Double,
-  steps : Int,
-  n_dof : Int,
+  steps : Int32,
+  n_dof : Int32,
 ) -> Array[Double] {
   let temps : Array[Double] = Array(capacity=0)
   let mut pos = positions
@@ -171,7 +171,9 @@ pub fn md_brownian_step(
     let mg = friction * masses[i]
     let sigma = (2.0 * kT * dt / mg).sqrt()
     for d = 0; d < 3; d = d + 1 {
-      x_new[i][d] = positions[i][d] + dt * forces[i][d] / mg + sigma * md_gaussian()
+      x_new[i][d] = positions[i][d] +
+        dt * forces[i][d] / mg +
+        sigma * md_gaussian()
     }
   }
   x_new
@@ -183,11 +185,11 @@ pub fn md_brownian_step(
 pub fn md_simulate_brownian(
   positions : Array[Array[Double]],
   masses : Array[Double],
-  bonds : Array[(Int, Int, Double, Double)],
+  bonds : Array[(Int32, Int32, Double, Double)],
   dt : Double,
   temperature : Double,
   friction : Double,
-  steps : Int,
+  steps : Int32,
 ) -> Array[Double] {
   let temps : Array[Double] = Array(capacity=0)
   let mut pos = positions
@@ -210,11 +212,18 @@ pub fn md_simulate_brownian(
 /// `torsions` is `(i, j, k, l, c0, c1, c2, c3, c4, c5)`.
 pub fn md_rbtorsion_energy(
   positions : Array[Array[Double]],
-  torsions : Array[(Int, Int, Int, Int, Double, Double, Double, Double, Double, Double)],
+  torsions : Array[
+    (Int32, Int32, Int32, Int32, Double, Double, Double, Double, Double, Double),
+  ],
 ) -> Double {
   let mut e = 0.0
   for (i, j, k, l, c0, c1, c2, c3, c4, c5) in torsions {
-    let phi = md_dihedral_value(positions[i], positions[j], positions[k], positions[l])
+    let phi = md_dihedral_value(
+      positions[i],
+      positions[j],
+      positions[k],
+      positions[l],
+    )
     let c = @math.cos(phi)
     let c2v = c * c
     let c3v = c2v * c
@@ -229,7 +238,9 @@ pub fn md_rbtorsion_energy(
 /// RBTorsion forces via central-difference numerical gradient.
 pub fn md_rbtorsion_forces(
   positions : Array[Array[Double]],
-  torsions : Array[(Int, Int, Int, Int, Double, Double, Double, Double, Double, Double)],
+  torsions : Array[
+    (Int32, Int32, Int32, Int32, Double, Double, Double, Double, Double, Double),
+  ],
 ) -> Array[Array[Double]] {
   let n = positions.length()
   let forces = md_new_forces(n)
@@ -265,16 +276,26 @@ pub fn md_rbtorsion_forces(
 /// `grid` is a flat array of size `size*size` (row-major).
 pub fn md_cmap_energy(
   positions : Array[Array[Double]],
-  cmaps : Array[(Int, Int, Int, Int, Int, Array[Double], Int)],
+  cmaps : Array[(Int32, Int32, Int32, Int32, Int32, Array[Double], Int32)],
 ) -> Double {
   let mut e = 0.0
   let two_pi = 2.0 * 3.141592653589793
   let pi = 3.141592653589793
   for (i, j, k, l, m, grid, size) in cmaps {
-    let phi1 = md_dihedral_value(positions[i], positions[j], positions[k], positions[l])
-    let phi2 = md_dihedral_value(positions[j], positions[k], positions[l], positions[m])
-    let g1 = ((phi1 + pi) / two_pi) * size.to_double()
-    let g2 = ((phi2 + pi) / two_pi) * size.to_double()
+    let phi1 = md_dihedral_value(
+      positions[i],
+      positions[j],
+      positions[k],
+      positions[l],
+    )
+    let phi2 = md_dihedral_value(
+      positions[j],
+      positions[k],
+      positions[l],
+      positions[m],
+    )
+    let g1 = (phi1 + pi) / two_pi * size.to_double()
+    let g2 = (phi2 + pi) / two_pi * size.to_double()
     let i1 = g1.floor().to_int() % size
     let i2 = (i1 + 1) % size
     let j1 = g2.floor().to_int() % size
@@ -285,7 +306,9 @@ pub fn md_cmap_energy(
     let e01 = grid[i1 * size + j2]
     let e10 = grid[i2 * size + j1]
     let e11 = grid[i2 * size + j2]
-    e = e + (1.0 - f1) * ((1.0 - f2) * e00 + f2 * e01) + f1 * ((1.0 - f2) * e10 + f2 * e11)
+    e = e +
+      (1.0 - f1) * ((1.0 - f2) * e00 + f2 * e01) +
+      f1 * ((1.0 - f2) * e10 + f2 * e11)
   }
   e
 }
@@ -294,7 +317,7 @@ pub fn md_cmap_energy(
 /// CMAP forces via central-difference numerical gradient.
 pub fn md_cmap_forces(
   positions : Array[Array[Double]],
-  cmaps : Array[(Int, Int, Int, Int, Int, Array[Double], Int)],
+  cmaps : Array[(Int32, Int32, Int32, Int32, Int32, Array[Double], Int32)],
 ) -> Array[Array[Double]] {
   let n = positions.length()
   let forces = md_new_forces(n)
@@ -361,12 +384,12 @@ pub fn md_simulate_andersen(
   positions : Array[Array[Double]],
   velocities : Array[Array[Double]],
   masses : Array[Double],
-  bonds : Array[(Int, Int, Double, Double)],
+  bonds : Array[(Int32, Int32, Double, Double)],
   dt : Double,
   temperature : Double,
   collision_freq : Double,
-  steps : Int,
-  n_dof : Int,
+  steps : Int32,
+  n_dof : Int32,
 ) -> Array[Double] {
   let temps : Array[Double] = Array(capacity=0)
   let mut pos = positions
@@ -479,9 +502,7 @@ pub fn md_remove_com_angular(
     iyz = iyz - masses[i] * dr[1] * dr[2]
   }
   // Solve I * omega = L for omega (3x3 matrix inverse)
-  let omega = md_solve3x3(
-    ixx, ixy, ixz, iyy, iyz, izz, l[0], l[1], l[2],
-  )
+  let omega = md_solve3x3(ixx, ixy, ixz, iyy, iyz, izz, l[0], l[1], l[2])
   // Subtract omega x (r_i - r_com) from each velocity
   let v_new = md_new_forces(n)
   for i = 0; i < n; i = i + 1 {
@@ -543,8 +564,8 @@ fn md_solve3x3(
 /// `tolerance` is the force tolerance in kcal/(mol*A).
 pub fn md_minimize_bonds(
   positions : Array[Array[Double]],
-  bonds : Array[(Int, Int, Double, Double)],
-  max_iterations : Int,
+  bonds : Array[(Int32, Int32, Double, Double)],
+  max_iterations : Int32,
   tolerance : Double,
 ) -> Array[Array[Double]] {
   let n = positions.length()
@@ -660,7 +681,7 @@ pub fn md_minimize_bonds(
       }
       step = step * 0.5
     }
-    if !(accepted) {
+    if !accepted {
       return x
     }
     // Update history
@@ -819,7 +840,8 @@ pub fn md_gbsa_obc_energy(
     if born_radii[i] > 0.0 {
       let ratio = radii[i] / born_radii[i]
       let r6 = ratio * ratio * ratio * ratio * ratio * ratio
-      e_sa = e_sa + sa_coeff * 4.0 * 3.141592653589793 * radii[i] * radii[i] * r6
+      e_sa = e_sa +
+        sa_coeff * 4.0 * 3.141592653589793 * radii[i] * radii[i] * r6
     }
   }
   (e_gb, e_sa)
@@ -854,7 +876,11 @@ fn md_gbsa_obc_born_radii(
         let offset_j = rj - sj
         let r_p_ij = r + offset_j
         if r_p_ij > offset {
-          let u_ij = if r + rj > 0.0 { 1.0 / r_p_ij - 1.0 / (r + rj) } else { 0.0 }
+          let u_ij = if r + rj > 0.0 {
+            1.0 / r_p_ij - 1.0 / (r + rj)
+          } else {
+            0.0
+          }
           // OBC piecewise
           let r_off = r + offset_j
           let r_off_i = r_off - offset
@@ -863,9 +889,10 @@ fn md_gbsa_obc_born_radii(
             let t = r_off_i / offset
             let t2 = t * t
             let t3 = t2 * t
-            let psi = u_ij + 0.5 * (1.0 / offset) * (
-              log_term + obc_beta * t3 + obc_gamma * t2 * t3
-            )
+            let psi = u_ij +
+              0.5 *
+              (1.0 / offset) *
+              (log_term + obc_beta * t3 + obc_gamma * t2 * t3)
             if psi > 0.0 {
               sum_term = sum_term + psi
             }
@@ -903,7 +930,7 @@ pub fn md_mc_barostat_step(
   energy_fn : (Array[Array[Double]]) -> Double,
   pressure : Double,
   temperature : Double,
-  n_atoms : Int,
+  n_atoms : Int32,
 ) -> (Array[Array[Double]], Array[Double], Bool) {
   let kT = MD_KB * temperature
   // Random volume scale: V_new = V * exp(delta)
@@ -923,7 +950,10 @@ pub fn md_mc_barostat_step(
   let e_new = energy_fn(scaled)
   let vol_old = box[0] * box[1] * box[2]
   let vol_new = new_box[0] * new_box[1] * new_box[2]
-  let dE = e_new - e_old + pressure * (vol_new - vol_old) - n_atoms.to_double() * kT * @math.ln(vol_new / vol_old)
+  let dE = e_new -
+    e_old +
+    pressure * (vol_new - vol_old) -
+    n_atoms.to_double() * kT * @math.ln(vol_new / vol_old)
   let accepted = dE < 0.0 || md_rand_double() < @math.exp(-dE / kT)
   if accepted {
     (scaled, new_box, true)
@@ -939,14 +969,14 @@ pub fn md_simulate_barostat(
   positions : Array[Array[Double]],
   velocities : Array[Array[Double]],
   masses : Array[Double],
-  bonds : Array[(Int, Int, Double, Double)],
+  bonds : Array[(Int32, Int32, Double, Double)],
   box : Array[Double],
   dt : Double,
   temperature : Double,
   pressure : Double,
   friction : Double,
-  steps : Int,
-  n_dof : Int,
+  steps : Int32,
+  n_dof : Int32,
 ) -> Array[Double] {
   let temps : Array[Double] = Array(capacity=0)
   let mut pos = positions
@@ -1037,8 +1067,16 @@ pub fn md_rmsd(
   let p_centered = md_new_forces(n)
   let r_centered = md_new_forces(n)
   for i = 0; i < n; i = i + 1 {
-    p_centered[i] = [positions[i][0] - c_p[0], positions[i][1] - c_p[1], positions[i][2] - c_p[2]]
-    r_centered[i] = [reference[i][0] - c_r[0], reference[i][1] - c_r[1], reference[i][2] - c_r[2]]
+    p_centered[i] = [
+      positions[i][0] - c_p[0],
+      positions[i][1] - c_p[1],
+      positions[i][2] - c_p[2],
+    ]
+    r_centered[i] = [
+      reference[i][0] - c_r[0],
+      reference[i][1] - c_r[1],
+      reference[i][2] - c_r[2],
+    ]
   }
   // Compute covariance matrix R = P^T * Q
   let r = md_covariance3x3(p_centered, r_centered)
@@ -1048,8 +1086,14 @@ pub fn md_rmsd(
   let mut norm_p2 = 0.0
   let mut norm_q2 = 0.0
   for i = 0; i < n; i = i + 1 {
-    norm_p2 = norm_p2 + p_centered[i][0] * p_centered[i][0] + p_centered[i][1] * p_centered[i][1] + p_centered[i][2] * p_centered[i][2]
-    norm_q2 = norm_q2 + r_centered[i][0] * r_centered[i][0] + r_centered[i][1] * r_centered[i][1] + r_centered[i][2] * r_centered[i][2]
+    norm_p2 = norm_p2 +
+      p_centered[i][0] * p_centered[i][0] +
+      p_centered[i][1] * p_centered[i][1] +
+      p_centered[i][2] * p_centered[i][2]
+    norm_q2 = norm_q2 +
+      r_centered[i][0] * r_centered[i][0] +
+      r_centered[i][1] * r_centered[i][1] +
+      r_centered[i][2] * r_centered[i][2]
   }
   // Singular values of R = sqrt(eigenvalues of R*R^T)
   // R*R^T is 3x3 symmetric
@@ -1177,7 +1221,7 @@ pub struct MdTabulated1D {
   values : Array[Double]
   x_min : Double
   x_max : Double
-  n : Int
+  n : Int32
 }
 
 ///|
@@ -1187,15 +1231,12 @@ pub fn MdTabulated1D::new(
   x_min : Double,
   x_max : Double,
 ) -> MdTabulated1D {
-  { values, x_min, x_max, n: values.length() }
+  { values, x_min, x_max, n: values.length(), }
 }
 
 ///|
 /// Evaluate a 1D tabulated function at x using linear interpolation.
-pub fn md_tabulated1d_eval(
-  f : MdTabulated1D,
-  x : Double,
-) -> Double {
+pub fn md_tabulated1d_eval(f : MdTabulated1D, x : Double) -> Double {
   if x <= f.x_min {
     return f.values[0]
   }
@@ -1215,10 +1256,7 @@ pub fn md_tabulated1d_eval(
 
 ///|
 /// Evaluate the derivative of a 1D tabulated function at x.
-pub fn md_tabulated1d_deriv(
-  f : MdTabulated1D,
-  x : Double,
-) -> Double {
+pub fn md_tabulated1d_deriv(f : MdTabulated1D, x : Double) -> Double {
   if x <= f.x_min || x >= f.x_max {
     return 0.0
   }
@@ -1235,13 +1273,13 @@ pub fn md_tabulated1d_deriv(
 ///|
 /// Continuous 2D tabulated function with bilinear interpolation.
 pub struct MdTabulated2D {
-  values : Array[Double]  // row-major: values[y_idx * nx + x_idx]
+  values : Array[Double] // row-major: values[y_idx * nx + x_idx]
   x_min : Double
   x_max : Double
   y_min : Double
   y_max : Double
-  nx : Int
-  ny : Int
+  nx : Int32
+  ny : Int32
 }
 
 ///|
@@ -1252,23 +1290,31 @@ pub fn MdTabulated2D::new(
   x_max : Double,
   y_min : Double,
   y_max : Double,
-  nx : Int,
-  ny : Int,
+  nx : Int32,
+  ny : Int32,
 ) -> MdTabulated2D {
-  { values, x_min, x_max, y_min, y_max, nx, ny }
+  { values, x_min, x_max, y_min, y_max, nx, ny, }
 }
 
 ///|
 /// Evaluate a 2D tabulated function at (x, y) using bilinear interpolation.
-pub fn md_tabulated2d_eval(
-  f : MdTabulated2D,
-  x : Double,
-  y : Double,
-) -> Double {
+pub fn md_tabulated2d_eval(f : MdTabulated2D, x : Double, y : Double) -> Double {
   let dx = (f.x_max - f.x_min) / (f.nx - 1).to_double()
   let dy = (f.y_max - f.y_min) / (f.ny - 1).to_double()
-  let tx = if x <= f.x_min { 0.0 } else if x >= f.x_max { (f.nx - 1).to_double() } else { (x - f.x_min) / dx }
-  let ty = if y <= f.y_min { 0.0 } else if y >= f.y_max { (f.ny - 1).to_double() } else { (y - f.y_min) / dy }
+  let tx = if x <= f.x_min {
+    0.0
+  } else if x >= f.x_max {
+    (f.nx - 1).to_double()
+  } else {
+    (x - f.x_min) / dx
+  }
+  let ty = if y <= f.y_min {
+    0.0
+  } else if y >= f.y_max {
+    (f.ny - 1).to_double()
+  } else {
+    (y - f.y_min) / dy
+  }
   let ix = tx.floor().to_int()
   let iy = ty.floor().to_int()
   let fx = tx - ix.to_double()
@@ -1279,7 +1325,10 @@ pub fn md_tabulated2d_eval(
   let v10 = f.values[iy0 * f.nx + ix0 + 1]
   let v01 = f.values[(iy0 + 1) * f.nx + ix0]
   let v11 = f.values[(iy0 + 1) * f.nx + ix0 + 1]
-  (1.0 - fx) * (1.0 - fy) * v00 + fx * (1.0 - fy) * v10 + (1.0 - fx) * fy * v01 + fx * fy * v11
+  (1.0 - fx) * (1.0 - fy) * v00 +
+  fx * (1.0 - fy) * v10 +
+  (1.0 - fx) * fy * v01 +
+  fx * fy * v11
 }
 
 ///|
@@ -1306,7 +1355,6 @@ pub fn md_tabulated1d_discrete(
   }
 }
 
-
 // ============================================================================
 // Tier 2 B-F. Custom Forces (expression-based)
 // Ported from OpenMM CustomBondForce, CustomAngleForce, CustomTorsionForce,
@@ -1316,7 +1364,11 @@ pub fn md_tabulated1d_discrete(
 
 ///|
 /// Convert a slice of chars to a string.
-fn md_chars_to_string(chars : Array[Char], start : Int, end : Int) -> String {
+fn md_chars_to_string(
+  chars : Array[Char],
+  start : Int32,
+  end : Int32,
+) -> String {
   let buf : StringBuilder = StringBuilder()
   for i = start; i < end; i = i + 1 {
     buf.write_char(chars[i])
@@ -1328,14 +1380,15 @@ fn md_chars_to_string(chars : Array[Char], start : Int, end : Int) -> String {
 /// Expression parser state.
 struct MdExprParser {
   chars : Array[Char]
-  mut pos : Int
+  mut pos : Int32
   var_name : String
   var_val : Double
 }
 
 ///|
 fn MdExprParser::skip_ws(self : MdExprParser) -> Unit {
-  while self.pos < self.chars.length() && (self.chars[self.pos] == ' ' || self.chars[self.pos] == '\t') {
+  while self.pos < self.chars.length() &&
+        (self.chars[self.pos] == ' ' || self.chars[self.pos] == '\t') {
     self.pos = self.pos + 1
   }
 }
@@ -1345,7 +1398,8 @@ fn MdExprParser::parse_expr(self : MdExprParser) -> Double {
   self.skip_ws()
   let mut result = self.parse_term()
   self.skip_ws()
-  while self.pos < self.chars.length() && (self.chars[self.pos] == '+' || self.chars[self.pos] == '-') {
+  while self.pos < self.chars.length() &&
+        (self.chars[self.pos] == '+' || self.chars[self.pos] == '-') {
     let op = self.chars[self.pos]
     self.pos = self.pos + 1
     let rhs = self.parse_term()
@@ -1364,7 +1418,8 @@ fn MdExprParser::parse_term(self : MdExprParser) -> Double {
   self.skip_ws()
   let mut result = self.parse_factor()
   self.skip_ws()
-  while self.pos < self.chars.length() && (self.chars[self.pos] == '*' || self.chars[self.pos] == '/') {
+  while self.pos < self.chars.length() &&
+        (self.chars[self.pos] == '*' || self.chars[self.pos] == '/') {
     let op = self.chars[self.pos]
     self.pos = self.pos + 1
     let rhs = self.parse_factor()
@@ -1419,15 +1474,27 @@ fn MdExprParser::parse_atom(self : MdExprParser) -> Double {
   // Number
   if (c >= '0' && c <= '9') || c == '.' {
     let start = self.pos
-    while self.pos < self.chars.length() && ((self.chars[self.pos] >= '0' && self.chars[self.pos] <= '9') || self.chars[self.pos] == '.') {
+    while self.pos < self.chars.length() &&
+          (
+            (self.chars[self.pos] >= '0' && self.chars[self.pos] <= '9') ||
+            self.chars[self.pos] == '.'
+          ) {
       self.pos = self.pos + 1
     }
-    return parse_double(md_chars_to_string(self.chars, start, self.pos)).unwrap_or(0.0)
+    return parse_double(md_chars_to_string(self.chars, start, self.pos)).unwrap_or(
+      0.0,
+    )
   }
   // Identifier (function or variable)
   if (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') {
     let start = self.pos
-    while self.pos < self.chars.length() && ((self.chars[self.pos] >= 'a' && self.chars[self.pos] <= 'z') || (self.chars[self.pos] >= 'A' && self.chars[self.pos] <= 'Z') || (self.chars[self.pos] >= '0' && self.chars[self.pos] <= '9') || self.chars[self.pos] == '_') {
+    while self.pos < self.chars.length() &&
+          (
+            (self.chars[self.pos] >= 'a' && self.chars[self.pos] <= 'z') ||
+            (self.chars[self.pos] >= 'A' && self.chars[self.pos] <= 'Z') ||
+            (self.chars[self.pos] >= '0' && self.chars[self.pos] <= '9') ||
+            self.chars[self.pos] == '_'
+          ) {
       self.pos = self.pos + 1
     }
     let name = md_chars_to_string(self.chars, start, self.pos)
@@ -1487,7 +1554,7 @@ fn md_eval_expr(expr : String, var_name : String, var_val : Double) -> Double {
 /// The variable 'r' in the expression is the bond distance.
 pub fn md_custom_bond_energy(
   positions : Array[Array[Double]],
-  bonds : Array[(Int, Int, String)],
+  bonds : Array[(Int32, Int32, String)],
 ) -> Double {
   let mut e = 0.0
   for (i, j, expr) in bonds {
@@ -1501,7 +1568,7 @@ pub fn md_custom_bond_energy(
 /// Compute custom bond forces via finite difference.
 pub fn md_custom_bond_forces(
   positions : Array[Array[Double]],
-  bonds : Array[(Int, Int, String)],
+  bonds : Array[(Int32, Int32, String)],
 ) -> Array[Array[Double]] {
   let n = positions.length()
   let forces = md_new_forces(n)
@@ -1533,7 +1600,7 @@ pub fn md_custom_bond_forces(
 /// Variable 'theta' in the expression is the angle in radians.
 pub fn md_custom_angle_energy(
   positions : Array[Array[Double]],
-  angles : Array[(Int, Int, Int, String)],
+  angles : Array[(Int32, Int32, Int32, String)],
 ) -> Double {
   let mut e = 0.0
   for (i, j, k, expr) in angles {
@@ -1547,7 +1614,7 @@ pub fn md_custom_angle_energy(
 /// Compute custom angle forces via finite difference.
 pub fn md_custom_angle_forces(
   positions : Array[Array[Double]],
-  angles : Array[(Int, Int, Int, String)],
+  angles : Array[(Int32, Int32, Int32, String)],
 ) -> Array[Array[Double]] {
   let n = positions.length()
   let forces = md_new_forces(n)
@@ -1561,7 +1628,11 @@ pub fn md_custom_angle_forces(
         let pos_minus = md_copy_positions(positions)
         pos_minus[idx][d] = pos_minus[idx][d] - h
         let theta_plus = md_angle_value(pos_plus[i], pos_plus[j], pos_plus[k])
-        let theta_minus = md_angle_value(pos_minus[i], pos_minus[j], pos_minus[k])
+        let theta_minus = md_angle_value(
+          pos_minus[i],
+          pos_minus[j],
+          pos_minus[k],
+        )
         let e_plus = md_eval_expr(expr, "theta", theta_plus)
         let e_minus = md_eval_expr(expr, "theta", theta_minus)
         forces[idx][d] = forces[idx][d] - (e_plus - e_minus) / (2.0 * h)
@@ -1580,11 +1651,16 @@ pub fn md_custom_angle_forces(
 /// Variable 'theta' is the dihedral angle in radians.
 pub fn md_custom_torsion_energy(
   positions : Array[Array[Double]],
-  torsions : Array[(Int, Int, Int, Int, String)],
+  torsions : Array[(Int32, Int32, Int32, Int32, String)],
 ) -> Double {
   let mut e = 0.0
   for (i, j, k, l, expr) in torsions {
-    let theta = md_dihedral_value(positions[i], positions[j], positions[k], positions[l])
+    let theta = md_dihedral_value(
+      positions[i],
+      positions[j],
+      positions[k],
+      positions[l],
+    )
     e = e + md_eval_expr(expr, "theta", theta)
   }
   e
@@ -1594,21 +1670,39 @@ pub fn md_custom_torsion_energy(
 /// Compute custom torsion forces via finite difference.
 pub fn md_custom_torsion_forces(
   positions : Array[Array[Double]],
-  torsions : Array[(Int, Int, Int, Int, String)],
+  torsions : Array[(Int32, Int32, Int32, Int32, String)],
 ) -> Array[Array[Double]] {
   let n = positions.length()
   let forces = md_new_forces(n)
   let h = 1.0e-5
   for (i, j, k, l, expr) in torsions {
     for atom = 0; atom < 4; atom = atom + 1 {
-      let idx = if atom == 0 { i } else if atom == 1 { j } else if atom == 2 { k } else { l }
+      let idx = if atom == 0 {
+        i
+      } else if atom == 1 {
+        j
+      } else if atom == 2 {
+        k
+      } else {
+        l
+      }
       for d = 0; d < 3; d = d + 1 {
         let pos_plus = md_copy_positions(positions)
         pos_plus[idx][d] = pos_plus[idx][d] + h
         let pos_minus = md_copy_positions(positions)
         pos_minus[idx][d] = pos_minus[idx][d] - h
-        let theta_plus = md_dihedral_value(pos_plus[i], pos_plus[j], pos_plus[k], pos_plus[l])
-        let theta_minus = md_dihedral_value(pos_minus[i], pos_minus[j], pos_minus[k], pos_minus[l])
+        let theta_plus = md_dihedral_value(
+          pos_plus[i],
+          pos_plus[j],
+          pos_plus[k],
+          pos_plus[l],
+        )
+        let theta_minus = md_dihedral_value(
+          pos_minus[i],
+          pos_minus[j],
+          pos_minus[k],
+          pos_minus[l],
+        )
         let e_plus = md_eval_expr(expr, "theta", theta_plus)
         let e_minus = md_eval_expr(expr, "theta", theta_minus)
         forces[idx][d] = forces[idx][d] - (e_plus - e_minus) / (2.0 * h)
@@ -1627,11 +1721,13 @@ pub fn md_custom_torsion_forces(
 /// Variable 'r' is the distance from origin.
 pub fn md_custom_external_energy(
   positions : Array[Array[Double]],
-  externals : Array[(Int, String)],
+  externals : Array[(Int32, String)],
 ) -> Double {
   let mut e = 0.0
   for (i, expr) in externals {
-    let r = (positions[i][0] * positions[i][0] + positions[i][1] * positions[i][1] + positions[i][2] * positions[i][2]).sqrt()
+    let r = (positions[i][0] * positions[i][0] +
+    positions[i][1] * positions[i][1] +
+    positions[i][2] * positions[i][2]).sqrt()
     e = e + md_eval_expr(expr, "r", r)
   }
   e
@@ -1641,7 +1737,7 @@ pub fn md_custom_external_energy(
 /// Compute custom external forces via finite difference.
 pub fn md_custom_external_forces(
   positions : Array[Array[Double]],
-  externals : Array[(Int, String)],
+  externals : Array[(Int32, String)],
 ) -> Array[Array[Double]] {
   let n = positions.length()
   let forces = md_new_forces(n)
@@ -1652,8 +1748,12 @@ pub fn md_custom_external_forces(
       pos_plus[i][d] = pos_plus[i][d] + h
       let pos_minus = md_copy_positions(positions)
       pos_minus[i][d] = pos_minus[i][d] - h
-      let r_plus = (pos_plus[i][0] * pos_plus[i][0] + pos_plus[i][1] * pos_plus[i][1] + pos_plus[i][2] * pos_plus[i][2]).sqrt()
-      let r_minus = (pos_minus[i][0] * pos_minus[i][0] + pos_minus[i][1] * pos_minus[i][1] + pos_minus[i][2] * pos_minus[i][2]).sqrt()
+      let r_plus = (pos_plus[i][0] * pos_plus[i][0] +
+      pos_plus[i][1] * pos_plus[i][1] +
+      pos_plus[i][2] * pos_plus[i][2]).sqrt()
+      let r_minus = (pos_minus[i][0] * pos_minus[i][0] +
+      pos_minus[i][1] * pos_minus[i][1] +
+      pos_minus[i][2] * pos_minus[i][2]).sqrt()
       let e_plus = md_eval_expr(expr, "r", r_plus)
       let e_minus = md_eval_expr(expr, "r", r_minus)
       forces[i][d] = forces[i][d] - (e_plus - e_minus) / (2.0 * h)
@@ -1672,7 +1772,7 @@ pub fn md_custom_external_forces(
 pub fn md_custom_nonbonded_energy(
   positions : Array[Array[Double]],
   expr : String,
-  exclusions : Array[(Int, Int)],
+  exclusions : Array[(Int32, Int32)],
   cutoff : Double,
 ) -> Double {
   let n = positions.length()
@@ -1702,7 +1802,7 @@ pub fn md_custom_nonbonded_energy(
 pub fn md_custom_nonbonded_forces(
   positions : Array[Array[Double]],
   expr : String,
-  exclusions : Array[(Int, Int)],
+  exclusions : Array[(Int32, Int32)],
   cutoff : Double,
 ) -> Array[Array[Double]] {
   let n = positions.length()
@@ -1714,8 +1814,12 @@ pub fn md_custom_nonbonded_forces(
       pos_plus[i][d] = pos_plus[i][d] + h
       let pos_minus = md_copy_positions(positions)
       pos_minus[i][d] = pos_minus[i][d] - h
-      let e_plus = md_custom_nonbonded_energy(pos_plus, expr, exclusions, cutoff)
-      let e_minus = md_custom_nonbonded_energy(pos_minus, expr, exclusions, cutoff)
+      let e_plus = md_custom_nonbonded_energy(
+        pos_plus, expr, exclusions, cutoff,
+      )
+      let e_minus = md_custom_nonbonded_energy(
+        pos_minus, expr, exclusions, cutoff,
+      )
       forces[i][d] = forces[i][d] - (e_plus - e_minus) / (2.0 * h)
     }
   }
@@ -1778,8 +1882,12 @@ pub fn md_nonbonded_pbc_forces(
       pos_plus[i][d] = pos_plus[i][d] + h
       let pos_minus = md_copy_positions(positions)
       pos_minus[i][d] = pos_minus[i][d] - h
-      let e_plus = md_nonbonded_pbc_energy(pos_plus, params, box, cutoff, dielectric)
-      let e_minus = md_nonbonded_pbc_energy(pos_minus, params, box, cutoff, dielectric)
+      let e_plus = md_nonbonded_pbc_energy(
+        pos_plus, params, box, cutoff, dielectric,
+      )
+      let e_minus = md_nonbonded_pbc_energy(
+        pos_minus, params, box, cutoff, dielectric,
+      )
       forces[i][d] = forces[i][d] - (e_plus - e_minus) / (2.0 * h)
     }
   }
@@ -1793,9 +1901,9 @@ pub fn md_neighbor_list(
   positions : Array[Array[Double]],
   box : Array[Double],
   cutoff : Double,
-) -> Array[(Int, Int, Double)] {
+) -> Array[(Int32, Int32, Double)] {
   let n = positions.length()
-  let pairs : Array[(Int, Int, Double)] = Array(capacity=0)
+  let pairs : Array[(Int32, Int32, Double)] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {
     for j = i + 1; j < n; j = j + 1 {
       let r = md_pbc_distance(positions[i], positions[j], box)
@@ -1816,18 +1924,18 @@ pub fn md_neighbor_list(
 ///|
 /// Nose-Hoover chain state: positions of chain variables and their velocities.
 pub struct MdNoseHooverChain {
-  xi : Array[Double]      // chain positions
-  v_xi : Array[Double]    // chain velocities
-  chain_length : Int
-  n_dof : Int                 // degrees of freedom
-  tau : Double                // relaxation time
+  xi : Array[Double] // chain positions
+  v_xi : Array[Double] // chain velocities
+  chain_length : Int32
+  n_dof : Int32 // degrees of freedom
+  tau : Double // relaxation time
 }
 
 ///|
 /// Create a Nose-Hoover chain thermostat.
 pub fn MdNoseHooverChain::new(
-  chain_length : Int,
-  n_dof : Int,
+  chain_length : Int32,
+  n_dof : Int32,
   tau : Double,
 ) -> MdNoseHooverChain {
   {
@@ -1908,13 +2016,13 @@ pub fn md_simulate_nose_hoover_chain(
   positions : Array[Array[Double]],
   velocities : Array[Array[Double]],
   masses : Array[Double],
-  bonds : Array[(Int, Int, Double, Double)],
+  bonds : Array[(Int32, Int32, Double, Double)],
   dt : Double,
   temperature : Double,
   tau : Double,
-  chain_length : Int,
-  steps : Int,
-  n_dof : Int,
+  chain_length : Int32,
+  steps : Int32,
+  n_dof : Int32,
 ) -> Array[Double] {
   let temps : Array[Double] = Array(capacity=0)
   let pos = positions
@@ -2023,20 +2131,22 @@ pub fn md_simulate_dpd(
   positions : Array[Array[Double]],
   velocities : Array[Array[Double]],
   masses : Array[Double],
-  bonds : Array[(Int, Int, Double, Double)],
+  bonds : Array[(Int32, Int32, Double, Double)],
   dt : Double,
   temperature : Double,
   gamma : Double,
   cutoff : Double,
-  steps : Int,
-  n_dof : Int,
+  steps : Int32,
+  n_dof : Int32,
 ) -> Array[Double] {
   let temps : Array[Double] = Array(capacity=0)
   let mut pos = positions
   let mut vel = velocities
   for _s = 0; _s < steps; _s = _s + 1 {
     let forces = md_bond_forces(pos, bonds)
-    let (x_new, v_new) = md_dpd_step(pos, vel, masses, forces, dt, temperature, gamma, cutoff)
+    let (x_new, v_new) = md_dpd_step(
+      pos, vel, masses, forces, dt, temperature, gamma, cutoff,
+    )
     pos = x_new
     vel = v_new
     temps.push(md_temperature(vel, masses, n_dof))

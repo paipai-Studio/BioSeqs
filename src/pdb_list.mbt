@@ -85,7 +85,10 @@ pub fn PDBList::update_pdb(self : PDBList) -> (PDBList, String) {
 }
 
 ///|
-pub fn PDBList::get_recent_changes(_self : PDBList, _days : Int) -> Array[String] {
+pub fn PDBList::get_recent_changes(
+  _self : PDBList,
+  _days : Int32,
+) -> Array[String] {
   let changes : Array[String] = Array(capacity=0)
   changes
 }

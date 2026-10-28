@@ -81,7 +81,9 @@ fn main {
   let mut max_tic = tic[0]
   let mut t = 1
   while t < tic.length() {
-    if tic[t] > max_tic { max_tic = tic[t] }
+    if tic[t] > max_tic {
+      max_tic = tic[t]
+    }
     t = t + 1
   }
   println("  Max intensity: " + max_tic.to_string())
@@ -101,9 +103,10 @@ fn main {
   // Get spectrum by scan number
   println("Looking up spectrum #1:")
   match file.get_spectrum(1) {
-    Some(spec) => {
-      println("  Found spectrum with " + spec.num_peaks().to_string() + " peaks")
-    }
+    Some(spec) =>
+      println(
+        "  Found spectrum with " + spec.num_peaks().to_string() + " peaks",
+      )
     None => println("  Not found")
   }
 
@@ -120,7 +123,9 @@ fn main {
   println("")
 
   // Total peaks in file
-  println("Total peaks across all spectra: " + @bio.pcd_total_peaks(file).to_string())
+  println(
+    "Total peaks across all spectra: " + @bio.pcd_total_peaks(file).to_string(),
+  )
   println("Number of spectra: " + @bio.pcd_num_spectra(file).to_string())
   println("")
 
@@ -136,8 +141,13 @@ fn main {
   // Parse back and verify
   let file2 = @bio.pcd_parse(written)
   println("Re-parsed PCD file:")
-  println("  Spectra count match: " + (file.num_spectra == file2.num_spectra).to_string())
-  println("  Peak count match: " + (file.num_peaks == file2.num_peaks).to_string())
+  println(
+    "  Spectra count match: " +
+    (file.num_spectra == file2.num_spectra).to_string(),
+  )
+  println(
+    "  Peak count match: " + (file.num_peaks == file2.num_peaks).to_string(),
+  )
   println("")
 
   // ------------------------------------------------------------------

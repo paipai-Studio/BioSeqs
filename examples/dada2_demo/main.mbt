@@ -1,7 +1,6 @@
 ///|
 /// dada2 demo - Amplicon Sequence Variant inference pipeline.
 /// Demonstrates: dereplicate → learnErrors → dada → mergePairs → removeChimeras → makeTable → assignTaxonomy.
-
 fn main {
   println("=== dada2 Demo: Amplicon Sequence Variant Inference ===")
   println("")
@@ -9,18 +8,9 @@ fn main {
   // Step 1: Dereplication
   println("--- Step 1: Dereplication ---")
   let seqs = [
-    "ACGTACGTACGTACGT",
-    "ACGTACGTACGTACGT",
-    "ACGTACGTACGTACGT",
-    "ACGTACGTACGTACGA",
-    "ACGTACGTACGTACGA",
-    "ACGTACGTACGTACGT",
-    "TTGCGCGCATATATAT",
-    "TTGCGCGCATATATAT",
-    "TTGCGCGCATATATAT",
-    "TTGCGCGCATATATAT",
-    "TTGCGCGCATATATAC",
-    "ACGTACGTACGTACGT",
+    "ACGTACGTACGTACGT", "ACGTACGTACGTACGT", "ACGTACGTACGTACGT", "ACGTACGTACGTACGA",
+    "ACGTACGTACGTACGA", "ACGTACGTACGTACGT", "TTGCGCGCATATATAT", "TTGCGCGCATATATAT",
+    "TTGCGCGCATATATAT", "TTGCGCGCATATATAT", "TTGCGCGCATATATAC", "ACGTACGTACGTACGT",
   ]
   let derep = @src.dereplicate(seqs, [])
   println("Input reads: " + derep.total_reads.to_string())
@@ -38,8 +28,14 @@ fn main {
   let model = @src.learn_errors(derep, 40)
   println("Max quality: " + model.max_qual.to_string())
   println("Reads processed: " + model.n_reads.to_string())
-  println("Error rate (A->C at Q20): " + model.err_mat[@src.transition_index(0, 1)][20].to_string())
-  println("Match rate (A->A at Q20): " + model.err_mat[@src.transition_index(0, 0)][20].to_string())
+  println(
+    "Error rate (A->C at Q20): " +
+    model.err_mat[@src.transition_index(0, 1)][20].to_string(),
+  )
+  println(
+    "Match rate (A->A at Q20): " +
+    model.err_mat[@src.transition_index(0, 0)][20].to_string(),
+  )
   println("")
 
   // Step 3: DADA Inference
@@ -50,7 +46,17 @@ fn main {
   let mut ci = 0
   while ci < dada.partitions.length() {
     let p = dada.partitions[ci]
-    println("  ASV " + (ci + 1).to_string() + ": " + p.center + " (abundance=" + p.abundance.to_string() + ", members=" + p.members.length().to_string() + ")")
+    println(
+      "  ASV " +
+      (ci + 1).to_string() +
+      ": " +
+      p.center +
+      " (abundance=" +
+      p.abundance.to_string() +
+      ", members=" +
+      p.members.length().to_string() +
+      ")",
+    )
     ci = ci + 1
   }
   println("")
@@ -63,9 +69,22 @@ fn main {
   let mut mi = 0
   while mi < merged.length() {
     let m = merged[mi]
-    println("  Read " + (mi + 1).to_string() + ": " + (if m.accepted { "accepted" } else { "rejected" }))
+    println(
+      "  Read " +
+      (mi + 1).to_string() +
+      ": " +
+      (if m.accepted { "accepted" } else { "rejected" }),
+    )
     if m.accepted {
-      println("    Merged: " + m.sequence + " (overlap=" + m.overlap.to_string() + ", mismatch=" + m.mismatch.to_string() + ")")
+      println(
+        "    Merged: " +
+        m.sequence +
+        " (overlap=" +
+        m.overlap.to_string() +
+        ", mismatch=" +
+        m.mismatch.to_string() +
+        ")",
+      )
     }
     mi = mi + 1
   }
@@ -80,11 +99,15 @@ fn main {
   let abundances = [100, 100, 10]
   let (clean_asvs, clean_abund, _flags) = @src.remove_chimeras(asvs, abundances)
   println("Input ASVs: " + asvs.length().to_string())
-  println("Chimeras removed: " + (asvs.length() - clean_asvs.length()).to_string())
+  println(
+    "Chimeras removed: " + (asvs.length() - clean_asvs.length()).to_string(),
+  )
   println("Clean ASVs: " + clean_asvs.length().to_string())
   let mut ai = 0
   while ai < clean_asvs.length() {
-    println("  " + clean_asvs[ai] + " (abundance=" + clean_abund[ai].to_string() + ")")
+    println(
+      "  " + clean_asvs[ai] + " (abundance=" + clean_abund[ai].to_string() + ")",
+    )
     ai = ai + 1
   }
   println("")
@@ -100,7 +123,9 @@ fn main {
   let sample_totals = @src.seq_table_sample_totals(table)
   let mut si = 0
   while si < table.n_samples {
-    println("  " + table.sample_names[si] + " total: " + sample_totals[si].to_string())
+    println(
+      "  " + table.sample_names[si] + " total: " + sample_totals[si].to_string(),
+    )
     si = si + 1
   }
   println("")
@@ -130,7 +155,16 @@ fn main {
   println("Positions: " + profile.positions.to_string())
   let mut qi = 0
   while qi < profile.positions {
-    println("  Pos " + qi.to_string() + ": mean=" + profile.mean[qi].to_string() + ", min=" + profile.min[qi].to_string() + ", max=" + profile.max[qi].to_string())
+    println(
+      "  Pos " +
+      qi.to_string() +
+      ": mean=" +
+      profile.mean[qi].to_string() +
+      ", min=" +
+      profile.min[qi].to_string() +
+      ", max=" +
+      profile.max[qi].to_string(),
+    )
     qi = qi + 1
   }
   println("")

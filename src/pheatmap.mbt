@@ -84,8 +84,8 @@ pub struct PheatmapInput {
   clustering_distance_rows : DistanceMethod
   clustering_distance_cols : DistanceMethod
   clustering_method : ClusterMethod
-  cutree_rows : Int
-  cutree_cols : Int
+  cutree_rows : Int32
+  cutree_cols : Int32
   annotation_row : Map[String, Array[String]]
   annotation_col : Map[String, Array[String]]
   annotation_colors : Map[String, Map[String, String]]
@@ -98,10 +98,10 @@ pub struct PheatmapInput {
 ///|
 pub struct PheatmapResult {
   text : String
-  row_order : Array[Int]
-  col_order : Array[Int]
-  row_clusters : Array[Int]
-  col_clusters : Array[Int]
+  row_order : Array[Int32]
+  col_order : Array[Int32]
+  row_clusters : Array[Int32]
+  col_clusters : Array[Int32]
   row_dendrogram : String
   col_dendrogram : String
   breaks : Array[Double]
@@ -256,10 +256,10 @@ pub fn pheatmap_column_distance_matrix(
 
 ///|
 pub struct HclustResult {
-  merge : Array[(Int, Int)]
+  merge : Array[(Int32, Int32)]
   height : Array[Double]
-  order : Array[Int]
-  n : Int
+  order : Array[Int32]
+  n : Int32
 }
 
 ///|
@@ -272,7 +272,7 @@ pub fn hclust_complete(dist : Array[Array[Double]]) -> HclustResult {
     return HclustResult::{ merge: [], height: [], order: [0], n: 1, }
   }
   // cluster[i] = current cluster id for point i (initially -i-1 for leaves)
-  let cluster : Array[Int] = Array::make(n, 0)
+  let cluster : Array[Int32] = Array::make(n, 0)
   let mut i = 0
   while i < n {
     cluster[i] = -i - 1
@@ -294,7 +294,7 @@ pub fn hclust_complete(dist : Array[Array[Double]]) -> HclustResult {
     }
     ri = ri + 1
   }
-  let merge : Array[(Int, Int)] = Array(capacity=0)
+  let merge : Array[(Int32, Int32)] = Array(capacity=0)
   let height : Array[Double] = Array(capacity=0)
   // Process n-1 merges
   let mut step = 0
@@ -356,8 +356,8 @@ pub fn hclust_complete(dist : Array[Array[Double]]) -> HclustResult {
 }
 
 ///|
-fn hclust_inorder(merge : Array[(Int, Int)], n : Int) -> Array[Int] {
-  let result : Array[Int] = Array(capacity=0)
+fn hclust_inorder(merge : Array[(Int32, Int32)], n : Int32) -> Array[Int32] {
+  let result : Array[Int32] = Array(capacity=0)
   if n <= 0 {
     return result
   }
@@ -380,7 +380,10 @@ fn hclust_inorder(merge : Array[(Int, Int)], n : Int) -> Array[Int] {
 }
 
 ///|
-fn hclust_inorder_rec(merge : Array[(Int, Int)], node : Int) -> Array[Int] {
+fn hclust_inorder_rec(
+  merge : Array[(Int32, Int32)],
+  node : Int32,
+) -> Array[Int32] {
   if node < 0 {
     // Leaf node: -node-1 gives the original index
     [-node - 1]
@@ -389,7 +392,7 @@ fn hclust_inorder_rec(merge : Array[(Int, Int)], node : Int) -> Array[Int] {
     let merge_idx = node - 1
     let left = hclust_inorder_rec(merge, merge[merge_idx].0)
     let right = hclust_inorder_rec(merge, merge[merge_idx].1)
-    let result : Array[Int] = Array(capacity=0)
+    let result : Array[Int32] = Array(capacity=0)
     let mut i = 0
     while i < left.length() {
       result.push(left[i])
@@ -405,10 +408,10 @@ fn hclust_inorder_rec(merge : Array[(Int, Int)], node : Int) -> Array[Int] {
 }
 
 ///|
-pub fn hclust_cutree(result : HclustResult, k : Int) -> Array[Int] {
+pub fn hclust_cutree(result : HclustResult, k : Int32) -> Array[Int32] {
   let n = result.n
   let order = result.order
-  let clusters : Array[Int] = Array::make(n, 0)
+  let clusters : Array[Int32] = Array::make(n, 0)
   if k <= 1 || k >= n {
     let mut i = 0
     while i < n {
@@ -421,7 +424,7 @@ pub fn hclust_cutree(result : HclustResult, k : Int) -> Array[Int] {
   let total_merges = result.merge.length()
   let cut_point = total_merges - k + 1
   // Create cluster assignments by following the merge tree
-  let node_cluster : Map[Int, Int] = Map([], capacity=total_merges + n)
+  let node_cluster : Map[Int32, Int32] = Map([], capacity=total_merges + n)
   let mut cluster_id = 0
   let mut i = 0
   while i < n {
@@ -471,7 +474,7 @@ pub fn hclust_cutree(result : HclustResult, k : Int) -> Array[Int] {
 pub fn pretty_breaks(
   min_val : Double,
   max_val : Double,
-  n : Int,
+  n : Int32,
 ) -> Array[Double] {
   if min_val >= max_val {
     let breaks : Array[Double] = Array::make(1, min_val)
@@ -490,7 +493,7 @@ pub fn pretty_breaks(
 
 ///|
 /// Generate a heat color palette (blue to red).
-pub fn heat_colors(n : Int) -> Array[String] {
+pub fn heat_colors(n : Int32) -> Array[String] {
   let colors : Array[String] = Array(capacity=0)
   let mut i = 0
   while i < n {
@@ -521,7 +524,7 @@ pub fn heat_colors(n : Int) -> Array[String] {
 }
 
 ///|
-fn pheatmap_hex_color(r : Int, g : Int, b : Int) -> String {
+fn pheatmap_hex_color(r : Int32, g : Int32, b : Int32) -> String {
   let rh = pheatmap_int_to_hex(r)
   let gh = pheatmap_int_to_hex(g)
   let bh = pheatmap_int_to_hex(b)
@@ -529,7 +532,7 @@ fn pheatmap_hex_color(r : Int, g : Int, b : Int) -> String {
 }
 
 ///|
-fn pheatmap_int_to_hex(v : Int) -> String {
+fn pheatmap_int_to_hex(v : Int32) -> String {
   let digits = [
     "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "A", "B", "C", "D", "E", "F",
   ]
@@ -540,7 +543,7 @@ fn pheatmap_int_to_hex(v : Int) -> String {
 
 ///|
 /// Generate a blues color palette (white to blue).
-pub fn blues_colors(n : Int) -> Array[String] {
+pub fn blues_colors(n : Int32) -> Array[String] {
   let colors : Array[String] = Array(capacity=0)
   let mut i = 0
   while i < n {
@@ -558,7 +561,7 @@ pub fn blues_colors(n : Int) -> Array[String] {
 
 ///|
 /// Generate a greys color palette (black to white).
-pub fn greys_colors(n : Int) -> Array[String] {
+pub fn greys_colors(n : Int32) -> Array[String] {
   let colors : Array[String] = Array(capacity=0)
   let mut i = 0
   while i < n {
@@ -731,8 +734,8 @@ pub fn pheatmap_set_breaks(
 /// Set cutree_rows and cutree_cols for gaps.
 pub fn pheatmap_set_cutree(
   input : PheatmapInput,
-  cutree_rows : Int,
-  cutree_cols : Int,
+  cutree_rows : Int32,
+  cutree_cols : Int32,
 ) -> PheatmapInput {
   PheatmapInput::{
     mat: input.mat,
@@ -1094,8 +1097,8 @@ pub fn pheatmap_render(input : PheatmapInput) -> PheatmapResult {
     }
   }
   // Compute row and column order via clustering
-  let mut row_order : Array[Int] = Array::make(n, 0)
-  let mut col_order : Array[Int] = Array::make(m, 0)
+  let mut row_order : Array[Int32] = Array::make(n, 0)
+  let mut col_order : Array[Int32] = Array::make(m, 0)
   let mut i = 0
   while i < n {
     row_order[i] = i
@@ -1106,8 +1109,8 @@ pub fn pheatmap_render(input : PheatmapInput) -> PheatmapResult {
     col_order[j] = j
     j = j + 1
   }
-  let mut row_clusters : Array[Int] = Array(capacity=0)
-  let mut col_clusters : Array[Int] = Array(capacity=0)
+  let mut row_clusters : Array[Int32] = Array(capacity=0)
+  let mut col_clusters : Array[Int32] = Array(capacity=0)
   let mut row_dendrogram = ""
   let mut col_dendrogram = ""
   if input.cluster_rows && n > 1 {
@@ -1153,10 +1156,10 @@ pub fn pheatmap_render(input : PheatmapInput) -> PheatmapResult {
 ///|
 fn pheatmap_build_text(
   input : PheatmapInput,
-  row_order : Array[Int],
-  col_order : Array[Int],
-  row_clusters : Array[Int],
-  col_clusters : Array[Int],
+  row_order : Array[Int32],
+  col_order : Array[Int32],
+  row_clusters : Array[Int32],
+  col_clusters : Array[Int32],
 ) -> String {
   let lines : Array[String] = Array(capacity=0)
   if input.main_title.length() > 0 {
@@ -1234,7 +1237,7 @@ fn pheatmap_build_text(
 }
 
 ///|
-fn pheatmap_pad_str(s : String, width : Int) -> String {
+fn pheatmap_pad_str(s : String, width : Int32) -> String {
   if s.length() >= width {
     return s
   }
@@ -1252,8 +1255,8 @@ fn pheatmap_pad_str(s : String, width : Int) -> String {
 fn pheatmap_value_to_color_idx(
   val : Double,
   breaks : Array[Double],
-  n_colors : Int,
-) -> Int {
+  n_colors : Int32,
+) -> Int32 {
   if n_colors == 0 {
     return 0
   }
@@ -1297,7 +1300,7 @@ fn pheatmap_format_value(val : Double, _format : String) -> String {
 }
 
 ///|
-fn pheatmap_unique_count(arr : Array[Int]) -> Int {
+fn pheatmap_unique_count(arr : Array[Int32]) -> Int32 {
   let seen = Map([], capacity=arr.length())
   let mut count = 0
   for v in arr {

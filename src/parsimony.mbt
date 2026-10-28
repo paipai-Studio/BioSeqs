@@ -33,15 +33,18 @@ pub fn ParsimonyMatrix::new(
 /// Get the cost of transitioning from state i to state j.
 pub fn parsimony_matrix_cost(
   matrix : ParsimonyMatrix,
-  from_idx : Int,
-  to_idx : Int,
+  from_idx : Int32,
+  to_idx : Int32,
 ) -> Double {
   matrix.costs[from_idx][to_idx]
 }
 
 ///|
 /// Get the index of a state in the matrix. Returns -1 if not found.
-pub fn parsimony_matrix_index(matrix : ParsimonyMatrix, state : String) -> Int {
+pub fn parsimony_matrix_index(
+  matrix : ParsimonyMatrix,
+  state : String,
+) -> Int32 {
   let mut i = 0
   while i < matrix.states.length() {
     if matrix.states[i] == state {
@@ -70,8 +73,8 @@ pub fn parsimony_fitch_dna_matrix() -> ParsimonyMatrix {
 /// Create a Sankoff cost matrix for DNA with transition/transversion bias.
 /// Transitions (A<->G, C<->T) cost 1, transversions cost 2.
 pub fn parsimony_sankoff_dna_matrix(
-  transition_cost? : Double = 1.0,
-  transversion_cost? : Double = 2.0,
+  transition_cost~ : Double = 1.0,
+  transversion_cost~ : Double = 2.0,
 ) -> ParsimonyMatrix {
   let states = ["A", "C", "G", "T"]
   let costs = [
@@ -120,7 +123,7 @@ pub fn fitch_parsimony_score(
 fn fitch_score_position(
   clade : Clade,
   alignment : Map[String, String],
-  pos : Int,
+  pos : Int32,
 ) -> Double {
   let (states, score) = fitch_compute_states(clade, alignment, pos)
   ignore(states)
@@ -134,7 +137,7 @@ fn fitch_score_position(
 fn fitch_compute_states(
   clade : Clade,
   alignment : Map[String, String],
-  pos : Int,
+  pos : Int32,
 ) -> (Array[String], Double) {
   if clade.is_terminal() {
     let name = match clade.name {
@@ -274,7 +277,7 @@ pub fn sankoff_parsimony_score(
 fn sankoff_score_position(
   clade : Clade,
   alignment : Map[String, String],
-  pos : Int,
+  pos : Int32,
   matrix : ParsimonyMatrix,
 ) -> Double {
   let scores = sankoff_compute_scores(clade, alignment, pos, matrix)
@@ -299,7 +302,7 @@ fn sankoff_score_position(
 fn sankoff_compute_scores(
   clade : Clade,
   alignment : Map[String, String],
-  pos : Int,
+  pos : Int32,
   matrix : ParsimonyMatrix,
 ) -> Array[Double] {
   let n_states = matrix.states.length()
@@ -353,7 +356,7 @@ fn sankoff_compute_scores(
 pub fn parsimony_get_score(
   tree : Tree,
   alignment : Map[String, String],
-  matrix? : ParsimonyMatrix? = None,
+  matrix~ : ParsimonyMatrix? = None,
 ) -> Double {
   match matrix {
     Some(m) => sankoff_parsimony_score(tree, alignment, m)

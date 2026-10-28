@@ -134,11 +134,13 @@ test "helix_geometry: helix_kink with bend" {
   let mut i = 0
   while i < 8 {
     let angle = i.to_double() * 100.0 * 3.14159265358979323846 / 180.0
-    coords.push(@src.Vector3::new(
-      2.3 * @math.cos(angle),
-      2.3 * @math.sin(angle),
-      i.to_double() * 1.5,
-    ))
+    coords.push(
+      @src.Vector3::new(
+        2.3 * @math.cos(angle),
+        2.3 * @math.sin(angle),
+        i.to_double() * 1.5,
+      ),
+    )
     i = i + 1
   }
   // Second segment: tilted 30° from z
@@ -204,11 +206,13 @@ test "helix_geometry: analyze_helix_kinks straight" {
   let mut i = 0
   while i < 24 {
     let angle = i.to_double() * 100.0 * 3.14159265358979323846 / 180.0
-    coords.push(@src.Vector3::new(
-      2.3 * @math.cos(angle),
-      2.3 * @math.sin(angle),
-      i.to_double() * 1.5,
-    ))
+    coords.push(
+      @src.Vector3::new(
+        2.3 * @math.cos(angle),
+        2.3 * @math.sin(angle),
+        i.to_double() * 1.5,
+      ),
+    )
     i = i + 1
   }
   let kinks = @src.analyze_helix_kinks(coords)
@@ -223,11 +227,13 @@ test "helix_geometry: analyze_helix_kinks with bend" {
   let mut i = 0
   while i < 8 {
     let angle = i.to_double() * 100.0 * 3.14159265358979323846 / 180.0
-    coords.push(@src.Vector3::new(
-      2.3 * @math.cos(angle),
-      2.3 * @math.sin(angle),
-      i.to_double() * 1.5,
-    ))
+    coords.push(
+      @src.Vector3::new(
+        2.3 * @math.cos(angle),
+        2.3 * @math.sin(angle),
+        i.to_double() * 1.5,
+      ),
+    )
     i = i + 1
   }
   let tilt = 40.0 * 3.14159265358979323846 / 180.0

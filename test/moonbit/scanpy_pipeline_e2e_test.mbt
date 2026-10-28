@@ -21,16 +21,24 @@
 fn build_e2e_mtx() -> String {
   let n_genes = 15
   let n_cells = 20
-  let entries : Array[(Int, Int, Int)] = Array(capacity=0)
+  let entries : Array[(Int32, Int32, Int32)] = Array(capacity=0)
   for c = 0; c < n_cells; c = c + 1 {
     let is_cluster_a = c < 10
     for g = 0; g < n_genes; g = g + 1 {
       let val = if g < 5 {
         // cluster A markers: 20+g in cluster A, 1 in cluster B
-        if is_cluster_a { 20 + g } else { 1 }
+        if is_cluster_a {
+          20 + g
+        } else {
+          1
+        }
       } else if g < 10 {
         // cluster B markers: 1 in cluster A, 15+g-5 in cluster B (asymmetric with A)
-        if is_cluster_a { 1 } else { 15 + g - 5 }
+        if is_cluster_a {
+          1
+        } else {
+          15 + g - 5
+        }
       } else {
         // housekeeping: constant 5 in all cells
         5
@@ -91,7 +99,9 @@ test "scanpy_pipeline_e2e" {
   let mtx = build_e2e_mtx()
   let features = build_e2e_features()
   let barcodes = build_e2e_barcodes()
-  let adata = @src.scanpy_read_10x_mtx(mtx, features, barcodes, "gene_symbols", true, true)
+  let adata = @src.scanpy_read_10x_mtx(
+    mtx, features, barcodes, "gene_symbols", true, true,
+  )
   // 20 cells × 15 genes
   assert_eq(adata.n_obs(), 20)
   assert_eq(adata.n_vars(), 15)
@@ -131,10 +141,10 @@ test "scanpy_pipeline_e2e" {
       n_hvg = n_hvg + 1
     }
   }
-  assert_eq(n_hvg, 6)  // marker genes 0-4 + 5-9 = 10, but HVG selects 6 after bin normalization
+  assert_eq(n_hvg, 6) // marker genes 0-4 + 5-9 = 10, but HVG selects 6 after bin normalization
 
   // ── Step 5: Subset to HVGs ──
-  let hvg_indices : Array[Int] = Array(capacity=0)
+  let hvg_indices : Array[Int32] = Array(capacity=0)
   for j = 0; j < 15; j = j + 1 {
     if hvg.highly_variable[j] {
       hvg_indices.push(j)
@@ -183,7 +193,7 @@ test "scanpy_pipeline_e2e" {
   let labels = @src.scanpy_leiden(graph)
   assert_eq(labels.length(), 20)
   // Count distinct clusters
-  let label_set : Map[Int, Unit] = Map([], capacity=8)
+  let label_set : Map[Int32, Unit] = Map([], capacity=8)
   for l in labels {
     label_set[l] = ()
   }
@@ -230,6 +240,7 @@ test "scanpy_pipeline_e2e" {
   }
   cb_x = cb_x / 10.0
   cb_y = cb_y / 10.0
-  let centroid_dist = ((ca_x - cb_x) * (ca_x - cb_x) + (ca_y - cb_y) * (ca_y - cb_y)).sqrt()
+  let centroid_dist = ((ca_x - cb_x) * (ca_x - cb_x) +
+  (ca_y - cb_y) * (ca_y - cb_y)).sqrt()
   assert_true(centroid_dist > 0.1)
 }

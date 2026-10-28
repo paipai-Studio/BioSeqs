@@ -23,17 +23,19 @@ pub suberror CelError {
 pub struct CelRecord {
   version : String
   headers : Array[(String, String)]
-  n_rows : Int
-  n_cols : Int
-  n_cells : Int
+  n_rows : Int32
+  n_cols : Int32
+  n_cells : Int32
   intensities : Array[Array[Double]]
   stdevs : Array[Array[Double]]
-  npix : Array[Array[Int]]
-  mask : Array[Int]
-  outliers : Array[Int]
-  modified : Array[Int]
-  cells_read : Int
+  npix : Array[Array[Int32]]
+  mask : Array[Int32]
+  outliers : Array[Int32]
+  modified : Array[Int32]
+  cells_read : Int32
 } derive(Eq)
+
+///|
 pub extend CelRecord with Eq::{equal, not_equal}
 
 ///|
@@ -42,7 +44,7 @@ fn cel_fail(message : String) -> Unit raise CelError {
 }
 
 ///|
-fn cel_parse_int(text : String) -> Int? {
+fn cel_parse_int(text : String) -> Int32? {
   let s = text.trim().to_owned()
   if s.length() == 0 {
     return None
@@ -245,7 +247,7 @@ pub fn CelRecord::intensity_percentile(
   } else {
     percentile
   }
-  let position = (clamped / 100.0) * (n - 1).to_double()
+  let position = clamped / 100.0 * (n - 1).to_double()
   let lower = position.to_int()
   let upper = if lower + 1 < n { lower + 1 } else { lower }
   let frac = position - lower.to_double()
@@ -266,7 +268,7 @@ pub fn CelRecord::intensity_iqr(self : CelRecord) -> Double {
 }
 
 ///|
-fn cel_lookup(rows : Array[Array[Double]], y : Int, x : Int) -> Double {
+fn cel_lookup(rows : Array[Array[Double]], y : Int32, x : Int32) -> Double {
   if y < rows.length() && x < rows[y].length() {
     rows[y][x]
   } else {
@@ -276,18 +278,22 @@ fn cel_lookup(rows : Array[Array[Double]], y : Int, x : Int) -> Double {
 
 ///|
 /// Probe-level intensity at column `x`, row `y`.
-pub fn CelRecord::intensity_at(self : CelRecord, x : Int, y : Int) -> Double {
+pub fn CelRecord::intensity_at(
+  self : CelRecord,
+  x : Int32,
+  y : Int32,
+) -> Double {
   cel_lookup(self.intensities, y, x)
 }
 
 ///|
 /// Standard deviation at column `x`, row `y`.
-pub fn CelRecord::stdev_at(self : CelRecord, x : Int, y : Int) -> Double {
+pub fn CelRecord::stdev_at(self : CelRecord, x : Int32, y : Int32) -> Double {
   cel_lookup(self.stdevs, y, x)
 }
 
 ///|
-fn cel_matrix(rows : Int, cols : Int) -> Array[Array[Double]] {
+fn cel_matrix(rows : Int32, cols : Int32) -> Array[Array[Double]] {
   let grid : Array[Array[Double]] = Array(capacity=0)
   for _y in 0..<rows {
     let row : Array[Double] = Array(capacity=0)
@@ -300,10 +306,10 @@ fn cel_matrix(rows : Int, cols : Int) -> Array[Array[Double]] {
 }
 
 ///|
-fn cel_int_matrix(rows : Int, cols : Int) -> Array[Array[Int]] {
-  let grid : Array[Array[Int]] = Array(capacity=0)
+fn cel_int_matrix(rows : Int32, cols : Int32) -> Array[Array[Int32]] {
+  let grid : Array[Array[Int32]] = Array(capacity=0)
   for _y in 0..<rows {
-    let row : Array[Int] = Array(capacity=0)
+    let row : Array[Int32] = Array(capacity=0)
     for _x in 0..<cols {
       row.push(0)
     }
@@ -333,10 +339,10 @@ fn cel_fields(line : String) -> Array[String] {
 ///
 /// The leading field encodes the pixel grid as `COLS:ROWS` (e.g.
 /// `712:712`); when absent the function returns `(0, 0)`.
-pub fn cel_parse_dat_header(value : String) -> (Int, Int) {
+pub fn cel_parse_dat_header(value : String) -> (Int32, Int32) {
   for field_view in value.split(" ") {
     let field = field_view.trim().to_owned()
-    if field.length() == 0 || !(field.contains(":")) {
+    if field.length() == 0 || !field.contains(":") {
       continue
     }
     let mut cols_text = ""
@@ -368,10 +374,10 @@ pub fn cel_read(content : String) -> CelRecord raise CelError {
   let mut n_cells = 0
   let mut intensities : Array[Array[Double]] = []
   let mut stdevs : Array[Array[Double]] = []
-  let mut npix : Array[Array[Int]] = []
-  let mask : Array[Int] = Array(capacity=0)
-  let outliers : Array[Int] = Array(capacity=0)
-  let modified : Array[Int] = Array(capacity=0)
+  let mut npix : Array[Array[Int32]] = []
+  let mask : Array[Int32] = Array(capacity=0)
+  let outliers : Array[Int32] = Array(capacity=0)
+  let modified : Array[Int32] = Array(capacity=0)
   let mut cells_read = 0
   let mut section = ""
   let mut intensity_meta_seen = false

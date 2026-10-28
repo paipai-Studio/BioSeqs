@@ -1,6 +1,5 @@
 ///|
 /// Tests for bcftools-style variant operations.
-
 fn make_test_vcf() -> @src.VcfFile {
   let text =
     #|##fileformat=VCFv4.2
@@ -16,6 +15,7 @@ fn make_test_vcf() -> @src.VcfFile {
   @src.parse_vcf(text)
 }
 
+///|
 test "vcf_filter_pass" {
   let vcf = make_test_vcf()
   let filtered = @src.vcf_filter_pass(vcf)
@@ -23,6 +23,7 @@ test "vcf_filter_pass" {
   assert_eq(filtered.records.length(), 4)
 }
 
+///|
 test "vcf_filter_min_qual" {
   let vcf = make_test_vcf()
   let filtered = @src.vcf_filter_min_qual(vcf, 40.0)
@@ -30,6 +31,7 @@ test "vcf_filter_min_qual" {
   assert_eq(filtered.records.length(), 3)
 }
 
+///|
 test "vcf_filter_tag" {
   let vcf = make_test_vcf()
   let filtered = @src.vcf_filter_tag(vcf, "LowQual")
@@ -37,12 +39,14 @@ test "vcf_filter_tag" {
   assert_eq(filtered.records[0].pos, 200)
 }
 
+///|
 test "vcf_exclude_tag" {
   let vcf = make_test_vcf()
   let filtered = @src.vcf_exclude_tag(vcf, "LowQual")
   assert_eq(filtered.records.length(), 4)
 }
 
+///|
 test "vcf_view_snps" {
   let vcf = make_test_vcf()
   let snps = @src.vcf_view_snps(vcf)
@@ -55,6 +59,7 @@ test "vcf_view_snps" {
   assert_eq(snps.records[0].pos, 100)
 }
 
+///|
 test "vcf_view_indels" {
   let vcf = make_test_vcf()
   let indels = @src.vcf_view_indels(vcf)
@@ -64,6 +69,7 @@ test "vcf_view_indels" {
   assert_eq(indels.records.length(), 3)
 }
 
+///|
 test "vcf_norm_split" {
   let vcf = make_test_vcf()
   let split = @src.vcf_norm_split(vcf)
@@ -80,6 +86,7 @@ test "vcf_norm_split" {
   assert_eq(r300b.alt[0], "T")
 }
 
+///|
 test "vcf_norm_merge" {
   // Create a VCF with two records at same pos/ref that can be merged
   let text =
@@ -97,6 +104,7 @@ test "vcf_norm_merge" {
   assert_eq(merged.records[0].alt[1], "T")
 }
 
+///|
 test "vcf_isec" {
   let vcf_a = make_test_vcf()
   // Make B with only pos 100 and 300
@@ -112,6 +120,7 @@ test "vcf_isec" {
   assert_eq(isec.records[1].pos, 300)
 }
 
+///|
 test "vcf_isec_complement" {
   let vcf_a = make_test_vcf()
   let text_b =
@@ -125,6 +134,7 @@ test "vcf_isec_complement" {
   assert_eq(comp.records.length(), 3)
 }
 
+///|
 test "vcf_union" {
   let vcf_a = make_test_vcf()
   let text_b =
@@ -138,6 +148,7 @@ test "vcf_union" {
   assert_eq(union.records.length(), 6)
 }
 
+///|
 test "vcf_sort" {
   // Create unsorted VCF
   let text =
@@ -159,6 +170,7 @@ test "vcf_sort" {
   assert_eq(sorted.records[3].pos, 50)
 }
 
+///|
 test "vcf_query_basic" {
   let vcf = make_test_vcf()
   let query = @src.vcf_query_basic(vcf)
@@ -168,6 +180,7 @@ test "vcf_query_basic" {
   assert_true(lines[0].contains("chr1	100	A	G"))
 }
 
+///|
 test "vcf_query_info" {
   let vcf = make_test_vcf()
   let dp = @src.vcf_query_info(vcf, "DP")
@@ -178,6 +191,7 @@ test "vcf_query_info" {
   assert_eq(lines[1], "5")
 }
 
+///|
 test "vcf_stats" {
   let vcf = make_test_vcf()
   let stats = @src.vcf_stats(vcf)
@@ -190,6 +204,7 @@ test "vcf_stats" {
   assert_eq(stats.failed_records, 1)
 }
 
+///|
 test "vcf_concat" {
   let text_a =
     #|##fileformat=VCFv4.2
@@ -214,6 +229,7 @@ test "vcf_concat" {
 // bcftools annotate tests
 // ============================================================
 
+///|
 test "vcf_annotate_set_info" {
   let vcf = make_test_vcf()
   let annotated = @src.vcf_annotate_set_info(vcf, "AF", "0.01")
@@ -226,13 +242,14 @@ test "vcf_annotate_set_info" {
   }
 }
 
+///|
 test "vcf_annotate_remove_info" {
   let vcf = make_test_vcf()
   // Record 3 has DP=20;AF=0.5
   match vcf.records[2].info.get("AF") {
-      Some(_) => ()
-      None => fail("expected Some")
-    }
+    Some(_) => ()
+    None => fail("expected Some")
+  }
   let cleaned = @src.vcf_annotate_remove_info(vcf, "AF")
   for rec in cleaned.records {
     match rec.info.get("AF") {
@@ -242,6 +259,7 @@ test "vcf_annotate_remove_info" {
   }
 }
 
+///|
 test "vcf_annotate_rename_info" {
   let vcf = make_test_vcf()
   let renamed = @src.vcf_annotate_rename_info(vcf, "DP", "DEPTH")
@@ -257,6 +275,7 @@ test "vcf_annotate_rename_info" {
   }
 }
 
+///|
 test "vcf_annotate_set_id" {
   let vcf = make_test_vcf()
   let annotated = @src.vcf_annotate_set_id(vcf, "rs12345")
@@ -271,6 +290,7 @@ test "vcf_annotate_set_id" {
   }
 }
 
+///|
 test "vcf_annotate_set_filter" {
   let vcf = make_test_vcf()
   let annotated = @src.vcf_annotate_set_filter(vcf, "LowQual")
@@ -285,6 +305,7 @@ test "vcf_annotate_set_filter" {
   }
 }
 
+///|
 test "vcf_annotate_set_qual" {
   let vcf = make_test_vcf()
   let annotated = @src.vcf_annotate_set_qual(vcf, 99.0)
@@ -296,19 +317,23 @@ test "vcf_annotate_set_qual" {
   }
 }
 
+///|
 test "vcf_annotate_info_if_filter" {
   let vcf = make_test_vcf()
   // Record 2 has LowQual filter
-  let annotated = @src.vcf_annotate_info_if_filter(vcf, "LowQual", "CONSEQUENCE", "low")
+  let annotated = @src.vcf_annotate_info_if_filter(
+    vcf, "LowQual", "CONSEQUENCE", "low",
+  )
   // Record 2 should have the new info
   assert_eq(annotated.records[1].info["CONSEQUENCE"], "low")
   // Other records should NOT have it
   match annotated.records[0].info.get("CONSEQUENCE") {
-      None => ()
-      Some(_) => fail("expected None")
-    }
+    None => ()
+    Some(_) => fail("expected None")
+  }
 }
 
+///|
 test "vcf_annotate_from" {
   let target = make_test_vcf()
   // Source has matching record at chr1:100 with extra INFO
@@ -326,7 +351,7 @@ test "vcf_annotate_from" {
   assert_eq(annotated.records[1].info["GENE"], "TP53")
   // Record at chr1:300 has no match in source → no new annotations
   match annotated.records[2].info.get("GENE") {
-      None => ()
-      Some(_) => fail("expected None")
-    }
+    None => ()
+    Some(_) => fail("expected None")
+  }
 }

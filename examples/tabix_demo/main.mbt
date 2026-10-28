@@ -14,10 +14,10 @@ fn main raise {
       "VEJJAQIAAAACAAAAAQAAAAIAAAAAAAAAIwAAAAAAAAAKAAAAY2hyMQBjaHIyAAEAAAAAAAAAAQAAADIAAAAAAAAAPAAAAAAAAAABAAAAMgAAAAAAAAABAAAAAAAAAAEAAABGAAAAAAAAAFAAAAAAAAAAAQAAAEYAAAAAAAAA",
     ),
   )
-  println("n_ref = \{idx.n_ref}, format = \{idx.format}, meta = \{idx.meta}, skip = \{idx.skip}")
   println(
-    "columns: seq=\{idx.col_seq}, beg=\{idx.col_beg}, end=\{idx.col_end}",
+    "n_ref = \{idx.n_ref}, format = \{idx.format}, meta = \{idx.meta}, skip = \{idx.skip}",
   )
+  println("columns: seq=\{idx.col_seq}, beg=\{idx.col_beg}, end=\{idx.col_end}")
   println("names = \{idx.names[0]}, \{idx.names[1]}")
 
   println("\n=== 2. Query a region on ref 0 ===")

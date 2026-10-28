@@ -123,7 +123,7 @@ pub fn ClustalOmegaCommandline::set_output_format(
 ///|
 pub fn ClustalOmegaCommandline::set_iterations(
   self : ClustalOmegaCommandline,
-  n : Int,
+  n : Int32,
 ) -> ClustalOmegaCommandline {
   ClustalOmegaCommandline::{
     commandline: self.commandline.add_arg("--iterations", Some(n.to_string())),
@@ -184,7 +184,7 @@ pub fn MuscleCommandline::set_diags(
 ///|
 pub fn MuscleCommandline::set_max_iterations(
   self : MuscleCommandline,
-  n : Int,
+  n : Int32,
 ) -> MuscleCommandline {
   MuscleCommandline::{
     commandline: self.commandline.add_arg("-maxiters", Some(n.to_string())),
@@ -234,7 +234,7 @@ pub fn MAFFTCommandline::set_auto(self : MAFFTCommandline) -> MAFFTCommandline {
 ///|
 pub fn MAFFTCommandline::set_threads(
   self : MAFFTCommandline,
-  n : Int,
+  n : Int32,
 ) -> MAFFTCommandline {
   MAFFTCommandline::{
     commandline: self.commandline.add_arg("--thread", Some(n.to_string())),

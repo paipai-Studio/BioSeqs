@@ -16,7 +16,14 @@ fn main {
     let aa = disordered_aa[i]
     let score = @bio.prot_dao_disorder_score(aa)
     let energy = @bio.prot_dao_energy_score(aa)
-    println("  " + aa.to_string() + ": disorder_score=" + score.to_string() + ", energy_score=" + energy.to_string())
+    println(
+      "  " +
+      aa.to_string() +
+      ": disorder_score=" +
+      score.to_string() +
+      ", energy_score=" +
+      energy.to_string(),
+    )
     i = i + 1
   }
   println("  ---")
@@ -25,7 +32,14 @@ fn main {
     let aa = ordered_aa[j]
     let score = @bio.prot_dao_disorder_score(aa)
     let energy = @bio.prot_dao_energy_score(aa)
-    println("  " + aa.to_string() + ": disorder_score=" + score.to_string() + ", energy_score=" + energy.to_string())
+    println(
+      "  " +
+      aa.to_string() +
+      ": disorder_score=" +
+      score.to_string() +
+      ", energy_score=" +
+      energy.to_string(),
+    )
     j = j + 1
   }
   println("")
@@ -47,7 +61,9 @@ fn main {
   println("  Total residues: " + result.sequence.length().to_string())
   println("  Disordered: " + result.get_n_disordered().to_string())
   println("  Long disordered: " + result.get_n_disordered_long().to_string())
-  println("  Fraction disordered: " + result.get_fraction_disordered().to_string())
+  println(
+    "  Fraction disordered: " + result.get_fraction_disordered().to_string(),
+  )
   println("")
 
   // Disordered sequence view
@@ -64,7 +80,20 @@ fn main {
   let mut k = 0
   while k < regions.length() {
     let reg = regions[k]
-    println("  Region " + (k + 1).to_string() + ": positions " + reg.start.to_string() + "-" + reg.end_.to_string() + ", length=" + reg.length.to_string() + ", avg_score=" + reg.avg_score.to_string() + ", type=" + reg.region_type)
+    println(
+      "  Region " +
+      (k + 1).to_string() +
+      ": positions " +
+      reg.start.to_string() +
+      "-" +
+      reg.end_.to_string() +
+      ", length=" +
+      reg.length.to_string() +
+      ", avg_score=" +
+      reg.avg_score.to_string() +
+      ", type=" +
+      reg.region_type,
+    )
     k = k + 1
   }
   println("")
@@ -83,8 +112,16 @@ fn main {
   println("=== Threshold Comparison ===")
   let low_thresh = @bio.prot_dao_predict(sequence, threshold_disordered=0.3)
   let high_thresh = @bio.prot_dao_predict(sequence, threshold_disordered=0.7)
-  println("  Low threshold (0.3): " + low_thresh.get_n_disordered().to_string() + " disordered residues")
-  println("  High threshold (0.7): " + high_thresh.get_n_disordered().to_string() + " disordered residues")
+  println(
+    "  Low threshold (0.3): " +
+    low_thresh.get_n_disordered().to_string() +
+    " disordered residues",
+  )
+  println(
+    "  High threshold (0.7): " +
+    high_thresh.get_n_disordered().to_string() +
+    " disordered residues",
+  )
   println("")
 
   // Scores

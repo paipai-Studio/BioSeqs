@@ -54,8 +54,8 @@ fn main {
 
   // 7. Demonstrate methylation smoothing
   println("\n7. Smooth methylation (window=2):")
-  let meth_arr : Array[Int] = [8, 9, 5, 3, 7, 6, 4, 2, 8, 9]
-  let cov_arr : Array[Int] = [10, 10, 10, 10, 10, 10, 10, 10, 10, 10]
+  let meth_arr : Array[Int32] = [8, 9, 5, 3, 7, 6, 4, 2, 8, 9]
+  let cov_arr : Array[Int32] = [10, 10, 10, 10, 10, 10, 10, 10, 10, 10]
   let smoothed = @src.bsseq_smooth_methylation(meth_arr, cov_arr, 2)
   println("  Smoothed values: " + smoothed.length().to_string())
   let mut k = 0
@@ -82,7 +82,7 @@ fn main {
 
   // 10. Demonstrate DMR detection
   println("\n10. Find DMRs:")
-  let positions : Array[Int] = [
+  let positions : Array[Int32] = [
     1000, 1100, 1200, 1300, 1400, 1500, 1600, 1700, 1800, 1900,
   ]
   let dmr_result = @src.bsseq_find_dmr(tstat, positions, "chr1", 1.5, 500)

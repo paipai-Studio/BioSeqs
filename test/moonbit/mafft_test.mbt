@@ -30,11 +30,7 @@ test "mafft_distance_matrix basic" {
 
 ///|
 test "mafft_upgma_tree basic" {
-  let dist = [
-    [0.0, 0.1, 0.8],
-    [0.1, 0.0, 0.7],
-    [0.8, 0.7, 0.0],
-  ]
+  let dist = [[0.0, 0.1, 0.8], [0.1, 0.0, 0.7], [0.8, 0.7, 0.0]]
   let tree = @src.mafft_upgma_tree(dist)
   assert_true(!tree.is_leaf)
   assert_eq(tree.children.length(), 2)
@@ -77,11 +73,7 @@ test "mafft_align identical sequences" {
 
 ///|
 test "mafft_align similar sequences" {
-  let seqs = [
-    "ACDEFGHIK",
-    "ACDEAGHIK",
-    "ACDEFGHLK",
-  ]
+  let seqs = ["ACDEFGHIK", "ACDEAGHIK", "ACDEFGHLK"]
   let names = ["s1", "s2", "s3"]
   let result = @src.mafft_align(seqs, names)
   assert_eq(result.aligned_sequences.length(), 3)
@@ -93,11 +85,7 @@ test "mafft_align similar sequences" {
 
 ///|
 test "mafft_align with gaps needed" {
-  let seqs = [
-    "ACDEFGHIK",
-    "ACFGHIK",
-    "ACDEFGHIKL",
-  ]
+  let seqs = ["ACDEFGHIK", "ACFGHIK", "ACDEFGHIKL"]
   let names = ["s1", "s2", "s3"]
   let result = @src.mafft_align(seqs, names)
   assert_eq(result.aligned_sequences.length(), 3)

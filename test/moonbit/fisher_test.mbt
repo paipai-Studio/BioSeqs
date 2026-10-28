@@ -30,7 +30,11 @@ test "fisher_exact_ratio" {
 ///|
 test "bedtools_fisher_smoke" {
   // one A overlapping one B; the "neither" cell is estimated from genome size.
-  let r = @src.bedtools_fisher([@src.BedInterval::new("chr1", 0, 100)], [@src.BedInterval::new("chr1", 50, 150)], 1000)
+  let r = @src.bedtools_fisher(
+    [@src.BedInterval::new("chr1", 0, 100)],
+    [@src.BedInterval::new("chr1", 50, 150)],
+    1000,
+  )
   // ratio is NaN because the A-only / B-only cells are 0
   assert_true(r.ratio != r.ratio)
 }

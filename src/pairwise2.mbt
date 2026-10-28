@@ -10,10 +10,10 @@ pub struct PairwiseAlignResult {
   aligned_seq2 : String
   score : Double
   mode : String
-  seq1_start : Int
-  seq1_end : Int
-  seq2_start : Int
-  seq2_end : Int
+  seq1_start : Int32
+  seq1_end : Int32
+  seq2_start : Int32
+  seq2_end : Int32
 }
 
 ///|
@@ -48,7 +48,7 @@ pub fn PairwiseAlignResult::get_mode(self : PairwiseAlignResult) -> String {
 /// Get the alignment as a formatted string.
 pub fn PairwiseAlignResult::format_alignment(
   self : PairwiseAlignResult,
-  line_width : Int,
+  line_width : Int32,
 ) -> String {
   let w = if line_width <= 0 { 60 } else { line_width }
   let mut result = ""
@@ -94,10 +94,10 @@ pub fn pairwise_result_new(
   aligned_seq2 : String,
   score : Double,
   mode : String,
-  seq1_start : Int,
-  seq1_end : Int,
-  seq2_start : Int,
-  seq2_end : Int,
+  seq1_start : Int32,
+  seq1_end : Int32,
+  seq2_start : Int32,
+  seq2_end : Int32,
 ) -> PairwiseAlignResult {
   PairwiseAlignResult::{
     aligned_seq1,
@@ -176,22 +176,27 @@ pub fn dna_matrix(
 /// Helper: get element from flat Double matrix
 fn get_flat_double(
   arr : Array[Double],
-  i : Int,
-  j : Int,
-  m_plus_1 : Int,
+  i : Int32,
+  j : Int32,
+  m_plus_1 : Int32,
 ) -> Double {
   arr[i * m_plus_1 + j]
 }
 
 ///|
 /// Helper: get element from flat Int matrix
-fn get_flat_int(arr : Array[Int], i : Int, j : Int, m_plus_1 : Int) -> Int {
+fn get_flat_int(
+  arr : Array[Int32],
+  i : Int32,
+  j : Int32,
+  m_plus_1 : Int32,
+) -> Int32 {
   arr[i * m_plus_1 + j]
 }
 
 ///|
 /// Helper: initialize flat Double matrix of size (n+1) x (m+1) with fill_val
-fn init_flat_double(n : Int, m : Int, fill_val : Double) -> Array[Double] {
+fn init_flat_double(n : Int32, m : Int32, fill_val : Double) -> Array[Double] {
   let size = (n + 1) * (m + 1)
   let arr : Array[Double] = Array(capacity=0)
   let mut i = 0
@@ -204,9 +209,9 @@ fn init_flat_double(n : Int, m : Int, fill_val : Double) -> Array[Double] {
 
 ///|
 /// Helper: initialize flat Int matrix of size (n+1) x (m+1) with fill_val
-fn init_flat_int(n : Int, m : Int, fill_val : Int) -> Array[Int] {
+fn init_flat_int(n : Int32, m : Int32, fill_val : Int32) -> Array[Int32] {
   let size = (n + 1) * (m + 1)
-  let arr : Array[Int] = Array(capacity=0)
+  let arr : Array[Int32] = Array(capacity=0)
   let mut i = 0
   while i < size {
     arr.push(fill_val)

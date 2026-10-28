@@ -1,6 +1,5 @@
 ///|
 /// Demo for xms module: XMS weighted site motif + microRNA motif formats.
-
 fn main {
   println("=== xms Demo: XMS & microRNA Motif Formats ===")
   println("")
@@ -18,7 +17,12 @@ fn main {
   // Example 2: Count matrix
   println("--- Step 2: Count Matrix ---")
   let counts = @src.xms_counts(motifs[0])
-  println("Count matrix: " + counts.length().to_string() + " x " + counts[0].length().to_string())
+  println(
+    "Count matrix: " +
+    counts.length().to_string() +
+    " x " +
+    counts[0].length().to_string(),
+  )
   println("  A: " + counts[0].to_string())
   println("  C: " + counts[1].to_string())
   println("")
@@ -28,7 +32,18 @@ fn main {
   let pfm = @src.xms_pfm(counts)
   println("PFM: " + pfm.length().to_string() + " positions")
   for i in 0..<pfm.length() {
-    println("  pos " + (i+1).to_string() + ": A=" + pfm[i][0].to_string() + " C=" + pfm[i][1].to_string() + " G=" + pfm[i][2].to_string() + " T=" + pfm[i][3].to_string())
+    println(
+      "  pos " +
+      (i + 1).to_string() +
+      ": A=" +
+      pfm[i][0].to_string() +
+      " C=" +
+      pfm[i][1].to_string() +
+      " G=" +
+      pfm[i][2].to_string() +
+      " T=" +
+      pfm[i][3].to_string(),
+    )
   }
   println("")
 
@@ -37,7 +52,18 @@ fn main {
   let pwm = @src.xms_pwm(pfm)
   println("PWM: " + pwm.length().to_string() + " positions")
   for i in 0..<pwm.length() {
-    println("  pos " + (i+1).to_string() + ": A=" + pwm[i][0].to_string() + " C=" + pwm[i][1].to_string() + " G=" + pwm[i][2].to_string() + " T=" + pwm[i][3].to_string())
+    println(
+      "  pos " +
+      (i + 1).to_string() +
+      ": A=" +
+      pwm[i][0].to_string() +
+      " C=" +
+      pwm[i][1].to_string() +
+      " G=" +
+      pwm[i][2].to_string() +
+      " T=" +
+      pwm[i][3].to_string(),
+    )
   }
   println("")
 
@@ -81,7 +107,18 @@ fn main {
   let mir_pfm = @src.mirs_pfm(mir_seqs)
   println("microRNA PFM: " + mir_pfm.length().to_string() + " positions")
   for i in 0..<mir_pfm.length() {
-    println("  pos " + (i+1).to_string() + ": A=" + mir_pfm[i][0].to_string() + " C=" + mir_pfm[i][1].to_string() + " G=" + mir_pfm[i][2].to_string() + " T=" + mir_pfm[i][3].to_string())
+    println(
+      "  pos " +
+      (i + 1).to_string() +
+      ": A=" +
+      mir_pfm[i][0].to_string() +
+      " C=" +
+      mir_pfm[i][1].to_string() +
+      " G=" +
+      mir_pfm[i][2].to_string() +
+      " T=" +
+      mir_pfm[i][3].to_string(),
+    )
   }
   println("")
 

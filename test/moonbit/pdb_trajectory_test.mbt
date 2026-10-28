@@ -6,29 +6,54 @@ fn make_multi_model_pdb() -> String {
   let buf = StringBuilder()
   // Model 1
   buf.write_string("MODEL     1\n")
-  buf.write_string("ATOM      1  N   ALA A   1       1.000   0.000   0.000  1.00 20.00           N\n")
-  buf.write_string("ATOM      2  CA  ALA A   1       2.000   0.000   0.000  1.00 20.00           C\n")
-  buf.write_string("ATOM      3  N   GLY A   2       3.000   0.000   0.000  1.00 15.00           N\n")
-  buf.write_string("ATOM      4  CA  GLY A   2       4.000   0.000   0.000  1.00 15.00           C\n")
+  buf.write_string(
+    "ATOM      1  N   ALA A   1       1.000   0.000   0.000  1.00 20.00           N\n",
+  )
+  buf.write_string(
+    "ATOM      2  CA  ALA A   1       2.000   0.000   0.000  1.00 20.00           C\n",
+  )
+  buf.write_string(
+    "ATOM      3  N   GLY A   2       3.000   0.000   0.000  1.00 15.00           N\n",
+  )
+  buf.write_string(
+    "ATOM      4  CA  GLY A   2       4.000   0.000   0.000  1.00 15.00           C\n",
+  )
   buf.write_string("ENDMDL\n")
   // Model 2 (shifted by 1 in x)
   buf.write_string("MODEL     2\n")
-  buf.write_string("ATOM      1  N   ALA A   1       2.000   0.000   0.000  1.00 20.00           N\n")
-  buf.write_string("ATOM      2  CA  ALA A   1       3.000   0.000   0.000  1.00 20.00           C\n")
-  buf.write_string("ATOM      3  N   GLY A   2       4.000   0.000   0.000  1.00 15.00           N\n")
-  buf.write_string("ATOM      4  CA  GLY A   2       5.000   0.000   0.000  1.00 15.00           C\n")
+  buf.write_string(
+    "ATOM      1  N   ALA A   1       2.000   0.000   0.000  1.00 20.00           N\n",
+  )
+  buf.write_string(
+    "ATOM      2  CA  ALA A   1       3.000   0.000   0.000  1.00 20.00           C\n",
+  )
+  buf.write_string(
+    "ATOM      3  N   GLY A   2       4.000   0.000   0.000  1.00 15.00           N\n",
+  )
+  buf.write_string(
+    "ATOM      4  CA  GLY A   2       5.000   0.000   0.000  1.00 15.00           C\n",
+  )
   buf.write_string("ENDMDL\n")
   // Model 3 (shifted by 2 in x)
   buf.write_string("MODEL     3\n")
-  buf.write_string("ATOM      1  N   ALA A   1       3.000   0.000   0.000  1.00 20.00           N\n")
-  buf.write_string("ATOM      2  CA  ALA A   1       4.000   0.000   0.000  1.00 20.00           C\n")
-  buf.write_string("ATOM      3  N   GLY A   2       5.000   0.000   0.000  1.00 15.00           N\n")
-  buf.write_string("ATOM      4  CA  GLY A   2       6.000   0.000   0.000  1.00 15.00           C\n")
+  buf.write_string(
+    "ATOM      1  N   ALA A   1       3.000   0.000   0.000  1.00 20.00           N\n",
+  )
+  buf.write_string(
+    "ATOM      2  CA  ALA A   1       4.000   0.000   0.000  1.00 20.00           C\n",
+  )
+  buf.write_string(
+    "ATOM      3  N   GLY A   2       5.000   0.000   0.000  1.00 15.00           N\n",
+  )
+  buf.write_string(
+    "ATOM      4  CA  GLY A   2       6.000   0.000   0.000  1.00 15.00           C\n",
+  )
   buf.write_string("ENDMDL\n")
   buf.write_string("END\n")
   buf.to_string()
 }
 
+///|
 test "parse_pdb_trajectory basic" {
   let pdb = make_multi_model_pdb()
   let traj = @src.parse_pdb_trajectory(pdb)
@@ -41,6 +66,7 @@ test "parse_pdb_trajectory basic" {
   }
 }
 
+///|
 test "PDBTrajectory get_frame" {
   let pdb = make_multi_model_pdb()
   let traj = @src.parse_pdb_trajectory(pdb)
@@ -58,6 +84,7 @@ test "PDBTrajectory get_frame" {
   }
 }
 
+///|
 test "PDBTrajectory get_atom_coords" {
   let pdb = make_multi_model_pdb()
   let traj = @src.parse_pdb_trajectory(pdb)
@@ -74,6 +101,7 @@ test "PDBTrajectory get_atom_coords" {
   }
 }
 
+///|
 test "PDBTrajectory get_coords" {
   let pdb = make_multi_model_pdb()
   let traj = @src.parse_pdb_trajectory(pdb)
@@ -87,6 +115,7 @@ test "PDBTrajectory get_coords" {
   }
 }
 
+///|
 test "PDBTrajectory get_coords_flat" {
   let pdb = make_multi_model_pdb()
   let traj = @src.parse_pdb_trajectory(pdb)
@@ -102,6 +131,7 @@ test "PDBTrajectory get_coords_flat" {
   }
 }
 
+///|
 test "PDBTrajectory slice" {
   let pdb = make_multi_model_pdb()
   let traj = @src.parse_pdb_trajectory(pdb)
@@ -116,6 +146,7 @@ test "PDBTrajectory slice" {
   }
 }
 
+///|
 test "PDBTrajectory slice with step" {
   let pdb = make_multi_model_pdb()
   let traj = @src.parse_pdb_trajectory(pdb)
@@ -128,6 +159,7 @@ test "PDBTrajectory slice with step" {
   }
 }
 
+///|
 test "PDBTrajectory mean_coords" {
   let pdb = make_multi_model_pdb()
   let traj = @src.parse_pdb_trajectory(pdb)
@@ -144,6 +176,7 @@ test "PDBTrajectory mean_coords" {
   }
 }
 
+///|
 test "PDBTrajectory rmsd_matrix" {
   let pdb = make_multi_model_pdb()
   let traj = @src.parse_pdb_trajectory(pdb)
@@ -166,6 +199,7 @@ test "PDBTrajectory rmsd_matrix" {
   }
 }
 
+///|
 test "PDBTrajectory rmsf" {
   let pdb = make_multi_model_pdb()
   let traj = @src.parse_pdb_trajectory(pdb)
@@ -182,6 +216,7 @@ test "PDBTrajectory rmsf" {
   }
 }
 
+///|
 test "PDBTrajectory deltag" {
   let pdb = make_multi_model_pdb()
   let traj = @src.parse_pdb_trajectory(pdb)
@@ -191,7 +226,7 @@ test "PDBTrajectory deltag" {
       assert_eq(d.length(), 3)
       assert_eq(d[0].length(), 4)
       // Frame 0, atom 0: 1.0 - 2.0 = -1.0
-      assert_true((d[0][0].x - (-1.0)).abs() < 1.0e-6)
+      assert_true((d[0][0].x - -1.0).abs() < 1.0e-6)
       // Frame 1, atom 0: 2.0 - 2.0 = 0.0
       assert_true(d[1][0].x.abs() < 1.0e-6)
       // Frame 2, atom 0: 3.0 - 2.0 = 1.0
@@ -201,6 +236,7 @@ test "PDBTrajectory deltag" {
   }
 }
 
+///|
 test "PDBTrajectory superpose_frames identical" {
   let pdb = make_multi_model_pdb()
   let traj = @src.parse_pdb_trajectory(pdb)
@@ -219,6 +255,7 @@ test "PDBTrajectory superpose_frames identical" {
   }
 }
 
+///|
 test "PDBTrajectory superpose_frames translation" {
   // Pure translation should be fully removed by superposition
   let pdb = make_multi_model_pdb()
@@ -243,6 +280,7 @@ test "PDBTrajectory superpose_frames translation" {
   }
 }
 
+///|
 test "PDBTrajectory write_pdb" {
   let pdb = make_multi_model_pdb()
   let traj = @src.parse_pdb_trajectory(pdb)
@@ -275,6 +313,7 @@ test "PDBTrajectory write_pdb" {
   }
 }
 
+///|
 test "PDBTrajectory to_structure" {
   let pdb = make_multi_model_pdb()
   let traj = @src.parse_pdb_trajectory(pdb)
@@ -288,6 +327,7 @@ test "PDBTrajectory to_structure" {
   }
 }
 
+///|
 test "PDBTrajectory from_structure" {
   let pdb = make_multi_model_pdb()
   let structure = @src.parse_pdb(pdb)
@@ -301,6 +341,7 @@ test "PDBTrajectory from_structure" {
   }
 }
 
+///|
 test "PDBTrajectory from_structure empty" {
   let s = @src.Structure::new(id="empty")
   let traj = @src.PDBTrajectory::from_structure(s)
@@ -310,6 +351,7 @@ test "PDBTrajectory from_structure empty" {
   }
 }
 
+///|
 test "PDBTrajectory single model" {
   let pdb = "MODEL     1\nATOM      1  CA  ALA A   1       1.000   2.000   3.000  1.00 20.00           C\nENDMDL\nEND\n"
   let traj = @src.parse_pdb_trajectory(pdb)
@@ -329,6 +371,7 @@ test "PDBTrajectory single model" {
   }
 }
 
+///|
 test "PDBTrajectory round_trip" {
   let pdb = make_multi_model_pdb()
   let traj = @src.parse_pdb_trajectory(pdb)
@@ -357,6 +400,7 @@ test "PDBTrajectory round_trip" {
   }
 }
 
+///|
 test "PDBTrajectory rmsd_matrix symmetric" {
   let pdb = make_multi_model_pdb()
   let traj = @src.parse_pdb_trajectory(pdb)

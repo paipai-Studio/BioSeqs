@@ -43,7 +43,10 @@ fn main {
   }
 
   println("\n7. Update resource content")
-  let _ = cache.update(e2.rid, data="chr1\tsource\tgene\t1\t100\t.\t+\t.\tgene_id \"g2\";")
+  let _ = cache.update(
+    e2.rid,
+    data="chr1\tsource\tgene\t1\t100\t.\t+\t.\tgene_id \"g2\";",
+  )
   match cache.get(e2.rid) {
     Some(updated) => println("   new checksum=" + updated.checksum)
     None => ()
@@ -52,10 +55,11 @@ fn main {
   println("\n8. Tag a resource")
   let _ = cache.set_tag(e1.rid, "project", "demo")
   match cache.get(e1.rid) {
-    Some(t) => match t.tags.get("project") {
-      Some(v) => println("   tag project=" + v)
-      None => ()
-    }
+    Some(t) =>
+      match t.tags.get("project") {
+        Some(v) => println("   tag project=" + v)
+        None => ()
+      }
     None => ()
   }
 

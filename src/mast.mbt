@@ -3,11 +3,11 @@ pub struct MastData {
   expression : Array[Array[Double]]
   gene_names : Array[String]
   cell_names : Array[String]
-  groups : Array[Int]
+  groups : Array[Int32]
   cngeneson : Array[Double]
-  n_genes : Int
-  n_cells : Int
-  n_groups : Int
+  n_genes : Int32
+  n_cells : Int32
+  n_groups : Int32
 }
 
 ///|
@@ -15,7 +15,7 @@ pub fn MastData::new(
   expression : Array[Array[Double]],
   gene_names : Array[String],
   cell_names : Array[String],
-  groups : Array[Int],
+  groups : Array[Int32],
 ) -> MastData {
   let n_cells = expression.length()
   let n_genes = if n_cells > 0 { expression[0].length() } else { 0 }
@@ -74,7 +74,7 @@ pub struct HurdleResult {
 }
 
 ///|
-pub fn HurdleResult::new(n_genes : Int) -> HurdleResult {
+pub fn HurdleResult::new(n_genes : Int32) -> HurdleResult {
   HurdleResult::{
     gene: Array::make(n_genes, ""),
     discrete_pval: Array::make(n_genes, 1.0),
@@ -95,7 +95,7 @@ pub fn HurdleResult::to_string(self : HurdleResult) -> String {
   result = result + "Total genes: " + self.gene.length().to_string() + "\n\n"
   result = result + "Top 5 genes by combined p-value:\n"
 
-  let indices : Array[Int] = Array::make(self.gene.length(), 0)
+  let indices : Array[Int32] = Array::make(self.gene.length(), 0)
   let mut i = 0
   while i < self.gene.length() {
     indices[i] = i
@@ -134,7 +134,7 @@ pub fn HurdleResult::to_string(self : HurdleResult) -> String {
 }
 
 ///|
-fn mast_min_i(a : Int, b : Int) -> Int {
+fn mast_min_i(a : Int32, b : Int32) -> Int32 {
   if a < b {
     a
   } else {
@@ -345,7 +345,6 @@ fn sqrt_d_mast(x : Double) -> Double {
   }
 }
 
-
 ///|
 fn chisq_pval(chi2 : Double, df : Double) -> Double {
   if chi2 <= 0.0 || df <= 0.0 {
@@ -395,7 +394,7 @@ fn gamma_regularized_q(a : Double, x : Double) -> Double {
 }
 
 ///|
-fn fisher_exact_test(a : Int, b : Int, c : Int, d : Int) -> Double {
+fn fisher_exact_test(a : Int32, b : Int32, c : Int32, d : Int32) -> Double {
   let _n = a + b + c + d
   let r1 = a + b
   let r2 = c + d
@@ -424,7 +423,12 @@ fn fisher_exact_test(a : Int, b : Int, c : Int, d : Int) -> Double {
 }
 
 ///|
-fn hypergeometric_pmf(k : Int, m : Int, n : Int, k_total : Int) -> Double {
+fn hypergeometric_pmf(
+  k : Int32,
+  m : Int32,
+  n : Int32,
+  k_total : Int32,
+) -> Double {
   let log_m_choose_k = mast_log_choose(m, k)
   let log_n_choose_k = mast_log_choose(n, k_total - k)
   let log_total = mast_log_choose(m + n, k_total)
@@ -432,7 +436,7 @@ fn hypergeometric_pmf(k : Int, m : Int, n : Int, k_total : Int) -> Double {
 }
 
 ///|
-fn mast_log_choose(n : Int, k : Int) -> Double {
+fn mast_log_choose(n : Int32, k : Int32) -> Double {
   if k < 0 || k > n {
     -1000.0
   } else {
@@ -443,7 +447,7 @@ fn mast_log_choose(n : Int, k : Int) -> Double {
 }
 
 ///|
-fn mast_max_i(a : Int, b : Int) -> Int {
+fn mast_max_i(a : Int32, b : Int32) -> Int32 {
   if a > b {
     a
   } else {
@@ -452,7 +456,11 @@ fn mast_max_i(a : Int, b : Int) -> Int {
 }
 
 ///|
-pub fn zlm_hurdle(data : MastData, group1 : Int, group2 : Int) -> HurdleResult {
+pub fn zlm_hurdle(
+  data : MastData,
+  group1 : Int32,
+  group2 : Int32,
+) -> HurdleResult {
   let result = HurdleResult::new(data.n_genes)
 
   let mut g = 0
@@ -560,7 +568,7 @@ pub fn zlm_hurdle(data : MastData, group1 : Int, group2 : Int) -> HurdleResult {
 }
 
 ///|
-fn count_true(arr : Array[Bool]) -> Int {
+fn count_true(arr : Array[Bool]) -> Int32 {
   let mut count = 0
   let mut i = 0
   while i < arr.length() {
@@ -577,7 +585,7 @@ fn bh_fdr(pvalues : Array[Double]) -> Array[Double] {
   let n = pvalues.length()
   let fdr : Array[Double] = Array::make(n, 1.0)
 
-  let indices : Array[Int] = Array::make(n, 0)
+  let indices : Array[Int32] = Array::make(n, 0)
   let mut i = 0
   while i < n {
     indices[i] = i
@@ -618,9 +626,9 @@ fn bh_fdr(pvalues : Array[Double]) -> Array[Double] {
 
 ///|
 pub struct MastSummary {
-  n_de_combined : Int
-  n_de_discrete : Int
-  n_de_continuous : Int
+  n_de_combined : Int32
+  n_de_discrete : Int32
+  n_de_continuous : Int32
   top_genes : Array[String]
   threshold : Double
 }

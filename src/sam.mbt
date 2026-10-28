@@ -10,6 +10,8 @@ pub enum SamHeaderType {
   PG
   CO
 } derive(Eq)
+
+///|
 pub extend SamHeaderType with Eq::{equal, not_equal}
 
 ///|
@@ -32,28 +34,32 @@ pub enum CigarOp {
   Equal
   Diff
 } derive(Eq)
+
+///|
 pub extend CigarOp with Eq::{equal, not_equal}
 
 ///|
 /// CIGAR element: operation + length.
 pub struct CigarElement {
   op : CigarOp
-  length : Int
+  length : Int32
 } derive(Eq)
+
+///|
 pub extend CigarElement with Eq::{equal, not_equal}
 
 ///|
 /// SAM alignment record (11 mandatory fields + optional tags).
 pub struct SamRecord {
   qname : String
-  flag : Int
+  flag : Int32
   rname : String
-  pos : Int
-  mapq : Int
+  pos : Int32
+  mapq : Int32
   cigar : Array[CigarElement]
   rnext : String
-  pnext : Int
-  tlen : Int
+  pnext : Int32
+  tlen : Int32
   seq : String
   qual : String
   tags : Map[String, String]
@@ -366,7 +372,7 @@ pub fn SamRecord::is_duplicate(self : SamRecord) -> Bool {
 
 ///|
 /// Calculate the end position of the alignment.
-pub fn SamRecord::get_end(self : SamRecord) -> Int {
+pub fn SamRecord::get_end(self : SamRecord) -> Int32 {
   if self.pos == 0 || self.cigar.length() == 0 {
     return 0
   }
@@ -390,7 +396,7 @@ pub fn SamRecord::get_end(self : SamRecord) -> Int {
 
 ///|
 /// Calculate the alignment length.
-pub fn SamRecord::get_alignment_length(self : SamRecord) -> Int {
+pub fn SamRecord::get_alignment_length(self : SamRecord) -> Int32 {
   let mut length = 0
   let mut i = 0
   while i < self.cigar.length() {
@@ -409,13 +415,13 @@ pub fn SamRecord::get_alignment_length(self : SamRecord) -> Int {
 
 ///|
 /// Get number of records in SAM file.
-pub fn SamFile::len(self : SamFile) -> Int {
+pub fn SamFile::len(self : SamFile) -> Int32 {
   self.records.length()
 }
 
 ///|
 /// Get number of headers in SAM file.
-pub fn SamFile::num_headers(self : SamFile) -> Int {
+pub fn SamFile::num_headers(self : SamFile) -> Int32 {
   self.headers.length()
 }
 
@@ -439,7 +445,7 @@ pub fn SamFile::get_sequence_names(self : SamFile) -> Array[String] {
 
 ///|
 /// Get sequence length from @SQ header.
-pub fn SamFile::get_sequence_length(self : SamFile, name : String) -> Int? {
+pub fn SamFile::get_sequence_length(self : SamFile, name : String) -> Int32? {
   let mut i = 0
   while i < self.headers.length() {
     let header = self.headers[i]

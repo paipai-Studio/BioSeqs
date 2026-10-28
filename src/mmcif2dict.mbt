@@ -18,12 +18,12 @@ fn[T] m2d_fail(msg : String) -> T raise Mmcif2DictError {
 }
 
 ///|
-fn m2d_is_ws(cp : Int) -> Bool {
+fn m2d_is_ws(cp : Int32) -> Bool {
   cp == 32 || cp == 9
 }
 
 ///|
-fn m2d_is_quote(cp : Int) -> Bool {
+fn m2d_is_quote(cp : Int32) -> Bool {
   cp == 39 || cp == 34
 }
 
@@ -187,7 +187,10 @@ pub fn mmcif2dict_parse(
   content : String,
 ) -> Map[String, Array[String]] raise Mmcif2DictError {
   let tokens = m2d_tokenize(content)
-  let result : Map[String, Array[String]] = Map([], capacity=tokens.length() + 1)
+  let result : Map[String, Array[String]] = Map(
+    [],
+    capacity=tokens.length() + 1,
+  )
   if tokens.length() == 0 {
     return result
   }

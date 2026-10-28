@@ -34,12 +34,14 @@ pub enum XdnaSeqType {
   ProteinType
   UnknownType
 } derive(Eq)
+
+///|
 pub extend XdnaSeqType with Eq::{equal, not_equal}
 
 ///|
 /// Convert a sequence type to its integer code: DNA=0, RNA=1, Protein=2,
 /// Unknown=3.
-pub fn XdnaSeqType::to_int(self : XdnaSeqType) -> Int {
+pub fn XdnaSeqType::to_int(self : XdnaSeqType) -> Int32 {
   match self {
     DnaType => 0
     RnaType => 1
@@ -51,7 +53,7 @@ pub fn XdnaSeqType::to_int(self : XdnaSeqType) -> Int {
 ///|
 /// Convert an integer code back to an XdnaSeqType. Values outside 0-3 map to
 /// UnknownType.
-pub fn XdnaSeqType::from_int(code : Int) -> XdnaSeqType {
+pub fn XdnaSeqType::from_int(code : Int32) -> XdnaSeqType {
   match code {
     0 => DnaType
     1 => RnaType
@@ -94,7 +96,7 @@ pub struct XdnaRecord {
   sequence : String
   seq_type : XdnaSeqType
   annotations : String
-  checksum : Int
+  checksum : Int32
 }
 
 ///|
@@ -105,7 +107,7 @@ pub fn XdnaRecord::new(
   sequence : String,
   seq_type : XdnaSeqType,
   annotations : String,
-  checksum? : Int = 0,
+  checksum~ : Int32 = 0,
 ) -> XdnaRecord {
   XdnaRecord::{ name, sequence, seq_type, annotations, checksum, }
 }
@@ -136,7 +138,7 @@ pub fn XdnaRecord::annotations(self : XdnaRecord) -> String {
 
 ///|
 /// Stored checksum value.
-pub fn XdnaRecord::checksum(self : XdnaRecord) -> Int {
+pub fn XdnaRecord::checksum(self : XdnaRecord) -> Int32 {
   self.checksum
 }
 
@@ -166,7 +168,7 @@ pub fn XdnaRecord::to_string(self : XdnaRecord) -> String {
 /// A complete XDNA file: one or more records and a format version.
 pub struct XdnaFile {
   records : Array[XdnaRecord]
-  mut version : Int
+  mut version : Int32
 }
 
 ///|
@@ -183,13 +185,13 @@ pub fn XdnaFile::records(self : XdnaFile) -> Array[XdnaRecord] {
 
 ///|
 /// Format version (usually 1).
-pub fn XdnaFile::version(self : XdnaFile) -> Int {
+pub fn XdnaFile::version(self : XdnaFile) -> Int32 {
   self.version
 }
 
 ///|
 /// Number of records.
-pub fn XdnaFile::n_records(self : XdnaFile) -> Int {
+pub fn XdnaFile::n_records(self : XdnaFile) -> Int32 {
   self.records.length()
 }
 
@@ -206,7 +208,7 @@ pub fn XdnaFile::add_record(self : XdnaFile, record : XdnaRecord) -> Unit {
 ///|
 /// Convert a nucleotide character to its 2-bit code:
 /// A -> 0, C -> 1, G -> 2, T -> 3. Returns -1 for any other character.
-pub fn xdna_base_to_code(base : Char) -> Int {
+pub fn xdna_base_to_code(base : Char) -> Int32 {
   let c = base.to_int()
   if c == 'A'.to_int() {
     0
@@ -224,7 +226,7 @@ pub fn xdna_base_to_code(base : Char) -> Int {
 ///|
 /// Convert a 2-bit code back to a nucleotide character:
 /// 0 -> A, 1 -> C, 2 -> G, 3 -> T. Any other code maps to 'N'.
-pub fn xdna_code_to_base(code : Int) -> Char {
+pub fn xdna_code_to_base(code : Int32) -> Char {
   if code == 0 {
     'A'
   } else if code == 1 {
@@ -241,7 +243,7 @@ pub fn xdna_code_to_base(code : Int) -> Char {
 ///|
 /// Pack a DNA string into 2-bit bytes (4 bases per byte, MSB first).
 /// Unknown bases are packed as A (code 0). Returns ceil(length/4) bytes.
-pub fn xdna_pack_sequence(sequence : String) -> Array[Int] {
+pub fn xdna_pack_sequence(sequence : String) -> Array[Int32] {
   let n = sequence.length()
   let nbytes = (n + 3) / 4
   let packed = Array::make(nbytes, 0)
@@ -257,7 +259,7 @@ pub fn xdna_pack_sequence(sequence : String) -> Array[Int] {
 
 ///|
 /// Unpack 2-bit bytes back into a DNA string of length `seq_len`.
-pub fn xdna_unpack_sequence(packed : Array[Int], seq_len : Int) -> String {
+pub fn xdna_unpack_sequence(packed : Array[Int32], seq_len : Int32) -> String {
   let sb = StringBuilder()
   for i in 0..<seq_len {
     let byte_idx = i / 4
@@ -278,7 +280,7 @@ pub fn xdna_unpack_sequence(packed : Array[Int], seq_len : Int) -> String {
 
 ///|
 /// Read a 32-bit big-endian unsigned integer from `data` at `offset`.
-pub fn xdna_read_u32_be(data : Array[Int], offset : Int) -> Int {
+pub fn xdna_read_u32_be(data : Array[Int32], offset : Int32) -> Int32 {
   (data[offset] << 24) |
   (data[offset + 1] << 16) |
   (data[offset + 2] << 8) |
@@ -287,7 +289,7 @@ pub fn xdna_read_u32_be(data : Array[Int], offset : Int) -> Int {
 
 ///|
 /// Write a 32-bit unsigned integer as 4 big-endian bytes.
-pub fn xdna_write_u32_be(value : Int) -> Array[Int] {
+pub fn xdna_write_u32_be(value : Int32) -> Array[Int32] {
   [
     (value >> 24) & 0xFF,
     (value >> 16) & 0xFF,
@@ -305,8 +307,8 @@ pub fn xdna_write_u32_be(value : Int) -> Array[Int] {
 /// 20-byte header followed by name, sequence (2-bit packed for DNA, raw ASCII
 /// otherwise), and annotation bytes. A 4-byte big-endian checksum
 /// (sum of all preceding bytes) is appended at the end.
-pub fn xdna_to_bytes(file : XdnaFile) -> Array[Int] {
-  let bytes : Array[Int] = Array(capacity=0)
+pub fn xdna_to_bytes(file : XdnaFile) -> Array[Int32] {
+  let bytes : Array[Int32] = Array(capacity=0)
   for ri in 0..<file.records.length() {
     let rec = file.records[ri]
     // 20-byte record header.
@@ -316,7 +318,7 @@ pub fn xdna_to_bytes(file : XdnaFile) -> Array[Int] {
     bytes.push(rec.seq_type.to_int() & 0xFF)
     let name_bytes = string_to_ascii_bytes(rec.name)
     let ann_bytes = string_to_ascii_bytes(rec.annotations)
-    let seq_bytes : Array[Int] = match rec.seq_type {
+    let seq_bytes : Array[Int32] = match rec.seq_type {
       DnaType => xdna_pack_sequence(rec.sequence)
       _ => string_to_ascii_bytes(rec.sequence)
     }
@@ -359,7 +361,7 @@ pub fn xdna_to_bytes(file : XdnaFile) -> Array[Int] {
 ///|
 /// Deserialize an XdnaFile from a byte array produced by `xdna_to_bytes`.
 /// Trailing 4 bytes are read as the checksum (and stored on each record).
-pub fn xdna_from_bytes(data : Array[Int]) -> XdnaFile {
+pub fn xdna_from_bytes(data : Array[Int32]) -> XdnaFile {
   let file = XdnaFile::new()
   let n = data.length()
   let mut offset = 0
@@ -396,7 +398,7 @@ pub fn xdna_from_bytes(data : Array[Int]) -> XdnaFile {
       }
       _ => ascii_bytes_to_string(data, offset, seq_len)
     }
-    let seq_byte_count : Int = match seq_type {
+    let seq_byte_count : Int32 = match seq_type {
       DnaType => (seq_len + 3) / 4
       _ => seq_len
     }
@@ -447,7 +449,7 @@ pub fn xdna_write(file : XdnaFile) -> String {
 ///|
 /// Parse a hex string produced by `xdna_write` back into an XdnaFile.
 pub fn xdna_read(data : String) -> XdnaFile {
-  let bytes : Array[Int] = Array(capacity=0)
+  let bytes : Array[Int32] = Array(capacity=0)
   let len = data.length()
   let mut i = 0
   while i + 1 < len {
@@ -526,7 +528,7 @@ pub fn xdna_sample_file() -> XdnaFile {
 ///|
 /// Convert a String to an array of ASCII byte values (one byte per char,
 /// taking the low 8 bits of each code unit).
-fn string_to_ascii_bytes(s : String) -> Array[Int] {
+fn string_to_ascii_bytes(s : String) -> Array[Int32] {
   let out = Array(capacity=0)
   let n = s.length()
   for i in 0..<n {
@@ -538,11 +540,15 @@ fn string_to_ascii_bytes(s : String) -> Array[Int] {
 ///|
 /// Read `len` bytes from `data` starting at `offset` and return them as an
 /// ASCII string.
-fn ascii_bytes_to_string(data : Array[Int], offset : Int, len : Int) -> String {
+fn ascii_bytes_to_string(
+  data : Array[Int32],
+  offset : Int32,
+  len : Int32,
+) -> String {
   let sb = StringBuilder()
   for i in 0..<len {
     if offset + i < data.length() {
-      sb.write_char(Int::unsafe_to_char(data[offset + i] & 0xFF))
+      sb.write_char(Int32::unsafe_to_char(data[offset + i] & 0xFF))
     }
   }
   sb.to_string()
@@ -550,17 +556,17 @@ fn ascii_bytes_to_string(data : Array[Int], offset : Int, len : Int) -> String {
 
 ///|
 /// Convert an integer 0-15 to a lowercase hex digit character.
-fn xdna_hex_digit(n : Int) -> Char {
+fn xdna_hex_digit(n : Int32) -> Char {
   if n < 10 {
-    Int::unsafe_to_char('0'.to_int() + n)
+    Int32::unsafe_to_char('0'.to_int() + n)
   } else {
-    Int::unsafe_to_char('a'.to_int() + (n - 10))
+    Int32::unsafe_to_char('a'.to_int() + (n - 10))
   }
 }
 
 ///|
 /// Convert a hex digit character's ASCII code to its integer value 0-15.
-fn xdna_hex_value(c : Int) -> Int {
+fn xdna_hex_value(c : Int32) -> Int32 {
   let code_0 = '0'.to_int()
   let code_9 = '9'.to_int()
   let code_a = 'a'.to_int()

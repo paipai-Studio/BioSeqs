@@ -21,7 +21,7 @@ pub(all) enum SelExpr {
   None_
   ByName(Array[String])
   ByResName(Array[String])
-  ByResNum(Array[(Int, Int)])  // list of (start, end) inclusive ranges
+  ByResNum(Array[(Int32, Int32)]) // list of (start, end) inclusive ranges
   ByChain(Array[Char])
   ByElement(Array[String])
   Calpha
@@ -45,7 +45,7 @@ pub(all) enum SelExpr {
 pub(all) enum Token {
   Word(String)
   Number(Double)
-  Range(Int, Int)
+  Range(Int32, Int32)
   LParen
   RParen
   EOF
@@ -105,7 +105,7 @@ fn tokenize(s : String) -> Array[Token] {
 }
 
 ///|
-fn sel_find_char(s : String, ch : Char) -> Int {
+fn sel_find_char(s : String, ch : Char) -> Int32 {
   let chars = s.to_array()
   for i = 0; i < chars.length(); i = i + 1 {
     if chars[i] == ch {
@@ -147,13 +147,13 @@ fn is_number(s : String) -> Bool {
 ///|
 struct SelParser {
   tokens : Array[Token]
-  pos : Ref[Int]
+  pos : Ref[Int32]
 }
 
 ///|
 fn parse_selection(s : String) -> SelExpr? {
   let tokens = tokenize(s)
-  let p = SelParser::{ tokens, pos: Ref(0) }
+  let p = SelParser::{ tokens, pos: Ref(0), }
   let result = parse_or(p)
   // Must consume all tokens (except EOF)
   let pos = p.pos.val
@@ -170,7 +170,7 @@ fn parse_or(p : SelParser) -> SelExpr {
   while true {
     let tok = peek(p)
     match tok {
-      Token::Word(w) => {
+      Token::Word(w) =>
         if w == "or" {
           advance(p)
           let right = parse_and(p)
@@ -178,7 +178,6 @@ fn parse_or(p : SelParser) -> SelExpr {
         } else {
           break
         }
-      }
       _ => break
     }
   }
@@ -192,7 +191,7 @@ fn parse_and(p : SelParser) -> SelExpr {
   while true {
     let tok = peek(p)
     match tok {
-      Token::Word(w) => {
+      Token::Word(w) =>
         if w == "and" {
           advance(p)
           let right = parse_not(p)
@@ -200,7 +199,6 @@ fn parse_and(p : SelParser) -> SelExpr {
         } else {
           break
         }
-      }
       _ => break
     }
   }
@@ -211,7 +209,7 @@ fn parse_and(p : SelParser) -> SelExpr {
 fn parse_not(p : SelParser) -> SelExpr {
   let tok = peek(p)
   match tok {
-    Token::Word(w) => {
+    Token::Word(w) =>
       if w == "not" {
         advance(p)
         let inner = parse_not(p)
@@ -219,7 +217,6 @@ fn parse_not(p : SelParser) -> SelExpr {
       } else {
         parse_primary(p)
       }
-    }
     _ => parse_primary(p)
   }
 }
@@ -326,11 +323,7 @@ fn parse_keyword(p : SelParser, w : String) -> SelExpr {
       // Expect "of"
       let tok = peek(p)
       match tok {
-        Token::Word(w2) => {
-          if to_lowercase(w2) == "of" {
-            advance(p)
-          }
-        }
+        Token::Word(w2) => if to_lowercase(w2) == "of" { advance(p) }
         _ => ()
       }
       let inner = parse_primary(p)
@@ -395,8 +388,8 @@ fn read_chains(p : SelParser) -> Array[Char] {
 }
 
 ///|
-fn read_ranges(p : SelParser) -> Array[(Int, Int)] {
-  let result : Array[(Int, Int)] = Array(capacity=0)
+fn read_ranges(p : SelParser) -> Array[(Int32, Int32)] {
+  let result : Array[(Int32, Int32)] = Array(capacity=0)
   while true {
     let tok = peek(p)
     match tok {
@@ -447,12 +440,38 @@ fn read_number(p : SelParser) -> Double {
 ///|
 fn _is_keyword(w : String) -> Bool {
   match w {
-    "and" | "or" | "not" | "all" | "none" |
-    "calpha" | "ca" | "backbone" | "bb" | "sidechain" | "sc" |
-    "protein" | "aa" | "water" | "hoh" | "nucleic" | "na" |
-    "hetero" | "hydrogen" | "h" | "heavy" | "noh" |
-    "name" | "resname" | "resnum" | "chain" | "element" |
-    "within" | "of" | "same" | "residue" | "as" => true
+    "and"
+    | "or"
+    | "not"
+    | "all"
+    | "none"
+    | "calpha"
+    | "ca"
+    | "backbone"
+    | "bb"
+    | "sidechain"
+    | "sc"
+    | "protein"
+    | "aa"
+    | "water"
+    | "hoh"
+    | "nucleic"
+    | "na"
+    | "hetero"
+    | "hydrogen"
+    | "h"
+    | "heavy"
+    | "noh"
+    | "name"
+    | "resname"
+    | "resnum"
+    | "chain"
+    | "element"
+    | "within"
+    | "of"
+    | "same"
+    | "residue"
+    | "as" => true
     _ => false
   }
 }
@@ -475,13 +494,33 @@ fn advance(p : SelParser) -> Unit {
 
 // ===== Evaluator =====
 
+///|
 /// Amino acid residue names (3-letter codes).
 fn is_aa(resname : String) -> Bool {
   match resname {
-    "ALA" | "ARG" | "ASN" | "ASP" | "CYS" | "GLN" | "GLU" |
-    "GLY" | "HIS" | "ILE" | "LEU" | "LYS" | "MET" | "PHE" |
-    "PRO" | "SER" | "THR" | "TRP" | "TYR" | "VAL" |
-    "MSE" | "SEC" | "PYL" => true
+    "ALA"
+    | "ARG"
+    | "ASN"
+    | "ASP"
+    | "CYS"
+    | "GLN"
+    | "GLU"
+    | "GLY"
+    | "HIS"
+    | "ILE"
+    | "LEU"
+    | "LYS"
+    | "MET"
+    | "PHE"
+    | "PRO"
+    | "SER"
+    | "THR"
+    | "TRP"
+    | "TYR"
+    | "VAL"
+    | "MSE"
+    | "SEC"
+    | "PYL" => true
     _ => false
   }
 }
@@ -497,9 +536,21 @@ fn is_water(resname : String) -> Bool {
 ///|
 fn is_nucleic(resname : String) -> Bool {
   match resname {
-    "DA" | "DC" | "DG" | "DT" | "DU" |
-    "A" | "C" | "G" | "T" | "U" |
-    "ADE" | "CYT" | "GUA" | "THY" | "URA" => true
+    "DA"
+    | "DC"
+    | "DG"
+    | "DT"
+    | "DU"
+    | "A"
+    | "C"
+    | "G"
+    | "T"
+    | "U"
+    | "ADE"
+    | "CYT"
+    | "GUA"
+    | "THY"
+    | "URA" => true
     _ => false
   }
 }
@@ -526,13 +577,12 @@ pub fn eval_selection(atoms : Array[Atom], expr : SelExpr) -> Array[Bool] {
 fn eval_expr(atoms : Array[Atom], expr : SelExpr, result : Array[Bool]) -> Unit {
   let n = atoms.length()
   match expr {
-    SelExpr::All => {
+    SelExpr::All =>
       for i = 0; i < n; i = i + 1 {
         result[i] = true
       }
-    }
     SelExpr::None_ => ()
-    SelExpr::ByName(names) => {
+    SelExpr::ByName(names) =>
       for i = 0; i < n; i = i + 1 {
         for name in names {
           if atoms[i].name == name {
@@ -540,8 +590,7 @@ fn eval_expr(atoms : Array[Atom], expr : SelExpr, result : Array[Bool]) -> Unit 
           }
         }
       }
-    }
-    SelExpr::ByResName(names) => {
+    SelExpr::ByResName(names) =>
       for i = 0; i < n; i = i + 1 {
         for name in names {
           if atoms[i].resname == name {
@@ -549,8 +598,7 @@ fn eval_expr(atoms : Array[Atom], expr : SelExpr, result : Array[Bool]) -> Unit 
           }
         }
       }
-    }
-    SelExpr::ByResNum(ranges) => {
+    SelExpr::ByResNum(ranges) =>
       for i = 0; i < n; i = i + 1 {
         let rn = atoms[i].resseq
         for (start, end) in ranges {
@@ -559,8 +607,7 @@ fn eval_expr(atoms : Array[Atom], expr : SelExpr, result : Array[Bool]) -> Unit 
           }
         }
       }
-    }
-    SelExpr::ByChain(chains) => {
+    SelExpr::ByChain(chains) =>
       for i = 0; i < n; i = i + 1 {
         for ch in chains {
           if atoms[i].chainid == ch {
@@ -568,8 +615,7 @@ fn eval_expr(atoms : Array[Atom], expr : SelExpr, result : Array[Bool]) -> Unit 
           }
         }
       }
-    }
-    SelExpr::ByElement(elems) => {
+    SelExpr::ByElement(elems) =>
       for i = 0; i < n; i = i + 1 {
         for elem in elems {
           if atoms[i].element == elem {
@@ -577,70 +623,60 @@ fn eval_expr(atoms : Array[Atom], expr : SelExpr, result : Array[Bool]) -> Unit 
           }
         }
       }
-    }
-    SelExpr::Calpha => {
+    SelExpr::Calpha =>
       for i = 0; i < n; i = i + 1 {
         if atoms[i].name == "CA" && is_aa(atoms[i].resname) {
           result[i] = true
         }
       }
-    }
-    SelExpr::Backbone => {
+    SelExpr::Backbone =>
       for i = 0; i < n; i = i + 1 {
         if is_backbone_name(atoms[i].name) && is_aa(atoms[i].resname) {
           result[i] = true
         }
       }
-    }
-    SelExpr::Sidechain => {
+    SelExpr::Sidechain =>
       for i = 0; i < n; i = i + 1 {
         if is_aa(atoms[i].resname) && !is_backbone_name(atoms[i].name) {
           result[i] = true
         }
       }
-    }
-    SelExpr::Protein => {
+    SelExpr::Protein =>
       for i = 0; i < n; i = i + 1 {
         if is_aa(atoms[i].resname) {
           result[i] = true
         }
       }
-    }
-    SelExpr::Water => {
+    SelExpr::Water =>
       for i = 0; i < n; i = i + 1 {
         if is_water(atoms[i].resname) {
           result[i] = true
         }
       }
-    }
-    SelExpr::Nucleic => {
+    SelExpr::Nucleic =>
       for i = 0; i < n; i = i + 1 {
         if is_nucleic(atoms[i].resname) {
           result[i] = true
         }
       }
-    }
-    SelExpr::Hetero => {
+    SelExpr::Hetero =>
       for i = 0; i < n; i = i + 1 {
         if !is_aa(atoms[i].resname) && !is_water(atoms[i].resname) {
           result[i] = true
         }
       }
-    }
-    SelExpr::Hydrogen => {
+    SelExpr::Hydrogen =>
       for i = 0; i < n; i = i + 1 {
         if atoms[i].element == "H" || char_at(atoms[i].name, 0) == "H" {
           result[i] = true
         }
       }
-    }
-    SelExpr::Heavy => {
+    SelExpr::Heavy =>
       for i = 0; i < n; i = i + 1 {
         if !(atoms[i].element == "H" || char_at(atoms[i].name, 0) == "H") {
           result[i] = true
         }
       }
-    }
     SelExpr::And(left, right) => {
       let l = Array::make(n, false)
       let r = Array::make(n, false)
@@ -739,7 +775,7 @@ pub fn select_mask(atoms : Array[Atom], sel : String) -> Array[Bool] {
 
 ///|
 /// Count selected atoms.
-pub fn count_selected(atoms : Array[Atom], sel : String) -> Int {
+pub fn count_selected(atoms : Array[Atom], sel : String) -> Int32 {
   match parse_selection(sel) {
     Some(expr) => {
       let mask = eval_selection(atoms, expr)
@@ -757,11 +793,11 @@ pub fn count_selected(atoms : Array[Atom], sel : String) -> Int {
 
 ///|
 /// Get indices of selected atoms (0-based).
-pub fn select_indices(atoms : Array[Atom], sel : String) -> Array[Int] {
+pub fn select_indices(atoms : Array[Atom], sel : String) -> Array[Int32] {
   match parse_selection(sel) {
     Some(expr) => {
       let mask = eval_selection(atoms, expr)
-      let result : Array[Int] = Array(capacity=0)
+      let result : Array[Int32] = Array(capacity=0)
       for i = 0; i < mask.length(); i = i + 1 {
         if mask[i] {
           result.push(i)
@@ -804,7 +840,7 @@ pub fn Chain::select_residues(self : Chain, sel : String) -> Array[Residue] {
 }
 
 ///|
-fn double_to_int(d : Double) -> Int {
+fn double_to_int(d : Double) -> Int32 {
   let mut result = 0
   let mut x = d
   if x < 0.0 {
@@ -846,7 +882,8 @@ fn safe_parse_double(s : String) -> Double {
     i = i + 1
     let mut scale = 0.1
     while i < n && chars[i] >= '0' && chars[i] <= '9' {
-      frac_part = frac_part + (chars[i].to_int() - '0'.to_int()).to_double() * scale
+      frac_part = frac_part +
+        (chars[i].to_int() - '0'.to_int()).to_double() * scale
       scale = scale * 0.1
       i = i + 1
     }
@@ -860,7 +897,7 @@ fn safe_parse_double(s : String) -> Double {
 }
 
 ///|
-fn safe_parse_int(s : String) -> Int {
+fn safe_parse_int(s : String) -> Int32 {
   let chars = s.to_array()
   let n = chars.length()
   if n == 0 {

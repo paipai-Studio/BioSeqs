@@ -17,6 +17,8 @@ pub struct MethylgsaInput {
   cpg_pvalues : Array[Double]
   cpg_to_gene : Map[String, String]
 } derive(Eq)
+
+///|
 pub extend MethylgsaInput with Eq::{equal, not_equal}
 
 ///|
@@ -25,30 +27,34 @@ pub fn MethylgsaInput::new(
   cpg_pvalues~ : Array[Double],
   cpg_to_gene~ : Map[String, String],
 ) -> MethylgsaInput {
-  MethylgsaInput::{ cpg_ids, cpg_pvalues, cpg_to_gene }
+  MethylgsaInput::{ cpg_ids, cpg_pvalues, cpg_to_gene, }
 }
 
 ///|
 /// Result for one gene set.
 pub struct MethylgsaResult {
   set_name : String
-  set_size : Int
+  set_size : Int32
   statistic : Double
   pvalue : Double
   qvalue : Double
 } derive(Eq, Debug)
+
+///|
 pub extend MethylgsaResult with Eq::{equal, not_equal}
+
+///|
 pub extend MethylgsaResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub fn methylgsa_result_new(
   set_name~ : String,
-  set_size~ : Int,
+  set_size~ : Int32,
   statistic~ : Double,
   pvalue~ : Double,
   qvalue~ : Double,
 ) -> MethylgsaResult {
-  MethylgsaResult::{ set_name, set_size, statistic, pvalue, qvalue }
+  MethylgsaResult::{ set_name, set_size, statistic, pvalue, qvalue, }
 }
 
 ///|
@@ -63,16 +69,11 @@ pub fn methylgsa_gene_min_p(input : MethylgsaInput) -> Map[String, Double] {
       1.0
     }
     match input.cpg_to_gene.get(cpg) {
-      Some(g) => {
+      Some(g) =>
         match gene_min.get(g) {
-          Some(cur) => {
-            if p < cur {
-              gene_min.set(g, p)
-            }
-          }
+          Some(cur) => if p < cur { gene_min.set(g, p) }
           None => gene_min.set(g, p)
         }
-      }
       None => ()
     }
   }
@@ -85,7 +86,7 @@ pub fn methylgsa_gene_min_p(input : MethylgsaInput) -> Map[String, Double] {
 pub fn methylgsa_ols_statistic(
   gene_min : Map[String, Double],
   genes : Array[String],
-) -> (Double, Int) {
+) -> (Double, Int32) {
   let mut sum = 0.0
   let mut count = 0
   for g in genes {
@@ -206,15 +207,13 @@ pub fn methylrra_ols(
         } else {
           exceed.to_double() / background.length().to_double()
         }
-        results.push(
-          MethylgsaResult::{
-            set_name: name,
-            set_size: size,
-            statistic: stat,
-            pvalue: p,
-            qvalue: 1.0,
-          },
-        )
+        results.push(MethylgsaResult::{
+          set_name: name,
+          set_size: size,
+          statistic: stat,
+          pvalue: p,
+          qvalue: 1.0,
+        })
       }
       None => ()
     }
@@ -248,15 +247,7 @@ pub fn methylrra_robust(
     }
   }
   let arr = sorted_p.copy()
-  arr.sort_by(fn(a, b) {
-    if a < b {
-      -1
-    } else if a > b {
-      1
-    } else {
-      0
-    }
-  })
+  arr.sort_by(fn(a, b) { if a < b { -1 } else if a > b { 1 } else { 0 } })
   let results : Array[MethylgsaResult] = Array(capacity=0)
   for name in methylgsa_collect_names(gene_sets) {
     match gene_sets.get(name) {
@@ -284,26 +275,16 @@ pub fn methylrra_robust(
           }
         }
         if size == 0 {
-          results.push(
-            MethylgsaResult::{
-              set_name: name,
-              set_size: 0,
-              statistic: 0.0,
-              pvalue: 1.0,
-              qvalue: 1.0,
-            },
-          )
+          results.push(MethylgsaResult::{
+            set_name: name,
+            set_size: 0,
+            statistic: 0.0,
+            pvalue: 1.0,
+            qvalue: 1.0,
+          })
         } else {
           let fr = fractions.copy()
-          fr.sort_by(fn(a, b) {
-            if a < b {
-              -1
-            } else if a > b {
-              1
-            } else {
-              0
-            }
-          })
+          fr.sort_by(fn(a, b) { if a < b { -1 } else if a > b { 1 } else { 0 } })
           let mut best = 1.0
           for k in 0..<size {
             let beta_p = bsseq_betainc(
@@ -317,15 +298,13 @@ pub fn methylrra_robust(
             }
           }
           let agg = if best > 1.0 { 1.0 } else { best }
-          results.push(
-            MethylgsaResult::{
-              set_name: name,
-              set_size: size,
-              statistic: agg,
-              pvalue: agg,
-              qvalue: 1.0,
-            },
-          )
+          results.push(MethylgsaResult::{
+            set_name: name,
+            set_size: size,
+            statistic: agg,
+            pvalue: agg,
+            qvalue: 1.0,
+          })
         }
       }
       None => ()
@@ -342,7 +321,7 @@ pub fn methylgsa_bh(results : Array[MethylgsaResult]) -> Array[MethylgsaResult] 
   if n == 0 {
     return results
   }
-  let order : Array[Int] = Array(capacity=0)
+  let order : Array[Int32] = Array(capacity=0)
   for i in 0..<n {
     order.push(i)
   }

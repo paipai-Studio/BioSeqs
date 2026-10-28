@@ -8,7 +8,11 @@ fn st_leaf(name : String, bl : Double) -> @src.Clade {
 
 ///|
 fn st_internal(children : Array[@src.Clade], bl : Double) -> @src.Clade {
-  @src.Clade::new(name=Some("internal"), branch_length=Some(bl), clades=children)
+  @src.Clade::new(
+    name=Some("internal"),
+    branch_length=Some(bl),
+    clades=children,
+  )
 }
 
 ///|
@@ -36,10 +40,13 @@ test "scale: leaf" {
 ///|
 test "scale: basic tree" {
   // ((A:1,B:2):3,C:4) * 2 = ((A:2,B:4):6,C:8)
-  let tree = st_internal([
-    st_internal([st_leaf("A", 1.0), st_leaf("B", 2.0)], 3.0),
-    st_leaf("C", 4.0),
-  ], 0.0)
+  let tree = st_internal(
+    [
+      st_internal([st_leaf("A", 1.0), st_leaf("B", 2.0)], 3.0),
+      st_leaf("C", 4.0),
+    ],
+    0.0,
+  )
   let result = @src.phylo_scale_tree(tree, 2.0)
   let bls : Array[Double] = Array(capacity=0)
   st_collect_bls(result, bls)
@@ -50,10 +57,18 @@ test "scale: basic tree" {
   let mut has6 = false
   let mut has8 = false
   for bl in bls {
-    if (bl - 2.0).abs() < 0.0001 { has2 = true }
-    if (bl - 4.0).abs() < 0.0001 { has4 = true }
-    if (bl - 6.0).abs() < 0.0001 { has6 = true }
-    if (bl - 8.0).abs() < 0.0001 { has8 = true }
+    if (bl - 2.0).abs() < 0.0001 {
+      has2 = true
+    }
+    if (bl - 4.0).abs() < 0.0001 {
+      has4 = true
+    }
+    if (bl - 6.0).abs() < 0.0001 {
+      has6 = true
+    }
+    if (bl - 8.0).abs() < 0.0001 {
+      has8 = true
+    }
   }
   assert_true(has2)
   assert_true(has4)
@@ -97,9 +112,15 @@ test "scale: fractional factor" {
   let mut has2 = false
   let mut has3 = false
   for bl in bls {
-    if (bl - 1.0).abs() < 0.0001 { has1 = true }
-    if (bl - 2.0).abs() < 0.0001 { has2 = true }
-    if (bl - 3.0).abs() < 0.0001 { has3 = true }
+    if (bl - 1.0).abs() < 0.0001 {
+      has1 = true
+    }
+    if (bl - 2.0).abs() < 0.0001 {
+      has2 = true
+    }
+    if (bl - 3.0).abs() < 0.0001 {
+      has3 = true
+    }
   }
   assert_true(has1)
   assert_true(has2)
@@ -108,10 +129,13 @@ test "scale: fractional factor" {
 
 ///|
 test "scale: preserves structure" {
-  let tree = st_internal([
-    st_internal([st_leaf("A", 1.0), st_leaf("B", 1.0)], 1.0),
-    st_internal([st_leaf("C", 1.0), st_leaf("D", 1.0)], 1.0),
-  ], 1.0)
+  let tree = st_internal(
+    [
+      st_internal([st_leaf("A", 1.0), st_leaf("B", 1.0)], 1.0),
+      st_internal([st_leaf("C", 1.0), st_leaf("D", 1.0)], 1.0),
+    ],
+    1.0,
+  )
   let result = @src.phylo_scale_tree(tree, 10.0)
   // Should still have 4 leaves and 3 internal nodes
   let lc = @src.phylo_count_leaves(result)

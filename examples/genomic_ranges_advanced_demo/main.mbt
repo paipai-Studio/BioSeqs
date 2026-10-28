@@ -8,7 +8,6 @@
 /// 4. Compute coverage in sliding windows
 /// 5. Perform set operations (gaps, subtract)
 /// 6. Create promoter regions
-
 fn main {
   println("=== GenomicRanges Advanced: Tiling and Windowing Demo ===\n")
 
@@ -21,7 +20,9 @@ fn main {
   )
   println("  Original ranges: \{gr.seqnames.length()}")
   for i = 0; i < gr.seqnames.length(); i = i + 1 {
-    println("  \{gr.seqnames[i]}: \{gr.starts[i]}-\{gr.ends[i]} (\{@bio.strand_to_char(gr.strands[i])})")
+    println(
+      "  \{gr.seqnames[i]}: \{gr.starts[i]}-\{gr.ends[i]} (\{@bio.strand_to_char(gr.strands[i])})",
+    )
   }
 
   // Step 2: Tile by fixed width
@@ -54,7 +55,9 @@ fn main {
   let genome_tiles = @bio.tile_genome(seqlengths, 500)
   println("  Genome tiles: \{genome_tiles.seqnames.length()}")
   for i = 0; i < genome_tiles.seqnames.length(); i = i + 1 {
-    println("  \{genome_tiles.seqnames[i]}: \{genome_tiles.starts[i]}-\{genome_tiles.ends[i]}")
+    println(
+      "  \{genome_tiles.seqnames[i]}: \{genome_tiles.starts[i]}-\{genome_tiles.ends[i]}",
+    )
   }
 
   // Step 6: Tile by ranges (exactly n tiles per range)
@@ -62,7 +65,9 @@ fn main {
   let tile_by_r = @bio.tile_by_ranges(gr, 4)
   println("  Tiled ranges: \{tile_by_r.seqnames.length()}")
   for i = 0; i < tile_by_r.seqnames.length(); i = i + 1 {
-    println("  \{tile_by_r.seqnames[i]}: \{tile_by_r.starts[i]}-\{tile_by_r.ends[i]} (width=\{tile_by_r.widths[i]})")
+    println(
+      "  \{tile_by_r.seqnames[i]}: \{tile_by_r.starts[i]}-\{tile_by_r.ends[i]} (width=\{tile_by_r.widths[i]})",
+    )
   }
 
   // Step 7: Coverage by window
@@ -81,25 +86,30 @@ fn main {
   for entry in bins {
     let (chrom, start, end, count, density) = entry
     if count > 0 {
-      println("  \{chrom}: \{start}-\{end} -> count=\{count}, density=\{density.to_string()}")
+      println(
+        "  \{chrom}: \{start}-\{end} -> count=\{count}, density=\{density.to_string()}",
+      )
     }
   }
 
   // Step 9: Promoters
-  println("\nStep 9: Creating promoter regions (upstream=200, downstream=50)...")
+  println(
+    "\nStep 9: Creating promoter regions (upstream=200, downstream=50)...",
+  )
   let promoters = @bio.granges_promoters(gr, 200, 50)
   println("  Promoter ranges: \{promoters.seqnames.length()}")
   for i = 0; i < promoters.seqnames.length(); i = i + 1 {
-    println("  \{promoters.seqnames[i]}: \{promoters.starts[i]}-\{promoters.ends[i]} (\{@bio.strand_to_char(promoters.strands[i])})")
+    println(
+      "  \{promoters.seqnames[i]}: \{promoters.starts[i]}-\{promoters.ends[i]} (\{@bio.strand_to_char(promoters.strands[i])})",
+    )
   }
 
   // Step 10: Gaps
   println("\nStep 10: Finding gaps in chr1 (1 to 1000)...")
-  let gr_chr1 = @bio.granges(
-    ["chr1", "chr1"],
-    [(100, 200), (400, 600)],
-    [@bio.strand_plus(), @bio.strand_plus()],
-  )
+  let gr_chr1 = @bio.granges(["chr1", "chr1"], [(100, 200), (400, 600)], [
+    @bio.strand_plus(),
+    @bio.strand_plus(),
+  ])
   let gaps = @bio.granges_gaps(gr_chr1, start_limit=1, end_limit=1000)
   println("  Gap ranges: \{gaps.seqnames.length()}")
   for i = 0; i < gaps.seqnames.length(); i = i + 1 {
@@ -113,7 +123,9 @@ fn main {
   let subtracted = @bio.granges_subtract(gr_main, gr_sub)
   println("  After subtraction: \{subtracted.seqnames.length()} ranges")
   for i = 0; i < subtracted.seqnames.length(); i = i + 1 {
-    println("  \{subtracted.seqnames[i]}: \{subtracted.starts[i]}-\{subtracted.ends[i]}")
+    println(
+      "  \{subtracted.seqnames[i]}: \{subtracted.starts[i]}-\{subtracted.ends[i]}",
+    )
   }
 
   // Step 12: Resize advanced
@@ -121,7 +133,9 @@ fn main {
   let resized = @bio.granges_resize_advanced(gr, 100, "center")
   println("  Resized ranges: \{resized.seqnames.length()}")
   for i = 0; i < resized.seqnames.length(); i = i + 1 {
-    println("  \{resized.seqnames[i]}: \{resized.starts[i]}-\{resized.ends[i]} (width=\{resized.widths[i]})")
+    println(
+      "  \{resized.seqnames[i]}: \{resized.starts[i]}-\{resized.ends[i]} (width=\{resized.widths[i]})",
+    )
   }
 
   println("\n=== GenomicRanges Advanced Demo Complete ===")

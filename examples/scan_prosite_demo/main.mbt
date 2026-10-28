@@ -11,7 +11,12 @@ fn main raise {
   println("=== 1. Query URL construction (quote_plus semantics) ===")
   println(@src.scanprosite_url(seq="MKWVTF"))
   println(@src.scanprosite_url(seq="A C+G"))
-  println(@src.scanprosite_url(seq="MKWVTF", params=[("db", "sp"), ("sig", "P-x(2)-G")]))
+  println(
+    @src.scanprosite_url(seq="MKWVTF", params=[
+      ("db", "sp"),
+      ("sig", "P-x(2)-G"),
+    ]),
+  )
 
   println("\n=== 2. Parsing a canned ScanProsite XML response ===")
   let record = @src.scanprosite_read(@src.scanprosite_sample_xml())

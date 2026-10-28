@@ -15,6 +15,8 @@ pub struct SequenceAnnotation {
   symbol : String
   uri : String
 } derive(Eq)
+
+///|
 pub extend SequenceAnnotation with Eq::{equal, not_equal}
 
 ///|
@@ -26,6 +28,8 @@ pub struct TaxonInfo {
   authority : String
   taxon_rank : String
 } derive(Eq)
+
+///|
 pub extend TaxonInfo with Eq::{equal, not_equal}
 
 ///|
@@ -34,6 +38,8 @@ pub struct TaxonNamespace {
   namespace_id : String
   name : String
 } derive(Eq)
+
+///|
 pub extend TaxonNamespace with Eq::{equal, not_equal}
 
 ///|
@@ -48,6 +54,8 @@ pub struct PhyloXMLNode {
   sequence_annotation : SequenceAnnotation?
   taxon : TaxonInfo?
 } derive(Eq)
+
+///|
 pub extend PhyloXMLNode with Eq::{equal, not_equal}
 
 ///|
@@ -60,6 +68,8 @@ pub struct PhyloXMLTree {
   phylogeny_metadata : Map[String, String]
   taxon_namespaces : Array[TaxonNamespace]
 } derive(Eq)
+
+///|
 pub extend PhyloXMLTree with Eq::{equal, not_equal}
 
 ///|
@@ -69,6 +79,8 @@ pub struct PhyloXMLResult {
   metadata : Map[String, String]
   taxon_namespaces : Array[TaxonNamespace]
 } derive(Eq)
+
+///|
 pub extend PhyloXMLResult with Eq::{equal, not_equal}
 
 // ============================================================================
@@ -77,42 +89,42 @@ pub extend PhyloXMLResult with Eq::{equal, not_equal}
 
 ///|
 pub fn SequenceAnnotation::new(
-  sequence_id? : String = "",
-  molecular_type? : String = "",
-  symbol? : String = "",
-  uri? : String = "",
+  sequence_id~ : String = "",
+  molecular_type~ : String = "",
+  symbol~ : String = "",
+  uri~ : String = "",
 ) -> SequenceAnnotation {
   SequenceAnnotation::{ sequence_id, molecular_type, symbol, uri, }
 }
 
 ///|
 pub fn TaxonInfo::new(
-  taxon_id? : String = "",
-  scientific_name? : String = "",
-  common_name? : String = "",
-  authority? : String = "",
-  taxon_rank? : String = "",
+  taxon_id~ : String = "",
+  scientific_name~ : String = "",
+  common_name~ : String = "",
+  authority~ : String = "",
+  taxon_rank~ : String = "",
 ) -> TaxonInfo {
   TaxonInfo::{ taxon_id, scientific_name, common_name, authority, taxon_rank, }
 }
 
 ///|
 pub fn TaxonNamespace::new(
-  namespace_id? : String = "",
-  name? : String = "",
+  namespace_id~ : String = "",
+  name~ : String = "",
 ) -> TaxonNamespace {
   TaxonNamespace::{ namespace_id, name, }
 }
 
 ///|
 pub fn PhyloXMLNode::new(
-  node_id? : String = "",
-  name? : String = "",
-  branch_length? : Double = 0.0,
-  children? : Array[PhyloXMLNode] = [],
-  annotations? : Map[String, String] = Map([], capacity=8),
-  sequence_annotation? : SequenceAnnotation? = None,
-  taxon? : TaxonInfo? = None,
+  node_id~ : String = "",
+  name~ : String = "",
+  branch_length~ : Double = 0.0,
+  children~ : Array[PhyloXMLNode] = [],
+  annotations~ : Map[String, String] = Map([], capacity=8),
+  sequence_annotation~ : SequenceAnnotation? = None,
+  taxon~ : TaxonInfo? = None,
 ) -> PhyloXMLNode {
   let is_leaf = children.length() == 0
   PhyloXMLNode::{
@@ -129,12 +141,12 @@ pub fn PhyloXMLNode::new(
 
 ///|
 pub fn PhyloXMLTree::new(
-  tree_id? : String = "",
-  name? : String = "",
-  description? : String = "",
-  root? : PhyloXMLNode = PhyloXMLNode::new(),
-  phylogeny_metadata? : Map[String, String] = Map([], capacity=8),
-  taxon_namespaces? : Array[TaxonNamespace] = [],
+  tree_id~ : String = "",
+  name~ : String = "",
+  description~ : String = "",
+  root~ : PhyloXMLNode = PhyloXMLNode::new(),
+  phylogeny_metadata~ : Map[String, String] = Map([], capacity=8),
+  taxon_namespaces~ : Array[TaxonNamespace] = [],
 ) -> PhyloXMLTree {
   PhyloXMLTree::{
     tree_id,
@@ -148,9 +160,9 @@ pub fn PhyloXMLTree::new(
 
 ///|
 pub fn PhyloXMLResult::new(
-  trees? : Array[PhyloXMLTree] = [],
-  metadata? : Map[String, String] = Map([], capacity=8),
-  taxon_namespaces? : Array[TaxonNamespace] = [],
+  trees~ : Array[PhyloXMLTree] = [],
+  metadata~ : Map[String, String] = Map([], capacity=8),
+  taxon_namespaces~ : Array[TaxonNamespace] = [],
 ) -> PhyloXMLResult {
   PhyloXMLResult::{ trees, metadata, taxon_namespaces, }
 }
@@ -246,8 +258,8 @@ fn xml_parse_attrs(attr_str : String) -> Map[String, String] {
 fn xml_find_open_tag(
   xml : String,
   tag_name : String,
-  start : Int,
-) -> (Int, Map[String, String], Bool)? {
+  start : Int32,
+) -> (Int32, Map[String, String], Bool)? {
   let search_tag = tag_name
   let n = xml.length()
   let mut i = start
@@ -299,8 +311,8 @@ fn xml_find_open_tag(
 fn xml_find_close_tag(
   xml : String,
   tag_name : String,
-  open_start : Int,
-) -> Int? {
+  open_start : Int32,
+) -> Int32? {
   let n = xml.length()
   let search_tag = tag_name
   let mut depth = 1
@@ -357,10 +369,9 @@ fn xml_find_close_tag(
   None
 }
 
-
 ///|
 /// Find the position after the closing ">" of the tag that starts at open_start.
-fn find_tag_end(xml : String, open_start : Int, tag_name : String) -> Int {
+fn find_tag_end(xml : String, open_start : Int32, tag_name : String) -> Int32 {
   let search_tag = tag_name
   let n = xml.length()
   let mut i = open_start + 1
@@ -396,9 +407,6 @@ fn find_tag_end(xml : String, open_start : Int, tag_name : String) -> Int {
   n
 }
 
-
-
-
 // ============================================================================
 // XML Parser
 // ============================================================================
@@ -406,7 +414,7 @@ fn find_tag_end(xml : String, open_start : Int, tag_name : String) -> Int {
 ///|
 /// Find first XML element by tag name.
 /// Returns (start_pos, end_pos, content_string) or (0, 0, "").
-pub fn find_element(xml : String, tag : String) -> (Int, Int, String) {
+pub fn find_element(xml : String, tag : String) -> (Int32, Int32, String) {
   let open_opt = xml_find_open_tag(xml, tag, 0)
   if open_opt is None {
     return (0, 0, "")
@@ -430,8 +438,8 @@ pub fn find_element(xml : String, tag : String) -> (Int, Int, String) {
 ///|
 /// Find all XML elements by tag name (non-overlapping, top-level only within the search range).
 /// Returns array of (start_pos, end_pos) tuples.
-pub fn find_all_elements(xml : String, tag : String) -> Array[(Int, Int)] {
-  let result : Array[(Int, Int)] = Array(capacity=0)
+pub fn find_all_elements(xml : String, tag : String) -> Array[(Int32, Int32)] {
+  let result : Array[(Int32, Int32)] = Array(capacity=0)
   let mut search_start = 0
   let n = xml.length()
   while search_start < n {
@@ -857,7 +865,7 @@ pub fn tree_to_xml(tree : PhyloXMLTree) -> String {
 
 ///|
 /// Serialize a PhyloXMLNode to XML recursively with indentation.
-pub fn node_to_xml(node : PhyloXMLNode, indent : Int) -> String {
+pub fn node_to_xml(node : PhyloXMLNode, indent : Int32) -> String {
   let buf = StringBuilder()
   let prefix = make_indent(indent)
   let prefix2 = make_indent(indent + 1)
@@ -981,7 +989,7 @@ pub fn node_to_xml(node : PhyloXMLNode, indent : Int) -> String {
 
 ///|
 /// Add proper indentation to XML string.
-pub fn indent_xml(xml : String, indent : Int) -> String {
+pub fn indent_xml(xml : String, indent : Int32) -> String {
   let prefix = make_indent(indent)
   let lines = xml.split("\n").to_array()
   let buf = StringBuilder()
@@ -1002,7 +1010,7 @@ pub fn indent_xml(xml : String, indent : Int) -> String {
 }
 
 ///|
-fn make_indent(level : Int) -> String {
+fn make_indent(level : Int32) -> String {
   let mut s = ""
   let mut i = 0
   while i < level {
@@ -1020,7 +1028,7 @@ fn make_indent(level : Int) -> String {
 /// Convert Newick format string to PhyloXMLResult.
 pub fn newick_to_phyloxml(
   newick_text : String,
-  tree_id? : String = "",
+  tree_id~ : String = "",
 ) -> PhyloXMLResult {
   let node = parse_newick_to_node(newick_text)
   let tree = PhyloXMLTree::{
@@ -1055,7 +1063,7 @@ fn parse_newick_to_node(content : String) -> PhyloXMLNode {
 }
 
 ///|
-fn parse_newick_subtree(s : String, _start : Int) -> PhyloXMLNode {
+fn parse_newick_subtree(s : String, _start : Int32) -> PhyloXMLNode {
   let trimmed = trim(s).replace(old=";", new="")
   let n = trimmed.length()
   if n == 0 {
@@ -1166,8 +1174,8 @@ fn parse_newick_subtree(s : String, _start : Int) -> PhyloXMLNode {
 }
 
 ///|
-fn find_min_pos(positions : Array[Int?]) -> Int? {
-  let mut min_val : Int? = None
+fn find_min_pos(positions : Array[Int32?]) -> Int32? {
+  let mut min_val : Int32? = None
   for p in positions {
     if p is Some(_) {
       let v = p.unwrap()
@@ -1180,8 +1188,8 @@ fn find_min_pos(positions : Array[Int?]) -> Int? {
 }
 
 ///|
-fn find_first_of(s : String, chars : Array[String]) -> Int? {
-  let mut result : Int? = None
+fn find_first_of(s : String, chars : Array[String]) -> Int32? {
+  let mut result : Int32? = None
   for ch in chars {
     let pos = s.find(ch)
     if pos is Some(_) {
@@ -1275,7 +1283,7 @@ fn collect_tips(node : PhyloXMLNode, tips : Array[String]) -> Unit {
 
 ///|
 /// Count the total number of nodes in a PhyloXMLTree.
-pub fn phyloxml_get_node_count(tree : PhyloXMLTree) -> Int {
+pub fn phyloxml_get_node_count(tree : PhyloXMLTree) -> Int32 {
   let mut count = 0
   let stack : Array[PhyloXMLNode] = Array(capacity=0)
   stack.push(tree.root)

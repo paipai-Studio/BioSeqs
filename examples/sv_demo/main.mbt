@@ -58,7 +58,17 @@ fn main {
   let genes = @bio.sv_sample_genes()
   println("Gene regions: " + genes.length().to_string())
   for g in genes {
-    println("  " + g.gene() + " (" + g.chrom() + ":" + g.start().to_string() + "-" + g.end().to_string() + ")")
+    println(
+      "  " +
+      g.gene() +
+      " (" +
+      g.chrom() +
+      ":" +
+      g.start().to_string() +
+      "-" +
+      g.end().to_string() +
+      ")",
+    )
   }
   println("")
   let annotations = @bio.sv_annotate(records, genes)
@@ -78,11 +88,11 @@ fn main {
     }
     println(
       "  " +
-        rec.id() +
-        " (" +
-        @bio.sv_type_label(rec.sv_type()) +
-        "): " +
-        gene_str,
+      rec.id() +
+      " (" +
+      @bio.sv_type_label(rec.sv_type()) +
+      "): " +
+      gene_str,
     )
   }
   println("")

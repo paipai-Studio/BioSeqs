@@ -41,7 +41,7 @@ fn main {
 
   // 4. count - count peaks overlapping ranges
   println("\n4. count: count peaks in query ranges:")
-  let ranges : Array[(String, Int, Int)] = [
+  let ranges : Array[(String, Int32, Int32)] = [
     ("chr1", 1500, 3500),
     ("chr2", 1000, 5500),
     ("chr3", 1000, 3000),

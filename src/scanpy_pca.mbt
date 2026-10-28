@@ -16,11 +16,11 @@ pub struct ScanpyPca {
 /// columns), matching `scanpy.pp.pca`'s default (sklearn PCA). Returns cell
 /// coordinates (`n_obs × n_comps`), gene loadings (`n_comps × n_vars`) and the
 /// explained-variance ratio per component.
-pub fn scanpy_pca(x : Array[Array[Double]], n_comps : Int) -> ScanpyPca {
+pub fn scanpy_pca(x : Array[Array[Double]], n_comps : Int32) -> ScanpyPca {
   let n_obs = x.length()
   let n_vars = if n_obs > 0 { x[0].length() } else { 0 }
   if n_obs == 0 || n_vars == 0 {
-    return ScanpyPca::{ coords: [], loadings: [], variance_ratio: [] }
+    return ScanpyPca::{ coords: [], loadings: [], variance_ratio: [], }
   }
 
   // column means
@@ -94,5 +94,5 @@ pub fn scanpy_pca(x : Array[Array[Double]], n_comps : Int) -> ScanpyPca {
     coords.push(row)
   }
 
-  ScanpyPca::{ coords, loadings, variance_ratio: ratio }
+  ScanpyPca::{ coords, loadings, variance_ratio: ratio, }
 }

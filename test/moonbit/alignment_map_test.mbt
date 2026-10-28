@@ -2,8 +2,8 @@
 fn alignment_map_pair(
   target : String,
   query : String,
-  target_coordinates : Array[Int],
-  query_coordinates : Array[Int],
+  target_coordinates : Array[Int32],
+  query_coordinates : Array[Int32],
 ) -> @src.CoordinatePairwiseAlignment {
   @src.coordinate_pairwise_alignment(
     "target", target, "query", query, target_coordinates, query_coordinates,

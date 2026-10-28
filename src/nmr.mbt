@@ -29,7 +29,7 @@
 /// `observed` is the distance computed from a structure (optional).
 /// `violation` is positive when outside the range.
 pub struct NoeRestraint {
-  restraint_id : Int
+  restraint_id : Int32
   atom1 : String // e.g. "15ALA_HA"
   atom2 : String
   lower_bound : Double // Angstroms
@@ -41,7 +41,7 @@ pub struct NoeRestraint {
 ///|
 /// Construct an NoeRestraint.
 pub fn NoeRestraint::new(
-  restraint_id~ : Int,
+  restraint_id~ : Int32,
   atom1~ : String,
   atom2~ : String,
   lower_bound~ : Double,
@@ -224,9 +224,9 @@ pub fn noe_restraint_summary(
 ///
 /// `lower` and `upper` define the allowed angle range in degrees.
 pub struct DihedralRestraint {
-  restraint_id : Int
+  restraint_id : Int32
   angle_name : String // e.g. "PHI", "PSI", "CHI1"
-  residue : Int
+  residue : Int32
   lower_bound : Double // degrees
   upper_bound : Double // degrees
   observed : Double?
@@ -236,9 +236,9 @@ pub struct DihedralRestraint {
 ///|
 /// Construct a DihedralRestraint.
 pub fn DihedralRestraint::new(
-  restraint_id~ : Int,
+  restraint_id~ : Int32,
   angle_name~ : String,
-  residue~ : Int,
+  residue~ : Int32,
   lower_bound~ : Double,
   upper_bound~ : Double,
   observed~ : Double?,
@@ -331,8 +331,8 @@ pub fn parse_dihedral_restraints(text : String) -> Array[DihedralRestraint] {
 ///|
 /// A single chemical-shift assignment.
 pub struct ChemicalShift {
-  id : Int
-  residue : Int
+  id : Int32
+  residue : Int32
   atom_name : String
   element : String // H, C, N, ...
   shift_value : Double // ppm
@@ -342,8 +342,8 @@ pub struct ChemicalShift {
 ///|
 /// Construct a ChemicalShift.
 pub fn ChemicalShift::new(
-  id~ : Int,
-  residue~ : Int,
+  id~ : Int32,
+  residue~ : Int32,
   atom_name~ : String,
   element~ : String,
   shift_value~ : Double,
@@ -370,7 +370,7 @@ pub fn ChemicalShiftTable::new(
 /// Look up the chemical shift for a (residue, atom_name) pair.
 pub fn lookup_shift(
   table : ChemicalShiftTable,
-  residue : Int,
+  residue : Int32,
   atom_name : String,
 ) -> Double? {
   for s in table.shifts {
@@ -385,7 +385,7 @@ pub fn lookup_shift(
 /// Return all shifts for a given residue.
 pub fn shifts_for_residue(
   table : ChemicalShiftTable,
-  residue : Int,
+  residue : Int32,
 ) -> Array[ChemicalShift] {
   let out : Array[ChemicalShift] = Array(capacity=0)
   for s in table.shifts {
@@ -509,7 +509,7 @@ pub fn format_chemical_shifts(table : ChemicalShiftTable) -> String {
 /// multidimensional peak lists the per-dimension intensities may be equal).
 /// `volume` is the integrated peak volume when available.
 pub struct NmrPeak {
-  peak_id : Int
+  peak_id : Int32
   dimensions : Array[String] // assignment per dimension
   chemical_shifts : Array[Double] // ppm per dimension
   intensities : Array[Double]
@@ -520,7 +520,7 @@ pub struct NmrPeak {
 ///|
 /// Construct an NmrPeak.
 pub fn NmrPeak::new(
-  peak_id~ : Int,
+  peak_id~ : Int32,
   dimensions~ : Array[String],
   chemical_shifts~ : Array[Double],
   intensities~ : Array[Double],
@@ -542,7 +542,7 @@ pub fn NmrPeak::new(
 pub struct PeakList {
   label : String
   peaks : Array[NmrPeak]
-  n_dim : Int
+  n_dim : Int32
 }
 
 ///|
@@ -550,7 +550,7 @@ pub struct PeakList {
 pub fn PeakList::new(
   label~ : String,
   peaks~ : Array[NmrPeak],
-  n_dim~ : Int,
+  n_dim~ : Int32,
 ) -> PeakList {
   PeakList::{ label, peaks, n_dim, }
 }
@@ -559,8 +559,8 @@ pub fn PeakList::new(
 /// Return all peaks assigned to the given residue in dimension `dim`.
 pub fn peaks_by_residue(
   list : PeakList,
-  residue : Int,
-  dim : Int,
+  residue : Int32,
+  dim : Int32,
 ) -> Array[NmrPeak] {
   let out : Array[NmrPeak] = Array(capacity=0)
   let prefix = residue.to_string()
@@ -582,7 +582,7 @@ pub fn peaks_by_residue(
 pub fn peaks_by_atom(
   list : PeakList,
   atom : String,
-  dim : Int,
+  dim : Int32,
 ) -> Array[NmrPeak] {
   let out : Array[NmrPeak] = Array(capacity=0)
   for p in list.peaks {
@@ -765,8 +765,8 @@ pub fn format_peak_list(list : PeakList) -> String {
 ///|
 /// Summary statistics for a restraint table.
 pub struct NmrRestraintSummary {
-  total : Int
-  violated : Int
+  total : Int32
+  violated : Int32
   max_violation : Double
 }
 

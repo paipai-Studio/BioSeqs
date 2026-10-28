@@ -15,6 +15,8 @@ pub(all) enum PlmEstimator {
   Huber(Double)
   Tukey(Double)
 } derive(Eq)
+
+///|
 pub extend PlmEstimator with Eq::{equal, not_equal}
 
 ///|
@@ -30,6 +32,8 @@ pub struct PlmProbeset {
   name : String
   probes : Array[Array[Double]]
 } derive(Eq)
+
+///|
 pub extend PlmProbeset with Eq::{equal, not_equal}
 
 ///|
@@ -37,7 +41,7 @@ pub fn PlmProbeset::new(
   name~ : String,
   probes~ : Array[Array[Double]],
 ) -> PlmProbeset {
-  PlmProbeset::{ name, probes }
+  PlmProbeset::{ name, probes, }
 }
 
 ///|
@@ -48,9 +52,11 @@ pub struct PlmFit {
   probe_effects : Array[Double]
   residuals : Array[Array[Double]]
   weights : Array[Array[Double]]
-  n_iterations : Int
+  n_iterations : Int32
   sigma : Double
 } derive(Eq)
+
+///|
 pub extend PlmFit with Eq::{equal, not_equal}
 
 ///|
@@ -63,7 +69,6 @@ fn plm_abs(x : Double) -> Double {
   }
 }
 
-
 ///|
 /// Median absolute deviation (MAD) of a flat array.
 fn plm_mad(arr : Array[Double]) -> Double {
@@ -71,15 +76,7 @@ fn plm_mad(arr : Array[Double]) -> Double {
     return 1.0
   }
   let sorted = arr.copy()
-  sorted.sort_by(fn(a, b) {
-    if a < b {
-      -1
-    } else if a > b {
-      1
-    } else {
-      0
-    }
-  })
+  sorted.sort_by(fn(a, b) { if a < b { -1 } else if a > b { 1 } else { 0 } })
   let n = sorted.length()
   let med = if n % 2 == 1 {
     sorted[n / 2]
@@ -90,15 +87,7 @@ fn plm_mad(arr : Array[Double]) -> Double {
   for v in arr {
     devs.push(plm_abs(v - med))
   }
-  devs.sort_by(fn(a, b) {
-    if a < b {
-      -1
-    } else if a > b {
-      1
-    } else {
-      0
-    }
-  })
+  devs.sort_by(fn(a, b) { if a < b { -1 } else if a > b { 1 } else { 0 } })
   let dn = devs.length()
   if dn % 2 == 1 {
     devs[dn / 2]
@@ -160,7 +149,7 @@ fn plm_weight(
 pub fn fit_plm(
   probeset : PlmProbeset,
   estimator~ : PlmEstimator = plm_default_estimator(),
-  max_iter~ : Int = 20,
+  max_iter~ : Int32 = 20,
   tol~ : Double = 1.0e-4,
 ) -> PlmFit {
   let n_probes = probeset.probes.length()
@@ -426,15 +415,7 @@ fn beclear_median_ref(arr : Array[Double]) -> Double {
     return 0.0
   }
   let sorted = arr.copy()
-  sorted.sort_by(fn(a, b) {
-    if a < b {
-      -1
-    } else if a > b {
-      1
-    } else {
-      0
-    }
-  })
+  sorted.sort_by(fn(a, b) { if a < b { -1 } else if a > b { 1 } else { 0 } })
   let n = sorted.length()
   if n % 2 == 1 {
     sorted[n / 2]
@@ -448,17 +429,15 @@ fn beclear_median_ref(arr : Array[Double]) -> Double {
 pub struct PlmQCReport {
   nuse : Array[Double]
   rle : Array[Double]
-  n_probesets : Int
+  n_probesets : Int32
 } derive(Eq)
+
+///|
 pub extend PlmQCReport with Eq::{equal, not_equal}
 
 ///|
 pub fn affy_plm_qc(fits : Array[PlmFit]) -> PlmQCReport {
-  PlmQCReport::{
-    nuse: nuse(fits),
-    rle: rle(fits),
-    n_probesets: fits.length(),
-  }
+  PlmQCReport::{ nuse: nuse(fits), rle: rle(fits), n_probesets: fits.length(), }
 }
 
 ///|

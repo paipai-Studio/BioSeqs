@@ -1,7 +1,7 @@
 ///|
 fn bigbed_test_config(
-  compress? : Bool = true,
-  items_per_slot? : Int = 2,
+  compress~ : Bool = true,
+  items_per_slot~ : Int32 = 2,
 ) -> @src.BigBedWriteConfig {
   @src.BigBedWriteConfig::create(compress~, items_per_slot~, block_size=4) catch {
     _ => abort("BigBed test configuration should be valid")
@@ -10,8 +10,8 @@ fn bigbed_test_config(
 
 ///|
 fn bigbed_test_file(
-  compress? : Bool = true,
-  items_per_slot? : Int = 2,
+  compress~ : Bool = true,
+  items_per_slot~ : Int32 = 2,
 ) -> @src.BigBedFile {
   let (targets, records) = @src.bigbed_example_data()
   let config = bigbed_test_config(compress~, items_per_slot~)
@@ -25,10 +25,10 @@ fn bigbed_test_file(
 
 ///|
 fn bigbed_simple_record(
-  block_count? : Int = 0,
-  block_sizes? : Array[Int] = [],
-  block_starts? : Array[Int] = [],
-  extra_fields? : Array[String] = [],
+  block_count~ : Int32 = 0,
+  block_sizes~ : Array[Int32] = [],
+  block_starts~ : Array[Int32] = [],
+  extra_fields~ : Array[String] = [],
 ) -> @src.BigBedRecord {
   @src.BigBedRecord::create(
     "chr1",
@@ -48,9 +48,9 @@ fn bigbed_simple_record(
 
 ///|
 fn bigbed_test_patch_u32(
-  data : Array[Int],
-  position : Int,
-  value : Int,
+  data : Array[Int32],
+  position : Int32,
+  value : Int32,
 ) -> Unit {
   data[position] = value & 0xFF
   data[position + 1] = (value >> 8) & 0xFF
@@ -60,9 +60,9 @@ fn bigbed_test_patch_u32(
 
 ///|
 fn bigbed_test_patch_u64(
-  data : Array[Int],
-  position : Int,
-  value : Int,
+  data : Array[Int32],
+  position : Int32,
+  value : Int32,
 ) -> Unit {
   bigbed_test_patch_u32(data, position, value)
   bigbed_test_patch_u32(data, position + 4, 0)
@@ -70,10 +70,10 @@ fn bigbed_test_patch_u64(
 
 ///|
 fn bigbed_test_replace_single_block(
-  source : Array[Int],
-  payload : Array[Int],
-  uncompressed_size : Int,
-) -> Array[Int] {
+  source : Array[Int32],
+  payload : Array[Int32],
+  uncompressed_size : Int32,
+) -> Array[Int32] {
   let file = @src.bigbed_parse(source) catch {
     _ => abort("source BigBed should parse")
   }
@@ -81,7 +81,7 @@ fn bigbed_test_replace_single_block(
     abort("fixture BigBed must contain one data block")
   }
   let block = file.blocks[0]
-  let output : Array[Int] = []
+  let output : Array[Int32] = []
   for i in 0..<block.data_offset {
     output.push(source[i])
   }

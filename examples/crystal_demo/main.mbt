@@ -38,9 +38,9 @@ fn main {
 
   // 4. Coordinate transformations.
   println("\n4. Coordinate Transformations:")
-  let(x, y, z) = @bio.fractional_to_cartesian(cell, 0.5, 0.5, 0.5)
+  let (x, y, z) = @bio.fractional_to_cartesian(cell, 0.5, 0.5, 0.5)
   println("   Fractional (0.5, 0.5, 0.5) -> Cartesian (\{x}, \{y}, \{z})")
-  let(xf, yf, zf) = @bio.cartesian_to_fractional(cell, x, y, z)
+  let (xf, yf, zf) = @bio.cartesian_to_fractional(cell, x, y, z)
   println("   Cartesian back to Fractional (\{xf}, \{yf}, \{zf})")
 
   // 5. Parse a CIF file.
@@ -93,7 +93,7 @@ fn main {
 
   // 10. Center of mass.
   println("\n10. Center of Mass:")
-  let(cx, cy, cz) = @bio.center_of_mass(sample)
+  let (cx, cy, cz) = @bio.center_of_mass(sample)
   println("   Center: (\{cx}, \{cy}, \{cz})")
 
   // 11. Atom distance.

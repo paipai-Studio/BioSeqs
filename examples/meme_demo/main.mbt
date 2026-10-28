@@ -55,7 +55,9 @@ fn main {
       println("  URL: " + m.url)
     }
     println("  Consensus: " + m.consensus())
-    println("  Information content: " + m.information_content().to_string() + " bits")
+    println(
+      "  Information content: " + m.information_content().to_string() + " bits",
+    )
     i = i + 1
   }
   println("")
@@ -86,7 +88,11 @@ fn main {
         let raw = val.to_string()
         let s = if raw.length() > 4 { raw[0:4].to_owned() } else { raw }
         // Pad to 4 chars
-        let padded = if s.length() >= 4 { s } else { s + "    "[0:4 - s.length()].to_owned() }
+        let padded = if s.length() >= 4 {
+          s
+        } else {
+          s + "    "[0:4 - s.length()].to_owned()
+        }
         line.write_string(" " + padded + " ")
         j = j + 1
       }
@@ -116,7 +122,8 @@ fn main {
   if record.motifs.length() > 0 {
     let name = record.motifs[0].name
     match record.find(name) {
-      Some(m) => println("Found motif '" + name + "': width=" + m.width.to_string())
+      Some(m) =>
+        println("Found motif '" + name + "': width=" + m.width.to_string())
       None => println("Motif '" + name + "' not found")
     }
     match record.find("nonexistent") {
@@ -134,7 +141,11 @@ fn main {
   println("Created motif: " + sample.name)
   println("  Width: " + sample.width.to_string())
   println("  Consensus: " + sample.consensus())
-  println("  Information content: " + sample.information_content().to_string() + " bits")
+  println(
+    "  Information content: " +
+    sample.information_content().to_string() +
+    " bits",
+  )
   println("")
 
   // ------------------------------------------------------------------

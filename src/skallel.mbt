@@ -12,7 +12,7 @@ pub struct SkallelPca {
 }
 
 ///|
-fn ac_sum(ac : Array[Int]) -> Int {
+fn ac_sum(ac : Array[Int32]) -> Int32 {
   let mut s = 0
   for a in ac {
     s = s + a
@@ -24,7 +24,9 @@ fn ac_sum(ac : Array[Int]) -> Int {
 /// Mean pairwise difference (per variant) within a population, a.k.a. π
 /// (`allel.mean_pairwise_difference`). Returns 0.0 for variants with fewer
 /// than two haplotypes (scikit-allel's NaN fill).
-pub fn skallel_mean_pairwise_difference(ac : Array[Array[Int]]) -> Array[Double] {
+pub fn skallel_mean_pairwise_difference(
+  ac : Array[Array[Int32]],
+) -> Array[Double] {
   let out : Array[Double] = Array(capacity=0)
   for aci in ac {
     let an = ac_sum(aci)
@@ -47,8 +49,8 @@ pub fn skallel_mean_pairwise_difference(ac : Array[Array[Int]]) -> Array[Double]
 /// (`allel.mean_pairwise_difference_between`). Returns 0.0 where either
 /// population has no haplotypes.
 pub fn skallel_mean_pairwise_difference_between(
-  ac1 : Array[Array[Int]],
-  ac2 : Array[Array[Int]],
+  ac1 : Array[Array[Int32]],
+  ac2 : Array[Array[Int32]],
 ) -> Array[Double] {
   let out : Array[Double] = Array(capacity=0)
   let n = if ac1.length() < ac2.length() { ac1.length() } else { ac2.length() }
@@ -79,8 +81,8 @@ pub fn skallel_mean_pairwise_difference_between(
 /// (`allel.hudson_fst`), where `num = Dxy − (π1 + π2)/2` and `den = Dxy`. The
 /// per-variant Fst is `num/den`; the block estimator is `Σnum/Σden`.
 pub fn skallel_hudson_fst(
-  ac1 : Array[Array[Int]],
-  ac2 : Array[Array[Int]],
+  ac1 : Array[Array[Int32]],
+  ac2 : Array[Array[Int32]],
 ) -> (Array[Double], Array[Double]) {
   let pi1 = skallel_mean_pairwise_difference(ac1)
   let pi2 = skallel_mean_pairwise_difference(ac2)
@@ -95,8 +97,8 @@ pub fn skallel_hudson_fst(
 ///|
 /// Hudson's Fst averaged over variants (the block estimator): `Σnum / Σden`.
 pub fn skallel_hudson_fst_block(
-  ac1 : Array[Array[Int]],
-  ac2 : Array[Array[Int]],
+  ac1 : Array[Array[Int32]],
+  ac2 : Array[Array[Int32]],
 ) -> Double {
   let (num, den) = skallel_hudson_fst(ac1, ac2)
   let mut sn = 0.0
@@ -109,7 +111,7 @@ pub fn skallel_hudson_fst_block(
 }
 
 ///|
-fn pearson_r_pairwise(x : Array[Int], y : Array[Int]) -> Double {
+fn pearson_r_pairwise(x : Array[Int32], y : Array[Int32]) -> Double {
   let mut sx = 0.0
   let mut sy = 0.0
   let mut n = 0
@@ -148,7 +150,7 @@ fn pearson_r_pairwise(x : Array[Int], y : Array[Int]) -> Double {
 /// Rogers–Huff linkage disequilibrium: signed correlation coefficient `r` for
 /// every pair of variants, in condensed form (upper triangle, row-major)
 /// (`allel.rogers_huff_r`). Missing genotypes (−1) are excluded pairwise.
-pub fn skallel_rogers_huff_r(gn : Array[Array[Int]]) -> Array[Double] {
+pub fn skallel_rogers_huff_r(gn : Array[Array[Int32]]) -> Array[Double] {
   let out : Array[Double] = Array(capacity=0)
   let n = gn.length()
   for i = 0; i < n; i = i + 1 {
@@ -164,11 +166,14 @@ pub fn skallel_rogers_huff_r(gn : Array[Array[Int]]) -> Array[Double] {
 /// Patterson et al. (2006) scaling (`allel.pca`). Input `gn` is
 /// (n_variants × n_samples) with no missing data. Returns sample coordinates
 /// (n_samples × n_components) and the explained-variance ratio per component.
-pub fn skallel_pca(gn : Array[Array[Int]], n_components : Int) -> SkallelPca {
+pub fn skallel_pca(
+  gn : Array[Array[Int32]],
+  n_components : Int32,
+) -> SkallelPca {
   let n_variants = gn.length()
   let n_samples = if n_variants > 0 { gn[0].length() } else { 0 }
   if n_samples == 0 {
-    return SkallelPca::{ coords: [], explained_variance_ratio: [] }
+    return SkallelPca::{ coords: [], explained_variance_ratio: [], }
   }
 
   // Patterson scaling: x' = (gn − 2p) / sqrt(2·p·(1−p)), p = mean(gn)/2
@@ -239,9 +244,15 @@ pub fn skallel_pca(gn : Array[Array[Int]], n_components : Int) -> SkallelPca {
     coords.push(row)
   }
 
-  SkallelPca::{ coords, explained_variance_ratio: ratio }
-}///|
-fn wc_het_count(gv : Array[Array[Int]], subpops : Array[Array[Int]], d : Int) -> Int {
+  SkallelPca::{ coords, explained_variance_ratio: ratio, }
+} ///|
+
+///|
+fn wc_het_count(
+  gv : Array[Array[Int32]],
+  subpops : Array[Array[Int32]],
+  d : Int32,
+) -> Int32 {
   let mut cnt = 0
   for p = 0; p < subpops.length(); p = p + 1 {
     for si in subpops[p] {
@@ -261,15 +272,15 @@ fn wc_het_count(gv : Array[Array[Int]], subpops : Array[Array[Int]], d : Int) ->
 /// Per-variant Weir & Cockerham (1984) variance components `(a, b, c)` for one
 /// variant, following scikit-allel's `_weir_cockerham_fst`.
 fn wc_fst_variant(
-  gv : Array[Array[Int]],
-  subpops : Array[Array[Int]],
-  max_allele : Int,
+  gv : Array[Array[Int32]],
+  subpops : Array[Array[Int32]],
+  max_allele : Int32,
 ) -> (Array[Double], Array[Double], Array[Double]) {
   let n_alleles = max_allele + 1
   let r = subpops.length()
 
   // ac[d][p] = count of allele d in subpopulation p
-  let ac : Array[Array[Int]] = Array(capacity=0)
+  let ac : Array[Array[Int32]] = Array(capacity=0)
   for d = 0; d < n_alleles; d = d + 1 {
     ac.push(Array::make(r, 0))
   }
@@ -305,8 +316,7 @@ fn wc_fst_variant(
   for p = 0; p < r; p = p + 1 {
     sum_n2 = sum_n2 + n[p] * n[p]
   }
-  let n_C =
-    (n_total.to_double() - sum_n2.to_double() / n_total.to_double()) /
+  let n_C = (n_total.to_double() - sum_n2.to_double() / n_total.to_double()) /
     (r - 1).to_double()
 
   let mut an_total = 0
@@ -335,17 +345,24 @@ fn wc_fst_variant(
 
     let h_bar = wc_het_count(gv, subpops, d).to_double() / n_total.to_double()
 
-    a[d] = (n_bar / n_C) *
+    a[d] = n_bar /
+      n_C *
       (
         s_squared -
-        (1.0 / (n_bar - 1.0)) *
-        (p_bar * (1.0 - p_bar) - (r - 1).to_double() * s_squared / r.to_double() - h_bar / 4.0)
+        1.0 /
+        (n_bar - 1.0) *
+        (
+          p_bar * (1.0 - p_bar) -
+          (r - 1).to_double() * s_squared / r.to_double() -
+          h_bar / 4.0
+        )
       )
-    b[d] = (n_bar / (n_bar - 1.0)) *
+    b[d] = n_bar /
+      (n_bar - 1.0) *
       (
         p_bar * (1.0 - p_bar) -
         (r - 1).to_double() * s_squared / r.to_double() -
-        ((2.0 * n_bar - 1.0) * h_bar) / (4.0 * n_bar)
+        (2.0 * n_bar - 1.0) * h_bar / (4.0 * n_bar)
       )
     c[d] = h_bar / 2.0
   }
@@ -359,9 +376,9 @@ fn wc_fst_variant(
 /// list of subpopulation sample indices (`allel.weir_cockerham_fst`). Returns
 /// `(a, b, c)` each of shape (n_variants × n_alleles).
 pub fn skallel_weir_cockerham_fst(
-  g : Array[Array[Array[Int]]],
-  subpops : Array[Array[Int]],
-  max_allele : Int,
+  g : Array[Array[Array[Int32]]],
+  subpops : Array[Array[Int32]],
+  max_allele : Int32,
 ) -> (Array[Array[Double]], Array[Array[Double]], Array[Array[Double]]) {
   let a : Array[Array[Double]] = Array(capacity=0)
   let b : Array[Array[Double]] = Array(capacity=0)
@@ -380,9 +397,9 @@ pub fn skallel_weir_cockerham_fst(
 /// alleles: `Σa / (Σa + Σb + Σc)`. Returns 0.0 where the denominator is zero
 /// (scikit-allel's NaN).
 pub fn skallel_weir_cockerham_fst_variant(
-  g : Array[Array[Array[Int]]],
-  subpops : Array[Array[Int]],
-  max_allele : Int,
+  g : Array[Array[Array[Int32]]],
+  subpops : Array[Array[Int32]],
+  max_allele : Int32,
 ) -> Array[Double] {
   let (a, b, c) = skallel_weir_cockerham_fst(g, subpops, max_allele)
   let out : Array[Double] = Array(capacity=0)
@@ -405,9 +422,9 @@ pub fn skallel_weir_cockerham_fst_variant(
 /// Weir & Cockerham Fst averaged over all variants and alleles (block
 /// estimator): `Σa / (Σa + Σb + Σc)`.
 pub fn skallel_weir_cockerham_fst_block(
-  g : Array[Array[Array[Int]]],
-  subpops : Array[Array[Int]],
-  max_allele : Int,
+  g : Array[Array[Array[Int32]]],
+  subpops : Array[Array[Int32]],
+  max_allele : Int32,
 ) -> Double {
   let (a, b, c) = skallel_weir_cockerham_fst(g, subpops, max_allele)
   let mut sa = 0.0
@@ -426,13 +443,13 @@ pub fn skallel_weir_cockerham_fst_block(
   } else {
     sa / den
   }
-}///|
+} ///|
 /// scikit-allel `admixture.py` — unbiased allele-frequency estimators of
 /// heterozygosity and the Patterson F2/F3/F4(D) statistics (Patterson et al.
 /// 2012, Appendix A). All take biallelic allele-count arrays (n_variants × 2).
 
 ///|
-fn alt_freq(ac_i : Array[Int]) -> Double {
+fn alt_freq(ac_i : Array[Int32]) -> Double {
   let an = ac_i[0] + ac_i[1]
   if an == 0 {
     0.0
@@ -444,7 +461,7 @@ fn alt_freq(ac_i : Array[Int]) -> Double {
 ///|
 /// Unbiased estimator of `h`, where `2h` is the heterozygosity
 /// (`allel.admixture.h_hat`).
-pub fn skallel_h_hat(ac : Array[Array[Int]]) -> Array[Double] {
+pub fn skallel_h_hat(ac : Array[Array[Int32]]) -> Array[Double] {
   let out : Array[Double] = Array(capacity=0)
   for aci in ac {
     let an = aci[0] + aci[1]
@@ -461,8 +478,8 @@ pub fn skallel_h_hat(ac : Array[Array[Int]]) -> Array[Double] {
 /// Unbiased estimator of F2(A, B), the branch length between two populations
 /// (`allel.patterson_f2`).
 pub fn skallel_patterson_f2(
-  aca : Array[Array[Int]],
-  acb : Array[Array[Int]],
+  aca : Array[Array[Int32]],
+  acb : Array[Array[Int32]],
 ) -> Array[Double] {
   let ha = skallel_h_hat(aca)
   let hb = skallel_h_hat(acb)
@@ -483,14 +500,18 @@ pub fn skallel_patterson_f2(
 /// Unbiased estimator of F3(C; A, B). Returns `(T, B)`: per-variant
 /// un-normalised f3 estimates and the heterozygosity in C (`allel.patterson_f3`).
 pub fn skallel_patterson_f3(
-  acc : Array[Array[Int]],
-  aca : Array[Array[Int]],
-  acb : Array[Array[Int]],
+  acc : Array[Array[Int32]],
+  aca : Array[Array[Int32]],
+  acb : Array[Array[Int32]],
 ) -> (Array[Double], Array[Double]) {
   let hc = skallel_h_hat(acc)
   let t : Array[Double] = Array(capacity=0)
   let b : Array[Double] = Array(capacity=0)
-  let mut n = if acc.length() < aca.length() { acc.length() } else { aca.length() }
+  let mut n = if acc.length() < aca.length() {
+    acc.length()
+  } else {
+    aca.length()
+  }
   if n > acb.length() {
     n = acb.length()
   }
@@ -510,10 +531,10 @@ pub fn skallel_patterson_f3(
 /// the ABBA-BABA test. Returns `(num, den)` per variant; the averaged D is
 /// `Σnum / Σden` (`allel.patterson_d`).
 pub fn skallel_patterson_d(
-  aca : Array[Array[Int]],
-  acb : Array[Array[Int]],
-  acc : Array[Array[Int]],
-  acd : Array[Array[Int]],
+  aca : Array[Array[Int32]],
+  acb : Array[Array[Int32]],
+  acc : Array[Array[Int32]],
+  acd : Array[Array[Int32]],
 ) -> (Array[Double], Array[Double]) {
   let num : Array[Double] = Array(capacity=0)
   let den : Array[Double] = Array(capacity=0)
@@ -535,10 +556,10 @@ pub fn skallel_patterson_d(
 ///|
 /// Averaged D statistic over variants (the block estimator): `Σnum / Σden`.
 pub fn skallel_patterson_d_average(
-  aca : Array[Array[Int]],
-  acb : Array[Array[Int]],
-  acc : Array[Array[Int]],
-  acd : Array[Array[Int]],
+  aca : Array[Array[Int32]],
+  acb : Array[Array[Int32]],
+  acc : Array[Array[Int32]],
+  acd : Array[Array[Int32]],
 ) -> Double {
   let (num, den) = skallel_patterson_d(aca, acb, acc, acd)
   let mut sn = 0.0
@@ -595,7 +616,7 @@ fn skallel_sort_doubles_desc(arr : Array[Double]) -> Array[Double] {
 ///|
 /// Frequencies of distinct haplotype columns in a haplotype array
 /// (n_variants × n_haplotypes), sorted descending.
-fn distinct_haplotype_frequencies(h : Array[Array[Int]]) -> Array[Double] {
+fn distinct_haplotype_frequencies(h : Array[Array[Int32]]) -> Array[Double] {
   let n_variants = h.length()
   let n_hap = if n_variants > 0 { h[0].length() } else { 0 }
   if n_hap == 0 {
@@ -627,7 +648,7 @@ fn distinct_haplotype_frequencies(h : Array[Array[Int]]) -> Array[Double] {
 /// Haplotype diversity of a haplotype array (`allel.haplotype_diversity`): the
 /// unbiased estimator `(1 − Σf²) · n/(n−1)` over distinct haplotype
 /// frequencies.
-pub fn skallel_haplotype_diversity(h : Array[Array[Int]]) -> Double {
+pub fn skallel_haplotype_diversity(h : Array[Array[Int32]]) -> Double {
   let n_hap = if h.length() > 0 { h[0].length() } else { 0 }
   if n_hap <= 1 {
     return 0.0
@@ -643,7 +664,9 @@ pub fn skallel_haplotype_diversity(h : Array[Array[Int]]) -> Double {
 ///|
 /// Garud et al. (2015) H1, H12, H123 and H2/H1 statistics for detecting soft
 /// sweeps (`allel.garud_h`).
-pub fn skallel_garud_h(h : Array[Array[Int]]) -> (Double, Double, Double, Double) {
+pub fn skallel_garud_h(
+  h : Array[Array[Int32]],
+) -> (Double, Double, Double, Double) {
   let f = distinct_haplotype_frequencies(h)
   let mut h1 = 0.0
   for fi in f {
@@ -669,8 +692,12 @@ pub fn skallel_garud_h(h : Array[Array[Int]]) -> (Double, Double, Double, Double
 ///|
 /// Equal-sized index windows `[start, stop)` over `n` items, stepping by
 /// `step`; a trailing partial window is dropped.
-pub fn skallel_index_windows(n : Int, size : Int, step : Int) -> Array[(Int, Int)] {
-  let out : Array[(Int, Int)] = Array(capacity=0)
+pub fn skallel_index_windows(
+  n : Int32,
+  size : Int32,
+  step : Int32,
+) -> Array[(Int32, Int32)] {
+  let out : Array[(Int32, Int32)] = Array(capacity=0)
   let mut ws = 0
   while ws + size <= n {
     out.push((ws, ws + size))
@@ -684,10 +711,10 @@ pub fn skallel_index_windows(n : Int, size : Int, step : Int) -> Array[(Int, Int
 /// biallelic allele counts, reusing `popgen_tajima_d` per window. Returns one
 /// D value per window.
 pub fn skallel_windowed_tajima_d(
-  ac : Array[Array[Int]],
-  n_haplotypes : Int,
-  size : Int,
-  step : Int,
+  ac : Array[Array[Int32]],
+  n_haplotypes : Int32,
+  size : Int32,
+  step : Int32,
 ) -> Array[Double] {
   let pi = skallel_mean_pairwise_difference(ac)
   let out : Array[Double] = Array(capacity=0)
@@ -707,15 +734,17 @@ pub fn skallel_windowed_tajima_d(
     ws = ws + step
   }
   out
-}///|
+} ///|
 /// Hudson's Fst (block estimator) over an index window of variants, from
 /// precomputed per-variant π and Dxy.
+
+///|
 fn hudson_fst_block_from(
   dxy : Array[Double],
   pia : Array[Double],
   pib : Array[Double],
-  ws : Int,
-  size : Int,
+  ws : Int32,
+  size : Int32,
 ) -> Double {
   let mut sn = 0.0
   let mut sd = 0.0
@@ -735,11 +764,11 @@ fn hudson_fst_block_from(
 /// Population branching statistic (PBS) comparing allele frequencies among
 /// three populations, in index windows (`allel.pbs`). Uses Hudson's Fst.
 pub fn skallel_pbs(
-  ac1 : Array[Array[Int]],
-  ac2 : Array[Array[Int]],
-  ac3 : Array[Array[Int]],
-  window_size : Int,
-  step : Int,
+  ac1 : Array[Array[Int32]],
+  ac2 : Array[Array[Int32]],
+  ac3 : Array[Array[Int32]],
+  window_size : Int32,
+  step : Int32,
   normed : Bool,
 ) -> Array[Double] {
   let pi1 = skallel_mean_pairwise_difference(ac1)
@@ -761,9 +790,27 @@ pub fn skallel_pbs(
     let f12 = hudson_fst_block_from(dxy12, pi1, pi2, ws, window_size)
     let f13 = hudson_fst_block_from(dxy13, pi1, pi3, ws, window_size)
     let f23 = hudson_fst_block_from(dxy23, pi2, pi3, ws, window_size)
-    let c12 = if f12 < 0.0 { 0.0 } else if f12 > 0.99999 { 0.99999 } else { f12 }
-    let c13 = if f13 < 0.0 { 0.0 } else if f13 > 0.99999 { 0.99999 } else { f13 }
-    let c23 = if f23 < 0.0 { 0.0 } else if f23 > 0.99999 { 0.99999 } else { f23 }
+    let c12 = if f12 < 0.0 {
+      0.0
+    } else if f12 > 0.99999 {
+      0.99999
+    } else {
+      f12
+    }
+    let c13 = if f13 < 0.0 {
+      0.0
+    } else if f13 > 0.99999 {
+      0.99999
+    } else {
+      f13
+    }
+    let c23 = if f23 < 0.0 {
+      0.0
+    } else if f23 > 0.99999 {
+      0.99999
+    } else {
+      f23
+    }
     let t12 = -@math.ln(1.0 - c12)
     let t13 = -@math.ln(1.0 - c13)
     let t23 = -@math.ln(1.0 - c23)
@@ -778,12 +825,13 @@ pub fn skallel_pbs(
   }
   out
 }
+
 ///|
 /// Patterson F-statistic between two populations (`allel.patterson_fst`).
 /// Returns the per-variant `(num, den)`; the Fst estimate is `Σnum / Σden`.
 pub fn skallel_patterson_fst(
-  aca : Array[Array[Int]],
-  acb : Array[Array[Int]],
+  aca : Array[Array[Int32]],
+  acb : Array[Array[Int32]],
 ) -> (Array[Double], Array[Double]) {
   let num = skallel_patterson_f2(aca, acb)
   let ha = skallel_h_hat(aca)
@@ -796,7 +844,6 @@ pub fn skallel_patterson_fst(
   (num, den)
 }
 
-
 // ============================================================================
 // scikit-allel 补齐：single-point Tajima's D / patterson_f4 / LD between
 // ============================================================================
@@ -806,8 +853,8 @@ pub fn skallel_patterson_fst(
 /// `skallel_windowed_tajima_d` over all variants. Returns the standard
 /// neutrality-test result (D statistic, theta_w, p-value).
 pub fn skallel_tajima_d(
-  ac : Array[Array[Int]],
-  n_haplotypes : Int,
+  ac : Array[Array[Int32]],
+  n_haplotypes : Int32,
 ) -> NeutralityTestResult {
   let pi = skallel_mean_pairwise_difference(ac)
   let mut pi_sum = 0.0
@@ -826,10 +873,10 @@ pub fn skallel_tajima_d(
 /// `Σ (p1-p2)(p3-p4) / n_variants`, with the per-variant allele frequencies
 /// from the four input call sets.
 pub fn skallel_patterson_f4(
-  ac1 : Array[Array[Int]],
-  ac2 : Array[Array[Int]],
-  ac3 : Array[Array[Int]],
-  ac4 : Array[Array[Int]],
+  ac1 : Array[Array[Int32]],
+  ac2 : Array[Array[Int32]],
+  ac3 : Array[Array[Int32]],
+  ac4 : Array[Array[Int32]],
 ) -> Double {
   let mut n = ac1.length()
   n = if n < ac2.length() { n } else { ac2.length() }
@@ -854,8 +901,8 @@ pub fn skallel_patterson_f4(
 /// and every variant in `gn2` (`allel.rogers_huff_r_between`). Returns
 /// `n1 × n2` values in row-major order; each `gn` is n_variants × n_samples.
 pub fn skallel_rogers_huff_r_between(
-  gn1 : Array[Array[Int]],
-  gn2 : Array[Array[Int]],
+  gn1 : Array[Array[Int32]],
+  gn2 : Array[Array[Int32]],
 ) -> Array[Double] {
   let out : Array[Double] = Array(capacity=0)
   for i = 0; i < gn1.length(); i = i + 1 {

@@ -42,11 +42,21 @@ test "mmcif2dict_parse" {
   }
   assert_true(eq_strs(d.get("data_").unwrap_or([]), ["test"]))
   assert_true(eq_strs(d.get("_struct.entry_id").unwrap_or([]), ["1ABC"]))
-  assert_true(eq_strs(d.get("_struct.title").unwrap_or([]), ["A \"quoted\" title"]))
-  assert_true(eq_strs(d.get("_atom_site.group_PDB").unwrap_or([]), ["ATOM", "ATOM", "HETATM"]))
+  assert_true(
+    eq_strs(d.get("_struct.title").unwrap_or([]), ["A \"quoted\" title"]),
+  )
+  assert_true(
+    eq_strs(d.get("_atom_site.group_PDB").unwrap_or([]), [
+      "ATOM", "ATOM", "HETATM",
+    ]),
+  )
   assert_true(eq_strs(d.get("_atom_site.id").unwrap_or([]), ["1", "2", "3"]))
-  assert_true(eq_strs(d.get("_atom_site.Cartn_x").unwrap_or([]), ["1.5", "2.5", "3.5"]))
-  assert_true(eq_strs(d.get("_single.multi").unwrap_or([]), ["first line\nsecond line"]))
+  assert_true(
+    eq_strs(d.get("_atom_site.Cartn_x").unwrap_or([]), ["1.5", "2.5", "3.5"]),
+  )
+  assert_true(
+    eq_strs(d.get("_single.multi").unwrap_or([]), ["first line\nsecond line"]),
+  )
   assert_true(eq_strs(d.get("_last").unwrap_or([]), ["value2"]))
 }
 
@@ -67,7 +77,8 @@ test "mmcif2dict_missing_data_directive" {
     ignore(@src.mmcif2dict_parse("_struct.entry_id 1ABC\n"))
     false
   } catch {
-    Mmcif2DictError(msg) => msg == "The input mmCIF file must begin with a 'data_' directive."
+    Mmcif2DictError(msg) =>
+      msg == "The input mmCIF file must begin with a 'data_' directive."
   }
   assert_true(r)
 }

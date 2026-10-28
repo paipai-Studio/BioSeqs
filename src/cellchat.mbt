@@ -38,8 +38,8 @@ pub struct CellChatResult {
   scores : Array[InteractionScore]
   lr_pairs : Array[LRPair]
   cell_types : Array[String]
-  n_permutations : Int
-  seed : Int
+  n_permutations : Int32
+  seed : Int32
   fdr : Double
 }
 
@@ -94,7 +94,7 @@ pub fn cellchat_mean_expr(
   expression : Array[Array[Double]],
   cell_types : Array[String],
   cell_type : String,
-  gene_index : Int,
+  gene_index : Int32,
 ) -> Double {
   let mut sum = 0.0
   let mut count = 0
@@ -131,9 +131,9 @@ pub fn cellchat_analyze(
   cell_types : Array[String],
   gene_names : Array[String],
   lr_pairs : Array[LRPair],
-  n_permutations? : Int = 100,
-  seed? : Int = 42,
-  fdr? : Double = 0.05,
+  n_permutations~ : Int32 = 100,
+  seed~ : Int32 = 42,
+  fdr~ : Double = 0.05,
 ) -> CellChatResult {
   // Get unique cell types
   let unique_ct : Array[String] = []
@@ -156,7 +156,7 @@ pub fn cellchat_analyze(
   }
 
   // Find gene indices
-  let gene_index : Map[String, Int] = Map([], capacity=100)
+  let gene_index : Map[String, Int32] = Map([], capacity=100)
   i = 0
   while i < gene_names.length() {
     gene_index.set(gene_names[i], i)
@@ -177,7 +177,7 @@ pub fn cellchat_analyze(
     let perm : Array[String] = []
     let mut idx = 0
     // Simple Fisher-Yates-like shuffle
-    let indices : Array[Int] = []
+    let indices : Array[Int32] = []
     idx = 0
     while idx < cell_types.length() {
       indices.push(idx)
@@ -443,7 +443,7 @@ pub fn cellchat_summary(result : CellChatResult) -> String {
 /// Get the top interactions by score.
 pub fn cellchat_get_top(
   result : CellChatResult,
-  n : Int,
+  n : Int32,
 ) -> Array[InteractionScore] {
   let all = result.scores
   // Sort by score descending

@@ -61,7 +61,7 @@ pub struct SmartFile {
   /// current read position
   /// accumulated content for writing
   lines : Array[String]
-  pos : Int
+  pos : Int32
   written_content : String
 }
 
@@ -72,7 +72,7 @@ pub struct SmartFile {
 ///   - .gz -> gzip
 ///   - .bz2 -> bzip2
 ///   - others -> plain text
-pub fn SmartFile::new(path : String, mode? : String = "r") -> SmartFile {
+pub fn SmartFile::new(path : String, mode~ : String = "r") -> SmartFile {
   let format = detect_compression(path)
   SmartFile::{
     path,
@@ -90,7 +90,7 @@ pub fn SmartFile::new(path : String, mode? : String = "r") -> SmartFile {
 pub fn SmartFile::with_format(
   path : String,
   format : CompressionFormat,
-  mode? : String = "r",
+  mode~ : String = "r",
 ) -> SmartFile {
   SmartFile::{
     path,
@@ -297,7 +297,7 @@ pub fn smart_file_from_lines(path : String, lines : Array[String]) -> SmartFile 
 /// Create a write-mode SmartFile.
 pub fn smart_file_writer(
   path : String,
-  format? : CompressionFormat = CompressionFormat::Plain,
+  format~ : CompressionFormat = CompressionFormat::Plain,
 ) -> SmartFile {
   SmartFile::with_format(path, format, mode="w")
 }

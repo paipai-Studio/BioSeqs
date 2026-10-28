@@ -19,22 +19,24 @@ pub struct SingleRAdvancedConfig {
   nmads : Double
   minimum_delta_median : Double
   minimum_delta_next : Double
-  marker_count : Int
-  combine_marker_count : Int
+  marker_count : Int32
+  combine_marker_count : Int32
 } derive(Debug)
+
+///|
 pub extend SingleRAdvancedConfig with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub fn SingleRAdvancedConfig::create(
-  quantile? : Double = 0.8,
-  fine_tune? : Bool = true,
-  tune_threshold? : Double = 0.05,
-  prune? : Bool = true,
-  nmads? : Double = 3.0,
-  minimum_delta_median? : Double = -1.0e300,
-  minimum_delta_next? : Double = 0.0,
-  marker_count? : Int = 0,
-  combine_marker_count? : Int = 10,
+  quantile~ : Double = 0.8,
+  fine_tune~ : Bool = true,
+  tune_threshold~ : Double = 0.05,
+  prune~ : Bool = true,
+  nmads~ : Double = 3.0,
+  minimum_delta_median~ : Double = -1.0e300,
+  minimum_delta_next~ : Double = 0.0,
+  marker_count~ : Int32 = 0,
+  combine_marker_count~ : Int32 = 10,
 ) -> SingleRAdvancedConfig raise SingleRAdvancedError {
   if !is_finite(quantile) || quantile < 0.0 || quantile > 1.0 {
     raise SingleRAdvancedError("quantile must be finite and in [0, 1]")
@@ -93,19 +95,25 @@ pub struct SingleRAdvancedReference {
   sample_names : Array[String]
   label_names : Array[String]
   reference_name : String
-  n_genes : Int
-  n_samples : Int
+  n_genes : Int32
+  n_samples : Int32
 } derive(Debug)
-pub extend SingleRAdvancedReference with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend SingleRAdvancedReference with @moonbitlang/core/debug.Debug::{
+  to_repr,
+}
 
 ///|
 pub struct SingleRAdvancedData {
   expression : Array[Array[Double]]
   gene_names : Array[String]
   cell_names : Array[String]
-  n_genes : Int
-  n_cells : Int
+  n_genes : Int32
+  n_cells : Int32
 } derive(Debug)
+
+///|
 pub extend SingleRAdvancedData with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -113,14 +121,16 @@ pub struct SingleRAdvancedTraining {
   reference : SingleRAdvancedReference
   test_gene_names : Array[String]
   common_gene_names : Array[String]
-  reference_gene_indices : Array[Int]
-  test_gene_indices : Array[Int]
+  reference_gene_indices : Array[Int32]
+  test_gene_indices : Array[Int32]
   label_names : Array[String]
-  sample_label_indices : Array[Int]
-  pairwise_markers : Array[Array[Array[Int]]]
-  common_markers : Array[Int]
-  marker_count : Int
+  sample_label_indices : Array[Int32]
+  pairwise_markers : Array[Array[Array[Int32]]]
+  common_markers : Array[Int32]
+  marker_count : Int32
 } derive(Debug)
+
+///|
 pub extend SingleRAdvancedTraining with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -140,6 +150,8 @@ pub struct SingleRAdvancedResult {
   reference_name : String
   quantile : Double
 } derive(Debug)
+
+///|
 pub extend SingleRAdvancedResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -154,7 +166,11 @@ pub struct SingleRAdvancedCombinedResult {
   per_reference : Array[SingleRAdvancedResult]
   marker_gene_names : Array[String]
 } derive(Debug)
-pub extend SingleRAdvancedCombinedResult with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend SingleRAdvancedCombinedResult with @moonbitlang/core/debug.Debug::{
+  to_repr,
+}
 
 ///|
 pub struct SingleRAdvancedSCEOutput {
@@ -176,7 +192,7 @@ fn single_r_adv_copy_matrix(
 ///|
 fn single_r_adv_prepare_names(
   supplied : Array[String],
-  count : Int,
+  count : Int32,
   prefix : String,
 ) -> Array[String] raise SingleRAdvancedError {
   if supplied.length() != 0 && supplied.length() != count {
@@ -208,7 +224,7 @@ fn single_r_adv_prepare_names(
 fn single_r_adv_validate_matrix(
   expression : Array[Array[Double]],
   column_name : String,
-) -> (Int, Int) raise SingleRAdvancedError {
+) -> (Int32, Int32) raise SingleRAdvancedError {
   if expression.length() == 0 {
     raise SingleRAdvancedError("expression must contain at least one gene")
   }
@@ -246,9 +262,9 @@ fn single_r_adv_unique_labels(labels : Array[String]) -> Array[String] {
 pub fn SingleRAdvancedReference::create(
   expression : Array[Array[Double]],
   labels : Array[String],
-  gene_names? : Array[String] = [],
-  sample_names? : Array[String] = [],
-  reference_name? : String = "reference",
+  gene_names~ : Array[String] = [],
+  sample_names~ : Array[String] = [],
+  reference_name~ : String = "reference",
 ) -> SingleRAdvancedReference raise SingleRAdvancedError {
   let (n_genes, n_samples) = single_r_adv_validate_matrix(
     expression, "reference sample",
@@ -287,8 +303,8 @@ pub fn SingleRAdvancedReference::create(
 ///|
 pub fn SingleRAdvancedData::create(
   expression : Array[Array[Double]],
-  gene_names? : Array[String] = [],
-  cell_names? : Array[String] = [],
+  gene_names~ : Array[String] = [],
+  cell_names~ : Array[String] = [],
 ) -> SingleRAdvancedData raise SingleRAdvancedError {
   let (n_genes, n_cells) = single_r_adv_validate_matrix(expression, "cell")
   SingleRAdvancedData::{
@@ -315,7 +331,7 @@ pub fn SingleRAdvancedData::copy_expression(
 }
 
 ///|
-fn single_r_adv_label_index(labels : Array[String], query : String) -> Int {
+fn single_r_adv_label_index(labels : Array[String], query : String) -> Int32 {
   for index in 0..<labels.length() {
     if labels[index] == query {
       return index
@@ -365,7 +381,7 @@ fn single_r_adv_median(values : Array[Double]) -> Double {
 
 ///|
 fn single_r_adv_rank(values : Array[Double]) -> Array[Double] {
-  let ordered : Array[(Double, Int)] = []
+  let ordered : Array[(Double, Int32)] = []
   for index in 0..<values.length() {
     ordered.push((values[index], index))
   }
@@ -445,7 +461,7 @@ pub fn single_r_advanced_spearman(
 }
 
 ///|
-fn single_r_adv_default_marker_count(label_count : Int) -> Int {
+fn single_r_adv_default_marker_count(label_count : Int32) -> Int32 {
   if label_count <= 1 {
     return 500
   }
@@ -460,8 +476,8 @@ fn single_r_adv_default_marker_count(label_count : Int) -> Int {
 }
 
 ///|
-fn single_r_adv_build_gene_index(names : Array[String]) -> Map[String, Int] {
-  let output : Map[String, Int] = Map([])
+fn single_r_adv_build_gene_index(names : Array[String]) -> Map[String, Int32] {
+  let output : Map[String, Int32] = Map([])
   for index in 0..<names.length() {
     output[names[index]] = index
   }
@@ -473,7 +489,7 @@ fn single_r_adv_common_genes(
   reference : SingleRAdvancedReference,
   test_gene_names : Array[String],
   restrict_genes : Array[String],
-) -> (Array[String], Array[Int], Array[Int]) raise SingleRAdvancedError {
+) -> (Array[String], Array[Int32], Array[Int32]) raise SingleRAdvancedError {
   let test_names = single_r_adv_prepare_names(
     test_gene_names,
     test_gene_names.length(),
@@ -491,8 +507,8 @@ fn single_r_adv_common_genes(
     restriction[name] = true
   }
   let common : Array[String] = []
-  let reference_indices : Array[Int] = []
-  let test_indices : Array[Int] = []
+  let reference_indices : Array[Int32] = []
+  let test_indices : Array[Int32] = []
   for test_index in 0..<test_names.length() {
     let name = test_names[test_index]
     if (restrict_genes.length() == 0 || restriction.contains(name)) &&
@@ -513,9 +529,9 @@ fn single_r_adv_common_genes(
 ///|
 fn single_r_adv_label_medians(
   reference : SingleRAdvancedReference,
-  reference_gene_indices : Array[Int],
+  reference_gene_indices : Array[Int32],
   label_names : Array[String],
-  sample_label_indices : Array[Int],
+  sample_label_indices : Array[Int32],
 ) -> Array[Array[Double]] {
   let output : Array[Array[Double]] = []
   for label in 0..<label_names.length() {
@@ -537,8 +553,8 @@ fn single_r_adv_label_medians(
 
 ///|
 fn single_r_adv_sort_gene_effects(
-  effects : Array[(Int, Double)],
-) -> Array[(Int, Double)] {
+  effects : Array[(Int32, Double)],
+) -> Array[(Int32, Double)] {
   let output = effects.copy()
   for index in 1..<output.length() {
     let value = output[index]
@@ -562,17 +578,17 @@ fn single_r_adv_sort_gene_effects(
 ///|
 fn single_r_adv_select_markers(
   medians : Array[Array[Double]],
-  marker_count : Int,
-) -> Array[Array[Array[Int]]] {
+  marker_count : Int32,
+) -> Array[Array[Array[Int32]]] {
   let label_count = medians.length()
   let gene_count = if label_count == 0 { 0 } else { medians[0].length() }
-  let pairwise : Array[Array[Array[Int]]] = []
+  let pairwise : Array[Array[Array[Int32]]] = []
   for target in 0..<label_count {
-    let target_markers : Array[Array[Int]] = []
+    let target_markers : Array[Array[Int32]] = []
     for other in 0..<label_count {
-      let selected : Array[Int] = []
+      let selected : Array[Int32] = []
       if target != other {
-        let effects : Array[(Int, Double)] = []
+        let effects : Array[(Int32, Double)] = []
         for gene in 0..<gene_count {
           let effect = medians[target][gene] - medians[other][gene]
           if effect > 0.0 {
@@ -598,9 +614,9 @@ fn single_r_adv_select_markers(
 
 ///|
 fn single_r_adv_union_markers(
-  pairwise : Array[Array[Array[Int]]],
-  gene_count : Int,
-) -> Array[Int] {
+  pairwise : Array[Array[Array[Int32]]],
+  gene_count : Int32,
+) -> Array[Int32] {
   let selected = Array::make(gene_count, false)
   for target in pairwise {
     for comparison in target {
@@ -609,7 +625,7 @@ fn single_r_adv_union_markers(
       }
     }
   }
-  let output : Array[Int] = []
+  let output : Array[Int32] = []
   for gene in 0..<gene_count {
     if selected[gene] {
       output.push(gene)
@@ -629,8 +645,8 @@ fn single_r_adv_union_markers(
 pub fn single_r_advanced_train(
   reference : SingleRAdvancedReference,
   test_gene_names : Array[String],
-  restrict_genes? : Array[String] = [],
-  marker_count? : Int = 0,
+  restrict_genes~ : Array[String] = [],
+  marker_count~ : Int32 = 0,
 ) -> SingleRAdvancedTraining raise SingleRAdvancedError {
   if marker_count < 0 {
     raise SingleRAdvancedError("marker_count must be non-negative")
@@ -639,7 +655,7 @@ pub fn single_r_advanced_train(
     reference, test_gene_names, restrict_genes,
   )
   let label_names = reference.label_names.copy()
-  let sample_label_indices : Array[Int] = []
+  let sample_label_indices : Array[Int32] = []
   for label in reference.labels {
     let index = single_r_adv_label_index(label_names, label)
     if index < 0 {
@@ -719,10 +735,10 @@ fn single_r_adv_same_strings(
 ///|
 fn single_r_adv_correlation(
   data : SingleRAdvancedData,
-  cell : Int,
+  cell : Int32,
   training : SingleRAdvancedTraining,
-  sample : Int,
-  features : Array[Int],
+  sample : Int32,
+  features : Array[Int32],
 ) -> Double raise SingleRAdvancedError {
   let test_values : Array[Double] = []
   let reference_values : Array[Double] = []
@@ -738,10 +754,10 @@ fn single_r_adv_correlation(
 ///|
 fn single_r_adv_score_labels(
   data : SingleRAdvancedData,
-  cell : Int,
+  cell : Int32,
   training : SingleRAdvancedTraining,
-  features : Array[Int],
-  labels : Array[Int],
+  features : Array[Int32],
+  labels : Array[Int32],
   quantile : Double,
 ) -> Array[Double] raise SingleRAdvancedError {
   let output : Array[Double] = []
@@ -761,9 +777,9 @@ fn single_r_adv_score_labels(
 
 ///|
 fn single_r_adv_best_score(
-  labels : Array[Int],
+  labels : Array[Int32],
   scores : Array[Double],
-) -> (Int, Double, Double) {
+) -> (Int32, Double, Double) {
   if labels.length() == 0 {
     return (-1, 0.0, 0.0)
   }
@@ -785,10 +801,10 @@ fn single_r_adv_best_score(
 
 ///|
 fn single_r_adv_candidates(
-  labels : Array[Int],
+  labels : Array[Int32],
   scores : Array[Double],
   threshold : Double,
-) -> Array[Int] {
+) -> Array[Int32] {
   if labels.length() == 0 {
     return []
   }
@@ -798,7 +814,7 @@ fn single_r_adv_candidates(
       maximum = score
     }
   }
-  let output : Array[Int] = []
+  let output : Array[Int32] = []
   for position in 0..<labels.length() {
     if scores[position] >= maximum - threshold {
       output.push(labels[position])
@@ -810,8 +826,8 @@ fn single_r_adv_candidates(
 ///|
 fn single_r_adv_candidate_markers(
   training : SingleRAdvancedTraining,
-  candidates : Array[Int],
-) -> Array[Int] {
+  candidates : Array[Int32],
+) -> Array[Int32] {
   let chosen = Array::make(training.common_gene_names.length(), false)
   for target in candidates {
     for other in candidates {
@@ -822,7 +838,7 @@ fn single_r_adv_candidate_markers(
       }
     }
   }
-  let output : Array[Int] = []
+  let output : Array[Int32] = []
   for gene in 0..<chosen.length() {
     if chosen[gene] {
       output.push(gene)
@@ -836,7 +852,7 @@ fn single_r_adv_candidate_markers(
 }
 
 ///|
-fn single_r_adv_same_ints(left : Array[Int], right : Array[Int]) -> Bool {
+fn single_r_adv_same_ints(left : Array[Int32], right : Array[Int32]) -> Bool {
   if left.length() != right.length() {
     return false
   }
@@ -851,12 +867,12 @@ fn single_r_adv_same_ints(left : Array[Int], right : Array[Int]) -> Bool {
 ///|
 fn single_r_adv_fine_tune(
   data : SingleRAdvancedData,
-  cell : Int,
+  cell : Int32,
   training : SingleRAdvancedTraining,
   initial_scores : Array[Double],
   config : SingleRAdvancedConfig,
-) -> (Int, Double, Bool) raise SingleRAdvancedError {
-  let all_labels : Array[Int] = []
+) -> (Int32, Double, Bool) raise SingleRAdvancedError {
+  let all_labels : Array[Int32] = []
   for label in 0..<training.label_names.length() {
     all_labels.push(label)
   }
@@ -979,14 +995,14 @@ fn single_r_adv_apply_pruning(
 pub fn single_r_advanced_classify(
   data : SingleRAdvancedData,
   training : SingleRAdvancedTraining,
-  config? : SingleRAdvancedConfig = SingleRAdvancedConfig::default(),
+  config~ : SingleRAdvancedConfig = SingleRAdvancedConfig::default(),
 ) -> SingleRAdvancedResult raise SingleRAdvancedError {
   if !single_r_adv_same_strings(data.gene_names, training.test_gene_names) {
     raise SingleRAdvancedError(
       "test gene names must exactly match those used during training",
     )
   }
-  let all_labels : Array[Int] = []
+  let all_labels : Array[Int32] = []
   for label in 0..<training.label_names.length() {
     all_labels.push(label)
   }
@@ -1045,8 +1061,8 @@ pub fn single_r_advanced_classify(
 pub fn single_r_advanced(
   data : SingleRAdvancedData,
   reference : SingleRAdvancedReference,
-  restrict_genes? : Array[String] = [],
-  config? : SingleRAdvancedConfig = SingleRAdvancedConfig::default(),
+  restrict_genes~ : Array[String] = [],
+  config~ : SingleRAdvancedConfig = SingleRAdvancedConfig::default(),
 ) -> SingleRAdvancedResult raise SingleRAdvancedError {
   let training = single_r_advanced_train(
     reference,
@@ -1058,12 +1074,12 @@ pub fn single_r_advanced(
 }
 
 ///|
-pub fn SingleRAdvancedResult::n_cells(self : SingleRAdvancedResult) -> Int {
+pub fn SingleRAdvancedResult::n_cells(self : SingleRAdvancedResult) -> Int32 {
   self.cell_names.length()
 }
 
 ///|
-pub fn SingleRAdvancedResult::n_pruned(self : SingleRAdvancedResult) -> Int {
+pub fn SingleRAdvancedResult::n_pruned(self : SingleRAdvancedResult) -> Int32 {
   let mut count = 0
   for value in self.pruned_labels {
     if value is None {
@@ -1077,14 +1093,14 @@ pub fn SingleRAdvancedResult::n_pruned(self : SingleRAdvancedResult) -> Int {
 pub fn SingleRAdvancedResult::label_index(
   self : SingleRAdvancedResult,
   label : String,
-) -> Int {
+) -> Int32 {
   single_r_adv_label_index(self.label_names, label)
 }
 
 ///|
 pub fn SingleRAdvancedResult::assigned_score(
   self : SingleRAdvancedResult,
-  cell : Int,
+  cell : Int32,
 ) -> Double raise SingleRAdvancedError {
   if cell < 0 || cell >= self.n_cells() {
     raise SingleRAdvancedError("cell index is out of range")
@@ -1099,8 +1115,8 @@ pub fn SingleRAdvancedResult::assigned_score(
 ///|
 pub fn SingleRAdvancedResult::summary(
   self : SingleRAdvancedResult,
-) -> Map[String, Int] {
-  let output : Map[String, Int] = Map([])
+) -> Map[String, Int32] {
+  let output : Map[String, Int32] = Map([])
   for name in self.label_names {
     output[name] = 0
   }
@@ -1150,8 +1166,8 @@ pub fn single_r_advanced_clusters(
   data : SingleRAdvancedData,
   clusters : Array[String],
   reference : SingleRAdvancedReference,
-  restrict_genes? : Array[String] = [],
-  config? : SingleRAdvancedConfig = SingleRAdvancedConfig::default(),
+  restrict_genes~ : Array[String] = [],
+  config~ : SingleRAdvancedConfig = SingleRAdvancedConfig::default(),
 ) -> SingleRAdvancedResult raise SingleRAdvancedError {
   let aggregated = single_r_adv_aggregate_clusters(data, clusters)
   single_r_advanced(aggregated, reference, restrict_genes~, config~)
@@ -1160,8 +1176,8 @@ pub fn single_r_advanced_clusters(
 ///|
 fn single_r_adv_marker_names_for_label(
   training : SingleRAdvancedTraining,
-  label : Int,
-  top : Int,
+  label : Int32,
+  top : Int32,
 ) -> Array[String] {
   let output : Array[String] = []
   for other in 0..<training.label_names.length() {
@@ -1182,7 +1198,7 @@ fn single_r_adv_global_common_genes(
   data : SingleRAdvancedData,
   references : Array[SingleRAdvancedReference],
 ) -> Array[String] {
-  let reference_maps : Array[Map[String, Int]] = []
+  let reference_maps : Array[Map[String, Int32]] = []
   for reference in references {
     reference_maps.push(single_r_adv_build_gene_index(reference.gene_names))
   }
@@ -1204,9 +1220,9 @@ fn single_r_adv_global_common_genes(
 ///|
 fn single_r_adv_named_correlation(
   data : SingleRAdvancedData,
-  cell : Int,
+  cell : Int32,
   reference : SingleRAdvancedReference,
-  sample : Int,
+  sample : Int32,
   genes : Array[String],
 ) -> Double raise SingleRAdvancedError {
   let data_index = single_r_adv_build_gene_index(data.gene_names)
@@ -1225,7 +1241,7 @@ fn single_r_adv_named_correlation(
 ///|
 fn single_r_adv_recomputed_score(
   data : SingleRAdvancedData,
-  cell : Int,
+  cell : Int32,
   reference : SingleRAdvancedReference,
   label : String,
   genes : Array[String],
@@ -1246,8 +1262,8 @@ fn single_r_adv_recomputed_score(
 pub fn single_r_advanced_combine(
   data : SingleRAdvancedData,
   references : Array[SingleRAdvancedReference],
-  restrict_genes? : Array[String] = [],
-  config? : SingleRAdvancedConfig = SingleRAdvancedConfig::default(),
+  restrict_genes~ : Array[String] = [],
+  config~ : SingleRAdvancedConfig = SingleRAdvancedConfig::default(),
 ) -> SingleRAdvancedCombinedResult raise SingleRAdvancedError {
   if references.length() < 2 {
     raise SingleRAdvancedError(
@@ -1346,7 +1362,7 @@ pub fn single_r_advanced_combine(
       )
     }
     combined_scores.push(current_scores)
-    let reference_indices : Array[Int] = []
+    let reference_indices : Array[Int32] = []
     for index in 0..<references.length() {
       reference_indices.push(index)
     }
@@ -1374,15 +1390,15 @@ pub fn single_r_advanced_combine(
 ///|
 pub fn SingleRAdvancedCombinedResult::n_cells(
   self : SingleRAdvancedCombinedResult,
-) -> Int {
+) -> Int32 {
   self.cell_names.length()
 }
 
 ///|
 pub fn SingleRAdvancedCombinedResult::reference_summary(
   self : SingleRAdvancedCombinedResult,
-) -> Map[String, Int] {
-  let output : Map[String, Int] = Map([])
+) -> Map[String, Int32] {
+  let output : Map[String, Int32] = Map([])
   for reference in self.references {
     output[reference] = 0
   }
@@ -1486,11 +1502,11 @@ fn single_r_adv_option_string(value : String?) -> String {
 pub fn single_r_advanced_sce(
   experiment : SingleCellExperiment,
   reference : SingleRAdvancedReference,
-  assay_name? : String = "logcounts",
-  cluster_column? : String = "",
-  output_prefix? : String = "SingleR",
-  restrict_genes? : Array[String] = [],
-  config? : SingleRAdvancedConfig = SingleRAdvancedConfig::default(),
+  assay_name~ : String = "logcounts",
+  cluster_column~ : String = "",
+  output_prefix~ : String = "SingleR",
+  restrict_genes~ : Array[String] = [],
+  config~ : SingleRAdvancedConfig = SingleRAdvancedConfig::default(),
 ) -> SingleRAdvancedSCEOutput raise SingleRAdvancedError {
   if assay_name.trim().length() == 0 || output_prefix.trim().length() == 0 {
     raise SingleRAdvancedError("assay_name and output_prefix cannot be empty")

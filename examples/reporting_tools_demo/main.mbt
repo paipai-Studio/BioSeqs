@@ -21,22 +21,32 @@ fn main {
 
   // Add text sections
   println("=== Adding Text Sections ===")
-  let doc3 = doc2.add_text("intro", "Introduction", "This report summarizes the results of an RNA-Seq differential expression analysis comparing two conditions: treatment and control.")
-  let doc4 = doc3.add_text("methods", "Methods", "Total RNA was extracted and sequenced using Illumina NovaSeq. Reads were aligned to GRCh38 using HISAT2, quantified with featureCounts, and differential expression analyzed with DESeq2.")
-  let doc5 = doc4.add_text("sample_info", "Sample Information", "A total of 20 samples were analyzed (10 treatment, 10 control).")
+  let doc3 = doc2.add_text(
+    "intro", "Introduction", "This report summarizes the results of an RNA-Seq differential expression analysis comparing two conditions: treatment and control.",
+  )
+  let doc4 = doc3.add_text(
+    "methods", "Methods", "Total RNA was extracted and sequenced using Illumina NovaSeq. Reads were aligned to GRCh38 using HISAT2, quantified with featureCounts, and differential expression analyzed with DESeq2.",
+  )
+  let doc5 = doc4.add_text(
+    "sample_info", "Sample Information", "A total of 20 samples were analyzed (10 treatment, 10 control).",
+  )
   println("Sections after adding text: \{doc5.get_n_sections()}")
   println("")
 
   // Add a results table
   println("=== Adding Results Table ===")
-  let table = @bio.ReportTable::new("de_results", "Top Differential Genes",
+  let table = @bio.ReportTable::new(
+    "de_results",
+    "Top Differential Genes",
     ["Gene", "log2FC", "p-value", "padj", "Regulation"],
-    [["TP53", "BRCA1", "MYC", "KRAS", "EGFR"],
-     ["2.54", "-3.02", "3.21", "-1.48", "0.87"],
-     ["0.0012", "0.0035", "0.0008", "0.0125", "0.0620"],
-     ["0.012", "0.035", "0.009", "0.085", "0.215"],
-     ["Up", "Down", "Up", "Down", "NS"]],
-    "Table 1. Top 5 differentially expressed genes"
+    [
+      ["TP53", "BRCA1", "MYC", "KRAS", "EGFR"],
+      ["2.54", "-3.02", "3.21", "-1.48", "0.87"],
+      ["0.0012", "0.0035", "0.0008", "0.0125", "0.0620"],
+      ["0.012", "0.035", "0.009", "0.085", "0.215"],
+      ["Up", "Down", "Up", "Down", "NS"],
+    ],
+    "Table 1. Top 5 differentially expressed genes",
   )
   let doc6 = doc5.add_table("results_table", table)
   println("Table added. Total tables: \{doc6.get_n_tables()}")
@@ -54,7 +64,7 @@ fn main {
   let plot = @bio.volcano_plot_default(
     ["TP53", "BRCA1", "MYC", "KRAS", "EGFR", "PTEN", "APC", "RB1"],
     [2.5, -3.0, 3.2, -1.5, 0.8, -2.2, 0.3, -1.8],
-    [0.001, 0.005, 0.0005, 0.01, 0.08, 0.002, 0.06, 0.003]
+    [0.001, 0.005, 0.0005, 0.01, 0.08, 0.002, 0.06, 0.003],
   )
   let plot_ascii = plot.to_ascii(width=50, height=12)
   let doc7 = doc6.add_plot("volcano", "Volcano Plot of DE Results", plot_ascii)

@@ -6,12 +6,22 @@ fn main {
   // Simulate single-cell data with 3 clusters
   println("1. Creating simulated single-cell data...")
   let cell_coords : Array[Array[Double]] = [
-    [0.0, 0.0], [0.2, 0.1], [0.4, 0.2],   // Cluster 1 (root)
-    [1.0, 0.5], [1.5, 0.8], [2.0, 1.0],   // Cluster 2 (intermediate)
-    [3.0, 1.2], [3.5, 1.3], [4.0, 1.5],   // Cluster 3 (terminal)
-    [2.5, 2.0], [3.0, 2.5], [3.5, 3.0]    // Cluster 4 (alternative branch)
+    [0.0, 0.0],
+    [0.2, 0.1],
+    [0.4, 0.2], // Cluster 1 (root)
+    [1.0, 0.5],
+    [1.5, 0.8],
+    [2.0, 1.0], // Cluster 2 (intermediate)
+    [3.0, 1.2],
+    [3.5, 1.3],
+    [4.0, 1.5], // Cluster 3 (terminal)
+    [2.5, 2.0],
+    [3.0, 2.5],
+    [3.5, 3.0], // Cluster 4 (alternative branch)
   ]
-  let cluster_labels = ["c1", "c1", "c1", "c2", "c2", "c2", "c3", "c3", "c3", "c4", "c4", "c4"]
+  let cluster_labels = [
+    "c1", "c1", "c1", "c2", "c2", "c2", "c3", "c3", "c3", "c4", "c4", "c4",
+  ]
   println("   Cells: \{cell_coords.length()}, Clusters: 4")
 
   // Run slingshot
@@ -38,7 +48,9 @@ fn main {
   while j < sorted.length() && j < 5 {
     let (pt, cell_idx) = sorted[j]
     let pt_str = pt.to_string()
-    println("   Rank \{j}: Cell \{cell_idx}, pseudotime=\{pt_str}, cluster=\{cluster_labels[cell_idx]}")
+    println(
+      "   Rank \{j}: Cell \{cell_idx}, pseudotime=\{pt_str}, cluster=\{cluster_labels[cell_idx]}",
+    )
     j = j + 1
   }
 
@@ -47,7 +59,9 @@ fn main {
   let mut e = 0
   while e < result.edges.length() {
     let w = result.edges[e].weight.to_string()
-    println("   \{result.edges[e].from_id} -> \{result.edges[e].to_id} (weight=\{w})")
+    println(
+      "   \{result.edges[e].from_id} -> \{result.edges[e].to_id} (weight=\{w})",
+    )
     e = e + 1
   }
 

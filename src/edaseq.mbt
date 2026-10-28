@@ -187,13 +187,13 @@ pub fn EDASeqDataSet::new(
 
 ///|
 /// Get number of genes
-pub fn EDASeqDataSet::eda_n_genes(self : EDASeqDataSet) -> Int {
+pub fn EDASeqDataSet::eda_n_genes(self : EDASeqDataSet) -> Int32 {
   self.gene_ids.length()
 }
 
 ///|
 /// Get number of samples
-pub fn EDASeqDataSet::eda_n_samples(self : EDASeqDataSet) -> Int {
+pub fn EDASeqDataSet::eda_n_samples(self : EDASeqDataSet) -> Int32 {
   self.sample_ids.length()
 }
 
@@ -201,7 +201,7 @@ pub fn EDASeqDataSet::eda_n_samples(self : EDASeqDataSet) -> Int {
 /// Get a gene's counts across samples
 pub fn EDASeqDataSet::eda_gene_counts(
   self : EDASeqDataSet,
-  gene_idx : Int,
+  gene_idx : Int32,
 ) -> Array[Double] {
   self.counts[gene_idx].copy()
 }
@@ -210,7 +210,7 @@ pub fn EDASeqDataSet::eda_gene_counts(
 /// Get a sample's counts across genes
 pub fn EDASeqDataSet::eda_sample_counts(
   self : EDASeqDataSet,
-  sample_idx : Int,
+  sample_idx : Int32,
 ) -> Array[Double] {
   let result : Array[Double] = Array(capacity=0)
   let mut i = 0
@@ -763,8 +763,8 @@ pub fn eda_tpm(
 /// Get a normalized count
 pub fn EDASeqResult::eda_get_count(
   self : EDASeqResult,
-  gene_idx : Int,
-  sample_idx : Int,
+  gene_idx : Int32,
+  sample_idx : Int32,
 ) -> Double {
   self.norm_counts[gene_idx][sample_idx]
 }
@@ -773,7 +773,7 @@ pub fn EDASeqResult::eda_get_count(
 /// Get normalized counts for a gene
 pub fn EDASeqResult::eda_get_gene(
   self : EDASeqResult,
-  gene_idx : Int,
+  gene_idx : Int32,
 ) -> Array[Double] {
   self.norm_counts[gene_idx].copy()
 }
@@ -782,7 +782,7 @@ pub fn EDASeqResult::eda_get_gene(
 /// Get normalized counts for a sample
 pub fn EDASeqResult::eda_get_sample(
   self : EDASeqResult,
-  sample_idx : Int,
+  sample_idx : Int32,
 ) -> Array[Double] {
   let result : Array[Double] = Array(capacity=0)
   let mut i = 0
@@ -795,19 +795,22 @@ pub fn EDASeqResult::eda_get_sample(
 
 ///|
 /// Get number of genes
-pub fn EDASeqResult::eda_n_genes(self : EDASeqResult) -> Int {
+pub fn EDASeqResult::eda_n_genes(self : EDASeqResult) -> Int32 {
   self.gene_ids.length()
 }
 
 ///|
 /// Get number of samples
-pub fn EDASeqResult::eda_n_samples(self : EDASeqResult) -> Int {
+pub fn EDASeqResult::eda_n_samples(self : EDASeqResult) -> Int32 {
   self.sample_ids.length()
 }
 
 ///|
 /// Get gene ID
-pub fn EDASeqResult::eda_get_gene_id(self : EDASeqResult, idx : Int) -> String {
+pub fn EDASeqResult::eda_get_gene_id(
+  self : EDASeqResult,
+  idx : Int32,
+) -> String {
   self.gene_ids[idx]
 }
 
@@ -815,7 +818,7 @@ pub fn EDASeqResult::eda_get_gene_id(self : EDASeqResult, idx : Int) -> String {
 /// Get sample ID
 pub fn EDASeqResult::eda_get_sample_id(
   self : EDASeqResult,
-  idx : Int,
+  idx : Int32,
 ) -> String {
   self.sample_ids[idx]
 }

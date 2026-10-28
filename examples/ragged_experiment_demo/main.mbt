@@ -10,7 +10,13 @@ fn main {
   // Create experiment from records
   println("=== Creating RaggedExperiment ===")
   let exp = @bio.ragged_sample_data()
-  println("Dimensions: " + exp.n_rows().to_string() + " genes x " + exp.n_cols().to_string() + " samples")
+  println(
+    "Dimensions: " +
+    exp.n_rows().to_string() +
+    " genes x " +
+    exp.n_cols().to_string() +
+    " samples",
+  )
   println("Row names: " + exp.get_rownames().to_string())
   println("Col names: " + exp.get_colnames().to_string())
   println("")
@@ -27,7 +33,15 @@ fn main {
   let mut i = 0
   while i < tp53_recs.length() {
     let rec = tp53_recs[i]
-    println("  " + rec.sample_id + ": " + rec.mutation_type.to_string() + " (VAF=" + rec.variant_allele_frequency.to_string() + ")")
+    println(
+      "  " +
+      rec.sample_id +
+      ": " +
+      rec.mutation_type.to_string() +
+      " (VAF=" +
+      rec.variant_allele_frequency.to_string() +
+      ")",
+    )
     i = i + 1
   }
   println("")
@@ -58,7 +72,13 @@ fn main {
   println("TMB per Mb (genome_size=3000Mb):")
   let mut k2 = 0
   while k2 < tmb_mb.length() {
-    println("  " + exp.get_colnames()[k2] + ": " + tmb_mb[k2].to_string() + " mutations/Mb")
+    println(
+      "  " +
+      exp.get_colnames()[k2] +
+      ": " +
+      tmb_mb[k2].to_string() +
+      " mutations/Mb",
+    )
     k2 = k2 + 1
   }
   println("")
@@ -68,7 +88,13 @@ fn main {
   let mutated = exp.genes_mutated_per_sample()
   let mut m = 0
   while m < mutated.length() {
-    println("  " + exp.get_colnames()[m] + ": " + mutated[m].to_string() + " genes mutated")
+    println(
+      "  " +
+      exp.get_colnames()[m] +
+      ": " +
+      mutated[m].to_string() +
+      " genes mutated",
+    )
     m = m + 1
   }
   println("")
@@ -78,24 +104,42 @@ fn main {
   let types : Array[@bio.MutationType] = Array(capacity=0)
   types.push(@bio.mutation_missense())
   types.push(@bio.mutation_nonsense())
-  let filtered_type = exp.filter_by_type(types=types)
-  println("After filtering (missense+nonsense): " + filtered_type.n_rows().to_string() + " genes, " + filtered_type.n_cols().to_string() + " samples")
+  let filtered_type = exp.filter_by_type(types~)
+  println(
+    "After filtering (missense+nonsense): " +
+    filtered_type.n_rows().to_string() +
+    " genes, " +
+    filtered_type.n_cols().to_string() +
+    " samples",
+  )
   println("")
 
   println("=== Filtering by Genes ===")
   let genes : Array[String] = Array(capacity=0)
   genes.push("TP53")
   genes.push("KRAS")
-  let filtered_genes = exp.filter_by_genes(genes=genes)
-  println("After filtering (TP53, KRAS): " + filtered_genes.n_rows().to_string() + " genes, " + filtered_genes.n_cols().to_string() + " samples")
+  let filtered_genes = exp.filter_by_genes(genes~)
+  println(
+    "After filtering (TP53, KRAS): " +
+    filtered_genes.n_rows().to_string() +
+    " genes, " +
+    filtered_genes.n_cols().to_string() +
+    " samples",
+  )
   println("")
 
   println("=== Filtering by Samples ===")
   let samples : Array[String] = Array(capacity=0)
   samples.push("Sample1")
   samples.push("Sample2")
-  let filtered_samples = exp.filter_by_samples(samples=samples)
-  println("After filtering (Sample1, Sample2): " + filtered_samples.n_rows().to_string() + " genes, " + filtered_samples.n_cols().to_string() + " samples")
+  let filtered_samples = exp.filter_by_samples(samples~)
+  println(
+    "After filtering (Sample1, Sample2): " +
+    filtered_samples.n_rows().to_string() +
+    " genes, " +
+    filtered_samples.n_cols().to_string() +
+    " samples",
+  )
   println("")
 
   // Mutation type helpers
@@ -117,29 +161,51 @@ fn main {
   // Loss-of-function detection
   println("=== Loss-of-Function Mutations ===")
   let records : Array[@bio.MutationRecord] = Array(capacity=0)
-  records.push(@bio.MutationRecord::new(
-    sample_id="S1", gene_symbol="TP53",
-    chrom="chr17", pos=7577121,
-    ref_allele="C", alt_allele="T",
-    mutation_type=@bio.mutation_missense(),
-  ))
-  records.push(@bio.MutationRecord::new(
-    sample_id="S1", gene_symbol="BRCA1",
-    chrom="chr17", pos=43045629,
-    ref_allele="C", alt_allele="T",
-    mutation_type=@bio.mutation_nonsense(),
-  ))
-  records.push(@bio.MutationRecord::new(
-    sample_id="S1", gene_symbol="KRAS",
-    chrom="chr12", pos=25398284,
-    ref_allele="G", alt_allele="T",
-    mutation_type=@bio.mutation_fs_del(),
-  ))
+  records.push(
+    @bio.MutationRecord::new(
+      sample_id="S1",
+      gene_symbol="TP53",
+      chrom="chr17",
+      pos=7577121,
+      ref_allele="C",
+      alt_allele="T",
+      mutation_type=@bio.mutation_missense(),
+    ),
+  )
+  records.push(
+    @bio.MutationRecord::new(
+      sample_id="S1",
+      gene_symbol="BRCA1",
+      chrom="chr17",
+      pos=43045629,
+      ref_allele="C",
+      alt_allele="T",
+      mutation_type=@bio.mutation_nonsense(),
+    ),
+  )
+  records.push(
+    @bio.MutationRecord::new(
+      sample_id="S1",
+      gene_symbol="KRAS",
+      chrom="chr12",
+      pos=25398284,
+      ref_allele="G",
+      alt_allele="T",
+      mutation_type=@bio.mutation_fs_del(),
+    ),
+  )
 
   let mut lo = 0
   while lo < records.length() {
     let r = records[lo]
-    println("  " + r.gene_symbol + " (" + r.mutation_type.to_string() + "): LoF=" + r.is_loss_of_function().to_string())
+    println(
+      "  " +
+      r.gene_symbol +
+      " (" +
+      r.mutation_type.to_string() +
+      "): LoF=" +
+      r.is_loss_of_function().to_string(),
+    )
     lo = lo + 1
   }
   println("")

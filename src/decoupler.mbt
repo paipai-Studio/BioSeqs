@@ -84,9 +84,9 @@ pub struct DecoupleRResult {
 fn decoupler_build_weight_matrix(
   pkn : PriorKnowledgeNetwork,
   gene_names : Array[String],
-) -> (Array[String], Array[Int], Array[Array[Double]]) {
+) -> (Array[String], Array[Int32], Array[Array[Double]]) {
   // Map gene names to column indices in the expression matrix
-  let gene_index : Map[String, Int] = Map([])
+  let gene_index : Map[String, Int32] = Map([])
   let mut i = 0
   while i < gene_names.length() {
     gene_index.set(gene_names[i], i)
@@ -102,22 +102,22 @@ fn decoupler_build_weight_matrix(
     ri = ri + 1
   }
   // Map regulator to row index
-  let reg_index : Map[String, Int] = Map([])
+  let reg_index : Map[String, Int32] = Map([])
   let mut ri = 0
   while ri < reg_list.length() {
     reg_index.set(reg_list[ri], ri)
     ri = ri + 1
   }
   // Only include targets that appear in expression matrix
-  let tgt_indices : Array[Int] = []
-  let tgt_seen : Map[Int, Unit] = Map([])
+  let tgt_indices : Array[Int32] = []
+  let tgt_seen : Map[Int32, Unit] = Map([])
   let mut ti = 0
   while ti < pkn.targets.length() {
     let t = pkn.targets[ti]
     let idx_opt = gene_index.get(t)
     match idx_opt {
       Some(idx) =>
-        if !(tgt_seen.contains(idx)) {
+        if !tgt_seen.contains(idx) {
           tgt_seen.set(idx, ())
           tgt_indices.push(idx)
         }
@@ -654,7 +654,7 @@ pub fn decoupler_run(
   sample_names : Array[String],
   gene_names : Array[String],
   pkn : PriorKnowledgeNetwork,
-  method_? : DecoupleRMethod = DecoupleRMethod::ULM,
+  method_~ : DecoupleRMethod = DecoupleRMethod::ULM,
 ) -> DecoupleRResult {
   match method_ {
     DecoupleRMethod::WSum =>
@@ -675,7 +675,7 @@ pub fn decoupler_run(
 pub fn decoupler_top_regulators(
   result : DecoupleRResult,
   sample_name : String,
-  k : Int,
+  k : Int32,
 ) -> Array[ActivityScore] {
   let s_idx = {
     let mut found = -1

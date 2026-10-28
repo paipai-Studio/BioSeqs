@@ -56,7 +56,7 @@ fn pa_validate_protein(
 }
 
 ///|
-fn pa_aa_index(c : Char) -> Int {
+fn pa_aa_index(c : Char) -> Int32 {
   // Order: A C D E F G H I K L M N P Q R S T V W Y (alphabetical, 0-19)
   match c {
     'A' | 'a' => 0
@@ -84,7 +84,7 @@ fn pa_aa_index(c : Char) -> Int {
 }
 
 ///|
-fn pa_char_at(seq : String, i : Int) -> Char {
+fn pa_char_at(seq : String, i : Int32) -> Char {
   seq.unsafe_get(i).unsafe_to_char()
 }
 
@@ -123,10 +123,12 @@ fn cf_turn_propensity() -> Array[Double] {
 pub struct ChouFasmanResult {
   sequence : String
   prediction : Array[String]
-  helices : Array[(Int, Int)]
-  sheets : Array[(Int, Int)]
-  turns : Array[(Int, Int)]
+  helices : Array[(Int32, Int32)]
+  sheets : Array[(Int32, Int32)]
+  turns : Array[(Int32, Int32)]
 } derive(Debug)
+
+///|
 pub extend ChouFasmanResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -140,17 +142,23 @@ pub fn ChouFasmanResult::prediction(self : ChouFasmanResult) -> Array[String] {
 }
 
 ///|
-pub fn ChouFasmanResult::helices(self : ChouFasmanResult) -> Array[(Int, Int)] {
+pub fn ChouFasmanResult::helices(
+  self : ChouFasmanResult,
+) -> Array[(Int32, Int32)] {
   self.helices
 }
 
 ///|
-pub fn ChouFasmanResult::sheets(self : ChouFasmanResult) -> Array[(Int, Int)] {
+pub fn ChouFasmanResult::sheets(
+  self : ChouFasmanResult,
+) -> Array[(Int32, Int32)] {
   self.sheets
 }
 
 ///|
-pub fn ChouFasmanResult::turns(self : ChouFasmanResult) -> Array[(Int, Int)] {
+pub fn ChouFasmanResult::turns(
+  self : ChouFasmanResult,
+) -> Array[(Int32, Int32)] {
   self.turns
 }
 
@@ -185,10 +193,10 @@ pub fn chou_fasman_predict(
     i = i + 1
   }
   // Assignment array: 0 = coil, 1 = helix, 2 = sheet, 3 = turn
-  let assign : Array[Int] = Array::make(n, 0)
-  let helices : Array[(Int, Int)] = []
-  let sheets : Array[(Int, Int)] = []
-  let turns : Array[(Int, Int)] = []
+  let assign : Array[Int32] = Array::make(n, 0)
+  let helices : Array[(Int32, Int32)] = []
+  let sheets : Array[(Int32, Int32)] = []
+  let turns : Array[(Int32, Int32)] = []
   // --- Helix nucleation + extension ---
   i = 0
   while i <= n - 6 {
@@ -458,8 +466,10 @@ fn iupred_energy_matrix() -> Array[Array[Double]] {
 pub struct IupredResult {
   sequence : String
   scores : Array[Double]
-  disordered_regions : Array[(Int, Int)]
+  disordered_regions : Array[(Int32, Int32)]
 } derive(Debug)
+
+///|
 pub extend IupredResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -475,7 +485,7 @@ pub fn IupredResult::scores(self : IupredResult) -> Array[Double] {
 ///|
 pub fn IupredResult::disordered_regions(
   self : IupredResult,
-) -> Array[(Int, Int)] {
+) -> Array[(Int32, Int32)] {
   self.disordered_regions
 }
 
@@ -488,7 +498,7 @@ pub fn IupredResult::disordered_regions(
 /// `window_size` controls the neighbourhood (long mode ≈ 100, short mode ≈ 25).
 pub fn iupred(
   sequence : String,
-  window_size? : Int = 100,
+  window_size~ : Int32 = 100,
 ) -> IupredResult raise ProteinAdvancedError {
   pa_validate_protein(sequence, "IUPred")
   let n = sequence.length()
@@ -534,7 +544,7 @@ pub fn iupred(
     i = i + 1
   }
   // Identify disordered regions (score > 0.5 for ≥ 5 consecutive residues).
-  let disordered : Array[(Int, Int)] = []
+  let disordered : Array[(Int32, Int32)] = []
   let mut start = -1
   let mut k = 0
   while k < n {
@@ -612,8 +622,10 @@ fn coils_matrix() -> Array[Array[Double]] {
 pub struct CoilsResult {
   sequence : String
   scores : Array[Double]
-  coiled_coil_regions : Array[(Int, Int)]
+  coiled_coil_regions : Array[(Int32, Int32)]
 } derive(Debug)
+
+///|
 pub extend CoilsResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -629,7 +641,7 @@ pub fn CoilsResult::scores(self : CoilsResult) -> Array[Double] {
 ///|
 pub fn CoilsResult::coiled_coil_regions(
   self : CoilsResult,
-) -> Array[(Int, Int)] {
+) -> Array[(Int32, Int32)] {
   self.coiled_coil_regions
 }
 
@@ -642,8 +654,8 @@ pub fn CoilsResult::coiled_coil_regions(
 /// (default 0.9) indicate a coiled-coil segment.
 pub fn predict_coiled_coils(
   sequence : String,
-  window? : Int = 28,
-  threshold? : Double = 0.9,
+  window~ : Int32 = 28,
+  threshold~ : Double = 0.9,
 ) -> CoilsResult raise ProteinAdvancedError {
   pa_validate_protein(sequence, "COILS")
   let n = sequence.length()
@@ -684,7 +696,7 @@ pub fn predict_coiled_coils(
     i = i + 1
   }
   // Identify coiled-coil regions.
-  let regions : Array[(Int, Int)] = []
+  let regions : Array[(Int32, Int32)] = []
   let mut start = -1
   let mut k = 0
   while k < n {
@@ -725,8 +737,10 @@ fn kolaskar_propensity() -> Array[Double] {
 pub struct AntigenicityResult {
   sequence : String
   scores : Array[Double]
-  antigenic_sites : Array[(Int, Int)]
+  antigenic_sites : Array[(Int32, Int32)]
 } derive(Debug)
+
+///|
 pub extend AntigenicityResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -742,7 +756,7 @@ pub fn AntigenicityResult::scores(self : AntigenicityResult) -> Array[Double] {
 ///|
 pub fn AntigenicityResult::antigenic_sites(
   self : AntigenicityResult,
-) -> Array[(Int, Int)] {
+) -> Array[(Int32, Int32)] {
   self.antigenic_sites
 }
 
@@ -755,7 +769,7 @@ pub fn AntigenicityResult::antigenic_sites(
 /// `window` (default 7) controls the smoothing.
 pub fn kolaskar_tongaonkar_antigenicity(
   sequence : String,
-  window? : Int = 7,
+  window~ : Int32 = 7,
 ) -> AntigenicityResult raise ProteinAdvancedError {
   pa_validate_protein(sequence, "Kolaskar-Tongaonkar")
   let n = sequence.length()
@@ -786,7 +800,7 @@ pub fn kolaskar_tongaonkar_antigenicity(
   }
   grand_mean = grand_mean / n.to_double()
   // Identify antigenic sites: regions above grand mean.
-  let sites : Array[(Int, Int)] = []
+  let sites : Array[(Int32, Int32)] = []
   let mut start = -1
   let mut k = 0
   while k < n {
@@ -830,7 +844,7 @@ fn emini_surface_prob() -> Array[Double] {
 /// the centre residue carries an extra weight.
 pub fn emini_surface_accessibility(
   sequence : String,
-  window? : Int = 6,
+  window~ : Int32 = 6,
 ) -> Array[Double] raise ProteinAdvancedError {
   pa_validate_protein(sequence, "Emini")
   let n = sequence.length()
@@ -884,7 +898,7 @@ fn karplus_schulz_params() -> Array[Double] {
 /// parameters.  Values above 1.0 indicate above-average flexibility.
 pub fn karplus_schulz_flexibility(
   sequence : String,
-  window? : Int = 5,
+  window~ : Int32 = 5,
 ) -> Array[Double] raise ProteinAdvancedError {
   pa_validate_protein(sequence, "Karplus-Schulz")
   let n = sequence.length()

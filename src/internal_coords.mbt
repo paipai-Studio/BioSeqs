@@ -49,7 +49,7 @@ pub struct BondAngle {
 /// Internal coordinate representation of a single residue.
 pub struct InternalCoordResidue {
   resname : String
-  resseq : Int
+  resseq : Int32
   bond_lengths : Array[BondLength]
   bond_angles : Array[BondAngle]
   torsions : Array[TorsionAngle]
@@ -68,7 +68,7 @@ pub struct InternalCoordChain {
 pub struct ICToCartesianResult {
   atom_names : Array[String]
   residue_names : Array[String]
-  residue_ids : Array[Int]
+  residue_ids : Array[Int32]
   x : Array[Double]
   y : Array[Double]
   z : Array[Double]
@@ -99,7 +99,7 @@ pub struct RotamerLibraryEntry {
 pub fn TorsionAngle::new(
   name~ : String,
   value~ : Double,
-  atom_names? : Array[String] = [],
+  atom_names~ : Array[String] = [],
 ) -> TorsionAngle {
   TorsionAngle::{ name, value, atom_names, }
 }
@@ -129,8 +129,8 @@ pub fn BondAngle::new(
 /// Create internal coordinates for a residue.
 pub fn InternalCoordResidue::new(
   resname~ : String,
-  resseq~ : Int,
-  start_atom? : String = "N",
+  resseq~ : Int32,
+  start_atom~ : String = "N",
 ) -> InternalCoordResidue {
   InternalCoordResidue::{
     resname,
@@ -165,8 +165,8 @@ pub fn ICToCartesianResult::new() -> ICToCartesianResult {
 /// Create a rotamer.
 pub fn Rotamer::new(
   name~ : String,
-  chi_angles? : Array[Double] = [],
-  probability? : Double = 1.0,
+  chi_angles~ : Array[Double] = [],
+  probability~ : Double = 1.0,
 ) -> Rotamer {
   Rotamer::{ name, chi_angles, probability, }
 }
@@ -1176,8 +1176,8 @@ pub fn ic_select_rotamer(
 
 ///|
 /// Validate internal coordinates by checking bond length and angle constraints.
-pub fn ic_validate_coords(ic : InternalCoordChain) -> Array[(Int, String)] {
-  let issues : Array[(Int, String)] = []
+pub fn ic_validate_coords(ic : InternalCoordChain) -> Array[(Int32, String)] {
+  let issues : Array[(Int32, String)] = []
   let mut i = 0
   while i < ic.residues.length() {
     let res = ic.residues[i]
@@ -1302,7 +1302,7 @@ pub fn InternalCoordResidue::add_bond_angle(
 
 ///|
 /// Get the number of residues.
-pub fn InternalCoordChain::n_residues(self : InternalCoordChain) -> Int {
+pub fn InternalCoordChain::n_residues(self : InternalCoordChain) -> Int32 {
   self.residues.length()
 }
 
@@ -1318,7 +1318,7 @@ pub fn InternalCoordChain::residue_names(
 /// Get all torsion angles for a specific residue.
 pub fn InternalCoordChain::get_torsions(
   self : InternalCoordChain,
-  resseq : Int,
+  resseq : Int32,
 ) -> Array[TorsionAngle] {
   for res in self.residues {
     if res.resseq == resseq {

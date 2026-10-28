@@ -16,14 +16,14 @@
 pub struct GCRMAConfig {
   background_method : String
   normalize : Bool
-  gc_lookup_table : Map[Int, Double]
+  gc_lookup_table : Map[Int32, Double]
 }
 
 ///|
 /// Create a new GCRMAConfig with default settings.
 pub fn GCRMAConfig::new(
-  background_method? : String = "IdealMM",
-  normalize? : Bool = true,
+  background_method~ : String = "IdealMM",
+  normalize~ : Bool = true,
 ) -> GCRMAConfig {
   GCRMAConfig::{
     background_method,
@@ -45,7 +45,7 @@ pub struct GCRMAResult {
 /// sequence-derived properties for a single probe.
 pub struct ProbeInfo {
   probe_id : String
-  gc_count : Int
+  gc_count : Int32
   sequence : String
   affinity : Double
 }
@@ -63,7 +63,7 @@ pub fn ProbeInfo::new(probe_id : String, sequence : String) -> ProbeInfo {
 /// Create ProbeInfo with pre-computed values (useful for testing).
 pub fn ProbeInfo::with_values(
   probe_id : String,
-  gc_count : Int,
+  gc_count : Int32,
   sequence : String,
   affinity : Double,
 ) -> ProbeInfo {
@@ -76,7 +76,7 @@ pub fn ProbeInfo::with_values(
 
 ///|
 /// Count the number of G and C bases in a DNA sequence string.
-pub fn oligo_gc_count(sequence : String) -> Int {
+pub fn oligo_gc_count(sequence : String) -> Int32 {
   let n = sequence.length()
   let mut count = 0
   let mut i = 0
@@ -170,12 +170,12 @@ pub fn estimate_affinity(sequence : String) -> Double {
 /// used for rapid GC-based correction during processing.
 pub fn compute_gc_lookup_table(
   probe_info : Array[ProbeInfo],
-) -> Map[Int, Double] {
+) -> Map[Int32, Double] {
   let n = probe_info.length()
   if n == 0 {
     return Map([], capacity=0)
   }
-  let lookup : Map[Int, Array[Double]] = Map([], capacity=n)
+  let lookup : Map[Int32, Array[Double]] = Map([], capacity=n)
   let mut i = 0
   while i < n {
     let gc = probe_info[i].gc_count
@@ -186,7 +186,7 @@ pub fn compute_gc_lookup_table(
     lookup.set(gc, new_arr)
     i = i + 1
   }
-  let result : Map[Int, Double] = Map([], capacity=lookup.keys().count())
+  let result : Map[Int32, Double] = Map([], capacity=lookup.keys().count())
   for key in lookup.keys() {
     let arr = lookup.get_or_default(key, [])
     result.set(key, _median(arr))
@@ -263,7 +263,7 @@ fn _quantile_normalize(data : Array[Array[Double]]) -> Array[Array[Double]] {
     let row = data[i]
     let sorted_row = row.copy()
     sorted_row.sort()
-    let ranks : Array[Int] = Array(capacity=0)
+    let ranks : Array[Int32] = Array(capacity=0)
     let mut m = 0
     while m < row.length() {
       let val = row[m]
@@ -366,7 +366,7 @@ pub fn gcrma_background_correction(
 /// affinity using a lookup-table based correction.
 pub fn gcrma_gc_correction(
   pm_values : Array[Double],
-  gc_counts : Array[Int],
+  gc_counts : Array[Int32],
   probe_info : Array[ProbeInfo],
 ) -> Array[Double] {
   let n = pm_values.length()
@@ -414,7 +414,7 @@ pub fn gcrma_normalize(
 /// by subtracting medians, converging to a stable decomposition.
 pub fn gcrma_summarize(
   expression : Array[Array[Double]],
-  probe_sets : Map[String, Array[Int]],
+  probe_sets : Map[String, Array[Int32]],
 ) -> Map[String, Array[Double]] {
   let result : Map[String, Array[Double]] = Map(
     [],

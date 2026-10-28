@@ -7,36 +7,92 @@ fn make_sel_test_chain() -> @src.Chain {
   let residues : Array[@src.Residue] = Array(capacity=0)
   // Residues 1-5: protein (ALA) with backbone + sidechain
   let aa_atoms = [
-    ("N", "N"), ("CA", "C"), ("C", "C"), ("O", "O"), ("CB", "C"), ("HB1", "H")
+    ("N", "N"),
+    ("CA", "C"),
+    ("C", "C"),
+    ("O", "O"),
+    ("CB", "C"),
+    ("HB1", "H"),
   ]
   for r = 0; r < 5; r = r + 1 {
     let atoms : Array[@src.Atom] = Array(capacity=0)
     for a = 0; a < aa_atoms.length(); a = a + 1 {
       let (aname, elem) = aa_atoms[a]
-      let x = (a.to_double()) * 1.5
-      let y = (r.to_double()) * 3.0
-      let atom = @src.Atom::new(name=aname, coord=@src.Vector3::new(x, y, 0.0), resname="ALA", chainid='A', resseq=r + 1, element=elem)
+      let x = a.to_double() * 1.5
+      let y = r.to_double() * 3.0
+      let atom = @src.Atom::new(
+        name=aname,
+        coord=@src.Vector3::new(x, y, 0.0),
+        resname="ALA",
+        chainid='A',
+        resseq=r + 1,
+        element=elem,
+      )
       atoms.push(atom)
     }
-    let res = @src.Residue::new(resname="ALA", chainid='A', resseq=r + 1, atoms~)
+    let res = @src.Residue::new(
+      resname="ALA",
+      chainid='A',
+      resseq=r + 1,
+      atoms~,
+    )
     residues.push(res)
   }
   // Residue 6: water
   let wat_atoms : Array[@src.Atom] = Array(capacity=0)
-  wat_atoms.push(@src.Atom::new(name="O", coord=@src.Vector3::new(10.0, 10.0, 0.0), resname="HOH", chainid='A', resseq=6, element="O"))
-  let wat_res = @src.Residue::new(resname="HOH", chainid='A', resseq=6, atoms=wat_atoms, hetfield="HETATM")
+  wat_atoms.push(
+    @src.Atom::new(
+      name="O",
+      coord=@src.Vector3::new(10.0, 10.0, 0.0),
+      resname="HOH",
+      chainid='A',
+      resseq=6,
+      element="O",
+    ),
+  )
+  let wat_res = @src.Residue::new(
+    resname="HOH",
+    chainid='A',
+    resseq=6,
+    atoms=wat_atoms,
+    hetfield="HETATM",
+  )
   residues.push(wat_res)
   // Residue 7: nucleic (DA)
   let na_atoms : Array[@src.Atom] = Array(capacity=0)
-  na_atoms.push(@src.Atom::new(name="P", coord=@src.Vector3::new(15.0, 0.0, 0.0), resname="DA", chainid='B', resseq=1, element="P"))
-  na_atoms.push(@src.Atom::new(name="C1'", coord=@src.Vector3::new(16.0, 0.0, 0.0), resname="DA", chainid='B', resseq=1, element="C"))
-  let na_res = @src.Residue::new(resname="DA", chainid='B', resseq=1, atoms=na_atoms)
+  na_atoms.push(
+    @src.Atom::new(
+      name="P",
+      coord=@src.Vector3::new(15.0, 0.0, 0.0),
+      resname="DA",
+      chainid='B',
+      resseq=1,
+      element="P",
+    ),
+  )
+  na_atoms.push(
+    @src.Atom::new(
+      name="C1'",
+      coord=@src.Vector3::new(16.0, 0.0, 0.0),
+      resname="DA",
+      chainid='B',
+      resseq=1,
+      element="C",
+    ),
+  )
+  let na_res = @src.Residue::new(
+    resname="DA",
+    chainid='B',
+    resseq=1,
+    atoms=na_atoms,
+  )
   residues.push(na_res)
   @src.Chain::new(id='A', residues~)
 }
 
 // ===== Basic selector tests =====
 
+///|
 test "sel_all" {
   let chain = make_sel_test_chain()
   let atoms = chain.get_atoms()
@@ -44,6 +100,7 @@ test "sel_all" {
   assert_eq(sel.length(), atoms.length())
 }
 
+///|
 test "sel_none" {
   let chain = make_sel_test_chain()
   let atoms = chain.get_atoms()
@@ -51,6 +108,7 @@ test "sel_none" {
   assert_eq(sel.length(), 0)
 }
 
+///|
 test "sel_calpha" {
   let chain = make_sel_test_chain()
   let atoms = chain.get_atoms()
@@ -62,6 +120,7 @@ test "sel_calpha" {
   }
 }
 
+///|
 test "sel_ca_alias" {
   let chain = make_sel_test_chain()
   let atoms = chain.get_atoms()
@@ -69,6 +128,7 @@ test "sel_ca_alias" {
   assert_eq(sel.length(), 5)
 }
 
+///|
 test "sel_backbone" {
   let chain = make_sel_test_chain()
   let atoms = chain.get_atoms()
@@ -80,6 +140,7 @@ test "sel_backbone" {
   assert_eq(sel.length(), 20)
 }
 
+///|
 test "sel_sidechain" {
   let chain = make_sel_test_chain()
   let atoms = chain.get_atoms()
@@ -88,6 +149,7 @@ test "sel_sidechain" {
   assert_eq(sel.length(), 10)
 }
 
+///|
 test "sel_protein" {
   let chain = make_sel_test_chain()
   let atoms = chain.get_atoms()
@@ -96,6 +158,7 @@ test "sel_protein" {
   assert_eq(sel.length(), 30)
 }
 
+///|
 test "sel_water" {
   let chain = make_sel_test_chain()
   let atoms = chain.get_atoms()
@@ -104,6 +167,7 @@ test "sel_water" {
   assert_eq(sel[0].resname, "HOH")
 }
 
+///|
 test "sel_nucleic" {
   let chain = make_sel_test_chain()
   let atoms = chain.get_atoms()
@@ -112,6 +176,7 @@ test "sel_nucleic" {
   assert_eq(sel[0].resname, "DA")
 }
 
+///|
 test "sel_hetero" {
   let chain = make_sel_test_chain()
   let atoms = chain.get_atoms()
@@ -120,6 +185,7 @@ test "sel_hetero" {
   assert_eq(sel.length(), 2)
 }
 
+///|
 test "sel_hydrogen" {
   let chain = make_sel_test_chain()
   let atoms = chain.get_atoms()
@@ -128,6 +194,7 @@ test "sel_hydrogen" {
   assert_eq(sel.length(), 5)
 }
 
+///|
 test "sel_heavy" {
   let chain = make_sel_test_chain()
   let atoms = chain.get_atoms()
@@ -138,6 +205,7 @@ test "sel_heavy" {
 
 // ===== Property selectors =====
 
+///|
 test "sel_name" {
   let chain = make_sel_test_chain()
   let atoms = chain.get_atoms()
@@ -146,6 +214,7 @@ test "sel_name" {
   assert_eq(sel.length(), 10)
 }
 
+///|
 test "sel_resname" {
   let chain = make_sel_test_chain()
   let atoms = chain.get_atoms()
@@ -153,6 +222,7 @@ test "sel_resname" {
   assert_eq(sel.length(), 30)
 }
 
+///|
 test "sel_resnum_range" {
   let chain = make_sel_test_chain()
   let atoms = chain.get_atoms()
@@ -161,6 +231,7 @@ test "sel_resnum_range" {
   assert_eq(sel.length(), 20)
 }
 
+///|
 test "sel_resnum_single" {
   let chain = make_sel_test_chain()
   let atoms = chain.get_atoms()
@@ -169,6 +240,7 @@ test "sel_resnum_single" {
   assert_eq(sel.length(), 6)
 }
 
+///|
 test "sel_chain" {
   let chain = make_sel_test_chain()
   let atoms = chain.get_atoms()
@@ -177,6 +249,7 @@ test "sel_chain" {
   assert_eq(sel.length(), 31)
 }
 
+///|
 test "sel_chain_b" {
   let chain = make_sel_test_chain()
   let atoms = chain.get_atoms()
@@ -185,6 +258,7 @@ test "sel_chain_b" {
   assert_eq(sel.length(), 2)
 }
 
+///|
 test "sel_element" {
   let chain = make_sel_test_chain()
   let atoms = chain.get_atoms()
@@ -195,6 +269,7 @@ test "sel_element" {
 
 // ===== Logical operators =====
 
+///|
 test "sel_and" {
   let chain = make_sel_test_chain()
   let atoms = chain.get_atoms()
@@ -203,6 +278,7 @@ test "sel_and" {
   assert_eq(sel.length(), 3)
 }
 
+///|
 test "sel_or" {
   let chain = make_sel_test_chain()
   let atoms = chain.get_atoms()
@@ -211,6 +287,7 @@ test "sel_or" {
   assert_eq(sel.length(), 6)
 }
 
+///|
 test "sel_not" {
   let chain = make_sel_test_chain()
   let atoms = chain.get_atoms()
@@ -219,6 +296,7 @@ test "sel_not" {
   assert_eq(sel.length(), 32)
 }
 
+///|
 test "sel_paren_grouping" {
   let chain = make_sel_test_chain()
   let atoms = chain.get_atoms()
@@ -227,6 +305,7 @@ test "sel_paren_grouping" {
   assert_eq(sel.length(), 5)
 }
 
+///|
 test "sel_nested_parens" {
   let chain = make_sel_test_chain()
   let atoms = chain.get_atoms()
@@ -235,6 +314,7 @@ test "sel_nested_parens" {
   assert_eq(sel.length(), 3)
 }
 
+///|
 test "sel_not_not" {
   let chain = make_sel_test_chain()
   let atoms = chain.get_atoms()
@@ -242,6 +322,7 @@ test "sel_not_not" {
   assert_eq(sel.length(), 5)
 }
 
+///|
 test "sel_complex" {
   let chain = make_sel_test_chain()
   let atoms = chain.get_atoms()
@@ -252,6 +333,7 @@ test "sel_complex" {
 
 // ===== Spatial selection =====
 
+///|
 test "sel_within" {
   let chain = make_sel_test_chain()
   let atoms = chain.get_atoms()
@@ -261,6 +343,7 @@ test "sel_within" {
   assert_true(sel.length() >= 5)
 }
 
+///|
 test "sel_within_small" {
   let chain = make_sel_test_chain()
   let atoms = chain.get_atoms()
@@ -269,6 +352,7 @@ test "sel_within_small" {
   assert_eq(sel.length(), 5)
 }
 
+///|
 test "sel_within_large" {
   let chain = make_sel_test_chain()
   let atoms = chain.get_atoms()
@@ -279,6 +363,7 @@ test "sel_within_large" {
 
 // ===== Utility functions =====
 
+///|
 test "sel_count" {
   let chain = make_sel_test_chain()
   let atoms = chain.get_atoms()
@@ -287,6 +372,7 @@ test "sel_count" {
   assert_eq(@src.count_selected(atoms, "all"), 33)
 }
 
+///|
 test "sel_indices" {
   let chain = make_sel_test_chain()
   let atoms = chain.get_atoms()
@@ -298,6 +384,7 @@ test "sel_indices" {
   assert_eq(idx[2], 13)
 }
 
+///|
 test "sel_mask" {
   let chain = make_sel_test_chain()
   let atoms = chain.get_atoms()
@@ -309,12 +396,14 @@ test "sel_mask" {
   assert_true(!mask[2])
 }
 
+///|
 test "sel_chain_method" {
   let chain = make_sel_test_chain()
   let sel = chain.select("calpha")
   assert_eq(sel.length(), 5)
 }
 
+///|
 test "sel_chain_residues" {
   let chain = make_sel_test_chain()
   let res = chain.select_residues("calpha and resnum 1:2")
@@ -323,6 +412,7 @@ test "sel_chain_residues" {
   assert_eq(res[1].resseq, 2)
 }
 
+///|
 test "sel_parse_ast" {
   match @src.parse_sel("calpha and resnum 1:50") {
     Some(_) => assert_true(true)
@@ -330,14 +420,16 @@ test "sel_parse_ast" {
   }
 }
 
+///|
 test "sel_parse_invalid" {
   // Unparseable → None
   match @src.parse_sel("xyzzy frobnicate") {
-    Some(_) => assert_true(true)  // Still parses, just produces None_ expr
+    Some(_) => assert_true(true) // Still parses, just produces None_ expr
     None => assert_true(true)
   }
 }
 
+///|
 test "sel_empty_string" {
   let chain = make_sel_test_chain()
   let atoms = chain.get_atoms()
@@ -345,6 +437,7 @@ test "sel_empty_string" {
   assert_eq(sel.length(), 0)
 }
 
+///|
 test "sel_backbone_bb_alias" {
   let chain = make_sel_test_chain()
   let atoms = chain.get_atoms()
@@ -353,6 +446,7 @@ test "sel_backbone_bb_alias" {
   assert_eq(sel1.length(), sel2.length())
 }
 
+///|
 test "sel_sidechain_sc_alias" {
   let chain = make_sel_test_chain()
   let atoms = chain.get_atoms()
@@ -361,6 +455,7 @@ test "sel_sidechain_sc_alias" {
   assert_eq(sel1.length(), sel2.length())
 }
 
+///|
 test "sel_hoh_alias" {
   let chain = make_sel_test_chain()
   let atoms = chain.get_atoms()
@@ -368,6 +463,7 @@ test "sel_hoh_alias" {
   assert_eq(sel.length(), 1)
 }
 
+///|
 test "sel_noh_alias" {
   let chain = make_sel_test_chain()
   let atoms = chain.get_atoms()

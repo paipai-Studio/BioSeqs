@@ -36,7 +36,9 @@ test "alphafold_parse_predictions" {
   assert_eq(p0.latest_version, 4)
   assert_eq(p0.gene, "ABL1")
   assert_true(p0.cif_url.length() > 0)
-  assert_true(@src.alphafold_cif_file_name(p0.cif_url) == "AF-P00520-F1-model_v4.cif")
+  assert_true(
+    @src.alphafold_cif_file_name(p0.cif_url) == "AF-P00520-F1-model_v4.cif",
+  )
 
   let p1 = preds[1]
   assert_eq(p1.entry_id, "P69905")

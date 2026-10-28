@@ -3,16 +3,16 @@
 
 ///|
 pub struct ClusterResult {
-  clusters : Array[Array[Int]]
+  clusters : Array[Array[Int32]]
   distances : Array[Array[Double]]
-  cluster_labels : Array[Int]
+  cluster_labels : Array[Int32]
 }
 
 ///|
 pub fn cluster_result(
-  clusters : Array[Array[Int]],
+  clusters : Array[Array[Int32]],
   distances : Array[Array[Double]],
-  cluster_labels : Array[Int],
+  cluster_labels : Array[Int32],
 ) -> ClusterResult {
   ClusterResult::{ clusters, distances, cluster_labels, }
 }
@@ -60,7 +60,7 @@ pub fn single_linkage_clustering(
   threshold : Double,
 ) -> ClusterResult {
   let n = distances.length()
-  let cluster_labels : Array[Int] = Array::make(n, 0)
+  let cluster_labels : Array[Int32] = Array::make(n, 0)
   for i = 0; i < n; i = i + 1 {
     cluster_labels[i] = i
   }
@@ -99,8 +99,11 @@ pub fn single_linkage_clustering(
     }
   }
 
-  let clusters : Array[Array[Int]] = Array::make(n_clusters, Array(capacity=0))
-  let label_map : Map[Int, Int] = Map([], capacity=n_clusters)
+  let clusters : Array[Array[Int32]] = Array::make(
+    n_clusters,
+    Array(capacity=0),
+  )
+  let label_map : Map[Int32, Int32] = Map([], capacity=n_clusters)
   let mut current_idx = 0
 
   for i = 0; i < n; i = i + 1 {
@@ -123,7 +126,7 @@ pub fn complete_linkage_clustering(
   threshold : Double,
 ) -> ClusterResult {
   let n = distances.length()
-  let cluster_labels : Array[Int] = Array::make(n, 0)
+  let cluster_labels : Array[Int32] = Array::make(n, 0)
   for i = 0; i < n; i = i + 1 {
     cluster_labels[i] = i
   }
@@ -174,14 +177,17 @@ pub fn complete_linkage_clustering(
     }
   }
 
-  let labels_seen : Map[Int, Bool] = Map([], capacity=n)
+  let labels_seen : Map[Int32, Bool] = Map([], capacity=n)
   for i = 0; i < n; i = i + 1 {
     labels_seen[cluster_labels[i]] = true
   }
 
   let n_clusters = labels_seen.keys().collect().length()
-  let clusters : Array[Array[Int]] = Array::make(n_clusters, Array(capacity=0))
-  let label_map : Map[Int, Int] = Map([], capacity=n_clusters)
+  let clusters : Array[Array[Int32]] = Array::make(
+    n_clusters,
+    Array(capacity=0),
+  )
+  let label_map : Map[Int32, Int32] = Map([], capacity=n_clusters)
   let mut current_idx = 0
 
   for i = 0; i < n; i = i + 1 {
@@ -204,7 +210,7 @@ pub fn average_linkage_clustering(
   threshold : Double,
 ) -> ClusterResult {
   let n = distances.length()
-  let cluster_labels : Array[Int] = Array::make(n, 0)
+  let cluster_labels : Array[Int32] = Array::make(n, 0)
   for i = 0; i < n; i = i + 1 {
     cluster_labels[i] = i
   }
@@ -257,8 +263,8 @@ pub fn average_linkage_clustering(
     }
   }
 
-  let clusters : Array[Array[Int]] = Array::make(n, Array(capacity=0))
-  let label_map : Map[Int, Int] = Map([], capacity=n)
+  let clusters : Array[Array[Int32]] = Array::make(n, Array(capacity=0))
+  let label_map : Map[Int32, Int32] = Map([], capacity=n)
   let mut current_idx = 0
 
   for i = 0; i < n; i = i + 1 {
@@ -272,7 +278,7 @@ pub fn average_linkage_clustering(
     }
   }
 
-  let final_clusters : Array[Array[Int]] = Array::make(
+  let final_clusters : Array[Array[Int32]] = Array::make(
     current_idx,
     Array(capacity=0),
   )
@@ -322,7 +328,7 @@ pub fn hclust_to_newick(
 ///|
 pub fn seq_silhouette_score(
   sequences : Array[String],
-  labels : Array[Int],
+  labels : Array[Int32],
 ) -> Double {
   let n = sequences.length()
   if n < 2 {
@@ -360,11 +366,11 @@ pub fn seq_silhouette_score(
 }
 
 ///|
-pub fn cluster_size(cluster : Array[Int]) -> Int {
+pub fn cluster_size(cluster : Array[Int32]) -> Int32 {
   cluster.length()
 }
 
 ///|
-pub fn total_clusters(result : ClusterResult) -> Int {
+pub fn total_clusters(result : ClusterResult) -> Int32 {
   result.clusters.length()
 }

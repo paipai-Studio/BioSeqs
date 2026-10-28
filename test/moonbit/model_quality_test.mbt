@@ -1,6 +1,6 @@
 ///|
 /// Helper: generate non-collinear CA-like coordinates (ideal alpha-helix).
-fn make_helix_coords(n : Int) -> Array[@src.Vector3] {
+fn make_helix_coords(n : Int32) -> Array[@src.Vector3] {
   let coords = Array(capacity=n)
   let radius = 2.3
   let rise = 1.5
@@ -195,7 +195,9 @@ test "model_quality: DockQ poor docking" {
     @src.Vector3::new(50.0, 3.0, 0.0),
     @src.Vector3::new(50.0, 0.0, 3.0),
   ]
-  let result = @src.calc_dockq(receptor_ref, ligand_ref, receptor_ref, ligand_model)
+  let result = @src.calc_dockq(
+    receptor_ref, ligand_ref, receptor_ref, ligand_model,
+  )
   assert_true(result.fnat < 0.1)
   assert_true(result.dockq < 0.5)
 }

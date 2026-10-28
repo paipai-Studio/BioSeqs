@@ -5,7 +5,7 @@
 /// stochastic gradient descent with negative sampling).
 
 ///|
-fn scanpy_umap_lcg(seed : Int) -> Int {
+fn scanpy_umap_lcg(seed : Int32) -> Int32 {
   (seed * 1103515245 + 12345) & 0x7FFFFFFF
 }
 
@@ -25,8 +25,8 @@ fn scanpy_umap_clip(x : Double) -> Double {
 /// symmetric fuzzy graph from `scanpy_neighbors`; returns an `n × 2` embedding.
 pub fn scanpy_umap(
   graph : SparseGraph,
-  n_epochs : Int,
-  seed : Int,
+  n_epochs : Int32,
+  seed : Int32,
   init_pos : Array[Array[Double]]?,
 ) -> Array[Array[Double]] {
   let n = graph.num_vertices()
@@ -40,8 +40,8 @@ pub fn scanpy_umap(
   }
 
   // collect positive-weight edges (upper triangle of the symmetric graph)
-  let head : Array[Int] = Array(capacity=0)
-  let tail : Array[Int] = Array(capacity=0)
+  let head : Array[Int32] = Array(capacity=0)
+  let tail : Array[Int32] = Array(capacity=0)
   let weights : Array[Double] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {
     for nb in graph.adj[i] {
@@ -56,7 +56,7 @@ pub fn scanpy_umap(
 
   // initialization: use provided init_pos if available, otherwise spectral init
   let embedding : Array[Array[Double]] = match init_pos {
-    Some(pos) => {
+    Some(pos) =>
       if pos.length() == n && pos[0].length() >= 2 {
         let emb : Array[Array[Double]] = Array(capacity=n)
         for i = 0; i < n; i = i + 1 {
@@ -79,7 +79,6 @@ pub fn scanpy_umap(
         }
         emb
       }
-    }
     None => {
       // spectral init: eigenvectors 1 and 2 of the diffmap (skip the constant 0)
       let dm = scanpy_diffmap(graph, 3)
@@ -141,14 +140,18 @@ pub fn scanpy_umap(
           dist2 = dist2 + diff * diff
         }
         let grad_coeff = if dist2 > 0.0 {
-          -2.0 * a * b *
-            @math.pow(dist2, b - 1.0) /
-            (a * @math.pow(dist2, b) + 1.0)
+          -2.0 *
+          a *
+          b *
+          @math.pow(dist2, b - 1.0) /
+          (a * @math.pow(dist2, b) + 1.0)
         } else {
           0.0
         }
         for d = 0; d < 2; d = d + 1 {
-          let gd = scanpy_umap_clip(grad_coeff * (embedding[j][d] - embedding[k][d]))
+          let gd = scanpy_umap_clip(
+            grad_coeff * (embedding[j][d] - embedding[k][d]),
+          )
           embedding[j][d] = embedding[j][d] + gd * alpha
           embedding[k][d] = embedding[k][d] - gd * alpha
         }
@@ -172,14 +175,15 @@ pub fn scanpy_umap(
               dn2 = dn2 + diff * diff
             }
             let gcoeff = if dn2 > 0.0 {
-              2.0 * gamma * b /
-                ((0.001 + dn2) * (a * @math.pow(dn2, b) + 1.0))
+              2.0 * gamma * b / ((0.001 + dn2) * (a * @math.pow(dn2, b) + 1.0))
             } else {
               0.0
             }
             if gcoeff > 0.0 {
               for d = 0; d < 2; d = d + 1 {
-                let gd = scanpy_umap_clip(gcoeff * (embedding[j][d] - embedding[kk][d]))
+                let gd = scanpy_umap_clip(
+                  gcoeff * (embedding[j][d] - embedding[kk][d]),
+                )
                 embedding[j][d] = embedding[j][d] + gd * alpha
               }
             }

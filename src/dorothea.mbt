@@ -33,14 +33,14 @@ pub struct TFActivityResult {
   normalized_activity : Double
   p_value : Double
   z_score : Double
-  n_targets : Int
+  n_targets : Int32
 }
 
 ///|
 /// Parameters for dorothea TF activity scoring.
 pub struct DorotheaParams {
-  n_permutations : Int
-  min_targets : Int
+  n_permutations : Int32
+  min_targets : Int32
   significance : Double
 }
 
@@ -53,8 +53,8 @@ pub fn DorotheaParams::new() -> DorotheaParams {
 ///|
 /// Create custom dorothea parameters.
 pub fn DorotheaParams::with_params(
-  n_perms : Int,
-  min_targets : Int,
+  n_perms : Int32,
+  min_targets : Int32,
   alpha : Double,
 ) -> DorotheaParams {
   DorotheaParams::{ n_permutations: n_perms, min_targets, significance: alpha, }
@@ -232,7 +232,7 @@ pub fn dorothea_get_regulons() -> Array[Regulon] {
 
 ///|
 /// Find the index of a gene in the gene names array.
-fn dorothea_find_gene_index(gene_names : Array[String], gene : String) -> Int {
+fn dorothea_find_gene_index(gene_names : Array[String], gene : String) -> Int32 {
   let n = gene_names.length()
   let mut i = 0
   while i < n {
@@ -339,7 +339,7 @@ pub fn dorothea_permutation_test(
   cell_expression : Array[Double],
   gene_names : Array[String],
   regulon : Regulon,
-  n_permutations : Int,
+  n_permutations : Int32,
 ) -> (Double, Double) {
   let observed = dorothea_compute_viper_activity(
     cell_expression, gene_names, regulon,
@@ -400,7 +400,7 @@ pub fn dorothea_permutation_test(
 
 ///|
 /// Simple pseudo-random number generator (deterministic for reproducibility).
-fn dorothea_pseudo_random(seed : Int) -> Double {
+fn dorothea_pseudo_random(seed : Int32) -> Double {
   let x = (seed * 1103515245 + 12345) & 0x7FFFFFFF
   (x.to_double() / 2147483647.0).abs()
 }
@@ -651,7 +651,7 @@ pub fn dorothea_create_test_data() -> (
 /// Get top TF results by absolute activity.
 pub fn dorothea_get_top_tfs(
   results : Array[TFActivityResult],
-  n : Int,
+  n : Int32,
 ) -> Array[TFActivityResult] {
   let sorted = dorothea_sort_by_activity(results)
   let top : Array[TFActivityResult] = Array(capacity=0)

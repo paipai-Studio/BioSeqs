@@ -14,7 +14,15 @@ fn main {
   let mut pi = 0
   while pi < pathways.length() {
     let p = pathways[pi]
-    println("  " + p.id + " (" + p.name + "): " + p.nodes.length().to_string() + " nodes")
+    println(
+      "  " +
+      p.id +
+      " (" +
+      p.name +
+      "): " +
+      p.nodes.length().to_string() +
+      " nodes",
+    )
     // Print nodes and their interactions
     let mut ni = 0
     while ni < p.nodes.length() {
@@ -32,7 +40,9 @@ fn main {
       if node.downstream.length() == 0 {
         downstream_str = "(terminal)"
       }
-      println("    " + node.gene_id + " (" + node.gene_name + ") " + downstream_str)
+      println(
+        "    " + node.gene_id + " (" + node.gene_name + ") " + downstream_str,
+      )
       ni = ni + 1
     }
     pi = pi + 1
@@ -48,7 +58,13 @@ fn main {
   while ki < keys.length() {
     let gid = keys[ki]
     let lfc = de.get(gid).unwrap_or(0.0)
-    let direction = if lfc > 0.0 { "UP" } else if lfc < 0.0 { "DOWN" } else { "NEUTRAL" }
+    let direction = if lfc > 0.0 {
+      "UP"
+    } else if lfc < 0.0 {
+      "DOWN"
+    } else {
+      "NEUTRAL"
+    }
     println("  " + gid + ": log2FC=" + lfc.to_string() + " (" + direction + ")")
     ki = ki + 1
   }
@@ -65,13 +81,33 @@ fn main {
   let mut i = 0
   while i < results.results.length() {
     let r = results.results[i]
-    let status = if r.activation_status > 0 { "Activated" } else if r.activation_status < 0 { "Inhibited" } else { "Neutral" }
+    let status = if r.activation_status > 0 {
+      "Activated"
+    } else if r.activation_status < 0 {
+      "Inhibited"
+    } else {
+      "Neutral"
+    }
     println("  " + r.pathway_id + " (" + r.pathway_name + "):")
-    println("    n_genes=" + r.n_genes.to_string() + ", n_de=" + r.n_de.to_string())
+    println(
+      "    n_genes=" + r.n_genes.to_string() + ", n_de=" + r.n_de.to_string(),
+    )
     println("    p_or=" + r.p_or.to_string() + " (over-representation)")
-    println("    pert_factor=" + r.pert_factor.to_string() + ", p_pert=" + r.p_pert.to_string())
-    println("    p_combined=" + r.p_combined.to_string() + ", p_adj=" + r.p_adj.to_string())
-    println("    status=" + status + ", significant=" + r.significant.to_string())
+    println(
+      "    pert_factor=" +
+      r.pert_factor.to_string() +
+      ", p_pert=" +
+      r.p_pert.to_string(),
+    )
+    println(
+      "    p_combined=" +
+      r.p_combined.to_string() +
+      ", p_adj=" +
+      r.p_adj.to_string(),
+    )
+    println(
+      "    status=" + status + ", significant=" + r.significant.to_string(),
+    )
     i = i + 1
   }
   println("")
@@ -82,7 +118,14 @@ fn main {
   println("Total activated: " + activated.length().to_string())
   let mut j = 0
   while j < activated.length() {
-    println("  " + activated[j].pathway_id + " (" + activated[j].pathway_name + "): pert_factor=" + activated[j].pert_factor.to_string())
+    println(
+      "  " +
+      activated[j].pathway_id +
+      " (" +
+      activated[j].pathway_name +
+      "): pert_factor=" +
+      activated[j].pert_factor.to_string(),
+    )
     j = j + 1
   }
   println("")
@@ -93,7 +136,14 @@ fn main {
   println("Total inhibited: " + inhibited.length().to_string())
   let mut k = 0
   while k < inhibited.length() {
-    println("  " + inhibited[k].pathway_id + " (" + inhibited[k].pathway_name + "): pert_factor=" + inhibited[k].pert_factor.to_string())
+    println(
+      "  " +
+      inhibited[k].pathway_id +
+      " (" +
+      inhibited[k].pathway_name +
+      "): pert_factor=" +
+      inhibited[k].pert_factor.to_string(),
+    )
     k = k + 1
   }
   println("")
@@ -103,7 +153,16 @@ fn main {
   let top = results.get_top_pathways(2)
   let mut n = 0
   while n < top.length() {
-    println("  Rank " + (n + 1).to_string() + ": " + top[n].pathway_id + " (" + top[n].pathway_name + "), p_combined=" + top[n].p_combined.to_string())
+    println(
+      "  Rank " +
+      (n + 1).to_string() +
+      ": " +
+      top[n].pathway_id +
+      " (" +
+      top[n].pathway_name +
+      "), p_combined=" +
+      top[n].p_combined.to_string(),
+    )
     n = n + 1
   }
   println("")
@@ -114,7 +173,14 @@ fn main {
   println("Total significant: " + sig.length().to_string())
   let mut m = 0
   while m < sig.length() {
-    println("  " + sig[m].pathway_id + " (" + sig[m].pathway_name + "): p_adj=" + sig[m].p_adj.to_string())
+    println(
+      "  " +
+      sig[m].pathway_id +
+      " (" +
+      sig[m].pathway_name +
+      "): p_adj=" +
+      sig[m].p_adj.to_string(),
+    )
     m = m + 1
   }
   println("")

@@ -8,20 +8,20 @@
 /// fields (pos/next_pos/tlen) round-trip using that same unsigned convention.
 
 ///|
-fn bam_write_u8(buf : FixedArray[UInt16], pos : Int, v : Int) -> Int {
+fn bam_write_u8(buf : FixedArray[UInt16], pos : Int32, v : Int32) -> Int32 {
   buf[pos] = (v & 0xFF).to_uint16()
   pos + 1
 }
 
 ///|
-fn bam_write_u16_le(buf : FixedArray[UInt16], pos : Int, v : Int) -> Int {
+fn bam_write_u16_le(buf : FixedArray[UInt16], pos : Int32, v : Int32) -> Int32 {
   buf[pos] = (v & 0xFF).to_uint16()
   buf[pos + 1] = ((v >> 8) & 0xFF).to_uint16()
   pos + 2
 }
 
 ///|
-fn bam_write_i32_le(buf : FixedArray[UInt16], pos : Int, v : Int) -> Int {
+fn bam_write_i32_le(buf : FixedArray[UInt16], pos : Int32, v : Int32) -> Int32 {
   buf[pos] = (v & 0xFF).to_uint16()
   buf[pos + 1] = ((v >> 8) & 0xFF).to_uint16()
   buf[pos + 2] = ((v >> 16) & 0xFF).to_uint16()
@@ -33,7 +33,7 @@ fn bam_write_i32_le(buf : FixedArray[UInt16], pos : Int, v : Int) -> Int {
 let bam_base_lookup = "=ACMGRSVTWYHKDBN"
 
 ///|
-fn bam_base_code(seq : String, i : Int) -> Int {
+fn bam_base_code(seq : String, i : Int32) -> Int32 {
   let c = seq.unsafe_get(i)
   let code = 15
   for k = 0; k < 16; k = k + 1 {
@@ -45,7 +45,7 @@ fn bam_base_code(seq : String, i : Int) -> Int {
 }
 
 ///|
-fn cigar_op_code(op : BamCigarOp) -> Int {
+fn cigar_op_code(op : BamCigarOp) -> Int32 {
   match op {
     BamCigarOp::Match => 0
     BamCigarOp::Insert => 1
@@ -60,16 +60,17 @@ fn cigar_op_code(op : BamCigarOp) -> Int {
 }
 
 ///|
-fn bam_tag_size(tag : BamTag) -> Int {
+fn bam_tag_size(tag : BamTag) -> Int32 {
   let v = match tag.value {
     BamTagValue::Char(_) => 1
-    BamTagValue::Int(_) => match tag.type_code {
-      'c' => 1
-      'C' => 1
-      's' => 2
-      'S' => 2
-      _ => 4
-    }
+    BamTagValue::Int(_) =>
+      match tag.type_code {
+        'c' => 1
+        'C' => 1
+        's' => 2
+        'S' => 2
+        _ => 4
+      }
     BamTagValue::Float(_) => 4
     BamTagValue::Str(s) => s.length() + 1
     BamTagValue::IntArray(arr) => 1 + 4 + arr.length() * 4
@@ -80,12 +81,12 @@ fn bam_tag_size(tag : BamTag) -> Int {
 
 ///|
 /// IEEE-754 binary32 bit pattern (round-to-nearest) for a Double.
-fn f32_bits(v : Double) -> Int {
+fn f32_bits(v : Double) -> Int32 {
   if v != v {
     return 0x7FC00000 // NaN
   }
   if v == 0.0 {
-    return if (1.0 / v) < 0.0 { 0x80000000 } else { 0 }
+    return if 1.0 / v < 0.0 { 0x80000000 } else { 0 }
   }
   if v > 3.4028234663852886e38 {
     return 0x7F800000 // +Inf
@@ -124,12 +125,12 @@ fn f32_bits(v : Double) -> Int {
 }
 
 ///|
-fn bam_write_f32(buf : FixedArray[UInt16], pos : Int, v : Double) -> Int {
+fn bam_write_f32(buf : FixedArray[UInt16], pos : Int32, v : Double) -> Int32 {
   bam_write_i32_le(buf, pos, f32_bits(v))
 }
 
 ///|
-fn bam_write_tag(tag : BamTag, buf : FixedArray[UInt16], pos : Int) -> Int {
+fn bam_write_tag(tag : BamTag, buf : FixedArray[UInt16], pos : Int32) -> Int32 {
   buf[pos] = tag.name.unsafe_get(0)
   buf[pos + 1] = tag.name.unsafe_get(1)
   buf[pos + 2] = tag.type_code.to_int().to_uint16()
@@ -139,7 +140,7 @@ fn bam_write_tag(tag : BamTag, buf : FixedArray[UInt16], pos : Int) -> Int {
       buf[p] = c.to_int().to_uint16()
       p = p + 1
     }
-    BamTagValue::Int(v) => {
+    BamTagValue::Int(v) =>
       if tag.type_code == 'c' || tag.type_code == 'C' {
         p = bam_write_u8(buf, p, v)
       } else if tag.type_code == 's' || tag.type_code == 'S' {
@@ -147,10 +148,7 @@ fn bam_write_tag(tag : BamTag, buf : FixedArray[UInt16], pos : Int) -> Int {
       } else {
         p = bam_write_i32_le(buf, p, v)
       }
-    }
-    BamTagValue::Float(v) => {
-      p = bam_write_f32(buf, p, v)
-    }
+    BamTagValue::Float(v) => p = bam_write_f32(buf, p, v)
     BamTagValue::Str(s) => {
       let k = s.length()
       let mut i = 0
@@ -162,7 +160,7 @@ fn bam_write_tag(tag : BamTag, buf : FixedArray[UInt16], pos : Int) -> Int {
       p = p + k + 1
     }
     BamTagValue::IntArray(arr) => {
-      buf[p] = ('i'.to_int()).to_uint16()
+      buf[p] = 'i'.to_int().to_uint16()
       p = p + 1
       p = bam_write_i32_le(buf, p, arr.length())
       for x in arr {
@@ -170,7 +168,7 @@ fn bam_write_tag(tag : BamTag, buf : FixedArray[UInt16], pos : Int) -> Int {
       }
     }
     BamTagValue::FloatArray(arr) => {
-      buf[p] = ('f'.to_int()).to_uint16()
+      buf[p] = 'f'.to_int().to_uint16()
       p = p + 1
       p = bam_write_i32_le(buf, p, arr.length())
       for x in arr {
@@ -184,10 +182,10 @@ fn bam_write_tag(tag : BamTag, buf : FixedArray[UInt16], pos : Int) -> Int {
 ///|
 fn bam_write_seq(
   seq : String,
-  l_seq : Int,
+  l_seq : Int32,
   buf : FixedArray[UInt16],
-  pos : Int,
-) -> Int {
+  pos : Int32,
+) -> Int32 {
   let seq_bytes = (l_seq + 1) / 2
   let mut i = 0
   while i < l_seq {

@@ -20,21 +20,23 @@ pub suberror FastaIndexError {
 /// A single index entry in the .fai file.
 pub struct FaiRecord {
   name : String
-  length : Int
-  offset : Int
-  line_len : Int
-  line_blen : Int
+  length : Int32
+  offset : Int32
+  line_len : Int32
+  line_blen : Int32
 } derive(Debug)
+
+///|
 pub extend FaiRecord with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Create a new FaiRecord.
 pub fn FaiRecord::new(
   name : String,
-  length : Int,
-  offset : Int,
-  line_len : Int,
-  line_blen : Int,
+  length : Int32,
+  offset : Int32,
+  line_len : Int32,
+  line_blen : Int32,
 ) -> FaiRecord {
   FaiRecord::{ name, length, offset, line_len, line_blen, }
 }
@@ -43,15 +45,17 @@ pub fn FaiRecord::new(
 /// FastaIndex holds the parsed .fai index for fast random access.
 pub struct FastaIndex {
   records : Array[FaiRecord]
-  index : Map[String, Int]
+  index : Map[String, Int32]
 } derive(Debug)
+
+///|
 pub extend FastaIndex with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Parse a .fai index file and return a FastaIndex.
 pub fn parse_fai(content : String) -> FastaIndex raise FastaIndexError {
   let records : Array[FaiRecord] = Array(capacity=0)
-  let index : Map[String, Int] = Map([], capacity=32)
+  let index : Map[String, Int32] = Map([], capacity=32)
   let lines = content.split("\n").to_array()
   let mut line_num = 0
   for line in lines {
@@ -107,7 +111,7 @@ pub fn parse_fai(content : String) -> FastaIndex raise FastaIndexError {
 
 ///|
 /// Get the number of sequences in the index.
-pub fn FastaIndex::num_sequences(self : FastaIndex) -> Int {
+pub fn FastaIndex::num_sequences(self : FastaIndex) -> Int32 {
   self.records.length()
 }
 
@@ -143,7 +147,7 @@ pub fn FastaIndex::contains(self : FastaIndex, name : String) -> Bool {
 /// and line_blen for each sequence, matching pyfaidx's index generation.
 pub fn build_fai(content : String) -> FastaIndex {
   let records : Array[FaiRecord] = Array(capacity=0)
-  let index : Map[String, Int] = Map([], capacity=32)
+  let index : Map[String, Int32] = Map([], capacity=32)
   let mut pos = 0
   let n = content.length()
   let gt : UInt16 = '>'.to_int().to_uint16()
@@ -259,6 +263,8 @@ pub struct Fasta {
   content : String
   index : FastaIndex
 } derive(Debug)
+
+///|
 pub extend Fasta with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -293,8 +299,8 @@ pub fn Fasta::get_seq(self : Fasta, name : String) -> Seq? {
 pub fn Fasta::fetch(
   self : Fasta,
   name : String,
-  start : Int,
-  end : Int,
+  start : Int32,
+  end : Int32,
 ) -> Seq? raise FastaIndexError {
   match self.index.get_record(name) {
     Some(rec) => {
@@ -323,7 +329,7 @@ pub fn Fasta::fetch(
 
 ///|
 /// Get the length of a sequence.
-pub fn Fasta::get_length(self : Fasta, name : String) -> Int? {
+pub fn Fasta::get_length(self : Fasta, name : String) -> Int32? {
   match self.index.get_record(name) {
     Some(rec) => Some(rec.length)
     None => None
@@ -352,8 +358,8 @@ pub fn Fasta::get_names(self : Fasta) -> Array[String] {
 fn Fasta::extract_sequence(
   self : Fasta,
   rec : FaiRecord,
-  start : Int,
-  end : Int,
+  start : Int32,
+  end : Int32,
 ) -> Seq {
   let total_bases = end - start
   if total_bases <= 0 {
@@ -402,7 +408,7 @@ fn Fasta::extract_sequence(
 
 ///|
 /// Parse an integer from a string, raising FastaIndexError on failure.
-fn parse_fai_int(s : String) -> Int raise FastaIndexError {
+fn parse_fai_int(s : String) -> Int32 raise FastaIndexError {
   let n = s.length()
   if n == 0 {
     raise FastaIndexError("Invalid integer: empty string")
@@ -430,7 +436,7 @@ fn parse_fai_int(s : String) -> Int raise FastaIndexError {
 pub fn Fasta::get_spliced_seq(
   self : Fasta,
   name : String,
-  intervals : Array[(Int, Int)],
+  intervals : Array[(Int32, Int32)],
   rc : Bool,
 ) -> Seq? raise FastaIndexError {
   match self.index.get_record(name) {
@@ -440,7 +446,9 @@ pub fn Fasta::get_spliced_seq(
       for (s, e) in intervals {
         let start0 = s - 1
         if start0 < 0 {
-          raise FastaIndexError("start coordinate must be >= 1, got " + s.to_string())
+          raise FastaIndexError(
+            "start coordinate must be >= 1, got " + s.to_string(),
+          )
         }
         let end0 = if e > rec.length { rec.length } else { e }
         chunks.push(self.extract_sequence(rec, start0, end0).to_string())
@@ -449,9 +457,7 @@ pub fn Fasta::get_spliced_seq(
       if rc {
         let mut i = chunks.length() - 1
         while i >= 0 {
-          let rc_seq = try {
-            pyfaidx_reverse_complement(chunks[i])
-          } catch {
+          let rc_seq = pyfaidx_reverse_complement(chunks[i]) catch {
             PyfaidxError(msg) => raise FastaIndexError(msg)
           }
           buf.write_string(rc_seq)

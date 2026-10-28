@@ -132,10 +132,10 @@ test "hts_regidx overlap" {
   assert_true(idx.overlap("chr1", 190, 210))
   assert_true(idx.overlap("chr1", 350, 360))
   // Non-overlapping
-  assert_true(!(idx.overlap("chr1", 200, 300)))
-  assert_true(!(idx.overlap("chr1", 250, 290)))
+  assert_true(!idx.overlap("chr1", 200, 300))
+  assert_true(!idx.overlap("chr1", 250, 290))
   // Different chrom
-  assert_true(!(idx.overlap("chr2", 150, 160)))
+  assert_true(!idx.overlap("chr2", 150, 160))
 }
 
 ///|
@@ -164,7 +164,7 @@ test "hts_regidx from_string" {
   assert_eq(idx.nregs(), 2)
   assert_true(idx.overlap("chr1", 150, 160))
   assert_true(idx.overlap("chr2", 350, 360))
-  assert_true(!(idx.overlap("chr1", 250, 290)))
+  assert_true(!idx.overlap("chr1", 250, 290))
 }
 
 ///|
@@ -178,7 +178,9 @@ test "hts_regidx from_bed" {
 
 ///|
 test "hts_regidx seq_names" {
-  let idx = @src.hts_regidx_from_string("chr1:100-200,chr2:300-400,chr3:500-600")
+  let idx = @src.hts_regidx_from_string(
+    "chr1:100-200,chr2:300-400,chr3:500-600",
+  )
   let names = idx.seq_names()
   assert_eq(names.length(), 3)
 }

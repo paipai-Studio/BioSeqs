@@ -10,10 +10,19 @@ fn main {
   // ---- Section 1: Load sample data ----
   println("=== 1. Load Sample RNA-seq Count Data ===")
   let (counts, groups, gene_names) = @bio.bayseq_sample_data()
-  println("Input: " + counts.length().to_string() + " genes x " +
-    counts[0].length().to_string() + " samples")
-  println("Groups: 0 (control) x " + @bio.hts_count_group(groups, 0).to_string() +
-    ", 1 (treatment) x " + @bio.hts_count_group(groups, 1).to_string())
+  println(
+    "Input: " +
+    counts.length().to_string() +
+    " genes x " +
+    counts[0].length().to_string() +
+    " samples",
+  )
+  println(
+    "Groups: 0 (control) x " +
+    @bio.hts_count_group(groups, 0).to_string() +
+    ", 1 (treatment) x " +
+    @bio.hts_count_group(groups, 1).to_string(),
+  )
   println("")
 
   // ---- Section 2: Estimate dispersion prior ----
@@ -27,8 +36,12 @@ fn main {
   println("=== 3. Run baySeq Differential Expression Test ===")
   let result = @bio.bayseq_test(counts, groups, gene_names)
   println("Total genes analyzed: " + result.gene_results.length().to_string())
-  println("DE genes (posterior >= " + result.alpha_level.to_string() + "): " +
-    result.n_de_genes.to_string())
+  println(
+    "DE genes (posterior >= " +
+    result.alpha_level.to_string() +
+    "): " +
+    result.n_de_genes.to_string(),
+  )
   println("")
 
   // ---- Section 4: Top DE genes ----
@@ -38,10 +51,18 @@ fn main {
   while ti < top.length() {
     let g = top[ti]
     let direction = if g.log_fold_change > 0.0 { "UP" } else { "DOWN" }
-    println("  " + (ti + 1).to_string() + ". " + g.gene_name +
-      " | logFC=" + g.log_fold_change.to_string() +
-      " | Posterior=" + g.posterior_prob_de.to_string() +
-      " | " + direction)
+    println(
+      "  " +
+      (ti + 1).to_string() +
+      ". " +
+      g.gene_name +
+      " | logFC=" +
+      g.log_fold_change.to_string() +
+      " | Posterior=" +
+      g.posterior_prob_de.to_string() +
+      " | " +
+      direction,
+    )
     ti = ti + 1
   }
   println("")
@@ -55,10 +76,16 @@ fn main {
     let mut di = 0
     while di < 5 && di < de_genes.length() {
       let g = de_genes[di]
-      println("  " + g.gene_name +
-        " | mean_ctrl=" + g.map_expression_a.to_string() +
-        " | mean_treat=" + g.map_expression_b.to_string() +
-        " | disp=" + g.dispersion.to_string())
+      println(
+        "  " +
+        g.gene_name +
+        " | mean_ctrl=" +
+        g.map_expression_a.to_string() +
+        " | mean_treat=" +
+        g.map_expression_b.to_string() +
+        " | disp=" +
+        g.dispersion.to_string(),
+      )
       di = di + 1
     }
   } else {

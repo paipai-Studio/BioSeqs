@@ -11,6 +11,7 @@ fn coal_internal(children : Array[@src.Clade]) -> @src.Clade {
   @src.Clade::new(name=Some("i"), clades=children, branch_length=Some(1.0))
 }
 
+///|
 test "coalescent: basic simulation n=2" {
   let rng = @src.Rng::new(42UL)
   let result = @src.phylo_simulate_coalescent(2, rng)
@@ -70,7 +71,7 @@ fn coal_check_positive_branches(node : @src.Clade) -> Bool {
     None => ()
   }
   for ch in node.clades {
-    if !(coal_check_positive_branches(ch)) {
+    if !coal_check_positive_branches(ch) {
       return false
     }
   }
@@ -152,6 +153,7 @@ test "coalescent: tree has correct number of internal nodes" {
 // Visualization tests
 // =========================================================================
 
+///|
 test "viz: draw ascii enhanced basic" {
   let tree = coal_internal([coal_leaf("A"), coal_leaf("B")])
   let s = @src.phylo_draw_ascii_enhanced(tree)
@@ -162,13 +164,10 @@ test "viz: draw ascii enhanced basic" {
 
 ///|
 test "viz: draw ascii enhanced with branch lengths" {
-  let tree = @src.Clade::new(
-    name=Some("root"),
-    clades=[
-      @src.Clade::new(name=Some("A"), branch_length=Some(1.5)),
-      @src.Clade::new(name=Some("B"), branch_length=Some(2.3)),
-    ],
-  )
+  let tree = @src.Clade::new(name=Some("root"), clades=[
+    @src.Clade::new(name=Some("A"), branch_length=Some(1.5)),
+    @src.Clade::new(name=Some("B"), branch_length=Some(2.3)),
+  ])
   let s = @src.phylo_draw_ascii_enhanced(tree)
   assert_true(s.contains("1.5"))
   assert_true(s.contains("2.3"))
@@ -176,14 +175,10 @@ test "viz: draw ascii enhanced with branch lengths" {
 
 ///|
 test "viz: draw ascii enhanced with confidence" {
-  let tree = @src.Clade::new(
-    name=Some("node"),
-    confidence=Some(95.0),
-    clades=[
-      @src.Clade::new(name=Some("A"), branch_length=Some(1.0)),
-      @src.Clade::new(name=Some("B"), branch_length=Some(1.0)),
-    ],
-  )
+  let tree = @src.Clade::new(name=Some("node"), confidence=Some(95.0), clades=[
+    @src.Clade::new(name=Some("A"), branch_length=Some(1.0)),
+    @src.Clade::new(name=Some("B"), branch_length=Some(1.0)),
+  ])
   let s = @src.phylo_draw_ascii_enhanced(tree)
   assert_true(s.contains("95"))
 }
@@ -232,7 +227,7 @@ test "viz: draw barplot proportional" {
 }
 
 ///|
-fn coal_count_blocks(s : String, prefix : String) -> Int {
+fn coal_count_blocks(s : String, prefix : String) -> Int32 {
   // Find the line starting with prefix, count block chars on that line
   let mut i = 0
   let n = s.length()

@@ -6,12 +6,12 @@
 ///|
 /// A single node in a NEXUS tree (Bio.Nexus.Nodes Node analog).
 pub(all) struct NexusNode {
-  node_id : Int
+  node_id : Int32
   mut label : String
   mut branch_length : Double
   mut taxon : String
-  mut children : Array[Int]
-  mut parent : Int
+  mut children : Array[Int32]
+  mut parent : Int32
 }
 
 ///|
@@ -20,9 +20,9 @@ pub struct NexusTree {
   name : String
   mut rooted : Bool
   mut weight : Double
-  nodes : Map[Int, NexusNode]
-  mut root : Int
-  mut n_taxa : Int
+  nodes : Map[Int32, NexusNode]
+  mut root : Int32
+  mut n_taxa : Int32
 }
 
 ///|
@@ -34,8 +34,15 @@ pub struct NexusTreeCollection {
 
 ///|
 /// Create an empty node.
-pub fn NexusNode::new(node_id : Int) -> NexusNode {
-  NexusNode::{ node_id, label: "", branch_length: 0.0, taxon: "", children: [], parent: -1 }
+pub fn NexusNode::new(node_id : Int32) -> NexusNode {
+  NexusNode::{
+    node_id,
+    label: "",
+    branch_length: 0.0,
+    taxon: "",
+    children: [],
+    parent: -1,
+  }
 }
 
 ///|
@@ -47,7 +54,14 @@ pub fn NexusNode::is_leaf(self : NexusNode) -> Bool {
 ///|
 /// Create an empty tree.
 pub fn NexusTree::new(name : String) -> NexusTree {
-  NexusTree::{ name, rooted: true, weight: 1.0, nodes: Map([], capacity=16), root: -1, n_taxa: 0 }
+  NexusTree::{
+    name,
+    rooted: true,
+    weight: 1.0,
+    nodes: Map([], capacity=16),
+    root: -1,
+    n_taxa: 0,
+  }
 }
 
 ///|
@@ -58,7 +72,7 @@ pub fn NexusTree::add_node(self : NexusTree, node : NexusNode) -> Unit {
 
 ///|
 /// Get a node by id.
-pub fn NexusTree::get_node(self : NexusTree, node_id : Int) -> NexusNode? {
+pub fn NexusTree::get_node(self : NexusTree, node_id : Int32) -> NexusNode? {
   self.nodes.get(node_id)
 }
 
@@ -76,7 +90,7 @@ pub fn NexusTree::get_leaves(self : NexusTree) -> Array[NexusNode] {
 
 ///|
 /// Count nodes in the tree.
-pub fn NexusTree::node_count(self : NexusTree) -> Int {
+pub fn NexusTree::node_count(self : NexusTree) -> Int32 {
   self.nodes.length()
 }
 
@@ -87,11 +101,17 @@ pub fn NexusTree::to_newick(self : NexusTree) -> String {
     return ";"
   }
   let sb = StringBuilder()
-  fn write_node(nid : Int) -> Unit {
+  fn write_node(nid : Int32) -> Unit {
     match self.nodes.get(nid) {
       Some(node) => {
         if node.is_leaf() {
-          sb.write_string(if node.taxon.length() > 0 { node.taxon } else { node.label })
+          sb.write_string(
+            if node.taxon.length() > 0 {
+              node.taxon
+            } else {
+              node.label
+            },
+          )
         } else {
           sb.write_string("(")
           let mut c = 0
@@ -122,7 +142,7 @@ pub fn NexusTree::to_newick(self : NexusTree) -> String {
 ///|
 /// Create an empty tree collection.
 pub fn NexusTreeCollection::new() -> NexusTreeCollection {
-  NexusTreeCollection::{ trees: [], translate: Map([], capacity=16) }
+  NexusTreeCollection::{ trees: [], translate: Map([], capacity=16), }
 }
 
 ///|
@@ -155,8 +175,8 @@ fn nexus_trees_split_commas(s : String) -> Array[String] {
 fn nexus_trees_parse_newick_inner(
   newick : String,
   tree : NexusTree,
-  next_id : Int
-) -> (Int, Int) {
+  next_id : Int32,
+) -> (Int32, Int32) {
   // Returns (node_id, next_available_id)
   let trimmed = newick.trim(chars=" \t\r;").to_owned()
   if trimmed.length() == 0 {
@@ -197,11 +217,15 @@ fn nexus_trees_parse_newick_inner(
     tree.add_node(node)
     // parse children
     let child_parts = nexus_trees_split_commas(inner_str)
-    let child_ids : Array[Int] = []
+    let child_ids : Array[Int32] = []
     let mut next = node_id + 1
     let mut ci = 0
     while ci < child_parts.length() {
-      let (child_id, next2) = nexus_trees_parse_newick_inner(child_parts[ci], tree, next)
+      let (child_id, next2) = nexus_trees_parse_newick_inner(
+        child_parts[ci],
+        tree,
+        next,
+      )
       if child_id >= 0 {
         child_ids.push(child_id)
         // set parent
@@ -301,12 +325,22 @@ fn nexus_trees_parse_tree_line(line : String) -> NexusTree? {
   match trimmed.find("=") {
     Some(eq_pos) => {
       let left = trimmed[0:eq_pos].trim(chars=" \t").to_owned()
-      let right = trimmed[eq_pos + 1:trimmed.length()].trim(chars=" \t").to_owned()
+      let right = trimmed[eq_pos + 1:trimmed.length()]
+        .trim(chars=" \t")
+        .to_owned()
       // left: "tree name" or "translate"
       let left_fields = left.split(" ").to_array()
-      let kw = if left_fields.length() > 0 { left_fields[0].to_owned() } else { "" }
+      let kw = if left_fields.length() > 0 {
+        left_fields[0].to_owned()
+      } else {
+        ""
+      }
       if kw == "tree" || kw == "TREE" {
-        let name = if left_fields.length() > 1 { left_fields[1].to_owned() } else { "tree" }
+        let name = if left_fields.length() > 1 {
+          left_fields[1].to_owned()
+        } else {
+          "tree"
+        }
         let tree = NexusTree::new(name)
         // check rooted flag [&R] or [&U]
         let newick_part = right
@@ -316,11 +350,15 @@ fn nexus_trees_parse_tree_line(line : String) -> NexusTree? {
           match rb {
             Some(pos) => {
               let flag = right[0:pos].to_owned()
-              tree.rooted = flag.contains("R") && !(flag.contains("U"))
+              tree.rooted = flag.contains("R") && !flag.contains("U")
               tree.weight = 1.0
               let rest_start = pos + 1
-              let newick_part = right[rest_start:right.length()].trim(chars=" \t").to_owned()
-              let (root_id, _) = nexus_trees_parse_newick_inner(newick_part, tree, 0)
+              let newick_part = right[rest_start:right.length()]
+                .trim(chars=" \t")
+                .to_owned()
+              let (root_id, _) = nexus_trees_parse_newick_inner(
+                newick_part, tree, 0,
+              )
               tree.root = root_id
               let leaves = tree.get_leaves()
               tree.n_taxa = leaves.length()
@@ -371,7 +409,7 @@ pub fn nexus_trees_parse(content : String) -> NexusTreeCollection {
           }
           // parse "num label," entries
           let clean = tline.trim(chars=" \t\r,;").to_owned()
-          if clean.length() > 0 && !(clean.to_lower().contains("translate")) {
+          if clean.length() > 0 && !clean.to_lower().contains("translate") {
             let fields = clean.split(" ").to_array()
             if fields.length() >= 2 {
               let num = fields[0].to_owned()
@@ -399,7 +437,9 @@ pub fn nexus_trees_parse(content : String) -> NexusTreeCollection {
 
 ///|
 /// Parse multiple Newick strings as a collection (no NEXUS wrapper).
-pub fn nexus_trees_from_newicks(newicks : Array[(String, String)]) -> NexusTreeCollection {
+pub fn nexus_trees_from_newicks(
+  newicks : Array[(String, String)],
+) -> NexusTreeCollection {
   let collection = NexusTreeCollection::new()
   let mut i = 0
   while i < newicks.length() {
@@ -416,7 +456,10 @@ pub fn nexus_trees_from_newicks(newicks : Array[(String, String)]) -> NexusTreeC
 
 ///|
 /// Find a tree by name in the collection.
-pub fn NexusTreeCollection::get_tree(self : NexusTreeCollection, name : String) -> NexusTree? {
+pub fn NexusTreeCollection::get_tree(
+  self : NexusTreeCollection,
+  name : String,
+) -> NexusTree? {
   let mut i = 0
   while i < self.trees.length() {
     if self.trees[i].name == name {
@@ -429,7 +472,10 @@ pub fn NexusTreeCollection::get_tree(self : NexusTreeCollection, name : String) 
 
 ///|
 /// Resolve translated taxon labels (e.g. "1" -> "Homo_sapiens").
-pub fn NexusTreeCollection::resolve_taxon(self : NexusTreeCollection, taxon : String) -> String {
+pub fn NexusTreeCollection::resolve_taxon(
+  self : NexusTreeCollection,
+  taxon : String,
+) -> String {
   match self.translate.get(taxon) {
     Some(label) => label
     None => taxon
@@ -438,10 +484,14 @@ pub fn NexusTreeCollection::resolve_taxon(self : NexusTreeCollection, taxon : St
 
 ///|
 /// Compute patristic distance between two leaves in a tree.
-pub fn NexusTree::patristic_distance(self : NexusTree, leaf_a : String, leaf_b : String) -> Double {
+pub fn NexusTree::patristic_distance(
+  self : NexusTree,
+  leaf_a : String,
+  leaf_b : String,
+) -> Double {
   // Collect ancestor paths with branch lengths
-  fn path_to_root(nid : Int) -> Array[(Int, Double)] {
-    let path : Array[(Int, Double)] = []
+  fn path_to_root(nid : Int32) -> Array[(Int32, Double)] {
+    let path : Array[(Int32, Double)] = []
     let mut cur = nid
     while cur >= 0 {
       match self.nodes.get(cur) {
@@ -449,9 +499,7 @@ pub fn NexusTree::patristic_distance(self : NexusTree, leaf_a : String, leaf_b :
           path.push((cur, node.branch_length))
           cur = node.parent
         }
-        None => {
-          cur = -1
-        }
+        None => cur = -1
       }
     }
     path

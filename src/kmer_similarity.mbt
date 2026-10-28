@@ -9,24 +9,24 @@
 ///|
 /// A k-mer count table for a sequence.
 pub struct KmerTable {
-  k : Int
-  counts : Map[String, Int]  // k-mer -> count
-  total : Int                 // total k-mers (sequence length - k + 1)
-  alphabet : String           // "DNA", "RNA", or "protein"
+  k : Int32
+  counts : Map[String, Int32] // k-mer -> count
+  total : Int32 // total k-mers (sequence length - k + 1)
+  alphabet : String // "DNA", "RNA", or "protein"
 }
 
 ///|
 /// Build a k-mer count table from a sequence.
 pub fn kmer_table_build(
   seq : String,
-  k : Int,
+  k : Int32,
   alphabet : String,
 ) -> KmerTable {
-  let counts : Map[String, Int] = {}
+  let counts : Map[String, Int32] = {}
   let n = seq.length()
   let mut total = 0
   if k <= 0 || n < k {
-    return KmerTable::{ k, counts, total: 0, alphabet }
+    return KmerTable::{ k, counts, total: 0, alphabet, }
   }
   let valid_chars = kmer_valid_set(alphabet)
   for i = 0; i <= n - k; i = i + 1 {
@@ -34,7 +34,7 @@ pub fn kmer_table_build(
     for j = 0; j < k; j = j + 1 {
       let c = seq.unsafe_get(i + j).unsafe_to_char()
       let key = c.to_string()
-      if !(valid_chars.contains(key)) {
+      if !valid_chars.contains(key) {
         valid = false
         break
       }
@@ -49,7 +49,7 @@ pub fn kmer_table_build(
       total = total + 1
     }
   }
-  KmerTable::{ k, counts, total, alphabet }
+  KmerTable::{ k, counts, total, alphabet, }
 }
 
 ///|
@@ -75,7 +75,7 @@ pub fn kmer_jaccard(a : KmerTable, b : KmerTable) -> Double {
   let keys_b = b.counts.keys().collect()
   for i = 0; i < keys_b.length(); i = i + 1 {
     let key = keys_b[i]
-    if !(a.counts.contains(key)) {
+    if !a.counts.contains(key) {
       union = union + b.counts.get(key).unwrap()
     }
   }
@@ -139,7 +139,7 @@ pub fn kmer_bray_curtis(a : KmerTable, b : KmerTable) -> Double {
   let keys_b = b.counts.keys().collect()
   for i = 0; i < keys_b.length(); i = i + 1 {
     let key = keys_b[i]
-    if !(a.counts.contains(key)) {
+    if !a.counts.contains(key) {
       let cb = b.counts.get(key).unwrap().to_double()
       diff_sum = diff_sum + cb
       total_sum = total_sum + cb
@@ -177,7 +177,7 @@ pub fn kmer_mash_distance(a : KmerTable, b : KmerTable) -> Double {
 /// Build a k-mer similarity matrix for a set of sequences.
 pub fn kmer_similarity_matrix(
   sequences : Array[String],
-  k : Int,
+  k : Int32,
   alphabet : String,
   metric : String,
 ) -> Array[Array[Double]] {
@@ -210,19 +210,19 @@ pub fn kmer_similarity_matrix(
 
 ///|
 /// Get the number of unique k-mers in the table.
-pub fn kmer_unique_count(table : KmerTable) -> Int {
+pub fn kmer_unique_count(table : KmerTable) -> Int32 {
   table.counts.length()
 }
 
 ///|
 /// Get the total number of k-mers (including duplicates).
-pub fn kmer_total_count(table : KmerTable) -> Int {
+pub fn kmer_total_count(table : KmerTable) -> Int32 {
   table.total
 }
 
 ///|
 /// Get the k-mer size.
-pub fn kmer_k(table : KmerTable) -> Int {
+pub fn kmer_k(table : KmerTable) -> Int32 {
   table.k
 }
 
@@ -235,8 +235,10 @@ fn kmer_valid_set(alphabet : String) -> Map[String, Bool] {
   } else if alphabet == "RNA" {
     ["A", "C", "G", "U"]
   } else if alphabet == "protein" {
-    ["A", "C", "D", "E", "F", "G", "H", "I", "K", "L",
-     "M", "N", "P", "Q", "R", "S", "T", "V", "W", "Y"]
+    [
+      "A", "C", "D", "E", "F", "G", "H", "I", "K", "L", "M", "N", "P", "Q", "R",
+      "S", "T", "V", "W", "Y",
+    ]
   } else {
     ["A", "C", "G", "T"]
   }
@@ -248,8 +250,12 @@ fn kmer_valid_set(alphabet : String) -> Map[String, Bool] {
 }
 
 ///|
-fn kmer_max_int(a : Int, b : Int) -> Int {
-  if a > b { a } else { b }
+fn kmer_max_int(a : Int32, b : Int32) -> Int32 {
+  if a > b {
+    a
+  } else {
+    b
+  }
 }
 
 ///|
@@ -259,5 +265,9 @@ fn kmer_sqrt(x : Double) -> Double {
 
 ///|
 fn kmer_abs(x : Double) -> Double {
-  if x < 0.0 { -x } else { x }
+  if x < 0.0 {
+    -x
+  } else {
+    x
+  }
 }

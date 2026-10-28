@@ -1,6 +1,5 @@
 ///|
 /// Tests for ashr module (Adaptive Shrinkage).
-
 test "ashr_erf" {
   let e0 = @src.ashr_erf(0.0)
   assert_true(e0.abs() < 1.0e-9)
@@ -10,6 +9,7 @@ test "ashr_erf" {
   assert_true((eneg + e1).abs() < 1.0e-9)
 }
 
+///|
 test "ashr_pnorm" {
   let p0 = @src.ashr_pnorm(0.0)
   assert_true((p0 - 0.5).abs() < 1.0e-9)
@@ -20,6 +20,7 @@ test "ashr_pnorm" {
   assert_true((p_pos + p_neg - 1.0).abs() < 1.0e-9)
 }
 
+///|
 test "ashr_dnorm" {
   let d0 = @src.ashr_dnorm(0.0, 0.0, 1.0)
   assert_true((d0 - 0.3989423).abs() < 1.0e-6)
@@ -29,6 +30,7 @@ test "ashr_dnorm" {
   assert_true((d_shift - d0).abs() < 1.0e-9)
 }
 
+///|
 test "ashr_default_grid" {
   let grid = @src.ashr_default_grid()
   assert_true(grid.length() == 7)
@@ -36,6 +38,7 @@ test "ashr_default_grid" {
   assert_true(grid[1] > 0.0)
 }
 
+///|
 test "ashr_shrink_basic" {
   let estimates = [2.0, -1.8, 0.3, 0.05]
   let ses = [0.2, 0.2, 0.2, 0.18]
@@ -53,6 +56,7 @@ test "ashr_shrink_basic" {
   assert_true((wsum - 1.0).abs() < 1.0e-6)
 }
 
+///|
 test "ashr_shrink_z" {
   let z = [2.5, -2.0, 0.5, 0.1]
   let fit = @src.ashr_shrink_z(z)
@@ -60,6 +64,7 @@ test "ashr_shrink_z" {
   assert_true(fit.log_likelihood.abs() < 1.0e12)
 }
 
+///|
 test "ashr_count_significant" {
   let estimates = [3.0, -2.5, 0.2, 0.1]
   let ses = [0.3, 0.3, 0.3, 0.3]
@@ -70,6 +75,7 @@ test "ashr_count_significant" {
   assert_eq(n_all, 4)
 }
 
+///|
 test "ashr_shrinkage_factor" {
   let estimates = [2.0, -1.5, 0.3]
   let ses = [0.2, 0.2, 0.2]
@@ -81,6 +87,7 @@ test "ashr_shrinkage_factor" {
   }
 }
 
+///|
 test "ashr_mode_component" {
   let estimates = [2.0, -1.5, 0.3]
   let ses = [0.2, 0.2, 0.2]
@@ -89,6 +96,7 @@ test "ashr_mode_component" {
   assert_true(mode >= 0 && mode < fit.prior_grid.length())
 }
 
+///|
 test "ashr_summary" {
   let estimates = [2.0, -1.5]
   let ses = [0.2, 0.2]
@@ -98,6 +106,7 @@ test "ashr_summary" {
   assert_true(s.contains("lfsr"))
 }
 
+///|
 test "ashr_example_data" {
   let (est, ses) = @src.ashr_example_data()
   assert_eq(est.length(), 8)
@@ -106,6 +115,7 @@ test "ashr_example_data" {
   assert_eq(fit.n, 8)
 }
 
+///|
 test "ashr_posterior_shrinks_toward_zero" {
   let estimates = [0.5, 0.3, 0.1]
   let ses = [0.5, 0.5, 0.5]
@@ -117,6 +127,7 @@ test "ashr_posterior_shrinks_toward_zero" {
   }
 }
 
+///|
 test "ashr_lfsr_extremes" {
   let estimates = [5.0, 0.0]
   let ses = [0.1, 0.5]
@@ -124,6 +135,7 @@ test "ashr_lfsr_extremes" {
   assert_true(fit.lfsr[0] < fit.lfsr[1])
 }
 
+///|
 test "ashr_posterior_sd_positive" {
   let estimates = [2.0, -1.0, 0.5]
   let ses = [0.2, 0.3, 0.4]

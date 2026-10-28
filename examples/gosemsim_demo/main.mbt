@@ -1,9 +1,9 @@
+///|
 /// Demo: GOSemSim — GO semantic similarity (Bioconductor).
 ///
 /// Ported from GOSemSim R package (Yu et al., 2010).
 /// Five measures: Resnik, Lin, Rel (Schlicker), Jiang, Wang.
 /// Gene-level combine: max, avg, rcmax, BMA.
-
 fn main {
   let g = @src.gosemsim_example_graph()
 
@@ -14,9 +14,15 @@ fn main {
   println("Example GO DAG (root=GO:0008150):")
   println("  GO:0008150(ic=0.0) biological_process")
   println("    ├── GO:0050896(0.3) response_to_stimulus")
-  println("    │    ├── GO:0009987(0.5) cellular_process → GO:0006810(0.7) transport")
-  println("    │    └── GO:0023046(0.4) signaling → GO:0007165(0.6) signal_transduction")
-  println("    └── GO:0009058(0.2) biosynthetic_process → GO:0010467(0.35) gene_expression")
+  println(
+    "    │    ├── GO:0009987(0.5) cellular_process → GO:0006810(0.7) transport",
+  )
+  println(
+    "    │    └── GO:0023046(0.4) signaling → GO:0007165(0.6) signal_transduction",
+  )
+  println(
+    "    └── GO:0009058(0.2) biosynthetic_process → GO:0010467(0.35) gene_expression",
+  )
   println("")
 
   // ── Term-level comparison ──────────────────────────────────────────
@@ -43,8 +49,19 @@ fn main {
     let rel = @src.gosemsim_term_sim(g, t1, t2, @src.rel_measure())
     let jiang = @src.gosemsim_term_sim(g, t1, t2, @src.jiang_measure())
     let wang = @src.gosemsim_term_sim(g, t1, t2, @src.wang_measure())
-    println(desc + "\t" + fmt(resnik) + "\t" + fmt(lin) + "\t" +
-            fmt(rel) + "\t" + fmt(jiang) + "\t" + fmt(wang))
+    println(
+      desc +
+      "\t" +
+      fmt(resnik) +
+      "\t" +
+      fmt(lin) +
+      "\t" +
+      fmt(rel) +
+      "\t" +
+      fmt(jiang) +
+      "\t" +
+      fmt(wang),
+    )
     i = i + 1
   }
   println("")
@@ -59,10 +76,34 @@ fn main {
   //   GO:0006810 vs GO:0009987 = 0.5
   //   GO:0007165 vs GO:0006810 = 0.3
   //   GO:0007165 vs GO:0009987 = 0.3
-  let max_v = @src.gosemsim_gen_sim(g, go1, go2, @src.resnik_measure(), combine="max")
-  let avg_v = @src.gosemsim_gen_sim(g, go1, go2, @src.resnik_measure(), combine="avg")
-  let rcmax_v = @src.gosemsim_gen_sim(g, go1, go2, @src.resnik_measure(), combine="rcmax")
-  let bma_v = @src.gosemsim_gen_sim(g, go1, go2, @src.resnik_measure(), combine="BMA")
+  let max_v = @src.gosemsim_gen_sim(
+    g,
+    go1,
+    go2,
+    @src.resnik_measure(),
+    combine="max",
+  )
+  let avg_v = @src.gosemsim_gen_sim(
+    g,
+    go1,
+    go2,
+    @src.resnik_measure(),
+    combine="avg",
+  )
+  let rcmax_v = @src.gosemsim_gen_sim(
+    g,
+    go1,
+    go2,
+    @src.resnik_measure(),
+    combine="rcmax",
+  )
+  let bma_v = @src.gosemsim_gen_sim(
+    g,
+    go1,
+    go2,
+    @src.resnik_measure(),
+    combine="BMA",
+  )
 
   println("  Gene1: transport(0.7) + signal_transduction(0.6)")
   println("  Gene2: transport(0.7) + cellular_process(0.5)")

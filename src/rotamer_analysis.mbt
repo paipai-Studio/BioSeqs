@@ -14,7 +14,7 @@ pub(all) enum RotamerBin {
 ///|
 /// A rotamer analysis result for one residue.
 pub(all) struct RotamerResult {
-  resseq : Int
+  resseq : Int32
   resname : String
   chi1 : Double // -180 to 180, NaN if not applicable
   chi2 : Double
@@ -108,14 +108,25 @@ pub fn has_chi1(resname : String) -> Bool {
 /// Check if a residue type has a chi2 angle.
 pub fn has_chi2(resname : String) -> Bool {
   let r = to_lowercase(resname)
-  !(r == "gly" || r == "ala" || r == "ser" || r == "cys" || r == "pro" || r == "thr" || r == "val")
+  !(r == "gly" ||
+  r == "ala" ||
+  r == "ser" ||
+  r == "cys" ||
+  r == "pro" ||
+  r == "thr" ||
+  r == "val")
 }
 
 ///|
 /// Check if a residue type has a chi3 angle.
 pub fn has_chi3(resname : String) -> Bool {
   let r = to_lowercase(resname)
-  r == "gln" || r == "glu" || r == "met" || r == "lys" || r == "arg" || r == "ile"
+  r == "gln" ||
+  r == "glu" ||
+  r == "met" ||
+  r == "lys" ||
+  r == "arg" ||
+  r == "ile"
 }
 
 ///|
@@ -166,7 +177,7 @@ pub fn compute_chi_angles(
 /// Classify a rotamer and detect outliers.
 /// Outlier threshold: deviation > 30° from nearest bin center.
 pub fn classify_rotamer(
-  resseq : Int,
+  resseq : Int32,
   resname : String,
   chi1 : Double,
   chi2 : Double,
@@ -201,14 +212,23 @@ pub fn classify_rotamer(
       deviation = d2
     }
   }
-  RotamerResult::{ resseq, resname, chi1, chi2, chi3, chi4, chi1_bin, chi2_bin, is_outlier, deviation }
+  RotamerResult::{
+    resseq,
+    resname,
+    chi1,
+    chi2,
+    chi3,
+    chi4,
+    chi1_bin,
+    chi2_bin,
+    is_outlier,
+    deviation,
+  }
 }
 
 ///|
 /// Detect rotamer outliers from a list of results.
-pub fn rotamer_outliers(
-  results : Array[RotamerResult],
-) -> Array[RotamerResult] {
+pub fn rotamer_outliers(results : Array[RotamerResult]) -> Array[RotamerResult] {
   let outliers : Array[RotamerResult] = []
   for r in results {
     if r.is_outlier {
@@ -222,7 +242,7 @@ pub fn rotamer_outliers(
 /// Summary statistics of rotamer analysis.
 pub fn rotamer_summary(
   results : Array[RotamerResult],
-) -> (Int, Int, Int, Int, Int) {
+) -> (Int32, Int32, Int32, Int32, Int32) {
   let mut total = 0
   let mut outliers = 0
   let mut trans_count = 0

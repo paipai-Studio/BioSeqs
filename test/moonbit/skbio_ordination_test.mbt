@@ -4,8 +4,6 @@
 /// magnitude; eigenvalues, proportions, centering, and the Mantel correlation
 /// coefficient are compared exactly.
 
-
-
 ///|
 test "skbio_center_distance_matrix" {
   let dm = [[0.0, 1.0, 2.0], [1.0, 0.0, 1.0], [2.0, 1.0, 0.0]]
@@ -21,46 +19,72 @@ test "skbio_center_distance_matrix" {
 
 ///|
 test "skbio_ca_scaling1" {
-  let x = [
-    [1.0, 0.0, 2.0, 1.0],
-    [0.0, 3.0, 1.0, 0.0],
-    [2.0, 1.0, 0.0, 1.0],
-  ]
+  let x = [[1.0, 0.0, 2.0, 1.0], [0.0, 3.0, 1.0, 0.0], [2.0, 1.0, 0.0, 1.0]]
   let r = @src.skbio_ca(x, 1)
   assert_eq(r.eigvals.length(), 2)
   assert_true(@moonbit.assert_num_close(r.eigvals[0], 0.470162, 1.0e-5))
   assert_true(@moonbit.assert_num_close(r.eigvals[1], 0.238172, 1.0e-5))
-  assert_true(@moonbit.assert_num_close(r.proportion_explained[0], 0.663758, 1.0e-5))
-  assert_true(@moonbit.assert_num_close(r.proportion_explained[1], 0.336242, 1.0e-5))
+  assert_true(
+    @moonbit.assert_num_close(r.proportion_explained[0], 0.663758, 1.0e-5),
+  )
+  assert_true(
+    @moonbit.assert_num_close(r.proportion_explained[1], 0.336242, 1.0e-5),
+  )
   // samples (magnitude)
-  assert_true(@moonbit.assert_num_close_mag(r.sample_scores[0][0], 0.548885, 1.0e-4))
-  assert_true(@moonbit.assert_num_close_mag(r.sample_scores[0][1], 0.568969, 1.0e-4))
-  assert_true(@moonbit.assert_num_close_mag(r.sample_scores[1][0], 0.966748, 1.0e-4))
-  assert_true(@moonbit.assert_num_close_mag(r.sample_scores[2][1], 0.622809, 1.0e-4))
+  assert_true(
+    @moonbit.assert_num_close_mag(r.sample_scores[0][0], 0.548885, 1.0e-4),
+  )
+  assert_true(
+    @moonbit.assert_num_close_mag(r.sample_scores[0][1], 0.568969, 1.0e-4),
+  )
+  assert_true(
+    @moonbit.assert_num_close_mag(r.sample_scores[1][0], 0.966748, 1.0e-4),
+  )
+  assert_true(
+    @moonbit.assert_num_close_mag(r.sample_scores[2][1], 0.622809, 1.0e-4),
+  )
   // features (magnitude)
-  assert_true(@moonbit.assert_num_close_mag(r.feature_scores[0][0], 0.981655, 1.0e-4))
-  assert_true(@moonbit.assert_num_close_mag(r.feature_scores[1][0], 1.319961, 1.0e-4))
-  assert_true(@moonbit.assert_num_close_mag(r.feature_scores[2][1], 1.667953, 1.0e-4))
-  assert_true(@moonbit.assert_num_close_mag(r.feature_scores[3][0], 1.028101, 1.0e-4))
+  assert_true(
+    @moonbit.assert_num_close_mag(r.feature_scores[0][0], 0.981655, 1.0e-4),
+  )
+  assert_true(
+    @moonbit.assert_num_close_mag(r.feature_scores[1][0], 1.319961, 1.0e-4),
+  )
+  assert_true(
+    @moonbit.assert_num_close_mag(r.feature_scores[2][1], 1.667953, 1.0e-4),
+  )
+  assert_true(
+    @moonbit.assert_num_close_mag(r.feature_scores[3][0], 1.028101, 1.0e-4),
+  )
 }
 
 ///|
 test "skbio_ca_scaling2" {
-  let x = [
-    [1.0, 0.0, 2.0, 1.0],
-    [0.0, 3.0, 1.0, 0.0],
-    [2.0, 1.0, 0.0, 1.0],
-  ]
+  let x = [[1.0, 0.0, 2.0, 1.0], [0.0, 3.0, 1.0, 0.0], [2.0, 1.0, 0.0, 1.0]]
   let r = @src.skbio_ca(x, 2)
   assert_true(@moonbit.assert_num_close(r.eigvals[0], 0.470162, 1.0e-5))
   assert_true(@moonbit.assert_num_close(r.eigvals[1], 0.238172, 1.0e-5))
-  assert_true(@moonbit.assert_num_close_mag(r.sample_scores[0][0], 0.800493, 1.0e-4))
-  assert_true(@moonbit.assert_num_close_mag(r.sample_scores[0][1], 1.165852, 1.0e-4))
-  assert_true(@moonbit.assert_num_close_mag(r.sample_scores[1][0], 1.409904, 1.0e-4))
-  assert_true(@moonbit.assert_num_close_mag(r.sample_scores[2][1], 1.276173, 1.0e-4))
-  assert_true(@moonbit.assert_num_close_mag(r.feature_scores[0][0], 0.673105, 1.0e-4))
-  assert_true(@moonbit.assert_num_close_mag(r.feature_scores[1][1], 0.236302, 1.0e-4))
-  assert_true(@moonbit.assert_num_close_mag(r.feature_scores[2][1], 0.814008, 1.0e-4))
+  assert_true(
+    @moonbit.assert_num_close_mag(r.sample_scores[0][0], 0.800493, 1.0e-4),
+  )
+  assert_true(
+    @moonbit.assert_num_close_mag(r.sample_scores[0][1], 1.165852, 1.0e-4),
+  )
+  assert_true(
+    @moonbit.assert_num_close_mag(r.sample_scores[1][0], 1.409904, 1.0e-4),
+  )
+  assert_true(
+    @moonbit.assert_num_close_mag(r.sample_scores[2][1], 1.276173, 1.0e-4),
+  )
+  assert_true(
+    @moonbit.assert_num_close_mag(r.feature_scores[0][0], 0.673105, 1.0e-4),
+  )
+  assert_true(
+    @moonbit.assert_num_close_mag(r.feature_scores[1][1], 0.236302, 1.0e-4),
+  )
+  assert_true(
+    @moonbit.assert_num_close_mag(r.feature_scores[2][1], 0.814008, 1.0e-4),
+  )
 }
 
 ///|
@@ -73,6 +97,7 @@ test "skbio_mantel_correlation" {
   // p-value is permutation-based and must be a valid probability
   assert_true(r.p_value > 0.0 && r.p_value <= 1.0)
 }
+
 ///|
 test "skbio_rda_eigenvalues" {
   let y = [
@@ -97,8 +122,12 @@ test "skbio_rda_eigenvalues" {
   assert_true(@moonbit.assert_num_close(r.eigvals[1], 1.068605, 1.0e-4))
   assert_true(@moonbit.assert_num_close(r.eigvals[2], 2.681239, 1.0e-4))
   assert_true(@moonbit.assert_num_close(r.eigvals[4], 0.766759, 1.0e-4))
-  assert_true(@moonbit.assert_num_close(r.proportion_explained[0], 0.242533, 1.0e-4))
-  assert_true(@moonbit.assert_num_close(r.proportion_explained[2], 0.308216, 1.0e-4))
+  assert_true(
+    @moonbit.assert_num_close(r.proportion_explained[0], 0.242533, 1.0e-4),
+  )
+  assert_true(
+    @moonbit.assert_num_close(r.proportion_explained[2], 0.308216, 1.0e-4),
+  )
 }
 
 ///|
@@ -121,10 +150,18 @@ test "skbio_rda_scores" {
   ]
   let r = @src.skbio_rda(y, x, 1)
   // scores are sign-ambiguous; compare magnitudes
-  assert_true(@moonbit.assert_num_close_mag(r.sample_scores[0][0], 0.039104, 1.0e-3))
-  assert_true(@moonbit.assert_num_close_mag(r.sample_scores[1][0], 0.998972, 1.0e-3))
-  assert_true(@moonbit.assert_num_close_mag(r.feature_scores[0][0], 1.939639, 1.0e-3))
-  assert_true(@moonbit.assert_num_close_mag(r.feature_scores[1][0], 0.643055, 1.0e-3))
+  assert_true(
+    @moonbit.assert_num_close_mag(r.sample_scores[0][0], 0.039104, 1.0e-3),
+  )
+  assert_true(
+    @moonbit.assert_num_close_mag(r.sample_scores[1][0], 0.998972, 1.0e-3),
+  )
+  assert_true(
+    @moonbit.assert_num_close_mag(r.feature_scores[0][0], 1.939639, 1.0e-3),
+  )
+  assert_true(
+    @moonbit.assert_num_close_mag(r.feature_scores[1][0], 0.643055, 1.0e-3),
+  )
 }
 
 ///|
@@ -151,8 +188,12 @@ test "skbio_cca_eigenvalues" {
   assert_true(@moonbit.assert_num_close(r.eigvals[1], 0.019834, 1.0e-4))
   assert_true(@moonbit.assert_num_close(r.eigvals[2], 0.232221, 1.0e-4))
   assert_true(@moonbit.assert_num_close(r.eigvals[3], 0.090689, 1.0e-4))
-  assert_true(@moonbit.assert_num_close(r.proportion_explained[0], 0.229055, 1.0e-4))
-  assert_true(@moonbit.assert_num_close(r.proportion_explained[2], 0.522341, 1.0e-4))
+  assert_true(
+    @moonbit.assert_num_close(r.proportion_explained[0], 0.229055, 1.0e-4),
+  )
+  assert_true(
+    @moonbit.assert_num_close(r.proportion_explained[2], 0.522341, 1.0e-4),
+  )
 }
 
 ///|
@@ -174,10 +215,18 @@ test "skbio_cca_scores" {
     [2.0, 2.5],
   ]
   let r = @src.skbio_cca(y, x, 1)
-  assert_true(@moonbit.assert_num_close_mag(r.sample_scores[0][0], 0.24825, 1.0e-3))
-  assert_true(@moonbit.assert_num_close_mag(r.sample_scores[1][0], 1.00457, 1.0e-3))
-  assert_true(@moonbit.assert_num_close_mag(r.feature_scores[0][0], 1.26215, 1.0e-3))
-  assert_true(@moonbit.assert_num_close_mag(r.feature_scores[1][0], 1.25320, 1.0e-3))
+  assert_true(
+    @moonbit.assert_num_close_mag(r.sample_scores[0][0], 0.24825, 1.0e-3),
+  )
+  assert_true(
+    @moonbit.assert_num_close_mag(r.sample_scores[1][0], 1.00457, 1.0e-3),
+  )
+  assert_true(
+    @moonbit.assert_num_close_mag(r.feature_scores[0][0], 1.26215, 1.0e-3),
+  )
+  assert_true(
+    @moonbit.assert_num_close_mag(r.feature_scores[1][0], 1.25320, 1.0e-3),
+  )
 }
 
 ///|
@@ -252,11 +301,11 @@ test "skbio_scale_corr_meanstd_svdrank" {
   assert_eq(@src.skbio_svd_rank([3.0, 2.0, 0.0, 0.0], 4, 4), 2)
 }
 
-
 // ============================================================
 // skbio_pwmantel (partial Mantel)
 // ============================================================
 
+///|
 test "skbio_pwmantel_identical_x_y" {
   let x = [[0.0, 1.0, 2.0], [1.0, 0.0, 1.0], [2.0, 1.0, 0.0]]
   let c = [[0.0, 3.0, 1.0], [3.0, 0.0, 2.0], [1.0, 2.0, 0.0]]
@@ -267,6 +316,7 @@ test "skbio_pwmantel_identical_x_y" {
   assert_true(r.p_value > 0.0 && r.p_value <= 1.0)
 }
 
+///|
 test "skbio_pwmantel_bounds" {
   let x = [[0.0, 1.0, 2.0], [1.0, 0.0, 1.0], [2.0, 1.0, 0.0]]
   let y = [[0.0, 2.0, 7.0], [2.0, 0.0, 5.0], [7.0, 5.0, 0.0]]

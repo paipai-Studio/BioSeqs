@@ -5,7 +5,7 @@
 ///|
 fn make_msa() -> @src.MultipleSeqAlignment {
   let rec = fn(id : String, seq : String) -> @src.SeqRecord {
-    @src.SeqRecord::new(@src.Seq::new(seq), id=id, name=id)
+    @src.SeqRecord::new(@src.Seq::new(seq), id~, name=id)
   }
   @src.MultipleSeqAlignment::new([
     rec("seq1", "ACGTACGTACGT"),

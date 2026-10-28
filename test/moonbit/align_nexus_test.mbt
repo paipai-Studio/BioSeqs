@@ -21,7 +21,7 @@ fn align_nexus_test_raises(text : String) -> Bool {
 fn align_nexus_test_write(
   alignment : @src.AlignNexusAlignment,
   interleave : Bool?,
-  block_width : Int,
+  block_width : Int32,
 ) -> String {
   @src.align_nexus_write(alignment, interleave~, block_width~) catch {
     AlignNexusError(message) => abort("NEXUS writing failed: " + message)
@@ -31,7 +31,7 @@ fn align_nexus_test_write(
 ///|
 fn align_nexus_test_write_raises(
   alignment : @src.AlignNexusAlignment,
-  block_width : Int,
+  block_width : Int32,
 ) -> Bool {
   try {
     ignore(@src.align_nexus_write(alignment, block_width~))

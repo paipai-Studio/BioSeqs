@@ -1,7 +1,6 @@
 ///|
 /// ebimage demo - Grayscale image processing for cellular imaging.
 /// Inspired by Bioconductor {EBImage}.
-
 fn main {
   println("=== ebimage Demo: Image Processing Pipeline ===")
   println("")
@@ -11,10 +10,14 @@ fn main {
   let img = @src.ebi_example_image()
   println(@src.ebi_to_ascii(img))
   println(
-    "  stats: min=" + @src.ebi_min(img).to_string() +
-    " max=" + @src.ebi_max(img).to_string() +
-    " mean=" + @src.ebi_mean(img).to_string() +
-    " sd=" + @src.ebi_sd(img).to_string(),
+    "  stats: min=" +
+    @src.ebi_min(img).to_string() +
+    " max=" +
+    @src.ebi_max(img).to_string() +
+    " mean=" +
+    @src.ebi_mean(img).to_string() +
+    " sd=" +
+    @src.ebi_sd(img).to_string(),
   )
   println("")
 
@@ -48,7 +51,12 @@ fn main {
       fg0 = fg0 + 1
     }
   }
-  println("  foreground pixels: " + fg0.to_string() + " -> after opening: " + fg.to_string())
+  println(
+    "  foreground pixels: " +
+    fg0.to_string() +
+    " -> after opening: " +
+    fg.to_string(),
+  )
   println("")
 
   // Step 5: connected components
@@ -58,10 +66,24 @@ fn main {
   let features = @src.ebi_object_features(labels, img.width, img.height, count)
   for obj in features {
     println(
-      "  object " + obj.label.to_string() + ": area=" + obj.area.to_string() +
-      " centroid=(" + obj.cx.to_string() + ", " + obj.cy.to_string() + ")" +
-      " bbox=[" + obj.min_x.to_string() + "," + obj.min_y.to_string() +
-      "]-[" + obj.max_x.to_string() + "," + obj.max_y.to_string() + "]",
+      "  object " +
+      obj.label.to_string() +
+      ": area=" +
+      obj.area.to_string() +
+      " centroid=(" +
+      obj.cx.to_string() +
+      ", " +
+      obj.cy.to_string() +
+      ")" +
+      " bbox=[" +
+      obj.min_x.to_string() +
+      "," +
+      obj.min_y.to_string() +
+      "]-[" +
+      obj.max_x.to_string() +
+      "," +
+      obj.max_y.to_string() +
+      "]",
     )
   }
   println("")
@@ -81,7 +103,13 @@ fn main {
   // Step 7: contrast normalisation
   println("--- Step 7: Contrast Normalisation ---")
   let norm = @src.ebi_normalize(grad)
-  println("  normalised gradient range: [" + @src.ebi_min(norm).to_string() + ", " + @src.ebi_max(norm).to_string() + "]")
+  println(
+    "  normalised gradient range: [" +
+    @src.ebi_min(norm).to_string() +
+    ", " +
+    @src.ebi_max(norm).to_string() +
+    "]",
+  )
 
   println("")
   println("=== ebimage Demo Complete ===")

@@ -3,7 +3,6 @@
 /// Demonstrates Bio.PDB.MAalign functionality
 ///
 /// Run: moon run examples/ma_align_demo/
-
 fn main {
   println("=== Multiple Structure Alignment Demo ===")
 
@@ -30,7 +29,9 @@ fn main {
     (5.8, 11.3, 8.2),
   ]
   let seq1 = "ALAGLYALA"
-  let residues1 = ["ALA", "GLY", "ALA", "VAL", "LEU", "ILE", "PHE", "MET", "TRP", "TYR"]
+  let residues1 = [
+    "ALA", "GLY", "ALA", "VAL", "LEU", "ILE", "PHE", "MET", "TRP", "TYR",
+  ]
 
   // Structure 2: Same shape but translated and rotated
   let coords2 : Array[(Double, Double, Double)] = [
@@ -46,7 +47,9 @@ fn main {
     (15.8, 21.3, 13.2),
   ]
   let seq2 = "ALAGLYALA"
-  let residues2 = ["ALA", "GLY", "ALA", "VAL", "LEU", "ILE", "PHE", "MET", "TRP", "TYR"]
+  let residues2 = [
+    "ALA", "GLY", "ALA", "VAL", "LEU", "ILE", "PHE", "MET", "TRP", "TYR",
+  ]
 
   // Structure 3: Different conformation
   let coords3 : Array[(Double, Double, Double)] = [
@@ -62,7 +65,9 @@ fn main {
     (13.5, 0.0, 0.0),
   ]
   let seq3 = "ALAGLYALA"
-  let residues3 = ["ALA", "GLY", "ALA", "VAL", "LEU", "ILE", "PHE", "MET", "TRP", "TYR"]
+  let residues3 = [
+    "ALA", "GLY", "ALA", "VAL", "LEU", "ILE", "PHE", "MET", "TRP", "TYR",
+  ]
 
   // Create structures
   println("")
@@ -82,13 +87,17 @@ fn main {
   println("Alignment helix1 vs helix2:")
   println("  RMSD: \{rmsd1.to_string()} A")
   println("  Rotation matrix (Euler angles):")
-  println("    x-axis: \{rot1.0.to_string()}, y-axis: \{rot1.1.to_string()}, z-axis: \{rot1.2.to_string()}")
+  println(
+    "    x-axis: \{rot1.0.to_string()}, y-axis: \{rot1.1.to_string()}, z-axis: \{rot1.2.to_string()}",
+  )
 
   let (rot2, rmsd2) = @bio.ma_align_pairwise(coords1, coords3)
   println("Alignment helix1 vs extended:")
   println("  RMSD: \{rmsd2.to_string()} A")
   println("  Rotation matrix (Euler angles):")
-  println("    x-axis: \{rot2.0.to_string()}, y-axis: \{rot2.1.to_string()}, z-axis: \{rot2.2.to_string()}")
+  println(
+    "    x-axis: \{rot2.0.to_string()}, y-axis: \{rot2.1.to_string()}, z-axis: \{rot2.2.to_string()}",
+  )
   println("  Higher RMSD = more different structures")
 
   // Multiple structure alignment
@@ -98,7 +107,9 @@ fn main {
   let result = @bio.align_structures(aligner, structures)
 
   println("Alignment result:")
-  println("  Structures aligned: \{result.get_structure_ids().length().to_string()}")
+  println(
+    "  Structures aligned: \{result.get_structure_ids().length().to_string()}",
+  )
   println("  Total RMSD: \{result.get_total_rmsd().to_string()} A")
 
   // Display aligned sequences
@@ -148,7 +159,9 @@ fn main {
   let coords_set1 = aligned_coords[0]
   for i = 0; i < coords_set1.length(); i = i + 1 {
     let (x, y, z) = coords_set1[i]
-    println("  Atom \{(i + 1).to_string()}: (\{x.to_string()}, \{y.to_string()}, \{z.to_string()})")
+    println(
+      "  Atom \{(i + 1).to_string()}: (\{x.to_string()}, \{y.to_string()}, \{z.to_string()})",
+    )
   }
 
   println("=== Demo complete ===")

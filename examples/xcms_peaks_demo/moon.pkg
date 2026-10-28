@@ -2,4 +2,5 @@ import {
   "moonbitlang/core/math",
   "IvanAXu/BioSeqs/src",
 }
+
 pkgtype(kind: "executable")

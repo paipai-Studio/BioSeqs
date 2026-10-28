@@ -7,11 +7,11 @@
 ///|
 /// Tree node with annotations (Beast/MrBayes style).
 pub struct TreeioNode {
-  node_id : Int
+  node_id : Int32
   label : String
   branch_length : Double
-  mut parent : Int
-  children : Array[Int]
+  mut parent : Int32
+  children : Array[Int32]
   mut is_leaf : Bool
   annotations : Map[String, String]
 }
@@ -20,12 +20,12 @@ pub struct TreeioNode {
 /// Unified tree data structure (treeio treedata).
 pub struct TreeioTreeData {
   nodes : Array[TreeioNode]
-  n_nodes : Int
-  n_tips : Int
-  root : Int
+  n_nodes : Int32
+  n_tips : Int32
+  root : Int32
   tip_labels : Array[String]
   node_labels : Array[String]
-  edge : Array[(Int, Int)]
+  edge : Array[(Int32, Int32)]
   edge_length : Array[Double]
   mut format : String
 }
@@ -62,7 +62,11 @@ fn treeio_atof(s : String) -> Double {
     i = i + 1
   }
   let result = int_part + frac_part
-  if neg { -result } else { result }
+  if neg {
+    -result
+  } else {
+    result
+  }
 }
 
 ///|
@@ -75,7 +79,7 @@ pub fn treeio_parse_newick(newick : String) -> TreeioTreeData {
     s
   }
   let nodes : Array[TreeioNode] = []
-  let edges : Array[(Int, Int)] = []
+  let edges : Array[(Int32, Int32)] = []
   let edge_lengths : Array[Double] = []
   let result = treeio_parse_newick_rec(tree_str, nodes, edges, edge_lengths, 0)
   let final_nodes = result.0
@@ -143,10 +147,10 @@ pub fn treeio_parse_newick(newick : String) -> TreeioTreeData {
 fn treeio_parse_newick_rec(
   s : String,
   nodes : Array[TreeioNode],
-  edges : Array[(Int, Int)],
+  edges : Array[(Int32, Int32)],
   edge_lengths : Array[Double],
-  next_id : Int,
-) -> (Array[TreeioNode], Array[(Int, Int)], Array[Double], Int) {
+  next_id : Int32,
+) -> (Array[TreeioNode], Array[(Int32, Int32)], Array[Double], Int32) {
   let s_trim = s.trim().to_owned()
   if s_trim.length() == 0 {
     return (nodes, edges, edge_lengths, next_id)
@@ -184,7 +188,9 @@ fn treeio_parse_newick_rec(
     let mut ci = 0
     while ci < children.length() {
       let child_str = children[ci]
-      let result = treeio_parse_newick_rec(child_str, nodes, edges, edge_lengths, my_next)
+      let result = treeio_parse_newick_rec(
+        child_str, nodes, edges, edge_lengths, my_next,
+      )
       let child_id = my_next
       my_next = result.3
       edges.push((my_id, child_id))
@@ -230,7 +236,10 @@ fn treeio_parse_label_blen(s : String) -> (String, Double) {
     return (s_trim, 0.0)
   }
   let label = s_trim[0:colon_pos].to_owned().trim().to_owned()
-  let blen_str = s_trim[colon_pos + 1:s_trim.length()].to_owned().trim().to_owned()
+  let blen_str = s_trim[colon_pos + 1:s_trim.length()]
+    .to_owned()
+    .trim()
+    .to_owned()
   let blen = treeio_atof(blen_str)
   (label, blen)
 }
@@ -269,7 +278,7 @@ pub fn treeio_write_newick(tree : TreeioTreeData) -> String {
 }
 
 ///|
-fn treeio_newick_from_tree(tree : TreeioTreeData, node_id : Int) -> String {
+fn treeio_newick_from_tree(tree : TreeioTreeData, node_id : Int32) -> String {
   let node = tree.nodes[node_id]
   if node.is_leaf {
     if node.branch_length > 0.0 {
@@ -301,7 +310,7 @@ fn treeio_newick_from_tree(tree : TreeioTreeData, node_id : Int) -> String {
 ///|
 /// jplace placement entry.
 pub struct TreeioJplacePlacement {
-  p : Int
+  p : Int32
   pendant_length : Double
   proximal_length : Double
   likelihood : Double
@@ -314,7 +323,7 @@ pub struct TreeioJplacePlacement {
 pub struct TreeioJplaceResult {
   tree : String
   placements : Array[(String, Array[TreeioJplacePlacement])]
-  n_places : Int
+  n_places : Int32
 }
 
 ///|
@@ -335,7 +344,7 @@ pub fn treeio_parse_jplace(content : String) -> TreeioJplaceResult {
     }
     n_places = n_places / 3
   }
-  TreeioJplaceResult::{ tree: tree_str, placements, n_places }
+  TreeioJplaceResult::{ tree: tree_str, placements, n_places, }
 }
 
 ///|
@@ -456,13 +465,17 @@ fn treeio_extract_beast(s : String) -> Array[(String, Map[String, String])] {
         pi = pi + 1
       }
       let mut label_end = start - 1
-      while label_end > 0 && (bytes[label_end].to_int() == 32 || bytes[label_end].to_int() == 9) {
+      while label_end > 0 &&
+            (bytes[label_end].to_int() == 32 || bytes[label_end].to_int() == 9) {
         label_end = label_end - 1
       }
       let mut label_start = label_end
       while label_start > 0 {
         let c = bytes[label_start].to_int()
-        if (c >= 65 && c <= 90) || (c >= 97 && c <= 122) || (c >= 48 && c <= 57) || c == 95 {
+        if (c >= 65 && c <= 90) ||
+          (c >= 97 && c <= 122) ||
+          (c >= 48 && c <= 57) ||
+          c == 95 {
           label_start = label_start - 1
         } else {
           break
@@ -489,7 +502,10 @@ pub fn treeio_parse_r8s(content : String) -> Array[TreeioTreeData] {
     if line.contains("tree") && line.contains("=") {
       let eq_pos = line.find("=").unwrap_or(-1)
       if eq_pos >= 0 {
-        let tree_str = line[eq_pos + 1:line.length()].to_owned().trim().to_owned()
+        let tree_str = line[eq_pos + 1:line.length()]
+          .to_owned()
+          .trim()
+          .to_owned()
         trees.push(treeio_parse_newick(tree_str))
       }
     }
@@ -519,7 +535,7 @@ pub fn treeio_parse_phylip(content : String) -> TreeioTreeData {
 
 ///|
 /// Get tree statistics: (n_tips, n_internal, n_edges).
-pub fn treeio_tree_stats(tree : TreeioTreeData) -> (Int, Int, Int) {
+pub fn treeio_tree_stats(tree : TreeioTreeData) -> (Int32, Int32, Int32) {
   (tree.n_tips, tree.n_nodes - tree.n_tips, tree.edge.length())
 }
 
@@ -561,7 +577,7 @@ pub fn treeio_total_length(tree : TreeioTreeData) -> Double {
 
 ///|
 /// Get maximum tree depth.
-pub fn treeio_max_depth(tree : TreeioTreeData) -> Int {
+pub fn treeio_max_depth(tree : TreeioTreeData) -> Int32 {
   if tree.root < 0 {
     return 0
   }
@@ -569,7 +585,11 @@ pub fn treeio_max_depth(tree : TreeioTreeData) -> Int {
 }
 
 ///|
-fn treeio_depth_rec(tree : TreeioTreeData, node_id : Int, depth : Int) -> Int {
+fn treeio_depth_rec(
+  tree : TreeioTreeData,
+  node_id : Int32,
+  depth : Int32,
+) -> Int32 {
   let node = tree.nodes[node_id]
   if node.is_leaf {
     return depth
@@ -595,5 +615,7 @@ pub fn treeio_example_tree() -> TreeioTreeData {
 ///|
 /// Create example Beast tree for testing.
 pub fn treeio_example_beast() -> TreeioTreeData {
-  treeio_parse_beast("((A[&height=0.1]:0.1,B[&height=0.1]:0.2)[&height=0.3]:0.3,C[&height=0.1]:0.4);")
+  treeio_parse_beast(
+    "((A[&height=0.1]:0.1,B[&height=0.1]:0.2)[&height=0.3]:0.3,C[&height=0.1]:0.4);",
+  )
 }

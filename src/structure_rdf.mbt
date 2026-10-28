@@ -9,9 +9,9 @@
 ///|
 /// RDF result: bin centers and g(r) values.
 pub struct RDFResult {
-  r : Array[Double]     // bin centers (Å)
-  g_r : Array[Double]   // g(r) values
-  n_bins : Int
+  r : Array[Double] // bin centers (Å)
+  g_r : Array[Double] // g(r) values
+  n_bins : Int32
   dr : Double
 }
 
@@ -26,20 +26,20 @@ pub struct RDFResult {
 pub fn compute_rdf(
   atoms : Array[Atom],
   r_max~ : Double = 12.0,
-  n_bins~ : Int = 100,
+  n_bins~ : Int32 = 100,
   box_size~ : Array[Double]? = None,
 ) -> RDFResult {
   let n = atoms.length()
   let dr = r_max / n_bins.to_double()
   // Histogram counts
-  let counts : Array[Int] = Array::make(n_bins, 0)
+  let counts : Array[Int32] = Array::make(n_bins, 0)
   // Count pairs in each bin
   for i = 0; i < n; i = i + 1 {
     for j = i + 1; j < n; j = j + 1 {
       let mut dist = atoms[i].coord.distance(atoms[j].coord)
       // Apply minimum image convention if PBC box is provided
       match box_size {
-        Some(box) => {
+        Some(box) =>
           if box.length() >= 3 {
             let dx = atoms[i].coord.x - atoms[j].coord.x
             let dy = atoms[i].coord.y - atoms[j].coord.y
@@ -50,7 +50,6 @@ pub fn compute_rdf(
             let mz = dz - box[2] * round(dz / box[2])
             dist = (mx * mx + my * my + mz * mz).sqrt()
           }
-        }
         None => ()
       }
       if dist < r_max {
@@ -64,13 +63,12 @@ pub fn compute_rdf(
   // Normalize to get g(r)
   // Volume estimate: use cubic box or bounding box
   let volume = match box_size {
-    Some(box) => {
+    Some(box) =>
       if box.length() >= 3 {
         box[0] * box[1] * box[2]
       } else {
         estimate_volume(atoms)
       }
-    }
     None => estimate_volume(atoms)
   }
   let density = n.to_double() / volume
@@ -89,7 +87,7 @@ pub fn compute_rdf(
       g_arr.push(0.0)
     }
   }
-  RDFResult::{ r: r_arr, g_r: g_arr, n_bins, dr }
+  RDFResult::{ r: r_arr, g_r: g_arr, n_bins, dr, }
 }
 
 ///|
@@ -98,7 +96,7 @@ fn round(x : Double) -> Double {
   if x >= 0.0 {
     (x + 0.5).to_int().to_double()
   } else {
-    -((-x + 0.5).to_int().to_double())
+    -(-x + 0.5).to_int().to_double()
   }
 }
 

@@ -17,15 +17,19 @@ pub enum InfernalTabularFormat {
   Format2
   Format3
 } derive(Eq, Debug)
+
+///|
 pub extend InfernalTabularFormat with Eq::{equal, not_equal}
+
+///|
 pub extend InfernalTabularFormat with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct InfernalFragment {
-  query_start : Int
-  query_end : Int
-  hit_start : Int
-  hit_end : Int
+  query_start : Int32
+  query_end : Int32
+  hit_start : Int32
+  hit_end : Int32
   hit_strand : Strand
   query_sequence : String
   hit_sequence : String
@@ -33,9 +37,11 @@ pub struct InfernalFragment {
   noncanonical_pairs : String
   similarity : String
   posterior_probability : String
-  model_omission_before : Int
-  sequence_omission_before : Int
+  model_omission_before : Int32
+  sequence_omission_before : Int32
 } derive(Debug)
+
+///|
 pub extend InfernalFragment with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -43,7 +49,7 @@ pub struct InfernalHSP {
   fragments : Array[InfernalFragment]
   model : String
   truncated : String
-  pipeline_pass : Int
+  pipeline_pass : Int32
   gc : Double
   bias : Double
   bitscore : Double
@@ -53,13 +59,15 @@ pub struct InfernalHSP {
   hit_end_type : String
   average_accuracy : Double
   overlap : String
-  any_index : Int?
+  any_index : Int32?
   any_overlap_fraction : Double?
   reciprocal_overlap_fraction : Double?
-  winner_index : Int?
+  winner_index : Int32?
   winner_overlap_fraction : Double?
   winner_reciprocal_fraction : Double?
 } derive(Debug)
+
+///|
 pub extend InfernalHSP with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -67,9 +75,11 @@ pub struct InfernalHit {
   id : String
   accession : String
   description : String
-  model_length : Int
+  model_length : Int32
   hsps : Array[InfernalHSP]
 } derive(Debug)
+
+///|
 pub extend InfernalHit with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -78,12 +88,14 @@ pub struct InfernalQueryResult {
   accession : String
   description : String
   clan : String
-  sequence_length : Int
+  sequence_length : Int32
   program : String
   version : String
   target : String
   hits : Array[InfernalHit]
 } derive(Debug)
+
+///|
 pub extend InfernalQueryResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -91,20 +103,20 @@ priv struct InfernalTabRow {
   query_id : String
   query_accession : String
   query_clan : String
-  query_length : Int
+  query_length : Int32
   hit_id : String
   hit_accession : String
   hit_description : String
-  hit_model_length : Int
+  hit_model_length : Int32
   hsp : InfernalHSP
 }
 
 ///|
 priv struct InfernalMarker {
-  start : Int
-  end : Int
-  model_size : Int
-  sequence_size : Int
+  start : Int32
+  end : Int32
+  model_size : Int32
+  sequence_size : Int32
 }
 
 ///|
@@ -134,7 +146,7 @@ fn infernal_split_whitespace(s : String) -> Array[String] {
 }
 
 ///|
-fn infernal_join(values : Array[String], start : Int) -> String {
+fn infernal_join(values : Array[String], start : Int32) -> String {
   let mut result = ""
   for index in start..<values.length() {
     if index > start {
@@ -149,7 +161,7 @@ fn infernal_join(values : Array[String], start : Int) -> String {
 fn infernal_parse_int(
   value : String,
   label : String,
-) -> Int raise InfernalError {
+) -> Int32 raise InfernalError {
   if value.length() == 0 {
     raise InfernalError("missing integer field " + label)
   }
@@ -186,7 +198,7 @@ fn infernal_parse_double(
 }
 
 ///|
-fn infernal_optional_int(value : String) -> Int? raise InfernalError {
+fn infernal_optional_int(value : String) -> Int32? raise InfernalError {
   if value == "-" || value == "\"" {
     None
   } else {
@@ -204,7 +216,7 @@ fn infernal_optional_double(value : String) -> Double? raise InfernalError {
 }
 
 ///|
-fn infernal_digit_count(value : String) -> Int {
+fn infernal_digit_count(value : String) -> Int32 {
   let mut result = 0
   for index in 0..<value.length() {
     let digit = value.unsafe_get(index).to_int()
@@ -238,10 +250,10 @@ fn infernal_is_integer(value : String) -> Bool {
 
 ///|
 fn infernal_coordinate_fragment(
-  model_from : Int,
-  model_to : Int,
-  sequence_from : Int,
-  sequence_to : Int,
+  model_from : Int32,
+  model_to : Int32,
+  sequence_from : Int32,
+  sequence_to : Int32,
   strand : String,
 ) -> InfernalFragment raise InfernalError {
   if model_from < 1 || model_to < 1 || sequence_from < 1 || sequence_to < 1 {
@@ -306,8 +318,8 @@ pub fn infernal_tabular_format(
 ///|
 fn infernal_format_number(
   content : String,
-  requested : Int,
-) -> Int raise InfernalError {
+  requested : Int32,
+) -> Int32 raise InfernalError {
   if requested != 0 {
     if requested < 1 || requested > 3 {
       raise InfernalError("Infernal tabular format must be 1, 2, or 3")
@@ -324,7 +336,7 @@ fn infernal_format_number(
 ///|
 fn infernal_parse_tab_row(
   values : Array[String],
-  format : Int,
+  format : Int32,
 ) -> InfernalTabRow raise InfernalError {
   let minimum = if format == 1 { 18 } else if format == 2 { 29 } else { 20 }
   if values.length() < minimum {
@@ -342,10 +354,10 @@ fn infernal_parse_tab_row(
   let mut model_length = 0
   let mut sequence_length = 0
   let mut overlap = ""
-  let mut any_index : Int? = None
+  let mut any_index : Int32? = None
   let mut any_fraction : Double? = None
   let mut reciprocal_fraction : Double? = None
-  let mut winner_index : Int? = None
+  let mut winner_index : Int32? = None
   let mut winner_fraction : Double? = None
   let mut winner_reciprocal : Double? = None
   let description_start = if format == 1 {
@@ -488,7 +500,7 @@ fn infernal_build_results(
 /// strand sequence coordinates are reordered while retaining `Strand::Minus`.
 pub fn infernal_parse_tabular(
   content : String,
-  format? : Int = 0,
+  format~ : Int32 = 0,
 ) -> Array[InfernalQueryResult] raise InfernalError {
   let selected = infernal_format_number(content, format)
   let rows : Array[InfernalTabRow] = []
@@ -506,7 +518,7 @@ pub fn infernal_parse_tabular(
 }
 
 ///|
-fn infernal_marker_at(sequence : String, start : Int) -> (Int, Int)? {
+fn infernal_marker_at(sequence : String, start : Int32) -> (Int32, Int32)? {
   if start + 4 >= sequence.length() ||
     sequence.unsafe_get(start).to_int() != '*'.to_int() ||
     sequence.unsafe_get(start + 1).to_int() != '['.to_int() {
@@ -582,7 +594,11 @@ fn infernal_find_markers(
 }
 
 ///|
-fn infernal_residue_count(sequence : String, start : Int, end : Int) -> Int {
+fn infernal_residue_count(
+  sequence : String,
+  start : Int32,
+  end : Int32,
+) -> Int32 {
   let bounded_end = end.min(sequence.length())
   if start >= bounded_end {
     return 0
@@ -599,7 +615,7 @@ fn infernal_residue_count(sequence : String, start : Int, end : Int) -> Int {
 }
 
 ///|
-fn infernal_slice(sequence : String, start : Int, end : Int) -> String {
+fn infernal_slice(sequence : String, start : Int32, end : Int32) -> String {
   let bounded_start = start.min(sequence.length())
   let bounded_end = end.min(sequence.length())
   if bounded_start >= bounded_end {
@@ -618,14 +634,14 @@ fn infernal_add_fragment(
   noncanonical_pairs : String,
   similarity : String,
   posterior_probability : String,
-  start : Int,
-  end : Int,
-  model_position : Int,
-  hit_position : Int,
+  start : Int32,
+  end : Int32,
+  model_position : Int32,
+  hit_position : Int32,
   strand : Strand,
-  model_omission : Int,
-  sequence_omission : Int,
-) -> (Int, Int) {
+  model_omission : Int32,
+  sequence_omission : Int32,
+) -> (Int32, Int32) {
   let model_count = infernal_residue_count(model_sequence, start, end)
   let hit_count = infernal_residue_count(hit_sequence, start, end)
   if model_count == 0 && hit_count == 0 {
@@ -841,8 +857,8 @@ fn infernal_parse_text_hsp(
 ///|
 fn infernal_alignment_strings(
   lines : Array[String],
-  start : Int,
-  end : Int,
+  start : Int32,
+  end : Int32,
   query_id : String,
   hit_id : String,
 ) -> (String, String, String, String, String, String) {
@@ -896,8 +912,8 @@ fn infernal_alignment_strings(
 ///|
 fn infernal_parse_text_hit(
   lines : Array[String],
-  start : Int,
-  end : Int,
+  start : Int32,
+  end : Int32,
   query_id : String,
 ) -> InfernalHit raise InfernalError {
   let (hit_id, description) = infernal_text_hit_header(lines[start])
@@ -950,8 +966,8 @@ fn infernal_parse_text_hit(
 ///|
 fn infernal_parse_noali_rows(
   lines : Array[String],
-  start : Int,
-  end : Int,
+  start : Int32,
+  end : Int32,
 ) -> Array[InfernalHit] raise InfernalError {
   let hits : Array[InfernalHit] = []
   let mut table_started = false
@@ -1105,7 +1121,7 @@ pub fn infernal_parse_text(
     }
     let hits : Array[InfernalHit] = []
     if metadata.3 {
-      let hit_starts : Array[Int] = []
+      let hit_starts : Array[Int32] = []
       for cursor in (query_start + 1)..<query_end {
         if lines[cursor].trim().has_prefix(">> ") {
           hit_starts.push(cursor)
@@ -1148,7 +1164,7 @@ pub fn infernal_parse_text(
 }
 
 ///|
-pub fn InfernalHSP::query_start(self : InfernalHSP) -> Int {
+pub fn InfernalHSP::query_start(self : InfernalHSP) -> Int32 {
   if self.fragments.length() == 0 {
     -1
   } else {
@@ -1163,7 +1179,7 @@ pub fn InfernalHSP::query_start(self : InfernalHSP) -> Int {
 }
 
 ///|
-pub fn InfernalHSP::query_end(self : InfernalHSP) -> Int {
+pub fn InfernalHSP::query_end(self : InfernalHSP) -> Int32 {
   let mut result = -1
   for fragment in self.fragments {
     result = result.max(fragment.query_end)
@@ -1172,7 +1188,7 @@ pub fn InfernalHSP::query_end(self : InfernalHSP) -> Int {
 }
 
 ///|
-pub fn InfernalHSP::hit_start(self : InfernalHSP) -> Int {
+pub fn InfernalHSP::hit_start(self : InfernalHSP) -> Int32 {
   if self.fragments.length() == 0 {
     -1
   } else {
@@ -1185,7 +1201,7 @@ pub fn InfernalHSP::hit_start(self : InfernalHSP) -> Int {
 }
 
 ///|
-pub fn InfernalHSP::hit_end(self : InfernalHSP) -> Int {
+pub fn InfernalHSP::hit_end(self : InfernalHSP) -> Int32 {
   let mut result = -1
   for fragment in self.fragments {
     result = result.max(fragment.hit_end)
@@ -1194,7 +1210,7 @@ pub fn InfernalHSP::hit_end(self : InfernalHSP) -> Int {
 }
 
 ///|
-pub fn InfernalHSP::alignment_span(self : InfernalHSP) -> Int {
+pub fn InfernalHSP::alignment_span(self : InfernalHSP) -> Int32 {
   let mut result = 0
   for fragment in self.fragments {
     result = result + fragment.hit_end - fragment.hit_start
@@ -1218,7 +1234,7 @@ pub fn InfernalHit::best_hsp(self : InfernalHit) -> InfernalHSP? {
 }
 
 ///|
-pub fn InfernalQueryResult::count_hsps(self : InfernalQueryResult) -> Int {
+pub fn InfernalQueryResult::count_hsps(self : InfernalQueryResult) -> Int32 {
   let mut count = 0
   for hit in self.hits {
     count = count + hit.hsps.length()
@@ -1229,8 +1245,8 @@ pub fn InfernalQueryResult::count_hsps(self : InfernalQueryResult) -> Int {
 ///|
 pub fn InfernalQueryResult::filter(
   self : InfernalQueryResult,
-  maximum_evalue? : Double = 1.0,
-  included_only? : Bool = false,
+  maximum_evalue~ : Double = 1.0,
+  included_only~ : Bool = false,
 ) -> InfernalQueryResult raise InfernalError {
   if maximum_evalue < 0.0 || maximum_evalue.is_nan() {
     raise InfernalError("maximum_evalue must be non-negative")

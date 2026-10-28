@@ -7,7 +7,7 @@
 /// documentation (plus hand-computed weighted cases).
 
 ///|
-fn afreq_close(a : Double, b : Double, tol? : Double = 1.0e-9) -> Bool {
+fn afreq_close(a : Double, b : Double, tol~ : Double = 1.0e-9) -> Bool {
   (a - b).abs() < tol
 }
 
@@ -23,7 +23,7 @@ fn afreq_val(m : Map[String, Double], key : String) -> Double {
 fn afreq_mat_close(
   a : Array[Array[Double]],
   b : Array[Array[Double]],
-  tol? : Double = 1.0e-9,
+  tol~ : Double = 1.0e-9,
 ) -> Bool {
   if a.length() != b.length() {
     return false
@@ -35,7 +35,7 @@ fn afreq_mat_close(
     }
     let mut j = 0
     while j < a[i].length() {
-      if !(afreq_close(a[i][j], b[i][j], tol~)) {
+      if !afreq_close(a[i][j], b[i][j], tol~) {
         return false
       }
       j = j + 1

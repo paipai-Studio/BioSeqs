@@ -198,8 +198,8 @@ fn blast_xml_test_xml2() -> String {
 ///|
 fn blast_xml_test_xml2_hsp(
   program : String,
-  query_length : Int,
-  target_length : Int,
+  query_length : Int32,
+  target_length : Int32,
   hsp : String,
 ) -> String {
   "<?xml version=\"1.0\"?>\n" +

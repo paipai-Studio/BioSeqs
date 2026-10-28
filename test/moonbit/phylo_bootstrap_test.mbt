@@ -82,10 +82,10 @@ fn pbs_near(a : Double, b : Double) -> Bool {
 }
 
 ///|
-fn pbs_resample(seq : String, cols : Array[Int]) -> String {
+fn pbs_resample(seq : String, cols : Array[Int32]) -> String {
   let sb = StringBuilder()
   for j in cols {
-    sb.write_char((seq.unsafe_get(j).to_int()).unsafe_to_char())
+    sb.write_char(seq.unsafe_get(j).to_int().unsafe_to_char())
   }
   sb.to_string()
 }
@@ -105,7 +105,7 @@ fn pbs_raise_strict(trees : Array[@src.Tree]) -> String {
 fn pbs_raise_bootstrap(
   seqs : Array[String],
   names : Array[String],
-  cols : Array[Array[Int]],
+  cols : Array[Array[Int32]],
   consensus : String,
 ) -> String {
   try {
@@ -318,7 +318,7 @@ test "pbs_bootstrap_column_indices_deterministic_and_in_range" {
 // ---------------------------------------------------------------------------
 
 ///|
-fn pbs_frozen_columns() -> Array[Array[Int]] {
+fn pbs_frozen_columns() -> Array[Array[Int32]] {
   [
     [1, 0, 4, 3, 3, 2, 1, 8, 1, 9],
     [6, 0, 0, 1, 3, 3, 8, 9, 0, 8],

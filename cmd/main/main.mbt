@@ -14,7 +14,7 @@ struct Case {
 ///|
 /// Helper to record a case result.
 fn record(cases : Array[Case], name : String, result : String) -> Unit {
-  cases.push(Case::{ name, result })
+  cases.push(Case::{ name, result, })
 }
 
 ///|

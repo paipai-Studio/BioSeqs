@@ -23,9 +23,9 @@ fn sd_test_finite(value : Double) -> Bool {
 
 ///|
 fn sd_test_config(
-  rescale_profile? : Bool = false,
-  refit_outliers? : Bool = false,
-  residual_threshold? : Double = 3.0,
+  rescale_profile~ : Bool = false,
+  refit_outliers~ : Bool = false,
+  residual_threshold~ : Double = 3.0,
 ) -> @src.SpatialDeconConfig {
   @src.SpatialDeconConfig::create(
     residual_threshold~,
@@ -62,7 +62,7 @@ fn sd_test_exact_data() -> @src.SpatialDeconData {
 
 ///|
 fn sd_test_exact_result(
-  nuclei_counts? : Array[Double] = [],
+  nuclei_counts~ : Array[Double] = [],
 ) -> @src.SpatialDeconResult {
   @src.spatial_decon(
     sd_test_exact_data(),

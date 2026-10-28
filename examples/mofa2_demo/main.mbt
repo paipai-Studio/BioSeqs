@@ -1,7 +1,6 @@
 ///|
 /// MOFA2 multi-omics factor analysis demo.
 /// Demonstrates sparse Bayesian factor analysis on multi-omics data.
-
 fn main {
   println("=== MOFA2 Multi-Omics Factor Analysis Demo ===")
   println("")
@@ -10,22 +9,26 @@ fn main {
   let n_samples = 50
   let views = @bio.mofa_create_example(n_samples, 5)
 
-  println("Input: \{n_samples.to_string()} samples, \{views.length().to_string()} omics views")
+  println(
+    "Input: \{n_samples.to_string()} samples, \{views.length().to_string()} omics views",
+  )
   {
     let mut i = 0
     while i < views.length() {
       let view = views[i]
-      println("  View \{i.to_string()}: \{view.view_name} (\{view.n_features().to_string()} features)")
+      println(
+        "  View \{i.to_string()}: \{view.view_name} (\{view.n_features().to_string()} features)",
+      )
       i = i + 1
     }
   }
 
   // Configure MOFA2
   let params = @bio.MofaParams::create(
-    n_factors = 5,
-    max_iterations = 100,
-    tolerance = 0.01,
-    seed = 42,
+    n_factors=5,
+    max_iterations=100,
+    tolerance=0.01,
+    seed=42,
   )
 
   // Run MOFA2

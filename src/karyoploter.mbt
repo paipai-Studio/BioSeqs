@@ -51,8 +51,8 @@ pub fn track_type_ideogram() -> TrackType {
 /// A genomic region for plotting.
 pub struct KaryotypeRegion {
   chromosome : String
-  start : Int
-  end : Int
+  start : Int32
+  end : Int32
   label : String
   color : String
 }
@@ -61,7 +61,7 @@ pub struct KaryotypeRegion {
 /// A data point on a genomic track.
 pub struct TrackPoint {
   chromosome : String
-  position : Int
+  position : Int32
   value : Double
   label : String
 }
@@ -72,8 +72,8 @@ pub struct KaryotypeTrack {
   track_id : String
   track_type : TrackType
   chromosome : String
-  start : Int
-  end : Int
+  start : Int32
+  end : Int32
   data : Array[TrackPoint]
   color : String
   y_min : Double
@@ -85,8 +85,8 @@ pub struct KaryotypeTrack {
 /// A chromosome ideogram representation.
 pub struct IdeogramBand {
   chromosome : String
-  start : Int
-  end : Int
+  start : Int32
+  end : Int32
   band_name : String
   stain : String
 }
@@ -96,7 +96,7 @@ pub struct IdeogramBand {
 pub struct KaryotypePlot {
   genome : String
   chromosomes : Array[String]
-  chromosome_sizes : Map[String, Int]
+  chromosome_sizes : Map[String, Int32]
   tracks : Array[KaryotypeTrack]
   regions : Array[KaryotypeRegion]
   ideograms : Array[IdeogramBand]
@@ -119,7 +119,7 @@ pub fn TrackType::to_string(self : TrackType) -> String {
 /// Create a new karyotype plot for a genome.
 pub fn KaryotypePlot::new(genome : String) -> KaryotypePlot {
   let chromosomes : Array[String] = Array(capacity=0)
-  let chromosome_sizes : Map[String, Int] = Map([], capacity=25)
+  let chromosome_sizes : Map[String, Int32] = Map([], capacity=25)
   let tracks : Array[KaryotypeTrack] = Array(capacity=0)
   let regions : Array[KaryotypeRegion] = Array(capacity=0)
   let ideograms : Array[IdeogramBand] = Array(capacity=0)
@@ -174,7 +174,7 @@ pub fn KaryotypePlot::get_chromosomes(plot : KaryotypePlot) -> Array[String] {
 pub fn KaryotypePlot::get_chromosome_size(
   plot : KaryotypePlot,
   chr : String,
-) -> Int {
+) -> Int32 {
   match plot.chromosome_sizes.get(chr) {
     Some(s) => s
     None => 0
@@ -183,13 +183,13 @@ pub fn KaryotypePlot::get_chromosome_size(
 
 ///|
 /// Get the number of tracks.
-pub fn KaryotypePlot::get_n_tracks(plot : KaryotypePlot) -> Int {
+pub fn KaryotypePlot::get_n_tracks(plot : KaryotypePlot) -> Int32 {
   plot.tracks.length()
 }
 
 ///|
 /// Get the number of regions.
-pub fn KaryotypePlot::get_n_regions(plot : KaryotypePlot) -> Int {
+pub fn KaryotypePlot::get_n_regions(plot : KaryotypePlot) -> Int32 {
   plot.regions.length()
 }
 
@@ -237,8 +237,8 @@ pub fn KaryotypeTrack::new(
   track_id : String,
   track_type : TrackType,
   chromosome : String,
-  start : Int,
-  end : Int,
+  start : Int32,
+  end : Int32,
   label : String,
 ) -> KaryotypeTrack {
   KaryotypeTrack::{
@@ -281,7 +281,7 @@ pub fn KaryotypeTrack::add_point(
 /// Create a new track point.
 pub fn TrackPoint::new(
   chromosome : String,
-  position : Int,
+  position : Int32,
   value : Double,
   label : String,
 ) -> TrackPoint {
@@ -292,8 +292,8 @@ pub fn TrackPoint::new(
 /// Create a new karyotype region.
 pub fn KaryotypeRegion::new(
   chromosome : String,
-  start : Int,
-  end : Int,
+  start : Int32,
+  end : Int32,
   label : String,
   color : String,
 ) -> KaryotypeRegion {
@@ -304,8 +304,8 @@ pub fn KaryotypeRegion::new(
 /// Create a new ideogram band.
 pub fn IdeogramBand::new(
   chromosome : String,
-  start : Int,
-  end : Int,
+  start : Int32,
+  end : Int32,
   band_name : String,
   stain : String,
 ) -> IdeogramBand {
@@ -361,7 +361,7 @@ pub fn KaryotypeTrack::get_data(track : KaryotypeTrack) -> Array[TrackPoint] {
 
 ///|
 /// Get number of data points.
-pub fn KaryotypeTrack::get_n_points(track : KaryotypeTrack) -> Int {
+pub fn KaryotypeTrack::get_n_points(track : KaryotypeTrack) -> Int32 {
   track.data.length()
 }
 
@@ -398,7 +398,7 @@ pub fn KaryotypeTrack::filter_chromosome(
 pub fn KaryotypePlot::to_ascii(
   plot : KaryotypePlot,
   chr : String,
-  width : Int,
+  width : Int32,
 ) -> String {
   let w = if width < 40 { 60 } else { width }
   let chr_size = plot.get_chromosome_size(chr)

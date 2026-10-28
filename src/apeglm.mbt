@@ -11,7 +11,7 @@ pub suberror ApeglmError {
 
 ///|
 pub struct ApeglmConfig {
-  coefficient : Int
+  coefficient : Int32
   threshold : Double
   interval_level : Double
   prior_scale : Double
@@ -19,28 +19,32 @@ pub struct ApeglmConfig {
   prior_no_shrink_scale : Double
   adaptive_prior : Bool
   multiplier : Double
-  max_iterations : Int
+  max_iterations : Int32
   tolerance : Double
   max_step : Double
-  random_starts : Int
+  random_starts : Int32
 } derive(Eq, Debug)
+
+///|
 pub extend ApeglmConfig with Eq::{equal, not_equal}
+
+///|
 pub extend ApeglmConfig with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub fn ApeglmConfig::create(
-  coefficient? : Int = -1,
-  threshold? : Double = 0.0,
-  interval_level? : Double = 0.95,
-  prior_scale? : Double = 1.0,
-  prior_df? : Double = 1.0,
-  prior_no_shrink_scale? : Double = 15.0,
-  adaptive_prior? : Bool = true,
-  multiplier? : Double = 1.0,
-  max_iterations? : Int = 100,
-  tolerance? : Double = 1.0e-7,
-  max_step? : Double = 2.0,
-  random_starts? : Int = 5,
+  coefficient~ : Int32 = -1,
+  threshold~ : Double = 0.0,
+  interval_level~ : Double = 0.95,
+  prior_scale~ : Double = 1.0,
+  prior_df~ : Double = 1.0,
+  prior_no_shrink_scale~ : Double = 15.0,
+  adaptive_prior~ : Bool = true,
+  multiplier~ : Double = 1.0,
+  max_iterations~ : Int32 = 100,
+  tolerance~ : Double = 1.0e-7,
+  max_step~ : Double = 2.0,
+  random_starts~ : Int32 = 5,
 ) -> ApeglmConfig raise ApeglmError {
   if coefficient < -1 {
     raise ApeglmError("apeglm coefficient must be -1 or a zero-based index")
@@ -117,7 +121,7 @@ pub fn ApeglmConfig::default() -> ApeglmConfig {
 
 ///|
 pub struct ApeglmPriorControl {
-  no_shrink : Array[Int]
+  no_shrink : Array[Int32]
   prior_mean : Double
   prior_scale : Double
   prior_variance : Double
@@ -125,6 +129,8 @@ pub struct ApeglmPriorControl {
   prior_no_shrink_scale : Double
   adaptive : Bool
 } derive(Debug)
+
+///|
 pub extend ApeglmPriorControl with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -142,34 +148,42 @@ pub struct ApeglmGeneResult {
   interval_upper : Double
   log_posterior : Double
   converged : Bool
-  iterations : Int
+  iterations : Int32
 } derive(Debug)
+
+///|
 pub extend ApeglmGeneResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct ApeglmResult {
   gene_names : Array[String]
   coefficient_names : Array[String]
-  coefficient : Int
+  coefficient : Int32
   genes : Array[ApeglmGeneResult]
   prior_control : ApeglmPriorControl
   threshold : Double
   interval_level : Double
   config : ApeglmConfig
 } derive(Debug)
+
+///|
 pub extend ApeglmResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct ApeglmSummary {
-  gene_count : Int
-  converged_count : Int
-  selected_count : Int
-  low_fsr_count : Int
+  gene_count : Int32
+  converged_count : Int32
+  selected_count : Int32
+  low_fsr_count : Int32
   prior_scale : Double
   median_absolute_effect : Double
   coefficient_name : String
 } derive(Eq, Debug)
+
+///|
 pub extend ApeglmSummary with Eq::{equal, not_equal}
+
+///|
 pub extend ApeglmSummary with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -191,11 +205,11 @@ priv struct ApeglmOptimization {
   covariance : Array[Array[Double]]
   value : Double
   converged : Bool
-  iterations : Int
+  iterations : Int32
 }
 
 ///|
-fn apeglm_zero_matrix(rows : Int, columns : Int) -> Array[Array[Double]] {
+fn apeglm_zero_matrix(rows : Int32, columns : Int32) -> Array[Array[Double]] {
   let output : Array[Array[Double]] = []
   for _ in 0..<rows {
     output.push(Array::make(columns, 0.0))
@@ -390,8 +404,8 @@ fn apeglm_covariance(
 ///|
 fn apeglm_validate_matrix(
   matrix : Array[Array[Double]],
-  rows : Int,
-  columns : Int,
+  rows : Int32,
+  columns : Int32,
   label : String,
   non_negative : Bool,
 ) -> Unit raise ApeglmError {
@@ -420,7 +434,7 @@ fn apeglm_validate_inputs(
   gene_names : Array[String],
   coefficient_names : Array[String],
   config : ApeglmConfig,
-) -> (Int, Int, Int, Int) raise ApeglmError {
+) -> (Int32, Int32, Int32, Int32) raise ApeglmError {
   if counts.length() == 0 {
     raise ApeglmError("apeglm counts must contain at least one feature")
   }
@@ -516,7 +530,7 @@ fn apeglm_validate_inputs(
 ///|
 fn apeglm_names(
   names : Array[String],
-  count : Int,
+  count : Int32,
   prefix : String,
 ) -> Array[String] raise ApeglmError {
   if names.length() == 0 {
@@ -543,8 +557,8 @@ fn apeglm_names(
 ///|
 fn apeglm_offsets(
   offsets : Array[Array[Double]],
-  genes : Int,
-  samples : Int,
+  genes : Int32,
+  samples : Int32,
 ) -> Array[Array[Double]] {
   if offsets.length() == 0 {
     apeglm_zero_matrix(genes, samples)
@@ -556,8 +570,8 @@ fn apeglm_offsets(
 ///|
 fn apeglm_weights(
   weights : Array[Array[Double]],
-  genes : Int,
-  samples : Int,
+  genes : Int32,
+  samples : Int32,
 ) -> Array[Array[Double]] {
   if weights.length() == 0 {
     let output : Array[Array[Double]] = []
@@ -576,8 +590,8 @@ pub fn apeglm_log_likelihood_nb(
   design : Array[Array[Double]],
   beta : Array[Double],
   dispersion : Double,
-  offsets? : Array[Double] = [],
-  weights? : Array[Double] = [],
+  offsets~ : Array[Double] = [],
+  weights~ : Array[Double] = [],
 ) -> Double raise ApeglmError {
   if counts.length() == 0 || design.length() != counts.length() {
     raise ApeglmError(
@@ -629,7 +643,7 @@ fn apeglm_evaluate(
   offsets : Array[Double],
   weights : Array[Double],
   beta : Array[Double],
-  coefficient : Int,
+  coefficient : Int32,
   with_prior : Bool,
   prior_scale : Double,
   prior_df : Double,
@@ -722,7 +736,7 @@ fn apeglm_optimize(
   offsets : Array[Double],
   weights : Array[Double],
   initial : Array[Double],
-  coefficient : Int,
+  coefficient : Int32,
   with_prior : Bool,
   prior_scale : Double,
   config : ApeglmConfig,
@@ -784,8 +798,7 @@ fn apeglm_optimize(
         config.prior_df,
         config.prior_no_shrink_scale,
       )
-      if is_finite(next.value) &&
-        next.value >= evaluation.value - 1.0e-10 {
+      if is_finite(next.value) && next.value >= evaluation.value - 1.0e-10 {
         accepted = true
         accepted_change = change
         accepted_beta = candidate
@@ -827,9 +840,9 @@ fn apeglm_optimize(
 ///|
 fn apeglm_target_starts(
   mle : Array[Double],
-  coefficient : Int,
+  coefficient : Int32,
   prior_scale : Double,
-  count : Int,
+  count : Int32,
 ) -> Array[Array[Double]] {
   let starts : Array[Array[Double]] = [mle.copy()]
   if starts.length() < count {
@@ -856,11 +869,7 @@ fn apeglm_target_starts(
   while starts.length() < count {
     let candidate = mle.copy()
     let sign = if starts.length() % 2 == 0 { 1.0 } else { -1.0 }
-    candidate[coefficient] = clamp(
-      sign * shell * prior_scale,
-      -30.0,
-      30.0,
-    )
+    candidate[coefficient] = clamp(sign * shell * prior_scale, -30.0, 30.0)
     starts.push(candidate)
     if sign < 0.0 {
       shell = shell * 2.0
@@ -877,7 +886,7 @@ fn apeglm_fit_map(
   offsets : Array[Double],
   weights : Array[Double],
   mle : Array[Double],
-  coefficient : Int,
+  coefficient : Int32,
   prior_scale : Double,
   config : ApeglmConfig,
 ) -> ApeglmOptimization {
@@ -956,8 +965,8 @@ fn apeglm_prior_objective(
 pub fn apeglm_prior_variance(
   estimates : Array[Double],
   standard_errors : Array[Double],
-  minimum? : Double = 1.0e-6,
-  maximum? : Double = 400.0,
+  minimum~ : Double = 1.0e-6,
+  maximum~ : Double = 400.0,
 ) -> Double raise ApeglmError {
   if estimates.length() == 0 || estimates.length() != standard_errors.length() {
     raise ApeglmError(
@@ -1003,7 +1012,7 @@ pub fn apeglm_prior_variance(
 ///|
 pub fn apeglm_s_values(local_fsr : Array[Double]) -> Array[Double] {
   let count = local_fsr.length()
-  let order : Array[Int] = []
+  let order : Array[Int32] = []
   for index in 0..<count {
     order.push(index)
   }
@@ -1066,11 +1075,11 @@ pub fn apeglm_fit(
   counts : Array[Array[Double]],
   design : Array[Array[Double]],
   dispersions : Array[Double],
-  config? : ApeglmConfig = ApeglmConfig::default(),
-  offsets? : Array[Array[Double]] = [],
-  weights? : Array[Array[Double]] = [],
-  gene_names? : Array[String] = [],
-  coefficient_names? : Array[String] = [],
+  config~ : ApeglmConfig = ApeglmConfig::default(),
+  offsets~ : Array[Array[Double]] = [],
+  weights~ : Array[Array[Double]] = [],
+  gene_names~ : Array[String] = [],
+  coefficient_names~ : Array[String] = [],
 ) -> ApeglmResult raise ApeglmError {
   let (gene_count, sample_count, coefficient_count, coefficient) = apeglm_validate_inputs(
     counts, design, dispersions, offsets, weights, gene_names, coefficient_names,
@@ -1173,7 +1182,7 @@ pub fn apeglm_fit(
   for index in 0..<gene_count {
     genes.push(apeglm_gene_with_s_value(raw_genes[index], s_values[index]))
   }
-  let no_shrink : Array[Int] = []
+  let no_shrink : Array[Int32] = []
   for index in 0..<coefficient_count {
     if index != coefficient {
       no_shrink.push(index)
@@ -1202,8 +1211,8 @@ pub fn apeglm_fit(
 ///|
 pub fn ApeglmGeneResult::effect(
   self : ApeglmGeneResult,
-  coefficient : Int,
-  log2_scale? : Bool = false,
+  coefficient : Int32,
+  log2_scale~ : Bool = false,
 ) -> Double {
   let value = self.map[coefficient]
   if log2_scale {
@@ -1216,8 +1225,8 @@ pub fn ApeglmGeneResult::effect(
 ///|
 pub fn ApeglmGeneResult::standard_error(
   self : ApeglmGeneResult,
-  coefficient : Int,
-  log2_scale? : Bool = false,
+  coefficient : Int32,
+  log2_scale~ : Bool = false,
 ) -> Double {
   let value = self.posterior_sd[coefficient]
   if log2_scale {
@@ -1248,7 +1257,7 @@ pub fn ApeglmResult::sd_matrix(self : ApeglmResult) -> Array[Array[Double]] {
 ///|
 pub fn ApeglmResult::gene(
   self : ApeglmResult,
-  index : Int,
+  index : Int32,
 ) -> ApeglmGeneResult? {
   if index < 0 || index >= self.genes.length() {
     None
@@ -1292,9 +1301,9 @@ pub fn ApeglmResult::ranked(self : ApeglmResult) -> Array[ApeglmGeneResult] {
 ///|
 pub fn ApeglmResult::select(
   self : ApeglmResult,
-  maximum_s_value? : Double = 0.05,
-  minimum_absolute_effect? : Double = 0.0,
-  use_threshold_probability? : Bool = false,
+  maximum_s_value~ : Double = 0.05,
+  minimum_absolute_effect~ : Double = 0.0,
+  use_threshold_probability~ : Bool = false,
 ) -> Array[ApeglmGeneResult] {
   let output : Array[ApeglmGeneResult] = []
   for gene in self.genes {
@@ -1314,7 +1323,7 @@ pub fn ApeglmResult::select(
 ///|
 pub fn ApeglmResult::summary(
   self : ApeglmResult,
-  maximum_s_value? : Double = 0.05,
+  maximum_s_value~ : Double = 0.05,
 ) -> ApeglmSummary {
   let mut converged_count = 0
   let mut low_fsr_count = 0
@@ -1351,7 +1360,7 @@ pub fn ApeglmResult::summary(
 ///|
 pub fn ApeglmResult::to_tsv(
   self : ApeglmResult,
-  log2_scale? : Bool = true,
+  log2_scale~ : Bool = true,
 ) -> String {
   let output = StringBuilder()
   let scale_label = if log2_scale { "log2" } else { "ln" }
@@ -1395,8 +1404,8 @@ pub fn ApeglmResult::to_tsv(
 ///|
 pub fn apeglm_from_deseq2(
   dataset : DESeqDataSet,
-  config? : ApeglmConfig = ApeglmConfig::default(),
-  coefficient_names? : Array[String] = [],
+  config~ : ApeglmConfig = ApeglmConfig::default(),
+  coefficient_names~ : Array[String] = [],
 ) -> ApeglmResult raise ApeglmError {
   let counts : Array[Array[Double]] = []
   for row in dataset.counts {
@@ -1459,12 +1468,12 @@ pub fn apeglm_summarized_experiment(
   experiment : SummarizedExperiment,
   design : Array[Array[Double]],
   dispersions : Array[Double],
-  config? : ApeglmConfig = ApeglmConfig::default(),
-  assay_name? : String = "counts",
-  offsets? : Array[Array[Double]] = [],
-  weights? : Array[Array[Double]] = [],
-  gene_names? : Array[String] = [],
-  coefficient_names? : Array[String] = [],
+  config~ : ApeglmConfig = ApeglmConfig::default(),
+  assay_name~ : String = "counts",
+  offsets~ : Array[Array[Double]] = [],
+  weights~ : Array[Array[Double]] = [],
+  gene_names~ : Array[String] = [],
+  coefficient_names~ : Array[String] = [],
 ) -> ApeglmSummarizedExperimentOutput raise ApeglmError {
   let counts = match se_assay(experiment, assay_name) {
     Some(value) => value

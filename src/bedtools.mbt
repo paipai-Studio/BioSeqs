@@ -9,30 +9,37 @@
 ///|
 pub struct BedInterval {
   chrom : String
-  start : Int
-  end : Int
+  start : Int32
+  end : Int32
 }
 
 ///|
-pub fn BedInterval::new(chrom : String, start : Int, end : Int) -> BedInterval {
-  BedInterval::{ chrom, start, end }
+pub fn BedInterval::new(
+  chrom : String,
+  start : Int32,
+  end : Int32,
+) -> BedInterval {
+  BedInterval::{ chrom, start, end, }
 }
 
 ///|
 enum ItreeNode {
   ItreeNil
-  ItreeNode(Int, ItreeNode, ItreeNode, Array[Int], Array[Int])
+  ItreeNode(Int32, ItreeNode, ItreeNode, Array[Int32], Array[Int32])
 }
 
 ///|
 pub struct IntervalTree {
   root : ItreeNode
-  starts : Array[Int]
-  ends : Array[Int]
+  starts : Array[Int32]
+  ends : Array[Int32]
 }
 
 ///|
-fn itree_sort_by_start(starts : Array[Int], idxs : Array[Int]) -> Array[Int] {
+fn itree_sort_by_start(
+  starts : Array[Int32],
+  idxs : Array[Int32],
+) -> Array[Int32] {
   let out = idxs.copy()
   let mut i = 1
   while i < out.length() {
@@ -49,7 +56,10 @@ fn itree_sort_by_start(starts : Array[Int], idxs : Array[Int]) -> Array[Int] {
 }
 
 ///|
-fn itree_sort_by_end_desc(ends : Array[Int], idxs : Array[Int]) -> Array[Int] {
+fn itree_sort_by_end_desc(
+  ends : Array[Int32],
+  idxs : Array[Int32],
+) -> Array[Int32] {
   let out = idxs.copy()
   let mut i = 1
   while i < out.length() {
@@ -67,9 +77,9 @@ fn itree_sort_by_end_desc(ends : Array[Int], idxs : Array[Int]) -> Array[Int] {
 
 ///|
 fn itree_build(
-  starts : Array[Int],
-  ends : Array[Int],
-  idxs : Array[Int],
+  starts : Array[Int32],
+  ends : Array[Int32],
+  idxs : Array[Int32],
 ) -> ItreeNode {
   let n = idxs.length()
   if n == 0 {
@@ -77,9 +87,9 @@ fn itree_build(
   }
   let sorted = itree_sort_by_start(starts, idxs)
   let center = starts[sorted[n / 2]]
-  let left_idxs : Array[Int] = Array(capacity=0)
-  let right_idxs : Array[Int] = Array(capacity=0)
-  let span_idxs : Array[Int] = Array(capacity=0)
+  let left_idxs : Array[Int32] = Array(capacity=0)
+  let right_idxs : Array[Int32] = Array(capacity=0)
+  let span_idxs : Array[Int32] = Array(capacity=0)
   for idx in sorted {
     let s = starts[idx]
     let e = ends[idx]
@@ -105,26 +115,29 @@ fn itree_build(
 ///|
 /// Build a centered interval tree from parallel `starts`/`ends` arrays
 /// (half-open `[start, end)` intervals).
-pub fn interval_tree_new(starts : Array[Int], ends : Array[Int]) -> IntervalTree {
-  let idxs : Array[Int] = Array(capacity=0)
+pub fn interval_tree_new(
+  starts : Array[Int32],
+  ends : Array[Int32],
+) -> IntervalTree {
+  let idxs : Array[Int32] = Array(capacity=0)
   for i = 0; i < starts.length(); i = i + 1 {
     idxs.push(i)
   }
-  IntervalTree::{ root: itree_build(starts, ends, idxs), starts, ends }
+  IntervalTree::{ root: itree_build(starts, ends, idxs), starts, ends, }
 }
 
 ///|
 fn itree_query(
   node : ItreeNode,
-  starts : Array[Int],
-  ends : Array[Int],
-  a : Int,
-  b : Int,
-  out : Array[Int],
+  starts : Array[Int32],
+  ends : Array[Int32],
+  a : Int32,
+  b : Int32,
+  out : Array[Int32],
 ) -> Unit {
   match node {
     ItreeNil => ()
-    ItreeNode(center, left, right, by_start, by_end) => {
+    ItreeNode(center, left, right, by_start, by_end) =>
       if b <= center {
         let mut k = 0
         while k < by_start.length() && starts[by_start[k]] < b {
@@ -146,14 +159,17 @@ fn itree_query(
         itree_query(left, starts, ends, a, b, out)
         itree_query(right, starts, ends, a, b, out)
       }
-    }
   }
 }
 
 ///|
 /// Indices of intervals overlapping the half-open interval `[a, b)`.
-pub fn IntervalTree::query(self : IntervalTree, a : Int, b : Int) -> Array[Int] {
-  let out : Array[Int] = Array(capacity=0)
+pub fn IntervalTree::query(
+  self : IntervalTree,
+  a : Int32,
+  b : Int32,
+) -> Array[Int32] {
+  let out : Array[Int32] = Array(capacity=0)
   itree_query(self.root, self.starts, self.ends, a, b, out)
   out
 }
@@ -197,15 +213,14 @@ pub fn bedtools_merge(intervals : Array[BedInterval]) -> Array[BedInterval] {
   for iv in sorted {
     match cur {
       None => cur = Some(iv)
-      Some(c) => {
+      Some(c) =>
         if iv.chrom == c.chrom && iv.start <= c.end {
           let ne = if iv.end > c.end { iv.end } else { c.end }
-          cur = Some(BedInterval::{ chrom: c.chrom, start: c.start, end: ne })
+          cur = Some(BedInterval::{ chrom: c.chrom, start: c.start, end: ne, })
         } else {
           out.push(c)
           cur = Some(iv)
         }
-      }
     }
   }
   match cur {
@@ -232,13 +247,13 @@ pub fn bedtools_intersect(
   }
   out
 }
+
 ///|
 pub struct ClosestResult {
   a : BedInterval
   b : BedInterval
-  distance : Int
+  distance : Int32
 }
-
 
 ///|
 /// For each A, the closest B on the same chromosome (minimum genomic distance,
@@ -265,7 +280,7 @@ pub fn bedtools_closest(
         overlaps.push(bi)
       } else if bi.start >= ai.end {
         let d = bi.start - ai.end + 1
-        if !(has_down) || d < down_dist {
+        if !has_down || d < down_dist {
           down_dist = d
           down_recs.clear()
           down_recs.push(bi)
@@ -275,7 +290,7 @@ pub fn bedtools_closest(
         }
       } else if ai.start >= bi.end {
         let d = ai.start - bi.end + 1
-        if !(has_up) || d < up_dist {
+        if !has_up || d < up_dist {
           up_dist = d
           up_recs.clear()
           up_recs.push(bi)
@@ -287,20 +302,20 @@ pub fn bedtools_closest(
     }
     if overlaps.length() > 0 {
       for bb in overlaps {
-        out.push(ClosestResult::{ a: ai, b: bb, distance: 0 })
+        out.push(ClosestResult::{ a: ai, b: bb, distance: 0, })
       }
     } else {
       // ALL_TIES: report the closer side(s); a tie reports both
-      let use_up = has_up && (!(has_down) || up_dist <= down_dist)
-      let use_down = has_down && (!(has_up) || down_dist <= up_dist)
+      let use_up = has_up && (!has_down || up_dist <= down_dist)
+      let use_down = has_down && (!has_up || down_dist <= up_dist)
       if use_up {
         for bb in up_recs {
-          out.push(ClosestResult::{ a: ai, b: bb, distance: 0 - up_dist })
+          out.push(ClosestResult::{ a: ai, b: bb, distance: 0 - up_dist, })
         }
       }
       if use_down {
         for bb in down_recs {
-          out.push(ClosestResult::{ a: ai, b: bb, distance: down_dist })
+          out.push(ClosestResult::{ a: ai, b: bb, distance: down_dist, })
         }
       }
     }
@@ -314,7 +329,7 @@ pub fn bedtools_closest(
 pub fn bedtools_window(
   a : Array[BedInterval],
   b : Array[BedInterval],
-  w : Int,
+  w : Int32,
 ) -> Array[BedInterval] {
   let out : Array[BedInterval] = Array(capacity=0)
   for ai in a {
@@ -338,9 +353,9 @@ pub fn bedtools_window(
 ///|
 pub struct CoverageResult {
   a : BedInterval
-  count : Int
-  bases_covered : Int
-  length : Int
+  count : Int32
+  bases_covered : Int32
+  length : Int32
   fraction : Double
 }
 
@@ -354,7 +369,7 @@ pub fn bedtools_coverage(
   let out : Array[CoverageResult] = Array(capacity=0)
   for ai in a {
     let len = ai.end - ai.start
-    let depth : Array[Int] = Array::make(len, 0)
+    let depth : Array[Int32] = Array::make(len, 0)
     let mut count = 0
     for bi in b {
       if ai.chrom == bi.chrom && ai.start < bi.end && bi.start < ai.end {
@@ -375,7 +390,13 @@ pub fn bedtools_coverage(
       }
     }
     let fraction = covered.to_double() / len.to_double()
-    out.push(CoverageResult::{ a: ai, count, bases_covered: covered, length: len, fraction })
+    out.push(CoverageResult::{
+      a: ai,
+      count,
+      bases_covered: covered,
+      length: len,
+      fraction,
+    })
   }
   out
 }
@@ -383,13 +404,13 @@ pub fn bedtools_coverage(
 ///|
 pub struct GenomecovSegment {
   chrom : String
-  start : Int
-  end : Int
-  depth : Int
+  start : Int32
+  end : Int32
+  depth : Int32
 }
 
 ///|
-fn sort_events(events : Array[(Int, Int)]) -> Array[(Int, Int)] {
+fn sort_events(events : Array[(Int32, Int32)]) -> Array[(Int32, Int32)] {
   let out = events.copy()
   let mut i = 1
   while i < out.length() {
@@ -408,14 +429,16 @@ fn sort_events(events : Array[(Int, Int)]) -> Array[(Int, Int)] {
 ///|
 /// Sweep one chromosome's intervals into bedgraph segments (depth >= 1),
 /// matching `bedtools genomecov -bg`.
-fn genomecov_bg_one_chrom(ivals : Array[(Int, Int)]) -> Array[(Int, Int, Int)] {
-  let events : Array[(Int, Int)] = Array(capacity=0)
+fn genomecov_bg_one_chrom(
+  ivals : Array[(Int32, Int32)],
+) -> Array[(Int32, Int32, Int32)] {
+  let events : Array[(Int32, Int32)] = Array(capacity=0)
   for (s, e) in ivals {
     events.push((s, 1))
     events.push((e, -1))
   }
   let sorted = sort_events(events)
-  let out : Array[(Int, Int, Int)] = Array(capacity=0)
+  let out : Array[(Int32, Int32, Int32)] = Array(capacity=0)
   let mut cur_depth = 0
   let mut i = 0
   while i < sorted.length() {
@@ -435,7 +458,9 @@ fn genomecov_bg_one_chrom(ivals : Array[(Int, Int)]) -> Array[(Int, Int, Int)] {
 
 ///|
 /// Report contiguous depth segments (depth >= 1) via differential-event sweep.
-pub fn bedtools_genomecov_bg(intervals : Array[BedInterval]) -> Array[GenomecovSegment] {
+pub fn bedtools_genomecov_bg(
+  intervals : Array[BedInterval],
+) -> Array[GenomecovSegment] {
   let chroms : Array[String] = Array(capacity=0)
   let per_chrom : Array[Array[BedInterval]] = Array(capacity=0)
   for iv in intervals {
@@ -456,19 +481,24 @@ pub fn bedtools_genomecov_bg(intervals : Array[BedInterval]) -> Array[GenomecovS
   }
   let out : Array[GenomecovSegment] = Array(capacity=0)
   for k = 0; k < chroms.length(); k = k + 1 {
-    let ivs : Array[(Int, Int)] = Array(capacity=0)
+    let ivs : Array[(Int32, Int32)] = Array(capacity=0)
     for iv in per_chrom[k] {
       ivs.push((iv.start, iv.end))
     }
     for (s, e, d) in genomecov_bg_one_chrom(ivs) {
-      out.push(GenomecovSegment::{ chrom: chroms[k], start: s, end: e, depth: d })
+      out.push(GenomecovSegment::{
+        chrom: chroms[k],
+        start: s,
+        end: e,
+        depth: d,
+      })
     }
   }
   out
 }
 
 ///|
-fn clamp_int(v : Int, lo : Int, hi : Int) -> Int {
+fn clamp_int(v : Int32, lo : Int32, hi : Int32) -> Int32 {
   if v < lo {
     lo
   } else if v > hi {
@@ -479,7 +509,10 @@ fn clamp_int(v : Int, lo : Int, hi : Int) -> Int {
 }
 
 ///|
-fn chrom_size_lookup(chrom_sizes : Array[(String, Int)], chrom : String) -> Int {
+fn chrom_size_lookup(
+  chrom_sizes : Array[(String, Int32)],
+  chrom : String,
+) -> Int32 {
   for (c, s) in chrom_sizes {
     if c == chrom {
       return s
@@ -516,7 +549,11 @@ pub fn bedtools_subtract(
         while j < len && uncovered[j] {
           j = j + 1
         }
-        out.push(BedInterval::{ chrom: ai.chrom, start: ai.start + i, end: ai.start + j })
+        out.push(BedInterval::{
+          chrom: ai.chrom,
+          start: ai.start + i,
+          end: ai.start + j,
+        })
         i = j
       } else {
         i = i + 1
@@ -531,7 +568,7 @@ pub fn bedtools_subtract(
 /// matching `bedtools complement`.
 pub fn bedtools_complement(
   a : Array[BedInterval],
-  chrom_sizes : Array[(String, Int)],
+  chrom_sizes : Array[(String, Int32)],
 ) -> Array[BedInterval] {
   let merged = bedtools_merge(a)
   let out : Array[BedInterval] = Array(capacity=0)
@@ -540,7 +577,7 @@ pub fn bedtools_complement(
     for iv in merged {
       if iv.chrom == chrom {
         if iv.start > cur {
-          out.push(BedInterval::{ chrom, start: cur, end: iv.start })
+          out.push(BedInterval::{ chrom, start: cur, end: iv.start, })
         }
         if iv.end > cur {
           cur = iv.end
@@ -548,7 +585,7 @@ pub fn bedtools_complement(
       }
     }
     if cur < size {
-      out.push(BedInterval::{ chrom, start: cur, end: size })
+      out.push(BedInterval::{ chrom, start: cur, end: size, })
     }
   }
   out
@@ -558,9 +595,9 @@ pub fn bedtools_complement(
 /// Flanking regions of each A: `[start-L, start)` and `[end, end+R)`, clamped.
 pub fn bedtools_flank(
   a : Array[BedInterval],
-  chrom_sizes : Array[(String, Int)],
-  left : Int,
-  right : Int,
+  chrom_sizes : Array[(String, Int32)],
+  left : Int32,
+  right : Int32,
 ) -> Array[BedInterval] {
   let out : Array[BedInterval] = Array(capacity=0)
   for ai in a {
@@ -570,11 +607,11 @@ pub fn bedtools_flank(
     }
     if left > 0 && ai.start != 0 {
       let s = if ai.start - left > 0 { ai.start - left } else { 0 }
-      out.push(BedInterval::{ chrom: ai.chrom, start: s, end: ai.start })
+      out.push(BedInterval::{ chrom: ai.chrom, start: s, end: ai.start, })
     }
     if right > 0 && ai.end < size {
       let e = if ai.end + right < size { ai.end + right } else { size }
-      out.push(BedInterval::{ chrom: ai.chrom, start: ai.end, end: e })
+      out.push(BedInterval::{ chrom: ai.chrom, start: ai.end, end: e, })
     }
   }
   out
@@ -584,8 +621,8 @@ pub fn bedtools_flank(
 /// Shift each A by signed `s` bp, clamped to the chromosome bounds.
 pub fn bedtools_shift(
   a : Array[BedInterval],
-  chrom_sizes : Array[(String, Int)],
-  s : Int,
+  chrom_sizes : Array[(String, Int32)],
+  s : Int32,
 ) -> Array[BedInterval] {
   let out : Array[BedInterval] = Array(capacity=0)
   for ai in a {
@@ -595,7 +632,7 @@ pub fn bedtools_shift(
     }
     let ns = clamp_int(ai.start + s, 0, size - 1)
     let ne = clamp_int(ai.end + s, 1, size)
-    out.push(BedInterval::{ chrom: ai.chrom, start: ns, end: ne })
+    out.push(BedInterval::{ chrom: ai.chrom, start: ns, end: ne, })
   }
   out
 }
@@ -604,9 +641,9 @@ pub fn bedtools_shift(
 /// Extend each A by `left` bp upstream and `right` bp downstream, clamped.
 pub fn bedtools_slop(
   a : Array[BedInterval],
-  chrom_sizes : Array[(String, Int)],
-  left : Int,
-  right : Int,
+  chrom_sizes : Array[(String, Int32)],
+  left : Int32,
+  right : Int32,
 ) -> Array[BedInterval] {
   let out : Array[BedInterval] = Array(capacity=0)
   for ai in a {
@@ -616,13 +653,17 @@ pub fn bedtools_slop(
     }
     let ns = clamp_int(ai.start - left, 0, size)
     let ne = clamp_int(ai.end + right, 0, size)
-    out.push(BedInterval::{ chrom: ai.chrom, start: ns, end: ne })
+    out.push(BedInterval::{ chrom: ai.chrom, start: ns, end: ne, })
   }
   out
 }
 
 ///|
-fn collect_overlap_vals(ai : BedInterval, idx : BedIndex, b_values : Array[Double]) -> Array[Double] {
+fn collect_overlap_vals(
+  ai : BedInterval,
+  idx : BedIndex,
+  b_values : Array[Double],
+) -> Array[Double] {
   let vals : Array[Double] = Array(capacity=0)
   for (bi, _) in bed_overlap_pairs(ai, idx) {
     vals.push(b_values[bi])
@@ -632,9 +673,12 @@ fn collect_overlap_vals(ai : BedInterval, idx : BedIndex, b_values : Array[Doubl
 
 ///|
 /// Number of B features overlapping each A (matching `bedtools map -c 5 -o count`).
-pub fn bedtools_map_count(a : Array[BedInterval], b : Array[BedInterval]) -> Array[Int] {
+pub fn bedtools_map_count(
+  a : Array[BedInterval],
+  b : Array[BedInterval],
+) -> Array[Int32] {
   let idx = build_bed_index(b)
-  let out : Array[Int] = Array(capacity=0)
+  let out : Array[Int32] = Array(capacity=0)
   for ai in a {
     out.push(bed_overlap_pairs(ai, idx).length())
   }
@@ -733,7 +777,6 @@ pub fn bedtools_map_max(
   out
 }
 
-
 ///|
 /// Report A if a B overlaps at least `frac` of A's length (`bedtools
 /// intersect -f frac`).
@@ -797,11 +840,11 @@ pub struct GroupbyResult {
 }
 
 ///|
-fn group_key(record : Array[String], group_cols : Array[Int]) -> String {
+fn group_key(record : Array[String], group_cols : Array[Int32]) -> String {
   let buf = StringBuilder()
   let mut first = true
   for c in group_cols {
-    if !(first) {
+    if !first {
       buf.write_char('\t')
     }
     buf.write_string(record[c - 1])
@@ -811,7 +854,10 @@ fn group_key(record : Array[String], group_cols : Array[Int]) -> String {
 }
 
 ///|
-fn sort_order_by_key(keys : Array[String], order : Array[Int]) -> Array[Int] {
+fn sort_order_by_key(
+  keys : Array[String],
+  order : Array[Int32],
+) -> Array[Int32] {
   let out = order.copy()
   let mut i = 1
   while i < out.length() {
@@ -1009,10 +1055,10 @@ fn sort_strings_asc(vals : Array[String]) -> Array[String] {
 ///|
 /// Unique values (ascending lexicographic) with their occurrence counts,
 /// mirroring bedtools' `std::map<string,int>` frequency table.
-fn unique_counts_asc(vals : Array[String]) -> (Array[String], Array[Int]) {
+fn unique_counts_asc(vals : Array[String]) -> (Array[String], Array[Int32]) {
   let sorted = sort_strings_asc(vals)
   let uniq : Array[String] = Array(capacity=0)
-  let counts : Array[Int] = Array(capacity=0)
+  let counts : Array[Int32] = Array(capacity=0)
   let mut i = 0
   while i < sorted.length() {
     let v = sorted[i]
@@ -1032,7 +1078,7 @@ fn join_strs(vals : Array[String], delim : String) -> String {
   let buf = StringBuilder()
   let mut first = true
   for v in vals {
-    if !(first) {
+    if !first {
       buf.write_string(delim)
     }
     buf.write_string(v)
@@ -1052,7 +1098,7 @@ fn agg_mode_or_antimode(vals : Array[String], want_max : Bool) -> String {
   let mut best_idx = 0
   let mut best_cnt = counts[0]
   for i = 1; i < uniq.length(); i = i + 1 {
-    if (want_max && counts[i] > best_cnt) || (!(want_max) && counts[i] < best_cnt) {
+    if (want_max && counts[i] > best_cnt) || (!want_max && counts[i] < best_cnt) {
       best_idx = i
       best_cnt = counts[i]
     }
@@ -1127,7 +1173,7 @@ fn agg_last(vals : Array[String]) -> String {
 }
 
 ///|
-fn agg_count_distinct(vals : Array[String]) -> Int {
+fn agg_count_distinct(vals : Array[String]) -> Int32 {
   if vals.length() == 0 {
     return 0
   }
@@ -1140,8 +1186,8 @@ fn agg_count_distinct(vals : Array[String]) -> Int {
 /// key order, the group-column values and the `value_col` strings.
 fn group_by_cols(
   records : Array[Array[String]],
-  group_cols : Array[Int],
-  value_col : Int,
+  group_cols : Array[Int32],
+  value_col : Int32,
 ) -> (Array[Array[String]], Array[Array[String]]) {
   let n = records.length()
   let keys = Array::make(n, "")
@@ -1180,8 +1226,8 @@ fn group_by_cols(
 /// for the string ops).
 pub fn bedtools_groupby(
   records : Array[Array[String]],
-  group_cols : Array[Int],
-  value_col : Int,
+  group_cols : Array[Int32],
+  value_col : Int32,
   op : String,
 ) -> Array[GroupbyResult] {
   let (groups, vals_per_group) = group_by_cols(records, group_cols, value_col)
@@ -1220,7 +1266,7 @@ pub fn bedtools_groupby(
     } else {
       0.0
     }
-    out.push(GroupbyResult::{ group: groups[gi], value })
+    out.push(GroupbyResult::{ group: groups[gi], value, })
   }
   out
 }
@@ -1237,8 +1283,8 @@ pub struct GroupbyTextResult {
 /// "first"/"last"). Matching `bedtools groupby -o` for the non-numeric ops.
 pub fn bedtools_groupby_text(
   records : Array[Array[String]],
-  group_cols : Array[Int],
-  value_col : Int,
+  group_cols : Array[Int32],
+  value_col : Int32,
   op : String,
 ) -> Array[GroupbyTextResult] {
   let (groups, vals_per_group) = group_by_cols(records, group_cols, value_col)
@@ -1264,13 +1310,17 @@ pub fn bedtools_groupby_text(
     } else {
       ""
     }
-    out.push(GroupbyTextResult::{ group: groups[gi], value })
+    out.push(GroupbyTextResult::{ group: groups[gi], value, })
   }
   out
 }
 
 ///|
-fn collect_overlap_strs(ai : BedInterval, idx : BedIndex, b_str : Array[String]) -> Array[String] {
+fn collect_overlap_strs(
+  ai : BedInterval,
+  idx : BedIndex,
+  b_str : Array[String],
+) -> Array[String] {
   let out : Array[String] = Array(capacity=0)
   for (bi, _) in bed_overlap_pairs(ai, idx) {
     out.push(b_str[bi])
@@ -1362,9 +1412,9 @@ pub fn bedtools_map_count_distinct(
   a : Array[BedInterval],
   b : Array[BedInterval],
   b_str : Array[String],
-) -> Array[Int] {
+) -> Array[Int32] {
   let idx = build_bed_index(b)
-  let out : Array[Int] = Array(capacity=0)
+  let out : Array[Int32] = Array(capacity=0)
   for ai in a {
     out.push(agg_count_distinct(collect_overlap_strs(ai, idx, b_str)))
   }
@@ -1494,10 +1544,12 @@ pub fn bedtools_map_last(
     out.push(agg_last(collect_overlap_strs(ai, idx, b_str)))
   }
   out
-}///|
+} ///|
 /// Report A that overlaps a B on the opposite strand (matching `bedtools
 /// intersect -S`). Strand values are "+", "-", or "." (unknown); unknown
 /// strands never satisfy opposite-strandedness.
+
+///|
 pub fn bedtools_intersect_opposite_strand(
   a : Array[BedInterval],
   a_strand : Array[String],
@@ -1579,11 +1631,13 @@ pub fn bedtools_intersect_reciprocal(
   }
   out
 }
+
+///|
 pub struct JaccardResult {
-  intersection : Int
-  union : Int
+  intersection : Int32
+  union : Int32
   jaccard : Double
-  n_intersections : Int
+  n_intersections : Int32
 }
 
 ///|
@@ -1591,7 +1645,10 @@ pub struct JaccardResult {
 /// `intersection` = total overlapping bases (summed over every A–B pair),
 /// `union` = Σ|A| + Σ|B| − intersection, `jaccard` = intersection / union.
 /// `n_intersections` is the number of intersecting A–B pairs.
-pub fn bedtools_jaccard(a : Array[BedInterval], b : Array[BedInterval]) -> JaccardResult {
+pub fn bedtools_jaccard(
+  a : Array[BedInterval],
+  b : Array[BedInterval],
+) -> JaccardResult {
   let mut a_len = 0
   for ai in a {
     a_len = a_len + ai.end - ai.start
@@ -1620,7 +1677,7 @@ pub fn bedtools_jaccard(a : Array[BedInterval], b : Array[BedInterval]) -> Jacca
   } else {
     intersection.to_double() / union.to_double()
   }
-  JaccardResult::{ intersection, union, jaccard, n_intersections: n }
+  JaccardResult::{ intersection, union, jaccard, n_intersections: n, }
 }
 
 ///|
@@ -1628,18 +1685,18 @@ pub fn bedtools_jaccard(a : Array[BedInterval], b : Array[BedInterval]) -> Jacca
 /// each `(name, length)`), advancing by `step` (`bedtools makewindows -w size
 /// -s step`). The final window on each chromosome is clamped to its end.
 pub fn bedtools_makewindows(
-  chrom_sizes : Array[(String, Int)],
-  size : Int,
-  step : Int,
+  chrom_sizes : Array[(String, Int32)],
+  size : Int32,
+  step : Int32,
 ) -> Array[BedInterval] {
   let out : Array[BedInterval] = Array(capacity=0)
   for (chrom, cend) in chrom_sizes {
     let mut start = 0
     while start <= cend {
       if start + size <= cend {
-        out.push(BedInterval::{ chrom, start, end: start + size })
+        out.push(BedInterval::{ chrom, start, end: start + size, })
       } else if start < cend {
-        out.push(BedInterval::{ chrom, start, end: cend })
+        out.push(BedInterval::{ chrom, start, end: cend, })
       }
       start = start + step
     }
@@ -1653,8 +1710,8 @@ pub fn bedtools_makewindows(
 /// last window extended to the chromosome end. Skips chromosomes shorter than
 /// `count` bases.
 pub fn bedtools_makewindows_count(
-  chrom_sizes : Array[(String, Int)],
-  count : Int,
+  chrom_sizes : Array[(String, Int32)],
+  count : Int32,
 ) -> Array[BedInterval] {
   let out : Array[BedInterval] = Array(capacity=0)
   for (chrom, cend) in chrom_sizes {
@@ -1666,21 +1723,23 @@ pub fn bedtools_makewindows_count(
     let mut i = 1
     while start < cend {
       if i == count {
-        out.push(BedInterval::{ chrom, start, end: cend })
+        out.push(BedInterval::{ chrom, start, end: cend, })
         break
       }
       let mut wend = start + window_size
       if wend > cend {
         wend = cend
       }
-      out.push(BedInterval::{ chrom, start, end: wend })
+      out.push(BedInterval::{ chrom, start, end: wend, })
       start = start + window_size
       i = i + 1
     }
   }
   out
-}///|
-fn sort_ints_asc(arr : Array[Int]) -> Array[Int] {
+} ///|
+
+///|
+fn sort_ints_asc(arr : Array[Int32]) -> Array[Int32] {
   let out = arr.copy()
   let mut i = 1
   while i < out.length() {
@@ -1697,7 +1756,7 @@ fn sort_ints_asc(arr : Array[Int]) -> Array[Int] {
 }
 
 ///|
-fn lower_bound_ge(arr : Array[Int], v : Int) -> Int {
+fn lower_bound_ge(arr : Array[Int32], v : Int32) -> Int32 {
   let mut lo = 0
   let mut hi = arr.length()
   while lo < hi {
@@ -1712,7 +1771,7 @@ fn lower_bound_ge(arr : Array[Int], v : Int) -> Int {
 }
 
 ///|
-fn iabs(v : Int) -> Int {
+fn iabs(v : Int32) -> Int32 {
   if v < 0 {
     0 - v
   } else {
@@ -1723,8 +1782,8 @@ fn iabs(v : Int) -> Int {
 ///|
 pub struct RelDistBin {
   rel_dist : Double
-  count : Int
-  total : Int
+  count : Int32
+  total : Int32
   fraction : Double
 }
 
@@ -1733,10 +1792,13 @@ pub struct RelDistBin {
 /// A, find the two B midpoints bracketing A's midpoint and compute
 /// `min(|m−L|, |m−R|) / (R−L)` (0 if it coincides with a B midpoint), binned at
 /// 2-decimal precision. Returns bins sorted by relative distance.
-pub fn bedtools_reldist(a : Array[BedInterval], b : Array[BedInterval]) -> Array[RelDistBin] {
+pub fn bedtools_reldist(
+  a : Array[BedInterval],
+  b : Array[BedInterval],
+) -> Array[RelDistBin] {
   // Group B midpoints per chromosome, sorted ascending.
   let chroms : Array[String] = Array(capacity=0)
-  let mids : Array[Array[Int]] = Array(capacity=0)
+  let mids : Array[Array[Int32]] = Array(capacity=0)
   for bi in b {
     let mp = (bi.start + bi.end) / 2
     let mut found = -1
@@ -1748,7 +1810,7 @@ pub fn bedtools_reldist(a : Array[BedInterval], b : Array[BedInterval]) -> Array
     }
     if found < 0 {
       chroms.push(bi.chrom)
-      let arr : Array[Int] = Array(capacity=0)
+      let arr : Array[Int32] = Array(capacity=0)
       arr.push(mp)
       mids.push(arr)
     } else {
@@ -1759,7 +1821,7 @@ pub fn bedtools_reldist(a : Array[BedInterval], b : Array[BedInterval]) -> Array
     mids[k] = sort_ints_asc(mids[k])
   }
 
-  let counts : Map[Int, Int] = Map([], capacity=0)
+  let counts : Map[Int32, Int32] = Map([], capacity=0)
   let mut total = 0
   for ai in a {
     let mut found = -1
@@ -1804,7 +1866,7 @@ pub fn bedtools_reldist(a : Array[BedInterval], b : Array[BedInterval]) -> Array
     total = total + 1
   }
 
-  let keys : Array[Int] = Array(capacity=0)
+  let keys : Array[Int32] = Array(capacity=0)
   for k in counts.keys() {
     keys.push(k)
   }
@@ -1823,7 +1885,9 @@ pub fn bedtools_reldist(a : Array[BedInterval], b : Array[BedInterval]) -> Array
     })
   }
   out
-}///|
+} ///|
+
+///|
 pub struct GetFastaRecord {
   header : String
   seq : String
@@ -1847,8 +1911,13 @@ pub fn bedtools_getfasta(
         let len = full.length()
         if iv.start >= 0 && iv.end <= len && iv.start <= iv.end {
           let sub = full[iv.start:iv.end].to_owned()
-          let header = ">" + iv.chrom + ":" + iv.start.to_string() + "-" + iv.end.to_string()
-          out.push(GetFastaRecord::{ header, seq: sub })
+          let header = ">" +
+            iv.chrom +
+            ":" +
+            iv.start.to_string() +
+            "-" +
+            iv.end.to_string()
+          out.push(GetFastaRecord::{ header, seq: sub, })
         }
       }
     }
@@ -1858,13 +1927,13 @@ pub fn bedtools_getfasta(
 
 ///|
 pub struct NucResult {
-  a : Int
-  c : Int
-  g : Int
-  t : Int
-  n : Int
-  other : Int
-  length : Int
+  a : Int32
+  c : Int32
+  g : Int32
+  t : Int32
+  n : Int32
+  other : Int32
+  length : Int32
   pct_at : Double
   pct_gc : Double
 }
@@ -1914,19 +1983,31 @@ pub fn bedtools_nuc(
           let seq_len = us.length()
           let pct_at = (a + t).to_double() / seq_len.to_double()
           let pct_gc = (c + g).to_double() / seq_len.to_double()
-          out.push(NucResult::{ a, c, g, t, n, other, length: seq_len, pct_at, pct_gc })
+          out.push(NucResult::{
+            a,
+            c,
+            g,
+            t,
+            n,
+            other,
+            length: seq_len,
+            pct_at,
+            pct_gc,
+          })
         }
       }
     }
   }
   out
-}///|
+} ///|
 /// Per-chromosome interval index over a B set (chroms / trees / global-index
 /// lookup), shared by the intersect report modes below.
+
+///|
 priv struct BedIndex {
   chroms : Array[String]
   trees : Array[IntervalTree]
-  b_per_chrom : Array[Array[Int]]
+  b_per_chrom : Array[Array[Int32]]
   b : Array[BedInterval]
 }
 
@@ -1935,7 +2016,7 @@ priv struct BedIndex {
 /// chromosome (mirrors the grouping inside `bedtools_intersect`).
 fn build_bed_index(b : Array[BedInterval]) -> BedIndex {
   let chroms : Array[String] = Array(capacity=0)
-  let b_per_chrom : Array[Array[Int]] = Array(capacity=0)
+  let b_per_chrom : Array[Array[Int32]] = Array(capacity=0)
   for i = 0; i < b.length(); i = i + 1 {
     let c = b[i].chrom
     let mut found = -1
@@ -1956,21 +2037,21 @@ fn build_bed_index(b : Array[BedInterval]) -> BedIndex {
   let trees : Array[IntervalTree] = Array(capacity=0)
   for k = 0; k < chroms.length(); k = k + 1 {
     let idxs = b_per_chrom[k]
-    let starts : Array[Int] = Array(capacity=0)
-    let ends : Array[Int] = Array(capacity=0)
+    let starts : Array[Int32] = Array(capacity=0)
+    let ends : Array[Int32] = Array(capacity=0)
     for i in idxs {
       starts.push(b[i].start)
       ends.push(b[i].end)
     }
     trees.push(interval_tree_new(starts, ends))
   }
-  BedIndex::{ chroms, trees, b_per_chrom, b }
+  BedIndex::{ chroms, trees, b_per_chrom, b, }
 }
 
 ///|
 /// Number of overlapping base pairs between two half-open intervals (0 when
 /// disjoint): `min(end) - max(start)`.
-fn overlap_bp(a : BedInterval, b : BedInterval) -> Int {
+fn overlap_bp(a : BedInterval, b : BedInterval) -> Int32 {
   let s = if a.start > b.start { a.start } else { b.start }
   let e = if a.end < b.end { a.end } else { b.end }
   if s < e {
@@ -1983,8 +2064,8 @@ fn overlap_bp(a : BedInterval, b : BedInterval) -> Int {
 ///|
 /// (global B index, overlap bp) pairs for one A interval, ordered by B start
 /// then B end to match the sorted stream bedtools consumes.
-fn bed_overlap_pairs(iv : BedInterval, idx : BedIndex) -> Array[(Int, Int)] {
-  let raw : Array[(Int, Int)] = Array(capacity=0)
+fn bed_overlap_pairs(iv : BedInterval, idx : BedIndex) -> Array[(Int32, Int32)] {
+  let raw : Array[(Int32, Int32)] = Array(capacity=0)
   for k = 0; k < idx.chroms.length(); k = k + 1 {
     if idx.chroms[k] == iv.chrom {
       let locals = idx.trees[k].query(iv.start, iv.end)
@@ -2024,7 +2105,7 @@ fn bed_overlap_pairs(iv : BedInterval, idx : BedIndex) -> Array[(Int, Int)] {
 pub struct IntersectOverlap {
   a : BedInterval
   b : BedInterval?
-  overlap : Int
+  overlap : Int32
 }
 
 ///|
@@ -2040,7 +2121,7 @@ pub fn bedtools_intersect_wo(
   for iv in a {
     let pairs = bed_overlap_pairs(iv, idx)
     for kv in pairs {
-      out.push(IntersectOverlap::{ a: iv, b: Some(idx.b[kv.0]), overlap: kv.1 })
+      out.push(IntersectOverlap::{ a: iv, b: Some(idx.b[kv.0]), overlap: kv.1, })
     }
   }
   out
@@ -2059,10 +2140,14 @@ pub fn bedtools_intersect_wao(
   for iv in a {
     let pairs = bed_overlap_pairs(iv, idx)
     if pairs.length() == 0 {
-      out.push(IntersectOverlap::{ a: iv, b: None, overlap: 0 })
+      out.push(IntersectOverlap::{ a: iv, b: None, overlap: 0, })
     } else {
       for kv in pairs {
-        out.push(IntersectOverlap::{ a: iv, b: Some(idx.b[kv.0]), overlap: kv.1 })
+        out.push(IntersectOverlap::{
+          a: iv,
+          b: Some(idx.b[kv.0]),
+          overlap: kv.1,
+        })
       }
     }
   }
@@ -2090,10 +2175,10 @@ pub fn bedtools_intersect_loj(
   for iv in a {
     let pairs = bed_overlap_pairs(iv, idx)
     if pairs.length() == 0 {
-      out.push(IntersectLeftJoin::{ a: iv, b: None })
+      out.push(IntersectLeftJoin::{ a: iv, b: None, })
     } else {
       for kv in pairs {
-        out.push(IntersectLeftJoin::{ a: iv, b: Some(idx.b[kv.0]) })
+        out.push(IntersectLeftJoin::{ a: iv, b: Some(idx.b[kv.0]), })
       }
     }
   }
@@ -2117,7 +2202,7 @@ pub fn bedtools_intersect_overlap(
       let bb = idx.b[bi]
       let ms = if iv.start > bb.start { iv.start } else { bb.start }
       let me = if iv.end < bb.end { iv.end } else { bb.end }
-      out.push(BedInterval::{ chrom: iv.chrom, start: ms, end: me })
+      out.push(BedInterval::{ chrom: iv.chrom, start: ms, end: me, })
     }
   }
   out
@@ -2146,7 +2231,7 @@ pub fn bedtools_intersect_v(
 pub fn bedtools_intersect_count(
   a : Array[BedInterval],
   b : Array[BedInterval],
-) -> Array[Int] {
+) -> Array[Int32] {
   bedtools_map_count(a, b)
 }
 
@@ -2165,10 +2250,12 @@ pub fn bedtools_intersect_wb(
     }
   }
   out
-}///|
+} ///|
 /// Report A if a B overlaps it satisfying EITHER the A-fraction or the
 /// B-fraction threshold (`bedtools intersect -f frac -e`): overlap/A ≥ frac
 /// OR overlap/B ≥ frac.
+
+///|
 pub fn bedtools_intersect_either(
   a : Array[BedInterval],
   b : Array[BedInterval],
@@ -2199,7 +2286,7 @@ pub fn bedtools_intersect_either(
 
 ///|
 /// Deterministic LCG random source (same constants as elsewhere in the repo).
-fn bedtools_lcg(state : Int) -> Int {
+fn bedtools_lcg(state : Int32) -> Int32 {
   (state * 1103515245 + 12345) & 0x7fffffff
 }
 
@@ -2216,8 +2303,8 @@ pub fn bedtools_sort(intervals : Array[BedInterval]) -> Array[BedInterval] {
 /// chromosome's length; oversize intervals are dropped.
 pub fn bedtools_shuffle(
   intervals : Array[BedInterval],
-  chrom_sizes : Array[(String, Int)],
-  seed : Int,
+  chrom_sizes : Array[(String, Int32)],
+  seed : Int32,
 ) -> Array[BedInterval] {
   let mut rng = seed
   let out : Array[BedInterval] = Array(capacity=0)
@@ -2241,10 +2328,10 @@ pub fn bedtools_shuffle(
 /// Generate `n` random intervals of a fixed length across the genome
 /// (`bedtools random`).
 pub fn bedtools_random(
-  n : Int,
-  length : Int,
-  chrom_sizes : Array[(String, Int)],
-  seed : Int,
+  n : Int32,
+  length : Int32,
+  chrom_sizes : Array[(String, Int32)],
+  seed : Int32,
 ) -> Array[BedInterval] {
   let mut rng = seed
   let out : Array[BedInterval] = Array(capacity=0)
@@ -2270,8 +2357,8 @@ pub fn bedtools_random(
 pub fn bedtools_annotate(
   a : Array[BedInterval],
   b : Array[BedInterval],
-) -> Array[Int] {
-  let out : Array[Int] = Array(capacity=0)
+) -> Array[Int32] {
+  let out : Array[Int32] = Array(capacity=0)
   for ai in a {
     let mut count = 0
     for bi in b {
@@ -2284,7 +2371,6 @@ pub fn bedtools_annotate(
   out
 }
 
-
 // ============================================================================
 // bedtools cluster / unionbedg
 // ============================================================================
@@ -2295,9 +2381,9 @@ pub fn bedtools_annotate(
 /// a cluster id (1-based).
 pub fn bedtools_cluster(
   intervals : Array[BedInterval],
-) -> Array[(BedInterval, Int)] {
+) -> Array[(BedInterval, Int32)] {
   let sorted = sort_bed_intervals(intervals)
-  let out : Array[(BedInterval, Int)] = Array(capacity=0)
+  let out : Array[(BedInterval, Int32)] = Array(capacity=0)
   let mut cluster_id = 0
   let mut cluster_max_end = -1
   let mut cluster_chrom = ""
@@ -2307,10 +2393,8 @@ pub fn bedtools_cluster(
       cluster_id = cluster_id + 1
       cluster_max_end = iv.end
       cluster_chrom = iv.chrom
-    } else {
-      if iv.end > cluster_max_end {
-        cluster_max_end = iv.end
-      }
+    } else if iv.end > cluster_max_end {
+      cluster_max_end = iv.end
     }
     out.push((iv, cluster_id))
     first = false
@@ -2319,7 +2403,7 @@ pub fn bedtools_cluster(
 }
 
 ///|
-fn bedtools_push_unique(vals : Array[Int], x : Int) -> Array[Int] {
+fn bedtools_push_unique(vals : Array[Int32], x : Int32) -> Array[Int32] {
   for v in vals {
     if v == x {
       return vals
@@ -2348,7 +2432,7 @@ pub fn bedtools_unionbedg(
   }
   let result : Array[(BedInterval, Array[Double?])] = Array(capacity=0)
   for chrom in chroms {
-    let mut breakpoints : Array[Int] = Array(capacity=0)
+    let mut breakpoints : Array[Int32] = Array(capacity=0)
     for sample in files {
       for (iv, _) in sample {
         if iv.chrom == chrom {

@@ -152,19 +152,19 @@ pub fn GeoDataTable::rows(self : GeoDataTable) -> Array[Array[String]] {
 
 ///|
 /// Number of columns.
-pub fn GeoDataTable::n_columns(self : GeoDataTable) -> Int {
+pub fn GeoDataTable::n_columns(self : GeoDataTable) -> Int32 {
   self.columns.length()
 }
 
 ///|
 /// Number of rows.
-pub fn GeoDataTable::n_rows(self : GeoDataTable) -> Int {
+pub fn GeoDataTable::n_rows(self : GeoDataTable) -> Int32 {
   self.rows.length()
 }
 
 ///|
 /// Get a column index by name. Returns -1 if not found.
-pub fn GeoDataTable::column_index(self : GeoDataTable, name : String) -> Int {
+pub fn GeoDataTable::column_index(self : GeoDataTable, name : String) -> Int32 {
   for i in 0..<self.columns.length() {
     if self.columns[i].name == name {
       return i
@@ -289,7 +289,7 @@ pub fn GeoFile::records(self : GeoFile) -> Array[GeoRecord] {
 
 ///|
 /// Number of records.
-pub fn GeoFile::n_records(self : GeoFile) -> Int {
+pub fn GeoFile::n_records(self : GeoFile) -> Int32 {
   self.records.length()
 }
 
@@ -370,7 +370,7 @@ fn geo_parse_attribute_line(line : String) -> GeoAttribute? {
 
 ///|
 /// Find the first occurrence of a character in a string. Returns -1 if not found.
-fn geo_find_char(s : String, ch : Int) -> Int {
+fn geo_find_char(s : String, ch : Int32) -> Int32 {
   let n = s.length()
   let mut i = 0
   while i < n {
@@ -434,10 +434,10 @@ pub fn geo_parse(text : String) -> GeoFile {
 /// Parse a single GEO record starting after the entity marker line.
 fn geo_parse_record(
   lines : Array[String],
-  start : Int,
+  start : Int32,
   etype : GeoEntityType,
   accession : String,
-) -> (GeoRecord, Int) {
+) -> (GeoRecord, Int32) {
   let attributes : Array[GeoAttribute] = []
   let columns : Array[GeoColumnDef] = []
   let rows : Array[Array[String]] = []

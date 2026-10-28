@@ -19,7 +19,12 @@ pub struct ConsensusNode {
 
 ///|
 pub fn ConsensusNode::new(name : String, is_internal : Bool) -> ConsensusNode {
-  ConsensusNode::{ name, children: Array(capacity=0), support: 0.0, is_internal, }
+  ConsensusNode::{
+    name,
+    children: Array(capacity=0),
+    support: 0.0,
+    is_internal,
+  }
 }
 
 ///|
@@ -97,8 +102,6 @@ pub fn Split::normalize(self : Split) -> Split {
   Split::{ taxa: sorted, support: self.support, }
 }
 
-
-
 ///|
 pub fn Split::hash(self : Split) -> String {
   let mut result = self.taxa[0]
@@ -175,7 +178,7 @@ pub fn build_consensus(
 
   let all_taxa = get_all_taxa(trees[0])
 
-  let split_counts : Map[String, Int] = Map([], capacity=0)
+  let split_counts : Map[String, Int32] = Map([], capacity=0)
 
   let mut i = 0
   while i < trees.length() {
@@ -390,7 +393,7 @@ fn trim_newick(s : String) -> String {
 }
 
 ///|
-fn parse_newick_recursive(s : String, i : Int) -> (ConsensusNode, Int) {
+fn parse_newick_recursive(s : String, i : Int32) -> (ConsensusNode, Int32) {
   let children = Array(capacity=0)
 
   let mut idx = i + 1
@@ -531,7 +534,7 @@ pub fn ConsensusNode::to_string(self : ConsensusNode) -> String {
 }
 
 ///|
-fn node_to_string(node : ConsensusNode, indent : Int) -> String {
+fn node_to_string(node : ConsensusNode, indent : Int32) -> String {
   let mut prefix = ""
   let mut i = 0
   while i < indent {
@@ -638,7 +641,6 @@ pub fn get_all_splits_from_trees(trees : Array[ConsensusTree]) -> Array[Split] {
 
   seen.values().collect()
 }
-
 
 ///|
 /// Build the full split-frequency table over a set of trees (`DendroPy

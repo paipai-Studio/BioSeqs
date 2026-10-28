@@ -53,7 +53,9 @@ fn main {
   println("  Node Positions (radial):")
   for id in radial_layout.positions.keys() {
     let pos = radial_layout.positions[id]
-    println("    \{id}: x=\{pos.0.to_string()}, y=\{pos.1.to_string()}, angle=\{pos.2.to_string()}")
+    println(
+      "    \{id}: x=\{pos.0.to_string()}, y=\{pos.1.to_string()}, angle=\{pos.2.to_string()}",
+    )
   }
 
   // === Unrooted layout ===
@@ -69,17 +71,27 @@ fn main {
 
   // === Compare layouts ===
   println("\n=== Layout Comparison ===")
-  println("  Rectangular: bounding box x=[\{rect_layout.min_x.to_string()}, \{rect_layout.max_x.to_string()}], y=[\{rect_layout.min_y.to_string()}, \{rect_layout.max_y.to_string()}]")
-  println("  Radial:      bounding box x=[\{radial_layout.min_x.to_string()}, \{radial_layout.max_x.to_string()}], y=[\{radial_layout.min_y.to_string()}, \{radial_layout.max_y.to_string()}]")
-  println("  Unrooted:    bounding box x=[\{unrooted_layout.min_x.to_string()}, \{unrooted_layout.max_x.to_string()}], y=[\{unrooted_layout.min_y.to_string()}, \{unrooted_layout.max_y.to_string()}]")
+  println(
+    "  Rectangular: bounding box x=[\{rect_layout.min_x.to_string()}, \{rect_layout.max_x.to_string()}], y=[\{rect_layout.min_y.to_string()}, \{rect_layout.max_y.to_string()}]",
+  )
+  println(
+    "  Radial:      bounding box x=[\{radial_layout.min_x.to_string()}, \{radial_layout.max_x.to_string()}], y=[\{radial_layout.min_y.to_string()}, \{radial_layout.max_y.to_string()}]",
+  )
+  println(
+    "  Unrooted:    bounding box x=[\{unrooted_layout.min_x.to_string()}, \{unrooted_layout.max_x.to_string()}], y=[\{unrooted_layout.min_y.to_string()}, \{unrooted_layout.max_y.to_string()}]",
+  )
 
   // === Get specific node position ===
   println("\n=== Position Lookup ===")
   let a_pos = @bio.ggtree_get_position(rect_layout, "A")
-  println("  Node 'A' (rectangular): x=\{a_pos.0.to_string()}, y=\{a_pos.1.to_string()}")
+  println(
+    "  Node 'A' (rectangular): x=\{a_pos.0.to_string()}, y=\{a_pos.1.to_string()}",
+  )
 
   let g_pos = @bio.ggtree_get_position(rect_layout, "G")
-  println("  Node 'G' (rectangular): x=\{g_pos.0.to_string()}, y=\{g_pos.1.to_string()}")
+  println(
+    "  Node 'G' (rectangular): x=\{g_pos.0.to_string()}, y=\{g_pos.1.to_string()}",
+  )
 
   println("\nDone! Tree visualization layouts computed successfully.")
 }

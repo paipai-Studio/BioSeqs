@@ -47,7 +47,8 @@ pub fn create_wgcna_data(
   }
 }
 
-fn _wgcna_zero_matrix(rows : Int, cols : Int) -> Array[Array[Double]] {
+///|
+fn _wgcna_zero_matrix(rows : Int32, cols : Int32) -> Array[Array[Double]] {
   let matrix : Array[Array[Double]] = []
   let mut i = 0
   while i < rows {
@@ -67,9 +68,12 @@ fn _wgcna_zero_matrix(rows : Int, cols : Int) -> Array[Array[Double]] {
 // 统计辅助函数
 // ================================================================
 
+///|
 fn _wgcna_pearson(x : Array[Double], y : Array[Double]) -> Double {
   let n = x.length()
-  if n == 0 || n != y.length() { return 0.0 }
+  if n == 0 || n != y.length() {
+    return 0.0
+  }
   let mut sum_x = 0.0
   let mut sum_y = 0.0
   let mut sum_xy = 0.0
@@ -89,16 +93,29 @@ fn _wgcna_pearson(x : Array[Double], y : Array[Double]) -> Double {
   let nd = n.to_double()
   let num = nd * sum_xy - sum_x * sum_y
   let den = ((nd * sum_x2 - sum_x * sum_x) * (nd * sum_y2 - sum_y * sum_y)).sqrt()
-  if den < 0.00000000000000000001 { 0.0 } else { num / den }
+  if den < 0.00000000000000000001 {
+    0.0
+  } else {
+    num / den
+  }
 }
 
+///|
 fn _wgcna_mean(x : Array[Double]) -> Double {
   let mut s = 0.0
   let mut i = 0
-  while i < x.length() { s = s + x[i]; i = i + 1 }
-  if x.length() == 0 { 0.0 } else { s / x.length().to_double() }
+  while i < x.length() {
+    s = s + x[i]
+    i = i + 1
+  }
+  if x.length() == 0 {
+    0.0
+  } else {
+    s / x.length().to_double()
+  }
 }
 
+///|
 fn _wgcna_linregress(x : Array[Double], y : Array[Double]) -> (Double, Double) {
   let mx = _wgcna_mean(x)
   let my = _wgcna_mean(y)
@@ -114,7 +131,9 @@ fn _wgcna_linregress(x : Array[Double], y : Array[Double]) -> (Double, Double) {
     syy = syy + dy * dy
     i = i + 1
   }
-  if sxx < 0.00000000000000000001 { return (0.0, 0.0) }
+  if sxx < 0.00000000000000000001 {
+    return (0.0, 0.0)
+  }
   let slope = sxy / sxx
   let intercept = my - slope * mx
   let mut ss_res = 0.0
@@ -140,9 +159,10 @@ pub fn adjacency(wgcna : WGCNAData, power : Double) -> WGCNAData {
   WGCNAData::{ ..wgcna, adjacency_matrix: adj_mat, }
 }
 
+///|
 fn _wgcna_build_adjacency(
   expr : Array[Array[Double]],
-  n : Int,
+  n : Int32,
   power : Double,
 ) -> Array[Array[Double]] {
   let matrix : Array[Array[Double]] = []
@@ -169,9 +189,10 @@ pub fn tom_similarity(wgcna : WGCNAData) -> WGCNAData {
   WGCNAData::{ ..wgcna, tom_matrix: tom_mat, }
 }
 
+///|
 fn _wgcna_build_tom(
   adj : Array[Array[Double]],
-  n : Int,
+  n : Int32,
 ) -> Array[Array[Double]] {
   let matrix : Array[Array[Double]] = []
   let mut i = 0
@@ -198,7 +219,11 @@ fn _wgcna_build_tom(
           k = k + 1
         }
         let denom = a_ij + sum_aik + sum_ajk
-        let tom = if denom < 0.00000000000000000001 { 0.0 } else { (a_ij + sum_aik_ajk) / denom }
+        let tom = if denom < 0.00000000000000000001 {
+          0.0
+        } else {
+          (a_ij + sum_aik_ajk) / denom
+        }
         row.push(tom)
       }
       j = j + 1
@@ -222,7 +247,9 @@ pub fn pick_soft_threshold(
   r2_threshold : Double,
 ) -> Double {
   let n = wgcna.gene_names.length()
-  if n < 5 { return powers[0] }
+  if n < 5 {
+    return powers[0]
+  }
 
   let mut best_power = powers[0]
   let mut best_r2 = 0.0
@@ -258,7 +285,11 @@ pub fn pick_soft_threshold(
   best_power
 }
 
-fn _wgcna_log_binning(k : Array[Double], n_bins : Int) -> (Array[Double], Array[Double]) {
+///|
+fn _wgcna_log_binning(
+  k : Array[Double],
+  n_bins : Int32,
+) -> (Array[Double], Array[Double]) {
   let eps = 0.001
   let log_k : Array[Double] = Array(capacity=0)
   let mut i = 0
@@ -269,20 +300,28 @@ fn _wgcna_log_binning(k : Array[Double], n_bins : Int) -> (Array[Double], Array[
     }
     i = i + 1
   }
-  if log_k.length() < 3 { return ([], []) }
+  if log_k.length() < 3 {
+    return ([], [])
+  }
 
   let mut lmin = log_k[0]
   let mut lmax = log_k[0]
   let mut j = 1
   while j < log_k.length() {
-    if log_k[j] < lmin { lmin = log_k[j] }
-    if log_k[j] > lmax { lmax = log_k[j] }
+    if log_k[j] < lmin {
+      lmin = log_k[j]
+    }
+    if log_k[j] > lmax {
+      lmax = log_k[j]
+    }
     j = j + 1
   }
-  if lmax - lmin < 0.00000000000000000001 { return ([], []) }
+  if lmax - lmin < 0.00000000000000000001 {
+    return ([], [])
+  }
 
   let bin_width = (lmax - lmin) / n_bins.to_double()
-  let bin_counts : Array[Int] = Array::make(n_bins, 0)
+  let bin_counts : Array[Int32] = Array::make(n_bins, 0)
   let mut kk = 0
   while kk < log_k.length() {
     let bidx = ((log_k[kk] - lmin) / bin_width).to_int()
@@ -314,7 +353,7 @@ fn _wgcna_log_binning(k : Array[Double], n_bins : Int) -> (Array[Double], Array[
 pub fn blockwise_modules(
   wgcna : WGCNAData,
   power : Double,
-  min_module_size : Int,
+  min_module_size : Int32,
 ) -> WGCNAData {
   let wgcna = adjacency(wgcna, power)
   let wgcna = tom_similarity(wgcna)
@@ -323,14 +362,20 @@ pub fn blockwise_modules(
     "red", "blue", "green", "yellow", "purple", "orange", "pink", "cyan", "magenta",
     "lime", "teal", "lavender", "brown", "maroon", "olive",
   ]
-  let result = _wgcna_assign_modules(wgcna.gene_names, n_genes, min_module_size, colors)
+  let result = _wgcna_assign_modules(
+    wgcna.gene_names,
+    n_genes,
+    min_module_size,
+    colors,
+  )
   WGCNAData::{ ..wgcna, modules: result.0, module_colors: result.1, }
 }
 
+///|
 fn _wgcna_assign_modules(
   genes : Array[String],
-  n : Int,
-  min_size : Int,
+  n : Int32,
+  min_size : Int32,
   colors : Array[String],
 ) -> (Map[String, Array[String]], Map[String, String]) {
   let module_map : Map[String, Array[String]] = Map([], capacity=32)
@@ -370,20 +415,28 @@ pub fn module_eigengenes(wgcna : WGCNAData) -> Array[ModuleEigengene] {
   while i < mod_names.length() {
     let mod_name = mod_names[i]
     let genes_in_mod = match wgcna.modules.get(mod_name) {
-      Option::None => { i = i + 1; continue }
+      Option::None => {
+        i = i + 1
+        continue
+      }
       Some(g) => g
     }
-    let indices : Array[Int] = Array(capacity=0)
+    let indices : Array[Int32] = Array(capacity=0)
     let mut gidx = 0
     while gidx < genes_in_mod.length() {
       let gn = genes_in_mod[gidx]
       let mut found = -1
       let mut j = 0
       while j < wgcna.gene_names.length() {
-        if wgcna.gene_names[j] == gn { found = j; break }
+        if wgcna.gene_names[j] == gn {
+          found = j
+          break
+        }
         j = j + 1
       }
-      if found >= 0 { indices.push(found) }
+      if found >= 0 {
+        indices.push(found)
+      }
       gidx = gidx + 1
     }
     if indices.length() == 0 {
@@ -414,15 +467,24 @@ pub fn module_eigengenes(wgcna : WGCNAData) -> Array[ModuleEigengene] {
   result
 }
 
+///|
 fn _wgcna_norm(x : Array[Double]) -> Array[Double] {
   let mut norm = 0.0
   let mut i = 0
-  while i < x.length() { norm = norm + x[i] * x[i]; i = i + 1 }
+  while i < x.length() {
+    norm = norm + x[i] * x[i]
+    i = i + 1
+  }
   norm = norm.sqrt()
-  if norm < 0.00000000000000000001 { return Array::make(x.length(), 0.0) }
+  if norm < 0.00000000000000000001 {
+    return Array::make(x.length(), 0.0)
+  }
   let out : Array[Double] = Array(capacity=0)
   let mut j = 0
-  while j < x.length() { out.push(x[j] / norm); j = j + 1 }
+  while j < x.length() {
+    out.push(x[j] / norm)
+    j = j + 1
+  }
   out
 }
 
@@ -474,7 +536,10 @@ pub fn get_module_membership(wgcna : WGCNAData) -> Array[GeneModuleInfo] {
   while mi < mod_names.length() {
     let mod_name = mod_names[mi]
     let genes = match wgcna.modules.get(mod_name) {
-      Option::None => { mi = mi + 1; continue }
+      Option::None => {
+        mi = mi + 1
+        continue
+      }
       Some(g) => g
     }
     let color = match wgcna.module_colors.get(mod_name) {
@@ -502,7 +567,9 @@ pub fn get_module_membership(wgcna : WGCNAData) -> Array[GeneModuleInfo] {
     let mut s = 0.0
     let mut cj = 0
     while cj < n_genes {
-      if ci != cj { s = s + wgcna.adjacency_matrix[ci][cj] }
+      if ci != cj {
+        s = s + wgcna.adjacency_matrix[ci][cj]
+      }
       cj = cj + 1
     }
     connectivity[ci] = s
@@ -513,13 +580,19 @@ pub fn get_module_membership(wgcna : WGCNAData) -> Array[GeneModuleInfo] {
   while i < n_genes {
     let gn = wgcna.gene_names[i]
     let mod_info = match gene_to_mod.get(gn) {
-      Option::None => { i = i + 1; continue }
+      Option::None => {
+        i = i + 1
+        continue
+      }
       Some(t) => t
     }
     let mod_name = mod_info.0
     let color = mod_info.1
     let me = match mod_to_me.get(mod_name) {
-      Option::None => { i = i + 1; continue }
+      Option::None => {
+        i = i + 1
+        continue
+      }
       Some(m) => m
     }
     let corr = _wgcna_pearson(wgcna.expression_matrix[i], me)

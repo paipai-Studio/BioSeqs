@@ -6,15 +6,15 @@
 ///|
 /// UMAP configuration parameters.
 pub struct UmapConfig {
-  n_neighbors : Int
-  n_components : Int
-  n_epochs : Int
+  n_neighbors : Int32
+  n_components : Int32
+  n_epochs : Int32
   min_dist : Double
   spread : Double
   learning_rate : Double
   repulsion_strength : Double
   negative_sample_rate : Double
-  random_seed : Int
+  random_seed : Int32
   metric : String
 }
 
@@ -36,10 +36,10 @@ pub fn UmapConfig::new() -> UmapConfig {
 
 ///|
 pub fn UmapConfig::new_custom(
-  n_neighbors : Int,
-  n_components : Int,
-  n_epochs : Int,
-  random_seed : Int,
+  n_neighbors : Int32,
+  n_components : Int32,
+  n_epochs : Int32,
+  random_seed : Int32,
 ) -> UmapConfig {
   UmapConfig::{
     n_neighbors,
@@ -59,7 +59,7 @@ pub fn UmapConfig::new_custom(
 /// UMAP result structure.
 pub struct UmapResult {
   embedding : Array[Array[Double]]
-  n_epochs : Int
+  n_epochs : Int32
 }
 
 ///|
@@ -128,10 +128,10 @@ pub fn uwot_distance_matrix(
 /// Returns: for each point, array of (neighbor_index, distance) pairs
 fn find_knn(
   dist_matrix : Array[Array[Double]],
-  k : Int,
-) -> Array[Array[(Int, Double)]] {
+  k : Int32,
+) -> Array[Array[(Int32, Double)]] {
   let n = dist_matrix.length()
-  let result : Array[Array[(Int, Double)]] = Array(capacity=0)
+  let result : Array[Array[(Int32, Double)]] = Array(capacity=0)
 
   if n == 0 || k <= 0 {
     return result
@@ -142,7 +142,7 @@ fn find_knn(
   let mut i = 0
   while i < n {
     // Create list of (index, distance) for all other points
-    let neighbors : Array[(Int, Double)] = Array(capacity=0)
+    let neighbors : Array[(Int32, Double)] = Array(capacity=0)
     let mut j = 0
     while j < n {
       if i != j {
@@ -152,7 +152,7 @@ fn find_knn(
     }
 
     // Simple selection sort to find k nearest
-    let knn : Array[(Int, Double)] = Array(capacity=0)
+    let knn : Array[(Int32, Double)] = Array(capacity=0)
     let mut selected = 0
     while selected < actual_k && selected < neighbors.length() {
       let mut min_dist = 1.0e300
@@ -212,7 +212,7 @@ fn find_sigma(
   distances : Array[Double],
   rho : Double,
   target_log2 : Double,
-  n_neighbors : Int,
+  n_neighbors : Int32,
 ) -> Double {
   let mut lo = 0.0
   let mut hi = 1000.0
@@ -248,7 +248,7 @@ fn find_sigma(
 fn build_graph(
   data : Array[Array[Double]],
   _dist_matrix : Array[Array[Double]],
-  knn_indices : Array[Array[Int]],
+  knn_indices : Array[Array[Int32]],
   knn_distances : Array[Array[Double]],
   config : UmapConfig,
 ) -> Array[Array[Double]] {
@@ -338,7 +338,6 @@ fn build_graph(
 // Low-dimensional embedding
 // ============================================================
 
-
 ///|
 /// Find a and b parameters based on min_dist and spread.
 fn find_ab(_min_dist : Double, spread : Double) -> (Double, Double) {
@@ -358,9 +357,9 @@ fn find_ab(_min_dist : Double, spread : Double) -> (Double, Double) {
 ///|
 /// Initialize the embedding with small random values.
 fn initialize_embedding(
-  n : Int,
-  n_components : Int,
-  seed : Int,
+  n : Int32,
+  n_components : Int32,
+  seed : Int32,
 ) -> Array[Array[Double]] {
   let embedding : Array[Array[Double]] = Array(capacity=0)
 
@@ -414,12 +413,12 @@ pub fn uwot_umap(
   let knn = find_knn(dist_matrix, k)
 
   // Extract knn indices and distances
-  let knn_indices : Array[Array[Int]] = Array(capacity=0)
+  let knn_indices : Array[Array[Int32]] = Array(capacity=0)
   let knn_distances : Array[Array[Double]] = Array(capacity=0)
 
   let mut i = 0
   while i < n {
-    let indices : Array[Int] = Array(capacity=0)
+    let indices : Array[Int32] = Array(capacity=0)
     let distances : Array[Double] = Array(capacity=0)
     let mut j = 0
     while j < knn[i].length() {
@@ -446,12 +445,12 @@ pub fn uwot_umap(
   )
 
   // Step 6: Optimize embedding using stochastic gradient descent
-  let epochs_per_sample : Array[Array[Int]] = Array(capacity=0)
+  let epochs_per_sample : Array[Array[Int32]] = Array(capacity=0)
   let epoch_of_next_sample : Array[Array[Double]] = Array(capacity=0)
 
   let mut i = 0
   while i < n {
-    let eps_row : Array[Int] = Array(capacity=0)
+    let eps_row : Array[Int32] = Array(capacity=0)
     let eons_row : Array[Double] = Array(capacity=0)
     let mut j = 0
     while j < n {
@@ -608,8 +607,8 @@ fn umap_pseudo_random(seed : Double) -> Double {
 ///|
 /// Create sample data for testing/demo.
 pub fn create_umap_test_data(
-  n_samples : Int,
-  n_features : Int,
+  n_samples : Int32,
+  n_features : Int32,
 ) -> Array[Array[Double]] {
   let data : Array[Array[Double]] = Array(capacity=0)
 

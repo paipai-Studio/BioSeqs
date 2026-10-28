@@ -33,10 +33,10 @@ pub struct ColorMap {
 ///|
 pub struct HeatmapResult {
   text : String
-  row_order : Array[Int]
-  col_order : Array[Int]
-  row_clusters : Array[Int]
-  col_clusters : Array[Int]
+  row_order : Array[Int32]
+  col_order : Array[Int32]
+  row_clusters : Array[Int32]
+  col_clusters : Array[Int32]
 }
 
 ///|
@@ -60,8 +60,8 @@ pub struct HeatmapOptions {
   center : Bool
   na_color : String
   border_color : String
-  row_gap : Int
-  col_gap : Int
+  row_gap : Int32
+  col_gap : Int32
 }
 
 ///|
@@ -371,9 +371,9 @@ pub fn ch_distance_matrix(
 pub fn ch_hclust(
   dist_matrix : Array[Array[Double]],
   clust_method : String,
-) -> Array[Int] {
+) -> Array[Int32] {
   let n = dist_matrix.length()
-  let mut clusters : Array[Array[Int]] = Array::make(n, Array(capacity=0))
+  let mut clusters : Array[Array[Int32]] = Array::make(n, Array(capacity=0))
   let mut i = 0
   while i < n {
     clusters[i] = [i]
@@ -446,7 +446,7 @@ pub fn ch_hclust(
     }
 
     let merged = clusters[min_i] + clusters[min_j]
-    let new_clusters : Array[Array[Int]] = Array::make(
+    let new_clusters : Array[Array[Int32]] = Array::make(
       clusters.length() - 1,
       Array(capacity=0),
     )
@@ -474,7 +474,7 @@ pub fn ch_hclust(
 pub fn ch_cluster_rows(
   matrix : Array[Array[Double]],
   clust_method : String,
-) -> Array[Int] {
+) -> Array[Int32] {
   let dist_matrix = ch_distance_matrix(matrix, "euclidean")
   ch_hclust(dist_matrix, clust_method)
 }
@@ -483,7 +483,7 @@ pub fn ch_cluster_rows(
 pub fn ch_cluster_cols(
   matrix : Array[Array[Double]],
   clust_method : String,
-) -> Array[Int] {
+) -> Array[Int32] {
   let n_rows = matrix.length()
   let n_cols = if n_rows > 0 { matrix[0].length() } else { 0 }
   let t_matrix : Array[Array[Double]] = Array::make(
@@ -609,7 +609,7 @@ pub fn ch_colorscale(
 }
 
 ///|
-pub fn ch_pad_right(s : String, len : Int) -> String {
+pub fn ch_pad_right(s : String, len : Int32) -> String {
   let mut result = s
   while result.length() < len {
     result = result + " "
@@ -628,14 +628,14 @@ pub fn ch_draw_heatmap(
     matrix = ch_scale_matrix(matrix, options.scale, options.center)
   }
 
-  let mut row_order : Array[Int] = Array::make(matrix.length(), 0)
+  let mut row_order : Array[Int32] = Array::make(matrix.length(), 0)
   let mut i = 0
   while i < matrix.length() {
     row_order[i] = i
     i = i + 1
   }
 
-  let mut col_order : Array[Int] = Array::make(
+  let mut col_order : Array[Int32] = Array::make(
     if matrix.length() > 0 {
       matrix[0].length()
     } else {
@@ -692,8 +692,8 @@ pub fn ch_draw_heatmap(
     text = text + "\n"
   }
 
-  let row_clusters : Array[Int] = Array::make(row_order.length(), 0)
-  let col_clusters : Array[Int] = Array::make(col_order.length(), 0)
+  let row_clusters : Array[Int32] = Array::make(row_order.length(), 0)
+  let col_clusters : Array[Int32] = Array::make(col_order.length(), 0)
 
   let mut m = 0
   while m < row_order.length() {
@@ -802,7 +802,7 @@ pub fn ch_row_split(
   data : HeatmapData,
   groups : Array[String],
 ) -> HeatmapResult {
-  let group_map : Map[String, Array[Int]] = Map([], capacity=groups.length())
+  let group_map : Map[String, Array[Int32]] = Map([], capacity=groups.length())
   let mut i = 0
   while i < groups.length() {
     let group = groups[i]
@@ -817,7 +817,7 @@ pub fn ch_row_split(
     i = i + 1
   }
 
-  let row_order : Array[Int] = Array(capacity=0)
+  let row_order : Array[Int32] = Array(capacity=0)
   for group in group_map.keys().collect() {
     let indices = group_map[group]
     let mut j = 0
@@ -827,7 +827,7 @@ pub fn ch_row_split(
     }
   }
 
-  let col_order : Array[Int] = Array::make(data.col_names.length(), 0)
+  let col_order : Array[Int32] = Array::make(data.col_names.length(), 0)
   let mut k = 0
   while k < col_order.length() {
     col_order[k] = k
@@ -848,7 +848,7 @@ pub fn ch_col_split(
   data : HeatmapData,
   groups : Array[String],
 ) -> HeatmapResult {
-  let group_map : Map[String, Array[Int]] = Map([], capacity=groups.length())
+  let group_map : Map[String, Array[Int32]] = Map([], capacity=groups.length())
   let mut i = 0
   while i < groups.length() {
     let group = groups[i]
@@ -863,7 +863,7 @@ pub fn ch_col_split(
     i = i + 1
   }
 
-  let col_order : Array[Int] = Array(capacity=0)
+  let col_order : Array[Int32] = Array(capacity=0)
   for group in group_map.keys().collect() {
     let indices = group_map[group]
     let mut j = 0
@@ -873,7 +873,7 @@ pub fn ch_col_split(
     }
   }
 
-  let row_order : Array[Int] = Array::make(data.row_names.length(), 0)
+  let row_order : Array[Int32] = Array::make(data.row_names.length(), 0)
   let mut k = 0
   while k < row_order.length() {
     row_order[k] = k

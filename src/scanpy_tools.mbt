@@ -16,7 +16,11 @@ pub struct RankGenesResult {
 
 ///|
 /// Mean and sample variance (ddof=1) of column `j` over the given row indices.
-fn sub_mean_var(x : Array[Array[Double]], j : Int, idx : Array[Int]) -> (Double, Double) {
+fn sub_mean_var(
+  x : Array[Array[Double]],
+  j : Int32,
+  idx : Array[Int32],
+) -> (Double, Double) {
   let n = idx.length()
   if n == 0 {
     return (0.0, 0.0)
@@ -59,8 +63,8 @@ pub fn scanpy_rank_genes_groups(
   target_label : String,
 ) -> Array[RankGenesResult] {
   // collect row indices for the two groups
-  let ref_idx : Array[Int] = Array(capacity=0)
-  let target_idx : Array[Int] = Array(capacity=0)
+  let ref_idx : Array[Int32] = Array(capacity=0)
+  let target_idx : Array[Int32] = Array(capacity=0)
   for i = 0; i < groups.length(); i = i + 1 {
     if groups[i] == ref_label {
       ref_idx.push(i)
@@ -88,17 +92,22 @@ pub fn scanpy_rank_genes_groups(
       let df = if n_ref > 1 && n_target > 1 {
         let a = var_ref / n_ref.to_double()
         let b = var_target / n_target.to_double()
-        (a + b) * (a + b) /
-          (a * a / (n_ref - 1).to_double() + b * b / (n_target - 1).to_double())
+        (a + b) *
+        (a + b) /
+        (a * a / (n_ref - 1).to_double() + b * b / (n_target - 1).to_double())
       } else {
         1.0
       }
       (tt, welch_p(tt, df))
     }
     let lfc = @math.ln((mean_target + 1.0) / (mean_ref + 1.0)) / @math.ln(2.0)
-    out.push(
-      RankGenesResult::{ t_stat: t, p_value: p, mean_ref, mean_target, logfoldchange: lfc },
-    )
+    out.push(RankGenesResult::{
+      t_stat: t,
+      p_value: p,
+      mean_ref,
+      mean_target,
+      logfoldchange: lfc,
+    })
     j = j + 1
   }
   out
@@ -114,7 +123,7 @@ pub fn scanpy_rank_genes_groups(
 pub fn scanpy_tsne(
   x : Array[Array[Double]],
   perplexity~ : Double = 30.0,
-  dims~ : Int = 2,
+  dims~ : Int32 = 2,
 ) -> Array[Array[Double]] {
   let config = TsneConfig::new_custom(perplexity, 1000, dims, 42)
   let result = tsne(x, config)

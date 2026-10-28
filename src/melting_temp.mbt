@@ -101,7 +101,7 @@ fn mt_nn_params(dinucleotide : String) -> (Double, Double) {
 pub fn mt_nearest_neighbor(
   seq : String,
   conc~ : Double = 0.0000001,
-  na_conc~ : Double = 0.05
+  na_conc~ : Double = 0.05,
 ) -> MeltingTempResult {
   let seq_upper = seq.to_upper()
   let n = seq_upper.length()
@@ -112,7 +112,7 @@ pub fn mt_nearest_neighbor(
   // Initialize with terminal base pair penalties
   // Biopython uses: dH = init + sum(dH_i), dS = init + sum(dS_i)
   // For DNA duplex: initiation parameters
-  let mut dH = 0.2  // kcal/mol (initiation)
+  let mut dH = 0.2 // kcal/mol (initiation)
   let mut dS = -5.7 // cal/mol·K (initiation)
 
   // Sum over dinucleotide steps
@@ -160,10 +160,10 @@ pub fn mt_salt_correction_na(tm : Double, na_conc : Double) -> Double {
 pub fn mt_salt_correction_mg(
   tm : Double,
   mg_conc : Double,
-  na_conc~ : Double = 0.05
+  na_conc~ : Double = 0.05,
 ) -> Double {
   // Owczarzy correction: factor = 1 / (1 + 0.75 * [Mg2+] * sqrt([Na+]))
-  let factor = 1.0 / (1.0 + 0.75 * mg_conc * (na_conc).sqrt())
+  let factor = 1.0 / (1.0 + 0.75 * mg_conc * na_conc.sqrt())
   // Simplified: apply as multiplicative factor to the Na+ correction
   let na_correction = 16.6 * @math.log10(na_conc)
   let mg_correction = na_correction * factor
@@ -176,7 +176,7 @@ pub fn mt_with_salt(
   seq : String,
   na_conc~ : Double = 0.05,
   mg_conc~ : Double = 0.0,
-  method_~ : String = "nearest_neighbor"
+  method_~ : String = "nearest_neighbor",
 ) -> MeltingTempResult {
   let base_tm = if method_ == "wallace" {
     mt_wallace(seq).tm
@@ -200,26 +200,26 @@ pub fn mt_with_salt(
 pub fn mt_is_valid_dna(seq : String) -> Bool {
   let valid : Map[UInt16, Bool] = {
     let m : Map[UInt16, Bool] = Map([], capacity=8)
-    m[65] = true  // A
-    m[67] = true  // C
-    m[71] = true  // G
-    m[84] = true  // T
-    m[82] = true  // R (A/G)
-    m[89] = true  // Y (C/T)
-    m[83] = true  // S (G/C)
-    m[87] = true  // W (A/T)
-    m[75] = true  // K (G/T)
-    m[77] = true  // M (A/C)
-    m[66] = true  // B (C/G/T)
-    m[68] = true  // D (A/G/T)
-    m[72] = true  // H (A/C/T)
-    m[86] = true  // V (A/C/G)
-    m[78] = true  // N (any)
+    m[65] = true // A
+    m[67] = true // C
+    m[71] = true // G
+    m[84] = true // T
+    m[82] = true // R (A/G)
+    m[89] = true // Y (C/T)
+    m[83] = true // S (G/C)
+    m[87] = true // W (A/T)
+    m[75] = true // K (G/T)
+    m[77] = true // M (A/C)
+    m[66] = true // B (C/G/T)
+    m[68] = true // D (A/G/T)
+    m[72] = true // H (A/C/T)
+    m[86] = true // V (A/C/G)
+    m[78] = true // N (any)
     m
   }
   let mut i = 0
   while i < seq.length() {
-    if !(valid.contains(seq[i])) {
+    if !valid.contains(seq[i]) {
       return false
     }
     i = i + 1

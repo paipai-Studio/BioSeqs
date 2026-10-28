@@ -19,8 +19,14 @@ pub struct AlignStockholmAnnotation {
   feature : String
   value : String
 } derive(Eq, Debug)
+
+///|
 pub extend AlignStockholmAnnotation with Eq::{equal, not_equal}
-pub extend AlignStockholmAnnotation with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend AlignStockholmAnnotation with @moonbitlang/core/debug.Debug::{
+  to_repr,
+}
 
 ///|
 /// A mapped GC annotation with one character per retained alignment column.
@@ -29,8 +35,14 @@ pub struct AlignStockholmColumnAnnotation {
   feature : String
   value : String
 } derive(Eq, Debug)
+
+///|
 pub extend AlignStockholmColumnAnnotation with Eq::{equal, not_equal}
-pub extend AlignStockholmColumnAnnotation with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend AlignStockholmColumnAnnotation with @moonbitlang/core/debug.Debug::{
+  to_repr,
+}
 
 ///|
 /// A mapped GR annotation.
@@ -43,20 +55,30 @@ pub struct AlignStockholmLetterAnnotation {
   value : String
   aligned_value : String
 } derive(Eq, Debug)
+
+///|
 pub extend AlignStockholmLetterAnnotation with Eq::{equal, not_equal}
-pub extend AlignStockholmLetterAnnotation with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend AlignStockholmLetterAnnotation with @moonbitlang/core/debug.Debug::{
+  to_repr,
+}
 
 ///|
 /// One structured Stockholm reference.
 pub struct AlignStockholmReference {
-  number : Int
+  number : Int32
   medline : String
   title : String
   author : String
   location : String
   comment : String
 } derive(Eq, Debug)
+
+///|
 pub extend AlignStockholmReference with Eq::{equal, not_equal}
+
+///|
 pub extend AlignStockholmReference with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -65,8 +87,14 @@ pub struct AlignStockholmDatabaseReference {
   reference : String
   comment : String
 } derive(Eq, Debug)
+
+///|
 pub extend AlignStockholmDatabaseReference with Eq::{equal, not_equal}
-pub extend AlignStockholmDatabaseReference with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend AlignStockholmDatabaseReference with @moonbitlang/core/debug.Debug::{
+  to_repr,
+}
 
 ///|
 /// One nested-domain annotation.
@@ -74,8 +102,14 @@ pub struct AlignStockholmNestedDomain {
   accession : String
   location : String
 } derive(Eq, Debug)
+
+///|
 pub extend AlignStockholmNestedDomain with Eq::{equal, not_equal}
-pub extend AlignStockholmNestedDomain with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend AlignStockholmNestedDomain with @moonbitlang/core/debug.Debug::{
+  to_repr,
+}
 
 ///|
 /// One sequence row and its GS/GR annotations.
@@ -88,7 +122,11 @@ pub struct AlignStockholmSequence {
   dbxrefs : Array[String]
   letter_annotations : Array[AlignStockholmLetterAnnotation]
 } derive(Eq, Debug)
+
+///|
 pub extend AlignStockholmSequence with Eq::{equal, not_equal}
+
+///|
 pub extend AlignStockholmSequence with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -106,24 +144,32 @@ pub struct AlignStockholmAlignment {
   database_references : Array[AlignStockholmDatabaseReference]
   nested_domains : Array[AlignStockholmNestedDomain]
   operations : String
-  source_columns : Int
-  removed_all_gap_columns : Int
+  source_columns : Int32
+  removed_all_gap_columns : Int32
 } derive(Eq, Debug)
+
+///|
 pub extend AlignStockholmAlignment with Eq::{equal, not_equal}
+
+///|
 pub extend AlignStockholmAlignment with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Pairwise or all-pairs Stockholm alignment statistics.
 pub struct AlignStockholmCounts {
-  pairs : Int
-  aligned : Int
-  identities : Int
-  mismatches : Int
-  gap_columns : Int
-  double_gap_columns : Int
-  gap_opens : Int
+  pairs : Int32
+  aligned : Int32
+  identities : Int32
+  mismatches : Int32
+  gap_columns : Int32
+  double_gap_columns : Int32
+  gap_opens : Int32
 } derive(Eq, Debug)
+
+///|
 pub extend AlignStockholmCounts with Eq::{equal, not_equal}
+
+///|
 pub extend AlignStockholmCounts with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -141,7 +187,7 @@ priv struct AlignStockholmRawSequenceAnnotation {
 
 ///|
 priv struct AlignStockholmReferenceBuilder {
-  number : Int
+  number : Int32
   mut medline : String
   mut title : String
   mut author : String
@@ -166,7 +212,7 @@ priv struct AlignStockholmNestedDomainBuilder {
 pub fn AlignStockholmAnnotation::create(
   code : String,
   value : String,
-  feature? : String? = None,
+  feature~ : String? = None,
 ) -> AlignStockholmAnnotation raise AlignStockholmError {
   align_stockholm_validate_annotation_code(code)
   AlignStockholmAnnotation::{
@@ -184,7 +230,7 @@ pub fn AlignStockholmAnnotation::create(
 pub fn AlignStockholmColumnAnnotation::create(
   code : String,
   value : String,
-  feature? : String? = None,
+  feature~ : String? = None,
 ) -> AlignStockholmColumnAnnotation raise AlignStockholmError {
   align_stockholm_validate_annotation_code(code)
   AlignStockholmColumnAnnotation::{
@@ -203,7 +249,7 @@ pub fn AlignStockholmLetterAnnotation::create(
   code : String,
   value : String,
   aligned_value : String,
-  feature? : String? = None,
+  feature~ : String? = None,
 ) -> AlignStockholmLetterAnnotation raise AlignStockholmError {
   align_stockholm_validate_annotation_code(code)
   AlignStockholmLetterAnnotation::{
@@ -222,10 +268,10 @@ pub fn AlignStockholmLetterAnnotation::create(
 pub fn AlignStockholmSequence::create(
   id : String,
   aligned_sequence : String,
-  description? : String = "",
-  annotations? : Array[AlignStockholmAnnotation] = [],
-  dbxrefs? : Array[String] = [],
-  letter_annotations? : Array[AlignStockholmLetterAnnotation] = [],
+  description~ : String = "",
+  annotations~ : Array[AlignStockholmAnnotation] = [],
+  dbxrefs~ : Array[String] = [],
+  letter_annotations~ : Array[AlignStockholmLetterAnnotation] = [],
 ) -> AlignStockholmSequence raise AlignStockholmError {
   align_stockholm_validate_id(id)
   if aligned_sequence.length() == 0 {
@@ -261,14 +307,14 @@ pub fn AlignStockholmSequence::create(
 /// Construct and validate one coordinate-aware Stockholm alignment.
 pub fn AlignStockholmAlignment::create(
   sequences : Array[AlignStockholmSequence],
-  annotations? : Array[AlignStockholmAnnotation] = [],
-  column_annotations? : Array[AlignStockholmColumnAnnotation] = [],
-  references? : Array[AlignStockholmReference] = [],
-  database_references? : Array[AlignStockholmDatabaseReference] = [],
-  nested_domains? : Array[AlignStockholmNestedDomain] = [],
-  operations? : String = "",
-  source_columns? : Int = 0,
-  removed_all_gap_columns? : Int = 0,
+  annotations~ : Array[AlignStockholmAnnotation] = [],
+  column_annotations~ : Array[AlignStockholmColumnAnnotation] = [],
+  references~ : Array[AlignStockholmReference] = [],
+  database_references~ : Array[AlignStockholmDatabaseReference] = [],
+  nested_domains~ : Array[AlignStockholmNestedDomain] = [],
+  operations~ : String = "",
+  source_columns~ : Int32 = 0,
+  removed_all_gap_columns~ : Int32 = 0,
 ) -> AlignStockholmAlignment raise AlignStockholmError {
   let copied_sequences : Array[AlignStockholmSequence] = []
   for sequence in sequences {
@@ -583,7 +629,7 @@ pub fn align_stockholm_write_all(
 /// Return the number of rows.
 pub fn AlignStockholmAlignment::num_sequences(
   self : AlignStockholmAlignment,
-) -> Int {
+) -> Int32 {
   self.sequences.length()
 }
 
@@ -591,7 +637,7 @@ pub fn AlignStockholmAlignment::num_sequences(
 /// Return the retained alignment width.
 pub fn AlignStockholmAlignment::alignment_length(
   self : AlignStockholmAlignment,
-) -> Int {
+) -> Int32 {
   if self.sequences.length() == 0 {
     0
   } else {
@@ -603,7 +649,7 @@ pub fn AlignStockholmAlignment::alignment_length(
 /// Return the source width before all-gap columns were removed.
 pub fn AlignStockholmAlignment::source_alignment_length(
   self : AlignStockholmAlignment,
-) -> Int {
+) -> Int32 {
   self.source_columns
 }
 
@@ -612,7 +658,7 @@ pub fn AlignStockholmAlignment::source_alignment_length(
 pub fn AlignStockholmAlignment::find_sequence(
   self : AlignStockholmAlignment,
   id : String,
-) -> Int? {
+) -> Int32? {
   for index = 0; index < self.sequences.length(); index = index + 1 {
     if self.sequences[index].id == id {
       return Some(index)
@@ -696,7 +742,7 @@ pub fn AlignStockholmSequence::letter_annotation(
 /// Return one printed alignment column.
 pub fn AlignStockholmAlignment::column(
   self : AlignStockholmAlignment,
-  column : Int,
+  column : Int32,
 ) -> String? {
   if column < 0 || column >= self.alignment_length() {
     return None
@@ -714,9 +760,9 @@ pub fn AlignStockholmAlignment::column(
 /// Map a zero-based ungapped sequence position to an alignment column.
 pub fn AlignStockholmAlignment::sequence_position_to_column(
   self : AlignStockholmAlignment,
-  row : Int,
-  position : Int,
-) -> Int? {
+  row : Int32,
+  position : Int32,
+) -> Int32? {
   if row < 0 || row >= self.sequences.length() || position < 0 {
     return None
   }
@@ -737,9 +783,9 @@ pub fn AlignStockholmAlignment::sequence_position_to_column(
 /// Map a retained column to a zero-based ungapped sequence position.
 pub fn AlignStockholmAlignment::column_to_sequence_position(
   self : AlignStockholmAlignment,
-  row : Int,
-  column : Int,
-) -> Int? {
+  row : Int32,
+  column : Int32,
+) -> Int32? {
   if row < 0 ||
     row >= self.sequences.length() ||
     column < 0 ||
@@ -763,10 +809,10 @@ pub fn AlignStockholmAlignment::column_to_sequence_position(
 /// Map one residue through the alignment to another row.
 pub fn AlignStockholmAlignment::map_position(
   self : AlignStockholmAlignment,
-  source_row : Int,
-  target_row : Int,
-  source_position : Int,
-) -> Int? {
+  source_row : Int32,
+  target_row : Int32,
+  source_position : Int32,
+) -> Int32? {
   if target_row < 0 || target_row >= self.sequences.length() {
     return None
   }
@@ -780,12 +826,12 @@ pub fn AlignStockholmAlignment::map_position(
 /// Return per-column residue coordinates for two rows.
 pub fn AlignStockholmAlignment::aligned_pairs(
   self : AlignStockholmAlignment,
-  first_row : Int,
-  second_row : Int,
-) -> Array[(Int?, Int?)] raise AlignStockholmError {
+  first_row : Int32,
+  second_row : Int32,
+) -> Array[(Int32?, Int32?)] raise AlignStockholmError {
   align_stockholm_validate_row(self, first_row)
   align_stockholm_validate_row(self, second_row)
-  let pairs : Array[(Int?, Int?)] = []
+  let pairs : Array[(Int32?, Int32?)] = []
   let mut first_position = 0
   let mut second_position = 0
   for column = 0; column < self.alignment_length(); column = column + 1 {
@@ -825,8 +871,8 @@ pub fn AlignStockholmAlignment::aligned_pairs(
 /// Return a compact Biopython-style coordinate path for all rows.
 pub fn AlignStockholmAlignment::coordinate_path(
   self : AlignStockholmAlignment,
-) -> Array[Array[Int]] {
-  let paths : Array[Array[Int]] = []
+) -> Array[Array[Int32]] {
+  let paths : Array[Array[Int32]] = []
   let coordinates = Array::make(self.sequences.length(), 0)
   for _row = 0; _row < self.sequences.length(); _row = _row + 1 {
     paths.push([0])
@@ -857,8 +903,8 @@ pub fn AlignStockholmAlignment::coordinate_path(
 /// Slice retained alignment columns and all GC/GR annotations together.
 pub fn AlignStockholmAlignment::slice_columns(
   self : AlignStockholmAlignment,
-  start : Int,
-  end : Int,
+  start : Int32,
+  end : Int32,
 ) -> AlignStockholmAlignment raise AlignStockholmError {
   if start < 0 || end <= start || end > self.alignment_length() {
     raise AlignStockholmError("Invalid Stockholm column slice")
@@ -913,8 +959,8 @@ pub fn AlignStockholmAlignment::slice_columns(
 /// Compute statistics for one pair of rows.
 pub fn AlignStockholmAlignment::pair_counts(
   self : AlignStockholmAlignment,
-  first_row : Int,
-  second_row : Int,
+  first_row : Int32,
+  second_row : Int32,
 ) -> AlignStockholmCounts raise AlignStockholmError {
   align_stockholm_validate_row(self, first_row)
   align_stockholm_validate_row(self, second_row)
@@ -969,8 +1015,8 @@ pub fn AlignStockholmCounts::identity(self : AlignStockholmCounts) -> Double {
 /// Calculate a majority consensus; gaps do not vote.
 pub fn AlignStockholmAlignment::consensus(
   self : AlignStockholmAlignment,
-  minimum_fraction? : Double = 0.5,
-  ambiguous? : String = "X",
+  minimum_fraction~ : Double = 0.5,
+  ambiguous~ : String = "X",
 ) -> String raise AlignStockholmError {
   if minimum_fraction < 0.0 || minimum_fraction > 1.0 {
     raise AlignStockholmError(
@@ -984,8 +1030,8 @@ pub fn AlignStockholmAlignment::consensus(
   }
   let output = StringBuilder(size_hint=self.alignment_length())
   for column = 0; column < self.alignment_length(); column = column + 1 {
-    let symbols : Array[Int] = []
-    let counts : Array[Int] = []
+    let symbols : Array[Int32] = []
+    let counts : Array[Int32] = []
     let mut residues = 0
     for sequence in self.sequences {
       let code = sequence.aligned_sequence.unsafe_get(column).to_int()
@@ -1112,8 +1158,8 @@ pub fn align_stockholm_example_text() -> String {
 ///|
 fn align_stockholm_parse_record(
   lines : Array[String],
-  start : Int,
-  end : Int,
+  start : Int32,
+  end : Int32,
 ) -> AlignStockholmAlignment raise AlignStockholmError {
   let ids : Array[String] = []
   let rows : Array[String] = []
@@ -1369,7 +1415,7 @@ fn align_stockholm_parse_record(
 ///|
 fn align_stockholm_build_gf(
   raw : Array[AlignStockholmRawAnnotation],
-  rows : Int,
+  rows : Int32,
 ) -> Array[AlignStockholmAnnotation] raise AlignStockholmError {
   let annotations : Array[AlignStockholmAnnotation] = []
   let codes = [
@@ -1595,7 +1641,7 @@ fn align_stockholm_build_nested_domains(
 ///|
 fn align_stockholm_build_gc(
   raw : Array[AlignStockholmRawAnnotation],
-  source_width : Int,
+  source_width : Int32,
   removed : Array[Bool],
 ) -> Array[AlignStockholmColumnAnnotation] raise AlignStockholmError {
   let annotations : Array[AlignStockholmColumnAnnotation] = []
@@ -1796,8 +1842,8 @@ fn align_stockholm_validate_sequence_annotations(
 ///|
 fn align_stockholm_count_pair(
   alignment : AlignStockholmAlignment,
-  first_row : Int,
-  second_row : Int,
+  first_row : Int32,
+  second_row : Int32,
 ) -> AlignStockholmCounts {
   let mut aligned = 0
   let mut identities = 0
@@ -1857,8 +1903,8 @@ fn align_stockholm_count_pair(
 ///|
 fn align_stockholm_movement_changes(
   alignment : AlignStockholmAlignment,
-  first_column : Int,
-  second_column : Int,
+  first_column : Int32,
+  second_column : Int32,
 ) -> Bool {
   for sequence in alignment.sequences {
     let first_gap = sequence.aligned_sequence.unsafe_get(first_column).to_int() ==
@@ -2079,7 +2125,7 @@ fn align_stockholm_remove_columns(
 }
 
 ///|
-fn align_stockholm_count_true(values : Array[Bool]) -> Int {
+fn align_stockholm_count_true(values : Array[Bool]) -> Int32 {
   let mut count = 0
   for value in values {
     if value {
@@ -2102,7 +2148,7 @@ fn align_stockholm_remove_gaps(sequence : String) -> String {
 }
 
 ///|
-fn align_stockholm_remove_character(value : String, target : Int) -> String {
+fn align_stockholm_remove_character(value : String, target : Int32) -> String {
   let output = StringBuilder(size_hint=value.length())
   for index = 0; index < value.length(); index = index + 1 {
     let code = value.unsafe_get(index).to_int()
@@ -2177,7 +2223,7 @@ fn align_stockholm_validate_annotation_code(
 ///|
 fn align_stockholm_validate_row(
   alignment : AlignStockholmAlignment,
-  row : Int,
+  row : Int32,
 ) -> Unit raise AlignStockholmError {
   if row < 0 || row >= alignment.sequences.length() {
     raise AlignStockholmError(
@@ -2208,7 +2254,7 @@ fn align_stockholm_append_raw(
 fn align_stockholm_markup_rest(
   line : String,
   prefix : String,
-  line_index : Int,
+  line_index : Int32,
 ) -> String raise AlignStockholmError {
   if line.length() == prefix.length() ||
     !align_stockholm_is_whitespace(line.unsafe_get(prefix.length()).to_int()) {
@@ -2222,7 +2268,7 @@ fn align_stockholm_markup_rest(
 ///|
 fn align_stockholm_take_fields(
   value : String,
-  count : Int,
+  count : Int32,
 ) -> (Array[String], String) {
   let fields : Array[String] = []
   let mut index = 0
@@ -2321,7 +2367,7 @@ fn align_stockholm_wrap_text(prefix : String, text : String) -> String {
 fn align_stockholm_parse_positive_int(
   text : String,
   label : String,
-) -> Int raise AlignStockholmError {
+) -> Int32 raise AlignStockholmError {
   if text.length() == 0 {
     raise AlignStockholmError(label + " is empty")
   }
@@ -2361,7 +2407,10 @@ fn align_stockholm_normalize_lines(text : String) -> Array[String] {
 }
 
 ///|
-fn align_stockholm_find_string(values : Array[String], target : String) -> Int {
+fn align_stockholm_find_string(
+  values : Array[String],
+  target : String,
+) -> Int32 {
   for index = 0; index < values.length(); index = index + 1 {
     if values[index] == target {
       return index
@@ -2392,7 +2441,7 @@ fn align_stockholm_append_text(existing : String, value : String) -> String {
 }
 
 ///|
-fn align_stockholm_pad_right(value : String, width : Int) -> String {
+fn align_stockholm_pad_right(value : String, width : Int32) -> String {
   if value.length() >= width {
     return value
   }
@@ -2418,7 +2467,7 @@ fn align_stockholm_starts_with(value : String, prefix : String) -> Bool {
 }
 
 ///|
-fn align_stockholm_is_whitespace(code : Int) -> Bool {
+fn align_stockholm_is_whitespace(code : Int32) -> Bool {
   code == ' '.to_int() ||
   code == '\t'.to_int() ||
   code == '\n'.to_int() ||
@@ -2426,7 +2475,7 @@ fn align_stockholm_is_whitespace(code : Int) -> Bool {
 }
 
 ///|
-fn align_stockholm_upper_code(code : Int) -> Int {
+fn align_stockholm_upper_code(code : Int32) -> Int32 {
   if code >= 'a'.to_int() && code <= 'z'.to_int() {
     code - 'a'.to_int() + 'A'.to_int()
   } else {
@@ -2435,7 +2484,7 @@ fn align_stockholm_upper_code(code : Int) -> Int {
 }
 
 ///|
-fn align_stockholm_max(first : Int, second : Int) -> Int {
+fn align_stockholm_max(first : Int32, second : Int32) -> Int32 {
   if first > second {
     first
   } else {

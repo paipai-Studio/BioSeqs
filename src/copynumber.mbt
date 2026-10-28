@@ -44,7 +44,7 @@ fn copy_med3(a : Double, b : Double, c : Double) -> Double {
 ///|
 /// Exact median of an odd-length sub-array, equivalent to R
 /// `sort(x, partial = h)[h]`.
-fn copy_med_odd_range(x : Array[Double], lo : Int, count : Int) -> Double {
+fn copy_med_odd_range(x : Array[Double], lo : Int32, count : Int32) -> Double {
   let window = x[lo:lo + count].to_owned()
   window.sort()
   window[count / 2]
@@ -57,7 +57,7 @@ fn copy_med_odd_range(x : Array[Double], lo : Int, count : Int) -> Double {
 /// edges are first kept ("keep" rule) and then post-processed by
 /// `stats::smoothEnds`, including Tukey's end-point rule with linear
 /// extrapolation. `k` is the half-window size (default 25, window width 51).
-pub fn copy_median_filter(x : Array[Double], k? : Int = 25) -> Array[Double] {
+pub fn copy_median_filter(x : Array[Double], k~ : Int32 = 25) -> Array[Double] {
   let n = x.length()
   if n == 0 {
     return []
@@ -119,7 +119,7 @@ pub fn copy_mad(x : Array[Double]) -> Double {
 /// Robust SD estimate `copynumber::getMad`: zero observations (typically
 /// imputed missing values) are discarded, the remainder is smoothed with the
 /// running median, and the MAD of the residuals is returned.
-pub fn copy_get_mad(x : Array[Double], k? : Int = 25) -> Double {
+pub fn copy_get_mad(x : Array[Double], k~ : Int32 = 25) -> Double {
   let nonzero : Array[Double] = []
   for v in x {
     if v != 0.0 {
@@ -143,9 +143,9 @@ pub fn copy_get_mad(x : Array[Double], k? : Int = 25) -> Double {
 /// One fitted constant region (segment) of a PCF fit.
 pub struct PcfSegment {
   /// 1-based index of the first probe in the segment
-  start : Int
+  start : Int32
   /// number of probes in the segment
-  length : Int
+  length : Int32
   /// fitted value (segment mean)
   mean : Double
 }
@@ -155,7 +155,7 @@ pub struct PcfSegment {
 /// returned by copynumber `exactPcf()`/`pcfPlain(return.est = TRUE)`.
 pub struct PcfResult {
   segments : Array[PcfSegment]
-  n_intervals : Int
+  n_intervals : Int32
   /// fitted value at every probe (yhat)
   yhat : Array[Double]
 }
@@ -182,8 +182,8 @@ fn pcf_single_segment(y : Array[Double]) -> PcfResult {
 /// (default 40, as in copynumber).
 pub fn exact_pcf(
   y : Array[Double],
-  kmin? : Int = 5,
-  gamma? : Double = 40.0,
+  kmin~ : Int32 = 5,
+  gamma~ : Double = 40.0,
 ) -> PcfResult raise SeqError {
   let n = y.length()
   if n == 0 {
@@ -312,10 +312,10 @@ pub fn exact_pcf(
 /// optimum).
 pub fn pcf_plain(
   y : Array[Double],
-  kmin? : Int = 5,
-  gamma? : Double = 40.0,
-  normalize? : Bool = true,
-  k? : Int = 25,
+  kmin~ : Int32 = 5,
+  gamma~ : Double = 40.0,
+  normalize~ : Bool = true,
+  k~ : Int32 = 25,
 ) -> PcfResult raise SeqError {
   let mut use_gamma = gamma
   if normalize {
@@ -331,7 +331,7 @@ pub fn pcf_plain(
 ///|
 /// Round to `digits` decimal places using round-half-to-even, matching R
 /// `round()` for the outlier comparisons.
-fn copy_round(x : Double, digits : Int) -> Double {
+fn copy_round(x : Double, digits : Int32) -> Double {
   let scale = @math.pow(10.0, digits.to_double())
   let q = x * scale
   let floor_q = q.floor()
@@ -354,7 +354,7 @@ fn copy_round(x : Double, digits : Int) -> Double {
 pub struct WinsResult {
   ywin : Array[Double]
   sdev : Double
-  outliers : Array[Int]
+  outliers : Array[Int32]
 }
 
 ///|
@@ -363,9 +363,9 @@ pub struct WinsResult {
 /// `+- tau * MAD(residuals)` (copynumber default `tau = 2.5`).
 pub fn winsorize_mad(
   x : Array[Double],
-  tau? : Double = 2.5,
-  k? : Int = 25,
-  digits? : Int = 4,
+  tau~ : Double = 2.5,
+  k~ : Int32 = 25,
+  digits~ : Int32 = 4,
 ) -> WinsResult {
   let n = x.length()
   let xhat = copy_median_filter(x, k~)
@@ -405,11 +405,11 @@ pub fn winsorize_mad(
 /// outliers are flagged against the piecewise constant fit.
 pub fn winsorize_pcf(
   x : Array[Double],
-  tau? : Double = 2.5,
-  k? : Int = 25,
-  gamma? : Double = 40.0,
-  iter? : Int = 1,
-  digits? : Int = 4,
+  tau~ : Double = 2.5,
+  k~ : Int32 = 25,
+  gamma~ : Double = 40.0,
+  iter~ : Int32 = 1,
+  digits~ : Int32 = 4,
 ) -> WinsResult raise SeqError {
   let n = x.length()
   let mut xhat = copy_median_filter(x, k~)
@@ -477,8 +477,8 @@ pub fn winsorize_pcf(
 /// One joint segment of a multi-sample PCF fit; `means` holds one fitted
 /// value per sample.
 pub struct MultiPcfSegment {
-  start : Int
-  length : Int
+  start : Int32
+  length : Int32
   means : Array[Double]
 }
 
@@ -487,7 +487,7 @@ pub struct MultiPcfSegment {
 /// (`copynumber::multipcf`): all samples share the same breakpoints.
 pub struct MultiPcfResult {
   segments : Array[MultiPcfSegment]
-  n_intervals : Int
+  n_intervals : Int32
   /// fitted values, indexed `yhat[sample][probe]`
   yhat : Array[Array[Double]]
   /// per-sample robust SD used for normalization (1 when not normalized)
@@ -505,10 +505,10 @@ pub struct MultiPcfResult {
 /// variance sample yields a single constant segment, mirroring copynumber.
 pub fn multi_pcf(
   samples : Array[Array[Double]],
-  gamma? : Double = 40.0,
-  normalize? : Bool = true,
-  k? : Int = 25,
-  weights? : Array[Double] = [],
+  gamma~ : Double = 40.0,
+  normalize~ : Bool = true,
+  k~ : Int32 = 25,
+  weights~ : Array[Double] = [],
 ) -> MultiPcfResult raise SeqError {
   let ns = samples.length()
   if ns == 0 {

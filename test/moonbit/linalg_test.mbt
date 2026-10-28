@@ -1,7 +1,6 @@
 ///|
 /// Tests for the shared linear-algebra primitives (linalg.mbt).
 
-
 ///|
 test "linalg_jacobi_eigenvalues" {
   // tridiagonal [[2,1,0],[1,2,1],[0,1,2]] → eigenvalues 2±√2 and 2

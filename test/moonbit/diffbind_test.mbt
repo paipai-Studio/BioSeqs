@@ -82,7 +82,7 @@ test "diffbind_count" {
   let sample = @src.DBASample::new("S1", "A", 1)
   sample.peaks.push(@src.DBAPeak::new("chr1", 1000, 2000))
   let config = @src.DBAConfig::new([sample])
-  let ranges : Array[(String, Int, Int)] = [
+  let ranges : Array[(String, Int32, Int32)] = [
     ("chr1", 1500, 2500),
     ("chr2", 100, 200),
   ]

@@ -21,41 +21,79 @@ fn mt_get_pka(aa : String) -> Array[IonizableGroup] {
   let groups : Array[IonizableGroup] = []
 
   // N-terminal amino group (always present)
-  groups.push(IonizableGroup::{ pKa: 8.0, n_term: true, c_term: false, side_chain: false })
+  groups.push(IonizableGroup::{
+    pKa: 8.0,
+    n_term: true,
+    c_term: false,
+    side_chain: false,
+  })
 
   // C-terminal carboxyl group (always present)
-  groups.push(IonizableGroup::{ pKa: 3.1, n_term: false, c_term: true, side_chain: false })
+  groups.push(IonizableGroup::{
+    pKa: 3.1,
+    n_term: false,
+    c_term: true,
+    side_chain: false,
+  })
 
   // Side chain pKa values
   match aa {
-    "D" => {
+    "D" =>
       // Aspartic acid: side chain carboxyl
-      groups.push(IonizableGroup::{ pKa: 3.9, n_term: false, c_term: false, side_chain: true })
-    }
-    "E" => {
+      groups.push(IonizableGroup::{
+        pKa: 3.9,
+        n_term: false,
+        c_term: false,
+        side_chain: true,
+      })
+    "E" =>
       // Glutamic acid: side chain carboxyl
-      groups.push(IonizableGroup::{ pKa: 4.3, n_term: false, c_term: false, side_chain: true })
-    }
-    "H" => {
+      groups.push(IonizableGroup::{
+        pKa: 4.3,
+        n_term: false,
+        c_term: false,
+        side_chain: true,
+      })
+    "H" =>
       // Histidine: imidazole
-      groups.push(IonizableGroup::{ pKa: 6.0, n_term: false, c_term: false, side_chain: true })
-    }
-    "C" => {
+      groups.push(IonizableGroup::{
+        pKa: 6.0,
+        n_term: false,
+        c_term: false,
+        side_chain: true,
+      })
+    "C" =>
       // Cysteine: thiol
-      groups.push(IonizableGroup::{ pKa: 8.3, n_term: false, c_term: false, side_chain: true })
-    }
-    "Y" => {
+      groups.push(IonizableGroup::{
+        pKa: 8.3,
+        n_term: false,
+        c_term: false,
+        side_chain: true,
+      })
+    "Y" =>
       // Tyrosine: phenol
-      groups.push(IonizableGroup::{ pKa: 10.5, n_term: false, c_term: false, side_chain: true })
-    }
-    "K" => {
+      groups.push(IonizableGroup::{
+        pKa: 10.5,
+        n_term: false,
+        c_term: false,
+        side_chain: true,
+      })
+    "K" =>
       // Lysine: amine
-      groups.push(IonizableGroup::{ pKa: 10.5, n_term: false, c_term: false, side_chain: true })
-    }
-    "R" => {
+      groups.push(IonizableGroup::{
+        pKa: 10.5,
+        n_term: false,
+        c_term: false,
+        side_chain: true,
+      })
+    "R" =>
       // Arginine: guanidinium
-      groups.push(IonizableGroup::{ pKa: 12.0, n_term: false, c_term: false, side_chain: true })
-    }
+      groups.push(IonizableGroup::{
+        pKa: 12.0,
+        n_term: false,
+        c_term: false,
+        side_chain: true,
+      })
     _ => ()
   }
 
@@ -94,42 +132,36 @@ fn mt_charge_at_ph(seq : String, ph : Double) -> Double {
       } else if group.side_chain {
         // Side chains
         match aa {
-          "D" | "E" => {
+          "D" | "E" =>
             // Acidic: -1 when deprotonated (pH > pKa)
             if ph > group.pKa {
               charge = charge - 1.0
             }
-          }
-          "H" => {
+          "H" =>
             // Histidine: +1 when protonated (pH < pKa)
             if ph < group.pKa {
               charge = charge + 1.0
             }
-          }
-          "C" => {
+          "C" =>
             // Cysteine: -1 when deprotonated (pH > pKa)
             if ph > group.pKa {
               charge = charge - 1.0
             }
-          }
-          "Y" => {
+          "Y" =>
             // Tyrosine: -1 when deprotonated (pH > pKa)
             if ph > group.pKa {
               charge = charge - 1.0
             }
-          }
-          "K" => {
+          "K" =>
             // Lysine: +1 when protonated (pH < pKa)
             if ph < group.pKa {
               charge = charge + 1.0
             }
-          }
-          "R" => {
+          "R" =>
             // Arginine: +1 when protonated (pH < pKa)
             if ph < group.pKa {
               charge = charge + 1.0
             }
-          }
           _ => ()
         }
       }
@@ -188,7 +220,7 @@ pub fn mt_isoelectric_point(seq : String) -> Double {
 /// Calculate pI with a custom pKa table.
 pub fn mt_isoelectric_point_custom(
   seq : String,
-  pka_table : Map[String, Array[IonizableGroup]]
+  pka_table : Map[String, Array[IonizableGroup]],
 ) -> Double {
   let seq_upper = seq.to_upper()
   if seq_upper.length() == 0 {
@@ -214,15 +246,19 @@ pub fn mt_isoelectric_point_custom(
           while g < groups.length() {
             let group = groups[g]
             if group.n_term {
-              if mid < group.pKa { charge = charge + 1.0 }
+              if mid < group.pKa {
+                charge = charge + 1.0
+              }
             } else if group.c_term {
-              if mid > group.pKa { charge = charge - 1.0 }
+              if mid > group.pKa {
+                charge = charge - 1.0
+              }
             } else if group.side_chain {
               match aa {
-                "D" | "E" => { if mid > group.pKa { charge = charge - 1.0 } }
-                "H" => { if mid < group.pKa { charge = charge + 1.0 } }
-                "C" | "Y" => { if mid > group.pKa { charge = charge - 1.0 } }
-                "K" | "R" => { if mid < group.pKa { charge = charge + 1.0 } }
+                "D" | "E" => if mid > group.pKa { charge = charge - 1.0 }
+                "H" => if mid < group.pKa { charge = charge + 1.0 }
+                "C" | "Y" => if mid > group.pKa { charge = charge - 1.0 }
+                "K" | "R" => if mid < group.pKa { charge = charge + 1.0 }
                 _ => ()
               }
             }

@@ -23,7 +23,7 @@ pub fn HDF5Attribute::new(
 pub struct HDF5Dataset {
   name : String
   data_type : String
-  dimensions : Array[Int]
+  dimensions : Array[Int32]
   data : String
   attributes : Map[String, HDF5Attribute]
 }
@@ -32,7 +32,7 @@ pub struct HDF5Dataset {
 pub fn HDF5Dataset::new(
   name : String,
   data_type : String,
-  dimensions : Array[Int],
+  dimensions : Array[Int32],
 ) -> HDF5Dataset {
   HDF5Dataset::{
     name,
@@ -268,7 +268,7 @@ pub fn h5create_dataset(
   file : HDF5File,
   path : String,
   data_type : String,
-  dimensions : Array[Int],
+  dimensions : Array[Int32],
 ) -> HDF5File {
   let ds = HDF5Dataset::new("", data_type, dimensions)
   file.write_dataset(path, ds)
@@ -280,7 +280,7 @@ pub fn h5write_dataset(
   path : String,
   data : String,
   data_type : String,
-  dimensions : Array[Int],
+  dimensions : Array[Int32],
 ) -> HDF5File {
   let ds = HDF5Dataset::new("", data_type, dimensions)
   let ds_with_data = ds.set_data(data)
@@ -328,7 +328,7 @@ fn list_group(
 }
 
 ///|
-fn dimensions_to_string(dims : Array[Int]) -> String {
+fn dimensions_to_string(dims : Array[Int32]) -> String {
   let mut result = ""
   let mut i = 0
   while i < dims.length() {

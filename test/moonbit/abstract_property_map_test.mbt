@@ -1,6 +1,5 @@
 ///|
 /// Tests for abstract_property_map module (Bio.PDB.AbstractPropertyMap).
-
 test "abstract_property_map basic add and get" {
   let pm = @src.AbstractPropertyMap::new(["SS", "ASA"])
   let props : Map[String, String] = {
@@ -16,6 +15,7 @@ test "abstract_property_map basic add and get" {
   assert_eq(ss.unwrap(), "H")
 }
 
+///|
 test "abstract_property_map has_residue" {
   let pm = @src.AbstractPropertyMap::new(["SS"])
   let props : Map[String, String] = {
@@ -29,6 +29,7 @@ test "abstract_property_map has_residue" {
   assert_false(pm.has_residue("B", 1))
 }
 
+///|
 test "abstract_property_map icode" {
   let pm = @src.AbstractPropertyMap::new(["SS"])
   let props : Map[String, String] = {
@@ -41,18 +42,21 @@ test "abstract_property_map icode" {
   assert_false(pm.has_residue("A", 1))
 }
 
+///|
 test "abstract_property_map keys" {
   let pm = @src.abstract_property_map_example()
   let keys = pm.keys()
   assert_eq(keys.length(), 3)
 }
 
+///|
 test "abstract_property_map all_records" {
   let pm = @src.abstract_property_map_example()
   let records = pm.all_records()
   assert_eq(records.length(), 3)
 }
 
+///|
 test "abstract_property_map filter_by_property" {
   let pm = @src.abstract_property_map_example()
   // Filter residues where SS == "H"
@@ -60,6 +64,7 @@ test "abstract_property_map filter_by_property" {
   assert_eq(filtered.n_residues, 1)
 }
 
+///|
 test "abstract_property_map stats_property" {
   let pm = @src.abstract_property_map_example()
   let (count, min_v, max_v, mean, sum) = pm.stats_property("ASA")
@@ -70,6 +75,7 @@ test "abstract_property_map stats_property" {
   assert_true((mean - 80.26666666666667).abs() < 1.0e-6)
 }
 
+///|
 test "abstract_property_map to_tsv" {
   let pm = @src.abstract_property_map_example()
   let tsv = pm.to_tsv()
@@ -80,6 +86,7 @@ test "abstract_property_map to_tsv" {
   assert_true(tsv.contains("A\t1"))
 }
 
+///|
 test "abstract_property_map merge" {
   let pm1 = @src.AbstractPropertyMap::new(["SS"])
   let props1 : Map[String, String] = {
@@ -103,6 +110,7 @@ test "abstract_property_map merge" {
   assert_eq(asa.unwrap(), "80.0")
 }
 
+///|
 test "abstract_property_map get_residue" {
   let pm = @src.abstract_property_map_example()
   let props = pm.get_residue("A", 1)
@@ -112,18 +120,21 @@ test "abstract_property_map get_residue" {
   assert_eq(p["ASA"], "75.5")
 }
 
+///|
 test "abstract_property_map example" {
   let pm = @src.abstract_property_map_example()
   assert_eq(pm.n_residues, 3)
   assert_eq(pm.property_names.length(), 3)
 }
 
+///|
 test "residue_key_to_string" {
   let key = @src.ResidueKey::new("A", 42, icode="B")
   let s = @src.residue_key_to_string(key)
   assert_eq(s, "A:42:B")
 }
 
+///|
 test "abstract_property_map missing property" {
   let pm = @src.abstract_property_map_example()
   let missing = pm.get_property("A", 1, "NonExistent")

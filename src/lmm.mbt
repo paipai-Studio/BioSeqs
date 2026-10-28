@@ -34,7 +34,9 @@
 /// GCTA) is used:
 ///   K_ab = mean_l (x_al - 2 p_l)(x_bl - 2 p_l) / (2 p_l (1 - p_l)),
 /// where p_l is the per-variant allele frequency over non-missing samples.
-pub fn lmm_compute_grm(genotypes : Array[Array[Double]]) -> Array[Array[Double]] {
+pub fn lmm_compute_grm(
+  genotypes : Array[Array[Double]],
+) -> Array[Array[Double]] {
   let n = genotypes.length()
   let m = if n > 0 { genotypes[0].length() } else { 0 }
 
@@ -65,7 +67,8 @@ pub fn lmm_compute_grm(genotypes : Array[Array[Double]]) -> Array[Array[Double]]
           let p = freq[l]
           if p > 0.0 && p < 1.0 {
             let d = 2.0 * p * (1.0 - p)
-            s = s + (genotypes[a][l] - 2.0 * p) * (genotypes[b][l] - 2.0 * p) / d
+            s = s +
+              (genotypes[a][l] - 2.0 * p) * (genotypes[b][l] - 2.0 * p) / d
             cnt = cnt + 1
           }
         }
@@ -87,7 +90,7 @@ pub fn lmm_compute_grm(genotypes : Array[Array[Double]]) -> Array[Array[Double]]
 
 ///|
 /// Allocate a rows x cols Double matrix (distinct inner arrays).
-fn lmm_dmatrix(rows : Int, cols : Int) -> Array[Array[Double]] {
+fn lmm_dmatrix(rows : Int32, cols : Int32) -> Array[Array[Double]] {
   let m : Array[Array[Double]] = Array::make(rows, Array::make(0, 0.0))
   for i in 0..<rows {
     m[i] = Array::make(cols, 0.0)
@@ -113,7 +116,10 @@ fn lmm_ut_vec(u : Array[Array[Double]], v : Array[Double]) -> Array[Double] {
 
 ///|
 /// Uᵀ M: rotate a matrix (n x k) into the eigen basis -> (n x k).
-fn lmm_ut_mat(u : Array[Array[Double]], m : Array[Array[Double]]) -> Array[Array[Double]] {
+fn lmm_ut_mat(
+  u : Array[Array[Double]],
+  m : Array[Array[Double]],
+) -> Array[Array[Double]] {
   let n = u.length()
   let k = if n > 0 { m[0].length() } else { 0 }
   let out = lmm_dmatrix(n, k)
@@ -134,7 +140,7 @@ fn lmm_ut_mat(u : Array[Array[Double]], m : Array[Array[Double]]) -> Array[Array
 /// the log-determinant of A (A assumed symmetric positive definite).
 fn lmm_solve_logdet(
   a : Array[Array[Double]],
-  b : Array[Double]
+  b : Array[Double],
 ) -> (Array[Double], Double) {
   let n = a.length()
   let aug : Array[Array[Double]] = []
@@ -224,7 +230,7 @@ fn lmm_golden_max(
   lo : Double,
   hi : Double,
   tol : Double,
-  max_iter : Int
+  max_iter : Int32,
 ) -> Double {
   let gr = 0.6180339887498949
   let mut a = lo
@@ -275,7 +281,7 @@ pub struct LmmModel {
   /// Profiled restricted log-likelihood (up to additive constant).
   log_likelihood : Double
   converged : Bool
-  iterations : Int
+  iterations : Int32
   /// Fixed-effect estimates (null model).
   beta : Array[Double]
   /// Rotated response Uᵀ y.
@@ -289,22 +295,27 @@ pub fn LmmModel::sigma2_g(self : LmmModel) -> Double {
   self.sigma2_g
 }
 
+///|
 pub fn LmmModel::sigma2_e(self : LmmModel) -> Double {
   self.sigma2_e
 }
 
+///|
 pub fn LmmModel::heritability(self : LmmModel) -> Double {
   self.heritability
 }
 
+///|
 pub fn LmmModel::beta(self : LmmModel) -> Array[Double] {
   self.beta
 }
 
+///|
 pub fn LmmModel::log_likelihood(self : LmmModel) -> Double {
   self.log_likelihood
 }
 
+///|
 pub fn LmmModel::converged(self : LmmModel) -> Bool {
   self.converged
 }
@@ -399,8 +410,8 @@ fn lmm_reml_objective(
   x_rot : Array[Array[Double]],
   y_rot : Array[Double],
   delta : Double,
-  n : Int,
-  p : Int
+  n : Int32,
+  p : Int32,
 ) -> Double {
   let inv_h = lmm_inv_h(eigenvalues, delta)
   let (_, rss) = lmm_gf_beta(x_rot, y_rot, inv_h, p)
@@ -427,7 +438,7 @@ fn lmm_gf_beta(
   x_rot : Array[Array[Double]],
   y_rot : Array[Double],
   inv_h : Array[Double],
-  p : Int
+  p : Int32,
 ) -> (Array[Double], Double) {
   let g = lmm_gram(x_rot, inv_h)
   let rhs = lmm_moment(x_rot, y_rot, inv_h)
@@ -449,7 +460,10 @@ fn lmm_gf_beta(
 ///|
 /// Gram matrix G where G[a][b] = sum_i cols[a][i] * w[i] * cols[b][i],
 /// for "columns" given as a row-major matrix.
-fn lmm_gram(mat : Array[Array[Double]], w : Array[Double]) -> Array[Array[Double]] {
+fn lmm_gram(
+  mat : Array[Array[Double]],
+  w : Array[Double],
+) -> Array[Array[Double]] {
   let n = mat.length()
   let p = if n > 0 { mat[0].length() } else { 0 }
   let g = lmm_dmatrix(p, p)
@@ -468,7 +482,11 @@ fn lmm_gram(mat : Array[Array[Double]], w : Array[Double]) -> Array[Array[Double
 
 ///|
 /// Moment vector rhs[a] = sum_i mat[i][a] * w[i] * y[i].
-fn lmm_moment(mat : Array[Array[Double]], y : Array[Double], w : Array[Double]) -> Array[Double] {
+fn lmm_moment(
+  mat : Array[Array[Double]],
+  y : Array[Double],
+  w : Array[Double],
+) -> Array[Double] {
   let n = mat.length()
   let p = if n > 0 { mat[0].length() } else { 0 }
   let rhs = Array::make(p, 0.0)
@@ -495,18 +513,22 @@ pub struct LmmAssoc {
   p_value : Double
 }
 
+///|
 pub fn LmmAssoc::beta(self : LmmAssoc) -> Double {
   self.beta
 }
 
+///|
 pub fn LmmAssoc::se(self : LmmAssoc) -> Double {
   self.se
 }
 
+///|
 pub fn LmmAssoc::z(self : LmmAssoc) -> Double {
   self.z
 }
 
+///|
 pub fn LmmAssoc::p_value(self : LmmAssoc) -> Double {
   self.p_value
 }
@@ -519,7 +541,10 @@ pub fn LmmAssoc::p_value(self : LmmAssoc) -> Double {
 /// 0/1/2). For each SNP, the full design [x | snp] is fitted by generalized
 /// least squares and the SNP effect tested with a Wald statistic.
 /// Returns one `LmmAssoc` per SNP, in the same order.
-pub fn lmm_associate(model : LmmModel, snps : Array[Array[Double]]) -> Array[LmmAssoc] {
+pub fn lmm_associate(
+  model : LmmModel,
+  snps : Array[Array[Double]],
+) -> Array[LmmAssoc] {
   let n = model.eigenvalues.length()
   let p = if model.x_rot.length() > 0 { model.x_rot[0].length() } else { 0 }
   let inv_h = lmm_inv_h(model.eigenvalues, model.delta)
@@ -557,7 +582,7 @@ pub fn lmm_associate(model : LmmModel, snps : Array[Array[Double]]) -> Array[Lmm
     let se = if var_gamma > 0.0 { var_gamma.sqrt() } else { 0.0 }
     let z = if se > 0.0 { gamma / se } else { 0.0 }
     let pval = stat_pvalue_zscore(z)
-    results.push(LmmAssoc::{ beta: gamma, se, z, p_value: pval })
+    results.push(LmmAssoc::{ beta: gamma, se, z, p_value: pval, })
   }
   results
 }

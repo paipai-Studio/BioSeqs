@@ -13,15 +13,23 @@ pub struct VariancePartitionFixedEffect {
   column_names : Array[String]
   columns : Array[Array[Double]]
 } derive(Debug)
-pub extend VariancePartitionFixedEffect with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend VariancePartitionFixedEffect with @moonbitlang/core/debug.Debug::{
+  to_repr,
+}
 
 ///|
 pub struct VariancePartitionRandomEffect {
   name : String
   levels : Array[String]
-  level_indices : Array[Int]
+  level_indices : Array[Int32]
 } derive(Debug)
-pub extend VariancePartitionRandomEffect with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend VariancePartitionRandomEffect with @moonbitlang/core/debug.Debug::{
+  to_repr,
+}
 
 ///|
 pub struct VariancePartitionDesign {
@@ -30,10 +38,12 @@ pub struct VariancePartitionDesign {
   random_effects : Array[VariancePartitionRandomEffect]
   matrix : Array[Array[Double]]
   coefficient_names : Array[String]
-  fixed_starts : Array[Int]
-  fixed_widths : Array[Int]
+  fixed_starts : Array[Int32]
+  fixed_widths : Array[Int32]
   intercept : Bool
 } derive(Debug)
+
+///|
 pub extend VariancePartitionDesign with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -42,6 +52,8 @@ pub struct VariancePartitionBLUP {
   levels : Array[String]
   estimates : Array[Double]
 } derive(Debug)
+
+///|
 pub extend VariancePartitionBLUP with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -62,9 +74,11 @@ pub struct VariancePartitionFit {
   residuals : Array[Double]
   log_likelihood : Double
   converged : Bool
-  iterations : Int
+  iterations : Int32
   reml : Bool
 } derive(Debug)
+
+///|
 pub extend VariancePartitionFit with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -75,6 +89,8 @@ pub struct VariancePartitionResult {
   median_fractions : Array[Double]
   fits : Array[VariancePartitionFit]
 } derive(Debug)
+
+///|
 pub extend VariancePartitionResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -82,6 +98,8 @@ pub struct DreamContrast {
   name : String
   coefficients : Array[Double]
 } derive(Debug)
+
+///|
 pub extend DreamContrast with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -97,6 +115,8 @@ pub struct DreamGeneResult {
   random_variances : Array[Double]
   residual_variance : Double
 } derive(Debug)
+
+///|
 pub extend DreamGeneResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -105,6 +125,8 @@ pub struct DreamResult {
   coefficient_names : Array[String]
   genes : Array[DreamGeneResult]
 } derive(Debug)
+
+///|
 pub extend DreamResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -124,7 +146,7 @@ priv struct VariancePartitionCoreFit {
   variances : Array[Double]
   weights : Array[Double]
   converged : Bool
-  iterations : Int
+  iterations : Int32
 }
 
 ///|
@@ -133,7 +155,7 @@ fn vp_is_finite(value : Double) -> Bool {
 }
 
 ///|
-fn vp_find_string(values : Array[String], target : String) -> Int {
+fn vp_find_string(values : Array[String], target : String) -> Int32 {
   for index in 0..<values.length() {
     if values[index] == target {
       return index
@@ -143,7 +165,7 @@ fn vp_find_string(values : Array[String], target : String) -> Int {
 }
 
 ///|
-fn vp_zero_matrix(rows : Int, columns : Int) -> Array[Array[Double]] {
+fn vp_zero_matrix(rows : Int32, columns : Int32) -> Array[Array[Double]] {
   let output : Array[Array[Double]] = []
   for _ in 0..<rows {
     output.push(Array::make(columns, 0.0))
@@ -387,7 +409,7 @@ pub fn vp_numeric_effect(
 pub fn vp_categorical_effect(
   name : String,
   values : Array[String],
-  reference? : String = "",
+  reference~ : String = "",
 ) -> VariancePartitionFixedEffect raise VariancePartitionError {
   vp_validate_name(name, "fixed effect")
   if values.length() == 0 {
@@ -452,7 +474,7 @@ pub fn vp_random_effect(
     )
   }
   let levels : Array[String] = []
-  let indices : Array[Int] = []
+  let indices : Array[Int32] = []
   for value in values {
     if value == "" {
       raise VariancePartitionError(
@@ -485,7 +507,7 @@ pub fn vp_design(
   sample_names : Array[String],
   fixed_effects : Array[VariancePartitionFixedEffect],
   random_effects : Array[VariancePartitionRandomEffect],
-  intercept? : Bool = true,
+  intercept~ : Bool = true,
 ) -> VariancePartitionDesign raise VariancePartitionError {
   let observations = sample_names.length()
   if observations < 3 {
@@ -510,8 +532,8 @@ pub fn vp_design(
   if intercept {
     coefficient_names.push("(Intercept)")
   }
-  let fixed_starts : Array[Int] = []
-  let fixed_widths : Array[Int] = []
+  let fixed_starts : Array[Int32] = []
+  let fixed_widths : Array[Int32] = []
   let copied_fixed : Array[VariancePartitionFixedEffect] = []
   let mut coefficient_count = if intercept { 1 } else { 0 }
   for effect in fixed_effects {
@@ -681,7 +703,7 @@ pub fn vp_contrast(
 ///|
 fn vp_scale_weights(
   weights : Array[Double],
-  observations : Int,
+  observations : Int32,
 ) -> Array[Double] raise VariancePartitionError {
   if weights.length() == 0 {
     return Array::make(observations, 1.0)
@@ -825,7 +847,7 @@ fn vp_fit_core(
   design : VariancePartitionDesign,
   weights : Array[Double],
   reml : Bool,
-  max_iterations : Int,
+  max_iterations : Int32,
   tolerance : Double,
 ) -> VariancePartitionCoreFit raise VariancePartitionError {
   let observations = design.sample_names.length()
@@ -1063,12 +1085,12 @@ fn vp_public_fit(
 ///|
 pub fn vp_fit_gene(
   expression : Array[Double],
-  gene_name? : String = "Gene",
+  gene_name~ : String = "Gene",
   design : VariancePartitionDesign,
-  weights? : Array[Double] = [],
-  reml? : Bool = true,
-  max_iterations? : Int = 100,
-  tolerance? : Double = 0.005,
+  weights~ : Array[Double] = [],
+  reml~ : Bool = true,
+  max_iterations~ : Int32 = 100,
+  tolerance~ : Double = 0.005,
 ) -> VariancePartitionFit raise VariancePartitionError {
   if gene_name == "" {
     raise VariancePartitionError(
@@ -1116,7 +1138,7 @@ pub fn VariancePartitionFit::blup(
 fn vp_validate_expression_matrix(
   expression : Array[Array[Double]],
   gene_names : Array[String],
-  samples : Int,
+  samples : Int32,
   weights : Array[Array[Double]],
 ) -> Array[String] raise VariancePartitionError {
   if expression.length() == 0 {
@@ -1176,7 +1198,7 @@ fn vp_median(values : Array[Double]) -> Double {
     return 0.0
   }
   let sorted = values.copy()
-  sorted.sort_by(fn(left : Double, right : Double) -> Int {
+  sorted.sort_by(fn(left : Double, right : Double) -> Int32 {
     if left < right {
       -1
     } else if left > right {
@@ -1196,12 +1218,12 @@ fn vp_median(values : Array[Double]) -> Double {
 ///|
 pub fn fit_extract_variance_partition(
   expression : Array[Array[Double]],
-  gene_names? : Array[String] = [],
+  gene_names~ : Array[String] = [],
   design : VariancePartitionDesign,
-  weights? : Array[Array[Double]] = [],
-  reml? : Bool = false,
-  max_iterations? : Int = 100,
-  tolerance? : Double = 0.005,
+  weights~ : Array[Array[Double]] = [],
+  reml~ : Bool = false,
+  max_iterations~ : Int32 = 100,
+  tolerance~ : Double = 0.005,
 ) -> VariancePartitionResult raise VariancePartitionError {
   let names = vp_validate_expression_matrix(
     expression,
@@ -1247,12 +1269,12 @@ pub fn fit_extract_variance_partition(
 pub fn fit_extract_variance_partition_se(
   experiment : SummarizedExperiment,
   assay_name : String,
-  gene_names? : Array[String] = [],
+  gene_names~ : Array[String] = [],
   design : VariancePartitionDesign,
-  weights_assay? : String = "",
-  reml? : Bool = false,
-  max_iterations? : Int = 100,
-  tolerance? : Double = 0.005,
+  weights_assay~ : String = "",
+  reml~ : Bool = false,
+  max_iterations~ : Int32 = 100,
+  tolerance~ : Double = 0.005,
 ) -> VariancePartitionResult raise VariancePartitionError {
   let expression = match se_assay(experiment, assay_name) {
     Some(value) => value
@@ -1582,11 +1604,11 @@ fn vp_student_two_sided_p(statistic : Double, degrees : Double) -> Double {
 ///|
 fn vp_bh_adjust(results : Array[DreamGeneResult]) -> Array[DreamGeneResult] {
   let count = results.length()
-  let order : Array[Int] = []
+  let order : Array[Int32] = []
   for index in 0..<count {
     order.push(index)
   }
-  order.sort_by(fn(left : Int, right : Int) -> Int {
+  order.sort_by(fn(left : Int32, right : Int32) -> Int32 {
     if results[left].p_value < results[right].p_value {
       -1
     } else if results[left].p_value > results[right].p_value {
@@ -1633,13 +1655,13 @@ fn vp_bh_adjust(results : Array[DreamGeneResult]) -> Array[DreamGeneResult] {
 ///|
 pub fn dream(
   expression : Array[Array[Double]],
-  gene_names? : Array[String] = [],
+  gene_names~ : Array[String] = [],
   design : VariancePartitionDesign,
   contrast : DreamContrast,
-  weights? : Array[Array[Double]] = [],
-  reml? : Bool = true,
-  max_iterations? : Int = 100,
-  tolerance? : Double = 0.005,
+  weights~ : Array[Array[Double]] = [],
+  reml~ : Bool = true,
+  max_iterations~ : Int32 = 100,
+  tolerance~ : Double = 0.005,
 ) -> DreamResult raise VariancePartitionError {
   let names = vp_validate_expression_matrix(
     expression,
@@ -1710,13 +1732,13 @@ pub fn dream(
 pub fn dream_se(
   experiment : SummarizedExperiment,
   assay_name : String,
-  gene_names? : Array[String] = [],
+  gene_names~ : Array[String] = [],
   design : VariancePartitionDesign,
   contrast : DreamContrast,
-  weights_assay? : String = "",
-  reml? : Bool = true,
-  max_iterations? : Int = 100,
-  tolerance? : Double = 0.005,
+  weights_assay~ : String = "",
+  reml~ : Bool = true,
+  max_iterations~ : Int32 = 100,
+  tolerance~ : Double = 0.005,
 ) -> DreamResult raise VariancePartitionError {
   let expression = match se_assay(experiment, assay_name) {
     Some(value) => value
@@ -1751,7 +1773,7 @@ pub fn dream_se(
 ///|
 pub fn DreamResult::top_table(
   self : DreamResult,
-  maximum_fdr? : Double = 1.0,
+  maximum_fdr~ : Double = 1.0,
 ) -> Array[DreamGeneResult] raise VariancePartitionError {
   if !vp_is_finite(maximum_fdr) || maximum_fdr < 0.0 || maximum_fdr > 1.0 {
     raise VariancePartitionError(
@@ -1764,7 +1786,10 @@ pub fn DreamResult::top_table(
       selected.push(gene)
     }
   }
-  selected.sort_by(fn(left : DreamGeneResult, right : DreamGeneResult) -> Int {
+  selected.sort_by(fn(
+    left : DreamGeneResult,
+    right : DreamGeneResult,
+  ) -> Int32 {
     if left.p_value < right.p_value {
       -1
     } else if left.p_value > right.p_value {

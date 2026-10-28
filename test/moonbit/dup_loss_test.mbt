@@ -41,6 +41,7 @@ fn dup_species4b() -> @src.Clade {
   ])
 }
 
+///|
 test "duploss: matching tree zero dup zero loss" {
   // Gene tree = species tree
   let gene = dup_internal([
@@ -205,7 +206,7 @@ test "duploss: summary output non-empty" {
   let result = @src.phylo_reconcile(gene, species, "")
   let summary = @src.phylo_reconciliation_summary(result)
   assert_true(summary.length() > 0)
-   // Should contain key phrases
+  // Should contain key phrases
   assert_true(summary.contains("Reconciliation"))
   assert_true(summary.contains("Duplications:"))
   assert_true(summary.contains("Losses:"))

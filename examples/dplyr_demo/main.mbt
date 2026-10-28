@@ -54,7 +54,7 @@ fn main {
   println("3. Filter rows (pvalue < 0.05):")
   let filtered = @bio.dataframe_filter(df, fn(
     df : @bio.DataFrame,
-    i : Int,
+    i : Int32,
   ) -> Bool {
     match df.columns[3].values[i] {
       @bio.DataValue::DoubleValue(p) => p < 0.05
@@ -69,7 +69,7 @@ fn main {
     (
       "doubled_expression",
       @bio.data_type_int(),
-      fn(df : @bio.DataFrame, i : Int) -> @bio.DataValue {
+      fn(df : @bio.DataFrame, i : Int32) -> @bio.DataValue {
         match df.columns[2].values[i] {
           @bio.DataValue::IntValue(expr) => @bio.data_value_int(expr * 2)
           _ => @bio.data_value_int(0)

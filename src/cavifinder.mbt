@@ -10,7 +10,11 @@
 // ─── helpers ───────────────────────────────────────────────
 
 fn cav_sqrt(x : Double) -> Double {
-  if x < 0.0 { 0.0 } else { x.sqrt() }
+  if x < 0.0 {
+    0.0
+  } else {
+    x.sqrt()
+  }
 }
 
 ///|
@@ -18,7 +22,7 @@ fn cav_sqrt(x : Double) -> Double {
 pub struct Cavity {
   center : Vector3
   volume : Double
-  num_points : Int
+  num_points : Int32
   grid_points : Array[Vector3]
   is_channel : Bool
 }
@@ -65,8 +69,8 @@ fn cav_vdw_radius(element : String) -> Double {
 /// - probe_radius: radius of the probe sphere (default 1.4 Å, water radius)
 pub fn find_cavities(
   chain : Chain,
-  grid_spacing? : Double = 1.0,
-  probe_radius? : Double = 1.4,
+  grid_spacing~ : Double = 1.0,
+  probe_radius~ : Double = 1.4,
 ) -> CaviFinderResult {
   let residues = chain.get_residues()
   // Collect all atom coordinates and radii
@@ -82,7 +86,10 @@ pub fn find_cavities(
   let n_atoms = atom_coords.length()
   if n_atoms == 0 {
     return CaviFinderResult::{
-      cavities: [], grid_spacing, probe_radius, total_volume: 0.0,
+      cavities: [],
+      grid_spacing,
+      probe_radius,
+      total_volume: 0.0,
     }
   }
   // Compute bounding box (expanded by probe radius)
@@ -93,17 +100,32 @@ pub fn find_cavities(
   let mut min_z = atom_coords[0].z
   let mut max_z = atom_coords[0].z
   for c in atom_coords {
-    if c.x < min_x { min_x = c.x }
-    if c.x > max_x { max_x = c.x }
-    if c.y < min_y { min_y = c.y }
-    if c.y > max_y { max_y = c.y }
-    if c.z < min_z { min_z = c.z }
-    if c.z > max_z { max_z = c.z }
+    if c.x < min_x {
+      min_x = c.x
+    }
+    if c.x > max_x {
+      max_x = c.x
+    }
+    if c.y < min_y {
+      min_y = c.y
+    }
+    if c.y > max_y {
+      max_y = c.y
+    }
+    if c.z < min_z {
+      min_z = c.z
+    }
+    if c.z > max_z {
+      max_z = c.z
+    }
   }
   let margin = probe_radius + 2.0
-  min_x = min_x - margin; max_x = max_x + margin
-  min_y = min_y - margin; max_y = max_y + margin
-  min_z = min_z - margin; max_z = max_z + margin
+  min_x = min_x - margin
+  max_x = max_x + margin
+  min_y = min_y - margin
+  max_y = max_y + margin
+  min_z = min_z - margin
+  max_z = max_z + margin
   // Grid dimensions
   let nx = ((max_x - min_x) / grid_spacing).ceil().to_int() + 1
   let ny = ((max_y - min_y) / grid_spacing).ceil().to_int() + 1
@@ -111,7 +133,10 @@ pub fn find_cavities(
   // Safety limit on grid size
   if nx > 80 || ny > 80 || nz > 80 {
     return CaviFinderResult::{
-      cavities: [], grid_spacing, probe_radius, total_volume: 0.0,
+      cavities: [],
+      grid_spacing,
+      probe_radius,
+      total_volume: 0.0,
     }
   }
   let total_cells = nx * ny * nz
@@ -131,17 +156,21 @@ pub fn find_cavities(
         let mut occupied = false
         let mut ai = 0
         while ai < n_atoms {
-          if !(occupied) {
+          if !occupied {
             let dx = gx - atom_coords[ai].x
             let dy = gy - atom_coords[ai].y
             let dz = gz - atom_coords[ai].z
             let dist_sq = dx * dx + dy * dy + dz * dz
             let threshold = atom_radii[ai] + probe_radius
-            if dist_sq < threshold * threshold { occupied = true }
+            if dist_sq < threshold * threshold {
+              occupied = true
+            }
           }
           ai = ai + 1
         }
-        if occupied { grid[cell_idx] = 1 }
+        if occupied {
+          grid[cell_idx] = 1
+        }
         cell_idx = cell_idx + 1
         gk = gk + 1
       }
@@ -156,7 +185,7 @@ pub fn find_cavities(
   while idx < total_cells {
     let is_boundary = {
       let i = idx / (ny * nz)
-      let j = (idx % (ny * nz)) / nz
+      let j = idx % (ny * nz) / nz
       let k = idx % nz
       i == 0 || i == nx - 1 || j == 0 || j == ny - 1 || k == 0 || k == nz - 1
     }
@@ -172,13 +201,16 @@ pub fn find_cavities(
     let cur = queue[head]
     head = head + 1
     let i = cur / (ny * nz)
-    let j = (cur % (ny * nz)) / nz
+    let j = cur % (ny * nz) / nz
     let k = cur % nz
     // Check 6 neighbors
     let neighbors = [
-      (i - 1, j, k), (i + 1, j, k),
-      (i, j - 1, k), (i, j + 1, k),
-      (i, j, k - 1), (i, j, k + 1),
+      (i - 1, j, k),
+      (i + 1, j, k),
+      (i, j - 1, k),
+      (i, j + 1, k),
+      (i, j, k - 1),
+      (i, j, k + 1),
     ]
     for (ni, nj, nk) in neighbors {
       if ni >= 0 && ni < nx && nj >= 0 && nj < ny && nk >= 0 && nk < nz {
@@ -194,7 +226,9 @@ pub fn find_cavities(
   // Mark them as 3 and cluster
   let mut cidx = 0
   while cidx < total_cells {
-    if grid[cidx] == 0 { grid[cidx] = 3 }
+    if grid[cidx] == 0 {
+      grid[cidx] = 3
+    }
     cidx = cidx + 1
   }
   // Cluster cavity cells using BFS
@@ -204,7 +238,7 @@ pub fn find_cavities(
   let cell_volume = grid_spacing * grid_spacing * grid_spacing
   let mut c2 = 0
   while c2 < total_cells {
-    if grid[c2] == 3 && !(visited[c2]) {
+    if grid[c2] == 3 && !visited[c2] {
       // BFS to collect this cluster
       let cluster = Array(capacity=0)
       let cqueue = Array(capacity=0)
@@ -216,17 +250,20 @@ pub fn find_cavities(
         qhead = qhead + 1
         cluster.push(cur)
         let ci = cur / (ny * nz)
-        let cj = (cur % (ny * nz)) / nz
+        let cj = cur % (ny * nz) / nz
         let ck = cur % nz
         let neighbors = [
-          (ci - 1, cj, ck), (ci + 1, cj, ck),
-          (ci, cj - 1, ck), (ci, cj + 1, ck),
-          (ci, cj, ck - 1), (ci, cj, ck + 1),
+          (ci - 1, cj, ck),
+          (ci + 1, cj, ck),
+          (ci, cj - 1, ck),
+          (ci, cj + 1, ck),
+          (ci, cj, ck - 1),
+          (ci, cj, ck + 1),
         ]
         for (ni, nj, nk) in neighbors {
           if ni >= 0 && ni < nx && nj >= 0 && nj < ny && nk >= 0 && nk < nz {
             let nidx = ni * (ny * nz) + nj * nz + nk
-            if grid[nidx] == 3 && !(visited[nidx]) {
+            if grid[nidx] == 3 && !visited[nidx] {
               visited[nidx] = true
               cqueue.push(nidx)
             }
@@ -240,23 +277,40 @@ pub fn find_cavities(
       let points = Array(capacity=cluster.length())
       for cell in cluster {
         let ci = cell / (ny * nz)
-        let cj = (cell % (ny * nz)) / nz
+        let cj = cell % (ny * nz) / nz
         let ck = cell % nz
         let gx = min_x + ci.to_double() * grid_spacing
         let gy = min_y + cj.to_double() * grid_spacing
         let gz = min_z + ck.to_double() * grid_spacing
-        sx = sx + gx; sy = sy + gy; sz = sz + gz
+        sx = sx + gx
+        sy = sy + gy
+        sz = sz + gz
         points.push(Vector3::new(gx, gy, gz))
       }
       let cn = cluster.length()
-      let center = Vector3::new(sx / cn.to_double(), sy / cn.to_double(), sz / cn.to_double())
+      let center = Vector3::new(
+        sx / cn.to_double(),
+        sy / cn.to_double(),
+        sz / cn.to_double(),
+      )
       let volume = cn.to_double() * cell_volume
       total_vol = total_vol + volume
       // Check if it's a channel (touches boundary region within margin)
-      let is_channel = false  // simplified: all enclosed free space is cavity
-      cavities.push(Cavity::{ center, volume, num_points: cn, grid_points: points, is_channel })
+      let is_channel = false // simplified: all enclosed free space is cavity
+      cavities.push(Cavity::{
+        center,
+        volume,
+        num_points: cn,
+        grid_points: points,
+        is_channel,
+      })
     }
     c2 = c2 + 1
   }
-  CaviFinderResult::{ cavities, grid_spacing, probe_radius, total_volume: total_vol }
+  CaviFinderResult::{
+    cavities,
+    grid_spacing,
+    probe_radius,
+    total_volume: total_vol,
+  }
 }

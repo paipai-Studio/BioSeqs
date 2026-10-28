@@ -361,7 +361,7 @@ pub fn kegg_pathway_gene_ids(pathway : KEGGPathway) -> Array[String] {
 }
 
 ///|
-pub fn kegg_gene_pathway_count(gene : KEGGGene) -> Int {
+pub fn kegg_gene_pathway_count(gene : KEGGGene) -> Int32 {
   gene.pathways.length()
 }
 

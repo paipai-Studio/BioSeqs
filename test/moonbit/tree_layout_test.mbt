@@ -11,6 +11,7 @@ fn tl_internal(children : Array[@src.Clade]) -> @src.Clade {
   @src.Clade::new(name=Some("i"), clades=children, branch_length=Some(1.0))
 }
 
+///|
 test "layout: rectangular basic 2 leaves" {
   let tree = tl_internal([tl_leaf("A"), tl_leaf("B")])
   let layout = @src.phylo_layout_rectangular(tree)
@@ -58,7 +59,7 @@ test "layout: rectangular internal y is average" {
   let layout = @src.phylo_layout_rectangular(tree)
   // Find the internal node that is not root
   for n in layout.nodes {
-    if !(n.is_leaf) && n.children.length() == 2 {
+    if !n.is_leaf && n.children.length() == 2 {
       // This should be the (A,B) node with y = 0.5
       let mut has_a = false
       let mut has_b = false
@@ -81,10 +82,7 @@ test "layout: rectangular internal y is average" {
 test "layout: rectangular 5 leaves" {
   let tree = tl_internal([
     tl_internal([tl_leaf("A"), tl_leaf("B")]),
-    tl_internal([
-      tl_internal([tl_leaf("C"), tl_leaf("D")]),
-      tl_leaf("E"),
-    ]),
+    tl_internal([tl_internal([tl_leaf("C"), tl_leaf("D")]), tl_leaf("E")]),
   ])
   let layout = @src.phylo_layout_rectangular(tree)
   assert_eq(layout.n_leaves, 5)
@@ -149,17 +147,10 @@ test "layout: circular cartesian coords" {
   }
 }
 
-
 ///|
 test "layout: circular custom range" {
-  let tree = tl_internal([
-    tl_leaf("A"),
-    tl_leaf("B"),
-    tl_leaf("C"),
-  ])
-  let layout = @src.phylo_layout_circular_range(
-    tree, 0.0, 3.141592653589793
-  )
+  let tree = tl_internal([tl_leaf("A"), tl_leaf("B"), tl_leaf("C")])
+  let layout = @src.phylo_layout_circular_range(tree, 0.0, 3.141592653589793)
   // Half circle: angles in [0, π]
   for n in layout.nodes {
     if n.is_leaf {
@@ -255,13 +246,10 @@ test "layout: circular depth tracking" {
 
 ///|
 test "layout: rectangular branch lengths preserved" {
-  let tree = @src.Clade::new(
-    name=Some("root"),
-    clades=[
-      @src.Clade::new(name=Some("A"), branch_length=Some(2.5)),
-      @src.Clade::new(name=Some("B"), branch_length=Some(1.5)),
-    ],
-  )
+  let tree = @src.Clade::new(name=Some("root"), clades=[
+    @src.Clade::new(name=Some("A"), branch_length=Some(2.5)),
+    @src.Clade::new(name=Some("B"), branch_length=Some(1.5)),
+  ])
   let layout = @src.phylo_layout_rectangular(tree)
   for n in layout.nodes {
     if n.name == "A" {
@@ -292,10 +280,7 @@ test "layout: render rectangular large tree" {
       tl_internal([tl_leaf("A"), tl_leaf("B")]),
       tl_internal([tl_leaf("C"), tl_leaf("D")]),
     ]),
-    tl_internal([
-      tl_leaf("E"),
-      tl_internal([tl_leaf("F"), tl_leaf("G")]),
-    ]),
+    tl_internal([tl_leaf("E"), tl_internal([tl_leaf("F"), tl_leaf("G")])]),
   ])
   let layout = @src.phylo_layout_rectangular(tree)
   let s = @src.phylo_render_rectangular(layout, 40, 15)

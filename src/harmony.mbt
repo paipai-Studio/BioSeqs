@@ -42,13 +42,13 @@ pub fn HarmonyData::get_cell_ids(self : HarmonyData) -> Array[String] {
 ///|
 /// Harmony hyperparameters.
 pub struct HarmonyParams {
-  n_clusters : Int
-  max_iterations : Int
+  n_clusters : Int32
+  max_iterations : Int32
   tolerance : Double
   lambda : Double
   sigma : Double
   ridge_penalty : Double
-  seed : Int
+  seed : Int32
 }
 
 ///|
@@ -68,13 +68,13 @@ pub fn HarmonyParams::new() -> HarmonyParams {
 ///|
 /// Create Harmony parameters with custom values.
 pub fn HarmonyParams::create(
-  n_clusters? : Int = 20,
-  max_iterations? : Int = 20,
-  tolerance? : Double = 0.01,
-  lambda? : Double = 1.0,
-  sigma? : Double = 0.1,
-  ridge_penalty? : Double = 1.0,
-  seed? : Int = 42,
+  n_clusters~ : Int32 = 20,
+  max_iterations~ : Int32 = 20,
+  tolerance~ : Double = 0.01,
+  lambda~ : Double = 1.0,
+  sigma~ : Double = 0.1,
+  ridge_penalty~ : Double = 1.0,
+  seed~ : Int32 = 42,
 ) -> HarmonyParams {
   HarmonyParams::{
     n_clusters,
@@ -93,7 +93,7 @@ pub struct HarmonyResult {
   corrected : Array[Array[Double]]
   membership : Array[Array[Double]]
   centroids : Array[Array[Double]]
-  n_iterations : Int
+  n_iterations : Int32
   converged : Bool
   var_explained : Array[Double]
 }
@@ -124,7 +124,7 @@ pub fn HarmonyResult::get_centroids(
 
 ///|
 /// Get number of iterations.
-pub fn HarmonyResult::get_n_iterations(self : HarmonyResult) -> Int {
+pub fn HarmonyResult::get_n_iterations(self : HarmonyResult) -> Int32 {
   self.n_iterations
 }
 
@@ -205,8 +205,8 @@ pub fn harmony_run(data : HarmonyData, params : HarmonyParams) -> HarmonyResult 
 /// Initialize cluster centroids using k-means++ style seeding.
 fn harmony_init_centroids(
   data : HarmonyData,
-  n_clusters : Int,
-  seed : Int,
+  n_clusters : Int32,
+  seed : Int32,
 ) -> Array[Array[Double]] {
   let n_cells = data.embeddings.length()
   if n_cells == 0 {
@@ -320,7 +320,7 @@ fn harmony_compute_membership(
 fn harmony_update_centroids(
   embeddings : Array[Array[Double]],
   membership : Array[Array[Double]],
-  n_clusters : Int,
+  n_clusters : Int32,
 ) -> Array[Array[Double]] {
   let n_cells = embeddings.length()
   let n_dims = if n_cells > 0 { embeddings[0].length() } else { 0 }
@@ -360,7 +360,7 @@ fn harmony_batch_corrections(
   data : HarmonyData,
   membership : Array[Array[Double]],
   _centroids : Array[Array[Double]],
-  n_clusters : Int,
+  n_clusters : Int32,
   ridge_penalty : Double,
 ) -> Array[Array[Array[Double]]] {
   let n_cells = data.embeddings.length()
@@ -461,7 +461,7 @@ fn harmony_apply_correction(
   embeddings : Array[Array[Double]],
   membership : Array[Array[Double]],
   corrections : Array[Array[Array[Double]]],
-  n_clusters : Int,
+  n_clusters : Int32,
 ) -> Array[Array[Double]] {
   let n_cells = embeddings.length()
   let n_dims = if n_cells > 0 { embeddings[0].length() } else { 0 }
@@ -548,7 +548,7 @@ fn harmony_sum(arr : Array[Double]) -> Double {
 
 ///|
 /// Simple linear congruential generator.
-fn harmony_next_rand(seed : Int) -> Int {
+fn harmony_next_rand(seed : Int32) -> Int32 {
   let state = seed * 1103515245 + 12345
   state & 0x7FFFFFFF
 }
@@ -556,9 +556,9 @@ fn harmony_next_rand(seed : Int) -> Int {
 ///|
 /// Create example data for Harmony testing.
 pub fn harmony_create_example(
-  n_cells : Int,
-  n_batches : Int,
-  n_dims : Int,
+  n_cells : Int32,
+  n_batches : Int32,
+  n_dims : Int32,
 ) -> HarmonyData {
   let embeddings : Array[Array[Double]] = Array(capacity=0)
   let batch_labels : Array[String] = Array(capacity=0)

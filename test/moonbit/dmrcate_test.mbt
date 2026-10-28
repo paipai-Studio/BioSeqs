@@ -166,7 +166,7 @@ test "dmrcate_test_synthetic_data" {
   let n_cpgs = 10
   let n_samples = 6
   let beta_values : Array[Array[Double]] = Array(capacity=0)
-  let positions : Array[Int] = Array(capacity=0)
+  let positions : Array[Int32] = Array(capacity=0)
   let chr : Array[String] = Array(capacity=0)
 
   let mut i = 0

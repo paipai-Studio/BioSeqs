@@ -23,9 +23,9 @@ pub struct AlignmentBlock {
   /// Block code: "M", "I", "5", "3", "S", "G", "U", "V", "C", "N", etc.
   code : String
   /// Length consumed on the query sequence.
-  query_length : Int
+  query_length : Int32
   /// Length consumed on the target sequence.
-  target_length : Int
+  target_length : Int32
   /// Block score (for introns, this holds the intron length).
   block_score : Double
 }
@@ -34,8 +34,8 @@ pub struct AlignmentBlock {
 /// Construct an AlignmentBlock.
 pub fn AlignmentBlock::new(
   code : String,
-  query_length : Int,
-  target_length : Int,
+  query_length : Int32,
+  target_length : Int32,
   block_score : Double,
 ) -> AlignmentBlock {
   AlignmentBlock::{ code, query_length, target_length, block_score, }
@@ -49,13 +49,13 @@ pub fn AlignmentBlock::code(self : AlignmentBlock) -> String {
 
 ///|
 /// Get the query length consumed by this block.
-pub fn AlignmentBlock::query_length(self : AlignmentBlock) -> Int {
+pub fn AlignmentBlock::query_length(self : AlignmentBlock) -> Int32 {
   self.query_length
 }
 
 ///|
 /// Get the target length consumed by this block.
-pub fn AlignmentBlock::target_length(self : AlignmentBlock) -> Int {
+pub fn AlignmentBlock::target_length(self : AlignmentBlock) -> Int32 {
   self.target_length
 }
 
@@ -69,12 +69,12 @@ pub fn AlignmentBlock::block_score(self : AlignmentBlock) -> Double {
 /// Represents a single exonerate alignment record (one vulgar/cigar line).
 pub struct ExonerateRecord {
   query_name : String
-  query_start : Int
-  query_end : Int
+  query_start : Int32
+  query_end : Int32
   query_strand : String
   target_name : String
-  target_start : Int
-  target_end : Int
+  target_start : Int32
+  target_end : Int32
   target_strand : String
   score : Double
   alignment_blocks : Array[AlignmentBlock]
@@ -84,12 +84,12 @@ pub struct ExonerateRecord {
 /// Construct an ExonerateRecord.
 pub fn ExonerateRecord::new(
   query_name : String,
-  query_start : Int,
-  query_end : Int,
+  query_start : Int32,
+  query_end : Int32,
   query_strand : String,
   target_name : String,
-  target_start : Int,
-  target_end : Int,
+  target_start : Int32,
+  target_end : Int32,
   target_strand : String,
   score : Double,
   alignment_blocks : Array[AlignmentBlock],
@@ -116,13 +116,13 @@ pub fn ExonerateRecord::query_name(self : ExonerateRecord) -> String {
 
 ///|
 /// Get the query start coordinate.
-pub fn ExonerateRecord::query_start(self : ExonerateRecord) -> Int {
+pub fn ExonerateRecord::query_start(self : ExonerateRecord) -> Int32 {
   self.query_start
 }
 
 ///|
 /// Get the query end coordinate.
-pub fn ExonerateRecord::query_end(self : ExonerateRecord) -> Int {
+pub fn ExonerateRecord::query_end(self : ExonerateRecord) -> Int32 {
   self.query_end
 }
 
@@ -140,13 +140,13 @@ pub fn ExonerateRecord::target_name(self : ExonerateRecord) -> String {
 
 ///|
 /// Get the target start coordinate.
-pub fn ExonerateRecord::target_start(self : ExonerateRecord) -> Int {
+pub fn ExonerateRecord::target_start(self : ExonerateRecord) -> Int32 {
   self.target_start
 }
 
 ///|
 /// Get the target end coordinate.
-pub fn ExonerateRecord::target_end(self : ExonerateRecord) -> Int {
+pub fn ExonerateRecord::target_end(self : ExonerateRecord) -> Int32 {
   self.target_end
 }
 
@@ -238,7 +238,7 @@ fn exo_split_lines(content : String) -> Array[String] {
 
 ///|
 /// Parse a 32-bit signed integer from a String (no error checking).
-fn exo_parse_int(s : String) -> Int {
+fn exo_parse_int(s : String) -> Int32 {
   let n = s.length()
   if n == 0 {
     return 0
@@ -473,7 +473,7 @@ pub fn parse_exonerate_vulgar(content : String) -> Array[ExonerateRecord] {
 /// operation code and the single length value. For most operations both
 /// sequences consume the length; introns (I) consume neither; gaps (U/V/D)
 /// consume only one side.
-fn exo_cigar_lengths(code : String, length : Int) -> (Int, Int, Double) {
+fn exo_cigar_lengths(code : String, length : Int32) -> (Int32, Int32, Double) {
   match code {
     "I" => (0, 0, length.to_double())
     "D" => (length, 0, 0.0)
@@ -610,7 +610,7 @@ pub fn exonerate_filter_by_score(
 /// Total aligned (match) length for a record: sum of query lengths of all
 /// "M" blocks. Matches Biopython's notion of alignment span from vulgar M
 /// blocks.
-pub fn exonerate_total_alignment_length(record : ExonerateRecord) -> Int {
+pub fn exonerate_total_alignment_length(record : ExonerateRecord) -> Int32 {
   let mut total = 0
   for block in record.alignment_blocks {
     if block.code == "M" {
@@ -623,7 +623,7 @@ pub fn exonerate_total_alignment_length(record : ExonerateRecord) -> Int {
 ///|
 /// Total intron length for a record: sum of the intron lengths (block_score
 /// of "I" blocks) across all intron blocks.
-pub fn exonerate_total_intron_length(record : ExonerateRecord) -> Int {
+pub fn exonerate_total_intron_length(record : ExonerateRecord) -> Int32 {
   let mut total = 0
   for block in record.alignment_blocks {
     if block.code == "I" {
@@ -635,7 +635,7 @@ pub fn exonerate_total_intron_length(record : ExonerateRecord) -> Int {
 
 ///|
 /// Count the number of intron ("I") blocks in a record.
-pub fn exonerate_count_introns(record : ExonerateRecord) -> Int {
+pub fn exonerate_count_introns(record : ExonerateRecord) -> Int32 {
   let mut count = 0
   for block in record.alignment_blocks {
     if block.code == "I" {
@@ -647,7 +647,7 @@ pub fn exonerate_count_introns(record : ExonerateRecord) -> Int {
 
 ///|
 /// Count the number of match ("M") blocks in a record.
-pub fn exonerate_count_matches(record : ExonerateRecord) -> Int {
+pub fn exonerate_count_matches(record : ExonerateRecord) -> Int32 {
   let mut count = 0
   for block in record.alignment_blocks {
     if block.code == "M" {

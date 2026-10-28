@@ -29,6 +29,7 @@ fn orthopara_species4() -> @src.Clade {
   ])
 }
 
+///|
 test "orthoparalog: simple orthologs" {
   // Gene tree = species tree: all pairs are orthologs
   let gene = orthopara_internal([
@@ -40,10 +41,12 @@ test "orthoparalog: simple orthologs" {
   // 3 leaves → 3 pairs, all orthologs
   assert_eq(pairs.length(), 3)
   for p in pairs {
-    assert_true(match p.relationship {
-      Ortholog => true
-      _ => false
-    })
+    assert_true(
+      match p.relationship {
+        Ortholog => true
+        _ => false
+      },
+    )
   }
 }
 
@@ -56,10 +59,13 @@ test "orthoparalog: human-chimp ortholog" {
   let species = orthopara_species3()
   let cls = @src.phylo_classify_pair(gene, species, "Human", "Chimp", "")
   match cls {
-    Some(c) => assert_true(match c.relationship {
-      Ortholog => true
-      _ => false
-    })
+    Some(c) =>
+      assert_true(
+        match c.relationship {
+          Ortholog => true
+          _ => false
+        },
+      )
     None => assert_true(false)
   }
 }
@@ -73,10 +79,13 @@ test "orthoparalog: human-gorilla ortholog" {
   let species = orthopara_species3()
   let cls = @src.phylo_classify_pair(gene, species, "Human", "Gorilla", "")
   match cls {
-    Some(c) => assert_true(match c.relationship {
-      Ortholog => true
-      _ => false
-    })
+    Some(c) =>
+      assert_true(
+        match c.relationship {
+          Ortholog => true
+          _ => false
+        },
+      )
     None => assert_true(false)
   }
 }
@@ -92,11 +101,14 @@ test "orthoparalog: simple paralog" {
   let species = orthopara_species3()
   let cls = @src.phylo_classify_pair(gene, species, "Human_1", "Human_2", "_")
   match cls {
-    Some(c) => assert_true(match c.relationship {
-      SuperParalog => true
-      UltraParalog => true
-      _ => false
-    })
+    Some(c) =>
+      assert_true(
+        match c.relationship {
+          SuperParalog => true
+          UltraParalog => true
+          _ => false
+        },
+      )
     None => assert_true(false)
   }
 }
@@ -141,10 +153,13 @@ test "orthoparalog: out-paralog" {
   let species = orthopara_species3()
   let cls = @src.phylo_classify_pair(gene, species, "Human_1", "Gorilla_1", "_")
   match cls {
-    Some(c) => assert_true(match c.relationship {
-      Paralog => true
-      _ => false
-    })
+    Some(c) =>
+      assert_true(
+        match c.relationship {
+          Paralog => true
+          _ => false
+        },
+      )
     None => assert_true(false)
   }
 }
@@ -170,10 +185,12 @@ test "orthoparalog: 4-species all orthologs" {
   let species = orthopara_species4()
   let pairs = @src.phylo_classify_all_pairs(gene, species, "")
   for p in pairs {
-    assert_true(match p.relationship {
-      Ortholog => true
-      _ => false
-    })
+    assert_true(
+      match p.relationship {
+        Ortholog => true
+        _ => false
+      },
+    )
   }
 }
 
@@ -278,10 +295,12 @@ test "orthoparalog: explicit mapping" {
   g2s.set("g3", "Gorilla")
   let pairs = @src.phylo_classify_all_pairs_explicit(gene, species, g2s, "")
   for p in pairs {
-    assert_true(match p.relationship {
-      Ortholog => true
-      _ => false
-    })
+    assert_true(
+      match p.relationship {
+        Ortholog => true
+        _ => false
+      },
+    )
   }
 }
 

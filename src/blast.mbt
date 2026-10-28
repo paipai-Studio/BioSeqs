@@ -8,16 +8,16 @@
 /// High-scoring Segment Pair (HSP) - represents a local alignment between
 /// query and subject sequences.
 pub struct BlastHsp {
-  query_start : Int
-  query_end : Int
-  subject_start : Int
-  subject_end : Int
+  query_start : Int32
+  query_end : Int32
+  subject_start : Int32
+  subject_end : Int32
   query_strand : Strand
   subject_strand : Strand
   identity : Double
-  positive : Int
-  gaps : Int
-  align_length : Int
+  positive : Int32
+  gaps : Int32
+  align_length : Int32
   bitscore : Double
   evalue : Double
   query_seq : String
@@ -28,16 +28,16 @@ pub struct BlastHsp {
 ///|
 /// Create a BlastHsp.
 pub fn BlastHsp::new(
-  query_start : Int,
-  query_end : Int,
-  subject_start : Int,
-  subject_end : Int,
+  query_start : Int32,
+  query_end : Int32,
+  subject_start : Int32,
+  subject_end : Int32,
   query_strand : Strand,
   subject_strand : Strand,
   identity : Double,
-  positive : Int,
-  gaps : Int,
-  align_length : Int,
+  positive : Int32,
+  gaps : Int32,
+  align_length : Int32,
   bitscore : Double,
   evalue : Double,
   query_seq : String,
@@ -65,25 +65,25 @@ pub fn BlastHsp::new(
 
 ///|
 /// Get query start position (1-based).
-pub fn BlastHsp::query_start(self : BlastHsp) -> Int {
+pub fn BlastHsp::query_start(self : BlastHsp) -> Int32 {
   self.query_start
 }
 
 ///|
 /// Get query end position (1-based).
-pub fn BlastHsp::query_end(self : BlastHsp) -> Int {
+pub fn BlastHsp::query_end(self : BlastHsp) -> Int32 {
   self.query_end
 }
 
 ///|
 /// Get subject start position (1-based).
-pub fn BlastHsp::subject_start(self : BlastHsp) -> Int {
+pub fn BlastHsp::subject_start(self : BlastHsp) -> Int32 {
   self.subject_start
 }
 
 ///|
 /// Get subject end position (1-based).
-pub fn BlastHsp::subject_end(self : BlastHsp) -> Int {
+pub fn BlastHsp::subject_end(self : BlastHsp) -> Int32 {
   self.subject_end
 }
 
@@ -107,19 +107,19 @@ pub fn BlastHsp::identity(self : BlastHsp) -> Double {
 
 ///|
 /// Get number of positive (similar) residues.
-pub fn BlastHsp::positive(self : BlastHsp) -> Int {
+pub fn BlastHsp::positive(self : BlastHsp) -> Int32 {
   self.positive
 }
 
 ///|
 /// Get number of gaps.
-pub fn BlastHsp::gaps(self : BlastHsp) -> Int {
+pub fn BlastHsp::gaps(self : BlastHsp) -> Int32 {
   self.gaps
 }
 
 ///|
 /// Get alignment length.
-pub fn BlastHsp::align_length(self : BlastHsp) -> Int {
+pub fn BlastHsp::align_length(self : BlastHsp) -> Int32 {
   self.align_length
 }
 
@@ -158,7 +158,7 @@ pub fn BlastHsp::match_seq(self : BlastHsp) -> String {
 pub struct BlastHit {
   subject_id : String
   subject_def : String
-  subject_length : Int
+  subject_length : Int32
   hsps : Array[BlastHsp]
 }
 
@@ -167,7 +167,7 @@ pub struct BlastHit {
 pub fn BlastHit::new(
   subject_id : String,
   subject_def : String,
-  subject_length : Int,
+  subject_length : Int32,
   hsps : Array[BlastHsp],
 ) -> BlastHit {
   BlastHit::{ subject_id, subject_def, subject_length, hsps, }
@@ -187,7 +187,7 @@ pub fn BlastHit::subject_def(self : BlastHit) -> String {
 
 ///|
 /// Get subject length.
-pub fn BlastHit::subject_length(self : BlastHit) -> Int {
+pub fn BlastHit::subject_length(self : BlastHit) -> Int32 {
   self.subject_length
 }
 
@@ -199,7 +199,7 @@ pub fn BlastHit::hsps(self : BlastHit) -> Array[BlastHsp] {
 
 ///|
 /// Get number of HSPs.
-pub fn BlastHit::num_hsps(self : BlastHit) -> Int {
+pub fn BlastHit::num_hsps(self : BlastHit) -> Int32 {
   self.hsps.length()
 }
 
@@ -225,7 +225,7 @@ pub fn BlastHit::best_hsp(self : BlastHit) -> BlastHsp? {
 pub struct BlastRecord {
   query_id : String
   query_def : String
-  query_length : Int
+  query_length : Int32
   hits : Array[BlastHit]
   program : String
   version : String
@@ -237,7 +237,7 @@ pub struct BlastRecord {
 pub fn BlastRecord::new(
   query_id : String,
   query_def : String,
-  query_length : Int,
+  query_length : Int32,
   hits : Array[BlastHit],
   program : String,
   version : String,
@@ -268,7 +268,7 @@ pub fn BlastRecord::query_def(self : BlastRecord) -> String {
 
 ///|
 /// Get query length.
-pub fn BlastRecord::query_length(self : BlastRecord) -> Int {
+pub fn BlastRecord::query_length(self : BlastRecord) -> Int32 {
   self.query_length
 }
 
@@ -280,7 +280,7 @@ pub fn BlastRecord::hits(self : BlastRecord) -> Array[BlastHit] {
 
 ///|
 /// Get number of hits.
-pub fn BlastRecord::num_hits(self : BlastRecord) -> Int {
+pub fn BlastRecord::num_hits(self : BlastRecord) -> Int32 {
   self.hits.length()
 }
 
@@ -698,7 +698,7 @@ fn parse_xml_tag(line : String) -> (String, String)? {
 ///|
 /// Build an HSP from parsed XML fields.
 fn build_hsp_from_fields(fields : Map[String, String]) -> BlastHsp? {
-  let get_int = fn(key : String) -> Int {
+  let get_int = fn(key : String) -> Int32 {
     if fields.contains(key) {
       let opt = parse_double(fields[key])
       if opt is Some(_) {

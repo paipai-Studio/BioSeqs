@@ -4,11 +4,16 @@ fn main {
 
   println("\n1. Histogram of gene expression values")
   let data = [
-    1.2, 1.5, 2.1, 2.3, 2.8, 3.1, 3.4, 3.9, 4.2, 4.8, 5.1, 5.5, 6.2, 6.8, 7.1,
-    7.5, 8.2, 8.8, 9.1, 9.5,
+    1.2, 1.5, 2.1, 2.3, 2.8, 3.1, 3.4, 3.9, 4.2, 4.8, 5.1, 5.5, 6.2, 6.8, 7.1, 7.5,
+    8.2, 8.8, 9.1, 9.5,
   ]
   let hist = @src.Histogram::from_data(data, num_bins=8)
-  println("  Bins: " + hist.bins.length().to_string() + ", total: " + hist.total.to_string())
+  println(
+    "  Bins: " +
+    hist.bins.length().to_string() +
+    ", total: " +
+    hist.total.to_string(),
+  )
   for bin in hist.bins {
     let bar = "█".repeat(bin.count)
     println(
@@ -22,7 +27,12 @@ fn main {
       bar,
     )
   }
-  let hist_svg = @src.histogram_to_svg(hist, width=400, height=240, title="Expression histogram")
+  let hist_svg = @src.histogram_to_svg(
+    hist,
+    width=400,
+    height=240,
+    title="Expression histogram",
+  )
   println("  SVG length: " + hist_svg.length().to_string() + " chars")
 
   println("\n2. Scatter plot of two genes")
@@ -50,7 +60,12 @@ fn main {
       label="Gene B",
     ),
   ])
-  let scatter_svg = @src.scatter_to_svg(scatter, width=400, height=240, title="Gene scatter")
+  let scatter_svg = @src.scatter_to_svg(
+    scatter,
+    width=400,
+    height=240,
+    title="Gene scatter",
+  )
   println("  SVG length: " + scatter_svg.length().to_string() + " chars")
 
   println("\n3. Line plot of a time course")
@@ -68,17 +83,18 @@ fn main {
       label="Treatment",
     ),
   ])
-  let line_svg = @src.line_to_svg(line, width=400, height=240, title="Time course")
+  let line_svg = @src.line_to_svg(
+    line,
+    width=400,
+    height=240,
+    title="Time course",
+  )
   println("  SVG length: " + line_svg.length().to_string() + " chars")
 
   println("\n4. Distribution page with multiple panels")
-  let page = @src.DistributionPage::new(
-    title="QC report",
-    rows=1,
-    cols=2,
-  ).add_panel(@src.PlotPanel::HistPanel("Histogram", hist)).add_panel(
-    @src.PlotPanel::ScatterPanel("Scatter", scatter),
-  )
+  let page = @src.DistributionPage::new(title="QC report", rows=1, cols=2)
+    .add_panel(@src.PlotPanel::HistPanel("Histogram", hist))
+    .add_panel(@src.PlotPanel::ScatterPanel("Scatter", scatter))
   let page_svg = page.to_svg(width=600, height=300)
   println("  Page SVG length: " + page_svg.length().to_string() + " chars")
   println("  Contains <svg: " + page_svg.contains("<svg").to_string())

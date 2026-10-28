@@ -4,14 +4,14 @@
 
 ///|
 pub struct CellDataSet {
-  counts : Array[Array[Int]]
+  counts : Array[Array[Int32]]
   normalized : Array[Array[Double]]
   gene_names : Array[String]
   cell_names : Array[String]
   reduced_dimensions : Array[(String, Array[Array[Double]])]
   pseudotime : Array[Double]
-  cell_partitions : Array[Int]
-  principal_graph : Array[(Int, Array[Double], Array[Int])]
+  cell_partitions : Array[Int32]
+  principal_graph : Array[(Int32, Array[Double], Array[Int32])]
 }
 
 ///|
@@ -24,7 +24,7 @@ pub struct DiffExprResult {
 
 ///|
 pub fn new_cell_data_set(
-  counts : Array[Array[Int]],
+  counts : Array[Array[Int32]],
   gene_names : Array[String],
   cell_names : Array[String],
 ) -> CellDataSet {
@@ -41,7 +41,7 @@ pub fn new_cell_data_set(
 }
 
 ///|
-pub fn preprocess_cds(cds : CellDataSet, num_dimensions : Int) -> CellDataSet {
+pub fn preprocess_cds(cds : CellDataSet, num_dimensions : Int32) -> CellDataSet {
   let n_cells = cds.counts.length()
   let n_genes = if n_cells > 0 { cds.counts[0].length() } else { 0 }
 
@@ -94,7 +94,7 @@ pub fn preprocess_cds(cds : CellDataSet, num_dimensions : Int) -> CellDataSet {
 ///|
 fn pca(
   data : Array[Array[Double]],
-  n_components : Int,
+  n_components : Int32,
 ) -> (Array[Array[Double]], Array[Double]) {
   let n_samples = data.length()
   let n_features = if n_samples > 0 { data[0].length() } else { 0 }
@@ -206,7 +206,7 @@ fn covariance_matrix(data : Array[Array[Double]]) -> Array[Array[Double]] {
 ///|
 fn eigen_decomposition(
   matrix : Array[Array[Double]],
-  n_components : Int,
+  n_components : Int32,
 ) -> (Array[Double], Array[Array[Double]]) {
   let n = matrix.length()
 
@@ -297,7 +297,7 @@ fn eigen_decomposition(
     iter = iter + 1
   }
 
-  let diag : Array[(Double, Int)] = Array(capacity=0)
+  let diag : Array[(Double, Int32)] = Array(capacity=0)
   i = 0
   while i < n {
     diag.push((a[i][i], i))
@@ -401,7 +401,7 @@ fn monocle_transpose(m : Array[Array[Double]]) -> Array[Array[Double]] {
 pub fn reduce_dimension(
   cds : CellDataSet,
   dim_method : String,
-  num_dimensions : Int,
+  num_dimensions : Int32,
 ) -> CellDataSet {
   if dim_method == "PCA" || dim_method == "pca" {
     return preprocess_cds(cds, num_dimensions)
@@ -501,7 +501,7 @@ fn get_reduced_dimension(
 ///|
 fn umap(
   data : Array[Array[Double]],
-  n_components : Int,
+  n_components : Int32,
 ) -> Array[Array[Double]] {
   let n_samples = data.length()
   let n_features = if n_samples > 0 { data[0].length() } else { 0 }
@@ -526,7 +526,7 @@ fn umap(
 
   let k = if n_samples > 15 { 15 } else { n_samples - 1 }
 
-  let knn_indices : Array[Array[Int]] = Array(capacity=0)
+  let knn_indices : Array[Array[Int32]] = Array(capacity=0)
   let knn_distances : Array[Array[Double]] = Array(capacity=0)
 
   i = 0
@@ -538,7 +538,7 @@ fn umap(
 
   i = 0
   while i < n_samples {
-    let distances : Array[(Double, Int)] = Array(capacity=0)
+    let distances : Array[(Double, Int32)] = Array(capacity=0)
     let mut j = 0
     while j < n_samples {
       let mut sum_sq = 0.0
@@ -575,7 +575,7 @@ fn umap(
     i = i + 1
   }
 
-  let graph : Array[Array[(Int, Double)]] = Array(capacity=0)
+  let graph : Array[Array[(Int32, Double)]] = Array(capacity=0)
   i = 0
   while i < n_samples {
     graph.push(Array(capacity=0))
@@ -714,7 +714,7 @@ pub fn learn_graph(cds : CellDataSet) -> CellDataSet {
     return cds
   }
 
-  let partitions : Array[Int] = Array::make(n_cells, 0)
+  let partitions : Array[Int32] = Array::make(n_cells, 0)
   let num_partitions = 1
 
   let centers : Array[Array[Double]] = Array(capacity=0)
@@ -729,7 +729,7 @@ pub fn learn_graph(cds : CellDataSet) -> CellDataSet {
   center[1] = center[1] / n_cells.to_double()
   centers.push(center)
 
-  let graph_edges : Array[(Int, Int)] = Array(capacity=0)
+  let graph_edges : Array[(Int32, Int32)] = Array(capacity=0)
 
   let mut j = 0
   while j < n_cells {
@@ -782,10 +782,12 @@ pub fn learn_graph(cds : CellDataSet) -> CellDataSet {
     }
   }
 
-  let principal_graph : Array[(Int, Array[Double], Array[Int])] = Array(capacity=0)
+  let principal_graph : Array[(Int32, Array[Double], Array[Int32])] = Array(
+    capacity=0,
+  )
   i = 0
   while i < nodes.length() {
-    let edges : Array[Int] = Array(capacity=0)
+    let edges : Array[Int32] = Array(capacity=0)
     let mut j = 0
     while j < graph_edges.length() {
       if graph_edges[j].0 == i || graph_edges[j].1 == i {
@@ -816,7 +818,7 @@ pub fn learn_graph(cds : CellDataSet) -> CellDataSet {
 }
 
 ///|
-pub fn order_cells(cds : CellDataSet, root_cells : Array[Int]) -> CellDataSet {
+pub fn order_cells(cds : CellDataSet, root_cells : Array[Int32]) -> CellDataSet {
   let umap_data = match get_reduced_dimension(cds, "UMAP") {
     Some(data) => data
     None => cds.normalized
@@ -830,7 +832,7 @@ pub fn order_cells(cds : CellDataSet, root_cells : Array[Int]) -> CellDataSet {
 
   let pseudotime : Array[Double] = Array::make(n_cells, -1.0)
 
-  let distances : Array[(Double, Int)] = Array(capacity=0)
+  let distances : Array[(Double, Int32)] = Array(capacity=0)
   let mut i = 0
   while i < n_cells {
     let mut min_dist = 1000000000000000000000000000000.0
@@ -966,7 +968,7 @@ pub fn fit_models(
 }
 
 ///|
-fn find_gene_index(gene_names : Array[String], name : String) -> Int? {
+fn find_gene_index(gene_names : Array[String], name : String) -> Int32? {
   let mut i = 0
   while i < gene_names.length() {
     if gene_names[i] == name {
@@ -979,16 +981,16 @@ fn find_gene_index(gene_names : Array[String], name : String) -> Int? {
 
 ///|
 pub struct BranchPoint {
-  node_id : Int
+  node_id : Int32
   position : Array[Double]
-  branch_cells : Array[(Array[Int], Array[Int])]
+  branch_cells : Array[(Array[Int32], Array[Int32])]
 }
 
 ///|
 pub fn BranchPoint::new(
-  node_id : Int,
+  node_id : Int32,
   position : Array[Double],
-  branch_cells : Array[(Array[Int], Array[Int])],
+  branch_cells : Array[(Array[Int32], Array[Int32])],
 ) -> BranchPoint {
   BranchPoint::{ node_id, position, branch_cells, }
 }
@@ -1006,8 +1008,8 @@ pub fn find_branch_points(cds : CellDataSet) -> Array[BranchPoint] {
     let edges = cds.principal_graph[i].2
     if edges.length() >= 3 {
       let position = cds.principal_graph[i].1
-      let branch1 : Array[Int] = Array(capacity=0)
-      let branch2 : Array[Int] = Array(capacity=0)
+      let branch1 : Array[Int32] = Array(capacity=0)
+      let branch2 : Array[Int32] = Array(capacity=0)
 
       let mut j = 0
       while j < cds.cell_partitions.length() {
@@ -1107,14 +1109,14 @@ pub fn differential_gene_test_branches(
 
 ///|
 pub fn create_example_monocle_data() -> (
-  Array[Array[Int]],
+  Array[Array[Int32]],
   Array[String],
   Array[String],
 ) {
   let n_cells = 50
   let n_genes = 100
 
-  let counts : Array[Array[Int]] = Array(capacity=0)
+  let counts : Array[Array[Int32]] = Array(capacity=0)
   let gene_names : Array[String] = Array(capacity=0)
   let cell_names : Array[String] = Array(capacity=0)
 
@@ -1128,7 +1130,7 @@ pub fn create_example_monocle_data() -> (
   while i < n_cells {
     cell_names.push("Cell_" + i.to_string())
 
-    let row : Array[Int] = Array(capacity=0)
+    let row : Array[Int32] = Array(capacity=0)
     let pseudotime = i.to_double() / (n_cells - 1).to_double()
 
     let mut j = 0

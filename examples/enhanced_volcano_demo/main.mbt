@@ -11,7 +11,16 @@ fn main {
   let ids = ["TP53", "BRCA1", "BRCA2", "MYC", "KRAS", "EGFR", "PTEN", "APC"]
   let lfcs = [2.5, -3.0, 1.8, 3.2, -1.5, 0.8, -2.2, 0.3]
   let pvals = [0.001, 0.005, 0.02, 0.0005, 0.01, 0.08, 0.002, 0.06]
-  let result = @bio.volcano_plot(ids, lfcs, pvals, p_cutoff=0.05, fc_cutoff=1.0, title="Cancer DE Genes", x_label="log2FC", y_label="-log10(p)")
+  let result = @bio.volcano_plot(
+    ids,
+    lfcs,
+    pvals,
+    p_cutoff=0.05,
+    fc_cutoff=1.0,
+    title="Cancer DE Genes",
+    x_label="log2FC",
+    y_label="-log10(p)",
+  )
 
   println("Total genes: \{result.get_n_genes()}")
   println("Up-regulated: \{result.get_n_up()}")
@@ -24,14 +33,18 @@ fn main {
   let up_genes = result.get_up_genes()
   let mut i = 0
   while i < up_genes.length() {
-    println("  UP: \{up_genes[i].label} (log2FC=@{up_genes[i].log2fc}, p=@{up_genes[i].p_val})")
+    println(
+      "  UP: \{up_genes[i].label} (log2FC=@{up_genes[i].log2fc}, p=@{up_genes[i].p_val})",
+    )
     i = i + 1
   }
 
   let down_genes = result.get_down_genes()
   let mut j = 0
   while j < down_genes.length() {
-    println("  DOWN: \{down_genes[j].label} (log2FC=@{down_genes[j].log2fc}, p=@{down_genes[j].p_val})")
+    println(
+      "  DOWN: \{down_genes[j].label} (log2FC=@{down_genes[j].log2fc}, p=@{down_genes[j].p_val})",
+    )
     j = j + 1
   }
   println("")

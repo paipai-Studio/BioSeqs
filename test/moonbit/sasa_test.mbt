@@ -10,7 +10,7 @@ fn make_atom(
   z : Double,
   element : String,
   resname : String,
-  resseq : Int,
+  resseq : Int32,
 ) -> @src.Atom {
   @src.Atom::new(
     name~,

@@ -20,7 +20,11 @@ pub enum NnsvgOrdering {
   Ammd
   SumCoordinates
 } derive(Eq, Debug)
+
+///|
 pub extend NnsvgOrdering with Eq::{equal, not_equal}
+
+///|
 pub extend NnsvgOrdering with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -35,30 +39,34 @@ pub fn nnsvg_sum_coordinates_ordering() -> NnsvgOrdering {
 
 ///|
 pub struct NnsvgConfig {
-  n_neighbors : Int
+  n_neighbors : Int32
   ordering : NnsvgOrdering
   length_scale_min : Double
   length_scale_max : Double
-  length_scale_grid : Int
-  proportion_grid : Int
-  refinement_steps : Int
+  length_scale_grid : Int32
+  proportion_grid : Int32
+  refinement_steps : Int32
   minimum_variance : Double
   fdr_threshold : Double
 } derive(Eq, Debug)
+
+///|
 pub extend NnsvgConfig with Eq::{equal, not_equal}
+
+///|
 pub extend NnsvgConfig with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub fn NnsvgConfig::create(
-  n_neighbors? : Int = 10,
-  ordering? : NnsvgOrdering = Ammd,
-  length_scale_min? : Double = 0.02,
-  length_scale_max? : Double = 2.0,
-  length_scale_grid? : Int = 10,
-  proportion_grid? : Int = 10,
-  refinement_steps? : Int = 2,
-  minimum_variance? : Double = 1.0e-10,
-  fdr_threshold? : Double = 0.05,
+  n_neighbors~ : Int32 = 10,
+  ordering~ : NnsvgOrdering = Ammd,
+  length_scale_min~ : Double = 0.02,
+  length_scale_max~ : Double = 2.0,
+  length_scale_grid~ : Int32 = 10,
+  proportion_grid~ : Int32 = 10,
+  refinement_steps~ : Int32 = 2,
+  minimum_variance~ : Double = 1.0e-10,
+  fdr_threshold~ : Double = 0.05,
 ) -> NnsvgConfig raise NnsvgError {
   if n_neighbors < 1 {
     raise NnsvgError("nnSVG neighbor count must be positive")
@@ -80,9 +88,7 @@ pub fn NnsvgConfig::create(
   if !is_finite(minimum_variance) || minimum_variance <= 0.0 {
     raise NnsvgError("nnSVG minimum variance must be finite and positive")
   }
-  if !is_finite(fdr_threshold) ||
-    fdr_threshold <= 0.0 ||
-    fdr_threshold > 1.0 {
+  if !is_finite(fdr_threshold) || fdr_threshold <= 0.0 || fdr_threshold > 1.0 {
     raise NnsvgError("nnSVG FDR threshold must be finite and in (0, 1]")
   }
   NnsvgConfig::{
@@ -116,14 +122,16 @@ pub fn NnsvgConfig::default() -> NnsvgConfig {
 ///|
 pub struct NnsvgNeighborGraph {
   coordinates : Array[Array[Double]]
-  order : Array[Int]
-  inverse_order : Array[Int]
-  neighbors : Array[Array[Int]]
+  order : Array[Int32]
+  inverse_order : Array[Int32]
+  neighbors : Array[Array[Int32]]
   distances : Array[Array[Double]]
-  n_neighbors : Int
+  n_neighbors : Int32
   ordering : NnsvgOrdering
   range_scale : Double
 } derive(Debug)
+
+///|
 pub extend NnsvgNeighborGraph with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -146,6 +154,8 @@ pub struct NnsvgGeneResult {
   beta : Array[Double]
   converged : Bool
 } derive(Debug)
+
+///|
 pub extend NnsvgGeneResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -153,19 +163,23 @@ pub struct NnsvgResult {
   gene_names : Array[String]
   genes : Array[NnsvgGeneResult]
   graph : NnsvgNeighborGraph
-  design_columns : Int
+  design_columns : Int32
   config : NnsvgConfig
 } derive(Debug)
+
+///|
 pub extend NnsvgResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct NnsvgFilterResult {
   counts : Array[Array[Double]]
   gene_names : Array[String]
-  kept_indices : Array[Int]
-  removed_low_expression : Array[Int]
-  removed_mitochondrial : Array[Int]
+  kept_indices : Array[Int32]
+  removed_low_expression : Array[Int32]
+  removed_mitochondrial : Array[Int32]
 } derive(Debug)
+
+///|
 pub extend NnsvgFilterResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -215,7 +229,7 @@ priv struct NnsvgRawGeneFit {
 }
 
 ///|
-fn nnsvg_zero_matrix(rows : Int, columns : Int) -> Array[Array[Double]] {
+fn nnsvg_zero_matrix(rows : Int32, columns : Int32) -> Array[Array[Double]] {
   let matrix : Array[Array[Double]] = []
   for _ in 0..<rows {
     matrix.push(Array::make(columns, 0.0))
@@ -235,8 +249,8 @@ fn nnsvg_copy_matrix(matrix : Array[Array[Double]]) -> Array[Array[Double]] {
 ///|
 fn nnsvg_distance(
   coordinates : Array[Array[Double]],
-  first : Int,
-  second : Int,
+  first : Int32,
+  second : Int32,
 ) -> Double {
   let mut squared = 0.0
   for dimension in 0..<coordinates[first].length() {
@@ -250,7 +264,7 @@ fn nnsvg_distance(
 ///|
 fn nnsvg_validate_expression(
   expression : Array[Array[Double]],
-) -> (Int, Int) raise NnsvgError {
+) -> (Int32, Int32) raise NnsvgError {
   if expression.length() == 0 {
     raise NnsvgError("nnSVG expression must contain at least one gene")
   }
@@ -274,8 +288,8 @@ fn nnsvg_validate_expression(
 ///|
 fn nnsvg_validate_coordinates(
   coordinates : Array[Array[Double]],
-  expected_spots : Int,
-) -> Int raise NnsvgError {
+  expected_spots : Int32,
+) -> Int32 raise NnsvgError {
   if coordinates.length() != expected_spots {
     raise NnsvgError(
       "nnSVG coordinate rows must match the number of expression spots",
@@ -301,7 +315,7 @@ fn nnsvg_validate_coordinates(
 ///|
 fn nnsvg_prepare_gene_names(
   gene_names : Array[String],
-  genes : Int,
+  genes : Int32,
 ) -> Array[String] raise NnsvgError {
   if gene_names.length() == 0 {
     let generated : Array[String] = []
@@ -385,7 +399,7 @@ fn nnsvg_cholesky_solve(
 ///|
 fn nnsvg_prepare_design(
   design : Array[Array[Double]],
-  spots : Int,
+  spots : Int32,
 ) -> Array[Array[Double]] raise NnsvgError {
   if design.length() == 0 {
     let intercept : Array[Array[Double]] = []
@@ -465,12 +479,14 @@ fn nnsvg_scale_coordinates(
 }
 
 ///|
-fn nnsvg_sum_coordinate_order(coordinates : Array[Array[Double]]) -> Array[Int] {
-  let order : Array[Int] = []
+fn nnsvg_sum_coordinate_order(
+  coordinates : Array[Array[Double]],
+) -> Array[Int32] {
+  let order : Array[Int32] = []
   for index in 0..<coordinates.length() {
     order.push(index)
   }
-  order.sort_by(fn(left : Int, right : Int) -> Int {
+  order.sort_by(fn(left : Int32, right : Int32) -> Int32 {
     let mut left_sum = 0.0
     let mut right_sum = 0.0
     for dimension in 0..<coordinates[left].length() {
@@ -489,9 +505,9 @@ fn nnsvg_sum_coordinate_order(coordinates : Array[Array[Double]]) -> Array[Int] 
 }
 
 ///|
-fn nnsvg_ammd_order(coordinates : Array[Array[Double]]) -> Array[Int] {
+fn nnsvg_ammd_order(coordinates : Array[Array[Double]]) -> Array[Int32] {
   let spots = coordinates.length()
-  let order : Array[Int] = []
+  let order : Array[Int32] = []
   let selected = Array::make(spots, false)
   let minimum_distances = Array::make(spots, 1.0e300)
   let sum_order = nnsvg_sum_coordinate_order(coordinates)
@@ -535,8 +551,8 @@ fn nnsvg_ammd_order(coordinates : Array[Array[Double]]) -> Array[Int] {
 ///|
 pub fn nnsvg_build_neighbors(
   coordinates : Array[Array[Double]],
-  n_neighbors? : Int = 10,
-  ordering? : NnsvgOrdering = Ammd,
+  n_neighbors~ : Int32 = 10,
+  ordering~ : NnsvgOrdering = Ammd,
 ) -> NnsvgNeighborGraph raise NnsvgError {
   if n_neighbors < 1 {
     raise NnsvgError("nnSVG neighbor count must be positive")
@@ -555,7 +571,7 @@ pub fn nnsvg_build_neighbors(
   for position in 0..<spots {
     inverse_order[order[position]] = position
   }
-  let neighbors : Array[Array[Int]] = []
+  let neighbors : Array[Array[Int32]] = []
   let distances : Array[Array[Double]] = []
   for _ in 0..<spots {
     neighbors.push([])
@@ -564,12 +580,15 @@ pub fn nnsvg_build_neighbors(
   let retained_neighbors = n_neighbors.min(spots - 1)
   for position in 1..<spots {
     let original = order[position]
-    let candidates : Array[(Double, Int)] = []
+    let candidates : Array[(Double, Int32)] = []
     for predecessor in 0..<position {
       let neighbor = order[predecessor]
       candidates.push((nnsvg_distance(scaled, original, neighbor), neighbor))
     }
-    candidates.sort_by(fn(left : (Double, Int), right : (Double, Int)) -> Int {
+    candidates.sort_by(fn(
+      left : (Double, Int32),
+      right : (Double, Int32),
+    ) -> Int32 {
       if left.0 < right.0 {
         -1
       } else if left.0 > right.0 {
@@ -898,11 +917,11 @@ fn nnsvg_variance(values : Array[Double], mean : Double) -> Double {
 ///|
 fn nnsvg_bh_adjust(p_values : Array[Double]) -> Array[Double] {
   let count = p_values.length()
-  let order : Array[Int] = []
+  let order : Array[Int32] = []
   for index in 0..<count {
     order.push(index)
   }
-  order.sort_by(fn(left : Int, right : Int) -> Int {
+  order.sort_by(fn(left : Int32, right : Int32) -> Int32 {
     if p_values[left] < p_values[right] {
       -1
     } else if p_values[left] > p_values[right] {
@@ -929,11 +948,11 @@ fn nnsvg_bh_adjust(p_values : Array[Double]) -> Array[Double] {
 ///|
 fn nnsvg_likelihood_ranks(likelihood_ratios : Array[Double]) -> Array[Double] {
   let count = likelihood_ratios.length()
-  let order : Array[Int] = []
+  let order : Array[Int32] = []
   for index in 0..<count {
     order.push(index)
   }
-  order.sort_by(fn(left : Int, right : Int) -> Int {
+  order.sort_by(fn(left : Int32, right : Int32) -> Int32 {
     if likelihood_ratios[left] > likelihood_ratios[right] {
       -1
     } else if likelihood_ratios[left] < likelihood_ratios[right] {
@@ -965,8 +984,8 @@ pub fn nnsvg_with_config(
   expression : Array[Array[Double]],
   coordinates : Array[Array[Double]],
   config : NnsvgConfig,
-  design? : Array[Array[Double]] = [],
-  gene_names? : Array[String] = [],
+  design~ : Array[Array[Double]] = [],
+  gene_names~ : Array[String] = [],
 ) -> NnsvgResult raise NnsvgError {
   let (gene_count, spot_count) = nnsvg_validate_expression(expression)
   ignore(nnsvg_validate_coordinates(coordinates, spot_count))
@@ -1057,21 +1076,21 @@ pub fn nnsvg_with_config(
 pub fn nnsvg(
   expression : Array[Array[Double]],
   coordinates : Array[Array[Double]],
-  design? : Array[Array[Double]] = [],
-  gene_names? : Array[String] = [],
-  n_neighbors? : Int = 10,
+  design~ : Array[Array[Double]] = [],
+  gene_names~ : Array[String] = [],
+  n_neighbors~ : Int32 = 10,
 ) -> NnsvgResult raise NnsvgError {
   let config = NnsvgConfig::create(n_neighbors~)
   nnsvg_with_config(expression, coordinates, config, design~, gene_names~)
 }
 
 ///|
-pub fn NnsvgResult::n_genes(self : NnsvgResult) -> Int {
+pub fn NnsvgResult::n_genes(self : NnsvgResult) -> Int32 {
   self.genes.length()
 }
 
 ///|
-pub fn NnsvgResult::n_spots(self : NnsvgResult) -> Int {
+pub fn NnsvgResult::n_spots(self : NnsvgResult) -> Int32 {
   self.graph.coordinates.length()
 }
 
@@ -1091,7 +1110,7 @@ pub fn NnsvgResult::gene(
 ///|
 pub fn NnsvgResult::significant(
   self : NnsvgResult,
-  threshold? : Double = -1.0,
+  threshold~ : Double = -1.0,
 ) -> Array[NnsvgGeneResult] {
   let selected_threshold = if threshold < 0.0 {
     self.config.fdr_threshold
@@ -1104,7 +1123,10 @@ pub fn NnsvgResult::significant(
       selected.push(gene)
     }
   }
-  selected.sort_by(fn(left : NnsvgGeneResult, right : NnsvgGeneResult) -> Int {
+  selected.sort_by(fn(
+    left : NnsvgGeneResult,
+    right : NnsvgGeneResult,
+  ) -> Int32 {
     if left.rank < right.rank {
       -1
     } else if left.rank > right.rank {
@@ -1119,13 +1141,13 @@ pub fn NnsvgResult::significant(
 ///|
 pub fn NnsvgResult::top(
   self : NnsvgResult,
-  count : Int,
+  count : Int32,
 ) -> Array[NnsvgGeneResult] {
   if count <= 0 {
     return []
   }
   let sorted = self.genes.copy()
-  sorted.sort_by(fn(left : NnsvgGeneResult, right : NnsvgGeneResult) -> Int {
+  sorted.sort_by(fn(left : NnsvgGeneResult, right : NnsvgGeneResult) -> Int32 {
     if left.rank < right.rank {
       -1
     } else if left.rank > right.rank {
@@ -1160,9 +1182,9 @@ pub fn NnsvgResult::summary(self : NnsvgResult) -> String {
 pub fn nnsvg_filter_genes(
   counts : Array[Array[Double]],
   gene_names : Array[String],
-  minimum_count? : Double = 3.0,
-  minimum_spot_percentage? : Double = 0.5,
-  filter_mitochondrial? : Bool = true,
+  minimum_count~ : Double = 3.0,
+  minimum_spot_percentage~ : Double = 0.5,
+  filter_mitochondrial~ : Bool = true,
 ) -> NnsvgFilterResult raise NnsvgError {
   if counts.length() == 0 || counts[0].length() == 0 {
     raise NnsvgError("nnSVG gene filtering requires a non-empty count matrix")
@@ -1190,9 +1212,9 @@ pub fn nnsvg_filter_genes(
     .to_int()
   let filtered_counts : Array[Array[Double]] = []
   let filtered_names : Array[String] = []
-  let kept_indices : Array[Int] = []
-  let removed_low_expression : Array[Int] = []
-  let removed_mitochondrial : Array[Int] = []
+  let kept_indices : Array[Int32] = []
+  let removed_low_expression : Array[Int32] = []
+  let removed_mitochondrial : Array[Int32] = []
   for gene in 0..<counts.length() {
     if counts[gene].length() != spots {
       raise NnsvgError("nnSVG filtering count matrix must be rectangular")
@@ -1210,10 +1232,7 @@ pub fn nnsvg_filter_genes(
     }
     let low_expression = detected < required_spots
     let mitochondrial = filter_mitochondrial &&
-      (
-        gene_names[gene].has_prefix("MT-") ||
-        gene_names[gene].has_prefix("mt-")
-      )
+      (gene_names[gene].has_prefix("MT-") || gene_names[gene].has_prefix("mt-"))
     if low_expression {
       removed_low_expression.push(gene)
     }
@@ -1273,7 +1292,7 @@ fn nnsvg_copy_spatial_experiment(
 ///|
 fn nnsvg_spatial_gene_names(
   experiment : SpatialExperiment,
-  genes : Int,
+  genes : Int32,
 ) -> Array[String] raise NnsvgError {
   if experiment.row_data.length() != 0 && experiment.row_data.length() != genes {
     raise NnsvgError(
@@ -1346,10 +1365,10 @@ fn nnsvg_spatial_coordinates(
 ///|
 pub fn nnsvg_filter_spatial_experiment(
   experiment : SpatialExperiment,
-  count_assay? : String = "counts",
-  minimum_count? : Double = 3.0,
-  minimum_spot_percentage? : Double = 0.5,
-  filter_mitochondrial? : Bool = true,
+  count_assay~ : String = "counts",
+  minimum_count~ : Double = 3.0,
+  minimum_spot_percentage~ : Double = 0.5,
+  filter_mitochondrial~ : Bool = true,
 ) -> NnsvgSpatialFilterOutput raise NnsvgError {
   let counts = match experiment.assay.get(count_assay) {
     Some(value) => value
@@ -1413,9 +1432,9 @@ pub fn nnsvg_filter_spatial_experiment(
 ///|
 pub fn nnsvg_spatial_experiment(
   experiment : SpatialExperiment,
-  assay_name? : String = "logcounts",
-  config? : NnsvgConfig = NnsvgConfig::default(),
-  design? : Array[Array[Double]] = [],
+  assay_name~ : String = "logcounts",
+  config~ : NnsvgConfig = NnsvgConfig::default(),
+  design~ : Array[Array[Double]] = [],
 ) -> NnsvgSpatialExperimentOutput raise NnsvgError {
   let expression = match experiment.assay.get(assay_name) {
     Some(value) => value

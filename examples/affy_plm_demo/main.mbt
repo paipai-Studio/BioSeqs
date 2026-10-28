@@ -21,12 +21,16 @@ fn main {
 
   println("\n3. Chip effects (sample-level)")
   for j in 0..<fit.chip_effects.length() {
-    println("   sample " + j.to_string() + ": " + fit.chip_effects[j].to_string())
+    println(
+      "   sample " + j.to_string() + ": " + fit.chip_effects[j].to_string(),
+    )
   }
 
   println("\n4. Probe effects (probe-level)")
   for i in 0..<fit.probe_effects.length() {
-    println("   probe " + i.to_string() + ": " + fit.probe_effects[i].to_string())
+    println(
+      "   probe " + i.to_string() + ": " + fit.probe_effects[i].to_string(),
+    )
   }
 
   println("\n5. Residuals")

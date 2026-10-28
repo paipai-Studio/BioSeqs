@@ -19,7 +19,11 @@ pub(all) enum BanksySpatialMode {
   BanksyKnnUniform
   BanksyRadiusGaussian
 } derive(Eq, Debug)
+
+///|
 pub extend BanksySpatialMode with Eq::{equal, not_equal}
+
+///|
 pub extend BanksySpatialMode with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -54,33 +58,35 @@ pub fn banksy_radius_gaussian() -> BanksySpatialMode {
 
 ///|
 pub struct BanksyComputeConfig {
-  max_harmonic : Int
-  k_geom : Array[Int]
+  max_harmonic : Int32
+  k_geom : Array[Int32]
   spatial_mode : BanksySpatialMode
   distance_power : Double
   sigma : Double
   alpha : Double
-  k_spatial : Int
-  sample_size : Int
+  k_spatial : Int32
+  sample_size : Int32
   sample_renormalize : Bool
-  seed : Int
+  seed : Int32
   center_harmonics : Bool
 } derive(Debug)
+
+///|
 pub extend BanksyComputeConfig with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub fn BanksyComputeConfig::create(
-  max_harmonic? : Int = 0,
-  k_geom? : Array[Int] = [15],
-  spatial_mode? : BanksySpatialMode = BanksyKnnMedian,
-  distance_power? : Double = 2.0,
-  sigma? : Double = 1.5,
-  alpha? : Double = 0.05,
-  k_spatial? : Int = 100,
-  sample_size? : Int = 0,
-  sample_renormalize? : Bool = true,
-  seed? : Int = 1,
-  center_harmonics? : Bool = true,
+  max_harmonic~ : Int32 = 0,
+  k_geom~ : Array[Int32] = [15],
+  spatial_mode~ : BanksySpatialMode = BanksyKnnMedian,
+  distance_power~ : Double = 2.0,
+  sigma~ : Double = 1.5,
+  alpha~ : Double = 0.05,
+  k_spatial~ : Int32 = 100,
+  sample_size~ : Int32 = 0,
+  sample_renormalize~ : Bool = true,
+  seed~ : Int32 = 1,
+  center_harmonics~ : Bool = true,
 ) -> BanksyComputeConfig raise BanksyError {
   if max_harmonic < 0 {
     raise BanksyError("BANKSY maximum harmonic must be non-negative")
@@ -147,12 +153,16 @@ pub fn BanksyComputeConfig::default() -> BanksyComputeConfig {
 
 ///|
 pub struct BanksyNeighbor {
-  index : Int
+  index : Int32
   distance : Double
   weight : Double
   angle : Double
 } derive(Eq, Debug)
+
+///|
 pub extend BanksyNeighbor with Eq::{equal, not_equal}
+
+///|
 pub extend BanksyNeighbor with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -165,6 +175,8 @@ pub struct BanksyModel {
   neighbors : Array[Array[Array[BanksyNeighbor]]]
   config : BanksyComputeConfig
 } derive(Debug)
+
+///|
 pub extend BanksyModel with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -173,9 +185,11 @@ pub struct BanksyMatrix {
   feature_names : Array[String]
   component_weights : Array[Double]
   lambda : Double
-  max_harmonic : Int
+  max_harmonic : Int32
   scaled : Bool
 } derive(Debug)
+
+///|
 pub extend BanksyMatrix with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -184,28 +198,34 @@ pub struct BanksyPcaResult {
   loadings : Array[Array[Double]]
   eigenvalues : Array[Double]
   variance_explained : Array[Double]
-  n_components : Int
+  n_components : Int32
 } derive(Debug)
+
+///|
 pub extend BanksyPcaResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct BanksyClusterConfig {
-  n_clusters : Int
-  n_starts : Int
-  max_iterations : Int
+  n_clusters : Int32
+  n_starts : Int32
+  max_iterations : Int32
   tolerance : Double
-  seed : Int
+  seed : Int32
 } derive(Eq, Debug)
+
+///|
 pub extend BanksyClusterConfig with Eq::{equal, not_equal}
+
+///|
 pub extend BanksyClusterConfig with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub fn BanksyClusterConfig::create(
-  n_clusters? : Int = 5,
-  n_starts? : Int = 10,
-  max_iterations? : Int = 100,
-  tolerance? : Double = 1.0e-6,
-  seed? : Int = 1,
+  n_clusters~ : Int32 = 5,
+  n_starts~ : Int32 = 10,
+  max_iterations~ : Int32 = 100,
+  tolerance~ : Double = 1.0e-6,
+  seed~ : Int32 = 1,
 ) -> BanksyClusterConfig raise BanksyError {
   if n_clusters < 1 {
     raise BanksyError("BANKSY cluster count must be positive")
@@ -244,24 +264,30 @@ pub fn BanksyClusterConfig::default() -> BanksyClusterConfig {
 
 ///|
 pub struct BanksyClusterResult {
-  labels : Array[Int]
+  labels : Array[Int32]
   centroids : Array[Array[Double]]
-  cluster_sizes : Array[Int]
+  cluster_sizes : Array[Int32]
   inertia : Double
-  iterations : Int
+  iterations : Int32
   converged : Bool
   silhouette : Double
 } derive(Debug)
+
+///|
 pub extend BanksyClusterResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct BanksySmoothingResult {
-  labels : Array[Int]
-  iterations : Int
-  changed_labels : Int
+  labels : Array[Int32]
+  iterations : Int32
+  changed_labels : Int32
   converged : Bool
 } derive(Eq, Debug)
+
+///|
 pub extend BanksySmoothingResult with Eq::{equal, not_equal}
+
+///|
 pub extend BanksySmoothingResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -273,6 +299,8 @@ pub struct BanksyRun {
   smoothing : BanksySmoothingResult?
   spatial_agreement : Double
 } derive(Debug)
+
+///|
 pub extend BanksyRun with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
@@ -284,21 +312,21 @@ pub struct BanksySpatialExperimentOutput {
 
 ///|
 priv struct BanksyDistanceIndex {
-  index : Int
+  index : Int32
   distance : Double
 }
 
 ///|
 priv struct BanksyKmeansFit {
-  labels : Array[Int]
+  labels : Array[Int32]
   centroids : Array[Array[Double]]
   inertia : Double
-  iterations : Int
+  iterations : Int32
   converged : Bool
 }
 
 ///|
-fn banksy_zero_matrix(rows : Int, columns : Int) -> Array[Array[Double]] {
+fn banksy_zero_matrix(rows : Int32, columns : Int32) -> Array[Array[Double]] {
   let output : Array[Array[Double]] = []
   for _ in 0..<rows {
     output.push(Array::make(columns, 0.0))
@@ -318,7 +346,7 @@ fn banksy_copy_matrix(matrix : Array[Array[Double]]) -> Array[Array[Double]] {
 ///|
 fn banksy_validate_names(
   names : Array[String],
-  expected : Int,
+  expected : Int32,
   prefix : String,
   label : String,
 ) -> Array[String] raise BanksyError {
@@ -355,7 +383,7 @@ fn banksy_validate_input(
   coordinates : Array[Array[Double]],
   gene_names : Array[String],
   spot_names : Array[String],
-) -> (Int, Int, Array[String], Array[String]) raise BanksyError {
+) -> (Int32, Int32, Array[String], Array[String]) raise BanksyError {
   if expression.length() == 0 {
     raise BanksyError("BANKSY expression must contain at least one gene")
   }
@@ -399,8 +427,8 @@ fn banksy_validate_input(
 ///|
 fn banksy_distance(
   coordinates : Array[Array[Double]],
-  first : Int,
-  second : Int,
+  first : Int32,
+  second : Int32,
 ) -> Double {
   let mut squared = 0.0
   for dimension in 0..<coordinates[first].length() {
@@ -414,8 +442,8 @@ fn banksy_distance(
 ///|
 fn banksy_angle(
   coordinates : Array[Array[Double]],
-  from : Int,
-  to : Int,
+  from : Int32,
+  to : Int32,
 ) -> Double {
   let dx = coordinates[to][0] - coordinates[from][0]
   let dy = coordinates[to][1] - coordinates[from][1]
@@ -430,7 +458,7 @@ fn banksy_angle(
 ///|
 fn banksy_sorted_distances(
   coordinates : Array[Array[Double]],
-  source : Int,
+  source : Int32,
 ) -> Array[BanksyDistanceIndex] {
   let distances : Array[BanksyDistanceIndex] = []
   for target in 0..<coordinates.length() {
@@ -444,7 +472,7 @@ fn banksy_sorted_distances(
   distances.sort_by(fn(
     left : BanksyDistanceIndex,
     right : BanksyDistanceIndex,
-  ) -> Int {
+  ) -> Int32 {
     if left.distance < right.distance {
       -1
     } else if left.distance > right.distance {
@@ -477,26 +505,26 @@ fn banksy_median(values : Array[Double]) -> Double {
 
 ///|
 fn banksy_sample_order(
-  length : Int,
-  sample_size : Int,
-  seed : Int,
-  source : Int,
-) -> Array[Int] {
-  let order : Array[Int] = []
+  length : Int32,
+  sample_size : Int32,
+  seed : Int32,
+  source : Int32,
+) -> Array[Int32] {
+  let order : Array[Int32] = []
   for index in 0..<length {
     order.push(index)
   }
   if sample_size <= 0 || sample_size >= length {
     return order
   }
-  let scores : Array[Int] = Array::make(length, 0)
+  let scores : Array[Int32] = Array::make(length, 0)
   for index in 0..<length {
     let a = (index + 1) * 1103515245
     let b = (source + 1) * 12345
     let c = (seed + 1) * 48271
     scores[index] = (a + b + c) & 0x7fffffff
   }
-  order.sort_by(fn(left : Int, right : Int) -> Int {
+  order.sort_by(fn(left : Int32, right : Int32) -> Int32 {
     if scores[left] < scores[right] {
       -1
     } else if scores[left] > scores[right] {
@@ -509,7 +537,7 @@ fn banksy_sample_order(
       0
     }
   })
-  let selected : Array[Int] = []
+  let selected : Array[Int32] = []
   for index in 0..<sample_size {
     selected.push(order[index])
   }
@@ -554,7 +582,7 @@ fn banksy_global_nearest_median(coordinates : Array[Array[Double]]) -> Double {
 fn banksy_neighbor_graph(
   coordinates : Array[Array[Double]],
   config : BanksyComputeConfig,
-  harmonic : Int,
+  harmonic : Int32,
 ) -> Array[Array[BanksyNeighbor]] raise BanksyError {
   let spots = coordinates.length()
   let k_geom = if config.k_geom.length() == 1 {
@@ -666,7 +694,7 @@ fn banksy_neighbor_graph(
 fn banksy_compute_harmonic(
   expression : Array[Array[Double]],
   graph : Array[Array[BanksyNeighbor]],
-  harmonic : Int,
+  harmonic : Int32,
   center : Bool,
 ) -> Array[Array[Double]] {
   let genes = expression.length()
@@ -709,8 +737,8 @@ pub fn banksy_compute_with_config(
   expression : Array[Array[Double]],
   coordinates : Array[Array[Double]],
   config : BanksyComputeConfig,
-  gene_names? : Array[String] = [],
-  spot_names? : Array[String] = [],
+  gene_names~ : Array[String] = [],
+  spot_names~ : Array[String] = [],
 ) -> BanksyModel raise BanksyError {
   let (_, _, checked_genes, checked_spots) = banksy_validate_input(
     expression, coordinates, gene_names, spot_names,
@@ -743,10 +771,10 @@ pub fn banksy_compute_with_config(
 pub fn banksy_compute(
   expression : Array[Array[Double]],
   coordinates : Array[Array[Double]],
-  k_geom? : Int = 15,
-  compute_agf? : Bool = false,
-  gene_names? : Array[String] = [],
-  spot_names? : Array[String] = [],
+  k_geom~ : Int32 = 15,
+  compute_agf~ : Bool = false,
+  gene_names~ : Array[String] = [],
+  spot_names~ : Array[String] = [],
 ) -> BanksyModel raise BanksyError {
   let config = BanksyComputeConfig::create(
     max_harmonic=if compute_agf { 1 } else { 0 },
@@ -762,12 +790,12 @@ pub fn banksy_compute(
 }
 
 ///|
-pub fn BanksyModel::n_genes(self : BanksyModel) -> Int {
+pub fn BanksyModel::n_genes(self : BanksyModel) -> Int32 {
   self.expression.length()
 }
 
 ///|
-pub fn BanksyModel::n_spots(self : BanksyModel) -> Int {
+pub fn BanksyModel::n_spots(self : BanksyModel) -> Int32 {
   if self.expression.length() == 0 {
     0
   } else {
@@ -776,14 +804,14 @@ pub fn BanksyModel::n_spots(self : BanksyModel) -> Int {
 }
 
 ///|
-pub fn BanksyModel::max_harmonic(self : BanksyModel) -> Int {
+pub fn BanksyModel::max_harmonic(self : BanksyModel) -> Int32 {
   self.harmonics.length() - 1
 }
 
 ///|
 pub fn BanksyModel::harmonic(
   self : BanksyModel,
-  order : Int,
+  order : Int32,
 ) -> Array[Array[Double]]? {
   if order < 0 || order >= self.harmonics.length() {
     None
@@ -805,7 +833,7 @@ pub fn BanksyModel::summary(self : BanksyModel) -> String {
 ///|
 fn banksy_validate_groups(
   groups : Array[String],
-  spots : Int,
+  spots : Int32,
 ) -> Array[String] raise BanksyError {
   if groups.length() == 0 {
     return []
@@ -868,7 +896,7 @@ fn banksy_scale_component(
   }
   for row in 0..<matrix.length() {
     for group in unique {
-      let indices : Array[Int] = []
+      let indices : Array[Int32] = []
       for spot in 0..<spots {
         if groups[spot] == group {
           indices.push(spot)
@@ -904,7 +932,7 @@ fn banksy_scale_component(
 ///|
 pub fn banksy_component_weights(
   lambda : Double,
-  max_harmonic : Int,
+  max_harmonic : Int32,
 ) -> Array[Double] raise BanksyError {
   if !is_finite(lambda) || lambda < 0.0 || lambda > 1.0 {
     raise BanksyError("BANKSY lambda must be finite and in [0, 1]")
@@ -929,10 +957,10 @@ pub fn banksy_component_weights(
 ///|
 pub fn banksy_get_matrix(
   model : BanksyModel,
-  lambda? : Double = 0.2,
-  max_harmonic? : Int = -1,
-  scale? : Bool = false,
-  groups? : Array[String] = [],
+  lambda~ : Double = 0.2,
+  max_harmonic~ : Int32 = -1,
+  scale~ : Bool = false,
+  groups~ : Array[String] = [],
 ) -> BanksyMatrix raise BanksyError {
   let maximum = if max_harmonic < 0 {
     model.max_harmonic()
@@ -985,12 +1013,12 @@ pub fn banksy_get_matrix(
 }
 
 ///|
-pub fn BanksyMatrix::n_features(self : BanksyMatrix) -> Int {
+pub fn BanksyMatrix::n_features(self : BanksyMatrix) -> Int32 {
   self.values.length()
 }
 
 ///|
-pub fn BanksyMatrix::n_spots(self : BanksyMatrix) -> Int {
+pub fn BanksyMatrix::n_spots(self : BanksyMatrix) -> Int32 {
   if self.values.length() == 0 {
     0
   } else {
@@ -1029,7 +1057,7 @@ fn banksy_center_columns(data : Array[Array[Double]]) -> Array[Array[Double]] {
 }
 
 ///|
-fn banksy_identity(size : Int) -> Array[Array[Double]] {
+fn banksy_identity(size : Int32) -> Array[Array[Double]] {
   let matrix = banksy_zero_matrix(size, size)
   for index in 0..<size {
     matrix[index][index] = 1.0
@@ -1098,11 +1126,11 @@ fn banksy_symmetric_eigen(
   for index in 0..<size {
     values.push(matrix[index][index])
   }
-  let order : Array[Int] = []
+  let order : Array[Int32] = []
   for index in 0..<size {
     order.push(index)
   }
-  order.sort_by(fn(left : Int, right : Int) -> Int {
+  order.sort_by(fn(left : Int32, right : Int32) -> Int32 {
     if values[left] > values[right] {
       -1
     } else if values[left] < values[right] {
@@ -1130,7 +1158,7 @@ fn banksy_symmetric_eigen(
 ///|
 pub fn banksy_run_pca(
   matrix : BanksyMatrix,
-  n_components? : Int = 20,
+  n_components~ : Int32 = 20,
 ) -> BanksyPcaResult raise BanksyError {
   let spots = matrix.n_spots()
   let features = matrix.n_features()
@@ -1213,7 +1241,7 @@ pub fn banksy_run_pca(
 }
 
 ///|
-pub fn BanksyPcaResult::n_spots(self : BanksyPcaResult) -> Int {
+pub fn BanksyPcaResult::n_spots(self : BanksyPcaResult) -> Int32 {
   self.scores.length()
 }
 
@@ -1245,8 +1273,8 @@ fn banksy_squared_distance(
 ///|
 fn banksy_initialize_centroids(
   data : Array[Array[Double]],
-  clusters : Int,
-  first_index : Int,
+  clusters : Int32,
+  first_index : Int32,
 ) -> Array[Array[Double]] {
   let centroids : Array[Array[Double]] = [data[first_index].copy()]
   let selected = Array::make(data.length(), false)
@@ -1282,7 +1310,7 @@ fn banksy_initialize_centroids(
 fn banksy_assign_clusters(
   data : Array[Array[Double]],
   centroids : Array[Array[Double]],
-) -> (Array[Int], Double) {
+) -> (Array[Int32], Double) {
   let labels = Array::make(data.length(), 0)
   let mut inertia = 0.0
   for point in 0..<data.length() {
@@ -1304,7 +1332,7 @@ fn banksy_assign_clusters(
 ///|
 fn banksy_update_centroids(
   data : Array[Array[Double]],
-  labels : Array[Int],
+  labels : Array[Int32],
   old_centroids : Array[Array[Double]],
 ) -> Array[Array[Double]] {
   let clusters = old_centroids.length()
@@ -1348,7 +1376,7 @@ fn banksy_update_centroids(
 fn banksy_kmeans_once(
   data : Array[Array[Double]],
   config : BanksyClusterConfig,
-  start : Int,
+  start : Int32,
 ) -> BanksyKmeansFit {
   let first = (config.seed % data.length() + start) % data.length()
   let mut centroids = banksy_initialize_centroids(
@@ -1395,7 +1423,7 @@ fn banksy_kmeans_once(
 ///|
 pub fn banksy_silhouette(
   data : Array[Array[Double]],
-  labels : Array[Int],
+  labels : Array[Int32],
 ) -> Double raise BanksyError {
   if data.length() != labels.length() {
     raise BanksyError("BANKSY silhouette labels must match data rows")
@@ -1454,7 +1482,7 @@ pub fn banksy_silhouette(
 ///|
 pub fn banksy_cluster(
   pca : BanksyPcaResult,
-  config? : BanksyClusterConfig = BanksyClusterConfig::default(),
+  config~ : BanksyClusterConfig = BanksyClusterConfig::default(),
 ) -> BanksyClusterResult raise BanksyError {
   if pca.scores.length() == 0 {
     raise BanksyError("BANKSY clustering requires non-empty PCA scores")
@@ -1496,7 +1524,7 @@ pub fn banksy_cluster(
 }
 
 ///|
-pub fn BanksyClusterResult::n_clusters(self : BanksyClusterResult) -> Int {
+pub fn BanksyClusterResult::n_clusters(self : BanksyClusterResult) -> Int32 {
   self.cluster_sizes.length()
 }
 
@@ -1513,17 +1541,17 @@ pub fn BanksyClusterResult::summary(self : BanksyClusterResult) -> String {
 ///|
 fn banksy_plain_knn(
   coordinates : Array[Array[Double]],
-  k : Int,
-) -> Array[Array[Int]] raise BanksyError {
+  k : Int32,
+) -> Array[Array[Int32]] raise BanksyError {
   if k < 1 || k >= coordinates.length() {
     raise BanksyError(
       "BANKSY smoothing neighbor count must be in [1, spots - 1]",
     )
   }
-  let output : Array[Array[Int]] = []
+  let output : Array[Array[Int32]] = []
   for source in 0..<coordinates.length() {
     let sorted = banksy_sorted_distances(coordinates, source)
-    let neighbors : Array[Int] = []
+    let neighbors : Array[Int32] = []
     for index in 0..<k {
       neighbors.push(sorted[index].index)
     }
@@ -1534,11 +1562,11 @@ fn banksy_plain_knn(
 
 ///|
 pub fn banksy_smooth_labels(
-  labels : Array[Int],
+  labels : Array[Int32],
   coordinates : Array[Array[Double]],
-  k? : Int = 15,
-  proportion_threshold? : Double = 0.5,
-  max_iterations? : Int = 10,
+  k~ : Int32 = 15,
+  proportion_threshold~ : Double = 0.5,
+  max_iterations~ : Int32 = 10,
 ) -> BanksySmoothingResult raise BanksyError {
   if labels.length() != coordinates.length() || labels.length() < 2 {
     raise BanksyError(
@@ -1614,9 +1642,9 @@ pub fn banksy_smooth_labels(
 
 ///|
 pub fn banksy_spatial_agreement(
-  labels : Array[Int],
+  labels : Array[Int32],
   coordinates : Array[Array[Double]],
-  k? : Int = 6,
+  k~ : Int32 = 6,
 ) -> Double raise BanksyError {
   if labels.length() != coordinates.length() || labels.length() < 2 {
     raise BanksyError("BANKSY spatial agreement labels must match coordinates")
@@ -1641,17 +1669,17 @@ pub fn banksy_spatial_agreement(
 
 ///|
 pub fn banksy_adjusted_rand_index(
-  left : Array[Int],
-  right : Array[Int],
+  left : Array[Int32],
+  right : Array[Int32],
 ) -> Double raise BanksyError {
   if left.length() != right.length() || left.length() < 2 {
     raise BanksyError(
       "BANKSY ARI label vectors must have equal length of at least two",
     )
   }
-  let left_counts : Map[Int, Int] = Map([])
-  let right_counts : Map[Int, Int] = Map([])
-  let cells : Map[String, Int] = Map([])
+  let left_counts : Map[Int32, Int32] = Map([])
+  let right_counts : Map[Int32, Int32] = Map([])
+  let cells : Map[String, Int32] = Map([])
   for index in 0..<left.length() {
     if left[index] < 0 || right[index] < 0 {
       raise BanksyError("BANKSY ARI labels must be non-negative")
@@ -1670,7 +1698,7 @@ pub fn banksy_adjusted_rand_index(
       None => 1
     }
   }
-  let choose_two = fn(value : Int) -> Double {
+  let choose_two = fn(value : Int32) -> Double {
     (value * (value - 1) / 2).to_double()
   }
   let mut cell_sum = 0.0
@@ -1702,16 +1730,16 @@ pub fn banksy_adjusted_rand_index(
 ///|
 pub fn banksy_run(
   model : BanksyModel,
-  lambda? : Double = 0.2,
-  n_components? : Int = 20,
-  cluster_config? : BanksyClusterConfig = BanksyClusterConfig::default(),
-  max_harmonic? : Int = -1,
-  scale? : Bool = true,
-  groups? : Array[String] = [],
-  smooth? : Bool = false,
-  smoothing_k? : Int = 15,
-  smoothing_threshold? : Double = 0.5,
-  smoothing_iterations? : Int = 10,
+  lambda~ : Double = 0.2,
+  n_components~ : Int32 = 20,
+  cluster_config~ : BanksyClusterConfig = BanksyClusterConfig::default(),
+  max_harmonic~ : Int32 = -1,
+  scale~ : Bool = true,
+  groups~ : Array[String] = [],
+  smooth~ : Bool = false,
+  smoothing_k~ : Int32 = 15,
+  smoothing_threshold~ : Double = 0.5,
+  smoothing_iterations~ : Int32 = 10,
 ) -> BanksyRun raise BanksyError {
   let matrix = banksy_get_matrix(model, lambda~, max_harmonic~, scale~, groups~)
   let pca = banksy_run_pca(matrix, n_components~)
@@ -1753,11 +1781,11 @@ pub fn banksy_run(
 pub fn banksy_parameter_sweep(
   model : BanksyModel,
   lambdas : Array[Double],
-  n_components? : Int = 20,
-  cluster_config? : BanksyClusterConfig = BanksyClusterConfig::default(),
-  max_harmonic? : Int = -1,
-  scale? : Bool = true,
-  groups? : Array[String] = [],
+  n_components~ : Int32 = 20,
+  cluster_config~ : BanksyClusterConfig = BanksyClusterConfig::default(),
+  max_harmonic~ : Int32 = -1,
+  scale~ : Bool = true,
+  groups~ : Array[String] = [],
 ) -> Array[BanksyRun] raise BanksyError {
   if lambdas.length() == 0 {
     raise BanksyError("BANKSY parameter sweep requires at least one lambda")
@@ -1780,7 +1808,7 @@ pub fn banksy_parameter_sweep(
 }
 
 ///|
-pub fn BanksyRun::final_labels(self : BanksyRun) -> Array[Int] {
+pub fn BanksyRun::final_labels(self : BanksyRun) -> Array[Int32] {
   match self.smoothing {
     Some(result) => result.labels.copy()
     None => self.clustering.labels.copy()
@@ -1841,7 +1869,7 @@ fn banksy_copy_spatial_experiment(
 ///|
 fn banksy_experiment_gene_names(
   experiment : SpatialExperiment,
-  genes : Int,
+  genes : Int32,
 ) -> Array[String] raise BanksyError {
   if experiment.row_data.length() != 0 && experiment.row_data.length() != genes {
     raise BanksyError("BANKSY SpatialExperiment rowData must match assay rows")
@@ -1888,7 +1916,7 @@ fn banksy_experiment_gene_names(
 ///|
 fn banksy_experiment_spot_names(
   experiment : SpatialExperiment,
-  spots : Int,
+  spots : Int32,
 ) -> Array[String] raise BanksyError {
   if experiment.col_data.length() != 0 && experiment.col_data.length() != spots {
     raise BanksyError(
@@ -1915,7 +1943,7 @@ fn banksy_experiment_spot_names(
 ///|
 fn banksy_experiment_coordinates(
   experiment : SpatialExperiment,
-  spots : Int,
+  spots : Int32,
 ) -> Array[Array[Double]] raise BanksyError {
   if experiment.spatial_coords.length() != spots {
     raise BanksyError(
@@ -1945,18 +1973,18 @@ fn banksy_experiment_coordinates(
 ///|
 pub fn banksy_spatial_experiment(
   experiment : SpatialExperiment,
-  assay_name? : String = "logcounts",
-  config? : BanksyComputeConfig = BanksyComputeConfig::default(),
-  lambda? : Double = 0.2,
-  n_components? : Int = 20,
-  cluster_config? : BanksyClusterConfig = BanksyClusterConfig::default(),
-  max_harmonic? : Int = -1,
-  scale? : Bool = true,
-  group_key? : String = "",
-  smooth? : Bool = true,
-  smoothing_k? : Int = 15,
-  smoothing_threshold? : Double = 0.5,
-  smoothing_iterations? : Int = 10,
+  assay_name~ : String = "logcounts",
+  config~ : BanksyComputeConfig = BanksyComputeConfig::default(),
+  lambda~ : Double = 0.2,
+  n_components~ : Int32 = 20,
+  cluster_config~ : BanksyClusterConfig = BanksyClusterConfig::default(),
+  max_harmonic~ : Int32 = -1,
+  scale~ : Bool = true,
+  group_key~ : String = "",
+  smooth~ : Bool = true,
+  smoothing_k~ : Int32 = 15,
+  smoothing_threshold~ : Double = 0.5,
+  smoothing_iterations~ : Int32 = 10,
 ) -> BanksySpatialExperimentOutput raise BanksyError {
   let expression = match experiment.assay.get(assay_name) {
     Some(value) => value

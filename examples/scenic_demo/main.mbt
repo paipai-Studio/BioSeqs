@@ -13,9 +13,14 @@ fn main {
   // ------------------------------------------------------------------
   println("=== 1. Generate synthetic dataset ===")
   let input = @bio.scenic_sample_data(
-    n_genes=80, n_cells=60, n_tfs=5, seed=2025,
+    n_genes=80,
+    n_cells=60,
+    n_tfs=5,
+    seed=2025,
   )
-  println("Genes: \{input.n_genes}, Cells: \{input.n_cells}, TFs: \{input.tf_names.length()}")
+  println(
+    "Genes: \{input.n_genes}, Cells: \{input.n_cells}, TFs: \{input.tf_names.length()}",
+  )
   println("TF names: \{input.tf_names}")
   println("")
 
@@ -23,14 +28,14 @@ fn main {
   // 2. Step 1: Build co-expression modules
   // ------------------------------------------------------------------
   println("=== 2. Step 1: GRN inference (co-expression modules) ===")
-  let modules = @bio.build_coexpression_modules(
-    input, min_targets=5, top_k=25,
-  )
+  let modules = @bio.build_coexpression_modules(input, min_targets=5, top_k=25)
   println("Modules built: \{modules.length()}")
   let mut mi = 0
   while mi < modules.length() {
     let mod_ = modules[mi]
-    println("  \{mod_.tf_name}: \{mod_.targets.length()} targets (top weight: \{mod_.weights[0]})")
+    println(
+      "  \{mod_.tf_name}: \{mod_.targets.length()} targets (top weight: \{mod_.weights[0]})",
+    )
     mi = mi + 1
   }
   println("")
@@ -40,7 +45,9 @@ fn main {
   // ------------------------------------------------------------------
   println("=== 3. Step 2: Regulon construction (pruning) ===")
   let regulons = @bio.build_regulons(
-    modules, weight_quantile=0.25, min_targets=5,
+    modules,
+    weight_quantile=0.25,
+    min_targets=5,
   )
   println("Regulons after pruning: \{regulons.length()}")
   let mut ri = 0
@@ -56,9 +63,13 @@ fn main {
   // ------------------------------------------------------------------
   println("=== 4. Step 3: AUCell regulon activity scoring ===")
   let auc_matrix = @bio.compute_regulon_activity(
-    regulons, input, auc_threshold_pct=0.1,
+    regulons,
+    input,
+    auc_threshold_pct=0.1,
   )
-  println("AUC matrix: \{auc_matrix.length()} regulons x \{input.n_cells} cells")
+  println(
+    "AUC matrix: \{auc_matrix.length()} regulons x \{input.n_cells} cells",
+  )
   // Show mean AUC per regulon
   let mut ri2 = 0
   while ri2 < regulons.length() {
@@ -79,10 +90,14 @@ fn main {
   // ------------------------------------------------------------------
   println("=== 5. Step 4: Binarization + cell state assignment ===")
   let (binary, _thresholds) = @bio.binarize_activity(
-    auc_matrix, input.n_cells, method_=@bio.binarize_kmeans2(),
+    auc_matrix,
+    input.n_cells,
+    method_=@bio.binarize_kmeans2(),
   )
   let (cell_states, n_clusters, masters) = @bio.assign_cell_states(
-    binary, regulons.map(fn (r) -> String { r.tf_name }), input.n_cells,
+    binary,
+    regulons.map(fn(r) -> String { r.tf_name }),
+    input.n_cells,
   )
   println("Clusters identified: \{n_clusters}")
   println("Master regulators:")
@@ -93,7 +108,9 @@ fn main {
     let mut count = 0
     let mut ci2 = 0
     while ci2 < input.n_cells {
-      if cell_states[ci2] == cluster { count = count + 1 }
+      if cell_states[ci2] == cluster {
+        count = count + 1
+      }
       ci2 = ci2 + 1
     }
     println("  \{tf} -> cluster \{cluster} (\{count} cells)")
@@ -106,8 +123,11 @@ fn main {
   // ------------------------------------------------------------------
   println("=== 6. Full SCENIC pipeline (run_scenic) ===")
   let result = @bio.run_scenic(
-    input, min_targets=5, top_k=25,
-    weight_quantile=0.25, auc_threshold_pct=0.1,
+    input,
+    min_targets=5,
+    top_k=25,
+    weight_quantile=0.25,
+    auc_threshold_pct=0.1,
     binarize_method=@bio.binarize_mean_std(),
   )
   println(result.summary())
@@ -135,7 +155,9 @@ fn main {
     let mut count = 0
     let mut ci3 = 0
     while ci3 < input.n_cells {
-      if result.cell_states[ci3] == c { count = count + 1 }
+      if result.cell_states[ci3] == c {
+        count = count + 1
+      }
       ci3 = ci3 + 1
     }
     if count > 0 {

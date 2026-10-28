@@ -4,8 +4,8 @@ pub struct Annotation {
   symbol : String
   description : String
   chromosome : String
-  start : Int
-  end : Int
+  start : Int32
+  end : Int32
   strand : String
   biotype : String
 }
@@ -16,8 +16,8 @@ pub fn Annotation::new(
   symbol : String,
   description : String,
   chromosome : String,
-  start : Int,
-  end : Int,
+  start : Int32,
+  end : Int32,
   strand : String,
   biotype : String,
 ) -> Annotation {
@@ -125,8 +125,8 @@ pub fn af_filter_strand(
 pub fn af_filter_region(
   annotations : Array[Annotation],
   chromosome : String,
-  start : Int,
-  end : Int,
+  start : Int32,
+  end : Int32,
 ) -> Array[Annotation] {
   let result : Array[Annotation] = Array(capacity=0)
   let mut i = 0
@@ -217,8 +217,10 @@ pub fn af_filter_by_multiple_conditions(
 }
 
 ///|
-pub fn af_count_by_biotype(annotations : Array[Annotation]) -> Map[String, Int] {
-  let counts : Map[String, Int] = Map([], capacity=10)
+pub fn af_count_by_biotype(
+  annotations : Array[Annotation],
+) -> Map[String, Int32] {
+  let counts : Map[String, Int32] = Map([], capacity=10)
   let mut i = 0
   while i < annotations.length() {
     let biotype = annotations[i].biotype
@@ -232,8 +234,8 @@ pub fn af_count_by_biotype(annotations : Array[Annotation]) -> Map[String, Int] 
 ///|
 pub fn af_count_by_chromosome(
   annotations : Array[Annotation],
-) -> Map[String, Int] {
-  let counts : Map[String, Int] = Map([], capacity=25)
+) -> Map[String, Int32] {
+  let counts : Map[String, Int32] = Map([], capacity=25)
   let mut i = 0
   while i < annotations.length() {
     let chr = annotations[i].chromosome

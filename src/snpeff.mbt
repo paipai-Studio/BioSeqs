@@ -22,24 +22,24 @@
 /// Sequence Ontology (SO) variant effect terms.
 pub(all) enum SnpEffSO {
   // HIGH impact
-  StopGained              // stop_gained
-  StopLost                // stop_lost
-  StartLost               // start_lost
-  FrameshiftVariant       // frameshift_variant
-  SpliceDonorVariant      // splice_donor_variant
-  SpliceAcceptorVariant   // splice_acceptor_variant
-  MissenseVariant         // missense_variant (MODERATE)
+  StopGained // stop_gained
+  StopLost // stop_lost
+  StartLost // start_lost
+  FrameshiftVariant // frameshift_variant
+  SpliceDonorVariant // splice_donor_variant
+  SpliceAcceptorVariant // splice_acceptor_variant
+  MissenseVariant // missense_variant (MODERATE)
   // MODERATE impact
-  SpliceRegionVariant     // splice_region_variant
+  SpliceRegionVariant // splice_region_variant
   // LOW impact
-  SynonymousVariant       // synonymous_variant
+  SynonymousVariant // synonymous_variant
   // MODIFIER impact
-  UpstreamVariant         // upstream_gene_variant
-  DownstreamVariant       // downstream_gene_variant
-  FivePrimeUTRVariant     // 5_prime_UTR_variant
-  ThreePrimeUTRVariant    // 3_prime_UTR_variant
-  IntronVariant           // intron_variant
-  IntergenicVariant       // intergenic_variant
+  UpstreamVariant // upstream_gene_variant
+  DownstreamVariant // downstream_gene_variant
+  FivePrimeUTRVariant // 5_prime_UTR_variant
+  ThreePrimeUTRVariant // 3_prime_UTR_variant
+  IntronVariant // intron_variant
+  IntergenicVariant // intergenic_variant
   NonCodingTranscriptVariant // non_coding_transcript_variant
 }
 
@@ -121,19 +121,19 @@ pub(all) struct SnpEffEffect {
   impact : SnpEffImpact
   gene_name : String
   gene_id : String
-  feature_type : String     // "transcript" or "gene" or "intergenic"
-  feature_id : String       // transcript_id or gene_id
+  feature_type : String // "transcript" or "gene" or "intergenic"
+  feature_id : String // transcript_id or gene_id
   transcript_biotype : String
-  rank : Int                // exon rank (0 if not applicable)
-  hgvs_c : String           // HGVS c. notation
-  hgvs_p : String           // HGVS p. notation
-  cdna_pos : Int            // cDNA position
-  cdna_len : Int            // cDNA length
-  cds_pos : Int             // CDS position
-  cds_len : Int             // CDS length
-  aa_pos : Int              // amino acid position
-  aa_len : Int              // protein length
-  distance : Int            // distance to feature (for upstream/downstream)
+  rank : Int32 // exon rank (0 if not applicable)
+  hgvs_c : String // HGVS c. notation
+  hgvs_p : String // HGVS p. notation
+  cdna_pos : Int32 // cDNA position
+  cdna_len : Int32 // cDNA length
+  cds_pos : Int32 // CDS position
+  cds_len : Int32 // CDS length
+  aa_pos : Int32 // amino acid position
+  aa_len : Int32 // protein length
+  distance : Int32 // distance to feature (for upstream/downstream)
   original_codon : String
   mutated_codon : String
   original_aa : String
@@ -144,7 +144,7 @@ pub(all) struct SnpEffEffect {
 /// Annotation result for a single variant.
 pub struct SnpEffVariantResult {
   chrom : String
-  pos : Int
+  pos : Int32
   ref_allele : String
   alt_allele : String
   effects : Array[SnpEffEffect]
@@ -154,10 +154,10 @@ pub struct SnpEffVariantResult {
 /// Full annotation result.
 pub struct SnpEffResult {
   seqid : String
-  num_variants : Int
-  num_annotated : Int
+  num_variants : Int32
+  num_annotated : Int32
   variant_results : Array[SnpEffVariantResult]
-  summary : Map[String, Int]  // SO term -> count
+  summary : Map[String, Int32] // SO term -> count
 }
 
 // ============================================================================
@@ -195,7 +195,7 @@ fn aa_three_letter(aa : String) -> String {
 
 ///|
 /// Extract a subsequence from a reference string.
-fn ref_subseq(ref_seq : String, start : Int, end_ : Int) -> String {
+fn ref_subseq(ref_seq : String, start : Int32, end_ : Int32) -> String {
   // 1-based inclusive coordinates
   let buf : StringBuilder = StringBuilder()
   for i = start - 1; i < end_; i = i + 1 {
@@ -208,13 +208,18 @@ fn ref_subseq(ref_seq : String, start : Int, end_ : Int) -> String {
 
 ///|
 /// Check if a position is within a range (1-based inclusive).
-fn in_range(pos : Int, start : Int, end_ : Int) -> Bool {
+fn in_range(pos : Int32, start : Int32, end_ : Int32) -> Bool {
   pos >= start && pos <= end_
 }
 
 ///|
 /// Check if a position is in splice donor region (first 2 nt of intron).
-fn is_splice_donor(pos : Int, exon_start : Int, exon_end : Int, strand : String) -> Bool {
+fn is_splice_donor(
+  pos : Int32,
+  exon_start : Int32,
+  exon_end : Int32,
+  strand : String,
+) -> Bool {
   if strand == "+" {
     // Donor = first 2 nt after exon end (intron start)
     pos == exon_end + 1 || pos == exon_end + 2
@@ -226,7 +231,12 @@ fn is_splice_donor(pos : Int, exon_start : Int, exon_end : Int, strand : String)
 
 ///|
 /// Check if a position is in splice acceptor region (last 2 nt of intron).
-fn is_splice_acceptor(pos : Int, exon_start : Int, exon_end : Int, strand : String) -> Bool {
+fn is_splice_acceptor(
+  pos : Int32,
+  exon_start : Int32,
+  exon_end : Int32,
+  strand : String,
+) -> Bool {
   if strand == "+" {
     // Acceptor = last 2 nt before exon start (intron end)
     pos == exon_start - 1 || pos == exon_start - 2
@@ -238,7 +248,7 @@ fn is_splice_acceptor(pos : Int, exon_start : Int, exon_end : Int, strand : Stri
 
 ///|
 /// Check if a position is in splice region (±1 to ±3 around splice sites).
-fn is_splice_region(pos : Int, exon_start : Int, exon_end : Int) -> Bool {
+fn is_splice_region(pos : Int32, exon_start : Int32, exon_end : Int32) -> Bool {
   let dist_to_start = (pos - exon_start).abs()
   let dist_to_end = (pos - exon_end).abs()
   dist_to_start <= 3 || dist_to_end <= 3
@@ -252,12 +262,12 @@ fn is_splice_region(pos : Int, exon_start : Int, exon_end : Int) -> Bool {
 /// Predict the effect of a single variant on a transcript.
 fn predict_effect_on_transcript(
   _chrom : String,
-  pos : Int,          // 1-based VCF position
+  pos : Int32, // 1-based VCF position
   ref_allele : String,
   alt_allele : String,
   gene : GFGene,
   tx : GFTranscript,
-  ref_seq : String,   // reference sequence for this chrom
+  ref_seq : String, // reference sequence for this chrom
 ) -> SnpEffEffect {
   let is_snp = ref_allele.length() == 1 && alt_allele.length() == 1
   let is_frameshift = (ref_allele.length() - alt_allele.length()) % 3 != 0 ||
@@ -293,11 +303,11 @@ fn predict_effect_on_transcript(
   for exon in tx.exons {
     // Splice donor
     if is_splice_donor(pos, exon.start, exon.end, tx.strand) {
-      return { ..empty_effect, so_term: SpliceDonorVariant, impact: High }
+      return { ..empty_effect, so_term: SpliceDonorVariant, impact: High, }
     }
     // Splice acceptor
     if is_splice_acceptor(pos, exon.start, exon.end, tx.strand) {
-      return { ..empty_effect, so_term: SpliceAcceptorVariant, impact: High }
+      return { ..empty_effect, so_term: SpliceAcceptorVariant, impact: High, }
     }
   }
 
@@ -306,8 +316,12 @@ fn predict_effect_on_transcript(
     if is_splice_region(pos, exon.start, exon.end) {
       // Only if not already donor/acceptor
       let in_exon = in_range(pos, exon.start, exon.end)
-      if !(in_exon) {
-        return { ..empty_effect, so_term: SpliceRegionVariant, impact: Moderate }
+      if !in_exon {
+        return {
+          ..empty_effect,
+          so_term: SpliceRegionVariant,
+          impact: Moderate,
+        }
       }
     }
   }
@@ -372,17 +386,32 @@ fn predict_effect_on_transcript(
       } else if ref_allele.length() > alt_allele.length() {
         // Deletion
         let del_len = ref_allele.length() - alt_allele.length()
-        "c." + cds_pos.to_string() + "_" + (cds_pos + del_len - 1).to_string() + "del"
+        "c." +
+        cds_pos.to_string() +
+        "_" +
+        (cds_pos + del_len - 1).to_string() +
+        "del"
       } else if alt_allele.length() > ref_allele.length() {
         // Insertion
-        "c." + (cds_pos - 1).to_string() + "_" + cds_pos.to_string() + "ins" + alt_allele[1:].to_owned()
+        "c." +
+        (cds_pos - 1).to_string() +
+        "_" +
+        cds_pos.to_string() +
+        "ins" +
+        alt_allele[1:].to_owned()
       } else {
         "c." + cds_pos.to_string() + "delins" + alt_allele
       }
 
       // HGVS p. notation
-      let hgvs_p = if is_snp && original_codon.length() == 3 && original_aa != "?" && mutated_aa != "?" {
-        "p." + aa_three_letter(original_aa) + aa_pos.to_string() + aa_three_letter(mutated_aa)
+      let hgvs_p = if is_snp &&
+        original_codon.length() == 3 &&
+        original_aa != "?" &&
+        mutated_aa != "?" {
+        "p." +
+        aa_three_letter(original_aa) +
+        aa_pos.to_string() +
+        aa_three_letter(mutated_aa)
       } else if is_frameshift {
         "p." + aa_three_letter(original_aa) + aa_pos.to_string() + "fs"
       } else {
@@ -428,14 +457,18 @@ fn predict_effect_on_transcript(
   // Check 5' UTR
   for utr in tx.utr5 {
     if in_range(pos, utr.start, utr.end) {
-      return { ..empty_effect, so_term: FivePrimeUTRVariant, impact: Modifier }
+      return { ..empty_effect, so_term: FivePrimeUTRVariant, impact: Modifier, }
     }
   }
 
   // Check 3' UTR
   for utr in tx.utr3 {
     if in_range(pos, utr.start, utr.end) {
-      return { ..empty_effect, so_term: ThreePrimeUTRVariant, impact: Modifier }
+      return {
+        ..empty_effect,
+        so_term: ThreePrimeUTRVariant,
+        impact: Modifier,
+      }
     }
   }
 
@@ -447,13 +480,17 @@ fn predict_effect_on_transcript(
       in_exon = true
     }
   }
-  if in_transcript && !(in_exon) && tx.exons.length() > 1 {
-    return { ..empty_effect, so_term: IntronVariant, impact: Modifier }
+  if in_transcript && !in_exon && tx.exons.length() > 1 {
+    return { ..empty_effect, so_term: IntronVariant, impact: Modifier, }
   }
 
   // Non-coding transcript
   if in_transcript && tx.cds.length() == 0 {
-    return { ..empty_effect, so_term: NonCodingTranscriptVariant, impact: Modifier }
+    return {
+      ..empty_effect,
+      so_term: NonCodingTranscriptVariant,
+      impact: Modifier,
+    }
   }
 
   empty_effect
@@ -463,7 +500,7 @@ fn predict_effect_on_transcript(
 /// Predict effect for a variant with no overlapping gene (intergenic).
 fn predict_intergenic(
   chrom : String,
-  pos : Int,
+  pos : Int32,
   _ref_allele : String,
   alt_allele : String,
   annotation : GenomeAnnotation,
@@ -591,7 +628,7 @@ pub fn snpeff_annotate(
   reference : Map[String, String],
 ) -> SnpEffResult {
   let variant_results : Array[SnpEffVariantResult] = Array(capacity=0)
-  let summary : Map[String, Int] = Map([], capacity=0)
+  let summary : Map[String, Int32] = Map([], capacity=0)
   let mut num_annotated = 0
   for rec in vcf.records {
     let ref_seq = match reference.get(rec.chrom) {
@@ -640,7 +677,7 @@ pub fn snpeff_annotate(
 /// Predict effects for a single variant.
 pub fn snpeff_predict_variant(
   chrom : String,
-  pos : Int,
+  pos : Int32,
   ref_allele : String,
   alt_allele : String,
   annotation : GenomeAnnotation,
@@ -659,13 +696,7 @@ pub fn snpeff_predict_variant(
       for tx in gene.transcripts {
         if in_range(pos, tx.start, tx.end) {
           let eff = predict_effect_on_transcript(
-            chrom,
-            pos,
-            ref_allele,
-            alt_allele,
-            gene,
-            tx,
-            ref_seq,
+            chrom, pos, ref_allele, alt_allele, gene, tx, ref_seq,
           )
           effects.push(eff)
         }
@@ -674,13 +705,7 @@ pub fn snpeff_predict_variant(
       if effects.length() == 0 {
         for tx in gene.transcripts {
           let eff = predict_effect_on_transcript(
-            chrom,
-            pos,
-            ref_allele,
-            alt_allele,
-            gene,
-            tx,
-            ref_seq,
+            chrom, pos, ref_allele, alt_allele, gene, tx, ref_seq,
           )
           effects.push(eff)
         }
@@ -688,13 +713,9 @@ pub fn snpeff_predict_variant(
     }
   }
   // If no overlapping gene, find intergenic/upstream/downstream
-  if !(found_gene) || effects.length() == 0 {
+  if !found_gene || effects.length() == 0 {
     let intergenic = predict_intergenic(
-      chrom,
-      pos,
-      ref_allele,
-      alt_allele,
-      annotation,
+      chrom, pos, ref_allele, alt_allele, annotation,
     )
     for eff in intergenic {
       effects.push(eff)
@@ -726,11 +747,29 @@ pub fn snpeff_to_ann(effect : SnpEffEffect) -> String {
   parts.push(if effect.rank > 0 { effect.rank.to_string() } else { "" })
   parts.push(effect.hgvs_c)
   parts.push(effect.hgvs_p)
-  parts.push(if effect.cdna_pos > 0 { effect.cdna_pos.to_string() + "/" + effect.cdna_len.to_string() } else { "" })
-  parts.push(if effect.cds_pos > 0 { effect.cds_pos.to_string() + "/" + effect.cds_len.to_string() } else { "" })
-  parts.push(if effect.aa_pos > 0 { effect.aa_pos.to_string() + "/" + effect.aa_len.to_string() } else { "" })
+  parts.push(
+    if effect.cdna_pos > 0 {
+      effect.cdna_pos.to_string() + "/" + effect.cdna_len.to_string()
+    } else {
+      ""
+    },
+  )
+  parts.push(
+    if effect.cds_pos > 0 {
+      effect.cds_pos.to_string() + "/" + effect.cds_len.to_string()
+    } else {
+      ""
+    },
+  )
+  parts.push(
+    if effect.aa_pos > 0 {
+      effect.aa_pos.to_string() + "/" + effect.aa_len.to_string()
+    } else {
+      ""
+    },
+  )
   parts.push(if effect.distance > 0 { effect.distance.to_string() } else { "" })
-  parts.push("")  // ERRORS / WARNINGS / INFO field
+  parts.push("") // ERRORS / WARNINGS / INFO field
   // Join with |
   let buf : StringBuilder = StringBuilder()
   for i = 0; i < parts.length(); i = i + 1 {
@@ -773,10 +812,12 @@ pub fn snpeff_annotate_vcf(
   let buf : StringBuilder = StringBuilder()
   // Write meta headers
   buf.write_string("##fileformat=VCFv4.2\n")
-  buf.write_string("##INFO=<ID=ANN,Number=1,Type=String,Description=\"Functional annotations: 'Allele|Annotation|Annotation_Impact|Gene_Name|Gene_ID|Feature_Type|Feature_ID|Transcript_BioType|Rank|HGVS.c|HGVS.p|cDNA.pos|cDNA.length|CDS.pos|CDS.length|AA.pos|AA.length|Distance'\">\n")
+  buf.write_string(
+    "##INFO=<ID=ANN,Number=1,Type=String,Description=\"Functional annotations: 'Allele|Annotation|Annotation_Impact|Gene_Name|Gene_ID|Feature_Type|Feature_ID|Transcript_BioType|Rank|HGVS.c|HGVS.p|cDNA.pos|cDNA.length|CDS.pos|CDS.length|AA.pos|AA.length|Distance'\">\n",
+  )
   // Copy existing meta headers
   for header in vcf.meta_headers {
-    if header.key != "INFO" || !(header.value.contains("ANN")) {
+    if header.key != "INFO" || !header.value.contains("ANN") {
       buf.write_string("##")
       buf.write_string(header.key)
       buf.write_string("=")
@@ -867,7 +908,7 @@ pub fn snpeff_annotate_vcf(
         has_info = true
       }
     }
-    if !(has_info) {
+    if !has_info {
       buf.write_char('.')
     }
     // FORMAT + samples
@@ -920,7 +961,7 @@ pub fn snpeff_summary_text(result : SnpEffResult) -> String {
   buf.write_string("\n\n")
   buf.write_string("Effect counts:\n")
   // Sort by count descending
-  let entries : Array[(String, Int)] = Array(capacity=0)
+  let entries : Array[(String, Int32)] = Array(capacity=0)
   for (k, v) in result.summary {
     entries.push((k, v))
   }
@@ -977,10 +1018,8 @@ pub fn snpeff_split_multiallelic(vcf : VcfFile) -> VcfFile {
 
 ///|
 /// Count effects by impact level.
-pub fn snpeff_count_by_impact(
-  result : SnpEffResult,
-) -> Map[String, Int] {
-  let counts : Map[String, Int] = Map([], capacity=0)
+pub fn snpeff_count_by_impact(result : SnpEffResult) -> Map[String, Int32] {
+  let counts : Map[String, Int32] = Map([], capacity=0)
   for vr in result.variant_results {
     for eff in vr.effects {
       let impact_str = snpeff_impact_string(eff.impact)
