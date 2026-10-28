@@ -35,7 +35,7 @@ fn main {
   // ------------------------------------------------------------------
   println("=== 2. Train Model (IIS) ===")
   let model = @bio.max_entropy_train(xs, ys, features)
-  println("Classes: " + model.classes().to_string())
+  println("Classes: " + repr(model.classes()))
   println("Feature weights (alphas):")
   let alphas = model.alphas()
   let feats = model.features()
@@ -108,7 +108,7 @@ fn main {
       " => " +
       pred +
       " (scores: " +
-      scores.to_string() +
+      repr(scores) +
       ")",
     )
   }

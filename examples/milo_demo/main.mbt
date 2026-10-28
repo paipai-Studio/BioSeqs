@@ -71,7 +71,7 @@ fn main {
   let means = counted.neighborhood_expression([feature_x, feature_y]) catch {
     _ => abort("failed to aggregate neighborhood expression")
   }
-  println("   sample order: " + counted.sample_names.to_string())
+  println("   sample order: " + repr(counted.sample_names))
   println("   first count row: " + format_ints(counted.neighborhood_counts[0]))
   println("   mean x by neighborhood: " + format_doubles(means[0]))
 

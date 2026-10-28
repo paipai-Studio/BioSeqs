@@ -41,11 +41,11 @@ fn main raise {
   println("=== SeqArray: VCF -> GDS import (seqVCF2GDS) ===")
   let vcf = @src.parse_vcf(demo_vcf())
   let data = @src.seq_vcf2gds(vcf)
-  println("samples  : \{data.sample_ids()}")
-  println("variants : \{data.variant_ids()}")
-  println("chroms   : \{data.chromosomes()}")
-  println("positions: \{data.positions()}")
-  println("alleles  : \{data.alleles()}")
+  println("samples  : \{Repr(data.sample_ids())}")
+  println("variants : \{Repr(data.variant_ids())}")
+  println("chroms   : \{Repr(data.chromosomes())}")
+  println("positions: \{Repr(data.positions())}")
+  println("alleles  : \{Repr(data.alleles())}")
 
   println("\n=== GDS node tree ===")
   let file = @src.gds_file_new()
@@ -72,7 +72,7 @@ fn main raise {
   println("\n=== Genotype dosages (filtered view) ===")
   let dosages = data.genotype_dosages()
   for v in 0..<dosages.length() {
-    println("variant \{v}: \{dosages[v]}")
+    println("variant \{v}: \{Repr(dosages[v])}")
   }
 
   println("\n=== Per-variant summaries ===")
@@ -84,18 +84,18 @@ fn main raise {
 
   println("\n=== seqSetFilter: keep only chromosome 2 ===")
   data.set_variant_chrom_filter(["2"])
-  println("variants : \{data.variant_ids()}")
-  println("positions: \{data.positions()}")
+  println("variants : \{Repr(data.variant_ids())}")
+  println("positions: \{Repr(data.positions())}")
   let dos2 = data.genotype_dosages()
   for v in 0..<dos2.length() {
-    println("variant \{v} dosages: \{dos2[v]}")
+    println("variant \{v} dosages: \{Repr(dos2[v])}")
   }
 
   println("\n=== Sample filter: keep S1 and S3 ===")
   data.reset_filter()
   data.set_sample_filter([0, 2])
-  println("samples  : \{data.sample_ids()}")
-  println("dosages[0]: \{data.genotype_dosages()[0]}")
+  println("samples  : \{Repr(data.sample_ids())}")
+  println("dosages[0]: \{Repr(data.genotype_dosages()[0])}")
 
   println("\n=== Summary (seqSummary) ===")
   data.reset_filter()
@@ -112,5 +112,5 @@ fn main raise {
 
   println("\n=== Range filter [100, 200) ===")
   data.set_variant_range_filter(100, 200)
-  println("positions: \{data.positions()}")
+  println("positions: \{Repr(data.positions())}")
 }

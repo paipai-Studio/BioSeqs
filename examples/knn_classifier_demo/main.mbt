@@ -7,10 +7,10 @@ fn main {
 
   println("\n1. Training set (operon-prediction tutorial data)")
   for sample in train {
-    println("  " + sample.label + " <- " + sample.features.to_string())
+    println("  " + sample.label + " <- " + repr(sample.features))
   }
 
-  println("\n2. Classify query " + query.to_string())
+  println("\n2. Classify query " + repr(query))
   let result = @src.knn_classify_full(train, 3, query)
   println("  Predicted label: " + result.label)
   println("  Vote table:")
@@ -24,14 +24,12 @@ fn main {
 
   println("\n4. Confusion matrix (k=1)")
   let (labels, matrix) = @src.knn_confusion_matrix(train, 1)
-  println("  Labels: " + labels.to_string())
+  println("  Labels: " + repr(labels))
   for i in 0..<matrix.length() {
-    println("  " + labels[i] + " -> " + matrix[i].to_string())
+    println("  " + labels[i] + " -> " + repr(matrix[i]))
   }
 
   println("\n5. Feature normalization")
   let normalized = @src.knn_normalize_samples(train, mode="minmax")
-  println(
-    "  Min-max normalized first sample: " + normalized[0].features.to_string(),
-  )
+  println("  Min-max normalized first sample: " + repr(normalized[0].features))
 }

@@ -26,8 +26,8 @@ fn main {
   println(
     "Cells: \{input.n_cells}, Genes: \{input.n_genes}, Chromosomes: \{n_chr}",
   )
-  println("Tumour categories: \{tumour_cats}")
-  println("Normal categories: \{normal_cats}")
+  println("Tumour categories: \{Repr(tumour_cats)}")
+  println("Normal categories: \{Repr(normal_cats)}")
   println("")
 
   // ------------------------------------------------------------------

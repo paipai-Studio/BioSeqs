@@ -21,7 +21,7 @@ fn main {
   println(
     "Genes: \{input.n_genes}, Cells: \{input.n_cells}, TFs: \{input.tf_names.length()}",
   )
-  println("TF names: \{input.tf_names}")
+  println("TF names: \{Repr(input.tf_names)}")
   println("")
 
   // ------------------------------------------------------------------

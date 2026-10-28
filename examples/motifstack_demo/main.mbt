@@ -27,7 +27,7 @@ fn main {
   match @src.motifstack_hclust(dm) {
     Some(root) => {
       let leaves = root.leaves()
-      println("   leaf order: " + leaves.to_string())
+      println("   leaf order: " + repr(leaves))
       println("   merge height: " + root.height().to_string())
     }
     None => println("   no clustering")
@@ -35,7 +35,7 @@ fn main {
 
   println("\n4. Stacking order (by clustering)")
   let order = @src.motifstack_stack_order(motifs)
-  println("   order: " + order.to_string())
+  println("   order: " + repr(order))
 
   println("\n5. Per-column information content")
   for m in motifs {
@@ -60,12 +60,12 @@ fn main {
   println("\n9. Node traversal")
   let leaf = @src.MotifStackNode::Leaf(0)
   println("   leaf height: " + leaf.height().to_string())
-  println("   leaf leaves: " + leaf.leaves().to_string())
+  println("   leaf leaves: " + repr(leaf.leaves()))
   let merge = @src.MotifStackNode::Merge(
     @src.MotifStackNode::Leaf(0),
     @src.MotifStackNode::Leaf(1),
     0.5,
   )
   println("   merge height: " + merge.height().to_string())
-  println("   merge leaves: " + merge.leaves().to_string())
+  println("   merge leaves: " + repr(merge.leaves()))
 }

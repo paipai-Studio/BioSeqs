@@ -20,7 +20,7 @@ fn main raise {
     }
   }
   println(
-    "reg2bins(100, 20000, 14, 6) = \{@src.csi_reg2bins(100, 20000, 14, 6)}",
+    "reg2bins(100, 20000, 14, 6) = \{Repr(@src.csi_reg2bins(100, 20000, 14, 6))}",
   )
   let q = @src.csi_query(idx, 0, 0, 1000)
   println(

@@ -65,7 +65,7 @@ fn main {
   println("--- Step 2: Find Stably Expressed Genes (SEGs) ---")
 
   let seg = @src.scm_find_seg(batches, n_seg=2)
-  println("SEG indices: \{seg.to_string()}")
+  println("SEG indices: \{repr(seg)}")
   // Interpret: which genes are most stable across batches
   let mut i = 0
   while i < seg.length() {
@@ -109,7 +109,7 @@ fn main {
   println("")
   println("--- Step 5: Cell Type Labels ---")
 
-  println("Cell type labels: \{result.cell_type_labels.to_string()}")
+  println("Cell type labels: \{repr(result.cell_type_labels)}")
 
   // 6. Show estimated batch factors
   println("")
@@ -119,7 +119,7 @@ fn main {
   let mut j = 0
   while j < 3 {
     println(
-      "  Cell \{j.to_string()}: factors = \{result.estimated_batch_factors[j].to_string()}",
+      "  Cell \{j.to_string()}: factors = \{repr(result.estimated_batch_factors[j])}",
     )
     j = j + 1
   }

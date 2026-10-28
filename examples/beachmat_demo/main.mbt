@@ -27,8 +27,8 @@ fn main {
   println("get(0, 0): \{@bio.Bmat::get(bmat, 0, 0)}")
   println("get(1, 2): \{@bio.Bmat::get(bmat, 1, 2)}")
   println("get(2, 1): \{@bio.Bmat::get(bmat, 2, 1)}")
-  println("get_row(1): \{@bio.Bmat::get_row(bmat, 1)}")
-  println("get_col(2): \{@bio.Bmat::get_col(bmat, 2)}")
+  println("get_row(1): \{Repr(@bio.Bmat::get_row(bmat, 1))}")
+  println("get_col(2): \{Repr(@bio.Bmat::get_col(bmat, 2))}")
   println("")
 
   // ------------------------------------------------------------------
@@ -40,7 +40,7 @@ fn main {
       "  Col block: cols \{@bio.BmatBlock::col_start(block)}-\{@bio.BmatBlock::col_end(block)} (\{@bio.BmatBlock::block_ncol(block)} cols x \{@bio.BmatBlock::block_nrow(block)} rows)",
     )
     let block_data = @bio.BmatBlock::get_data(block)
-    println("    data: \{block_data}")
+    println("    data: \{Repr(block_data)}")
   })
   println("")
 
@@ -53,7 +53,7 @@ fn main {
       "  Row block: rows \{@bio.BmatBlock::row_start(block)}-\{@bio.BmatBlock::row_end(block)} (\{@bio.BmatBlock::block_nrow(block)} rows x \{@bio.BmatBlock::block_ncol(block)} cols)",
     )
     let block_data = @bio.BmatBlock::get_data(block)
-    println("    data: \{block_data}")
+    println("    data: \{Repr(block_data)}")
   })
   println("")
 

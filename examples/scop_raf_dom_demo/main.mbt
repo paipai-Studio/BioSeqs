@@ -65,7 +65,7 @@ fn main raise {
     "\n" +
     raf_line("1flp", "_", "0.01", "150212", [("5", "D", "D"), ("6", "E", "E")])
   let index = @src.scop_raf_index(raf_text)
-  println("index keys: \{index.keys().collect().to_string()}")
+  println("index keys: \{repr(index.keys().collect())}")
   // SCOP-style residue definition: residues 2 to 10A of chain A
   let residues = @src.scop_parse_residues("1sct A:2-10A")
   let domain = @src.scop_raf_get_seqmap(index, residues)

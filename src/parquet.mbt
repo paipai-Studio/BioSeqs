@@ -25,6 +25,9 @@ pub(all) enum ParquetType {
 } derive(Eq)
 
 ///|
+pub extend ParquetType with Eq::{equal, not_equal}
+
+///|
 /// 列值(NULL 语义对齐 parquet 可空列).
 pub(all) enum ParquetValue {
   PvNull
@@ -34,6 +37,12 @@ pub(all) enum ParquetValue {
   PvDouble(Double)
   PvStr(String)
 } derive(Eq, Debug)
+
+///|
+pub extend ParquetValue with Eq::{equal, not_equal}
+
+///|
+pub extend ParquetValue with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// 谓词算子.

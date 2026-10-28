@@ -17,8 +17,8 @@ fn main {
     exp.n_cols().to_string() +
     " samples",
   )
-  println("Row names: " + exp.get_rownames().to_string())
-  println("Col names: " + exp.get_colnames().to_string())
+  println("Row names: " + repr(exp.get_rownames()))
+  println("Col names: " + repr(exp.get_colnames()))
   println("")
 
   // Summary

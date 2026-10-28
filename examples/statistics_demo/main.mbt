@@ -6,7 +6,7 @@ fn main {
 
   // Descriptive statistics
   let data = [2.0, 4.0, 4.0, 4.0, 5.0, 5.0, 7.0, 9.0]
-  println("Data: \{data}")
+  println("Data: \{Repr(data)}")
   println("Mean: \{@bio.stat_mean(data)}")
   println("Variance: \{@bio.stat_variance(data)}")
   println("Std Dev: \{@bio.stat_std(data)}")
@@ -32,7 +32,7 @@ fn main {
   // Hypothesis testing
   let sample = [2.0, 3.0, 4.0, 5.0, 6.0]
   println("\n=== Hypothesis Testing ===")
-  println("Sample: \{sample}")
+  println("Sample: \{Repr(sample)}")
   println("One-sample t-test (mu0=3.0):")
   let t_stat = @bio.stat_t_statistic(sample, 3.0)
   println("  t-statistic: \{t_stat}")
@@ -75,20 +75,20 @@ fn main {
   // Fisher exact test
   println("\n=== Fisher Exact Test ===")
   let table = [[10, 2], [3, 5]]
-  println("Contingency table: \{table}")
+  println("Contingency table: \{Repr(table)}")
   let fisher_result = @bio.stat_fisher_exact(table)
   println("  Odds ratio: \{fisher_result.0}, p-value: \{fisher_result.1}")
 
   // Multiple test correction
   println("\n=== Multiple Test Correction ===")
   let p_values = [0.01, 0.04, 0.03, 0.005, 0.2]
-  println("Original p-values: \{p_values}")
+  println("Original p-values: \{Repr(p_values)}")
   let bonf = @bio.stat_bonferroni(p_values)
-  println("Bonferroni corrected: \{bonf}")
+  println("Bonferroni corrected: \{Repr(bonf)}")
   let holm = @bio.stat_holm(p_values)
-  println("Holm corrected: \{holm}")
+  println("Holm corrected: \{Repr(holm)}")
   let by = @bio.stat_by(p_values)
-  println("Benjamini-Yekutieli corrected: \{by}")
+  println("Benjamini-Yekutieli corrected: \{Repr(by)}")
 
   // Distribution functions
   println("\n=== Distribution Functions ===")
@@ -115,7 +115,7 @@ fn main {
   // BH correction
   println("\n=== Benjamini-Hochberg Correction ===")
   let bh = @bio.stat_bh(p_values)
-  println("BH corrected p-values: \{bh}")
+  println("BH corrected p-values: \{Repr(bh)}")
 
   // ANOVA
   println("\n=== One-way ANOVA ===")

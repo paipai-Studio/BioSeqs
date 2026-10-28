@@ -7,7 +7,7 @@
 ///|
 fn main {
   let c = [1.0, 1.0, 2.0, 2.0, 5.0, 8.0]
-  println("counts          : \{c}")
+  println("counts          : \{Repr(c)}")
   println("observed species: \{@src.skbio_alpha_sobs(c)}")
   println("singletons      : \{@src.skbio_alpha_singles(c)}")
   println("doubletons      : \{@src.skbio_alpha_doubles(c)}")

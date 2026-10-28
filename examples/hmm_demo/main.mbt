@@ -8,14 +8,14 @@ fn main {
 
   println("1. Create gene prediction HMM:")
   let hmm = @src.create_gene_prediction_hmm()
-  println("   States: \{hmm.states}")
-  println("   Observations: \{hmm.observations}")
+  println("   States: \{Repr(hmm.states)}")
+  println("   Observations: \{Repr(hmm.observations)}")
   println("")
 
   println("2. Forward algorithm - compute probability:")
   let obs = ["A", "T", "C", "G"]
   let prob = hmm.forward(obs)
-  println("   Observation: \{obs}")
+  println("   Observation: \{Repr(obs)}")
   println("   Probability: \{prob}")
   println("")
 
@@ -26,15 +26,15 @@ fn main {
 
   println("4. Viterbi algorithm - most probable state sequence:")
   let path = hmm.viterbi(obs)
-  println("   Observation: \{obs}")
-  println("   State path: \{path}")
+  println("   Observation: \{Repr(obs)}")
+  println("   State path: \{Repr(path)}")
   println("")
 
   println("5. Gene prediction on DNA sequence:")
   let dna = "AAATTTCCCGGGAAATTT"
   println("   DNA: \{dna}")
   let prediction = @src.predict_genes(hmm, dna)
-  println("   Prediction: \{prediction}")
+  println("   Prediction: \{Repr(prediction)}")
   println("")
 
   println("6. Extract exons from prediction:")
@@ -48,14 +48,14 @@ fn main {
   println("7. Baum-Welch training:")
   let training_obs = ["A", "T", "C", "G", "A", "T", "C", "G"]
   let trained_hmm = hmm.baum_welch(training_obs, 10, 0.000001)
-  println("   Training observations: \{training_obs}")
+  println("   Training observations: \{Repr(training_obs)}")
   println("   Trained states: \{trained_hmm.states.length()}")
   println("")
 
   println("8. Predict on trained model:")
   let trained_prediction = @src.predict_genes(trained_hmm, "ATCG")
   println("   DNA: ATCG")
-  println("   Prediction: \{trained_prediction}")
+  println("   Prediction: \{Repr(trained_prediction)}")
   println("")
 
   println("=== Demo Complete ===")

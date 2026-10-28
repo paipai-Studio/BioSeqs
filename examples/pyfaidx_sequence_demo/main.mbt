@@ -27,5 +27,5 @@ fn main raise {
 
   let neg = @src.pyfaidx_seq_neg(x)
   println("-x         : \{@src.pyfaidx_seq_fancy_name(neg)}  \{neg.seq}")
-  println("orientation of -x : \{@src.pyfaidx_seq_orientation(neg)}")
+  println("orientation of -x : \{Repr(@src.pyfaidx_seq_orientation(neg))}")
 }

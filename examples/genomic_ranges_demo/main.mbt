@@ -148,10 +148,10 @@ fn main {
   ])
 
   let counts = @bio.count_overlaps(query, subject)
-  println("count_overlaps: \{counts}")
+  println("count_overlaps: \{Repr(counts)}")
 
   let overlaps = @bio.find_overlaps(query, subject)
-  println("find_overlaps: \{overlaps}")
+  println("find_overlaps: \{Repr(overlaps)}")
   println("")
 
   println("6. Distance & Nearest")
@@ -165,10 +165,10 @@ fn main {
   ])
 
   let distances = @bio.granges_distance(gr_a, gr_b)
-  println("distances: \{distances}")
+  println("distances: \{Repr(distances)}")
 
   let indices = @bio.nearest(gr_a, gr_b)
-  println("nearest indices: \{indices}")
+  println("nearest indices: \{Repr(indices)}")
   println("")
 
   println("7. Precede & Follow")
@@ -189,10 +189,10 @@ fn main {
   )
 
   let precede_indices = @bio.precede(gr_query, gr_subject)
-  println("precede indices: \{precede_indices}")
+  println("precede indices: \{Repr(precede_indices)}")
 
   let follow_indices = @bio.follow(gr_query, gr_subject)
-  println("follow indices: \{follow_indices}")
+  println("follow indices: \{Repr(follow_indices)}")
   println("")
 
   println("8. Coverage Calculation")
@@ -206,7 +206,7 @@ fn main {
   let coverage = @bio.coverage_granges(gr_cov, seqlengths)
   println("Coverage for chr1 (length 30):")
   let cov_array = coverage["chr1"]
-  println("  Coverage array (chr1): \{cov_array}")
+  println("  Coverage array (chr1): \{Repr(cov_array)}")
   println("")
 
   println("9. Distance to Nearest")

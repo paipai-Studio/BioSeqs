@@ -44,7 +44,7 @@ fn main raise {
         match (fm.values[0], fm.values[1]) {
           (BcfInt(a), BcfInt(b)) =>
             println(
-              "  FORMAT GT = \{@src.bcf_gt_allele(a)}/\{@src.bcf_gt_allele(b)}",
+              "  FORMAT GT = \{Repr(@src.bcf_gt_allele(a))}/\{Repr(@src.bcf_gt_allele(b))}",
             )
           _ => println("  FORMAT GT = ?")
         }

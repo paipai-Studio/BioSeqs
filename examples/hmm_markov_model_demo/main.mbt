@@ -49,16 +49,16 @@ fn main raise {
   let model = builder.get_markov_model()
 
   println("=== 1. MarkovModelBuilder ===")
-  println("states:    \{model.get_state_alphabet()}")
-  println("emissions: \{model.get_emission_alphabet()}")
+  println("states:    \{Repr(model.get_state_alphabet())}")
+  println("emissions: \{Repr(model.get_emission_alphabet())}")
   println("transition 0 -> 1: \{model.get_transition_probability("0", "1")}")
   println("emission 1 -> G:   \{model.get_emission_probability("1", "G")}")
 
   println("\n=== 2. Viterbi decoding ===")
   let sequence = ["A", "C", "G", "C", "G", "A", "T", "C"]
   let decoded = model.viterbi(sequence)
-  println("sequence:   \{sequence}")
-  println("state path: \{decoded.state_path()}")
+  println("sequence:   \{Repr(sequence)}")
+  println("state path: \{Repr(decoded.state_path())}")
   println("log prob:   \{decoded.prob()}")
 
   println("\n=== 3. Scaled forward algorithm ===")

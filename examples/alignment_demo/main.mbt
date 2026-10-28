@@ -15,8 +15,8 @@ fn main {
   )
   println("=== Global Pairwise Alignment (Needleman-Wunsch) ===")
   println("  Score: \{score_g}")
-  println("  Start: \{start_g}")
-  println("  End:   \{end_g}")
+  println("  Start: \{Repr(start_g)}")
+  println("  End:   \{Repr(end_g)}")
   let recs = msa_global.records
   for i = 0; i < recs.length(); i = i + 1 {
     println("  Seq \{i}: \{recs[i].seq.to_string()}")
@@ -28,8 +28,8 @@ fn main {
   )
   println("\n=== Local Pairwise Alignment (Smith-Waterman) ===")
   println("  Score: \{score_l}")
-  println("  Start: \{start_l}")
-  println("  End:   \{end_l}")
+  println("  Start: \{Repr(start_l)}")
+  println("  End:   \{Repr(end_l)}")
   let local_recs = msa_local.records
   for i = 0; i < local_recs.length(); i = i + 1 {
     println("  Seq \{i}: \{local_recs[i].seq.to_string()}")
@@ -87,5 +87,5 @@ fn main {
   let conservation = tab_msa.conservation()
   println("\n=== TabularMSA ===")
   println("  Consensus: \{consensus.to_string()}")
-  println("  Conservation: \{conservation}")
+  println("  Conservation: \{Repr(conservation)}")
 }

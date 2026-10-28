@@ -88,7 +88,7 @@ fn main {
   while mp < multi_results.length() {
     let r = multi_results[mp]
     println(
-      "     Pattern \"\{r.pattern}\": total=\{r.total}, counts=\{r.counts}",
+      "     Pattern \"\{r.pattern}\": total=\{r.total}, counts=\{Repr(r.counts)}",
     )
     mp = mp + 1
   }
@@ -106,7 +106,7 @@ fn main {
   }
 
   let which_indices = @bio.bmd_which_index(pdict=pdict_single, subjects~)
-  println("   which_index() returns matching indices: \{which_indices}")
+  println("   which_index() returns matching indices: \{Repr(which_indices)}")
 
   println("")
   println("7. Counting total pattern occurrences")

@@ -16,12 +16,12 @@ fn main {
   println(
     "Reference: \{reference.gene_names().length()} genes, \{reference.cell_names().length()} cells",
   )
-  println("Cell types: \{reference.unique_cell_types()}")
+  println("Cell types: \{Repr(reference.unique_cell_types())}")
   let query = @bio.scmap_sample_query()
   println(
     "Query: \{query.gene_names().length()} genes, \{query.cell_names().length()} cells",
   )
-  println("Query cells: \{query.cell_names()}")
+  println("Query cells: \{Repr(query.cell_names())}")
   println("")
 
   // ------------------------------------------------------------------

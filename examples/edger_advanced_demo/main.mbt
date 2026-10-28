@@ -37,13 +37,13 @@ fn main {
   // Step 2: Normalize
   println("\nStep 2: Normalizing with TMM...")
   let dge_norm = @bio.calc_norm_factors(dge)
-  println("  Norm factors: \{dge_norm.norm_factors}")
+  println("  Norm factors: \{Repr(dge_norm.norm_factors)}")
 
   // Step 3: Fit quasi-likelihood GLM
   println("\nStep 3: Fitting quasi-likelihood GLM...")
   let qlf_data = @bio.glm_qlf_fit(dge_norm)
   println("  Trend dispersion: \{qlf_data.trend_dispersion}")
-  println("  QL dispersions: \{qlf_data.ql_dispersion}")
+  println("  QL dispersions: \{Repr(qlf_data.ql_dispersion)}")
 
   // Step 4: Perform QL F-test
   println("\nStep 4: Performing QL F-test for differential expression...")

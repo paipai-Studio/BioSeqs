@@ -28,11 +28,9 @@ fn main {
   }
   println("  " + chromosome_to_read.summary())
   println(
-    "  target coordinates: " + chromosome_to_read.target_coordinates.to_string(),
+    "  target coordinates: " + repr(chromosome_to_read.target_coordinates),
   )
-  println(
-    "  query coordinates:  " + chromosome_to_read.query_coordinates.to_string(),
-  )
+  println("  query coordinates:  " + repr(chromosome_to_read.query_coordinates))
 
   println("\n2. Render the exon blocks and intron gap")
   match chromosome_to_read.aligned_rows() {
@@ -55,11 +53,11 @@ fn main {
   println("\n3. Query coordinates and serialize PSL")
   println(
     "  chromosome position 14 -> read: " +
-    chromosome_to_read.target_to_query(14).to_string(),
+    repr(chromosome_to_read.target_to_query(14)),
   )
   println(
     "  read position 4 -> chromosome: " +
-    chromosome_to_read.query_to_target(4).to_string(),
+    repr(chromosome_to_read.query_to_target(4)),
   )
   let psl = chromosome_to_read.to_psl() catch {
     _ => abort("failed to serialize PSL")
@@ -95,7 +93,7 @@ fn main {
   println("  " + reverse_projection.summary())
   println(
     "  projected query coordinates: " +
-    reverse_projection.query_coordinates.to_string(),
+    repr(reverse_projection.query_coordinates),
   )
 
   println("\n5. Project a protein MSA to a codon-aware nucleotide MSA")

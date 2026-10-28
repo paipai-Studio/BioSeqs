@@ -46,7 +46,7 @@ fn main {
     pos2.push(v + 1)
   }
 
-  println("samples = \{samples}")
+  println("samples = \{Repr(samples)}")
   println(
     "\n-- iHS (unstandardized; sweep peak expected near variants 3–11) --",
   )

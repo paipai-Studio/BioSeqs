@@ -135,7 +135,7 @@ fn main {
   let alt_r = @src.PpyResidue::new("MET", 1, [alt_a, alt_b])
   let alt_c = @src.PpyConformer::new("alt_conf", [alt_r])
   let alt_ids = @src.ppy_altloc_ids(alt_r)
-  println("altLoc IDs: " + alt_ids.to_string())
+  println("altLoc IDs: " + repr(alt_ids))
   println(
     "Residues with altLoc: " + @src.ppy_altloc_residue_count(alt_c).to_string(),
   )

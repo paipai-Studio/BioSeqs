@@ -60,7 +60,7 @@ fn main {
     while qi < qkeys.length() {
       let k = qkeys[qi]
       let vals = f.qualifiers.get_or_default(k, [])
-      println("    /\{k} = \{vals}")
+      println("    /\{k} = \{Repr(vals)}")
       qi = qi + 1
     }
     fi = fi + 1

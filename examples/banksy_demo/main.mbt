@@ -100,7 +100,7 @@ fn main {
     "x" +
     typing.pca.n_components.to_string() +
     ", cluster sizes=" +
-    typing.clustering.cluster_sizes.to_string(),
+    repr(typing.clustering.cluster_sizes),
   )
   let ari = @src.banksy_adjusted_rand_index(
     typing.final_labels(),

@@ -373,10 +373,10 @@ fn main {
   let feature_query = "Pep_A1_GeneX"
   let sample_query = "Sample_3"
   println(
-    "\n  Query feature '\{feature_query}':  \{msnset.get_feature(feature_query)}",
+    "\n  Query feature '\{feature_query}':  \{Repr(msnset.get_feature(feature_query))}",
   )
   let sample_vals = msnset.get_sample(sample_query)
-  println("  Query sample '\{sample_query}':  \{sample_vals}")
+  println("  Query sample '\{sample_query}':  \{Repr(sample_vals)}")
 
   println("\n=== 5. MSnSet Processing Pipeline ===")
 
@@ -398,7 +398,7 @@ fn main {
   let imputed = msnset.impute_missing(method_="mean")
   println("\n  b) Mean imputation of missing (zero/NaN):")
   println("     Feature '\{peptide_names[2]}' (A3 had missing in sample1):")
-  println("       orig:    \{prot_exprs[2]}")
+  println("       orig:    \{Repr(prot_exprs[2])}")
   line = "       imputed: ["
   let if2 = imputed.get_feature(peptide_names[2])
   for i = 0; i < if2.length(); i = i + 1 {

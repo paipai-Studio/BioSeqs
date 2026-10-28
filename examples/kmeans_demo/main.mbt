@@ -10,8 +10,8 @@ fn main {
   println("1. Distance calculations:")
   let a = [1.0, 2.0]
   let b = [4.0, 6.0]
-  println("   Point A: \{a}")
-  println("   Point B: \{b}")
+  println("   Point A: \{Repr(a)}")
+  println("   Point B: \{Repr(b)}")
   println("   Euclidean distance: \{@src.euclidean_distance(a, b)}")
   println("   Manhattan distance: \{@src.manhattan_distance(a, b)}")
   println("")
@@ -30,8 +30,8 @@ fn main {
   ]
   let kmeans = @src.KMeans::new(3, 100, 0.000001).fit(data)
   println("   Data points: \{data.length()}")
-  println("   Labels: \{kmeans.labels}")
-  println("   Centroids: \{kmeans.centroids}")
+  println("   Labels: \{Repr(kmeans.labels)}")
+  println("   Centroids: \{Repr(kmeans.centroids)}")
   println("")
 
   println("3. Gene expression clustering:")
@@ -48,14 +48,14 @@ fn main {
   ]
   let gene_kmeans = @src.cluster_gene_expression(gene_expr, 3)
   println("   Genes: \{gene_expr.length()}")
-  println("   Clusters: \{gene_kmeans.labels}")
+  println("   Clusters: \{Repr(gene_kmeans.labels)}")
   println("")
 
   println("4. Prediction on new data:")
   let new_points = [[1.4, 2.5], [8.6, 7.3], [4.4, 5.2]]
   let predictions = gene_kmeans.predict(new_points)
-  println("   New points: \{new_points}")
-  println("   Predictions: \{predictions}")
+  println("   New points: \{Repr(new_points)}")
+  println("   Predictions: \{Repr(predictions)}")
   println("")
 
   println("5. Single point prediction:")

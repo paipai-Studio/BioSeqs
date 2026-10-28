@@ -44,7 +44,7 @@ fn main {
   // Step 2: Estimate size factors and dispersions
   println("\nStep 2: Estimating size factors...")
   let dds_with_sf = @bio.estimate_size_factors(dds)
-  println("  Size factors: \{dds_with_sf.size_factors}")
+  println("  Size factors: \{Repr(dds_with_sf.size_factors)}")
 
   println("\nStep 3: Estimating dispersions...")
   let dds_with_disp = @bio.estimate_dispersions(dds_with_sf)

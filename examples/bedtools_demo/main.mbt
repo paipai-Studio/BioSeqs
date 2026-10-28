@@ -30,7 +30,7 @@ fn main {
 
   // interval tree query
   let tree = @src.interval_tree_new([0, 10, 20], [5, 15, 25])
-  println("=== interval tree query [8, 12) → \{tree.query(8, 12)}")
+  println("=== interval tree query [8, 12) → \{Repr(tree.query(8, 12))}")
 
   // closest / window
   let cl = @src.bedtools_closest(

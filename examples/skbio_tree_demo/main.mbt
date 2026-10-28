@@ -7,7 +7,7 @@ fn main {
   let tree = @src.skbio_tree_read("(((a:1,b:2):0.5,(c:1,d:1):0.5):1.0)root;")
 
   println("=== tree tips ===")
-  println(tree.tips())
+  println(Repr(tree.tips()))
 
   println("\n=== UniFrac between two samples (scikit-bio doctest tree) ===")
   let t = @src.skbio_tree_read(

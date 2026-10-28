@@ -46,7 +46,7 @@ fn main {
   println("--- Step 4: Information Content ---")
   let (per_pos, total) = @src.tfbs_info_content(pfm)
   println("Total IC: " + total.to_string() + " bits")
-  println("Per-position IC: " + per_pos.to_string())
+  println("Per-position IC: " + repr(per_pos))
   println("")
 
   // Example 5: Sequence scanning

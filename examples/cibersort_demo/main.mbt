@@ -15,7 +15,7 @@ fn main {
   let sig = @bio.cib_default_signature()
   println("Genes: \{sig.gene_names().length()}")
   println("Cell types: \{sig.cell_types().length()}")
-  println("Cell types: \{sig.cell_types()}")
+  println("Cell types: \{Repr(sig.cell_types())}")
   println("")
 
   // ------------------------------------------------------------------
@@ -24,7 +24,7 @@ fn main {
   println("=== 2. Build synthetic mixture samples ===")
   let mix = @bio.cib_sample_mixture()
   println("Samples: \{mix.sample_names().length()}")
-  println("Sample names: \{mix.sample_names()}")
+  println("Sample names: \{Repr(mix.sample_names())}")
   println("Mixture genes: \{mix.gene_names().length()}")
   println("")
 

@@ -118,7 +118,10 @@ fn bigwig_roundtrip_file(compress : Bool) -> @src.BigWigFile {
 ///|
 test "bigwig roundtrip chromosomes and header" {
   let file = bigwig_roundtrip_file(true)
-  inspect(file.chroms(), content="[(chr1, 1000), (chr2, 500), (chr3, 32000)]")
+  @debug.debug_inspect(
+    file.chroms(),
+    content="[(\"chr1\", 1000), (\"chr2\", 500), (\"chr3\", 32000)]",
+  )
   let header = file.header()
   inspect(header.version, content="4")
   inspect(header.zoom_levels, content="0")
@@ -278,7 +281,10 @@ test "bigwig raw statistics" {
 ///|
 test "bigwig parses pyBigWig nozoom fixture" {
   let file = bigwig_parsed(bigwig_nozoom_bytes())
-  inspect(file.chroms(), content="[(chr1, 1000), (chr2, 500)]")
+  @debug.debug_inspect(
+    file.chroms(),
+    content="[(\"chr1\", 1000), (\"chr2\", 500)]",
+  )
   inspect(file.section_count(), content="2")
   let summary = file.total_summary()
   inspect(summary.valid_count, content="130")
@@ -362,7 +368,10 @@ test "bigwig uses zoom data for wide bins" {
 ///|
 test "bigwig decodes variableStep fixedStep and bedGraph sections" {
   let file = bigwig_parsed(bigwig_custom_bytes())
-  inspect(file.chroms(), content="[(chr1, 500), (chr2, 400), (chr3, 300)]")
+  @debug.debug_inspect(
+    file.chroms(),
+    content="[(\"chr1\", 500), (\"chr2\", 400), (\"chr3\", 300)]",
+  )
   let chr1 = bigwig_query(file, "chr1")
   inspect(chr1.length(), content="3")
   inspect(chr1[0].start, content="10")

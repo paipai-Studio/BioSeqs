@@ -24,7 +24,7 @@ fn main raise {
   println("head         : \{s.header.head}")
   println("deposition   : \{s.header.deposition_date}")
   println("method       : \{s.header.structure_method}")
-  println("resolution   : \{s.header.resolution}")
+  println("resolution   : \{Repr(s.header.resolution)}")
 
   for m in s.models {
     println("model serial : \{m.serial_number}")

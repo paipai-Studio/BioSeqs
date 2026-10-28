@@ -85,7 +85,7 @@ fn main {
   let gene_seq = wise_build_gene_sequence()
   println("Gene sequence length: \{gene_seq.length()} nt")
   let translated = @bio.wise_translate_gene(result, gene_seq)
-  println("Translated protein (first 20 aa): \{translated[0:20].to_string()}")
+  println("Translated protein (first 20 aa): \{repr(translated[0:20])}")
   println("Total translated length: \{translated.length()} aa")
   // Build a matching protein to compute identity.
   // Exon 1 (100 nt) -> 33 M's, Exon 2 (100 nt) -> 33 A's, Exon 3 (80 nt) -> 26 G's

@@ -50,15 +50,15 @@ fn main raise {
 
   println("=== 1. EInfo: list the available databases ===")
   let info = client.einfo()
-  println("databases: \{info.db_list()}")
+  println("databases: \{Repr(info.db_list())}")
 
   println("\n=== 2. ESearch: search PubMed and keep a history ===")
   let search = client.esearch("pubmed", "biopython", retmax="2", usehistory="y")
   println("count:     \{search.count()}")
-  println("ids:       \{search.ids()}")
-  println("translated: \{search.translation()}")
-  println("QueryKey:  \{search.query_key()}")
-  println("WebEnv:    \{search.web_env()}")
+  println("ids:       \{Repr(search.ids())}")
+  println("translated: \{Repr(search.translation())}")
+  println("QueryKey:  \{Repr(search.query_key())}")
+  println("WebEnv:    \{Repr(search.web_env())}")
 
   println("\n=== 3. EFetch: retrieve the records (raw text) ===")
   let record = client.efetch(
@@ -96,7 +96,7 @@ fn main raise {
   let spell = @src.espell(client, db="pubmed", term="biopythpn")
   println("query:     \{spell.query()}")
   println("corrected: \{spell.corrected_query()}")
-  println("replaced:  \{spell.replaced()}")
+  println("replaced:  \{Repr(spell.replaced())}")
 
   println("\n=== 7. ELink: linked records across databases ===")
   let sets = @src.elink(client, dbfrom="pubmed", db="pmc", ids=[
@@ -106,7 +106,7 @@ fn main raise {
     println("DbFrom: \{set.db_from()}")
     for lsdb in set.link_set_dbs() {
       println("DbTo: \{lsdb.db_to()}  LinkName: \{lsdb.link_name()}")
-      println("linked ids: \{lsdb.ids()}")
+      println("linked ids: \{Repr(lsdb.ids())}")
     }
   }
 
@@ -115,7 +115,7 @@ fn main raise {
   for row in global.rows() {
     println("\{row.dbname()}: \{row.count()}")
   }
-  println("pubmed count via get: \{global.get("pubmed")}")
+  println("pubmed count via get: \{Repr(global.get("pubmed"))}")
 
   println("\n=== 9. ECitMatch: PMIDs from citation strings ===")
   let citation = @src.EntrezCitation::new(

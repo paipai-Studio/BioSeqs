@@ -106,7 +106,7 @@ fn main {
   println("  Before normalization:")
   i = 0
   while i < expression_matrix.length() {
-    println("    Probe \{i}: \{expression_matrix[i]}")
+    println("    Probe \{i}: \{Repr(expression_matrix[i])}")
     i = i + 1
   }
 
@@ -114,7 +114,7 @@ fn main {
   println("\n  After quantile normalization:")
   i = 0
   while i < normalized.length() {
-    println("    Probe \{i}: \{normalized[i]}")
+    println("    Probe \{i}: \{Repr(normalized[i])}")
     i = i + 1
   }
 
@@ -130,7 +130,7 @@ fn main {
   println("  Input CEL data (6 probes x 3 samples):")
   i = 0
   while i < cel_data.length() {
-    println("    Probe \{i}: \{cel_data[i]}")
+    println("    Probe \{i}: \{Repr(cel_data[i])}")
     i = i + 1
   }
 
@@ -147,7 +147,7 @@ fn main {
   println("\n  Processed expression matrix:")
   i = 0
   while i < result.expression_matrix.length() {
-    println("    Probe \{i}: \{result.expression_matrix[i]}")
+    println("    Probe \{i}: \{Repr(result.expression_matrix[i])}")
     i = i + 1
   }
 
@@ -183,7 +183,7 @@ fn main {
   while si < skeys.length() {
     let gene_id = skeys[si]
     let vals = summarized.get_or_default(gene_id, [])
-    println("    \{gene_id}: \{vals}")
+    println("    \{gene_id}: \{Repr(vals)}")
     si = si + 1
   }
 

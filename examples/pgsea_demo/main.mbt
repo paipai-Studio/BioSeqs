@@ -22,9 +22,9 @@ fn main {
     matrix[0].length().to_string() +
     " samples",
   )
-  println("Set names: " + names.to_string())
+  println("Set names: " + repr(names))
   for i in 0..<names.length() {
-    println("  " + names[i] + " scores: " + matrix[i].to_string())
+    println("  " + names[i] + " scores: " + repr(matrix[i]))
   }
   println("")
 

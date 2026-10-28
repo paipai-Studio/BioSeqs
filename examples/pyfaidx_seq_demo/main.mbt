@@ -20,8 +20,8 @@ fn main raise {
   println(@src.pyfaidx_wrap_sequence(3, "ACGTACGTAC"))
 
   let (r1, s1, e1) = @src.pyfaidx_bed_split("chr1\t10\t20")
-  println("bed_split  : \{r1} \{s1} \{e1}")
+  println("bed_split  : \{Repr(r1)} \{Repr(s1)} \{Repr(e1)}")
 
   let (r2, s2, e2) = @src.pyfaidx_ucsc_split("chr1:100-200")
-  println("ucsc_split : \{r2} \{s2} \{e2}")
+  println("ucsc_split : \{r2} \{Repr(s2)} \{Repr(e2)}")
 }

@@ -22,8 +22,8 @@ fn main {
   println("--- Step 2: Topology Queries ---")
   let tips = @src.tidy_tips(tree)
   let internal = @src.tidy_internal(tree)
-  println("Tips: " + tips.to_string())
-  println("Internal nodes: " + internal.to_string())
+  println("Tips: " + repr(tips))
+  println("Internal nodes: " + repr(internal))
   println("Is leaf (node 1): " + @src.tidy_is_leaf(tree, 1).to_string())
   println(
     "Node depth (root): " + @src.tidy_node_depth(tree, tree.root).to_string(),
@@ -38,12 +38,12 @@ fn main {
     "Ancestors of " +
     @src.tidy_get_label(tree, first_tip) +
     ": " +
-    ancestors.to_string(),
+    repr(ancestors),
   )
   let offspring = @src.tidy_offspring(tree, tree.root)
   println("Offspring of root: " + offspring.length().to_string() + " nodes")
   let children = @src.tidy_child(tree, tree.root)
-  println("Children of root: " + children.to_string())
+  println("Children of root: " + repr(children))
   let parent = @src.tidy_parent(tree, first_tip)
   println(
     "Parent of " +
@@ -100,8 +100,8 @@ fn main {
   println("--- Step 7: Traversal Orders ---")
   let post_order = @src.tidy_post_order(tree)
   let pre_order = @src.tidy_pre_order(tree)
-  println("Post-order: " + post_order.to_string())
-  println("Pre-order: " + pre_order.to_string())
+  println("Post-order: " + repr(post_order))
+  println("Pre-order: " + repr(pre_order))
   println("")
 
   // Step 8: Filter / select

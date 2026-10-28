@@ -101,10 +101,10 @@ fn main {
   println("5. Delta Encoding")
   let coords = [100, 101, 103, 106, 110, 115]
   let delta_encoded = @bio.mmtf_encode_delta(coords)
-  println("   Original: \{coords}")
-  println("   Delta-encoded: \{delta_encoded}")
+  println("   Original: \{Repr(coords)}")
+  println("   Delta-encoded: \{Repr(delta_encoded)}")
   let delta_decoded = @bio.mmtf_decode_delta(delta_encoded)
-  println("   Decoded: \{delta_decoded}")
+  println("   Decoded: \{Repr(delta_decoded)}")
   println("")
 
   // === Text serialization round-trip ===

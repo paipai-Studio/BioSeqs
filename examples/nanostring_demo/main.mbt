@@ -46,7 +46,7 @@ fn main {
   let gm = @bio.ns_geometric_mean([2.0, 8.0])
   println("geometric_mean([2, 8]) = " + gm.to_string() + " (expected 4.0)")
   let log2_vals = @bio.ns_log2_counts([0.0, 1.0, 7.5, 15.5])
-  println("log2_counts([0, 1, 7.5, 15.5]) = " + log2_vals.to_string())
+  println("log2_counts([0, 1, 7.5, 15.5]) = " + repr(log2_vals))
   println("")
 
   // ------------------------------------------------------------------

@@ -23,8 +23,8 @@ fn main {
     " x " +
     counts[0].length().to_string(),
   )
-  println("  A: " + counts[0].to_string())
-  println("  C: " + counts[1].to_string())
+  println("  A: " + repr(counts[0]))
+  println("  C: " + repr(counts[1]))
   println("")
 
   // Example 3: PFM (frequency matrix)
@@ -73,7 +73,7 @@ fn main {
   let (per_pos, total) = @src.xms_info_content(pfm)
   println("Consensus: " + cons)
   println("Total information content: " + total.to_string() + " bits")
-  println("Per-position IC: " + per_pos.to_string())
+  println("Per-position IC: " + repr(per_pos))
   println("")
 
   // Example 6: Round-trip write/parse

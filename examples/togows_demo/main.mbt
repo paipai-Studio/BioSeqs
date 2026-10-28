@@ -82,7 +82,7 @@ fn main raise {
     "http://togows.dbcls.jp/search/pubmed/crispr/3,2", "31909519\n30195406\n",
   )
   let ids = client.search_iter(db="pubmed", query="crispr", batch=2)
-  println("all ids: \{ids}")
+  println("all ids: \{Repr(ids)}")
 
   println("\n=== 6. convert (POST body) ===")
   responses.set(

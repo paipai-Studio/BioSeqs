@@ -23,7 +23,7 @@ fn main {
   println("   Number of blocks: \{@src.maf_num_blocks(ali)}")
   println("   Total alignment length: \{@src.maf_total_length(ali)} columns")
   let seq_names = @src.maf_all_seq_names(ali)
-  println("   Sequences: \{seq_names}")
+  println("   Sequences: \{Repr(seq_names)}")
 
   println("\n2. Calculating percent identity per block...")
   let mut i = 0
@@ -47,7 +47,7 @@ fn main {
   let selected = @src.maf_select_seqs(ali, ["human.chr1", "mouse.chr1"])
   println("   Selected blocks: \{@src.maf_num_blocks(selected)}")
   let sel_names = @src.maf_all_seq_names(selected)
-  println("   Selected sequences: \{sel_names}")
+  println("   Selected sequences: \{Repr(sel_names)}")
   let avg_id_sel = @src.maf_average_percent_identity(selected)
   println("   Average percent identity (selected): \{avg_id_sel}%")
 

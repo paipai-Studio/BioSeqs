@@ -185,7 +185,7 @@ fn main {
   println("=== 1. Input Expression Matrix ===")
   println("  (10 genes x 4 samples)")
   for i in 0..<gene_names.length() {
-    println("    \{gene_names[i]}: \{expr_matrix[i]}")
+    println("    \{gene_names[i]}: \{Repr(expr_matrix[i])}")
   }
 
   println("\n  Sample statistics BEFORE normalization:")
@@ -267,8 +267,8 @@ fn main {
   // normalize_quantiles already creates a new matrix, original unmodified
   let qn_copy = @bio.normalize_quantiles(expr_matrix)
   println("  Input matrix preserved:")
-  println("    First row original: \{expr_matrix[0]}")
-  println("    First row copy norm: \{qn_copy[0]}")
+  println("    First row original: \{Repr(expr_matrix[0])}")
+  println("    First row copy norm: \{Repr(qn_copy[0])}")
 
   println("\n=== Summary of Normalization Effects ===")
   let label_width = 25

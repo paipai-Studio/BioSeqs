@@ -139,8 +139,8 @@ fn main raise {
   )
   println("\n  Genes called at pfp < 0.05:")
   // Tables are ordered by ascending statistic, so gene 3 precedes gene 2.
-  println("    down: \{cut_down.indices()} (expected [0, 1])")
-  println("    up:   \{cut_up.indices()} (expected [3, 2])")
+  println("    down: \{Repr(cut_down.indices())} (expected [0, 1])")
+  println("    up:   \{Repr(cut_up.indices())} (expected [3, 2])")
 
   // Same selection with a raw p-value threshold.
   let (p_down, p_up) = @src.rankprod_top_genes(
@@ -149,7 +149,7 @@ fn main raise {
     method_="pval",
   )
   println("  Genes called at P.value < 0.01:")
-  println("    down: \{p_down.indices()}, up: \{p_up.indices()}")
+  println("    down: \{Repr(p_down.indices())}, up: \{Repr(p_up.indices())}")
 
   // ---------------------------------------------------------------------------
   // 4. Exact rank-product / rank-sum distributions

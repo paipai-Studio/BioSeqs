@@ -73,28 +73,16 @@ fn main {
   let seq_a_skew = "AAAAAAAATTTTTTTT"
   let seq_t_skew = "TTTTTTTTAAAAAAAA"
   println(
-    "  " +
-    seq_g_skew +
-    " GC skew: " +
-    @src.gc_skew(seq_g_skew, 8, 1).to_string(),
+    "  " + seq_g_skew + " GC skew: " + repr(@src.gc_skew(seq_g_skew, 8, 1)),
   )
   println(
-    "  " +
-    seq_c_skew +
-    " GC skew: " +
-    @src.gc_skew(seq_c_skew, 8, 1).to_string(),
+    "  " + seq_c_skew + " GC skew: " + repr(@src.gc_skew(seq_c_skew, 8, 1)),
   )
   println(
-    "  " +
-    seq_a_skew +
-    " AT skew: " +
-    @src.at_skew(seq_a_skew, 8, 1).to_string(),
+    "  " + seq_a_skew + " AT skew: " + repr(@src.at_skew(seq_a_skew, 8, 1)),
   )
   println(
-    "  " +
-    seq_t_skew +
-    " AT skew: " +
-    @src.at_skew(seq_t_skew, 8, 1).to_string(),
+    "  " + seq_t_skew + " AT skew: " + repr(@src.at_skew(seq_t_skew, 8, 1)),
   )
 
   // === 5. DUST score ===

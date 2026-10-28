@@ -65,12 +65,12 @@ fn main {
   println("Sequence: \{matrix_seq}")
   let matrix = @bio.letter_frequency_matrix(matrix_seq)
   let a_counts = matrix.get_or_default("A", Array::make(8, 0))
-  println("A counts per position: \{a_counts}")
+  println("A counts per position: \{Repr(a_counts)}")
 
   println("")
   println("=== Consensus Sequence Example ===")
   let alignment = ["ACGT", "ACGT", "TCGA"]
-  println("Alignment: \{alignment}")
+  println("Alignment: \{Repr(alignment)}")
   let consensus = @bio.biostrings_consensus_sequence(alignment)
   println("Consensus: \{consensus}")
 

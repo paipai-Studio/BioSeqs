@@ -91,7 +91,7 @@ fn main {
   let min_read = min_file.get(0).unwrap()
   println("Read: " + min_read.name())
   println("Sequence: " + min_read.sequence())
-  println("Quality: " + min_read.quality().to_string())
+  println("Quality: " + repr(min_read.quality()))
   println("")
 
   // ------------------------------------------------------------------

@@ -58,7 +58,7 @@ fn main {
       row.push(dist)
       j = j + 1
     }
-    println("  Row \{i}: \{row}")
+    println("  Row \{i}: \{Repr(row)}")
     i = i + 1
   }
 
@@ -67,7 +67,7 @@ fn main {
   let jc_matrix = @bio.aln_jukes_cantor_matrix(sequences)
   let mut x = 0
   while x < n {
-    println("  Row \{x}: \{jc_matrix[x]}")
+    println("  Row \{x}: \{Repr(jc_matrix[x])}")
     x = x + 1
   }
 
@@ -76,7 +76,7 @@ fn main {
   let k2p_matrix = @bio.aln_kimura_2p_matrix(sequences)
   let mut y = 0
   while y < n {
-    println("  Row \{y}: \{k2p_matrix[y]}")
+    println("  Row \{y}: \{Repr(k2p_matrix[y])}")
     y = y + 1
   }
 

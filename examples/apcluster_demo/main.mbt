@@ -50,8 +50,8 @@ fn cluster_sizes(res : @src.ApResult) -> Array[Int32] {
 ///|
 fn print_result(title : String, res : @src.ApResult) -> Unit {
   println("--- \{title} ---")
-  println("exemplars (0-based): \{res.exemplars()}")
-  println("cluster sizes:       \{cluster_sizes(res)}")
+  println("exemplars (0-based): \{Repr(res.exemplars())}")
+  println("cluster sizes:       \{Repr(cluster_sizes(res))}")
   println("iters:               \{res.iters()}  converged: \{res.converged()}")
   println(
     "netsim: \{res.netsim()} (dpsim=\{res.dpsim()}, expref=\{res.expref()})",
@@ -80,7 +80,9 @@ fn main raise {
   print_result("apclusterK(k=5)", k5)
   let k3 = @src.apcluster_k(sim=s, k=3)
   println("--- apclusterK(k=3): bisection collapses, prune merge ---")
-  println("exemplars: \{k3.exemplars()}  sizes: \{cluster_sizes(k3)}")
+  println(
+    "exemplars: \{Repr(k3.exemplars())}  sizes: \{Repr(cluster_sizes(k3))}",
+  )
   println("")
 
   println("=== 4. Preference controls cluster granularity ===")
@@ -90,7 +92,7 @@ fn main raise {
   // very low preference: a single consensus exemplar
   let lo = @src.apcluster(sim=s, p=Some(-100000.0))
   println(
-    "p=-1e5  -> clusters: \{lo.num_clusters()} exemplar: \{lo.exemplars()}",
+    "p=-1e5  -> clusters: \{lo.num_clusters()} exemplar: \{Repr(lo.exemplars())}",
   )
   println("")
 
@@ -108,6 +110,6 @@ fn main raise {
   @src.apcluster_seed(2026)
   let rn = @src.apcluster(sim=s, nonoise=5)
   println(
-    "nonoise=5 -> clusters: \{rn.num_clusters()} exemplars: \{rn.exemplars()}",
+    "nonoise=5 -> clusters: \{rn.num_clusters()} exemplars: \{Repr(rn.exemplars())}",
   )
 }

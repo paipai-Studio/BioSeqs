@@ -121,7 +121,7 @@ fn main {
   let coverage = @bio.grg_compute_coverage(gr_cov, cov_sl)
   let cov_arr = coverage["chr1"]
   println("   Coverage array for chr1 (length 15):")
-  println("     \{cov_arr}")
+  println("     \{Repr(cov_arr)}")
 
   println("")
   println("7. Computing promoter regions")

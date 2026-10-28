@@ -11,9 +11,9 @@ fn main {
   println("1. Sample Data:")
   let data = @bio.rstatix_sample_data()
   println("   Groups: \{data.length()}")
-  println("   Group 1 (n=\{data[0].length()}): \{data[0]}")
-  println("   Group 2 (n=\{data[1].length()}): \{data[1]}")
-  println("   Group 3 (n=\{data[2].length()}): \{data[2]}")
+  println("   Group 1 (n=\{data[0].length()}): \{Repr(data[0])}")
+  println("   Group 2 (n=\{data[1].length()}): \{Repr(data[1])}")
+  println("   Group 3 (n=\{data[2].length()}): \{Repr(data[2])}")
   println("")
 
   println("2. Two-Sample T-Test (Group 1 vs Group 2):")

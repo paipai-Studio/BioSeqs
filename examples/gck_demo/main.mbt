@@ -98,7 +98,7 @@ fn main {
   println(byte_sb.to_string())
   // Verify magic bytes
   println(
-    "Magic: \{bytes[0].to_char()} \{bytes[1].to_char()} \{bytes[2].to_char()} (should be G C K)",
+    "Magic: \{Repr(bytes[0].to_char())} \{Repr(bytes[1].to_char())} \{Repr(bytes[2].to_char())} (should be G C K)",
   )
   let file2 = @bio.gck_from_bytes(bytes)
   println("Deserialized: sequence length=\{@bio.gck_seq_length(file2)}")

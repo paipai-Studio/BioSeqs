@@ -24,7 +24,7 @@ fn main {
     [9.0, 7.0, 250.0],
   ]
   let be = @src.skbio_bioenv(bdm, bdata)
-  println("best subset correlations: \{be.correlations}")
+  println("best subset correlations: \{Repr(be.correlations)}")
 
   let dm = [
     [0.0, 0.223607, 0.111803, 2.828427, 3.162278, 3.590265],

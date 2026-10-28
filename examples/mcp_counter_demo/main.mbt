@@ -25,7 +25,7 @@ fn main {
   println("=== 2. Load sample expression data ===")
   let (genes, samples, matrix) = @bio.mcp_sample_data()
   println("Genes: \{genes.length()}")
-  println("Samples: \{samples}")
+  println("Samples: \{Repr(samples)}")
   println("")
 
   // ------------------------------------------------------------------

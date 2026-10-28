@@ -87,9 +87,9 @@ fn main {
   ]
 
   println("\n1. Typed fixed and random effects")
-  println("   coefficients: " + design.coefficient_names.to_string())
+  println("   coefficients: " + repr(design.coefficient_names))
   println("   random effect: " + design.random_effects[0].name)
-  println("   levels: " + design.random_effects[0].levels.to_string())
+  println("   levels: " + repr(design.random_effects[0].levels))
 
   println("\n2. ML variance fractions with observation-level weights")
   let partition = @src.fit_extract_variance_partition(

@@ -14,7 +14,7 @@ fn main raise {
   gss.set_scores("chr1", "phastCons", [100, 200, 300, 400], [0.1, 0.5, 0.9, 0.4])
   gss.set_scores("chr1", "phyloP", [100, 200, 300, 400], [0.9, 0.7, 0.2, 0.2])
   gss.set_scores("chr2", "phastCons", [150, 250, 350], [0.6, 0.2, 0.8])
-  println("populations      : \{gss.populations()}")
+  println("populations      : \{Repr(gss.populations())}")
   println("chr1 stored bases: \{gss.n_stored_positions("chr1")}")
   println("chr2 stored bases: \{gss.n_stored_positions("chr2")}")
 

@@ -10,15 +10,15 @@ fn main {
   println("=== IUPAC Ambiguous DNA Bases ===")
   let dna_amb = @bio.iupac_ambiguous_dna_map()
   println("Total ambiguous bases: \{dna_amb.length()}")
-  println("R (G/A): \{dna_amb.get("R").unwrap()}")
-  println("Y (C/T): \{dna_amb.get("Y").unwrap()}")
-  println("N (A/C/G/T): \{dna_amb.get("N").unwrap()}")
+  println("R (G/A): \{Repr(dna_amb.get("R").unwrap())}")
+  println("Y (C/T): \{Repr(dna_amb.get("Y").unwrap())}")
+  println("N (A/C/G/T): \{Repr(dna_amb.get("N").unwrap())}")
   println("")
 
   println("=== IUPAC Ambiguous RNA Bases ===")
   let rna_amb = @bio.iupac_ambiguous_rna_map()
   println("Total ambiguous bases: \{rna_amb.length()}")
-  println("Y (C/U): \{rna_amb.get("Y").unwrap()}")
+  println("Y (C/U): \{Repr(rna_amb.get("Y").unwrap())}")
   println("")
 
   // Check if bases are ambiguous
@@ -30,9 +30,9 @@ fn main {
 
   // Expand ambiguous bases
   println("=== Expand Ambiguous Bases ===")
-  println("Expand 'R': \{@bio.expand_ambiguous_dna("R")}")
-  println("Expand 'N': \{@bio.expand_ambiguous_dna("N")}")
-  println("Expand 'A': \{@bio.expand_ambiguous_dna("A")}")
+  println("Expand 'R': \{Repr(@bio.expand_ambiguous_dna("R"))}")
+  println("Expand 'N': \{Repr(@bio.expand_ambiguous_dna("N"))}")
+  println("Expand 'A': \{Repr(@bio.expand_ambiguous_dna("A"))}")
   println("")
 
   // Amino acid mappings
@@ -95,11 +95,11 @@ fn main {
   println("=== Reverse Codon Table ===")
   let rev = @bio.reverse_codon_table()
   println("Total amino acids: \{rev.length()}")
-  println("M (Met) codons: \{rev.get("M").unwrap()}")
+  println("M (Met) codons: \{Repr(rev.get("M").unwrap())}")
   println(
-    "L (Leu) codons: \{rev.get("L").unwrap()} (count: \{rev.get("L").unwrap().length()})",
+    "L (Leu) codons: \{Repr(rev.get("L").unwrap())} (count: \{rev.get("L").unwrap().length()})",
   )
-  println("* (Stop) codons: \{rev.get("*").unwrap()}")
+  println("* (Stop) codons: \{Repr(rev.get("*").unwrap())}")
   println("")
 
   // Synonymous codons

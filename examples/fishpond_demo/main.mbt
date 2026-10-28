@@ -15,7 +15,7 @@ fn main {
   let counts = @bio.fish_sample_counts()
   println("Transcripts: \{counts.transcript_names().length()}")
   println("Samples: \{counts.sample_names().length()} (8 case + 8 control)")
-  println("Transcripts: \{counts.transcript_names()}")
+  println("Transcripts: \{Repr(counts.transcript_names())}")
   println("")
 
   // ------------------------------------------------------------------

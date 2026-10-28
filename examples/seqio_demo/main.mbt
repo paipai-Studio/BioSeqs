@@ -62,7 +62,7 @@ fn main {
   let dict = @bio.seqio_to_dict(records)
   println("\n=== SeqIO to_dict ===")
   let keys = dict.keys()
-  println("  keys: \{keys}")
+  println("  keys: \{Repr(keys)}")
 
   // === Parse GenBank ===
   let genbank_content = "LOCUS       NM_001 48 bp DNA linear PRI 01-JAN-2024\nDEFINITION  Test gene for comparison.\nACCESSION   NM_001\nVERSION     NM_001.1\nORIGIN\nATGCATGCATGCATGCATGCATGCATGCATGCATGCATGCATGCATGC\n//"
@@ -79,7 +79,7 @@ fn main {
   let fasta = @bio.Fasta::from_content(fasta_content)
   println("\n=== FASTA Index ===")
   let names = fasta.get_names()
-  println("  Indexed sequences: \{names}")
+  println("  Indexed sequences: \{Repr(names)}")
 
   // Fetch subsequence: seq1[3..15]
   try {
@@ -229,7 +229,7 @@ fn main {
   let fq_pairs = @bio.fastq_general_parser("@r1\nACGT\n+\n!''*\n")
   for i = 0; i < fq_pairs.length(); i = i + 1 {
     let (title, seq, quals) = fq_pairs[i]
-    println("  title=\"\{title}\" seq=\"\{seq}\" quals=\{quals}")
+    println("  title=\"\{title}\" seq=\"\{seq}\" quals=\{Repr(quals)}")
   }
 
   println("\n=== Two-line compact FASTA/FASTQ parsers ===")
@@ -239,7 +239,7 @@ fn main {
   }
   let tq = @bio.fastq_two_line_parser("@r1 ACGT\n!''*\n")
   for i = 0; i < tq.length(); i = i + 1 {
-    println("  id=\"\{tq[i].0}\" seq=\"\{tq[i].1}\" quals=\{tq[i].2}")
+    println("  id=\"\{tq[i].0}\" seq=\"\{tq[i].1}\" quals=\{Repr(tq[i].2)}")
   }
 
   println("\n=== FastaIterator / FastaTwoLineIterator (SeqRecord) ===")

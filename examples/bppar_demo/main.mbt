@@ -98,7 +98,7 @@ fn main raise {
     v2.push(r.next_int(1000000))
   }
   println("=== 并行可复现 RNG 子流 (seed=42, 3 流) ===")
-  println("  流首值: " + v1.to_string())
+  println("  流首值: " + repr(v1))
   println(
     "  重建一致: " +
     (if v1 == v2 { "true" } else { "false" }) +

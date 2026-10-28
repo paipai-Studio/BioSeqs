@@ -13,7 +13,7 @@ fn main raise {
   for r in bam.records {
     println(
       "span \{r.reference_start()}-\{r.reference_end()}  " +
-      "ref_pos=\{r.get_reference_positions(false)}  " +
+      "ref_pos=\{Repr(r.get_reference_positions(false))}  " +
       "overlap(8,20)=\{r.get_overlap(8, 20)}",
     )
   }

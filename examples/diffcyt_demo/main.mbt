@@ -21,7 +21,7 @@ fn main {
   let samples = @bio.diffcyt_unique_samples(cells)
   let conditions = @bio.diffcyt_unique_conditions(cells)
   println("Samples: " + samples.length().to_string())
-  println("Conditions: " + conditions.to_string())
+  println("Conditions: " + repr(conditions))
   println("Markers: " + cells[0].n_markers().to_string())
   println("")
 

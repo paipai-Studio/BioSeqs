@@ -139,7 +139,7 @@ fn main {
 
   let spls_opts = @bio.spls_options_full(2, [5, 5], [2, 2], true, 500, 1.0e-6)
   println(
-    "  Options: ncomp=\{spls_opts.ncomp}, keep_x=\{spls_opts.keep_x}, keep_y=\{spls_opts.keep_y}",
+    "  Options: ncomp=\{spls_opts.ncomp}, keep_x=\{Repr(spls_opts.keep_x)}, keep_y=\{Repr(spls_opts.keep_y)}",
   )
 
   let spls_result = @bio.run_spls(x_data, y_data, spls_opts)
@@ -271,7 +271,7 @@ fn main {
   println("  Keep variables per component:")
   for comp = 0; comp < diablo_opts.ncomp; comp = comp + 1 {
     let kv = diablo_opts.keep_variables[comp]
-    println("    Component \{comp + 1}: \{kv}")
+    println("    Component \{comp + 1}: \{Repr(kv)}")
   }
 
   let diablo_result = @bio.run_diablo(blocks, block_names, diablo_opts)

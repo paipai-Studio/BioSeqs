@@ -9,7 +9,7 @@ fn main {
   println("--- Step 1: Build Property Map ---")
   let pm = @src.abstract_property_map_example()
   println("Residues: " + pm.n_residues.to_string())
-  println("Properties: " + pm.property_names.to_string())
+  println("Properties: " + repr(pm.property_names))
   println("")
 
   // Step 2: Query properties

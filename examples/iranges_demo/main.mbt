@@ -74,7 +74,7 @@ fn main {
   let ir_n1 = @src.iranges([1, 20, 40], [5, 25, 45])
   let ir_n2 = @src.iranges([10, 30], [15, 35])
   let nearest_indices = @src.ir_nearest(ir_n1, ir_n2)
-  println("   Nearest indices: \{nearest_indices}")
+  println("   Nearest indices: \{Repr(nearest_indices)}")
   let mut i = 0
   while i < nearest_indices.length() {
     println("     Query \{i} nearest to Subject \{nearest_indices[i]}")
@@ -85,7 +85,7 @@ fn main {
   let ir_cov = @src.iranges([1, 5, 10], [8, 15, 20])
   let coverage = @src.ir_coverage(ir_cov, 25)
   println("   Coverage array (length 25):")
-  println("   \{coverage}")
+  println("   \{Repr(coverage)}")
 
   println("\n11. IRanges distance matrix...")
   let ir_d1 = @src.iranges([1, 15], [5, 20])
@@ -94,7 +94,7 @@ fn main {
   println("   Distance matrix (2x2):")
   let mut row = 0
   while row < distance_matrix.length() {
-    println("     Row \{row}: \{distance_matrix[row]}")
+    println("     Row \{row}: \{Repr(distance_matrix[row])}")
     row = row + 1
   }
 

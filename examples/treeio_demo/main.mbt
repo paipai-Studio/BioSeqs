@@ -24,7 +24,7 @@ fn main {
   println("Binary: " + @src.treeio_is_binary(tree).to_string())
   println("Total branch length: " + @src.treeio_total_length(tree).to_string())
   println("Max depth: " + @src.treeio_max_depth(tree).to_string())
-  println("Tip labels: " + tree.tip_labels.to_string())
+  println("Tip labels: " + repr(tree.tip_labels))
   println("")
 
   // Step 2: Round-trip write

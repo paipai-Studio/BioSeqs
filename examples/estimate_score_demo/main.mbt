@@ -47,7 +47,7 @@ fn main {
   let expr = @bio.est_sample_data()
   println("Genes: \{expr.gene_names().length()}")
   println("Samples: \{expr.sample_names().length()}")
-  println("Sample names: \{expr.sample_names()}")
+  println("Sample names: \{Repr(expr.sample_names())}")
   println("")
 
   // ------------------------------------------------------------------

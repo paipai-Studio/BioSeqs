@@ -15,7 +15,13 @@ pub enum ResidueClass {
   Ion
   Ligand
   Other
-} derive(Eq, Show)
+} derive(Eq, Debug)
+
+///|
+pub extend ResidueClass with Eq::{equal, not_equal}
+
+///|
+pub extend ResidueClass with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Result of separating a structure into component groups.

@@ -100,7 +100,7 @@ fn main {
   let mut s = 0
   while s < sig.length() {
     let g = sig[s]
-    println("  " + g.gene_id + ": delta=" + g.delta.to_string())
+    println("  " + g.gene_id + ": delta=" + repr(g.delta))
     s = s + 1
   }
   println("")
@@ -145,7 +145,7 @@ fn main {
     ", pval=" +
     pval.to_string() +
     ", delta=" +
-    delta.to_string(),
+    repr(delta),
   )
 
   let c : Array[Double] = [0.5, 0.5]

@@ -193,7 +193,9 @@ fn sw_expect_opt(
       }
       (None, None) => assert_true(true)
       (a, w) => {
-        println("sw_expect_opt presence mismatch at \{i}: got \{a} want \{w}")
+        println(
+          "sw_expect_opt presence mismatch at \{i}: got \{Repr(a)} want \{Repr(w)}",
+        )
         assert_true(false)
       }
     }

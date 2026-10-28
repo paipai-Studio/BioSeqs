@@ -23,7 +23,7 @@ fn main {
   println("   Version: \{ali.version}")
   println("   Number of LCBs: \{@src.mauve_num_lcbs(ali)}")
   let all_names = @src.mauve_all_seq_names(ali)
-  println("   Genomes: \{all_names}")
+  println("   Genomes: \{Repr(all_names)}")
 
   println("\n2. Detecting inversions...")
   let inv_count = ali.inversions.length()
@@ -34,7 +34,7 @@ fn main {
     println(
       "   Inversion \{i}: \{inv.seq_name} \{inv.start}-\{inv.end} (\{inv.length} bp)",
     )
-    println("     Affected LCBs: \{inv.affected_lcbs}")
+    println("     Affected LCBs: \{Repr(inv.affected_lcbs)}")
     i = i + 1
   }
 

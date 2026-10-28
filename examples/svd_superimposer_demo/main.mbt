@@ -51,10 +51,10 @@ fn main {
   println("  Rotation matrix:")
   let mut i = 0
   while i < 3 {
-    println("    \{rot[i]}")
+    println("    \{Repr(rot[i])}")
     i = i + 1
   }
-  println("  Translation vector: \{tran}")
+  println("  Translation vector: \{Repr(tran)}")
   println("")
 
   println("6. Apply transformation")

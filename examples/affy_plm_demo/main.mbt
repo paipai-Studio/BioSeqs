@@ -44,8 +44,8 @@ fn main {
 
   println("\n6. QC statistics (NUSE / RLE)")
   let report = @src.affy_plm_qc([fit])
-  println("   NUSE: " + report.nuse.to_string())
-  println("   RLE:  " + report.rle.to_string())
+  println("   NUSE: " + repr(report.nuse))
+  println("   RLE:  " + repr(report.rle))
 
   println("\n7. Tukey biweight estimator")
   let fit_tukey = @src.fit_plm(ps, estimator=@src.PlmEstimator::Tukey(4.685))

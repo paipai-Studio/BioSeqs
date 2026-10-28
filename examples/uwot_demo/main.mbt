@@ -26,7 +26,7 @@ fn main {
   println("   Distance matrix:")
   let mut i = 0
   while i < dist_matrix.length() {
-    println("     \{dist_matrix[i]}")
+    println("     \{Repr(dist_matrix[i])}")
     i = i + 1
   }
   println("")

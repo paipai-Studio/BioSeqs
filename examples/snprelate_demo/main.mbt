@@ -83,11 +83,11 @@ fn main raise {
 
   println("\n=== snpgdsLDpruning (threshold=0.7, maf=0.05, slide=4) ===")
   let pruned = @src.snpgds_ld_pruning(dosages, 0.7, 0.05, 4)
-  println("kept   : \{pruned.kept_indices}")
-  println("removed: \{pruned.removed_indices}")
+  println("kept   : \{Repr(pruned.kept_indices)}")
+  println("removed: \{Repr(pruned.removed_indices)}")
 
   println("\n=== snpgdsLDpruning (threshold=0.5, maf=0.05, slide=2) ===")
   let pruned2 = @src.snpgds_ld_pruning(dosages, 0.5, 0.05, 2)
-  println("kept   : \{pruned2.kept_indices}")
-  println("removed: \{pruned2.removed_indices}")
+  println("kept   : \{Repr(pruned2.kept_indices)}")
+  println("removed: \{Repr(pruned2.removed_indices)}")
 }

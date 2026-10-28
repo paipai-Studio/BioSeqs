@@ -133,7 +133,7 @@ fn main {
   println("")
 
   println("11. ID Lists")
-  println("Gene IDs: \{@bio.gene_ids(txdb)}")
-  println("Transcript IDs: \{@bio.transcript_ids(txdb)}")
-  println("Exon IDs: \{@bio.exon_ids(txdb)}")
+  println("Gene IDs: \{Repr(@bio.gene_ids(txdb))}")
+  println("Transcript IDs: \{Repr(@bio.transcript_ids(txdb))}")
+  println("Exon IDs: \{Repr(@bio.exon_ids(txdb))}")
 }

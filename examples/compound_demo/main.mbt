@@ -39,7 +39,7 @@ fn main {
   println("=== Compound Aliases ===")
   let c4 = @bio.Compound::new("C0001", "Glucose")
   let c4b = c4.add_alias("D-Glucose").add_alias("Dextrose")
-  println("Aliases: \{c4b.get_aliases()}")
+  println("Aliases: \{Repr(c4b.get_aliases())}")
   println("Has 'D-Glucose': \{c4b.has_alias("D-Glucose")}")
   println("Has 'dextrose' (case insensitive): \{c4b.has_alias("dextrose")}")
   println("Has 'Glucose' (matches name): \{c4b.has_alias("Glucose")}")
@@ -50,14 +50,14 @@ fn main {
   println("=== Compound Pathways ===")
   let c5 = @bio.Compound::new("C0001", "Glucose")
   let c5b = c5.add_pathway("Glycolysis").add_pathway("Pentose Phosphate")
-  println("Pathways: \{c5b.get_pathways()}")
+  println("Pathways: \{Repr(c5b.get_pathways())}")
   println("")
 
   // Compound reactions
   println("=== Compound Reactions ===")
   let c6 = @bio.Compound::new("C0001", "Glucose")
   let c6b = c6.add_reaction("R0001")
-  println("Reactions: \{c6b.get_reactions()}")
+  println("Reactions: \{Repr(c6b.get_reactions())}")
   println("")
 
   // Formula parsing
@@ -99,8 +99,8 @@ fn main {
   let r2 = @bio.ChemicalReaction::new("R0001", "Test")
   let r2b = r2.add_substrate("A").add_substrate("B").add_product("C")
   println("Reaction equation: \{r2b.get_equation()}")
-  println("Substrates: \{r2b.get_substrates()}")
-  println("Products: \{r2b.get_products()}")
+  println("Substrates: \{Repr(r2b.get_substrates())}")
+  println("Products: \{Repr(r2b.get_products())}")
   println("")
 
   let r3 = @bio.ChemicalReaction::new("R0001", "Test")
@@ -119,7 +119,7 @@ fn main {
   println("=== Reaction Enzymes ===")
   let r5 = @bio.ChemicalReaction::new("R0001", "Test")
   let r5b = r5.add_enzyme("HK1")
-  println("Enzymes: \{r5b.get_enzymes()}")
+  println("Enzymes: \{Repr(r5b.get_enzymes())}")
   println("")
 
   // Pathway map

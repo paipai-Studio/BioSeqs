@@ -19,7 +19,7 @@ fn main {
   let ppm = @src.motif_pfm_to_ppm(pfm, pseudocount=1.0)
   println("Consensus: " + @src.motif_ppm_consensus(ppm))
   let ic = @src.motif_ppm_ic_per_position(ppm)
-  println("IC per position (bits): " + ic.to_string())
+  println("IC per position (bits): " + repr(ic))
   println("Total IC: " + @src.motif_ppm_total_ic(ppm).to_string() + " bits")
   println("")
 

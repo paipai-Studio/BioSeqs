@@ -22,8 +22,8 @@ fn main raise {
   bag.set_tag("Contact-Name", "Demo User")
   bag.set_tag("External-Identifier", "demo:sequences-001")
   println("root:      \{bag.root()}")
-  println("payloads:  \{bag.names()}")
-  println("tags:      \{bag.tags()}")
+  println("payloads:  \{Repr(bag.names())}")
+  println("tags:      \{Repr(bag.tags())}")
 
   println("\n=== 3. Fetch-through cache ===")
   // first fetch: cache miss -> the loader callback provides the payload
@@ -67,7 +67,7 @@ fn main raise {
     manifest_text=good_manifest,
     loader=fn(_name) { Some(data_one) },
   )
-  println("loaded payload names: \{loaded.names()}")
+  println("loaded payload names: \{Repr(loaded.names())}")
   println("consistent bag verifies: \{loaded.verify()}")
   // a manifest with a stale checksum makes verification fail
   let stale_manifest = "0cc175b9c0f1b6a831c399e269772661  data/seqs/one.fas\n"
