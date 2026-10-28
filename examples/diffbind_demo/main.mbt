@@ -1,5 +1,5 @@
 ///|
-fn main {
+fn main raise {
   println("=== DiffBind Demo ===")
 
   // 1. Create example DBAConfig (2 conditions, 2 replicates each)

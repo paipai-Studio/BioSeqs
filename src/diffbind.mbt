@@ -25,6 +25,10 @@ pub extend ScoreType with Eq::{equal, not_equal}
 
 ///|
 /// Genomic peak region.
+pub suberror DiffbindError {
+  DiffbindError(String)
+}
+
 pub struct DBAPeak {
   chr : String
   start : Int32
@@ -1373,7 +1377,7 @@ pub fn diffbind_contrast(
   config : DBAConfig,
   condition1 : String,
   condition2 : String,
-) -> (String, String) {
+) -> (String, String) raise DiffbindError {
   let mut found1 = false
   let mut found2 = false
   let mut i = 0
@@ -1389,10 +1393,10 @@ pub fn diffbind_contrast(
     i = i + 1
   }
   if !found1 {
-    panic()
+    raise DiffbindError("condition not found in samples: " + condition1)
   }
   if !found2 {
-    panic()
+    raise DiffbindError("condition not found in samples: " + condition2)
   }
   (condition1, condition2)
 }

@@ -655,10 +655,7 @@ fn align_maf_parse_block(
         source_size,
         align_maf_normalize_text(words[6]),
       ) catch {
-        BigMafError(message) => {
-          align_maf_fail(message)
-          abort("")
-        }
+        BigMafError(message) => raise AlignMafError(message)
       }
       components.push(component)
       last_component = components.length() - 1
@@ -690,18 +687,12 @@ fn align_maf_parse_block(
         words[4],
         right_count,
       ) catch {
-        BigMafError(message) => {
-          align_maf_fail(message)
-          abort("")
-        }
+        BigMafError(message) => raise AlignMafError(message)
       }
       components[last_component] = components[last_component].with_insertion(
         insertion,
       ) catch {
-        BigMafError(message) => {
-          align_maf_fail(message)
-          abort("")
-        }
+        BigMafError(message) => raise AlignMafError(message)
       }
     } else if words[0] == "q" {
       if last_component < 0 || words.length() != 3 {
@@ -718,10 +709,7 @@ fn align_maf_parse_block(
       components[last_component] = components[last_component].with_quality(
         words[2],
       ) catch {
-        BigMafError(message) => {
-          align_maf_fail(message)
-          abort("")
-        }
+        BigMafError(message) => raise AlignMafError(message)
       }
     } else if words[0] == "e" {
       if words.length() != 7 {
@@ -754,10 +742,7 @@ fn align_maf_parse_block(
         empty_source_size,
         words[6],
       ) catch {
-        BigMafError(message) => {
-          align_maf_fail(message)
-          abort("")
-        }
+        BigMafError(message) => raise AlignMafError(message)
       }
       empty_components.push(empty)
       last_component = -1
@@ -766,10 +751,7 @@ fn align_maf_parse_block(
     }
   }
   BigMafBlock::create(components, score~, pass_number~, empty_components~) catch {
-    BigMafError(message) => {
-      align_maf_fail(message)
-      abort("")
-    }
+    BigMafError(message) => raise AlignMafError(message)
   }
 }
 
