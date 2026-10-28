@@ -770,8 +770,25 @@ IvanAXu/BioSeqs/
     ├── main/                         # Seq 基础测试工具
     ├── seqio_main/                   # SeqIO 测试工具
     ├── alignio_main/                 # AlignIO 测试工具
-    └── bench/                        # 性能基准测试
+    ├── bench/                        # 性能基准测试
+    └── bio/                          # bio 多子命令 CLI(gc/stats/fq-qc/rc/trans/info)
 ```
+
+### bio 命令行工具
+
+`cmd/bio` 提供 seqkit 风格的多子命令 CLI（`moon run cmd/bio -- <子命令> [序列文本|--demo]`）：
+
+| 子命令 | 功能 |
+|---|---|
+| `gc` | FASTA GC 含量（逐条 + 合计） |
+| `stats` | FASTA 统计：条数/总长/均值/最短/最长/N50 |
+| `fq-qc` | FASTQ 基础质控：reads 数/读长分布/平均质量/GC（流式逐条处理） |
+| `rc` | 反向互补（FASTA 输入输出） |
+| `trans` | 翻译为蛋白（框 1，NCBI 表 1，无效密码子报告不中断） |
+| `info` | 每条记录摘要：id/长度/GC%/分子量 |
+
+示例：`moon run cmd/bio -- stats "$(cat seqs.fasta)"`、`moon run cmd/bio -- fq-qc --demo`。
+注：MoonBit core 暂无文件系统接口，序列文本经参数传入；宿主程序读取文件后调用库 API 可获得完整文件处理能力。
 
 ### 样例测试
 
