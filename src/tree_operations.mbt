@@ -652,42 +652,6 @@ pub fn phylo_scale_tree(clade : Clade, factor : Double) -> Clade {
 // =========================================================================
 
 ///|
-/// Simple LCG (Linear Congruential Generator) for reproducible randomness.
-pub struct Rng {
-  mut state : UInt64
-}
-
-///|
-/// Create a new RNG with a seed.
-pub fn Rng::new(seed : UInt64) -> Rng {
-  Rng::{ state: seed, }
-}
-
-///|
-/// Next random UInt64 (simple LCG).
-pub fn Rng::next_u64(self : Rng) -> UInt64 {
-  self.state = self.state * 6364136223846793005UL + 1442695040888963407UL
-  self.state
-}
-
-///|
-/// Next random Double in [0, 1).
-pub fn Rng::next_double(self : Rng) -> Double {
-  let v = self.next_u64()
-  // Use modulo to get a value in [0, 1000000), then divide
-  (v % 1000000UL).to_double() / 1000000.0
-}
-
-///|
-/// Random integer in [0, n).
-pub fn Rng::randint(self : Rng, n : Int32) -> Int32 {
-  if n <= 0 {
-    return 0
-  }
-  (self.next_double() * n.to_double()).to_int()
-}
-
-///|
 /// Generate a random Yule tree with n leaves.
 /// At each step, a random leaf is chosen and split into two new leaves.
 /// Branch lengths are set to 1.0 (can be scaled afterwards).

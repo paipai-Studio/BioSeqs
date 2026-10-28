@@ -19,7 +19,13 @@ repository = "https://github.com/paipai-Studio/BioSeqs"
 
 license = "Apache-2.0"
 
-keywords = ["bioinformatics", "sequence-analysis", "alignment", "phylogenetics", "genomics"]
+keywords = [
+  "bioinformatics",
+  "sequence-analysis",
+  "alignment",
+  "phylogenetics",
+  "genomics",
+]
 
 preferred_target = "wasm-gc"
 

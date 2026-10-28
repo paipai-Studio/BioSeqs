@@ -29,6 +29,7 @@ pub suberror DiffbindError {
   DiffbindError(String)
 }
 
+///|
 pub struct DBAPeak {
   chr : String
   start : Int32
