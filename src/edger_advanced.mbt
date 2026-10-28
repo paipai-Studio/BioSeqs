@@ -524,7 +524,7 @@ fn regularized_incomplete_beta(x : Double, a : Double, b : Double) -> Double {
   }
 
   // Log of prefactor: B(a,b) = Gamma(a)Gamma(b)/Gamma(a+b)
-  let lbeta = log_gamma(a) + log_gamma(b) - log_gamma(a + b)
+  let lbeta = lgamma(a) + lgamma(b) - lgamma(a + b)
   let prefactor = @math.exp(a * log_nat(x) + b * log_nat(1.0 - x) - lbeta)
 
   // Use symmetry: I_x(a,b) = 1 - I_{1-x}(b,a)
@@ -595,63 +595,6 @@ fn edger_betacf(x : Double, a : Double, b : Double) -> Double {
   }
 
   h
-}
-
-///|
-/// Sin function via Taylor series (Double has no sin method).
-fn edger_sin(x : Double) -> Double {
-  // Taylor series for sin(x), x reduced to [-pi, pi]
-  let pi = 3.141592653589793
-  let two_pi = 6.283185307179586
-  let mut x_reduced = x
-  while x_reduced > pi {
-    x_reduced = x_reduced - two_pi
-  }
-  while x_reduced < -pi {
-    x_reduced = x_reduced + two_pi
-  }
-  let x2 = x_reduced * x_reduced
-  let mut term = x_reduced
-  let mut sum = x_reduced
-  let mut i = 1
-  while i <= 15 {
-    term = -term * x2 / ((2 * i).to_double() * (2 * i + 1).to_double())
-    sum = sum + term
-    i = i + 1
-  }
-  sum
-}
-
-///|
-/// Log-gamma function using Lanczos approximation.
-fn log_gamma(x : Double) -> Double {
-  if x < 0.5 {
-    // Use reflection formula: Gamma(x)Gamma(1-x) = pi/sin(pi*x)
-    return @math.ln(3.141592653589793 / edger_sin(3.141592653589793 * x)) -
-      log_gamma(1.0 - x)
-  }
-
-  let g = 7.0
-  // Lanczos coefficients
-  let c = [
-    0.99999999999980993, 676.5203681218851, -1259.1392167224028, 771.32342877765313,
-    -176.61502916214059, 12.507343278686905, -0.13857109526572012, 9.9843695780195716e-6,
-    1.5056327351493116e-7,
-  ]
-
-  let y = x - 1.0
-  let tmp = y + g + 0.5
-  let mut sum = c[0]
-  let mut i = 1
-  while i < 9 {
-    sum = sum + c[i] / (y + i.to_double())
-    i = i + 1
-  }
-
-  0.5 * @math.ln(2.0 * 3.141592653589793) +
-  (y + 0.5) * @math.ln(tmp) -
-  tmp +
-  @math.ln(sum)
 }
 
 ///|

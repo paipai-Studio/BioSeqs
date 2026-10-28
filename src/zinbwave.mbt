@@ -695,37 +695,15 @@ fn zinbwave_linear_predictors(
 }
 
 ///|
-fn zinbwave_lgamma(value : Double) -> Double {
-  let coefficients = [
-    676.5203681218851, -1259.1392167224028, 771.3234287776531, -176.6150291621406,
-    12.507343278686905, -0.13857109526572012, 0.000009984369578019572, 0.00000015056327351493116,
-  ]
-  if value < 0.5 {
-    return @math.ln(3.141592653589793 / @math.sin(3.141592653589793 * value)) -
-      zinbwave_lgamma(1.0 - value)
-  }
-  let shifted = value - 1.0
-  let mut series = 0.9999999999998099
-  for index in 0..<coefficients.length() {
-    series = series + coefficients[index] / (shifted + index.to_double() + 1.0)
-  }
-  let base = shifted + 7.5
-  0.9189385332046727 +
-  (shifted + 0.5) * @math.ln(base) -
-  base +
-  @math.ln(series)
-}
-
-///|
 fn zinbwave_nb_log_probability(
   count : Double,
   mean : Double,
   dispersion : Double,
 ) -> Double {
   let theta = 1.0 / dispersion.max(1.0e-8)
-  zinbwave_lgamma(count + theta) -
-  zinbwave_lgamma(theta) -
-  zinbwave_lgamma(count + 1.0) +
+  lgamma(count + theta) -
+  lgamma(theta) -
+  lgamma(count + 1.0) +
   theta * (@math.ln(theta) - @math.ln(theta + mean)) +
   count * (@math.ln(mean) - @math.ln(theta + mean))
 }

@@ -271,7 +271,7 @@ fn beta_regularized(a : Double, b : Double, x : Double) -> Double {
   } else if x >= 1.0 {
     1.0
   } else {
-    let lbeta = ln_gamma(a) + ln_gamma(b) - ln_gamma(a + b)
+    let lbeta = lgamma(a) + lgamma(b) - lgamma(a + b)
     let front = @math.pow(x, a) * @math.pow(1.0 - x, b) / mast_exp(lbeta) / a
 
     let mut result = front
@@ -292,36 +292,6 @@ fn beta_regularized(a : Double, b : Double, x : Double) -> Double {
     }
 
     result
-  }
-}
-
-///|
-fn ln_gamma(x : Double) -> Double {
-  if x <= 0.0 {
-    0.0
-  } else if x < 1.0 {
-    ln_gamma(x + 1.0) - ln_mast(x)
-  } else {
-    let z = x - 1.0
-    let mut sum = 0.5 * ln_mast(2.0 * 3.141592653589793)
-    sum = sum + (z + 0.5) * ln_mast(z + 1.0) - (z + 1.0)
-
-    let coef = [
-      1.0 / 12.0,
-      -1.0 / 360.0,
-      1.0 / 1260.0,
-      -1.0 / 1680.0,
-      1.0 / 1188.0,
-    ]
-
-    let mut i = 0
-    while i < coef.length() {
-      let divisor = @math.pow(z + 1.0, (2 * i + 1).to_double())
-      sum = sum + coef[i] / divisor
-      i = i + 1
-    }
-
-    sum
   }
 }
 
@@ -372,7 +342,7 @@ fn gamma_regularized_p(a : Double, x : Double) -> Double {
       }
       n = n + 1
     }
-    sum * mast_exp(-x) * @math.pow(x, a) / mast_exp(ln_gamma(a))
+    sum * mast_exp(-x) * @math.pow(x, a) / mast_exp(lgamma(a))
   } else {
     1.0 - gamma_regularized_q(a, x)
   }
@@ -390,7 +360,7 @@ fn gamma_regularized_q(a : Double, x : Double) -> Double {
     prev = prev * (den - num / w) / den
     n = n + 1
   }
-  mast_exp(-x) * @math.pow(x, a) / (mast_exp(ln_gamma(a)) * w * x)
+  mast_exp(-x) * @math.pow(x, a) / (mast_exp(lgamma(a)) * w * x)
 }
 
 ///|
@@ -440,9 +410,9 @@ fn mast_log_choose(n : Int32, k : Int32) -> Double {
   if k < 0 || k > n {
     -1000.0
   } else {
-    ln_gamma((n + 1).to_double()) -
-    ln_gamma((k + 1).to_double()) -
-    ln_gamma((n - k + 1).to_double())
+    lgamma((n + 1).to_double()) -
+    lgamma((k + 1).to_double()) -
+    lgamma((n - k + 1).to_double())
   }
 }
 

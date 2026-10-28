@@ -13,30 +13,14 @@ pub struct FisherResult {
 }
 
 ///|
-/// Log-gamma (AS245), equal to `lgamma` for positive real arguments.
-fn fisher_lgamma(z : Double) -> Double {
-  let mut x = 0.0
-  x = x + 0.1659470187408462e-06 / (z + 7.0)
-  x = x + 0.9934937113930748e-05 / (z + 6.0)
-  x = x - 0.1385710331296526 / (z + 5.0)
-  x = x + 12.50734324009056 / (z + 4.0)
-  x = x - 176.6150291498386 / (z + 3.0)
-  x = x + 771.3234287757674 / (z + 2.0)
-  x = x - 1259.139216722289 / (z + 1.0)
-  x = x + 676.5203681218835 / z
-  x = x + 0.9999999999995183
-  @math.ln(x) - 5.58106146679532777 - z + (z - 0.5) * @math.ln(z + 6.5)
-}
-
-///|
 /// log binomial coefficient  ln C(n, k).
 fn fisher_lbinom(n : Int32, k : Int32) -> Double {
   if k == 0 || n == k {
     return 0.0
   }
-  fisher_lgamma(n.to_double() + 1.0) -
-  fisher_lgamma(k.to_double() + 1.0) -
-  fisher_lgamma((n - k).to_double() + 1.0)
+  lgamma(n.to_double() + 1.0) -
+  lgamma(k.to_double() + 1.0) -
+  lgamma((n - k).to_double() + 1.0)
 }
 
 ///|

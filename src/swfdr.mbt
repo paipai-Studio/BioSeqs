@@ -1225,34 +1225,9 @@ fn _sw_fit_linear(
 // ===========================================================================
 
 ///|
-/// log Gamma(x) via the Lanczos approximation (Spousteau coefficients).
-fn _sw_lgamma(value : Double) -> Double {
-  let coefficients = [
-    0.9999999999998099, 676.5203681218851, -1259.1392167224028, 771.3234287776531,
-    -176.6150291621406, 12.507343278686905, -0.13857109526572012, 9.984369578019572e-6,
-    1.5056327351493116e-7,
-  ]
-  if value < 0.5 {
-    let pi = 3.141592653589793
-    return @math.ln(pi) -
-      @math.ln(@math.sin(pi * value).abs()) -
-      _sw_lgamma(1.0 - value)
-  }
-  let shifted = value - 1.0
-  let mut series = coefficients[0]
-  let mut index = 1
-  while index < coefficients.length() {
-    series = series + coefficients[index] / (shifted + index.to_double())
-    index = index + 1
-  }
-  let t = shifted + 7.5
-  0.9189385332046727 + (shifted + 0.5) * @math.ln(t) - t + @math.ln(series)
-}
-
-///|
 /// log B(a,b) = lgamma(a) + lgamma(b) - lgamma(a+b).
 fn _sw_lbeta(a : Double, b : Double) -> Double {
-  _sw_lgamma(a) + _sw_lgamma(b) - _sw_lgamma(a + b)
+  lgamma(a) + lgamma(b) - lgamma(a + b)
 }
 
 ///|
@@ -1344,9 +1319,9 @@ fn _sw_pbeta(x : Double, a : Double, b : Double) -> Double {
   // bt already carries the 1/a prefactor of the direct branch; the
   // complement identity I_x(a,b) = 1 - I_{1-x}(b,a) divides by b
   // instead, hence the a/b rescale there.
-  let lnb = _sw_lgamma(a + b) -
-    _sw_lgamma(a) -
-    _sw_lgamma(b) +
+  let lnb = lgamma(a + b) -
+    lgamma(a) -
+    lgamma(b) +
     a * @math.ln(x) +
     b * @math.ln(1.0 - x) -
     @math.ln(a)

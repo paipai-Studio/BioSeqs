@@ -4,19 +4,9 @@
 /// gamma and beta functions used in statistical tests.
 
 ///|
-/// Log gamma function: log(Gamma(z)).
-/// AS245, 2nd algorithm.
+/// Log-gamma(转发至 mathx 统一 Lanczos g=7 实现, 保持 API 兼容).
 pub fn kf_lgamma(z : Double) -> Double {
-  let x0 = 0.1659470187408462e-06 / (z + 7.0)
-  let x1 = 0.9934937113930748e-05 / (z + 6.0)
-  let x2 = 0.1385710331296526 / (z + 5.0)
-  let x3 = 12.50734324009056 / (z + 4.0)
-  let x4 = 176.6150291498386 / (z + 3.0)
-  let x5 = 771.3234287757674 / (z + 2.0)
-  let x6 = 1259.139216722289 / (z + 1.0)
-  let x7 = 676.5203681218835 / z
-  let x = x0 + x1 - x2 + x3 - x4 + x5 - x6 + x7 + 0.9999999999995183
-  @math.ln(x) - 5.58106146679532777 - z + (z - 0.5) * @math.ln(z + 6.5)
+  lgamma(z)
 }
 
 ///|

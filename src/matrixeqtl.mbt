@@ -149,7 +149,7 @@ fn meqtl_incomplete_beta(x : Double, a : Double, b : Double) -> Double {
     return 1.0
   }
 
-  let lbeta_val = meqtl_lngamma(a) + meqtl_lngamma(b) - meqtl_lngamma(a + b)
+  let lbeta_val = lgamma(a) + lgamma(b) - lgamma(a + b)
   let mut bt = @math.ln(x) * a + @math.ln(1.0 - x) * b - lbeta_val
   bt = @math.exp(bt)
 
@@ -216,28 +216,6 @@ fn meqtl_betacf(x : Double, a : Double, b : Double) -> Double {
     m = m + 1
   }
   h
-}
-
-///|
-/// Log of the gamma function using the Lanczos approximation.
-fn meqtl_lngamma(x : Double) -> Double {
-  let cof = [
-    76.18009172947146, -86.50532032941677, 24.01409824083091, -1.231739572450155,
-    0.001208650973866179, -0.000005395239384953,
-  ]
-  let mut y = x
-  let mut tmp = x + 5.5
-  tmp = (x + 0.5) * @math.ln(tmp) - tmp
-
-  let mut ser = 1.000000000190015
-  let mut j = 0
-  while j < cof.length() {
-    y = y + 1.0
-    ser = ser + cof[j] / y
-    j = j + 1
-  }
-
-  tmp + @math.ln(2.5066282746310005 * ser / x)
 }
 
 ///|

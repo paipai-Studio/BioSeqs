@@ -920,7 +920,7 @@ fn rstatix_ibeta(a : Double, b : Double, x : Double) -> Double {
     1.5056327351493116e-7,
   ]
   let _pi = 3.14159265358979323846
-  let lbeta = rstatix_lgamma(a) + rstatix_lgamma(b) - rstatix_lgamma(a + b)
+  let lbeta = lgamma(a) + lgamma(b) - lgamma(a + b)
   let front = @math.exp(a * @math.ln(x) + b * @math.ln(1.0 - x) - lbeta) / a
   let max_iter = 100
   let eps = 1.0e-10
@@ -969,31 +969,6 @@ fn rstatix_ibeta(a : Double, b : Double, x : Double) -> Double {
     m = m + 1
   }
   front * f
-}
-
-///|
-fn rstatix_lgamma(x : Double) -> Double {
-  if x <= 0.0 {
-    return @double.not_a_number
-  }
-  let g = 7.0
-  let c = [
-    0.99999999999980993, 676.5203681218851, -1259.1392167224028, 771.32342877765313,
-    -176.61502916214059, 12.507343278686905, -0.13857109526572012, 9.9843695780195716e-6,
-    1.5056327351493116e-7,
-  ]
-  let pi = 3.14159265358979323846
-  if x < 0.5 {
-    return @math.ln(pi / @math.sin(pi * x)) - rstatix_lgamma(1.0 - x)
-  }
-  let mut sum = c[0]
-  let mut i = 1
-  while i < 9 {
-    sum = sum + c[i] / (x + i.to_double() - 1.0)
-    i = i + 1
-  }
-  let t = x + g + 0.5
-  0.5 * @math.ln(2.0 * pi) + (t * @math.ln(t) - t) + @math.ln(sum)
 }
 
 ///|

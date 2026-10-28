@@ -272,40 +272,9 @@ pub fn bayseq_nb_log_likelihood(
 }
 
 ///|
-/// Approximation of log-gamma function using Lanczos with g=5.
+/// Log-gamma(转发至 mathx 统一 Lanczos g=7 实现, 保持 API 兼容).
 pub fn bayseq_lgamma(x : Double) -> Double {
-  if x <= 0.0 {
-    return 0.0
-  }
-  // For integer x <= 20, use exact recursive relation
-  if x == 1.0 || x == 2.0 {
-    return 0.0
-  }
-  if x < 1.0 {
-    // Reflection formula: lgamma(x) = lgamma(x+1) - ln(x)
-    return bayseq_lgamma(x + 1.0) - @math.ln(x)
-  }
-  // For x in [1, 2], interpolate
-  if x < 2.0 {
-    // lgamma(x) = lgamma(x+1) - ln(x)
-    return bayseq_lgamma(x + 1.0) - @math.ln(x)
-  }
-  // Lanczos approximation for x >= 2
-  // Coefficients for g=5
-  let c = [
-    76.18009172947146, -86.50532032941677, 24.01409824083091, -1.231739572450155,
-    0.1208650973866179e-2, -0.5395239384953e-5,
-  ]
-  let y = x
-  let mut tmp = x + 5.5
-  tmp = tmp - (x + 0.5) * @math.ln(tmp)
-  let mut ser = 1.000000000190015
-  let mut i = 0
-  while i < 6 {
-    ser = ser + c[i] / (y + i.to_double())
-    i = i + 1
-  }
-  -tmp + @math.ln(2.5066282746310005 * ser / y)
+  lgamma(x)
 }
 
 ///|

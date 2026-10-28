@@ -603,22 +603,6 @@ fn tradeseq_adv_matrix_vector(
 }
 
 ///|
-fn tradeseq_adv_log_gamma(value : Double) -> Double {
-  let coefficients = [
-    0.99999999999980993, 676.5203681218851, -1259.1392167224028, 771.32342877765313,
-    -176.61502916214059, 12.507343278686905, -0.13857109526572012, 9.9843695780195716e-6,
-    1.5056327351493116e-7,
-  ]
-  let shifted = value - 1.0
-  let mut sum = coefficients[0]
-  for index in 1..<coefficients.length() {
-    sum = sum + coefficients[index] / (shifted + index.to_double())
-  }
-  let t = shifted + 7.5
-  0.9189385332046727 + (shifted + 0.5) * @math.ln(t) - t + @math.ln(sum)
-}
-
-///|
 fn tradeseq_adv_nb_log_likelihood(
   response : Array[Double],
   fitted : Array[Double],
@@ -630,9 +614,9 @@ fn tradeseq_adv_nb_log_likelihood(
   for index in 0..<observations.length() {
     let y = response[observations[index].cell]
     let mu = fitted[index].max(1.0e-12)
-    let contribution = tradeseq_adv_log_gamma(y + size) -
-      tradeseq_adv_log_gamma(size) -
-      tradeseq_adv_log_gamma(y + 1.0) +
+    let contribution = lgamma(y + size) -
+      lgamma(size) -
+      lgamma(y + 1.0) +
       size * @math.ln(size / (size + mu)) +
       y * @math.ln(mu / (size + mu))
     result = result + observations[index].weight * contribution
@@ -990,7 +974,7 @@ fn tradeseq_adv_log_gamma_q(a : Double, x : Double) -> Double {
       index = index + 1
     }
     return clamp(
-      1.0 - sum * @math.exp(-x + a * @math.ln(x) - tradeseq_adv_log_gamma(a)),
+      1.0 - sum * @math.exp(-x + a * @math.ln(x) - lgamma(a)),
       0.0,
       1.0,
     )
@@ -1020,11 +1004,7 @@ fn tradeseq_adv_log_gamma_q(a : Double, x : Double) -> Double {
     }
     index = index + 1
   }
-  clamp(
-    value * @math.exp(-x + a * @math.ln(x) - tradeseq_adv_log_gamma(a)),
-    0.0,
-    1.0,
-  )
+  clamp(value * @math.exp(-x + a * @math.ln(x) - lgamma(a)), 0.0, 1.0)
 }
 
 ///|

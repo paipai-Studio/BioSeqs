@@ -356,7 +356,7 @@ fn dmrcate_incomplete_beta(x : Double, a : Double, b : Double) -> Double {
   if x > (a + 1.0) / (a + b + 2.0) {
     return 1.0 - dmrcate_incomplete_beta(1.0 - x, b, a)
   }
-  let lbeta = dmrcate_lngamma(a) + dmrcate_lngamma(b) - dmrcate_lngamma(a + b)
+  let lbeta = lgamma(a) + lgamma(b) - lgamma(a + b)
   let front = @math.exp(@math.ln(x) * a + @math.ln(1.0 - x) * b - lbeta) / a
   // Lentz's continued fraction
   let tiny = 1.0e-30
@@ -389,26 +389,6 @@ fn dmrcate_incomplete_beta(x : Double, a : Double, b : Double) -> Double {
     i = i + 1
   }
   front * (f - 1.0)
-}
-
-///|
-/// Log-gamma function using Lanczos approximation.
-fn dmrcate_lngamma(x : Double) -> Double {
-  let cof = [
-    76.18009172947146, -86.50532032941677, 24.01409824083091, -1.231739572450155,
-    0.001208650973866179, -0.000005395239384953,
-  ]
-  let mut x1 = x
-  let mut tmp = x1 + 5.5
-  tmp = (x1 + 0.5) * @math.ln(tmp) - tmp
-  let mut ser = 1.000000000190015
-  let mut j = 0
-  while j < cof.length() {
-    x1 = x1 + 1.0
-    ser = ser + cof[j] / x1
-    j = j + 1
-  }
-  tmp + @math.ln(2.5066282746310005 * ser)
 }
 
 ///|

@@ -2354,22 +2354,6 @@ pub fn CodemlModelResult::bic(
 }
 
 ///|
-fn codeml_log_gamma(value : Double) -> Double {
-  let coefficients = [
-    0.99999999999980993, 676.5203681218851, -1259.1392167224028, 771.32342877765313,
-    -176.61502916214059, 12.507343278686905, -0.13857109526572012, 9.9843695780195716e-6,
-    1.5056327351493116e-7,
-  ]
-  let shifted = value - 1.0
-  let mut sum = coefficients[0]
-  for index in 1..<coefficients.length() {
-    sum = sum + coefficients[index] / (shifted + index.to_double())
-  }
-  let t = shifted + 7.5
-  0.9189385332046727 + (shifted + 0.5) * @math.ln(t) - t + @math.ln(sum)
-}
-
-///|
 fn codeml_gamma_q(a : Double, x : Double) -> Double {
   if x <= 0.0 {
     return 1.0
@@ -2387,7 +2371,7 @@ fn codeml_gamma_q(a : Double, x : Double) -> Double {
       index = index + 1
     }
     return clamp(
-      1.0 - sum * @math.exp(-x + a * @math.ln(x) - codeml_log_gamma(a)),
+      1.0 - sum * @math.exp(-x + a * @math.ln(x) - lgamma(a)),
       0.0,
       1.0,
     )
@@ -2417,7 +2401,7 @@ fn codeml_gamma_q(a : Double, x : Double) -> Double {
     }
     index = index + 1
   }
-  clamp(value * @math.exp(-x + a * @math.ln(x) - codeml_log_gamma(a)), 0.0, 1.0)
+  clamp(value * @math.exp(-x + a * @math.ln(x) - lgamma(a)), 0.0, 1.0)
 }
 
 ///|

@@ -364,7 +364,7 @@ fn hmisc_ibeta(a : Double, b : Double, x : Double) -> Double {
   if x == 0.0 || x == 1.0 {
     return x
   }
-  let result = hmisc_log_gamma(a + b) - hmisc_log_gamma(a) - hmisc_log_gamma(b)
+  let result = lgamma(a + b) - lgamma(a) - lgamma(b)
   let front = @math.exp(result + a * @math.ln(x) + b * @math.ln(1.0 - x)) / a
   let max_iter = 200
   let eps = 1.0e-10
@@ -413,32 +413,6 @@ fn hmisc_ibeta(a : Double, b : Double, x : Double) -> Double {
     m = m + 1
   }
   front * f
-}
-
-///|
-/// Natural log of the gamma function using Lanczos approximation.
-fn hmisc_log_gamma(x : Double) -> Double {
-  if x <= 0.0 {
-    return @double.not_a_number
-  }
-  let g = 7.0
-  let c = [
-    0.99999999999980993, 676.5203681218851, -1259.1392167224028, 771.32342877765313,
-    -176.61502916214059, 12.507343278686905, -0.13857109526572012, 9.9843695780195716e-6,
-    1.5056327351493116e-7,
-  ]
-  let pi = 3.14159265358979323846
-  if x < 0.5 {
-    return @math.ln(pi / @math.sin(pi * x)) - hmisc_log_gamma(1.0 - x)
-  }
-  let mut sum = c[0]
-  let mut i = 1
-  while i < 9 {
-    sum = sum + c[i] / (x + i.to_double() - 1.0)
-    i = i + 1
-  }
-  let t = x + g + 0.5
-  0.5 * @math.ln(2.0 * pi) + (t * @math.ln(t) - t) + @math.ln(sum)
 }
 
 ///|

@@ -105,26 +105,6 @@ pub fn CameraResult::fdr(self : CameraResult) -> Double? {
 // ---------------------------------------------------------------------------
 
 ///|
-/// Lanczos approximation for ln(gamma(x)) (Numerical Recipes form with the
-/// 1/x normalization; the package-level ``lngamma`` in limma.mbt omits that
-/// normalization and is biased by -ln(x), so it cannot be reused here).
-fn gst_lngamma(x_in : Double) -> Double {
-  let cof = [
-    76.18009172947146, -86.50532032941677, 24.01409824083091, -1.231739572450155,
-    0.1208650973866179e-2, -0.5395239384953e-5,
-  ]
-  let mut y = x_in
-  let mut tmp = x_in + 5.5
-  tmp -= (x_in + 0.5) * @math.ln(tmp)
-  let mut ser = 1.000000000190015
-  for c in cof {
-    y += 1.0
-    ser += c / y
-  }
-  -tmp + @math.ln(2.5066282746310005 * ser / x_in)
-}
-
-///|
 /// Incomplete beta continued fraction (Numerical Recipes betacf), high
 /// precision; replaces the looser beta routine elsewhere in the package.
 fn gst_betacf(a : Double, b : Double, x : Double) -> Double {
@@ -190,9 +170,9 @@ fn gst_pbeta(x : Double, a : Double, b : Double) -> Double {
     return 1.0
   }
   let bt = @math.exp(
-    gst_lngamma(a + b) -
-    gst_lngamma(a) -
-    gst_lngamma(b) +
+    lgamma(a + b) -
+    lgamma(a) -
+    lgamma(b) +
     a * @math.ln(x) +
     b * @math.ln(1.0 - x),
   )

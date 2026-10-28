@@ -554,7 +554,7 @@ fn spk_gamma_p_series(a : Double, x : Double) -> Double {
   if x <= 0.0 {
     return 0.0
   }
-  let gln = gst_lngamma(a)
+  let gln = lgamma(a)
   if x < a + 1.0 {
     let mut ap = a
     let mut sum = 1.0 / a
@@ -575,7 +575,7 @@ fn spk_gamma_p_series(a : Double, x : Double) -> Double {
 
 ///|
 fn spk_gamma_q_cf(a : Double, x : Double) -> Double {
-  let gln = gst_lngamma(a)
+  let gln = lgamma(a)
   let fpmin = 1.0e-300
   let mut b = x + 1.0 - a
   let mut c = 1.0 / fpmin
@@ -642,9 +642,9 @@ fn spk_log_pf_upper(f : Double, df1 : Double, df2 : Double) -> Double {
     let b = df1 / 2.0
     let x = df2 / (df2 + df1 * f) // near 1
     let y = 1.0 - x
-    let bt = gst_lngamma(a + b) -
-      gst_lngamma(a) -
-      gst_lngamma(b) +
+    let bt = lgamma(a + b) -
+      lgamma(a) -
+      lgamma(b) +
       a * @math.ln(x) +
       b * @math.ln(y)
     let small = @math.exp(bt) * gst_betacf(a, b, x) / a
@@ -708,12 +708,12 @@ fn spk_df(f : Double, df1 : Double, df2 : Double) -> Double {
     let a = df1 / 2.0
     return df1 *
       @math.exp(
-        -y / 2.0 + (a - 1.0) * @math.ln(y) - a * @math.ln(2.0) - gst_lngamma(a),
+        -y / 2.0 + (a - 1.0) * @math.ln(y) - a * @math.ln(2.0) - lgamma(a),
       )
   }
   let a = df1 / 2.0
   let b = df2 / 2.0
-  let lbeta = gst_lngamma(a) + gst_lngamma(b) - gst_lngamma(a + b)
+  let lbeta = lgamma(a) + lgamma(b) - lgamma(a + b)
   @math.exp(
     a * @math.ln(df1 / df2) +
     (a - 1.0) * @math.ln(f) -
