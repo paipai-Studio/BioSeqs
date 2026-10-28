@@ -109,11 +109,6 @@ pub fn milo_no_spatial_weighting() -> MiloSpatialWeighting {
 }
 
 ///|
-fn milo_is_finite(value : Double) -> Bool {
-  value == value && value.abs() < 1.0e300
-}
-
-///|
 fn milo_copy_double_matrix(
   matrix : Array[Array[Double]],
 ) -> Array[Array[Double]] {
@@ -151,7 +146,7 @@ fn milo_validate_coordinates(
       raise MiloError("miloR coordinates must be rectangular")
     }
     for value in row {
-      if !milo_is_finite(value) {
+      if !is_finite(value) {
         raise MiloError("miloR coordinates must contain finite values")
       }
     }
@@ -421,7 +416,7 @@ pub fn MiloExperiment::make_neighborhoods(
   refined? : Bool = true,
   seed? : Int = 42,
 ) -> MiloExperiment raise MiloError {
-  if !milo_is_finite(proportion) || proportion <= 0.0 || proportion >= 1.0 {
+  if !is_finite(proportion) || proportion <= 0.0 || proportion >= 1.0 {
     raise MiloError("miloR sampling proportion must be in (0, 1)")
   }
   let cells = self.coordinates.length()
@@ -538,7 +533,7 @@ pub fn MiloExperiment::neighborhood_expression(
       let mut total = 0.0
       for cell in neighborhood {
         let value = feature[cell]
-        if !milo_is_finite(value) {
+        if !is_finite(value) {
           raise MiloError("miloR expression values must be finite")
         }
         total = total + value
@@ -668,7 +663,7 @@ pub fn milo_graph_spatial_fdr(
     raise MiloError("miloR p-values must match the neighborhood count")
   }
   for p_value in p_values {
-    if !milo_is_finite(p_value) || p_value < 0.0 || p_value > 1.0 {
+    if !is_finite(p_value) || p_value < 0.0 || p_value > 1.0 {
       raise MiloError("miloR p-values must be finite values in [0, 1]")
     }
   }
@@ -679,7 +674,7 @@ pub fn milo_graph_spatial_fdr(
   let weights = Array::make(count, 1.0)
   for index in 0..<count {
     let value = connectivity[index]
-    weights[index] = if milo_is_finite(value) && value > 1.0e-12 {
+    weights[index] = if is_finite(value) && value > 1.0e-12 {
       1.0 / value
     } else {
       1.0
@@ -886,7 +881,7 @@ fn milo_validate_design(
       raise MiloError("miloR design matrix must be rectangular")
     }
     for value in row {
-      if !milo_is_finite(value) {
+      if !is_finite(value) {
         raise MiloError("miloR design matrix must contain finite values")
       }
     }
@@ -909,7 +904,7 @@ fn milo_library_offsets(
       raise MiloError("miloR cell sizes must match the sample count")
     }
     for sample in 0..<samples {
-      if !milo_is_finite(cell_sizes[sample]) || cell_sizes[sample] <= 0.0 {
+      if !is_finite(cell_sizes[sample]) || cell_sizes[sample] <= 0.0 {
         raise MiloError("miloR cell sizes must be finite and positive")
       }
       library_sizes[sample] = cell_sizes[sample]
@@ -1033,7 +1028,7 @@ fn milo_fit_nb_glm(
     None => 1.0e300
   }
   let statistic = coefficients[contrast_column] / standard_error
-  let p_value = if milo_is_finite(statistic) {
+  let p_value = if is_finite(statistic) {
     (2.0 * (1.0 - stat_normal_cdf(statistic.abs()))).max(0.0).min(1.0)
   } else {
     1.0
@@ -1074,7 +1069,7 @@ pub fn MiloExperiment::test_neighborhoods(
       "miloR neighborhood counts are missing; run count_cells first",
     )
   }
-  if !milo_is_finite(min_mean) || min_mean < 0.0 {
+  if !is_finite(min_mean) || min_mean < 0.0 {
     raise MiloError("miloR minimum mean count must be finite and non-negative")
   }
   let samples = self.sample_names.length()

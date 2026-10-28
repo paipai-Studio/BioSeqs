@@ -2322,17 +2322,6 @@ fn codeml_log_gamma(value : Double) -> Double {
 }
 
 ///|
-fn codeml_clamp(value : Double, lower : Double, upper : Double) -> Double {
-  if value < lower {
-    lower
-  } else if value > upper {
-    upper
-  } else {
-    value
-  }
-}
-
-///|
 fn codeml_gamma_q(a : Double, x : Double) -> Double {
   if x <= 0.0 {
     return 1.0
@@ -2349,7 +2338,7 @@ fn codeml_gamma_q(a : Double, x : Double) -> Double {
       }
       index = index + 1
     }
-    return codeml_clamp(
+    return clamp(
       1.0 - sum * @math.exp(-x + a * @math.ln(x) - codeml_log_gamma(a)),
       0.0,
       1.0,
@@ -2380,7 +2369,7 @@ fn codeml_gamma_q(a : Double, x : Double) -> Double {
     }
     index = index + 1
   }
-  codeml_clamp(
+  clamp(
     value * @math.exp(-x + a * @math.ln(x) - codeml_log_gamma(a)),
     0.0,
     1.0,

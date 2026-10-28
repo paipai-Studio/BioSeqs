@@ -157,11 +157,6 @@ fn dreamlet_fail(message : String) -> Unit raise DreamletError {
 }
 
 ///|
-fn dreamlet_is_finite(value : Double) -> Bool {
-  value == value && value.abs() < 1.0e300
-}
-
-///|
 fn dreamlet_log2(value : Double) -> Double {
   @math.ln(value) / @math.ln(2.0)
 }
@@ -280,7 +275,7 @@ fn dreamlet_validate_count_matrix(
       )
     }
     for value in row {
-      if !dreamlet_is_finite(value) || value < 0.0 {
+      if !is_finite(value) || value < 0.0 {
         dreamlet_fail("dreamlet counts must be finite and non-negative")
       }
       if require_integer && (value - value.round()).abs() > 1.0e-8 {
@@ -374,36 +369,36 @@ pub fn DreamletProcessConfig::create(
   if min_cells < 1 {
     dreamlet_fail("dreamlet min_cells must be positive")
   }
-  if !dreamlet_is_finite(min_count) || min_count < 0.0 {
+  if !is_finite(min_count) || min_count < 0.0 {
     dreamlet_fail("dreamlet min_count must be finite and non-negative")
   }
   if min_samples < 3 {
     dreamlet_fail("dreamlet min_samples must be at least three")
   }
-  if !dreamlet_is_finite(min_prop) || min_prop <= 0.0 || min_prop > 1.0 {
+  if !is_finite(min_prop) || min_prop <= 0.0 || min_prop > 1.0 {
     dreamlet_fail("dreamlet min_prop must be in (0, 1]")
   }
-  if !dreamlet_is_finite(min_total_count) || min_total_count < 0.0 {
+  if !is_finite(min_total_count) || min_total_count < 0.0 {
     dreamlet_fail("dreamlet min_total_count must be finite and non-negative")
   }
-  if !dreamlet_is_finite(prior_count) || prior_count <= 0.0 {
+  if !is_finite(prior_count) || prior_count <= 0.0 {
     dreamlet_fail("dreamlet prior_count must be finite and positive")
   }
-  if !dreamlet_is_finite(span) || span <= 0.0 || span > 1.0 {
+  if !is_finite(span) || span <= 0.0 || span > 1.0 {
     dreamlet_fail("dreamlet LOWESS span must be in (0, 1]")
   }
-  if !dreamlet_is_finite(logratio_trim) ||
+  if !is_finite(logratio_trim) ||
     logratio_trim < 0.0 ||
     logratio_trim >= 0.5 {
     dreamlet_fail("dreamlet TMM log-ratio trim must be in [0, 0.5)")
   }
-  if !dreamlet_is_finite(sum_trim) || sum_trim < 0.0 || sum_trim >= 0.5 {
+  if !is_finite(sum_trim) || sum_trim < 0.0 || sum_trim >= 0.5 {
     dreamlet_fail("dreamlet TMM abundance trim must be in [0, 0.5)")
   }
   if max_iterations <= 0 {
     dreamlet_fail("dreamlet max_iterations must be positive")
   }
-  if !dreamlet_is_finite(tolerance) || tolerance <= 0.0 {
+  if !is_finite(tolerance) || tolerance <= 0.0 {
     dreamlet_fail("dreamlet tolerance must be finite and positive")
   }
   DreamletProcessConfig::{
@@ -650,9 +645,9 @@ fn dreamlet_tmm_pair(
         (observed_library * observed) +
         (reference_library - reference_count) /
         (reference_library * reference_count)
-      if dreamlet_is_finite(m_value) &&
-        dreamlet_is_finite(a_value) &&
-        dreamlet_is_finite(variance) &&
+      if is_finite(m_value) &&
+        is_finite(a_value) &&
+        is_finite(variance) &&
         variance > 0.0 {
         m_values.push(m_value)
         a_values.push(a_value)
@@ -789,7 +784,7 @@ pub fn dreamlet_compute_norm_counts(
     false,
   )
   for size in effective_library_sizes {
-    if !dreamlet_is_finite(size) || size <= 0.0 {
+    if !is_finite(size) || size <= 0.0 {
       dreamlet_fail(
         "dreamlet effective library sizes must be finite and positive",
       )
@@ -814,7 +809,7 @@ pub fn dreamlet_compute_log_cpm(
   effective_library_sizes : Array[Double],
   prior_count? : Double = 0.5,
 ) -> Array[Array[Double]] raise DreamletError {
-  if !dreamlet_is_finite(prior_count) || prior_count <= 0.0 {
+  if !is_finite(prior_count) || prior_count <= 0.0 {
     dreamlet_fail("dreamlet log CPM prior count must be finite and positive")
   }
   if effective_library_sizes.length() == 0 {
@@ -826,7 +821,7 @@ pub fn dreamlet_compute_log_cpm(
     false,
   )
   for size in effective_library_sizes {
-    if !dreamlet_is_finite(size) || size <= 0.0 {
+    if !is_finite(size) || size <= 0.0 {
       dreamlet_fail(
         "dreamlet effective library sizes must be finite and positive",
       )
@@ -900,7 +895,7 @@ fn dreamlet_build_design(
             for value in values {
               match parse_double(value) {
                 Some(parsed) =>
-                  if dreamlet_is_finite(parsed) {
+                  if is_finite(parsed) {
                     numeric.push(parsed)
                   } else {
                     dreamlet_fail(
@@ -1320,7 +1315,7 @@ pub fn dreamlet(
   if coefficient_name == "" {
     dreamlet_fail("dreamlet coefficient name must not be empty")
   }
-  if max_iterations <= 0 || !dreamlet_is_finite(tolerance) || tolerance <= 0.0 {
+  if max_iterations <= 0 || !is_finite(tolerance) || tolerance <= 0.0 {
     dreamlet_fail("dreamlet fit controls are invalid")
   }
   let resolved_name = if contrast_name == "" {
@@ -1460,7 +1455,7 @@ pub fn DreamletResult::top_table(
   maximum_fdr? : Double = 1.0,
   cluster_id? : String = "",
 ) -> Array[DreamletGeneResult] raise DreamletError {
-  if !dreamlet_is_finite(maximum_fdr) || maximum_fdr < 0.0 || maximum_fdr > 1.0 {
+  if !is_finite(maximum_fdr) || maximum_fdr < 0.0 || maximum_fdr > 1.0 {
     dreamlet_fail("dreamlet maximum FDR must be between zero and one")
   }
   let selected : Array[DreamletGeneResult] = []

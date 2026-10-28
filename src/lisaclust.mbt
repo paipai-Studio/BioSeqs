@@ -46,11 +46,6 @@ pub fn lisa_convex_window() -> LisaWindowKind {
 }
 
 ///|
-fn lisa_is_finite(value : Double) -> Bool {
-  value == value && value.abs() <= 1.0e300
-}
-
-///|
 pub struct LisaCell {
   cell_id : String
   image_id : String
@@ -78,7 +73,7 @@ pub fn LisaCell::create(
   if cell_type == "" {
     raise LisaError("lisaClust cell type must not be empty")
   }
-  if !lisa_is_finite(x) || !lisa_is_finite(y) {
+  if !is_finite(x) || !is_finite(y) {
     raise LisaError("lisaClust coordinates must be finite")
   }
   LisaCell::{ cell_id, image_id, cell_type, x, y, }
@@ -127,7 +122,7 @@ pub fn LisaConfig::create(
   let mut previous = 0.0
   for index in 0..<checked_radii.length() {
     let radius = checked_radii[index]
-    if !lisa_is_finite(radius) || radius <= 0.0 {
+    if !is_finite(radius) || radius <= 0.0 {
       raise LisaError("lisaClust radii must be finite and positive")
     }
     if index > 0 && radius <= previous {
@@ -135,13 +130,13 @@ pub fn LisaConfig::create(
     }
     previous = radius
   }
-  if !lisa_is_finite(bandwidth) || bandwidth <= 0.0 {
+  if !is_finite(bandwidth) || bandwidth <= 0.0 {
     raise LisaError("lisaClust bandwidth must be finite and positive")
   }
-  if !lisa_is_finite(min_density) || min_density <= 0.0 {
+  if !is_finite(min_density) || min_density <= 0.0 {
     raise LisaError("lisaClust minimum density must be finite and positive")
   }
-  if !lisa_is_finite(window_padding) || window_padding < 0.0 {
+  if !is_finite(window_padding) || window_padding < 0.0 {
     raise LisaError("lisaClust window padding must be finite and non-negative")
   }
   if edge_samples < 32 {
@@ -153,7 +148,7 @@ pub fn LisaConfig::create(
   if n_starts < 1 || max_iterations < 1 {
     raise LisaError("lisaClust k-means controls must be positive")
   }
-  if !lisa_is_finite(tolerance) || tolerance <= 0.0 || tolerance >= 1.0 {
+  if !is_finite(tolerance) || tolerance <= 0.0 || tolerance >= 1.0 {
     raise LisaError("lisaClust tolerance must be finite and in (0, 1)")
   }
   if seed < 0 {
@@ -379,7 +374,7 @@ pub fn LisaResult::top_enrichments(
   if limit < 0 {
     raise LisaError("lisaClust enrichment limit must be non-negative")
   }
-  if !lisa_is_finite(minimum_relative_frequency) ||
+  if !is_finite(minimum_relative_frequency) ||
     minimum_relative_frequency < 0.0 {
     raise LisaError("lisaClust enrichment threshold must be non-negative")
   }
@@ -483,7 +478,7 @@ fn lisa_validate_cells(cells : Array[LisaCell]) -> Unit raise LisaError {
     if cell.image_id == "" || cell.cell_type == "" || cell.cell_id == "" {
       raise LisaError("lisaClust cell identifiers must not be empty")
     }
-    if !lisa_is_finite(cell.x) || !lisa_is_finite(cell.y) {
+    if !is_finite(cell.x) || !is_finite(cell.y) {
       raise LisaError("lisaClust coordinates must be finite")
     }
   }
@@ -653,7 +648,7 @@ fn lisa_image_window(
     }
   }
   let area = lisa_polygon_area(vertices)
-  if !lisa_is_finite(area) || area <= 1.0e-14 {
+  if !is_finite(area) || area <= 1.0e-14 {
     raise LisaError("lisaClust image window area must be positive")
   }
   let mut vertex_min_x = vertices[0].0
@@ -1219,7 +1214,7 @@ pub fn lisaclust_from_curves(
       raise LisaError("lisaClust curve matrix must be rectangular")
     }
     for value in row {
-      if !lisa_is_finite(value) {
+      if !is_finite(value) {
         raise LisaError("lisaClust curves must be finite")
       }
     }

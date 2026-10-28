@@ -59,17 +59,17 @@ pub fn DmnConfig::create(
       "DirichletMultinomial iteration limits must be positive",
     )
   }
-  if !dmn_is_finite(tolerance) || tolerance <= 0.0 {
+  if !is_finite(tolerance) || tolerance <= 0.0 {
     raise DirichletMultinomialError(
       "DirichletMultinomial EM tolerance must be finite and positive",
     )
   }
-  if !dmn_is_finite(optimizer_tolerance) || optimizer_tolerance <= 0.0 {
+  if !is_finite(optimizer_tolerance) || optimizer_tolerance <= 0.0 {
     raise DirichletMultinomialError(
       "DirichletMultinomial optimizer tolerance must be finite and positive",
     )
   }
-  if !dmn_is_finite(soft_beta) || soft_beta <= 0.0 {
+  if !is_finite(soft_beta) || soft_beta <= 0.0 {
     raise DirichletMultinomialError(
       "DirichletMultinomial soft k-means beta must be finite and positive",
     )
@@ -79,17 +79,17 @@ pub fn DmnConfig::create(
       "DirichletMultinomial random seed must be positive",
     )
   }
-  if !dmn_is_finite(prior_shape) || prior_shape <= 0.0 {
+  if !is_finite(prior_shape) || prior_shape <= 0.0 {
     raise DirichletMultinomialError(
       "DirichletMultinomial Gamma prior shape must be finite and positive",
     )
   }
-  if !dmn_is_finite(prior_rate) || prior_rate <= 0.0 {
+  if !is_finite(prior_rate) || prior_rate <= 0.0 {
     raise DirichletMultinomialError(
       "DirichletMultinomial Gamma prior rate must be finite and positive",
     )
   }
-  if !dmn_is_finite(min_alpha) || min_alpha <= 0.0 || min_alpha >= 1.0 {
+  if !is_finite(min_alpha) || min_alpha <= 0.0 || min_alpha >= 1.0 {
     raise DirichletMultinomialError(
       "DirichletMultinomial minimum alpha must be finite and in (0, 1)",
     )
@@ -211,11 +211,6 @@ pub struct DmnRoc {
 } derive(Eq, Debug)
 pub extend DmnRoc with Eq::{equal, not_equal}
 pub extend DmnRoc with @moonbitlang/core/debug.Debug::{to_repr}
-
-///|
-fn dmn_is_finite(value : Double) -> Bool {
-  value == value && value.abs() <= 1.0e300
-}
 
 ///|
 fn dmn_make_matrix(
@@ -433,7 +428,7 @@ pub fn dirichlet_multinomial_log_pmf(
         "Dirichlet-multinomial counts must be non-negative",
       )
     }
-    if !dmn_is_finite(alpha[index]) || alpha[index] <= 0.0 {
+    if !is_finite(alpha[index]) || alpha[index] <= 0.0 {
       raise DirichletMultinomialError(
         "Dirichlet-multinomial alpha values must be finite and positive",
       )
@@ -457,7 +452,7 @@ pub fn dirichlet_multinomial_mean(
   }
   let mut concentration = 0.0
   for value in alpha {
-    if !dmn_is_finite(value) || value <= 0.0 {
+    if !is_finite(value) || value <= 0.0 {
       raise DirichletMultinomialError(
         "Dirichlet-multinomial alpha values must be finite and positive",
       )
@@ -710,7 +705,7 @@ fn dmn_optimize_alpha(
     let transformed = dmn_matrix_vector(inverse_hessian, gradient)
     let direction = transformed.map(fn(value) { -value })
     let mut directional_derivative = dmn_dot(gradient, direction)
-    if !dmn_is_finite(directional_derivative) || directional_derivative >= 0.0 {
+    if !is_finite(directional_derivative) || directional_derivative >= 0.0 {
       let norm = dmn_dot(gradient, gradient).sqrt().max(1.0)
       for index in 0..<taxa {
         direction[index] = -gradient[index] / norm
@@ -733,7 +728,7 @@ fn dmn_optimize_alpha(
       let (next_objective, next_gradient) = dmn_alpha_objective_gradient(
         candidate, counts, membership, config,
       )
-      if dmn_is_finite(next_objective) &&
+      if is_finite(next_objective) &&
         next_objective <= objective + 1.0e-4 * step * directional_derivative {
         candidate_objective = next_objective
         candidate_gradient = next_gradient
@@ -753,7 +748,7 @@ fn dmn_optimize_alpha(
       gradient_change.push(candidate_gradient[index] - gradient[index])
     }
     let curvature = dmn_dot(gradient_change, displacement)
-    if dmn_is_finite(curvature) && curvature > 1.0e-12 {
+    if is_finite(curvature) && curvature > 1.0e-12 {
       let rho = 1.0 / curvature
       let hessian_gradient = dmn_matrix_vector(inverse_hessian, gradient_change)
       let quadratic = dmn_dot(gradient_change, hessian_gradient)
@@ -1699,7 +1694,7 @@ pub fn dirichlet_multinomial_roc(
   let mut maximum = scores[0]
   let mut minimum = scores[0]
   for index in 0..<scores.length() {
-    if !dmn_is_finite(scores[index]) {
+    if !is_finite(scores[index]) {
       raise DirichletMultinomialError(
         "DirichletMultinomial ROC scores must be finite",
       )
@@ -1816,7 +1811,7 @@ pub fn dirichlet_multinomial_fit_se(
         )
       }
       let value = assay[taxon][sample]
-      if !dmn_is_finite(value) ||
+      if !is_finite(value) ||
         value < 0.0 ||
         (value - value.round()).abs() > 1.0e-8 {
         raise DirichletMultinomialError(

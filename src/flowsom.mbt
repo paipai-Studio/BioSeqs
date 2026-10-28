@@ -105,8 +105,8 @@ pub fn FlowSomConfig::create(
   if rlen <= 0 || mst_runs <= 0 {
     flowsom_fail("FlowSOM rlen and mst_runs must be positive")
   }
-  if !flowsom_is_finite(alpha_start) ||
-    !flowsom_is_finite(alpha_end) ||
+  if !is_finite(alpha_start) ||
+    !is_finite(alpha_end) ||
     alpha_start <= 0.0 ||
     alpha_end < 0.0 ||
     alpha_start < alpha_end {
@@ -114,8 +114,8 @@ pub fn FlowSomConfig::create(
       "FlowSOM learning rates must be finite, non-negative and decreasing",
     )
   }
-  if !flowsom_is_finite(radius_start) ||
-    !flowsom_is_finite(radius_end) ||
+  if !is_finite(radius_start) ||
+    !is_finite(radius_end) ||
     radius_start < -1.0 ||
     radius_end < 0.0 ||
     (radius_start >= 0.0 && radius_start < radius_end) {
@@ -127,14 +127,14 @@ pub fn FlowSomConfig::create(
   if meta_starts <= 0 {
     flowsom_fail("FlowSOM meta-clustering starts must be positive")
   }
-  if !flowsom_is_finite(outlier_mad) || outlier_mad < 0.0 {
+  if !is_finite(outlier_mad) || outlier_mad < 0.0 {
     flowsom_fail("FlowSOM outlier MAD multiplier must be non-negative")
   }
   if seed <= 0 {
     flowsom_fail("FlowSOM random seed must be positive")
   }
   for value in importance {
-    if !flowsom_is_finite(value) || value <= 0.0 {
+    if !is_finite(value) || value <= 0.0 {
       flowsom_fail("FlowSOM marker importance values must be positive")
     }
   }
@@ -237,11 +237,6 @@ fn flowsom_fail(message : String) -> Unit raise FlowSomError {
 }
 
 ///|
-fn flowsom_is_finite(value : Double) -> Bool {
-  value == value && value.abs() <= 1.0e300
-}
-
-///|
 fn flowsom_double_matrix(
   rows : Int,
   columns : Int,
@@ -297,7 +292,7 @@ fn flowsom_matrix_shape(
       flowsom_fail("FlowSOM data must be rectangular")
     }
     for value in row {
-      if !flowsom_is_finite(value) {
+      if !is_finite(value) {
         flowsom_fail("FlowSOM data must contain only finite values")
       }
     }
@@ -325,12 +320,12 @@ pub fn flowsom_distance(
     flowsom_fail("FlowSOM distance vectors must be non-empty and equal-length")
   }
   for value in left {
-    if !flowsom_is_finite(value) {
+    if !is_finite(value) {
       flowsom_fail("FlowSOM distance vectors must be finite")
     }
   }
   for value in right {
-    if !flowsom_is_finite(value) {
+    if !is_finite(value) {
       flowsom_fail("FlowSOM distance vectors must be finite")
     }
   }
@@ -1393,7 +1388,7 @@ pub fn flowsom_marker_outliers(
   if markers != model.marker_names.length() {
     flowsom_fail("FlowSOM marker outlier data does not match the model")
   }
-  if !flowsom_is_finite(mad_allowed) || mad_allowed < 0.0 {
+  if !is_finite(mad_allowed) || mad_allowed < 0.0 {
     flowsom_fail("FlowSOM marker outlier MAD multiplier must be non-negative")
   }
   let mapped = flowsom_map_new(model, data)
@@ -1427,7 +1422,7 @@ pub fn flowsom_node_positive_percentages(
     flowsom_fail("FlowSOM positive cutoffs must match marker count")
   }
   for cutoff in cutoffs {
-    if !flowsom_is_finite(cutoff) {
+    if !is_finite(cutoff) {
       flowsom_fail("FlowSOM positive cutoffs must be finite")
     }
   }

@@ -36,19 +36,19 @@ pub fn SingleRAdvancedConfig::create(
   marker_count? : Int = 0,
   combine_marker_count? : Int = 10,
 ) -> SingleRAdvancedConfig raise SingleRAdvancedError {
-  if !single_r_adv_is_finite(quantile) || quantile < 0.0 || quantile > 1.0 {
+  if !is_finite(quantile) || quantile < 0.0 || quantile > 1.0 {
     raise SingleRAdvancedError("quantile must be finite and in [0, 1]")
   }
-  if !single_r_adv_is_finite(tune_threshold) || tune_threshold < 0.0 {
+  if !is_finite(tune_threshold) || tune_threshold < 0.0 {
     raise SingleRAdvancedError("tune_threshold must be finite and non-negative")
   }
-  if !single_r_adv_is_finite(nmads) || nmads < 0.0 {
+  if !is_finite(nmads) || nmads < 0.0 {
     raise SingleRAdvancedError("nmads must be finite and non-negative")
   }
-  if !single_r_adv_is_finite(minimum_delta_median) {
+  if !is_finite(minimum_delta_median) {
     raise SingleRAdvancedError("minimum_delta_median must be finite")
   }
-  if !single_r_adv_is_finite(minimum_delta_next) {
+  if !is_finite(minimum_delta_next) {
     raise SingleRAdvancedError("minimum_delta_next must be finite")
   }
   if marker_count < 0 {
@@ -163,11 +163,6 @@ pub struct SingleRAdvancedSCEOutput {
 }
 
 ///|
-fn single_r_adv_is_finite(value : Double) -> Bool {
-  value == value && value.abs() <= 1.0e300
-}
-
-///|
 fn single_r_adv_copy_matrix(
   matrix : Array[Array[Double]],
 ) -> Array[Array[Double]] {
@@ -228,7 +223,7 @@ fn single_r_adv_validate_matrix(
       raise SingleRAdvancedError("expression must be rectangular")
     }
     for value in row {
-      if !single_r_adv_is_finite(value) {
+      if !is_finite(value) {
         raise SingleRAdvancedError("expression values must be finite")
       }
     }
@@ -420,12 +415,12 @@ pub fn single_r_advanced_spearman(
     return 0.0
   }
   for value in left {
-    if !single_r_adv_is_finite(value) {
+    if !is_finite(value) {
       raise SingleRAdvancedError("Spearman correlation vectors must be finite")
     }
   }
   for value in right {
-    if !single_r_adv_is_finite(value) {
+    if !is_finite(value) {
       raise SingleRAdvancedError("Spearman correlation vectors must be finite")
     }
   }

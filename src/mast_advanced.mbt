@@ -40,16 +40,16 @@ pub fn MastAdvancedConfig::create(
   if max_iterations < 1 {
     raise MastAdvancedError("max_iterations must be positive")
   }
-  if tolerance <= 0.0 || !mast_adv_is_finite(tolerance) {
+  if tolerance <= 0.0 || !is_finite(tolerance) {
     raise MastAdvancedError("tolerance must be finite and positive")
   }
-  if cauchy_prior_scale <= 0.0 || !mast_adv_is_finite(cauchy_prior_scale) {
+  if cauchy_prior_scale <= 0.0 || !is_finite(cauchy_prior_scale) {
     raise MastAdvancedError("cauchy_prior_scale must be finite and positive")
   }
-  if ridge < 0.0 || !mast_adv_is_finite(ridge) {
+  if ridge < 0.0 || !is_finite(ridge) {
     raise MastAdvancedError("ridge must be finite and non-negative")
   }
-  if maximum_prior_df <= 0.0 || !mast_adv_is_finite(maximum_prior_df) {
+  if maximum_prior_df <= 0.0 || !is_finite(maximum_prior_df) {
     raise MastAdvancedError("maximum_prior_df must be finite and positive")
   }
   if minimum_detected < 1 {
@@ -159,22 +159,6 @@ priv struct MastAdvCoreFit {
 }
 
 ///|
-fn mast_adv_is_finite(value : Double) -> Bool {
-  value == value && value.abs() < 1.0e300
-}
-
-///|
-fn mast_adv_clamp(value : Double, lower : Double, upper : Double) -> Double {
-  if value < lower {
-    lower
-  } else if value > upper {
-    upper
-  } else {
-    value
-  }
-}
-
-///|
 fn mast_adv_zero_matrix(rows : Int, columns : Int) -> Array[Array[Double]] {
   let output : Array[Array[Double]] = []
   for _ in 0..<rows {
@@ -247,7 +231,7 @@ fn mast_adv_validate_expression(
       raise MastAdvancedError("expression must be rectangular")
     }
     for value in row {
-      if !mast_adv_is_finite(value) || value < 0.0 {
+      if !is_finite(value) || value < 0.0 {
         raise MastAdvancedError(
           "expression must contain finite non-negative values",
         )
@@ -335,7 +319,7 @@ pub fn MastAdvancedData::create(
   cdr_name? : String = "cngeneson",
 ) -> MastAdvancedData raise MastAdvancedError {
   let (genes, cells) = mast_adv_validate_expression(expression)
-  if !mast_adv_is_finite(detection_limit) || detection_limit < 0.0 {
+  if !is_finite(detection_limit) || detection_limit < 0.0 {
     raise MastAdvancedError("detection_limit must be finite and non-negative")
   }
   if design.length() != cells {
@@ -356,7 +340,7 @@ pub fn MastAdvancedData::create(
       raise MastAdvancedError("design must be rectangular")
     }
     for value in row {
-      if !mast_adv_is_finite(value) {
+      if !is_finite(value) {
         raise MastAdvancedError("design must contain finite values")
       }
     }
@@ -476,7 +460,7 @@ fn mast_adv_cholesky(matrix : Array[Array[Double]]) -> Array[Array[Double]]? {
         value = value - lower[row][inner] * lower[column][inner]
       }
       if row == column {
-        if value <= 1.0e-14 || !mast_adv_is_finite(value) {
+        if value <= 1.0e-14 || !is_finite(value) {
           return None
         }
         lower[row][column] = value.sqrt()
@@ -622,7 +606,7 @@ fn mast_adv_logistic_fit(
     let information = mast_adv_zero_matrix(parameters, parameters)
     let right_hand_side = Array::make(parameters, 0.0)
     for observation in 0..<observations {
-      let probability = mast_adv_clamp(
+      let probability = clamp(
         mast_adv_logistic(eta[observation]),
         config.minimum_probability,
         1.0 - config.minimum_probability,
@@ -654,7 +638,7 @@ fn mast_adv_logistic_fit(
       maximum_change = maximum_change.max(
         (updated[parameter] - coefficients[parameter]).abs(),
       )
-      coefficients[parameter] = mast_adv_clamp(updated[parameter], -40.0, 40.0)
+      coefficients[parameter] = clamp(updated[parameter], -40.0, 40.0)
     }
     if maximum_change < config.tolerance {
       converged = true
@@ -665,7 +649,7 @@ fn mast_adv_logistic_fit(
   let final_information = mast_adv_zero_matrix(parameters, parameters)
   let mut log_likelihood = 0.0
   for observation in 0..<observations {
-    let probability = mast_adv_clamp(
+    let probability = clamp(
       mast_adv_logistic(eta[observation]),
       config.minimum_probability,
       1.0 - config.minimum_probability,
@@ -971,8 +955,8 @@ fn mast_adv_estimate_ebayes(
       (-step_a, -step_b),
     ]
     for candidate in candidates {
-      let candidate_a = mast_adv_clamp(log_a + candidate.0, -6.0, 12.0)
-      let candidate_b = mast_adv_clamp(log_b + candidate.1, -24.0, 24.0)
+      let candidate_a = clamp(log_a + candidate.0, -6.0, 12.0)
+      let candidate_b = clamp(log_b + candidate.1, -24.0, 24.0)
       let likelihood = mast_adv_ebayes_log_likelihood(
         residual_df, residual_ss, candidate_a, candidate_b,
       )
@@ -1037,7 +1021,7 @@ fn mast_adv_upper_gamma_q(a : Double, x : Double) -> Double {
       }
       index = index + 1
     }
-    return mast_adv_clamp(
+    return clamp(
       1.0 - sum * @math.exp(-x + a * @math.ln(x) - mast_adv_log_gamma(a)),
       0.0,
       1.0,
@@ -1068,7 +1052,7 @@ fn mast_adv_upper_gamma_q(a : Double, x : Double) -> Double {
     }
     index = index + 1
   }
-  mast_adv_clamp(
+  clamp(
     value * @math.exp(-x + a * @math.ln(x) - mast_adv_log_gamma(a)),
     0.0,
     1.0,

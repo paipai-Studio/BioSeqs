@@ -63,10 +63,10 @@ pub fn NnsvgConfig::create(
   if n_neighbors < 1 {
     raise NnsvgError("nnSVG neighbor count must be positive")
   }
-  if !nnsvg_is_finite(length_scale_min) || length_scale_min <= 0.0 {
+  if !is_finite(length_scale_min) || length_scale_min <= 0.0 {
     raise NnsvgError("nnSVG minimum length scale must be finite and positive")
   }
-  if !nnsvg_is_finite(length_scale_max) || length_scale_max <= length_scale_min {
+  if !is_finite(length_scale_max) || length_scale_max <= length_scale_min {
     raise NnsvgError(
       "nnSVG maximum length scale must be finite and exceed the minimum",
     )
@@ -77,10 +77,10 @@ pub fn NnsvgConfig::create(
   if refinement_steps < 0 {
     raise NnsvgError("nnSVG refinement step count must be non-negative")
   }
-  if !nnsvg_is_finite(minimum_variance) || minimum_variance <= 0.0 {
+  if !is_finite(minimum_variance) || minimum_variance <= 0.0 {
     raise NnsvgError("nnSVG minimum variance must be finite and positive")
   }
-  if !nnsvg_is_finite(fdr_threshold) ||
+  if !is_finite(fdr_threshold) ||
     fdr_threshold <= 0.0 ||
     fdr_threshold > 1.0 {
     raise NnsvgError("nnSVG FDR threshold must be finite and in (0, 1]")
@@ -215,11 +215,6 @@ priv struct NnsvgRawGeneFit {
 }
 
 ///|
-fn nnsvg_is_finite(value : Double) -> Bool {
-  value == value && value.abs() <= 1.0e300
-}
-
-///|
 fn nnsvg_zero_matrix(rows : Int, columns : Int) -> Array[Array[Double]] {
   let matrix : Array[Array[Double]] = []
   for _ in 0..<rows {
@@ -268,7 +263,7 @@ fn nnsvg_validate_expression(
       raise NnsvgError("nnSVG expression must be rectangular")
     }
     for value in row {
-      if !nnsvg_is_finite(value) {
+      if !is_finite(value) {
         raise NnsvgError("nnSVG expression must contain finite values")
       }
     }
@@ -295,7 +290,7 @@ fn nnsvg_validate_coordinates(
       raise NnsvgError("nnSVG coordinates must be rectangular")
     }
     for value in row {
-      if !nnsvg_is_finite(value) {
+      if !is_finite(value) {
         raise NnsvgError("nnSVG coordinates must contain finite values")
       }
     }
@@ -348,7 +343,7 @@ fn nnsvg_cholesky(matrix : Array[Array[Double]]) -> Array[Array[Double]]? {
         value = value - lower[row][inner] * lower[column][inner]
       }
       if row == column {
-        if value <= 1.0e-12 || !nnsvg_is_finite(value) {
+        if value <= 1.0e-12 || !is_finite(value) {
           return None
         }
         lower[row][column] = value.sqrt()
@@ -416,7 +411,7 @@ fn nnsvg_prepare_design(
     }
     let copied = row.copy()
     for value in copied {
-      if !nnsvg_is_finite(value) {
+      if !is_finite(value) {
         raise NnsvgError("nnSVG design must contain finite values")
       }
     }
@@ -454,7 +449,7 @@ fn nnsvg_scale_coordinates(
   for dimension in 0..<dimensions {
     range_scale = range_scale.max(maxima[dimension] - minima[dimension])
   }
-  if !nnsvg_is_finite(range_scale) || range_scale <= 1.0e-14 {
+  if !is_finite(range_scale) || range_scale <= 1.0e-14 {
     raise NnsvgError(
       "nnSVG coordinates must vary in at least one spatial dimension",
     )
@@ -662,7 +657,7 @@ fn nnsvg_conditional_system(
             cross_covariance[index] * local_coefficients[index]
         }
         let conditional_variance = 1.0 - reduction
-        if !nnsvg_is_finite(conditional_variance) ||
+        if !is_finite(conditional_variance) ||
           conditional_variance <= minimum_variance {
           return None
         }
@@ -750,7 +745,7 @@ fn nnsvg_profile_likelihood(
       (1.8378770664093453 + 1.0 + @math.ln(total_variance)) +
       log_determinant
     )
-  if !nnsvg_is_finite(log_likelihood) {
+  if !is_finite(log_likelihood) {
     return None
   }
   Some(NnsvgProfileFit::{
@@ -1177,12 +1172,12 @@ pub fn nnsvg_filter_genes(
       "nnSVG filtering gene names must match the count matrix rows",
     )
   }
-  if !nnsvg_is_finite(minimum_count) || minimum_count < 0.0 {
+  if !is_finite(minimum_count) || minimum_count < 0.0 {
     raise NnsvgError(
       "nnSVG filtering minimum count must be finite and non-negative",
     )
   }
-  if !nnsvg_is_finite(minimum_spot_percentage) ||
+  if !is_finite(minimum_spot_percentage) ||
     minimum_spot_percentage < 0.0 ||
     minimum_spot_percentage > 100.0 {
     raise NnsvgError(
@@ -1204,7 +1199,7 @@ pub fn nnsvg_filter_genes(
     }
     let mut detected = 0
     for value in counts[gene] {
-      if !nnsvg_is_finite(value) || value < 0.0 {
+      if !is_finite(value) || value < 0.0 {
         raise NnsvgError(
           "nnSVG filtering counts must contain finite non-negative values",
         )

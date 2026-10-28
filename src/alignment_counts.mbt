@@ -30,16 +30,11 @@ pub extend AlignmentGapScores with Eq::{equal, not_equal}
 pub extend AlignmentGapScores with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
-fn alignment_counts_is_finite(value : Double) -> Bool {
-  value == value && value.abs() <= 1.0e300
-}
-
-///|
 fn alignment_counts_validate_score(
   value : Double,
   label : String,
 ) -> Unit raise AlignmentCountsError {
-  if !alignment_counts_is_finite(value) {
+  if !is_finite(value) {
     raise AlignmentCountsError(label + " must be finite")
   }
 }

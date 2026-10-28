@@ -144,7 +144,7 @@ pub fn BlusterKmeansConfig::create(
   if starts <= 0 {
     bluster_fail("bluster k-means starts must be positive")
   }
-  if !bluster_is_finite(tolerance) || tolerance < 0.0 {
+  if !is_finite(tolerance) || tolerance < 0.0 {
     bluster_fail("bluster k-means tolerance must be finite and non-negative")
   }
   if seed <= 0 {
@@ -189,7 +189,7 @@ pub fn BlusterGraphConfig::create(
   if k <= 0 {
     bluster_fail("bluster graph k must be positive")
   }
-  if !bluster_is_finite(resolution) || resolution <= 0.0 {
+  if !is_finite(resolution) || resolution <= 0.0 {
     bluster_fail("bluster graph resolution must be finite and positive")
   }
   if max_iterations <= 0 {
@@ -256,7 +256,7 @@ pub fn BlusterTwoStepConfig::create(
       "bluster two-step iteration, start and k values must be positive",
     )
   }
-  if !bluster_is_finite(resolution) || resolution <= 0.0 {
+  if !is_finite(resolution) || resolution <= 0.0 {
     bluster_fail("bluster two-step resolution must be finite and positive")
   }
   if seed <= 0 {
@@ -362,11 +362,6 @@ fn bluster_fail(message : String) -> Unit raise BlusterError {
 }
 
 ///|
-fn bluster_is_finite(value : Double) -> Bool {
-  value == value && value.abs() <= 1.0e300
-}
-
-///|
 fn bluster_matrix_shape(
   data : Array[Array[Double]],
   allow_empty? : Bool = false,
@@ -387,7 +382,7 @@ fn bluster_matrix_shape(
       bluster_fail("bluster data must be rectangular")
     }
     for value in row {
-      if !bluster_is_finite(value) {
+      if !is_finite(value) {
         bluster_fail("bluster data must contain only finite values")
       }
     }
@@ -1530,7 +1525,7 @@ pub fn bluster_neighbor_purity(
         bluster_fail("bluster custom purity weights must match observations")
       }
       for observation in 0..<observations {
-        if !bluster_is_finite(given[observation]) || given[observation] < 0.0 {
+        if !is_finite(given[observation]) || given[observation] < 0.0 {
           bluster_fail(
             "bluster custom purity weights must be finite and non-negative",
           )
@@ -1842,7 +1837,7 @@ fn bluster_average_optional(
   let retained : Array[Double] = []
   for value in values {
     match value {
-      Some(actual) => if bluster_is_finite(actual) { retained.push(actual) }
+      Some(actual) => if is_finite(actual) { retained.push(actual) }
       None => ()
     }
   }

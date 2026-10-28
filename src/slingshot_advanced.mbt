@@ -95,22 +95,22 @@ pub fn SlingshotAdvancedConfig::create(
   curve_points? : Int = 100,
   covariance_ridge? : Double = 1.0e-6,
 ) -> SlingshotAdvancedConfig raise SlingshotAdvancedError {
-  if !slingshot_adv_is_finite(omega) || omega < -1.0 {
+  if !is_finite(omega) || omega < -1.0 {
     slingshot_adv_fail("slingshot omega must be -1 or non-negative")
   }
-  if !slingshot_adv_is_finite(omega_scale) || omega_scale <= 0.0 {
+  if !is_finite(omega_scale) || omega_scale <= 0.0 {
     slingshot_adv_fail("slingshot omega scale must be positive")
   }
-  if !slingshot_adv_is_finite(shrink) || shrink < 0.0 || shrink > 1.0 {
+  if !is_finite(shrink) || shrink < 0.0 || shrink > 1.0 {
     slingshot_adv_fail("slingshot shrink must be between zero and one")
   }
   if max_iterations <= 0 {
     slingshot_adv_fail("slingshot iteration limit must be positive")
   }
-  if !slingshot_adv_is_finite(tolerance) || tolerance <= 0.0 {
+  if !is_finite(tolerance) || tolerance <= 0.0 {
     slingshot_adv_fail("slingshot tolerance must be positive")
   }
-  if !slingshot_adv_is_finite(smoother_span) ||
+  if !is_finite(smoother_span) ||
     smoother_span <= 0.0 ||
     smoother_span > 1.0 {
     slingshot_adv_fail("slingshot smoother span must be in (0, 1]")
@@ -118,7 +118,7 @@ pub fn SlingshotAdvancedConfig::create(
   if curve_points < 2 {
     slingshot_adv_fail("slingshot curve point count must be at least two")
   }
-  if !slingshot_adv_is_finite(covariance_ridge) || covariance_ridge <= 0.0 {
+  if !is_finite(covariance_ridge) || covariance_ridge <= 0.0 {
     slingshot_adv_fail("slingshot covariance ridge must be positive")
   }
   for name in start_clusters {
@@ -234,11 +234,6 @@ fn slingshot_adv_fail(message : String) -> Unit raise SlingshotAdvancedError {
 }
 
 ///|
-fn slingshot_adv_is_finite(value : Double) -> Bool {
-  value == value && value.abs() <= 1.0e300
-}
-
-///|
 fn slingshot_adv_double_matrix(
   rows : Int,
   columns : Int,
@@ -287,7 +282,7 @@ fn slingshot_adv_shape(
       slingshot_adv_fail(name + " must be rectangular")
     }
     for value in row {
-      if !slingshot_adv_is_finite(value) {
+      if !is_finite(value) {
         slingshot_adv_fail(name + " must contain only finite values")
       }
     }
@@ -355,7 +350,7 @@ fn slingshot_adv_normalize_weights(
     let mut total = 0.0
     for cluster in 0..<cluster_names.length() {
       let value = weights[cell][cluster]
-      if !slingshot_adv_is_finite(value) || value < 0.0 {
+      if !is_finite(value) || value < 0.0 {
         slingshot_adv_fail(
           "slingshot cluster weights must be finite and non-negative",
         )
@@ -1892,7 +1887,7 @@ pub fn slingshot_branch_ids(
   result : SlingshotAdvancedResult,
   threshold? : Double = -1.0,
 ) -> Array[String] raise SlingshotAdvancedError {
-  if !slingshot_adv_is_finite(threshold) || threshold > 1.0 || threshold < -1.0 {
+  if !is_finite(threshold) || threshold > 1.0 || threshold < -1.0 {
     slingshot_adv_fail("slingshot branch threshold must be in [0, 1]")
   }
   slingshot_adv_branch_ids_from_weights(result.weights, threshold)

@@ -44,13 +44,13 @@ pub fn Aldex2Config::create(
   if mc_samples < 1 {
     raise Aldex2Error("ALDEx2 Monte Carlo sample count must be positive")
   }
-  if !aldex2_is_finite(prior) || prior <= 0.0 {
+  if !is_finite(prior) || prior <= 0.0 {
     raise Aldex2Error("ALDEx2 Dirichlet prior must be finite and positive")
   }
   if seed <= 0 {
     raise Aldex2Error("ALDEx2 random seed must be positive")
   }
-  if !aldex2_is_finite(interval_level) ||
+  if !is_finite(interval_level) ||
     interval_level <= 0.0 ||
     interval_level >= 1.0 {
     raise Aldex2Error("ALDEx2 interval level must be finite and in (0, 1)")
@@ -177,11 +177,6 @@ pub extend Aldex2Summary with @moonbitlang/core/debug.Debug::{to_repr}
 pub struct Aldex2SummarizedExperimentOutput {
   experiment : SummarizedExperiment
   result : Aldex2Result
-}
-
-///|
-fn aldex2_is_finite(value : Double) -> Bool {
-  value == value && value.abs() <= 1.0e300
 }
 
 ///|
@@ -598,7 +593,7 @@ fn aldex2_validate_scale_samples(
       )
     }
     for value in scale_samples[sample] {
-      if !aldex2_is_finite(value) || value <= 0.0 {
+      if !is_finite(value) || value <= 0.0 {
         raise Aldex2Error("ALDEx2 scale samples must be finite and positive")
       }
     }
@@ -648,7 +643,7 @@ pub fn aldex2_clr(
     let copied : Array[Double] = []
     for sample in 0..<sample_count {
       let value = counts[feature][sample]
-      if !aldex2_is_finite(value) {
+      if !is_finite(value) {
         raise Aldex2Error("ALDEx2 counts must be finite")
       }
       if value < 0.0 {

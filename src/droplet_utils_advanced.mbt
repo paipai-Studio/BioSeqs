@@ -87,11 +87,6 @@ fn dua_fail(message : String) -> Unit raise DropletUtilsAdvancedError {
 }
 
 ///|
-fn dua_is_finite(value : Double) -> Bool {
-  value == value && value.abs() <= 1.0e300
-}
-
-///|
 fn dua_copy_int_matrix(values : Array[Array[Int]]) -> Array[Array[Int]] {
   let output : Array[Array[Int]] = []
   for row in values {
@@ -255,12 +250,12 @@ pub fn DropletUtilsConfig::create(
   if iterations <= 0 {
     dua_fail("DropletUtils iterations must be positive")
   }
-  if !dua_is_finite(fdr_threshold) ||
+  if !is_finite(fdr_threshold) ||
     fdr_threshold <= 0.0 ||
     fdr_threshold > 1.0 {
     dua_fail("DropletUtils FDR threshold must be in (0, 1]")
   }
-  if !dua_is_finite(retain) || (retain != -1.0 && retain <= 0.0) {
+  if !is_finite(retain) || (retain != -1.0 && retain <= 0.0) {
     dua_fail("DropletUtils retain must be -1 for automatic or positive")
   }
   if by_rank < 0 {
@@ -269,7 +264,7 @@ pub fn DropletUtilsConfig::create(
   if ignore < -1 {
     dua_fail("DropletUtils ignore must be -1 or non-negative")
   }
-  if !dua_is_finite(alpha) || alpha == 0.0 {
+  if !is_finite(alpha) || alpha == 0.0 {
     dua_fail(
       "DropletUtils alpha must be negative for multinomial or positive for Dirichlet-multinomial",
     )
@@ -277,10 +272,10 @@ pub fn DropletUtilsConfig::create(
   if rank_exclude < 0 {
     dua_fail("DropletUtils rank exclusion must be non-negative")
   }
-  if !dua_is_finite(rank_window) || rank_window <= 0.0 {
+  if !is_finite(rank_window) || rank_window <= 0.0 {
     dua_fail("DropletUtils rank window must be positive")
   }
-  if !dua_is_finite(gradient_threshold) {
+  if !is_finite(gradient_threshold) {
     dua_fail("DropletUtils gradient threshold must be finite")
   }
   if seed <= 0 {
@@ -682,10 +677,10 @@ pub fn droplet_utils_barcode_ranks(
   if lower < 0 || exclude_from < 0 {
     dua_fail("DropletUtils barcode-rank thresholds must be non-negative")
   }
-  if !dua_is_finite(window) || window <= 0.0 {
+  if !is_finite(window) || window <= 0.0 {
     dua_fail("DropletUtils barcode-rank window must be positive")
   }
-  if !dua_is_finite(gradient_threshold) {
+  if !is_finite(gradient_threshold) {
     dua_fail("DropletUtils barcode-rank gradient must be finite")
   }
   let totals = data.barcode_totals()
@@ -850,7 +845,7 @@ fn dua_validate_probability_input(
       "DropletUtils counts and ambient proportions must have equal non-zero length",
     )
   }
-  if !dua_is_finite(alpha) || alpha == 0.0 {
+  if !is_finite(alpha) || alpha == 0.0 {
     dua_fail("DropletUtils alpha must be negative or positive")
   }
   let mut total_probability = 0.0
@@ -859,7 +854,7 @@ fn dua_validate_probability_input(
       dua_fail("DropletUtils probability counts must be non-negative")
     }
     let probability = proportions[index]
-    if !dua_is_finite(probability) || probability < 0.0 {
+    if !is_finite(probability) || probability < 0.0 {
       dua_fail(
         "DropletUtils ambient proportions must be finite and non-negative",
       )
@@ -1546,7 +1541,7 @@ pub fn droplet_utils_empty_drops_sce(
     }
     let output_row : Array[Int] = []
     for value in row {
-      if !dua_is_finite(value) || value < 0.0 {
+      if !is_finite(value) || value < 0.0 {
         dua_fail(
           "DropletUtils SingleCellExperiment counts must be finite and non-negative",
         )

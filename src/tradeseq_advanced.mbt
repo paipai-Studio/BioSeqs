@@ -188,17 +188,6 @@ fn tradeseq_adv_is_finite(value : Double) -> Bool {
 }
 
 ///|
-fn tradeseq_adv_clamp(value : Double, lower : Double, upper : Double) -> Double {
-  if value < lower {
-    lower
-  } else if value > upper {
-    upper
-  } else {
-    value
-  }
-}
-
-///|
 fn tradeseq_adv_zero_matrix(rows : Int, columns : Int) -> Array[Array[Double]] {
   let output : Array[Array[Double]] = []
   for _ in 0..<rows {
@@ -391,7 +380,7 @@ fn tradeseq_adv_prepare_offsets(
 
 ///|
 fn tradeseq_adv_bspline_basis(x_value : Double, count : Int) -> Array[Double] {
-  let x = tradeseq_adv_clamp(x_value, 0.0, 1.0)
+  let x = clamp(x_value, 0.0, 1.0)
   let degree = (count - 1).min(3)
   if x >= 1.0 {
     let output = Array::make(count, 0.0)
@@ -449,7 +438,7 @@ fn tradeseq_adv_normalized_time(
   minimum : Double,
   maximum : Double,
 ) -> Double {
-  tradeseq_adv_clamp((value - minimum) / (maximum - minimum), 0.0, 1.0)
+  clamp((value - minimum) / (maximum - minimum), 0.0, 1.0)
 }
 
 ///|
@@ -673,7 +662,7 @@ fn tradeseq_adv_eta(
   for knot in 0..<n_knots {
     value = value + observation.basis[knot] * coefficients[start + knot]
   }
-  tradeseq_adv_clamp(value, -25.0, 25.0)
+  clamp(value, -25.0, 25.0)
 }
 
 ///|
@@ -719,7 +708,7 @@ fn tradeseq_adv_fit_gene(
         observation.weight * mu * mu
     }
     if iteration > 0 && dispersion_denominator > 0.0 {
-      let estimate = tradeseq_adv_clamp(
+      let estimate = clamp(
         dispersion_numerator / dispersion_denominator,
         config.minimum_dispersion,
         config.maximum_dispersion,
@@ -977,7 +966,7 @@ fn tradeseq_adv_log_gamma_q(a : Double, x : Double) -> Double {
       }
       index = index + 1
     }
-    return tradeseq_adv_clamp(
+    return clamp(
       1.0 - sum * @math.exp(-x + a * @math.ln(x) - tradeseq_adv_log_gamma(a)),
       0.0,
       1.0,
@@ -1008,7 +997,7 @@ fn tradeseq_adv_log_gamma_q(a : Double, x : Double) -> Double {
     }
     index = index + 1
   }
-  tradeseq_adv_clamp(
+  clamp(
     value * @math.exp(-x + a * @math.ln(x) - tradeseq_adv_log_gamma(a)),
     0.0,
     1.0,
@@ -1371,7 +1360,7 @@ pub fn tradeseq_predict_smooth_advanced(
         design[parameter] = basis[knot]
         eta = eta + basis[knot] * model.coefficients[parameter]
       }
-      eta = tradeseq_adv_clamp(eta, -25.0, 25.0)
+      eta = clamp(eta, -25.0, 25.0)
       let mean = @math.exp(eta)
       let mut variance = 0.0
       for first in 0..<parameters {

@@ -44,11 +44,6 @@ fn afreq_is_gap(ch : Char) -> Bool {
 }
 
 ///|
-fn afreq_is_finite(value : Double) -> Bool {
-  value == value && value.abs() <= 1.0e300
-}
-
-///|
 fn afreq_contains(letters : Array[String], key : String) -> Bool {
   let mut i = 0
   while i < letters.length() {
@@ -488,7 +483,7 @@ pub fn SubstitutionCountMatrix::relative_frequencies_expected(
   while i < n {
     match expected.get(self.letters[i]) {
       Some(v) => {
-        if !(afreq_is_finite(v)) || v <= 0.0 {
+        if !(is_finite(v)) || v <= 0.0 {
           raise AlignmentFrequenciesError(
             "expected frequency of '" +
             self.letters[i] +

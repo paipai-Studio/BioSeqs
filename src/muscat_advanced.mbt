@@ -284,17 +284,6 @@ fn muscat_adv_finite(value : Double) -> Bool {
 }
 
 ///|
-fn muscat_adv_clamp(value : Double, lower : Double, upper : Double) -> Double {
-  if value < lower {
-    lower
-  } else if value > upper {
-    upper
-  } else {
-    value
-  }
-}
-
-///|
 fn muscat_adv_zero_matrix(rows : Int, columns : Int) -> Array[Array[Double]] {
   let output : Array[Array[Double]] = []
   for _ in 0..<rows {
@@ -862,7 +851,7 @@ fn muscat_adv_fit_gene(
         linear = linear +
           design[observation][parameter] * coefficients[parameter]
       }
-      let mean = @math.exp(muscat_adv_clamp(linear, -30.0, 30.0)).max(1.0e-12)
+      let mean = @math.exp(clamp(linear, -30.0, 30.0)).max(1.0e-12)
       fitted_values[observation] = mean
       let weight = mean / (1.0 + dispersion * mean)
       let working = linear +
@@ -888,7 +877,7 @@ fn muscat_adv_fit_gene(
       maximum_change = maximum_change.max(
         (updated[parameter] - coefficients[parameter]).abs(),
       )
-      coefficients[parameter] = muscat_adv_clamp(
+      coefficients[parameter] = clamp(
         updated[parameter],
         -30.0,
         30.0,
@@ -905,7 +894,7 @@ fn muscat_adv_fit_gene(
     for parameter in 0..<parameters {
       linear = linear + design[observation][parameter] * coefficients[parameter]
     }
-    let mean = @math.exp(muscat_adv_clamp(linear, -30.0, 30.0)).max(1.0e-12)
+    let mean = @math.exp(clamp(linear, -30.0, 30.0)).max(1.0e-12)
     fitted_values[observation] = mean
     let weight = mean / (1.0 + dispersion * mean)
     for left in 0..<parameters {
@@ -945,7 +934,7 @@ fn muscat_adv_raw_dispersion(
     let residual = response[observation] - mean
     numerator = numerator + (residual * residual - mean) / (mean * mean)
   }
-  muscat_adv_clamp(
+  clamp(
     numerator.max(0.0) / residual_df.to_double(),
     config.minimum_dispersion,
     config.maximum_dispersion,
@@ -1243,7 +1232,7 @@ fn muscat_adv_test(
       let dispersion = if filtered[gene] {
         config.minimum_dispersion
       } else {
-        muscat_adv_clamp(
+        clamp(
           (
             residual_df * raw_dispersions[gene] +
             config.dispersion_prior_df * trend
@@ -1293,7 +1282,7 @@ fn muscat_adv_test(
           0.0
         }
         let p_value = if tested {
-          muscat_adv_clamp(
+          clamp(
             2.0 * (1.0 - muscat_adv_normal_cdf(statistic.sqrt())),
             0.0,
             1.0,

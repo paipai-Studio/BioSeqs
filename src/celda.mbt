@@ -64,16 +64,16 @@ pub fn CeldaCGConfig::create(
   if feature_modules < 1 {
     raise CeldaError::CeldaError("celda_CG feature_modules must be positive")
   }
-  if !celda_is_finite(alpha) || alpha <= 0.0 {
+  if !is_finite(alpha) || alpha <= 0.0 {
     raise CeldaError::CeldaError("celda_CG alpha must be finite and positive")
   }
-  if !celda_is_finite(beta) || beta <= 0.0 {
+  if !is_finite(beta) || beta <= 0.0 {
     raise CeldaError::CeldaError("celda_CG beta must be finite and positive")
   }
-  if !celda_is_finite(delta) || delta <= 0.0 {
+  if !is_finite(delta) || delta <= 0.0 {
     raise CeldaError::CeldaError("celda_CG delta must be finite and positive")
   }
-  if !celda_is_finite(gamma) || gamma <= 0.0 {
+  if !is_finite(gamma) || gamma <= 0.0 {
     raise CeldaError::CeldaError("celda_CG gamma must be finite and positive")
   }
   if max_iterations < 1 || stop_iterations < 1 {
@@ -82,7 +82,7 @@ pub fn CeldaCGConfig::create(
   if chains < 1 {
     raise CeldaError::CeldaError("celda_CG chains must be positive")
   }
-  if !celda_is_finite(tolerance) || tolerance <= 0.0 {
+  if !is_finite(tolerance) || tolerance <= 0.0 {
     raise CeldaError::CeldaError(
       "celda_CG tolerance must be finite and positive",
     )
@@ -233,11 +233,6 @@ fn CeldaRng::uniform(self : CeldaRng) -> Double {
 }
 
 ///|
-fn celda_is_finite(value : Double) -> Bool {
-  value == value && value.abs() <= 1.0e300
-}
-
-///|
 fn celda_log_gamma(value : Double) -> Double {
   let coefficients = [
     0.9999999999998099, 676.5203681218851, -1259.1392167224028, 771.3234287776531,
@@ -345,7 +340,7 @@ fn celda_validate_counts(
     let mut feature_total = 0.0
     for cell in 0..<cells {
       let value = counts[feature][cell]
-      if !celda_is_finite(value) || value < 0.0 || value.floor() != value {
+      if !is_finite(value) || value < 0.0 || value.floor() != value {
         raise CeldaError::CeldaError(
           "celda_CG counts must be finite non-negative integers",
         )

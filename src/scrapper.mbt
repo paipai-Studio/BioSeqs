@@ -107,11 +107,6 @@ pub fn scrapper_center_per_block() -> ScrapperCenterMode {
 }
 
 ///|
-fn scrapper_is_finite(value : Double) -> Bool {
-  value == value && value.abs() < 1.0e300
-}
-
-///|
 fn scrapper_matrix_shape(
   matrix : Array[Array[Double]],
   require_counts : Bool,
@@ -126,7 +121,7 @@ fn scrapper_matrix_shape(
     let mut column = 0
     while column < columns {
       let value = matrix[row][column]
-      if !scrapper_is_finite(value) {
+      if !is_finite(value) {
         raise ScrapperError("scrapper matrices must contain finite values")
       }
       if require_counts && value < 0.0 {
@@ -245,7 +240,7 @@ pub fn scrapper_compute_rna_qc_metrics(
   detection_limit? : Double = 0.0,
 ) -> ScrapperRnaQcMetrics raise ScrapperError {
   let (features, cells) = scrapper_matrix_shape(counts, true)
-  if !scrapper_is_finite(detection_limit) {
+  if !is_finite(detection_limit) {
     raise ScrapperError("scrapper detection limit must be finite")
   }
   let masks = scrapper_subset_masks(subsets, features)
@@ -531,13 +526,13 @@ pub fn scrapper_sanitize_size_factors(
   size_factors : Array[Double],
   fallback? : Double = 1.0,
 ) -> Array[Double] raise ScrapperError {
-  if !scrapper_is_finite(fallback) || fallback <= 0.0 {
+  if !is_finite(fallback) || fallback <= 0.0 {
     raise ScrapperError("scrapper size-factor fallback must be positive")
   }
   let output = size_factors.copy()
   let mut index = 0
   while index < output.length() {
-    if !scrapper_is_finite(output[index]) || output[index] <= 0.0 {
+    if !is_finite(output[index]) || output[index] <= 0.0 {
       output[index] = fallback
     }
     index = index + 1
@@ -557,7 +552,7 @@ pub fn scrapper_center_size_factors(
   }
   let mut index = 0
   while index < size_factors.length() {
-    if !scrapper_is_finite(size_factors[index]) || size_factors[index] <= 0.0 {
+    if !is_finite(size_factors[index]) || size_factors[index] <= 0.0 {
       raise ScrapperError(
         "scrapper size factors must be finite and positive before centering",
       )
@@ -651,16 +646,16 @@ pub fn scrapper_normalize_counts(
       "scrapper size-factor length must equal the number of cells",
     )
   }
-  if log_transform && (!scrapper_is_finite(pseudo_count) || pseudo_count <= 0.0) {
+  if log_transform && (!is_finite(pseudo_count) || pseudo_count <= 0.0) {
     raise ScrapperError("scrapper pseudo-count must be finite and positive")
   }
   if log_transform &&
-    (!scrapper_is_finite(log_base) || log_base <= 0.0 || log_base == 1.0) {
+    (!is_finite(log_base) || log_base <= 0.0 || log_base == 1.0) {
     raise ScrapperError("scrapper logarithm base must be positive and not one")
   }
   let mut cell = 0
   while cell < cells {
-    if !scrapper_is_finite(size_factors[cell]) || size_factors[cell] <= 0.0 {
+    if !is_finite(size_factors[cell]) || size_factors[cell] <= 0.0 {
       raise ScrapperError("scrapper size factors must be finite and positive")
     }
     cell = cell + 1
@@ -783,8 +778,8 @@ pub fn scrapper_fit_variance_trend(
   let y_values : Array[Double] = []
   let mut index = 0
   while index < means.length() {
-    if !scrapper_is_finite(means[index]) ||
-      !scrapper_is_finite(variances[index]) ||
+    if !is_finite(means[index]) ||
+      !is_finite(variances[index]) ||
       variances[index] < 0.0 {
       raise ScrapperError(
         "scrapper trend inputs must be finite with non-negative variances",
@@ -906,14 +901,14 @@ pub fn scrapper_choose_highly_variable_genes(
   if top < 0 {
     raise ScrapperError("scrapper HVG top count must be non-negative")
   }
-  if !scrapper_is_finite(bound) {
+  if !is_finite(bound) {
     raise ScrapperError("scrapper HVG bound must be finite")
   }
   let candidates : Array[(Int, Double)] = []
   let mut index = 0
   while index < statistics.length() {
     let value = statistics[index]
-    if !scrapper_is_finite(value) {
+    if !is_finite(value) {
       raise ScrapperError("scrapper HVG statistics must be finite")
     }
     let accepted = !use_bound ||
@@ -1023,7 +1018,7 @@ pub fn scrapper_aggregate_across_cells(
   if factors.length() == 0 {
     raise ScrapperError("scrapper aggregation requires at least one factor")
   }
-  if !scrapper_is_finite(detection_limit) {
+  if !is_finite(detection_limit) {
     raise ScrapperError("scrapper aggregation detection limit must be finite")
   }
   let factor_names : Array[String] = []

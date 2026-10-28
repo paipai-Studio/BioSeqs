@@ -72,11 +72,6 @@ fn ap_uniform_signed() -> Double {
 // ---------------------------------------------------------------------------
 
 ///|
-fn ap_is_finite(v : Double) -> Bool {
-  v == v && v.abs() <= 1.0e300
-}
-
-///|
 /// R's default quantile (type 7) of a sorted array: h = (n-1)*q + 1 with
 /// linear interpolation between order statistics.
 fn ap_quantile_sorted(
@@ -508,7 +503,7 @@ fn ap_resolve_preferences(
           let finite : Array[Double] = []
           for i = 0; i < n; i = i + 1 {
             for j = 0; j < n; j = j + 1 {
-              if ap_is_finite(sim[i][j]) {
+              if is_finite(sim[i][j]) {
                 finite.push(sim[i][j])
               }
             }
@@ -773,7 +768,7 @@ pub fn apcluster(
     let mut hi = -1.7976931348623157e308
     for i = 0; i < n; i = i + 1 {
       for j = 0; j < n; j = j + 1 {
-        if ap_is_finite(sim[i][j]) {
+        if is_finite(sim[i][j]) {
           if sim[i][j] < lo {
             lo = sim[i][j]
           }
@@ -788,7 +783,7 @@ pub fn apcluster(
       let noisy = ap_copy_matrix(sim)
       for i = 0; i < n; i = i + 1 {
         for j = 0; j < n; j = j + 1 {
-          if ap_is_finite(noisy[i][j]) {
+          if is_finite(noisy[i][j]) {
             noisy[i][j] = noisy[i][j] + ap_uniform_signed() * noise_r * range
           }
         }
@@ -884,7 +879,7 @@ pub fn apcluster_k(
   let finite : Array[Double] = []
   for i = 0; i < n; i = i + 1 {
     for j = 0; j < n; j = j + 1 {
-      if ap_is_finite(sim[i][j]) {
+      if is_finite(sim[i][j]) {
         finite.push(sim[i][j])
       }
     }

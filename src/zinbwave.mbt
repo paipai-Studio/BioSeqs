@@ -151,11 +151,6 @@ fn zinbwave_is_finite(value : Double) -> Bool {
 }
 
 ///|
-fn zinbwave_clamp(value : Double, lower : Double, upper : Double) -> Double {
-  value.max(lower).min(upper)
-}
-
-///|
 fn zinbwave_sigmoid(value : Double, minimum : Double) -> Double {
   let probability = if value >= 0.0 {
     let inverse = @math.exp(-value.min(40.0))
@@ -164,12 +159,12 @@ fn zinbwave_sigmoid(value : Double, minimum : Double) -> Double {
     let exponential = @math.exp(value.max(-40.0))
     exponential / (1.0 + exponential)
   }
-  zinbwave_clamp(probability, minimum, 1.0 - minimum)
+  clamp(probability, minimum, 1.0 - minimum)
 }
 
 ///|
 fn zinbwave_logit(probability : Double, minimum : Double) -> Double {
-  let bounded = zinbwave_clamp(probability, minimum, 1.0 - minimum)
+  let bounded = clamp(probability, minimum, 1.0 - minimum)
   @math.ln(bounded / (1.0 - bounded))
 }
 
@@ -606,7 +601,7 @@ fn zinbwave_initialize_coefficients(
         cell_latent_design, mean_response, mean_weights, ridge, false,
       ),
     )
-    let zero_fraction = zinbwave_clamp(
+    let zero_fraction = clamp(
       stat_mean(zero_response),
       minimum_probability,
       1.0 - minimum_probability,
@@ -675,7 +670,7 @@ fn zinbwave_linear_predictors(
         zero_linear = zero_linear +
           gene_design[gene][parameter] * gamma_pi[cell][parameter]
       }
-      means[gene][cell] = @math.exp(zinbwave_clamp(mean_linear, -30.0, 30.0)).max(
+      means[gene][cell] = @math.exp(clamp(mean_linear, -30.0, 30.0)).max(
         config.minimum_mean,
       )
       probabilities[gene][cell] = zinbwave_sigmoid(
@@ -1090,7 +1085,7 @@ fn zinbwave_update_dispersions(
   let information = cells.to_double()
   let updated = Array::make(genes, 0.1)
   for gene in 0..<genes {
-    updated[gene] = zinbwave_clamp(
+    updated[gene] = clamp(
       (information * raw[gene] + shrinkage * common) / (information + shrinkage),
       1.0e-4,
       100.0,

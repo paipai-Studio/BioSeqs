@@ -95,13 +95,13 @@ pub fn BanksyComputeConfig::create(
       raise BanksyError("BANKSY k_geom values must be positive")
     }
   }
-  if !banksy_is_finite(distance_power) || distance_power <= 0.0 {
+  if !is_finite(distance_power) || distance_power <= 0.0 {
     raise BanksyError("BANKSY distance power must be finite and positive")
   }
-  if !banksy_is_finite(sigma) || sigma <= 0.0 {
+  if !is_finite(sigma) || sigma <= 0.0 {
     raise BanksyError("BANKSY Gaussian sigma must be finite and positive")
   }
-  if !banksy_is_finite(alpha) || alpha <= 0.0 || alpha >= 1.0 {
+  if !is_finite(alpha) || alpha <= 0.0 || alpha >= 1.0 {
     raise BanksyError("BANKSY radial alpha must be finite and in (0, 1)")
   }
   if k_spatial < 1 {
@@ -216,7 +216,7 @@ pub fn BanksyClusterConfig::create(
   if max_iterations < 1 {
     raise BanksyError("BANKSY k-means iteration limit must be positive")
   }
-  if !banksy_is_finite(tolerance) || tolerance <= 0.0 {
+  if !is_finite(tolerance) || tolerance <= 0.0 {
     raise BanksyError("BANKSY k-means tolerance must be finite and positive")
   }
   if seed < 0 {
@@ -298,11 +298,6 @@ priv struct BanksyKmeansFit {
 }
 
 ///|
-fn banksy_is_finite(value : Double) -> Bool {
-  value == value && value.abs() <= 1.0e300
-}
-
-///|
 fn banksy_zero_matrix(rows : Int, columns : Int) -> Array[Array[Double]] {
   let output : Array[Array[Double]] = []
   for _ in 0..<rows {
@@ -373,7 +368,7 @@ fn banksy_validate_input(
       raise BanksyError("BANKSY expression must be rectangular")
     }
     for value in row {
-      if !banksy_is_finite(value) {
+      if !is_finite(value) {
         raise BanksyError("BANKSY expression values must be finite")
       }
     }
@@ -390,7 +385,7 @@ fn banksy_validate_input(
       raise BanksyError("BANKSY coordinates must be rectangular")
     }
     for value in coordinate {
-      if !banksy_is_finite(value) {
+      if !is_finite(value) {
         raise BanksyError("BANKSY coordinates must be finite")
       }
     }
@@ -911,7 +906,7 @@ pub fn banksy_component_weights(
   lambda : Double,
   max_harmonic : Int,
 ) -> Array[Double] raise BanksyError {
-  if !banksy_is_finite(lambda) || lambda < 0.0 || lambda > 1.0 {
+  if !is_finite(lambda) || lambda < 0.0 || lambda > 1.0 {
     raise BanksyError("BANKSY lambda must be finite and in [0, 1]")
   }
   if max_harmonic < 0 {
@@ -1550,7 +1545,7 @@ pub fn banksy_smooth_labels(
       "BANKSY smoothing labels and coordinates must contain the same spots",
     )
   }
-  if !banksy_is_finite(proportion_threshold) ||
+  if !is_finite(proportion_threshold) ||
     proportion_threshold < 0.0 ||
     proportion_threshold > 1.0 {
     raise BanksyError("BANKSY smoothing proportion threshold must be in [0, 1]")

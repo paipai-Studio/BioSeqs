@@ -45,37 +45,37 @@ pub fn ApeglmConfig::create(
   if coefficient < -1 {
     raise ApeglmError("apeglm coefficient must be -1 or a zero-based index")
   }
-  if !apeglm_is_finite(threshold) || threshold < 0.0 {
+  if !is_finite(threshold) || threshold < 0.0 {
     raise ApeglmError("apeglm threshold must be finite and non-negative")
   }
-  if !apeglm_is_finite(interval_level) ||
+  if !is_finite(interval_level) ||
     interval_level <= 0.0 ||
     interval_level >= 1.0 {
     raise ApeglmError("apeglm interval level must be finite and in (0, 1)")
   }
-  if !apeglm_is_finite(prior_scale) || prior_scale <= 0.0 {
+  if !is_finite(prior_scale) || prior_scale <= 0.0 {
     raise ApeglmError("apeglm prior scale must be finite and positive")
   }
-  if !apeglm_is_finite(prior_df) || prior_df <= 0.0 {
+  if !is_finite(prior_df) || prior_df <= 0.0 {
     raise ApeglmError(
       "apeglm prior degrees of freedom must be finite and positive",
     )
   }
-  if !apeglm_is_finite(prior_no_shrink_scale) || prior_no_shrink_scale <= 0.0 {
+  if !is_finite(prior_no_shrink_scale) || prior_no_shrink_scale <= 0.0 {
     raise ApeglmError(
       "apeglm no-shrink prior scale must be finite and positive",
     )
   }
-  if !apeglm_is_finite(multiplier) || multiplier <= 0.0 {
+  if !is_finite(multiplier) || multiplier <= 0.0 {
     raise ApeglmError("apeglm prior multiplier must be finite and positive")
   }
   if max_iterations < 1 {
     raise ApeglmError("apeglm maximum iterations must be positive")
   }
-  if !apeglm_is_finite(tolerance) || tolerance <= 0.0 {
+  if !is_finite(tolerance) || tolerance <= 0.0 {
     raise ApeglmError("apeglm tolerance must be finite and positive")
   }
-  if !apeglm_is_finite(max_step) || max_step <= 0.0 {
+  if !is_finite(max_step) || max_step <= 0.0 {
     raise ApeglmError("apeglm maximum Newton step must be finite and positive")
   }
   if random_starts < 1 {
@@ -195,16 +195,6 @@ priv struct ApeglmOptimization {
 }
 
 ///|
-fn apeglm_is_finite(value : Double) -> Bool {
-  value == value && value.abs() <= 1.0e300
-}
-
-///|
-fn apeglm_clamp(value : Double, lower : Double, upper : Double) -> Double {
-  value.max(lower).min(upper)
-}
-
-///|
 fn apeglm_zero_matrix(rows : Int, columns : Int) -> Array[Array[Double]] {
   let output : Array[Array[Double]] = []
   for _ in 0..<rows {
@@ -247,15 +237,15 @@ fn apeglm_normal_cdf(value : Double) -> Double {
       (-0.356563782 + t * (1.781477937 + t * (-1.821255978 + t * 1.330274429)))
     )
   if value >= 0.0 {
-    apeglm_clamp(1.0 - tail, 0.0, 1.0)
+    clamp(1.0 - tail, 0.0, 1.0)
   } else {
-    apeglm_clamp(tail, 0.0, 1.0)
+    clamp(tail, 0.0, 1.0)
   }
 }
 
 ///|
 fn apeglm_normal_quantile(probability : Double) -> Double {
-  let target = apeglm_clamp(probability, 1.0e-12, 1.0 - 1.0e-12)
+  let target = clamp(probability, 1.0e-12, 1.0 - 1.0e-12)
   let mut lower = -8.0
   let mut upper = 8.0
   for _ in 0..<80 {
@@ -286,7 +276,7 @@ fn apeglm_cholesky(matrix : Array[Array[Double]]) -> Array[Array[Double]]? {
         value = value - lower[row][inner] * lower[column][inner]
       }
       if row == column {
-        if value <= 1.0e-12 || !apeglm_is_finite(value) {
+        if value <= 1.0e-12 || !is_finite(value) {
           return None
         }
         lower[row][column] = value.sqrt()
@@ -413,7 +403,7 @@ fn apeglm_validate_matrix(
       raise ApeglmError(label + " must be rectangular with the expected shape")
     }
     for value in row {
-      if !apeglm_is_finite(value) || (non_negative && value < 0.0) {
+      if !is_finite(value) || (non_negative && value < 0.0) {
         raise ApeglmError(label + " contains an invalid value")
       }
     }
@@ -476,7 +466,7 @@ fn apeglm_validate_inputs(
     raise ApeglmError("apeglm dispersions must match the feature count")
   }
   for dispersion in dispersions {
-    if !apeglm_is_finite(dispersion) || dispersion <= 0.0 {
+    if !is_finite(dispersion) || dispersion <= 0.0 {
       raise ApeglmError("apeglm dispersions must be finite and positive")
     }
   }
@@ -600,7 +590,7 @@ pub fn apeglm_log_likelihood_nb(
       raise ApeglmError("apeglm log-likelihood design columns must match beta")
     }
   }
-  if !apeglm_is_finite(dispersion) || dispersion <= 0.0 {
+  if !is_finite(dispersion) || dispersion <= 0.0 {
     raise ApeglmError("apeglm log-likelihood dispersion must be positive")
   }
   if offsets.length() > 0 && offsets.length() != counts.length() {
@@ -613,7 +603,7 @@ pub fn apeglm_log_likelihood_nb(
   let mut result = 0.0
   for sample in 0..<counts.length() {
     let count = counts[sample]
-    if !apeglm_is_finite(count) || count < 0.0 {
+    if !is_finite(count) || count < 0.0 {
       raise ApeglmError(
         "apeglm log-likelihood counts must be finite and non-negative",
       )
@@ -622,7 +612,7 @@ pub fn apeglm_log_likelihood_nb(
     for coefficient in 0..<coefficients {
       eta = eta + design[sample][coefficient] * beta[coefficient]
     }
-    let bounded_eta = apeglm_clamp(eta, -40.0, 40.0)
+    let bounded_eta = clamp(eta, -40.0, 40.0)
     let mean = @math.exp(bounded_eta)
     let weight = if weights.length() == 0 { 1.0 } else { weights[sample] }
     result = result +
@@ -655,7 +645,7 @@ fn apeglm_evaluate(
     for index in 0..<coefficients {
       eta = eta + design[sample][index] * beta[index]
     }
-    eta = apeglm_clamp(eta, -40.0, 40.0)
+    eta = clamp(eta, -40.0, 40.0)
     let mean = @math.exp(eta)
     let denominator = size + mean
     let count = counts[sample]
@@ -718,7 +708,7 @@ fn apeglm_initial_beta(
   for sample in 0..<counts.length() {
     count_total = count_total + weights[sample] * counts[sample]
     exposure_total = exposure_total +
-      weights[sample] * @math.exp(apeglm_clamp(offsets[sample], -40.0, 40.0))
+      weights[sample] * @math.exp(clamp(offsets[sample], -40.0, 40.0))
   }
   beta[0] = @math.ln((count_total + 0.5) / (exposure_total + 0.5))
   beta
@@ -778,7 +768,7 @@ fn apeglm_optimize(
       let mut change = 0.0
       for index in 0..<candidate.length() {
         let delta = line_scale * step[index]
-        candidate[index] = apeglm_clamp(candidate[index] + delta, -30.0, 30.0)
+        candidate[index] = clamp(candidate[index] + delta, -30.0, 30.0)
         change = change.max((candidate[index] - beta[index]).abs())
       }
       let next = apeglm_evaluate(
@@ -794,7 +784,7 @@ fn apeglm_optimize(
         config.prior_df,
         config.prior_no_shrink_scale,
       )
-      if apeglm_is_finite(next.value) &&
+      if is_finite(next.value) &&
         next.value >= evaluation.value - 1.0e-10 {
         accepted = true
         accepted_change = change
@@ -866,7 +856,7 @@ fn apeglm_target_starts(
   while starts.length() < count {
     let candidate = mle.copy()
     let sign = if starts.length() % 2 == 0 { 1.0 } else { -1.0 }
-    candidate[coefficient] = apeglm_clamp(
+    candidate[coefficient] = clamp(
       sign * shell * prior_scale,
       -30.0,
       30.0,
@@ -974,15 +964,15 @@ pub fn apeglm_prior_variance(
       "apeglm prior adaptation requires matching non-empty MLE and SE arrays",
     )
   }
-  if !apeglm_is_finite(minimum) ||
-    !apeglm_is_finite(maximum) ||
+  if !is_finite(minimum) ||
+    !is_finite(maximum) ||
     minimum <= 0.0 ||
     maximum <= minimum {
     raise ApeglmError("apeglm prior variance bounds are invalid")
   }
   for index in 0..<estimates.length() {
-    if !apeglm_is_finite(estimates[index]) ||
-      !apeglm_is_finite(standard_errors[index]) ||
+    if !is_finite(estimates[index]) ||
+      !is_finite(standard_errors[index]) ||
       standard_errors[index] <= 0.0 {
       raise ApeglmError(
         "apeglm prior adaptation requires finite MLEs and positive SEs",
@@ -1042,7 +1032,7 @@ fn apeglm_base_mean(counts : Array[Double], offsets : Array[Double]) -> Double {
   let normalized : Array[Double] = []
   for sample in 0..<counts.length() {
     normalized.push(
-      counts[sample] / @math.exp(apeglm_clamp(offsets[sample], -40.0, 40.0)),
+      counts[sample] / @math.exp(clamp(offsets[sample], -40.0, 40.0)),
     )
   }
   apeglm_mean(normalized)
@@ -1150,7 +1140,7 @@ pub fn apeglm_fit(
     let posterior_sd = apeglm_standard_errors(map_fit.covariance)
     let estimate = map_fit.beta[coefficient]
     let standard_error = posterior_sd[coefficient].max(1.0e-12)
-    let fsr = apeglm_clamp(
+    let fsr = clamp(
       apeglm_normal_cdf(-estimate.abs() / standard_error),
       0.0,
       0.5,
@@ -1170,7 +1160,7 @@ pub fn apeglm_fit(
       posterior_sd,
       fsr,
       s_value: 0.0,
-      threshold_probability: apeglm_clamp(threshold_probability, 0.0, 1.0),
+      threshold_probability: clamp(threshold_probability, 0.0, 1.0),
       interval_lower: estimate - quantile * standard_error,
       interval_upper: estimate + quantile * standard_error,
       log_posterior: map_fit.value,
@@ -1424,7 +1414,7 @@ pub fn apeglm_from_deseq2(
   for _ in 0..<counts.length() {
     let row : Array[Double] = []
     for factor in dataset.size_factors {
-      if !apeglm_is_finite(factor) || factor <= 0.0 {
+      if !is_finite(factor) || factor <= 0.0 {
         raise ApeglmError(
           "apeglm DESeq2 size factors must be finite and positive",
         )

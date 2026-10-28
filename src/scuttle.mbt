@@ -105,11 +105,6 @@ fn scuttle_fail(message : String) -> Unit raise ScuttleError {
 }
 
 ///|
-fn scuttle_is_finite(value : Double) -> Bool {
-  value == value && value.abs() <= 1.0e300
-}
-
-///|
 fn scuttle_copy_matrix(matrix : Array[Array[Double]]) -> Array[Array[Double]] {
   let output : Array[Array[Double]] = []
   for row in matrix {
@@ -131,7 +126,7 @@ fn scuttle_matrix_shape(
     }
     for column in 0..<columns {
       let value = matrix[row][column]
-      if !scuttle_is_finite(value) {
+      if !is_finite(value) {
         scuttle_fail("scuttle matrices must contain finite values")
       }
       if require_nonnegative && value < 0.0 {
@@ -290,12 +285,12 @@ pub fn ScuttleOutlierConfig::create(
   share_missing? : Bool = true,
   min_diff? : Double? = None,
 ) -> ScuttleOutlierConfig raise ScuttleError {
-  if !scuttle_is_finite(nmads) || nmads < 0.0 {
+  if !is_finite(nmads) || nmads < 0.0 {
     scuttle_fail("scuttle nmads must be finite and non-negative")
   }
   match min_diff {
     Some(value) =>
-      if !scuttle_is_finite(value) || value < 0.0 {
+      if !is_finite(value) || value < 0.0 {
         scuttle_fail("scuttle min_diff must be finite and non-negative")
       }
     None => ()
@@ -363,7 +358,7 @@ pub fn scuttle_is_outlier(
   config? : ScuttleOutlierConfig = ScuttleOutlierConfig::default(),
 ) -> ScuttleOutlierResult raise ScuttleError {
   for value in metric {
-    if !scuttle_is_finite(value) {
+    if !is_finite(value) {
       scuttle_fail("scuttle outlier metrics must contain finite values")
     }
     if config.log_transform && value < 0.0 {
@@ -588,7 +583,7 @@ pub fn scuttle_per_feature_qc(
   detection_limit? : Double = 0.0,
 ) -> ScuttleFeatureQcMetrics raise ScuttleError {
   let (features, cells) = scuttle_matrix_shape(counts, true)
-  if !scuttle_is_finite(detection_limit) {
+  if !is_finite(detection_limit) {
     scuttle_fail("scuttle detection_limit must be finite")
   }
   let subset_names : Array[String] = []
@@ -703,7 +698,7 @@ pub fn scuttle_aggregate_feature_sets(
   scuttle_validate_feature_sets(feature_sets, features)
   match detection_limit {
     Some(value) =>
-      if !scuttle_is_finite(value) {
+      if !is_finite(value) {
         scuttle_fail("scuttle detection_limit must be finite")
       }
     None => ()
@@ -864,7 +859,7 @@ fn scuttle_sample_categories(
 
 ///|
 fn scuttle_validate_proportion(value : Double) -> Unit raise ScuttleError {
-  if !scuttle_is_finite(value) || value < 0.0 || value > 1.0 {
+  if !is_finite(value) || value < 0.0 || value > 1.0 {
     scuttle_fail("scuttle downsampling proportions must lie in [0, 1]")
   }
 }
