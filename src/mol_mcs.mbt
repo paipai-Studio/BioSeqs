@@ -177,12 +177,6 @@ pub fn mcs_atom_count(mol1 : Molecule, mol2 : Molecule) -> Int32 {
 }
 
 ///|
-/// MCS bond count (convenience).
-pub fn mcs_bond_count(mol1 : Molecule, mol2 : Molecule) -> Int32 {
-  find_mcs(mol1, mol2).num_bonds
-}
-
-///|
 /// Tanimoto-like similarity based on MCS size.
 /// sim = |MCS| / max(|mol1|, |mol2|)
 pub fn mcs_similarity(mol1 : Molecule, mol2 : Molecule) -> Double {

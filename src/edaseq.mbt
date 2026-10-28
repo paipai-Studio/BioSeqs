@@ -697,66 +697,6 @@ pub fn eda_rpkm(
   rpkm
 }
 
-///|
-/// Compute TPM (Transcripts Per Million) normalization.
-pub fn eda_tpm(
-  counts : Array[Array[Double]],
-  annotations : Array[EDASeqGeneAnno],
-  _lib_sizes : Array[Double],
-) -> Array[Array[Double]] {
-  let n_genes = counts.length()
-  let n_samples = if n_genes > 0 { counts[0].length() } else { 0 }
-  let tpm : Array[Array[Double]] = Array(capacity=0)
-  let mut g = 0
-  while g < n_genes {
-    let row : Array[Double] = Array(capacity=0)
-    let anno = annotations[g]
-    let rpk_scale = anno.eda_rpkm_scale()
-    let mut s = 0
-    while s < n_samples {
-      let rpkm_val = counts[g][s] * rpk_scale
-      row.push(rpkm_val)
-      s = s + 1
-    }
-    tpm.push(row)
-    g = g + 1
-  }
-  // Convert RPK to TPM by normalizing to million
-  let result : Array[Array[Double]] = Array(capacity=0)
-  let mut s2 = 0
-  while s2 < n_samples {
-    let col : Array[Double] = Array(capacity=0)
-    let mut total_rpk = 0.0
-    let mut g2 = 0
-    while g2 < n_genes {
-      total_rpk = total_rpk + tpm[g2][s2]
-      g2 = g2 + 1
-    }
-    let scale = if total_rpk > 0.0 { 1.0e6 / total_rpk } else { 0.0 }
-    let mut g3 = 0
-    while g3 < n_genes {
-      col.push(tpm[g3][s2] * scale)
-      g3 = g3 + 1
-    }
-    result.push(col)
-    s2 = s2 + 1
-  }
-  // Transpose back to genes x samples
-  let final_result : Array[Array[Double]] = Array(capacity=0)
-  let mut g4 = 0
-  while g4 < n_genes {
-    let row : Array[Double] = Array(capacity=0)
-    let mut s3 = 0
-    while s3 < n_samples {
-      row.push(result[s3][g4])
-      s3 = s3 + 1
-    }
-    final_result.push(row)
-    g4 = g4 + 1
-  }
-  final_result
-}
-
 // ===== Accessor methods =====
 
 ///|

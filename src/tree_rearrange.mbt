@@ -32,67 +32,8 @@ pub fn phylo_nni_count(clade : Clade) -> Int32 {
 }
 
 ///|
-/// Apply an NNI move on the edge_idx-th internal edge.
-/// swap = 0 or 1 selects which of the two possible swaps.
-/// Returns the modified tree, or the original if edge_idx is out of range.
-pub fn phylo_nni_apply(clade : Clade, edge_idx : Int32, swap : Int32) -> Clade {
-  let counter = NniCounter::{ val: 0, }
-  nni_apply_rec(clade, edge_idx, swap, counter)
-}
-
-///|
 struct NniCounter {
   mut val : Int32
-}
-
-///|
-fn nni_apply_rec(
-  clade : Clade,
-  edge_idx : Int32,
-  swap : Int32,
-  counter : NniCounter,
-) -> Clade {
-  if clade.is_terminal() {
-    return clade
-  }
-  // Process children, looking for the target internal edge
-  let children : Array[Clade] = Array(capacity=clade.clades.length())
-  for ch in clade.clades {
-    if !ch.is_terminal() && counter.val == edge_idx {
-      // Found the target edge: clade → ch
-      counter.val = counter.val + 1
-      // ch is the "child", we need the "sibling" (other child of clade)
-      // and ch's children g1, g2
-      // But clade might have >2 children (multifurcation)
-      // NNI is defined for binary trees; for multifurcating,
-      // we pick the first two children of ch
-      if ch.clades.length() >= 2 && clade.clades.length() >= 2 {
-        // Find sibling: the other child of clade (not ch)
-        // We need to know ch's index. Let's find it.
-        // Actually, we're iterating and ch is the current one.
-        // We need to build the new tree.
-        // Let's handle this outside the loop.
-        children.push(ch) // placeholder, will fix below
-      } else {
-        children.push(nni_apply_rec(ch, edge_idx, swap, counter))
-      }
-    } else if !ch.is_terminal() {
-      counter.val = counter.val + 1
-      children.push(nni_apply_rec(ch, edge_idx, swap, counter))
-    } else {
-      children.push(ch)
-    }
-  }
-  // Now check if we matched the edge at this level
-  // We need to redo this more carefully
-  // Actually, let me restructure: the NNI is applied at the parent level
-  // when we find the target edge. Let me rebuild.
-  Clade::new(
-    branch_length=clade.branch_length,
-    name=clade.name,
-    confidence=clade.confidence,
-    clades=children,
-  )
 }
 
 ///|

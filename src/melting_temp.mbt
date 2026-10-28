@@ -242,12 +242,6 @@ pub fn recommend_tm_method(seq : String) -> String {
 }
 
 ///|
-/// Create example DNA sequence.
-pub fn create_example_dna() -> String {
-  "AGCTGATCGATCGATCGATCGATCGATCGATCGATCG"
-}
-
-///|
 /// Calculate Tm for a primer sequence (convenience wrapper).
 pub fn mt_primer(primer : String) -> MeltingTempResult {
   let method_ = recommend_tm_method(primer)

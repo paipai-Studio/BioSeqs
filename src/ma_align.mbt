@@ -606,49 +606,6 @@ pub fn ma_compute_distance_matrix(
 }
 
 ///|
-/// Find corresponding atom pairs by distance comparison.
-/// For each atom in dist_mat1, find the best matching atom in dist_mat2
-/// based on distance matrix comparison.
-pub fn find_corresponding_atoms(
-  dist_mat1 : Array[Array[Double]],
-  dist_mat2 : Array[Array[Double]],
-  threshold : Double,
-) -> Array[(Int32, Int32)] {
-  let n = dist_mat1.length()
-  let m = dist_mat2.length()
-  let correspondences : Array[(Int32, Int32)] = Array(capacity=0)
-
-  let mut i = 0
-  while i < n {
-    let mut best_j = -1
-    let mut best_dist = threshold
-    let mut j = 0
-    while j < m {
-      let mut dist_sum = 0.0
-      let mut k = 0
-      while k < n && k != i {
-        let d1 = dist_mat1[i][k]
-        let d2 = dist_mat2[j][k]
-        let diff = d1 - d2
-        dist_sum = dist_sum + diff * diff
-        k = k + 1
-      }
-      let dist_score = dist_sum.sqrt()
-      if dist_score < best_dist {
-        best_dist = dist_score
-        best_j = j
-      }
-      j = j + 1
-    }
-    if best_j >= 0 {
-      correspondences.push((i, best_j))
-    }
-    i = i + 1
-  }
-  correspondences
-}
-
-///|
 /// Compute the RMSD between two coordinate sets.
 /// Both arrays should have the same length.
 pub fn compute_rmsd(
@@ -673,58 +630,6 @@ pub fn compute_rmsd(
     i = i + 1
   }
   (sum_sq / n.to_double()).sqrt()
-}
-
-///|
-/// Compute optimal rotation using the Kabsch algorithm (simplified).
-/// Returns rotation matrix as 3 angles (rotation around x, y, z axes).
-///
-/// The Kabsch algorithm steps:
-/// 1. Center both coordinate sets at origin
-/// 2. Compute cross-covariance matrix H = P * Q^T
-/// 3. Compute optimal rotation R = H * (H^T H)^(-1/2)
-/// 4. Handle reflection case (det(R) < 0)
-pub fn compute_svd_rotation(
-  coords1 : Array[(Double, Double, Double)],
-  coords2 : Array[(Double, Double, Double)],
-) -> (Double, Double, Double) {
-  let n = if coords1.length() < coords2.length() {
-    coords1.length()
-  } else {
-    coords2.length()
-  }
-  if n < 2 {
-    return (0.0, 0.0, 0.0)
-  }
-
-  let centered1 = ma_center_coordinates(coords1)
-  let centered2 = ma_center_coordinates(coords2)
-
-  let h = ma_compute_covariance(centered1, centered2)
-  let h_t = ma_transpose_3x3(h)
-  let ht_h = ma_matmul_3x3(h_t, h)
-
-  let det_ht_h = ma_det_3x3(ht_h)
-  let final_rot = if det_ht_h.abs() < 1.0e-15 {
-    [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]]
-  } else {
-    let sqrt_ht_h = ma_matrix_sqrt_3x3(ht_h)
-    let sqrt_ht_h_inv = ma_invert_3x3(sqrt_ht_h)
-    let rot = ma_matmul_3x3(h, sqrt_ht_h_inv)
-
-    let det_rot = ma_det_3x3(rot)
-    if det_rot < 0.0 {
-      [
-        [rot[0][0], rot[0][1], -rot[0][2]],
-        [rot[1][0], rot[1][1], -rot[1][2]],
-        [rot[2][0], rot[2][1], -rot[2][2]],
-      ]
-    } else {
-      rot
-    }
-  }
-
-  ma_rotation_to_angles(final_rot)
 }
 
 ///|
@@ -945,48 +850,6 @@ pub fn get_rmsd_matrix(result : AlignmentResult) -> Array[Array[Double]] {
 /// Get per-column conservation scores from an alignment result.
 pub fn get_conservation(result : AlignmentResult) -> Array[Double] {
   result.conservation
-}
-
-///|
-/// Single iteration of iterative alignment.
-/// Aligns all structures to the current reference and updates the
-/// reference as the average of aligned structures.
-///
-/// Returns the new reference coordinates and the maximum RMSD change.
-pub fn iterate_alignment(
-  _aligner : MAaligner,
-  structures : Array[StructureData],
-  _iteration : Int32,
-) -> (Array[(Double, Double, Double)], Double) {
-  let n = structures.length()
-  if n == 0 {
-    return ([], 0.0)
-  }
-
-  let ref_coords = structures[0].ca_coordinates.copy()
-  let aligned_all : Array[Array[(Double, Double, Double)]] = Array(capacity=0)
-
-  aligned_all.push(ref_coords.copy())
-
-  let mut max_rmsd = 0.0
-  let mut i = 1
-  while i < n {
-    let (rotation, rmsd) = ma_align_pairwise(
-      ref_coords,
-      structures[i].ca_coordinates,
-    )
-    let aligned = apply_rotation(structures[i].ca_coordinates, rotation)
-    aligned_all.push(aligned)
-    if rmsd > max_rmsd {
-      max_rmsd = rmsd
-    }
-    i = i + 1
-  }
-
-  let new_ref = ma_compute_average_structure(aligned_all)
-  let new_centered = ma_center_coordinates(new_ref)
-
-  (new_centered, max_rmsd)
 }
 
 ///|

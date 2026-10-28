@@ -67,12 +67,6 @@ pub enum TseAggregation {
 pub extend TseAggregation with Eq::{equal, not_equal}
 
 ///|
-/// Create a sum aggregation strategy.
-pub fn tse_aggregation_sum() -> TseAggregation {
-  TseAggregation::Sum
-}
-
-///|
 /// Create a mean aggregation strategy.
 pub fn tse_aggregation_mean() -> TseAggregation {
   TseAggregation::Mean

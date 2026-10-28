@@ -861,40 +861,6 @@ pub fn RestrictionBatch::new(
 }
 
 ///|
-/// Batch containing every enzyme in the database.
-pub fn all_enzymes() -> RestrictionBatch {
-  let names : Array[String] = []
-  for e in bio_restriction_enzyme_list {
-    names.push(e.name)
-  }
-  RestrictionBatch::{ names, }
-}
-
-///|
-/// Batch of commercially available enzymes.
-pub fn commercial_enzymes() -> RestrictionBatch {
-  let names : Array[String] = []
-  for e in bio_restriction_enzyme_list {
-    if e.is_commercial() {
-      names.push(e.name)
-    }
-  }
-  RestrictionBatch::{ names, }
-}
-
-///|
-/// Batch of enzymes without a listed supplier.
-pub fn noncommercial_enzymes() -> RestrictionBatch {
-  let names : Array[String] = []
-  for e in bio_restriction_enzyme_list {
-    if !e.is_commercial() {
-      names.push(e.name)
-    }
-  }
-  RestrictionBatch::{ names, }
-}
-
-///|
 pub fn RestrictionBatch::length(self : RestrictionBatch) -> Int32 {
   self.names.length()
 }

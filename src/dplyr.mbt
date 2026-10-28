@@ -47,11 +47,6 @@ pub fn data_type_string() -> DataType {
 }
 
 ///|
-pub fn data_type_bool() -> DataType {
-  DataType::BoolType
-}
-
-///|
 pub fn data_value_int(v : Int32) -> DataValue {
   DataValue::IntValue(v)
 }
@@ -64,11 +59,6 @@ pub fn data_value_double(v : Double) -> DataValue {
 ///|
 pub fn data_value_string(v : String) -> DataValue {
   DataValue::StringValue(v)
-}
-
-///|
-pub fn data_value_bool(v : Bool) -> DataValue {
-  DataValue::BoolValue(v)
 }
 
 ///|

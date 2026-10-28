@@ -221,18 +221,6 @@ pub fn sling_euclidean_metric() -> SlingshotDistMetric {
   SlingshotDistMetric::Euclidean
 }
 
-///|
-/// Get Manhattan distance metric
-pub fn sling_manhattan_metric() -> SlingshotDistMetric {
-  SlingshotDistMetric::Manhattan
-}
-
-///|
-/// Get Cosine distance metric
-pub fn sling_cosine_metric() -> SlingshotDistMetric {
-  SlingshotDistMetric::Cosine
-}
-
 // ===== MST Construction =====
 
 ///|

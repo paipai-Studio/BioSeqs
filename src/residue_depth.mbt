@@ -422,14 +422,6 @@ pub fn find_surface_residues(
 }
 
 ///|
-/// Find surface residues (with default threshold).
-pub fn find_surface_residues_default(
-  results : Array[RDResult],
-) -> Array[RDResult] {
-  find_surface_residues(results, 3.0)
-}
-
-///|
 /// Find core residues (depth above threshold).
 pub fn find_core_residues(
   results : Array[RDResult],
@@ -450,25 +442,11 @@ pub fn find_core_residues(
 }
 
 ///|
-/// Find core residues (with default threshold).
-pub fn find_core_residues_default(results : Array[RDResult]) -> Array[RDResult] {
-  find_core_residues(results, 8.0)
-}
-
-///|
 /// Bio API functions.
 pub fn bio_residue_depth_analyze(
   residues : Array[RDResidue],
 ) -> Array[RDResult] {
   analyze_residue_depth_default(residues)
-}
-
-///|
-pub fn bio_residue_depth_calculate(
-  residue : RDResidue,
-  all_residues : Array[RDResidue],
-) -> RDResult {
-  calculate_residue_depth_default(residue, all_residues)
 }
 
 ///|

@@ -94,15 +94,6 @@ pub fn se_add_spatial_coord(
 }
 
 ///|
-pub fn se_add_image(
-  se : SpatialExperiment,
-  image : SpatialImage,
-) -> SpatialExperiment {
-  se.images.push(image)
-  se
-}
-
-///|
 pub fn se_set_metadata(
   se : SpatialExperiment,
   key : String,

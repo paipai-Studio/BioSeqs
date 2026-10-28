@@ -274,8 +274,3 @@ pub fn sample_nexus_content() -> String {
   "  Tree tree1 = ((A:0.1,B:0.2):0.3,(C:0.4,D:0.5):0.6);\n" +
   "End;\n"
 }
-
-///|
-pub fn sample_nexus_file() -> NexusFile {
-  parse_nexus(sample_nexus_content())
-}

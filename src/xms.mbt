@@ -98,40 +98,6 @@ pub fn xms_parse(text : String) -> Array[XmsMotif] {
 }
 
 ///|
-/// microRNA 记录解析（fasta 风格）。
-pub fn mirs_parse(text : String) -> Array[MirsRecord] {
-  let lines = text.split("\n")
-  let records : Array[MirsRecord] = Array(capacity=0)
-  let mut id = ""
-  let mut comment = ""
-  for raw_view in lines {
-    let line = xms_trim(raw_view.to_owned())
-    if line.length() == 0 {
-      continue
-    }
-    if line[0] == '>' {
-      let sp = line[1:].split(" ").to_array()
-      id = xms_trim(sp[0].to_owned())
-      let mut comment_part = ""
-      if sp.length() > 1 {
-        let mut buf = ""
-        for i in 1..<sp.length() {
-          if i > 1 {
-            buf = buf + " "
-          }
-          buf = buf + sp[i].to_owned()
-        }
-        comment_part = buf
-      }
-      comment = comment_part
-    } else {
-      records.push(MirsRecord::{ id, comment, mature: xms_upper(line), })
-    }
-  }
-  records
-}
-
-///|
 /// 加权计数矩阵（L x 4，列序 A/C/G/T）。
 pub fn xms_counts(motif : XmsMotif) -> Array[Array[Double]] {
   let mut length = 0
@@ -310,16 +276,6 @@ pub fn xms_write(motif : XmsMotif) -> String {
     sb.write_string("\n")
   }
   sb.to_string()
-}
-
-///|
-/// 全部位点序列。
-pub fn xms_site_sequences(motif : XmsMotif) -> Array[String] {
-  let out : Array[String] = Array(capacity=0)
-  for s in motif.sites {
-    out.push(s.sequence)
-  }
-  out
 }
 
 ///|

@@ -74,37 +74,6 @@ pub fn extract_true_contacts(
 }
 
 ///|
-/// Extract true contacts with distance information.
-/// Returns array of (i, j, distance) for all qualifying pairs.
-pub fn extract_contacts_with_dist(
-  chain : Chain,
-  threshold~ : Double = 8.0,
-  min_seq_dist~ : Int32 = 5,
-) -> Array[(Int32, Int32, Double)] {
-  let residues = chain.get_residues()
-  let ca_coords : Array[Vector3] = Array(capacity=0)
-  for res in residues {
-    match res.get_ca() {
-      Some(ca) => ca_coords.push(ca.coord)
-      None => ()
-    }
-  }
-  let n = ca_coords.length()
-  let contacts = Array(capacity=0)
-  for i = 0; i < n; i = i + 1 {
-    for j in (i + 1)..<n {
-      if j - i >= min_seq_dist {
-        let d = ca_coords[i].distance(ca_coords[j])
-        if d < threshold {
-          contacts.push((i, j, d))
-        }
-      }
-    }
-  }
-  contacts
-}
-
-///|
 /// Get CA-CA distance for a specific residue pair (i, j).
 /// Returns -1.0 if either residue lacks a CA atom.
 pub fn residue_ca_distance(chain : Chain, i : Int32, j : Int32) -> Double {

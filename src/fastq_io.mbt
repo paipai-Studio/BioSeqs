@@ -404,15 +404,3 @@ pub fn phred_quality_from_solexa(solexa_quality : Double) -> Double {
     @math.ln(10.0)
   }
 }
-
-///|
-/// Convenience: convert a Double PHRED quality to a rounded integer Solexa score.
-pub fn solexa_quality_from_phred_int(phred_quality : Int32) -> Int32 {
-  @math.round(solexa_quality_from_phred(phred_quality.to_double())).to_int()
-}
-
-///|
-/// Convenience: convert a Double Solexa quality to a rounded integer PHRED score.
-pub fn phred_quality_from_solexa_int(solexa_quality : Int32) -> Int32 {
-  @math.round(phred_quality_from_solexa(solexa_quality.to_double())).to_int()
-}

@@ -16,11 +16,6 @@ pub fn na_double() -> Double {
 }
 
 ///|
-pub fn na_string() -> String {
-  "NA"
-}
-
-///|
 pub fn is_na_int(x : Int32) -> Bool {
   x == -2147483648
 }
@@ -48,30 +43,6 @@ pub fn any_na_int(arr : Array[Int32]) -> Bool {
 }
 
 ///|
-pub fn any_na_double(arr : Array[Double]) -> Bool {
-  let mut i = 0
-  while i < arr.length() {
-    if is_na_double(arr[i]) {
-      return true
-    }
-    i = i + 1
-  }
-  false
-}
-
-///|
-pub fn any_na_string(arr : Array[String]) -> Bool {
-  let mut i = 0
-  while i < arr.length() {
-    if is_na_string(arr[i]) {
-      return true
-    }
-    i = i + 1
-  }
-  false
-}
-
-///|
 pub fn na_omit_int(arr : Array[Int32]) -> Array[Int32] {
   let result : Array[Int32] = Array(capacity=0)
   let mut i = 0
@@ -85,46 +56,7 @@ pub fn na_omit_int(arr : Array[Int32]) -> Array[Int32] {
 }
 
 ///|
-pub fn na_omit_double(arr : Array[Double]) -> Array[Double] {
-  let result : Array[Double] = Array(capacity=0)
-  let mut i = 0
-  while i < arr.length() {
-    if !is_na_double(arr[i]) {
-      result.push(arr[i])
-    }
-    i = i + 1
-  }
-  result
-}
-
-///|
-pub fn na_omit_string(arr : Array[String]) -> Array[String] {
-  let result : Array[String] = Array(capacity=0)
-  let mut i = 0
-  while i < arr.length() {
-    if !is_na_string(arr[i]) {
-      result.push(arr[i])
-    }
-    i = i + 1
-  }
-  result
-}
-
-///|
 pub fn which_int(arr : Array[Int32], value : Int32) -> Array[Int32] {
-  let result : Array[Int32] = Array(capacity=0)
-  let mut i = 0
-  while i < arr.length() {
-    if arr[i] == value {
-      result.push(i)
-    }
-    i = i + 1
-  }
-  result
-}
-
-///|
-pub fn which_double(arr : Array[Double], value : Double) -> Array[Int32] {
   let result : Array[Int32] = Array(capacity=0)
   let mut i = 0
   while i < arr.length() {
@@ -220,37 +152,8 @@ pub fn sort_int(arr : Array[Int32]) -> Array[Int32] {
 }
 
 ///|
-pub fn sort_double(arr : Array[Double]) -> Array[Double] {
-  let indices = order_double(arr)
-  let result : Array[Double] = Array(capacity=0)
-  let mut i = 0
-  while i < indices.length() {
-    result.push(arr[indices[i]])
-    i = i + 1
-  }
-  result
-}
-
-///|
 pub fn unique_int(arr : Array[Int32]) -> Array[Int32] {
   let result : Array[Int32] = Array(capacity=0)
-  let seen = Map([], capacity=arr.length())
-
-  let mut i = 0
-  while i < arr.length() {
-    if !seen.contains(arr[i].to_string()) {
-      seen.set(arr[i].to_string(), true)
-      result.push(arr[i])
-    }
-    i = i + 1
-  }
-
-  result
-}
-
-///|
-pub fn unique_double(arr : Array[Double]) -> Array[Double] {
-  let result : Array[Double] = Array(capacity=0)
   let seen = Map([], capacity=arr.length())
 
   let mut i = 0
@@ -401,32 +304,6 @@ pub fn union_int(x : Array[Int32], y : Array[Int32]) -> Array[Int32] {
 }
 
 ///|
-pub fn union_string(x : Array[String], y : Array[String]) -> Array[String] {
-  let result : Array[String] = Array(capacity=0)
-  let seen = Map([], capacity=x.length() + y.length())
-
-  let mut i = 0
-  while i < x.length() {
-    if !seen.contains(x[i]) {
-      seen.set(x[i], true)
-      result.push(x[i])
-    }
-    i = i + 1
-  }
-
-  i = 0
-  while i < y.length() {
-    if !seen.contains(y[i]) {
-      seen.set(y[i], true)
-      result.push(y[i])
-    }
-    i = i + 1
-  }
-
-  result
-}
-
-///|
 pub fn setdiff_int(x : Array[Int32], y : Array[Int32]) -> Array[Int32] {
   let result : Array[Int32] = Array(capacity=0)
   let y_set = Map([], capacity=y.length())
@@ -440,28 +317,6 @@ pub fn setdiff_int(x : Array[Int32], y : Array[Int32]) -> Array[Int32] {
   i = 0
   while i < x.length() {
     if !y_set.contains(x[i].to_string()) {
-      result.push(x[i])
-    }
-    i = i + 1
-  }
-
-  result
-}
-
-///|
-pub fn setdiff_string(x : Array[String], y : Array[String]) -> Array[String] {
-  let result : Array[String] = Array(capacity=0)
-  let y_set = Map([], capacity=y.length())
-
-  let mut i = 0
-  while i < y.length() {
-    y_set.set(y[i], true)
-    i = i + 1
-  }
-
-  i = 0
-  while i < x.length() {
-    if !y_set.contains(x[i]) {
       result.push(x[i])
     }
     i = i + 1
@@ -518,17 +373,6 @@ pub fn rev_int(arr : Array[Int32]) -> Array[Int32] {
 }
 
 ///|
-pub fn rev_double(arr : Array[Double]) -> Array[Double] {
-  let result : Array[Double] = Array(capacity=0)
-  let mut i = arr.length() - 1
-  while i >= 0 {
-    result.push(arr[i])
-    i = i - 1
-  }
-  result
-}
-
-///|
 pub fn rev_string(arr : Array[String]) -> Array[String] {
   let result : Array[String] = Array(capacity=0)
   let mut i = arr.length() - 1
@@ -542,28 +386,6 @@ pub fn rev_string(arr : Array[String]) -> Array[String] {
 ///|
 pub fn rep_int(x : Int32, times : Int32) -> Array[Int32] {
   let result : Array[Int32] = Array(capacity=0)
-  let mut i = 0
-  while i < times {
-    result.push(x)
-    i = i + 1
-  }
-  result
-}
-
-///|
-pub fn rep_double(x : Double, times : Int32) -> Array[Double] {
-  let result : Array[Double] = Array(capacity=0)
-  let mut i = 0
-  while i < times {
-    result.push(x)
-    i = i + 1
-  }
-  result
-}
-
-///|
-pub fn rep_string(x : String, times : Int32) -> Array[String] {
-  let result : Array[String] = Array(capacity=0)
   let mut i = 0
   while i < times {
     result.push(x)
@@ -629,56 +451,8 @@ pub fn head_int(arr : Array[Int32], n : Int32) -> Array[Int32] {
 }
 
 ///|
-pub fn head_double(arr : Array[Double], n : Int32) -> Array[Double] {
-  let result : Array[Double] = Array(capacity=0)
-  let limit = if n < arr.length() { n } else { arr.length() }
-  let mut i = 0
-  while i < limit {
-    result.push(arr[i])
-    i = i + 1
-  }
-  result
-}
-
-///|
-pub fn head_string(arr : Array[String], n : Int32) -> Array[String] {
-  let result : Array[String] = Array(capacity=0)
-  let limit = if n < arr.length() { n } else { arr.length() }
-  let mut i = 0
-  while i < limit {
-    result.push(arr[i])
-    i = i + 1
-  }
-  result
-}
-
-///|
 pub fn tail_int(arr : Array[Int32], n : Int32) -> Array[Int32] {
   let result : Array[Int32] = Array(capacity=0)
-  let start = if n < arr.length() { arr.length() - n } else { 0 }
-  let mut i = start
-  while i < arr.length() {
-    result.push(arr[i])
-    i = i + 1
-  }
-  result
-}
-
-///|
-pub fn tail_double(arr : Array[Double], n : Int32) -> Array[Double] {
-  let result : Array[Double] = Array(capacity=0)
-  let start = if n < arr.length() { arr.length() - n } else { 0 }
-  let mut i = start
-  while i < arr.length() {
-    result.push(arr[i])
-    i = i + 1
-  }
-  result
-}
-
-///|
-pub fn tail_string(arr : Array[String], n : Int32) -> Array[String] {
-  let result : Array[String] = Array(capacity=0)
   let start = if n < arr.length() { arr.length() - n } else { 0 }
   let mut i = start
   while i < arr.length() {
@@ -694,29 +468,8 @@ pub fn length_int(arr : Array[Int32]) -> Int32 {
 }
 
 ///|
-pub fn length_double(arr : Array[Double]) -> Int32 {
-  arr.length()
-}
-
-///|
-pub fn length_string(arr : Array[String]) -> Int32 {
-  arr.length()
-}
-
-///|
 pub fn names(arr : Array[String]) -> Array[String] {
   arr
-}
-
-///|
-pub fn names_set(arr : Array[String], names : Array[String]) -> Array[String] {
-  let result = arr.copy()
-  let mut i = 0
-  while i < names.length() && i < result.length() {
-    result[i] = names[i]
-    i = i + 1
-  }
-  result
 }
 
 ///|

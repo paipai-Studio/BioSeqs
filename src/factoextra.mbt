@@ -542,44 +542,6 @@ pub fn facto_var_contrib_dim(
 }
 
 ///|
-/// Get contribution of individuals to a specific dimension.
-pub fn facto_ind_contrib_dim(
-  result : PcaResult,
-  dim : Int32,
-) -> Array[(String, Double)] {
-  let d = dim - 1
-  if d < 0 || d >= result.n_dims {
-    return []
-  }
-  let contribs : Array[(String, Double)] = Array(capacity=0)
-  let mut i = 0
-  while i < result.n_ind {
-    contribs.push(("ind_\{i + 1}", result.ind.contrib[i][d]))
-    i = i + 1
-  }
-  let n = contribs.length()
-  let mut iter = 0
-  while iter < n - 1 {
-    let mut swapped = false
-    let mut j = 0
-    while j < n - iter - 1 {
-      if contribs[j].1 < contribs[j + 1].1 {
-        let tmp = contribs[j]
-        contribs[j] = contribs[j + 1]
-        contribs[j + 1] = tmp
-        swapped = true
-      }
-      j = j + 1
-    }
-    if !swapped {
-      break
-    }
-    iter = iter + 1
-  }
-  contribs
-}
-
-///|
 /// Get cosine quality of representation for variables on a specific dimension.
 pub fn facto_var_cos2_dim(
   result : PcaResult,
@@ -593,25 +555,6 @@ pub fn facto_var_cos2_dim(
   let mut i = 0
   while i < result.n_var {
     cos2s.push(("var_\{i + 1}", result.var_.cos2[i][d]))
-    i = i + 1
-  }
-  cos2s
-}
-
-///|
-/// Get cosine quality of representation for individuals on a specific dimension.
-pub fn facto_ind_cos2_dim(
-  result : PcaResult,
-  dim : Int32,
-) -> Array[(String, Double)] {
-  let d = dim - 1
-  if d < 0 || d >= result.n_dims {
-    return []
-  }
-  let cos2s : Array[(String, Double)] = Array(capacity=0)
-  let mut i = 0
-  while i < result.n_ind {
-    cos2s.push(("ind_\{i + 1}", result.ind.cos2[i][d]))
     i = i + 1
   }
   cos2s

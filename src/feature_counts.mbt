@@ -371,26 +371,6 @@ pub fn FeatureCountsConfig::set_count_fragments(
 }
 
 ///|
-/// Set multi-count flag (returns new config).
-pub fn fcfg_set_multi_count(
-  cfg : FeatureCountsConfig,
-  val~ : Bool,
-) -> FeatureCountsConfig {
-  FeatureCountsConfig::{
-    min_overlap: cfg.min_overlap,
-    min_overlap_total: cfg.min_overlap_total,
-    frac_overlap: cfg.frac_overlap,
-    min_mapq: cfg.min_mapq,
-    ignore_strand: cfg.ignore_strand,
-    strand_mode: cfg.strand_mode,
-    multi_count: val,
-    frac_multi_count: cfg.frac_multi_count,
-    include_chimeric: cfg.include_chimeric,
-    count_fragments: cfg.count_fragments,
-  }
-}
-
-///|
 /// Feature counting result.
 pub struct FeatureCountsResult {
   /// Feature IDs

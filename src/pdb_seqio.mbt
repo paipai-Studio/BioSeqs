@@ -287,25 +287,6 @@ fn build_records_from_structure(
 }
 
 ///|
-/// Extract amino acid sequences from a parsed Structure's ATOM records.
-/// Returns one SeqRecord per chain (of the first model). Water molecules are
-/// skipped and non-standard residues become "X".
-pub fn pdb_atom_record_parser(structure : Structure) -> Array[SeqRecord] {
-  build_records_from_structure(structure, structure.id, "ATOM")
-}
-
-///|
-/// Extract sequences from a parsed Structure as if from SEQRES records.
-///
-/// Because `parse_pdb` does not retain SEQRES records, this falls back to the
-/// residues actually present in the Structure (i.e. the resolved ATOM
-/// sequence). Use `PdbSeqresParser` to read the deposited SEQRES sequence
-/// directly from raw PDB text.
-pub fn pdb_seqres_record_parser(structure : Structure) -> Array[SeqRecord] {
-  build_records_from_structure(structure, structure.id, "SEQRES")
-}
-
-///|
 /// Parse PDB ATOM/HETATM records and return one SeqRecord per chain.
 ///
 /// Uses `parse_pdb` to build the Structure and then extracts each chain's

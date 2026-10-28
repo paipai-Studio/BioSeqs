@@ -322,59 +322,6 @@ pub fn parse_formula(formula : String) -> Map[String, Int32] {
 }
 
 ///|
-/// Get molecular formula as a string from parsed counts.
-pub fn formula_to_string(counts : Map[String, Int32]) -> String {
-  let mut result = ""
-  let elements = [
-    "C", "H", "N", "O", "S", "P", "Fe", "Mg", "Ca", "K", "Na", "Cl", "Br", "I",
-  ]
-
-  let mut i = 0
-  while i < elements.length() {
-    let el = elements[i]
-    match counts.get(el) {
-      Some(n) =>
-        if n > 0 {
-          result = result + el
-          if n > 1 {
-            result = result + n.to_string()
-          }
-        }
-      None => ()
-    }
-    i = i + 1
-  }
-
-  // Add any remaining elements not in the predefined list
-  let counted = elements.copy()
-  for el in counts.keys() {
-    let mut found = false
-    let mut j = 0
-    while j < counted.length() {
-      if counted[j] == el {
-        found = true
-        break
-      }
-      j = j + 1
-    }
-    if !found {
-      match counts.get(el) {
-        Some(n) =>
-          if n > 0 {
-            result = result + el
-            if n > 1 {
-              result = result + n.to_string()
-            }
-          }
-        None => ()
-      }
-    }
-  }
-
-  result
-}
-
-///|
 /// Calculate approximate molecular weight from a formula string.
 pub fn compound_molecular_weight(formula : String) -> Double {
   let counts = parse_formula(formula)

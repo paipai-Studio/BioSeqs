@@ -245,51 +245,6 @@ pub fn detect_common_hinges_gnm(
   result
 }
 
-///|
-/// Detect hinge sites common to multiple ANM slow modes.
-pub fn detect_common_hinges_anm(
-  modes : Array[Array[Double]],
-  num_modes : Int32,
-  min_count~ : Int32 = 2,
-  threshold~ : Double = 0.3,
-) -> Array[HingeSite] {
-  let n_modes = if num_modes < modes.length() {
-    num_modes
-  } else {
-    modes.length()
-  }
-  if n_modes == 0 {
-    return []
-  }
-  let dim = modes[0].length()
-  let n = dim / 3
-  let counts = Array::make(n, 0)
-  let min_mag = Array::make(n, 1.0e30)
-  for k = 0; k < n_modes; k = k + 1 {
-    let hinges = detect_hinges_anm(modes[k], k, threshold~)
-    for h in hinges {
-      let idx = h.residue_idx
-      counts[idx] = counts[idx] + 1
-      if h.magnitude < min_mag[idx] {
-        min_mag[idx] = h.magnitude
-      }
-    }
-  }
-  let result : Array[HingeSite] = Array(capacity=0)
-  for i = 0; i < n; i = i + 1 {
-    if counts[i] >= min_count {
-      result.push(HingeSite::{
-        residue_idx: i,
-        mode_idx: -1,
-        magnitude: min_mag[i],
-        flank_left: counts[i].to_double(),
-        flank_right: n_modes.to_double(),
-      })
-    }
-  }
-  result
-}
-
 // ============================================================================
 // Hinge scoring and classification
 // ============================================================================

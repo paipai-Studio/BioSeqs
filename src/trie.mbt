@@ -29,17 +29,6 @@ pub enum TrieValue {
 }
 
 ///|
-/// Helper constructors for cross-package access.
-pub fn trie_value_empty() -> TrieValue {
-  TrieValue::Empty
-}
-
-///|
-pub fn trie_value_of(v : String) -> TrieValue {
-  TrieValue::Value(v)
-}
-
-///|
 /// The trie data structure.
 pub struct Trie {
   root : TrieNode

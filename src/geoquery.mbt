@@ -65,27 +65,6 @@ pub fn geo_series_new(
 }
 
 ///|
-pub fn geo_sample_new(
-  gsm_id : String,
-  title : String,
-  description : String,
-  platform_id : String,
-  characteristics : Map[String, String],
-) -> GEOSample {
-  GEOSample::{ gsm_id, title, description, platform_id, characteristics, }
-}
-
-///|
-pub fn geo_platform_new(
-  gpl_id : String,
-  title : String,
-  organism : String,
-  probe_count : Int32,
-) -> GEOPlatform {
-  GEOPlatform::{ gpl_id, title, organism, probe_count, }
-}
-
-///|
 fn parse_geo_header_value(line : String) -> String {
   let idx = line.find("=")
   if idx is None {

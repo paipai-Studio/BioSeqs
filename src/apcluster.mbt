@@ -800,36 +800,6 @@ pub fn apcluster(
   best
 }
 
-///|
-/// Convenience wrapper: build the similarity matrix with `sim_fn` (e.g.
-/// ap_neg_dist_mat, ap_exp_sim_mat, ap_cor_sim_mat) and run apcluster.
-/// All other arguments are forwarded.
-pub fn apcluster_on_data(
-  x~ : Array[Array[Double]],
-  sim_fn~ : (Array[Array[Double]]) -> Array[Array[Double]] raise ApError,
-  p~ : Double? = None,
-  q~ : Double = 0.5,
-  preferences~ : Array[Double]? = None,
-  maxits~ : Int32 = 1000,
-  convits~ : Int32 = 100,
-  lam~ : Double = 0.9,
-  nonoise~ : Int32 = 0,
-  noise_r~ : Double = 0.001,
-) -> ApResult raise ApError {
-  let sim = sim_fn(x)
-  apcluster(
-    sim~,
-    p~,
-    q~,
-    preferences~,
-    maxits~,
-    convits~,
-    lam~,
-    nonoise~,
-    noise_r~,
-  )
-}
-
 // ---------------------------------------------------------------------------
 // apclusterK: preference bisection for a requested number of clusters
 // ---------------------------------------------------------------------------
@@ -972,21 +942,4 @@ pub fn apcluster_k(
     )
   }
   run
-}
-
-///|
-/// Convenience wrapper for apcluster_k: build similarities with `sim_fn`
-/// and target K clusters.
-pub fn apcluster_k_on_data(
-  x~ : Array[Array[Double]],
-  sim_fn~ : (Array[Array[Double]]) -> Array[Array[Double]] raise ApError,
-  k~ : Int32,
-  bimaxit~ : Int32 = 100,
-  exact~ : Bool = true,
-  maxits~ : Int32 = 1000,
-  convits~ : Int32 = 100,
-  lam~ : Double = 0.9,
-) -> ApResult raise ApError {
-  let sim = sim_fn(x)
-  apcluster_k(sim~, k~, bimaxit~, exact~, maxits~, convits~, lam~)
 }

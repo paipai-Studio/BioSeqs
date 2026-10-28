@@ -29,41 +29,11 @@ pub fn distance_method_manhattan() -> DistanceMethod {
 }
 
 ///|
-pub fn distance_method_correlation() -> DistanceMethod {
-  DistanceMethod::Correlation
-}
-
-///|
-pub fn distance_method_maximum() -> DistanceMethod {
-  DistanceMethod::Maximum
-}
-
-///|
 pub enum ClusterMethod {
   Complete
   Average
   Ward
   Single
-}
-
-///|
-pub fn cluster_method_complete() -> ClusterMethod {
-  ClusterMethod::Complete
-}
-
-///|
-pub fn cluster_method_average() -> ClusterMethod {
-  ClusterMethod::Average
-}
-
-///|
-pub fn cluster_method_ward() -> ClusterMethod {
-  ClusterMethod::Ward
-}
-
-///|
-pub fn cluster_method_single() -> ClusterMethod {
-  ClusterMethod::Single
 }
 
 ///|
@@ -542,39 +512,6 @@ fn pheatmap_int_to_hex(v : Int32) -> String {
 }
 
 ///|
-/// Generate a blues color palette (white to blue).
-pub fn blues_colors(n : Int32) -> Array[String] {
-  let colors : Array[String] = Array(capacity=0)
-  let mut i = 0
-  while i < n {
-    let t = i.to_double() / (n.to_double() - 1.0)
-    let r = (255.0 - 220.0 * t).to_int()
-    let g = (255.0 - 220.0 * t).to_int()
-    let b = 255
-    let clamp_r = if r < 0 { 0 } else if r > 255 { 255 } else { r }
-    let clamp_g = if g < 0 { 0 } else if g > 255 { 255 } else { g }
-    colors.push(pheatmap_hex_color(clamp_r, clamp_g, b))
-    i = i + 1
-  }
-  colors
-}
-
-///|
-/// Generate a greys color palette (black to white).
-pub fn greys_colors(n : Int32) -> Array[String] {
-  let colors : Array[String] = Array(capacity=0)
-  let mut i = 0
-  while i < n {
-    let t = i.to_double() / (n.to_double() - 1.0)
-    let v = (255.0 * t).to_int()
-    let clamp_v = if v < 0 { 0 } else if v > 255 { 255 } else { v }
-    colors.push(pheatmap_hex_color(clamp_v, clamp_v, clamp_v))
-    i = i + 1
-  }
-  colors
-}
-
-///|
 /// Create pheatmap input with defaults.
 pub fn pheatmap_input(
   mat : Array[Array[Double]],
@@ -661,76 +598,6 @@ fn pheatmap_matrix_max(mat : Array[Array[Double]]) -> Double {
 }
 
 ///|
-/// Set color scheme.
-pub fn pheatmap_set_color(
-  input : PheatmapInput,
-  color : Array[String],
-) -> PheatmapInput {
-  PheatmapInput::{
-    mat: input.mat,
-    row_names: input.row_names,
-    col_names: input.col_names,
-    color,
-    breaks: input.breaks,
-    legend: input.legend,
-    font_size: input.font_size,
-    font_size_row: input.font_size_row,
-    font_size_col: input.font_size_col,
-    show_row_names: input.show_row_names,
-    show_col_names: input.show_col_names,
-    cluster_rows: input.cluster_rows,
-    cluster_cols: input.cluster_cols,
-    clustering_distance_rows: input.clustering_distance_rows,
-    clustering_distance_cols: input.clustering_distance_cols,
-    clustering_method: input.clustering_method,
-    cutree_rows: input.cutree_rows,
-    cutree_cols: input.cutree_cols,
-    annotation_row: input.annotation_row,
-    annotation_col: input.annotation_col,
-    annotation_colors: input.annotation_colors,
-    display_numbers: input.display_numbers,
-    number_format: input.number_format,
-    number_color: input.number_color,
-    main_title: input.main_title,
-  }
-}
-
-///|
-/// Set breaks for color scale.
-pub fn pheatmap_set_breaks(
-  input : PheatmapInput,
-  breaks : Array[Double],
-) -> PheatmapInput {
-  PheatmapInput::{
-    mat: input.mat,
-    row_names: input.row_names,
-    col_names: input.col_names,
-    color: input.color,
-    breaks,
-    legend: input.legend,
-    font_size: input.font_size,
-    font_size_row: input.font_size_row,
-    font_size_col: input.font_size_col,
-    show_row_names: input.show_row_names,
-    show_col_names: input.show_col_names,
-    cluster_rows: input.cluster_rows,
-    cluster_cols: input.cluster_cols,
-    clustering_distance_rows: input.clustering_distance_rows,
-    clustering_distance_cols: input.clustering_distance_cols,
-    clustering_method: input.clustering_method,
-    cutree_rows: input.cutree_rows,
-    cutree_cols: input.cutree_cols,
-    annotation_row: input.annotation_row,
-    annotation_col: input.annotation_col,
-    annotation_colors: input.annotation_colors,
-    display_numbers: input.display_numbers,
-    number_format: input.number_format,
-    number_color: input.number_color,
-    main_title: input.main_title,
-  }
-}
-
-///|
 /// Set cutree_rows and cutree_cols for gaps.
 pub fn pheatmap_set_cutree(
   input : PheatmapInput,
@@ -784,42 +651,6 @@ pub fn pheatmap_set_fontsize(
     font_size_col: font_size,
     show_row_names: input.show_row_names,
     show_col_names: input.show_col_names,
-    cluster_rows: input.cluster_rows,
-    cluster_cols: input.cluster_cols,
-    clustering_distance_rows: input.clustering_distance_rows,
-    clustering_distance_cols: input.clustering_distance_cols,
-    clustering_method: input.clustering_method,
-    cutree_rows: input.cutree_rows,
-    cutree_cols: input.cutree_cols,
-    annotation_row: input.annotation_row,
-    annotation_col: input.annotation_col,
-    annotation_colors: input.annotation_colors,
-    display_numbers: input.display_numbers,
-    number_format: input.number_format,
-    number_color: input.number_color,
-    main_title: input.main_title,
-  }
-}
-
-///|
-/// Set display options (show row/column names).
-pub fn pheatmap_set_display(
-  input : PheatmapInput,
-  show_row_names : Bool,
-  show_col_names : Bool,
-) -> PheatmapInput {
-  PheatmapInput::{
-    mat: input.mat,
-    row_names: input.row_names,
-    col_names: input.col_names,
-    color: input.color,
-    breaks: input.breaks,
-    legend: input.legend,
-    font_size: input.font_size,
-    font_size_row: input.font_size_row,
-    font_size_col: input.font_size_col,
-    show_row_names,
-    show_col_names,
     cluster_rows: input.cluster_rows,
     cluster_cols: input.cluster_cols,
     clustering_distance_rows: input.clustering_distance_rows,
@@ -909,88 +740,6 @@ pub fn pheatmap_set_title(
 }
 
 ///|
-/// Add row annotation.
-pub fn pheatmap_add_annotation_row(
-  input : PheatmapInput,
-  name : String,
-  values : Array[String],
-) -> PheatmapInput {
-  let new_annot = Map([], capacity=input.annotation_row.length() + 1)
-  for key in input.annotation_row.keys() {
-    new_annot[key] = input.annotation_row[key]
-  }
-  new_annot[name] = values
-  PheatmapInput::{
-    mat: input.mat,
-    row_names: input.row_names,
-    col_names: input.col_names,
-    color: input.color,
-    breaks: input.breaks,
-    legend: input.legend,
-    font_size: input.font_size,
-    font_size_row: input.font_size_row,
-    font_size_col: input.font_size_col,
-    show_row_names: input.show_row_names,
-    show_col_names: input.show_col_names,
-    cluster_rows: input.cluster_rows,
-    cluster_cols: input.cluster_cols,
-    clustering_distance_rows: input.clustering_distance_rows,
-    clustering_distance_cols: input.clustering_distance_cols,
-    clustering_method: input.clustering_method,
-    cutree_rows: input.cutree_rows,
-    cutree_cols: input.cutree_cols,
-    annotation_row: new_annot,
-    annotation_col: input.annotation_col,
-    annotation_colors: input.annotation_colors,
-    display_numbers: input.display_numbers,
-    number_format: input.number_format,
-    number_color: input.number_color,
-    main_title: input.main_title,
-  }
-}
-
-///|
-/// Add column annotation.
-pub fn pheatmap_add_annotation_col(
-  input : PheatmapInput,
-  name : String,
-  values : Array[String],
-) -> PheatmapInput {
-  let new_annot = Map([], capacity=input.annotation_col.length() + 1)
-  for key in input.annotation_col.keys() {
-    new_annot[key] = input.annotation_col[key]
-  }
-  new_annot[name] = values
-  PheatmapInput::{
-    mat: input.mat,
-    row_names: input.row_names,
-    col_names: input.col_names,
-    color: input.color,
-    breaks: input.breaks,
-    legend: input.legend,
-    font_size: input.font_size,
-    font_size_row: input.font_size_row,
-    font_size_col: input.font_size_col,
-    show_row_names: input.show_row_names,
-    show_col_names: input.show_col_names,
-    cluster_rows: input.cluster_rows,
-    cluster_cols: input.cluster_cols,
-    clustering_distance_rows: input.clustering_distance_rows,
-    clustering_distance_cols: input.clustering_distance_cols,
-    clustering_method: input.clustering_method,
-    cutree_rows: input.cutree_rows,
-    cutree_cols: input.cutree_cols,
-    annotation_row: input.annotation_row,
-    annotation_col: new_annot,
-    annotation_colors: input.annotation_colors,
-    display_numbers: input.display_numbers,
-    number_format: input.number_format,
-    number_color: input.number_color,
-    main_title: input.main_title,
-  }
-}
-
-///|
 /// Set annotation colors for a specific annotation.
 pub fn pheatmap_set_annotation_color(
   input : PheatmapInput,
@@ -1029,16 +778,6 @@ pub fn pheatmap_set_annotation_color(
     number_color: input.number_color,
     main_title: input.main_title,
   }
-}
-
-///|
-/// Add row annotation colors.
-pub fn pheatmap_add_annotation_row_color(
-  input : PheatmapInput,
-  annot_name : String,
-  value_color_map : Map[String, String],
-) -> PheatmapInput {
-  pheatmap_set_annotation_color(input, annot_name, value_color_map)
 }
 
 ///|

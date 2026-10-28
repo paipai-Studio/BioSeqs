@@ -206,36 +206,3 @@ pub fn skallel_fold_sfs(s : Array[Int32], n : Int32) -> Array[Int32] {
   }
   out
 }
-
-///|
-/// Fold a joint site frequency spectrum (`allel.fold_joint_sfs`).
-pub fn skallel_fold_joint_sfs(
-  s : Array[Array[Int32]],
-  n1 : Int32,
-  n2 : Int32,
-) -> Array[Array[Int32]] {
-  let mf = (n1 + 1) / 2
-  let nf = (n2 + 1) / 2
-  let r1 = mf * 2
-  let r2 = nf * 2
-  let out : Array[Array[Int32]] = Array(capacity=0)
-  for i = 0; i < mf; i = i + 1 {
-    let row : Array[Int32] = Array(capacity=0)
-    for j = 0; j < nf; j = j + 1 {
-      let get = fn(r : Int32, c : Int32) -> Int32 {
-        if r < s.length() && c < s[r].length() {
-          s[r][c]
-        } else {
-          0
-        }
-      }
-      let v = get(i, j) +
-        get(r1 - 1 - i, j) +
-        get(i, r2 - 1 - j) +
-        get(r1 - 1 - i, r2 - 1 - j)
-      row.push(v)
-    }
-    out.push(row)
-  }
-  out
-}

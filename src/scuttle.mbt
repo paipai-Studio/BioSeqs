@@ -267,11 +267,6 @@ pub fn scuttle_outlier_higher() -> ScuttleOutlierDirection {
 }
 
 ///|
-pub fn scuttle_batch_median() -> ScuttleBatchSummary {
-  ScuttleBatchMedian
-}
-
-///|
 pub fn scuttle_batch_mean() -> ScuttleBatchSummary {
   ScuttleBatchMean
 }

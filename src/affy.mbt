@@ -307,17 +307,3 @@ pub fn summarize_probeset(
 
   result
 }
-
-///|
-pub fn affy_batch_summarize(
-  affy_batch : AffyBatch,
-  method_name : String,
-) -> Array[Array[Double]] {
-  let result : Array[Array[Double]] = Array(capacity=0)
-  let mut i = 0
-  while i < affy_batch.probe_sets.length() {
-    result.push(summarize_probeset(affy_batch.probe_sets[i], method_name))
-    i = i + 1
-  }
-  result
-}

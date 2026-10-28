@@ -424,9 +424,3 @@ pub fn sample_mmcif_content() -> String {
   "#\n" +
   "_struct.title  Crystal structure of human hemoglobin\n"
 }
-
-///|
-/// Create a sample MmcifDataBlock for testing.
-pub fn sample_mmcif_block() -> MmcifDataBlock {
-  parse_mmcif(sample_mmcif_content())
-}

@@ -46,39 +46,9 @@ pub fn ss_alpha_helix() -> SSType {
 }
 
 ///|
-/// Construct Helix3_10 SSType.
-pub fn ss_helix_3_10() -> SSType {
-  Helix3_10
-}
-
-///|
-/// Construct PiHelix SSType.
-pub fn ss_pi_helix() -> SSType {
-  PiHelix
-}
-
-///|
 /// Construct ExtendedStrand SSType.
 pub fn ss_extended_strand() -> SSType {
   ExtendedStrand
-}
-
-///|
-/// Construct IsolatedBridge SSType.
-pub fn ss_isolated_bridge() -> SSType {
-  IsolatedBridge
-}
-
-///|
-/// Construct Turn SSType.
-pub fn ss_turn() -> SSType {
-  Turn
-}
-
-///|
-/// Construct Bend SSType.
-pub fn ss_bend() -> SSType {
-  Bend
 }
 
 ///|
@@ -579,12 +549,6 @@ pub fn ramachandran_favored() -> RamachandranRegion {
 /// Construct Allowed RamachandranRegion.
 pub fn ramachandran_allowed() -> RamachandranRegion {
   Allowed
-}
-
-///|
-/// Construct Generous RamachandranRegion.
-pub fn ramachandran_generous() -> RamachandranRegion {
-  Generous
 }
 
 ///|

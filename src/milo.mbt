@@ -96,11 +96,6 @@ priv struct MiloFit {
 }
 
 ///|
-pub fn milo_k_distance_weighting() -> MiloSpatialWeighting {
-  KDistance
-}
-
-///|
 pub fn milo_neighbour_distance_weighting() -> MiloSpatialWeighting {
   NeighbourDistance
 }

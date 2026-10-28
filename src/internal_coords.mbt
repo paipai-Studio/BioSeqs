@@ -293,28 +293,6 @@ pub fn ic_compute_psi(
   ic_dihedral_angle(n_curr, ca_curr, c_curr, n_next)
 }
 
-///|
-/// Compute omega angle (CA(i-1) - C(i-1) - N(i) - CA(i)).
-pub fn ic_compute_omega(
-  ca_prev : Array[Double],
-  c_prev : Array[Double],
-  n_curr : Array[Double],
-  ca_curr : Array[Double],
-) -> Double {
-  ic_dihedral_angle(ca_prev, c_prev, n_curr, ca_curr)
-}
-
-///|
-/// Compute chi1 angle (N - CA - CB - CG).
-pub fn ic_compute_chi1(
-  n : Array[Double],
-  ca : Array[Double],
-  cb : Array[Double],
-  cg : Array[Double],
-) -> Double {
-  ic_dihedral_angle(n, ca, cb, cg)
-}
-
 // ============================================================================
 // Internal coordinate to Cartesian conversion
 // ============================================================================
@@ -622,77 +600,6 @@ pub fn ic_oxygen_position(
 // ============================================================================
 // Side chain placement
 // ============================================================================
-
-///|
-/// Place CB atom given N, CA, and C positions.
-pub fn ic_place_cb(
-  n_pos : Array[Double],
-  ca_pos : Array[Double],
-  c_pos : Array[Double],
-) -> Array[Double] {
-  let bond_ca_cb = 1.53
-  let angle_n_ca_cb = ic_deg_to_rad(112.0)
-
-  let v_ca_n = [
-    n_pos[0] - ca_pos[0],
-    n_pos[1] - ca_pos[1],
-    n_pos[2] - ca_pos[2],
-  ]
-  let v_ca_c = [
-    c_pos[0] - ca_pos[0],
-    c_pos[1] - ca_pos[1],
-    c_pos[2] - ca_pos[2],
-  ]
-
-  let n_norm = ic_vec_norm(v_ca_n)
-  let c_norm = ic_vec_norm(v_ca_c)
-
-  let u_n = if n_norm > 1.0e-10 {
-    [v_ca_n[0] / n_norm, v_ca_n[1] / n_norm, v_ca_n[2] / n_norm]
-  } else {
-    [1.0, 0.0, 0.0]
-  }
-  let u_c = if c_norm > 1.0e-10 {
-    [v_ca_c[0] / c_norm, v_ca_c[1] / c_norm, v_ca_c[2] / c_norm]
-  } else {
-    [0.0, 1.0, 0.0]
-  }
-
-  let cross_n_c = ic_cross(u_n, u_c)
-  let cn_norm = ic_vec_norm(cross_n_c)
-  let normal = if cn_norm > 1.0e-10 {
-    [cross_n_c[0] / cn_norm, cross_n_c[1] / cn_norm, cross_n_c[2] / cn_norm]
-  } else {
-    [0.0, 0.0, 1.0]
-  }
-
-  // CB is tetrahedrally placed
-  let cos_ang = @math.cos(angle_n_ca_cb)
-  let sin_ang = @math.sin(angle_n_ca_cb)
-  let new_dir = [
-    cos_ang * u_n[0] + sin_ang * ic_cross(normal, u_n)[0],
-    cos_ang * u_n[1] + sin_ang * ic_cross(normal, u_n)[1],
-    cos_ang * u_n[2] + sin_ang * ic_cross(normal, u_n)[2],
-  ]
-
-  [
-    ca_pos[0] + bond_ca_cb * new_dir[0],
-    ca_pos[1] + bond_ca_cb * new_dir[1],
-    ca_pos[2] + bond_ca_cb * new_dir[2],
-  ]
-}
-
-///|
-/// Rotate CB around CA-N bond by chi1 angle.
-pub fn ic_rotate_chi1(
-  n_pos : Array[Double],
-  ca_pos : Array[Double],
-  cb_pos : Array[Double],
-  chi1 : Double,
-) -> Array[Double] {
-  let bond_ca_cb = 1.53
-  ic_rotate_around_bond(n_pos, ca_pos, cb_pos, chi1, bond_ca_cb)
-}
 
 // ============================================================================
 // Vector math utilities
@@ -1154,69 +1061,9 @@ pub fn ic_chi1_rotamers(resname : String) -> Array[Rotamer] {
   }
 }
 
-///|
-/// Select the best rotamer for a given backbone-dependent context.
-pub fn ic_select_rotamer(
-  resname : String,
-  _phi : Double,
-  _psi : Double,
-) -> Rotamer {
-  let rotamers = ic_chi1_rotamers(resname)
-  // Default: return the most probable rotamer
-  if rotamers.length() > 0 {
-    rotamers[0]
-  } else {
-    Rotamer::new(name="t", chi_angles=[], probability=1.0)
-  }
-}
-
 // ============================================================================
 // Validation and analysis
 // ============================================================================
-
-///|
-/// Validate internal coordinates by checking bond length and angle constraints.
-pub fn ic_validate_coords(ic : InternalCoordChain) -> Array[(Int32, String)] {
-  let issues : Array[(Int32, String)] = []
-  let mut i = 0
-  while i < ic.residues.length() {
-    let res = ic.residues[i]
-    for bl in res.bond_lengths {
-      if bl.length < 0.5 || bl.length > 3.0 {
-        issues.push(
-          (
-            res.resseq,
-            "Bond length " +
-            bl.atom1 +
-            "-" +
-            bl.atom2 +
-            " out of range: " +
-            bl.length.to_string(),
-          ),
-        )
-      }
-    }
-    for ba in res.bond_angles {
-      if ba.angle < 60.0 || ba.angle > 180.0 {
-        issues.push(
-          (
-            res.resseq,
-            "Bond angle " +
-            ba.atom1 +
-            "-" +
-            ba.atom2 +
-            "-" +
-            ba.atom3 +
-            " out of range: " +
-            ba.angle.to_string(),
-          ),
-        )
-      }
-    }
-    i = i + 1
-  }
-  issues
-}
 
 ///|
 /// Get the summary of an internal coordinate chain.

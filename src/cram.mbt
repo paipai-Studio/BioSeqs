@@ -95,21 +95,6 @@ pub fn itf8_decode(data : String, pos : Int32) -> (Int32, Int32) {
 // LTF-8 — CRAM 3.0 variable-length 64-bit integer encoding
 // ============================================================
 
-///|
-/// Encode a 64-bit integer as LTF-8 (1–9 bytes).
-/// Uses the same high-bit-prefix scheme as ITF-8 but extends to 9 bytes.
-pub fn ltf8_encode(value : Int32, buf : Array[Int32]) -> Unit {
-  // For MoonBit Int (32-bit on this platform), we only need up to 5 bytes.
-  // The full 9-byte LTF-8 is for 64-bit values beyond Int range.
-  itf8_encode(value, buf)
-}
-
-///|
-/// Decode an LTF-8 integer. Same as ITF-8 for 32-bit range.
-pub fn ltf8_decode(data : String, pos : Int32) -> (Int32, Int32) {
-  itf8_decode(data, pos)
-}
-
 // ============================================================
 // CRAM binary write — inverse of parse_cram
 // ============================================================

@@ -304,27 +304,6 @@ pub fn dose_fold_enrichment(
   k * nb / (m * ms)
 }
 
-///|
-/// Odds ratio of the 2x2 table
-///
-///   | overlap | query − overlap |
-///   | term − overlap | bg − term − (query − overlap) |
-///
-/// With Haldane–Anscombe 0.5-cell correction whenever any cell is zero,
-/// matching the convention in Bioconductor DOSE.
-pub fn dose_odds_ratio(
-  overlap : Int32,
-  query_size : Int32,
-  term_size : Int32,
-  background_size : Int32,
-) -> Double {
-  let a = overlap
-  let b = query_size - overlap
-  let c = term_size - overlap
-  let d = background_size - term_size - (query_size - overlap)
-  dose_fisher_impl(a, b, c, d, "two-sided").odds_ratio
-}
-
 // ===========================================================================
 // Enrichment result types
 // ===========================================================================

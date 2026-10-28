@@ -26,11 +26,6 @@ pub fn iranges_single(start : Int32, end : Int32) -> IRanges {
 }
 
 ///|
-pub fn ir_length(ir : IRanges) -> Int32 {
-  ir.starts.length()
-}
-
-///|
 pub fn ir_start(ir : IRanges) -> Array[Int32] {
   ir.starts
 }
@@ -722,36 +717,6 @@ pub fn ir_sort(ir : IRanges) -> IRanges {
   }
 
   IRanges::{ starts: new_starts, ends: new_ends, widths: new_widths, }
-}
-
-///|
-/// Calculate total width of all ranges.
-pub fn ir_total_width(ir : IRanges) -> Int32 {
-  let n = ir.starts.length()
-  let mut total = 0
-  let mut i = 0
-  while i < n {
-    total = total + ir.widths[i]
-    i = i + 1
-  }
-  total
-}
-
-///|
-/// Calculate gap width between ranges.
-pub fn ir_gap_width(ir : IRanges) -> Int32 {
-  let sorted = ir_sort(ir)
-  let n = sorted.starts.length()
-  let mut total_gap = 0
-  let mut i = 1
-  while i < n {
-    let gap = sorted.starts[i] - sorted.ends[i - 1] - 1
-    if gap > 0 {
-      total_gap = total_gap + gap
-    }
-    i = i + 1
-  }
-  total_gap
 }
 
 ///|

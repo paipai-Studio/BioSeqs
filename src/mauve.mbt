@@ -222,16 +222,6 @@ pub fn mauve_lcb_is_consistent(lcb : MauveLCB) -> Bool {
   true
 }
 
-///|
-/// Get the sequence names in this LCB.
-pub fn mauve_lcb_seq_names(lcb : MauveLCB) -> Array[String] {
-  let names = Array(capacity=0)
-  for s = 0; s < lcb.sequences.length(); s = s + 1 {
-    names.push(lcb.sequences[s].name)
-  }
-  names
-}
-
 // ============================================================================
 // MauveAlignment Implementation
 // ============================================================================
@@ -743,22 +733,6 @@ pub fn mauve_build_guide_tree(aligner : MauveProgressiveAligner) -> Unit {
     groups.push(group)
   }
   aligner.guide_tree = groups
-}
-
-///|
-/// Execute progressive alignment by adding sequences one at a time.
-pub fn mauve_execute_progressive(
-  aligner : MauveProgressiveAligner,
-) -> MauveAlignment {
-  mauve_build_guide_tree(aligner)
-
-  let result = aligner.alignment
-
-  for i = 0; i < aligner.guide_tree.length(); i = i + 1 {
-    result.groups[i] = aligner.guide_tree[i]
-  }
-
-  result
 }
 
 // ============================================================================

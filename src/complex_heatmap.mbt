@@ -126,43 +126,6 @@ pub fn ch_sqrt(x : Double) -> Double {
 }
 
 ///|
-pub fn ch_ln(x : Double) -> Double {
-  if x <= 0.0 {
-    -1000000.0
-  } else {
-    let y = (x - 1.0) / (x + 1.0)
-    let mut sum = y
-    let mut y_power = y
-    let mut n = 1
-    while n < 100 {
-      y_power = y_power * y * y
-      sum = sum + y_power / (2.0 * n.to_double() + 1.0)
-      n = n + 1
-    }
-    2.0 * sum
-  }
-}
-
-///|
-pub fn ch_exp(x : Double) -> Double {
-  if x > 700.0 {
-    1000000000000000000000000000000000.0
-  } else if x < -700.0 {
-    0.0
-  } else {
-    let mut sum = 1.0
-    let mut term = 1.0
-    let mut n = 1
-    while n < 100 {
-      term = term * x / n.to_double()
-      sum = sum + term
-      n = n + 1
-    }
-    sum
-  }
-}
-
-///|
 pub fn ch_mean(arr : Array[Double]) -> Double {
   if arr.length() == 0 {
     0.0
@@ -581,34 +544,6 @@ pub fn ch_scale_matrix(
 }
 
 ///|
-pub fn ch_colorscale(
-  value : Double,
-  min_val : Double,
-  max_val : Double,
-  cmap : ColorMap,
-) -> String {
-  if cmap.colors.length() == 0 {
-    return "#808080"
-  }
-
-  let range = max_val - min_val
-  if range <= 0.0 {
-    return cmap.colors[0]
-  }
-
-  let normalized = (value - min_val) / range
-  let idx = (normalized * (cmap.colors.length() - 1).to_double()).to_int()
-
-  if idx < 0 {
-    cmap.colors[0]
-  } else if idx >= cmap.colors.length() {
-    cmap.colors[cmap.colors.length() - 1]
-  } else {
-    cmap.colors[idx]
-  }
-}
-
-///|
 pub fn ch_pad_right(s : String, len : Int32) -> String {
   let mut result = s
   while result.length() < len {
@@ -887,55 +822,6 @@ pub fn ch_col_split(
     row_clusters: [],
     col_clusters: [],
   }
-}
-
-///|
-pub fn ch_add_annotation(
-  heatmap : HeatmapResult,
-  annot : HeatmapAnnotation,
-) -> HeatmapResult {
-  let annot_result = ch_create_annotation(annot)
-  let new_text = heatmap.text + "\nAnnotations:\n" + annot_result.legend
-
-  HeatmapResult::{
-    text: new_text,
-    row_order: heatmap.row_order,
-    col_order: heatmap.col_order,
-    row_clusters: heatmap.row_clusters,
-    col_clusters: heatmap.col_clusters,
-  }
-}
-
-///|
-pub fn ch_annotate_rows(
-  _data : HeatmapData,
-  annotations : Array[HeatmapAnnotation],
-) -> String {
-  let mut result = "Row Annotations:\n"
-  let mut i = 0
-  while i < annotations.length() {
-    let annot = annotations[i]
-    let annot_result = ch_create_annotation(annot)
-    result = result + annot_result.row_annot
-    i = i + 1
-  }
-  result
-}
-
-///|
-pub fn ch_annotate_cols(
-  _data : HeatmapData,
-  annotations : Array[HeatmapAnnotation],
-) -> String {
-  let mut result = "Column Annotations:\n"
-  let mut i = 0
-  while i < annotations.length() {
-    let annot = annotations[i]
-    let annot_result = ch_create_annotation(annot)
-    result = result + annot_result.col_annot
-    i = i + 1
-  }
-  result
 }
 
 ///|

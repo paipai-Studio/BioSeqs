@@ -561,12 +561,6 @@ pub fn parse_phyloxml(xml_text : String) -> PhyloXMLResult {
 }
 
 ///|
-/// Parse a PhyloXML file (content) into a PhyloXMLResult.
-pub fn parse_phyloxml_file(file_path : String) -> PhyloXMLResult {
-  parse_phyloxml(file_path)
-}
-
-///|
 /// Parse a single phylogeny tree element.
 pub fn parse_tree_element(xml : String) -> PhyloXMLTree {
   let trimmed = trim(xml)

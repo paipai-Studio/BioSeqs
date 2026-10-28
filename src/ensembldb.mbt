@@ -152,36 +152,6 @@ pub fn EnsDb::new(version : String, species : String) -> EnsDb {
 }
 
 ///|
-pub fn edb_add_gene(db : EnsDb, gene : EnsDbGene) -> EnsDb {
-  db.genes.push(gene)
-  db
-}
-
-///|
-pub fn edb_add_transcript(db : EnsDb, tx : EnsDbTranscript) -> EnsDb {
-  db.transcripts.push(tx)
-  db
-}
-
-///|
-pub fn edb_add_exon(db : EnsDb, exon : EnsDbExon) -> EnsDb {
-  db.exons.push(exon)
-  db
-}
-
-///|
-pub fn edb_add_cds(db : EnsDb, cds : EnsDbCDS) -> EnsDb {
-  db.cds.push(cds)
-  db
-}
-
-///|
-pub fn edb_set_metadata(db : EnsDb, key : String, value : String) -> EnsDb {
-  db.metadata.set(key, value)
-  db
-}
-
-///|
 pub fn edb_num_genes(db : EnsDb) -> Int32 {
   db.genes.length()
 }
@@ -194,11 +164,6 @@ pub fn edb_num_transcripts(db : EnsDb) -> Int32 {
 ///|
 pub fn edb_num_exons(db : EnsDb) -> Int32 {
   db.exons.length()
-}
-
-///|
-pub fn edb_num_cds(db : EnsDb) -> Int32 {
-  db.cds.length()
 }
 
 ///|
@@ -247,39 +212,6 @@ pub fn edb_get_transcripts_by_gene(
 }
 
 ///|
-pub fn edb_get_exons_by_transcript(
-  db : EnsDb,
-  tx_id : String,
-) -> Array[EnsDbExon] {
-  let results : Array[EnsDbExon] = Array(capacity=0)
-
-  let mut i = 0
-  while i < db.exons.length() {
-    if db.exons[i].tx_id == tx_id {
-      results.push(db.exons[i])
-    }
-    i = i + 1
-  }
-
-  results
-}
-
-///|
-pub fn edb_get_cds_by_transcript(db : EnsDb, tx_id : String) -> Array[EnsDbCDS] {
-  let results : Array[EnsDbCDS] = Array(capacity=0)
-
-  let mut i = 0
-  while i < db.cds.length() {
-    if db.cds[i].tx_id == tx_id {
-      results.push(db.cds[i])
-    }
-    i = i + 1
-  }
-
-  results
-}
-
-///|
 pub fn edb_filter_by_chromosome(db : EnsDb, chromosome : String) -> EnsDb {
   let filtered = EnsDb::new(db.version, db.species)
 
@@ -303,29 +235,6 @@ pub fn edb_filter_by_chromosome(db : EnsDb, chromosome : String) -> EnsDb {
 }
 
 ///|
-pub fn edb_filter_by_biotype(db : EnsDb, biotype : String) -> EnsDb {
-  let filtered = EnsDb::new(db.version, db.species)
-
-  let mut i = 0
-  while i < db.genes.length() {
-    if db.genes[i].biotype == biotype {
-      filtered.genes.push(db.genes[i])
-    }
-    i = i + 1
-  }
-
-  let mut j = 0
-  while j < db.transcripts.length() {
-    if db.transcripts[j].biotype == biotype {
-      filtered.transcripts.push(db.transcripts[j])
-    }
-    j = j + 1
-  }
-
-  filtered
-}
-
-///|
 pub fn edb_get_gene_length(db : EnsDb, gene_id : String) -> Int32 {
   let gene_opt = edb_get_gene_by_id(db, gene_id)
   if gene_opt is Some(_) {
@@ -333,18 +242,6 @@ pub fn edb_get_gene_length(db : EnsDb, gene_id : String) -> Int32 {
   } else {
     0
   }
-}
-
-///|
-pub fn edb_get_transcript_length(db : EnsDb, tx_id : String) -> Int32 {
-  let mut i = 0
-  while i < db.transcripts.length() {
-    if db.transcripts[i].tx_id == tx_id {
-      return db.transcripts[i].seq_end - db.transcripts[i].seq_start + 1
-    }
-    i = i + 1
-  }
-  0
 }
 
 ///|

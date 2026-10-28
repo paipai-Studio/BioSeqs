@@ -378,20 +378,3 @@ fn calc_max(vals : Array[Double]) -> Double {
 
   m
 }
-
-///|
-pub fn create_example_gene_expression() -> GeneExpression {
-  let gene_ids = ["gene1", "gene2", "gene3", "gene4", "gene5"]
-  let expression = [
-    [10.5, 12.3, 11.1, 25.0, 27.5, 26.2],
-    [5.8, 6.2, 5.5, 7.0, 6.8, 7.2],
-    [100.2, 98.5, 102.1, 50.0, 48.5, 52.0],
-    [15.7, 16.2, 15.9, 14.8, 15.2, 14.5],
-    [3.2, 3.5, 3.1, 3.0, 3.3, 2.9],
-  ]
-  let groups = [
-    "control", "control", "control", "treatment", "treatment", "treatment",
-  ]
-
-  GeneExpression::new(gene_ids, expression, groups)
-}

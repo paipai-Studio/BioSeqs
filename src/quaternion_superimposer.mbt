@@ -35,12 +35,6 @@ pub fn QsPoint::new(x : Double, y : Double, z : Double) -> QsPoint {
 }
 
 ///|
-/// Vector subtraction.
-pub fn qs_point_sub(a : QsPoint, b : QsPoint) -> QsPoint {
-  QsPoint::new(a.x - b.x, a.y - b.y, a.z - b.z)
-}
-
-///|
 /// Vector addition.
 pub fn qs_point_add(a : QsPoint, b : QsPoint) -> QsPoint {
   QsPoint::new(a.x + b.x, a.y + b.y, a.z + b.z)
@@ -162,18 +156,6 @@ pub fn qs_centroid(points : Array[QsPoint]) -> QsPoint {
     i = i + 1
   }
   QsPoint::new(cx / n.to_double(), cy / n.to_double(), cz / n.to_double())
-}
-
-///|
-/// Translate points by a vector.
-pub fn qs_translate(points : Array[QsPoint], v : QsPoint) -> Array[QsPoint] {
-  let result : Array[QsPoint] = []
-  let mut i = 0
-  while i < points.length() {
-    result.push(qs_point_add(points[i], v))
-    i = i + 1
-  }
-  result
 }
 
 ///|

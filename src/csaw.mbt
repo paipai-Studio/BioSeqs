@@ -241,31 +241,6 @@ pub fn csw_make_windows(
   windows
 }
 
-///|
-/// Assign counts to windows from read positions.
-pub fn csw_assign_counts(
-  windows : Array[CswWindow],
-  read_positions : Array[Int32],
-) -> Array[CswWindow] {
-  let result : Array[CswWindow] = Array(capacity=0)
-  let mut i = 0
-  while i < windows.length() {
-    let w = windows[i]
-    let mut count = 0.0
-    let mut j = 0
-    while j < read_positions.length() {
-      if read_positions[j] >= w.start && read_positions[j] < w.end {
-        count = count + 1.0
-      }
-      j = j + 1
-    }
-    w.counts.push(count)
-    result.push(w)
-    i = i + 1
-  }
-  result
-}
-
 // ===== Normalization =====
 
 ///|
@@ -452,56 +427,6 @@ pub fn csw_filter_abundance(
     filtered_windows: filtered,
     bin_indices: data.bin_indices,
   }
-}
-
-///|
-/// Filter windows by spatial merging (merge adjacent windows with similar counts).
-pub fn csw_filter_merged(data : CswDataSet, tol : Double) -> CswDataSet {
-  let filtered : Array[CswWindow] = data.filtered_windows.copy()
-  let n = filtered.length()
-  let mut i = 0
-  while i < n {
-    if filtered[i].filter_status == CswFilterStatus::Pass {
-      let mut j = i + 1
-      while j < n &&
-            filtered[j].filter_status == CswFilterStatus::Pass &&
-            filtered[i].chrom == filtered[j].chrom &&
-            csw_adjacent_window(filtered[i], filtered[j]) {
-        let mean_i = filtered[i].csw_mean_count()
-        let mean_j = filtered[j].csw_mean_count()
-        let ratio = if mean_i > 0.0 { mean_j / mean_i } else { 1.0 }
-        let log_ratio_val = (@math.ln(ratio) / @math.ln(2.0)).abs()
-        if log_ratio_val < tol {
-          filtered[j] = CswWindow::{
-            id: filtered[j].id,
-            chrom: filtered[j].chrom,
-            start: filtered[j].start,
-            end: filtered[j].end,
-            counts: filtered[j].counts,
-            filter_status: CswFilterStatus::Merged,
-            filter_abundance: filtered[j].filter_abundance,
-          }
-        }
-        j = j + 1
-      }
-    }
-    i = i + 1
-  }
-  CswDataSet::{
-    windows: data.windows,
-    samples: data.samples,
-    lib_sizes: data.lib_sizes,
-    norm_factors: data.norm_factors,
-    filtered_windows: filtered,
-    bin_indices: data.bin_indices,
-  }
-}
-
-///|
-/// Check if two windows are adjacent (on same chromosome, within gap).
-fn csw_adjacent_window(a : CswWindow, b : CswWindow) -> Bool {
-  let gap = b.start - a.end
-  gap >= 0 && gap <= 500
 }
 
 // ===== Differential binding =====

@@ -82,33 +82,6 @@ pub fn md_lj_energy(
 }
 
 ///|
-/// Analytic Lennard-Jones forces (negative gradient).
-pub fn md_lj_forces(
-  positions : Array[Array[Double]],
-  pairs : Array[(Int32, Int32, Double, Double)],
-) -> Array[Array[Double]] {
-  let forces = md_new_forces(positions.length())
-  for (i, j, epsilon, sigma) in pairs {
-    let r = md_dist(positions[i], positions[j])
-    if r == 0.0 {
-      continue
-    }
-    let sr = sigma / r
-    let sr6 = sr * sr * sr * sr * sr * sr
-    let sr12 = sr6 * sr6
-    // dE/dr = 24 eps (sr6 - 2 sr12)/r；力幅 = -dE/dr = 24 eps (2 sr12 - sr6)/r
-    let mag = 24.0 * epsilon * (2.0 * sr12 - sr6) / r
-    for d = 0; d < 3; d = d + 1 {
-      let dir = (positions[i][d] - positions[j][d]) / r
-      let f = mag * dir
-      forces[i][d] = forces[i][d] + f
-      forces[j][d] = forces[j][d] - f
-    }
-  }
-  forces
-}
-
-///|
 /// Coulomb energy: `k_e q_i q_j / r` (k_e = 332.0637 kcal·Å / (mol·e²)).
 /// `pairs` is `(i, j, qi, qj)`.
 pub fn md_coulomb_energy(
@@ -125,30 +98,6 @@ pub fn md_coulomb_energy(
     e = e + ke * qi * qj / r
   }
   e
-}
-
-///|
-/// Coulomb forces (negative gradient): `k_e q_i q_j / r^2` along the bond.
-pub fn md_coulomb_forces(
-  positions : Array[Array[Double]],
-  pairs : Array[(Int32, Int32, Double, Double)],
-) -> Array[Array[Double]] {
-  let ke = 332.0637
-  let forces = md_new_forces(positions.length())
-  for (i, j, qi, qj) in pairs {
-    let r = md_dist(positions[i], positions[j])
-    if r == 0.0 {
-      continue
-    }
-    let mag = ke * qi * qj / (r * r)
-    for d = 0; d < 3; d = d + 1 {
-      let dir = (positions[i][d] - positions[j][d]) / r
-      let f = mag * dir
-      forces[i][d] = forces[i][d] + f
-      forces[j][d] = forces[j][d] - f
-    }
-  }
-  forces
 }
 
 ///|

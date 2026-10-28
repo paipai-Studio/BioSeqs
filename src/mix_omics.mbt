@@ -235,30 +235,6 @@ pub fn mix_matrix_deflate(
 }
 
 ///|
-/// Compute covariance matrix: X^T Y / n (p x q).
-pub fn mix_covariance_matrix(
-  x : Array[Array[Double]],
-  y : Array[Array[Double]],
-  n : Int32,
-  p : Int32,
-  q : Int32,
-) -> Array[Array[Double]] {
-  let result : Array[Array[Double]] = []
-  for j = 0; j < p; j = j + 1 {
-    let row = Array::make(q, 0.0)
-    for k = 0; k < q; k = k + 1 {
-      let mut sum = 0.0
-      for i = 0; i < n; i = i + 1 {
-        sum = sum + x[i][j] * y[i][k]
-      }
-      row[k] = sum / n.to_double()
-    }
-    result.push(row)
-  }
-  result
-}
-
-///|
 /// Soft thresholding operator: S(x, lambda) = sign(x) * max(0, |x| - lambda).
 pub fn soft_threshold(x : Double, lambda : Double) -> Double {
   let abs_x = if x < 0.0 { -x } else { x }
@@ -1229,30 +1205,4 @@ pub fn diablo_component(
   }
 
   (block_scores, block_weights, block_loadings, block_selected)
-}
-
-///|
-/// Update block scores as weighted combination of individual block scores.
-pub fn diablo_update_scores(
-  blocks : Array[Array[Array[Double]]],
-  weights : Array[Array[Double]],
-  _scores : Array[Array[Double]],
-  n_blocks : Int32,
-  n : Int32,
-) -> Array[Array[Double]] {
-  let block_sizes = Array::make(n_blocks, 0)
-  for b = 0; b < n_blocks; b = b + 1 {
-    block_sizes[b] = if blocks[b].length() > 0 {
-      blocks[b][0].length()
-    } else {
-      0
-    }
-  }
-
-  let result : Array[Array[Double]] = []
-  for b = 0; b < n_blocks; b = b + 1 {
-    let pb = block_sizes[b]
-    result.push(mix_mat_vec(blocks[b], n, pb, weights[b]))
-  }
-  result
 }

@@ -60,53 +60,6 @@ pub fn scaling_factor(vec1 : Array[Double], vec2 : Array[Double]) -> Double {
 }
 
 ///|
-/// Covariance overlap between two sets of modes.
-/// Measures how similar two subspaces are, weighted by eigenvalues.
-/// CO = sum_i sum_j (1/sqrt(lambda_i * mu_j)) * (v_i · w_j)^2
-/// Normalized to [0, 1].
-pub fn covariance_overlap(
-  evals1 : Array[Double],
-  evecs1 : Array[Array[Double]],
-  evals2 : Array[Double],
-  evecs2 : Array[Array[Double]],
-) -> Double {
-  let n1 = evals1.length()
-  let n2 = evals2.length()
-  let n_vec = if n1 > 0 && n2 > 0 {
-    if evecs1[0].length() < evecs2[0].length() {
-      evecs1[0].length()
-    } else {
-      evecs2[0].length()
-    }
-  } else {
-    return 0.0
-  }
-  let mut total = 0.0
-  let mut norm1 = 0.0
-  let mut norm2 = 0.0
-  for i = 0; i < n1; i = i + 1 {
-    let li = if evals1[i] > 1.0e-10 { evals1[i] } else { 1.0e-10 }
-    norm1 = norm1 + 1.0 / li
-    for j = 0; j < n2; j = j + 1 {
-      let lj = if evals2[j] > 1.0e-10 { evals2[j] } else { 1.0e-10 }
-      let mut dot = 0.0
-      for kk = 0; kk < n_vec; kk = kk + 1 {
-        dot = dot + evecs1[i][kk] * evecs2[j][kk]
-      }
-      total = total + dot * dot / (li * lj).sqrt()
-    }
-  }
-  for j = 0; j < n2; j = j + 1 {
-    let lj = if evals2[j] > 1.0e-10 { evals2[j] } else { 1.0e-10 }
-    norm2 = norm2 + 1.0 / lj
-  }
-  if norm1 < 1.0e-20 || norm2 < 1.0e-20 {
-    return 0.0
-  }
-  total / (norm1 * norm2).sqrt()
-}
-
-///|
 /// Angle between two subspaces (in degrees).
 /// Computed from the singular values of the projection matrix V1^T V2.
 /// Returns the largest principal angle.

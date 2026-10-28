@@ -453,34 +453,6 @@ pub fn analyze_co_occurrence(
 }
 
 ///|
-pub fn decompose_mutational_signatures(
-  maf : MAFData,
-  reference_signatures : Array[MutationalSignature],
-) -> Array[MutationalSignature] {
-  if reference_signatures.length() == 0 {
-    return Array(capacity=0)
-  }
-
-  let spectrum = calculate_mutation_spectrum(maf)
-  let total_mutations = spectrum.snv_count.to_double()
-
-  if total_mutations == 0.0 {
-    return Array(capacity=0)
-  }
-
-  let results : Array[MutationalSignature] = Array(capacity=0)
-  let mut i = 0
-  while i < reference_signatures.length() {
-    let sig = reference_signatures[i]
-    let contribution = sig.contribution * total_mutations
-    results.push(MutationalSignature::{ name: sig.name, contribution, })
-    i = i + 1
-  }
-
-  results
-}
-
-///|
 pub fn summarize_maf(maf : MAFData) -> String {
   let mut summary = "\nMAF Summary\n"
   summary = summary + "==============================\n"

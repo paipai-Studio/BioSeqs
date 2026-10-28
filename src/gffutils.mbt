@@ -10,12 +10,6 @@ pub fn gffutils_overlaps(f1 : GFFFeature, f2 : GFFFeature) -> Bool {
 }
 
 ///|
-/// Alias for `gffutils_overlaps`.
-pub fn gffutils_intersects(f1 : GFFFeature, f2 : GFFFeature) -> Bool {
-  gffutils_overlaps(f1, f2)
-}
-
-///|
 /// `f1` fully contains `f2` (same `seqid`).
 pub fn gffutils_contains(f1 : GFFFeature, f2 : GFFFeature) -> Bool {
   f1.seqid == f2.seqid && f1.start <= f2.start && f1.end >= f2.end
@@ -340,21 +334,6 @@ pub fn gffutils_to_bed(feature : GFFFeature) -> String {
   score +
   "\t" +
   strand
-}
-
-///|
-/// Convert all features of a `GFFRecord` to BED text (one line per feature).
-pub fn gffutils_record_to_bed(record : GFFRecord) -> String {
-  let sb = StringBuilder()
-  let mut first = true
-  for f in record.features {
-    if !first {
-      sb.write_char('\n')
-    }
-    sb.write_string(gffutils_to_bed(f))
-    first = false
-  }
-  sb.to_string()
 }
 
 ///|

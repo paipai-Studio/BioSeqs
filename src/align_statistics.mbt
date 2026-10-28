@@ -49,15 +49,6 @@ pub fn bit_score(score : Double, stats : AlignStats) -> Double {
 }
 
 ///|
-/// Compute E-value from bit-score.
-/// E = m * n / 2^S'
-pub fn evalue_from_bitscore(bitscore : Double, m : Int32, n : Int32) -> Double {
-  let m_d = m.to_double()
-  let n_d = n.to_double()
-  m_d * n_d / pow2(bitscore)
-}
-
-///|
 /// Estimate Karlin-Altschul parameters from a scoring matrix.
 ///
 /// Uses the method of Altschul & Erickson (1986) for a simple
@@ -148,10 +139,4 @@ pub fn blastn_stats() -> AlignStats {
 /// lambda = 0.318, K = 0.134, H = 0.481
 pub fn blosum62_stats() -> AlignStats {
   AlignStats::{ lambda: 0.318, k: 0.134, h: 0.481, score_mean: -0.52, }
-}
-
-///|
-/// 2^x for Double.
-fn pow2(x : Double) -> Double {
-  @math.exp(x * 0.6931471805599453)
 }

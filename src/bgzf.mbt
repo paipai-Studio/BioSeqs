@@ -746,15 +746,6 @@ pub fn parse_bam_from_bgzf(data : String) -> BamFile raise BgzfError {
   result
 }
 
-///|
-/// Parse BAM file from base64-encoded BGZF-compressed data.
-pub fn parse_bam_from_bgzf_base64(
-  base64_str : String,
-) -> BamFile raise BgzfError {
-  let raw_data = base64_decode(base64_str)
-  parse_bam_from_bgzf(raw_data)
-}
-
 // ============================================================================
 // BGZF writing and random-access reading.
 // Port of Biopython's Bio.bgzf BgzfWriter / BgzfReader / BgzfBlocks and the

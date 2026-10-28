@@ -101,21 +101,6 @@ pub fn bsseq_exp(x : Double) -> Double {
 }
 
 ///|
-/// Base-2 logarithm.
-pub fn bsseq_log2(x : Double) -> Double {
-  bsseq_ln(x) / bsseq_ln2
-}
-
-///|
-/// Power via exp/ln.
-pub fn bsseq_pow(base : Double, exp : Double) -> Double {
-  if base <= 0.0 {
-    return 0.0
-  }
-  bsseq_exp(exp * bsseq_ln(base))
-}
-
-///|
 /// Lanczos approximation for ln(gamma(x)).
 pub fn bsseq_ln_gamma(x : Double) -> Double {
   let cof = [
@@ -204,24 +189,6 @@ pub fn bsseq_betainc(x : Double, a : Double, b : Double) -> Double {
   } else {
     1.0 - bt * bsseq_betacf(1.0 - x, b, a) / b
   }
-}
-
-///|
-/// Standard normal CDF using Abramowitz and Stegun erf approximation.
-pub fn bsseq_normal_cdf(z : Double) -> Double {
-  let sign = if z < 0.0 { -1.0 } else { 1.0 }
-  let x = z.abs() / bsseq_sqrt(2.0)
-  let t = 1.0 / (1.0 + 0.3275911 * x)
-  let erf = 1.0 -
-    (
-      0.254829592 * t -
-      0.284496736 * t * t +
-      1.421413741 * t * t * t -
-      1.453152027 * t * t * t * t +
-      1.061405429 * t * t * t * t * t
-    ) *
-    bsseq_exp(-x * x)
-  0.5 * (1.0 + sign * erf)
 }
 
 ///|
@@ -317,12 +284,6 @@ pub fn bsseq_variance(arr : Array[Double]) -> Double {
     i = i + 1
   }
   ss / (n - 1).to_double()
-}
-
-///|
-/// Standard deviation.
-pub fn bsseq_sd(arr : Array[Double]) -> Double {
-  bsseq_sqrt(bsseq_variance(arr))
 }
 
 ///|

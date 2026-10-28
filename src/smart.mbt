@@ -194,33 +194,6 @@ pub fn smart_find_domains(
 }
 
 ///|
-/// Find all domains overlapping with a given region [start, end].
-pub fn smart_find_overlapping_domains(
-  result : SmartResult,
-  start : Int32,
-  end : Int32,
-) -> Array[SmartDomain] {
-  let matches : Array[SmartDomain] = Array(capacity=0)
-  let mut i = 0
-  while i < result.domains.length() {
-    let d = result.domains[i]
-    if d.start <= end && d.end >= start {
-      matches.push(d)
-    }
-    i = i + 1
-  }
-  let mut j = 0
-  while j < result.pfam_domains.length() {
-    let d = result.pfam_domains[j]
-    if d.start <= end && d.end >= start {
-      matches.push(d)
-    }
-    j = j + 1
-  }
-  matches
-}
-
-///|
 /// Get the lowest E-value domain in the result.
 pub fn smart_best_domain(result : SmartResult) -> SmartDomain? {
   let mut best : SmartDomain? = None

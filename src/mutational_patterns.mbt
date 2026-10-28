@@ -444,26 +444,6 @@ pub fn MutationMatrix::sample_cosine_similarity(
 }
 
 ///|
-/// Calculate signature exposure (contribution) of a known signature to a sample.
-/// Returns the count attributed to the signature.
-pub fn calculate_exposure(
-  sample_profile : Array[Double],
-  signature : MutSigProfile,
-) -> Double {
-  // Project sample profile onto signature
-  let sig = signature.probabilities
-  let dot = cosine_similarity(sample_profile, sig)
-  // Total mutations * cosine similarity gives approximate exposure
-  let mut total = 0.0
-  let mut i = 0
-  while i < sample_profile.length() {
-    total = total + sample_profile[i]
-    i = i + 1
-  }
-  total * dot
-}
-
-///|
 /// Compute the contribution of multiple signatures to a sample.
 /// Returns an array of contribution fractions.
 pub fn fit_signatures(

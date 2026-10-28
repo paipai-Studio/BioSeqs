@@ -378,58 +378,6 @@ pub fn fgsea_top_down(
 }
 
 ///|
-/// Collapse (average) redundant gene sets based on leading edge similarity.
-pub fn fgsea_collapse_pathways(
-  results : Array[FgseaResult],
-  _pathways : Array[GeneSet],
-  threshold~ : Double = 0.5,
-) -> Array[Array[Int32]] {
-  let n = results.length()
-  let clusters : Array[Array[Int32]] = []
-  let assigned : Array[Bool] = []
-  for i = 0; i < n; i = i + 1 {
-    assigned.push(false)
-  }
-
-  for i = 0; i < n; i = i + 1 {
-    if assigned[i] {
-      continue
-    }
-    assigned[i] = true
-    let cluster : Array[Int32] = [i]
-    let le_i = results[i].leadingEdge
-
-    for j = i + 1; j < n; j = j + 1 {
-      if assigned[j] {
-        continue
-      }
-      let le_j = results[j].leadingEdge
-      let mut overlap = 0
-      for a in le_i {
-        for b in le_j {
-          if a == b {
-            overlap = overlap + 1
-            break
-          }
-        }
-      }
-      let min_size = if le_i.length() < le_j.length() {
-        le_i.length()
-      } else {
-        le_j.length()
-      }
-      if min_size > 0 && overlap.to_double() / min_size.to_double() >= threshold {
-        assigned[j] = true
-        cluster.push(j)
-      }
-    }
-    clusters.push(cluster)
-  }
-
-  clusters
-}
-
-///|
 /// Sample gene sets for testing/demo purposes.
 pub fn sample_gene_sets() -> Array[GeneSet] {
   [

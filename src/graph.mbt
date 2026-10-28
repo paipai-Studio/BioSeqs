@@ -90,11 +90,6 @@ pub fn graph_add_node(graph : Graph, node : Node) -> Unit {
 }
 
 ///|
-pub fn graph_add_edge(graph : Graph, edge : Edge) -> Unit {
-  graph.edges.push(edge)
-}
-
-///|
 pub fn graph_add_edge_by_id(
   graph : Graph,
   source_id : String,
@@ -102,47 +97,6 @@ pub fn graph_add_edge_by_id(
   weight : Double,
 ) -> Unit {
   graph.edges.push(Edge::new(source_id, target_id, weight))
-}
-
-///|
-pub fn graph_get_node_by_id(graph : Graph, node_id : String) -> Node? {
-  let mut i = 0
-  while i < graph.nodes.length() {
-    let node = graph.nodes[i]
-    if node.node_id == node_id {
-      return Some(node)
-    }
-    i = i + 1
-  }
-  None
-}
-
-///|
-pub fn graph_get_edges_from(graph : Graph, node_id : String) -> Array[Edge] {
-  let results : Array[Edge] = Array(capacity=0)
-  let mut i = 0
-  while i < graph.edges.length() {
-    let edge = graph.edges[i]
-    if edge.source == node_id {
-      results.push(edge)
-    }
-    i = i + 1
-  }
-  results
-}
-
-///|
-pub fn graph_get_edges_to(graph : Graph, node_id : String) -> Array[Edge] {
-  let results : Array[Edge] = Array(capacity=0)
-  let mut i = 0
-  while i < graph.edges.length() {
-    let edge = graph.edges[i]
-    if edge.target == node_id {
-      results.push(edge)
-    }
-    i = i + 1
-  }
-  results
 }
 
 ///|

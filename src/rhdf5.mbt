@@ -360,12 +360,3 @@ pub fn h5create_example_file() -> HDF5File {
   )
   file4
 }
-
-///|
-pub fn h5create_attribute(
-  name : String,
-  data_type : String,
-  data : String,
-) -> HDF5Attribute {
-  HDF5Attribute::new(name, data_type, data)
-}

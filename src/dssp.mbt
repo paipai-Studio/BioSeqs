@@ -48,43 +48,6 @@ pub fn DSSPResult::new(records : Array[DSSPRecord]) -> DSSPResult {
 }
 
 ///|
-pub fn parse_dssp(data : String) -> DSSPResult {
-  let records : Array[DSSPRecord] = Array(capacity=0)
-
-  let lines = split_by_char(data, '\n'.to_int())
-  let mut i = 0
-
-  while i < lines.length() {
-    let line = lines[i]
-    if line.length() >= 14 && char_at(line, 0) != "#" {
-      let chain_id = substring(line, 0, 1)
-      let resnum_str = substring(line, 5, 4)
-      let insertion_code = substring(line, 9, 1)
-      let amino_acid = substring(line, 13, 1)
-      let ss = substring(line, 16, 1)
-      let acc_str = substring(line, 34, 3)
-      let phi_str = substring(line, 104, 6)
-      let psi_str = substring(line, 111, 6)
-
-      let residue_number = parse_int(trim(resnum_str))
-      let solvent_accessibility = parse_int(trim(acc_str))
-      let phi = parse_double(trim(phi_str)).unwrap_or(0.0)
-      let psi = parse_double(trim(psi_str)).unwrap_or(0.0)
-
-      records.push(
-        DSSPRecord::new(
-          chain_id, residue_number, insertion_code, amino_acid, ss, solvent_accessibility,
-          phi, psi,
-        ),
-      )
-    }
-    i = i + 1
-  }
-
-  DSSPResult::new(records)
-}
-
-///|
 pub fn predict_secondary_structure(sequence : String) -> String {
   let mut result = ""
 

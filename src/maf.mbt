@@ -647,28 +647,6 @@ pub fn maf_filter_by_length(
 }
 
 ///|
-/// Filter blocks by minimum percent identity.
-pub fn maf_filter_by_identity(
-  ali : MAFAliignment,
-  min_identity : Double,
-) -> MAFAliignment {
-  let mut result = new_maf_alignment()
-  result.version = ali.version
-  result.score = ali.score
-  result.comments = ali.comments
-
-  for b = 0; b < ali.blocks.length(); b = b + 1 {
-    let block = ali.blocks[b]
-    let identity = maf_block_percent_identity(block)
-    if identity >= min_identity {
-      result = maf_add_block(result, block)
-    }
-  }
-
-  result
-}
-
-///|
 /// Merge consecutive blocks with the same sequences.
 pub fn maf_merge_blocks(ali : MAFAliignment) -> MAFAliignment {
   if ali.blocks.length() <= 1 {

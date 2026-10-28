@@ -584,12 +584,6 @@ pub fn bcf_gt_allele(encoded : Int32) -> Int32? {
 }
 
 ///|
-/// Whether a packed GT integer marks a phased allele.
-pub fn bcf_gt_phased(encoded : Int32) -> Bool {
-  (encoded & 1) == 1
-}
-
-///|
 /// The name for a FILTER/INFO/FORMAT id, falling back to the numeric id.
 pub fn BcfHeader::id_name(self : BcfHeader, id : Int32) -> String {
   bcf_id_name(self, id)

@@ -81,25 +81,6 @@ pub fn expression_set_feature_names(eset : ExpressionSet) -> Array[String] {
 }
 
 ///|
-pub fn expression_set_get_assay(eset : ExpressionSet) -> Array[Array[Double]] {
-  eset.assay_data
-}
-
-///|
-pub fn expression_set_get_pheno_data(
-  eset : ExpressionSet,
-) -> Map[String, Array[String]] {
-  eset.pheno_data
-}
-
-///|
-pub fn expression_set_get_feature_data(
-  eset : ExpressionSet,
-) -> Map[String, Array[String]] {
-  eset.feature_data
-}
-
-///|
 pub fn expression_set_get_annotation(eset : ExpressionSet) -> String {
   eset.annotation
 }

@@ -210,8 +210,3 @@ pub fn hilbert_map_to_grid(
 
   grid
 }
-
-///|
-pub fn create_example_hilbert_curve() -> HilbertCurve {
-  HilbertCurve::new(4, 2)
-}

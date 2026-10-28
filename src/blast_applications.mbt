@@ -456,22 +456,6 @@ pub fn ncbi_psiblast_commandline() -> BlastCommandline {
 }
 
 ///|
-/// NCBI rpsblast command line (reverse position-specific BLAST).
-pub fn ncbi_rpsblast_commandline() -> BlastCommandline {
-  let specs = blastapp_common_params()
-  specs.push(
-    BlastParamSpec::new("-outfmt", "Output format (0-18)", true, "0", false),
-  )
-  specs.push(
-    BlastParamSpec::new("-max_hsps", "Max HSPs per subject", true, "0", false),
-  )
-  specs.push(
-    BlastParamSpec::new("-remote", "Execute search remotely", false, "", false),
-  )
-  BlastCommandline::new("rpsblast", specs)
-}
-
-///|
 /// NCBI makeblastdb command line (build BLAST database).
 pub fn ncbi_makeblastdb_commandline() -> BlastCommandline {
   let specs : Array[BlastParamSpec] = [

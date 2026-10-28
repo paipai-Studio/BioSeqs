@@ -231,18 +231,6 @@ pub fn get_kegg_annotations(
 }
 
 ///|
-pub fn annotation_dbi_keys(db : AnnotationDb) -> Array[String] {
-  db.gene_info.keys().collect()
-}
-
-///|
-pub fn annotation_dbi_columns(_db : AnnotationDb) -> Array[String] {
-  [
-    "gene_id", "symbol", "description", "chr", "start", "end", "strand", "biotype",
-  ]
-}
-
-///|
 pub fn nrow(db : AnnotationDb) -> Int32 {
   db.gene_info.length()
 }

@@ -64,28 +64,6 @@ pub fn xcp_baseline_rolling_min(
 }
 
 ///|
-pub fn xcp_baseline_rolling_median(
-  intensity : Array[Double],
-  window_size : Int32,
-) -> Array[Double] {
-  let n = intensity.length()
-  let result : Array[Double] = Array::make(n, 0.0)
-  let half = window_size / 2
-  for i in 0..<n {
-    let lo = if i - half >= 0 { i - half } else { 0 }
-    let hi = if i + half < n { i + half } else { n - 1 }
-    let win_len = hi - lo + 1
-    let win : Array[Double] = Array::make(win_len, 0.0)
-    for k in 0..<win_len {
-      win[k] = intensity[lo + k]
-    }
-    win.sort()
-    result[i] = win[win_len / 2]
-  }
-  result
-}
-
-///|
 pub fn xcp_noise_mad(intensity : Array[Double]) -> Double {
   let n = intensity.length()
   if n == 0 {

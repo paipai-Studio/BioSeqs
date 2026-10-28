@@ -571,46 +571,6 @@ pub fn gfa_parse_path(fields : Array[String]) -> GfaPath {
 }
 
 ///|
-/// Parse a single GFA line and dispatch on its record-type character. The
-/// line is parsed for validation but the resulting record is not accumulated
-/// anywhere; use `gfa_parse` to build a complete graph.
-pub fn gfa_parse_line(line : String) -> Unit {
-  let n = line.length()
-  let cr : UInt16 = '\r'.to_int().to_uint16()
-  let mut end = n
-  if n > 0 && line.unsafe_get(n - 1) == cr {
-    end = n - 1
-  }
-  if end == 0 {
-    return
-  }
-  let body = line[0:end].to_owned()
-  let fields = gfa_split_strings(body, "\t")
-  if fields.length() == 0 {
-    return
-  }
-  let rtype = fields[0]
-  match rtype {
-    "H" => {
-      let _ = gfa_parse_header(fields)
-    }
-    "S" => {
-      let _ = gfa_parse_segment(fields)
-    }
-    "L" => {
-      let _ = gfa_parse_link(fields)
-    }
-    "C" => {
-      let _ = gfa_parse_containment(fields)
-    }
-    "P" => {
-      let _ = gfa_parse_path(fields)
-    }
-    _ => ()
-  }
-}
-
-///|
 /// Parse a full GFA document into a GfaGraph. Blank lines are skipped and
 /// unknown record types are ignored.
 pub fn gfa_parse(content : String) -> GfaGraph {

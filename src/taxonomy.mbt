@@ -349,16 +349,6 @@ pub fn parse_names_dmp(
 ///|
 
 ///|
-pub fn parse_taxonomy_database(
-  nodes_content : String,
-  names_content : String,
-) -> TaxonomyDatabase {
-  let db = TaxonomyDatabase::new()
-  let db_with_nodes = parse_nodes_dmp(db, nodes_content)
-  parse_names_dmp(db_with_nodes, names_content)
-}
-
-///|
 pub fn create_example_taxonomy() -> TaxonomyDatabase {
   let db = TaxonomyDatabase::new()
 

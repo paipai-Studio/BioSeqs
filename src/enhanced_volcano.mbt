@@ -22,18 +22,6 @@ pub fn volcano_classification_up() -> VolcanoClassification {
 }
 
 ///|
-/// Create a Down classification.
-pub fn volcano_classification_down() -> VolcanoClassification {
-  VolcanoClassification::Down
-}
-
-///|
-/// Create a NonSig classification.
-pub fn volcano_classification_nonsig() -> VolcanoClassification {
-  VolcanoClassification::NonSig
-}
-
-///|
 /// A single gene result for volcano plot.
 pub struct VolcanoGene {
   gene_id : String

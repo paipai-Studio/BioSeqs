@@ -331,25 +331,6 @@ fn pcd_parse_peak_line(line : String) -> PcdPeak? {
 // ============================================================================
 
 ///|
-/// Get spectra within a retention time range.
-pub fn pcd_spectra_by_rt(
-  file : PcdFile,
-  min_rt : Double,
-  max_rt : Double,
-) -> Array[PcdSpectrum] {
-  let result : Array[PcdSpectrum] = Array(capacity=0)
-  let mut i = 0
-  while i < file.spectra.length() {
-    let s = file.spectra[i]
-    if s.rt >= min_rt && s.rt <= max_rt {
-      result.push(s)
-    }
-    i = i + 1
-  }
-  result
-}
-
-///|
 /// Get the total ion chromatogram (TIC) - total intensity per spectrum.
 pub fn pcd_tic(file : PcdFile) -> Array[Double] {
   let tic : Array[Double] = Array(capacity=0)
@@ -381,28 +362,6 @@ pub fn pcd_bpc(file : PcdFile) -> Array[Double] {
     i = i + 1
   }
   bpc
-}
-
-///|
-/// Find peaks above a threshold intensity in all spectra.
-pub fn pcd_find_peaks_above(
-  file : PcdFile,
-  threshold : Double,
-) -> Array[(Int32, Double, Double)] {
-  let peaks : Array[(Int32, Double, Double)] = Array(capacity=0)
-  let mut i = 0
-  while i < file.spectra.length() {
-    let s = file.spectra[i]
-    let mut j = 0
-    while j < s.mz_values.length() {
-      if s.intensity_values[j] >= threshold {
-        peaks.push((s.scan_number, s.mz_values[j], s.intensity_values[j]))
-      }
-      j = j + 1
-    }
-    i = i + 1
-  }
-  peaks
 }
 
 ///|

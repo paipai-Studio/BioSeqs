@@ -71,30 +71,6 @@ pub fn Phyloseq::new() -> Phyloseq {
 }
 
 ///|
-pub fn ps_add_otu(ps : Phyloseq, otu : OTU) -> Phyloseq {
-  ps.otus.push(otu)
-  ps
-}
-
-///|
-pub fn ps_add_sample(ps : Phyloseq, sample : Sample) -> Phyloseq {
-  ps.samples.push(sample)
-  ps
-}
-
-///|
-pub fn ps_add_taxonomy(ps : Phyloseq, tax : TaxRank) -> Phyloseq {
-  ps.taxonomy.push(tax)
-  ps
-}
-
-///|
-pub fn ps_set_metadata(ps : Phyloseq, key : String, value : String) -> Phyloseq {
-  ps.metadata.set(key, value)
-  ps
-}
-
-///|
 pub fn ps_num_otus(ps : Phyloseq) -> Int32 {
   ps.otus.length()
 }
@@ -229,76 +205,6 @@ pub fn ps_get_taxa_summary(ps : Phyloseq, rank : String) -> Map[String, Double] 
   }
 
   summary
-}
-
-///|
-pub fn ps_relative_abundance(ps : Phyloseq) -> Phyloseq {
-  let total = ps_total_abundance(ps)
-  let ra = Phyloseq::new()
-
-  let mut i = 0
-  while i < ps.samples.length() {
-    ra.samples.push(ps.samples[i])
-    i = i + 1
-  }
-
-  let mut j = 0
-  while j < ps.taxonomy.length() {
-    ra.taxonomy.push(ps.taxonomy[j])
-    j = j + 1
-  }
-
-  let mut k = 0
-  while k < ps.otus.length() {
-    let ra_abundance : Array[Double] = Array(capacity=0)
-    let mut m = 0
-    while m < ps.otus[k].abundance.length() {
-      ra_abundance.push(ps.otus[k].abundance[m] / total)
-      m = m + 1
-    }
-    let ra_otu = OTU::new(ps.otus[k].id, ps.otus[k].taxonomy, ra_abundance)
-    ra.otus.push(ra_otu)
-    k = k + 1
-  }
-
-  ra
-}
-
-///|
-pub fn ps_rarefy(ps : Phyloseq, depth : Int32) -> Phyloseq {
-  let rarefied = Phyloseq::new()
-
-  let mut i = 0
-  while i < ps.samples.length() {
-    rarefied.samples.push(ps.samples[i])
-    i = i + 1
-  }
-
-  let mut j = 0
-  while j < ps.taxonomy.length() {
-    rarefied.taxonomy.push(ps.taxonomy[j])
-    j = j + 1
-  }
-
-  let mut k = 0
-  while k < ps.otus.length() {
-    let rarefied_abundance : Array[Double] = Array(capacity=0)
-    let mut m = 0
-    while m < ps.otus[k].abundance.length() {
-      let proportion = ps.otus[k].abundance[m] / ps_total_abundance(ps)
-      rarefied_abundance.push(proportion * depth.to_double())
-      m = m + 1
-    }
-    let rarefied_otu = OTU::new(
-      ps.otus[k].id,
-      ps.otus[k].taxonomy,
-      rarefied_abundance,
-    )
-    rarefied.otus.push(rarefied_otu)
-    k = k + 1
-  }
-
-  rarefied
 }
 
 ///|

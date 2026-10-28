@@ -258,23 +258,6 @@ pub fn exons_by_transcript(txdb : TxDb) -> Map[String, Array[Exon]] {
 }
 
 ///|
-pub fn exons_by_gene(txdb : TxDb) -> Map[String, Array[Exon]] {
-  let result = Map([], capacity=32)
-
-  let mut i = 0
-  while i < txdb.exons.length() {
-    let exon = txdb.exons[i]
-    if !result.contains(exon.gene_id) {
-      result[exon.gene_id] = []
-    }
-    result[exon.gene_id].push(exon)
-    i = i + 1
-  }
-
-  result
-}
-
-///|
 pub fn cds_by_transcript(txdb : TxDb) -> Map[String, Array[CDS]] {
   let result = Map([], capacity=32)
 

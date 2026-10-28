@@ -29,29 +29,6 @@ pub fn DelayedArray::ncol(self : DelayedArray) -> Int32 {
 }
 
 ///|
-pub fn da_slice(
-  darr : DelayedArray,
-  row_idx : Array[Int32],
-  col_idx : Array[Int32],
-) -> DelayedArray {
-  let new_data : Array[Array[Double]] = Array(capacity=0)
-  let mut i = 0
-  while i < row_idx.length() {
-    let row_data : Array[Double] = Array(capacity=0)
-    let mut j = 0
-    while j < col_idx.length() {
-      row_data.push(darr.data[row_idx[i]][col_idx[j]])
-      j = j + 1
-    }
-    new_data.push(row_data)
-    i = i + 1
-  }
-  let result = DelayedArray::new(new_data)
-  result.delayed_ops.push("slice")
-  result
-}
-
-///|
 pub fn da_transpose(darr : DelayedArray) -> DelayedArray {
   let rows = darr.nrow()
   let cols = darr.ncol()

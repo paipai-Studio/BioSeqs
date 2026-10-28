@@ -71,12 +71,6 @@ pub fn BPJob::new(name : String, params : BPPARAM) -> BPJob {
 }
 
 ///|
-pub fn bp_add_task(job : BPJob, task : Task) -> BPJob {
-  job.tasks.push(task)
-  job
-}
-
-///|
 pub fn bp_sum(data : Array[Array[Double]], params : BPPARAM) -> Double {
   let mut total = 0.0
 
@@ -136,57 +130,6 @@ pub fn bp_mean_simple(data : Array[Double], workers : Int32) -> Double {
 }
 
 ///|
-pub fn bp_colsum(
-  data : Array[Array[Double]],
-  _params : BPPARAM,
-) -> Array[Double] {
-  if data.length() == 0 {
-    return Array(capacity=0)
-  }
-
-  let col_count = data[0].length()
-  let results : Array[Double] = Array(capacity=0)
-
-  let mut j = 0
-  while j < col_count {
-    let mut sum = 0.0
-    let mut i = 0
-    while i < data.length() {
-      if j < data[i].length() {
-        sum = sum + data[i][j]
-      }
-      i = i + 1
-    }
-    results.push(sum)
-    j = j + 1
-  }
-
-  results
-}
-
-///|
-pub fn bp_rowsum(
-  data : Array[Array[Double]],
-  _params : BPPARAM,
-) -> Array[Double] {
-  let results : Array[Double] = Array(capacity=0)
-
-  let mut i = 0
-  while i < data.length() {
-    let mut sum = 0.0
-    let mut j = 0
-    while j < data[i].length() {
-      sum = sum + data[i][j]
-      j = j + 1
-    }
-    results.push(sum)
-    i = i + 1
-  }
-
-  results
-}
-
-///|
 pub fn bp_parallelize(
   data : Array[Double],
   workers : Int32,
@@ -219,115 +162,6 @@ pub fn bp_parallelize(
   }
 
   chunks
-}
-
-///|
-pub fn bp_run(job : BPJob) -> Array[BPResult] {
-  let results : Array[BPResult] = Array(capacity=0)
-
-  let mut i = 0
-  while i < job.tasks.length() {
-    let task = job.tasks[i]
-    let mut sum = 0.0
-    let mut j = 0
-    while j < task.data.length() {
-      sum = sum + task.data[j]
-      j = j + 1
-    }
-    results.push(BPResult::success(sum, i % job.params.workers))
-    i = i + 1
-  }
-
-  results
-}
-
-///|
-pub fn bp_map_sum(
-  data : Array[Array[Double]],
-  params : BPPARAM,
-) -> Array[BPResult] {
-  let results : Array[BPResult] = Array(capacity=0)
-
-  let chunk_size = if data.length() % params.workers == 0 {
-    data.length() / params.workers
-  } else {
-    data.length() / params.workers + 1
-  }
-
-  let mut worker_id = 0
-  let mut start = 0
-
-  while start < data.length() {
-    let end = if start + chunk_size < data.length() {
-      start + chunk_size
-    } else {
-      data.length()
-    }
-
-    let mut i = start
-    while i < end {
-      let mut sum = 0.0
-      let mut j = 0
-      while j < data[i].length() {
-        sum = sum + data[i][j]
-        j = j + 1
-      }
-      results.push(BPResult::success(sum, worker_id))
-      i = i + 1
-    }
-
-    worker_id = worker_id + 1
-    start = end
-  }
-
-  results
-}
-
-///|
-pub fn bp_map_mean(
-  data : Array[Array[Double]],
-  params : BPPARAM,
-) -> Array[BPResult] {
-  let results : Array[BPResult] = Array(capacity=0)
-
-  let chunk_size = if data.length() % params.workers == 0 {
-    data.length() / params.workers
-  } else {
-    data.length() / params.workers + 1
-  }
-
-  let mut worker_id = 0
-  let mut start = 0
-
-  while start < data.length() {
-    let end = if start + chunk_size < data.length() {
-      start + chunk_size
-    } else {
-      data.length()
-    }
-
-    let mut i = start
-    while i < end {
-      let mut sum = 0.0
-      let mut j = 0
-      while j < data[i].length() {
-        sum = sum + data[i][j]
-        j = j + 1
-      }
-      let mean = if data[i].length() > 0 {
-        sum / data[i].length().to_double()
-      } else {
-        0.0
-      }
-      results.push(BPResult::success(mean, worker_id))
-      i = i + 1
-    }
-
-    worker_id = worker_id + 1
-    start = end
-  }
-
-  results
 }
 
 ///|

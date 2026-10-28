@@ -110,10 +110,3 @@ pub fn murcko_is_pure_scaffold(mol : Molecule) -> Bool {
   let result = murcko_scaffold(mol)
   result.side_chain_atoms.length() == 0
 }
-
-///|
-/// Get Murcko scaffold as SMILES.
-pub fn murcko_scaffold_smiles(mol : Molecule) -> String {
-  let scaffold = murcko_scaffold_mol(mol)
-  mol_to_smiles(scaffold)
-}

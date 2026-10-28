@@ -121,12 +121,6 @@ pub fn fa_dinucleotide_frequency(sequence : String) -> FreqAnalysisResult {
 }
 
 ///|
-/// Count trinucleotide frequencies.
-pub fn fa_trinucleotide_frequency(sequence : String) -> FreqAnalysisResult {
-  fa_count_kmers(sequence, 3)
-}
-
-///|
 /// Calculate expected frequency from mononucleotide frequencies.
 /// Expected dinucleotide frequency = freq(A) * freq(B)
 pub fn fa_expected_dinucleotide_freq(
@@ -141,36 +135,6 @@ pub fn fa_expected_dinucleotide_freq(
   let f1 = mono_freqs.fa_get_frequency(base1)
   let f2 = mono_freqs.fa_get_frequency(base2)
   f1 * f2
-}
-
-///|
-/// Calculate observed/expected ratio for dinucleotides.
-/// This is used to identify underrepresented or overrepresented dinucleotides.
-pub fn fa_dinucleotide_oe_ratio(sequence : String) -> Map[String, Double] {
-  let mono = fa_nucleotide_frequency(sequence)
-  let dinuc = fa_dinucleotide_frequency(sequence)
-  let ratios : Map[String, Double] = Map([], capacity=16)
-
-  let dinucleotides = [
-    "AA", "AC", "AG", "AT", "CA", "CC", "CG", "CT", "GA", "GC", "GG", "GT", "TA",
-    "TC", "TG", "TT",
-  ]
-
-  let mut i = 0
-  while i < dinucleotides.length() {
-    let dinuc_name = dinucleotides[i]
-    let obs_freq = dinuc.fa_get_frequency(dinuc_name)
-    let exp_freq = fa_expected_dinucleotide_freq(mono, dinuc_name)
-
-    if exp_freq > 0.0 {
-      ratios.set(dinuc_name, obs_freq / exp_freq)
-    } else {
-      ratios.set(dinuc_name, 0.0)
-    }
-    i = i + 1
-  }
-
-  ratios
 }
 
 ///|
@@ -200,86 +164,6 @@ pub fn fa_codon_usage(sequence : String) -> FreqAnalysisResult {
   }
 
   FreqAnalysisResult::new(frequencies, counts, total)
-}
-
-///|
-/// Calculate chi-square statistic comparing observed and expected frequencies.
-pub fn fa_chi_square_test(
-  observed : FreqAnalysisResult,
-  expected : FreqAnalysisResult,
-) -> Double {
-  let patterns = observed.fa_get_patterns()
-  let df = patterns.length() - 1
-
-  if df <= 0 {
-    return 0.0
-  }
-
-  let total_obs = observed.fa_get_total_count().to_double()
-  let total_exp = expected.fa_get_total_count().to_double()
-
-  let mut chi2 = 0.0
-  let mut i = 0
-  while i < patterns.length() {
-    let pattern = patterns[i]
-    let obs_freq = observed.fa_get_frequency(pattern)
-    let exp_freq = expected.fa_get_frequency(pattern)
-
-    let obs_count = obs_freq * total_obs
-    let exp_count = exp_freq * total_exp
-
-    if exp_count > 0.0 {
-      let diff = obs_count - exp_count
-      chi2 = chi2 + diff * diff / exp_count
-    }
-    i = i + 1
-  }
-
-  chi2
-}
-
-///|
-/// Find the most overrepresented k-mer in a sequence.
-pub fn fa_find_overrepresented(
-  sequence : String,
-  k : Int32,
-) -> Map[String, Double] {
-  let counts : Map[String, Int32] = Map([], capacity=100)
-  let seq_len = sequence.length()
-
-  if seq_len < k {
-    return Map([], capacity=0)
-  }
-
-  let mut total = 0
-  let mut pos = 0
-  while pos <= seq_len - k {
-    let kmer = substring(sequence, pos, k)
-    let current = counts.get_or_default(kmer, 0)
-    counts.set(kmer, current + 1)
-    total = total + 1
-    pos = pos + 1
-  }
-
-  // Calculate expected frequency (1/4^k for uniform distribution)
-  let mut expected_freq = 1.0
-  let mut i = 0
-  while i < k {
-    expected_freq = expected_freq / 4.0
-    i = i + 1
-  }
-
-  let results : Map[String, Double] = Map([], capacity=counts.length())
-  for key in counts.keys() {
-    let count = counts.get_or_default(key, 0)
-    let obs_freq = count.to_double() / total.to_double()
-    let ratio = obs_freq / expected_freq
-    if ratio > 1.5 {
-      results.set(key, ratio)
-    }
-  }
-
-  results
 }
 
 ///|

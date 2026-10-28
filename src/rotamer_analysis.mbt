@@ -76,17 +76,6 @@ pub fn rotamer_deviation(angle : Double) -> Double {
 }
 
 ///|
-/// Get bin center angle.
-pub fn rotamer_bin_center(bin : RotamerBin) -> Double {
-  match bin {
-    Trans => 180.0
-    GauchePlus => 60.0
-    GaucheMinus => -60.0
-    Unknown => 0.0
-  }
-}
-
-///|
 /// Get bin name as string.
 pub fn rotamer_bin_name(bin : RotamerBin) -> String {
   match bin {

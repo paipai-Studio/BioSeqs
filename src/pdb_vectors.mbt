@@ -648,22 +648,6 @@ pub fn vector_superposition_rmsd(
 }
 
 ///|
-pub fn test_array_full(
-  set_a : Array[Vector3],
-  set_b : Array[Vector3],
-) -> RotationMatrix3 {
-  let n = if set_a.length() < set_b.length() {
-    set_a.length()
-  } else {
-    set_b.length()
-  }
-  if n < 1 {
-    return RotationMatrix3::identity()
-  }
-  RotationMatrix3::identity()
-}
-
-///|
 pub fn compute_optimal_rotation(
   set_a : Array[Vector3],
   set_b : Array[Vector3],

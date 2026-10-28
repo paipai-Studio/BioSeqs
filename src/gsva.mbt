@@ -123,35 +123,6 @@ fn gsva_abs(x : Double) -> Double {
 }
 
 ///|
-/// Natural logarithm using Taylor series.
-pub fn gsva_ln(x : Double) -> Double {
-  if x <= 0.0 {
-    return -1000000000000000000000000000000.0
-  }
-  let mut y = x
-  let mut log2 = 0.0
-  while y >= 2.0 {
-    y = y / 2.0
-    log2 = log2 + 1.0
-  }
-  while y < 1.0 {
-    y = y * 2.0
-    log2 = log2 - 1.0
-  }
-  let z = (y - 1.0) / (y + 1.0)
-  let z_sq = z * z
-  let mut result = 0.0
-  let mut term = z
-  let mut i = 1
-  while gsva_abs(term) > 0.000000000000001 && i < 100 {
-    result = result + term / i.to_double()
-    term = term * z_sq
-    i = i + 2
-  }
-  2.0 * result + log2 * 0.6931471805599453
-}
-
-///|
 /// Exponential function using Taylor series.
 pub fn gsva_exp(x : Double) -> Double {
   if x > 700.0 {
@@ -903,49 +874,6 @@ fn gsva_permute_groups(groups : Array[Int32], seed : Int32) -> Array[Int32] {
 }
 
 ///|
-/// Compute enrichment statistics for gene sets.
-pub fn gsva_compute_enrichment(
-  scores : Array[Array[Double]],
-  gene_sets : Array[GSVAGeneSet],
-  gene_names : Array[String],
-) -> Array[GSVAEnrichment] {
-  let n_sets = gene_sets.length()
-  let enrichments = Array::make(n_sets, GSVAEnrichment::{
-    gene_set_name: "",
-    enrichment_score: 0.0,
-    normalized_enrichment_score: 0.0,
-    pvalue: 1.0,
-    fdr: 1.0,
-    leading_edge: [],
-  })
-
-  let mut i = 0
-  while i < n_sets {
-    let set_scores = scores[i]
-    let es = gsva_mean(set_scores)
-    let nes = if gsva_std(set_scores) > 0.0 {
-      es / gsva_std(set_scores)
-    } else {
-      0.0
-    }
-
-    let leading = gsva_leading_edge(scores, gene_sets[i], gene_names)
-
-    enrichments[i] = GSVAEnrichment::{
-      gene_set_name: gene_sets[i].name,
-      enrichment_score: es,
-      normalized_enrichment_score: nes,
-      pvalue: 0.05,
-      fdr: 0.05,
-      leading_edge: leading,
-    }
-    i = i + 1
-  }
-
-  enrichments
-}
-
-///|
 /// Perform differential analysis between groups.
 pub fn gsva_differential_analysis(
   scores : Array[Array[Double]],
@@ -1066,134 +994,6 @@ pub fn gsva_summarize(scores : GSVAScores) -> String {
   }
 
   summary
-}
-
-///|
-/// Generate ASCII plot of scores for a specific gene set.
-pub fn gsva_plot_scores(scores : GSVAScores, gene_set : String) -> String {
-  let mut plot = "GSVA Scores Plot\n"
-  plot = plot + "================\n\n"
-  plot = plot + "Gene Set: " + gene_set + "\n\n"
-
-  let mut set_idx = -1
-  let mut i = 0
-  while i < scores.gene_set_names.length() {
-    if scores.gene_set_names[i] == gene_set {
-      set_idx = i
-      break
-    }
-    i = i + 1
-  }
-
-  if set_idx < 0 {
-    return plot + "Gene set not found!\n"
-  }
-
-  let set_scores = scores.scores[set_idx]
-  let min_val = gsva_mean(set_scores) - 2.0 * gsva_std(set_scores)
-  let max_val = gsva_mean(set_scores) + 2.0 * gsva_std(set_scores)
-
-  plot = plot + "Score distribution:\n"
-  i = 0
-  while i < set_scores.length() {
-    let val = set_scores[i]
-    let normalized = (val - min_val) / (max_val - min_val)
-    let bar_length = (normalized * 40.0).to_int()
-
-    let mut bar = ""
-    let mut j = 0
-    while j < bar_length {
-      bar = bar + "="
-      j = j + 1
-    }
-    bar = bar + ">"
-
-    plot = plot +
-      scores.sample_names[i] +
-      ": " +
-      bar +
-      " " +
-      val.to_string() +
-      "\n"
-    i = i + 1
-  }
-
-  plot
-}
-
-///|
-/// Generate ASCII heatmap of scores.
-pub fn gsva_heatmap(scores : GSVAScores) -> String {
-  let mut heatmap = "GSVA Heatmap\n"
-  heatmap = heatmap + "============\n\n"
-
-  let n_sets = scores.gene_set_names.length()
-  let n_samples = scores.sample_names.length()
-
-  let max_display_sets = 10
-  let max_display_samples = 10
-
-  let display_sets = if n_sets < max_display_sets {
-    n_sets
-  } else {
-    max_display_sets
-  }
-  let display_samples = if n_samples < max_display_samples {
-    n_samples
-  } else {
-    max_display_samples
-  }
-
-  heatmap = heatmap + "\t"
-  let mut i = 0
-  while i < display_samples {
-    let name = if scores.sample_names[i].length() > 8 {
-      scores.sample_names[i][0:8].to_owned()
-    } else {
-      scores.sample_names[i]
-    }
-    heatmap = heatmap + name + "\t"
-    i = i + 1
-  }
-  heatmap = heatmap + "\n"
-
-  i = 0
-  while i < display_sets {
-    let set_name = if scores.gene_set_names[i].length() > 12 {
-      scores.gene_set_names[i][0:12].to_owned()
-    } else {
-      scores.gene_set_names[i]
-    }
-    heatmap = heatmap + set_name + "\t"
-
-    let mut j = 0
-    while j < display_samples {
-      let val = scores.scores[i][j]
-      let mut char = "."
-      if val > 1.0 {
-        char = "#"
-      } else if val > 0.5 {
-        char = "%"
-      } else if val > 0.0 {
-        char = "+"
-      } else if val > -0.5 {
-        char = "-"
-      } else if val > -1.0 {
-        char = "~"
-      } else {
-        char = "*"
-      }
-      heatmap = heatmap + char + "\t"
-      j = j + 1
-    }
-    heatmap = heatmap + "\n"
-    i = i + 1
-  }
-
-  heatmap = heatmap +
-    "\nLegend: #(>1.0) % (0.5-1.0) +(0-0.5) -( -0.5-0) ~(-1.0--0.5) *(< -1.0)\n"
-
-  heatmap
 }
 
 ///|
@@ -1386,16 +1186,6 @@ pub fn gsva_create_example_gene_sets() -> Array[GSVAGeneSet] {
       "Stem cell related genes",
     ),
   ]
-}
-
-///|
-/// Create example GSVA scores for testing.
-pub fn gsva_create_example_scores() -> GSVAScores {
-  let gene_sets = gsva_create_example_gene_sets()
-  let data = gsva_create_example_data()
-  let params = GSVAParams::new()
-
-  gsva_run(data, gene_sets, params)
 }
 
 ///|

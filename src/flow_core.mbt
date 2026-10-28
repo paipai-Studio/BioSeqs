@@ -115,12 +115,6 @@ pub fn flow_core_exp(x : Double) -> Double {
 }
 
 ///|
-/// Base-10 logarithm.
-pub fn flow_core_log10(x : Double) -> Double {
-  flow_core_ln(x) / flow_core_ln(10.0)
-}
-
-///|
 /// Inverse hyperbolic sine (asinh).
 pub fn flow_core_asinh(x : Double) -> Double {
   flow_core_ln(x + flow_core_sqrt(x * x + 1.0))
@@ -758,56 +752,6 @@ pub fn FCSFile::parse(content : String) -> FCSFile {
 }
 
 ///|
-/// Read an FCS file. Note: treats file_path as FCS content since this library does not perform file I/O.
-pub fn flow_core_read_fcs(file_path : String) -> FlowFrame {
-  let fcs = FCSFile::parse(file_path)
-  FlowFrame::from_fcs(fcs)
-}
-
-///|
-/// Write a FlowFrame to FCS format string.
-pub fn flow_core_write_fcs(frame : FlowFrame, file_path : String) -> String {
-  let _ = file_path
-  let buf = StringBuilder()
-  buf.write_string("FCS3.1\n")
-  buf.write_string("$FCSVERSION\t3.1\n")
-  buf.write_string("$TOT\t" + frame.n_events.to_string() + "\n")
-  buf.write_string("$PAR\t" + frame.n_params.to_string() + "\n")
-  let mut i = 0
-  while i < frame.params.length() {
-    let p = frame.params[i]
-    buf.write_string("$P" + (i + 1).to_string() + "N\t" + p.name + "\n")
-    buf.write_string(
-      "$P" + (i + 1).to_string() + "R\t" + p.range.to_string() + "\n",
-    )
-    i = i + 1
-  }
-  let desc_keys = frame.description.keys().collect()
-  i = 0
-  while i < desc_keys.length() {
-    let key = desc_keys[i]
-    buf.write_string(key + "\t" + frame.description[key] + "\n")
-    i = i + 1
-  }
-  buf.write_string("---DATA---\n")
-  i = 0
-  while i < frame.exprs.length() {
-    let row = frame.exprs[i]
-    let mut j = 0
-    while j < row.length() {
-      if j > 0 {
-        buf.write_string("\t")
-      }
-      buf.write_string(row[j].to_string())
-      j = j + 1
-    }
-    buf.write_string("\n")
-    i = i + 1
-  }
-  buf.to_string()
-}
-
-///|
 /// Get marker (parameter) names from a FlowFrame.
 pub fn flow_core_get_markers(frame : FlowFrame) -> Array[String] {
   let result : Array[String] = Array(capacity=0)
@@ -880,108 +824,6 @@ pub fn flow_core_logicle_transform(
     return xn * m * a_coeff / denom
   }
   m * flow_core_ln(1.0 + a_coeff * xn) / denom
-}
-
-///|
-/// Apply a transformation to all values in a FlowFrame.
-pub fn flow_core_transform(
-  frame : FlowFrame,
-  transform : Transformation,
-) -> FlowFrame {
-  let new_exprs : Array[Array[Double]] = Array(capacity=0)
-  let mut i = 0
-  while i < frame.exprs.length() {
-    let row : Array[Double] = Array(capacity=0)
-    let mut j = 0
-    while j < frame.exprs[i].length() {
-      let x = frame.exprs[i][j]
-      let transformed = match transform.transform_type {
-        LogTransform => {
-          let a = if transform.parameters.length() > 0 {
-            transform.parameters[0]
-          } else {
-            1.0
-          }
-          let b = if transform.parameters.length() > 1 {
-            transform.parameters[1]
-          } else {
-            10.0
-          }
-          let c = if transform.parameters.length() > 2 {
-            transform.parameters[2]
-          } else {
-            0.0
-          }
-          flow_core_log_transform(x, a, b, c)
-        }
-        AsinhTransform => {
-          let a = if transform.parameters.length() > 0 {
-            transform.parameters[0]
-          } else {
-            1.0
-          }
-          let b = if transform.parameters.length() > 1 {
-            transform.parameters[1]
-          } else {
-            1.0
-          }
-          let c = if transform.parameters.length() > 2 {
-            transform.parameters[2]
-          } else {
-            0.0
-          }
-          flow_core_asinh_transform(x, a, b, c)
-        }
-        LogicleTransform => {
-          let t = if transform.parameters.length() > 0 {
-            transform.parameters[0]
-          } else {
-            262144.0
-          }
-          let w = if transform.parameters.length() > 1 {
-            transform.parameters[1]
-          } else {
-            0.5
-          }
-          let m = if transform.parameters.length() > 2 {
-            transform.parameters[2]
-          } else {
-            4.5
-          }
-          let a = if transform.parameters.length() > 3 {
-            transform.parameters[3]
-          } else {
-            0.0
-          }
-          flow_core_logicle_transform(x, t, w, m, a)
-        }
-        LinearTransform => {
-          let a = if transform.parameters.length() > 0 {
-            transform.parameters[0]
-          } else {
-            1.0
-          }
-          let b = if transform.parameters.length() > 1 {
-            transform.parameters[1]
-          } else {
-            0.0
-          }
-          a * x + b
-        }
-      }
-      row.push(transformed)
-      j = j + 1
-    }
-    new_exprs.push(row)
-    i = i + 1
-  }
-  FlowFrame::{
-    exprs: new_exprs,
-    params: frame.params,
-    description: frame.description,
-    n_events: frame.n_events,
-    n_params: frame.n_params,
-  }
 }
 
 ///|

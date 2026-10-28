@@ -27,24 +27,6 @@ pub fn CodonSubstitution::to_string(self : CodonSubstitution) -> String {
 }
 
 ///|
-/// Construct Synonymous CodonSubstitution.
-pub fn codon_sub_synonymous() -> CodonSubstitution {
-  Synonymous
-}
-
-///|
-/// Construct NonSynonymous CodonSubstitution.
-pub fn codon_sub_nonsynonymous() -> CodonSubstitution {
-  NonSynonymous
-}
-
-///|
-/// Construct Unknown CodonSubstitution.
-pub fn codon_sub_unknown() -> CodonSubstitution {
-  Unknown
-}
-
-///|
 /// Codon substitution counts.
 pub struct CodonSubCounts {
   synonymous : Int32
@@ -420,26 +402,6 @@ pub fn calc_dnds_nei_gojobori(seq1 : String, seq2 : String) -> DnDsResult {
 }
 
 ///|
-/// Calculate dN/dS for all pairs of sequences.
-pub fn pairwise_dnds(
-  sequences : Array[String],
-) -> Array[(String, String, DnDsResult)] {
-  let result : Array[(String, String, DnDsResult)] = Array(capacity=0)
-  let n = sequences.length()
-  let mut i = 0
-  while i < n {
-    let mut j = i + 1
-    while j < n {
-      let dnds = calc_dnds_nei_gojobori(sequences[i], sequences[j])
-      result.push(("seq" + i.to_string(), "seq" + j.to_string(), dnds))
-      j = j + 1
-    }
-    i = i + 1
-  }
-  result
-}
-
-///|
 /// Calculate codon usage bias for a sequence.
 /// Returns relative synonymous codon usage (RSCU) values.
 pub fn codon_usage_bias(seq : String) -> Map[String, Double] {
@@ -567,19 +529,4 @@ fn count_codon_in_sequence(seq : String, codon : String) -> Int32 {
     i = i + 1
   }
   count
-}
-
-///|
-/// Create a demo codon alignment.
-pub fn create_demo_codon_alignment() -> Array[String] {
-  ["ATGTCTGAAATG", "ATGTCTGAAATG", "ATGTCTGAGATG", "ATGTCCGAAATG"]
-}
-
-///|
-/// Create a demo alignment with positive selection.
-pub fn create_demo_positive_selection() -> Array[String] {
-  [
-    "ATGTCTGAATAA", "ATGTCTGAATAA", "ATGTCTGAGTAA", "ATGTCTGAGTAA", "ATGTCCGAGTAA",
-    "ATGTCCGAGTAA",
-  ]
 }

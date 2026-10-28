@@ -78,18 +78,6 @@ pub fn chr_feature_type_cds() -> ChrFeatureType {
 }
 
 ///|
-/// Create a UTR feature type.
-pub fn chr_feature_type_utr() -> ChrFeatureType {
-  UTR
-}
-
-///|
-/// Create a Promoter feature type.
-pub fn chr_feature_type_promoter() -> ChrFeatureType {
-  Promoter
-}
-
-///|
 /// A genomic feature on a chromosome.
 pub struct ChrFeature {
   name : String
@@ -1053,84 +1041,6 @@ pub fn chr_create_human_karyotype() -> ChrDiagram {
   chromosomes.push(chr11)
 
   ChrDiagram::new(chromosomes~, layout~, title="Human Chromosome Map")
-}
-
-///|
-/// Create a bacterial circular chromosome diagram.
-pub fn chr_create_bacterial_chromosome() -> ChrDiagram {
-  let layout = ChrLayout::new(
-    width=600.0,
-    height=600.0,
-    chromosome_thickness=8.0,
-    show_labels=true,
-  )
-
-  let ecoli = Chromosome::new(
-    name="E. coli K-12",
-    length=4600000.0,
-    centromere_pos=2300000.0,
-    is_circular=true,
-  )
-  let ecoli = ecoli.add_feature(
-    ChrFeature::new(
-      name="rrl",
-      start=404000.0,
-      end=405000.0,
-      orientation=Forward,
-      feature_type=ChrFeatureType::Gene,
-      color="#FF6B6B",
-      label="rrl",
-    ),
-  )
-  let ecoli = ecoli.add_feature(
-    ChrFeature::new(
-      name="rpoB",
-      start=430000.0,
-      end=435000.0,
-      orientation=Forward,
-      feature_type=ChrFeatureType::Gene,
-      color="#4ECDC4",
-      label="rpoB",
-    ),
-  )
-  let ecoli = ecoli.add_feature(
-    ChrFeature::new(
-      name="lacZ",
-      start=3600000.0,
-      end=3603000.0,
-      orientation=Forward,
-      feature_type=ChrFeatureType::Gene,
-      color="#95E1D3",
-      label="lacZ",
-    ),
-  )
-  let ecoli = ecoli.add_feature(
-    ChrFeature::new(
-      name="trpA",
-      start=4000000.0,
-      end=4001000.0,
-      orientation=Reverse,
-      feature_type=ChrFeatureType::Gene,
-      color="#F38181",
-      label="trpA",
-    ),
-  )
-  let ecoli = ecoli.add_region(
-    ChrRegion::new(
-      name="Pathogenicity Island",
-      start=1000000.0,
-      end=1200000.0,
-      color="#FFE66D",
-      opacity=0.2,
-      label="PAI-1",
-    ),
-  )
-
-  ChrDiagram::new(
-    chromosomes=[ecoli],
-    layout~,
-    title="E. coli K-12 Circular Chromosome",
-  )
 }
 
 // ============================================================================

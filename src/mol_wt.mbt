@@ -187,14 +187,6 @@ pub fn extinction_coefficient_280(sequence : String) -> Double {
 }
 
 ///|
-/// Calculate the extinction coefficient using Pace model at 280 nm
-/// in water (denatured protein).
-/// E(280) = nTrp * 5500 + nTyr * 1490 + nCystine * 125 (same as native)
-pub fn extinction_coefficient_280_water(sequence : String) -> Double {
-  extinction_coefficient_280(sequence)
-}
-
-///|
 /// Calculate the absorbance coefficient (1 mg/mL) at 280 nm.
 /// A(280) = E(280) / molecular_weight * 10
 pub fn absorbance_280(sequence : String) -> Double {

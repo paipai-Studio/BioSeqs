@@ -885,37 +885,6 @@ pub fn distance_to_nearest(gr : GRanges) -> Array[Int32] {
 }
 
 ///|
-/// Subset GRanges by a logical condition (as boolean indices).
-pub fn granges_subset(gr : GRanges, keep : Array[Bool]) -> GRanges {
-  let n = gr.seqnames.length()
-  let new_seqnames : Array[String] = Array(capacity=0)
-  let new_starts : Array[Int32] = Array(capacity=0)
-  let new_ends : Array[Int32] = Array(capacity=0)
-  let new_strands : Array[Strand] = Array(capacity=0)
-  let new_widths : Array[Int32] = Array(capacity=0)
-
-  let mut i = 0
-  while i < n {
-    if i < keep.length() && keep[i] {
-      new_seqnames.push(gr.seqnames[i])
-      new_starts.push(gr.starts[i])
-      new_ends.push(gr.ends[i])
-      new_strands.push(gr.strands[i])
-      new_widths.push(gr.widths[i])
-    }
-    i = i + 1
-  }
-
-  GRanges::{
-    seqnames: new_seqnames,
-    starts: new_starts,
-    ends: new_ends,
-    strands: new_strands,
-    widths: new_widths,
-  }
-}
-
-///|
 /// Sort GRanges by seqname then start position.
 pub fn granges_sort(gr : GRanges) -> GRanges {
   let n = gr.seqnames.length()

@@ -226,14 +226,6 @@ pub fn oligonucleotide_frequency(
 }
 
 ///|
-pub fn dinucleotide_frequency(
-  seq : String,
-  normalize : Bool,
-) -> Map[String, Double] {
-  oligonucleotide_frequency(seq, 2, normalize)
-}
-
-///|
 pub fn trinucleotide_frequency(
   seq : String,
   normalize : Bool,
@@ -874,93 +866,6 @@ pub fn find_inverted_repeats(
       j = j + 1
     }
     i = i + 1
-  }
-
-  results
-}
-
-///|
-/// Find all occurrences of a motif allowing IUPAC ambiguity codes.
-pub fn find_motif_iupac(pattern : String, subject : String) -> Array[Int32] {
-  let n = pattern.length()
-  let m = subject.length()
-  let positions : Array[Int32] = Array(capacity=0)
-
-  if n == 0 || m < n {
-    return positions
-  }
-
-  let mut i = 0
-  while i <= m - n {
-    let mut match_found = true
-    let mut j = 0
-    while j < n {
-      let p_ch = pattern.unsafe_get(j)
-      let p_upper = if p_ch >= 97 && p_ch <= 122 { p_ch - 32 } else { p_ch }
-      let s_ch = subject.unsafe_get(i + j)
-      let s_upper = if s_ch >= 97 && s_ch <= 122 { s_ch - 32 } else { s_ch }
-
-      if !iupac_compatible(p_upper, s_upper) {
-        match_found = false
-        break
-      }
-      j = j + 1
-    }
-
-    if match_found {
-      positions.push(i + 1)
-    }
-    i = i + 1
-  }
-
-  positions
-}
-
-///|
-/// Calculate GC content in sliding windows.
-pub fn gc_content_sliding(
-  seq~ : String,
-  window_size~ : Int32 = 100,
-  step~ : Int32 = 10,
-) -> Array[(Int32, Double)] {
-  let results : Array[(Int32, Double)] = Array(capacity=0)
-  let n = seq.length()
-
-  if n < window_size {
-    return results
-  }
-
-  let mut i = 0
-  while i <= n - window_size {
-    let window = seq[i:i + window_size].to_owned()
-    let gc = gc_content(window)
-    results.push((i + 1, gc))
-    i = i + step
-  }
-
-  results
-}
-
-///|
-/// Calculate melting temperature in sliding windows.
-pub fn tm_sliding(
-  seq~ : String,
-  window_size~ : Int32 = 100,
-  step~ : Int32 = 10,
-) -> Array[(Int32, Double)] {
-  let results : Array[(Int32, Double)] = Array(capacity=0)
-  let n = seq.length()
-
-  if n < window_size {
-    return results
-  }
-
-  let mut i = 0
-  while i <= n - window_size {
-    let window = seq[i:i + window_size].to_owned()
-    let tm = tm_nn(window)
-    results.push((i + 1, tm))
-    i = i + step
   }
 
   results

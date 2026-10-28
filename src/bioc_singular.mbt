@@ -145,31 +145,6 @@ pub fn svd_mat_t_vec(
 }
 
 ///|
-/// Matrix-matrix multiply: result = matrix * other.
-/// matrix is row-major (nrow x ncol), other is (ncol x other_cols).
-pub fn svd_mat_mat(
-  matrix : Array[Double],
-  nrow : Int32,
-  ncol : Int32,
-  other : Array[Array[Double]],
-  other_cols : Int32,
-) -> Array[Array[Double]] {
-  let result : Array[Array[Double]] = Array(capacity=0)
-  for i = 0; i < nrow; i = i + 1 {
-    let row = Array::make(other_cols, 0.0)
-    for j = 0; j < other_cols; j = j + 1 {
-      let mut sum = 0.0
-      for k = 0; k < ncol; k = k + 1 {
-        sum = sum + matrix[i * ncol + k] * other[k][j]
-      }
-      row[j] = sum
-    }
-    result.push(row)
-  }
-  result
-}
-
-///|
 /// Transpose flat matrix to 2D array.
 /// Matrix is stored in row-major order: data[i * ncol + j].
 pub fn svd_transpose(

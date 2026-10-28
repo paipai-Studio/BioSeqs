@@ -456,36 +456,6 @@ pub fn sample_gnm_conformations(
 // Batch sampling from ANM/GNM objects directly
 // ============================================================================
 
-///|
-/// Sample conformations directly from an ANM object.
-pub fn sample_from_anm(
-  anm : ANM,
-  coords : Array[Vector3],
-  num_samples : Int32,
-  config : SamplingConfig,
-) -> Array[Conformation] {
-  let eigenvalues = anm.get_eigenvalues()
-  let eigenvectors = anm.get_eigenvectors()
-  sample_anm_conformations(
-    coords, eigenvalues, eigenvectors, num_samples, config,
-  )
-}
-
-///|
-/// Sample conformations directly from a GNM object.
-pub fn sample_from_gnm(
-  gnm : GNM,
-  coords : Array[Vector3],
-  num_samples : Int32,
-  config : SamplingConfig,
-) -> Array[Conformation] {
-  let eigenvalues = gnm.get_eigenvalues()
-  let eigenvectors = gnm.get_eigenvectors()
-  sample_gnm_conformations(
-    coords, eigenvalues, eigenvectors, num_samples, config,
-  )
-}
-
 // ============================================================================
 // Analysis helpers
 // ============================================================================

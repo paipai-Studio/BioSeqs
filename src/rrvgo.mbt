@@ -369,21 +369,6 @@ pub fn rvgo_representative(reduced : RvgoReduced, cluster : Int32) -> String {
 }
 
 ///|
-/// Get the term IDs assigned to a cluster.
-pub fn rvgo_cluster_terms(
-  reduced : RvgoReduced,
-  cluster : Int32,
-) -> Array[String] {
-  let result : Array[String] = Array(capacity=0)
-  for i in 0..<reduced.term_ids.length() {
-    if reduced.cluster_id[i] == cluster {
-      result.push(reduced.term_ids[i])
-    }
-  }
-  result
-}
-
-///|
 /// Export the reduction result as a TSV string.
 /// Columns: term_id, cluster, is_representative
 pub fn rvgo_export(reduced : RvgoReduced) -> String {

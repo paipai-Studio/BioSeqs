@@ -304,32 +304,3 @@ pub fn Hits::as_matrix(self : Hits) -> Array[(Int32, Int32)] {
 
   result
 }
-
-///|
-pub fn create_example_rle() -> Rle {
-  let vec = ["A", "A", "A", "B", "B", "C", "C", "C", "C", "A", "A"]
-  Rle::from_vector(vec)
-}
-
-///|
-pub fn create_example_dataframe() -> S4DataFrame {
-  let col1 = S4DataFrameColumn::new("gene_id", [
-    "gene1", "gene2", "gene3", "gene4", "gene5",
-  ])
-  let col2 = S4DataFrameColumn::new("expression", [
-    "10.5", "25.3", "5.8", "100.2", "15.7",
-  ])
-  let col3 = S4DataFrameColumn::new("p_value", [
-    "0.001", "0.05", "0.8", "0.0001", "0.1",
-  ])
-
-  S4DataFrame::new([col1, col2, col3], ["row1", "row2", "row3", "row4", "row5"])
-}
-
-///|
-pub fn create_example_hits() -> Hits {
-  let query_hits = [0, 0, 1, 2, 2, 2, 3]
-  let subject_hits = [1, 3, 0, 1, 2, 4, 2]
-
-  Hits::new(query_hits, subject_hits, 4, 5)
-}

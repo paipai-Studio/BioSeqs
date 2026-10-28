@@ -715,46 +715,6 @@ pub fn abstract_filter_gaps(
 }
 
 ///|
-/// Filter alignment sequences by minimum coverage.
-pub fn abstract_filter_coverage(
-  alignment : AbstractAlignment,
-  min_coverage : Double,
-) -> AbstractAlignment {
-  let keep_seqs : Array[Int32] = Array(capacity=0)
-  let mut idx = 0
-  while idx < alignment.n_seqs {
-    let seq = alignment.sequences[idx]
-    let mut non_gap = 0
-    let mut i = 0
-    while i < seq.length() {
-      let c = seq.unsafe_get(i)
-      if c != 45 && c != 46 {
-        non_gap = non_gap + 1
-      }
-      i = i + 1
-    }
-    let coverage = non_gap.to_double() / seq.length().to_double()
-    if coverage >= min_coverage {
-      keep_seqs.push(idx)
-    }
-    idx = idx + 1
-  }
-
-  let new_seqs : Array[String] = Array(capacity=0)
-  let new_ids : Array[String] = Array(capacity=0)
-  for idx2 in keep_seqs {
-    new_seqs.push(alignment.sequences[idx2])
-    new_ids.push(alignment.identifiers[idx2])
-  }
-
-  AbstractAlignment::new(
-    sequences=new_seqs,
-    identifiers=new_ids,
-    alignment_type=alignment.alignment_type,
-  )
-}
-
-///|
 /// Trim alignment to include only the region between start and end columns.
 pub fn abstract_trim(
   alignment : AbstractAlignment,

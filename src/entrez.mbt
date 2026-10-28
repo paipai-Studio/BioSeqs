@@ -26,33 +26,9 @@ pub fn entrez_db_pubmed() -> EntrezDB {
 }
 
 ///|
-/// Construct Nucleotide EntrezDB.
-pub fn entrez_db_nucleotide() -> EntrezDB {
-  Nucleotide
-}
-
-///|
-/// Construct Protein EntrezDB.
-pub fn entrez_db_protein() -> EntrezDB {
-  Protein
-}
-
-///|
 /// Construct Gene EntrezDB.
 pub fn entrez_db_gene() -> EntrezDB {
   Gene
-}
-
-///|
-/// Construct SNP EntrezDB.
-pub fn entrez_db_snp() -> EntrezDB {
-  SNP
-}
-
-///|
-/// Construct Taxonomy EntrezDB.
-pub fn entrez_db_taxonomy() -> EntrezDB {
-  Taxonomy
 }
 
 ///|
@@ -473,35 +449,6 @@ pub fn parse_gene(xml : String) -> GeneRecord? {
           start=parse_int(start_str.unwrap_or("0")),
           end=parse_int(end_str.unwrap_or("0")),
           strand=strand.unwrap_or(""),
-        ),
-      )
-    _ => None
-  }
-}
-
-///|
-/// Parse a taxonomy record from XML string.
-pub fn parse_taxonomy(xml : String) -> TaxonomyRecord? {
-  let tax_id = extract_tag(xml, "TaxId")
-  let scientific_name = extract_tag(xml, "ScientificName")
-  let common_name = extract_tag(xml, "CommonName")
-  let rank = extract_tag(xml, "Rank")
-  let lineage_str = extract_tag(xml, "Lineage")
-  let genetic_code_str = extract_tag(xml, "GeneticCode")
-  let lineage = match lineage_str {
-    Some(s) => split_by_char(s, ';'.to_int())
-    None => []
-  }
-  match (tax_id, scientific_name) {
-    (Some(t), Some(s)) =>
-      Some(
-        TaxonomyRecord::new(
-          tax_id=t,
-          scientific_name=s,
-          common_name=common_name.unwrap_or(""),
-          rank=rank.unwrap_or(""),
-          lineage~,
-          genetic_code=parse_int(genetic_code_str.unwrap_or("1")),
         ),
       )
     _ => None

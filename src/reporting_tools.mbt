@@ -36,18 +36,6 @@ pub fn report_section_plot() -> ReportSectionType {
 }
 
 ///|
-/// Create a Section section type.
-pub fn report_section_section() -> ReportSectionType {
-  ReportSectionType::Section
-}
-
-///|
-/// Create a Header section type.
-pub fn report_section_header() -> ReportSectionType {
-  ReportSectionType::Header
-}
-
-///|
 /// A single report section.
 pub struct ReportSection {
   section_id : String

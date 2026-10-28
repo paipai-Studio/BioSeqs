@@ -234,11 +234,6 @@ pub fn build_strict_consensus(trees : Array[ConsensusTree]) -> ConsensusTree {
 }
 
 ///|
-pub fn build_half_consensus(trees : Array[ConsensusTree]) -> ConsensusTree {
-  build_consensus(trees, 0.5)
-}
-
-///|
 fn get_all_taxa(tree : ConsensusTree) -> Array[String] {
   match tree.root {
     Some(root) => root.get_leaves()

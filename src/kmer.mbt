@@ -175,13 +175,6 @@ pub fn KmerFrequency::new(
 }
 
 ///|
-pub fn bio_count_kmers(seq : String, k : Int32) -> Map[String, Int32] {
-  let counter = BioKmerCounter::new(k)
-  let counter = counter.count_kmers(seq)
-  counter.counts
-}
-
-///|
 pub fn kmer_spectrum(
   seq : String,
   min_k : Int32,

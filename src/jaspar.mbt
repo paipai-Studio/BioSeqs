@@ -301,33 +301,6 @@ fn find_base_index(matrix : JasparMatrix, base : String) -> Int32 {
 }
 
 ///|
-/// Sort scanning results by score (descending).
-pub fn jaspar_sort_results(
-  results : Array[(Int32, Double, String)],
-) -> Array[(Int32, Double, String)] {
-  let sorted = results
-  let mut i = 0
-  while i < sorted.length() - 1 {
-    let mut swapped = false
-    let mut j = 0
-    while j < sorted.length() - 1 - i {
-      if sorted[j].1 < sorted[j + 1].1 {
-        let tmp = sorted[j]
-        sorted[j] = sorted[j + 1]
-        sorted[j + 1] = tmp
-        swapped = true
-      }
-      j = j + 1
-    }
-    if !swapped {
-      break
-    }
-    i = i + 1
-  }
-  sorted
-}
-
-///|
 /// Parse a JASPAR PFM format string into an array of JasparMatrix.
 /// Handles both single matrix and multi-matrix formats.
 pub fn parse_jaspar(content : String) -> Array[JasparMatrix] {
@@ -435,69 +408,6 @@ fn parse_int_array(s : String) -> Array[Int32] {
     }
   }
   result
-}
-
-///|
-/// Get a specific matrix by ID from an array of matrices.
-pub fn jaspar_get_matrix(
-  matrices : Array[JasparMatrix],
-  id : String,
-) -> JasparMatrix {
-  for m in matrices {
-    if m.id == id {
-      return m
-    }
-  }
-  // Return a default empty matrix
-  let empty_pfm : Array[Array[Int32]] = Array(capacity=0)
-  JasparMatrix::new("", "", empty_pfm)
-}
-
-///|
-/// Filter matrices by collection.
-pub fn jaspar_filter_by_collection(
-  matrices : Array[JasparMatrix],
-  collection : String,
-) -> Array[JasparMatrix] {
-  let result : Array[JasparMatrix] = Array(capacity=0)
-  for m in matrices {
-    if m.collection == collection {
-      result.push(m)
-    }
-  }
-  result
-}
-
-///|
-/// Filter matrices by name pattern (case-insensitive substring match).
-pub fn jaspar_filter_by_name(
-  matrices : Array[JasparMatrix],
-  pattern : String,
-) -> Array[JasparMatrix] {
-  let result : Array[JasparMatrix] = Array(capacity=0)
-  let upper_pattern = pattern.to_upper()
-  for m in matrices {
-    let upper_name = m.name.to_upper()
-    if j_index_of(upper_name, upper_pattern) >= 0 {
-      result.push(m)
-    }
-  }
-  result
-}
-
-///|
-/// Generate a sample JASPAR PFM format string for testing.
-pub fn jaspar_sample_pfm() -> String {
-  ">MA0001.1 AP-1\n" +
-  "A [1 0 0 7 0 0 3 0 2 0]\n" +
-  "C [2 0 1 3 0 5 0 0 1 1]\n" +
-  "G [6 0 0 5 6 0 0 0 0 1]\n" +
-  "T [1 8 9 2 4 3 5 9 7 8]\n" +
-  ">MA0002.1 GATA1\n" +
-  "A [8 2 1 5 0 1 9 1 0 2]\n" +
-  "C [0 1 1 2 0 0 1 0 0 1]\n" +
-  "G [0 1 1 5 9 2 0 0 0 0]\n" +
-  "T [2 8 7 2 10 7 0 9 10 7]"
 }
 
 ///|

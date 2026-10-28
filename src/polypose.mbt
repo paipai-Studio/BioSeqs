@@ -123,20 +123,6 @@ pub fn ppy_n_conformers(st : PpyStructure) -> Int32 {
 }
 
 ///|
-/// 按构象 ID 查找构象。
-pub fn ppy_get_conformer(
-  st : PpyStructure,
-  conformer_id : String,
-) -> PpyConformer? {
-  for c in st.conformers {
-    if c.conformer_id == conformer_id {
-      return Some(c)
-    }
-  }
-  None
-}
-
-///|
 /// 取出某一构象的全部残基。
 pub fn ppy_conformer_residues(c : PpyConformer) -> Array[PpyResidue] {
   c.residues
@@ -172,18 +158,6 @@ pub fn ppy_atom(r : PpyResidue, atom_name : String) -> PpyAtom? {
     }
   }
   fallback
-}
-
-///|
-/// 残基内按原子名取全部原子（含 altLoc 变体）。
-pub fn ppy_atoms(r : PpyResidue, atom_name : String) -> Array[PpyAtom] {
-  let out : Array[PpyAtom] = Array(capacity=0)
-  for a in r.atoms {
-    if a.atom_name == atom_name {
-      out.push(a)
-    }
-  }
-  out
 }
 
 ///|
@@ -223,22 +197,6 @@ pub fn ppy_coords(c : PpyConformer, atom_name : String) -> Array[PpyCoord] {
   for r in c.residues {
     match ppy_atom(r, atom_name) {
       Some(a) => out.push(PpyCoord::{ x: a.x, y: a.y, z: a.z, })
-      None => continue
-    }
-  }
-  out
-}
-
-///|
-/// 构象对应残基标签（chain:resseq），与 ppy_coords 顺序对齐。
-pub fn ppy_residue_labels(
-  c : PpyConformer,
-  atom_name : String,
-) -> Array[String] {
-  let out : Array[String] = Array(capacity=0)
-  for r in c.residues {
-    match ppy_atom(r, atom_name) {
-      Some(_) => out.push(r.chain_id + ":" + r.resseq.to_string())
       None => continue
     }
   }
@@ -522,48 +480,4 @@ pub fn ppy_mean_structure(
       Some(out)
     }
   }
-}
-
-///|
-/// RMSD 矩阵导出 TSV。
-pub fn ppy_rmsd_tsv(
-  matrix : Array[Array[Double]],
-  ids : Array[String],
-) -> String {
-  let sb = StringBuilder()
-  sb.write_string("conformer")
-  for id in ids {
-    sb.write_string("\t" + id)
-  }
-  sb.write_string("\n")
-  for i in 0..<matrix.length() {
-    let mut line = ids[i]
-    for j in 0..<matrix[i].length() {
-      line = line + "\t" + matrix[i][j].to_string()
-    }
-    sb.write_string(line + "\n")
-  }
-  sb.to_string()
-}
-
-///|
-/// 构象内部残基间同名单原子数（原子完整性检查用）。
-pub fn ppy_n_atoms(r : PpyResidue) -> Int32 {
-  r.atoms.length()
-}
-
-///|
-/// 便捷：从行列坐标数组构造结构的 Cα 坐标（测试用）。
-pub fn ppy_coords_from_residues(
-  residues : Array[PpyResidue],
-  atom_name : String,
-) -> Array[PpyCoord] {
-  let out : Array[PpyCoord] = Array(capacity=0)
-  for r in residues {
-    match ppy_atom(r, atom_name) {
-      Some(a) => out.push(PpyCoord::{ x: a.x, y: a.y, z: a.z, })
-      None => continue
-    }
-  }
-  out
 }

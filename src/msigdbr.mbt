@@ -464,15 +464,6 @@ pub fn msig_symbol_to_entrez(
   msig_map_collection(col, symbol_to_entrez)
 }
 
-///|
-/// Convenience: map Entrez ids back to gene symbols.
-pub fn msig_entrez_to_symbol(
-  col : MsigCollection,
-  entrez_to_symbol : Map[String, String],
-) -> MsigCollection {
-  msig_map_collection(col, entrez_to_symbol)
-}
-
 // ---- collection analytics ------------------------------------------------
 
 ///|

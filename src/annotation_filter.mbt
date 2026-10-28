@@ -183,40 +183,6 @@ pub fn af_filter_biotype_in(
 }
 
 ///|
-pub fn af_filter_by_multiple_conditions(
-  annotations : Array[Annotation],
-  conditions : Array[FilterCondition],
-  logic : String,
-) -> Array[Annotation] {
-  let result : Array[Annotation] = Array(capacity=0)
-  let mut i = 0
-  while i < annotations.length() {
-    let mut match_result = match logic {
-      "AND" => true
-      "OR" => false
-      _ => true
-    }
-
-    let mut j = 0
-    while j < conditions.length() {
-      let matched = af_evaluate_condition(annotations[i], conditions[j])
-      match logic {
-        "AND" => match_result = match_result && matched
-        "OR" => match_result = match_result || matched
-        _ => match_result = match_result && matched
-      }
-      j = j + 1
-    }
-
-    if match_result {
-      result.push(annotations[i])
-    }
-    i = i + 1
-  }
-  result
-}
-
-///|
 pub fn af_count_by_biotype(
   annotations : Array[Annotation],
 ) -> Map[String, Int32] {

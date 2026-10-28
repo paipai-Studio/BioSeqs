@@ -117,36 +117,6 @@ pub fn md_langevin_finish(
   v_new
 }
 
-///|
-/// Run a harmonic-bond simulation under Langevin dynamics (BAOAB).
-/// Returns the temperature at each step.
-pub fn md_simulate_langevin(
-  positions : Array[Array[Double]],
-  velocities : Array[Array[Double]],
-  masses : Array[Double],
-  bonds : Array[(Int32, Int32, Double, Double)],
-  dt : Double,
-  temperature : Double,
-  friction : Double,
-  steps : Int32,
-  n_dof : Int32,
-) -> Array[Double] {
-  let temps : Array[Double] = Array(capacity=0)
-  let mut pos = positions
-  let mut vel = velocities
-  for _s = 0; _s < steps; _s = _s + 1 {
-    let forces = md_bond_forces(pos, bonds)
-    let (pos_new, v_o) = md_langevin_step(
-      pos, vel, forces, masses, dt, temperature, friction,
-    )
-    let new_forces = md_bond_forces(pos_new, bonds)
-    vel = md_langevin_finish(v_o, new_forces, masses, dt)
-    pos = pos_new
-    temps.push(md_temperature(vel, masses, n_dof))
-  }
-  temps
-}
-
 // ============================================================================
 // B. Brownian dynamics integrator (overdamped Langevin)
 // Ported from OpenMM BrownianIntegrator.
@@ -311,33 +281,6 @@ pub fn md_cmap_energy(
       f1 * ((1.0 - f2) * e10 + f2 * e11)
   }
   e
-}
-
-///|
-/// CMAP forces via central-difference numerical gradient.
-pub fn md_cmap_forces(
-  positions : Array[Array[Double]],
-  cmaps : Array[(Int32, Int32, Int32, Int32, Int32, Array[Double], Int32)],
-) -> Array[Array[Double]] {
-  let n = positions.length()
-  let forces = md_new_forces(n)
-  let h = 1.0e-6
-  let mut i = 0
-  while i < n {
-    let mut d = 0
-    while d < 3 {
-      let plus = md_copy_positions(positions)
-      let minus = md_copy_positions(positions)
-      plus[i][d] = plus[i][d] + h
-      minus[i][d] = minus[i][d] - h
-      let ep = md_cmap_energy(plus, cmaps)
-      let em = md_cmap_energy(minus, cmaps)
-      forces[i][d] = -(ep - em) / (2.0 * h)
-      d = d + 1
-    }
-    i = i + 1
-  }
-  forces
 }
 
 // ============================================================================
@@ -556,175 +499,6 @@ fn md_solve3x3(
 // Ported from OpenMM LocalEnergyMinimizer (L-BFGS).
 // Minimizes energy by adjusting positions using gradient information.
 // ============================================================================
-
-///|
-/// L-BFGS local energy minimization.
-/// `energy_fn` and `grad_fn` are provided as arrays of bond parameters.
-/// Minimizes harmonic bond energy. Returns minimized positions.
-/// `tolerance` is the force tolerance in kcal/(mol*A).
-pub fn md_minimize_bonds(
-  positions : Array[Array[Double]],
-  bonds : Array[(Int32, Int32, Double, Double)],
-  max_iterations : Int32,
-  tolerance : Double,
-) -> Array[Array[Double]] {
-  let n = positions.length()
-  let m = 5 // L-BFGS memory
-  let mut x = md_copy_positions(positions)
-  let mut grad = md_bond_forces(x, bonds)
-  // Negate forces to get gradient
-  for i = 0; i < n; i = i + 1 {
-    for d = 0; d < 3; d = d + 1 {
-      grad[i][d] = -grad[i][d]
-    }
-  }
-  // Storage for L-BFGS history
-  let s_list : Array[Array[Array[Double]]] = Array(capacity=0)
-  let y_list : Array[Array[Array[Double]]] = Array(capacity=0)
-  let rho_list : Array[Double] = Array(capacity=0)
-  let mut iter = 0
-  while iter < max_iterations {
-    // Check convergence
-    let mut gnorm = 0.0
-    for i = 0; i < n; i = i + 1 {
-      for d = 0; d < 3; d = d + 1 {
-        gnorm = gnorm + grad[i][d] * grad[i][d]
-      }
-    }
-    gnorm = gnorm.sqrt()
-    if gnorm < tolerance {
-      return x
-    }
-    // Compute L-BFGS direction
-    let q = md_copy_positions(grad)
-    let k = s_list.length()
-    let alpha : Array[Double] = Array(capacity=k)
-    for j = k - 1; j >= 0; j = j - 1 {
-      let sj = s_list[j]
-      let yj = y_list[j]
-      let rho_j = rho_list[j]
-      let mut sq = 0.0
-      for i = 0; i < n; i = i + 1 {
-        for d = 0; d < 3; d = d + 1 {
-          sq = sq + sj[i][d] * q[i][d]
-        }
-      }
-      let a = rho_j * sq
-      alpha.push(a)
-      for i = 0; i < n; i = i + 1 {
-        for d = 0; d < 3; d = d + 1 {
-          q[i][d] = q[i][d] - a * yj[i][d]
-        }
-      }
-    }
-    // Initial Hessian approximation: H0 = gamma * I
-    let mut gamma = 1.0
-    if k > 0 {
-      let sk = s_list[k - 1]
-      let yk = y_list[k - 1]
-      let mut sy = 0.0
-      let mut yy = 0.0
-      for i = 0; i < n; i = i + 1 {
-        for d = 0; d < 3; d = d + 1 {
-          sy = sy + sk[i][d] * yk[i][d]
-          yy = yy + yk[i][d] * yk[i][d]
-        }
-      }
-      if yy > 0.0 {
-        gamma = sy / yy
-      }
-    }
-    for i = 0; i < n; i = i + 1 {
-      for d = 0; d < 3; d = d + 1 {
-        q[i][d] = gamma * q[i][d]
-      }
-    }
-    for j = 0; j < k; j = j + 1 {
-      let sj = s_list[j]
-      let yj = y_list[j]
-      let rho_j = rho_list[j]
-      let mut yq = 0.0
-      for i = 0; i < n; i = i + 1 {
-        for d = 0; d < 3; d = d + 1 {
-          yq = yq + yj[i][d] * q[i][d]
-        }
-      }
-      let beta = rho_j * yq
-      let a = alpha[k - 1 - j]
-      for i = 0; i < n; i = i + 1 {
-        for d = 0; d < 3; d = d + 1 {
-          q[i][d] = q[i][d] + (a - beta) * sj[i][d]
-        }
-      }
-    }
-    // Line search (backtracking with Armijo condition)
-    let mut step = 1.0
-    let e0 = md_bond_energy(x, bonds)
-    let x_new = md_new_forces(n)
-    let mut accepted = false
-    for _ls = 0; _ls < 20; _ls = _ls + 1 {
-      for i = 0; i < n; i = i + 1 {
-        for d = 0; d < 3; d = d + 1 {
-          x_new[i][d] = x[i][d] - step * q[i][d]
-        }
-      }
-      let e1 = md_bond_energy(x_new, bonds)
-      let mut gd = 0.0
-      for i = 0; i < n; i = i + 1 {
-        for d = 0; d < 3; d = d + 1 {
-          gd = gd + grad[i][d] * q[i][d]
-        }
-      }
-      if e1 < e0 - 1.0e-4 * step * gd {
-        accepted = true
-        break
-      }
-      step = step * 0.5
-    }
-    if !accepted {
-      return x
-    }
-    // Update history
-    let s_new = md_new_forces(n)
-    for i = 0; i < n; i = i + 1 {
-      for d = 0; d < 3; d = d + 1 {
-        s_new[i][d] = x_new[i][d] - x[i][d]
-      }
-    }
-    let new_forces = md_bond_forces(x_new, bonds)
-    let y_new = md_new_forces(n)
-    for i = 0; i < n; i = i + 1 {
-      for d = 0; d < 3; d = d + 1 {
-        y_new[i][d] = -new_forces[i][d] - grad[i][d]
-      }
-    }
-    let mut sy = 0.0
-    for i = 0; i < n; i = i + 1 {
-      for d = 0; d < 3; d = d + 1 {
-        sy = sy + s_new[i][d] * y_new[i][d]
-      }
-    }
-    if sy > 0.0 {
-      s_list.push(s_new)
-      y_list.push(y_new)
-      rho_list.push(1.0 / sy)
-      if s_list.length() > m {
-        ignore(s_list.remove(0))
-        ignore(y_list.remove(0))
-        ignore(rho_list.remove(0))
-      }
-    }
-    x = x_new
-    grad = md_new_forces(n)
-    for i = 0; i < n; i = i + 1 {
-      for d = 0; d < 3; d = d + 1 {
-        grad[i][d] = -new_forces[i][d]
-      }
-    }
-    iter = iter + 1
-  }
-  x
-}
 
 // ============================================================================
 // H. Periodic boundary conditions
@@ -960,52 +734,6 @@ pub fn md_mc_barostat_step(
   } else {
     (positions, box, false)
   }
-}
-
-///|
-/// Run a harmonic-bond simulation with Monte Carlo barostat + Langevin.
-/// Returns temperatures at each step.
-pub fn md_simulate_barostat(
-  positions : Array[Array[Double]],
-  velocities : Array[Array[Double]],
-  masses : Array[Double],
-  bonds : Array[(Int32, Int32, Double, Double)],
-  box : Array[Double],
-  dt : Double,
-  temperature : Double,
-  pressure : Double,
-  friction : Double,
-  steps : Int32,
-  n_dof : Int32,
-) -> Array[Double] {
-  let temps : Array[Double] = Array(capacity=0)
-  let mut pos = positions
-  let mut vel = velocities
-  let mut current_box = box
-  let n = positions.length()
-  for _s = 0; _s < steps; _s = _s + 1 {
-    // Langevin step
-    let forces = md_bond_forces(pos, bonds)
-    let (pos_new, v_o) = md_langevin_step(
-      pos, vel, forces, masses, dt, temperature, friction,
-    )
-    let new_forces = md_bond_forces(pos_new, bonds)
-    vel = md_langevin_finish(v_o, new_forces, masses, dt)
-    pos = pos_new
-    // MC barostat step every 10 steps
-    if _s % 10 == 0 {
-      let energy_fn = fn(p : Array[Array[Double]]) -> Double {
-        md_bond_energy(p, bonds)
-      }
-      let (scaled, new_box, _accepted) = md_mc_barostat_step(
-        pos, current_box, energy_fn, pressure, temperature, n,
-      )
-      pos = scaled
-      current_box = new_box
-    }
-    temps.push(md_temperature(vel, masses, n_dof))
-  }
-  temps
 }
 
 // ============================================================================
@@ -1610,38 +1338,6 @@ pub fn md_custom_angle_energy(
   e
 }
 
-///|
-/// Compute custom angle forces via finite difference.
-pub fn md_custom_angle_forces(
-  positions : Array[Array[Double]],
-  angles : Array[(Int32, Int32, Int32, String)],
-) -> Array[Array[Double]] {
-  let n = positions.length()
-  let forces = md_new_forces(n)
-  let h = 1.0e-5
-  for (i, j, k, expr) in angles {
-    for atom = 0; atom < 3; atom = atom + 1 {
-      let idx = if atom == 0 { i } else if atom == 1 { j } else { k }
-      for d = 0; d < 3; d = d + 1 {
-        let pos_plus = md_copy_positions(positions)
-        pos_plus[idx][d] = pos_plus[idx][d] + h
-        let pos_minus = md_copy_positions(positions)
-        pos_minus[idx][d] = pos_minus[idx][d] - h
-        let theta_plus = md_angle_value(pos_plus[i], pos_plus[j], pos_plus[k])
-        let theta_minus = md_angle_value(
-          pos_minus[i],
-          pos_minus[j],
-          pos_minus[k],
-        )
-        let e_plus = md_eval_expr(expr, "theta", theta_plus)
-        let e_minus = md_eval_expr(expr, "theta", theta_minus)
-        forces[idx][d] = forces[idx][d] - (e_plus - e_minus) / (2.0 * h)
-      }
-    }
-  }
-  forces
-}
-
 // ============================================================================
 // E. CustomTorsionForce — user-defined torsion energy via expression
 // ============================================================================
@@ -1664,52 +1360,6 @@ pub fn md_custom_torsion_energy(
     e = e + md_eval_expr(expr, "theta", theta)
   }
   e
-}
-
-///|
-/// Compute custom torsion forces via finite difference.
-pub fn md_custom_torsion_forces(
-  positions : Array[Array[Double]],
-  torsions : Array[(Int32, Int32, Int32, Int32, String)],
-) -> Array[Array[Double]] {
-  let n = positions.length()
-  let forces = md_new_forces(n)
-  let h = 1.0e-5
-  for (i, j, k, l, expr) in torsions {
-    for atom = 0; atom < 4; atom = atom + 1 {
-      let idx = if atom == 0 {
-        i
-      } else if atom == 1 {
-        j
-      } else if atom == 2 {
-        k
-      } else {
-        l
-      }
-      for d = 0; d < 3; d = d + 1 {
-        let pos_plus = md_copy_positions(positions)
-        pos_plus[idx][d] = pos_plus[idx][d] + h
-        let pos_minus = md_copy_positions(positions)
-        pos_minus[idx][d] = pos_minus[idx][d] - h
-        let theta_plus = md_dihedral_value(
-          pos_plus[i],
-          pos_plus[j],
-          pos_plus[k],
-          pos_plus[l],
-        )
-        let theta_minus = md_dihedral_value(
-          pos_minus[i],
-          pos_minus[j],
-          pos_minus[k],
-          pos_minus[l],
-        )
-        let e_plus = md_eval_expr(expr, "theta", theta_plus)
-        let e_minus = md_eval_expr(expr, "theta", theta_minus)
-        forces[idx][d] = forces[idx][d] - (e_plus - e_minus) / (2.0 * h)
-      }
-    }
-  }
-  forces
 }
 
 // ============================================================================
@@ -1797,35 +1447,6 @@ pub fn md_custom_nonbonded_energy(
   e
 }
 
-///|
-/// Compute custom nonbonded forces via finite difference.
-pub fn md_custom_nonbonded_forces(
-  positions : Array[Array[Double]],
-  expr : String,
-  exclusions : Array[(Int32, Int32)],
-  cutoff : Double,
-) -> Array[Array[Double]] {
-  let n = positions.length()
-  let forces = md_new_forces(n)
-  let h = 1.0e-5
-  for i = 0; i < n; i = i + 1 {
-    for d = 0; d < 3; d = d + 1 {
-      let pos_plus = md_copy_positions(positions)
-      pos_plus[i][d] = pos_plus[i][d] + h
-      let pos_minus = md_copy_positions(positions)
-      pos_minus[i][d] = pos_minus[i][d] - h
-      let e_plus = md_custom_nonbonded_energy(
-        pos_plus, expr, exclusions, cutoff,
-      )
-      let e_minus = md_custom_nonbonded_energy(
-        pos_minus, expr, exclusions, cutoff,
-      )
-      forces[i][d] = forces[i][d] - (e_plus - e_minus) / (2.0 * h)
-    }
-  }
-  forces
-}
-
 // ============================================================================
 // H. NonbondedForce with PBC — LJ + Coulomb under periodic boundaries
 // Uses cutoff and minimum-image convention.
@@ -1862,36 +1483,6 @@ pub fn md_nonbonded_pbc_energy(
     }
   }
   e
-}
-
-///|
-/// LJ + Coulomb forces with PBC via finite difference.
-pub fn md_nonbonded_pbc_forces(
-  positions : Array[Array[Double]],
-  params : Array[(Double, Double, Double)],
-  box : Array[Double],
-  cutoff : Double,
-  dielectric : Double,
-) -> Array[Array[Double]] {
-  let n = positions.length()
-  let forces = md_new_forces(n)
-  let h = 1.0e-5
-  for i = 0; i < n; i = i + 1 {
-    for d = 0; d < 3; d = d + 1 {
-      let pos_plus = md_copy_positions(positions)
-      pos_plus[i][d] = pos_plus[i][d] + h
-      let pos_minus = md_copy_positions(positions)
-      pos_minus[i][d] = pos_minus[i][d] - h
-      let e_plus = md_nonbonded_pbc_energy(
-        pos_plus, params, box, cutoff, dielectric,
-      )
-      let e_minus = md_nonbonded_pbc_energy(
-        pos_minus, params, box, cutoff, dielectric,
-      )
-      forces[i][d] = forces[i][d] - (e_plus - e_minus) / (2.0 * h)
-    }
-  }
-  forces
 }
 
 ///|

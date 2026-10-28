@@ -18,36 +18,6 @@ pub enum StepStatus {
 }
 
 ///|
-/// Create a Pending status.
-pub fn step_status_pending() -> StepStatus {
-  StepStatus::Pending
-}
-
-///|
-/// Create a Running status.
-pub fn step_status_running() -> StepStatus {
-  StepStatus::Running
-}
-
-///|
-/// Create a Completed status.
-pub fn step_status_completed() -> StepStatus {
-  StepStatus::Completed
-}
-
-///|
-/// Create a Failed status.
-pub fn step_status_failed() -> StepStatus {
-  StepStatus::Failed
-}
-
-///|
-/// Create a Skipped status.
-pub fn step_status_skipped() -> StepStatus {
-  StepStatus::Skipped
-}
-
-///|
 /// Step status to string.
 pub fn StepStatus::to_string(self : StepStatus) -> String {
   match self {

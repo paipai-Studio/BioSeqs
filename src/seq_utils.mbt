@@ -509,25 +509,6 @@ pub fn at_skew(
 }
 
 ///|
-/// Calculate sequence similarity between two sequences.
-pub fn sequence_similarity(seq1 : String, seq2 : String) -> Double {
-  let len = min_val(seq1.length().to_double(), seq2.length().to_double())
-  if len == 0.0 {
-    return 0.0
-  }
-
-  let mut matches = 0.0
-  let mut i = 0
-  while i < len.to_int() {
-    if seq1[i:i + 1] == seq2[i:i + 1] {
-      matches = matches + 1.0
-    }
-    i = i + 1
-  }
-  matches / len
-}
-
-///|
 /// Calculate the edit distance (Levenshtein distance) between two sequences.
 pub fn edit_distance(seq1 : String, seq2 : String) -> Int32 {
   let m = seq1.length()
@@ -579,15 +560,6 @@ pub fn edit_distance(seq1 : String, seq2 : String) -> Int32 {
   }
 
   dp[m][n]
-}
-
-///|
-fn min_val(a : Double, b : Double) -> Double {
-  if a < b {
-    a
-  } else {
-    b
-  }
 }
 
 ///|
