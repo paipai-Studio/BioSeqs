@@ -25,12 +25,12 @@ test "skbio_unifrac" {
   let v = [0.0, 1.0, 1.0, 6.0, 0.0, 1.0, 0.0, 0.0]
   // doctest: uu = 0.37, wu = 1.54
   let uu = @src.skbio_unweighted_unifrac(u, v, taxa, tree)
-  assert_true(assert_close(uu, 0.37, 0.005))
+  assert_true(@moonbit.assert_num_close(uu, 0.37, 0.005))
   let wu = @src.skbio_weighted_unifrac(u, v, taxa, tree)
-  assert_true(assert_close(wu, 1.54, 0.005))
+  assert_true(@moonbit.assert_num_close(wu, 1.54, 0.005))
   // identical samples -> distance 0
   let z = @src.skbio_unweighted_unifrac(u, u, taxa, tree)
-  assert_true(assert_close(z, 0.0, 1.0e-12))
+  assert_true(@moonbit.assert_num_close(z, 0.0, 1.0e-12))
 }
 
 // ============================================================
@@ -46,5 +46,5 @@ test "skbio_faith_pd" {
   let root = @src.SkbioNode::new(None, 0.0, [node1, c])
   // A、C observed，B 未 observed → PD = A(0.5) + node1(1.0) + C(2.0) = 3.5
   let pd = @src.skbio_faith_pd([1.0, 0.0, 1.0], ["A", "B", "C"], root)
-  assert_true(assert_close(pd, 3.5, 1.0e-9))
+  assert_true(@moonbit.assert_num_close(pd, 3.5, 1.0e-9))
 }

@@ -171,13 +171,13 @@ test "align_pairwise_with_matrix_blosum62" {
   let (a1, a2, s1) = @src.align_pairwise_with_matrix("A", "A", m, -4.0, -1.0)
   assert_eq(a1, "A")
   assert_eq(a2, "A")
-  assert_true(assert_close(s1, 4.0, 1.0e-6))
+  assert_true(@moonbit.assert_num_close(s1, 4.0, 1.0e-6))
 
   // BLOSUM62[A][C] = 0；比开 gap（-4）优，所以直接对齐
   let (b1, b2, s2) = @src.align_pairwise_with_matrix("A", "C", m, -4.0, -1.0)
   assert_eq(b1, "A")
   assert_eq(b2, "C")
-  assert_true(assert_close(s2, 0.0, 1.0e-6))
+  assert_true(@moonbit.assert_num_close(s2, 0.0, 1.0e-6))
 }
 
 test "progressive_alignment_with_matrix_basic" {

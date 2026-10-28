@@ -39,6 +39,6 @@ test "scanpy_read_10x_mtx_gz" {
   let adata = @src.scanpy_read_10x_mtx(mtx_gz, features, barcodes, "gene_symbols", true, true)
   assert_eq(adata.n_obs(), 2)
   assert_eq(adata.n_vars(), 2)
-  assert_true(assert_close(adata.x_matrix()[0][0], 10.0, 1.0e-9))
-  assert_true(assert_close(adata.x_matrix()[1][0], 5.0, 1.0e-9))
+  assert_true(@moonbit.assert_num_close(adata.x_matrix()[0][0], 10.0, 1.0e-9))
+  assert_true(@moonbit.assert_num_close(adata.x_matrix()[1][0], 5.0, 1.0e-9))
 }

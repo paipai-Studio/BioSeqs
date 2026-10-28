@@ -107,7 +107,7 @@ test "scanpy_pipeline_e2e" {
     for j = 0; j < 15; j = j + 1 {
       s = s + x_norm[i][j]
     }
-    assert_true(assert_close(s, 10000.0, 1.0))
+    assert_true(@moonbit.assert_num_close(s, 10000.0, 1.0))
   }
 
   // ── Step 3: log1p ──
@@ -167,7 +167,7 @@ test "scanpy_pipeline_e2e" {
   for v in pca.variance_ratio {
     var_sum = var_sum + v
   }
-  assert_true(assert_close(var_sum, 1.0, 1.0e-4))
+  assert_true(@moonbit.assert_num_close(var_sum, 1.0, 1.0e-4))
 
   // ── Step 8: neighbors (k = 7) ──
   let graph = @src.scanpy_neighbors(pca.coords, 7)

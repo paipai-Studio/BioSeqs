@@ -156,7 +156,7 @@ fn bcf_val_eq(a : @src.BcfValue, b : @src.BcfValue) -> Bool {
   match (a, b) {
     (@src.BcfFlag, @src.BcfFlag) => true
     (@src.BcfInt(x), @src.BcfInt(y)) => x == y
-    (@src.BcfFloat(x), @src.BcfFloat(y)) => assert_close(x, y, 1.0e-6)
+    (@src.BcfFloat(x), @src.BcfFloat(y)) => @moonbit.assert_num_close(x, y, 1.0e-6)
     (@src.BcfStr(x), @src.BcfStr(y)) => x == y
     _ => false
   }
@@ -195,7 +195,7 @@ test "bcf_roundtrip" {
     assert_eq(a.n_fmt, b.n_fmt)
     match (a.qual, b.qual) {
       (None, None) => ()
-      (Some(qa), Some(qb)) => assert_true(assert_close(qa, qb, 1.0e-5))
+      (Some(qa), Some(qb)) => assert_true(@moonbit.assert_num_close(qa, qb, 1.0e-5))
       _ => assert_true(false)
     }
     assert_eq(a.info.length(), b.info.length())

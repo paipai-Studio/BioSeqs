@@ -5,13 +5,13 @@
 
 ///|
 /// Approximate equality within a tolerance.
-pub fn assert_close(a : Double, b : Double, tol : Double) -> Bool {
+pub fn assert_num_close(a : Double, b : Double, tol : Double) -> Bool {
   (a - b).abs() < tol
 }
 
 ///|
 /// Sign-agnostic approximate equality (compares magnitudes).
-pub fn assert_close_mag(a : Double, b : Double, tol : Double) -> Bool {
+pub fn assert_num_close_mag(a : Double, b : Double, tol : Double) -> Bool {
   (a.abs() - b.abs()).abs() < tol
 }
 

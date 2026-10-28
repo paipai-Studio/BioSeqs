@@ -2,7 +2,7 @@
 /// Tests for Bioconductor scrapper-inspired single-cell preprocessing.
 
 ///|
-fn scrapper_test_assert_close(
+fn scrapper_test_assert_num_close(
   actual : Double,
   expected : Double,
   tolerance : Double,
@@ -132,7 +132,7 @@ test "scrapper: unblocked MAD thresholds filter low-library cells" {
     _ => abort("thresholds should apply to their source metrics")
   }
   assert_eq(thresholds.block_names, ["all"])
-  scrapper_test_assert_close(thresholds.sum_lower[0], 10.0, 1.0e-10)
+  scrapper_test_assert_num_close(thresholds.sum_lower[0], 10.0, 1.0e-10)
   assert_eq(keep, [false, true, true])
 }
 
@@ -258,8 +258,8 @@ test "scrapper: per-block centering gives each block unit mean" {
   }
   assert_eq(centered[0], 0.5)
   assert_eq(centered[1], 1.5)
-  scrapper_test_assert_close(centered[2], 2.0 / 3.0, 1.0e-12)
-  scrapper_test_assert_close(centered[3], 4.0 / 3.0, 1.0e-12)
+  scrapper_test_assert_num_close(centered[2], 2.0 / 3.0, 1.0e-12)
+  scrapper_test_assert_num_close(centered[3], 4.0 / 3.0, 1.0e-12)
 }
 
 ///|
@@ -279,8 +279,8 @@ test "scrapper: computes centered library size factors" {
   let factors = @src.scrapper_library_size_factors([[1.0, 2.0], [3.0, 6.0]]) catch {
     _ => abort("valid counts should produce library size factors")
   }
-  scrapper_test_assert_close(factors[0], 2.0 / 3.0, 1.0e-12)
-  scrapper_test_assert_close(factors[1], 4.0 / 3.0, 1.0e-12)
+  scrapper_test_assert_num_close(factors[0], 2.0 / 3.0, 1.0e-12)
+  scrapper_test_assert_num_close(factors[1], 4.0 / 3.0, 1.0e-12)
 }
 
 ///|
@@ -313,8 +313,8 @@ test "scrapper: performs configurable log normalization" {
   ) catch {
     _ => abort("valid size factors should normalize counts")
   }
-  scrapper_test_assert_close(normalized[0][0], 2.0, 1.0e-12)
-  scrapper_test_assert_close(normalized[0][1], 2.321928094887362, 1.0e-12)
+  scrapper_test_assert_num_close(normalized[0][0], 2.0, 1.0e-12)
+  scrapper_test_assert_num_close(normalized[0][1], 2.321928094887362, 1.0e-12)
 }
 
 ///|
@@ -357,7 +357,7 @@ test "scrapper: models per-gene means and sample variances" {
   assert_eq(model.variances, [1.0, 0.0, 0.0])
   let mut feature = 0
   while feature < model.means.length() {
-    scrapper_test_assert_close(
+    scrapper_test_assert_num_close(
       model.residuals[feature],
       model.variances[feature] - model.fitted[feature],
       1.0e-12,
@@ -380,12 +380,12 @@ test "scrapper: LOWESS reproduces a linear mean-variance trend" {
   }
   let mut index = 0
   while index < trend.fitted.length() {
-    scrapper_test_assert_close(
+    scrapper_test_assert_num_close(
       trend.fitted[index],
       (index + 1).to_double() * 2.0,
       1.0e-9,
     )
-    scrapper_test_assert_close(trend.residuals[index], 0.0, 1.0e-9)
+    scrapper_test_assert_num_close(trend.residuals[index], 0.0, 1.0e-9)
     index = index + 1
   }
 }
@@ -610,7 +610,7 @@ test "scrapper: SCE normalization adds assay and size factors immutably" {
   assert_eq(@src.sce_get_assay(original, "logcounts").length(), 0)
   let logcounts = @src.sce_get_assay(normalized, "logcounts")
   assert_eq(logcounts.length(), 3)
-  scrapper_test_assert_close(logcounts[0][0], 2.0, 1.0e-12)
+  scrapper_test_assert_num_close(logcounts[0][0], 2.0, 1.0e-12)
   assert_eq(@src.sce_get_col_data(normalized, "size_factor"), ["1", "1", "1"])
   assert_eq(@src.sce_get_col_data(original, "size_factor").length(), 0)
   assert_eq(@src.sce_get_row_data(normalized, "symbol"), ["A", "B", "MT-C"])

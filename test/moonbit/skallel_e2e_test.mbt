@@ -20,7 +20,7 @@ test "skallel_e2e_vcf_ld_pca_ihs" {
   let exp = [1.0, -1.0, 1.0, -1.0, 1.0, -1.0]
   assert_eq(r.length(), 6)
   for i = 0; i < 6; i = i + 1 {
-    assert_true(assert_close(r[i], exp[i], 1.0e-5))
+    assert_true(@moonbit.assert_num_close(r[i], exp[i], 1.0e-5))
   }
 
   // haplotypes -> iHS
@@ -38,5 +38,5 @@ test "skallel_e2e_vcf_ld_pca_ihs" {
   for x in pca.explained_variance_ratio {
     s = s + x
   }
-  assert_true(assert_close(s, 1.0, 1.0e-9))
+  assert_true(@moonbit.assert_num_close(s, 1.0, 1.0e-9))
 }

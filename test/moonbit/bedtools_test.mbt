@@ -158,11 +158,11 @@ test "bedtools_coverage" {
   assert_eq(r[0].count, 2)
   assert_eq(r[0].bases_covered, 6)
   assert_eq(r[0].length, 10)
-  assert_true(assert_close(r[0].fraction, 0.6, 1.0e-9))
+  assert_true(@moonbit.assert_num_close(r[0].fraction, 0.6, 1.0e-9))
   // A(20,30): count=1, covered=3, len=10, frac=0.3
   assert_eq(r[1].count, 1)
   assert_eq(r[1].bases_covered, 3)
-  assert_true(assert_close(r[1].fraction, 0.3, 1.0e-9))
+  assert_true(@moonbit.assert_num_close(r[1].fraction, 0.3, 1.0e-9))
 }
 
 ///|
@@ -261,13 +261,13 @@ test "bedtools_map" {
   let cnt = @src.bedtools_map_count(a, b)
   assert_eq(cnt[0], 2)
   let sum = @src.bedtools_map_sum(a, b, bv)
-  assert_true(assert_close(sum[0], 30.0, 1.0e-9))
+  assert_true(@moonbit.assert_num_close(sum[0], 30.0, 1.0e-9))
   let mean = @src.bedtools_map_mean(a, b, bv)
-  assert_true(assert_close(mean[0], 15.0, 1.0e-9))
+  assert_true(@moonbit.assert_num_close(mean[0], 15.0, 1.0e-9))
   let mn = @src.bedtools_map_min(a, b, bv)
-  assert_true(assert_close(mn[0], 10.0, 1.0e-9))
+  assert_true(@moonbit.assert_num_close(mn[0], 10.0, 1.0e-9))
   let mx = @src.bedtools_map_max(a, b, bv)
-  assert_true(assert_close(mx[0], 20.0, 1.0e-9))
+  assert_true(@moonbit.assert_num_close(mx[0], 20.0, 1.0e-9))
 }
 
 ///|
@@ -282,20 +282,20 @@ test "bedtools_groupby" {
   let sum = @src.bedtools_groupby(records, [1], 4, "sum")
   assert_eq(sum.length(), 2)
   assert_eq(sum[0].group[0], "chr1")
-  assert_true(assert_close(sum[0].value, 60.0, 1.0e-9))
+  assert_true(@moonbit.assert_num_close(sum[0].value, 60.0, 1.0e-9))
   assert_eq(sum[1].group[0], "chr2")
-  assert_true(assert_close(sum[1].value, 5.0, 1.0e-9))
+  assert_true(@moonbit.assert_num_close(sum[1].value, 5.0, 1.0e-9))
   // count
   let cnt = @src.bedtools_groupby(records, [1], 4, "count")
-  assert_true(assert_close(cnt[0].value, 3.0, 1.0e-9))
-  assert_true(assert_close(cnt[1].value, 1.0, 1.0e-9))
+  assert_true(@moonbit.assert_num_close(cnt[0].value, 3.0, 1.0e-9))
+  assert_true(@moonbit.assert_num_close(cnt[1].value, 1.0, 1.0e-9))
   // mean / min / max
   let mean = @src.bedtools_groupby(records, [1], 4, "mean")
-  assert_true(assert_close(mean[0].value, 20.0, 1.0e-9))
+  assert_true(@moonbit.assert_num_close(mean[0].value, 20.0, 1.0e-9))
   let mn = @src.bedtools_groupby(records, [1], 4, "min")
-  assert_true(assert_close(mn[0].value, 10.0, 1.0e-9))
+  assert_true(@moonbit.assert_num_close(mn[0].value, 10.0, 1.0e-9))
   let mx = @src.bedtools_groupby(records, [1], 4, "max")
-  assert_true(assert_close(mx[0].value, 30.0, 1.0e-9))
+  assert_true(@moonbit.assert_num_close(mx[0].value, 30.0, 1.0e-9))
 }
 ///|
 test "bedtools_map_text_ops" {
@@ -319,13 +319,13 @@ test "bedtools_map_numeric_extended" {
   let b = [iv("chr1", 0, 50), iv("chr1", 25, 75), iv("chr1", 200, 300)]
   let bv = [10.0, 20.0, 5.0]
   // overlap values: [10, 20]
-  assert_true(assert_close(@src.bedtools_map_median(a, b, bv)[0], 15.0, 1.0e-9))
+  assert_true(@moonbit.assert_num_close(@src.bedtools_map_median(a, b, bv)[0], 15.0, 1.0e-9))
   // population stddev (÷N)
-  assert_true(assert_close(@src.bedtools_map_stdev(a, b, bv)[0], 5.0, 1.0e-9))
+  assert_true(@moonbit.assert_num_close(@src.bedtools_map_stdev(a, b, bv)[0], 5.0, 1.0e-9))
   // sample stddev (÷N-1)
-  assert_true(assert_close(@src.bedtools_map_sstdev(a, b, bv)[0], 7.0710678118654755, 1.0e-9))
-  assert_true(assert_close(@src.bedtools_map_absmin(a, b, bv)[0], 10.0, 1.0e-9))
-  assert_true(assert_close(@src.bedtools_map_absmax(a, b, bv)[0], 20.0, 1.0e-9))
+  assert_true(@moonbit.assert_num_close(@src.bedtools_map_sstdev(a, b, bv)[0], 7.0710678118654755, 1.0e-9))
+  assert_true(@moonbit.assert_num_close(@src.bedtools_map_absmin(a, b, bv)[0], 10.0, 1.0e-9))
+  assert_true(@moonbit.assert_num_close(@src.bedtools_map_absmax(a, b, bv)[0], 20.0, 1.0e-9))
 }
 
 ///|
@@ -337,21 +337,21 @@ test "bedtools_groupby_extended" {
     ["chr2", "50", "60", "5"],
   ]
   let median = @src.bedtools_groupby(records, [1], 4, "median")
-  assert_true(assert_close(median[0].value, 20.0, 1.0e-9))
-  assert_true(assert_close(median[1].value, 5.0, 1.0e-9))
+  assert_true(@moonbit.assert_num_close(median[0].value, 20.0, 1.0e-9))
+  assert_true(@moonbit.assert_num_close(median[1].value, 5.0, 1.0e-9))
   let stdev = @src.bedtools_groupby(records, [1], 4, "stdev")
-  assert_true(assert_close(stdev[0].value, 8.16496580927726, 1.0e-9))
-  assert_true(assert_close(stdev[1].value, 0.0, 1.0e-9))
+  assert_true(@moonbit.assert_num_close(stdev[0].value, 8.16496580927726, 1.0e-9))
+  assert_true(@moonbit.assert_num_close(stdev[1].value, 0.0, 1.0e-9))
   let sstdev = @src.bedtools_groupby(records, [1], 4, "sstdev")
-  assert_true(assert_close(sstdev[0].value, 10.0, 1.0e-9))
-  assert_true(assert_close(sstdev[1].value, 0.0, 1.0e-9))
+  assert_true(@moonbit.assert_num_close(sstdev[0].value, 10.0, 1.0e-9))
+  assert_true(@moonbit.assert_num_close(sstdev[1].value, 0.0, 1.0e-9))
   let absmin = @src.bedtools_groupby(records, [1], 4, "absmin")
-  assert_true(assert_close(absmin[0].value, 10.0, 1.0e-9))
+  assert_true(@moonbit.assert_num_close(absmin[0].value, 10.0, 1.0e-9))
   let absmax = @src.bedtools_groupby(records, [1], 4, "absmax")
-  assert_true(assert_close(absmax[0].value, 30.0, 1.0e-9))
+  assert_true(@moonbit.assert_num_close(absmax[0].value, 30.0, 1.0e-9))
   let cdist = @src.bedtools_groupby(records, [1], 4, "count_distinct")
-  assert_true(assert_close(cdist[0].value, 3.0, 1.0e-9))
-  assert_true(assert_close(cdist[1].value, 1.0, 1.0e-9))
+  assert_true(@moonbit.assert_num_close(cdist[0].value, 3.0, 1.0e-9))
+  assert_true(@moonbit.assert_num_close(cdist[1].value, 1.0, 1.0e-9))
 }
 
 ///|
@@ -418,12 +418,12 @@ test "bedtools_jaccard" {
   assert_eq(r.intersection, 50)
   assert_eq(r.union, 150)
   assert_eq(r.n_intersections, 1)
-  assert_true(assert_close(r.jaccard, 1.0 / 3.0, 1.0e-9))
+  assert_true(@moonbit.assert_num_close(r.jaccard, 1.0 / 3.0, 1.0e-9))
   // disjoint -> intersection 0, jaccard 0
   let r2 = @src.bedtools_jaccard([iv("chr1", 0, 100)], [iv("chr1", 200, 300)])
   assert_eq(r2.intersection, 0)
   assert_eq(r2.n_intersections, 0)
-  assert_true(assert_close(r2.jaccard, 0.0, 1.0e-12))
+  assert_true(@moonbit.assert_num_close(r2.jaccard, 0.0, 1.0e-12))
 }
 
 ///|
@@ -464,7 +464,7 @@ test "bedtools_reldist" {
   assert_eq(r[0].rel_dist, 0.0)
   assert_eq(r[0].count, 1)
   assert_eq(r[0].total, 2)
-  assert_true(assert_close(r[0].fraction, 0.5, 1.0e-9))
+  assert_true(@moonbit.assert_num_close(r[0].fraction, 0.5, 1.0e-9))
   assert_eq(r[1].rel_dist, 0.5)
   assert_eq(r[1].count, 1)
 }///|
@@ -488,8 +488,8 @@ test "bedtools_getfasta_nuc" {
   assert_eq(r[0].n, 2)
   assert_eq(r[0].other, 1)
   assert_eq(r[0].length, 12)
-  assert_true(assert_close(r[0].pct_at, 0.25, 1.0e-9))
-  assert_true(assert_close(r[0].pct_gc, 0.5, 1.0e-9))
+  assert_true(@moonbit.assert_num_close(r[0].pct_at, 0.25, 1.0e-9))
+  assert_true(@moonbit.assert_num_close(r[0].pct_gc, 0.5, 1.0e-9))
   // out-of-range interval is skipped
   let r2 = @src.bedtools_nuc(fasta, [iv("chr1", 0, 100)])
   assert_eq(r2.length(), 0)
@@ -672,14 +672,14 @@ test "bedtools_unionbedg" {
   // [0,50)：s1 有值、s2 无
   assert_eq(uni[0].0.start, 0)
   match uni[0].1[0] {
-    Some(v) => assert_true(assert_close(v, 5.0, 1.0e-9))
+    Some(v) => assert_true(@moonbit.assert_num_close(v, 5.0, 1.0e-9))
     None => fail("s1 should cover [0,50)")
   }
   assert_true(uni[0].1[1] is None)
   // [50,100)：都覆盖
   assert_eq(uni[1].0.start, 50)
   match uni[1].1[1] {
-    Some(v) => assert_true(assert_close(v, 3.0, 1.0e-9))
+    Some(v) => assert_true(@moonbit.assert_num_close(v, 3.0, 1.0e-9))
     None => fail("s2 should cover [50,100)")
   }
   // [100,150)：只有 s2

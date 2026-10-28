@@ -16,9 +16,9 @@ test "skallel_sfs_folded" {
   assert_eq(@src.skallel_sfs_folded(ac, Some(4)), [3, 1, 1])
   // folded scaled: s[k]*k*(n-k)/n, n=4
   let sc = @src.skallel_sfs_folded_scaled(ac, Some(4))
-  assert_true(assert_close(sc[0], 0.0, 1.0e-9))
-  assert_true(assert_close(sc[1], 0.75, 1.0e-9))
-  assert_true(assert_close(sc[2], 1.0, 1.0e-9))
+  assert_true(@moonbit.assert_num_close(sc[0], 0.0, 1.0e-9))
+  assert_true(@moonbit.assert_num_close(sc[1], 0.75, 1.0e-9))
+  assert_true(@moonbit.assert_num_close(sc[2], 1.0, 1.0e-9))
 }
 
 ///|
@@ -55,8 +55,8 @@ test "skallel_patterson_fst" {
   let acb = [[6, 0], [0, 6]]
   let (num, den) = @src.skallel_patterson_fst(aca, acb)
   assert_eq(num.length(), 2)
-  assert_true(assert_close(num[0], 1.0, 1.0e-9))
-  assert_true(assert_close(num[1], 1.0, 1.0e-9))
-  assert_true(assert_close(den[0], 1.0, 1.0e-9))
-  assert_true(assert_close(den[1], 1.0, 1.0e-9))
+  assert_true(@moonbit.assert_num_close(num[0], 1.0, 1.0e-9))
+  assert_true(@moonbit.assert_num_close(num[1], 1.0, 1.0e-9))
+  assert_true(@moonbit.assert_num_close(den[0], 1.0, 1.0e-9))
+  assert_true(@moonbit.assert_num_close(den[1], 1.0, 1.0e-9))
 }

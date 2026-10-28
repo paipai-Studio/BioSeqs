@@ -3,18 +3,18 @@
 
 test "tm_score_d0" {
   // d0 = 1.24 * cbrt(L-15) - 1.8 for L >= 22
-  assert_true(assert_close(@src.tm_score_d0(50), 2.256122224633851, 1.0e-9))
-  assert_true(assert_close(@src.tm_score_d0(22), 0.572034666637762, 1.0e-9))
+  assert_true(@moonbit.assert_num_close(@src.tm_score_d0(50), 2.256122224633851, 1.0e-9))
+  assert_true(@moonbit.assert_num_close(@src.tm_score_d0(22), 0.572034666637762, 1.0e-9))
   // L < 22 → 0.5
-  assert_true(assert_close(@src.tm_score_d0(21), 0.5, 1.0e-9))
-  assert_true(assert_close(@src.tm_score_d0(10), 0.5, 1.0e-9))
+  assert_true(@moonbit.assert_num_close(@src.tm_score_d0(21), 0.5, 1.0e-9))
+  assert_true(@moonbit.assert_num_close(@src.tm_score_d0(10), 0.5, 1.0e-9))
 }
 
 test "tm_score_aligned_identical" {
   let a = [@src.QsPoint::new(0.0, 0.0, 0.0)]
   let b = [@src.QsPoint::new(0.0, 0.0, 0.0)]
   // 完全重合 → TM-score = 1.0
-  assert_true(assert_close(@src.tm_score_aligned(a, b, 1), 1.0, 1.0e-9))
+  assert_true(@moonbit.assert_num_close(@src.tm_score_aligned(a, b, 1), 1.0, 1.0e-9))
 }
 
 test "tm_score_translation_invariant" {
@@ -31,7 +31,7 @@ test "tm_score_translation_invariant" {
     @src.QsPoint::new(5.0, 6.0, 5.0),
     @src.QsPoint::new(5.0, 5.0, 6.0),
   ]
-  assert_true(assert_close(@src.tm_score(c1, c2), 1.0, 1.0e-6))
+  assert_true(@moonbit.assert_num_close(@src.tm_score(c1, c2), 1.0, 1.0e-6))
 }
 
 test "tm_score_rotation_invariant" {
@@ -49,7 +49,7 @@ test "tm_score_rotation_invariant" {
     @src.QsPoint::new(-1.0, 0.0, 0.0),
     @src.QsPoint::new(0.0, 0.0, 1.0),
   ]
-  assert_true(assert_close(@src.tm_score(c1, c2), 1.0, 1.0e-6))
+  assert_true(@moonbit.assert_num_close(@src.tm_score(c1, c2), 1.0, 1.0e-6))
 }
 
 test "tm_score_in_range" {

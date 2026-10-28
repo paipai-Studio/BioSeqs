@@ -26,8 +26,8 @@ test "dendropy_shape_balanced" {
   let t = tnode([tnode([tleaf("A"), tleaf("B")]), tnode([tleaf("C"), tleaf("D")])])
   assert_eq(@src.dendropy_colless(t), 0)
   assert_eq(@src.dendropy_sackin(t), 8)
-  assert_true(assert_close(@src.dendropy_n_bar(t), 2.0, 1.0e-9))
-  assert_true(assert_close(@src.dendropy_b1(t), 2.0, 1.0e-9))
+  assert_true(@moonbit.assert_num_close(@src.dendropy_n_bar(t), 2.0, 1.0e-9))
+  assert_true(@moonbit.assert_num_close(@src.dendropy_b1(t), 2.0, 1.0e-9))
 }
 
 ///|
@@ -35,8 +35,8 @@ test "dendropy_shape_caterpillar" {
   let t = tnode([tnode([tnode([tleaf("A"), tleaf("B")]), tleaf("C")]), tleaf("D")])
   assert_eq(@src.dendropy_colless(t), 3)
   assert_eq(@src.dendropy_sackin(t), 9)
-  assert_true(assert_close(@src.dendropy_n_bar(t), 2.25, 1.0e-9))
-  assert_true(assert_close(@src.dendropy_b1(t), 1.5, 1.0e-9))
+  assert_true(@moonbit.assert_num_close(@src.dendropy_n_bar(t), 2.25, 1.0e-9))
+  assert_true(@moonbit.assert_num_close(@src.dendropy_b1(t), 1.5, 1.0e-9))
 }
 
 ///|
@@ -44,7 +44,7 @@ test "dendropy_tree_height" {
   let ab = tnode_len([tleaf_len("A", 1.0), tleaf_len("B", 1.0)], 1.0)
   let cd = tnode_len([tleaf_len("C", 1.0), tleaf_len("D", 1.0)], 1.0)
   let root = tnode([ab, cd])
-  assert_true(assert_close(@src.dendropy_tree_height(root), 2.0, 1.0e-9))
+  assert_true(@moonbit.assert_num_close(@src.dendropy_tree_height(root), 2.0, 1.0e-9))
 }
 
 ///|
@@ -65,20 +65,20 @@ test "dendropy_weighted_robinson_foulds" {
     tnode_len([tleaf_len("A", 2.0), tleaf_len("C", 3.0)], 1.0),
     tleaf_len("B", 4.0),
   ])
-  assert_true(assert_close(@src.dendropy_weighted_robinson_foulds(t1, t2), 3.0, 1.0e-9))
+  assert_true(@moonbit.assert_num_close(@src.dendropy_weighted_robinson_foulds(t1, t2), 3.0, 1.0e-9))
 }
 
 ///|
 test "dendropy_patristic_distance" {
   // root: A (2.0), X (1.0); X: B (3.0), C (4.0)
   let root = tnode([tleaf_len("A", 2.0), tnode_len([tleaf_len("B", 3.0), tleaf_len("C", 4.0)], 1.0)])
-  assert_true(assert_close(@src.dendropy_patristic_distance(root, "A", "B"), 6.0, 1.0e-9))
-  assert_true(assert_close(@src.dendropy_patristic_distance(root, "A", "C"), 7.0, 1.0e-9))
-  assert_true(assert_close(@src.dendropy_patristic_distance(root, "B", "C"), 7.0, 1.0e-9))
+  assert_true(@moonbit.assert_num_close(@src.dendropy_patristic_distance(root, "A", "B"), 6.0, 1.0e-9))
+  assert_true(@moonbit.assert_num_close(@src.dendropy_patristic_distance(root, "A", "C"), 7.0, 1.0e-9))
+  assert_true(@moonbit.assert_num_close(@src.dendropy_patristic_distance(root, "B", "C"), 7.0, 1.0e-9))
   let (names, matrix) = @src.dendropy_patristic_distance_matrix(root)
   assert_eq(names.length(), 3)
-  assert_true(assert_close(matrix[0][1], 6.0, 1.0e-9))
-  assert_true(assert_close(matrix[1][2], 7.0, 1.0e-9))
+  assert_true(@moonbit.assert_num_close(matrix[0][1], 6.0, 1.0e-9))
+  assert_true(@moonbit.assert_num_close(matrix[1][2], 7.0, 1.0e-9))
 }
 
 ///|
@@ -89,7 +89,7 @@ test "dendropy_pybus_harvey_gamma" {
   let root = tnode([abc, tleaf_len("D", 3.0)])
   // gamma = -sqrt(24)/9
   let expect = -(24.0).sqrt() / 9.0
-  assert_true(assert_close(@src.dendropy_pybus_harvey_gamma(root), expect, 1.0e-6))
+  assert_true(@moonbit.assert_num_close(@src.dendropy_pybus_harvey_gamma(root), expect, 1.0e-6))
 }
 
 // ============================================================
@@ -100,20 +100,20 @@ test "dendropy_treeness" {
   // internal edge = inner(1)，external = A/B/C（各 1）→ treeness = 1/4
   let inner = tnode_len([tleaf_len("B", 1.0), tleaf_len("C", 1.0)], 1.0)
   let root = tnode([tleaf_len("A", 1.0), inner])
-  assert_true(assert_close(@src.dendropy_treeness(root), 0.25, 1.0e-9))
+  assert_true(@moonbit.assert_num_close(@src.dendropy_treeness(root), 0.25, 1.0e-9))
 }
 
 test "dendropy_euclidean_distance" {
   let t1 = tnode([tnode([tleaf("A"), tleaf("B")]), tleaf("C")])
   let t2 = tnode([tnode([tleaf("A"), tleaf("B")]), tleaf("C")])
-  assert_true(assert_close(@src.dendropy_euclidean_distance(t1, t2), 0.0, 1.0e-9))
+  assert_true(@moonbit.assert_num_close(@src.dendropy_euclidean_distance(t1, t2), 0.0, 1.0e-9))
 }
 
 test "dendropy_fusco_cronk" {
   // 完全平衡 → 所有 Im=0
   let balanced = tnode([tnode([tleaf("A"), tleaf("B")]), tnode([tleaf("C"), tleaf("D")])])
-  assert_true(assert_close(@src.dendropy_fusco_cronk(balanced), 0.0, 1.0e-9))
+  assert_true(@moonbit.assert_num_close(@src.dendropy_fusco_cronk(balanced), 0.0, 1.0e-9))
   // caterpillar → 两个内部节点 Im=1 → 均值 1
   let cat = tnode([tnode([tnode([tleaf("A"), tleaf("B")]), tleaf("C")]), tleaf("D")])
-  assert_true(assert_close(@src.dendropy_fusco_cronk(cat), 1.0, 1.0e-9))
+  assert_true(@moonbit.assert_num_close(@src.dendropy_fusco_cronk(cat), 1.0, 1.0e-9))
 }

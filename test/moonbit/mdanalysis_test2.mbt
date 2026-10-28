@@ -21,8 +21,8 @@ test "mdanalysis_hydrogen_bonds" {
   assert_eq(d, 0)
   assert_eq(h, 1)
   assert_eq(a, 2)
-  assert_true(assert_close(dist, 2.0, 1.0e-9))
-  assert_true(assert_close(ang, 180.0, 1.0e-6))
+  assert_true(assert_num_close(dist, 2.0, 1.0e-9))
+  assert_true(assert_num_close(ang, 180.0, 1.0e-6))
 }
 
 test "mdanalysis_phi_psi_planar" {

@@ -14,11 +14,11 @@ test "xtc_write_read_roundtrip" {
   let f = frames[0]
   assert_eq(f.step, 100)
   assert_eq(f.natoms, 3)
-  assert_true(@moonbit.assert_close(f.time, 10.0, 0.001))
+  assert_true(@moonbit.assert_num_close(f.time, 10.0, 0.001))
   // Check coords (precision = 1000, so tolerance ~0.001)
-  assert_true(@moonbit.assert_close(f.coords[0], 0.1, 0.002))
-  assert_true(@moonbit.assert_close(f.coords[1], 0.2, 0.002))
-  assert_true(@moonbit.assert_close(f.coords[8], 0.9, 0.002))
+  assert_true(@moonbit.assert_num_close(f.coords[0], 0.1, 0.002))
+  assert_true(@moonbit.assert_num_close(f.coords[1], 0.2, 0.002))
+  assert_true(@moonbit.assert_num_close(f.coords[8], 0.9, 0.002))
 }
 
 test "xtc_read_multiple_frames" {
@@ -62,7 +62,7 @@ test "xtc_frame_box" {
   }
   let bytes = @src.xtc_write_frame(frame)
   let frames = @src.xtc_read(bytes)
-  assert_true(@moonbit.assert_close(frames[0].box[0], 3.0, 0.001))
-  assert_true(@moonbit.assert_close(frames[0].box[4], 4.0, 0.001))
-  assert_true(@moonbit.assert_close(frames[0].box[8], 5.0, 0.001))
+  assert_true(@moonbit.assert_num_close(frames[0].box[0], 3.0, 0.001))
+  assert_true(@moonbit.assert_num_close(frames[0].box[4], 4.0, 0.001))
+  assert_true(@moonbit.assert_num_close(frames[0].box[8], 5.0, 0.001))
 }

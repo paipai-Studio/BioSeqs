@@ -16,11 +16,11 @@ test "scanpy_diffmap_two_clusters" {
   assert_eq(dm.eigen_basis.length(), 6)
   assert_eq(dm.eigen_values.length(), 6)
   // top eigenvalue ~1 (constant)
-  assert_true(assert_close(dm.eigen_values[0], 1.0, 1.0e-6))
+  assert_true(@moonbit.assert_num_close(dm.eigen_values[0], 1.0, 1.0e-6))
   // Fiedler vector (index 1) separates the two clusters by sign
   let v = dm.eigen_basis
   assert_true(v[0][1] * v[4][1] < 0.0)
-  assert_true(assert_close(v[0][1], v[1][1], 1.0e-6))
+  assert_true(@moonbit.assert_num_close(v[0][1], v[1][1], 1.0e-6))
   assert_true(v[3][1] * v[4][1] > 0.0)
 }
 ///|
@@ -41,7 +41,7 @@ test "scanpy_diffmap_single_vertex" {
   assert_eq(dm.eigen_basis.length(), 1)
   assert_eq(dm.eigen_values.length(), 1)
   // top eigenvalue of a 1×1 transition matrix with self-weight 1 is 1.0
-  assert_true(assert_close(dm.eigen_values[0], 1.0, 1.0e-6))
+  assert_true(@moonbit.assert_num_close(dm.eigen_values[0], 1.0, 1.0e-6))
 }
 
 ///|
@@ -55,5 +55,5 @@ test "scanpy_diffmap_two_isolated_vertices" {
   assert_eq(dm.eigen_basis.length(), 2)
   assert_eq(dm.eigen_values.length(), 2)
   // dominant eigenvalue of the identity is 1.0
-  assert_true(assert_close(dm.eigen_values[0], 1.0, 1.0e-6))
+  assert_true(@moonbit.assert_num_close(dm.eigen_values[0], 1.0, 1.0e-6))
 }

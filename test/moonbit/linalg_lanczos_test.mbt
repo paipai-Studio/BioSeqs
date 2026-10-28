@@ -40,7 +40,7 @@ test "linalg_lanczos_topk_matches_jacobi" {
 
   // 特征值一致
   for t = 0; t < 3; t = t + 1 {
-    assert_true(assert_close(le[t], se[t], 1.0e-2))
+    assert_true(@moonbit.assert_num_close(le[t], se[t], 1.0e-2))
   }
 
   // Ritz 向量残差 ||A·x - λ·x|| 小(符号无关的正确性检查)

@@ -9,7 +9,7 @@ test "skbio_anosim_statistic_2groups" {
   let dm = [[0.0, 1.0, 1.0, 4.0], [1.0, 0.0, 3.0, 2.0], [1.0, 3.0, 0.0, 3.0], [4.0, 2.0, 3.0, 0.0]]
   let g = [0, 0, 1, 1]
   let r = @src.skbio_anosim(dm, g, 99, 42)
-  assert_true(assert_close(r.statistic, 0.25, 1.0e-9))
+  assert_true(@moonbit.assert_num_close(r.statistic, 0.25, 1.0e-9))
   assert_eq(r.n, 4)
   assert_eq(r.num_groups, 2)
   assert_true(r.p_value > 0.0 && r.p_value <= 1.0)
@@ -20,7 +20,7 @@ test "skbio_permanova_statistic_2groups" {
   let dm = [[0.0, 1.0, 1.0, 4.0], [1.0, 0.0, 3.0, 2.0], [1.0, 3.0, 0.0, 3.0], [4.0, 2.0, 3.0, 0.0]]
   let g = [0, 0, 1, 1]
   let r = @src.skbio_permanova(dm, g, 99, 42)
-  assert_true(assert_close(r.statistic, 2.0, 1.0e-9))
+  assert_true(@moonbit.assert_num_close(r.statistic, 2.0, 1.0e-9))
   assert_eq(r.n, 4)
   assert_eq(r.num_groups, 2)
   assert_true(r.p_value > 0.0 && r.p_value <= 1.0)
@@ -38,10 +38,10 @@ test "skbio_anosim_permanova_3groups" {
   ]
   let g = [0, 0, 1, 1, 2, 2]
   let a = @src.skbio_anosim(dm, g, 99, 42)
-  assert_true(assert_close(a.statistic, 0.75, 1.0e-9))
+  assert_true(@moonbit.assert_num_close(a.statistic, 0.75, 1.0e-9))
   assert_eq(a.num_groups, 3)
   let p = @src.skbio_permanova(dm, g, 99, 42)
-  assert_true(assert_close(p.statistic, 8.0, 1.0e-9))
+  assert_true(@moonbit.assert_num_close(p.statistic, 8.0, 1.0e-9))
   assert_eq(p.num_groups, 3)
   assert_true(p.p_value > 0.0 && p.p_value <= 1.0)
 }
@@ -58,7 +58,7 @@ test "skbio_permdisp_statistic" {
   let g = [0, 0, 0, 1, 1, 1]
   let r = @src.skbio_permdisp(dm, g, 99, 42)
   // scikit-bio permdisp(test='centroid') F = 4.410991776452
-  assert_true(assert_close(r.statistic, 4.410991776452, 1.0e-5))
+  assert_true(@moonbit.assert_num_close(r.statistic, 4.410991776452, 1.0e-5))
   assert_eq(r.n, 6)
   assert_eq(r.num_groups, 2)
   assert_true(r.p_value > 0.0 && r.p_value <= 1.0)
@@ -86,9 +86,9 @@ test "skbio_bioenv" {
   ]
   let r = @src.skbio_bioenv(dm, data)
   assert_eq(r.correlations.length(), 3)
-  assert_true(assert_close(r.correlations[0], 0.132142857, 1.0e-6))
-  assert_true(assert_close(r.correlations[1], 0.075, 1.0e-6))
-  assert_true(assert_close(r.correlations[2], -0.339285714, 1.0e-6))
+  assert_true(@moonbit.assert_num_close(r.correlations[0], 0.132142857, 1.0e-6))
+  assert_true(@moonbit.assert_num_close(r.correlations[1], 0.075, 1.0e-6))
+  assert_true(@moonbit.assert_num_close(r.correlations[2], -0.339285714, 1.0e-6))
   // best subset: size1 = {v1} (col 0); size2 = {v1, v3} (cols 0, 2)
   assert_eq(r.best_subsets[0][0], 0)
   assert_eq(r.best_subsets[1][0], 0)

@@ -54,6 +54,6 @@ test "scanpy_paga" {
   assert_eq(paga.length(), 2)
   assert_eq(paga[0].length(), 2)
   // diagonal stays 0, off-diagonal is the (low) cross-cluster connectivity
-  assert_true(assert_close(paga[0][0], 0.0, 1.0e-12))
+  assert_true(@moonbit.assert_num_close(paga[0][0], 0.0, 1.0e-12))
   assert_true(paga[0][1] < 0.1) // near-zero connectivity across disconnected clusters
 }

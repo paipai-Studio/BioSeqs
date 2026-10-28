@@ -37,9 +37,9 @@ test "skallel_weir_cockerham_fst" {
   ]
   for v = 0; v < 5; v = v + 1 {
     for d = 0; d < 3; d = d + 1 {
-      assert_true(assert_close(a[v][d], exp_a[v][d], 1.0e-5))
-      assert_true(assert_close(b[v][d], exp_b[v][d], 1.0e-5))
-      assert_true(assert_close(c[v][d], exp_c[v][d], 1.0e-5))
+      assert_true(@moonbit.assert_num_close(a[v][d], exp_a[v][d], 1.0e-5))
+      assert_true(@moonbit.assert_num_close(b[v][d], exp_b[v][d], 1.0e-5))
+      assert_true(@moonbit.assert_num_close(c[v][d], exp_c[v][d], 1.0e-5))
     }
   }
 
@@ -47,7 +47,7 @@ test "skallel_weir_cockerham_fst" {
   let fst = @src.skallel_weir_cockerham_fst_variant(g, subpops, 2)
   let exp_fst = [1.0, 0.0, 0.0, -0.4, -1.8]
   for v = 0; v < 5; v = v + 1 {
-    assert_true(assert_close(fst[v], exp_fst[v], 1.0e-5))
+    assert_true(@moonbit.assert_num_close(fst[v], exp_fst[v], 1.0e-5))
   }
 
   // block estimator: numerator sums to 0 here, so Fst ≈ 0

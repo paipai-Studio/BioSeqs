@@ -19,9 +19,9 @@ test "scanpy_neighbors" {
 
   // symmetric + diagonal 1 + values in [0,1]
   for i = 0; i < 6; i = i + 1 {
-    assert_true(assert_close(conn[i][i], 1.0, 1.0e-9))
+    assert_true(@moonbit.assert_num_close(conn[i][i], 1.0, 1.0e-9))
     for j = 0; j < 6; j = j + 1 {
-      assert_true(assert_close(conn[i][j], conn[j][i], 1.0e-9))
+      assert_true(@moonbit.assert_num_close(conn[i][j], conn[j][i], 1.0e-9))
       assert_true(conn[i][j] >= -1.0e-12)
       assert_true(conn[i][j] <= 1.0 + 1.0e-12)
     }
@@ -61,7 +61,7 @@ test "scanpy_neighbors_with_distances" {
   // Distances should be symmetric
   for i = 0; i < 4; i = i + 1 {
     for j = 0; j < 4; j = j + 1 {
-      assert_true(assert_close(dist[i][j], dist[j][i], 1.0e-9))
+      assert_true(@moonbit.assert_num_close(dist[i][j], dist[j][i], 1.0e-9))
     }
   }
   // Connectivities graph
@@ -69,7 +69,7 @@ test "scanpy_neighbors_with_distances" {
   assert_eq(conn.length(), 4)
   // Diagonal should be 1
   for i = 0; i < 4; i = i + 1 {
-    assert_true(assert_close(conn[i][i], 1.0, 1.0e-9))
+    assert_true(@moonbit.assert_num_close(conn[i][i], 1.0, 1.0e-9))
   }
   // Within-cluster connectivities positive
   assert_true(conn[0][1] > 0.0)
@@ -89,12 +89,12 @@ test "scanpy_neighbors_gauss_symmetric" {
   assert_eq(conn.length(), 4)
   // Diagonal = 1
   for i = 0; i < 4; i = i + 1 {
-    assert_true(assert_close(conn[i][i], 1.0, 1.0e-9))
+    assert_true(@moonbit.assert_num_close(conn[i][i], 1.0, 1.0e-9))
   }
   // Symmetric
   for i = 0; i < 4; i = i + 1 {
     for j = 0; j < 4; j = j + 1 {
-      assert_true(assert_close(conn[i][j], conn[j][i], 1.0e-9))
+      assert_true(@moonbit.assert_num_close(conn[i][j], conn[j][i], 1.0e-9))
     }
   }
   // Values in [0, 1]
@@ -124,14 +124,14 @@ test "scanpy_neighbors_gauss_vs_umap" {
   // Both symmetric
   for i = 0; i < 3; i = i + 1 {
     for j = 0; j < 3; j = j + 1 {
-      assert_true(assert_close(umap[i][j], umap[j][i], 1.0e-9))
-      assert_true(assert_close(gauss[i][j], gauss[j][i], 1.0e-9))
+      assert_true(@moonbit.assert_num_close(umap[i][j], umap[j][i], 1.0e-9))
+      assert_true(@moonbit.assert_num_close(gauss[i][j], gauss[j][i], 1.0e-9))
     }
   }
   // Both have 1 on diagonal
   for i = 0; i < 3; i = i + 1 {
-    assert_true(assert_close(umap[i][i], 1.0, 1.0e-9))
-    assert_true(assert_close(gauss[i][i], 1.0, 1.0e-9))
+    assert_true(@moonbit.assert_num_close(umap[i][i], 1.0, 1.0e-9))
+    assert_true(@moonbit.assert_num_close(gauss[i][i], 1.0, 1.0e-9))
   }
   // Both have positive within-cluster connectivity
   assert_true(umap[0][1] > 0.0)

@@ -12,16 +12,16 @@ test "seqkit_stats_fasta" {
   assert_eq(st.sum_len, 22)
   assert_eq(st.min_len, 4)
   assert_eq(st.max_len, 10)
-  assert_true(assert_close(st.avg_len, 22.0 / 3.0, 0.05))
+  assert_true(@moonbit.assert_num_close(st.avg_len, 22.0 / 3.0, 0.05))
   assert_eq(st.q1, 4)
   assert_eq(st.q2, 8)
   assert_eq(st.q3, 10)
   assert_eq(st.sum_gap, 0)
   assert_eq(st.n50, 8)
   assert_eq(st.l50, 2)
-  assert_true(assert_close(st.gc_pct, 50.0, 0.01))
+  assert_true(@moonbit.assert_num_close(st.gc_pct, 50.0, 0.01))
   assert_eq(st.sum_n, 0)
-  assert_true(assert_close(st.avg_qual, 0.0, 1.0e-12))
+  assert_true(@moonbit.assert_num_close(st.avg_qual, 0.0, 1.0e-12))
 }
 
 ///|
@@ -31,10 +31,10 @@ test "seqkit_stats_fastq_qual" {
   let st = @src.seqkit_stats(records, true, true)
   assert_eq(st.num_seqs, 1)
   assert_eq(st.sum_len, 4)
-  assert_true(assert_close(st.gc_pct, 50.0, 0.01))
-  assert_true(assert_close(st.q20_pct, 100.0, 0.01))
-  assert_true(assert_close(st.q30_pct, 100.0, 0.01))
-  assert_true(assert_close(st.avg_qual, 30.0, 0.05))
+  assert_true(@moonbit.assert_num_close(st.gc_pct, 50.0, 0.01))
+  assert_true(@moonbit.assert_num_close(st.q20_pct, 100.0, 0.01))
+  assert_true(@moonbit.assert_num_close(st.q30_pct, 100.0, 0.01))
+  assert_true(@moonbit.assert_num_close(st.avg_qual, 30.0, 0.05))
 }
 
 ///|

@@ -46,6 +46,6 @@ test "dcd_roundtrip_fractional" {
   let t = @src.Trajectory::new(frames)
   let back = @src.parse_dcd(@src.write_dcd(t))
   assert_eq(back.num_atoms(), 2)
-  assert_true(assert_close(back.get_frame(0)[0][1], -0.25, 1.0e-9))
-  assert_true(assert_close(back.get_frame(0)[1][2], 0.0625, 1.0e-9))
+  assert_true(@moonbit.assert_num_close(back.get_frame(0)[0][1], -0.25, 1.0e-9))
+  assert_true(@moonbit.assert_num_close(back.get_frame(0)[1][2], 0.0625, 1.0e-9))
 }

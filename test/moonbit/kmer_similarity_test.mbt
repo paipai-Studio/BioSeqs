@@ -18,14 +18,14 @@ test "kmer_build_protein" {
 test "kmer_jaccard_identical" {
   let a = @src.kmer_table_build("ACGTACGT", 3, "DNA")
   let b = @src.kmer_table_build("ACGTACGT", 3, "DNA")
-  assert_true(@moonbit.assert_close(@src.kmer_jaccard(a, b), 1.0, 1.0e-9))
+  assert_true(@moonbit.assert_num_close(@src.kmer_jaccard(a, b), 1.0, 1.0e-9))
 }
 
 test "kmer_jaccard_different" {
   let a = @src.kmer_table_build("ACGTACGT", 3, "DNA")
   let b = @src.kmer_table_build("TTTTTTTT", 3, "DNA")
   // No shared 3-mers
-  assert_true(@moonbit.assert_close(@src.kmer_jaccard(a, b), 0.0, 1.0e-9))
+  assert_true(@moonbit.assert_num_close(@src.kmer_jaccard(a, b), 0.0, 1.0e-9))
 }
 
 test "kmer_jaccard_partial" {
@@ -40,35 +40,35 @@ test "kmer_jaccard_partial" {
 test "kmer_cosine_identical" {
   let a = @src.kmer_table_build("ACGTACGT", 3, "DNA")
   let b = @src.kmer_table_build("ACGTACGT", 3, "DNA")
-  assert_true(@moonbit.assert_close(@src.kmer_cosine(a, b), 1.0, 1.0e-9))
+  assert_true(@moonbit.assert_num_close(@src.kmer_cosine(a, b), 1.0, 1.0e-9))
 }
 
 test "kmer_cosine_orthogonal" {
   let a = @src.kmer_table_build("ACGTACGT", 3, "DNA")
   let b = @src.kmer_table_build("TTTTTTTT", 3, "DNA")
-  assert_true(@moonbit.assert_close(@src.kmer_cosine(a, b), 0.0, 1.0e-9))
+  assert_true(@moonbit.assert_num_close(@src.kmer_cosine(a, b), 0.0, 1.0e-9))
 }
 
 test "kmer_bray_curtis_identical" {
   let a = @src.kmer_table_build("ACGTACGT", 3, "DNA")
   let b = @src.kmer_table_build("ACGTACGT", 3, "DNA")
-  assert_true(@moonbit.assert_close(@src.kmer_bray_curtis(a, b), 0.0, 1.0e-9))
+  assert_true(@moonbit.assert_num_close(@src.kmer_bray_curtis(a, b), 0.0, 1.0e-9))
 }
 
 test "kmer_bray_curtis_different" {
   let a = @src.kmer_table_build("ACGTACGT", 3, "DNA")
   let b = @src.kmer_table_build("TTTTTTTT", 3, "DNA")
-  assert_true(@moonbit.assert_close(@src.kmer_bray_curtis(a, b), 1.0, 1.0e-9))
+  assert_true(@moonbit.assert_num_close(@src.kmer_bray_curtis(a, b), 1.0, 1.0e-9))
 }
 
 test "kmer_mash_distance" {
   let a = @src.kmer_table_build("ACGTACGT", 3, "DNA")
   let b = @src.kmer_table_build("ACGTACGT", 3, "DNA")
   // Identical sequences → distance 0
-  assert_true(@moonbit.assert_close(@src.kmer_mash_distance(a, b), 0.0, 1.0e-9))
+  assert_true(@moonbit.assert_num_close(@src.kmer_mash_distance(a, b), 0.0, 1.0e-9))
   let c = @src.kmer_table_build("TTTTTTTT", 3, "DNA")
   // Completely different → distance 1
-  assert_true(@moonbit.assert_close(@src.kmer_mash_distance(a, c), 1.0, 1.0e-9))
+  assert_true(@moonbit.assert_num_close(@src.kmer_mash_distance(a, c), 1.0, 1.0e-9))
 }
 
 test "kmer_similarity_matrix" {
@@ -77,12 +77,12 @@ test "kmer_similarity_matrix" {
   assert_eq(m.length(), 3)
   assert_eq(m[0].length(), 3)
   // Diagonal should be 1.0
-  assert_true(@moonbit.assert_close(m[0][0], 1.0, 1.0e-9))
-  assert_true(@moonbit.assert_close(m[1][1], 1.0, 1.0e-9))
-  assert_true(@moonbit.assert_close(m[2][2], 1.0, 1.0e-9))
+  assert_true(@moonbit.assert_num_close(m[0][0], 1.0, 1.0e-9))
+  assert_true(@moonbit.assert_num_close(m[1][1], 1.0, 1.0e-9))
+  assert_true(@moonbit.assert_num_close(m[2][2], 1.0, 1.0e-9))
   // Symmetric
-  assert_true(@moonbit.assert_close(m[0][1], m[1][0], 1.0e-9))
-  assert_true(@moonbit.assert_close(m[0][2], m[2][0], 1.0e-9))
+  assert_true(@moonbit.assert_num_close(m[0][1], m[1][0], 1.0e-9))
+  assert_true(@moonbit.assert_num_close(m[0][2], m[2][0], 1.0e-9))
 }
 
 test "kmer_skip_invalid" {

@@ -151,7 +151,7 @@ test "vcf_write_roundtrip" {
   assert_eq(r1.alt.length(), 1)
   assert_eq(r1.alt[0], "T")
   assert_true(r1.qual is Some(_))
-  assert_true(assert_close(r1.qual.unwrap(), 60.5, 1.0e-9))
+  assert_true(@moonbit.assert_num_close(r1.qual.unwrap(), 60.5, 1.0e-9))
   assert_eq(r1.filter.length(), 1)
   assert_eq(r1.filter[0], "PASS")
   assert_eq(r1.info.get("AC"), Some("1"))

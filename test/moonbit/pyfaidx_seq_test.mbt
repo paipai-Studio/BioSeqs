@@ -26,10 +26,10 @@ test "pyfaidx_complement_invalid_raises" {
 
 ///|
 test "pyfaidx_gc_content" {
-  assert_true(assert_close_e9(@src.pyfaidx_gc("ATCGTA"), 0.3333333333))
-  assert_true(assert_close_e9(@src.pyfaidx_gc("NMRATCGTA"), 0.2222222222))
-  assert_true(assert_close_e9(@src.pyfaidx_gc_strict("NMRATCGTA"), 0.3333333333))
-  assert_true(assert_close_e9(@src.pyfaidx_gc_iupac("NMRATCGTA"), 0.3611111111))
+  assert_true(@moonbit.assert_close_e9(@src.pyfaidx_gc("ATCGTA"), 0.3333333333))
+  assert_true(@moonbit.assert_close_e9(@src.pyfaidx_gc("NMRATCGTA"), 0.2222222222))
+  assert_true(@moonbit.assert_close_e9(@src.pyfaidx_gc_strict("NMRATCGTA"), 0.3333333333))
+  assert_true(@moonbit.assert_close_e9(@src.pyfaidx_gc_iupac("NMRATCGTA"), 0.3611111111))
 }
 
 ///|

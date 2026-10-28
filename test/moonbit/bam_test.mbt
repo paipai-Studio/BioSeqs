@@ -77,7 +77,7 @@ test "bam_aux_tags" {
 
   let r2 = bam.records[1]
   match r2.get_tag("AS") {
-    Some(@src.BamTagValue::Float(v)) => assert_true(assert_close_e6(v, 4.5))
+    Some(@src.BamTagValue::Float(v)) => assert_true(@moonbit.assert_close_e6(v, 4.5))
     _ => abort("AS should be float 4.5")
   }
   match r2.get_tag("RG") {
@@ -275,7 +275,7 @@ test "bam_stats" {
   assert_eq(s.mapped_reads, 3)
   assert_eq(s.duplicate_reads, 1)  // read2 是 duplicate
   // 平均读长 (8 + 5 + 6) / 3
-  assert_true(assert_close(s.avg_read_length, 19.0 / 3.0, 1.0e-9))
+  assert_true(@moonbit.assert_num_close(s.avg_read_length, 19.0 / 3.0, 1.0e-9))
 }
 
 
@@ -320,5 +320,5 @@ test "bam_get_base_counts" {
 test "bam_alignment_quality" {
   let bam = @src.parse_bam_base64(test_bam_base64)
   // read1：mapq=60，NM:i:0 → quality = 60
-  assert_true(assert_close(@src.bam_alignment_quality(bam.records[0]), 60.0, 1.0e-9))
+  assert_true(@moonbit.assert_num_close(@src.bam_alignment_quality(bam.records[0]), 60.0, 1.0e-9))
 }

@@ -17,7 +17,7 @@ test "scanpy_pca" {
   for v in r {
     s = s + v
   }
-  assert_true(assert_close(s, 1.0, 1.0e-6))
+  assert_true(@moonbit.assert_num_close(s, 1.0, 1.0e-6))
   assert_true(r[0] >= r[1] - 1.0e-9)
   assert_true(r[1] >= r[2] - 1.0e-9)
 
@@ -28,7 +28,7 @@ test "scanpy_pca" {
       for j = 0; j < 3; j = j + 1 {
         dot = dot + pca.loadings[a][j] * pca.loadings[b][j]
       }
-      assert_true(assert_close(dot, if a == b { 1.0 } else { 0.0 }, 1.0e-6))
+      assert_true(@moonbit.assert_num_close(dot, if a == b { 1.0 } else { 0.0 }, 1.0e-6))
     }
   }
 
@@ -40,7 +40,7 @@ test "scanpy_pca" {
       for c = 0; c < 3; c = c + 1 {
         re = re + pca.coords[i][c] * pca.loadings[c][j]
       }
-      assert_true(assert_close(re, x[i][j] - means[j], 1.0e-6))
+      assert_true(@moonbit.assert_num_close(re, x[i][j] - means[j], 1.0e-6))
     }
   }
 }
@@ -65,8 +65,8 @@ test "scanpy_pca_single_sample" {
   assert_eq(pca.coords[0].length(), 2)
   // with zero covariance, all coords are 0 and variance_ratio is 0
   for c = 0; c < 2; c = c + 1 {
-    assert_true(assert_close(pca.coords[0][c], 0.0, 1.0e-10))
-    assert_true(assert_close(pca.variance_ratio[c], 0.0, 1.0e-10))
+    assert_true(@moonbit.assert_num_close(pca.coords[0][c], 0.0, 1.0e-10))
+    assert_true(@moonbit.assert_num_close(pca.variance_ratio[c], 0.0, 1.0e-10))
   }
 }
 
@@ -87,5 +87,5 @@ test "scanpy_pca_n_comps_exceeds_n_vars" {
   for v in pca.variance_ratio {
     s = s + v
   }
-  assert_true(assert_close(s, 1.0, 1.0e-6))
+  assert_true(@moonbit.assert_num_close(s, 1.0, 1.0e-6))
 }

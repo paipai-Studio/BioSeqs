@@ -22,9 +22,9 @@ test "md_bond_energy" {
   let pos = [[0.0, 0.0, 0.0], [1.1, 0.0, 0.0]]
   let bonds = [(0, 1, 1.0, 10.0)]
   // 0.5 * 10 * (1.1-1)^2 = 0.05
-  assert_true(assert_close(@src.md_bond_energy(pos, bonds), 0.05, 1.0e-9))
+  assert_true(@moonbit.assert_num_close(@src.md_bond_energy(pos, bonds), 0.05, 1.0e-9))
   // 平衡位置 → 0
-  assert_true(assert_close(@src.md_bond_energy([[0.0, 0.0, 0.0], [1.0, 0.0, 0.0]], bonds), 0.0, 1.0e-9))
+  assert_true(@moonbit.assert_num_close(@src.md_bond_energy([[0.0, 0.0, 0.0], [1.0, 0.0, 0.0]], bonds), 0.0, 1.0e-9))
 }
 
 test "md_bond_forces_match_gradient" {
@@ -32,10 +32,10 @@ test "md_bond_forces_match_gradient" {
   let bonds = [(0, 1, 1.0, 10.0)]
   let f = @src.md_bond_forces(pos, bonds)
   // 解析力 = -梯度
-  assert_true(assert_close(f[0][0], -num_gradient(pos, bonds, 0, 0, 1.0e-6), 1.0e-5))
-  assert_true(assert_close(f[1][0], -num_gradient(pos, bonds, 1, 0, 1.0e-6), 1.0e-5))
+  assert_true(@moonbit.assert_num_close(f[0][0], -num_gradient(pos, bonds, 0, 0, 1.0e-6), 1.0e-5))
+  assert_true(@moonbit.assert_num_close(f[1][0], -num_gradient(pos, bonds, 1, 0, 1.0e-6), 1.0e-5))
   // 作用力=反作用力
-  assert_true(assert_close(f[0][0], -f[1][0], 1.0e-12))
+  assert_true(@moonbit.assert_num_close(f[0][0], -f[1][0], 1.0e-12))
 }
 
 test "md_lj_energy_minimum" {
@@ -43,14 +43,14 @@ test "md_lj_energy_minimum" {
   let r_min = @math.pow(2.0, 1.0 / 6.0)
   let pos = [[0.0, 0.0, 0.0], [r_min, 0.0, 0.0]]
   let pairs = [(0, 1, 1.0, 1.0)]
-  assert_true(assert_close(@src.md_lj_energy(pos, pairs), -1.0, 1.0e-9))
+  assert_true(@moonbit.assert_num_close(@src.md_lj_energy(pos, pairs), -1.0, 1.0e-9))
 }
 
 test "md_coulomb_energy" {
   // ke * q1 q2 / r = 332.0637 / 2
   let pos = [[0.0, 0.0, 0.0], [2.0, 0.0, 0.0]]
   let pairs = [(0, 1, 1.0, 1.0)]
-  assert_true(assert_close(@src.md_coulomb_energy(pos, pairs), 332.0637 / 2.0, 1.0e-6))
+  assert_true(@moonbit.assert_num_close(@src.md_coulomb_energy(pos, pairs), 332.0637 / 2.0, 1.0e-6))
 }
 
 test "md_energy_conservation" {
@@ -98,26 +98,26 @@ test "md_angle_energy" {
   // i=(1,0,0) j=(0,0,0) k=(0,1,0)：∠i-j-k = 90° = π/2
   let pos = [[1.0, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 1.0, 0.0]]
   // θ0 = π/2 → 平衡，能量 0
-  assert_true(assert_close(@src.md_angle_energy(pos, [(0, 1, 2, 1.5707963267948966, 1.0)]), 0.0, 1.0e-9))
+  assert_true(@moonbit.assert_num_close(@src.md_angle_energy(pos, [(0, 1, 2, 1.5707963267948966, 1.0)]), 0.0, 1.0e-9))
   // θ0 = π/3（60°）→ θ 偏离 π/6，E = 0.5 * (π/6)^2
   let e = @src.md_angle_energy(pos, [(0, 1, 2, 1.0471975511965976, 1.0)])
-  assert_true(assert_close(e, 0.5 * 0.5235987755982988 * 0.5235987755982988, 1.0e-9))
+  assert_true(@moonbit.assert_num_close(e, 0.5 * 0.5235987755982988 * 0.5235987755982988, 1.0e-9))
 }
 
 test "md_angle_forces_match_gradient" {
   let pos = [[1.0, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 1.0, 0.0]]
   let angles = [(0, 1, 2, 1.0471975511965976, 2.5)]
   let f = @src.md_angle_forces(pos, angles)
-  assert_true(assert_close(f[0][0], -angle_num_gradient(pos, angles, 0, 0, 1.0e-6), 1.0e-5))
-  assert_true(assert_close(f[2][1], -angle_num_gradient(pos, angles, 2, 1, 1.0e-6), 1.0e-5))
+  assert_true(@moonbit.assert_num_close(f[0][0], -angle_num_gradient(pos, angles, 0, 0, 1.0e-6), 1.0e-5))
+  assert_true(@moonbit.assert_num_close(f[2][1], -angle_num_gradient(pos, angles, 2, 1, 1.0e-6), 1.0e-5))
   // 内力守恒：三个原子合力 ≈ 0
   let fsum = [
     f[0][0] + f[1][0] + f[2][0],
     f[0][1] + f[1][1] + f[2][1],
     f[0][2] + f[1][2] + f[2][2],
   ]
-  assert_true(assert_close(fsum[0], 0.0, 1.0e-10))
-  assert_true(assert_close(fsum[1], 0.0, 1.0e-10))
+  assert_true(@moonbit.assert_num_close(fsum[0], 0.0, 1.0e-10))
+  assert_true(@moonbit.assert_num_close(fsum[1], 0.0, 1.0e-10))
 }
 
 test "md_dihedral_energy_trans_cis" {
@@ -126,8 +126,8 @@ test "md_dihedral_energy_trans_cis" {
   let cis = [[1.0, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 1.0, 0.0], [-1.0, 1.0, 0.0]]
   // n=3, δ=0, k=1：trans φ=π → E=1+cos(3π)=0；cis φ=0 → E=1+cos(0)=2
   let d_list = [(0, 1, 2, 3, 1.0, 3, 0.0)]
-  assert_true(assert_close(@src.md_dihedral_energy(trans, d_list), 0.0, 1.0e-9))
-  assert_true(assert_close(@src.md_dihedral_energy(cis, d_list), 2.0, 1.0e-9))
+  assert_true(@moonbit.assert_num_close(@src.md_dihedral_energy(trans, d_list), 0.0, 1.0e-9))
+  assert_true(@moonbit.assert_num_close(@src.md_dihedral_energy(cis, d_list), 2.0, 1.0e-9))
 }
 
 test "md_dihedral_forces_conserved" {
@@ -144,9 +144,9 @@ test "md_dihedral_forces_conserved" {
     sy = sy + v[1]
     sz = sz + v[2]
   }
-  assert_true(assert_close(sx, 0.0, 1.0e-6))
-  assert_true(assert_close(sy, 0.0, 1.0e-6))
-  assert_true(assert_close(sz, 0.0, 1.0e-6))
+  assert_true(@moonbit.assert_num_close(sx, 0.0, 1.0e-6))
+  assert_true(@moonbit.assert_num_close(sy, 0.0, 1.0e-6))
+  assert_true(@moonbit.assert_num_close(sz, 0.0, 1.0e-6))
   // 力非零
   let mut mag = 0.0
   for v in f {
@@ -166,7 +166,7 @@ test "md_temperature" {
   let masses = [1.0, 1.0]
   let t = @src.md_temperature(vel, masses, 1)
   // T = 2 / 0.001987204
-  assert_true(assert_close(t, 2.0 / 0.001987204, 1.0e-3))
+  assert_true(@moonbit.assert_num_close(t, 2.0 / 0.001987204, 1.0e-3))
 }
 
 test "md_berendsen_scale_direction" {
@@ -187,7 +187,7 @@ test "md_simulate_berendsen_free_particle" {
   let no_bonds : Array[(Int, Int, Double, Double)] = []
   let temps = @src.md_simulate_berendsen(pos, vel, masses, no_bonds, 0.001, 0.1, 300.0, 5000, 1)
   let n = temps.length()
-  assert_true(assert_close(temps[n - 1], 300.0, 1.0e-3))
+  assert_true(@moonbit.assert_num_close(temps[n - 1], 300.0, 1.0e-3))
 }
 
 test "md_simulate_berendsen_heats_up" {
