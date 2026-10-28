@@ -870,7 +870,9 @@ test "rankprod_ori_rank matches computeOrirank on the tie fixture" {
     3.0, 4.0, 1.0, 2.0, 3.0, 4.0, 1.0, 2.0, 4.0, 3.0, 1.0, 2.0, 4.0, 3.0, 1.0, 2.0,
   ])
   assert_true(
-    rpt_raises(fn() { let _ = @src.rankprod_ori_rank(gr1~, gr2=[[1.0]]) }),
+    rpt_raises(fn() raise @src.RankProdError {
+      let _ = @src.rankprod_ori_rank(gr1~, gr2=[[1.0]])
+    }),
   )
 }
 
@@ -914,9 +916,15 @@ test "rank_product_pvalue_bounds matches rankprodbounds (n=8, k=3)" {
     assert_true(rpt_approx(g, geom, tol=1.0e-12))
   }
   // Out-of-domain ranks raise.
-  assert_true(rpt_raises(fn() { let _ = @src.rank_product_pvalue(0.0, 8, 3) }))
   assert_true(
-    rpt_raises(fn() { let _ = @src.rank_product_pvalue(13.0, 12, 5) }),
+    rpt_raises(fn() raise @src.RankProdError {
+      let _ = @src.rank_product_pvalue(0.0, 8, 3)
+    }),
+  )
+  assert_true(
+    rpt_raises(fn() raise @src.RankProdError {
+      let _ = @src.rank_product_pvalue(13.0, 12, 5)
+    }),
   )
 }
 
@@ -971,9 +979,13 @@ test "rankprod_top_genes num_gene and cutoff match frozen topGene output" {
   )
   rpt_ivec(tp_down.indices(), [7])
   // Error paths.
-  assert_true(rpt_raises(fn() { let _ = @src.rankprod_top_genes(result=rp) }))
   assert_true(
-    rpt_raises(fn() {
+    rpt_raises(fn() raise @src.RankProdError {
+      let _ = @src.rankprod_top_genes(result=rp)
+    }),
+  )
+  assert_true(
+    rpt_raises(fn() raise @src.RankProdError {
       let _ = @src.rankprod_top_genes(
         result=rp,
         cutoff=Some(0.5),
@@ -982,7 +994,7 @@ test "rankprod_top_genes num_gene and cutoff match frozen topGene output" {
     }),
   )
   assert_true(
-    rpt_raises(fn() {
+    rpt_raises(fn() raise @src.RankProdError {
       let _ = @src.rankprod_top_genes(
         result=rp,
         cutoff=Some(0.5),
@@ -995,15 +1007,17 @@ test "rankprod_top_genes num_gene and cutoff match frozen topGene output" {
 ///|
 test "rank_products validates its inputs" {
   assert_true(
-    rpt_raises(fn() { let _ = @src.rank_products(data=[], cl=[0, 1]) }),
+    rpt_raises(fn() raise @src.RankProdError {
+      let _ = @src.rank_products(data=[], cl=[0, 1])
+    }),
   )
   assert_true(
-    rpt_raises(fn() {
+    rpt_raises(fn() raise @src.RankProdError {
       let _ = @src.rank_products(data=[[1.0, 2.0]], cl=[0, 1, 2])
     }),
   )
   assert_true(
-    rpt_raises(fn() {
+    rpt_raises(fn() raise @src.RankProdError {
       let _ = @src.rank_products(data=[[1.0, 2.0, 3.0]], cl=[0, 1, 2])
     }),
   )

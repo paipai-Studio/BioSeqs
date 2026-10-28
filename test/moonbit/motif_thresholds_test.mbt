@@ -352,7 +352,7 @@ test "mt from_counts reproduces pssm-based distribution" {
   // Zero counts without pseudocount are rejected (would yield -infinite scores).
   let sparse_counts = [[3, 1, 1, 2], [1, 0, 2, 1], [0, 2, 0, 1], [0, 1, 1, 0]]
   inspect(
-    mscd_raises(fn() {
+    mscd_raises(fn() raise @src.MotifThresholdError {
       let _ = @src.MotifScoreDistribution::from_counts(sparse_counts)
     }),
     content="true",
@@ -406,13 +406,13 @@ test "mt default background and density copies" {
 ///|
 test "mt invalid input validation" {
   inspect(
-    mscd_raises(fn() {
+    mscd_raises(fn() raise @src.MotifThresholdError {
       let _ = @src.MotifScoreDistribution::from_pssm([[1.0], [1.0], [1.0]])
     }),
     content="true",
   )
   inspect(
-    mscd_raises(fn() {
+    mscd_raises(fn() raise @src.MotifThresholdError {
       let _ = @src.MotifScoreDistribution::from_pssm([
         [1.0],
         [1.0],
@@ -424,7 +424,7 @@ test "mt invalid input validation" {
     content="true",
   )
   inspect(
-    mscd_raises(fn() {
+    mscd_raises(fn() raise @src.MotifThresholdError {
       let _ = @src.MotifScoreDistribution::from_pssm([
         [1.0, 2.0],
         [1.0],
@@ -435,13 +435,13 @@ test "mt invalid input validation" {
     content="true",
   )
   inspect(
-    mscd_raises(fn() {
+    mscd_raises(fn() raise @src.MotifThresholdError {
       let _ = @src.MotifScoreDistribution::from_pssm([[], [], [], []])
     }),
     content="true",
   )
   inspect(
-    mscd_raises(fn() {
+    mscd_raises(fn() raise @src.MotifThresholdError {
       let _ = @src.MotifScoreDistribution::from_pssm([
         [mscd_infinity()],
         [1.0],
@@ -452,7 +452,7 @@ test "mt invalid input validation" {
     content="true",
   )
   inspect(
-    mscd_raises(fn() {
+    mscd_raises(fn() raise @src.MotifThresholdError {
       let _ = @src.MotifScoreDistribution::from_pssm([
         [mscd_nan()],
         [1.0],
@@ -463,7 +463,7 @@ test "mt invalid input validation" {
     content="true",
   )
   inspect(
-    mscd_raises(fn() {
+    mscd_raises(fn() raise @src.MotifThresholdError {
       let _ = @src.MotifScoreDistribution::from_pssm([[1.0]], background=[
         0.25, 0.25, 0.5,
       ])
@@ -471,7 +471,7 @@ test "mt invalid input validation" {
     content="true",
   )
   inspect(
-    mscd_raises(fn() {
+    mscd_raises(fn() raise @src.MotifThresholdError {
       let _ = @src.MotifScoreDistribution::from_pssm([[1.0]], background=[
         0.25, 0.25, -0.25, 0.75,
       ])
@@ -479,7 +479,7 @@ test "mt invalid input validation" {
     content="true",
   )
   inspect(
-    mscd_raises(fn() {
+    mscd_raises(fn() raise @src.MotifThresholdError {
       let _ = @src.MotifScoreDistribution::from_pssm([[1.0]], background=[
         0.0, 0.0, 0.0, 0.0,
       ])
@@ -487,19 +487,19 @@ test "mt invalid input validation" {
     content="true",
   )
   inspect(
-    mscd_raises(fn() {
+    mscd_raises(fn() raise @src.MotifThresholdError {
       let _ = @src.MotifScoreDistribution::from_pssm([[1.0]], precision=0)
     }),
     content="true",
   )
   inspect(
-    mscd_raises(fn() {
+    mscd_raises(fn() raise @src.MotifThresholdError {
       let _ = @src.MotifScoreDistribution::from_counts([[1], [1], [1], [-1]])
     }),
     content="true",
   )
   inspect(
-    mscd_raises(fn() {
+    mscd_raises(fn() raise @src.MotifThresholdError {
       let _ = @src.MotifScoreDistribution::from_counts(
         [[1], [1], [1], [1]],
         pseudocount=-0.1,
@@ -508,13 +508,22 @@ test "mt invalid input validation" {
     content="true",
   )
   let dist = @src.MotifScoreDistribution::from_pssm(mscd_uniform_pssm())
-  inspect(mscd_raises(fn() { let _ = dist.threshold_fpr(1.5) }), content="true")
   inspect(
-    mscd_raises(fn() { let _ = dist.threshold_fnr(-0.1) }),
+    mscd_raises(fn() raise @src.MotifThresholdError {
+      let _ = dist.threshold_fpr(1.5)
+    }),
     content="true",
   )
   inspect(
-    mscd_raises(fn() { let _ = dist.threshold_balanced(rate_proportion=-1.0) }),
+    mscd_raises(fn() raise @src.MotifThresholdError {
+      let _ = dist.threshold_fnr(-0.1)
+    }),
+    content="true",
+  )
+  inspect(
+    mscd_raises(fn() raise @src.MotifThresholdError {
+      let _ = dist.threshold_balanced(rate_proportion=-1.0)
+    }),
     content="true",
   )
 }
