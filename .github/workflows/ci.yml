@@ -44,6 +44,9 @@ jobs:
       - name: Moon fmt check
         run: moon fmt --check
 
+      - name: README counts check
+        run: python3 scripts/check_readme_counts.py
+
       - name: Moon check
         run: moon check
 

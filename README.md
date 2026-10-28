@@ -686,8 +686,8 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 
 ```
 IvanAXu/BioSeqs/
-├── moon.mod                          # 模块配置 (name="IvanAXu/BioSeqs", version=0.1.23)
-├── src/                              # 源代码（573 个 .mbt 模块）
+├── moon.mod                          # 模块配置 (name="IvanAXu/BioSeqs", version=0.1.24)
+├── src/                              # 源代码（677 个 .mbt 模块）
 │   ├── seq.mbt                       # Bio.Seq 序列对象
 │   ├── seqio.mbt / fasta_io.mbt / ... # 序列 I/O（30+ 种格式）
 │   ├── alignment.mbt / align_*.mbt   # 比对算法 + 20+ 种比对格式严格 API
@@ -757,7 +757,7 @@ IvanAXu/BioSeqs/
 │   ├── de_bruijn_demo/ / olc_demo/   # 序列组装算法
 │   └── ... （更多 examples/*_demo/）
 ├── test/
-│   ├── moonbit/                      # MoonBit 单元测试（571 个测试文件，14058 用例）
+│   ├── moonbit/                      # MoonBit 单元测试（678 个测试文件，15876 用例）
 │   │   ├── bio_seq_test.mbt / seqio_wb_test.mbt / ...
 │   │   ├── alignment_test.mbt / pdb_test.mbt / phylo_test.mbt / ...
 │   │   ├── deseq2_test.mbt / rankprod_test.mbt / seurat_test.mbt / scran_test.mbt / ...
@@ -777,7 +777,7 @@ IvanAXu/BioSeqs/
 
 ```bash
 moon build                                              # ✅ 成功
-moon test                                               # ✅ 14058 个测试全部通过（test/moonbit 包）
+moon test                                               # ✅ 15876 个测试全部通过（test/moonbit 包）
 ```
 
 ---
@@ -786,7 +786,7 @@ moon test                                               # ✅ 14058 个测试全
 
 ```bash
 moon build      # 构建项目
-moon test       # 运行全部测试 (14058 个测试用例，test/moonbit 包)
+moon test       # 运行全部测试 (15876 个测试用例，test/moonbit 包)
 ```
 
 ---

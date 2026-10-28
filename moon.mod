@@ -13,14 +13,14 @@ name = "IvanAXu/BioSeqs"
 
 version = "0.1.24"
 
-readme = "README.mbt.md"
+readme = "README.md"
 
-repository = ""
+repository = "https://github.com/paipai-Studio/BioSeqs"
 
 license = "Apache-2.0"
 
-keywords = [ ]
+keywords = ["bioinformatics", "sequence-analysis", "alignment", "phylogenetics", "genomics"]
 
 preferred_target = "wasm-gc"
 
-description = ""
+description = "BioSeqs - a Biopython-inspired bioinformatics library in pure MoonBit: sequence I/O, alignments, phylogenetics, structures, NGS files and statistics"
