@@ -1,0 +1,6 @@
+import {
+  "IvanAXu/BioSeqs/src",
+  "moonbitlang/core/env",
+}
+
+pkgtype(kind: "executable")
