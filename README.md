@@ -687,7 +687,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 ```
 IvanAXu/BioSeqs/
 ├── moon.mod                          # 模块配置 (name="IvanAXu/BioSeqs", version=0.1.24)
-├── src/                              # 源代码（681 个 .mbt 模块）
+├── src/                              # 源代码（682 个 .mbt 模块）
 │   ├── seq.mbt                       # Bio.Seq 序列对象
 │   ├── seqio.mbt / fasta_io.mbt / ... # 序列 I/O（30+ 种格式）
 │   ├── alignment.mbt / align_*.mbt   # 比对算法 + 20+ 种比对格式严格 API
@@ -702,7 +702,7 @@ IvanAXu/BioSeqs/
 │   ├── de_bruijn.mbt / suffix_array_tree.mbt / olc.mbt / bwt_fm.mbt # 序列组装四大算法
 │   ├── statistics.mbt / kmeans.mbt / hmm.mbt / neural_network.mbt / ... # ML 与统计
 │   └── utils.mbt / data.mbt / ...    # 通用工具与常量
-├── examples/                         # 示例程序（516 个演示 demo）
+├── examples/                         # 示例程序（517 个演示 demo）
 │   ├── basic_seq/                    # 基础序列操作
 │   ├── seqcode_demo/ / seq_utils_demo/ # SeqUtils 序列工具（gc_fraction/GC123/nt_search/六框翻译/seq3/seq1）
 │   ├── codon_utils_demo/               # CodonUtils 密码子分析（NCBI 27 表/GC123/六框翻译/CAI/Nc Wright 1990/表元数据）
@@ -757,7 +757,7 @@ IvanAXu/BioSeqs/
 │   ├── de_bruijn_demo/ / olc_demo/   # 序列组装算法
 │   └── ... （更多 examples/*_demo/）
 ├── test/
-│   ├── moonbit/                      # MoonBit 单元测试（682 个测试文件，15933 用例）
+│   ├── moonbit/                      # MoonBit 单元测试（683 个测试文件，15943 用例）
 │   │   ├── bio_seq_test.mbt / seqio_wb_test.mbt / ...
 │   │   ├── alignment_test.mbt / pdb_test.mbt / phylo_test.mbt / ...
 │   │   ├── deseq2_test.mbt / rankprod_test.mbt / seurat_test.mbt / scran_test.mbt / ...
@@ -794,7 +794,7 @@ IvanAXu/BioSeqs/
 
 ```bash
 moon build                                              # ✅ 成功
-moon test                                               # ✅ 15933 个测试全部通过（test/moonbit 包）
+moon test                                               # ✅ 15943 个测试全部通过（test/moonbit 包）
 ```
 
 ---
@@ -803,7 +803,7 @@ moon test                                               # ✅ 15933 个测试全
 
 ```bash
 moon build      # 构建项目
-moon test       # 运行全部测试 (15933 个测试用例，test/moonbit 包)
+moon test       # 运行全部测试 (15943 个测试用例，test/moonbit 包)
 ```
 
 ---
