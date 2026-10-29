@@ -113,6 +113,8 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **BigBed / BigMaf / BigPsl** | `Bio.Align.bigbed` / `bigmaf` / `bigpsl` | BigBed v4 二进制、AutoSQL 扩展、多级 B+ tree/R-tree、zlib DEFLATE、区间/名称查询、bedMaf/bedPsl 语义 |
 | **BigWig** | `rtracklayer BigWigFile`（`export.bw`/`import`/`summary`） | BigWig v3/v4 二进制（magic 0x888FFC26）、bedGraph/variableStep/fixedStep 三种段、B+ tree 染色体表、R-tree 索引、zoom 汇总层、zlib 段、intervals/values(NaN 填充)/stats 六统计量（mean/min/max/cov/sum/样本 std，累积 floor 分箱）、writer 全量校验 |
 | **Tabular 搜索轨迹** | `Bio.Align.tabular` | BLAST outfmt 7、FASTA 8CB/8CC、BTOP/aln_code traceback、链向与 translated 坐标 |
+| **POA 图比对** | POA (Lee et al. 2002) / abPOA 风格 | `poa.mbt`：偏序图多序列比对（`poa_new`/`poa_add` 逐条并入 DAG、相同字符并点权重+1、天然表达 indel/重组分支结构）、`poa_consensus` 拓扑列多数投票共识、`poa_msa` 图列对齐行，适合多样本共识与长读长纠错 |
+| **mmseqs2 本地蛋白搜索** | mmseqs2 / linclust（筛查级） | `mmseqs.mbt`：prefilter→align 两段式流水线（k-mer 倒排索引种子检索 + 对角线合并 + ungapped x-drop 延伸预筛 → Smith-Waterman 精化 + Karlin-Altschul E-value 排序）、linclust 风格共享 k-mer 贪心预聚类 |
 
 ### 搜索结果解析
 
@@ -201,6 +203,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **PDB 结构分析高级** | `Bio.PDB` (advanced) | 主链二面角、氢键检测、二级结构分配、疏水性分析 |
 | **Polypeptide** | `Bio.PDB.Polypeptide` | 氨基酸组成、疏水性、跨膜预测、等电点 |
 | **protein_analysis** | `Bio.protein_analysis` | Kyte-Doolittle 疏水性、GOR 二级结构、Hopp-Woods 抗原性、跨膜区段、AA/二肽/三肽组成、Shannon 熵保守性评分 |
+| **结构筛查管线** | SCOP 折叠类 + IUPred/COILS（筛查级） | `structure_screening.mbt`：Chou-Fasman 二级结构 → SCOP 一级折叠类规则判定（all-α/all-β/α-β/α+β/coil，按含量与 H/E 段交替模式）→ 无序区（IUPred）+ 卷曲螺旋（COILS）+ 溶解性警告全景报告（JSON/文本），衔接 dssp/tm_score/cealign 结构栈 |
 
 ### 模体、数据库接口与其它
 
@@ -364,6 +367,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **stageR** | stageR | 两阶段检验（筛选+确认）、Simes 聚合、BH-FDR、Holm 步降、OFDR 控制、Dte/Dtu |
 | **EBSeq** | EBSeq | 经验贝叶斯差异表达、负二项模型、PPDE 后验概率、Laplace 近似边际似然、Stirling lgamma 近似 |
 | **RankProd 3.28.0** | RankProd | 秩积/秩和差异表达：全配对或随机配对（k1×k2 组间样本配对逐对排名）、几何均值 RP / 算术均值 RS、Eisinga rankprodbounds 精确解析 p 值（上下界 + 几何均值插值，无需置换）与骰子和分布、pfp 预测假阳性百分比、R 式平均秩 RPrank/RSrank、topGene 显著表（cutoff/num.gene、pfp/pval、四位有效数字 prettyNum）、单类配对分析、NA 最小有效配对过滤、可复现 32 位 LCG 零重抽 |
+| **kallisto-lite 伪比对定量** | kallisto (Bray et al. 2016) | `kallisto_lite.mbt`：转录组 k-mer 索引（k-mer→兼容转录本集合）、伪比对等价类（read 全部 k-mer 兼容集合交集）、EM 分摊估计（α/有效长度权重迭代至收敛）、est_counts/TPM/有效长度输出 Salmon 风格 quant.sf、与 tximport 闭环 |
 | **MOFA2** | MOFA2 | 多组学因子分析 v2：稀疏贝叶斯因子模型、EM 算法、ARD 自动相关性确定、多视图数据整合（转录组/甲基化/蛋白质组等）、因子数自动推断 |
 
 ### 单细胞分析
@@ -514,6 +518,8 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **MutationalPatterns** | MutationalPatterns | 体细胞突变谱、96 通道矩阵、三核苷酸上下文、突变签名拟合 |
 | **maftools** | maftools | 癌症基因组学 MAF 解析、突变分类（SNV/Indel）、TMB 计算、突变谱、共现分析、oncoplot |
 | **LEfSe** | LEfSe | Kruskal-Wallis 检验、Wilcoxon 秩和检验、LDA 效应量（log10 类均值比）、双阈值过滤 |
+| **VDJ 免疫组库** | ImmunARCH / scirpy / Change-O | `vdj.mbt`：V(D)J germline 基因段指认（k-mer 种子对角线比对 + identity 阈值过滤）、IMGT 定义 CDR3 提取（V 区保守 Cys104 → J 区 Phe/Trp118）、productive 判定（框内 + 无终止密码子 + C 起始 F/W 结尾）、克隆型聚类（(cdr3_aa, v_family, j_family) 三元组 + 计数/频率）、多样性（Shannon/Simpson/Gini/clonality/D50）、TCRdist-lite（CDR3 氨基酸全局比对 + IMGT 化学相似组打分） |
+| **AIRR TSV** | AIRR MiAIRR / Change-O | `airr.mbt`：AIRR Rearrangement schema 核心列子集读写（sequence_id/locus/v_call/d_call/j_call/cdr3/cdr3_aa/productive/v_identity/j_identity/junction_length）、Immcantation Change-O 语义兼容、vdj.mbt 分析结果交换格式 |
 
 ### 可视化
 
@@ -682,6 +688,19 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **合并** | `gffutils_merge` | 同 seqid+类型+链、`start<=end+min_dist` 合并；合并项得新 ID（`<type>_<N>`）+ 保留首项属性 + 逗号合并 source |
 | **GFF→BED** | `gffutils_to_bed` / `_record_to_bed` | GFFFeature→BED 行（1-based 闭区间 → 0-based 半开区间坐标换算） |
 
+### 数据模型与工具链（第二、三阶段）
+
+| 模块 | 对应工具 | 功能说明 |
+| :--- | :--- | :--- |
+| **cooler 接触矩阵** | cooler / HiGlass 生态 | `cooler.mbt`：Hi-C 接触矩阵内存数据模型（bin 网格/像素聚合/ICE 平衡/多分辨率粗化 mcool/HiCDC 衔接），持久化 JSON（生态无 HDF5），CSV/JSON 导入导出互操作 |
+| **parquet 列存** | Apache parquet | `parquet.mbt`：列式存储内存模型与读取语义（行组/列块/统计元数据、min-max 谓词下推跳行组 `groups_skipped` 可断言、投影下推、字典编码、JSON 往返） |
+| **bppar 并行调度** | BiocParallel（语义层） | `bppar.mbt`：无原生线程下的确定性并行语义——LPT 贪心负载均衡调度、DAG 依赖调度（就绪集 + 关键路径时间线）、fail-fast/carry-on 错误传播（skipped 任务不占负载与时间线）、并行可复现 RNG 子流（SplitMix64 黄金比例乘子跳跃） |
+| **MHC 结合预测** | netMHCpan 锚规则（筛查级） | `mhc.mbt`：MHC-I/II 教科书级等位基因锚定残基规则（P2/P9 等锚位置偏好）半定量打分、新抗原候选筛查；明确定位筛查工具而非 netMHCpan 精度替代（其神经网络权重未公开） |
+| **GATK-lite 变异检出** | GATK HaplotypeCaller | `gatk_lite.mbt`：逐位点 pileup + 二倍体 genotype likelihood（GQ=−10·log10 P(non-best)）、active region 错配密度窗口 + 多数投票共识组装 haplotype、SNP/插入/缺失等位重分摊、VCF 4.2 输出与 parse_vcf 闭环 |
+| **MultiQC-lite 聚合报告** | MultiQC | `multiqc_lite.mbt`：模块化采集（MultiqcModule 样本→指标键值）、样本×指标矩阵仪表盘（方向感知最优/最差单元格着色）、单页 HTML（CSS 内嵌）/JSON/Markdown 三输出、内置 fqqc/kallisto-lite/gatk-lite 采集器 |
+| **minimap-lite 长读比对** | minimap2（map-ont/map-pb/map-sr） | `minimap.mbt`：minimizer 提取（窗口最小 k-mer hash）→ 参考索引 → 种子查找 → 链化 DP（gap/skip 约束）→ banded Smith-Waterman 基级比对、三种预设参数 |
+| **medaka-lite 长读变异** | medaka（高错误率共识） | `medaka_lite.mbt`：ONT ~10% 一致性错误模型、逐位点多数投票 + 长读自适应基因型似然、active region 扫描 + indel 事件多数投票、与 minimap map-ont 组合"长读比对→变异检出"本地闭环、复用 GatkVariant/VCF 栈 |
+
 ### 基因组工程与高级分析（第四阶段 F1-F7）
 
 | 模块 | 对应工具 | 功能说明 |
@@ -713,6 +732,7 @@ IvanAXu/BioSeqs/
 │   ├── gds.mbt / snprelate.mbt / genomic_scores.mbt / splatter.mbt # SeqArray GDS 容器 / SNPRelate 亲缘分析 / GenomicScores / splatter 模拟
 │   ├── de_bruijn.mbt / suffix_array_tree.mbt / olc.mbt / bwt_fm.mbt # 序列组装四大算法
 │   ├── crispr.mbt / gwas_plot.mbt / fusion.mbt / motif_discovery.mbt / wnn.mbt / fba_lite.mbt / genome3d.mbt # 第四阶段: CRISPR 设计/GWAS 可视化/融合基因/motif 发现/WNN 整合/FBA 代谢/3D 基因组
+│   ├── poa.mbt / mmseqs.mbt / cooler.mbt / parquet.mbt / bppar.mbt / mhc.mbt / vdj.mbt / airr.mbt / kallisto_lite.mbt / gatk_lite.mbt / multiqc_lite.mbt / minimap.mbt / medaka_lite.mbt / structure_screening.mbt # 第二、三阶段: POA 图比对/蛋白搜索/cooler/parquet/并行调度/MHC/VDJ 组库/AIRR/kallisto/GATK/MultiQC/长读长/结构筛查
 │   ├── statistics.mbt / kmeans.mbt / hmm.mbt / neural_network.mbt / ... # ML 与统计
 │   └── utils.mbt / data.mbt / ...    # 通用工具与常量
 ├── examples/                         # 示例程序（536 个演示 demo）
@@ -769,6 +789,7 @@ IvanAXu/BioSeqs/
 │   ├── skallel_e2e_demo/          # scikit-allel 群体遗传（VCF→基因型/单倍型→iHS/nSL/LD/PCA + SFS/HW/Patterson Fst）
 │   ├── de_bruijn_demo/ / olc_demo/   # 序列组装算法
 │   ├── crispr_demo/ / gwas_plot_demo/ / fusion_demo/ / motif_discovery_demo/ / wnn_demo/ / fba_demo/ / genome3d_demo/ # 第四阶段 F1-F7（CRISPR 设计/GWAS 图/融合基因/motif 发现/WNN/FBA/3D 基因组）
+│   ├── poa_demo/ / mmseqs_demo/ / cooler_demo/ / parquet_demo/ / bppar_demo/ / mhc_demo/ / vdj_demo/ / kallisto_lite_demo/ / gatk_lite_demo/ / multiqc_lite_demo/ / longread_demo/ / structure_screening_demo/ # 第二、三阶段（POA/蛋白搜索/cooler/parquet/并行/MHC/VDJ/kallisto/GATK/MultiQC/长读长/结构筛查）
 │   └── ... （更多 examples/*_demo/）
 ├── test/
 │   ├── moonbit/                      # MoonBit 单元测试（703 个测试文件，16214 用例）
