@@ -212,6 +212,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **AlignAce / MEME / MAST / Transfac** | `Bio.Motifs.*` | AlignAce PFM 解析、MEME PSPM/E 值/背景、MAST p 值/E 值、TRANSFAC PFM/AC/ID/DE/BF/CC、序列化往返 |
 | **Motif Scan (FIMO)** | FIMO 风格 | PWM→PSSM log2 似然比、正反向互补扫描、动态规划 p 值卷积、匹配汇总 |
 | **Motif Matrix** | `Bio.motifs.matrix` | PFM/PPM/PWM/PSSM 统一矩阵抽象、PFM→PPM→PWM→PSSM 转换管线、信息含量（bits）、log-odds 打分、序列扫描、反向互补 PWM、共识序列 |
+| **Motif Discovery (de novo)** | MEME / AlignACE | de novo 模体发现（`motif_discovery.mbt`）：多起点 EM（OOPS/ZOOPS 语义、位点后验→加权 PWM 重估、双链搜索、伪计数平滑、似然收敛判定）+ Gibbs 采样（逐序列留一采样、确定性 RNG、多重启取最优 IC 解）、信息含量评分、consensus 与 per-site 定位打分、`DiscoveredMotif::to_motif` 与 `Bio.motifs` PWM/扫描/MEME 序列化栈闭环 |
 | **ClusterBuster** | `Bio.motifs.clusterbuster` | ClusterBuster 聚类 motif 格式解析：>cluster 头、motif 名、概率 PFM 行、多簇/多 motif 序列化往返、与 MotifPFM 互转、簇评分 |
 | **seqLogo** | Bioconductor seqLogo 风格 | PWM 构建、信息含量 IC、ASCII 艺术 logo 渲染、一致性序列、自定义背景频率 |
 | **Prosite** | `Bio.Prosite` | Prosite 模体数据库搜索、模式解析、匹配算法、得分计算 |
@@ -421,6 +422,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **Harmony** | Harmony | 快速迭代批量校正：软 k-means 聚类、线性批量校正、收敛性检测、融合度指标、多轮聚类-校正交替 |
 | **scMerge** | scMerge | RUV4 单细胞批量校正：稳定表达基因 (SEG) 选择、RUV 去除非期望变异、随机 SVD 因子估计、多批次数据整合 |
 | **splatter** | splatter | splat 单细胞计数模拟：gamma 基因基础均值、log-normal 文库大小因子、trended BCV 分散、负二项计数（Poisson-gamma 混合）、分组差异表达（log 空间 DE 因子）、log-normal 批次效应、logistic dropout（log10 均值中点 + 斜率）、pseudotime 路径（路径基因偏移 + 进度调制）、确定性 LCG/Box-Muller/Marsaglia-Tsang RNG 流、SplatParams 参数体系（default/create） |
+| **WNN 多模态整合** | Seurat v4 WNN (Hao et al. 2021) | 加权最近邻多模态整合（`wnn.mbt`）：各模态 KNN 图（欧氏 k 近邻 + 高斯核加权 SparseGraph）、细胞级模态权重（跨模态邻域一致性 → 温度软化 + 模态图邻域平滑，w_A+w_B=1 归一化）、联合加权图 J=w_A·A+w_B·B 再对称化、`WnnResult::cluster` 接 leiden 聚类闭环、权重 summary 与归一化校验 |
 | **scDblFinder / decontX / celda / milo 等容器接入** | 所有上面模块 | 统一 SingleCellExperiment 不可变写回与跨模块集成 |
 
 ### 空间转录组
@@ -680,6 +682,16 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **合并** | `gffutils_merge` | 同 seqid+类型+链、`start<=end+min_dist` 合并；合并项得新 ID（`<type>_<N>`）+ 保留首项属性 + 逗号合并 source |
 | **GFF→BED** | `gffutils_to_bed` / `_record_to_bed` | GFFFeature→BED 行（1-based 闭区间 → 0-based 半开区间坐标换算） |
 
+### 基因组工程与高级分析（第四阶段 F1-F7）
+
+| 模块 | 对应工具 | 功能说明 |
+| :--- | :--- | :--- |
+| **CRISPR gRNA 设计器** | CRISPOR / CHOPCHOP / Doench 2016 | `crispr.mbt`：SpCas9(NGG)/SpG(SGG)/Cas12a(TTTV) 三种 PAM 双链扫描（反向互补侧 CCN）、on-target Rule Set 2 简化打分（位置依赖碱基系数 + GC 区间 + 均聚物/TTTT 终止信号惩罚）、FM-index 全基因组 ≤3 错配脱靶评估（MIT 风格位点得分聚合为 guide 特异性分）、`crispr_design_guides` 候选 JSON 输出按总分降序 |
+| **GWAS 可视化** | qqman / CMplot | `gwas_plot.mbt`：Manhattan（染色体交替着色散点、全基因组显著/suggestive 双线）、QQ plot（观测 vs 期望 -log10 p 分位数配对 + 置信带）、λGC 膨胀因子（χ²median/0.4549）与解读文案、内嵌 SVG 渲染（`gwas_manhattan_svg`/`gwas_qq_svg`）输出独立可打开 .svg |
+| **融合基因 caller** | STAR-Fusion / Arriba | `fusion.mbt`：SAM SA 标签 split-read 断点提取（pos + CIGAR M/D 段和近似断点）、(chromA, chromB) 有序对内断点邻近聚类（bp 容差）、支持读数阈值候选判定、同链 read-through 过滤、`fusion_write_tsv`/`fusion_write_bedpe` 输出与 bedpe.mbt 闭环 |
+| **FBA 代谢通量平衡** | cobrapy (cobra-lite) | `fba_lite.mbt`：化学计量模型（S 矩阵 + 反应上下界）、稳态约束 S·v=0 下最大化 biomass、两阶段单纯形 LP 求解（Bland 规则防循环、双向反应 v=base+x⁺−x⁻ 非负拆分）、`fba_knockout`/`fba_knockout_screen` 基因敲除表型筛查、模型 JSON 交换格式 IO |
+| **3D 基因组建模** | ShRec3D / 3DMax | `genome3d.mbt`：Hi-C 接触矩阵倒数变换距离（d=1/contact，零接触取 d_max）、经典 MDS（距离平方双中心化 B=−0.5·J·D²·J + Jacobi 特征分解取前 3 维 X=V·Λ^0.5）、应力质量评估（恢复距离与目标距离 Pearson 相关）、`Genome3dModel::to_pdb` ATOM 记录输出与结构栈（tm_score/cealign/dssp）闭环 |
+
 ## 架构设计
 
 ### 项目结构
@@ -700,6 +712,7 @@ IvanAXu/BioSeqs/
 │   ├── deseq2.mbt / edger.mbt / limma.mbt / rankprod.mbt / geneset_tests.mbt / seurat.mbt / ... # Bioconductor 分析套件
 │   ├── gds.mbt / snprelate.mbt / genomic_scores.mbt / splatter.mbt # SeqArray GDS 容器 / SNPRelate 亲缘分析 / GenomicScores / splatter 模拟
 │   ├── de_bruijn.mbt / suffix_array_tree.mbt / olc.mbt / bwt_fm.mbt # 序列组装四大算法
+│   ├── crispr.mbt / gwas_plot.mbt / fusion.mbt / motif_discovery.mbt / wnn.mbt / fba_lite.mbt / genome3d.mbt # 第四阶段: CRISPR 设计/GWAS 可视化/融合基因/motif 发现/WNN 整合/FBA 代谢/3D 基因组
 │   ├── statistics.mbt / kmeans.mbt / hmm.mbt / neural_network.mbt / ... # ML 与统计
 │   └── utils.mbt / data.mbt / ...    # 通用工具与常量
 ├── examples/                         # 示例程序（536 个演示 demo）
@@ -755,6 +768,7 @@ IvanAXu/BioSeqs/
 │   ├── scanpy_e2e_demo/            # scanpy 单细胞流水线（read_10x_mtx→normalize→log1p→pca→neighbors→louvain/leiden→diffmap/dpt→umap→paga）
 │   ├── skallel_e2e_demo/          # scikit-allel 群体遗传（VCF→基因型/单倍型→iHS/nSL/LD/PCA + SFS/HW/Patterson Fst）
 │   ├── de_bruijn_demo/ / olc_demo/   # 序列组装算法
+│   ├── crispr_demo/ / gwas_plot_demo/ / fusion_demo/ / motif_discovery_demo/ / wnn_demo/ / fba_demo/ / genome3d_demo/ # 第四阶段 F1-F7（CRISPR 设计/GWAS 图/融合基因/motif 发现/WNN/FBA/3D 基因组）
 │   └── ... （更多 examples/*_demo/）
 ├── test/
 │   ├── moonbit/                      # MoonBit 单元测试（703 个测试文件，16214 用例）
