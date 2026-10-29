@@ -718,6 +718,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **UMI 分子标签处理** | umi_tools / fgbio | `umi.mbt`：从 read header 提取 UMI（下划线后缀、# 分隔、Illumina 冒号、竖线分隔四种约定，忽略 description）、5' 端 UMI 碱基同步剪除序列与 Phred 质量、按 (UMI, chrom, pos, strand) 分组为 read family、directional 纠错（同 locus 内编辑距离 <=1 的低频 UMI 并入高频代表）、质量加权逐位多数投票共识（平票固定顺序、结果可复现）、family 统计与 JSON 输出 |
 | **密码子优化器** | DNAchisel / codon-optimization | `codon_optimizer.mbt`：蛋白序列按 NCBI 密码子表反向翻译；同义密码子按宿主 CAI 权重加权，稀疏 DP 在保证 motif/均聚物/CpG 局部合法的前提下最小化 -ln(权重)；支持常用限制酶位点自动加入禁止列表（复用 `bio_restriction` 1088 酶库，IUPAC 正反链匹配）、全序列 GC 区间局部修复、终止密码子与 X 残基处理；输出 GC/CAI/最长均聚物/禁止 motif 命中报告 |
 | **本地读段模拟器** | wgsim / ART | `read_simulator.mbt`：参考序列生成单端/双端 FASTQ；目标覆盖度、读长、插入片段正态分布、逐碱基 Phred 质量模型（3' 端衰减 + 噪声）、碱基错误与 SNP/indel 变异注入、adapter 3' 污染；同种子输出完全可复现，便于与 BWA-lite/minimap-lite/GATK-lite 做端到端闭环验证 |
+| **变异检出基准评估** | vcfeval / hap.py | `variant_benchmark.mbt`：VCF 记录归一化（拆分多等位 + 去除 REF/ALT 公共前后缀并修正坐标）、(chrom, pos, ref, alt) 键匹配，输出总体与按变异类型（SNP/Indel/MNV）的 TP/FP/FN、Precision/Recall/F1、基因型 alt 剂量不一致计数；支持 pass_only 过滤、按 QUAL 阈值生成 PR 曲线数据点与 JSON 报告 |
 
 ## 架构设计
 
@@ -726,7 +727,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 ```
 IvanAXu/BioSeqs/
 ├── moon.mod                          # 模块配置 (name="IvanAXu/BioSeqs", version=0.1.24)
-├── src/                              # 源代码（705 个 .mbt 模块）
+├── src/                              # 源代码（706 个 .mbt 模块）
 │   ├── seq.mbt                       # Bio.Seq 序列对象
 │   ├── seqio.mbt / fasta_io.mbt / ... # 序列 I/O（30+ 种格式）
 │   ├── alignment.mbt / align_*.mbt   # 比对算法 + 20+ 种比对格式严格 API
@@ -743,7 +744,7 @@ IvanAXu/BioSeqs/
 │   ├── poa.mbt / mmseqs.mbt / cooler.mbt / parquet.mbt / bppar.mbt / mhc.mbt / vdj.mbt / airr.mbt / kallisto_lite.mbt / gatk_lite.mbt / multiqc_lite.mbt / minimap.mbt / medaka_lite.mbt / structure_screening.mbt # 第二、三阶段: POA 图比对/蛋白搜索/cooler/parquet/并行调度/MHC/VDJ 组库/AIRR/kallisto/GATK/MultiQC/长读长/结构筛查
 │   ├── statistics.mbt / kmeans.mbt / hmm.mbt / neural_network.mbt / ... # ML 与统计
 │   └── utils.mbt / data.mbt / ...    # 通用工具与常量
-├── examples/                         # 示例程序（539 个演示 demo）
+├── examples/                         # 示例程序（540 个演示 demo）
 │   ├── basic_seq/                    # 基础序列操作
 │   ├── seqcode_demo/ / seq_utils_demo/ # SeqUtils 序列工具（gc_fraction/GC123/nt_search/六框翻译/seq3/seq1）
 │   ├── codon_utils_demo/               # CodonUtils 密码子分析（NCBI 27 表/GC123/六框翻译/CAI/Nc Wright 1990/表元数据）
@@ -800,7 +801,7 @@ IvanAXu/BioSeqs/
 │   ├── poa_demo/ / mmseqs_demo/ / cooler_demo/ / parquet_demo/ / bppar_demo/ / mhc_demo/ / vdj_demo/ / kallisto_lite_demo/ / gatk_lite_demo/ / multiqc_lite_demo/ / longread_demo/ / structure_screening_demo/ # 第二、三阶段（POA/蛋白搜索/cooler/parquet/并行/MHC/VDJ/kallisto/GATK/MultiQC/长读长/结构筛查）
 │   └── ... （更多 examples/*_demo/）
 ├── test/
-│   ├── moonbit/                      # MoonBit 单元测试（706 个测试文件，16242 用例）
+│   ├── moonbit/                      # MoonBit 单元测试（707 个测试文件，16247 用例）
 │   │   ├── bio_seq_test.mbt / seqio_wb_test.mbt / ...
 │   │   ├── alignment_test.mbt / pdb_test.mbt / phylo_test.mbt / ...
 │   │   ├── deseq2_test.mbt / rankprod_test.mbt / seurat_test.mbt / scran_test.mbt / ...
@@ -837,7 +838,7 @@ IvanAXu/BioSeqs/
 
 ```bash
 moon build                                              # ✅ 成功
-moon test                                               # ✅ 16242 个测试全部通过（test/moonbit 包）
+moon test                                               # ✅ 16247 个测试全部通过（test/moonbit 包）
 ```
 
 ---
@@ -846,7 +847,7 @@ moon test                                               # ✅ 16242 个测试全
 
 ```bash
 moon build      # 构建项目
-moon test       # 运行全部测试 (16242 个测试用例，test/moonbit 包)
+moon test       # 运行全部测试 (16247 个测试用例，test/moonbit 包)
 ```
 
 ---
