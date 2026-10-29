@@ -726,3 +726,131 @@ pub fn minimap_align_batch(
   }
   buf.to_string()
 }
+
+// ============================================================================
+// 预设参数(对齐 minimap2 -x preset 语义)
+// ============================================================================
+
+///|
+/// 比对预设: map-ont(低噪声 ONT) / map-pb(HiFi) / map-sr(短读).
+pub(all) enum MinimapPreset {
+  MapOnt
+  MapPb
+  MapSr
+} derive(Eq, Debug)
+
+///|
+pub extend MinimapPreset with Eq::{equal, not_equal}
+
+///|
+pub extend MinimapPreset with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+/// 预设显示名.
+pub fn MinimapPreset::to_string(self : MinimapPreset) -> String {
+  match self {
+    MapOnt => "map-ont"
+    MapPb => "map-pb"
+    MapSr => "map-sr"
+  }
+}
+
+///|
+/// 预设参数: (k, w, band_width, chain_max_skip).
+/// - map-ont: k=15 粗 k-mer + 宽带(高 indel 噪声容忍)
+/// - map-pb: k=19 HiFi 高精度
+/// - map-sr: k=21 短读
+pub fn MinimapPreset::params(
+  self : MinimapPreset,
+) -> (Int32, Int32, Int32, Int32) {
+  match self {
+    MapOnt => (15, 10, 150, 40)
+    MapPb => (19, 10, 100, 25)
+    MapSr => (21, 10, 75, 15)
+  }
+}
+
+///|
+/// 按预设构建索引.
+pub fn minimap_index_build_preset(
+  refs : Array[MinimapRefSeq],
+  preset : MinimapPreset,
+) -> MinimapIndex {
+  let (k, w, _, _) = preset.params()
+  minimap_index_build(refs, k, w)
+}
+
+///|
+/// 按预设比对(预设决定带宽与锚点容忍).
+pub fn minimap_align_preset(
+  index : MinimapIndex,
+  query : String,
+  query_name : String,
+  preset : MinimapPreset,
+) -> Array[MinimapResult] {
+  let (_, _, band, chain_skip) = preset.params()
+  let seeds = minimap_seed(index, query)
+  let chains = minimap_chain(seeds, chain_skip, 1)
+  let results : Array[MinimapResult] = Array(capacity=0)
+  for chain in chains {
+    let ref_seq = index.refs[chain.r_seq_id].seq
+    let ref_name = index.refs[chain.r_seq_id].name
+    let r_pad = index.k * 2
+    let r_start = if chain.r_start - r_pad < 0 {
+      0
+    } else {
+      chain.r_start - r_pad
+    }
+    let r_end = if chain.r_end + r_pad > ref_seq.length() {
+      ref_seq.length()
+    } else {
+      chain.r_end + r_pad
+    }
+    let q_pad = index.k * 2
+    let q_start = if chain.q_start - q_pad < 0 {
+      0
+    } else {
+      chain.q_start - q_pad
+    }
+    let q_end = if chain.q_end + q_pad > query.length() {
+      query.length()
+    } else {
+      chain.q_end + q_pad
+    }
+    let ref_region = ref_seq[r_start:r_end].to_owned()
+    let query_region = if chain.strand == 0 {
+      query[q_start:q_end].to_owned()
+    } else {
+      reverse_complement(query[q_start:q_end].to_owned())
+    }
+    let aln = banded_sw(ref_region, query_region, band, 2, 1, 1)
+    if aln.score > 0 {
+      results.push({
+        query_name,
+        ref_name,
+        ref_start: r_start + aln.r_start,
+        ref_end: r_start + aln.r_end,
+        query_start: q_start + aln.q_start,
+        query_end: q_start + aln.q_end,
+        strand: chain.strand,
+        score: aln.score,
+        cigar: aln.cigar,
+        nm: aln.nm,
+        mapq: compute_mapq(aln.score, chains.length()),
+      })
+    }
+  }
+  results.sort_by(fn(a, b) {
+    if a.score > b.score {
+      -1
+    } else if a.score < b.score {
+      1
+    } else {
+      0
+    }
+  })
+  if results.length() > 5 {
+    results.truncate(5)
+  }
+  results
+}
