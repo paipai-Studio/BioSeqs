@@ -717,20 +717,20 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | 模块 | 对应工具 | 功能说明 |
 | :--- | :--- | :--- |
 | **UMI 分子标签处理** | umi_tools / fgbio | `umi.mbt`：从 read header 提取 UMI（下划线后缀、# 分隔、Illumina 冒号、竖线分隔四种约定，忽略 description）、5' 端 UMI 碱基同步剪除序列与 Phred 质量、按 (UMI, chrom, pos, strand) 分组为 read family、directional 纠错（同 locus 内编辑距离 <=1 的低频 UMI 并入高频代表）、质量加权逐位多数投票共识（平票固定顺序、结果可复现）、family 统计与 JSON 输出 |
-| **密码子优化器** | DNAchisel / codon-optimization | `codon_optimizer.mbt`：蛋白序列按 NCBI 密码子表反向翻译；同义密码子按宿主 CAI 权重加权，稀疏 DP 在保证 motif/均聚物/CpG 局部合法的前提下最小化 -ln(权重)；支持常用限制酶位点自动加入禁止列表（复用 `bio_restriction` 1088 酶库，IUPAC 正反链匹配）、全序列 GC 区间局部修复、终止密码子与 X 残基处理；输出 GC/CAI/最长均聚物/禁止 motif 命中报告 |
+| **密码子优化器** | DNAchisel / codon-optimization | `codon_optimizer.mbt`：蛋白序列按 NCBI 密码子表反向翻译；同义密码子按宿主 CAI 权重加权，稀疏 DP 在保证 motif/均聚物/CpG（含跨密码子边界）局部合法的前提下最小化 -ln(权重)；支持常用限制酶位点自动加入禁止列表（复用 `bio_restriction` 1088 酶库，IUPAC 正反链匹配）、全序列 GC 区间局部修复（修复过程同样保持 motif/均聚物/CpG 约束）、终止密码子与 X 残基处理；输出 GC/CAI/最长均聚物/禁止 motif 命中报告 |
 | **本地读段模拟器** | wgsim / ART | `read_simulator.mbt`：参考序列生成单端/双端 FASTQ；目标覆盖度、读长、插入片段正态分布、逐碱基 Phred 质量模型（3' 端衰减 + 噪声）、碱基错误与 SNP/indel 变异注入、adapter 3' 污染；同种子输出完全可复现，便于与 BWA-lite/minimap-lite/GATK-lite 做端到端闭环验证 |
 | **变异检出基准评估** | vcfeval / hap.py | `variant_benchmark.mbt`：VCF 记录归一化（拆分多等位 + 去除 REF/ALT 公共前后缀并修正坐标）、(chrom, pos, ref, alt) 键匹配，输出总体与按变异类型（SNP/Indel/MNV）的 TP/FP/FN、Precision/Recall/F1、基因型 alt 剂量不一致计数；支持 pass_only 过滤、按 QUAL 阈值生成 PR 曲线数据点与 JSON 报告 |
 | **TreeTime-lite 分子钟** | TreeTime | `phylo_clock.mbt`：root-to-tip 最小二乘回归（替换速率/根日期/R²/逐叶残差）、按速率换算的时间树节点日期、Jukes-Cantor + Felsenstein 剪枝逐位点边际后验、节点共识序列与置信度、JSON 输出 |
-| **Kraken/Bracken-lite 宏基因组丰度** | Kraken 2 / Bracken | `kraken_lite.mbt`：参考基因组去重 k-mer 建库并标注多基因组命中 k-mer 的最小共同祖先(LCA)、读段沿分类树选择累计支持度最高路径分类、Kraken 风格属/种级累计计数报告、Bracken 风格按子树 k-mer 支持度将属级读段重分摊到种、JSON/TSV 输出 |
+| **Kraken/Bracken-lite 宏基因组丰度** | Kraken 2 / Bracken | `kraken_lite.mbt`：参考基因组去重规范 k-mer 建库（正链与反向互补取字典序较小者，索引与链方向无关）并标注多基因组命中 k-mer 的最小共同祖先(LCA)、读段沿分类树选择累计支持度最高路径分类、Kraken 风格属/种级累计计数报告、Bracken 风格按子树 k-mer 支持度将属级读段重分摊到种、JSON/TSV 输出 |
 
 ### 变异定相与基因型质控（第七阶段 H1-H6）
 
 | 模块 | 对应工具 | 功能说明 |
 | :--- | :--- | :--- |
 | **读段定相(read-backed phasing)** | WhatsHap / SHAPEIT | `phase_lite.mbt`：按 CIGAR 将读段碱基投影到参考坐标，用跨多个杂合 SNP 的读段构建"同相/反相"异或约束图，BFS 传播相位并输出 phased GT、单倍型块编号与读段冲突率；支持 soft clip/插入/缺失的坐标投影，无读段支持的位点保持原 GT，JSON/TSV 输出 |
-| **组装图简化与共识抛光** | Bandage / racon | `assembly_graph.mbt`：GFA 图简化（containment 坍缩、短死端 tip 迭代裁剪、简单 bubble 检测并按分支支持度/长度解析）与 racon-lite 参考导向共识抛光（k-mer 锚定读段到参考坐标、半全局比对、逐位点多数投票采纳替换/删除/插入），附简化统计与抛光结果 JSON 输出 |
+| **组装图简化与共识抛光** | Bandage / racon | `assembly_graph.mbt`：GFA 图简化（containment 坍缩、短死端 tip 迭代裁剪、简单 bubble 检测并按分支支持度/长度解析）与 racon-lite 参考导向共识抛光（k-mer 锚定读段到参考坐标、半全局比对、逐位点多数投票采纳替换/删除/插入；非 ACGT 读段碱基（如 N）不投票、参考 N 位点保守保留），附简化统计与抛光结果 JSON 输出 |
 | **宏基因组定量增强** | Kraken 2 (minimizer) / Bracken | `kraken_lite.mbt` 增强：minimizer 窗口建库（每个连续 k-mer 窗口只保留散列最小的规范 k-mer，显著压缩数据库体积）、数据库 JSON 序列化/还原、Kraken 风格 HTML/SVG 丰度报告、`multiqc_collect_kraken` 采集器接入 MultiQC 聚合报告 |
-| **gVCF 联合基因分型** | GATK GenomicsDBImport / GenotypeGVCFs | `gvcf.mbt`：单样本 gVCF 参考块表示（变异记录 + END 压缩的纯合参考块）、多样本合并（变异位点并集，未被变异覆盖但落在参考块内的样本判为 0/0）、联合基因分型（按各样本 PL 重选最优 GT 并重算 GQ）、多样本 VCF 4.2 输出与 JSON 往返 |
+| **gVCF 联合基因分型** | GATK GenomicsDBImport / GenotypeGVCFs | `gvcf.mbt`：单样本 gVCF 参考块表示（变异记录 + END 压缩的纯合参考块）、多样本合并（变异位点并集，各样本 GT/PL 等位索引按其原 ALT 顺序重映射到合并后 ALT 顺序，等位数一致时 PL 双射重排、否则按 VCF 规范置缺失；未被变异覆盖但落在参考块内的样本判为 0/0）、联合基因分型（按各样本 PL 重选最优 GT 并重算 GQ，支持多等位 PL 布局）、多样本 VCF 4.2 输出与 JSON 往返 |
 | **家系与基因型一致性 QC** | PLINK --mendel / GATK CalculateGenotypePosteriors | `pedigree_qc.mbt`：.fam 家谱解析与核心家系提取（含编号唯一/父母引用校验）、逐位点孟德尔错误检测、样本间基因型一致性统计、ROH 纯合区段检测（最大间隔/最小标记数）、JSON 汇总；与 `snprelate.mbt` 的 KING 亲缘分析互补 |
 | **GWAS 回归关联闭环** | PLINK --glm / GAPIT | `gwas_regression.mbt`：逐变异位点逻辑/线性回归（GLM IRLS + Wald 检验）估算效应量与 p 值、PCA 群体分层协变量（复用 `skallel_pca`）、λGC 与全基因组显著位点汇总、结果 TSV/JSON 导出，并直接衔接 `gwas_plot.mbt` 的 Manhattan/QQ 数据层与 SVG |
 
