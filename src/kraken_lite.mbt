@@ -368,7 +368,8 @@ fn kraken_build_inner(
     let kmers = if w > 0 {
       kraken_extract_minimizers(reference.sequence, k, w)
     } else {
-      kraken_extract_kmers(reference.sequence, k)
+      // 与 minimizer 路径一致使用规范 k-mer, 保证索引与链方向无关.
+      kraken_extract_canonical_kmers(reference.sequence, k)
     }
     for kmer in kmers {
       if !seen.contains(kmer) {
@@ -414,7 +415,7 @@ fn kraken_build_inner(
 }
 
 ///|
-/// 精确 k-mer 建库(k-mer -> LCA), 保留全部 k-mer.
+/// 精确 k-mer 建库(规范 k-mer -> LCA), 保留全部规范 k-mer.
 pub fn kraken_build_database(
   k : Int32,
   taxa : Array[KrakenTaxon],
@@ -442,6 +443,9 @@ pub fn kraken_build_database_minimizer(
 
 ///|
 /// 查询某 k-mer 的 LCA 分类单元.
+///
+/// 键为规范 k-mer(正链与其反向互补中字典序较小者):
+/// 非回文 k-mer 需先经 `kraken_canonical_kmer` 规范化再查询.
 pub fn kraken_lookup_kmer(db : KrakenDatabase, kmer : String) -> String? {
   match db.kmer_lca.get(kmer) {
     Some(taxid) => Some(taxid)
@@ -534,7 +538,8 @@ pub fn kraken_classify(
   let kmers = if db.minimizer_w > 0 {
     kraken_extract_minimizers(sequence, db.k, db.minimizer_w)
   } else {
-    kraken_extract_kmers(sequence, db.k)
+    // 精确模式同样按规范 k-mer 查询(与建库一致), 反向互补链读段可命中.
+    kraken_extract_canonical_kmers(sequence, db.k)
   }
   let total_kmers = kmers.length()
   if total_kmers == 0 {

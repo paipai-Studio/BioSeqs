@@ -18,7 +18,7 @@ fn kraken_test_taxa() -> Array[@src.KrakenTaxon] {
 fn kraken_test_references() -> Array[@src.KrakenReference] {
   [
     @src.kraken_reference_new("11", "ACGTAACCGGTT"),
-    @src.kraken_reference_new("12", "ACGTAACCGGAA"),
+    @src.kraken_reference_new("12", "ACGTAATTTTCCAA"),
     @src.kraken_reference_new("21", "TTTTGGGGCCCCAAAA"),
   ]
 }
@@ -36,7 +36,7 @@ fn kraken_test_reads() -> Map[String, String] {
     ("r1", "ACGTAACCGGTT"),
     ("r2", "ACGTAACCGGTT"),
     ("r3", "ACGTAACCGGTT"),
-    ("r4", "ACGTAACCGG"),
+    ("r4", "ACGTAA"),
     ("r5", "TTTTGGGGCCCCAAAA"),
     ("r6", "TTTTGGGGCCCCAAAA"),
   ])
@@ -50,22 +50,24 @@ test "kraken_build_indexes_kmer_lca" {
   // 两个物种共有的 k-mer -> 属级 LCA.
   assert_eq(@src.kraken_lookup_kmer(db, "ACGTA"), Some("10"))
   assert_eq(@src.kraken_lookup_kmer(db, "CGTAA"), Some("10"))
-  // 物种特异的 k-mer -> 种级.
-  assert_eq(@src.kraken_lookup_kmer(db, "CCGGT"), Some("11"))
-  assert_eq(@src.kraken_lookup_kmer(db, "CGGAA"), Some("12"))
-  assert_eq(@src.kraken_lookup_kmer(db, "TTTTG"), Some("21"))
+  // 物种特异的 k-mer -> 种级(数据库键为规范 k-mer).
+  assert_eq(@src.kraken_lookup_kmer(db, "ACCGG"), Some("11"))
+  assert_eq(@src.kraken_lookup_kmer(db, "AAATT"), Some("12"))
+  assert_eq(@src.kraken_lookup_kmer(db, "CAAAA"), Some("21"))
   assert_eq(@src.kraken_lookup_kmer(db, "AAAAA"), None)
+  // 非规范形式的键(如 TTTTG 的规范形为 CAAAA)不在索引中.
+  assert_eq(@src.kraken_lookup_kmer(db, "TTTTG"), None)
 }
 
 ///|
 test "kraken_build_computes_subtree_support" {
   let db = kraken_test_database()
-  assert_eq(@src.kraken_kmer_support(db, "11"), 2)
-  assert_eq(@src.kraken_kmer_support(db, "12"), 2)
-  assert_eq(@src.kraken_kmer_support(db, "21"), 12)
-  assert_eq(@src.kraken_kmer_support(db, "10"), 10)
-  assert_eq(@src.kraken_kmer_support(db, "20"), 12)
-  assert_eq(@src.kraken_kmer_support(db, "1"), 22)
+  assert_eq(@src.kraken_kmer_support(db, "11"), 4)
+  assert_eq(@src.kraken_kmer_support(db, "12"), 8)
+  assert_eq(@src.kraken_kmer_support(db, "21"), 6)
+  assert_eq(@src.kraken_kmer_support(db, "10"), 14)
+  assert_eq(@src.kraken_kmer_support(db, "20"), 6)
+  assert_eq(@src.kraken_kmer_support(db, "1"), 20)
 }
 
 ///|
@@ -82,7 +84,8 @@ test "kraken_classify_unique_read" {
 ///|
 test "kraken_classify_shared_read_stops_at_lca" {
   let db = kraken_test_database()
-  let result = @src.kraken_classify(db, "shared", "ACGTAACCGG")
+  // 只含两物种共享 k-mer 的读段 -> 属级 LCA.
+  let result = @src.kraken_classify(db, "shared", "ACGTAA")
   assert_eq(result.taxid, Some("10"))
   assert_eq(result.rank, "genus")
   assert_true(result.confidence > 0.999)
@@ -135,18 +138,37 @@ test "kraken_bracken_redistributes_genus_reads" {
   let results = @src.kraken_classify_many(db, kraken_test_reads())
   let species = @src.kraken_bracken(db, results, "species")
   assert_eq(species.length(), 3)
+  // 属级读段 r4 按子树 k-mer 支持度非对称分摊: 11:12 = 4:8.
   assert_eq(species[0].taxid, "11")
-  assert_true((species[0].count - 3.5).abs() < 1.0e-9)
+  assert_true((species[0].count - 10.0 / 3.0).abs() < 1.0e-9)
   assert_eq(species[1].taxid, "21")
   assert_true((species[1].count - 2.0).abs() < 1.0e-9)
   assert_eq(species[2].taxid, "12")
-  assert_true((species[2].count - 0.5).abs() < 1.0e-9)
+  assert_true((species[2].count - 2.0 / 3.0).abs() < 1.0e-9)
   // 重分摊后相对丰度总和为 1.
   let mut total = 0.0
   for entry in species {
     total = total + entry.relative_abundance
   }
   assert_true((total - 1.0).abs() < 1.0e-9)
+}
+
+///|
+test "kraken_classify_reverse_complement_read" {
+  // 精确模式: 反向互补链读段与正链读段应获得相同分类(索引与链方向无关).
+  let db = kraken_test_database()
+  let forward = @src.kraken_classify(db, "fwd", "ACGTAACCGGTT")
+  let reverse = @src.kraken_classify(db, "rc", "AACCGGTTACGT")
+  assert_eq(forward.taxid, Some("11"))
+  assert_eq(reverse.taxid, Some("11"))
+  assert_eq(reverse.rank, "species")
+  assert_eq(forward.hits, reverse.hits)
+  // minimizer 模式同样与链方向无关.
+  let db_mini = kraken_test_minimizer_database(4)
+  let forward_mini = @src.kraken_classify(db_mini, "fwd", "ACGTAACCGGTT")
+  let reverse_mini = @src.kraken_classify(db_mini, "rc", "AACCGGTTACGT")
+  assert_eq(forward_mini.taxid, reverse_mini.taxid)
+  assert_true(reverse_mini.taxid is Some(_))
 }
 
 ///|
