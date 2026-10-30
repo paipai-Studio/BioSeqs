@@ -730,6 +730,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **读段定相(read-backed phasing)** | WhatsHap / SHAPEIT | `phase_lite.mbt`：按 CIGAR 将读段碱基投影到参考坐标，用跨多个杂合 SNP 的读段构建"同相/反相"异或约束图，BFS 传播相位并输出 phased GT、单倍型块编号与读段冲突率；支持 soft clip/插入/缺失的坐标投影，无读段支持的位点保持原 GT，JSON/TSV 输出 |
 | **组装图简化与共识抛光** | Bandage / racon | `assembly_graph.mbt`：GFA 图简化（containment 坍缩、短死端 tip 迭代裁剪、简单 bubble 检测并按分支支持度/长度解析）与 racon-lite 参考导向共识抛光（k-mer 锚定读段到参考坐标、半全局比对、逐位点多数投票采纳替换/删除/插入），附简化统计与抛光结果 JSON 输出 |
 | **宏基因组定量增强** | Kraken 2 (minimizer) / Bracken | `kraken_lite.mbt` 增强：minimizer 窗口建库（每个连续 k-mer 窗口只保留散列最小的规范 k-mer，显著压缩数据库体积）、数据库 JSON 序列化/还原、Kraken 风格 HTML/SVG 丰度报告、`multiqc_collect_kraken` 采集器接入 MultiQC 聚合报告 |
+| **gVCF 联合基因分型** | GATK GenomicsDBImport / GenotypeGVCFs | `gvcf.mbt`：单样本 gVCF 参考块表示（变异记录 + END 压缩的纯合参考块）、多样本合并（变异位点并集，未被变异覆盖但落在参考块内的样本判为 0/0）、联合基因分型（按各样本 PL 重选最优 GT 并重算 GQ）、多样本 VCF 4.2 输出与 JSON 往返 |
 
 ## 架构设计
 
@@ -738,7 +739,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 ```
 IvanAXu/BioSeqs/
 ├── moon.mod                          # 模块配置 (name="IvanAXu/BioSeqs", version=0.1.24)
-├── src/                              # 源代码（710 个 .mbt 模块）
+├── src/                              # 源代码（711 个 .mbt 模块）
 │   ├── seq.mbt                       # Bio.Seq 序列对象
 │   ├── seqio.mbt / fasta_io.mbt / ... # 序列 I/O（30+ 种格式）
 │   ├── alignment.mbt / align_*.mbt   # 比对算法 + 20+ 种比对格式严格 API
@@ -754,10 +755,10 @@ IvanAXu/BioSeqs/
 │   ├── crispr.mbt / gwas_plot.mbt / fusion.mbt / motif_discovery.mbt / wnn.mbt / fba_lite.mbt / genome3d.mbt # 第四阶段: CRISPR 设计/GWAS 可视化/融合基因/motif 发现/WNN 整合/FBA 代谢/3D 基因组
 │   ├── poa.mbt / mmseqs.mbt / cooler.mbt / parquet.mbt / bppar.mbt / mhc.mbt / vdj.mbt / airr.mbt / kallisto_lite.mbt / gatk_lite.mbt / multiqc_lite.mbt / minimap.mbt / medaka_lite.mbt / structure_screening.mbt # 第二、三阶段: POA 图比对/蛋白搜索/cooler/parquet/并行调度/MHC/VDJ 组库/AIRR/kallisto/GATK/MultiQC/长读长/结构筛查
 │   ├── umi.mbt / codon_optimizer.mbt / read_simulator.mbt / variant_benchmark.mbt / phylo_clock.mbt / kraken_lite.mbt # 第五、六阶段: UMI/密码子优化/读段模拟/变异检出基准/分子钟/宏基因组丰度
-│   ├── phase_lite.mbt / assembly_graph.mbt # 第七阶段: 读段支持的 VCF 定相 / 组装图简化与共识抛光
+│   ├── phase_lite.mbt / assembly_graph.mbt / gvcf.mbt # 第七阶段: 读段支持的 VCF 定相 / 组装图简化与共识抛光 / gVCF 联合基因分型
 │   ├── statistics.mbt / kmeans.mbt / hmm.mbt / neural_network.mbt / ... # ML 与统计
 │   └── utils.mbt / data.mbt / ...    # 通用工具与常量
-├── examples/                         # 示例程序（544 个演示 demo）
+├── examples/                         # 示例程序（545 个演示 demo）
 │   ├── basic_seq/                    # 基础序列操作
 │   ├── seqcode_demo/ / seq_utils_demo/ # SeqUtils 序列工具（gc_fraction/GC123/nt_search/六框翻译/seq3/seq1）
 │   ├── codon_utils_demo/               # CodonUtils 密码子分析（NCBI 27 表/GC123/六框翻译/CAI/Nc Wright 1990/表元数据）
@@ -813,10 +814,10 @@ IvanAXu/BioSeqs/
 │   ├── crispr_demo/ / gwas_plot_demo/ / fusion_demo/ / motif_discovery_demo/ / wnn_demo/ / fba_demo/ / genome3d_demo/ # 第四阶段 F1-F7（CRISPR 设计/GWAS 图/融合基因/motif 发现/WNN/FBA/3D 基因组）
 │   ├── poa_demo/ / mmseqs_demo/ / cooler_demo/ / parquet_demo/ / bppar_demo/ / mhc_demo/ / vdj_demo/ / kallisto_lite_demo/ / gatk_lite_demo/ / multiqc_lite_demo/ / longread_demo/ / structure_screening_demo/ # 第二、三阶段（POA/蛋白搜索/cooler/parquet/并行/MHC/VDJ/kallisto/GATK/MultiQC/长读长/结构筛查）
 │   ├── umi_demo/ / codon_optimizer_demo/ / read_simulator_demo/ / variant_benchmark_demo/ / treetime_demo/ / kraken_lite_demo/ # 第五、六阶段（UMI/密码子优化/读段模拟/变异检出基准/分子钟/TreeTime/宏基因组丰度）
-│   ├── phase_demo/ / assembly_graph_demo/ # 第七阶段（读段定相 phased GT / 单倍型块；组装图简化与共识抛光）
+│   ├── phase_demo/ / assembly_graph_demo/ / gvcf_demo/ # 第七阶段（读段定相 phased GT / 单倍型块；组装图简化与共识抛光；gVCF 联合基因分型）
 │   └── ... （更多 examples/*_demo/）
 ├── test/
-│   ├── moonbit/                      # MoonBit 单元测试（711 个测试文件，16304 用例）
+│   ├── moonbit/                      # MoonBit 单元测试（712 个测试文件，16314 用例）
 │   │   ├── bio_seq_test.mbt / seqio_wb_test.mbt / ...
 │   │   ├── alignment_test.mbt / pdb_test.mbt / phylo_test.mbt / ...
 │   │   ├── deseq2_test.mbt / rankprod_test.mbt / seurat_test.mbt / scran_test.mbt / ...
@@ -853,7 +854,7 @@ IvanAXu/BioSeqs/
 
 ```bash
 moon build                                              # ✅ 成功
-moon test                                               # ✅ 16304 个测试全部通过（test/moonbit 包）
+moon test                                               # ✅ 16314 个测试全部通过（test/moonbit 包）
 ```
 
 ---
@@ -862,7 +863,7 @@ moon test                                               # ✅ 16304 个测试全
 
 ```bash
 moon build      # 构建项目
-moon test       # 运行全部测试 (16304 个测试用例，test/moonbit 包)
+moon test       # 运行全部测试 (16314 个测试用例，test/moonbit 包)
 ```
 
 ---
