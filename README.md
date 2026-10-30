@@ -161,6 +161,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **Phylo Applications** | `Bio.Phylo.Applications` / `Bio.Phylo.Applications._Fasttree` | 系统发育命令行包装：FastTree（-nt/-n/-quote 核苷酸、-boot 支持度、-gtr/-gamma/-spr/-mlnni/-wag/-pseudo）、PhyML（-d 数据类型、-m 替换模型、-b bootstrap、-c/-a/-s SPR、-o tlr、--rand_start/--n_rand_starts/--r_seed）、RAxML（-s/-n/-m 分区模型、-f a 快速 bootstrap、-x/-N 重采样、-q 分区、-t/-r/-g 起始/约束树、-T 线程、-o 外群、-w 工作目录） |
 | **treeio** | treeio | 系统发育树 I/O 统一框架：Newick 解析/序列化往返、Beast/MrBayes `&` 注释解析、jplace（placements+fields）、r8s 多树、phylip 顺序格式、树统计（节点/叶/内部计数）、二叉/有根检查、总枝长与最大深度 |
 | **tidytree** | tidytree | 系统发育树 tidy 操作：as_tibble 行式表达、offspring/child/parent/sibling/MRCA 拓扑查询、ancestors/tips/internal 节点过滤、node_depth/branch_length/dist_to_root/patristic_distance 距离、post_order/pre_order 遍历、filter_tips/filter_internal/select 子集、print 表格输出 |
+| **TreeTime-lite 分子钟** | TreeTime | 分子钟标定与祖先序列重建：root-to-tip 最小二乘回归（替换速率/根日期/R²/逐叶残差）、时间树节点日期推算、Jukes-Cantor + Felsenstein 剪枝逐位点边际后验、节点共识序列与置信度、JSON 输出 |
 
 ### PDB 结构分析
 
@@ -727,7 +728,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 ```
 IvanAXu/BioSeqs/
 ├── moon.mod                          # 模块配置 (name="IvanAXu/BioSeqs", version=0.1.24)
-├── src/                              # 源代码（706 个 .mbt 模块）
+├── src/                              # 源代码（707 个 .mbt 模块）
 │   ├── seq.mbt                       # Bio.Seq 序列对象
 │   ├── seqio.mbt / fasta_io.mbt / ... # 序列 I/O（30+ 种格式）
 │   ├── alignment.mbt / align_*.mbt   # 比对算法 + 20+ 种比对格式严格 API
@@ -744,7 +745,7 @@ IvanAXu/BioSeqs/
 │   ├── poa.mbt / mmseqs.mbt / cooler.mbt / parquet.mbt / bppar.mbt / mhc.mbt / vdj.mbt / airr.mbt / kallisto_lite.mbt / gatk_lite.mbt / multiqc_lite.mbt / minimap.mbt / medaka_lite.mbt / structure_screening.mbt # 第二、三阶段: POA 图比对/蛋白搜索/cooler/parquet/并行调度/MHC/VDJ 组库/AIRR/kallisto/GATK/MultiQC/长读长/结构筛查
 │   ├── statistics.mbt / kmeans.mbt / hmm.mbt / neural_network.mbt / ... # ML 与统计
 │   └── utils.mbt / data.mbt / ...    # 通用工具与常量
-├── examples/                         # 示例程序（540 个演示 demo）
+├── examples/                         # 示例程序（541 个演示 demo）
 │   ├── basic_seq/                    # 基础序列操作
 │   ├── seqcode_demo/ / seq_utils_demo/ # SeqUtils 序列工具（gc_fraction/GC123/nt_search/六框翻译/seq3/seq1）
 │   ├── codon_utils_demo/               # CodonUtils 密码子分析（NCBI 27 表/GC123/六框翻译/CAI/Nc Wright 1990/表元数据）
@@ -787,6 +788,7 @@ IvanAXu/BioSeqs/
 │   ├── tree_construction_demo/       # DistanceCalculator（identity/blastn/BLOSUM62 全模型距离 + UPGMA/NJ/WPGMA 建树）
 │   ├── parsimony_tree_demo/          # Bio.Phylo.TreeConstruction 最大简约（Fitch/Sankoff 打分、NNI 爬山、默认 identity-UPGMA 起始树、中点定根）
 │   ├── phylo_bootstrap_demo/         # Bio.Phylo.Consensus（strict/majority/Adam 共识树 + get_support 支持度 + 比对列 bootstrap）
+│   ├── treetime_demo/               # TreeTime-lite（root-to-tip 分子钟回归 + 时间树 + JC/Felsenstein 祖先状态重建）
 │   ├── propeller_demo/               # speckle propeller（细胞类型比例变换、moderated t/ANOVA、robust eBayes、normCounts、Beta 参数）
 │   ├── substitution_matrices_demo/   # 替换矩阵注册表与 30 个 Biopython 权威矩阵（IUPAC NUC.4.4/BLOSUM/PAM/密码子）
 │   ├── datastore_demo/               # Bio.Datastore（MD5/BagIt 清单/标签/fetch-through 缓存/校验）
@@ -801,7 +803,7 @@ IvanAXu/BioSeqs/
 │   ├── poa_demo/ / mmseqs_demo/ / cooler_demo/ / parquet_demo/ / bppar_demo/ / mhc_demo/ / vdj_demo/ / kallisto_lite_demo/ / gatk_lite_demo/ / multiqc_lite_demo/ / longread_demo/ / structure_screening_demo/ # 第二、三阶段（POA/蛋白搜索/cooler/parquet/并行/MHC/VDJ/kallisto/GATK/MultiQC/长读长/结构筛查）
 │   └── ... （更多 examples/*_demo/）
 ├── test/
-│   ├── moonbit/                      # MoonBit 单元测试（707 个测试文件，16247 用例）
+│   ├── moonbit/                      # MoonBit 单元测试（708 个测试文件，16256 用例）
 │   │   ├── bio_seq_test.mbt / seqio_wb_test.mbt / ...
 │   │   ├── alignment_test.mbt / pdb_test.mbt / phylo_test.mbt / ...
 │   │   ├── deseq2_test.mbt / rankprod_test.mbt / seurat_test.mbt / scran_test.mbt / ...
@@ -838,7 +840,7 @@ IvanAXu/BioSeqs/
 
 ```bash
 moon build                                              # ✅ 成功
-moon test                                               # ✅ 16247 个测试全部通过（test/moonbit 包）
+moon test                                               # ✅ 16256 个测试全部通过（test/moonbit 包）
 ```
 
 ---
@@ -847,7 +849,7 @@ moon test                                               # ✅ 16247 个测试全
 
 ```bash
 moon build      # 构建项目
-moon test       # 运行全部测试 (16247 个测试用例，test/moonbit 包)
+moon test       # 运行全部测试 (16256 个测试用例，test/moonbit 包)
 ```
 
 ---
