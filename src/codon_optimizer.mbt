@@ -328,16 +328,21 @@ fn codon_opt_select(
 }
 
 ///|
-/// DP 状态需要保留的末端长度(足够检测跨密码子 motif 与均聚物).
+/// DP 状态需要保留的末端长度(足够检测跨密码子 motif / 均聚物 / CpG).
 fn codon_opt_suffix_len(config : CodonOptimizerConfig) -> Int32 {
   let mut len = 0
-  if config.max_run > 1 {
-    len = config.max_run - 1
+  if config.max_run > 0 {
+    // 跨界均聚物 run 达 max_run+1 时, 左侧最多贡献 max_run 个碱基.
+    len = config.max_run
   }
   for motif in config.forbidden_motifs {
     if motif.length() - 1 > len {
       len = motif.length() - 1
     }
+  }
+  if config.avoid_cpg && len < 1 {
+    // 跨密码子 CpG(前缀末 C + 新密码子首 G)需要保留 1 个末端碱基.
+    len = 1
   }
   len
 }
@@ -469,7 +474,8 @@ pub fn codon_optimize(
     let need_up = gc < config.gc_min
     let need_down = gc > config.gc_max
     let has_violation = codon_opt_has_forbidden(dna, config.forbidden_motifs) ||
-      (config.max_run > 0 && codon_opt_max_homopolymer(dna) > config.max_run)
+      (config.max_run > 0 && codon_opt_max_homopolymer(dna) > config.max_run) ||
+      (config.avoid_cpg && codon_opt_has_cpg(dna))
     if !need_up && !need_down && !has_violation {
       break
     }
@@ -498,7 +504,8 @@ pub fn codon_optimize(
         }
         let viol_ok = !codon_opt_has_forbidden(trial, config.forbidden_motifs) &&
           !(config.max_run > 0 &&
-          codon_opt_max_homopolymer(trial) > config.max_run)
+          codon_opt_max_homopolymer(trial) > config.max_run) &&
+          !(config.avoid_cpg && codon_opt_has_cpg(trial))
         if gc_ok && viol_ok {
           codons[ci] = cand
           dna = trial

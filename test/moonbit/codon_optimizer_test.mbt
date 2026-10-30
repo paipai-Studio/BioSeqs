@@ -139,3 +139,34 @@ test "codon optimizer rejects unknown residues" {
   }
   assert_true(raised)
 }
+
+///|
+test "codon optimizer avoids cross-codon CpG" {
+  // Gly 的 GGC(末位 C) + Glu 的 GAG/GAA(首位 G) 拼接产生跨界 CpG(GGCGAG).
+  // 权重偏好这两个密码子, 逼迫优化器避开跨界组合.
+  let weights : Map[String, Double] = Map([], capacity=0)
+  weights["GGC"] = 2.0
+  weights["GAG"] = 2.0
+  let config = @src.codon_optimizer_config(avoid_cpg=true, seed=5UL)
+  let dna = @src.codon_optimize("GE", weights, config~)
+  assert_eq(codon_opt_test_translate(dna), "GE")
+  assert_true(!dna.to_upper().contains("CG"))
+  // 更长的蛋白质同样保持无 CpG.
+  let dna_long = @src.codon_optimize("GEGEGE", weights, config~)
+  assert_eq(codon_opt_test_translate(dna_long), "GEGEGE")
+  assert_true(!dna_long.to_upper().contains("CG"))
+}
+
+///|
+test "codon optimizer caps cross-codon homopolymer runs" {
+  // Glu 的 GAA(尾部 AA, run=2) + Thr 的 ACN(首位 A) 拼接产生跨界 AAA run=3.
+  let weights = codon_opt_test_weights(
+    ["GAA", "GAG", "ACT", "ACC", "ACA", "ACG"],
+    1.0,
+  )
+  let config = @src.codon_optimizer_config(max_run=2, seed=5UL)
+  let dna = @src.codon_optimize("ET", weights, config~)
+  assert_eq(codon_opt_test_translate(dna), "ET")
+  let report = @src.analyze_codon_optimization(dna, weights)
+  assert_true(report.max_run <= 2)
+}

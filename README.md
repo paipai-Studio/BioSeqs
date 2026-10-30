@@ -819,7 +819,7 @@ IvanAXu/BioSeqs/
 │   ├── phase_demo/ / assembly_graph_demo/ / gvcf_demo/ / pedigree_qc_demo/ / gwas_regression_demo/ # 第七阶段（读段定相；组装图简化与抛光；gVCF 联合分型；家系一致性 QC；GWAS 回归闭环）
 │   └── ... （更多 examples/*_demo/）
 ├── test/
-│   ├── moonbit/                      # MoonBit 单元测试（714 个测试文件，16336 用例）
+│   ├── moonbit/                      # MoonBit 单元测试（714 个测试文件，16338 用例）
 │   │   ├── bio_seq_test.mbt / seqio_wb_test.mbt / ...
 │   │   ├── alignment_test.mbt / pdb_test.mbt / phylo_test.mbt / ...
 │   │   ├── deseq2_test.mbt / rankprod_test.mbt / seurat_test.mbt / scran_test.mbt / ...
@@ -856,7 +856,7 @@ IvanAXu/BioSeqs/
 
 ```bash
 moon build                                              # ✅ 成功
-moon test                                               # ✅ 16336 个测试全部通过（test/moonbit 包）
+moon test                                               # ✅ 16338 个测试全部通过（test/moonbit 包）
 ```
 
 ---
@@ -865,7 +865,7 @@ moon test                                               # ✅ 16336 个测试全
 
 ```bash
 moon build      # 构建项目
-moon test       # 运行全部测试 (16336 个测试用例，test/moonbit 包)
+moon test       # 运行全部测试 (16338 个测试用例，test/moonbit 包)
 ```
 
 ---
