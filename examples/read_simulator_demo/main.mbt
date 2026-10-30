@@ -1,7 +1,9 @@
 ///|
 /// 读段模拟器演示: 参考序列 -> 双端 FASTQ.
 fn main raise {
-  println("=== 本地读段模拟器 (参考 -> 双端 FASTQ, wgsim 风格) ===")
+  println(
+    "=== 本地读段模拟器 (参考 -> 双端 FASTQ, wgsim 风格) ===",
+  )
 
   // 构造 300bp 模拟参考.
   let sb = StringBuilder()
@@ -28,10 +30,14 @@ fn main raise {
   )
   let result = @src.simulate_reads(reference, config~)
 
-  println("\n参考长度: \{reference.length()}bp, 目标覆盖度: \{config.coverage}x")
+  println(
+    "\n参考长度: \{reference.length()}bp, 目标覆盖度: \{config.coverage}x",
+  )
   println("生成 pairs = \{result.n_pairs}, reads = \{result.n_reads}")
   println("实际覆盖度 = \{result.achieved_coverage}x")
-  println("注入变异事件 = \{result.n_variants}, 碱基错误 = \{result.n_errors}")
+  println(
+    "注入变异事件 = \{result.n_variants}, 碱基错误 = \{result.n_errors}",
+  )
 
   println("\nFASTQ 前 2 条记录:")
   let lines = result.fastq.split("\n").to_array()
