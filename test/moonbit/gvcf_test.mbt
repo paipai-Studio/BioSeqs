@@ -277,3 +277,113 @@ test "gvcf_write_vcf_has_multi_sample_columns" {
   assert_true(vcf.contains("0/1"))
   assert_true(@src.gvcf_summary(joint).contains("samples=2"))
 }
+
+// ===========================================================================
+// ALT 索引重映射(同位点不同 ALT 的多样本合并)
+// ===========================================================================
+
+///|
+fn gvcf_variant_record(
+  pos : Int32,
+  ref_allele : String,
+  alts : Array[String],
+  sample : String,
+  gt : String,
+  pl : Array[Int32],
+) -> @src.GvcfRecord {
+  @src.GvcfRecord::{
+    chrom: "chr1",
+    pos,
+    ref_allele,
+    alts,
+    is_block: false,
+    block_end: pos,
+    samples: Map([(sample, @src.GvcfGenotype::{ gt, pl, dp: 10, gq: 30, })]),
+  }
+}
+
+///|
+test "gvcf_merge_remaps_alt_indices_per_sample" {
+  // S1: pos 10 A->C 杂合; S2: pos 10 A->G 杂合(同位点不同 ALT).
+  let cs_a = @src.GvcfCallset::{
+    chrom: "chr1",
+    samples: ["S1"],
+    records: [gvcf_variant_record(10, "A", ["C"], "S1", "0/1", [30, 0, 30])],
+  }
+  let cs_b = @src.GvcfCallset::{
+    chrom: "chr1",
+    samples: ["S2"],
+    records: [gvcf_variant_record(10, "A", ["G"], "S2", "0/1", [30, 0, 30])],
+  }
+  let merged = @src.gvcf_merge([cs_a, cs_b]) catch {
+    @src.GvcfError(message) => abort("merge failed: " + message)
+  }
+  assert_eq(merged.records.length(), 1)
+  let record = merged.records[0]
+  assert_eq(record.alts, ["C", "G"])
+  // S1 的 C 映射到合并索引 1; S2 的 G 映射到合并索引 2(而非被错读为 C).
+  assert_eq(record.samples.get("S1").unwrap().gt, "0/1")
+  assert_eq(record.samples.get("S2").unwrap().gt, "0/2")
+  // 等位数变化(1 -> 2)时 PL 基因型空间无法对应, 整字段置缺失.
+  assert_eq(record.samples.get("S1").unwrap().pl.length(), 0)
+  assert_eq(record.samples.get("S2").unwrap().pl.length(), 0)
+  // 联合分型不再按错位的 PL 把 S2 判成 REF/C (0/1).
+  let joint = @src.gvcf_joint_genotype(merged)
+  assert_eq(joint.records[0].samples.get("S1").unwrap().gt, "0/1")
+  assert_eq(joint.records[0].samples.get("S2").unwrap().gt, "0/2")
+}
+
+///|
+test "gvcf_merge_remaps_pl_when_alt_sets_match" {
+  // 三个样本同位点: S1 ALT=[C] 1/1; S2 ALT=[A] 0/1; S3 ALT=[C,A] 1/2.
+  let cs_a = @src.GvcfCallset::{
+    chrom: "chr1",
+    samples: ["S1"],
+    records: [gvcf_variant_record(20, "T", ["C"], "S1", "1/1", [90, 30, 0])],
+  }
+  let cs_b = @src.GvcfCallset::{
+    chrom: "chr1",
+    samples: ["S2"],
+    records: [gvcf_variant_record(20, "T", ["A"], "S2", "0/1", [30, 0, 30])],
+  }
+  let cs_c = @src.GvcfCallset::{
+    chrom: "chr1",
+    samples: ["S3"],
+    records: [
+      gvcf_variant_record(20, "T", ["C", "A"], "S3", "1/2", [
+        90, 30, 40, 20, 0, 60,
+      ]),
+    ],
+  }
+  let merged = @src.gvcf_merge([cs_a, cs_b, cs_c]) catch {
+    @src.GvcfError(message) => abort("merge failed: " + message)
+  }
+  let record = merged.records[0]
+  assert_eq(record.alts, ["A", "C"])
+  // S1: C -> 合并索引 2, GT 1/1 -> 2/2; 等位数 1 != 2, PL 置缺失.
+  assert_eq(record.samples.get("S1").unwrap().gt, "2/2")
+  assert_eq(record.samples.get("S1").unwrap().pl.length(), 0)
+  // S2: A -> 合并索引 1, GT 0/1 保持.
+  assert_eq(record.samples.get("S2").unwrap().gt, "0/1")
+  // S3: 原 ALT [C,A] 与合并 [A,C] 等位数一致, PL 双射重排:
+  // 原空间(0,C=1,A=2) -> 新空间(0,A=1,C=2).
+  let geno = record.samples.get("S3").unwrap()
+  assert_eq(geno.gt, "1/2")
+  assert_eq(geno.pl, [90, 20, 60, 30, 0, 40])
+  // 联合分型按重排后的 6 项 PL 重选基因型, 最小项对应 C/A 杂合(1/2).
+  let joint = @src.gvcf_joint_genotype(merged)
+  assert_eq(joint.records[0].samples.get("S3").unwrap().gt, "1/2")
+  assert_eq(joint.records[0].samples.get("S1").unwrap().gt, "2/2")
+}
+
+///|
+test "gvcf_gt_from_pl_supports_multiallelic" {
+  assert_eq(@src.gvcf_gt_from_pl([0, 60, 90]), "0/0")
+  assert_eq(@src.gvcf_gt_from_pl([30, 0, 30]), "0/1")
+  assert_eq(@src.gvcf_gt_from_pl([90, 30, 0]), "1/1")
+  assert_eq(@src.gvcf_gt_from_pl([90, 20, 60, 30, 0, 40]), "1/2")
+  assert_eq(@src.gvcf_gt_from_pl([90, 30, 40, 0, 20, 60]), "0/2")
+  assert_eq(@src.gvcf_gt_from_pl([90, 30, 40, 20, 60, 0]), "2/2")
+  assert_eq(@src.gvcf_gt_from_pl([10, 20]), "./.")
+  assert_eq(@src.gvcf_gt_from_pl([1, 2, 3, 4]), "./.")
+}

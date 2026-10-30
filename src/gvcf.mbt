@@ -141,25 +141,34 @@ pub fn gvcf_gq_from_pl(pl : Array[Int32]) -> Int32 {
 
 ///|
 /// 由 PL 选择最优基因型(最小值索引).
+///
+/// 支持多等位: PL 长度满足 n=(m+1)(m+2)/2 时按 VCF 基因型排序
+/// (0/0, 0/1, 1/1, 0/2, 1/2, 2/2, ...) 解析最小项;
+/// 长度不规范返回 "./.".
 pub fn gvcf_gt_from_pl(pl : Array[Int32]) -> String {
-  if pl.length() < 3 {
+  let n = pl.length()
+  if n < 3 {
+    return "./."
+  }
+  let mut m = 1
+  while (m + 1) * (m + 2) / 2 < n {
+    m = m + 1
+  }
+  if (m + 1) * (m + 2) / 2 != n {
     return "./."
   }
   let mut best = 0
-  let mut i = 1
-  while i < 3 {
-    if pl[i] < pl[best] {
-      best = i
+  for idx = 1; idx < n; idx = idx + 1 {
+    if pl[idx] < pl[best] {
+      best = idx
     }
-    i = i + 1
   }
-  if best == 0 {
-    "0/0"
-  } else if best == 1 {
-    "0/1"
-  } else {
-    "1/1"
+  let mut j = 0
+  while (j + 1) * (j + 2) / 2 <= best {
+    j = j + 1
   }
+  let i = best - j * (j + 1) / 2
+  i.to_string() + "/" + j.to_string()
 }
 
 // ============================================================================
@@ -437,10 +446,138 @@ fn gvcf_merge_str_set(
 }
 
 ///|
+/// 在 ALT 列表中查找等位基因索引(0-based); 未找到返回 -1.
+fn gvcf_alt_index(alts : Array[String], alt : String) -> Int32 {
+  for i = 0; i < alts.length(); i = i + 1 {
+    if alts[i] == alt {
+      return i
+    }
+  }
+  -1
+}
+
+///|
+/// 解析 GT 中的单个等位索引数字; 非数字(含 '.')返回 None.
+fn gvcf_parse_allele(token : String) -> Int32? {
+  if token.length() == 0 {
+    return None
+  }
+  let mut value = 0
+  for i = 0; i < token.length(); i = i + 1 {
+    let c = token.unsafe_get(i).unsafe_to_char()
+    if c < '0' || c > '9' {
+      return None
+    }
+    value = value * 10 + (c.to_int() - 48)
+  }
+  Some(value)
+}
+
+///|
+/// 重映射单个等位索引: 0 保持 REF; a>0 映射到原 ALT 在合并 ALT 列表中的新索引.
+fn gvcf_remap_allele(
+  allele : Int32,
+  orig_alts : Array[String],
+  merged_alts : Array[String],
+) -> Int32? {
+  if allele == 0 {
+    return Some(0)
+  }
+  if allele < 0 || allele > orig_alts.length() {
+    return None
+  }
+  let idx = gvcf_alt_index(merged_alts, orig_alts[allele - 1])
+  if idx < 0 {
+    return None
+  }
+  Some(idx + 1)
+}
+
+///|
+/// 重映射 GT 等位索引到合并后的 ALT 顺序(升序输出; 无法映射的等位记缺失).
+fn gvcf_remap_gt(
+  gt : String,
+  orig_alts : Array[String],
+  merged_alts : Array[String],
+) -> String {
+  let normalized = gt.replace_all(old="/", new="|")
+  let parts = normalized.split("|").collect()
+  if parts.length() != 2 {
+    return gt
+  }
+  let alleles : Array[Int32] = Array(capacity=2)
+  for part in parts {
+    match gvcf_parse_allele(part.to_owned()) {
+      Some(a) =>
+        match gvcf_remap_allele(a, orig_alts, merged_alts) {
+          Some(mapped) => alleles.push(mapped)
+          None => ()
+        }
+      None => ()
+    }
+  }
+  if alleles.length() != 2 {
+    return "./."
+  }
+  let (a, b) = if alleles[0] <= alleles[1] {
+    (alleles[0], alleles[1])
+  } else {
+    (alleles[1], alleles[0])
+  }
+  a.to_string() + "/" + b.to_string()
+}
+
+///|
+/// 重映射 PL 到合并后的 ALT 顺序.
+///
+/// 仅当原 ALT 集合与合并 ALT 集合大小一致(双射重排)时输出完整 PL;
+/// 否则返回空数组 —— 等位数变化时基因型似然空间无法一一对应,
+/// 按 VCF 规范将整个 PL 字段置为缺失, 由下游保留重映射后的 GT.
+fn gvcf_remap_pl(
+  pl : Array[Int32],
+  orig_alts : Array[String],
+  merged_alts : Array[String],
+) -> Array[Int32] {
+  let m = orig_alts.length()
+  let size = (m + 1) * (m + 2) / 2
+  if m != merged_alts.length() || pl.length() != size {
+    return []
+  }
+  let out : Array[Int32] = Array::make(size, 0)
+  let filled : Array[Bool] = Array::make(size, false)
+  for j = 0; j <= m; j = j + 1 {
+    for i = 0; i <= j; i = i + 1 {
+      let idx = j * (j + 1) / 2 + i
+      match
+        (
+          gvcf_remap_allele(i, orig_alts, merged_alts),
+          gvcf_remap_allele(j, orig_alts, merged_alts),
+        ) {
+        (Some(x), Some(y)) => {
+          let (a, b) = if x <= y { (x, y) } else { (y, x) }
+          let nidx = b * (b + 1) / 2 + a
+          out[nidx] = pl[idx]
+          filled[nidx] = true
+        }
+        _ => ()
+      }
+    }
+  }
+  for i = 0; i < size; i = i + 1 {
+    if !filled[i] {
+      return []
+    }
+  }
+  out
+}
+
+///|
 /// 合并多个(单样本)gVCF.
 ///
 /// 取各样本变异位点的并集; 变异记录之间被参考块覆盖的样本记为纯合参考
 /// (0/0, PL=[0,60,90]); 既非变异记录又无参考块覆盖的样本记缺失(./.).
+/// 各样本 GT/PL 按其原 callset 的 ALT 顺序解释, 输出前重映射到
+/// 合并后(排序)的 ALT 顺序, 避免同位点不同 ALT 时等位索引错位.
 pub fn gvcf_merge(callsets : Array[GvcfCallset]) -> GvcfCallset raise GvcfError {
   if callsets.length() == 0 {
     raise GvcfError("no callsets to merge")
@@ -459,12 +596,17 @@ pub fn gvcf_merge(callsets : Array[GvcfCallset]) -> GvcfCallset raise GvcfError 
     [],
     capacity=samples.length(),
   )
+  let sample_alts : Map[String, Map[Int32, Array[String]]] = Map(
+    [],
+    capacity=samples.length(),
+  )
   let sample_blocks : Map[String, Array[(Int32, Int32)]] = Map(
     [],
     capacity=samples.length(),
   )
   for s in samples {
     sample_calls.set(s, Map([], capacity=0))
+    sample_alts.set(s, Map([], capacity=0))
     sample_blocks.set(s, [])
   }
   let positions : Array[Int32] = []
@@ -480,7 +622,16 @@ pub fn gvcf_merge(callsets : Array[GvcfCallset]) -> GvcfCallset raise GvcfError 
           sample_blocks.get(s).unwrap().push((record.pos, record.block_end))
         } else {
           match record.samples.get(s) {
-            Some(geno) => sample_calls.get(s).unwrap().set(record.pos, geno)
+            Some(geno) => {
+              sample_calls.get(s).unwrap().set(record.pos, geno)
+              let record_alts : Array[String] = []
+              for alt in record.alts {
+                if alt != "<NON_REF>" {
+                  record_alts.push(alt)
+                }
+              }
+              sample_alts.get(s).unwrap().set(record.pos, record_alts)
+            }
             None => ()
           }
         }
@@ -517,7 +668,18 @@ pub fn gvcf_merge(callsets : Array[GvcfCallset]) -> GvcfCallset raise GvcfError 
     for s in samples {
       let calls = sample_calls.get(s).unwrap()
       match calls.get(pos) {
-        Some(geno) => sample_map.set(s, geno)
+        Some(geno) => {
+          let orig_alts = match sample_alts.get(s).unwrap().get(pos) {
+            Some(orig) => orig
+            None => []
+          }
+          sample_map.set(s, GvcfGenotype::{
+            gt: gvcf_remap_gt(geno.gt, orig_alts, alts),
+            pl: gvcf_remap_pl(geno.pl, orig_alts, alts),
+            dp: geno.dp,
+            gq: geno.gq,
+          })
+        }
         None =>
           if gvcf_pos_in_blocks(sample_blocks.get(s).unwrap(), pos) {
             sample_map.set(s, GvcfGenotype::{
