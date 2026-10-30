@@ -729,6 +729,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | :--- | :--- | :--- |
 | **读段定相(read-backed phasing)** | WhatsHap / SHAPEIT | `phase_lite.mbt`：按 CIGAR 将读段碱基投影到参考坐标，用跨多个杂合 SNP 的读段构建"同相/反相"异或约束图，BFS 传播相位并输出 phased GT、单倍型块编号与读段冲突率；支持 soft clip/插入/缺失的坐标投影，无读段支持的位点保持原 GT，JSON/TSV 输出 |
 | **组装图简化与共识抛光** | Bandage / racon | `assembly_graph.mbt`：GFA 图简化（containment 坍缩、短死端 tip 迭代裁剪、简单 bubble 检测并按分支支持度/长度解析）与 racon-lite 参考导向共识抛光（k-mer 锚定读段到参考坐标、半全局比对、逐位点多数投票采纳替换/删除/插入），附简化统计与抛光结果 JSON 输出 |
+| **宏基因组定量增强** | Kraken 2 (minimizer) / Bracken | `kraken_lite.mbt` 增强：minimizer 窗口建库（每个连续 k-mer 窗口只保留散列最小的规范 k-mer，显著压缩数据库体积）、数据库 JSON 序列化/还原、Kraken 风格 HTML/SVG 丰度报告、`multiqc_collect_kraken` 采集器接入 MultiQC 聚合报告 |
 
 ## 架构设计
 
@@ -815,7 +816,7 @@ IvanAXu/BioSeqs/
 │   ├── phase_demo/ / assembly_graph_demo/ # 第七阶段（读段定相 phased GT / 单倍型块；组装图简化与共识抛光）
 │   └── ... （更多 examples/*_demo/）
 ├── test/
-│   ├── moonbit/                      # MoonBit 单元测试（711 个测试文件，16296 用例）
+│   ├── moonbit/                      # MoonBit 单元测试（711 个测试文件，16304 用例）
 │   │   ├── bio_seq_test.mbt / seqio_wb_test.mbt / ...
 │   │   ├── alignment_test.mbt / pdb_test.mbt / phylo_test.mbt / ...
 │   │   ├── deseq2_test.mbt / rankprod_test.mbt / seurat_test.mbt / scran_test.mbt / ...
@@ -852,7 +853,7 @@ IvanAXu/BioSeqs/
 
 ```bash
 moon build                                              # ✅ 成功
-moon test                                               # ✅ 16296 个测试全部通过（test/moonbit 包）
+moon test                                               # ✅ 16304 个测试全部通过（test/moonbit 包）
 ```
 
 ---
@@ -861,7 +862,7 @@ moon test                                               # ✅ 16296 个测试全
 
 ```bash
 moon build      # 构建项目
-moon test       # 运行全部测试 (16296 个测试用例，test/moonbit 包)
+moon test       # 运行全部测试 (16304 个测试用例，test/moonbit 包)
 ```
 
 ---

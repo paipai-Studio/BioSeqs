@@ -179,6 +179,53 @@ pub fn multiqc_collect_gatk(
   |> MultiqcModule::with_lower_better([])
 }
 
+///|
+/// kraken-lite 采集器: 宏基因组分类指标(读取/分类率/检出分类单元/平均置信度).
+pub fn multiqc_collect_kraken(
+  classifications : Array[KrakenClassification],
+  abundances : Array[KrakenAbundance],
+  sample : String,
+) -> MultiqcModule {
+  let total = classifications.length()
+  let mut classified = 0
+  let mut confidence_sum = 0.0
+  for result in classifications {
+    match result.taxid {
+      Some(_) => classified = classified + 1
+      None => ()
+    }
+    confidence_sum = confidence_sum + result.confidence
+  }
+  let unclassified = total - classified
+  let classified_pct = if total > 0 {
+    classified.to_double() / total.to_double() * 100.0
+  } else {
+    0.0
+  }
+  let mean_confidence = if total > 0 {
+    confidence_sum / total.to_double()
+  } else {
+    0.0
+  }
+  let mut top_rel = 0.0
+  for entry in abundances {
+    if entry.relative_abundance > top_rel {
+      top_rel = entry.relative_abundance
+    }
+  }
+  multiqc_module("kraken-lite")
+  |> MultiqcModule::add_sample(sample, [
+    ("reads", total.to_double()),
+    ("classified", classified.to_double()),
+    ("unclassified", unclassified.to_double()),
+    ("classified_percent", classified_pct),
+    ("taxa_detected", abundances.length().to_double()),
+    ("top_relative_percent", top_rel * 100.0),
+    ("mean_confidence", mean_confidence),
+  ])
+  |> MultiqcModule::with_lower_better(["unclassified"])
+}
+
 // ---------------------------------------------------------------------------
 // JSON 序列化 / 反序列化
 // ---------------------------------------------------------------------------

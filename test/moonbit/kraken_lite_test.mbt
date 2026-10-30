@@ -180,3 +180,123 @@ test "kraken_build_rejects_invalid_taxonomy" {
   }
   assert_true(raised)
 }
+
+// ===========================================================================
+// H3: minimizer 建库 / 数据库 JSON / HTML 报告 / MultiQC 采集器
+// ===========================================================================
+
+///|
+fn kraken_test_minimizer_database(w : Int32) -> @src.KrakenDatabase {
+  @src.kraken_build_database_minimizer(
+    5,
+    w,
+    kraken_test_taxa(),
+    kraken_test_references(),
+  ) catch {
+    KrakenLiteError(message) => abort("minimizer build failed: " + message)
+  }
+}
+
+///|
+test "kraken_minimizer_database_is_compacter" {
+  let exact = kraken_test_database()
+  let mini = kraken_test_minimizer_database(4)
+  assert_eq(mini.minimizer_w, 4)
+  // minimizer 建库保留的索引项应严格少于精确建库.
+  assert_true(mini.kmer_lca.length() < exact.kmer_lca.length())
+}
+
+///|
+test "kraken_minimizer_classifies_unique_read" {
+  let db = kraken_test_minimizer_database(4)
+  let result = @src.kraken_classify(db, "read21", "TTTTGGGGCCCCAAAA")
+  assert_eq(result.taxid, Some("21"))
+  assert_eq(result.rank, "species")
+}
+
+///|
+test "kraken_minimizer_window_must_be_positive" {
+  let raised = try {
+    ignore(
+      @src.kraken_build_database_minimizer(
+        5,
+        0,
+        kraken_test_taxa(),
+        kraken_test_references(),
+      ),
+    )
+    false
+  } catch {
+    @src.KrakenLiteError(_) => true
+  }
+  assert_true(raised)
+}
+
+///|
+test "kraken_database_json_roundtrip" {
+  let db = kraken_test_minimizer_database(4)
+  let json = @src.kraken_database_to_json(db)
+  assert_true(json.contains("\"minimizer_w\":4"))
+  match @src.kraken_database_from_json(json) {
+    Some(restored) => {
+      assert_eq(restored.k, db.k)
+      assert_eq(restored.root, db.root)
+      assert_eq(restored.minimizer_w, db.minimizer_w)
+      assert_eq(restored.taxa.length(), db.taxa.length())
+      assert_eq(restored.kmer_lca.length(), db.kmer_lca.length())
+      assert_eq(restored.subtree_kmers.length(), db.subtree_kmers.length())
+      // 还原后分类结果一致.
+      let before = @src.kraken_classify(db, "r", "TTTTGGGGCCCCAAAA")
+      let after = @src.kraken_classify(restored, "r", "TTTTGGGGCCCCAAAA")
+      assert_eq(before.taxid, after.taxid)
+    }
+    None => assert_true(false)
+  }
+}
+
+///|
+test "kraken_database_json_roundtrip_exact_mode" {
+  let db = kraken_test_database()
+  let json = @src.kraken_database_to_json(db)
+  match @src.kraken_database_from_json(json) {
+    Some(restored) => {
+      assert_eq(restored.minimizer_w, 0)
+      assert_eq(restored.kmer_lca.length(), db.kmer_lca.length())
+      assert_eq(@src.kraken_lookup_kmer(restored, "ACGTA"), Some("10"))
+    }
+    None => assert_true(false)
+  }
+}
+
+///|
+test "kraken_database_from_json_rejects_garbage" {
+  assert_true(@src.kraken_database_from_json("not json") is None)
+  assert_true(@src.kraken_database_from_json("{}") is None)
+}
+
+///|
+test "kraken_report_html_renders_svg_and_taxa" {
+  let db = kraken_test_database()
+  let results = @src.kraken_classify_many(db, kraken_test_reads())
+  let species = @src.kraken_report(db, results, "species")
+  let html = @src.kraken_report_html(species, title="Demo Report")
+  assert_true(html.contains("<svg"))
+  assert_true(html.contains("Demo Report"))
+  assert_true(html.contains("Alpha one"))
+  assert_true(html.contains("</html>"))
+}
+
+///|
+test "multiqc_collect_kraken_reports_metrics" {
+  let db = kraken_test_database()
+  let results = @src.kraken_classify_many(db, kraken_test_reads())
+  let species = @src.kraken_report(db, results, "species")
+  let module_ = @src.multiqc_collect_kraken(results, species, "sample1")
+  assert_eq(module_.name, "kraken-lite")
+  let metrics = module_.samples.get("sample1").unwrap()
+  assert_eq(metrics.get("reads").unwrap(), 6.0)
+  assert_eq(metrics.get("classified").unwrap(), 6.0)
+  assert_eq(metrics.get("unclassified").unwrap(), 0.0)
+  assert_eq(metrics.get("taxa_detected").unwrap(), 2.0)
+  assert_true(metrics.get("mean_confidence").unwrap() > 0.9)
+}
