@@ -1338,6 +1338,9 @@ fn polish_map_add(map : Map[String, Int32], key : String) -> Unit {
 /// - 删除: gap 支持比例 >= min_fraction 且 gap 票数高于任何碱基;
 /// - 插入: 插入串整体计数, 支持数 >= min_coverage 且占相邻列最大覆盖度
 ///   的比例 >= min_fraction.
+///
+/// 读段中的非 ACGT 碱基(如 N)不参与投票(避免被误计为删除票);
+/// 参考位点为非 ACGT 时保守保留该碱基, 不做替换/删除.
 pub fn racon_polish(
   reference : String,
   reads : Array[String],
@@ -1444,13 +1447,17 @@ pub fn racon_polish(
               pos < ref_len &&
               j >= first_non_gap &&
               j <= last_non_gap {
-              coverage[pos] = coverage[pos] + 1
               let base = aligned_read.unsafe_get(j).unsafe_to_char()
-              if base != '-' {
+              if base == '-' {
+                // 真实比对 gap: 计为删除票.
+                coverage[pos] = coverage[pos] + 1
+              } else {
                 let idx = polish_base_index(base)
                 if idx >= 0 {
+                  coverage[pos] = coverage[pos] + 1
                   polish_arr_add(base_counts[pos], idx, 1)
                 }
+                // 非 ACGT 碱基(如 N)不投票, 避免被误计为删除票.
               }
             }
             ref_consumed = ref_consumed + 1
@@ -1470,6 +1477,12 @@ pub fn racon_polish(
     if coverage[pos] < config.min_coverage {
       continue
     }
+    let ref_char = reference.unsafe_get(pos).unsafe_to_char()
+    let ref_idx = polish_base_index(ref_char)
+    if ref_idx < 0 {
+      // 参考碱基非 ACGT(如 N): 投票语义不明, 保守保留参考碱基.
+      continue
+    }
     let total = coverage[pos]
     let counts = base_counts[pos]
     let mut best_idx = 0
@@ -1484,8 +1497,6 @@ pub fn racon_polish(
     for b in 0..<4 {
       gap_count = gap_count - counts[b]
     }
-    let ref_char = reference.unsafe_get(pos).unsafe_to_char()
-    let ref_idx = polish_base_index(ref_char)
     let gap_fraction = gap_count.to_double() / total.to_double()
     let best_fraction = best_count.to_double() / total.to_double()
     if gap_count > best_count && gap_fraction >= config.min_fraction {

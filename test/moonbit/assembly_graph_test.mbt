@@ -527,3 +527,92 @@ test "polish result JSON reports edits" {
     None => assert_true(false)
   }
 }
+
+// ============================================================================
+// N 碱基投票语义
+// ============================================================================
+
+///|
+fn test_with_base(seq : String, pos : Int32, base : Char) -> String {
+  let sb = StringBuilder()
+  let mut i = 0
+  while i < seq.length() {
+    if i == pos {
+      sb.write_char(base)
+    } else {
+      sb.write_char(seq.unsafe_get(i).unsafe_to_char())
+    }
+    i = i + 1
+  }
+  sb.to_string()
+}
+
+///|
+test "N read bases do not vote as deletions" {
+  let reference = test_ref()
+  // 6/10 读段在位置 20 为 N, 4/10 为正确参考碱基:
+  // N 不应被计为删除票, 正确碱基保留(默认 0.6 阈值下旧行为会伪删除).
+  let clean = reference[0:80].to_owned()
+  let with_n = test_with_base(clean, 20, 'N')
+  let reads : Array[String] = []
+  for _i = 0; _i < 6; _i = _i + 1 {
+    reads.push(with_n)
+  }
+  for _i = 0; _i < 4; _i = _i + 1 {
+    reads.push(clean)
+  }
+  match test_polish_default(reference, reads) {
+    Some(result) => {
+      assert_eq(result.edits().length(), 0)
+      assert_eq(result.consensus(), reference)
+    }
+    None => assert_true(false)
+  }
+}
+
+///|
+test "reference N positions are preserved without edits" {
+  let reference = test_with_base(test_ref(), 30, 'N')
+  let reads = test_reads(reference[0:80].to_owned(), 10)
+  match test_polish_default(reference, reads) {
+    Some(result) => {
+      assert_eq(result.consensus()[30:31].to_owned(), "N")
+      for edit in result.edits() {
+        assert_true(edit.position() != 30)
+      }
+    }
+    None => assert_true(false)
+  }
+}
+
+///|
+test "reference N positions resist substitution pressure" {
+  let reference = test_with_base(test_ref(), 40, 'N')
+  // 读段在参考 N 位点一致显示 'C', 也不应把 N 替换成具体碱基.
+  let read = test_with_base(reference[0:80].to_owned(), 40, 'C')
+  let reads = test_reads(read, 10)
+  match test_polish_default(reference, reads) {
+    Some(result) => assert_eq(result.consensus()[40:41].to_owned(), "N")
+    None => assert_true(false)
+  }
+}
+
+///|
+test "polishing applies a consistently supported deletion" {
+  let reference = test_ref()
+  // 读段一致缺失位置 25 的碱基 -> 比对产生读段 gap -> 删除票.
+  let read = reference[0:25].to_owned() + reference[26:80].to_owned()
+  let reads = test_reads(read, 10)
+  match test_polish_default(reference, reads) {
+    Some(result) => {
+      assert_eq(result.edits().length(), 1)
+      assert_eq(result.edits()[0].kind(), "deletion")
+      assert_eq(result.edits()[0].position(), 25)
+      assert_eq(
+        result.consensus(),
+        reference[0:25].to_owned() + reference[26:].to_owned(),
+      )
+    }
+    None => assert_true(false)
+  }
+}
