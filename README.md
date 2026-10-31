@@ -743,6 +743,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **RNA-seq 转录本组装(剪接图流)** | StringTie / Cufflinks | `transcript_assembly.mbt`：SAM 读段 CIGAR N 操作提取剪接 junction（donor/acceptor + 计数）、每碱基覆盖深度按 M 块差分累计（内含子不计深）、junction 位点切分参考轴为区段（深度按覆盖子范围求均，无覆盖洞不稀释）、剪接有向图（区段为节点、junction 为边，坐标单调即拓扑序）、迭代 DP 最大瓶颈路径贪心流求解 isoform（每轮扣除流量，瓶颈低于阈值停止；剩余深度足额且下游耗尽的区段独立成单外显子 isoform）、coverage/read_count/FPKM 表达量与 GTF 2.2（1-based）输出、JSON 导出；已知简化：不做链感知（strand 由调用方指定）、共享外显子流量竞争由贪心顺序决定 |
 | **甲基化位点调用器(Bismark extractor)** | Bismark / MethylDackel | `methylation_caller.mbt`：从 SAM 转化读段逐位点统计甲基化——正链读段（flag 无 0x10，OT 语义）按参考 C 位点读 C/T 记 meth/unmeth（C→T 转化），反链读段（flag 含 0x10，OB 语义）按参考 G 位点读 G/A 记 meth/unmeth（G→A 转化）；上下文按参考判定 CpG/CHG/CHH；CIGAR walk 支持 indel；聚合 (pos, strand) 计数并输出 Bismark TSV（与 `bsseq_parse_bismark` 闭环）与 BSRecord 数组（直接进入 bsseq 平滑/DMR 统计链），补全"比对→调用→分析"的甲基化闭环；已知简化：链语义由 SAM flag 推断（Bismark 由 4-strand 比对决定方向），不做 OT/CTOT 去重 |
 | **蛋白稳定性 ΔΔG 与饱和突变扫描** | FoldX / Rosetta ddG-monomer / DMS | `foldx_lite.mbt`：FoldX 风格稳定性分析（筛查级，Cα 统计势能量差法——诚实声明：FoldX/Rosetta 全原子力场与侧链重打包未公开完整，本模块以 DOPE 统计势（复用 `dope_score.mbt`，210 氨基酸对 × 距离 bin）能量差作 ΔΔG 代理，突变保持 Cα 骨架仅替换残基类型）——单点突变 ΔΔG = E(mut) − E(wt)、饱和突变扫描（位点 × 20 aa 矩阵 + 每位点最稳/最不稳突变 + Boltzmann 适合度 exp(−ΔΔG/RT) + 位点 Shannon 熵可突变性）、单点突变文库生成与稳定性排名、TSV/JSON 导出 |
+| **泛基因组变异图基因分型** | vg / PGGB | `vg_lite.mbt`：VCF 变异集 + 参考序列构造变异图（变异位点切分参考为块，ref/alt 等位成替代路径节点，重叠变异过滤保图一致性）、source→sink 全路径枚举（每条路径即一条单倍型序列，路径数 = 等位数之积）、图上基因分型（读段对各路径滑窗最小 Hamming 分派，确定性 tie-break，路径计数前二构成二倍体 GT，次高计数为 0 时判纯合）、GFA 1.0 输出（衔接 gfa_io 生态）与 JSON 导出；已知简化：图比对用滑窗 Hamming（vg 为全动态规划图比对） |
 
 ## 架构设计
 
@@ -751,7 +752,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 ```
 IvanAXu/BioSeqs/
 ├── moon.mod                          # 模块配置 (name="IvanAXu/BioSeqs", version=0.1.25)
-├── src/                              # 源代码（718 个 .mbt 模块）
+├── src/                              # 源代码（719 个 .mbt 模块）
 │   ├── seq.mbt                       # Bio.Seq 序列对象
 │   ├── seqio.mbt / fasta_io.mbt / ... # 序列 I/O（30+ 种格式）
 │   ├── alignment.mbt / align_*.mbt   # 比对算法 + 20+ 种比对格式严格 API
@@ -768,10 +769,10 @@ IvanAXu/BioSeqs/
 │   ├── poa.mbt / mmseqs.mbt / cooler.mbt / parquet.mbt / bppar.mbt / mhc.mbt / vdj.mbt / airr.mbt / kallisto_lite.mbt / gatk_lite.mbt / multiqc_lite.mbt / minimap.mbt / medaka_lite.mbt / structure_screening.mbt # 第二、三阶段: POA 图比对/蛋白搜索/cooler/parquet/并行调度/MHC/VDJ 组库/AIRR/kallisto/GATK/MultiQC/长读长/结构筛查
 │   ├── umi.mbt / codon_optimizer.mbt / read_simulator.mbt / variant_benchmark.mbt / phylo_clock.mbt / kraken_lite.mbt # 第五、六阶段: UMI/密码子优化/读段模拟/变异检出基准/分子钟/宏基因组丰度
 │   ├── phase_lite.mbt / assembly_graph.mbt / gvcf.mbt / pedigree_qc.mbt / gwas_regression.mbt # 第七阶段: VCF 定相 / 组装图简化与抛光 / gVCF 联合分型 / 家系一致性 QC / GWAS 回归闭环
-│   ├── mutect_lite.mbt / bam_postprocess.mbt / transcript_assembly.mbt / methylation_caller.mbt / foldx_lite.mbt # 第八阶段: 体细胞变异检出(Mutect2 LOD) / BAM 后处理(fixmate/markdup/BQSR) / 转录本组装(剪接图流) / 甲基化调用器(Bismark extractor) / 蛋白稳定性 ΔΔG(FoldX-lite)
+│   ├── mutect_lite.mbt / bam_postprocess.mbt / transcript_assembly.mbt / methylation_caller.mbt / foldx_lite.mbt / vg_lite.mbt # 第八阶段: 体细胞变异检出(Mutect2 LOD) / BAM 后处理(fixmate/markdup/BQSR) / 转录本组装(剪接图流) / 甲基化调用器(Bismark extractor) / 蛋白稳定性 ΔΔG(FoldX-lite) / 泛基因组变异图分型(vg-lite)
 │   ├── statistics.mbt / kmeans.mbt / hmm.mbt / neural_network.mbt / ... # ML 与统计
 │   └── utils.mbt / data.mbt / ...    # 通用工具与常量
-├── examples/                         # 示例程序（552 个演示 demo）
+├── examples/                         # 示例程序（553 个演示 demo）
 │   ├── basic_seq/                    # 基础序列操作
 │   ├── seqcode_demo/ / seq_utils_demo/ # SeqUtils 序列工具（gc_fraction/GC123/nt_search/六框翻译/seq3/seq1）
 │   ├── codon_utils_demo/               # CodonUtils 密码子分析（NCBI 27 表/GC123/六框翻译/CAI/Nc Wright 1990/表元数据）
@@ -828,10 +829,10 @@ IvanAXu/BioSeqs/
 │   ├── poa_demo/ / mmseqs_demo/ / cooler_demo/ / parquet_demo/ / bppar_demo/ / mhc_demo/ / vdj_demo/ / kallisto_lite_demo/ / gatk_lite_demo/ / multiqc_lite_demo/ / longread_demo/ / structure_screening_demo/ # 第二、三阶段（POA/蛋白搜索/cooler/parquet/并行/MHC/VDJ/kallisto/GATK/MultiQC/长读长/结构筛查）
 │   ├── umi_demo/ / codon_optimizer_demo/ / read_simulator_demo/ / variant_benchmark_demo/ / treetime_demo/ / kraken_lite_demo/ # 第五、六阶段（UMI/密码子优化/读段模拟/变异检出基准/分子钟/TreeTime/宏基因组丰度）
 │   ├── phase_demo/ / assembly_graph_demo/ / gvcf_demo/ / pedigree_qc_demo/ / gwas_regression_demo/ # 第七阶段（读段定相；组装图简化与抛光；gVCF 联合分型；家系一致性 QC；GWAS 回归闭环）
-│   ├── mutect_lite_demo/ / bam_postprocess_demo/ / transcript_assembly_demo/ / methylation_caller_demo/ / foldx_lite_demo/ # 第八阶段（体细胞变异检出：LOD/过滤/TMB/VCF/突变签名闭环；BAM 后处理：fixmate/markdup/BQSR 链；转录本组装：junction/贪心流/GTF/FPKM 闭环；甲基化调用：转化读段→逐位点计数→bsseq 统计链闭环；蛋白稳定性：单点 ΔΔG→饱和扫描→文库排名闭环）
+│   ├── mutect_lite_demo/ / bam_postprocess_demo/ / transcript_assembly_demo/ / methylation_caller_demo/ / foldx_lite_demo/ / vg_lite_demo/ # 第八阶段（体细胞变异检出：LOD/过滤/TMB/VCF/突变签名闭环；BAM 后处理：fixmate/markdup/BQSR 链；转录本组装：junction/贪心流/GTF/FPKM 闭环；甲基化调用：转化读段→逐位点计数→bsseq 统计链闭环；蛋白稳定性：单点 ΔΔG→饱和扫描→文库排名闭环；变异图分型：VCF→图→路径→GT 闭环）
 │   └── ... （更多 examples/*_demo/）
 ├── test/
-│   ├── moonbit/                      # MoonBit 单元测试（719 个测试文件，16384 用例）
+│   ├── moonbit/                      # MoonBit 单元测试（720 个测试文件，16393 用例）
 │   │   ├── bio_seq_test.mbt / seqio_wb_test.mbt / ...
 │   │   ├── alignment_test.mbt / pdb_test.mbt / phylo_test.mbt / ...
 │   │   ├── deseq2_test.mbt / rankprod_test.mbt / seurat_test.mbt / scran_test.mbt / ...
@@ -868,7 +869,7 @@ IvanAXu/BioSeqs/
 
 ```bash
 moon build                                              # ✅ 成功
-moon test                                               # ✅ 16384 个测试全部通过（test/moonbit 包）
+moon test                                               # ✅ 16393 个测试全部通过（test/moonbit 包）
 ```
 
 ---
@@ -877,7 +878,7 @@ moon test                                               # ✅ 16384 个测试全
 
 ```bash
 moon build      # 构建项目
-moon test       # 运行全部测试 (16384 个测试用例，test/moonbit 包)
+moon test       # 运行全部测试 (16393 个测试用例，test/moonbit 包)
 ```
 
 ---
