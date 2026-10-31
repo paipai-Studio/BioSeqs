@@ -15,13 +15,13 @@
 ///|
 /// 长读长 SV 调用结果.
 pub struct SvCall {
-  chrom : String
-  sv_type : SvType
-  start : Int32
-  end : Int32
-  support_reads : Int32
-  total_reads : Int32
-  score : Double
+  pub chrom : String
+  pub sv_type : SvType
+  pub start : Int32
+  pub end : Int32
+  pub support_reads : Int32
+  pub total_reads : Int32
+  pub score : Double
 }
 
 ///|
@@ -104,12 +104,7 @@ pub fn SvParams::new(
   max_ins_len~ : Int32 = 1000,
   max_gap~ : Int32 = 1000,
 ) -> SvParams {
-  SvParams::{
-    min_support: min_support,
-    min_sv_len: min_sv_len,
-    max_ins_len: max_ins_len,
-    max_gap: max_gap,
-  }
+  SvParams::{ min_support, min_sv_len, max_ins_len, max_gap, }
 }
 
 // ---------------------------------------------------------------------------
@@ -133,14 +128,12 @@ pub fn sv_candidates_from_sam(
     let op = elem.op
     let len = elem.length
     match op {
-      CigarOp::Match => {
-        ref_pos = ref_pos + len
-      }
+      CigarOp::Match => ref_pos = ref_pos + len
       CigarOp::Delete => {
         // 缺失: 参考序列中跳过的碱基
         if len >= params.min_sv_len {
           calls.push(SvCall::{
-            chrom: chrom,
+            chrom,
             sv_type: SvType::DEL,
             start: ref_pos,
             end: ref_pos + len,
@@ -151,11 +144,11 @@ pub fn sv_candidates_from_sam(
         }
         ref_pos = ref_pos + len
       }
-      CigarOp::Insert => {
+      CigarOp::Insert =>
         // 插入: 读段中额外碱基
         if len >= params.min_sv_len && len <= params.max_ins_len {
           calls.push(SvCall::{
-            chrom: chrom,
+            chrom,
             sv_type: SvType::INS,
             start: ref_pos,
             end: ref_pos,
@@ -164,12 +157,11 @@ pub fn sv_candidates_from_sam(
             score: 1.0,
           })
         }
-      }
       CigarOp::Skip => {
         // 跳过: 内含子/大片段缺失
         if len >= params.min_sv_len {
           calls.push(SvCall::{
-            chrom: chrom,
+            chrom,
             sv_type: SvType::DEL,
             start: ref_pos,
             end: ref_pos + len,
@@ -183,12 +175,8 @@ pub fn sv_candidates_from_sam(
       CigarOp::SoftClip => ()
       CigarOp::HardClip => ()
       CigarOp::Pad => ()
-      CigarOp::Equal => {
-        ref_pos = ref_pos + len
-      }
-      CigarOp::Diff => {
-        ref_pos = ref_pos + len
-      }
+      CigarOp::Equal => ref_pos = ref_pos + len
+      CigarOp::Diff => ref_pos = ref_pos + len
     }
     i = i + 1
   }
@@ -204,7 +192,13 @@ pub fn merge_sv_candidates(calls : Array[SvCall]) -> Array[SvCall] {
   // 按 (chrom, start, end, sv_type) 分组
   let groups : Map[String, Array[SvCall]] = Map([], capacity=0)
   for c in calls {
-    let key = c.chrom + ":" + c.start.to_string() + "-" + c.end.to_string() + "-" + sv_type_label(c.sv_type)
+    let key = c.chrom +
+      ":" +
+      c.start.to_string() +
+      "-" +
+      c.end.to_string() +
+      "-" +
+      sv_type_label(c.sv_type)
     match groups.get(key) {
       Some(arr) => arr.push(c)
       None => {
@@ -238,7 +232,10 @@ pub fn merge_sv_candidates(calls : Array[SvCall]) -> Array[SvCall] {
 
 ///|
 /// 过滤低支持度 SV.
-pub fn filter_sv_calls(calls : Array[SvCall], min_support : Int32) -> Array[SvCall] {
+pub fn filter_sv_calls(
+  calls : Array[SvCall],
+  min_support : Int32,
+) -> Array[SvCall] {
   let out : Array[SvCall] = Array(capacity=0)
   for c in calls {
     if c.support_reads >= min_support {
