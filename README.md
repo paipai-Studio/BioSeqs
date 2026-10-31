@@ -697,6 +697,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **parquet 列存** | Apache parquet | `parquet.mbt`：列式存储内存模型与读取语义（行组/列块/统计元数据、min-max 谓词下推跳行组 `groups_skipped` 可断言、投影下推、字典编码、JSON 往返） |
 | **bppar 并行调度** | BiocParallel（语义层） | `bppar.mbt`：无原生线程下的确定性并行语义——LPT 贪心负载均衡调度、DAG 依赖调度（就绪集 + 关键路径时间线）、fail-fast/carry-on 错误传播（skipped 任务不占负载与时间线）、并行可复现 RNG 子流（SplitMix64 黄金比例乘子跳跃） |
 | **MHC 结合预测** | netMHCpan 锚规则（筛查级） | `mhc.mbt`：MHC-I/II 教科书级等位基因锚定残基规则（P2/P9 等锚位置偏好）半定量打分、新抗原候选筛查；明确定位筛查工具而非 netMHCpan 精度替代（其神经网络权重未公开） |
+| **HLA 分型(NGS 读取水平)** | OptiType / HLA*PRG | `hla_typing.mbt`：基于 NGS 读取的 HLA 基因座高分辨率分型，构建 IPD-IMGT/HLA 经典等位基因 exon 2 参考序列数据库，通过读取-参考逐碱基比对确定样本携带的 HLA 等位基因，输出 GL String 格式结果；数据不出本机 |
 | **GATK-lite 变异检出** | GATK HaplotypeCaller | `gatk_lite.mbt`：逐位点 pileup + 二倍体 genotype likelihood（GQ=−10·log10 P(non-best)）、active region 错配密度窗口 + 多数投票共识组装 haplotype、SNP/插入/缺失等位重分摊、VCF 4.2 输出与 parse_vcf 闭环 |
 | **MultiQC-lite 聚合报告** | MultiQC | `multiqc_lite.mbt`：模块化采集（MultiqcModule 样本→指标键值）、样本×指标矩阵仪表盘（方向感知最优/最差单元格着色）、单页 HTML（CSS 内嵌）/JSON/Markdown 三输出、内置 fqqc/kallisto-lite/gatk-lite 采集器 |
 | **minimap-lite 长读比对** | minimap2（map-ont/map-pb/map-sr） | `minimap.mbt`：minimizer 提取（窗口最小 k-mer hash）→ 参考索引 → 种子查找 → 链化 DP（gap/skip 约束）→ banded Smith-Waterman 基级比对、三种预设参数 |
@@ -762,7 +763,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 ```
 IvanAXu/BioSeqs/
 ├── moon.mod                          # 模块配置 (name="IvanAXu/BioSeqs", version=0.1.25)
-├── src/                              # 源代码（725 个 .mbt 模块）
+├── src/                              # 源代码（726 个 .mbt 模块）
 │   ├── seq.mbt                       # Bio.Seq 序列对象
 │   ├── seqio.mbt / fasta_io.mbt / ... # 序列 I/O（30+ 种格式）
 │   ├── alignment.mbt / align_*.mbt   # 比对算法 + 20+ 种比对格式严格 API
@@ -783,7 +784,7 @@ IvanAXu/BioSeqs/
 │   ├── acmg.mbt / qtlseq.mbt / circrna.mbt / docking.mbt / conservation_scores.mbt # 第九阶段: ACMG 2015 临床致病性自动化分级 + ClinVar 摄取 / QTL-seq 混池分离定位(SNP-index) / circRNA 检测(反向剪接 BSJ) / 蛋白-配体刚体对接(Vina-lite) / 进化约束打分(GERP/phastCons-lite)
 │   ├── statistics.mbt / kmeans.mbt / hmm.mbt / neural_network.mbt / ... # ML 与统计
 │   └── utils.mbt / data.mbt / ...    # 通用工具与常量
-├── examples/                         # 示例程序（559 个演示 demo）
+├── examples/                         # 示例程序（560 个演示 demo）
 │   ├── basic_seq/                    # 基础序列操作
 │   ├── seqcode_demo/ / seq_utils_demo/ # SeqUtils 序列工具（gc_fraction/GC123/nt_search/六框翻译/seq3/seq1）
 │   ├── codon_utils_demo/               # CodonUtils 密码子分析（NCBI 27 表/GC123/六框翻译/CAI/Nc Wright 1990/表元数据）
@@ -844,7 +845,7 @@ IvanAXu/BioSeqs/
 │   ├── acmg_demo/ / qtlseq_demo/ / circrna_demo/ / docking_demo/ / conservation_demo/ # 第九阶段（临床变异解读：ClinVar 摄取→证据推导→五级分类→报告闭环；QTL-seq 定位：双池 SNP-index→ΔSNP-index 滑窗→候选区间 BED 闭环；circRNA 检测：BSJ split-read→聚合过滤→circRNA 记录闭环；蛋白对接：口袋检测→构象枚举→能量排名→姿势输出闭环；约束打分：MSA→GERP-lite→后验→保守区段→打分容器闭环）
 │   └── ... （更多 examples/*_demo/）
 ├── test/
-│   ├── moonbit/                      # MoonBit 单元测试（726 个测试文件，16438 用例）
+│   ├── moonbit/                      # MoonBit 单元测试（727 个测试文件，16450 用例）
 │   │   ├── bio_seq_test.mbt / seqio_wb_test.mbt / ...
 │   │   ├── alignment_test.mbt / pdb_test.mbt / phylo_test.mbt / ...
 │   │   ├── deseq2_test.mbt / rankprod_test.mbt / seurat_test.mbt / scran_test.mbt / ...
@@ -881,7 +882,7 @@ IvanAXu/BioSeqs/
 
 ```bash
 moon build                                              # ✅ 成功
-moon test                                               # ✅ 16438 个测试全部通过（test/moonbit 包）
+moon test                                               # ✅ 16450 个测试全部通过（test/moonbit 包）
 ```
 
 ---
@@ -890,7 +891,7 @@ moon test                                               # ✅ 16438 个测试全
 
 ```bash
 moon build      # 构建项目
-moon test       # 运行全部测试 (16438 个测试用例，test/moonbit 包)
+moon test       # 运行全部测试 (16450 个测试用例，test/moonbit 包)
 ```
 
 ---
