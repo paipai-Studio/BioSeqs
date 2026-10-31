@@ -118,21 +118,56 @@ test "sort sv calls by score" {
 
 ///|
 test "sv caller batch" {
-  // 批量检测通过 sv_candidates_from_sam + merge_sv_candidates 组合验证
-  let cigar = @src.parse_cigar("10M50D20M")
+  // 3 条同位置读数达到默认 min_support=3, 应报告 1 个 DEL
+  let records : Array[(String, Int32, Array[@src.CigarElement])] = [
+    ("chr1", 100, @src.parse_cigar("10M50D20M")),
+    ("chr1", 100, @src.parse_cigar("10M50D20M")),
+    ("chr1", 100, @src.parse_cigar("10M50D20M")),
+  ]
   let params = @src.SvParams::default()
-  let calls1 = @src.sv_candidates_from_sam("chr1", 100, cigar, params)
-  let calls2 = @src.sv_candidates_from_sam("chr1", 100, cigar, params)
-  let all_calls : Array[@src.SvCall] = []
-  for c in calls1 {
-    all_calls.push(c)
-  }
-  for c in calls2 {
-    all_calls.push(c)
-  }
-  let merged = @src.merge_sv_candidates(all_calls)
-  assert_eq(merged.length(), 1)
-  assert_eq(merged[0].support_reads(), 2)
+  let calls = @src.sv_caller_batch(records, params)
+  assert_eq(calls.length(), 1)
+  assert_eq(calls[0].support_reads(), 3)
+  assert_eq(@src.sv_type_label(calls[0].sv_type()), "DEL")
+}
+
+///|
+test "sv caller batch filters low support" {
+  // 仅 2 条读数低于默认 min_support=3, 应被过滤为空
+  let records : Array[(String, Int32, Array[@src.CigarElement])] = [
+    ("chr1", 100, @src.parse_cigar("10M50D20M")),
+    ("chr1", 100, @src.parse_cigar("10M50D20M")),
+  ]
+  let params = @src.SvParams::default()
+  let calls = @src.sv_caller_batch(records, params)
+  assert_eq(calls.length(), 0)
+}
+
+///|
+test "sv caller batch with custom min support" {
+  let records : Array[(String, Int32, Array[@src.CigarElement])] = [
+    ("chr1", 100, @src.parse_cigar("10M50D20M")),
+    ("chr1", 100, @src.parse_cigar("10M50D20M")),
+  ]
+  let params = @src.SvParams::new(min_support=1)
+  let calls = @src.sv_caller_batch(records, params)
+  assert_eq(calls.length(), 1)
+  assert_eq(calls[0].support_reads(), 2)
+}
+
+///|
+test "sv caller batch with depth" {
+  let records : Array[(String, Int32, Array[@src.CigarElement])] = [
+    ("chr1", 100, @src.parse_cigar("10M50D20M")),
+    ("chr1", 100, @src.parse_cigar("10M50D20M")),
+    ("chr1", 100, @src.parse_cigar("10M50D20M")),
+  ]
+  let params : @src.SvParams = @src.SvParams::default()
+  let depth_by_chrom : Map[String, Int32] = Map([("chr1", 30)])
+  let calls = @src.sv_caller_batch(records, params, depth_by_chrom~)
+  assert_eq(calls.length(), 1)
+  assert_eq(calls[0].total_reads(), 30)
+  assert_true(calls[0].score() == 0.1)
 }
 
 ///|
