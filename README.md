@@ -786,7 +786,7 @@ IvanAXu/BioSeqs/
 │   ├── hla_typing.mbt / sv_caller.mbt # 第十阶段 K 系列: HLA 分型(NGS 读取水平) / 长读长 SV 检测(CIGAR + SA tag)
 │   ├── statistics.mbt / kmeans.mbt / hmm.mbt / neural_network.mbt / ... # ML 与统计
 │   └── utils.mbt / data.mbt / ...    # 通用工具与常量
-├── examples/                         # 示例程序（562 个演示 demo）
+├── examples/                         # 示例程序（561 个演示 demo）
 │   ├── basic_seq/                    # 基础序列操作
 │   ├── seqcode_demo/ / seq_utils_demo/ # SeqUtils 序列工具（gc_fraction/GC123/nt_search/六框翻译/seq3/seq1）
 │   ├── codon_utils_demo/               # CodonUtils 密码子分析（NCBI 27 表/GC123/六框翻译/CAI/Nc Wright 1990/表元数据）
