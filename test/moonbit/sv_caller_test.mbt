@@ -228,3 +228,84 @@ test "merge sv candidates depth below support" {
   assert_eq(merged[0].total_reads(), 2)
   assert_true(merged[0].score() == 1.0)
 }
+
+///|
+test "parse sa tag single" {
+  let segs = @src.parse_sa_tag("chr1,100,+,50M,60,0;")
+  assert_eq(segs.length(), 1)
+  assert_eq(segs[0].chrom(), "chr1")
+  assert_eq(segs[0].pos(), 100)
+  assert_eq(segs[0].strand(), 0)
+}
+
+///|
+test "parse sa tag multiple" {
+  let segs = @src.parse_sa_tag("chr1,100,-,50M,60,0;chr2,200,+,40M,60,0;")
+  assert_eq(segs.length(), 2)
+  assert_eq(segs[1].chrom(), "chr2")
+  assert_eq(segs[1].strand(), 0)
+}
+
+///|
+test "parse sa tag empty" {
+  let segs = @src.parse_sa_tag("")
+  assert_eq(segs.length(), 0)
+}
+
+///|
+test "cigar ref span" {
+  let cigar = @src.parse_cigar("10M50D20M")
+  assert_eq(@src.cigar_ref_span(cigar), 80)
+}
+
+///|
+test "sv from sa inversion" {
+  let params = @src.SvParams::default()
+  let calls = @src.sv_candidates_from_sa(
+    "chr1", 300, 0, "chr1,100,-,50M,60,0;", params,
+  )
+  assert_eq(calls.length(), 1)
+  assert_eq(@src.sv_type_label(calls[0].sv_type()), "INV")
+  assert_eq(calls[0].start(), 100)
+  assert_eq(calls[0].end(), 300)
+}
+
+///|
+test "sv from sa translocation" {
+  let params = @src.SvParams::default()
+  let calls = @src.sv_candidates_from_sa(
+    "chr1", 300, 0, "chr2,100,+,50M,60,0;", params,
+  )
+  assert_eq(calls.length(), 1)
+  assert_eq(@src.sv_type_label(calls[0].sv_type()), "BND")
+}
+
+///|
+test "sv from sa tandem duplication" {
+  let params = @src.SvParams::default()
+  let calls = @src.sv_candidates_from_sa(
+    "chr1", 300, 0, "chr1,50,+,50M,60,0;", params,
+  )
+  assert_eq(calls.length(), 1)
+  assert_eq(@src.sv_type_label(calls[0].sv_type()), "DUP")
+  assert_eq(calls[0].start(), 50)
+  assert_eq(calls[0].end(), 300)
+}
+
+///|
+test "sv from sa forward split ignored" {
+  let params = @src.SvParams::default()
+  let calls = @src.sv_candidates_from_sa(
+    "chr1", 300, 0, "chr1,500,+,50M,60,0;", params,
+  )
+  assert_eq(calls.length(), 0)
+}
+
+///|
+test "sv from sa inversion below min length ignored" {
+  let params = @src.SvParams::default()
+  let calls = @src.sv_candidates_from_sa(
+    "chr1", 300, 0, "chr1,280,-,50M,60,0;", params,
+  )
+  assert_eq(calls.length(), 0)
+}

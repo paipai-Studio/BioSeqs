@@ -75,5 +75,31 @@ fn main {
     println("  支持读数: " + merged[0].support_reads().to_string())
   }
 
+  // SA tag 检出 DUP/INV/BND
+  println("\nSA tag 检出 DUP/INV/BND:")
+  let sa_cases : Array[(String, String, Int32)] = [
+    ("倒位 INV", "chr1,100,-,50M,60,0;", 300),
+    ("串联重复 DUP", "chr1,50,+,50M,60,0;", 300),
+    ("易位 BND", "chr2,100,+,50M,60,0;", 300),
+  ]
+  for case in sa_cases {
+    let (label, sa_tag, read_pos) = case
+    let sa_calls = @src.sv_candidates_from_sa(
+      "chr1", read_pos, 0, sa_tag, params,
+    )
+    for c in sa_calls {
+      println(
+        "  - " +
+        label +
+        ": " +
+        @src.sv_type_label(c.sv_type()) +
+        " at chr1:" +
+        c.start().to_string() +
+        "-" +
+        c.end().to_string(),
+      )
+    }
+  }
+
   println("\n演示完成")
 }

@@ -300,3 +300,134 @@ pub fn sv_caller_batch(
   let filtered = filter_sv_calls(merged, params.min_support)
   sort_sv_calls_by_score(filtered)
 }
+
+// ---------------------------------------------------------------------------
+// SA tag(supplementary alignment)解析与 DUP/INV/BND 检出
+// ---------------------------------------------------------------------------
+
+///|
+/// 补充比对片段(来自 SAM SA tag).
+pub struct SaSegment {
+  chrom : String
+  pos : Int32
+  strand : Int32
+}
+
+///|
+/// 染色体.
+pub fn SaSegment::chrom(self : SaSegment) -> String {
+  self.chrom
+}
+
+///|
+/// 1-based 起始位置.
+pub fn SaSegment::pos(self : SaSegment) -> Int32 {
+  self.pos
+}
+
+///|
+/// 链: 0 正链, 1 反链.
+pub fn SaSegment::strand(self : SaSegment) -> Int32 {
+  self.strand
+}
+
+///|
+/// 解析 SAM SA tag 为补充比对片段列表.
+/// 格式: rname,pos,strand,CIGAR,mapQ,NM;...
+pub fn parse_sa_tag(sa : String) -> Array[SaSegment] {
+  let out : Array[SaSegment] = Array(capacity=0)
+  if sa.length() == 0 {
+    return out
+  }
+  for entry in sa.split(";") {
+    if entry.length() == 0 {
+      continue
+    }
+    let fields = entry.split(",").to_array()
+    if fields.length() < 3 {
+      continue
+    }
+    let chrom = fields[0].to_owned()
+    let pos = parse_int(fields[1].to_owned())
+    let strand = if fields[2].to_owned() == "-" { 1 } else { 0 }
+    out.push(SaSegment::{ chrom, pos, strand, })
+  }
+  out
+}
+
+///|
+/// 计算 CIGAR 在参考序列上的跨度(消耗参考的操作长度之和).
+pub fn cigar_ref_span(cigar : Array[CigarElement]) -> Int32 {
+  let mut span = 0
+  for e in cigar {
+    match e.op {
+      CigarOp::Match
+      | CigarOp::Delete
+      | CigarOp::Skip
+      | CigarOp::Equal
+      | CigarOp::Diff => span = span + e.length
+      CigarOp::Insert | CigarOp::SoftClip | CigarOp::HardClip | CigarOp::Pad =>
+        ()
+    }
+  }
+  span
+}
+
+///|
+/// 依据 SA tag 检出 DUP/INV/BND.
+/// 判定规则:
+/// - 补充片段位于不同染色体 -> BND
+/// - 同染色体且链相反 -> INV
+/// - 同染色体同链且补充片段在参考上更靠左(读段倒挂) -> DUP
+/// 同染色体同链且补充片段在右侧视为普通分段比对, 不报 SV.
+pub fn sv_candidates_from_sa(
+  chrom : String,
+  pos : Int32,
+  strand : Int32,
+  sa_tag : String,
+  params : SvParams,
+) -> Array[SvCall] {
+  let out : Array[SvCall] = Array(capacity=0)
+  for seg in parse_sa_tag(sa_tag) {
+    if seg.chrom != chrom {
+      out.push(SvCall::{
+        chrom,
+        sv_type: SvType::BND,
+        start: pos,
+        end: pos,
+        support_reads: 1,
+        total_reads: 1,
+        score: 1.0,
+      })
+      continue
+    }
+    let low = if seg.pos < pos { seg.pos } else { pos }
+    let high = if seg.pos < pos { pos } else { seg.pos }
+    if seg.strand != strand {
+      if high - low >= params.min_sv_len {
+        out.push(SvCall::{
+          chrom,
+          sv_type: SvType::INV,
+          start: low,
+          end: high,
+          support_reads: 1,
+          total_reads: 1,
+          score: 1.0,
+        })
+      }
+      continue
+    }
+    if seg.pos < pos && pos - seg.pos >= params.min_sv_len {
+      out.push(SvCall::{
+        chrom,
+        sv_type: SvType::DUP,
+        start: seg.pos,
+        end: pos,
+        support_reads: 1,
+        total_reads: 1,
+        score: 1.0,
+      })
+    }
+  }
+  out
+}
