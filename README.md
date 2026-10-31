@@ -750,6 +750,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | 模块 | 对应工具 | 功能说明 |
 | :--- | :--- | :--- |
 | **临床变异解读(ACMG 自动化分级)** | ClinVar / InterVar / VEP-plugin | `acmg.mbt`：ACMG 2015（Richards et al.）致病性自动化分级引擎——证据推导（PVS1 LoF 后果、PS1/PP5 ClinVar 同位点致病收录、PM2 低频、PM4 框内 indel、PM6 de novo、PP2/BP1 基因属性、PP3/BP4 计算预测、PS3/BS3 功能实验、BA1/BS1 频率硬约束、BP7 同义远离剪接）、ClinVar 简化 TSV 摄取与查找（星级 ≥2 可信收录、冲突记录不计证据）、ACMG Table 5 组合规则五级分类（致病/可能致病/VUS/可能良性/良性，致病与良性同时满足时冲突降级 VUS）、批量注释与 TSV/JSON 报告；consequence 标签与 `variant_annotation.mbt`/`snpeff.mbt` 的 VEP 语义对齐；已知简化：外部证据（家系共分离/热点区域）由调用方以可选参数输入 |
+| **QTL-seq / BSA 混池分离定位** | QTL-seq / MutMap | `qtlseq.mbt`：双混池（突变体池 + 野生型池）VCF 逐双等位 SNP 位点 SNP-index（alt AD/(ref AD+alt AD)，FORMAT AD 解析含 vcf.mbt 整串拆分适配、深度过滤）、ΔSNP-index = mut − wt、滑动窗口聚合（固定网格 1-based 闭区间）、候选区间调用（\|ΔSNP-index\| ≥ 阈值的连续窗口合并、峰值方向标记 mutant/wt 富集）、MutMap 单池模式（wt_index 恒 0 即 mutant SNP-index 自身）、逐窗 TSV 与候选区间 BED（0-based 半开）与 JSON 导出 |
 
 ## 架构设计
 
@@ -758,7 +759,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 ```
 IvanAXu/BioSeqs/
 ├── moon.mod                          # 模块配置 (name="IvanAXu/BioSeqs", version=0.1.25)
-├── src/                              # 源代码（720 个 .mbt 模块）
+├── src/                              # 源代码（721 个 .mbt 模块）
 │   ├── seq.mbt                       # Bio.Seq 序列对象
 │   ├── seqio.mbt / fasta_io.mbt / ... # 序列 I/O（30+ 种格式）
 │   ├── alignment.mbt / align_*.mbt   # 比对算法 + 20+ 种比对格式严格 API
@@ -776,10 +777,10 @@ IvanAXu/BioSeqs/
 │   ├── umi.mbt / codon_optimizer.mbt / read_simulator.mbt / variant_benchmark.mbt / phylo_clock.mbt / kraken_lite.mbt # 第五、六阶段: UMI/密码子优化/读段模拟/变异检出基准/分子钟/宏基因组丰度
 │   ├── phase_lite.mbt / assembly_graph.mbt / gvcf.mbt / pedigree_qc.mbt / gwas_regression.mbt # 第七阶段: VCF 定相 / 组装图简化与抛光 / gVCF 联合分型 / 家系一致性 QC / GWAS 回归闭环
 │   ├── mutect_lite.mbt / bam_postprocess.mbt / transcript_assembly.mbt / methylation_caller.mbt / foldx_lite.mbt / vg_lite.mbt # 第八阶段: 体细胞变异检出(Mutect2 LOD) / BAM 后处理(fixmate/markdup/BQSR) / 转录本组装(剪接图流) / 甲基化调用器(Bismark extractor) / 蛋白稳定性 ΔΔG(FoldX-lite) / 泛基因组变异图分型(vg-lite)
-│   ├── acmg.mbt # 第九阶段: ACMG 2015 临床致病性自动化分级 + ClinVar 摄取
+│   ├── acmg.mbt / qtlseq.mbt # 第九阶段: ACMG 2015 临床致病性自动化分级 + ClinVar 摄取 / QTL-seq 混池分离定位(SNP-index)
 │   ├── statistics.mbt / kmeans.mbt / hmm.mbt / neural_network.mbt / ... # ML 与统计
 │   └── utils.mbt / data.mbt / ...    # 通用工具与常量
-├── examples/                         # 示例程序（554 个演示 demo）
+├── examples/                         # 示例程序（555 个演示 demo）
 │   ├── basic_seq/                    # 基础序列操作
 │   ├── seqcode_demo/ / seq_utils_demo/ # SeqUtils 序列工具（gc_fraction/GC123/nt_search/六框翻译/seq3/seq1）
 │   ├── codon_utils_demo/               # CodonUtils 密码子分析（NCBI 27 表/GC123/六框翻译/CAI/Nc Wright 1990/表元数据）
@@ -837,10 +838,10 @@ IvanAXu/BioSeqs/
 │   ├── umi_demo/ / codon_optimizer_demo/ / read_simulator_demo/ / variant_benchmark_demo/ / treetime_demo/ / kraken_lite_demo/ # 第五、六阶段（UMI/密码子优化/读段模拟/变异检出基准/分子钟/TreeTime/宏基因组丰度）
 │   ├── phase_demo/ / assembly_graph_demo/ / gvcf_demo/ / pedigree_qc_demo/ / gwas_regression_demo/ # 第七阶段（读段定相；组装图简化与抛光；gVCF 联合分型；家系一致性 QC；GWAS 回归闭环）
 │   ├── mutect_lite_demo/ / bam_postprocess_demo/ / transcript_assembly_demo/ / methylation_caller_demo/ / foldx_lite_demo/ / vg_lite_demo/ # 第八阶段（体细胞变异检出：LOD/过滤/TMB/VCF/突变签名闭环；BAM 后处理：fixmate/markdup/BQSR 链；转录本组装：junction/贪心流/GTF/FPKM 闭环；甲基化调用：转化读段→逐位点计数→bsseq 统计链闭环；蛋白稳定性：单点 ΔΔG→饱和扫描→文库排名闭环；变异图分型：VCF→图→路径→GT 闭环）
-│   ├── acmg_demo/ # 第九阶段（临床变异解读：ClinVar 摄取→证据推导→五级分类→报告闭环）
+│   ├── acmg_demo/ / qtlseq_demo/ # 第九阶段（临床变异解读：ClinVar 摄取→证据推导→五级分类→报告闭环；QTL-seq 定位：双池 SNP-index→ΔSNP-index 滑窗→候选区间 BED 闭环）
 │   └── ... （更多 examples/*_demo/）
 ├── test/
-│   ├── moonbit/                      # MoonBit 单元测试（721 个测试文件，16401 用例）
+│   ├── moonbit/                      # MoonBit 单元测试（722 个测试文件，16408 用例）
 │   │   ├── bio_seq_test.mbt / seqio_wb_test.mbt / ...
 │   │   ├── alignment_test.mbt / pdb_test.mbt / phylo_test.mbt / ...
 │   │   ├── deseq2_test.mbt / rankprod_test.mbt / seurat_test.mbt / scran_test.mbt / ...
@@ -877,7 +878,7 @@ IvanAXu/BioSeqs/
 
 ```bash
 moon build                                              # ✅ 成功
-moon test                                               # ✅ 16401 个测试全部通过（test/moonbit 包）
+moon test                                               # ✅ 16408 个测试全部通过（test/moonbit 包）
 ```
 
 ---
@@ -886,7 +887,7 @@ moon test                                               # ✅ 16401 个测试全
 
 ```bash
 moon build      # 构建项目
-moon test       # 运行全部测试 (16401 个测试用例，test/moonbit 包)
+moon test       # 运行全部测试 (16408 个测试用例，test/moonbit 包)
 ```
 
 ---
