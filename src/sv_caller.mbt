@@ -185,7 +185,13 @@ pub fn sv_candidates_from_sam(
 
 ///|
 /// 合并相同位置的 SV 候选(按支持读数聚合).
-pub fn merge_sv_candidates(calls : Array[SvCall]) -> Array[SvCall] {
+///
+/// depth_by_chrom 提供各染色体总覆盖读数, 用于计算置信度
+/// score = support_reads / total_reads. 未提供时总读数暂按支持读数计.
+pub fn merge_sv_candidates(
+  calls : Array[SvCall],
+  depth_by_chrom~ : Map[String, Int32] = Map([]),
+) -> Array[SvCall] {
   if calls.length() == 0 {
     return calls
   }
@@ -216,7 +222,11 @@ pub fn merge_sv_candidates(calls : Array[SvCall]) -> Array[SvCall] {
     }
     let first = arr[0]
     let support = arr.length()
-    let total = arr.length()
+    let depth = match depth_by_chrom.get(first.chrom) {
+      Some(d) => d
+      None => 0
+    }
+    let total = if depth > support { depth } else { support }
     merged.push(SvCall::{
       chrom: first.chrom,
       sv_type: first.sv_type,
@@ -276,6 +286,7 @@ pub fn sort_sv_calls_by_score(calls : Array[SvCall]) -> Array[SvCall] {
 pub fn sv_caller_batch(
   records : Array[(String, Int32, Array[CigarElement])],
   params : SvParams,
+  depth_by_chrom~ : Map[String, Int32] = Map([]),
 ) -> Array[SvCall] {
   let all_candidates : Array[SvCall] = Array(capacity=0)
   for record in records {
@@ -285,7 +296,7 @@ pub fn sv_caller_batch(
       all_candidates.push(c)
     }
   }
-  let merged = merge_sv_candidates(all_candidates)
+  let merged = merge_sv_candidates(all_candidates, depth_by_chrom~)
   let filtered = filter_sv_calls(merged, params.min_support)
   sort_sv_calls_by_score(filtered)
 }

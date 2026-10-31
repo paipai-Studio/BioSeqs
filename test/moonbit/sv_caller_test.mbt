@@ -155,3 +155,41 @@ test "sv call fields" {
   assert_eq(c.start(), 110)
   assert_eq(c.end(), 160)
 }
+
+///|
+test "merge sv candidates with depth" {
+  let cigar = @src.parse_cigar("10M50D20M")
+  let params = @src.SvParams::default()
+  let calls = @src.sv_candidates_from_sam("chr1", 100, cigar, params)
+  let all_calls : Array[@src.SvCall] = []
+  for _ in 0..<3 {
+    for c in calls {
+      all_calls.push(c)
+    }
+  }
+  let depth_by_chrom : Map[String, Int32] = Map([("chr1", 12)])
+  let merged = @src.merge_sv_candidates(all_calls, depth_by_chrom~)
+  assert_eq(merged.length(), 1)
+  assert_eq(merged[0].support_reads(), 3)
+  assert_eq(merged[0].total_reads(), 12)
+  assert_true(merged[0].score() == 0.25)
+  assert_true(!merged[0].is_high_confidence())
+}
+
+///|
+test "merge sv candidates depth below support" {
+  let cigar = @src.parse_cigar("10M50D20M")
+  let params = @src.SvParams::default()
+  let calls = @src.sv_candidates_from_sam("chr1", 100, cigar, params)
+  let all_calls : Array[@src.SvCall] = []
+  for _ in 0..<2 {
+    for c in calls {
+      all_calls.push(c)
+    }
+  }
+  let depth_by_chrom : Map[String, Int32] = Map([("chr1", 1)])
+  let merged = @src.merge_sv_candidates(all_calls, depth_by_chrom~)
+  assert_eq(merged[0].support_reads(), 2)
+  assert_eq(merged[0].total_reads(), 2)
+  assert_true(merged[0].score() == 1.0)
+}
