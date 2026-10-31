@@ -8,42 +8,40 @@ pub enum CodonSubstitution {
   Synonymous // dS - no amino acid change
   NonSynonymous // dN - amino acid change
   Unknown // ambiguous or stop codon
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
-/// Construct Synonymous CodonSubstitution.
-pub fn codon_sub_synonymous() -> CodonSubstitution {
-  Synonymous
-}
+pub extend CodonSubstitution with Eq::{equal, not_equal}
 
 ///|
-/// Construct NonSynonymous CodonSubstitution.
-pub fn codon_sub_nonsynonymous() -> CodonSubstitution {
-  NonSynonymous
-}
+pub extend CodonSubstitution with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
-/// Construct Unknown CodonSubstitution.
-pub fn codon_sub_unknown() -> CodonSubstitution {
-  Unknown
+/// String representation (ordinary method, replacing the deprecated Show derive).
+pub fn CodonSubstitution::to_string(self : CodonSubstitution) -> String {
+  match self {
+    Synonymous => "Synonymous"
+    NonSynonymous => "NonSynonymous"
+    Unknown => "Unknown"
+  }
 }
 
 ///|
 /// Codon substitution counts.
 pub struct CodonSubCounts {
-  synonymous : Int
-  nonsynonymous : Int
-  total : Int
+  synonymous : Int32
+  nonsynonymous : Int32
+  total : Int32
 }
 
 ///|
 /// Construct CodonSubCounts.
 pub fn CodonSubCounts::new(
-  synonymous~ : Int,
-  nonsynonymous~ : Int,
-  total~ : Int,
+  synonymous~ : Int32,
+  nonsynonymous~ : Int32,
+  total~ : Int32,
 ) -> CodonSubCounts {
-  CodonSubCounts::{ synonymous, nonsynonymous, total }
+  CodonSubCounts::{ synonymous, nonsynonymous, total, }
 }
 
 ///|
@@ -62,10 +60,10 @@ pub fn DnDsResult::new(
   dn~ : Double,
   ds~ : Double,
   dnds~ : Double,
-  dn_std? : Double? = None,
-  ds_std? : Double? = None,
+  dn_std~ : Double? = None,
+  ds_std~ : Double? = None,
 ) -> DnDsResult {
-  DnDsResult::{ dn, ds, dnds, dn_std, ds_std }
+  DnDsResult::{ dn, ds, dnds, dn_std, ds_std, }
 }
 
 ///|
@@ -296,7 +294,7 @@ pub fn count_codon_sites(codon : String) -> (Double, Double) {
 ///|
 /// Get all possible codons reachable via single nucleotide changes.
 fn get_possible_codons(codon : String) -> Array[String] {
-  let result : Array[String] = Array::new()
+  let result : Array[String] = Array(capacity=0)
   let bases = ['A', 'T', 'C', 'G']
   let c = codon
   let mut pos = 0
@@ -404,33 +402,13 @@ pub fn calc_dnds_nei_gojobori(seq1 : String, seq2 : String) -> DnDsResult {
 }
 
 ///|
-/// Calculate dN/dS for all pairs of sequences.
-pub fn pairwise_dnds(
-  sequences : Array[String],
-) -> Array[(String, String, DnDsResult)] {
-  let result : Array[(String, String, DnDsResult)] = Array::new()
-  let n = sequences.length()
-  let mut i = 0
-  while i < n {
-    let mut j = i + 1
-    while j < n {
-      let dnds = calc_dnds_nei_gojobori(sequences[i], sequences[j])
-      result.push(("seq" + i.to_string(), "seq" + j.to_string(), dnds))
-      j = j + 1
-    }
-    i = i + 1
-  }
-  result
-}
-
-///|
 /// Calculate codon usage bias for a sequence.
 /// Returns relative synonymous codon usage (RSCU) values.
 pub fn codon_usage_bias(seq : String) -> Map[String, Double] {
   let result : Map[String, Double] = Map([], capacity=64)
   let n = seq.length() / 3
-  let aa_counts : Map[String, Int] = Map([], capacity=20)
-  let codon_counts : Map[String, Int] = Map([], capacity=64)
+  let aa_counts : Map[String, Int32] = Map([], capacity=20)
+  let codon_counts : Map[String, Int32] = Map([], capacity=64)
   let mut i = 0
   while i < n {
     let start = i * 3
@@ -466,7 +444,7 @@ pub fn codon_usage_bias(seq : String) -> Map[String, Double] {
 ///|
 /// Get all synonymous codons for a given amino acid.
 fn get_synonymous_codons(aa : String) -> Array[String] {
-  let result : Array[String] = Array::new()
+  let result : Array[String] = Array(capacity=0)
   let codons = [
     "AAA", "AAC", "AAG", "AAT", "ACA", "ACC", "ACG", "ACT", "AGA", "AGC", "AGG",
     "AGT", "ATA", "ATC", "ATG", "ATT", "CAA", "CAC", "CAG", "CAT", "CCA", "CCC",
@@ -506,7 +484,7 @@ pub fn effective_number_of_codons(seq : String) -> Double {
       let codons = get_synonymous_codons(aa)
       let n_syn = codons.length()
       if n_syn > 1 {
-        let codon_freqs : Array[Double] = Array::new()
+        let codon_freqs : Array[Double] = Array(capacity=0)
         let mut total = 0
         for codon in codons {
           let count = count_codon_in_sequence(seq, codon)
@@ -538,7 +516,7 @@ pub fn effective_number_of_codons(seq : String) -> Double {
 
 ///|
 /// Count occurrences of a specific codon in a sequence.
-fn count_codon_in_sequence(seq : String, codon : String) -> Int {
+fn count_codon_in_sequence(seq : String, codon : String) -> Int32 {
   let n = seq.length() / 3
   let mut count = 0
   let mut i = 0
@@ -551,19 +529,4 @@ fn count_codon_in_sequence(seq : String, codon : String) -> Int {
     i = i + 1
   }
   count
-}
-
-///|
-/// Create a demo codon alignment.
-pub fn create_demo_codon_alignment() -> Array[String] {
-  ["ATGTCTGAAATG", "ATGTCTGAAATG", "ATGTCTGAGATG", "ATGTCCGAAATG"]
-}
-
-///|
-/// Create a demo alignment with positive selection.
-pub fn create_demo_positive_selection() -> Array[String] {
-  [
-    "ATGTCTGAATAA", "ATGTCTGAATAA", "ATGTCTGAGTAA", "ATGTCTGAGTAA", "ATGTCCGAGTAA",
-    "ATGTCCGAGTAA",
-  ]
 }

@@ -6,10 +6,6 @@
 ///|
 /// Normalization type
 pub enum EDASeqNormType {
-  /// Within-lane normalization (GC content or gene length)
-  WithinLane
-  /// Between-lane normalization
-  BetweenLane
   /// Full normalization (within + between)
   Full
 }
@@ -19,10 +15,6 @@ pub enum EDASeqNormType {
 pub enum EDASeqWithinMethod {
   /// GC content normalization
   GCContent
-  /// Gene length normalization
-  GeneLength
-  /// Both GC and length (loess)
-  Both
 }
 
 ///|
@@ -30,10 +22,6 @@ pub enum EDASeqWithinMethod {
 pub enum EDASeqBetweenMethod {
   /// Median ratio normalization
   MedianRatio
-  /// Quantile normalization
-  Quantile
-  /// Library size normalization
-  Library
 }
 
 ///|
@@ -158,7 +146,7 @@ pub fn EDASeqGeneAnno::new(
   length : Double,
 ) -> EDASeqGeneAnno {
   let eff_len = if length > 200.0 { length } else { 200.0 }
-  EDASeqGeneAnno::{ gene_id, gc_content, length, effective_length: eff_len }
+  EDASeqGeneAnno::{ gene_id, gc_content, length, effective_length: eff_len, }
 }
 
 ///|
@@ -182,7 +170,7 @@ pub fn EDASeqDataSet::new(
   annotations : Array[EDASeqGeneAnno],
 ) -> EDASeqDataSet {
   let n_samples = sample_ids.length()
-  let lib_sizes : Array[Double] = Array::new()
+  let lib_sizes : Array[Double] = Array(capacity=0)
   let mut s = 0
   while s < n_samples {
     let mut sum = 0.0
@@ -194,18 +182,18 @@ pub fn EDASeqDataSet::new(
     lib_sizes.push(sum)
     s = s + 1
   }
-  EDASeqDataSet::{ gene_ids, sample_ids, counts, annotations, lib_sizes }
+  EDASeqDataSet::{ gene_ids, sample_ids, counts, annotations, lib_sizes, }
 }
 
 ///|
 /// Get number of genes
-pub fn EDASeqDataSet::eda_n_genes(self : EDASeqDataSet) -> Int {
+pub fn EDASeqDataSet::eda_n_genes(self : EDASeqDataSet) -> Int32 {
   self.gene_ids.length()
 }
 
 ///|
 /// Get number of samples
-pub fn EDASeqDataSet::eda_n_samples(self : EDASeqDataSet) -> Int {
+pub fn EDASeqDataSet::eda_n_samples(self : EDASeqDataSet) -> Int32 {
   self.sample_ids.length()
 }
 
@@ -213,7 +201,7 @@ pub fn EDASeqDataSet::eda_n_samples(self : EDASeqDataSet) -> Int {
 /// Get a gene's counts across samples
 pub fn EDASeqDataSet::eda_gene_counts(
   self : EDASeqDataSet,
-  gene_idx : Int,
+  gene_idx : Int32,
 ) -> Array[Double] {
   self.counts[gene_idx].copy()
 }
@@ -222,9 +210,9 @@ pub fn EDASeqDataSet::eda_gene_counts(
 /// Get a sample's counts across genes
 pub fn EDASeqDataSet::eda_sample_counts(
   self : EDASeqDataSet,
-  sample_idx : Int,
+  sample_idx : Int32,
 ) -> Array[Double] {
-  let result : Array[Double] = Array::new()
+  let result : Array[Double] = Array(capacity=0)
   let mut i = 0
   while i < self.counts.length() {
     result.push(self.counts[i][sample_idx])
@@ -243,16 +231,16 @@ pub fn eda_normalize_within_lane(
 ) -> EDASeqWithinResult {
   let n_genes = data.gene_ids.length()
   let n_samples = data.sample_ids.length()
-  let gc_fits : Array[EDASeqFit] = Array::new()
-  let length_fits : Array[EDASeqFit] = Array::new()
-  let norm_counts : Array[Array[Double]] = Array::new()
+  let gc_fits : Array[EDASeqFit] = Array(capacity=0)
+  let length_fits : Array[EDASeqFit] = Array(capacity=0)
+  let norm_counts : Array[Array[Double]] = Array(capacity=0)
 
   let mut s = 0
   while s < n_samples {
     let sample_counts = data.eda_sample_counts(s)
-    let log_counts : Array[Double] = Array::new()
-    let gc_values : Array[Double] = Array::new()
-    let length_values : Array[Double] = Array::new()
+    let log_counts : Array[Double] = Array(capacity=0)
+    let gc_values : Array[Double] = Array(capacity=0)
+    let length_values : Array[Double] = Array(capacity=0)
     let mut g = 0
     while g < n_genes {
       let c = if sample_counts[g] > 0.0 {
@@ -275,7 +263,7 @@ pub fn eda_normalize_within_lane(
     )
     gc_fits.push(gc_fit)
     length_fits.push(len_fit)
-    let col_norm : Array[Double] = Array::new()
+    let col_norm : Array[Double] = Array(capacity=0)
     let mut ni = 0
     while ni < n_genes {
       col_norm.push(@math.exp(norm_sample_log[ni]))
@@ -286,10 +274,10 @@ pub fn eda_normalize_within_lane(
   }
 
   // Transpose norm_counts from samples x genes to genes x samples
-  let result : Array[Array[Double]] = Array::new()
+  let result : Array[Array[Double]] = Array(capacity=0)
   let mut g2 = 0
   while g2 < n_genes {
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     let mut s2 = 0
     while s2 < n_samples {
       row.push(norm_counts[s2][g2])
@@ -317,22 +305,22 @@ fn eda_apply_within_norm(
   params : EDASeqParams,
 ) -> (Array[Double], EDASeqFit, EDASeqFit) {
   let n = log_counts.length()
-  let gc_fit_default = EDASeqFit::{
+  let _gc_fit_default = EDASeqFit::{
     span: params.loess_span,
-    fitted: Array::new(),
-    residuals: Array::new(),
+    fitted: Array(capacity=0),
+    residuals: Array(capacity=0),
     converged: false,
   }
-  let len_fit_default = EDASeqFit::{
+  let _len_fit_default = EDASeqFit::{
     span: params.loess_span,
-    fitted: Array::new(),
-    residuals: Array::new(),
+    fitted: Array(capacity=0),
+    residuals: Array(capacity=0),
     converged: false,
   }
   let lib_adj = if lib_size > 0.0 { lib_size } else { 1.0 }
   let log_lib = @math.ln(lib_adj)
   // Normalize by library size first
-  let base_norm : Array[Double] = Array::new()
+  let base_norm : Array[Double] = Array(capacity=0)
   let mut i = 0
   while i < n {
     base_norm.push(log_counts[i] - log_lib)
@@ -365,16 +353,16 @@ fn eda_gc_correction(
     let result = log_counts.copy()
     let fit = EDASeqFit::{
       span,
-      fitted: Array::new(),
-      residuals: Array::new(),
+      fitted: Array(capacity=0),
+      residuals: Array(capacity=0),
       converged: false,
     }
     return (result, fit)
   }
   // Apply loess smoothing
   let fitted = eda_loess_smooth(gc_values, log_counts, span)
-  let residuals : Array[Double] = Array::new()
-  let corrected : Array[Double] = Array::new()
+  let residuals : Array[Double] = Array(capacity=0)
+  let corrected : Array[Double] = Array(capacity=0)
   let mut i = 0
   while i < n {
     let res = log_counts[i] - fitted[i]
@@ -385,13 +373,13 @@ fn eda_gc_correction(
   }
   // Add mean back to preserve overall expression levels
   let mean_res = eda_mean(corrected)
-  let final_corrected : Array[Double] = Array::new()
+  let final_corrected : Array[Double] = Array(capacity=0)
   let mut j = 0
   while j < n {
     final_corrected.push(corrected[j] + mean_res)
     j = j + 1
   }
-  (final_corrected, EDASeqFit::{ span, fitted, residuals, converged: true })
+  (final_corrected, EDASeqFit::{ span, fitted, residuals, converged: true, })
 }
 
 ///|
@@ -406,14 +394,14 @@ fn eda_length_correction(
     let result = log_counts.copy()
     let fit = EDASeqFit::{
       span,
-      fitted: Array::new(),
-      residuals: Array::new(),
+      fitted: Array(capacity=0),
+      residuals: Array(capacity=0),
       converged: false,
     }
     return (result, fit)
   }
   // Use log-length for smoothing
-  let log_lengths : Array[Double] = Array::new()
+  let log_lengths : Array[Double] = Array(capacity=0)
   let mut i = 0
   while i < n {
     let l = if length_values[i] > 1.0 { length_values[i] } else { 1.0 }
@@ -421,8 +409,8 @@ fn eda_length_correction(
     i = i + 1
   }
   let fitted = eda_loess_smooth(log_lengths, log_counts, span)
-  let residuals : Array[Double] = Array::new()
-  let corrected : Array[Double] = Array::new()
+  let residuals : Array[Double] = Array(capacity=0)
+  let corrected : Array[Double] = Array(capacity=0)
   let mut j = 0
   while j < n {
     let res = log_counts[j] - fitted[j]
@@ -431,13 +419,13 @@ fn eda_length_correction(
     j = j + 1
   }
   let mean_res = eda_mean(corrected)
-  let final_corrected : Array[Double] = Array::new()
+  let final_corrected : Array[Double] = Array(capacity=0)
   let mut k = 0
   while k < n {
     final_corrected.push(corrected[k] + mean_res)
     k = k + 1
   }
-  (final_corrected, EDASeqFit::{ span, fitted, residuals, converged: true })
+  (final_corrected, EDASeqFit::{ span, fitted, residuals, converged: true, })
 }
 
 ///|
@@ -451,13 +439,13 @@ fn eda_loess_smooth(
   if n < 3 {
     return y.copy()
   }
-  let result : Array[Double] = Array::new()
+  let result : Array[Double] = Array(capacity=0)
   let half_span = span * 0.5
   let mut i = 0
   while i < n {
     let xi = x[i]
     // Collect neighbor indices
-    let neighbors : Array[(Double, Double)] = Array::new()
+    let neighbors : Array[(Double, Double)] = Array(capacity=0)
     let mut j = 0
     while j < n {
       let dist = (x[j] - xi).abs()
@@ -517,10 +505,10 @@ pub fn eda_normalize_between_lane(
   // Compute size factors
   let size_factors = eda_compute_size_factors(data.counts, params)
   // Apply normalization
-  let norm_counts : Array[Array[Double]] = Array::new()
+  let norm_counts : Array[Array[Double]] = Array(capacity=0)
   let mut g = 0
   while g < n_genes {
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     let mut s = 0
     while s < n_samples {
       let sf = if size_factors[s] > 0.0 { size_factors[s] } else { 1.0 }
@@ -545,7 +533,7 @@ fn eda_compute_size_factors(
 ) -> Array[Double] {
   let n_genes = counts.length()
   let n_samples = if n_genes > 0 { counts[0].length() } else { 0 }
-  let size_factors : Array[Double] = Array::new()
+  let size_factors : Array[Double] = Array(capacity=0)
   if n_samples == 0 {
     return size_factors
   }
@@ -554,7 +542,7 @@ fn eda_compute_size_factors(
     EDASeqBetweenMethod::MedianRatio => {
       // DESeq2-style median ratio normalization
       // Compute geometric means per gene
-      let geo_means : Array[Double] = Array::new()
+      let geo_means : Array[Double] = Array(capacity=0)
       let mut g = 0
       while g < n_genes {
         let row = counts[g]
@@ -571,7 +559,7 @@ fn eda_compute_size_factors(
       // Compute size factors as median of ratios
       let mut s2 = 0
       while s2 < n_samples {
-        let ratios : Array[Double] = Array::new()
+        let ratios : Array[Double] = Array(capacity=0)
         let mut g2 = 0
         while g2 < n_genes {
           let c = if counts[g2][s2] > 0.0 {
@@ -585,42 +573,6 @@ fn eda_compute_size_factors(
           g2 = g2 + 1
         }
         size_factors.push(eda_median(ratios))
-        s2 = s2 + 1
-      }
-    }
-    EDASeqBetweenMethod::Quantile => {
-      // Quantile normalization
-      let mut s = 0
-      while s < n_samples {
-        let col : Array[Double] = Array::new()
-        let mut g = 0
-        while g < n_genes {
-          col.push(counts[g][s])
-          g = g + 1
-        }
-        size_factors.push(eda_mean(col))
-        s = s + 1
-      }
-    }
-    EDASeqBetweenMethod::Library => {
-      // Library size normalization
-      let total : Array[Double] = Array::new()
-      let mut s = 0
-      while s < n_samples {
-        let mut sum = 0.0
-        let mut g = 0
-        while g < n_genes {
-          sum = sum + counts[g][s]
-          g = g + 1
-        }
-        total.push(sum)
-        s = s + 1
-      }
-      let mean_total = eda_mean(total)
-      let mut s2 = 0
-      while s2 < n_samples {
-        let sf = if total[s2] > 0.0 { total[s2] / mean_total } else { 1.0 }
-        size_factors.push(sf)
         s2 = s2 + 1
       }
     }
@@ -683,34 +635,12 @@ fn eda_sort(arr : Array[Double]) -> Array[Double] {
 ///|
 /// Run the complete EDASeq normalization pipeline.
 pub fn eda_run(data : EDASeqDataSet, params : EDASeqParams) -> EDASeqResult {
-  let n_genes = data.gene_ids.length()
-  let n_samples = data.sample_ids.length()
-  let within_counts : Array[Array[Double]] = Array::new()
-  let between_counts : Array[Array[Double]] = Array::new()
+  let _n_genes = data.gene_ids.length()
+  let _n_samples = data.sample_ids.length()
+  let _within_counts : Array[Array[Double]] = Array(capacity=0)
+  let _between_counts : Array[Array[Double]] = Array(capacity=0)
 
   match params.norm_type {
-    EDASeqNormType::WithinLane => {
-      let within = eda_normalize_within_lane(data, params)
-      EDASeqResult::{
-        within_norm_counts: within.norm_counts,
-        between_norm_counts: Array::new(),
-        norm_counts: within.norm_counts,
-        norm_type: params.norm_type,
-        gene_ids: data.gene_ids,
-        sample_ids: data.sample_ids,
-      }
-    }
-    EDASeqNormType::BetweenLane => {
-      let between = eda_normalize_between_lane(data, params)
-      EDASeqResult::{
-        within_norm_counts: Array::new(),
-        between_norm_counts: between.norm_counts,
-        norm_counts: between.norm_counts,
-        norm_type: params.norm_type,
-        gene_ids: data.gene_ids,
-        sample_ids: data.sample_ids,
-      }
-    }
     EDASeqNormType::Full => {
       // Apply within-lane first, then between-lane
       let within = eda_normalize_within_lane(data, params)
@@ -744,10 +674,10 @@ pub fn eda_rpkm(
 ) -> Array[Array[Double]] {
   let n_genes = counts.length()
   let n_samples = if n_genes > 0 { counts[0].length() } else { 0 }
-  let rpkm : Array[Array[Double]] = Array::new()
+  let rpkm : Array[Array[Double]] = Array(capacity=0)
   let mut g = 0
   while g < n_genes {
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     let anno = annotations[g]
     let scale = anno.eda_rpkm_scale()
     let mut s = 0
@@ -767,74 +697,14 @@ pub fn eda_rpkm(
   rpkm
 }
 
-///|
-/// Compute TPM (Transcripts Per Million) normalization.
-pub fn eda_tpm(
-  counts : Array[Array[Double]],
-  annotations : Array[EDASeqGeneAnno],
-  lib_sizes : Array[Double],
-) -> Array[Array[Double]] {
-  let n_genes = counts.length()
-  let n_samples = if n_genes > 0 { counts[0].length() } else { 0 }
-  let tpm : Array[Array[Double]] = Array::new()
-  let mut g = 0
-  while g < n_genes {
-    let row : Array[Double] = Array::new()
-    let anno = annotations[g]
-    let rpk_scale = anno.eda_rpkm_scale()
-    let mut s = 0
-    while s < n_samples {
-      let rpkm_val = counts[g][s] * rpk_scale
-      row.push(rpkm_val)
-      s = s + 1
-    }
-    tpm.push(row)
-    g = g + 1
-  }
-  // Convert RPK to TPM by normalizing to million
-  let result : Array[Array[Double]] = Array::new()
-  let mut s2 = 0
-  while s2 < n_samples {
-    let col : Array[Double] = Array::new()
-    let mut total_rpk = 0.0
-    let mut g2 = 0
-    while g2 < n_genes {
-      total_rpk = total_rpk + tpm[g2][s2]
-      g2 = g2 + 1
-    }
-    let scale = if total_rpk > 0.0 { 1.0e6 / total_rpk } else { 0.0 }
-    let mut g3 = 0
-    while g3 < n_genes {
-      col.push(tpm[g3][s2] * scale)
-      g3 = g3 + 1
-    }
-    result.push(col)
-    s2 = s2 + 1
-  }
-  // Transpose back to genes x samples
-  let final_result : Array[Array[Double]] = Array::new()
-  let mut g4 = 0
-  while g4 < n_genes {
-    let row : Array[Double] = Array::new()
-    let mut s3 = 0
-    while s3 < n_samples {
-      row.push(result[s3][g4])
-      s3 = s3 + 1
-    }
-    final_result.push(row)
-    g4 = g4 + 1
-  }
-  final_result
-}
-
 // ===== Accessor methods =====
 
 ///|
 /// Get a normalized count
 pub fn EDASeqResult::eda_get_count(
   self : EDASeqResult,
-  gene_idx : Int,
-  sample_idx : Int,
+  gene_idx : Int32,
+  sample_idx : Int32,
 ) -> Double {
   self.norm_counts[gene_idx][sample_idx]
 }
@@ -843,7 +713,7 @@ pub fn EDASeqResult::eda_get_count(
 /// Get normalized counts for a gene
 pub fn EDASeqResult::eda_get_gene(
   self : EDASeqResult,
-  gene_idx : Int,
+  gene_idx : Int32,
 ) -> Array[Double] {
   self.norm_counts[gene_idx].copy()
 }
@@ -852,9 +722,9 @@ pub fn EDASeqResult::eda_get_gene(
 /// Get normalized counts for a sample
 pub fn EDASeqResult::eda_get_sample(
   self : EDASeqResult,
-  sample_idx : Int,
+  sample_idx : Int32,
 ) -> Array[Double] {
-  let result : Array[Double] = Array::new()
+  let result : Array[Double] = Array(capacity=0)
   let mut i = 0
   while i < self.norm_counts.length() {
     result.push(self.norm_counts[i][sample_idx])
@@ -865,19 +735,22 @@ pub fn EDASeqResult::eda_get_sample(
 
 ///|
 /// Get number of genes
-pub fn EDASeqResult::eda_n_genes(self : EDASeqResult) -> Int {
+pub fn EDASeqResult::eda_n_genes(self : EDASeqResult) -> Int32 {
   self.gene_ids.length()
 }
 
 ///|
 /// Get number of samples
-pub fn EDASeqResult::eda_n_samples(self : EDASeqResult) -> Int {
+pub fn EDASeqResult::eda_n_samples(self : EDASeqResult) -> Int32 {
   self.sample_ids.length()
 }
 
 ///|
 /// Get gene ID
-pub fn EDASeqResult::eda_get_gene_id(self : EDASeqResult, idx : Int) -> String {
+pub fn EDASeqResult::eda_get_gene_id(
+  self : EDASeqResult,
+  idx : Int32,
+) -> String {
   self.gene_ids[idx]
 }
 
@@ -885,7 +758,7 @@ pub fn EDASeqResult::eda_get_gene_id(self : EDASeqResult, idx : Int) -> String {
 /// Get sample ID
 pub fn EDASeqResult::eda_get_sample_id(
   self : EDASeqResult,
-  idx : Int,
+  idx : Int32,
 ) -> String {
   self.sample_ids[idx]
 }

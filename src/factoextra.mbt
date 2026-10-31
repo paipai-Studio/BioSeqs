@@ -12,7 +12,7 @@
 
 ///|
 pub struct EigenValue {
-  dimension : Int
+  dimension : Int32
   eigenvalue : Double
   variance_explained : Double
   cumulative_variance : Double
@@ -37,9 +37,9 @@ pub struct PcaResult {
   eigenvalues : Array[EigenValue]
   ind : PcaIndResult
   var_ : PcaVarResult
-  n_ind : Int
-  n_var : Int
-  n_dims : Int
+  n_ind : Int32
+  n_var : Int32
+  n_dims : Int32
 }
 
 ///|
@@ -47,16 +47,16 @@ pub struct PcaResult {
 /// Returns eigenvalues, individual coordinates, and variable loadings.
 pub fn facto_pca(
   data : Array[Array[Double]],
-  center? : Bool = true,
-  scale? : Bool = true,
-  ncp? : Int = 0,
+  center~ : Bool = true,
+  scale~ : Bool = true,
+  ncp~ : Int32 = 0,
 ) -> PcaResult {
   let n = data.length()
   if n == 0 {
     return PcaResult::{
       eigenvalues: [],
-      ind: PcaIndResult::{ coord: [], cos2: [], contrib: [] },
-      var_: PcaVarResult::{ coord: [], cos2: [], contrib: [] },
+      ind: PcaIndResult::{ coord: [], cos2: [], contrib: [], },
+      var_: PcaVarResult::{ coord: [], cos2: [], contrib: [], },
       n_ind: 0,
       n_var: 0,
       n_dims: 0,
@@ -66,7 +66,10 @@ pub fn facto_pca(
   // Center and scale
   let centered = facto_center_scale(data, center, scale)
   // Compute covariance matrix (p x p)
-  let cov : Array[Array[Double]] = Array::make(p, Array::make(p, 0.0))
+  let cov : Array[Array[Double]] = Array::make(p, Array::make(0, 0.0))
+  for idx in 0..<p {
+    cov[idx] = Array::make(p, 0.0)
+  }
   let mut i = 0
   while i < n {
     let mut j = 0
@@ -139,7 +142,7 @@ pub fn facto_pca(
     vi = vi + 1
   }
   // Build eigenvalue list
-  let eigenvalues_list : Array[EigenValue] = Array::new()
+  let eigenvalues_list : Array[EigenValue] = Array(capacity=0)
   let mut cv : Double = 0.0
   let mut ei = 0
   while ei < n_components {
@@ -215,7 +218,10 @@ fn facto_center_scale(
     }
     j = j + 1
   }
-  let result : Array[Array[Double]] = Array::make(n, Array::make(p, 0.0))
+  let result : Array[Array[Double]] = Array::make(n, Array::make(0, 0.0))
+  for idx in 0..<n {
+    result[idx] = Array::make(p, 0.0)
+  }
   let mut i = 0
   while i < n {
     let mut j2 = 0
@@ -231,7 +237,7 @@ fn facto_center_scale(
 ///|
 fn facto_power_iteration(
   a : Array[Array[Double]],
-  n_components : Int,
+  n_components : Int32,
 ) -> (Array[Double], Array[Array[Double]]) {
   let n = a.length()
   if n == 0 {
@@ -333,7 +339,7 @@ fn facto_sort_eigen(
   eigenvectors : Array[Array[Double]],
 ) -> (Array[Double], Array[Array[Double]]) {
   let n = eigenvalues.length()
-  let indices : Array[Int] = Array::make(n, 0)
+  let indices : Array[Int32] = Array::make(n, 0)
   let mut i = 0
   while i < n {
     indices[i] = i
@@ -383,7 +389,10 @@ fn facto_cos2(coords : Array[Array[Double]]) -> Array[Array[Double]] {
     return []
   }
   let ncp = coords[0].length()
-  let cos2 : Array[Array[Double]] = Array::make(n, Array::make(ncp, 0.0))
+  let cos2 : Array[Array[Double]] = Array::make(n, Array::make(0, 0.0))
+  for idx in 0..<n {
+    cos2[idx] = Array::make(ncp, 0.0)
+  }
   let mut i = 0
   while i < n {
     let mut total = 0.0
@@ -413,7 +422,10 @@ fn facto_contrib_ind(coords : Array[Array[Double]]) -> Array[Array[Double]] {
     return []
   }
   let ncp = coords[0].length()
-  let contrib : Array[Array[Double]] = Array::make(n, Array::make(ncp, 0.0))
+  let contrib : Array[Array[Double]] = Array::make(n, Array::make(0, 0.0))
+  for idx in 0..<n {
+    contrib[idx] = Array::make(ncp, 0.0)
+  }
   let total_contrib : Array[Double] = Array::make(ncp, 0.0)
   let mut i = 0
   while i < n {
@@ -450,7 +462,10 @@ fn facto_contrib_var(
     return []
   }
   let ncp = coords[0].length()
-  let contrib : Array[Array[Double]] = Array::make(n, Array::make(ncp, 0.0))
+  let contrib : Array[Array[Double]] = Array::make(n, Array::make(0, 0.0))
+  for idx in 0..<n {
+    contrib[idx] = Array::make(ncp, 0.0)
+  }
   let mut i = 0
   while i < n {
     let mut j = 0
@@ -491,13 +506,13 @@ pub fn facto_get_pca_var(result : PcaResult) -> PcaVarResult {
 /// Get contribution of variables to a specific dimension.
 pub fn facto_var_contrib_dim(
   result : PcaResult,
-  dim : Int,
+  dim : Int32,
 ) -> Array[(String, Double)] {
   let d = dim - 1
   if d < 0 || d >= result.n_dims {
     return []
   }
-  let contribs : Array[(String, Double)] = Array::new()
+  let contribs : Array[(String, Double)] = Array(capacity=0)
   let mut i = 0
   while i < result.n_var {
     contribs.push(("var_\{i + 1}", result.var_.contrib[i][d]))
@@ -527,54 +542,16 @@ pub fn facto_var_contrib_dim(
 }
 
 ///|
-/// Get contribution of individuals to a specific dimension.
-pub fn facto_ind_contrib_dim(
-  result : PcaResult,
-  dim : Int,
-) -> Array[(String, Double)] {
-  let d = dim - 1
-  if d < 0 || d >= result.n_dims {
-    return []
-  }
-  let contribs : Array[(String, Double)] = Array::new()
-  let mut i = 0
-  while i < result.n_ind {
-    contribs.push(("ind_\{i + 1}", result.ind.contrib[i][d]))
-    i = i + 1
-  }
-  let n = contribs.length()
-  let mut iter = 0
-  while iter < n - 1 {
-    let mut swapped = false
-    let mut j = 0
-    while j < n - iter - 1 {
-      if contribs[j].1 < contribs[j + 1].1 {
-        let tmp = contribs[j]
-        contribs[j] = contribs[j + 1]
-        contribs[j + 1] = tmp
-        swapped = true
-      }
-      j = j + 1
-    }
-    if !swapped {
-      break
-    }
-    iter = iter + 1
-  }
-  contribs
-}
-
-///|
 /// Get cosine quality of representation for variables on a specific dimension.
 pub fn facto_var_cos2_dim(
   result : PcaResult,
-  dim : Int,
+  dim : Int32,
 ) -> Array[(String, Double)] {
   let d = dim - 1
   if d < 0 || d >= result.n_dims {
     return []
   }
-  let cos2s : Array[(String, Double)] = Array::new()
+  let cos2s : Array[(String, Double)] = Array(capacity=0)
   let mut i = 0
   while i < result.n_var {
     cos2s.push(("var_\{i + 1}", result.var_.cos2[i][d]))
@@ -584,27 +561,8 @@ pub fn facto_var_cos2_dim(
 }
 
 ///|
-/// Get cosine quality of representation for individuals on a specific dimension.
-pub fn facto_ind_cos2_dim(
-  result : PcaResult,
-  dim : Int,
-) -> Array[(String, Double)] {
-  let d = dim - 1
-  if d < 0 || d >= result.n_dims {
-    return []
-  }
-  let cos2s : Array[(String, Double)] = Array::new()
-  let mut i = 0
-  while i < result.n_ind {
-    cos2s.push(("ind_\{i + 1}", result.ind.cos2[i][d]))
-    i = i + 1
-  }
-  cos2s
-}
-
-///|
 pub struct DimDesc {
-  dimension : Int
+  dimension : Int32
   var_name : String
   correlation : Double
   p_value : Double
@@ -614,7 +572,7 @@ pub struct DimDesc {
 pub fn facto_dimdesc(
   data : Array[Array[Double]],
   result : PcaResult,
-  dim : Int,
+  dim : Int32,
 ) -> Array[DimDesc] {
   let d = dim - 1
   if d < 0 || d >= result.n_dims {
@@ -622,7 +580,7 @@ pub fn facto_dimdesc(
   }
   let n = data.length()
   let p = data[0].length()
-  let desc : Array[DimDesc] = Array::new()
+  let desc : Array[DimDesc] = Array(capacity=0)
   let pc_scores : Array[Double] = Array::make(n, 0.0)
   let mut i = 0
   while i < n {
@@ -732,7 +690,7 @@ pub fn facto_total_inertia(result : PcaResult) -> Double {
 
 ///|
 /// Get the number of dimensions to retain based on threshold.
-pub fn facto_nb_dim(result : PcaResult, threshold : Double) -> Int {
+pub fn facto_nb_dim(result : PcaResult, threshold : Double) -> Int32 {
   let mut cum = 0.0
   let mut i = 0
   while i < result.eigenvalues.length() {
@@ -747,9 +705,9 @@ pub fn facto_nb_dim(result : PcaResult, threshold : Double) -> Int {
 
 ///|
 pub struct PcaSummary {
-  n_individuals : Int
-  n_variables : Int
-  n_dimensions : Int
+  n_individuals : Int32
+  n_variables : Int32
+  n_dimensions : Int32
   total_inertia : Double
   first_dim_variance : Double
 }
@@ -781,7 +739,7 @@ pub fn facto_loadings(result : PcaResult) -> Array[Array[Double]] {
 /// Print a summary of the PCA result.
 pub fn facto_print_summary(result : PcaResult) -> String {
   let s = facto_summary(result)
-  let lines : Array[String] = Array::new()
+  let lines : Array[String] = Array(capacity=0)
   lines.push("PCA Summary:")
   lines.push("  Individuals: \{s.n_individuals}")
   lines.push("  Variables: \{s.n_variables}")

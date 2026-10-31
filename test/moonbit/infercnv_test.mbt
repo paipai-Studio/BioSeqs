@@ -192,15 +192,15 @@ test "infercnv_run_pipeline_custom_reference" {
     seed=99,
   )
   // flat reference of 3.0 for all genes (for testing the path only)
-  let ref : Array[Double] = []
+  let reference : Array[Double] = []
   for _i in 0..<input.n_genes {
-    ref.push(3.0)
+    reference.push(3.0)
   }
   let params = @src.make_cnv_params(
     100,
     1.5,
     0.0,
-    @src.ref_method_custom(ref),
+    @src.ref_method_custom(reference),
     [],
   )
   let res = @src.run_infercnv(input, params~, excluded_chromosomes=[])

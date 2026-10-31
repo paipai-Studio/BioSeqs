@@ -20,7 +20,7 @@ pub fn FastqRead::new(
   sequence : String,
   quality : String,
 ) -> FastqRead {
-  FastqRead::{ id, sequence, quality }
+  FastqRead::{ id, sequence, quality, }
 }
 
 ///|
@@ -63,18 +63,18 @@ pub fn TrimResult::new(
 /// - allowed_mismatches: Number of allowed mismatches in adapter alignment
 pub struct AdapterConfig {
   adapters : Array[String]
-  min_overlap : Int
-  allowed_mismatches : Int
+  min_overlap : Int32
+  allowed_mismatches : Int32
 }
 
 ///|
 /// Construct an AdapterConfig with the given parameters.
 pub fn AdapterConfig::new(
   adapters : Array[String],
-  min_overlap : Int,
-  allowed_mismatches : Int,
+  min_overlap : Int32,
+  allowed_mismatches : Int32,
 ) -> AdapterConfig {
-  AdapterConfig::{ adapters, min_overlap, allowed_mismatches }
+  AdapterConfig::{ adapters, min_overlap, allowed_mismatches, }
 }
 
 ///|
@@ -85,21 +85,21 @@ pub fn AdapterConfig::new(
 /// - window_size: Sliding window size for quality filtering
 /// - avg_quality: Minimum average quality for the sliding window
 pub struct QualityConfig {
-  min_quality : Int
-  min_length : Int
-  window_size : Int
-  avg_quality : Int
+  min_quality : Int32
+  min_length : Int32
+  window_size : Int32
+  avg_quality : Int32
 }
 
 ///|
 /// Construct a QualityConfig with the given parameters.
 pub fn QualityConfig::new(
-  min_quality : Int,
-  min_length : Int,
-  window_size : Int,
-  avg_quality : Int,
+  min_quality : Int32,
+  min_length : Int32,
+  window_size : Int32,
+  avg_quality : Int32,
 ) -> QualityConfig {
-  QualityConfig::{ min_quality, min_length, window_size, avg_quality }
+  QualityConfig::{ min_quality, min_length, window_size, avg_quality, }
 }
 
 ///|
@@ -108,12 +108,12 @@ pub fn QualityConfig::new(
 /// Provides counts of total, kept, trimmed, and discarded reads,
 /// along with total base pairs and GC content before and after trimming.
 pub struct TrimStatistics {
-  total_reads : Int
-  kept_reads : Int
-  trimmed_reads : Int
-  discarded_reads : Int
-  total_bp_before : Int
-  total_bp_after : Int
+  total_reads : Int32
+  kept_reads : Int32
+  trimmed_reads : Int32
+  discarded_reads : Int32
+  total_bp_before : Int32
+  total_bp_after : Int32
   gc_content_before : Double
   gc_content_after : Double
 }
@@ -121,12 +121,12 @@ pub struct TrimStatistics {
 ///|
 /// Construct a TrimStatistics with the given fields.
 pub fn TrimStatistics::new(
-  total_reads : Int,
-  kept_reads : Int,
-  trimmed_reads : Int,
-  discarded_reads : Int,
-  total_bp_before : Int,
-  total_bp_after : Int,
+  total_reads : Int32,
+  kept_reads : Int32,
+  trimmed_reads : Int32,
+  discarded_reads : Int32,
+  total_bp_before : Int32,
+  total_bp_after : Int32,
   gc_content_before : Double,
   gc_content_after : Double,
 ) -> TrimStatistics {
@@ -144,7 +144,7 @@ pub fn TrimStatistics::new(
 
 ///|
 /// Convert a quality character (Phred+33) to its numeric quality score.
-fn sqt_phred(c : UInt16) -> Int {
+fn sqt_phred(c : UInt16) -> Int32 {
   c.to_int() - 33
 }
 
@@ -181,7 +181,7 @@ fn sqt_gc_content(seq : String) -> Double {
 pub fn sqt_quality_trim(
   seq : String,
   qual : String,
-  min_qual? : Int = 20,
+  min_qual~ : Int32 = 20,
 ) -> (String, String) {
   let len = seq.length()
   if len == 0 {
@@ -224,7 +224,7 @@ pub fn sqt_trim_adapter(
   seq : String,
   qual : String,
   adapter : String,
-  allowed_mismatches? : Int = 0,
+  allowed_mismatches~ : Int32 = 0,
 ) -> (String, String) {
   let seq_len = seq.length()
   let adapter_len = adapter.length()
@@ -282,7 +282,7 @@ pub fn sqt_trim_adapter(
 pub fn sqt_trim_poly_a(
   seq : String,
   qual : String,
-  min_tail? : Int = 3,
+  min_tail~ : Int32 = 3,
 ) -> (String, String) {
   let len = seq.length()
   if len == 0 {
@@ -335,7 +335,7 @@ pub fn sqt_trim_poly_a(
 pub fn sqt_trim_by_length(
   seq : String,
   qual : String,
-  min_length? : Int = 50,
+  min_length~ : Int32 = 50,
 ) -> (String, String)? {
   if seq.length() >= min_length {
     Some((seq, qual))
@@ -352,8 +352,8 @@ pub fn sqt_trim_by_length(
 pub fn sqt_trim_by_gc(
   seq : String,
   qual : String,
-  gc_min? : Double = 0.3,
-  gc_max? : Double = 0.7,
+  gc_min~ : Double = 0.3,
+  gc_max~ : Double = 0.7,
 ) -> (String, String)? {
   let gc = sqt_gc_content(seq)
   if gc >= gc_min && gc <= gc_max {
@@ -374,14 +374,14 @@ pub fn sqt_trim_reads(
   qual_config : QualityConfig,
   adapter_config : AdapterConfig?,
 ) -> Array[TrimResult] {
-  let results : Array[TrimResult] = Array::new()
+  let results : Array[TrimResult] = Array(capacity=0)
 
   for read in reads {
     let original_seq = read.sequence
     let original_qual = read.quality
     let mut trimmed_seq = original_seq
     let mut trimmed_qual = original_qual
-    let trim_types : Array[String] = Array::new()
+    let trim_types : Array[String] = Array(capacity=0)
 
     let (q_seq, q_qual) = sqt_quality_trim(
       trimmed_seq,
@@ -518,7 +518,7 @@ pub fn sqt_compute_stats(
 /// Handles Sanger/Phred+33 encoded FASTQ format. Each record consists of
 /// four lines: @header, sequence, +separator, and quality string.
 pub fn sqt_fastq_parse(content : String) -> Array[FastqRead] {
-  let reads : Array[FastqRead] = Array::new()
+  let reads : Array[FastqRead] = Array(capacity=0)
   let lines = content.split("\n").to_array()
   let n = lines.length()
   let mut i = 0
@@ -582,7 +582,7 @@ pub fn sqt_fastq_parse(content : String) -> Array[FastqRead] {
     let seq_str = if trimmed1 > 0 { line1[0:trimmed1].to_owned() } else { "" }
     let qual_str = if trimmed3 > 0 { line3[0:trimmed3].to_owned() } else { "" }
 
-    reads.push(FastqRead::{ id, sequence: seq_str, quality: qual_str })
+    reads.push(FastqRead::{ id, sequence: seq_str, quality: qual_str, })
     i = i + 4
   }
 
@@ -774,7 +774,7 @@ test "sqt_trim_by_length_keep" {
   let seq = "ACGTACGTACGTACGT"
   let qual = "IIIIIIIIIIIIIIII"
   let result = sqt_trim_by_length(seq, qual, min_length=5)
-  assert_true(result is Some)
+  assert_true(result is Some(_))
 }
 
 ///|
@@ -790,7 +790,7 @@ test "sqt_trim_by_length_exact" {
   let seq = "ACGTACGT"
   let qual = "IIIIIIII"
   let result = sqt_trim_by_length(seq, qual, min_length=8)
-  assert_true(result is Some)
+  assert_true(result is Some(_))
 }
 
 ///|
@@ -798,7 +798,7 @@ test "sqt_trim_by_gc_within_range" {
   let seq = "ACGTACGT"
   let qual = "IIIIIIII"
   let result = sqt_trim_by_gc(seq, qual, gc_min=0.3, gc_max=0.7)
-  assert_true(result is Some)
+  assert_true(result is Some(_))
 }
 
 ///|
@@ -822,13 +822,13 @@ test "sqt_trim_by_gc_mid_range" {
   let seq = "ACGTACGTACGT"
   let qual = "IIIIIIIIIIII"
   let result = sqt_trim_by_gc(seq, qual, gc_min=0.4, gc_max=0.6)
-  assert_true(result is Some)
+  assert_true(result is Some(_))
 }
 
 ///|
 test "sqt_trim_reads_batch" {
   let reads = [
-    FastqRead::{ id: "read1", sequence: "ACGTACGT", quality: "IIIIIIII" },
+    FastqRead::{ id: "read1", sequence: "ACGTACGT", quality: "IIIIIIII", },
     FastqRead::{
       id: "read2",
       sequence: "ACGTACGTAGATCGGAA",
@@ -878,8 +878,8 @@ test "sqt_trim_reads_no_adapter" {
 ///|
 test "sqt_compute_stats_basic" {
   let reads = [
-    FastqRead::{ id: "r1", sequence: "ACGTACGT", quality: "IIIIIIII" },
-    FastqRead::{ id: "r2", sequence: "TTTTTTTT", quality: "IIIIIIII" },
+    FastqRead::{ id: "r1", sequence: "ACGTACGT", quality: "IIIIIIII", },
+    FastqRead::{ id: "r2", sequence: "TTTTTTTT", quality: "IIIIIIII", },
   ]
   let results = [
     TrimResult::{
@@ -955,7 +955,7 @@ test "sqt_fastq_parse_malformed" {
 
 ///|
 test "sqt_fastq_serialize_basic" {
-  let reads = [FastqRead::{ id: "test1", sequence: "ACGT", quality: "IIII" }]
+  let reads = [FastqRead::{ id: "test1", sequence: "ACGT", quality: "IIII", }]
   let output = sqt_fastq_serialize(reads)
   assert_eq(output, "@test1\nACGT\n+\nIIII\n")
 }
@@ -963,8 +963,8 @@ test "sqt_fastq_serialize_basic" {
 ///|
 test "sqt_fastq_serialize_multiple" {
   let reads = [
-    FastqRead::{ id: "r1", sequence: "AAAA", quality: "IIII" },
-    FastqRead::{ id: "r2", sequence: "CCCC", quality: "IIII" },
+    FastqRead::{ id: "r1", sequence: "AAAA", quality: "IIII", },
+    FastqRead::{ id: "r2", sequence: "CCCC", quality: "IIII", },
   ]
   let output = sqt_fastq_serialize(reads)
   assert_eq(output, "@r1\nAAAA\n+\nIIII\n@r2\nCCCC\n+\nIIII\n")
@@ -1003,8 +1003,8 @@ test "sqt_quality_trim_single_base" {
 ///|
 test "sqt_compute_stats_gc_content" {
   let reads = [
-    FastqRead::{ id: "gc_high", sequence: "GGGGCCCC", quality: "IIIIIIII" },
-    FastqRead::{ id: "at_high", sequence: "AAAATTTT", quality: "IIIIIIII" },
+    FastqRead::{ id: "gc_high", sequence: "GGGGCCCC", quality: "IIIIIIII", },
+    FastqRead::{ id: "at_high", sequence: "AAAATTTT", quality: "IIIIIIII", },
   ]
   let results = [
     TrimResult::{
@@ -1032,7 +1032,7 @@ test "sqt_compute_stats_gc_content" {
 ///|
 test "sqt_trim_reads_quality_trim_only" {
   let reads = [
-    FastqRead::{ id: "r1", sequence: "ACGTACGT", quality: "IIII####" },
+    FastqRead::{ id: "r1", sequence: "ACGTACGT", quality: "IIII####", },
   ]
   let qual_config = QualityConfig::{
     min_quality: 20,
@@ -1099,7 +1099,7 @@ test "sqt_fastq_parse_crlf" {
 
 ///|
 test "sqt_compute_stats_all_discarded" {
-  let reads = [FastqRead::{ id: "r1", sequence: "ACGT", quality: "IIII" }]
+  let reads = [FastqRead::{ id: "r1", sequence: "ACGT", quality: "IIII", }]
   let results = [
     TrimResult::{
       read_id: "r1",

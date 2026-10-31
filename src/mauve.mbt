@@ -27,27 +27,33 @@ pub struct MauveLCB {
 } derive(Eq)
 
 ///|
+pub extend MauveLCB with Eq::{equal, not_equal}
+
+///|
 /// Represents a sequence entry in a Mauve alignment block.
 pub struct MauveSequence {
   /// Sequence name (genome.chromosome)
   name : String
   /// Start coordinate
-  start : Int
+  start : Int32
   /// End coordinate
-  end : Int
+  end : Int32
   /// Length of the aligned region
-  length : Int
+  length : Int32
   /// Strand/orientation
   strand : String
   /// Total sequence size
-  seq_size : Int
+  seq_size : Int32
   /// Whether this sequence segment is inverted
   is_inverted : Bool
   /// Group number (for progressive alignment)
-  group : Int
+  group : Int32
   /// Parent block ID (for progressive alignment)
   parent_id : String
 } derive(Eq)
+
+///|
+pub extend MauveSequence with Eq::{equal, not_equal}
 
 ///|
 /// Represents a breakpoint between LCBs.
@@ -59,10 +65,13 @@ pub struct MauveBreakpoint {
   /// Sequence name where breakpoint occurs
   seq_name : String
   /// Position in the sequence
-  position : Int
+  position : Int32
   /// Breakpoint type (inversion, translocation, etc.)
   breakpoint_type : String
 } derive(Eq)
+
+///|
+pub extend MauveBreakpoint with Eq::{equal, not_equal}
 
 ///|
 /// Represents an inversion in a Mauve alignment.
@@ -70,14 +79,17 @@ pub struct MauveInversion {
   /// Sequence name
   seq_name : String
   /// Start position of inversion
-  start : Int
+  start : Int32
   /// End position of inversion
-  end : Int
+  end : Int32
   /// Length of inversion
-  length : Int
+  length : Int32
   /// Affected LCB IDs
   affected_lcbs : Array[String]
 } derive(Eq)
+
+///|
+pub extend MauveInversion with Eq::{equal, not_equal}
 
 ///|
 /// Configuration for Mauve alignment parsing and analysis.
@@ -85,12 +97,15 @@ pub struct MauveConfig {
   /// Minimum LCB score to report
   min_lcb_score : Double
   /// Minimum block length
-  min_block_length : Int
+  min_block_length : Int32
   /// Whether to detect inversions
   detect_inversions : Bool
   /// Whether to detect breakpoints
   detect_breakpoints : Bool
 } derive(Eq)
+
+///|
+pub extend MauveConfig with Eq::{equal, not_equal}
 
 ///|
 /// Default Mauve configuration.
@@ -117,8 +132,11 @@ pub struct MauveAlignment {
   /// Detected breakpoints
   breakpoints : Array[MauveBreakpoint]
   /// Progressive alignment groups
-  groups : Map[Int, Array[String]]
+  groups : Map[Int32, Array[String]]
 } derive(Eq)
+
+///|
+pub extend MauveAlignment with Eq::{equal, not_equal}
 
 // ============================================================================
 // MauveSequence Implementation
@@ -128,10 +146,10 @@ pub struct MauveAlignment {
 /// Create a new MauveSequence.
 pub fn new_mauve_sequence(
   name : String,
-  start : Int,
-  end : Int,
+  start : Int32,
+  end : Int32,
   strand : String,
-  seq_size : Int,
+  seq_size : Int32,
 ) -> MauveSequence {
   let length = if end > start { end - start } else { start - end }
   MauveSequence::{
@@ -163,7 +181,12 @@ pub fn mauve_seq_coverage(seq : MauveSequence) -> Double {
 ///|
 /// Create a new empty MauveLCB.
 pub fn new_mauve_lcb(id : String) -> MauveLCB {
-  MauveLCB::{ id, score: 0.0, sequences: Array::new(), is_collinear: true }
+  MauveLCB::{
+    id,
+    score: 0.0,
+    sequences: Array(capacity=0),
+    is_collinear: true,
+  }
 }
 
 ///|
@@ -180,7 +203,7 @@ pub fn mauve_lcb_add_seq(lcb : MauveLCB, seq : MauveSequence) -> Unit {
 
 ///|
 /// Get the number of sequences in the LCB.
-pub fn mauve_lcb_num_seqs(lcb : MauveLCB) -> Int {
+pub fn mauve_lcb_num_seqs(lcb : MauveLCB) -> Int32 {
   lcb.sequences.length()
 }
 
@@ -199,16 +222,6 @@ pub fn mauve_lcb_is_consistent(lcb : MauveLCB) -> Bool {
   true
 }
 
-///|
-/// Get the sequence names in this LCB.
-pub fn mauve_lcb_seq_names(lcb : MauveLCB) -> Array[String] {
-  let names = Array::new()
-  for s = 0; s < lcb.sequences.length(); s = s + 1 {
-    names.push(lcb.sequences[s].name)
-  }
-  names
-}
-
 // ============================================================================
 // MauveAlignment Implementation
 // ============================================================================
@@ -218,10 +231,10 @@ pub fn mauve_lcb_seq_names(lcb : MauveLCB) -> Array[String] {
 pub fn new_mauve_alignment() -> MauveAlignment {
   MauveAlignment::{
     version: "1.0",
-    lcbs: Array::new(),
-    sequences: Array::new(),
-    inversions: Array::new(),
-    breakpoints: Array::new(),
+    lcbs: Array(capacity=0),
+    sequences: Array(capacity=0),
+    inversions: Array(capacity=0),
+    breakpoints: Array(capacity=0),
     groups: Map([], capacity=10),
   }
 }
@@ -234,14 +247,14 @@ pub fn mauve_add_lcb(ali : MauveAlignment, lcb : MauveLCB) -> Unit {
 
 ///|
 /// Get the number of LCBs.
-pub fn mauve_num_lcbs(ali : MauveAlignment) -> Int {
+pub fn mauve_num_lcbs(ali : MauveAlignment) -> Int32 {
   ali.lcbs.length()
 }
 
 ///|
 /// Get all sequence names across all LCBs.
 pub fn mauve_all_seq_names(ali : MauveAlignment) -> Array[String] {
-  let names = Array::new()
+  let names = Array(capacity=0)
   for l = 0; l < ali.lcbs.length(); l = l + 1 {
     let lcb = ali.lcbs[l]
     for s = 0; s < lcb.sequences.length(); s = s + 1 {
@@ -260,7 +273,7 @@ pub fn mauve_get_genome_seqs(
   ali : MauveAlignment,
   genome_name : String,
 ) -> Array[MauveSequence] {
-  let seqs = Array::new()
+  let seqs = Array(capacity=0)
   let prefix_len = genome_name.length()
   for l = 0; l < ali.lcbs.length(); l = l + 1 {
     let lcb = ali.lcbs[l]
@@ -404,7 +417,7 @@ pub fn parse_mauve(content : String) -> MauveAlignment {
         let group_arr = if existing is Some(_) {
           existing.unwrap()
         } else {
-          let arr = Array::new()
+          let arr = Array(capacity=0)
           result.groups[group_num] = arr
           arr
         }
@@ -465,7 +478,7 @@ pub fn detect_mauve_inversions(ali : MauveAlignment) -> MauveAlignment {
           } else {
             prev.start - curr.end
           },
-          affected_lcbs: Array::new(),
+          affected_lcbs: Array(capacity=0),
         }
 
         for l = 0; l < result.lcbs.length(); l = l + 1 {
@@ -547,11 +560,17 @@ pub fn detect_mauve_breakpoints(ali : MauveAlignment) -> MauveAlignment {
 /// Create a new inversion.
 pub fn new_mauve_inversion(
   seq_name : String,
-  start : Int,
-  end : Int,
-  length : Int,
+  start : Int32,
+  end : Int32,
+  length : Int32,
 ) -> MauveInversion {
-  MauveInversion::{ seq_name, start, end, length, affected_lcbs: Array::new() }
+  MauveInversion::{
+    seq_name,
+    start,
+    end,
+    length,
+    affected_lcbs: Array(capacity=0),
+  }
 }
 
 ///|
@@ -591,7 +610,7 @@ pub fn mauve_genome_coverage(ali : MauveAlignment) -> Map[String, Double] {
 
 ///|
 /// Count the number of conserved segments per genome.
-pub fn mauve_conserved_segments(ali : MauveAlignment) -> Map[String, Int] {
+pub fn mauve_conserved_segments(ali : MauveAlignment) -> Map[String, Int32] {
   let segments = Map([], capacity=10)
   let seq_names = mauve_all_seq_names(ali)
 
@@ -617,8 +636,8 @@ pub fn mauve_rearrangement_rate(ali : MauveAlignment) -> Double {
 ///|
 /// Get syntenic regions (consecutive collinear LCBs).
 pub fn mauve_syntenic_regions(ali : MauveAlignment) -> Array[Array[String]] {
-  let regions = Array::new()
-  let mut current_region = Array::new()
+  let regions = Array(capacity=0)
+  let mut current_region = Array(capacity=0)
   let mut prev_collinear = true
 
   for l = 0; l < ali.lcbs.length(); l = l + 1 {
@@ -629,7 +648,7 @@ pub fn mauve_syntenic_regions(ali : MauveAlignment) -> Array[Array[String]] {
       if current_region.length() > 0 {
         regions.push(current_region)
       }
-      current_region = Array::new()
+      current_region = Array(capacity=0)
       if lcb.is_collinear {
         current_region.push(lcb.id)
       }
@@ -652,9 +671,9 @@ pub fn mauve_filter_lcbs(
 ) -> MauveAlignment {
   let mut result = MauveAlignment::{
     ..ali,
-    lcbs: Array::new(),
-    inversions: Array::new(),
-    breakpoints: Array::new(),
+    lcbs: Array(capacity=0),
+    inversions: Array(capacity=0),
+    breakpoints: Array(capacity=0),
   }
 
   for l = 0; l < ali.lcbs.length(); l = l + 1 {
@@ -689,9 +708,9 @@ pub struct MauveProgressiveAligner {
 /// Create a new progressive aligner.
 pub fn new_mauve_progressive_aligner() -> MauveProgressiveAligner {
   MauveProgressiveAligner::{
-    pending_seqs: Array::new(),
+    pending_seqs: Array(capacity=0),
     alignment: new_mauve_alignment(),
-    guide_tree: Array::new(),
+    guide_tree: Array(capacity=0),
   }
 }
 
@@ -707,29 +726,13 @@ pub fn mauve_add_sequence(
 ///|
 /// Build the guide tree for progressive alignment.
 pub fn mauve_build_guide_tree(aligner : MauveProgressiveAligner) -> Unit {
-  let groups = Array::new()
+  let groups = Array(capacity=0)
   for s = 0; s < aligner.pending_seqs.length(); s = s + 1 {
-    let group = Array::new()
+    let group = Array(capacity=0)
     group.push(aligner.pending_seqs[s])
     groups.push(group)
   }
   aligner.guide_tree = groups
-}
-
-///|
-/// Execute progressive alignment by adding sequences one at a time.
-pub fn mauve_execute_progressive(
-  aligner : MauveProgressiveAligner,
-) -> MauveAlignment {
-  mauve_build_guide_tree(aligner)
-
-  let result = aligner.alignment
-
-  for i = 0; i < aligner.guide_tree.length(); i = i + 1 {
-    result.groups[i] = aligner.guide_tree[i]
-  }
-
-  result
 }
 
 // ============================================================================

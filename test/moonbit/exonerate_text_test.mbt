@@ -25,11 +25,11 @@ fn exonerate_text_test_wrap(
   target : String,
   target_description : String,
   model : String,
-  score : Int,
-  query_start : Int,
-  query_end : Int,
-  target_start : Int,
-  target_end : Int,
+  score : Int32,
+  query_start : Int32,
+  query_end : Int32,
+  target_start : Int32,
+  target_end : Int32,
   body : String,
 ) -> String {
   "Command line: [exonerate -m " +
@@ -50,11 +50,11 @@ fn exonerate_text_test_alignment(
   target : String,
   target_description : String,
   model : String,
-  score : Int,
-  query_start : Int,
-  query_end : Int,
-  target_start : Int,
-  target_end : Int,
+  score : Int32,
+  query_start : Int32,
+  query_end : Int32,
+  target_start : Int32,
+  target_end : Int32,
   body : String,
 ) -> String {
   "C4 Alignment:\n" +
@@ -122,7 +122,7 @@ fn exonerate_text_test_reverse_report() -> String {
 }
 
 ///|
-fn exonerate_text_test_center(value : String, width : Int) -> String {
+fn exonerate_text_test_center(value : String, width : Int32) -> String {
   let left = (width - value.length()) / 2
   " ".repeat(left) + value + " ".repeat(width - value.length() - left)
 }

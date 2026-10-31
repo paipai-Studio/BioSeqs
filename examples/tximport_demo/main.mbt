@@ -21,7 +21,7 @@ fn main {
   ]
 
   println("1. Parse quant.sf File")
-  let (tx_names, abundance, counts, length) = @bio.parse_quant_sf(
+  let (tx_names, _abundance, _counts, _length) = @bio.parse_quant_sf(
     quant_sf_content1,
   )
   println("   Transcripts: " + tx_names.length().to_string())

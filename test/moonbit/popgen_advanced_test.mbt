@@ -182,8 +182,8 @@ test "mktest_zero_values" {
 ///|
 /// Test MK test from site arrays.
 test "mktest_from_sites" {
-  let poly_sites : Array[@src.PolymorphicSite] = Array::new()
-  let fixed_sites : Array[@src.PolymorphicSite] = Array::new()
+  let poly_sites : Array[@src.PolymorphicSite] = Array(capacity=0)
+  let fixed_sites : Array[@src.PolymorphicSite] = Array(capacity=0)
 
   // Add polymorphic sites
   poly_sites.push(@src.new_polymorphic_site(100, 2, 20, true)) // nonsynonymous
@@ -204,7 +204,7 @@ test "mktest_from_sites" {
 ///|
 /// Test allele frequency spectrum calculation.
 test "afs_calculate" {
-  let sites : Array[@src.PolymorphicSite] = Array::new()
+  let sites : Array[@src.PolymorphicSite] = Array(capacity=0)
   sites.push(@src.new_singleton(100, 20, false))
   sites.push(@src.new_singleton(200, 20, true))
   sites.push(@src.new_doubleton(300, 20, false))
@@ -219,7 +219,7 @@ test "afs_calculate" {
 ///|
 /// Test allele frequency spectrum with empty sites.
 test "afs_empty" {
-  let sites : Array[@src.PolymorphicSite] = Array::new()
+  let sites : Array[@src.PolymorphicSite] = Array(capacity=0)
   let afs = @src.calculate_afs(sites, 10)
   assert_eq(afs.segregating_sites, 0)
   assert_eq(afs.singletons, 0)
@@ -228,7 +228,7 @@ test "afs_empty" {
 ///|
 /// Test Tajima's D from AFS.
 test "tajima_d_from_afs" {
-  let sites : Array[@src.PolymorphicSite] = Array::new()
+  let sites : Array[@src.PolymorphicSite] = Array(capacity=0)
   sites.push(@src.new_singleton(100, 20, false))
   sites.push(@src.new_singleton(200, 20, false))
   sites.push(@src.new_doubleton(300, 20, false))
@@ -242,7 +242,7 @@ test "tajima_d_from_afs" {
 ///|
 /// Test Fu & Li's D from AFS.
 test "fu_li_d_from_afs" {
-  let sites : Array[@src.PolymorphicSite] = Array::new()
+  let sites : Array[@src.PolymorphicSite] = Array(capacity=0)
   sites.push(@src.new_singleton(100, 20, false))
   sites.push(@src.new_doubleton(200, 20, false))
 
@@ -267,7 +267,7 @@ test "normal_cdf" {
 ///|
 /// Test comprehensive neutrality analysis.
 test "neutrality_analysis" {
-  let sites : Array[@src.PolymorphicSite] = Array::new()
+  let sites : Array[@src.PolymorphicSite] = Array(capacity=0)
   // Create a mix of sites
   for i = 1; i < 10; i = i + 1 {
     sites.push(@src.new_singleton(i * 100, 30, i % 2 == 0))
@@ -292,7 +292,7 @@ test "neutrality_analysis" {
 ///|
 /// Test neutrality analysis with empty data.
 test "neutrality_analysis_empty" {
-  let sites : Array[@src.PolymorphicSite] = Array::new()
+  let sites : Array[@src.PolymorphicSite] = Array(capacity=0)
   let result = @src.run_neutrality_analysis(sites, 10, 1000)
   assert_eq(result.segregating_sites, 0)
 }
@@ -300,7 +300,7 @@ test "neutrality_analysis_empty" {
 ///|
 /// Test neutrality analysis output formatting.
 test "neutrality_analysis_to_string" {
-  let sites : Array[@src.PolymorphicSite] = Array::new()
+  let sites : Array[@src.PolymorphicSite] = Array(capacity=0)
   sites.push(@src.new_singleton(100, 20, false))
   sites.push(@src.new_singleton(200, 20, true))
   sites.push(@src.new_doubleton(300, 20, false))
@@ -357,7 +357,7 @@ test "tajima_b2" {
 ///|
 /// Test multiple singletons detection.
 test "multiple_singletons" {
-  let sites : Array[@src.PolymorphicSite] = Array::new()
+  let sites : Array[@src.PolymorphicSite] = Array(capacity=0)
   for i = 1; i < 15; i = i + 1 {
     sites.push(@src.new_singleton(i * 50, 25, i % 3 == 0))
   }
@@ -370,7 +370,7 @@ test "multiple_singletons" {
 ///|
 /// Test high frequency variants.
 test "high_freq_variants" {
-  let sites : Array[@src.PolymorphicSite] = Array::new()
+  let sites : Array[@src.PolymorphicSite] = Array(capacity=0)
   // Create high-frequency variants (derived count close to sample size)
   sites.push(@src.new_polymorphic_site(100, 24, 25, false))
   sites.push(@src.new_polymorphic_site(200, 23, 25, true))

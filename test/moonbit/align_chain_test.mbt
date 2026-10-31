@@ -46,8 +46,8 @@ fn align_chain_test_reverse() -> @src.AlignChainAlignment {
 
 ///|
 fn align_chain_test_coordinate(
-  target : Int,
-  query : Int,
+  target : Int32,
+  query : Int32,
 ) -> @src.AlignChainCoordinate {
   @src.AlignChainCoordinate::create(target, query) catch {
     AlignChainError(message) => abort("valid coordinate failed: " + message)
@@ -56,9 +56,9 @@ fn align_chain_test_coordinate(
 
 ///|
 fn align_chain_test_block(
-  size : Int,
-  target_gap : Int,
-  query_gap : Int,
+  size : Int32,
+  target_gap : Int32,
+  query_gap : Int32,
 ) -> @src.AlignChainBlock {
   @src.AlignChainBlock::create(size, target_gap~, query_gap~) catch {
     AlignChainError(message) => abort("valid block failed: " + message)
@@ -67,8 +67,8 @@ fn align_chain_test_block(
 
 ///|
 fn align_chain_test_constructor_raises(
-  target_size : Int,
-  query_size : Int,
+  target_size : Int32,
+  query_size : Int32,
   coordinates : Array[@src.AlignChainCoordinate],
 ) -> Bool {
   try {
@@ -85,10 +85,10 @@ fn align_chain_test_constructor_raises(
 
 ///|
 fn align_chain_test_from_blocks_raises(
-  target_start : Int,
-  target_end : Int,
-  query_start : Int,
-  query_end : Int,
+  target_start : Int32,
+  target_end : Int32,
+  query_start : Int32,
+  query_end : Int32,
   blocks : Array[@src.AlignChainBlock],
 ) -> Bool {
   try {

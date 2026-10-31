@@ -22,7 +22,7 @@ fn main {
 
   // Create Venn diagram
   println("=== Venn Diagram ===")
-  let result = @bio.venn_diagram(sets, names=names)
+  let result = @bio.venn_diagram(sets, names~)
   println("Total elements in universe: \{result.total_elements}")
   println("Number of regions: \{result.regions.length()}")
   println("")
@@ -71,8 +71,12 @@ fn main {
         println("    Intersection: \{overlap["intersection_count"]}")
         println("    Union: \{overlap["union_count"]}")
         println("    Jaccard: \{format_stat(overlap["jaccard_index"])}")
-        println("    Overlap coefficient: \{format_stat(overlap["overlap_coefficient"])}")
-        println("    Dice coefficient: \{format_stat(overlap["dice_coefficient"])}")
+        println(
+          "    Overlap coefficient: \{format_stat(overlap["overlap_coefficient"])}",
+        )
+        println(
+          "    Dice coefficient: \{format_stat(overlap["dice_coefficient"])}",
+        )
       }
       j = j + 1
     }
@@ -117,7 +121,8 @@ fn main {
   println(summary)
 }
 
-fn preview(arr : Array[String], n : Int) -> String {
+///|
+fn preview(arr : Array[String], n : Int32) -> String {
   let mut s = "["
   let limit = if arr.length() < n { arr.length() } else { n }
   let mut i = 0
@@ -135,6 +140,7 @@ fn preview(arr : Array[String], n : Int) -> String {
   s
 }
 
+///|
 fn format_stat(value : Double) -> String {
   let rounded = (value * 1000.0).round() / 1000.0
   "\{rounded}"

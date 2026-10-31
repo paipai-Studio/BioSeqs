@@ -1,5 +1,69 @@
 ///|
 /// Bio.Phylo - Phylogenetic tree data structures.
+///
+/// # API Layer Convention (pp / tl / pl)
+///
+/// Inspired by Scanpy's `sc.pp.*` / `sc.tl.*` / `sc.pl.*` separation,
+/// BioSeqs phylogenetic functions follow a three-layer convention.
+/// Functions are not renamed, but their `phylo_` prefix maps to a layer:
+///
+/// ## pp — Preprocessing (tree manipulation before analysis)
+///   | Function                  | Description                        |
+///   |---------------------------|------------------------------------|
+///   | phylo_ladderize           | Sort clades by leaf count          |
+///   | phylo_midpoint_root       | Re-root at midpoint of longest path|
+///   | phylo_collapse_weak       | Collapse nodes with low confidence |
+///   | phylo_collapse_weak_nodes | Collapse nodes below threshold     |
+///   | phylo_scale_tree          | Scale all branch lengths by factor |
+///   | phylo_unroot              | Remove root from bifurcating tree  |
+///   | phylo_root_at_leaf        | Re-root at a specified leaf        |
+///
+/// ## tl — Tools / Analysis (statistics & reconciliation)
+///   | Function                  | Description                        |
+///   |---------------------------|------------------------------------|
+///   | phylo_segregating_sites   | Count segregating sites S          |
+///   | phylo_count_singletons    | Count singletons η = ξ₁            |
+///   | phylo_pi                  | Nucleotide diversity π             |
+///   | phylo_watterson_theta     | Watterson's θ_W = S / H_{n-1}      |
+///   | phylo_tajima_d            | Tajima's D neutrality test         |
+///   | phylo_fu_li_d             | Fu & Li's D                        |
+///   | phylo_fu_li_f             | Fu & Li's F                        |
+///   | phylo_fay_wu_h            | Fay & Wu's H                       |
+///   | phylo_zeng_e              | Zeng's E                           |
+///   | phylo_observed_sfs        | Observed SFS from sequences        |
+///   | phylo_expected_sfs        | Expected SFS under neutral model   |
+///   | phylo_lca_mapping         | LCA mapping (gene → species tree)  |
+///   | phylo_count_duplications  | Count duplication events           |
+///   | phylo_count_losses        | Count loss events                  |
+///   | phylo_reconcile           | Full reconciliation result         |
+///   | phylo_classify_pair       | Ortholog/paralog for one pair      |
+///   | phylo_classify_all_pairs  | Classify all gene pairs            |
+///   | phylo_simulate_coalescent | Kingman coalescent simulation      |
+///   | SfsStats                  | Cached stats context (one pass)    |
+///   | Reconciliation            | Cached reconciliation context      |
+///
+/// ## pl — Plotting / Visualization
+///   | Function                  | Description                        |
+///   |---------------------------|------------------------------------|
+///   | phylo_layout_rectangular  | Compute (x,y) for rectangular draw |
+///   | phylo_layout_circular     | Compute (r,θ,x,y) for radial draw  |
+///   | phylo_render_rectangular  | ASCII art rectangular              |
+///   | phylo_render_circular     | ASCII art circular                 |
+///   | phylo_to_svg_rect         | SVG output rectangular             |
+///   | phylo_to_svg_circ         | SVG output circular                |
+///   | phylo_draw_ascii_enhanced | Enhanced ASCII tree                |
+///   | phylo_draw_cladogram      | ASCII cladogram                    |
+///   | phylo_draw_rectangular    | ASCII rectangular                  |
+///   | phylo_draw_barplot        | ASCII barplot                      |
+///
+/// ## Context Objects (compute once, query many)
+///   | Object          | Caches                    | Methods              |
+///   |-----------------|---------------------------|----------------------|
+///   | SfsStats        | SFS, S, π, η              | tajima_d, fu_li_d/f, |
+///   |                 |                           | fay_wu_h, zeng_e     |
+///   | Reconciliation  | LCA mapping, depth table  | count_dups, losses,  |
+///   |                 |                           | reconcile, classify  |
+///   | Tree.results    | arbitrary key→value       | set_result, get_result|
 
 ///|
 /// A clade (node) in a phylogenetic tree.
@@ -15,11 +79,11 @@ pub struct Clade {
 ///|
 /// Construct a Clade with optional attributes.
 pub fn Clade::new(
-  branch_length? : Double? = None,
-  name? : String? = None,
-  confidence? : Double? = None,
-  clades? : Array[Clade] = [],
-  parent? : Clade? = None,
+  branch_length~ : Double? = None,
+  name~ : String? = None,
+  confidence~ : Double? = None,
+  clades~ : Array[Clade] = [],
+  parent~ : Clade? = None,
 ) -> Clade {
   let mut result = Clade::{
     branch_length,
@@ -69,7 +133,7 @@ pub fn Clade::is_terminal(self : Clade) -> Bool {
 
 ///|
 /// Return the number of terminal (leaf) nodes in this clade's subtree.
-pub fn Clade::count_terminals(self : Clade) -> Int {
+pub fn Clade::count_terminals(self : Clade) -> Int32 {
   if self.is_terminal() {
     1
   } else {
@@ -84,7 +148,7 @@ pub fn Clade::count_terminals(self : Clade) -> Int {
 ///|
 /// Get all terminal (leaf) clades in this subtree.
 pub fn Clade::get_terminals(self : Clade) -> Array[Clade] {
-  let result = Array::new()
+  let result = Array(capacity=0)
   self.collect_terminals_into(result)
   result
 }
@@ -104,7 +168,7 @@ fn Clade::collect_terminals_into(self : Clade, result : Array[Clade]) -> Unit {
 ///|
 /// Get all non-terminal (internal) clades in this subtree.
 pub fn Clade::get_nonterminals(self : Clade) -> Array[Clade] {
-  let result = Array::new()
+  let result = Array(capacity=0)
   self.collect_nonterminals_into(result)
   result
 }
@@ -127,10 +191,10 @@ fn Clade::collect_nonterminals_into(
 /// Find all clades matching given attributes.
 pub fn Clade::find_clades(
   self : Clade,
-  name? : String? = None,
-  terminal? : Bool? = None,
+  name~ : String? = None,
+  terminal~ : Bool? = None,
 ) -> Array[Clade] {
-  let result = Array::new()
+  let result = Array(capacity=0)
   self.find_clades_into(name, terminal, result)
   result
 }
@@ -163,8 +227,8 @@ fn Clade::find_clades_into(
 /// Find the first clade matching given attributes, or None.
 pub fn Clade::find_any(
   self : Clade,
-  name? : String? = None,
-  terminal? : Bool? = None,
+  name~ : String? = None,
+  terminal~ : Bool? = None,
 ) -> Clade? {
   let match_name = if name is Some(_) { self.name == name } else { true }
   let match_terminal = if terminal is Some(_) {
@@ -206,14 +270,14 @@ pub fn Clade::is_bifurcating(self : Clade) -> Bool {
 /// Find a path from this clade to a descendant with the given name.
 pub fn Clade::get_path(self : Clade, name : String) -> Array[Clade]? {
   if self.name == Some(name) {
-    let path = Array::new()
+    let path = Array(capacity=0)
     path.push(self)
     Some(path)
   } else {
     for clade in self.clades {
       match clade.get_path(name) {
         Some(child_path) => {
-          let path = Array::new()
+          let path = Array(capacity=0)
           path.push(self)
           for c in child_path {
             path.push(c)
@@ -231,9 +295,9 @@ pub fn Clade::get_path(self : Clade, name : String) -> Array[Clade]? {
 /// Calculate depths of all clades from this clade.
 pub fn Clade::depths(
   self : Clade,
-  current_depth? : Double? = None,
+  current_depth~ : Double? = None,
 ) -> Array[(String, Double)] {
-  let result = Array::new()
+  let result = Array(capacity=0)
   self.depths_helper(current_depth, result)
   result
 }
@@ -242,7 +306,7 @@ pub fn Clade::depths(
 /// Calculate depths and return as a Map for faster lookup.
 pub fn Clade::depths_map(
   self : Clade,
-  current_depth? : Double? = None,
+  current_depth~ : Double? = None,
 ) -> Map[String, Double] {
   let result : Map[String, Double] = Map([], capacity=16)
   self.depths_map_helper(current_depth, result)
@@ -300,23 +364,46 @@ pub struct Tree {
   rooted : Bool
   name : String?
   weight : Double
+  results : Map[String, String]
 }
 
 ///|
 /// Construct a Tree with root clade.
 pub fn Tree::new(
   root : Clade,
-  rooted? : Bool = false,
-  name? : String? = None,
-  weight? : Double = 1.0,
+  rooted~ : Bool = false,
+  name~ : String? = None,
+  weight~ : Double = 1.0,
 ) -> Tree {
-  Tree::{ root, rooted, name, weight }
+  Tree::{ root, rooted, name, weight, results: Map([], capacity=0), }
 }
 
 ///|
 /// Check if this tree is rooted.
 pub fn Tree::is_rooted(self : Tree) -> Bool {
   self.rooted
+}
+
+///|
+/// Store a named analysis result on this tree (metadata attachment).
+/// Inspired by AnnData.uns / Seurat meta_data — analysis results
+/// (e.g. tajima_d, sfs, reconciliation summary) can be cached on
+/// the tree object so downstream functions read without recomputing.
+pub fn Tree::set_result(self : Tree, key : String, value : String) -> Tree {
+  self.results[key] = value
+  self
+}
+
+///|
+/// Retrieve a named analysis result, or None if not set.
+pub fn Tree::get_result(self : Tree, key : String) -> String? {
+  self.results.get(key)
+}
+
+///|
+/// Check whether a named result has been stored.
+pub fn Tree::has_result(self : Tree, key : String) -> Bool {
+  self.results.contains(key)
 }
 
 ///|
@@ -327,7 +414,7 @@ pub fn Tree::get_root(self : Tree) -> Clade {
 
 ///|
 /// Return the number of terminal (leaf) nodes in this tree.
-pub fn Tree::count_terminals(self : Tree) -> Int {
+pub fn Tree::count_terminals(self : Tree) -> Int32 {
   self.root.count_terminals()
 }
 
@@ -347,8 +434,8 @@ pub fn Tree::get_nonterminals(self : Tree) -> Array[Clade] {
 /// Find all clades matching given attributes.
 pub fn Tree::find_clades(
   self : Tree,
-  name? : String? = None,
-  terminal? : Bool? = None,
+  name~ : String? = None,
+  terminal~ : Bool? = None,
 ) -> Array[Clade] {
   self.root.find_clades(name~, terminal~)
 }
@@ -357,8 +444,8 @@ pub fn Tree::find_clades(
 /// Find the first clade matching given attributes, or None.
 pub fn Tree::find_any(
   self : Tree,
-  name? : String? = None,
-  terminal? : Bool? = None,
+  name~ : String? = None,
+  terminal~ : Bool? = None,
 ) -> Clade? {
   self.root.find_any(name~, terminal~)
 }
@@ -417,7 +504,7 @@ pub fn Tree::common_ancestor(self : Tree, names : Array[String]) -> Clade? {
     return None
   }
 
-  let paths : Array[Array[Clade]] = Array::new()
+  let paths : Array[Array[Clade]] = Array(capacity=0)
   for name in names {
     match self.root.get_path(name) {
       Some(path) => paths.push(path)
@@ -462,7 +549,7 @@ pub fn Tree::common_ancestor(self : Tree, names : Array[String]) -> Clade? {
 ///|
 /// Generate ASCII art representation of the tree.
 pub fn Tree::draw_ascii(self : Tree) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   Clade::draw_ascii_helper(self.root, "", true, buf)
   buf.to_string()
 }
@@ -501,7 +588,7 @@ fn Clade::draw_ascii_helper(
 ///|
 /// Return a string representation of the tree.
 pub fn Tree::repr(self : Tree) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string("Tree(rooted=")
   buf.write_string(if self.rooted { "true" } else { "false" })
   buf.write_string(", weight=")

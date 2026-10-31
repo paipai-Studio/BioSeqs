@@ -1,7 +1,6 @@
 ///|
 /// nucleR Demo - Nucleosome Positioning Analysis.
 /// Inspired by Bioconductor nucleR package.
-
 fn main {
   println("=== nucleR Demo ===")
 
@@ -41,16 +40,26 @@ fn main {
   println("   Nucleosome count: " + result.nuc_n_count().to_string())
   println("   Mean spacing: " + result.nuc_mean_spacing().to_string())
   println("   Mean occupancy: " + result.nuc_mean_occupancy().to_string())
-  println("   Fraction well-positioned: " + result.nuc_frac_well_positioned().to_string())
+  println(
+    "   Fraction well-positioned: " +
+    result.nuc_frac_well_positioned().to_string(),
+  )
   println("   Nucleosome details:")
   let mut k = 0
   while k < result.nuc_n_count() {
     let nuc = result.nuc_get(k)
-    println("     " + k.to_string() +
-      ": center=" + nuc.nuc_center().to_string() +
-      ", width=" + nuc.nuc_width().to_string() +
-      ", occupancy=" + nuc.nuc_occupancy().to_string() +
-      ", well_positioned=" + nuc.nuc_is_well_positioned().to_string())
+    println(
+      "     " +
+      k.to_string() +
+      ": center=" +
+      nuc.nuc_center().to_string() +
+      ", width=" +
+      nuc.nuc_width().to_string() +
+      ", occupancy=" +
+      nuc.nuc_occupancy().to_string() +
+      ", well_positioned=" +
+      nuc.nuc_is_well_positioned().to_string(),
+    )
     k = k + 1
   }
 

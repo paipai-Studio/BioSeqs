@@ -2,7 +2,7 @@
 /// Tests for the Bioconductor miloR-inspired neighbourhood DA workflow.
 
 ///|
-fn milo_test_assert_close(
+fn milo_test_assert_num_close(
   actual : Double,
   expected : Double,
   tolerance : Double,
@@ -343,7 +343,7 @@ test "miloR: computes mean feature expression per neighborhood" {
     for cell in neighborhoods.neighborhoods[index] {
       total = total + [0.0, 2.0, 4.0, 8.0][cell]
     }
-    milo_test_assert_close(
+    milo_test_assert_num_close(
       expression[0][index],
       total / neighborhoods.neighborhoods[index].length().to_double(),
       1.0e-12,

@@ -41,7 +41,7 @@ fn main {
         // Show count matrix
         let bases = ["A", "C", "G", "T"]
         for row in 0..<4 {
-          let sb = StringBuilder::new()
+          let sb = StringBuilder()
           sb.write_string("  " + bases[row] + ":")
           for col in 0..<m.width {
             sb.write_string(" " + m.count_matrix[row][col].to_string())
@@ -52,7 +52,9 @@ fn main {
         println("  sites: \{m.sites.length()}")
         for j in 0..<m.sites.length() {
           let s = m.sites[j]
-          println("    site \{j}: \{s.sequence_id} @ \{s.position} [\{s.strand}] \{s.sequence}")
+          println(
+            "    site \{j}: \{s.sequence_id} @ \{s.position} [\{s.strand}] \{s.sequence}",
+          )
         }
         println("")
       }
@@ -72,7 +74,7 @@ fn main {
       let bases = ["A", "C", "G", "T"]
       println("PWM for motif 1 (frequencies):")
       for row in 0..<4 {
-        let sb = StringBuilder::new()
+        let sb = StringBuilder()
         sb.write_string("  " + bases[row] + ":")
         for col in 0..<m0.width {
           sb.write_string(" " + pwm[row][col].to_string())
@@ -91,7 +93,7 @@ fn main {
   match @bio.alignace_get_motif(record, 0) {
     Some(m0) => {
       let ic = @bio.alignace_information_content(m0)
-      let sb = StringBuilder::new()
+      let sb = StringBuilder()
       sb.write_string("  IC (bits):")
       for col in 0..<ic.length() {
         sb.write_string(" " + ic[col].to_string())
@@ -129,14 +131,12 @@ fn main {
   let custom = @bio.AlignAceRecord::new()
   custom.set_version("4.0")
   custom.set_command("alignace -i=custom.fa -numcols=6")
-  let m = @bio.AlignAceMotif::new(
-    [
-      [8, 0, 0, 8, 0, 0],
-      [0, 0, 8, 0, 0, 0],
-      [0, 8, 0, 0, 0, 8],
-      [0, 0, 0, 0, 8, 0],
-    ],
-  )
+  let m = @bio.AlignAceMotif::new([
+    [8, 0, 0, 8, 0, 0],
+    [0, 0, 8, 0, 0, 0],
+    [0, 8, 0, 0, 0, 8],
+    [0, 0, 0, 0, 8, 0],
+  ])
   m.add_site(
     @bio.AlignAceSite::new(
       sequence_id="custom1",
@@ -160,7 +160,9 @@ fn main {
   }
   let custom_text = @bio.alignace_write(custom)
   let custom_parsed = @bio.alignace_parse(custom_text)
-  println("Round-trip verify (motif count): \{@bio.alignace_num_motifs(custom) == @bio.alignace_num_motifs(custom_parsed)}")
+  println(
+    "Round-trip verify (motif count): \{@bio.alignace_num_motifs(custom) == @bio.alignace_num_motifs(custom_parsed)}",
+  )
   println("")
 
   // ------------------------------------------------------------------
@@ -168,14 +170,7 @@ fn main {
   // ------------------------------------------------------------------
   println("=== 8. Information content of a pure motif ===")
   // A pure motif (only one base per column) has IC = 2 bits per position
-  let pure = @bio.AlignAceMotif::new(
-    [
-      [10, 0],
-      [0, 0],
-      [0, 10],
-      [0, 0],
-    ],
-  )
+  let pure = @bio.AlignAceMotif::new([[10, 0], [0, 0], [0, 10], [0, 0]])
   let pure_ic = @bio.alignace_information_content(pure)
   println("Pure motif (A then G):")
   println("  consensus: \{@bio.alignace_motif_consensus(pure)}")

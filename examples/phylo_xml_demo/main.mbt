@@ -9,7 +9,6 @@
 ///   - Get all tips, node counts
 ///
 /// Run: moon run examples/phylo_xml_demo/
-
 fn main {
   println("=== PhyloXML Demo ===")
 
@@ -19,8 +18,7 @@ fn main {
   println("")
   println("--- 1. Sample PhyloXML Input ---")
 
-  let phyloxml_text =
-    "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+  let phyloxml_text = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
     "<phyloxml xmlns=\"http://www.phyloxml.org/1.0\">\n" +
     "  <phylogeny id=\"tree1\" rooted=\"true\">\n" +
     "    <name>Species Tree</name>\n" +
@@ -214,40 +212,47 @@ fn main {
   let human_node = @bio.PhyloXMLNode::new(
     name="Human",
     branch_length=0.05,
-    taxon=Some(@bio.TaxonInfo::new(
-      taxon_id="9606",
-      scientific_name="Homo sapiens",
-      common_name="Human",
-    )),
-    sequence_annotation=Some(@bio.SequenceAnnotation::new(
-      sequence_id="human_seq",
-      molecular_type="DNA",
-      symbol="Hs",
-    )),
+    taxon=Some(
+      @bio.TaxonInfo::new(
+        taxon_id="9606",
+        scientific_name="Homo sapiens",
+        common_name="Human",
+      ),
+    ),
+    sequence_annotation=Some(
+      @bio.SequenceAnnotation::new(
+        sequence_id="human_seq",
+        molecular_type="DNA",
+        symbol="Hs",
+      ),
+    ),
   )
 
   let chimp_node = @bio.PhyloXMLNode::new(
     name="Chimpanzee",
     branch_length=0.06,
-    taxon=Some(@bio.TaxonInfo::new(
-      taxon_id="9598",
-      scientific_name="Pan troglodytes",
-      common_name="Chimpanzee",
-    )),
+    taxon=Some(
+      @bio.TaxonInfo::new(
+        taxon_id="9598",
+        scientific_name="Pan troglodytes",
+        common_name="Chimpanzee",
+      ),
+    ),
   )
 
   let mammals_node = @bio.PhyloXMLNode::new(
     name="Mammalia",
     branch_length=0.10,
     children=[human_node, chimp_node],
-    annotations=Map([("group", "mammals"), ("description", "Primate clade")], capacity=2),
+    annotations=Map(
+      [("group", "mammals"), ("description", "Primate clade")],
+      capacity=2,
+    ),
   )
 
-  let tree_root = @bio.PhyloXMLNode::new(
-    name="root",
-    branch_length=0.0,
-    children=[mammals_node],
-  )
+  let tree_root = @bio.PhyloXMLNode::new(name="root", branch_length=0.0, children=[
+    mammals_node,
+  ])
 
   let constructed_tree = @bio.PhyloXMLTree::new(
     tree_id="constructed",
@@ -256,9 +261,7 @@ fn main {
     root=tree_root,
   )
 
-  let constructed_result = @bio.PhyloXMLResult::new(
-    trees=[constructed_tree],
-  )
+  let constructed_result = @bio.PhyloXMLResult::new(trees=[constructed_tree])
 
   println("Constructed tree XML:")
   let constructed_xml = @bio.phyloxml_to_xml(constructed_result)
@@ -333,17 +336,15 @@ fn display_annotations(node : @bio.PhyloXMLNode, indent : String) -> Unit {
     println("\{indent}'\{node.name}':")
   }
   match node.taxon {
-    Some(t) => {
+    Some(t) =>
       if t.scientific_name.length() > 0 {
         println("\{indent}  Taxon: \{t.scientific_name} (\{t.common_name})")
       }
-    }
     None => ()
   }
   match node.sequence_annotation {
-    Some(s) => {
+    Some(s) =>
       println("\{indent}  Sequence: \{s.sequence_id} [\{s.molecular_type}]")
-    }
     None => ()
   }
   let anns = node.annotations

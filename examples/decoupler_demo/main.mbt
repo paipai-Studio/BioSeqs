@@ -23,15 +23,31 @@ fn main {
   while i < pkn.edges.length() {
     let e = pkn.edges[i]
     let mode = if e.weight > 0.0 { "activation" } else { "inhibition" }
-    println("  " + e.source + " -> " + e.target + " (" + mode + ", w=" + e.weight.to_string() + ")")
+    println(
+      "  " +
+      e.source +
+      " -> " +
+      e.target +
+      " (" +
+      mode +
+      ", w=" +
+      e.weight.to_string() +
+      ")",
+    )
     i = i + 1
   }
   println("")
 
   // ---- Section 3: Run with WSum method ----
   println("=== 3. WSum Method ===")
-  let wsum_result = @src.decoupler_run(expr, samples, genes, pkn, method=@src.decoupler_wsum_method())
-  println("Method: " + wsum_result.method)
+  let wsum_result = @src.decoupler_run(
+    expr,
+    samples,
+    genes,
+    pkn,
+    method_=@src.decoupler_wsum_method(),
+  )
+  println("Method: " + wsum_result.method_)
   println("Regulators: " + wsum_result.regulators.length().to_string())
   // Header row
   let mut hdr = "          "
@@ -57,8 +73,14 @@ fn main {
 
   // ---- Section 4: Run with ULM method ----
   println("=== 4. ULM Method ===")
-  let ulm_result = @src.decoupler_run(expr, samples, genes, pkn, method=@src.decoupler_ulm_method())
-  println("Method: " + ulm_result.method)
+  let ulm_result = @src.decoupler_run(
+    expr,
+    samples,
+    genes,
+    pkn,
+    method_=@src.decoupler_ulm_method(),
+  )
+  println("Method: " + ulm_result.method_)
   let mut hdr2 = "          "
   let mut si2 = 0
   while si2 < samples.length() {
@@ -81,8 +103,14 @@ fn main {
 
   // ---- Section 5: Run with MLM method ----
   println("=== 5. MLM Method ===")
-  let mlm_result = @src.decoupler_run(expr, samples, genes, pkn, method=@src.decoupler_mlm_method())
-  println("Method: " + mlm_result.method)
+  let mlm_result = @src.decoupler_run(
+    expr,
+    samples,
+    genes,
+    pkn,
+    method_=@src.decoupler_mlm_method(),
+  )
+  println("Method: " + mlm_result.method_)
   let mut hdr3 = "          "
   let mut si3 = 0
   while si3 < samples.length() {
@@ -109,7 +137,15 @@ fn main {
   let mut ti = 0
   while ti < top.length() {
     let s = top[ti]
-    println("  " + (ti + 1).to_string() + ". " + s.regulator + " (score=" + s.score.to_string() + ")")
+    println(
+      "  " +
+      (ti + 1).to_string() +
+      ". " +
+      s.regulator +
+      " (score=" +
+      s.score.to_string() +
+      ")",
+    )
     ti = ti + 1
   }
   println("")
@@ -126,7 +162,7 @@ fn main {
   let mut mi = 0
   while mi < methods.length() {
     let (m, name) = methods[mi]
-    let r = @src.decoupler_run(expr, samples, genes, pkn, method=m)
+    let r = @src.decoupler_run(expr, samples, genes, pkn, method_=m)
     println("  " + name + ": " + r.scores.length().to_string() + " scores")
     mi = mi + 1
   }

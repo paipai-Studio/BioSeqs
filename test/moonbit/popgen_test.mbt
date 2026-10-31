@@ -5,14 +5,14 @@
 test "allele_frequencies" {
   let pop = ["AA", "Aa", "aa"]
   let freqs = @src.allele_frequencies(pop)
-  assert_true(freqs.size() > 0)
+  assert_true(freqs.length() > 0)
 }
 
 ///|
 test "genotype_frequencies" {
   let pop = ["AA", "Aa", "aa"]
   let freqs = @src.genotype_frequencies(pop)
-  assert_true(freqs.size() > 0)
+  assert_true(freqs.length() > 0)
 }
 
 ///|

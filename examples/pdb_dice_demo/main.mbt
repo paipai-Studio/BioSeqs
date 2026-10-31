@@ -6,8 +6,7 @@ fn main {
   println("=== PDB Dice Demo ===\n")
 
   // Create a simple PDB structure for demonstration
-  let pdb_content =
-    "ATOM      1  N   ALA A   1      11.104  6.134  10.298  1.00 20.00           N\n" +
+  let pdb_content = "ATOM      1  N   ALA A   1      11.104  6.134  10.298  1.00 20.00           N\n" +
     "ATOM      2  CA  ALA A   1      11.639  6.168  10.426  1.00 20.00           C\n" +
     "ATOM      3  C   ALA A   1      12.221  6.201  10.542  1.00 20.00           C\n" +
     "ATOM      4  O   ALA A   1      12.803  6.234  10.658  1.00 20.00           O\n" +
@@ -77,7 +76,9 @@ fn main {
   let near_atoms = @bio.select_atoms_near_point(structure, point, 2.0)
   println("   Atoms near point: \{near_atoms.length()}")
   if near_atoms.length() > 0 {
-    println("   First atom: \{near_atoms[0].name} (element: \{near_atoms[0].element})")
+    println(
+      "   First atom: \{near_atoms[0].name} (element: \{near_atoms[0].element})",
+    )
   }
 
   // 8. Structure statistics

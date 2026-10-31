@@ -551,7 +551,7 @@ test "primer3_design_summary_has_header" {
 
 ///|
 test "primer3_design_summary_empty_design" {
-  let design = @src.Primer3Design::new(Array::new(), Array::new())
+  let design = @src.Primer3Design::new(Array(capacity=0), Array(capacity=0))
   let s = @src.primer3_design_summary(design)
   assert_true(s.contains("Forward candidates: 0"))
   assert_true(s.contains("Reverse candidates: 0"))

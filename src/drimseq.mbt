@@ -17,6 +17,9 @@ pub enum DRIMSeqNorm {
 } derive(Eq)
 
 ///|
+pub extend DRIMSeqNorm with Eq::{equal, not_equal}
+
+///|
 /// Create no normalization.
 pub fn drimseq_norm_none() -> DRIMSeqNorm {
   DRIMSeqNorm::None
@@ -59,7 +62,7 @@ pub fn TranscriptCount::new(
   sample_id~ : String,
   condition~ : String,
   count~ : Double,
-  gene_count? : Double = 0.0,
+  gene_count~ : Double = 0.0,
 ) -> TranscriptCount {
   TranscriptCount::{
     transcript_id,
@@ -93,11 +96,11 @@ pub struct DRIMSeqGeneResult {
   /// Adjusted p-value (BH)
   mut p_adj : Double
   /// Degrees of freedom
-  df : Int
+  df : Int32
   /// Likelihood ratio statistic
   lr_stat : Double
   /// Number of transcripts
-  n_transcripts : Int
+  n_transcripts : Int32
   /// Significant at alpha level
   mut significant : Bool
 }
@@ -108,7 +111,7 @@ pub fn DRIMSeqGeneResult::new(
   gene_id~ : String,
   delta~ : Array[Double],
   p_value~ : Double,
-  df~ : Int,
+  df~ : Int32,
   lr_stat~ : Double,
 ) -> DRIMSeqGeneResult {
   DRIMSeqGeneResult::{
@@ -133,15 +136,15 @@ pub struct DRIMSeqResult {
   /// Significance threshold
   alpha : Double
   /// Total genes tested
-  n_genes_tested : Int
+  n_genes_tested : Int32
   /// Genes passing filter
-  n_genes_filtered : Int
+  n_genes_filtered : Int32
   /// Significant genes
-  n_significant : Int
+  n_significant : Int32
   /// Convergence status
   converged : Bool
   /// Iterations
-  iterations : Int
+  iterations : Int32
 }
 
 ///|
@@ -149,7 +152,7 @@ pub struct DRIMSeqResult {
 pub fn DRIMSeqResult::get_significant(
   self : DRIMSeqResult,
 ) -> Array[DRIMSeqGeneResult] {
-  let sig : Array[DRIMSeqGeneResult] = Array::new()
+  let sig : Array[DRIMSeqGeneResult] = Array(capacity=0)
   let mut i = 0
   while i < self.gene_results.length() {
     if self.gene_results[i].significant {
@@ -164,7 +167,7 @@ pub fn DRIMSeqResult::get_significant(
 /// Get top results by p-value.
 pub fn DRIMSeqResult::get_top_genes(
   self : DRIMSeqResult,
-  n~ : Int,
+  n~ : Int32,
 ) -> Array[DRIMSeqGeneResult] {
   let sorted = self.gene_results
   // Simple bubble sort by p-value
@@ -182,7 +185,7 @@ pub fn DRIMSeqResult::get_top_genes(
     }
     i = i + 1
   }
-  let top : Array[DRIMSeqGeneResult] = Array::new()
+  let top : Array[DRIMSeqGeneResult] = Array(capacity=0)
   let limit = if n < len { n } else { len }
   let mut k = 0
   while k < limit {
@@ -219,7 +222,7 @@ pub struct DRIMSeqConfig {
   /// Convergence tolerance
   tolerance : Double
   /// Maximum iterations
-  max_iter : Int
+  max_iter : Int32
   /// Significance threshold
   alpha : Double
   /// Normalization method
@@ -259,7 +262,7 @@ pub fn DRIMSeqConfig::set_min_count(
 /// Set normalization method.
 pub fn DRIMSeqConfig::set_norm_method(
   self : DRIMSeqConfig,
-  method~ : DRIMSeqNorm,
+  method_~ : DRIMSeqNorm,
 ) -> DRIMSeqConfig {
   DRIMSeqConfig::{
     min_count: self.min_count,
@@ -267,7 +270,7 @@ pub fn DRIMSeqConfig::set_norm_method(
     tolerance: self.tolerance,
     max_iter: self.max_iter,
     alpha: self.alpha,
-    norm_method: method,
+    norm_method: method_,
   }
 }
 
@@ -292,7 +295,7 @@ pub fn DRIMSeqConfig::set_alpha(
 pub fn drimseq_aggregate_by_gene(
   counts : Array[TranscriptCount],
 ) -> Array[TranscriptCount] {
-  let result : Array[TranscriptCount] = Array::new()
+  let result : Array[TranscriptCount] = Array(capacity=0)
   let mut i = 0
   while i < counts.length() {
     let c = counts[i]
@@ -330,7 +333,7 @@ pub fn drimseq_compute_proportions(
   counts : Array[TranscriptCount],
   gene_counts : Array[TranscriptCount],
 ) -> Array[TranscriptCount] {
-  let result : Array[TranscriptCount] = Array::new()
+  let result : Array[TranscriptCount] = Array(capacity=0)
   let mut i = 0
   while i < counts.length() {
     let c = counts[i]
@@ -363,9 +366,9 @@ pub fn drimseq_compute_proportions(
 /// Filter transcripts by minimum count and proportion.
 pub fn drimseq_filter_counts(
   counts : Array[TranscriptCount],
-  config? : DRIMSeqConfig = DRIMSeqConfig::new(),
+  config~ : DRIMSeqConfig = DRIMSeqConfig::new(),
 ) -> Array[TranscriptCount] {
-  let filtered : Array[TranscriptCount] = Array::new()
+  let filtered : Array[TranscriptCount] = Array(capacity=0)
   let mut i = 0
   while i < counts.length() {
     let c = counts[i]
@@ -435,7 +438,7 @@ pub fn drimseq_wald_test(
 ) -> (Double, Double, Array[Double]) {
   let n = proportions_a.length()
   if n == 0 {
-    return (0.0, 1.0, Array::new())
+    return (0.0, 1.0, Array(capacity=0))
   }
   let delta = array_sub(proportions_a, proportions_b)
   let mut stat = 0.0
@@ -459,13 +462,13 @@ pub fn drimseq_wald_test(
 /// Main DRIMSeq analysis function.
 pub fn drimseq_test_differential(
   counts : Array[TranscriptCount],
-  config? : DRIMSeqConfig = DRIMSeqConfig::new(),
+  config~ : DRIMSeqConfig = DRIMSeqConfig::new(),
 ) -> DRIMSeqResult {
   let gene_counts = drimseq_aggregate_by_gene(counts)
   let props = drimseq_compute_proportions(counts, gene_counts)
   let filtered = drimseq_filter_counts(props, config~)
 
-  let gene_results : Array[DRIMSeqGeneResult] = Array::new()
+  let gene_results : Array[DRIMSeqGeneResult] = Array(capacity=0)
 
   // Group by gene and condition
   let genes = get_unique_genes(filtered)
@@ -531,7 +534,7 @@ pub fn drimseq_test_differential(
     j = j + 1
   }
 
-  let filtered_results : Array[DRIMSeqGeneResult] = Array::new()
+  let filtered_results : Array[DRIMSeqGeneResult] = Array(capacity=0)
   let mut k = 0
   while k < gene_results.length() {
     if gene_results[k].p_value > 0.0 {
@@ -555,7 +558,7 @@ pub fn drimseq_test_differential(
 ///|
 /// Create sample data for testing.
 pub fn drimseq_sample_data() -> Array[TranscriptCount] {
-  let counts : Array[TranscriptCount] = Array::new()
+  let counts : Array[TranscriptCount] = Array(capacity=0)
 
   // GeneA: 2 transcripts, condition_a (3 samples)
   counts.push(
@@ -762,7 +765,7 @@ fn array_sum(arr : Array[Double]) -> Double {
 ///|
 fn array_sub(a : Array[Double], b : Array[Double]) -> Array[Double] {
   let len = min_int(a.length(), b.length())
-  let result : Array[Double] = Array::new()
+  let result : Array[Double] = Array(capacity=0)
   let mut i = 0
   while i < len {
     result.push(a[i] - b[i])
@@ -772,20 +775,12 @@ fn array_sub(a : Array[Double], b : Array[Double]) -> Array[Double] {
 }
 
 ///|
-fn array_dot(a : Array[Double], b : Array[Double]) -> Double {
-  let len = min_int(a.length(), b.length())
-  let mut s = 0.0
-  let mut i = 0
-  while i < len {
-    s = s + a[i] * b[i]
-    i = i + 1
-  }
-  s
-}
-
-///|
-fn slice_array(arr : Array[Double], start : Int, end : Int) -> Array[Double] {
-  let result : Array[Double] = Array::new()
+fn slice_array(
+  arr : Array[Double],
+  start : Int32,
+  end : Int32,
+) -> Array[Double] {
+  let result : Array[Double] = Array(capacity=0)
   let i = start
   let j = if end > arr.length() { arr.length() } else { end }
   let mut k = i
@@ -835,7 +830,7 @@ fn drimseq_log_gamma(x : Double) -> Double {
 
 ///|
 /// Chi-square p-value approximation.
-fn chi_square_p_value(stat : Double, df : Int) -> Double {
+fn chi_square_p_value(stat : Double, df : Int32) -> Double {
   if stat <= 0.0 {
     return 1.0
   }
@@ -880,11 +875,11 @@ fn normal_sf(z : Double) -> Double {
 fn benjamini_hochberg_correct(pvalues : Array[Double]) -> Array[Double] {
   let n = pvalues.length()
   if n == 0 {
-    return Array::new()
+    return Array(capacity=0)
   }
 
   // Create index array and sort by p-value
-  let indices : Array[Int] = Array::new()
+  let indices : Array[Int32] = Array(capacity=0)
   let mut i = 0
   while i < n {
     indices.push(i)
@@ -933,7 +928,7 @@ fn benjamini_hochberg_correct(pvalues : Array[Double]) -> Array[Double] {
   }
 
   // Map back to original order
-  let result : Array[Double] = Array::new()
+  let result : Array[Double] = Array(capacity=0)
   let mut m = 0
   while m < n {
     result.push(0.0)
@@ -951,7 +946,7 @@ fn benjamini_hochberg_correct(pvalues : Array[Double]) -> Array[Double] {
 
 ///|
 fn get_unique_genes(counts : Array[TranscriptCount]) -> Array[String] {
-  let genes : Array[String] = Array::new()
+  let genes : Array[String] = Array(capacity=0)
   let mut i = 0
   while i < counts.length() {
     let id = counts[i].gene_id
@@ -977,7 +972,7 @@ fn get_gene_data(
   counts : Array[TranscriptCount],
   gene_id : String,
 ) -> Array[TranscriptCount] {
-  let result : Array[TranscriptCount] = Array::new()
+  let result : Array[TranscriptCount] = Array(capacity=0)
   let mut i = 0
   while i < counts.length() {
     if counts[i].gene_id == gene_id {
@@ -990,7 +985,7 @@ fn get_gene_data(
 
 ///|
 fn get_unique_conditions(data : Array[TranscriptCount]) -> Array[String] {
-  let conds : Array[String] = Array::new()
+  let conds : Array[String] = Array(capacity=0)
   let mut i = 0
   while i < data.length() {
     let c = data[i].condition
@@ -1016,7 +1011,7 @@ fn get_condition_proportions(
   data : Array[TranscriptCount],
   condition : String,
 ) -> Array[Double] {
-  let props : Array[Double] = Array::new()
+  let props : Array[Double] = Array(capacity=0)
   let mut i = 0
   while i < data.length() {
     if data[i].condition == condition {
@@ -1029,7 +1024,7 @@ fn get_condition_proportions(
 
 ///|
 fn extract_pvalues(results : Array[DRIMSeqGeneResult]) -> Array[Double] {
-  let pvals : Array[Double] = Array::new()
+  let pvals : Array[Double] = Array(capacity=0)
   let mut i = 0
   while i < results.length() {
     pvals.push(results[i].p_value)

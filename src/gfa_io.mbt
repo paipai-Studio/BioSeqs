@@ -29,7 +29,7 @@ pub struct GfaTag {
 ///|
 /// Construct a GfaTag from its name, type, and value.
 pub fn GfaTag::new(name : String, tag_type : String, value : String) -> GfaTag {
-  GfaTag::{ name, tag_type, value }
+  GfaTag::{ name, tag_type, value, }
 }
 
 ///|
@@ -71,7 +71,7 @@ pub struct GfaHeader {
 ///|
 /// Construct a GfaHeader with the given version and tags.
 pub fn GfaHeader::new(version : String, tags : Array[GfaTag]) -> GfaHeader {
-  GfaHeader::{ version, tags }
+  GfaHeader::{ version, tags, }
 }
 
 ///|
@@ -106,7 +106,7 @@ pub fn GfaSegment::new(
   sequence : String,
   tags : Array[GfaTag],
 ) -> GfaSegment {
-  GfaSegment::{ name, sequence, tags }
+  GfaSegment::{ name, sequence, tags, }
 }
 
 ///|
@@ -130,7 +130,7 @@ pub fn GfaSegment::tags(self : GfaSegment) -> Array[GfaTag] {
 ///|
 /// Human-readable representation of this segment.
 pub fn GfaSegment::to_string(self : GfaSegment) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string("GfaSegment(name=")
   buf.write_string(self.name)
   buf.write_string(", sequence=")
@@ -172,7 +172,7 @@ pub fn GfaLink::new(
   overlap : String,
   tags : Array[GfaTag],
 ) -> GfaLink {
-  GfaLink::{ from_segment, from_orient, to_segment, to_orient, overlap, tags }
+  GfaLink::{ from_segment, from_orient, to_segment, to_orient, overlap, tags, }
 }
 
 ///|
@@ -223,7 +223,7 @@ pub struct GfaContainment {
   container_orient : String
   contained : String
   contained_orient : String
-  position : Int
+  position : Int32
   overlap : String
   tags : Array[GfaTag]
 }
@@ -235,7 +235,7 @@ pub fn GfaContainment::new(
   container_orient : String,
   contained : String,
   contained_orient : String,
-  position : Int,
+  position : Int32,
   overlap : String,
   tags : Array[GfaTag],
 ) -> GfaContainment {
@@ -276,7 +276,7 @@ pub fn GfaContainment::contained_orient(self : GfaContainment) -> String {
 
 ///|
 /// 0-based start position of the contained segment within the container.
-pub fn GfaContainment::position(self : GfaContainment) -> Int {
+pub fn GfaContainment::position(self : GfaContainment) -> Int32 {
   self.position
 }
 
@@ -314,7 +314,7 @@ pub fn GfaPath::new(
   overlaps : Array[String],
   tags : Array[GfaTag],
 ) -> GfaPath {
-  GfaPath::{ name, segment_list, overlaps, tags }
+  GfaPath::{ name, segment_list, overlaps, tags, }
 }
 
 ///|
@@ -359,11 +359,11 @@ pub struct GfaGraph {
 /// Construct an empty GfaGraph.
 pub fn GfaGraph::new() -> GfaGraph {
   GfaGraph::{
-    headers: Array::new(),
-    segments: Array::new(),
-    links: Array::new(),
-    containments: Array::new(),
-    paths: Array::new(),
+    headers: Array(capacity=0),
+    segments: Array(capacity=0),
+    links: Array(capacity=0),
+    containments: Array(capacity=0),
+    paths: Array(capacity=0),
   }
 }
 
@@ -440,7 +440,7 @@ pub fn GfaGraph::add_path(self : GfaGraph, path : GfaPath) -> Unit {
 /// the pieces into `Array[String]`.)
 fn gfa_split_strings(s : String, delim : String) -> Array[String] {
   let views = s.split(delim).to_array()
-  let out : Array[String] = Array::new()
+  let out : Array[String] = Array(capacity=0)
   for i in 0..<views.length() {
     out.push(views[i].to_owned())
   }
@@ -466,7 +466,7 @@ pub fn gfa_parse_tag(field : String) -> GfaTag? {
           Some(p2) => {
             let tag_type = rest[0:p2].to_owned()
             let value = rest[p2 + 1:].to_owned()
-            Some(GfaTag::{ name, tag_type, value })
+            Some(GfaTag::{ name, tag_type, value, })
           }
         }
       }
@@ -476,8 +476,8 @@ pub fn gfa_parse_tag(field : String) -> GfaTag? {
 ///|
 /// Parse all tag fields in `fields` starting from index `start`. Non-tag
 /// fields (those lacking two ':') are silently skipped.
-fn gfa_parse_tags(fields : Array[String], start : Int) -> Array[GfaTag] {
-  let tags = Array::new()
+fn gfa_parse_tags(fields : Array[String], start : Int32) -> Array[GfaTag] {
+  let tags = Array(capacity=0)
   for i in start..<fields.length() {
     match gfa_parse_tag(fields[i]) {
       Some(t) => tags.push(t)
@@ -498,7 +498,7 @@ pub fn gfa_parse_header(fields : Array[String]) -> GfaHeader {
       version = tags[i].value
     }
   }
-  GfaHeader::{ version, tags }
+  GfaHeader::{ version, tags, }
 }
 
 ///|
@@ -509,8 +509,8 @@ pub fn gfa_parse_segment(fields : Array[String]) -> GfaSegment {
   let n = fields.length()
   let name = if n > 1 { fields[1] } else { "" }
   let sequence = if n > 2 { fields[2] } else { "*" }
-  let tags = if n > 3 { gfa_parse_tags(fields, 3) } else { Array::new() }
-  GfaSegment::{ name, sequence, tags }
+  let tags = if n > 3 { gfa_parse_tags(fields, 3) } else { Array(capacity=0) }
+  GfaSegment::{ name, sequence, tags, }
 }
 
 ///|
@@ -522,8 +522,8 @@ pub fn gfa_parse_link(fields : Array[String]) -> GfaLink {
   let to_segment = if n > 3 { fields[3] } else { "" }
   let to_orient = if n > 4 { fields[4] } else { "+" }
   let overlap = if n > 5 { fields[5] } else { "*" }
-  let tags = if n > 6 { gfa_parse_tags(fields, 6) } else { Array::new() }
-  GfaLink::{ from_segment, from_orient, to_segment, to_orient, overlap, tags }
+  let tags = if n > 6 { gfa_parse_tags(fields, 6) } else { Array(capacity=0) }
+  GfaLink::{ from_segment, from_orient, to_segment, to_orient, overlap, tags, }
 }
 
 ///|
@@ -537,7 +537,7 @@ pub fn gfa_parse_containment(fields : Array[String]) -> GfaContainment {
   let contained_orient = if n > 4 { fields[4] } else { "+" }
   let position = if n > 5 { parse_int(fields[5]) } else { 0 }
   let overlap = if n > 6 { fields[6] } else { "*" }
-  let tags = if n > 7 { gfa_parse_tags(fields, 7) } else { Array::new() }
+  let tags = if n > 7 { gfa_parse_tags(fields, 7) } else { Array(capacity=0) }
   GfaContainment::{
     container,
     container_orient,
@@ -559,55 +559,15 @@ pub fn gfa_parse_path(fields : Array[String]) -> GfaPath {
   let segment_list = if n > 2 && fields[2].length() > 0 {
     gfa_split_strings(fields[2], ",")
   } else {
-    Array::new()
+    Array(capacity=0)
   }
   let overlaps = if n > 3 && fields[3].length() > 0 {
     gfa_split_strings(fields[3], ",")
   } else {
-    Array::new()
+    Array(capacity=0)
   }
-  let tags = if n > 4 { gfa_parse_tags(fields, 4) } else { Array::new() }
-  GfaPath::{ name, segment_list, overlaps, tags }
-}
-
-///|
-/// Parse a single GFA line and dispatch on its record-type character. The
-/// line is parsed for validation but the resulting record is not accumulated
-/// anywhere; use `gfa_parse` to build a complete graph.
-pub fn gfa_parse_line(line : String) -> Unit {
-  let n = line.length()
-  let cr : UInt16 = '\r'.to_int().to_uint16()
-  let mut end = n
-  if n > 0 && line.unsafe_get(n - 1) == cr {
-    end = n - 1
-  }
-  if end == 0 {
-    return
-  }
-  let body = line[0:end].to_owned()
-  let fields = gfa_split_strings(body, "\t")
-  if fields.length() == 0 {
-    return
-  }
-  let rtype = fields[0]
-  match rtype {
-    "H" => {
-      let _ = gfa_parse_header(fields)
-    }
-    "S" => {
-      let _ = gfa_parse_segment(fields)
-    }
-    "L" => {
-      let _ = gfa_parse_link(fields)
-    }
-    "C" => {
-      let _ = gfa_parse_containment(fields)
-    }
-    "P" => {
-      let _ = gfa_parse_path(fields)
-    }
-    _ => ()
-  }
+  let tags = if n > 4 { gfa_parse_tags(fields, 4) } else { Array(capacity=0) }
+  GfaPath::{ name, segment_list, overlaps, tags, }
 }
 
 ///|
@@ -657,7 +617,7 @@ pub fn gfa_tag_to_string(tag : GfaTag) -> String {
 ///|
 /// Render a GfaHeader as an H line (without trailing newline).
 pub fn gfa_header_to_line(header : GfaHeader) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string("H")
   for i in 0..<header.tags.length() {
     buf.write_string("\t")
@@ -669,7 +629,7 @@ pub fn gfa_header_to_line(header : GfaHeader) -> String {
 ///|
 /// Render a GfaSegment as an S line (without trailing newline).
 pub fn gfa_segment_to_line(segment : GfaSegment) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string("S\t")
   buf.write_string(segment.name)
   buf.write_string("\t")
@@ -684,7 +644,7 @@ pub fn gfa_segment_to_line(segment : GfaSegment) -> String {
 ///|
 /// Render a GfaLink as an L line (without trailing newline).
 pub fn gfa_link_to_line(link : GfaLink) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string("L\t")
   buf.write_string(link.from_segment)
   buf.write_string("\t")
@@ -705,7 +665,7 @@ pub fn gfa_link_to_line(link : GfaLink) -> String {
 ///|
 /// Render a GfaContainment as a C line (without trailing newline).
 pub fn gfa_containment_to_line(cont : GfaContainment) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string("C\t")
   buf.write_string(cont.container)
   buf.write_string("\t")
@@ -728,7 +688,7 @@ pub fn gfa_containment_to_line(cont : GfaContainment) -> String {
 ///|
 /// Render a GfaPath as a P line (without trailing newline).
 pub fn gfa_path_to_line(path : GfaPath) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string("P\t")
   buf.write_string(path.name)
   buf.write_string("\t")
@@ -756,7 +716,7 @@ pub fn gfa_path_to_line(path : GfaPath) -> String {
 /// Serialize a complete GfaGraph to GFA text. Headers, segments, links,
 /// containments, and paths are emitted in that order, one record per line.
 pub fn gfa_to_string(graph : GfaGraph) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   for i in 0..<graph.headers.length() {
     buf.write_string(gfa_header_to_line(graph.headers[i]))
     buf.write_string("\n")
@@ -786,19 +746,19 @@ pub fn gfa_to_string(graph : GfaGraph) -> String {
 
 ///|
 /// Number of segments in the graph.
-pub fn gfa_graph_n_segments(graph : GfaGraph) -> Int {
+pub fn gfa_graph_n_segments(graph : GfaGraph) -> Int32 {
   graph.segments.length()
 }
 
 ///|
 /// Number of links in the graph.
-pub fn gfa_graph_n_links(graph : GfaGraph) -> Int {
+pub fn gfa_graph_n_links(graph : GfaGraph) -> Int32 {
   graph.links.length()
 }
 
 ///|
 /// Number of paths in the graph.
-pub fn gfa_graph_n_paths(graph : GfaGraph) -> Int {
+pub fn gfa_graph_n_paths(graph : GfaGraph) -> Int32 {
   graph.paths.length()
 }
 
@@ -819,7 +779,7 @@ pub fn gfa_get_segment(graph : GfaGraph, name : String) -> GfaSegment? {
 /// Convert all segments with real sequence data (not "*") to SeqRecord
 /// objects. The segment name becomes the record id, name, and description.
 pub fn gfa_get_segments_as_records(graph : GfaGraph) -> Array[SeqRecord] {
-  let records = Array::new()
+  let records = Array(capacity=0)
   for i in 0..<graph.segments.length() {
     let seg = graph.segments[i]
     let seq_str = if seg.sequence == "*" { "" } else { seg.sequence }
@@ -860,7 +820,7 @@ pub fn gfa_graph_summary(graph : GfaGraph) -> String {
       total_len = total_len + seq.length()
     }
   }
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string("GfaGraph(headers=")
   buf.write_string(graph.headers.length().to_string())
   buf.write_string(", segments=")

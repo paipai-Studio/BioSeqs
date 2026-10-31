@@ -72,7 +72,7 @@ fn main {
   // DNA matrix
   println("=== DNA Scoring Matrix ===")
   let dna_mat = @bio.dna_matrix(2.0, -1.0)
-  println("Matrix size: \{dna_mat.size()}")
+  println("Matrix size: \{dna_mat.length()}")
   println("AA score: \{dna_mat.get("AA").unwrap()}")
   println("AT score: \{dna_mat.get("AT").unwrap()}")
   println("")

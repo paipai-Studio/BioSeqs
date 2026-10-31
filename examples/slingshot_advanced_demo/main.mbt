@@ -26,7 +26,7 @@ fn slingshot_demo_labels() -> Array[String] {
 
 ///|
 fn slingshot_demo_lineage(
-  lineage : Array[Int],
+  lineage : Array[Int32],
   cluster_names : Array[String],
 ) -> String {
   lineage.map(fn(index) { cluster_names[index] }).join(" -> ")

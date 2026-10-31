@@ -52,7 +52,7 @@ fn voy_copy_double_matrix(
 
 ///|
 fn voy_copy_string_map(values : Map[String, String]) -> Map[String, String] {
-  let output : Map[String, String] = Map([], capacity=values.keys().length())
+  let output : Map[String, String] = Map([], capacity=values.keys().count())
   for key in values.keys() {
     output[key] = values[key]
   }
@@ -60,7 +60,7 @@ fn voy_copy_string_map(values : Map[String, String]) -> Map[String, String] {
 }
 
 ///|
-fn voy_default_names(prefix : String, count : Int) -> Array[String] {
+fn voy_default_names(prefix : String, count : Int32) -> Array[String] {
   let output : Array[String] = []
   for index in 0..<count {
     output.push(prefix + (index + 1).to_string())
@@ -155,13 +155,13 @@ priv struct VoyagerRng {
 }
 
 ///|
-fn VoyagerRng::new(seed : Int) -> VoyagerRng {
+fn VoyagerRng::new(seed : Int32) -> VoyagerRng {
   let init = if seed < 0 {
     seed.to_int64() + 9223372036854775807L
   } else {
     seed.to_int64()
   }
-  VoyagerRng::{ state: init + 0x9E3779B97F4A7C15L }
+  VoyagerRng::{ state: init + 0x9E3779B97F4A7C15L, }
 }
 
 ///|
@@ -178,7 +178,10 @@ fn VoyagerRng::next_uint64(self : VoyagerRng) -> Int64 {
 }
 
 ///|
-fn VoyagerRng::next_int_range(self : VoyagerRng, upper_exclusive : Int) -> Int {
+fn VoyagerRng::next_int_range(
+  self : VoyagerRng,
+  upper_exclusive : Int32,
+) -> Int32 {
   if upper_exclusive <= 0 {
     return 0
   }
@@ -217,11 +220,11 @@ fn voy_bh_adjust(p_values : Array[Double]) -> Array[Double] {
   if count == 0 {
     return output
   }
-  let indexed : Array[(Double, Int)] = []
+  let indexed : Array[(Double, Int32)] = []
   for index in 0..<count {
     indexed.push((p_values[index].max(0.0).min(1.0), index))
   }
-  indexed.sort_by(fn(left : (Double, Int), right : (Double, Int)) -> Int {
+  indexed.sort_by(fn(left : (Double, Int32), right : (Double, Int32)) -> Int32 {
     if left.0 < right.0 {
       -1
     } else if left.0 > right.0 {
@@ -316,16 +319,19 @@ fn voy_pairwise_distances(
 ///   "S" — Caussinus–Mestre (w_ij = 1 / sqrt(k_i * k_j))
 pub struct VoyagerWeights {
   style : String
-  n : Int
-  neighbors : Array[Array[Int]]
+  n : Int32
+  neighbors : Array[Array[Int32]]
   weights : Array[Array[Double]]
 } derive(Debug)
 
 ///|
+pub extend VoyagerWeights with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
 pub fn VoyagerWeights::new(
-  neighbors : Array[Array[Int]],
+  neighbors : Array[Array[Int32]],
   weights : Array[Array[Double]],
-  style? : String = "W",
+  style~ : String = "W",
 ) -> VoyagerWeights raise VoyagerError {
   let n = neighbors.length()
   if weights.length() != n {
@@ -347,7 +353,7 @@ pub fn VoyagerWeights::new(
       }
     }
   }
-  VoyagerWeights::{ style, n, neighbors, weights }
+  VoyagerWeights::{ style, n, neighbors, weights, }
 }
 
 ///|
@@ -402,7 +408,7 @@ pub fn voyager_weights_s2(weights : VoyagerWeights) -> Double {
 }
 
 ///|
-fn voy_weights_lookup(weights : VoyagerWeights, i : Int, j : Int) -> Double {
+fn voy_weights_lookup(weights : VoyagerWeights, i : Int32, j : Int32) -> Double {
   if i < 0 || i >= weights.n {
     return 0.0
   }
@@ -418,7 +424,7 @@ fn voy_weights_lookup(weights : VoyagerWeights, i : Int, j : Int) -> Double {
 
 ///|
 fn voy_apply_style(
-  neighbors : Array[Array[Int]],
+  neighbors : Array[Array[Int32]],
   raw : Array[Array[Double]],
   style : String,
 ) -> Array[Array[Double]] {
@@ -502,8 +508,8 @@ fn voy_apply_style(
 /// `coords` is one row per spot. `k` is the number of neighbours (excluding self).
 pub fn voyager_weights_knn(
   coords : Array[Array[Double]],
-  k : Int,
-  style? : String = "W",
+  k : Int32,
+  style~ : String = "W",
 ) -> VoyagerWeights raise VoyagerError {
   if coords.length() < 3 {
     voy_fail("Voyager kNN weights require at least 3 spots")
@@ -524,16 +530,16 @@ pub fn voyager_weights_knn(
   }
   let effective_k = k.min(n - 1)
   let distances = voy_pairwise_distances(coords)
-  let neighbors : Array[Array[Int]] = []
+  let neighbors : Array[Array[Int32]] = []
   let raw : Array[Array[Double]] = []
   for i in 0..<n {
-    let pairs : Array[(Double, Int)] = []
+    let pairs : Array[(Double, Int32)] = []
     for j in 0..<n {
       if j != i {
         pairs.push((distances[i][j], j))
       }
     }
-    pairs.sort_by(fn(a : (Double, Int), b : (Double, Int)) -> Int {
+    pairs.sort_by(fn(a : (Double, Int32), b : (Double, Int32)) -> Int32 {
       if a.0 < b.0 {
         -1
       } else if a.0 > b.0 {
@@ -542,7 +548,7 @@ pub fn voyager_weights_knn(
         a.1 - b.1
       }
     })
-    let nb : Array[Int] = []
+    let nb : Array[Int32] = []
     let w : Array[Double] = []
     for position in 0..<effective_k {
       nb.push(pairs[position].1)
@@ -552,7 +558,7 @@ pub fn voyager_weights_knn(
     raw.push(w)
   }
   let styled = voy_apply_style(neighbors, raw, style)
-  VoyagerWeights::{ style, n, neighbors, weights: styled }
+  VoyagerWeights::{ style, n, neighbors, weights: styled, }
 }
 
 ///|
@@ -561,7 +567,7 @@ pub fn voyager_weights_knn(
 pub fn voyager_weights_distance_band(
   coords : Array[Array[Double]],
   bandwidth : Double,
-  style? : String = "W",
+  style~ : String = "W",
 ) -> VoyagerWeights raise VoyagerError {
   if coords.length() < 3 {
     voy_fail("Voyager distance-band weights require at least 3 spots")
@@ -580,10 +586,10 @@ pub fn voyager_weights_distance_band(
       }
     }
   }
-  let neighbors : Array[Array[Int]] = []
+  let neighbors : Array[Array[Int32]] = []
   let raw : Array[Array[Double]] = []
   for i in 0..<n {
-    let nb : Array[Int] = []
+    let nb : Array[Int32] = []
     let w : Array[Double] = []
     for j in 0..<n {
       if i != j {
@@ -598,7 +604,7 @@ pub fn voyager_weights_distance_band(
     raw.push(w)
   }
   let styled = voy_apply_style(neighbors, raw, style)
-  VoyagerWeights::{ style, n, neighbors, weights: styled }
+  VoyagerWeights::{ style, n, neighbors, weights: styled, }
 }
 
 ///|
@@ -607,8 +613,8 @@ pub fn voyager_weights_distance_band(
 pub fn voyager_weights_inverse_distance(
   coords : Array[Array[Double]],
   power : Double,
-  bandwidth? : Double = 0.0,
-  style? : String = "W",
+  bandwidth~ : Double = 0.0,
+  style~ : String = "W",
 ) -> VoyagerWeights raise VoyagerError {
   if coords.length() < 3 {
     voy_fail("Voyager inverse-distance weights require at least 3 spots")
@@ -628,10 +634,10 @@ pub fn voyager_weights_inverse_distance(
     }
   }
   let limited = bandwidth > 0.0 && voy_is_finite(bandwidth)
-  let neighbors : Array[Array[Int]] = []
+  let neighbors : Array[Array[Int32]] = []
   let raw : Array[Array[Double]] = []
   for i in 0..<n {
-    let nb : Array[Int] = []
+    let nb : Array[Int32] = []
     let w : Array[Double] = []
     for j in 0..<n {
       if i != j {
@@ -646,7 +652,7 @@ pub fn voyager_weights_inverse_distance(
     raw.push(w)
   }
   let styled = voy_apply_style(neighbors, raw, style)
-  VoyagerWeights::{ style, n, neighbors, weights: styled }
+  VoyagerWeights::{ style, n, neighbors, weights: styled, }
 }
 
 // ===========================================================================
@@ -661,11 +667,14 @@ pub struct VoyagerGlobalMoranI {
   variance : Double
   z_score : Double
   p_value : Double
-  n : Int
+  n : Int32
   s0 : Double
   s1 : Double
   s2 : Double
 } derive(Debug)
+
+///|
+pub extend VoyagerGlobalMoranI with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Internal Moran's I numerator and denominator for a given (permuted) vector.
@@ -702,7 +711,7 @@ fn voy_moran_components(
 pub fn voyager_global_morans_i(
   values : Array[Double],
   weights : VoyagerWeights,
-  feature? : String = "feature",
+  feature~ : String = "feature",
 ) -> VoyagerGlobalMoranI raise VoyagerError {
   voy_validate_vector(values, "Moran's I")
   voy_validate_weights(weights, "Moran's I")
@@ -776,18 +785,21 @@ pub struct VoyagerGlobalGearyC {
   variance : Double
   z_score : Double
   p_value : Double
-  n : Int
+  n : Int32
   s0 : Double
   s1 : Double
   s2 : Double
 } derive(Debug)
 
 ///|
+pub extend VoyagerGlobalGearyC with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
 /// Global Geary's c with the Cliff–Ord randomization expectation and variance.
 pub fn voyager_global_gearys_c(
   values : Array[Double],
   weights : VoyagerWeights,
-  feature? : String = "feature",
+  feature~ : String = "feature",
 ) -> VoyagerGlobalGearyC raise VoyagerError {
   voy_validate_vector(values, "Geary's c")
   voy_validate_weights(weights, "Geary's c")
@@ -866,7 +878,7 @@ pub fn voyager_global_gearys_c(
 }
 
 ///|
-fn n1_value(n : Int) -> Double {
+fn n1_value(n : Int32) -> Double {
   (n - 1).to_double()
 }
 
@@ -921,10 +933,13 @@ pub struct VoyagerLocalMoranI {
   quadrants : Array[String]
   perm_mean : Array[Double]
   perm_sd : Array[Double]
-  n : Int
-  permutations : Int
+  n : Int32
+  permutations : Int32
   style : String
 } derive(Debug)
+
+///|
+pub extend VoyagerLocalMoranI with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Quadrant classification from the Moran scatter plot. The spatial lag is the
@@ -984,10 +999,10 @@ fn voy_local_morans_point(
 pub fn voyager_local_morans_i(
   values : Array[Double],
   weights : VoyagerWeights,
-  permutations? : Int = 0,
-  seed? : Int = 20240501,
-  fdr_threshold? : Double = 0.05,
-  feature? : String = "feature",
+  permutations~ : Int32 = 0,
+  seed~ : Int32 = 20240501,
+  fdr_threshold~ : Double = 0.05,
+  feature~ : String = "feature",
 ) -> VoyagerLocalMoranI raise VoyagerError {
   voy_validate_vector(values, "local_res Moran's I")
   voy_validate_weights(weights, "local_res Moran's I")
@@ -1140,9 +1155,12 @@ pub struct VoyagerLocalGearyC {
   p_values : Array[Double]
   fdr : Array[Double]
   classifications : Array[String]
-  n : Int
-  permutations : Int
+  n : Int32
+  permutations : Int32
 } derive(Debug)
+
+///|
+pub extend VoyagerLocalGearyC with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 fn voy_local_gearys_point(
@@ -1175,10 +1193,10 @@ fn voy_local_gearys_point(
 pub fn voyager_local_gearys_c(
   values : Array[Double],
   weights : VoyagerWeights,
-  permutations? : Int = 0,
-  seed? : Int = 20240501,
-  fdr_threshold? : Double = 0.05,
-  feature? : String = "feature",
+  permutations~ : Int32 = 0,
+  seed~ : Int32 = 20240501,
+  fdr_threshold~ : Double = 0.05,
+  feature~ : String = "feature",
 ) -> VoyagerLocalGearyC raise VoyagerError {
   voy_validate_vector(values, "local_res Geary's c")
   voy_validate_weights(weights, "local_res Geary's c")
@@ -1279,8 +1297,11 @@ pub struct VoyagerLocalGetisOrd {
   fdr : Array[Double]
   classifications : Array[String]
   star : Bool
-  n : Int
+  n : Int32
 } derive(Debug)
+
+///|
+pub extend VoyagerLocalGetisOrd with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Local Getis–Ord Gi (excludes self) or Gi* (includes self with w_ii = 1).
@@ -1289,9 +1310,9 @@ pub struct VoyagerLocalGetisOrd {
 pub fn voyager_local_getis_ord(
   values : Array[Double],
   weights : VoyagerWeights,
-  star? : Bool = true,
-  fdr_threshold? : Double = 0.05,
-  feature? : String = "feature",
+  star~ : Bool = true,
+  fdr_threshold~ : Double = 0.05,
+  feature~ : String = "feature",
 ) -> VoyagerLocalGetisOrd raise VoyagerError {
   voy_validate_vector(values, "Getis–Ord")
   voy_validate_weights(weights, "Getis–Ord")
@@ -1403,9 +1424,12 @@ pub struct VoyagerLeesL {
   z_scores : Array[Double]
   p_values : Array[Double]
   fdr : Array[Double]
-  n : Int
+  n : Int32
   s0 : Double
 } derive(Debug)
+
+///|
+pub extend VoyagerLeesL with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Lee's L (Lee 2001) bivariate spatial association. Returns the global L
@@ -1415,11 +1439,11 @@ pub fn voyager_lees_l(
   values_x : Array[Double],
   values_y : Array[Double],
   weights : VoyagerWeights,
-  permutations? : Int = 0,
-  seed? : Int = 20240501,
-  fdr_threshold? : Double = 0.05,
-  feature_x? : String = "feature_x",
-  feature_y? : String = "feature_y",
+  permutations~ : Int32 = 0,
+  seed~ : Int32 = 20240501,
+  fdr_threshold~ : Double = 0.05,
+  feature_x~ : String = "feature_x",
+  feature_y~ : String = "feature_y",
 ) -> VoyagerLeesL raise VoyagerError {
   voy_validate_vector(values_x, "Lee's L x")
   voy_validate_vector(values_y, "Lee's L y")
@@ -1562,10 +1586,15 @@ pub struct VoyagerMultivariateLocalGeary {
   p_values : Array[Double]
   fdr : Array[Double]
   classifications : Array[String]
-  n : Int
-  n_features : Int
-  permutations : Int
+  n : Int32
+  n_features : Int32
+  permutations : Int32
 } derive(Debug)
+
+///|
+pub extend VoyagerMultivariateLocalGeary with @moonbitlang/core/debug.Debug::{
+  to_repr,
+}
 
 ///|
 fn voy_multivariate_local_geary_point(
@@ -1605,10 +1634,10 @@ fn voy_multivariate_local_geary_point(
 pub fn voyager_multivariate_local_geary(
   matrix : Array[Array[Double]],
   weights : VoyagerWeights,
-  permutations? : Int = 0,
-  seed? : Int = 20240501,
-  fdr_threshold? : Double = 0.05,
-  feature_names? : Array[String] = [],
+  permutations~ : Int32 = 0,
+  seed~ : Int32 = 20240501,
+  fdr_threshold~ : Double = 0.05,
+  feature_names~ : Array[String] = [],
 ) -> VoyagerMultivariateLocalGeary raise VoyagerError {
   if matrix.length() == 0 {
     voy_fail(
@@ -1726,8 +1755,11 @@ pub fn voyager_multivariate_local_geary(
 pub struct VoyagerVariogramPoint {
   lag : Double
   gamma : Double
-  npairs : Int
+  npairs : Int32
 } derive(Debug)
+
+///|
+pub extend VoyagerVariogramPoint with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct VoyagerVariogramModel {
@@ -1736,8 +1768,11 @@ pub struct VoyagerVariogramModel {
   sill : Double
   range : Double
   fitted_sse : Double
-  n_points : Int
+  n_points : Int32
 } derive(Debug)
+
+///|
+pub extend VoyagerVariogramModel with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Empirical (sample) variogram. Pairs of spots are binned into `n_lags`
@@ -1747,8 +1782,8 @@ pub struct VoyagerVariogramModel {
 pub fn voyager_empirical_variogram(
   coords : Array[Array[Double]],
   values : Array[Double],
-  n_lags? : Int = 15,
-  max_lag? : Double = 0.0,
+  n_lags~ : Int32 = 15,
+  max_lag~ : Double = 0.0,
 ) -> Array[VoyagerVariogramPoint] raise VoyagerError {
   if coords.length() < 3 {
     voy_fail("Voyager variogram requires at least 3 spots")
@@ -1787,7 +1822,7 @@ pub fn voyager_empirical_variogram(
     voy_fail("Voyager variogram lag width must be positive")
   }
   let sums : Array[Double] = Array::make(n_lags, 0.0)
-  let counts : Array[Int] = Array::make(n_lags, 0)
+  let counts : Array[Int32] = Array::make(n_lags, 0)
   for i in 0..<n {
     for j in (i + 1)..<n {
       let d = distances[i][j]
@@ -1804,7 +1839,7 @@ pub fn voyager_empirical_variogram(
     if counts[bin] > 0 {
       let lag = (bin.to_double() + 0.5) * lag_width
       let gamma = sums[bin] / (2.0 * counts[bin].to_double())
-      output.push(VoyagerVariogramPoint::{ lag, gamma, npairs: counts[bin] })
+      output.push(VoyagerVariogramPoint::{ lag, gamma, npairs: counts[bin], })
     }
   }
   if output.length() == 0 {
@@ -1845,10 +1880,10 @@ fn voy_variogram_shape(
 /// least squares for (nugget, partial sill) at each candidate range.
 pub fn voyager_fit_variogram(
   empirical : Array[VoyagerVariogramPoint],
-  model_type? : String = "spherical",
-  nugget? : Double = 0.0,
-  fix_nugget? : Bool = false,
-  range_grid? : Int = 40,
+  model_type~ : String = "spherical",
+  nugget~ : Double = 0.0,
+  fix_nugget~ : Bool = false,
+  range_grid~ : Int32 = 40,
 ) -> VoyagerVariogramModel raise VoyagerError {
   if empirical.length() < 2 {
     voy_fail("Voyager variogram fit requires at least 2 empirical points")
@@ -2042,8 +2077,11 @@ pub struct VoyagerCorrelogramPoint {
   bin_max : Double
   morans_i : Double
   expectation : Double
-  npairs : Int
+  npairs : Int32
 } derive(Debug)
+
+///|
+pub extend VoyagerCorrelogramPoint with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Moran correlogram. Builds binary distance-band weights at each of `n_lags`
@@ -2051,9 +2089,9 @@ pub struct VoyagerCorrelogramPoint {
 pub fn voyager_correlogram(
   coords : Array[Array[Double]],
   values : Array[Double],
-  n_lags? : Int = 10,
-  max_lag? : Double = 0.0,
-  style? : String = "W",
+  n_lags~ : Int32 = 10,
+  max_lag~ : Double = 0.0,
+  style~ : String = "W",
 ) -> Array[VoyagerCorrelogramPoint] raise VoyagerError {
   if coords.length() < 3 {
     voy_fail("Voyager correlogram requires at least 3 spots")
@@ -2105,11 +2143,11 @@ pub fn voyager_correlogram(
   for bin in 0..<n_lags {
     let bin_min = bin.to_double() * lag_width
     let bin_max = (bin + 1).to_double() * lag_width
-    let neighbors : Array[Array[Int]] = []
+    let neighbors : Array[Array[Int32]] = []
     let raw : Array[Array[Double]] = []
     let mut npairs = 0
     for i in 0..<n {
-      let nb : Array[Int] = []
+      let nb : Array[Int32] = []
       let w : Array[Double] = []
       for j in 0..<n {
         if i != j {
@@ -2129,7 +2167,7 @@ pub fn voyager_correlogram(
       continue
     }
     let styled = voy_apply_style(neighbors, raw, style)
-    let weights = VoyagerWeights::{ style, n, neighbors, weights: styled }
+    let weights = VoyagerWeights::{ style, n, neighbors, weights: styled, }
     if ssd <= 0.0 {
       output.push(VoyagerCorrelogramPoint::{
         lag: (bin_min + bin_max) / 2.0,
@@ -2229,7 +2267,7 @@ fn voy_copy_spatial_experiment(
 ///|
 fn voy_experiment_gene_names(
   experiment : SpatialExperiment,
-  genes : Int,
+  genes : Int32,
 ) -> Array[String] {
   let names : Array[String] = []
   for gene in 0..<genes {
@@ -2273,7 +2311,7 @@ fn voy_experiment_gene_names(
 ///|
 fn voy_experiment_coordinates(
   experiment : SpatialExperiment,
-  spots : Int,
+  spots : Int32,
 ) -> Array[Array[Double]] raise VoyagerError {
   if experiment.spatial_coords.length() != spots {
     voy_fail(
@@ -2307,16 +2345,16 @@ fn voy_experiment_coordinates(
 /// `metadata`. The input experiment is left unchanged.
 pub fn voyager_run_univariate_sfe(
   experiment : SpatialExperiment,
-  feature_indices : Array[Int],
-  assay_name? : String = "logcounts",
-  weights? : VoyagerWeights? = None,
-  k? : Int = 4,
-  bandwidth? : Double = 0.0,
-  stat_method? : String = "moran",
-  permutations? : Int = 0,
-  seed? : Int = 20240501,
-  fdr_threshold? : Double = 0.05,
-  output_prefix? : String = "voyager",
+  feature_indices : Array[Int32],
+  assay_name~ : String = "logcounts",
+  weights~ : VoyagerWeights? = None,
+  k~ : Int32 = 4,
+  bandwidth~ : Double = 0.0,
+  stat_method~ : String = "moran",
+  permutations~ : Int32 = 0,
+  seed~ : Int32 = 20240501,
+  fdr_threshold~ : Double = 0.05,
+  output_prefix~ : String = "voyager",
 ) -> VoyagerUnivariateSFEOutput raise VoyagerError {
   if experiment.col_data.length() == 0 {
     voy_fail("Voyager SpatialExperiment col_data must not be empty")

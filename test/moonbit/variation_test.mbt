@@ -30,7 +30,7 @@ test "variation_predict_damaging" {
 test "variation_parse_vcf_line" {
   let line = "17\t7577538\t.\tG\tA\t.\tPASS\t."
   let result = @src.parse_vcf_line(line)
-  assert_true(result.is_some())
+  assert_true(result is Some(_))
 }
 
 ///|

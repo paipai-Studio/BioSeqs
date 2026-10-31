@@ -5,8 +5,8 @@
 pub struct Gene {
   gene_id : String
   seqname : String
-  start : Int
-  end : Int
+  start : Int32
+  end : Int32
   strand : Strand
 }
 
@@ -14,11 +14,11 @@ pub struct Gene {
 pub fn Gene::new(
   gene_id : String,
   seqname : String,
-  start : Int,
-  end : Int,
+  start : Int32,
+  end : Int32,
   strand : Strand,
 ) -> Gene {
-  Gene::{ gene_id, seqname, start, end, strand }
+  Gene::{ gene_id, seqname, start, end, strand, }
 }
 
 ///|
@@ -26,8 +26,8 @@ pub struct Transcript {
   transcript_id : String
   gene_id : String
   seqname : String
-  start : Int
-  end : Int
+  start : Int32
+  end : Int32
   strand : Strand
 }
 
@@ -36,11 +36,11 @@ pub fn Transcript::new(
   transcript_id : String,
   gene_id : String,
   seqname : String,
-  start : Int,
-  end : Int,
+  start : Int32,
+  end : Int32,
   strand : Strand,
 ) -> Transcript {
-  Transcript::{ transcript_id, gene_id, seqname, start, end, strand }
+  Transcript::{ transcript_id, gene_id, seqname, start, end, strand, }
 }
 
 ///|
@@ -49,10 +49,10 @@ pub struct Exon {
   transcript_id : String
   gene_id : String
   seqname : String
-  start : Int
-  end : Int
+  start : Int32
+  end : Int32
   strand : Strand
-  exon_rank : Int
+  exon_rank : Int32
 }
 
 ///|
@@ -61,10 +61,10 @@ pub fn Exon::new(
   transcript_id : String,
   gene_id : String,
   seqname : String,
-  start : Int,
-  end : Int,
+  start : Int32,
+  end : Int32,
   strand : Strand,
-  exon_rank : Int,
+  exon_rank : Int32,
 ) -> Exon {
   Exon::{
     exon_id,
@@ -84,10 +84,10 @@ pub struct CDS {
   transcript_id : String
   gene_id : String
   seqname : String
-  start : Int
-  end : Int
+  start : Int32
+  end : Int32
   strand : Strand
-  exon_rank : Int
+  exon_rank : Int32
 }
 
 ///|
@@ -96,10 +96,10 @@ pub fn CDS::new(
   transcript_id : String,
   gene_id : String,
   seqname : String,
-  start : Int,
-  end : Int,
+  start : Int32,
+  end : Int32,
   strand : Strand,
-  exon_rank : Int,
+  exon_rank : Int32,
 ) -> CDS {
   CDS::{
     cds_id,
@@ -132,7 +132,7 @@ pub fn TxDb::new(
   genome : String,
   organism : String,
 ) -> TxDb {
-  TxDb::{ genes, transcripts, exons, cds, genome, organism }
+  TxDb::{ genes, transcripts, exons, cds, genome, organism, }
 }
 
 ///|
@@ -144,14 +144,14 @@ pub fn txdb(
   genome : String,
   organism : String,
 ) -> TxDb {
-  TxDb::{ genes, transcripts, exons, cds, genome, organism }
+  TxDb::{ genes, transcripts, exons, cds, genome, organism, }
 }
 
 ///|
 pub fn genes(txdb : TxDb) -> GRanges {
   let n = txdb.genes.length()
   let seqnames : Array[String] = Array::make(n, "")
-  let ranges : Array[(Int, Int)] = Array::make(n, (0, 0))
+  let ranges : Array[(Int32, Int32)] = Array::make(n, (0, 0))
   let strands : Array[Strand] = Array::make(n, Strand::Star)
 
   let mut i = 0
@@ -170,7 +170,7 @@ pub fn genes(txdb : TxDb) -> GRanges {
 pub fn transcripts(txdb : TxDb) -> GRanges {
   let n = txdb.transcripts.length()
   let seqnames : Array[String] = Array::make(n, "")
-  let ranges : Array[(Int, Int)] = Array::make(n, (0, 0))
+  let ranges : Array[(Int32, Int32)] = Array::make(n, (0, 0))
   let strands : Array[Strand] = Array::make(n, Strand::Star)
 
   let mut i = 0
@@ -189,7 +189,7 @@ pub fn transcripts(txdb : TxDb) -> GRanges {
 pub fn exons(txdb : TxDb) -> GRanges {
   let n = txdb.exons.length()
   let seqnames : Array[String] = Array::make(n, "")
-  let ranges : Array[(Int, Int)] = Array::make(n, (0, 0))
+  let ranges : Array[(Int32, Int32)] = Array::make(n, (0, 0))
   let strands : Array[Strand] = Array::make(n, Strand::Star)
 
   let mut i = 0
@@ -208,7 +208,7 @@ pub fn exons(txdb : TxDb) -> GRanges {
 pub fn cds(txdb : TxDb) -> GRanges {
   let n = txdb.cds.length()
   let seqnames : Array[String] = Array::make(n, "")
-  let ranges : Array[(Int, Int)] = Array::make(n, (0, 0))
+  let ranges : Array[(Int32, Int32)] = Array::make(n, (0, 0))
   let strands : Array[Strand] = Array::make(n, Strand::Star)
 
   let mut i = 0
@@ -258,23 +258,6 @@ pub fn exons_by_transcript(txdb : TxDb) -> Map[String, Array[Exon]] {
 }
 
 ///|
-pub fn exons_by_gene(txdb : TxDb) -> Map[String, Array[Exon]] {
-  let result = Map([], capacity=32)
-
-  let mut i = 0
-  while i < txdb.exons.length() {
-    let exon = txdb.exons[i]
-    if !result.contains(exon.gene_id) {
-      result[exon.gene_id] = []
-    }
-    result[exon.gene_id].push(exon)
-    i = i + 1
-  }
-
-  result
-}
-
-///|
 pub fn cds_by_transcript(txdb : TxDb) -> Map[String, Array[CDS]] {
   let result = Map([], capacity=32)
 
@@ -292,7 +275,7 @@ pub fn cds_by_transcript(txdb : TxDb) -> Map[String, Array[CDS]] {
 }
 
 ///|
-pub fn introns_by_transcript(txdb : TxDb) -> Map[String, Array[(Int, Int)]] {
+pub fn introns_by_transcript(txdb : TxDb) -> Map[String, Array[(Int32, Int32)]] {
   let result = Map([], capacity=32)
   let exons_map = exons_by_transcript(txdb)
   let keys = exons_map.keys().collect()
@@ -326,7 +309,7 @@ pub fn introns_by_transcript(txdb : TxDb) -> Map[String, Array[(Int, Int)]] {
         k = k + 1
       }
 
-      let introns : Array[(Int, Int)] = []
+      let introns : Array[(Int32, Int32)] = []
       let mut m = 0
       while m < n - 1 {
         let start = sorted[m].end + 1
@@ -357,7 +340,7 @@ pub fn find_transcript_by_id(txdb : TxDb, tx_id : String) -> Transcript? {
 }
 
 ///|
-pub fn find_min_cds_start(cds_regions : Array[CDS]) -> Int {
+pub fn find_min_cds_start(cds_regions : Array[CDS]) -> Int32 {
   if cds_regions.length() == 0 {
     return 0
   }
@@ -373,7 +356,7 @@ pub fn find_min_cds_start(cds_regions : Array[CDS]) -> Int {
 }
 
 ///|
-pub fn find_max_cds_end(cds_regions : Array[CDS]) -> Int {
+pub fn find_max_cds_end(cds_regions : Array[CDS]) -> Int32 {
   if cds_regions.length() == 0 {
     return 0
   }
@@ -445,7 +428,7 @@ pub fn five_prime_utrs(txdb : TxDb) -> GRanges {
     }
 
     let tx_opt = find_transcript_by_id(txdb, tx_id)
-    if tx_opt.is_none() {
+    if tx_opt is None {
       i = i + 1
       continue
     }
@@ -533,7 +516,7 @@ pub fn three_prime_utrs(txdb : TxDb) -> GRanges {
     }
 
     let tx_opt = find_transcript_by_id(txdb, tx_id)
-    if tx_opt.is_none() {
+    if tx_opt is None {
       i = i + 1
       continue
     }
@@ -592,11 +575,11 @@ pub fn three_prime_utrs(txdb : TxDb) -> GRanges {
 }
 
 ///|
-pub fn promoters(txdb : TxDb, upstream : Int, downstream : Int) -> GRanges {
+pub fn promoters(txdb : TxDb, upstream : Int32, downstream : Int32) -> GRanges {
   let txs = txdb.transcripts
   let n = txs.length()
   let seqnames : Array[String] = Array::make(n, "")
-  let ranges : Array[(Int, Int)] = Array::make(n, (0, 0))
+  let ranges : Array[(Int32, Int32)] = Array::make(n, (0, 0))
   let strands : Array[Strand] = Array::make(n, Strand::Star)
 
   let mut i = 0
@@ -730,14 +713,14 @@ pub fn parse_gtf(gtf_content : String) -> TxDb {
     let seqname = fields[0]
     let feature_type = fields[2]
     let start_opt = parse_double(fields[3])
-    if start_opt.is_none() {
+    if start_opt is None {
       i = i + 1
       continue
     }
     let start = start_opt.unwrap().to_int()
 
     let end_opt = parse_double(fields[4])
-    if end_opt.is_none() {
+    if end_opt is None {
       i = i + 1
       continue
     }
@@ -769,7 +752,7 @@ pub fn parse_gtf(gtf_content : String) -> TxDb {
     }
 
     if feature_type == "gene" {
-      genes.push(Gene::{ gene_id, seqname, start, end, strand })
+      genes.push(Gene::{ gene_id, seqname, start, end, strand, })
     } else if feature_type == "transcript" {
       transcripts.push(Transcript::{
         transcript_id,
@@ -784,7 +767,7 @@ pub fn parse_gtf(gtf_content : String) -> TxDb {
         let r = attr_map["exon_number"]
         let cleaned = r.replace(old="\"", new="").replace(old=";", new="")
         let d_opt = parse_double(cleaned)
-        if d_opt.is_some() {
+        if d_opt is Some(_) {
           d_opt.unwrap().to_int()
         } else {
           1
@@ -808,7 +791,7 @@ pub fn parse_gtf(gtf_content : String) -> TxDb {
         let r = attr_map["exon_number"]
         let cleaned = r.replace(old="\"", new="").replace(old=";", new="")
         let d_opt = parse_double(cleaned)
-        if d_opt.is_some() {
+        if d_opt is Some(_) {
           d_opt.unwrap().to_int()
         } else {
           1

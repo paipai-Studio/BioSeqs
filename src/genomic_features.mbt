@@ -4,8 +4,8 @@ pub struct GFGene {
   gene_name : String
   gene_biotype : String
   chromosome : String
-  start : Int
-  end : Int
+  start : Int32
+  end : Int32
   strand : String
   description : String
   transcripts : Array[GFTranscript]
@@ -17,8 +17,8 @@ pub fn GFGene::new(
   gene_name : String,
   gene_biotype : String,
   chromosome : String,
-  start : Int,
-  end : Int,
+  start : Int32,
+  end : Int32,
   strand : String,
   description : String,
 ) -> GFGene {
@@ -31,7 +31,7 @@ pub fn GFGene::new(
     end,
     strand,
     description,
-    transcripts: Array::new(),
+    transcripts: Array(capacity=0),
   }
 }
 
@@ -63,8 +63,8 @@ pub struct GFTranscript {
   transcript_name : String
   gene_id : String
   chromosome : String
-  start : Int
-  end : Int
+  start : Int32
+  end : Int32
   strand : String
   exons : Array[GFExon]
   cds : Array[GFExon]
@@ -78,8 +78,8 @@ pub fn GFTranscript::new(
   transcript_name : String,
   gene_id : String,
   chromosome : String,
-  start : Int,
-  end : Int,
+  start : Int32,
+  end : Int32,
   strand : String,
 ) -> GFTranscript {
   GFTranscript::{
@@ -90,33 +90,33 @@ pub fn GFTranscript::new(
     start,
     end,
     strand,
-    exons: Array::new(),
-    cds: Array::new(),
-    utr5: Array::new(),
-    utr3: Array::new(),
+    exons: Array(capacity=0),
+    cds: Array(capacity=0),
+    utr5: Array(capacity=0),
+    utr3: Array(capacity=0),
   }
 }
 
 ///|
 pub struct GFExon {
   exon_id : String
-  exon_number : Int
+  exon_number : Int32
   chromosome : String
-  start : Int
-  end : Int
+  start : Int32
+  end : Int32
   strand : String
 }
 
 ///|
 pub fn GFExon::new(
   exon_id : String,
-  exon_number : Int,
+  exon_number : Int32,
   chromosome : String,
-  start : Int,
-  end : Int,
+  start : Int32,
+  end : Int32,
   strand : String,
 ) -> GFExon {
-  GFExon::{ exon_id, exon_number, chromosome, start, end, strand }
+  GFExon::{ exon_id, exon_number, chromosome, start, end, strand, }
 }
 
 ///|
@@ -135,8 +135,8 @@ pub fn GenomeAnnotation::new(
   source : String,
 ) -> GenomeAnnotation {
   GenomeAnnotation::{
-    genes: Array::new(),
-    transcripts: Array::new(),
+    genes: Array(capacity=0),
+    transcripts: Array(capacity=0),
     genome,
     version,
     source,
@@ -180,7 +180,7 @@ pub fn genome_annotation_get_gene_by_name(
   annotation : GenomeAnnotation,
   gene_name : String,
 ) -> Array[GFGene] {
-  let results : Array[GFGene] = Array::new()
+  let results : Array[GFGene] = Array(capacity=0)
   let mut i = 0
   while i < annotation.genes.length() {
     let gene = annotation.genes[i]
@@ -197,7 +197,7 @@ pub fn genome_annotation_get_transcripts_by_gene(
   annotation : GenomeAnnotation,
   gene_id : String,
 ) -> Array[GFTranscript] {
-  let results : Array[GFTranscript] = Array::new()
+  let results : Array[GFTranscript] = Array(capacity=0)
   let mut i = 0
   while i < annotation.transcripts.length() {
     let transcript = annotation.transcripts[i]
@@ -214,7 +214,7 @@ pub fn genome_annotation_genes_on_chromosome(
   annotation : GenomeAnnotation,
   chromosome : String,
 ) -> Array[GFGene] {
-  let results : Array[GFGene] = Array::new()
+  let results : Array[GFGene] = Array(capacity=0)
   let mut i = 0
   while i < annotation.genes.length() {
     let gene = annotation.genes[i]
@@ -230,10 +230,10 @@ pub fn genome_annotation_genes_on_chromosome(
 pub fn genome_annotation_genes_in_region(
   annotation : GenomeAnnotation,
   chromosome : String,
-  start : Int,
-  end : Int,
+  start : Int32,
+  end : Int32,
 ) -> Array[GFGene] {
-  let results : Array[GFGene] = Array::new()
+  let results : Array[GFGene] = Array(capacity=0)
   let mut i = 0
   while i < annotation.genes.length() {
     let gene = annotation.genes[i]
@@ -246,14 +246,14 @@ pub fn genome_annotation_genes_in_region(
 }
 
 ///|
-pub fn genome_annotation_count_genes(annotation : GenomeAnnotation) -> Int {
+pub fn genome_annotation_count_genes(annotation : GenomeAnnotation) -> Int32 {
   annotation.genes.length()
 }
 
 ///|
 pub fn genome_annotation_count_transcripts(
   annotation : GenomeAnnotation,
-) -> Int {
+) -> Int32 {
   annotation.transcripts.length()
 }
 
@@ -274,14 +274,14 @@ pub fn genome_annotation_summarize(annotation : GenomeAnnotation) -> String {
     genome_annotation_count_transcripts(annotation).to_string() +
     "\n"
 
-  let biotype_counts : Map[String, Int] = Map([], capacity=10)
-  let biotype_names : Array[String] = Array::new()
+  let biotype_counts : Map[String, Int32] = Map([], capacity=10)
+  let biotype_names : Array[String] = Array(capacity=0)
   let mut i = 0
   while i < annotation.genes.length() {
     let gene = annotation.genes[i]
     let key = gene.gene_biotype
     let current = biotype_counts.get(key)
-    if current.is_some() {
+    if current is Some(_) {
       biotype_counts[key] = current.unwrap() + 1
     } else {
       biotype_counts[key] = 1
@@ -304,8 +304,8 @@ pub fn genome_annotation_summarize(annotation : GenomeAnnotation) -> String {
 ///|
 pub fn parse_gtf_line(
   line : String,
-) -> (String, String, String, Int, Int, String, Map[String, String])? {
-  if line.length() == 0 || line.starts_with("#") {
+) -> (String, String, String, Int32, Int32, String, Map[String, String])? {
+  if line.length() == 0 || line.has_prefix("#") {
     return None
   }
 
@@ -337,14 +337,14 @@ pub fn parse_gtf_line(
   while j < attr_pairs.length() {
     let pair = attr_pairs[j]
     let eq_idx = pair.find("=")
-    if eq_idx.is_some() {
+    if eq_idx is Some(_) {
       let pos = eq_idx.unwrap()
-      let key = trim(pair[0:pos].to_string())
-      let mut value = trim(pair[pos + 1:].to_string())
+      let key = trim(pair[0:pos].to_owned())
+      let mut value = trim(pair[pos + 1:].to_owned())
       if value.length() >= 2 &&
         value.unsafe_get(0).to_int() == '\"'.to_int() &&
         value.unsafe_get(value.length() - 1).to_int() == '\"'.to_int() {
-        value = value[1:value.length() - 1].to_string()
+        value = value[1:value.length() - 1].to_owned()
       }
       attributes[key] = value
     }
@@ -363,7 +363,7 @@ pub fn gf_parse_gtf(content : String) -> GenomeAnnotation {
   while i < lines.length() {
     let line = lines[i]
     let parsed = parse_gtf_line(line)
-    if parsed.is_some() {
+    if parsed is Some(_) {
       let (chromosome, _, feature_type, start, end, strand, attributes) = parsed.unwrap()
 
       if feature_type == "gene" {
@@ -373,17 +373,17 @@ pub fn gf_parse_gtf(content : String) -> GenomeAnnotation {
         let description = attributes.get("gene_description")
 
         let gene = GFGene::new(
-          if gene_id.is_some() {
+          if gene_id is Some(_) {
             gene_id.unwrap()
           } else {
             "unknown"
           },
-          if gene_name.is_some() {
+          if gene_name is Some(_) {
             gene_name.unwrap()
           } else {
             "unknown"
           },
-          if gene_biotype.is_some() {
+          if gene_biotype is Some(_) {
             gene_biotype.unwrap()
           } else {
             "protein_coding"
@@ -392,7 +392,7 @@ pub fn gf_parse_gtf(content : String) -> GenomeAnnotation {
           start,
           end,
           strand,
-          if description.is_some() {
+          if description is Some(_) {
             description.unwrap()
           } else {
             ""
@@ -405,17 +405,17 @@ pub fn gf_parse_gtf(content : String) -> GenomeAnnotation {
         let gene_id = attributes.get("gene_id")
 
         let transcript = GFTranscript::new(
-          if transcript_id.is_some() {
+          if transcript_id is Some(_) {
             transcript_id.unwrap()
           } else {
             "unknown"
           },
-          if transcript_name.is_some() {
+          if transcript_name is Some(_) {
             transcript_name.unwrap()
           } else {
             "unknown"
           },
-          if gene_id.is_some() {
+          if gene_id is Some(_) {
             gene_id.unwrap()
           } else {
             "unknown"

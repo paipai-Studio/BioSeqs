@@ -16,6 +16,12 @@ pub(all) enum PslSequenceType {
 } derive(Eq, Debug)
 
 ///|
+pub extend PslSequenceType with Eq::{equal, not_equal}
+
+///|
+pub extend PslSequenceType with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
 pub(all) enum PslMaskMode {
   PslNoMask
   PslMaskLower
@@ -23,40 +29,58 @@ pub(all) enum PslMaskMode {
 } derive(Eq, Debug)
 
 ///|
+pub extend PslMaskMode with Eq::{equal, not_equal}
+
+///|
+pub extend PslMaskMode with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
 pub struct PslBlock {
-  target_start : Int
-  target_end : Int
-  query_start : Int
-  query_end : Int
-  target_size : Int
-  query_size : Int
+  target_start : Int32
+  target_end : Int32
+  query_start : Int32
+  query_end : Int32
+  target_size : Int32
+  query_size : Int32
   query_sequence : String
   target_sequence : String
 } derive(Eq, Debug)
 
 ///|
+pub extend PslBlock with Eq::{equal, not_equal}
+
+///|
+pub extend PslBlock with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
 pub struct PslCounts {
-  aligned_query_units : Int
-  query_insert_count : Int
-  query_insert_bases : Int
-  target_insert_count : Int
-  target_insert_bases : Int
-  block_count : Int
+  aligned_query_units : Int32
+  query_insert_count : Int32
+  query_insert_bases : Int32
+  target_insert_count : Int32
+  target_insert_bases : Int32
+  block_count : Int32
 } derive(Eq, Debug)
+
+///|
+pub extend PslCounts with Eq::{equal, not_equal}
+
+///|
+pub extend PslCounts with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct PslAlignment {
   target_name : String
-  target_size : Int
+  target_size : Int32
   query_name : String
-  query_size : Int
-  target_coordinates : Array[Int]
-  query_coordinates : Array[Int]
+  query_size : Int32
+  target_coordinates : Array[Int32]
+  query_coordinates : Array[Int32]
   sequence_type : PslSequenceType
-  matches : Int
-  mismatches : Int
-  repeat_matches : Int
-  n_count : Int
+  matches : Int32
+  mismatches : Int32
+  repeat_matches : Int32
+  n_count : Int32
   target_sequence : String
   query_sequence : String
   query_block_sequences : Array[String]
@@ -81,25 +105,25 @@ pub struct PslWriteConfig {
 
 ///|
 pub struct PslSummary {
-  alignment_count : Int
-  pslx_count : Int
-  nucleotide_count : Int
-  protein_count : Int
-  aligned_query_units : Int
-  query_insert_bases : Int
-  target_insert_bases : Int
+  alignment_count : Int32
+  pslx_count : Int32
+  nucleotide_count : Int32
+  protein_count : Int32
+  aligned_query_units : Int32
+  query_insert_bases : Int32
+  target_insert_bases : Int32
 }
 
 ///|
 priv struct PslStorage {
   strand : String
-  query_start : Int
-  query_end : Int
-  target_start : Int
-  target_end : Int
-  block_sizes : Array[Int]
-  query_starts : Array[Int]
-  target_starts : Array[Int]
+  query_start : Int32
+  query_end : Int32
+  target_start : Int32
+  target_end : Int32
+  block_sizes : Array[Int32]
+  query_starts : Array[Int32]
+  target_starts : Array[Int32]
 }
 
 ///|
@@ -108,7 +132,7 @@ fn psl_fail(message : String) -> Unit raise PslError {
 }
 
 ///|
-fn psl_abs(value : Int) -> Int {
+fn psl_abs(value : Int32) -> Int32 {
   if value < 0 {
     -value
   } else {
@@ -117,7 +141,7 @@ fn psl_abs(value : Int) -> Int {
 }
 
 ///|
-fn psl_min(left : Int, right : Int) -> Int {
+fn psl_min(left : Int32, right : Int32) -> Int32 {
   if left < right {
     left
   } else {
@@ -126,7 +150,7 @@ fn psl_min(left : Int, right : Int) -> Int {
 }
 
 ///|
-fn psl_max(left : Int, right : Int) -> Int {
+fn psl_max(left : Int32, right : Int32) -> Int32 {
   if left > right {
     left
   } else {
@@ -135,8 +159,8 @@ fn psl_max(left : Int, right : Int) -> Int {
 }
 
 ///|
-fn psl_copy_ints(values : Array[Int]) -> Array[Int] {
-  let copy : Array[Int] = []
+fn psl_copy_ints(values : Array[Int32]) -> Array[Int32] {
+  let copy : Array[Int32] = []
   for value in values {
     copy.push(value)
   }
@@ -153,8 +177,8 @@ fn psl_copy_strings(values : Array[String]) -> Array[String] {
 }
 
 ///|
-fn psl_reverse_ints(values : Array[Int]) -> Array[Int] {
-  let reversed : Array[Int] = []
+fn psl_reverse_ints(values : Array[Int32]) -> Array[Int32] {
+  let reversed : Array[Int32] = []
   let mut index = values.length()
   while index > 0 {
     index = index - 1
@@ -196,7 +220,7 @@ fn psl_validate_text(
 ///|
 fn psl_validate_sequence(
   sequence : String,
-  expected_size : Int,
+  expected_size : Int32,
   label : String,
 ) -> Unit raise PslError {
   if sequence.length() == 0 {
@@ -220,7 +244,7 @@ fn psl_validate_sequence(
 ///|
 fn psl_validate_fragment(
   sequence : String,
-  expected_size : Int,
+  expected_size : Int32,
   label : String,
 ) -> Unit raise PslError {
   if sequence.length() != expected_size {
@@ -241,9 +265,9 @@ fn psl_validate_fragment(
 
 ///|
 fn psl_axis_direction(
-  coordinates : Array[Int],
+  coordinates : Array[Int32],
   label : String,
-) -> Int raise PslError {
+) -> Int32 raise PslError {
   let mut direction = 0
   for index in 0..<(coordinates.length() - 1) {
     let step = coordinates[index + 1] - coordinates[index]
@@ -264,8 +288,8 @@ fn psl_axis_direction(
 
 ///|
 fn psl_raw_blocks(
-  target_coordinates : Array[Int],
-  query_coordinates : Array[Int],
+  target_coordinates : Array[Int32],
+  query_coordinates : Array[Int32],
   query_sequences : Array[String],
   target_sequences : Array[String],
 ) -> Array[PslBlock] {
@@ -305,8 +329,8 @@ fn psl_raw_blocks(
 
 ///|
 fn psl_path_counts(
-  target_coordinates : Array[Int],
-  query_coordinates : Array[Int],
+  target_coordinates : Array[Int32],
+  query_coordinates : Array[Int32],
 ) -> PslCounts {
   let mut aligned_query_units = 0
   let mut query_insert_count = 0
@@ -345,20 +369,20 @@ fn psl_path_counts(
 ///|
 pub fn PslAlignment::create(
   target_name : String,
-  target_size : Int,
+  target_size : Int32,
   query_name : String,
-  query_size : Int,
-  target_coordinates : Array[Int],
-  query_coordinates : Array[Int],
-  sequence_type? : PslSequenceType = PslNucleotide,
-  matches? : Int = -1,
-  mismatches? : Int = -1,
-  repeat_matches? : Int = -1,
-  n_count? : Int = -1,
-  target_sequence? : String = "",
-  query_sequence? : String = "",
-  query_block_sequences? : Array[String] = [],
-  target_block_sequences? : Array[String] = [],
+  query_size : Int32,
+  target_coordinates : Array[Int32],
+  query_coordinates : Array[Int32],
+  sequence_type~ : PslSequenceType = PslNucleotide,
+  matches~ : Int32 = -1,
+  mismatches~ : Int32 = -1,
+  repeat_matches~ : Int32 = -1,
+  n_count~ : Int32 = -1,
+  target_sequence~ : String = "",
+  query_sequence~ : String = "",
+  query_block_sequences~ : Array[String] = [],
+  target_block_sequences~ : Array[String] = [],
 ) -> PslAlignment raise PslError {
   psl_validate_text(target_name, "PSL target name", false)
   psl_validate_text(query_name, "PSL query name", false)
@@ -519,11 +543,11 @@ pub fn PslAlignment::create(
 
 ///|
 pub fn PslWriteConfig::create(
-  header? : Bool = true,
-  pslx? : Bool = false,
-  recount? : Bool = false,
-  mask? : PslMaskMode = PslNoMask,
-  wildcard? : Char = 'N',
+  header~ : Bool = true,
+  pslx~ : Bool = false,
+  recount~ : Bool = false,
+  mask~ : PslMaskMode = PslNoMask,
+  wildcard~ : Char = 'N',
 ) -> PslWriteConfig raise PslError {
   let code = wildcard.to_int()
   if code == 0 ||
@@ -533,7 +557,7 @@ pub fn PslWriteConfig::create(
     code == '\r'.to_int() {
     psl_fail("PSL wildcard must be a printable non-delimiter character")
   }
-  PslWriteConfig::{ header, pslx, recount, mask, wildcard }
+  PslWriteConfig::{ header, pslx, recount, mask, wildcard, }
 }
 
 ///|
@@ -593,7 +617,7 @@ pub fn PslAlignment::identity(self : PslAlignment) -> Double {
 }
 
 ///|
-pub fn PslAlignment::score(self : PslAlignment) -> Int {
+pub fn PslAlignment::score(self : PslAlignment) -> Int32 {
   let counts = self.counts()
   self.matches +
   self.repeat_matches / 2 -
@@ -605,8 +629,8 @@ pub fn PslAlignment::score(self : PslAlignment) -> Int {
 ///|
 pub fn PslAlignment::target_to_query(
   self : PslAlignment,
-  position : Int,
-) -> Int? {
+  position : Int32,
+) -> Int32? {
   if position < 0 || position >= self.target_size {
     return None
   }
@@ -638,8 +662,8 @@ pub fn PslAlignment::target_to_query(
 ///|
 pub fn PslAlignment::query_to_target_interval(
   self : PslAlignment,
-  position : Int,
-) -> (Int, Int)? {
+  position : Int32,
+) -> (Int32, Int32)? {
   if position < 0 || position >= self.query_size {
     return None
   }
@@ -673,8 +697,8 @@ pub fn PslAlignment::query_to_target_interval(
 ///|
 pub fn PslAlignment::query_to_target(
   self : PslAlignment,
-  position : Int,
-) -> Int? {
+  position : Int32,
+) -> Int32? {
   match self.query_to_target_interval(position) {
     Some((start, _)) => Some(start)
     None => None
@@ -682,7 +706,7 @@ pub fn PslAlignment::query_to_target(
 }
 
 ///|
-fn psl_upper_code(code : Int) -> Int {
+fn psl_upper_code(code : Int32) -> Int32 {
   if code >= 'a'.to_int() && code <= 'z'.to_int() {
     code - 32
   } else {
@@ -691,17 +715,17 @@ fn psl_upper_code(code : Int) -> Int {
 }
 
 ///|
-fn psl_is_lower(code : Int) -> Bool {
+fn psl_is_lower(code : Int32) -> Bool {
   code >= 'a'.to_int() && code <= 'z'.to_int()
 }
 
 ///|
-fn psl_is_upper(code : Int) -> Bool {
+fn psl_is_upper(code : Int32) -> Bool {
   code >= 'A'.to_int() && code <= 'Z'.to_int()
 }
 
 ///|
-fn psl_complement_code(code : Int) -> Int {
+fn psl_complement_code(code : Int32) -> Int32 {
   match psl_upper_code(code) {
     65 => 84
     67 => 71
@@ -723,8 +747,8 @@ fn psl_complement_code(code : Int) -> Int {
 ///|
 fn psl_translated_block(
   sequence : String,
-  start : Int,
-  end : Int,
+  start : Int32,
+  end : Int32,
 ) -> String raise PslError {
   let minimum = psl_min(start, end)
   let maximum = psl_max(start, end)
@@ -746,10 +770,10 @@ fn psl_translated_block(
 ///|
 pub fn PslAlignment::recount(
   self : PslAlignment,
-  target_sequence? : String = "",
-  query_sequence? : String = "",
-  mask? : PslMaskMode = PslNoMask,
-  wildcard? : Char = 'N',
+  target_sequence~ : String = "",
+  query_sequence~ : String = "",
+  mask~ : PslMaskMode = PslNoMask,
+  wildcard~ : Char = 'N',
 ) -> PslAlignment raise PslError {
   let target = if target_sequence.length() > 0 {
     target_sequence
@@ -858,9 +882,9 @@ pub fn PslAlignment::recount(
 fn psl_storage(alignment : PslAlignment) -> PslStorage {
   let blocks = alignment.blocks()
   let reverse = alignment.is_reverse()
-  let block_sizes : Array[Int] = []
-  let query_starts : Array[Int] = []
-  let target_starts : Array[Int] = []
+  let block_sizes : Array[Int32] = []
+  let query_starts : Array[Int32] = []
+  let target_starts : Array[Int32] = []
   let mut query_start = alignment.query_size
   let mut query_end = 0
   let mut target_start = alignment.target_size
@@ -907,8 +931,8 @@ fn psl_storage(alignment : PslAlignment) -> PslStorage {
 }
 
 ///|
-fn psl_join_ints(values : Array[Int]) -> String {
-  let output = StringBuilder::new()
+fn psl_join_ints(values : Array[Int32]) -> String {
+  let output = StringBuilder()
   for index in 0..<values.length() {
     if index > 0 {
       output.write_char(',')
@@ -923,7 +947,7 @@ fn psl_join_ints(values : Array[Int]) -> String {
 
 ///|
 fn psl_join_strings(values : Array[String]) -> String {
-  let output = StringBuilder::new()
+  let output = StringBuilder()
   for index in 0..<values.length() {
     if index > 0 {
       output.write_char(',')
@@ -985,7 +1009,7 @@ fn psl_block_sequences(
 }
 
 ///|
-pub fn psl_header(version? : String = "3") -> String raise PslError {
+pub fn psl_header(version~ : String = "3") -> String raise PslError {
   psl_validate_text(version, "PSL version", false)
   for index in 0..<version.length() {
     if version.unsafe_get(index).to_int() == ' '.to_int() {
@@ -1003,7 +1027,7 @@ pub fn psl_header(version? : String = "3") -> String raise PslError {
 ///|
 pub fn PslAlignment::format(
   self : PslAlignment,
-  config? : PslWriteConfig = PslWriteConfig::default(),
+  config~ : PslWriteConfig = PslWriteConfig::default(),
 ) -> String raise PslError {
   let alignment = if config.recount {
     self.recount(mask=config.mask, wildcard=config.wildcard)
@@ -1012,7 +1036,7 @@ pub fn PslAlignment::format(
   }
   let storage = psl_storage(alignment)
   let counts = alignment.counts()
-  let output = StringBuilder::new()
+  let output = StringBuilder()
   let fields = [
     alignment.matches.to_string(),
     alignment.mismatches.to_string(),
@@ -1056,10 +1080,10 @@ pub fn PslAlignment::format(
 ///|
 pub fn psl_write(
   alignments : Array[PslAlignment],
-  config? : PslWriteConfig = PslWriteConfig::default(),
-  version? : String = "3",
+  config~ : PslWriteConfig = PslWriteConfig::default(),
+  version~ : String = "3",
 ) -> String raise PslError {
-  let output = StringBuilder::new()
+  let output = StringBuilder()
   if config.header {
     output.write_string(psl_header(version~))
   }
@@ -1070,7 +1094,7 @@ pub fn psl_write(
 }
 
 ///|
-fn psl_parse_int(value : String, label : String) -> Int raise PslError {
+fn psl_parse_int(value : String, label : String) -> Int32 raise PslError {
   if value.length() == 0 {
     psl_fail(label + " must not be empty")
   }
@@ -1093,9 +1117,9 @@ fn psl_parse_int(value : String, label : String) -> Int raise PslError {
 fn psl_parse_csv_ints(
   value : String,
   label : String,
-) -> Array[Int] raise PslError {
+) -> Array[Int32] raise PslError {
   let parts = split_by_char(value, ','.to_int())
-  let values : Array[Int] = []
+  let values : Array[Int32] = []
   for index in 0..<parts.length() {
     if parts[index].length() == 0 {
       if index + 1 == parts.length() {
@@ -1136,7 +1160,7 @@ fn psl_parse_csv_strings(
 ///|
 fn psl_parse_record(
   line : String,
-  line_number : Int,
+  line_number : Int32,
 ) -> PslAlignment raise PslError {
   let words = split_by_char(line, '\t'.to_int())
   if words.length() != 21 && words.length() != 23 {
@@ -1202,8 +1226,8 @@ fn psl_parse_record(
     ) {
     psl_fail("PSLX sequence arrays do not match blockCount")
   }
-  let target_coordinates : Array[Int] = [target_starts[0]]
-  let query_coordinates : Array[Int] = [query_starts[0]]
+  let target_coordinates : Array[Int32] = [target_starts[0]]
+  let query_coordinates : Array[Int32] = [query_starts[0]]
   let mut target_position = target_starts[0]
   let mut query_position = query_starts[0]
   for index in 0..<block_count {
@@ -1345,7 +1369,7 @@ pub fn psl_parse(content : String) -> PslDocument raise PslError {
     }
     index = index + 1
   }
-  PslDocument::{ version, has_header, alignments }
+  PslDocument::{ version, has_header, alignments, }
 }
 
 ///|
@@ -1411,7 +1435,7 @@ pub fn PslDocument::summary(self : PslDocument) -> PslSummary {
 ///|
 pub fn PslDocument::write(
   self : PslDocument,
-  config? : PslWriteConfig = PslWriteConfig::default(),
+  config~ : PslWriteConfig = PslWriteConfig::default(),
 ) -> String raise PslError {
   let version = if self.version.length() > 0 { self.version } else { "3" }
   psl_write(self.alignments, config~, version~)
@@ -1455,7 +1479,7 @@ pub fn PslAlignment::to_coordinate_alignment(
 ///|
 pub fn psl_from_coordinate_alignment(
   alignment : CoordinatePairwiseAlignment,
-  sequence_type? : PslSequenceType = PslNucleotide,
+  sequence_type~ : PslSequenceType = PslNucleotide,
 ) -> PslAlignment raise PslError {
   PslAlignment::create(
     alignment.target_name,

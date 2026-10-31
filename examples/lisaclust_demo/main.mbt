@@ -32,9 +32,7 @@ fn main {
   )
   for image_radii in result.curves.effective_radii {
     println(
-      image_radii.image_id +
-      " effective radii: " +
-      image_radii.radii.to_string(),
+      image_radii.image_id + " effective radii: " + repr(image_radii.radii),
     )
   }
 

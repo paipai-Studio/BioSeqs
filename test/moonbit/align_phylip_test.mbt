@@ -21,8 +21,8 @@ fn align_phylip_test_rejects(text : String) -> Bool {
 fn align_phylip_test_write(
   alignment : @src.AlignPhylipAlignment,
   layout : @src.AlignPhylipLayout,
-  block_width : Int,
-  group_width : Int,
+  block_width : Int32,
+  group_width : Int32,
 ) -> String {
   @src.align_phylip_write(alignment, layout~, block_width~, group_width~) catch {
     AlignPhylipError(message) => abort("PHYLIP writing failed: " + message)
@@ -32,8 +32,8 @@ fn align_phylip_test_write(
 ///|
 fn align_phylip_test_write_rejects(
   alignment : @src.AlignPhylipAlignment,
-  block_width : Int,
-  group_width : Int,
+  block_width : Int32,
+  group_width : Int32,
 ) -> Bool {
   try {
     ignore(@src.align_phylip_write(alignment, block_width~, group_width~))

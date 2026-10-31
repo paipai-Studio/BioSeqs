@@ -22,7 +22,7 @@ fn main {
 
   // Sequence names from header
   let seq_names = sam.get_sequence_names()
-  println("  Sequences: \{seq_names}")
+  println("  Sequences: \{Repr(seq_names)}")
   for i = 0; i < seq_names.length(); i = i + 1 {
     let len = sam.get_sequence_length(seq_names[i])
     match len {
@@ -69,20 +69,20 @@ fn main {
 
   // Sample names
   let samples = vcf.get_sample_names()
-  println("  Samples: \{samples}")
+  println("  Samples: \{Repr(samples)}")
 
   // Variant details
   println("\n=== Variant Records ===")
   for i = 0; i < vcf.len(); i = i + 1 {
     let rec = vcf.records[i]
     println("  [\{i}] \{rec.chrom}:\{rec.pos}")
-    println("       ID: \{rec.id}")
-    println("       REF: \{rec.ref_seq}  ALT: \{rec.alt}")
+    println("       ID: \{Repr(rec.id)}")
+    println("       REF: \{rec.ref_seq}  ALT: \{Repr(rec.alt)}")
     match rec.qual {
       Some(q) => println("       QUAL: \{q}")
       None => println("       QUAL: .")
     }
-    println("       FILTER: \{rec.filter}")
+    println("       FILTER: \{Repr(rec.filter)}")
     println("       is_snp: \{rec.is_snp()}")
     println("       is_insertion: \{rec.is_insertion()}")
     println("       is_deletion: \{rec.is_deletion()}")
@@ -91,7 +91,7 @@ fn main {
     for j = 0; j < samples.length(); j = j + 1 {
       let gt = rec.get_genotype(samples[j])
       match gt {
-        Some(g) => println("       \{samples[j]}: \{g}")
+        Some(g) => println("       \{samples[j]}: \{Repr(g)}")
         None => println("       \{samples[j]}: .")
       }
     }

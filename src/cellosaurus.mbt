@@ -18,12 +18,15 @@ pub struct CellosaurusCrossReference {
 } derive(Eq)
 
 ///|
+pub extend CellosaurusCrossReference with Eq::{equal, not_equal}
+
+///|
 /// Create a Cellosaurus cross-reference.
 pub fn CellosaurusCrossReference::new(
   database~ : String,
   accession~ : String,
 ) -> CellosaurusCrossReference {
-  CellosaurusCrossReference::{ database, accession }
+  CellosaurusCrossReference::{ database, accession, }
 }
 
 ///|
@@ -52,25 +55,28 @@ pub struct CellosaurusRecord {
 } derive(Eq)
 
 ///|
+pub extend CellosaurusRecord with Eq::{equal, not_equal}
+
+///|
 /// Create a Cellosaurus record.
 pub fn CellosaurusRecord::new(
   identifier~ : String,
-  accession? : String = "",
-  secondary_accessions? : String = "",
-  synonyms? : String = "",
-  cross_references? : Array[CellosaurusCrossReference] = [],
-  reference_identifiers? : Array[String] = [],
-  web_pages? : Array[String] = [],
-  comments? : Array[String] = [],
-  str_profiles? : Array[String] = [],
-  diseases? : Array[String] = [],
-  species? : Array[String] = [],
-  hierarchy? : Array[String] = [],
-  same_individual? : Array[String] = [],
-  sex? : String = "",
-  age? : String = "",
-  category? : String = "",
-  date? : String = "",
+  accession~ : String = "",
+  secondary_accessions~ : String = "",
+  synonyms~ : String = "",
+  cross_references~ : Array[CellosaurusCrossReference] = [],
+  reference_identifiers~ : Array[String] = [],
+  web_pages~ : Array[String] = [],
+  comments~ : Array[String] = [],
+  str_profiles~ : Array[String] = [],
+  diseases~ : Array[String] = [],
+  species~ : Array[String] = [],
+  hierarchy~ : Array[String] = [],
+  same_individual~ : Array[String] = [],
+  sex~ : String = "",
+  age~ : String = "",
+  category~ : String = "",
+  date~ : String = "",
 ) -> CellosaurusRecord {
   CellosaurusRecord::{
     identifier,
@@ -153,7 +159,7 @@ pub fn CellosaurusRecord::repr(self : CellosaurusRecord) -> String {
 ///|
 /// Serialize a record to canonical Cellosaurus flat-file text.
 pub fn CellosaurusRecord::to_string(self : CellosaurusRecord) -> String {
-  let output = StringBuilder::new()
+  let output = StringBuilder()
   cellosaurus_write_field(output, "ID", self.identifier)
   cellosaurus_write_field(output, "AC", self.accession)
   cellosaurus_write_field(output, "AS", self.secondary_accessions)
@@ -287,7 +293,7 @@ pub fn cellosaurus_sample_text() -> String {
 }
 
 ///|
-struct CellosaurusBuilder {
+priv struct CellosaurusBuilder {
   mut identifier : String
   mut accession : String
   mut secondary_accessions : String
@@ -358,7 +364,7 @@ fn cellosaurus_apply_field(
   builder : CellosaurusBuilder,
   code : String,
   value : String,
-  line_number~ : Int,
+  line_number~ : Int32,
 ) -> Unit raise CellosaurusError {
   match code {
     "AC" => builder.accession = builder.accession + value

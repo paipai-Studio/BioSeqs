@@ -37,6 +37,9 @@ pub enum SnapgeneSeqType {
 } derive(Eq)
 
 ///|
+pub extend SnapgeneSeqType with Eq::{equal, not_equal}
+
+///|
 /// Convert a sequence type to its string name.
 pub fn SnapgeneSeqType::to_string(self : SnapgeneSeqType) -> String {
   match self {
@@ -63,8 +66,8 @@ pub fn SnapgeneSeqType::from_string(s : String) -> SnapgeneSeqType {
 pub struct SnapgeneFeature {
   name : String
   type_ : String // e.g. "CDS", "promoter", "terminator", "rep_origin"
-  direction : Int // 1 = forward, -1 = reverse, 0 = none
-  segments : Array[(Int, Int)] // list of (start, end) 0-based inclusive segments
+  direction : Int32 // 1 = forward, -1 = reverse, 0 = none
+  segments : Array[(Int32, Int32)] // list of (start, end) 0-based inclusive segments
   qualifiers : Map[String, String]
 }
 
@@ -73,11 +76,11 @@ pub struct SnapgeneFeature {
 pub fn SnapgeneFeature::new(
   name~ : String,
   type_~ : String,
-  direction~ : Int,
-  segments~ : Array[(Int, Int)],
+  direction~ : Int32,
+  segments~ : Array[(Int32, Int32)],
   qualifiers~ : Map[String, String],
 ) -> SnapgeneFeature {
-  SnapgeneFeature::{ name, type_, direction, segments, qualifiers }
+  SnapgeneFeature::{ name, type_, direction, segments, qualifiers, }
 }
 
 ///|
@@ -86,8 +89,8 @@ pub struct SnapgenePrimer {
   name : String
   sequence : String
   description : String
-  bind_to : Int // 1 = binds top strand, 2 = binds bottom strand
-  binds_at_position : Int // 0-based binding position
+  bind_to : Int32 // 1 = binds top strand, 2 = binds bottom strand
+  binds_at_position : Int32 // 0-based binding position
 }
 
 ///|
@@ -96,24 +99,24 @@ pub fn SnapgenePrimer::new(
   name~ : String,
   sequence~ : String,
   description~ : String,
-  bind_to~ : Int,
-  binds_at_position~ : Int,
+  bind_to~ : Int32,
+  binds_at_position~ : Int32,
 ) -> SnapgenePrimer {
-  SnapgenePrimer::{ name, sequence, description, bind_to, binds_at_position }
+  SnapgenePrimer::{ name, sequence, description, bind_to, binds_at_position, }
 }
 
 ///|
 /// A parsed SnapGene .dna file.
 pub struct SnapgeneFile {
-  pub mut seq_type : SnapgeneSeqType
-  pub mut comments : String // raw comments text
-  pub mut export_version : String
-  pub mut sequence : String
+  mut seq_type : SnapgeneSeqType
+  mut comments : String // raw comments text
+  mut export_version : String
+  mut sequence : String
   features : Array[SnapgeneFeature]
   primers : Array[SnapgenePrimer]
-  pub mut notes : String // raw notes text
-  pub mut is_circular : Bool
-  extra_packets : Array[(Int, Array[Int])] // (type, raw_bytes) for unknown types
+  mut notes : String // raw notes text
+  mut is_circular : Bool
+  extra_packets : Array[(Int32, Array[Int32])] // (type, raw_bytes) for unknown types
 }
 
 ///|
@@ -198,17 +201,17 @@ pub fn SnapgeneFile::add_primer(
 
 ///|
 /// Convert an integer 0-15 to a lowercase hex digit character.
-fn sg_hex_digit(n : Int) -> Char {
+fn sg_hex_digit(n : Int32) -> Char {
   if n < 10 {
-    Char::from_int(48 + n) // '0'..'9'
+    (48 + n).unsafe_to_char() // '0'..'9'
   } else {
-    Char::from_int(87 + n) // 'a'..'f'
+    (87 + n).unsafe_to_char() // 'a'..'f'
   }
 }
 
 ///|
 /// Convert a hex digit character's ASCII code to its integer value 0-15.
-fn sg_hex_value(c : Int) -> Int {
+fn sg_hex_value(c : Int32) -> Int32 {
   if c >= 48 && c <= 57 {
     c - 48
   } else if c >= 65 && c <= 70 {
@@ -222,7 +225,7 @@ fn sg_hex_value(c : Int) -> Int {
 
 ///|
 /// Read a uint32 big-endian from a byte array at the given offset.
-fn sg_read_u32_be(data : Array[Int], offset : Int) -> Int {
+fn sg_read_u32_be(data : Array[Int32], offset : Int32) -> Int32 {
   (data[offset] & 0xFF) * 16777216 +
   (data[offset + 1] & 0xFF) * 65536 +
   (data[offset + 2] & 0xFF) * 256 +
@@ -231,7 +234,7 @@ fn sg_read_u32_be(data : Array[Int], offset : Int) -> Int {
 
 ///|
 /// Write a uint32 big-endian into a byte array at the given offset.
-fn sg_write_u32_be(data : Array[Int], offset : Int, value : Int) -> Unit {
+fn sg_write_u32_be(data : Array[Int32], offset : Int32, value : Int32) -> Unit {
   data[offset] = (value >> 24) & 0xFF
   data[offset + 1] = (value >> 16) & 0xFF
   data[offset + 2] = (value >> 8) & 0xFF
@@ -240,7 +243,7 @@ fn sg_write_u32_be(data : Array[Int], offset : Int, value : Int) -> Unit {
 
 ///|
 /// Convert a hex string to a byte array.
-fn sg_hex_to_bytes(hex : String) -> Array[Int] {
+fn sg_hex_to_bytes(hex : String) -> Array[Int32] {
   let n = hex.length()
   let bytes = Array::make(n / 2, 0)
   for i in 0..<bytes.length() {
@@ -253,8 +256,8 @@ fn sg_hex_to_bytes(hex : String) -> Array[Int] {
 
 ///|
 /// Convert a byte array to a lowercase hex string.
-fn sg_bytes_to_hex(data : Array[Int]) -> String {
-  let sb = StringBuilder::new()
+fn sg_bytes_to_hex(data : Array[Int32]) -> String {
+  let sb = StringBuilder()
   for i in 0..<data.length() {
     let b = data[i] & 0xFF
     sb.write_char(sg_hex_digit((b >> 4) & 0xF))
@@ -265,18 +268,22 @@ fn sg_bytes_to_hex(data : Array[Int]) -> String {
 
 ///|
 /// Convert ASCII byte array slice to a string.
-fn sg_ascii_to_string(data : Array[Int], offset : Int, length : Int) -> String {
-  let sb = StringBuilder::new()
+fn sg_ascii_to_string(
+  data : Array[Int32],
+  offset : Int32,
+  length : Int32,
+) -> String {
+  let sb = StringBuilder()
   for i in 0..<length {
     let b = data[offset + i] & 0xFF
-    sb.write_char(Char::from_int(b))
+    sb.write_char(b.unsafe_to_char())
   }
   sb.to_string()
 }
 
 ///|
 /// Convert a string to an ASCII byte array.
-fn sg_string_to_ascii(s : String) -> Array[Int] {
+fn sg_string_to_ascii(s : String) -> Array[Int32] {
   let n = s.length()
   let out = Array::make(n, 0)
   for i in 0..<n {
@@ -336,7 +343,7 @@ fn sg_json_extract_string(text : String, key : String) -> String {
     return ""
   }
   i = i + 1
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   while i < chars.length() && chars[i] != '"' {
     if chars[i] == '\\' && i + 1 < chars.length() {
       // Escape sequence
@@ -383,7 +390,7 @@ fn sg_build_comments(
 ///|
 /// Escape a string for JSON.
 fn sg_json_escape(s : String) -> String {
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   for c in s.to_array() {
     match c {
       '"' => sb.write_string("\\\"")
@@ -404,12 +411,12 @@ fn sg_json_escape(s : String) -> String {
 ///|
 /// Parse the features packet XML-like text into an array of features.
 fn sg_parse_features(text : String) -> Array[SnapgeneFeature] {
-  let features = Array::new()
+  let features = Array(capacity=0)
   // Features are stored in <Feature> elements
   let segments = text.split("<Feature").to_array()
   for seg in segments {
-    let seg_str = seg.to_string()
-    if seg_str.length() > 0 && seg_str[0:1].to_string() != "<" {
+    let seg_str = seg.to_owned()
+    if seg_str.length() > 0 && seg_str[0:1].to_owned() != "<" {
       // Try to parse this feature segment
       let feature = sg_parse_one_feature(seg_str)
       match feature {
@@ -438,10 +445,10 @@ fn sg_parse_one_feature(text : String) -> SnapgeneFeature? {
     _ => 0
   }
   // Extract segments
-  let segs = Array::new()
+  let segs = Array(capacity=0)
   let seg_parts = text.split("<Segment").to_array()
   for sp in seg_parts {
-    let sp_str = sp.to_string()
+    let sp_str = sp.to_owned()
     if sp_str.contains("range=\"") {
       let range = sg_xml_attr(sp_str, "range")
       if range != "" {
@@ -457,7 +464,7 @@ fn sg_parse_one_feature(text : String) -> SnapgeneFeature? {
   let qualifiers : Map[String, String] = Map([], capacity=0)
   let q_parts = text.split("<Q").to_array()
   for qp in q_parts {
-    let qp_str = qp.to_string()
+    let qp_str = qp.to_owned()
     if qp_str.contains("name=\"") && qp_str.contains("content=\"") {
       let qname = sg_xml_attr(qp_str, "name")
       let qcontent = sg_xml_attr(qp_str, "content")
@@ -481,7 +488,7 @@ fn sg_xml_attr(text : String, attr : String) -> String {
     Some(p) => {
       let start = p + pattern.length()
       let chars = text.to_array()
-      let sb = StringBuilder::new()
+      let sb = StringBuilder()
       let mut i = start
       while i < chars.length() && chars[i] != '"' {
         sb.write_char(chars[i])
@@ -494,12 +501,12 @@ fn sg_xml_attr(text : String, attr : String) -> String {
 
 ///|
 /// Parse a range string "start..end" or "(start,end)" into (start, end).
-fn sg_parse_range(s : String) -> (Int, Int)? {
+fn sg_parse_range(s : String) -> (Int32, Int32)? {
   // SnapGene ranges can be "1234..5678" format
   let parts = s.split("..").to_array()
   if parts.length() == 2 {
-    let start = parts[0].trim().to_string()
-    let end = parts[1].trim().to_string()
+    let start = parts[0].trim().to_owned()
+    let end = parts[1].trim().to_owned()
     // Validate that both parts are numeric (non-empty digits)
     if start.length() == 0 || end.length() == 0 {
       return None
@@ -531,7 +538,7 @@ fn sg_all_digits(s : String) -> Bool {
 ///|
 /// Build the features packet XML-like text from an array of features.
 fn sg_build_features(features : Array[SnapgeneFeature]) -> String {
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   sb.write_string("<Features>")
   for f in features {
     let dir_str = if f.direction == 1 {
@@ -579,7 +586,7 @@ fn sg_build_features(features : Array[SnapgeneFeature]) -> String {
 ///|
 /// Escape a string for XML attribute values.
 fn sg_xml_escape(s : String) -> String {
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   for c in s.to_array() {
     match c {
       '"' => sb.write_string("&quot;")
@@ -598,8 +605,8 @@ fn sg_xml_escape(s : String) -> String {
 
 ///|
 /// Parse the primers packet binary data into an array of primers.
-fn sg_parse_primers(data : Array[Int]) -> Array[SnapgenePrimer] {
-  let primers = Array::new()
+fn sg_parse_primers(data : Array[Int32]) -> Array[SnapgenePrimer] {
+  let primers = Array(capacity=0)
   let n = data.length()
   let mut offset = 0
   while offset + 4 <= n {
@@ -662,8 +669,8 @@ fn sg_parse_primers(data : Array[Int]) -> Array[SnapgenePrimer] {
 
 ///|
 /// Build the primers packet binary data from an array of primers.
-fn sg_build_primers(primers : Array[SnapgenePrimer]) -> Array[Int] {
-  let out = Array::new()
+fn sg_build_primers(primers : Array[SnapgenePrimer]) -> Array[Int32] {
+  let out = Array(capacity=0)
   for i in 0..<primers.length() {
     let p = primers[i]
     // Primer ID
@@ -730,11 +737,11 @@ pub fn snapgene_parse(hex : String) -> SnapgeneFile {
 
 ///|
 /// Parse a SnapGene .dna file from a byte array.
-pub fn snapgene_from_bytes(data : Array[Int]) -> SnapgeneFile {
+pub fn snapgene_from_bytes(data : Array[Int32]) -> SnapgeneFile {
   let file = SnapgeneFile::new()
   let n = data.length()
   let mut offset = 0
-  let mut first_packet = true
+  let mut _first_packet = true
   while offset + 5 <= n {
     let pkt_type = data[offset] & 0xFF
     let pkt_len = sg_read_u32_be(data, offset + 1)
@@ -768,7 +775,7 @@ pub fn snapgene_from_bytes(data : Array[Int]) -> SnapgeneFile {
       }
       3 => {
         // Primers packet
-        let primer_bytes = Array::new()
+        let primer_bytes = Array(capacity=0)
         for i in 0..<pkt_len {
           primer_bytes.push(data[pkt_data_offset + i])
         }
@@ -784,7 +791,7 @@ pub fn snapgene_from_bytes(data : Array[Int]) -> SnapgeneFile {
       }
       _ => {
         // Unknown packet type — store raw bytes
-        let raw = Array::new()
+        let raw = Array(capacity=0)
         for i in 0..<pkt_len {
           raw.push(data[pkt_data_offset + i])
         }
@@ -792,7 +799,7 @@ pub fn snapgene_from_bytes(data : Array[Int]) -> SnapgeneFile {
       }
     }
     offset = offset + pkt_len
-    first_packet = false
+    _first_packet = false
   }
   file
 }
@@ -806,8 +813,8 @@ pub fn snapgene_write(file : SnapgeneFile) -> String {
 
 ///|
 /// Serialize a SnapgeneFile to a byte array.
-pub fn snapgene_to_bytes(file : SnapgeneFile) -> Array[Int] {
-  let out = Array::new()
+pub fn snapgene_to_bytes(file : SnapgeneFile) -> Array[Int32] {
+  let out = Array(capacity=0)
   // Packet 0: Comments
   let comments_text = sg_build_comments(
     file.seq_type,
@@ -928,7 +935,7 @@ pub fn snapgene_from_seqrecord(rec : SeqRecord) -> SnapgeneFile {
 pub fn snapgene_count_features_by_type(
   file : SnapgeneFile,
   type_name : String,
-) -> Int {
+) -> Int32 {
   let mut count = 0
   for f in file.features {
     if f.type_ == type_name {
@@ -940,14 +947,14 @@ pub fn snapgene_count_features_by_type(
 
 ///|
 /// Get the total sequence length.
-pub fn snapgene_seq_length(file : SnapgeneFile) -> Int {
+pub fn snapgene_seq_length(file : SnapgeneFile) -> Int32 {
   file.sequence.length()
 }
 
 ///|
 /// Generate a summary string for a SnapgeneFile.
 pub fn snapgene_summary(file : SnapgeneFile) -> String {
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   sb.write_string("SnapGene File Summary:\n")
   sb.write_string("  Type: " + file.seq_type.to_string() + "\n")
   sb.write_string("  Circular: " + file.is_circular.to_string() + "\n")
@@ -959,7 +966,7 @@ pub fn snapgene_summary(file : SnapgeneFile) -> String {
   sb.write_string("  Primers: " + file.primers.length().to_string() + "\n")
   if file.features.length() > 0 {
     sb.write_string("  Feature Types:\n")
-    let type_counts : Map[String, Int] = Map([], capacity=0)
+    let type_counts : Map[String, Int32] = Map([], capacity=0)
     for f in file.features {
       let t = f.type_
       match type_counts.get(t) {

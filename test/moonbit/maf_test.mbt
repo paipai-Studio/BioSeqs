@@ -205,7 +205,7 @@ test "maf_write_roundtrip" {
   let content = "##maf version=1\n\na score=100\ns human.chr1 0 5 + 1000 ACGTG\ns mouse.chr1 0 5 + 800 ACGTG\n\n"
   let ali = @src.parse_maf(content)
   let output = @src.write_maf(ali)
-  assert_true(output.starts_with("##maf version="))
+  assert_true(output.has_prefix("##maf version="))
   assert_true(output.contains("human.chr1"))
   assert_true(output.contains("ACGTG"))
 }

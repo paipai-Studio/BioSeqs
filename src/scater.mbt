@@ -2,15 +2,15 @@
 pub struct CellQCStats {
   cell_id : Array[String]
   total_counts : Array[Double]
-  total_features : Array[Int]
+  total_features : Array[Int32]
   percent_mito : Array[Double]
   percent_ribo : Array[Double]
   percent_top50 : Array[Double]
-  detected_genes : Array[Int]
+  detected_genes : Array[Int32]
 }
 
 ///|
-pub fn CellQCStats::new(n_cells : Int) -> CellQCStats {
+pub fn CellQCStats::new(n_cells : Int32) -> CellQCStats {
   CellQCStats::{
     cell_id: Array::make(n_cells, ""),
     total_counts: Array::make(n_cells, 0.0),
@@ -47,24 +47,24 @@ pub fn CellQCStats::to_string(self : CellQCStats) -> String {
 
 ///|
 fn scater_is_mito_gene(gene_name : String) -> Bool {
-  to_lowercase(gene_name).starts_with("mt-") ||
-  to_lowercase(gene_name).starts_with("mt.") ||
-  gene_name.starts_with("MT-") ||
-  gene_name.starts_with("MT.")
+  to_lowercase(gene_name).has_prefix("mt-") ||
+  to_lowercase(gene_name).has_prefix("mt.") ||
+  gene_name.has_prefix("MT-") ||
+  gene_name.has_prefix("MT.")
 }
 
 ///|
 fn scater_is_ribo_gene(gene_name : String) -> Bool {
   let lower = to_lowercase(gene_name)
-  lower.starts_with("rpl") ||
-  lower.starts_with("rps") ||
-  lower.starts_with("mrpl") ||
-  lower.starts_with("mrps")
+  lower.has_prefix("rpl") ||
+  lower.has_prefix("rps") ||
+  lower.has_prefix("mrpl") ||
+  lower.has_prefix("mrps")
 }
 
 ///|
 pub fn scater_calculate_qc_metrics(
-  counts : Array[Array[Int]],
+  counts : Array[Array[Int32]],
   cell_ids : Array[String],
   gene_names : Array[String],
 ) -> CellQCStats {
@@ -164,10 +164,10 @@ fn scater_sort_array_desc(arr : Array[Double]) -> Array[Double] {
 pub struct QCFilterParams {
   min_counts : Double
   max_counts : Double
-  min_features : Int
-  max_features : Int
+  min_features : Int32
+  max_features : Int32
   max_percent_mito : Double
-  min_detected : Int
+  min_detected : Int32
 }
 
 ///|
@@ -186,10 +186,10 @@ pub fn QCFilterParams::new() -> QCFilterParams {
 pub fn QCFilterParams::with_params(
   min_counts : Double,
   max_counts : Double,
-  min_features : Int,
-  max_features : Int,
+  min_features : Int32,
+  max_features : Int32,
   max_percent_mito : Double,
-  min_detected : Int,
+  min_detected : Int32,
 ) -> QCFilterParams {
   QCFilterParams::{
     min_counts,
@@ -205,10 +205,10 @@ pub fn QCFilterParams::with_params(
 pub fn scater_filter_cells(
   stats : CellQCStats,
   params : QCFilterParams,
-) -> (Array[Int], Array[Bool]) {
+) -> (Array[Int32], Array[Bool]) {
   let n = stats.cell_id.length()
   let keep : Array[Bool] = Array::make(n, false)
-  let kept_indices : Array[Int] = Array::new()
+  let kept_indices : Array[Int32] = Array(capacity=0)
 
   let mut i = 0
   while i < n {
@@ -232,10 +232,10 @@ pub fn scater_filter_cells(
 
 ///|
 pub fn scater_filter_counts(
-  counts : Array[Array[Int]],
+  counts : Array[Array[Int32]],
   keep_cells : Array[Bool],
-) -> Array[Array[Int]] {
-  let filtered : Array[Array[Int]] = Array::new()
+) -> Array[Array[Int32]] {
+  let filtered : Array[Array[Int32]] = Array(capacity=0)
 
   let mut i = 0
   while i < counts.length() {
@@ -278,13 +278,13 @@ pub fn scater_filter_cells_by_name(
 pub struct FeatureQCStats {
   gene_id : Array[String]
   mean_expression : Array[Double]
-  n_cells_detected : Array[Int]
+  n_cells_detected : Array[Int32]
   percent_detected : Array[Double]
   total_expression : Array[Double]
 }
 
 ///|
-pub fn FeatureQCStats::new(n_genes : Int) -> FeatureQCStats {
+pub fn FeatureQCStats::new(n_genes : Int32) -> FeatureQCStats {
   FeatureQCStats::{
     gene_id: Array::make(n_genes, ""),
     mean_expression: Array::make(n_genes, 0.0),
@@ -296,7 +296,7 @@ pub fn FeatureQCStats::new(n_genes : Int) -> FeatureQCStats {
 
 ///|
 pub fn scater_calculate_feature_qc(
-  counts : Array[Array[Int]],
+  counts : Array[Array[Int32]],
   gene_names : Array[String],
 ) -> FeatureQCStats {
   let n_cells = counts.length()
@@ -343,11 +343,11 @@ pub fn scater_calculate_feature_qc(
 ///|
 pub fn scater_filter_features(
   stats : FeatureQCStats,
-  min_cells_detected : Int,
-) -> (Array[Int], Array[Bool]) {
+  min_cells_detected : Int32,
+) -> (Array[Int32], Array[Bool]) {
   let n = stats.gene_id.length()
   let keep : Array[Bool] = Array::make(n, false)
-  let kept_indices : Array[Int] = Array::new()
+  let kept_indices : Array[Int32] = Array(capacity=0)
 
   let mut i = 0
   while i < n {
@@ -362,7 +362,9 @@ pub fn scater_filter_features(
 }
 
 ///|
-pub fn scater_normalize_cpm(counts : Array[Array[Int]]) -> Array[Array[Double]] {
+pub fn scater_normalize_cpm(
+  counts : Array[Array[Int32]],
+) -> Array[Array[Double]] {
   let n_cells = counts.length()
   let n_genes = if n_cells > 0 { counts[0].length() } else { 0 }
 
@@ -400,7 +402,7 @@ pub fn scater_normalize_cpm(counts : Array[Array[Int]]) -> Array[Array[Double]] 
 
 ///|
 pub fn scater_log_normalize_cpm(
-  counts : Array[Array[Int]],
+  counts : Array[Array[Int32]],
 ) -> Array[Array[Double]] {
   let cpm = scater_normalize_cpm(counts)
   let n_cells = cpm.length()
@@ -459,7 +461,7 @@ fn scater_ln(x : Double) -> Double {
 pub fn scater_find_hvgs(
   log_expr : Array[Array[Double]],
   gene_names : Array[String],
-  n_hvgs : Int,
+  n_hvgs : Int32,
 ) -> Array[String] {
   let n_cells = log_expr.length()
   let n_genes = gene_names.length()
@@ -489,7 +491,7 @@ pub fn scater_find_hvgs(
     j = j + 1
   }
 
-  let gene_indices : Array[Int] = Array::make(n_genes, 0)
+  let gene_indices : Array[Int32] = Array::make(n_genes, 0)
   let mut m = 0
   while m < n_genes {
     gene_indices[m] = m
@@ -514,7 +516,7 @@ pub fn scater_find_hvgs(
     i = i + 1
   }
 
-  let result : Array[String] = Array::new()
+  let result : Array[String] = Array(capacity=0)
   let top_n = if n_hvgs < n_genes { n_hvgs } else { n_genes }
   let mut p = 0
   while p < top_n {
@@ -528,7 +530,7 @@ pub fn scater_find_hvgs(
 ///|
 pub fn scater_run_pca(
   log_expr : Array[Array[Double]],
-  n_components : Int,
+  n_components : Int32,
 ) -> Array[Array[Double]] {
   let n_cells = log_expr.length()
   let n_genes = if n_cells > 0 { log_expr[0].length() } else { 0 }
@@ -623,7 +625,7 @@ pub fn scater_run_pca(
       iter = iter + 1
     }
 
-    let scores : Array[Double] = Array::make(n_cells, 0.0)
+    let _scores : Array[Double] = Array::make(n_cells, 0.0)
     let mut i = 0
     while i < n_cells {
       let mut dot = 0.0
@@ -653,7 +655,7 @@ pub fn scater_run_pca(
 }
 
 ///|
-fn scater_min_i(a : Int, b : Int) -> Int {
+fn scater_min_i(a : Int32, b : Int32) -> Int32 {
   if a < b {
     a
   } else {
@@ -685,10 +687,10 @@ fn scater_sqrt_d(x : Double) -> Double {
 pub struct ScaterQCReport {
   cell_stats : CellQCStats
   feature_stats : FeatureQCStats
-  n_cells_kept : Int
-  n_features_kept : Int
+  n_cells_kept : Int32
+  n_features_kept : Int32
   median_total_counts : Double
-  median_n_features : Int
+  median_n_features : Int32
   median_percent_mito : Double
 }
 

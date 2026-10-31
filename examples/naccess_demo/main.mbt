@@ -68,8 +68,12 @@ fn main {
   println("6. Chain Totals")
   println("  Chain A: \{@bio.naccess_chain_total_asa(result, "A")} A^2")
   println("  Chain B: \{@bio.naccess_chain_total_asa(result, "B")} A^2")
-  println("  Chain A residues: \{@bio.naccess_get_chain_residues(result, "A").length()}")
-  println("  Chain B residues: \{@bio.naccess_get_chain_residues(result, "B").length()}")
+  println(
+    "  Chain A residues: \{@bio.naccess_get_chain_residues(result, "A").length()}",
+  )
+  println(
+    "  Chain B residues: \{@bio.naccess_get_chain_residues(result, "B").length()}",
+  )
   println("")
 
   // 7. Demonstrate serialization (write RSA/ASA).
@@ -93,7 +97,9 @@ fn main {
   }
   // Verify round-trip: re-parse and check counts match.
   let reparsed = @bio.naccess_parse(rsa_out, asa_out)
-  println("  Round-trip: \{reparsed.get_num_residues()} residues, \{reparsed.get_num_atoms()} atoms")
+  println(
+    "  Round-trip: \{reparsed.get_num_residues()} residues, \{reparsed.get_num_atoms()} atoms",
+  )
   println("")
 
   // 8. Standard ASA reference values.

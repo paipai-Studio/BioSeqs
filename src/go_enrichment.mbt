@@ -6,7 +6,7 @@
 pub struct GOTerm {
   go_id : String
   term_name : String
-  namespace : String
+  namespace_ : String
   genes : Array[String]
 }
 
@@ -14,24 +14,24 @@ pub struct GOTerm {
 pub fn GOTerm::new(
   go_id : String,
   term_name : String,
-  namespace : String,
+  namespace_ : String,
   genes : Array[String],
 ) -> GOTerm {
-  GOTerm::{ go_id, term_name, namespace, genes }
+  GOTerm::{ go_id, term_name, namespace_, genes, }
 }
 
 ///|
 pub struct GOEnrichmentResult {
   go_id : String
   term_name : String
-  namespace : String
+  namespace_ : String
   p_value : Double
   mut adjusted_p_value : Double
   odds_ratio : Double
   gene_ratio : String
   bg_ratio : String
-  count : Int
-  bg_count : Int
+  count : Int32
+  bg_count : Int32
   genes : Array[String]
 }
 
@@ -39,20 +39,20 @@ pub struct GOEnrichmentResult {
 pub fn GOEnrichmentResult::new(
   go_id : String,
   term_name : String,
-  namespace : String,
+  namespace_ : String,
   p_value : Double,
   adjusted_p_value : Double,
   odds_ratio : Double,
   gene_ratio : String,
   bg_ratio : String,
-  count : Int,
-  bg_count : Int,
+  count : Int32,
+  bg_count : Int32,
   genes : Array[String],
 ) -> GOEnrichmentResult {
   GOEnrichmentResult::{
     go_id,
     term_name,
-    namespace,
+    namespace_,
     p_value,
     adjusted_p_value,
     odds_ratio,
@@ -65,7 +65,7 @@ pub fn GOEnrichmentResult::new(
 }
 
 ///|
-fn log_factorial(n : Int) -> Double {
+fn log_factorial(n : Int32) -> Double {
   if n <= 1 {
     return 0.0
   }
@@ -79,7 +79,7 @@ fn log_factorial(n : Int) -> Double {
 }
 
 ///|
-fn log_choose(n : Int, k : Int) -> Double {
+fn log_choose(n : Int32, k : Int32) -> Double {
   if k < 0 || k > n {
     return 0.0
   }
@@ -90,7 +90,12 @@ fn log_choose(n : Int, k : Int) -> Double {
 }
 
 ///|
-pub fn hypergeometric_test(x : Int, m : Int, n : Int, k : Int) -> Double {
+pub fn hypergeometric_test(
+  x : Int32,
+  m : Int32,
+  n : Int32,
+  k : Int32,
+) -> Double {
   let max_x = if m < k { m } else { k }
   let min_x = if n + k - m > 0 { n + k - m } else { 0 }
 
@@ -122,7 +127,7 @@ pub fn hypergeometric_test(x : Int, m : Int, n : Int, k : Int) -> Double {
 }
 
 ///|
-pub fn fishers_exact_test(a : Int, b : Int, c : Int, d : Int) -> Double {
+pub fn fishers_exact_test(a : Int32, b : Int32, c : Int32, d : Int32) -> Double {
   let n = a + b + c + d
   let log_prob = log_choose(a + b, a) +
     log_choose(c + d, c) +
@@ -137,7 +142,7 @@ pub fn fishers_exact_test(a : Int, b : Int, c : Int, d : Int) -> Double {
 ///|
 pub fn bonferroni_correction(p_values : Array[Double]) -> Array[Double] {
   let m = p_values.length().to_double()
-  let corrected : Array[Double] = Array::new()
+  let corrected : Array[Double] = Array(capacity=0)
   let mut i = 0
   while i < p_values.length() {
     let corrected_val = p_values[i] * m
@@ -151,17 +156,17 @@ pub fn bonferroni_correction(p_values : Array[Double]) -> Array[Double] {
 pub fn bh_correction(p_values : Array[Double]) -> Array[Double] {
   let n = p_values.length()
   if n == 0 {
-    return Array::new()
+    return Array(capacity=0)
   }
 
-  let indices : Array[Int] = Array::new()
+  let indices : Array[Int32] = Array(capacity=0)
   let mut i = 0
   while i < n {
     indices.push(i)
     i = i + 1
   }
 
-  let sorted_with_idx : Array[(Double, Int)] = Array::new()
+  let sorted_with_idx : Array[(Double, Int32)] = Array(capacity=0)
   i = 0
   while i < n {
     sorted_with_idx.push((p_values[i], indices[i]))
@@ -182,7 +187,7 @@ pub fn bh_correction(p_values : Array[Double]) -> Array[Double] {
     j = j + 1
   }
 
-  let corrected_sorted : Array[Double] = Array::new()
+  let corrected_sorted : Array[Double] = Array(capacity=0)
   i = 0
   while i < n {
     let rank = (i + 1).to_double()
@@ -198,7 +203,7 @@ pub fn bh_correction(p_values : Array[Double]) -> Array[Double] {
     }
   }
 
-  let result : Array[Double] = Array::new()
+  let result : Array[Double] = Array(capacity=0)
   i = 0
   while i < n {
     result.push(0.0)
@@ -219,24 +224,24 @@ pub fn bh_correction(p_values : Array[Double]) -> Array[Double] {
 pub fn go_enrich(
   genes : Array[String],
   go_terms : Array[GOTerm],
-  universe_size : Int,
+  universe_size : Int32,
 ) -> Array[GOEnrichmentResult] {
-  let gene_set = Array::new()
+  let gene_set = Array(capacity=0)
   let mut i = 0
   while i < genes.length() {
     gene_set.push(genes[i])
     i = i + 1
   }
 
-  let results : Array[GOEnrichmentResult] = Array::new()
-  let p_values : Array[Double] = Array::new()
+  let results : Array[GOEnrichmentResult] = Array(capacity=0)
+  let p_values : Array[Double] = Array(capacity=0)
 
   i = 0
   while i < go_terms.length() {
     let go_term = go_terms[i]
 
     let mut count = 0
-    let enriched_genes : Array[String] = Array::new()
+    let enriched_genes : Array[String] = Array(capacity=0)
     let mut j = 0
     while j < gene_set.length() {
       let mut k = 0
@@ -279,7 +284,7 @@ pub fn go_enrich(
       GOEnrichmentResult::new(
         go_term.go_id,
         go_term.term_name,
-        go_term.namespace,
+        go_term.namespace_,
         p_value,
         0.0,
         odds_ratio,
@@ -323,9 +328,9 @@ pub fn go_enrich(
 pub fn filter_enrichment(
   results : Array[GOEnrichmentResult],
   p_adjust_cutoff : Double,
-  min_count : Int,
+  min_count : Int32,
 ) -> Array[GOEnrichmentResult] {
-  let filtered : Array[GOEnrichmentResult] = Array::new()
+  let filtered : Array[GOEnrichmentResult] = Array(capacity=0)
   let mut i = 0
   while i < results.length() {
     let r = results[i]
@@ -340,12 +345,12 @@ pub fn filter_enrichment(
 ///|
 pub fn go_terms_by_namespace(
   go_terms : Array[GOTerm],
-  namespace : String,
+  namespace_ : String,
 ) -> Array[GOTerm] {
-  let filtered : Array[GOTerm] = Array::new()
+  let filtered : Array[GOTerm] = Array(capacity=0)
   let mut i = 0
   while i < go_terms.length() {
-    if go_terms[i].namespace == namespace {
+    if go_terms[i].namespace_ == namespace_ {
       filtered.push(go_terms[i])
     }
     i = i + 1

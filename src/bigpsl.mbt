@@ -18,6 +18,12 @@ pub(all) enum BigPslSequenceType {
 } derive(Eq, Debug)
 
 ///|
+pub extend BigPslSequenceType with Eq::{equal, not_equal}
+
+///|
+pub extend BigPslSequenceType with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
 pub(all) enum BigPslMaskMode {
   BigPslNoMask
   BigPslMaskLower
@@ -25,66 +31,102 @@ pub(all) enum BigPslMaskMode {
 } derive(Eq, Debug)
 
 ///|
+pub extend BigPslMaskMode with Eq::{equal, not_equal}
+
+///|
+pub extend BigPslMaskMode with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
 pub struct BigPslBlock {
-  target_start : Int
-  target_end : Int
-  query_start : Int
-  query_end : Int
-  target_size : Int
-  query_size : Int
+  target_start : Int32
+  target_end : Int32
+  query_start : Int32
+  query_end : Int32
+  target_size : Int32
+  query_size : Int32
 } derive(Eq, Debug)
+
+///|
+pub extend BigPslBlock with Eq::{equal, not_equal}
+
+///|
+pub extend BigPslBlock with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct BigPslAlignment {
   target_name : String
-  target_size : Int
+  target_size : Int32
   query_name : String
-  query_size : Int
-  target_coordinates : Array[Int]
-  query_coordinates : Array[Int]
+  query_size : Int32
+  target_coordinates : Array[Int32]
+  query_coordinates : Array[Int32]
   query_sequence : String
   cds : String
-  score : Int
-  thick_start : Int
-  thick_end : Int
+  score : Int32
+  thick_start : Int32
+  thick_end : Int32
   item_rgb : String
-  matches : Int
-  mismatches : Int
-  repeat_matches : Int
-  n_count : Int
+  matches : Int32
+  mismatches : Int32
+  repeat_matches : Int32
+  n_count : Int32
   sequence_type : BigPslSequenceType
 } derive(Eq, Debug)
 
 ///|
+pub extend BigPslAlignment with Eq::{equal, not_equal}
+
+///|
+pub extend BigPslAlignment with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
 pub struct BigPslWriteConfig {
   compress : Bool
-  block_size : Int
-  items_per_slot : Int
+  block_size : Int32
+  items_per_slot : Int32
   store_query_sequence : Bool
   store_cds : Bool
 } derive(Eq, Debug)
 
 ///|
+pub extend BigPslWriteConfig with Eq::{equal, not_equal}
+
+///|
+pub extend BigPslWriteConfig with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
 pub struct BigPslAlignmentCounts {
-  aligned_query_units : Int
-  query_insert_units : Int
-  target_insert_bases : Int
-  query_insert_events : Int
-  target_insert_events : Int
-  block_count : Int
+  aligned_query_units : Int32
+  query_insert_units : Int32
+  target_insert_bases : Int32
+  query_insert_events : Int32
+  target_insert_events : Int32
+  block_count : Int32
 } derive(Eq, Debug)
 
 ///|
+pub extend BigPslAlignmentCounts with Eq::{equal, not_equal}
+
+///|
+pub extend BigPslAlignmentCounts with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
 pub struct BigPslSummary {
-  alignment_count : Int
-  target_count : Int
-  nucleotide_count : Int
-  protein_count : Int
-  unknown_count : Int
-  aligned_query_units : Int
-  covered_target_bases : Int
+  alignment_count : Int32
+  target_count : Int32
+  nucleotide_count : Int32
+  protein_count : Int32
+  unknown_count : Int32
+  aligned_query_units : Int32
+  covered_target_bases : Int32
   compressed : Bool
 } derive(Eq, Debug)
+
+///|
+pub extend BigPslSummary with Eq::{equal, not_equal}
+
+///|
+pub extend BigPslSummary with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct BigPslFile {
@@ -93,15 +135,15 @@ pub struct BigPslFile {
 
 ///|
 priv struct BigPslStorage {
-  chrom_start : Int
-  chrom_end : Int
+  chrom_start : Int32
+  chrom_end : Int32
   strand : String
-  other_start : Int
-  other_end : Int
+  other_start : Int32
+  other_end : Int32
   other_strand : String
-  target_block_sizes : Array[Int]
-  target_block_starts : Array[Int]
-  other_block_starts : Array[Int]
+  target_block_sizes : Array[Int32]
+  target_block_starts : Array[Int32]
+  other_block_starts : Array[Int32]
 }
 
 ///|
@@ -110,7 +152,7 @@ fn bigpsl_fail(message : String) -> Unit raise BigPslError {
 }
 
 ///|
-fn bigpsl_abs(value : Int) -> Int {
+fn bigpsl_abs(value : Int32) -> Int32 {
   if value < 0 {
     -value
   } else {
@@ -119,7 +161,7 @@ fn bigpsl_abs(value : Int) -> Int {
 }
 
 ///|
-fn bigpsl_min(left : Int, right : Int) -> Int {
+fn bigpsl_min(left : Int32, right : Int32) -> Int32 {
   if left < right {
     left
   } else {
@@ -128,7 +170,7 @@ fn bigpsl_min(left : Int, right : Int) -> Int {
 }
 
 ///|
-fn bigpsl_max(left : Int, right : Int) -> Int {
+fn bigpsl_max(left : Int32, right : Int32) -> Int32 {
   if left > right {
     left
   } else {
@@ -137,8 +179,8 @@ fn bigpsl_max(left : Int, right : Int) -> Int {
 }
 
 ///|
-fn bigpsl_copy_ints(values : Array[Int]) -> Array[Int] {
-  let copy : Array[Int] = []
+fn bigpsl_copy_ints(values : Array[Int32]) -> Array[Int32] {
+  let copy : Array[Int32] = []
   for value in values {
     copy.push(value)
   }
@@ -146,8 +188,8 @@ fn bigpsl_copy_ints(values : Array[Int]) -> Array[Int] {
 }
 
 ///|
-fn bigpsl_reverse_ints(values : Array[Int]) -> Array[Int] {
-  let reversed : Array[Int] = []
+fn bigpsl_reverse_ints(values : Array[Int32]) -> Array[Int32] {
+  let reversed : Array[Int32] = []
   let mut index = values.length()
   while index > 0 {
     index = index - 1
@@ -179,7 +221,7 @@ fn bigpsl_validate_text(
 ///|
 fn bigpsl_validate_sequence(
   sequence : String,
-  expected_size : Int,
+  expected_size : Int32,
   label : String,
 ) -> Unit raise BigPslError {
   if sequence.length() == 0 {
@@ -201,7 +243,7 @@ fn bigpsl_validate_sequence(
 }
 
 ///|
-fn bigpsl_type_code(sequence_type : BigPslSequenceType) -> Int {
+fn bigpsl_type_code(sequence_type : BigPslSequenceType) -> Int32 {
   match sequence_type {
     BigPslUnknown => 0
     BigPslNucleotide => 1
@@ -210,7 +252,7 @@ fn bigpsl_type_code(sequence_type : BigPslSequenceType) -> Int {
 }
 
 ///|
-fn bigpsl_type_from_code(code : Int) -> BigPslSequenceType raise BigPslError {
+fn bigpsl_type_from_code(code : Int32) -> BigPslSequenceType raise BigPslError {
   match code {
     0 => BigPslUnknown
     1 => BigPslNucleotide
@@ -224,9 +266,9 @@ fn bigpsl_type_from_code(code : Int) -> BigPslSequenceType raise BigPslError {
 
 ///|
 fn bigpsl_axis_direction(
-  coordinates : Array[Int],
+  coordinates : Array[Int32],
   label : String,
-) -> Int raise BigPslError {
+) -> Int32 raise BigPslError {
   let mut direction = 0
   for index in 0..<(coordinates.length() - 1) {
     let step = coordinates[index + 1] - coordinates[index]
@@ -247,10 +289,10 @@ fn bigpsl_axis_direction(
 
 ///|
 fn bigpsl_validate_coordinates(
-  target_size : Int,
-  query_size : Int,
-  target_coordinates : Array[Int],
-  query_coordinates : Array[Int],
+  target_size : Int32,
+  query_size : Int32,
+  target_coordinates : Array[Int32],
+  query_coordinates : Array[Int32],
   sequence_type : BigPslSequenceType,
 ) -> Unit raise BigPslError {
   if target_size <= 0 || query_size <= 0 {
@@ -328,8 +370,8 @@ fn bigpsl_validate_coordinates(
 
 ///|
 fn bigpsl_raw_blocks(
-  target_coordinates : Array[Int],
-  query_coordinates : Array[Int],
+  target_coordinates : Array[Int32],
+  query_coordinates : Array[Int32],
 ) -> Array[BigPslBlock] {
   let blocks : Array[BigPslBlock] = []
   for index in 0..<(target_coordinates.length() - 1) {
@@ -355,9 +397,9 @@ fn bigpsl_raw_blocks(
 
 ///|
 fn bigpsl_aligned_query_units(
-  target_coordinates : Array[Int],
-  query_coordinates : Array[Int],
-) -> Int {
+  target_coordinates : Array[Int32],
+  query_coordinates : Array[Int32],
+) -> Int32 {
   let mut total = 0
   for block in bigpsl_raw_blocks(target_coordinates, query_coordinates) {
     total = total + block.query_size
@@ -366,7 +408,7 @@ fn bigpsl_aligned_query_units(
 }
 
 ///|
-fn bigpsl_coordinate_interval(coordinates : Array[Int]) -> (Int, Int) {
+fn bigpsl_coordinate_interval(coordinates : Array[Int32]) -> (Int32, Int32) {
   let mut start = coordinates[0]
   let mut end = coordinates[0]
   for coordinate in coordinates {
@@ -379,22 +421,22 @@ fn bigpsl_coordinate_interval(coordinates : Array[Int]) -> (Int, Int) {
 ///|
 pub fn BigPslAlignment::create(
   target_name : String,
-  target_size : Int,
+  target_size : Int32,
   query_name : String,
-  query_size : Int,
-  target_coordinates : Array[Int],
-  query_coordinates : Array[Int],
-  sequence_type? : BigPslSequenceType = BigPslUnknown,
-  query_sequence? : String = "",
-  cds? : String = "",
-  score? : Int = 0,
-  thick_start? : Int = -1,
-  thick_end? : Int = -1,
-  item_rgb? : String = "0",
-  matches? : Int = -1,
-  mismatches? : Int = -1,
-  repeat_matches? : Int = -1,
-  n_count? : Int = -1,
+  query_size : Int32,
+  target_coordinates : Array[Int32],
+  query_coordinates : Array[Int32],
+  sequence_type~ : BigPslSequenceType = BigPslUnknown,
+  query_sequence~ : String = "",
+  cds~ : String = "",
+  score~ : Int32 = 0,
+  thick_start~ : Int32 = -1,
+  thick_end~ : Int32 = -1,
+  item_rgb~ : String = "0",
+  matches~ : Int32 = -1,
+  mismatches~ : Int32 = -1,
+  repeat_matches~ : Int32 = -1,
+  n_count~ : Int32 = -1,
 ) -> BigPslAlignment raise BigPslError {
   bigpsl_validate_text(target_name, "BigPsl target name", false)
   bigpsl_validate_text(query_name, "BigPsl query name", false)
@@ -474,11 +516,11 @@ pub fn BigPslAlignment::create(
 
 ///|
 pub fn BigPslWriteConfig::create(
-  compress? : Bool = true,
-  block_size? : Int = 256,
-  items_per_slot? : Int = 512,
-  store_query_sequence? : Bool = false,
-  store_cds? : Bool = false,
+  compress~ : Bool = true,
+  block_size~ : Int32 = 256,
+  items_per_slot~ : Int32 = 512,
+  store_query_sequence~ : Bool = false,
+  store_cds~ : Bool = false,
 ) -> BigPslWriteConfig raise BigPslError {
   if block_size < 2 || block_size > 65535 {
     bigpsl_fail("BigPsl blockSize must be between 2 and 65535")
@@ -512,12 +554,16 @@ pub fn BigPslAlignment::blocks(self : BigPslAlignment) -> Array[BigPslBlock] {
 }
 
 ///|
-pub fn BigPslAlignment::target_interval(self : BigPslAlignment) -> (Int, Int) {
+pub fn BigPslAlignment::target_interval(
+  self : BigPslAlignment,
+) -> (Int32, Int32) {
   bigpsl_coordinate_interval(self.target_coordinates)
 }
 
 ///|
-pub fn BigPslAlignment::query_interval(self : BigPslAlignment) -> (Int, Int) {
+pub fn BigPslAlignment::query_interval(
+  self : BigPslAlignment,
+) -> (Int32, Int32) {
   bigpsl_coordinate_interval(self.query_coordinates)
 }
 
@@ -567,8 +613,8 @@ pub fn BigPslAlignment::counts(self : BigPslAlignment) -> BigPslAlignmentCounts 
 ///|
 pub fn BigPslAlignment::target_to_query(
   self : BigPslAlignment,
-  position : Int,
-) -> Int? {
+  position : Int32,
+) -> Int32? {
   if position < 0 || position >= self.target_size {
     return None
   }
@@ -600,8 +646,8 @@ pub fn BigPslAlignment::target_to_query(
 ///|
 pub fn BigPslAlignment::query_to_target_interval(
   self : BigPslAlignment,
-  position : Int,
-) -> (Int, Int)? {
+  position : Int32,
+) -> (Int32, Int32)? {
   if position < 0 || position >= self.query_size {
     return None
   }
@@ -633,7 +679,7 @@ pub fn BigPslAlignment::query_to_target_interval(
 }
 
 ///|
-fn bigpsl_upper_code(code : Int) -> Int {
+fn bigpsl_upper_code(code : Int32) -> Int32 {
   if code >= 'a'.to_int() && code <= 'z'.to_int() {
     code - 32
   } else {
@@ -642,17 +688,17 @@ fn bigpsl_upper_code(code : Int) -> Int {
 }
 
 ///|
-fn bigpsl_is_lower(code : Int) -> Bool {
+fn bigpsl_is_lower(code : Int32) -> Bool {
   code >= 'a'.to_int() && code <= 'z'.to_int()
 }
 
 ///|
-fn bigpsl_is_upper(code : Int) -> Bool {
+fn bigpsl_is_upper(code : Int32) -> Bool {
   code >= 'A'.to_int() && code <= 'Z'.to_int()
 }
 
 ///|
-fn bigpsl_complement_code(code : Int) -> Int {
+fn bigpsl_complement_code(code : Int32) -> Int32 {
   match bigpsl_upper_code(code) {
     65 => 84 // A -> T
     67 => 71 // C -> G
@@ -676,8 +722,8 @@ pub fn BigPslAlignment::recount(
   self : BigPslAlignment,
   target_sequence : String,
   query_sequence : String,
-  mask? : BigPslMaskMode = BigPslNoMask,
-  wildcard? : Char = 'N',
+  mask~ : BigPslMaskMode = BigPslNoMask,
+  wildcard~ : Char = 'N',
 ) -> BigPslAlignment raise BigPslError {
   bigpsl_validate_sequence(
     target_sequence,
@@ -835,9 +881,9 @@ fn bigpsl_storage(alignment : BigPslAlignment) -> BigPslStorage {
       bigpsl_max(block.query_start, block.query_end),
     )
   }
-  let target_block_sizes : Array[Int] = []
-  let target_block_starts : Array[Int] = []
-  let other_block_starts : Array[Int] = []
+  let target_block_sizes : Array[Int32] = []
+  let target_block_starts : Array[Int32] = []
+  let other_block_starts : Array[Int32] = []
   for block in ordered {
     let target_minimum = bigpsl_min(block.target_start, block.target_end)
     let query_minimum = bigpsl_min(block.query_start, block.query_end)
@@ -866,8 +912,8 @@ fn bigpsl_storage(alignment : BigPslAlignment) -> BigPslStorage {
 }
 
 ///|
-fn bigpsl_join_ints(values : Array[Int], trailing : Bool) -> String {
-  let output = StringBuilder::new()
+fn bigpsl_join_ints(values : Array[Int32], trailing : Bool) -> String {
+  let output = StringBuilder()
   for index in 0..<values.length() {
     if index > 0 {
       output.write_char(',')
@@ -928,7 +974,11 @@ pub fn bigpsl_schema() -> BigBedSchema {
       comment: custom_comments[index],
     })
   }
-  BigBedSchema::{ name: "bigPsl", comment: "bigPsl pairwise alignment", fields }
+  BigBedSchema::{
+    name: "bigPsl",
+    comment: "bigPsl pairwise alignment",
+    fields,
+  }
 }
 
 ///|
@@ -942,7 +992,7 @@ fn bigpsl_custom_fields() -> Array[BigBedField] {
 }
 
 ///|
-fn bigpsl_target_index(targets : Array[BigBedTarget], name : String) -> Int {
+fn bigpsl_target_index(targets : Array[BigBedTarget], name : String) -> Int32 {
   for index in 0..<targets.length() {
     if targets[index].name == name {
       return index
@@ -980,8 +1030,8 @@ fn bigpsl_validated_copy(
 pub fn bigpsl_write(
   targets : Array[BigBedTarget],
   alignments : Array[BigPslAlignment],
-  config? : BigPslWriteConfig = BigPslWriteConfig::default(),
-) -> Array[Int] raise BigPslError {
+  config~ : BigPslWriteConfig = BigPslWriteConfig::default(),
+) -> Array[Int32] raise BigPslError {
   if targets.length() == 0 {
     bigpsl_fail("BigPsl requires at least one target")
   }
@@ -996,7 +1046,7 @@ pub fn bigpsl_write(
     }
   }
   let records : Array[BigBedRecord] = []
-  let target_order : Array[Int] = []
+  let target_order : Array[Int32] = []
   for source in alignments {
     let alignment = bigpsl_validated_copy(source)
     let target_index = bigpsl_target_index(targets, alignment.target_name)
@@ -1080,11 +1130,11 @@ pub fn bigpsl_write(
     records.push(record)
     target_order.push(target_index)
   }
-  let order : Array[Int] = []
+  let order : Array[Int32] = []
   for index in 0..<records.length() {
     order.push(index)
   }
-  order.sort_by(fn(left : Int, right : Int) -> Int {
+  order.sort_by(fn(left : Int32, right : Int32) -> Int32 {
     if target_order[left] < target_order[right] {
       -1
     } else if target_order[left] > target_order[right] {
@@ -1128,7 +1178,7 @@ pub fn bigpsl_write(
 }
 
 ///|
-fn bigpsl_parse_int(value : String, label : String) -> Int raise BigPslError {
+fn bigpsl_parse_int(value : String, label : String) -> Int32 raise BigPslError {
   if value.length() == 0 {
     bigpsl_fail("Missing integer for " + label)
   }
@@ -1145,11 +1195,11 @@ fn bigpsl_parse_int(value : String, label : String) -> Int raise BigPslError {
 fn bigpsl_split_csv(
   value : String,
   label : String,
-) -> Array[Int] raise BigPslError {
+) -> Array[Int32] raise BigPslError {
   if value.length() == 0 {
     return []
   }
-  let values : Array[Int] = []
+  let values : Array[Int32] = []
   let mut start = 0
   for index in 0..<=value.length() {
     if index == value.length() ||
@@ -1246,10 +1296,10 @@ fn bigpsl_decode_record(
     stored_query_starts.length() != block_count {
     bigpsl_fail("BigPsl block arrays disagree with blockCount")
   }
-  let target_starts : Array[Int] = []
-  let target_block_sizes : Array[Int] = []
-  let query_block_sizes : Array[Int] = []
-  let query_starts : Array[Int] = []
+  let target_starts : Array[Int32] = []
+  let target_block_sizes : Array[Int32] = []
+  let query_block_sizes : Array[Int32] = []
+  let query_starts : Array[Int32] = []
   for index in 0..<block_count {
     let target_block_size = record.block_sizes[index]
     let query_block_size = match sequence_type {
@@ -1278,8 +1328,8 @@ fn bigpsl_decode_record(
     normalized_target_sizes,
     normalized_query_sizes,
   ) = if other_strand == "-" && record.strand == "-" {
-    let transformed_targets : Array[Int] = []
-    let transformed_queries : Array[Int] = []
+    let transformed_targets : Array[Int32] = []
+    let transformed_queries : Array[Int32] = []
     for index in 0..<block_count {
       transformed_targets.push(
         target_size - target_starts[index] - target_block_sizes[index],
@@ -1297,8 +1347,8 @@ fn bigpsl_decode_record(
   } else {
     (target_starts, query_starts, target_block_sizes, query_block_sizes)
   }
-  let target_coordinates : Array[Int] = []
-  let query_coordinates : Array[Int] = []
+  let target_coordinates : Array[Int32] = []
+  let query_coordinates : Array[Int32] = []
   let mut target_position = normalized_target_starts[0]
   let mut query_position = normalized_query_starts[0]
   target_coordinates.push(target_position)
@@ -1366,7 +1416,7 @@ fn bigpsl_decode_record(
 }
 
 ///|
-pub fn bigpsl_parse(data : Array[Int]) -> BigPslFile raise BigPslError {
+pub fn bigpsl_parse(data : Array[Int32]) -> BigPslFile raise BigPslError {
   let bed = bigbed_parse(data) catch {
     BigBedError(message) => {
       bigpsl_fail("BigBed: " + message)
@@ -1427,8 +1477,8 @@ pub fn BigPslFile::alignments(
 pub fn BigPslFile::search(
   self : BigPslFile,
   target : String,
-  start? : Int = 0,
-  end? : Int = -1,
+  start~ : Int32 = 0,
+  end~ : Int32 = -1,
 ) -> Array[BigPslAlignment] raise BigPslError {
   let records = self.bed.search(target, start~, end~) catch {
     BigBedError(message) => {
@@ -1486,9 +1536,9 @@ pub fn BigPslAlignment::to_psl(self : BigPslAlignment) -> String {
   } else {
     "+"
   }
-  let block_sizes : Array[Int] = []
-  let query_starts : Array[Int] = []
-  let target_starts : Array[Int] = []
+  let block_sizes : Array[Int32] = []
+  let query_starts : Array[Int32] = []
+  let target_starts : Array[Int32] = []
   for block in blocks {
     block_sizes.push(block.query_size)
     let query_minimum = bigpsl_min(block.query_start, block.query_end)
@@ -1558,7 +1608,7 @@ pub fn BigPslAlignment::to_psl(self : BigPslAlignment) -> String {
 
 ///|
 pub fn BigPslFile::to_psl(self : BigPslFile) -> String raise BigPslError {
-  let output = StringBuilder::new()
+  let output = StringBuilder()
   for alignment in self.alignments() {
     output.write_string(alignment.to_psl())
   }
@@ -1626,13 +1676,13 @@ pub fn bigpsl_example_data() -> (Array[BigBedTarget], Array[BigPslAlignment]) ra
     BigBedTarget::create("chr1", 1000) catch {
       BigBedError(message) => {
         bigpsl_fail("BigBed: " + message)
-        BigBedTarget::{ name: "chr1", length: 1000 }
+        BigBedTarget::{ name: "chr1", length: 1000, }
       }
     },
     BigBedTarget::create("chr2", 800) catch {
       BigBedError(message) => {
         bigpsl_fail("BigBed: " + message)
-        BigBedTarget::{ name: "chr2", length: 800 }
+        BigBedTarget::{ name: "chr2", length: 800, }
       }
     },
   ]

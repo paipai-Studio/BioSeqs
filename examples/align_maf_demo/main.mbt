@@ -1,6 +1,6 @@
 ///|
-fn maf_integer_array_text(values : Array[Int]) -> String {
-  let output = StringBuilder::new()
+fn maf_integer_array_text(values : Array[Int32]) -> String {
+  let output = StringBuilder()
   output.write_char('[')
   for index = 0; index < values.length(); index = index + 1 {
     if index > 0 {

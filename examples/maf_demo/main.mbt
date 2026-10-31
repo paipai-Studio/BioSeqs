@@ -1,7 +1,6 @@
 ///|
 /// MAF (Multiple Alignment Format) Demo.
 /// Demonstrates parsing, writing, and analyzing MAF alignment data.
-
 fn main {
   println("=== MAF (Multiple Alignment Format) Demo ===\n")
 
@@ -24,7 +23,7 @@ fn main {
   println("   Number of blocks: \{@src.maf_num_blocks(ali)}")
   println("   Total alignment length: \{@src.maf_total_length(ali)} columns")
   let seq_names = @src.maf_all_seq_names(ali)
-  println("   Sequences: \{seq_names}")
+  println("   Sequences: \{Repr(seq_names)}")
 
   println("\n2. Calculating percent identity per block...")
   let mut i = 0
@@ -33,7 +32,9 @@ fn main {
     let identity = @src.maf_block_percent_identity(block)
     let n_seqs = @src.maf_block_num_seqs(block)
     let aln_len = @src.maf_block_alignment_length(block)
-    println("   Block \{i}: %identity = \{identity}%, seqs = \{n_seqs}, columns = \{aln_len}")
+    println(
+      "   Block \{i}: %identity = \{identity}%, seqs = \{n_seqs}, columns = \{aln_len}",
+    )
     i = i + 1
   }
 
@@ -46,14 +47,16 @@ fn main {
   let selected = @src.maf_select_seqs(ali, ["human.chr1", "mouse.chr1"])
   println("   Selected blocks: \{@src.maf_num_blocks(selected)}")
   let sel_names = @src.maf_all_seq_names(selected)
-  println("   Selected sequences: \{sel_names}")
+  println("   Selected sequences: \{Repr(sel_names)}")
   let avg_id_sel = @src.maf_average_percent_identity(selected)
   println("   Average percent identity (selected): \{avg_id_sel}%")
 
   println("\n5. Filtering by minimum alignment length...")
   let filtered = @src.maf_filter_by_length(ali, 10)
   println("   Original blocks: \{@src.maf_num_blocks(ali)}")
-  println("   Filtered blocks (min length 10): \{@src.maf_num_blocks(filtered)}")
+  println(
+    "   Filtered blocks (min length 10): \{@src.maf_num_blocks(filtered)}",
+  )
   let mut j = 0
   while j < filtered.blocks.length() {
     let block = filtered.blocks[j]

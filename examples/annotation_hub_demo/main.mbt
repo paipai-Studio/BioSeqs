@@ -35,7 +35,7 @@ fn main {
 
   println("\n5. Get resource by ID (AH12345):")
   let resource = @src.annotation_hub_get_resource(hub, "AH12345")
-  if resource.is_some() {
+  if resource is Some(_) {
     println(resource.unwrap().to_string())
   }
 

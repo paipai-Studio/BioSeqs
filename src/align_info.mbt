@@ -5,21 +5,21 @@
 ///|
 /// Column-wise statistics for a multiple sequence alignment.
 pub struct AlignmentColumn {
-  column_index : Int
-  counts : Map[Char, Int]
-  gap_count : Int
-  total_count : Int
+  column_index : Int32
+  counts : Map[Char, Int32]
+  gap_count : Int32
+  total_count : Int32
 }
 
 ///|
 /// Construct AlignmentColumn.
 pub fn AlignmentColumn::new(
-  column_index~ : Int,
-  counts~ : Map[Char, Int],
-  gap_count~ : Int,
-  total_count~ : Int,
+  column_index~ : Int32,
+  counts~ : Map[Char, Int32],
+  gap_count~ : Int32,
+  total_count~ : Int32,
 ) -> AlignmentColumn {
-  AlignmentColumn::{ column_index, counts, gap_count, total_count }
+  AlignmentColumn::{ column_index, counts, gap_count, total_count, }
 }
 
 ///|
@@ -88,7 +88,7 @@ pub fn AlignmentColumn::shannon_entropy(self : AlignmentColumn) -> Double {
 /// Check if this column is conserved (all residues are the same).
 pub fn AlignmentColumn::is_conserved(
   self : AlignmentColumn,
-  min_conservation? : Double = 1.0,
+  min_conservation~ : Double = 1.0,
 ) -> Bool {
   self.consensus_fraction() >= min_conservation
 }
@@ -104,10 +104,10 @@ pub fn calc_column_statistics(
   }
   let n_cols = alignments[0].length()
   let n_seqs = alignments.length()
-  let result : Array[AlignmentColumn] = Array::new()
+  let result : Array[AlignmentColumn] = Array(capacity=0)
   let mut col_idx = 0
   while col_idx < n_cols {
-    let counts : Map[Char, Int] = Map([], capacity=16)
+    let counts : Map[Char, Int32] = Map([], capacity=16)
     let mut gap_count = 0
     let mut row_idx = 0
     while row_idx < n_seqs {
@@ -152,7 +152,7 @@ pub fn alignment_consensus(alignments : Array[String]) -> String {
 /// Non-majority positions are replaced with ambiguity character.
 pub fn majority_sequence(
   alignments : Array[String],
-  ambiguity_char? : Char = 'N',
+  ambiguity_char~ : Char = 'N',
 ) -> String {
   let cols = calc_column_statistics(alignments)
   let mut result = ""
@@ -170,7 +170,7 @@ pub fn majority_sequence(
 /// Non-conserved positions are replaced with ambiguity character.
 pub fn strict_consensus(
   alignments : Array[String],
-  ambiguity_char? : Char = 'N',
+  ambiguity_char~ : Char = 'N',
 ) -> String {
   let cols = calc_column_statistics(alignments)
   let mut result = ""
@@ -189,9 +189,9 @@ pub fn strict_consensus(
 /// Returns array of (column_index, consensus_residue, conservation_fraction).
 pub fn find_conserved_positions(
   alignments : Array[String],
-  min_conservation? : Double = 0.8,
-) -> Array[(Int, Char, Double)] {
-  let result : Array[(Int, Char, Double)] = Array::new()
+  min_conservation~ : Double = 0.8,
+) -> Array[(Int32, Char, Double)] {
+  let result : Array[(Int32, Char, Double)] = Array(capacity=0)
   let cols = calc_column_statistics(alignments)
   for col in cols {
     let frac = col.consensus_fraction()
@@ -207,9 +207,9 @@ pub fn find_conserved_positions(
 /// Returns array of (column_index, shannon_entropy).
 pub fn find_variable_positions(
   alignments : Array[String],
-  max_conservation? : Double = 0.5,
-) -> Array[(Int, Double)] {
-  let result : Array[(Int, Double)] = Array::new()
+  max_conservation~ : Double = 0.5,
+) -> Array[(Int32, Double)] {
+  let result : Array[(Int32, Double)] = Array(capacity=0)
   let cols = calc_column_statistics(alignments)
   for col in cols {
     let frac = col.consensus_fraction()
@@ -241,7 +241,7 @@ pub fn entropy_profile(alignments : Array[String]) -> Array[Double] {
 pub fn pairwise_identity(
   alignments : Array[String],
 ) -> Array[(String, String, Double)] {
-  let result : Array[(String, String, Double)] = Array::new()
+  let result : Array[(String, String, Double)] = Array(capacity=0)
   let n = alignments.length()
   let mut i = 0
   while i < n {
@@ -286,74 +286,4 @@ pub fn sequence_identity(seq1 : String, seq2 : String) -> Double {
   } else {
     identical.to_double() / total.to_double() * 100.0
   }
-}
-
-///|
-/// Calculate the average pairwise identity across all sequences.
-pub fn average_pairwise_identity(alignments : Array[String]) -> Double {
-  let n = alignments.length()
-  if n < 2 {
-    return 0.0
-  }
-  let pairs = pairwise_identity(alignments)
-  let mut total = 0.0
-  for p in pairs {
-    total = total + p.2
-  }
-  total / pairs.length().to_double()
-}
-
-///|
-/// Calculate the number of parsimony-informative sites.
-/// A site is parsimony-informative if it has at least 2 different residues,
-/// each appearing in at least 2 sequences.
-pub fn count_parsimony_informative_sites(alignments : Array[String]) -> Int {
-  let cols = calc_column_statistics(alignments)
-  let mut count = 0
-  for col in cols {
-    if col.gap_count == 0 {
-      let mut num_residues = 0
-      let mut has_two_or_more = false
-      for kv in col.counts {
-        num_residues = num_residues + 1
-        if kv.1 >= 2 {
-          has_two_or_more = true
-        }
-      }
-      if num_residues >= 2 && has_two_or_more {
-        count = count + 1
-      }
-    }
-  }
-  count
-}
-
-///|
-/// Calculate GC content profile across alignment columns.
-pub fn gc_content_profile(alignments : Array[String]) -> Array[Double] {
-  let cols = calc_column_statistics(alignments)
-  cols.map(fn(col) {
-    let g = col.counts.get('G').unwrap_or(0)
-    let c = col.counts.get('C').unwrap_or(0)
-    let total = col.total_count
-    if total == 0 {
-      0.0
-    } else {
-      (g + c).to_double() / total.to_double() * 100.0
-    }
-  })
-}
-
-///|
-/// Create a demo multiple sequence alignment.
-pub fn create_demo_alignment() -> Array[String] {
-  ["ATCGATCGATCG", "ATCGATCGATCG", "ATCGATCGATCG", "ATCGATCGATCG"]
-}
-
-///|
-/// Create a demo alignment with some variation.
-pub fn create_demo_alignment_varied() -> Array[String] {
-  [
-    "ATCGATCGATCG", "ATCGATCGATCG", "ATCGATGGATCG", "ATCGATCGATCA", "ATCGATCGATCG",
-  ]
 }

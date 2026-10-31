@@ -38,7 +38,7 @@ pub fn KgmlGraphics::new(
   fgcolor : String,
   bgcolor : String,
 ) -> KgmlGraphics {
-  { x, y, width, height, gtype, name, fgcolor, bgcolor }
+  { x, y, width, height, gtype, name, fgcolor, bgcolor, }
 }
 
 ///|
@@ -92,24 +92,24 @@ pub fn KgmlGraphics::bgcolor(self : KgmlGraphics) -> String {
 ///|
 /// A pathway entry (node): gene, compound, enzyme, map, etc.
 pub struct KgmlEntry {
-  id : Int
+  id : Int32
   name : String
   etype : String
   mut reaction : String
   mut link : String
   mut graphics : KgmlGraphics?
-  components : Array[Int]
+  components : Array[Int32]
 }
 
 ///|
 /// Create a pathway entry.
-pub fn KgmlEntry::new(id : Int, name : String, etype : String) -> KgmlEntry {
-  { id, name, etype, reaction: "", link: "", graphics: None, components: [] }
+pub fn KgmlEntry::new(id : Int32, name : String, etype : String) -> KgmlEntry {
+  { id, name, etype, reaction: "", link: "", graphics: None, components: [], }
 }
 
 ///|
 /// Get entry ID.
-pub fn KgmlEntry::id(self : KgmlEntry) -> Int {
+pub fn KgmlEntry::id(self : KgmlEntry) -> Int32 {
   self.id
 }
 
@@ -145,7 +145,7 @@ pub fn KgmlEntry::graphics(self : KgmlEntry) -> KgmlGraphics? {
 
 ///|
 /// Get component entry IDs.
-pub fn KgmlEntry::components(self : KgmlEntry) -> Array[Int] {
+pub fn KgmlEntry::components(self : KgmlEntry) -> Array[Int32] {
   self.components
 }
 
@@ -159,7 +159,7 @@ pub struct KgmlSubType {
 ///|
 /// Create a relation subtype.
 pub fn KgmlSubType::new(name : String, value : String) -> KgmlSubType {
-  { name, value }
+  { name, value, }
 }
 
 ///|
@@ -177,8 +177,8 @@ pub fn KgmlSubType::value(self : KgmlSubType) -> String {
 ///|
 /// A relation between two pathway entries.
 pub struct KgmlRelation {
-  entry1 : Int
-  entry2 : Int
+  entry1 : Int32
+  entry2 : Int32
   rtype : String
   subtypes : Array[KgmlSubType]
 }
@@ -186,22 +186,22 @@ pub struct KgmlRelation {
 ///|
 /// Create a relation.
 pub fn KgmlRelation::new(
-  entry1 : Int,
-  entry2 : Int,
+  entry1 : Int32,
+  entry2 : Int32,
   rtype : String,
 ) -> KgmlRelation {
-  { entry1, entry2, rtype, subtypes: [] }
+  { entry1, entry2, rtype, subtypes: [], }
 }
 
 ///|
 /// Get source entry ID.
-pub fn KgmlRelation::entry1(self : KgmlRelation) -> Int {
+pub fn KgmlRelation::entry1(self : KgmlRelation) -> Int32 {
   self.entry1
 }
 
 ///|
 /// Get target entry ID.
-pub fn KgmlRelation::entry2(self : KgmlRelation) -> Int {
+pub fn KgmlRelation::entry2(self : KgmlRelation) -> Int32 {
   self.entry2
 }
 
@@ -229,7 +229,7 @@ pub struct KgmlReaction {
 ///|
 /// Create a reaction.
 pub fn KgmlReaction::new(name : String, rtype : String) -> KgmlReaction {
-  { name, rtype, substrates: [], products: [] }
+  { name, rtype, substrates: [], products: [], }
 }
 
 ///|
@@ -347,7 +347,7 @@ pub fn KgmlPathway::reactions(self : KgmlPathway) -> Array[KgmlReaction] {
 
 ///|
 /// Get entry by ID.
-pub fn KgmlPathway::get_entry(self : KgmlPathway, id : Int) -> KgmlEntry? {
+pub fn KgmlPathway::get_entry(self : KgmlPathway, id : Int32) -> KgmlEntry? {
   for e in self.entries {
     if e.id == id {
       return Some(e)
@@ -375,7 +375,7 @@ pub fn KgmlPathway::get_entries_by_type(
 /// Get all relations involving a specific entry ID.
 pub fn KgmlPathway::get_relations_for_entry(
   self : KgmlPathway,
-  id : Int,
+  id : Int32,
 ) -> Array[KgmlRelation] {
   let result : Array[KgmlRelation] = []
   for r in self.relations {
@@ -392,7 +392,7 @@ pub fn KgmlPathway::get_relations_for_entry(
 
 ///|
 /// Find substring starting from a given position. Returns byte offset or None.
-fn kgml_find_from(s : String, sub : String, from : Int) -> Int? {
+fn kgml_find_from(s : String, sub : String, from : Int32) -> Int32? {
   let n = s.length()
   let sub_len = sub.length()
   if sub_len == 0 || from >= n {
@@ -448,7 +448,7 @@ fn kgml_attr(tag : String, attr_name : String) -> String {
 
 ///|
 /// Parse an integer from a string, returning default on failure.
-fn kgml_parse_int(s : String, default : Int) -> Int {
+fn kgml_parse_int(s : String, default : Int32) -> Int32 {
   if s.length() == 0 {
     return default
   }
@@ -476,7 +476,7 @@ fn kgml_parse_double(s : String, default : Double) -> Double {
 
 ///|
 /// Extract an integer XML attribute, returns default if not found.
-fn kgml_attr_int(tag : String, attr_name : String, default : Int) -> Int {
+fn kgml_attr_int(tag : String, attr_name : String, default : Int32) -> Int32 {
   kgml_parse_int(kgml_attr(tag, attr_name), default)
 }
 
@@ -545,7 +545,7 @@ pub fn parse_kgml(content : String) -> KgmlPathway? {
 /// Parse child elements of <pathway>.
 fn kgml_parse_children(
   content : String,
-  start : Int,
+  start : Int32,
   entries : Array[KgmlEntry],
   relations : Array[KgmlRelation],
   reactions : Array[KgmlReaction],
@@ -614,8 +614,8 @@ fn kgml_parse_children(
 /// Parse an <entry> element.
 fn kgml_parse_entry(
   content : String,
-  lt_pos : Int,
-  gt_pos : Int,
+  lt_pos : Int32,
+  gt_pos : Int32,
   self_closing : Bool,
 ) -> KgmlEntry {
   let tag = content[lt_pos:gt_pos].to_owned()
@@ -677,8 +677,8 @@ fn kgml_parse_graphics(tag : String) -> KgmlGraphics {
 /// Parse a <relation> element and its <subtype> children.
 fn kgml_parse_relation(
   content : String,
-  lt_pos : Int,
-  gt_pos : Int,
+  lt_pos : Int32,
+  gt_pos : Int32,
   self_closing : Bool,
 ) -> KgmlRelation {
   let tag = content[lt_pos:gt_pos].to_owned()
@@ -718,8 +718,8 @@ fn kgml_parse_relation(
 /// Parse a <reaction> element and its substrate/product children.
 fn kgml_parse_reaction(
   content : String,
-  lt_pos : Int,
-  gt_pos : Int,
+  lt_pos : Int32,
+  gt_pos : Int32,
   self_closing : Bool,
 ) -> KgmlReaction {
   let tag = content[lt_pos:gt_pos].to_owned()

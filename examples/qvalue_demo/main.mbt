@@ -4,8 +4,9 @@
 /// pi0 estimation, bootstrap inference, and comparison
 /// with the Benjamini-Hochberg procedure.
 
+///|
 /// Format a Double to a String with a given number of decimal places.
-fn fmt(value : Double, decimals : Int) -> String {
+fn fmt(value : Double, decimals : Int32) -> String {
   let s = value.to_string()
   let parts = s.split(".").to_array()
   let int_part = if parts.length() > 0 { parts[0].to_owned() } else { "0" }
@@ -21,6 +22,7 @@ fn fmt(value : Double, decimals : Int) -> String {
   int_part + "." + padded_frac
 }
 
+///|
 /// Simple Benjamini-Hochberg FDR correction for comparison.
 fn benjamini_hochberg(p_values : Array[Double]) -> Array[Double] {
   let n = p_values.length()
@@ -28,15 +30,21 @@ fn benjamini_hochberg(p_values : Array[Double]) -> Array[Double] {
     return []
   }
 
-  let indexed : Array[Array[Double]] = Array::new()
+  let indexed : Array[Array[Double]] = Array(capacity=0)
   let mut i = 0
   while i < n {
     indexed.push([p_values[i], i.to_double()])
     i = i + 1
   }
 
-  indexed.sort_by(fn(a : Array[Double], b : Array[Double]) -> Int {
-    if a[0] < b[0] { -1 } else if a[0] > b[0] { 1 } else { 0 }
+  indexed.sort_by(fn(a : Array[Double], b : Array[Double]) -> Int32 {
+    if a[0] < b[0] {
+      -1
+    } else if a[0] > b[0] {
+      1
+    } else {
+      0
+    }
   })
 
   let adj_sorted : Array[Double] = Array::make(n, 1.0)
@@ -64,17 +72,14 @@ fn benjamini_hochberg(p_values : Array[Double]) -> Array[Double] {
   result
 }
 
+///|
 fn main raise {
   println("=== QValue Module Demo ===\n")
 
   let p_values = [
-    0.0001, 0.0005, 0.001, 0.002, 0.005,
-    0.01, 0.02, 0.03, 0.04, 0.05,
-    0.06, 0.07, 0.08, 0.09, 0.10,
-    0.15, 0.20, 0.25, 0.30, 0.35,
-    0.40, 0.45, 0.50, 0.55, 0.60,
-    0.65, 0.70, 0.75, 0.80, 0.85,
-    0.90, 0.95, 0.98,
+    0.0001, 0.0005, 0.001, 0.002, 0.005, 0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07,
+    0.08, 0.09, 0.10, 0.15, 0.20, 0.25, 0.30, 0.35, 0.40, 0.45, 0.50, 0.55, 0.60,
+    0.65, 0.70, 0.75, 0.80, 0.85, 0.90, 0.95, 0.98,
   ]
 
   println("Input p-values (\{p_values.length()} tests):")
@@ -111,7 +116,9 @@ fn main raise {
     println("    lambda = \{fmt(lambdas[li], 2)}  ->  pi0 = \{fmt(pi0_est, 4)}")
     li = li + 1
   }
-  println("  Final pi0 (auto-selected lambda = \{result.lambda}): \{result.pi0}")
+  println(
+    "  Final pi0 (auto-selected lambda = \{result.lambda}): \{result.pi0}",
+  )
 
   // ---------------------------------------------------------------------------
   // 3. Bootstrap pi0 estimation
@@ -138,7 +145,9 @@ fn main raise {
     si = si + 1
   }
   println("    Significant: \{sig_count_05} / \{p_values.length()}")
-  println("    Not significant: \{p_values.length() - sig_count_05} / \{p_values.length()}")
+  println(
+    "    Not significant: \{p_values.length() - sig_count_05} / \{p_values.length()}",
+  )
 
   println("\n  Significance at q-value <= 0.01:")
   let sig_01 = @src.qvalue_significance(result, 0.01)
@@ -168,7 +177,9 @@ fn main raise {
   println("\n  Per-test significance (alpha=0.05):")
   let mut sti = 0
   while sti < p_values.length() {
-    println("    Test \{sti}: p=\{fmt(p_values[sti], 4)}, q=\{fmt(q_vals[sti], 4)}, significant=\{sig_05[sti]}")
+    println(
+      "    Test \{sti}: p=\{fmt(p_values[sti], 4)}, q=\{fmt(q_vals[sti], 4)}, significant=\{sig_05[sti]}",
+    )
     sti = sti + 1
   }
 
@@ -224,7 +235,9 @@ fn main raise {
   let custom_q = result_custom.q_values
   let mut cj = 0
   while cj < p_values.length() {
-    println("      p = \{fmt(p_values[cj], 4)}  ->  q = \{fmt(custom_q[cj], 4)}")
+    println(
+      "      p = \{fmt(p_values[cj], 4)}  ->  q = \{fmt(custom_q[cj], 4)}",
+    )
     cj = cj + 1
   }
 
@@ -245,18 +258,26 @@ fn main raise {
     mi = mi + 1
   }
   let pi0_smooth = @src.qvalue_pi0est(mix_p)
-  let pi0_boot = @src.qvalue_pi0est(mix_p, method="bootstrap")
-  println("  smoother  pi0 = \{fmt(pi0_smooth.pi0(), 4)} (cubic spline, df = 3)")
-  println("  bootstrap pi0 = \{fmt(pi0_boot.pi0(), 4)} (closed-form MSE, deterministic)")
+  let pi0_boot = @src.qvalue_pi0est(mix_p, method_="bootstrap")
+  println(
+    "  smoother  pi0 = \{fmt(pi0_smooth.pi0(), 4)} (cubic spline, df = 3)",
+  )
+  println(
+    "  bootstrap pi0 = \{fmt(pi0_boot.pi0(), 4)} (closed-form MSE, deterministic)",
+  )
   println("  pi0(lambda) path at selected lambdas:")
   let path = pi0_smooth.pi0_lambda()
   let lams_out = pi0_smooth.lambdas()
   let mut pi4 = 0
   while pi4 < 4 {
-    println("    lambda = \{fmt(lams_out[pi4], 2)} -> pi0 = \{fmt(path[pi4], 4)}")
+    println(
+      "    lambda = \{fmt(lams_out[pi4], 2)} -> pi0 = \{fmt(path[pi4], 4)}",
+    )
     pi4 = pi4 + 1
   }
-  println("    lambda = \{fmt(lams_out[18], 2)} -> pi0 = \{fmt(path[18], 4)} (spline endpoint)")
+  println(
+    "    lambda = \{fmt(lams_out[18], 2)} -> pi0 = \{fmt(path[18], 4)} (spline endpoint)",
+  )
 
   // ---------------------------------------------------------------------------
   // 7. Local FDR (lfdr): probit transform + Gaussian KDE
@@ -277,12 +298,17 @@ fn main raise {
   println("\n8. Empirical p-values (empPvals) from test statistics:")
   let ep = @src.empirical_pvalues([2.0, 5.0], [1.0, 2.0, 3.0, 4.0])
   println("  pooled:   stat = [2, 5], stat0 = [1, 2, 3, 4]")
-  println("            p = [\{fmt(ep[0], 3)}, \{fmt(ep[1], 3)}] (ties: observed first; floor 1/m0 = 0.25)")
+  println(
+    "            p = [\{fmt(ep[0], 3)}, \{fmt(ep[1], 3)}] (ties: observed first; floor 1/m0 = 0.25)",
+  )
   let epr = @src.empirical_pvalues_rows([2.0, 5.0], [
-    [1.0, 2.0, 3.0, 4.0], [1.0, 2.0, 3.0, 4.0]
+    [1.0, 2.0, 3.0, 4.0],
+    [1.0, 2.0, 3.0, 4.0],
   ])
   println("  per-test: each statistic vs its own 4 nulls")
-  println("            p = [\{fmt(epr[0], 3)}, \{fmt(epr[1], 3)}] (3/4 = 0.75; 0/4 floored to 1/4 = 0.25)")
+  println(
+    "            p = [\{fmt(epr[0], 3)}, \{fmt(epr[1], 3)}] (3/4 = 0.75; 0/4 floored to 1/4 = 0.25)",
+  )
 
   // ---------------------------------------------------------------------------
   // 9. Full qvalue() analysis: pfdr correction and fdr.level significance
@@ -303,8 +329,12 @@ fn main raise {
     qi = qi + 1
   }
   println("  pi0 = \{fmt(qa.pi0(), 4)}, method = \{qa.pi0_method()}")
-  println("  calls at FDR <= 0.05: \{n_sig} (plain q-value), \{n_sig_pfdr} (pFDR corrected)")
-  println("  q at smallest p: plain = \{fmt(qa.q_values()[0], 4)}, pfdr = \{fmt(qaf.q_values()[0], 4)}")
+  println(
+    "  calls at FDR <= 0.05: \{n_sig} (plain q-value), \{n_sig_pfdr} (pFDR corrected)",
+  )
+  println(
+    "  q at smallest p: plain = \{fmt(qa.q_values()[0], 4)}, pfdr = \{fmt(qaf.q_values()[0], 4)}",
+  )
   println(
     "  q at largest  p: plain = \{fmt(qa.q_values()[n_mix - 1], 4)}, pfdr = \{fmt(qaf.q_values()[n_mix - 1], 4)}",
   )

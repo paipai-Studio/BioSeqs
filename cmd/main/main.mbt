@@ -14,7 +14,7 @@ struct Case {
 ///|
 /// Helper to record a case result.
 fn record(cases : Array[Case], name : String, result : String) -> Unit {
-  cases.push(Case::{ name, result })
+  cases.push(Case::{ name, result, })
 }
 
 ///|
@@ -27,7 +27,7 @@ fn record_bool(cases : Array[Case], name : String, result : Bool) -> Unit {
 /// Run every test case and return the list of results, mirroring
 /// tests/python_reference.py.
 fn run_cases() -> Array[Case] {
-  let cases = Array::new()
+  let cases = Array(capacity=0)
   let s = @lib.Seq::new("ATGGCCATTGTAATGGGCCGCTGAAAGGGTGCCCGATAG")
 
   // --- Basic construction ---
@@ -258,7 +258,7 @@ fn main {
   // Run the Seq comparison tests (JSON array output for compare.sh)
   let cases = run_cases()
   // Output as JSON array
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_char('[')
   for i, c in cases {
     if i > 0 {

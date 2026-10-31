@@ -36,6 +36,9 @@ pub enum MmtfSecStruct {
 } derive(Eq)
 
 ///|
+pub extend MmtfSecStruct with Eq::{equal, not_equal}
+
+///|
 /// Convert a secondary structure code to its string name.
 pub fn MmtfSecStruct::to_string(self : MmtfSecStruct) -> String {
   match self {
@@ -53,7 +56,7 @@ pub fn MmtfSecStruct::to_string(self : MmtfSecStruct) -> String {
 
 ///|
 /// Parse a secondary structure code from an integer.
-pub fn MmtfSecStruct::from_int(code : Int) -> MmtfSecStruct {
+pub fn MmtfSecStruct::from_int(code : Int32) -> MmtfSecStruct {
   match code {
     0 => MmtfSecPpiHelix
     1 => MmtfSecBend
@@ -70,31 +73,31 @@ pub fn MmtfSecStruct::from_int(code : Int) -> MmtfSecStruct {
 ///|
 /// An atom in an MMTF structure.
 pub struct MmtfAtom {
-  pub name : String // e.g. "CA", "N", "O"
-  pub serial : Int
-  pub alt_loc_id : String // alternative location identifier
-  pub x : Double
-  pub y : Double
-  pub z : Double
-  pub occupancy : Double
-  pub b_factor : Double // temperature factor
-  pub element : String // e.g. "C", "N", "O"
-  pub charge : Int // formal charge
+  name : String // e.g. "CA", "N", "O"
+  serial : Int32
+  alt_loc_id : String // alternative location identifier
+  x : Double
+  y : Double
+  z : Double
+  occupancy : Double
+  b_factor : Double // temperature factor
+  element : String // e.g. "C", "N", "O"
+  charge : Int32 // formal charge
 }
 
 ///|
 /// Construct an MmtfAtom.
 pub fn MmtfAtom::new(
   name~ : String,
-  serial~ : Int,
-  alt_loc_id? : String = "",
+  serial~ : Int32,
+  alt_loc_id~ : String = "",
   x~ : Double,
   y~ : Double,
   z~ : Double,
-  occupancy? : Double = 1.0,
-  b_factor? : Double = 0.0,
-  element? : String = "",
-  charge? : Int = 0,
+  occupancy~ : Double = 1.0,
+  b_factor~ : Double = 0.0,
+  element~ : String = "",
+  charge~ : Int32 = 0,
 ) -> MmtfAtom {
   MmtfAtom::{
     name,
@@ -113,13 +116,13 @@ pub fn MmtfAtom::new(
 ///|
 /// A group (residue) in an MMTF structure.
 pub struct MmtfGroup {
-  pub group_name : String // e.g. "ALA", "GLY", "HOH"
-  pub group_number : Int // residue number
-  pub insertion_code : String
-  pub group_type : String // chemcomp type
-  pub single_letter_code : String // one-letter amino acid code
-  pub sec_struct : MmtfSecStruct
-  pub sequence_index : Int
+  group_name : String // e.g. "ALA", "GLY", "HOH"
+  group_number : Int32 // residue number
+  insertion_code : String
+  group_type : String // chemcomp type
+  single_letter_code : String // one-letter amino acid code
+  sec_struct : MmtfSecStruct
+  sequence_index : Int32
   atoms : Array[MmtfAtom]
 }
 
@@ -127,12 +130,12 @@ pub struct MmtfGroup {
 /// Construct an MmtfGroup.
 pub fn MmtfGroup::new(
   group_name~ : String,
-  group_number~ : Int,
-  insertion_code? : String = "",
-  group_type? : String = "",
-  single_letter_code? : String = "",
-  sec_struct? : MmtfSecStruct = MmtfSecUndefined,
-  sequence_index? : Int = -1,
+  group_number~ : Int32,
+  insertion_code~ : String = "",
+  group_type~ : String = "",
+  single_letter_code~ : String = "",
+  sec_struct~ : MmtfSecStruct = MmtfSecUndefined,
+  sequence_index~ : Int32 = -1,
 ) -> MmtfGroup {
   MmtfGroup::{
     group_name,
@@ -160,25 +163,25 @@ pub fn MmtfGroup::get_atoms(self : MmtfGroup) -> Array[MmtfAtom] {
 
 ///|
 /// Get the number of atoms in this group.
-pub fn MmtfGroup::get_num_atoms(self : MmtfGroup) -> Int {
+pub fn MmtfGroup::get_num_atoms(self : MmtfGroup) -> Int32 {
   self.atoms.length()
 }
 
 ///|
 /// A chain in an MMTF structure.
 pub struct MmtfChain {
-  pub chain_id : String // asym chain id (from mmCIF)
-  pub chain_name : String // auth chain id
+  chain_id : String // asym chain id (from mmCIF)
+  chain_name : String // auth chain id
   groups : Array[MmtfGroup]
 }
 
 ///|
 /// Construct an MmtfChain.
 pub fn MmtfChain::new(
-  chain_id? : String = "",
-  chain_name? : String = "",
+  chain_id~ : String = "",
+  chain_name~ : String = "",
 ) -> MmtfChain {
-  MmtfChain::{ chain_id, chain_name, groups: [] }
+  MmtfChain::{ chain_id, chain_name, groups: [], }
 }
 
 ///|
@@ -195,21 +198,21 @@ pub fn MmtfChain::get_groups(self : MmtfChain) -> Array[MmtfGroup] {
 
 ///|
 /// Get the number of groups in this chain.
-pub fn MmtfChain::get_num_groups(self : MmtfChain) -> Int {
+pub fn MmtfChain::get_num_groups(self : MmtfChain) -> Int32 {
   self.groups.length()
 }
 
 ///|
 /// A model in an MMTF structure.
 pub struct MmtfModel {
-  pub model_id : Int
+  model_id : Int32
   chains : Array[MmtfChain]
 }
 
 ///|
 /// Construct an MmtfModel.
-pub fn MmtfModel::new(model_id? : Int = 0) -> MmtfModel {
-  MmtfModel::{ model_id, chains: [] }
+pub fn MmtfModel::new(model_id~ : Int32 = 0) -> MmtfModel {
+  MmtfModel::{ model_id, chains: [], }
 }
 
 ///|
@@ -226,7 +229,7 @@ pub fn MmtfModel::get_chains(self : MmtfModel) -> Array[MmtfChain] {
 
 ///|
 /// Get the number of chains in this model.
-pub fn MmtfModel::get_num_chains(self : MmtfModel) -> Int {
+pub fn MmtfModel::get_num_chains(self : MmtfModel) -> Int32 {
   self.chains.length()
 }
 
@@ -239,6 +242,9 @@ pub enum MmtfEntityType {
   MmtfEntityBranched
   MmtfEntityUndefined
 } derive(Eq)
+
+///|
+pub extend MmtfEntityType with Eq::{equal, not_equal}
 
 ///|
 /// Convert entity type to string.
@@ -267,33 +273,33 @@ pub fn MmtfEntityType::from_string(s : String) -> MmtfEntityType {
 ///|
 /// Entity information for a structure.
 pub struct MmtfEntity {
-  pub chain_indices : Array[Int]
-  pub sequence : String
-  pub description : String
-  pub entity_type : MmtfEntityType
+  chain_indices : Array[Int32]
+  sequence : String
+  description : String
+  entity_type : MmtfEntityType
 }
 
 ///|
 /// Construct an MmtfEntity.
 pub fn MmtfEntity::new(
-  chain_indices? : Array[Int] = [],
-  sequence? : String = "",
-  description? : String = "",
-  entity_type? : MmtfEntityType = MmtfEntityUndefined,
+  chain_indices~ : Array[Int32] = [],
+  sequence~ : String = "",
+  description~ : String = "",
+  entity_type~ : MmtfEntityType = MmtfEntityUndefined,
 ) -> MmtfEntity {
-  MmtfEntity::{ chain_indices, sequence, description, entity_type }
+  MmtfEntity::{ chain_indices, sequence, description, entity_type, }
 }
 
 ///|
 /// Header information for an MMTF structure.
 pub struct MmtfHeader {
-  pub mut r_free : Double
-  pub mut r_work : Double
-  pub mut resolution : Double
-  pub mut title : String
-  pub mut deposition_date : String
-  pub mut release_date : String
-  pub mut experimental_methods : Array[String]
+  mut r_free : Double
+  mut r_work : Double
+  mut resolution : Double
+  mut title : String
+  mut deposition_date : String
+  mut release_date : String
+  mut experimental_methods : Array[String]
 }
 
 ///|
@@ -313,70 +319,70 @@ pub fn MmtfHeader::new() -> MmtfHeader {
 ///|
 /// Crystallographic information.
 pub struct MmtfXtalInfo {
-  pub mut space_group : String
-  pub mut unit_cell : Array[Double] // [a, b, c, alpha, beta, gamma]
+  mut space_group : String
+  mut unit_cell : Array[Double] // [a, b, c, alpha, beta, gamma]
 }
 
 ///|
 /// Construct an MmtfXtalInfo with defaults.
 pub fn MmtfXtalInfo::new() -> MmtfXtalInfo {
-  MmtfXtalInfo::{ space_group: "", unit_cell: Array::make(6, 0.0) }
+  MmtfXtalInfo::{ space_group: "", unit_cell: Array::make(6, 0.0), }
 }
 
 ///|
 /// A bond between two atoms.
 pub struct MmtfBond {
-  pub atom_index1 : Int
-  pub atom_index2 : Int
-  pub bond_order : Int // 1 = single, 2 = double
+  atom_index1 : Int32
+  atom_index2 : Int32
+  bond_order : Int32 // 1 = single, 2 = double
 }
 
 ///|
 /// Construct an MmtfBond.
 pub fn MmtfBond::new(
-  atom_index1~ : Int,
-  atom_index2~ : Int,
-  bond_order? : Int = 1,
+  atom_index1~ : Int32,
+  atom_index2~ : Int32,
+  bond_order~ : Int32 = 1,
 ) -> MmtfBond {
-  MmtfBond::{ atom_index1, atom_index2, bond_order }
+  MmtfBond::{ atom_index1, atom_index2, bond_order, }
 }
 
 ///|
 /// A complete MMTF structure.
 pub struct MmtfStructure {
-  pub mut structure_id : String
-  pub mut total_num_bonds : Int
-  pub mut total_num_atoms : Int
-  pub mut total_num_groups : Int
-  pub mut total_num_chains : Int
-  pub mut total_num_models : Int
+  mut structure_id : String
+  mut total_num_bonds : Int32
+  mut total_num_atoms : Int32
+  mut total_num_groups : Int32
+  mut total_num_chains : Int32
+  mut total_num_models : Int32
   mut header : MmtfHeader
   mut xtal_info : MmtfXtalInfo
-  pub entities : Array[MmtfEntity]
-  pub bonds : Array[MmtfBond]
+  entities : Array[MmtfEntity]
+  bonds : Array[MmtfBond]
   models : Array[MmtfModel]
-  pub group_list : Array[MmtfGroupType] // group type definitions
+  group_list : Array[MmtfGroupType] // group type definitions
 }
 
 ///|
 /// A group type definition (shared by groups of the same type).
 pub struct MmtfGroupType {
-  pub group_name : String
-  pub chem_comp_type : String
-  pub single_letter_code : String
-  pub atom_name_list : Array[String]
-  pub element_list : Array[String]
-  pub bond_atom_list : Array[Int]
-  pub bond_order_list : Array[Int]
-  pub formal_charge_list : Array[Int]
+  group_name : String
+  chem_comp_type : String
+  single_letter_code : String
+  atom_name_list : Array[String]
+  element_list : Array[String]
+  bond_atom_list : Array[Int32]
+  bond_order_list : Array[Int32]
+  formal_charge_list : Array[Int32]
 }
 
 ///|
 /// Construct an MmtfGroupType.
 pub fn MmtfGroupType::new(
-  group_name? : String = "",
-  chem_comp_type? : String = "",
-  single_letter_code? : String = "",
+  group_name~ : String = "",
+  chem_comp_type~ : String = "",
+  single_letter_code~ : String = "",
 ) -> MmtfGroupType {
   MmtfGroupType::{
     group_name,
@@ -450,14 +456,14 @@ pub fn MmtfStructure::get_models(self : MmtfStructure) -> Array[MmtfModel] {
 
 ///|
 /// Get the number of models.
-pub fn MmtfStructure::get_num_models(self : MmtfStructure) -> Int {
+pub fn MmtfStructure::get_num_models(self : MmtfStructure) -> Int32 {
   self.models.length()
 }
 
 ///|
 /// Get all chains across all models.
 pub fn MmtfStructure::get_chains(self : MmtfStructure) -> Array[MmtfChain] {
-  let result = Array::new()
+  let result = Array(capacity=0)
   for model in self.models {
     for chain in model.chains {
       result.push(chain)
@@ -469,7 +475,7 @@ pub fn MmtfStructure::get_chains(self : MmtfStructure) -> Array[MmtfChain] {
 ///|
 /// Get all groups (residues) across all models and chains.
 pub fn MmtfStructure::get_groups(self : MmtfStructure) -> Array[MmtfGroup] {
-  let result = Array::new()
+  let result = Array(capacity=0)
   for model in self.models {
     for chain in model.chains {
       for group in chain.groups {
@@ -483,7 +489,7 @@ pub fn MmtfStructure::get_groups(self : MmtfStructure) -> Array[MmtfGroup] {
 ///|
 /// Get all atoms across all models, chains, and groups.
 pub fn MmtfStructure::get_atoms(self : MmtfStructure) -> Array[MmtfAtom] {
-  let result = Array::new()
+  let result = Array(capacity=0)
   for model in self.models {
     for chain in model.chains {
       for group in chain.groups {
@@ -498,7 +504,7 @@ pub fn MmtfStructure::get_atoms(self : MmtfStructure) -> Array[MmtfAtom] {
 
 ///|
 /// Count atoms in the structure.
-pub fn MmtfStructure::count_atoms(self : MmtfStructure) -> Int {
+pub fn MmtfStructure::count_atoms(self : MmtfStructure) -> Int32 {
   let mut count = 0
   for model in self.models {
     for chain in model.chains {
@@ -512,7 +518,7 @@ pub fn MmtfStructure::count_atoms(self : MmtfStructure) -> Int {
 
 ///|
 /// Count groups in the structure.
-pub fn MmtfStructure::count_groups(self : MmtfStructure) -> Int {
+pub fn MmtfStructure::count_groups(self : MmtfStructure) -> Int32 {
   let mut count = 0
   for model in self.models {
     for chain in model.chains {
@@ -524,7 +530,7 @@ pub fn MmtfStructure::count_groups(self : MmtfStructure) -> Int {
 
 ///|
 /// Count chains in the structure.
-pub fn MmtfStructure::count_chains(self : MmtfStructure) -> Int {
+pub fn MmtfStructure::count_chains(self : MmtfStructure) -> Int32 {
   let mut count = 0
   for model in self.models {
     count = count + model.chains.length()
@@ -536,166 +542,6 @@ pub fn MmtfStructure::count_chains(self : MmtfStructure) -> Int {
 // Binary helpers
 // ============================================================================
 
-///|
-/// Convert a hex string to a byte array.
-fn mmtf_hex_to_bytes(hex : String) -> Array[Int] {
-  let n = hex.length()
-  let bytes = Array::make(n / 2, 0)
-  for i in 0..<bytes.length() {
-    let high = mmtf_hex_val(hex.unsafe_get(i * 2).to_int())
-    let low = mmtf_hex_val(hex.unsafe_get(i * 2 + 1).to_int())
-    bytes[i] = high * 16 + low
-  }
-  bytes
-}
-
-///|
-/// Convert a byte array to a lowercase hex string.
-fn mmtf_bytes_to_hex(data : Array[Int]) -> String {
-  let sb = StringBuilder::new()
-  for i in 0..<data.length() {
-    let b = data[i] & 0xFF
-    sb.write_char(mmtf_hex_char((b >> 4) & 0xF))
-    sb.write_char(mmtf_hex_char(b & 0xF))
-  }
-  sb.to_string()
-}
-
-///|
-fn mmtf_hex_char(n : Int) -> Char {
-  if n < 10 {
-    Char::from_int(48 + n)
-  } else {
-    Char::from_int(87 + n)
-  }
-}
-
-///|
-fn mmtf_hex_val(c : Int) -> Int {
-  if c >= 48 && c <= 57 {
-    c - 48
-  } else if c >= 65 && c <= 70 {
-    c - 55
-  } else if c >= 97 && c <= 102 {
-    c - 87
-  } else {
-    0
-  }
-}
-
-///|
-/// Read a uint32 big-endian.
-fn mmtf_read_u32_be(data : Array[Int], offset : Int) -> Int {
-  (data[offset] & 0xFF) * 16777216 +
-  (data[offset + 1] & 0xFF) * 65536 +
-  (data[offset + 2] & 0xFF) * 256 +
-  (data[offset + 3] & 0xFF)
-}
-
-///|
-/// Write a uint32 big-endian.
-fn mmtf_write_u32_be(data : Array[Int], offset : Int, value : Int) -> Unit {
-  data[offset] = (value >> 24) & 0xFF
-  data[offset + 1] = (value >> 16) & 0xFF
-  data[offset + 2] = (value >> 8) & 0xFF
-  data[offset + 3] = value & 0xFF
-}
-
-///|
-/// Read a float32 big-endian (IEEE 754).
-fn mmtf_read_f32_be(data : Array[Int], offset : Int) -> Double {
-  let b0 = data[offset] & 0xFF
-  let b1 = data[offset + 1] & 0xFF
-  let b2 = data[offset + 2] & 0xFF
-  let b3 = data[offset + 3] & 0xFF
-  let bits = b0 * 16777216 + b1 * 65536 + b2 * 256 + b3
-  let sign = if bits >> 31 == 1 { -1.0 } else { 1.0 }
-  let exponent = (bits >> 23) & 0xFF
-  let mantissa = bits & 0x7FFFFF
-  if exponent == 0 && mantissa == 0 {
-    0.0
-  } else if exponent == 0 {
-    // Denormalized number
-    sign * mantissa.to_double() * pow2(-149)
-  } else if exponent == 255 {
-    // Infinity or NaN - return 0.0 for simplicity
-    0.0
-  } else {
-    sign * (mantissa.to_double() + 8388608.0) * pow2(exponent - 127 - 23)
-  }
-}
-
-///|
-fn pow2(n : Int) -> Double {
-  let mut result = 1.0
-  if n >= 0 {
-    for _ in 0..<n {
-      result = result * 2.0
-    }
-  } else {
-    for _ in 0..<-n {
-      result = result / 2.0
-    }
-  }
-  result
-}
-
-///|
-/// Write a float32 big-endian (IEEE 754, simplified for common values).
-fn mmtf_write_f32_be(data : Array[Int], offset : Int, value : Double) -> Unit {
-  // Handle simple cases
-  if value == 0.0 {
-    data[offset] = 0
-    data[offset + 1] = 0
-    data[offset + 2] = 0
-    data[offset + 3] = 0
-    return
-  }
-  let sign_bit : Int = if value < 0.0 { 1 } else { 0 }
-  let abs_val = if value < 0.0 { -value } else { value }
-  // Find exponent
-  let mut exp = 0
-  let mut mant = abs_val
-  while mant >= 2.0 && exp < 128 {
-    mant = mant / 2.0
-    exp = exp + 1
-  }
-  while mant < 1.0 && exp > -127 {
-    mant = mant * 2.0
-    exp = exp - 1
-  }
-  let biased_exp = exp + 127
-  let int_mantissa = ((mant - 1.0) * 8388608.0 + 0.5).to_int()
-  let sign_bits = if sign_bit == 1 { 0x80000000 } else { 0 }
-  let bits = sign_bits + biased_exp * 8388608 + int_mantissa
-  mmtf_write_u32_be(data, offset, bits)
-}
-
-///|
-/// Convert ASCII byte array slice to a string.
-fn mmtf_ascii_to_string(
-  data : Array[Int],
-  offset : Int,
-  length : Int,
-) -> String {
-  let sb = StringBuilder::new()
-  for i in 0..<length {
-    sb.write_char(Char::from_int(data[offset + i] & 0xFF))
-  }
-  sb.to_string()
-}
-
-///|
-/// Convert a string to an ASCII byte array.
-fn mmtf_string_to_ascii(s : String) -> Array[Int] {
-  let n = s.length()
-  let out = Array::make(n, 0)
-  for i in 0..<n {
-    out[i] = s.unsafe_get(i).to_int() & 0xFF
-  }
-  out
-}
-
 // ============================================================================
 // Run-length decoding (used by MMTF for integer arrays)
 // ============================================================================
@@ -703,8 +549,8 @@ fn mmtf_string_to_ascii(s : String) -> Array[Int] {
 ///|
 /// Decode a run-length encoded integer array.
 /// Input: pairs of (value, count) -> output: value repeated count times.
-pub fn mmtf_decode_run_length(encoded : Array[Int]) -> Array[Int] {
-  let result = Array::new()
+pub fn mmtf_decode_run_length(encoded : Array[Int32]) -> Array[Int32] {
+  let result = Array(capacity=0)
   let mut i = 0
   while i + 1 < encoded.length() {
     let value = encoded[i]
@@ -719,8 +565,8 @@ pub fn mmtf_decode_run_length(encoded : Array[Int]) -> Array[Int] {
 
 ///|
 /// Encode an integer array using run-length encoding.
-pub fn mmtf_encode_run_length(data : Array[Int]) -> Array[Int] {
-  let result = Array::new()
+pub fn mmtf_encode_run_length(data : Array[Int32]) -> Array[Int32] {
+  let result = Array(capacity=0)
   if data.length() == 0 {
     return result
   }
@@ -748,8 +594,8 @@ pub fn mmtf_encode_run_length(data : Array[Int]) -> Array[Int] {
 ///|
 /// Decode a delta-encoded integer array.
 /// Each value is the difference from the previous value.
-pub fn mmtf_decode_delta(encoded : Array[Int]) -> Array[Int] {
-  let result = Array::new()
+pub fn mmtf_decode_delta(encoded : Array[Int32]) -> Array[Int32] {
+  let result = Array(capacity=0)
   if encoded.length() == 0 {
     return result
   }
@@ -764,8 +610,8 @@ pub fn mmtf_decode_delta(encoded : Array[Int]) -> Array[Int] {
 
 ///|
 /// Encode an integer array using delta encoding.
-pub fn mmtf_encode_delta(data : Array[Int]) -> Array[Int] {
-  let result = Array::new()
+pub fn mmtf_encode_delta(data : Array[Int32]) -> Array[Int32] {
+  let result = Array(capacity=0)
   if data.length() == 0 {
     return result
   }
@@ -784,10 +630,10 @@ pub fn mmtf_encode_delta(data : Array[Int]) -> Array[Int] {
 /// Recursively split a coordinate array into smaller integers.
 /// MMTF uses this to reduce the magnitude of delta-encoded values.
 pub fn mmtf_recursive_index_decode(
-  encoded : Array[Int],
-  factor : Int,
-) -> Array[Int] {
-  let result = Array::new()
+  encoded : Array[Int32],
+  factor : Int32,
+) -> Array[Int32] {
+  let result = Array(capacity=0)
   let mut i = 0
   while i < encoded.length() {
     let val = encoded[i]
@@ -803,7 +649,7 @@ pub fn mmtf_recursive_index_decode(
     }
   }
   // Apply scaling factor
-  let scaled = Array::new()
+  let scaled = Array(capacity=0)
   for v in result {
     scaled.push(v)
   }
@@ -818,7 +664,7 @@ pub fn mmtf_recursive_index_decode(
 /// Serialize an MmtfStructure to a simplified text representation.
 /// Format: key=value pairs, one per line, with nested sections.
 pub fn mmtf_write_text(structure : MmtfStructure) -> String {
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   let header = structure.get_header()
   let xtal = structure.get_xtal_info()
   sb.write_string("MMTF\n")
@@ -958,42 +804,40 @@ pub fn mmtf_read_text(text : String) -> MmtfStructure {
   let mut current_chain : MmtfChain? = None
   let mut current_group : MmtfGroup? = None
   for line in lines {
-    let trimmed = line.to_string()
+    let trimmed = line.to_owned()
     if trimmed.length() == 0 {
       continue
     }
     if trimmed == "MMTF" {
       continue
     }
-    if trimmed.starts_with("structureId=") {
-      structure.structure_id = trimmed.substring(start=12)
-    } else if trimmed.starts_with("totalNumBonds=") {
-      structure.total_num_bonds = parse_int(trimmed.substring(start=14))
-    } else if trimmed.starts_with("totalNumAtoms=") {
-      structure.total_num_atoms = parse_int(trimmed.substring(start=14))
-    } else if trimmed.starts_with("totalNumGroups=") {
-      structure.total_num_groups = parse_int(trimmed.substring(start=15))
-    } else if trimmed.starts_with("totalNumChains=") {
-      structure.total_num_chains = parse_int(trimmed.substring(start=15))
-    } else if trimmed.starts_with("totalNumModels=") {
-      structure.total_num_models = parse_int(trimmed.substring(start=15))
-    } else if trimmed.starts_with("title=") {
-      header.title = trimmed.substring(start=6)
-    } else if trimmed.starts_with("depositionDate=") {
-      header.deposition_date = trimmed.substring(start=15)
-    } else if trimmed.starts_with("releaseDate=") {
-      header.release_date = trimmed.substring(start=12)
-    } else if trimmed.starts_with("resolution=") {
-      header.resolution = parse_double(trimmed.substring(start=11)).unwrap_or(
-        0.0,
-      )
-    } else if trimmed.starts_with("rWork=") {
-      header.r_work = parse_double(trimmed.substring(start=6)).unwrap_or(0.0)
-    } else if trimmed.starts_with("rFree=") {
-      header.r_free = parse_double(trimmed.substring(start=6)).unwrap_or(0.0)
-    } else if trimmed.starts_with("spaceGroup=") {
-      xtal.space_group = trimmed.substring(start=11)
-    } else if trimmed.starts_with("MODEL ") {
+    if trimmed.has_prefix("structureId=") {
+      structure.structure_id = trimmed[12:].to_owned()
+    } else if trimmed.has_prefix("totalNumBonds=") {
+      structure.total_num_bonds = parse_int(trimmed[14:].to_owned())
+    } else if trimmed.has_prefix("totalNumAtoms=") {
+      structure.total_num_atoms = parse_int(trimmed[14:].to_owned())
+    } else if trimmed.has_prefix("totalNumGroups=") {
+      structure.total_num_groups = parse_int(trimmed[15:].to_owned())
+    } else if trimmed.has_prefix("totalNumChains=") {
+      structure.total_num_chains = parse_int(trimmed[15:].to_owned())
+    } else if trimmed.has_prefix("totalNumModels=") {
+      structure.total_num_models = parse_int(trimmed[15:].to_owned())
+    } else if trimmed.has_prefix("title=") {
+      header.title = trimmed[6:].to_owned()
+    } else if trimmed.has_prefix("depositionDate=") {
+      header.deposition_date = trimmed[15:].to_owned()
+    } else if trimmed.has_prefix("releaseDate=") {
+      header.release_date = trimmed[12:].to_owned()
+    } else if trimmed.has_prefix("resolution=") {
+      header.resolution = parse_double(trimmed[11:].to_owned()).unwrap_or(0.0)
+    } else if trimmed.has_prefix("rWork=") {
+      header.r_work = parse_double(trimmed[6:].to_owned()).unwrap_or(0.0)
+    } else if trimmed.has_prefix("rFree=") {
+      header.r_free = parse_double(trimmed[6:].to_owned()).unwrap_or(0.0)
+    } else if trimmed.has_prefix("spaceGroup=") {
+      xtal.space_group = trimmed[11:].to_owned()
+    } else if trimmed.has_prefix("MODEL ") {
       // Save previous group/chain/model
       match current_group {
         Some(g) =>
@@ -1022,12 +866,12 @@ pub fn mmtf_read_text(text : String) -> MmtfStructure {
         .to_array()
         .filter(fn(s) -> Bool { s.length() > 0 })
       let model_id = if parts.length() >= 2 {
-        parse_int(parts[1].to_string())
+        parse_int(parts[1].to_owned())
       } else {
         0
       }
       current_model = Some(MmtfModel::new(model_id~))
-    } else if trimmed.starts_with("  CHAIN ") {
+    } else if trimmed.has_prefix("  CHAIN ") {
       // Save previous group
       match current_group {
         Some(g) =>
@@ -1051,14 +895,14 @@ pub fn mmtf_read_text(text : String) -> MmtfStructure {
         .split(" ")
         .to_array()
         .filter(fn(s) -> Bool { s.length() > 0 })
-      let chain_id = if parts.length() >= 3 { parts[2].to_string() } else { "" }
+      let chain_id = if parts.length() >= 3 { parts[2].to_owned() } else { "" }
       let chain_name = if parts.length() >= 4 {
-        parts[3].to_string()
+        parts[3].to_owned()
       } else {
         chain_id
       }
       current_chain = Some(MmtfChain::new(chain_id~, chain_name~))
-    } else if trimmed.starts_with("    GROUP ") {
+    } else if trimmed.has_prefix("    GROUP ") {
       // Save previous group
       match current_group {
         Some(g) =>
@@ -1073,18 +917,18 @@ pub fn mmtf_read_text(text : String) -> MmtfStructure {
         .to_array()
         .filter(fn(s) -> Bool { s.length() > 0 })
       let group_name = if parts.length() >= 2 {
-        parts[1].to_string()
+        parts[1].to_owned()
       } else {
         ""
       }
       let group_number = if parts.length() >= 3 {
-        parse_int(parts[2].to_string())
+        parse_int(parts[2].to_owned())
       } else {
         0
       }
-      let slc = if parts.length() >= 4 { parts[3].to_string() } else { "" }
+      let slc = if parts.length() >= 4 { parts[3].to_owned() } else { "" }
       let ss_str = if parts.length() >= 5 {
-        parts[4].to_string()
+        parts[4].to_owned()
       } else {
         "undefined"
       }
@@ -1107,35 +951,35 @@ pub fn mmtf_read_text(text : String) -> MmtfStructure {
           sec_struct=ss,
         ),
       )
-    } else if trimmed.starts_with("      ATOM ") {
+    } else if trimmed.has_prefix("      ATOM ") {
       let parts = trimmed
         .split(" ")
         .to_array()
         .filter(fn(s) -> Bool { s.length() > 0 })
-      let name = if parts.length() >= 2 { parts[1].to_string() } else { "" }
+      let name = if parts.length() >= 2 { parts[1].to_owned() } else { "" }
       let serial = if parts.length() >= 3 {
-        parse_int(parts[2].to_string())
+        parse_int(parts[2].to_owned())
       } else {
         0
       }
       let x = if parts.length() >= 4 {
-        parse_double(parts[3].to_string()).unwrap_or(0.0)
+        parse_double(parts[3].to_owned()).unwrap_or(0.0)
       } else {
         0.0
       }
       let y = if parts.length() >= 5 {
-        parse_double(parts[4].to_string()).unwrap_or(0.0)
+        parse_double(parts[4].to_owned()).unwrap_or(0.0)
       } else {
         0.0
       }
       let z = if parts.length() >= 6 {
-        parse_double(parts[5].to_string()).unwrap_or(0.0)
+        parse_double(parts[5].to_owned()).unwrap_or(0.0)
       } else {
         0.0
       }
-      let element = if parts.length() >= 7 { parts[6].to_string() } else { "" }
+      let element = if parts.length() >= 7 { parts[6].to_owned() } else { "" }
       let charge = if parts.length() >= 8 {
-        parse_int(parts[7].to_string())
+        parse_int(parts[7].to_owned())
       } else {
         0
       }
@@ -1144,23 +988,23 @@ pub fn mmtf_read_text(text : String) -> MmtfStructure {
         Some(g) => g.add_atom(atom)
         None => ()
       }
-    } else if trimmed.starts_with("BOND ") {
+    } else if trimmed.has_prefix("BOND ") {
       let parts = trimmed
         .split(" ")
         .to_array()
         .filter(fn(s) -> Bool { s.length() > 0 })
       let a1 = if parts.length() >= 2 {
-        parse_int(parts[1].to_string())
+        parse_int(parts[1].to_owned())
       } else {
         0
       }
       let a2 = if parts.length() >= 3 {
-        parse_int(parts[2].to_string())
+        parse_int(parts[2].to_owned())
       } else {
         0
       }
       let order = if parts.length() >= 4 {
-        parse_int(parts[3].to_string())
+        parse_int(parts[3].to_owned())
       } else {
         1
       }
@@ -1297,7 +1141,7 @@ pub fn mmtf_sample() -> MmtfStructure {
 ///|
 /// Get the sequence of a chain (single-letter codes).
 pub fn mmtf_chain_sequence(chain : MmtfChain) -> String {
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   for group in chain.groups {
     if group.single_letter_code != "" && group.single_letter_code != "?" {
       sb.write_string(group.single_letter_code)
@@ -1308,7 +1152,7 @@ pub fn mmtf_chain_sequence(chain : MmtfChain) -> String {
 
 ///|
 /// Count atoms in a chain.
-pub fn mmtf_chain_num_atoms(chain : MmtfChain) -> Int {
+pub fn mmtf_chain_num_atoms(chain : MmtfChain) -> Int32 {
   let mut count = 0
   for group in chain.groups {
     count = count + group.atoms.length()
@@ -1318,7 +1162,7 @@ pub fn mmtf_chain_num_atoms(chain : MmtfChain) -> Int {
 
 ///|
 /// Count atoms in a model.
-pub fn mmtf_model_num_atoms(model : MmtfModel) -> Int {
+pub fn mmtf_model_num_atoms(model : MmtfModel) -> Int32 {
   let mut count = 0
   for chain in model.chains {
     count = count + mmtf_chain_num_atoms(chain)
@@ -1329,7 +1173,7 @@ pub fn mmtf_model_num_atoms(model : MmtfModel) -> Int {
 ///|
 /// Generate a summary string.
 pub fn mmtf_summary(structure : MmtfStructure) -> String {
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   let header = structure.get_header()
   let xtal = structure.get_xtal_info()
   sb.write_string("MMTF Structure Summary:\n")
@@ -1353,23 +1197,23 @@ pub fn mmtf_summary(structure : MmtfStructure) -> String {
 ///|
 /// Convert MmtfStructure to PDB Structure.
 pub fn mmtf_to_pdb_structure(mmtf : MmtfStructure) -> Structure {
-  let pdb_models = Array::new()
+  let pdb_models = Array(capacity=0)
   for mmtf_model in mmtf.models {
-    let pdb_chains = Array::new()
+    let pdb_chains = Array(capacity=0)
     for mmtf_chain in mmtf_model.chains {
       let chain_id : Char = if mmtf_chain.chain_name.length() > 0 {
-        Char::from_int(mmtf_chain.chain_name.unsafe_get(0).to_int())
+        mmtf_chain.chain_name.unsafe_get(0).to_int().unsafe_to_char()
       } else if mmtf_chain.chain_id.length() > 0 {
-        Char::from_int(mmtf_chain.chain_id.unsafe_get(0).to_int())
+        mmtf_chain.chain_id.unsafe_get(0).to_int().unsafe_to_char()
       } else {
         'A'
       }
-      let pdb_residues = Array::new()
+      let pdb_residues = Array(capacity=0)
       for mmtf_group in mmtf_chain.groups {
         let is_het = mmtf_group.group_name == "HOH" ||
           mmtf_group.group_type == "non-polymer"
         let hetfield = if is_het { "H" } else { " " }
-        let pdb_atoms = Array::new()
+        let pdb_atoms = Array(capacity=0)
         for mmtf_atom in mmtf_group.atoms {
           pdb_atoms.push(
             Atom::new(

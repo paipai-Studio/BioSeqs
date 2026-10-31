@@ -11,7 +11,7 @@ test "stockholm_parse_header" {
 test "stockholm_parse_empty" {
   let ali = @src.stockholm_parse("")
   assert_eq(ali.blocks.length(), 0)
-  assert_eq(ali.gf_annotations.keys().length(), 0)
+  assert_eq(ali.gf_annotations.keys().count(), 0)
 }
 
 ///|
@@ -54,7 +54,7 @@ test "stockholm_parse_gf_annotations" {
     "seq1/1-10 ACGTACGTAC\n" +
     "//\n"
   let ali = @src.stockholm_parse(content)
-  assert_eq(ali.gf_annotations.keys().length(), 3)
+  assert_eq(ali.gf_annotations.keys().count(), 3)
   assert_eq(ali.gf_annotations["ID"], "TestFamily")
   assert_eq(ali.gf_annotations["AC"], "PF00001.20")
   assert_eq(ali.gf_annotations["DE"], "A test protein family")
@@ -77,7 +77,7 @@ test "stockholm_parse_gr_annotation" {
     "#=GR seq1    ........\n" +
     "//\n"
   let ali = @src.stockholm_parse(content)
-  assert_true(ali.blocks[0].gr_annotations.keys().length() > 0)
+  assert_true(ali.blocks[0].gr_annotations.keys().count() > 0)
 }
 
 ///|
@@ -87,7 +87,7 @@ test "stockholm_parse_gs_annotation" {
     "seq1/1-10 ACGTACGTAC\n" +
     "//\n"
   let ali = @src.stockholm_parse(content)
-  assert_true(ali.gs_annotations.keys().length() > 0)
+  assert_true(ali.gs_annotations.keys().count() > 0)
 }
 
 ///|
@@ -120,10 +120,10 @@ test "stockholm_sequence_struct" {
 
 ///|
 test "stockholm_block_struct" {
-  let seqs : Array[@src.StockholmSequence] = Array::new()
+  let seqs : Array[@src.StockholmSequence] = Array(capacity=0)
   let gc : Map[String, String] = Map([], capacity=0)
   let gr : Map[String, String] = Map([], capacity=0)
-  let ann : Array[String] = Array::new()
+  let ann : Array[String] = Array(capacity=0)
   let block = @src.StockholmBlock::new(seqs, "ss", "cons", ann, gc, gr)
   assert_eq(block.secondary_structure, "ss")
   assert_eq(block.consensus, "cons")
@@ -131,10 +131,10 @@ test "stockholm_block_struct" {
 
 ///|
 test "stockholm_alignment_struct" {
-  let blocks : Array[@src.StockholmBlock] = Array::new()
+  let blocks : Array[@src.StockholmBlock] = Array(capacity=0)
   let gf : Map[String, String] = Map([], capacity=0)
   let gs : Map[String, String] = Map([], capacity=0)
-  let markup : Array[String] = Array::new()
+  let markup : Array[String] = Array(capacity=0)
   let ali = @src.StockholmAlignment::new("1.0", blocks, gf, gs, markup)
   assert_eq(ali.version, "1.0")
   assert_eq(ali.blocks.length(), 0)
@@ -306,7 +306,7 @@ test "stockholm_sample_content" {
   let content = @src.sample_stockholm_content()
   let ali = @src.stockholm_parse(content)
   assert_eq(ali.blocks.length(), 1)
-  assert_eq(ali.gf_annotations.keys().length(), 3)
+  assert_eq(ali.gf_annotations.keys().count(), 3)
   assert_eq(ali.blocks[0].sequences.length(), 3)
 }
 
@@ -326,7 +326,7 @@ test "stockholm_multiline_gf" {
     "seq1/1-5 ACGTG\n" +
     "//\n"
   let ali = @src.stockholm_parse(content)
-  assert_true(ali.gf_annotations.keys().length() > 0)
+  assert_true(ali.gf_annotations.keys().count() > 0)
 }
 
 ///|

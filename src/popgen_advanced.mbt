@@ -20,13 +20,13 @@
 /// Represents a single nucleotide polymorphism (SNP).
 pub struct PolymorphicSite {
   /// Position in the sequence (1-based)
-  position : Int
+  position : Int32
   /// Derived allele frequency (0.0 to 1.0)
   derived_freq : Double
   /// Number of derived alleles observed
-  derived_count : Int
+  derived_count : Int32
   /// Total sample size (number of chromosomes)
-  sample_size : Int
+  sample_size : Int32
   /// Whether this is a singleton (derived count = 1)
   is_singleton : Bool
   /// Whether this is a replacement (nonsynonymous) site
@@ -37,9 +37,9 @@ pub struct PolymorphicSite {
 /// Configuration for a neutrality test.
 pub struct NeutralityTestConfig {
   /// Sample size (number of sequences/individuals)
-  sample_size : Int
+  sample_size : Int32
   /// Number of sequence sites (length of alignment)
-  sequence_length : Int
+  sequence_length : Int32
   /// Mutation rate per site
   mutation_rate : Double
   /// Whether to use folded frequency spectrum
@@ -49,8 +49,8 @@ pub struct NeutralityTestConfig {
 ///|
 /// Default neutrality test configuration.
 pub fn NeutralityTestConfig::default(
-  sample_size : Int,
-  sequence_length : Int,
+  sample_size : Int32,
+  sequence_length : Int32,
 ) -> NeutralityTestConfig {
   NeutralityTestConfig::{
     sample_size,
@@ -76,20 +76,20 @@ pub struct NeutralityTestResult {
   /// Standard error of the statistic
   standard_error : Double
   /// Sample size used
-  sample_size : Int
+  sample_size : Int32
 }
 
 ///|
 /// Result of the McDonald-Kreitman test.
 pub struct MKTestResult {
   /// Number of nonsynonymous polymorphisms (within species)
-  p_nonsyn : Int
+  p_nonsyn : Int32
   /// Number of synonymous polymorphisms (within species)
-  p_syn : Int
+  p_syn : Int32
   /// Number of nonsynonymous substitutions (between species)
-  d_nonsyn : Int
+  d_nonsyn : Int32
   /// Number of synonymous substitutions (between species)
-  d_syn : Int
+  d_syn : Int32
   /// Neutrality index (NI = (p_nonsyn/p_syn) / (d_nonsyn/d_syn))
   neutrality_index : Double
   /// p-value from Fisher's exact test
@@ -104,19 +104,19 @@ pub struct MKTestResult {
 /// Full allele frequency spectrum results.
 pub struct AlleleFrequencySpectrum {
   /// Sample size
-  sample_size : Int
+  sample_size : Int32
   /// Number of singletons (i = 1)
-  singletons : Int
+  singletons : Int32
   /// Number of doubletons (i = 2)
-  doubletons : Int
+  doubletons : Int32
   /// Total number of segregating sites (S)
-  segregating_sites : Int
+  segregating_sites : Int32
   /// Total number of derived mutations (eta)
-  total_mutations : Int
+  total_mutations : Int32
   /// The folded frequency spectrum
-  folded_spectrum : Array[Int]
+  folded_spectrum : Array[Int32]
   /// The unfolded frequency spectrum
-  unfolded_spectrum : Array[Int]
+  unfolded_spectrum : Array[Int32]
 }
 
 // ============================================================================
@@ -126,9 +126,9 @@ pub struct AlleleFrequencySpectrum {
 ///|
 /// Create a new PolymorphicSite.
 pub fn new_polymorphic_site(
-  position : Int,
-  derived_count : Int,
-  sample_size : Int,
+  position : Int32,
+  derived_count : Int32,
+  sample_size : Int32,
   is_replacement : Bool,
 ) -> PolymorphicSite {
   let derived_freq = if sample_size > 0 {
@@ -149,8 +149,8 @@ pub fn new_polymorphic_site(
 ///|
 /// Create a singleton site.
 pub fn new_singleton(
-  position : Int,
-  sample_size : Int,
+  position : Int32,
+  sample_size : Int32,
   is_replacement : Bool,
 ) -> PolymorphicSite {
   new_polymorphic_site(position, 1, sample_size, is_replacement)
@@ -159,8 +159,8 @@ pub fn new_singleton(
 ///|
 /// Create a doubleton site.
 pub fn new_doubleton(
-  position : Int,
-  sample_size : Int,
+  position : Int32,
+  sample_size : Int32,
   is_replacement : Bool,
 ) -> PolymorphicSite {
   new_polymorphic_site(position, 2, sample_size, is_replacement)
@@ -179,8 +179,8 @@ pub fn new_doubleton(
 /// "On the number of segregating sites in genetical models
 /// without recombination." Theor. Popul. Biol. 7:256-276.
 pub fn popgen_watterson_theta(
-  segregating_sites : Int,
-  sample_size : Int,
+  segregating_sites : Int32,
+  sample_size : Int32,
 ) -> Double {
   if sample_size <= 1 || segregating_sites == 0 {
     return 0.0
@@ -195,7 +195,7 @@ pub fn popgen_watterson_theta(
 ///|
 /// Calculate the harmonic sum a1 = sum(1/i) for i = 1 to n-1.
 /// Used in Watterson's theta calculation.
-pub fn watterson_a1(sample_size : Int) -> Double {
+pub fn watterson_a1(sample_size : Int32) -> Double {
   if sample_size <= 1 {
     return 0.0
   }
@@ -232,9 +232,9 @@ pub fn tajima_theta_pi(pairwise_differences : Double) -> Double {
 /// by DNA polymorphism." Genetics 123:585-595.
 pub fn popgen_tajima_d(
   theta_pi : Double,
-  segregating_sites : Int,
-  sample_size : Int,
-  sequence_length : Int,
+  segregating_sites : Int32,
+  sample_size : Int32,
+  _sequence_length : Int32,
 ) -> NeutralityTestResult {
   let theta_w = popgen_watterson_theta(segregating_sites, sample_size)
   let se = tajima_d_standard_error(sample_size, segregating_sites, theta_w)
@@ -269,7 +269,11 @@ pub fn popgen_tajima_d(
 
 ///|
 /// Calculate the standard error of Tajima's D.
-pub fn tajima_d_standard_error(n : Int, s : Int, theta_w : Double) -> Double {
+pub fn tajima_d_standard_error(
+  n : Int32,
+  s : Int32,
+  theta_w : Double,
+) -> Double {
   if n <= 1 || s <= 0 || theta_w <= 0.0 {
     return 0.0
   }
@@ -286,7 +290,7 @@ pub fn tajima_d_standard_error(n : Int, s : Int, theta_w : Double) -> Double {
 
 ///|
 /// Calculate a2 = sum(1/i^2) for i = 1 to n-1.
-pub fn watterson_a2(sample_size : Int) -> Double {
+pub fn watterson_a2(sample_size : Int32) -> Double {
   if sample_size <= 1 {
     return 0.0
   }
@@ -299,7 +303,7 @@ pub fn watterson_a2(sample_size : Int) -> Double {
 
 ///|
 /// Calculate b1 for Tajima's D variance.
-pub fn tajima_b1(n : Int) -> Double {
+pub fn tajima_b1(n : Int32) -> Double {
   if n <= 1 {
     return 0.0
   }
@@ -309,7 +313,7 @@ pub fn tajima_b1(n : Int) -> Double {
 
 ///|
 /// Calculate b2 for Tajima's D variance.
-pub fn tajima_b2(n : Int) -> Double {
+pub fn tajima_b2(n : Int32) -> Double {
   if n <= 1 {
     return 0.0
   }
@@ -326,7 +330,7 @@ pub fn tajima_b2(n : Int) -> Double {
 ///|
 /// Approximate p-value for Tajima's D.
 /// Uses the beta distribution approximation.
-pub fn approximate_tajima_d_pvalue(d : Double, n : Int) -> Double? {
+pub fn approximate_tajima_d_pvalue(d : Double, n : Int32) -> Double? {
   if n <= 1 {
     return None
   }
@@ -384,9 +388,9 @@ pub fn popgen_normal_cdf(x : Double) -> Double {
 /// "Statistical tests of neutrality of mutations."
 /// Genetics 133:693-709.
 pub fn fu_li_d(
-  singletons : Int,
-  segregating_sites : Int,
-  sample_size : Int,
+  singletons : Int32,
+  segregating_sites : Int32,
+  sample_size : Int32,
 ) -> NeutralityTestResult {
   if sample_size <= 1 {
     return NeutralityTestResult::{
@@ -438,7 +442,7 @@ pub fn fu_li_d(
 
 ///|
 /// Standard error for Fu & Li's D.
-pub fn fu_li_d_standard_error(n : Int, s : Int, theta : Double) -> Double {
+pub fn fu_li_d_standard_error(n : Int32, s : Int32, theta : Double) -> Double {
   if n <= 1 || s <= 0 || theta <= 0.0 {
     return 0.0
   }
@@ -458,9 +462,9 @@ pub fn fu_li_d_standard_error(n : Int, s : Int, theta : Double) -> Double {
 ///
 /// This uses a different weighting of the frequency spectrum.
 pub fn fu_li_f(
-  singletons : Int,
-  segregating_sites : Int,
-  sample_size : Int,
+  singletons : Int32,
+  segregating_sites : Int32,
+  sample_size : Int32,
 ) -> NeutralityTestResult {
   if sample_size <= 1 {
     return NeutralityTestResult::{
@@ -538,10 +542,10 @@ pub fn fu_li_f(
 /// "Adaptive protein evolution at the Adh locus in Drosophila."
 /// Nature 351:652-654.
 pub fn mcdonald_kreitman_test(
-  p_nonsyn : Int,
-  p_syn : Int,
-  d_nonsyn : Int,
-  d_syn : Int,
+  p_nonsyn : Int32,
+  p_syn : Int32,
+  d_nonsyn : Int32,
+  d_syn : Int32,
 ) -> MKTestResult {
   // Calculate ratios
   let poly_ratio = if p_syn > 0 {
@@ -595,7 +599,12 @@ pub fn mcdonald_kreitman_test(
 
 ///|
 /// Simple Fisher's exact test for 2x2 contingency table.
-pub fn fisher_exact_test_2x2(a : Int, b : Int, c : Int, d : Int) -> Double {
+pub fn fisher_exact_test_2x2(
+  a : Int32,
+  b : Int32,
+  c : Int32,
+  d : Int32,
+) -> Double {
   // Use chi-square approximation for simplicity
   // Better would be to use the exact hypergeometric distribution
   let n = (a + b + c + d).to_double()
@@ -692,7 +701,7 @@ pub fn mktest_from_sites(
 /// Calculate the allele frequency spectrum from polymorphic sites.
 pub fn calculate_afs(
   sites : Array[PolymorphicSite],
-  sample_size : Int,
+  sample_size : Int32,
 ) -> AlleleFrequencySpectrum {
   let mut singletons = 0
   let mut doubletons = 0
@@ -743,7 +752,7 @@ pub fn calculate_afs(
 /// Calculate Tajima's D from allele frequency spectrum.
 pub fn tajima_d_from_afs(
   afs : AlleleFrequencySpectrum,
-  sequence_length : Int,
+  sequence_length : Int32,
 ) -> NeutralityTestResult {
   let n = afs.sample_size
   if n <= 1 || afs.segregating_sites <= 0 {
@@ -801,8 +810,8 @@ pub struct NeutralityAnalysisResult {
   fu_li_f : NeutralityTestResult
   watterson_theta : Double
   tajima_theta_pi : Double
-  segregating_sites : Int
-  sample_size : Int
+  segregating_sites : Int32
+  sample_size : Int32
   is_neutral : Bool
 }
 
@@ -810,8 +819,8 @@ pub struct NeutralityAnalysisResult {
 /// Run comprehensive neutrality analysis.
 pub fn run_neutrality_analysis(
   sites : Array[PolymorphicSite],
-  sample_size : Int,
-  sequence_length : Int,
+  sample_size : Int32,
+  sequence_length : Int32,
 ) -> NeutralityAnalysisResult {
   let afs = calculate_afs(sites, sample_size)
 

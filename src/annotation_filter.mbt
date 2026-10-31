@@ -4,8 +4,8 @@ pub struct Annotation {
   symbol : String
   description : String
   chromosome : String
-  start : Int
-  end : Int
+  start : Int32
+  end : Int32
   strand : String
   biotype : String
 }
@@ -16,8 +16,8 @@ pub fn Annotation::new(
   symbol : String,
   description : String,
   chromosome : String,
-  start : Int,
-  end : Int,
+  start : Int32,
+  end : Int32,
   strand : String,
   biotype : String,
 ) -> Annotation {
@@ -46,7 +46,7 @@ pub fn FilterCondition::new(
   operator : String,
   value : String,
 ) -> FilterCondition {
-  FilterCondition::{ field, operator, value }
+  FilterCondition::{ field, operator, value, }
 }
 
 ///|
@@ -78,7 +78,7 @@ pub fn af_filter(
   annotations : Array[Annotation],
   conditions : Array[FilterCondition],
 ) -> Array[Annotation] {
-  let result : Array[Annotation] = Array::new()
+  let result : Array[Annotation] = Array(capacity=0)
   let mut i = 0
   while i < annotations.length() {
     let mut match_all = true
@@ -125,10 +125,10 @@ pub fn af_filter_strand(
 pub fn af_filter_region(
   annotations : Array[Annotation],
   chromosome : String,
-  start : Int,
-  end : Int,
+  start : Int32,
+  end : Int32,
 ) -> Array[Annotation] {
-  let result : Array[Annotation] = Array::new()
+  let result : Array[Annotation] = Array(capacity=0)
   let mut i = 0
   while i < annotations.length() {
     let ann = annotations[i]
@@ -163,7 +163,7 @@ pub fn af_filter_biotype_in(
   annotations : Array[Annotation],
   biotypes : Array[String],
 ) -> Array[Annotation] {
-  let result : Array[Annotation] = Array::new()
+  let result : Array[Annotation] = Array(capacity=0)
   let mut i = 0
   while i < annotations.length() {
     let mut match_biotype = false
@@ -183,47 +183,15 @@ pub fn af_filter_biotype_in(
 }
 
 ///|
-pub fn af_filter_by_multiple_conditions(
+pub fn af_count_by_biotype(
   annotations : Array[Annotation],
-  conditions : Array[FilterCondition],
-  logic : String,
-) -> Array[Annotation] {
-  let result : Array[Annotation] = Array::new()
-  let mut i = 0
-  while i < annotations.length() {
-    let mut match_result = match logic {
-      "AND" => true
-      "OR" => false
-      _ => true
-    }
-
-    let mut j = 0
-    while j < conditions.length() {
-      let matched = af_evaluate_condition(annotations[i], conditions[j])
-      match logic {
-        "AND" => match_result = match_result && matched
-        "OR" => match_result = match_result || matched
-        _ => match_result = match_result && matched
-      }
-      j = j + 1
-    }
-
-    if match_result {
-      result.push(annotations[i])
-    }
-    i = i + 1
-  }
-  result
-}
-
-///|
-pub fn af_count_by_biotype(annotations : Array[Annotation]) -> Map[String, Int] {
-  let counts : Map[String, Int] = Map([], capacity=10)
+) -> Map[String, Int32] {
+  let counts : Map[String, Int32] = Map([], capacity=10)
   let mut i = 0
   while i < annotations.length() {
     let biotype = annotations[i].biotype
     let current = counts.get(biotype)
-    counts[biotype] = if current.is_some() { current.unwrap() + 1 } else { 1 }
+    counts[biotype] = if current is Some(_) { current.unwrap() + 1 } else { 1 }
     i = i + 1
   }
   counts
@@ -232,13 +200,13 @@ pub fn af_count_by_biotype(annotations : Array[Annotation]) -> Map[String, Int] 
 ///|
 pub fn af_count_by_chromosome(
   annotations : Array[Annotation],
-) -> Map[String, Int] {
-  let counts : Map[String, Int] = Map([], capacity=25)
+) -> Map[String, Int32] {
+  let counts : Map[String, Int32] = Map([], capacity=25)
   let mut i = 0
   while i < annotations.length() {
     let chr = annotations[i].chromosome
     let current = counts.get(chr)
-    counts[chr] = if current.is_some() { current.unwrap() + 1 } else { 1 }
+    counts[chr] = if current is Some(_) { current.unwrap() + 1 } else { 1 }
     i = i + 1
   }
   counts
@@ -257,7 +225,7 @@ pub fn af_filter_summary(annotations : Array[Annotation]) -> String {
   result = result + "\nBiotype distribution:\n"
   for key in biotype_counts.keys() {
     let value = biotype_counts.get(key)
-    if value.is_some() {
+    if value is Some(_) {
       result = result + "  " + key + ": " + value.unwrap().to_string() + "\n"
     }
   }
@@ -266,7 +234,7 @@ pub fn af_filter_summary(annotations : Array[Annotation]) -> String {
   result = result + "\nChromosome distribution:\n"
   for key in chr_counts.keys() {
     let value = chr_counts.get(key)
-    if value.is_some() {
+    if value is Some(_) {
       result = result + "  " + key + ": " + value.unwrap().to_string() + "\n"
     }
   }

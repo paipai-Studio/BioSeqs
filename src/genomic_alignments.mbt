@@ -4,52 +4,61 @@
 ///|
 pub struct GAlignments {
   seqnames : Array[String]
-  starts : Array[Int]
-  ends : Array[Int]
+  starts : Array[Int32]
+  ends : Array[Int32]
   strands : Array[Strand]
-  widths : Array[Int]
+  widths : Array[Int32]
   qnames : Array[String]
-  mapqs : Array[Int]
-  flags : Array[Int]
+  mapqs : Array[Int32]
+  flags : Array[Int32]
 }
 
 ///|
 pub fn GAlignments::new(
   seqnames : Array[String],
-  starts : Array[Int],
-  ends : Array[Int],
+  starts : Array[Int32],
+  ends : Array[Int32],
   strands : Array[Strand],
   qnames : Array[String],
-  mapqs : Array[Int],
-  flags : Array[Int],
+  mapqs : Array[Int32],
+  flags : Array[Int32],
 ) -> GAlignments {
   let n = seqnames.length()
-  let widths : Array[Int] = Array::make(n, 0)
+  let widths : Array[Int32] = Array::make(n, 0)
   let mut i = 0
   while i < n {
     widths[i] = ends[i] - starts[i] + 1
     i = i + 1
   }
-  GAlignments::{ seqnames, starts, ends, strands, widths, qnames, mapqs, flags }
+  GAlignments::{
+    seqnames,
+    starts,
+    ends,
+    strands,
+    widths,
+    qnames,
+    mapqs,
+    flags,
+  }
 }
 
 ///|
-pub fn GAlignments::length(self : GAlignments) -> Int {
+pub fn GAlignments::length(self : GAlignments) -> Int32 {
   self.seqnames.length()
 }
 
 ///|
 pub fn GAlignments::filter_by_mapq(
   self : GAlignments,
-  min_mapq : Int,
+  min_mapq : Int32,
 ) -> GAlignments {
-  let seqnames : Array[String] = Array::new()
-  let starts : Array[Int] = Array::new()
-  let ends : Array[Int] = Array::new()
-  let strands : Array[Strand] = Array::new()
-  let qnames : Array[String] = Array::new()
-  let mapqs : Array[Int] = Array::new()
-  let flags : Array[Int] = Array::new()
+  let seqnames : Array[String] = Array(capacity=0)
+  let starts : Array[Int32] = Array(capacity=0)
+  let ends : Array[Int32] = Array(capacity=0)
+  let strands : Array[Strand] = Array(capacity=0)
+  let qnames : Array[String] = Array(capacity=0)
+  let mapqs : Array[Int32] = Array(capacity=0)
+  let flags : Array[Int32] = Array(capacity=0)
 
   let mut i = 0
   while i < self.length() {
@@ -73,13 +82,13 @@ pub fn GAlignments::filter_by_strand(
   self : GAlignments,
   strand : Strand,
 ) -> GAlignments {
-  let seqnames : Array[String] = Array::new()
-  let starts : Array[Int] = Array::new()
-  let ends : Array[Int] = Array::new()
-  let strands : Array[Strand] = Array::new()
-  let qnames : Array[String] = Array::new()
-  let mapqs : Array[Int] = Array::new()
-  let flags : Array[Int] = Array::new()
+  let seqnames : Array[String] = Array(capacity=0)
+  let starts : Array[Int32] = Array(capacity=0)
+  let ends : Array[Int32] = Array(capacity=0)
+  let strands : Array[Strand] = Array(capacity=0)
+  let qnames : Array[String] = Array(capacity=0)
+  let mapqs : Array[Int32] = Array(capacity=0)
+  let flags : Array[Int32] = Array(capacity=0)
 
   let mut i = 0
   while i < self.length() {
@@ -101,7 +110,7 @@ pub fn GAlignments::filter_by_strand(
 ///|
 pub fn GAlignments::to_granges(self : GAlignments) -> GRanges {
   let n = self.length()
-  let ranges : Array[(Int, Int)] = Array::make(n, (0, 0))
+  let ranges : Array[(Int32, Int32)] = Array::make(n, (0, 0))
   let mut i = 0
   while i < n {
     ranges[i] = (self.starts[i], self.ends[i])
@@ -113,15 +122,15 @@ pub fn GAlignments::to_granges(self : GAlignments) -> GRanges {
 ///|
 pub struct Coverage {
   seqname : String
-  positions : Array[Int]
-  depths : Array[Int]
+  positions : Array[Int32]
+  depths : Array[Int32]
 }
 
 ///|
 pub fn coverage(galn : GAlignments) -> Array[Coverage] {
-  let seqnames : Array[String] = Array::new()
-  let all_positions : Array[Array[Int]] = Array::new()
-  let all_depths : Array[Array[Int]] = Array::new()
+  let seqnames : Array[String] = Array(capacity=0)
+  let all_positions : Array[Array[Int32]] = Array(capacity=0)
+  let all_depths : Array[Array[Int32]] = Array(capacity=0)
 
   let mut i = 0
   while i < galn.length() {
@@ -140,8 +149,8 @@ pub fn coverage(galn : GAlignments) -> Array[Coverage] {
 
     if seq_idx == -1 {
       seqnames.push(seqname)
-      all_positions.push(Array::new())
-      all_depths.push(Array::new())
+      all_positions.push(Array(capacity=0))
+      all_depths.push(Array(capacity=0))
       seq_idx = seqnames.length() - 1
     }
 
@@ -166,7 +175,7 @@ pub fn coverage(galn : GAlignments) -> Array[Coverage] {
     i = i + 1
   }
 
-  let result : Array[Coverage] = Array::new()
+  let result : Array[Coverage] = Array(capacity=0)
   let mut l = 0
   while l < seqnames.length() {
     let n_pos = all_positions[l].length()
@@ -200,8 +209,8 @@ pub fn coverage(galn : GAlignments) -> Array[Coverage] {
 ///|
 pub struct OverlapSummary {
   feature_id : String
-  mut count : Int
-  mut sum_width : Int
+  mut count : Int32
+  mut sum_width : Int32
   mut mean_width : Double
   mut coverage_fraction : Double
 }
@@ -209,8 +218,8 @@ pub struct OverlapSummary {
 ///|
 pub fn OverlapSummary::new(
   feature_id : String,
-  count : Int,
-  sum_width : Int,
+  count : Int32,
+  sum_width : Int32,
   mean_width : Double,
   coverage_fraction : Double,
 ) -> OverlapSummary {
@@ -224,7 +233,12 @@ pub fn OverlapSummary::new(
 }
 
 ///|
-fn ranges_overlap(start1 : Int, end1 : Int, start2 : Int, end2 : Int) -> Bool {
+fn ranges_overlap(
+  start1 : Int32,
+  end1 : Int32,
+  start2 : Int32,
+  end2 : Int32,
+) -> Bool {
   start1 <= end2 && start2 <= end1
 }
 
@@ -297,11 +311,11 @@ pub fn summarize_overlaps(
 ///|
 pub struct PileupElement {
   seqname : String
-  position : Int
-  mut depth : Int
+  position : Int32
+  mut depth : Int32
   ref_base : String
   alts : Array[String]
-  alt_counts : Array[Int]
+  alt_counts : Array[Int32]
 }
 
 ///|
@@ -309,7 +323,7 @@ pub fn pileup(
   galn : GAlignments,
   reference : Map[String, String],
 ) -> Array[PileupElement] {
-  let result : Array[PileupElement] = Array::new()
+  let result : Array[PileupElement] = Array(capacity=0)
 
   let mut i = 0
   while i < galn.length() {
@@ -324,7 +338,7 @@ pub fn pileup(
     let mut pos = start
     let mut seq_pos = 0
     while pos <= galn.ends[i] && seq_pos < seq.length() {
-      let base = seq[seq_pos:seq_pos + 1].to_string()
+      let base = seq[seq_pos:seq_pos + 1].to_owned()
 
       let mut found = false
       let mut j = 0
@@ -353,7 +367,7 @@ pub fn pileup(
 
       if !found {
         let ref_base = if pos > 0 && pos <= ref_seq.length() {
-          ref_seq[pos - 1:pos].to_string()
+          ref_seq[pos - 1:pos].to_owned()
         } else {
           "N"
         }

@@ -4,7 +4,9 @@
 /// Run: moon run examples/primer3_demo
 fn main {
   println("=== Primer3 Module Demo ===")
-  println("PCR primer design with Tm calculation, GC content, and complementarity scoring")
+  println(
+    "PCR primer design with Tm calculation, GC content, and complementarity scoring",
+  )
   println("Reference: Rozen S, Skaletsky H (2000) Methods Mol Biol 132:365-86")
   println("")
 
@@ -68,7 +70,9 @@ fn main {
   )
   let template = @bio.primer3_sample_template()
   println("Template length: \{template.length()} bp")
-  println("Config: len=\{cfg.primer_length_min()}-\{cfg.primer_length_max()}, Tm=\{cfg.tm_min()}-\{cfg.tm_max()}, GC=\{cfg.gc_min() * 100.0}-\{cfg.gc_max() * 100.0}%")
+  println(
+    "Config: len=\{cfg.primer_length_min()}-\{cfg.primer_length_max()}, Tm=\{cfg.tm_min()}-\{cfg.tm_max()}, GC=\{cfg.gc_min() * 100.0}-\{cfg.gc_max() * 100.0}%",
+  )
   println("")
 
   let design = @bio.primer3_design_primers(template, cfg)

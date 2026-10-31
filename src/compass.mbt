@@ -21,17 +21,17 @@
 pub struct CompassRecord {
   query_name : String
   template_name : String
-  query_n_seqs : Int
-  template_n_seqs : Int
-  query_n_cols : Int
-  template_n_cols : Int
+  query_n_seqs : Int32
+  template_n_seqs : Int32
+  query_n_cols : Int32
+  template_n_cols : Int32
   sw_score : Double
   e_value : Double
   percentage_identity : Double
-  query_start : Int
-  query_end : Int
-  template_start : Int
-  template_end : Int
+  query_start : Int32
+  query_end : Int32
+  template_start : Int32
+  template_end : Int32
   aligned_query : String
   aligned_template : String
   consensus_line : String
@@ -42,17 +42,17 @@ pub struct CompassRecord {
 pub fn CompassRecord::new(
   query_name : String,
   template_name : String,
-  query_n_seqs : Int,
-  template_n_seqs : Int,
-  query_n_cols : Int,
-  template_n_cols : Int,
+  query_n_seqs : Int32,
+  template_n_seqs : Int32,
+  query_n_cols : Int32,
+  template_n_cols : Int32,
   sw_score : Double,
   e_value : Double,
   percentage_identity : Double,
-  query_start : Int,
-  query_end : Int,
-  template_start : Int,
-  template_end : Int,
+  query_start : Int32,
+  query_end : Int32,
+  template_start : Int32,
+  template_end : Int32,
   aligned_query : String,
   aligned_template : String,
   consensus_line : String,
@@ -91,25 +91,25 @@ pub fn CompassRecord::template_name(self : CompassRecord) -> String {
 
 ///|
 /// Get the number of sequences in the query alignment.
-pub fn CompassRecord::query_n_seqs(self : CompassRecord) -> Int {
+pub fn CompassRecord::query_n_seqs(self : CompassRecord) -> Int32 {
   self.query_n_seqs
 }
 
 ///|
 /// Get the number of sequences in the template alignment.
-pub fn CompassRecord::template_n_seqs(self : CompassRecord) -> Int {
+pub fn CompassRecord::template_n_seqs(self : CompassRecord) -> Int32 {
   self.template_n_seqs
 }
 
 ///|
 /// Get the number of columns in the query alignment.
-pub fn CompassRecord::query_n_cols(self : CompassRecord) -> Int {
+pub fn CompassRecord::query_n_cols(self : CompassRecord) -> Int32 {
   self.query_n_cols
 }
 
 ///|
 /// Get the number of columns in the template alignment.
-pub fn CompassRecord::template_n_cols(self : CompassRecord) -> Int {
+pub fn CompassRecord::template_n_cols(self : CompassRecord) -> Int32 {
   self.template_n_cols
 }
 
@@ -133,25 +133,25 @@ pub fn CompassRecord::percentage_identity(self : CompassRecord) -> Double {
 
 ///|
 /// Get the query start position.
-pub fn CompassRecord::query_start(self : CompassRecord) -> Int {
+pub fn CompassRecord::query_start(self : CompassRecord) -> Int32 {
   self.query_start
 }
 
 ///|
 /// Get the query end position.
-pub fn CompassRecord::query_end(self : CompassRecord) -> Int {
+pub fn CompassRecord::query_end(self : CompassRecord) -> Int32 {
   self.query_end
 }
 
 ///|
 /// Get the template start position.
-pub fn CompassRecord::template_start(self : CompassRecord) -> Int {
+pub fn CompassRecord::template_start(self : CompassRecord) -> Int32 {
   self.template_start
 }
 
 ///|
 /// Get the template end position.
-pub fn CompassRecord::template_end(self : CompassRecord) -> Int {
+pub fn CompassRecord::template_end(self : CompassRecord) -> Int32 {
   self.template_end
 }
 
@@ -190,7 +190,7 @@ fn compass_extract_after(line : String, prefix : String) -> String {
 /// ("Query:" or "Template:"), the second token is the start position,
 /// the last token is the end position, and all middle tokens form the
 /// aligned sequence.
-fn compass_parse_alignment_line(line : String) -> (Int, String, Int) {
+fn compass_parse_alignment_line(line : String) -> (Int32, String, Int32) {
   let tokens = split_by_whitespace(line)
   if tokens.length() >= 4 {
     let start = parse_int(tokens[1])
@@ -433,7 +433,7 @@ pub fn compass_filter_by_identity(
 
 ///|
 /// Get the alignment length of a record (length of the aligned query sequence).
-pub fn compass_alignment_length(record : CompassRecord) -> Int {
+pub fn compass_alignment_length(record : CompassRecord) -> Int32 {
   record.aligned_query.length()
 }
 

@@ -279,7 +279,7 @@ test "atoms_to_cartesian_conversion" {
 test "crystal_atom_distance_basic" {
   let s = @src.crystal_sample_structure()
   let d = @src.crystal_atom_distance(s, "C1", "C2")
-  assert_true(d.is_some())
+  assert_true(d is Some(_))
   let dist = d.unwrap()
   assert_true(dist > 0.0)
 }
@@ -288,7 +288,7 @@ test "crystal_atom_distance_basic" {
 test "crystal_atom_distance_missing_atom" {
   let s = @src.crystal_sample_structure()
   let d = @src.crystal_atom_distance(s, "C1", "NONEXISTENT")
-  assert_eq(d.is_empty(), true)
+  assert_eq(d is None, true)
 }
 
 ///|

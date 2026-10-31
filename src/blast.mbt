@@ -8,16 +8,16 @@
 /// High-scoring Segment Pair (HSP) - represents a local alignment between
 /// query and subject sequences.
 pub struct BlastHsp {
-  query_start : Int
-  query_end : Int
-  subject_start : Int
-  subject_end : Int
+  query_start : Int32
+  query_end : Int32
+  subject_start : Int32
+  subject_end : Int32
   query_strand : Strand
   subject_strand : Strand
   identity : Double
-  positive : Int
-  gaps : Int
-  align_length : Int
+  positive : Int32
+  gaps : Int32
+  align_length : Int32
   bitscore : Double
   evalue : Double
   query_seq : String
@@ -28,16 +28,16 @@ pub struct BlastHsp {
 ///|
 /// Create a BlastHsp.
 pub fn BlastHsp::new(
-  query_start : Int,
-  query_end : Int,
-  subject_start : Int,
-  subject_end : Int,
+  query_start : Int32,
+  query_end : Int32,
+  subject_start : Int32,
+  subject_end : Int32,
   query_strand : Strand,
   subject_strand : Strand,
   identity : Double,
-  positive : Int,
-  gaps : Int,
-  align_length : Int,
+  positive : Int32,
+  gaps : Int32,
+  align_length : Int32,
   bitscore : Double,
   evalue : Double,
   query_seq : String,
@@ -65,25 +65,25 @@ pub fn BlastHsp::new(
 
 ///|
 /// Get query start position (1-based).
-pub fn BlastHsp::query_start(self : BlastHsp) -> Int {
+pub fn BlastHsp::query_start(self : BlastHsp) -> Int32 {
   self.query_start
 }
 
 ///|
 /// Get query end position (1-based).
-pub fn BlastHsp::query_end(self : BlastHsp) -> Int {
+pub fn BlastHsp::query_end(self : BlastHsp) -> Int32 {
   self.query_end
 }
 
 ///|
 /// Get subject start position (1-based).
-pub fn BlastHsp::subject_start(self : BlastHsp) -> Int {
+pub fn BlastHsp::subject_start(self : BlastHsp) -> Int32 {
   self.subject_start
 }
 
 ///|
 /// Get subject end position (1-based).
-pub fn BlastHsp::subject_end(self : BlastHsp) -> Int {
+pub fn BlastHsp::subject_end(self : BlastHsp) -> Int32 {
   self.subject_end
 }
 
@@ -107,19 +107,19 @@ pub fn BlastHsp::identity(self : BlastHsp) -> Double {
 
 ///|
 /// Get number of positive (similar) residues.
-pub fn BlastHsp::positive(self : BlastHsp) -> Int {
+pub fn BlastHsp::positive(self : BlastHsp) -> Int32 {
   self.positive
 }
 
 ///|
 /// Get number of gaps.
-pub fn BlastHsp::gaps(self : BlastHsp) -> Int {
+pub fn BlastHsp::gaps(self : BlastHsp) -> Int32 {
   self.gaps
 }
 
 ///|
 /// Get alignment length.
-pub fn BlastHsp::align_length(self : BlastHsp) -> Int {
+pub fn BlastHsp::align_length(self : BlastHsp) -> Int32 {
   self.align_length
 }
 
@@ -158,7 +158,7 @@ pub fn BlastHsp::match_seq(self : BlastHsp) -> String {
 pub struct BlastHit {
   subject_id : String
   subject_def : String
-  subject_length : Int
+  subject_length : Int32
   hsps : Array[BlastHsp]
 }
 
@@ -167,10 +167,10 @@ pub struct BlastHit {
 pub fn BlastHit::new(
   subject_id : String,
   subject_def : String,
-  subject_length : Int,
+  subject_length : Int32,
   hsps : Array[BlastHsp],
 ) -> BlastHit {
-  BlastHit::{ subject_id, subject_def, subject_length, hsps }
+  BlastHit::{ subject_id, subject_def, subject_length, hsps, }
 }
 
 ///|
@@ -187,7 +187,7 @@ pub fn BlastHit::subject_def(self : BlastHit) -> String {
 
 ///|
 /// Get subject length.
-pub fn BlastHit::subject_length(self : BlastHit) -> Int {
+pub fn BlastHit::subject_length(self : BlastHit) -> Int32 {
   self.subject_length
 }
 
@@ -199,7 +199,7 @@ pub fn BlastHit::hsps(self : BlastHit) -> Array[BlastHsp] {
 
 ///|
 /// Get number of HSPs.
-pub fn BlastHit::num_hsps(self : BlastHit) -> Int {
+pub fn BlastHit::num_hsps(self : BlastHit) -> Int32 {
   self.hsps.length()
 }
 
@@ -225,7 +225,7 @@ pub fn BlastHit::best_hsp(self : BlastHit) -> BlastHsp? {
 pub struct BlastRecord {
   query_id : String
   query_def : String
-  query_length : Int
+  query_length : Int32
   hits : Array[BlastHit]
   program : String
   version : String
@@ -237,7 +237,7 @@ pub struct BlastRecord {
 pub fn BlastRecord::new(
   query_id : String,
   query_def : String,
-  query_length : Int,
+  query_length : Int32,
   hits : Array[BlastHit],
   program : String,
   version : String,
@@ -268,7 +268,7 @@ pub fn BlastRecord::query_def(self : BlastRecord) -> String {
 
 ///|
 /// Get query length.
-pub fn BlastRecord::query_length(self : BlastRecord) -> Int {
+pub fn BlastRecord::query_length(self : BlastRecord) -> Int32 {
   self.query_length
 }
 
@@ -280,7 +280,7 @@ pub fn BlastRecord::hits(self : BlastRecord) -> Array[BlastHit] {
 
 ///|
 /// Get number of hits.
-pub fn BlastRecord::num_hits(self : BlastRecord) -> Int {
+pub fn BlastRecord::num_hits(self : BlastRecord) -> Int32 {
   self.hits.length()
 }
 
@@ -426,18 +426,18 @@ pub fn parse_blast_tabular(content : String) -> BlastRecord? {
   let mut query_id = "unknown"
   let mut query_def = ""
   let query_length = 0
-  let hits : Array[BlastHit] = Array::new()
+  let hits : Array[BlastHit] = Array(capacity=0)
 
   let mut i = 0
   while i < lines.length() {
-    let line = lines[i].trim().to_string()
+    let line = lines[i].trim().to_owned()
     if line.length() == 0 {
       i = i + 1
       continue
     }
 
     if starts_with(line, 0, "# Query: ") {
-      query_id = line[9:].to_string()
+      query_id = line[9:].to_owned()
       query_def = query_id
     } else if !starts_with(line, 0, "#") {
       let fields = split_by_char(line, 9)
@@ -550,7 +550,7 @@ pub fn parse_blast_tabular(content : String) -> BlastRecord? {
         }
 
         if !found {
-          let hsps : Array[BlastHsp] = Array::new()
+          let hsps : Array[BlastHsp] = Array(capacity=0)
           hsps.push(hsp)
           hits.push(BlastHit::new(sseqid, sseqid, 0, hsps))
         }
@@ -602,7 +602,7 @@ pub fn parse_blast_xml(content : String) -> BlastRecord? {
     } else if starts_with(line, 0, "<Query_len>") {
       let len_str = extract_between(line, "<Query_len>", "</Query_len>")
       let len_opt = parse_double(len_str)
-      if len_opt.is_some() {
+      if len_opt is Some(_) {
         query_length = len_opt.unwrap().to_int()
       }
     } else if starts_with(line, 0, "<Hit>") {
@@ -625,7 +625,7 @@ pub fn parse_blast_xml(content : String) -> BlastRecord? {
     } else if in_hit && starts_with(line, 0, "<Hit_len>") {
       let len_str = extract_between(line, "<Hit_len>", "</Hit_len>")
       let len_opt = parse_double(len_str)
-      if len_opt.is_some() {
+      if len_opt is Some(_) {
         current_hit_length = len_opt.unwrap().to_int()
       }
     } else if in_hit && starts_with(line, 0, "<Hsp>") {
@@ -633,13 +633,13 @@ pub fn parse_blast_xml(content : String) -> BlastRecord? {
       hsp_fields = Map([], capacity=20)
     } else if in_hit && in_hsp && starts_with(line, 0, "</Hsp>") {
       let hsp = build_hsp_from_fields(hsp_fields)
-      if hsp.is_some() {
+      if hsp is Some(_) {
         current_hsps.push(hsp.unwrap())
       }
       in_hsp = false
     } else if in_hit && in_hsp {
       let key_val = parse_xml_tag(line)
-      if key_val.is_some() {
+      if key_val is Some(_) {
         let (key, val) = key_val.unwrap()
         hsp_fields[key] = val
       }
@@ -663,16 +663,16 @@ pub fn parse_blast_xml(content : String) -> BlastRecord? {
 /// Extract text between two delimiters.
 fn extract_between(s : String, start : String, end : String) -> String {
   let start_idx = s.find(start)
-  if start_idx.is_none() {
+  if start_idx is None {
     return ""
   }
   let start_pos = start_idx.unwrap() + start.length()
-  let end_part = s[start_pos:].to_string()
+  let end_part = s[start_pos:].to_owned()
   let end_idx = end_part.find(end)
-  if end_idx.is_none() {
+  if end_idx is None {
     return ""
   }
-  end_part[0:end_idx.unwrap()].to_string()
+  end_part[0:end_idx.unwrap()].to_owned()
 }
 
 ///|
@@ -683,25 +683,25 @@ fn parse_xml_tag(line : String) -> (String, String)? {
   let close_start_idx = line.find("</")
   let close_end_idx = line.find(">")
 
-  if start_idx.is_none() ||
-    end_open_idx.is_none() ||
-    close_start_idx.is_none() ||
-    close_end_idx.is_none() {
+  if start_idx is None ||
+    end_open_idx is None ||
+    close_start_idx is None ||
+    close_end_idx is None {
     return None
   }
 
-  let tag_name = line[start_idx.unwrap() + 1:end_open_idx.unwrap()].to_string()
-  let value = line[end_open_idx.unwrap() + 1:close_start_idx.unwrap()].to_string()
+  let tag_name = line[start_idx.unwrap() + 1:end_open_idx.unwrap()].to_owned()
+  let value = line[end_open_idx.unwrap() + 1:close_start_idx.unwrap()].to_owned()
   Some((tag_name, value))
 }
 
 ///|
 /// Build an HSP from parsed XML fields.
 fn build_hsp_from_fields(fields : Map[String, String]) -> BlastHsp? {
-  let get_int = fn(key : String) -> Int {
+  let get_int = fn(key : String) -> Int32 {
     if fields.contains(key) {
       let opt = parse_double(fields[key])
-      if opt.is_some() {
+      if opt is Some(_) {
         opt.unwrap().to_int()
       } else {
         0
@@ -714,7 +714,7 @@ fn build_hsp_from_fields(fields : Map[String, String]) -> BlastHsp? {
   let get_double = fn(key : String) -> Double {
     if fields.contains(key) {
       let opt = parse_double(fields[key])
-      if opt.is_some() {
+      if opt is Some(_) {
         opt.unwrap()
       } else {
         0.0
@@ -772,7 +772,7 @@ fn build_hsp_from_fields(fields : Map[String, String]) -> BlastHsp? {
 ///|
 /// Format a BlastRecord as a human-readable string.
 pub fn BlastRecord::to_string(self : BlastRecord) -> String {
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   sb.write_string("Query: " + self.query_id())
   if self.query_def().length() > 0 {
     sb.write_string(" (" + self.query_def() + ")")

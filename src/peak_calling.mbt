@@ -20,7 +20,7 @@
 /// A single ChIP-seq read (5' end position + strand).
 pub struct ChipSeqRead {
   chr : String
-  position : Int
+  position : Int32
   strand : String
 }
 
@@ -30,11 +30,11 @@ pub struct ChipSeqRead {
 /// filtering can update them in place.
 pub struct CandidatePeak {
   chr : String
-  start : Int
-  end : Int
-  summit : Int
-  read_count : Int
-  control_count : Int
+  start : Int32
+  end : Int32
+  summit : Int32
+  read_count : Int32
+  control_count : Int32
   fold_enrichment : Double
   p_value : Double
   mut fdr : Double
@@ -44,9 +44,9 @@ pub struct CandidatePeak {
 ///|
 /// Parameters controlling peak calling.
 pub struct PeakCallingParams {
-  window_size : Int
-  step_size : Int
-  local_lambda_size : Int
+  window_size : Int32
+  step_size : Int32
+  local_lambda_size : Int32
   pvalue_threshold : Double
   fdr_threshold : Double
   min_fold_enrichment : Double
@@ -61,10 +61,10 @@ pub struct PeakCallingParams {
 /// position, and strand ("+" or "-").
 pub fn ChipSeqRead::new(
   chr~ : String,
-  position~ : Int,
+  position~ : Int32,
   strand~ : String,
 ) -> ChipSeqRead {
-  ChipSeqRead::{ chr, position, strand }
+  ChipSeqRead::{ chr, position, strand, }
 }
 
 ///|
@@ -75,7 +75,7 @@ pub fn ChipSeqRead::chr(self : ChipSeqRead) -> String {
 
 ///|
 /// Position accessor.
-pub fn ChipSeqRead::position(self : ChipSeqRead) -> Int {
+pub fn ChipSeqRead::position(self : ChipSeqRead) -> Int32 {
   self.position
 }
 
@@ -95,11 +95,11 @@ pub fn ChipSeqRead::strand(self : ChipSeqRead) -> String {
 /// correction and filtering.
 pub fn CandidatePeak::new(
   chr~ : String,
-  start~ : Int,
-  end~ : Int,
-  summit~ : Int,
-  read_count~ : Int,
-  control_count~ : Int,
+  start~ : Int32,
+  end~ : Int32,
+  summit~ : Int32,
+  read_count~ : Int32,
+  control_count~ : Int32,
   fold_enrichment~ : Double,
   p_value~ : Double,
 ) -> CandidatePeak {
@@ -125,31 +125,31 @@ pub fn CandidatePeak::chr(self : CandidatePeak) -> String {
 
 ///|
 /// Start position accessor.
-pub fn CandidatePeak::start(self : CandidatePeak) -> Int {
+pub fn CandidatePeak::start(self : CandidatePeak) -> Int32 {
   self.start
 }
 
 ///|
 /// End position accessor.
-pub fn CandidatePeak::end(self : CandidatePeak) -> Int {
+pub fn CandidatePeak::end(self : CandidatePeak) -> Int32 {
   self.end
 }
 
 ///|
 /// Summit position accessor.
-pub fn CandidatePeak::summit(self : CandidatePeak) -> Int {
+pub fn CandidatePeak::summit(self : CandidatePeak) -> Int32 {
   self.summit
 }
 
 ///|
 /// Treatment read count accessor.
-pub fn CandidatePeak::read_count(self : CandidatePeak) -> Int {
+pub fn CandidatePeak::read_count(self : CandidatePeak) -> Int32 {
   self.read_count
 }
 
 ///|
 /// Control read count accessor.
-pub fn CandidatePeak::control_count(self : CandidatePeak) -> Int {
+pub fn CandidatePeak::control_count(self : CandidatePeak) -> Int32 {
   self.control_count
 }
 
@@ -167,7 +167,7 @@ pub fn CandidatePeak::p_value(self : CandidatePeak) -> Double {
 
 ///|
 /// Peak width (end - start).
-pub fn CandidatePeak::width(self : CandidatePeak) -> Int {
+pub fn CandidatePeak::width(self : CandidatePeak) -> Int32 {
   self.end - self.start
 }
 
@@ -193,12 +193,12 @@ pub fn PeakCallingParams::default() -> PeakCallingParams {
 /// Construct `PeakCallingParams` with optional overrides for any
 /// field. Unspecified fields take the default values.
 pub fn PeakCallingParams::new(
-  window_size? : Int = 500,
-  step_size? : Int = 100,
-  local_lambda_size? : Int = 10000,
-  pvalue_threshold? : Double = 1.0e-5,
-  fdr_threshold? : Double = 0.05,
-  min_fold_enrichment? : Double = 2.0,
+  window_size~ : Int32 = 500,
+  step_size~ : Int32 = 100,
+  local_lambda_size~ : Int32 = 10000,
+  pvalue_threshold~ : Double = 1.0e-5,
+  fdr_threshold~ : Double = 0.05,
+  min_fold_enrichment~ : Double = 2.0,
 ) -> PeakCallingParams {
   PeakCallingParams::{
     window_size,
@@ -316,7 +316,7 @@ fn pc_gcf(a : Double, x : Double) -> Double {
 /// X ~ Poisson(expected). For `observed <= 0` the survival is 1.0
 /// and for `expected <= 0` with `observed > 0` it is 0.0 (theoretical
 /// extreme), but a tiny floor is returned to keep downstream math sane.
-pub fn poisson_pvalue(observed : Int, expected : Double) -> Double {
+pub fn poisson_pvalue(observed : Int32, expected : Double) -> Double {
   if observed <= 0 {
     return 1.0
   }
@@ -337,7 +337,7 @@ pub fn poisson_pvalue(observed : Int, expected : Double) -> Double {
 /// Compute fold enrichment = observed / expected. Returns 0.0 when
 /// expected is non-positive, and a large value (1.0e6) when observed
 /// is positive but expected is effectively zero.
-pub fn compute_fold_enrichment(observed : Int, expected : Double) -> Double {
+pub fn compute_fold_enrichment(observed : Int32, expected : Double) -> Double {
   if expected <= 0.0 {
     return if observed > 0 { 1.0e6 } else { 0.0 }
   }
@@ -353,9 +353,9 @@ pub fn compute_fold_enrichment(observed : Int, expected : Double) -> Double {
 pub fn count_reads_in_window(
   reads : Array[ChipSeqRead],
   chr : String,
-  start : Int,
-  end : Int,
-) -> Int {
+  start : Int32,
+  end : Int32,
+) -> Int32 {
   let mut count = 0
   for r in reads {
     if r.chr == chr && r.position >= start && r.position < end {
@@ -371,8 +371,8 @@ pub fn count_reads_in_window(
 pub fn estimate_local_lambda(
   control : Array[ChipSeqRead],
   chr : String,
-  center : Int,
-  window_size : Int,
+  center : Int32,
+  window_size : Int32,
 ) -> Double {
   if window_size <= 0 {
     return 0.0
@@ -395,7 +395,7 @@ fn pc_get_chromosomes(
   treatment : Array[ChipSeqRead],
   control : Array[ChipSeqRead],
 ) -> Array[String] {
-  let chrs : Array[String] = Array::new()
+  let chrs : Array[String] = Array(capacity=0)
   let push_if_new = fn(c : String) -> Unit {
     let mut found = false
     for existing in chrs {
@@ -424,7 +424,7 @@ fn pc_max_position(
   treatment : Array[ChipSeqRead],
   control : Array[ChipSeqRead],
   chr : String,
-) -> Int {
+) -> Int32 {
   let mut max_pos = -1
   for r in treatment {
     if r.chr == chr && r.position > max_pos {
@@ -473,7 +473,7 @@ pub fn call_peaks(
   }
   let win_size_d = params.window_size.to_double()
 
-  let candidates : Array[CandidatePeak] = Array::new()
+  let candidates : Array[CandidatePeak] = Array(capacity=0)
 
   for chr in chrs {
     let max_pos = pc_max_position(treatment, control, chr)
@@ -561,15 +561,15 @@ pub fn call_peaks(
 /// p-value, and the maximum fold enrichment across the merged set.
 pub fn merge_peaks(
   peaks : Array[CandidatePeak],
-  max_gap : Int,
+  max_gap : Int32,
 ) -> Array[CandidatePeak] {
   let n = peaks.length()
   if n == 0 {
-    return Array::new()
+    return Array(capacity=0)
   }
   // Sort by (chr, start) using a simple stable comparator.
   let sorted = peaks.copy()
-  sorted.sort_by(fn(a : CandidatePeak, b : CandidatePeak) -> Int {
+  sorted.sort_by(fn(a : CandidatePeak, b : CandidatePeak) -> Int32 {
     if a.chr < b.chr {
       -1
     } else if a.chr > b.chr {
@@ -583,7 +583,7 @@ pub fn merge_peaks(
     }
   })
 
-  let merged : Array[CandidatePeak] = Array::new()
+  let merged : Array[CandidatePeak] = Array(capacity=0)
   let mut cur = sorted[0]
   let mut i = 1
   while i < n {
@@ -658,13 +658,13 @@ pub fn apply_fdr(
   }
 
   // Build (p_value, original_index) pairs and sort by p_value ascending.
-  let indexed : Array[(Double, Int)] = Array::new()
+  let indexed : Array[(Double, Int32)] = Array(capacity=0)
   let mut j = 0
   while j < n {
     indexed.push((peaks[j].p_value, j))
     j = j + 1
   }
-  indexed.sort_by(fn(a : (Double, Int), b : (Double, Int)) -> Int {
+  indexed.sort_by(fn(a : (Double, Int32), b : (Double, Int32)) -> Int32 {
     if a.0 < b.0 {
       -1
     } else if a.0 > b.0 {
@@ -717,7 +717,7 @@ pub fn filter_peaks(
   peaks : Array[CandidatePeak],
   params : PeakCallingParams,
 ) -> Array[CandidatePeak] {
-  let out : Array[CandidatePeak] = Array::new()
+  let out : Array[CandidatePeak] = Array(capacity=0)
   for p in peaks {
     if p.p_value <= params.pvalue_threshold &&
       p.fold_enrichment >= params.min_fold_enrichment &&
@@ -737,8 +737,8 @@ pub fn filter_peaks(
 /// regions on chr1 and a matched control sample with background
 /// reads. Returns `(treatment, control)`.
 pub fn peak_calling_sample_data() -> (Array[ChipSeqRead], Array[ChipSeqRead]) {
-  let treatment : Array[ChipSeqRead] = Array::new()
-  let control : Array[ChipSeqRead] = Array::new()
+  let treatment : Array[ChipSeqRead] = Array(capacity=0)
+  let control : Array[ChipSeqRead] = Array(capacity=0)
 
   // Three enriched regions on chr1.
   // Region A: ~1000-1500 (strong, 30 reads)
@@ -797,7 +797,7 @@ pub fn peak_calling_summary(peaks : Array[CandidatePeak]) -> String {
   buf = buf + "  Significant peaks: " + n_sig.to_string() + "\n"
   // Sort a copy by p-value ascending for "top 5".
   let copy = peaks.copy()
-  copy.sort_by(fn(a : CandidatePeak, b : CandidatePeak) -> Int {
+  copy.sort_by(fn(a : CandidatePeak, b : CandidatePeak) -> Int32 {
     if a.p_value < b.p_value {
       -1
     } else if a.p_value > b.p_value {

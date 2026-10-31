@@ -37,8 +37,7 @@ fn main {
   for alignment in hits {
     println("   " + alignment.summary())
     println(
-      "   target chr1:105 -> query " +
-      alignment.target_to_query(105).to_string(),
+      "   target chr1:105 -> query " + repr(alignment.target_to_query(105)),
     )
   }
 
@@ -48,7 +47,7 @@ fn main {
   }
   println("   " + reverse[0].summary())
   println(
-    "   target chr1:200 -> query " + reverse[0].target_to_query(200).to_string(),
+    "   target chr1:200 -> query " + repr(reverse[0].target_to_query(200)),
   )
 
   println("\n5. Map amino acids to reverse-target codon intervals")
@@ -58,7 +57,7 @@ fn main {
   println("   " + protein[0].summary())
   println(
     "   amino acid 0 -> target codon " +
-    protein[0].query_to_target_interval(0).to_string(),
+    repr(protein[0].query_to_target_interval(0)),
   )
 
   println("\n6. Export standard PSL text")

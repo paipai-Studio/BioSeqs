@@ -2,14 +2,14 @@
 /// Tests for Biopython Bio.PDB.cealign-compatible structure alignment.
 
 ///|
-fn ce_test_aligner(window_size : Int, max_gap : Int) -> @src.CEAligner {
+fn ce_test_aligner(window_size : Int32, max_gap : Int32) -> @src.CEAligner {
   @src.CEAligner::new(window_size~, max_gap~) catch {
     _ => abort("valid CEAligner parameters should be accepted")
   }
 }
 
 ///|
-fn ce_test_curve(count : Int) -> Array[@src.Vector3] {
+fn ce_test_curve(count : Int32) -> Array[@src.Vector3] {
   let coordinates : Array[@src.Vector3] = []
   let mut index = 0
   while index < count {
@@ -88,7 +88,7 @@ fn ce_test_structure(
 }
 
 ///|
-fn ce_test_assert_close(
+fn ce_test_assert_num_close(
   actual : Double,
   expected : Double,
   tolerance : Double,
@@ -424,8 +424,8 @@ test "cealign: set_reference retains ordered coordinates" {
   }
   let stored = aligner.reference_coordinates()
   assert_eq(aligner.reference_length(), 8)
-  ce_test_assert_close(stored[0].x, coordinates[0].x, 1.0e-12)
-  ce_test_assert_close(stored[7].z, coordinates[7].z, 1.0e-12)
+  ce_test_assert_num_close(stored[0].x, coordinates[0].x, 1.0e-12)
+  ce_test_assert_num_close(stored[7].z, coordinates[7].z, 1.0e-12)
 }
 
 ///|
@@ -490,9 +490,9 @@ test "cealign: transform false preserves returned coordinates" {
   }
   let returned = result.structure.get_atoms()[0].coord
   assert_false(result.transformed)
-  ce_test_assert_close(returned.x, original.x, 1.0e-12)
-  ce_test_assert_close(returned.y, original.y, 1.0e-12)
-  ce_test_assert_close(returned.z, original.z, 1.0e-12)
+  ce_test_assert_num_close(returned.x, original.x, 1.0e-12)
+  ce_test_assert_num_close(returned.y, original.y, 1.0e-12)
+  ce_test_assert_num_close(returned.z, original.z, 1.0e-12)
 }
 
 ///|

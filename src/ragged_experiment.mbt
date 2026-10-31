@@ -15,15 +15,15 @@ pub enum MutationType {
   Nonsense_Mutation
   Frame_Shift_Ins
   Frame_Shift_Del
-  In_Frame_Ins
-  In_Frame_Del
   Splice_Site
-  Translation_Start_Site
-  Translation_Stop_Site
-  Multi_Hit_Mutation
   Silent_Mutation
-  Other
 } derive(Eq, Debug)
+
+///|
+pub extend MutationType with Eq::{equal, not_equal}
+
+///|
+pub extend MutationType with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Create a missense mutation type.
@@ -69,14 +69,8 @@ pub fn MutationType::to_string(self : MutationType) -> String {
     MutationType::Nonsense_Mutation => "Nonsense_Mutation"
     MutationType::Frame_Shift_Ins => "Frame_Shift_Ins"
     MutationType::Frame_Shift_Del => "Frame_Shift_Del"
-    MutationType::In_Frame_Ins => "In_Frame_Ins"
-    MutationType::In_Frame_Del => "In_Frame_Del"
     MutationType::Splice_Site => "Splice_Site"
-    MutationType::Translation_Start_Site => "Translation_Start_Site"
-    MutationType::Translation_Stop_Site => "Translation_Stop_Site"
-    MutationType::Multi_Hit_Mutation => "Multi_Hit_Mutation"
     MutationType::Silent_Mutation => "Silent_Mutation"
-    MutationType::Other => "Other"
   }
 }
 
@@ -90,7 +84,7 @@ pub struct MutationRecord {
   /// Chromosome
   chrom : String
   /// Position
-  pos : Int
+  pos : Int32
   /// Reference allele
   ref_allele : String
   /// Alternate allele
@@ -100,13 +94,13 @@ pub struct MutationRecord {
   /// Variant allele frequency
   variant_allele_frequency : Double
   /// Read count supporting variant
-  t_var_count : Int
+  t_var_count : Int32
   /// Total read count
-  t_ref_count : Int
+  t_ref_count : Int32
   /// Mean tumor allele frequency
-  m_var_count : Int
+  m_var_count : Int32
   /// Mean reference count
-  m_ref_count : Int
+  m_ref_count : Int32
   /// Scored for damaging effect
   is_damaging : Bool
   /// Sequencer
@@ -121,11 +115,11 @@ pub fn MutationRecord::new(
   sample_id~ : String,
   gene_symbol~ : String,
   chrom~ : String,
-  pos~ : Int,
+  pos~ : Int32,
   ref_allele~ : String,
   alt_allele~ : String,
-  mutation_type? : MutationType = MutationType::Missense_Mutation,
-  variant_allele_frequency? : Double = 0.0,
+  mutation_type~ : MutationType = MutationType::Missense_Mutation,
+  variant_allele_frequency~ : Double = 0.0,
 ) -> MutationRecord {
   MutationRecord::{
     sample_id,
@@ -180,7 +174,6 @@ pub fn MutationRecord::is_loss_of_function(self : MutationRecord) -> Bool {
     MutationType::Frame_Shift_Ins => true
     MutationType::Frame_Shift_Del => true
     MutationType::Splice_Site => true
-    MutationType::Translation_Start_Site => true
     _ => false
   }
 }
@@ -198,7 +191,7 @@ pub struct RaggedExperiment {
   /// data[row_idx][col_idx] = array of MutationRecord
   data : Array[Array[Array[MutationRecord]]]
   /// Number of mutations per gene per sample (cached)
-  mut counts : Array[Array[Int]]
+  mut counts : Array[Array[Int32]]
   /// Total mutation counts per sample
   mut sample_tmb : Array[Double]
 }
@@ -207,11 +200,11 @@ pub struct RaggedExperiment {
 /// Create an empty RaggedExperiment.
 pub fn RaggedExperiment::new() -> RaggedExperiment {
   RaggedExperiment::{
-    rownames: Array::new(),
-    colnames: Array::new(),
-    data: Array::new(),
-    counts: Array::new(),
-    sample_tmb: Array::new(),
+    rownames: Array(capacity=0),
+    colnames: Array(capacity=0),
+    data: Array(capacity=0),
+    counts: Array(capacity=0),
+    sample_tmb: Array(capacity=0),
   }
 }
 
@@ -248,14 +241,14 @@ pub fn RaggedExperiment::add_record(
 
   if row_idx < 0 {
     self.rownames.push(record.gene_symbol)
-    let new_row : Array[Array[MutationRecord]] = Array::new()
+    let new_row : Array[Array[MutationRecord]] = Array(capacity=0)
     let mut c = 0
     while c < self.colnames.length() {
-      new_row.push(Array::new())
+      new_row.push(Array(capacity=0))
       c = c + 1
     }
     self.data.push(new_row)
-    let count_row : Array[Int] = Array::new()
+    let count_row : Array[Int32] = Array(capacity=0)
     let mut c2 = 0
     while c2 < self.colnames.length() {
       count_row.push(0)
@@ -279,7 +272,7 @@ pub fn RaggedExperiment::add_record(
     self.colnames.push(record.sample_id)
     let mut r = 0
     while r < self.data.length() {
-      self.data[r].push(Array::new())
+      self.data[r].push(Array(capacity=0))
       self.counts[r].push(0)
       r = r + 1
     }
@@ -296,10 +289,10 @@ pub fn RaggedExperiment::recalculate(self : RaggedExperiment) -> Unit {
   // Recount from data
   let n_rows = self.rownames.length()
   let n_cols = self.colnames.length()
-  let new_counts : Array[Array[Int]] = Array::new()
+  let new_counts : Array[Array[Int32]] = Array(capacity=0)
   let mut r = 0
   while r < n_rows {
-    let row_counts : Array[Int] = Array::new()
+    let row_counts : Array[Int32] = Array(capacity=0)
     let mut c = 0
     while c < n_cols {
       row_counts.push(self.data[r][c].length())
@@ -311,7 +304,7 @@ pub fn RaggedExperiment::recalculate(self : RaggedExperiment) -> Unit {
   self.counts = new_counts
 
   // Calculate TMB per sample
-  let tmb : Array[Double] = Array::new()
+  let tmb : Array[Double] = Array(capacity=0)
   let mut c2 = 0
   while c2 < n_cols {
     let mut total = 0
@@ -328,13 +321,13 @@ pub fn RaggedExperiment::recalculate(self : RaggedExperiment) -> Unit {
 
 ///|
 /// Get number of rows (genes).
-pub fn RaggedExperiment::n_rows(self : RaggedExperiment) -> Int {
+pub fn RaggedExperiment::n_rows(self : RaggedExperiment) -> Int32 {
   self.rownames.length()
 }
 
 ///|
 /// Get number of columns (samples).
-pub fn RaggedExperiment::n_cols(self : RaggedExperiment) -> Int {
+pub fn RaggedExperiment::n_cols(self : RaggedExperiment) -> Int32 {
   self.colnames.length()
 }
 
@@ -360,7 +353,7 @@ pub fn RaggedExperiment::get_records(
   let ri = row_index(self, gene)
   let ci = col_index(self, sample)
   if ri < 0 || ci < 0 {
-    return Array::new()
+    return Array(capacity=0)
   }
   self.data[ri][ci]
 }
@@ -373,9 +366,9 @@ pub fn RaggedExperiment::get_gene_records(
 ) -> Array[MutationRecord] {
   let ri = row_index(self, gene)
   if ri < 0 {
-    return Array::new()
+    return Array(capacity=0)
   }
-  let result : Array[MutationRecord] = Array::new()
+  let result : Array[MutationRecord] = Array(capacity=0)
   let mut c = 0
   while c < self.colnames.length() {
     let recs = self.data[ri][c]
@@ -397,9 +390,9 @@ pub fn RaggedExperiment::get_sample_records(
 ) -> Array[MutationRecord] {
   let ci = col_index(self, sample)
   if ci < 0 {
-    return Array::new()
+    return Array(capacity=0)
   }
-  let result : Array[MutationRecord] = Array::new()
+  let result : Array[MutationRecord] = Array(capacity=0)
   let mut r = 0
   while r < self.rownames.length() {
     let recs = self.data[r][ci]
@@ -417,7 +410,7 @@ pub fn RaggedExperiment::get_sample_records(
 /// Get the mutation count matrix (genes x samples).
 pub fn RaggedExperiment::get_count_matrix(
   self : RaggedExperiment,
-) -> Array[Array[Int]] {
+) -> Array[Array[Int32]] {
   self.counts
 }
 
@@ -435,10 +428,10 @@ pub fn RaggedExperiment::get_tmb(self : RaggedExperiment) -> Array[Double] {
 /// Get TMB as mutations per Mb (requires genome size).
 pub fn RaggedExperiment::get_tmb_per_mb(
   self : RaggedExperiment,
-  genome_size_mb? : Double = 3000.0,
+  genome_size_mb~ : Double = 3000.0,
 ) -> Array[Double] {
   let tmb = self.get_tmb()
-  let result : Array[Double] = Array::new()
+  let result : Array[Double] = Array(capacity=0)
   let mut i = 0
   while i < tmb.length() {
     result.push(tmb[i] / genome_size_mb)
@@ -451,10 +444,10 @@ pub fn RaggedExperiment::get_tmb_per_mb(
 /// Summary statistics: number of genes mutated per sample.
 pub fn RaggedExperiment::genes_mutated_per_sample(
   self : RaggedExperiment,
-) -> Array[Int] {
+) -> Array[Int32] {
   let n_cols = self.colnames.length()
   let n_rows = self.rownames.length()
-  let result : Array[Int] = Array::new()
+  let result : Array[Int32] = Array(capacity=0)
   let mut c = 0
   while c < n_cols {
     let mut count = 0
@@ -696,7 +689,7 @@ pub fn ragged_sample_data() -> RaggedExperiment {
 // --- Helper functions ---
 
 ///|
-fn row_index(exp : RaggedExperiment, gene : String) -> Int {
+fn row_index(exp : RaggedExperiment, gene : String) -> Int32 {
   let mut i = 0
   while i < exp.rownames.length() {
     if exp.rownames[i] == gene {
@@ -708,7 +701,7 @@ fn row_index(exp : RaggedExperiment, gene : String) -> Int {
 }
 
 ///|
-fn col_index(exp : RaggedExperiment, sample : String) -> Int {
+fn col_index(exp : RaggedExperiment, sample : String) -> Int32 {
   let mut i = 0
   while i < exp.colnames.length() {
     if exp.colnames[i] == sample {

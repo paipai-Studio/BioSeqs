@@ -47,7 +47,9 @@ fn main {
   let letters = ft3.letters()
   for i in 0..<letters.length() {
     let l = letters[i]
-    println("  \{l}: count=\{ft3.count_of(l)}, freq=\{ft3.frequency(l) * 100.0}%")
+    println(
+      "  \{l}: count=\{ft3.count_of(l)}, freq=\{ft3.frequency(l) * 100.0}%",
+    )
   }
   println("")
 

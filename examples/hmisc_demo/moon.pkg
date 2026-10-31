@@ -1,7 +1,7 @@
 import {
+  "moonbitlang/core/double",
+  "moonbitlang/core/math",
   "IvanAXu/BioSeqs/src" @bio,
 }
 
-options(
-  "is-main": true,
-)
+pkgtype(kind: "executable")

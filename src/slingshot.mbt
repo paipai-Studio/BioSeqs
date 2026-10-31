@@ -24,7 +24,7 @@ pub struct SlingshotNode {
   /// Dimensional coordinates
   coords : Array[Double]
   /// Node size (number of cells)
-  size : Int
+  size : Int32
   /// Whether this is a terminal node
   terminal : Bool
   /// Whether this is a start node
@@ -56,7 +56,7 @@ pub struct SlingshotCurve {
   /// Pseudotime values for cells on this curve
   pseudotime : Array[Double]
   /// Cell indices assigned to this curve
-  cell_indices : Array[Int]
+  cell_indices : Array[Int32]
 }
 
 ///|
@@ -80,9 +80,9 @@ pub struct SlingshotResult {
 /// Parameters for slingshot analysis
 pub struct SlingshotParams {
   /// Number of principal components
-  n_pcs : Int
+  n_pcs : Int32
   /// Minimum cluster size
-  min_cluster_size : Int
+  min_cluster_size : Int32
   /// Whether to allow reversals
   allow_reversals : Bool
   /// Shrinkage factor for MST
@@ -108,9 +108,9 @@ pub fn SlingshotNode::new(
   id : String,
   cluster : String,
   coords : Array[Double],
-  size : Int,
+  size : Int32,
 ) -> SlingshotNode {
-  SlingshotNode::{ id, cluster, coords, size, terminal: false, start: false }
+  SlingshotNode::{ id, cluster, coords, size, terminal: false, start: false, }
 }
 
 ///|
@@ -147,7 +147,7 @@ pub fn SlingshotNode::sling_set_start(
 
 ///|
 /// Get node coordinate at dimension
-pub fn SlingshotNode::sling_coord(self : SlingshotNode, dim : Int) -> Double {
+pub fn SlingshotNode::sling_coord(self : SlingshotNode, dim : Int32) -> Double {
   self.coords[dim]
 }
 
@@ -210,7 +210,7 @@ pub fn SlingshotEdge::new(
   to_id : String,
   weight : Double,
 ) -> SlingshotEdge {
-  SlingshotEdge::{ from_id, to_id, weight }
+  SlingshotEdge::{ from_id, to_id, weight, }
 }
 
 // ===== Metric helpers =====
@@ -219,18 +219,6 @@ pub fn SlingshotEdge::new(
 /// Get Euclidean distance metric
 pub fn sling_euclidean_metric() -> SlingshotDistMetric {
   SlingshotDistMetric::Euclidean
-}
-
-///|
-/// Get Manhattan distance metric
-pub fn sling_manhattan_metric() -> SlingshotDistMetric {
-  SlingshotDistMetric::Manhattan
-}
-
-///|
-/// Get Cosine distance metric
-pub fn sling_cosine_metric() -> SlingshotDistMetric {
-  SlingshotDistMetric::Cosine
 }
 
 // ===== MST Construction =====
@@ -242,10 +230,10 @@ pub fn sling_distance_matrix(
   metric : SlingshotDistMetric,
 ) -> Array[Array[Double]] {
   let n = nodes.length()
-  let mat : Array[Array[Double]] = Array::new()
+  let mat : Array[Array[Double]] = Array(capacity=0)
   let mut i = 0
   while i < n {
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     let mut j = 0
     while j < n {
       if i == j {
@@ -269,13 +257,13 @@ pub fn sling_build_mst(
 ) -> Array[SlingshotEdge] {
   let n = nodes.length()
   if n <= 1 {
-    return Array::new()
+    return Array(capacity=0)
   }
   let dist_mat = sling_distance_matrix(nodes, metric)
-  let in_tree : Array[Bool] = Array::new()
-  let min_edge : Array[Double] = Array::new()
-  let min_from : Array[Int] = Array::new()
-  let edges : Array[SlingshotEdge] = Array::new()
+  let in_tree : Array[Bool] = Array(capacity=0)
+  let min_edge : Array[Double] = Array(capacity=0)
+  let min_from : Array[Int32] = Array(capacity=0)
+  let edges : Array[SlingshotEdge] = Array(capacity=0)
 
   let mut i = 0
   while i < n {
@@ -330,8 +318,8 @@ pub fn sling_build_mst(
 fn sling_find_recently_added(
   in_tree : Array[Bool],
   min_edge : Array[Double],
-  n : Int,
-) -> Int {
+  n : Int32,
+) -> Int32 {
   // Find the node with the smallest min_edge that's in the tree
   let mut min_val = 1.0e30
   let mut min_idx = 0
@@ -353,13 +341,13 @@ pub fn sling_find_terminals(
   nodes : Array[SlingshotNode],
 ) -> Array[String] {
   let n = nodes.length()
-  let degree : Array[Int] = Array::new()
+  let degree : Array[Int32] = Array(capacity=0)
   let mut i = 0
   while i < n {
     degree.push(0)
     i = i + 1
   }
-  let node_ids : Array[String] = Array::new()
+  let node_ids : Array[String] = Array(capacity=0)
   let mut j = 0
   while j < n {
     node_ids.push(nodes[j].id)
@@ -377,7 +365,7 @@ pub fn sling_find_terminals(
     }
     k = k + 1
   }
-  let terminals : Array[String] = Array::new()
+  let terminals : Array[String] = Array(capacity=0)
   let mut m = 0
   while m < n {
     if degree[m] == 1 {
@@ -390,7 +378,7 @@ pub fn sling_find_terminals(
 
 ///|
 /// Find node index by ID
-fn sling_find_node_idx(ids : Array[String], id : String) -> Int {
+fn sling_find_node_idx(ids : Array[String], id : String) -> Int32 {
   let mut i = 0
   while i < ids.length() {
     if ids[i] == id {
@@ -409,16 +397,16 @@ fn sling_find_node_idx(ids : Array[String], id : String) -> Int {
 /// update curve as running mean.
 pub fn sling_fit_principal_curve(
   points : Array[Array[Double]],
-  n_segments : Int,
+  n_segments : Int32,
 ) -> Array[Array[Double]] {
   let n_points = points.length()
   if n_points == 0 {
-    return Array::new()
+    return Array(capacity=0)
   }
-  let dim = points[0].length()
+  let _dim = points[0].length()
   // Initialize curve segments along the first principal component
   let (pc1_min, pc1_max) = sling_pc1_range(points)
-  let curve : Array[Array[Double]] = Array::new()
+  let curve : Array[Array[Double]] = Array(capacity=0)
   let seg_step = if n_segments > 1 {
     (pc1_max - pc1_min) / (n_segments - 1).to_double()
   } else {
@@ -435,7 +423,7 @@ pub fn sling_fit_principal_curve(
   let max_iter = 20
   let mut iter = 0
   while iter < max_iter {
-    let (new_curve, changed) = sling_refine_curve(points, curve)
+    let (_new_curve, changed) = sling_refine_curve(points, curve)
     if !changed {
       break
     }
@@ -453,7 +441,7 @@ fn sling_pc1_range(points : Array[Array[Double]]) -> (Double, Double) {
   }
   let dim = points[0].length()
   // Simple PCA: center data, find direction of maximum variance
-  let center : Array[Double] = Array::new()
+  let center : Array[Double] = Array(capacity=0)
   let mut d = 0
   while d < dim {
     let mut sum = 0.0
@@ -466,7 +454,7 @@ fn sling_pc1_range(points : Array[Array[Double]]) -> (Double, Double) {
     d = d + 1
   }
   // Compute variance along each dimension
-  let variances : Array[Double] = Array::new()
+  let variances : Array[Double] = Array(capacity=0)
   let mut dd = 0
   while dd < dim {
     let mut var_ = 0.0
@@ -515,7 +503,7 @@ fn sling_point_on_pc1(
 ) -> Array[Double] {
   let n = points.length()
   let dim = points[0].length()
-  let pt : Array[Double] = Array::new()
+  let pt : Array[Double] = Array(capacity=0)
   let mut d = 0
   while d < dim {
     let mut sum = 0.0
@@ -546,12 +534,12 @@ fn sling_refine_curve(
     return (curve, false)
   }
   let dim = curve[0].length()
-  let new_curve : Array[Array[Double]] = Array::new()
+  let new_curve : Array[Array[Double]] = Array(capacity=0)
   let mut changed = false
   // For each curve segment, project nearby points and average
   let mut ci = 0
   while ci < n_curve {
-    let acc : Array[Double] = Array::new()
+    let acc : Array[Double] = Array(capacity=0)
     let mut d = 0
     while d < dim {
       acc.push(0.0)
@@ -567,10 +555,10 @@ fn sling_refine_curve(
         curve[start_seg],
         curve[end_seg],
       )
-      let dist2 = 0.0
+      let _dist2 = 0.0
       let mut dd = 0
       while dd < dim {
-        let diff = points[pi][dd] - proj[dd]
+        let _diff = points[pi][dd] - proj[dd]
         // Use distance to determine weight
         dd = dd + 1
       }
@@ -584,7 +572,7 @@ fn sling_refine_curve(
       pi = pi + 1
     }
     if count > 0.0 {
-      let new_pt : Array[Double] = Array::new()
+      let new_pt : Array[Double] = Array(capacity=0)
       let mut m = 0
       while m < dim {
         new_pt.push(acc[m] / count)
@@ -617,13 +605,13 @@ fn sling_project_to_segment(
   b : Array[Double],
 ) -> Array[Double] {
   let dim = point.length()
-  let ab : Array[Double] = Array::new()
+  let ab : Array[Double] = Array(capacity=0)
   let mut i = 0
   while i < dim {
     ab.push(b[i] - a[i])
     i = i + 1
   }
-  let ap : Array[Double] = Array::new()
+  let ap : Array[Double] = Array(capacity=0)
   let mut j = 0
   while j < dim {
     ap.push(point[j] - a[j])
@@ -637,7 +625,7 @@ fn sling_project_to_segment(
   }
   let t = if ab2 > 0.0 { sling_dot(ap, ab) / ab2 } else { 0.0 }
   let t_clamped = if t < 0.0 { 0.0 } else if t > 1.0 { 1.0 } else { t }
-  let proj : Array[Double] = Array::new()
+  let proj : Array[Double] = Array(capacity=0)
   let mut m = 0
   while m < dim {
     proj.push(a[m] + t_clamped * ab[m])
@@ -668,7 +656,7 @@ pub fn sling_compute_pseudotime(
 ) -> Array[Double] {
   let n_cells = cell_coords.length()
   let n_curve = curve.length()
-  let pseudotime : Array[Double] = Array::new()
+  let pseudotime : Array[Double] = Array(capacity=0)
   if n_cells == 0 || n_curve < 2 {
     let mut i = 0
     while i < n_cells {
@@ -678,7 +666,7 @@ pub fn sling_compute_pseudotime(
     return pseudotime
   }
   // Compute cumulative arc length of the curve
-  let arc_lengths : Array[Double] = Array::new()
+  let arc_lengths : Array[Double] = Array(capacity=0)
   arc_lengths.push(0.0)
   let mut i = 1
   while i < n_curve {
@@ -749,7 +737,7 @@ fn sling_total_arc_length(curve : Array[Array[Double]]) -> Double {
 
 ///|
 fn sling_sub(a : Array[Double], b : Array[Double]) -> Array[Double] {
-  let result : Array[Double] = Array::new()
+  let result : Array[Double] = Array(capacity=0)
   let mut i = 0
   while i < a.length() {
     result.push(a[i] - b[i])
@@ -777,9 +765,9 @@ fn sling_euclid_dist(a : Array[Double], b : Array[Double]) -> Double {
 pub fn slingshot_run(
   cell_coords : Array[Array[Double]],
   cluster_labels : Array[String],
-  params : SlingshotParams,
+  _params : SlingshotParams,
 ) -> SlingshotResult {
-  let n_cells = cell_coords.length()
+  let _n_cells = cell_coords.length()
   let n_clusters = sling_unique_labels(cluster_labels)
   // Build cluster centers
   let nodes = sling_build_nodes(cell_coords, cluster_labels, n_clusters)
@@ -812,7 +800,7 @@ pub fn slingshot_run(
 ///|
 /// Get unique cluster labels
 fn sling_unique_labels(labels : Array[String]) -> Array[String] {
-  let unique : Array[String] = Array::new()
+  let unique : Array[String] = Array(capacity=0)
   let mut i = 0
   while i < labels.length() {
     let found = sling_contains_str(unique, labels[i])
@@ -844,7 +832,7 @@ fn sling_build_nodes(
   unique_labels : Array[String],
 ) -> Array[SlingshotNode] {
   let n_clusters = unique_labels.length()
-  let nodes : Array[SlingshotNode] = Array::new()
+  let nodes : Array[SlingshotNode] = Array(capacity=0)
   let mut c = 0
   while c < n_clusters {
     let label = unique_labels[c]
@@ -867,10 +855,10 @@ fn sling_cluster_center(
 ) -> Array[Double] {
   let n_cells = cell_coords.length()
   if n_cells == 0 {
-    return Array::new()
+    return Array(capacity=0)
   }
   let dim = cell_coords[0].length()
-  let center : Array[Double] = Array::new()
+  let center : Array[Double] = Array(capacity=0)
   let mut d = 0
   while d < dim {
     let mut sum = 0.0
@@ -891,7 +879,7 @@ fn sling_cluster_center(
 
 ///|
 /// Get cluster size
-fn sling_cluster_size(cluster_labels : Array[String], label : String) -> Int {
+fn sling_cluster_size(cluster_labels : Array[String], label : String) -> Int32 {
   let mut count = 0
   let mut i = 0
   while i < cluster_labels.length() {
@@ -911,7 +899,7 @@ fn sling_build_lineages(
   start_id : String,
   terminals : Array[String],
 ) -> Array[Array[String]] {
-  let lineages : Array[Array[String]] = Array::new()
+  let lineages : Array[Array[String]] = Array(capacity=0)
   // For each terminal, find path from start
   let mut t = 0
   while t < terminals.length() {
@@ -923,7 +911,7 @@ fn sling_build_lineages(
   }
   // If no lineages found, create one from all nodes
   if lineages.length() == 0 && nodes.length() > 0 {
-    let full_path : Array[String] = Array::new()
+    let full_path : Array[String] = Array(capacity=0)
     let mut i = 0
     while i < nodes.length() {
       full_path.push(nodes[i].id)
@@ -943,17 +931,17 @@ fn sling_find_path(
   end_id : String,
 ) -> Array[String] {
   // BFS
-  let node_ids : Array[String] = Array::new()
+  let node_ids : Array[String] = Array(capacity=0)
   let mut i = 0
   while i < nodes.length() {
     node_ids.push(nodes[i].id)
     i = i + 1
   }
   let n = node_ids.length()
-  let adj : Array[Array[Int]] = Array::new()
+  let adj : Array[Array[Int32]] = Array(capacity=0)
   let mut j = 0
   while j < n {
-    adj.push(Array::new())
+    adj.push(Array(capacity=0))
     j = j + 1
   }
   let mut e = 0
@@ -970,17 +958,17 @@ fn sling_find_path(
   let start_idx = sling_find_node_idx(node_ids, start_id)
   let end_idx = sling_find_node_idx(node_ids, end_id)
   if start_idx < 0 || end_idx < 0 {
-    return Array::new()
+    return Array(capacity=0)
   }
-  let visited : Array[Bool] = Array::new()
-  let prev : Array[Int] = Array::new()
+  let visited : Array[Bool] = Array(capacity=0)
+  let prev : Array[Int32] = Array(capacity=0)
   let mut k = 0
   while k < n {
     visited.push(false)
     prev.push(-1)
     k = k + 1
   }
-  let queue : Array[Int] = Array::new()
+  let queue : Array[Int32] = Array(capacity=0)
   queue.push(start_idx)
   visited[start_idx] = true
   let mut found = false
@@ -1002,10 +990,10 @@ fn sling_find_path(
     }
   }
   if !found {
-    return Array::new()
+    return Array(capacity=0)
   }
   // Reconstruct path
-  let path : Array[String] = Array::new()
+  let path : Array[String] = Array(capacity=0)
   let mut cur = end_idx
   while cur >= 0 {
     path.push(node_ids[cur])
@@ -1015,7 +1003,7 @@ fn sling_find_path(
     cur = prev[cur]
   }
   // Reverse
-  let reversed : Array[String] = Array::new()
+  let reversed : Array[String] = Array(capacity=0)
   let mut r = path.length() - 1
   while r >= 0 {
     reversed.push(path[r])
@@ -1032,13 +1020,13 @@ fn sling_fit_lineage_curves(
   nodes : Array[SlingshotNode],
   lineages : Array[Array[String]],
 ) -> Array[SlingshotCurve] {
-  let curves : Array[SlingshotCurve] = Array::new()
+  let curves : Array[SlingshotCurve] = Array(capacity=0)
   let n_cells = cell_coords.length()
   let mut li = 0
   while li < lineages.length() {
     let lineage = lineages[li]
     // Collect cells belonging to clusters in this lineage
-    let lineage_cells : Array[Int] = Array::new()
+    let lineage_cells : Array[Int32] = Array(capacity=0)
     let mut ci = 0
     while ci < n_cells {
       let cluster = sling_find_cluster_for_node(nodes, cluster_labels[ci])
@@ -1048,7 +1036,7 @@ fn sling_fit_lineage_curves(
       ci = ci + 1
     }
     // Extract coordinates for lineage cells
-    let lineage_coords : Array[Array[Double]] = Array::new()
+    let lineage_coords : Array[Array[Double]] = Array(capacity=0)
     let mut c = 0
     while c < lineage_cells.length() {
       lineage_coords.push(cell_coords[lineage_cells[c]].copy())
@@ -1086,7 +1074,7 @@ fn sling_fit_lineage_curves(
 fn sling_find_cluster_for_node(
   nodes : Array[SlingshotNode],
   cluster_label : String,
-) -> Int {
+) -> Int32 {
   let mut i = 0
   while i < nodes.length() {
     if nodes[i].cluster == cluster_label {
@@ -1118,9 +1106,9 @@ fn sling_assign_pseudotime(
   nodes : Array[SlingshotNode],
 ) -> (Array[Double], Array[String], Array[String]) {
   let n_cells = cell_coords.length()
-  let pseudotime : Array[Double] = Array::new()
-  let lineages : Array[String] = Array::new()
-  let branches : Array[String] = Array::new()
+  let pseudotime : Array[Double] = Array(capacity=0)
+  let lineages : Array[String] = Array(capacity=0)
+  let branches : Array[String] = Array(capacity=0)
   let mut i = 0
   while i < n_cells {
     // Find which curve this cell belongs to
@@ -1179,7 +1167,7 @@ fn sling_assign_cell_to_curve(
 ///|
 fn sling_curve_contains_cluster(
   curve : SlingshotCurve,
-  nodes : Array[SlingshotNode],
+  _nodes : Array[SlingshotNode],
   cluster_id : String,
 ) -> Bool {
   // Check if start or end node of curve matches the cluster
@@ -1210,9 +1198,9 @@ fn sling_pseudotime_for_cell(
 /// Get sorted pseudotime values
 pub fn SlingshotResult::sling_sorted_pseudotime(
   self : SlingshotResult,
-) -> Array[(Double, Int)] {
+) -> Array[(Double, Int32)] {
   let n = self.cell_pseudotime.length()
-  let indexed : Array[(Double, Int)] = Array::new()
+  let indexed : Array[(Double, Int32)] = Array(capacity=0)
   let mut i = 0
   while i < n {
     indexed.push((self.cell_pseudotime[i], i))
@@ -1241,8 +1229,8 @@ pub fn SlingshotResult::sling_sorted_pseudotime(
 pub fn SlingshotResult::sling_cells_on_lineage(
   self : SlingshotResult,
   lineage_id : String,
-) -> Array[Int] {
-  let cells : Array[Int] = Array::new()
+) -> Array[Int32] {
+  let cells : Array[Int32] = Array(capacity=0)
   let n = self.cell_lineage.length()
   let mut i = 0
   while i < n {

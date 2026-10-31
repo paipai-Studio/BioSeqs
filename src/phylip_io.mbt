@@ -87,7 +87,7 @@ fn parse_phylip_generic(
 
   i = i + 1
   let records : Map[String, StringBuilder] = Map([], capacity=num_seqs)
-  let current_names = Array::new()
+  let current_names = Array(capacity=0)
 
   while i < n {
     let line = lines[i]
@@ -113,12 +113,12 @@ fn parse_phylip_generic(
     while k < trimmed && line.unsafe_get(k) == sp {
       k = k + 1
     }
-    let seq_part = line[k:trimmed].replace(old=" ", new="").to_owned()
+    let seq_part = line[k:trimmed].replace_all(old=" ", new="").to_owned()
 
     match records.get(name) {
       Some(sb) => sb.write_string(seq_part)
       None => {
-        let sb = StringBuilder::new()
+        let sb = StringBuilder()
         sb.write_string(seq_part)
         records[name] = sb
         current_names.push(name)
@@ -130,7 +130,7 @@ fn parse_phylip_generic(
     i = i + 1
   }
 
-  let seq_records = Array::new()
+  let seq_records = Array(capacity=0)
   for name in current_names {
     match records.get(name) {
       Some(sb) => {
@@ -141,6 +141,8 @@ fn parse_phylip_generic(
           name,
           description: name,
           letter_annotations: Map([], capacity=0),
+          annotations: Map([], capacity=0),
+          features: [],
         })
       }
       None => ()
@@ -152,7 +154,7 @@ fn parse_phylip_generic(
 ///|
 /// Write a MultipleSeqAlignment to PHYLIP interlaced format text.
 pub fn write_phylip(align : MultipleSeqAlignment) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   let records = align.iter()
   let n_seqs = records.length()
   let n_cols = align.get_alignment_length()
@@ -202,7 +204,7 @@ pub fn write_phylip(align : MultipleSeqAlignment) -> String {
 ///|
 /// Write a MultipleSeqAlignment to PHYLIP sequential format text.
 pub fn write_phylip_sequential(align : MultipleSeqAlignment) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   let records = align.iter()
   let n_seqs = records.length()
   let n_cols = align.get_alignment_length()

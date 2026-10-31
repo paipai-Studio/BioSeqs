@@ -31,11 +31,11 @@ fn main {
 
   println("\n6. Amino acid composition:")
   let aa_counts = protein.count_amino_acids()
-  println("   Amino acids: \{aa_counts.size()}")
+  println("   Amino acids: \{aa_counts.length()}")
 
   println("\n7. Amino acid percentage:")
   let aa_percent = protein.get_amino_acids_percent()
-  println("   Amino acid percent: \{aa_percent.size()}")
+  println("   Amino acid percent: \{aa_percent.length()}")
 
   println("\n8. Reverse complement:")
   let dna = @bio.Seq::new(dna_seq)

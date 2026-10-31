@@ -23,9 +23,9 @@ pub struct AlignmentBlock {
   /// Block code: "M", "I", "5", "3", "S", "G", "U", "V", "C", "N", etc.
   code : String
   /// Length consumed on the query sequence.
-  query_length : Int
+  query_length : Int32
   /// Length consumed on the target sequence.
-  target_length : Int
+  target_length : Int32
   /// Block score (for introns, this holds the intron length).
   block_score : Double
 }
@@ -34,11 +34,11 @@ pub struct AlignmentBlock {
 /// Construct an AlignmentBlock.
 pub fn AlignmentBlock::new(
   code : String,
-  query_length : Int,
-  target_length : Int,
+  query_length : Int32,
+  target_length : Int32,
   block_score : Double,
 ) -> AlignmentBlock {
-  AlignmentBlock::{ code, query_length, target_length, block_score }
+  AlignmentBlock::{ code, query_length, target_length, block_score, }
 }
 
 ///|
@@ -49,13 +49,13 @@ pub fn AlignmentBlock::code(self : AlignmentBlock) -> String {
 
 ///|
 /// Get the query length consumed by this block.
-pub fn AlignmentBlock::query_length(self : AlignmentBlock) -> Int {
+pub fn AlignmentBlock::query_length(self : AlignmentBlock) -> Int32 {
   self.query_length
 }
 
 ///|
 /// Get the target length consumed by this block.
-pub fn AlignmentBlock::target_length(self : AlignmentBlock) -> Int {
+pub fn AlignmentBlock::target_length(self : AlignmentBlock) -> Int32 {
   self.target_length
 }
 
@@ -69,12 +69,12 @@ pub fn AlignmentBlock::block_score(self : AlignmentBlock) -> Double {
 /// Represents a single exonerate alignment record (one vulgar/cigar line).
 pub struct ExonerateRecord {
   query_name : String
-  query_start : Int
-  query_end : Int
+  query_start : Int32
+  query_end : Int32
   query_strand : String
   target_name : String
-  target_start : Int
-  target_end : Int
+  target_start : Int32
+  target_end : Int32
   target_strand : String
   score : Double
   alignment_blocks : Array[AlignmentBlock]
@@ -84,12 +84,12 @@ pub struct ExonerateRecord {
 /// Construct an ExonerateRecord.
 pub fn ExonerateRecord::new(
   query_name : String,
-  query_start : Int,
-  query_end : Int,
+  query_start : Int32,
+  query_end : Int32,
   query_strand : String,
   target_name : String,
-  target_start : Int,
-  target_end : Int,
+  target_start : Int32,
+  target_end : Int32,
   target_strand : String,
   score : Double,
   alignment_blocks : Array[AlignmentBlock],
@@ -116,13 +116,13 @@ pub fn ExonerateRecord::query_name(self : ExonerateRecord) -> String {
 
 ///|
 /// Get the query start coordinate.
-pub fn ExonerateRecord::query_start(self : ExonerateRecord) -> Int {
+pub fn ExonerateRecord::query_start(self : ExonerateRecord) -> Int32 {
   self.query_start
 }
 
 ///|
 /// Get the query end coordinate.
-pub fn ExonerateRecord::query_end(self : ExonerateRecord) -> Int {
+pub fn ExonerateRecord::query_end(self : ExonerateRecord) -> Int32 {
   self.query_end
 }
 
@@ -140,13 +140,13 @@ pub fn ExonerateRecord::target_name(self : ExonerateRecord) -> String {
 
 ///|
 /// Get the target start coordinate.
-pub fn ExonerateRecord::target_start(self : ExonerateRecord) -> Int {
+pub fn ExonerateRecord::target_start(self : ExonerateRecord) -> Int32 {
   self.target_start
 }
 
 ///|
 /// Get the target end coordinate.
-pub fn ExonerateRecord::target_end(self : ExonerateRecord) -> Int {
+pub fn ExonerateRecord::target_end(self : ExonerateRecord) -> Int32 {
   self.target_end
 }
 
@@ -177,7 +177,7 @@ pub fn ExonerateRecord::alignment_blocks(
 ///|
 /// Split a string by whitespace (space and tab), returning non-empty tokens.
 fn exo_split_whitespace(s : String) -> Array[String] {
-  let result : Array[String] = Array::new()
+  let result : Array[String] = Array(capacity=0)
   let len = s.length()
   let mut i = 0
   while i < len {
@@ -199,7 +199,7 @@ fn exo_split_whitespace(s : String) -> Array[String] {
 ///|
 /// Split content into lines by newline (handles \r\n and \n).
 fn exo_split_lines(content : String) -> Array[String] {
-  let result : Array[String] = Array::new()
+  let result : Array[String] = Array(capacity=0)
   let len = content.length()
   let mut start = 0
   let mut i = 0
@@ -238,7 +238,7 @@ fn exo_split_lines(content : String) -> Array[String] {
 
 ///|
 /// Parse a 32-bit signed integer from a String (no error checking).
-fn exo_parse_int(s : String) -> Int {
+fn exo_parse_int(s : String) -> Int32 {
   let n = s.length()
   if n == 0 {
     return 0
@@ -386,7 +386,7 @@ fn exo_is_numeric_token(s : String) -> Bool {
 /// of inputs where splice-site codes (5/3) omit the score, we treat a
 /// following code as a boundary and default the score to 0.
 fn exo_parse_vulgar_blocks(tokens : Array[String]) -> Array[AlignmentBlock] {
-  let blocks : Array[AlignmentBlock] = Array::new()
+  let blocks : Array[AlignmentBlock] = Array(capacity=0)
   let n = tokens.length()
   let mut i = 0
   while i < n {
@@ -430,7 +430,7 @@ fn exo_parse_vulgar_line(line : String) -> ExonerateRecord? {
   let target_end = exo_parse_int(tokens[7])
   let target_strand = tokens[8]
   let score = exo_parse_double(tokens[9])
-  let block_tokens : Array[String] = Array::new()
+  let block_tokens : Array[String] = Array(capacity=0)
   for j in 10..<tokens.length() {
     block_tokens.push(tokens[j])
   }
@@ -447,7 +447,7 @@ fn exo_parse_vulgar_line(line : String) -> ExonerateRecord? {
 /// Parse Exonerate vulgar format output. Returns one ExonerateRecord per
 /// "vulgar:" line. Blank lines and non-vulgar lines are ignored.
 pub fn parse_exonerate_vulgar(content : String) -> Array[ExonerateRecord] {
-  let records : Array[ExonerateRecord] = Array::new()
+  let records : Array[ExonerateRecord] = Array(capacity=0)
   let lines = exo_split_lines(content)
   for line in lines {
     let trimmed = line.trim()
@@ -473,7 +473,7 @@ pub fn parse_exonerate_vulgar(content : String) -> Array[ExonerateRecord] {
 /// operation code and the single length value. For most operations both
 /// sequences consume the length; introns (I) consume neither; gaps (U/V/D)
 /// consume only one side.
-fn exo_cigar_lengths(code : String, length : Int) -> (Int, Int, Double) {
+fn exo_cigar_lengths(code : String, length : Int32) -> (Int32, Int32, Double) {
   match code {
     "I" => (0, 0, length.to_double())
     "D" => (length, 0, 0.0)
@@ -489,7 +489,7 @@ fn exo_cigar_lengths(code : String, length : Int) -> (Int, Int, Double) {
 /// Parse the cigar block tokens (code/length pairs) into AlignmentBlock
 /// entries.
 fn exo_parse_cigar_blocks(tokens : Array[String]) -> Array[AlignmentBlock] {
-  let blocks : Array[AlignmentBlock] = Array::new()
+  let blocks : Array[AlignmentBlock] = Array(capacity=0)
   let n = tokens.length()
   let mut i = 0
   while i + 1 < n {
@@ -521,7 +521,7 @@ fn exo_parse_cigar_line(line : String) -> ExonerateRecord? {
   let target_end = exo_parse_int(tokens[7])
   let target_strand = tokens[8]
   let score = exo_parse_double(tokens[9])
-  let block_tokens : Array[String] = Array::new()
+  let block_tokens : Array[String] = Array(capacity=0)
   for j in 10..<tokens.length() {
     block_tokens.push(tokens[j])
   }
@@ -538,7 +538,7 @@ fn exo_parse_cigar_line(line : String) -> ExonerateRecord? {
 /// Parse Exonerate cigar format output. Returns one ExonerateRecord per
 /// "cigar:" line. Blank lines and non-cigar lines are ignored.
 pub fn parse_exonerate_cigar(content : String) -> Array[ExonerateRecord] {
-  let records : Array[ExonerateRecord] = Array::new()
+  let records : Array[ExonerateRecord] = Array(capacity=0)
   let lines = exo_split_lines(content)
   for line in lines {
     let trimmed = line.trim()
@@ -564,7 +564,7 @@ pub fn parse_exonerate_cigar(content : String) -> Array[ExonerateRecord] {
 /// Mixed inputs (some vulgar lines, some cigar lines) are supported; each
 /// line is dispatched by its prefix.
 pub fn parse_exonerate(content : String) -> Array[ExonerateRecord] {
-  let records : Array[ExonerateRecord] = Array::new()
+  let records : Array[ExonerateRecord] = Array(capacity=0)
   let lines = exo_split_lines(content)
   for line in lines {
     let trimmed = line.trim()
@@ -597,7 +597,7 @@ pub fn exonerate_filter_by_score(
   records : Array[ExonerateRecord],
   threshold : Double,
 ) -> Array[ExonerateRecord] {
-  let result : Array[ExonerateRecord] = Array::new()
+  let result : Array[ExonerateRecord] = Array(capacity=0)
   for rec in records {
     if rec.score >= threshold {
       result.push(rec)
@@ -610,7 +610,7 @@ pub fn exonerate_filter_by_score(
 /// Total aligned (match) length for a record: sum of query lengths of all
 /// "M" blocks. Matches Biopython's notion of alignment span from vulgar M
 /// blocks.
-pub fn exonerate_total_alignment_length(record : ExonerateRecord) -> Int {
+pub fn exonerate_total_alignment_length(record : ExonerateRecord) -> Int32 {
   let mut total = 0
   for block in record.alignment_blocks {
     if block.code == "M" {
@@ -623,7 +623,7 @@ pub fn exonerate_total_alignment_length(record : ExonerateRecord) -> Int {
 ///|
 /// Total intron length for a record: sum of the intron lengths (block_score
 /// of "I" blocks) across all intron blocks.
-pub fn exonerate_total_intron_length(record : ExonerateRecord) -> Int {
+pub fn exonerate_total_intron_length(record : ExonerateRecord) -> Int32 {
   let mut total = 0
   for block in record.alignment_blocks {
     if block.code == "I" {
@@ -635,7 +635,7 @@ pub fn exonerate_total_intron_length(record : ExonerateRecord) -> Int {
 
 ///|
 /// Count the number of intron ("I") blocks in a record.
-pub fn exonerate_count_introns(record : ExonerateRecord) -> Int {
+pub fn exonerate_count_introns(record : ExonerateRecord) -> Int32 {
   let mut count = 0
   for block in record.alignment_blocks {
     if block.code == "I" {
@@ -647,7 +647,7 @@ pub fn exonerate_count_introns(record : ExonerateRecord) -> Int {
 
 ///|
 /// Count the number of match ("M") blocks in a record.
-pub fn exonerate_count_matches(record : ExonerateRecord) -> Int {
+pub fn exonerate_count_matches(record : ExonerateRecord) -> Int32 {
   let mut count = 0
   for block in record.alignment_blocks {
     if block.code == "M" {
@@ -665,7 +665,7 @@ pub fn exonerate_count_matches(record : ExonerateRecord) -> Int {
 /// Reconstruct the vulgar block string from a record's alignment blocks.
 /// Each block is rendered as `code qlen tlen score` (score as an integer).
 pub fn exonerate_to_vulgar_string(record : ExonerateRecord) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   let n = record.alignment_blocks.length()
   for i in 0..<n {
     let block = record.alignment_blocks[i]
@@ -689,7 +689,7 @@ pub fn exonerate_to_vulgar_string(record : ExonerateRecord) -> String {
 /// length for "I" blocks, the query length for "V"/"D" blocks, the target
 /// length for "U" blocks, and the query length otherwise.
 pub fn exonerate_to_cigar_string(record : ExonerateRecord) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   let n = record.alignment_blocks.length()
   for i in 0..<n {
     let block = record.alignment_blocks[i]
@@ -715,7 +715,7 @@ pub fn exonerate_to_cigar_string(record : ExonerateRecord) -> String {
 ///|
 /// Generate a human-readable summary of a list of exonerate records.
 pub fn exonerate_summary(records : Array[ExonerateRecord]) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string("Exonerate records: ")
   buf.write_string(records.length().to_string())
   buf.write_string("\n")

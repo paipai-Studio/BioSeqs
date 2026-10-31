@@ -12,6 +12,9 @@ pub enum SamHeaderType {
 } derive(Eq)
 
 ///|
+pub extend SamHeaderType with Eq::{equal, not_equal}
+
+///|
 /// SAM header record.
 pub struct SamHeader {
   header_type : SamHeaderType
@@ -33,24 +36,30 @@ pub enum CigarOp {
 } derive(Eq)
 
 ///|
+pub extend CigarOp with Eq::{equal, not_equal}
+
+///|
 /// CIGAR element: operation + length.
 pub struct CigarElement {
   op : CigarOp
-  length : Int
+  length : Int32
 } derive(Eq)
+
+///|
+pub extend CigarElement with Eq::{equal, not_equal}
 
 ///|
 /// SAM alignment record (11 mandatory fields + optional tags).
 pub struct SamRecord {
   qname : String
-  flag : Int
+  flag : Int32
   rname : String
-  pos : Int
-  mapq : Int
+  pos : Int32
+  mapq : Int32
   cigar : Array[CigarElement]
   rnext : String
-  pnext : Int
-  tlen : Int
+  pnext : Int32
+  tlen : Int32
   seq : String
   qual : String
   tags : Map[String, String]
@@ -120,7 +129,7 @@ fn parse_cigar_op(c : Char) -> CigarOp {
 ///|
 /// Parse CIGAR string into CigarElement array.
 pub fn parse_cigar(cigar_str : String) -> Array[CigarElement] {
-  let result = Array::new()
+  let result = Array(capacity=0)
   if cigar_str == "*" {
     return result
   }
@@ -131,7 +140,7 @@ pub fn parse_cigar(cigar_str : String) -> Array[CigarElement] {
     let c = cigar_str.unsafe_get(i)
     let ci = c.to_int()
     if ci >= '0'.to_int() && ci <= '9'.to_int() {
-      let num_str = StringBuilder::new()
+      let num_str = StringBuilder()
       while i < n {
         let d = cigar_str.unsafe_get(i)
         let di = d.to_int()
@@ -146,7 +155,7 @@ pub fn parse_cigar(cigar_str : String) -> Array[CigarElement] {
       if i < n {
         let op_char = cigar_str.unsafe_get(i).unsafe_to_char()
         let op = parse_cigar_op(op_char)
-        result.push(CigarElement::{ op, length })
+        result.push(CigarElement::{ op, length, })
         i = i + 1
       }
     } else {
@@ -184,7 +193,7 @@ fn parse_sam_header(line : String) -> SamHeader? {
   while i < parts.length() {
     let tag = parts[i]
     let colon_pos = tag.find(":")
-    if colon_pos.is_some() {
+    if colon_pos is Some(_) {
       let pos = colon_pos.unwrap()
       let key = tag[0:pos].to_owned()
       let value = if pos + 1 < tag.length() {
@@ -197,7 +206,7 @@ fn parse_sam_header(line : String) -> SamHeader? {
     i = i + 1
   }
 
-  Some(SamHeader::{ header_type, tags })
+  Some(SamHeader::{ header_type, tags, })
 }
 
 ///|
@@ -225,11 +234,11 @@ fn parse_sam_record(line : String) -> SamRecord? {
   while i < parts.length() {
     let tag = parts[i]
     let colon_pos = tag.find(":")
-    if colon_pos.is_some() {
+    if colon_pos is Some(_) {
       let pos1 = colon_pos.unwrap()
       let sub = tag[pos1 + 1:tag.length()]
       let colon_pos2 = sub.find(":")
-      if colon_pos2.is_some() {
+      if colon_pos2 is Some(_) {
         let pos2 = colon_pos2.unwrap()
         let key = tag[0:pos1].to_owned()
         let value = sub[pos2 + 1:sub.length()].to_owned()
@@ -258,8 +267,8 @@ fn parse_sam_record(line : String) -> SamRecord? {
 ///|
 /// Parse SAM content from string.
 pub fn parse_sam(content : String) -> SamFile {
-  let headers = Array::new()
-  let records = Array::new()
+  let headers = Array(capacity=0)
+  let records = Array(capacity=0)
 
   let lines = content.split("\n").to_array()
   let mut i = 0
@@ -274,19 +283,19 @@ pub fn parse_sam(content : String) -> SamFile {
 
     if line.unsafe_get(0).to_int() == '@'.to_int() {
       let header_opt = parse_sam_header(line)
-      if header_opt.is_some() {
+      if header_opt is Some(_) {
         headers.push(header_opt.unwrap())
       }
     } else {
       let record_opt = parse_sam_record(line)
-      if record_opt.is_some() {
+      if record_opt is Some(_) {
         records.push(record_opt.unwrap())
       }
     }
     i = i + 1
   }
 
-  SamFile::{ headers, records }
+  SamFile::{ headers, records, }
 }
 
 ///|
@@ -350,8 +359,20 @@ pub fn SamRecord::is_supplementary(self : SamRecord) -> Bool {
 }
 
 ///|
+/// Check if the read fails vendor QC.
+pub fn SamRecord::is_qcfail(self : SamRecord) -> Bool {
+  (self.flag & 0x200) != 0
+}
+
+///|
+/// Check if the read is a PCR/optical duplicate.
+pub fn SamRecord::is_duplicate(self : SamRecord) -> Bool {
+  (self.flag & 0x400) != 0
+}
+
+///|
 /// Calculate the end position of the alignment.
-pub fn SamRecord::get_end(self : SamRecord) -> Int {
+pub fn SamRecord::get_end(self : SamRecord) -> Int32 {
   if self.pos == 0 || self.cigar.length() == 0 {
     return 0
   }
@@ -375,7 +396,7 @@ pub fn SamRecord::get_end(self : SamRecord) -> Int {
 
 ///|
 /// Calculate the alignment length.
-pub fn SamRecord::get_alignment_length(self : SamRecord) -> Int {
+pub fn SamRecord::get_alignment_length(self : SamRecord) -> Int32 {
   let mut length = 0
   let mut i = 0
   while i < self.cigar.length() {
@@ -394,26 +415,26 @@ pub fn SamRecord::get_alignment_length(self : SamRecord) -> Int {
 
 ///|
 /// Get number of records in SAM file.
-pub fn SamFile::len(self : SamFile) -> Int {
+pub fn SamFile::len(self : SamFile) -> Int32 {
   self.records.length()
 }
 
 ///|
 /// Get number of headers in SAM file.
-pub fn SamFile::num_headers(self : SamFile) -> Int {
+pub fn SamFile::num_headers(self : SamFile) -> Int32 {
   self.headers.length()
 }
 
 ///|
 /// Get all sequence names from @SQ headers.
 pub fn SamFile::get_sequence_names(self : SamFile) -> Array[String] {
-  let result = Array::new()
+  let result = Array(capacity=0)
   let mut i = 0
   while i < self.headers.length() {
     let header = self.headers[i]
     if header.header_type == SamHeaderType::SQ {
       let sn_opt = header.tags.get("SN")
-      if sn_opt.is_some() {
+      if sn_opt is Some(_) {
         result.push(sn_opt.unwrap())
       }
     }
@@ -424,15 +445,15 @@ pub fn SamFile::get_sequence_names(self : SamFile) -> Array[String] {
 
 ///|
 /// Get sequence length from @SQ header.
-pub fn SamFile::get_sequence_length(self : SamFile, name : String) -> Int? {
+pub fn SamFile::get_sequence_length(self : SamFile, name : String) -> Int32? {
   let mut i = 0
   while i < self.headers.length() {
     let header = self.headers[i]
     if header.header_type == SamHeaderType::SQ {
       let sn_opt = header.tags.get("SN")
-      if sn_opt.is_some() && sn_opt.unwrap() == name {
+      if sn_opt is Some(_) && sn_opt.unwrap() == name {
         let ln_opt = header.tags.get("LN")
-        if ln_opt.is_some() {
+        if ln_opt is Some(_) {
           return Some(parse_int(ln_opt.unwrap()))
         }
       }

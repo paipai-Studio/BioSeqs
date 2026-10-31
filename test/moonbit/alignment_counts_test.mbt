@@ -2,8 +2,8 @@
 fn alignment_counts_pair(
   target : String,
   query : String,
-  target_coordinates : Array[Int],
-  query_coordinates : Array[Int],
+  target_coordinates : Array[Int32],
+  query_coordinates : Array[Int32],
 ) -> @src.CoordinatePairwiseAlignment {
   @src.coordinate_pairwise_alignment(
     "target", target, "query", query, target_coordinates, query_coordinates,
@@ -16,8 +16,8 @@ fn alignment_counts_pair(
 fn alignment_counts_basic(
   target : String,
   query : String,
-  target_coordinates : Array[Int],
-  query_coordinates : Array[Int],
+  target_coordinates : Array[Int32],
+  query_coordinates : Array[Int32],
 ) -> @src.AlignmentCounts {
   alignment_counts_pair(target, query, target_coordinates, query_coordinates).alignment_counts() catch {
     _ => abort("valid alignment should count")
@@ -103,7 +103,7 @@ test "alignment counts: BLOSUM62 official protein example" {
     [0, 26],
     [0, 26],
   )
-  let config = @src.AlignmentCountsConfig::with_matrix(@src.blosum62())
+  let config = @src.AlignmentCountsConfig::with_matrix(@data.blosum62())
   let counts = alignment.alignment_counts(config~) catch {
     _ => abort("BLOSUM62 counting should succeed")
   }
@@ -122,13 +122,13 @@ test "alignment counts: BLOSUM45 official protein example" {
     [0, 26],
     [0, 26],
   )
-  let config = @src.AlignmentCountsConfig::with_matrix(@src.blosum45())
+  let config = @src.AlignmentCountsConfig::with_matrix(@data.blosum45())
   let counts = alignment.alignment_counts(config~) catch {
     _ => abort("BLOSUM45 counting should succeed")
   }
   assert_eq(counts.positives, Some(21))
   assert_eq(counts.substitution_score, Some(122.0))
-  let matrix = @src.blosum45()
+  let matrix = @data.blosum45()
   assert_eq(matrix.get_score("C", "C"), 12)
   assert_eq(matrix.get_score("P", "P"), 9)
   assert_eq(matrix.get_score("W", "W"), 15)
@@ -140,7 +140,7 @@ test "alignment counts: BLOSUM45 official protein example" {
 test "alignment counts: matrix accepts lower case residues" {
   let alignment = alignment_counts_pair("ar", "AR", [0, 2], [0, 2])
   let counts = alignment.alignment_counts(
-    config=@src.AlignmentCountsConfig::with_matrix(@src.blosum62()),
+    config=@src.AlignmentCountsConfig::with_matrix(@data.blosum62()),
   ) catch {
     _ => abort("case-insensitive matrix scoring should succeed")
   }
@@ -156,7 +156,7 @@ test "alignment counts: matrix rejects unknown residue" {
   let failed = try {
     ignore(
       alignment.alignment_counts(
-        config=@src.AlignmentCountsConfig::with_matrix(@src.blosum62()),
+        config=@src.AlignmentCountsConfig::with_matrix(@data.blosum62()),
       ),
     )
     false
@@ -170,7 +170,7 @@ test "alignment counts: matrix rejects unknown residue" {
 test "alignment counts: matrix wildcard skips unknown residue" {
   let alignment = alignment_counts_pair("AX", "AA", [0, 2], [0, 2])
   let config = @src.AlignmentCountsConfig::with_matrix(
-    @src.blosum62(),
+    @data.blosum62(),
     wildcard=Some('X'),
   )
   let counts = alignment.alignment_counts(config~) catch {
@@ -203,7 +203,7 @@ test "alignment counts: match mismatch substitution score" {
 test "alignment counts: matrix takes precedence over match score" {
   let alignment = alignment_counts_pair("AA", "AA", [0, 2], [0, 2])
   let config = @src.AlignmentCountsConfig::create(
-    substitution_matrix=Some(@src.blosum62()),
+    substitution_matrix=Some(@data.blosum62()),
     match_score=Some(100.0),
     mismatch_score=Some(-100.0),
   ) catch {
@@ -507,7 +507,7 @@ test "alignment counts: all twelve gap scores are applied" {
 ///|
 test "alignment counts: matrix and gap score total" {
   let config = @src.AlignmentCountsConfig::scored_matrix(
-    matrix=@src.blosum62(),
+    matrix=@data.blosum62(),
     gap_scores=alignment_counts_affine(-5.0, -1.0),
   )
   let alignment = alignment_counts_pair("AAAA", "AAA", [0, 2, 3, 4], [
@@ -543,7 +543,7 @@ test "alignment counts: reverse query mismatch" {
 test "alignment counts: reverse matrix score" {
   let alignment = alignment_counts_pair("AAAA", "TTTT", [0, 4], [4, 0])
   let counts = alignment.alignment_counts(
-    config=@src.AlignmentCountsConfig::with_matrix(@src.blosum62()),
+    config=@src.AlignmentCountsConfig::with_matrix(@data.blosum62()),
   ) catch {
     _ => abort("reverse matrix scoring should succeed")
   }
@@ -767,7 +767,7 @@ test "alignment counts: MSA matrix sums all unordered pairs" {
     _ => abort("protein MSA should build")
   }
   let counts = alignment.alignment_counts(
-    config=@src.AlignmentCountsConfig::with_matrix(@src.blosum62()),
+    config=@src.AlignmentCountsConfig::with_matrix(@data.blosum62()),
   ) catch {
     _ => abort("MSA matrix scoring should succeed")
   }

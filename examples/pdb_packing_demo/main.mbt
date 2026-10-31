@@ -51,7 +51,9 @@ fn main {
   while pc_i < point_counts.length() {
     let n = point_counts[pc_i]
     let points = @src.generate_packing_sphere_points(n_points=n)
-    println("  Generated " + points.length().to_string() + " points on unit sphere")
+    println(
+      "  Generated " + points.length().to_string() + " points on unit sphere",
+    )
     let first = points[0]
     let dist = (first.x * first.x + first.y * first.y + first.z * first.z).sqrt()
     println("    First point distance from origin: " + dist.to_string())
@@ -64,10 +66,14 @@ fn main {
   let test_center = [1.0, 2.0, 3.0]
   let test_point_inside = [1.5, 2.5, 3.5]
   let test_point_outside = [10.0, 10.0, 10.0]
-  println("  Point inside sphere (r=2.0): " +
-    @src.atom_in_sphere(test_center, test_point_inside, 2.0).to_string())
-  println("  Point outside sphere (r=2.0): " +
-    @src.atom_in_sphere(test_center, test_point_outside, 2.0).to_string())
+  println(
+    "  Point inside sphere (r=2.0): " +
+    @src.atom_in_sphere(test_center, test_point_inside, 2.0).to_string(),
+  )
+  println(
+    "  Point outside sphere (r=2.0): " +
+    @src.atom_in_sphere(test_center, test_point_outside, 2.0).to_string(),
+  )
 
   // === 4. Calculate packing density ===
   println("\n4. Local Packing Density Calculation:")
@@ -95,7 +101,11 @@ fn main {
   // === 5. Per-residue packing analysis ===
   println("\n5. Per-Residue Packing Analysis:")
   println("==================================")
-  let analysis = @src.packing_density_per_residue(atoms, radius=5.0, n_points=50)
+  let analysis = @src.packing_density_per_residue(
+    atoms,
+    radius=5.0,
+    n_points=50,
+  )
   println("  Number of residues analyzed: " + analysis.n_residues.to_string())
   println("  Mean density: " + analysis.mean_density.to_string())
   println("  Min density: " + analysis.min_density.to_string())
@@ -129,7 +139,13 @@ fn main {
   while pr_i < probe_radii.length() {
     let pr = probe_radii[pr_i]
     let sasa = @src.calculate_packing_sasa(atoms, probe_radius=pr, n_points=50)
-    println("  Probe radius=" + pr.to_string() + " A: SASA=" + sasa.to_string() + " A^2")
+    println(
+      "  Probe radius=" +
+      pr.to_string() +
+      " A: SASA=" +
+      sasa.to_string() +
+      " A^2",
+    )
     pr_i = pr_i + 1
   }
 
@@ -161,7 +177,13 @@ fn main {
   while co_i < cutoffs.length() {
     let c = cutoffs[co_i]
     let low = @src.identify_low_packing(analysis, cutoff=c)
-    println("  Cutoff=" + c.to_string() + ": " + low.length().to_string() + " low-density residues")
+    println(
+      "  Cutoff=" +
+      c.to_string() +
+      ": " +
+      low.length().to_string() +
+      " low-density residues",
+    )
     for id in low {
       println("    - " + id)
     }
@@ -175,8 +197,16 @@ fn main {
   let mut cr_i = 0
   while cr_i < container_radii.length() {
     let cr = container_radii[cr_i]
-    let efficiency = @src.calculate_packing_efficiency(atoms, container_radius=cr)
-    println("  Container radius=" + cr.to_string() + " A: efficiency=" + efficiency.to_string())
+    let efficiency = @src.calculate_packing_efficiency(
+      atoms,
+      container_radius=cr,
+    )
+    println(
+      "  Container radius=" +
+      cr.to_string() +
+      " A: efficiency=" +
+      efficiency.to_string(),
+    )
     cr_i = cr_i + 1
   }
 
@@ -222,9 +252,15 @@ fn main {
   println("==========================")
   let atom_a = @src.PackingAtom::new(x=0.0, y=0.0, z=0.0)
   let atom_b = @src.PackingAtom::new(x=3.0, y=4.0, z=0.0)
-  println("  Distance between (0,0,0) and (3,4,0): " + atom_a.distance(atom_b).to_string())
+  println(
+    "  Distance between (0,0,0) and (3,4,0): " +
+    atom_a.distance(atom_b).to_string(),
+  )
   let atom_c = @src.PackingAtom::new(x=1.0, y=1.0, z=1.0)
-  println("  Distance between (0,0,0) and (1,1,1): " + atom_a.distance(atom_c).to_string())
+  println(
+    "  Distance between (0,0,0) and (1,1,1): " +
+    atom_a.distance(atom_c).to_string(),
+  )
 
   println("\n=== PDB Packing Density Analysis Demo Complete ===")
 }

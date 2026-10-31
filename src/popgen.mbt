@@ -1,7 +1,7 @@
 ///|
 /// Population genetics module.
 pub fn allele_frequencies(population : Array[String]) -> Map[String, Double] {
-  let counts : Map[String, Int] = Map([], capacity=population.length() * 2)
+  let counts : Map[String, Int32] = Map([], capacity=population.length() * 2)
 
   for i = 0; i < population.length(); i = i + 1 {
     let genotype = population[i]
@@ -31,7 +31,7 @@ pub fn allele_frequencies(population : Array[String]) -> Map[String, Double] {
 
 ///|
 pub fn genotype_frequencies(population : Array[String]) -> Map[String, Double] {
-  let counts : Map[String, Int] = Map([], capacity=population.length())
+  let counts : Map[String, Int32] = Map([], capacity=population.length())
 
   for i = 0; i < population.length(); i = i + 1 {
     let genotype = population[i]
@@ -129,7 +129,7 @@ pub fn inbreeding_coefficient(population : Array[String]) -> Double {
 }
 
 ///|
-pub fn allele_richness(population : Array[String]) -> Int {
+pub fn allele_richness(population : Array[String]) -> Int32 {
   let alleles : Map[String, Bool] = Map([], capacity=population.length() * 2)
 
   for i = 0; i < population.length(); i = i + 1 {
@@ -184,7 +184,7 @@ pub fn tajima_d(population : Array[String]) -> Double {
 
 ///|
 pub fn fst(subpop1 : Array[String], subpop2 : Array[String]) -> Double {
-  let combined : Array[String] = Array::new()
+  let combined : Array[String] = Array(capacity=0)
   for i = 0; i < subpop1.length(); i = i + 1 {
     combined.push(subpop1[i])
   }
@@ -206,7 +206,10 @@ pub fn fst(subpop1 : Array[String], subpop2 : Array[String]) -> Double {
 ///|
 pub fn pairwise_fst(populations : Array[Array[String]]) -> Array[Array[Double]] {
   let n = populations.length()
-  let matrix = Array::make(n, Array::make(n, 0.0))
+  let matrix = Array::make(n, Array::make(0, 0.0))
+  for idx in 0..<n {
+    matrix[idx] = Array::make(n, 0.0)
+  }
 
   for i = 0; i < n; i = i + 1 {
     for j = i + 1; j < n; j = j + 1 {
@@ -225,7 +228,7 @@ pub fn fst_multiple(populations : Array[Array[String]]) -> Double {
     return 0.0
   }
 
-  let combined : Array[String] = Array::new()
+  let combined : Array[String] = Array(capacity=0)
   for i = 0; i < populations.length(); i = i + 1 {
     for j = 0; j < populations[i].length(); j = j + 1 {
       combined.push(populations[i][j])
@@ -278,7 +281,7 @@ pub fn nucleotide_diversity(population : Array[String]) -> Double {
 }
 
 ///|
-pub fn migrate_rate(fst : Double, ne1 : Int, ne2 : Int) -> Double {
+pub fn migrate_rate(fst : Double, ne1 : Int32, ne2 : Int32) -> Double {
   if fst >= 1.0 {
     return 0.0
   }
@@ -296,7 +299,7 @@ pub fn migrate_rate(fst : Double, ne1 : Int, ne2 : Int) -> Double {
 }
 
 ///|
-pub fn shannon_index(counts : Array[Int]) -> Double {
+pub fn shannon_index(counts : Array[Int32]) -> Double {
   let mut total = 0
   for i = 0; i < counts.length(); i = i + 1 {
     total = total + counts[i]
@@ -319,7 +322,7 @@ pub fn shannon_index(counts : Array[Int]) -> Double {
 }
 
 ///|
-pub fn simpson_index(counts : Array[Int]) -> Double {
+pub fn simpson_index(counts : Array[Int32]) -> Double {
   let mut total = 0
   for i = 0; i < counts.length(); i = i + 1 {
     total = total + counts[i]
@@ -339,7 +342,7 @@ pub fn simpson_index(counts : Array[Int]) -> Double {
 }
 
 ///|
-pub fn simpson_reciprocal(counts : Array[Int]) -> Double {
+pub fn simpson_reciprocal(counts : Array[Int32]) -> Double {
   let mut total = 0
   for i = 0; i < counts.length(); i = i + 1 {
     total = total + counts[i]
@@ -365,7 +368,7 @@ pub fn simpson_reciprocal(counts : Array[Int]) -> Double {
 }
 
 ///|
-pub fn evenness(counts : Array[Int]) -> Double {
+pub fn evenness(counts : Array[Int32]) -> Double {
   let h = shannon_index(counts)
   let s = counts.filter(fn(c) { c > 0 }).length().to_double()
   if s <= 1.0 || h == 0.0 {
@@ -375,7 +378,7 @@ pub fn evenness(counts : Array[Int]) -> Double {
 }
 
 ///|
-pub fn chao1(counts : Array[Int]) -> Double {
+pub fn chao1(counts : Array[Int32]) -> Double {
   let mut total = 0
   for i = 0; i < counts.length(); i = i + 1 {
     total = total + counts[i]
@@ -413,7 +416,7 @@ pub fn chao1(counts : Array[Int]) -> Double {
 }
 
 ///|
-pub fn ace(counts : Array[Int]) -> Double {
+pub fn ace(counts : Array[Int32]) -> Double {
   let mut s_abundant = 0
   let mut s_rare = 0
   let mut f1 = 0
@@ -444,7 +447,7 @@ pub fn ace(counts : Array[Int]) -> Double {
 }
 
 ///|
-pub fn fishers_alpha(counts : Array[Int]) -> Double {
+pub fn fishers_alpha(counts : Array[Int32]) -> Double {
   let mut total = 0
   let mut s = 0
   for i = 0; i < counts.length(); i = i + 1 {
@@ -467,7 +470,7 @@ pub fn fishers_alpha(counts : Array[Int]) -> Double {
   let mut iter = 0
   while iter < max_iter {
     let prev = alpha
-    let exp_val = alpha * (1.0 - (1.0 + total_d / alpha).pow(-1.0))
+    let exp_val = alpha * (1.0 - @math.pow(1.0 + total_d / alpha, -1.0))
     alpha = alpha + (s_d - exp_val) * alpha / total_d
     if (alpha - prev).abs() < tol {
       break
@@ -479,7 +482,7 @@ pub fn fishers_alpha(counts : Array[Int]) -> Double {
 }
 
 ///|
-pub fn margalef_index(counts : Array[Int]) -> Double {
+pub fn margalef_index(counts : Array[Int32]) -> Double {
   let mut total = 0
   let mut s = 0
   for i = 0; i < counts.length(); i = i + 1 {
@@ -497,7 +500,7 @@ pub fn margalef_index(counts : Array[Int]) -> Double {
 }
 
 ///|
-pub fn menhinick_index(counts : Array[Int]) -> Double {
+pub fn menhinick_index(counts : Array[Int32]) -> Double {
   let mut total = 0
   let mut s = 0
   for i = 0; i < counts.length(); i = i + 1 {

@@ -38,9 +38,9 @@ test "decoupler_wsum_basic" {
     samples,
     genes,
     pkn,
-    method=@src.decoupler_wsum_method(),
+    method_=@src.decoupler_wsum_method(),
   )
-  assert_eq(result.method, "wsum")
+  assert_eq(result.method_, "wsum")
   assert_eq(result.samples.length(), 5)
   // 3 TFs in the PKN
   assert_eq(result.regulators.length(), 3)
@@ -66,9 +66,9 @@ test "decoupler_wmean_basic" {
     samples,
     genes,
     pkn,
-    method=@src.decoupler_wmean_method(),
+    method_=@src.decoupler_wmean_method(),
   )
-  assert_eq(result.method, "wmean")
+  assert_eq(result.method_, "wmean")
   assert_eq(result.regulators.length(), 3)
   // wmean normalizes by sum of absolute weights, so magnitude is smaller than wsum
   let wsum_result = @src.decoupler_run(
@@ -76,7 +76,7 @@ test "decoupler_wmean_basic" {
     samples,
     genes,
     pkn,
-    method=@src.decoupler_wsum_method(),
+    method_=@src.decoupler_wsum_method(),
   )
   let mut i = 0
   while i < result.regulators.length() {
@@ -100,9 +100,9 @@ test "decoupler_norm_basic" {
     samples,
     genes,
     pkn,
-    method=@src.decoupler_norm_method(),
+    method_=@src.decoupler_norm_method(),
   )
-  assert_eq(result.method, "norm")
+  assert_eq(result.method_, "norm")
   // Normalized scores should have mean ~0 per regulator across samples
   let mut i = 0
   while i < result.regulators.length() {
@@ -126,9 +126,9 @@ test "decoupler_ulm_basic" {
     samples,
     genes,
     pkn,
-    method=@src.decoupler_ulm_method(),
+    method_=@src.decoupler_ulm_method(),
   )
-  assert_eq(result.method, "ulm")
+  assert_eq(result.method_, "ulm")
   assert_eq(result.regulators.length(), 3)
   // ULM scores are standardized; mean across samples should be ~0
   let mut i = 0
@@ -153,9 +153,9 @@ test "decoupler_mlm_basic" {
     samples,
     genes,
     pkn,
-    method=@src.decoupler_mlm_method(),
+    method_=@src.decoupler_mlm_method(),
   )
-  assert_eq(result.method, "mlm")
+  assert_eq(result.method_, "mlm")
   assert_eq(result.regulators.length(), 3)
   // MLM slope for TF1 should be positive (TF1 activates its targets)
   let mut tf1_idx = -1
@@ -179,7 +179,7 @@ test "decoupler_scores_per_cell" {
     samples,
     genes,
     pkn,
-    method=@src.decoupler_wsum_method(),
+    method_=@src.decoupler_wsum_method(),
   )
   // Should have one score per regulator × sample combination
   assert_eq(
@@ -196,7 +196,7 @@ test "decoupler_top_regulators" {
     samples,
     genes,
     pkn,
-    method=@src.decoupler_wsum_method(),
+    method_=@src.decoupler_wsum_method(),
   )
   let top = @src.decoupler_top_regulators(result, "S1", 2)
   assert_true(top.length() <= 2)
@@ -220,7 +220,7 @@ test "decoupler_top_regulators_unknown_sample" {
     samples,
     genes,
     pkn,
-    method=@src.decoupler_wsum_method(),
+    method_=@src.decoupler_wsum_method(),
   )
   let top = @src.decoupler_top_regulators(result, "UNKNOWN", 3)
   assert_eq(top.length(), 0)
@@ -234,7 +234,7 @@ test "decoupler_filter_scores" {
     samples,
     genes,
     pkn,
-    method=@src.decoupler_wsum_method(),
+    method_=@src.decoupler_wsum_method(),
   )
   let filtered = @src.decoupler_filter_scores(result, 0.5)
   // All filtered scores should have |score| >= 0.5
@@ -259,7 +259,7 @@ test "decoupler_default_method_is_ulm" {
   let (expr, samples, genes, pkn) = @src.decoupler_sample_data()
   // Default method argument should be ULM
   let result = @src.decoupler_run(expr, samples, genes, pkn)
-  assert_eq(result.method, "ulm")
+  assert_eq(result.method_, "ulm")
 }
 
 ///|
@@ -275,7 +275,7 @@ test "decoupler_wsum_symmetric_in_sign" {
     samples,
     genes,
     pkn,
-    method=@src.decoupler_wsum_method(),
+    method_=@src.decoupler_wsum_method(),
   )
   // REP's only target is G1 with weight -1.0; in S1, G1=5 → wsum=-5; in S2, G1=0 → wsum=0
   assert_eq(result.regulators.length(), 1)
@@ -300,7 +300,7 @@ test "decoupler_pkn_with_unknown_genes" {
     samples,
     genes,
     pkn,
-    method=@src.decoupler_wsum_method(),
+    method_=@src.decoupler_wsum_method(),
   )
   // Only TF1 (which appears as a gene) should be in regulators
   assert_eq(result.regulators.length(), 1)
@@ -318,7 +318,7 @@ test "decoupler_empty_pkn" {
     samples,
     genes,
     pkn,
-    method=@src.decoupler_wsum_method(),
+    method_=@src.decoupler_wsum_method(),
   )
   assert_eq(result.regulators.length(), 0)
   assert_eq(result.scores.length(), 0)

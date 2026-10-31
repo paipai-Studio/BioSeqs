@@ -13,11 +13,11 @@ pub struct DihedralAngles {
 ///|
 /// Construct DihedralAngles.
 pub fn DihedralAngles::new(
-  phi? : Double? = None,
-  psi? : Double? = None,
-  omega? : Double? = None,
+  phi~ : Double? = None,
+  psi~ : Double? = None,
+  omega~ : Double? = None,
 ) -> DihedralAngles {
-  DihedralAngles::{ phi, psi, omega }
+  DihedralAngles::{ phi, psi, omega, }
 }
 
 ///|
@@ -31,7 +31,13 @@ pub enum SSType {
   Turn // T
   Bend // S
   Coil // -
-} derive(Eq, Show, Debug)
+} derive(Eq, Debug)
+
+///|
+pub extend SSType with Eq::{equal, not_equal}
+
+///|
+pub extend SSType with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Construct AlphaHelix SSType.
@@ -40,39 +46,9 @@ pub fn ss_alpha_helix() -> SSType {
 }
 
 ///|
-/// Construct Helix3_10 SSType.
-pub fn ss_helix_3_10() -> SSType {
-  Helix3_10
-}
-
-///|
-/// Construct PiHelix SSType.
-pub fn ss_pi_helix() -> SSType {
-  PiHelix
-}
-
-///|
 /// Construct ExtendedStrand SSType.
 pub fn ss_extended_strand() -> SSType {
   ExtendedStrand
-}
-
-///|
-/// Construct IsolatedBridge SSType.
-pub fn ss_isolated_bridge() -> SSType {
-  IsolatedBridge
-}
-
-///|
-/// Construct Turn SSType.
-pub fn ss_turn() -> SSType {
-  Turn
-}
-
-///|
-/// Construct Bend SSType.
-pub fn ss_bend() -> SSType {
-  Bend
 }
 
 ///|
@@ -185,10 +161,10 @@ fn Vector3::normalize_safe(self : Vector3) -> Vector3 {
 /// A hydrogen bond detected in the structure.
 pub struct HydrogenBond {
   donor_resname : String
-  donor_resseq : Int
+  donor_resseq : Int32
   donor_chainid : Char
   acceptor_resname : String
-  acceptor_resseq : Int
+  acceptor_resseq : Int32
   acceptor_chainid : Char
   distance : Double
   angle : Double
@@ -198,10 +174,10 @@ pub struct HydrogenBond {
 /// Construct a HydrogenBond.
 pub fn HydrogenBond::new(
   donor_resname~ : String,
-  donor_resseq~ : Int,
+  donor_resseq~ : Int32,
   donor_chainid~ : Char,
   acceptor_resname~ : String,
-  acceptor_resseq~ : Int,
+  acceptor_resseq~ : Int32,
   acceptor_chainid~ : Char,
   distance~ : Double,
   angle~ : Double,
@@ -268,8 +244,8 @@ pub fn calc_omega(res : Residue, next_res : Residue) -> Double? {
 /// Returns an array of (resseq, phi, psi, omega) tuples.
 pub fn calc_chain_dihedrals(
   chain : Chain,
-) -> Array[(Int, Double?, Double?, Double?)] {
-  let result : Array[(Int, Double?, Double?, Double?)] = Array::new()
+) -> Array[(Int32, Double?, Double?, Double?)] {
+  let result : Array[(Int32, Double?, Double?, Double?)] = Array(capacity=0)
   let residues = chain.get_residues()
   let n = residues.length()
   let mut i = 0
@@ -290,7 +266,7 @@ pub fn calc_chain_dihedrals(
 /// between CA of residue i and CA of residue j.
 pub fn calc_ca_distance_matrix(chain : Chain) -> Array[Array[Double]] {
   let residues = chain.get_residues()
-  let ca_atoms : Array[Vector3] = Array::new()
+  let ca_atoms : Array[Vector3] = Array(capacity=0)
   for res in residues {
     match res.get_ca() {
       Some(ca) => ca_atoms.push(ca.coord)
@@ -298,10 +274,10 @@ pub fn calc_ca_distance_matrix(chain : Chain) -> Array[Array[Double]] {
     }
   }
   let n = ca_atoms.length()
-  let matrix : Array[Array[Double]] = Array::new()
+  let matrix : Array[Array[Double]] = Array(capacity=0)
   let mut i = 0
   while i < n {
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     let mut j = 0
     while j < n {
       row.push(ca_atoms[i].distance(ca_atoms[j]))
@@ -318,14 +294,14 @@ pub fn calc_ca_distance_matrix(chain : Chain) -> Array[Array[Double]] {
 /// Two residues are in contact if their CA distance < threshold.
 pub fn calc_contact_map(
   chain : Chain,
-  threshold? : Double = 8.0,
+  threshold~ : Double = 8.0,
 ) -> Array[Array[Bool]] {
   let matrix = calc_ca_distance_matrix(chain)
   let n = matrix.length()
-  let contact : Array[Array[Bool]] = Array::new()
+  let contact : Array[Array[Bool]] = Array(capacity=0)
   let mut i = 0
   while i < n {
-    let row : Array[Bool] = Array::new()
+    let row : Array[Bool] = Array(capacity=0)
     let mut j = 0
     while j < n {
       row.push(matrix[i][j] < threshold && i != j)
@@ -344,10 +320,10 @@ pub fn calc_contact_map(
 /// min_angle defaults to 90 degrees.
 pub fn detect_hydrogen_bonds(
   chain : Chain,
-  max_dist? : Double = 3.5,
-  min_angle? : Double = 90.0,
+  max_dist~ : Double = 3.5,
+  min_angle~ : Double = 90.0,
 ) -> Array[HydrogenBond] {
-  let result : Array[HydrogenBond] = Array::new()
+  let result : Array[HydrogenBond] = Array(capacity=0)
   let residues = chain.get_residues()
   let n = residues.length()
   let mut i = 0
@@ -362,7 +338,7 @@ pub fn detect_hydrogen_bonds(
         let acceptor = residues[j]
         let o_atom = acceptor.find_atom("O")
         match (n_atom, ca_atom, c_atom, o_atom) {
-          (Some(n), Some(ca), Some(c), Some(o)) => {
+          (Some(n), Some(ca), Some(_), Some(o)) => {
             let dist = n.coord.distance(o.coord)
             if dist <= max_dist {
               // Simplified angle check: N-H...O angle
@@ -398,18 +374,18 @@ pub fn detect_hydrogen_bonds(
 ///|
 /// Assign secondary structure based on phi/psi angles and hydrogen bond patterns.
 /// Uses a simplified Ramachandran-based classification.
-pub fn assign_secondary_structure(chain : Chain) -> Array[(Int, SSType)] {
-  let result : Array[(Int, SSType)] = Array::new()
+pub fn assign_secondary_structure(chain : Chain) -> Array[(Int32, SSType)] {
+  let result : Array[(Int32, SSType)] = Array(capacity=0)
   let dihedrals = calc_chain_dihedrals(chain)
   let hbonds = detect_hydrogen_bonds(chain)
 
   // Build hydrogen bond map: (donor_resseq -> acceptor_resseq)
-  let hbond_map : Map[Int, Array[Int]] = Map([], capacity=16)
+  let hbond_map : Map[Int32, Array[Int32]] = Map([], capacity=16)
   for hb in hbonds {
     match hbond_map.get(hb.donor_resseq) {
       Some(arr) => arr.push(hb.acceptor_resseq)
       None => {
-        let arr : Array[Int] = Array::new()
+        let arr : Array[Int32] = Array(capacity=0)
         arr.push(hb.acceptor_resseq)
         hbond_map[hb.donor_resseq] = arr
       }
@@ -463,9 +439,9 @@ pub fn assign_secondary_structure(chain : Chain) -> Array[(Int, SSType)] {
 ///|
 /// Count residues by secondary structure type.
 pub fn count_secondary_structure(
-  ss_assignments : Array[(Int, SSType)],
-) -> Map[String, Int] {
-  let result : Map[String, Int] = Map([], capacity=8)
+  ss_assignments : Array[(Int32, SSType)],
+) -> Map[String, Int32] {
+  let result : Map[String, Int32] = Map([], capacity=8)
   for entry in ss_assignments {
     let ss = entry.1
     let key = ss.to_code().to_string()
@@ -482,7 +458,7 @@ pub fn count_secondary_structure(
 /// Measures the overall size/compactness of the protein.
 pub fn calc_radius_of_gyration(chain : Chain) -> Double? {
   let residues = chain.get_residues()
-  let coords : Array[Vector3] = Array::new()
+  let coords : Array[Vector3] = Array(capacity=0)
   for res in residues {
     match res.get_ca() {
       Some(ca) => coords.push(ca.coord)
@@ -519,8 +495,10 @@ pub fn calc_radius_of_gyration(chain : Chain) -> Double? {
 ///|
 /// Calculate the Ramachandran plot data for a chain.
 /// Returns an array of (resseq, resname, phi, psi) tuples.
-pub fn ramachandran_plot(chain : Chain) -> Array[(Int, String, Double, Double)] {
-  let result : Array[(Int, String, Double, Double)] = Array::new()
+pub fn ramachandran_plot(
+  chain : Chain,
+) -> Array[(Int32, String, Double, Double)] {
+  let result : Array[(Int32, String, Double, Double)] = Array(capacity=0)
   let dihedrals = calc_chain_dihedrals(chain)
   let residues = chain.get_residues()
   let n = dihedrals.length()
@@ -543,7 +521,23 @@ pub enum RamachandranRegion {
   Favored // Most favorable region
   Allowed // Allowed region
   Generous // Generous/outlier region
-} derive(Eq, Show, Debug)
+} derive(Eq, Debug)
+
+///|
+pub extend RamachandranRegion with Eq::{equal, not_equal}
+
+///|
+pub extend RamachandranRegion with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+/// String representation (ordinary method, replacing the deprecated Show derive).
+pub fn RamachandranRegion::to_string(self : RamachandranRegion) -> String {
+  match self {
+    Favored => "Favored"
+    Allowed => "Allowed"
+    Generous => "Generous"
+  }
+}
 
 ///|
 /// Construct Favored RamachandranRegion.
@@ -555,12 +549,6 @@ pub fn ramachandran_favored() -> RamachandranRegion {
 /// Construct Allowed RamachandranRegion.
 pub fn ramachandran_allowed() -> RamachandranRegion {
   Allowed
-}
-
-///|
-/// Construct Generous RamachandranRegion.
-pub fn ramachandran_generous() -> RamachandranRegion {
-  Generous
 }
 
 ///|
@@ -588,7 +576,7 @@ pub fn classify_ramachandran(phi : Double, psi : Double) -> RamachandranRegion {
 /// Create a demo protein structure for testing.
 pub fn create_demo_structure() -> Structure {
   // Create a small beta-hairpin-like structure
-  let chain_a = Chain::new(id='A')
+  let _chain_a = Chain::new(id='A')
   // Residue 1: ALA
   let res1 = Residue::new(resname="ALA", chainid='A', resseq=1, atoms=[
     Atom::new(name="N", coord=Vector3::new(0.0, 0.0, 0.0)),
@@ -676,8 +664,8 @@ pub fn vdw_radius(atom_name : String) -> Double {
 ///|
 /// Generate sphere points using the golden spiral method.
 /// Returns an array of unit vector points on a sphere.
-fn generate_sphere_points(n_points : Int) -> Array[Vector3] {
-  let points : Array[Vector3] = Array::new()
+fn generate_sphere_points(n_points : Int32) -> Array[Vector3] {
+  let points : Array[Vector3] = Array(capacity=0)
   let golden_angle = 3.14159265358979323846 * (3.0 - 5.0.sqrt())
 
   let mut i = 0
@@ -702,14 +690,14 @@ fn generate_sphere_points(n_points : Int) -> Array[Vector3] {
 /// n_points defaults to 100 points per sphere.
 pub fn calc_sasa(
   chain : Chain,
-  probe_radius? : Double = 1.4,
-  n_points? : Int = 100,
+  probe_radius~ : Double = 1.4,
+  n_points~ : Int32 = 100,
 ) -> Array[(String, Double)] {
-  let result : Array[(String, Double)] = Array::new()
+  let result : Array[(String, Double)] = Array(capacity=0)
   let residues = chain.get_residues()
 
   // Collect all atoms with radii
-  let atoms : Array[(Vector3, Double, String)] = Array::new()
+  let atoms : Array[(Vector3, Double, String)] = Array(capacity=0)
   for res in residues {
     for atom in res.atoms {
       let radius = vdw_radius(atom.name) + probe_radius
@@ -782,7 +770,7 @@ pub fn calc_sasa(
 
 ///|
 /// Calculate total SASA for a chain.
-pub fn calc_total_sasa(chain : Chain, probe_radius? : Double = 1.4) -> Double {
+pub fn calc_total_sasa(chain : Chain, probe_radius~ : Double = 1.4) -> Double {
   let sasa_values = calc_sasa(chain, probe_radius~)
   let mut total = 0.0
   for entry in sasa_values {
@@ -796,19 +784,19 @@ pub fn calc_total_sasa(chain : Chain, probe_radius? : Double = 1.4) -> Double {
 /// Returns an array of (resseq, resname, sasa) tuples.
 pub fn calc_residue_sasa(
   chain : Chain,
-  probe_radius? : Double = 1.4,
-) -> Array[(Int, String, Double)] {
-  let result : Array[(Int, String, Double)] = Array::new()
+  probe_radius~ : Double = 1.4,
+) -> Array[(Int32, String, Double)] {
+  let result : Array[(Int32, String, Double)] = Array(capacity=0)
   let residues = chain.get_residues()
   let atom_sasa = calc_sasa(chain, probe_radius~)
 
   // Map atoms back to residues
-  let atom_idx = {
+  let _atom_idx = {
     let mut idx = 0
-    let res_atom_map : Map[Int, Double] = Map([], capacity=residues.length())
+    let res_atom_map : Map[Int32, Double] = Map([], capacity=residues.length())
     for res in residues {
       let mut res_sasa = 0.0
-      for atom in res.atoms {
+      for _ in res.atoms {
         if idx < atom_sasa.length() {
           let (_, sasa) = atom_sasa[idx]
           res_sasa = res_sasa + sasa
@@ -858,11 +846,11 @@ pub fn ramachandran_quality(chain : Chain) -> (Double, Double, Double) {
 pub fn calc_sequence_property_matrix(chain : Chain) -> Array[Array[Double]] {
   let residues = chain.get_residues()
   let n = residues.length()
-  let matrix : Array[Array[Double]] = Array::new()
+  let matrix : Array[Array[Double]] = Array(capacity=0)
 
   let mut i = 0
   while i < n {
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     let prop_i = get_hydrophobicity(residues[i].resname)
     let mut j = 0
     while j < n {

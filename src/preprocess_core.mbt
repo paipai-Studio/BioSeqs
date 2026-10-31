@@ -20,21 +20,21 @@
 pub struct QuantileNormConfig {
   copy : Bool
   keep_names : Bool
-  method : String
+  method_ : String
 }
 
 ///|
 /// Create default quantile normalization config.
 pub fn QuantileNormConfig::new() -> QuantileNormConfig {
-  QuantileNormConfig::{ copy: true, keep_names: true, method: "quantile" }
+  QuantileNormConfig::{ copy: true, keep_names: true, method_: "quantile", }
 }
 
 ///|
 /// Result from invariant set normalization.
 pub struct InvariantSetResult {
   normalized_data : Array[Array[Double]]
-  invariant_set_indices : Array[Int]
-  reference_index : Int
+  invariant_set_indices : Array[Int32]
+  reference_index : Int32
   fit_coefficients : Array[Double] // [intercept, slope]
 }
 
@@ -42,8 +42,8 @@ pub struct InvariantSetResult {
 /// Create invariant set result.
 pub fn InvariantSetResult::new(
   normalized_data : Array[Array[Double]],
-  invariant_set_indices : Array[Int],
-  reference_index : Int,
+  invariant_set_indices : Array[Int32],
+  reference_index : Int32,
   fit_coefficients : Array[Double],
 ) -> InvariantSetResult {
   InvariantSetResult::{
@@ -88,9 +88,9 @@ fn pc_sort_doubles(arr : Array[Double]) -> Array[Double] {
 
 ///|
 /// Get sorted indices (argsort) - returns indices that would sort array.
-fn pc_argsort(arr : Array[Double]) -> Array[Int] {
+fn pc_argsort(arr : Array[Double]) -> Array[Int32] {
   let n = arr.length()
-  let indices : Array[Int] = Array::make(n, 0)
+  let indices : Array[Int32] = Array::make(n, 0)
   for i in 0..<n {
     indices[i] = i
   }
@@ -218,7 +218,7 @@ pub fn normalize_quantiles(
   for _col in 0..<n_cols {
     sorted_cols.push([])
   }
-  let order_indices : Array[Array[Int]] = []
+  let order_indices : Array[Array[Int32]] = []
   for _col in 0..<n_cols {
     order_indices.push([])
   }
@@ -347,7 +347,7 @@ pub fn normalize_quantiles_determine_target(
 /// Useful for normalizing by group or using a subset of features.
 pub fn normalize_quantiles_subset(
   matrix : Array[Array[Double]],
-  subset_indices : Array[Int],
+  subset_indices : Array[Int32],
 ) -> Array[Array[Double]] {
   let n_rows = matrix.length()
   if n_rows == 0 {
@@ -416,9 +416,9 @@ pub fn normalize_quantiles_subset(
 pub fn find_invariant_set(
   reference : Array[Double],
   target : Array[Double],
-  threshold? : Double = 0.005,
-  max_iterations? : Int = 10,
-) -> Array[Int] {
+  threshold~ : Double = 0.005,
+  max_iterations~ : Int32 = 10,
+) -> Array[Int32] {
   let n = reference.length()
   if n != target.length() || n == 0 {
     return []
@@ -436,7 +436,7 @@ pub fn find_invariant_set(
   }
 
   // Start with all indices as invariant set
-  let mut invariant : Array[Int] = []
+  let mut invariant : Array[Int32] = []
   for i in 0..<n {
     invariant.push(i)
   }
@@ -451,7 +451,7 @@ pub fn find_invariant_set(
     let slope = coef[1]
 
     // Compute residuals and filter
-    let new_invariant : Array[Int] = []
+    let new_invariant : Array[Int32] = []
     let mut max_residual = 0.0
     for idx in invariant {
       let predicted = intercept + slope * ref_ranks[idx]
@@ -490,8 +490,8 @@ pub fn find_invariant_set(
 /// Reference column is specified by reference_index.
 pub fn normalize_invariantset(
   matrix : Array[Array[Double]],
-  reference_index? : Int = 0,
-  threshold? : Double = 0.005,
+  reference_index~ : Int32 = 0,
+  threshold~ : Double = 0.005,
 ) -> InvariantSetResult {
   let n_rows = matrix.length()
   if n_rows == 0 {
@@ -565,7 +565,7 @@ pub fn normalize_invariantset(
 /// log2(x + offset)
 pub fn log2_transform(
   matrix : Array[Array[Double]],
-  offset? : Double = 1.0,
+  offset~ : Double = 1.0,
 ) -> Array[Array[Double]] {
   let n_rows = matrix.length()
   if n_rows == 0 {
@@ -594,7 +594,7 @@ pub fn log2_transform(
 /// Uses a simple percentile-based background estimate from each column.
 pub fn background_correct_percentile(
   matrix : Array[Array[Double]],
-  percentile? : Double = 0.02,
+  percentile~ : Double = 0.02,
 ) -> Array[Array[Double]] {
   let n_rows = matrix.length()
   if n_rows == 0 {

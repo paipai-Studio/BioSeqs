@@ -85,8 +85,8 @@ pub fn track_strand_unstranded() -> GvizStrand {
 pub struct GvizFeature {
   feature_id : String
   chromosome : String
-  start : Int
-  end_ : Int
+  start : Int32
+  end_ : Int32
   strand : GvizStrand
   feature_type : String
   label : String
@@ -98,10 +98,10 @@ pub struct GvizTrack {
   track_name : String
   track_type : GvizTrackType
   chromosome : String
-  start : Int
-  end_ : Int
+  start : Int32
+  end_ : Int32
   features : Array[GvizFeature]
-  data_values : Array[(Int, Double)]
+  data_values : Array[(Int32, Double)]
   mut color : String
   mut display_label : String
 }
@@ -110,8 +110,8 @@ pub struct GvizTrack {
 /// A genome region to display.
 pub struct GvizRegion {
   chromosome : String
-  start : Int
-  end_ : Int
+  start : Int32
+  end_ : Int32
 }
 
 ///|
@@ -120,8 +120,8 @@ pub struct GvizPlot {
   tracks : Array[GvizTrack]
   region : GvizRegion
   title : String
-  width : Int
-  height : Int
+  width : Int32
+  height : Int32
 }
 
 ///|
@@ -149,7 +149,7 @@ pub fn GvizStrand::to_string(self : GvizStrand) -> String {
 
 ///|
 /// Repeat a string n times.
-fn gviz_repeat(s : String, n : Int) -> String {
+fn gviz_repeat(s : String, n : Int32) -> String {
   let mut result = ""
   let mut i = 0
   while i < n {
@@ -164,8 +164,8 @@ fn gviz_repeat(s : String, n : Int) -> String {
 pub fn gviz_feature(
   feature_id : String,
   chromosome : String,
-  start : Int,
-  end_ : Int,
+  start : Int32,
+  end_ : Int32,
   strand : GvizStrand,
   feature_type : String,
   label : String,
@@ -187,8 +187,8 @@ pub fn gviz_track(
   track_name : String,
   track_type : GvizTrackType,
   chromosome : String,
-  start : Int,
-  end_ : Int,
+  start : Int32,
+  end_ : Int32,
 ) -> GvizTrack {
   GvizTrack::{
     track_name,
@@ -196,8 +196,8 @@ pub fn gviz_track(
     chromosome,
     start,
     end_,
-    features: Array::new(),
-    data_values: Array::new(),
+    features: Array(capacity=0),
+    data_values: Array(capacity=0),
     color: "black",
     display_label: track_name,
   }
@@ -225,7 +225,7 @@ pub fn GvizTrack::add_feature(self : GvizTrack, feature : GvizFeature) -> Unit {
 /// Add a data point to a DataTrack.
 pub fn GvizTrack::add_data_point(
   self : GvizTrack,
-  position : Int,
+  position : Int32,
   value : Double,
 ) -> Unit {
   self.data_values.push((position, value))
@@ -233,13 +233,13 @@ pub fn GvizTrack::add_data_point(
 
 ///|
 /// Get number of features.
-pub fn GvizTrack::get_n_features(self : GvizTrack) -> Int {
+pub fn GvizTrack::get_n_features(self : GvizTrack) -> Int32 {
   self.features.length()
 }
 
 ///|
 /// Get number of data points.
-pub fn GvizTrack::get_n_data_points(self : GvizTrack) -> Int {
+pub fn GvizTrack::get_n_data_points(self : GvizTrack) -> Int32 {
   self.data_values.length()
 }
 
@@ -247,10 +247,10 @@ pub fn GvizTrack::get_n_data_points(self : GvizTrack) -> Int {
 /// Get features within a specific region.
 pub fn GvizTrack::get_features_in_region(
   self : GvizTrack,
-  start : Int,
-  end_ : Int,
+  start : Int32,
+  end_ : Int32,
 ) -> Array[GvizFeature] {
-  let result : Array[GvizFeature] = Array::new()
+  let result : Array[GvizFeature] = Array(capacity=0)
   let mut i = 0
   while i < self.features.length() {
     let f = self.features[i]
@@ -266,10 +266,10 @@ pub fn GvizTrack::get_features_in_region(
 /// Get data values within a specific region.
 pub fn GvizTrack::get_data_in_region(
   self : GvizTrack,
-  start : Int,
-  end_ : Int,
-) -> Array[(Int, Double)] {
-  let result : Array[(Int, Double)] = Array::new()
+  start : Int32,
+  end_ : Int32,
+) -> Array[(Int32, Double)] {
+  let result : Array[(Int32, Double)] = Array(capacity=0)
   let mut i = 0
   while i < self.data_values.length() {
     let (pos, val) = self.data_values[i]
@@ -283,19 +283,23 @@ pub fn GvizTrack::get_data_in_region(
 
 ///|
 /// Create a genome region.
-pub fn gviz_region(chromosome : String, start : Int, end_ : Int) -> GvizRegion {
-  GvizRegion::{ chromosome, start, end_ }
+pub fn gviz_region(
+  chromosome : String,
+  start : Int32,
+  end_ : Int32,
+) -> GvizRegion {
+  GvizRegion::{ chromosome, start, end_, }
 }
 
 ///|
 /// Create a GvizPlot.
 pub fn gviz_plot(
   region : GvizRegion,
-  title? : String = "",
-  width? : Int = 80,
-  height? : Int = 25,
+  title~ : String = "",
+  width~ : Int32 = 80,
+  height~ : Int32 = 25,
 ) -> GvizPlot {
-  GvizPlot::{ tracks: Array::new(), region, title, width, height }
+  GvizPlot::{ tracks: Array(capacity=0), region, title, width, height, }
 }
 
 ///|
@@ -306,7 +310,7 @@ pub fn GvizPlot::add_track(self : GvizPlot, track : GvizTrack) -> Unit {
 
 ///|
 /// Get number of tracks.
-pub fn GvizPlot::get_n_tracks(self : GvizPlot) -> Int {
+pub fn GvizPlot::get_n_tracks(self : GvizPlot) -> Int32 {
   self.tracks.length()
 }
 
@@ -381,7 +385,7 @@ pub fn GvizPlot::to_ascii(self : GvizPlot) -> String {
 
 ///|
 /// Render genome axis.
-fn gviz_render_axis(start : Int, end_ : Int, width : Int) -> String {
+fn gviz_render_axis(start : Int32, end_ : Int32, width : Int32) -> String {
   let mut s = ""
   let len = end_ - start
   let step = len / (width - 1)
@@ -422,9 +426,9 @@ fn gviz_render_axis(start : Int, end_ : Int, width : Int) -> String {
 /// Render features as boxes.
 fn gviz_render_features(
   track : GvizTrack,
-  region_start : Int,
-  region_end : Int,
-  width : Int,
+  region_start : Int32,
+  region_end : Int32,
+  width : Int32,
 ) -> String {
   let region_len = (region_end - region_start).to_double()
   if region_len <= 0.0 {
@@ -432,7 +436,7 @@ fn gviz_render_features(
   }
 
   // Build the rendering grid
-  let grid : Array[String] = Array::new()
+  let grid : Array[String] = Array(capacity=0)
   let mut i = 0
   while i < width {
     grid.push(" ")
@@ -501,16 +505,16 @@ fn gviz_render_features(
 /// Render feature labels.
 fn gviz_render_labels(
   track : GvizTrack,
-  region_start : Int,
-  region_end : Int,
-  width : Int,
+  region_start : Int32,
+  region_end : Int32,
+  width : Int32,
 ) -> String {
   let region_len = (region_end - region_start).to_double()
   if region_len <= 0.0 {
     return ""
   }
 
-  let grid : Array[String] = Array::new()
+  let grid : Array[String] = Array(capacity=0)
   let mut i = 0
   while i < width {
     grid.push(" ")
@@ -531,7 +535,7 @@ fn gviz_render_labels(
         let label = f.label
         let mut li = 0
         while li < label.length() && rel_mid + li < width {
-          grid.set(rel_mid + li, label.substring(start=li, end=li + 1))
+          grid.set(rel_mid + li, label[li:li + 1].to_owned())
           li = li + 1
         }
       }
@@ -546,9 +550,9 @@ fn gviz_render_labels(
 /// Render data track as a simple bar plot.
 fn gviz_render_data(
   track : GvizTrack,
-  region_start : Int,
-  region_end : Int,
-  width : Int,
+  region_start : Int32,
+  region_end : Int32,
+  width : Int32,
 ) -> String {
   let data = track.get_data_in_region(region_start, region_end)
   if data.length() == 0 {
@@ -578,10 +582,10 @@ fn gviz_render_data(
 
   // Build bar chart
   let bar_height = 5
-  let grid : Array[Array[String]] = Array::new()
+  let grid : Array[Array[String]] = Array(capacity=0)
   let mut ri = 0
   while ri < bar_height {
-    let row : Array[String] = Array::new()
+    let row : Array[String] = Array(capacity=0)
     let mut ci = 0
     while ci < width {
       row.push(" ")
@@ -629,10 +633,10 @@ fn gviz_render_data(
 ///|
 /// Render ideogram track.
 fn gviz_render_ideogram(
-  track : GvizTrack,
-  region_start : Int,
-  region_end : Int,
-  width : Int,
+  _track : GvizTrack,
+  _region_start : Int32,
+  _region_end : Int32,
+  width : Int32,
 ) -> String {
   // Simplified ideogram: draw a chromosome bar with centromere marker
   let mut s = ""
@@ -660,10 +664,10 @@ fn gviz_render_ideogram(
 ///|
 /// Render sequence track.
 fn gviz_render_sequence(
-  track : GvizTrack,
-  region_start : Int,
-  region_end : Int,
-  width : Int,
+  _track : GvizTrack,
+  region_start : Int32,
+  region_end : Int32,
+  width : Int32,
 ) -> String {
   let region_len = region_end - region_start
   if region_len <= 0 {
@@ -677,7 +681,7 @@ fn gviz_render_sequence(
   let mut i = 0
   while i < display_len {
     let idx = (region_start + i) % chars.length()
-    s = s + chars.substring(start=idx, end=idx + 1)
+    s = s + chars[idx:idx + 1].to_owned()
     i = i + 1
   }
 

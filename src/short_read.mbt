@@ -1,23 +1,23 @@
 ///|
 pub struct FastqQualityStats {
-  n_reads : Int
-  read_length : Int
+  n_reads : Int32
+  read_length : Int32
   mut gc_content : Double
   mut mean_quality : Double
   quality_by_cycle : Array[Double]
-  n_count_by_cycle : Array[Int]
-  quality_distribution : Array[Int]
+  n_count_by_cycle : Array[Int32]
+  quality_distribution : Array[Int32]
   mut dup_rate : Double
 }
 
 ///|
 pub fn FastqQualityStats::new(
-  n_reads : Int,
-  read_length : Int,
+  n_reads : Int32,
+  read_length : Int32,
 ) -> FastqQualityStats {
   let quality_by_cycle : Array[Double] = Array::make(read_length, 0.0)
-  let n_count_by_cycle : Array[Int] = Array::make(read_length, 0)
-  let quality_distribution : Array[Int] = Array::make(42, 0)
+  let n_count_by_cycle : Array[Int32] = Array::make(read_length, 0)
+  let quality_distribution : Array[Int32] = Array::make(42, 0)
   FastqQualityStats::{
     n_reads,
     read_length,
@@ -49,7 +49,7 @@ pub fn FastqQualityStats::to_string(self : FastqQualityStats) -> String {
 }
 
 ///|
-fn qual_char_to_phred(c : UInt16) -> Int {
+fn qual_char_to_phred(c : UInt16) -> Int32 {
   c.to_int() - 33
 }
 
@@ -77,14 +77,14 @@ pub fn qa_summary(
   let stats = FastqQualityStats::new(n, read_length)
 
   let cycle_qual_sum : Array[Double] = Array::make(read_length, 0.0)
-  let cycle_n_count : Array[Int] = Array::make(read_length, 0)
-  let qual_dist : Array[Int] = Array::make(42, 0)
+  let cycle_n_count : Array[Int32] = Array::make(read_length, 0)
+  let qual_dist : Array[Int32] = Array::make(42, 0)
 
   let mut total_gc = 0.0
   let mut total_bases = 0
   let mut total_qual = 0.0
 
-  let seen : Map[String, Int] = Map([], capacity=n / 2)
+  let seen : Map[String, Int32] = Map([], capacity=n / 2)
   let mut dup_count = 0
 
   let mut i = 0
@@ -162,22 +162,22 @@ pub fn qa_summary(
 
 ///|
 pub struct TrimParams {
-  min_quality : Int
-  min_length : Int
-  trim_left : Int
-  trim_right : Int
+  min_quality : Int32
+  min_length : Int32
+  trim_left : Int32
+  trim_right : Int32
 }
 
 ///|
 pub fn TrimParams::new() -> TrimParams {
-  TrimParams::{ min_quality: 20, min_length: 36, trim_left: 0, trim_right: 0 }
+  TrimParams::{ min_quality: 20, min_length: 36, trim_left: 0, trim_right: 0, }
 }
 
 ///|
 pub fn trim_tail(
   sequence : String,
   quality : String,
-  min_quality : Int,
+  min_quality : Int32,
 ) -> (String, String) {
   let len = sequence.length()
   if len == 0 {
@@ -195,14 +195,14 @@ pub fn trim_tail(
     i = i - 1
   }
 
-  (sequence[0:trim_pos].to_string(), quality[0:trim_pos].to_string())
+  (sequence[0:trim_pos].to_owned(), quality[0:trim_pos].to_owned())
 }
 
 ///|
 pub fn trim_leading(
   sequence : String,
   quality : String,
-  min_quality : Int,
+  min_quality : Int32,
 ) -> (String, String) {
   let len = sequence.length()
   if len == 0 {
@@ -222,7 +222,7 @@ pub fn trim_leading(
     return ("", "")
   }
 
-  (sequence[start:len].to_string(), quality[start:len].to_string())
+  (sequence[start:len].to_owned(), quality[start:len].to_owned())
 }
 
 ///|
@@ -230,7 +230,7 @@ pub fn trim_adapter(
   sequence : String,
   quality : String,
   adapter : String,
-  max_mismatch : Int,
+  max_mismatch : Int32,
 ) -> (String, String) {
   let seq_len = sequence.length()
   let adapter_len = adapter.length()
@@ -268,7 +268,7 @@ pub fn trim_adapter(
   }
 
   if best_pos >= 0 && best_score >= adapter_len / 2 {
-    (sequence[0:best_pos].to_string(), quality[0:best_pos].to_string())
+    (sequence[0:best_pos].to_owned(), quality[0:best_pos].to_owned())
   } else {
     (sequence, quality)
   }
@@ -279,11 +279,11 @@ pub fn filter_reads(
   sequences : Array[String],
   qualities : Array[String],
   min_quality : Double,
-  min_length : Int,
-  max_n : Int,
+  min_length : Int32,
+  max_n : Int32,
 ) -> (Array[String], Array[String]) {
-  let filtered_seqs : Array[String] = Array::new()
-  let filtered_quals : Array[String] = Array::new()
+  let filtered_seqs : Array[String] = Array(capacity=0)
+  let filtered_quals : Array[String] = Array(capacity=0)
 
   let mut i = 0
   while i < sequences.length() {
@@ -328,9 +328,9 @@ pub fn filter_reads(
 pub struct FastQCReport {
   basic_stats : FastqQualityStats
   per_base_quality : Array[Double]
-  per_sequence_quality : Array[Int]
+  per_sequence_quality : Array[Int32]
   per_base_n_content : Array[Double]
-  gc_distribution : Array[Int]
+  gc_distribution : Array[Int32]
   status : String
 }
 
@@ -350,7 +350,7 @@ pub fn FastQCReport::new(stats : FastqQualityStats) -> FastQCReport {
     i = i + 1
   }
 
-  let gc_dist : Array[Int] = Array::make(101, 0)
+  let gc_dist : Array[Int32] = Array::make(101, 0)
 
   let mut status = "PASS"
   if stats.mean_quality < 28.0 {
@@ -399,42 +399,4 @@ pub fn generate_fastqc_report(
 ) -> FastQCReport {
   let stats = qa_summary(sequences, qualities)
   FastQCReport::new(stats)
-}
-
-///|
-pub fn reads_to_sequences(
-  records : Array[SeqRecord],
-) -> (Array[String], Array[String]) {
-  let seqs : Array[String] = Array::new()
-  let quals : Array[String] = Array::new()
-
-  let mut i = 0
-  while i < records.length() {
-    let record = records[i]
-    seqs.push(record.seq.to_string())
-
-    let qual = record.letter_annotations.get("phred_quality")
-    if qual is Some(_) {
-      let qual_arr = qual.unwrap()
-      let mut qs = ""
-      let mut j = 0
-      while j < qual_arr.length() {
-        qs = qs + (qual_arr[j] + 33).unsafe_to_char().to_string()
-        j = j + 1
-      }
-      quals.push(qs)
-    } else {
-      let mut qs = ""
-      let mut j = 0
-      while j < record.seq.length() {
-        qs = qs + 'I'.to_string()
-        j = j + 1
-      }
-      quals.push(qs)
-    }
-
-    i = i + 1
-  }
-
-  (seqs, quals)
 }

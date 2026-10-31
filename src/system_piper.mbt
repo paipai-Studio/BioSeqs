@@ -18,36 +18,6 @@ pub enum StepStatus {
 }
 
 ///|
-/// Create a Pending status.
-pub fn step_status_pending() -> StepStatus {
-  StepStatus::Pending
-}
-
-///|
-/// Create a Running status.
-pub fn step_status_running() -> StepStatus {
-  StepStatus::Running
-}
-
-///|
-/// Create a Completed status.
-pub fn step_status_completed() -> StepStatus {
-  StepStatus::Completed
-}
-
-///|
-/// Create a Failed status.
-pub fn step_status_failed() -> StepStatus {
-  StepStatus::Failed
-}
-
-///|
-/// Create a Skipped status.
-pub fn step_status_skipped() -> StepStatus {
-  StepStatus::Skipped
-}
-
-///|
 /// Step status to string.
 pub fn StepStatus::to_string(self : StepStatus) -> String {
   match self {
@@ -68,7 +38,7 @@ pub struct PipelineStep {
   command : String
   args : Array[String]
   status : StepStatus
-  exit_code : Int
+  exit_code : Int32
   log : String
   duration_seconds : Double
   dependencies : Array[String]
@@ -93,7 +63,7 @@ pub struct PipelineConfig {
   work_dir : String
   input_dir : String
   output_dir : String
-  cores : Int
+  cores : Int32
   overwrite : Bool
   cache : Bool
 }
@@ -105,7 +75,7 @@ pub fn Pipeline::new(pipeline_id : String, name : String) -> Pipeline {
     pipeline_id,
     name,
     description: "",
-    steps: Array::new(),
+    steps: Array(capacity=0),
     global_params: Map([], capacity=10),
   }
 }
@@ -179,14 +149,14 @@ pub fn Pipeline::get_step(self : Pipeline, step_id : String) -> PipelineStep {
     name: "not_found",
     description: "",
     command: "",
-    args: Array::new(),
+    args: Array(capacity=0),
     status: StepStatus::Pending,
     exit_code: -1,
     log: "",
     duration_seconds: 0.0,
-    dependencies: Array::new(),
-    input_files: Array::new(),
-    output_files: Array::new(),
+    dependencies: Array(capacity=0),
+    input_files: Array(capacity=0),
+    output_files: Array(capacity=0),
     parameter_file: "",
   }
 }
@@ -205,7 +175,7 @@ pub fn Pipeline::get_name(self : Pipeline) -> String {
 
 ///|
 /// Get number of steps.
-pub fn Pipeline::get_n_steps(self : Pipeline) -> Int {
+pub fn Pipeline::get_n_steps(self : Pipeline) -> Int32 {
   self.steps.length()
 }
 
@@ -217,7 +187,7 @@ pub fn Pipeline::get_steps(self : Pipeline) -> Array[PipelineStep] {
 
 ///|
 /// Get completed count.
-pub fn Pipeline::get_completed_count(self : Pipeline) -> Int {
+pub fn Pipeline::get_completed_count(self : Pipeline) -> Int32 {
   let mut count = 0
   let mut i = 0
   while i < self.steps.length() {
@@ -231,7 +201,7 @@ pub fn Pipeline::get_completed_count(self : Pipeline) -> Int {
 
 ///|
 /// Get failed count.
-pub fn Pipeline::get_failed_count(self : Pipeline) -> Int {
+pub fn Pipeline::get_failed_count(self : Pipeline) -> Int32 {
   let mut count = 0
   let mut i = 0
   while i < self.steps.length() {
@@ -245,7 +215,7 @@ pub fn Pipeline::get_failed_count(self : Pipeline) -> Int {
 
 ///|
 /// Get pending count.
-pub fn Pipeline::get_pending_count(self : Pipeline) -> Int {
+pub fn Pipeline::get_pending_count(self : Pipeline) -> Int32 {
   let mut count = 0
   let mut i = 0
   while i < self.steps.length() {
@@ -259,7 +229,7 @@ pub fn Pipeline::get_pending_count(self : Pipeline) -> Int {
 
 ///|
 /// Get skipped count.
-pub fn Pipeline::get_skipped_count(self : Pipeline) -> Int {
+pub fn Pipeline::get_skipped_count(self : Pipeline) -> Int32 {
   let mut count = 0
   let mut i = 0
   while i < self.steps.length() {
@@ -295,14 +265,14 @@ pub fn PipelineStep::new(
     name,
     description: "",
     command,
-    args: Array::new(),
+    args: Array(capacity=0),
     status: StepStatus::Pending,
     exit_code: 0,
     log: "",
     duration_seconds: 0.0,
-    dependencies: Array::new(),
-    input_files: Array::new(),
-    output_files: Array::new(),
+    dependencies: Array(capacity=0),
+    input_files: Array(capacity=0),
+    output_files: Array(capacity=0),
     parameter_file: "",
   }
 }
@@ -505,7 +475,7 @@ pub fn PipelineConfig::new(
 /// Set number of cores.
 pub fn PipelineConfig::set_cores(
   self : PipelineConfig,
-  cores : Int,
+  cores : Int32,
 ) -> PipelineConfig {
   PipelineConfig::{
     work_dir: self.work_dir,
@@ -537,7 +507,7 @@ pub fn PipelineConfig::get_output_dir(self : PipelineConfig) -> String {
 
 ///|
 /// Get number of cores.
-pub fn PipelineConfig::get_cores(self : PipelineConfig) -> Int {
+pub fn PipelineConfig::get_cores(self : PipelineConfig) -> Int32 {
   self.cores
 }
 

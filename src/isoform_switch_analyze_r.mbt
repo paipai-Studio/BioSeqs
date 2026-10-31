@@ -38,7 +38,7 @@ pub fn IsoformExpression::new(
   tpm : Array[Double],
   fpkm : Array[Double],
 ) -> IsoformExpression {
-  IsoformExpression::{ isoform_id, gene_id, counts, tpm, fpkm }
+  IsoformExpression::{ isoform_id, gene_id, counts, tpm, fpkm, }
 }
 
 ///|
@@ -74,8 +74,8 @@ pub fn SwitchAnalyzeRlist::new(
   conditions : Array[String],
 ) -> SwitchAnalyzeRlist {
   SwitchAnalyzeRlist::{
-    isoform_expression: Array::new(),
-    isoform_switches: Array::new(),
+    isoform_expression: Array(capacity=0),
+    isoform_switches: Array(capacity=0),
     samples,
     conditions,
     gene_annotation: Map([], capacity=0),
@@ -88,14 +88,14 @@ pub fn SwitchAnalyzeRlist::add_isoform(
   isoform : IsoformExpression,
 ) -> SwitchAnalyzeRlist {
   let expr_len = self.isoform_expression.length()
-  let new_expr : Array[IsoformExpression] = Array::new()
+  let new_expr : Array[IsoformExpression] = Array(capacity=0)
   let mut i = 0
   while i < expr_len {
     new_expr.push(self.isoform_expression[i])
     i = i + 1
   }
   new_expr.push(isoform)
-  SwitchAnalyzeRlist::{ ..self, isoform_expression: new_expr }
+  SwitchAnalyzeRlist::{ ..self, isoform_expression: new_expr, }
 }
 
 ///|
@@ -106,7 +106,7 @@ pub fn SwitchAnalyzeRlist::add_gene_annotation(
 ) -> SwitchAnalyzeRlist {
   let annot = self.gene_annotation
   annot.set(gene_id, gene_name)
-  SwitchAnalyzeRlist::{ ..self, gene_annotation: annot }
+  SwitchAnalyzeRlist::{ ..self, gene_annotation: annot, }
 }
 
 ///|
@@ -114,7 +114,7 @@ pub fn bio_isoform_calculate_usage(
   expression : IsoformExpression,
 ) -> Array[Double] {
   let len = expression.tpm.length()
-  let usage : Array[Double] = Array::new()
+  let usage : Array[Double] = Array(capacity=0)
   let mut i = 0
   while i < len {
     usage.push(expression.tpm[i])
@@ -127,8 +127,8 @@ pub fn bio_isoform_calculate_usage(
 pub fn bio_isoform_calculate_dpsi(
   isoform1 : IsoformExpression,
   isoform2 : IsoformExpression,
-  condition1_indices : Array[Int],
-  condition2_indices : Array[Int],
+  condition1_indices : Array[Int32],
+  condition2_indices : Array[Int32],
 ) -> Double {
   let usage1 = bio_isoform_calculate_usage(isoform1)
   let usage2 = bio_isoform_calculate_usage(isoform2)
@@ -181,8 +181,8 @@ pub fn bio_isoform_calculate_dpsi(
 pub fn bio_isoform_calculate_dif(
   isoform1 : IsoformExpression,
   isoform2 : IsoformExpression,
-  condition1_indices : Array[Int],
-  condition2_indices : Array[Int],
+  condition1_indices : Array[Int32],
+  condition2_indices : Array[Int32],
 ) -> Double {
   let usage1 = bio_isoform_calculate_usage(isoform1)
   let usage2 = bio_isoform_calculate_usage(isoform2)
@@ -251,10 +251,10 @@ pub fn bio_isoform_find_switches(
     let existing = if gene_map.contains(isoform.gene_id) {
       gene_map.get(isoform.gene_id).unwrap()
     } else {
-      Array::new()
+      Array(capacity=0)
     }
     let ex_len = existing.length()
-    let updated : Array[IsoformExpression] = Array::new()
+    let updated : Array[IsoformExpression] = Array(capacity=0)
     let mut j = 0
     while j < ex_len {
       updated.push(existing[j])
@@ -266,8 +266,8 @@ pub fn bio_isoform_find_switches(
   }
 
   let cond_len = data.conditions.length()
-  let condition1_indices : Array[Int] = Array::new()
-  let condition2_indices : Array[Int] = Array::new()
+  let condition1_indices : Array[Int32] = Array(capacity=0)
+  let condition2_indices : Array[Int32] = Array(capacity=0)
   let mut k = 0
   while k < cond_len {
     if data.conditions[k] == "control" {
@@ -278,7 +278,7 @@ pub fn bio_isoform_find_switches(
     k = k + 1
   }
 
-  let mut all_switches : Array[IsoformSwitch] = Array::new()
+  let mut all_switches : Array[IsoformSwitch] = Array(capacity=0)
 
   let entries = gene_map.iter().collect()
   let entries_len = entries.length()
@@ -322,7 +322,7 @@ pub fn bio_isoform_find_switches(
             }
 
             let switch_len = all_switches.length()
-            let new_switches : Array[IsoformSwitch] = Array::new()
+            let new_switches : Array[IsoformSwitch] = Array(capacity=0)
             let mut o = 0
             while o < switch_len {
               new_switches.push(all_switches[o])
@@ -355,7 +355,7 @@ pub fn bio_isoform_find_switches(
   }
 
   let sw_len = all_switches.length()
-  let mut sorted : Array[IsoformSwitch] = Array::new()
+  let mut sorted : Array[IsoformSwitch] = Array(capacity=0)
   let mut p = 0
   while p < sw_len {
     sorted.push(all_switches[p])
@@ -368,7 +368,7 @@ pub fn bio_isoform_find_switches(
     while r < sw_len {
       if sorted[r].adjusted_pvalue < sorted[q].adjusted_pvalue {
         let temp = sorted[q]
-        let new_arr : Array[IsoformSwitch] = Array::new()
+        let new_arr : Array[IsoformSwitch] = Array(capacity=0)
         let mut s = 0
         while s < sw_len {
           if s == q {
@@ -392,11 +392,11 @@ pub fn bio_isoform_find_switches(
 
 ///|
 fn calculate_pvalue(
-  dpsi : Double,
+  _dpsi : Double,
   iso1 : IsoformExpression,
   iso2 : IsoformExpression,
-  cond1 : Array[Int],
-  cond2 : Array[Int],
+  cond1 : Array[Int32],
+  cond2 : Array[Int32],
 ) -> Double {
   let usage1 = bio_isoform_calculate_usage(iso1)
   let usage2 = bio_isoform_calculate_usage(iso2)
@@ -506,13 +506,13 @@ fn isoform_erf(x : Double) -> Double {
 
 ///|
 fn predict_consequence(dpsi : Double) -> Array[String] {
-  let mut consequences : Array[String] = Array::new()
+  let mut consequences : Array[String] = Array(capacity=0)
 
   let usage_diff = dpsi.abs()
 
   if usage_diff > 0.2 {
     let len = consequences.length()
-    let new_arr : Array[String] = Array::new()
+    let new_arr : Array[String] = Array(capacity=0)
     let mut i = 0
     while i < len {
       new_arr.push(consequences[i])
@@ -524,7 +524,7 @@ fn predict_consequence(dpsi : Double) -> Array[String] {
 
   if dpsi > 0.3 {
     let len = consequences.length()
-    let new_arr : Array[String] = Array::new()
+    let new_arr : Array[String] = Array(capacity=0)
     let mut i = 0
     while i < len {
       new_arr.push(consequences[i])
@@ -534,7 +534,7 @@ fn predict_consequence(dpsi : Double) -> Array[String] {
     consequences = new_arr
   } else if dpsi < -0.3 {
     let len = consequences.length()
-    let new_arr : Array[String] = Array::new()
+    let new_arr : Array[String] = Array(capacity=0)
     let mut i = 0
     while i < len {
       new_arr.push(consequences[i])
@@ -545,7 +545,7 @@ fn predict_consequence(dpsi : Double) -> Array[String] {
   }
 
   let len = consequences.length()
-  let new_arr : Array[String] = Array::new()
+  let new_arr : Array[String] = Array(capacity=0)
   let mut i = 0
   while i < len {
     new_arr.push(consequences[i])
@@ -641,10 +641,10 @@ pub fn bio_isoform_plot_psi(
     let existing = if gene_map.contains(isoform.gene_id) {
       gene_map.get(isoform.gene_id).unwrap()
     } else {
-      Array::new()
+      Array(capacity=0)
     }
     let ex_len = existing.length()
-    let updated : Array[IsoformExpression] = Array::new()
+    let updated : Array[IsoformExpression] = Array(capacity=0)
     let mut j = 0
     while j < ex_len {
       updated.push(existing[j])

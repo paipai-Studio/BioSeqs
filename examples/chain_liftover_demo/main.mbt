@@ -12,8 +12,7 @@ fn main {
 
   // A sample UCSC chain file mapping chr1 (hg38) to chr2 (mm10)
   // Chain format: alignment between genome assemblies
-  let chain_content =
-    "chain 5000 chr1 249250621 + 1 5000 chr2 10000 + 1 100 5\n  500 10 20\n  400 0 0\nchain 3000 chr1 249250621 + 6000 10000 chr3 8000 + 500 1500 6\n  300 0 0"
+  let chain_content = "chain 5000 chr1 249250621 + 1 5000 chr2 10000 + 1 100 5\n  500 10 20\n  400 0 0\nchain 3000 chr1 249250621 + 6000 10000 chr3 8000 + 500 1500 6\n  300 0 0"
 
   println("1. Parsing a UCSC chain file")
   let chains = @bio.cl_parse_chain(chain_content)
@@ -33,9 +32,7 @@ fn main {
     let mut b = 0
     while b < ch.blocks.length() {
       let blk = ch.blocks[b]
-      println(
-        "       Block \{b}: size=\{blk.size}, dt=\{blk.dt}, dq=\{blk.dq}",
-      )
+      println("       Block \{b}: size=\{blk.size}, dt=\{blk.dt}, dq=\{blk.dq}")
       b = b + 1
     }
     i = i + 1
@@ -46,8 +43,7 @@ fn main {
   // Lift over chr1:100 -> should map to chr2:100 (first chain, 0 mismatches)
   let pos_result = @bio.cl_liftover_pos(chains, "chr1", 100)
   match pos_result {
-    Some(qpos) =>
-      println("   chr1:100 -> chr2/3:\{qpos} (successful liftOver)")
+    Some(qpos) => println("   chr1:100 -> chr2/3:\{qpos} (successful liftOver)")
     None => println("   chr1:100 -> no chain covers this position")
   }
 
@@ -70,8 +66,7 @@ fn main {
   println("4. LiftOver range conversion")
   let range_result = @bio.cl_liftover_range(chains, "chr1", 100, 200)
   match range_result {
-    Some((qs, qe)) =>
-      println("   chr1:100-200 -> query range \{qs}-\{qe}")
+    Some((qs, qe)) => println("   chr1:100-200 -> query range \{qs}-\{qe}")
     None => println("   chr1:100-200 -> range unmappable")
   }
 
@@ -80,7 +75,9 @@ fn main {
   let found_chain = @bio.cl_find_chain_for_pos(chains, "chr1", 6500)
   match found_chain {
     Some(ch) =>
-      println("   chr1:6500 found in chain id=\{ch.id} (\{ch.t_name}:\{ch.t_start}-\{ch.t_end})")
+      println(
+        "   chr1:6500 found in chain id=\{ch.id} (\{ch.t_name}:\{ch.t_start}-\{ch.t_end})",
+      )
     None => println("   chr1:6500 -> no chain found")
   }
 

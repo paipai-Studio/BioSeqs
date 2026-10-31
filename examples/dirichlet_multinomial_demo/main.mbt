@@ -1,5 +1,5 @@
 ///|
-fn example_counts() -> Array[Array[Int]] {
+fn example_counts() -> Array[Array[Int32]] {
   [
     [40, 3, 2],
     [35, 4, 1],
@@ -44,9 +44,9 @@ fn main {
       abort("failed to fit Dirichlet-multinomial mixture: " + message)
   }
   println("   " + fit.summary())
-  println("   mixture weights=" + fit.mixture_weights().to_string())
-  println("   component proportions=" + fit.component_proportions().to_string())
-  println("   assignments=" + fit.assignments().to_string())
+  println("   mixture weights=" + repr(fit.mixture_weights()))
+  println("   component proportions=" + repr(fit.component_proportions()))
+  println("   assignments=" + repr(fit.assignments()))
 
   println("\n2. Compare K=1 and K=2 with the upstream Laplace criterion")
   let selection = @src.dirichlet_multinomial_select(
@@ -59,7 +59,7 @@ fn main {
     DirichletMultinomialError(message) =>
       abort("failed to select Dirichlet-multinomial model: " + message)
   }
-  println("   Laplace scores=" + selection.scores.to_string())
+  println("   Laplace scores=" + repr(selection.scores))
   println(
     "   selected components=" + selection.best_component_count().to_string(),
   )
@@ -84,8 +84,8 @@ fn main {
     DirichletMultinomialError(message) =>
       abort("failed to assign novel samples: " + message)
   }
-  println("   class probabilities=" + probabilities.to_string())
-  println("   predictions=" + predictions.to_string())
+  println("   class probabilities=" + repr(probabilities))
+  println("   predictions=" + repr(predictions))
 
   println("\n4. Run deterministic stratified cross-validation and ROC")
   let cross_validation = @src.dirichlet_multinomial_cross_validate(

@@ -100,10 +100,10 @@ test "txdb_transcripts_by_gene" {
 
   let by_gene = @src.transcripts_by_gene(txdb)
   let geneA_txs = by_gene.get("GeneA")
-  assert_true(geneA_txs.is_some())
+  assert_true(geneA_txs is Some(_))
   assert_eq(geneA_txs.unwrap().length(), 2)
   let geneB_txs = by_gene.get("GeneB")
-  assert_true(geneB_txs.is_some())
+  assert_true(geneB_txs is Some(_))
   assert_eq(geneB_txs.unwrap().length(), 1)
 }
 
@@ -269,7 +269,7 @@ test "txdb_introns_by_transcript" {
 
   let introns = @src.introns_by_transcript(txdb)
   let tx1_introns = introns.get("Tx1")
-  assert_true(tx1_introns.is_some())
+  assert_true(tx1_introns is Some(_))
   assert_eq(tx1_introns.unwrap().length(), 1)
 }
 

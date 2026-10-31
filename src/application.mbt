@@ -15,7 +15,7 @@ pub struct AbstractCommandline {
 pub fn AbstractCommandline::new(executable : String) -> AbstractCommandline {
   AbstractCommandline::{
     executable,
-    arguments: Array::new(),
+    arguments: Array(capacity=0),
     stdin: "",
     stdout: "",
     stderr: "",
@@ -120,24 +120,24 @@ pub fn AbstractCommandline::build_command(self : AbstractCommandline) -> String 
 }
 
 ///|
-pub fn AbstractCommandline::run(self : AbstractCommandline) -> Int {
+pub fn AbstractCommandline::run(_self : AbstractCommandline) -> Int32 {
   0
 }
 
 ///|
 pub struct CommandlineError {
   message : String
-  exit_code : Int
+  exit_code : Int32
   command : String
 }
 
 ///|
 pub fn CommandlineError::new(
   message : String,
-  exit_code : Int,
+  exit_code : Int32,
   command : String,
 ) -> CommandlineError {
-  CommandlineError::{ message, exit_code, command }
+  CommandlineError::{ message, exit_code, command, }
 }
 
 ///|
@@ -147,11 +147,11 @@ pub struct BioApplication {
 
 ///|
 pub fn BioApplication::new(executable : String) -> BioApplication {
-  BioApplication::{ commandline: AbstractCommandline::new(executable) }
+  BioApplication::{ commandline: AbstractCommandline::new(executable), }
 }
 
 ///|
-pub fn BioApplication::run(self : BioApplication) -> (String, String) {
+pub fn BioApplication::run(_self : BioApplication) -> (String, String) {
   ("stdout output", "stderr output")
 }
 

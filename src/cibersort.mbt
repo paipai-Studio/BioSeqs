@@ -60,7 +60,7 @@ pub fn CibSignatureMatrix::new(
   cell_types : Array[String],
   matrix : Array[Array[Double]],
 ) -> CibSignatureMatrix {
-  { gene_names, cell_types, matrix }
+  { gene_names, cell_types, matrix, }
 }
 
 ///|
@@ -94,7 +94,7 @@ pub fn CibMixtureMatrix::new(
   sample_names : Array[String],
   matrix : Array[Array[Double]],
 ) -> CibMixtureMatrix {
-  { gene_names, sample_names, matrix }
+  { gene_names, sample_names, matrix, }
 }
 
 ///|
@@ -235,7 +235,7 @@ fn cib_rmse(observed : Array[Double], fitted : Array[Double]) -> Double {
 fn cib_nnls(
   a : Array[Array[Double]],
   b : Array[Double],
-  max_iters : Int,
+  max_iters : Int32,
   tol : Double,
 ) -> Array[Double] {
   let m = b.length()
@@ -333,13 +333,13 @@ fn cib_nnls(
 pub fn cib_run(
   sig : CibSignatureMatrix,
   mixture : CibMixtureMatrix,
-  max_iters? : Int = 1000,
-  tol? : Double = 0.000001,
+  max_iters~ : Int32 = 1000,
+  tol~ : Double = 0.000001,
 ) -> CibDeconvolution {
   // Find common genes between signature and mixture
   let common_genes : Array[String] = []
-  let sig_idx : Array[Int] = []
-  let mix_idx : Array[Int] = []
+  let sig_idx : Array[Int32] = []
+  let mix_idx : Array[Int32] = []
   for si in 0..<sig.gene_names.length() {
     let g = sig.gene_names[si]
     for mi in 0..<mixture.gene_names.length() {
@@ -411,7 +411,7 @@ pub fn cib_run(
       rmse,
     })
   }
-  { results: all_results, cell_types, sample_names }
+  { results: all_results, cell_types, sample_names, }
 }
 
 // ============================================================================

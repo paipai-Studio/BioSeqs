@@ -68,7 +68,7 @@ fn main {
   let logo = @bio.seqlogo_compute_logo(pwm)
   let columns = logo.columns()
   for col in columns {
-    let buf = StringBuilder::new()
+    let buf = StringBuilder()
     buf.write_string("  pos ")
     buf.write_string(col.position().to_string())
     buf.write_string(" (IC=")
@@ -114,7 +114,9 @@ fn main {
   // ------------------------------------------------------------------
   println("=== 9. Build PWM from sample sequences ===")
   let seqs = @bio.seqlogo_sample_sequences()
-  println("Loaded \{seqs.length()} aligned sequences of length \{seqs[0].length()}")
+  println(
+    "Loaded \{seqs.length()} aligned sequences of length \{seqs[0].length()}",
+  )
   let built_pwm = @bio.SeqLogoPwm::from_sequences(seqs)
   let built_consensus = @bio.seqlogo_consensus_sequence(built_pwm)
   let built_total_ic = @bio.seqlogo_total_information_content(built_pwm)
@@ -147,9 +149,7 @@ fn main {
       n_match = n_match + 1
     }
   }
-  println(
-    "Consensus positions matching: \{n_match} / \{built_pwm.width()}",
-  )
+  println("Consensus positions matching: \{n_match} / \{built_pwm.width()}")
   println("")
 
   // ------------------------------------------------------------------

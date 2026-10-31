@@ -14,7 +14,7 @@ pub fn OTU::new(
   taxonomy : Array[String],
   abundance : Array[Double],
 ) -> OTU {
-  OTU::{ id, taxonomy, abundance }
+  OTU::{ id, taxonomy, abundance, }
 }
 
 ///|
@@ -25,7 +25,7 @@ pub struct Sample {
 
 ///|
 pub fn Sample::new(id : String, metadata : Map[String, String]) -> Sample {
-  Sample::{ id, metadata }
+  Sample::{ id, metadata, }
 }
 
 ///|
@@ -49,7 +49,7 @@ pub fn TaxRank::new(
   genus : String,
   species : String,
 ) -> TaxRank {
-  TaxRank::{ kingdom, phylum, class, order, family, genus, species }
+  TaxRank::{ kingdom, phylum, class, order, family, genus, species, }
 }
 
 ///|
@@ -63,44 +63,20 @@ pub struct Phyloseq {
 ///|
 pub fn Phyloseq::new() -> Phyloseq {
   Phyloseq::{
-    otus: Array::new(),
-    samples: Array::new(),
-    taxonomy: Array::new(),
+    otus: Array(capacity=0),
+    samples: Array(capacity=0),
+    taxonomy: Array(capacity=0),
     metadata: Map([], capacity=0),
   }
 }
 
 ///|
-pub fn ps_add_otu(ps : Phyloseq, otu : OTU) -> Phyloseq {
-  ps.otus.push(otu)
-  ps
-}
-
-///|
-pub fn ps_add_sample(ps : Phyloseq, sample : Sample) -> Phyloseq {
-  ps.samples.push(sample)
-  ps
-}
-
-///|
-pub fn ps_add_taxonomy(ps : Phyloseq, tax : TaxRank) -> Phyloseq {
-  ps.taxonomy.push(tax)
-  ps
-}
-
-///|
-pub fn ps_set_metadata(ps : Phyloseq, key : String, value : String) -> Phyloseq {
-  ps.metadata.set(key, value)
-  ps
-}
-
-///|
-pub fn ps_num_otus(ps : Phyloseq) -> Int {
+pub fn ps_num_otus(ps : Phyloseq) -> Int32 {
   ps.otus.length()
 }
 
 ///|
-pub fn ps_num_samples(ps : Phyloseq) -> Int {
+pub fn ps_num_samples(ps : Phyloseq) -> Int32 {
   ps.samples.length()
 }
 
@@ -232,106 +208,36 @@ pub fn ps_get_taxa_summary(ps : Phyloseq, rank : String) -> Map[String, Double] 
 }
 
 ///|
-pub fn ps_relative_abundance(ps : Phyloseq) -> Phyloseq {
-  let total = ps_total_abundance(ps)
-  let ra = Phyloseq::new()
-
-  let mut i = 0
-  while i < ps.samples.length() {
-    ra.samples.push(ps.samples[i])
-    i = i + 1
-  }
-
-  let mut j = 0
-  while j < ps.taxonomy.length() {
-    ra.taxonomy.push(ps.taxonomy[j])
-    j = j + 1
-  }
-
-  let mut k = 0
-  while k < ps.otus.length() {
-    let ra_abundance : Array[Double] = Array::new()
-    let mut m = 0
-    while m < ps.otus[k].abundance.length() {
-      ra_abundance.push(ps.otus[k].abundance[m] / total)
-      m = m + 1
-    }
-    let ra_otu = OTU::new(ps.otus[k].id, ps.otus[k].taxonomy, ra_abundance)
-    ra.otus.push(ra_otu)
-    k = k + 1
-  }
-
-  ra
-}
-
-///|
-pub fn ps_rarefy(ps : Phyloseq, depth : Int) -> Phyloseq {
-  let rarefied = Phyloseq::new()
-
-  let mut i = 0
-  while i < ps.samples.length() {
-    rarefied.samples.push(ps.samples[i])
-    i = i + 1
-  }
-
-  let mut j = 0
-  while j < ps.taxonomy.length() {
-    rarefied.taxonomy.push(ps.taxonomy[j])
-    j = j + 1
-  }
-
-  let mut k = 0
-  while k < ps.otus.length() {
-    let rarefied_abundance : Array[Double] = Array::new()
-    let mut m = 0
-    while m < ps.otus[k].abundance.length() {
-      let proportion = ps.otus[k].abundance[m] / ps_total_abundance(ps)
-      rarefied_abundance.push(proportion * depth.to_double())
-      m = m + 1
-    }
-    let rarefied_otu = OTU::new(
-      ps.otus[k].id,
-      ps.otus[k].taxonomy,
-      rarefied_abundance,
-    )
-    rarefied.otus.push(rarefied_otu)
-    k = k + 1
-  }
-
-  rarefied
-}
-
-///|
 pub fn create_example_phyloseq() -> Phyloseq {
   let ps = Phyloseq::new()
 
-  let otu1_tax : Array[String] = Array::new()
+  let otu1_tax : Array[String] = Array(capacity=0)
   otu1_tax.push("Bacteria")
   otu1_tax.push("Proteobacteria")
   otu1_tax.push("Gammaproteobacteria")
-  let otu1_abund : Array[Double] = Array::new()
+  let otu1_abund : Array[Double] = Array(capacity=0)
   otu1_abund.push(100.0)
   otu1_abund.push(150.0)
   otu1_abund.push(200.0)
   let otu1 = OTU::new("OTU001", otu1_tax, otu1_abund)
   ps.otus.push(otu1)
 
-  let otu2_tax : Array[String] = Array::new()
+  let otu2_tax : Array[String] = Array(capacity=0)
   otu2_tax.push("Bacteria")
   otu2_tax.push("Firmicutes")
   otu2_tax.push("Clostridia")
-  let otu2_abund : Array[Double] = Array::new()
+  let otu2_abund : Array[Double] = Array(capacity=0)
   otu2_abund.push(50.0)
   otu2_abund.push(75.0)
   otu2_abund.push(100.0)
   let otu2 = OTU::new("OTU002", otu2_tax, otu2_abund)
   ps.otus.push(otu2)
 
-  let otu3_tax : Array[String] = Array::new()
+  let otu3_tax : Array[String] = Array(capacity=0)
   otu3_tax.push("Bacteria")
   otu3_tax.push("Bacteroidetes")
   otu3_tax.push("Bacteroidia")
-  let otu3_abund : Array[Double] = Array::new()
+  let otu3_abund : Array[Double] = Array(capacity=0)
   otu3_abund.push(75.0)
   otu3_abund.push(100.0)
   otu3_abund.push(125.0)

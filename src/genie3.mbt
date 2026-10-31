@@ -19,10 +19,10 @@
 /// Stored by index in a shared array (avoids recursive type issues).
 pub struct Genie3TreeNode {
   // For internal nodes:
-  feature : Int // index of splitting feature (-1 for leaf)
+  feature : Int32 // index of splitting feature (-1 for leaf)
   threshold : Double // split threshold (feature <= threshold goes left)
-  left_idx : Int // index into shared node array (-1 for leaf)
-  right_idx : Int // index into shared node array (-1 for leaf)
+  left_idx : Int32 // index into shared node array (-1 for leaf)
+  right_idx : Int32 // index into shared node array (-1 for leaf)
   // For leaf nodes:
   value : Double // leaf prediction value
   is_leaf : Bool
@@ -46,10 +46,10 @@ pub fn genie3_tree_leaf(value : Double) -> Genie3TreeNode {
 ///|
 /// Create an internal split node.
 pub fn genie3_tree_split(
-  feature : Int,
+  feature : Int32,
   threshold : Double,
-  left_idx : Int,
-  right_idx : Int,
+  left_idx : Int32,
+  right_idx : Int32,
   importance_gain : Double,
 ) -> Genie3TreeNode {
   Genie3TreeNode::{
@@ -94,14 +94,14 @@ pub fn RegressionTree::predict(
 /// Recursively collect feature importance by summing importance_gain of internal nodes.
 pub fn RegressionTree::feature_importance(
   self : RegressionTree,
-  n_features : Int,
+  n_features : Int32,
 ) -> Array[Double] {
   let importance = Array::make(n_features, 0.0)
-  let stack : Array[Int] = [0]
+  let stack : Array[Int32] = [0]
   while stack.length() > 0 {
     let node_idx = stack.pop().unwrap()
     let node = self.nodes[node_idx]
-    if not(node.is_leaf) {
+    if !node.is_leaf {
       importance[node.feature] = importance[node.feature] + node.importance_gain
       stack.push(node.left_idx)
       stack.push(node.right_idx)
@@ -181,11 +181,11 @@ fn genie3_build_recursive(
   tree : RegressionTree,
   features_matrix : Array[Array[Double]],
   target : Array[Double],
-  feature_indices : Array[Int],
-  max_depth : Int,
-  min_samples_split : Int,
-  depth : Int,
-) -> Int {
+  feature_indices : Array[Int32],
+  max_depth : Int32,
+  min_samples_split : Int32,
+  depth : Int32,
+) -> Int32 {
   let n_samples = target.length()
 
   // Stopping conditions: leaf prediction is the mean of targets
@@ -207,8 +207,8 @@ fn genie3_build_recursive(
   let mut best_gain = -1.0
   let mut best_feature = -1
   let mut best_threshold = 0.0
-  let mut best_left_idx : Array[Int] = []
-  let mut best_right_idx : Array[Int] = []
+  let mut best_left_idx : Array[Int32] = []
+  let mut best_right_idx : Array[Int32] = []
 
   let mut fi = 0
   while fi < feature_indices.length() {
@@ -231,8 +231,8 @@ fn genie3_build_recursive(
         let threshold = (sk0 + sk1) / 2.0
         let left_targets : Array[Double] = []
         let right_targets : Array[Double] = []
-        let left_idx : Array[Int] = []
-        let right_idx : Array[Int] = []
+        let left_idx : Array[Int32] = []
+        let right_idx : Array[Int32] = []
         let mut si = 0
         while si < n_samples {
           if features_matrix[si][f] <= threshold {
@@ -337,11 +337,11 @@ fn genie3_build_recursive(
 pub fn genie3_build_tree(
   features_matrix : Array[Array[Double]],
   target : Array[Double],
-  feature_indices : Array[Int],
-  max_depth? : Int = 10,
-  min_samples_split? : Int = 2,
+  feature_indices : Array[Int32],
+  max_depth~ : Int32 = 10,
+  min_samples_split~ : Int32 = 2,
 ) -> RegressionTree {
-  let tree : RegressionTree = { nodes: [] }
+  let tree : RegressionTree = { nodes: [], }
   let _ = genie3_build_recursive(
     tree, features_matrix, target, feature_indices, max_depth, min_samples_split,
     0,
@@ -363,7 +363,7 @@ pub struct Genie3Result {
   gene_names : Array[String]
   matrix : Array[Array[Double]] // matrix[i][j] = importance of gene i for gene j
   edges : Array[RegulatoryEdge] // sorted edges (descending weight)
-  n_trees : Int
+  n_trees : Int32
   symmetrized : Bool
 }
 
@@ -379,9 +379,9 @@ pub struct Genie3Result {
 pub fn genie3_run(
   expression : Array[Array[Double]],
   gene_names : Array[String],
-  max_depth? : Int = 10,
-  min_samples_split? : Int = 2,
-  symmetrize? : Bool = false,
+  max_depth~ : Int32 = 10,
+  min_samples_split~ : Int32 = 2,
+  symmetrize~ : Bool = false,
 ) -> Genie3Result {
   let n_samples = expression.length()
   let n_genes = gene_names.length()
@@ -390,7 +390,7 @@ pub fn genie3_run(
   let sym = symmetrize
 
   // Initialize weight matrix W[i][j] = importance of gene i for predicting gene j
-  let matrix : Array[Array[Double]] = Array::new()
+  let matrix : Array[Array[Double]] = Array(capacity=0)
   let mut mi = 0
   while mi < n_genes {
     matrix.push(Array::make(n_genes, 0.0))
@@ -403,7 +403,7 @@ pub fn genie3_run(
     // Target column
     let target : Array[Double] = Array::make(n_samples, 0.0)
     // Predictor matrix: exclude gene j
-    let predictor_indices : Array[Int] = []
+    let predictor_indices : Array[Int32] = []
     let mut gi = 0
     while gi < n_genes {
       if gi != j {
@@ -411,7 +411,7 @@ pub fn genie3_run(
       }
       gi = gi + 1
     }
-    let predictor_matrix : Array[Array[Double]] = Array::new()
+    let predictor_matrix : Array[Array[Double]] = Array(capacity=0)
     let mut pm = 0
     while pm < n_samples {
       predictor_matrix.push(Array::make(predictor_indices.length(), 0.0))
@@ -428,7 +428,7 @@ pub fn genie3_run(
       si = si + 1
     }
     // Use feature indices 0..n_predictors-1 (column indices into predictor_matrix)
-    let local_indices : Array[Int] = []
+    let local_indices : Array[Int32] = []
     let mut li = 0
     while li < predictor_indices.length() {
       local_indices.push(li)
@@ -531,7 +531,7 @@ pub fn genie3_run(
 /// Get the top-K regulatory edges by weight.
 pub fn genie3_top_edges(
   result : Genie3Result,
-  k : Int,
+  k : Int32,
 ) -> Array[RegulatoryEdge] {
   let n = if k < result.edges.length() { k } else { result.edges.length() }
   let top : Array[RegulatoryEdge] = []

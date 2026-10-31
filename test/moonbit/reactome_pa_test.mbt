@@ -78,7 +78,7 @@ test "reactome_pa_group_by_top_level" {
   let result = @src.enrich_reactome(gene_list, reactome_db, background_genes)
   let groups = @src.group_by_top_level(result)
 
-  assert_true(groups.size() >= 1)
+  assert_true(groups.length() >= 1)
 }
 
 ///|

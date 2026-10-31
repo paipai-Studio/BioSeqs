@@ -3,7 +3,7 @@
 
 ///|
 /// Split string by character code.
-pub fn split_by_char(s : String, delim : Int) -> Array[String] {
+pub fn split_by_char(s : String, delim : Int32) -> Array[String] {
   let n = s.length()
   let mut count = 1
   let mut i = 0
@@ -20,21 +20,21 @@ pub fn split_by_char(s : String, delim : Int) -> Array[String] {
   i = 0
   while i < n {
     if s.unsafe_get(i).to_int() == delim {
-      result[idx] = s[start:i].to_string()
+      result[idx] = s[start:i].to_owned()
       idx = idx + 1
       start = i + 1
     }
     i = i + 1
   }
   if start < n {
-    result[idx] = s[start:n].to_string()
+    result[idx] = s[start:n].to_owned()
   }
   result
 }
 
 ///|
 /// Parse integer from String.
-pub fn parse_int(s : String) -> Int {
+pub fn parse_int(s : String) -> Int32 {
   let n = s.length()
   if n == 0 {
     return 0
@@ -152,7 +152,7 @@ pub fn parse_semicolon_list(s : String) -> Array[String] {
 
 ///|
 /// Get character at position.
-pub fn char_at(s : String, idx : Int) -> String {
+pub fn char_at(s : String, idx : Int32) -> String {
   let c = s.unsafe_get(idx).to_int()
   if c >= 'A'.to_int() && c <= 'Z'.to_int() {
     let mut result = ""
@@ -236,7 +236,7 @@ pub fn char_at(s : String, idx : Int) -> String {
 
 ///|
 /// Substring function.
-pub fn substring(s : String, start : Int, len : Int) -> String {
+pub fn substring(s : String, start : Int32, len : Int32) -> String {
   let mut result = ""
   for i = 0; i < len && start + i < s.length(); i = i + 1 {
     result = result + char_at(s, start + i)
@@ -246,7 +246,7 @@ pub fn substring(s : String, start : Int, len : Int) -> String {
 
 ///|
 /// Check if string starts with prefix at position.
-pub fn starts_with(s : String, pos : Int, prefix : String) -> Bool {
+pub fn starts_with(s : String, pos : Int32, prefix : String) -> Bool {
   if pos + prefix.length() > s.length() {
     return false
   }
@@ -295,10 +295,10 @@ pub fn to_lowercase(s : String) -> String {
         88 => result = result + "x"
         89 => result = result + "y"
         90 => result = result + "z"
-        _ => result = result + s[i:i + 1].to_string()
+        _ => result = result + s[i:i + 1].to_owned()
       }
     } else {
-      result = result + s[i:i + 1].to_string()
+      result = result + s[i:i + 1].to_owned()
     }
     i = i + 1
   }
@@ -344,5 +344,50 @@ pub fn trim(s : String) -> String {
   while end > start && s.unsafe_get(end - 1).to_int() == ' '.to_int() {
     end = end - 1
   }
-  s[start:end].to_string()
+  s[start:end].to_owned()
+}
+
+///|
+/// Convert string to uppercase.
+pub fn to_uppercase(s : String) -> String {
+  let mut result = ""
+  let mut i = 0
+  while i < s.length() {
+    let c = s.unsafe_get(i)
+    if c >= 97 && c <= 122 {
+      match c {
+        97 => result = result + "A"
+        98 => result = result + "B"
+        99 => result = result + "C"
+        100 => result = result + "D"
+        101 => result = result + "E"
+        102 => result = result + "F"
+        103 => result = result + "G"
+        104 => result = result + "H"
+        105 => result = result + "I"
+        106 => result = result + "J"
+        107 => result = result + "K"
+        108 => result = result + "L"
+        109 => result = result + "M"
+        110 => result = result + "N"
+        111 => result = result + "O"
+        112 => result = result + "P"
+        113 => result = result + "Q"
+        114 => result = result + "R"
+        115 => result = result + "S"
+        116 => result = result + "T"
+        117 => result = result + "U"
+        118 => result = result + "V"
+        119 => result = result + "W"
+        120 => result = result + "X"
+        121 => result = result + "Y"
+        122 => result = result + "Z"
+        _ => result = result + s[i:i + 1].to_owned()
+      }
+    } else {
+      result = result + s[i:i + 1].to_owned()
+    }
+    i = i + 1
+  }
+  result
 }

@@ -15,14 +15,14 @@ test "BPJob creation" {
 
 ///|
 test "bp_sum" {
-  let data : Array[Array[Double]] = Array::new()
-  let chunk1 : Array[Double] = Array::new()
+  let data : Array[Array[Double]] = Array(capacity=0)
+  let chunk1 : Array[Double] = Array(capacity=0)
   chunk1.push(1.0)
   chunk1.push(2.0)
   chunk1.push(3.0)
   data.push(chunk1)
 
-  let chunk2 : Array[Double] = Array::new()
+  let chunk2 : Array[Double] = Array(capacity=0)
   chunk2.push(4.0)
   chunk2.push(5.0)
   chunk2.push(6.0)
@@ -35,7 +35,7 @@ test "bp_sum" {
 
 ///|
 test "bp_mean" {
-  let data : Array[Double] = Array::new()
+  let data : Array[Double] = Array(capacity=0)
   data.push(1.0)
   data.push(2.0)
   data.push(3.0)

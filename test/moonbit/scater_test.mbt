@@ -57,7 +57,7 @@ test "scater_filter_cells_basic" {
   let gene_names = ["Gene1", "Gene2", "Gene3"]
   let stats = @src.scater_calculate_qc_metrics(counts, cell_ids, gene_names)
   let params = @src.QCFilterParams::new()
-  let (kept_indices, keep) = @src.scater_filter_cells(stats, params)
+  let (_kept_indices, keep) = @src.scater_filter_cells(stats, params)
   assert_eq(keep.length(), 3)
 }
 
@@ -68,7 +68,7 @@ test "scater_filter_cells_custom_params" {
   let gene_names = ["Gene1", "Gene2", "Gene3"]
   let stats = @src.scater_calculate_qc_metrics(counts, cell_ids, gene_names)
   let params = @src.QCFilterParams::with_params(50.0, 1000.0, 2, 100, 20.0, 2)
-  let (kept_indices, keep) = @src.scater_filter_cells(stats, params)
+  let (kept_indices, _keep) = @src.scater_filter_cells(stats, params)
   assert_true(kept_indices.length() >= 1)
 }
 
@@ -134,7 +134,7 @@ test "scater_log_normalize_cpm" {
 
 ///|
 test "scater_find_hvgs" {
-  let counts : Array[Array[Int]] = Array::make(10, Array::make(20, 0))
+  let counts : Array[Array[Int32]] = Array::make(10, Array::make(20, 0))
   let log_expr = @src.scater_log_normalize_cpm(counts)
   let gene_names : Array[String] = Array::make(20, "")
   let mut i = 0
@@ -148,7 +148,7 @@ test "scater_find_hvgs" {
 
 ///|
 test "scater_run_pca" {
-  let counts : Array[Array[Int]] = Array::make(5, Array::make(10, 0))
+  let counts : Array[Array[Int32]] = Array::make(5, Array::make(10, 0))
   let mut i = 0
   while i < 5 {
     let mut j = 0

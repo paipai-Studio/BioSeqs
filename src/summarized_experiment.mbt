@@ -4,7 +4,7 @@
 ///|
 pub struct SummarizedExperiment {
   assays : Map[String, Array[Array[Double]]]
-  row_ranges : Array[(String, Int, Int)]
+  row_ranges : Array[(String, Int32, Int32)]
   col_data : Array[Map[String, String]]
   metadata : Map[String, String]
 }
@@ -12,11 +12,11 @@ pub struct SummarizedExperiment {
 ///|
 pub fn summarized_experiment(
   assays : Map[String, Array[Array[Double]]],
-  row_ranges : Array[(String, Int, Int)],
+  row_ranges : Array[(String, Int32, Int32)],
   col_data : Array[Map[String, String]],
   metadata : Map[String, String],
 ) -> SummarizedExperiment {
-  SummarizedExperiment::{ assays, row_ranges, col_data, metadata }
+  SummarizedExperiment::{ assays, row_ranges, col_data, metadata, }
 }
 
 ///|
@@ -33,7 +33,9 @@ pub fn se_assay_names(se : SummarizedExperiment) -> Array[String] {
 }
 
 ///|
-pub fn se_row_ranges(se : SummarizedExperiment) -> Array[(String, Int, Int)] {
+pub fn se_row_ranges(
+  se : SummarizedExperiment,
+) -> Array[(String, Int32, Int32)] {
   se.row_ranges
 }
 
@@ -48,7 +50,7 @@ pub fn se_metadata(se : SummarizedExperiment) -> Map[String, String] {
 }
 
 ///|
-pub fn se_nrow(se : SummarizedExperiment) -> Int {
+pub fn se_nrow(se : SummarizedExperiment) -> Int32 {
   if se.row_ranges.length() > 0 {
     se.row_ranges.length()
   } else if se.assays.keys().collect().length() > 0 {
@@ -60,7 +62,7 @@ pub fn se_nrow(se : SummarizedExperiment) -> Int {
 }
 
 ///|
-pub fn se_ncol(se : SummarizedExperiment) -> Int {
+pub fn se_ncol(se : SummarizedExperiment) -> Int32 {
   if se.col_data.length() > 0 {
     se.col_data.length()
   } else if se.assays.keys().collect().length() > 0 {
@@ -79,7 +81,7 @@ pub fn se_ncol(se : SummarizedExperiment) -> Int {
 ///|
 pub fn se_subset_rows(
   se : SummarizedExperiment,
-  indices : Array[Int],
+  indices : Array[Int32],
 ) -> SummarizedExperiment {
   let new_assays : Map[String, Array[Array[Double]]] = Map(
     [],
@@ -104,7 +106,7 @@ pub fn se_subset_rows(
     new_assays[name] = new_assay
   }
 
-  let new_row_ranges : Array[(String, Int, Int)] = []
+  let new_row_ranges : Array[(String, Int32, Int32)] = []
   for i = 0; i < indices.length(); i = i + 1 {
     new_row_ranges.push(se.row_ranges[indices[i]])
   }
@@ -120,7 +122,7 @@ pub fn se_subset_rows(
 ///|
 pub fn se_subset_cols(
   se : SummarizedExperiment,
-  indices : Array[Int],
+  indices : Array[Int32],
 ) -> SummarizedExperiment {
   let new_assays : Map[String, Array[Array[Double]]] = Map(
     [],
@@ -250,7 +252,7 @@ pub fn se_merge(
     new_assays[name] = new_assay
   }
 
-  let new_row_ranges : Array[(String, Int, Int)] = Array::make(
+  let new_row_ranges : Array[(String, Int32, Int32)] = Array::make(
     se1.row_ranges.length() + se2.row_ranges.length(),
     ("", 0, 0),
   )

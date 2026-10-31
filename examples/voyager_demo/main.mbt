@@ -20,7 +20,7 @@ fn voyager_demo_coords(se : @src.SpatialExperiment) -> Array[Array[Double]] {
 }
 
 ///|
-fn voyager_demo_round(value : Double, digits : Int) -> Double {
+fn voyager_demo_round(value : Double, digits : Int32) -> Double {
   let scale = @math.pow(10.0, digits.to_double())
   (value * scale).round() / scale
 }

@@ -125,8 +125,7 @@ fn main {
     let first_chr = diffs[0].chr()
     let first_pos = diffs[0].position()
     match filtered[0].get_cytosine(first_chr, first_pos) {
-      Some(mc) =>
-        println("BED: " + @bio.methylkit_cpg_to_bed(mc))
+      Some(mc) => println("BED: " + @bio.methylkit_cpg_to_bed(mc))
       None => println("Cytosine not found in control sample")
     }
   } else {

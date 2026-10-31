@@ -22,7 +22,7 @@ fn main {
   let ali = @bio.stockholm_parse(stockholm_content)
   println("   Version: \{ali.version}")
   println("   Blocks: \{ali.blocks.length()}")
-  println("   GF annotations: \{ali.gf_annotations.keys().length()}")
+  println("   GF annotations: \{ali.gf_annotations.keys().count()}")
 
   println("")
   println("2. GF Annotations:")
@@ -40,7 +40,9 @@ fn main {
     let mut si = 0
     while si < block.sequences.length() {
       let seq = block.sequences[si]
-      println("   \{seq.name}/\{seq.start}-\{seq.end} (\{seq.aligned_seq.length()} chars)")
+      println(
+        "   \{seq.name}/\{seq.start}-\{seq.end} (\{seq.aligned_seq.length()} chars)",
+      )
       si = si + 1
     }
 
@@ -73,7 +75,9 @@ fn main {
   let merged = @bio.stockholm_merge_blocks(ali)
   println("   Merged blocks: \{merged.blocks.length()}")
   if merged.blocks.length() > 0 {
-    println("   Sequences in merged block: \{merged.blocks[0].sequences.length()}")
+    println(
+      "   Sequences in merged block: \{merged.blocks[0].sequences.length()}",
+    )
   }
 
   println("")

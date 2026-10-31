@@ -115,12 +115,6 @@ pub fn flow_core_exp(x : Double) -> Double {
 }
 
 ///|
-/// Base-10 logarithm.
-pub fn flow_core_log10(x : Double) -> Double {
-  flow_core_ln(x) / flow_core_ln(10.0)
-}
-
-///|
 /// Inverse hyperbolic sine (asinh).
 pub fn flow_core_asinh(x : Double) -> Double {
   flow_core_ln(x + flow_core_sqrt(x * x + 1.0))
@@ -130,11 +124,10 @@ pub fn flow_core_asinh(x : Double) -> Double {
 /// Gate type enumeration.
 pub enum GateType {
   RectangleGate
-  PolygonGate
-  EllipsoidGate
-  QuadrantGate
-  BooleanGate
 } derive(Eq)
+
+///|
+pub extend GateType with Eq::{equal, not_equal}
 
 ///|
 /// Transformation type enumeration.
@@ -146,14 +139,13 @@ pub enum TransformType {
 } derive(Eq)
 
 ///|
+pub extend TransformType with Eq::{equal, not_equal}
+
+///|
 /// String representation of GateType.
 pub fn GateType::to_string(self : GateType) -> String {
   match self {
     RectangleGate => "RectangleGate"
-    PolygonGate => "PolygonGate"
-    EllipsoidGate => "EllipsoidGate"
-    QuadrantGate => "QuadrantGate"
-    BooleanGate => "BooleanGate"
   }
 }
 
@@ -174,8 +166,8 @@ pub struct FCSFile {
   text_segment : Map[String, String]
   data_segment : Array[Array[Double]]
   analysis_segment : String
-  n_events : Int
-  n_parameters : Int
+  n_events : Int32
+  n_parameters : Int32
   parameter_names : Array[String]
   parameter_ranges : Array[(Double, Double)]
 }
@@ -186,8 +178,8 @@ pub struct FlowFrame {
   exprs : Array[Array[Double]]
   params : Array[ParameterDescription]
   description : Map[String, String]
-  n_events : Int
-  n_params : Int
+  n_events : Int32
+  n_params : Int32
 }
 
 ///|
@@ -236,8 +228,8 @@ pub struct CompensationMatrix {
 /// Result of gating operation.
 pub struct GatingResult {
   filtered_events : Array[Array[Double]]
-  n_filtered : Int
-  n_total : Int
+  n_filtered : Int32
+  n_total : Int32
   percentages : Array[Double]
 }
 
@@ -254,7 +246,7 @@ pub fn ParameterDescription::new(
     range,
     min_range,
     max_range,
-    compensation: Array::new(),
+    compensation: Array(capacity=0),
   }
 }
 
@@ -273,12 +265,12 @@ pub fn ParameterDescription::to_string(self : ParameterDescription) -> String {
 pub fn FCSFile::new() -> FCSFile {
   FCSFile::{
     text_segment: Map([], capacity=32),
-    data_segment: Array::new(),
+    data_segment: Array(capacity=0),
     analysis_segment: "",
     n_events: 0,
     n_parameters: 0,
-    parameter_names: Array::new(),
-    parameter_ranges: Array::new(),
+    parameter_names: Array(capacity=0),
+    parameter_ranges: Array(capacity=0),
   }
 }
 
@@ -320,7 +312,7 @@ pub fn FlowFrame::new(
 ///|
 /// Create a FlowFrame from an FCSFile.
 pub fn FlowFrame::from_fcs(fcs : FCSFile) -> FlowFrame {
-  let params : Array[ParameterDescription] = Array::new()
+  let params : Array[ParameterDescription] = Array(capacity=0)
   let mut i = 0
   while i < fcs.parameter_names.length() {
     let name = fcs.parameter_names[i]
@@ -334,7 +326,7 @@ pub fn FlowFrame::from_fcs(fcs : FCSFile) -> FlowFrame {
       range: max_val - min_val,
       min_range: min_val,
       max_range: max_val,
-      compensation: Array::new(),
+      compensation: Array(capacity=0),
     })
     i = i + 1
   }
@@ -373,7 +365,7 @@ pub fn FlowSet::new(
   frames : Array[FlowFrame],
   sample_names : Array[String],
 ) -> FlowSet {
-  FlowSet::{ frames, sample_names, pheno_data: Map([], capacity=8) }
+  FlowSet::{ frames, sample_names, pheno_data: Map([], capacity=8), }
 }
 
 ///|
@@ -401,7 +393,7 @@ pub fn Gate::new(
   coordinates : Array[(Double, Double)],
   filter_id : String,
 ) -> Gate {
-  Gate::{ gate_type, parameters, coordinates, filter_id }
+  Gate::{ gate_type, parameters, coordinates, filter_id, }
 }
 
 ///|
@@ -426,7 +418,7 @@ pub fn Transformation::new(
   transform_type : TransformType,
   parameters : Array[Double],
 ) -> Transformation {
-  Transformation::{ transform_type, parameters }
+  Transformation::{ transform_type, parameters, }
 }
 
 ///|
@@ -449,7 +441,7 @@ pub fn CompensationMatrix::new(
   matrix : Array[Array[Double]],
   fluorochromes : Array[String],
 ) -> CompensationMatrix {
-  let spillover : Array[Double] = Array::new()
+  let spillover : Array[Double] = Array(capacity=0)
   let mut i = 0
   while i < matrix.length() {
     let mut j = 0
@@ -459,7 +451,7 @@ pub fn CompensationMatrix::new(
     }
     i = i + 1
   }
-  CompensationMatrix::{ matrix, fluorochromes, spillover }
+  CompensationMatrix::{ matrix, fluorochromes, spillover, }
 }
 
 ///|
@@ -494,11 +486,11 @@ pub fn CompensationMatrix::to_string(self : CompensationMatrix) -> String {
 /// Construct a new GatingResult.
 pub fn GatingResult::new(
   filtered_events : Array[Array[Double]],
-  n_filtered : Int,
-  n_total : Int,
+  n_filtered : Int32,
+  n_total : Int32,
   percentages : Array[Double],
 ) -> GatingResult {
-  GatingResult::{ filtered_events, n_filtered, n_total, percentages }
+  GatingResult::{ filtered_events, n_filtered, n_total, percentages, }
 }
 
 ///|
@@ -527,7 +519,7 @@ pub fn GatingResult::to_string(self : GatingResult) -> String {
 
 ///|
 /// Parse an integer from a string, returning 0 on failure.
-fn flow_core_parse_int(s : String) -> Int {
+fn flow_core_parse_int(s : String) -> Int32 {
   match parse_double(s) {
     Some(v) => v.to_int()
     None => 0
@@ -573,7 +565,7 @@ fn flow_core_trim(s : String) -> String {
 ///|
 /// Parse a line of numbers separated by spaces, tabs, or commas.
 fn flow_core_parse_numbers(s : String) -> Array[Double] {
-  let result : Array[Double] = Array::new()
+  let result : Array[Double] = Array(capacity=0)
   let parts = split_by_char(s, ' '.to_int())
   let mut i = 0
   while i < parts.length() {
@@ -683,7 +675,7 @@ fn flow_core_parse_simplified(
 /// Parse FCS file content into FCSFile.
 pub fn FCSFile::parse(content : String) -> FCSFile {
   let text_segment : Map[String, String] = Map([], capacity=32)
-  let data_segment : Array[Array[Double]] = Array::new()
+  let data_segment : Array[Array[Double]] = Array(capacity=0)
   let analysis_segment = ""
   if flow_core_is_fcs_header(content) && content.length() >= 58 {
     let text_start_str = flow_core_trim(content[10:18].to_owned())
@@ -728,8 +720,8 @@ pub fn FCSFile::parse(content : String) -> FCSFile {
   } else {
     0
   }
-  let parameter_names : Array[String] = Array::new()
-  let parameter_ranges : Array[(Double, Double)] = Array::new()
+  let parameter_names : Array[String] = Array(capacity=0)
+  let parameter_ranges : Array[(Double, Double)] = Array(capacity=0)
   let mut i = 1
   while i <= n_parameters {
     let name_key = "$P" + i.to_string() + "N"
@@ -760,59 +752,9 @@ pub fn FCSFile::parse(content : String) -> FCSFile {
 }
 
 ///|
-/// Read an FCS file. Note: treats file_path as FCS content since this library does not perform file I/O.
-pub fn flow_core_read_fcs(file_path : String) -> FlowFrame {
-  let fcs = FCSFile::parse(file_path)
-  FlowFrame::from_fcs(fcs)
-}
-
-///|
-/// Write a FlowFrame to FCS format string.
-pub fn flow_core_write_fcs(frame : FlowFrame, file_path : String) -> String {
-  let _ = file_path
-  let buf = StringBuilder::new()
-  buf.write_string("FCS3.1\n")
-  buf.write_string("$FCSVERSION\t3.1\n")
-  buf.write_string("$TOT\t" + frame.n_events.to_string() + "\n")
-  buf.write_string("$PAR\t" + frame.n_params.to_string() + "\n")
-  let mut i = 0
-  while i < frame.params.length() {
-    let p = frame.params[i]
-    buf.write_string("$P" + (i + 1).to_string() + "N\t" + p.name + "\n")
-    buf.write_string(
-      "$P" + (i + 1).to_string() + "R\t" + p.range.to_string() + "\n",
-    )
-    i = i + 1
-  }
-  let desc_keys = frame.description.keys().collect()
-  i = 0
-  while i < desc_keys.length() {
-    let key = desc_keys[i]
-    buf.write_string(key + "\t" + frame.description[key] + "\n")
-    i = i + 1
-  }
-  buf.write_string("---DATA---\n")
-  i = 0
-  while i < frame.exprs.length() {
-    let row = frame.exprs[i]
-    let mut j = 0
-    while j < row.length() {
-      if j > 0 {
-        buf.write_string("\t")
-      }
-      buf.write_string(row[j].to_string())
-      j = j + 1
-    }
-    buf.write_string("\n")
-    i = i + 1
-  }
-  buf.to_string()
-}
-
-///|
 /// Get marker (parameter) names from a FlowFrame.
 pub fn flow_core_get_markers(frame : FlowFrame) -> Array[String] {
-  let result : Array[String] = Array::new()
+  let result : Array[String] = Array(capacity=0)
   let mut i = 0
   while i < frame.params.length() {
     result.push(frame.params[i].name)
@@ -885,120 +827,18 @@ pub fn flow_core_logicle_transform(
 }
 
 ///|
-/// Apply a transformation to all values in a FlowFrame.
-pub fn flow_core_transform(
-  frame : FlowFrame,
-  transform : Transformation,
-) -> FlowFrame {
-  let new_exprs : Array[Array[Double]] = Array::new()
-  let mut i = 0
-  while i < frame.exprs.length() {
-    let row : Array[Double] = Array::new()
-    let mut j = 0
-    while j < frame.exprs[i].length() {
-      let x = frame.exprs[i][j]
-      let transformed = match transform.transform_type {
-        LogTransform => {
-          let a = if transform.parameters.length() > 0 {
-            transform.parameters[0]
-          } else {
-            1.0
-          }
-          let b = if transform.parameters.length() > 1 {
-            transform.parameters[1]
-          } else {
-            10.0
-          }
-          let c = if transform.parameters.length() > 2 {
-            transform.parameters[2]
-          } else {
-            0.0
-          }
-          flow_core_log_transform(x, a, b, c)
-        }
-        AsinhTransform => {
-          let a = if transform.parameters.length() > 0 {
-            transform.parameters[0]
-          } else {
-            1.0
-          }
-          let b = if transform.parameters.length() > 1 {
-            transform.parameters[1]
-          } else {
-            1.0
-          }
-          let c = if transform.parameters.length() > 2 {
-            transform.parameters[2]
-          } else {
-            0.0
-          }
-          flow_core_asinh_transform(x, a, b, c)
-        }
-        LogicleTransform => {
-          let t = if transform.parameters.length() > 0 {
-            transform.parameters[0]
-          } else {
-            262144.0
-          }
-          let w = if transform.parameters.length() > 1 {
-            transform.parameters[1]
-          } else {
-            0.5
-          }
-          let m = if transform.parameters.length() > 2 {
-            transform.parameters[2]
-          } else {
-            4.5
-          }
-          let a = if transform.parameters.length() > 3 {
-            transform.parameters[3]
-          } else {
-            0.0
-          }
-          flow_core_logicle_transform(x, t, w, m, a)
-        }
-        LinearTransform => {
-          let a = if transform.parameters.length() > 0 {
-            transform.parameters[0]
-          } else {
-            1.0
-          }
-          let b = if transform.parameters.length() > 1 {
-            transform.parameters[1]
-          } else {
-            0.0
-          }
-          a * x + b
-        }
-      }
-      row.push(transformed)
-      j = j + 1
-    }
-    new_exprs.push(row)
-    i = i + 1
-  }
-  FlowFrame::{
-    exprs: new_exprs,
-    params: frame.params,
-    description: frame.description,
-    n_events: frame.n_events,
-    n_params: frame.n_params,
-  }
-}
-
-///|
 /// Compute matrix inverse using Gaussian elimination with partial pivoting.
 fn flow_core_matrix_inverse(
   matrix : Array[Array[Double]],
 ) -> Array[Array[Double]] {
   let n = matrix.length()
   if n == 0 {
-    return Array::new()
+    return Array(capacity=0)
   }
-  let aug : Array[Array[Double]] = Array::new()
+  let aug : Array[Array[Double]] = Array(capacity=0)
   let mut i = 0
   while i < n {
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     let mut j = 0
     while j < n {
       row.push(matrix[i][j])
@@ -1058,10 +898,10 @@ fn flow_core_matrix_inverse(
     }
     col = col + 1
   }
-  let result : Array[Array[Double]] = Array::new()
+  let result : Array[Array[Double]] = Array(capacity=0)
   i = 0
   while i < n {
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     let mut j = n
     while j < 2 * n {
       row.push(aug[i][j])
@@ -1087,7 +927,7 @@ pub fn flow_core_compensate(
   if inv.length() == 0 {
     return frame
   }
-  let channel_indices : Array[Int] = Array::new()
+  let channel_indices : Array[Int32] = Array(capacity=0)
   let mut i = 0
   while i < comp_matrix.fluorochromes.length() {
     let fluor = comp_matrix.fluorochromes[i]
@@ -1103,10 +943,10 @@ pub fn flow_core_compensate(
     channel_indices.push(idx)
     i = i + 1
   }
-  let new_exprs : Array[Array[Double]] = Array::new()
+  let new_exprs : Array[Array[Double]] = Array(capacity=0)
   i = 0
   while i < frame.exprs.length() {
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     let mut j = 0
     while j < frame.exprs[i].length() {
       row.push(frame.exprs[i][j])
@@ -1191,7 +1031,7 @@ pub fn flow_core_point_in_ellipse(
 
 ///|
 /// Find the index of a parameter in a FlowFrame by name.
-fn flow_core_find_param(frame : FlowFrame, name : String) -> Int {
+fn flow_core_find_param(frame : FlowFrame, name : String) -> Int32 {
   let mut i = 0
   while i < frame.params.length() {
     if frame.params[i].name == name {
@@ -1205,10 +1045,10 @@ fn flow_core_find_param(frame : FlowFrame, name : String) -> Int {
 ///|
 /// Apply a rectangle gate to a FlowFrame.
 pub fn flow_core_rectangle_gate(frame : FlowFrame, gate : Gate) -> GatingResult {
-  let filtered : Array[Array[Double]] = Array::new()
+  let filtered : Array[Array[Double]] = Array(capacity=0)
   let n_total = frame.exprs.length()
   let n_params = gate.parameters.length()
-  let param_indices : Array[Int] = Array::new()
+  let param_indices : Array[Int32] = Array(capacity=0)
   let mut i = 0
   while i < n_params {
     let idx = flow_core_find_param(frame, gate.parameters[i])
@@ -1259,7 +1099,7 @@ pub fn flow_core_rectangle_gate(frame : FlowFrame, gate : Gate) -> GatingResult 
 ///|
 /// Apply a polygon gate to a FlowFrame (2D gate).
 pub fn flow_core_polygon_gate(frame : FlowFrame, gate : Gate) -> GatingResult {
-  let filtered : Array[Array[Double]] = Array::new()
+  let filtered : Array[Array[Double]] = Array(capacity=0)
   let n_total = frame.exprs.length()
   if gate.parameters.length() < 2 || gate.coordinates.length() < 3 {
     return GatingResult::{
@@ -1314,7 +1154,7 @@ pub fn flow_core_polygon_gate(frame : FlowFrame, gate : Gate) -> GatingResult {
 ///|
 /// Apply an ellipsoid gate to a FlowFrame (2D gate).
 pub fn flow_core_ellipsoid_gate(frame : FlowFrame, gate : Gate) -> GatingResult {
-  let filtered : Array[Array[Double]] = Array::new()
+  let filtered : Array[Array[Double]] = Array(capacity=0)
   let n_total = frame.exprs.length()
   if gate.parameters.length() < 2 || gate.coordinates.length() < 2 {
     return GatingResult::{
@@ -1370,7 +1210,7 @@ pub fn flow_core_ellipsoid_gate(frame : FlowFrame, gate : Gate) -> GatingResult 
 ///|
 /// Apply a quadrant gate to a FlowFrame (2D gate, returns Q2 upper-right).
 pub fn flow_core_quadrant_gate(frame : FlowFrame, gate : Gate) -> GatingResult {
-  let filtered : Array[Array[Double]] = Array::new()
+  let filtered : Array[Array[Double]] = Array(capacity=0)
   let n_total = frame.exprs.length()
   if gate.parameters.length() < 2 || gate.coordinates.length() < 1 {
     return GatingResult::{
@@ -1436,10 +1276,6 @@ pub fn flow_core_quadrant_gate(frame : FlowFrame, gate : Gate) -> GatingResult {
 pub fn flow_core_filter_events(frame : FlowFrame, gate : Gate) -> GatingResult {
   match gate.gate_type {
     RectangleGate => flow_core_rectangle_gate(frame, gate)
-    PolygonGate => flow_core_polygon_gate(frame, gate)
-    EllipsoidGate => flow_core_ellipsoid_gate(frame, gate)
-    QuadrantGate => flow_core_quadrant_gate(frame, gate)
-    BooleanGate => flow_core_rectangle_gate(frame, gate)
   }
 }
 
@@ -1448,7 +1284,7 @@ pub fn flow_core_filter_events(frame : FlowFrame, gate : Gate) -> GatingResult {
 pub fn flow_core_compute_spillover(
   matrix : Array[Array[Double]],
 ) -> Array[Double] {
-  let result : Array[Double] = Array::new()
+  let result : Array[Double] = Array(capacity=0)
   let mut i = 0
   while i < matrix.length() {
     let mut j = 0
@@ -1468,10 +1304,10 @@ pub fn flow_core_create_compensation_matrix(
   values : Array[Array[Double]],
 ) -> CompensationMatrix {
   let n = fluorochromes.length()
-  let matrix : Array[Array[Double]] = Array::new()
+  let matrix : Array[Array[Double]] = Array(capacity=0)
   let mut i = 0
   while i < n {
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     let mut j = 0
     while j < n {
       if i < values.length() && j < values[i].length() {
@@ -1500,8 +1336,8 @@ pub fn flow_core_normalize(
   let n_params = frame.exprs[0].length()
   match norm_method {
     "scale" => {
-      let mins : Array[Double] = Array::new()
-      let maxs : Array[Double] = Array::new()
+      let mins : Array[Double] = Array(capacity=0)
+      let maxs : Array[Double] = Array(capacity=0)
       let mut j = 0
       while j < n_params {
         mins.push(0.0)
@@ -1529,10 +1365,10 @@ pub fn flow_core_normalize(
         maxs[j] = mx
         j = j + 1
       }
-      let new_exprs : Array[Array[Double]] = Array::new()
+      let new_exprs : Array[Array[Double]] = Array(capacity=0)
       let mut i = 0
       while i < n_events {
-        let row : Array[Double] = Array::new()
+        let row : Array[Double] = Array(capacity=0)
         let mut j = 0
         while j < n_params {
           let v = if j < frame.exprs[i].length() {
@@ -1557,10 +1393,10 @@ pub fn flow_core_normalize(
       }
     }
     "log" => {
-      let new_exprs : Array[Array[Double]] = Array::new()
+      let new_exprs : Array[Array[Double]] = Array(capacity=0)
       let mut i = 0
       while i < n_events {
-        let row : Array[Double] = Array::new()
+        let row : Array[Double] = Array(capacity=0)
         let mut j = 0
         while j < n_params {
           let v = if j < frame.exprs[i].length() {
@@ -1653,8 +1489,8 @@ pub fn flow_core_summary(frame : FlowFrame) -> String {
 ///|
 /// Merge multiple FlowFrames into one.
 pub fn flow_core_merge_frames(frames : Array[FlowFrame]) -> FlowFrame {
-  let merged_exprs : Array[Array[Double]] = Array::new()
-  let merged_params : Array[ParameterDescription] = Array::new()
+  let merged_exprs : Array[Array[Double]] = Array(capacity=0)
+  let merged_params : Array[ParameterDescription] = Array(capacity=0)
   let merged_desc : Map[String, String] = Map([], capacity=16)
   let mut n_events = 0
   let mut n_params = 0
@@ -1747,7 +1583,7 @@ pub fn flow_core_create_example_set() -> FlowSet {
     [160.0, 260.0, 21.0, 16.0],
     [210.0, 310.0, 31.0, 26.0],
   ]
-  let params : Array[ParameterDescription] = Array::new()
+  let params : Array[ParameterDescription] = Array(capacity=0)
   let mut i = 0
   while i < frame1.params.length() {
     let p = frame1.params[i]
@@ -1756,7 +1592,7 @@ pub fn flow_core_create_example_set() -> FlowSet {
       range: p.range,
       min_range: p.min_range,
       max_range: p.max_range,
-      compensation: Array::new(),
+      compensation: Array(capacity=0),
     })
     i = i + 1
   }

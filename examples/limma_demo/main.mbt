@@ -50,8 +50,10 @@ fn main {
   // Batch effect correction example
   println("3. Removing batch effects...")
   let batch = ["B1", "B1", "B1", "B2", "B2", "B2"]
-  let group = ["Control", "Control", "Control", "Treatment", "Treatment", "Treatment"]
-  let batch_removed = @bio.limma_remove_batch_effect(log_cpm, batch, group = group)
+  let group = [
+    "Control", "Control", "Control", "Treatment", "Treatment", "Treatment",
+  ]
+  let batch_removed = @bio.limma_remove_batch_effect(log_cpm, batch, group~)
   println("   Batch effect correction applied")
   println(
     "   Corrected matrix: " +
@@ -65,7 +67,13 @@ fn main {
   println("4. Computing MDS distances for visualization...")
   let mds = @bio.plot_mds_distances(log_cpm, 50)
   println("   MDS distances computed (top 50 variable genes)")
-  println("   Distance matrix: " + mds.rows.to_string() + " x " + mds.cols.to_string() + "\n")
+  println(
+    "   Distance matrix: " +
+    mds.rows.to_string() +
+    " x " +
+    mds.cols.to_string() +
+    "\n",
+  )
 
   println("5. Fitting linear model (lmFit)...")
   let fit = @bio.lm_fit(log_cpm, design)
@@ -92,9 +100,7 @@ fn main {
   let treat_result = @bio.treat(eb_result, 0.05, "both")
   println("   TREAT test complete (lfc=0.05, direction=both)")
   println(
-    "   TREAT p-values: " +
-    treat_result.p_value.rows.to_string() +
-    " rows\n",
+    "   TREAT p-values: " + treat_result.p_value.rows.to_string() + " rows\n",
   )
 
   println("8. Extracting top differentially expressed genes (topTable)...")
@@ -165,22 +171,42 @@ fn main {
   println("12. RPKM normalization...")
   let gene_lengths = Array::make(100, 1000.0)
   let rpkm_result = @bio.limma_rpkm(counts, gene_lengths)
-  println("   RPKM matrix: " + rpkm_result.rows.to_string() + " x " + rpkm_result.cols.to_string())
+  println(
+    "   RPKM matrix: " +
+    rpkm_result.rows.to_string() +
+    " x " +
+    rpkm_result.cols.to_string(),
+  )
 
   // CPM normalization
   println("13. CPM normalization...")
   let cpm_result = @bio.limma_cpm(counts)
-  println("   log2 CPM matrix: " + cpm_result.rows.to_string() + " x " + cpm_result.cols.to_string())
+  println(
+    "   log2 CPM matrix: " +
+    cpm_result.rows.to_string() +
+    " x " +
+    cpm_result.cols.to_string(),
+  )
 
   // Quantile normalization
   println("14. Quantile normalization...")
   let quant_norm = @bio.limma_quantile_normalize(log_cpm)
-  println("   Quantile normalized matrix: " + quant_norm.rows.to_string() + " x " + quant_norm.cols.to_string())
+  println(
+    "   Quantile normalized matrix: " +
+    quant_norm.rows.to_string() +
+    " x " +
+    quant_norm.cols.to_string(),
+  )
 
   // ComBat batch correction
   println("15. ComBat batch correction...")
-  let combat_result = @bio.limma_combat(log_cpm, batch, group = group)
-  println("   ComBat corrected matrix: " + combat_result.rows.to_string() + " x " + combat_result.cols.to_string())
+  let combat_result = @bio.limma_combat(log_cpm, batch, group~)
+  println(
+    "   ComBat corrected matrix: " +
+    combat_result.rows.to_string() +
+    " x " +
+    combat_result.cols.to_string(),
+  )
 
   println("\n=== limma Analysis Complete ===")
 }

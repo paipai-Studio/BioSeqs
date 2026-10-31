@@ -42,12 +42,12 @@ fn main {
   let clusters = @src.leiden_clustering(adjacency, weights, 1.0)
   println("  Number of clusters: " + clusters.n_clusters.to_string())
 
-  let cluster_counts : Map[Int, Int] = Map([], capacity=clusters.n_clusters)
+  let cluster_counts : Map[Int32, Int32] = Map([], capacity=clusters.n_clusters)
   i = 0
   while i < clusters.clusters.length() {
     let c = clusters.clusters[i]
     let current = cluster_counts.get(c)
-    if current.is_some() {
+    if current is Some(_) {
       cluster_counts[c] = current.unwrap() + 1
     } else {
       cluster_counts[c] = 1
@@ -65,7 +65,7 @@ fn main {
   k = 0
   while k < keys.length() {
     let v = cluster_counts.get(keys[k])
-    if v.is_some() {
+    if v is Some(_) {
       println(
         "    Cluster " +
         keys[k].to_string() +
@@ -86,7 +86,7 @@ fn main {
   )
 
   println("\n6. Top markers for cluster 0 (by log2FC):")
-  let top_markers : Array[(Double, String)] = Array::new()
+  let top_markers : Array[(Double, String)] = Array(capacity=0)
   i = 0
   while i < markers.gene.length() {
     if markers.cluster[i] == 0 && markers.fdr[i] < 0.05 {

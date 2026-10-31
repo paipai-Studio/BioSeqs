@@ -28,8 +28,8 @@ pub struct FsspHeader {
   compound : String
   source : String
   author : String
-  seq_length : Int
-  n_alignments : Int
+  seq_length : Int32
+  n_alignments : Int32
   threshold : Double
 }
 
@@ -42,8 +42,8 @@ pub fn FsspHeader::new(
   compound : String,
   source : String,
   author : String,
-  seq_length : Int,
-  n_alignments : Int,
+  seq_length : Int32,
+  n_alignments : Int32,
   threshold : Double,
 ) -> FsspHeader {
   {
@@ -97,13 +97,13 @@ pub fn FsspHeader::author(self : FsspHeader) -> String {
 
 ///|
 /// Get reference sequence length.
-pub fn FsspHeader::seq_length(self : FsspHeader) -> Int {
+pub fn FsspHeader::seq_length(self : FsspHeader) -> Int32 {
   self.seq_length
 }
 
 ///|
 /// Get number of alignments.
-pub fn FsspHeader::n_alignments(self : FsspHeader) -> Int {
+pub fn FsspHeader::n_alignments(self : FsspHeader) -> Int32 {
   self.n_alignments
 }
 
@@ -118,11 +118,11 @@ pub fn FsspHeader::threshold(self : FsspHeader) -> String {
 pub struct FsspAlignment {
   pdbid : String
   alignment_id : String
-  start_position : Int
+  start_position : Int32
   aligned_sequence : String
   z_score : Double
   rmsd : Double
-  lali : Int
+  lali : Int32
   pid : Double
 }
 
@@ -131,11 +131,11 @@ pub struct FsspAlignment {
 pub fn FsspAlignment::new(
   pdbid : String,
   alignment_id : String,
-  start_position : Int,
+  start_position : Int32,
   aligned_sequence : String,
   z_score : Double,
   rmsd : Double,
-  lali : Int,
+  lali : Int32,
   pid : Double,
 ) -> FsspAlignment {
   {
@@ -164,7 +164,7 @@ pub fn FsspAlignment::alignment_id(self : FsspAlignment) -> String {
 
 ///|
 /// Get start position in the reference.
-pub fn FsspAlignment::start_position(self : FsspAlignment) -> Int {
+pub fn FsspAlignment::start_position(self : FsspAlignment) -> Int32 {
   self.start_position
 }
 
@@ -188,7 +188,7 @@ pub fn FsspAlignment::rmsd(self : FsspAlignment) -> Double {
 
 ///|
 /// Get length of alignment.
-pub fn FsspAlignment::lali(self : FsspAlignment) -> Int {
+pub fn FsspAlignment::lali(self : FsspAlignment) -> Int32 {
   self.lali
 }
 
@@ -211,7 +211,7 @@ pub fn FsspData::new(
   header : FsspHeader,
   alignments : Array[FsspAlignment],
 ) -> FsspData {
-  { header, alignments }
+  { header, alignments, }
 }
 
 ///|
@@ -228,7 +228,7 @@ pub fn FsspData::alignments(self : FsspData) -> Array[FsspAlignment] {
 
 ///|
 /// Number of alignments.
-pub fn FsspData::n_alignments(self : FsspData) -> Int {
+pub fn FsspData::n_alignments(self : FsspData) -> Int32 {
   self.alignments.length()
 }
 
@@ -296,7 +296,7 @@ fn fssp_tokenize(line : String) -> Array[String] {
 fn fssp_extract_after_keyword(line : String, keyword : String) -> String {
   let trimmed = trim(line)
   if starts_with(trimmed, 0, keyword) {
-    let rest = trimmed[keyword.length():trimmed.length()].to_string()
+    let rest = trimmed[keyword.length():trimmed.length()].to_owned()
     trim(rest)
   } else {
     ""
@@ -305,7 +305,7 @@ fn fssp_extract_after_keyword(line : String, keyword : String) -> String {
 
 ///|
 /// Parse the FSSP header from the first few lines of the file.
-fn fssp_parse_header(lines : Array[String]) -> (FsspHeader, Int) {
+fn fssp_parse_header(lines : Array[String]) -> (FsspHeader, Int32) {
   let mut pdbid = ""
   let mut pdbid_date = ""
   let mut title = ""
@@ -333,7 +333,7 @@ fn fssp_parse_header(lines : Array[String]) -> (FsspHeader, Int) {
         // Strip \_ prefix from PDB ID if present
         let raw_pdbid = tokens[0]
         if starts_with(raw_pdbid, 0, "\\_") {
-          pdbid = raw_pdbid[2:raw_pdbid.length()].to_string()
+          pdbid = raw_pdbid[2:raw_pdbid.length()].to_owned()
         } else {
           pdbid = raw_pdbid
         }

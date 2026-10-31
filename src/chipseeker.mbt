@@ -11,23 +11,23 @@
 
 ///|
 /// Length of the 5'UTR / 3'UTR approximation (in bp).
-const CS_UTR_LENGTH : Int = 500
+const CS_UTR_LENGTH : Int32 = 500
 
 ///|
 /// Size of each implicit "exon" segment inside the gene body (in bp).
-const CS_EXON_SIZE : Int = 1000
+const CS_EXON_SIZE : Int32 = 1000
 
 ///|
 /// Size of the downstream region past the gene body (in bp).
-const CS_DOWNSTREAM_WINDOW : Int = 3000
+const CS_DOWNSTREAM_WINDOW : Int32 = 3000
 
 ///|
 /// A ChIP-seq peak (genomic interval).
 pub struct Peak {
   chr : String
-  start : Int
-  mut end : Int
-  summit : Int
+  start : Int32
+  mut end : Int32
+  summit : Int32
   fold_enrichment : Double
   p_value : Double
 }
@@ -38,13 +38,13 @@ pub struct Peak {
 /// are optional and default to zero (summit=0 means "use peak center").
 pub fn Peak::new(
   chr~ : String,
-  start~ : Int,
-  end? : Int = 0,
-  summit? : Int = 0,
-  fold_enrichment? : Double = 0.0,
-  p_value? : Double = 0.0,
+  start~ : Int32,
+  end~ : Int32 = 0,
+  summit~ : Int32 = 0,
+  fold_enrichment~ : Double = 0.0,
+  p_value~ : Double = 0.0,
 ) -> Peak {
-  Peak::{ chr, start, end, summit, fold_enrichment, p_value }
+  Peak::{ chr, start, end, summit, fold_enrichment, p_value, }
 }
 
 ///|
@@ -55,25 +55,25 @@ pub fn Peak::get_chr(self : Peak) -> String {
 
 ///|
 /// Get the start position of the peak.
-pub fn Peak::get_start(self : Peak) -> Int {
+pub fn Peak::get_start(self : Peak) -> Int32 {
   self.start
 }
 
 ///|
 /// Get the end position of the peak.
-pub fn Peak::get_end(self : Peak) -> Int {
+pub fn Peak::get_end(self : Peak) -> Int32 {
   self.end
 }
 
 ///|
 /// Set the end position of the peak.
-pub fn Peak::set_end(self : Peak, new_end : Int) -> Unit {
+pub fn Peak::set_end(self : Peak, new_end : Int32) -> Unit {
   self.end = new_end
 }
 
 ///|
 /// Get the summit position of the peak.
-pub fn Peak::get_summit(self : Peak) -> Int {
+pub fn Peak::get_summit(self : Peak) -> Int32 {
   self.summit
 }
 
@@ -95,10 +95,10 @@ pub struct GeneAnnotation {
   gene_id : String
   gene_name : String
   chr : String
-  gene_start : Int
-  gene_end : Int
+  gene_start : Int32
+  gene_end : Int32
   strand : String // "+" or "-"
-  tss : Int // transcription start site
+  tss : Int32 // transcription start site
 }
 
 ///| Construct a GeneAnnotation. The TSS is auto-computed from the strand:
@@ -111,12 +111,20 @@ pub fn GeneAnnotation::new(
   gene_id~ : String,
   gene_name~ : String,
   chr~ : String,
-  gene_start~ : Int,
-  gene_end~ : Int,
+  gene_start~ : Int32,
+  gene_end~ : Int32,
   strand~ : String,
 ) -> GeneAnnotation {
   let tss = if strand == "-" { gene_end } else { gene_start }
-  GeneAnnotation::{ gene_id, gene_name, chr, gene_start, gene_end, strand, tss }
+  GeneAnnotation::{
+    gene_id,
+    gene_name,
+    chr,
+    gene_start,
+    gene_end,
+    strand,
+    tss,
+  }
 }
 
 ///|
@@ -139,13 +147,13 @@ pub fn GeneAnnotation::get_chr(self : GeneAnnotation) -> String {
 
 ///|
 /// Get the gene start.
-pub fn GeneAnnotation::get_gene_start(self : GeneAnnotation) -> Int {
+pub fn GeneAnnotation::get_gene_start(self : GeneAnnotation) -> Int32 {
   self.gene_start
 }
 
 ///|
 /// Get the gene end.
-pub fn GeneAnnotation::get_gene_end(self : GeneAnnotation) -> Int {
+pub fn GeneAnnotation::get_gene_end(self : GeneAnnotation) -> Int32 {
   self.gene_end
 }
 
@@ -157,7 +165,7 @@ pub fn GeneAnnotation::get_strand(self : GeneAnnotation) -> String {
 
 ///|
 /// Get the transcription start site (TSS).
-pub fn GeneAnnotation::get_tss(self : GeneAnnotation) -> Int {
+pub fn GeneAnnotation::get_tss(self : GeneAnnotation) -> Int32 {
   self.tss
 }
 
@@ -168,8 +176,8 @@ pub struct PeakAnnotation {
   gene_id : String
   gene_name : String
   chr : String
-  tss : Int
-  distance_to_tss : Int
+  tss : Int32
+  distance_to_tss : Int32
   feature : String // "Promoter", "5'UTR", etc.
   annotation : String // detailed annotation string
 }
@@ -181,8 +189,8 @@ pub fn PeakAnnotation::new(
   gene_id~ : String,
   gene_name~ : String,
   chr~ : String,
-  tss~ : Int,
-  distance_to_tss~ : Int,
+  tss~ : Int32,
+  distance_to_tss~ : Int32,
   feature~ : String,
   annotation~ : String,
 ) -> PeakAnnotation {
@@ -224,13 +232,13 @@ pub fn PeakAnnotation::get_chr(self : PeakAnnotation) -> String {
 
 ///|
 /// Get the TSS.
-pub fn PeakAnnotation::get_tss(self : PeakAnnotation) -> Int {
+pub fn PeakAnnotation::get_tss(self : PeakAnnotation) -> Int32 {
   self.tss
 }
 
 ///|
 /// Get the signed distance to TSS.
-pub fn PeakAnnotation::get_distance_to_tss(self : PeakAnnotation) -> Int {
+pub fn PeakAnnotation::get_distance_to_tss(self : PeakAnnotation) -> Int32 {
   self.distance_to_tss
 }
 
@@ -249,27 +257,27 @@ pub fn PeakAnnotation::get_annotation(self : PeakAnnotation) -> String {
 ///|
 /// Summary counts of peaks assigned to each feature type.
 pub struct AnnotationSummary {
-  total_peaks : Int
-  promoter : Int
-  utr5 : Int
-  utr3 : Int
-  exon : Int
-  intron : Int
-  downstream : Int
-  distal_intergenic : Int
+  total_peaks : Int32
+  promoter : Int32
+  utr5 : Int32
+  utr3 : Int32
+  exon : Int32
+  intron : Int32
+  downstream : Int32
+  distal_intergenic : Int32
 }
 
 ///|
 /// Construct an AnnotationSummary.
 pub fn AnnotationSummary::new(
-  total_peaks~ : Int,
-  promoter~ : Int,
-  utr5~ : Int,
-  utr3~ : Int,
-  exon~ : Int,
-  intron~ : Int,
-  downstream~ : Int,
-  distal_intergenic~ : Int,
+  total_peaks~ : Int32,
+  promoter~ : Int32,
+  utr5~ : Int32,
+  utr3~ : Int32,
+  exon~ : Int32,
+  intron~ : Int32,
+  downstream~ : Int32,
+  distal_intergenic~ : Int32,
 ) -> AnnotationSummary {
   AnnotationSummary::{
     total_peaks,
@@ -285,43 +293,43 @@ pub fn AnnotationSummary::new(
 
 ///|
 /// Get total peaks.
-pub fn AnnotationSummary::get_total_peaks(self : AnnotationSummary) -> Int {
+pub fn AnnotationSummary::get_total_peaks(self : AnnotationSummary) -> Int32 {
   self.total_peaks
 }
 
 ///|
 /// Get promoter count.
-pub fn AnnotationSummary::get_promoter(self : AnnotationSummary) -> Int {
+pub fn AnnotationSummary::get_promoter(self : AnnotationSummary) -> Int32 {
   self.promoter
 }
 
 ///|
 /// Get 5'UTR count.
-pub fn AnnotationSummary::get_utr5(self : AnnotationSummary) -> Int {
+pub fn AnnotationSummary::get_utr5(self : AnnotationSummary) -> Int32 {
   self.utr5
 }
 
 ///|
 /// Get 3'UTR count.
-pub fn AnnotationSummary::get_utr3(self : AnnotationSummary) -> Int {
+pub fn AnnotationSummary::get_utr3(self : AnnotationSummary) -> Int32 {
   self.utr3
 }
 
 ///|
 /// Get exon count.
-pub fn AnnotationSummary::get_exon(self : AnnotationSummary) -> Int {
+pub fn AnnotationSummary::get_exon(self : AnnotationSummary) -> Int32 {
   self.exon
 }
 
 ///|
 /// Get intron count.
-pub fn AnnotationSummary::get_intron(self : AnnotationSummary) -> Int {
+pub fn AnnotationSummary::get_intron(self : AnnotationSummary) -> Int32 {
   self.intron
 }
 
 ///|
 /// Get downstream count.
-pub fn AnnotationSummary::get_downstream(self : AnnotationSummary) -> Int {
+pub fn AnnotationSummary::get_downstream(self : AnnotationSummary) -> Int32 {
   self.downstream
 }
 
@@ -329,7 +337,7 @@ pub fn AnnotationSummary::get_downstream(self : AnnotationSummary) -> Int {
 /// Get distal intergenic count.
 pub fn AnnotationSummary::get_distal_intergenic(
   self : AnnotationSummary,
-) -> Int {
+) -> Int32 {
   self.distal_intergenic
 }
 
@@ -337,7 +345,7 @@ pub fn AnnotationSummary::get_distal_intergenic(
 
 ///|
 /// if it is non-zero, otherwise the midpoint of [start, end].
-pub fn cs_peak_position(peak : Peak) -> Int {
+pub fn cs_peak_position(peak : Peak) -> Int32 {
   if peak.summit != 0 {
     peak.summit
   } else {
@@ -371,7 +379,7 @@ fn cs_na_gene(chr : String) -> GeneAnnotation {
 
 ///|
 /// genes the orientation is flipped so the sign convention still holds.
-pub fn compute_tss_distance(peak : Peak, gene : GeneAnnotation) -> Int {
+pub fn compute_tss_distance(peak : Peak, gene : GeneAnnotation) -> Int32 {
   if gene.gene_id == "" {
     return 0
   }
@@ -395,7 +403,7 @@ pub fn find_nearest_gene(
 ) -> GeneAnnotation {
   let peak_pos = cs_peak_position(peak)
   let mut nearest : GeneAnnotation = cs_na_gene(peak.chr)
-  let mut min_dist : Int = 0
+  let mut min_dist : Int32 = 0
   let mut found = false
   for gene in genes {
     if gene.chr != peak.chr {
@@ -420,7 +428,7 @@ pub fn find_nearest_gene(
 pub fn assign_feature(
   peak : Peak,
   gene : GeneAnnotation,
-  promoter_window : Int,
+  promoter_window : Int32,
 ) -> String {
   // No real gene -> everything is distal intergenic.
   if gene.gene_id == "" || gene.chr != peak.chr {
@@ -517,9 +525,9 @@ pub fn assign_feature(
 /// Format the detailed annotation string for a peak/gene/feature triple.
 fn cs_format_annotation(
   gene : GeneAnnotation,
-  distance : Int,
+  distance : Int32,
   feature : String,
-  promoter_window : Int,
+  promoter_window : Int32,
 ) -> String {
   match feature {
     "Promoter" =>
@@ -548,7 +556,7 @@ fn cs_format_annotation(
 pub fn annotate_peak(
   peak : Peak,
   genes : Array[GeneAnnotation],
-  promoter_window : Int,
+  promoter_window : Int32,
 ) -> PeakAnnotation {
   let gene = find_nearest_gene(peak, genes)
   let distance = compute_tss_distance(peak, gene)
@@ -573,9 +581,9 @@ pub fn annotate_peak(
 pub fn annotate_peaks(
   peaks : Array[Peak],
   genes : Array[GeneAnnotation],
-  promoter_window : Int,
+  promoter_window : Int32,
 ) -> Array[PeakAnnotation] {
-  let result : Array[PeakAnnotation] = Array::new()
+  let result : Array[PeakAnnotation] = Array(capacity=0)
   for peak in peaks {
     result.push(annotate_peak(peak, genes, promoter_window))
   }
@@ -624,7 +632,7 @@ pub fn filter_by_feature(
   annotations : Array[PeakAnnotation],
   feature : String,
 ) -> Array[PeakAnnotation] {
-  let result : Array[PeakAnnotation] = Array::new()
+  let result : Array[PeakAnnotation] = Array(capacity=0)
   for ann in annotations {
     if ann.feature == feature {
       result.push(ann)
@@ -639,9 +647,9 @@ pub fn filter_by_feature(
 /// most `max_distance`.
 pub fn filter_by_distance(
   annotations : Array[PeakAnnotation],
-  max_distance : Int,
+  max_distance : Int32,
 ) -> Array[PeakAnnotation] {
-  let result : Array[PeakAnnotation] = Array::new()
+  let result : Array[PeakAnnotation] = Array(capacity=0)
   for ann in annotations {
     if ann.distance_to_tss.abs() <= max_distance {
       result.push(ann)

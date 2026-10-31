@@ -378,7 +378,7 @@ test "ancombc_sampling_fractions_empty" {
   let samples : Array[String] = []
   let groups : Array[String] = []
   let features : Array[String] = []
-  let counts : Array[Array[Int]] = []
+  let counts : Array[Array[Int32]] = []
   let data = @src.AncombcData::new(samples, groups, features, counts)
   let fracs = @src.ancombc_sampling_fractions(data)
   assert_eq(fracs.length(), 0)

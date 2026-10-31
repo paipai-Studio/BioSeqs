@@ -12,29 +12,25 @@
 /// A residue identifier (chain, resseq, icode).
 pub struct ResidueId {
   chain_id : Char
-  resseq : Int
+  resseq : Int32
   icode : Char
 } derive(Eq)
 
 ///|
-/// Selection level enum for structure traversal.
-pub enum SelectionLevel {
-  AtomLevel
-  ResidueLevel
-  ChainLevel
-  ModelLevel
-  StructureLevel
-}
+pub extend ResidueId with Eq::{equal, not_equal}
 
 ///|
 /// Dice selection result containing extracted structure info.
 pub struct DiceResult {
   structure_id : String
-  num_atoms : Int
-  num_residues : Int
-  num_chains : Int
-  num_models : Int
+  num_atoms : Int32
+  num_residues : Int32
+  num_chains : Int32
+  num_models : Int32
 } derive(Eq)
+
+///|
+pub extend DiceResult with Eq::{equal, not_equal}
 
 // ============================================================================
 // Constructors
@@ -43,21 +39,21 @@ pub struct DiceResult {
 ///|
 pub fn ResidueId::new(
   chain_id : Char,
-  resseq : Int,
-  icode? : Char = ' ',
+  resseq : Int32,
+  icode~ : Char = ' ',
 ) -> ResidueId {
-  ResidueId::{ chain_id, resseq, icode }
+  ResidueId::{ chain_id, resseq, icode, }
 }
 
 ///|
 pub fn DiceResult::new(
   structure_id : String,
-  num_atoms : Int,
-  num_residues : Int,
-  num_chains : Int,
-  num_models : Int,
+  num_atoms : Int32,
+  num_residues : Int32,
+  num_chains : Int32,
+  num_models : Int32,
 ) -> DiceResult {
-  DiceResult::{ structure_id, num_atoms, num_residues, num_chains, num_models }
+  DiceResult::{ structure_id, num_atoms, num_residues, num_chains, num_models, }
 }
 
 // ============================================================================
@@ -116,8 +112,8 @@ pub fn extract_chain(structure : Structure, chain_id : Char) -> Structure {
 pub fn extract_residue_range(
   structure : Structure,
   chain_id : Char,
-  start_res : Int,
-  end_res : Int,
+  start_res : Int32,
+  end_res : Int32,
 ) -> Structure {
   let new_models : Array[Model] = []
 
@@ -165,7 +161,6 @@ pub fn extract_residues(
   for i = 0; i < structure.models.length(); i = i + 1 {
     let model = structure.models[i]
     let new_chains : Array[Chain] = []
-    let chain_residues_map = Map([], capacity=8) // chain_id -> Array[Residue]
 
     for j = 0; j < model.chains.length(); j = j + 1 {
       let chain = model.chains[j]
@@ -290,7 +285,7 @@ pub fn extract_backbone_atoms(structure : Structure) -> Structure {
 /// Extract specific models from a structure.
 pub fn extract_models(
   structure : Structure,
-  model_ids : Array[Int],
+  model_ids : Array[Int32],
 ) -> Structure {
   let new_models : Array[Model] = []
 
@@ -471,7 +466,7 @@ pub fn get_unique_atom_names(structure : Structure) -> Array[String] {
 
 ///|
 /// Count atoms in a structure by element type.
-pub fn count_atoms_by_element(structure : Structure) -> Map[String, Int] {
+pub fn count_atoms_by_element(structure : Structure) -> Map[String, Int32] {
   let counts = Map([], capacity=16)
 
   for i = 0; i < structure.models.length(); i = i + 1 {

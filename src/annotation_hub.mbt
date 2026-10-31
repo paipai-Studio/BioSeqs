@@ -6,7 +6,6 @@ pub enum ResourceType {
   Sequence
   Alignment
   Expression
-  Other(String)
 }
 
 ///|
@@ -18,7 +17,6 @@ pub fn ResourceType::to_string(self : ResourceType) -> String {
     Sequence => "Sequence"
     Alignment => "Alignment"
     Expression => "Expression"
-    Other(s) => s
   }
 }
 
@@ -30,7 +28,6 @@ pub enum DataProvider {
   EBI
   ENCODE
   GEO
-  Other(String)
 }
 
 ///|
@@ -42,7 +39,6 @@ pub fn DataProvider::to_string(self : DataProvider) -> String {
     EBI => "EBI"
     ENCODE => "ENCODE"
     GEO => "GEO"
-    Other(s) => s
   }
 }
 
@@ -55,7 +51,7 @@ pub struct HubResource {
   version : String
   description : String
   source_url : String
-  file_size : Int
+  file_size : Int32
   cache_path : String
   metadata : Map[String, String]
 }
@@ -69,7 +65,7 @@ pub fn HubResource::new(
   version : String,
   description : String,
   source_url : String,
-  file_size : Int,
+  file_size : Int32,
 ) -> HubResource {
   HubResource::{
     resource_id,
@@ -111,7 +107,7 @@ pub fn AnnotationHub::new(
   cache_dir : String,
   default_genome : String,
 ) -> AnnotationHub {
-  AnnotationHub::{ resources: Array::new(), cache_dir, default_genome }
+  AnnotationHub::{ resources: Array(capacity=0), cache_dir, default_genome, }
 }
 
 ///|
@@ -127,7 +123,7 @@ pub fn annotation_hub_search_by_type(
   hub : AnnotationHub,
   resource_type_str : String,
 ) -> Array[HubResource] {
-  let results : Array[HubResource] = Array::new()
+  let results : Array[HubResource] = Array(capacity=0)
   let mut i = 0
   while i < hub.resources.length() {
     let r = hub.resources[i]
@@ -144,7 +140,7 @@ pub fn annotation_hub_search_by_provider(
   hub : AnnotationHub,
   provider_str : String,
 ) -> Array[HubResource] {
-  let results : Array[HubResource] = Array::new()
+  let results : Array[HubResource] = Array(capacity=0)
   let mut i = 0
   while i < hub.resources.length() {
     let r = hub.resources[i]
@@ -161,7 +157,7 @@ pub fn annotation_hub_search_by_genome(
   hub : AnnotationHub,
   genome : String,
 ) -> Array[HubResource] {
-  let results : Array[HubResource] = Array::new()
+  let results : Array[HubResource] = Array(capacity=0)
   let mut i = 0
   while i < hub.resources.length() {
     let r = hub.resources[i]
@@ -178,7 +174,7 @@ pub fn annotation_hub_search(
   hub : AnnotationHub,
   query : String,
 ) -> Array[HubResource] {
-  let results : Array[HubResource] = Array::new()
+  let results : Array[HubResource] = Array(capacity=0)
   let query_lower = to_lowercase(query)
   let mut i = 0
   while i < hub.resources.length() {
@@ -210,7 +206,7 @@ pub fn annotation_hub_get_resource(
 }
 
 ///|
-pub fn annotation_hub_count(hub : AnnotationHub) -> Int {
+pub fn annotation_hub_count(hub : AnnotationHub) -> Int32 {
   hub.resources.length()
 }
 
@@ -225,14 +221,14 @@ pub fn annotation_hub_summarize(hub : AnnotationHub) -> String {
   result = result + "Cache directory: " + hub.cache_dir + "\n"
   result = result + "Default genome: " + hub.default_genome + "\n\n"
 
-  let type_counts : Map[String, Int] = Map([], capacity=7)
-  let type_names : Array[String] = Array::new()
+  let type_counts : Map[String, Int32] = Map([], capacity=7)
+  let type_names : Array[String] = Array(capacity=0)
   let mut i = 0
   while i < hub.resources.length() {
     let r = hub.resources[i]
     let key = r.resource_type.to_string()
     let current = type_counts.get(key)
-    if current.is_some() {
+    if current is Some(_) {
       type_counts[key] = current.unwrap() + 1
     } else {
       type_counts[key] = 1

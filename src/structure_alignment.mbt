@@ -16,7 +16,7 @@ pub struct SAPoint3D {
 ///|
 /// Create a new SAPoint3D.
 pub fn SAPoint3D::new(x : Double, y : Double, z : Double) -> SAPoint3D {
-  SAPoint3D::{ x, y, z }
+  SAPoint3D::{ x, y, z, }
 }
 
 ///|
@@ -32,7 +32,7 @@ pub fn SAPoint3D::distance(self : SAPoint3D, other : SAPoint3D) -> Double {
 /// A residue for StructureAlignment.
 pub struct SAResidue {
   resname : String
-  resseq : Int
+  resseq : Int32
   ca_coord : SAPoint3D
 }
 
@@ -40,10 +40,10 @@ pub struct SAResidue {
 /// Create a new SAResidue.
 pub fn SAResidue::new(
   resname : String,
-  resseq : Int,
+  resseq : Int32,
   ca_coord : SAPoint3D,
 ) -> SAResidue {
-  SAResidue::{ resname, resseq, ca_coord }
+  SAResidue::{ resname, resseq, ca_coord, }
 }
 
 ///|
@@ -59,7 +59,7 @@ pub fn SAStructure::new(
   id : String,
   residues : Array[SAResidue],
 ) -> SAStructure {
-  SAStructure::{ id, residues }
+  SAStructure::{ id, residues, }
 }
 
 ///|
@@ -69,7 +69,7 @@ pub struct SAAlignmentResult {
   aligned_residues : Array[Array[SAResidue?]]
   rmsd : Double
   tm_score : Double
-  aligned_length : Int
+  aligned_length : Int32
 }
 
 ///|
@@ -79,7 +79,7 @@ pub fn SAAlignmentResult::new(
   aligned_residues : Array[Array[SAResidue?]],
   rmsd : Double,
   tm_score : Double,
-  aligned_length : Int,
+  aligned_length : Int32,
 ) -> SAAlignmentResult {
   SAAlignmentResult::{
     structure_ids,
@@ -124,7 +124,7 @@ pub fn sa_calculate_rmsd(
 pub fn sa_calculate_tm_score(
   residues1 : Array[SAPoint3D],
   residues2 : Array[SAPoint3D],
-  l_target : Int,
+  l_target : Int32,
 ) -> Double {
   if residues1.length() == 0 || residues2.length() == 0 {
     return 0.0
@@ -162,11 +162,11 @@ pub fn sa_calculate_distance_matrix(
   let len1 = struct1.residues.length()
   let len2 = struct2.residues.length()
 
-  let matrix : Array[Array[Double]] = Array::new()
+  let matrix : Array[Array[Double]] = Array(capacity=0)
 
   let mut i = 0
   while i < len1 {
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     let mut j = 0
     while j < len2 {
       let dist = struct1.residues[i].ca_coord.distance(
@@ -187,20 +187,20 @@ pub fn sa_calculate_distance_matrix(
 pub fn sa_dp_alignment(
   struct1 : SAStructure,
   struct2 : SAStructure,
-  gap_open? : Double = 5.0,
-  gap_extend? : Double = 1.0,
-) -> (Array[(Int, Int)], Double) {
+  gap_open~ : Double = 5.0,
+  gap_extend~ : Double = 1.0,
+) -> (Array[(Int32, Int32)], Double) {
   let dist_matrix = sa_calculate_distance_matrix(struct1, struct2)
   let len1 = struct1.residues.length()
   let len2 = struct2.residues.length()
 
-  let score : Array[Array[Double]] = Array::new()
-  let trace : Array[Array[Int]] = Array::new()
+  let score : Array[Array[Double]] = Array(capacity=0)
+  let trace : Array[Array[Int32]] = Array(capacity=0)
 
   let mut i = 0
   while i <= len1 {
-    let score_row : Array[Double] = Array::new()
-    let trace_row : Array[Int] = Array::new()
+    let score_row : Array[Double] = Array(capacity=0)
+    let trace_row : Array[Int32] = Array(capacity=0)
     let mut j = 0
     while j <= len2 {
       score_row.push(0.0)
@@ -252,7 +252,7 @@ pub fn sa_dp_alignment(
     i = i + 1
   }
 
-  let alignment : Array[(Int, Int)] = Array::new()
+  let alignment : Array[(Int32, Int32)] = Array(capacity=0)
   i = len1
   j = len2
 
@@ -269,7 +269,7 @@ pub fn sa_dp_alignment(
     }
   }
 
-  let reversed : Array[(Int, Int)] = Array::new()
+  let reversed : Array[(Int32, Int32)] = Array(capacity=0)
   let align_len = alignment.length()
   let mut k = 0
   while k < align_len {
@@ -288,9 +288,9 @@ pub fn sa_align_two_structures(
 ) -> SAAlignmentResult {
   let (alignment, _) = sa_dp_alignment(struct1, struct2)
 
-  let coords1 : Array[SAPoint3D] = Array::new()
-  let coords2 : Array[SAPoint3D] = Array::new()
-  let aligned_residues : Array[Array[SAResidue?]] = Array::new()
+  let coords1 : Array[SAPoint3D] = Array(capacity=0)
+  let coords2 : Array[SAPoint3D] = Array(capacity=0)
+  let aligned_residues : Array[Array[SAResidue?]] = Array(capacity=0)
 
   let align_len = alignment.length()
   let mut idx = 0
@@ -302,7 +302,7 @@ pub fn sa_align_two_structures(
     coords1.push(struct1.residues[i].ca_coord)
     coords2.push(struct2.residues[j].ca_coord)
 
-    let row : Array[SAResidue?] = Array::new()
+    let row : Array[SAResidue?] = Array(capacity=0)
     row.push(Some(struct1.residues[i]))
     row.push(Some(struct2.residues[j]))
     aligned_residues.push(row)
@@ -336,10 +336,10 @@ pub fn sa_align_multiple_structures(
   }
 
   if structures.length() == 1 {
-    let aligned_residues : Array[Array[SAResidue?]] = Array::new()
+    let aligned_residues : Array[Array[SAResidue?]] = Array(capacity=0)
     let mut i = 0
     while i < structures[0].residues.length() {
-      let row : Array[SAResidue?] = Array::new()
+      let row : Array[SAResidue?] = Array(capacity=0)
       row.push(Some(structures[0].residues[i]))
       aligned_residues.push(row)
       i = i + 1
@@ -379,7 +379,7 @@ pub fn sa_align_structure_to_profile(
   let num_structures = alignment.structure_ids.length()
   let aligned_length = alignment.aligned_length
 
-  let consensus_coords : Array[SAPoint3D] = Array::new()
+  let consensus_coords : Array[SAPoint3D] = Array(capacity=0)
 
   let mut i = 0
   while i < aligned_length {
@@ -421,7 +421,7 @@ pub fn sa_align_structure_to_profile(
 
   let (new_alignment, _) = sa_dp_alignment(consensus_struct, structure)
 
-  let new_aligned_residues : Array[Array[SAResidue?]] = Array::new()
+  let new_aligned_residues : Array[Array[SAResidue?]] = Array(capacity=0)
 
   let new_align_len = new_alignment.length()
   let mut idx = 0
@@ -430,7 +430,7 @@ pub fn sa_align_structure_to_profile(
     let i = pair.0
     let j = pair.1
 
-    let row : Array[SAResidue?] = Array::new()
+    let row : Array[SAResidue?] = Array(capacity=0)
 
     let mut k = 0
     while k < num_structures {
@@ -449,7 +449,7 @@ pub fn sa_align_structure_to_profile(
     idx = idx + 1
   }
 
-  let new_ids : Array[String] = Array::new()
+  let new_ids : Array[String] = Array(capacity=0)
   let mut m = 0
   while m < alignment.structure_ids.length() {
     new_ids.push(alignment.structure_ids[m])
@@ -457,8 +457,8 @@ pub fn sa_align_structure_to_profile(
   }
   new_ids.push(structure.id)
 
-  let coords1 : Array[SAPoint3D] = Array::new()
-  let coords2 : Array[SAPoint3D] = Array::new()
+  let coords1 : Array[SAPoint3D] = Array(capacity=0)
+  let coords2 : Array[SAPoint3D] = Array(capacity=0)
 
   idx = 0
   while idx < new_align_len {
@@ -493,7 +493,7 @@ pub fn sa_align_structure_to_profile(
 ///|
 /// Create residues from coordinates.
 pub fn sa_residues_from_coords(coords : Array[SAPoint3D]) -> Array[SAResidue] {
-  let residues : Array[SAResidue] = Array::new()
+  let residues : Array[SAResidue] = Array(capacity=0)
 
   let mut i = 0
   while i < coords.length() {
@@ -511,11 +511,11 @@ pub fn sa_calculate_pairwise_rmsd(
 ) -> Array[Array[Double]] {
   let n = structures.length()
 
-  let matrix : Array[Array[Double]] = Array::new()
+  let matrix : Array[Array[Double]] = Array(capacity=0)
 
   let mut i = 0
   while i < n {
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     let mut j = 0
     while j < n {
       if i == j {

@@ -11,8 +11,7 @@ fn main {
   println("")
 
   // Sample FASTQ data with various quality profiles
-  let fastq_data =
-    "@read1 high_quality\nACGTACGTACGTACGT\n+\nIIIIIIIIIIIIIIII\n@read2 adapter_contaminated\nACGTACGTAGATCGGAA\n+\nIIIIIIIIIIIIIIIII\n@read3 low_quality_ends\nACGTACGTACGT\n+\nIIIIIIII####\n@read4 poly_A_tail\nACGTACGGGGAAAA\n+\nIIIIIIIIIIIIII\n@read5 short_read\nACGT\n+\nIIII\n@read6 extreme_gc\nGGGGGGGGGGGGCCCC\n+\nIIIIIIIIIIIIIIII\n"
+  let fastq_data = "@read1 high_quality\nACGTACGTACGTACGT\n+\nIIIIIIIIIIIIIIII\n@read2 adapter_contaminated\nACGTACGTAGATCGGAA\n+\nIIIIIIIIIIIIIIIII\n@read3 low_quality_ends\nACGTACGTACGT\n+\nIIIIIIII####\n@read4 poly_A_tail\nACGTACGGGGAAAA\n+\nIIIIIIIIIIIIII\n@read5 short_read\nACGT\n+\nIIII\n@read6 extreme_gc\nGGGGGGGGGGGGCCCC\n+\nIIIIIIIIIIIIIIII\n"
 
   println("1. Parsing FASTQ data")
   let reads = @bio.sqt_fastq_parse(fastq_data)
@@ -20,7 +19,9 @@ fn main {
   let mut i = 0
   while i < reads.length() {
     let r = reads[i]
-    println("     \{r.id}: seq_len=\{r.sequence.length()}, qual_len=\{r.quality.length()}")
+    println(
+      "     \{r.id}: seq_len=\{r.sequence.length()}, qual_len=\{r.quality.length()}",
+    )
     i = i + 1
   }
 
@@ -54,7 +55,11 @@ fn main {
   let seq_polya = "ACGTACGGGGAAAA"
   let qual_polya = "IIIIIIIIIIIIII"
   println("   Before:  \{seq_polya}")
-  let (poly_clean_seq, _) = @bio.sqt_trim_poly_a(seq_polya, qual_polya, min_tail=3)
+  let (poly_clean_seq, _) = @bio.sqt_trim_poly_a(
+    seq_polya,
+    qual_polya,
+    min_tail=3,
+  )
   println("   After:   \{poly_clean_seq} (poly-A tail removed)")
 
   let seq_polyt = "TTTTACGTACGT"
@@ -73,7 +78,11 @@ fn main {
   let long_seq = "ACGTACGTACGT"
   let long_qual = "IIIIIIIIIIII"
 
-  let short_result = @bio.sqt_trim_by_length(short_seq, short_qual, min_length=8)
+  let short_result = @bio.sqt_trim_by_length(
+    short_seq,
+    short_qual,
+    min_length=8,
+  )
   match short_result {
     Some(_) => println("   Short read (len=4): KEPT")
     None => println("   Short read (len=4): DISCARDED (below min_length)")
@@ -120,12 +129,20 @@ fn main {
   let qual_config = @bio.QualityConfig::new(20, 4, 4, 20)
   let adapter_config = @bio.AdapterConfig::new(["AGATCGGAA"], 4, 0)
 
-  let trim_results = @bio.sqt_trim_reads(reads, qual_config, Some(adapter_config))
+  let trim_results = @bio.sqt_trim_reads(
+    reads,
+    qual_config,
+    Some(adapter_config),
+  )
   println("   Trim results:")
   i = 0
   while i < trim_results.length() {
     let tr = trim_results[i]
-    let discard_note = if tr.trimmed_seq.length() == 0 { " [DISCARDED]" } else { "" }
+    let discard_note = if tr.trimmed_seq.length() == 0 {
+      " [DISCARDED]"
+    } else {
+      ""
+    }
     println(
       "     \{tr.read_id}: \{tr.original_seq} -> \{tr.trimmed_seq} (type=\{tr.trim_type})\{discard_note}",
     )
@@ -151,11 +168,9 @@ fn main {
   while i < trim_results.length() {
     let tr = trim_results[i]
     if tr.trimmed_seq.length() > 0 {
-      kept_reads.push(@bio.FastqRead::new(
-        tr.read_id,
-        tr.trimmed_seq,
-        tr.trimmed_qual,
-      ))
+      kept_reads.push(
+        @bio.FastqRead::new(tr.read_id, tr.trimmed_seq, tr.trimmed_qual),
+      )
     }
     i = i + 1
   }

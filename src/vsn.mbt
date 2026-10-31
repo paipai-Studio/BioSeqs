@@ -16,12 +16,12 @@ fn vsn_is_na(x : Double) -> Bool {
 ///|
 fn vsn_copy(mat : Array[Array[Double]]) -> Array[Array[Double]] {
   let n = mat.length()
-  let out : Array[Array[Double]] = Array::new()
+  let out : Array[Array[Double]] = Array(capacity=0)
   let mut i = 0
   while i < n {
     let row = mat[i]
     let m = row.length()
-    let nr : Array[Double] = Array::new()
+    let nr : Array[Double] = Array(capacity=0)
     let mut j = 0
     while j < m {
       nr.push(row[j])
@@ -34,7 +34,7 @@ fn vsn_copy(mat : Array[Array[Double]]) -> Array[Array[Double]] {
 }
 
 ///|
-fn vsn_col_mean_sd(mat : Array[Array[Double]], j : Int) -> (Double, Double) {
+fn vsn_col_mean_sd(mat : Array[Array[Double]], j : Int32) -> (Double, Double) {
   let mut s = 0.0
   let mut s2 = 0.0
   let mut c = 0
@@ -74,15 +74,15 @@ pub struct VSNResult {
 
 ///|
 pub struct VSNControl {
-  pub n_bins : Int
-  pub min_bin_count : Int
-  pub max_iter : Int
-  pub lts_frac : Double
+  n_bins : Int32
+  min_bin_count : Int32
+  max_iter : Int32
+  lts_frac : Double
 }
 
 ///|
 pub fn VSNControl::new() -> VSNControl {
-  VSNControl::{ n_bins: 20, min_bin_count: 5, max_iter: 20, lts_frac: 0.9 }
+  VSNControl::{ n_bins: 20, min_bin_count: 5, max_iter: 20, lts_frac: 0.9, }
 }
 
 // ---- core transform -------------------------------------------------------
@@ -115,7 +115,7 @@ fn vsn_lm(
   x : Array[Double],
   y : Array[Double],
   lts_frac : Double,
-  max_iter : Int,
+  max_iter : Int32,
 ) -> (Double, Double) {
   let n = x.length()
   if n == 0 {
@@ -142,14 +142,14 @@ fn vsn_lm(
   let mut a = (sy - b * sx) / n.to_double()
   let mut _it = 0
   while _it < max_iter {
-    let resid : Array[(Int, Double)] = Array::new()
+    let resid : Array[(Int32, Double)] = Array(capacity=0)
     let mut i2 = 0
     while i2 < n {
       let e = y[i2] - (a + b * x[i2])
       resid.push((i2, e * e))
       i2 = i2 + 1
     }
-    resid.sort_by(fn(p : (Int, Double), q : (Int, Double)) -> Int {
+    resid.sort_by(fn(p : (Int32, Double), q : (Int32, Double)) -> Int32 {
       if p.1 < q.1 {
         -1
       } else if p.1 > q.1 {
@@ -200,11 +200,11 @@ fn vsn_lm(
 ///|
 fn vsn_fit_col(
   mat : Array[Array[Double]],
-  j : Int,
+  j : Int32,
   ctrl : VSNControl,
 ) -> (VSNColParam, Array[(Double, Double)]) {
   let n = mat.length()
-  let row_means : Array[Double] = Array::new()
+  let row_means : Array[Double] = Array(capacity=0)
   let mut i = 0
   while i < n {
     let mut s = 0.0
@@ -223,8 +223,8 @@ fn vsn_fit_col(
     row_means.push(if c == 0 { 0.0 } else { s / c.to_double() })
     i = i + 1
   }
-  let xs : Array[Double] = Array::new()
-  let ys : Array[Double] = Array::new()
+  let xs : Array[Double] = Array(capacity=0)
+  let ys : Array[Double] = Array(capacity=0)
   let mut i2 = 0
   while i2 < n {
     let v = mat[i2][j]
@@ -237,13 +237,13 @@ fn vsn_fit_col(
   }
   let n_bins = if ctrl.n_bins < 1 { 1 } else { ctrl.n_bins }
   let pts = xs.length()
-  let order : Array[(Double, Double)] = Array::new()
+  let order : Array[(Double, Double)] = Array(capacity=0)
   let mut ii = 0
   while ii < pts {
     order.push((xs[ii], ys[ii]))
     ii = ii + 1
   }
-  order.sort_by(fn(p : (Double, Double), q : (Double, Double)) -> Int {
+  order.sort_by(fn(p : (Double, Double), q : (Double, Double)) -> Int32 {
     if p.0 < q.0 {
       -1
     } else if p.0 > q.0 {
@@ -252,8 +252,8 @@ fn vsn_fit_col(
       0
     }
   })
-  let bin_x : Array[Double] = Array::new()
-  let bin_y : Array[Double] = Array::new()
+  let bin_x : Array[Double] = Array(capacity=0)
+  let bin_y : Array[Double] = Array(capacity=0)
   if pts > 0 {
     let bin_size = if pts / n_bins < ctrl.min_bin_count {
       if ctrl.min_bin_count < 1 {
@@ -308,22 +308,22 @@ fn vsn_fit_col(
   }
   let (a, b_fit) = vsn_lm(bin_x, bin_y, ctrl.lts_frac, ctrl.max_iter)
   let bb = if b_fit <= 0.0 { 1.0 } else { b_fit }
-  let ref_ms : Array[(Double, Double)] = Array::new()
+  let ref_ms : Array[(Double, Double)] = Array(capacity=0)
   let mut t = 0
   while t < bin_x.length() {
     ref_ms.push((bin_x[t], bin_y[t]))
     t = t + 1
   }
-  (VSNColParam::{ a, b: bb }, ref_ms)
+  (VSNColParam::{ a, b: bb, }, ref_ms)
 }
 
 ///|
 fn vsn_fit(mat : Array[Array[Double]], ctrl : VSNControl) -> VSNResult {
   if mat.length() == 0 {
-    return VSNResult::{ params: [], reference_mean_sd: [] }
+    return VSNResult::{ params: [], reference_mean_sd: [], }
   }
   let cols = mat[0].length()
-  let params : Array[VSNColParam] = Array::new()
+  let params : Array[VSNColParam] = Array(capacity=0)
   let mut ref_out : Array[(Double, Double)] = []
   let mut j = 0
   while j < cols {
@@ -334,7 +334,7 @@ fn vsn_fit(mat : Array[Array[Double]], ctrl : VSNControl) -> VSNResult {
     }
     j = j + 1
   }
-  VSNResult::{ params, reference_mean_sd: ref_out }
+  VSNResult::{ params, reference_mean_sd: ref_out, }
 }
 
 ///|
@@ -387,20 +387,20 @@ pub fn vsn_fit_and_report(mat : Array[Array[Double]]) -> VSNResult {
 pub struct MeanSDBin {
   mean_x : Double
   sd_y : Double
-  count : Int
+  count : Int32
 }
 
 ///|
 pub fn mean_sd_bins(
   mat : Array[Array[Double]],
-  n_bins : Int,
+  n_bins : Int32,
 ) -> Array[MeanSDBin] {
   let n = mat.length()
   if n == 0 {
-    return Array::new()
+    return Array(capacity=0)
   }
   let cols = mat[0].length()
-  let pts : Array[(Double, Double)] = Array::new()
+  let pts : Array[(Double, Double)] = Array(capacity=0)
   let mut i = 0
   while i < n {
     let mut j = 0
@@ -414,7 +414,7 @@ pub fn mean_sd_bins(
     }
     i = i + 1
   }
-  pts.sort_by(fn(p : (Double, Double), q : (Double, Double)) -> Int {
+  pts.sort_by(fn(p : (Double, Double), q : (Double, Double)) -> Int32 {
     if p.0 < q.0 {
       -1
     } else if p.0 > q.0 {
@@ -425,7 +425,7 @@ pub fn mean_sd_bins(
   })
   let nb = if n_bins < 1 { 1 } else { n_bins }
   let total = pts.length()
-  let out : Array[MeanSDBin] = Array::new()
+  let out : Array[MeanSDBin] = Array(capacity=0)
   if total == 0 {
     return out
   }
@@ -443,14 +443,17 @@ pub fn mean_sd_bins(
       t = t + 1
     }
     let cnt_d = cnt.to_double()
-    out.push(MeanSDBin::{ mean_x: sx / cnt_d, sd_y: sy / cnt_d, count: cnt })
+    out.push(MeanSDBin::{ mean_x: sx / cnt_d, sd_y: sy / cnt_d, count: cnt, })
     start = end
   }
   out
 }
 
 ///|
-pub fn mean_sd_ascii(mat : Array[Array[Double]], n_bins? : Int = 40) -> String {
+pub fn mean_sd_ascii(
+  mat : Array[Array[Double]],
+  n_bins~ : Int32 = 40,
+) -> String {
   let bins = mean_sd_bins(mat, n_bins)
   let width = 40
   let height = 10
@@ -477,7 +480,7 @@ pub fn mean_sd_ascii(mat : Array[Array[Double]], n_bins? : Int = 40) -> String {
   }
   let xr = if xmax - xmin == 0.0 { 1.0 } else { xmax - xmin }
   let yr = if ymax - ymin == 0.0 { 1.0 } else { ymax - ymin }
-  let grid : Array[Array[Int]] = Array::make(
+  let grid : Array[Array[Int32]] = Array::make(
     height,
     Array::make(width, ' '.to_int()),
   )
@@ -501,7 +504,7 @@ pub fn mean_sd_ascii(mat : Array[Array[Double]], n_bins? : Int = 40) -> String {
     grid[row_idx][xii] = nc
     idx = idx + 1
   }
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string(
     "mean-SD plot (mean=[\{xmin},\{xmax}] sd=[\{ymin},\{ymax}])\n",
   )
@@ -530,7 +533,7 @@ pub fn mean_sd_ascii(mat : Array[Array[Double]], n_bins? : Int = 40) -> String {
 
 ///|
 pub fn summarize_vsn_fit(fit : VSNResult) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   let n = fit.params.length()
   buf.write_string("VSNResult: \{n} columns fitted\n")
   let mut i = 0
@@ -548,25 +551,25 @@ pub fn summarize_vsn_fit(fit : VSNResult) -> String {
 ///|
 pub fn vsn_denoise(
   mat : Array[Array[Double]],
-  frac_of_median_var? : Double = 0.05,
+  frac_of_median_var~ : Double = 0.05,
 ) -> Array[Array[Double]] {
   let out = vsn_copy(mat)
   if out.length() == 0 {
     return out
   }
   let cols = out[0].length()
-  let vars : Array[Double] = Array::new()
+  let vars : Array[Double] = Array(capacity=0)
   let mut j = 0
   while j < cols {
     let (_, sd) = vsn_col_mean_sd(out, j)
     vars.push(sd * sd)
     j = j + 1
   }
-  let sorted_vars : Array[Double] = Array::new()
+  let sorted_vars : Array[Double] = Array(capacity=0)
   for v in vars {
     sorted_vars.push(v)
   }
-  sorted_vars.sort_by(fn(a : Double, b : Double) -> Int {
+  sorted_vars.sort_by(fn(a : Double, b : Double) -> Int32 {
     if a < b {
       -1
     } else if a > b {

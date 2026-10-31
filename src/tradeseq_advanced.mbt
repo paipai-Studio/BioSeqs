@@ -10,28 +10,31 @@ pub suberror TradeSeqAdvancedError {
 
 ///|
 pub struct TradeSeqAdvancedConfig {
-  n_knots : Int
+  n_knots : Int32
   smoothing_penalty : Double
-  max_iterations : Int
+  max_iterations : Int32
   tolerance : Double
   minimum_dispersion : Double
   maximum_dispersion : Double
   ridge : Double
   fdr_threshold : Double
-  test_points : Int
+  test_points : Int32
 } derive(Debug)
 
 ///|
+pub extend TradeSeqAdvancedConfig with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
 pub fn TradeSeqAdvancedConfig::create(
-  n_knots? : Int = 6,
-  smoothing_penalty? : Double = 1.0,
-  max_iterations? : Int = 60,
-  tolerance? : Double = 1.0e-6,
-  minimum_dispersion? : Double = 1.0e-4,
-  maximum_dispersion? : Double = 100.0,
-  ridge? : Double = 1.0e-8,
-  fdr_threshold? : Double = 0.05,
-  test_points? : Int = 12,
+  n_knots~ : Int32 = 6,
+  smoothing_penalty~ : Double = 1.0,
+  max_iterations~ : Int32 = 60,
+  tolerance~ : Double = 1.0e-6,
+  minimum_dispersion~ : Double = 1.0e-4,
+  maximum_dispersion~ : Double = 100.0,
+  ridge~ : Double = 1.0e-8,
+  fdr_threshold~ : Double = 0.05,
+  test_points~ : Int32 = 12,
 ) -> TradeSeqAdvancedConfig raise TradeSeqAdvancedError {
   if n_knots < 3 {
     raise TradeSeqAdvancedError("n_knots must be at least 3")
@@ -108,8 +111,11 @@ pub struct TradeSeqGeneModel {
   aic : Double
   effective_df : Double
   converged : Bool
-  iterations : Int
+  iterations : Int32
 } derive(Debug)
+
+///|
+pub extend TradeSeqGeneModel with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct TradeSeqAdvancedFit {
@@ -122,21 +128,29 @@ pub struct TradeSeqAdvancedFit {
   lineage_minimum : Array[Double]
   lineage_maximum : Array[Double]
   config : TradeSeqAdvancedConfig
-  n_genes : Int
-  n_cells : Int
-  n_lineages : Int
+  n_genes : Int32
+  n_cells : Int32
+  n_lineages : Int32
 } derive(Debug)
+
+///|
+pub extend TradeSeqAdvancedFit with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct TradeSeqAdvancedTestResult {
   gene_id : String
   wald_statistic : Double
-  degrees_freedom : Int
+  degrees_freedom : Int32
   p_value : Double
   adjusted_p_value : Double
   log2_fold_change : Double
   significant : Bool
 } derive(Debug)
+
+///|
+pub extend TradeSeqAdvancedTestResult with @moonbitlang/core/debug.Debug::{
+  to_repr,
+}
 
 ///|
 pub struct TradeSeqAdvancedTestTable {
@@ -146,12 +160,20 @@ pub struct TradeSeqAdvancedTestTable {
 } derive(Debug)
 
 ///|
+pub extend TradeSeqAdvancedTestTable with @moonbitlang/core/debug.Debug::{
+  to_repr,
+}
+
+///|
 pub struct TradeSeqKnotEvaluation {
-  candidates : Array[Int]
+  candidates : Array[Int32]
   gene_aic : Array[Array[Double]]
   mean_aic : Array[Double]
-  selected_n_knots : Int
+  selected_n_knots : Int32
 } derive(Debug)
+
+///|
+pub extend TradeSeqKnotEvaluation with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct TradeSeqSmoothPrediction {
@@ -162,6 +184,11 @@ pub struct TradeSeqSmoothPrediction {
 } derive(Debug)
 
 ///|
+pub extend TradeSeqSmoothPrediction with @moonbitlang/core/debug.Debug::{
+  to_repr,
+}
+
+///|
 pub struct TradeSeqAdvancedSceOutput {
   experiment : SingleCellExperiment
   fit : TradeSeqAdvancedFit
@@ -169,8 +196,8 @@ pub struct TradeSeqAdvancedSceOutput {
 
 ///|
 priv struct TradeSeqAdvObservation {
-  cell : Int
-  lineage : Int
+  cell : Int32
+  lineage : Int32
   weight : Double
   basis : Array[Double]
 }
@@ -181,18 +208,10 @@ fn tradeseq_adv_is_finite(value : Double) -> Bool {
 }
 
 ///|
-fn tradeseq_adv_clamp(value : Double, lower : Double, upper : Double) -> Double {
-  if value < lower {
-    lower
-  } else if value > upper {
-    upper
-  } else {
-    value
-  }
-}
-
-///|
-fn tradeseq_adv_zero_matrix(rows : Int, columns : Int) -> Array[Array[Double]] {
+fn tradeseq_adv_zero_matrix(
+  rows : Int32,
+  columns : Int32,
+) -> Array[Array[Double]] {
   let output : Array[Array[Double]] = []
   for _ in 0..<rows {
     output.push(Array::make(columns, 0.0))
@@ -214,7 +233,7 @@ fn tradeseq_adv_copy_matrix(
 ///|
 fn tradeseq_adv_prepare_names(
   supplied : Array[String],
-  length : Int,
+  length : Int32,
   prefix : String,
 ) -> Array[String] raise TradeSeqAdvancedError {
   if supplied.length() != 0 && supplied.length() != length {
@@ -243,7 +262,7 @@ fn tradeseq_adv_prepare_names(
 ///|
 fn tradeseq_adv_validate_counts(
   counts : Array[Array[Double]],
-) -> (Int, Int) raise TradeSeqAdvancedError {
+) -> (Int32, Int32) raise TradeSeqAdvancedError {
   if counts.length() == 0 {
     raise TradeSeqAdvancedError("counts must contain at least one gene")
   }
@@ -273,7 +292,7 @@ fn tradeseq_adv_validate_counts(
 fn tradeseq_adv_prepare_trajectory(
   pseudotime : Array[Array[Double]],
   cell_weights : Array[Array[Double]],
-  cells : Int,
+  cells : Int32,
 ) -> (Array[Array[Double]], Array[Array[Double]], Array[Double], Array[Double]) raise TradeSeqAdvancedError {
   if pseudotime.length() != cells || cell_weights.length() != cells {
     raise TradeSeqAdvancedError(
@@ -383,8 +402,8 @@ fn tradeseq_adv_prepare_offsets(
 }
 
 ///|
-fn tradeseq_adv_bspline_basis(x_value : Double, count : Int) -> Array[Double] {
-  let x = tradeseq_adv_clamp(x_value, 0.0, 1.0)
+fn tradeseq_adv_bspline_basis(x_value : Double, count : Int32) -> Array[Double] {
+  let x = clamp(x_value, 0.0, 1.0)
   let degree = (count - 1).min(3)
   if x >= 1.0 {
     let output = Array::make(count, 0.0)
@@ -442,7 +461,7 @@ fn tradeseq_adv_normalized_time(
   minimum : Double,
   maximum : Double,
 ) -> Double {
-  tradeseq_adv_clamp((value - minimum) / (maximum - minimum), 0.0, 1.0)
+  clamp((value - minimum) / (maximum - minimum), 0.0, 1.0)
 }
 
 ///|
@@ -451,7 +470,7 @@ fn tradeseq_adv_observations(
   weights : Array[Array[Double]],
   minimum : Array[Double],
   maximum : Array[Double],
-  n_knots : Int,
+  n_knots : Int32,
 ) -> Array[TradeSeqAdvObservation] {
   let output : Array[TradeSeqAdvObservation] = []
   for cell in 0..<pseudotime.length() {
@@ -477,8 +496,8 @@ fn tradeseq_adv_observations(
 ///|
 fn tradeseq_adv_add_penalty(
   matrix : Array[Array[Double]],
-  lineages : Int,
-  n_knots : Int,
+  lineages : Int32,
+  n_knots : Int32,
   penalty : Double,
   ridge : Double,
 ) -> Unit {
@@ -584,22 +603,6 @@ fn tradeseq_adv_matrix_vector(
 }
 
 ///|
-fn tradeseq_adv_log_gamma(value : Double) -> Double {
-  let coefficients = [
-    0.99999999999980993, 676.5203681218851, -1259.1392167224028, 771.32342877765313,
-    -176.61502916214059, 12.507343278686905, -0.13857109526572012, 9.9843695780195716e-6,
-    1.5056327351493116e-7,
-  ]
-  let shifted = value - 1.0
-  let mut sum = coefficients[0]
-  for index in 1..<coefficients.length() {
-    sum = sum + coefficients[index] / (shifted + index.to_double())
-  }
-  let t = shifted + 7.5
-  0.9189385332046727 + (shifted + 0.5) * @math.ln(t) - t + @math.ln(sum)
-}
-
-///|
 fn tradeseq_adv_nb_log_likelihood(
   response : Array[Double],
   fitted : Array[Double],
@@ -611,9 +614,9 @@ fn tradeseq_adv_nb_log_likelihood(
   for index in 0..<observations.length() {
     let y = response[observations[index].cell]
     let mu = fitted[index].max(1.0e-12)
-    let contribution = tradeseq_adv_log_gamma(y + size) -
-      tradeseq_adv_log_gamma(size) -
-      tradeseq_adv_log_gamma(y + 1.0) +
+    let contribution = lgamma(y + size) -
+      lgamma(size) -
+      lgamma(y + 1.0) +
       size * @math.ln(size / (size + mu)) +
       y * @math.ln(mu / (size + mu))
     result = result + observations[index].weight * contribution
@@ -626,8 +629,8 @@ fn tradeseq_adv_initial_coefficients(
   response : Array[Double],
   offsets : Array[Double],
   observations : Array[TradeSeqAdvObservation],
-  lineages : Int,
-  n_knots : Int,
+  lineages : Int32,
+  n_knots : Int32,
 ) -> Array[Double] {
   let weighted_sum = Array::make(lineages, 0.0)
   let weight_sum = Array::make(lineages, 0.0)
@@ -658,7 +661,7 @@ fn tradeseq_adv_initial_coefficients(
 fn tradeseq_adv_eta(
   coefficients : Array[Double],
   observation : TradeSeqAdvObservation,
-  n_knots : Int,
+  n_knots : Int32,
   offset : Double,
 ) -> Double {
   let start = observation.lineage * n_knots
@@ -666,7 +669,7 @@ fn tradeseq_adv_eta(
   for knot in 0..<n_knots {
     value = value + observation.basis[knot] * coefficients[start + knot]
   }
-  tradeseq_adv_clamp(value, -25.0, 25.0)
+  clamp(value, -25.0, 25.0)
 }
 
 ///|
@@ -675,7 +678,7 @@ fn tradeseq_adv_fit_gene(
   response : Array[Double],
   offsets : Array[Double],
   observations : Array[TradeSeqAdvObservation],
-  lineages : Int,
+  lineages : Int32,
   config : TradeSeqAdvancedConfig,
 ) -> TradeSeqGeneModel {
   let n_knots = config.n_knots
@@ -712,7 +715,7 @@ fn tradeseq_adv_fit_gene(
         observation.weight * mu * mu
     }
     if iteration > 0 && dispersion_denominator > 0.0 {
-      let estimate = tradeseq_adv_clamp(
+      let estimate = clamp(
         dispersion_numerator / dispersion_denominator,
         config.minimum_dispersion,
         config.maximum_dispersion,
@@ -833,10 +836,10 @@ pub fn tradeseq_fit_advanced(
   counts : Array[Array[Double]],
   pseudotime : Array[Array[Double]],
   cell_weights : Array[Array[Double]],
-  gene_names? : Array[String] = [],
-  lineage_names? : Array[String] = [],
-  offsets? : Array[Double] = [],
-  config? : TradeSeqAdvancedConfig = TradeSeqAdvancedConfig::default(),
+  gene_names~ : Array[String] = [],
+  lineage_names~ : Array[String] = [],
+  offsets~ : Array[Double] = [],
+  config~ : TradeSeqAdvancedConfig = TradeSeqAdvancedConfig::default(),
 ) -> TradeSeqAdvancedFit raise TradeSeqAdvancedError {
   let (genes, cells) = tradeseq_adv_validate_counts(counts)
   let (prepared_time, prepared_weights, minimum, maximum) = tradeseq_adv_prepare_trajectory(
@@ -888,9 +891,9 @@ pub fn tradeseq_fit_advanced(
 
 ///|
 fn tradeseq_adv_contrast_curve(
-  lineages : Int,
-  n_knots : Int,
-  lineage : Int,
+  lineages : Int32,
+  n_knots : Int32,
+  lineage : Int32,
   first : Double,
   second : Double,
 ) -> Array[Double] {
@@ -905,10 +908,10 @@ fn tradeseq_adv_contrast_curve(
 
 ///|
 fn tradeseq_adv_contrast_lineages(
-  lineages : Int,
-  n_knots : Int,
-  first_lineage : Int,
-  second_lineage : Int,
+  lineages : Int32,
+  n_knots : Int32,
+  first_lineage : Int32,
+  second_lineage : Int32,
   position : Double,
 ) -> Array[Double] {
   let output = Array::make(lineages * n_knots, 0.0)
@@ -970,8 +973,8 @@ fn tradeseq_adv_log_gamma_q(a : Double, x : Double) -> Double {
       }
       index = index + 1
     }
-    return tradeseq_adv_clamp(
-      1.0 - sum * @math.exp(-x + a * @math.ln(x) - tradeseq_adv_log_gamma(a)),
+    return clamp(
+      1.0 - sum * @math.exp(-x + a * @math.ln(x) - lgamma(a)),
       0.0,
       1.0,
     )
@@ -1001,15 +1004,11 @@ fn tradeseq_adv_log_gamma_q(a : Double, x : Double) -> Double {
     }
     index = index + 1
   }
-  tradeseq_adv_clamp(
-    value * @math.exp(-x + a * @math.ln(x) - tradeseq_adv_log_gamma(a)),
-    0.0,
-    1.0,
-  )
+  clamp(value * @math.exp(-x + a * @math.ln(x) - lgamma(a)), 0.0, 1.0)
 }
 
 ///|
-fn tradeseq_adv_chi_square_q(degrees : Int, statistic : Double) -> Double {
+fn tradeseq_adv_chi_square_q(degrees : Int32, statistic : Double) -> Double {
   if statistic <= 0.0 || degrees <= 0 {
     return 1.0
   }
@@ -1021,7 +1020,7 @@ fn tradeseq_adv_wald(
   model : TradeSeqGeneModel,
   raw_contrasts : Array[Array[Double]],
   l2fc : Double,
-) -> (Double, Int, Double, Double) {
+) -> (Double, Int32, Double, Double) {
   let contrasts = tradeseq_adv_independent_rows(raw_contrasts)
   let degrees = contrasts.length()
   if degrees == 0 {
@@ -1092,7 +1091,7 @@ fn tradeseq_adv_wald(
 
 ///|
 fn tradeseq_adv_bh(values : Array[Double]) -> Array[Double] {
-  let indices : Array[Int] = []
+  let indices : Array[Int32] = []
   for index in 0..<values.length() {
     indices.push(index)
   }
@@ -1169,7 +1168,7 @@ fn tradeseq_adv_test_table(
 ///|
 pub fn tradeseq_association_test_advanced(
   fit : TradeSeqAdvancedFit,
-  l2fc? : Double = 0.0,
+  l2fc~ : Double = 0.0,
 ) -> TradeSeqAdvancedTestTable raise TradeSeqAdvancedError {
   if !tradeseq_adv_is_finite(l2fc) || l2fc < 0.0 {
     raise TradeSeqAdvancedError("l2fc must be finite and non-negative")
@@ -1194,7 +1193,7 @@ pub fn tradeseq_association_test_advanced(
 ///|
 pub fn tradeseq_start_vs_end_test_advanced(
   fit : TradeSeqAdvancedFit,
-  l2fc? : Double = 0.0,
+  l2fc~ : Double = 0.0,
 ) -> TradeSeqAdvancedTestTable raise TradeSeqAdvancedError {
   if !tradeseq_adv_is_finite(l2fc) || l2fc < 0.0 {
     raise TradeSeqAdvancedError("l2fc must be finite and non-negative")
@@ -1217,7 +1216,7 @@ pub fn tradeseq_start_vs_end_test_advanced(
 ///|
 pub fn tradeseq_diff_end_test_advanced(
   fit : TradeSeqAdvancedFit,
-  l2fc? : Double = 0.0,
+  l2fc~ : Double = 0.0,
 ) -> TradeSeqAdvancedTestTable raise TradeSeqAdvancedError {
   if fit.n_lineages < 2 {
     raise TradeSeqAdvancedError("diffEndTest requires at least two lineages")
@@ -1245,8 +1244,8 @@ pub fn tradeseq_diff_end_test_advanced(
 ///|
 pub fn tradeseq_pattern_test_advanced(
   fit : TradeSeqAdvancedFit,
-  n_points? : Int = 0,
-  l2fc? : Double = 0.0,
+  n_points~ : Int32 = 0,
+  l2fc~ : Double = 0.0,
 ) -> TradeSeqAdvancedTestTable raise TradeSeqAdvancedError {
   if fit.n_lineages < 2 {
     raise TradeSeqAdvancedError("patternTest requires at least two lineages")
@@ -1282,8 +1281,8 @@ pub fn tradeseq_early_de_test_advanced(
   fit : TradeSeqAdvancedFit,
   start_fraction : Double,
   end_fraction : Double,
-  n_points? : Int = 0,
-  l2fc? : Double = 0.0,
+  n_points~ : Int32 = 0,
+  l2fc~ : Double = 0.0,
 ) -> TradeSeqAdvancedTestTable raise TradeSeqAdvancedError {
   if fit.n_lineages < 2 {
     raise TradeSeqAdvancedError("earlyDETest requires at least two lineages")
@@ -1331,7 +1330,7 @@ pub fn tradeseq_early_de_test_advanced(
 pub fn tradeseq_predict_smooth_advanced(
   fit : TradeSeqAdvancedFit,
   gene_id : String,
-  n_points? : Int = 100,
+  n_points~ : Int32 = 100,
 ) -> TradeSeqSmoothPrediction raise TradeSeqAdvancedError {
   if n_points < 2 {
     raise TradeSeqAdvancedError("n_points must be at least 2")
@@ -1364,7 +1363,7 @@ pub fn tradeseq_predict_smooth_advanced(
         design[parameter] = basis[knot]
         eta = eta + basis[knot] * model.coefficients[parameter]
       }
-      eta = tradeseq_adv_clamp(eta, -25.0, 25.0)
+      eta = clamp(eta, -25.0, 25.0)
       let mean = @math.exp(eta)
       let mut variance = 0.0
       for first in 0..<parameters {
@@ -1377,7 +1376,7 @@ pub fn tradeseq_predict_smooth_advanced(
       standard_errors[lineage][point] = mean * variance.max(0.0).sqrt()
     }
   }
-  TradeSeqSmoothPrediction::{ gene_id, pseudotime, fitted, standard_errors }
+  TradeSeqSmoothPrediction::{ gene_id, pseudotime, fitted, standard_errors, }
 }
 
 ///|
@@ -1385,16 +1384,16 @@ pub fn tradeseq_evaluate_k_advanced(
   counts : Array[Array[Double]],
   pseudotime : Array[Array[Double]],
   cell_weights : Array[Array[Double]],
-  candidates : Array[Int],
-  gene_names? : Array[String] = [],
-  lineage_names? : Array[String] = [],
-  offsets? : Array[Double] = [],
-  config? : TradeSeqAdvancedConfig = TradeSeqAdvancedConfig::default(),
+  candidates : Array[Int32],
+  gene_names~ : Array[String] = [],
+  lineage_names~ : Array[String] = [],
+  offsets~ : Array[Double] = [],
+  config~ : TradeSeqAdvancedConfig = TradeSeqAdvancedConfig::default(),
 ) -> TradeSeqKnotEvaluation raise TradeSeqAdvancedError {
   if candidates.length() < 2 {
     raise TradeSeqAdvancedError("at least two knot candidates are required")
   }
-  let unique : Array[Int] = []
+  let unique : Array[Int32] = []
   for candidate in candidates {
     if candidate < 3 {
       raise TradeSeqAdvancedError("knot candidates must be at least 3")
@@ -1454,8 +1453,8 @@ pub fn tradeseq_fit_from_slingshot(
   counts : Array[Array[Double]],
   gene_names : Array[String],
   slingshot : SlingshotAdvancedResult,
-  offsets? : Array[Double] = [],
-  config? : TradeSeqAdvancedConfig = TradeSeqAdvancedConfig::default(),
+  offsets~ : Array[Double] = [],
+  config~ : TradeSeqAdvancedConfig = TradeSeqAdvancedConfig::default(),
 ) -> TradeSeqAdvancedFit raise TradeSeqAdvancedError {
   let cells = slingshot.weights.length()
   if cells == 0 {
@@ -1557,11 +1556,11 @@ fn tradeseq_adv_test_column(
 ///|
 pub fn tradeseq_advanced_sce(
   experiment : SingleCellExperiment,
-  assay_name? : String = "counts",
-  pseudotime_name? : String = "slingshot.pseudotime",
-  weights_name? : String = "slingshot.weights",
-  output_prefix? : String = "tradeSeq",
-  config? : TradeSeqAdvancedConfig = TradeSeqAdvancedConfig::default(),
+  assay_name~ : String = "counts",
+  pseudotime_name~ : String = "slingshot.pseudotime",
+  weights_name~ : String = "slingshot.weights",
+  output_prefix~ : String = "tradeSeq",
+  config~ : TradeSeqAdvancedConfig = TradeSeqAdvancedConfig::default(),
 ) -> TradeSeqAdvancedSceOutput raise TradeSeqAdvancedError {
   if output_prefix.trim().length() == 0 {
     raise TradeSeqAdvancedError("output_prefix cannot be empty")
@@ -1619,7 +1618,7 @@ pub fn tradeseq_advanced_sce(
   })
   output.metadata[output_prefix + ".nKnots"] = fit.config.n_knots.to_string()
   output.metadata[output_prefix + ".lineages"] = fit.lineage_names.join(",")
-  TradeSeqAdvancedSceOutput::{ experiment: output, fit }
+  TradeSeqAdvancedSceOutput::{ experiment: output, fit, }
 }
 
 ///|

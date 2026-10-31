@@ -1,14 +1,11 @@
 ///|
-/// Error raised by skbio alignment operations.
-pub suberror AlignError {
-  AlignError(String)
-}
-
-///|
 /// DNA sequence type.
 pub struct DNA {
   seq : Seq
 } derive(Eq)
+
+///|
+pub extend DNA with Eq::{equal, not_equal}
 
 ///|
 /// RNA sequence type.
@@ -17,27 +14,33 @@ pub struct RNA {
 } derive(Eq)
 
 ///|
+pub extend RNA with Eq::{equal, not_equal}
+
+///|
 /// Protein sequence type.
 pub struct Protein {
   seq : Seq
 } derive(Eq)
 
 ///|
+pub extend Protein with Eq::{equal, not_equal}
+
+///|
 /// Create a DNA sequence from a string.
 pub fn DNA::new(s : String) -> DNA {
-  DNA::{ seq: Seq::new(s) }
+  DNA::{ seq: Seq::new(s), }
 }
 
 ///|
 /// Create an RNA sequence from a string.
 pub fn RNA::new(s : String) -> RNA {
-  RNA::{ seq: Seq::new(s) }
+  RNA::{ seq: Seq::new(s), }
 }
 
 ///|
 /// Create a Protein sequence from a string.
 pub fn Protein::new(s : String) -> Protein {
-  Protein::{ seq: Seq::new(s) }
+  Protein::{ seq: Seq::new(s), }
 }
 
 ///|
@@ -78,37 +81,37 @@ pub fn Protein::to_string(self : Protein) -> String {
 
 ///|
 /// Get length.
-pub fn DNA::length(self : DNA) -> Int {
+pub fn DNA::length(self : DNA) -> Int32 {
   self.seq.length()
 }
 
 ///|
 /// Get length.
-pub fn RNA::length(self : RNA) -> Int {
+pub fn RNA::length(self : RNA) -> Int32 {
   self.seq.length()
 }
 
 ///|
 /// Get length.
-pub fn Protein::length(self : Protein) -> Int {
+pub fn Protein::length(self : Protein) -> Int32 {
   self.seq.length()
 }
 
 ///|
 /// Get character at position.
-pub fn DNA::get_char(self : DNA, i : Int) -> Char? {
+pub fn DNA::get_char(self : DNA, i : Int32) -> Char? {
   self.seq.get_char(i)
 }
 
 ///|
 /// Get character at position.
-pub fn RNA::get_char(self : RNA, i : Int) -> Char? {
+pub fn RNA::get_char(self : RNA, i : Int32) -> Char? {
   self.seq.get_char(i)
 }
 
 ///|
 /// Get character at position.
-pub fn Protein::get_char(self : Protein, i : Int) -> Char? {
+pub fn Protein::get_char(self : Protein, i : Int32) -> Char? {
   self.seq.get_char(i)
 }
 
@@ -120,12 +123,15 @@ pub struct TabularMSA {
 } derive(Eq)
 
 ///|
+pub extend TabularMSA with Eq::{equal, not_equal}
+
+///|
 /// Create a new TabularMSA from SeqRecords.
 pub fn TabularMSA::new(
   records : Array[SeqRecord],
   dtype : String,
 ) -> TabularMSA {
-  TabularMSA::{ records, dtype }
+  TabularMSA::{ records, dtype, }
 }
 
 ///|
@@ -139,13 +145,13 @@ pub fn TabularMSA::from_dna(seqs : Array[DNA]) -> TabularMSA {
 
 ///|
 /// Return the number of sequences (rows) in the alignment.
-pub fn TabularMSA::num_records(self : TabularMSA) -> Int {
+pub fn TabularMSA::num_records(self : TabularMSA) -> Int32 {
   self.records.length()
 }
 
 ///|
 /// Return the length of the alignment (columns).
-pub fn TabularMSA::get_alignment_length(self : TabularMSA) -> Int {
+pub fn TabularMSA::get_alignment_length(self : TabularMSA) -> Int32 {
   if self.records.length() == 0 {
     0
   } else {
@@ -155,12 +161,12 @@ pub fn TabularMSA::get_alignment_length(self : TabularMSA) -> Int {
 
 ///|
 /// Get a column from the alignment.
-pub fn TabularMSA::column(self : TabularMSA, col : Int) -> String? {
+pub fn TabularMSA::column(self : TabularMSA, col : Int32) -> String? {
   let align_len = self.get_alignment_length()
   if col < 0 || col >= align_len {
     return None
   }
-  let result = StringBuilder::new()
+  let result = StringBuilder()
   for rec in self.records {
     match rec.seq.get_char(col) {
       Some(c) => result.write_char(c)
@@ -174,7 +180,7 @@ pub fn TabularMSA::column(self : TabularMSA, col : Int) -> String? {
 /// Compute consensus sequence.
 pub fn TabularMSA::consensus(self : TabularMSA) -> DNA {
   let align_len = self.get_alignment_length()
-  let result = StringBuilder::new()
+  let result = StringBuilder()
   for col in 0..<align_len {
     let col_str = self.column(col).unwrap()
     let counts = Map([], capacity=0)
@@ -199,7 +205,7 @@ pub fn TabularMSA::consensus(self : TabularMSA) -> DNA {
 pub fn TabularMSA::conservation(self : TabularMSA) -> Array[Double] {
   let align_len = self.get_alignment_length()
   let n = self.num_records().to_double()
-  let result = Array::new()
+  let result = Array(capacity=0)
   for col in 0..<align_len {
     let col_str = self.column(col).unwrap()
     let counts = Map([], capacity=0)
@@ -224,7 +230,7 @@ pub fn TabularMSA::conservation(self : TabularMSA) -> Array[Double] {
 pub fn global_pairwise_align_nucleotide(
   seq1 : DNA,
   seq2 : DNA,
-) -> (TabularMSA, Double, (Int, Int), (Int, Int)) {
+) -> (TabularMSA, Double, (Int32, Int32), (Int32, Int32)) {
   let s1 = seq1.to_seq().to_string()
   let s2 = seq2.to_seq().to_string()
   let (msa_str, score) = global_align(s1, s2, 1, -1, -1)
@@ -243,7 +249,7 @@ pub fn global_pairwise_align_nucleotide(
 pub fn local_pairwise_align_nucleotide(
   seq1 : DNA,
   seq2 : DNA,
-) -> (TabularMSA, Double, (Int, Int), (Int, Int)) {
+) -> (TabularMSA, Double, (Int32, Int32), (Int32, Int32)) {
   let s1 = seq1.to_seq().to_string()
   let s2 = seq2.to_seq().to_string()
   let (msa_str, score, pos1, pos2) = local_align(s1, s2, 1, -1, -1)
@@ -257,7 +263,7 @@ pub fn local_pairwise_align_nucleotide(
 pub fn global_pairwise_align_protein(
   seq1 : Protein,
   seq2 : Protein,
-) -> (TabularMSA, Double, (Int, Int), (Int, Int)) {
+) -> (TabularMSA, Double, (Int32, Int32), (Int32, Int32)) {
   let s1 = seq1.to_seq().to_string()
   let s2 = seq2.to_seq().to_string()
   let (msa_str, score) = global_align(s1, s2, 1, -1, -1)
@@ -276,7 +282,7 @@ pub fn global_pairwise_align_protein(
 pub fn local_pairwise_align_protein(
   seq1 : Protein,
   seq2 : Protein,
-) -> (TabularMSA, Double, (Int, Int), (Int, Int)) {
+) -> (TabularMSA, Double, (Int32, Int32), (Int32, Int32)) {
   let s1 = seq1.to_seq().to_string()
   let s2 = seq2.to_seq().to_string()
   let (msa_str, score, pos1, pos2) = local_align(s1, s2, 1, -1, -1)
@@ -316,7 +322,7 @@ pub fn align_score(msa : TabularMSA) -> Double {
 /// Reverse a string.
 fn reverse_string(s : String) -> String {
   let n = s.length()
-  let result = StringBuilder::new()
+  let result = StringBuilder()
   let mut i = n - 1
   while i >= 0 {
     result.write_char(s.unsafe_get(i).unsafe_to_char())
@@ -336,7 +342,7 @@ fn global_align(
 ) -> ((String, String), Double) {
   let n = s1.length()
   let m = s2.length()
-  let dp = Array::new()
+  let dp = Array(capacity=0)
   for i = 0; i <= n; i = i + 1 {
     dp.push(FixedArray::make(m + 1, 0.0))
   }
@@ -368,8 +374,8 @@ fn global_align(
 
   let mut i = n
   let mut j = m
-  let r1 = StringBuilder::new()
-  let r2 = StringBuilder::new()
+  let r1 = StringBuilder()
+  let r2 = StringBuilder()
 
   while i > 0 || j > 0 {
     if i > 0 && j > 0 {
@@ -407,10 +413,10 @@ fn local_align(
   match_score : Double,
   mismatch_score : Double,
   gap_score : Double,
-) -> ((String, String), Double, (Int, Int), (Int, Int)) {
+) -> ((String, String), Double, (Int32, Int32), (Int32, Int32)) {
   let n = s1.length()
   let m = s2.length()
-  let dp = Array::new()
+  let dp = Array(capacity=0)
   for i = 0; i <= n; i = i + 1 {
     dp.push(FixedArray::make(m + 1, 0.0))
   }
@@ -448,8 +454,8 @@ fn local_align(
 
   let mut i = max_i
   let mut j = max_j
-  let r1 = StringBuilder::new()
-  let r2 = StringBuilder::new()
+  let r1 = StringBuilder()
+  let r2 = StringBuilder()
 
   while i > 0 && j > 0 && dp[i][j] > 0.0 {
     let c1 = s1.unsafe_get(i - 1).unsafe_to_char()

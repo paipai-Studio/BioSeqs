@@ -93,7 +93,7 @@ test "gcrma_estimate_affinity_mixed" {
 ///|
 test "gcrma_compute_gc_lookup_table_empty" {
   let table = @src.compute_gc_lookup_table([])
-  assert_eq(table.keys().length(), 0)
+  assert_eq(table.keys().count(), 0)
 }
 
 ///|
@@ -104,7 +104,7 @@ test "gcrma_compute_gc_lookup_table_basic" {
     @src.ProbeInfo::new("p3", "ATATATATATAT"),
   ]
   let table = @src.compute_gc_lookup_table(probes)
-  assert_eq(table.keys().length() > 0, true)
+  assert_eq(table.keys().count() > 0, true)
 }
 
 ///|
@@ -190,10 +190,10 @@ test "gcrma_summarize_basic" {
     [120.0, 180.0],
     [180.0, 220.0],
   ]
-  let probe_sets : Map[String, Array[Int]] = Map([], capacity=0)
+  let probe_sets : Map[String, Array[Int32]] = Map([], capacity=0)
   probe_sets.set("gene1_at", [0, 1, 2, 3])
   let result = @src.gcrma_summarize(expression, probe_sets)
-  assert_eq(result.keys().length(), 1)
+  assert_eq(result.keys().count(), 1)
   let vals = result.get_or_default("gene1_at", [])
   assert_eq(vals.length(), 2)
 }
@@ -201,7 +201,7 @@ test "gcrma_summarize_basic" {
 ///|
 test "gcrma_summarize_empty_sets" {
   let expression = [[100.0, 200.0]]
-  let probe_sets : Map[String, Array[Int]] = Map([], capacity=0)
+  let probe_sets : Map[String, Array[Int32]] = Map([], capacity=0)
   probe_sets.set("gene1_at", [])
   let result = @src.gcrma_summarize(expression, probe_sets)
   let vals = result.get_or_default("gene1_at", [])
@@ -217,11 +217,11 @@ test "gcrma_summarize_multiple_probesets" {
     [180.0, 220.0],
     [90.0, 160.0],
   ]
-  let probe_sets : Map[String, Array[Int]] = Map([], capacity=0)
+  let probe_sets : Map[String, Array[Int32]] = Map([], capacity=0)
   probe_sets.set("gene1_at", [0, 1, 2])
   probe_sets.set("gene2_at", [3, 4])
   let result = @src.gcrma_summarize(expression, probe_sets)
-  assert_eq(result.keys().length(), 2)
+  assert_eq(result.keys().count(), 2)
   let g1 = result.get_or_default("gene1_at", [])
   let g2 = result.get_or_default("gene2_at", [])
   assert_eq(g1.length(), 2)
@@ -328,7 +328,7 @@ test "gcrma_multiple_probeset_summary" {
     [150.0, 250.0, 350.0],
     [120.0, 220.0, 320.0],
   ]
-  let probe_sets : Map[String, Array[Int]] = Map([], capacity=0)
+  let probe_sets : Map[String, Array[Int32]] = Map([], capacity=0)
   probe_sets.set("geneA", [0, 1, 2])
   let result = @src.gcrma_summarize(expression, probe_sets)
   let vals = result.get_or_default("geneA", [])

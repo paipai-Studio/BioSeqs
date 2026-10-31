@@ -368,7 +368,7 @@ test "vr_empty_gene_data" {
 
 ///|
 test "vr_single_gene_single_cell" {
-  let gd = @src.VelocityGeneData::new("G1", [5.0], [3.0])
+  let _gd = @src.VelocityGeneData::new("G1", [5.0], [3.0])
   let k = @src.velocity_kinetic_model("G1", [5.0], [3.0], 10)
   // With < 3 cells, returns defaults.
   assert_eq(k.alpha(), 0.0)

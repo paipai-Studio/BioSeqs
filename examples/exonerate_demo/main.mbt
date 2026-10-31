@@ -11,11 +11,15 @@ fn main {
   let mut i = 0
   while i < vulgar_records.length() {
     let rec = vulgar_records[i]
-    println("   [\{i + 1}] \{rec.query_name()} \{rec.query_start()}-\{rec.query_end()}\{rec.query_strand()} -> \{rec.target_name()} \{rec.target_start()}-\{rec.target_end()}\{rec.target_strand()} score=\{rec.score().to_int()}")
+    println(
+      "   [\{i + 1}] \{rec.query_name()} \{rec.query_start()}-\{rec.query_end()}\{rec.query_strand()} -> \{rec.target_name()} \{rec.target_start()}-\{rec.target_end()}\{rec.target_strand()} score=\{rec.score().to_int()}",
+    )
     let mut j = 0
     while j < rec.alignment_blocks().length() {
       let b = rec.alignment_blocks()[j]
-      println("       block \{j}: code=\{b.code()} q=\{b.query_length()} t=\{b.target_length()} score=\{b.block_score().to_int()}")
+      println(
+        "       block \{j}: code=\{b.code()} q=\{b.query_length()} t=\{b.target_length()} score=\{b.block_score().to_int()}",
+      )
       j = j + 1
     }
     i = i + 1
@@ -28,7 +32,9 @@ fn main {
   i = 0
   while i < cigar_records.length() {
     let rec = cigar_records[i]
-    println("   [\{i + 1}] \{rec.query_name()} -> \{rec.target_name()} score=\{rec.score().to_int()} blocks=\{rec.alignment_blocks().length()}")
+    println(
+      "   [\{i + 1}] \{rec.query_name()} -> \{rec.target_name()} score=\{rec.score().to_int()} blocks=\{rec.alignment_blocks().length()}",
+    )
     i = i + 1
   }
 
@@ -45,10 +51,14 @@ fn main {
 
   println("\n4. Filtering by score (>= 1000):")
   let filtered = @bio.exonerate_filter_by_score(vulgar_records, 1000.0)
-  println("   \{filtered.length()} of \{vulgar_records.length()} records passed")
+  println(
+    "   \{filtered.length()} of \{vulgar_records.length()} records passed",
+  )
   i = 0
   while i < filtered.length() {
-    println("   [\{i + 1}] \{filtered[i].query_name()} score=\{filtered[i].score().to_int()}")
+    println(
+      "   [\{i + 1}] \{filtered[i].query_name()} score=\{filtered[i].score().to_int()}",
+    )
     i = i + 1
   }
 
@@ -60,7 +70,9 @@ fn main {
     let intron_len = @bio.exonerate_total_intron_length(rec)
     let n_introns = @bio.exonerate_count_introns(rec)
     let n_matches = @bio.exonerate_count_matches(rec)
-    println("   \{rec.query_name()}: matches=\{n_matches} aln_len=\{aln_len} introns=\{n_introns} intron_len=\{intron_len}")
+    println(
+      "   \{rec.query_name()}: matches=\{n_matches} aln_len=\{aln_len} introns=\{n_introns} intron_len=\{intron_len}",
+    )
     i = i + 1
   }
 

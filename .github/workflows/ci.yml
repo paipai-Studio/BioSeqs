@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [main, master]
+    branches: [main, master, dev]
   pull_request:
-    branches: [main, master]
+    branches: [main, master, dev]
 
 jobs:
   check-build-test:
@@ -41,11 +41,17 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-moonbit-build-
 
+      - name: Moon fmt check
+        run: moon fmt --check
+
+      - name: README counts check
+        run: python3 scripts/check_readme_counts.py
+
       - name: Moon check
         run: moon check
 
-      - name: Moon build
-        run: moon build
+      - name: Moon build (src lib)
+        run: moon build --package IvanAXu/BioSeqs/src
 
       - name: Moon test
         run: moon test --package IvanAXu/BioSeqs/test/moonbit

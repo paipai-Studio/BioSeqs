@@ -5,11 +5,11 @@
 ///|
 pub struct DSSPRecord {
   chain_id : String
-  residue_number : Int
+  residue_number : Int32
   insertion_code : String
   amino_acid : String
   secondary_structure : String
-  solvent_accessibility : Int
+  solvent_accessibility : Int32
   phi : Double
   psi : Double
 }
@@ -17,11 +17,11 @@ pub struct DSSPRecord {
 ///|
 pub fn DSSPRecord::new(
   chain_id : String,
-  residue_number : Int,
+  residue_number : Int32,
   insertion_code : String,
   amino_acid : String,
   secondary_structure : String,
-  solvent_accessibility : Int,
+  solvent_accessibility : Int32,
   phi : Double,
   psi : Double,
 ) -> DSSPRecord {
@@ -45,43 +45,6 @@ pub struct DSSPResult {
 ///|
 pub fn DSSPResult::new(records : Array[DSSPRecord]) -> DSSPResult {
   DSSPResult::{ records, }
-}
-
-///|
-pub fn parse_dssp(data : String) -> DSSPResult {
-  let records : Array[DSSPRecord] = Array::new()
-
-  let lines = split_by_char(data, '\n'.to_int())
-  let mut i = 0
-
-  while i < lines.length() {
-    let line = lines[i]
-    if line.length() >= 14 && char_at(line, 0) != "#" {
-      let chain_id = substring(line, 0, 1)
-      let resnum_str = substring(line, 5, 4)
-      let insertion_code = substring(line, 9, 1)
-      let amino_acid = substring(line, 13, 1)
-      let ss = substring(line, 16, 1)
-      let acc_str = substring(line, 34, 3)
-      let phi_str = substring(line, 104, 6)
-      let psi_str = substring(line, 111, 6)
-
-      let residue_number = parse_int(trim(resnum_str))
-      let solvent_accessibility = parse_int(trim(acc_str))
-      let phi = parse_double(trim(phi_str)).unwrap_or(0.0)
-      let psi = parse_double(trim(psi_str)).unwrap_or(0.0)
-
-      records.push(
-        DSSPRecord::new(
-          chain_id, residue_number, insertion_code, amino_acid, ss, solvent_accessibility,
-          phi, psi,
-        ),
-      )
-    }
-    i = i + 1
-  }
-
-  DSSPResult::new(records)
 }
 
 ///|
@@ -136,8 +99,8 @@ fn classify_secondary_structure(amino_acid : String) -> String {
 pub fn calculate_solvent_accessibility(
   sequence : String,
   structure : String,
-) -> Array[Int] {
-  let result : Array[Int] = Array::new()
+) -> Array[Int32] {
+  let result : Array[Int32] = Array(capacity=0)
 
   let mut i = 0
   while i < sequence.length() {
@@ -157,9 +120,9 @@ pub fn calculate_solvent_accessibility(
 fn estimate_accessibility(
   amino_acid : String,
   secondary_structure : String,
-  position : Int,
-  total_length : Int,
-) -> Int {
+  position : Int32,
+  total_length : Int32,
+) -> Int32 {
   let max_accessibility = Map(
     [
       ("A", 129),
@@ -209,7 +172,7 @@ fn estimate_accessibility(
 pub fn calculate_ramachandran_plot(
   records : Array[DSSPRecord],
 ) -> Array[(Double, Double)] {
-  let result : Array[(Double, Double)] = Array::new()
+  let result : Array[(Double, Double)] = Array(capacity=0)
 
   let mut i = 0
   while i < records.length() {
@@ -223,8 +186,8 @@ pub fn calculate_ramachandran_plot(
 ///|
 pub fn analyze_structure_composition(
   records : Array[DSSPRecord],
-) -> Map[String, Int] {
-  let composition : Map[String, Int] = Map(
+) -> Map[String, Int32] {
+  let composition : Map[String, Int32] = Map(
     [
       ("H", 0),
       ("B", 0),
@@ -251,7 +214,7 @@ pub fn analyze_structure_composition(
 
 ///|
 pub fn create_example_dssp_data() -> DSSPResult {
-  let records : Array[DSSPRecord] = Array::new()
+  let records : Array[DSSPRecord] = Array(capacity=0)
 
   records.push(DSSPRecord::new("A", 1, "", "M", "-", 100, -60.0, -40.0))
   records.push(DSSPRecord::new("A", 2, "", "S", "H", 50, -57.0, -47.0))

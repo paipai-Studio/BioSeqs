@@ -1,7 +1,6 @@
 ///|
 /// Singscore gene set scoring demo.
 /// Demonstrates rank-based single-sample gene set scoring.
-
 fn main {
   println("=== Singscore Gene Set Scoring Demo ===")
   println("")
@@ -36,7 +35,7 @@ fn main {
 
   let genes = sample.gene_names
   let n_genes = genes.length()
-  let samples : Array[@bio.SampleExpression] = Array::new()
+  let samples : Array[@bio.SampleExpression] = Array(capacity=0)
 
   // Activated immune cell (high expression)
   {
@@ -59,7 +58,9 @@ fn main {
   // Score each sample
   for s in samples {
     let r = @bio.singscore_score(s, spec, s.sample_id)
-    println("  \{r.sample_id}: score=\{r.score.to_string()}, up=\{r.up_score.to_string()}, down=\{r.down_score.to_string()}")
+    println(
+      "  \{r.sample_id}: score=\{r.score.to_string()}, up=\{r.up_score.to_string()}, down=\{r.down_score.to_string()}",
+    )
   }
 
   println("")

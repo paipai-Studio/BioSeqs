@@ -39,8 +39,8 @@ test "noe_restraint_construction_no_observed" {
     observed=None,
     energy=None,
   )
-  assert_eq(r.observed.is_empty(), true)
-  assert_eq(r.energy.is_empty(), true)
+  assert_eq(r.observed is None, true)
+  assert_eq(r.energy is None, true)
 }
 
 ///|
@@ -101,7 +101,7 @@ test "noe_self_violation_with_observed" {
     energy=None,
   )
   let v = @src.noe_self_violation(r)
-  assert_true(v.is_some())
+  assert_true(v is Some(_))
   assert_true((v.unwrap() - 1.0).abs() < 0.001)
 }
 
@@ -116,7 +116,7 @@ test "noe_self_violation_without_observed" {
     observed=None,
     energy=None,
   )
-  assert_eq(@src.noe_self_violation(r).is_empty(), true)
+  assert_eq(@src.noe_self_violation(r) is None, true)
 }
 
 ///|
@@ -228,8 +228,8 @@ test "parse_noe_restraints_no_observed" {
   let text = "1 A B 1.8 5.0"
   let restraints = @src.parse_noe_restraints(text)
   assert_eq(restraints.length(), 1)
-  assert_eq(restraints[0].observed.is_empty(), true)
-  assert_eq(restraints[0].energy.is_empty(), true)
+  assert_eq(restraints[0].observed is None, true)
+  assert_eq(restraints[0].energy is None, true)
 }
 
 ///|
@@ -415,10 +415,10 @@ test "chemical_shift_construction" {
 test "chemical_shift_table_lookup" {
   let table = @src.nmr_sample_chemical_shifts()
   let v = @src.lookup_shift(table, 15, "HA")
-  assert_true(v.is_some())
+  assert_true(v is Some(_))
   assert_true((v.unwrap() - 4.32).abs() < 0.001)
   let missing = @src.lookup_shift(table, 999, "X")
-  assert_eq(missing.is_empty(), true)
+  assert_eq(missing is None, true)
 }
 
 ///|
@@ -477,7 +477,7 @@ test "parse_chemical_shifts_with_comments" {
   let table = @src.parse_chemical_shifts(text)
   // The table has no public shifts field; use lookup.
   let v = @src.lookup_shift(table, 15, "HA")
-  assert_true(v.is_some())
+  assert_true(v is Some(_))
 }
 
 ///|

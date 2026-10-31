@@ -137,8 +137,8 @@ pub struct MSGroupResult {
 /// Container for group comparison results.
 pub struct MSGroupComparison {
   results : Array[MSGroupResult]
-  n_proteins : Int
-  n_sig : Int
+  n_proteins : Int32
+  n_sig : Int32
   fdr_threshold : Double
 }
 
@@ -146,8 +146,8 @@ pub struct MSGroupComparison {
 /// Sample size calculation result.
 pub struct MSSampleSize {
   desired_power : Double
-  n_samples : Int
-  n_proteins_detectable : Int
+  n_samples : Int32
+  n_proteins_detectable : Int32
   delta : Double
 }
 
@@ -194,18 +194,18 @@ pub fn MSFeature::new(
   run : String,
   intensity : Double,
 ) -> MSFeature {
-  MSFeature::{ protein, peptide, transition, group, subject, run, intensity }
+  MSFeature::{ protein, peptide, transition, group, subject, run, intensity, }
 }
 
 ///|
 /// Process MS data: filter, log-transform, normalize.
 pub fn ms_data_process(
   features : Array[MSFeature],
-  normalization? : MSNormalization = MSNormalization::Median,
-  log_transformed? : Bool = false,
+  normalization~ : MSNormalization = MSNormalization::Median,
+  log_transformed~ : Bool = false,
 ) -> Array[MSFeature] {
   // Deep copy
-  let processed : Array[MSFeature] = Array::new()
+  let processed : Array[MSFeature] = Array(capacity=0)
   let mut i = 0
   while i < features.length() {
     let f = features[i]
@@ -246,12 +246,12 @@ pub fn ms_data_process(
     MSNormalization::None => ()
     MSNormalization::Median => {
       // Compute median per run
-      let run_medians : Map[String, Double] = Map::new()
-      let run_values : Map[String, Array[Double]] = Map::new()
+      let run_medians : Map[String, Double] = Map([])
+      let run_values : Map[String, Array[Double]] = Map([])
       let mut ri = 0
       while ri < processed.length() {
         let run = processed[ri].run
-        let arr = run_values.get(run).unwrap_or(Array::new())
+        let arr = run_values.get(run).unwrap_or(Array(capacity=0))
         arr.push(processed[ri].intensity)
         run_values.set(run, arr)
         ri = ri + 1
@@ -296,7 +296,7 @@ pub fn ms_data_process(
     MSNormalization::Quantile => {
       // Simple quantile normalization across runs
       // Collect all intensities and sort
-      let all_vals : Array[Double] = Array::new()
+      let all_vals : Array[Double] = Array(capacity=0)
       let mut qi = 0
       while qi < processed.length() {
         all_vals.push(processed[qi].intensity)
@@ -362,38 +362,38 @@ pub fn ms_data_process(
 /// Summarize feature-level data to protein-level.
 pub fn ms_summarize(
   features : Array[MSFeature],
-  method? : MSSummarization = MSSummarization::Tukey,
+  method_~ : MSSummarization = MSSummarization::Tukey,
 ) -> Array[MSProteinAbundance] {
   // Group by (protein, run)
-  let groups : Map[String, Array[MSFeature]] = Map::new()
+  let groups : Map[String, Array[MSFeature]] = Map([])
   let mut i = 0
   while i < features.length() {
     let key = features[i].protein + "::" + features[i].run
-    let arr = groups.get(key).unwrap_or(Array::new())
+    let arr = groups.get(key).unwrap_or(Array(capacity=0))
     arr.push(features[i])
     groups.set(key, arr)
     i = i + 1
   }
 
-  let result : Array[MSProteinAbundance] = Array::new()
+  let result : Array[MSProteinAbundance] = Array(capacity=0)
   let key_list = groups.keys().collect()
   let mut ki = 0
   while ki < key_list.length() {
     let key = key_list[ki]
     let feats = groups.get(key).unwrap()
     let parts = key.split("::")
-    let protein = parts.next().unwrap_or("").to_string()
-    let run = parts.next().unwrap_or("").to_string()
+    let protein = parts.next().unwrap_or("").to_owned()
+    let run = parts.next().unwrap_or("").to_owned()
     let group = if feats.length() > 0 { feats[0].group } else { "" }
 
-    let intensities : Array[Double] = Array::new()
+    let intensities : Array[Double] = Array(capacity=0)
     let mut fi = 0
     while fi < feats.length() {
       intensities.push(feats[fi].intensity)
       fi = fi + 1
     }
 
-    let abundance = match method {
+    let abundance = match method_ {
       MSSummarization::Tukey => {
         // Tukey median polish (simplified: use median)
         let sorted = intensities.copy()
@@ -460,21 +460,21 @@ pub fn ms_summarize(
 /// Perform group comparison (differential abundance testing).
 pub fn ms_group_comparison(
   abundances : Array[MSProteinAbundance],
-  fdr_threshold? : Double = 0.05,
-  log2fc_threshold? : Double = 1.0,
+  fdr_threshold~ : Double = 0.05,
+  log2fc_threshold~ : Double = 1.0,
 ) -> MSGroupComparison {
   // Group by protein
-  let protein_groups : Map[String, Array[MSProteinAbundance]] = Map::new()
+  let protein_groups : Map[String, Array[MSProteinAbundance]] = Map([])
   let mut i = 0
   while i < abundances.length() {
     let key = abundances[i].protein
-    let arr = protein_groups.get(key).unwrap_or(Array::new())
+    let arr = protein_groups.get(key).unwrap_or(Array(capacity=0))
     arr.push(abundances[i])
     protein_groups.set(key, arr)
     i = i + 1
   }
 
-  let all_results : Array[MSGroupResult] = Array::new()
+  let all_results : Array[MSGroupResult] = Array(capacity=0)
 
   let protein_list = protein_groups.keys().collect()
   let mut pli = 0
@@ -482,17 +482,17 @@ pub fn ms_group_comparison(
     let protein = protein_list[pli]
     let abuns = protein_groups.get(protein).unwrap()
     // Split into groups
-    let group_data : Map[String, Array[Double]] = Map::new()
+    let group_data : Map[String, Array[Double]] = Map([])
     let mut ai = 0
     while ai < abuns.length() {
       let grp = abuns[ai].group
-      let arr = group_data.get(grp).unwrap_or(Array::new())
+      let arr = group_data.get(grp).unwrap_or(Array(capacity=0))
       arr.push(abuns[ai].log2_abundance)
       group_data.set(grp, arr)
       ai = ai + 1
     }
 
-    let group_names : Array[String] = Array::new()
+    let group_names : Array[String] = Array(capacity=0)
     let group_keys = group_data.keys().collect()
     let mut gki = 0
     while gki < group_keys.length() {
@@ -519,8 +519,8 @@ pub fn ms_group_comparison(
     if gn >= 2 {
       let g1 = group_names[0]
       let g2 = group_names[1]
-      let v1 = group_data.get(g1).unwrap_or(Array::new())
-      let v2 = group_data.get(g2).unwrap_or(Array::new())
+      let v1 = group_data.get(g1).unwrap_or(Array(capacity=0))
+      let v2 = group_data.get(g2).unwrap_or(Array(capacity=0))
 
       let m1 = ms_mean(v1)
       let m2 = ms_mean(v2)
@@ -576,7 +576,7 @@ pub fn ms_group_comparison(
   }
 
   // BH adjustment
-  let p_values : Array[Double] = Array::new()
+  let p_values : Array[Double] = Array(capacity=0)
   let mut ri = 0
   while ri < all_results.length() {
     p_values.push(all_results[ri].p_val)
@@ -602,18 +602,18 @@ pub fn ms_group_comparison(
   }
 
   let n_proteins = if all_results.length() > 0 {
-    let ps : Map[String, Unit] = Map::new()
+    let ps : Map[String, Unit] = Map([])
     let mut pi = 0
     while pi < all_results.length() {
       ps.set(all_results[pi].protein, ())
       pi = pi + 1
     }
-    ps.size()
+    ps.length()
   } else {
     0
   }
 
-  MSGroupComparison::{ results: all_results, n_proteins, n_sig, fdr_threshold }
+  MSGroupComparison::{ results: all_results, n_proteins, n_sig, fdr_threshold, }
 }
 
 ///|
@@ -653,10 +653,10 @@ fn ms_variance(values : Array[Double]) -> Double {
 fn ms_bh_adjust(p_values : Array[Double]) -> Array[Double] {
   let n = p_values.length()
   if n == 0 {
-    return Array::new()
+    return Array(capacity=0)
   }
 
-  let indexed : Array[(Int, Double)] = Array::new()
+  let indexed : Array[(Int32, Double)] = Array(capacity=0)
   let mut i = 0
   while i < n {
     indexed.push((i, p_values[i]))
@@ -677,7 +677,7 @@ fn ms_bh_adjust(p_values : Array[Double]) -> Array[Double] {
     j = j + 1
   }
 
-  let adjusted : Array[Double] = Array::new()
+  let adjusted : Array[Double] = Array(capacity=0)
   let mut ai = 0
   while ai < n {
     adjusted.push(0.0)
@@ -706,7 +706,7 @@ fn ms_bh_adjust(p_values : Array[Double]) -> Array[Double] {
 
 ///|
 /// Get number of results.
-pub fn MSGroupComparison::get_n_results(self : MSGroupComparison) -> Int {
+pub fn MSGroupComparison::get_n_results(self : MSGroupComparison) -> Int32 {
   self.results.length()
 }
 
@@ -715,7 +715,7 @@ pub fn MSGroupComparison::get_n_results(self : MSGroupComparison) -> Int {
 pub fn MSGroupComparison::get_significant(
   self : MSGroupComparison,
 ) -> Array[MSGroupResult] {
-  let sig : Array[MSGroupResult] = Array::new()
+  let sig : Array[MSGroupResult] = Array(capacity=0)
   let mut i = 0
   while i < self.results.length() {
     if self.results[i].significant {
@@ -730,7 +730,7 @@ pub fn MSGroupComparison::get_significant(
 /// Get top N proteins by adjusted p-value.
 pub fn MSGroupComparison::get_top_proteins(
   self : MSGroupComparison,
-  n : Int,
+  n : Int32,
 ) -> Array[MSGroupResult] {
   let sorted = self.results.copy()
   let len = sorted.length()
@@ -748,7 +748,7 @@ pub fn MSGroupComparison::get_top_proteins(
     i = i + 1
   }
 
-  let result : Array[MSGroupResult] = Array::new()
+  let result : Array[MSGroupResult] = Array(capacity=0)
   let take = if n < len { n } else { len }
   let mut k = 0
   while k < take {
@@ -777,8 +777,8 @@ pub fn MSGroupComparison::summary(self : MSGroupComparison) -> String {
 /// Calculate sample size for desired power.
 pub fn ms_design_sample_size(
   results : Array[MSGroupResult],
-  desired_power? : Double = 0.8,
-  n_samples? : Int = 0,
+  desired_power~ : Double = 0.8,
+  n_samples~ : Int32 = 0,
 ) -> MSSampleSize {
   // Simplified: use the median log2fc and SE to estimate power
   let n = results.length()
@@ -877,7 +877,7 @@ pub fn ms_design_sample_size(
 ///|
 /// Create sample MS data for testing.
 pub fn msstats_sample_data() -> Array[MSFeature] {
-  let features : Array[MSFeature] = Array::new()
+  let features : Array[MSFeature] = Array(capacity=0)
   let proteins = ["P1", "P2", "P3", "P4", "P5"]
   let groups = ["Ctrl", "Ctrl", "Trt", "Trt"]
   let runs = ["R1", "R2", "R3", "R4"]

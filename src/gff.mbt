@@ -8,11 +8,11 @@ pub struct GFFFeature {
   seqid : String
   source : String
   feature_type : String
-  start : Int
-  end : Int
+  start : Int32
+  end : Int32
   score : Double?
   strand : String
-  phase : Int?
+  phase : Int32?
   attributes : Map[String, String]
 }
 
@@ -21,8 +21,8 @@ pub fn GFFFeature::new(
   seqid : String,
   source : String,
   feature_type : String,
-  start : Int,
-  end : Int,
+  start : Int32,
+  end : Int32,
   strand : String,
 ) -> GFFFeature {
   GFFFeature::{
@@ -54,7 +54,7 @@ pub fn GFFFeature::set_score(self : GFFFeature, score : Double) -> GFFFeature {
 }
 
 ///|
-pub fn GFFFeature::set_phase(self : GFFFeature, phase : Int) -> GFFFeature {
+pub fn GFFFeature::set_phase(self : GFFFeature, phase : Int32) -> GFFFeature {
   GFFFeature::{
     seqid: self.seqid,
     source: self.source,
@@ -114,7 +114,7 @@ pub fn GFFFeature::get_name(self : GFFFeature) -> String? {
 }
 
 ///|
-pub fn GFFFeature::length(self : GFFFeature) -> Int {
+pub fn GFFFeature::length(self : GFFFeature) -> Int32 {
   self.end - self.start + 1
 }
 
@@ -145,7 +145,7 @@ pub struct GFFRecord {
 ///|
 pub fn GFFRecord::new() -> GFFRecord {
   GFFRecord::{
-    features: Array::new(),
+    features: Array(capacity=0),
     sequences: Map([], capacity=0),
     version: "3",
   }
@@ -177,7 +177,7 @@ pub fn GFFRecord::add_sequence(
 
 ///|
 pub fn GFFRecord::set_version(self : GFFRecord, version : String) -> GFFRecord {
-  GFFRecord::{ features: self.features, sequences: self.sequences, version }
+  GFFRecord::{ features: self.features, sequences: self.sequences, version, }
 }
 
 ///|
@@ -194,7 +194,7 @@ pub fn GFFRecord::get_features_by_type(
   self : GFFRecord,
   feature_type : String,
 ) -> Array[GFFFeature] {
-  let result : Array[GFFFeature] = Array::new()
+  let result : Array[GFFFeature] = Array(capacity=0)
   let mut i = 0
   while i < self.features.length() {
     if self.features[i].feature_type == feature_type {
@@ -210,7 +210,7 @@ pub fn GFFRecord::get_features_by_seqid(
   self : GFFRecord,
   seqid : String,
 ) -> Array[GFFFeature] {
-  let result : Array[GFFFeature] = Array::new()
+  let result : Array[GFFFeature] = Array(capacity=0)
   let mut i = 0
   while i < self.features.length() {
     if self.features[i].seqid == seqid {
@@ -226,7 +226,7 @@ pub fn GFFRecord::get_features_by_id(
   self : GFFRecord,
   id : String,
 ) -> Array[GFFFeature] {
-  let result : Array[GFFFeature] = Array::new()
+  let result : Array[GFFFeature] = Array(capacity=0)
   let mut i = 0
   while i < self.features.length() {
     match self.features[i].get_id() {
@@ -243,7 +243,7 @@ pub fn GFFRecord::get_child_features(
   self : GFFRecord,
   parent_id : String,
 ) -> Array[GFFFeature] {
-  let result : Array[GFFFeature] = Array::new()
+  let result : Array[GFFFeature] = Array(capacity=0)
   let mut i = 0
   while i < self.features.length() {
     match self.features[i].get_parent() {
@@ -299,7 +299,7 @@ pub fn GFFRecord::get_cds_for_transcript(
   self : GFFRecord,
   transcript_id : String,
 ) -> Array[GFFFeature] {
-  let result : Array[GFFFeature] = Array::new()
+  let result : Array[GFFFeature] = Array(capacity=0)
   let children = self.get_child_features(transcript_id)
 
   let mut i = 0
@@ -561,13 +561,13 @@ pub fn create_example_gff() -> GFFRecord {
 }
 
 ///|
-pub fn GFFRecord::count_features(self : GFFRecord) -> Int {
+pub fn GFFRecord::count_features(self : GFFRecord) -> Int32 {
   self.features.length()
 }
 
 ///|
 pub fn GFFRecord::get_unique_seqids(self : GFFRecord) -> Array[String] {
-  let result : Array[String] = Array::new()
+  let result : Array[String] = Array(capacity=0)
   let seen : Map[String, Bool] = Map([], capacity=0)
 
   let mut i = 0
@@ -585,7 +585,7 @@ pub fn GFFRecord::get_unique_seqids(self : GFFRecord) -> Array[String] {
 
 ///|
 pub fn GFFRecord::get_unique_feature_types(self : GFFRecord) -> Array[String] {
-  let result : Array[String] = Array::new()
+  let result : Array[String] = Array(capacity=0)
   let seen : Map[String, Bool] = Map([], capacity=0)
 
   let mut i = 0
@@ -605,10 +605,10 @@ pub fn GFFRecord::get_unique_feature_types(self : GFFRecord) -> Array[String] {
 pub fn GFFRecord::get_features_in_range(
   self : GFFRecord,
   seqid : String,
-  start : Int,
-  end : Int,
+  start : Int32,
+  end : Int32,
 ) -> Array[GFFFeature] {
-  let result : Array[GFFFeature] = Array::new()
+  let result : Array[GFFFeature] = Array(capacity=0)
   let mut i = 0
   while i < self.features.length() {
     let f = self.features[i]
@@ -624,7 +624,7 @@ pub fn GFFRecord::get_features_in_range(
 pub fn GFFRecord::calculate_gene_length(
   self : GFFRecord,
   gene_id : String,
-) -> Int {
+) -> Int32 {
   let cds_features = self.get_cds_for_transcript(gene_id)
   let mut total_length = 0
   let mut i = 0
@@ -633,4 +633,65 @@ pub fn GFFRecord::calculate_gene_length(
     i = i + 1
   }
   total_length
+}
+
+///|
+/// Serialize a single feature to one GFF3 line (no trailing newline). This is
+/// `str(feature)` from Python gffutils; the 9th column (attributes) is emitted
+/// only when non-empty.
+pub fn GFFFeature::to_gff_line(self : GFFFeature) -> String {
+  let mut result = self.seqid +
+    "\t" +
+    self.source +
+    "\t" +
+    self.feature_type +
+    "\t" +
+    self.start.to_string() +
+    "\t" +
+    self.end.to_string() +
+    "\t"
+
+  match self.score {
+    Some(s) => result = result + s.to_string()
+    None => result = result + "."
+  }
+  result = result + "\t" + self.strand + "\t"
+
+  match self.phase {
+    Some(p) => result = result + p.to_string()
+    None => result = result + "."
+  }
+
+  let attrs = self.attributes.iter().collect()
+  if attrs.length() > 0 {
+    result = result + "\t"
+    let mut j = 0
+    while j < attrs.length() {
+      let (key, value) = attrs[j]
+      if j > 0 {
+        result = result + ";"
+      }
+      result = result + key + "=" + escape_attribute_value(value)
+      j = j + 1
+    }
+  }
+
+  result
+}
+
+///|
+/// Count features of a given type (`gffutils.FeatureDB.count_features_of_type`).
+pub fn GFFRecord::count_features_of_type(
+  self : GFFRecord,
+  feature_type : String,
+) -> Int32 {
+  let mut n = 0
+  let mut i = 0
+  while i < self.features.length() {
+    if self.features[i].feature_type == feature_type {
+      n = n + 1
+    }
+    i = i + 1
+  }
+  n
 }

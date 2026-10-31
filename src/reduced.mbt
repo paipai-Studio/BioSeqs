@@ -18,7 +18,7 @@ pub struct ReducedAlphabet {
   /// Name of the reduced alphabet
   name : String
   /// Number of groups
-  n_groups : Int
+  n_groups : Int32
   /// Mapping from single-letter amino acid code to group letter
   mapping : Map[String, String]
   /// Group definitions (which amino acids are in each group)
@@ -32,7 +32,7 @@ pub fn ReducedAlphabet::new(
   mapping : Map[String, String],
   groups : Array[String],
 ) -> ReducedAlphabet {
-  ReducedAlphabet::{ name, n_groups: groups.length(), mapping, groups }
+  ReducedAlphabet::{ name, n_groups: groups.length(), mapping, groups, }
 }
 
 ///|
@@ -43,7 +43,7 @@ pub fn ReducedAlphabet::get_name(self : ReducedAlphabet) -> String {
 
 ///|
 /// Get the number of groups.
-pub fn ReducedAlphabet::get_n_groups(self : ReducedAlphabet) -> Int {
+pub fn ReducedAlphabet::get_n_groups(self : ReducedAlphabet) -> Int32 {
   self.n_groups
 }
 
@@ -67,7 +67,7 @@ pub fn ReducedAlphabet::reduce_sequence(
   let n = sequence.length()
   let mut i = 0
   while i < n {
-    let aa = sequence.substring(start=i, end=i + 1)
+    let aa = sequence[i:i + 1].to_owned()
     result = result + self.reduce_aa(aa)
     i = i + 1
   }
@@ -279,8 +279,8 @@ pub fn reduced_identity(
   let mut matches = 0
   let mut i = 0
   while i < n {
-    let aa1 = seq1.substring(start=i, end=i + 1)
-    let aa2 = seq2.substring(start=i, end=i + 1)
+    let aa1 = seq1[i:i + 1].to_owned()
+    let aa2 = seq2[i:i + 1].to_owned()
     let g1 = alphabet.reduce_aa(aa1)
     let g2 = alphabet.reduce_aa(aa2)
     if g1 == g2 {

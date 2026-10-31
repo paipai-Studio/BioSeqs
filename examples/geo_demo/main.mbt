@@ -26,7 +26,13 @@ fn main {
   let p = platforms[0]
   println("Accession: " + p.accession())
   println("Title: " + p.title())
-  println("Data table: " + p.data_table().n_columns().to_string() + " columns, " + p.data_table().n_rows().to_string() + " rows")
+  println(
+    "Data table: " +
+    p.data_table().n_columns().to_string() +
+    " columns, " +
+    p.data_table().n_rows().to_string() +
+    " rows",
+  )
   println("")
 
   // ------------------------------------------------------------------
@@ -77,7 +83,16 @@ fn main {
     let treat = treat_vals[i]
     match (@bio.parse_double(ctrl), @bio.parse_double(treat)) {
       (Some(c), Some(t)) =>
-        println("  " + probe_ids[i] + "\t" + ctrl + "\t" + treat + "\t" + (t / c).to_string())
+        println(
+          "  " +
+          probe_ids[i] +
+          "\t" +
+          ctrl +
+          "\t" +
+          treat +
+          "\t" +
+          (t / c).to_string(),
+        )
       _ => println("  " + probe_ids[i] + "\t" + ctrl + "\t" + treat + "\tN/A")
     }
   }

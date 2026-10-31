@@ -1,7 +1,7 @@
 ///|
 pub struct Variant {
   chr : String
-  pos : Int
+  pos : Int32
   id : String
   ref_allele : String
   alt_allele : String
@@ -14,11 +14,11 @@ pub struct Variant {
 ///|
 pub struct VariantFilteringParam {
   min_qual : Double
-  min_depth : Int
+  min_depth : Int32
   min_allele_freq : Double
   max_missing_rate : Double
   inheritance_mode : String
-  min_gq : Int
+  min_gq : Int32
   max_af_pop : Double
 }
 
@@ -26,7 +26,7 @@ pub struct VariantFilteringParam {
 pub struct VariantFilterResult {
   passed_variants : Array[Variant]
   filtered_variants : Array[(Variant, String)]
-  filter_stats : Map[String, Int]
+  filter_stats : Map[String, Int32]
 }
 
 ///|
@@ -40,7 +40,7 @@ pub struct GeneticModel {
 ///|
 pub fn Variant::new(
   chr : String,
-  pos : Int,
+  pos : Int32,
   id : String,
   ref_allele : String,
   alt_allele : String,
@@ -78,8 +78,8 @@ pub fn VariantFilteringParam::new() -> VariantFilteringParam {
 ///|
 pub fn VariantFilterResult::new() -> VariantFilterResult {
   VariantFilterResult::{
-    passed_variants: Array::new(),
-    filtered_variants: Array::new(),
+    passed_variants: Array(capacity=0),
+    filtered_variants: Array(capacity=0),
     filter_stats: Map([], capacity=0),
   }
 }
@@ -119,7 +119,7 @@ pub fn bio_vfilter_filter(
   let mut i = 0
   while i < len {
     let variant = variants[i]
-    let mut filter_reasons : Array[String] = Array::new()
+    let mut filter_reasons : Array[String] = Array(capacity=0)
 
     if variant.qual < params.min_qual {
       filter_reasons = push_string(filter_reasons, "QUAL below threshold")
@@ -188,7 +188,7 @@ pub fn bio_vfilter_filter(
 ///|
 fn push_string(arr : Array[String], s : String) -> Array[String] {
   let len = arr.length()
-  let new_arr : Array[String] = Array::new()
+  let new_arr : Array[String] = Array(capacity=0)
   let mut i = 0
   while i < len {
     new_arr.push(arr[i])
@@ -204,14 +204,14 @@ fn push_variant(
   v : Variant,
 ) -> VariantFilterResult {
   let len = result.passed_variants.length()
-  let new_passed : Array[Variant] = Array::new()
+  let new_passed : Array[Variant] = Array(capacity=0)
   let mut i = 0
   while i < len {
     new_passed.push(result.passed_variants[i])
     i = i + 1
   }
   new_passed.push(v)
-  VariantFilterResult::{ ..result, passed_variants: new_passed }
+  VariantFilterResult::{ ..result, passed_variants: new_passed, }
 }
 
 ///|
@@ -220,14 +220,14 @@ fn push_filtered_variant(
   v : (Variant, String),
 ) -> VariantFilterResult {
   let len = result.filtered_variants.length()
-  let new_filtered : Array[(Variant, String)] = Array::new()
+  let new_filtered : Array[(Variant, String)] = Array(capacity=0)
   let mut i = 0
   while i < len {
     new_filtered.push(result.filtered_variants[i])
     i = i + 1
   }
   new_filtered.push(v)
-  VariantFilterResult::{ ..result, filtered_variants: new_filtered }
+  VariantFilterResult::{ ..result, filtered_variants: new_filtered, }
 }
 
 ///|
@@ -246,7 +246,7 @@ fn join_strings(arr : Array[String], sep : String) -> String {
 }
 
 ///|
-fn parse_info_int(info : Map[String, String], key : String) -> Int {
+fn parse_info_int(info : Map[String, String], key : String) -> Int32 {
   if info.contains(key) {
     parse_int(info.get(key).unwrap())
   } else {
@@ -258,7 +258,7 @@ fn parse_info_int(info : Map[String, String], key : String) -> Int {
 fn parse_info_double(info : Map[String, String], key : String) -> Double {
   if info.contains(key) {
     let parsed = parse_double(info.get(key).unwrap())
-    if parsed.is_some() {
+    if parsed is Some(_) {
       parsed.unwrap()
     } else {
       0.0
@@ -271,7 +271,7 @@ fn parse_info_double(info : Map[String, String], key : String) -> Double {
 ///|
 fn check_genotype_quality(
   genotypes : Array[(String, String)],
-  min_gq : Int,
+  min_gq : Int32,
 ) -> Bool {
   let mut pass_count = 0
   let mut total = 0
@@ -279,7 +279,7 @@ fn check_genotype_quality(
   let len = genotypes.length()
   let mut i = 0
   while i < len {
-    let (sample, gt) = genotypes[i]
+    let (_sample, gt) = genotypes[i]
     if gt != "./." {
       total = total + 1
 
@@ -559,7 +559,7 @@ fn is_x_chromosome(chr : String) -> Bool {
 ///|
 fn is_male(sample : String) -> Bool {
   let lower_sample = to_lowercase(sample)
-  lower_sample.ends_with("_male") ||
+  lower_sample.has_suffix("_male") ||
   contains_substring(lower_sample, "father") ||
   contains_substring(lower_sample, "son")
 }
@@ -592,7 +592,7 @@ pub fn bio_vfilter_filter_by_inheritance(
   phenotypes : Map[String, Bool],
 ) -> Array[Variant] {
   let len = variants.length()
-  let mut result : Array[Variant] = Array::new()
+  let mut result : Array[Variant] = Array(capacity=0)
   let mut i = 0
   while i < len {
     let v = variants[i]
@@ -607,7 +607,7 @@ pub fn bio_vfilter_filter_by_inheritance(
 ///|
 fn push_variant_array(arr : Array[Variant], v : Variant) -> Array[Variant] {
   let len = arr.length()
-  let new_arr : Array[Variant] = Array::new()
+  let new_arr : Array[Variant] = Array(capacity=0)
   let mut i = 0
   while i < len {
     new_arr.push(arr[i])
@@ -641,7 +641,7 @@ pub fn bio_vfilter_summary(result : VariantFilterResult) -> String {
   let entries = result.filter_stats.iter().collect()
   let entries_len = entries.length()
 
-  let mut sorted : Array[(String, Int)] = Array::new()
+  let mut sorted : Array[(String, Int32)] = Array(capacity=0)
   let mut i = 0
   while i < entries_len {
     sorted.push(entries[i])
@@ -654,7 +654,7 @@ pub fn bio_vfilter_summary(result : VariantFilterResult) -> String {
     while k < entries_len {
       if sorted[k].1 > sorted[j].1 {
         let temp = sorted[j]
-        let new_arr : Array[(String, Int)] = Array::new()
+        let new_arr : Array[(String, Int32)] = Array(capacity=0)
         let mut m = 0
         while m < entries_len {
           if m == j {

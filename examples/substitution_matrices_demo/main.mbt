@@ -17,8 +17,8 @@ fn main {
   println("   W-W score: " + blosum62.get_score("W", "W").to_int().to_string())
   println("   C-C score: " + blosum62.get_score("C", "C").to_int().to_string())
 
-  // 2. Matrix registry
-  println("\n2. Matrix Registry:")
+  // 2. Matrix registry: 30 canonical Biopython matrices + legacy NUC4.4 alias
+  println("\n2. Matrix Registry (30 Biopython matrices):")
   @bio.subs_initialize_registry()
   let names = @bio.list_matrices()
   println("   Registered matrices: " + names.length().to_string())
@@ -28,15 +28,41 @@ fn main {
     i = i + 1
   }
 
-  // Load a matrix by name
+  // Load a matrix by name (the canonical BLOSUM62 uses the 24-letter
+  // alphabet ARNDCQEGHILKMFPSTWYVBZX* including B/Z/X/'*')
   let loaded = @bio.load_matrix("BLOSUM80")
   match loaded {
     Some(m) =>
       println(
         "   Loaded BLOSUM80: A-A = " +
-        m.get_score("A", "A").to_int().to_string(),
+        m.get_score("A", "A").to_int().to_string() +
+        ", letters = " +
+        m.n_letters().to_string(),
       )
     None => println("   BLOSUM80 not found")
+  }
+  match @bio.load_matrix("BLOSUM62") {
+    Some(m) =>
+      println(
+        "   BLOSUM62 B-B = " +
+        m.get_score("B", "B").to_int().to_string() +
+        ", Z-E = " +
+        m.get_score("Z", "E").to_int().to_string() +
+        ", A-* = " +
+        m.get_score("A", "*").to_int().to_string(),
+      )
+    None => println("   BLOSUM62 not found")
+  }
+  // Canonical IUPAC nucleotide matrix NUC.4.4 (15 letters; "blastn" model)
+  match @bio.load_matrix("NUC.4.4") {
+    Some(m) =>
+      println(
+        "   NUC.4.4 (" +
+        m.n_letters().to_string() +
+        " IUPAC letters): A-R = " +
+        m.get_score("A", "R").to_int().to_string(),
+      )
+    None => println("   NUC.4.4 not found")
   }
 
   // 3. Nucleotide matrix
@@ -58,12 +84,7 @@ fn main {
 
   // 5. Frequency matrix from alignment
   println("\n5. Frequency Matrix from Alignment:")
-  let alignment = [
-    "ACGTACGT",
-    "ACGTACGT",
-    "AGGTACGA",
-    "ACGTTCGT",
-  ]
+  let alignment = ["ACGTACGT", "ACGTACGT", "AGGTACGA", "ACGTTCGT"]
   let alpha = @bio.subs_nucleotide_alphabet()
   let freq = @bio.calculate_frequency_matrix(alignment, alpha)
   println("   Alignment (4 sequences, 8 positions):")
@@ -80,7 +101,11 @@ fn main {
 
   // 6. Calculate substitution matrix from alignment
   println("\n6. Substitution Matrix from Alignment (log-odds):")
-  let calc_matrix = @bio.calculate_substitution_matrix(alignment, alpha, scale=2.0)
+  let calc_matrix = @bio.calculate_substitution_matrix(
+    alignment,
+    alpha,
+    scale=2.0,
+  )
   println("   A-A score: " + calc_matrix.get_score("A", "A").to_string())
   println("   C-C score: " + calc_matrix.get_score("C", "C").to_string())
   println("   G-G score: " + calc_matrix.get_score("G", "G").to_string())
@@ -102,9 +127,7 @@ fn main {
   let m45 = @bio.subs_blosum45_matrix()
   let m62 = @bio.subs_blosum62_matrix()
   let corr = @bio.matrix_correlation(m45, m62)
-  println(
-    "   BLOSUM45 vs BLOSUM62 correlation: " + corr.to_string(),
-  )
+  println("   BLOSUM45 vs BLOSUM62 correlation: " + corr.to_string())
 
   // 10. NCBI matrix parsing
   println("\n10. NCBI Matrix File Parsing:")

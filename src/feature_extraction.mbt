@@ -13,7 +13,7 @@ pub struct NucleotideComposition {
 ///|
 pub fn kmer_frequency(
   seq : String,
-  k : Int,
+  k : Int32,
   normalize : Bool,
 ) -> Map[String, Double] {
   let n = seq.length()
@@ -45,7 +45,7 @@ pub fn kmer_frequency(
 ///|
 pub fn dna_canonical_kmer_frequency(
   seq : String,
-  k : Int,
+  k : Int32,
   normalize : Bool,
 ) -> Map[String, Double] {
   let n = seq.length()
@@ -105,7 +105,13 @@ fn reverse_complement_str(s : String) -> String {
 pub fn nucleotide_composition(seq : String) -> NucleotideComposition {
   let n = seq.length()
   if n == 0 {
-    return NucleotideComposition::{ a: 0.0, t: 0.0, g: 0.0, c: 0.0, other: 0.0 }
+    return NucleotideComposition::{
+      a: 0.0,
+      t: 0.0,
+      g: 0.0,
+      c: 0.0,
+      other: 0.0,
+    }
   }
 
   let mut a_count = 0.0
@@ -495,14 +501,14 @@ pub fn secondary_structure_propensity(seq : String) -> (Double, Double, Double) 
 ///|
 pub fn position_specific_features(
   seq : String,
-  n_positions : Int,
+  n_positions : Int32,
 ) -> Array[Double] {
   let len = seq.length()
   if len == 0 || n_positions <= 0 {
-    return Array::new()
+    return Array(capacity=0)
   }
 
-  let features : Array[Double] = Array::new()
+  let features : Array[Double] = Array(capacity=0)
   let upper_seq = seq.to_upper()
 
   for i in 0..<n_positions {
@@ -520,7 +526,7 @@ pub fn position_specific_features(
 
 ///|
 pub fn protein_feature_vector(seq : String) -> Array[Double] {
-  let features : Array[Double] = Array::new()
+  let features : Array[Double] = Array(capacity=0)
 
   let aa_order : Array[UInt16] = [
     'A', 'R', 'N', 'D', 'C', 'E', 'Q', 'G', 'H', 'I', 'L', 'K', 'M', 'F', 'P', 'S',
@@ -558,7 +564,7 @@ pub fn protein_feature_vector(seq : String) -> Array[Double] {
 
 ///|
 pub fn dna_feature_vector(seq : String) -> Array[Double] {
-  let features : Array[Double] = Array::new()
+  let features : Array[Double] = Array(capacity=0)
 
   let comp = nucleotide_composition(seq)
   features.push(comp.a)
@@ -590,7 +596,7 @@ pub fn dna_feature_vector(seq : String) -> Array[Double] {
 
 ///|
 pub fn protein_feature_names() -> Array[String] {
-  let names : Array[String] = Array::new()
+  let names : Array[String] = Array(capacity=0)
 
   let aa_order : Array[UInt16] = [
     'A', 'R', 'N', 'D', 'C', 'E', 'Q', 'G', 'H', 'I', 'L', 'K', 'M', 'F', 'P', 'S',
@@ -623,7 +629,7 @@ pub fn protein_feature_names() -> Array[String] {
 
 ///|
 pub fn dna_feature_names() -> Array[String] {
-  let names : Array[String] = Array::new()
+  let names : Array[String] = Array(capacity=0)
 
   names.push("A")
   names.push("T")
@@ -649,7 +655,7 @@ pub fn dna_feature_names() -> Array[String] {
 }
 
 ///|
-fn min_int(a : Int, b : Int) -> Int {
+fn min_int(a : Int32, b : Int32) -> Int32 {
   if a < b {
     a
   } else {

@@ -86,7 +86,7 @@ pub fn progeny_mat_mul(
 
 ///|
 /// Create identity matrix of size n.
-pub fn progeny_identity(n : Int, scale : Double) -> Array[Array[Double]] {
+pub fn progeny_identity(n : Int32, scale : Double) -> Array[Array[Double]] {
   let result : Array[Array[Double]] = []
   let mut i = 0
   while i < n {
@@ -241,7 +241,7 @@ pub fn PathwayGeneSet::new(
   genes : Array[String],
   weights : Array[Double],
 ) -> PathwayGeneSet {
-  PathwayGeneSet::{ pathway_name, genes, weights }
+  PathwayGeneSet::{ pathway_name, genes, weights, }
 }
 
 ///|
@@ -261,7 +261,7 @@ pub fn ProgenyData::new(
   pathways : Array[PathwayGeneSet],
   lambda : Double,
 ) -> ProgenyData {
-  ProgenyData::{ expression, sample_names, gene_names, pathways, lambda }
+  ProgenyData::{ expression, sample_names, gene_names, pathways, lambda, }
 }
 
 ///|
@@ -277,7 +277,7 @@ pub fn ProgenyResult::new(
   pathway_names : Array[String],
   activity_matrix : Array[Array[Double]],
 ) -> ProgenyResult {
-  ProgenyResult::{ sample_names, pathway_names, activity_matrix }
+  ProgenyResult::{ sample_names, pathway_names, activity_matrix, }
 }
 
 ///|
@@ -320,8 +320,8 @@ pub fn build_pathway_matrix(
 /// Uses L2-regularized linear regression (Ridge regression).
 /// Solution: β = (X^T X + λI)^(-1) X^T y
 pub fn run_progeny(data : ProgenyData) -> ProgenyResult {
-  let n_samples = data.sample_names.length()
-  let n_genes = data.gene_names.length()
+  let _n_samples = data.sample_names.length()
+  let _n_genes = data.gene_names.length()
   let n_pathways = data.pathways.length()
 
   // Build pathway weight matrix X (genes × pathways)

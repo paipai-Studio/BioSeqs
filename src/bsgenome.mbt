@@ -5,7 +5,7 @@ pub struct BSGenome {
   provider : String
   release : String
   chromosomes : Array[(String, String)]
-  chromosome_lengths : Array[(String, Int)]
+  chromosome_lengths : Array[(String, Int32)]
 }
 
 ///|
@@ -20,8 +20,8 @@ pub fn BSGenome::new(
     organism,
     provider,
     release,
-    chromosomes: Array::new(),
-    chromosome_lengths: Array::new(),
+    chromosomes: Array(capacity=0),
+    chromosome_lengths: Array(capacity=0),
   }
 }
 
@@ -47,7 +47,7 @@ pub fn BSGenome::add_chromosome(
 
 ///|
 pub fn BSGenome::chromosome_names(self : BSGenome) -> Array[String] {
-  let names : Array[String] = Array::new()
+  let names : Array[String] = Array(capacity=0)
   let mut i = 0
   while i < self.chromosomes.length() {
     names.push(self.chromosomes[i].0)
@@ -57,7 +57,7 @@ pub fn BSGenome::chromosome_names(self : BSGenome) -> Array[String] {
 }
 
 ///|
-pub fn BSGenome::chromosome_length(self : BSGenome, chr : String) -> Int? {
+pub fn BSGenome::chromosome_length(self : BSGenome, chr : String) -> Int32? {
   let mut i = 0
   while i < self.chromosome_lengths.length() {
     if self.chromosome_lengths[i].0 == chr {
@@ -84,8 +84,8 @@ pub fn BSGenome::chromosome_sequence(self : BSGenome, chr : String) -> String? {
 pub fn BSGenome::get_sequence(
   self : BSGenome,
   chr : String,
-  start : Int,
-  end : Int,
+  start : Int32,
+  end : Int32,
 ) -> String? {
   let seq = self.chromosome_sequence(chr)
   if seq is None {
@@ -103,8 +103,8 @@ pub fn BSGenome::get_sequence(
 pub fn BSGenome::get_subseq(
   self : BSGenome,
   chr : String,
-  start : Int,
-  length : Int,
+  start : Int32,
+  length : Int32,
 ) -> String? {
   let seq = self.chromosome_sequence(chr)
   if seq is None {
@@ -119,7 +119,7 @@ pub fn BSGenome::get_subseq(
 }
 
 ///|
-pub fn BSGenome::total_length(self : BSGenome) -> Int {
+pub fn BSGenome::total_length(self : BSGenome) -> Int32 {
   let mut total = 0
   let mut i = 0
   while i < self.chromosome_lengths.length() {
@@ -130,13 +130,13 @@ pub fn BSGenome::total_length(self : BSGenome) -> Int {
 }
 
 ///|
-pub fn BSGenome::chromosome_count(self : BSGenome) -> Int {
+pub fn BSGenome::chromosome_count(self : BSGenome) -> Int32 {
   self.chromosomes.length()
 }
 
 ///|
 pub fn BSGenome::get_chromosome_names(self : BSGenome) -> Array[String] {
-  let names : Array[String] = Array::new()
+  let names : Array[String] = Array(capacity=0)
   let mut i = 0
   while i < self.chromosomes.length() {
     names.push(self.chromosomes[i].0)
@@ -161,8 +161,8 @@ pub fn BSGenome::has_chromosome(self : BSGenome, chr : String) -> Bool {
 pub fn BSGenome::extract_gene(
   self : BSGenome,
   chr : String,
-  start : Int,
-  end : Int,
+  start : Int32,
+  end : Int32,
   strand : String,
 ) -> String? {
   let seq = self.get_sequence(chr, start, end)
@@ -180,7 +180,7 @@ pub fn BSGenome::extract_gene(
 ///|
 fn rev_comp(s : String) -> String {
   let n = s.length()
-  let result : Array[String] = Array::new()
+  let result : Array[String] = Array(capacity=0)
   let mut i = n - 1
   while i >= 0 {
     let c = s.unsafe_get(i).unsafe_to_char().to_string().to_upper()

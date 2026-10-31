@@ -2,7 +2,6 @@
 /// Mauve Genome Alignment Demo.
 /// Demonstrates parsing Mauve alignments, detecting inversions
 /// and breakpoints, computing coverage, and exporting results.
-
 fn main {
   println("=== Mauve Genome Alignment Demo ===\n")
 
@@ -24,7 +23,7 @@ fn main {
   println("   Version: \{ali.version}")
   println("   Number of LCBs: \{@src.mauve_num_lcbs(ali)}")
   let all_names = @src.mauve_all_seq_names(ali)
-  println("   Genomes: \{all_names}")
+  println("   Genomes: \{Repr(all_names)}")
 
   println("\n2. Detecting inversions...")
   let inv_count = ali.inversions.length()
@@ -32,8 +31,10 @@ fn main {
   let mut i = 0
   while i < ali.inversions.length() {
     let inv = ali.inversions[i]
-    println("   Inversion \{i}: \{inv.seq_name} \{inv.start}-\{inv.end} (\{inv.length} bp)")
-    println("     Affected LCBs: \{inv.affected_lcbs}")
+    println(
+      "   Inversion \{i}: \{inv.seq_name} \{inv.start}-\{inv.end} (\{inv.length} bp)",
+    )
+    println("     Affected LCBs: \{Repr(inv.affected_lcbs)}")
     i = i + 1
   }
 
@@ -43,7 +44,9 @@ fn main {
   let mut j = 0
   while j < ali.breakpoints.length() {
     let bp = ali.breakpoints[j]
-    println("   Breakpoint \{j}: \{bp.lcb1_id} -> \{bp.lcb2_id} at \{bp.seq_name}:\{bp.position} (\{bp.breakpoint_type})")
+    println(
+      "   Breakpoint \{j}: \{bp.lcb1_id} -> \{bp.lcb2_id} at \{bp.seq_name}:\{bp.position} (\{bp.breakpoint_type})",
+    )
     j = j + 1
   }
 

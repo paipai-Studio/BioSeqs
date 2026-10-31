@@ -27,7 +27,7 @@ test "kgml_entry_creation" {
   assert_eq(e.etype(), "gene")
   assert_eq(e.reaction(), "")
   assert_eq(e.link(), "")
-  assert_true(e.graphics().is_empty())
+  assert_true(e.graphics() is None)
   assert_eq(e.components().length(), 0)
 }
 
@@ -78,7 +78,7 @@ test "kgml_pathway_creation" {
 test "kgml_parse_basic_pathway" {
   let xml = @src.kgml_sample_pathway()
   let pw = @src.parse_kgml(xml)
-  assert_true(pw.is_some())
+  assert_true(pw is Some(_))
   let p = pw.unwrap()
   assert_eq(p.name(), "path:ko00010")
   assert_eq(p.org(), "ko")
@@ -116,7 +116,7 @@ test "kgml_parse_entry_graphics" {
   let p = @src.parse_kgml(xml).unwrap()
   let e1 = p.entries()[0]
   let g = e1.graphics()
-  assert_true(g.is_some())
+  assert_true(g is Some(_))
   let gfx = g.unwrap()
   assert_eq(gfx.x(), 100.0)
   assert_eq(gfx.y(), 200.0)
@@ -165,13 +165,13 @@ test "kgml_parse_reactions" {
 ///|
 test "kgml_parse_invalid_returns_none" {
   let result = @src.parse_kgml("not a kgml file")
-  assert_true(result.is_none())
+  assert_true(result is None)
 }
 
 ///|
 test "kgml_parse_empty_returns_none" {
   let result = @src.parse_kgml("")
-  assert_true(result.is_none())
+  assert_true(result is None)
 }
 
 // ---------------------------------------------------------------------------
@@ -183,10 +183,10 @@ test "kgml_get_entry_by_id" {
   let xml = @src.kgml_sample_pathway()
   let p = @src.parse_kgml(xml).unwrap()
   let e = p.get_entry(3)
-  assert_true(e.is_some())
+  assert_true(e is Some(_))
   assert_eq(e.unwrap().name(), "cpd:C00118")
   let none = p.get_entry(999)
-  assert_true(none.is_none())
+  assert_true(none is None)
 }
 
 ///|
@@ -227,7 +227,7 @@ test "kgml_to_string_roundtrip" {
   let serialized = @src.kgml_to_string(p)
   // Re-parse the serialized output
   let p2 = @src.parse_kgml(serialized)
-  assert_true(p2.is_some())
+  assert_true(p2 is Some(_))
   let p2u = p2.unwrap()
   assert_eq(p2u.name(), p.name())
   assert_eq(p2u.org(), p.org())

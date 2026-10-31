@@ -19,6 +19,12 @@ pub(all) enum AlignEmbossStrand {
 } derive(Eq, Debug)
 
 ///|
+pub extend AlignEmbossStrand with Eq::{equal, not_equal}
+
+///|
+pub extend AlignEmbossStrand with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
 /// File-level metadata from the EMBOSS report header.
 pub struct AlignEmbossMetadata {
   program : String
@@ -29,21 +35,33 @@ pub struct AlignEmbossMetadata {
 } derive(Eq, Debug)
 
 ///|
+pub extend AlignEmbossMetadata with Eq::{equal, not_equal}
+
+///|
+pub extend AlignEmbossMetadata with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
 /// Per-alignment annotations reported by EMBOSS.
 pub struct AlignEmbossAnnotations {
   matrix : String
   gap_penalty : Double?
   extend_penalty : Double?
-  length : Int
-  identity : Int?
-  similarity : Int?
-  gaps : Int?
+  length : Int32
+  identity : Int32?
+  similarity : Int32?
+  gaps : Int32?
   score : Double?
   longest_identity : String
   longest_similarity : String
   shortest_identity : String
   shortest_similarity : String
 } derive(Eq, Debug)
+
+///|
+pub extend AlignEmbossAnnotations with Eq::{equal, not_equal}
+
+///|
+pub extend AlignEmbossAnnotations with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// One sequence row in an EMBOSS alignment.
@@ -56,10 +74,16 @@ pub struct AlignEmbossSequence {
   id : String
   sequence : String
   aligned_sequence : String
-  start : Int
-  end : Int
+  start : Int32
+  end : Int32
   strand : AlignEmbossStrand
 } derive(Eq, Debug)
+
+///|
+pub extend AlignEmbossSequence with Eq::{equal, not_equal}
+
+///|
+pub extend AlignEmbossSequence with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// One parsed EMBOSS pairwise or multiple sequence alignment.
@@ -70,6 +94,12 @@ pub struct AlignEmbossAlignment {
 } derive(Eq, Debug)
 
 ///|
+pub extend AlignEmbossAlignment with Eq::{equal, not_equal}
+
+///|
+pub extend AlignEmbossAlignment with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
 /// A complete EMBOSS report containing one or more alignments.
 pub struct AlignEmbossDocument {
   metadata : AlignEmbossMetadata
@@ -77,28 +107,40 @@ pub struct AlignEmbossDocument {
 } derive(Eq, Debug)
 
 ///|
+pub extend AlignEmbossDocument with Eq::{equal, not_equal}
+
+///|
+pub extend AlignEmbossDocument with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
 /// Pairwise statistics for two rows in an EMBOSS alignment.
 pub struct AlignEmbossPairCounts {
-  columns : Int
-  aligned : Int
-  identities : Int
-  mismatches : Int
-  insertions : Int
-  deletions : Int
-  double_gap_columns : Int
-  insertion_opens : Int
-  deletion_opens : Int
-  positives : Int
+  columns : Int32
+  aligned : Int32
+  identities : Int32
+  mismatches : Int32
+  insertions : Int32
+  deletions : Int32
+  double_gap_columns : Int32
+  insertion_opens : Int32
+  deletion_opens : Int32
+  positives : Int32
 } derive(Eq, Debug)
+
+///|
+pub extend AlignEmbossPairCounts with Eq::{equal, not_equal}
+
+///|
+pub extend AlignEmbossPairCounts with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Construct file-level EMBOSS metadata.
 pub fn AlignEmbossMetadata::create(
-  program? : String = "",
-  rundate? : String = "",
-  report_file? : String = "",
-  align_format? : String = "srspair",
-  command_line? : String = "",
+  program~ : String = "",
+  rundate~ : String = "",
+  report_file~ : String = "",
+  align_format~ : String = "srspair",
+  command_line~ : String = "",
 ) -> AlignEmbossMetadata raise AlignEmbossError {
   align_emboss_validate_header_value(program, "Program")
   align_emboss_validate_header_value(rundate, "Rundate")
@@ -123,18 +165,18 @@ pub fn AlignEmbossMetadata::create(
 ///|
 /// Construct per-alignment EMBOSS annotations.
 pub fn AlignEmbossAnnotations::create(
-  length : Int,
-  matrix? : String = "",
-  gap_penalty? : Double? = None,
-  extend_penalty? : Double? = None,
-  identity? : Int? = None,
-  similarity? : Int? = None,
-  gaps? : Int? = None,
-  score? : Double? = None,
-  longest_identity? : String = "",
-  longest_similarity? : String = "",
-  shortest_identity? : String = "",
-  shortest_similarity? : String = "",
+  length : Int32,
+  matrix~ : String = "",
+  gap_penalty~ : Double? = None,
+  extend_penalty~ : Double? = None,
+  identity~ : Int32? = None,
+  similarity~ : Int32? = None,
+  gaps~ : Int32? = None,
+  score~ : Double? = None,
+  longest_identity~ : String = "",
+  longest_similarity~ : String = "",
+  shortest_identity~ : String = "",
+  shortest_similarity~ : String = "",
 ) -> AlignEmbossAnnotations raise AlignEmbossError {
   if length <= 0 {
     raise AlignEmbossError("EMBOSS alignment length must be positive")
@@ -175,8 +217,8 @@ pub fn AlignEmbossAnnotations::create(
 pub fn AlignEmbossSequence::create(
   id : String,
   aligned_sequence : String,
-  start : Int,
-  end : Int,
+  start : Int32,
+  end : Int32,
 ) -> AlignEmbossSequence raise AlignEmbossError {
   align_emboss_validate_id(id)
   if aligned_sequence.length() == 0 {
@@ -198,7 +240,7 @@ pub fn AlignEmbossSequence::create(
   } else {
     AlignEmbossReverse
   }
-  AlignEmbossSequence::{ id, sequence, aligned_sequence, start, end, strand }
+  AlignEmbossSequence::{ id, sequence, aligned_sequence, start, end, strand, }
 }
 
 ///|
@@ -206,7 +248,7 @@ pub fn AlignEmbossSequence::create(
 pub fn AlignEmbossAlignment::create(
   sequences : Array[AlignEmbossSequence],
   annotations : AlignEmbossAnnotations,
-  consensus? : String = "",
+  consensus~ : String = "",
 ) -> AlignEmbossAlignment raise AlignEmbossError {
   let copied : Array[AlignEmbossSequence] = []
   for sequence in sequences {
@@ -235,7 +277,7 @@ pub fn AlignEmbossDocument::create(
     align_emboss_validate_alignment(alignment)
     copied.push(alignment)
   }
-  AlignEmbossDocument::{ metadata, alignments: copied }
+  AlignEmbossDocument::{ metadata, alignments: copied, }
 }
 
 ///|
@@ -340,7 +382,7 @@ pub fn align_emboss_parse(
 /// EMBOSS width of 50 columns.
 pub fn align_emboss_write(
   document : AlignEmbossDocument,
-  line_width? : Int = 50,
+  line_width~ : Int32 = 50,
 ) -> String raise AlignEmbossError {
   if line_width <= 0 || line_width > 50 {
     raise AlignEmbossError("EMBOSS line width must be between 1 and 50")
@@ -348,7 +390,7 @@ pub fn align_emboss_write(
   if document.alignments.length() == 0 {
     raise AlignEmbossError("EMBOSS document must contain an alignment")
   }
-  let output = StringBuilder::new()
+  let output = StringBuilder()
   output.write_string("########################################\n")
   if document.metadata.program.length() > 0 {
     output.write_string("# Program: " + document.metadata.program + "\n")
@@ -485,7 +527,7 @@ pub fn align_emboss_write(
 
 ///|
 /// Return the number of alignments in a report.
-pub fn AlignEmbossDocument::num_alignments(self : AlignEmbossDocument) -> Int {
+pub fn AlignEmbossDocument::num_alignments(self : AlignEmbossDocument) -> Int32 {
   self.alignments.length()
 }
 
@@ -493,7 +535,7 @@ pub fn AlignEmbossDocument::num_alignments(self : AlignEmbossDocument) -> Int {
 /// Return an alignment by zero-based index.
 pub fn AlignEmbossDocument::get(
   self : AlignEmbossDocument,
-  index : Int,
+  index : Int32,
 ) -> AlignEmbossAlignment? {
   if index < 0 || index >= self.alignments.length() {
     None
@@ -504,7 +546,9 @@ pub fn AlignEmbossDocument::get(
 
 ///|
 /// Return the number of sequence rows.
-pub fn AlignEmbossAlignment::num_sequences(self : AlignEmbossAlignment) -> Int {
+pub fn AlignEmbossAlignment::num_sequences(
+  self : AlignEmbossAlignment,
+) -> Int32 {
   self.sequences.length()
 }
 
@@ -512,7 +556,7 @@ pub fn AlignEmbossAlignment::num_sequences(self : AlignEmbossAlignment) -> Int {
 /// Return the alignment width including gap columns.
 pub fn AlignEmbossAlignment::alignment_length(
   self : AlignEmbossAlignment,
-) -> Int {
+) -> Int32 {
   self.annotations.length
 }
 
@@ -521,7 +565,7 @@ pub fn AlignEmbossAlignment::alignment_length(
 pub fn AlignEmbossAlignment::find_sequence(
   self : AlignEmbossAlignment,
   id : String,
-) -> Int? {
+) -> Int32? {
   for row = 0; row < self.sequences.length(); row = row + 1 {
     if self.sequences[row].id == id {
       return Some(row)
@@ -534,12 +578,12 @@ pub fn AlignEmbossAlignment::find_sequence(
 /// Return all row characters at an alignment column.
 pub fn AlignEmbossAlignment::column(
   self : AlignEmbossAlignment,
-  column : Int,
+  column : Int32,
 ) -> String? {
   if column < 0 || column >= self.alignment_length() {
     return None
   }
-  let result = StringBuilder::new(size_hint=self.sequences.length())
+  let result = StringBuilder(size_hint=self.sequences.length())
   for sequence in self.sequences {
     result.write_char(
       sequence.aligned_sequence.unsafe_get(column).unsafe_to_char(),
@@ -554,9 +598,9 @@ pub fn AlignEmbossAlignment::column(
 /// Gap columns and invalid indices return `None`.
 pub fn AlignEmbossAlignment::column_to_sequence_position(
   self : AlignEmbossAlignment,
-  row : Int,
-  column : Int,
-) -> Int? {
+  row : Int32,
+  column : Int32,
+) -> Int32? {
   if row < 0 ||
     row >= self.sequences.length() ||
     column < 0 ||
@@ -579,9 +623,9 @@ pub fn AlignEmbossAlignment::column_to_sequence_position(
 /// Map a zero-based absolute residue position to its alignment column.
 pub fn AlignEmbossAlignment::sequence_position_to_column(
   self : AlignEmbossAlignment,
-  row : Int,
-  position : Int,
-) -> Int? {
+  row : Int32,
+  position : Int32,
+) -> Int32? {
   if row < 0 || row >= self.sequences.length() || position < 0 {
     return None
   }
@@ -598,10 +642,10 @@ pub fn AlignEmbossAlignment::sequence_position_to_column(
 /// Map a residue position from one row through the alignment to another row.
 pub fn AlignEmbossAlignment::map_position(
   self : AlignEmbossAlignment,
-  source_row : Int,
-  target_row : Int,
-  source_position : Int,
-) -> Int? {
+  source_row : Int32,
+  target_row : Int32,
+  source_position : Int32,
+) -> Int32? {
   if target_row < 0 || target_row >= self.sequences.length() {
     return None
   }
@@ -617,12 +661,12 @@ pub fn AlignEmbossAlignment::map_position(
 /// Gaps are represented by `None`.
 pub fn AlignEmbossAlignment::aligned_pairs(
   self : AlignEmbossAlignment,
-  first_row : Int,
-  second_row : Int,
-) -> Array[(Int?, Int?)] raise AlignEmbossError {
+  first_row : Int32,
+  second_row : Int32,
+) -> Array[(Int32?, Int32?)] raise AlignEmbossError {
   align_emboss_validate_row(self, first_row)
   align_emboss_validate_row(self, second_row)
-  let pairs : Array[(Int?, Int?)] = []
+  let pairs : Array[(Int32?, Int32?)] = []
   for column = 0; column < self.alignment_length(); column = column + 1 {
     pairs.push(
       (
@@ -641,8 +685,8 @@ pub fn AlignEmbossAlignment::aligned_pairs(
 /// emitted whenever the per-column movement vector changes.
 pub fn AlignEmbossAlignment::coordinate_path(
   self : AlignEmbossAlignment,
-) -> Array[Array[Int]] {
-  let result : Array[Array[Int]] = []
+) -> Array[Array[Int32]] {
+  let result : Array[Array[Int32]] = []
   for sequence in self.sequences {
     result.push([sequence.start])
   }
@@ -680,8 +724,8 @@ pub fn AlignEmbossAlignment::coordinate_path(
 /// available, otherwise it equals exact identities.
 pub fn AlignEmbossAlignment::pair_counts(
   self : AlignEmbossAlignment,
-  first_row : Int,
-  second_row : Int,
+  first_row : Int32,
+  second_row : Int32,
 ) -> AlignEmbossPairCounts raise AlignEmbossError {
   align_emboss_validate_row(self, first_row)
   align_emboss_validate_row(self, second_row)
@@ -826,9 +870,9 @@ pub fn align_emboss_example_text() -> String {
 ///|
 fn align_emboss_parse_alignment(
   lines : Array[String],
-  start_index : Int,
+  start_index : Int32,
   metadata : AlignEmbossMetadata,
-) -> (AlignEmbossAlignment, Int) raise AlignEmbossError {
+) -> (AlignEmbossAlignment, Int32) raise AlignEmbossError {
   let mut index = start_index + 1
   let identifiers : Array[String] = []
   let mut number_of_sequences = -1
@@ -836,9 +880,9 @@ fn align_emboss_parse_alignment(
   let mut matrix = ""
   let mut gap_penalty : Double? = None
   let mut extend_penalty : Double? = None
-  let mut identity : Int? = None
-  let mut similarity : Int? = None
-  let mut gaps : Int? = None
+  let mut identity : Int32? = None
+  let mut similarity : Int32? = None
+  let mut gaps : Int32? = None
   let mut score : Double? = None
   let mut longest_identity = ""
   let mut longest_similarity = ""
@@ -960,9 +1004,9 @@ fn align_emboss_parse_alignment(
   )
   let aligned_rows : Array[String] = []
   let ungapped_rows : Array[String] = []
-  let starts : Array[Int] = []
-  let ends : Array[Int] = []
-  let directions : Array[Int] = []
+  let starts : Array[Int32] = []
+  let ends : Array[Int32] = []
+  let directions : Array[Int32] = []
   for _row = 0; _row < number_of_sequences; _row = _row + 1 {
     aligned_rows.push("")
     ungapped_rows.push("")
@@ -970,7 +1014,7 @@ fn align_emboss_parse_alignment(
     ends.push(0)
     directions.push(0)
   }
-  let consensus_builder = StringBuilder::new(size_hint=length)
+  let consensus_builder = StringBuilder(size_hint=length)
   let mut consensus_seen = false
   let mut row_index = 0
   let mut block_width = 0
@@ -1300,7 +1344,7 @@ fn align_emboss_validate_reported_counts(
 ///|
 fn align_emboss_validate_row(
   alignment : AlignEmbossAlignment,
-  row : Int,
+  row : Int32,
 ) -> Unit raise AlignEmbossError {
   if row < 0 || row >= alignment.sequences.length() {
     raise AlignEmbossError("EMBOSS row index is out of range")
@@ -1310,8 +1354,8 @@ fn align_emboss_validate_row(
 ///|
 fn align_emboss_boundary_at(
   sequence : AlignEmbossSequence,
-  column : Int,
-) -> Int {
+  column : Int32,
+) -> Int32 {
   let mut consumed = 0
   for index = 0; index < column; index = index + 1 {
     if sequence.aligned_sequence.unsafe_get(index).to_int() != '-'.to_int() {
@@ -1328,8 +1372,8 @@ fn align_emboss_boundary_at(
 ///|
 fn align_emboss_column_step(
   sequence : AlignEmbossSequence,
-  column : Int,
-) -> Int {
+  column : Int32,
+) -> Int32 {
   if sequence.aligned_sequence.unsafe_get(column).to_int() == '-'.to_int() {
     0
   } else if sequence.strand == AlignEmbossForward {
@@ -1342,9 +1386,9 @@ fn align_emboss_column_step(
 ///|
 fn align_emboss_printed_coordinates(
   sequence : AlignEmbossSequence,
-  boundary : Int,
-  residues : Int,
-) -> (Int, Int) {
+  boundary : Int32,
+  residues : Int32,
+) -> (Int32, Int32) {
   if sequence.strand == AlignEmbossForward {
     if residues == 0 {
       (boundary, boundary)
@@ -1359,7 +1403,7 @@ fn align_emboss_printed_coordinates(
 }
 
 ///|
-fn align_emboss_sequence_prefix(id : String, start : Int) -> String {
+fn align_emboss_sequence_prefix(id : String, start : Int32) -> String {
   let displayed = if id.length() > 13 { id[0:13].to_owned() } else { id }
   align_emboss_pad_right(displayed, 13) +
   " " +
@@ -1368,7 +1412,7 @@ fn align_emboss_sequence_prefix(id : String, start : Int) -> String {
 }
 
 ///|
-fn align_emboss_pad_left(text : String, width : Int) -> String {
+fn align_emboss_pad_left(text : String, width : Int32) -> String {
   if text.length() >= width {
     text
   } else {
@@ -1377,7 +1421,7 @@ fn align_emboss_pad_left(text : String, width : Int) -> String {
 }
 
 ///|
-fn align_emboss_pad_right(text : String, width : Int) -> String {
+fn align_emboss_pad_right(text : String, width : Int32) -> String {
   if text.length() >= width {
     text
   } else {
@@ -1388,8 +1432,8 @@ fn align_emboss_pad_right(text : String, width : Int) -> String {
 ///|
 fn align_emboss_consensus_chunk(
   raw : String,
-  width : Int,
-  line_number : Int,
+  width : Int32,
+  line_number : Int32,
 ) -> String raise AlignEmbossError {
   if raw.length() <= width {
     raw + " ".repeat(width - raw.length())
@@ -1408,7 +1452,7 @@ fn align_emboss_consensus_chunk(
 ///|
 fn align_emboss_split_annotation(
   content : String,
-  line_number : Int,
+  line_number : Int32,
 ) -> (String, String) raise AlignEmbossError {
   let colon = align_emboss_find_char(content, ':'.to_int())
   if colon >= 0 {
@@ -1434,7 +1478,7 @@ fn align_emboss_split_annotation(
 fn align_emboss_split_key_value(
   content : String,
   context : String,
-  line_number : Int,
+  line_number : Int32,
 ) -> (String, String) raise AlignEmbossError {
   let separator = align_emboss_find_char(content, ':'.to_int())
   if separator <= 0 {
@@ -1456,8 +1500,8 @@ fn align_emboss_split_key_value(
 fn align_emboss_parse_fraction_count(
   text : String,
   field : String,
-  line_number : Int,
-) -> Int raise AlignEmbossError {
+  line_number : Int32,
+) -> Int32 raise AlignEmbossError {
   let slash = align_emboss_find_char(text, '/'.to_int())
   let count_text = if slash < 0 {
     text
@@ -1471,8 +1515,8 @@ fn align_emboss_parse_fraction_count(
 fn align_emboss_parse_positive_int(
   text : String,
   field : String,
-  line_number : Int,
-) -> Int raise AlignEmbossError {
+  line_number : Int32,
+) -> Int32 raise AlignEmbossError {
   let value = align_emboss_parse_nonnegative_int(text, field, line_number)
   if value <= 0 {
     raise AlignEmbossError(
@@ -1486,8 +1530,8 @@ fn align_emboss_parse_positive_int(
 fn align_emboss_parse_nonnegative_int(
   text : String,
   field : String,
-  line_number : Int,
-) -> Int raise AlignEmbossError {
+  line_number : Int32,
+) -> Int32 raise AlignEmbossError {
   if text.length() == 0 {
     raise AlignEmbossError(
       "Empty EMBOSS " + field + " at line " + line_number.to_string(),
@@ -1510,7 +1554,7 @@ fn align_emboss_parse_nonnegative_int(
 fn align_emboss_parse_number(
   text : String,
   field : String,
-  line_number : Int,
+  line_number : Int32,
 ) -> Double raise AlignEmbossError {
   if text.length() == 0 {
     raise AlignEmbossError(
@@ -1599,8 +1643,8 @@ fn align_emboss_validate_aligned_fragment(
 
 ///|
 fn align_emboss_validate_optional_count(
-  value : Int?,
-  length : Int,
+  value : Int32?,
+  length : Int32,
   field : String,
 ) -> Unit raise AlignEmbossError {
   match value {
@@ -1632,7 +1676,7 @@ fn align_emboss_validate_optional_nonnegative_double(
 
 ///|
 fn align_emboss_remove_gaps(sequence : String) -> String {
-  let result = StringBuilder::new(size_hint=sequence.length())
+  let result = StringBuilder(size_hint=sequence.length())
   for index = 0; index < sequence.length(); index = index + 1 {
     let code = sequence.unsafe_get(index).to_int()
     if code != '-'.to_int() {
@@ -1643,7 +1687,7 @@ fn align_emboss_remove_gaps(sequence : String) -> String {
 }
 
 ///|
-fn align_emboss_count_residues(sequence : String) -> Int {
+fn align_emboss_count_residues(sequence : String) -> Int32 {
   let mut count = 0
   for index = 0; index < sequence.length(); index = index + 1 {
     if sequence.unsafe_get(index).to_int() != '-'.to_int() {
@@ -1692,7 +1736,7 @@ fn align_emboss_split_whitespace(text : String) -> Array[String] {
 }
 
 ///|
-fn align_emboss_is_whitespace(code : Int) -> Bool {
+fn align_emboss_is_whitespace(code : Int32) -> Bool {
   code == ' '.to_int() ||
   code == '\t'.to_int() ||
   code == '\r'.to_int() ||
@@ -1718,7 +1762,7 @@ fn align_emboss_is_separator(text : String) -> Bool {
 }
 
 ///|
-fn align_emboss_find_char(text : String, target : Int) -> Int {
+fn align_emboss_find_char(text : String, target : Int32) -> Int32 {
   for index = 0; index < text.length(); index = index + 1 {
     if text.unsafe_get(index).to_int() == target {
       return index
@@ -1728,7 +1772,7 @@ fn align_emboss_find_char(text : String, target : Int) -> Int {
 }
 
 ///|
-fn align_emboss_find_substring(text : String, target : String) -> Int {
+fn align_emboss_find_substring(text : String, target : String) -> Int32 {
   if target.length() == 0 {
     return 0
   }
@@ -1768,8 +1812,8 @@ fn align_emboss_write_optional_double(
 fn align_emboss_write_optional_count(
   output : StringBuilder,
   key : String,
-  value : Int?,
-  length : Int,
+  value : Int32?,
+  length : Int32,
 ) -> Unit {
   match value {
     Some(count) =>

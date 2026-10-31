@@ -21,8 +21,8 @@ fn align_clustal_test_rejects(text : String) -> Bool {
 ///|
 fn align_clustal_test_write(
   alignment : @src.AlignClustalAlignment,
-  block_width : Int,
-  name_width : Int,
+  block_width : Int32,
+  name_width : Int32,
   include_counts : Bool,
   include_consensus : Bool,
 ) -> String {
@@ -40,8 +40,8 @@ fn align_clustal_test_write(
 ///|
 fn align_clustal_test_write_rejects(
   alignment : @src.AlignClustalAlignment,
-  block_width : Int,
-  name_width : Int,
+  block_width : Int32,
+  name_width : Int32,
 ) -> Bool {
   try {
     ignore(@src.align_clustal_write(alignment, block_width~, name_width~))

@@ -16,14 +16,14 @@ pub fn HDF5Attribute::new(
   data_type : String,
   data : String,
 ) -> HDF5Attribute {
-  HDF5Attribute::{ name, data_type, data }
+  HDF5Attribute::{ name, data_type, data, }
 }
 
 ///|
 pub struct HDF5Dataset {
   name : String
   data_type : String
-  dimensions : Array[Int]
+  dimensions : Array[Int32]
   data : String
   attributes : Map[String, HDF5Attribute]
 }
@@ -32,7 +32,7 @@ pub struct HDF5Dataset {
 pub fn HDF5Dataset::new(
   name : String,
   data_type : String,
-  dimensions : Array[Int],
+  dimensions : Array[Int32],
 ) -> HDF5Dataset {
   HDF5Dataset::{
     name,
@@ -127,12 +127,12 @@ pub struct HDF5File {
 
 ///|
 pub fn HDF5File::new(filename : String, mode : String) -> HDF5File {
-  HDF5File::{ filename, mode, root: HDF5Group::new("/") }
+  HDF5File::{ filename, mode, root: HDF5Group::new("/"), }
 }
 
 ///|
 fn split_path(path : String) -> Array[String] {
-  let parts : Array[String] = Array::new()
+  let parts : Array[String] = Array(capacity=0)
   let mut current = ""
   let mut i = 0
   while i < path.length() {
@@ -157,12 +157,12 @@ fn split_path(path : String) -> Array[String] {
 fn split_path_and_name(path : String) -> (Array[String], String) {
   let parts = split_path(path)
   if parts.length() == 0 {
-    (Array::new(), "")
+    (Array(capacity=0), "")
   } else if parts.length() == 1 {
-    (Array::new(), parts[0])
+    (Array(capacity=0), parts[0])
   } else {
     let name = parts[parts.length() - 1]
-    let group_parts : Array[String] = Array::new()
+    let group_parts : Array[String] = Array(capacity=0)
     let mut i = 0
     while i < parts.length() - 1 {
       group_parts.push(parts[i])
@@ -268,7 +268,7 @@ pub fn h5create_dataset(
   file : HDF5File,
   path : String,
   data_type : String,
-  dimensions : Array[Int],
+  dimensions : Array[Int32],
 ) -> HDF5File {
   let ds = HDF5Dataset::new("", data_type, dimensions)
   file.write_dataset(path, ds)
@@ -280,7 +280,7 @@ pub fn h5write_dataset(
   path : String,
   data : String,
   data_type : String,
-  dimensions : Array[Int],
+  dimensions : Array[Int32],
 ) -> HDF5File {
   let ds = HDF5Dataset::new("", data_type, dimensions)
   let ds_with_data = ds.set_data(data)
@@ -294,7 +294,7 @@ pub fn h5read_dataset(file : HDF5File, path : String) -> HDF5Dataset? {
 
 ///|
 pub fn h5ls(file : HDF5File) -> Array[String] {
-  let result : Array[String] = Array::new()
+  let result : Array[String] = Array(capacity=0)
   ignore(list_group(file.root, "", result))
   result
 }
@@ -328,7 +328,7 @@ fn list_group(
 }
 
 ///|
-fn dimensions_to_string(dims : Array[Int]) -> String {
+fn dimensions_to_string(dims : Array[Int32]) -> String {
   let mut result = ""
   let mut i = 0
   while i < dims.length() {
@@ -359,13 +359,4 @@ pub fn h5create_example_file() -> HDF5File {
     [3],
   )
   file4
-}
-
-///|
-pub fn h5create_attribute(
-  name : String,
-  data_type : String,
-  data : String,
-) -> HDF5Attribute {
-  HDF5Attribute::new(name, data_type, data)
 }

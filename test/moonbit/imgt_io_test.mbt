@@ -365,7 +365,7 @@ test "imgt_record_to_string_wraps_long_sequence" {
   // The first line is the header (starts with '>'); the next two lines are
   // each 60 characters of sequence, then a trailing newline.
   let lines = s.split("\n").to_array()
-  assert_true(lines[0].starts_with(">"))
+  assert_true(lines[0].has_prefix(">"))
   assert_eq(lines[1].length(), 60)
   assert_eq(lines[2].length(), 60)
 }

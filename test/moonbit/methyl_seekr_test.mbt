@@ -448,7 +448,7 @@ test "msr_classify_threshold_boundaries" {
 test "msr_pmd_detection_broad_domain" {
   // 15 contiguous FMR tiles at 60% methylation -> broad domain -> PMD.
   let params = @src.MethylSeekRParams::default()
-  let tiles : Array[@src.MethylTile] = Array::new()
+  let tiles : Array[@src.MethylTile] = Array(capacity=0)
   for k in 0..<15 {
     tiles.push(
       @src.MethylTile::new(
@@ -471,7 +471,7 @@ test "msr_pmd_detection_broad_domain" {
 test "msr_pmd_detection_short_run" {
   // 3 contiguous FMR tiles at 60% methylation -> too short (< 10) -> stay FMR.
   let params = @src.MethylSeekRParams::default()
-  let tiles : Array[@src.MethylTile] = Array::new()
+  let tiles : Array[@src.MethylTile] = Array(capacity=0)
   for k in 0..<3 {
     tiles.push(
       @src.MethylTile::new(
@@ -531,7 +531,7 @@ test "msr_pmd_does_not_override_umr_lmr" {
 test "msr_pmd_high_methylation_not_candidate" {
   // FMR tiles at 90% methylation (>= gamma) are not PMD candidates.
   let params = @src.MethylSeekRParams::default()
-  let tiles : Array[@src.MethylTile] = Array::new()
+  let tiles : Array[@src.MethylTile] = Array(capacity=0)
   for k in 0..<15 {
     tiles.push(
       @src.MethylTile::new(
@@ -861,7 +861,7 @@ test "msr_edge_single_site" {
 test "msr_edge_all_methylated" {
   // All sites fully methylated -> all tiles FMR.
   let params = @src.MethylSeekRParams::default()
-  let sites : Array[@src.CytosineSite] = Array::new()
+  let sites : Array[@src.CytosineSite] = Array(capacity=0)
   for k in 0..<12 {
     sites.push(
       @src.CytosineSite::new(
@@ -885,7 +885,7 @@ test "msr_edge_all_unmethylated" {
   // All sites fully unmethylated with sufficient coverage -> UMR (not PMD),
   // because UMR classification takes precedence over PMD detection.
   let params = @src.MethylSeekRParams::default()
-  let sites : Array[@src.CytosineSite] = Array::new()
+  let sites : Array[@src.CytosineSite] = Array(capacity=0)
   for k in 0..<12 {
     sites.push(
       @src.CytosineSite::new(

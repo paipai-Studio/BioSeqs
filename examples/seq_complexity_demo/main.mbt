@@ -73,16 +73,16 @@ fn main {
   let seq_a_skew = "AAAAAAAATTTTTTTT"
   let seq_t_skew = "TTTTTTTTAAAAAAAA"
   println(
-    "  " + seq_g_skew + " GC skew: " + @src.gc_skew(seq_g_skew, 8, 1).to_string(),
+    "  " + seq_g_skew + " GC skew: " + repr(@src.gc_skew(seq_g_skew, 8, 1)),
   )
   println(
-    "  " + seq_c_skew + " GC skew: " + @src.gc_skew(seq_c_skew, 8, 1).to_string(),
+    "  " + seq_c_skew + " GC skew: " + repr(@src.gc_skew(seq_c_skew, 8, 1)),
   )
   println(
-    "  " + seq_a_skew + " AT skew: " + @src.at_skew(seq_a_skew, 8, 1).to_string(),
+    "  " + seq_a_skew + " AT skew: " + repr(@src.at_skew(seq_a_skew, 8, 1)),
   )
   println(
-    "  " + seq_t_skew + " AT skew: " + @src.at_skew(seq_t_skew, 8, 1).to_string(),
+    "  " + seq_t_skew + " AT skew: " + repr(@src.at_skew(seq_t_skew, 8, 1)),
   )
 
   // === 5. DUST score ===
@@ -99,7 +99,7 @@ fn main {
   println("\n6. Sequence Signature (k-mer frequency, k=2):")
   println("==============================================")
   let sig = @src.sequence_signature("ATCGATCG", k=2)
-  println("  Unique 2-mers: " + sig.size().to_string())
+  println("  Unique 2-mers: " + sig.length().to_string())
   let sig_kmers = ["AT", "TC", "CG", "GA"]
   let mut ski = 0
   while ski < sig_kmers.length() {
@@ -156,7 +156,11 @@ fn main {
   println("\n9. Sequence Similarity (cosine similarity of k-mer vectors, k=2):")
   println("=================================================================")
   let sim_identical = @src.sequence_similarity_kmer(seq_random, seq_random, k=2)
-  let sim_similar = @src.sequence_similarity_kmer("ATCGATCG", "ATCGATCGATCG", k=2)
+  let sim_similar = @src.sequence_similarity_kmer(
+    "ATCGATCG",
+    "ATCGATCGATCG",
+    k=2,
+  )
   let sim_different = @src.sequence_similarity_kmer("ATCGATCG", "GCTAGCTA", k=2)
   println(
     "  'ATCGATCG' vs 'ATCGATCG' (identical): " + sim_identical.to_string(),

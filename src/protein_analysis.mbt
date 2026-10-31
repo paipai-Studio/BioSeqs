@@ -52,7 +52,7 @@ fn protein_get_kd(c : Char) -> Double {
 // ============================================================================
 
 ///|
-struct GorParams {
+priv struct GorParams {
   pa : Double
   pb : Double
   pt : Double
@@ -61,27 +61,27 @@ struct GorParams {
 ///|
 fn protein_get_gor(c : Char) -> GorParams {
   match c {
-    'A' => GorParams::{ pa: 1.42, pb: 0.83, pt: 0.66 }
-    'R' => GorParams::{ pa: 0.98, pb: 0.93, pt: 0.95 }
-    'N' => GorParams::{ pa: 0.67, pb: 0.89, pt: 1.56 }
-    'D' => GorParams::{ pa: 1.01, pb: 0.54, pt: 1.46 }
-    'C' => GorParams::{ pa: 0.70, pb: 1.19, pt: 1.19 }
-    'Q' => GorParams::{ pa: 1.11, pb: 1.10, pt: 0.98 }
-    'E' => GorParams::{ pa: 1.51, pb: 0.37, pt: 0.74 }
-    'G' => GorParams::{ pa: 0.57, pb: 0.75, pt: 1.56 }
-    'H' => GorParams::{ pa: 1.00, pb: 0.87, pt: 0.95 }
-    'I' => GorParams::{ pa: 1.08, pb: 1.60, pt: 0.47 }
-    'L' => GorParams::{ pa: 1.21, pb: 1.30, pt: 0.59 }
-    'K' => GorParams::{ pa: 1.16, pb: 0.74, pt: 1.01 }
-    'M' => GorParams::{ pa: 1.45, pb: 1.05, pt: 0.60 }
-    'F' => GorParams::{ pa: 1.13, pb: 1.38, pt: 0.60 }
-    'P' => GorParams::{ pa: 0.57, pb: 0.55, pt: 1.52 }
-    'S' => GorParams::{ pa: 0.77, pb: 0.75, pt: 1.43 }
-    'T' => GorParams::{ pa: 0.83, pb: 1.19, pt: 0.96 }
-    'W' => GorParams::{ pa: 1.08, pb: 1.37, pt: 0.96 }
-    'Y' => GorParams::{ pa: 0.69, pb: 1.47, pt: 1.14 }
-    'V' => GorParams::{ pa: 1.06, pb: 1.70, pt: 0.50 }
-    _ => GorParams::{ pa: 1.00, pb: 1.00, pt: 1.00 }
+    'A' => GorParams::{ pa: 1.42, pb: 0.83, pt: 0.66, }
+    'R' => GorParams::{ pa: 0.98, pb: 0.93, pt: 0.95, }
+    'N' => GorParams::{ pa: 0.67, pb: 0.89, pt: 1.56, }
+    'D' => GorParams::{ pa: 1.01, pb: 0.54, pt: 1.46, }
+    'C' => GorParams::{ pa: 0.70, pb: 1.19, pt: 1.19, }
+    'Q' => GorParams::{ pa: 1.11, pb: 1.10, pt: 0.98, }
+    'E' => GorParams::{ pa: 1.51, pb: 0.37, pt: 0.74, }
+    'G' => GorParams::{ pa: 0.57, pb: 0.75, pt: 1.56, }
+    'H' => GorParams::{ pa: 1.00, pb: 0.87, pt: 0.95, }
+    'I' => GorParams::{ pa: 1.08, pb: 1.60, pt: 0.47, }
+    'L' => GorParams::{ pa: 1.21, pb: 1.30, pt: 0.59, }
+    'K' => GorParams::{ pa: 1.16, pb: 0.74, pt: 1.01, }
+    'M' => GorParams::{ pa: 1.45, pb: 1.05, pt: 0.60, }
+    'F' => GorParams::{ pa: 1.13, pb: 1.38, pt: 0.60, }
+    'P' => GorParams::{ pa: 0.57, pb: 0.55, pt: 1.52, }
+    'S' => GorParams::{ pa: 0.77, pb: 0.75, pt: 1.43, }
+    'T' => GorParams::{ pa: 0.83, pb: 1.19, pt: 0.96, }
+    'W' => GorParams::{ pa: 1.08, pb: 1.37, pt: 0.96, }
+    'Y' => GorParams::{ pa: 0.69, pb: 1.47, pt: 1.14, }
+    'V' => GorParams::{ pa: 1.06, pb: 1.70, pt: 0.50, }
+    _ => GorParams::{ pa: 1.00, pb: 1.00, pt: 1.00, }
   }
 }
 
@@ -90,36 +90,31 @@ fn protein_get_gor(c : Char) -> GorParams {
 // ============================================================================
 
 ///|
-struct TmParams {
-  inside : Double
-  outside : Double
-  tm : Double
-}
-
-///|
-fn protein_get_tm(c : Char) -> TmParams {
+/// Transmembrane propensity score for each amino acid.
+/// (Original TM scale also has inside/outside values; only the tm score is used.)
+fn protein_get_tm(c : Char) -> Double {
   match c {
-    'A' => TmParams::{ inside: 1.1, outside: 0.56, tm: 1.32 }
-    'R' => TmParams::{ inside: 0.0, outside: 1.0, tm: 0.0 }
-    'N' => TmParams::{ inside: 0.5, outside: 0.2, tm: -0.6 }
-    'D' => TmParams::{ inside: 0.5, outside: 0.2, tm: -0.7 }
-    'C' => TmParams::{ inside: 1.1, outside: 0.56, tm: 0.62 }
-    'Q' => TmParams::{ inside: 0.5, outside: 0.2, tm: -0.2 }
-    'E' => TmParams::{ inside: 0.5, outside: 0.2, tm: -0.3 }
-    'G' => TmParams::{ inside: 0.5, outside: 0.2, tm: 0.48 }
-    'H' => TmParams::{ inside: 0.5, outside: 0.2, tm: -0.5 }
-    'I' => TmParams::{ inside: 1.0, outside: 0.32, tm: 1.0 }
-    'L' => TmParams::{ inside: 1.0, outside: 0.36, tm: 1.24 }
-    'K' => TmParams::{ inside: 0.1, outside: 1.0, tm: 0.0 }
-    'M' => TmParams::{ inside: 1.0, outside: 0.36, tm: 1.11 }
-    'F' => TmParams::{ inside: 1.0, outside: 0.42, tm: 1.02 }
-    'P' => TmParams::{ inside: 0.5, outside: 0.2, tm: -0.3 }
-    'S' => TmParams::{ inside: 0.5, outside: 0.2, tm: 0.38 }
-    'T' => TmParams::{ inside: 0.5, outside: 0.2, tm: 0.38 }
-    'W' => TmParams::{ inside: 1.0, outside: 0.44, tm: 1.0 }
-    'Y' => TmParams::{ inside: 0.5, outside: 0.2, tm: 0.69 }
-    'V' => TmParams::{ inside: 1.0, outside: 0.32, tm: 1.19 }
-    _ => TmParams::{ inside: 0.5, outside: 0.2, tm: 0.0 }
+    'A' => 1.32
+    'R' => 0.0
+    'N' => -0.6
+    'D' => -0.7
+    'C' => 0.62
+    'Q' => -0.2
+    'E' => -0.3
+    'G' => 0.48
+    'H' => -0.5
+    'I' => 1.0
+    'L' => 1.24
+    'K' => 0.0
+    'M' => 1.11
+    'F' => 1.02
+    'P' => -0.3
+    'S' => 0.38
+    'T' => 0.38
+    'W' => 1.0
+    'Y' => 0.69
+    'V' => 1.19
+    _ => 0.0
   }
 }
 
@@ -148,9 +143,9 @@ fn protein_shannon_entropy(freqs : Array[Double]) -> Double {
 ///|
 fn protein_aa_frequency_at(
   alignment : Array[String],
-  pos : Int,
+  pos : Int32,
 ) -> Array[Double] {
-  let freqs : Array[Double] = Array::new()
+  let freqs : Array[Double] = Array(capacity=0)
   let n = alignment.length().to_double()
   if n == 0.0 {
     return freqs
@@ -162,9 +157,9 @@ fn protein_aa_frequency_at(
     if pos < seq.length() {
       let char_code = seq.unsafe_get(pos).to_int()
       let c = if char_code >= 97 && char_code <= 122 {
-        Char::from_int(char_code - 32)
+        (char_code - 32).unsafe_to_char()
       } else {
-        Char::from_int(char_code)
+        char_code.unsafe_to_char()
       }
       let count = match aa_map.get(c) {
         Some(v) => v + 1.0
@@ -198,7 +193,7 @@ pub fn protein_conservation(alignment : Array[String]) -> Array[Double] {
   }
   let aln_len = alignment[0].length()
   let alphabet_size = 20.0
-  let conservation : Array[Double] = Array::new()
+  let conservation : Array[Double] = Array(capacity=0)
   let mut pos = 0
   while pos < aln_len {
     let aa_freq = protein_aa_frequency_at(alignment, pos)
@@ -215,11 +210,11 @@ pub fn protein_conservation(alignment : Array[String]) -> Array[Double] {
 /// Returns array of hydropathy values averaged over a sliding window.
 pub fn protein_hydropathy(
   sequence : String,
-  window? : Int = 7,
+  window~ : Int32 = 7,
 ) -> Array[Double] {
   let seq = sequence.to_upper()
   let w = if window <= 0 { 7 } else { window }
-  let result : Array[Double] = Array::new()
+  let result : Array[Double] = Array(capacity=0)
   if seq.length() < w {
     return result
   }
@@ -243,7 +238,7 @@ pub fn protein_hydropathy(
 /// Returns array of ('H' for helix, 'E' for sheet, 'T' for turn, 'C' for coil).
 pub fn protein_secondary_structure(sequence : String) -> Array[String] {
   let seq = sequence.to_upper()
-  let result : Array[String] = Array::new()
+  let result : Array[String] = Array(capacity=0)
   let mut i = 0
   while i < seq.length() {
     let c = seq.unsafe_get(i).unsafe_to_char()
@@ -268,7 +263,7 @@ pub fn protein_secondary_structure(sequence : String) -> Array[String] {
 /// Positive values indicate potential antigenic sites.
 pub fn protein_antigenicity(sequence : String) -> Array[Double] {
   let seq = sequence.to_upper()
-  let result : Array[Double] = Array::new()
+  let result : Array[Double] = Array(capacity=0)
   let mut i = 0
   while i < seq.length() {
     let c = seq.unsafe_get(i).unsafe_to_char()
@@ -306,12 +301,13 @@ pub fn protein_antigenicity(sequence : String) -> Array[Double] {
 /// Returns array of scores: positive = transmembrane, negative = inside/outside.
 pub fn protein_transmembrane(
   sequence : String,
-  window? : Int = 19,
-  threshold? : Double = 1.6,
+  window~ : Int32 = 19,
+  threshold~ : Double = 1.6,
 ) -> Array[Double] {
+  ignore(threshold)
   let seq = sequence.to_upper()
   let w = if window <= 0 { 19 } else { window }
-  let result : Array[Double] = Array::new()
+  let result : Array[Double] = Array(capacity=0)
   if seq.length() < w {
     return result
   }
@@ -322,7 +318,7 @@ pub fn protein_transmembrane(
     while j < w {
       let c = seq.unsafe_get(i + j).unsafe_to_char()
       let tm = protein_get_tm(c)
-      sum = sum + tm.tm
+      sum = sum + tm
       j = j + 1
     }
     let score = sum / w.to_double()
@@ -335,8 +331,7 @@ pub fn protein_transmembrane(
 ///|
 /// Get the transmembrane propensity score for a specific amino acid.
 pub fn protein_transmembrane_propensity(c : Char) -> Double {
-  let tm = protein_get_tm(c)
-  tm.tm
+  protein_get_tm(c)
 }
 
 ///|
@@ -411,13 +406,15 @@ pub fn protein_summary(sequence : String) -> String {
   out = out + "Length: " + seq.length().to_string() + " residues\n"
   let comp = protein_aa_composition(seq)
   let keys = comp.keys().collect()
-  let sorted_keys : Array[Char] = Array::new()
+  let sorted_keys : Array[Char] = Array(capacity=0)
   let mut ki = 0
   while ki < keys.length() {
     sorted_keys.push(keys[ki])
     ki = ki + 1
   }
-  sorted_keys.sort_by(fn(a : Char, b : Char) -> Int { a.to_int() - b.to_int() })
+  sorted_keys.sort_by(fn(a : Char, b : Char) -> Int32 {
+    a.to_int() - b.to_int()
+  })
   out = out + "\nAmino Acid Composition:\n"
   let mut si = 0
   while si < sorted_keys.length() {

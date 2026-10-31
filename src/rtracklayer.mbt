@@ -6,24 +6,24 @@
 /// BED record.
 pub struct BedRecord {
   chrom : String
-  chrom_start : Int
-  chrom_end : Int
+  chrom_start : Int32
+  chrom_end : Int32
   name : String
-  score : Int?
+  score : Int32?
   strand : Strand
-  thick_start : Int?
-  thick_end : Int?
+  thick_start : Int32?
+  thick_end : Int32?
   item_rgb : String
-  block_count : Int?
-  block_sizes : Array[Int]
-  block_starts : Array[Int]
+  block_count : Int32?
+  block_sizes : Array[Int32]
+  block_starts : Array[Int32]
 }
 
 ///|
 /// Parse BED format (3-12 columns).
 pub fn parse_bed(content : String) -> Array[BedRecord] {
   let lines = split_by_char(content, '\n'.to_int())
-  let records : Array[BedRecord] = Array::new()
+  let records : Array[BedRecord] = Array(capacity=0)
 
   let mut i = 0
   while i < lines.length() {
@@ -73,7 +73,7 @@ pub fn parse_bed(content : String) -> Array[BedRecord] {
 
     let block_sizes = if fields.length() > 10 {
       let sizes = split_by_char(fields[10], ','.to_int())
-      let sizes_arr : Array[Int] = Array::new()
+      let sizes_arr : Array[Int32] = Array(capacity=0)
       let mut j = 0
       while j < sizes.length() {
         if sizes[j].length() > 0 {
@@ -88,7 +88,7 @@ pub fn parse_bed(content : String) -> Array[BedRecord] {
 
     let block_starts = if fields.length() > 11 {
       let starts = split_by_char(fields[11], ','.to_int())
-      let starts_arr : Array[Int] = Array::new()
+      let starts_arr : Array[Int32] = Array(capacity=0)
       let mut j = 0
       while j < starts.length() {
         if starts[j].length() > 0 {
@@ -127,7 +127,7 @@ pub fn parse_bed(content : String) -> Array[BedRecord] {
 pub fn bed_to_granges(records : Array[BedRecord]) -> GRanges {
   let n = records.length()
   let seqnames : Array[String] = Array::make(n, "")
-  let ranges : Array[(Int, Int)] = Array::make(n, (0, 0))
+  let ranges : Array[(Int32, Int32)] = Array::make(n, (0, 0))
   let strands : Array[Strand] = Array::make(n, Strand::Star)
 
   let mut i = 0
@@ -219,15 +219,15 @@ pub fn write_bed(records : Array[BedRecord]) -> String {
 ///|
 /// WIG record types.
 pub enum WigType {
-  VariableStep(String, Int?)
-  FixedStep(String, Int, Int)
+  VariableStep(String, Int32?)
+  FixedStep(String, Int32, Int32)
 }
 
 ///|
 /// WIG record.
 pub struct WigRecord {
   wig_type : WigType
-  positions : Array[Int]
+  positions : Array[Int32]
   values : Array[Double]
 }
 
@@ -235,15 +235,15 @@ pub struct WigRecord {
 /// Parse WIG format.
 pub fn parse_wig(content : String) -> Array[WigRecord] {
   let lines = split_by_char(content, '\n'.to_int())
-  let records : Array[WigRecord] = Array::new()
+  let records : Array[WigRecord] = Array(capacity=0)
 
   let mut current_chrom = ""
   let mut current_start = 0
   let mut current_step = 1
-  let mut current_span : Int? = None
+  let mut current_span : Int32? = None
   let mut is_fixed_step = false
-  let mut positions : Array[Int] = Array::new()
-  let mut values : Array[Double] = Array::new()
+  let mut positions : Array[Int32] = Array(capacity=0)
+  let mut values : Array[Double] = Array(capacity=0)
 
   let mut i = 0
   while i < lines.length() {
@@ -267,8 +267,8 @@ pub fn parse_wig(content : String) -> Array[WigRecord] {
           positions: positions.copy(),
           values: values.copy(),
         })
-        positions = Array::new()
-        values = Array::new()
+        positions = Array(capacity=0)
+        values = Array(capacity=0)
       }
       current_chrom = extract_param(trimmed, "chrom=")
       let span_str = extract_param(trimmed, "span=")
@@ -291,8 +291,8 @@ pub fn parse_wig(content : String) -> Array[WigRecord] {
           positions: positions.copy(),
           values: values.copy(),
         })
-        positions = Array::new()
-        values = Array::new()
+        positions = Array(capacity=0)
+        values = Array(capacity=0)
       }
       current_chrom = extract_param(trimmed, "chrom=")
       let start_str = extract_param(trimmed, "start=")
@@ -339,7 +339,7 @@ pub fn parse_wig(content : String) -> Array[WigRecord] {
     } else {
       WigType::VariableStep(current_chrom, current_span)
     }
-    records.push(WigRecord::{ wig_type, positions, values })
+    records.push(WigRecord::{ wig_type, positions, values, })
   }
 
   records
@@ -394,8 +394,8 @@ pub fn write_wig(records : Array[WigRecord]) -> String {
 /// BEDGraph record.
 pub struct BedGraphRecord {
   chrom : String
-  chrom_start : Int
-  chrom_end : Int
+  chrom_start : Int32
+  chrom_end : Int32
   value : Double
 }
 
@@ -403,7 +403,7 @@ pub struct BedGraphRecord {
 /// Parse BEDGraph format.
 pub fn parse_bedgraph(content : String) -> Array[BedGraphRecord] {
   let lines = split_by_char(content, '\n'.to_int())
-  let records : Array[BedGraphRecord] = Array::new()
+  let records : Array[BedGraphRecord] = Array(capacity=0)
 
   let mut i = 0
   while i < lines.length() {
@@ -466,11 +466,11 @@ pub struct GffRecord {
   seqid : String
   source : String
   feature_type : String
-  start : Int
-  end : Int
+  start : Int32
+  end : Int32
   score : Double?
   strand : Strand
-  phase : Int?
+  phase : Int32?
   attributes : Map[String, String]
 }
 
@@ -478,7 +478,7 @@ pub struct GffRecord {
 /// Parse GFF/GTF format (GFF3 and GTF).
 pub fn parse_gff(content : String) -> Array[GffRecord] {
   let lines = split_by_char(content, '\n'.to_int())
-  let records : Array[GffRecord] = Array::new()
+  let records : Array[GffRecord] = Array(capacity=0)
 
   let mut i = 0
   while i < lines.length() {
@@ -631,7 +631,7 @@ pub fn write_gff(records : Array[GffRecord]) -> String {
 pub fn gff_to_granges(records : Array[GffRecord]) -> GRanges {
   let n = records.length()
   let seqnames : Array[String] = Array::make(n, "")
-  let ranges : Array[(Int, Int)] = Array::make(n, (0, 0))
+  let ranges : Array[(Int32, Int32)] = Array::make(n, (0, 0))
   let strands : Array[Strand] = Array::make(n, Strand::Star)
 
   let mut i = 0
@@ -686,20 +686,8 @@ fn is_whitespace(c : Char) -> Bool {
 }
 
 ///|
-fn find_char(s : String, c : Char) -> Int {
+fn find_char(s : String, c : Char) -> Int32 {
   let mut i = 0
-  while i < s.length() {
-    if s.unsafe_get(i).unsafe_to_char() == c {
-      return i
-    }
-    i = i + 1
-  }
-  -1
-}
-
-///|
-fn find_char_from(s : String, c : Char, start : Int) -> Int {
-  let mut i = start
   while i < s.length() {
     if s.unsafe_get(i).unsafe_to_char() == c {
       return i

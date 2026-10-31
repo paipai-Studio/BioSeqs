@@ -11,11 +11,26 @@ fn main {
   let enzymes = @bio.caps_sample_enzymes()
   println("Sequences: " + seqs.length().to_string())
   for i = 0; i < seqs.length(); i = i + 1 {
-    println("  seq" + i.to_string() + " (" + seqs[i].length().to_string() + " bp): " + seqs[i])
+    println(
+      "  seq" +
+      i.to_string() +
+      " (" +
+      seqs[i].length().to_string() +
+      " bp): " +
+      seqs[i],
+    )
   }
   println("Enzymes: " + enzymes.length().to_string())
   for e in enzymes {
-    println("  " + e.name + " (site=" + e.recognition_site + ", cut=" + e.cutting_position.to_string() + ")")
+    println(
+      "  " +
+      e.name +
+      " (site=" +
+      e.recognition_site +
+      ", cut=" +
+      e.cutting_position.to_string() +
+      ")",
+    )
   }
 
   // 2. Build CAPS map
@@ -39,14 +54,23 @@ fn main {
   let ecori_dcuts = m.get_dcuts_by_enzyme("EcoRI")
   println("EcoRI differential cutsites: " + ecori_dcuts.length().to_string())
   for dc in ecori_dcuts {
-    println("  Position " + dc.start().to_string() + ": cuts seq " + dc.cuts_in()[0].to_string() + ", blocked in seq " + dc.blocked_in()[0].to_string())
+    println(
+      "  Position " +
+      dc.start().to_string() +
+      ": cuts seq " +
+      dc.cuts_in()[0].to_string() +
+      ", blocked in seq " +
+      dc.blocked_in()[0].to_string(),
+    )
   }
 
   // 5. Check specific enzyme
   println("\n5. Check Enzyme Presence:")
   println("=========================")
   println("Has EcoRI cutsites: " + m.has_dcuts_for_enzyme("EcoRI").to_string())
-  println("Has HindIII cutsites: " + m.has_dcuts_for_enzyme("HindIII").to_string())
+  println(
+    "Has HindIII cutsites: " + m.has_dcuts_for_enzyme("HindIII").to_string(),
+  )
 
   // 6. Full report
   println("\n6. Full Report:")
@@ -59,7 +83,7 @@ fn main {
   // Two sequences: one with HindIII site, one without
   let custom_seqs = [
     "GGATCCAAGCTTGGATCC", // has BamHI (GGATCC) and HindIII (AAGCTT)
-    "GGATCCAAGCTTGGATCC", // identical - no differential
+     "GGATCCAAGCTTGGATCC", // identical - no differential
   ]
   let bamHI = @bio.restriction_enzyme("BamHI", "GGATCC", 1, "GATC", "")
   let custom_enzymes = [bamHI]
@@ -73,8 +97,8 @@ fn main {
   println("========================")
   let three_seqs = [
     "AAAAAAAAGAGAATTCAAAAAAAAAAAAAA", // has EcoRI site
-    "AAAAAAAAGAGAATTTAAAAAAAAAAAAAA", // EcoRI blocked
-    "AAAAAAAAGAGAATTCAAAAAAAAAAAAAA", // has EcoRI site
+     "AAAAAAAAGAGAATTTAAAAAAAAAAAAAA", // EcoRI blocked
+     "AAAAAAAAGAGAATTCAAAAAAAAAAAAAA", // has EcoRI site
   ]
   let m3 = @bio.caps_map(three_seqs, enzymes)
   let dc3 = m3.get_dcuts_by_enzyme("EcoRI")
@@ -88,7 +112,8 @@ fn main {
   println("\n=== Demo Complete ===")
 }
 
-fn array_to_string(arr : Array[Int]) -> String {
+///|
+fn array_to_string(arr : Array[Int32]) -> String {
   let mut s = "["
   let mut first = true
   for i in arr {

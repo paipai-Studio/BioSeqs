@@ -48,7 +48,7 @@ test "cdao_tree_default_values" {
   assert_eq(t.id, "#tree2")
   assert_eq(t.rooted, false)
   assert_eq(t.root_node_id, "")
-  assert_eq(t.name.is_some(), false)
+  assert_eq(t.name is Some(_), false)
 }
 
 ///|
@@ -68,9 +68,9 @@ test "cdao_node_default_values" {
   let n = @src.CdaoNode::new("#node2")
   assert_eq(n.id, "#node2")
   assert_eq(n.children.length(), 0)
-  assert_eq(n.parent_id.is_some(), false)
-  assert_eq(n.tu_id.is_some(), false)
-  assert_eq(n.branch_length.is_some(), false)
+  assert_eq(n.parent_id is Some(_), false)
+  assert_eq(n.tu_id is Some(_), false)
+  assert_eq(n.branch_length is Some(_), false)
 }
 
 ///|
@@ -84,15 +84,15 @@ test "cdao_tu_construction" {
 test "cdao_tu_default_values" {
   let tu = @src.CdaoTU::new("#tu2")
   assert_eq(tu.id, "#tu2")
-  assert_eq(tu.label.is_some(), false)
+  assert_eq(tu.label is Some(_), false)
 }
 
 ///|
 test "cdao_document_new_empty" {
   let doc = @src.CdaoDocument::new()
   assert_eq(doc.trees.length(), 0)
-  assert_eq(doc.nodes.size(), 0)
-  assert_eq(doc.tus.size(), 0)
+  assert_eq(doc.nodes.length(), 0)
+  assert_eq(doc.tus.length(), 0)
 }
 
 // ============================================================================
@@ -107,9 +107,9 @@ test "cdao_sample_document_structure" {
   assert_eq(doc.trees[0].rooted, true)
   assert_eq(doc.trees[0].root_node_id, "#node1")
   // 7 nodes (1 root + 2 internal + 4 leaves)
-  assert_eq(doc.nodes.size(), 7)
+  assert_eq(doc.nodes.length(), 7)
   // 4 TUs
-  assert_eq(doc.tus.size(), 4)
+  assert_eq(doc.tus.length(), 4)
 }
 
 ///|
@@ -165,7 +165,7 @@ test "cdao_parse_sample_xml" {
   assert_eq(doc.trees[0].id, "#tree1")
   assert_eq(doc.trees[0].root_node_id, "#node1")
   // Should have parsed nodes
-  assert_true(doc.nodes.size() > 0)
+  assert_true(doc.nodes.length() > 0)
 }
 
 ///|
@@ -173,7 +173,7 @@ test "cdao_parse_extracts_tu_labels" {
   let xml = @src.cdao_sample_xml()
   let doc = @src.cdao_parse(xml)
   // Check that at least some TUs were parsed
-  assert_true(doc.tus.size() > 0)
+  assert_true(doc.tus.length() > 0)
   // Check for label A
   let mut found_a = false
   let tu_keys = doc.tus.keys()
@@ -202,7 +202,7 @@ test "cdao_parse_node_children" {
   let doc = @src.cdao_parse(xml)
   // Root node should have children
   let root = doc.nodes.get("#node1")
-  assert_eq(root.is_some(), true)
+  assert_eq(root is Some(_), true)
   let r = root.unwrap()
   assert_eq(r.children.length(), 2)
 }
@@ -334,7 +334,7 @@ test "cdao_document_summary_empty" {
 test "cdao_parse_empty_xml" {
   let doc = @src.cdao_parse("")
   assert_eq(doc.trees.length(), 0)
-  assert_eq(doc.nodes.size(), 0)
+  assert_eq(doc.nodes.length(), 0)
 }
 
 ///|

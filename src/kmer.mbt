@@ -3,14 +3,14 @@
 
 ///|
 pub struct BioKmerCounter {
-  k : Int
-  counts : Map[String, Int]
+  k : Int32
+  counts : Map[String, Int32]
   sequence : String
 }
 
 ///|
-pub fn BioKmerCounter::new(k : Int) -> BioKmerCounter {
-  BioKmerCounter::{ k, counts: Map([], capacity=1000), sequence: "" }
+pub fn BioKmerCounter::new(k : Int32) -> BioKmerCounter {
+  BioKmerCounter::{ k, counts: Map([], capacity=1000), sequence: "", }
 }
 
 ///|
@@ -32,11 +32,11 @@ pub fn BioKmerCounter::count_kmers(
     i = i + 1
   }
 
-  BioKmerCounter::{ k: self.k, counts, sequence: seq }
+  BioKmerCounter::{ k: self.k, counts, sequence: seq, }
 }
 
 ///|
-pub fn BioKmerCounter::count(self : BioKmerCounter, kmer : String) -> Int {
+pub fn BioKmerCounter::count(self : BioKmerCounter, kmer : String) -> Int32 {
   if self.counts.contains(kmer) {
     self.counts.get(kmer).unwrap()
   } else {
@@ -45,7 +45,7 @@ pub fn BioKmerCounter::count(self : BioKmerCounter, kmer : String) -> Int {
 }
 
 ///|
-pub fn BioKmerCounter::total_kmers(self : BioKmerCounter) -> Int {
+pub fn BioKmerCounter::total_kmers(self : BioKmerCounter) -> Int32 {
   let mut total = 0
   for count in self.counts.values() {
     total = total + count
@@ -54,8 +54,8 @@ pub fn BioKmerCounter::total_kmers(self : BioKmerCounter) -> Int {
 }
 
 ///|
-pub fn BioKmerCounter::unique_kmers(self : BioKmerCounter) -> Int {
-  self.counts.keys().length()
+pub fn BioKmerCounter::unique_kmers(self : BioKmerCounter) -> Int32 {
+  self.counts.keys().count()
 }
 
 ///|
@@ -74,9 +74,9 @@ pub fn BioKmerCounter::frequency(
 ///|
 pub fn BioKmerCounter::get_top_kmers(
   self : BioKmerCounter,
-  n : Int,
-) -> Array[(String, Int)] {
-  let items : Array[(String, Int)] = Array::new()
+  n : Int32,
+) -> Array[(String, Int32)] {
+  let items : Array[(String, Int32)] = Array(capacity=0)
   for key in self.counts.keys() {
     items.push((key, self.counts.get(key).unwrap()))
   }
@@ -98,7 +98,7 @@ pub fn BioKmerCounter::get_top_kmers(
     }
   }
 
-  let result : Array[(String, Int)] = Array::new()
+  let result : Array[(String, Int32)] = Array(capacity=0)
   let mut k = 0
   while k < n && k < items.length() {
     result.push(items[k])
@@ -140,7 +140,7 @@ pub fn BioKmerCounter::jaccard(
 pub fn BioKmerCounter::hamming_distance(
   self : BioKmerCounter,
   other : BioKmerCounter,
-) -> Int {
+) -> Int32 {
   let mut distance = 0
 
   for key in self.counts.keys() {
@@ -161,29 +161,26 @@ pub fn BioKmerCounter::hamming_distance(
 ///|
 pub struct KmerFrequency {
   kmer : String
-  count : Int
+  count : Int32
   frequency : Double
 }
 
 ///|
 pub fn KmerFrequency::new(
   kmer : String,
-  count : Int,
+  count : Int32,
   frequency : Double,
 ) -> KmerFrequency {
-  KmerFrequency::{ kmer, count, frequency }
+  KmerFrequency::{ kmer, count, frequency, }
 }
 
 ///|
-pub fn bio_count_kmers(seq : String, k : Int) -> Map[String, Int] {
-  let counter = BioKmerCounter::new(k)
-  let counter = counter.count_kmers(seq)
-  counter.counts
-}
-
-///|
-pub fn kmer_spectrum(seq : String, min_k : Int, max_k : Int) -> Array[Int] {
-  let spectrum : Array[Int] = Array::new()
+pub fn kmer_spectrum(
+  seq : String,
+  min_k : Int32,
+  max_k : Int32,
+) -> Array[Int32] {
+  let spectrum : Array[Int32] = Array(capacity=0)
 
   let mut k = min_k
   while k <= max_k {

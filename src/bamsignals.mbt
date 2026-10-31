@@ -12,21 +12,16 @@ pub enum BamsigCountMode {
   Sense
   /// Only count reads on opposite strand
   Antisense
-  /// Count paired-end reads as single events
-  PairedEnd
 } derive(Eq)
+
+///|
+pub extend BamsigCountMode with Eq::{equal, not_equal}
 
 ///|
 /// Normalization method for signal
 pub enum BamsigNormMethod {
-  /// No normalization
-  None
   /// RPM (reads per million)
   RPM
-  /// RPKM (reads per kilobase per million)
-  RPKM
-  /// CPM (counts per million)
-  CPM
 }
 
 ///|
@@ -37,11 +32,11 @@ pub struct BamsigParams {
   /// Whether to filter duplicates
   filter_dup : Bool
   /// Minimum mapping quality
-  min_mapq : Int
+  min_mapq : Int32
   /// Whether to use single-end mode
   single_end : Bool
   /// Extend reads to fragment size
-  extend_len : Int
+  extend_len : Int32
 }
 
 ///|
@@ -90,7 +85,7 @@ pub fn BamsigParams::bamsig_set_filter_dup(
 /// Set minimum mapping quality
 pub fn BamsigParams::bamsig_set_min_mapq(
   self : BamsigParams,
-  mapq : Int,
+  mapq : Int32,
 ) -> BamsigParams {
   BamsigParams::{
     count_mode: self.count_mode,
@@ -105,7 +100,7 @@ pub fn BamsigParams::bamsig_set_min_mapq(
 /// Set extend length
 pub fn BamsigParams::bamsig_set_extend(
   self : BamsigParams,
-  extend_len : Int,
+  extend_len : Int32,
 ) -> BamsigParams {
   BamsigParams::{
     count_mode: self.count_mode,
@@ -122,9 +117,9 @@ pub struct BamsigRegion {
   /// Chromosome
   chrom : String
   /// Start position (0-based)
-  start : Int
+  start : Int32
   /// End position (0-based, exclusive)
-  end : Int
+  end : Int32
   /// Region ID
   id : String
 }
@@ -133,11 +128,11 @@ pub struct BamsigRegion {
 /// Create new region
 pub fn BamsigRegion::new(
   chrom : String,
-  start : Int,
-  end : Int,
+  start : Int32,
+  end : Int32,
   id : String,
 ) -> BamsigRegion {
-  BamsigRegion::{ chrom, start, end, id }
+  BamsigRegion::{ chrom, start, end, id, }
 }
 
 ///|
@@ -148,19 +143,19 @@ pub fn BamsigRegion::bamsig_chrom(self : BamsigRegion) -> String {
 
 ///|
 /// Get start position
-pub fn BamsigRegion::bamsig_start(self : BamsigRegion) -> Int {
+pub fn BamsigRegion::bamsig_start(self : BamsigRegion) -> Int32 {
   self.start
 }
 
 ///|
 /// Get end position
-pub fn BamsigRegion::bamsig_end(self : BamsigRegion) -> Int {
+pub fn BamsigRegion::bamsig_end(self : BamsigRegion) -> Int32 {
   self.end
 }
 
 ///|
 /// Get width
-pub fn BamsigRegion::bamsig_width(self : BamsigRegion) -> Int {
+pub fn BamsigRegion::bamsig_width(self : BamsigRegion) -> Int32 {
   self.end - self.start
 }
 
@@ -176,13 +171,13 @@ pub struct BamsigRecord {
   /// Chromosome
   chrom : String
   /// Start position
-  pos : Int
+  pos : Int32
   /// CIGAR string (simplified)
   cigar : String
   /// Strand (true = sense, false = antisense)
   strand : Bool
   /// Mapping quality
-  mapq : Int
+  mapq : Int32
   /// Is duplicate
   is_dup : Bool
   /// Is paired end
@@ -195,26 +190,35 @@ pub struct BamsigRecord {
 /// Create new record
 pub fn BamsigRecord::new(
   chrom : String,
-  pos : Int,
+  pos : Int32,
   cigar : String,
   strand : Bool,
-  mapq : Int,
+  mapq : Int32,
   is_dup : Bool,
   is_paired : Bool,
   is_first : Bool,
 ) -> BamsigRecord {
-  BamsigRecord::{ chrom, pos, cigar, strand, mapq, is_dup, is_paired, is_first }
+  BamsigRecord::{
+    chrom,
+    pos,
+    cigar,
+    strand,
+    mapq,
+    is_dup,
+    is_paired,
+    is_first,
+  }
 }
 
 ///|
 /// Get alignment length from CIGAR
-pub fn BamsigRecord::bamsig_align_length(self : BamsigRecord) -> Int {
+pub fn BamsigRecord::bamsig_align_length(self : BamsigRecord) -> Int32 {
   parse_cigar_length(self.cigar)
 }
 
 ///|
 /// Get end position
-pub fn BamsigRecord::bamsig_end(self : BamsigRecord) -> Int {
+pub fn BamsigRecord::bamsig_end(self : BamsigRecord) -> Int32 {
   self.pos + self.bamsig_align_length()
 }
 
@@ -257,18 +261,18 @@ pub fn BamsigSignal::new(
   norm_counts : Array[Array[Double]],
   total_reads : Array[Double],
 ) -> BamsigSignal {
-  BamsigSignal::{ region_ids, counts, norm_counts, total_reads }
+  BamsigSignal::{ region_ids, counts, norm_counts, total_reads, }
 }
 
 ///|
 /// Get number of regions
-pub fn BamsigSignal::bamsig_n_regions(self : BamsigSignal) -> Int {
+pub fn BamsigSignal::bamsig_n_regions(self : BamsigSignal) -> Int32 {
   self.region_ids.length()
 }
 
 ///|
 /// Get number of samples
-pub fn BamsigSignal::bamsig_n_samples(self : BamsigSignal) -> Int {
+pub fn BamsigSignal::bamsig_n_samples(self : BamsigSignal) -> Int32 {
   if self.counts.length() > 0 {
     self.counts[0].length()
   } else {
@@ -280,8 +284,8 @@ pub fn BamsigSignal::bamsig_n_samples(self : BamsigSignal) -> Int {
 /// Get count for region and sample
 pub fn BamsigSignal::bamsig_get_count(
   self : BamsigSignal,
-  region_idx : Int,
-  sample_idx : Int,
+  region_idx : Int32,
+  sample_idx : Int32,
 ) -> Double {
   self.counts[region_idx][sample_idx]
 }
@@ -290,8 +294,8 @@ pub fn BamsigSignal::bamsig_get_count(
 /// Get normalized count
 pub fn BamsigSignal::bamsig_get_norm_count(
   self : BamsigSignal,
-  region_idx : Int,
-  sample_idx : Int,
+  region_idx : Int32,
+  sample_idx : Int32,
 ) -> Double {
   self.norm_counts[region_idx][sample_idx]
 }
@@ -300,7 +304,7 @@ pub fn BamsigSignal::bamsig_get_norm_count(
 /// Get region ID
 pub fn BamsigSignal::bamsig_get_region_id(
   self : BamsigSignal,
-  idx : Int,
+  idx : Int32,
 ) -> String {
   self.region_ids[idx]
 }
@@ -309,7 +313,7 @@ pub fn BamsigSignal::bamsig_get_region_id(
 /// Sum counts across samples for a region
 pub fn BamsigSignal::bamsig_row_sum(
   self : BamsigSignal,
-  region_idx : Int,
+  region_idx : Int32,
 ) -> Double {
   let row = self.counts[region_idx]
   let mut sum = 0.0
@@ -325,7 +329,7 @@ pub fn BamsigSignal::bamsig_row_sum(
 /// Sum counts across regions for a sample
 pub fn BamsigSignal::bamsig_col_sum(
   self : BamsigSignal,
-  sample_idx : Int,
+  sample_idx : Int32,
 ) -> Double {
   let mut sum = 0.0
   let mut i = 0
@@ -341,11 +345,11 @@ pub fn BamsigSignal::bamsig_col_sum(
 pub fn BamsigSignal::bamsig_filter(
   self : BamsigSignal,
   min_count : Double,
-  min_samples : Int,
+  min_samples : Int32,
 ) -> BamsigSignal {
-  let new_region_ids : Array[String] = Array::new()
-  let new_counts : Array[Array[Double]] = Array::new()
-  let new_norm_counts : Array[Array[Double]] = Array::new()
+  let new_region_ids : Array[String] = Array(capacity=0)
+  let new_counts : Array[Array[Double]] = Array(capacity=0)
+  let new_norm_counts : Array[Array[Double]] = Array(capacity=0)
 
   let mut i = 0
   while i < self.region_ids.length() {
@@ -416,7 +420,7 @@ pub fn BamsigChromState::new(
 
 ///|
 /// Get number of states
-pub fn BamsigChromState::bamsig_n_states(self : BamsigChromState) -> Int {
+pub fn BamsigChromState::bamsig_n_states(self : BamsigChromState) -> Int32 {
   self.labels.length()
 }
 
@@ -424,7 +428,7 @@ pub fn BamsigChromState::bamsig_n_states(self : BamsigChromState) -> Int {
 /// Get state label
 pub fn BamsigChromState::bamsig_get_label(
   self : BamsigChromState,
-  idx : Int,
+  idx : Int32,
 ) -> String {
   self.labels[idx]
 }
@@ -433,7 +437,7 @@ pub fn BamsigChromState::bamsig_get_label(
 /// Get state frequency
 pub fn BamsigChromState::bamsig_get_frequency(
   self : BamsigChromState,
-  idx : Int,
+  idx : Int32,
 ) -> Double {
   self.frequencies[idx]
 }
@@ -462,7 +466,7 @@ pub fn BamsigChromState::bamsig_repressed(self : BamsigChromState) -> Double {
 
 ///|
 /// Parse CIGAR string to get alignment length
-fn parse_cigar_length(cigar : String) -> Int {
+fn parse_cigar_length(cigar : String) -> Int32 {
   let mut total = 0
   let mut i = 0
   while i < cigar.length() {
@@ -521,7 +525,7 @@ pub fn bamsig_count_signals(
   params : BamsigParams,
 ) -> Array[Array[Double]] {
   let n_regions = regions.length()
-  let counts : Array[Array[Double]] = Array::new()
+  let counts : Array[Array[Double]] = Array(capacity=0)
 
   let mut i = 0
   while i < n_regions {
@@ -581,12 +585,12 @@ pub fn bamsig_normalize_signals(
   total_reads : Array[Double],
   norm_method : BamsigNormMethod,
 ) -> Array[Array[Double]] {
-  let norm_counts : Array[Array[Double]] = Array::new()
+  let norm_counts : Array[Array[Double]] = Array(capacity=0)
 
   let mut i = 0
   while i < counts.length() {
     let row = counts[i]
-    let norm_row : Array[Double] = Array::new()
+    let norm_row : Array[Double] = Array(capacity=0)
 
     let mut j = 0
     while j < row.length() {
@@ -594,22 +598,9 @@ pub fn bamsig_normalize_signals(
       let total = if j < total_reads.length() { total_reads[j] } else { 1.0 }
 
       let norm_val = match norm_method {
-        BamsigNormMethod::None => c
         BamsigNormMethod::RPM =>
           if total > 0.0 {
             c / total * 1000000.0
-          } else {
-            0.0
-          }
-        BamsigNormMethod::CPM =>
-          if total > 0.0 {
-            c / total * 1000000.0
-          } else {
-            0.0
-          }
-        BamsigNormMethod::RPKM =>
-          if total > 0.0 {
-            c / total * 1000000.0 / 1000.0
           } else {
             0.0
           }
@@ -630,9 +621,9 @@ pub fn bamsig_normalize_signals(
 /// Analyze chromatin states
 pub fn bamsig_analyze_chromatin_states(
   signal : BamsigSignal,
-  promoter_regions : Array[Int],
-  enhancer_regions : Array[Int],
-  repressed_regions : Array[Int],
+  promoter_regions : Array[Int32],
+  enhancer_regions : Array[Int32],
+  repressed_regions : Array[Int32],
 ) -> BamsigChromState {
   let n_regions = signal.bamsig_n_regions()
   let n_states = 4
@@ -707,13 +698,13 @@ pub fn bamsig_create_example_signal() -> BamsigSignal {
   let n_regions = regions.length()
   let _n_samples = 2
 
-  let region_ids : Array[String] = Array::new()
-  let counts : Array[Array[Double]] = Array::new()
+  let region_ids : Array[String] = Array(capacity=0)
+  let counts : Array[Array[Double]] = Array(capacity=0)
 
   let mut i = 0
   while i < n_regions {
     region_ids.push(regions[i].id)
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     row.push((i + 1).to_double() * 50.0)
     row.push((i + 1).to_double() * 45.0)
     counts.push(row)

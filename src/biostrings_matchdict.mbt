@@ -6,7 +6,7 @@
 /// sequence with support for mismatches and indels.
 pub struct PDict {
   patterns : Array[String]
-  max_mismatches : Int
+  max_mismatches : Int32
   with_indels : Bool
 }
 
@@ -16,12 +16,12 @@ pub struct PDict {
 /// Records a successful alignment of a pattern from the PDict
 /// against a region of the subject sequence.
 pub struct MatchPDictHit {
-  pattern_idx : Int
+  pattern_idx : Int32
   pattern : String
-  start : Int
-  end : Int
-  width : Int
-  mismatches : Int
+  start : Int32
+  end : Int32
+  width : Int32
+  mismatches : Int32
 }
 
 ///|
@@ -32,7 +32,7 @@ pub struct MatchPDictHit {
 pub struct MatchPDictResult {
   hits : Array[MatchPDictHit]
   pdict : PDict
-  subject_length : Int
+  subject_length : Int32
 }
 
 ///|
@@ -42,8 +42,8 @@ pub struct MatchPDictResult {
 /// found by vectorized pattern matching.
 pub struct CountPatternResult {
   pattern : String
-  counts : Array[Int]
-  total : Int
+  counts : Array[Int32]
+  total : Int32
 }
 
 ///|
@@ -57,10 +57,10 @@ pub struct CountPatternResult {
 /// @return A PDict structure ready for dictionary-based matching.
 pub fn bmd_create_pdict(
   patterns~ : Array[String],
-  max_mismatches? : Int = 0,
-  with_indels? : Bool = false,
+  max_mismatches~ : Int32 = 0,
+  with_indels~ : Bool = false,
 ) -> PDict {
-  PDict::{ patterns, max_mismatches, with_indels }
+  PDict::{ patterns, max_mismatches, with_indels, }
 }
 
 ///|
@@ -73,10 +73,10 @@ pub fn bmd_create_pdict(
 /// @param subject The subject sequence string to search against.
 /// @return A MatchPDictResult containing all detected hits.
 pub fn bmd_match_pdict(pdict~ : PDict, subject~ : String) -> MatchPDictResult {
-  let hits : Array[MatchPDictHit] = Array::new()
+  let hits : Array[MatchPDictHit] = Array(capacity=0)
 
   if subject.length() == 0 || pdict.patterns.length() == 0 {
-    return MatchPDictResult::{ hits, pdict, subject_length: subject.length() }
+    return MatchPDictResult::{ hits, pdict, subject_length: subject.length(), }
   }
 
   let mut p_idx = 0
@@ -121,7 +121,7 @@ pub fn bmd_match_pdict(pdict~ : PDict, subject~ : String) -> MatchPDictResult {
     p_idx = p_idx + 1
   }
 
-  MatchPDictResult::{ hits, pdict, subject_length: subject.length() }
+  MatchPDictResult::{ hits, pdict, subject_length: subject.length(), }
 }
 
 ///|
@@ -137,9 +137,9 @@ pub fn bmd_match_pdict(pdict~ : PDict, subject~ : String) -> MatchPDictResult {
 pub fn bmd_vcount_pattern(
   pattern~ : String,
   subjects~ : Array[String],
-  max_mismatches? : Int = 0,
+  max_mismatches~ : Int32 = 0,
 ) -> CountPatternResult {
-  let counts : Array[Int] = Array::new()
+  let counts : Array[Int32] = Array(capacity=0)
   let plen = pattern.length()
   let mut total = 0
 
@@ -149,7 +149,7 @@ pub fn bmd_vcount_pattern(
       counts.push(0)
       i = i + 1
     }
-    return CountPatternResult::{ pattern, counts, total: 0 }
+    return CountPatternResult::{ pattern, counts, total: 0, }
   }
 
   let mut i = 0
@@ -187,7 +187,7 @@ pub fn bmd_vcount_pattern(
     i = i + 1
   }
 
-  CountPatternResult::{ pattern, counts, total }
+  CountPatternResult::{ pattern, counts, total, }
 }
 
 ///|
@@ -203,9 +203,9 @@ pub fn bmd_vcount_pattern(
 pub fn bmd_vmatch_pattern(
   patterns~ : Array[String],
   subjects~ : Array[String],
-  max_mismatches? : Int = 0,
+  max_mismatches~ : Int32 = 0,
 ) -> Array[CountPatternResult] {
-  let results : Array[CountPatternResult] = Array::new()
+  let results : Array[CountPatternResult] = Array(capacity=0)
 
   let mut i = 0
   while i < patterns.length() {
@@ -228,7 +228,7 @@ pub fn bmd_vmatch_pattern(
 /// @param subjects Array of subject sequences to test.
 /// @return An array of Bool where true indicates the subject has at least one match.
 pub fn bmd_which(pdict~ : PDict, subjects~ : Array[String]) -> Array[Bool] {
-  let result : Array[Bool] = Array::new()
+  let result : Array[Bool] = Array(capacity=0)
 
   let mut i = 0
   while i < subjects.length() {
@@ -282,9 +282,12 @@ pub fn bmd_which(pdict~ : PDict, subjects~ : Array[String]) -> Array[Bool] {
 /// @param pdict The pattern dictionary to search with.
 /// @param subjects Array of subject sequences to test.
 /// @return An array of Int indices indicating matching subjects.
-pub fn bmd_which_index(pdict~ : PDict, subjects~ : Array[String]) -> Array[Int] {
+pub fn bmd_which_index(
+  pdict~ : PDict,
+  subjects~ : Array[String],
+) -> Array[Int32] {
   let which_result = bmd_which(pdict~, subjects~)
-  let indices : Array[Int] = Array::new()
+  let indices : Array[Int32] = Array(capacity=0)
 
   let mut i = 0
   while i < which_result.length() {
@@ -306,7 +309,7 @@ pub fn bmd_which_index(pdict~ : PDict, subjects~ : Array[String]) -> Array[Int] 
 /// @param pdict The pattern dictionary containing patterns to search.
 /// @param subject The subject sequence string to search.
 /// @return Total number of pattern occurrences found.
-pub fn bmd_count_occurrences(pdict~ : PDict, subject~ : String) -> Int {
+pub fn bmd_count_occurrences(pdict~ : PDict, subject~ : String) -> Int32 {
   let result = bmd_match_pdict(pdict~, subject~)
   result.hits.length()
 }

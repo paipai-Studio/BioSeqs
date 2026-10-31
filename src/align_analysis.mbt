@@ -10,8 +10,8 @@ pub struct AlnAnalysisResult {
   ds : Double
   dn_ds_ratio : Double
   dn_ds_ratio_sem : Double
-  n_synonymous : Int
-  n_nonsynonymous : Int
+  n_synonymous : Int32
+  n_nonsynonymous : Int32
 }
 
 ///|
@@ -21,8 +21,8 @@ pub fn AlnAnalysisResult::new(
   ds : Double,
   dn_ds_ratio : Double,
   dn_ds_ratio_sem : Double,
-  n_synonymous : Int,
-  n_nonsynonymous : Int,
+  n_synonymous : Int32,
+  n_nonsynonymous : Int32,
 ) -> AlnAnalysisResult {
   AlnAnalysisResult::{
     dn,
@@ -60,13 +60,13 @@ pub fn AlnAnalysisResult::aln_get_ratio_sem(self : AlnAnalysisResult) -> Double 
 
 ///|
 /// Get number of synonymous substitutions.
-pub fn AlnAnalysisResult::aln_get_n_syn(self : AlnAnalysisResult) -> Int {
+pub fn AlnAnalysisResult::aln_get_n_syn(self : AlnAnalysisResult) -> Int32 {
   self.n_synonymous
 }
 
 ///|
 /// Get number of non-synonymous substitutions.
-pub fn AlnAnalysisResult::aln_get_n_nonsyn(self : AlnAnalysisResult) -> Int {
+pub fn AlnAnalysisResult::aln_get_n_nonsyn(self : AlnAnalysisResult) -> Int32 {
   self.n_nonsynonymous
 }
 
@@ -146,7 +146,11 @@ pub fn aln_aa_from_codon(codon : String) -> String {
 ///|
 /// Classify a nucleotide substitution as synonymous or non-synonymous.
 /// Returns true if the substitution is synonymous (doesn't change amino acid).
-pub fn aln_is_synonymous(codon : String, pos : Int, new_base : String) -> Bool {
+pub fn aln_is_synonymous(
+  codon : String,
+  pos : Int32,
+  new_base : String,
+) -> Bool {
   let first_part = if pos > 0 { substring(codon, 0, pos) } else { "" }
   let second_part = if pos < 2 {
     substring(codon, pos + 1, 3 - pos - 1)
@@ -161,7 +165,7 @@ pub fn aln_is_synonymous(codon : String, pos : Int, new_base : String) -> Bool {
 
 ///|
 /// Calculate the number of synonymous and non-synonymous sites.
-pub fn aln_count_sites(sequence : String) -> Array[Int] {
+pub fn aln_count_sites(sequence : String) -> Array[Int32] {
   let seq_len = sequence.length()
   let n_codons = seq_len / 3
 
@@ -287,11 +291,11 @@ pub fn aln_calculate_dn_ds_matrix(
   sequences : Array[String],
 ) -> Array[Array[AlnAnalysisResult]] {
   let n = sequences.length()
-  let matrix : Array[Array[AlnAnalysisResult]] = Array::new()
+  let matrix : Array[Array[AlnAnalysisResult]] = Array(capacity=0)
 
   let mut i = 0
   while i < n {
-    let row : Array[AlnAnalysisResult] = Array::new()
+    let row : Array[AlnAnalysisResult] = Array(capacity=0)
     let mut j = 0
     while j < n {
       if i == j {
@@ -415,7 +419,7 @@ pub fn aln_jukes_cantor_matrix(
   sequences : Array[String],
 ) -> Array[Array[Double]] {
   let n = sequences.length()
-  let matrix : Array[Array[Double]] = Array::new()
+  let matrix : Array[Array[Double]] = Array(capacity=0)
 
   let mut i = 0
   while i < n {
@@ -448,7 +452,7 @@ pub fn aln_jukes_cantor_matrix(
 /// Calculate distance matrix using Kimura 2-parameter method.
 pub fn aln_kimura_2p_matrix(sequences : Array[String]) -> Array[Array[Double]] {
   let n = sequences.length()
-  let matrix : Array[Array[Double]] = Array::new()
+  let matrix : Array[Array[Double]] = Array(capacity=0)
 
   let mut i = 0
   while i < n {

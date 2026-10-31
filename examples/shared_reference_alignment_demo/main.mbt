@@ -48,7 +48,7 @@ fn main {
     _ => abort("failed to merge shared-reference alignments")
   }
   println("  " + alignment.summary())
-  println("  insertion widths: " + alignment.insertion_widths.to_string())
+  println("  insertion widths: " + repr(alignment.insertion_widths))
   for index in 0..<alignment.num_sequences() {
     let name = alignment.row_name(index).unwrap()
     let row = alignment.row(index).unwrap()
@@ -58,15 +58,15 @@ fn main {
   println("\n4. Map query and reference coordinates")
   println(
     "  inserted_read query position 3 -> reference: " +
-    alignment.query_to_reference(1, 3).to_string(),
+    repr(alignment.query_to_reference(1, 3)),
   )
   println(
     "  inserted_read query position 4 -> reference: " +
-    alignment.query_to_reference(1, 4).to_string(),
+    repr(alignment.query_to_reference(1, 4)),
   )
   println(
     "  reference position 3 -> inserted_read query: " +
-    alignment.reference_to_query(1, 3).to_string(),
+    repr(alignment.reference_to_query(1, 3)),
   )
 
   println("\n5. Inspect alignment statistics")

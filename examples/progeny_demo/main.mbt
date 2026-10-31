@@ -7,16 +7,18 @@
 /// Run: moon run examples/progeny_demo/main.mbt
 fn main {
   // === Create synthetic gene expression data ===
-  let gene_names = ["TP53", "BRCA1", "BRCA2", "MDM2", "CDKN1A", "E2F1", "RB1", "MYC", "CCND1", "BCL2"]
+  let gene_names = [
+    "TP53", "BRCA1", "BRCA2", "MDM2", "CDKN1A", "E2F1", "RB1", "MYC", "CCND1", "BCL2",
+  ]
   let sample_names = ["Sample_A", "Sample_B", "Sample_C", "Sample_D"]
 
   // Expression matrix (samples × genes)
   let expression : Array[Array[Double]] = [
     // TP53  BRCA1  BRCA2  MDM2  CDKN1A  E2F1  RB1  MYC  CCND1  BCL2
-    [10.0, 8.0, 7.0, 2.0, 5.0, 6.0, 4.0, 9.0, 3.0, 1.0],   // Sample_A
-    [5.0, 3.0, 4.0, 9.0, 2.0, 8.0, 7.0, 2.0, 6.0, 10.0],  // Sample_B
-    [8.0, 6.0, 5.0, 3.0, 7.0, 4.0, 3.0, 10.0, 2.0, 2.0],  // Sample_C
-    [3.0, 2.0, 1.0, 7.0, 4.0, 9.0, 6.0, 1.0, 5.0, 8.0],   // Sample_D
+    [10.0, 8.0, 7.0, 2.0, 5.0, 6.0, 4.0, 9.0, 3.0, 1.0], // Sample_A
+    [5.0, 3.0, 4.0, 9.0, 2.0, 8.0, 7.0, 2.0, 6.0, 10.0], // Sample_B
+    [8.0, 6.0, 5.0, 3.0, 7.0, 4.0, 3.0, 10.0, 2.0, 2.0], // Sample_C
+    [3.0, 2.0, 1.0, 7.0, 4.0, 9.0, 6.0, 1.0, 5.0, 8.0], // Sample_D
   ]
 
   // === Define pathway gene sets with weights ===
@@ -26,17 +28,25 @@ fn main {
 
   let cell_cycle_genes = ["E2F1", "RB1", "CCND1", "MYC"]
   let cell_cycle_weights = [1.0, -1.0, 1.0, 0.5]
-  let cell_cycle_pathway = @bio.PathwayGeneSet::new("Cell_Cycle", cell_cycle_genes, cell_cycle_weights)
+  let cell_cycle_pathway = @bio.PathwayGeneSet::new(
+    "Cell_Cycle", cell_cycle_genes, cell_cycle_weights,
+  )
 
   let repair_genes = ["BRCA1", "BRCA2", "TP53"]
   let repair_weights = [1.0, 1.0, 0.5]
-  let repair_pathway = @bio.PathwayGeneSet::new("DNA_Repair", repair_genes, repair_weights)
+  let repair_pathway = @bio.PathwayGeneSet::new(
+    "DNA_Repair", repair_genes, repair_weights,
+  )
 
   let apoptosis_genes = ["BCL2", "TP53", "MYC"]
   let apoptosis_weights = [-1.0, 0.5, 0.5]
-  let apoptosis_pathway = @bio.PathwayGeneSet::new("Apoptosis", apoptosis_genes, apoptosis_weights)
+  let apoptosis_pathway = @bio.PathwayGeneSet::new(
+    "Apoptosis", apoptosis_genes, apoptosis_weights,
+  )
 
-  let pathways = [p53_pathway, cell_cycle_pathway, repair_pathway, apoptosis_pathway]
+  let pathways = [
+    p53_pathway, cell_cycle_pathway, repair_pathway, apoptosis_pathway,
+  ]
 
   // === Create PROGENy data and run analysis ===
   println("=== PROGENy Pathway Activity Inference ===")
@@ -45,7 +55,9 @@ fn main {
   println("  Pathways: \{pathways.length()}")
 
   let lambda = 0.1
-  let data = @bio.ProgenyData::new(expression, sample_names, gene_names, pathways, lambda)
+  let data = @bio.ProgenyData::new(
+    expression, sample_names, gene_names, pathways, lambda,
+  )
   let result = @bio.run_progeny(data)
 
   // === Display results ===
@@ -91,10 +103,14 @@ fn main {
   println("\n=== Effect of Regularization (lambda) ===")
   let lambdas = [0.01, 0.1, 1.0, 10.0]
   for lam in lambdas {
-    let d = @bio.ProgenyData::new(expression, sample_names, gene_names, pathways, lam)
+    let d = @bio.ProgenyData::new(
+      expression, sample_names, gene_names, pathways, lam,
+    )
     let r = @bio.run_progeny(d)
     let first_activity = r.activity_matrix[0][0]
-    println("  lambda=\{lam.to_string()}: Sample_A/p53 = \{first_activity.to_string()}")
+    println(
+      "  lambda=\{lam.to_string()}: Sample_A/p53 = \{first_activity.to_string()}",
+    )
   }
 
   println("\nDone!")

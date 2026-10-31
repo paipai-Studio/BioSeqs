@@ -6,7 +6,7 @@ fn parse_document(text : String) -> @src.AlignTabularDocument {
 }
 
 ///|
-fn show_path(values : Array[Int]) -> String {
+fn show_path(values : Array[Int32]) -> String {
   let mut result = "["
   for index in 0..<values.length() {
     if index > 0 {

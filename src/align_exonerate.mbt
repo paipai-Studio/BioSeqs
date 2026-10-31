@@ -19,12 +19,24 @@ pub(all) enum AlignExonerateStrand {
 } derive(Eq, Debug)
 
 ///|
+pub extend AlignExonerateStrand with Eq::{equal, not_equal}
+
+///|
+pub extend AlignExonerateStrand with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
 /// File-level Exonerate metadata.
 pub struct AlignExonerateMetadata {
   program : String
   command_line : String
   hostname : String
 } derive(Eq, Debug)
+
+///|
+pub extend AlignExonerateMetadata with Eq::{equal, not_equal}
+
+///|
+pub extend AlignExonerateMetadata with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// One normalized Exonerate path operation.
@@ -35,24 +47,36 @@ pub struct AlignExonerateMetadata {
 /// frame shift. Steps are non-negative molecular coordinates.
 pub struct AlignExonerateOperation {
   code : String
-  query_step : Int
-  target_step : Int
+  query_step : Int32
+  target_step : Int32
 } derive(Eq, Debug)
+
+///|
+pub extend AlignExonerateOperation with Eq::{equal, not_equal}
+
+///|
+pub extend AlignExonerateOperation with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// One pairwise alignment from an Exonerate report.
 pub struct AlignExonerateAlignment {
   query_id : String
-  query_start : Int
-  query_end : Int
+  query_start : Int32
+  query_end : Int32
   query_strand : AlignExonerateStrand
   target_id : String
-  target_start : Int
-  target_end : Int
+  target_start : Int32
+  target_end : Int32
   target_strand : AlignExonerateStrand
   score : Double
   operations : Array[AlignExonerateOperation]
 } derive(Eq, Debug)
+
+///|
+pub extend AlignExonerateAlignment with Eq::{equal, not_equal}
+
+///|
+pub extend AlignExonerateAlignment with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// A complete Exonerate report.
@@ -62,55 +86,67 @@ pub struct AlignExonerateDocument {
 } derive(Eq, Debug)
 
 ///|
+pub extend AlignExonerateDocument with Eq::{equal, not_equal}
+
+///|
+pub extend AlignExonerateDocument with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
 /// Operation and coordinate statistics for one Exonerate alignment.
 pub struct AlignExonerateCounts {
-  operations : Int
-  matching_operations : Int
-  aligned_query_units : Int
-  aligned_target_units : Int
-  insertions : Int
-  deletions : Int
-  insertion_opens : Int
-  deletion_opens : Int
-  introns : Int
-  intron_units : Int
-  non_equivalenced_units : Int
-  split_codons : Int
-  frameshifts : Int
+  operations : Int32
+  matching_operations : Int32
+  aligned_query_units : Int32
+  aligned_target_units : Int32
+  insertions : Int32
+  deletions : Int32
+  insertion_opens : Int32
+  deletion_opens : Int32
+  introns : Int32
+  intron_units : Int32
+  non_equivalenced_units : Int32
+  split_codons : Int32
+  frameshifts : Int32
 } derive(Eq, Debug)
+
+///|
+pub extend AlignExonerateCounts with Eq::{equal, not_equal}
+
+///|
+pub extend AlignExonerateCounts with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Construct Exonerate file metadata.
 pub fn AlignExonerateMetadata::create(
-  command_line? : String = "",
-  hostname? : String = "",
+  command_line~ : String = "",
+  hostname~ : String = "",
 ) -> AlignExonerateMetadata raise AlignExonerateError {
   align_exonerate_validate_header_value(command_line, "Command line")
   align_exonerate_validate_header_value(hostname, "Hostname")
-  AlignExonerateMetadata::{ program: "exonerate", command_line, hostname }
+  AlignExonerateMetadata::{ program: "exonerate", command_line, hostname, }
 }
 
 ///|
 /// Construct and validate one normalized Exonerate operation.
 pub fn AlignExonerateOperation::create(
   code : String,
-  query_step : Int,
-  target_step : Int,
+  query_step : Int32,
+  target_step : Int32,
 ) -> AlignExonerateOperation raise AlignExonerateError {
   align_exonerate_validate_operation(code, query_step, target_step)
-  AlignExonerateOperation::{ code, query_step, target_step }
+  AlignExonerateOperation::{ code, query_step, target_step, }
 }
 
 ///|
 /// Construct one alignment and validate operation totals against its bounds.
 pub fn AlignExonerateAlignment::create(
   query_id : String,
-  query_start : Int,
-  query_end : Int,
+  query_start : Int32,
+  query_end : Int32,
   query_strand : AlignExonerateStrand,
   target_id : String,
-  target_start : Int,
-  target_end : Int,
+  target_start : Int32,
+  target_end : Int32,
   target_strand : AlignExonerateStrand,
   score : Double,
   operations : Array[AlignExonerateOperation],
@@ -189,20 +225,20 @@ pub fn AlignExonerateDocument::create(
     )
     copied.push(validated)
   }
-  AlignExonerateDocument::{ metadata, alignments: copied }
+  AlignExonerateDocument::{ metadata, alignments: copied, }
 }
 
 ///|
 pub fn AlignExonerateDocument::num_alignments(
   self : AlignExonerateDocument,
-) -> Int {
+) -> Int32 {
   self.alignments.length()
 }
 
 ///|
 pub fn AlignExonerateDocument::get(
   self : AlignExonerateDocument,
-  index : Int,
+  index : Int32,
 ) -> AlignExonerateAlignment? {
   if index < 0 || index >= self.alignments.length() {
     None
@@ -253,7 +289,7 @@ pub fn AlignExonerateDocument::summary(self : AlignExonerateDocument) -> String 
 ///|
 pub fn AlignExonerateAlignment::query_length(
   self : AlignExonerateAlignment,
-) -> Int {
+) -> Int32 {
   if self.query_strand == AlignExonerateReverse {
     self.query_start
   } else {
@@ -264,7 +300,7 @@ pub fn AlignExonerateAlignment::query_length(
 ///|
 pub fn AlignExonerateAlignment::target_length(
   self : AlignExonerateAlignment,
-) -> Int {
+) -> Int32 {
   if self.target_strand == AlignExonerateReverse {
     self.target_start
   } else {
@@ -275,7 +311,7 @@ pub fn AlignExonerateAlignment::target_length(
 ///|
 pub fn AlignExonerateAlignment::num_operations(
   self : AlignExonerateAlignment,
-) -> Int {
+) -> Int32 {
   self.operations.length()
 }
 
@@ -283,7 +319,7 @@ pub fn AlignExonerateAlignment::num_operations(
 pub fn AlignExonerateAlignment::operation_codes(
   self : AlignExonerateAlignment,
 ) -> String {
-  let output = StringBuilder::new(size_hint=self.operations.length())
+  let output = StringBuilder(size_hint=self.operations.length())
   for operation in self.operations {
     output.write_string(operation.code)
   }
@@ -294,7 +330,7 @@ pub fn AlignExonerateAlignment::operation_codes(
 /// Return `[target_coordinates, query_coordinates]` boundary paths.
 pub fn AlignExonerateAlignment::coordinate_path(
   self : AlignExonerateAlignment,
-) -> Array[Array[Int]] {
+) -> Array[Array[Int32]] {
   let target = [self.target_start]
   let query = [self.query_start]
   let target_sign = align_exonerate_strand_sign(self.target_strand)
@@ -318,8 +354,8 @@ pub fn AlignExonerateAlignment::coordinate_path(
 /// containing protein residue.
 pub fn AlignExonerateAlignment::query_position_to_target(
   self : AlignExonerateAlignment,
-  position : Int,
-) -> Int? {
+  position : Int32,
+) -> Int32? {
   align_exonerate_map_position(self, position, true)
 }
 
@@ -327,8 +363,8 @@ pub fn AlignExonerateAlignment::query_position_to_target(
 /// Map an absolute target residue to the corresponding query residue.
 pub fn AlignExonerateAlignment::target_position_to_query(
   self : AlignExonerateAlignment,
-  position : Int,
-) -> Int? {
+  position : Int32,
+) -> Int32? {
   align_exonerate_map_position(self, position, false)
 }
 
@@ -336,8 +372,8 @@ pub fn AlignExonerateAlignment::target_position_to_query(
 /// Return target/query residue pairs for all query units in aligned segments.
 pub fn AlignExonerateAlignment::aligned_pairs(
   self : AlignExonerateAlignment,
-) -> Array[(Int, Int)] {
-  let pairs : Array[(Int, Int)] = []
+) -> Array[(Int32, Int32)] {
+  let pairs : Array[(Int32, Int32)] = []
   let query_sign = align_exonerate_strand_sign(self.query_strand)
   let target_sign = align_exonerate_strand_sign(self.target_strand)
   let mut query_boundary = self.query_start
@@ -521,7 +557,7 @@ pub fn align_exonerate_parse(
 /// Serialize a complete report as canonical `vulgar` or `cigar` output.
 pub fn align_exonerate_write(
   document : AlignExonerateDocument,
-  format? : String = "vulgar",
+  format~ : String = "vulgar",
 ) -> String raise AlignExonerateError {
   if format != "vulgar" && format != "cigar" {
     raise AlignExonerateError("Exonerate output format must be vulgar or cigar")
@@ -530,7 +566,7 @@ pub fn align_exonerate_write(
     document.metadata,
     document.alignments,
   )
-  let output = StringBuilder::new()
+  let output = StringBuilder()
   output.write_string(
     "Command line: [" + validated.metadata.command_line + "]\n",
   )
@@ -549,7 +585,7 @@ pub fn align_exonerate_write(
 ///|
 fn align_exonerate_parse_vulgar_line(
   content : String,
-  line_number : Int,
+  line_number : Int32,
 ) -> AlignExonerateAlignment raise AlignExonerateError {
   let words = align_exonerate_split_whitespace(content)
   if words.length() < 12 || (words.length() - 9) % 3 != 0 {
@@ -645,7 +681,7 @@ fn align_exonerate_parse_vulgar_line(
 ///|
 fn align_exonerate_parse_cigar_line(
   content : String,
-  line_number : Int,
+  line_number : Int32,
 ) -> AlignExonerateAlignment raise AlignExonerateError {
   let words = align_exonerate_split_whitespace(content)
   if words.length() < 11 || (words.length() - 9) % 2 != 0 {
@@ -759,9 +795,7 @@ fn align_exonerate_format_header(
 }
 
 ///|
-fn align_exonerate_format_vulgar(
-  alignment : AlignExonerateAlignment,
-) -> String raise AlignExonerateError {
+fn align_exonerate_format_vulgar(alignment : AlignExonerateAlignment) -> String {
   let words = ["vulgar:"]
   for word in align_exonerate_format_header(alignment) {
     words.push(word)
@@ -803,8 +837,8 @@ fn align_exonerate_format_vulgar(
 fn align_exonerate_append_vulgar(
   words : Array[String],
   code : String,
-  query_step : Int,
-  target_step : Int,
+  query_step : Int32,
+  target_step : Int32,
 ) -> Unit {
   words.push(code)
   words.push(query_step.to_string())
@@ -889,7 +923,7 @@ fn align_exonerate_append_cigar_movement(
 fn align_exonerate_append_cigar(
   words : Array[String],
   code : String,
-  step : Int,
+  step : Int32,
 ) -> Unit raise AlignExonerateError {
   if step <= 0 {
     raise AlignExonerateError("Exonerate cigar step must be positive")
@@ -901,9 +935,9 @@ fn align_exonerate_append_cigar(
 ///|
 fn align_exonerate_map_position(
   alignment : AlignExonerateAlignment,
-  position : Int,
+  position : Int32,
   from_query : Bool,
-) -> Int? {
+) -> Int32? {
   let query_sign = align_exonerate_strand_sign(alignment.query_strand)
   let target_sign = align_exonerate_strand_sign(alignment.target_strand)
   let mut query_boundary = alignment.query_start
@@ -955,8 +989,8 @@ fn align_exonerate_map_position(
 ///|
 fn align_exonerate_validate_operation(
   code : String,
-  query_step : Int,
-  target_step : Int,
+  query_step : Int32,
+  target_step : Int32,
 ) -> Unit raise AlignExonerateError {
   if query_step < 0 || target_step < 0 {
     raise AlignExonerateError("Exonerate operation steps must be non-negative")
@@ -1022,8 +1056,8 @@ fn align_exonerate_validate_operation(
 
 ///|
 fn align_exonerate_validate_axis(
-  start : Int,
-  end : Int,
+  start : Int32,
+  end : Int32,
   strand : AlignExonerateStrand,
   field : String,
 ) -> Unit raise AlignExonerateError {
@@ -1085,7 +1119,7 @@ fn align_exonerate_parse_header_line(
   line : String,
   prefix : String,
   field : String,
-  line_number : Int,
+  line_number : Int32,
 ) -> String raise AlignExonerateError {
   if !line.has_prefix(prefix) {
     raise AlignExonerateError(
@@ -1110,7 +1144,7 @@ fn align_exonerate_parse_header_line(
 fn align_exonerate_parse_strand(
   text : String,
   field : String,
-  line_number : Int,
+  line_number : Int32,
 ) -> AlignExonerateStrand raise AlignExonerateError {
   if text == "+" {
     AlignExonerateForward
@@ -1140,7 +1174,7 @@ fn align_exonerate_strand_symbol(strand : AlignExonerateStrand) -> String {
 }
 
 ///|
-fn align_exonerate_strand_sign(strand : AlignExonerateStrand) -> Int {
+fn align_exonerate_strand_sign(strand : AlignExonerateStrand) -> Int32 {
   if strand == AlignExonerateReverse {
     -1
   } else {
@@ -1152,8 +1186,8 @@ fn align_exonerate_strand_sign(strand : AlignExonerateStrand) -> Int {
 fn align_exonerate_parse_positive_int(
   text : String,
   field : String,
-  line_number : Int,
-) -> Int raise AlignExonerateError {
+  line_number : Int32,
+) -> Int32 raise AlignExonerateError {
   let value = align_exonerate_parse_int(text, field, line_number)
   if value <= 0 {
     raise AlignExonerateError(
@@ -1170,8 +1204,8 @@ fn align_exonerate_parse_positive_int(
 fn align_exonerate_parse_int(
   text : String,
   field : String,
-  line_number : Int,
-) -> Int raise AlignExonerateError {
+  line_number : Int32,
+) -> Int32 raise AlignExonerateError {
   if text.length() == 0 {
     raise AlignExonerateError(
       "Empty Exonerate " + field + " at line " + line_number.to_string(),
@@ -1202,7 +1236,7 @@ fn align_exonerate_parse_int(
 ///|
 fn align_exonerate_parse_score(
   text : String,
-  line_number : Int,
+  line_number : Int32,
 ) -> Double raise AlignExonerateError {
   let mut has_digit = false
   for index = 0; index < text.length(); index = index + 1 {
@@ -1242,10 +1276,10 @@ fn align_exonerate_parse_score(
 
 ///|
 fn align_exonerate_normalize_cigar_offset(
-  raw : Int,
+  raw : Int32,
   strand : AlignExonerateStrand,
   other : AlignExonerateStrand,
-) -> Int {
+) -> Int32 {
   if strand == AlignExonerateProtein && other != AlignExonerateProtein {
     (raw + 2) / 3
   } else {
@@ -1292,7 +1326,7 @@ fn align_exonerate_split_whitespace(text : String) -> Array[String] {
 }
 
 ///|
-fn align_exonerate_is_whitespace(code : Int) -> Bool {
+fn align_exonerate_is_whitespace(code : Int32) -> Bool {
   code == ' '.to_int() ||
   code == '\t'.to_int() ||
   code == '\n'.to_int() ||
@@ -1300,7 +1334,7 @@ fn align_exonerate_is_whitespace(code : Int) -> Bool {
 }
 
 ///|
-fn align_exonerate_abs(value : Int) -> Int {
+fn align_exonerate_abs(value : Int32) -> Int32 {
   if value < 0 {
     -value
   } else {

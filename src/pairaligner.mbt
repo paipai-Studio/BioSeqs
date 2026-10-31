@@ -26,6 +26,12 @@ pub enum AlignmentMode {
 } derive(Eq, Debug)
 
 ///|
+pub extend AlignmentMode with Eq::{equal, not_equal}
+
+///|
+pub extend AlignmentMode with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
 /// Create a Global alignment mode.
 pub fn pairaligner_global() -> AlignmentMode {
   AlignmentMode::Global
@@ -43,6 +49,14 @@ pub enum SubstitutionMatrixChoice {
   NoSubstMatrix
   Blosum62
 } derive(Eq, Debug)
+
+///|
+pub extend SubstitutionMatrixChoice with Eq::{equal, not_equal}
+
+///|
+pub extend SubstitutionMatrixChoice with @moonbitlang/core/debug.Debug::{
+  to_repr,
+}
 
 ///|
 /// Create NoSubstMatrix choice (use match/mismatch scores).
@@ -316,10 +330,10 @@ pub struct PairwiseAlignment {
   aligned_target : String
   aligned_query : String
   match_line : String
-  target_start : Int
-  target_end : Int
-  query_start : Int
-  query_end : Int
+  target_start : Int32
+  target_end : Int32
+  query_start : Int32
+  query_end : Int32
 }
 
 ///|
@@ -342,13 +356,13 @@ pub fn PairwiseAlignment::score(self : PairwiseAlignment) -> Double {
 
 ///|
 /// Get alignment length.
-pub fn PairwiseAlignment::alignment_length(self : PairwiseAlignment) -> Int {
+pub fn PairwiseAlignment::alignment_length(self : PairwiseAlignment) -> Int32 {
   self.aligned_target.length()
 }
 
 ///|
 /// Count the number of identical positions in the alignment.
-pub fn PairwiseAlignment::identities(self : PairwiseAlignment) -> Int {
+pub fn PairwiseAlignment::identities(self : PairwiseAlignment) -> Int32 {
   let mut count = 0
   let ml = self.match_line
   let mut i = 0
@@ -373,7 +387,7 @@ pub fn PairwiseAlignment::identity_pct(self : PairwiseAlignment) -> Double {
 
 ///|
 /// Count the total number of gap positions in both sequences.
-pub fn PairwiseAlignment::gaps_count(self : PairwiseAlignment) -> Int {
+pub fn PairwiseAlignment::gaps_count(self : PairwiseAlignment) -> Int32 {
   let mut count = 0
   let at = self.aligned_target
   let aq = self.aligned_query
@@ -414,7 +428,7 @@ fn pairaligner_chars_equal_ci(a : Char, b : Char) -> Bool {
 ///|
 /// BLOSUM62 data for 20 standard amino acids in order:
 /// A R N D C Q E G H I L K M F P S T W Y V
-let pairaligner_blosum62_data : Array[Array[Int]] = [
+let pairaligner_blosum62_data : Array[Array[Int32]] = [
   [4, -1, -2, -2, 0, -1, -1, 0, -2, -1, -1, -1, -1, -2, -1, 1, 0, -3, -2, 0], // A
   [-1, 5, 0, -2, -3, 1, 0, -2, 0, -3, -2, 2, -1, -3, -2, -1, -1, -3, -2, -3], // R
   [-2, 0, 6, 1, -3, 0, 0, 0, 1, -3, -3, 0, -2, -3, -2, 1, 0, -4, -2, -3], // N
@@ -458,7 +472,7 @@ fn pairaligner_blosum62_score(
 
 ///|
 /// Convert amino acid char to index 0-19, -1 if unknown (case-insensitive).
-fn pairaligner_aa_index_ci(c : Char) -> Int {
+fn pairaligner_aa_index_ci(c : Char) -> Int32 {
   let up = c.to_string().to_upper()
   if up.length() == 0 {
     return -1
@@ -518,7 +532,7 @@ fn pairaligner_get_subst_score(
 ///|
 /// Build the match line: '|' match, '.' mismatch, ' ' gap.
 fn pairaligner_build_match_line(s1 : String, s2 : String) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   let mut i = 0
   while i < s1.length() {
     let c1 = s1.unsafe_get(i).unsafe_to_char()
@@ -539,7 +553,7 @@ fn pairaligner_build_match_line(s1 : String, s2 : String) -> String {
 /// Reverse a string (local to pairaligner to avoid name clashes).
 fn pairaligner_reverse_string(s : String) -> String {
   let n = s.length()
-  let result = StringBuilder::new()
+  let result = StringBuilder()
   let mut i = n - 1
   while i >= 0 {
     result.write_char(s.unsafe_get(i).unsafe_to_char())
@@ -578,7 +592,7 @@ priv enum TraceDir {
 pub fn pairaligner_align(
   target : String,
   query : String,
-  config? : PairwiseAlignerConfig = PairwiseAlignerConfig::default_dna(),
+  config~ : PairwiseAlignerConfig = PairwiseAlignerConfig::default_dna(),
 ) -> PairwiseAlignment {
   let n = target.length()
   let m = query.length()
@@ -744,7 +758,7 @@ pub fn pairaligner_align(
   }
 
   // ---- Determine traceback start ----
-  let (start_i, start_j, final_score) : (Int, Int, Double) = if is_local {
+  let (start_i, start_j, final_score) : (Int32, Int32, Double) = if is_local {
     (max_i, max_j, max_score)
   } else {
     let m_nm = m_mat[n][m]
@@ -761,8 +775,8 @@ pub fn pairaligner_align(
   }
 
   // ---- Traceback ----
-  let r_target = StringBuilder::new()
-  let r_query = StringBuilder::new()
+  let r_target = StringBuilder()
+  let r_query = StringBuilder()
   let mut i_pos = start_i
   let mut j_pos = start_j
 
@@ -854,14 +868,14 @@ pub fn pairaligner_align(
 ///|
 /// Create a 2D Double matrix of size rows x cols filled with val.
 fn pairaligner_make_matrix(
-  rows : Int,
-  cols : Int,
+  rows : Int32,
+  cols : Int32,
   val : Double,
 ) -> Array[Array[Double]] {
-  let result : Array[Array[Double]] = Array::new()
+  let result : Array[Array[Double]] = Array(capacity=0)
   let mut i = 0
   while i < rows {
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     let mut j = 0
     while j < cols {
       row.push(val)
@@ -876,13 +890,13 @@ fn pairaligner_make_matrix(
 ///|
 /// Create a 2D trace matrix filled with Stop.
 fn pairaligner_make_trace_matrix(
-  rows : Int,
-  cols : Int,
+  rows : Int32,
+  cols : Int32,
 ) -> Array[Array[TraceDir]] {
-  let result : Array[Array[TraceDir]] = Array::new()
+  let result : Array[Array[TraceDir]] = Array(capacity=0)
   let mut i = 0
   while i < rows {
-    let row : Array[TraceDir] = Array::new()
+    let row : Array[TraceDir] = Array(capacity=0)
     let mut j = 0
     while j < cols {
       row.push(TraceDir::Stop)

@@ -21,6 +21,12 @@ pub enum ScuttleOutlierDirection {
 } derive(Eq, Debug)
 
 ///|
+pub extend ScuttleOutlierDirection with Eq::{equal, not_equal}
+
+///|
+pub extend ScuttleOutlierDirection with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
 pub enum ScuttleBatchSummary {
   ScuttleBatchMedian
   ScuttleBatchMean
@@ -28,11 +34,17 @@ pub enum ScuttleBatchSummary {
 } derive(Eq, Debug)
 
 ///|
+pub extend ScuttleBatchSummary with Eq::{equal, not_equal}
+
+///|
+pub extend ScuttleBatchSummary with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
 pub struct ScuttleOutlierConfig {
   nmads : Double
   direction : ScuttleOutlierDirection
   log_transform : Bool
-  subset : Array[Int]?
+  subset : Array[Int32]?
   batches : Array[String]
   share_medians : Bool
   share_mads : Bool
@@ -54,7 +66,7 @@ pub struct ScuttleOutlierResult {
 ///|
 pub struct ScuttleNamedCellSubset {
   name : String
-  indices : Array[Int]
+  indices : Array[Int32]
 }
 
 ///|
@@ -76,14 +88,14 @@ pub struct ScuttleFeatureQcSceOutput {
 ///|
 pub struct ScuttleFeatureSet {
   name : String
-  indices : Array[Int]
+  indices : Array[Int32]
 }
 
 ///|
 pub struct ScuttleFeatureAggregation {
   names : Array[String]
   values : Array[Array[Double]]
-  sizes : Array[Int]
+  sizes : Array[Int32]
 }
 
 ///|
@@ -92,17 +104,12 @@ pub struct ScuttleBatchDownsampleResult {
   group_names : Array[String]
   summaries : Array[Double]
   proportions : Array[Double]
-  group_index : Array[Int]
+  group_index : Array[Int32]
 }
 
 ///|
 fn scuttle_fail(message : String) -> Unit raise ScuttleError {
   raise ScuttleError(message)
-}
-
-///|
-fn scuttle_is_finite(value : Double) -> Bool {
-  value == value && value.abs() <= 1.0e300
 }
 
 ///|
@@ -118,7 +125,7 @@ fn scuttle_copy_matrix(matrix : Array[Array[Double]]) -> Array[Array[Double]] {
 fn scuttle_matrix_shape(
   matrix : Array[Array[Double]],
   require_nonnegative : Bool,
-) -> (Int, Int) raise ScuttleError {
+) -> (Int32, Int32) raise ScuttleError {
   let rows = matrix.length()
   let columns = if rows > 0 { matrix[0].length() } else { 0 }
   for row in 0..<rows {
@@ -127,7 +134,7 @@ fn scuttle_matrix_shape(
     }
     for column in 0..<columns {
       let value = matrix[row][column]
-      if !scuttle_is_finite(value) {
+      if !is_finite(value) {
         scuttle_fail("scuttle matrices must contain finite values")
       }
       if require_nonnegative && value < 0.0 {
@@ -169,7 +176,7 @@ fn scuttle_median(values : Array[Double]) -> Double {
     return 0.0
   }
   let sorted = values.copy()
-  sorted.sort_by(fn(left : Double, right : Double) -> Int {
+  sorted.sort_by(fn(left : Double, right : Double) -> Int32 {
     if left < right {
       -1
     } else if left > right {
@@ -215,7 +222,7 @@ fn scuttle_mean(values : Array[Double]) -> Double {
 }
 
 ///|
-fn scuttle_string_index(values : Array[String], target : String) -> Int {
+fn scuttle_string_index(values : Array[String], target : String) -> Int32 {
   for index in 0..<values.length() {
     if values[index] == target {
       return index
@@ -232,7 +239,7 @@ fn scuttle_sorted_unique(values : Array[String]) -> Array[String] {
       output.push(value)
     }
   }
-  output.sort_by(fn(left : String, right : String) -> Int {
+  output.sort_by(fn(left : String, right : String) -> Int32 {
     if left < right {
       -1
     } else if left > right {
@@ -260,11 +267,6 @@ pub fn scuttle_outlier_higher() -> ScuttleOutlierDirection {
 }
 
 ///|
-pub fn scuttle_batch_median() -> ScuttleBatchSummary {
-  ScuttleBatchMedian
-}
-
-///|
 pub fn scuttle_batch_mean() -> ScuttleBatchSummary {
   ScuttleBatchMean
 }
@@ -276,22 +278,22 @@ pub fn scuttle_batch_geometric_mean() -> ScuttleBatchSummary {
 
 ///|
 pub fn ScuttleOutlierConfig::create(
-  nmads? : Double = 3.0,
-  direction? : ScuttleOutlierDirection = ScuttleBoth,
-  log_transform? : Bool = false,
-  subset? : Array[Int]? = None,
-  batches? : Array[String] = [],
-  share_medians? : Bool = false,
-  share_mads? : Bool = false,
-  share_missing? : Bool = true,
-  min_diff? : Double? = None,
+  nmads~ : Double = 3.0,
+  direction~ : ScuttleOutlierDirection = ScuttleBoth,
+  log_transform~ : Bool = false,
+  subset~ : Array[Int32]? = None,
+  batches~ : Array[String] = [],
+  share_medians~ : Bool = false,
+  share_mads~ : Bool = false,
+  share_missing~ : Bool = true,
+  min_diff~ : Double? = None,
 ) -> ScuttleOutlierConfig raise ScuttleError {
-  if !scuttle_is_finite(nmads) || nmads < 0.0 {
+  if !is_finite(nmads) || nmads < 0.0 {
     scuttle_fail("scuttle nmads must be finite and non-negative")
   }
   match min_diff {
     Some(value) =>
-      if !scuttle_is_finite(value) || value < 0.0 {
+      if !is_finite(value) || value < 0.0 {
         scuttle_fail("scuttle min_diff must be finite and non-negative")
       }
     None => ()
@@ -356,10 +358,10 @@ fn scuttle_restore_log2_threshold(value : Double) -> Double {
 /// false for that batch.
 pub fn scuttle_is_outlier(
   metric : Array[Double],
-  config? : ScuttleOutlierConfig = ScuttleOutlierConfig::default(),
+  config~ : ScuttleOutlierConfig = ScuttleOutlierConfig::default(),
 ) -> ScuttleOutlierResult raise ScuttleError {
   for value in metric {
-    if !scuttle_is_finite(value) {
+    if !is_finite(value) {
       scuttle_fail("scuttle outlier metrics must contain finite values")
     }
     if config.log_transform && value < 0.0 {
@@ -384,7 +386,7 @@ pub fn scuttle_is_outlier(
   } else {
     scuttle_sorted_unique(effective_batches)
   }
-  let selected : Array[Int] = match config.subset {
+  let selected : Array[Int32] = match config.subset {
     Some(indices) => {
       for index in indices {
         if index < 0 || index >= metric.length() {
@@ -394,7 +396,7 @@ pub fn scuttle_is_outlier(
       indices.copy()
     }
     None => {
-      let indices : Array[Int] = []
+      let indices : Array[Int32] = []
       for index in 0..<metric.length() {
         indices.push(index)
       }
@@ -555,7 +557,7 @@ pub fn scuttle_is_outlier(
 ///|
 pub fn ScuttleOutlierResult::discarded_count(
   self : ScuttleOutlierResult,
-) -> Int {
+) -> Int32 {
   let mut count = 0
   for value in self.outliers {
     match value {
@@ -569,10 +571,10 @@ pub fn ScuttleOutlierResult::discarded_count(
 ///|
 pub fn ScuttleNamedCellSubset::create(
   name : String,
-  indices : Array[Int],
+  indices : Array[Int32],
 ) -> ScuttleNamedCellSubset raise ScuttleError {
   scuttle_validate_name(name, "cell subset")
-  ScuttleNamedCellSubset::{ name, indices: indices.copy() }
+  ScuttleNamedCellSubset::{ name, indices: indices.copy(), }
 }
 
 ///|
@@ -580,11 +582,11 @@ pub fn ScuttleNamedCellSubset::create(
 /// subsets of cells and subset/global mean ratios.
 pub fn scuttle_per_feature_qc(
   counts : Array[Array[Double]],
-  subsets? : Array[ScuttleNamedCellSubset] = [],
-  detection_limit? : Double = 0.0,
+  subsets~ : Array[ScuttleNamedCellSubset] = [],
+  detection_limit~ : Double = 0.0,
 ) -> ScuttleFeatureQcMetrics raise ScuttleError {
   let (features, cells) = scuttle_matrix_shape(counts, true)
-  if !scuttle_is_finite(detection_limit) {
+  if !is_finite(detection_limit) {
     scuttle_fail("scuttle detection_limit must be finite")
   }
   let subset_names : Array[String] = []
@@ -662,16 +664,16 @@ pub fn scuttle_per_feature_qc(
 ///|
 pub fn ScuttleFeatureSet::create(
   name : String,
-  indices : Array[Int],
+  indices : Array[Int32],
 ) -> ScuttleFeatureSet raise ScuttleError {
   scuttle_validate_name(name, "feature set")
-  ScuttleFeatureSet::{ name, indices: indices.copy() }
+  ScuttleFeatureSet::{ name, indices: indices.copy(), }
 }
 
 ///|
 fn scuttle_validate_feature_sets(
   feature_sets : Array[ScuttleFeatureSet],
-  features : Int,
+  features : Int32,
 ) -> Unit raise ScuttleError {
   let names : Array[String] = []
   for feature_set in feature_sets {
@@ -692,21 +694,21 @@ fn scuttle_validate_feature_sets(
 pub fn scuttle_aggregate_feature_sets(
   expression : Array[Array[Double]],
   feature_sets : Array[ScuttleFeatureSet],
-  average? : Bool = false,
-  detection_limit? : Double? = None,
+  average~ : Bool = false,
+  detection_limit~ : Double? = None,
 ) -> ScuttleFeatureAggregation raise ScuttleError {
   let (features, cells) = scuttle_matrix_shape(expression, false)
   scuttle_validate_feature_sets(feature_sets, features)
   match detection_limit {
     Some(value) =>
-      if !scuttle_is_finite(value) {
+      if !is_finite(value) {
         scuttle_fail("scuttle detection_limit must be finite")
       }
     None => ()
   }
   let names : Array[String] = []
   let values : Array[Array[Double]] = []
-  let sizes : Array[Int] = []
+  let sizes : Array[Int32] = []
   for feature_set in feature_sets {
     names.push(feature_set.name)
     sizes.push(feature_set.indices.length())
@@ -732,7 +734,7 @@ pub fn scuttle_aggregate_feature_sets(
     }
     values.push(row)
   }
-  ScuttleFeatureAggregation::{ names, values, sizes }
+  ScuttleFeatureAggregation::{ names, values, sizes, }
 }
 
 ///|
@@ -741,8 +743,8 @@ pub fn scuttle_aggregate_feature_sets(
 pub fn scuttle_aggregate_features_by_ids(
   expression : Array[Array[Double]],
   ids : Array[String],
-  average? : Bool = false,
-  detection_limit? : Double? = None,
+  average~ : Bool = false,
+  detection_limit~ : Double? = None,
 ) -> ScuttleFeatureAggregation raise ScuttleError {
   let (features, _) = scuttle_matrix_shape(expression, false)
   if ids.length() != features {
@@ -757,13 +759,13 @@ pub fn scuttle_aggregate_features_by_ids(
   }
   let feature_sets : Array[ScuttleFeatureSet] = []
   for name in retained {
-    let indices : Array[Int] = []
+    let indices : Array[Int32] = []
     for feature in 0..<ids.length() {
       if ids[feature] == name {
         indices.push(feature)
       }
     }
-    feature_sets.push(ScuttleFeatureSet::{ name, indices })
+    feature_sets.push(ScuttleFeatureSet::{ name, indices, })
   }
   scuttle_aggregate_feature_sets(
     expression,
@@ -776,12 +778,12 @@ pub fn scuttle_aggregate_features_by_ids(
 ///|
 fn scuttle_sanitize_counts(
   counts : Array[Array[Double]],
-) -> Array[Array[Int]] raise ScuttleError {
+) -> Array[Array[Int32]] raise ScuttleError {
   let (features, cells) = scuttle_matrix_shape(counts, false)
-  let output : Array[Array[Int]] = []
+  let output : Array[Array[Int32]] = []
   let mut total = 0
   for feature in 0..<features {
-    let row : Array[Int] = []
+    let row : Array[Int32] = []
     for cell in 0..<cells {
       let rounded = counts[feature][cell].round()
       let value = if rounded < 0.0 { 0 } else { rounded.to_int() }
@@ -799,7 +801,7 @@ fn scuttle_sanitize_counts(
 }
 
 ///|
-fn scuttle_lcg(state : Int) -> (Int, Double) {
+fn scuttle_lcg(state : Int32) -> (Int32, Double) {
   let normalized = (state - 1) % 2147483646 + 1
   let quotient = normalized / 44488
   let remainder = normalized % 44488
@@ -810,10 +812,10 @@ fn scuttle_lcg(state : Int) -> (Int, Double) {
 
 ///|
 fn scuttle_sample_categories(
-  counts : Array[Int],
-  required : Int,
-  seed : Int,
-) -> (Array[Int], Int) {
+  counts : Array[Int32],
+  required : Int32,
+  seed : Int32,
+) -> (Array[Int32], Int32) {
   let mut total = 0
   for value in counts {
     total = total + value
@@ -860,7 +862,7 @@ fn scuttle_sample_categories(
 
 ///|
 fn scuttle_validate_proportion(value : Double) -> Unit raise ScuttleError {
-  if !scuttle_is_finite(value) || value < 0.0 || value > 1.0 {
+  if !is_finite(value) || value < 0.0 || value > 1.0 {
     scuttle_fail("scuttle downsampling proportions must lie in [0, 1]")
   }
 }
@@ -870,7 +872,7 @@ fn scuttle_validate_proportion(value : Double) -> Unit raise ScuttleError {
 pub fn scuttle_downsample_columns(
   counts : Array[Array[Double]],
   proportions : Array[Double],
-  seed? : Int = 1,
+  seed~ : Int32 = 1,
 ) -> Array[Array[Double]] raise ScuttleError {
   if seed <= 0 {
     scuttle_fail("scuttle random seed must be positive")
@@ -890,7 +892,7 @@ pub fn scuttle_downsample_columns(
   }
   let mut state = seed
   for cell in 0..<cells {
-    let category_counts : Array[Int] = []
+    let category_counts : Array[Int32] = []
     let mut total = 0
     for feature in 0..<features {
       category_counts.push(sanitized[feature][cell])
@@ -913,8 +915,8 @@ pub fn scuttle_downsample_columns(
 pub fn scuttle_downsample_matrix(
   counts : Array[Array[Double]],
   proportion : Double,
-  by_column? : Bool = true,
-  seed? : Int = 1,
+  by_column~ : Bool = true,
+  seed~ : Int32 = 1,
 ) -> Array[Array[Double]] raise ScuttleError {
   if seed <= 0 {
     scuttle_fail("scuttle random seed must be positive")
@@ -930,7 +932,7 @@ pub fn scuttle_downsample_matrix(
       seed~,
     )
   }
-  let flattened : Array[Int] = []
+  let flattened : Array[Int32] = []
   let mut total = 0
   for cell in 0..<cells {
     for feature in 0..<features {
@@ -992,10 +994,10 @@ fn scuttle_batch_summary(
 pub fn scuttle_downsample_batches(
   counts : Array[Array[Double]],
   batches : Array[String],
-  blocks? : Array[String] = [],
-  summary_method? : ScuttleBatchSummary = ScuttleBatchMedian,
-  by_column? : Bool = true,
-  seed? : Int = 1,
+  blocks~ : Array[String] = [],
+  summary_method~ : ScuttleBatchSummary = ScuttleBatchMedian,
+  by_column~ : Bool = true,
+  seed~ : Int32 = 1,
 ) -> ScuttleBatchDownsampleResult raise ScuttleError {
   if seed <= 0 {
     scuttle_fail("scuttle random seed must be positive")
@@ -1020,7 +1022,7 @@ pub fn scuttle_downsample_batches(
   }
   let group_names : Array[String] = []
   let group_blocks : Array[String] = []
-  let group_indices : Array[Array[Int]] = []
+  let group_indices : Array[Array[Int32]] = []
   let group_index = Array::make(cells, 0)
   for cell in 0..<cells {
     let group_name = if blocks.length() == 0 {
@@ -1150,10 +1152,10 @@ fn scuttle_doubles_to_strings(values : Array[Double]) -> Array[String] {
 /// copy of row_data.
 pub fn scuttle_per_feature_qc_sce(
   experiment : SingleCellExperiment,
-  assay_name? : String = "counts",
-  subsets? : Array[ScuttleNamedCellSubset] = [],
-  detection_limit? : Double = 0.0,
-  output_prefix? : String = "scuttle",
+  assay_name~ : String = "counts",
+  subsets~ : Array[ScuttleNamedCellSubset] = [],
+  detection_limit~ : Double = 0.0,
+  output_prefix~ : String = "scuttle",
 ) -> ScuttleFeatureQcSceOutput raise ScuttleError {
   scuttle_validate_name(output_prefix, "output prefix")
   let counts = match experiment.assays.get(assay_name) {
@@ -1189,7 +1191,7 @@ pub fn scuttle_per_feature_qc_sce(
     )
   }
   output.metadata[output_prefix + ".assay"] = assay_name
-  ScuttleFeatureQcSceOutput::{ experiment: output, metrics }
+  ScuttleFeatureQcSceOutput::{ experiment: output, metrics, }
 }
 
 ///|
@@ -1200,8 +1202,8 @@ pub fn scuttle_per_feature_qc_sce(
 pub fn scuttle_aggregate_feature_sets_sce(
   experiment : SingleCellExperiment,
   feature_sets : Array[ScuttleFeatureSet],
-  assay_names? : Array[String] = ["counts"],
-  average? : Bool = false,
+  assay_names~ : Array[String] = ["counts"],
+  average~ : Bool = false,
 ) -> SingleCellExperiment raise ScuttleError {
   if assay_names.length() == 0 {
     scuttle_fail("scuttle SCE aggregation requires at least one assay")
@@ -1276,10 +1278,10 @@ pub fn scuttle_aggregate_feature_sets_sce(
 pub fn scuttle_downsample_sce(
   experiment : SingleCellExperiment,
   proportion : Double,
-  assay_name? : String = "counts",
-  output_assay? : String = "downsampled",
-  by_column? : Bool = true,
-  seed? : Int = 1,
+  assay_name~ : String = "counts",
+  output_assay~ : String = "downsampled",
+  by_column~ : Bool = true,
+  seed~ : Int32 = 1,
 ) -> SingleCellExperiment raise ScuttleError {
   scuttle_validate_name(output_assay, "output assay")
   let counts = match experiment.assays.get(assay_name) {

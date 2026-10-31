@@ -48,7 +48,7 @@ test "aucell_compute_auc_all_genes" {
 ///|
 test "aucell_compute_auc_empty_set" {
   let total_genes = 5
-  let gene_set_indices : Array[Int] = []
+  let gene_set_indices : Array[Int32] = []
   let ranks = [0, 1, 2, 3, 4]
 
   let auc = @src.aucell_compute_auc(total_genes, gene_set_indices, ranks)

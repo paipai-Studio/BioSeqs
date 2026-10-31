@@ -65,7 +65,7 @@ pub fn EstExpression::new(
   sample_names : Array[String],
   matrix : Array[Array[Double]],
 ) -> EstExpression {
-  { gene_names, sample_names, matrix }
+  { gene_names, sample_names, matrix, }
 }
 
 ///|
@@ -92,7 +92,7 @@ pub fn EstSignature::new(
   stromal_genes : Array[String],
   immune_genes : Array[String],
 ) -> EstSignature {
-  { stromal_genes, immune_genes }
+  { stromal_genes, immune_genes, }
 }
 
 ///|
@@ -161,9 +161,9 @@ pub fn EstResult::method_name(self : EstResult) -> String {
 
 ///|
 /// Sort indices of an array in descending order (largest first).
-fn est_sort_indices_desc(values : Array[Double]) -> Array[Int] {
+fn est_sort_indices_desc(values : Array[Double]) -> Array[Int32] {
   let n = values.length()
-  let indices : Array[Int] = Array::make(n, 0)
+  let indices : Array[Int32] = Array::make(n, 0)
   for i in 0..<n {
     indices[i] = i
   }
@@ -336,7 +336,7 @@ fn est_purity_from_estimate(estimate_score : Double) -> Double {
 ///   - signature?: gene signature (default: built-in stromal/immune sets)
 pub fn est_run(
   expr : EstExpression,
-  signature? : EstSignature = est_default_signature(),
+  signature~ : EstSignature = est_default_signature(),
 ) -> EstResult {
   let n_samples = expr.sample_names.length()
   let n_genes = expr.gene_names.length()
@@ -388,7 +388,7 @@ pub fn est_run(
       tumor_purity: purity,
     })
   }
-  { scores, sample_names: expr.sample_names.copy(), method_name: "estimate" }
+  { scores, sample_names: expr.sample_names.copy(), method_name: "estimate", }
 }
 
 // ============================================================================

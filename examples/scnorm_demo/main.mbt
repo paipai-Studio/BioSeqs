@@ -9,11 +9,11 @@ fn main {
   let cell_ids = ["cell_1", "cell_2", "cell_3"]
   // Counts: genes (rows) x cells (columns)
   let counts : Array[Array[Double]] = [
-    [10.0, 20.0, 30.0],  // Gene_A
-    [5.0, 15.0, 25.0],   // Gene_B
+    [10.0, 20.0, 30.0], // Gene_A
+    [5.0, 15.0, 25.0], // Gene_B
     [100.0, 200.0, 300.0], // Gene_C (highly expressed)
-    [50.0, 80.0, 120.0],  // Gene_D
-    [1.0, 2.0, 3.0]       // Gene_E
+    [50.0, 80.0, 120.0], // Gene_D
+    [1.0, 2.0, 3.0], // Gene_E
   ]
   println("   Genes: \{genes.length()}, Cells: \{cell_ids.length()}")
 
@@ -32,7 +32,9 @@ fn main {
   let params = @src.SCnormParams::new()
   let gene_id = "Gene_C"
   let gene_counts = counts[2]
-  let norm_result = @src.sc_norm_normalize_gene(gene_id, gene_counts, lib_sizes, params)
+  let norm_result = @src.sc_norm_normalize_gene(
+    gene_id, gene_counts, lib_sizes, params,
+  )
   println("   Gene: \{norm_result.gene_id}")
   println("   Passed filter: \{norm_result.passed_filter}")
   println("   Normalized counts:")

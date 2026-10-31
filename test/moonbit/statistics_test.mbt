@@ -9,7 +9,7 @@ test "stat_mean" {
 
 ///|
 test "stat_mean empty" {
-  let data : Array[Double] = Array::new()
+  let data : Array[Double] = Array(capacity=0)
   let result = @src.stat_mean(data)
   assert_true(result == 0.0)
 }
@@ -259,7 +259,7 @@ test "stat_bh_basic" {
 
 ///|
 test "stat_bh_empty" {
-  let p_values : Array[Double] = Array::new()
+  let p_values : Array[Double] = Array(capacity=0)
   let result = @src.stat_bh(p_values)
   assert_true(result.length() == 0)
 }

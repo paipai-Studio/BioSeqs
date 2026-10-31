@@ -12,18 +12,18 @@ pub suberror SparseArrayError {
 
 ///|
 pub struct SparseArrayEntry {
-  coordinates : Array[Int]
+  coordinates : Array[Int32]
   value : Double
 }
 
 ///|
 pub struct SparseArray {
-  dimensions : Array[Int]
+  dimensions : Array[Int32]
   entries : Array[SparseArrayEntry]
 }
 
 ///|
-pub fn SparseArrayEntry::coordinates(self : SparseArrayEntry) -> Array[Int] {
+pub fn SparseArrayEntry::coordinates(self : SparseArrayEntry) -> Array[Int32] {
   self.coordinates.copy()
 }
 
@@ -34,9 +34,9 @@ pub fn SparseArrayEntry::value(self : SparseArrayEntry) -> Double {
 
 ///|
 fn sparse_array_compare_coordinates(
-  left : Array[Int],
-  right : Array[Int],
-) -> Int {
+  left : Array[Int32],
+  right : Array[Int32],
+) -> Int32 {
   let limit = if left.length() < right.length() {
     left.length()
   } else {
@@ -63,7 +63,7 @@ fn sparse_array_compare_coordinates(
 
 ///|
 fn sparse_array_validate_dimensions(
-  dimensions : Array[Int],
+  dimensions : Array[Int32],
 ) -> Unit raise SparseArrayError {
   if dimensions.length() == 0 {
     raise SparseArrayError("SparseArray requires at least one dimension")
@@ -78,7 +78,9 @@ fn sparse_array_validate_dimensions(
 }
 
 ///|
-fn sparse_array_length(dimensions : Array[Int]) -> Int raise SparseArrayError {
+fn sparse_array_length(
+  dimensions : Array[Int32],
+) -> Int32 raise SparseArrayError {
   let mut result = 1
   let mut dimension = 0
   while dimension < dimensions.length() {
@@ -98,8 +100,8 @@ fn sparse_array_length(dimensions : Array[Int]) -> Int raise SparseArrayError {
 
 ///|
 fn sparse_array_validate_coordinate(
-  dimensions : Array[Int],
-  coordinates : Array[Int],
+  dimensions : Array[Int32],
+  coordinates : Array[Int32],
 ) -> Unit raise SparseArrayError {
   if coordinates.length() != dimensions.length() {
     raise SparseArrayError(
@@ -120,7 +122,7 @@ fn sparse_array_validate_coordinate(
 
 ///|
 fn sparse_array_build(
-  dimensions : Array[Int],
+  dimensions : Array[Int32],
   entries : Array[SparseArrayEntry],
 ) -> SparseArray raise SparseArrayError {
   sparse_array_validate_dimensions(dimensions)
@@ -135,7 +137,10 @@ fn sparse_array_build(
     })
     index = index + 1
   }
-  sorted.sort_by(fn(left : SparseArrayEntry, right : SparseArrayEntry) -> Int {
+  sorted.sort_by(fn(
+    left : SparseArrayEntry,
+    right : SparseArrayEntry,
+  ) -> Int32 {
     sparse_array_compare_coordinates(left.coordinates, right.coordinates)
   })
   let canonical : Array[SparseArrayEntry] = []
@@ -154,10 +159,10 @@ fn sparse_array_build(
       index = index + 1
     }
     if value != 0.0 {
-      canonical.push(SparseArrayEntry::{ coordinates, value })
+      canonical.push(SparseArrayEntry::{ coordinates, value, })
     }
   }
-  SparseArray::{ dimensions: dimensions.copy(), entries: canonical }
+  SparseArray::{ dimensions: dimensions.copy(), entries: canonical, }
 }
 
 ///|
@@ -166,8 +171,8 @@ fn sparse_array_build(
 /// Coordinates are zero-based. Duplicate coordinates are added together and
 /// entries whose resulting value is zero are omitted.
 pub fn SparseArray::from_coo(
-  dimensions : Array[Int],
-  coordinates : Array[Array[Int]],
+  dimensions : Array[Int32],
+  coordinates : Array[Array[Int32]],
   values : Array[Double],
 ) -> SparseArray raise SparseArrayError {
   if coordinates.length() != values.length() {
@@ -190,17 +195,17 @@ pub fn SparseArray::from_coo(
 ///|
 /// Construct an all-zero sparse array.
 pub fn SparseArray::zeros(
-  dimensions : Array[Int],
+  dimensions : Array[Int32],
 ) -> SparseArray raise SparseArrayError {
   sparse_array_build(dimensions, [])
 }
 
 ///|
 fn sparse_array_linear_to_coordinates(
-  linear_index : Int,
-  dimensions : Array[Int],
-) -> Array[Int] {
-  let coordinates : Array[Int] = []
+  linear_index : Int32,
+  dimensions : Array[Int32],
+) -> Array[Int32] {
+  let coordinates : Array[Int32] = []
   let mut remaining = linear_index
   let mut dimension = 0
   while dimension < dimensions.length() {
@@ -213,9 +218,9 @@ fn sparse_array_linear_to_coordinates(
 
 ///|
 fn sparse_array_coordinates_to_linear(
-  coordinates : Array[Int],
-  dimensions : Array[Int],
-) -> Int {
+  coordinates : Array[Int32],
+  dimensions : Array[Int32],
+) -> Int32 {
   let mut linear_index = 0
   let mut stride = 1
   let mut dimension = 0
@@ -230,7 +235,7 @@ fn sparse_array_coordinates_to_linear(
 ///|
 /// Construct from column-major flat data, matching R array layout.
 pub fn SparseArray::from_flat(
-  dimensions : Array[Int],
+  dimensions : Array[Int32],
   data : Array[Double],
 ) -> SparseArray raise SparseArrayError {
   sparse_array_validate_dimensions(dimensions)
@@ -261,7 +266,7 @@ pub fn SparseArray::from_matrix(
 ) -> SparseArray raise SparseArrayError {
   let rows = data.length()
   let columns = if rows == 0 { 0 } else { data[0].length() }
-  let coordinates : Array[Array[Int]] = []
+  let coordinates : Array[Array[Int32]] = []
   let values : Array[Double] = []
   let mut row = 0
   while row < rows {
@@ -282,22 +287,22 @@ pub fn SparseArray::from_matrix(
 }
 
 ///|
-pub fn SparseArray::ndim(self : SparseArray) -> Int {
+pub fn SparseArray::ndim(self : SparseArray) -> Int32 {
   self.dimensions.length()
 }
 
 ///|
-pub fn SparseArray::dim(self : SparseArray) -> Array[Int] {
+pub fn SparseArray::dim(self : SparseArray) -> Array[Int32] {
   self.dimensions.copy()
 }
 
 ///|
-pub fn SparseArray::length(self : SparseArray) -> Int raise SparseArrayError {
+pub fn SparseArray::length(self : SparseArray) -> Int32 raise SparseArrayError {
   sparse_array_length(self.dimensions)
 }
 
 ///|
-pub fn SparseArray::nnzero(self : SparseArray) -> Int {
+pub fn SparseArray::nnzero(self : SparseArray) -> Int32 {
   self.entries.length()
 }
 
@@ -314,13 +319,13 @@ pub fn SparseArray::density(
 }
 
 ///|
-pub fn SparseArray::is_sparse(self : SparseArray) -> Bool {
+pub fn SparseArray::is_sparse(_self : SparseArray) -> Bool {
   true
 }
 
 ///|
-pub fn SparseArray::nzcoordinates(self : SparseArray) -> Array[Array[Int]] {
-  let result : Array[Array[Int]] = []
+pub fn SparseArray::nzcoordinates(self : SparseArray) -> Array[Array[Int32]] {
+  let result : Array[Array[Int32]] = []
   let mut index = 0
   while index < self.entries.length() {
     result.push(self.entries[index].coordinates.copy())
@@ -359,7 +364,7 @@ pub fn SparseArray::nonzero_entries(
 ///|
 pub fn SparseArray::get(
   self : SparseArray,
-  coordinates : Array[Int],
+  coordinates : Array[Int32],
 ) -> Double raise SparseArrayError {
   sparse_array_validate_coordinate(self.dimensions, coordinates)
   let mut low = 0
@@ -388,7 +393,7 @@ pub fn SparseArray::get(
 ///|
 pub fn SparseArray::get_linear(
   self : SparseArray,
-  linear_index : Int,
+  linear_index : Int32,
 ) -> Double raise SparseArrayError {
   let total = self.length()
   if linear_index < 0 || linear_index >= total {
@@ -401,7 +406,7 @@ pub fn SparseArray::get_linear(
 /// Return a new array with one coordinate replaced.
 pub fn SparseArray::with_value(
   self : SparseArray,
-  coordinates : Array[Int],
+  coordinates : Array[Int32],
   value : Double,
 ) -> SparseArray raise SparseArrayError {
   sparse_array_validate_coordinate(self.dimensions, coordinates)
@@ -421,7 +426,7 @@ pub fn SparseArray::with_value(
     index = index + 1
   }
   if value != 0.0 {
-    entries.push(SparseArrayEntry::{ coordinates: coordinates.copy(), value })
+    entries.push(SparseArrayEntry::{ coordinates: coordinates.copy(), value, })
   }
   sparse_array_build(self.dimensions, entries)
 }
@@ -430,7 +435,7 @@ pub fn SparseArray::with_value(
 /// Return a new array after replacing several coordinates in order.
 pub fn SparseArray::with_values(
   self : SparseArray,
-  coordinates : Array[Array[Int]],
+  coordinates : Array[Array[Int32]],
   values : Array[Double],
 ) -> SparseArray raise SparseArrayError {
   if coordinates.length() != values.length() {
@@ -495,14 +500,14 @@ pub fn SparseArray::to_dense_matrix(
 /// Repeated indices are preserved without materializing implicit zero values.
 pub fn SparseArray::subset(
   self : SparseArray,
-  indices : Array[Array[Int]],
+  indices : Array[Array[Int32]],
 ) -> SparseArray raise SparseArrayError {
   if indices.length() != self.ndim() {
     raise SparseArrayError(
       "SparseArray subset requires one index vector per dimension",
     )
   }
-  let output_dimensions : Array[Int] = []
+  let output_dimensions : Array[Int32] = []
   let mut dimension = 0
   while dimension < self.ndim() {
     output_dimensions.push(indices[dimension].length())
@@ -522,11 +527,11 @@ pub fn SparseArray::subset(
   let output_entries : Array[SparseArrayEntry] = []
   let mut entry_index = 0
   while entry_index < self.entries.length() {
-    let matches : Array[Array[Int]] = []
-    let mut include = true
+    let matches : Array[Array[Int32]] = []
+    let mut keep = true
     dimension = 0
     while dimension < self.ndim() {
-      let positions : Array[Int] = []
+      let positions : Array[Int32] = []
       let mut output_index = 0
       while output_index < indices[dimension].length() {
         if indices[dimension][output_index] ==
@@ -536,12 +541,12 @@ pub fn SparseArray::subset(
         output_index = output_index + 1
       }
       if positions.length() == 0 {
-        include = false
+        keep = false
       }
       matches.push(positions)
       dimension = dimension + 1
     }
-    if include {
+    if keep {
       let mut combination_count = 1
       dimension = 0
       while dimension < matches.length() {
@@ -550,7 +555,7 @@ pub fn SparseArray::subset(
       }
       let mut combination = 0
       while combination < combination_count {
-        let output_coordinates : Array[Int] = []
+        let output_coordinates : Array[Int32] = []
         let mut remaining = combination
         dimension = 0
         while dimension < matches.length() {
@@ -575,13 +580,13 @@ pub fn SparseArray::subset(
 /// Slice dimensions with zero-based, end-exclusive ranges.
 pub fn SparseArray::slice(
   self : SparseArray,
-  starts : Array[Int],
-  ends : Array[Int],
+  starts : Array[Int32],
+  ends : Array[Int32],
 ) -> SparseArray raise SparseArrayError {
   if starts.length() != self.ndim() || ends.length() != self.ndim() {
     raise SparseArrayError("SparseArray slice bounds must match the array rank")
   }
-  let indices : Array[Array[Int]] = []
+  let indices : Array[Array[Int32]] = []
   let mut dimension = 0
   while dimension < self.ndim() {
     if starts[dimension] < 0 ||
@@ -592,7 +597,7 @@ pub fn SparseArray::slice(
         dimension.to_string(),
       )
     }
-    let selected : Array[Int] = []
+    let selected : Array[Int32] = []
     let mut index = starts[dimension]
     while index < ends[dimension] {
       selected.push(index)
@@ -608,13 +613,13 @@ pub fn SparseArray::slice(
 /// Permute dimensions. Output dimension i is input dimension permutation[i].
 pub fn SparseArray::aperm(
   self : SparseArray,
-  permutation : Array[Int],
+  permutation : Array[Int32],
 ) -> SparseArray raise SparseArrayError {
   if permutation.length() != self.ndim() {
     raise SparseArrayError("SparseArray permutation length must match its rank")
   }
   let seen = Array::make(self.ndim(), false)
-  let output_dimensions : Array[Int] = []
+  let output_dimensions : Array[Int32] = []
   let mut dimension = 0
   while dimension < permutation.length() {
     let source = permutation[dimension]
@@ -630,7 +635,7 @@ pub fn SparseArray::aperm(
   let output_entries : Array[SparseArrayEntry] = []
   let mut entry_index = 0
   while entry_index < self.entries.length() {
-    let output_coordinates : Array[Int] = []
+    let output_coordinates : Array[Int32] = []
     dimension = 0
     while dimension < permutation.length() {
       output_coordinates.push(
@@ -664,7 +669,7 @@ pub fn SparseArray::transpose(
 pub fn SparseArray::bind(
   self : SparseArray,
   other : SparseArray,
-  along : Int,
+  along : Int32,
 ) -> SparseArray raise SparseArrayError {
   if self.ndim() != other.ndim() {
     raise SparseArrayError("SparseArray bind requires arrays of equal rank")
@@ -996,7 +1001,7 @@ pub fn SparseArray::column_means(
 ///|
 pub fn SparseArray::row_nonzero_counts(
   self : SparseArray,
-) -> Array[Int] raise SparseArrayError {
+) -> Array[Int32] raise SparseArrayError {
   sparse_array_require_matrix(self)
   let result = Array::make(self.dimensions[0], 0)
   let mut index = 0
@@ -1011,7 +1016,7 @@ pub fn SparseArray::row_nonzero_counts(
 ///|
 pub fn SparseArray::column_nonzero_counts(
   self : SparseArray,
-) -> Array[Int] raise SparseArrayError {
+) -> Array[Int32] raise SparseArrayError {
   sparse_array_require_matrix(self)
   let result = Array::make(self.dimensions[1], 0)
   let mut index = 0

@@ -1,7 +1,6 @@
 ///|
 /// bamsignals Demo - Signal Extraction and Normalization from BAM files.
 /// Inspired by Bioconductor bamsignals package.
-
 fn main {
   println("=== bamsignals Demo ===")
 
@@ -12,10 +11,19 @@ fn main {
   let mut i = 0
   while i < regions.length() {
     let r = regions[i]
-    println("   " + r.bamsig_id() +
-      ": " + r.bamsig_chrom() + ":" + r.bamsig_start().to_string() +
-      "-" + r.bamsig_end().to_string() +
-      " (width=" + r.bamsig_width().to_string() + ")")
+    println(
+      "   " +
+      r.bamsig_id() +
+      ": " +
+      r.bamsig_chrom() +
+      ":" +
+      r.bamsig_start().to_string() +
+      "-" +
+      r.bamsig_end().to_string() +
+      " (width=" +
+      r.bamsig_width().to_string() +
+      ")",
+    )
     i = i + 1
   }
 
@@ -26,18 +34,26 @@ fn main {
   let mut j = 0
   while j < records.length() {
     let rec = records[j]
-    println("   " + rec.chrom + ":" + rec.pos.to_string() +
-      " " + rec.cigar +
-      " mapq=" + rec.mapq.to_string() +
-      " strand=" + rec.strand.to_string())
+    println(
+      "   " +
+      rec.chrom +
+      ":" +
+      rec.pos.to_string() +
+      " " +
+      rec.cigar +
+      " mapq=" +
+      rec.mapq.to_string() +
+      " strand=" +
+      rec.strand.to_string(),
+    )
     j = j + 1
   }
 
   // 3. Build Map of records by chromosome
   println("")
   println("3. Build records-by-chromosome map:")
-  let chr1_records : Array[@bio.BamsigRecord] = Array::new()
-  let chr2_records : Array[@bio.BamsigRecord] = Array::new()
+  let chr1_records : Array[@bio.BamsigRecord] = Array(capacity=0)
+  let chr2_records : Array[@bio.BamsigRecord] = Array(capacity=0)
   let mut k = 0
   while k < records.length() {
     let rec = records[k]
@@ -81,9 +97,14 @@ fn main {
     let region_id = signal.bamsig_get_region_id(s)
     let count = signal.bamsig_get_count(s, 0)
     let norm = signal.bamsig_get_norm_count(s, 0)
-    println("   " + region_id +
-      ": count=" + count.to_string() +
-      ", norm(RPM)=" + norm.to_string())
+    println(
+      "   " +
+      region_id +
+      ": count=" +
+      count.to_string() +
+      ", norm(RPM)=" +
+      norm.to_string(),
+    )
     s = s + 1
   }
 

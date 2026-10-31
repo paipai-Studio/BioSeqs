@@ -143,11 +143,11 @@ fn abc_bh_fdr(pvalues : Array[Double]) -> Array[Double] {
     return []
   }
   // Create index-value pairs and sort by p-value ascending.
-  let indexed : Array[(Int, Double)] = Array::new()
+  let indexed : Array[(Int32, Double)] = Array(capacity=0)
   for i in 0..<m {
     indexed.push((i, pvalues[i]))
   }
-  indexed.sort_by(fn(a : (Int, Double), b : (Int, Double)) -> Int {
+  indexed.sort_by(fn(a : (Int32, Double), b : (Int32, Double)) -> Int32 {
     if a.1 < b.1 {
       -1
     } else if a.1 > b.1 {
@@ -180,16 +180,16 @@ fn abc_bh_fdr(pvalues : Array[Double]) -> Array[Double] {
 /// A single OTU/ASV feature: its name and per-sample raw counts.
 pub struct AncombcFeature {
   name : String
-  counts : Array[Int] // per-sample counts
+  counts : Array[Int32] // per-sample counts
 }
 
 ///|
 /// Construct an AncombcFeature.
 pub fn AncombcFeature::new(
   name : String,
-  counts : Array[Int],
+  counts : Array[Int32],
 ) -> AncombcFeature {
-  AncombcFeature::{ name, counts }
+  AncombcFeature::{ name, counts, }
 }
 
 ///|
@@ -198,13 +198,13 @@ pub fn AncombcFeature::name(self : AncombcFeature) -> String {
 }
 
 ///|
-pub fn AncombcFeature::counts(self : AncombcFeature) -> Array[Int] {
+pub fn AncombcFeature::counts(self : AncombcFeature) -> Array[Int32] {
   self.counts
 }
 
 ///|
 /// Total count for this feature across all samples.
-pub fn AncombcFeature::total(self : AncombcFeature) -> Int {
+pub fn AncombcFeature::total(self : AncombcFeature) -> Int32 {
   let mut s = 0
   for c in self.counts {
     s = s + c
@@ -222,7 +222,7 @@ pub struct AncombcSample {
 ///|
 /// Construct an AncombcSample.
 pub fn AncombcSample::new(name : String, group : String) -> AncombcSample {
-  AncombcSample::{ name, group }
+  AncombcSample::{ name, group, }
 }
 
 ///|
@@ -242,7 +242,7 @@ pub struct AncombcData {
   sample_names : Array[String]
   sample_groups : Array[String]
   feature_names : Array[String]
-  counts : Array[Array[Int]] // [feature][sample] -> count
+  counts : Array[Array[Int32]] // [feature][sample] -> count
 }
 
 ///|
@@ -251,18 +251,18 @@ pub fn AncombcData::new(
   sample_names : Array[String],
   sample_groups : Array[String],
   feature_names : Array[String],
-  counts : Array[Array[Int]],
+  counts : Array[Array[Int32]],
 ) -> AncombcData {
-  AncombcData::{ sample_names, sample_groups, feature_names, counts }
+  AncombcData::{ sample_names, sample_groups, feature_names, counts, }
 }
 
 ///|
-pub fn AncombcData::n_samples(self : AncombcData) -> Int {
+pub fn AncombcData::n_samples(self : AncombcData) -> Int32 {
   self.sample_names.length()
 }
 
 ///|
-pub fn AncombcData::n_features(self : AncombcData) -> Int {
+pub fn AncombcData::n_features(self : AncombcData) -> Int32 {
   self.feature_names.length()
 }
 
@@ -282,7 +282,7 @@ pub fn AncombcData::feature_names(self : AncombcData) -> Array[String] {
 }
 
 ///|
-pub fn AncombcData::counts(self : AncombcData) -> Array[Array[Int]] {
+pub fn AncombcData::counts(self : AncombcData) -> Array[Array[Int32]] {
   self.counts
 }
 
@@ -290,9 +290,9 @@ pub fn AncombcData::counts(self : AncombcData) -> Array[Array[Int]] {
 /// Get the count for a specific feature and sample.
 pub fn AncombcData::get_count(
   self : AncombcData,
-  feature_idx : Int,
-  sample_idx : Int,
-) -> Int {
+  feature_idx : Int32,
+  sample_idx : Int32,
+) -> Int32 {
   self.counts[feature_idx][sample_idx]
 }
 
@@ -300,7 +300,7 @@ pub fn AncombcData::get_count(
 /// Unique group labels in the data.
 pub fn AncombcData::groups(self : AncombcData) -> Array[String] {
   let seen : Map[String, Bool] = Map([], capacity=4)
-  let result : Array[String] = Array::new()
+  let result : Array[String] = Array(capacity=0)
   for g in self.sample_groups {
     if !seen.contains(g) {
       seen[g] = true
@@ -312,7 +312,7 @@ pub fn AncombcData::groups(self : AncombcData) -> Array[String] {
 
 ///|
 /// Total library size for each sample (column sums).
-pub fn AncombcData::library_sizes(self : AncombcData) -> Array[Int] {
+pub fn AncombcData::library_sizes(self : AncombcData) -> Array[Int32] {
   let n = self.n_samples()
   let sizes = Array::make(n, 0)
   for f in self.counts {
@@ -340,7 +340,7 @@ pub fn ancombc_sampling_fractions(data : AncombcData) -> Array[Double] {
   if total <= 0.0 {
     return Array::make(data.n_samples(), 0.0)
   }
-  let fracs = Array::new()
+  let fracs = Array(capacity=0)
   for s in sizes {
     fracs.push(s.to_double() / total)
   }
@@ -363,9 +363,9 @@ pub fn ancombc_bias_corrected_log(data : AncombcData) -> Array[Array[Double]] {
   let n_samples = data.n_samples()
   let fracs = ancombc_sampling_fractions(data)
   let n = n_features.to_double()
-  let result : Array[Array[Double]] = Array::new()
+  let result : Array[Array[Double]] = Array(capacity=0)
   for i in 0..<n_features {
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     for j in 0..<n_samples {
       let count = data.counts[i][j].to_double()
       let adjusted_total = fracs[j] * n
@@ -383,7 +383,7 @@ pub fn ancombc_bias_corrected_log(data : AncombcData) -> Array[Array[Double]] {
 /// is the feature with the lowest inter-sample variance in bias-corrected
 /// log-abundance (i.e., the most "stable" feature). Returns the feature
 /// index.
-pub fn ancombc_reference_feature(data : AncombcData) -> Int {
+pub fn ancombc_reference_feature(data : AncombcData) -> Int32 {
   let log_data = ancombc_bias_corrected_log(data)
   let n_features = data.n_features()
   if n_features == 0 {
@@ -410,7 +410,7 @@ pub fn ancombc_reference_feature(data : AncombcData) -> Int {
 pub struct AncombcResult {
   feature : String
   log_fold_change : Double
-  w_stat : Int
+  w_stat : Int32
   p_value : Double
   q_value : Double
   significant : Bool
@@ -421,7 +421,7 @@ pub struct AncombcResult {
 pub fn AncombcResult::new(
   feature : String,
   log_fold_change : Double,
-  w_stat : Int,
+  w_stat : Int32,
   p_value : Double,
   q_value : Double,
   significant : Bool,
@@ -447,7 +447,7 @@ pub fn AncombcResult::log_fold_change(self : AncombcResult) -> Double {
 }
 
 ///|
-pub fn AncombcResult::w_stat(self : AncombcResult) -> Int {
+pub fn AncombcResult::w_stat(self : AncombcResult) -> Int32 {
   self.w_stat
 }
 
@@ -474,8 +474,8 @@ pub struct AncombcTestResult {
   reference_feature : String
   group1 : String
   group2 : String
-  n_samples_group1 : Int
-  n_samples_group2 : Int
+  n_samples_group1 : Int32
+  n_samples_group2 : Int32
   alpha : Double
 }
 
@@ -508,7 +508,7 @@ pub fn AncombcTestResult::alpha(self : AncombcTestResult) -> Double {
 
 ///|
 /// Number of significant features.
-pub fn AncombcTestResult::n_significant(self : AncombcTestResult) -> Int {
+pub fn AncombcTestResult::n_significant(self : AncombcTestResult) -> Int32 {
   let mut n = 0
   for r in self.results {
     if r.significant {
@@ -541,8 +541,8 @@ pub fn ancombc_test(
   let n_features = data.n_features()
   let n_samples = data.n_samples()
   // Assign samples to groups.
-  let g1_indices : Array[Int] = Array::new()
-  let g2_indices : Array[Int] = Array::new()
+  let g1_indices : Array[Int32] = Array(capacity=0)
+  let g2_indices : Array[Int32] = Array(capacity=0)
   for j in 0..<n_samples {
     if data.sample_groups[j] == group1 {
       g1_indices.push(j)
@@ -556,9 +556,9 @@ pub fn ancombc_test(
   let ref_idx = ancombc_reference_feature(data)
   let ref_name = if ref_idx >= 0 { data.feature_names[ref_idx] } else { "" }
   // Compute log-ratios relative to reference: y_i - y_ref for each sample.
-  let log_ratios : Array[Array[Double]] = Array::new()
+  let log_ratios : Array[Array[Double]] = Array(capacity=0)
   for i in 0..<n_features {
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     for j in 0..<n_samples {
       if ref_idx >= 0 {
         row.push(log_data[i][j] - log_data[ref_idx][j])
@@ -572,12 +572,12 @@ pub fn ancombc_test(
   // For each feature i, W_i = number of features j (j != i) where the
   // log-ratio (y_i - y_j) has a significant t-test between groups.
   let pvalues : Array[Double] = Array::make(n_features, 1.0)
-  let w_stats : Array[Int] = Array::make(n_features, 0)
+  let w_stats : Array[Int32] = Array::make(n_features, 0)
   let log_fcs : Array[Double] = Array::make(n_features, 0.0)
   // For each feature, compute t-test on log-ratios relative to reference.
   for i in 0..<n_features {
-    let g1_vals : Array[Double] = Array::new()
-    let g2_vals : Array[Double] = Array::new()
+    let g1_vals : Array[Double] = Array(capacity=0)
+    let g2_vals : Array[Double] = Array(capacity=0)
     for j in g1_indices {
       g1_vals.push(log_ratios[i][j])
     }
@@ -598,8 +598,8 @@ pub fn ancombc_test(
         continue
       }
       // Log-ratio of feature i relative to feature j.
-      let g1_vals : Array[Double] = Array::new()
-      let g2_vals : Array[Double] = Array::new()
+      let g1_vals : Array[Double] = Array(capacity=0)
+      let g2_vals : Array[Double] = Array(capacity=0)
       for k in g1_indices {
         g1_vals.push(log_data[i][k] - log_data[j][k])
       }
@@ -618,7 +618,7 @@ pub fn ancombc_test(
   // W threshold: 0.7 * (n_features - 1).
   let w_threshold = ((n_features - 1).to_double() * 0.7).to_int()
   // Build results.
-  let results : Array[AncombcResult] = Array::new()
+  let results : Array[AncombcResult] = Array(capacity=0)
   for i in 0..<n_features {
     let sig = qvalues[i] <= alpha && w_stats[i] > w_threshold
     results.push(
@@ -650,7 +650,7 @@ pub fn ancombc_test(
 ///|
 /// Text summary of the ANCOMBC test result.
 pub fn ancombc_result_summary(result : AncombcTestResult) -> String {
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   sb.write_string("=== ANCOMBC Differential Abundance Test ===\n")
   sb.write_string("Comparison: ")
   sb.write_string(result.group1)

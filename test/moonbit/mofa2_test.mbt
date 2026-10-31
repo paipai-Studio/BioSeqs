@@ -21,7 +21,7 @@ test "mofa_params_default" {
 
 ///|
 test "mofa_view_creation" {
-  let data : Array[Array[Double]] = Array::new()
+  let data : Array[Array[Double]] = Array(capacity=0)
   data.push([1.0, 2.0, 3.0])
   data.push([4.0, 5.0, 6.0])
   let view = @src.MofaView::new(
@@ -90,7 +90,7 @@ test "mofa_active_factors" {
 ///|
 test "mofa_single_view" {
   // Should work with a single view
-  let data : Array[Array[Double]] = Array::new()
+  let data : Array[Array[Double]] = Array(capacity=0)
   let mut s = 0
   while s < 15 {
     let row : Array[Double] = Array::make(10, 0.0)
@@ -103,7 +103,7 @@ test "mofa_single_view" {
     s = s + 1
   }
   let view = @src.MofaView::new("single", data, [], [])
-  let views : Array[@src.MofaView] = Array::new()
+  let views : Array[@src.MofaView] = Array(capacity=0)
   views.push(view)
   let params = @src.MofaParams::create(n_factors=2, max_iterations=15)
   let result = @src.mofa_run(views, params)
@@ -113,7 +113,7 @@ test "mofa_single_view" {
 
 ///|
 test "mofa_empty_views" {
-  let views : Array[@src.MofaView] = Array::new()
+  let views : Array[@src.MofaView] = Array(capacity=0)
   let params = @src.MofaParams::create(n_factors=2)
   let result = @src.mofa_run(views, params)
   assert_true(result.factors.length() == 0)

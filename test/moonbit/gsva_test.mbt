@@ -15,7 +15,7 @@ test "gsva_create_example_gene_sets" {
 ///|
 test "gsva_params_new" {
   let params = @src.GSVAParams::new()
-  assert_eq(params.method, "ssgsea")
+  assert_eq(params.method_, "ssgsea")
 }
 
 ///|

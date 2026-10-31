@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<title>primer_web — 引物设计器</title>
+<style>
+  :root { --accent:#4ca1af; --good:#7fc97f; --warn:#e6d35e; --bad:#d95f02; }
+  * { box-sizing: border-box; }
+  body { font-family: -apple-system,"Segoe UI","PingFang SC",sans-serif; margin:0; background:#f5f5f5; color:#333; }
+  header { background:linear-gradient(135deg,#2c3e50,#4ca1af); color:#fff; padding:18px 28px; }
+  header h1 { margin:0; font-size:20px; }
+  header p { margin:4px 0 0; font-size:12px; opacity:.85; }
+  main { max-width:1100px; margin:0 auto; padding:20px; }
+  .cards { display:flex; gap:14px; flex-wrap:wrap; margin-bottom:20px; }
+  .card { background:#fff; border-radius:8px; padding:14px 20px; flex:1; min-width:140px; box-shadow:0 1px 3px rgba(0,0,0,.08); }
+  .card .v { font-size:22px; font-weight:700; color:#2c3e50; font-family:ui-monospace,monospace; }
+  .card .k { font-size:12px; color:#888; margin-top:2px; }
+  section { background:#fff; border-radius:8px; padding:18px 22px; margin-bottom:20px; box-shadow:0 1px 3px rgba(0,0,0,.08); }
+  section h2 { font-size:15px; margin:0 0 12px; border-left:4px solid var(--accent); padding-left:10px; }
+  table { border-collapse:collapse; width:100%; font-size:13px; }
+  th,td { text-align:left; padding:6px 10px; border-bottom:1px solid #eee; font-family:ui-monospace,monospace; }
+  th { color:#666; font-weight:600; cursor:pointer; user-select:none; white-space:nowrap; }
+  th:hover { background:#f0f7f9; }
+  tr:hover td { background:#f7fbfc; }
+  .seq { letter-spacing:2px; color:#2c3e50; font-weight:600; }
+  .tm-bar { display:inline-block; height:10px; border-radius:2px; vertical-align:middle; }
+  .note { font-size:12px; color:#999; margin-top:8px; }
+  .tag { display:inline-block; padding:1px 7px; border-radius:10px; font-size:11px; font-weight:600; }
+  .tag.ok { background:#e8f5e9; color:#2e7d32; }
+  .tag.warn { background:#fff8e1; color:#b28704; }
+  .tag.bad { background:#fdecea; color:#b71c1c; }
+  .amp { position:relative; height:64px; background:#f7f9fa; border-radius:6px; margin:8px 0 4px; overflow:hidden; }
+  .amp .fwd,.amp .rev { position:absolute; top:22px; height:12px; border-radius:6px; }
+  .amp .fwd { left:0; background:linear-gradient(90deg,var(--good),#52a05c); }
+  .amp .rev { right:0; background:linear-gradient(270deg,var(--accent),#2c7a8a); }
+  .amp .lbl { position:absolute; top:2px; font-size:11px; color:#777; font-family:ui-monospace,monospace; }
+  #err { display:none; background:#fdecea; color:#b71c1c; padding:14px 20px; border-radius:8px; margin:20px; }
+  #pairs-table tr.active td { background:#e8f4f6 !important; }
+</style>
+</head>
+<body>
+<header>
+  <h1>primer_web — 引物设计器</h1>
+  <p>primer3 引擎 · 纯浏览器渲染 · 序列不出本机 · 由 BioSeqs (MoonBit) 计算</p>
+</header>
+<div id="err">无法加载 report.json —— 请先运行
+  <code>moon run examples/primer_web -- --demo &gt; examples/primer_web/report.json</code>
+  并在同目录执行 <code>python3 -m http.server</code> 后访问。</div>
+<main>
+  <div class="cards" id="cards"></div>
+  <section><h2>推荐引物对</h2><div id="best-pair"></div>
+    <p class="note">产物 = 反向引物末端 − 正向引物起点（模板链坐标）。点击候选行可在下方高亮对应组合。</p></section>
+  <section><h2>引物对组合（按组合得分）</h2><table id="pairs-table"></table></section>
+  <section><h2>正向引物候选</h2><table id="fwd-table"></table></section>
+  <section><h2>反向引物候选</h2><table id="rev-table"></table></section>
+</main>
+<script>
+"use strict";
+const $ = id => document.getElementById(id);
+const fmt = (v, d=1) => Number(v).toFixed(d);
+function tmColor(tm) { return tm >= 52 && tm <= 68 ? "var(--good)" : tm >= 45 && tm <= 74 ? "var(--warn)" : "var(--bad)"; }
+function gcTag(gc) { const p = gc*100; return p>=40&&p<=60 ? '<span class="tag ok">'+fmt(p)+'%</span>' : p>=35&&p<=65 ? '<span class="tag warn">'+fmt(p)+'%</span>' : '<span class="tag bad">'+fmt(p)+'%</span>'; }
+function cmpTag(v, limit, worse) {
+  const cls = v===0 ? "ok" : v<=limit ? "warn" : "bad";
+  return '<span class="tag '+cls+'">'+v+'</span>';
+}
+function render(R) {
+  const T = R.template, F = R.forward, RV = R.reverse, P = R.pairs;
+  $("cards").innerHTML = [
+    ["模板长度", T.length + " bp"], ["模板 GC", fmt(T.gc*100) + "%"],
+    ["Wallace Tm", fmt(T.tm_wallace) + "°C"],
+    ["正向候选", F.length], ["反向候选", RV.length], ["组合数", P.length]
+  ].map(([k,v]) => '<div class="card"><div class="v">'+v+'</div><div class="k">'+k+'</div></div>').join("");
+  // 推荐引物对
+  if (P.length && F.length && RV.length) {
+    const b = P[0], f = F[b.forward_index], r = RV[b.reverse_index];
+    const ampPct = p => Math.max(2, Math.min(46, p*100/T.length));
+    $("best-pair").innerHTML =
+      '<div class="amp"><span class="lbl" style="left:'+ampPct(f.start)+'%">F '+f.start+'–'+(f.start+f.length)+'</span>' +
+      '<span class="lbl" style="right:'+ampPct(T.length-(r.start+r.length))+'%">R '+r.start+'–'+(r.start+r.length)+'</span>' +
+      '<div class="fwd" style="width:'+ampPct(f.length)+'%; left:'+ampPct(f.start)+'%"></div>' +
+      '<div class="rev" style="width:'+ampPct(r.length)+'%; right:'+ampPct(T.length-(r.start+r.length))+'%"></div>' +
+      '<span class="lbl" style="left:50%; transform:translateX(-50%); bottom:4px; top:auto">产物 '+b.product_len+' bp</span></div>' +
+      '<table><tr><th></th><th>序列 (5\u2032→3\u2032)</th><th>位置</th><th>Tm</th><th>GC</th><th>自互补</th><th>得分</th></tr>' +
+      '<tr><td>F</td><td class="seq">'+f.sequence+'</td><td>'+f.start+'–'+(f.start+f.length)+'</td>' +
+      '<td><span class="tm-bar" style="width:26px;background:'+tmColor(f.tm)+'"></span> '+fmt(f.tm)+'</td><td>'+gcTag(f.gc)+'</td><td>'+cmpTag(f.self_complement,3)+'</td><td>'+fmt(f.score,2)+'</td></tr>' +
+      '<tr><td>R</td><td class="seq">'+r.sequence+'</td><td>'+r.start+'–'+(r.start+r.length)+'</td>' +
+      '<td><span class="tm-bar" style="width:26px;background:'+tmColor(r.tm)+'"></span> '+fmt(r.tm)+'</td><td>'+gcTag(r.gc)+'</td><td>'+cmpTag(r.self_complement,3)+'</td><td>'+fmt(r.score,2)+'</td></tr></table>';
+  } else {
+    $("best-pair").innerHTML = '<p class="note">模板过短或无满足约束的候选 —— 试试更长的模板序列。</p>';
+  }
+  // 组合表
+  $("pairs-table").innerHTML = "<tr><th>#</th><th>正向</th><th>反向</th><th>产物(bp)</th><th>组合得分</th></tr>" +
+    P.map((p,i) => '<tr data-f="'+p.forward_index+'" data-r="'+p.reverse_index+'"><td>'+(i+1)+'</td>' +
+      '<td class="seq">'+(F[p.forward_index] ? F[p.forward_index].sequence : "—")+'</td>' +
+      '<td class="seq">'+(RV[p.reverse_index] ? RV[p.reverse_index].sequence : "—")+'</td>' +
+      '<td>'+p.product_len+'</td><td>'+fmt(p.pair_score,2)+'</td></tr>').join("");
+  // 候选表(带排序)
+  function candTable(rows, isFwd) {
+    const head = "<tr><th>#</th><th>序列 (5\u2032→3\u2032)</th><th>起点</th><th>长度</th><th>Tm(°C)</th><th>GC</th><th>自互补</th><th>得分</th></tr>";
+    let idx = rows.map((_, i) => i);
+    let sortKey = null, asc = false;
+    function draw() {
+      const body = idx.map(i => { const r = rows[i]; return '<tr><td>'+(i+1)+'</td><td class="seq">'+r.sequence+'</td><td>'+r.start+'</td><td>'+r.length+'</td>' +
+        '<td><span class="tm-bar" style="width:26px;background:'+tmColor(r.tm)+'"></span> '+fmt(r.tm)+'</td><td>'+gcTag(r.gc)+'</td><td>'+cmpTag(r.self_complement,3)+'</td><td>'+fmt(r.score,2)+'</td></tr>'; }).join("");
+      return head + body;
+    }
+    const tbl = isFwd ? $("fwd-table") : $("rev-table");
+    tbl.innerHTML = draw();
+    tbl.querySelectorAll("th").forEach((th, ci) => {
+      th.onclick = () => {
+        const keys = [null,"sequence","start","length","tm","gc","self_complement","score"];
+        const k = keys[ci];
+        if (!k) return;
+        asc = sortKey === k ? !asc : false;
+        sortKey = k;
+        idx.sort((a,b) => {
+          const va = rows[a][k], vb = rows[b][k];
+          const c = typeof va === "string" ? va.localeCompare(vb) : va - vb;
+          return asc ? c : -c;
+        });
+        tbl.innerHTML = draw();
+        tbl.querySelectorAll("th")[ci].textContent += asc ? " ↑" : " ↓";
+      };
+    });
+  }
+  candTable(F, true);
+  candTable(RV, false);
+}
+fetch("report.json").then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
+  .then(render).catch(() => { $("err").style.display = "block"; });
+</script>
+</body>
+</html>

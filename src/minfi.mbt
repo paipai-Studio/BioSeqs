@@ -440,7 +440,7 @@ pub fn minfi_quantile_normalize(
     return data
   }
   // Sort each sample column independently (column-major).
-  let sorted_cols : Array[Array[Double]] = Array::new()
+  let sorted_cols : Array[Array[Double]] = Array(capacity=0)
   let mut s = 0
   while s < n_samples {
     let col : Array[Double] = Array::make(n_probes, 0.0)
@@ -466,7 +466,7 @@ pub fn minfi_quantile_normalize(
     r = r + 1
   }
   // Assign each value its rank within its sample, then map to rank_means.
-  let result : Array[Array[Double]] = Array::new()
+  let result : Array[Array[Double]] = Array(capacity=0)
   let mut p = 0
   while p < n_probes {
     let out_row : Array[Double] = Array::make(n_samples, 0.0)
@@ -530,12 +530,12 @@ pub fn RGChannelSet::new(
 }
 
 ///|
-pub fn RGChannelSet::n_probes(self : RGChannelSet) -> Int {
+pub fn RGChannelSet::n_probes(self : RGChannelSet) -> Int32 {
   self.red.length()
 }
 
 ///|
-pub fn RGChannelSet::n_samples(self : RGChannelSet) -> Int {
+pub fn RGChannelSet::n_samples(self : RGChannelSet) -> Int32 {
   if self.red.length() > 0 {
     self.red[0].length()
   } else {
@@ -590,12 +590,12 @@ pub fn MethylSet::new(
 }
 
 ///|
-pub fn MethylSet::n_probes(self : MethylSet) -> Int {
+pub fn MethylSet::n_probes(self : MethylSet) -> Int32 {
   self.methylated.length()
 }
 
 ///|
-pub fn MethylSet::n_samples(self : MethylSet) -> Int {
+pub fn MethylSet::n_samples(self : MethylSet) -> Int32 {
   if self.methylated.length() > 0 {
     self.methylated[0].length()
   } else {
@@ -612,8 +612,8 @@ pub fn MethylSet::to_string(self : MethylSet) -> String {
   // Median intensities summary.
   let mut s = 0
   while s < self.n_samples() && s < 5 {
-    let m_vals : Array[Double] = Array::new()
-    let u_vals : Array[Double] = Array::new()
+    let m_vals : Array[Double] = Array(capacity=0)
+    let u_vals : Array[Double] = Array(capacity=0)
     let mut p = 0
     while p < self.n_probes() {
       m_vals.push(self.methylated[p][s])
@@ -661,12 +661,12 @@ pub fn GenomicRatioSet::new(
 }
 
 ///|
-pub fn GenomicRatioSet::n_probes(self : GenomicRatioSet) -> Int {
+pub fn GenomicRatioSet::n_probes(self : GenomicRatioSet) -> Int32 {
   self.beta.length()
 }
 
 ///|
-pub fn GenomicRatioSet::n_samples(self : GenomicRatioSet) -> Int {
+pub fn GenomicRatioSet::n_samples(self : GenomicRatioSet) -> Int32 {
   if self.beta.length() > 0 {
     self.beta[0].length()
   } else {
@@ -681,7 +681,7 @@ pub fn GenomicRatioSet::to_string(self : GenomicRatioSet) -> String {
   result = result + "Probes: " + self.n_probes().to_string() + "\n"
   result = result + "Samples: " + self.n_samples().to_string() + "\n"
   // Overall beta summary.
-  let all_betas : Array[Double] = Array::new()
+  let all_betas : Array[Double] = Array(capacity=0)
   let mut p = 0
   while p < self.n_probes() {
     let mut s = 0
@@ -704,9 +704,9 @@ pub fn GenomicRatioSet::to_string(self : GenomicRatioSet) -> String {
 ///|
 pub struct DMRRegion {
   chr : String
-  start : Int
-  end : Int
-  n_probes : Int
+  start : Int32
+  end : Int32
+  n_probes : Int32
   mean_beta_diff : Double
   pvalue : Double
   fdr : Double
@@ -715,21 +715,21 @@ pub struct DMRRegion {
 ///|
 pub fn DMRRegion::new(
   chr : String,
-  start : Int,
-  end : Int,
-  n_probes : Int,
+  start : Int32,
+  end : Int32,
+  n_probes : Int32,
   mean_beta_diff : Double,
   pvalue : Double,
   fdr : Double,
 ) -> DMRRegion {
-  DMRRegion::{ chr, start, end, n_probes, mean_beta_diff, pvalue, fdr }
+  DMRRegion::{ chr, start, end, n_probes, mean_beta_diff, pvalue, fdr, }
 }
 
 ///|
 pub struct DMRResult {
   regions : Array[DMRRegion]
-  n_dmr : Int
-  n_significant : Int
+  n_dmr : Int32
+  n_significant : Int32
   threshold : Double
 }
 
@@ -747,7 +747,7 @@ pub fn DMRResult::new(
     }
     i = i + 1
   }
-  DMRResult::{ regions, n_dmr, n_significant: n_sig, threshold }
+  DMRResult::{ regions, n_dmr, n_significant: n_sig, threshold, }
 }
 
 ///|
@@ -793,18 +793,18 @@ pub fn DMRResult::to_string(self : DMRResult) -> String {
 pub struct DMPResult {
   probe_names : Array[String]
   chr : Array[String]
-  pos : Array[Int]
+  pos : Array[Int32]
   pvalues : Array[Double]
   fdrs : Array[Double]
   beta_diffs : Array[Double]
-  n_dmp : Int
+  n_dmp : Int32
 }
 
 ///|
 pub fn DMPResult::new(
   probe_names : Array[String],
   chr : Array[String],
-  pos : Array[Int],
+  pos : Array[Int32],
   pvalues : Array[Double],
   fdrs : Array[Double],
   beta_diffs : Array[Double],
@@ -817,7 +817,7 @@ pub fn DMPResult::new(
     }
     i = i + 1
   }
-  DMPResult::{ probe_names, chr, pos, pvalues, fdrs, beta_diffs, n_dmp }
+  DMPResult::{ probe_names, chr, pos, pvalues, fdrs, beta_diffs, n_dmp, }
 }
 
 ///|
@@ -901,7 +901,7 @@ pub struct QCReport {
   median_unmeth : Array[Double]
   median_total : Array[Double]
   detection_pvalues : Array[Double]
-  failed_probes : Array[Int]
+  failed_probes : Array[Int32]
   bisulfite_conversion : Array[Double]
   sex_predictions : Array[String]
 }
@@ -913,7 +913,7 @@ pub fn QCReport::new(
   median_unmeth : Array[Double],
   median_total : Array[Double],
   detection_pvalues : Array[Double],
-  failed_probes : Array[Int],
+  failed_probes : Array[Int32],
   bisulfite_conversion : Array[Double],
   sex_predictions : Array[String],
 ) -> QCReport {
@@ -1015,8 +1015,8 @@ pub fn minfi_preprocess_noob(rgset : RGChannelSet) -> MethylSet {
     green_bg[s] = minfi_quantile_value(green_vals, 0.05)
     s = s + 1
   }
-  let methylated : Array[Array[Double]] = Array::new()
-  let unmethylated : Array[Array[Double]] = Array::new()
+  let methylated : Array[Array[Double]] = Array(capacity=0)
+  let unmethylated : Array[Array[Double]] = Array(capacity=0)
   let mut p = 0
   while p < n_probes {
     let m_row : Array[Double] = Array::make(n_samples, 0.0)
@@ -1051,8 +1051,8 @@ pub fn minfi_preprocess_illumina(rgset : RGChannelSet) -> MethylSet {
   let green_bg : Array[Double] = Array::make(n_samples, 0.0)
   let mut s = 0
   while s < n_samples {
-    let red_low : Array[Double] = Array::new()
-    let green_low : Array[Double] = Array::new()
+    let red_low : Array[Double] = Array(capacity=0)
+    let green_low : Array[Double] = Array(capacity=0)
     let mut p = 0
     while p < n_probes {
       red_low.push(rgset.red[p][s])
@@ -1086,8 +1086,8 @@ pub fn minfi_preprocess_illumina(rgset : RGChannelSet) -> MethylSet {
     }
     s = s + 1
   }
-  let methylated : Array[Array[Double]] = Array::new()
-  let unmethylated : Array[Array[Double]] = Array::new()
+  let methylated : Array[Array[Double]] = Array(capacity=0)
+  let unmethylated : Array[Array[Double]] = Array(capacity=0)
   let mut p = 0
   while p < n_probes {
     let m_row : Array[Double] = Array::make(n_samples, 0.0)
@@ -1120,8 +1120,8 @@ pub fn minfi_preprocess_illumina(rgset : RGChannelSet) -> MethylSet {
 pub fn minfi_preprocess_quantile(rgset : RGChannelSet) -> MethylSet {
   let n_probes = rgset.red.length()
   let n_samples = if n_probes > 0 { rgset.red[0].length() } else { 0 }
-  let methylated : Array[Array[Double]] = Array::new()
-  let unmethylated : Array[Array[Double]] = Array::new()
+  let methylated : Array[Array[Double]] = Array(capacity=0)
+  let unmethylated : Array[Array[Double]] = Array(capacity=0)
   let mut p = 0
   while p < n_probes {
     let m_row : Array[Double] = Array::make(n_samples, 0.0)
@@ -1155,7 +1155,7 @@ pub fn minfi_preprocess_funnorm(rgset : RGChannelSet) -> GenomicRatioSet {
   // Recompute beta from normalized M-values.
   let n_probes = grset.mvalues.length()
   let n_samples = if n_probes > 0 { grset.mvalues[0].length() } else { 0 }
-  let new_beta : Array[Array[Double]] = Array::new()
+  let new_beta : Array[Array[Double]] = Array(capacity=0)
   let mut p = 0
   while p < n_probes {
     let row : Array[Double] = Array::make(n_samples, 0.0)
@@ -1180,8 +1180,8 @@ pub fn minfi_preprocess_funnorm(rgset : RGChannelSet) -> GenomicRatioSet {
 pub fn minfi_ratio_convert(mset : MethylSet) -> GenomicRatioSet {
   let n_probes = mset.methylated.length()
   let n_samples = if n_probes > 0 { mset.methylated[0].length() } else { 0 }
-  let beta : Array[Array[Double]] = Array::new()
-  let mvalues : Array[Array[Double]] = Array::new()
+  let beta : Array[Array[Double]] = Array(capacity=0)
+  let mvalues : Array[Array[Double]] = Array(capacity=0)
   let offset = 100.0
   let mut p = 0
   while p < n_probes {
@@ -1232,7 +1232,7 @@ pub fn minfi_detection_pvalue(rgset : RGChannelSet) -> Array[Double] {
   let bg_sd : Array[Double] = Array::make(n_samples, 0.0)
   let mut s = 0
   while s < n_samples {
-    let low : Array[Double] = Array::new()
+    let low : Array[Double] = Array(capacity=0)
     let mut p = 0
     while p < n_probes {
       let m = if rgset.red[p][s] < rgset.green[p][s] {
@@ -1244,7 +1244,7 @@ pub fn minfi_detection_pvalue(rgset : RGChannelSet) -> Array[Double] {
       p = p + 1
     }
     let q = minfi_quantile_value(low, 0.05)
-    let bg_vals : Array[Double] = Array::new()
+    let bg_vals : Array[Double] = Array(capacity=0)
     p = 0
     while p < n_probes {
       let m = if rgset.red[p][s] < rgset.green[p][s] {
@@ -1262,7 +1262,7 @@ pub fn minfi_detection_pvalue(rgset : RGChannelSet) -> Array[Double] {
     bg_sd[s] = if sd < 1.0 { 1.0 } else { sd }
     s = s + 1
   }
-  let result : Array[Double] = Array::new()
+  let result : Array[Double] = Array(capacity=0)
   let mut p = 0
   while p < n_probes {
     let mut sum_p = 0.0
@@ -1306,13 +1306,13 @@ pub fn minfi_get_qc(rgset : RGChannelSet) -> QCReport {
   let median_unmeth : Array[Double] = Array::make(n_samples, 0.0)
   let median_total : Array[Double] = Array::make(n_samples, 0.0)
   let detection_pvalues : Array[Double] = Array::make(n_samples, 0.0)
-  let failed_probes : Array[Int] = Array::make(n_samples, 0)
+  let failed_probes : Array[Int32] = Array::make(n_samples, 0)
   let bisulfite_conversion : Array[Double] = Array::make(n_samples, 0.0)
   let mut s = 0
   while s < n_samples {
-    let m_vals : Array[Double] = Array::new()
-    let u_vals : Array[Double] = Array::new()
-    let t_vals : Array[Double] = Array::new()
+    let m_vals : Array[Double] = Array(capacity=0)
+    let u_vals : Array[Double] = Array(capacity=0)
+    let t_vals : Array[Double] = Array(capacity=0)
     let mut p = 0
     while p < n_probes {
       m_vals.push(mset.methylated[p][s])
@@ -1373,7 +1373,7 @@ pub fn minfi_estimate_sex(grset : GenomicRatioSet) -> Array[String] {
   let n_probes = grset.beta.length()
   let n_samples = grset.n_samples()
   // Collect chrX probes by name.
-  let chrx_indices : Array[Int] = Array::new()
+  let chrx_indices : Array[Int32] = Array(capacity=0)
   let mut p = 0
   while p < n_probes {
     let name = grset.probe_names[p]
@@ -1382,10 +1382,10 @@ pub fn minfi_estimate_sex(grset : GenomicRatioSet) -> Array[String] {
     }
     p = p + 1
   }
-  let result : Array[String] = Array::new()
+  let result : Array[String] = Array(capacity=0)
   let mut s = 0
   while s < n_samples {
-    let vals : Array[Double] = Array::new()
+    let vals : Array[Double] = Array(capacity=0)
     if chrx_indices.length() > 0 {
       let mut i = 0
       while i < chrx_indices.length() {
@@ -1394,7 +1394,7 @@ pub fn minfi_estimate_sex(grset : GenomicRatioSet) -> Array[String] {
       }
     } else {
       // Fallback: use the lowest 5% beta probes for this sample.
-      let all : Array[Double] = Array::new()
+      let all : Array[Double] = Array(capacity=0)
       let mut p = 0
       while p < n_probes {
         all.push(grset.beta[p][s])
@@ -1430,7 +1430,7 @@ pub fn minfi_estimate_sex(grset : GenomicRatioSet) -> Array[String] {
 /// BH-FDR adjusted p-values, and per-probe beta differences (mean1 - mean0).
 pub fn minfi_find_dmps(
   grset : GenomicRatioSet,
-  groups : Array[Int],
+  groups : Array[Int32],
 ) -> DMPResult {
   let n_probes = grset.beta.length()
   let n_samples = grset.n_samples()
@@ -1440,15 +1440,15 @@ pub fn minfi_find_dmps(
   // Find the two groups actually present.
   let group_a = 0
   let group_b = 1
-  let probe_names : Array[String] = Array::new()
-  let chr_arr : Array[String] = Array::new()
-  let pos_arr : Array[Int] = Array::new()
-  let pvalues : Array[Double] = Array::new()
-  let beta_diffs : Array[Double] = Array::new()
+  let probe_names : Array[String] = Array(capacity=0)
+  let chr_arr : Array[String] = Array(capacity=0)
+  let pos_arr : Array[Int32] = Array(capacity=0)
+  let pvalues : Array[Double] = Array(capacity=0)
+  let beta_diffs : Array[Double] = Array(capacity=0)
   let mut p = 0
   while p < n_probes {
-    let g0_vals : Array[Double] = Array::new()
-    let g1_vals : Array[Double] = Array::new()
+    let g0_vals : Array[Double] = Array(capacity=0)
+    let g1_vals : Array[Double] = Array(capacity=0)
     let mut s = 0
     while s < n_samples {
       if groups[s] == group_a {
@@ -1486,8 +1486,8 @@ pub fn minfi_find_dmps(
 /// synthetic location is generated so downstream DMR merging still works.
 fn minfi_parse_probe_loc(
   probe_name : String,
-  fallback_idx : Int,
-) -> (String, Int) {
+  fallback_idx : Int32,
+) -> (String, Int32) {
   let parts = split_by_char(probe_name, '_'.to_int())
   if parts.length() >= 3 {
     let chr_part = parts[parts.length() - 2]
@@ -1506,10 +1506,10 @@ fn minfi_parse_probe_loc(
 /// Differentially methylated regions analysis.
 /// Groups significant DMPs (FDR < threshold) by chromosome, sorts by position,
 /// then merges DMPs whose adjacent positions are within max_gap base pairs.
-pub fn minfi_find_dmrs(dmp_result : DMPResult, max_gap : Int) -> DMRResult {
+pub fn minfi_find_dmrs(dmp_result : DMPResult, max_gap : Int32) -> DMRResult {
   let n = dmp_result.probe_names.length()
   // Group significant probe indices by chromosome.
-  let chr_to_indices : Map[String, Array[Int]] = Map([], capacity=24)
+  let chr_to_indices : Map[String, Array[Int32]] = Map([], capacity=24)
   let mut i = 0
   while i < n {
     if dmp_result.fdrs[i] < 0.05 {
@@ -1517,14 +1517,14 @@ pub fn minfi_find_dmrs(dmp_result : DMPResult, max_gap : Int) -> DMRResult {
       match chr_to_indices.get(c) {
         Some(a) => a.push(i)
         None => {
-          let a : Array[Int] = [i]
+          let a : Array[Int32] = [i]
           chr_to_indices[c] = a
         }
       }
     }
     i = i + 1
   }
-  let regions : Array[DMRRegion] = Array::new()
+  let regions : Array[DMRRegion] = Array(capacity=0)
   let chr_keys = chr_to_indices.keys().collect()
   let mut ci = 0
   while ci < chr_keys.length() {
@@ -1610,9 +1610,9 @@ pub fn minfi_filter_probes(
   threshold : Double,
 ) -> GenomicRatioSet {
   let n_probes = grset.beta.length()
-  let new_beta : Array[Array[Double]] = Array::new()
-  let new_mvalues : Array[Array[Double]] = Array::new()
-  let new_probe_names : Array[String] = Array::new()
+  let new_beta : Array[Array[Double]] = Array(capacity=0)
+  let new_mvalues : Array[Array[Double]] = Array(capacity=0)
+  let new_probe_names : Array[String] = Array(capacity=0)
   let mut p = 0
   while p < n_probes {
     let row = grset.beta[p]
@@ -1640,9 +1640,9 @@ pub fn minfi_filter_probes(
 /// Drops probes whose names start with "rs" (the dbSNP identifier prefix).
 pub fn minfi_drop_snp_probes(grset : GenomicRatioSet) -> GenomicRatioSet {
   let n_probes = grset.beta.length()
-  let new_beta : Array[Array[Double]] = Array::new()
-  let new_mvalues : Array[Array[Double]] = Array::new()
-  let new_probe_names : Array[String] = Array::new()
+  let new_beta : Array[Array[Double]] = Array(capacity=0)
+  let new_mvalues : Array[Array[Double]] = Array(capacity=0)
+  let new_probe_names : Array[String] = Array(capacity=0)
   let mut p = 0
   while p < n_probes {
     let name = grset.probe_names[p]
@@ -1671,8 +1671,8 @@ pub fn minfi_drop_snp_probes(grset : GenomicRatioSet) -> GenomicRatioSet {
 /// otherwise assigns synthetic positions on chr1.
 pub fn minfi_map_to_genome(
   grset : GenomicRatioSet,
-) -> Map[String, (String, Int)] {
-  let result : Map[String, (String, Int)] = Map(
+) -> Map[String, (String, Int32)] {
+  let result : Map[String, (String, Int32)] = Map(
     [],
     capacity=grset.probe_names.length(),
   )
@@ -1763,10 +1763,10 @@ pub fn minfi_create_example_grset() -> GenomicRatioSet {
     [0.42, 0.43, 0.45, 0.44],
     [0.48, 0.49, 0.5, 0.49],
   ]
-  let mvalues : Array[Array[Double]] = Array::new()
+  let mvalues : Array[Array[Double]] = Array(capacity=0)
   let mut p = 0
   while p < beta.length() {
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     let mut s = 0
     while s < beta[p].length() {
       let b = beta[p][s]

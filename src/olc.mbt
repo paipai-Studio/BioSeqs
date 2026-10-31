@@ -12,8 +12,8 @@
 // ---------------------------------------------------------------------------
 
 ///|
-fn sa_copy_array(arr : Array[Int]) -> Array[Int] {
-  let result : Array[Int] = Array::new()
+fn sa_copy_array(arr : Array[Int32]) -> Array[Int32] {
+  let result : Array[Int32] = Array(capacity=0)
   for i = 0; i < arr.length(); i = i + 1 {
     result.push(arr[i])
   }
@@ -26,33 +26,33 @@ fn sa_copy_array(arr : Array[Int]) -> Array[Int] {
 
 ///|
 pub struct Overlap {
-  from : Int
-  to : Int
-  overlap_len : Int
+  from : Int32
+  to : Int32
+  overlap_len : Int32
 }
 
 ///|
-pub fn Overlap::new(from : Int, to : Int, overlap_len : Int) -> Overlap {
-  Overlap::{ from, to, overlap_len }
+pub fn Overlap::new(from : Int32, to : Int32, overlap_len : Int32) -> Overlap {
+  Overlap::{ from, to, overlap_len, }
 }
 
 ///|
-pub fn Overlap::from(self : Overlap) -> Int {
+pub fn Overlap::from(self : Overlap) -> Int32 {
   self.from
 }
 
 ///|
-pub fn Overlap::to(self : Overlap) -> Int {
+pub fn Overlap::to(self : Overlap) -> Int32 {
   self.to
 }
 
 ///|
-pub fn Overlap::overlap_len(self : Overlap) -> Int {
+pub fn Overlap::overlap_len(self : Overlap) -> Int32 {
   self.overlap_len
 }
 
 ///|
-pub fn compute_overlap(a : String, b : String, min_overlap : Int) -> Int {
+pub fn compute_overlap(a : String, b : String, min_overlap : Int32) -> Int32 {
   let a_len = a.length()
   let b_len = b.length()
   let max_possible = if a_len < b_len { a_len } else { b_len }
@@ -72,10 +72,10 @@ pub fn compute_overlap(a : String, b : String, min_overlap : Int) -> Int {
 ///|
 pub fn compute_all_overlaps(
   reads : Array[String],
-  min_overlap : Int,
+  min_overlap : Int32,
 ) -> Array[Overlap] {
   let n = reads.length()
-  let overlaps : Array[Overlap] = Array::new()
+  let overlaps : Array[Overlap] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {
     for j = 0; j < n; j = j + 1 {
       if i == j {
@@ -93,12 +93,12 @@ pub fn compute_all_overlaps(
 ///|
 pub fn compute_overlap_graph(
   reads : Array[String],
-  min_overlap : Int,
-) -> Map[Int, Array[(Int, Int)]] {
+  min_overlap : Int32,
+) -> Map[Int32, Array[(Int32, Int32)]] {
   let n = reads.length()
-  let graph : Map[Int, Array[(Int, Int)]] = Map([], capacity=n)
+  let graph : Map[Int32, Array[(Int32, Int32)]] = Map([], capacity=n)
   for i = 0; i < n; i = i + 1 {
-    let edges : Array[(Int, Int)] = Array::new()
+    let edges : Array[(Int32, Int32)] = Array(capacity=0)
     for j = 0; j < n; j = j + 1 {
       if i == j {
         continue
@@ -120,13 +120,16 @@ pub fn compute_overlap_graph(
 // ---------------------------------------------------------------------------
 
 ///|
-pub fn find_layout_path(reads : Array[String], min_overlap : Int) -> Array[Int] {
+pub fn find_layout_path(
+  reads : Array[String],
+  min_overlap : Int32,
+) -> Array[Int32] {
   let n = reads.length()
   if n == 0 {
-    return Array::new()
+    return Array(capacity=0)
   }
   if n == 1 {
-    let path : Array[Int] = Array::new()
+    let path : Array[Int32] = Array(capacity=0)
     path.push(0)
     return path
   }
@@ -136,21 +139,21 @@ pub fn find_layout_path(reads : Array[String], min_overlap : Int) -> Array[Int] 
 
 ///|
 fn find_hamiltonian_path(
-  graph : Map[Int, Array[(Int, Int)]],
-  n : Int,
-) -> Array[Int] {
-  let visited : Array[Bool] = Array::new()
+  graph : Map[Int32, Array[(Int32, Int32)]],
+  n : Int32,
+) -> Array[Int32] {
+  let visited : Array[Bool] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {
     visited.push(false)
   }
   for start = 0; start < n; start = start + 1 {
-    let path : Array[Int] = Array::new()
+    let path : Array[Int32] = Array(capacity=0)
     let (found, result_path) = dfs_hamiltonian(graph, start, visited, path, n)
     if found {
       return result_path
     }
   }
-  let path : Array[Int] = Array::new()
+  let path : Array[Int32] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {
     path.push(i)
   }
@@ -159,12 +162,12 @@ fn find_hamiltonian_path(
 
 ///|
 fn dfs_hamiltonian(
-  graph : Map[Int, Array[(Int, Int)]],
-  current : Int,
+  graph : Map[Int32, Array[(Int32, Int32)]],
+  current : Int32,
   visited : Array[Bool],
-  path : Array[Int],
-  n : Int,
-) -> (Bool, Array[Int]) {
+  path : Array[Int32],
+  n : Int32,
+) -> (Bool, Array[Int32]) {
   visited[current] = true
   let new_path = sa_copy_array(path)
   new_path.push(current)
@@ -189,7 +192,7 @@ fn dfs_hamiltonian(
     None => ()
   }
   visited[current] = false
-  (false, Array::new())
+  (false, Array(capacity=0))
 }
 
 // ---------------------------------------------------------------------------
@@ -197,11 +200,11 @@ fn dfs_hamiltonian(
 // ---------------------------------------------------------------------------
 
 ///|
-pub fn generate_consensus(reads : Array[String], path : Array[Int]) -> String {
+pub fn generate_consensus(reads : Array[String], path : Array[Int32]) -> String {
   if path.length() == 0 {
     return ""
   }
-  let consensus = StringBuilder::new()
+  let consensus = StringBuilder()
   consensus.write_string(reads[path[0]])
   for i = 1; i < path.length(); i = i + 1 {
     let prev_idx = path[i - 1]
@@ -216,7 +219,7 @@ pub fn generate_consensus(reads : Array[String], path : Array[Int]) -> String {
 }
 
 ///|
-pub fn olc_assemble(reads : Array[String], min_overlap : Int) -> String {
+pub fn olc_assemble(reads : Array[String], min_overlap : Int32) -> String {
   let path = find_layout_path(reads, min_overlap)
   generate_consensus(reads, path)
 }
@@ -226,9 +229,12 @@ pub fn olc_assemble(reads : Array[String], min_overlap : Int) -> String {
 // ---------------------------------------------------------------------------
 
 ///|
-pub fn overlap_graph_to_dot(reads : Array[String], min_overlap : Int) -> String {
+pub fn overlap_graph_to_dot(
+  reads : Array[String],
+  min_overlap : Int32,
+) -> String {
   let graph = compute_overlap_graph(reads, min_overlap)
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string("digraph OverlapGraph {\n")
   buf.write_string("  node [shape=ellipse];\n")
   for i = 0; i < reads.length(); i = i + 1 {
@@ -272,12 +278,12 @@ pub fn overlap_graph_to_dot(reads : Array[String], min_overlap : Int) -> String 
 ///|
 pub fn correct_errors(
   reads : Array[String],
-  min_overlap : Int,
+  min_overlap : Int32,
 ) -> Array[String] {
   let n = reads.length()
-  let corrected : Array[String] = Array::new()
+  let corrected : Array[String] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {
-    let read = reads[i]
+    let _read = reads[i]
     let corrected_read = correct_read(reads, i, min_overlap)
     corrected.push(corrected_read)
   }
@@ -285,10 +291,14 @@ pub fn correct_errors(
 }
 
 ///|
-fn correct_read(reads : Array[String], idx : Int, min_overlap : Int) -> String {
+fn correct_read(
+  reads : Array[String],
+  idx : Int32,
+  min_overlap : Int32,
+) -> String {
   let n = reads.length()
   let read = reads[idx]
-  let overlaps : Array[(String, Int)] = Array::new()
+  let overlaps : Array[(String, Int32)] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {
     if i == idx {
       continue

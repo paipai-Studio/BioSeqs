@@ -9,8 +9,8 @@
 pub struct MAFMutation {
   hugo_symbol : String
   chromosome : String
-  start_position : Int
-  end_position : Int
+  start_position : Int32
+  end_position : Int32
   reference_allele : String
   tumor_seq_allele1 : String
   tumor_sample_barcode : String
@@ -26,20 +26,20 @@ pub struct MAFData {
 
 ///|
 pub struct MutationSpectrum {
-  snv_count : Int
-  indel_count : Int
-  complex_count : Int
+  snv_count : Int32
+  indel_count : Int32
+  complex_count : Int32
   transitions : Array[String]
   transversions : Array[String]
-  transition_count : Int
-  transversion_count : Int
+  transition_count : Int32
+  transversion_count : Int32
 }
 
 ///|
 pub struct TMBResult {
   tmb : Double
   coding_region_size : Double
-  total_mutations : Int
+  total_mutations : Int32
   per_sample_tmb : Map[String, Double]
 }
 
@@ -53,8 +53,8 @@ pub struct OncoplotData {
 ///|
 pub struct CoOccurrenceResult {
   pair : (String, String)
-  co_occurrence : Int
-  mutual_exclusivity : Int
+  co_occurrence : Int32
+  mutual_exclusivity : Int32
   p_value : Double
 }
 
@@ -68,8 +68,8 @@ pub struct MutationalSignature {
 pub fn MAFMutation::new(
   hugo_symbol : String,
   chromosome : String,
-  start_position : Int,
-  end_position : Int,
+  start_position : Int32,
+  end_position : Int32,
   reference_allele : String,
   tumor_seq_allele1 : String,
   tumor_sample_barcode : String,
@@ -136,9 +136,9 @@ pub fn MAFMutation::is_transversion(self : MAFMutation) -> Bool {
 ///|
 pub fn MAFData::new() -> MAFData {
   MAFData::{
-    mutations: Array::new(),
-    sample_barcodes: Array::new(),
-    gene_symbols: Array::new(),
+    mutations: Array(capacity=0),
+    sample_barcodes: Array(capacity=0),
+    gene_symbols: Array(capacity=0),
   }
 }
 
@@ -165,23 +165,23 @@ pub fn MAFData::add_mutation(self : MAFData, mutation : MAFMutation) -> MAFData 
 }
 
 ///|
-pub fn MAFData::count_mutations(self : MAFData) -> Int {
+pub fn MAFData::count_mutations(self : MAFData) -> Int32 {
   self.mutations.length()
 }
 
 ///|
-pub fn MAFData::count_unique_genes(self : MAFData) -> Int {
+pub fn MAFData::count_unique_genes(self : MAFData) -> Int32 {
   self.gene_symbols.length()
 }
 
 ///|
-pub fn MAFData::count_unique_samples(self : MAFData) -> Int {
+pub fn MAFData::count_unique_samples(self : MAFData) -> Int32 {
   self.sample_barcodes.length()
 }
 
 ///|
 pub fn MAFData::filter_genes(self : MAFData, genes : Array[String]) -> MAFData {
-  let filtered : Array[MAFMutation] = Array::new()
+  let filtered : Array[MAFMutation] = Array(capacity=0)
   let mut i = 0
   while i < self.mutations.length() {
     let mutation = self.mutations[i]
@@ -191,7 +191,7 @@ pub fn MAFData::filter_genes(self : MAFData, genes : Array[String]) -> MAFData {
     i = i + 1
   }
 
-  let new_genes : Array[String] = Array::new()
+  let new_genes : Array[String] = Array(capacity=0)
   let mut j = 0
   while j < genes.length() {
     new_genes.push(genes[j])
@@ -210,7 +210,7 @@ pub fn MAFData::filter_samples(
   self : MAFData,
   samples : Array[String],
 ) -> MAFData {
-  let filtered : Array[MAFMutation] = Array::new()
+  let filtered : Array[MAFMutation] = Array(capacity=0)
   let mut i = 0
   while i < self.mutations.length() {
     let mutation = self.mutations[i]
@@ -220,7 +220,7 @@ pub fn MAFData::filter_samples(
     i = i + 1
   }
 
-  let new_samples : Array[String] = Array::new()
+  let new_samples : Array[String] = Array(capacity=0)
   let mut j = 0
   while j < samples.length() {
     new_samples.push(samples[j])
@@ -239,7 +239,7 @@ pub fn MAFData::filter_variant_type(
   self : MAFData,
   variant_type : String,
 ) -> MAFData {
-  let filtered : Array[MAFMutation] = Array::new()
+  let filtered : Array[MAFMutation] = Array(capacity=0)
   let mut i = 0
   while i < self.mutations.length() {
     let mutation = self.mutations[i]
@@ -259,7 +259,7 @@ pub fn MAFData::filter_variant_type(
 }
 
 ///|
-pub fn MAFData::get_mutation_gene(self : MAFData, index : Int) -> String {
+pub fn MAFData::get_mutation_gene(self : MAFData, index : Int32) -> String {
   if index >= 0 && index < self.mutations.length() {
     self.mutations[index].hugo_symbol
   } else {
@@ -268,7 +268,7 @@ pub fn MAFData::get_mutation_gene(self : MAFData, index : Int) -> String {
 }
 
 ///|
-pub fn MAFData::get_mutation_sample(self : MAFData, index : Int) -> String {
+pub fn MAFData::get_mutation_sample(self : MAFData, index : Int32) -> String {
   if index >= 0 && index < self.mutations.length() {
     self.mutations[index].tumor_sample_barcode
   } else {
@@ -277,8 +277,8 @@ pub fn MAFData::get_mutation_sample(self : MAFData, index : Int) -> String {
 }
 
 ///|
-pub fn get_gene_mutation_counts(maf : MAFData) -> Map[String, Int] {
-  let counts : Map[String, Int] = Map([], capacity=0)
+pub fn get_gene_mutation_counts(maf : MAFData) -> Map[String, Int32] {
+  let counts : Map[String, Int32] = Map([], capacity=0)
   let mut i = 0
   while i < maf.mutations.length() {
     let mutation = maf.mutations[i]
@@ -290,8 +290,8 @@ pub fn get_gene_mutation_counts(maf : MAFData) -> Map[String, Int] {
 }
 
 ///|
-pub fn get_sample_mutation_counts(maf : MAFData) -> Map[String, Int] {
-  let counts : Map[String, Int] = Map([], capacity=0)
+pub fn get_sample_mutation_counts(maf : MAFData) -> Map[String, Int32] {
+  let counts : Map[String, Int32] = Map([], capacity=0)
   let mut i = 0
   while i < maf.mutations.length() {
     let mutation = maf.mutations[i]
@@ -382,17 +382,17 @@ pub fn calculate_tmb(maf : MAFData, coding_region_size : Double) -> TMBResult {
 }
 
 ///|
-pub fn generate_oncoplot_data(maf : MAFData, top_n : Int) -> OncoplotData {
+pub fn generate_oncoplot_data(maf : MAFData, top_n : Int32) -> OncoplotData {
   let gene_counts = get_gene_mutation_counts(maf)
   let sorted_genes = maftools_sort_by_count_desc(gene_counts, top_n)
   let samples = maf.sample_barcodes
 
-  let mutation_matrix : Array[Array[String]] = Array::new()
+  let mutation_matrix : Array[Array[String]] = Array(capacity=0)
 
   let mut i = 0
   while i < sorted_genes.length() {
     let gene = sorted_genes[i]
-    let row : Array[String] = Array::new()
+    let row : Array[String] = Array(capacity=0)
     let mut j = 0
     while j < samples.length() {
       let mutation_type = maftools_get_mutation_type_for_sample_gene(
@@ -407,7 +407,7 @@ pub fn generate_oncoplot_data(maf : MAFData, top_n : Int) -> OncoplotData {
     i = i + 1
   }
 
-  OncoplotData::{ genes: sorted_genes, samples, mutation_matrix }
+  OncoplotData::{ genes: sorted_genes, samples, mutation_matrix, }
 }
 
 ///|
@@ -450,34 +450,6 @@ pub fn analyze_co_occurrence(
     mutual_exclusivity,
     p_value,
   }
-}
-
-///|
-pub fn decompose_mutational_signatures(
-  maf : MAFData,
-  reference_signatures : Array[MutationalSignature],
-) -> Array[MutationalSignature] {
-  if reference_signatures.length() == 0 {
-    return Array::new()
-  }
-
-  let spectrum = calculate_mutation_spectrum(maf)
-  let total_mutations = spectrum.snv_count.to_double()
-
-  if total_mutations == 0.0 {
-    return Array::new()
-  }
-
-  let results : Array[MutationalSignature] = Array::new()
-  let mut i = 0
-  while i < reference_signatures.length() {
-    let sig = reference_signatures[i]
-    let contribution = sig.contribution * total_mutations
-    results.push(MutationalSignature::{ name: sig.name, contribution })
-    i = i + 1
-  }
-
-  results
 }
 
 ///|
@@ -567,7 +539,7 @@ pub fn parse_maf_content(content : String) -> MAFData {
   let header = if lines.length() > 0 {
     split_by_char(lines[0], '\t'.to_int())
   } else {
-    Array::new()
+    Array(capacity=0)
   }
 
   let hugo_idx = maftools_find_column_index(header, "Hugo_Symbol")
@@ -655,7 +627,7 @@ fn maftools_contains_string(arr : Array[String], value : String) -> Bool {
 fn maftools_find_column_index(
   header : Array[String],
   column_name : String,
-) -> Int {
+) -> Int32 {
   let mut i = 0
   while i < header.length() {
     if header[i].to_upper() == column_name.to_upper() {
@@ -667,17 +639,17 @@ fn maftools_find_column_index(
 }
 
 ///|
-fn maftools_parse_int(s : String) -> Int {
+fn maftools_parse_int(s : String) -> Int32 {
   parse_int(s)
 }
 
 ///|
 fn maftools_sort_by_count_desc(
-  counts : Map[String, Int],
-  top_n : Int,
+  counts : Map[String, Int32],
+  top_n : Int32,
 ) -> Array[String] {
   let entries = counts.iter().collect()
-  let sorted : Array[(String, Int)] = Array::new()
+  let sorted : Array[(String, Int32)] = Array(capacity=0)
 
   let mut i = 0
   while i < entries.length() {
@@ -707,7 +679,7 @@ fn maftools_sort_by_count_desc(
     j = j + 1
   }
 
-  let result : Array[String] = Array::new()
+  let result : Array[String] = Array(capacity=0)
   let count = if top_n < sorted.length() { top_n } else { sorted.length() }
   let mut l = 0
   while l < count {
@@ -740,7 +712,7 @@ fn maftools_get_samples_with_gene(
   maf : MAFData,
   gene : String,
 ) -> Array[String] {
-  let samples : Array[String] = Array::new()
+  let samples : Array[String] = Array(capacity=0)
   let mut i = 0
   while i < maf.mutations.length() {
     let mutation = maf.mutations[i]

@@ -6,9 +6,9 @@
 ///|
 /// Helper: rank genes by expression for a single cell.
 /// Returns indices sorted by expression value (ascending).
-pub fn aucell_rank_genes(cell_expression : Array[Double]) -> Array[Int] {
+pub fn aucell_rank_genes(cell_expression : Array[Double]) -> Array[Int32] {
   let n = cell_expression.length()
-  let indices : Array[Int] = []
+  let indices : Array[Int32] = []
   let mut i = 0
   while i < n {
     indices.push(i)
@@ -38,9 +38,9 @@ pub fn aucell_rank_genes(cell_expression : Array[Double]) -> Array[Int] {
 /// The curve is defined by points (x, y) where x is the rank and y is the
 /// cumulative fraction of genes in the gene set.
 pub fn aucell_compute_auc(
-  total_genes : Int,
-  gene_set_indices : Array[Int],
-  ranks : Array[Int],
+  total_genes : Int32,
+  gene_set_indices : Array[Int32],
+  ranks : Array[Int32],
 ) -> Double {
   if total_genes == 0 {
     return 0.0
@@ -51,7 +51,7 @@ pub fn aucell_compute_auc(
   }
 
   // Find the rank of each gene in the gene set
-  let rank_lookup : Map[Int, Int] = Map([], capacity=total_genes)
+  let rank_lookup : Map[Int32, Int32] = Map([], capacity=total_genes)
   let mut i = 0
   while i < total_genes {
     rank_lookup.set(ranks[i], i)
@@ -130,7 +130,7 @@ pub fn AUCellData::new(
   gene_names : Array[String],
   gene_sets : Array[GeneSet],
 ) -> AUCellData {
-  AUCellData::{ expression, cell_names, gene_names, gene_sets }
+  AUCellData::{ expression, cell_names, gene_names, gene_sets, }
 }
 
 ///|
@@ -146,13 +146,13 @@ pub fn AUCellResult::new(
   gene_set_names : Array[String],
   score_matrix : Array[Array[Double]],
 ) -> AUCellResult {
-  AUCellResult::{ cell_names, gene_set_names, score_matrix }
+  AUCellResult::{ cell_names, gene_set_names, score_matrix, }
 }
 
 ///|
 /// Map gene names to indices.
-fn aucell_gene_index_map(gene_names : Array[String]) -> Map[String, Int] {
-  let map : Map[String, Int] = Map([], capacity=gene_names.length())
+fn aucell_gene_index_map(gene_names : Array[String]) -> Map[String, Int32] {
+  let map : Map[String, Int32] = Map([], capacity=gene_names.length())
   let mut i = 0
   while i < gene_names.length() {
     map.set(gene_names[i], i)
@@ -182,7 +182,7 @@ pub fn run_aucell(data : AUCellData) -> AUCellResult {
     while s < n_sets {
       let gene_set = data.gene_sets[s]
       // Map gene names to indices
-      let gene_indices : Array[Int] = []
+      let gene_indices : Array[Int32] = []
       let mut g = 0
       while g < gene_set.genes.length() {
         let gene_name = gene_set.genes[g]

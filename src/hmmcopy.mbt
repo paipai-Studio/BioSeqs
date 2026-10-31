@@ -19,26 +19,26 @@
 ///|
 /// A genomic bin with read coverage.
 pub struct HMMcopyBin {
-  pub chr : String
-  pub start : Int
-  pub end : Int
-  pub reads : Int
-  pub gc : Double // GC content (0..1)
-  pub mappability : Double // mappability score (0..1)
-  pub mut corrected_reads : Double // GC-corrected coverage
-  pub mut copy : Int // inferred copy number (after Viterbi)
-  pub mut state : Int // HMM state index (0=CN0,1=CN1,2=CN2,...)
+  chr : String
+  start : Int32
+  end : Int32
+  reads : Int32
+  gc : Double // GC content (0..1)
+  mappability : Double // mappability score (0..1)
+  mut corrected_reads : Double // GC-corrected coverage
+  mut copy : Int32 // inferred copy number (after Viterbi)
+  mut state : Int32 // HMM state index (0=CN0,1=CN1,2=CN2,...)
 }
 
 ///|
 /// Construct a new HMMcopyBin.
 pub fn HMMcopyBin::new(
   chr~ : String,
-  start~ : Int,
-  end~ : Int,
-  reads~ : Int,
-  gc? : Double = 0.5,
-  mappability? : Double = 1.0,
+  start~ : Int32,
+  end~ : Int32,
+  reads~ : Int32,
+  gc~ : Double = 0.5,
+  mappability~ : Double = 1.0,
 ) -> HMMcopyBin {
   HMMcopyBin::{
     chr,
@@ -55,7 +55,7 @@ pub fn HMMcopyBin::new(
 
 ///|
 /// Get bin width.
-pub fn HMMcopyBin::width(self : HMMcopyBin) -> Int {
+pub fn HMMcopyBin::width(self : HMMcopyBin) -> Int32 {
   self.end - self.start
 }
 
@@ -67,13 +67,13 @@ pub fn HMMcopyBin::set_corrected_reads(self : HMMcopyBin, val : Double) -> Unit 
 
 ///|
 /// Set copy number.
-pub fn HMMcopyBin::set_copy(self : HMMcopyBin, val : Int) -> Unit {
+pub fn HMMcopyBin::set_copy(self : HMMcopyBin, val : Int32) -> Unit {
   self.copy = val
 }
 
 ///|
 /// Set HMM state index.
-pub fn HMMcopyBin::set_state(self : HMMcopyBin, val : Int) -> Unit {
+pub fn HMMcopyBin::set_state(self : HMMcopyBin, val : Int32) -> Unit {
   self.state = val
 }
 
@@ -91,20 +91,20 @@ pub fn HMMcopyBin::normalized_coverage(self : HMMcopyBin) -> Double {
 ///|
 /// HMM model parameters.
 pub struct HMMcopyModel {
-  pub num_states : Int // e.g. 7: CN0..CN6
-  pub transition : Array[Array[Double]] // transition[s_from][s_to]
-  pub emissions : Array[Double] // mean coverage per state (in CN2 units)
-  pub variances : Array[Double] // variance per state
-  pub initial : Array[Double] // initial state distribution
-  pub ploidy : Int // expected copy number (default 2)
+  num_states : Int32 // e.g. 7: CN0..CN6
+  transition : Array[Array[Double]] // transition[s_from][s_to]
+  emissions : Array[Double] // mean coverage per state (in CN2 units)
+  variances : Array[Double] // variance per state
+  initial : Array[Double] // initial state distribution
+  ploidy : Int32 // expected copy number (default 2)
 }
 
 ///|
 /// Construct a new HMMcopyModel with default parameters.
 /// States: CN0, CN1, CN2, CN3, CN4, CN5, CN6 (7 states).
 pub fn HMMcopyModel::new(
-  num_states? : Int = 7,
-  ploidy? : Int = 2,
+  num_states~ : Int32 = 7,
+  ploidy~ : Int32 = 2,
 ) -> HMMcopyModel {
   // Default emission means: 0, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0 (in CN2 units)
   let emissions = Array::make(num_states, 0.0)
@@ -116,7 +116,10 @@ pub fn HMMcopyModel::new(
     i = i + 1
   }
   // Default transition: high self-transition, low cross-transition
-  let transition = Array::make(num_states, Array::make(num_states, 0.0))
+  let transition = Array::make(num_states, Array::make(0, 0.0))
+  for idx in 0..<num_states {
+    transition[idx] = Array::make(num_states, 0.0)
+  }
   i = 0
   while i < num_states {
     let mut j = 0
@@ -146,8 +149,8 @@ pub fn HMMcopyModel::new(
 /// Set a transition probability.
 pub fn HMMcopyModel::set_transition(
   self : HMMcopyModel,
-  from : Int,
-  to : Int,
+  from : Int32,
+  to : Int32,
   prob : Double,
 ) -> Unit {
   self.transition[from][to] = prob
@@ -157,7 +160,7 @@ pub fn HMMcopyModel::set_transition(
 /// Set emission mean for a state (in CN2 units).
 pub fn HMMcopyModel::set_emission(
   self : HMMcopyModel,
-  state : Int,
+  state : Int32,
   mean : Double,
 ) -> Unit {
   self.emissions[state] = mean
@@ -167,7 +170,7 @@ pub fn HMMcopyModel::set_emission(
 /// Set emission variance for a state.
 pub fn HMMcopyModel::set_variance(
   self : HMMcopyModel,
-  state : Int,
+  state : Int32,
   var_ : Double,
 ) -> Unit {
   self.variances[state] = var_
@@ -177,7 +180,7 @@ pub fn HMMcopyModel::set_variance(
 /// Set initial probability for a state.
 pub fn HMMcopyModel::set_initial(
   self : HMMcopyModel,
-  state : Int,
+  state : Int32,
   prob : Double,
 ) -> Unit {
   self.initial[state] = prob
@@ -185,13 +188,16 @@ pub fn HMMcopyModel::set_initial(
 
 ///|
 /// Get the copy number for a state index.
-pub fn HMMcopyModel::state_to_copy(self : HMMcopyModel, state : Int) -> Int {
+pub fn HMMcopyModel::state_to_copy(
+  _self : HMMcopyModel,
+  state : Int32,
+) -> Int32 {
   state
 }
 
 ///|
 /// Get the state index for a copy number.
-pub fn HMMcopyModel::copy_to_state(self : HMMcopyModel, copy : Int) -> Int {
+pub fn HMMcopyModel::copy_to_state(self : HMMcopyModel, copy : Int32) -> Int32 {
   if copy < 0 {
     0
   } else if copy >= self.num_states {
@@ -204,27 +210,27 @@ pub fn HMMcopyModel::copy_to_state(self : HMMcopyModel, copy : Int) -> Int {
 ///|
 /// A segment of consecutive bins with the same copy number.
 pub struct HMMcopySegment {
-  pub chr : String
-  pub start : Int
-  pub end : Int
-  pub copy : Int
-  pub state : Int
-  pub num_bins : Int
-  pub mean_reads : Double
+  chr : String
+  start : Int32
+  end : Int32
+  copy : Int32
+  state : Int32
+  num_bins : Int32
+  mean_reads : Double
 }
 
 ///|
 /// Construct a HMMcopySegment.
 pub fn HMMcopySegment::new(
   chr~ : String,
-  start~ : Int,
-  end~ : Int,
-  copy~ : Int,
-  state~ : Int,
-  num_bins~ : Int,
+  start~ : Int32,
+  end~ : Int32,
+  copy~ : Int32,
+  state~ : Int32,
+  num_bins~ : Int32,
   mean_reads~ : Double,
 ) -> HMMcopySegment {
-  HMMcopySegment::{ chr, start, end, copy, state, num_bins, mean_reads }
+  HMMcopySegment::{ chr, start, end, copy, state, num_bins, mean_reads, }
 }
 
 // ===========================================================================
@@ -236,7 +242,7 @@ pub fn HMMcopySegment::new(
 /// Bins are grouped by GC content and scaled to the global mean.
 pub fn hmmcopy_correct_gc(
   bins : Array[HMMcopyBin],
-  num_gc_bins? : Int = 20,
+  num_gc_bins~ : Int32 = 20,
 ) -> Array[HMMcopyBin] {
   let n = bins.length()
   if n == 0 {
@@ -249,7 +255,7 @@ pub fn hmmcopy_correct_gc(
   }
   let global_mean = total_reads.to_double() / n.to_double()
   // Group bins by GC content
-  let gc_bins = Array::make(num_gc_bins, Array::new())
+  let gc_bins = Array::make(num_gc_bins, Array(capacity=0))
   for b in bins {
     let gc_idx = (b.gc * num_gc_bins.to_double()).to_int()
     let clamped = if gc_idx < 0 {
@@ -278,7 +284,7 @@ pub fn hmmcopy_correct_gc(
     i = i + 1
   }
   // Correct each bin: scale reads so that GC bin mean equals global mean
-  let result = Array::new()
+  let result = Array(capacity=0)
   for b in bins {
     let gc_idx = (b.gc * num_gc_bins.to_double()).to_int()
     let clamped = if gc_idx < 0 {
@@ -331,7 +337,7 @@ fn hmmcopy_log_gaussian(x : Double, mean : Double, variance : Double) -> Double 
 pub fn hmmcopy_viterbi(
   bins : Array[HMMcopyBin],
   model : HMMcopyModel,
-) -> Array[Int] {
+) -> Array[Int32] {
   let n = bins.length()
   let k = model.num_states
   if n == 0 || k == 0 {
@@ -347,8 +353,8 @@ pub fn hmmcopy_viterbi(
     mean_cov = 1.0
   }
   // Viterbi matrix: viterbi[t][s] = best log-prob of being in state s at time t
-  let viterbi : Array[Array[Double]] = Array::new()
-  let backptr : Array[Array[Int]] = Array::new()
+  let viterbi : Array[Array[Double]] = Array(capacity=0)
+  let backptr : Array[Array[Int32]] = Array(capacity=0)
   let mut vi = 0
   while vi < n {
     viterbi.push(Array::make(k, -1.0e30))
@@ -428,7 +434,7 @@ pub fn hmmcopy_call_cnv(
   model : HMMcopyModel,
 ) -> Array[HMMcopyBin] {
   let states = hmmcopy_viterbi(bins, model)
-  let result = Array::new()
+  let result = Array(capacity=0)
   let mut i = 0
   while i < bins.length() {
     let b = HMMcopyBin::new(
@@ -451,7 +457,7 @@ pub fn hmmcopy_call_cnv(
 ///|
 /// Segment bins by merging consecutive bins with the same copy number.
 pub fn hmmcopy_segment(bins : Array[HMMcopyBin]) -> Array[HMMcopySegment] {
-  let segments = Array::new()
+  let segments = Array(capacity=0)
   let n = bins.length()
   if n == 0 {
     return segments
@@ -507,7 +513,7 @@ pub fn hmmcopy_log_likelihood(
   }
   // Forward algorithm
   let k = model.num_states
-  let alpha : Array[Array[Double]] = Array::new()
+  let alpha : Array[Array[Double]] = Array(capacity=0)
   let mut ai = 0
   while ai < n {
     alpha.push(Array::make(k, 0.0))
@@ -580,7 +586,7 @@ pub fn hmmcopy_log_likelihood(
 /// Generate sample bins for testing (simulated CNV data).
 /// 100 bins on chr1, with a CN0 region (bins 10-19) and CN3 region (bins 60-69).
 pub fn hmmcopy_sample_bins() -> Array[HMMcopyBin] {
-  let bins = Array::new()
+  let bins = Array(capacity=0)
   let mut i = 0
   while i < 100 {
     let reads = if i >= 10 && i < 20 {

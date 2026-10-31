@@ -19,7 +19,7 @@
 /// Mirrors BioPython's SeqIO.parse(handle, "tab").
 /// Raises SeqIOError if a line has anything other than exactly one tab.
 pub fn parse_tab(content : String) -> Array[SeqRecord] raise SeqIOError {
-  let records = Array::new()
+  let records = Array(capacity=0)
   let lines = content.split("\n").to_array()
   let cr : UInt16 = '\r'.to_int().to_uint16()
   let tab : UInt16 = '\t'.to_int().to_uint16()
@@ -65,7 +65,7 @@ pub fn parse_tab(content : String) -> Array[SeqRecord] raise SeqIOError {
     let id = line[0:tab_pos].to_owned()
     let seq_part = line[tab_pos + 1:trimmed].to_owned()
     // Strip whitespace from the sequence
-    let seq_buf = StringBuilder::new()
+    let seq_buf = StringBuilder()
     let sp_part = seq_part.length()
     for j = 0; j < sp_part; j = j + 1 {
       let c = seq_part.unsafe_get(j)
@@ -93,7 +93,7 @@ pub fn parse_tab(content : String) -> Array[SeqRecord] raise SeqIOError {
 ///   - Each line: record.id + "\t" + sequence
 ///   - Description/name and other annotations are NOT preserved
 pub fn write_tab(records : Array[SeqRecord]) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   for rec in records {
     buf.write_string(rec.id)
     buf.write_char('\t')

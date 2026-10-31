@@ -26,9 +26,9 @@ pub fn RangedSummarizedExperiment::new(
   assays~ : Map[String, Array[Array[Double]]],
   row_ranges~ : GRanges,
   col_data~ : Array[Map[String, String]],
-  row_data? : Array[Map[String, String]] = [],
-  row_names? : Array[String] = [],
-  metadata? : Map[String, String] = Map([]),
+  row_data~ : Array[Map[String, String]] = [],
+  row_names~ : Array[String] = [],
+  metadata~ : Map[String, String] = Map([]),
 ) -> RangedSummarizedExperiment raise RangedSummarizedExperimentError {
   match
     rse_validation_error(assays, row_ranges, col_data, row_data, row_names) {
@@ -61,9 +61,9 @@ pub fn RangedSummarizedExperiment::new_with_range_groups(
   assays~ : Map[String, Array[Array[Double]]],
   row_range_groups~ : GRangesList,
   col_data~ : Array[Map[String, String]],
-  row_data? : Array[Map[String, String]] = [],
-  row_names? : Array[String] = [],
-  metadata? : Map[String, String] = Map([]),
+  row_data~ : Array[Map[String, String]] = [],
+  row_names~ : Array[String] = [],
+  metadata~ : Map[String, String] = Map([]),
 ) -> RangedSummarizedExperiment raise RangedSummarizedExperimentError {
   let effective_row_data = if row_data.length() == 0 &&
     row_range_groups.element_metadata().length() > 0 {
@@ -100,8 +100,8 @@ pub fn RangedSummarizedExperiment::new_with_range_groups(
 pub fn RangedSummarizedExperiment::from_experiment(
   experiment~ : SummarizedExperiment,
   row_ranges~ : GRanges,
-  row_data? : Array[Map[String, String]] = [],
-  row_names? : Array[String] = [],
+  row_data~ : Array[Map[String, String]] = [],
+  row_names~ : Array[String] = [],
 ) -> RangedSummarizedExperiment raise RangedSummarizedExperimentError {
   RangedSummarizedExperiment::new(
     assays=rse_copy_assays(experiment),
@@ -118,8 +118,8 @@ pub fn RangedSummarizedExperiment::from_experiment(
 pub fn RangedSummarizedExperiment::from_experiment_with_range_groups(
   experiment~ : SummarizedExperiment,
   row_range_groups~ : GRangesList,
-  row_data? : Array[Map[String, String]] = [],
-  row_names? : Array[String] = [],
+  row_data~ : Array[Map[String, String]] = [],
+  row_names~ : Array[String] = [],
 ) -> RangedSummarizedExperiment raise RangedSummarizedExperimentError {
   RangedSummarizedExperiment::new_with_range_groups(
     assays=rse_copy_assays(experiment),
@@ -229,7 +229,7 @@ pub fn RangedSummarizedExperiment::metadata(
 /// Return the number of genomic features.
 pub fn RangedSummarizedExperiment::nrow(
   self : RangedSummarizedExperiment,
-) -> Int {
+) -> Int32 {
   match self.row_range_groups {
     Some(groups) => groups.length()
     None => granges_length(self.row_ranges)
@@ -240,7 +240,7 @@ pub fn RangedSummarizedExperiment::nrow(
 /// Return the number of samples.
 pub fn RangedSummarizedExperiment::ncol(
   self : RangedSummarizedExperiment,
-) -> Int {
+) -> Int32 {
   se_ncol(self.experiment)
 }
 
@@ -308,7 +308,7 @@ pub fn RangedSummarizedExperiment::with_row_range_groups(
 /// Select, reorder, or duplicate rows while keeping all row data coordinated.
 pub fn RangedSummarizedExperiment::subset_rows(
   self : RangedSummarizedExperiment,
-  indices : Array[Int],
+  indices : Array[Int32],
 ) -> RangedSummarizedExperiment raise RangedSummarizedExperimentError {
   rse_validate_indices(indices, self.nrow(), "row")
   let row_range_groups = match self.row_range_groups {
@@ -328,7 +328,7 @@ pub fn RangedSummarizedExperiment::subset_rows(
 /// Select, reorder, or duplicate columns while keeping sample data coordinated.
 pub fn RangedSummarizedExperiment::subset_cols(
   self : RangedSummarizedExperiment,
-  indices : Array[Int],
+  indices : Array[Int32],
 ) -> RangedSummarizedExperiment raise RangedSummarizedExperimentError {
   rse_validate_indices(indices, self.ncol(), "column")
   RangedSummarizedExperiment::{
@@ -347,13 +347,13 @@ pub fn RangedSummarizedExperiment::subset_cols(
 pub fn RangedSummarizedExperiment::find_overlaps(
   self : RangedSummarizedExperiment,
   subject : GRanges,
-  ignore_strand? : Bool = false,
-) -> Array[(Int, Int)] {
+  ignore_strand~ : Bool = false,
+) -> Array[(Int32, Int32)] {
   match self.row_range_groups {
     Some(groups) => return groups.find_overlaps(subject, ignore_strand~)
     None => ()
   }
-  let hits : Array[(Int, Int)] = []
+  let hits : Array[(Int32, Int32)] = []
   for query_index = 0; query_index < self.nrow(); query_index = query_index + 1 {
     for subject_index = 0
         subject_index < granges_length(subject)
@@ -377,8 +377,8 @@ pub fn RangedSummarizedExperiment::find_overlaps(
 pub fn RangedSummarizedExperiment::count_overlaps(
   self : RangedSummarizedExperiment,
   subject : GRanges,
-  ignore_strand? : Bool = false,
-) -> Array[Int] {
+  ignore_strand~ : Bool = false,
+) -> Array[Int32] {
   let counts = Array::make(self.nrow(), 0)
   for hit in self.find_overlaps(subject, ignore_strand~) {
     counts[hit.0] = counts[hit.0] + 1
@@ -391,7 +391,7 @@ pub fn RangedSummarizedExperiment::count_overlaps(
 pub fn RangedSummarizedExperiment::overlaps_any(
   self : RangedSummarizedExperiment,
   subject : GRanges,
-  ignore_strand? : Bool = false,
+  ignore_strand~ : Bool = false,
 ) -> Array[Bool] {
   self.count_overlaps(subject, ignore_strand~).map(fn(count) { count > 0 })
 }
@@ -401,9 +401,9 @@ pub fn RangedSummarizedExperiment::overlaps_any(
 pub fn RangedSummarizedExperiment::subset_by_overlaps(
   self : RangedSummarizedExperiment,
   subject : GRanges,
-  ignore_strand? : Bool = false,
+  ignore_strand~ : Bool = false,
 ) -> RangedSummarizedExperiment raise RangedSummarizedExperimentError {
-  let indices : Array[Int] = []
+  let indices : Array[Int32] = []
   let keep = self.overlaps_any(subject, ignore_strand~)
   for index = 0; index < keep.length(); index = index + 1 {
     if keep[index] {
@@ -418,8 +418,8 @@ pub fn RangedSummarizedExperiment::subset_by_overlaps(
 pub fn RangedSummarizedExperiment::nearest(
   self : RangedSummarizedExperiment,
   subject : GRanges,
-  ignore_strand? : Bool = false,
-) -> Array[Int] {
+  ignore_strand~ : Bool = false,
+) -> Array[Int32] {
   match self.row_range_groups {
     Some(groups) => return groups.nearest(subject, ignore_strand~)
     None => ()
@@ -460,8 +460,8 @@ pub fn RangedSummarizedExperiment::nearest(
 pub fn RangedSummarizedExperiment::distance_to_nearest(
   self : RangedSummarizedExperiment,
   subject : GRanges,
-  ignore_strand? : Bool = false,
-) -> Array[Int] {
+  ignore_strand~ : Bool = false,
+) -> Array[Int32] {
   match self.row_range_groups {
     Some(groups) => return groups.distance_to_nearest(subject, ignore_strand~)
     None => ()
@@ -486,8 +486,8 @@ pub fn RangedSummarizedExperiment::distance_to_nearest(
 /// Compute per-base coverage for configured sequence lengths.
 pub fn RangedSummarizedExperiment::coverage(
   self : RangedSummarizedExperiment,
-  sequence_lengths : Map[String, Int],
-) -> Map[String, Array[Int]] {
+  sequence_lengths : Map[String, Int32],
+) -> Map[String, Array[Int32]] {
   match self.row_range_groups {
     Some(groups) => groups.coverage(sequence_lengths)
     None => coverage_granges(self.row_ranges, sequence_lengths)
@@ -498,7 +498,7 @@ pub fn RangedSummarizedExperiment::coverage(
 /// Shift every genomic row range by a fixed number of bases.
 pub fn RangedSummarizedExperiment::shift(
   self : RangedSummarizedExperiment,
-  amount : Int,
+  amount : Int32,
 ) -> RangedSummarizedExperiment raise RangedSummarizedExperimentError {
   match self.row_range_groups {
     Some(groups) => self.with_row_range_groups(groups.shift(amount))
@@ -510,8 +510,8 @@ pub fn RangedSummarizedExperiment::shift(
 /// Narrow every genomic row range using one-based relative coordinates.
 pub fn RangedSummarizedExperiment::narrow(
   self : RangedSummarizedExperiment,
-  start : Int,
-  end : Int,
+  start : Int32,
+  end : Int32,
 ) -> RangedSummarizedExperiment raise RangedSummarizedExperimentError {
   match self.row_range_groups {
     Some(groups) => self.with_row_range_groups(groups.narrow(start, end))
@@ -523,7 +523,7 @@ pub fn RangedSummarizedExperiment::narrow(
 /// Resize every genomic row range while fixing its start, end, or center.
 pub fn RangedSummarizedExperiment::resize(
   self : RangedSummarizedExperiment,
-  width : Int,
+  width : Int32,
   fix : String,
 ) -> RangedSummarizedExperiment raise RangedSummarizedExperimentError {
   match self.row_range_groups {
@@ -536,7 +536,7 @@ pub fn RangedSummarizedExperiment::resize(
 /// Create flanking ranges while preserving assays and annotations.
 pub fn RangedSummarizedExperiment::flank(
   self : RangedSummarizedExperiment,
-  width : Int,
+  width : Int32,
   start : Bool,
   both : Bool,
 ) -> RangedSummarizedExperiment raise RangedSummarizedExperimentError {
@@ -551,8 +551,8 @@ pub fn RangedSummarizedExperiment::flank(
 /// Create strand-aware promoter ranges.
 pub fn RangedSummarizedExperiment::promoters(
   self : RangedSummarizedExperiment,
-  upstream? : Int = 2000,
-  downstream? : Int = 200,
+  upstream~ : Int32 = 2000,
+  downstream~ : Int32 = 200,
 ) -> RangedSummarizedExperiment raise RangedSummarizedExperimentError {
   if upstream < 0 || downstream < 0 {
     raise RangedSummarizedExperimentError(
@@ -578,9 +578,9 @@ pub fn RangedSummarizedExperiment::promoters(
 /// Sort rows by sequence name, start, end, and strand.
 pub fn RangedSummarizedExperiment::sort(
   self : RangedSummarizedExperiment,
-  decreasing? : Bool = false,
+  decreasing~ : Bool = false,
 ) -> RangedSummarizedExperiment raise RangedSummarizedExperimentError {
-  let indices : Array[Int] = []
+  let indices : Array[Int32] = []
   for index = 0; index < self.nrow(); index = index + 1 {
     indices.push(index)
   }
@@ -706,8 +706,8 @@ fn rse_ranges_equal(left : GRanges, right : GRanges) -> Bool {
 }
 
 ///|
-fn rse_ranges_as_tuples(row_ranges : GRanges) -> Array[(String, Int, Int)] {
-  let result : Array[(String, Int, Int)] = []
+fn rse_ranges_as_tuples(row_ranges : GRanges) -> Array[(String, Int32, Int32)] {
+  let result : Array[(String, Int32, Int32)] = []
   for index = 0; index < granges_length(row_ranges); index = index + 1 {
     result.push(
       (
@@ -740,8 +740,8 @@ fn rse_copy_assays(
 
 ///|
 fn rse_validate_indices(
-  indices : Array[Int],
-  upper_bound : Int,
+  indices : Array[Int32],
+  upper_bound : Int32,
   axis : String,
 ) -> Unit raise RangedSummarizedExperimentError {
   for index in indices {
@@ -754,12 +754,12 @@ fn rse_validate_indices(
 }
 
 ///|
-fn rse_take_ranges(row_ranges : GRanges, indices : Array[Int]) -> GRanges {
+fn rse_take_ranges(row_ranges : GRanges, indices : Array[Int32]) -> GRanges {
   let seqnames : Array[String] = []
-  let starts : Array[Int] = []
-  let ends : Array[Int] = []
+  let starts : Array[Int32] = []
+  let ends : Array[Int32] = []
   let strands : Array[Strand] = []
-  let widths : Array[Int] = []
+  let widths : Array[Int32] = []
   for index in indices {
     seqnames.push(row_ranges.seqnames[index])
     starts.push(row_ranges.starts[index])
@@ -767,13 +767,13 @@ fn rse_take_ranges(row_ranges : GRanges, indices : Array[Int]) -> GRanges {
     strands.push(row_ranges.strands[index])
     widths.push(row_ranges.widths[index])
   }
-  GRanges::{ seqnames, starts, ends, strands, widths }
+  GRanges::{ seqnames, starts, ends, strands, widths, }
 }
 
 ///|
 fn rse_take_range_groups(
   groups : GRangesList,
-  indices : Array[Int],
+  indices : Array[Int32],
 ) -> GRangesList {
   let elements = indices.map(fn(index) {
     grl_copy_ranges(groups.elements[index])
@@ -794,7 +794,7 @@ fn rse_take_range_groups(
 ///|
 fn rse_take_maps(
   values : Array[Map[String, String]],
-  indices : Array[Int],
+  indices : Array[Int32],
 ) -> Array[Map[String, String]] {
   if values.length() == 0 {
     return []
@@ -805,7 +805,7 @@ fn rse_take_maps(
 ///|
 fn rse_take_strings(
   values : Array[String],
-  indices : Array[Int],
+  indices : Array[Int32],
 ) -> Array[String] {
   if values.length() == 0 {
     return []
@@ -828,9 +828,9 @@ fn rse_strands_compatible(
 ///|
 fn rse_ranges_overlap(
   query : GRanges,
-  query_index : Int,
+  query_index : Int32,
   subject : GRanges,
-  subject_index : Int,
+  subject_index : Int32,
   ignore_strand : Bool,
 ) -> Bool {
   query.seqnames[query_index] == subject.seqnames[subject_index] &&
@@ -845,11 +845,11 @@ fn rse_ranges_overlap(
 
 ///|
 fn rse_interval_distance(
-  first_start : Int,
-  first_end : Int,
-  second_start : Int,
-  second_end : Int,
-) -> Int {
+  first_start : Int32,
+  first_end : Int32,
+  second_start : Int32,
+  second_end : Int32,
+) -> Int32 {
   if first_end < second_start {
     second_start - first_end - 1
   } else if second_end < first_start {
@@ -860,7 +860,11 @@ fn rse_interval_distance(
 }
 
 ///|
-fn rse_compare_ranges(row_ranges : GRanges, left : Int, right : Int) -> Int {
+fn rse_compare_ranges(
+  row_ranges : GRanges,
+  left : Int32,
+  right : Int32,
+) -> Int32 {
   if row_ranges.seqnames[left] < row_ranges.seqnames[right] {
     return -1
   }
@@ -884,7 +888,7 @@ fn rse_compare_ranges(row_ranges : GRanges, left : Int, right : Int) -> Int {
 }
 
 ///|
-fn rse_strand_rank(strand : Strand) -> Int {
+fn rse_strand_rank(strand : Strand) -> Int32 {
   match strand {
     Strand::Plus => 0
     Strand::Minus => 1

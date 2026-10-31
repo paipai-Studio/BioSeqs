@@ -11,7 +11,13 @@ pub enum EntrezDB {
   Gene // Gene information
   SNP // Single nucleotide polymorphisms
   Taxonomy // Taxonomy data
-} derive(Eq, Show)
+} derive(Eq, Debug)
+
+///|
+pub extend EntrezDB with Eq::{equal, not_equal}
+
+///|
+pub extend EntrezDB with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Construct Pubmed EntrezDB.
@@ -20,33 +26,9 @@ pub fn entrez_db_pubmed() -> EntrezDB {
 }
 
 ///|
-/// Construct Nucleotide EntrezDB.
-pub fn entrez_db_nucleotide() -> EntrezDB {
-  Nucleotide
-}
-
-///|
-/// Construct Protein EntrezDB.
-pub fn entrez_db_protein() -> EntrezDB {
-  Protein
-}
-
-///|
 /// Construct Gene EntrezDB.
 pub fn entrez_db_gene() -> EntrezDB {
   Gene
-}
-
-///|
-/// Construct SNP EntrezDB.
-pub fn entrez_db_snp() -> EntrezDB {
-  SNP
-}
-
-///|
-/// Construct Taxonomy EntrezDB.
-pub fn entrez_db_taxonomy() -> EntrezDB {
-  Taxonomy
 }
 
 ///|
@@ -100,7 +82,7 @@ pub fn SearchResult::new(
   title~ : String,
   score~ : Double,
 ) -> SearchResult {
-  SearchResult::{ id, title, score }
+  SearchResult::{ id, title, score, }
 }
 
 ///|
@@ -145,8 +127,8 @@ pub struct GeneRecord {
   description : String
   organism : String
   chromosome : String
-  start : Int
-  end : Int
+  start : Int32
+  end : Int32
   strand : String
 }
 
@@ -158,8 +140,8 @@ pub fn GeneRecord::new(
   description~ : String,
   organism~ : String,
   chromosome~ : String,
-  start~ : Int,
-  end~ : Int,
+  start~ : Int32,
+  end~ : Int32,
   strand~ : String,
 ) -> GeneRecord {
   GeneRecord::{
@@ -182,7 +164,7 @@ pub struct TaxonomyRecord {
   common_name : String
   rank : String
   lineage : Array[String]
-  genetic_code : Int
+  genetic_code : Int32
 }
 
 ///|
@@ -193,7 +175,7 @@ pub fn TaxonomyRecord::new(
   common_name~ : String,
   rank~ : String,
   lineage~ : Array[String],
-  genetic_code~ : Int,
+  genetic_code~ : Int32,
 ) -> TaxonomyRecord {
   TaxonomyRecord::{
     tax_id,
@@ -210,9 +192,9 @@ pub fn TaxonomyRecord::new(
 pub fn esearch(
   db : EntrezDB,
   term : String,
-  retmax? : Int = 10,
+  retmax~ : Int32 = 10,
 ) -> Array[SearchResult] {
-  let results : Array[SearchResult] = Array::new()
+  let results : Array[SearchResult] = Array(capacity=0)
   match db {
     Pubmed =>
       if term.contains("CRISPR") || term.contains("crispr") {
@@ -474,35 +456,6 @@ pub fn parse_gene(xml : String) -> GeneRecord? {
 }
 
 ///|
-/// Parse a taxonomy record from XML string.
-pub fn parse_taxonomy(xml : String) -> TaxonomyRecord? {
-  let tax_id = extract_tag(xml, "TaxId")
-  let scientific_name = extract_tag(xml, "ScientificName")
-  let common_name = extract_tag(xml, "CommonName")
-  let rank = extract_tag(xml, "Rank")
-  let lineage_str = extract_tag(xml, "Lineage")
-  let genetic_code_str = extract_tag(xml, "GeneticCode")
-  let lineage = match lineage_str {
-    Some(s) => split_by_char(s, ';'.to_int())
-    None => []
-  }
-  match (tax_id, scientific_name) {
-    (Some(t), Some(s)) =>
-      Some(
-        TaxonomyRecord::new(
-          tax_id=t,
-          scientific_name=s,
-          common_name=common_name.unwrap_or(""),
-          rank=rank.unwrap_or(""),
-          lineage~,
-          genetic_code=parse_int(genetic_code_str.unwrap_or("1")),
-        ),
-      )
-    _ => None
-  }
-}
-
-///|
 /// Extract the content of a single XML tag.
 fn extract_tag(xml : String, tag : String) -> String? {
   let start_tag = "<" + tag + ">"
@@ -523,7 +476,7 @@ fn extract_tag(xml : String, tag : String) -> String? {
 ///|
 /// Extract the content of multiple XML tags.
 fn extract_tags(xml : String, tag : String) -> Array[String] {
-  let result : Array[String] = Array::new()
+  let result : Array[String] = Array(capacity=0)
   let start_tag = "<" + tag + ">"
   let end_tag = "</" + tag + ">"
   let mut remaining = xml
@@ -560,8 +513,8 @@ pub fn einfo() -> Map[String, String] {
 
 ///|
 /// Simulated EGQuery: Global query for multiple databases.
-pub fn egquery(term : String) -> Array[(String, Int)] {
-  let results : Array[(String, Int)] = Array::new()
+pub fn egquery(term : String) -> Array[(String, Int32)] {
+  let results : Array[(String, Int32)] = Array(capacity=0)
   let mut count = 100
   if term.contains("CRISPR") || term.contains("crispr") {
     count = 5000
@@ -581,8 +534,9 @@ pub fn egquery(term : String) -> Array[(String, Int)] {
 /// Get gene information from NCBI (simulated).
 pub fn get_gene_info(
   gene_symbol : String,
-  organism? : String = "Homo sapiens",
+  organism~ : String = "Homo sapiens",
 ) -> GeneRecord? {
+  ignore(organism)
   let lower = gene_symbol
   if lower == "tp53" || lower == "p53" || lower == "TP53" || lower == "P53" {
     Some(

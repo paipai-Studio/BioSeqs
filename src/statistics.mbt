@@ -58,33 +58,6 @@ pub fn stat_median(data : Array[Double]) -> Double {
 }
 
 ///|
-/// Calculate the mode (most frequent value) of an array.
-pub fn stat_mode(data : Array[Double]) -> Double {
-  if data.length() == 0 {
-    return 0.0
-  }
-  let counts : Map[Double, Int] = Map([], capacity=data.length())
-  let mut i = 0
-  while i < data.length() {
-    let val = data[i]
-    let current = counts.get_or_default(val, 0)
-    counts.set(val, current + 1)
-    i = i + 1
-  }
-
-  let mut max_count = 0
-  let mut mode_val = data[0]
-  for key in counts.keys() {
-    let count = counts.get_or_default(key, 0)
-    if count > max_count {
-      max_count = count
-      mode_val = key
-    }
-  }
-  mode_val
-}
-
-///|
 /// Calculate the minimum value.
 pub fn stat_min(data : Array[Double]) -> Double {
   if data.length() == 0 {
@@ -119,12 +92,6 @@ pub fn stat_max(data : Array[Double]) -> Double {
 }
 
 ///|
-/// Calculate the range (max - min).
-pub fn stat_range(data : Array[Double]) -> Double {
-  stat_max(data) - stat_min(data)
-}
-
-///|
 /// Calculate the sum of an array.
 pub fn stat_sum(data : Array[Double]) -> Double {
   let mut sum = 0.0
@@ -139,7 +106,7 @@ pub fn stat_sum(data : Array[Double]) -> Double {
 ///|
 /// Calculate the cumulative sum.
 pub fn stat_cumsum(data : Array[Double]) -> Array[Double] {
-  let result : Array[Double] = Array::new()
+  let result : Array[Double] = Array(capacity=0)
   let mut cumsum = 0.0
   let mut i = 0
   while i < data.length() {
@@ -148,19 +115,6 @@ pub fn stat_cumsum(data : Array[Double]) -> Array[Double] {
     i = i + 1
   }
   result
-}
-
-///|
-/// Calculate the dot product of two arrays.
-pub fn stat_dot_product(a : Array[Double], b : Array[Double]) -> Double {
-  let n = if a.length() < b.length() { a.length() } else { b.length() }
-  let mut sum = 0.0
-  let mut i = 0
-  while i < n {
-    sum = sum + a[i] * b[i]
-    i = i + 1
-  }
-  sum
 }
 
 ///|
@@ -213,7 +167,7 @@ pub fn stat_rank(data : Array[Double]) -> Array[Double] {
   let n = data.length()
   let result : Array[Double] = Array::make(n, 0.0)
 
-  let indexed : Array[Array[Double]] = Array::new()
+  let indexed : Array[Array[Double]] = Array(capacity=0)
   let mut i = 0
   while i < n {
     let row = [data[i], i.to_double()]
@@ -221,7 +175,7 @@ pub fn stat_rank(data : Array[Double]) -> Array[Double] {
     i = i + 1
   }
 
-  indexed.sort_by(fn(a : Array[Double], b : Array[Double]) -> Int {
+  indexed.sort_by(fn(a : Array[Double], b : Array[Double]) -> Int32 {
     if a[0] < b[0] {
       -1
     } else if a[0] > b[0] {
@@ -265,7 +219,7 @@ pub fn stat_zscore(value : Double, mean : Double, std : Double) -> Double {
 pub fn stat_zscores(data : Array[Double]) -> Array[Double] {
   let mean = stat_mean(data)
   let std = stat_std(data)
-  let result : Array[Double] = Array::new()
+  let result : Array[Double] = Array(capacity=0)
   let mut i = 0
   while i < data.length() {
     result.push(stat_zscore(data[i], mean, std))
@@ -317,7 +271,7 @@ pub fn stat_t_statistic(sample : Array[Double], mu_0 : Double) -> Double {
 
 ///|
 /// Calculate the p-value from t-distribution (approximate).
-pub fn stat_pvalue_t(t : Double, df : Int) -> Double {
+pub fn stat_pvalue_t(t : Double, df : Int32) -> Double {
   let abs_t = if t < 0.0 { -t } else { t }
   // Approximation using normal distribution for large df
   let z = abs_t *
@@ -330,7 +284,7 @@ pub fn stat_pvalue_t(t : Double, df : Int) -> Double {
 /// Calculate confidence interval for the mean.
 pub fn stat_confidence_interval(
   data : Array[Double],
-  confidence? : Double = 0.95,
+  confidence~ : Double = 0.95,
 ) -> Array[Double] {
   let n = data.length()
   if n < 2 {
@@ -349,74 +303,6 @@ pub fn stat_confidence_interval(
 
   let margin = z * std / n.to_double().sqrt()
   [mean - margin, mean + margin]
-}
-
-///|
-/// Calculate the chi-square statistic.
-pub fn stat_chi_square(
-  observed : Array[Double],
-  expected : Array[Double],
-) -> Double {
-  let n = if observed.length() < expected.length() {
-    observed.length()
-  } else {
-    expected.length()
-  }
-  let mut chi2 = 0.0
-  let mut i = 0
-  while i < n {
-    if expected[i] > 0.0 {
-      let diff = observed[i] - expected[i]
-      chi2 = chi2 + diff * diff / expected[i]
-    }
-    i = i + 1
-  }
-  chi2
-}
-
-///|
-/// Expected frequencies for chi-square test (uniform distribution).
-pub fn stat_uniform_expected(
-  n_categories : Int,
-  total : Double,
-) -> Array[Double] {
-  let expected : Array[Double] = Array::make(
-    n_categories,
-    total / n_categories.to_double(),
-  )
-  expected
-}
-
-///|
-/// Calculate the frequency of each unique value.
-pub fn stat_frequency_counts(data : Array[Double]) -> Map[Double, Int] {
-  let counts : Map[Double, Int] = Map([], capacity=data.length())
-  let mut i = 0
-  while i < data.length() {
-    let val = data[i]
-    let current = counts.get_or_default(val, 0)
-    counts.set(val, current + 1)
-    i = i + 1
-  }
-  counts
-}
-
-///|
-/// Get unique values in an array.
-pub fn stat_unique_values(data : Array[Double]) -> Array[Double] {
-  let map : Map[Double, Bool] = Map([], capacity=data.length())
-  let result : Array[Double] = Array::new()
-  let mut i = 0
-  while i < data.length() {
-    let val = data[i]
-    let is_present = map.get_or_default(val, false)
-    if !is_present {
-      map.set(val, true)
-      result.push(val)
-    }
-    i = i + 1
-  }
-  result
 }
 
 ///|
@@ -476,14 +362,14 @@ pub fn stat_geometric_mean(data : Array[Double]) -> Double {
 ///|
 /// Sort an array of (score, index) pairs by score descending (quicksort).
 pub fn stat_sort_indices_desc(
-  data : Array[(Double, Int)],
-) -> Array[(Double, Int)] {
+  data : Array[(Double, Int32)],
+) -> Array[(Double, Int32)] {
   if data.length() <= 1 {
     return data.copy()
   }
   let pivot = data[0]
-  let left : Array[(Double, Int)] = Array::new()
-  let right : Array[(Double, Int)] = Array::new()
+  let left : Array[(Double, Int32)] = Array(capacity=0)
+  let right : Array[(Double, Int32)] = Array(capacity=0)
   let mut i = 1
   while i < data.length() {
     if data[i].0 >= pivot.0 {
@@ -507,14 +393,14 @@ pub fn stat_sort_indices_desc(
 ///|
 /// Sort an array of (score, index) pairs by score ascending (quicksort).
 pub fn stat_sort_indices_asc(
-  data : Array[(Double, Int)],
-) -> Array[(Double, Int)] {
+  data : Array[(Double, Int32)],
+) -> Array[(Double, Int32)] {
   if data.length() <= 1 {
     return data.copy()
   }
   let pivot = data[0]
-  let left : Array[(Double, Int)] = Array::new()
-  let right : Array[(Double, Int)] = Array::new()
+  let left : Array[(Double, Int32)] = Array(capacity=0)
+  let right : Array[(Double, Int32)] = Array(capacity=0)
   let mut i = 1
   while i < data.length() {
     if data[i].0 <= pivot.0 {
@@ -569,20 +455,6 @@ pub fn stat_mean_var(data : Array[Double]) -> (Double, Double) {
 }
 
 ///|
-/// Standardize an array to zero mean and unit variance (Z-score normalization).
-pub fn stat_standardize(data : Array[Double]) -> Array[Double] {
-  let (mean, var_) = stat_mean_var(data)
-  let std = if var_ > 0.0 { var_.sqrt() } else { 1.0 }
-  let result : Array[Double] = Array::new()
-  let mut i = 0
-  while i < data.length() {
-    result.push((data[i] - mean) / std)
-    i = i + 1
-  }
-  result
-}
-
-///|
 /// Wilcoxon signed-rank test for paired samples.
 /// Returns (statistic, p_value).
 pub fn stat_wilcoxon_signed_rank(
@@ -594,7 +466,7 @@ pub fn stat_wilcoxon_signed_rank(
     return (0.0, 1.0)
   }
 
-  let diffs : Array[Double] = Array::new()
+  let diffs : Array[Double] = Array(capacity=0)
   let mut i = 0
   while i < n {
     let d = x[i] - y[i]
@@ -610,7 +482,7 @@ pub fn stat_wilcoxon_signed_rank(
   }
 
   // Rank absolute differences
-  let abs_diffs : Array[Double] = Array::new()
+  let abs_diffs : Array[Double] = Array(capacity=0)
   for d in diffs {
     abs_diffs.push(d.abs())
   }
@@ -664,7 +536,7 @@ pub fn stat_mann_whitney(
   }
 
   // Combine and rank
-  let combined : Array[Double] = Array::new()
+  let combined : Array[Double] = Array(capacity=0)
   for v in x {
     combined.push(v)
   }
@@ -673,7 +545,7 @@ pub fn stat_mann_whitney(
   }
   let ranks = stat_rank(combined)
 
-  let n = n1 + n2
+  let _n = n1 + n2
   let mut r1 = 0.0
   let mut i = 0
   while i < n1 {
@@ -702,7 +574,7 @@ pub fn stat_mann_whitney(
 /// Fisher's exact test for a 2x2 contingency table.
 /// Table format: [[a, b], [c, d]]
 /// Returns (odds_ratio, p_value).
-pub fn stat_fisher_exact(table : Array[Array[Int]]) -> (Double, Double) {
+pub fn stat_fisher_exact(table : Array[Array[Int32]]) -> (Double, Double) {
   let a = if table.length() > 0 && table[0].length() > 0 {
     table[0][0]
   } else {
@@ -747,19 +619,24 @@ pub fn stat_fisher_exact(table : Array[Array[Int]]) -> (Double, Double) {
 
 ///|
 /// Compute Fisher's exact test p-value using hypergeometric distribution.
-fn stat_fisher_exact_pvalue(a : Int, b : Int, c : Int, d : Int) -> Double {
-  let n = (a + b + c + d).to_double()
-  let a_d = a.to_double()
-  let b_d = b.to_double()
-  let c_d = c.to_double()
-  let d_d = d.to_double()
+fn stat_fisher_exact_pvalue(
+  a : Int32,
+  b : Int32,
+  c : Int32,
+  d : Int32,
+) -> Double {
+  let _n = (a + b + c + d).to_double()
+  let _a_d = a.to_double()
+  let _b_d = b.to_double()
+  let _c_d = c.to_double()
+  let _d_d = d.to_double()
 
   // Probability of the observed table
   let p_obs = stat_mult_hypergeom_pmf(a, b, c, d)
 
   // Enumerate all tables with same margins
   let row1_total = a + b
-  let row2_total = c + d
+  let _row2_total = c + d
   let col1_total = a + c
   let col2_total = b + d
 
@@ -796,7 +673,12 @@ fn stat_fisher_exact_pvalue(a : Int, b : Int, c : Int, d : Int) -> Double {
 
 ///|
 /// Multivariate hypergeometric PMF for a 2x2 table.
-fn stat_mult_hypergeom_pmf(a : Int, b : Int, c : Int, d : Int) -> Double {
+fn stat_mult_hypergeom_pmf(
+  a : Int32,
+  b : Int32,
+  c : Int32,
+  d : Int32,
+) -> Double {
   let n = (a + b + c + d).to_double()
   if n <= 0.0 {
     return 0.0
@@ -849,7 +731,7 @@ fn stat_ln_factorial(x : Double) -> Double {
   } else {
     // Stirling's approximation
     let pi = 3.141592653589793
-    let e = 2.718281828459045
+    let _e = 2.718281828459045
     let x1 = x + 1.0
     (x1 - 0.5) * @math.ln(x1) - x1 + 0.5 * @math.ln(2.0 * pi)
   }
@@ -869,7 +751,7 @@ pub fn stat_ks_test(
   }
 
   // Combine all values and compute ECDF
-  let combined : Array[Double] = Array::new()
+  let combined : Array[Double] = Array(capacity=0)
   for v in sample1 {
     combined.push(v)
   }
@@ -945,7 +827,7 @@ fn stat_kolmogorov_cdf(lambda : Double) -> Double {
   let mut k = 1
   while k <= 100 {
     let k_dbl = k.to_double()
-    let term = (-1.0).pow(k_dbl - 1.0) *
+    let term = @math.pow(-1.0, k_dbl - 1.0) *
       @math.exp(-2.0 * k_dbl * k_dbl * lambda * lambda)
     sum = sum + term
     if term.abs() < 1.0e-15 {
@@ -960,7 +842,7 @@ fn stat_kolmogorov_cdf(lambda : Double) -> Double {
 /// Bonferroni correction for multiple testing.
 pub fn stat_bonferroni(p_values : Array[Double]) -> Array[Double] {
   let n = p_values.length()
-  let result : Array[Double] = Array::new()
+  let result : Array[Double] = Array(capacity=0)
   let mut i = 0
   while i < n {
     let corrected = p_values[i] * n.to_double()
@@ -983,11 +865,11 @@ pub fn stat_bonferroni(p_values : Array[Double]) -> Array[Double] {
 pub fn stat_holm(p_values : Array[Double]) -> Array[Double] {
   let n = p_values.length()
   if n == 0 {
-    return Array::new()
+    return Array(capacity=0)
   }
 
   // Create indexed pairs and sort by p-value
-  let indexed : Array[(Double, Int)] = Array::new()
+  let indexed : Array[(Double, Int32)] = Array(capacity=0)
   let mut i = 0
   while i < n {
     indexed.push((p_values[i], i))
@@ -1020,7 +902,7 @@ pub fn stat_holm(p_values : Array[Double]) -> Array[Double] {
 pub fn stat_by(p_values : Array[Double]) -> Array[Double] {
   let n = p_values.length()
   if n == 0 {
-    return Array::new()
+    return Array(capacity=0)
   }
 
   // Harmonic number for BY correction
@@ -1031,7 +913,7 @@ pub fn stat_by(p_values : Array[Double]) -> Array[Double] {
     k = k + 1
   }
 
-  let indexed : Array[(Double, Int)] = Array::new()
+  let indexed : Array[(Double, Int32)] = Array(capacity=0)
   let mut i = 0
   while i < n {
     indexed.push((p_values[i], i))
@@ -1055,53 +937,6 @@ pub fn stat_by(p_values : Array[Double]) -> Array[Double] {
   }
 
   adjusted
-}
-
-///|
-/// Beta distribution PDF.
-pub fn stat_beta_pdf(x : Double, alpha : Double, beta : Double) -> Double {
-  if x <= 0.0 || x >= 1.0 {
-    return 0.0
-  }
-  if alpha <= 0.0 || beta <= 0.0 {
-    return 0.0
-  }
-
-  // log(1/B(alpha,beta)) + (alpha-1)*log(x) + (beta-1)*log(1-x)
-  let ln_beta = stat_lngamma(alpha) +
-    stat_lngamma(beta) -
-    stat_lngamma(alpha + beta)
-  let ln_x = @math.ln(x)
-  let ln_1mx = @math.ln(1.0 - x)
-  let ln_pdf = -ln_beta + (alpha - 1.0) * ln_x + (beta - 1.0) * ln_1mx
-
-  let pdf = @math.exp(ln_pdf)
-  if pdf.is_nan() || pdf < 0.0 {
-    0.0
-  } else {
-    pdf
-  }
-}
-
-///|
-/// Gamma distribution PDF.
-pub fn stat_gamma_pdf(x : Double, shape : Double, rate : Double) -> Double {
-  if x <= 0.0 || shape <= 0.0 || rate <= 0.0 {
-    return 0.0
-  }
-
-  let ln_gamma = stat_lngamma(shape)
-  let ln_pdf = shape * @math.ln(rate) -
-    ln_gamma +
-    (shape - 1.0) * @math.ln(x) -
-    rate * x
-
-  let pdf = @math.exp(ln_pdf)
-  if pdf.is_nan() || pdf < 0.0 {
-    0.0
-  } else {
-    pdf
-  }
 }
 
 ///|
@@ -1132,176 +967,8 @@ fn stat_lngamma(x : Double) -> Double {
 }
 
 ///|
-/// Bartlett's test for homogeneity of variances across groups.
-/// Returns (statistic, p_value).
-pub fn stat_bartlett_test(samples : Array[Array[Double]]) -> (Double, Double) {
-  let k = samples.length()
-  if k < 2 {
-    return (0.0, 1.0)
-  }
-
-  let variances : Array[Double] = Array::new()
-  let sizes : Array[Int] = Array::new()
-  let mut total_n = 0
-  let mut i = 0
-  while i < k {
-    let n = samples[i].length()
-    if n < 2 {
-      return (0.0, 1.0)
-    }
-    let var_ = stat_variance(samples[i])
-    variances.push(var_)
-    sizes.push(n)
-    total_n = total_n + n
-    i = i + 1
-  }
-
-  // Pooled variance
-  let mut pooled_var_num = 0.0
-  let mut pooled_var_den = 0.0
-  i = 0
-  while i < k {
-    let n = sizes[i].to_double()
-    pooled_var_num = pooled_var_num + (n - 1.0) * variances[i]
-    pooled_var_den = pooled_var_den + n - 1.0
-    i = i + 1
-  }
-  let pooled_var = pooled_var_num / pooled_var_den
-
-  // Compute B statistic
-  let mut b = 0.0
-  i = 0
-  while i < k {
-    let n = sizes[i].to_double()
-    let vi = variances[i]
-    if vi > 0.0 {
-      b = b + (n - 1.0) * (@math.ln(pooled_var) - @math.ln(vi))
-    }
-    i = i + 1
-  }
-  b = 2.0 * b
-
-  // Approximate p-value using chi-square distribution
-  let df = k - 1
-  let p = stat_chi2_sf(b, df)
-  (b, if p.is_nan() || p < 0.0 { 0.0 } else if p > 1.0 { 1.0 } else { p })
-}
-
-///|
-/// Chi-square survival function (p-value from chi-square distribution).
-fn stat_chi2_sf(x : Double, df : Int) -> Double {
-  if x <= 0.0 {
-    return 1.0
-  }
-  if df <= 0 {
-    return 1.0
-  }
-
-  // Wilson-Hilferty approximation
-  let df_d = df.to_double()
-  let z = ((x / df_d).pow(1.0 / 3.0) - (1.0 - 2.0 / (9.0 * df_d))) /
-    (2.0 / (9.0 * df_d)).sqrt()
-  stat_pvalue_zscore(z)
-}
-
-///|
-/// Levene's test for homogeneity of variances.
-/// Returns (statistic, p_value).
-pub fn stat_levene_test(samples : Array[Array[Double]]) -> (Double, Double) {
-  let k = samples.length()
-  if k < 2 {
-    return (0.0, 1.0)
-  }
-
-  // Compute group medians
-  let medians : Array[Double] = Array::new()
-  let sizes : Array[Int] = Array::new()
-  let all_deviations : Array[Array[Double]] = Array::new()
-  let mut total_n = 0
-
-  let mut i = 0
-  while i < k {
-    let n = samples[i].length()
-    if n < 2 {
-      return (0.0, 1.0)
-    }
-    let med = stat_median(samples[i])
-    medians.push(med)
-    sizes.push(n)
-    total_n = total_n + n
-
-    // Absolute deviations from median
-    let devs : Array[Double] = Array::new()
-    for v in samples[i] {
-      devs.push((v - med).abs())
-    }
-    all_deviations.push(devs)
-    i = i + 1
-  }
-
-  // Compute overall mean of deviations
-  let all_devs_flat : Array[Double] = Array::new()
-  for devs in all_deviations {
-    for d in devs {
-      all_devs_flat.push(d)
-    }
-  }
-  let grand_mean = stat_mean(all_devs_flat)
-
-  // Compute group means and variances of deviations
-  let group_means : Array[Double] = Array::new()
-  let group_vars : Array[Double] = Array::new()
-  i = 0
-  while i < k {
-    group_means.push(stat_mean(all_deviations[i]))
-    group_vars.push(stat_variance(all_deviations[i]))
-    i = i + 1
-  }
-
-  // Levene statistic: ratio of between-group to within-group variation
-  let mut numerator = 0.0
-  i = 0
-  while i < k {
-    let n = sizes[i].to_double()
-    numerator = numerator + n * (group_means[i] - grand_mean).pow(2.0)
-    i = i + 1
-  }
-
-  let mut denominator = 0.0
-  i = 0
-  while i < k {
-    let n = sizes[i].to_double()
-    denominator = denominator + (n - 1.0) * group_vars[i]
-    i = i + 1
-  }
-
-  let levene_stat = if denominator > 0.0 {
-    numerator /
-    (k.to_double() - 1.0) /
-    (denominator / (total_n.to_double() - k.to_double()))
-  } else {
-    0.0
-  }
-
-  // Approximate p-value using F distribution
-  let df1 = k - 1
-  let df2 = total_n - k
-  let p = stat_f_sf(levene_stat, df1, df2)
-  (
-    levene_stat,
-    if p.is_nan() || p < 0.0 {
-      0.0
-    } else if p > 1.0 {
-      1.0
-    } else {
-      p
-    },
-  )
-}
-
-///|
 /// F-distribution survival function (p-value from F distribution).
-fn stat_f_sf(f : Double, df1 : Int, df2 : Int) -> Double {
+fn stat_f_sf(f : Double, df1 : Int32, df2 : Int32) -> Double {
   if f <= 0.0 {
     return 1.0
   }
@@ -1394,7 +1061,7 @@ fn stat_beta_inc(x : Double, a : Double, b : Double) -> Double {
 
 ///|
 /// Chi-square distribution CDF.
-pub fn stat_chi2_cdf(x : Double, df : Int) -> Double {
+pub fn stat_chi2_cdf(x : Double, df : Int32) -> Double {
   if x <= 0.0 {
     return 0.0
   }
@@ -1404,7 +1071,7 @@ pub fn stat_chi2_cdf(x : Double, df : Int) -> Double {
 
   let df_d = df.to_double()
   // Wilson-Hilferty approximation
-  let z = ((x / df_d).pow(1.0 / 3.0) - (1.0 - 2.0 / (9.0 * df_d))) /
+  let z = (@math.pow(x / df_d, 1.0 / 3.0) - (1.0 - 2.0 / (9.0 * df_d))) /
     (2.0 / (9.0 * df_d)).sqrt()
   let p = stat_normal_cdf(z)
   if p.is_nan() || p < 0.0 {
@@ -1418,7 +1085,7 @@ pub fn stat_chi2_cdf(x : Double, df : Int) -> Double {
 
 ///|
 /// Chi-square distribution quantile (inverse CDF).
-pub fn stat_chi2_quantile(p : Double, df : Int) -> Double {
+pub fn stat_chi2_quantile(p : Double, df : Int32) -> Double {
   if p <= 0.0 {
     return 0.0
   }
@@ -1568,10 +1235,10 @@ pub fn stat_t_test_two_sample(
 pub fn stat_bh(p_values : Array[Double]) -> Array[Double] {
   let n = p_values.length()
   if n == 0 {
-    return Array::new()
+    return Array(capacity=0)
   }
 
-  let indexed : Array[(Double, Int)] = Array::new()
+  let indexed : Array[(Double, Int32)] = Array(capacity=0)
   let mut i = 0
   while i < n {
     let p = if p_values[i].is_nan() { 1.0 } else { p_values[i] }
@@ -1659,12 +1326,12 @@ pub fn stat_normal_quantile(p : Double) -> Double {
 
 ///|
 /// Compute the mean absolute deviation (MAD) from median.
-pub fn stat_mad(data : Array[Double], constant? : Double = 1.4826) -> Double {
+pub fn stat_mad(data : Array[Double], constant~ : Double = 1.4826) -> Double {
   if data.length() == 0 {
     return 0.0
   }
   let med = stat_median(data)
-  let devs : Array[Double] = Array::new()
+  let devs : Array[Double] = Array(capacity=0)
   let mut i = 0
   while i < data.length() {
     devs.push((data[i] - med).abs())
@@ -1679,7 +1346,7 @@ pub fn stat_mad(data : Array[Double], constant? : Double = 1.4826) -> Double {
 pub fn stat_logrank_test(
   time : Array[Double],
   event : Array[Bool],
-  group : Array[Int],
+  group : Array[Int32],
 ) -> (Double, Double) {
   let n = time.length()
   if n < 3 {
@@ -1687,7 +1354,7 @@ pub fn stat_logrank_test(
   }
 
   // Sort by time
-  let indexed : Array[(Double, Bool, Int)] = Array::new()
+  let indexed : Array[(Double, Bool, Int32)] = Array(capacity=0)
   let mut i = 0
   while i < n {
     indexed.push((time[i], event[i], group[i]))
@@ -1733,7 +1400,7 @@ pub fn stat_logrank_test(
 
   i = 0
   while i < n {
-    let t_i = indexed[i].0
+    let _t_i = indexed[i].0
     let d = if indexed[i].1 { 1.0 } else { 0.0 }
     let at_risk = n1 + n2
 
@@ -1770,9 +1437,9 @@ pub fn stat_anova(samples : Array[Array[Double]]) -> (Double, Double) {
     return (0.0, 1.0)
   }
 
-  let sizes : Array[Int] = Array::new()
-  let means : Array[Double] = Array::new()
-  let variances : Array[Double] = Array::new()
+  let sizes : Array[Int32] = Array(capacity=0)
+  let means : Array[Double] = Array(capacity=0)
+  let variances : Array[Double] = Array(capacity=0)
   let mut total_n = 0
 
   let mut i = 0
@@ -1789,7 +1456,7 @@ pub fn stat_anova(samples : Array[Array[Double]]) -> (Double, Double) {
   }
 
   // Overall mean
-  let all_vals : Array[Double] = Array::new()
+  let all_vals : Array[Double] = Array(capacity=0)
   i = 0
   while i < k {
     for v in samples[i] {
@@ -1804,7 +1471,7 @@ pub fn stat_anova(samples : Array[Array[Double]]) -> (Double, Double) {
   i = 0
   while i < k {
     ss_between = ss_between +
-      sizes[i].to_double() * (means[i] - grand_mean).pow(2.0)
+      sizes[i].to_double() * @math.pow(means[i] - grand_mean, 2.0)
     i = i + 1
   }
 
@@ -1814,7 +1481,7 @@ pub fn stat_anova(samples : Array[Array[Double]]) -> (Double, Double) {
   while i < k {
     let m = means[i]
     for v in samples[i] {
-      ss_within = ss_within + (v - m).pow(2.0)
+      ss_within = ss_within + @math.pow(v - m, 2.0)
     }
     i = i + 1
   }

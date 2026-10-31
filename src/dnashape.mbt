@@ -55,7 +55,7 @@ pub fn dnashape_make_feature(name : String) -> DnaShapeFeature {
 
 ///|
 /// Get the k-mer size used for a feature.
-pub fn DnaShapeFeature::kmer_size(self : DnaShapeFeature) -> Int {
+pub fn DnaShapeFeature::kmer_size(self : DnaShapeFeature) -> Int32 {
   match self {
     ShapeMGW => 5
     ShapeRoll => 4
@@ -68,9 +68,9 @@ pub fn DnaShapeFeature::kmer_size(self : DnaShapeFeature) -> Int {
 ///|
 /// Result of predicting a single shape feature for a sequence.
 pub struct DnaShapeResult {
-  pub feature : DnaShapeFeature
-  pub values : Array[Double] // per-position values (NaN at boundaries)
-  pub positions : Array[Int] // 1-based positions where values are defined
+  feature : DnaShapeFeature
+  values : Array[Double] // per-position values (NaN at boundaries)
+  positions : Array[Int32] // 1-based positions where values are defined
 }
 
 ///|
@@ -78,9 +78,9 @@ pub struct DnaShapeResult {
 pub fn DnaShapeResult::new(
   feature~ : DnaShapeFeature,
   values~ : Array[Double],
-  positions~ : Array[Int],
+  positions~ : Array[Int32],
 ) -> DnaShapeResult {
-  DnaShapeResult::{ feature, values, positions }
+  DnaShapeResult::{ feature, values, positions, }
 }
 
 ///|
@@ -91,13 +91,13 @@ pub fn DnaShapeResult::feature_name(self : DnaShapeResult) -> String {
 
 ///|
 /// Get the number of predicted values.
-pub fn DnaShapeResult::length(self : DnaShapeResult) -> Int {
+pub fn DnaShapeResult::length(self : DnaShapeResult) -> Int32 {
   self.values.length()
 }
 
 ///|
 /// Get value at index.
-pub fn DnaShapeResult::get_value(self : DnaShapeResult, idx : Int) -> Double {
+pub fn DnaShapeResult::get_value(self : DnaShapeResult, idx : Int32) -> Double {
   self.values[idx]
 }
 
@@ -154,11 +154,11 @@ pub fn DnaShapeResult::max(self : DnaShapeResult) -> Double {
 ///|
 /// Complete shape prediction for a sequence (all features).
 pub struct DnaShapePrediction {
-  pub sequence : String
-  pub mgw : DnaShapeResult
-  pub roll : DnaShapeResult
-  pub prot : DnaShapeResult
-  pub helt : DnaShapeResult
+  sequence : String
+  mgw : DnaShapeResult
+  roll : DnaShapeResult
+  prot : DnaShapeResult
+  helt : DnaShapeResult
 }
 
 // ===========================================================================
@@ -167,7 +167,7 @@ pub struct DnaShapePrediction {
 
 ///|
 /// Encode a single base to integer (A=0, C=1, G=2, T=3, others=-1).
-pub fn dnashape_encode_base(base : String) -> Int {
+pub fn dnashape_encode_base(base : String) -> Int32 {
   if base == "A" || base == "a" {
     0
   } else if base == "C" || base == "c" {
@@ -184,12 +184,12 @@ pub fn dnashape_encode_base(base : String) -> Int {
 ///|
 /// Encode a k-mer string to its integer index (base-4).
 /// Returns -1 if any base is non-ACGT.
-pub fn dnashape_encode_kmer(kmer : String) -> Int {
+pub fn dnashape_encode_kmer(kmer : String) -> Int32 {
   let n = kmer.length()
   let mut result = 0
   let mut i = 0
   while i < n {
-    let b = kmer[i:i + 1].to_string()
+    let b = kmer[i:i + 1].to_owned()
     let code = dnashape_encode_base(b)
     if code < 0 {
       return -1
@@ -202,7 +202,7 @@ pub fn dnashape_encode_kmer(kmer : String) -> Int {
 
 ///|
 /// Decode an integer index to a k-mer string of given length.
-pub fn dnashape_decode_kmer(idx : Int, length : Int) -> String {
+pub fn dnashape_decode_kmer(idx : Int32, length : Int32) -> String {
   let bases = ["A", "C", "G", "T"]
   let mut result = ""
   let mut v = idx
@@ -226,7 +226,7 @@ pub fn dnashape_revcomp(seq : String) -> String {
   let mut result = ""
   let mut i = n - 1
   while i >= 0 {
-    let c = seq[i:i + 1].to_string()
+    let c = seq[i:i + 1].to_owned()
     let complement = if c == "A" || c == "a" {
       "T"
     } else if c == "C" || c == "c" {
@@ -251,8 +251,8 @@ pub fn dnashape_revcomp(seq : String) -> String {
 ///|
 /// Get the Roll lookup table (dinucleotide index -> degrees).
 /// Index computed as base4(dinucleotide). Values from literature.
-pub fn dnashape_get_roll_table() -> Map[Int, Double] {
-  let t : Map[Int, Double] = Map([], capacity=16)
+pub fn dnashape_get_roll_table() -> Map[Int32, Double] {
+  let t : Map[Int32, Double] = Map([], capacity=16)
   // AA=0, AC=1, AG=2, AT=3
   // CA=4, CC=5, CG=6, CT=7
   // GA=8, GC=9, GG=10, GT=11
@@ -278,8 +278,8 @@ pub fn dnashape_get_roll_table() -> Map[Int, Double] {
 
 ///|
 /// Get the ProT (Propeller Twist) lookup table (dinucleotide -> degrees).
-pub fn dnashape_get_prot_table() -> Map[Int, Double] {
-  let t : Map[Int, Double] = Map([], capacity=16)
+pub fn dnashape_get_prot_table() -> Map[Int32, Double] {
+  let t : Map[Int32, Double] = Map([], capacity=16)
   t[0] = 15.0 // AA
   t[1] = 12.0 // AC
   t[2] = 10.0 // AG
@@ -301,8 +301,8 @@ pub fn dnashape_get_prot_table() -> Map[Int, Double] {
 
 ///|
 /// Get the MGW (Minor Groove Width) lookup table (dinucleotide -> Å).
-pub fn dnashape_get_mgw_table() -> Map[Int, Double] {
-  let t : Map[Int, Double] = Map([], capacity=16)
+pub fn dnashape_get_mgw_table() -> Map[Int32, Double] {
+  let t : Map[Int32, Double] = Map([], capacity=16)
   t[0] = 3.5 // AA - A-tracts narrow groove
   t[1] = 4.5 // AC
   t[2] = 4.0 // AG
@@ -324,8 +324,8 @@ pub fn dnashape_get_mgw_table() -> Map[Int, Double] {
 
 ///|
 /// Get the HelT (Helix Twist) lookup table (dinucleotide -> degrees).
-pub fn dnashape_get_helt_table() -> Map[Int, Double] {
-  let t : Map[Int, Double] = Map([], capacity=16)
+pub fn dnashape_get_helt_table() -> Map[Int32, Double] {
+  let t : Map[Int32, Double] = Map([], capacity=16)
   t[0] = 35.0 // AA
   t[1] = 34.0 // AC
   t[2] = 34.0 // AG
@@ -347,8 +347,8 @@ pub fn dnashape_get_helt_table() -> Map[Int, Double] {
 
 ///|
 /// Get the EP (Electrostatic Potential) lookup table (dinucleotide -> kT/e).
-pub fn dnashape_get_ep_table() -> Map[Int, Double] {
-  let t : Map[Int, Double] = Map([], capacity=16)
+pub fn dnashape_get_ep_table() -> Map[Int32, Double] {
+  let t : Map[Int32, Double] = Map([], capacity=16)
   t[0] = -1.5 // AA - AT-rich lower potential
   t[1] = -1.0 // AC
   t[2] = -1.1 // AG
@@ -374,7 +374,10 @@ pub fn dnashape_get_ep_table() -> Map[Int, Double] {
 
 ///|
 /// Look up a dinucleotide value from the appropriate table.
-fn dnashape_lookup_dinuc(dinuc_idx : Int, feature : DnaShapeFeature) -> Double {
+fn dnashape_lookup_dinuc(
+  dinuc_idx : Int32,
+  feature : DnaShapeFeature,
+) -> Double {
   match feature {
     ShapeMGW => {
       let t = dnashape_get_mgw_table()
@@ -411,8 +414,8 @@ pub fn dnashape_predict(
 ) -> DnaShapeResult {
   let n = seq.length()
   let k = feature.kmer_size()
-  let values = Array::new()
-  let positions = Array::new()
+  let values = Array(capacity=0)
+  let positions = Array(capacity=0)
   if n < k {
     // sequence too short: all NaN
     let mut i = 0
@@ -420,7 +423,7 @@ pub fn dnashape_predict(
       values.push(0.0 / 0.0)
       i = i + 1
     }
-    return DnaShapeResult::{ feature, values, positions }
+    return DnaShapeResult::{ feature, values, positions, }
   }
   // center offset: for k=5, center is at position 2 (0-indexed)
   // for k=4, center is between positions 1 and 2
@@ -431,13 +434,13 @@ pub fn dnashape_predict(
   let mut i = 0
   while i <= n - k {
     // Extract k-mer
-    let kmer = seq[i:i + k].to_string()
+    let kmer = seq[i:i + k].to_owned()
     // For each k-mer, average the (k-1) overlapping dinucleotide values
     let mut sum = 0.0
     let mut count = 0
     let mut j = 0
     while j < k - 1 {
-      let dinuc = kmer[j:j + 2].to_string()
+      let dinuc = kmer[j:j + 2].to_owned()
       let idx = dnashape_encode_kmer(dinuc)
       if idx >= 0 {
         sum = sum + dnashape_lookup_dinuc(idx, feature)
@@ -462,7 +465,7 @@ pub fn dnashape_predict(
     }
     idx = idx + 1
   }
-  DnaShapeResult::{ feature, values, positions }
+  DnaShapeResult::{ feature, values, positions, }
 }
 
 ///|
@@ -525,12 +528,12 @@ pub fn dnashape_heatmap(result : DnaShapeResult) -> String {
 
 ///|
 /// Encode a sequence to its dinucleotide composition (16 counts).
-pub fn dnashape_dinuc_composition(seq : String) -> Array[Int] {
+pub fn dnashape_dinuc_composition(seq : String) -> Array[Int32] {
   let counts = Array::make(16, 0)
   let n = seq.length()
   let mut i = 0
   while i < n - 1 {
-    let dinuc = seq[i:i + 2].to_string()
+    let dinuc = seq[i:i + 2].to_owned()
     let idx = dnashape_encode_kmer(dinuc)
     if idx >= 0 {
       counts[idx] = counts[idx] + 1
@@ -550,7 +553,7 @@ pub fn dnashape_gc_content(seq : String) -> Double {
   let mut gc = 0
   let mut i = 0
   while i < n {
-    let c = seq[i:i + 1].to_string()
+    let c = seq[i:i + 1].to_owned()
     if c == "G" || c == "g" || c == "C" || c == "c" {
       gc = gc + 1
     }

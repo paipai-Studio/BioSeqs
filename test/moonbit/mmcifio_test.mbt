@@ -474,7 +474,7 @@ test "mmcifio_sequential_atom_ids" {
   let output = @src.write_mmcif(structure)
   // The 8 atoms should have ids 1..8
   let lines = output.split("\n").to_array()
-  let ids : Array[Int] = []
+  let ids : Array[Int32] = []
   for line in lines {
     if line.contains("ATOM") {
       // Split by "   " (3-space separator) and grab the second column (id)

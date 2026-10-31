@@ -20,14 +20,31 @@ fn main {
   let neighbors = @src.bayes_space_hex_neighbors(spots)
   let mut i = 0
   while i < spots.length() {
-    println("  " + spots[i].spot_id + " (row=" + spots[i].row.to_string() + ", col=" + spots[i].col.to_string() + ") -> " + neighbors[i].length().to_string() + " neighbors")
+    println(
+      "  " +
+      spots[i].spot_id +
+      " (row=" +
+      spots[i].row.to_string() +
+      ", col=" +
+      spots[i].col.to_string() +
+      ") -> " +
+      neighbors[i].length().to_string() +
+      " neighbors",
+    )
     i = i + 1
   }
   println("")
 
   // ---- Section 3: Run BayesSpace clustering ----
   println("=== 3. Run BayesSpace (q=2 clusters) ===")
-  let result = @src.bayes_space_run(expr, spots, 2, neighbors, max_iters=50, seed=42)
+  let result = @src.bayes_space_run(
+    expr,
+    spots,
+    2,
+    neighbors,
+    max_iters=50,
+    seed=42,
+  )
   println("Iterations: " + result.n_iterations.to_string())
   println("Converged: " + result.converged.to_string())
   println("Log-likelihood: " + result.log_likelihood.to_string())
@@ -38,7 +55,12 @@ fn main {
   println("=== 4. Cluster Assignments ===")
   let mut si = 0
   while si < result.spot_ids.length() {
-    println("  " + result.spot_ids[si] + " -> cluster " + result.clusters[si].to_string())
+    println(
+      "  " +
+      result.spot_ids[si] +
+      " -> cluster " +
+      result.clusters[si].to_string(),
+    )
     si = si + 1
   }
   println("")
@@ -48,7 +70,9 @@ fn main {
   let counts = @src.bayes_space_cluster_counts(result)
   let mut ci = 0
   while ci < counts.length() {
-    println("  Cluster " + ci.to_string() + ": " + counts[ci].to_string() + " spots")
+    println(
+      "  Cluster " + ci.to_string() + ": " + counts[ci].to_string() + " spots",
+    )
     ci = ci + 1
   }
   println("")
@@ -91,7 +115,13 @@ fn main {
   let sq_neighbors = @src.bayes_space_square_neighbors(spots)
   let mut sqi = 0
   while sqi < 4 {
-    println("  " + spots[sqi].spot_id + " -> " + sq_neighbors[sqi].length().to_string() + " neighbors")
+    println(
+      "  " +
+      spots[sqi].spot_id +
+      " -> " +
+      sq_neighbors[sqi].length().to_string() +
+      " neighbors",
+    )
     sqi = sqi + 1
   }
   println("")

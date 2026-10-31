@@ -33,6 +33,9 @@ pub enum SeqXmlType {
 } derive(Eq)
 
 ///|
+pub extend SeqXmlType with Eq::{equal, not_equal}
+
+///|
 /// A single SeqXML entry: an identifier, an optional description, a
 /// sequence of a known molecular type, and a list of name/value properties.
 pub struct SeqXmlEntry {
@@ -102,9 +105,9 @@ pub fn SeqXmlEntry::new(
   id : String,
   seq_type : SeqXmlType,
   sequence : String,
-  description? : String = "",
+  description~ : String = "",
 ) -> SeqXmlEntry {
-  SeqXmlEntry::{ id, description, seq_type, sequence, properties: [] }
+  SeqXmlEntry::{ id, description, seq_type, sequence, properties: [], }
 }
 
 ///|
@@ -195,7 +198,7 @@ pub fn SeqXmlDocument::source_db(self : SeqXmlDocument) -> String {
 
 ///|
 /// Return the number of entries in this document.
-pub fn SeqXmlDocument::n_entries(self : SeqXmlDocument) -> Int {
+pub fn SeqXmlDocument::n_entries(self : SeqXmlDocument) -> Int32 {
   self.entries.length()
 }
 
@@ -235,7 +238,7 @@ pub fn SeqXmlDocument::add_entry(
 ///|
 /// Find the first occurrence of `sub` in `s` at or after position `from`.
 /// Returns the index of the match, or None if not found.
-fn seqxml_index_of_from(s : String, sub : String, from : Int) -> Int? {
+fn seqxml_index_of_from(s : String, sub : String, from : Int32) -> Int32? {
   let n = s.length()
   let m = sub.length()
   if m == 0 || from >= n {
@@ -281,7 +284,7 @@ fn seqxml_is_tag_delim(c : UInt16) -> Bool {
 /// Find the next opening tag named `tag_name` at or after position `from`.
 /// Returns the position of the "<" or None. A tag boundary (whitespace, ">",
 /// or "/") must follow the tag name to avoid prefix matches.
-fn seqxml_find_tag(content : String, tag_name : String, from : Int) -> Int? {
+fn seqxml_find_tag(content : String, tag_name : String, from : Int32) -> Int32? {
   let pattern = "<" + tag_name
   let plen = pattern.length()
   let n = content.length()
@@ -308,7 +311,7 @@ fn seqxml_find_tag(content : String, tag_name : String, from : Int) -> Int? {
 /// Given the position of a "<" that starts a tag, find the matching ">"
 /// that closes the opening tag, respecting quoted attribute values.
 /// Returns the position of the ">".
-fn seqxml_find_tag_end(s : String, from : Int) -> Int? {
+fn seqxml_find_tag_end(s : String, from : Int32) -> Int32? {
   let n = s.length()
   let dq = '"'.to_int().to_uint16()
   let sq = '\''.to_int().to_uint16()
@@ -628,7 +631,7 @@ pub fn seqxml_parse(content : String) -> SeqXmlDocument {
             let id = seqxml_attr_or(clean_body, "id", "")
             let desc = seqxml_attr_or(clean_body, "desc", "")
             let inner_start = gt_pos + 1
-            let close_pos_opt : Int? = if self_closing {
+            let close_pos_opt : Int32? = if self_closing {
               None
             } else {
               seqxml_index_of_from(content, close_tag, inner_start)
@@ -697,7 +700,7 @@ pub fn seqxml_parse_entry_id(line : String) -> String? {
 /// Convert a single SeqXmlEntry to its XML representation, indented as it
 /// would appear inside a <seqXML> document (2-space base indent).
 pub fn seqxml_entry_to_xml(entry : SeqXmlEntry) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   // Opening <entry> tag with id (and optional desc).
   buf.write_string("  <entry id=\"")
   buf.write_string(seqxml_escape_attr(entry.id))
@@ -734,7 +737,7 @@ pub fn seqxml_entry_to_xml(entry : SeqXmlEntry) -> String {
 /// Convert a full SeqXmlDocument to its SeqXML string representation,
 /// including the XML declaration, header metadata, and all entries.
 pub fn seqxml_to_xml(doc : SeqXmlDocument) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n")
   buf.write_string("<seqXML>\n")
   // Species header (if either name or taxid is set).
@@ -832,7 +835,7 @@ pub fn seqxml_to_seq_records(doc : SeqXmlDocument) -> Array[SeqRecord] {
 /// auto-detected from its sequence content.
 pub fn seqxml_from_seq_records(
   records : Array[SeqRecord],
-  seq_type? : SeqXmlType = UnknownType,
+  seq_type~ : SeqXmlType = UnknownType,
 ) -> SeqXmlDocument {
   let doc = SeqXmlDocument::new()
   for rec in records {

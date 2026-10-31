@@ -8,24 +8,27 @@ pub suberror LocationParserError {
 /// Position types for feature locations.
 /// These represent different types of fuzzy positions.
 pub enum Position {
-  ExactPosition(Int)
-  WithinPosition(Int, Int, Int)
-  BeforePosition(Int)
-  AfterPosition(Int)
-  UncertainPosition(Int)
+  ExactPosition(Int32)
+  WithinPosition(Int32, Int32, Int32)
+  BeforePosition(Int32)
+  AfterPosition(Int32)
+  UncertainPosition(Int32)
   UnknownPosition
 } derive(Eq)
 
 ///|
-pub fn Position::new_exact(pos : Int) -> Position {
+pub extend Position with Eq::{equal, not_equal}
+
+///|
+pub fn Position::new_exact(pos : Int32) -> Position {
   ExactPosition(pos)
 }
 
 ///|
 pub fn Position::new_within(
-  pos : Int,
-  fuzzy_start : Int,
-  fuzzy_end : Int,
+  pos : Int32,
+  fuzzy_start : Int32,
+  fuzzy_end : Int32,
 ) -> Position raise LocationParserError {
   if pos != fuzzy_start && pos != fuzzy_end {
     raise LocationParserError(
@@ -41,17 +44,17 @@ pub fn Position::new_within(
 }
 
 ///|
-pub fn Position::new_before(pos : Int) -> Position {
+pub fn Position::new_before(pos : Int32) -> Position {
   BeforePosition(pos)
 }
 
 ///|
-pub fn Position::new_after(pos : Int) -> Position {
+pub fn Position::new_after(pos : Int32) -> Position {
   AfterPosition(pos)
 }
 
 ///|
-pub fn Position::new_uncertain(pos : Int) -> Position {
+pub fn Position::new_uncertain(pos : Int32) -> Position {
   UncertainPosition(pos)
 }
 
@@ -61,7 +64,7 @@ pub fn Position::new_unknown() -> Position {
 }
 
 ///|
-pub fn Position::to_int(self : Position) -> Int {
+pub fn Position::to_int(self : Position) -> Int32 {
   match self {
     ExactPosition(p) => p
     WithinPosition(p, _, _) => p
@@ -110,18 +113,21 @@ pub fn Position::str(self : Position) -> String {
 pub struct FeatureLocation {
   start : Position
   end : Position
-  strand : Int?
+  strand : Int32?
   ref_seq : String?
   ref_db : String?
 } derive(Eq)
 
 ///|
+pub extend FeatureLocation with Eq::{equal, not_equal}
+
+///|
 pub fn FeatureLocation::new(
   start : Position,
   end : Position,
-  strand? : Int? = None,
-  ref_seq? : String? = None,
-  ref_db? : String? = None,
+  strand~ : Int32? = None,
+  ref_seq~ : String? = None,
+  ref_db~ : String? = None,
 ) -> FeatureLocation raise LocationParserError {
   if strand != None {
     let s = strand.unwrap()
@@ -131,25 +137,25 @@ pub fn FeatureLocation::new(
       )
     }
   }
-  FeatureLocation::{ start, end, strand, ref_seq, ref_db }
+  FeatureLocation::{ start, end, strand, ref_seq, ref_db, }
 }
 
 ///|
 pub fn FeatureLocation::new_safe(
   start : Position,
   end : Position,
-  strand? : Int? = None,
-  ref_seq? : String? = None,
-  ref_db? : String? = None,
+  strand~ : Int32? = None,
+  ref_seq~ : String? = None,
+  ref_db~ : String? = None,
 ) -> FeatureLocation {
-  FeatureLocation::{ start, end, strand, ref_seq, ref_db }
+  FeatureLocation::{ start, end, strand, ref_seq, ref_db, }
 }
 
 ///|
 pub fn FeatureLocation::new_exact(
-  start : Int,
-  end : Int,
-  strand? : Int? = None,
+  start : Int32,
+  end : Int32,
+  strand~ : Int32? = None,
 ) -> FeatureLocation raise LocationParserError {
   if strand != None {
     let s = strand.unwrap()
@@ -179,7 +185,7 @@ pub fn FeatureLocation::end(self : FeatureLocation) -> Position {
 }
 
 ///|
-pub fn FeatureLocation::strand(self : FeatureLocation) -> Int? {
+pub fn FeatureLocation::strand(self : FeatureLocation) -> Int32? {
   self.strand
 }
 
@@ -194,18 +200,18 @@ pub fn FeatureLocation::ref_db(self : FeatureLocation) -> String? {
 }
 
 ///|
-pub fn FeatureLocation::start_int(self : FeatureLocation) -> Int {
+pub fn FeatureLocation::start_int(self : FeatureLocation) -> Int32 {
   self.start.to_int()
 }
 
 ///|
-pub fn FeatureLocation::end_int(self : FeatureLocation) -> Int {
+pub fn FeatureLocation::end_int(self : FeatureLocation) -> Int32 {
   self.end.to_int()
 }
 
 ///|
 pub fn FeatureLocation::repr(self : FeatureLocation) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string("FeatureLocation(")
   buf.write_string(self.start.repr())
   buf.write_string(", ")
@@ -220,7 +226,7 @@ pub fn FeatureLocation::repr(self : FeatureLocation) -> String {
 
 ///|
 pub fn FeatureLocation::str(self : FeatureLocation) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_char('[')
   buf.write_string(self.start.str())
   buf.write_char(':')
@@ -274,13 +280,16 @@ pub struct CompoundLocation {
 } derive(Eq)
 
 ///|
+pub extend CompoundLocation with Eq::{equal, not_equal}
+
+///|
 pub fn CompoundLocation::new(
   parts : Array[FeatureLocation],
-  operator? : String = "join",
-  ref_seq? : String? = None,
-  ref_db? : String? = None,
+  operator~ : String = "join",
+  ref_seq~ : String? = None,
+  ref_db~ : String? = None,
 ) -> CompoundLocation {
-  CompoundLocation::{ parts, operator, ref_seq, ref_db }
+  CompoundLocation::{ parts, operator, ref_seq, ref_db, }
 }
 
 ///|
@@ -297,7 +306,7 @@ pub fn CompoundLocation::operator(self : CompoundLocation) -> String {
 
 ///|
 pub fn CompoundLocation::repr(self : CompoundLocation) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string("CompoundLocation(")
   buf.write_string(self.operator)
   buf.write_char(',')
@@ -313,7 +322,7 @@ pub fn CompoundLocation::repr(self : CompoundLocation) -> String {
 
 ///|
 pub fn CompoundLocation::str(self : CompoundLocation) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string(self.operator)
   buf.write_char('(')
   for i, part in self.parts {
@@ -336,17 +345,20 @@ pub struct SeqFeature {
   sub_features : Array[SeqFeature]
   ref_seq : String?
   ref_db : String?
-  strand : Int?
+  strand : Int32?
 } derive(Eq)
 
 ///|
+pub extend SeqFeature with Eq::{equal, not_equal}
+
+///|
 pub fn SeqFeature::new(
-  location? : FeatureLocation? = None,
-  feature_type? : String = "",
-  id? : String = "<unknown id>",
-  qualifiers? : Map[String, Array[String]] = Map([], capacity=0),
-  sub_features? : Array[SeqFeature] = [],
-  strand? : Int? = None,
+  location~ : FeatureLocation? = None,
+  feature_type~ : String = "",
+  id~ : String = "<unknown id>",
+  qualifiers~ : Map[String, Array[String]] = Map([], capacity=0),
+  sub_features~ : Array[SeqFeature] = [],
+  strand~ : Int32? = None,
 ) -> SeqFeature {
   let loc_ref = match location {
     Some(l) => l.ref_seq()
@@ -357,7 +369,7 @@ pub fn SeqFeature::new(
     None => None
   }
   let strand_val = match strand {
-    Some(s) => strand
+    Some(_s) => strand
     None =>
       match location {
         Some(l) => l.strand()
@@ -402,7 +414,7 @@ pub fn SeqFeature::sub_features(self : SeqFeature) -> Array[SeqFeature] {
 }
 
 ///|
-pub fn SeqFeature::strand(self : SeqFeature) -> Int? {
+pub fn SeqFeature::strand(self : SeqFeature) -> Int32? {
   self.strand
 }
 
@@ -424,7 +436,7 @@ pub fn SeqFeature::ref_db(self : SeqFeature) -> String? {
 
 ///|
 pub fn SeqFeature::repr(self : SeqFeature) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string("SeqFeature(")
   match self.location {
     Some(l) => buf.write_string(l.repr())
@@ -439,7 +451,7 @@ pub fn SeqFeature::repr(self : SeqFeature) -> String {
 
 ///|
 pub fn SeqFeature::str(self : SeqFeature) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string(self.feature_type)
   match self.location {
     Some(l) => {
@@ -498,7 +510,7 @@ pub fn SeqFeature::add_qualifier(
     }
     None => new_quals[name] = [value]
   }
-  SeqFeature::{ ..self, qualifiers: new_quals }
+  SeqFeature::{ ..self, qualifiers: new_quals, }
 }
 
 ///|
@@ -512,14 +524,17 @@ pub struct Reference {
 } derive(Eq)
 
 ///|
+pub extend Reference with Eq::{equal, not_equal}
+
+///|
 pub fn Reference::new(
-  authors? : String = "",
-  title? : String = "",
-  journal? : String = "",
-  pubmed_id? : String = "",
-  comment? : String = "",
+  authors~ : String = "",
+  title~ : String = "",
+  journal~ : String = "",
+  pubmed_id~ : String = "",
+  comment~ : String = "",
 ) -> Reference {
-  Reference::{ authors, title, journal, pubmed_id, comment }
+  Reference::{ authors, title, journal, pubmed_id, comment, }
 }
 
 ///|

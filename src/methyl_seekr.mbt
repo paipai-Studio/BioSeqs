@@ -20,20 +20,20 @@
 /// A single cytosine methylation call from whole-genome bisulfite sequencing.
 pub struct CytosineSite {
   chr : String
-  position : Int
-  methylated : Int
-  unmethylated : Int
+  position : Int32
+  methylated : Int32
+  unmethylated : Int32
 }
 
 ///|
 /// Construct a CytosineSite.
 pub fn CytosineSite::new(
   chr~ : String,
-  position~ : Int,
-  methylated~ : Int,
-  unmethylated~ : Int,
+  position~ : Int32,
+  methylated~ : Int32,
+  unmethylated~ : Int32,
 ) -> CytosineSite {
-  CytosineSite::{ chr, position, methylated, unmethylated }
+  CytosineSite::{ chr, position, methylated, unmethylated, }
 }
 
 ///|
@@ -44,25 +44,25 @@ pub fn CytosineSite::chr(self : CytosineSite) -> String {
 
 ///|
 /// Genomic position (1-based or 0-based, caller-defined).
-pub fn CytosineSite::position(self : CytosineSite) -> Int {
+pub fn CytosineSite::position(self : CytosineSite) -> Int32 {
   self.position
 }
 
 ///|
 /// Number of methylated reads covering this cytosine.
-pub fn CytosineSite::methylated(self : CytosineSite) -> Int {
+pub fn CytosineSite::methylated(self : CytosineSite) -> Int32 {
   self.methylated
 }
 
 ///|
 /// Number of unmethylated reads covering this cytosine.
-pub fn CytosineSite::unmethylated(self : CytosineSite) -> Int {
+pub fn CytosineSite::unmethylated(self : CytosineSite) -> Int32 {
   self.unmethylated
 }
 
 ///|
 /// Total read coverage (methylated + unmethylated).
-pub fn CytosineSite::coverage(self : CytosineSite) -> Int {
+pub fn CytosineSite::coverage(self : CytosineSite) -> Int32 {
   self.methylated + self.unmethylated
 }
 
@@ -97,10 +97,10 @@ pub fn methylation_level(site : CytosineSite) -> Double {
 /// A fixed-size genomic tile with aggregated methylation statistics.
 pub struct MethylTile {
   chr : String
-  start : Int
-  end : Int
+  start : Int32
+  end : Int32
   methylation_level : Double
-  coverage : Int
+  coverage : Int32
   mut region_type : String
 }
 
@@ -108,13 +108,13 @@ pub struct MethylTile {
 /// Construct a MethylTile. `region_type` defaults to "FMR".
 pub fn MethylTile::new(
   chr~ : String,
-  start~ : Int,
-  end~ : Int,
+  start~ : Int32,
+  end~ : Int32,
   methylation_level~ : Double,
-  coverage~ : Int,
-  region_type? : String = "FMR",
+  coverage~ : Int32,
+  region_type~ : String = "FMR",
 ) -> MethylTile {
-  MethylTile::{ chr, start, end, methylation_level, coverage, region_type }
+  MethylTile::{ chr, start, end, methylation_level, coverage, region_type, }
 }
 
 ///|
@@ -125,13 +125,13 @@ pub fn MethylTile::chr(self : MethylTile) -> String {
 
 ///|
 /// Tile start coordinate (inclusive).
-pub fn MethylTile::start(self : MethylTile) -> Int {
+pub fn MethylTile::start(self : MethylTile) -> Int32 {
   self.start
 }
 
 ///|
 /// Tile end coordinate (exclusive).
-pub fn MethylTile::end(self : MethylTile) -> Int {
+pub fn MethylTile::end(self : MethylTile) -> Int32 {
   self.end
 }
 
@@ -143,7 +143,7 @@ pub fn MethylTile::methylation_level(self : MethylTile) -> Double {
 
 ///|
 /// Total read coverage within the tile.
-pub fn MethylTile::coverage(self : MethylTile) -> Int {
+pub fn MethylTile::coverage(self : MethylTile) -> Int32 {
   self.coverage
 }
 
@@ -176,10 +176,10 @@ pub fn MethylTile::to_string(self : MethylTile) -> String {
 /// same methylation class.
 pub struct MethylRegion {
   chr : String
-  start : Int
-  end : Int
+  start : Int32
+  end : Int32
   region_type : String
-  n_tiles : Int
+  n_tiles : Int32
   mean_methylation : Double
   min_methylation : Double
   max_methylation : Double
@@ -189,10 +189,10 @@ pub struct MethylRegion {
 /// Construct a MethylRegion.
 pub fn MethylRegion::new(
   chr~ : String,
-  start~ : Int,
-  end~ : Int,
+  start~ : Int32,
+  end~ : Int32,
   region_type~ : String,
-  n_tiles~ : Int,
+  n_tiles~ : Int32,
   mean_methylation~ : Double,
   min_methylation~ : Double,
   max_methylation~ : Double,
@@ -217,13 +217,13 @@ pub fn MethylRegion::chr(self : MethylRegion) -> String {
 
 ///|
 /// Region start coordinate (inclusive).
-pub fn MethylRegion::start(self : MethylRegion) -> Int {
+pub fn MethylRegion::start(self : MethylRegion) -> Int32 {
   self.start
 }
 
 ///|
 /// Region end coordinate (exclusive).
-pub fn MethylRegion::end(self : MethylRegion) -> Int {
+pub fn MethylRegion::end(self : MethylRegion) -> Int32 {
   self.end
 }
 
@@ -235,7 +235,7 @@ pub fn MethylRegion::region_type(self : MethylRegion) -> String {
 
 ///|
 /// Number of tiles merged into this region.
-pub fn MethylRegion::n_tiles(self : MethylRegion) -> Int {
+pub fn MethylRegion::n_tiles(self : MethylRegion) -> Int32 {
   self.n_tiles
 }
 
@@ -259,7 +259,7 @@ pub fn MethylRegion::max_methylation(self : MethylRegion) -> Double {
 
 ///|
 /// Size of the region in base pairs (end - start).
-pub fn MethylRegion::size(self : MethylRegion) -> Int {
+pub fn MethylRegion::size(self : MethylRegion) -> Int32 {
   self.end - self.start
 }
 
@@ -284,13 +284,13 @@ pub fn MethylRegion::to_string(self : MethylRegion) -> String {
 ///|
 /// Configuration parameters for the methylSeekR pipeline.
 pub struct MethylSeekRParams {
-  tile_size : Int
-  min_coverage : Int
+  tile_size : Int32
+  min_coverage : Int32
   alpha : Double
   beta : Double
   gamma : Double
-  min_region_size : Int
-  pmd_window : Int
+  min_region_size : Int32
+  pmd_window : Int32
 }
 
 ///|
@@ -313,13 +313,13 @@ pub fn MethylSeekRParams::default() -> MethylSeekRParams {
 /// Construct parameters with optional overrides. Any omitted argument takes
 /// its default value (see `MethylSeekRParams::default`).
 pub fn MethylSeekRParams::new(
-  tile_size? : Int = 1000,
-  min_coverage? : Int = 5,
-  alpha? : Double = 0.1,
-  beta? : Double = 0.5,
-  gamma? : Double = 0.7,
-  min_region_size? : Int = 500,
-  pmd_window? : Int = 10000,
+  tile_size~ : Int32 = 1000,
+  min_coverage~ : Int32 = 5,
+  alpha~ : Double = 0.1,
+  beta~ : Double = 0.5,
+  gamma~ : Double = 0.7,
+  min_region_size~ : Int32 = 500,
+  pmd_window~ : Int32 = 10000,
 ) -> MethylSeekRParams {
   MethylSeekRParams::{
     tile_size,
@@ -334,13 +334,13 @@ pub fn MethylSeekRParams::new(
 
 ///|
 /// Tile size in base pairs.
-pub fn MethylSeekRParams::tile_size(self : MethylSeekRParams) -> Int {
+pub fn MethylSeekRParams::tile_size(self : MethylSeekRParams) -> Int32 {
   self.tile_size
 }
 
 ///|
 /// Minimum coverage required to confidently classify a tile.
-pub fn MethylSeekRParams::min_coverage(self : MethylSeekRParams) -> Int {
+pub fn MethylSeekRParams::min_coverage(self : MethylSeekRParams) -> Int32 {
   self.min_coverage
 }
 
@@ -364,13 +364,13 @@ pub fn MethylSeekRParams::gamma(self : MethylSeekRParams) -> Double {
 
 ///|
 /// Minimum region size in base pairs; smaller merged regions are discarded.
-pub fn MethylSeekRParams::min_region_size(self : MethylSeekRParams) -> Int {
+pub fn MethylSeekRParams::min_region_size(self : MethylSeekRParams) -> Int32 {
   self.min_region_size
 }
 
 ///|
 /// Window size in base pairs used for PMD detection.
-pub fn MethylSeekRParams::pmd_window(self : MethylSeekRParams) -> Int {
+pub fn MethylSeekRParams::pmd_window(self : MethylSeekRParams) -> Int32 {
   self.pmd_window
 }
 
@@ -386,14 +386,14 @@ pub fn tile_methylation(
   sites : Array[CytosineSite],
   params : MethylSeekRParams,
 ) -> Array[MethylTile] {
-  let tiles : Array[MethylTile] = Array::new()
+  let tiles : Array[MethylTile] = Array(capacity=0)
   let n = sites.length()
   if n == 0 || params.tile_size <= 0 {
     return tiles
   }
   // Aggregate counts per (chr, tile_index).
-  let agg : Map[String, (String, Int, Int, Int)] = Map([], capacity=256)
-  let keys : Array[String] = Array::new()
+  let agg : Map[String, (String, Int32, Int32, Int32)] = Map([], capacity=256)
+  let keys : Array[String] = Array(capacity=0)
   for site in sites {
     if site.position < 0 {
       continue
@@ -415,7 +415,7 @@ pub fn tile_methylation(
     }
   }
   // Build an entries list and sort by (chr, tile_index) using selection sort.
-  let entries : Array[(String, Int, Int, Int)] = Array::new()
+  let entries : Array[(String, Int32, Int32, Int32)] = Array(capacity=0)
   for key in keys {
     entries.push(agg[key])
   }
@@ -529,7 +529,7 @@ pub fn detect_pmds(
     }
     let chr = tiles[i].chr
     // Collect a maximal contiguous run of candidate tiles.
-    let run : Array[Int] = Array::new()
+    let run : Array[Int32] = Array(capacity=0)
     run.push(i)
     let mut j = i + 1
     while j < n {
@@ -563,7 +563,7 @@ pub fn merge_regions(
   tiles : Array[MethylTile],
   params : MethylSeekRParams,
 ) -> Array[MethylRegion] {
-  let result : Array[MethylRegion] = Array::new()
+  let result : Array[MethylRegion] = Array(capacity=0)
   let n = tiles.length()
   if n == 0 {
     return result
@@ -636,7 +636,7 @@ pub fn filter_regions(
   regions : Array[MethylRegion],
   region_type : String,
 ) -> Array[MethylRegion] {
-  let result : Array[MethylRegion] = Array::new()
+  let result : Array[MethylRegion] = Array(capacity=0)
   for r in regions {
     if r.region_type == region_type {
       result.push(r)
@@ -716,9 +716,9 @@ pub fn region_summary(regions : Array[MethylRegion]) -> String {
 /// - 10-25 kb:  60% methylation -> PMD  (tiles 10-24, broad domain < gamma)
 /// - 25-30 kb:  90% methylation -> FMR  (tiles 25-29)
 pub fn methyl_seekr_sample_data() -> Array[CytosineSite] {
-  let sites : Array[CytosineSite] = Array::new()
+  let sites : Array[CytosineSite] = Array(capacity=0)
   // Each entry: (first_tile, last_tile, methylated, unmethylated) per site.
-  let regions : Array[(Int, Int, Int, Int)] = [
+  let regions : Array[(Int32, Int32, Int32, Int32)] = [
     (0, 4, 1, 19), // UMR: 5% methylation
     (5, 9, 3, 7), // LMR: 30% methylation
     (10, 24, 6, 4), // PMD: 60% methylation

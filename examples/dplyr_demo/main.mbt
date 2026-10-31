@@ -43,18 +43,18 @@ fn main {
   println("1. Original DataFrame:")
   println("   Rows: \{@bio.dataframe_nrow(df)}")
   println("   Cols: \{@bio.dataframe_ncol(df)}")
-  println("   Column names: \{@bio.dataframe_colnames(df)}")
+  println("   Column names: \{Repr(@bio.dataframe_colnames(df))}")
   println("")
 
   println("2. Select columns (gene, expression):")
   let selected = @bio.dataframe_select(df, ["gene", "expression"])
-  println("   Column names: \{@bio.dataframe_colnames(selected)}")
+  println("   Column names: \{Repr(@bio.dataframe_colnames(selected))}")
   println("")
 
   println("3. Filter rows (pvalue < 0.05):")
   let filtered = @bio.dataframe_filter(df, fn(
     df : @bio.DataFrame,
-    i : Int,
+    i : Int32,
   ) -> Bool {
     match df.columns[3].values[i] {
       @bio.DataValue::DoubleValue(p) => p < 0.05
@@ -69,7 +69,7 @@ fn main {
     (
       "doubled_expression",
       @bio.data_type_int(),
-      fn(df : @bio.DataFrame, i : Int) -> @bio.DataValue {
+      fn(df : @bio.DataFrame, i : Int32) -> @bio.DataValue {
         match df.columns[2].values[i] {
           @bio.DataValue::IntValue(expr) => @bio.data_value_int(expr * 2)
           _ => @bio.data_value_int(0)
@@ -77,7 +77,7 @@ fn main {
       },
     ),
   ])
-  println("   Column names: \{@bio.dataframe_colnames(mutated)}")
+  println("   Column names: \{Repr(@bio.dataframe_colnames(mutated))}")
   println("")
 
   println("5. Arrange by expression (descending):")
@@ -130,7 +130,7 @@ fn main {
   let summarized = @bio.dataframe_summarize(df, "condition", [
     ("mean_expression", mean_func),
   ])
-  println("   Column names: \{@bio.dataframe_colnames(summarized)}")
+  println("   Column names: \{Repr(@bio.dataframe_colnames(summarized))}")
   println("   Rows: \{@bio.dataframe_nrow(summarized)}")
   println("")
 

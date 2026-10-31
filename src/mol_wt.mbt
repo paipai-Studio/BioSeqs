@@ -120,7 +120,7 @@ pub fn mol_weight_dna(sequence : String) -> Double {
   let mut total = 0.0
   let mut i = 0
   while i < n {
-    let base = sequence.substring(start=i, end=i + 1)
+    let base = sequence[i:i + 1].to_owned()
     total = total + nucleotide_weight(base)
     i = i + 1
   }
@@ -148,7 +148,7 @@ pub fn mol_weight_protein(sequence : String) -> Double {
   let mut total = 0.0
   let mut i = 0
   while i < n {
-    let aa = sequence.substring(start=i, end=i + 1)
+    let aa = sequence[i:i + 1].to_owned()
     total = total + amino_acid_weight(aa)
     i = i + 1
   }
@@ -171,7 +171,7 @@ pub fn extinction_coefficient_280(sequence : String) -> Double {
   let mut n_cys = 0
   let mut i = 0
   while i < n {
-    let aa = sequence.substring(start=i, end=i + 1)
+    let aa = sequence[i:i + 1]
     match aa.to_upper() {
       "W" => n_trp = n_trp + 1
       "Y" => n_tyr = n_tyr + 1
@@ -184,14 +184,6 @@ pub fn extinction_coefficient_280(sequence : String) -> Double {
   n_trp.to_double() * 5500.0 +
   n_tyr.to_double() * 1490.0 +
   n_cystine.to_double() * 125.0
-}
-
-///|
-/// Calculate the extinction coefficient using Pace model at 280 nm
-/// in water (denatured protein).
-/// E(280) = nTrp * 5500 + nTyr * 1490 + nCystine * 125 (same as native)
-pub fn extinction_coefficient_280_water(sequence : String) -> Double {
-  extinction_coefficient_280(sequence)
 }
 
 ///|
@@ -226,7 +218,7 @@ pub fn mol_wt_isoelectric_point(sequence : String) -> Double {
   let mut n_tyr = 0 // Y
   let mut i = 0
   while i < n {
-    let aa = sequence.substring(start=i, end=i + 1)
+    let aa = sequence[i:i + 1]
     match aa.to_upper() {
       "D" => n_asp = n_asp + 1
       "E" => n_glu = n_glu + 1
@@ -275,7 +267,7 @@ pub fn mol_wt_isoelectric_point(sequence : String) -> Double {
 pub fn mol_weight_diff(
   seq1 : String,
   seq2 : String,
-  is_protein? : Bool = false,
+  is_protein~ : Bool = false,
 ) -> Double {
   let mw1 = if is_protein {
     mol_weight_protein(seq1)
@@ -294,7 +286,7 @@ pub fn mol_weight_diff(
 /// Generate a summary string for a sequence's molecular properties.
 pub fn mol_weight_summary(
   sequence : String,
-  is_protein? : Bool = false,
+  is_protein~ : Bool = false,
 ) -> String {
   let length = sequence.length()
   let mw = if is_protein {

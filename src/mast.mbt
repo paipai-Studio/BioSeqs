@@ -3,11 +3,11 @@ pub struct MastData {
   expression : Array[Array[Double]]
   gene_names : Array[String]
   cell_names : Array[String]
-  groups : Array[Int]
+  groups : Array[Int32]
   cngeneson : Array[Double]
-  n_genes : Int
-  n_cells : Int
-  n_groups : Int
+  n_genes : Int32
+  n_cells : Int32
+  n_groups : Int32
 }
 
 ///|
@@ -15,7 +15,7 @@ pub fn MastData::new(
   expression : Array[Array[Double]],
   gene_names : Array[String],
   cell_names : Array[String],
-  groups : Array[Int],
+  groups : Array[Int32],
 ) -> MastData {
   let n_cells = expression.length()
   let n_genes = if n_cells > 0 { expression[0].length() } else { 0 }
@@ -74,7 +74,7 @@ pub struct HurdleResult {
 }
 
 ///|
-pub fn HurdleResult::new(n_genes : Int) -> HurdleResult {
+pub fn HurdleResult::new(n_genes : Int32) -> HurdleResult {
   HurdleResult::{
     gene: Array::make(n_genes, ""),
     discrete_pval: Array::make(n_genes, 1.0),
@@ -95,7 +95,7 @@ pub fn HurdleResult::to_string(self : HurdleResult) -> String {
   result = result + "Total genes: " + self.gene.length().to_string() + "\n\n"
   result = result + "Top 5 genes by combined p-value:\n"
 
-  let indices : Array[Int] = Array::make(self.gene.length(), 0)
+  let indices : Array[Int32] = Array::make(self.gene.length(), 0)
   let mut i = 0
   while i < self.gene.length() {
     indices[i] = i
@@ -134,7 +134,7 @@ pub fn HurdleResult::to_string(self : HurdleResult) -> String {
 }
 
 ///|
-fn mast_min_i(a : Int, b : Int) -> Int {
+fn mast_min_i(a : Int32, b : Int32) -> Int32 {
   if a < b {
     a
   } else {
@@ -271,7 +271,7 @@ fn beta_regularized(a : Double, b : Double, x : Double) -> Double {
   } else if x >= 1.0 {
     1.0
   } else {
-    let lbeta = ln_gamma(a) + ln_gamma(b) - ln_gamma(a + b)
+    let lbeta = lgamma(a) + lgamma(b) - lgamma(a + b)
     let front = @math.pow(x, a) * @math.pow(1.0 - x, b) / mast_exp(lbeta) / a
 
     let mut result = front
@@ -296,36 +296,6 @@ fn beta_regularized(a : Double, b : Double, x : Double) -> Double {
 }
 
 ///|
-fn ln_gamma(x : Double) -> Double {
-  if x <= 0.0 {
-    0.0
-  } else if x < 1.0 {
-    ln_gamma(x + 1.0) - ln_mast(x)
-  } else {
-    let z = x - 1.0
-    let mut sum = 0.5 * ln_mast(2.0 * 3.141592653589793)
-    sum = sum + (z + 0.5) * ln_mast(z + 1.0) - (z + 1.0)
-
-    let coef = [
-      1.0 / 12.0,
-      -1.0 / 360.0,
-      1.0 / 1260.0,
-      -1.0 / 1680.0,
-      1.0 / 1188.0,
-    ]
-
-    let mut i = 0
-    while i < coef.length() {
-      let divisor = @math.pow(z + 1.0, (2 * i + 1).to_double())
-      sum = sum + coef[i] / divisor
-      i = i + 1
-    }
-
-    sum
-  }
-}
-
-///|
 fn sqrt_d_mast(x : Double) -> Double {
   if x <= 0.0 {
     0.0
@@ -342,26 +312,6 @@ fn sqrt_d_mast(x : Double) -> Double {
       i = i + 1
     }
     z
-  }
-}
-
-///|
-fn chisq_test_2x2(a : Int, b : Int, c : Int, d : Int) -> Double {
-  let n = (a + b + c + d).to_double()
-  if n == 0.0 {
-    1.0
-  } else {
-    let e11 = (a + b).to_double() * (a + c).to_double() / n
-    let e12 = (a + b).to_double() * (b + d).to_double() / n
-    let e21 = (c + d).to_double() * (a + c).to_double() / n
-    let e22 = (c + d).to_double() * (b + d).to_double() / n
-
-    let chi2 = (a.to_double() - e11) * (a.to_double() - e11) / e11 +
-      (b.to_double() - e12) * (b.to_double() - e12) / e12 +
-      (c.to_double() - e21) * (c.to_double() - e21) / e21 +
-      (d.to_double() - e22) * (d.to_double() - e22) / e22
-
-    chisq_pval(chi2, 1.0)
   }
 }
 
@@ -392,7 +342,7 @@ fn gamma_regularized_p(a : Double, x : Double) -> Double {
       }
       n = n + 1
     }
-    sum * mast_exp(-x) * @math.pow(x, a) / mast_exp(ln_gamma(a))
+    sum * mast_exp(-x) * @math.pow(x, a) / mast_exp(lgamma(a))
   } else {
     1.0 - gamma_regularized_q(a, x)
   }
@@ -410,12 +360,12 @@ fn gamma_regularized_q(a : Double, x : Double) -> Double {
     prev = prev * (den - num / w) / den
     n = n + 1
   }
-  mast_exp(-x) * @math.pow(x, a) / (mast_exp(ln_gamma(a)) * w * x)
+  mast_exp(-x) * @math.pow(x, a) / (mast_exp(lgamma(a)) * w * x)
 }
 
 ///|
-fn fisher_exact_test(a : Int, b : Int, c : Int, d : Int) -> Double {
-  let n = a + b + c + d
+fn fisher_exact_test(a : Int32, b : Int32, c : Int32, d : Int32) -> Double {
+  let _n = a + b + c + d
   let r1 = a + b
   let r2 = c + d
   let c1 = a + c
@@ -443,7 +393,12 @@ fn fisher_exact_test(a : Int, b : Int, c : Int, d : Int) -> Double {
 }
 
 ///|
-fn hypergeometric_pmf(k : Int, m : Int, n : Int, k_total : Int) -> Double {
+fn hypergeometric_pmf(
+  k : Int32,
+  m : Int32,
+  n : Int32,
+  k_total : Int32,
+) -> Double {
   let log_m_choose_k = mast_log_choose(m, k)
   let log_n_choose_k = mast_log_choose(n, k_total - k)
   let log_total = mast_log_choose(m + n, k_total)
@@ -451,18 +406,18 @@ fn hypergeometric_pmf(k : Int, m : Int, n : Int, k_total : Int) -> Double {
 }
 
 ///|
-fn mast_log_choose(n : Int, k : Int) -> Double {
+fn mast_log_choose(n : Int32, k : Int32) -> Double {
   if k < 0 || k > n {
     -1000.0
   } else {
-    ln_gamma((n + 1).to_double()) -
-    ln_gamma((k + 1).to_double()) -
-    ln_gamma((n - k + 1).to_double())
+    lgamma((n + 1).to_double()) -
+    lgamma((k + 1).to_double()) -
+    lgamma((n - k + 1).to_double())
   }
 }
 
 ///|
-fn mast_max_i(a : Int, b : Int) -> Int {
+fn mast_max_i(a : Int32, b : Int32) -> Int32 {
   if a > b {
     a
   } else {
@@ -471,17 +426,21 @@ fn mast_max_i(a : Int, b : Int) -> Int {
 }
 
 ///|
-pub fn zlm_hurdle(data : MastData, group1 : Int, group2 : Int) -> HurdleResult {
+pub fn zlm_hurdle(
+  data : MastData,
+  group1 : Int32,
+  group2 : Int32,
+) -> HurdleResult {
   let result = HurdleResult::new(data.n_genes)
 
   let mut g = 0
   while g < data.n_genes {
     result.gene[g] = data.gene_names[g]
 
-    let group1_expr : Array[Double] = Array::new()
-    let group2_expr : Array[Double] = Array::new()
-    let group1_detected : Array[Bool] = Array::new()
-    let group2_detected : Array[Bool] = Array::new()
+    let group1_expr : Array[Double] = Array(capacity=0)
+    let group2_expr : Array[Double] = Array(capacity=0)
+    let group1_detected : Array[Bool] = Array(capacity=0)
+    let group2_detected : Array[Bool] = Array(capacity=0)
 
     let mut i = 0
     while i < data.n_cells {
@@ -515,8 +474,8 @@ pub fn zlm_hurdle(data : MastData, group1 : Int, group2 : Int) -> HurdleResult {
     )
     result.discrete_pval[g] = discrete_pval
 
-    let group1_positive : Array[Double] = Array::new()
-    let group2_positive : Array[Double] = Array::new()
+    let group1_positive : Array[Double] = Array(capacity=0)
+    let group2_positive : Array[Double] = Array(capacity=0)
 
     let mut j = 0
     while j < group1_expr.length() {
@@ -579,7 +538,7 @@ pub fn zlm_hurdle(data : MastData, group1 : Int, group2 : Int) -> HurdleResult {
 }
 
 ///|
-fn count_true(arr : Array[Bool]) -> Int {
+fn count_true(arr : Array[Bool]) -> Int32 {
   let mut count = 0
   let mut i = 0
   while i < arr.length() {
@@ -596,7 +555,7 @@ fn bh_fdr(pvalues : Array[Double]) -> Array[Double] {
   let n = pvalues.length()
   let fdr : Array[Double] = Array::make(n, 1.0)
 
-  let indices : Array[Int] = Array::make(n, 0)
+  let indices : Array[Int32] = Array::make(n, 0)
   let mut i = 0
   while i < n {
     indices[i] = i
@@ -637,9 +596,9 @@ fn bh_fdr(pvalues : Array[Double]) -> Array[Double] {
 
 ///|
 pub struct MastSummary {
-  n_de_combined : Int
-  n_de_discrete : Int
-  n_de_continuous : Int
+  n_de_combined : Int32
+  n_de_discrete : Int32
+  n_de_continuous : Int32
   top_genes : Array[String]
   threshold : Double
 }
@@ -653,7 +612,7 @@ pub fn MastSummary::new(
   let mut n_discrete = 0
   let mut n_continuous = 0
 
-  let top : Array[String] = Array::new()
+  let top : Array[String] = Array(capacity=0)
   let mut i = 0
   while i < result.gene.length() {
     if result.combined_fdr[i] < threshold {

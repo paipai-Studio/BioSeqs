@@ -28,7 +28,9 @@ fn main {
     li = li + 1
   }
   println("Populations: " + @bio.genepop_num_populations(record).to_string())
-  println("Total individuals: " + @bio.genepop_total_individuals(record).to_string())
+  println(
+    "Total individuals: " + @bio.genepop_total_individuals(record).to_string(),
+  )
   println("")
 
   // ------------------------------------------------------------------
@@ -38,7 +40,12 @@ fn main {
   let mut pi = 0
   while pi < record.populations.length() {
     let pop = record.populations[pi]
-    println("Population: " + pop.name + "  individuals: " + pop.individuals.length().to_string())
+    println(
+      "Population: " +
+      pop.name +
+      "  individuals: " +
+      pop.individuals.length().to_string(),
+    )
     let mut ii = 0
     while ii < pop.individuals.length() {
       let ind = pop.individuals[ii]
@@ -50,7 +57,8 @@ fn main {
           geno_str = geno_str + " "
         }
         match g.allele2 {
-          Some(a2) => geno_str = geno_str + g.allele1.to_string() + "/" + a2.to_string()
+          Some(a2) =>
+            geno_str = geno_str + g.allele1.to_string() + "/" + a2.to_string()
           None => geno_str = geno_str + g.allele1.to_string()
         }
         gi = gi + 1
@@ -72,7 +80,7 @@ fn main {
     let freqs = @bio.genepop_allele_frequencies(pop, 0)
     println("Population " + pop.name + ":")
     let keys = freqs.keys()
-    let key_arr : Array[Int] = []
+    let key_arr : Array[Int32] = []
     let mut ki = 0
     for k in keys {
       key_arr.push(k)
@@ -113,9 +121,12 @@ fn main {
     let obs = @bio.genepop_observed_heterozygosity(pop, 0)
     let exp = @bio.genepop_expected_heterozygosity(pop, 0)
     println(
-      "Population " + pop.name +
-      ": observed=" + obs.to_string() +
-      "  expected=" + exp.to_string(),
+      "Population " +
+      pop.name +
+      ": observed=" +
+      obs.to_string() +
+      "  expected=" +
+      exp.to_string(),
     )
     hi = hi + 1
   }
@@ -127,8 +138,14 @@ fn main {
   println("=== 5. Round-trip Serialization ===")
   let serialized = @bio.genepop_to_string(record)
   let reparsed = @bio.parse_genepop(serialized)
-  println("Re-parsed populations: " + @bio.genepop_num_populations(reparsed).to_string())
-  println("Re-parsed individuals: " + @bio.genepop_total_individuals(reparsed).to_string())
+  println(
+    "Re-parsed populations: " +
+    @bio.genepop_num_populations(reparsed).to_string(),
+  )
+  println(
+    "Re-parsed individuals: " +
+    @bio.genepop_total_individuals(reparsed).to_string(),
+  )
   println("Digit size preserved: " + reparsed.locus_digit_size.to_string())
   println("")
 

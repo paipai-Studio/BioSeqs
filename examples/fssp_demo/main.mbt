@@ -15,7 +15,9 @@ fn main {
   println("=== 1. Generate and parse sample FSSP file ===")
   let text = @bio.fssp_sample_text()
   let data = @bio.fssp_parse(text)
-  println("Parsed FSSP file with " + data.n_alignments().to_string() + " alignments")
+  println(
+    "Parsed FSSP file with " + data.n_alignments().to_string() + " alignments",
+  )
   println("")
 
   // ------------------------------------------------------------------
@@ -57,7 +59,15 @@ fn main {
     let a = alignments[i]
     let marker = if i == 0 { " (reference)" } else { "" }
     println("  " + (i + 1).to_string() + ". " + a.pdbid() + marker)
-    println("     Z-score=" + a.z_score().to_string() + " RMSD=" + a.rmsd().to_string() + " PID=" + a.pid().to_string() + "%")
+    println(
+      "     Z-score=" +
+      a.z_score().to_string() +
+      " RMSD=" +
+      a.rmsd().to_string() +
+      " PID=" +
+      a.pid().to_string() +
+      "%",
+    )
   }
   println("")
 
@@ -66,7 +76,11 @@ fn main {
   // ------------------------------------------------------------------
   println("=== 5. Filter alignments by Z-score >= 10.0 ===")
   let high_z = data.filter_by_zscore(10.0)
-  println("Found " + high_z.length().to_string() + " alignment(s) with Z-score >= 10.0")
+  println(
+    "Found " +
+    high_z.length().to_string() +
+    " alignment(s) with Z-score >= 10.0",
+  )
   for a in high_z {
     println("  " + a.pdbid() + ": Z=" + a.z_score().to_string())
   }

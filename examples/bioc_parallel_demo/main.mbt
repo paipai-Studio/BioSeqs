@@ -12,8 +12,8 @@ pub fn main() {
   println("\nBPJob: " + job.name)
   println("- tasks: " + job.tasks.length().to_string())
   
-  let data : Array[Array[Double]] = Array::new()
-  let mut chunk1 : Array[Double] = Array::new()
+  let data : Array[Array[Double]] = Array(capacity=0)
+  let mut chunk1 : Array[Double] = Array(capacity=0)
   chunk1.push(1.0)
   chunk1.push(2.0)
   chunk1.push(3.0)
@@ -21,7 +21,7 @@ pub fn main() {
   chunk1.push(5.0)
   data.push(chunk1)
   
-  let mut chunk2 : Array[Double] = Array::new()
+  let mut chunk2 : Array[Double] = Array(capacity=0)
   chunk2.push(6.0)
   chunk2.push(7.0)
   chunk2.push(8.0)
@@ -32,7 +32,7 @@ pub fn main() {
   let sum_result = bp_sum(data, params)
   println("\nParallel sum: " + sum_result.to_string())
   
-  let mean_data : Array[Double] = Array::new()
+  let mean_data : Array[Double] = Array(capacity=0)
   mean_data.push(1.0)
   mean_data.push(2.0)
   mean_data.push(3.0)

@@ -25,7 +25,7 @@ fn main {
   println("=== 2. Load sample expression data ===")
   let (genes, samples, matrix) = @bio.mcp_sample_data()
   println("Genes: \{genes.length()}")
-  println("Samples: \{samples}")
+  println("Samples: \{Repr(samples)}")
   println("")
 
   // ------------------------------------------------------------------
@@ -96,14 +96,12 @@ fn main {
   // 7. Custom population example
   // ------------------------------------------------------------------
   println("=== 7. Custom cell population example ===")
-  let custom_pop = @bio.McpCellPopulation::new(
-    "Custom lineage",
-    ["CD3D", "CD3E", "CD2", "TRAC"],
-  )
-  let custom_result = @bio.mcp_run(
-    genes, samples, matrix,
-    populations=[custom_pop],
-  )
+  let custom_pop = @bio.McpCellPopulation::new("Custom lineage", [
+    "CD3D", "CD3E", "CD2", "TRAC",
+  ])
+  let custom_result = @bio.mcp_run(genes, samples, matrix, populations=[
+    custom_pop,
+  ])
   println("Custom population scores:")
   let mut ci = 0
   while ci < samples.length() {

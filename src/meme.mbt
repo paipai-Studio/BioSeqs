@@ -28,15 +28,15 @@
 ///|
 /// A MEME motif with position-specific probability matrix (PSPM).
 pub struct MemeMotif {
-  pub name : String // motif identifier (e.g., "motif1" or "1")
-  pub mut alt_name : String // alternative name (may be empty)
-  pub alphabet : String // e.g., "ACGT" or "ACDEFGHIKLMNPQRSTVWY"
-  pub mut width : Int // motif width (number of positions)
-  pub mut nsites : Int // number of sites used to build the motif
-  pub mut evalue : Double // E-value of the motif
-  pub pspm : Array[Array[Double]] // position-specific probability matrix (width x alphabet_len)
-  pub mut url : String // optional motif URL
-  pub mut strands : String // strand info (e.g., "+ -" or "+")
+  name : String // motif identifier (e.g., "motif1" or "1")
+  mut alt_name : String // alternative name (may be empty)
+  alphabet : String // e.g., "ACGT" or "ACDEFGHIKLMNPQRSTVWY"
+  mut width : Int32 // motif width (number of positions)
+  mut nsites : Int32 // number of sites used to build the motif
+  mut evalue : Double // E-value of the motif
+  pspm : Array[Array[Double]] // position-specific probability matrix (width x alphabet_len)
+  mut url : String // optional motif URL
+  mut strands : String // strand info (e.g., "+ -" or "+")
 }
 
 ///|
@@ -44,7 +44,7 @@ pub struct MemeMotif {
 pub fn MemeMotif::new(
   name : String,
   pspm : Array[Array[Double]],
-  alphabet? : String = "ACGT",
+  alphabet~ : String = "ACGT",
 ) -> MemeMotif {
   let width = if pspm.length() > 0 { pspm.length() } else { 0 }
   MemeMotif::{
@@ -63,7 +63,7 @@ pub fn MemeMotif::new(
 ///|
 /// Get the consensus sequence of the motif.
 pub fn MemeMotif::consensus(self : MemeMotif) -> String {
-  let result = StringBuilder::new()
+  let result = StringBuilder()
   let alphabet = self.alphabet_to_array()
   let mut pos = 0
   while pos < self.pspm.length() {
@@ -87,7 +87,7 @@ pub fn MemeMotif::consensus(self : MemeMotif) -> String {
 ///|
 /// Convert alphabet string to array of single-character strings.
 pub fn MemeMotif::alphabet_to_array(self : MemeMotif) -> Array[String] {
-  let result = Array::new()
+  let result = Array(capacity=0)
   let mut i = 0
   while i < self.alphabet.length() {
     result.push(self.alphabet[i:i + 1].to_owned())
@@ -101,7 +101,7 @@ pub fn MemeMotif::alphabet_to_array(self : MemeMotif) -> Array[String] {
 pub fn MemeMotif::probability(
   self : MemeMotif,
   letter : String,
-  position : Int,
+  position : Int32,
 ) -> Double {
   if position < 0 || position >= self.pspm.length() {
     return 0.0
@@ -132,11 +132,11 @@ pub fn MemeMotif::information_content(self : MemeMotif) -> Double {
 ///|
 /// A MEME record holding parsed motifs and metadata.
 pub struct MemeRecord {
-  pub mut version : String // MEME version string (e.g., "4")
-  pub mut alphabet : String // alphabet (e.g., "ACGT")
-  pub mut strands : String // strand info
-  pub background_frequencies : Array[(String, Double)] // background letter frequencies
-  pub motifs : Array[MemeMotif] // list of motifs
+  mut version : String // MEME version string (e.g., "4")
+  mut alphabet : String // alphabet (e.g., "ACGT")
+  mut strands : String // strand info
+  background_frequencies : Array[(String, Double)] // background letter frequencies
+  motifs : Array[MemeMotif] // list of motifs
 }
 
 ///|
@@ -146,14 +146,14 @@ pub fn MemeRecord::new() -> MemeRecord {
     version: "4",
     alphabet: "ACGT",
     strands: "+ -",
-    background_frequencies: Array::new(),
-    motifs: Array::new(),
+    background_frequencies: Array(capacity=0),
+    motifs: Array(capacity=0),
   }
 }
 
 ///|
 /// Get the number of motifs.
-pub fn MemeRecord::num_motifs(self : MemeRecord) -> Int {
+pub fn MemeRecord::num_motifs(self : MemeRecord) -> Int32 {
   self.motifs.length()
 }
 
@@ -181,7 +181,7 @@ pub fn meme_parse(text : String) -> MemeRecord {
   let n = lines.length()
   let mut in_background = false
   let mut in_matrix = false
-  let mut matrix_rows : Array[Array[Double]] = Array::new()
+  let mut matrix_rows : Array[Array[Double]] = Array(capacity=0)
   let mut expected_width = 0
   // Motif building variables
   let mut has_motif = false
@@ -193,34 +193,34 @@ pub fn meme_parse(text : String) -> MemeRecord {
   let mut m_url = ""
   let mut m_strands = "+ -"
   while i < n {
-    let line = lines[i].trim().to_string()
+    let line = lines[i].trim().to_owned()
     if line.length() == 0 {
       i = i + 1
       continue
     }
     // Version line
-    if line.starts_with("MEME version") {
+    if line.has_prefix("MEME version") {
       let parts = line.split(" ").to_array()
       if parts.length() >= 3 {
-        record.version = parts[2].trim().to_string()
+        record.version = parts[2].trim().to_owned()
       }
       i = i + 1
       continue
     }
     // Alphabet line
-    if line.starts_with("ALPHABET=") {
-      record.alphabet = line.substring(start=9).trim().to_string()
+    if line.has_prefix("ALPHABET=") {
+      record.alphabet = line[9:].trim().to_owned()
       i = i + 1
       continue
     }
     // Strands line
-    if line.starts_with("strands:") {
-      record.strands = line.substring(start=8).trim().to_string()
+    if line.has_prefix("strands:") {
+      record.strands = line[8:].trim().to_owned()
       i = i + 1
       continue
     }
     // Background letter frequencies header
-    if line.starts_with("Background letter frequencies") {
+    if line.has_prefix("Background letter frequencies") {
       in_background = true
       i = i + 1
       continue
@@ -231,8 +231,8 @@ pub fn meme_parse(text : String) -> MemeRecord {
       let parts = line.split(" ").to_array()
       let mut j = 0
       while j + 1 < parts.length() {
-        let letter = parts[j].trim().to_string()
-        let freq_str = parts[j + 1].trim().to_string()
+        let letter = parts[j].trim().to_owned()
+        let freq_str = parts[j + 1].trim().to_owned()
         let freq_opt = parse_double(freq_str)
         let freq = match freq_opt {
           Some(v) => v
@@ -253,7 +253,7 @@ pub fn meme_parse(text : String) -> MemeRecord {
       m_name : String,
       m_alt_name : String,
       m_alphabet : String,
-      m_nsites : Int,
+      m_nsites : Int32,
       m_evalue : Double,
       m_url : String,
       m_strands : String,
@@ -271,7 +271,7 @@ pub fn meme_parse(text : String) -> MemeRecord {
       }
     }
     // MOTIF line
-    if line.starts_with("MOTIF") {
+    if line.has_prefix("MOTIF") {
       // If we were building a motif, save it first
       if has_motif {
         finalize_motif(
@@ -280,15 +280,11 @@ pub fn meme_parse(text : String) -> MemeRecord {
         )
       }
       in_matrix = false
-      matrix_rows = Array::new()
+      matrix_rows = Array(capacity=0)
       let parts = line.split(" ").to_array()
-      m_name = if parts.length() >= 2 {
-        parts[1].trim().to_string()
-      } else {
-        ""
-      }
+      m_name = if parts.length() >= 2 { parts[1].trim().to_owned() } else { "" }
       m_alt_name = if parts.length() >= 3 {
-        parts[2].trim().to_string()
+        parts[2].trim().to_owned()
       } else {
         ""
       }
@@ -302,11 +298,11 @@ pub fn meme_parse(text : String) -> MemeRecord {
       continue
     }
     // letter-probability matrix header
-    if line.starts_with("letter-probability matrix:") {
+    if line.has_prefix("letter-probability matrix:") {
       in_matrix = true
-      matrix_rows = Array::new()
+      matrix_rows = Array(capacity=0)
       // Parse alength, w, nsites, E from the header
-      let header = line.substring(start=26)
+      let header = line[26:].to_owned()
       expected_width = parse_meme_int_field(header, "w=")
       let _alength = parse_meme_int_field(header, "alength=")
       m_nsites = parse_meme_int_field(header, "nsites=")
@@ -315,8 +311,8 @@ pub fn meme_parse(text : String) -> MemeRecord {
       continue
     }
     // URL line (handle even after matrix is finalized, while still in motif)
-    if has_motif && line.starts_with("URL") {
-      m_url = line.substring(start=4).trim().to_string()
+    if has_motif && line.has_prefix("URL") {
+      m_url = line[4:].trim().to_owned()
       in_matrix = false
       finalize_motif(
         record, has_motif, m_name, m_alt_name, m_alphabet, m_nsites, m_evalue, m_url,
@@ -329,19 +325,19 @@ pub fn meme_parse(text : String) -> MemeRecord {
     // Matrix data rows
     if in_matrix && has_motif {
       // Try to parse as matrix row (starts with spaces and contains numbers)
-      let trimmed = line.trim().to_string()
+      let trimmed = line.trim().to_owned()
       if trimmed.length() > 0 {
         let parts = trimmed.split(" ").to_array()
-        let row : Array[Double] = Array::new()
+        let row : Array[Double] = Array(capacity=0)
         for p in parts {
-          let s = p.trim().to_string()
+          let s = p.trim().to_owned()
           if s.length() > 0 {
             let val_opt = parse_double(s)
             let val = match val_opt {
               Some(v) => v
               None => 0.0
             }
-            if val > 0.0 || s == "0" || s.starts_with("0.") {
+            if val > 0.0 || s == "0" || s.has_prefix("0.") {
               row.push(val)
             }
           }
@@ -376,7 +372,7 @@ pub fn meme_parse(text : String) -> MemeRecord {
 
 ///|
 /// Find the index of a substring in a string, returns -1 if not found.
-fn meme_index_of(s : String, sub : String) -> Int {
+fn meme_index_of(s : String, sub : String) -> Int32 {
   let n = s.length()
   let kn = sub.length()
   if kn == 0 || kn > n {
@@ -403,14 +399,14 @@ fn meme_index_of(s : String, sub : String) -> Int {
 
 ///|
 /// Parse an integer field from a MEME header line (e.g., "w= 8").
-fn parse_meme_int_field(text : String, field : String) -> Int {
+fn parse_meme_int_field(text : String, field : String) -> Int32 {
   let idx = meme_index_of(text, field)
   if idx >= 0 {
-    let rest = text.substring(start=idx + field.length()).trim().to_string()
-    let num_str = StringBuilder::new()
+    let rest = text[idx + field.length():].trim().to_owned()
+    let num_str = StringBuilder()
     let mut i = 0
     while i < rest.length() {
-      let ch = rest[i:i + 1].to_string()
+      let ch = rest[i:i + 1].to_owned()
       if ch >= "0" && ch <= "9" {
         num_str.write_string(ch)
         i = i + 1
@@ -432,11 +428,11 @@ fn parse_meme_int_field(text : String, field : String) -> Int {
 fn parse_meme_double_field(text : String, field : String) -> Double {
   let idx = meme_index_of(text, field)
   if idx >= 0 {
-    let rest = text.substring(start=idx + field.length()).trim().to_string()
-    let num_str = StringBuilder::new()
+    let rest = text[idx + field.length():].trim().to_owned()
+    let num_str = StringBuilder()
     let mut i = 0
     while i < rest.length() {
-      let ch = rest[i:i + 1].to_string()
+      let ch = rest[i:i + 1].to_owned()
       if (ch >= "0" && ch <= "9") ||
         ch == "." ||
         ch == "-" ||
@@ -456,7 +452,7 @@ fn parse_meme_double_field(text : String, field : String) -> Double {
         Some(x) => x
         None => 0.0
       }
-      if v > 0.0 || s == "0" || s.starts_with("0.") {
+      if v > 0.0 || s == "0" || s.has_prefix("0.") {
         return v
       }
       return 0.0
@@ -473,7 +469,7 @@ fn parse_meme_double_field(text : String, field : String) -> Double {
 ///|
 /// Serialize a MemeMotif to MEME minimal motif format.
 pub fn meme_motif_to_string(motif : MemeMotif) -> String {
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   sb.write_string("MOTIF " + motif.name)
   if motif.alt_name.length() > 0 {
     sb.write_string(" " + motif.alt_name)
@@ -514,7 +510,7 @@ pub fn meme_motif_to_string(motif : MemeMotif) -> String {
 ///|
 /// Serialize a MemeRecord to MEME minimal motif format.
 pub fn meme_record_to_string(record : MemeRecord) -> String {
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   sb.write_string("MEME version " + record.version + "\n\n")
   sb.write_string("ALPHABET= " + record.alphabet + "\n\n")
   if record.strands.length() > 0 {

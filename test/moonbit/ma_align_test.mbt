@@ -81,7 +81,7 @@ test "ma_align_pairwise_identical" {
     (0.0, 1.0, 0.0),
     (0.0, 0.0, 1.0),
   ]
-  let (rotation, rmsd) = @src.ma_align_pairwise(coords, coords)
+  let (_rotation, rmsd) = @src.ma_align_pairwise(coords, coords)
   assert_true(rmsd < 0.01)
 }
 
@@ -97,7 +97,7 @@ test "ma_align_pairwise_different_scale" {
     (0.0, 2.0, 0.0),
     (0.0, 0.0, 2.0),
   ]
-  let (rotation, rmsd) = @src.ma_align_pairwise(coords1, coords2)
+  let (_rotation, rmsd) = @src.ma_align_pairwise(coords1, coords2)
   assert_true(rmsd < 5.0)
 }
 

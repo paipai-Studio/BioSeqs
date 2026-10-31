@@ -78,7 +78,7 @@ fn infernal_duplicate_alignment_text() -> String {
 }
 
 ///|
-fn infernal_tab_raises(content : String, format : Int) -> Bool {
+fn infernal_tab_raises(content : String, format : Int32) -> Bool {
   try {
     ignore(@src.infernal_parse_tabular(content, format~))
     false

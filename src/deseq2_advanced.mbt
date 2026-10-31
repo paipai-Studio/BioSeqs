@@ -69,7 +69,7 @@ fn vst_transform_single(mu : Double, alpha : Double) -> Double {
 /// Returns a VSTResult with the transformed matrix.
 pub fn variance_stabilizing_transformation(
   dds : DESeqDataSet,
-  blind? : Bool = true,
+  blind~ : Bool = true,
 ) -> VSTResult {
   let n_genes = dds.counts.length()
   let n_samples = dds.col_names.length()
@@ -98,9 +98,9 @@ pub fn variance_stabilizing_transformation(
   }
 
   // Apply VST to each element
-  let transformed : Array[Array[Double]] = Array::new()
+  let transformed : Array[Array[Double]] = Array(capacity=0)
   for i = 0; i < n_genes; i = i + 1 {
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     for j = 0; j < n_samples; j = j + 1 {
       row.push(vst_transform_single(normalized[i][j], mean_disp))
     }
@@ -125,7 +125,7 @@ pub fn variance_stabilizing_transformation(
 /// - nsub: Number of genes to use for dispersion trend estimation (default: 1000)
 ///
 /// Returns a VSTResult with the transformed matrix.
-pub fn vst(dds : DESeqDataSet, nsub? : Int = 1000) -> VSTResult {
+pub fn vst(dds : DESeqDataSet, nsub~ : Int32 = 1000) -> VSTResult {
   let n_genes = dds.counts.length()
   let n_samples = dds.col_names.length()
   let normalized = normalize_counts(dds)
@@ -184,9 +184,9 @@ pub fn vst(dds : DESeqDataSet, nsub? : Int = 1000) -> VSTResult {
   }
 
   // Apply VST using estimated dispersion
-  let transformed : Array[Array[Double]] = Array::new()
+  let transformed : Array[Array[Double]] = Array(capacity=0)
   for i = 0; i < n_genes; i = i + 1 {
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     for j = 0; j < n_samples; j = j + 1 {
       row.push(vst_transform_single(normalized[i][j], est_disp))
     }
@@ -210,13 +210,13 @@ pub fn vst(dds : DESeqDataSet, nsub? : Int = 1000) -> VSTResult {
 /// - ntop: Number of most variable genes to use (default: 500)
 ///
 /// Returns a PCAResult with sample coordinates and variance explained.
-pub fn plot_pca(vst_result : VSTResult, ntop? : Int = 500) -> PCAResult {
+pub fn plot_pca(vst_result : VSTResult, ntop~ : Int32 = 500) -> PCAResult {
   let n_genes = vst_result.transformed.length()
   let n_samples = vst_result.col_names.length()
   let actual_ntop = if ntop < n_genes { ntop } else { n_genes }
 
   // Compute row variances and select top variable genes
-  let gene_vars : Array[(Int, Double)] = Array::new()
+  let gene_vars : Array[(Int32, Double)] = Array(capacity=0)
   for i = 0; i < n_genes; i = i + 1 {
     let mut sum = 0.0
     for j = 0; j < n_samples; j = j + 1 {
@@ -233,7 +233,7 @@ pub fn plot_pca(vst_result : VSTResult, ntop? : Int = 500) -> PCAResult {
   }
 
   // Sort by variance descending (simple selection sort for top N)
-  let selected_indices : Array[Int] = Array::new()
+  let selected_indices : Array[Int32] = Array(capacity=0)
   let used : Array[Bool] = Array::make(n_genes, false)
   for _k = 0; _k < actual_ntop; _k = _k + 1 {
     let mut max_idx = -1
@@ -251,9 +251,9 @@ pub fn plot_pca(vst_result : VSTResult, ntop? : Int = 500) -> PCAResult {
   }
 
   // Build matrix of selected genes (samples x genes)
-  let mat : Array[Array[Double]] = Array::new()
+  let mat : Array[Array[Double]] = Array(capacity=0)
   for j = 0; j < n_samples; j = j + 1 {
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     for idx in selected_indices {
       row.push(vst_result.transformed[idx][j])
     }
@@ -292,8 +292,8 @@ pub fn plot_pca(vst_result : VSTResult, ntop? : Int = 500) -> PCAResult {
   let (eigenvalues, eigenvectors) = power_iteration_top2(cov, n_samples)
 
   // Project samples onto principal components
-  let pc1 : Array[Double] = Array::new()
-  let pc2 : Array[Double] = Array::new()
+  let pc1 : Array[Double] = Array(capacity=0)
+  let pc2 : Array[Double] = Array(capacity=0)
   for i = 0; i < n_samples; i = i + 1 {
     let mut proj1 = 0.0
     let mut proj2 = 0.0
@@ -328,13 +328,16 @@ pub fn plot_pca(vst_result : VSTResult, ntop? : Int = 500) -> PCAResult {
 /// Returns ((eigenvalue1, eigenvalue2), [eigenvector1, eigenvector2]).
 fn power_iteration_top2(
   mat : Array[Array[Double]],
-  n : Int,
+  n : Int32,
 ) -> ((Double, Double), Array[Array[Double]]) {
   // First eigenvector
   let (eval1, evec1) = power_iteration_single(mat, n, None)
 
   // Deflate: remove the first eigenvector's contribution
-  let deflated : Array[Array[Double]] = Array::make(n, Array::make(n, 0.0))
+  let deflated : Array[Array[Double]] = Array::make(n, Array::make(0, 0.0))
+  for idx in 0..<n {
+    deflated[idx] = Array::make(n, 0.0)
+  }
   for i = 0; i < n; i = i + 1 {
     for j = 0; j < n; j = j + 1 {
       deflated[i][j] = mat[i][j] - eval1 * evec1[i] * evec1[j]
@@ -352,11 +355,11 @@ fn power_iteration_top2(
 /// orthogonal_to: if provided, keeps the vector orthogonal to it.
 fn power_iteration_single(
   mat : Array[Array[Double]],
-  n : Int,
+  n : Int32,
   orthogonal_to : Array[Double]?,
 ) -> (Double, Array[Double]) {
   // Initialize random vector
-  let mut v : Array[Double] = Array::new()
+  let mut v : Array[Double] = Array(capacity=0)
   let mut i = 0
   while i < n {
     v.push(1.0 / n.to_double() + (i % 3).to_double() * 0.1)
@@ -417,13 +420,13 @@ fn power_iteration_single(
 
 ///|
 /// Normalize a vector to unit length.
-fn normalize_vector(v : Array[Double], n : Int) -> Array[Double] {
+fn normalize_vector(v : Array[Double], n : Int32) -> Array[Double] {
   let mut norm = 0.0
   for i = 0; i < n; i = i + 1 {
     norm = norm + v[i] * v[i]
   }
   norm = norm.sqrt()
-  let result : Array[Double] = Array::new()
+  let result : Array[Double] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {
     if norm > 0.0 {
       result.push(v[i] / norm)
@@ -439,13 +442,13 @@ fn normalize_vector(v : Array[Double], n : Int) -> Array[Double] {
 fn orthogonalize(
   v : Array[Double],
   u : Array[Double],
-  n : Int,
+  n : Int32,
 ) -> Array[Double] {
   let mut dot = 0.0
   for i = 0; i < n; i = i + 1 {
     dot = dot + v[i] * u[i]
   }
-  let result : Array[Double] = Array::new()
+  let result : Array[Double] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {
     result.push(v[i] - dot * u[i])
   }
@@ -464,7 +467,7 @@ pub fn get_transformed_matrix(vst_result : VSTResult) -> Array[Array[Double]] {
 pub fn gene_sd(vst_result : VSTResult) -> Array[(String, Double)] {
   let n_genes = vst_result.transformed.length()
   let n_samples = vst_result.col_names.length()
-  let result : Array[(String, Double)] = Array::new()
+  let result : Array[(String, Double)] = Array(capacity=0)
 
   for i = 0; i < n_genes; i = i + 1 {
     let mut sum = 0.0

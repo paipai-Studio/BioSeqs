@@ -1,6 +1,6 @@
 ///|
 fn json_escape(s : String) -> String {
-  let buf = StringBuilder::new(size_hint=s.length() + 2)
+  let buf = StringBuilder(size_hint=s.length() + 2)
   for c in s.iter() {
     match c {
       '\\' => buf.write_string("\\\\")
@@ -20,7 +20,7 @@ fn json_string(s : String) -> String {
 
 ///|
 fn record_to_json(rec : @lib.SeqRecord) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string("{\"id\": ")
   buf.write_string(json_string(rec.id))
   buf.write_string(", \"name\": ")
@@ -37,7 +37,7 @@ fn record_to_json(rec : @lib.SeqRecord) -> String {
 
 ///|
 fn records_to_json(records : Array[@lib.SeqRecord]) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_char('[')
   for i, rec in records {
     if i > 0 {
@@ -51,7 +51,7 @@ fn records_to_json(records : Array[@lib.SeqRecord]) -> String {
 
 ///|
 fn alignment_to_json(align : @lib.MultipleSeqAlignment) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string("{\"num_records\": ")
   buf.write_string(align.num_records().to_string())
   buf.write_string(", \"alignment_length\": ")

@@ -62,7 +62,7 @@ pub fn scop_node_type_code(name : String) -> String {
 ///|
 /// Canonical ordering of node types from root to leaf.
 /// Used for short-circuiting ascendent/descendent searches.
-pub fn scop_node_type_order(code : String) -> Int {
+pub fn scop_node_type_order(code : String) -> Int32 {
   match code {
     "ro" => 0
     "cl" => 1
@@ -96,7 +96,7 @@ pub fn ScopFragment::new(
   start : String,
   end_ : String,
 ) -> ScopFragment {
-  { chain, start, end_ }
+  { chain, start, end_, }
 }
 
 ///|
@@ -133,7 +133,7 @@ pub fn ScopResidues::new(
   pdbid : String,
   fragments : Array[ScopFragment],
 ) -> ScopResidues {
-  { pdbid, fragments }
+  { pdbid, fragments, }
 }
 
 ///|
@@ -219,12 +219,12 @@ pub fn scop_parse_residues(s : String) -> ScopResidues {
 ///|
 /// Serialize a ScopResidues back to its string representation.
 pub fn scop_residues_to_string(res : ScopResidues) -> String {
-  if res.fragments.length() == 0 {
-    return "-"
-  }
   let mut s = ""
   if res.pdbid.length() > 0 {
     s = res.pdbid + " "
+  }
+  if res.fragments.length() == 0 {
+    return s + "-"
   }
   let mut first = true
   for frag in res.fragments {
@@ -232,8 +232,10 @@ pub fn scop_residues_to_string(res : ScopResidues) -> String {
       s = s + ","
     }
     first = false
-    s = s + frag.chain + ":"
-    if frag.start.length() > 0 || frag.end_.length() > 0 {
+    if frag.chain.length() > 0 {
+      s = s + frag.chain + ":"
+    }
+    if frag.start.length() > 0 {
       s = s + frag.start + "-" + frag.end_
     }
   }
@@ -252,8 +254,8 @@ pub struct ClaRecord {
   pdbid : String
   residues : ScopResidues
   sccs : String
-  sunid : Int
-  hierarchy : Map[String, Int] // node type code -> sunid
+  sunid : Int32
+  hierarchy : Map[String, Int32] // node type code -> sunid
 }
 
 ///|
@@ -263,10 +265,10 @@ pub fn ClaRecord::new(
   pdbid : String,
   residues : ScopResidues,
   sccs : String,
-  sunid : Int,
-  hierarchy : Map[String, Int],
+  sunid : Int32,
+  hierarchy : Map[String, Int32],
 ) -> ClaRecord {
-  { sid, pdbid, residues, sccs, sunid, hierarchy }
+  { sid, pdbid, residues, sccs, sunid, hierarchy, }
 }
 
 ///|
@@ -295,13 +297,13 @@ pub fn ClaRecord::sccs(self : ClaRecord) -> String {
 
 ///|
 /// Get sunid.
-pub fn ClaRecord::sunid(self : ClaRecord) -> Int {
+pub fn ClaRecord::sunid(self : ClaRecord) -> Int32 {
   self.sunid
 }
 
 ///|
 /// Get hierarchy map.
-pub fn ClaRecord::hierarchy(self : ClaRecord) -> Map[String, Int] {
+pub fn ClaRecord::hierarchy(self : ClaRecord) -> Map[String, Int32] {
   self.hierarchy
 }
 
@@ -309,7 +311,7 @@ pub fn ClaRecord::hierarchy(self : ClaRecord) -> Map[String, Int] {
 /// A record from dir.des.scop.txt (description file).
 /// Format: sunid\tnodetype\tsccs\tname\tdescription
 pub struct DesRecord {
-  sunid : Int
+  sunid : Int32
   nodetype : String
   sccs : String
   name : String
@@ -319,18 +321,18 @@ pub struct DesRecord {
 ///|
 /// Create a DES record.
 pub fn DesRecord::new(
-  sunid : Int,
+  sunid : Int32,
   nodetype : String,
   sccs : String,
   name : String,
   description : String,
 ) -> DesRecord {
-  { sunid, nodetype, sccs, name, description }
+  { sunid, nodetype, sccs, name, description, }
 }
 
 ///|
 /// Get sunid.
-pub fn DesRecord::sunid(self : DesRecord) -> Int {
+pub fn DesRecord::sunid(self : DesRecord) -> Int32 {
   self.sunid
 }
 
@@ -362,36 +364,36 @@ pub fn DesRecord::description(self : DesRecord) -> String {
 /// A record from dir.hie.scop.txt (hierarchy file).
 /// Format: sunid\tparent\tchildren
 pub struct HieRecord {
-  sunid : Int
-  parent : Int // -1 for root
-  children : Array[Int]
+  sunid : Int32
+  parent : Int32 // -1 for root
+  children : Array[Int32]
 }
 
 ///|
 /// Create a HIE record.
 pub fn HieRecord::new(
-  sunid : Int,
-  parent : Int,
-  children : Array[Int],
+  sunid : Int32,
+  parent : Int32,
+  children : Array[Int32],
 ) -> HieRecord {
-  { sunid, parent, children }
+  { sunid, parent, children, }
 }
 
 ///|
 /// Get sunid.
-pub fn HieRecord::sunid(self : HieRecord) -> Int {
+pub fn HieRecord::sunid(self : HieRecord) -> Int32 {
   self.sunid
 }
 
 ///|
 /// Get parent sunid (-1 for root).
-pub fn HieRecord::parent(self : HieRecord) -> Int {
+pub fn HieRecord::parent(self : HieRecord) -> Int32 {
   self.parent
 }
 
 ///|
 /// Get children sunids.
-pub fn HieRecord::children(self : HieRecord) -> Array[Int] {
+pub fn HieRecord::children(self : HieRecord) -> Array[Int32] {
   self.children
 }
 
@@ -426,7 +428,7 @@ pub fn scop_parse_cla_line(line : String) -> ClaRecord? {
   let sccs = fields[3]
   let sunid = parse_int(fields[4].trim().to_owned())
   // hierarchy: "cl=48724,cf=48725,sf=49265,fa=49266,dm=49267,sp=49268,px=21953"
-  let hierarchy : Map[String, Int] = Map([], capacity=8)
+  let hierarchy : Map[String, Int32] = Map([], capacity=8)
   let pairs = split_by_char(fields[5], ','.to_int())
   for pair in pairs {
     let eq_idx = pair.find("=")
@@ -512,7 +514,7 @@ pub fn scop_parse_hie_line(line : String) -> HieRecord? {
   let sunid = parse_int(fields[0].trim().to_owned())
   let parent_str = fields[1].trim().to_owned()
   let parent = if parent_str == "-" { -1 } else { parse_int(parent_str) }
-  let children : Array[Int] = []
+  let children : Array[Int32] = []
   let child_str = fields[2].trim().to_owned()
   if child_str != "-" {
     let parts = split_by_char(child_str, ','.to_int())
@@ -548,9 +550,9 @@ pub fn scop_parse_hie(content : String) -> Array[HieRecord] {
 /// A node in the SCOP hierarchy tree.
 /// For domain nodes (type "px"), `sid` and `residues` are populated.
 pub struct ScopNode {
-  sunid : Int
-  mut parent : Int // -1 for root, else parent sunid
-  mut children : Array[Int] // child sunids
+  sunid : Int32
+  mut parent : Int32 // -1 for root, else parent sunid
+  mut children : Array[Int32] // child sunids
   sccs : String
   nodetype : String
   description : String
@@ -562,7 +564,7 @@ pub struct ScopNode {
 ///|
 /// Create a SCOP node.
 pub fn ScopNode::new(
-  sunid : Int,
+  sunid : Int32,
   nodetype : String,
   sccs : String,
   description : String,
@@ -582,19 +584,19 @@ pub fn ScopNode::new(
 
 ///|
 /// Get sunid.
-pub fn ScopNode::sunid(self : ScopNode) -> Int {
+pub fn ScopNode::sunid(self : ScopNode) -> Int32 {
   self.sunid
 }
 
 ///|
 /// Get parent sunid (-1 for root).
-pub fn ScopNode::parent(self : ScopNode) -> Int {
+pub fn ScopNode::parent(self : ScopNode) -> Int32 {
   self.parent
 }
 
 ///|
 /// Get children sunids.
-pub fn ScopNode::children(self : ScopNode) -> Array[Int] {
+pub fn ScopNode::children(self : ScopNode) -> Array[Int32] {
   self.children
 }
 
@@ -644,7 +646,7 @@ pub fn ScopNode::is_domain(self : ScopNode) -> Bool {
 /// The SCOP hierarchy database.
 pub struct Scop {
   root : ScopNode
-  sunid_dict : Map[Int, ScopNode]
+  sunid_dict : Map[Int32, ScopNode]
   sid_dict : Map[String, ScopNode]
   domains : Array[ScopNode]
 }
@@ -663,7 +665,7 @@ pub fn Scop::new(
   des_records : Array[DesRecord],
   hie_records : Array[HieRecord],
 ) -> Scop {
-  let sunid_dict : Map[Int, ScopNode] = Map(
+  let sunid_dict : Map[Int32, ScopNode] = Map(
     [],
     capacity=des_records.length() + 1,
   )
@@ -722,18 +724,18 @@ pub fn Scop::new(
     Some(r) => r
     None => root
   }
-  { root: final_root, sunid_dict, sid_dict, domains }
+  { root: final_root, sunid_dict, sid_dict, domains, }
 }
 
 ///|
 /// Create an empty Scop with just a root node.
 pub fn scop_empty() -> Scop {
   let root = ScopNode::new(0, "ro", "", "SCOP Root")
-  let sunid_dict : Map[Int, ScopNode] = Map([], capacity=1)
+  let sunid_dict : Map[Int32, ScopNode] = Map([], capacity=1)
   sunid_dict.set(0, root)
   let sid_dict : Map[String, ScopNode] = Map([], capacity=0)
   let domains : Array[ScopNode] = []
-  { root, sunid_dict, sid_dict, domains }
+  { root, sunid_dict, sid_dict, domains, }
 }
 
 ///|
@@ -744,7 +746,7 @@ pub fn Scop::root(self : Scop) -> ScopNode {
 
 ///|
 /// Get a node by sunid. Returns None if not found.
-pub fn Scop::get_node_by_sunid(self : Scop, sunid : Int) -> ScopNode? {
+pub fn Scop::get_node_by_sunid(self : Scop, sunid : Int32) -> ScopNode? {
   self.sunid_dict.get(sunid)
 }
 
@@ -835,7 +837,7 @@ pub fn Scop::get_descendents(
   let target_order = scop_node_type_order(code)
   let result : Array[ScopNode] = []
   // BFS queue of sunids
-  let queue : Array[Int] = []
+  let queue : Array[Int32] = []
   for cid in node.children {
     queue.push(cid)
   }
@@ -868,7 +870,7 @@ pub fn Scop::get_descendents(
 /// Format: "letter.fold.superfamily.family" (e.g. "a.1.1.2").
 /// The first component is compared lexically; the rest numerically.
 /// Returns: -1 if sccs1 < sccs2, 0 if equal, 1 if sccs1 > sccs2.
-pub fn scop_cmp_sccs(sccs1 : String, sccs2 : String) -> Int {
+pub fn scop_cmp_sccs(sccs1 : String, sccs2 : String) -> Int32 {
   let parts1 = split_by_char(sccs1, '.'.to_int())
   let parts2 = split_by_char(sccs2, '.'.to_int())
   let n1 = parts1.length()
@@ -983,7 +985,7 @@ pub fn scop_cla_to_string(rec : ClaRecord) -> String {
 /// Serialize a Scop's hierarchy to a full HIE file content string.
 pub fn Scop::write_hie(self : Scop) -> String {
   // Collect all sunids and sort
-  let sunids : Array[Int] = []
+  let sunids : Array[Int32] = []
   for k in self.sunid_dict.keys() {
     sunids.push(k)
   }
@@ -1021,7 +1023,7 @@ pub fn Scop::write_hie(self : Scop) -> String {
 ///|
 /// Serialize a Scop's descriptions to a full DES file content string.
 pub fn Scop::write_des(self : Scop) -> String {
-  let sunids : Array[Int] = []
+  let sunids : Array[Int32] = []
   for k in self.sunid_dict.keys() {
     sunids.push(k)
   }
@@ -1070,7 +1072,7 @@ pub fn Scop::write_cla(self : Scop) -> String {
     match node.residues {
       None => continue
       Some(res) => {
-        let hierarchy : Map[String, Int] = Map([], capacity=8)
+        let hierarchy : Map[String, Int32] = Map([], capacity=8)
         // Walk up the parent chain to build the hierarchy
         let mut current = node.parent
         while current >= 0 {

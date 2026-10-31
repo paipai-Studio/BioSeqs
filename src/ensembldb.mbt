@@ -6,10 +6,10 @@ pub struct EnsDbExon {
   exon_id : String
   gene_id : String
   tx_id : String
-  exon_rank : Int
-  seq_start : Int
-  seq_end : Int
-  strand : Int
+  exon_rank : Int32
+  seq_start : Int32
+  seq_end : Int32
+  strand : Int32
 }
 
 ///|
@@ -17,12 +17,12 @@ pub fn EnsDbExon::new(
   exon_id : String,
   gene_id : String,
   tx_id : String,
-  exon_rank : Int,
-  seq_start : Int,
-  seq_end : Int,
-  strand : Int,
+  exon_rank : Int32,
+  seq_start : Int32,
+  seq_end : Int32,
+  strand : Int32,
 ) -> EnsDbExon {
-  EnsDbExon::{ exon_id, gene_id, tx_id, exon_rank, seq_start, seq_end, strand }
+  EnsDbExon::{ exon_id, gene_id, tx_id, exon_rank, seq_start, seq_end, strand, }
 }
 
 ///|
@@ -30,11 +30,11 @@ pub struct EnsDbCDS {
   cds_id : String
   gene_id : String
   tx_id : String
-  cds_rank : Int
-  seq_start : Int
-  seq_end : Int
-  strand : Int
-  codon_start : Int
+  cds_rank : Int32
+  seq_start : Int32
+  seq_end : Int32
+  strand : Int32
+  codon_start : Int32
 }
 
 ///|
@@ -42,11 +42,11 @@ pub fn EnsDbCDS::new(
   cds_id : String,
   gene_id : String,
   tx_id : String,
-  cds_rank : Int,
-  seq_start : Int,
-  seq_end : Int,
-  strand : Int,
-  codon_start : Int,
+  cds_rank : Int32,
+  seq_start : Int32,
+  seq_end : Int32,
+  strand : Int32,
+  codon_start : Int32,
 ) -> EnsDbCDS {
   EnsDbCDS::{
     cds_id,
@@ -66,9 +66,9 @@ pub struct EnsDbTranscript {
   gene_id : String
   tx_name : String
   biotype : String
-  seq_start : Int
-  seq_end : Int
-  strand : Int
+  seq_start : Int32
+  seq_end : Int32
+  strand : Int32
   chromosome : String
 }
 
@@ -78,9 +78,9 @@ pub fn EnsDbTranscript::new(
   gene_id : String,
   tx_name : String,
   biotype : String,
-  seq_start : Int,
-  seq_end : Int,
-  strand : Int,
+  seq_start : Int32,
+  seq_end : Int32,
+  strand : Int32,
   chromosome : String,
 ) -> EnsDbTranscript {
   EnsDbTranscript::{
@@ -100,9 +100,9 @@ pub struct EnsDbGene {
   gene_id : String
   gene_name : String
   biotype : String
-  seq_start : Int
-  seq_end : Int
-  strand : Int
+  seq_start : Int32
+  seq_end : Int32
+  strand : Int32
   chromosome : String
 }
 
@@ -111,9 +111,9 @@ pub fn EnsDbGene::new(
   gene_id : String,
   gene_name : String,
   biotype : String,
-  seq_start : Int,
-  seq_end : Int,
-  strand : Int,
+  seq_start : Int32,
+  seq_end : Int32,
+  strand : Int32,
   chromosome : String,
 ) -> EnsDbGene {
   EnsDbGene::{
@@ -143,62 +143,27 @@ pub fn EnsDb::new(version : String, species : String) -> EnsDb {
   EnsDb::{
     version,
     species,
-    genes: Array::new(),
-    transcripts: Array::new(),
-    exons: Array::new(),
-    cds: Array::new(),
+    genes: Array(capacity=0),
+    transcripts: Array(capacity=0),
+    exons: Array(capacity=0),
+    cds: Array(capacity=0),
     metadata: Map([], capacity=0),
   }
 }
 
 ///|
-pub fn edb_add_gene(db : EnsDb, gene : EnsDbGene) -> EnsDb {
-  db.genes.push(gene)
-  db
-}
-
-///|
-pub fn edb_add_transcript(db : EnsDb, tx : EnsDbTranscript) -> EnsDb {
-  db.transcripts.push(tx)
-  db
-}
-
-///|
-pub fn edb_add_exon(db : EnsDb, exon : EnsDbExon) -> EnsDb {
-  db.exons.push(exon)
-  db
-}
-
-///|
-pub fn edb_add_cds(db : EnsDb, cds : EnsDbCDS) -> EnsDb {
-  db.cds.push(cds)
-  db
-}
-
-///|
-pub fn edb_set_metadata(db : EnsDb, key : String, value : String) -> EnsDb {
-  db.metadata.set(key, value)
-  db
-}
-
-///|
-pub fn edb_num_genes(db : EnsDb) -> Int {
+pub fn edb_num_genes(db : EnsDb) -> Int32 {
   db.genes.length()
 }
 
 ///|
-pub fn edb_num_transcripts(db : EnsDb) -> Int {
+pub fn edb_num_transcripts(db : EnsDb) -> Int32 {
   db.transcripts.length()
 }
 
 ///|
-pub fn edb_num_exons(db : EnsDb) -> Int {
+pub fn edb_num_exons(db : EnsDb) -> Int32 {
   db.exons.length()
-}
-
-///|
-pub fn edb_num_cds(db : EnsDb) -> Int {
-  db.cds.length()
 }
 
 ///|
@@ -215,7 +180,7 @@ pub fn edb_get_gene_by_id(db : EnsDb, gene_id : String) -> EnsDbGene? {
 
 ///|
 pub fn edb_get_gene_by_name(db : EnsDb, gene_name : String) -> Array[EnsDbGene] {
-  let results : Array[EnsDbGene] = Array::new()
+  let results : Array[EnsDbGene] = Array(capacity=0)
 
   let mut i = 0
   while i < db.genes.length() {
@@ -233,45 +198,12 @@ pub fn edb_get_transcripts_by_gene(
   db : EnsDb,
   gene_id : String,
 ) -> Array[EnsDbTranscript] {
-  let results : Array[EnsDbTranscript] = Array::new()
+  let results : Array[EnsDbTranscript] = Array(capacity=0)
 
   let mut i = 0
   while i < db.transcripts.length() {
     if db.transcripts[i].gene_id == gene_id {
       results.push(db.transcripts[i])
-    }
-    i = i + 1
-  }
-
-  results
-}
-
-///|
-pub fn edb_get_exons_by_transcript(
-  db : EnsDb,
-  tx_id : String,
-) -> Array[EnsDbExon] {
-  let results : Array[EnsDbExon] = Array::new()
-
-  let mut i = 0
-  while i < db.exons.length() {
-    if db.exons[i].tx_id == tx_id {
-      results.push(db.exons[i])
-    }
-    i = i + 1
-  }
-
-  results
-}
-
-///|
-pub fn edb_get_cds_by_transcript(db : EnsDb, tx_id : String) -> Array[EnsDbCDS] {
-  let results : Array[EnsDbCDS] = Array::new()
-
-  let mut i = 0
-  while i < db.cds.length() {
-    if db.cds[i].tx_id == tx_id {
-      results.push(db.cds[i])
     }
     i = i + 1
   }
@@ -303,48 +235,13 @@ pub fn edb_filter_by_chromosome(db : EnsDb, chromosome : String) -> EnsDb {
 }
 
 ///|
-pub fn edb_filter_by_biotype(db : EnsDb, biotype : String) -> EnsDb {
-  let filtered = EnsDb::new(db.version, db.species)
-
-  let mut i = 0
-  while i < db.genes.length() {
-    if db.genes[i].biotype == biotype {
-      filtered.genes.push(db.genes[i])
-    }
-    i = i + 1
-  }
-
-  let mut j = 0
-  while j < db.transcripts.length() {
-    if db.transcripts[j].biotype == biotype {
-      filtered.transcripts.push(db.transcripts[j])
-    }
-    j = j + 1
-  }
-
-  filtered
-}
-
-///|
-pub fn edb_get_gene_length(db : EnsDb, gene_id : String) -> Int {
+pub fn edb_get_gene_length(db : EnsDb, gene_id : String) -> Int32 {
   let gene_opt = edb_get_gene_by_id(db, gene_id)
   if gene_opt is Some(_) {
     gene_opt.unwrap().seq_end - gene_opt.unwrap().seq_start + 1
   } else {
     0
   }
-}
-
-///|
-pub fn edb_get_transcript_length(db : EnsDb, tx_id : String) -> Int {
-  let mut i = 0
-  while i < db.transcripts.length() {
-    if db.transcripts[i].tx_id == tx_id {
-      return db.transcripts[i].seq_end - db.transcripts[i].seq_start + 1
-    }
-    i = i + 1
-  }
-  0
 }
 
 ///|

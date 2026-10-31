@@ -29,7 +29,10 @@ fn pa_fail(message : String) -> Unit raise ProteinAdvancedError {
 }
 
 ///|
-fn pa_validate_protein(sequence : String, label : String) -> Unit raise ProteinAdvancedError {
+fn pa_validate_protein(
+  sequence : String,
+  label : String,
+) -> Unit raise ProteinAdvancedError {
   if sequence.length() == 0 {
     pa_fail("Protein advanced " + label + " requires a non-empty sequence")
   }
@@ -53,7 +56,7 @@ fn pa_validate_protein(sequence : String, label : String) -> Unit raise ProteinA
 }
 
 ///|
-fn pa_aa_index(c : Char) -> Int {
+fn pa_aa_index(c : Char) -> Int32 {
   // Order: A C D E F G H I K L M N P Q R S T V W Y (alphabetical, 0-19)
   match c {
     'A' | 'a' => 0
@@ -81,7 +84,7 @@ fn pa_aa_index(c : Char) -> Int {
 }
 
 ///|
-fn pa_char_at(seq : String, i : Int) -> Char {
+fn pa_char_at(seq : String, i : Int32) -> Char {
   seq.unsafe_get(i).unsafe_to_char()
 }
 
@@ -94,24 +97,24 @@ fn pa_char_at(seq : String, i : Int) -> Char {
 /// Order: A C D E F G H I K L M N P Q R S T V W Y (alphabetical).
 fn cf_helix_propensity() -> Array[Double] {
   [
-    1.42, 0.70, 1.01, 1.51, 1.13, 0.57, 1.00, 1.08, 1.16, 1.21, 1.45, 0.67,
-    0.57, 1.11, 0.98, 0.77, 0.83, 1.06, 1.08, 0.69,
+    1.42, 0.70, 1.01, 1.51, 1.13, 0.57, 1.00, 1.08, 1.16, 1.21, 1.45, 0.67, 0.57,
+    1.11, 0.98, 0.77, 0.83, 1.06, 1.08, 0.69,
   ]
 }
 
 ///|
 fn cf_sheet_propensity() -> Array[Double] {
   [
-    0.83, 1.19, 0.54, 0.37, 1.38, 0.75, 0.87, 1.60, 0.74, 1.30, 1.05, 0.89,
-    0.55, 1.10, 0.93, 0.75, 1.19, 1.70, 1.37, 1.47,
+    0.83, 1.19, 0.54, 0.37, 1.38, 0.75, 0.87, 1.60, 0.74, 1.30, 1.05, 0.89, 0.55,
+    1.10, 0.93, 0.75, 1.19, 1.70, 1.37, 1.47,
   ]
 }
 
 ///|
 fn cf_turn_propensity() -> Array[Double] {
   [
-    0.66, 1.19, 1.46, 0.74, 0.60, 1.56, 0.95, 0.47, 1.01, 0.59, 0.60, 1.56,
-    1.52, 0.98, 0.95, 1.43, 0.96, 0.50, 0.96, 1.14,
+    0.66, 1.19, 1.46, 0.74, 0.60, 1.56, 0.95, 0.47, 1.01, 0.59, 0.60, 1.56, 1.52,
+    0.98, 0.95, 1.43, 0.96, 0.50, 0.96, 1.14,
   ]
 }
 
@@ -120,10 +123,13 @@ fn cf_turn_propensity() -> Array[Double] {
 pub struct ChouFasmanResult {
   sequence : String
   prediction : Array[String]
-  helices : Array[(Int, Int)]
-  sheets : Array[(Int, Int)]
-  turns : Array[(Int, Int)]
+  helices : Array[(Int32, Int32)]
+  sheets : Array[(Int32, Int32)]
+  turns : Array[(Int32, Int32)]
 } derive(Debug)
+
+///|
+pub extend ChouFasmanResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub fn ChouFasmanResult::sequence(self : ChouFasmanResult) -> String {
@@ -136,17 +142,23 @@ pub fn ChouFasmanResult::prediction(self : ChouFasmanResult) -> Array[String] {
 }
 
 ///|
-pub fn ChouFasmanResult::helices(self : ChouFasmanResult) -> Array[(Int, Int)] {
+pub fn ChouFasmanResult::helices(
+  self : ChouFasmanResult,
+) -> Array[(Int32, Int32)] {
   self.helices
 }
 
 ///|
-pub fn ChouFasmanResult::sheets(self : ChouFasmanResult) -> Array[(Int, Int)] {
+pub fn ChouFasmanResult::sheets(
+  self : ChouFasmanResult,
+) -> Array[(Int32, Int32)] {
   self.sheets
 }
 
 ///|
-pub fn ChouFasmanResult::turns(self : ChouFasmanResult) -> Array[(Int, Int)] {
+pub fn ChouFasmanResult::turns(
+  self : ChouFasmanResult,
+) -> Array[(Int32, Int32)] {
   self.turns
 }
 
@@ -181,10 +193,10 @@ pub fn chou_fasman_predict(
     i = i + 1
   }
   // Assignment array: 0 = coil, 1 = helix, 2 = sheet, 3 = turn
-  let assign : Array[Int] = Array::make(n, 0)
-  let helices : Array[(Int, Int)] = []
-  let sheets : Array[(Int, Int)] = []
-  let turns : Array[(Int, Int)] = []
+  let assign : Array[Int32] = Array::make(n, 0)
+  let helices : Array[(Int32, Int32)] = []
+  let sheets : Array[(Int32, Int32)] = []
+  let turns : Array[(Int32, Int32)] = []
   // --- Helix nucleation + extension ---
   i = 0
   while i <= n - 6 {
@@ -239,7 +251,8 @@ pub fn chou_fasman_predict(
     if sum_b / 3.0 > 1.05 && sum_b > sum_a {
       let mut left = i
       while left > 0 {
-        if beta_vals[left - 1] > 1.0 && beta_vals[left - 1] >= alpha_vals[left - 1] {
+        if beta_vals[left - 1] > 1.0 &&
+          beta_vals[left - 1] >= alpha_vals[left - 1] {
           left = left - 1
         } else {
           break
@@ -351,7 +364,7 @@ pub fn chou_fasman_predict(
     }
     j = j + 1
   }
-  ChouFasmanResult::{ sequence, prediction, helices, sheets, turns }
+  ChouFasmanResult::{ sequence, prediction, helices, sheets, turns, }
 }
 
 // ===========================================================================
@@ -365,26 +378,86 @@ pub fn chou_fasman_predict(
 /// interaction (more ordered).
 fn iupred_energy_matrix() -> Array[Array[Double]] {
   [
-    [0.0, -0.82, -0.91, -0.71, -0.71, -0.52, -0.42, -0.61, -0.76, -0.61, -0.61, -0.49, -0.33, -0.5, -0.59, -0.45, -0.33, -0.61, -0.5, -0.49],
-    [-0.82, 0.0, -0.91, -0.91, -0.71, -0.71, -0.52, -0.61, -0.76, -0.61, -0.61, -0.49, -0.33, -0.5, -0.59, -0.45, -0.33, -0.61, -0.5, -0.49],
-    [-0.91, -0.91, 0.0, -0.71, -0.71, -0.52, -0.42, -0.61, -0.76, -0.61, -0.61, -0.49, -0.33, -0.5, -0.59, -0.45, -0.33, -0.61, -0.5, -0.49],
-    [-0.71, -0.91, -0.71, 0.0, -0.71, -0.52, -0.42, -0.61, -0.76, -0.61, -0.61, -0.49, -0.33, -0.5, -0.59, -0.45, -0.33, -0.61, -0.5, -0.49],
-    [-0.71, -0.71, -0.71, -0.71, 0.0, -0.52, -0.42, -0.61, -0.76, -0.61, -0.61, -0.49, -0.33, -0.5, -0.59, -0.45, -0.33, -0.61, -0.5, -0.49],
-    [-0.52, -0.71, -0.52, -0.52, -0.52, 0.0, -0.42, -0.61, -0.76, -0.61, -0.61, -0.49, -0.33, -0.5, -0.59, -0.45, -0.33, -0.61, -0.5, -0.49],
-    [-0.42, -0.52, -0.42, -0.42, -0.42, -0.42, 0.0, -0.61, -0.76, -0.61, -0.61, -0.49, -0.33, -0.5, -0.59, -0.45, -0.33, -0.61, -0.5, -0.49],
-    [-0.61, -0.61, -0.61, -0.61, -0.61, -0.61, -0.61, 0.0, -0.76, -0.61, -0.61, -0.49, -0.33, -0.5, -0.59, -0.45, -0.33, -0.61, -0.5, -0.49],
-    [-0.76, -0.76, -0.76, -0.76, -0.76, -0.76, -0.76, -0.76, 0.0, -0.61, -0.61, -0.49, -0.33, -0.5, -0.59, -0.45, -0.33, -0.61, -0.5, -0.49],
-    [-0.61, -0.61, -0.61, -0.61, -0.61, -0.61, -0.61, -0.61, -0.61, 0.0, -0.61, -0.49, -0.33, -0.5, -0.59, -0.45, -0.33, -0.61, -0.5, -0.49],
-    [-0.61, -0.61, -0.61, -0.61, -0.61, -0.61, -0.61, -0.61, -0.61, -0.61, 0.0, -0.49, -0.33, -0.5, -0.59, -0.45, -0.33, -0.61, -0.5, -0.49],
-    [-0.49, -0.49, -0.49, -0.49, -0.49, -0.49, -0.49, -0.49, -0.49, -0.49, -0.49, 0.0, -0.33, -0.5, -0.49, -0.45, -0.33, -0.49, -0.5, -0.49],
-    [-0.33, -0.33, -0.33, -0.33, -0.33, -0.33, -0.33, -0.33, -0.33, -0.33, -0.33, -0.33, 0.0, -0.5, -0.33, -0.33, -0.33, -0.33, -0.5, -0.33],
-    [-0.5, -0.5, -0.5, -0.5, -0.5, -0.5, -0.5, -0.5, -0.5, -0.5, -0.5, -0.5, -0.5, 0.0, -0.5, -0.45, -0.33, -0.5, -0.5, -0.49],
-    [-0.59, -0.59, -0.59, -0.59, -0.59, -0.59, -0.59, -0.59, -0.59, -0.59, -0.59, -0.49, -0.33, -0.5, 0.0, -0.45, -0.33, -0.59, -0.5, -0.49],
-    [-0.45, -0.45, -0.45, -0.45, -0.45, -0.45, -0.45, -0.45, -0.45, -0.45, -0.45, -0.45, -0.33, -0.45, -0.45, 0.0, -0.33, -0.45, -0.5, -0.45],
-    [-0.33, -0.33, -0.33, -0.33, -0.33, -0.33, -0.33, -0.33, -0.33, -0.33, -0.33, -0.33, -0.33, -0.33, -0.33, -0.33, 0.0, -0.33, -0.5, -0.33],
-    [-0.61, -0.61, -0.61, -0.61, -0.61, -0.61, -0.61, -0.61, -0.61, -0.61, -0.61, -0.49, -0.33, -0.5, -0.59, -0.45, -0.33, 0.0, -0.5, -0.49],
-    [-0.5, -0.5, -0.5, -0.5, -0.5, -0.5, -0.5, -0.5, -0.5, -0.5, -0.5, -0.5, -0.5, -0.5, -0.5, -0.5, -0.5, -0.5, 0.0, -0.5],
-    [-0.49, -0.49, -0.49, -0.49, -0.49, -0.49, -0.49, -0.49, -0.49, -0.49, -0.49, -0.49, -0.33, -0.49, -0.49, -0.45, -0.33, -0.49, -0.5, 0.0],
+    [
+      0.0, -0.82, -0.91, -0.71, -0.71, -0.52, -0.42, -0.61, -0.76, -0.61, -0.61,
+      -0.49, -0.33, -0.5, -0.59, -0.45, -0.33, -0.61, -0.5, -0.49,
+    ],
+    [
+      -0.82, 0.0, -0.91, -0.91, -0.71, -0.71, -0.52, -0.61, -0.76, -0.61, -0.61,
+      -0.49, -0.33, -0.5, -0.59, -0.45, -0.33, -0.61, -0.5, -0.49,
+    ],
+    [
+      -0.91, -0.91, 0.0, -0.71, -0.71, -0.52, -0.42, -0.61, -0.76, -0.61, -0.61,
+      -0.49, -0.33, -0.5, -0.59, -0.45, -0.33, -0.61, -0.5, -0.49,
+    ],
+    [
+      -0.71, -0.91, -0.71, 0.0, -0.71, -0.52, -0.42, -0.61, -0.76, -0.61, -0.61,
+      -0.49, -0.33, -0.5, -0.59, -0.45, -0.33, -0.61, -0.5, -0.49,
+    ],
+    [
+      -0.71, -0.71, -0.71, -0.71, 0.0, -0.52, -0.42, -0.61, -0.76, -0.61, -0.61,
+      -0.49, -0.33, -0.5, -0.59, -0.45, -0.33, -0.61, -0.5, -0.49,
+    ],
+    [
+      -0.52, -0.71, -0.52, -0.52, -0.52, 0.0, -0.42, -0.61, -0.76, -0.61, -0.61,
+      -0.49, -0.33, -0.5, -0.59, -0.45, -0.33, -0.61, -0.5, -0.49,
+    ],
+    [
+      -0.42, -0.52, -0.42, -0.42, -0.42, -0.42, 0.0, -0.61, -0.76, -0.61, -0.61,
+      -0.49, -0.33, -0.5, -0.59, -0.45, -0.33, -0.61, -0.5, -0.49,
+    ],
+    [
+      -0.61, -0.61, -0.61, -0.61, -0.61, -0.61, -0.61, 0.0, -0.76, -0.61, -0.61,
+      -0.49, -0.33, -0.5, -0.59, -0.45, -0.33, -0.61, -0.5, -0.49,
+    ],
+    [
+      -0.76, -0.76, -0.76, -0.76, -0.76, -0.76, -0.76, -0.76, 0.0, -0.61, -0.61,
+      -0.49, -0.33, -0.5, -0.59, -0.45, -0.33, -0.61, -0.5, -0.49,
+    ],
+    [
+      -0.61, -0.61, -0.61, -0.61, -0.61, -0.61, -0.61, -0.61, -0.61, 0.0, -0.61,
+      -0.49, -0.33, -0.5, -0.59, -0.45, -0.33, -0.61, -0.5, -0.49,
+    ],
+    [
+      -0.61, -0.61, -0.61, -0.61, -0.61, -0.61, -0.61, -0.61, -0.61, -0.61, 0.0,
+      -0.49, -0.33, -0.5, -0.59, -0.45, -0.33, -0.61, -0.5, -0.49,
+    ],
+    [
+      -0.49, -0.49, -0.49, -0.49, -0.49, -0.49, -0.49, -0.49, -0.49, -0.49, -0.49,
+      0.0, -0.33, -0.5, -0.49, -0.45, -0.33, -0.49, -0.5, -0.49,
+    ],
+    [
+      -0.33, -0.33, -0.33, -0.33, -0.33, -0.33, -0.33, -0.33, -0.33, -0.33, -0.33,
+      -0.33, 0.0, -0.5, -0.33, -0.33, -0.33, -0.33, -0.5, -0.33,
+    ],
+    [
+      -0.5, -0.5, -0.5, -0.5, -0.5, -0.5, -0.5, -0.5, -0.5, -0.5, -0.5, -0.5, -0.5,
+      0.0, -0.5, -0.45, -0.33, -0.5, -0.5, -0.49,
+    ],
+    [
+      -0.59, -0.59, -0.59, -0.59, -0.59, -0.59, -0.59, -0.59, -0.59, -0.59, -0.59,
+      -0.49, -0.33, -0.5, 0.0, -0.45, -0.33, -0.59, -0.5, -0.49,
+    ],
+    [
+      -0.45, -0.45, -0.45, -0.45, -0.45, -0.45, -0.45, -0.45, -0.45, -0.45, -0.45,
+      -0.45, -0.33, -0.45, -0.45, 0.0, -0.33, -0.45, -0.5, -0.45,
+    ],
+    [
+      -0.33, -0.33, -0.33, -0.33, -0.33, -0.33, -0.33, -0.33, -0.33, -0.33, -0.33,
+      -0.33, -0.33, -0.33, -0.33, -0.33, 0.0, -0.33, -0.5, -0.33,
+    ],
+    [
+      -0.61, -0.61, -0.61, -0.61, -0.61, -0.61, -0.61, -0.61, -0.61, -0.61, -0.61,
+      -0.49, -0.33, -0.5, -0.59, -0.45, -0.33, 0.0, -0.5, -0.49,
+    ],
+    [
+      -0.5, -0.5, -0.5, -0.5, -0.5, -0.5, -0.5, -0.5, -0.5, -0.5, -0.5, -0.5, -0.5,
+      -0.5, -0.5, -0.5, -0.5, -0.5, 0.0, -0.5,
+    ],
+    [
+      -0.49, -0.49, -0.49, -0.49, -0.49, -0.49, -0.49, -0.49, -0.49, -0.49, -0.49,
+      -0.49, -0.33, -0.49, -0.49, -0.45, -0.33, -0.49, -0.5, 0.0,
+    ],
   ]
 }
 
@@ -393,8 +466,11 @@ fn iupred_energy_matrix() -> Array[Array[Double]] {
 pub struct IupredResult {
   sequence : String
   scores : Array[Double]
-  disordered_regions : Array[(Int, Int)]
+  disordered_regions : Array[(Int32, Int32)]
 } derive(Debug)
+
+///|
+pub extend IupredResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub fn IupredResult::sequence(self : IupredResult) -> String {
@@ -409,7 +485,7 @@ pub fn IupredResult::scores(self : IupredResult) -> Array[Double] {
 ///|
 pub fn IupredResult::disordered_regions(
   self : IupredResult,
-) -> Array[(Int, Int)] {
+) -> Array[(Int32, Int32)] {
   self.disordered_regions
 }
 
@@ -422,11 +498,15 @@ pub fn IupredResult::disordered_regions(
 /// `window_size` controls the neighbourhood (long mode ≈ 100, short mode ≈ 25).
 pub fn iupred(
   sequence : String,
-  window_size? : Int = 100,
+  window_size~ : Int32 = 100,
 ) -> IupredResult raise ProteinAdvancedError {
   pa_validate_protein(sequence, "IUPred")
   let n = sequence.length()
-  let win = if window_size < 1 { 1 } else if window_size > n { n } else {
+  let win = if window_size < 1 {
+    1
+  } else if window_size > n {
+    n
+  } else {
     window_size
   }
   let matrix = iupred_energy_matrix()
@@ -464,7 +544,7 @@ pub fn iupred(
     i = i + 1
   }
   // Identify disordered regions (score > 0.5 for ≥ 5 consecutive residues).
-  let disordered : Array[(Int, Int)] = []
+  let disordered : Array[(Int32, Int32)] = []
   let mut start = -1
   let mut k = 0
   while k < n {
@@ -483,7 +563,7 @@ pub fn iupred(
   if start >= 0 && n - start >= 5 {
     disordered.push((start, n - 1))
   }
-  IupredResult::{ sequence, scores, disordered_regions: disordered }
+  IupredResult::{ sequence, scores, disordered_regions: disordered, }
 }
 
 ///|
@@ -542,8 +622,11 @@ fn coils_matrix() -> Array[Array[Double]] {
 pub struct CoilsResult {
   sequence : String
   scores : Array[Double]
-  coiled_coil_regions : Array[(Int, Int)]
+  coiled_coil_regions : Array[(Int32, Int32)]
 } derive(Debug)
+
+///|
+pub extend CoilsResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub fn CoilsResult::sequence(self : CoilsResult) -> String {
@@ -558,7 +641,7 @@ pub fn CoilsResult::scores(self : CoilsResult) -> Array[Double] {
 ///|
 pub fn CoilsResult::coiled_coil_regions(
   self : CoilsResult,
-) -> Array[(Int, Int)] {
+) -> Array[(Int32, Int32)] {
   self.coiled_coil_regions
 }
 
@@ -571,8 +654,8 @@ pub fn CoilsResult::coiled_coil_regions(
 /// (default 0.9) indicate a coiled-coil segment.
 pub fn predict_coiled_coils(
   sequence : String,
-  window? : Int = 28,
-  threshold? : Double = 0.9,
+  window~ : Int32 = 28,
+  threshold~ : Double = 0.9,
 ) -> CoilsResult raise ProteinAdvancedError {
   pa_validate_protein(sequence, "COILS")
   let n = sequence.length()
@@ -613,7 +696,7 @@ pub fn predict_coiled_coils(
     i = i + 1
   }
   // Identify coiled-coil regions.
-  let regions : Array[(Int, Int)] = []
+  let regions : Array[(Int32, Int32)] = []
   let mut start = -1
   let mut k = 0
   while k < n {
@@ -632,7 +715,7 @@ pub fn predict_coiled_coils(
   if start >= 0 {
     regions.push((start, n - 1))
   }
-  CoilsResult::{ sequence, scores, coiled_coil_regions: regions }
+  CoilsResult::{ sequence, scores, coiled_coil_regions: regions, }
 }
 
 // ===========================================================================
@@ -644,8 +727,8 @@ pub fn predict_coiled_coils(
 /// Order: A C D E F G H I K L M N P Q R S T V W Y (alphabetical).
 fn kolaskar_propensity() -> Array[Double] {
   [
-    1.064, 1.118, 0.854, 0.896, 1.064, 0.896, 1.118, 1.012, 0.896, 1.064,
-    1.064, 0.854, 1.064, 0.896, 0.854, 0.896, 0.896, 1.064, 1.118, 0.854,
+    1.064, 1.118, 0.854, 0.896, 1.064, 0.896, 1.118, 1.012, 0.896, 1.064, 1.064,
+    0.854, 1.064, 0.896, 0.854, 0.896, 0.896, 1.064, 1.118, 0.854,
   ]
 }
 
@@ -654,8 +737,11 @@ fn kolaskar_propensity() -> Array[Double] {
 pub struct AntigenicityResult {
   sequence : String
   scores : Array[Double]
-  antigenic_sites : Array[(Int, Int)]
+  antigenic_sites : Array[(Int32, Int32)]
 } derive(Debug)
+
+///|
+pub extend AntigenicityResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub fn AntigenicityResult::sequence(self : AntigenicityResult) -> String {
@@ -670,7 +756,7 @@ pub fn AntigenicityResult::scores(self : AntigenicityResult) -> Array[Double] {
 ///|
 pub fn AntigenicityResult::antigenic_sites(
   self : AntigenicityResult,
-) -> Array[(Int, Int)] {
+) -> Array[(Int32, Int32)] {
   self.antigenic_sites
 }
 
@@ -683,7 +769,7 @@ pub fn AntigenicityResult::antigenic_sites(
 /// `window` (default 7) controls the smoothing.
 pub fn kolaskar_tongaonkar_antigenicity(
   sequence : String,
-  window? : Int = 7,
+  window~ : Int32 = 7,
 ) -> AntigenicityResult raise ProteinAdvancedError {
   pa_validate_protein(sequence, "Kolaskar-Tongaonkar")
   let n = sequence.length()
@@ -714,7 +800,7 @@ pub fn kolaskar_tongaonkar_antigenicity(
   }
   grand_mean = grand_mean / n.to_double()
   // Identify antigenic sites: regions above grand mean.
-  let sites : Array[(Int, Int)] = []
+  let sites : Array[(Int32, Int32)] = []
   let mut start = -1
   let mut k = 0
   while k < n {
@@ -733,7 +819,7 @@ pub fn kolaskar_tongaonkar_antigenicity(
   if start >= 0 && n - start >= 6 {
     sites.push((start, n - 1))
   }
-  AntigenicityResult::{ sequence, scores, antigenic_sites: sites }
+  AntigenicityResult::{ sequence, scores, antigenic_sites: sites, }
 }
 
 // ===========================================================================
@@ -745,8 +831,8 @@ pub fn kolaskar_tongaonkar_antigenicity(
 /// Order: A C D E F G H I K L M N P Q R S T V W Y (alphabetical).
 fn emini_surface_prob() -> Array[Double] {
   [
-    0.243, 0.000, 1.168, 0.984, 0.404, 0.476, 0.630, 0.168, 0.960, 0.260,
-    0.260, 0.911, 0.476, 0.960, 0.960, 0.560, 0.560, 0.168, 0.404, 0.630,
+    0.243, 0.000, 1.168, 0.984, 0.404, 0.476, 0.630, 0.168, 0.960, 0.260, 0.260,
+    0.911, 0.476, 0.960, 0.960, 0.560, 0.560, 0.168, 0.404, 0.630,
   ]
 }
 
@@ -758,7 +844,7 @@ fn emini_surface_prob() -> Array[Double] {
 /// the centre residue carries an extra weight.
 pub fn emini_surface_accessibility(
   sequence : String,
-  window? : Int = 6,
+  window~ : Int32 = 6,
 ) -> Array[Double] raise ProteinAdvancedError {
   pa_validate_protein(sequence, "Emini")
   let n = sequence.length()
@@ -800,8 +886,8 @@ pub fn emini_surface_accessibility(
 /// Values represent normalized B-factors (higher = more flexible).
 fn karplus_schulz_params() -> Array[Double] {
   [
-    0.984, 0.906, 1.068, 1.094, 0.915, 1.031, 0.950, 0.927, 1.102, 0.927,
-    0.940, 1.048, 1.049, 1.031, 0.984, 1.046, 0.997, 0.927, 0.906, 0.929,
+    0.984, 0.906, 1.068, 1.094, 0.915, 1.031, 0.950, 0.927, 1.102, 0.927, 0.940,
+    1.048, 1.049, 1.031, 0.984, 1.046, 0.997, 0.927, 0.906, 0.929,
   ]
 }
 
@@ -812,7 +898,7 @@ fn karplus_schulz_params() -> Array[Double] {
 /// parameters.  Values above 1.0 indicate above-average flexibility.
 pub fn karplus_schulz_flexibility(
   sequence : String,
-  window? : Int = 5,
+  window~ : Int32 = 5,
 ) -> Array[Double] raise ProteinAdvancedError {
   pa_validate_protein(sequence, "Karplus-Schulz")
   let n = sequence.length()

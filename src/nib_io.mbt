@@ -19,7 +19,7 @@
 
 ///|
 /// nib format version this implementation reads and writes.
-let nib_version : Int = 1
+let _nib_version : Int32 = 1
 
 // ============================================================================
 // Base encoding / decoding
@@ -30,7 +30,7 @@ let nib_version : Int = 1
 /// T -> 0, C -> 1, A -> 2, G -> 3. Returns -1 for any other character
 /// (including N and lowercase letters; use `nib_base_to_code_ci` for
 /// case-insensitive lookup).
-pub fn nib_base_to_code(base : Char) -> Int {
+pub fn nib_base_to_code(base : Char) -> Int32 {
   let c = base.to_int()
   if c == 'T'.to_int() {
     0
@@ -49,7 +49,7 @@ pub fn nib_base_to_code(base : Char) -> Int {
 /// Case-insensitive variant of `nib_base_to_code`: lowercase a/c/t/g are
 /// accepted and mapped to the same codes as their uppercase counterparts.
 /// Returns -1 for non-ACGT characters (including N).
-pub fn nib_base_to_code_ci(base : Char) -> Int {
+pub fn nib_base_to_code_ci(base : Char) -> Int32 {
   let c = base.to_int()
   let code_a = 'A'.to_int()
   let code_z = 'Z'.to_int()
@@ -78,7 +78,7 @@ pub fn nib_base_to_code_ci(base : Char) -> Int {
 ///|
 /// Convert a nib 2-bit code back to a nucleotide character:
 /// 0 -> T, 1 -> C, 2 -> A, 3 -> G. Any other code maps to 'N'.
-pub fn nib_code_to_base(code : Int) -> Char {
+pub fn nib_code_to_base(code : Int32) -> Char {
   if code == 0 {
     'T'
   } else if code == 1 {
@@ -101,7 +101,7 @@ pub fn nib_code_to_base(code : Int) -> Char {
 /// is treated case-insensitively: lowercase a/c/t/g are upper-cased before
 /// packing. Unknown bases (N, X, etc.) are packed as T (code 0); this is a
 /// lossy transformation for non-ACGT characters. Returns ceil(length/4) bytes.
-pub fn nib_encode(sequence : String) -> Array[Int] {
+pub fn nib_encode(sequence : String) -> Array[Int32] {
   let n = sequence.length()
   let nbytes = (n + 3) / 4
   let packed = Array::make(nbytes, 0)
@@ -119,8 +119,8 @@ pub fn nib_encode(sequence : String) -> Array[Int] {
 /// Unpack 2-bit bytes back into a DNA string of length `length`. Always
 /// returns uppercase characters. If `packed` is shorter than
 /// ceil(length/4), missing bytes are treated as 0 (T).
-pub fn nib_decode(packed : Array[Int], length : Int) -> String {
-  let sb = StringBuilder::new()
+pub fn nib_decode(packed : Array[Int32], length : Int32) -> String {
+  let sb = StringBuilder()
   for i in 0..<length {
     let byte_idx = i / 4
     let shift = 6 - i % 4 * 2
@@ -145,8 +145,8 @@ pub fn nib_decode(packed : Array[Int], length : Int) -> String {
 /// lowercases the decoded bases.
 pub struct NibSequence {
   seq_id : String
-  length : Int
-  packed_data : Array[Int]
+  length : Int32
+  packed_data : Array[Int32]
   is_uppercase : Bool
 }
 
@@ -184,13 +184,13 @@ pub fn NibSequence::seq_id(self : NibSequence) -> String {
 
 ///|
 /// Number of bases in the sequence.
-pub fn NibSequence::length(self : NibSequence) -> Int {
+pub fn NibSequence::length(self : NibSequence) -> Int32 {
   self.length
 }
 
 ///|
 /// A copy of the packed byte array (each element is 0-255).
-pub fn NibSequence::packed_data(self : NibSequence) -> Array[Int] {
+pub fn NibSequence::packed_data(self : NibSequence) -> Array[Int32] {
   self.packed_data.copy()
 }
 
@@ -203,7 +203,7 @@ pub fn NibSequence::is_uppercase(self : NibSequence) -> Bool {
 ///|
 /// Human-readable summary of the NibSequence.
 pub fn NibSequence::to_string(self : NibSequence) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string("NibSequence(seq_id=")
   buf.write_string(self.seq_id)
   buf.write_string(", length=")
@@ -228,13 +228,13 @@ pub fn nib_to_string(nib : NibSequence) -> String {
   if nib.is_uppercase {
     decoded
   } else {
-    let sb = StringBuilder::new()
+    let sb = StringBuilder()
     for c in decoded {
       let code = c.to_int()
       let code_A = 'A'.to_int()
       let code_Z = 'Z'.to_int()
       if code >= code_A && code <= code_Z {
-        sb.write_char(Int::unsafe_to_char(code + 32))
+        sb.write_char(Int32::unsafe_to_char(code + 32))
       } else {
         sb.write_char(c)
       }
@@ -245,13 +245,13 @@ pub fn nib_to_string(nib : NibSequence) -> String {
 
 ///|
 /// Number of bases in the sequence.
-pub fn nib_size(nib : NibSequence) -> Int {
+pub fn nib_size(nib : NibSequence) -> Int32 {
   nib.length
 }
 
 ///|
 /// Number of packed bytes (ceil(length / 4)).
-pub fn nib_compressed_size(nib : NibSequence) -> Int {
+pub fn nib_compressed_size(nib : NibSequence) -> Int32 {
   (nib.length + 3) / 4
 }
 
@@ -270,7 +270,7 @@ pub fn nib_compression_ratio(nib : NibSequence) -> Double {
 ///|
 /// Get the single base at `index` as a 1-character string. Returns an empty
 /// string if `index` is out of bounds. Respects the `is_uppercase` flag.
-pub fn nib_get_base(nib : NibSequence, index : Int) -> String {
+pub fn nib_get_base(nib : NibSequence, index : Int32) -> String {
   if index < 0 || index >= nib.length {
     return ""
   }
@@ -285,7 +285,7 @@ pub fn nib_get_base(nib : NibSequence, index : Int) -> String {
   if nib.is_uppercase {
     base.to_string()
   } else {
-    let lc = Int::unsafe_to_char(base.to_int() + 32)
+    let lc = Int32::unsafe_to_char(base.to_int() + 32)
     lc.to_string()
   }
 }
@@ -294,13 +294,17 @@ pub fn nib_get_base(nib : NibSequence, index : Int) -> String {
 /// Extract a subsequence of `length` bases starting at `start`. The result is
 /// clamped to the available range (so requesting a span past the end returns
 /// fewer bases). Respects the `is_uppercase` flag.
-pub fn nib_subsequence(nib : NibSequence, start : Int, length : Int) -> String {
+pub fn nib_subsequence(
+  nib : NibSequence,
+  start : Int32,
+  length : Int32,
+) -> String {
   if start < 0 || start >= nib.length || length <= 0 {
     return ""
   }
   let avail = nib.length - start
   let take = if length < avail { length } else { avail }
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   for i in 0..<take {
     let pos = start + i
     let byte_idx = pos / 4
@@ -314,7 +318,7 @@ pub fn nib_subsequence(nib : NibSequence, start : Int, length : Int) -> String {
     if nib.is_uppercase {
       sb.write_char(base)
     } else {
-      sb.write_char(Int::unsafe_to_char(base.to_int() + 32))
+      sb.write_char(Int32::unsafe_to_char(base.to_int() + 32))
     }
   }
   sb.to_string()
@@ -326,7 +330,7 @@ pub fn nib_subsequence(nib : NibSequence, start : Int, length : Int) -> String {
 /// to 'N'.
 pub fn nib_reverse_complement(nib : NibSequence) -> NibSequence {
   let decoded = nib_decode(nib.packed_data, nib.length)
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   for i = nib.length - 1; i >= 0; i = i - 1 {
     let base = decoded[i].unsafe_to_char()
     let comp : Char = match base {
@@ -339,7 +343,7 @@ pub fn nib_reverse_complement(nib : NibSequence) -> NibSequence {
     if nib.is_uppercase {
       sb.write_char(comp)
     } else {
-      sb.write_char(Int::unsafe_to_char(comp.to_int() + 32))
+      sb.write_char(Int32::unsafe_to_char(comp.to_int() + 32))
     }
   }
   let rc_str = sb.to_string()
@@ -378,7 +382,7 @@ pub fn nib_gc_content(nib : NibSequence) -> Double {
 /// Convert the packed data to a lowercase hex string (two hex digits per
 /// packed byte), suitable for text storage.
 pub fn nib_to_hex(nib : NibSequence) -> String {
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   for i in 0..<nib.packed_data.length() {
     let b = nib.packed_data[i]
     sb.write_char(nib_hex_digit((b >> 4) & 0xF))
@@ -393,8 +397,12 @@ pub fn nib_to_hex(nib : NibSequence) -> String {
 /// defaults to true (hex storage does not preserve case information). The
 /// `length` argument is the number of bases (which may be less than
 /// `4 * hex.length() / 2` when the last byte is only partially used).
-pub fn nib_from_hex(seq_id : String, hex : String, length : Int) -> NibSequence {
-  let packed : Array[Int] = Array::new()
+pub fn nib_from_hex(
+  seq_id : String,
+  hex : String,
+  length : Int32,
+) -> NibSequence {
+  let packed : Array[Int32] = Array(capacity=0)
   let len = hex.length()
   let mut i = 0
   while i + 1 < len {
@@ -403,7 +411,7 @@ pub fn nib_from_hex(seq_id : String, hex : String, length : Int) -> NibSequence 
     packed.push(high * 16 + low)
     i = i + 2
   }
-  NibSequence::{ seq_id, length, packed_data: packed, is_uppercase: true }
+  NibSequence::{ seq_id, length, packed_data: packed, is_uppercase: true, }
 }
 
 // ============================================================================
@@ -423,17 +431,17 @@ pub fn nib_sample_data() -> NibSequence {
 
 ///|
 /// Convert an integer 0-15 to a lowercase hex digit character.
-fn nib_hex_digit(n : Int) -> Char {
+fn nib_hex_digit(n : Int32) -> Char {
   if n < 10 {
-    Int::unsafe_to_char('0'.to_int() + n)
+    Int32::unsafe_to_char('0'.to_int() + n)
   } else {
-    Int::unsafe_to_char('a'.to_int() + (n - 10))
+    Int32::unsafe_to_char('a'.to_int() + (n - 10))
   }
 }
 
 ///|
 /// Convert a hex digit character's ASCII code to its integer value 0-15.
-fn nib_hex_value(c : Int) -> Int {
+fn nib_hex_value(c : Int32) -> Int32 {
   let code_0 = '0'.to_int()
   let code_9 = '9'.to_int()
   let code_a = 'a'.to_int()

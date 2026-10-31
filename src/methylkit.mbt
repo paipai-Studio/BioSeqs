@@ -13,7 +13,7 @@
 
 ///|
 /// Round a non-negative / negative double to the nearest integer.
-fn methylkit_round(x : Double) -> Int {
+fn methylkit_round(x : Double) -> Int32 {
   if x >= 0.0 {
     (x + 0.5).to_int()
   } else {
@@ -77,7 +77,7 @@ fn methylkit_median(arr : Array[Double]) -> Double {
 
 ///|
 /// Logarithm of a binomial coefficient using a precomputed log-factorial table.
-fn methylkit_log_choose_tbl(n : Int, k : Int, lf : Array[Double]) -> Double {
+fn methylkit_log_choose_tbl(n : Int32, k : Int32, lf : Array[Double]) -> Double {
   if k < 0 || k > n {
     return -700.0
   }
@@ -91,24 +91,24 @@ fn methylkit_log_choose_tbl(n : Int, k : Int, lf : Array[Double]) -> Double {
 /// A single methylated cytosine record from bisulfite sequencing.
 pub struct MethylCytosine {
   chr : String
-  position : Int
+  position : Int32
   strand : String
   context : String
-  methylated : Int
-  unmethylated : Int
+  methylated : Int32
+  unmethylated : Int32
 }
 
 ///|
 /// Construct a MethylCytosine.
 pub fn MethylCytosine::new(
   chr : String,
-  position : Int,
+  position : Int32,
   strand : String,
   context : String,
-  methylated : Int,
-  unmethylated : Int,
+  methylated : Int32,
+  unmethylated : Int32,
 ) -> MethylCytosine {
-  MethylCytosine::{ chr, position, strand, context, methylated, unmethylated }
+  MethylCytosine::{ chr, position, strand, context, methylated, unmethylated, }
 }
 
 ///|
@@ -119,7 +119,7 @@ pub fn MethylCytosine::chr(self : MethylCytosine) -> String {
 
 ///|
 /// Genomic position.
-pub fn MethylCytosine::position(self : MethylCytosine) -> Int {
+pub fn MethylCytosine::position(self : MethylCytosine) -> Int32 {
   self.position
 }
 
@@ -137,19 +137,19 @@ pub fn MethylCytosine::context(self : MethylCytosine) -> String {
 
 ///|
 /// Methylated read count.
-pub fn MethylCytosine::methylated(self : MethylCytosine) -> Int {
+pub fn MethylCytosine::methylated(self : MethylCytosine) -> Int32 {
   self.methylated
 }
 
 ///|
 /// Unmethylated read count.
-pub fn MethylCytosine::unmethylated(self : MethylCytosine) -> Int {
+pub fn MethylCytosine::unmethylated(self : MethylCytosine) -> Int32 {
   self.unmethylated
 }
 
 ///|
 /// Total coverage (methylated + unmethylated).
-pub fn MethylCytosine::coverage(self : MethylCytosine) -> Int {
+pub fn MethylCytosine::coverage(self : MethylCytosine) -> Int32 {
   self.methylated + self.unmethylated
 }
 
@@ -190,13 +190,13 @@ pub fn MethylCytosine::to_string(self : MethylCytosine) -> String {
 pub struct MethylSample {
   sample_id : String
   coverage : Array[MethylCytosine]
-  mut n_cpgs : Int
+  mut n_cpgs : Int32
 }
 
 ///|
 /// Construct an empty MethylSample.
 pub fn MethylSample::new(sample_id : String) -> MethylSample {
-  MethylSample::{ sample_id, coverage: Array::new(), n_cpgs: 0 }
+  MethylSample::{ sample_id, coverage: Array(capacity=0), n_cpgs: 0, }
 }
 
 ///|
@@ -205,7 +205,7 @@ pub fn MethylSample::from_coverage(
   sample_id : String,
   coverage : Array[MethylCytosine],
 ) -> MethylSample {
-  MethylSample::{ sample_id, coverage, n_cpgs: coverage.length() }
+  MethylSample::{ sample_id, coverage, n_cpgs: coverage.length(), }
 }
 
 ///|
@@ -222,7 +222,7 @@ pub fn MethylSample::coverage(self : MethylSample) -> Array[MethylCytosine] {
 
 ///|
 /// Number of cytosines stored in the sample.
-pub fn MethylSample::n_cpgs(self : MethylSample) -> Int {
+pub fn MethylSample::n_cpgs(self : MethylSample) -> Int32 {
   self.n_cpgs
 }
 
@@ -241,7 +241,7 @@ pub fn MethylSample::add_cytosine(
 pub fn MethylSample::get_cytosine(
   self : MethylSample,
   chr : String,
-  position : Int,
+  position : Int32,
 ) -> MethylCytosine? {
   let mut i = 0
   while i < self.coverage.length() {
@@ -257,7 +257,7 @@ pub fn MethylSample::get_cytosine(
 ///|
 /// All methylation percentages for cytosines in the sample.
 pub fn MethylSample::methylation_pcts(self : MethylSample) -> Array[Double] {
-  let pcts : Array[Double] = Array::new()
+  let pcts : Array[Double] = Array(capacity=0)
   let mut i = 0
   while i < self.coverage.length() {
     pcts.push(self.coverage[i].methylation_pct())
@@ -276,10 +276,10 @@ pub fn MethylSample::mean_methylation(self : MethylSample) -> Double {
 /// Return a new sample keeping only cytosines within [min_cov, max_cov].
 pub fn MethylSample::filter_by_coverage(
   self : MethylSample,
-  min_cov : Int,
-  max_cov : Int,
+  min_cov : Int32,
+  max_cov : Int32,
 ) -> MethylSample {
-  let kept : Array[MethylCytosine] = Array::new()
+  let kept : Array[MethylCytosine] = Array(capacity=0)
   let mut i = 0
   while i < self.coverage.length() {
     let mc = self.coverage[i]
@@ -296,7 +296,7 @@ pub fn MethylSample::filter_by_coverage(
 /// A single differential methylation test result.
 pub struct MethylDiffResult {
   chr : String
-  position : Int
+  position : Int32
   p_value : Double
   q_value : Double
   meth_diff : Double
@@ -311,7 +311,7 @@ pub fn MethylDiffResult::chr(self : MethylDiffResult) -> String {
 
 ///|
 /// Genomic position of the tested position.
-pub fn MethylDiffResult::position(self : MethylDiffResult) -> Int {
+pub fn MethylDiffResult::position(self : MethylDiffResult) -> Int32 {
   self.position
 }
 
@@ -360,8 +360,8 @@ pub fn MethylDiffResult::to_string(self : MethylDiffResult) -> String {
 ///|
 /// Configuration parameters for methylKit analyses.
 pub struct MethylKitConfig {
-  min_coverage : Int
-  max_coverage : Int
+  min_coverage : Int32
+  max_coverage : Int32
   context_filter : String
   min_perc_samples : Double
   min_diff : Double
@@ -386,8 +386,8 @@ pub fn MethylKitConfig::new() -> MethylKitConfig {
 ///|
 /// Construct a configuration with explicit parameters.
 pub fn MethylKitConfig::with_params(
-  min_coverage : Int,
-  max_coverage : Int,
+  min_coverage : Int32,
+  max_coverage : Int32,
   context : String,
   min_perc : Double,
   min_diff : Double,
@@ -404,12 +404,12 @@ pub fn MethylKitConfig::with_params(
 }
 
 ///|
-pub fn MethylKitConfig::min_coverage(self : MethylKitConfig) -> Int {
+pub fn MethylKitConfig::min_coverage(self : MethylKitConfig) -> Int32 {
   self.min_coverage
 }
 
 ///|
-pub fn MethylKitConfig::max_coverage(self : MethylKitConfig) -> Int {
+pub fn MethylKitConfig::max_coverage(self : MethylKitConfig) -> Int32 {
   self.max_coverage
 }
 
@@ -439,7 +439,7 @@ pub fn methylkit_filter_sample(
   sample : MethylSample,
   config : MethylKitConfig,
 ) -> MethylSample {
-  let kept : Array[MethylCytosine] = Array::new()
+  let kept : Array[MethylCytosine] = Array(capacity=0)
   let mut i = 0
   while i < sample.coverage.length() {
     let mc = sample.coverage[i]
@@ -462,7 +462,7 @@ pub fn methylkit_filter_samples(
   samples : Array[MethylSample],
   config : MethylKitConfig,
 ) -> Array[MethylSample] {
-  let filtered : Array[MethylSample] = Array::new()
+  let filtered : Array[MethylSample] = Array(capacity=0)
   let mut i = 0
   while i < samples.length() {
     filtered.push(methylkit_filter_sample(samples[i], config))
@@ -473,7 +473,7 @@ pub fn methylkit_filter_samples(
     return filtered
   }
   // Count how many samples contain each (chr, position) key.
-  let counts : Map[String, Int] = Map([], capacity=256)
+  let counts : Map[String, Int32] = Map([], capacity=256)
   let mut s = 0
   while s < filtered.length() {
     let seen : Map[String, Bool] = Map([], capacity=128)
@@ -504,10 +504,10 @@ pub fn methylkit_filter_samples(
     }
     ki = ki + 1
   }
-  let result : Array[MethylSample] = Array::new()
+  let result : Array[MethylSample] = Array(capacity=0)
   let mut s = 0
   while s < filtered.length() {
-    let new_cov : Array[MethylCytosine] = Array::new()
+    let new_cov : Array[MethylCytosine] = Array(capacity=0)
     let mut k = 0
     while k < filtered[s].coverage.length() {
       let mc = filtered[s].coverage[k]
@@ -528,14 +528,14 @@ pub fn methylkit_filter_samples(
 /// Coverage normalization: scale each cytosine's counts so that its total
 /// coverage equals the median per-cytosine coverage of the sample.
 pub fn methylkit_normalize(sample : MethylSample) -> MethylSample {
-  let covs : Array[Double] = Array::new()
+  let covs : Array[Double] = Array(capacity=0)
   let mut i = 0
   while i < sample.coverage.length() {
     covs.push(sample.coverage[i].coverage().to_double())
     i = i + 1
   }
   let med = methylkit_median(covs)
-  let new_cov : Array[MethylCytosine] = Array::new()
+  let new_cov : Array[MethylCytosine] = Array(capacity=0)
   let mut i = 0
   while i < sample.coverage.length() {
     let mc = sample.coverage[i]
@@ -562,7 +562,7 @@ pub fn methylkit_normalize(sample : MethylSample) -> MethylSample {
 pub fn methylkit_normalize_samples(
   samples : Array[MethylSample],
 ) -> Array[MethylSample] {
-  let result : Array[MethylSample] = Array::new()
+  let result : Array[MethylSample] = Array(capacity=0)
   let mut i = 0
   while i < samples.length() {
     result.push(methylkit_normalize(samples[i]))
@@ -599,7 +599,7 @@ pub fn methylkit_fisher_test(
   for i in 2..<=n {
     log_fact[i] = log_fact[i - 1] + @math.ln(i.to_double())
   }
-  let log_pmf = fn(aa : Int) -> Double {
+  let log_pmf = fn(aa : Int32) -> Double {
     let bb = r1 - aa
     let cc = c1 - aa
     let dd = r2 - cc
@@ -636,11 +636,11 @@ pub fn methylkit_fisher_test(
 pub fn methylkit_bh_correct(p_values : Array[Double]) -> Array[Double] {
   let n = p_values.length()
   if n == 0 {
-    return Array::new()
+    return Array(capacity=0)
   }
   // Indexed sort by ascending p-value (selection sort).
-  let indices : Array[Int] = Array::new()
-  let sorted_p : Array[Double] = Array::new()
+  let indices : Array[Int32] = Array(capacity=0)
+  let sorted_p : Array[Double] = Array(capacity=0)
   let mut i = 0
   while i < n {
     indices.push(i)
@@ -700,8 +700,8 @@ pub fn methylkit_diff_meth(
   sample2 : MethylSample,
   config : MethylKitConfig,
 ) -> Array[MethylDiffResult] {
-  let p_values : Array[Double] = Array::new()
-  let info : Array[(String, Int, Double)] = Array::new()
+  let p_values : Array[Double] = Array(capacity=0)
+  let info : Array[(String, Int32, Double)] = Array(capacity=0)
   let mut i = 0
   while i < sample1.coverage.length() {
     let mc1 = sample1.coverage[i]
@@ -717,7 +717,7 @@ pub fn methylkit_diff_meth(
     i = i + 1
   }
   let q_values = methylkit_bh_correct(p_values)
-  let results : Array[MethylDiffResult] = Array::new()
+  let results : Array[MethylDiffResult] = Array(capacity=0)
   let mut i = 0
   while i < info.length() {
     let (chr, pos, diff) = info[i]
@@ -742,17 +742,17 @@ pub fn methylkit_diff_meth(
 /// Requires at least two samples; otherwise returns an empty array.
 pub fn methylkit_tiling(
   samples : Array[MethylSample],
-  window_size : Int,
-  step_size : Int,
+  window_size : Int32,
+  step_size : Int32,
 ) -> Array[MethylDiffResult] {
   if samples.length() < 2 || window_size <= 0 || step_size <= 0 {
-    return Array::new()
+    return Array(capacity=0)
   }
   let s1 = samples[0]
   let s2 = samples[1]
   // Determine per-chromosome min/max positions across both samples.
-  let chr_min : Map[String, Int] = Map([], capacity=16)
-  let chr_max : Map[String, Int] = Map([], capacity=16)
+  let chr_min : Map[String, Int32] = Map([], capacity=16)
+  let chr_max : Map[String, Int32] = Map([], capacity=16)
   let collect = fn(sample : MethylSample) -> Unit {
     let mut k = 0
     while k < sample.coverage.length() {
@@ -773,8 +773,8 @@ pub fn methylkit_tiling(
   collect(s1)
   collect(s2)
   let chrs = chr_min.keys().collect()
-  let p_values : Array[Double] = Array::new()
-  let info : Array[(String, Int, Double)] = Array::new()
+  let p_values : Array[Double] = Array(capacity=0)
+  let info : Array[(String, Int32, Double)] = Array(capacity=0)
   let mut ci = 0
   while ci < chrs.length() {
     let chr = chrs[ci]
@@ -818,7 +818,7 @@ pub fn methylkit_tiling(
     ci = ci + 1
   }
   let q_values = methylkit_bh_correct(p_values)
-  let results : Array[MethylDiffResult] = Array::new()
+  let results : Array[MethylDiffResult] = Array(capacity=0)
   let mut i = 0
   while i < info.length() {
     let (chr, pos, diff) = info[i]
@@ -841,10 +841,10 @@ pub fn methylkit_tiling(
 /// Returns (chr, start, end) tuples.
 pub fn methylkit_get_dmr(
   diff_results : Array[MethylDiffResult],
-) -> Array[(String, Int, Int)] {
+) -> Array[(String, Int32, Int32)] {
   let n = diff_results.length()
   if n == 0 {
-    return Array::new()
+    return Array(capacity=0)
   }
   // Copy and sort by (chr, position) using selection sort.
   let sorted = diff_results.copy()
@@ -869,7 +869,7 @@ pub fn methylkit_get_dmr(
     }
     i = i + 1
   }
-  let dmrs : Array[(String, Int, Int)] = Array::new()
+  let dmrs : Array[(String, Int32, Int32)] = Array(capacity=0)
   let mut i = 0
   while i < n {
     if sorted[i].significant {
@@ -900,8 +900,8 @@ pub fn methylkit_sample_correlation(
   sample1 : MethylSample,
   sample2 : MethylSample,
 ) -> Double {
-  let xs : Array[Double] = Array::new()
-  let ys : Array[Double] = Array::new()
+  let xs : Array[Double] = Array(capacity=0)
+  let ys : Array[Double] = Array(capacity=0)
   let mut i = 0
   while i < sample1.coverage.length() {
     let mc1 = sample1.coverage[i]
@@ -950,10 +950,10 @@ pub fn methylkit_correlation_matrix(
   samples : Array[MethylSample],
 ) -> Array[Array[Double]] {
   let n = samples.length()
-  let mat : Array[Array[Double]] = Array::new()
+  let mat : Array[Array[Double]] = Array(capacity=0)
   let mut i = 0
   while i < n {
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     let mut j = 0
     while j < n {
       row.push(methylkit_sample_correlation(samples[i], samples[j]))
@@ -970,21 +970,21 @@ pub fn methylkit_correlation_matrix(
 /// profile. Returns a vector of cluster labels (one per sample).
 pub fn methylkit_cluster_samples(
   samples : Array[MethylSample],
-  n_clusters : Int,
-) -> Array[Int] {
+  n_clusters : Int32,
+) -> Array[Int32] {
   let n = samples.length()
   if n == 0 {
-    return Array::new()
+    return Array(capacity=0)
   }
   let k = n_clusters
   if k <= 0 {
-    return Array::new()
+    return Array(capacity=0)
   }
   if k == 1 {
     return Array::make(n, 0)
   }
   if k >= n {
-    let labels : Array[Int] = Array::new()
+    let labels : Array[Int32] = Array(capacity=0)
     let mut i = 0
     while i < n {
       labels.push(i)
@@ -993,14 +993,14 @@ pub fn methylkit_cluster_samples(
     return labels
   }
   // 1D feature: mean methylation.
-  let features : Array[Array[Double]] = Array::new()
+  let features : Array[Array[Double]] = Array(capacity=0)
   let mut i = 0
   while i < n {
     features.push([samples[i].mean_methylation()])
     i = i + 1
   }
   // Initialize centroids from evenly spaced samples.
-  let centroids : Array[Array[Double]] = Array::new()
+  let centroids : Array[Array[Double]] = Array(capacity=0)
   let mut i = 0
   while i < k {
     let idx = i * (n - 1) / (k - 1)
@@ -1058,7 +1058,7 @@ pub fn methylkit_cluster_samples(
 ///|
 /// Human-readable summary of a sample.
 pub fn methylkit_sample_summary(sample : MethylSample) -> String {
-  let covs : Array[Double] = Array::new()
+  let covs : Array[Double] = Array(capacity=0)
   let mut i = 0
   while i < sample.coverage.length() {
     covs.push(sample.coverage[i].coverage().to_double())
@@ -1118,7 +1118,7 @@ pub fn methylkit_cpg_to_bed(mc : MethylCytosine) -> String {
 
 ///|
 /// Convert a DMR tuple (chr, start, end) to a BED line.
-pub fn methylkit_dmr_to_bed(dmr : (String, Int, Int)) -> String {
+pub fn methylkit_dmr_to_bed(dmr : (String, Int32, Int32)) -> String {
   let (chr, start, end) = dmr
   chr + "\t" + start.to_string() + "\t" + end.to_string()
 }
@@ -1128,8 +1128,8 @@ pub fn methylkit_dmr_to_bed(dmr : (String, Int, Int)) -> String {
 /// The treatment sample has 5 hyper-methylated and 5 hypo-methylated CpGs
 /// relative to the control.
 pub fn methylkit_sample_data() -> (MethylSample, MethylSample) {
-  let control_cov : Array[MethylCytosine] = Array::new()
-  let treatment_cov : Array[MethylCytosine] = Array::new()
+  let control_cov : Array[MethylCytosine] = Array(capacity=0)
+  let treatment_cov : Array[MethylCytosine] = Array(capacity=0)
   let mut i = 0
   while i < 20 {
     let pos = 1000 * (i + 1)

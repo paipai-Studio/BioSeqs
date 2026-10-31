@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<title>fqqc - FASTQ 质控仪表盘</title>
+<style>
+  :root { --green:#7fc97f; --yellow:#e6d35e; --red:#d95f02; --ink:#333; }
+  * { box-sizing: border-box; }
+  body { font-family: -apple-system, "Segoe UI", "PingFang SC", sans-serif; margin: 0; background: #f5f5f5; color: var(--ink); }
+  header { background: linear-gradient(135deg, #2c3e50, #4ca1af); color: #fff; padding: 18px 28px; }
+  header h1 { margin: 0; font-size: 20px; }
+  header p { margin: 4px 0 0; font-size: 12px; opacity: .85; }
+  main { max-width: 1100px; margin: 0 auto; padding: 20px; }
+  .cards { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 20px; }
+  .card { background: #fff; border-radius: 8px; padding: 14px 20px; flex: 1; min-width: 150px; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+  .card .v { font-size: 24px; font-weight: 700; color: #2c3e50; }
+  .card .k { font-size: 12px; color: #888; margin-top: 2px; }
+  section { background: #fff; border-radius: 8px; padding: 18px 22px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+  section h2 { font-size: 15px; margin: 0 0 12px; border-left: 4px solid #4ca1af; padding-left: 10px; }
+  .note { font-size: 12px; color: #999; margin-top: 8px; }
+  table { border-collapse: collapse; width: 100%; font-size: 13px; }
+  th, td { text-align: left; padding: 6px 10px; border-bottom: 1px solid #eee; font-family: ui-monospace, monospace; }
+  th { color: #666; font-weight: 600; }
+  .warn { color: var(--red); font-weight: 700; }
+  #err { display: none; background: #fdecea; color: #b71c1c; padding: 14px 20px; border-radius: 8px; margin: 20px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>fqqc — FASTQ 质控仪表盘</h1>
+  <p>纯浏览器渲染 · 数据不出本机 · 由 BioSeqs (MoonBit) 计算</p>
+</header>
+<div id="err">无法加载 report.json —— 请先运行
+  <code>moon run examples/fq_qc_web -- --demo &gt; examples/fq_qc_web/report.json</code>
+  并在同目录执行 <code>python3 -m http.server</code> 后访问。</div>
+<main>
+  <div class="cards" id="cards"></div>
+  <section><h2>逐位质量分布（箱线: 低/四分/中位/四分/高）</h2><div id="pbq"></div>
+    <p class="note">FastQC 风格: 绿区 ≥28 · 黄区 20-27 · 红区 &lt;20; 中位数跌破黄区通常提示 3' 端质量劣化, 可考虑截断。</p></section>
+  <section><h2>序列平均质量分布</h2><div id="psq"></div></section>
+  <section><h2>序列 GC 含量分布</h2><div id="psgc"></div>
+    <p class="note">应近似正态; 出现肩峰/双峰常提示混样或污染。</p></section>
+  <section><h2>逐位 GC 含量</h2><div id="pbgc"></div></section>
+  <section><h2>读长分布</h2><div id="lens"></div></section>
+  <section><h2>Adapter / 污染命中</h2><table id="adpt"></table></section>
+  <section><h2>高频重复序列 Top 20</h2><table id="over"></table></section>
+</main>
+<script>
+"use strict";
+const W = 1020, H = 240, PAD = 44;
+const $ = id => document.getElementById(id);
+const svgNS = "http://www.w3.org/2000/svg";
+function el(tag, attrs, parent) {
+  const e = document.createElementNS(svgNS, tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  if (parent) parent.appendChild(e);
+  return e;
+}
+function frame() {
+  const s = el("svg", { width: W, height: H, viewBox: `0 0 ${W} ${H}` });
+  el("line", { x1: PAD, y1: H - PAD, x2: W - 8, y2: H - PAD, stroke: "#999" }, s);
+  el("line", { x1: PAD, y1: 10, x2: PAD, y2: H - PAD, stroke: "#999" }, s);
+  return s;
+}
+function zones(svg, ymax) { // FastQC 质量配色带
+  const y = v => H - PAD - (v / ymax) * (H - PAD - 10);
+  el("rect", { x: PAD, y: y(ymax), width: W - PAD - 8, height: y(28) - y(ymax), fill: "var(--green)", opacity: .18 }, svg);
+  el("rect", { x: PAD, y: y(28), width: W - PAD - 8, height: y(20) - y(28), fill: "var(--yellow)", opacity: .25 }, svg);
+  el("rect", { x: PAD, y: y(20), width: W - PAD - 8, height: y(0) - y(20), fill: "var(--red)", opacity: .15 }, svg);
+  return y;
+}
+function yticks(svg, ymax, y, step) {
+  for (let v = 0; v <= ymax; v += step) {
+    el("text", { x: PAD - 6, y: y(v) + 4, "text-anchor": "end", "font-size": 10, fill: "#777" }, svg).textContent = v;
+    el("line", { x1: PAD, y1: y(v), x2: W - 8, y2: y(v), stroke: "#eee" }, svg);
+  }
+}
+function xticks(svg, n, xmax, label) {
+  const step = Math.max(1, Math.round(xmax / 12));
+  for (let v = step; v <= xmax; v += step) {
+    const x = PAD + (v / xmax) * (W - PAD - 8);
+    el("text", { x, y: H - PAD + 14, "text-anchor": "middle", "font-size": 10, fill: "#777" }, svg).textContent = label(v);
+  }
+}
+function bars(svg, data, xmax, ymax, color, xLabel) {
+  const y = v => H - PAD - (v / ymax) * (H - PAD - 10);
+  const bw = Math.max(1, (W - PAD - 8) / data.length - 1);
+  data.forEach((v, i) => {
+    const x0 = PAD + (i / data.length) * (W - PAD - 8);
+    el("rect", { x: x0, y: y(v), width: bw, height: H - PAD - y(v), fill: color, rx: 1 }, svg);
+  });
+  for (let v = 0; v <= ymax; v += Math.max(1, Math.round(ymax / 5))) {
+    el("text", { x: PAD - 6, y: y(v) + 4, "text-anchor": "end", "font-size": 10, fill: "#777" }, svg).textContent = v;
+  }
+  el("text", { x: (W + PAD) / 2, y: H - 6, "text-anchor": "middle", "font-size": 11, fill: "#555" }, svg).textContent = xLabel;
+  return y;
+}
+function render(R) {
+  // 基础卡片
+  const b = R.basic;
+  $("cards").innerHTML = [["reads", b.reads.toLocaleString()], ["碱基", b.bases.toLocaleString()],
+    ["均长", b.mean_length.toFixed(1) + " bp"], ["平均 GC", b.mean_gc.toFixed(1) + "%"],
+    ["峰值质量", Math.max(...R.per_base_quality.median).toFixed(0)]
+  ].map(([k, v]) => `<div class="card"><div class="v">${v}</div><div class="k">${k}</div></div>`).join("");
+  // 逐位质量箱线
+  {
+    const q = R.per_base_quality, n = q.pos.length;
+    const s = frame(); const y = zones(s, 41); yticks(s, 41, y, 10);
+    const x = i => PAD + (i / Math.max(1, n - 1)) * (W - PAD - 8);
+    for (let i = 0; i < n; i++) {
+      const cx = x(i), bw = Math.max(2, (W - PAD - 8) / n - 2);
+      el("line", { x1: cx, y1: y(q.low[i]), x2: cx, y2: y(q.high[i]), stroke: "#888" }, s);
+      el("rect", { x: cx - bw / 2, y: y(q.q3[i]), width: bw, height: Math.max(0, y(q.q1[i]) - y(q.q3[i])), fill: "#4ca1af", opacity: .75, rx: 1 }, s);
+      el("line", { x1: cx - bw / 2, y1: y(q.median[i]), x2: cx + bw / 2, y2: y(q.median[i]), stroke: "#b23", "stroke-width": 2 }, s);
+    }
+    xticks(s, n, n, v => v);
+    $("pbq").appendChild(s);
+  }
+  // 序列质量直方图
+  {
+    const s = frame(), data = R.per_sequence_quality;
+    const ymax = Math.max(...data, 1);
+    bars(s, data, data.length, ymax, "#4ca1af", "平均质量 (" + Math.round(data.length / 5) + " 分/桶)");
+    $("psq").appendChild(s);
+  }
+  // 序列 GC 直方图
+  {
+    const s = frame(), data = R.per_sequence_gc;
+    const ymax = Math.max(...data, 1);
+    bars(s, data, data.length, ymax, "#8e6caf", "GC% (" + Math.round(100 / data.length) + "%/桶)");
+    $("psgc").appendChild(s);
+  }
+  // 逐位 GC 折线
+  {
+    const s = frame(), data = R.per_base_gc;
+    const y = v => H - PAD - (v / 100) * (H - PAD - 10);
+    for (const gv of [25, 50, 75]) {
+      el("line", { x1: PAD, y1: y(gv), x2: W - 8, y2: y(gv), stroke: "#ddd" }, s);
+      el("text", { x: PAD - 6, y: y(gv) + 4, "text-anchor": "end", "font-size": 10, fill: "#777" }, s).textContent = gv + "%";
+    }
+    let d = "";
+    data.forEach((v, i) => { const x = PAD + (i / Math.max(1, data.length - 1)) * (W - PAD - 8); d += (i ? "L" : "M") + x.toFixed(1) + "," + y(v).toFixed(1); });
+    el("path", { d, fill: "none", stroke: "#d95f02", "stroke-width": 2 }, s);
+    xticks(s, data.length, data.length, v => v);
+    $("pbgc").appendChild(s);
+  }
+  // 读长分布
+  {
+    const s = frame(), rows = R.length_distribution;
+    const data = rows.map(r => r.count), ymax = Math.max(...data, 1);
+    bars(s, data, data.length, ymax, "#66c2a5", "读长 (bp)");
+    const bw = (W - PAD - 8) / data.length;
+    rows.forEach((r, i) => {
+      if (data.length <= 30 || i % Math.ceil(data.length / 12) === 0)
+        el("text", { x: PAD + i * bw + bw / 2, y: H - PAD + 14, "text-anchor": "middle", "font-size": 10, fill: "#777" }, s).textContent = r.length;
+    });
+    $("lens").appendChild(s);
+  }
+  // adapter 表
+  $("adpt").innerHTML = "<tr><th>前缀</th><th>命中 reads</th><th>占比</th></tr>" +
+    R.adapters.map(a => {
+      const pct = b.reads ? (a.reads / b.reads * 100).toFixed(2) : "0";
+      const hot = a.reads > b.reads * 0.05 ? ' class="warn"' : "";
+      return `<tr><td>${a.prefix}</td><td${hot}>${a.reads}</td><td${hot}>${pct}%</td></tr>`;
+    }).join("");
+  // overrepresented 表
+  $("over").innerHTML = "<tr><th>#</th><th>序列</th><th>次数</th><th>占比</th></tr>" +
+    (R.overrepresented.length ? R.overrepresented.map((o, i) =>
+      `<tr><td>${i + 1}</td><td>${o.seq.slice(0, 40)}${o.seq.length > 40 ? "…" : ""}</td><td>${o.count}</td><td>${(o.count / b.reads * 100).toFixed(2)}%</td></tr>`).join("")
+      : '<tr><td colspan="4" style="color:#999">无显著重复序列</td></tr>');
+}
+fetch("report.json").then(r => {
+  if (!r.ok) throw new Error(r.status);
+  return r.json();
+}).then(render).catch(() => { $("err").style.display = "block"; });
+</script>
+</body>
+</html>

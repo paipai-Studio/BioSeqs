@@ -6,8 +6,8 @@
 /// Class-specific model for Naive Bayes classifier.
 pub struct NBClassModel {
   class_label : String
-  n_sequences : Int
-  total_kmers : Int
+  n_sequences : Int32
+  total_kmers : Int32
   kmer_counts : Map[String, Double]
   class_prior : Double
 }
@@ -15,7 +15,7 @@ pub struct NBClassModel {
 ///|
 /// Naive Bayes classifier for biological sequences based on k-mer frequencies.
 pub struct NaiveBayesClassifier {
-  kmer_size : Int
+  kmer_size : Int32
   alpha : Double
   vocabulary : Array[String]
   class_labels : Array[String]
@@ -38,7 +38,7 @@ pub fn NaiveBayesClassifier::new() -> NaiveBayesClassifier {
 /// Set the k-mer size and return a new classifier instance.
 pub fn NaiveBayesClassifier::set_kmer_size(
   self : NaiveBayesClassifier,
-  val : Int,
+  val : Int32,
 ) -> NaiveBayesClassifier {
   NaiveBayesClassifier::{
     kmer_size: val,
@@ -70,9 +70,9 @@ pub fn NaiveBayesClassifier::set_alpha(
 /// For protein sequences, any characters are kept.
 pub fn naive_bayes_extract_kmers(
   sequence : String,
-  k : Int,
-) -> Map[String, Int] {
-  let counts : Map[String, Int] = Map([], capacity=100)
+  k : Int32,
+) -> Map[String, Int32] {
+  let counts : Map[String, Int32] = Map([], capacity=100)
   let n = sequence.length()
   if k <= 0 || k > n {
     return counts
@@ -112,8 +112,8 @@ pub fn naive_bayes_train(
 
   let k = classifier.kmer_size
 
-  let class_seq_counts : Map[String, Int] = Map([], capacity=10)
-  let class_total_kmers : Map[String, Int] = Map([], capacity=10)
+  let class_seq_counts : Map[String, Int32] = Map([], capacity=10)
+  let class_total_kmers : Map[String, Int32] = Map([], capacity=10)
   let class_kmer_counts : Map[String, Map[String, Double]] = Map(
     [],
     capacity=10,
@@ -193,7 +193,7 @@ pub fn naive_bayes_predict_log_probs(
   classifier : NaiveBayesClassifier,
   sequence : String,
 ) -> Array[(String, Double)] {
-  let result : Array[(String, Double)] = Array::new()
+  let result : Array[(String, Double)] = Array(capacity=0)
   let vocab_size = classifier.vocabulary.length().to_double()
   let alpha = classifier.alpha
   let kmers = naive_bayes_extract_kmers(sequence, classifier.kmer_size)
@@ -255,7 +255,7 @@ pub fn naive_bayes_predict_proba(
   sequence : String,
 ) -> Array[(String, Double)] {
   let log_probs = naive_bayes_predict_log_probs(classifier, sequence)
-  let result : Array[(String, Double)] = Array::new()
+  let result : Array[(String, Double)] = Array(capacity=0)
   if log_probs.length() == 0 {
     return result
   }
@@ -267,7 +267,7 @@ pub fn naive_bayes_predict_proba(
     }
   }
 
-  let exps : Array[Double] = Array::new()
+  let exps : Array[Double] = Array(capacity=0)
   let mut sum = 0.0
   for lp in log_probs {
     let e = @math.exp(lp.1 - max_log)
@@ -292,7 +292,7 @@ pub fn naive_bayes_predict_proba(
 pub fn naive_bayes_top_k(
   classifier : NaiveBayesClassifier,
   sequence : String,
-  k : Int,
+  k : Int32,
 ) -> Array[(String, Double)] {
   let probs = naive_bayes_predict_proba(classifier, sequence)
 
@@ -310,7 +310,7 @@ pub fn naive_bayes_top_k(
     i = i + 1
   }
 
-  let result : Array[(String, Double)] = Array::new()
+  let result : Array[(String, Double)] = Array(capacity=0)
   let limit = if k < probs.length() { k } else { probs.length() }
   let mut idx = 0
   while idx < limit {

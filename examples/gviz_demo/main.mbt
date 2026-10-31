@@ -16,7 +16,13 @@ fn main {
 
   // Add axis track
   println("=== Adding Axis Track ===")
-  let axis = @bio.gviz_track("axis", @bio.track_type_genome_axis(), "chr1", 1000, 5000)
+  let axis = @bio.gviz_track(
+    "axis",
+    @bio.track_type_genome_axis(),
+    "chr1",
+    1000,
+    5000,
+  )
   axis.set_label("Position")
   plot.add_track(axis)
   println("Added GenomeAxisTrack")
@@ -24,19 +30,61 @@ fn main {
 
   // Add gene annotation track
   println("=== Adding Gene Annotation Track ===")
-  let genes = @bio.gviz_track("genes", @bio.track_type_gene_region(), "chr1", 1000, 5000)
+  let genes = @bio.gviz_track(
+    "genes",
+    @bio.track_type_gene_region(),
+    "chr1",
+    1000,
+    5000,
+  )
   genes.set_label("Gene Annotations")
   genes.set_color("blue")
-  genes.add_feature(@bio.gviz_feature("g1", "chr1", 1200, 1800, @bio.track_strand_forward(), "exon", "BRCA1"))
-  genes.add_feature(@bio.gviz_feature("g2", "chr1", 2000, 3500, @bio.track_strand_reverse(), "exon", "TP53"))
-  genes.add_feature(@bio.gviz_feature("g3", "chr1", 4000, 4500, @bio.track_strand_forward(), "exon", "EGFR"))
+  genes.add_feature(
+    @bio.gviz_feature(
+      "g1",
+      "chr1",
+      1200,
+      1800,
+      @bio.track_strand_forward(),
+      "exon",
+      "BRCA1",
+    ),
+  )
+  genes.add_feature(
+    @bio.gviz_feature(
+      "g2",
+      "chr1",
+      2000,
+      3500,
+      @bio.track_strand_reverse(),
+      "exon",
+      "TP53",
+    ),
+  )
+  genes.add_feature(
+    @bio.gviz_feature(
+      "g3",
+      "chr1",
+      4000,
+      4500,
+      @bio.track_strand_forward(),
+      "exon",
+      "EGFR",
+    ),
+  )
   plot.add_track(genes)
   println("Added GeneRegionTrack with 3 features")
   println("")
 
   // Add data track
   println("=== Adding Coverage Data Track ===")
-  let coverage = @bio.gviz_track("coverage", @bio.track_type_data(), "chr1", 1000, 5000)
+  let coverage = @bio.gviz_track(
+    "coverage",
+    @bio.track_type_data(),
+    "chr1",
+    1000,
+    5000,
+  )
   coverage.set_label("Read Coverage")
   coverage.set_color("red")
   let mut i = 0
@@ -52,7 +100,13 @@ fn main {
 
   // Add ideogram track
   println("=== Adding Ideogram Track ===")
-  let ideo = @bio.gviz_track("ideogram", @bio.gviz_track_type_ideogram(), "chr1", 1000, 5000)
+  let ideo = @bio.gviz_track(
+    "ideogram",
+    @bio.gviz_track_type_ideogram(),
+    "chr1",
+    1000,
+    5000,
+  )
   ideo.set_label("Cytoband")
   plot.add_track(ideo)
   println("Added IdeogramTrack")
@@ -75,7 +129,9 @@ fn main {
   let mut j = 0
   while j < features_in_region.length() {
     let f = features_in_region[j]
-    println("  \{f.label}: \{f.chromosome}:\{f.start}-\{f.end_} (\{f.strand.to_string()})")
+    println(
+      "  \{f.label}: \{f.chromosome}:\{f.start}-\{f.end_} (\{f.strand.to_string()})",
+    )
     j = j + 1
   }
   println("")

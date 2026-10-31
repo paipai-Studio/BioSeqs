@@ -11,7 +11,7 @@
 //   6. Pairwise Ka/Ks table with Z-test and FDR across a small panel.
 
 ///|
-fn caa_demo_round(value : Double, digits : Int) -> Double {
+fn caa_demo_round(value : Double, digits : Int32) -> Double {
   let scale = @math.pow(10.0, digits.to_double())
   (value * scale).round() / scale
 }
@@ -40,7 +40,11 @@ fn main {
   let s2_pos = pos_seqs[1]
   let s1_pur = pur_seqs[0]
   let s2_pur = pur_seqs[1]
-  let pos_result = @src.codon_test_selection(s1_pos, s2_pos, test_type="positive") catch {
+  let pos_result = @src.codon_test_selection(
+    s1_pos,
+    s2_pos,
+    test_type="positive",
+  ) catch {
     CodonAlignAdvancedError(msg) => abort("Z-test positive failed: " + msg)
   }
   println("  Positive-selection pair:")
@@ -50,7 +54,11 @@ fn main {
   caa_demo_print_d("Z-score", pos_result.z_score())
   caa_demo_print_d("p-value", pos_result.p_value())
   caa_demo_print_s("conclusion", pos_result.conclusion())
-  let pur_result = @src.codon_test_selection(s1_pur, s2_pur, test_type="purifying") catch {
+  let pur_result = @src.codon_test_selection(
+    s1_pur,
+    s2_pur,
+    test_type="purifying",
+  ) catch {
     CodonAlignAdvancedError(msg) => abort("Z-test purifying failed: " + msg)
   }
   println("  Purifying-selection pair:")
@@ -65,7 +73,11 @@ fn main {
   // 2. Fisher's exact test for neutrality
   // -----------------------------------------------------------------------
   println("\n2. Fisher's exact test for neutrality")
-  let fisher_pos = @src.codon_test_neutrality(s1_pos, s2_pos, test_type="greater") catch {
+  let fisher_pos = @src.codon_test_neutrality(
+    s1_pos,
+    s2_pos,
+    test_type="greater",
+  ) catch {
     CodonAlignAdvancedError(msg) => abort("Fisher test failed: " + msg)
   }
   println("  Positive-selection pair (greater):")
@@ -84,12 +96,11 @@ fn main {
   // -----------------------------------------------------------------------
   println("\n3. Codon alignment builder (protein alignment + CDS)")
   let (protein_aln, coding_seqs) = @src.create_demo_protein_alignment()
-  let codon_aln = @src.build_codon_alignment(
-    protein_aln,
-    coding_seqs,
-    names=["geneA", "geneB", "geneC"],
-  ) catch {
-    CodonAlignAdvancedError(msg) => abort("Codon alignment builder failed: " + msg)
+  let codon_aln = @src.build_codon_alignment(protein_aln, coding_seqs, names=[
+    "geneA", "geneB", "geneC",
+  ]) catch {
+    CodonAlignAdvancedError(msg) =>
+      abort("Codon alignment builder failed: " + msg)
   }
   println("  n_codons (columns): " + codon_aln.n_codons().to_string())
   let aln_seqs = codon_aln.sequences()
@@ -155,7 +166,10 @@ fn main {
   let full_panel = @src.create_positive_selection_alignment()
   // Use a 4-sequence subset (6 pairwise comparisons) for a concise table.
   let panel : Array[String] = [
-    full_panel[0], full_panel[1], full_panel[2], full_panel[3],
+    full_panel[0],
+    full_panel[1],
+    full_panel[2],
+    full_panel[3],
   ]
   let kaks_table = @src.pairwise_kaks_table(
     panel,

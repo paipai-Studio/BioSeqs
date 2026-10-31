@@ -11,20 +11,21 @@
 ///   6. Log2 transformation and normalization
 ///
 /// Inspired by Bioconductor's preprocessCore package.
-
 fn format_matrix(m : Array[Array[Double]]) -> String {
   let lines : Array[String] = []
   for i in 0..<m.length() {
     let mut row_str = "    ["
     for j in 0..<m[i].length() {
-      if j > 0 { row_str = row_str + ", " }
+      if j > 0 {
+        row_str = row_str + ", "
+      }
       let v = m[i][j]
       let val_str = if v >= 1000.0 {
-        v.to_string().substring(start=0, end=6)
+        v.to_string()[0:6].to_owned()
       } else if v >= 100.0 {
-        v.to_string().substring(start=0, end=5)
+        v.to_string()[0:5].to_owned()
       } else {
-        v.to_string().substring(start=0, end=4)
+        v.to_string()[0:4].to_owned()
       }
       row_str = row_str + val_str
     }
@@ -34,23 +35,28 @@ fn format_matrix(m : Array[Array[Double]]) -> String {
   lines.join("\n")
 }
 
+///|
 fn print_matrix(label : String, m : Array[Array[Double]]) -> Unit {
   println("\{label}:")
   println(format_matrix(m))
 }
 
+///|
 fn col_means(m : Array[Array[Double]]) -> Array[Double] {
   let n_r = m.length()
   let n_c = if n_r > 0 { m[0].length() } else { 0 }
   let means : Array[Double] = []
   for j in 0..<n_c {
     let mut s = 0.0
-    for i in 0..<n_r { s = s + m[i][j] }
+    for i in 0..<n_r {
+      s = s + m[i][j]
+    }
     means.push(if n_r > 0 { s / n_r.to_double() } else { 0.0 })
   }
   means
 }
 
+///|
 fn col_sds(m : Array[Array[Double]]) -> Array[Double] {
   let n_r = m.length()
   let n_c = if n_r > 0 { m[0].length() } else { 0 }
@@ -62,25 +68,27 @@ fn col_sds(m : Array[Array[Double]]) -> Array[Double] {
       let d = m[i][j] - means[j]
       s = s + d * d
     }
-    sds.push(if n_r > 1 {
-      (s / (n_r.to_double() - 1.0)).sqrt()
-    } else {
-      0.0
-    })
+    sds.push(if n_r > 1 { (s / (n_r.to_double() - 1.0)).sqrt() } else { 0.0 })
   }
   sds
 }
 
-fn pad_right(s : String, n : Int) -> String {
-  if s.length() >= n { s } else { s + " ".repeat(n - s.length()) }
+///|
+fn pad_right(s : String, n : Int32) -> String {
+  if s.length() >= n {
+    s
+  } else {
+    s + " ".repeat(n - s.length())
+  }
 }
-fn pad_left(s : String, n : Int) -> String {
-  if s.length() >= n { s } else { " ".repeat(n - s.length()) + s }
-}
-fn string_index_of(s : String, sub : String) -> Int {
+
+///|
+fn string_index_of(s : String, sub : String) -> Int32 {
   let n = s.length()
   let kn = sub.length()
-  if kn == 0 || kn > n { return -1 }
+  if kn == 0 || kn > n {
+    return -1
+  }
   let mut i = 0
   while i <= n - kn {
     let mut matched = true
@@ -92,24 +100,35 @@ fn string_index_of(s : String, sub : String) -> Int {
       }
       j = j + 1
     }
-    if matched { return i }
+    if matched {
+      return i
+    }
     i = i + 1
   }
   -1
 }
-fn fmt_fixed(d : Double, decimals : Int) -> String {
+
+///|
+fn fmt_fixed(d : Double, decimals : Int32) -> String {
   let s = d.to_string()
   let dot_idx = string_index_of(s, ".")
   if dot_idx >= 0 {
-    let end = if dot_idx + 1 + decimals < s.length() { dot_idx + 1 + decimals } else { s.length() }
-    s.substring(start=0, end=end)
+    let end = if dot_idx + 1 + decimals < s.length() {
+      dot_idx + 1 + decimals
+    } else {
+      s.length()
+    }
+    s[0:end].to_owned()
   } else {
     let mut r = s + "."
-    while r.length() < s.length() + 1 + decimals { r = r + "0" }
+    while r.length() < s.length() + 1 + decimals {
+      r = r + "0"
+    }
     r
   }
 }
 
+///|
 fn print_norm_summary(label : String, m : Array[Array[Double]]) -> Unit {
   let means = col_means(m)
   let label_width = 25
@@ -117,11 +136,25 @@ fn print_norm_summary(label : String, m : Array[Array[Double]]) -> Unit {
   let mut max_v = means[0]
   for k = 0; k < means.length(); k = k + 1 {
     let v = means[k]
-    if v < min_v { min_v = v }
-    if v > max_v { max_v = v }
+    if v < min_v {
+      min_v = v
+    }
+    if v > max_v {
+      max_v = v
+    }
   }
   let range = max_v - min_v
-  println("  " + pad_right(label, label_width) + " | " + fmt_fixed(min_v, 2) + " - " + fmt_fixed(max_v, 2) + " (range=" + fmt_fixed(range, 2) + ")")
+  println(
+    "  " +
+    pad_right(label, label_width) +
+    " | " +
+    fmt_fixed(min_v, 2) +
+    " - " +
+    fmt_fixed(max_v, 2) +
+    " (range=" +
+    fmt_fixed(range, 2) +
+    ")",
+  )
 }
 
 ///|
@@ -144,22 +177,24 @@ fn main {
     [130.0, 210.0, 175.0, 160.0],
   ]
   let gene_names = [
-    "GeneA", "GeneB", "GeneC", "GeneD", "GeneE",
-    "GeneF", "GeneG", "GeneH", "GeneI", "GeneJ",
+    "GeneA", "GeneB", "GeneC", "GeneD", "GeneE", "GeneF", "GeneG", "GeneH", "GeneI",
+    "GeneJ",
   ]
   let sample_names = ["Sample1", "Sample2", "Sample3", "Sample4"]
 
   println("=== 1. Input Expression Matrix ===")
   println("  (10 genes x 4 samples)")
   for i in 0..<gene_names.length() {
-    println("    \{gene_names[i]}: \{expr_matrix[i]}")
+    println("    \{gene_names[i]}: \{Repr(expr_matrix[i])}")
   }
 
   println("\n  Sample statistics BEFORE normalization:")
   let before_means = col_means(expr_matrix)
   let before_sds = col_sds(expr_matrix)
   for j in 0..<sample_names.length() {
-    println("    \{sample_names[j]}: mean=\{fmt_fixed(before_means[j], 2)}, sd=\{fmt_fixed(before_sds[j], 2)}")
+    println(
+      "    \{sample_names[j]}: mean=\{fmt_fixed(before_means[j], 2)}, sd=\{fmt_fixed(before_sds[j], 2)}",
+    )
   }
 
   println("\n=== 2. Quantile Normalization (normalize_quantiles) ===")
@@ -171,7 +206,9 @@ fn main {
   let qn_sds = col_sds(qn_norm)
   println("\n  Sample statistics AFTER quantile normalization:")
   for j in 0..<sample_names.length() {
-    println("    \{sample_names[j]}: mean=\{fmt_fixed(qn_means[j], 2)}, sd=\{fmt_fixed(qn_sds[j], 2)}")
+    println(
+      "    \{sample_names[j]}: mean=\{fmt_fixed(qn_means[j], 2)}, sd=\{fmt_fixed(qn_sds[j], 2)}",
+    )
   }
 
   println("\n=== 3. Subset Quantile Normalization ===")
@@ -181,10 +218,14 @@ fn main {
   print_matrix("  Subset-QN normalized matrix", subset_qn)
 
   println("\n=== 4. Invariant Set Normalization ===")
-  println("  Rank-based: select invariant genes, fit smooth curve to reference (Sample 1)")
+  println(
+    "  Rank-based: select invariant genes, fit smooth curve to reference (Sample 1)",
+  )
   let inv_result = @bio.normalize_invariantset(expr_matrix, reference_index=0)
   print_matrix("  Invariant-set normalized matrix", inv_result.normalized_data)
-  println("\n  Invariant probes count: \{inv_result.invariant_set_indices.length()}")
+  println(
+    "\n  Invariant probes count: \{inv_result.invariant_set_indices.length()}",
+  )
   let inv_names : Array[String] = []
   for k = 0; k < inv_result.invariant_set_indices.length(); k = k + 1 {
     let idx = inv_result.invariant_set_indices[k]
@@ -217,7 +258,8 @@ fn main {
   println("\n=== 8. Background Percentile Correction ===")
   println("  Subtract 2nd-percentile background (per column)")
   let pshift_norm = @bio.background_correct_percentile(
-    expr_matrix, percentile=0.02,
+    expr_matrix,
+    percentile=0.02,
   )
   print_matrix("  Background-corrected matrix", pshift_norm)
 
@@ -225,8 +267,8 @@ fn main {
   // normalize_quantiles already creates a new matrix, original unmodified
   let qn_copy = @bio.normalize_quantiles(expr_matrix)
   println("  Input matrix preserved:")
-  println("    First row original: \{expr_matrix[0]}")
-  println("    First row copy norm: \{qn_copy[0]}")
+  println("    First row original: \{Repr(expr_matrix[0])}")
+  println("    First row copy norm: \{Repr(qn_copy[0])}")
 
   println("\n=== Summary of Normalization Effects ===")
   let label_width = 25

@@ -27,7 +27,7 @@ fn main {
   let ref_names = bam.get_reference_names()
   for name in ref_names {
     let len = bam.get_reference_length(name)
-    println("  - \{name}: length = \{len}")
+    println("  - \{name}: length = \{Repr(len)}")
   }
 
   println("")

@@ -18,7 +18,7 @@ pub struct RNAStructureResult {
   sequence : String
   structure : String
   mfe : Double
-  paired_positions : Array[(Int, Int)]
+  paired_positions : Array[(Int32, Int32)]
   loop_regions : Array[LoopRegion]
 }
 
@@ -26,10 +26,13 @@ pub struct RNAStructureResult {
 /// A loop region in the RNA secondary structure.
 /// Classified as hairpin, internal, bulge, or multi-loop.
 pub struct LoopRegion {
-  start : Int
-  end : Int
+  start : Int32
+  end : Int32
   loop_type : String
 } derive(Eq)
+
+///|
+pub extend LoopRegion with Eq::{equal, not_equal}
 
 ///|
 /// Configurable parameters for RNA structure prediction.
@@ -39,7 +42,7 @@ pub struct LoopRegion {
 /// - loop_penalty: base loop penalty per unpaired base (default 0.5 kcal/mol)
 /// - mismatch_penalty: penalty for non-canonical base pairs (default 1.0)
 pub struct RNAStructurePredictor {
-  loop_min_length : Int
+  loop_min_length : Int32
   stacking_energy : Double
   loop_penalty : Double
   mismatch_penalty : Double
@@ -64,7 +67,7 @@ pub fn rna_predictor_new() -> RNAStructurePredictor {
 /// - loop_penalty: penalty per unpaired base in a loop
 /// - mismatch_penalty: penalty for non-canonical base pairs
 pub fn rna_predictor_with_params(
-  loop_min : Int,
+  loop_min : Int32,
   stacking : Double,
   loop_penalty : Double,
   mismatch_penalty : Double,
@@ -108,7 +111,7 @@ pub fn is_complementary(base1 : UInt16, base2 : UInt16) -> Bool {
 ///|
 /// Calculate the loop energy penalty for a given loop length.
 /// Returns penalty = loop_penalty * length.
-pub fn compute_loop_energy(length : Int) -> Double {
+pub fn compute_loop_energy(length : Int32) -> Double {
   if length <= 0 {
     return 0.0
   }
@@ -130,9 +133,9 @@ pub fn nussinov_matrix(
     return []
   }
 
-  let dp : Array[Array[Double]] = Array::new()
+  let dp : Array[Array[Double]] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     for j = 0; j < n; j = j + 1 {
       row.push(0.0)
     }
@@ -159,9 +162,9 @@ pub fn nussinov_traceback(
   matrix : Array[Array[Double]],
   sequence : Array[UInt16],
   predictor : RNAStructurePredictor,
-) -> Array[(Int, Int)] {
+) -> Array[(Int32, Int32)] {
   let n = sequence.length()
-  let base_pairs : Array[(Int, Int)] = Array::new()
+  let base_pairs : Array[(Int32, Int32)] = Array(capacity=0)
   if n == 0 {
     return base_pairs
   }
@@ -193,7 +196,7 @@ pub fn rna_predict_secondary_structure(
     }
   }
 
-  let seq_arr : Array[UInt16] = Array::new()
+  let seq_arr : Array[UInt16] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {
     seq_arr.push(sequence.unsafe_get(i))
   }
@@ -241,7 +244,7 @@ pub fn structure_to_dot_bracket(result : RNAStructureResult) -> String {
 
 ///|
 /// Get the list of base pairs from an RNA structure result.
-pub fn get_base_pairs(result : RNAStructureResult) -> Array[(Int, Int)] {
+pub fn get_base_pairs(result : RNAStructureResult) -> Array[(Int32, Int32)] {
   result.paired_positions
 }
 
@@ -256,10 +259,10 @@ pub fn get_mfe(result : RNAStructureResult) -> Double {
 /// Identifies hairpin, internal, bulge, and multi-loop regions.
 pub fn identify_loop_regions(
   sequence : Array[UInt16],
-  base_pairs : Array[(Int, Int)],
-  predictor : RNAStructurePredictor,
+  base_pairs : Array[(Int32, Int32)],
+  _predictor : RNAStructurePredictor,
 ) -> Array[LoopRegion] {
-  let loop_regions : Array[LoopRegion] = Array::new()
+  let loop_regions : Array[LoopRegion] = Array(capacity=0)
   let n = sequence.length()
   if n == 0 {
     return loop_regions
@@ -280,8 +283,8 @@ pub fn identify_loop_regions(
 /// Returns a string where '(' and ')' indicate paired bases
 /// and '.' indicates unpaired bases.
 pub fn mfe_to_dot_bracket(
-  sequence_length : Int,
-  base_pairs : Array[(Int, Int)],
+  sequence_length : Int32,
+  base_pairs : Array[(Int32, Int32)],
 ) -> String {
   rna_build_dot_bracket(sequence_length, base_pairs)
 }
@@ -333,8 +336,8 @@ fn rna_base_pair_energy(
 /// Used during DP matrix filling.
 fn rna_compute_energy_for_interval(
   sequence : Array[UInt16],
-  i : Int,
-  j : Int,
+  i : Int32,
+  j : Int32,
   predictor : RNAStructurePredictor,
   dp : Array[Array[Double]],
 ) -> Double {
@@ -387,9 +390,9 @@ fn rna_trace_from_matrix(
   matrix : Array[Array[Double]],
   sequence : Array[UInt16],
   predictor : RNAStructurePredictor,
-  i : Int,
-  j : Int,
-  base_pairs : Array[(Int, Int)],
+  i : Int32,
+  j : Int32,
+  base_pairs : Array[(Int32, Int32)],
 ) -> Unit {
   if i >= j {
     return
@@ -443,7 +446,10 @@ fn rna_trace_from_matrix(
 
 ///|
 /// Build a dot-bracket string from base pairs.
-fn rna_build_dot_bracket(n : Int, base_pairs : Array[(Int, Int)]) -> String {
+fn rna_build_dot_bracket(
+  n : Int32,
+  base_pairs : Array[(Int32, Int32)],
+) -> String {
   let buf : FixedArray[UInt16] = FixedArray::make(n, '.'.to_int().to_uint16())
   for idx = 0; idx < base_pairs.length(); idx = idx + 1 {
     let (i, j) = base_pairs[idx]
@@ -456,10 +462,10 @@ fn rna_build_dot_bracket(n : Int, base_pairs : Array[(Int, Int)]) -> String {
 ///|
 /// Build an array indicating which positions are paired.
 fn rna_build_paired_array(
-  n : Int,
-  base_pairs : Array[(Int, Int)],
-) -> Array[Int] {
-  let paired : Array[Int] = Array::make(n, -1)
+  n : Int32,
+  base_pairs : Array[(Int32, Int32)],
+) -> Array[Int32] {
+  let paired : Array[Int32] = Array::make(n, -1)
   for idx = 0; idx < base_pairs.length(); idx = idx + 1 {
     let (i, j) = base_pairs[idx]
     paired[i] = j
@@ -472,10 +478,10 @@ fn rna_build_paired_array(
 /// Recursively find and classify loop regions.
 fn rna_find_loops_recursive(
   sequence : Array[UInt16],
-  base_pairs : Array[(Int, Int)],
-  i : Int,
-  j : Int,
-  paired : Array[Int],
+  base_pairs : Array[(Int32, Int32)],
+  i : Int32,
+  j : Int32,
+  paired : Array[Int32],
   loop_regions : Array[LoopRegion],
 ) -> Unit {
   if i >= j {
@@ -489,7 +495,7 @@ fn rna_find_loops_recursive(
     let loop_len = j - i - 1
     if loop_len > 0 {
       let loop_type = rna_classify_loop(sequence, i, j, paired)
-      loop_regions.push(LoopRegion::{ start: i + 1, end: j - 1, loop_type })
+      loop_regions.push(LoopRegion::{ start: i + 1, end: j - 1, loop_type, })
 
       let inner_i = i + 1
       let inner_j = j - 1
@@ -534,9 +540,9 @@ fn rna_find_loops_recursive(
 /// Classify a loop as hairpin, internal, bulge, or multi-loop.
 fn rna_classify_loop(
   sequence : Array[UInt16],
-  i : Int,
-  j : Int,
-  paired : Array[Int],
+  i : Int32,
+  j : Int32,
+  paired : Array[Int32],
 ) -> String {
   let n = sequence.length()
 
@@ -566,7 +572,7 @@ fn rna_classify_loop(
 
 ///|
 /// Check if there are base pairs within the loop [i+1, j-1].
-fn rna_has_inner_pairs(i : Int, j : Int, paired : Array[Int]) -> Bool {
+fn rna_has_inner_pairs(i : Int32, j : Int32, paired : Array[Int32]) -> Bool {
   let mut k = i + 1
   while k < j {
     if paired[k] > 0 && paired[k] < j && paired[k] > i {
@@ -580,12 +586,12 @@ fn rna_has_inner_pairs(i : Int, j : Int, paired : Array[Int]) -> Bool {
 ///|
 /// Build a sub-array of paired information for a given range.
 fn rna_build_sub_paired(
-  start : Int,
-  end : Int,
-  paired : Array[Int],
-) -> Array[Int] {
+  start : Int32,
+  end : Int32,
+  paired : Array[Int32],
+) -> Array[Int32] {
   let n = paired.length()
-  let sub : Array[Int] = Array::make(n, -1)
+  let sub : Array[Int32] = Array::make(n, -1)
   let mut k = start
   while k <= end {
     let p = paired[k]
@@ -602,7 +608,7 @@ fn rna_build_sub_paired(
 /// Compute the final minimum free energy.
 fn rna_compute_mfe(
   sequence : Array[UInt16],
-  base_pairs : Array[(Int, Int)],
+  base_pairs : Array[(Int32, Int32)],
   predictor : RNAStructurePredictor,
   loop_regions : Array[LoopRegion],
 ) -> Double {
@@ -645,7 +651,7 @@ fn rna_compute_mfe(
 ///|
 /// Count stacking interactions and return the total stacking energy.
 fn rna_count_stacking(
-  base_pairs : Array[(Int, Int)],
+  base_pairs : Array[(Int32, Int32)],
   predictor : RNAStructurePredictor,
 ) -> Double {
   let mut stacking_count = 0

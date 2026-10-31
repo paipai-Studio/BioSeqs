@@ -26,7 +26,7 @@
 
 ///|
 /// Default line width for wrapping IMGT sequence output (matches FASTA).
-let imgt_line_width : Int = 60
+let imgt_line_width : Int32 = 60
 
 // ============================================================================
 // ImgtHeader - the 13 pipe-separated fields of an IMGT header
@@ -207,7 +207,7 @@ pub struct ImgtRecord {
 ///|
 /// Construct an ImgtRecord from a header and a sequence string.
 pub fn ImgtRecord::new(header : ImgtHeader, sequence : String) -> ImgtRecord {
-  ImgtRecord::{ header, sequence }
+  ImgtRecord::{ header, sequence, }
 }
 
 ///|
@@ -238,7 +238,7 @@ pub fn ImgtRecord::description(self : ImgtRecord) -> String {
 ///|
 /// Human-readable representation of this record.
 pub fn ImgtRecord::to_string(self : ImgtRecord) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string("ImgtRecord(id=")
   buf.write_string(self.header.seq_id)
   buf.write_string(", accession=")
@@ -263,7 +263,7 @@ pub fn ImgtRecord::to_string(self : ImgtRecord) -> String {
 /// the pieces into `Array[String]`.)
 fn imgt_split_strings(s : String, delim : String) -> Array[String] {
   let views = s.split(delim).to_array()
-  let out : Array[String] = Array::new()
+  let out : Array[String] = Array(capacity=0)
   for i in 0..<views.length() {
     out.push(views[i].to_owned())
   }
@@ -327,7 +327,11 @@ pub fn imgt_parse_header(line : String) -> ImgtHeader? {
 
 ///|
 /// Return `fields[i]` if `i < count`, else "".
-fn imgt_field_or_empty(fields : Array[String], count : Int, i : Int) -> String {
+fn imgt_field_or_empty(
+  fields : Array[String],
+  count : Int32,
+  i : Int32,
+) -> String {
   if i < count {
     fields[i]
   } else {
@@ -340,10 +344,10 @@ fn imgt_field_or_empty(fields : Array[String], count : Int, i : Int) -> String {
 /// lines start with '>'; sequence lines are concatenated until the next
 /// header.
 pub fn imgt_parse(content : String) -> Array[ImgtRecord] {
-  let records = Array::new()
+  let records = Array(capacity=0)
   let lines = content.split("\n").to_array()
   let mut current_header : ImgtHeader? = None
-  let mut current_seq = StringBuilder::new()
+  let mut current_seq = StringBuilder()
   let gt : UInt16 = '>'.to_int().to_uint16()
   let cr : UInt16 = '\r'.to_int().to_uint16()
   let sp : UInt16 = ' '.to_int().to_uint16()
@@ -370,7 +374,7 @@ pub fn imgt_parse(content : String) -> Array[ImgtRecord] {
         Some(h) => current_header = Some(h)
         None => current_header = None
       }
-      current_seq = StringBuilder::new()
+      current_seq = StringBuilder()
     } else {
       for i = 0; i < trimmed_len; i = i + 1 {
         let c = line.unsafe_get(i)
@@ -382,7 +386,7 @@ pub fn imgt_parse(content : String) -> Array[ImgtRecord] {
   }
   match current_header {
     Some(h) =>
-      records.push(ImgtRecord::{ header: h, sequence: current_seq.to_string() })
+      records.push(ImgtRecord::{ header: h, sequence: current_seq.to_string(), })
     None => ()
   }
   records
@@ -404,7 +408,7 @@ pub fn imgt_header_to_string(header : ImgtHeader) -> String {
 /// sequence wrapped at `imgt_line_width` characters per line. A trailing
 /// newline is included.
 pub fn imgt_record_to_string(record : ImgtRecord) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string(imgt_header_to_string(record.header))
   buf.write_string("\n")
   let seq = record.sequence
@@ -422,7 +426,7 @@ pub fn imgt_record_to_string(record : ImgtRecord) -> String {
 ///|
 /// Serialize an array of ImgtRecord objects to IMGT text.
 pub fn imgt_write(records : Array[ImgtRecord]) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   for i in 0..<records.length() {
     buf.write_string(imgt_record_to_string(records[i]))
   }
@@ -435,7 +439,7 @@ pub fn imgt_write(records : Array[ImgtRecord]) -> String {
 
 ///|
 /// Number of IMGT records.
-pub fn imgt_n_records(records : Array[ImgtRecord]) -> Int {
+pub fn imgt_n_records(records : Array[ImgtRecord]) -> Int32 {
   records.length()
 }
 
@@ -461,7 +465,7 @@ pub fn imgt_get_by_species(
   records : Array[ImgtRecord],
   species : String,
 ) -> Array[ImgtRecord] {
-  let out = Array::new()
+  let out = Array(capacity=0)
   for i in 0..<records.length() {
     if records[i].header.species == species {
       out.push(records[i])
@@ -476,7 +480,7 @@ pub fn imgt_get_by_gene(
   records : Array[ImgtRecord],
   gene : String,
 ) -> Array[ImgtRecord] {
-  let out = Array::new()
+  let out = Array(capacity=0)
   for i in 0..<records.length() {
     if records[i].header.gene == gene {
       out.push(records[i])
@@ -491,7 +495,7 @@ pub fn imgt_filter_by_locus(
   records : Array[ImgtRecord],
   locus : String,
 ) -> Array[ImgtRecord] {
-  let out = Array::new()
+  let out = Array(capacity=0)
   for i in 0..<records.length() {
     if records[i].header.locus == locus {
       out.push(records[i])
@@ -504,7 +508,7 @@ pub fn imgt_filter_by_locus(
 /// Return the set of distinct species values across all records, in order of
 /// first appearance.
 pub fn imgt_unique_species(records : Array[ImgtRecord]) -> Array[String] {
-  let out = Array::new()
+  let out = Array(capacity=0)
   for i in 0..<records.length() {
     let s = records[i].header.species
     if !string_array_contains(out, s) {
@@ -518,7 +522,7 @@ pub fn imgt_unique_species(records : Array[ImgtRecord]) -> Array[String] {
 /// Return the set of distinct gene designations across all records, in order
 /// of first appearance.
 pub fn imgt_unique_genes(records : Array[ImgtRecord]) -> Array[String] {
-  let out = Array::new()
+  let out = Array(capacity=0)
   for i in 0..<records.length() {
     let g = records[i].header.gene
     if !string_array_contains(out, g) {
@@ -534,7 +538,7 @@ pub fn imgt_unique_genes(records : Array[ImgtRecord]) -> Array[String] {
 pub fn imgt_summary(records : Array[ImgtRecord]) -> String {
   let species = imgt_unique_species(records)
   let genes = imgt_unique_genes(records)
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string("IMGT records: ")
   buf.write_string(records.length().to_string())
   buf.write_string(", species: ")
@@ -567,7 +571,7 @@ pub fn imgt_summary(records : Array[ImgtRecord]) -> String {
 /// Convert ImgtRecord objects to SeqRecord objects. The id and name become the
 /// header's seq_id; the description becomes the full pipe-separated header.
 pub fn imgt_to_seq_records(records : Array[ImgtRecord]) -> Array[SeqRecord] {
-  let out = Array::new()
+  let out = Array(capacity=0)
   for i in 0..<records.length() {
     let r = records[i]
     out.push(
@@ -587,7 +591,7 @@ pub fn imgt_to_seq_records(records : Array[ImgtRecord]) -> Array[SeqRecord] {
 /// header: accession and seq_id are set to the record id, the seq_length is
 /// derived from the sequence length, and all other fields are empty.
 pub fn imgt_from_seq_records(records : Array[SeqRecord]) -> Array[ImgtRecord] {
-  let out = Array::new()
+  let out = Array(capacity=0)
   for i in 0..<records.length() {
     let rec = records[i]
     let seq_str = rec.seq.to_string()
@@ -607,7 +611,7 @@ pub fn imgt_from_seq_records(records : Array[SeqRecord]) -> Array[ImgtRecord] {
       seq_type: "",
       comments: rec.description,
     }
-    out.push(ImgtRecord::{ header, sequence: seq_str })
+    out.push(ImgtRecord::{ header, sequence: seq_str, })
   }
   out
 }
@@ -620,7 +624,7 @@ pub fn imgt_from_seq_records(records : Array[SeqRecord]) -> Array[ImgtRecord] {
 /// Return 3 sample IMGT records: 2 HLA-A alleles (human) and 1 HLA-B allele
 /// (human), suitable for tests and demos.
 pub fn imgt_sample_records() -> Array[ImgtRecord] {
-  let out = Array::new()
+  let out = Array(capacity=0)
   // HLA-A*01:01:01:01 (human)
   out.push(ImgtRecord::{
     header: ImgtHeader::{

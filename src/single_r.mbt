@@ -27,8 +27,8 @@ pub struct ReferenceDataset {
   profiles : Array[ReferenceProfile]
   cell_types : Array[String]
   gene_names : Array[String]
-  n_genes : Int
-  n_profiles : Int
+  n_genes : Int32
+  n_profiles : Int32
 }
 
 ///|
@@ -37,8 +37,8 @@ pub struct SingleRData {
   counts : Array[Array[Double]]
   gene_names : Array[String]
   cell_names : Array[String]
-  n_cells : Int
-  n_genes : Int
+  n_cells : Int32
+  n_genes : Int32
 }
 
 ///|
@@ -71,8 +71,8 @@ pub struct SingleRFullResult {
 ///|
 /// Parameters for SingleR annotation.
 pub struct SingleRParams {
-  method : String
-  n_top_scores : Int
+  method_ : String
+  n_top_scores : Int32
   fine_tune : Bool
   min_score : Double
   quantile_score : Bool
@@ -157,7 +157,7 @@ pub fn single_r_pearson_correlation(
 /// Compute rank values for an array (average ranks for ties).
 pub fn single_r_rank_values(values : Array[Double]) -> Array[Double] {
   let n = values.length()
-  let ranked : Array[(Double, Int)] = Array::new()
+  let ranked : Array[(Double, Int32)] = Array(capacity=0)
   let mut i = 0
   while i < n {
     ranked.push((values[i], i))
@@ -190,7 +190,7 @@ pub fn single_r_rank_values(values : Array[Double]) -> Array[Double] {
 
 ///|
 /// Sort array of tuples by first element (descending order).
-fn single_r_sort_array(arr : Array[(Double, Int)]) -> Array[(Double, Int)] {
+fn single_r_sort_array(arr : Array[(Double, Int32)]) -> Array[(Double, Int32)] {
   let n = arr.length()
   let result = arr.copy()
   let mut i = 1
@@ -210,8 +210,8 @@ fn single_r_sort_array(arr : Array[(Double, Int)]) -> Array[(Double, Int)] {
 ///|
 /// Sort array of (Int, Double) tuples by the Double value (descending).
 fn single_r_sort_int_double_array(
-  arr : Array[(Int, Double)],
-) -> Array[(Int, Double)] {
+  arr : Array[(Int32, Double)],
+) -> Array[(Int32, Double)] {
   let n = arr.length()
   let result = arr.copy()
   let mut i = 1
@@ -245,7 +245,7 @@ pub fn ReferenceProfile::new(
   expression : Array[Double],
   gene_names : Array[String],
 ) -> ReferenceProfile {
-  ReferenceProfile::{ cell_type, expression, gene_names }
+  ReferenceProfile::{ cell_type, expression, gene_names, }
 }
 
 ///|
@@ -256,11 +256,11 @@ pub fn ReferenceDataset::new(
   let n_profiles = profiles.length()
   let gene_names = if n_profiles > 0 { profiles[0].gene_names } else { [] }
   let n_genes = gene_names.length()
-  let cell_types : Array[String] = Array::new()
+  let cell_types : Array[String] = Array(capacity=0)
   for p in profiles {
     cell_types.push(p.cell_type)
   }
-  ReferenceDataset::{ profiles, cell_types, gene_names, n_genes, n_profiles }
+  ReferenceDataset::{ profiles, cell_types, gene_names, n_genes, n_profiles, }
 }
 
 ///|
@@ -270,7 +270,7 @@ pub fn ReferenceDataset::from_matrix(
   cell_types : Array[String],
   gene_names : Array[String],
 ) -> ReferenceDataset {
-  let profiles : Array[ReferenceProfile] = Array::new()
+  let profiles : Array[ReferenceProfile] = Array(capacity=0)
   let n_samples = expression_data.length()
   let mut i = 0
   while i < n_samples {
@@ -302,7 +302,7 @@ pub fn SingleRData::new(
 /// Create default SingleR parameters.
 pub fn SingleRParams::new() -> SingleRParams {
   SingleRParams::{
-    method: "spearman",
+    method_: "spearman",
     n_top_scores: 1,
     fine_tune: true,
     min_score: 0.0,
@@ -312,21 +312,27 @@ pub fn SingleRParams::new() -> SingleRParams {
 
 ///|
 /// Create custom SingleR parameters with specific method.
-pub fn SingleRParams::with_method(method : String) -> SingleRParams {
+pub fn SingleRParams::with_method(method_ : String) -> SingleRParams {
   let base = SingleRParams::new()
-  SingleRParams::{ ..base, method, }
+  SingleRParams::{ ..base, method_, }
 }
 
 ///|
 /// Create custom SingleR parameters with all fields specified.
 pub fn SingleRParams::with_all(
   fine_tune : Bool,
-  method : String,
-  n_top_scores : Int,
+  method_ : String,
+  n_top_scores : Int32,
   min_score : Double,
   quantile_score : Bool,
 ) -> SingleRParams {
-  SingleRParams::{ method, n_top_scores, fine_tune, min_score, quantile_score }
+  SingleRParams::{
+    method_,
+    n_top_scores,
+    fine_tune,
+    min_score,
+    quantile_score,
+  }
 }
 
 ///|
@@ -334,11 +340,11 @@ pub fn SingleRParams::with_all(
 pub fn single_r_compute_correlations(
   cell_expression : Array[Double],
   reference : ReferenceDataset,
-  method : String,
+  method_ : String,
 ) -> Array[Double] {
-  let scores : Array[Double] = Array::new()
+  let scores : Array[Double] = Array(capacity=0)
   for profile in reference.profiles {
-    let score = if method == "pearson" {
+    let score = if method_ == "pearson" {
       single_r_pearson_correlation(cell_expression, profile.expression)
     } else {
       single_r_spearman_correlation(cell_expression, profile.expression)
@@ -352,10 +358,10 @@ pub fn single_r_compute_correlations(
 /// Get the top N scores and their indices.
 pub fn single_r_get_top_scores(
   scores : Array[Double],
-  n : Int,
-) -> Array[(Int, Double)] {
+  n : Int32,
+) -> Array[(Int32, Double)] {
   let n_scores = scores.length()
-  let top : Array[(Int, Double)] = Array::new()
+  let top : Array[(Int32, Double)] = Array(capacity=0)
 
   let mut i = 0
   while i < n_scores {
@@ -366,7 +372,7 @@ pub fn single_r_get_top_scores(
   // Sort by score descending
   let sorted = single_r_sort_int_double_array(top)
 
-  let result : Array[(Int, Double)] = Array::new()
+  let result : Array[(Int32, Double)] = Array(capacity=0)
   let limit = if n < sorted.length() { n } else { sorted.length() }
   let mut l = 0
   while l < limit {
@@ -382,7 +388,7 @@ pub fn single_r_get_top_scores(
 pub fn single_r_aggregate_scores_by_type(
   scores : Array[Double],
   reference : ReferenceDataset,
-  n_top : Int,
+  n_top : Int32,
 ) -> Map[String, Double] {
   let unique_types : Map[String, Array[Double]] = Map(
     [],
@@ -467,7 +473,7 @@ pub fn single_r_compute_delta_score(
   scores_by_type : Map[String, Double],
 ) -> Double {
   let keys = scores_by_type.keys()
-  let sorted_scores : Array[(String, Double)] = Array::new()
+  let sorted_scores : Array[(String, Double)] = Array(capacity=0)
   for key in keys {
     sorted_scores.push((key, scores_by_type.get(key).unwrap_or(0.0)))
   }
@@ -499,13 +505,13 @@ pub fn single_r_fine_tune_annotation(
   cell_expression : Array[Double],
   reference : ReferenceDataset,
   initial_label : String,
-  n_markers : Int,
-  method : String,
+  _n_markers : Int32,
+  method_ : String,
 ) -> (String, Double) {
   // Find profiles matching the initial label
-  let marker_profiles : Array[Array[Double]] = Array::new()
-  let other_profiles : Array[Array[Double]] = Array::new()
-  let other_types : Array[String] = Array::new()
+  let marker_profiles : Array[Array[Double]] = Array(capacity=0)
+  let other_profiles : Array[Array[Double]] = Array(capacity=0)
+  let other_types : Array[String] = Array(capacity=0)
 
   let mut i = 0
   while i < reference.n_profiles {
@@ -524,7 +530,7 @@ pub fn single_r_fine_tune_annotation(
       let mut sum = 0.0
       for p in marker_profiles {
         sum = sum +
-          (if method == "pearson" {
+          (if method_ == "pearson" {
             single_r_pearson_correlation(cell_expression, p)
           } else {
             single_r_spearman_correlation(cell_expression, p)
@@ -538,10 +544,10 @@ pub fn single_r_fine_tune_annotation(
   }
 
   // Compute correlations with other cell types
-  let other_scores : Array[Double] = Array::new()
+  let other_scores : Array[Double] = Array(capacity=0)
   for p in other_profiles {
     other_scores.push(
-      if method == "pearson" {
+      if method_ == "pearson" {
         single_r_pearson_correlation(cell_expression, p)
       } else {
         single_r_spearman_correlation(cell_expression, p)
@@ -567,7 +573,7 @@ pub fn single_r_fine_tune_annotation(
     let mut sum = 0.0
     for p in marker_profiles {
       sum = sum +
-        (if method == "pearson" {
+        (if method_ == "pearson" {
           single_r_pearson_correlation(cell_expression, p)
         } else {
           single_r_spearman_correlation(cell_expression, p)
@@ -598,7 +604,7 @@ pub fn single_r_annotate_cell(
   let raw_scores = single_r_compute_correlations(
     cell_expression,
     reference,
-    params.method,
+    params.method_,
   )
 
   // Aggregate scores by cell type
@@ -610,25 +616,25 @@ pub fn single_r_annotate_cell(
 
   // Get initial prediction
   let (best_label, best_score) = single_r_get_best_label(agg_scores)
-  let delta = single_r_compute_delta_score(agg_scores)
+  let _delta = single_r_compute_delta_score(agg_scores)
 
   // Fine-tune if enabled
-  let (final_label, final_score) = if params.fine_tune && best_score > 0.0 {
+  let (final_label, _final_score) = if params.fine_tune && best_score > 0.0 {
     single_r_fine_tune_annotation(
       cell_expression,
       reference,
       best_label,
       50,
-      params.method,
+      params.method_,
     )
   } else {
     (best_label, best_score)
   }
 
   // Build result
-  let labels : Array[String] = Array::new()
-  let scores_arr : Array[Double] = Array::new()
-  let delta_arr : Array[Double] = Array::new()
+  let labels : Array[String] = Array(capacity=0)
+  let scores_arr : Array[Double] = Array(capacity=0)
+  let delta_arr : Array[Double] = Array(capacity=0)
 
   let keys = agg_scores.keys()
   for key in keys {
@@ -662,7 +668,7 @@ fn single_r_sort_labels_by_score(
   scores : Array[Double],
 ) -> Array[String] {
   let n = labels.length()
-  let pairs : Array[(String, Double)] = Array::new()
+  let pairs : Array[(String, Double)] = Array(capacity=0)
   let mut i = 0
   while i < n {
     pairs.push((labels[i], scores[i]))
@@ -682,7 +688,7 @@ fn single_r_sort_labels_by_score(
     j = j + 1
   }
 
-  let result : Array[String] = Array::new()
+  let result : Array[String] = Array(capacity=0)
   for p in pairs {
     result.push(p.0)
   }
@@ -702,12 +708,12 @@ pub fn single_r_annotate_cells(
   reference : ReferenceDataset,
   params : SingleRParams,
 ) -> SingleRFullResult {
-  let cell_ids : Array[String] = Array::new()
-  let labels : Array[String] = Array::new()
-  let scores : Array[Double] = Array::new()
-  let delta_scores : Array[Double] = Array::new()
-  let first_labels : Array[String] = Array::new()
-  let fine_annotations : Array[String] = Array::new()
+  let cell_ids : Array[String] = Array(capacity=0)
+  let labels : Array[String] = Array(capacity=0)
+  let scores : Array[Double] = Array(capacity=0)
+  let delta_scores : Array[Double] = Array(capacity=0)
+  let first_labels : Array[String] = Array(capacity=0)
+  let fine_annotations : Array[String] = Array(capacity=0)
 
   let mut i = 0
   while i < data.n_cells {
@@ -751,10 +757,10 @@ pub fn single_r_annotate_cells(
 /// Extract expression profile for a single cell.
 fn single_r_get_cell_expression(
   data : SingleRData,
-  cell_idx : Int,
+  cell_idx : Int32,
 ) -> Array[Double] {
   let n_genes = data.n_genes
-  let expr : Array[Double] = Array::new()
+  let expr : Array[Double] = Array(capacity=0)
   let mut i = 0
   while i < n_genes {
     expr.push(data.counts[i][cell_idx])
@@ -920,10 +926,10 @@ pub fn single_r_create_test_data() -> SingleRData {
   let n_cells = 50
 
   // Create expression matrix (genes x cells)
-  let counts : Array[Array[Double]] = Array::new()
+  let counts : Array[Array[Double]] = Array(capacity=0)
   let mut gene_i = 0
   while gene_i < n_genes {
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     let mut cell_j = 0
     while cell_j < n_cells {
       // Simulate different cell types
@@ -1003,7 +1009,7 @@ pub fn single_r_create_test_data() -> SingleRData {
     gene_i = gene_i + 1
   }
 
-  let cell_names : Array[String] = Array::new()
+  let cell_names : Array[String] = Array(capacity=0)
   let mut c = 0
   while c < n_cells {
     cell_names.push("cell_".to_string() + c.to_string())
@@ -1019,7 +1025,7 @@ pub fn single_r_annotation_summary(
   result : SingleRFullResult,
 ) -> Map[String, Double] {
   let n_cells = result.cell_ids.length()
-  let label_counts : Map[String, Int] = Map([], capacity=10)
+  let label_counts : Map[String, Int32] = Map([], capacity=10)
 
   let mut i = 0
   while i < n_cells {

@@ -20,10 +20,10 @@
 /// A single Hi-C contact between two genomic bins.
 pub struct HiCContact {
   chr : String
-  bin1 : Int // bin index (start position / bin_size)
-  bin2 : Int
-  mut count : Int
-  distance : Int // |bin2 - bin1|
+  bin1 : Int32 // bin index (start position / bin_size)
+  bin2 : Int32
+  mut count : Int32
+  distance : Int32 // |bin2 - bin1|
   mut gc_content : Double
   mut mappability : Double
 }
@@ -32,10 +32,10 @@ pub struct HiCContact {
 /// Create a new HiCContact.
 pub fn HiCContact::new(
   chr : String,
-  bin1 : Int,
-  bin2 : Int,
-  count : Int,
-  bin_size : Int,
+  bin1 : Int32,
+  bin2 : Int32,
+  count : Int32,
+  _bin_size : Int32,
 ) -> HiCContact {
   let distance = if bin2 > bin1 { bin2 - bin1 } else { bin1 - bin2 }
   HiCContact::{
@@ -63,13 +63,13 @@ pub fn HiCContact::set_mappability(self : HiCContact, m : Double) -> Unit {
 
 ///|
 /// Accessor for distance.
-pub fn HiCContact::distance(self : HiCContact) -> Int {
+pub fn HiCContact::distance(self : HiCContact) -> Int32 {
   self.distance
 }
 
 ///|
 /// Accessor for count.
-pub fn HiCContact::count(self : HiCContact) -> Int {
+pub fn HiCContact::count(self : HiCContact) -> Int32 {
   self.count
 }
 
@@ -81,13 +81,13 @@ pub fn HiCContact::chr(self : HiCContact) -> String {
 
 ///|
 /// Accessor for bin1.
-pub fn HiCContact::bin1(self : HiCContact) -> Int {
+pub fn HiCContact::bin1(self : HiCContact) -> Int32 {
   self.bin1
 }
 
 ///|
 /// Accessor for bin2.
-pub fn HiCContact::bin2(self : HiCContact) -> Int {
+pub fn HiCContact::bin2(self : HiCContact) -> Int32 {
   self.bin2
 }
 
@@ -107,9 +107,9 @@ pub fn HiCContact::mappability(self : HiCContact) -> Double {
 /// Result of HiC-DC significance testing for one contact.
 pub struct HiCDCResult {
   chr : String
-  bin1 : Int
-  bin2 : Int
-  observed : Int
+  bin1 : Int32
+  bin2 : Int32
+  observed : Int32
   expected : Double
   log_fc : Double
   p_value : Double
@@ -119,7 +119,7 @@ pub struct HiCDCResult {
 
 ///|
 /// Accessor for observed count.
-pub fn HiCDCResult::observed(self : HiCDCResult) -> Int {
+pub fn HiCDCResult::observed(self : HiCDCResult) -> Int32 {
   self.observed
 }
 
@@ -155,13 +155,13 @@ pub fn HiCDCResult::chr(self : HiCDCResult) -> String {
 
 ///|
 /// Accessor for bin1.
-pub fn HiCDCResult::bin1(self : HiCDCResult) -> Int {
+pub fn HiCDCResult::bin1(self : HiCDCResult) -> Int32 {
   self.bin1
 }
 
 ///|
 /// Accessor for bin2.
-pub fn HiCDCResult::bin2(self : HiCDCResult) -> Int {
+pub fn HiCDCResult::bin2(self : HiCDCResult) -> Int32 {
   self.bin2
 }
 
@@ -175,13 +175,13 @@ pub fn HiCDCResult::log_fc(self : HiCDCResult) -> Double {
 /// A TAD boundary.
 pub struct TADBoundary {
   chr : String
-  bin : Int
+  bin : Int32
   directionality_index : Double
 }
 
 ///|
 /// Accessor for bin.
-pub fn TADBoundary::bin(self : TADBoundary) -> Int {
+pub fn TADBoundary::bin(self : TADBoundary) -> Int32 {
   self.bin
 }
 
@@ -201,14 +201,14 @@ pub fn TADBoundary::directionality_index(self : TADBoundary) -> Double {
 /// An A/B compartment call.
 pub struct CompartmentCall {
   chr : String
-  bin : Int
+  bin : Int32
   pc1 : Double
   compartment : String // "A" or "B"
 }
 
 ///|
 /// Accessor for bin.
-pub fn CompartmentCall::bin(self : CompartmentCall) -> Int {
+pub fn CompartmentCall::bin(self : CompartmentCall) -> Int32 {
   self.bin
 }
 
@@ -306,116 +306,6 @@ fn hc_normal_cdf(x : Double) -> Double {
   }
 }
 
-///|
-/// Lower incomplete gamma function P(a, x) via series expansion.
-fn hc_lower_gamma_p(a : Double, x : Double) -> Double {
-  if x <= 0.0 {
-    return 0.0
-  }
-  if x < a + 1.0 {
-    // Series expansion.
-    let mut term = 1.0 / a
-    let mut sum = term
-    let mut n = 1
-    while n < 200 {
-      term = term * x / (a + n.to_double())
-      sum = sum + term
-      if hc_abs(term) < hc_abs(sum) * 0.0000001 {
-        break
-      }
-      n = n + 1
-    }
-    sum * hc_exp(-x + a * hc_log(x) - hc_log_gamma(a))
-  } else {
-    // Continued fraction for upper incomplete gamma Q(a, x).
-    1.0 - hc_upper_gamma_q(a, x)
-  }
-}
-
-///|
-/// Upper incomplete gamma function Q(a, x) via continued fraction.
-fn hc_upper_gamma_q(a : Double, x : Double) -> Double {
-  if x <= 0.0 {
-    return 1.0
-  }
-  let tiny = 0.000000000000000000000000000000000000001
-  let mut b = x + 1.0 - a
-  let mut c = 1.0 / tiny
-  let mut d = 1.0 / b
-  let mut h = d
-  let mut i = 1
-  while i < 200 {
-    let an = -i.to_double() * (i.to_double() - a)
-    b = b + 2.0
-    d = an * d + b
-    if hc_abs(d) < tiny {
-      d = tiny
-    }
-    c = b + an / c
-    if hc_abs(c) < tiny {
-      c = tiny
-    }
-    d = 1.0 / d
-    let del = d * c
-    h = h * del
-    if hc_abs(del - 1.0) < 0.0000001 {
-      break
-    }
-    i = i + 1
-  }
-  h * hc_exp(-x + a * hc_log(x) - hc_log_gamma(a))
-}
-
-///|
-/// Log-gamma function via Lanczos approximation.
-fn hc_log_gamma(x : Double) -> Double {
-  if x < 0.5 {
-    return hc_log(
-      3.141592653589793 /
-      (hc_sin(3.141592653589793 * x) * hc_exp(hc_log_gamma(1.0 - x))),
-    )
-  }
-  let g = 7.0
-  let c = [
-    0.99999999999980993, 676.5203681218851, -1259.1392167224028, 771.32342877765313,
-    -176.61502916214059, 12.507343278686905, -0.13857109526572012, 9.9843695780195716e-6,
-    1.5056327351493116e-7,
-  ]
-  let mut a = c[0]
-  let t = x + g - 0.5
-  for i in 1..<9 {
-    a = a + c[i] / (x + i.to_double() - 1.0)
-  }
-  0.5 * hc_log(2.0 * 3.141592653589793) + (x - 0.5) * hc_log(t) - t + hc_log(a)
-}
-
-///|
-/// Sine function via Taylor series.
-fn hc_sin(x : Double) -> Double {
-  let mut v = x
-  // Reduce to [-pi, pi]
-  let pi = 3.141592653589793
-  while v > pi {
-    v = v - 2.0 * pi
-  }
-  while v < -pi {
-    v = v + 2.0 * pi
-  }
-  let mut sum = v
-  let mut term = v
-  let v2 = v * v
-  let mut i = 1
-  while i < 20 {
-    term = -term * v2 / ((2 * i).to_double() * (2 * i + 1).to_double())
-    sum = sum + term
-    if hc_abs(term) < 0.0000000000001 {
-      break
-    }
-    i = i + 1
-  }
-  sum
-}
-
 // ===========================================================================
 // Negative binomial background model
 // ===========================================================================
@@ -447,8 +337,8 @@ pub fn hicdc_fit_background(
   let beta = Array::make(n_params, 0.0)
   beta[0] = log_total // start from mean
   // Build design matrix.
-  let design : Array[Array[Double]] = Array::new()
-  let y : Array[Double] = Array::new()
+  let design : Array[Array[Double]] = Array(capacity=0)
+  let y : Array[Double] = Array(capacity=0)
   for c in contacts {
     let row = [
       1.0,
@@ -493,7 +383,7 @@ pub fn hicdc_fit_background(
       z[i] = eta
     }
     // Weighted least squares.
-    let xtwx = Array::new()
+    let xtwx = Array(capacity=0)
     for _ in 0..<n_params {
       xtwx.push(Array::make(n_params, 0.0))
     }
@@ -534,7 +424,7 @@ pub fn hicdc_predict_expected(
   beta_gc : Double,
   beta_map : Double,
 ) -> Array[Double] {
-  let expected : Array[Double] = Array::new()
+  let expected : Array[Double] = Array(capacity=0)
   for c in contacts {
     let eta = intercept +
       beta_dist * hc_log(1.0 + c.distance.to_double()) +
@@ -563,8 +453,8 @@ pub fn hicdc_test_significance(
   beta_map : Double,
   dispersion : Double,
 ) -> Array[HiCDCResult] {
-  let n = contacts.length()
-  let results : Array[HiCDCResult] = Array::new()
+  let _n = contacts.length()
+  let results : Array[HiCDCResult] = Array(capacity=0)
   for c in contacts {
     let eta = intercept +
       beta_dist * hc_log(1.0 + c.distance.to_double()) +
@@ -672,8 +562,8 @@ pub fn hicdc_mark_significant(
 /// Returns array of DI values per bin.
 pub fn hicdc_directionality_index(
   contacts : Array[HiCContact],
-  n_bins : Int,
-  window : Int,
+  n_bins : Int32,
+  window : Int32,
 ) -> Array[Double] {
   // Build per-bin downstream and upstream contact sums.
   let downstream = Array::make(n_bins, 0.0)
@@ -712,16 +602,16 @@ pub fn hicdc_directionality_index(
 /// A boundary is detected where DI changes sign (from negative to positive).
 pub fn hicdc_call_tads(
   contacts : Array[HiCContact],
-  n_bins : Int,
-  window : Int,
+  n_bins : Int32,
+  window : Int32,
   chr : String,
 ) -> Array[TADBoundary] {
   let di = hicdc_directionality_index(contacts, n_bins, window)
-  let boundaries : Array[TADBoundary] = Array::new()
+  let boundaries : Array[TADBoundary] = Array(capacity=0)
   for i in 1..<n_bins {
     // Detect sign change from negative to positive (boundary).
     if di[i - 1] < 0.0 && di[i] >= 0.0 {
-      boundaries.push(TADBoundary::{ chr, bin: i, directionality_index: di[i] })
+      boundaries.push(TADBoundary::{ chr, bin: i, directionality_index: di[i], })
     }
   }
   boundaries
@@ -742,11 +632,11 @@ pub fn hicdc_call_tads(
 /// Returns compartment calls for each bin.
 pub fn hicdc_call_compartments(
   contacts : Array[HiCContact],
-  n_bins : Int,
+  n_bins : Int32,
   chr : String,
 ) -> Array[CompartmentCall] {
   // Build contact matrix.
-  let matrix : Array[Array[Double]] = Array::new()
+  let matrix : Array[Array[Double]] = Array(capacity=0)
   for _ in 0..<n_bins {
     matrix.push(Array::make(n_bins, 0.0))
   }
@@ -761,7 +651,7 @@ pub fn hicdc_call_compartments(
     }
   }
   // Compute Pearson correlation matrix.
-  let corr = Array::new()
+  let corr = Array(capacity=0)
   for i in 0..<n_bins {
     let row = Array::make(n_bins, 0.0)
     let mean_i = hc_mean(matrix[i])
@@ -783,10 +673,15 @@ pub fn hicdc_call_compartments(
   // Power iteration for first principal component.
   let pc1 = hc_power_iteration(corr, n_bins, 100)
   // Assign compartments based on sign.
-  let result : Array[CompartmentCall] = Array::new()
+  let result : Array[CompartmentCall] = Array(capacity=0)
   for i in 0..<n_bins {
     let comp = if pc1[i] >= 0.0 { "A" } else { "B" }
-    result.push(CompartmentCall::{ chr, bin: i, pc1: pc1[i], compartment: comp })
+    result.push(CompartmentCall::{
+      chr,
+      bin: i,
+      pc1: pc1[i],
+      compartment: comp,
+    })
   }
   result
 }
@@ -795,8 +690,8 @@ pub fn hicdc_call_compartments(
 /// Power iteration to find the first eigenvector of a matrix.
 fn hc_power_iteration(
   matrix : Array[Array[Double]],
-  n : Int,
-  max_iter : Int,
+  n : Int32,
+  max_iter : Int32,
 ) -> Array[Double] {
   let v = Array::make(n, 1.0)
   // Normalize initial vector.
@@ -882,7 +777,7 @@ fn hc_solve(matrix : Array[Array[Double]], b : Array[Double]) -> Array[Double]? 
   if n == 0 {
     return Some([])
   }
-  let m : Array[Array[Double]] = Array::new()
+  let m : Array[Array[Double]] = Array(capacity=0)
   for i in 0..<n {
     let row = Array::make(n + 1, 0.0)
     for j in 0..<n {
@@ -958,7 +853,7 @@ pub fn hicdc_differential(
     map2.set(key, c)
   }
   // Fit background on pooled data.
-  let pooled : Array[HiCContact] = Array::new()
+  let pooled : Array[HiCContact] = Array(capacity=0)
   for c in contacts1 {
     pooled.push(c)
   }
@@ -969,7 +864,7 @@ pub fn hicdc_differential(
     pooled,
   )
   // Test each contact from condition 1 for differential enrichment.
-  let results : Array[HiCDCResult] = Array::new()
+  let results : Array[HiCDCResult] = Array(capacity=0)
   for c1 in contacts1 {
     let key = c1.chr + "_" + c1.bin1.to_string() + "_" + c1.bin2.to_string()
     let c2_opt = map2.get(key)
@@ -1043,7 +938,7 @@ pub fn hicdc_run(
 /// Simulates contacts on a single chromosome with 20 bins.
 /// Includes distance-dependent decay and some enriched (loop) contacts.
 pub fn hicdc_sample_data() -> Array[HiCContact] {
-  let contacts : Array[HiCContact] = Array::new()
+  let contacts : Array[HiCContact] = Array(capacity=0)
   let chr = "chr1"
   let bin_size = 1 // simplified bin index
   let n_bins = 20
@@ -1080,7 +975,7 @@ pub fn hicdc_sample_data() -> Array[HiCContact] {
 
 ///|
 /// LCG random for sample data.
-fn hc_lcg_rand(state : Int) -> (Int, Double) {
+fn hc_lcg_rand(state : Int32) -> (Int32, Double) {
   let s = (state * 1103515245 + 12345) & 0x7FFFFFFF
   (s, (s % 1000000).to_double() / 1000000.0)
 }

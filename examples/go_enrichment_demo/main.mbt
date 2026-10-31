@@ -29,7 +29,7 @@ fn main {
     let r = results[i]
     println("\nGO ID: " + r.go_id)
     println("Term: " + r.term_name)
-    println("Namespace: " + r.namespace)
+    println("Namespace: " + r.namespace_)
     println("P-value: " + r.p_value.to_string())
     println("Adjusted P-value: " + r.adjusted_p_value.to_string())
     println("Odds Ratio: " + r.odds_ratio.to_string())

@@ -26,7 +26,9 @@ fn main {
   let eigenvalues = @src.facto_get_eigenvalue(pca_result)
   println("Eigenvalues:")
   for ev in eigenvalues {
-    println("  Dim \{ev.dimension}: eigenvalue=\{ev.eigenvalue}, variance=\{ev.variance_explained}%, cumulative=\{ev.cumulative_variance}%")
+    println(
+      "  Dim \{ev.dimension}: eigenvalue=\{ev.eigenvalue}, variance=\{ev.variance_explained}%, cumulative=\{ev.cumulative_variance}%",
+    )
   }
 
   // Get PCA summary

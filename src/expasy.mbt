@@ -13,7 +13,7 @@ pub struct ExPASyRecord {
 
 ///|
 pub fn ExPASyRecord::new(id : String, database : String) -> ExPASyRecord {
-  ExPASyRecord::{ id, database, status: "ok", data: Map([], capacity=10) }
+  ExPASyRecord::{ id, database, status: "ok", data: Map([], capacity=10), }
 }
 
 ///|
@@ -48,7 +48,7 @@ pub struct ExPASyEntry {
   description : String
   keywords : Array[String]
   sequence : String
-  length : Int
+  length : Int32
   ec_numbers : Array[String]
   references : Array[(String, String)]
 }
@@ -59,11 +59,11 @@ pub fn ExPASyEntry::new(accession : String, name : String) -> ExPASyEntry {
     accession,
     name,
     description: "",
-    keywords: Array::new(),
+    keywords: Array(capacity=0),
     sequence: "",
     length: 0,
-    ec_numbers: Array::new(),
-    references: Array::new(),
+    ec_numbers: Array(capacity=0),
+    references: Array(capacity=0),
   }
 }
 
@@ -122,18 +122,18 @@ pub fn EnzymeEntry::new(ec_number : String, name : String) -> EnzymeEntry {
   EnzymeEntry::{
     ec_number,
     name,
-    alt_names: Array::new(),
-    catalyzed_reactions: Array::new(),
-    cofactors: Array::new(),
-    substrates: Array::new(),
-    products: Array::new(),
+    alt_names: Array(capacity=0),
+    catalyzed_reactions: Array(capacity=0),
+    cofactors: Array(capacity=0),
+    substrates: Array(capacity=0),
+    products: Array(capacity=0),
     comments: "",
   }
 }
 
 ///|
 pub fn enzyme_parse_ec(ec_string : String) -> (String, String, String, String) {
-  let parts : Array[String] = Array::new()
+  let parts : Array[String] = Array(capacity=0)
   let mut current = ""
   let mut i = 0
   while i < ec_string.length() {
@@ -158,7 +158,7 @@ pub fn enzyme_parse_ec(ec_string : String) -> (String, String, String, String) {
 
 ///|
 pub fn expasy_get_prosite_ids(sequence : String) -> Array[String] {
-  let result : Array[String] = Array::new()
+  let result : Array[String] = Array(capacity=0)
   if contains(sequence, "P") {
     result.push("PS00001")
   }

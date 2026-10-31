@@ -14,7 +14,7 @@ pub fn RUVSeqData::new(
   samples : Array[String],
   batch : Array[String],
 ) -> RUVSeqData {
-  RUVSeqData::{ counts, genes, samples, batch, normalized: false }
+  RUVSeqData::{ counts, genes, samples, batch, normalized: false, }
 }
 
 ///|
@@ -22,7 +22,7 @@ pub fn RUVSeqData::normalize(self : RUVSeqData) -> RUVSeqData {
   let n_genes = self.genes.length()
   let n_samples = self.samples.length()
 
-  let col_sums : Array[Double] = Array::new()
+  let col_sums : Array[Double] = Array(capacity=0)
   let mut i = 0
   while i < n_samples {
     let mut sum = 0.0
@@ -43,10 +43,10 @@ pub fn RUVSeqData::normalize(self : RUVSeqData) -> RUVSeqData {
   }
   let mean_sum = total_sum / Float::from_int(col_sums.length()).to_double()
 
-  let new_counts : Array[Array[Double]] = Array::new()
+  let new_counts : Array[Array[Double]] = Array(capacity=0)
   i = 0
   while i < n_genes {
-    let gene_counts : Array[Double] = Array::new()
+    let gene_counts : Array[Double] = Array(capacity=0)
     let mut j = 0
     while j < n_samples {
       let factor = mean_sum / col_sums[j]
@@ -71,10 +71,10 @@ pub fn RUVSeqData::log2_transform(self : RUVSeqData) -> RUVSeqData {
   let n_genes = self.genes.length()
   let n_samples = self.samples.length()
 
-  let new_counts : Array[Array[Double]] = Array::new()
+  let new_counts : Array[Array[Double]] = Array(capacity=0)
   let mut i = 0
   while i < n_genes {
-    let gene_counts : Array[Double] = Array::new()
+    let gene_counts : Array[Double] = Array(capacity=0)
     let mut j = 0
     while j < n_samples {
       gene_counts.push(
@@ -103,7 +103,7 @@ pub fn RUVSeqData::log2_transform(self : RUVSeqData) -> RUVSeqData {
 pub fn RUVSeqData::get_gene_index(
   self : RUVSeqData,
   gene_name : String,
-) -> Int? {
+) -> Int32? {
   let mut i = 0
   while i < self.genes.length() {
     if self.genes[i] == gene_name {
@@ -118,7 +118,7 @@ pub fn RUVSeqData::get_gene_index(
 pub fn RUVSeqData::get_sample_index(
   self : RUVSeqData,
   sample_name : String,
-) -> Int? {
+) -> Int32? {
   let mut i = 0
   while i < self.samples.length() {
     if self.samples[i] == sample_name {
@@ -132,24 +132,24 @@ pub fn RUVSeqData::get_sample_index(
 ///|
 pub struct RUVFactors {
   factors : Array[Array[Double]]
-  k : Int
+  k : Int32
 }
 
 ///|
-pub fn RUVFactors::new(factors : Array[Array[Double]], k : Int) -> RUVFactors {
-  RUVFactors::{ factors, k }
+pub fn RUVFactors::new(factors : Array[Array[Double]], k : Int32) -> RUVFactors {
+  RUVFactors::{ factors, k, }
 }
 
 ///|
 pub fn ruvg(
   data : RUVSeqData,
   control_genes : Array[String],
-  k : Int,
+  k : Int32,
 ) -> RUVFactors {
   let n_samples = data.samples.length()
   let n_controls = control_genes.length()
 
-  let control_counts : Array[Array[Double]] = Array::new()
+  let control_counts : Array[Array[Double]] = Array(capacity=0)
   let mut i = 0
   while i < n_controls {
     let idx = data.get_gene_index(control_genes[i])
@@ -159,10 +159,10 @@ pub fn ruvg(
     i = i + 1
   }
 
-  let factors : Array[Array[Double]] = Array::new()
+  let factors : Array[Array[Double]] = Array(capacity=0)
   let mut j = 0
   while j < k {
-    let factor : Array[Double] = Array::new()
+    let factor : Array[Double] = Array(capacity=0)
     let mut m = 0
     while m < n_samples {
       factor.push(0.0)
@@ -172,8 +172,8 @@ pub fn ruvg(
     j = j + 1
   }
 
-  let batch_means : Array[(String, Double)] = Array::new()
-  let seen_batches : Array[String] = Array::new()
+  let batch_means : Array[(String, Double)] = Array(capacity=0)
+  let seen_batches : Array[String] = Array(capacity=0)
   i = 0
   while i < n_samples {
     let b = data.batch[i]
@@ -211,7 +211,7 @@ pub fn ruvg(
     i = i + 1
   }
 
-  let final_factor : Array[Double] = Array::new()
+  let final_factor : Array[Double] = Array(capacity=0)
   j = 0
   while j < n_samples {
     let b = data.batch[j]
@@ -228,20 +228,20 @@ pub fn ruvg(
     j = j + 1
   }
 
-  let final_factors : Array[Array[Double]] = Array::new()
+  let final_factors : Array[Array[Double]] = Array(capacity=0)
   final_factors.push(final_factor)
   RUVFactors::new(final_factors, k)
 }
 
 ///|
-pub fn ruvs(data : RUVSeqData, k : Int) -> RUVFactors {
+pub fn ruvs(data : RUVSeqData, k : Int32) -> RUVFactors {
   let n_samples = data.samples.length()
   let n_genes = data.genes.length()
 
-  let factors : Array[Array[Double]] = Array::new()
+  let factors : Array[Array[Double]] = Array(capacity=0)
   let mut i = 0
   while i < k {
-    let factor : Array[Double] = Array::new()
+    let factor : Array[Double] = Array(capacity=0)
     let mut j = 0
     while j < n_samples {
       factor.push(0.0)
@@ -251,7 +251,7 @@ pub fn ruvs(data : RUVSeqData, k : Int) -> RUVFactors {
     i = i + 1
   }
 
-  let batches : Array[String] = Array::new()
+  let batches : Array[String] = Array(capacity=0)
   i = 0
   while i < n_samples {
     let b = data.batch[i]
@@ -271,7 +271,7 @@ pub fn ruvs(data : RUVSeqData, k : Int) -> RUVFactors {
     i = i + 1
   }
 
-  let final_factor : Array[Double] = Array::new()
+  let final_factor : Array[Double] = Array(capacity=0)
   let mut j = 0
   while j < n_samples {
     let b = data.batch[j]
@@ -298,7 +298,7 @@ pub fn ruvs(data : RUVSeqData, k : Int) -> RUVFactors {
     j = j + 1
   }
 
-  let final_factors : Array[Array[Double]] = Array::new()
+  let final_factors : Array[Array[Double]] = Array(capacity=0)
   final_factors.push(final_factor)
   RUVFactors::new(final_factors, k)
 }
@@ -312,11 +312,11 @@ pub fn remove_batch_effect(
   let n_samples = data.samples.length()
   let k = factors.k
 
-  let new_counts : Array[Array[Double]] = Array::new()
+  let new_counts : Array[Array[Double]] = Array(capacity=0)
 
   let mut i = 0
   while i < n_genes {
-    let gene_counts : Array[Double] = Array::new()
+    let gene_counts : Array[Double] = Array(capacity=0)
     let mut j = 0
     while j < n_samples {
       let mut adjustment = 0.0

@@ -74,7 +74,9 @@ fn main {
   if atoms.length() > 0 {
     let first = atoms[0]
     let coord = first.get_coord()
-    println("   First atom: \{first.name} of \{first.resname} at (\{coord.x}, \{coord.y}, \{coord.z})")
+    println(
+      "   First atom: \{first.name} of \{first.resname} at (\{coord.x}, \{coord.y}, \{coord.z})",
+    )
   }
   println("")
 

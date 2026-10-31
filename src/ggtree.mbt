@@ -6,11 +6,11 @@
 ///|
 /// Layout-specific tree node with immutable structure.
 pub struct LayoutNode {
-  pub id : String
-  pub label : String
-  pub branch_length : Double
-  pub is_leaf : Bool
-  pub children : Array[LayoutNode]
+  id : String
+  label : String
+  branch_length : Double
+  is_leaf : Bool
+  children : Array[LayoutNode]
 }
 
 ///|
@@ -20,20 +20,20 @@ pub fn LayoutNode::new(
   branch_length : Double,
   is_leaf : Bool,
 ) -> LayoutNode {
-  LayoutNode::{ id, label, branch_length, is_leaf, children: [] }
+  LayoutNode::{ id, label, branch_length, is_leaf, children: [], }
 }
 
 ///|
 pub struct TreeLayout {
-  pub nodes : Array[LayoutNode]
-  pub positions : Map[String, (Double, Double, Double)]
-  pub leaf_order : Array[String]
-  pub node_order : Array[String]
-  pub max_x : Double
-  pub max_y : Double
-  pub min_x : Double
-  pub min_y : Double
-  pub layout_type : String
+  nodes : Array[LayoutNode]
+  positions : Map[String, (Double, Double, Double)]
+  leaf_order : Array[String]
+  node_order : Array[String]
+  max_x : Double
+  max_y : Double
+  min_x : Double
+  min_y : Double
+  layout_type : String
 }
 
 ///|
@@ -63,22 +63,22 @@ pub fn TreeLayout::new(
 
 ///|
 pub struct TreeData {
-  pub newick : String
-  pub root_id : String
-  pub nodes : Array[LayoutNode]
+  newick : String
+  root_id : String
+  nodes : Array[LayoutNode]
 }
 
 ///|
 pub fn TreeData::new(newick : String) -> TreeData {
   let empty_nodes : Array[LayoutNode] = []
-  TreeData::{ newick, root_id: "", nodes: empty_nodes }
+  TreeData::{ newick, root_id: "", nodes: empty_nodes, }
 }
 
 ///|
 /// Create TreeData from existing nodes.
 pub fn create_tree_data_from_nodes(nodes : Array[LayoutNode]) -> TreeData {
   let root_id = if nodes.length() > 0 { nodes[0].id } else { "" }
-  TreeData::{ newick: "", root_id, nodes }
+  TreeData::{ newick: "", root_id, nodes, }
 }
 
 ///|
@@ -127,7 +127,7 @@ pub fn create_test_tree() -> Array[LayoutNode] {
 
 ///|
 /// Compute the number of leaves under each node.
-pub fn ggtree_count_leaves(node : LayoutNode) -> Int {
+pub fn ggtree_count_leaves(node : LayoutNode) -> Int32 {
   if node.children.length() == 0 {
     1
   } else {
@@ -237,63 +237,6 @@ fn ggtree_collect_internal_ids_recursive(
     i = i + 1
   }
   result.push(node.id)
-}
-
-///|
-/// Compute bounding box from positions map.
-fn ggtree_compute_bounds(
-  nodes : Array[LayoutNode],
-  positions : Map[String, (Double, Double, Double)],
-) -> (Double, Double, Double, Double) {
-  if nodes.length() == 0 {
-    return (0.0, 0.0, 0.0, 0.0)
-  }
-
-  let mut min_x = positions[nodes[0].id].0
-  let mut max_x = positions[nodes[0].id].0
-  let mut min_y = positions[nodes[0].id].1
-  let mut max_y = positions[nodes[0].id].1
-
-  for node in nodes {
-    if positions.contains(node.id) {
-      let pos = positions[node.id]
-      if pos.0 < min_x {
-        min_x = pos.0
-      }
-      if pos.0 > max_x {
-        max_x = pos.0
-      }
-      if pos.1 < min_y {
-        min_y = pos.1
-      }
-      if pos.1 > max_y {
-        max_y = pos.1
-      }
-    }
-    // Recursively check children
-    let mut i = 0
-    while i < node.children.length() {
-      let (child_min_x, child_max_x, child_min_y, child_max_y) = ggtree_compute_bounds(
-        [node.children[i]],
-        positions,
-      )
-      if child_min_x < min_x {
-        min_x = child_min_x
-      }
-      if child_max_x > max_x {
-        max_x = child_max_x
-      }
-      if child_min_y < min_y {
-        min_y = child_min_y
-      }
-      if child_max_y > max_y {
-        max_y = child_max_y
-      }
-      i = i + 1
-    }
-  }
-
-  (min_x, max_x, min_y, max_y)
 }
 
 ///|

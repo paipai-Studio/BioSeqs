@@ -33,7 +33,7 @@ pub fn XcellSignature::new(
   category : String,
   genes : Array[String],
 ) -> XcellSignature {
-  XcellSignature::{ cell_type, category, genes }
+  XcellSignature::{ cell_type, category, genes, }
 }
 
 ///|
@@ -57,7 +57,7 @@ pub fn XcellSignature::genes(self : XcellSignature) -> Array[String] {
 ///|
 /// Parameters for xCell scoring.
 pub struct XcellParams {
-  min_gene_overlap : Int
+  min_gene_overlap : Int32
   alpha : Double // ssGSEA exponent
   scale_scores : Bool
   do_spillover : Bool
@@ -130,9 +130,11 @@ fn xc_abs(x : Double) -> Double {
 ///|
 /// Sort values with argsort-like order tracking.
 /// Returns (sorted_values, original_indices).
-fn xc_sort_with_indices(values : Array[Double]) -> (Array[Double], Array[Int]) {
+fn xc_sort_with_indices(
+  values : Array[Double],
+) -> (Array[Double], Array[Int32]) {
   let n = values.length()
-  let indices : Array[Int] = Array::make(n, 0)
+  let indices : Array[Int32] = Array::make(n, 0)
   for i in 0..<n {
     indices[i] = i
   }
@@ -169,7 +171,7 @@ pub fn xcell_ssgsea_single(
   expression : Array[Double],
   gene_names : Array[String],
   set_genes : Array[String],
-  alpha? : Double = 0.25,
+  alpha~ : Double = 0.25,
 ) -> Double {
   let n = expression.length()
   if n == 0 || n != gene_names.length() || set_genes.length() == 0 {
@@ -177,7 +179,7 @@ pub fn xcell_ssgsea_single(
   }
 
   // Find which indices belong to the gene set
-  let set_indices : Array[Int] = []
+  let set_indices : Array[Int32] = []
   for s in 0..<set_genes.length() {
     let sg = set_genes[s]
     for i in 0..<n {
@@ -204,7 +206,7 @@ pub fn xcell_ssgsea_single(
   let pw_over = n_set.to_double() / n_total.to_double()
   let mut sum_weight_set = 0.0
   for k in 1..<(n + 1) {
-    sum_weight_set = sum_weight_set + k.to_double().pow(alpha) * pw_over
+    sum_weight_set = sum_weight_set + @math.pow(k.to_double(), alpha) * pw_over
   }
   // Actually use the proper formula
   let mut score = 0.0
@@ -226,7 +228,7 @@ pub fn xcell_ssgsea_single(
       }
     }
     let rank_d = rank.to_double()
-    let w = rank_d.pow(alpha)
+    let w = @math.pow(rank_d, alpha)
     if in_set {
       cumulate_set = cumulate_set + w
     } else {
@@ -654,7 +656,7 @@ pub fn XcellResult::get_sample_scores(
 pub fn XcellResult::get_top_cell_types(
   self : XcellResult,
   sample : String,
-  top_n : Int,
+  top_n : Int32,
 ) -> Array[(String, Double)] {
   let s_scores = self.get_sample_scores(sample)
   let n = s_scores.length()
@@ -662,7 +664,7 @@ pub fn XcellResult::get_top_cell_types(
     return []
   }
   // Sort indices by score descending
-  let indices : Array[Int] = Array::make(n, 0)
+  let indices : Array[Int32] = Array::make(n, 0)
   for i in 0..<n {
     indices[i] = i
   }
@@ -693,7 +695,7 @@ pub fn XcellResult::scores_by_category(
 ) -> Map[String, Array[Double]] {
   let n_samples = self.sample_names.length()
   let category_sum : Map[String, Array[Double]] = Map([], capacity=0)
-  let category_count : Map[String, Int] = Map([], capacity=0)
+  let category_count : Map[String, Int32] = Map([], capacity=0)
   for t in 0..<self.cell_types.length() {
     let cat = self.categories[t]
     if category_sum.contains(cat) {

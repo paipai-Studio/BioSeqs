@@ -18,6 +18,12 @@ pub enum FragmentType {
 } derive(Eq, Debug)
 
 ///|
+pub extend FragmentType with Eq::{equal, not_equal}
+
+///|
+pub extend FragmentType with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
 /// Construct a Helix FragmentType.
 pub fn ft_helix() -> FragmentType {
   Helix
@@ -56,31 +62,43 @@ pub fn ft_turn() -> FragmentType {
 ///|
 /// A single residue within a fragment.
 pub struct FragmentResidue {
-  pub res_name : String
-  pub res_num : Int
-  pub atom_count : Int
-  pub is_c_alpha : Bool
-  pub is_sidechain : Bool
+  res_name : String
+  res_num : Int32
+  atom_count : Int32
+  is_c_alpha : Bool
+  is_sidechain : Bool
 } derive(Eq, Debug)
+
+///|
+pub extend FragmentResidue with Eq::{equal, not_equal}
+
+///|
+pub extend FragmentResidue with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// A protein structure fragment.
 pub struct Fragment {
-  pub id : String
-  pub start_residue : Int
-  pub end_residue : Int
-  pub chain_id : String
-  pub fragment_type : FragmentType
-  pub residues : Array[FragmentResidue]
+  id : String
+  start_residue : Int32
+  end_residue : Int32
+  chain_id : String
+  fragment_type : FragmentType
+  residues : Array[FragmentResidue]
 } derive(Eq, Debug)
+
+///|
+pub extend Fragment with Eq::{equal, not_equal}
+
+///|
+pub extend Fragment with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Result of fragment mapping operation.
 pub struct FragmentMapperResult {
-  pub fragments : Array[Fragment]
-  pub protein_sequence : String
-  pub sequence_length : Int
-  pub coverage : Map[Int, Double]
+  fragments : Array[Fragment]
+  protein_sequence : String
+  sequence_length : Int32
+  coverage : Map[Int32, Double]
 }
 
 // ---------------------------------------------------------------------------
@@ -135,7 +153,7 @@ fn trim_spaces(s : String) -> String {
 
 ///|
 /// Classify a single DSSP character to FragmentType.
-fn classify_char(c : Int) -> FragmentType {
+fn classify_char(c : Int32) -> FragmentType {
   if c == 72 || c == 71 || c == 73 {
     return Helix
   }
@@ -192,12 +210,12 @@ pub fn FragmentType::to_char(self : FragmentType) -> String {
 /// Create a new FragmentResidue.
 pub fn FragmentResidue::new(
   res_name : String,
-  res_num : Int,
-  atom_count? : Int = 0,
-  is_c_alpha? : Bool = false,
-  is_sidechain? : Bool = false,
+  res_num : Int32,
+  atom_count~ : Int32 = 0,
+  is_c_alpha~ : Bool = false,
+  is_sidechain~ : Bool = false,
 ) -> FragmentResidue {
-  FragmentResidue::{ res_name, res_num, atom_count, is_c_alpha, is_sidechain }
+  FragmentResidue::{ res_name, res_num, atom_count, is_c_alpha, is_sidechain, }
 }
 
 // ---------------------------------------------------------------------------
@@ -208,11 +226,11 @@ pub fn FragmentResidue::new(
 /// Create a new Fragment.
 pub fn Fragment::new(
   id : String,
-  start_residue : Int,
-  end_residue : Int,
-  chain_id? : String = "A",
-  fragment_type? : FragmentType = Coil,
-  residues? : Array[FragmentResidue] = [],
+  start_residue : Int32,
+  end_residue : Int32,
+  chain_id~ : String = "A",
+  fragment_type~ : FragmentType = Coil,
+  residues~ : Array[FragmentResidue] = [],
 ) -> Fragment {
   Fragment::{
     id,
@@ -226,7 +244,7 @@ pub fn Fragment::new(
 
 ///|
 /// Get the length (number of residues) of a fragment.
-pub fn Fragment::length(self : Fragment) -> Int {
+pub fn Fragment::length(self : Fragment) -> Int32 {
   self.end_residue - self.start_residue + 1
 }
 
@@ -236,7 +254,9 @@ pub fn Fragment::length(self : Fragment) -> Int {
 
 ///|
 /// Get the number of fragments in the result.
-pub fn FragmentMapperResult::num_fragments(self : FragmentMapperResult) -> Int {
+pub fn FragmentMapperResult::num_fragments(
+  self : FragmentMapperResult,
+) -> Int32 {
   self.fragments.length()
 }
 
@@ -257,7 +277,7 @@ pub fn FragmentMapperResult::num_fragments(self : FragmentMapperResult) -> Int {
 pub fn fm_classify_secondary_structure(
   ss_string : String,
 ) -> Array[FragmentType] {
-  let result : Array[FragmentType] = Array::new()
+  let result : Array[FragmentType] = Array(capacity=0)
   let mut i = 0
   while i < ss_string.length() {
     let c = ss_string.unsafe_get(i).to_int()
@@ -280,8 +300,8 @@ pub fn fm_assign_fragments(
   let frag_len = ss_types.length()
   let total = if seq_len > frag_len { seq_len } else { frag_len }
 
-  let fragments : Array[Fragment] = Array::new()
-  let coverage : Map[Int, Double] = Map([], capacity=total)
+  let fragments : Array[Fragment] = Array(capacity=0)
+  let coverage : Map[Int32, Double] = Map([], capacity=total)
 
   let mut i = 0
   let mut fragment_idx = 0
@@ -293,7 +313,7 @@ pub fn fm_assign_fragments(
       end = end + 1
     }
 
-    let residues : Array[FragmentResidue] = Array::new()
+    let residues : Array[FragmentResidue] = Array(capacity=0)
     let mut j = start
     while j <= end {
       let res_name = if j < seq_len { char_at(sequence, j) } else { "X" }
@@ -423,8 +443,8 @@ pub fn fm_parse_fragments(content : String) -> FragmentMapperResult {
     }
   }
 
-  let fragments : Array[Fragment] = Array::new()
-  let coverage : Map[Int, Double] = Map([], capacity=sequence.length())
+  let fragments : Array[Fragment] = Array(capacity=0)
+  let coverage : Map[Int32, Double] = Map([], capacity=sequence.length())
 
   let mut frag_idx = 0
   for chain_id, chain_residues in chain_map {
@@ -512,13 +532,13 @@ pub fn fm_fragment_sequence(fragment : Fragment) -> String {
 
 ///|
 /// Get per-residue coverage as a map from residue index to coverage value.
-pub fn fm_coverage(result : FragmentMapperResult) -> Map[Int, Double] {
+pub fn fm_coverage(result : FragmentMapperResult) -> Map[Int32, Double] {
   result.coverage
 }
 
 ///|
 /// Get the start and end positions (1-based) of a fragment as a tuple.
-pub fn fm_fragment_boundaries(fragment : Fragment) -> (Int, Int) {
+pub fn fm_fragment_boundaries(fragment : Fragment) -> (Int32, Int32) {
   (fragment.start_residue, fragment.end_residue)
 }
 
@@ -532,7 +552,7 @@ pub fn fm_merge_fragments(fragments : Array[Fragment]) -> Array[Fragment] {
   }
 
   let sorted = _sort_fragments_by_position(fragments)
-  let result : Array[Fragment] = Array::new()
+  let result : Array[Fragment] = Array(capacity=0)
   let mut current = sorted[0]
 
   let mut i = 1
@@ -596,7 +616,7 @@ fn _concat_arrays(
   a : Array[FragmentResidue],
   b : Array[FragmentResidue],
 ) -> Array[FragmentResidue] {
-  let result : Array[FragmentResidue] = Array::new()
+  let result : Array[FragmentResidue] = Array(capacity=0)
   for item in a {
     result.push(item)
   }
@@ -611,9 +631,9 @@ fn _concat_arrays(
 /// Fragments shorter than min_length are excluded.
 pub fn fm_filter_by_length(
   fragments : Array[Fragment],
-  min_length : Int,
+  min_length : Int32,
 ) -> Array[Fragment] {
-  let result : Array[Fragment] = Array::new()
+  let result : Array[Fragment] = Array(capacity=0)
   for frag in fragments {
     if frag.length() >= min_length {
       result.push(frag)

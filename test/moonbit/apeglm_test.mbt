@@ -51,7 +51,10 @@ fn apeglm_test_gene(
 }
 
 ///|
-fn apeglm_test_zero_matrix(rows : Int, columns : Int) -> Array[Array[Double]] {
+fn apeglm_test_zero_matrix(
+  rows : Int32,
+  columns : Int32,
+) -> Array[Array[Double]] {
   let matrix : Array[Array[Double]] = []
   for _ in 0..<rows {
     matrix.push(Array::make(columns, 0.0))

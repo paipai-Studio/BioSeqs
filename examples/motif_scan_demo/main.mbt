@@ -14,7 +14,9 @@ fn main {
   println("   Motif name: \{pwm.motif_name}")
   println("   Motif width: \{pwm.matrix[0].length()}")
   println("   Strand: \{pwm.strand}")
-  println("   Background: [\{pwm.background[0]}, \{pwm.background[1]}, \{pwm.background[2]}, \{pwm.background[3]}]")
+  println(
+    "   Background: [\{pwm.background[0]}, \{pwm.background[1]}, \{pwm.background[2]}, \{pwm.background[3]}]",
+  )
 
   // 2. Build a PSSM (log-likelihood scores) from the PWM.
   println("\n2. Build PSSM (log-likelihood scores):")
@@ -55,12 +57,7 @@ fn main {
   // 6. Demonstrate building a PWM from a count matrix.
   println("\n6. Build PWM from a count matrix (with pseudocount 0.5):")
   // Counts for a 4-position motif. Rows: A, C, G, T. Columns: positions.
-  let counts = [
-    [18, 1, 1, 2],
-    [2, 17, 0, 1],
-    [1, 1, 18, 1],
-    [1, 3, 3, 18],
-  ]
+  let counts = [[18, 1, 1, 2], [2, 17, 0, 1], [1, 1, 18, 1], [1, 3, 3, 18]]
   let pwm2 = @bio.motif_scan_pwm_from_counts("M0002", "FromCounts", counts, 0.5)
   println("   Motif ID: \{pwm2.motif_id}")
   println("   Motif name: \{pwm2.motif_name}")

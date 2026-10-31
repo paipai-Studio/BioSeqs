@@ -15,6 +15,12 @@ pub enum BlusterDistance {
 } derive(Eq, Debug)
 
 ///|
+pub extend BlusterDistance with Eq::{equal, not_equal}
+
+///|
+pub extend BlusterDistance with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
 pub enum BlusterSnnWeight {
   BlusterRank
   BlusterNumber
@@ -22,11 +28,23 @@ pub enum BlusterSnnWeight {
 } derive(Eq, Debug)
 
 ///|
+pub extend BlusterSnnWeight with Eq::{equal, not_equal}
+
+///|
+pub extend BlusterSnnWeight with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
 pub enum BlusterLinkDenominator {
   BlusterLinkMinimum
   BlusterLinkMaximum
   BlusterLinkUnion
 } derive(Eq, Debug)
+
+///|
+pub extend BlusterLinkDenominator with Eq::{equal, not_equal}
+
+///|
+pub extend BlusterLinkDenominator with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub fn bluster_euclidean_distance() -> BlusterDistance {
@@ -77,26 +95,29 @@ pub fn bluster_link_union() -> BlusterLinkDenominator {
 pub struct BlusterGraph {
   weights : Array[Array[Double]]
   directed : Bool
-  k : Int
+  k : Int32
   graph_kind : String
 } derive(Debug)
 
 ///|
-pub fn BlusterGraph::node_count(self : BlusterGraph) -> Int {
+pub extend BlusterGraph with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub fn BlusterGraph::node_count(self : BlusterGraph) -> Int32 {
   self.weights.length()
 }
 
 ///|
 pub fn BlusterGraph::edge_weight(
   self : BlusterGraph,
-  left : Int,
-  right : Int,
+  left : Int32,
+  right : Int32,
 ) -> Double {
   self.weights[left][right]
 }
 
 ///|
-pub fn BlusterGraph::edge_count(self : BlusterGraph) -> Int {
+pub fn BlusterGraph::edge_count(self : BlusterGraph) -> Int32 {
   let mut output = 0
   for left in 0..<self.weights.length() {
     let start = if self.directed { 0 } else { left + 1 }
@@ -111,20 +132,26 @@ pub fn BlusterGraph::edge_count(self : BlusterGraph) -> Int {
 
 ///|
 pub struct BlusterKmeansConfig {
-  centers : Int
-  max_iterations : Int
-  starts : Int
+  centers : Int32
+  max_iterations : Int32
+  starts : Int32
   tolerance : Double
-  seed : Int
+  seed : Int32
 } derive(Eq, Debug)
 
 ///|
+pub extend BlusterKmeansConfig with Eq::{equal, not_equal}
+
+///|
+pub extend BlusterKmeansConfig with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
 pub fn BlusterKmeansConfig::create(
-  centers : Int,
-  max_iterations? : Int = 100,
-  starts? : Int = 10,
-  tolerance? : Double = 1.0e-8,
-  seed? : Int = 1,
+  centers : Int32,
+  max_iterations~ : Int32 = 100,
+  starts~ : Int32 = 10,
+  tolerance~ : Double = 1.0e-8,
+  seed~ : Int32 = 1,
 ) -> BlusterKmeansConfig raise BlusterError {
   if centers <= 0 {
     bluster_fail("bluster k-means centers must be positive")
@@ -135,49 +162,58 @@ pub fn BlusterKmeansConfig::create(
   if starts <= 0 {
     bluster_fail("bluster k-means starts must be positive")
   }
-  if !bluster_is_finite(tolerance) || tolerance < 0.0 {
+  if !is_finite(tolerance) || tolerance < 0.0 {
     bluster_fail("bluster k-means tolerance must be finite and non-negative")
   }
   if seed <= 0 {
     bluster_fail("bluster random seed must be positive")
   }
-  BlusterKmeansConfig::{ centers, max_iterations, starts, tolerance, seed }
+  BlusterKmeansConfig::{ centers, max_iterations, starts, tolerance, seed, }
 }
 
 ///|
 pub struct BlusterKmeansResult {
-  clusters : Array[Int]
+  clusters : Array[Int32]
   centers : Array[Array[Double]]
   within_sum_squares : Array[Double]
   total_within_sum_squares : Double
-  iterations : Int
+  iterations : Int32
 } derive(Debug)
 
 ///|
+pub extend BlusterKmeansResult with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
 pub struct BlusterGraphConfig {
-  k : Int
+  k : Int32
   shared : Bool
   snn_weight : BlusterSnnWeight
   distance : BlusterDistance
   resolution : Double
-  max_iterations : Int
-  seed : Int
+  max_iterations : Int32
+  seed : Int32
 } derive(Eq, Debug)
 
 ///|
+pub extend BlusterGraphConfig with Eq::{equal, not_equal}
+
+///|
+pub extend BlusterGraphConfig with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
 pub fn BlusterGraphConfig::create(
-  k? : Int = 10,
-  shared? : Bool = true,
-  snn_weight? : BlusterSnnWeight = BlusterRank,
-  distance? : BlusterDistance = BlusterEuclidean,
-  resolution? : Double = 1.0,
-  max_iterations? : Int = 100,
-  seed? : Int = 1,
+  k~ : Int32 = 10,
+  shared~ : Bool = true,
+  snn_weight~ : BlusterSnnWeight = BlusterRank,
+  distance~ : BlusterDistance = BlusterEuclidean,
+  resolution~ : Double = 1.0,
+  max_iterations~ : Int32 = 100,
+  seed~ : Int32 = 1,
 ) -> BlusterGraphConfig raise BlusterError {
   if k <= 0 {
     bluster_fail("bluster graph k must be positive")
   }
-  if !bluster_is_finite(resolution) || resolution <= 0.0 {
+  if !is_finite(resolution) || resolution <= 0.0 {
     bluster_fail("bluster graph resolution must be finite and positive")
   }
   if max_iterations <= 0 {
@@ -199,36 +235,47 @@ pub fn BlusterGraphConfig::create(
 
 ///|
 pub struct BlusterGraphClusterResult {
-  clusters : Array[Int]
+  clusters : Array[Int32]
   graph : BlusterGraph
   modularity : Double
-  iterations : Int
+  iterations : Int32
 } derive(Debug)
 
 ///|
+pub extend BlusterGraphClusterResult with @moonbitlang/core/debug.Debug::{
+  to_repr,
+}
+
+///|
 pub struct BlusterTwoStepConfig {
-  first_centers : Int
-  first_starts : Int
-  first_max_iterations : Int
-  second_k : Int
+  first_centers : Int32
+  first_starts : Int32
+  first_max_iterations : Int32
+  second_k : Int32
   snn_weight : BlusterSnnWeight
   distance : BlusterDistance
   resolution : Double
-  second_max_iterations : Int
-  seed : Int
+  second_max_iterations : Int32
+  seed : Int32
 } derive(Eq, Debug)
 
 ///|
+pub extend BlusterTwoStepConfig with Eq::{equal, not_equal}
+
+///|
+pub extend BlusterTwoStepConfig with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
 pub fn BlusterTwoStepConfig::create(
-  first_centers? : Int = 0,
-  first_starts? : Int = 5,
-  first_max_iterations? : Int = 100,
-  second_k? : Int = 10,
-  snn_weight? : BlusterSnnWeight = BlusterRank,
-  distance? : BlusterDistance = BlusterEuclidean,
-  resolution? : Double = 1.0,
-  second_max_iterations? : Int = 100,
-  seed? : Int = 1,
+  first_centers~ : Int32 = 0,
+  first_starts~ : Int32 = 5,
+  first_max_iterations~ : Int32 = 100,
+  second_k~ : Int32 = 10,
+  snn_weight~ : BlusterSnnWeight = BlusterRank,
+  distance~ : BlusterDistance = BlusterEuclidean,
+  resolution~ : Double = 1.0,
+  second_max_iterations~ : Int32 = 100,
+  seed~ : Int32 = 1,
 ) -> BlusterTwoStepConfig raise BlusterError {
   if first_centers < 0 {
     bluster_fail("bluster two-step first_centers cannot be negative")
@@ -241,7 +288,7 @@ pub fn BlusterTwoStepConfig::create(
       "bluster two-step iteration, start and k values must be positive",
     )
   }
-  if !bluster_is_finite(resolution) || resolution <= 0.0 {
+  if !is_finite(resolution) || resolution <= 0.0 {
     bluster_fail("bluster two-step resolution must be finite and positive")
   }
   if seed <= 0 {
@@ -262,17 +309,20 @@ pub fn BlusterTwoStepConfig::create(
 
 ///|
 pub struct BlusterTwoStepResult {
-  clusters : Array[Int]
+  clusters : Array[Int32]
   first : BlusterKmeansResult
   centroids : Array[Array[Double]]
-  centroid_clusters : Array[Int]
+  centroid_clusters : Array[Int32]
   graph : BlusterGraph
   modularity : Double
 } derive(Debug)
 
 ///|
+pub extend BlusterTwoStepResult with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
 pub struct BlusterRandResult {
-  cluster_names : Array[Int]
+  cluster_names : Array[Int32]
   correct : Array[Array[Double?]]
   totals : Array[Array[Double?]]
   ratios : Array[Array[Double?]]
@@ -281,28 +331,40 @@ pub struct BlusterRandResult {
 } derive(Debug)
 
 ///|
+pub extend BlusterRandResult with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
 pub struct BlusterSilhouetteResult {
-  clusters : Array[Int]
-  other_clusters : Array[Int]
+  clusters : Array[Int32]
+  other_clusters : Array[Int32]
   widths : Array[Double]
 } derive(Debug)
 
 ///|
+pub extend BlusterSilhouetteResult with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
 pub struct BlusterClusterMetric {
-  cluster_names : Array[Int]
+  cluster_names : Array[Int32]
   values : Array[Double?]
 } derive(Debug)
 
 ///|
+pub extend BlusterClusterMetric with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
 pub struct BlusterPurityResult {
   purity : Array[Double]
-  maximum_clusters : Array[Int]
+  maximum_clusters : Array[Int32]
   radius : Double
 } derive(Debug)
 
 ///|
+pub extend BlusterPurityResult with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
 pub struct BlusterModularityResult {
-  cluster_names : Array[Int]
+  cluster_names : Array[Int32]
   observed : Array[Array[Double?]]
   expected : Array[Array[Double?]]
   modularity : Array[Array[Double?]]
@@ -311,21 +373,30 @@ pub struct BlusterModularityResult {
 } derive(Debug)
 
 ///|
+pub extend BlusterModularityResult with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
 pub struct BlusterNestedResult {
-  reference_names : Array[Int]
-  alternative_names : Array[Int]
+  reference_names : Array[Int32]
+  alternative_names : Array[Int32]
   proportions : Array[Array[Double]]
-  alternative_mapping : Array[Int]
+  alternative_mapping : Array[Int32]
   alternative_maximum : Array[Double]
   reference_scores : Array[Double]
 } derive(Debug)
 
 ///|
+pub extend BlusterNestedResult with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
 pub struct BlusterStabilityResult {
-  cluster_names : Array[Int]
+  cluster_names : Array[Int32]
   ratios : Array[Array[Double?]]
   adjusted_indices : Array[Double?]
 } derive(Debug)
+
+///|
+pub extend BlusterStabilityResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct BlusterSceOutput {
@@ -339,15 +410,10 @@ fn bluster_fail(message : String) -> Unit raise BlusterError {
 }
 
 ///|
-fn bluster_is_finite(value : Double) -> Bool {
-  value == value && value.abs() <= 1.0e300
-}
-
-///|
 fn bluster_matrix_shape(
   data : Array[Array[Double]],
-  allow_empty? : Bool = false,
-) -> (Int, Int) raise BlusterError {
+  allow_empty~ : Bool = false,
+) -> (Int32, Int32) raise BlusterError {
   let observations = data.length()
   if observations == 0 {
     if allow_empty {
@@ -364,7 +430,7 @@ fn bluster_matrix_shape(
       bluster_fail("bluster data must be rectangular")
     }
     for value in row {
-      if !bluster_is_finite(value) {
+      if !is_finite(value) {
         bluster_fail("bluster data must contain only finite values")
       }
     }
@@ -374,8 +440,8 @@ fn bluster_matrix_shape(
 
 ///|
 fn bluster_validate_labels(
-  labels : Array[Int],
-  expected : Int,
+  labels : Array[Int32],
+  expected : Int32,
 ) -> Unit raise BlusterError {
   if labels.length() != expected {
     bluster_fail("bluster cluster labels must match the number of observations")
@@ -393,8 +459,8 @@ fn bluster_copy_matrix(data : Array[Array[Double]]) -> Array[Array[Double]] {
 
 ///|
 fn bluster_double_matrix(
-  rows : Int,
-  columns : Int,
+  rows : Int32,
+  columns : Int32,
   value : Double,
 ) -> Array[Array[Double]] {
   let output : Array[Array[Double]] = []
@@ -406,11 +472,11 @@ fn bluster_double_matrix(
 
 ///|
 fn bluster_int_matrix(
-  rows : Int,
-  columns : Int,
-  value : Int,
-) -> Array[Array[Int]] {
-  let output : Array[Array[Int]] = []
+  rows : Int32,
+  columns : Int32,
+  value : Int32,
+) -> Array[Array[Int32]] {
+  let output : Array[Array[Int32]] = []
   for _ in 0..<rows {
     output.push(Array::make(columns, value))
   }
@@ -419,8 +485,8 @@ fn bluster_int_matrix(
 
 ///|
 fn bluster_optional_double_matrix(
-  rows : Int,
-  columns : Int,
+  rows : Int32,
+  columns : Int32,
 ) -> Array[Array[Double?]] {
   let output : Array[Array[Double?]] = []
   for _ in 0..<rows {
@@ -468,7 +534,7 @@ fn bluster_copy_sce(source : SingleCellExperiment) -> SingleCellExperiment {
 }
 
 ///|
-fn bluster_lcg(state : Int) -> (Int, Double) {
+fn bluster_lcg(state : Int32) -> (Int32, Double) {
   let normalized = (state - 1) % 2147483646 + 1
   let quotient = normalized / 44488
   let remainder = normalized % 44488
@@ -540,8 +606,8 @@ fn bluster_squared_euclidean(
 }
 
 ///|
-fn bluster_sorted_unique(labels : Array[Int]) -> Array[Int] {
-  let output : Array[Int] = []
+fn bluster_sorted_unique(labels : Array[Int32]) -> Array[Int32] {
+  let output : Array[Int32] = []
   for label in labels {
     let mut present = false
     for existing in output {
@@ -568,7 +634,7 @@ fn bluster_sorted_unique(labels : Array[Int]) -> Array[Int] {
 }
 
 ///|
-fn bluster_label_position(labels : Array[Int], target : Int) -> Int {
+fn bluster_label_position(labels : Array[Int32], target : Int32) -> Int32 {
   for index in 0..<labels.length() {
     if labels[index] == target {
       return index
@@ -578,7 +644,7 @@ fn bluster_label_position(labels : Array[Int], target : Int) -> Int {
 }
 
 ///|
-fn bluster_relabel(clusters : Array[Int]) -> Array[Int] {
+fn bluster_relabel(clusters : Array[Int32]) -> Array[Int32] {
   let names = bluster_sorted_unique(clusters)
   clusters.map(fn(label) { bluster_label_position(names, label) })
 }
@@ -586,15 +652,15 @@ fn bluster_relabel(clusters : Array[Int]) -> Array[Int] {
 ///|
 fn bluster_neighbor_lists(
   data : Array[Array[Double]],
-  k : Int,
+  k : Int32,
   distance_kind : BlusterDistance,
-) -> (Array[Array[Int]], Array[Array[Double]]) {
+) -> (Array[Array[Int32]], Array[Array[Double]]) {
   let observations = data.length()
   let effective_k = k.min((observations - 1).max(0))
-  let indices : Array[Array[Int]] = []
+  let indices : Array[Array[Int32]] = []
   let distances : Array[Array[Double]] = []
   for observation in 0..<observations {
-    let candidates : Array[(Double, Int)] = []
+    let candidates : Array[(Double, Int32)] = []
     for other in 0..<observations {
       if other != observation {
         candidates.push(
@@ -625,7 +691,7 @@ fn bluster_neighbor_lists(
       }
       candidates[position] = value
     }
-    let local_indices : Array[Int] = []
+    let local_indices : Array[Int32] = []
     let local_distances : Array[Double] = []
     for position in 0..<effective_k {
       local_distances.push(candidates[position].0)
@@ -639,10 +705,10 @@ fn bluster_neighbor_lists(
 
 ///|
 fn bluster_neighbor_rank(
-  observation : Int,
-  target : Int,
-  neighbors : Array[Int],
-) -> Int {
+  observation : Int32,
+  target : Int32,
+  neighbors : Array[Int32],
+) -> Int32 {
   if observation == target {
     return 0
   }
@@ -657,9 +723,9 @@ fn bluster_neighbor_rank(
 ///|
 pub fn bluster_make_snn_graph(
   data : Array[Array[Double]],
-  k? : Int = 10,
-  weighting? : BlusterSnnWeight = BlusterRank,
-  distance? : BlusterDistance = BlusterEuclidean,
+  k~ : Int32 = 10,
+  weighting~ : BlusterSnnWeight = BlusterRank,
+  distance~ : BlusterDistance = BlusterEuclidean,
 ) -> BlusterGraph raise BlusterError {
   let (observations, _) = bluster_matrix_shape(data)
   if k <= 0 {
@@ -704,15 +770,15 @@ pub fn bluster_make_snn_graph(
       }
     }
   }
-  BlusterGraph::{ weights, directed: false, k: effective_k, graph_kind: "SNN" }
+  BlusterGraph::{ weights, directed: false, k: effective_k, graph_kind: "SNN", }
 }
 
 ///|
 pub fn bluster_make_knn_graph(
   data : Array[Array[Double]],
-  k? : Int = 10,
-  directed? : Bool = false,
-  distance? : BlusterDistance = BlusterEuclidean,
+  k~ : Int32 = 10,
+  directed~ : Bool = false,
+  distance~ : BlusterDistance = BlusterEuclidean,
 ) -> BlusterGraph raise BlusterError {
   let (observations, _) = bluster_matrix_shape(data)
   if k <= 0 {
@@ -729,15 +795,15 @@ pub fn bluster_make_knn_graph(
       }
     }
   }
-  BlusterGraph::{ weights, directed, k: effective_k, graph_kind: "KNN" }
+  BlusterGraph::{ weights, directed, k: effective_k, graph_kind: "KNN", }
 }
 
 ///|
 fn bluster_initialize_centers(
   data : Array[Array[Double]],
-  centers : Int,
-  seed : Int,
-) -> (Array[Array[Double]], Int) {
+  centers : Int32,
+  seed : Int32,
+) -> (Array[Array[Double]], Int32) {
   let observations = data.length()
   let selected = Array::make(observations, false)
   let output : Array[Array[Double]] = []
@@ -797,7 +863,7 @@ fn bluster_initialize_centers(
 fn bluster_assign_centers(
   data : Array[Array[Double]],
   centers : Array[Array[Double]],
-) -> Array[Int] {
+) -> Array[Int32] {
   let output = Array::make(data.length(), 0)
   for observation in 0..<data.length() {
     let mut best_center = 0
@@ -823,7 +889,7 @@ fn bluster_assign_centers(
 ///|
 fn bluster_update_centers(
   data : Array[Array[Double]],
-  clusters : Array[Int],
+  clusters : Array[Int32],
   previous : Array[Array[Double]],
 ) -> Array[Array[Double]] {
   let centers = previous.length()
@@ -854,7 +920,7 @@ fn bluster_update_centers(
 ///|
 fn bluster_kmeans_statistics(
   data : Array[Array[Double]],
-  clusters : Array[Int],
+  clusters : Array[Int32],
   centers : Array[Array[Double]],
 ) -> (Array[Double], Double) {
   let within = Array::make(centers.length(), 0.0)
@@ -872,7 +938,7 @@ fn bluster_kmeans_statistics(
 fn bluster_kmeans_once(
   data : Array[Array[Double]],
   config : BlusterKmeansConfig,
-  seed : Int,
+  seed : Int32,
 ) -> BlusterKmeansResult {
   let (initial, _) = bluster_initialize_centers(data, config.centers, seed)
   let mut centers = initial
@@ -938,8 +1004,8 @@ pub fn bluster_cluster_rows_kmeans(
 ///|
 fn bluster_undirected_weight(
   graph : BlusterGraph,
-  left : Int,
-  right : Int,
+  left : Int32,
+  right : Int32,
 ) -> Double {
   if graph.directed {
     graph.weights[left][right] + graph.weights[right][left]
@@ -963,7 +1029,7 @@ fn bluster_graph_total_weight(graph : BlusterGraph) -> Double {
 ///|
 fn bluster_global_modularity(
   graph : BlusterGraph,
-  clusters : Array[Int],
+  clusters : Array[Int32],
   resolution : Double,
 ) -> Double {
   let observations = graph.weights.length()
@@ -1001,7 +1067,10 @@ fn bluster_global_modularity(
 }
 
 ///|
-fn bluster_shuffled_indices(length : Int, seed : Int) -> (Array[Int], Int) {
+fn bluster_shuffled_indices(
+  length : Int32,
+  seed : Int32,
+) -> (Array[Int32], Int32) {
   let output = Array::make(length, 0)
   for index in 0..<length {
     output[index] = index
@@ -1024,9 +1093,9 @@ fn bluster_shuffled_indices(length : Int, seed : Int) -> (Array[Int], Int) {
 fn bluster_louvain(
   graph : BlusterGraph,
   resolution : Double,
-  max_iterations : Int,
-  seed : Int,
-) -> (Array[Int], Double, Int) {
+  max_iterations : Int32,
+  seed : Int32,
+) -> (Array[Int32], Double, Int32) {
   let observations = graph.weights.length()
   let clusters = Array::make(observations, 0)
   for observation in 0..<observations {
@@ -1043,7 +1112,7 @@ fn bluster_louvain(
     let mut changed = false
     for observation in order {
       let original = clusters[observation]
-      let candidates : Array[Int] = [original]
+      let candidates : Array[Int32] = [original]
       for other in 0..<observations {
         if other != observation &&
           bluster_undirected_weight(graph, observation, other) > 0.0 {
@@ -1122,7 +1191,7 @@ pub fn bluster_cluster_rows_graph(
     config.max_iterations,
     config.seed,
   )
-  BlusterGraphClusterResult::{ clusters, graph, modularity, iterations }
+  BlusterGraphClusterResult::{ clusters, graph, modularity, iterations, }
 }
 
 ///|
@@ -1167,7 +1236,7 @@ pub fn bluster_cluster_rows_two_step(
 }
 
 ///|
-fn bluster_choose_two(value : Int) -> Double {
+fn bluster_choose_two(value : Int32) -> Double {
   if value < 2 {
     0.0
   } else {
@@ -1177,9 +1246,9 @@ fn bluster_choose_two(value : Int) -> Double {
 
 ///|
 fn bluster_pairwise_rand_levels(
-  reference : Array[Int],
-  alternative : Array[Int],
-  levels : Array[Int],
+  reference : Array[Int32],
+  alternative : Array[Int32],
+  levels : Array[Int32],
   adjusted : Bool,
 ) -> BlusterRandResult raise BlusterError {
   if reference.length() != alternative.length() {
@@ -1284,9 +1353,9 @@ fn bluster_pairwise_rand_levels(
 
 ///|
 pub fn bluster_pairwise_rand(
-  reference : Array[Int],
-  alternative : Array[Int],
-  adjusted? : Bool = true,
+  reference : Array[Int32],
+  alternative : Array[Int32],
+  adjusted~ : Bool = true,
 ) -> BlusterRandResult raise BlusterError {
   bluster_pairwise_rand_levels(
     reference,
@@ -1298,8 +1367,8 @@ pub fn bluster_pairwise_rand(
 
 ///|
 pub fn bluster_compare_clusterings(
-  clusterings : Array[Array[Int]],
-  adjusted? : Bool = true,
+  clusterings : Array[Array[Int32]],
+  adjusted~ : Bool = true,
 ) -> Array[Array[Double?]] raise BlusterError {
   if clusterings.length() == 0 {
     return []
@@ -1332,7 +1401,7 @@ pub fn bluster_compare_clusterings(
 ///|
 pub fn bluster_approx_silhouette(
   data : Array[Array[Double]],
-  clusters : Array[Int],
+  clusters : Array[Int32],
 ) -> BlusterSilhouetteResult raise BlusterError {
   let (observations, variables) = bluster_matrix_shape(data)
   bluster_validate_labels(clusters, observations)
@@ -1399,21 +1468,25 @@ pub fn bluster_approx_silhouette(
       }
     }
   }
-  BlusterSilhouetteResult::{ clusters: clusters.copy(), other_clusters, widths }
+  BlusterSilhouetteResult::{
+    clusters: clusters.copy(),
+    other_clusters,
+    widths,
+  }
 }
 
 ///|
 pub fn bluster_cluster_rmsd(
   data : Array[Array[Double]],
-  clusters : Array[Int],
-  sum_squares? : Bool = false,
+  clusters : Array[Int32],
+  sum_squares~ : Bool = false,
 ) -> BlusterClusterMetric raise BlusterError {
   let (observations, variables) = bluster_matrix_shape(data, allow_empty=true)
   bluster_validate_labels(clusters, observations)
   let names = bluster_sorted_unique(clusters)
   let values : Array[Double?] = Array::make(names.length(), None)
   for cluster in 0..<names.length() {
-    let indices : Array[Int] = []
+    let indices : Array[Int32] = []
     for observation in 0..<observations {
       if clusters[observation] == names[cluster] {
         indices.push(observation)
@@ -1440,7 +1513,7 @@ pub fn bluster_cluster_rmsd(
       }
     }
   }
-  BlusterClusterMetric::{ cluster_names: names, values }
+  BlusterClusterMetric::{ cluster_names: names, values, }
 }
 
 ///|
@@ -1468,11 +1541,11 @@ fn bluster_median(values : Array[Double]) -> Double {
 ///|
 pub fn bluster_neighbor_purity(
   data : Array[Array[Double]],
-  clusters : Array[Int],
-  k? : Int = 50,
-  balanced? : Bool = true,
-  custom_weights? : Array[Double]? = None,
-  distance? : BlusterDistance = BlusterEuclidean,
+  clusters : Array[Int32],
+  k~ : Int32 = 50,
+  balanced~ : Bool = true,
+  custom_weights~ : Array[Double]? = None,
+  distance~ : BlusterDistance = BlusterEuclidean,
 ) -> BlusterPurityResult raise BlusterError {
   let (observations, _) = bluster_matrix_shape(data)
   bluster_validate_labels(clusters, observations)
@@ -1503,7 +1576,7 @@ pub fn bluster_neighbor_purity(
         bluster_fail("bluster custom purity weights must match observations")
       }
       for observation in 0..<observations {
-        if !bluster_is_finite(given[observation]) || given[observation] < 0.0 {
+        if !is_finite(given[observation]) || given[observation] < 0.0 {
           bluster_fail(
             "bluster custom purity weights must be finite and non-negative",
           )
@@ -1546,13 +1619,13 @@ pub fn bluster_neighbor_purity(
     purity[observation] = if total > 0.0 { totals[own] / total } else { 0.0 }
     maximum_clusters[observation] = names[maximum]
   }
-  BlusterPurityResult::{ purity, maximum_clusters, radius }
+  BlusterPurityResult::{ purity, maximum_clusters, radius, }
 }
 
 ///|
 pub fn bluster_pairwise_modularity(
   graph : BlusterGraph,
-  clusters : Array[Int],
+  clusters : Array[Int32],
 ) -> BlusterModularityResult raise BlusterError {
   let observations = graph.weights.length()
   bluster_validate_labels(clusters, observations)
@@ -1634,9 +1707,9 @@ pub fn bluster_pairwise_modularity(
 ///|
 pub fn bluster_merge_communities(
   graph : BlusterGraph,
-  clusters : Array[Int],
-  number : Int,
-) -> Array[Int] raise BlusterError {
+  clusters : Array[Int32],
+  number : Int32,
+) -> Array[Int32] raise BlusterError {
   bluster_validate_labels(clusters, graph.weights.length())
   if number <= 0 {
     bluster_fail("bluster merged community number must be positive")
@@ -1670,8 +1743,8 @@ pub fn bluster_merge_communities(
 
 ///|
 pub fn bluster_nested_clusters(
-  reference : Array[Int],
-  alternative : Array[Int],
+  reference : Array[Int32],
+  alternative : Array[Int32],
 ) -> BlusterNestedResult raise BlusterError {
   if reference.length() != alternative.length() {
     bluster_fail("bluster nested clusterings must have equal lengths")
@@ -1761,9 +1834,9 @@ pub fn bluster_nested_clusters(
 
 ///|
 pub fn bluster_link_clusters_matrix(
-  left : Array[Int],
-  right : Array[Int],
-  denominator? : BlusterLinkDenominator = BlusterLinkUnion,
+  left : Array[Int32],
+  right : Array[Int32],
+  denominator~ : BlusterLinkDenominator = BlusterLinkUnion,
 ) -> Array[Array[Double]] raise BlusterError {
   if left.length() != right.length() {
     bluster_fail("bluster linked clusterings must have equal lengths")
@@ -1815,7 +1888,7 @@ fn bluster_average_optional(
   let retained : Array[Double] = []
   for value in values {
     match value {
-      Some(actual) => if bluster_is_finite(actual) { retained.push(actual) }
+      Some(actual) => if is_finite(actual) { retained.push(actual) }
       None => ()
     }
   }
@@ -1836,9 +1909,9 @@ fn bluster_average_optional(
 pub fn bluster_bootstrap_kmeans_stability(
   data : Array[Array[Double]],
   config : BlusterKmeansConfig,
-  iterations? : Int = 20,
-  use_mean? : Bool = false,
-  seed? : Int = 1,
+  iterations~ : Int32 = 20,
+  use_mean~ : Bool = false,
+  seed~ : Int32 = 1,
 ) -> BlusterStabilityResult raise BlusterError {
   let (observations, _) = bluster_matrix_shape(data)
   if iterations <= 0 {
@@ -1900,8 +1973,8 @@ pub fn bluster_bootstrap_kmeans_stability(
 pub fn bluster_cluster_sce(
   experiment : SingleCellExperiment,
   config : BlusterGraphConfig,
-  reduced_dim_name? : String = "PCA",
-  output_column? : String = "bluster.cluster",
+  reduced_dim_name~ : String = "PCA",
+  output_column~ : String = "bluster.cluster",
 ) -> BlusterSceOutput raise BlusterError {
   if reduced_dim_name.length() == 0 || output_column.length() == 0 {
     bluster_fail("bluster SCE names cannot be empty")
@@ -1927,5 +2000,5 @@ pub fn bluster_cluster_sce(
   output.metadata["bluster.reduced_dim"] = reduced_dim_name
   output.metadata["bluster.graph"] = clustering.graph.graph_kind
   output.metadata["bluster.modularity"] = clustering.modularity.to_string()
-  BlusterSceOutput::{ experiment: output, clustering }
+  BlusterSceOutput::{ experiment: output, clustering, }
 }

@@ -55,7 +55,9 @@ fn main {
       println("  URL: " + m.url)
     }
     println("  Consensus: " + m.consensus())
-    println("  Information content: " + m.information_content().to_string() + " bits")
+    println(
+      "  Information content: " + m.information_content().to_string() + " bits",
+    )
     i = i + 1
   }
   println("")
@@ -68,7 +70,7 @@ fn main {
     let m = record.motifs[0]
     let alphabet = m.alphabet_to_array()
     // Header
-    let header = StringBuilder::new()
+    let header = StringBuilder()
     header.write_string("  pos  ")
     for a in alphabet {
       header.write_string("   " + a + "   ")
@@ -78,15 +80,19 @@ fn main {
     let mut pos = 0
     while pos < m.pspm.length() {
       let row = m.pspm[pos]
-      let line = StringBuilder::new()
+      let line = StringBuilder()
       line.write_string("  " + pos.to_string() + "   ")
       let mut j = 0
       while j < row.length() {
         let val = row[j]
         let raw = val.to_string()
-        let s = if raw.length() > 4 { raw[0:4].to_string() } else { raw }
+        let s = if raw.length() > 4 { raw[0:4].to_owned() } else { raw }
         // Pad to 4 chars
-        let padded = if s.length() >= 4 { s } else { s + "    ".substring(start=0, end=4 - s.length()) }
+        let padded = if s.length() >= 4 {
+          s
+        } else {
+          s + "    "[0:4 - s.length()].to_owned()
+        }
         line.write_string(" " + padded + " ")
         j = j + 1
       }
@@ -116,7 +122,8 @@ fn main {
   if record.motifs.length() > 0 {
     let name = record.motifs[0].name
     match record.find(name) {
-      Some(m) => println("Found motif '" + name + "': width=" + m.width.to_string())
+      Some(m) =>
+        println("Found motif '" + name + "': width=" + m.width.to_string())
       None => println("Motif '" + name + "' not found")
     }
     match record.find("nonexistent") {
@@ -134,7 +141,11 @@ fn main {
   println("Created motif: " + sample.name)
   println("  Width: " + sample.width.to_string())
   println("  Consensus: " + sample.consensus())
-  println("  Information content: " + sample.information_content().to_string() + " bits")
+  println(
+    "  Information content: " +
+    sample.information_content().to_string() +
+    " bits",
+  )
   println("")
 
   // ------------------------------------------------------------------
@@ -146,7 +157,7 @@ fn main {
   println("Serialized record (" + lines.length().to_string() + " lines):")
   let mut l = 0
   while l < 5 && l < lines.length() {
-    println("  " + lines[l].to_string())
+    println("  " + lines[l].to_owned())
     l = l + 1
   }
   println("  ...")

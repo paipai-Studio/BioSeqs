@@ -29,28 +29,17 @@ pub enum TrieValue {
 }
 
 ///|
-/// Helper constructors for cross-package access.
-pub fn trie_value_empty() -> TrieValue {
-  TrieValue::Empty
-}
-
-///|
-pub fn trie_value_of(v : String) -> TrieValue {
-  TrieValue::Value(v)
-}
-
-///|
 /// The trie data structure.
 pub struct Trie {
   root : TrieNode
-  mut count : Int
+  mut count : Int32
 }
 
 ///|
 /// Create a new empty trie.
 pub fn Trie::new() -> Trie {
   Trie::{
-    root: TrieNode::{ children: Map([], capacity=4), value: TrieValue::Empty },
+    root: TrieNode::{ children: Map([], capacity=4), value: TrieValue::Empty, },
     count: 0,
   }
 }
@@ -58,7 +47,7 @@ pub fn Trie::new() -> Trie {
 ///|
 /// Create a new TrieNode.
 pub fn TrieNode::new() -> TrieNode {
-  TrieNode::{ children: Map([], capacity=4), value: TrieValue::Empty }
+  TrieNode::{ children: Map([], capacity=4), value: TrieValue::Empty, }
 }
 
 ///|
@@ -128,7 +117,7 @@ pub fn trie_has_prefix(trie : Trie, prefix : String) -> Bool {
 
 ///|
 /// Get the number of keys in the trie.
-pub fn trie_size(trie : Trie) -> Int {
+pub fn trie_size(trie : Trie) -> Int32 {
   trie.count
 }
 
@@ -139,7 +128,7 @@ pub fn trie_with_prefix(
   trie : Trie,
   prefix : String,
 ) -> Array[(String, String)] {
-  let result : Array[(String, String)] = Array::new()
+  let result : Array[(String, String)] = Array(capacity=0)
   let start_node = trie_find_node(trie.root, prefix)
   match start_node {
     Some(n) => trie_collect_pairs(n, prefix, result)
@@ -151,7 +140,7 @@ pub fn trie_with_prefix(
 ///|
 /// Get all keys in the trie.
 pub fn trie_keys(trie : Trie) -> Array[String] {
-  let result : Array[String] = Array::new()
+  let result : Array[String] = Array(capacity=0)
   trie_collect_keys(trie.root, "", result)
   result
 }
@@ -159,7 +148,7 @@ pub fn trie_keys(trie : Trie) -> Array[String] {
 ///|
 /// Get all (key, value) pairs in the trie.
 pub fn trie_items(trie : Trie) -> Array[(String, String)] {
-  let result : Array[(String, String)] = Array::new()
+  let result : Array[(String, String)] = Array(capacity=0)
   trie_collect_pairs(trie.root, "", result)
   result
 }
@@ -235,7 +224,7 @@ pub fn triefind_match_all(
   trie : Trie,
   text : String,
 ) -> Array[(String, String)] {
-  let result : Array[(String, String)] = Array::new()
+  let result : Array[(String, String)] = Array(capacity=0)
   let mut current = trie.root
   let mut prefix = ""
   let mut i = 0
@@ -264,8 +253,8 @@ pub fn triefind_match_all(
 pub fn triefind_find(
   trie : Trie,
   text : String,
-) -> Array[(String, String, Int, Int)] {
-  let result : Array[(String, String, Int, Int)] = Array::new()
+) -> Array[(String, String, Int32, Int32)] {
+  let result : Array[(String, String, Int32, Int32)] = Array(capacity=0)
   let mut start = 0
   while start < text.length() {
     let matches = triefind_match_all(trie, text[start:text.length()].to_owned())
@@ -290,8 +279,8 @@ pub fn triefind_find(
 pub fn triefind_find_words(
   trie : Trie,
   text : String,
-) -> Array[(String, String, Int, Int)] {
-  let result : Array[(String, String, Int, Int)] = Array::new()
+) -> Array[(String, String, Int32, Int32)] {
+  let result : Array[(String, String, Int32, Int32)] = Array(capacity=0)
   let mut start = 0
   while start < text.length() {
     // Check if this position is at a word boundary

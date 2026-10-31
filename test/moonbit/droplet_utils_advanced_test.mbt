@@ -1004,7 +1004,7 @@ test "DropletUtils advanced SingleCellExperiment validates assay values" {
     _ => true
   }
   let non_finite = dua_test_sce()
-  non_finite.assays["counts"][0][0] = Double::nan()
+  non_finite.assays["counts"][0][0] = @double.not_a_number
   let finite_raised = try {
     ignore(
       @src.droplet_utils_empty_drops_sce(non_finite, config=dua_test_config()),

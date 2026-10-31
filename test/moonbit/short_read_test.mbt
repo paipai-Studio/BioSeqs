@@ -66,7 +66,7 @@ test "short_read_trim_adapter_basic" {
   let seq = "ACGTACGTAGATCGGAA"
   let qual = "IIIIIIIIIIIIIIII"
   let adapter = "AGATCGGAA"
-  let (trimmed_seq, trimmed_qual) = @src.trim_adapter(seq, qual, adapter, 0)
+  let (trimmed_seq, _trimmed_qual) = @src.trim_adapter(seq, qual, adapter, 0)
   assert_eq(trimmed_seq.length(), 8)
 }
 
@@ -75,7 +75,7 @@ test "short_read_trim_adapter_no_match" {
   let seq = "ACGTACGTACGTACGT"
   let qual = "IIIIIIIIIIIIIIII"
   let adapter = "GGGGGGGG"
-  let (trimmed_seq, trimmed_qual) = @src.trim_adapter(seq, qual, adapter, 0)
+  let (trimmed_seq, _trimmed_qual) = @src.trim_adapter(seq, qual, adapter, 0)
   assert_eq(trimmed_seq.length(), 16)
 }
 
@@ -94,7 +94,7 @@ test "short_read_filter_reads_basic" {
 test "short_read_filter_reads_length" {
   let sequences = ["ACGT", "ACGTACGTACGT"]
   let qualities = ["IIII", "IIIIIIIIIIII"]
-  let (filtered_seqs, filtered_quals) = @src.filter_reads(
+  let (filtered_seqs, _filtered_quals) = @src.filter_reads(
     sequences, qualities, 20.0, 8, 10,
   )
   assert_eq(filtered_seqs.length(), 1)

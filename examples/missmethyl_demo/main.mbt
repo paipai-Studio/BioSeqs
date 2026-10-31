@@ -21,11 +21,11 @@ fn main {
   let annotations = @bio.mm_sample_annotations()
   let go_db = @bio.mm_sample_go_database()
   let beta = @bio.mm_sample_beta()
-  let group : Array[Bool] = [
-    false, false, false, false, true, true, true, true,
-  ]
+  let group : Array[Bool] = [false, false, false, false, true, true, true, true]
   println("Loaded \{annotations.length()} probe annotations")
-  println("Loaded \{beta.length()} probes x \{beta[0].length()} samples beta matrix")
+  println(
+    "Loaded \{beta.length()} probes x \{beta[0].length()} samples beta matrix",
+  )
   println("Group: 4 control (false) + 4 treatment (true)")
   println("")
 
@@ -37,7 +37,14 @@ fn main {
   for b in betas {
     let m = @bio.mm_beta_to_m(b)
     let b_back = @bio.mm_m_to_beta(m)
-    println("  beta=" + b.to_string() + " -> M=" + m.to_string() + " -> beta(back)=" + b_back.to_string())
+    println(
+      "  beta=" +
+      b.to_string() +
+      " -> M=" +
+      m.to_string() +
+      " -> beta(back)=" +
+      b_back.to_string(),
+    )
   }
   // Edge cases: clamping
   let m0 = @bio.mm_beta_to_m(0.0)
@@ -88,19 +95,19 @@ fn main {
     let r = sorted[k]
     println(
       "  " +
-        r.probe_id() +
-        " " +
-        r.chr() +
-        ":" +
-        r.pos().to_string() +
-        " gene=" +
-        r.gene() +
-        " logFC=" +
-        r.log_fc().to_string() +
-        " t=" +
-        r.t_stat().to_string() +
-        " adjP=" +
-        r.adj_p_value().to_string(),
+      r.probe_id() +
+      " " +
+      r.chr() +
+      ":" +
+      r.pos().to_string() +
+      " gene=" +
+      r.gene() +
+      " logFC=" +
+      r.log_fc().to_string() +
+      " t=" +
+      r.t_stat().to_string() +
+      " adjP=" +
+      r.adj_p_value().to_string(),
     )
   }
   println("")
@@ -118,13 +125,13 @@ fn main {
   for ann in chr1_islands {
     println(
       "  " +
-        ann.probe_id() +
-        " gene=" +
-        ann.gene() +
-        " pos=" +
-        ann.pos().to_string() +
-        " type=" +
-        ann.probe_type(),
+      ann.probe_id() +
+      " gene=" +
+      ann.gene() +
+      " pos=" +
+      ann.pos().to_string() +
+      " type=" +
+      ann.probe_type(),
     )
   }
   println("")
@@ -133,17 +140,19 @@ fn main {
   // 5. GO enrichment at the gene level (Fisher's exact + BH-FDR)
   // ------------------------------------------------------------------
   println("=== 5. GO enrichment (gene-level) ===")
-  let sig_probes : Array[String] = Array::new()
+  let sig_probes : Array[String] = Array(capacity=0)
   for r in sorted {
     if r.is_significant(0.05) {
       sig_probes.push(r.probe_id())
     }
   }
-  let all_probes : Array[String] = Array::new()
+  let all_probes : Array[String] = Array(capacity=0)
   for ann in annotations {
     all_probes.push(ann.probe_id())
   }
-  println("Significant probes: \{sig_probes.length()} / \{all_probes.length()} total")
+  println(
+    "Significant probes: \{sig_probes.length()} / \{all_probes.length()} total",
+  )
   let go_results = @bio.mm_go_enrichment(
     sig_probes, all_probes, annotations, go_db,
   )
@@ -151,21 +160,21 @@ fn main {
   for r in go_results {
     println(
       "  " +
-        r.go_id() +
-        " [" +
-        r.ontology() +
-        "] " +
-        r.go_term() +
-        " sig=" +
-        r.n_sig_probes().to_string() +
-        "/" +
-        r.n_probes().to_string() +
-        " expected=" +
-        r.expected().to_string() +
-        " p=" +
-        r.p_value().to_string() +
-        " adjP=" +
-        r.adj_p_value().to_string(),
+      r.go_id() +
+      " [" +
+      r.ontology() +
+      "] " +
+      r.go_term() +
+      " sig=" +
+      r.n_sig_probes().to_string() +
+      "/" +
+      r.n_probes().to_string() +
+      " expected=" +
+      r.expected().to_string() +
+      " p=" +
+      r.p_value().to_string() +
+      " adjP=" +
+      r.adj_p_value().to_string(),
     )
   }
   println("")
@@ -181,21 +190,21 @@ fn main {
   for r in corrected_results {
     println(
       "  " +
-        r.go_id() +
-        " [" +
-        r.ontology() +
-        "] " +
-        r.go_term() +
-        " sig=" +
-        r.n_sig_probes().to_string() +
-        "/" +
-        r.n_probes().to_string() +
-        " expected=" +
-        r.expected().to_string() +
-        " p=" +
-        r.p_value().to_string() +
-        " adjP=" +
-        r.adj_p_value().to_string(),
+      r.go_id() +
+      " [" +
+      r.ontology() +
+      "] " +
+      r.go_term() +
+      " sig=" +
+      r.n_sig_probes().to_string() +
+      "/" +
+      r.n_probes().to_string() +
+      " expected=" +
+      r.expected().to_string() +
+      " p=" +
+      r.p_value().to_string() +
+      " adjP=" +
+      r.adj_p_value().to_string(),
     )
   }
   println("")

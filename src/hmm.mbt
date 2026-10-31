@@ -16,7 +16,7 @@ pub fn HMM::new(
   trans_prob : Map[String, Map[String, Double]],
   emit_prob : Map[String, Map[String, Double]],
 ) -> HMM {
-  HMM::{ states, observations, start_prob, trans_prob, emit_prob }
+  HMM::{ states, observations, start_prob, trans_prob, emit_prob, }
 }
 
 ///|
@@ -246,7 +246,7 @@ pub fn HMM::viterbi(self : HMM, obs : Array[String]) -> Array[String] {
 pub fn HMM::baum_welch(
   self : HMM,
   obs : Array[String],
-  max_iter : Int,
+  max_iter : Int32,
   tol : Double,
 ) -> HMM {
   let n = obs.length()
@@ -541,27 +541,4 @@ pub fn extract_exons(prediction : Array[String], dna : String) -> Array[String] 
   }
 
   exons
-}
-
-///|
-pub fn train_gene_hmm(
-  hmm : HMM,
-  training_sequences : Array[String],
-  max_iter : Int,
-) -> HMM {
-  let all_obs = []
-  for seq in training_sequences {
-    let obs = []
-    for i = 0; i < seq.length(); i = i + 1 {
-      obs.push(seq[i:i + 1].to_owned())
-    }
-    all_obs.push(obs)
-  }
-
-  let mut trained_hmm = hmm
-  for obs in all_obs {
-    trained_hmm = trained_hmm.baum_welch(obs, max_iter, 0.000001)
-  }
-
-  trained_hmm
 }

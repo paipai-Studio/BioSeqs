@@ -36,7 +36,7 @@ pub fn FishCounts::new(
   condition : Array[String],
   counts : Array[Array[Double]],
 ) -> FishCounts {
-  { transcript_names, sample_names, condition, counts }
+  { transcript_names, sample_names, condition, counts, }
 }
 
 ///|
@@ -84,7 +84,7 @@ pub fn FishResult::new(
   fdr : Double,
   direction : String,
 ) -> FishResult {
-  { transcript, statistic, log2_fold_change, p_value, fdr, direction }
+  { transcript, statistic, log2_fold_change, p_value, fdr, direction, }
 }
 
 ///|
@@ -141,7 +141,7 @@ pub fn fish_mann_whitney_test(
     return 0.0
   }
   // Combine and rank
-  let combined : Array[(Double, Int)] = [] // (value, group: 0=case, 1=control)
+  let combined : Array[(Double, Int32)] = [] // (value, group: 0=case, 1=control)
   for v in case_vals {
     combined.push((v, 0))
   }
@@ -236,7 +236,7 @@ fn fish_permuted_statistic(
   row : Array[Double],
   condition : Array[String],
   case_label : String,
-  seed : Int,
+  seed : Int32,
 ) -> Double {
   let n = row.length()
   // Count case samples
@@ -287,7 +287,7 @@ fn fish_permuted_statistic(
 pub fn fish_swish(
   counts : FishCounts,
   case_label : String,
-  n_permutations : Int,
+  n_permutations : Int32,
 ) -> Array[FishResult] {
   let n_transcripts = counts.transcript_names.length()
   let n_samples = counts.sample_names.length()

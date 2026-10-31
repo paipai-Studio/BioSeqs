@@ -368,7 +368,7 @@ test "phyloxml_tree_with_metadata" {
 ///|
 test "phyloxml_find_element" {
   let xml = "<root><child>text</child></root>"
-  let (start, end, _content) = @src.find_element(xml, "child")
+  let (start, _end, _content) = @src.find_element(xml, "child")
   // find_element returns 0,0,"" when not found
   assert_true(start >= 0)
 }
@@ -390,7 +390,7 @@ test "phyloxml_parse_node_element" {
     "    <name>Child</name>\n" +
     "  </clade>\n" +
     "</clade>"
-  let node = @src.parse_node_element(xml)
+  let _node = @src.parse_node_element(xml)
   // The function should return a PhyloXMLNode
   assert_true(true)
 }
@@ -402,7 +402,7 @@ test "phyloxml_parse_taxon_element" {
     "  <scientific_name>Homo sapiens</scientific_name>\n" +
     "  <common_name>Human</common_name>\n" +
     "</taxon>"
-  let taxon = @src.parse_taxon_element(xml)
+  let _taxon = @src.parse_taxon_element(xml)
   // The function should return a TaxonInfo
   assert_true(true)
 }
@@ -414,7 +414,7 @@ test "phyloxml_parse_sequence_element" {
     "  <molecular_type>DNA</molecular_type>\n" +
     "  <symbol>ATG</symbol>\n" +
     "</sequence>"
-  let seq = @src.parse_sequence_element(xml)
+  let _seq = @src.parse_sequence_element(xml)
   // The function should return a SequenceAnnotation
   assert_true(true)
 }

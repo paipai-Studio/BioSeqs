@@ -7,15 +7,15 @@ fn main {
 
   let population = ["AA", "Aa", "Aa", "aa", "AA", "Aa", "aa"]
   println("1. Population data:")
-  println("   Genotypes: \{population}")
+  println("   Genotypes: \{Repr(population)}")
 
   println("\n2. Allele frequencies:")
   let allele_freqs = @bio.allele_frequencies(population)
-  println("   Number of alleles: \{allele_freqs.size()}")
+  println("   Number of alleles: \{allele_freqs.length()}")
 
   println("\n3. Genotype frequencies:")
   let geno_freqs = @bio.genotype_frequencies(population)
-  println("   Number of genotypes: \{geno_freqs.size()}")
+  println("   Number of genotypes: \{geno_freqs.length()}")
 
   println("\n4. Hardy-Weinberg test:")
   let chi_sq = @bio.hardy_weinberg_test(population)
@@ -48,7 +48,7 @@ fn main {
 
   println("\n10. Diversity indices:")
   let counts = [100, 100, 100, 100, 50, 50, 30, 20, 10, 10, 10]
-  println("   Species counts: \{counts}")
+  println("   Species counts: \{Repr(counts)}")
   println("   Shannon index: \{@bio.shannon_index(counts)}")
   println("   Simpson index: \{@bio.simpson_index(counts)}")
   println("   Simpson reciprocal: \{@bio.simpson_reciprocal(counts)}")

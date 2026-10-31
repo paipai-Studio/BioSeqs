@@ -17,36 +17,48 @@ pub(all) enum Aldex2Denominator {
 } derive(Eq, Debug)
 
 ///|
+pub extend Aldex2Denominator with Eq::{equal, not_equal}
+
+///|
+pub extend Aldex2Denominator with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
 pub struct Aldex2Config {
-  mc_samples : Int
+  mc_samples : Int32
   prior : Double
   denominator : Aldex2Denominator
-  denominator_indices : Array[Int]
-  seed : Int
+  denominator_indices : Array[Int32]
+  seed : Int32
   paired : Bool
   interval_level : Double
 } derive(Eq, Debug)
 
 ///|
+pub extend Aldex2Config with Eq::{equal, not_equal}
+
+///|
+pub extend Aldex2Config with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
 pub fn Aldex2Config::create(
-  mc_samples? : Int = 128,
-  prior? : Double = 0.5,
-  denominator? : Aldex2Denominator = Aldex2All,
-  denominator_indices? : Array[Int] = [],
-  seed? : Int = 42,
-  paired? : Bool = false,
-  interval_level? : Double = 0.95,
+  mc_samples~ : Int32 = 128,
+  prior~ : Double = 0.5,
+  denominator~ : Aldex2Denominator = Aldex2All,
+  denominator_indices~ : Array[Int32] = [],
+  seed~ : Int32 = 42,
+  paired~ : Bool = false,
+  interval_level~ : Double = 0.95,
 ) -> Aldex2Config raise Aldex2Error {
   if mc_samples < 1 {
     raise Aldex2Error("ALDEx2 Monte Carlo sample count must be positive")
   }
-  if !aldex2_is_finite(prior) || prior <= 0.0 {
+  if !is_finite(prior) || prior <= 0.0 {
     raise Aldex2Error("ALDEx2 Dirichlet prior must be finite and positive")
   }
   if seed <= 0 {
     raise Aldex2Error("ALDEx2 random seed must be positive")
   }
-  if !aldex2_is_finite(interval_level) ||
+  if !is_finite(interval_level) ||
     interval_level <= 0.0 ||
     interval_level >= 1.0 {
     raise Aldex2Error("ALDEx2 interval level must be finite and in (0, 1)")
@@ -90,13 +102,13 @@ pub struct Aldex2Clr {
   sample_names : Array[String]
   conditions : Array[String]
   group_names : Array[String]
-  group_indices : Array[Array[Int]]
-  original_feature_indices : Array[Int]
-  denominator_by_sample : Array[Array[Int]]
+  group_indices : Array[Array[Int32]]
+  original_feature_indices : Array[Int32]
+  denominator_by_sample : Array[Array[Int32]]
   dirichlet : Array[Array[Array[Double]]]
   analysis : Array[Array[Array[Double]]]
   scale_samples : Array[Array[Double]]
-  original_feature_count : Int
+  original_feature_count : Int32
   config : Aldex2Config
 }
 
@@ -110,12 +122,18 @@ pub struct Aldex2TestFeature {
 } derive(Eq, Debug)
 
 ///|
+pub extend Aldex2TestFeature with Eq::{equal, not_equal}
+
+///|
+pub extend Aldex2TestFeature with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
 pub struct Aldex2TestResult {
   features : Array[Aldex2TestFeature]
   group_a : String
   group_b : String
   paired : Bool
-  mc_samples : Int
+  mc_samples : Int32
 }
 
 ///|
@@ -131,6 +149,12 @@ pub struct Aldex2EffectFeature {
   effect_high : Double
   overlap : Double
 } derive(Eq, Debug)
+
+///|
+pub extend Aldex2EffectFeature with Eq::{equal, not_equal}
+
+///|
+pub extend Aldex2EffectFeature with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct Aldex2EffectResult {
@@ -150,28 +174,29 @@ pub struct Aldex2Result {
 
 ///|
 pub struct Aldex2Summary {
-  feature_count : Int
-  sample_count : Int
-  removed_feature_count : Int
-  significant_welch_count : Int
-  significant_wilcoxon_count : Int
-  large_effect_count : Int
+  feature_count : Int32
+  sample_count : Int32
+  removed_feature_count : Int32
+  significant_welch_count : Int32
+  significant_wilcoxon_count : Int32
+  large_effect_count : Int32
   group_a : String
   group_b : String
-  mc_samples : Int
+  mc_samples : Int32
   denominator : String
   scale_model : Bool
 } derive(Eq, Debug)
 
 ///|
+pub extend Aldex2Summary with Eq::{equal, not_equal}
+
+///|
+pub extend Aldex2Summary with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
 pub struct Aldex2SummarizedExperimentOutput {
   experiment : SummarizedExperiment
   result : Aldex2Result
-}
-
-///|
-fn aldex2_is_finite(value : Double) -> Bool {
-  value == value && value.abs() <= 1.0e300
 }
 
 ///|
@@ -211,7 +236,7 @@ fn aldex2_quantile(values : Array[Double], probability : Double) -> Double {
     return 0.0
   }
   let sorted = values.copy()
-  sorted.sort_by(fn(left : Double, right : Double) -> Int {
+  sorted.sort_by(fn(left : Double, right : Double) -> Int32 {
     if left < right {
       -1
     } else if left > right {
@@ -237,7 +262,7 @@ fn aldex2_median(values : Array[Double]) -> Double {
 }
 
 ///|
-fn aldex2_default_names(prefix : String, count : Int) -> Array[String] {
+fn aldex2_default_names(prefix : String, count : Int32) -> Array[String] {
   let names : Array[String] = []
   for index in 0..<count {
     names.push(prefix + (index + 1).to_string())
@@ -248,7 +273,7 @@ fn aldex2_default_names(prefix : String, count : Int) -> Array[String] {
 ///|
 fn aldex2_validate_names(
   names : Array[String],
-  expected : Int,
+  expected : Int32,
   label : String,
 ) -> Unit raise Aldex2Error {
   if names.length() != expected {
@@ -271,9 +296,9 @@ fn aldex2_validate_names(
 ///|
 fn aldex2_groups(
   conditions : Array[String],
-) -> (Array[String], Array[Array[Int]]) raise Aldex2Error {
+) -> (Array[String], Array[Array[Int32]]) raise Aldex2Error {
   let names : Array[String] = []
-  let indices : Array[Array[Int]] = []
+  let indices : Array[Array[Int32]] = []
   for sample in 0..<conditions.length() {
     let condition = conditions[sample]
     if condition.trim().length() == 0 {
@@ -296,8 +321,8 @@ fn aldex2_groups(
 }
 
 ///|
-fn aldex2_all_indices(count : Int) -> Array[Int] {
-  let output : Array[Int] = []
+fn aldex2_all_indices(count : Int32) -> Array[Int32] {
+  let output : Array[Int32] = []
   for index in 0..<count {
     output.push(index)
   }
@@ -305,7 +330,7 @@ fn aldex2_all_indices(count : Int) -> Array[Int] {
 }
 
 ///|
-fn aldex2_contains(values : Array[Int], target : Int) -> Bool {
+fn aldex2_contains(values : Array[Int32], target : Int32) -> Bool {
   for value in values {
     if value == target {
       return true
@@ -315,8 +340,11 @@ fn aldex2_contains(values : Array[Int], target : Int) -> Bool {
 }
 
 ///|
-fn aldex2_intersection(left : Array[Int], right : Array[Int]) -> Array[Int] {
-  let output : Array[Int] = []
+fn aldex2_intersection(
+  left : Array[Int32],
+  right : Array[Int32],
+) -> Array[Int32] {
+  let output : Array[Int32] = []
   for value in left {
     if aldex2_contains(right, value) {
       output.push(value)
@@ -326,7 +354,7 @@ fn aldex2_intersection(left : Array[Int], right : Array[Int]) -> Array[Int] {
 }
 
 ///|
-fn aldex2_lcg(state : Int) -> (Int, Double) {
+fn aldex2_lcg(state : Int32) -> (Int32, Double) {
   let normalized = (state - 1) % 2147483646 + 1
   let quotient = normalized / 44488
   let remainder = normalized % 44488
@@ -336,7 +364,7 @@ fn aldex2_lcg(state : Int) -> (Int, Double) {
 }
 
 ///|
-fn aldex2_normal(state : Int) -> (Int, Double) {
+fn aldex2_normal(state : Int32) -> (Int32, Double) {
   let (state1, raw1) = aldex2_lcg(state)
   let (state2, raw2) = aldex2_lcg(state1)
   let first = raw1.max(1.0e-15)
@@ -346,7 +374,7 @@ fn aldex2_normal(state : Int) -> (Int, Double) {
 }
 
 ///|
-fn aldex2_gamma(shape : Double, state : Int) -> (Int, Double) {
+fn aldex2_gamma(shape : Double, state : Int32) -> (Int32, Double) {
   if shape < 1.0 {
     let (state1, uniform) = aldex2_lcg(state)
     let (state2, sampled) = aldex2_gamma(shape + 1.0, state1)
@@ -400,7 +428,7 @@ fn aldex2_pseudoclr(
 ///|
 fn aldex2_variances_for_samples(
   transformed : Array[Array[Double]],
-  samples : Array[Int],
+  samples : Array[Int32],
 ) -> Array[Double] {
   let feature_count = transformed[0].length()
   let output : Array[Double] = []
@@ -417,16 +445,16 @@ fn aldex2_variances_for_samples(
 ///|
 fn aldex2_iqlr_indices(
   counts : Array[Array[Double]],
-  group_indices : Array[Array[Int]],
+  group_indices : Array[Array[Int32]],
   prior : Double,
-) -> Array[Int] raise Aldex2Error {
+) -> Array[Int32] raise Aldex2Error {
   let transformed = aldex2_pseudoclr(counts, prior)
-  let sets : Array[Array[Int]] = []
+  let sets : Array[Array[Int32]] = []
   for samples in group_indices {
     let variances = aldex2_variances_for_samples(transformed, samples)
     let lower = aldex2_quantile(variances, 0.25)
     let upper = aldex2_quantile(variances, 0.75)
-    let selected : Array[Int] = []
+    let selected : Array[Int32] = []
     for feature in 0..<variances.length() {
       if variances[feature] > lower && variances[feature] < upper {
         selected.push(feature)
@@ -438,7 +466,7 @@ fn aldex2_iqlr_indices(
   let all_variances = aldex2_variances_for_samples(transformed, all_samples)
   let all_lower = aldex2_quantile(all_variances, 0.25)
   let all_upper = aldex2_quantile(all_variances, 0.75)
-  let all_selected : Array[Int] = []
+  let all_selected : Array[Int32] = []
   for feature in 0..<all_variances.length() {
     if all_variances[feature] > all_lower && all_variances[feature] < all_upper {
       all_selected.push(feature)
@@ -460,11 +488,11 @@ fn aldex2_iqlr_indices(
 ///|
 fn aldex2_lvha_indices(
   counts : Array[Array[Double]],
-  group_indices : Array[Array[Int]],
+  group_indices : Array[Array[Int32]],
   prior : Double,
-) -> Array[Int] raise Aldex2Error {
+) -> Array[Int32] raise Aldex2Error {
   let transformed = aldex2_pseudoclr(counts, prior)
-  let sets : Array[Array[Int]] = []
+  let sets : Array[Array[Int32]] = []
   for samples in group_indices {
     let variances = aldex2_variances_for_samples(transformed, samples)
     let abundances : Array[Double] = []
@@ -477,7 +505,7 @@ fn aldex2_lvha_indices(
     }
     let variance_cutoff = aldex2_quantile(variances, 0.25)
     let abundance_cutoff = aldex2_quantile(abundances, 0.75)
-    let selected : Array[Int] = []
+    let selected : Array[Int32] = []
     for feature in 0..<counts.length() {
       if variances[feature] <= variance_cutoff &&
         abundances[feature] >= abundance_cutoff {
@@ -501,16 +529,16 @@ fn aldex2_lvha_indices(
 ///|
 fn aldex2_denominators(
   counts : Array[Array[Double]],
-  groups : Array[Array[Int]],
+  groups : Array[Array[Int32]],
   conditions : Array[String],
   config : Aldex2Config,
-) -> Array[Array[Int]] raise Aldex2Error {
+) -> Array[Array[Int32]] raise Aldex2Error {
   let feature_count = counts.length()
   let shared = match config.denominator {
     Aldex2Iqlr => aldex2_iqlr_indices(counts, groups, config.prior)
     Aldex2Lvha => aldex2_lvha_indices(counts, groups, config.prior)
     Aldex2User => {
-      let selected : Array[Int] = []
+      let selected : Array[Int32] = []
       for index in config.denominator_indices {
         if index < 0 || index >= feature_count {
           raise Aldex2Error(
@@ -528,10 +556,10 @@ fn aldex2_denominators(
     }
     _ => aldex2_all_indices(feature_count)
   }
-  let by_group : Array[Array[Int]] = []
+  let by_group : Array[Array[Int32]] = []
   if config.denominator == Aldex2Zero {
     for samples in groups {
-      let selected : Array[Int] = []
+      let selected : Array[Int32] = []
       for feature in 0..<feature_count {
         let mut total = 0.0
         for sample in samples {
@@ -553,7 +581,7 @@ fn aldex2_denominators(
       by_group.push(shared.copy())
     }
   }
-  let by_sample : Array[Array[Int]] = []
+  let by_sample : Array[Array[Int32]] = []
   for sample in 0..<conditions.length() {
     let mut group = -1
     for group_index in 0..<groups.length() {
@@ -572,8 +600,8 @@ fn aldex2_denominators(
 ///|
 fn aldex2_validate_scale_samples(
   scale_samples : Array[Array[Double]],
-  sample_count : Int,
-  mc_samples : Int,
+  sample_count : Int32,
+  mc_samples : Int32,
 ) -> Unit raise Aldex2Error {
   if scale_samples.length() == 0 {
     return
@@ -588,7 +616,7 @@ fn aldex2_validate_scale_samples(
       )
     }
     for value in scale_samples[sample] {
-      if !aldex2_is_finite(value) || value <= 0.0 {
+      if !is_finite(value) || value <= 0.0 {
         raise Aldex2Error("ALDEx2 scale samples must be finite and positive")
       }
     }
@@ -599,10 +627,10 @@ fn aldex2_validate_scale_samples(
 pub fn aldex2_clr(
   counts : Array[Array[Double]],
   conditions : Array[String],
-  config? : Aldex2Config = Aldex2Config::default(),
-  feature_names? : Array[String] = [],
-  sample_names? : Array[String] = [],
-  scale_samples? : Array[Array[Double]] = [],
+  config~ : Aldex2Config = Aldex2Config::default(),
+  feature_names~ : Array[String] = [],
+  sample_names~ : Array[String] = [],
+  scale_samples~ : Array[Array[Double]] = [],
 ) -> Aldex2Clr raise Aldex2Error {
   if counts.length() == 0 {
     raise Aldex2Error("ALDEx2 count matrix must contain features")
@@ -629,7 +657,7 @@ pub fn aldex2_clr(
   let library_sizes = Array::make(sample_count, 0.0)
   let filtered_counts : Array[Array[Double]] = []
   let filtered_names : Array[String] = []
-  let original_indices : Array[Int] = []
+  let original_indices : Array[Int32] = []
   for feature in 0..<counts.length() {
     if counts[feature].length() != sample_count {
       raise Aldex2Error("ALDEx2 count matrix must not be ragged")
@@ -638,7 +666,7 @@ pub fn aldex2_clr(
     let copied : Array[Double] = []
     for sample in 0..<sample_count {
       let value = counts[feature][sample]
-      if !aldex2_is_finite(value) {
+      if !is_finite(value) {
         raise Aldex2Error("ALDEx2 counts must be finite")
       }
       if value < 0.0 {
@@ -683,7 +711,7 @@ pub fn aldex2_clr(
   }
   aldex2_validate_scale_samples(scale_samples, sample_count, config.mc_samples)
   let denominator_config = if config.denominator == Aldex2User {
-    let mapped_indices : Array[Int] = []
+    let mapped_indices : Array[Int32] = []
     for requested in config.denominator_indices {
       if requested < 0 || requested >= counts.length() {
         raise Aldex2Error(
@@ -792,30 +820,30 @@ pub fn aldex2_clr(
 }
 
 ///|
-pub fn Aldex2Clr::feature_count(self : Aldex2Clr) -> Int {
+pub fn Aldex2Clr::feature_count(self : Aldex2Clr) -> Int32 {
   self.feature_names.length()
 }
 
 ///|
-pub fn Aldex2Clr::sample_count(self : Aldex2Clr) -> Int {
+pub fn Aldex2Clr::sample_count(self : Aldex2Clr) -> Int32 {
   self.sample_names.length()
 }
 
 ///|
-pub fn Aldex2Clr::mc_sample_count(self : Aldex2Clr) -> Int {
+pub fn Aldex2Clr::mc_sample_count(self : Aldex2Clr) -> Int32 {
   self.config.mc_samples
 }
 
 ///|
-pub fn Aldex2Clr::removed_feature_count(self : Aldex2Clr) -> Int {
+pub fn Aldex2Clr::removed_feature_count(self : Aldex2Clr) -> Int32 {
   self.original_feature_count - self.feature_count()
 }
 
 ///|
 pub fn Aldex2Clr::sample_instance(
   self : Aldex2Clr,
-  sample : Int,
-  instance : Int,
+  sample : Int32,
+  instance : Int32,
 ) -> Array[Double]? {
   if sample < 0 ||
     sample >= self.sample_count() ||
@@ -833,8 +861,8 @@ pub fn Aldex2Clr::sample_instance(
 ///|
 pub fn Aldex2Clr::feature_instance(
   self : Aldex2Clr,
-  feature : Int,
-  instance : Int,
+  feature : Int32,
+  instance : Int32,
 ) -> Array[Double]? {
   if feature < 0 ||
     feature >= self.feature_count() ||
@@ -852,8 +880,8 @@ pub fn Aldex2Clr::feature_instance(
 ///|
 pub fn Aldex2Clr::expected_clr(
   self : Aldex2Clr,
-  feature : Int,
-  sample : Int,
+  feature : Int32,
+  sample : Int32,
 ) -> Double? {
   if feature < 0 ||
     feature >= self.feature_count() ||
@@ -867,8 +895,8 @@ pub fn Aldex2Clr::expected_clr(
 ///|
 pub fn Aldex2Clr::expected_proportion(
   self : Aldex2Clr,
-  feature : Int,
-  sample : Int,
+  feature : Int32,
+  sample : Int32,
 ) -> Double? {
   if feature < 0 ||
     feature >= self.feature_count() ||
@@ -951,11 +979,11 @@ fn aldex2_bh_adjust(p_values : Array[Double]) -> Array[Double] {
   if count == 0 {
     return []
   }
-  let sorted : Array[(Double, Int)] = []
+  let sorted : Array[(Double, Int32)] = []
   for index in 0..<count {
     sorted.push((p_values[index].max(0.0).min(1.0), index))
   }
-  sorted.sort_by(fn(left : (Double, Int), right : (Double, Int)) -> Int {
+  sorted.sort_by(fn(left : (Double, Int32), right : (Double, Int32)) -> Int32 {
     if left.0 < right.0 {
       -1
     } else if left.0 > right.0 {
@@ -1056,8 +1084,8 @@ pub fn aldex2_ttest(clr : Aldex2Clr) -> Aldex2TestResult raise Aldex2Error {
 ///|
 fn aldex2_pooled_feature(
   clr : Aldex2Clr,
-  feature : Int,
-  samples : Array[Int],
+  feature : Int32,
+  samples : Array[Int32],
 ) -> Array[Double] {
   let output : Array[Double] = []
   for sample in samples {
@@ -1071,7 +1099,7 @@ fn aldex2_pooled_feature(
 ///|
 fn aldex2_unpaired_effect_distribution(
   clr : Aldex2Clr,
-  feature : Int,
+  feature : Int32,
 ) -> (Array[Double], Array[Double]) {
   let between : Array[Double] = []
   let within : Array[Double] = []
@@ -1133,7 +1161,7 @@ fn aldex2_unpaired_effect_distribution(
 ///|
 fn aldex2_paired_effect_distribution(
   clr : Aldex2Clr,
-  feature : Int,
+  feature : Int32,
 ) -> (Array[Double], Array[Double]) {
   let between : Array[Double] = []
   for instance in 0..<clr.config.mc_samples {
@@ -1230,10 +1258,10 @@ pub fn aldex2_effect(clr : Aldex2Clr) -> Aldex2EffectResult raise Aldex2Error {
 pub fn aldex2(
   counts : Array[Array[Double]],
   conditions : Array[String],
-  config? : Aldex2Config = Aldex2Config::default(),
-  feature_names? : Array[String] = [],
-  sample_names? : Array[String] = [],
-  scale_samples? : Array[Array[Double]] = [],
+  config~ : Aldex2Config = Aldex2Config::default(),
+  feature_names~ : Array[String] = [],
+  sample_names~ : Array[String] = [],
+  scale_samples~ : Array[Array[Double]] = [],
 ) -> Aldex2Result raise Aldex2Error {
   let clr = aldex2_clr(
     counts,
@@ -1245,7 +1273,7 @@ pub fn aldex2(
   )
   let tests = aldex2_ttest(clr)
   let effects = aldex2_effect(clr)
-  Aldex2Result::{ clr, tests, effects }
+  Aldex2Result::{ clr, tests, effects, }
 }
 
 ///|
@@ -1277,8 +1305,8 @@ pub fn Aldex2EffectResult::find_feature(
 ///|
 pub fn Aldex2Result::select(
   self : Aldex2Result,
-  maximum_adjusted? : Double = 0.05,
-  minimum_effect? : Double = 1.0,
+  maximum_adjusted~ : Double = 0.05,
+  minimum_effect~ : Double = 1.0,
 ) -> Array[Aldex2EffectFeature] {
   let selected : Array[Aldex2EffectFeature] = []
   for index in 0..<self.effects.features.length() {
@@ -1296,7 +1324,7 @@ pub fn Aldex2Result::ranked(self : Aldex2Result) -> Array[Aldex2EffectFeature] {
   ranked.sort_by(fn(
     left : Aldex2EffectFeature,
     right : Aldex2EffectFeature,
-  ) -> Int {
+  ) -> Int32 {
     if left.effect.abs() > right.effect.abs() {
       -1
     } else if left.effect.abs() < right.effect.abs() {
@@ -1327,8 +1355,8 @@ fn aldex2_denominator_name(value : Aldex2Denominator) -> String {
 ///|
 pub fn Aldex2Result::summary(
   self : Aldex2Result,
-  maximum_adjusted? : Double = 0.05,
-  minimum_effect? : Double = 1.0,
+  maximum_adjusted~ : Double = 0.05,
+  minimum_effect~ : Double = 1.0,
 ) -> Aldex2Summary {
   let mut welch_count = 0
   let mut wilcoxon_count = 0
@@ -1388,7 +1416,7 @@ pub fn Aldex2Clr::expected_distance(self : Aldex2Clr) -> Array[Array[Double]] {
 
 ///|
 pub fn Aldex2Result::to_tsv(self : Aldex2Result) -> String {
-  let buffer = StringBuilder::new()
+  let buffer = StringBuilder()
   buffer.write_string(
     "feature\trab.all\trab.group.a\trab.group.b\tdiff.btw\tdiff.win\teffect\teffect.low\teffect.high\toverlap\twe.ep\twe.eBH\twi.ep\twi.eBH\n",
   )
@@ -1457,11 +1485,11 @@ fn aldex2_copy_experiment(
 pub fn aldex2_summarized_experiment(
   experiment : SummarizedExperiment,
   conditions : Array[String],
-  config? : Aldex2Config = Aldex2Config::default(),
-  assay_name? : String = "counts",
-  feature_names? : Array[String] = [],
-  sample_names? : Array[String] = [],
-  scale_samples? : Array[Array[Double]] = [],
+  config~ : Aldex2Config = Aldex2Config::default(),
+  assay_name~ : String = "counts",
+  feature_names~ : Array[String] = [],
+  sample_names~ : Array[String] = [],
+  scale_samples~ : Array[Array[Double]] = [],
 ) -> Aldex2SummarizedExperimentOutput raise Aldex2Error {
   let counts = match se_assay(experiment, assay_name) {
     Some(value) => value
@@ -1501,7 +1529,7 @@ pub fn aldex2_summarized_experiment(
   enriched.metadata["aldex2_groups"] = result.tests.group_a +
     "," +
     result.tests.group_b
-  Aldex2SummarizedExperimentOutput::{ experiment: enriched, result }
+  Aldex2SummarizedExperimentOutput::{ experiment: enriched, result, }
 }
 
 ///|

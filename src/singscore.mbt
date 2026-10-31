@@ -6,9 +6,9 @@
 ///|
 /// A single sample expression profile.
 pub struct SampleExpression {
-  pub sample_id : String
-  pub gene_names : Array[String]
-  pub expression : Array[Double]
+  sample_id : String
+  gene_names : Array[String]
+  expression : Array[Double]
 }
 
 ///|
@@ -40,15 +40,15 @@ pub fn SampleExpression::new(
   gene_names : Array[String],
   expression : Array[Double],
 ) -> SampleExpression {
-  SampleExpression::{ sample_id, gene_names, expression }
+  SampleExpression::{ sample_id, gene_names, expression, }
 }
 
 ///|
 /// A gene set specification with up-regulated and down-regulated genes.
 pub struct GeneSetSpec {
-  pub name : String
-  pub up_genes : Array[String]
-  pub down_genes : Array[String]
+  name : String
+  up_genes : Array[String]
+  down_genes : Array[String]
 }
 
 ///|
@@ -74,22 +74,22 @@ pub fn GeneSetSpec::get_down_genes(self : GeneSetSpec) -> Array[String] {
 pub fn GeneSetSpec::new(
   name : String,
   up_genes : Array[String],
-  down_genes? : Array[String] = [],
+  down_genes~ : Array[String] = [],
 ) -> GeneSetSpec {
-  GeneSetSpec::{ name, up_genes, down_genes }
+  GeneSetSpec::{ name, up_genes, down_genes, }
 }
 
 ///|
 /// Result of singscore computation.
 pub struct SingscoreResult {
-  pub sample_id : String
-  pub score : Double
-  pub up_score : Double
-  pub down_score : Double
-  pub up_dispersion : Double
-  pub down_dispersion : Double
-  pub n_up_found : Int
-  pub n_down_found : Int
+  sample_id : String
+  score : Double
+  up_score : Double
+  down_score : Double
+  up_dispersion : Double
+  down_dispersion : Double
+  n_up_found : Int32
+  n_down_found : Int32
 }
 
 ///|
@@ -130,13 +130,13 @@ pub fn SingscoreResult::get_down_dispersion(self : SingscoreResult) -> Double {
 
 ///|
 /// Get number of up-regulated genes found.
-pub fn SingscoreResult::get_n_up_found(self : SingscoreResult) -> Int {
+pub fn SingscoreResult::get_n_up_found(self : SingscoreResult) -> Int32 {
   self.n_up_found
 }
 
 ///|
 /// Get number of down-regulated genes found.
-pub fn SingscoreResult::get_n_down_found(self : SingscoreResult) -> Int {
+pub fn SingscoreResult::get_n_down_found(self : SingscoreResult) -> Int32 {
   self.n_down_found
 }
 
@@ -184,7 +184,7 @@ pub fn singscore_score_multiple(
   sample : SampleExpression,
   specs : Array[GeneSetSpec],
 ) -> Array[SingscoreResult] {
-  let results : Array[SingscoreResult] = Array::new()
+  let results : Array[SingscoreResult] = Array(capacity=0)
   for spec in specs {
     results.push(singscore_score(sample, spec, sample.sample_id))
   }
@@ -197,7 +197,7 @@ fn singscore_directional(
   sample : SampleExpression,
   genes : Array[String],
   is_up : Bool,
-) -> (Double, Double, Int) {
+) -> (Double, Double, Int32) {
   if genes.length() == 0 {
     return (0.0, 0.0, 0)
   }
@@ -210,7 +210,7 @@ fn singscore_directional(
   // Build rank array (centered around 0)
   let ranks : Array[Double] = Array::make(n_genes, 0.0)
   // Create index array and sort by expression
-  let indices : Array[Int] = Array::make(n_genes, 0)
+  let indices : Array[Int32] = Array::make(n_genes, 0)
   {
     let mut i = 0
     while i < n_genes {
@@ -242,7 +242,7 @@ fn singscore_directional(
   }
 
   // Build gene name -> index map
-  let gene_idx : Map[String, Int] = Map([], capacity=n_genes)
+  let gene_idx : Map[String, Int32] = Map([], capacity=n_genes)
   {
     let mut i = 0
     while i < n_genes {
@@ -298,9 +298,9 @@ fn singscore_compute_dispersion(
   sample : SampleExpression,
   genes : Array[String],
   is_up : Bool,
-  gene_idx : Map[String, Int],
+  gene_idx : Map[String, Int32],
 ) -> Double {
-  let ranks_found : Array[Double] = Array::new()
+  let ranks_found : Array[Double] = Array(capacity=0)
   let mut i = 0
   while i < genes.length() {
     let gene = genes[i]
@@ -327,9 +327,9 @@ fn singscore_compute_dispersion(
 
 ///|
 /// Sort indices by expression value (ascending), return sorted indices.
-fn singscore_sort_indices(values : Array[Double]) -> Array[Int] {
+fn singscore_sort_indices(values : Array[Double]) -> Array[Int32] {
   let n = values.length()
-  let indices : Array[Int] = Array::make(n, 0)
+  let indices : Array[Int32] = Array::make(n, 0)
   {
     let mut i = 0
     while i < n {
@@ -346,9 +346,9 @@ fn singscore_sort_indices(values : Array[Double]) -> Array[Int] {
 ///|
 fn singscore_quicksort(
   values : Array[Double],
-  indices : Array[Int],
-  lo : Int,
-  hi : Int,
+  indices : Array[Int32],
+  lo : Int32,
+  hi : Int32,
 ) -> Unit {
   if lo < hi {
     let pivot = values[indices[hi]]

@@ -38,7 +38,7 @@ test "muscat_single_cell_n_expressed" {
 
 ///|
 test "muscat_aggregation_sum" {
-  let cells : Array[@src.SingleCell] = Array::new()
+  let cells : Array[@src.SingleCell] = Array(capacity=0)
   let c1 = @src.SingleCell::new("c1", "S1", "C1", "ctrl")
   c1.set_count("Gene1", 10.0)
   c1.set_count("Gene2", 5.0)
@@ -48,7 +48,7 @@ test "muscat_aggregation_sum" {
   c2.set_count("Gene2", 3.0)
   cells.push(c2)
 
-  let pb = @src.aggregate_cells(cells, method=@src.aggregation_sum())
+  let pb = @src.aggregate_cells(cells, method_=@src.aggregation_sum())
   assert_eq(pb.length(), 1)
   assert_eq(pb[0].get_count("Gene1"), 30.0)
   assert_eq(pb[0].get_count("Gene2"), 8.0)
@@ -57,7 +57,7 @@ test "muscat_aggregation_sum" {
 
 ///|
 test "muscat_aggregation_mean" {
-  let cells : Array[@src.SingleCell] = Array::new()
+  let cells : Array[@src.SingleCell] = Array(capacity=0)
   let c1 = @src.SingleCell::new("c1", "S1", "C1", "ctrl")
   c1.set_count("Gene1", 10.0)
   cells.push(c1)
@@ -65,14 +65,14 @@ test "muscat_aggregation_mean" {
   c2.set_count("Gene1", 20.0)
   cells.push(c2)
 
-  let pb = @src.aggregate_cells(cells, method=@src.aggregation_mean())
+  let pb = @src.aggregate_cells(cells, method_=@src.aggregation_mean())
   assert_eq(pb.length(), 1)
   assert_eq(pb[0].get_count("Gene1"), 15.0)
 }
 
 ///|
 test "muscat_aggregation_multiple_samples" {
-  let cells : Array[@src.SingleCell] = Array::new()
+  let cells : Array[@src.SingleCell] = Array(capacity=0)
   // Sample S1, Cluster C1
   let c1 = @src.SingleCell::new("c1", "S1", "C1", "ctrl")
   c1.set_count("Gene1", 10.0)
@@ -86,13 +86,13 @@ test "muscat_aggregation_multiple_samples" {
   c3.set_count("Gene1", 15.0)
   cells.push(c3)
 
-  let pb = @src.aggregate_cells(cells, method=@src.aggregation_sum())
+  let pb = @src.aggregate_cells(cells, method_=@src.aggregation_sum())
   assert_eq(pb.length(), 3) // 3 (sample, cluster) combinations
 }
 
 ///|
 test "muscat_pseudobulk_total_counts" {
-  let cells : Array[@src.SingleCell] = Array::new()
+  let cells : Array[@src.SingleCell] = Array(capacity=0)
   let c1 = @src.SingleCell::new("c1", "S1", "C1", "ctrl")
   c1.set_count("Gene1", 10.0)
   c1.set_count("Gene2", 20.0)
@@ -107,7 +107,7 @@ test "muscat_pseudobulk_total_counts" {
 
 ///|
 test "muscat_pseudobulk_n_expressed" {
-  let cells : Array[@src.SingleCell] = Array::new()
+  let cells : Array[@src.SingleCell] = Array(capacity=0)
   let c1 = @src.SingleCell::new("c1", "S1", "C1", "ctrl")
   c1.set_count("Gene1", 10.0)
   c1.set_count("Gene2", 0.0)
@@ -117,7 +117,7 @@ test "muscat_pseudobulk_n_expressed" {
   c2.set_count("Gene3", 5.0)
   cells.push(c2)
 
-  let pb = @src.aggregate_cells(cells, method=@src.aggregation_sum())
+  let pb = @src.aggregate_cells(cells, method_=@src.aggregation_sum())
   assert_eq(pb[0].n_expressed(), 2) // Gene1 and Gene3 > 0
 }
 

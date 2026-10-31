@@ -158,7 +158,7 @@ test "celda_CG: configuration rejects invalid Dirichlet priors" {
     CeldaError(_) => true
   }
   let delta = try {
-    ignore(@src.CeldaCGConfig::create(2, 2, delta=Double::nan()))
+    ignore(@src.CeldaCGConfig::create(2, 2, delta=@double.not_a_number))
     false
   } catch {
     CeldaError(_) => true
@@ -310,7 +310,7 @@ test "celda_CG: fit rejects NaN counts" {
     _ => abort("configuration should build")
   }
   let rejected = try {
-    ignore(@src.celda_cg_fit([[1.0, Double::nan()]], [], config))
+    ignore(@src.celda_cg_fit([[1.0, @double.not_a_number]], [], config))
     false
   } catch {
     CeldaError(_) => true

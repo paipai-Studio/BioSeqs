@@ -13,7 +13,7 @@ fn format_doubles(values : Array[Double]) -> String {
 }
 
 ///|
-fn format_ints(values : Array[Int]) -> String {
+fn format_ints(values : Array[Int32]) -> String {
   let mut result = "["
   let mut index = 0
   while index < values.length() {

@@ -27,9 +27,7 @@ fn main {
   while i < stats.length() {
     let marker = if i >= 10 && i <= 20 { " [bump]" } else { "" }
     if i % 5 == 0 {
-      println(
-        "  pos \{i}: t=\{stats[i]}\{marker}",
-      )
+      println("  pos \{i}: t=\{stats[i]}\{marker}")
     }
     i = i + 1
   }
@@ -43,9 +41,7 @@ fn main {
   let mut si = 0
   while si < smoothed.length() {
     if si % 5 == 0 {
-      println(
-        "  pos \{si}: smoothed=\{smoothed[si]}",
-      )
+      println("  pos \{si}: smoothed=\{smoothed[si]}")
     }
     si = si + 1
   }

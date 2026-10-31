@@ -1,5 +1,5 @@
 ///|
-fn main {
+fn main raise {
   println("=== DiffBind Demo ===")
 
   // 1. Create example DBAConfig (2 conditions, 2 replicates each)
@@ -41,7 +41,7 @@ fn main {
 
   // 4. count - count peaks overlapping ranges
   println("\n4. count: count peaks in query ranges:")
-  let ranges : Array[(String, Int, Int)] = [
+  let ranges : Array[(String, Int32, Int32)] = [
     ("chr1", 1500, 3500),
     ("chr2", 1000, 5500),
     ("chr3", 1000, 3000),
@@ -52,7 +52,7 @@ fn main {
   while j < count_keys.length() {
     let key = count_keys[j]
     let val = counts.get(key)
-    let val_str = if val.is_some() { val.unwrap().to_string() } else { "0" }
+    let val_str = if val is Some(_) { val.unwrap().to_string() } else { "0" }
     println("  " + key + ": " + val_str + " peaks")
     j = j + 1
   }

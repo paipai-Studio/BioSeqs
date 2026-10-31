@@ -21,20 +21,13 @@ fn main {
     .get_column("label_comp_id")
     .unwrap()
     .string_at(0) catch {
-    _ => abort("failed to read component column")
-  }
-  println(
-    "  First component: " + first_component.unwrap(),
-  )
-  let first_x = atom_site
-    .get_column("Cartn_x")
-    .unwrap()
-    .double_at(0) catch {
-    _ => abort("failed to read coordinate column")
-  }
-  println(
-    "  First x coordinate: " + first_x.unwrap().to_string(),
-  )
+      _ => abort("failed to read component column")
+    }
+  println("  First component: " + first_component.unwrap())
+  let first_x = atom_site.get_column("Cartn_x").unwrap().double_at(0) catch {
+      _ => abort("failed to read coordinate column")
+    }
+  println("  First x coordinate: " + first_x.unwrap().to_string())
 
   println("\n3. CIF missing-value masks")
   let altloc = atom_site.get_column("label_alt_id").unwrap()
@@ -86,13 +79,16 @@ fn main {
     first.z.to_string() +
     ")",
   )
+  println("  Alternate location on atom 4: " + atoms[3].altloc.to_string())
   println(
-    "  Alternate location on atom 4: " + atoms[3].altloc.to_string(),
+    "  Water residue is hetero: " +
+    structure.get_residues()[2].is_het().to_string(),
   )
-  println("  Water residue is hetero: " + structure.get_residues()[2].is_het().to_string())
 
   println("\nNotes")
   println("  Gzip-compressed .bcif input must be decompressed before parsing.")
-  println("  PDB Structure chain IDs are one character; category data keeps full IDs.")
+  println(
+    "  PDB Structure chain IDs are one character; category data keeps full IDs.",
+  )
   println("\n=== Demo Complete ===")
 }

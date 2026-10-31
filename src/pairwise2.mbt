@@ -4,25 +4,16 @@
 /// Provides customizable global/local alignment with arbitrary scoring matrices.
 
 ///|
-/// Global vs local alignment mode.
-pub enum PairwiseMode {
-  Global
-  Local
-  GlobalMS
-  LocalMS
-}
-
-///|
 /// Alignment result from Pairwise2.
 pub struct PairwiseAlignResult {
   aligned_seq1 : String
   aligned_seq2 : String
   score : Double
   mode : String
-  seq1_start : Int
-  seq1_end : Int
-  seq2_start : Int
-  seq2_end : Int
+  seq1_start : Int32
+  seq1_end : Int32
+  seq2_start : Int32
+  seq2_end : Int32
 }
 
 ///|
@@ -57,7 +48,7 @@ pub fn PairwiseAlignResult::get_mode(self : PairwiseAlignResult) -> String {
 /// Get the alignment as a formatted string.
 pub fn PairwiseAlignResult::format_alignment(
   self : PairwiseAlignResult,
-  line_width : Int,
+  line_width : Int32,
 ) -> String {
   let w = if line_width <= 0 { 60 } else { line_width }
   let mut result = ""
@@ -66,16 +57,16 @@ pub fn PairwiseAlignResult::format_alignment(
   let mut pos = 0
   while pos < len {
     let end = if pos + w < len { pos + w } else { len }
-    let s1 = self.aligned_seq1.substring(start=pos, end~)
-    let s2 = self.aligned_seq2.substring(start=pos, end~)
+    let s1 = self.aligned_seq1[pos:end]
+    let s2 = self.aligned_seq2[pos:end]
     let pos1 = self.seq1_start + pos
     let pos2 = self.seq2_start + pos
 
     let mut mid = ""
     let mut i = pos
     while i < end {
-      let c1 = self.aligned_seq1.substring(start=i, end=i + 1)
-      let c2 = self.aligned_seq2.substring(start=i, end=i + 1)
+      let c1 = self.aligned_seq1[i:i + 1]
+      let c2 = self.aligned_seq2[i:i + 1]
       if c1 == "-" || c2 == "-" {
         mid = mid + " "
       } else if c1 == c2 {
@@ -103,10 +94,10 @@ pub fn pairwise_result_new(
   aligned_seq2 : String,
   score : Double,
   mode : String,
-  seq1_start : Int,
-  seq1_end : Int,
-  seq2_start : Int,
-  seq2_end : Int,
+  seq1_start : Int32,
+  seq1_end : Int32,
+  seq2_start : Int32,
+  seq2_end : Int32,
 ) -> PairwiseAlignResult {
   PairwiseAlignResult::{
     aligned_seq1,
@@ -185,24 +176,29 @@ pub fn dna_matrix(
 /// Helper: get element from flat Double matrix
 fn get_flat_double(
   arr : Array[Double],
-  i : Int,
-  j : Int,
-  m_plus_1 : Int,
+  i : Int32,
+  j : Int32,
+  m_plus_1 : Int32,
 ) -> Double {
   arr[i * m_plus_1 + j]
 }
 
 ///|
 /// Helper: get element from flat Int matrix
-fn get_flat_int(arr : Array[Int], i : Int, j : Int, m_plus_1 : Int) -> Int {
+fn get_flat_int(
+  arr : Array[Int32],
+  i : Int32,
+  j : Int32,
+  m_plus_1 : Int32,
+) -> Int32 {
   arr[i * m_plus_1 + j]
 }
 
 ///|
 /// Helper: initialize flat Double matrix of size (n+1) x (m+1) with fill_val
-fn init_flat_double(n : Int, m : Int, fill_val : Double) -> Array[Double] {
+fn init_flat_double(n : Int32, m : Int32, fill_val : Double) -> Array[Double] {
   let size = (n + 1) * (m + 1)
-  let arr : Array[Double] = Array::new()
+  let arr : Array[Double] = Array(capacity=0)
   let mut i = 0
   while i < size {
     arr.push(fill_val)
@@ -213,9 +209,9 @@ fn init_flat_double(n : Int, m : Int, fill_val : Double) -> Array[Double] {
 
 ///|
 /// Helper: initialize flat Int matrix of size (n+1) x (m+1) with fill_val
-fn init_flat_int(n : Int, m : Int, fill_val : Int) -> Array[Int] {
+fn init_flat_int(n : Int32, m : Int32, fill_val : Int32) -> Array[Int32] {
   let size = (n + 1) * (m + 1)
-  let arr : Array[Int] = Array::new()
+  let arr : Array[Int32] = Array(capacity=0)
   let mut i = 0
   while i < size {
     arr.push(fill_val)
@@ -276,10 +272,10 @@ pub fn pairwise_globalxx(
   // Fill DP matrix
   i = 1
   while i <= n {
-    let c1 = seq1.substring(start=i - 1, end=i).to_upper()
+    let c1 = seq1[i - 1:i].to_upper()
     j = 1
     while j <= m {
-      let c2 = seq2.substring(start=j - 1, end=j).to_upper()
+      let c2 = seq2[j - 1:j].to_upper()
       let s = if c1 == c2 { match_sc } else { mismatch_sc }
 
       let diag = get_flat_double(sc, i - 1, j - 1, m_plus_1) + s
@@ -315,30 +311,30 @@ pub fn pairwise_globalxx(
   while p > 0 && q > 0 {
     let dir = get_flat_int(tb, p, q, m_plus_1)
     if dir == 0 {
-      aligned1 = seq1.substring(start=p - 1, end=p) + aligned1
-      aligned2 = seq2.substring(start=q - 1, end=q) + aligned2
+      aligned1 = seq1[p - 1:p].to_owned() + aligned1
+      aligned2 = seq2[q - 1:q].to_owned() + aligned2
       p = p - 1
       q = q - 1
     } else if dir == 1 {
-      aligned1 = seq1.substring(start=p - 1, end=p) + aligned1
+      aligned1 = seq1[p - 1:p].to_owned() + aligned1
       aligned2 = "-" + aligned2
       p = p - 1
     } else {
       aligned1 = "-" + aligned1
-      aligned2 = seq2.substring(start=q - 1, end=q) + aligned2
+      aligned2 = seq2[q - 1:q].to_owned() + aligned2
       q = q - 1
     }
   }
 
   while p > 0 {
-    aligned1 = seq1.substring(start=p - 1, end=p) + aligned1
+    aligned1 = seq1[p - 1:p].to_owned() + aligned1
     aligned2 = "-" + aligned2
     p = p - 1
   }
 
   while q > 0 {
     aligned1 = "-" + aligned1
-    aligned2 = seq2.substring(start=q - 1, end=q) + aligned2
+    aligned2 = seq2[q - 1:q].to_owned() + aligned2
     q = q - 1
   }
 
@@ -364,7 +360,7 @@ pub fn pairwise_localxx(
   seq2 : String,
   match_sc : Double,
   mismatch_sc : Double,
-  gap_open : Double,
+  _gap_open : Double,
   gap_extend : Double,
 ) -> PairwiseAlignResult {
   let n = seq1.length()
@@ -393,10 +389,10 @@ pub fn pairwise_localxx(
 
   let mut i = 1
   while i <= n {
-    let c1 = seq1.substring(start=i - 1, end=i).to_upper()
+    let c1 = seq1[i - 1:i].to_upper()
     let mut j = 1
     while j <= m {
-      let c2 = seq2.substring(start=j - 1, end=j).to_upper()
+      let c2 = seq2[j - 1:j].to_upper()
       let s = if c1 == c2 { match_sc } else { mismatch_sc }
 
       let diag = get_flat_double(sc, i - 1, j - 1, m_plus_1) + s
@@ -460,20 +456,20 @@ pub fn pairwise_localxx(
         get_flat_double(sc, p, q, m_plus_1) > 0.0 {
     let dir = get_flat_int(tb, p, q, m_plus_1)
     if dir == 0 {
-      aligned1 = seq1.substring(start=p - 1, end=p) + aligned1
-      aligned2 = seq2.substring(start=q - 1, end=q) + aligned2
+      aligned1 = seq1[p - 1:p].to_owned() + aligned1
+      aligned2 = seq2[q - 1:q].to_owned() + aligned2
       start1 = p - 1
       start2 = q - 1
       p = p - 1
       q = q - 1
     } else if dir == 1 {
-      aligned1 = seq1.substring(start=p - 1, end=p) + aligned1
+      aligned1 = seq1[p - 1:p].to_owned() + aligned1
       aligned2 = "-" + aligned2
       start1 = p - 1
       p = p - 1
     } else {
       aligned1 = "-" + aligned1
-      aligned2 = seq2.substring(start=q - 1, end=q) + aligned2
+      aligned2 = seq2[q - 1:q].to_owned() + aligned2
       start2 = q - 1
       q = q - 1
     }
@@ -542,10 +538,10 @@ pub fn pairwise_globalms(
   // Fill DP matrix
   i = 1
   while i <= n {
-    let c1 = seq1.substring(start=i - 1, end=i)
+    let c1 = seq1[i - 1:i].to_owned()
     j = 1
     while j <= m {
-      let c2 = seq2.substring(start=j - 1, end=j)
+      let c2 = seq2[j - 1:j].to_owned()
       let s = scorer(c1, c2)
 
       let diag = get_flat_double(sc, i - 1, j - 1, m_plus_1) + s
@@ -581,30 +577,30 @@ pub fn pairwise_globalms(
   while p > 0 && q > 0 {
     let dir = get_flat_int(tb, p, q, m_plus_1)
     if dir == 0 {
-      aligned1 = seq1.substring(start=p - 1, end=p) + aligned1
-      aligned2 = seq2.substring(start=q - 1, end=q) + aligned2
+      aligned1 = seq1[p - 1:p].to_owned() + aligned1
+      aligned2 = seq2[q - 1:q].to_owned() + aligned2
       p = p - 1
       q = q - 1
     } else if dir == 1 {
-      aligned1 = seq1.substring(start=p - 1, end=p) + aligned1
+      aligned1 = seq1[p - 1:p].to_owned() + aligned1
       aligned2 = "-" + aligned2
       p = p - 1
     } else {
       aligned1 = "-" + aligned1
-      aligned2 = seq2.substring(start=q - 1, end=q) + aligned2
+      aligned2 = seq2[q - 1:q].to_owned() + aligned2
       q = q - 1
     }
   }
 
   while p > 0 {
-    aligned1 = seq1.substring(start=p - 1, end=p) + aligned1
+    aligned1 = seq1[p - 1:p].to_owned() + aligned1
     aligned2 = "-" + aligned2
     p = p - 1
   }
 
   while q > 0 {
     aligned1 = "-" + aligned1
-    aligned2 = seq2.substring(start=q - 1, end=q) + aligned2
+    aligned2 = seq2[q - 1:q].to_owned() + aligned2
     q = q - 1
   }
 
@@ -628,7 +624,7 @@ pub fn pairwise_localms(
   seq1 : String,
   seq2 : String,
   matrix : Map[String, Double],
-  gap_open : Double,
+  _gap_open : Double,
   gap_extend : Double,
 ) -> PairwiseAlignResult {
   let scorer = matrix_score(matrix, 0.0)
@@ -658,10 +654,10 @@ pub fn pairwise_localms(
 
   let mut i = 1
   while i <= n {
-    let c1 = seq1.substring(start=i - 1, end=i)
+    let c1 = seq1[i - 1:i].to_owned()
     let mut j = 1
     while j <= m {
-      let c2 = seq2.substring(start=j - 1, end=j)
+      let c2 = seq2[j - 1:j].to_owned()
       let s = scorer(c1, c2)
 
       let diag = get_flat_double(sc, i - 1, j - 1, m_plus_1) + s
@@ -725,20 +721,20 @@ pub fn pairwise_localms(
         get_flat_double(sc, p, q, m_plus_1) > 0.0 {
     let dir = get_flat_int(tb, p, q, m_plus_1)
     if dir == 0 {
-      aligned1 = seq1.substring(start=p - 1, end=p) + aligned1
-      aligned2 = seq2.substring(start=q - 1, end=q) + aligned2
+      aligned1 = seq1[p - 1:p].to_owned() + aligned1
+      aligned2 = seq2[q - 1:q].to_owned() + aligned2
       start1 = p - 1
       start2 = q - 1
       p = p - 1
       q = q - 1
     } else if dir == 1 {
-      aligned1 = seq1.substring(start=p - 1, end=p) + aligned1
+      aligned1 = seq1[p - 1:p].to_owned() + aligned1
       aligned2 = "-" + aligned2
       start1 = p - 1
       p = p - 1
     } else {
       aligned1 = "-" + aligned1
-      aligned2 = seq2.substring(start=q - 1, end=q) + aligned2
+      aligned2 = seq2[q - 1:q].to_owned() + aligned2
       start2 = q - 1
       q = q - 1
     }
@@ -780,8 +776,8 @@ pub fn alignment_summary(result : PairwiseAlignResult) -> String {
 
   let mut i = 0
   while i < len {
-    let c1 = s1.substring(start=i, end=i + 1)
-    let c2 = s2.substring(start=i, end=i + 1)
+    let c1 = s1[i:i + 1]
+    let c2 = s2[i:i + 1]
     if c1 == "-" || c2 == "-" {
       gaps = gaps + 1
     } else if c1 == c2 {

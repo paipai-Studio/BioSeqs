@@ -35,7 +35,7 @@ pub fn PDBAtom::new(
   y : Double,
   z : Double,
 ) -> PDBAtom {
-  PDBAtom::{ name, x, y, z }
+  PDBAtom::{ name, x, y, z, }
 }
 
 ///|
@@ -53,7 +53,7 @@ pub fn HSExposureResult::new(
   hse_down : Double,
   hse_total : Double,
 ) -> HSExposureResult {
-  HSExposureResult::{ residue_name, hse_up, hse_down, hse_total }
+  HSExposureResult::{ residue_name, hse_up, hse_down, hse_total, }
 }
 
 ///|
@@ -125,7 +125,7 @@ pub fn calculate_hse(
 
 ///|
 pub fn create_example_atoms() -> Array[PDBAtom] {
-  let atoms : Array[PDBAtom] = Array::new()
+  let atoms : Array[PDBAtom] = Array(capacity=0)
 
   atoms.push(PDBAtom::new("CA1", 0.0, 0.0, 0.0))
   atoms.push(PDBAtom::new("CB1", 1.5, 0.0, 0.0))

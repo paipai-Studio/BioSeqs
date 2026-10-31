@@ -102,7 +102,7 @@ test "uniprot_to_seqrecord" {
     "Homo sapiens",
     "ACGTACGTAC",
   )
-  let (header, id, desc, kwargs) = @src.uniprot_to_seqrecord(entry)
+  let (header, id, desc, _kwargs) = @src.uniprot_to_seqrecord(entry)
   assert_true(header.length() > 0)
   assert_true(id.length() > 0)
   assert_true(desc.length() > 0)

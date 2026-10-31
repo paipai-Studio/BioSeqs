@@ -97,10 +97,10 @@ pub fn lowess_weighted_linear_regression(
 /// Assumes x is sorted in ascending order.
 fn lowess_find_window(
   x : Array[Double],
-  n : Int,
-  i : Int,
-  r : Int,
-) -> (Int, Int) {
+  n : Int32,
+  i : Int32,
+  r : Int32,
+) -> (Int32, Int32) {
   let mut left = i
   let mut right = i
   let mut count = 1
@@ -129,9 +129,9 @@ fn lowess_find_window(
 fn lowess_compute_point(
   x : Array[Double],
   y : Array[Double],
-  n : Int,
-  i : Int,
-  r : Int,
+  n : Int32,
+  i : Int32,
+  r : Int32,
   rw : Array[Double],
 ) -> Double {
   let (left, right) = lowess_find_window(x, n, i, r)
@@ -185,13 +185,13 @@ fn lowess_compute_point(
 pub fn lowess(
   x : Array[Double],
   y : Array[Double],
-  f? : Double = 0.6667,
-  n_steps? : Int = 0,
-  delta? : Double = 0.0,
+  f~ : Double = 0.6667,
+  n_steps~ : Int32 = 0,
+  delta~ : Double = 0.0,
 ) -> Array[Double] {
   let n = x.length()
   if n == 0 {
-    return Array::new()
+    return Array(capacity=0)
   }
   if n == 1 {
     return [y[0]]
@@ -246,7 +246,7 @@ pub fn lowess(
     }
     // Compute robustness weights for the next iteration
     if step < n_steps {
-      let residuals : Array[Double] = Array::new()
+      let residuals : Array[Double] = Array(capacity=0)
       let mut k = 0
       while k < n {
         residuals.push((y[k] - ys[k]).abs())
@@ -273,9 +273,9 @@ pub fn lowess(
 pub fn lowess_robust(
   x : Array[Double],
   y : Array[Double],
-  f? : Double = 0.6667,
-  n_steps? : Int = 2,
-  delta? : Double = 0.0,
+  f~ : Double = 0.6667,
+  n_steps~ : Int32 = 2,
+  delta~ : Double = 0.0,
 ) -> Array[Double] {
   lowess(x, y, f~, n_steps~, delta~)
 }
@@ -290,7 +290,7 @@ pub fn lowess_predict(
   x : Array[Double],
   y : Array[Double],
   smoothed_y : Array[Double],
-  f? : Double = 0.6667,
+  f~ : Double = 0.6667,
 ) -> Double {
   let n = x.length()
   if n == 0 {
@@ -394,11 +394,11 @@ pub fn lowess_predict(
 /// Convenience function where x = 0, 1, 2, ... (indices as x values).
 pub fn lowess_smooth_series(
   values : Array[Double],
-  window_frac? : Double = 0.3,
+  window_frac~ : Double = 0.3,
 ) -> Array[Double] {
   let n = values.length()
   if n == 0 {
-    return Array::new()
+    return Array(capacity=0)
   }
   let x : Array[Double] = Array::make(n, 0.0)
   let mut i = 0

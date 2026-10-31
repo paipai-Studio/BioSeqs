@@ -3,7 +3,7 @@
 
 ///|
 pub struct DGEList {
-  counts : Array[Array[Int]]
+  counts : Array[Array[Int32]]
   group : Array[String]
   genes : Array[String]
   lib_size : Array[Double]
@@ -21,7 +21,7 @@ pub struct DEGEResults {
 
 ///|
 pub fn dge_list(
-  counts : Array[Array[Int]],
+  counts : Array[Array[Int32]],
   group : Array[String],
   genes : Array[String],
 ) -> DGEList {
@@ -38,12 +38,12 @@ pub fn dge_list(
 
   let norm_factors : Array[Double] = Array::make(n_cols, 1.0)
 
-  DGEList::{ counts, group, genes, lib_size, norm_factors }
+  DGEList::{ counts, group, genes, lib_size, norm_factors, }
 }
 
 ///|
 pub fn calc_norm_factors(dge : DGEList) -> DGEList {
-  let n_genes = dge.counts.length()
+  let _n_genes = dge.counts.length()
   let n_cols = dge.lib_size.length()
 
   let ref_lib_size = dge.lib_size[0]
@@ -112,8 +112,8 @@ pub fn exact_test(
   let p_value : Array[Double] = Array::make(n_genes, 1.0)
   let fdr : Array[Double] = Array::make(n_genes, 1.0)
 
-  let group1_indices : Array[Int] = Array::new()
-  let group2_indices : Array[Int] = Array::new()
+  let group1_indices : Array[Int32] = Array(capacity=0)
+  let group2_indices : Array[Int32] = Array(capacity=0)
 
   for j = 0; j < n_cols; j = j + 1 {
     if dge.group[j] == group1 {
@@ -188,15 +188,15 @@ pub fn exact_test(
     }
   }
 
-  DEGEResults::{ genes: dge.genes, log_fc, log_cpm, p_value, fdr }
+  DEGEResults::{ genes: dge.genes, log_fc, log_cpm, p_value, fdr, }
 }
 
 ///|
-pub fn top_tags(results : DEGEResults, n : Int) -> DEGEResults {
+pub fn top_tags(results : DEGEResults, n : Int32) -> DEGEResults {
   let n_genes = results.genes.length()
   let actual_n = if n < n_genes { n } else { n_genes }
 
-  let indices : Array[(Int, Double)] = Array::make(n_genes, (0, 0.0))
+  let indices : Array[(Int32, Double)] = Array::make(n_genes, (0, 0.0))
   for i = 0; i < n_genes; i = i + 1 {
     indices[i] = (i, results.fdr[i])
   }
@@ -226,7 +226,7 @@ pub fn top_tags(results : DEGEResults, n : Int) -> DEGEResults {
     fdr[i] = results.fdr[idx]
   }
 
-  DEGEResults::{ genes, log_fc, log_cpm, p_value, fdr }
+  DEGEResults::{ genes, log_fc, log_cpm, p_value, fdr, }
 }
 
 ///|
@@ -261,7 +261,7 @@ pub fn glm_fit(
 pub fn glm_lrt(
   dge : DGEList,
   design : Array[Array[Double]],
-  coef : Int,
+  coef : Int32,
 ) -> DEGEResults {
   let n_genes = dge.counts.length()
 
@@ -285,5 +285,5 @@ pub fn glm_lrt(
     }
   }
 
-  DEGEResults::{ genes: dge.genes, log_fc, log_cpm, p_value, fdr }
+  DEGEResults::{ genes: dge.genes, log_fc, log_cpm, p_value, fdr, }
 }

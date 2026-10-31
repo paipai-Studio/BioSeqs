@@ -48,7 +48,7 @@ pub fn Tree::total_branch_length(self : Tree) -> Double {
 pub fn Clade::get_bipartitions(
   self : Clade,
 ) -> Array[(Array[String], Array[String])] {
-  let result : Array[(Array[String], Array[String])] = Array::new()
+  let result : Array[(Array[String], Array[String])] = Array(capacity=0)
   let all_leaves = self.get_leaf_names()
   self.collect_bipartitions(all_leaves, result)
   result
@@ -65,7 +65,7 @@ fn Clade::collect_bipartitions(
     let clade_leaves = clade.get_leaf_names()
     if clade_leaves.length() > 0 && clade_leaves.length() < all_leaves.length() {
       // Build the complement set
-      let complement : Array[String] = Array::new()
+      let complement : Array[String] = Array(capacity=0)
       let mut i = 0
       while i < all_leaves.length() {
         let mut found = false
@@ -91,7 +91,7 @@ fn Clade::collect_bipartitions(
 ///|
 /// Get all leaf names (terminal clade names) in this subtree.
 pub fn Clade::get_leaf_names(self : Clade) -> Array[String] {
-  let result : Array[String] = Array::new()
+  let result : Array[String] = Array(capacity=0)
   self.collect_leaf_names(result)
   result
 }
@@ -115,7 +115,7 @@ fn Clade::collect_leaf_names(self : Clade, result : Array[String]) -> Unit {
 /// Calculate the Robinson-Foulds distance between two trees.
 /// RF distance = number of bipartitions in tree1 but not tree2
 ///              + number of bipartitions in tree2 but not in tree1
-pub fn robinson_foulds_distance(tree1 : Tree, tree2 : Tree) -> Int {
+pub fn robinson_foulds_distance(tree1 : Tree, tree2 : Tree) -> Int32 {
   let biparts1 = tree1.root.get_bipartitions()
   let biparts2 = tree2.root.get_bipartitions()
 
@@ -142,7 +142,7 @@ pub fn robinson_foulds_distance(tree1 : Tree, tree2 : Tree) -> Int {
 fn normalize_bipartitions(
   biparts : Array[(Array[String], Array[String])],
 ) -> Array[(Array[String], Array[String])] {
-  let result : Array[(Array[String], Array[String])] = Array::new()
+  let result : Array[(Array[String], Array[String])] = Array(capacity=0)
   for bp in biparts {
     let (left, right) = bp
     if left.length() <= right.length() {
@@ -209,7 +209,7 @@ fn arrays_equal(a : Array[String], b : Array[String]) -> Bool {
 ///|
 /// Calculate the Colless index for tree balance.
 /// Measures how balanced a tree is. Lower = more balanced.
-pub fn Clade::colless_index(self : Clade) -> Int {
+pub fn Clade::colless_index(self : Clade) -> Int32 {
   if self.is_terminal() {
     return 0
   }
@@ -228,7 +228,7 @@ pub fn Clade::colless_index(self : Clade) -> Int {
 
 ///|
 /// Calculate the Colless index for a Tree.
-pub fn Tree::colless_index(self : Tree) -> Int {
+pub fn Tree::colless_index(self : Tree) -> Int32 {
   self.root.colless_index()
 }
 
@@ -316,7 +316,7 @@ pub fn Tree::patristic_distance(
 pub fn Clade::patristic_distance_matrix(
   self : Clade,
 ) -> Array[(String, String, Double)] {
-  let result : Array[(String, String, Double)] = Array::new()
+  let result : Array[(String, String, Double)] = Array(capacity=0)
   let leaves = self.get_leaf_names()
   let n = leaves.length()
   let mut i = 0
@@ -344,7 +344,7 @@ pub fn Tree::patristic_distance_matrix(
 
 ///|
 /// Count the number of internal nodes (non-terminal clades).
-pub fn Clade::count_internal(self : Clade) -> Int {
+pub fn Clade::count_internal(self : Clade) -> Int32 {
   if self.is_terminal() {
     0
   } else {
@@ -358,7 +358,7 @@ pub fn Clade::count_internal(self : Clade) -> Int {
 
 ///|
 /// Count the number of internal nodes in a Tree.
-pub fn Tree::count_internal(self : Tree) -> Int {
+pub fn Tree::count_internal(self : Tree) -> Int32 {
   self.root.count_internal()
 }
 

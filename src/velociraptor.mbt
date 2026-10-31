@@ -31,7 +31,7 @@ pub fn VelocityGeneData::new(
   spliced : Array[Double],
   unspliced : Array[Double],
 ) -> VelocityGeneData {
-  VelocityGeneData::{ gene_name, spliced, unspliced }
+  VelocityGeneData::{ gene_name, spliced, unspliced, }
 }
 
 ///|
@@ -176,14 +176,6 @@ fn vr_sqrt(x : Double) -> Double {
 }
 
 ///|
-fn vr_log(x : Double) -> Double {
-  if x <= 0.0 {
-    return -700.0
-  }
-  @math.ln(x)
-}
-
-///|
 fn vr_exp(x : Double) -> Double {
   if x > 700.0 {
     return 1.7976931348623157e308
@@ -195,35 +187,7 @@ fn vr_exp(x : Double) -> Double {
 }
 
 ///|
-fn vr_mean(arr : Array[Double]) -> Double {
-  let n = arr.length()
-  if n == 0 {
-    return 0.0
-  }
-  let mut s = 0.0
-  for v in arr {
-    s = s + v
-  }
-  s / n.to_double()
-}
-
-///|
-fn vr_variance(arr : Array[Double]) -> Double {
-  let n = arr.length()
-  if n < 2 {
-    return 0.0
-  }
-  let m = vr_mean(arr)
-  let mut s = 0.0
-  for v in arr {
-    let d = v - m
-    s = s + d * d
-  }
-  s / (n - 1).to_double()
-}
-
-///|
-fn vr_lcg_rand(state : Int) -> (Int, Double) {
+fn vr_lcg_rand(state : Int32) -> (Int32, Double) {
   let s = (state * 1103515245 + 12345) & 0x7FFFFFFF
   (s, (s % 1000000).to_double() / 1000000.0)
 }
@@ -313,7 +277,7 @@ pub fn velocity_kinetic_model(
   gene_name : String,
   spliced : Array[Double],
   unspliced : Array[Double],
-  n_iterations : Int,
+  n_iterations : Int32,
 ) -> GeneKinetics {
   let n = spliced.length()
   if n < 3 {
@@ -349,7 +313,7 @@ pub fn velocity_kinetic_model(
   for _ in 0..<n_iterations {
     // E-step: assign phases based on unspliced vs spliced relationship.
     // At steady state, u = gamma/beta * s.
-    let threshold = ss_u / scale
+    let _threshold = ss_u / scale
     for i in 0..<n {
       let expected_u_steady = gamma / beta * norm_s[i]
       let diff = norm_u[i] - expected_u_steady
@@ -368,7 +332,7 @@ pub fn velocity_kinetic_model(
     // For steady phase: du/dt ~ 0, ds/dt ~ 0 => u = (alpha - gamma*s)/beta
     // For repression phase: du/dt < 0, ds/dt < 0
     // Estimate gamma from steady-state cells.
-    let steady_indices : Array[Int] = Array::new()
+    let steady_indices : Array[Int32] = Array(capacity=0)
     for i in 0..<n {
       if phase_labels[i] == 1 {
         steady_indices.push(i)
@@ -398,7 +362,7 @@ pub fn velocity_kinetic_model(
       }
     }
     // Estimate alpha from induction phase cells.
-    let induction_indices : Array[Int] = Array::new()
+    let induction_indices : Array[Int32] = Array(capacity=0)
     for i in 0..<n {
       if phase_labels[i] == 0 {
         induction_indices.push(i)
@@ -476,9 +440,9 @@ pub fn velocity_compute(
     return []
   }
   let n_cells = gene_data[0].spliced.length()
-  let cell_ids = Array::make(n_cells, "cell_0")
+  let _cell_ids = Array::make(n_cells, "cell_0")
   // Build per-cell velocity vectors.
-  let result : Array[CellVelocity] = Array::new()
+  let result : Array[CellVelocity] = Array(capacity=0)
   for ci in 0..<n_cells {
     let vel = Array::make(n_genes, 0.0)
     for gi in 0..<n_genes {
@@ -537,17 +501,17 @@ pub fn velocity_gene(
 pub fn velocity_embedding(
   velocities : Array[CellVelocity],
   embeddings : Array[Array[Double]],
-  k : Int,
+  k : Int32,
 ) -> Array[EmbeddingVelocity] {
   let n_cells = velocities.length()
   if n_cells == 0 || n_cells != embeddings.length() {
     return []
   }
   let n_dims = embeddings[0].length()
-  let result : Array[EmbeddingVelocity] = Array::new()
+  let result : Array[EmbeddingVelocity] = Array(capacity=0)
   for ci in 0..<n_cells {
     // Find k nearest neighbors based on embedding distance.
-    let neighbors : Array[(Int, Double)] = Array::new()
+    let neighbors : Array[(Int32, Double)] = Array(capacity=0)
     for cj in 0..<n_cells {
       if ci != cj {
         let dist = vr_euclidean(embeddings[ci], embeddings[cj])
@@ -583,7 +547,7 @@ pub fn velocity_embedding(
         emb_diff[d] = embeddings[n_idx][d] - embeddings[ci][d]
       }
       // Cosine similarity between velocity and emb_diff (using embedding as proxy).
-      let vel_vec = velocities[ci].velocity
+      let _vel_vec = velocities[ci].velocity
       let emb_diff_mag = vr_sqrt(vr_dot(emb_diff, emb_diff))
       let vel_mag = velocities[ci].speed
       if emb_diff_mag > 0.0000001 && vel_mag > 0.0000001 {
@@ -647,8 +611,8 @@ fn vr_dot(a : Array[Double], b : Array[Double]) -> Double {
 /// Returns indices of root cells sorted by speed (descending).
 pub fn velocity_find_root_cells(
   velocities : Array[CellVelocity],
-  n_roots : Int,
-) -> Array[Int] {
+  n_roots : Int32,
+) -> Array[Int32] {
   let n = velocities.length()
   let indices = Array::make(n, 0)
   for i in 0..<n {
@@ -667,7 +631,7 @@ pub fn velocity_find_root_cells(
     }
   }
   let limit = if n_roots < n { n_roots } else { n }
-  let result : Array[Int] = Array::new()
+  let result : Array[Int32] = Array(capacity=0)
   for i in 0..<limit {
     result.push(indices[i])
   }
@@ -687,18 +651,18 @@ pub fn velocity_find_root_cells(
 pub fn velocity_transition_matrix(
   velocities : Array[CellVelocity],
   embeddings : Array[Array[Double]],
-  k : Int,
+  k : Int32,
   temperature : Double,
 ) -> Array[Array[Double]] {
   let n = velocities.length()
   let temp = if temperature > 0.0 { temperature } else { 1.0 }
-  let matrix : Array[Array[Double]] = Array::new()
+  let matrix : Array[Array[Double]] = Array(capacity=0)
   for _ in 0..<n {
     matrix.push(Array::make(n, 0.0))
   }
   for ci in 0..<n {
     // Find k nearest neighbors.
-    let neighbors : Array[(Int, Double)] = Array::new()
+    let neighbors : Array[(Int32, Double)] = Array(capacity=0)
     for cj in 0..<n {
       if ci != cj {
         let dist = vr_euclidean(embeddings[ci], embeddings[cj])
@@ -770,10 +734,10 @@ pub fn velocity_transition_matrix(
 pub fn velocity_run(
   gene_data : Array[VelocityGeneData],
   embeddings : Array[Array[Double]],
-  k : Int,
+  k : Int32,
 ) -> (Array[GeneKinetics], Array[CellVelocity], Array[EmbeddingVelocity]) {
   // 1. Estimate kinetics per gene.
-  let kinetics : Array[GeneKinetics] = Array::new()
+  let kinetics : Array[GeneKinetics] = Array(capacity=0)
   for gd in gene_data {
     let k = velocity_kinetic_model(gd.gene_name, gd.spliced, gd.unspliced, 50)
     kinetics.push(k)
@@ -800,7 +764,7 @@ pub fn velocity_run(
 pub fn velocity_sample_data() -> Array[VelocityGeneData] {
   let genes = ["GeneA", "GeneB", "GeneC", "GeneD"]
   let n_cells = 20
-  let gene_data : Array[VelocityGeneData] = Array::new()
+  let gene_data : Array[VelocityGeneData] = Array(capacity=0)
   let mut rng_state = 42
   for gene_idx in 0..<genes.length() {
     let spliced = Array::make(n_cells, 0.0)
@@ -841,8 +805,8 @@ pub fn velocity_sample_data() -> Array[VelocityGeneData] {
 
 ///|
 /// Create sample UMAP-like embeddings for testing.
-pub fn velocity_sample_embeddings(n_cells : Int) -> Array[Array[Double]] {
-  let embeddings : Array[Array[Double]] = Array::new()
+pub fn velocity_sample_embeddings(n_cells : Int32) -> Array[Array[Double]] {
+  let embeddings : Array[Array[Double]] = Array(capacity=0)
   let mut rng_state = 99
   for i in 0..<n_cells {
     let t = i.to_double() / n_cells.to_double()

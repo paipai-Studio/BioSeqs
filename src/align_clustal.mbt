@@ -22,12 +22,24 @@ pub struct AlignClustalMetadata {
 } derive(Eq, Debug)
 
 ///|
+pub extend AlignClustalMetadata with Eq::{equal, not_equal}
+
+///|
+pub extend AlignClustalMetadata with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
 /// One coordinate-bearing row in a CLUSTAL alignment.
 pub struct AlignClustalSequence {
   id : String
   sequence : String
   aligned_sequence : String
 } derive(Eq, Debug)
+
+///|
+pub extend AlignClustalSequence with Eq::{equal, not_equal}
+
+///|
+pub extend AlignClustalSequence with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// A modern CLUSTAL multiple sequence alignment.
@@ -41,33 +53,45 @@ pub struct AlignClustalAlignment {
 } derive(Eq, Debug)
 
 ///|
+pub extend AlignClustalAlignment with Eq::{equal, not_equal}
+
+///|
+pub extend AlignClustalAlignment with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
 /// Pairwise or all-pairs alignment statistics.
 pub struct AlignClustalCounts {
-  pairs : Int
-  aligned : Int
-  identities : Int
-  mismatches : Int
-  gap_columns : Int
-  double_gap_columns : Int
-  gap_opens : Int
+  pairs : Int32
+  aligned : Int32
+  identities : Int32
+  mismatches : Int32
+  gap_columns : Int32
+  double_gap_columns : Int32
+  gap_opens : Int32
 } derive(Eq, Debug)
+
+///|
+pub extend AlignClustalCounts with Eq::{equal, not_equal}
+
+///|
+pub extend AlignClustalCounts with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// One parsed interleaved block.
 priv struct AlignClustalBlock {
   ids : Array[String]
   segments : Array[String]
-  residue_counts : Array[Int?]
+  residue_counts : Array[Int32?]
   consensus : String?
-  width : Int
+  width : Int32
 }
 
 ///|
 /// Construct validated CLUSTAL file metadata.
 pub fn AlignClustalMetadata::create(
   program : String,
-  version? : String = "",
-  header? : String = "",
+  version~ : String = "",
+  header~ : String = "",
 ) -> AlignClustalMetadata raise AlignClustalError {
   align_clustal_validate_program(program)
   align_clustal_validate_version(version)
@@ -77,7 +101,7 @@ pub fn AlignClustalMetadata::create(
     align_clustal_validate_plain_text(header, "CLUSTAL header")
     header
   }
-  AlignClustalMetadata::{ program, version, header: canonical_header }
+  AlignClustalMetadata::{ program, version, header: canonical_header, }
 }
 
 ///|
@@ -97,7 +121,7 @@ pub fn AlignClustalSequence::create(
       "CLUSTAL sequence row must contain at least one residue",
     )
   }
-  AlignClustalSequence::{ id, sequence, aligned_sequence }
+  AlignClustalSequence::{ id, sequence, aligned_sequence, }
 }
 
 ///|
@@ -105,7 +129,7 @@ pub fn AlignClustalSequence::create(
 pub fn AlignClustalAlignment::create(
   metadata : AlignClustalMetadata,
   sequences : Array[AlignClustalSequence],
-  consensus? : String? = None,
+  consensus~ : String? = None,
 ) -> AlignClustalAlignment raise AlignClustalError {
   let copied : Array[AlignClustalSequence] = []
   for sequence in sequences {
@@ -125,9 +149,9 @@ pub fn AlignClustalAlignment::create(
 pub fn align_clustal_from_aligned(
   ids : Array[String],
   aligned_sequences : Array[String],
-  program? : String = "Biopython",
-  version? : String = "",
-  consensus? : String? = None,
+  program~ : String = "Biopython",
+  version~ : String = "",
+  consensus~ : String? = None,
 ) -> AlignClustalAlignment raise AlignClustalError {
   if ids.length() == 0 {
     raise AlignClustalError(
@@ -198,10 +222,10 @@ pub fn align_clustal_parse(
       )
     }
     seen_ids.push(id)
-    builders.push(StringBuilder::new())
+    builders.push(StringBuilder())
   }
 
-  let consensus_builder = StringBuilder::new()
+  let consensus_builder = StringBuilder()
   let mut has_consensus = false
   for block_index = 0
       block_index < blocks.length()
@@ -262,10 +286,10 @@ pub fn align_clustal_parse(
 /// characters require a larger `name_width`.
 pub fn align_clustal_write(
   alignment : AlignClustalAlignment,
-  block_width? : Int = 50,
-  name_width? : Int = 36,
-  include_counts? : Bool = false,
-  include_consensus? : Bool = true,
+  block_width~ : Int32 = 50,
+  name_width~ : Int32 = 36,
+  include_counts~ : Bool = false,
+  include_consensus~ : Bool = true,
 ) -> String raise AlignClustalError {
   align_clustal_validate_alignment(alignment)
   if block_width <= 0 {
@@ -287,7 +311,7 @@ pub fn align_clustal_write(
       )
     }
   }
-  let output = StringBuilder::new()
+  let output = StringBuilder()
   output.write_string(
     align_clustal_canonical_header(
       alignment.metadata.program,
@@ -340,7 +364,7 @@ pub fn align_clustal_write(
 /// Return the number of sequence rows.
 pub fn AlignClustalAlignment::num_sequences(
   self : AlignClustalAlignment,
-) -> Int {
+) -> Int32 {
   self.sequences.length()
 }
 
@@ -348,7 +372,7 @@ pub fn AlignClustalAlignment::num_sequences(
 /// Return the alignment width including gaps.
 pub fn AlignClustalAlignment::alignment_length(
   self : AlignClustalAlignment,
-) -> Int {
+) -> Int32 {
   if self.sequences.length() == 0 {
     0
   } else {
@@ -361,7 +385,7 @@ pub fn AlignClustalAlignment::alignment_length(
 pub fn AlignClustalAlignment::find_sequence(
   self : AlignClustalAlignment,
   id : String,
-) -> Int? {
+) -> Int32? {
   for index = 0; index < self.sequences.length(); index = index + 1 {
     if self.sequences[index].id == id {
       return Some(index)
@@ -374,12 +398,12 @@ pub fn AlignClustalAlignment::find_sequence(
 /// Return one printed alignment column.
 pub fn AlignClustalAlignment::column(
   self : AlignClustalAlignment,
-  column : Int,
+  column : Int32,
 ) -> String? {
   if column < 0 || column >= self.alignment_length() {
     return None
   }
-  let result = StringBuilder::new(size_hint=self.sequences.length())
+  let result = StringBuilder(size_hint=self.sequences.length())
   for sequence in self.sequences {
     result.write_char(
       sequence.aligned_sequence.unsafe_get(column).unsafe_to_char(),
@@ -392,9 +416,9 @@ pub fn AlignClustalAlignment::column(
 /// Map a zero-based ungapped row position to an alignment column.
 pub fn AlignClustalAlignment::sequence_position_to_column(
   self : AlignClustalAlignment,
-  row : Int,
-  position : Int,
-) -> Int? {
+  row : Int32,
+  position : Int32,
+) -> Int32? {
   if row < 0 ||
     row >= self.sequences.length() ||
     position < 0 ||
@@ -418,9 +442,9 @@ pub fn AlignClustalAlignment::sequence_position_to_column(
 /// Map one alignment column to a zero-based ungapped row position.
 pub fn AlignClustalAlignment::column_to_sequence_position(
   self : AlignClustalAlignment,
-  row : Int,
-  column : Int,
-) -> Int? {
+  row : Int32,
+  column : Int32,
+) -> Int32? {
   if row < 0 ||
     row >= self.sequences.length() ||
     column < 0 ||
@@ -444,10 +468,10 @@ pub fn AlignClustalAlignment::column_to_sequence_position(
 /// Project one row position through the alignment to another row.
 pub fn AlignClustalAlignment::map_position(
   self : AlignClustalAlignment,
-  source_row : Int,
-  target_row : Int,
-  source_position : Int,
-) -> Int? {
+  source_row : Int32,
+  target_row : Int32,
+  source_position : Int32,
+) -> Int32? {
   if target_row < 0 || target_row >= self.sequences.length() {
     return None
   }
@@ -461,12 +485,12 @@ pub fn AlignClustalAlignment::map_position(
 /// Return per-column residue positions for two rows.
 pub fn AlignClustalAlignment::aligned_pairs(
   self : AlignClustalAlignment,
-  first_row : Int,
-  second_row : Int,
-) -> Array[(Int?, Int?)] raise AlignClustalError {
+  first_row : Int32,
+  second_row : Int32,
+) -> Array[(Int32?, Int32?)] raise AlignClustalError {
   align_clustal_validate_row(self, first_row)
   align_clustal_validate_row(self, second_row)
-  let result : Array[(Int?, Int?)] = []
+  let result : Array[(Int32?, Int32?)] = []
   let mut first_position = 0
   let mut second_position = 0
   for column = 0; column < self.alignment_length(); column = column + 1 {
@@ -506,8 +530,8 @@ pub fn AlignClustalAlignment::aligned_pairs(
 /// Return a compact Biopython-style coordinate path for all rows.
 pub fn AlignClustalAlignment::coordinate_path(
   self : AlignClustalAlignment,
-) -> Array[Array[Int]] {
-  let paths : Array[Array[Int]] = []
+) -> Array[Array[Int32]] {
+  let paths : Array[Array[Int32]] = []
   let coordinates = Array::make(self.sequences.length(), 0)
   for _row = 0; _row < self.sequences.length(); _row = _row + 1 {
     paths.push([0])
@@ -538,8 +562,8 @@ pub fn AlignClustalAlignment::coordinate_path(
 /// Compute statistics for one pair of rows.
 pub fn AlignClustalAlignment::pair_counts(
   self : AlignClustalAlignment,
-  first_row : Int,
-  second_row : Int,
+  first_row : Int32,
+  second_row : Int32,
 ) -> AlignClustalCounts raise AlignClustalError {
   align_clustal_validate_row(self, first_row)
   align_clustal_validate_row(self, second_row)
@@ -615,7 +639,7 @@ pub fn AlignClustalAlignment::occupancy(
 /// Calculate a majority residue consensus. Gaps do not vote.
 pub fn AlignClustalAlignment::majority_consensus(
   self : AlignClustalAlignment,
-  minimum_fraction? : Double = 0.0,
+  minimum_fraction~ : Double = 0.0,
 ) -> String raise AlignClustalError {
   if minimum_fraction != minimum_fraction ||
     minimum_fraction < 0.0 ||
@@ -624,7 +648,7 @@ pub fn AlignClustalAlignment::majority_consensus(
       "CLUSTAL consensus minimum fraction must be between 0 and 1",
     )
   }
-  let output = StringBuilder::new(size_hint=self.alignment_length())
+  let output = StringBuilder(size_hint=self.alignment_length())
   for column = 0; column < self.alignment_length(); column = column + 1 {
     let frequencies = Array::make(128, 0)
     let mut residues = 0
@@ -668,7 +692,7 @@ pub fn AlignClustalAlignment::majority_consensus(
 pub fn AlignClustalAlignment::calculated_consensus(
   self : AlignClustalAlignment,
 ) -> String {
-  let output = StringBuilder::new(size_hint=self.alignment_length())
+  let output = StringBuilder(size_hint=self.alignment_length())
   let nucleotide = align_clustal_is_nucleotide(self)
   let strong_groups = [
     "STA", "NEQK", "NHQK", "NDEQ", "QHRK", "MILV", "MILF", "HY", "FYW",
@@ -824,7 +848,7 @@ fn align_clustal_parse_block(
 ) -> AlignClustalBlock raise AlignClustalError {
   let ids : Array[String] = []
   let segments : Array[String] = []
-  let residue_counts : Array[Int?] = []
+  let residue_counts : Array[Int32?] = []
   let mut segment_start = -1
   let mut width = -1
   let mut consensus : String? = None
@@ -895,14 +919,14 @@ fn align_clustal_parse_block(
   if ids.length() == 0 || width <= 0 {
     raise AlignClustalError("CLUSTAL block contains no sequence rows")
   }
-  AlignClustalBlock::{ ids, segments, residue_counts, consensus, width }
+  AlignClustalBlock::{ ids, segments, residue_counts, consensus, width, }
 }
 
 ///|
 fn align_clustal_extract_consensus(
   line : String,
-  start : Int,
-  width : Int,
+  start : Int32,
+  width : Int32,
 ) -> String raise AlignClustalError {
   if start < 0 || width <= 0 {
     raise AlignClustalError("Invalid CLUSTAL consensus position")
@@ -914,7 +938,7 @@ fn align_clustal_extract_consensus(
       )
     }
   }
-  let output = StringBuilder::new(size_hint=width)
+  let output = StringBuilder(size_hint=width)
   for offset = 0; offset < width; offset = offset + 1 {
     let index = start + offset
     if index >= line.length() {
@@ -945,8 +969,8 @@ fn align_clustal_extract_consensus(
 ///|
 fn align_clustal_count_pair(
   alignment : AlignClustalAlignment,
-  first_row : Int,
-  second_row : Int,
+  first_row : Int32,
+  second_row : Int32,
 ) -> AlignClustalCounts {
   let first = alignment.sequences[first_row].aligned_sequence
   let second = alignment.sequences[second_row].aligned_sequence
@@ -995,8 +1019,8 @@ fn align_clustal_count_pair(
 ///|
 fn align_clustal_movement_changes(
   alignment : AlignClustalAlignment,
-  first_column : Int,
-  second_column : Int,
+  first_column : Int32,
+  second_column : Int32,
 ) -> Bool {
   for sequence in alignment.sequences {
     let first_moves = sequence.aligned_sequence
@@ -1017,7 +1041,7 @@ fn align_clustal_movement_changes(
 ///|
 fn align_clustal_column_has_gap(
   alignment : AlignClustalAlignment,
-  column : Int,
+  column : Int32,
 ) -> Bool {
   for sequence in alignment.sequences {
     if sequence.aligned_sequence.unsafe_get(column).to_int() == '-'.to_int() {
@@ -1030,7 +1054,7 @@ fn align_clustal_column_has_gap(
 ///|
 fn align_clustal_column_identical(
   alignment : AlignClustalAlignment,
-  column : Int,
+  column : Int32,
 ) -> Bool {
   let first = align_clustal_upper_code(
     alignment.sequences[0].aligned_sequence.unsafe_get(column).to_int(),
@@ -1049,7 +1073,7 @@ fn align_clustal_column_identical(
 ///|
 fn align_clustal_column_in_any_group(
   alignment : AlignClustalAlignment,
-  column : Int,
+  column : Int32,
   groups : Array[String],
 ) -> Bool {
   for group in groups {
@@ -1186,7 +1210,7 @@ fn align_clustal_validate_plain_text(
 ///|
 fn align_clustal_validate_row(
   alignment : AlignClustalAlignment,
-  row : Int,
+  row : Int32,
 ) -> Unit raise AlignClustalError {
   if row < 0 || row >= alignment.sequences.length() {
     raise AlignClustalError("CLUSTAL row index is out of bounds")
@@ -1243,7 +1267,7 @@ fn align_clustal_split_whitespace(value : String) -> Array[String] {
 }
 
 ///|
-fn align_clustal_segment_start(line : String) -> Int raise AlignClustalError {
+fn align_clustal_segment_start(line : String) -> Int32 raise AlignClustalError {
   let mut index = 0
   while index < line.length() &&
         !align_clustal_is_whitespace(line.unsafe_get(index).to_int()) {
@@ -1263,7 +1287,7 @@ fn align_clustal_segment_start(line : String) -> Int raise AlignClustalError {
 fn align_clustal_parse_nonnegative_int(
   text : String,
   label : String,
-) -> Int raise AlignClustalError {
+) -> Int32 raise AlignClustalError {
   if text.length() == 0 {
     raise AlignClustalError(label + " is empty")
   }
@@ -1283,7 +1307,7 @@ fn align_clustal_parse_nonnegative_int(
 }
 
 ///|
-fn align_clustal_residue_count(segment : String) -> Int {
+fn align_clustal_residue_count(segment : String) -> Int32 {
   let mut count = 0
   for index = 0; index < segment.length(); index = index + 1 {
     if segment.unsafe_get(index).to_int() != '-'.to_int() {
@@ -1295,7 +1319,7 @@ fn align_clustal_residue_count(segment : String) -> Int {
 
 ///|
 fn align_clustal_remove_gaps(value : String) -> String {
-  let output = StringBuilder::new(size_hint=value.length())
+  let output = StringBuilder(size_hint=value.length())
   for index = 0; index < value.length(); index = index + 1 {
     let code = value.unsafe_get(index).to_int()
     if code != '-'.to_int() {
@@ -1317,7 +1341,7 @@ fn align_clustal_strip_parentheses(value : String) -> String {
 }
 
 ///|
-fn align_clustal_upper_code(code : Int) -> Int {
+fn align_clustal_upper_code(code : Int32) -> Int32 {
   if code >= 'a'.to_int() && code <= 'z'.to_int() {
     code - 'a'.to_int() + 'A'.to_int()
   } else {
@@ -1326,7 +1350,7 @@ fn align_clustal_upper_code(code : Int) -> Int {
 }
 
 ///|
-fn align_clustal_string_has_code(value : String, code : Int) -> Bool {
+fn align_clustal_string_has_code(value : String, code : Int32) -> Bool {
   for index = 0; index < value.length(); index = index + 1 {
     if value.unsafe_get(index).to_int() == code {
       return true
@@ -1336,7 +1360,7 @@ fn align_clustal_string_has_code(value : String, code : Int) -> Bool {
 }
 
 ///|
-fn align_clustal_find_string(values : Array[String], target : String) -> Int {
+fn align_clustal_find_string(values : Array[String], target : String) -> Int32 {
   align_clustal_find_string_from(values, target, 0)
 }
 
@@ -1344,8 +1368,8 @@ fn align_clustal_find_string(values : Array[String], target : String) -> Int {
 fn align_clustal_find_string_from(
   values : Array[String],
   target : String,
-  start : Int,
-) -> Int {
+  start : Int32,
+) -> Int32 {
   for index = start; index < values.length(); index = index + 1 {
     if values[index] == target {
       return index
@@ -1355,7 +1379,7 @@ fn align_clustal_find_string_from(
 }
 
 ///|
-fn align_clustal_is_whitespace(code : Int) -> Bool {
+fn align_clustal_is_whitespace(code : Int32) -> Bool {
   code == ' '.to_int() ||
   code == '\t'.to_int() ||
   code == '\r'.to_int() ||

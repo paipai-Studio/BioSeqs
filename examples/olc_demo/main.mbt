@@ -60,7 +60,7 @@ fn main {
   println("7. Layout path finding:")
   let path = @src.find_layout_path(simple_reads, 2)
   println("   Layout path:")
-  let path_str = StringBuilder::new()
+  let path_str = StringBuilder()
   for i = 0; i < path.length(); i = i + 1 {
     path_str.write_string(path[i].to_string())
     if i < path.length() - 1 {

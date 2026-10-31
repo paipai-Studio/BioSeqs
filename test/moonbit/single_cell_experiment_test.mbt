@@ -235,7 +235,7 @@ test "sce_compute_pca_basic" {
     [4.0, 3.0, 2.0, 1.0],
   ]
   let result = @src.sce_compute_pca(logcounts, 2)
-  assert_eq(result.method, "PCA")
+  assert_eq(result.method_, "PCA")
   assert_eq(result.n_components, 2)
   assert_eq(result.coordinates.length(), 4)
   assert_eq(result.variance_explained.length(), 2)
@@ -252,7 +252,7 @@ test "sce_compute_pca_basic" {
 ///|
 test "sce_compute_pca_empty" {
   let result = @src.sce_compute_pca([], 2)
-  assert_eq(result.method, "PCA")
+  assert_eq(result.method_, "PCA")
   assert_eq(result.n_components, 0)
   assert_eq(result.coordinates.length(), 0)
 }
@@ -265,7 +265,7 @@ test "sce_compute_tsne_basic" {
     [4.0, 3.0, 2.0, 1.0],
   ]
   let result = @src.sce_compute_tsne(logcounts, 5)
-  assert_eq(result.method, "tSNE")
+  assert_eq(result.method_, "tSNE")
   assert_eq(result.n_components, 2)
   assert_eq(result.coordinates.length(), 4)
 }
@@ -273,7 +273,7 @@ test "sce_compute_tsne_basic" {
 ///|
 test "sce_compute_tsne_empty" {
   let result = @src.sce_compute_tsne([], 5)
-  assert_eq(result.method, "tSNE")
+  assert_eq(result.method_, "tSNE")
   assert_eq(result.n_components, 0)
 }
 
@@ -285,7 +285,7 @@ test "sce_compute_umap_basic" {
     [4.0, 3.0, 2.0, 1.0],
   ]
   let result = @src.sce_compute_umap(logcounts, 2)
-  assert_eq(result.method, "UMAP")
+  assert_eq(result.method_, "UMAP")
   assert_eq(result.n_components, 2)
   assert_eq(result.coordinates.length(), 4)
 }
@@ -326,7 +326,7 @@ test "sce_compute_deconv_size_factors_empty" {
 test "sce_compute_size_factors_library" {
   let counts = [[10.0, 20.0, 30.0], [20.0, 30.0, 40.0]]
   let result = @src.sce_compute_size_factors(counts, "library")
-  assert_eq(result.method, "library")
+  assert_eq(result.method_, "library")
   assert_eq(result.size_factors.length(), 3)
   assert_eq(result.log_means.length(), 3)
 }
@@ -335,7 +335,7 @@ test "sce_compute_size_factors_library" {
 test "sce_compute_size_factors_deconv" {
   let counts = [[10.0, 20.0, 30.0], [20.0, 30.0, 40.0]]
   let result = @src.sce_compute_size_factors(counts, "deconv")
-  assert_eq(result.method, "deconv")
+  assert_eq(result.method_, "deconv")
   assert_eq(result.size_factors.length(), 3)
 }
 

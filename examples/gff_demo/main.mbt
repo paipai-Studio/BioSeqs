@@ -28,7 +28,8 @@ fn main {
   for i = 0; i < genes.length(); i = i + 1 {
     let gene = genes[i]
     match gene.get_name() {
-      Some(name) => println("   - \{name} (chr\{gene.seqid}, \{gene.start}-\{gene.end})")
+      Some(name) =>
+        println("   - \{name} (chr\{gene.seqid}, \{gene.start}-\{gene.end})")
       None => println("   - gene (chr\{gene.seqid}, \{gene.start}-\{gene.end})")
     }
   }

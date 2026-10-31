@@ -67,23 +67,23 @@ pub fn parse_medline(text : String) -> MedlineRecord? {
   let mut pmid = ""
   let mut title = ""
   let mut abstract_text = ""
-  let authors : Array[String] = Array::new()
+  let authors : Array[String] = Array(capacity=0)
   let mut journal = ""
   let mut volume = ""
   let mut issue = ""
   let mut pages = ""
   let mut publication_date = ""
-  let mesh_terms : Array[String] = Array::new()
-  let keywords : Array[String] = Array::new()
-  let affiliations : Array[String] = Array::new()
+  let mesh_terms : Array[String] = Array(capacity=0)
+  let keywords : Array[String] = Array(capacity=0)
+  let affiliations : Array[String] = Array(capacity=0)
   let mut language = ""
-  let pub_types : Array[String] = Array::new()
+  let pub_types : Array[String] = Array(capacity=0)
   let mut doi = ""
   let mut pmc = ""
 
   let mut i = 0
   while i < lines.length() {
-    let line = lines[i].trim().to_string()
+    let line = lines[i].trim().to_owned()
 
     if line.length() >= 4 {
       let tag = line[0:4].trim().to_owned()
@@ -153,17 +153,17 @@ pub fn parse_medline(text : String) -> MedlineRecord? {
 
 ///|
 pub fn parse_medline_records(text : String) -> Array[MedlineRecord] {
-  let records : Array[MedlineRecord] = Array::new()
+  let records : Array[MedlineRecord] = Array(capacity=0)
   let lines = split_by_char(text, '\n'.to_int())
 
   let mut current_block = ""
   let mut i = 0
   while i < lines.length() {
-    let line = lines[i].trim().to_string()
+    let line = lines[i].trim().to_owned()
     if line == "" {
       if current_block.length() > 0 && starts_with(current_block, 0, "PMID") {
         let parsed = parse_medline(current_block)
-        if parsed.is_some() {
+        if parsed is Some(_) {
           records.push(parsed.unwrap())
         }
         current_block = ""
@@ -178,7 +178,7 @@ pub fn parse_medline_records(text : String) -> Array[MedlineRecord] {
 
   if current_block.length() > 0 && starts_with(current_block, 0, "PMID") {
     let parsed = parse_medline(current_block)
-    if parsed.is_some() {
+    if parsed is Some(_) {
       records.push(parsed.unwrap())
     }
   }
@@ -261,7 +261,7 @@ pub fn get_publication_year(record : MedlineRecord) -> String {
 }
 
 ///|
-pub fn get_author_count(record : MedlineRecord) -> Int {
+pub fn get_author_count(record : MedlineRecord) -> Int32 {
   record.authors.length()
 }
 
@@ -270,7 +270,7 @@ pub fn filter_by_author(
   records : Array[MedlineRecord],
   author_name : String,
 ) -> Array[MedlineRecord] {
-  let filtered : Array[MedlineRecord] = Array::new()
+  let filtered : Array[MedlineRecord] = Array(capacity=0)
   let mut i = 0
   while i < records.length() {
     let mut j = 0
@@ -288,7 +288,7 @@ pub fn filter_by_author(
 
 ///|
 pub fn extract_pmids(records : Array[MedlineRecord]) -> Array[String] {
-  let pmids : Array[String] = Array::new()
+  let pmids : Array[String] = Array(capacity=0)
   let mut i = 0
   while i < records.length() {
     pmids.push(records[i].pmid)
@@ -302,7 +302,7 @@ pub fn filter_by_mesh(
   records : Array[MedlineRecord],
   mesh_term : String,
 ) -> Array[MedlineRecord] {
-  let filtered : Array[MedlineRecord] = Array::new()
+  let filtered : Array[MedlineRecord] = Array(capacity=0)
   let mut i = 0
   while i < records.length() {
     let mut j = 0
@@ -340,8 +340,8 @@ fn medline_contains(s : String, substr : String) -> Bool {
 }
 
 ///|
-pub fn count_by_year(records : Array[MedlineRecord]) -> Array[(String, Int)] {
-  let year_counts : Array[(String, Int)] = Array::new()
+pub fn count_by_year(records : Array[MedlineRecord]) -> Array[(String, Int32)] {
+  let year_counts : Array[(String, Int32)] = Array(capacity=0)
 
   let mut i = 0
   while i < records.length() {

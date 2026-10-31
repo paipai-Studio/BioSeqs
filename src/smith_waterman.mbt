@@ -14,7 +14,13 @@ pub enum TraceDirection {
   Diag // match/mismatch: comes from (i-1, j-1)
   Up // gap in seq2 (deletion): comes from (i-1, j)
   Left // gap in seq1 (insertion): comes from (i, j-1)
-} derive(Eq, Show)
+} derive(Eq, Debug)
+
+///|
+pub extend TraceDirection with Eq::{equal, not_equal}
+
+///|
+pub extend TraceDirection with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Scoring scheme for sequence alignment.
@@ -35,20 +41,20 @@ pub fn Scoring::new(
   mismatch_penalty : Double,
   gap_penalty : Double,
 ) -> Scoring {
-  Scoring::{ match_reward, mismatch_penalty, gap_penalty }
+  Scoring::{ match_reward, mismatch_penalty, gap_penalty, }
 }
 
 ///|
 /// Default DNA scoring: match=2, mismatch=-1, gap=-1.
 pub fn Scoring::default_dna() -> Scoring {
-  Scoring::{ match_reward: 2.0, mismatch_penalty: -1.0, gap_penalty: -1.0 }
+  Scoring::{ match_reward: 2.0, mismatch_penalty: -1.0, gap_penalty: -1.0, }
 }
 
 ///|
 /// Default protein scoring: match=5, mismatch=-4, gap=-3
 /// (simplified BLOSUM-like scheme without a full substitution matrix).
 pub fn Scoring::default_protein() -> Scoring {
-  Scoring::{ match_reward: 5.0, mismatch_penalty: -4.0, gap_penalty: -3.0 }
+  Scoring::{ match_reward: 5.0, mismatch_penalty: -4.0, gap_penalty: -3.0, }
 }
 
 ///|
@@ -58,8 +64,8 @@ pub struct SWResult {
   aligned_seq2 : String
   match_line : String
   score : Double
-  start_pos1 : (Int, Int) // (start, end) in seq1, 0-based, end exclusive
-  start_pos2 : (Int, Int) // (start, end) in seq2
+  start_pos1 : (Int32, Int32) // (start, end) in seq1, 0-based, end exclusive
+  start_pos2 : (Int32, Int32) // (start, end) in seq2
   score_matrix : Array[Array[Double]]
   trace_matrix : Array[Array[TraceDirection]]
 }
@@ -90,13 +96,13 @@ pub fn SWResult::score(self : SWResult) -> Double {
 
 ///|
 /// Get start/end positions in sequence 1 (0-based, end exclusive).
-pub fn SWResult::pos1(self : SWResult) -> (Int, Int) {
+pub fn SWResult::pos1(self : SWResult) -> (Int32, Int32) {
   self.start_pos1
 }
 
 ///|
 /// Get start/end positions in sequence 2 (0-based, end exclusive).
-pub fn SWResult::pos2(self : SWResult) -> (Int, Int) {
+pub fn SWResult::pos2(self : SWResult) -> (Int32, Int32) {
   self.start_pos2
 }
 
@@ -114,13 +120,13 @@ pub fn SWResult::trace_matrix(self : SWResult) -> Array[Array[TraceDirection]] {
 
 ///|
 /// Get alignment length.
-pub fn SWResult::alignment_length(self : SWResult) -> Int {
+pub fn SWResult::alignment_length(self : SWResult) -> Int32 {
   self.aligned_seq1.length()
 }
 
 ///|
 /// Count the number of matches in the alignment.
-pub fn SWResult::num_matches(self : SWResult) -> Int {
+pub fn SWResult::num_matches(self : SWResult) -> Int32 {
   let mut count = 0
   for i = 0; i < self.match_line.length(); i = i + 1 {
     if self.match_line.unsafe_get(i).unsafe_to_char() == '|' {
@@ -143,7 +149,7 @@ pub fn SWResult::percent_identity(self : SWResult) -> Double {
 ///|
 /// Format the alignment as a readable block (3 lines).
 pub fn SWResult::format(self : SWResult) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string(self.aligned_seq1)
   buf.write_char('\n')
   buf.write_string(self.match_line)
@@ -155,8 +161,8 @@ pub fn SWResult::format(self : SWResult) -> String {
 ///|
 /// Format the alignment with line wrapping for long sequences.
 /// `width` — number of characters per line.
-pub fn SWResult::format_wrapped(self : SWResult, width : Int) -> String {
-  let buf = StringBuilder::new()
+pub fn SWResult::format_wrapped(self : SWResult, width : Int32) -> String {
+  let buf = StringBuilder()
   let total = self.aligned_seq1.length()
   let mut start = 0
   let mut block = 1
@@ -201,13 +207,13 @@ pub fn smith_waterman(
   let n = seq1.length()
   let m = seq2.length()
   // Build score matrix: (n+1) x (m+1), initialised to 0.
-  let dp : Array[Array[Double]] = Array::new()
-  let trace : Array[Array[TraceDirection]] = Array::new()
+  let dp : Array[Array[Double]] = Array(capacity=0)
+  let trace : Array[Array[TraceDirection]] = Array(capacity=0)
   for i = 0; i <= n; i = i + 1 {
     let row = FixedArray::make(m + 1, 0.0)
     let trow = FixedArray::make(m + 1, TraceDirection::Stop)
-    let drow : Array[Double] = Array::new()
-    let trrow : Array[TraceDirection] = Array::new()
+    let drow : Array[Double] = Array(capacity=0)
+    let trrow : Array[TraceDirection] = Array(capacity=0)
     for j = 0; j <= m; j = j + 1 {
       drow.push(row[j])
       trrow.push(trow[j])
@@ -251,8 +257,8 @@ pub fn smith_waterman(
     }
   }
   // Traceback from (max_i, max_j) until a Stop cell.
-  let r1 = StringBuilder::new()
-  let r2 = StringBuilder::new()
+  let r1 = StringBuilder()
+  let r2 = StringBuilder()
   let mut i = max_i
   let mut j = max_j
   while i > 0 && j > 0 {
@@ -307,7 +313,7 @@ pub fn smith_waterman_protein(seq1 : String, seq2 : String) -> SWResult {
 /// Run Smith-Waterman local alignment using a substitution matrix.
 ///
 /// `seq1`, `seq2` — protein sequences (single-letter code strings).
-/// `matrix` — substitution matrix (e.g., `blosum62()`).
+/// `matrix` — substitution matrix (e.g., `@data.blosum62()`).
 /// `gap_penalty` — penalty for a gap (typically negative).
 ///
 /// Returns a `SWResult` containing aligned sequences, score, positions,
@@ -315,18 +321,18 @@ pub fn smith_waterman_protein(seq1 : String, seq2 : String) -> SWResult {
 pub fn smith_waterman_with_matrix(
   seq1 : String,
   seq2 : String,
-  matrix : SubstitutionMatrix,
+  matrix : @data.SubstitutionMatrix,
   gap_penalty : Double,
 ) -> SWResult {
   let n = seq1.length()
   let m = seq2.length()
-  let dp : Array[Array[Double]] = Array::new()
-  let trace : Array[Array[TraceDirection]] = Array::new()
+  let dp : Array[Array[Double]] = Array(capacity=0)
+  let trace : Array[Array[TraceDirection]] = Array(capacity=0)
   for i = 0; i <= n; i = i + 1 {
     let row = FixedArray::make(m + 1, 0.0)
     let trow = FixedArray::make(m + 1, TraceDirection::Stop)
-    let drow : Array[Double] = Array::new()
-    let trrow : Array[TraceDirection] = Array::new()
+    let drow : Array[Double] = Array(capacity=0)
+    let trrow : Array[TraceDirection] = Array(capacity=0)
     for j = 0; j <= m; j = j + 1 {
       drow.push(row[j])
       trrow.push(trow[j])
@@ -363,8 +369,8 @@ pub fn smith_waterman_with_matrix(
       }
     }
   }
-  let r1 = StringBuilder::new()
-  let r2 = StringBuilder::new()
+  let r1 = StringBuilder()
+  let r2 = StringBuilder()
   let mut i = max_i
   let mut j = max_j
   while i > 0 && j > 0 {
@@ -410,7 +416,7 @@ pub fn smith_waterman_blosum62(
   seq2 : String,
   gap_penalty : Double,
 ) -> SWResult {
-  smith_waterman_with_matrix(seq1, seq2, blosum62(), gap_penalty)
+  smith_waterman_with_matrix(seq1, seq2, @data.blosum62(), gap_penalty)
 }
 
 ///|
@@ -420,13 +426,13 @@ pub fn smith_waterman_pam250(
   seq2 : String,
   gap_penalty : Double,
 ) -> SWResult {
-  smith_waterman_with_matrix(seq1, seq2, pam250(), gap_penalty)
+  smith_waterman_with_matrix(seq1, seq2, @data.pam250(), gap_penalty)
 }
 
 ///|
 /// Build the match line: '|' for match, '.' for mismatch, ' ' for gap.
 fn build_match_line(s1 : String, s2 : String) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   for i = 0; i < s1.length(); i = i + 1 {
     let c1 = s1.unsafe_get(i).unsafe_to_char()
     let c2 = s2.unsafe_get(i).unsafe_to_char()

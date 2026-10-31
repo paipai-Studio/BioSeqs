@@ -35,6 +35,9 @@ pub enum WiseBlockType {
 } derive(Eq)
 
 ///|
+pub extend WiseBlockType with Eq::{equal, not_equal}
+
+///|
 /// Convert block type to string.
 pub fn WiseBlockType::to_string(self : WiseBlockType) -> String {
   match self {
@@ -66,65 +69,65 @@ pub fn wise_make_block_type(name : String) -> WiseBlockType {
 ///|
 /// An exon in a gene prediction.
 pub struct WiseExon {
-  pub start : Int // gene start position (0-based)
-  pub end : Int // gene end position (0-based, inclusive)
-  pub phase : Int // reading frame phase (0, 1, or 2)
-  pub end_phase : Int // end phase (0, 1, or 2)
-  pub score : Double // exon score
-  pub protein_start : Int // start position in protein
-  pub protein_end : Int // end position in protein
+  start : Int32 // gene start position (0-based)
+  end : Int32 // gene end position (0-based, inclusive)
+  phase : Int32 // reading frame phase (0, 1, or 2)
+  end_phase : Int32 // end phase (0, 1, or 2)
+  score : Double // exon score
+  protein_start : Int32 // start position in protein
+  protein_end : Int32 // end position in protein
 }
 
 ///|
 /// Construct a WiseExon.
 pub fn WiseExon::new(
-  start? : Int = 0,
-  end? : Int = 0,
-  phase? : Int = 0,
-  end_phase? : Int = 0,
-  score? : Double = 0.0,
-  protein_start? : Int = 0,
-  protein_end? : Int = 0,
+  start~ : Int32 = 0,
+  end~ : Int32 = 0,
+  phase~ : Int32 = 0,
+  end_phase~ : Int32 = 0,
+  score~ : Double = 0.0,
+  protein_start~ : Int32 = 0,
+  protein_end~ : Int32 = 0,
 ) -> WiseExon {
-  WiseExon::{ start, end, phase, end_phase, score, protein_start, protein_end }
+  WiseExon::{ start, end, phase, end_phase, score, protein_start, protein_end, }
 }
 
 ///|
 /// Get the length of the exon in nucleotides.
-pub fn WiseExon::length(self : WiseExon) -> Int {
+pub fn WiseExon::length(self : WiseExon) -> Int32 {
   self.end - self.start + 1
 }
 
 ///|
 /// An intron between exons.
 pub struct WiseIntron {
-  pub start : Int // intron start position
-  pub end : Int // intron end position
-  pub donor_score : Double // 5' splice site score
-  pub acceptor_score : Double // 3' splice site score
-  pub length : Int
+  start : Int32 // intron start position
+  end : Int32 // intron end position
+  donor_score : Double // 5' splice site score
+  acceptor_score : Double // 3' splice site score
+  length : Int32
 }
 
 ///|
 /// Construct a WiseIntron.
 pub fn WiseIntron::new(
-  start? : Int = 0,
-  end? : Int = 0,
-  donor_score? : Double = 0.0,
-  acceptor_score? : Double = 0.0,
+  start~ : Int32 = 0,
+  end~ : Int32 = 0,
+  donor_score~ : Double = 0.0,
+  acceptor_score~ : Double = 0.0,
 ) -> WiseIntron {
   let len = if end >= start { end - start + 1 } else { 0 }
-  WiseIntron::{ start, end, donor_score, acceptor_score, length: len }
+  WiseIntron::{ start, end, donor_score, acceptor_score, length: len, }
 }
 
 ///|
 /// A single position in a GeneWise alignment.
 pub struct WiseAlignmentColumn {
-  pub protein_char : Char // amino acid in protein
-  pub gene_codon : String // 3-nucleotide codon
-  pub match_type : String // " " = match, " " = mismatch, "*" = stop
-  pub gene_position : Int
-  pub protein_position : Int
+  protein_char : Char // amino acid in protein
+  gene_codon : String // 3-nucleotide codon
+  match_type : String // " " = match, " " = mismatch, "*" = stop
+  gene_position : Int32
+  protein_position : Int32
 }
 
 ///|
@@ -132,9 +135,9 @@ pub struct WiseAlignmentColumn {
 pub fn WiseAlignmentColumn::new(
   protein_char~ : Char,
   gene_codon~ : String,
-  match_type? : String = " ",
-  gene_position? : Int = 0,
-  protein_position? : Int = 0,
+  match_type~ : String = " ",
+  gene_position~ : Int32 = 0,
+  protein_position~ : Int32 = 0,
 ) -> WiseAlignmentColumn {
   WiseAlignmentColumn::{
     protein_char,
@@ -148,17 +151,17 @@ pub fn WiseAlignmentColumn::new(
 ///|
 /// A complete GeneWise result.
 pub struct WiseResult {
-  pub mut protein_id : String
-  pub mut gene_id : String
-  pub mut score : Double // overall alignment score
-  pub mut bits_score : Double // score in bits
-  pub probability : Double // probability of alignment
-  pub protein_sequence : String
-  pub gene_sequence : String
+  mut protein_id : String
+  mut gene_id : String
+  mut score : Double // overall alignment score
+  mut bits_score : Double // score in bits
+  probability : Double // probability of alignment
+  protein_sequence : String
+  gene_sequence : String
   exons : Array[WiseExon]
   introns : Array[WiseIntron]
   alignment : Array[WiseAlignmentColumn]
-  pub parameters : Map[String, String]
+  parameters : Map[String, String]
 }
 
 ///|
@@ -222,19 +225,19 @@ pub fn WiseResult::get_alignment(
 
 ///|
 /// Get the number of exons.
-pub fn WiseResult::get_num_exons(self : WiseResult) -> Int {
+pub fn WiseResult::get_num_exons(self : WiseResult) -> Int32 {
   self.exons.length()
 }
 
 ///|
 /// Get the number of introns.
-pub fn WiseResult::get_num_introns(self : WiseResult) -> Int {
+pub fn WiseResult::get_num_introns(self : WiseResult) -> Int32 {
   self.introns.length()
 }
 
 ///|
 /// Get total gene length covered by exons.
-pub fn WiseResult::get_total_exon_length(self : WiseResult) -> Int {
+pub fn WiseResult::get_total_exon_length(self : WiseResult) -> Int32 {
   let mut total = 0
   for e in self.exons {
     total = total + e.length()
@@ -284,45 +287,45 @@ pub fn wise_parse(content : String) -> WiseResult {
   let result = WiseResult::new()
   let lines = content.split("\n").to_array()
   for line in lines {
-    let trimmed = line.to_string()
+    let trimmed = line.to_owned()
     if trimmed.length() == 0 {
       continue
     }
     // Parse score line: "Score: 123.45"
-    if trimmed.starts_with("Score:") {
+    if trimmed.has_prefix("Score:") {
       let parts = trimmed.split(":").to_array()
       if parts.length() >= 2 {
-        result.score = parse_double(parts[1].to_string().trim().to_string()).unwrap_or(
+        result.score = parse_double(parts[1].to_owned().trim().to_owned()).unwrap_or(
           0.0,
         )
       }
     }
     // Parse bits score: "Bits: 45.67"
-    if trimmed.starts_with("Bits:") {
+    if trimmed.has_prefix("Bits:") {
       let parts = trimmed.split(":").to_array()
       if parts.length() >= 2 {
-        result.bits_score = parse_double(
-          parts[1].to_string().trim().to_string(),
-        ).unwrap_or(0.0)
+        result.bits_score = parse_double(parts[1].to_owned().trim().to_owned()).unwrap_or(
+          0.0,
+        )
       }
     }
     // Parse protein ID: "Protein: P12345"
-    if trimmed.starts_with("Protein:") {
+    if trimmed.has_prefix("Protein:") {
       let parts = trimmed.split(":").to_array()
       if parts.length() >= 2 {
-        result.protein_id = parts[1].to_string().trim().to_string()
+        result.protein_id = parts[1].to_owned().trim().to_owned()
       }
     }
     // Parse gene ID: "Gene: G67890"
-    if trimmed.starts_with("Gene:") {
+    if trimmed.has_prefix("Gene:") {
       let parts = trimmed.split(":").to_array()
       if parts.length() >= 2 {
-        result.gene_id = parts[1].to_string().trim().to_string()
+        result.gene_id = parts[1].to_owned().trim().to_owned()
       }
     }
     // Parse exon line:
     // "Exon 1: 100-200 (phase 0) score 45.5 protein 1-33"
-    if trimmed.starts_with("Exon") {
+    if trimmed.has_prefix("Exon") {
       let exon = wise_parse_exon_line(trimmed)
       match exon {
         Some(e) => result.add_exon(e)
@@ -331,7 +334,7 @@ pub fn wise_parse(content : String) -> WiseResult {
     }
     // Parse intron line:
     // "Intron 1: 201-300 donor 12.5 acceptor 8.3"
-    if trimmed.starts_with("Intron") {
+    if trimmed.has_prefix("Intron") {
       let intron = wise_parse_intron_line(trimmed)
       match intron {
         Some(i) => result.add_intron(i)
@@ -340,16 +343,16 @@ pub fn wise_parse(content : String) -> WiseResult {
     }
     // Parse parameter lines: "Parameter: value"
     if trimmed.contains(":") &&
-      !trimmed.starts_with("Exon") &&
-      !trimmed.starts_with("Intron") &&
-      !trimmed.starts_with("Score") &&
-      !trimmed.starts_with("Bits") &&
-      !trimmed.starts_with("Protein") &&
-      !trimmed.starts_with("Gene") {
+      !trimmed.has_prefix("Exon") &&
+      !trimmed.has_prefix("Intron") &&
+      !trimmed.has_prefix("Score") &&
+      !trimmed.has_prefix("Bits") &&
+      !trimmed.has_prefix("Protein") &&
+      !trimmed.has_prefix("Gene") {
       let parts = trimmed.split(":").to_array()
       if parts.length() >= 2 {
-        let key = parts[0].to_string().trim().to_string()
-        let value = parts[1].to_string().trim().to_string()
+        let key = parts[0].to_owned().trim().to_owned()
+        let value = parts[1].to_owned().trim().to_owned()
         if key.length() > 0 && value.length() > 0 && !key.contains(" ") {
           result.parameters[key] = value
         }
@@ -370,8 +373,8 @@ fn wise_parse_exon_line(line : String) -> WiseExon? {
   match dash_pos {
     Some(dp) => {
       // Find the start of the number before dash
-      let before = line[0:dp].to_string()
-      let after = line[dp + 1:].to_string()
+      let before = line[0:dp].to_owned()
+      let after = line[dp + 1:].to_owned()
       // Parse start number from before (last number)
       start = wise_extract_last_number(before)
       // Parse end number from after (first number)
@@ -399,11 +402,9 @@ fn wise_parse_exon_line(line : String) -> WiseExon? {
     let dash = protein_part.find("-")
     match dash {
       Some(dp) => {
-        protein_start = wise_extract_first_number(
-          protein_part[0:dp].to_string(),
-        )
+        protein_start = wise_extract_first_number(protein_part[0:dp].to_owned())
         protein_end = wise_extract_first_number(
-          protein_part[dp + 1:].to_string(),
+          protein_part[dp + 1:].to_owned(),
         )
       }
       None => ()
@@ -423,8 +424,8 @@ fn wise_parse_intron_line(line : String) -> WiseIntron? {
   let mut end = 0
   match dash_pos {
     Some(dp) => {
-      let before = line[0:dp].to_string()
-      let after = line[dp + 1:].to_string()
+      let before = line[0:dp].to_owned()
+      let after = line[dp + 1:].to_owned()
       start = wise_extract_last_number(before)
       end = wise_extract_first_number(after)
     }
@@ -447,7 +448,7 @@ fn wise_parse_intron_line(line : String) -> WiseIntron? {
 
 ///|
 /// Extract the last integer from a string.
-fn wise_extract_last_number(s : String) -> Int {
+fn wise_extract_last_number(s : String) -> Int32 {
   let mut result = 0
   let mut current = ""
   let chars = s.to_array()
@@ -468,7 +469,7 @@ fn wise_extract_last_number(s : String) -> Int {
 
 ///|
 /// Extract the first integer from a string.
-fn wise_extract_first_number(s : String) -> Int {
+fn wise_extract_first_number(s : String) -> Int32 {
   let chars = s.to_array()
   let mut current = ""
   for i in 0..<chars.length() {
@@ -515,7 +516,7 @@ fn wise_extract_first_double(s : String) -> Double {
 /// Extract the substring after a pattern.
 fn wise_extract_after(s : String, pattern : String) -> String {
   match s.find(pattern) {
-    Some(pos) => s[pos + pattern.length():].to_string()
+    Some(pos) => s[pos + pattern.length():].to_owned()
     None => ""
   }
 }
@@ -527,7 +528,7 @@ fn wise_extract_after(s : String, pattern : String) -> String {
 ///|
 /// Serialize a WiseResult to GeneWise-like text format.
 pub fn wise_write(result : WiseResult) -> String {
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   sb.write_string("GeneWise Result\n")
   sb.write_string("Protein: " + result.protein_id + "\n")
   sb.write_string("Gene: " + result.gene_id + "\n")
@@ -588,7 +589,7 @@ pub fn wise_write(result : WiseResult) -> String {
 ///|
 /// Get the gene structure as a list of exons and introns.
 pub fn wise_gene_structure(result : WiseResult) -> String {
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   for i in 0..<result.exons.length() {
     let e = result.exons[i]
     sb.write_string(
@@ -628,13 +629,13 @@ pub fn wise_translate_gene(
   result : WiseResult,
   gene_sequence : String,
 ) -> String {
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   for exon in result.exons {
-    let exon_seq = gene_sequence.substring(start=exon.start, end=exon.end + 1)
+    let exon_seq = gene_sequence[exon.start:exon.end + 1]
     // Translate codon by codon
     let mut i = 0
     while i + 2 < exon_seq.length() {
-      let codon = exon_seq[i:i + 3].to_string()
+      let codon = exon_seq[i:i + 3].to_owned()
       let aa = wise_translate_codon(codon)
       sb.write_char(aa)
       i = i + 3
@@ -705,20 +706,20 @@ pub fn wise_percent_identity(
 ///|
 /// A GenomeWise segment result.
 pub struct GenomeWiseSegment {
-  pub segment_id : String
-  pub start : Int
-  pub end : Int
-  pub score : Double
-  pub wise_result : WiseResult
+  segment_id : String
+  start : Int32
+  end : Int32
+  score : Double
+  wise_result : WiseResult
 }
 
 ///|
 /// Construct a GenomeWiseSegment.
 pub fn GenomeWiseSegment::new(
-  segment_id? : String = "",
-  start? : Int = 0,
-  end? : Int = 0,
-  score? : Double = 0.0,
+  segment_id~ : String = "",
+  start~ : Int32 = 0,
+  end~ : Int32 = 0,
+  score~ : Double = 0.0,
 ) -> GenomeWiseSegment {
   GenomeWiseSegment::{
     segment_id,
@@ -732,15 +733,15 @@ pub fn GenomeWiseSegment::new(
 ///|
 /// A complete GenomeWise result containing multiple segments.
 pub struct GenomeWiseResult {
-  pub gene_id : String
-  pub total_score : Double
+  gene_id : String
+  total_score : Double
   segments : Array[GenomeWiseSegment]
 }
 
 ///|
 /// Construct an empty GenomeWiseResult.
 pub fn GenomeWiseResult::new() -> GenomeWiseResult {
-  GenomeWiseResult::{ gene_id: "", total_score: 0.0, segments: [] }
+  GenomeWiseResult::{ gene_id: "", total_score: 0.0, segments: [], }
 }
 
 ///|
@@ -762,7 +763,7 @@ pub fn GenomeWiseResult::get_segments(
 
 ///|
 /// Get the number of segments.
-pub fn GenomeWiseResult::get_num_segments(self : GenomeWiseResult) -> Int {
+pub fn GenomeWiseResult::get_num_segments(self : GenomeWiseResult) -> Int32 {
   self.segments.length()
 }
 
@@ -785,7 +786,7 @@ pub fn wise_sample() -> WiseResult {
 ///|
 /// Generate a summary string.
 pub fn wise_summary(result : WiseResult) -> String {
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   sb.write_string("GeneWise Result Summary:\n")
   sb.write_string("  Protein ID: " + result.protein_id + "\n")
   sb.write_string("  Gene ID: " + result.gene_id + "\n")
@@ -799,7 +800,7 @@ pub fn wise_summary(result : WiseResult) -> String {
     " nt\n",
   )
   sb.write_string(
-    "  Parameters: " + result.parameters.size().to_string() + "\n",
+    "  Parameters: " + result.parameters.length().to_string() + "\n",
   )
   sb.to_string()
 }

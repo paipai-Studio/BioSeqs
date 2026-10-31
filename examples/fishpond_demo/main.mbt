@@ -15,22 +15,16 @@ fn main {
   let counts = @bio.fish_sample_counts()
   println("Transcripts: \{counts.transcript_names().length()}")
   println("Samples: \{counts.sample_names().length()} (8 case + 8 control)")
-  println("Transcripts: \{counts.transcript_names()}")
+  println("Transcripts: \{Repr(counts.transcript_names())}")
   println("")
 
   // ------------------------------------------------------------------
   // 2. Mann-Whitney-Wilcoxon statistic example
   // ------------------------------------------------------------------
   println("=== 2. Mann-Whitney-Wilcoxon statistic example ===")
-  let w_stat = @bio.fish_mann_whitney_test(
-    [10.0, 20.0, 30.0],
-    [1.0, 2.0, 3.0],
-  )
+  let w_stat = @bio.fish_mann_whitney_test([10.0, 20.0, 30.0], [1.0, 2.0, 3.0])
   println("W statistic for clear separation: \{w_stat}")
-  let w_tie = @bio.fish_mann_whitney_test(
-    [5.0, 5.0, 5.0],
-    [5.0, 5.0, 5.0],
-  )
+  let w_tie = @bio.fish_mann_whitney_test([5.0, 5.0, 5.0], [5.0, 5.0, 5.0])
   println("W statistic for all-tied data: \{w_tie}")
   println("")
 

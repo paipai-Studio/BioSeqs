@@ -6,32 +6,32 @@
 ///|
 pub struct BatchCorrectionResult {
   corrected : Array[Array[Double]]
-  batch_indices : Array[Int]
-  mnn_pairs : Array[(Int, Int)]
+  batch_indices : Array[Int32]
+  mnn_pairs : Array[(Int32, Int32)]
   var_explained : Array[Double]
 }
 
 ///|
 pub fn BatchCorrectionResult::new(
   corrected : Array[Array[Double]],
-  batch_indices : Array[Int],
-  mnn_pairs : Array[(Int, Int)],
+  batch_indices : Array[Int32],
+  mnn_pairs : Array[(Int32, Int32)],
   var_explained : Array[Double],
 ) -> BatchCorrectionResult {
-  BatchCorrectionResult::{ corrected, batch_indices, mnn_pairs, var_explained }
+  BatchCorrectionResult::{ corrected, batch_indices, mnn_pairs, var_explained, }
 }
 
 ///|
 pub fn rescale_batches(
   batches : Array[Array[Array[Double]]],
-  batch_names : Array[String],
+  _batch_names : Array[String],
 ) -> BatchCorrectionResult {
   let n_batches = batches.length()
   if n_batches == 0 {
     return BatchCorrectionResult::new([], [], [], [])
   }
 
-  let n_cells_per_batch : Array[Int] = Array::new()
+  let n_cells_per_batch : Array[Int32] = Array(capacity=0)
   let n_genes = batches[0][0].length()
 
   let mut total_cells = 0
@@ -65,7 +65,7 @@ pub fn rescale_batches(
     m = m + 1
   }
 
-  let batch_means : Array[Array[Double]] = Array::new()
+  let batch_means : Array[Array[Double]] = Array(capacity=0)
   let mut n = 0
   while n < n_batches {
     let batch = batches[n]
@@ -89,8 +89,8 @@ pub fn rescale_batches(
     n = n + 1
   }
 
-  let corrected : Array[Array[Double]] = Array::new()
-  let batch_indices : Array[Int] = Array::new()
+  let corrected : Array[Array[Double]] = Array(capacity=0)
+  let batch_indices : Array[Int32] = Array(capacity=0)
   let mut r = 0
   while r < n_batches {
     let batch = batches[r]
@@ -98,7 +98,7 @@ pub fn rescale_batches(
     let mut s = 0
     while s < batch.length() {
       let cell = batch[s]
-      let corrected_cell : Array[Double] = Array::new()
+      let corrected_cell : Array[Double] = Array(capacity=0)
       let mut t = 0
       while t < n_genes {
         let correction_factor = if means[t] != 0.0 {
@@ -123,16 +123,16 @@ pub fn rescale_batches(
 pub fn find_mutual_nearest_neighbors(
   batch1 : Array[Array[Double]],
   batch2 : Array[Array[Double]],
-  k : Int,
-) -> Array[(Int, Int)] {
+  k : Int32,
+) -> Array[(Int32, Int32)] {
   let n_cells1 = batch1.length()
   let n_cells2 = batch2.length()
 
-  let n1_to_n2 : Array[Array[Int]] = Array::new()
+  let n1_to_n2 : Array[Array[Int32]] = Array(capacity=0)
   let mut i = 0
   while i < n_cells1 {
     let cell = batch1[i]
-    let distances : Array[(Double, Int)] = Array::new()
+    let distances : Array[(Double, Int32)] = Array(capacity=0)
     let mut j = 0
     while j < n_cells2 {
       let other = batch2[j]
@@ -160,7 +160,7 @@ pub fn find_mutual_nearest_neighbors(
       l = l + 1
     }
 
-    let nn : Array[Int] = Array::new()
+    let nn : Array[Int32] = Array(capacity=0)
     let mut n_neighbors = 0
     while n_neighbors < k && n_neighbors < distances.length() {
       nn.push(distances[n_neighbors].1)
@@ -170,11 +170,11 @@ pub fn find_mutual_nearest_neighbors(
     i = i + 1
   }
 
-  let n2_to_n1 : Array[Array[Int]] = Array::new()
+  let n2_to_n1 : Array[Array[Int32]] = Array(capacity=0)
   let mut n = 0
   while n < n_cells2 {
     let cell = batch2[n]
-    let distances : Array[(Double, Int)] = Array::new()
+    let distances : Array[(Double, Int32)] = Array(capacity=0)
     let mut o = 0
     while o < n_cells1 {
       let other = batch1[o]
@@ -202,7 +202,7 @@ pub fn find_mutual_nearest_neighbors(
       p = p + 1
     }
 
-    let nn : Array[Int] = Array::new()
+    let nn : Array[Int32] = Array(capacity=0)
     let mut n_neighbors = 0
     while n_neighbors < k && n_neighbors < distances.length() {
       nn.push(distances[n_neighbors].1)
@@ -212,7 +212,7 @@ pub fn find_mutual_nearest_neighbors(
     n = n + 1
   }
 
-  let mnn_pairs : Array[(Int, Int)] = Array::new()
+  let mnn_pairs : Array[(Int32, Int32)] = Array(capacity=0)
   let mut r = 0
   while r < n_cells1 {
     let neighbors = n1_to_n2[r]
@@ -223,7 +223,7 @@ pub fn find_mutual_nearest_neighbors(
       let mut t = 0
       while t < reverse_neighbors.length() {
         if reverse_neighbors[t] == r {
-          let already_exists = mnn_pairs.any(fn(pair : (Int, Int)) {
+          let already_exists = mnn_pairs.any(fn(pair : (Int32, Int32)) {
             pair.0 == r && pair.1 == n2_idx
           })
           if !already_exists {
@@ -244,9 +244,9 @@ pub fn find_mutual_nearest_neighbors(
 ///|
 pub fn fast_mnn(
   batches : Array[Array[Array[Double]]],
-  batch_names : Array[String],
-  k : Int,
-  d : Int,
+  _batch_names : Array[String],
+  k : Int32,
+  d : Int32,
 ) -> BatchCorrectionResult {
   let n_batches = batches.length()
   if n_batches == 0 {
@@ -255,8 +255,8 @@ pub fn fast_mnn(
 
   let n_genes = batches[0][0].length()
 
-  let all_cells : Array[Array[Double]] = Array::new()
-  let batch_indices : Array[Int] = Array::new()
+  let all_cells : Array[Array[Double]] = Array(capacity=0)
+  let batch_indices : Array[Int32] = Array(capacity=0)
   let mut i = 0
   while i < n_batches {
     let batch = batches[i]
@@ -288,11 +288,11 @@ pub fn fast_mnn(
     mm = mm + 1
   }
 
-  let centered : Array[Array[Double]] = Array::new()
+  let centered : Array[Array[Double]] = Array(capacity=0)
   let mut nn = 0
   while nn < n_cells {
     let cell = all_cells[nn]
-    let centered_cell : Array[Double] = Array::new()
+    let centered_cell : Array[Double] = Array(capacity=0)
     let mut oo = 0
     while oo < n_genes {
       centered_cell.push(cell[oo] - means[oo])
@@ -420,11 +420,11 @@ pub fn fast_mnn(
   }
 
   let top_components = if d < n_genes { d } else { n_genes }
-  let pca_result : Array[Array[Double]] = Array::new()
+  let pca_result : Array[Array[Double]] = Array(capacity=0)
   let mut ee = 0
   while ee < n_cells {
     let cell = centered[ee]
-    let pc : Array[Double] = Array::new()
+    let pc : Array[Double] = Array(capacity=0)
     let mut ff = 0
     while ff < top_components {
       let mut score = 0.0
@@ -444,17 +444,17 @@ pub fn fast_mnn(
   for val in eigenvalues {
     total_variance = total_variance + val
   }
-  let var_explained : Array[Double] = Array::new()
+  let var_explained : Array[Double] = Array(capacity=0)
   let mut hh = 0
   while hh < top_components {
     var_explained.push(eigenvalues[hh] / total_variance)
     hh = hh + 1
   }
 
-  let pca_batches : Array[Array[Array[Double]]] = Array::new()
+  let pca_batches : Array[Array[Array[Double]]] = Array(capacity=0)
   let mut ii = 0
   while ii < n_batches {
-    let batch : Array[Array[Double]] = Array::new()
+    let batch : Array[Array[Double]] = Array(capacity=0)
     let mut jj = 0
     while jj < n_cells {
       if batch_indices[jj] == ii {
@@ -466,7 +466,7 @@ pub fn fast_mnn(
     ii = ii + 1
   }
 
-  let all_mnn_pairs : Array[(Int, Int)] = Array::new()
+  let all_mnn_pairs : Array[(Int32, Int32)] = Array(capacity=0)
   let mut kk = 0
   while kk < n_batches - 1 {
     let ll = kk + 1
@@ -490,8 +490,8 @@ pub fn fast_mnn(
 
     let mnn = find_mutual_nearest_neighbors(batch1, batch2, k)
 
-    let batch1_indices : Array[Int] = Array::new()
-    let batch2_indices : Array[Int] = Array::new()
+    let batch1_indices : Array[Int32] = Array(capacity=0)
+    let batch2_indices : Array[Int32] = Array(capacity=0)
     for pair in mnn {
       batch1_indices.push(pair.0)
       batch2_indices.push(pair.1)
@@ -516,7 +516,7 @@ pub fn fast_mnn(
         qq = qq + 1
       }
 
-      let batch1_global_indices : Array[Int] = Array::new()
+      let batch1_global_indices : Array[Int32] = Array(capacity=0)
       let mut rr = 0
       let mut count = 0
       while rr < n_cells {
@@ -573,10 +573,10 @@ pub fn fast_mnn(
     mm = mm + 1
   }
 
-  let corrected : Array[Array[Double]] = Array::new()
+  let corrected : Array[Array[Double]] = Array(capacity=0)
   let mut xx = 0
   while xx < n_cells {
-    let corrected_cell : Array[Double] = Array::new()
+    let corrected_cell : Array[Double] = Array(capacity=0)
     let mut yy = 0
     while yy < top_components {
       corrected_cell.push(pca_result[xx][yy] + correction_vectors[xx][yy])
@@ -593,23 +593,23 @@ pub fn fast_mnn(
 
 ///|
 pub fn batchelor_create_example_data(
-  n_batches : Int,
-  n_cells_per_batch : Int,
-  n_genes : Int,
+  n_batches : Int32,
+  n_cells_per_batch : Int32,
+  n_genes : Int32,
   batch_effect : Double,
 ) -> (Array[Array[Array[Double]]], Array[String]) {
-  let batches : Array[Array[Array[Double]]] = Array::new()
-  let batch_names : Array[String] = Array::new()
+  let batches : Array[Array[Array[Double]]] = Array(capacity=0)
+  let batch_names : Array[String] = Array(capacity=0)
 
   let mut seed = 12345
   let mut i = 0
   while i < n_batches {
-    let batch : Array[Array[Double]] = Array::new()
+    let batch : Array[Array[Double]] = Array(capacity=0)
     batch_names.push("Batch_" + i.to_string())
 
     let mut j = 0
     while j < n_cells_per_batch {
-      let cell : Array[Double] = Array::new()
+      let cell : Array[Double] = Array(capacity=0)
 
       let mut k = 0
       while k < n_genes {
@@ -648,7 +648,7 @@ pub fn batchelor_create_example_data(
 ///|
 pub fn compute_batch_mixing_score(
   corrected : Array[Array[Double]],
-  batch_indices : Array[Int],
+  batch_indices : Array[Int32],
 ) -> Double {
   let n_cells = corrected.length()
   let n_dims = if n_cells > 0 { corrected[0].length() } else { 0 }
@@ -657,7 +657,7 @@ pub fn compute_batch_mixing_score(
     return 0.0
   }
 
-  let unique_batches : Array[Int] = Array::new()
+  let unique_batches : Array[Int32] = Array(capacity=0)
   for idx in batch_indices {
     let mut exists = false
     for u in unique_batches {
@@ -670,12 +670,12 @@ pub fn compute_batch_mixing_score(
       unique_batches.push(idx)
     }
   }
-  let n_batches = unique_batches.length()
+  let _n_batches = unique_batches.length()
 
   let mut score = 0.0
   let mut i = 0
   while i < n_cells {
-    let distances : Array[(Double, Int)] = Array::new()
+    let distances : Array[(Double, Int32)] = Array(capacity=0)
     let mut j = 0
     while j < n_cells {
       if i != j {

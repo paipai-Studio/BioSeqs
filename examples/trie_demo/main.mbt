@@ -36,7 +36,16 @@ fn main {
   let mut m = 0
   while m < matches.length() {
     let (key, enzyme, start, end) = matches[m]
-    println("  " + enzyme + " (" + key + ") at position " + start.to_string() + "-" + end.to_string())
+    println(
+      "  " +
+      enzyme +
+      " (" +
+      key +
+      ") at position " +
+      start.to_string() +
+      "-" +
+      end.to_string(),
+    )
     m = m + 1
   }
   println("")
@@ -122,7 +131,16 @@ fn main {
   let mut w = 0
   while w < words.length() {
     let (key, val, start, end) = words[w]
-    println("  " + val + " (" + key + ") at position " + start.to_string() + "-" + end.to_string())
+    println(
+      "  " +
+      val +
+      " (" +
+      key +
+      ") at position " +
+      start.to_string() +
+      "-" +
+      end.to_string(),
+    )
     w = w + 1
   }
   println("")

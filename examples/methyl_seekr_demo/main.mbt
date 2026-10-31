@@ -10,13 +10,19 @@ fn main {
   let sites = @bio.methyl_seekr_sample_data()
   println("  Loaded " + sites.length().to_string() + " cytosine sites")
   println("  First site: " + @bio.CytosineSite::to_string(sites[0]))
-  println("  Last site:  " + @bio.CytosineSite::to_string(sites[sites.length() - 1]))
+  println(
+    "  Last site:  " + @bio.CytosineSite::to_string(sites[sites.length() - 1]),
+  )
 
   // 2. Configure pipeline parameters.
   println("\n2. Pipeline parameters (defaults):")
   let params = @bio.MethylSeekRParams::default()
-  println("  tile_size=" + @bio.MethylSeekRParams::tile_size(params).to_string())
-  println("  min_coverage=" + @bio.MethylSeekRParams::min_coverage(params).to_string())
+  println(
+    "  tile_size=" + @bio.MethylSeekRParams::tile_size(params).to_string(),
+  )
+  println(
+    "  min_coverage=" + @bio.MethylSeekRParams::min_coverage(params).to_string(),
+  )
   println("  alpha=" + @bio.MethylSeekRParams::alpha(params).to_string())
   println("  beta=" + @bio.MethylSeekRParams::beta(params).to_string())
   println("  gamma=" + @bio.MethylSeekRParams::gamma(params).to_string())
@@ -24,7 +30,9 @@ fn main {
     "  min_region_size=" +
     @bio.MethylSeekRParams::min_region_size(params).to_string(),
   )
-  println("  pmd_window=" + @bio.MethylSeekRParams::pmd_window(params).to_string())
+  println(
+    "  pmd_window=" + @bio.MethylSeekRParams::pmd_window(params).to_string(),
+  )
 
   // 3. Tile the genome and compute per-tile methylation.
   println("\n3. Tile the genome:")

@@ -9,6 +9,12 @@ pub enum Strand {
 } derive(Eq, Debug)
 
 ///|
+pub extend Strand with Eq::{equal, not_equal}
+
+///|
+pub extend Strand with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
 pub fn strand_plus() -> Strand {
   Strand::Plus
 }
@@ -26,22 +32,22 @@ pub fn strand_star() -> Strand {
 ///|
 pub struct GRanges {
   seqnames : Array[String]
-  starts : Array[Int]
-  ends : Array[Int]
+  starts : Array[Int32]
+  ends : Array[Int32]
   strands : Array[Strand]
-  widths : Array[Int]
+  widths : Array[Int32]
 }
 
 ///|
 pub fn granges(
   seqnames : Array[String],
-  ranges : Array[(Int, Int)],
+  ranges : Array[(Int32, Int32)],
   strands : Array[Strand],
 ) -> GRanges {
   let n = seqnames.length()
-  let starts : Array[Int] = Array::make(n, 0)
-  let ends : Array[Int] = Array::make(n, 0)
-  let widths : Array[Int] = Array::make(n, 0)
+  let starts : Array[Int32] = Array::make(n, 0)
+  let ends : Array[Int32] = Array::make(n, 0)
+  let widths : Array[Int32] = Array::make(n, 0)
 
   let mut i = 0
   while i < n {
@@ -51,14 +57,14 @@ pub fn granges(
     i = i + 1
   }
 
-  GRanges::{ seqnames, starts, ends, strands, widths }
+  GRanges::{ seqnames, starts, ends, strands, widths, }
 }
 
 ///|
 pub fn granges_single(
   seqname : String,
-  start : Int,
-  end : Int,
+  start : Int32,
+  end : Int32,
   strand : Strand,
 ) -> GRanges {
   GRanges::{
@@ -71,15 +77,15 @@ pub fn granges_single(
 }
 
 ///|
-pub fn granges_length(gr : GRanges) -> Int {
+pub fn granges_length(gr : GRanges) -> Int32 {
   gr.seqnames.length()
 }
 
 ///|
-pub fn granges_shift(gr : GRanges, shift : Int) -> GRanges {
+pub fn granges_shift(gr : GRanges, shift : Int32) -> GRanges {
   let n = gr.seqnames.length()
-  let new_starts : Array[Int] = Array::make(n, 0)
-  let new_ends : Array[Int] = Array::make(n, 0)
+  let new_starts : Array[Int32] = Array::make(n, 0)
+  let new_ends : Array[Int32] = Array::make(n, 0)
 
   let mut i = 0
   while i < n {
@@ -98,11 +104,11 @@ pub fn granges_shift(gr : GRanges, shift : Int) -> GRanges {
 }
 
 ///|
-pub fn granges_narrow(gr : GRanges, start : Int, end : Int) -> GRanges {
+pub fn granges_narrow(gr : GRanges, start : Int32, end : Int32) -> GRanges {
   let n = gr.seqnames.length()
-  let new_starts : Array[Int] = Array::make(n, 0)
-  let new_ends : Array[Int] = Array::make(n, 0)
-  let new_widths : Array[Int] = Array::make(n, 0)
+  let new_starts : Array[Int32] = Array::make(n, 0)
+  let new_ends : Array[Int32] = Array::make(n, 0)
+  let new_widths : Array[Int32] = Array::make(n, 0)
 
   let mut i = 0
   while i < n {
@@ -128,11 +134,11 @@ pub fn granges_narrow(gr : GRanges, start : Int, end : Int) -> GRanges {
 }
 
 ///|
-pub fn granges_resize(gr : GRanges, width : Int, fix : String) -> GRanges {
+pub fn granges_resize(gr : GRanges, width : Int32, fix : String) -> GRanges {
   let n = gr.seqnames.length()
-  let new_starts : Array[Int] = Array::make(n, 0)
-  let new_ends : Array[Int] = Array::make(n, 0)
-  let new_widths : Array[Int] = Array::make(n, 0)
+  let new_starts : Array[Int32] = Array::make(n, 0)
+  let new_ends : Array[Int32] = Array::make(n, 0)
+  let new_widths : Array[Int32] = Array::make(n, 0)
 
   let mut i = 0
   while i < n {
@@ -179,14 +185,14 @@ pub fn granges_resize(gr : GRanges, width : Int, fix : String) -> GRanges {
 ///|
 pub fn granges_flank(
   gr : GRanges,
-  width : Int,
+  width : Int32,
   start : Bool,
   both : Bool,
 ) -> GRanges {
   let n = gr.seqnames.length()
-  let new_starts : Array[Int] = Array::make(n, 0)
-  let new_ends : Array[Int] = Array::make(n, 0)
-  let new_widths : Array[Int] = Array::make(n, 0)
+  let new_starts : Array[Int32] = Array::make(n, 0)
+  let new_ends : Array[Int32] = Array::make(n, 0)
+  let new_widths : Array[Int32] = Array::make(n, 0)
 
   let mut i = 0
   while i < n {
@@ -219,7 +225,9 @@ pub fn granges_flank(
 }
 
 ///|
-fn sort_ranges_by_start(ranges : Array[(Int, Int)]) -> Array[(Int, Int)] {
+fn sort_ranges_by_start(
+  ranges : Array[(Int32, Int32)],
+) -> Array[(Int32, Int32)] {
   let n = ranges.length()
   let sorted = ranges.copy()
 
@@ -241,7 +249,7 @@ fn sort_ranges_by_start(ranges : Array[(Int, Int)]) -> Array[(Int, Int)] {
 }
 
 ///|
-fn sort_ints(arr : Array[Int]) -> Array[Int] {
+fn sort_ints(arr : Array[Int32]) -> Array[Int32] {
   let n = arr.length()
   let sorted = arr.copy()
 
@@ -263,13 +271,15 @@ fn sort_ints(arr : Array[Int]) -> Array[Int] {
 }
 
 ///|
-fn merge_overlapping_ranges(ranges : Array[(Int, Int)]) -> Array[(Int, Int)] {
+fn merge_overlapping_ranges(
+  ranges : Array[(Int32, Int32)],
+) -> Array[(Int32, Int32)] {
   if ranges.length() == 0 {
     return []
   }
 
   let sorted = sort_ranges_by_start(ranges)
-  let merged : Array[(Int, Int)] = [sorted[0]]
+  let merged : Array[(Int32, Int32)] = [sorted[0]]
 
   let mut i = 1
   while i < sorted.length() {
@@ -289,7 +299,7 @@ fn merge_overlapping_ranges(ranges : Array[(Int, Int)]) -> Array[(Int, Int)] {
 }
 
 ///|
-pub fn granges_reduce(gr : GRanges, _min_gapwidth : Int) -> GRanges {
+pub fn granges_reduce(gr : GRanges, _min_gapwidth : Int32) -> GRanges {
   let results : GRanges = GRanges::{
     seqnames: [],
     starts: [],
@@ -305,7 +315,7 @@ pub fn granges_reduce(gr : GRanges, _min_gapwidth : Int) -> GRanges {
     if !seen.contains(seqname) {
       seen[seqname] = ()
 
-      let ranges : Array[(Int, Int)] = []
+      let ranges : Array[(Int32, Int32)] = []
       let mut j = 0
       while j < gr.seqnames.length() {
         if gr.seqnames[j] == seqname {
@@ -346,7 +356,7 @@ pub fn granges_disjoin(gr : GRanges) -> GRanges {
     if !seen.contains(seqname) {
       seen[seqname] = ()
 
-      let breakpoints : Array[Int] = []
+      let breakpoints : Array[Int32] = []
       let mut j = 0
       while j < gr.seqnames.length() {
         if gr.seqnames[j] == seqname {
@@ -357,7 +367,7 @@ pub fn granges_disjoin(gr : GRanges) -> GRanges {
       }
 
       let sorted = sort_ints(breakpoints)
-      let unique : Array[Int] = []
+      let unique : Array[Int32] = []
       let mut k = 0
       while k < sorted.length() {
         if k == 0 || sorted[k] != sorted[k - 1] {
@@ -477,7 +487,7 @@ pub fn granges_setdiff(gr1 : GRanges, gr2 : GRanges) -> GRanges {
     let start = gr1.starts[i]
     let end = gr1.ends[i]
 
-    let mut remaining : Array[(Int, Int)] = [(start, end)]
+    let mut remaining : Array[(Int32, Int32)] = [(start, end)]
 
     let mut j = 0
     while j < gr2.seqnames.length() {
@@ -485,7 +495,7 @@ pub fn granges_setdiff(gr1 : GRanges, gr2 : GRanges) -> GRanges {
         let exclude_start = gr2.starts[j]
         let exclude_end = gr2.ends[j]
 
-        let new_remaining : Array[(Int, Int)] = []
+        let new_remaining : Array[(Int32, Int32)] = []
         for r in remaining {
           if r.1 < exclude_start || r.0 > exclude_end {
             new_remaining.push(r)
@@ -517,9 +527,9 @@ pub fn granges_setdiff(gr1 : GRanges, gr2 : GRanges) -> GRanges {
 }
 
 ///|
-pub fn count_overlaps(query : GRanges, subject : GRanges) -> Array[Int] {
+pub fn count_overlaps(query : GRanges, subject : GRanges) -> Array[Int32] {
   let n = granges_length(query)
-  let counts : Array[Int] = Array::make(n, 0)
+  let counts : Array[Int32] = Array::make(n, 0)
 
   let mut i = 0
   while i < n {
@@ -547,8 +557,11 @@ pub fn count_overlaps(query : GRanges, subject : GRanges) -> Array[Int] {
 }
 
 ///|
-pub fn find_overlaps(query : GRanges, subject : GRanges) -> Array[(Int, Int)] {
-  let results : Array[(Int, Int)] = []
+pub fn find_overlaps(
+  query : GRanges,
+  subject : GRanges,
+) -> Array[(Int32, Int32)] {
+  let results : Array[(Int32, Int32)] = []
 
   let mut i = 0
   while i < granges_length(query) {
@@ -619,9 +632,9 @@ pub fn granges_distance(gr1 : GRanges, gr2 : GRanges) -> Array[Double] {
 }
 
 ///|
-pub fn nearest(gr1 : GRanges, gr2 : GRanges) -> Array[Int] {
+pub fn nearest(gr1 : GRanges, gr2 : GRanges) -> Array[Int32] {
   let n = granges_length(gr1)
-  let indices : Array[Int] = Array::make(n, -1)
+  let indices : Array[Int32] = Array::make(n, -1)
 
   let mut i = 0
   while i < n {
@@ -663,9 +676,9 @@ pub fn strand_to_char(s : Strand) -> String {
 
 ///|
 /// Find ranges in gr2 that precede ranges in gr1 (gr2 end < gr1 start).
-pub fn precede(gr1 : GRanges, gr2 : GRanges) -> Array[Int] {
+pub fn precede(gr1 : GRanges, gr2 : GRanges) -> Array[Int32] {
   let n = granges_length(gr1)
-  let indices : Array[Int] = Array::make(n, -1)
+  let indices : Array[Int32] = Array::make(n, -1)
 
   let mut i = 0
   while i < n {
@@ -698,9 +711,9 @@ pub fn precede(gr1 : GRanges, gr2 : GRanges) -> Array[Int] {
 
 ///|
 /// Find ranges in gr2 that follow ranges in gr1 (gr2 start > gr1 end).
-pub fn follow(gr1 : GRanges, gr2 : GRanges) -> Array[Int] {
+pub fn follow(gr1 : GRanges, gr2 : GRanges) -> Array[Int32] {
   let n = granges_length(gr1)
-  let indices : Array[Int] = Array::make(n, -1)
+  let indices : Array[Int32] = Array::make(n, -1)
 
   let mut i = 0
   while i < n {
@@ -736,9 +749,9 @@ pub fn follow(gr1 : GRanges, gr2 : GRanges) -> Array[Int] {
 /// Returns a map of seqname to coverage array.
 pub fn coverage_granges(
   gr : GRanges,
-  seqlengths : Map[String, Int],
-) -> Map[String, Array[Int]] {
-  let result : Map[String, Array[Int]] = Map([], capacity=10)
+  seqlengths : Map[String, Int32],
+) -> Map[String, Array[Int32]] {
+  let result : Map[String, Array[Int32]] = Map([], capacity=10)
 
   let seqnames = gr.seqnames
   let n = granges_length(gr)
@@ -777,13 +790,13 @@ pub fn coverage_granges(
 /// Calculate coverage as a GRanges object (run-length encoding).
 pub fn coverage_as_granges(
   gr : GRanges,
-  seqlengths : Map[String, Int],
+  seqlengths : Map[String, Int32],
 ) -> GRanges {
-  let result_seqnames : Array[String] = Array::new()
-  let result_starts : Array[Int] = Array::new()
-  let result_ends : Array[Int] = Array::new()
-  let result_strands : Array[Strand] = Array::new()
-  let result_widths : Array[Int] = Array::new()
+  let result_seqnames : Array[String] = Array(capacity=0)
+  let result_starts : Array[Int32] = Array(capacity=0)
+  let result_ends : Array[Int32] = Array(capacity=0)
+  let result_strands : Array[Strand] = Array(capacity=0)
+  let result_widths : Array[Int32] = Array(capacity=0)
 
   let cov_map = coverage_granges(gr, seqlengths)
 
@@ -832,9 +845,9 @@ pub fn coverage_as_granges(
 
 ///|
 /// Calculate the distance to nearest neighbor (sorted by position).
-pub fn distance_to_nearest(gr : GRanges) -> Array[Int] {
+pub fn distance_to_nearest(gr : GRanges) -> Array[Int32] {
   let n = granges_length(gr)
-  let distances : Array[Int] = Array::make(n, -1)
+  let distances : Array[Int32] = Array::make(n, -1)
 
   let mut i = 0
   while i < n {
@@ -872,37 +885,6 @@ pub fn distance_to_nearest(gr : GRanges) -> Array[Int] {
 }
 
 ///|
-/// Subset GRanges by a logical condition (as boolean indices).
-pub fn granges_subset(gr : GRanges, keep : Array[Bool]) -> GRanges {
-  let n = gr.seqnames.length()
-  let new_seqnames : Array[String] = Array::new()
-  let new_starts : Array[Int] = Array::new()
-  let new_ends : Array[Int] = Array::new()
-  let new_strands : Array[Strand] = Array::new()
-  let new_widths : Array[Int] = Array::new()
-
-  let mut i = 0
-  while i < n {
-    if i < keep.length() && keep[i] {
-      new_seqnames.push(gr.seqnames[i])
-      new_starts.push(gr.starts[i])
-      new_ends.push(gr.ends[i])
-      new_strands.push(gr.strands[i])
-      new_widths.push(gr.widths[i])
-    }
-    i = i + 1
-  }
-
-  GRanges::{
-    seqnames: new_seqnames,
-    starts: new_starts,
-    ends: new_ends,
-    strands: new_strands,
-    widths: new_widths,
-  }
-}
-
-///|
 /// Sort GRanges by seqname then start position.
 pub fn granges_sort(gr : GRanges) -> GRanges {
   let n = gr.seqnames.length()
@@ -913,7 +895,7 @@ pub fn granges_sort(gr : GRanges) -> GRanges {
     i = i + 1
   }
 
-  let mut sorted_indices : Array[Int] = Array::new()
+  let mut sorted_indices : Array[Int32] = Array(capacity=0)
   // Simple bubble sort for demonstration
   let arr = indices.copy()
   let mut swapped = true
@@ -936,11 +918,11 @@ pub fn granges_sort(gr : GRanges) -> GRanges {
 
   sorted_indices = arr
 
-  let new_seqnames : Array[String] = Array::new()
-  let new_starts : Array[Int] = Array::new()
-  let new_ends : Array[Int] = Array::new()
-  let new_strands : Array[Strand] = Array::new()
-  let new_widths : Array[Int] = Array::new()
+  let new_seqnames : Array[String] = Array(capacity=0)
+  let new_starts : Array[Int32] = Array(capacity=0)
+  let new_ends : Array[Int32] = Array(capacity=0)
+  let new_strands : Array[Strand] = Array(capacity=0)
+  let new_widths : Array[Int32] = Array(capacity=0)
 
   let mut k = 0
   while k < sorted_indices.length() {
@@ -963,7 +945,7 @@ pub fn granges_sort(gr : GRanges) -> GRanges {
 }
 
 ///|
-fn compare_granges_pos(gr : GRanges, idx1 : Int, idx2 : Int) -> Int {
+fn compare_granges_pos(gr : GRanges, idx1 : Int32, idx2 : Int32) -> Int32 {
   if gr.seqnames[idx1] < gr.seqnames[idx2] {
     -1
   } else if gr.seqnames[idx1] > gr.seqnames[idx2] {
@@ -1012,7 +994,7 @@ test "coverage_granges" {
     strand_plus(),
     strand_plus(),
   ])
-  let seqlengths : Map[String, Int] = Map([], capacity=1)
+  let seqlengths : Map[String, Int32] = Map([], capacity=1)
   seqlengths["chr1"] = 10
   let result = coverage_granges(gr, seqlengths)
   assert_true(result.contains("chr1"))
@@ -1047,7 +1029,7 @@ test "coverage_as_granges" {
     strand_plus(),
     strand_plus(),
   ])
-  let seqlengths : Map[String, Int] = Map([], capacity=1)
+  let seqlengths : Map[String, Int32] = Map([], capacity=1)
   seqlengths["chr1"] = 10
   let result = coverage_as_granges(gr, seqlengths)
   assert_true(granges_length(result) >= 2)

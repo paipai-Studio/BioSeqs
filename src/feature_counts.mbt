@@ -17,6 +17,9 @@ pub enum StrandMode {
 } derive(Eq)
 
 ///|
+pub extend StrandMode with Eq::{equal, not_equal}
+
+///|
 /// Create unstranded mode.
 pub fn strand_unstranded() -> StrandMode {
   StrandMode::Unstranded
@@ -40,9 +43,9 @@ pub struct FeatureAnnotation {
   /// Chromosome name
   chr : String
   /// Start position (1-based)
-  start : Int
+  start : Int32
   /// End position (1-based, inclusive)
-  end_ : Int
+  end_ : Int32
   /// Strand ('+', '-', or '*')
   strand : String
   /// Gene ID
@@ -59,13 +62,13 @@ pub struct FeatureAnnotation {
 /// Create a new FeatureAnnotation.
 pub fn FeatureAnnotation::new(
   chr~ : String,
-  start~ : Int,
-  end_~ : Int,
+  start~ : Int32,
+  end_~ : Int32,
   strand~ : String,
   gene_id~ : String,
-  feature_type? : String = "exon",
-  transcript_id? : String = "",
-  feature_id? : String = "",
+  feature_type~ : String = "exon",
+  transcript_id~ : String = "",
+  feature_id~ : String = "",
 ) -> FeatureAnnotation {
   let fid = if feature_id == "" {
     gene_id + ":" + start.to_string() + "-" + end_.to_string()
@@ -86,7 +89,7 @@ pub fn FeatureAnnotation::new(
 
 ///|
 /// Get the length of the feature.
-pub fn FeatureAnnotation::length(self : FeatureAnnotation) -> Int {
+pub fn FeatureAnnotation::length(self : FeatureAnnotation) -> Int32 {
   if self.end_ > self.start {
     self.end_ - self.start + 1
   } else {
@@ -99,8 +102,8 @@ pub fn FeatureAnnotation::length(self : FeatureAnnotation) -> Int {
 pub fn FeatureAnnotation::overlaps(
   self : FeatureAnnotation,
   chr~ : String,
-  start~ : Int,
-  end_~ : Int,
+  start~ : Int32,
+  end_~ : Int32,
 ) -> Bool {
   if self.chr != chr {
     return false
@@ -113,9 +116,9 @@ pub fn FeatureAnnotation::overlaps(
 pub fn FeatureAnnotation::overlap_length(
   self : FeatureAnnotation,
   chr~ : String,
-  start~ : Int,
-  end_~ : Int,
-) -> Int {
+  start~ : Int32,
+  end_~ : Int32,
+) -> Int32 {
   if self.chr != chr {
     return 0
   }
@@ -136,23 +139,23 @@ pub struct ReadAlignment {
   /// Chromosome
   chr : String
   /// Start position (1-based)
-  start : Int
+  start : Int32
   /// End position (1-based, inclusive)
-  end_ : Int
+  end_ : Int32
   /// Strand
   strand : String
   /// Mapping quality
-  mapq : Int
+  mapq : Int32
   /// Number of alignments (for multi-mappers)
-  n_alignments : Int
+  n_alignments : Int32
   /// Is paired-end read
   is_paired : Bool
   /// Mate chromosome (for paired-end)
   mate_chr : String
   /// Mate start (for paired-end)
-  mate_start : Int
+  mate_start : Int32
   /// Fragment length (for paired-end)
-  fragment_length : Int
+  fragment_length : Int32
 }
 
 ///|
@@ -160,10 +163,10 @@ pub struct ReadAlignment {
 pub fn ReadAlignment::new(
   read_id~ : String,
   chr~ : String,
-  start~ : Int,
-  end_~ : Int,
-  strand? : String = "+",
-  mapq? : Int = 60,
+  start~ : Int32,
+  end_~ : Int32,
+  strand~ : String = "+",
+  mapq~ : Int32 = 60,
 ) -> ReadAlignment {
   ReadAlignment::{
     read_id,
@@ -185,12 +188,12 @@ pub fn ReadAlignment::new(
 pub fn ReadAlignment::new_paired(
   read_id~ : String,
   chr~ : String,
-  start~ : Int,
-  end_~ : Int,
-  strand? : String = "+",
-  mapq? : Int = 60,
-  mate_chr? : String = "",
-  mate_start? : Int = 0,
+  start~ : Int32,
+  end_~ : Int32,
+  strand~ : String = "+",
+  mapq~ : Int32 = 60,
+  mate_chr~ : String = "",
+  mate_start~ : Int32 = 0,
 ) -> ReadAlignment {
   let frag_len = if mate_start > 0 {
     if mate_start > end_ {
@@ -222,7 +225,9 @@ pub fn ReadAlignment::new_paired(
 
 ///|
 /// Get the fragment span for paired-end reads.
-pub fn ReadAlignment::fragment_span(self : ReadAlignment) -> (String, Int, Int) {
+pub fn ReadAlignment::fragment_span(
+  self : ReadAlignment,
+) -> (String, Int32, Int32) {
   if !self.is_paired {
     return (self.chr, self.start, self.end_)
   }
@@ -247,13 +252,13 @@ pub fn ReadAlignment::fragment_span(self : ReadAlignment) -> (String, Int, Int) 
 /// Configuration for featureCounts.
 pub struct FeatureCountsConfig {
   /// Minimum overlap required for counting (bp)
-  min_overlap : Int
+  min_overlap : Int32
   /// Minimum total overlap (bp) for multi-exon features
-  min_overlap_total : Int
+  min_overlap_total : Int32
   /// Fraction of read that must overlap
   frac_overlap : Double
   /// Minimum mapping quality
-  min_mapq : Int
+  min_mapq : Int32
   /// Ignore strand specificity
   ignore_strand : Bool
   /// Strand mode
@@ -289,7 +294,7 @@ pub fn FeatureCountsConfig::new() -> FeatureCountsConfig {
 /// Set minimum overlap (returns new config).
 pub fn FeatureCountsConfig::set_min_overlap(
   self : FeatureCountsConfig,
-  val~ : Int,
+  val~ : Int32,
 ) -> FeatureCountsConfig {
   FeatureCountsConfig::{
     min_overlap: val,
@@ -329,7 +334,7 @@ pub fn FeatureCountsConfig::set_strand_mode(
 /// Set minimum mapping quality (returns new config).
 pub fn FeatureCountsConfig::set_min_mapq(
   self : FeatureCountsConfig,
-  val~ : Int,
+  val~ : Int32,
 ) -> FeatureCountsConfig {
   FeatureCountsConfig::{
     min_overlap: self.min_overlap,
@@ -366,26 +371,6 @@ pub fn FeatureCountsConfig::set_count_fragments(
 }
 
 ///|
-/// Set multi-count flag (returns new config).
-pub fn fcfg_set_multi_count(
-  cfg : FeatureCountsConfig,
-  val~ : Bool,
-) -> FeatureCountsConfig {
-  FeatureCountsConfig::{
-    min_overlap: cfg.min_overlap,
-    min_overlap_total: cfg.min_overlap_total,
-    frac_overlap: cfg.frac_overlap,
-    min_mapq: cfg.min_mapq,
-    ignore_strand: cfg.ignore_strand,
-    strand_mode: cfg.strand_mode,
-    multi_count: val,
-    frac_multi_count: cfg.frac_multi_count,
-    include_chimeric: cfg.include_chimeric,
-    count_fragments: cfg.count_fragments,
-  }
-}
-
-///|
 /// Feature counting result.
 pub struct FeatureCountsResult {
   /// Feature IDs
@@ -397,30 +382,30 @@ pub struct FeatureCountsResult {
   /// Sample names
   sample_names : Array[String]
   /// Assignment summary
-  total_reads : Array[Int]
+  total_reads : Array[Int32]
   /// Assigned reads
-  assigned_reads : Array[Int]
+  assigned_reads : Array[Int32]
   /// Unassigned reads (no feature overlap)
-  unassigned_no_features : Array[Int]
+  unassigned_no_features : Array[Int32]
   /// Unassigned reads (ambiguous)
-  unassigned_ambiguous : Array[Int]
+  unassigned_ambiguous : Array[Int32]
   /// Unassigned reads (multi-mapping)
-  unassigned_multi : Array[Int]
+  unassigned_multi : Array[Int32]
   /// Unassigned reads (low quality)
-  unassigned_low_quality : Array[Int]
+  unassigned_low_quality : Array[Int32]
   /// Unassigned reads (overlapping features)
-  unassigned_overlap : Array[Int]
+  unassigned_overlap : Array[Int32]
 }
 
 ///|
 /// Get number of features.
-pub fn FeatureCountsResult::n_features(self : FeatureCountsResult) -> Int {
+pub fn FeatureCountsResult::n_features(self : FeatureCountsResult) -> Int32 {
   self.feature_ids.length()
 }
 
 ///|
 /// Get number of samples.
-pub fn FeatureCountsResult::n_samples(self : FeatureCountsResult) -> Int {
+pub fn FeatureCountsResult::n_samples(self : FeatureCountsResult) -> Int32 {
   self.sample_names.length()
 }
 
@@ -429,7 +414,7 @@ pub fn FeatureCountsResult::n_samples(self : FeatureCountsResult) -> Int {
 pub fn FeatureCountsResult::get_count(
   self : FeatureCountsResult,
   feature_id~ : String,
-  sample_idx~ : Int,
+  sample_idx~ : Int32,
 ) -> Double {
   let fi = fc_feature_index(self, feature_id)
   if fi < 0 {
@@ -445,7 +430,7 @@ pub fn FeatureCountsResult::get_count(
 /// Get library size (total assigned counts) for a sample.
 pub fn FeatureCountsResult::library_size(
   self : FeatureCountsResult,
-  sample_idx~ : Int,
+  sample_idx~ : Int32,
 ) -> Double {
   if sample_idx < 0 || sample_idx >= self.counts.length() {
     return 0.0
@@ -464,7 +449,7 @@ pub fn FeatureCountsResult::library_size(
 pub fn FeatureCountsResult::cpm(
   self : FeatureCountsResult,
   feature_id~ : String,
-  sample_idx~ : Int,
+  sample_idx~ : Int32,
 ) -> Double {
   let raw = self.get_count(feature_id~, sample_idx~)
   let lib = self.library_size(sample_idx~)
@@ -562,8 +547,8 @@ pub fn FeatureCountsResult::to_string(self : FeatureCountsResult) -> String {
 pub fn feature_counts_count(
   features : Array[FeatureAnnotation],
   reads : Array[ReadAlignment],
-  sample_names? : Array[String] = [],
-  config? : FeatureCountsConfig = FeatureCountsConfig::new(),
+  sample_names~ : Array[String] = [],
+  config~ : FeatureCountsConfig = FeatureCountsConfig::new(),
 ) -> FeatureCountsResult {
   let n_features = features.length()
   let n_reads = reads.length()
@@ -573,8 +558,8 @@ pub fn feature_counts_count(
     1
   }
 
-  let feat_ids : Array[String] = Array::new()
-  let gene_ids : Array[String] = Array::new()
+  let feat_ids : Array[String] = Array(capacity=0)
+  let gene_ids : Array[String] = Array(capacity=0)
   let mut i = 0
   while i < n_features {
     feat_ids.push(features[i].feature_id)
@@ -582,10 +567,10 @@ pub fn feature_counts_count(
     i = i + 1
   }
 
-  let counts : Array[Array[Double]] = Array::new()
+  let counts : Array[Array[Double]] = Array(capacity=0)
   let mut s = 0
   while s < n_samples {
-    let sample_counts : Array[Double] = Array::new()
+    let sample_counts : Array[Double] = Array(capacity=0)
     let mut f = 0
     while f < n_features {
       sample_counts.push(0.0)
@@ -595,13 +580,13 @@ pub fn feature_counts_count(
     s = s + 1
   }
 
-  let total_reads : Array[Int] = Array::new()
-  let assigned_reads : Array[Int] = Array::new()
-  let unassigned_no_features : Array[Int] = Array::new()
-  let unassigned_ambiguous : Array[Int] = Array::new()
-  let unassigned_multi : Array[Int] = Array::new()
-  let unassigned_low_quality : Array[Int] = Array::new()
-  let unassigned_overlap : Array[Int] = Array::new()
+  let total_reads : Array[Int32] = Array(capacity=0)
+  let assigned_reads : Array[Int32] = Array(capacity=0)
+  let unassigned_no_features : Array[Int32] = Array(capacity=0)
+  let unassigned_ambiguous : Array[Int32] = Array(capacity=0)
+  let unassigned_multi : Array[Int32] = Array(capacity=0)
+  let unassigned_low_quality : Array[Int32] = Array(capacity=0)
+  let unassigned_overlap : Array[Int32] = Array(capacity=0)
 
   let mut si = 0
   while si < n_samples {
@@ -618,7 +603,7 @@ pub fn feature_counts_count(
   let sn = if sample_names.length() > 0 {
     sample_names
   } else {
-    let def : Array[String] = Array::new()
+    let def : Array[String] = Array(capacity=0)
     def.push("sample_1")
     def
   }
@@ -645,7 +630,7 @@ pub fn feature_counts_count(
 
     let read_len = f_end - f_start + 1
 
-    let overlapping : Array[(Int, Int)] = Array::new()
+    let overlapping : Array[(Int32, Int32)] = Array(capacity=0)
     let mut fi = 0
     while fi < n_features {
       let feat = features[fi]
@@ -738,7 +723,7 @@ pub fn feature_counts_sample_data() -> (
   Array[ReadAlignment],
   Array[String],
 ) {
-  let features : Array[FeatureAnnotation] = Array::new()
+  let features : Array[FeatureAnnotation] = Array(capacity=0)
   features.push(
     FeatureAnnotation::new(
       chr="chr1",
@@ -780,7 +765,7 @@ pub fn feature_counts_sample_data() -> (
     ),
   )
 
-  let reads : Array[ReadAlignment] = Array::new()
+  let reads : Array[ReadAlignment] = Array(capacity=0)
   reads.push(
     ReadAlignment::new(read_id="read1", chr="chr1", start=1500, end_=1600),
   )
@@ -815,7 +800,7 @@ pub fn feature_counts_sample_data() -> (
     ReadAlignment::new(read_id="read7", chr="chr1", start=1700, end_=1800),
   )
 
-  let sample_names : Array[String] = Array::new()
+  let sample_names : Array[String] = Array(capacity=0)
   sample_names.push("sample_1")
 
   (features, reads, sample_names)
@@ -824,7 +809,7 @@ pub fn feature_counts_sample_data() -> (
 // --- Internal helpers ---
 
 ///|
-fn fc_feature_index(result : FeatureCountsResult, feature_id : String) -> Int {
+fn fc_feature_index(result : FeatureCountsResult, feature_id : String) -> Int32 {
   let mut i = 0
   while i < result.feature_ids.length() {
     if result.feature_ids[i] == feature_id {

@@ -32,7 +32,9 @@ fn main {
   // 2. Fit background model
   // ------------------------------------------------------------------
   println("=== 2. Fit NB Background Model ===")
-  let (intercept, beta_dist, beta_gc, beta_map, dispersion) = @bio.hicdc_fit_background(contacts)
+  let (intercept, beta_dist, beta_gc, beta_map, dispersion) = @bio.hicdc_fit_background(
+    contacts,
+  )
   println("Intercept: " + intercept.to_string())
   println("Beta (distance): " + beta_dist.to_string())
   println("Beta (GC): " + beta_gc.to_string())
@@ -48,9 +50,15 @@ fn main {
   for d in test_distances {
     let c = @bio.HiCContact::new("chr1", 0, d, 0, 1)
     let expected = @bio.hicdc_predict_expected(
-      [c], intercept, beta_dist, beta_gc, beta_map
+      [c],
+      intercept,
+      beta_dist,
+      beta_gc,
+      beta_map,
     )
-    println("  Distance " + d.to_string() + ": expected=" + expected[0].to_string())
+    println(
+      "  Distance " + d.to_string() + ": expected=" + expected[0].to_string(),
+    )
   }
   println("")
 
@@ -73,15 +81,15 @@ fn main {
     if r.significant() && shown < 5 {
       println(
         "  chr1:" +
-          r.bin1().to_string() +
-          "-" +
-          r.bin2().to_string() +
-          " obs=" +
-          r.observed().to_string() +
-          " exp=" +
-          r.expected().to_string() +
-          " FDR=" +
-          r.fdr().to_string(),
+        r.bin1().to_string() +
+        "-" +
+        r.bin2().to_string() +
+        " obs=" +
+        r.observed().to_string() +
+        " exp=" +
+        r.expected().to_string() +
+        " FDR=" +
+        r.fdr().to_string(),
       )
       shown = shown + 1
     }
@@ -97,10 +105,10 @@ fn main {
   for b in boundaries {
     println(
       "  Boundary at bin " +
-        b.bin().to_string() +
-        " (DI=" +
-        b.directionality_index().to_string() +
-        ")",
+      b.bin().to_string() +
+      " (DI=" +
+      b.directionality_index().to_string() +
+      ")",
     )
   }
   println("")
@@ -124,12 +132,12 @@ fn main {
   for c in compartments {
     println(
       "  Bin " +
-        c.bin().to_string() +
-        ": " +
-        c.compartment() +
-        " (PC1=" +
-        c.pc1().to_string() +
-        ")",
+      c.bin().to_string() +
+      ": " +
+      c.compartment() +
+      " (PC1=" +
+      c.pc1().to_string() +
+      ")",
     )
   }
   println("")

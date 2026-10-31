@@ -38,8 +38,8 @@ pub struct PriorKnowledgeNetwork {
 /// Build a PriorKnowledgeNetwork from a list of edges.
 pub fn pkn_from_edges(edges : Array[PKNEdge]) -> PriorKnowledgeNetwork {
   // Collect unique regulators and targets
-  let reg_map : Map[String, Unit] = Map::new()
-  let tgt_map : Map[String, Unit] = Map::new()
+  let reg_map : Map[String, Unit] = Map([])
+  let tgt_map : Map[String, Unit] = Map([])
   let mut i = 0
   while i < edges.length() {
     reg_map.set(edges[i].source, ())
@@ -48,13 +48,13 @@ pub fn pkn_from_edges(edges : Array[PKNEdge]) -> PriorKnowledgeNetwork {
   }
   let regulators = reg_map.keys().collect()
   let targets = tgt_map.keys().collect()
-  PriorKnowledgeNetwork::{ edges, regulators, targets }
+  PriorKnowledgeNetwork::{ edges, regulators, targets, }
 }
 
 ///|
 /// Create a PKNEdge.
 pub fn pkn_edge(source : String, target : String, weight : Double) -> PKNEdge {
-  PKNEdge::{ source, target, weight }
+  PKNEdge::{ source, target, weight, }
 }
 
 ///|
@@ -73,7 +73,7 @@ pub struct DecoupleRResult {
   samples : Array[String]
   matrix : Array[Array[Double]] // matrix[i][j] = activity of regulator i in sample j
   scores : Array[ActivityScore] // flat list of scores
-  method : String
+  method_ : String
 }
 
 ///|
@@ -84,9 +84,9 @@ pub struct DecoupleRResult {
 fn decoupler_build_weight_matrix(
   pkn : PriorKnowledgeNetwork,
   gene_names : Array[String],
-) -> (Array[String], Array[Int], Array[Array[Double]]) {
+) -> (Array[String], Array[Int32], Array[Array[Double]]) {
   // Map gene names to column indices in the expression matrix
-  let gene_index : Map[String, Int] = Map::new()
+  let gene_index : Map[String, Int32] = Map([])
   let mut i = 0
   while i < gene_names.length() {
     gene_index.set(gene_names[i], i)
@@ -102,22 +102,22 @@ fn decoupler_build_weight_matrix(
     ri = ri + 1
   }
   // Map regulator to row index
-  let reg_index : Map[String, Int] = Map::new()
+  let reg_index : Map[String, Int32] = Map([])
   let mut ri = 0
   while ri < reg_list.length() {
     reg_index.set(reg_list[ri], ri)
     ri = ri + 1
   }
   // Only include targets that appear in expression matrix
-  let tgt_indices : Array[Int] = []
-  let tgt_seen : Map[Int, Unit] = Map::new()
+  let tgt_indices : Array[Int32] = []
+  let tgt_seen : Map[Int32, Unit] = Map([])
   let mut ti = 0
   while ti < pkn.targets.length() {
     let t = pkn.targets[ti]
     let idx_opt = gene_index.get(t)
     match idx_opt {
       Some(idx) =>
-        if not(tgt_seen.contains(idx)) {
+        if !tgt_seen.contains(idx) {
           tgt_seen.set(idx, ())
           tgt_indices.push(idx)
         }
@@ -128,7 +128,7 @@ fn decoupler_build_weight_matrix(
   // Build weight matrix: rows = regulators, cols = targets (using tgt_indices positions)
   let n_reg = reg_list.length()
   let n_tgt = tgt_indices.length()
-  let w : Array[Array[Double]] = Array::new()
+  let w : Array[Array[Double]] = Array(capacity=0)
   let mut wi = 0
   while wi < n_reg {
     w.push(Array::make(n_tgt, 0.0))
@@ -177,7 +177,7 @@ fn decoupler_wsum(
   )
   let n_reg = reg_list.length()
   let n_samples = expression.length()
-  let matrix : Array[Array[Double]] = Array::new()
+  let matrix : Array[Array[Double]] = Array(capacity=0)
   let mut mri = 0
   while mri < n_reg {
     matrix.push(Array::make(n_samples, 0.0))
@@ -216,7 +216,7 @@ fn decoupler_wmean(
   )
   let n_reg = reg_list.length()
   let n_samples = expression.length()
-  let matrix : Array[Array[Double]] = Array::new()
+  let matrix : Array[Array[Double]] = Array(capacity=0)
   let mut mri = 0
   while mri < n_reg {
     matrix.push(Array::make(n_samples, 0.0))
@@ -262,7 +262,7 @@ fn decoupler_norm(
   let wmean_result = decoupler_wmean(expression, sample_names, gene_names, pkn)
   let n_reg = wmean_result.regulators.length()
   let n_samples = sample_names.length()
-  let matrix : Array[Array[Double]] = Array::new()
+  let matrix : Array[Array[Double]] = Array(capacity=0)
   let mut mri = 0
   while mri < n_reg {
     matrix.push(Array::make(n_samples, 0.0))
@@ -405,7 +405,7 @@ fn decoupler_ulm(
   )
   let n_reg = reg_list.length()
   let n_samples = expression.length()
-  let matrix : Array[Array[Double]] = Array::new()
+  let matrix : Array[Array[Double]] = Array(capacity=0)
   let mut mri = 0
   while mri < n_reg {
     matrix.push(Array::make(n_samples, 0.0))
@@ -483,7 +483,7 @@ fn decoupler_ulm(
     samples: sample_names,
     matrix,
     scores,
-    method: "ulm",
+    method_: "ulm",
   }
 }
 
@@ -511,7 +511,7 @@ fn decoupler_mlm(
   )
   let n_reg = reg_list.length()
   let n_samples = expression.length()
-  let matrix : Array[Array[Double]] = Array::new()
+  let matrix : Array[Array[Double]] = Array(capacity=0)
   let mut mri = 0
   while mri < n_reg {
     matrix.push(Array::make(n_samples, 0.0))
@@ -558,7 +558,7 @@ fn decoupler_mlm(
     samples: sample_names,
     matrix,
     scores,
-    method: "mlm",
+    method_: "mlm",
   }
 }
 
@@ -620,7 +620,7 @@ fn decoupler_pack_result(
   regulators : Array[String],
   samples : Array[String],
   matrix : Array[Array[Double]],
-  method : String,
+  method_ : String,
 ) -> DecoupleRResult {
   let scores : Array[ActivityScore] = []
   let mut i = 0
@@ -637,7 +637,7 @@ fn decoupler_pack_result(
     }
     i = i + 1
   }
-  DecoupleRResult::{ regulators, samples, matrix, scores, method }
+  DecoupleRResult::{ regulators, samples, matrix, scores, method_, }
 }
 
 ///|
@@ -654,9 +654,9 @@ pub fn decoupler_run(
   sample_names : Array[String],
   gene_names : Array[String],
   pkn : PriorKnowledgeNetwork,
-  method? : DecoupleRMethod = DecoupleRMethod::ULM,
+  method_~ : DecoupleRMethod = DecoupleRMethod::ULM,
 ) -> DecoupleRResult {
-  match method {
+  match method_ {
     DecoupleRMethod::WSum =>
       decoupler_wsum(expression, sample_names, gene_names, pkn)
     DecoupleRMethod::WMean =>
@@ -675,7 +675,7 @@ pub fn decoupler_run(
 pub fn decoupler_top_regulators(
   result : DecoupleRResult,
   sample_name : String,
-  k : Int,
+  k : Int32,
 ) -> Array[ActivityScore] {
   let s_idx = {
     let mut found = -1

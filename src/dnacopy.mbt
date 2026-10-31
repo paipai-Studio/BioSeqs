@@ -11,7 +11,7 @@
 /// Copy-number array (single sample), analogous to DNAcopy's `CNA` object.
 pub struct Cna {
   chrom : Array[String]
-  maploc : Array[Int]
+  maploc : Array[Int32]
   logratio : Array[Double]
 }
 
@@ -20,26 +20,26 @@ pub struct Cna {
 /// segment boundaries; probes are segmented in the given order.
 pub fn Cna::new(
   chrom : Array[String],
-  maploc : Array[Int],
+  maploc : Array[Int32],
   logratio : Array[Double],
 ) -> Cna raise SeqError {
   let n = chrom.length()
   if maploc.length() != n || logratio.length() != n {
     raise SeqError("chrom, maploc and logratio must have the same length")
   }
-  { chrom, maploc, logratio }
+  { chrom, maploc, logratio, }
 }
 
 ///|
 /// Segmentation options mirroring `DNAcopy::segment()` defaults.
 pub struct DnaCopyOptions {
   alpha : Double
-  nperm : Int
-  min_width : Int
+  nperm : Int32
+  min_width : Int32
   trim : Double
   undo_splits : String
   undo_sd : Double
-  seed : Int
+  seed : Int32
 }
 
 ///|
@@ -61,27 +61,27 @@ pub fn DnaCopyOptions::default() -> DnaCopyOptions {
 /// Construct options with explicit overrides; unset parameters keep the
 /// DNAcopy defaults.
 pub fn DnaCopyOptions::of(
-  alpha? : Double = 0.01,
-  nperm? : Int = 10000,
-  min_width? : Int = 2,
-  trim? : Double = 0.025,
-  undo_splits? : String = "none",
-  undo_sd? : Double = 3.0,
-  seed? : Int = 1,
+  alpha~ : Double = 0.01,
+  nperm~ : Int32 = 10000,
+  min_width~ : Int32 = 2,
+  trim~ : Double = 0.025,
+  undo_splits~ : String = "none",
+  undo_sd~ : Double = 3.0,
+  seed~ : Int32 = 1,
 ) -> DnaCopyOptions {
-  { alpha, nperm, min_width, trim, undo_splits, undo_sd, seed }
+  { alpha, nperm, min_width, trim, undo_splits, undo_sd, seed, }
 }
 
 ///|
 /// One segmented copy-number region.
 pub struct CnaSegment {
   chrom : String
-  start : Int
-  end : Int
-  num_mark : Int
+  start : Int32
+  end : Int32
+  num_mark : Int32
   seg_mean : Double
-  start_row : Int
-  end_row : Int
+  start_row : Int32
+  end_row : Int32
 }
 
 ///|
@@ -93,15 +93,15 @@ pub struct DnaCopyResult {
 ///|
 /// Deterministic Lehmer (MINSTD) PRNG with Schrage decomposition for the
 /// permutation tests - the same generator scheme used across this library.
-struct DcRng {
-  mut state : Int
+priv struct DcRng {
+  mut state : Int32
 }
 
 ///|
-fn DcRng::new(seed : Int) -> DcRng {
+fn DcRng::new(seed : Int32) -> DcRng {
   // map any seed into [1, 2147483646], the valid multiplicative group
   let s = (seed - 1) % 2147483646 + 1
-  let rng : DcRng = { state: if s > 0 { s } else { s + 2147483646 } }
+  let rng : DcRng = { state: if s > 0 { s } else { s + 2147483646 }, }
   // warm up so that low-entropy seeds do not produce a biased first draw
   let mut i = 0
   while i < 8 {
@@ -113,7 +113,7 @@ fn DcRng::new(seed : Int) -> DcRng {
 
 ///|
 /// Advance the generator and return the raw value in [1, 2147483646].
-fn DcRng::next(self : DcRng) -> Int {
+fn DcRng::next(self : DcRng) -> Int32 {
   let normalized = (self.state - 1) % 2147483646 + 1
   let quotient = normalized / 44488
   let remainder = normalized % 44488
@@ -131,7 +131,12 @@ fn DcRng::next_uniform(self : DcRng) -> Double {
 
 ///|
 /// In-place Fisher-Yates shuffle of a value slice [lo, hi).
-fn dc_shuffle(values : Array[Double], lo : Int, hi : Int, rng : DcRng) -> Unit {
+fn dc_shuffle(
+  values : Array[Double],
+  lo : Int32,
+  hi : Int32,
+  rng : DcRng,
+) -> Unit {
   let mut i = hi - 1
   while i > lo {
     let j = lo + (rng.next_uniform() * (i - lo + 1).to_double()).to_int()
@@ -144,7 +149,12 @@ fn dc_shuffle(values : Array[Double], lo : Int, hi : Int, rng : DcRng) -> Unit {
 
 ///|
 /// Trimmed variance of first differences (DNAcopy `trimmed.variance`).
-fn dc_trimmed_variance(x : Array[Double], lo : Int, hi : Int, trim : Double) -> Double {
+fn dc_trimmed_variance(
+  x : Array[Double],
+  lo : Int32,
+  hi : Int32,
+  trim : Double,
+) -> Double {
   let n = hi - lo
   if n < 2 {
     return 0.0
@@ -157,7 +167,9 @@ fn dc_trimmed_variance(x : Array[Double], lo : Int, hi : Int, trim : Double) -> 
     i = i + 1
   }
   diffs.sort()
-  let n_keep = ((1.0 - 2.0 * trim) * diffs.length().to_double() + 0.5).floor().to_int()
+  let n_keep = ((1.0 - 2.0 * trim) * diffs.length().to_double() + 0.5)
+    .floor()
+    .to_int()
   if n_keep <= 0 {
     return 0.0
   }
@@ -188,10 +200,10 @@ fn dc_trimmed_variance(x : Array[Double], lo : Int, hi : Int, trim : Double) -> 
 /// |mean_int - mean_out| * sqrt(len * (n - len) / n).
 fn dc_max_stat(
   x : Array[Double],
-  lo : Int,
-  hi : Int,
-  min_width : Int,
-) -> (Int, Int, Double) {
+  lo : Int32,
+  hi : Int32,
+  min_width : Int32,
+) -> (Int32, Int32, Double) {
   let n = hi - lo
   // partial sums of centered data
   let s : Array[Double] = Array::make(n + 1, 0.0)
@@ -239,12 +251,12 @@ fn dc_max_stat(
 /// Port of the `p.method = "perm"` branch of DNAcopy `fndcpt`.
 fn dc_perm_test(
   x : Array[Double],
-  lo : Int,
-  hi : Int,
-  min_width : Int,
+  lo : Int32,
+  hi : Int32,
+  min_width : Int32,
   ostat : Double,
   alpha : Double,
-  nperm : Int,
+  nperm : Int32,
   rng : DcRng,
 ) -> Bool {
   let nrejc = (alpha * nperm.to_double()).to_int()
@@ -282,10 +294,10 @@ fn dc_perm_test(
 /// whether the first n1 of [lo, lo+n1+n2) differ from the last n2.
 fn dc_tpermp(
   x : Array[Double],
-  lo : Int,
-  n1 : Int,
-  n2 : Int,
-  nperm : Int,
+  lo : Int32,
+  n1 : Int32,
+  n2 : Int32,
+  nperm : Int32,
   rng : DcRng,
 ) -> Double {
   let n = n1 + n2
@@ -310,10 +322,15 @@ fn dc_tpermp(
   let xbar = (sum1 + sum2) / n.to_double()
   let m1 = if n1 <= n2 { n1 } else { n2 }
   let rm1 = m1.to_double()
-  let mean1 = if n1 <= n2 { sum1 / n1.to_double() } else { sum2 / n2.to_double() }
+  let mean1 = if n1 <= n2 {
+    sum1 / n1.to_double()
+  } else {
+    sum2 / n2.to_double()
+  }
   let ostat = 0.99999 * (mean1 - xbar).abs()
   let mut tstat = ostat * ostat * rm1 * n.to_double() / (n.to_double() - rm1)
-  tstat = tstat / ((tss - n.to_double() * xbar * xbar - tstat) / (n - 2).to_double())
+  tstat = tstat /
+    ((tss - n.to_double() * xbar * xbar - tstat) / (n - 2).to_double())
   if tstat > 25.0 && m1 >= 10 {
     return 0.0
   }
@@ -344,21 +361,21 @@ fn dc_tpermp(
 /// Port of DNAcopy `changepoints` + `fndcpt` (p.method = "perm").
 fn dc_cbs_segment(
   x : Array[Double],
-  lo : Int,
-  hi : Int,
+  lo : Int32,
+  hi : Int32,
   options : DnaCopyOptions,
   rng : DcRng,
-) -> Array[Int] {
+) -> Array[Int32] {
   let min_width = options.min_width
-  let seg_end : Array[Int] = [lo, hi]
-  let change_loc : Array[Int] = []
+  let seg_end : Array[Int32] = [lo, hi]
+  let change_loc : Array[Int32] = []
   let mut k = seg_end.length()
   while k > 1 {
     let cur_lo = seg_end[k - 2]
     let cur_hi = seg_end[k - 1]
     let cur_n = cur_hi - cur_lo
     let mut ncpt = 0
-    let mut icpt : Array[Int] = []
+    let mut icpt : Array[Int32] = []
     if cur_n >= 2 * min_width {
       // skip constant segments
       let mut lo_v = x[cur_lo]
@@ -378,7 +395,11 @@ fn dc_cbs_segment(
         if ostat > 0.1 {
           let interval_len = i2 - i1
           let rest_len = cur_n - interval_len
-          let flank = if interval_len < rest_len { interval_len } else { rest_len }
+          let flank = if interval_len < rest_len {
+            interval_len
+          } else {
+            rest_len
+          }
           let mut significant = false
           if ostat >= 7.0 && flank >= 10 {
             significant = true
@@ -404,7 +425,14 @@ fn dc_cbs_segment(
               icpt = [i2]
             } else {
               // validate the left and right edges by binary segmentation
-              let pval_left = dc_tpermp(x, cur_lo, i1, i2 - i1, options.nperm, rng)
+              let pval_left = dc_tpermp(
+                x,
+                cur_lo,
+                i1,
+                i2 - i1,
+                options.nperm,
+                rng,
+              )
               if pval_left <= options.alpha {
                 ncpt = ncpt + 1
                 icpt.push(i1)
@@ -439,7 +467,7 @@ fn dc_cbs_segment(
     }
     k = seg_end.length()
   }
-  let reversed : Array[Int] = []
+  let reversed : Array[Int32] = []
   let mut ri = change_loc.length() - 1
   while ri >= 0 {
     reversed.push(change_loc[ri])
@@ -453,14 +481,14 @@ fn dc_cbs_segment(
 /// `trimmed_sd * undo_sd` (DNAcopy `changepoints.sdundo`).
 fn dc_sdundo(
   x : Array[Double],
-  bounds : Array[Int],
-  lo : Int,
-  hi : Int,
+  bounds : Array[Int32],
+  lo : Int32,
+  hi : Int32,
   trimmed_sd : Double,
   undo_sd : Double,
-) -> Array[Int] {
+) -> Array[Int32] {
   let threshold = trimmed_sd * undo_sd
-  let cpt_loc : Array[Int] = []
+  let cpt_loc : Array[Int32] = []
   for b in bounds {
     if b > lo && b < hi {
       cpt_loc.push(b)
@@ -472,7 +500,7 @@ fn dc_sdundo(
     merged = false
     let k = cpt_loc.length()
     if k > 1 {
-      let seg_start : Array[Int] = Array::make(k, 0)
+      let seg_start : Array[Int32] = Array::make(k, 0)
       let mut prev = lo
       let mut i = 0
       while i < k {
@@ -510,7 +538,7 @@ fn dc_sdundo(
       }
     }
   }
-  let out : Array[Int] = []
+  let out : Array[Int32] = []
   for b in cpt_loc {
     if b < hi {
       out.push(b)
@@ -525,7 +553,10 @@ fn dc_sdundo(
 /// Each chromosome is segmented independently; the result rows follow the
 /// order of the chromosomes in the input. Set `undo_splits` to "none" or
 /// "sdundo" (DNAcopy's "prune" mode is not supported).
-pub fn segment(cna : Cna, options? : DnaCopyOptions = DnaCopyOptions::default()) -> DnaCopyResult raise SeqError {
+pub fn segment(
+  cna : Cna,
+  options~ : DnaCopyOptions = DnaCopyOptions::default(),
+) -> DnaCopyResult raise SeqError {
   if options.min_width < 2 || options.min_width > 5 {
     raise SeqError("minimum segment width should be between 2 and 5")
   }
@@ -555,7 +586,7 @@ pub fn segment(cna : Cna, options? : DnaCopyOptions = DnaCopyOptions::default())
   }
   let segments : Array[CnaSegment] = []
   for ch in chrom_order {
-    let idx : Array[Int] = []
+    let idx : Array[Int32] = []
     let mut i = 0
     while i < n {
       if cna.chrom[i] == ch {
@@ -569,7 +600,7 @@ pub fn segment(cna : Cna, options? : DnaCopyOptions = DnaCopyOptions::default())
     }
     let bounds_raw = dc_cbs_segment(vals, 0, vals.length(), options, rng)
     // keep only interior boundaries
-    let bounds : Array[Int] = []
+    let bounds : Array[Int32] = []
     for b in bounds_raw {
       if b > 0 && b < vals.length() {
         bounds.push(b)
@@ -581,7 +612,7 @@ pub fn segment(cna : Cna, options? : DnaCopyOptions = DnaCopyOptions::default())
       bounds
     }
     // build segments
-    let starts : Array[Int] = [0]
+    let starts : Array[Int32] = [0]
     for b in final_bounds {
       starts.push(b)
     }
@@ -598,23 +629,21 @@ pub fn segment(cna : Cna, options? : DnaCopyOptions = DnaCopyOptions::default())
       }
       mean = mean / (e - s).to_double()
       let rounded = if mean >= 0.0 {
-        ((mean * 10000.0) + 0.5).floor() / 10000.0
+        (mean * 10000.0 + 0.5).floor() / 10000.0
       } else {
-        ((mean * 10000.0) - 0.5).ceil() / 10000.0
+        (mean * 10000.0 - 0.5).ceil() / 10000.0
       }
-      segments.push(
-        {
-          chrom: ch,
-          start: cna.maploc[idx[s]],
-          end: cna.maploc[idx[e - 1]],
-          num_mark: e - s,
-          seg_mean: rounded,
-          start_row: idx[s],
-          end_row: idx[e - 1],
-        },
-      )
+      segments.push({
+        chrom: ch,
+        start: cna.maploc[idx[s]],
+        end: cna.maploc[idx[e - 1]],
+        num_mark: e - s,
+        seg_mean: rounded,
+        start_row: idx[s],
+        end_row: idx[e - 1],
+      })
       si = si + 1
     }
   }
-  { segments }
+  { segments, }
 }

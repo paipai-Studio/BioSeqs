@@ -41,7 +41,7 @@ fn main {
 
   println("\n=== 2. Compute GC Lookup Table ===")
   let gc_lookup = @bio.compute_gc_lookup_table(probes)
-  println("  GC lookup table size: \{gc_lookup.keys().length()}")
+  println("  GC lookup table size: \{gc_lookup.keys().count()}")
   let keys = gc_lookup.keys().collect()
   keys.sort()
   let mut ki = 0
@@ -68,9 +68,7 @@ fn main {
     i = i + 1
   }
 
-  let bg_idealmm = @bio.gcrma_background_correction(
-    pm, mm, 0.5, "IdealMM",
-  )
+  let bg_idealmm = @bio.gcrma_background_correction(pm, mm, 0.5, "IdealMM")
   println("\n  Background correction (IdealMM, gc=0.5):")
   i = 0
   while i < bg_idealmm.length() {
@@ -78,9 +76,7 @@ fn main {
     i = i + 1
   }
 
-  let bg_express = @bio.gcrma_background_correction(
-    pm, mm, 0.5, "Express",
-  )
+  let bg_express = @bio.gcrma_background_correction(pm, mm, 0.5, "Express")
   println("\n  Background correction (Express, gc=0.5):")
   i = 0
   while i < bg_express.length() {
@@ -110,7 +106,7 @@ fn main {
   println("  Before normalization:")
   i = 0
   while i < expression_matrix.length() {
-    println("    Probe \{i}: \{expression_matrix[i]}")
+    println("    Probe \{i}: \{Repr(expression_matrix[i])}")
     i = i + 1
   }
 
@@ -118,7 +114,7 @@ fn main {
   println("\n  After quantile normalization:")
   i = 0
   while i < normalized.length() {
-    println("    Probe \{i}: \{normalized[i]}")
+    println("    Probe \{i}: \{Repr(normalized[i])}")
     i = i + 1
   }
 
@@ -134,7 +130,7 @@ fn main {
   println("  Input CEL data (6 probes x 3 samples):")
   i = 0
   while i < cel_data.length() {
-    println("    Probe \{i}: \{cel_data[i]}")
+    println("    Probe \{i}: \{Repr(cel_data[i])}")
     i = i + 1
   }
 
@@ -142,14 +138,16 @@ fn main {
     background_method="IdealMM",
     normalize=true,
   )
-  println("\n  Configuration: background_method=\{config.background_method}, " +
-    "normalize=\{config.normalize}")
+  println(
+    "\n  Configuration: background_method=\{config.background_method}, " +
+    "normalize=\{config.normalize}",
+  )
 
   let result = @bio.gcrma_process_with_config(cel_data, probes, config)
   println("\n  Processed expression matrix:")
   i = 0
   while i < result.expression_matrix.length() {
-    println("    Probe \{i}: \{result.expression_matrix[i]}")
+    println("    Probe \{i}: \{Repr(result.expression_matrix[i])}")
     i = i + 1
   }
 
@@ -170,7 +168,7 @@ fn main {
     [90.0, 160.0, 140.0],
     [110.0, 190.0, 170.0],
   ]
-  let probe_sets : Map[String, Array[Int]] = Map([], capacity=0)
+  let probe_sets : Map[String, Array[Int32]] = Map([], capacity=0)
   probe_sets.set("gene1_at", [0, 1, 2])
   probe_sets.set("gene2_at", [3, 4, 5])
   println("  Probe set definition:")
@@ -185,7 +183,7 @@ fn main {
   while si < skeys.length() {
     let gene_id = skeys[si]
     let vals = summarized.get_or_default(gene_id, [])
-    println("    \{gene_id}: \{vals}")
+    println("    \{gene_id}: \{Repr(vals)}")
     si = si + 1
   }
 

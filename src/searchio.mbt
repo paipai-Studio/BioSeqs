@@ -33,119 +33,8 @@ pub fn search_io_format_from_str(s : String) -> SearchIOFormat {
 }
 
 ///|
-/// Parse a 32-bit signed integer from a StringView (fast, no error checking).
-fn searchio_parse_int_fast(sv : StringView) -> Int {
-  let n = sv.length()
-  if n == 0 {
-    return 0
-  }
-  let mut result = 0
-  let zero = '0'.to_int()
-  let mut i = 0
-  let mut is_negative = false
-  if sv.unsafe_get(0).to_int() == 45 {
-    is_negative = true
-    i = 1
-  }
-  while i < n {
-    let c = sv.unsafe_get(i).to_int()
-    if c >= zero && c <= zero + 9 {
-      result = result * 10 + (c - zero)
-    }
-    i = i + 1
-  }
-  if is_negative {
-    -result
-  } else {
-    result
-  }
-}
-
-///|
-/// Parse a 64-bit float from a StringView (fast, supports scientific notation).
-fn searchio_parse_double_fast(sv : StringView) -> Double {
-  let n = sv.length()
-  if n == 0 {
-    return 0.0
-  }
-  let mut result = 0.0
-  let mut decimal = 0.0
-  let mut decimal_places = 0
-  let mut is_negative = false
-  let mut has_exponent = false
-  let mut exponent_val = 0
-  let mut exp_negative = false
-  let zero = '0'.to_int()
-  let mut i = 0
-  if sv.unsafe_get(0).to_int() == 45 {
-    is_negative = true
-    i = 1
-  }
-  while i < n {
-    let c = sv.unsafe_get(i).to_int()
-    if c == 46 {
-      i = i + 1
-      while i < n {
-        let dc = sv.unsafe_get(i).to_int()
-        if dc >= zero && dc <= zero + 9 {
-          decimal = decimal * 10.0 + (dc - zero).to_double()
-          decimal_places = decimal_places + 1
-        }
-        i = i + 1
-      }
-      break
-    }
-    if c == 101 || c == 69 {
-      has_exponent = true
-      i = i + 1
-      if i < n && sv.unsafe_get(i).to_int() == 45 {
-        exp_negative = true
-        i = i + 1
-      }
-      while i < n {
-        let ec = sv.unsafe_get(i).to_int()
-        if ec >= zero && ec <= zero + 9 {
-          exponent_val = exponent_val * 10 + (ec - zero)
-        }
-        i = i + 1
-      }
-      break
-    }
-    if c >= zero && c <= zero + 9 {
-      result = result * 10.0 + (c - zero).to_double()
-    }
-    i = i + 1
-  }
-  while decimal_places > 0 {
-    decimal = decimal / 10.0
-    decimal_places = decimal_places - 1
-  }
-  let mut final_result = result + decimal
-  if has_exponent {
-    if exp_negative {
-      let mut j = 0
-      while j < exponent_val {
-        final_result = final_result / 10.0
-        j = j + 1
-      }
-    } else {
-      let mut j = 0
-      while j < exponent_val {
-        final_result = final_result * 10.0
-        j = j + 1
-      }
-    }
-  }
-  if is_negative {
-    -final_result
-  } else {
-    final_result
-  }
-}
-
-///|
 /// Parse a 32-bit signed integer from a String (fast, no error checking).
-fn searchio_parse_int(s : String) -> Int {
+fn searchio_parse_int(s : String) -> Int32 {
   let n = s.length()
   if n == 0 {
     return 0
@@ -268,19 +157,19 @@ pub struct SearchIOHsp {
   /// Gap percentage
   gap : Double
   /// Alignment length
-  alignment_length : Int
+  alignment_length : Int32
   /// Query start position (1-based)
-  query_start : Int
+  query_start : Int32
   /// Query end position (1-based)
-  query_end : Int
+  query_end : Int32
   /// Hit start position (1-based)
-  hit_start : Int
+  hit_start : Int32
   /// Hit end position (1-based)
-  hit_end : Int
+  hit_end : Int32
   /// Query frame
-  query_frame : Int
+  query_frame : Int32
   /// Hit frame
-  hit_frame : Int
+  hit_frame : Int32
   /// Query sequence in alignment
   query_seq : String
   /// Hit sequence in alignment
@@ -297,11 +186,11 @@ pub fn SearchIOHsp::new(
   identity~ : Double,
   positives~ : Double,
   gap~ : Double,
-  alignment_length~ : Int,
-  query_start~ : Int,
-  query_end~ : Int,
-  hit_start~ : Int,
-  hit_end~ : Int,
+  alignment_length~ : Int32,
+  query_start~ : Int32,
+  query_end~ : Int32,
+  hit_start~ : Int32,
+  hit_end~ : Int32,
 ) -> SearchIOHsp {
   SearchIOHsp::{
     bitscore,
@@ -401,8 +290,8 @@ pub fn SearchIOHsp::with_midline(
 /// Set query and hit frames.
 pub fn SearchIOHsp::with_frames(
   self : SearchIOHsp,
-  qframe : Int,
-  hframe : Int,
+  qframe : Int32,
+  hframe : Int32,
 ) -> SearchIOHsp {
   SearchIOHsp::{
     bitscore: self.bitscore,
@@ -425,19 +314,19 @@ pub fn SearchIOHsp::with_frames(
 
 ///|
 /// Calculate number of identical residues from identity percentage and length.
-pub fn SearchIOHsp::n_identical(self : SearchIOHsp) -> Int {
+pub fn SearchIOHsp::n_identical(self : SearchIOHsp) -> Int32 {
   (self.identity / 100.0 * self.alignment_length.to_double()).round().to_int()
 }
 
 ///|
 /// Calculate number of positive (conserved) residues.
-pub fn SearchIOHsp::n_positives(self : SearchIOHsp) -> Int {
+pub fn SearchIOHsp::n_positives(self : SearchIOHsp) -> Int32 {
   (self.positives / 100.0 * self.alignment_length.to_double()).round().to_int()
 }
 
 ///|
 /// Calculate number of gaps in the alignment.
-pub fn SearchIOHsp::n_gaps(self : SearchIOHsp) -> Int {
+pub fn SearchIOHsp::n_gaps(self : SearchIOHsp) -> Int32 {
   (self.gap / 100.0 * self.alignment_length.to_double()).round().to_int()
 }
 
@@ -449,7 +338,7 @@ pub struct SearchIOHit {
   /// Hit description
   description : String
   /// Sequence length of the hit
-  seq_length : Int
+  seq_length : Int32
   /// List of HSPs for this hit
   hsps : Array[SearchIOHsp]
 }
@@ -459,9 +348,9 @@ pub struct SearchIOHit {
 pub fn SearchIOHit::new(
   id~ : String,
   description~ : String,
-  seq_length~ : Int,
+  seq_length~ : Int32,
 ) -> SearchIOHit {
-  SearchIOHit::{ id, description, seq_length, hsps: Array::new() }
+  SearchIOHit::{ id, description, seq_length, hsps: Array(capacity=0), }
 }
 
 ///|
@@ -499,7 +388,7 @@ pub fn SearchIOHit::best_hsp(self : SearchIOHit) -> SearchIOHsp? {
 
 ///|
 /// Get total number of HSPs.
-pub fn SearchIOHit::n_hsps(self : SearchIOHit) -> Int {
+pub fn SearchIOHit::n_hsps(self : SearchIOHit) -> Int32 {
   self.hsps.length()
 }
 
@@ -523,15 +412,15 @@ pub struct SearchIOQueryResult {
   /// Query description
   description : String
   /// Query sequence length
-  seq_length : Int
+  seq_length : Int32
   /// Search database name
   database : String
   /// Number of hits
-  n_hits : Int
+  n_hits : Int32
   /// List of hits
   hits : Array[SearchIOHit]
   /// Total search statistics
-  total_hits : Int
+  total_hits : Int32
 }
 
 ///|
@@ -539,7 +428,7 @@ pub struct SearchIOQueryResult {
 pub fn SearchIOQueryResult::new(
   id~ : String,
   description~ : String,
-  seq_length~ : Int,
+  seq_length~ : Int32,
   database~ : String,
 ) -> SearchIOQueryResult {
   SearchIOQueryResult::{
@@ -548,7 +437,7 @@ pub fn SearchIOQueryResult::new(
     seq_length,
     database,
     n_hits: 0,
-    hits: Array::new(),
+    hits: Array(capacity=0),
     total_hits: 0,
   }
 }
@@ -576,7 +465,7 @@ pub fn SearchIOQueryResult::add_hit(
 /// Set total hits (before filtering).
 pub fn SearchIOQueryResult::with_total_hits(
   self : SearchIOQueryResult,
-  total : Int,
+  total : Int32,
 ) -> SearchIOQueryResult {
   SearchIOQueryResult::{
     id: self.id,
@@ -628,7 +517,7 @@ pub fn SearchIOQueryResult::filter_evalue(
   self : SearchIOQueryResult,
   threshold : Double,
 ) -> SearchIOQueryResult {
-  let filtered : Array[SearchIOHit] = Array::new()
+  let filtered : Array[SearchIOHit] = Array(capacity=0)
   let mut i = 0
   while i < self.hits.length() {
     let hit = self.hits[i]
@@ -659,13 +548,13 @@ pub fn SearchIOQueryResult::filter_evalue(
 /// Get the top N hits by score.
 pub fn SearchIOQueryResult::top_n(
   self : SearchIOQueryResult,
-  n : Int,
+  n : Int32,
 ) -> Array[SearchIOHit] {
   let sorted = self.sort_by_score()
   if sorted.hits.length() <= n {
     return sorted.hits
   }
-  let result : Array[SearchIOHit] = Array::new()
+  let result : Array[SearchIOHit] = Array(capacity=0)
   let mut i = 0
   while i < n {
     result.push(sorted.hits[i])
@@ -680,7 +569,7 @@ pub struct SearchIOIterator {
   /// Raw data lines (or XML/JSON content)
   lines : Array[String]
   /// Current position in the data
-  position : Int
+  position : Int32
   /// Format of the search output
   format : SearchIOFormat
   /// Whether iterator has been initialized
@@ -694,7 +583,7 @@ pub fn SearchIOIterator::new(
   format : SearchIOFormat,
 ) -> SearchIOIterator {
   let lines = split_lines(content)
-  SearchIOIterator::{ lines, position: 0, format, initialized: false }
+  SearchIOIterator::{ lines, position: 0, format, initialized: false, }
 }
 
 ///|
@@ -702,7 +591,7 @@ pub fn SearchIOIterator::new(
 pub fn SearchIOIterator::parse_blast_tabular(
   self : SearchIOIterator,
 ) -> Array[SearchIOQueryResult] {
-  let results : Array[SearchIOQueryResult] = Array::new()
+  let results : Array[SearchIOQueryResult] = Array(capacity=0)
   let mut current_query_id = ""
   let mut current_query : SearchIOQueryResult? = None
 
@@ -827,7 +716,7 @@ pub fn SearchIOIterator::parse_blast_tabular(
 pub fn SearchIOIterator::parse_blast_text(
   self : SearchIOIterator,
 ) -> Array[SearchIOQueryResult] {
-  let results : Array[SearchIOQueryResult] = Array::new()
+  let results : Array[SearchIOQueryResult] = Array(capacity=0)
   let mut current_query : SearchIOQueryResult? = None
 
   let mut line_idx = 0
@@ -946,14 +835,14 @@ pub fn SearchIOIterator::parse(
     SearchIOFormat::BlastText => self.parse_blast_text()
     SearchIOFormat::BlastXml => self.parse_blast_tabular()
     SearchIOFormat::HmmscanDomtbl => self.parse_blast_tabular()
-    _ => Array::new()
+    _ => Array(capacity=0)
   }
 }
 
 ///|
 /// Split content into lines by newline.
 fn split_lines(content : String) -> Array[String] {
-  let result : Array[String] = Array::new()
+  let result : Array[String] = Array(capacity=0)
   let mut current = ""
   let mut i = 0
   while i < content.length() {
@@ -977,7 +866,7 @@ fn split_lines(content : String) -> Array[String] {
 ///|
 /// Split a line by tab characters.
 fn split_tab(line : StringView) -> Array[String] {
-  let result : Array[String] = Array::new()
+  let result : Array[String] = Array(capacity=0)
   let mut current = ""
   let mut i = 0
   while i < line.length() {
@@ -1051,7 +940,7 @@ fn extract_score_evalue(line : String) -> (Double, Double) {
 
 ///|
 /// Find the position of a keyword in a string, returns -1 if not found.
-fn string_index_of(s : String, keyword : String) -> Int {
+fn string_index_of(s : String, keyword : String) -> Int32 {
   let n = s.length()
   let kn = keyword.length()
   if kn == 0 || kn > n {

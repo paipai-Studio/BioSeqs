@@ -29,7 +29,7 @@ test "hmisc_describe with NaN values" {
 
 ///|
 test "hmisc_describe empty data" {
-  let data : Array[Double] = Array::new()
+  let data : Array[Double] = Array(capacity=0)
   let result = @src.hmisc_describe(data)
   assert_eq(result.n, 0)
   assert_eq(result.n_missing, 0)
@@ -365,7 +365,7 @@ test "hmisc_somers_d equal distributions" {
 
 ///|
 test "hmisc_somers_d empty group1" {
-  let g1 : Array[Double] = Array::new()
+  let g1 : Array[Double] = Array(capacity=0)
   let g2 = [1.0, 2.0, 3.0]
   let result = @src.hmisc_somers_d(g1, g2)
   assert_true(result.d.is_nan())
@@ -377,7 +377,7 @@ test "hmisc_somers_d empty group1" {
 ///|
 test "hmisc_somers_d empty group2" {
   let g1 = [1.0, 2.0, 3.0]
-  let g2 : Array[Double] = Array::new()
+  let g2 : Array[Double] = Array(capacity=0)
   let result = @src.hmisc_somers_d(g1, g2)
   assert_true(result.d.is_nan())
   assert_eq(result.n, 0)
@@ -434,7 +434,7 @@ test "hmisc_impute all NaN column" {
 
 ///|
 test "hmisc_impute empty data" {
-  let data : Array[Array[Double]] = Array::new()
+  let data : Array[Array[Double]] = Array(capacity=0)
   let result = @src.hmisc_impute(data)
   assert_eq(result.length(), 0)
 }
@@ -635,7 +635,7 @@ test "hmisc_impute column mean computation" {
 
 ///|
 test "hmisc_rcorr empty data" {
-  let data : Array[Array[Double]] = Array::new()
+  let data : Array[Array[Double]] = Array(capacity=0)
   let result = @src.hmisc_rcorr(data)
   assert_eq(result.names.length(), 0)
   assert_eq(result.matrix.length(), 0)

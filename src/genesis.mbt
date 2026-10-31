@@ -7,7 +7,7 @@
 pub struct GSKinshipResult {
   kinship_matrix : Array[Array[Double]]
   sample_ids : Array[String]
-  n_samples : Int
+  n_samples : Int32
 }
 
 ///|
@@ -15,9 +15,9 @@ pub struct GSKinshipResult {
 pub fn GSKinshipResult::new(
   kinship_matrix : Array[Array[Double]],
   sample_ids : Array[String],
-  n_samples : Int,
+  n_samples : Int32,
 ) -> GSKinshipResult {
-  GSKinshipResult::{ kinship_matrix, sample_ids, n_samples }
+  GSKinshipResult::{ kinship_matrix, sample_ids, n_samples, }
 }
 
 ///|
@@ -37,7 +37,7 @@ pub fn GSPcaResult::new(
   var_explained : Array[Double],
   sample_ids : Array[String],
 ) -> GSPcaResult {
-  GSPcaResult::{ eigenvalues, eigenvectors, var_explained, sample_ids }
+  GSPcaResult::{ eigenvalues, eigenvectors, var_explained, sample_ids, }
 }
 
 ///|
@@ -55,7 +55,7 @@ pub fn GSDistanceResult::new(
   sample_ids : Array[String],
   distance_type : String,
 ) -> GSDistanceResult {
-  GSDistanceResult::{ distance_matrix, sample_ids, distance_type }
+  GSDistanceResult::{ distance_matrix, sample_ids, distance_type, }
 }
 
 ///|
@@ -64,17 +64,17 @@ pub fn gs_estimate_kinship(genotypes : Array[Array[Double]]) -> GSKinshipResult 
   let n = genotypes.length()
   let m = if n > 0 { genotypes[0].length() } else { 0 }
 
-  let sample_ids : Array[String] = Array::new()
+  let sample_ids : Array[String] = Array(capacity=0)
   let mut i = 0
   while i < n {
     sample_ids.push("Sample" + i.to_string())
     i = i + 1
   }
 
-  let kinship : Array[Array[Double]] = Array::new()
+  let kinship : Array[Array[Double]] = Array(capacity=0)
   let mut j = 0
   while j < n {
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     let mut k = 0
     while k < n {
       row.push(0.0)
@@ -84,7 +84,7 @@ pub fn gs_estimate_kinship(genotypes : Array[Array[Double]]) -> GSKinshipResult 
     j = j + 1
   }
 
-  let allele_freqs : Array[Double] = Array::new()
+  let allele_freqs : Array[Double] = Array(capacity=0)
   let mut l = 0
   while l < m {
     let mut sum = 0.0
@@ -142,19 +142,19 @@ pub fn gs_estimate_kinship(genotypes : Array[Array[Double]]) -> GSKinshipResult 
 /// Perform PCA on genotype data.
 pub fn gs_pca(
   genotypes : Array[Array[Double]],
-  n_components : Int,
+  n_components : Int32,
 ) -> GSPcaResult {
   let n = genotypes.length()
   let m = if n > 0 { genotypes[0].length() } else { 0 }
 
-  let sample_ids : Array[String] = Array::new()
+  let sample_ids : Array[String] = Array(capacity=0)
   let mut i = 0
   while i < n {
     sample_ids.push("Sample" + i.to_string())
     i = i + 1
   }
 
-  let allele_freqs : Array[Double] = Array::new()
+  let allele_freqs : Array[Double] = Array(capacity=0)
   let mut j = 0
   while j < m {
     let mut sum = 0.0
@@ -177,10 +177,10 @@ pub fn gs_pca(
     j = j + 1
   }
 
-  let standardized : Array[Array[Double]] = Array::new()
+  let standardized : Array[Array[Double]] = Array(capacity=0)
   let mut l = 0
   while l < n {
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     let mut p = 0
     while p < m {
       if genotypes[l][p] >= 0.0 {
@@ -201,10 +201,10 @@ pub fn gs_pca(
     l = l + 1
   }
 
-  let covariance : Array[Array[Double]] = Array::new()
+  let covariance : Array[Array[Double]] = Array(capacity=0)
   let mut q = 0
   while q < n {
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     let mut r = 0
     while r < n {
       let mut sum = 0.0
@@ -222,7 +222,7 @@ pub fn gs_pca(
 
   let components = gs_power_iteration(covariance, n_components)
 
-  let eigenvalues : Array[Double] = Array::new()
+  let eigenvalues : Array[Double] = Array(capacity=0)
   let mut t = 0
   while t < components.length() {
     let mut sum = 0.0
@@ -242,7 +242,7 @@ pub fn gs_pca(
     idx = idx + 1
   }
 
-  let var_explained : Array[Double] = Array::new()
+  let var_explained : Array[Double] = Array(capacity=0)
   let mut v = 0
   while v < eigenvalues.length() {
     var_explained.push(
@@ -262,14 +262,14 @@ pub fn gs_pca(
 /// Power iteration for eigenvalue decomposition.
 pub fn gs_power_iteration(
   matrix : Array[Array[Double]],
-  n_components : Int,
+  n_components : Int32,
 ) -> Array[Array[Double]] {
   let n = matrix.length()
-  let components : Array[Array[Double]] = Array::new()
+  let components : Array[Array[Double]] = Array(capacity=0)
 
   let mut i = 0
   while i < n_components {
-    let v : Array[Double] = Array::new()
+    let v : Array[Double] = Array(capacity=0)
     let mut j = 0
     while j < n {
       v.push((i + 1).to_double() / (j + 1).to_double() - 0.5)
@@ -278,7 +278,7 @@ pub fn gs_power_iteration(
 
     let mut iter = 0
     while iter < 100 {
-      let v_new : Array[Double] = Array::new()
+      let v_new : Array[Double] = Array(capacity=0)
       let mut k = 0
       while k < n {
         let mut sum = 0.0
@@ -336,23 +336,23 @@ pub fn gs_power_iteration(
 /// Calculate genetic distance matrix.
 pub fn gs_calculate_genetic_distance(
   genotypes : Array[Array[Double]],
-  distance_type? : String = "euclidean",
+  distance_type~ : String = "euclidean",
 ) -> GSDistanceResult {
   let n = genotypes.length()
 
   let dt = distance_type
 
-  let sample_ids : Array[String] = Array::new()
+  let sample_ids : Array[String] = Array(capacity=0)
   let mut i = 0
   while i < n {
     sample_ids.push("Sample" + i.to_string())
     i = i + 1
   }
 
-  let distance : Array[Array[Double]] = Array::new()
+  let distance : Array[Array[Double]] = Array(capacity=0)
   let mut j = 0
   while j < n {
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     let mut k = 0
     while k < n {
       row.push(0.0)
@@ -447,7 +447,7 @@ pub fn bio_estimate_kinship(
 ///|
 pub fn bio_pca(
   genotypes : Array[Array[Double]],
-  n_components : Int,
+  n_components : Int32,
 ) -> GSPcaResult {
   gs_pca(genotypes, n_components)
 }
@@ -457,5 +457,6 @@ pub fn bio_genetic_distance(
   genotypes : Array[Array[Double]],
   distance_type? : String,
 ) -> GSDistanceResult {
+  ignore(distance_type)
   gs_calculate_genetic_distance(genotypes)
 }

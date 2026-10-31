@@ -13,9 +13,15 @@ pub suberror AlignChainError {
 ///|
 /// One point in a two-row absolute coordinate path.
 pub struct AlignChainCoordinate {
-  target : Int
-  query : Int
+  target : Int32
+  query : Int32
 } derive(Eq, Debug)
+
+///|
+pub extend AlignChainCoordinate with Eq::{equal, not_equal}
+
+///|
+pub extend AlignChainCoordinate with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// One canonical UCSC chain block.
@@ -23,43 +29,67 @@ pub struct AlignChainCoordinate {
 /// A non-final row contains all three fields. The final row uses `size` only,
 /// and therefore has zero target and query gaps.
 pub struct AlignChainBlock {
-  size : Int
-  target_gap : Int
-  query_gap : Int
+  size : Int32
+  target_gap : Int32
+  query_gap : Int32
 } derive(Eq, Debug)
+
+///|
+pub extend AlignChainBlock with Eq::{equal, not_equal}
+
+///|
+pub extend AlignChainBlock with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// One aligned part of a requested genomic range.
 ///
 /// Coordinates are always zero-based, forward-axis, half-open intervals.
 pub struct AlignChainRangeMapping {
-  target_start : Int
-  target_end : Int
-  query_start : Int
-  query_end : Int
+  target_start : Int32
+  target_end : Int32
+  query_start : Int32
+  query_end : Int32
   target_strand : String
   query_strand : String
 } derive(Eq, Debug)
 
 ///|
+pub extend AlignChainRangeMapping with Eq::{equal, not_equal}
+
+///|
+pub extend AlignChainRangeMapping with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
 /// One aligned residue pair in forward genomic coordinates.
 pub struct AlignChainPair {
-  target : Int
-  query : Int
+  target : Int32
+  query : Int32
 } derive(Eq, Debug)
+
+///|
+pub extend AlignChainPair with Eq::{equal, not_equal}
+
+///|
+pub extend AlignChainPair with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Coordinate-only chain alignment statistics.
 pub struct AlignChainCounts {
-  aligned : Int
-  target_gap_bases : Int
-  query_gap_bases : Int
-  gap_columns : Int
-  target_gap_opens : Int
-  query_gap_opens : Int
-  aligned_blocks : Int
-  path_segments : Int
+  aligned : Int32
+  target_gap_bases : Int32
+  query_gap_bases : Int32
+  gap_columns : Int32
+  target_gap_opens : Int32
+  query_gap_opens : Int32
+  aligned_blocks : Int32
+  path_segments : Int32
 } derive(Eq, Debug)
+
+///|
+pub extend AlignChainCounts with Eq::{equal, not_equal}
+
+///|
+pub extend AlignChainCounts with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// A coordinate-aware pairwise chain alignment.
@@ -69,13 +99,19 @@ pub struct AlignChainCounts {
 /// not store sequence letters, only sequence lengths and the coordinate path.
 pub struct AlignChainAlignment {
   target_id : String
-  target_size : Int
+  target_size : Int32
   query_id : String
-  query_size : Int
+  query_size : Int32
   score : Double
   chain_id : String
   coordinates : Array[AlignChainCoordinate]
 } derive(Eq, Debug)
+
+///|
+pub extend AlignChainAlignment with Eq::{equal, not_equal}
+
+///|
+pub extend AlignChainAlignment with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 fn align_chain_fail(message : String) -> Unit raise AlignChainError {
@@ -83,7 +119,7 @@ fn align_chain_fail(message : String) -> Unit raise AlignChainError {
 }
 
 ///|
-fn align_chain_abs(value : Int) -> Int {
+fn align_chain_abs(value : Int32) -> Int32 {
   if value < 0 {
     -value
   } else {
@@ -92,7 +128,7 @@ fn align_chain_abs(value : Int) -> Int {
 }
 
 ///|
-fn align_chain_min(left : Int, right : Int) -> Int {
+fn align_chain_min(left : Int32, right : Int32) -> Int32 {
   if left < right {
     left
   } else {
@@ -101,7 +137,7 @@ fn align_chain_min(left : Int, right : Int) -> Int {
 }
 
 ///|
-fn align_chain_max(left : Int, right : Int) -> Int {
+fn align_chain_max(left : Int32, right : Int32) -> Int32 {
   if left > right {
     left
   } else {
@@ -110,7 +146,7 @@ fn align_chain_max(left : Int, right : Int) -> Int {
 }
 
 ///|
-fn align_chain_sign(value : Int) -> Int {
+fn align_chain_sign(value : Int32) -> Int32 {
   if value < 0 {
     -1
   } else if value > 0 {
@@ -173,9 +209,9 @@ fn align_chain_validate_strand(
 
 ///|
 fn align_chain_validate_interval(
-  start : Int,
-  end : Int,
-  size : Int,
+  start : Int32,
+  end : Int32,
+  size : Int32,
   label : String,
 ) -> Unit raise AlignChainError {
   if size < 0 {
@@ -257,38 +293,38 @@ fn align_chain_validate_alignment(
 ///|
 /// Construct one absolute coordinate.
 pub fn AlignChainCoordinate::create(
-  target : Int,
-  query : Int,
+  target : Int32,
+  query : Int32,
 ) -> AlignChainCoordinate raise AlignChainError {
   if target < 0 || query < 0 {
     align_chain_fail("chain coordinates must be non-negative")
   }
-  AlignChainCoordinate::{ target, query }
+  AlignChainCoordinate::{ target, query, }
 }
 
 ///|
 /// Construct one chain block.
 pub fn AlignChainBlock::create(
-  size : Int,
-  target_gap? : Int = 0,
-  query_gap? : Int = 0,
+  size : Int32,
+  target_gap~ : Int32 = 0,
+  query_gap~ : Int32 = 0,
 ) -> AlignChainBlock raise AlignChainError {
   if size < 0 || target_gap < 0 || query_gap < 0 {
     align_chain_fail("chain block values must be non-negative")
   }
-  AlignChainBlock::{ size, target_gap, query_gap }
+  AlignChainBlock::{ size, target_gap, query_gap, }
 }
 
 ///|
 /// Construct and validate a coordinate-aware chain alignment.
 pub fn AlignChainAlignment::create(
   target_id : String,
-  target_size : Int,
+  target_size : Int32,
   query_id : String,
-  query_size : Int,
+  query_size : Int32,
   coordinates : Array[AlignChainCoordinate],
-  score? : Double = 0.0,
-  chain_id? : String = "",
+  score~ : Double = 0.0,
+  chain_id~ : String = "",
 ) -> AlignChainAlignment raise AlignChainError {
   let alignment = AlignChainAlignment::{
     target_id,
@@ -305,10 +341,10 @@ pub fn AlignChainAlignment::create(
 
 ///|
 fn align_chain_oriented_coordinate(
-  coordinate : Int,
-  size : Int,
+  coordinate : Int32,
+  size : Int32,
   strand : String,
-) -> Int {
+) -> Int32 {
   if strand == "+" {
     coordinate
   } else {
@@ -320,18 +356,18 @@ fn align_chain_oriented_coordinate(
 /// Build an alignment from normalized UCSC header coordinates and blocks.
 pub fn align_chain_from_blocks(
   target_id : String,
-  target_size : Int,
+  target_size : Int32,
   target_strand : String,
-  target_start : Int,
-  target_end : Int,
+  target_start : Int32,
+  target_end : Int32,
   query_id : String,
-  query_size : Int,
+  query_size : Int32,
   query_strand : String,
-  query_start : Int,
-  query_end : Int,
+  query_start : Int32,
+  query_end : Int32,
   blocks : Array[AlignChainBlock],
-  score? : Double = 0.0,
-  chain_id? : String = "",
+  score~ : Double = 0.0,
+  chain_id~ : String = "",
 ) -> AlignChainAlignment raise AlignChainError {
   align_chain_validate_token(target_id, "target identifier", false)
   align_chain_validate_token(query_id, "query identifier", false)
@@ -347,7 +383,7 @@ pub fn align_chain_from_blocks(
     align_chain_fail("chain record must contain at least one block row")
   }
   let relative : Array[AlignChainCoordinate] = [
-    AlignChainCoordinate::{ target: 0, query: 0 },
+    AlignChainCoordinate::{ target: 0, query: 0, },
   ]
   let mut target_position = 0
   let mut query_position = 0
@@ -459,7 +495,7 @@ fn align_chain_split_lines(value : String) -> Array[String] {
 }
 
 ///|
-fn align_chain_is_whitespace(code : Int) -> Bool {
+fn align_chain_is_whitespace(code : Int32) -> Bool {
   code == ' '.to_int() ||
   code == '\t'.to_int() ||
   code == '\r'.to_int() ||
@@ -507,7 +543,7 @@ fn align_chain_split_whitespace(value : String) -> Array[String] {
 fn align_chain_parse_uint(
   value : String,
   label : String,
-) -> Int raise AlignChainError {
+) -> Int32 raise AlignChainError {
   if value.length() == 0 {
     align_chain_fail(label + " must be an unsigned integer")
   }
@@ -614,8 +650,8 @@ fn align_chain_parse_score(value : String) -> Double raise AlignChainError {
 ///|
 fn align_chain_parse_record(
   lines : Array[String],
-  start : Int,
-) -> (AlignChainAlignment, Int) raise AlignChainError {
+  start : Int32,
+) -> (AlignChainAlignment, Int32) raise AlignChainError {
   let header = align_chain_split_whitespace(align_chain_trim(lines[start]))
   if header.length() != 12 && header.length() != 13 {
     align_chain_fail(
@@ -658,7 +694,7 @@ fn align_chain_parse_record(
     }
     let size = align_chain_parse_uint(words[0], "chain block size")
     if words.length() == 1 {
-      blocks.push(AlignChainBlock::{ size, target_gap: 0, query_gap: 0 })
+      blocks.push(AlignChainBlock::{ size, target_gap: 0, query_gap: 0, })
       index = index + 1
       terminated = true
       break
@@ -668,7 +704,7 @@ fn align_chain_parse_record(
     if target_gap == 0 && query_gap == 0 {
       align_chain_fail("non-final chain block must contain a non-zero gap")
     }
-    blocks.push(AlignChainBlock::{ size, target_gap, query_gap })
+    blocks.push(AlignChainBlock::{ size, target_gap, query_gap, })
     index = index + 1
   }
   if !terminated {
@@ -758,7 +794,7 @@ pub fn AlignChainAlignment::query_strand(self : AlignChainAlignment) -> String {
 
 ///|
 /// Return the normalized target start.
-pub fn AlignChainAlignment::target_start(self : AlignChainAlignment) -> Int {
+pub fn AlignChainAlignment::target_start(self : AlignChainAlignment) -> Int32 {
   align_chain_min(
     self.coordinates[0].target,
     self.coordinates[self.coordinates.length() - 1].target,
@@ -767,7 +803,7 @@ pub fn AlignChainAlignment::target_start(self : AlignChainAlignment) -> Int {
 
 ///|
 /// Return the normalized target end.
-pub fn AlignChainAlignment::target_end(self : AlignChainAlignment) -> Int {
+pub fn AlignChainAlignment::target_end(self : AlignChainAlignment) -> Int32 {
   align_chain_max(
     self.coordinates[0].target,
     self.coordinates[self.coordinates.length() - 1].target,
@@ -776,7 +812,7 @@ pub fn AlignChainAlignment::target_end(self : AlignChainAlignment) -> Int {
 
 ///|
 /// Return the normalized query start.
-pub fn AlignChainAlignment::query_start(self : AlignChainAlignment) -> Int {
+pub fn AlignChainAlignment::query_start(self : AlignChainAlignment) -> Int32 {
   align_chain_min(
     self.coordinates[0].query,
     self.coordinates[self.coordinates.length() - 1].query,
@@ -785,7 +821,7 @@ pub fn AlignChainAlignment::query_start(self : AlignChainAlignment) -> Int {
 
 ///|
 /// Return the normalized query end.
-pub fn AlignChainAlignment::query_end(self : AlignChainAlignment) -> Int {
+pub fn AlignChainAlignment::query_end(self : AlignChainAlignment) -> Int32 {
   align_chain_max(
     self.coordinates[0].query,
     self.coordinates[self.coordinates.length() - 1].query,
@@ -795,8 +831,8 @@ pub fn AlignChainAlignment::query_end(self : AlignChainAlignment) -> Int {
 ///|
 fn align_chain_target_oriented(
   alignment : AlignChainAlignment,
-  coordinate : Int,
-) -> Int {
+  coordinate : Int32,
+) -> Int32 {
   if alignment.target_strand() == "+" {
     coordinate
   } else {
@@ -807,8 +843,8 @@ fn align_chain_target_oriented(
 ///|
 fn align_chain_query_oriented(
   alignment : AlignChainAlignment,
-  coordinate : Int,
-) -> Int {
+  coordinate : Int32,
+) -> Int32 {
   if alignment.query_strand() == "+" {
     coordinate
   } else {
@@ -843,7 +879,7 @@ pub fn AlignChainAlignment::blocks(
         )
       }
       if target_gap > 0 || query_gap > 0 {
-        blocks.push(AlignChainBlock::{ size, target_gap, query_gap })
+        blocks.push(AlignChainBlock::{ size, target_gap, query_gap, })
         size = target_step
         target_gap = 0
         query_gap = 0
@@ -857,20 +893,20 @@ pub fn AlignChainAlignment::blocks(
     }
   }
   if target_gap > 0 || query_gap > 0 {
-    blocks.push(AlignChainBlock::{ size, target_gap, query_gap })
+    blocks.push(AlignChainBlock::{ size, target_gap, query_gap, })
     size = 0
   }
-  blocks.push(AlignChainBlock::{ size, target_gap: 0, query_gap: 0 })
+  blocks.push(AlignChainBlock::{ size, target_gap: 0, query_gap: 0, })
   blocks
 }
 
 ///|
-fn align_chain_header_target_start(alignment : AlignChainAlignment) -> Int {
+fn align_chain_header_target_start(alignment : AlignChainAlignment) -> Int32 {
   align_chain_target_oriented(alignment, alignment.coordinates[0].target)
 }
 
 ///|
-fn align_chain_header_target_end(alignment : AlignChainAlignment) -> Int {
+fn align_chain_header_target_end(alignment : AlignChainAlignment) -> Int32 {
   align_chain_target_oriented(
     alignment,
     alignment.coordinates[alignment.coordinates.length() - 1].target,
@@ -878,12 +914,12 @@ fn align_chain_header_target_end(alignment : AlignChainAlignment) -> Int {
 }
 
 ///|
-fn align_chain_header_query_start(alignment : AlignChainAlignment) -> Int {
+fn align_chain_header_query_start(alignment : AlignChainAlignment) -> Int32 {
   align_chain_query_oriented(alignment, alignment.coordinates[0].query)
 }
 
 ///|
-fn align_chain_header_query_end(alignment : AlignChainAlignment) -> Int {
+fn align_chain_header_query_end(alignment : AlignChainAlignment) -> Int32 {
   align_chain_query_oriented(
     alignment,
     alignment.coordinates[alignment.coordinates.length() - 1].query,
@@ -896,7 +932,7 @@ pub fn align_chain_write(
   alignment : AlignChainAlignment,
 ) -> String raise AlignChainError {
   align_chain_validate_alignment(alignment)
-  let output = StringBuilder::new()
+  let output = StringBuilder()
   output.write_string("chain ")
   output.write_string(alignment.score.to_string())
   output.write_char(' ')
@@ -945,7 +981,7 @@ pub fn align_chain_write(
 pub fn align_chain_write_all(
   alignments : Array[AlignChainAlignment],
 ) -> String raise AlignChainError {
-  let output = StringBuilder::new()
+  let output = StringBuilder()
   for alignment in alignments {
     output.write_string(align_chain_write(alignment))
   }
@@ -960,7 +996,7 @@ pub fn align_chain_write_all(
 pub fn AlignChainAlignment::operation_path(
   self : AlignChainAlignment,
 ) -> String {
-  let output = StringBuilder::new()
+  let output = StringBuilder()
   for index in 0..<(self.coordinates.length() - 1) {
     let current = self.coordinates[index]
     let next = self.coordinates[index + 1]
@@ -979,7 +1015,9 @@ pub fn AlignChainAlignment::operation_path(
 
 ///|
 /// Count the number of alignment columns represented by the path.
-pub fn AlignChainAlignment::alignment_length(self : AlignChainAlignment) -> Int {
+pub fn AlignChainAlignment::alignment_length(
+  self : AlignChainAlignment,
+) -> Int32 {
   let mut length = 0
   for index in 0..<(self.coordinates.length() - 1) {
     let current = self.coordinates[index]
@@ -995,7 +1033,7 @@ pub fn AlignChainAlignment::alignment_length(self : AlignChainAlignment) -> Int 
 
 ///|
 /// Count aligned bases.
-pub fn AlignChainAlignment::aligned_bases(self : AlignChainAlignment) -> Int {
+pub fn AlignChainAlignment::aligned_bases(self : AlignChainAlignment) -> Int32 {
   let mut aligned = 0
   for index in 0..<(self.coordinates.length() - 1) {
     let current = self.coordinates[index]
@@ -1060,12 +1098,12 @@ pub fn AlignChainAlignment::counts(
 
 ///|
 fn align_chain_map_on_segment(
-  source : Int,
-  source_start : Int,
-  source_end : Int,
-  destination_start : Int,
-  destination_end : Int,
-) -> Int? {
+  source : Int32,
+  source_start : Int32,
+  source_end : Int32,
+  destination_start : Int32,
+  destination_end : Int32,
+) -> Int32? {
   let source_step = source_end - source_start
   let destination_step = destination_end - destination_start
   if source_step == 0 ||
@@ -1095,8 +1133,8 @@ fn align_chain_map_on_segment(
 /// Map one target residue to the query, returning `None` in an unaligned gap.
 pub fn AlignChainAlignment::map_target_position(
   self : AlignChainAlignment,
-  position : Int,
-) -> Int? {
+  position : Int32,
+) -> Int32? {
   if position < 0 || position >= self.target_size {
     return None
   }
@@ -1122,8 +1160,8 @@ pub fn AlignChainAlignment::map_target_position(
 /// Map one query residue to the target, returning `None` in an unaligned gap.
 pub fn AlignChainAlignment::map_query_position(
   self : AlignChainAlignment,
-  position : Int,
-) -> Int? {
+  position : Int32,
+) -> Int32? {
   if position < 0 || position >= self.query_size {
     return None
   }
@@ -1148,10 +1186,10 @@ pub fn AlignChainAlignment::map_query_position(
 ///|
 fn align_chain_range_mapping(
   alignment : AlignChainAlignment,
-  target_start : Int,
-  target_end : Int,
-  query_start : Int,
-  query_end : Int,
+  target_start : Int32,
+  target_end : Int32,
+  query_start : Int32,
+  query_end : Int32,
 ) -> AlignChainRangeMapping {
   AlignChainRangeMapping::{
     target_start,
@@ -1170,8 +1208,8 @@ fn align_chain_range_mapping(
 /// multiple output pieces.
 pub fn AlignChainAlignment::map_target_range(
   self : AlignChainAlignment,
-  start : Int,
-  end : Int,
+  start : Int32,
+  end : Int32,
 ) -> Array[AlignChainRangeMapping] raise AlignChainError {
   if start < 0 || end <= start || end > self.target_size {
     align_chain_fail("target range must satisfy 0 <= start < end <= size")
@@ -1219,8 +1257,8 @@ pub fn AlignChainAlignment::map_target_range(
 /// Map a query interval to all aligned target pieces.
 pub fn AlignChainAlignment::map_query_range(
   self : AlignChainAlignment,
-  start : Int,
-  end : Int,
+  start : Int32,
+  end : Int32,
 ) -> Array[AlignChainRangeMapping] raise AlignChainError {
   if start < 0 || end <= start || end > self.query_size {
     align_chain_fail("query range must satisfy 0 <= start < end <= size")
@@ -1268,7 +1306,7 @@ pub fn AlignChainAlignment::map_query_range(
 /// Materialize aligned residue pairs, subject to a caller-controlled limit.
 pub fn AlignChainAlignment::aligned_pairs(
   self : AlignChainAlignment,
-  limit? : Int = 1000000,
+  limit~ : Int32 = 1000000,
 ) -> Array[AlignChainPair] raise AlignChainError {
   if limit < 0 {
     align_chain_fail("aligned-pair limit must be non-negative")
@@ -1348,8 +1386,8 @@ pub fn align_chain_find_by_id(
 pub fn align_chain_target_overlaps(
   alignments : Array[AlignChainAlignment],
   target_id : String,
-  start : Int,
-  end : Int,
+  start : Int32,
+  end : Int32,
 ) -> Array[AlignChainAlignment] raise AlignChainError {
   if start < 0 || end <= start {
     align_chain_fail("overlap query must satisfy 0 <= start < end")

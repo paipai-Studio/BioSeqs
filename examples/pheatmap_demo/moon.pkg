@@ -1,8 +1,5 @@
 import {
-  "IvanAXu/BioSeqs/src" @bio,
-  "IvanAXu/BioSeqs/src" @src,
+  "IvanAXu/BioSeqs/src",
 }
 
-options(
-  "is-main": true,
-)
+pkgtype(kind: "executable")

@@ -40,10 +40,10 @@
 // Uppercase a string (copy of the one defined in genbank_io.mbt; kept
 // self-contained so the file doesn't depend on implicit ordering.)
 fn uppercase_string(s : String) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   let n = s.length()
-  let a : Int = 'a'.to_int()
-  let z : Int = 'z'.to_int()
+  let a : Int32 = 'a'.to_int()
+  let z : Int32 = 'z'.to_int()
   for i = 0; i < n; i = i + 1 {
     let c = s.unsafe_get(i)
     let ci = c.to_int()
@@ -58,7 +58,7 @@ fn uppercase_string(s : String) -> String {
 
 ///|
 pub fn parse_embl(content : String) -> Array[SeqRecord] {
-  let records = Array::new()
+  let records = Array(capacity=0)
   let lines = content.split("\n").to_array()
   let n = lines.length()
   let mut i = 0
@@ -79,7 +79,7 @@ pub fn parse_embl(content : String) -> Array[SeqRecord] {
       let mut name = "<unknown>"
       let mut id = "<unknown id>"
       let mut description = "<unknown description>"
-      let seq_buf = StringBuilder::new()
+      let seq_buf = StringBuilder()
       let mut in_sq = false
       let mut have_ac = false
 
@@ -159,7 +159,7 @@ pub fn parse_embl(content : String) -> Array[SeqRecord] {
           l.unsafe_get(0) == 'D'.to_int().to_uint16() &&
           l.unsafe_get(1) == 'E'.to_int().to_uint16() &&
           (lt == 2 || l.unsafe_get(2) == sp) {
-          let def_buf = StringBuilder::new()
+          let def_buf = StringBuilder()
           if lt > 2 {
             let def_part = l[2:lt]
             let mut dj = 0
@@ -209,7 +209,7 @@ pub fn parse_embl(content : String) -> Array[SeqRecord] {
 
         // Parse SQ sequence lines: start with spaces, then digits optional, then bases
         if in_sq {
-          let l_start = if lt > 5 { 5 } else { lt }
+          let _l_start = if lt > 5 { 5 } else { lt }
           // Check if this is a sequence line (not all whitespace, contains bases)
           let mut has_base = false
           let mut k = 0

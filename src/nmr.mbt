@@ -29,7 +29,7 @@
 /// `observed` is the distance computed from a structure (optional).
 /// `violation` is positive when outside the range.
 pub struct NoeRestraint {
-  restraint_id : Int
+  restraint_id : Int32
   atom1 : String // e.g. "15ALA_HA"
   atom2 : String
   lower_bound : Double // Angstroms
@@ -41,7 +41,7 @@ pub struct NoeRestraint {
 ///|
 /// Construct an NoeRestraint.
 pub fn NoeRestraint::new(
-  restraint_id~ : Int,
+  restraint_id~ : Int32,
   atom1~ : String,
   atom2~ : String,
   lower_bound~ : Double,
@@ -91,7 +91,7 @@ pub fn filter_violated_restraints(
   restraints : Array[NoeRestraint],
   threshold : Double,
 ) -> Array[NoeRestraint] {
-  let out : Array[NoeRestraint] = Array::new()
+  let out : Array[NoeRestraint] = Array(capacity=0)
   for r in restraints {
     match r.observed {
       Some(d) => {
@@ -120,7 +120,7 @@ pub fn filter_violated_restraints(
 /// Columns: id, atom1, atom2, lower, upper, observed?, energy?
 /// Lines beginning with '#' or '!' are treated as comments.
 pub fn parse_noe_restraints(text : String) -> Array[NoeRestraint] {
-  let restraints : Array[NoeRestraint] = Array::new()
+  let restraints : Array[NoeRestraint] = Array(capacity=0)
   let lines = nmr_split_lines(text)
   for line in lines {
     let trimmed = line.trim().to_owned()
@@ -212,7 +212,7 @@ pub fn noe_restraint_summary(
       None => continue
     }
   }
-  NmrRestraintSummary::{ total, violated, max_violation }
+  NmrRestraintSummary::{ total, violated, max_violation, }
 }
 
 // ============================================================================
@@ -224,9 +224,9 @@ pub fn noe_restraint_summary(
 ///
 /// `lower` and `upper` define the allowed angle range in degrees.
 pub struct DihedralRestraint {
-  restraint_id : Int
+  restraint_id : Int32
   angle_name : String // e.g. "PHI", "PSI", "CHI1"
-  residue : Int
+  residue : Int32
   lower_bound : Double // degrees
   upper_bound : Double // degrees
   observed : Double?
@@ -236,9 +236,9 @@ pub struct DihedralRestraint {
 ///|
 /// Construct a DihedralRestraint.
 pub fn DihedralRestraint::new(
-  restraint_id~ : Int,
+  restraint_id~ : Int32,
   angle_name~ : String,
-  residue~ : Int,
+  residue~ : Int32,
   lower_bound~ : Double,
   upper_bound~ : Double,
   observed~ : Double?,
@@ -280,7 +280,7 @@ pub fn dihedral_violation(
 /// Parse a dihedral-restraint table (id, angle, residue, lower, upper,
 /// observed?, energy?).
 pub fn parse_dihedral_restraints(text : String) -> Array[DihedralRestraint] {
-  let out : Array[DihedralRestraint] = Array::new()
+  let out : Array[DihedralRestraint] = Array(capacity=0)
   let lines = nmr_split_lines(text)
   for line in lines {
     let trimmed = line.trim().to_owned()
@@ -331,8 +331,8 @@ pub fn parse_dihedral_restraints(text : String) -> Array[DihedralRestraint] {
 ///|
 /// A single chemical-shift assignment.
 pub struct ChemicalShift {
-  id : Int
-  residue : Int
+  id : Int32
+  residue : Int32
   atom_name : String
   element : String // H, C, N, ...
   shift_value : Double // ppm
@@ -342,14 +342,14 @@ pub struct ChemicalShift {
 ///|
 /// Construct a ChemicalShift.
 pub fn ChemicalShift::new(
-  id~ : Int,
-  residue~ : Int,
+  id~ : Int32,
+  residue~ : Int32,
   atom_name~ : String,
   element~ : String,
   shift_value~ : Double,
   error~ : Double?,
 ) -> ChemicalShift {
-  ChemicalShift::{ id, residue, atom_name, element, shift_value, error }
+  ChemicalShift::{ id, residue, atom_name, element, shift_value, error, }
 }
 
 ///|
@@ -370,7 +370,7 @@ pub fn ChemicalShiftTable::new(
 /// Look up the chemical shift for a (residue, atom_name) pair.
 pub fn lookup_shift(
   table : ChemicalShiftTable,
-  residue : Int,
+  residue : Int32,
   atom_name : String,
 ) -> Double? {
   for s in table.shifts {
@@ -385,9 +385,9 @@ pub fn lookup_shift(
 /// Return all shifts for a given residue.
 pub fn shifts_for_residue(
   table : ChemicalShiftTable,
-  residue : Int,
+  residue : Int32,
 ) -> Array[ChemicalShift] {
-  let out : Array[ChemicalShift] = Array::new()
+  let out : Array[ChemicalShift] = Array(capacity=0)
   for s in table.shifts {
     if s.residue == residue {
       out.push(s)
@@ -402,7 +402,7 @@ pub fn shifts_for_element(
   table : ChemicalShiftTable,
   element : String,
 ) -> Array[ChemicalShift] {
-  let out : Array[ChemicalShift] = Array::new()
+  let out : Array[ChemicalShift] = Array(capacity=0)
   for s in table.shifts {
     if s.element == element {
       out.push(s)
@@ -435,7 +435,7 @@ pub fn mean_shift_by_element(
 /// Expected columns: id, residue, atom_name, element, shift, error?
 /// Lines beginning with '#' or '!' are comments.
 pub fn parse_chemical_shifts(text : String) -> ChemicalShiftTable {
-  let shifts : Array[ChemicalShift] = Array::new()
+  let shifts : Array[ChemicalShift] = Array(capacity=0)
   let lines = nmr_split_lines(text)
   for line in lines {
     let trimmed = line.trim().to_owned()
@@ -509,7 +509,7 @@ pub fn format_chemical_shifts(table : ChemicalShiftTable) -> String {
 /// multidimensional peak lists the per-dimension intensities may be equal).
 /// `volume` is the integrated peak volume when available.
 pub struct NmrPeak {
-  peak_id : Int
+  peak_id : Int32
   dimensions : Array[String] // assignment per dimension
   chemical_shifts : Array[Double] // ppm per dimension
   intensities : Array[Double]
@@ -520,14 +520,21 @@ pub struct NmrPeak {
 ///|
 /// Construct an NmrPeak.
 pub fn NmrPeak::new(
-  peak_id~ : Int,
+  peak_id~ : Int32,
   dimensions~ : Array[String],
   chemical_shifts~ : Array[Double],
   intensities~ : Array[Double],
   volume~ : Double?,
   merity~ : Double?,
 ) -> NmrPeak {
-  NmrPeak::{ peak_id, dimensions, chemical_shifts, intensities, volume, merity }
+  NmrPeak::{
+    peak_id,
+    dimensions,
+    chemical_shifts,
+    intensities,
+    volume,
+    merity,
+  }
 }
 
 ///|
@@ -535,7 +542,7 @@ pub fn NmrPeak::new(
 pub struct PeakList {
   label : String
   peaks : Array[NmrPeak]
-  n_dim : Int
+  n_dim : Int32
 }
 
 ///|
@@ -543,19 +550,19 @@ pub struct PeakList {
 pub fn PeakList::new(
   label~ : String,
   peaks~ : Array[NmrPeak],
-  n_dim~ : Int,
+  n_dim~ : Int32,
 ) -> PeakList {
-  PeakList::{ label, peaks, n_dim }
+  PeakList::{ label, peaks, n_dim, }
 }
 
 ///|
 /// Return all peaks assigned to the given residue in dimension `dim`.
 pub fn peaks_by_residue(
   list : PeakList,
-  residue : Int,
-  dim : Int,
+  residue : Int32,
+  dim : Int32,
 ) -> Array[NmrPeak] {
-  let out : Array[NmrPeak] = Array::new()
+  let out : Array[NmrPeak] = Array(capacity=0)
   let prefix = residue.to_string()
   for p in list.peaks {
     if dim < 0 || dim >= p.dimensions.length() {
@@ -575,9 +582,9 @@ pub fn peaks_by_residue(
 pub fn peaks_by_atom(
   list : PeakList,
   atom : String,
-  dim : Int,
+  dim : Int32,
 ) -> Array[NmrPeak] {
-  let out : Array[NmrPeak] = Array::new()
+  let out : Array[NmrPeak] = Array(capacity=0)
   for p in list.peaks {
     if dim < 0 || dim >= p.dimensions.length() {
       continue
@@ -631,7 +638,7 @@ pub fn max_peak_volume(list : PeakList) -> Double {
 ///   id  w1  w1_ppm  w1_int  w2  w2_ppm  w2_int  volume  merit
 ///   1  15.HN  8.34  1.0e6  15.N  118.5  1.0e6  2.3e6  0.95
 pub fn parse_peak_list(text : String) -> PeakList {
-  let peaks : Array[NmrPeak] = Array::new()
+  let peaks : Array[NmrPeak] = Array(capacity=0)
   let lines = nmr_split_lines(text)
   let mut label = ""
   let mut n_dim = 0
@@ -667,9 +674,9 @@ pub fn parse_peak_list(text : String) -> PeakList {
     if n_dim == 0 && nd > 0 {
       n_dim = nd
     }
-    let dimensions : Array[String] = Array::new()
-    let shifts : Array[Double] = Array::new()
-    let intensities : Array[Double] = Array::new()
+    let dimensions : Array[String] = Array(capacity=0)
+    let shifts : Array[Double] = Array(capacity=0)
+    let intensities : Array[Double] = Array(capacity=0)
     let mut idx = 1
     for _ in 0..<nd {
       if idx >= fields.length() {
@@ -758,8 +765,8 @@ pub fn format_peak_list(list : PeakList) -> String {
 ///|
 /// Summary statistics for a restraint table.
 pub struct NmrRestraintSummary {
-  total : Int
-  violated : Int
+  total : Int32
+  violated : Int32
   max_violation : Double
 }
 
@@ -930,7 +937,7 @@ pub fn nmr_sample_dihedral_restraints() -> Array[DihedralRestraint] {
 ///|
 /// Split a string into lines (handling \n and \r\n).
 fn nmr_split_lines(text : String) -> Array[String] {
-  let out : Array[String] = Array::new()
+  let out : Array[String] = Array(capacity=0)
   let mut cur = ""
   for i in 0..<text.length() {
     let c = text[i:i + 1].to_owned()
@@ -958,7 +965,7 @@ fn nmr_split_lines(text : String) -> Array[String] {
 ///|
 /// Split a string on whitespace (spaces and tabs), ignoring empty fields.
 fn nmr_split_whitespace(s : String) -> Array[String] {
-  let out : Array[String] = Array::new()
+  let out : Array[String] = Array(capacity=0)
   let mut cur = ""
   for i in 0..<s.length() {
     let c = s[i:i + 1].to_owned()

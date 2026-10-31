@@ -7,8 +7,8 @@ fn bigpsl_test_data() -> (Array[@src.BigBedTarget], Array[@src.BigPslAlignment])
 
 ///|
 fn bigpsl_test_file(
-  compress? : Bool = true,
-  items_per_slot? : Int = 2,
+  compress~ : Bool = true,
+  items_per_slot~ : Int32 = 2,
 ) -> @src.BigPslFile {
   let (targets, alignments) = bigpsl_test_data()
   let config = @src.BigPslWriteConfig::create(
@@ -28,9 +28,9 @@ fn bigpsl_test_file(
 
 ///|
 fn bigpsl_test_alignment(
-  target_coordinates? : Array[Int] = [10, 20],
-  query_coordinates? : Array[Int] = [0, 10],
-  sequence_type? : @src.BigPslSequenceType = @src.BigPslSequenceType::BigPslNucleotide,
+  target_coordinates~ : Array[Int32] = [10, 20],
+  query_coordinates~ : Array[Int32] = [0, 10],
+  sequence_type~ : @src.BigPslSequenceType = @src.BigPslSequenceType::BigPslNucleotide,
 ) -> @src.BigPslAlignment {
   @src.BigPslAlignment::create(
     "chr1",
@@ -58,12 +58,12 @@ fn bigpsl_test_custom_fields() -> Array[@src.BigBedField] {
 ///|
 fn bigpsl_test_raw_bytes(
   extra_fields : Array[String],
-  strand? : String = "+",
-  block_sizes? : Array[Int] = [10],
-  block_starts? : Array[Int] = [0],
-  chrom_start? : Int = 10,
-  chrom_end? : Int = 20,
-) -> Array[Int] {
+  strand~ : String = "+",
+  block_sizes~ : Array[Int32] = [10],
+  block_starts~ : Array[Int32] = [0],
+  chrom_start~ : Int32 = 10,
+  chrom_end~ : Int32 = 20,
+) -> Array[Int32] {
   let target = @src.BigBedTarget::create("chr1", 100) catch {
     _ => abort("raw BigPsl target should be valid")
   }
@@ -1199,7 +1199,7 @@ test "bigpsl: file PSL export includes every query" {
   let text = bigpsl_test_file().to_psl() catch {
     _ => abort("PSL export should succeed")
   }
-  assert_eq(text.split("\n").length(), 4)
+  assert_eq(text.split("\n").count(), 4)
   assert_true(text.contains("rna-forward"))
   assert_true(text.contains("rna-reverse"))
   assert_true(text.contains("protein-reverse"))

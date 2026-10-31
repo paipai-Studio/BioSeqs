@@ -20,26 +20,26 @@
 /// A differential cutsite: a position in an alignment where an enzyme
 /// cuts some sequences but is blocked in others.
 pub struct CapsDifferentialCutsite {
-  start : Int // alignment-relative cut position
+  start : Int32 // alignment-relative cut position
   enzyme_name : String // name of the restriction enzyme
-  cuts_in : Array[Int] // indices of sequences the enzyme cuts at this position
-  blocked_in : Array[Int] // indices of sequences where the enzyme is blocked
+  cuts_in : Array[Int32] // indices of sequences the enzyme cuts at this position
+  blocked_in : Array[Int32] // indices of sequences where the enzyme is blocked
 }
 
 ///|
 /// Create a differential cutsite.
 pub fn CapsDifferentialCutsite::new(
-  start : Int,
+  start : Int32,
   enzyme_name : String,
-  cuts_in : Array[Int],
-  blocked_in : Array[Int],
+  cuts_in : Array[Int32],
+  blocked_in : Array[Int32],
 ) -> CapsDifferentialCutsite {
-  { start, enzyme_name, cuts_in, blocked_in }
+  { start, enzyme_name, cuts_in, blocked_in, }
 }
 
 ///|
 /// Get the alignment-relative cut position.
-pub fn CapsDifferentialCutsite::start(self : CapsDifferentialCutsite) -> Int {
+pub fn CapsDifferentialCutsite::start(self : CapsDifferentialCutsite) -> Int32 {
   self.start
 }
 
@@ -55,7 +55,7 @@ pub fn CapsDifferentialCutsite::enzyme_name(
 /// Get indices of sequences the enzyme cuts at this position.
 pub fn CapsDifferentialCutsite::cuts_in(
   self : CapsDifferentialCutsite,
-) -> Array[Int] {
+) -> Array[Int32] {
   self.cuts_in
 }
 
@@ -63,7 +63,7 @@ pub fn CapsDifferentialCutsite::cuts_in(
 /// Get indices of sequences where the enzyme is blocked.
 pub fn CapsDifferentialCutsite::blocked_in(
   self : CapsDifferentialCutsite,
-) -> Array[Int] {
+) -> Array[Int32] {
   self.blocked_in
 }
 
@@ -102,13 +102,13 @@ pub fn CapsMap::dcuts(self : CapsMap) -> Array[CapsDifferentialCutsite] {
 
 ///|
 /// Get the number of sequences in the alignment.
-pub fn CapsMap::size(self : CapsMap) -> Int {
+pub fn CapsMap::size(self : CapsMap) -> Int32 {
   self.sequences.length()
 }
 
 ///|
 /// Get the alignment length (all sequences must be the same length).
-pub fn CapsMap::length(self : CapsMap) -> Int {
+pub fn CapsMap::length(self : CapsMap) -> Int32 {
   if self.sequences.length() == 0 {
     0
   } else {
@@ -133,7 +133,7 @@ pub fn caps_map(
   // Validate equal lengths
   let n = sequences.length()
   if n == 0 {
-    return { sequences, sequence_names: [], enzymes, dcuts: [] }
+    return { sequences, sequence_names: [], enzymes, dcuts: [], }
   }
   let expected_len = sequences[0].length()
   let names : Array[String] = []
@@ -144,7 +144,7 @@ pub fn caps_map(
   }
   ignore(expected_len)
   let dcuts = caps_digest(sequences, enzymes)
-  { sequences, sequence_names: names, enzymes, dcuts }
+  { sequences, sequence_names: names, enzymes, dcuts, }
 }
 
 ///|
@@ -155,7 +155,7 @@ pub fn caps_map_named(
   enzymes : Array[RestrictionEnzyme],
 ) -> CapsMap {
   let dcuts = caps_digest(sequences, enzymes)
-  { sequences, sequence_names, enzymes, dcuts }
+  { sequences, sequence_names, enzymes, dcuts, }
 }
 
 ///|
@@ -185,12 +185,12 @@ fn caps_digest_with(
   let n = sequences.length()
   // Find cut sites per sequence
   // cuts_per_seq[i] = list of cut positions in sequence i
-  let cuts_per_seq : Array[Array[Int]] = []
+  let cuts_per_seq : Array[Array[Int32]] = []
   for i in 0..<n {
     cuts_per_seq.push(find_cut_sites(sequences[i], enzyme))
   }
   // Collect all unique cut positions across all sequences
-  let all_positions : Array[Int] = []
+  let all_positions : Array[Int32] = []
   for cuts in cuts_per_seq {
     for pos in cuts {
       // Check if already in all_positions
@@ -221,8 +221,8 @@ fn caps_digest_with(
   }
   // For each cut position, classify sequences
   for pos in all_positions {
-    let cuts_in : Array[Int] = []
-    let blocked_in : Array[Int] = []
+    let cuts_in : Array[Int32] = []
+    let blocked_in : Array[Int32] = []
     for i in 0..<n {
       let mut found = false
       for p in cuts_per_seq[i] {
@@ -269,7 +269,7 @@ pub fn CapsMap::get_dcuts_by_enzyme(
 /// Get all differential cutsites at a specific position.
 pub fn CapsMap::get_dcuts_at_position(
   self : CapsMap,
-  position : Int,
+  position : Int32,
 ) -> Array[CapsDifferentialCutsite] {
   let result : Array[CapsDifferentialCutsite] = []
   for dc in self.dcuts {
@@ -282,7 +282,7 @@ pub fn CapsMap::get_dcuts_at_position(
 
 ///|
 /// Count the total number of differential cutsites.
-pub fn CapsMap::dcut_count(self : CapsMap) -> Int {
+pub fn CapsMap::dcut_count(self : CapsMap) -> Int32 {
   self.dcuts.length()
 }
 

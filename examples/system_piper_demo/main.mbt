@@ -15,7 +15,8 @@ fn main {
   println("")
 
   // Set description and params
-  let pipe2 = pipe.set_description("Variant calling pipeline from aligned BAM files")
+  let pipe2 = pipe
+    .set_description("Variant calling pipeline from aligned BAM files")
     .set_param("reference", "GRCh38")
     .set_param("species", "Homo sapiens")
     .set_param("work_dir", "/data/workspace")
@@ -37,7 +38,10 @@ fn main {
 
   // Step 2: Alignment
   let step2 = @bio.PipelineStep::new("align", "Read Alignment", "bwa")
-    .set_args(["mem", "-t", "8", "-R", "@RG\tID:test\tSM:sample", "ref.fa", "reads_R1.fq.gz", "reads_R2.fq.gz"])
+    .set_args([
+      "mem", "-t", "8", "-R", "@RG\tID:test\tSM:sample", "ref.fa", "reads_R1.fq.gz",
+      "reads_R2.fq.gz",
+    ])
     .set_description("Align reads to reference using BWA-MEM")
     .add_dependency("index")
     .add_input("reads_R1.fq.gz")
@@ -57,7 +61,9 @@ fn main {
 
   // Step 4: Mark duplicates
   let step4 = @bio.PipelineStep::new("dedup", "Mark Duplicates", "picard")
-    .set_args(["MarkDuplicates", "I=sorted.bam", "O=dedup.bam", "M=dup_metrics.txt"])
+    .set_args([
+      "MarkDuplicates", "I=sorted.bam", "O=dedup.bam", "M=dup_metrics.txt",
+    ])
     .set_description("Mark PCR duplicates using Picard")
     .add_dependency("sort")
     .add_output("dedup.bam")
@@ -66,7 +72,10 @@ fn main {
 
   // Step 5: Variant calling
   let step5 = @bio.PipelineStep::new("call", "Variant Calling", "bcftools")
-    .set_args(["mpileup", "-f", "ref.fa", "dedup.bam", "|", "bcftools", "call", "-mv", "-o", "variants.vcf"])
+    .set_args([
+      "mpileup", "-f", "ref.fa", "dedup.bam", "|", "bcftools", "call", "-mv", "-o",
+      "variants.vcf",
+    ])
     .set_description("Call variants using bcftools")
     .add_dependency("dedup")
     .add_output("variants.vcf")
@@ -75,7 +84,9 @@ fn main {
 
   // Step 6: Filtering
   let step6 = @bio.PipelineStep::new("filter", "Variant Filtering", "bcftools")
-    .set_args(["filter", "-e", "INFO/DP<10 | QUAL<30", "variants.vcf", "-o", "filtered.vcf"])
+    .set_args([
+      "filter", "-e", "INFO/DP<10 | QUAL<30", "variants.vcf", "-o", "filtered.vcf",
+    ])
     .set_description("Filter variants by depth and quality")
     .add_dependency("call")
     .add_output("filtered.vcf")
@@ -106,8 +117,9 @@ fn main {
 
   // Pipeline configuration
   println("=== Pipeline Configuration ===")
-  let config = @bio.PipelineConfig::new("/work/project", "/data/input", "/data/output")
-    .set_cores(16)
+  let config = @bio.PipelineConfig::new(
+    "/work/project", "/data/input", "/data/output",
+  ).set_cores(16)
   println("Work dir: \{config.get_work_dir()}")
   println("Input dir: \{config.get_input_dir()}")
   println("Output dir: \{config.get_output_dir()}")

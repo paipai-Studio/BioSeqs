@@ -23,7 +23,7 @@ pub suberror AlignmentFrequenciesError {
 /// total weight of letter `letters[k]` in column `j`.
 pub struct AlignmentLetterCounts {
   letters : Array[String]
-  ncols : Int
+  ncols : Int32
   counts : Array[Array[Double]]
 }
 
@@ -44,11 +44,6 @@ fn afreq_is_gap(ch : Char) -> Bool {
 }
 
 ///|
-fn afreq_is_finite(value : Double) -> Bool {
-  value == value && value.abs() <= 1.0e300
-}
-
-///|
 fn afreq_contains(letters : Array[String], key : String) -> Bool {
   let mut i = 0
   while i < letters.length() {
@@ -61,10 +56,7 @@ fn afreq_contains(letters : Array[String], key : String) -> Bool {
 }
 
 ///|
-fn afreq_index(
-  letters : Array[String],
-  key : String,
-) -> Int? {
+fn afreq_index(letters : Array[String], key : String) -> Int32? {
   let mut i = 0
   while i < letters.length() {
     if letters[i] == key {
@@ -79,10 +71,13 @@ fn afreq_index(
 fn afreq_require_index(
   letters : Array[String],
   key : String,
-) -> Int raise AlignmentFrequenciesError {
+) -> Int32 raise AlignmentFrequenciesError {
   match afreq_index(letters, key) {
     Some(i) => i
-    None => raise AlignmentFrequenciesError("internal error: missing letter '" + key + "'")
+    None =>
+      raise AlignmentFrequenciesError(
+        "internal error: missing letter '" + key + "'",
+      )
   }
 }
 
@@ -90,9 +85,11 @@ fn afreq_require_index(
 fn aln_prepare(
   rows : Array[String],
   weights : Array[Double],
-) -> (Int, Array[Double]) raise AlignmentFrequenciesError {
+) -> (Int32, Array[Double]) raise AlignmentFrequenciesError {
   if rows.length() == 0 {
-    raise AlignmentFrequenciesError("alignment must contain at least one sequence")
+    raise AlignmentFrequenciesError(
+      "alignment must contain at least one sequence",
+    )
   }
   let ncols = rows[0].length()
   if ncols == 0 {
@@ -103,10 +100,10 @@ fn aln_prepare(
     if rows[i].length() != ncols {
       raise AlignmentFrequenciesError(
         "alignment rows have different lengths (" +
-          ncols.to_string() +
-          " vs " +
-          rows[i].length().to_string() +
-          ")",
+        ncols.to_string() +
+        " vs " +
+        rows[i].length().to_string() +
+        ")",
       )
     }
     i = i + 1
@@ -117,10 +114,10 @@ fn aln_prepare(
     if weights.length() != rows.length() {
       raise AlignmentFrequenciesError(
         "weights length (" +
-          weights.length().to_string() +
-          ") does not match number of sequences (" +
-          rows.length().to_string() +
-          ")",
+        weights.length().to_string() +
+        ") does not match number of sequences (" +
+        rows.length().to_string() +
+        ")",
       )
     }
     weights
@@ -150,7 +147,7 @@ fn afreq_sort_letters(letters : Array[String]) -> Unit {
 /// gaps are excluded entirely (Biopython substitution matrix alphabet).
 fn afreq_alphabet(
   rows : Array[String],
-  ncols : Int,
+  ncols : Int32,
   include_gaps : Bool,
 ) -> Array[String] {
   let letters : Array[String] = []
@@ -161,12 +158,12 @@ fn afreq_alphabet(
     while j < ncols {
       let ch = row.unsafe_get(j).unsafe_to_char()
       if afreq_is_gap(ch) {
-        if include_gaps && not(afreq_contains(letters, "-")) {
+        if include_gaps && !afreq_contains(letters, "-") {
           letters.push("-")
         }
       } else {
         let key = ch.to_string()
-        if not(afreq_contains(letters, key)) {
+        if !afreq_contains(letters, key) {
           letters.push(key)
         }
       }
@@ -185,7 +182,7 @@ fn afreq_alphabet(
 /// reported under the letter `'-'`.
 pub fn alignment_letter_counts(
   rows : Array[String],
-  weights? : Array[Double] = [],
+  weights~ : Array[Double] = [],
 ) -> AlignmentLetterCounts raise AlignmentFrequenciesError {
   let (ncols, w) = aln_prepare(rows, weights)
   let letters = afreq_alphabet(rows, ncols, true)
@@ -209,7 +206,7 @@ pub fn alignment_letter_counts(
     }
     i = i + 1
   }
-  AlignmentLetterCounts::{ letters, ncols, counts }
+  AlignmentLetterCounts::{ letters, ncols, counts, }
 }
 
 ///|
@@ -217,7 +214,7 @@ pub fn alignment_letter_counts(
 pub fn AlignmentLetterCounts::letter_index(
   self : AlignmentLetterCounts,
   letter : String,
-) -> Int? {
+) -> Int32? {
   afreq_index(self.letters, letter)
 }
 
@@ -226,7 +223,7 @@ pub fn AlignmentLetterCounts::letter_index(
 pub fn AlignmentLetterCounts::count_of(
   self : AlignmentLetterCounts,
   letter : String,
-  col : Int,
+  col : Int32,
 ) -> Double {
   match self.letter_index(letter) {
     Some(i) => self.counts[i][col]
@@ -294,7 +291,14 @@ pub fn AlignmentLetterCounts::background_frequencies(
   k = 0
   while k < self.letters.length() {
     if self.letters[k] != "-" {
-      out.set(self.letters[k], if total > 0.0 { totals[k] / total } else { 0.0 })
+      out.set(
+        self.letters[k],
+        if total > 0.0 {
+          totals[k] / total
+        } else {
+          0.0
+        },
+      )
     }
     k = k + 1
   }
@@ -309,7 +313,7 @@ pub fn AlignmentLetterCounts::background_frequencies(
 /// M = (M + M^T) / 2.
 pub fn alignment_substitution_matrix(
   rows : Array[String],
-  weights? : Array[Double] = [],
+  weights~ : Array[Double] = [],
 ) -> SubstitutionCountMatrix raise AlignmentFrequenciesError {
   let (ncols, w) = aln_prepare(rows, weights)
   let letters = afreq_alphabet(rows, ncols, false)
@@ -332,7 +336,7 @@ pub fn alignment_substitution_matrix(
       while j < ncols {
         let c1 = seq1.unsafe_get(j).unsafe_to_char()
         let c2 = seq2.unsafe_get(j).unsafe_to_char()
-        if not(afreq_is_gap(c1)) && not(afreq_is_gap(c2)) {
+        if !afreq_is_gap(c1) && !afreq_is_gap(c2) {
           let k1 = afreq_require_index(letters, c1.to_string())
           let k2 = afreq_require_index(letters, c2.to_string())
           m[k1][k2] += w1 * w2
@@ -355,7 +359,7 @@ pub fn alignment_substitution_matrix(
     }
     a = a + 1
   }
-  SubstitutionCountMatrix::{ letters, matrix: m }
+  SubstitutionCountMatrix::{ letters, matrix: m, }
 }
 
 ///|
@@ -363,7 +367,7 @@ pub fn alignment_substitution_matrix(
 pub fn SubstitutionCountMatrix::letter_index(
   self : SubstitutionCountMatrix,
   letter : String,
-) -> Int? {
+) -> Int32? {
   afreq_index(self.letters, letter)
 }
 
@@ -479,18 +483,19 @@ pub fn SubstitutionCountMatrix::relative_frequencies_expected(
   while i < n {
     match expected.get(self.letters[i]) {
       Some(v) => {
-        if not(afreq_is_finite(v)) || v <= 0.0 {
+        if !is_finite(v) || v <= 0.0 {
           raise AlignmentFrequenciesError(
             "expected frequency of '" +
-              self.letters[i] +
-              "' must be a positive finite number",
+            self.letters[i] +
+            "' must be a positive finite number",
           )
         }
         p[i] = v
       }
-      None => raise AlignmentFrequenciesError(
-        "missing expected frequency for residue '" + self.letters[i] + "'",
-      )
+      None =>
+        raise AlignmentFrequenciesError(
+          "missing expected frequency for residue '" + self.letters[i] + "'",
+        )
     }
     i = i + 1
   }
@@ -515,7 +520,7 @@ pub fn SubstitutionCountMatrix::relative_frequencies_expected(
 
 ///|
 /// Left-pad a string with spaces to the requested width.
-fn afreq_pad_left(text : String, width : Int) -> String {
+fn afreq_pad_left(text : String, width : Int32) -> String {
   let mut out = text
   while out.length() < width {
     out = " " + out
@@ -543,7 +548,9 @@ fn afreq_fmt(x : Double) -> String {
 ///|
 /// Render the substitution count matrix as a Biopython-style symmetric
 /// table.
-pub fn SubstitutionCountMatrix::to_table(self : SubstitutionCountMatrix) -> String {
+pub fn SubstitutionCountMatrix::to_table(
+  self : SubstitutionCountMatrix,
+) -> String {
   let mut line = "      "
   let mut k = 0
   while k < self.letters.length() {

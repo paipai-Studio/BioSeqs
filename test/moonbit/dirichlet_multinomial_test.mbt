@@ -26,7 +26,7 @@ fn dmn_test_row_sum(values : Array[Double]) -> Double {
 }
 
 ///|
-fn dmn_test_counts() -> Array[Array[Int]] {
+fn dmn_test_counts() -> Array[Array[Int32]] {
   [
     [40, 3, 2],
     [35, 4, 1],
@@ -49,7 +49,7 @@ fn dmn_test_groups() -> Array[String] {
 }
 
 ///|
-fn dmn_test_config(components : Int) -> @src.DmnConfig {
+fn dmn_test_config(components : Int32) -> @src.DmnConfig {
   @src.DmnConfig::create(
     components~,
     max_iterations=40,
@@ -65,7 +65,7 @@ fn dmn_test_config(components : Int) -> @src.DmnConfig {
 }
 
 ///|
-fn dmn_test_fit(components : Int) -> @src.DmnFit {
+fn dmn_test_fit(components : Int32) -> @src.DmnFit {
   @src.dirichlet_multinomial_fit(
     dmn_test_counts(),
     taxon_names=["taxon_a", "taxon_b", "taxon_c"],

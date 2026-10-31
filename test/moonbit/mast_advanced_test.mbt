@@ -321,7 +321,7 @@ test "MAST advanced constructor rejects invalid expression values" {
   let non_finite = try {
     ignore(
       @src.MastAdvancedData::create(
-        [[1.0, Double::nan()]],
+        [[1.0, @double.not_a_number]],
         [[1.0], [1.0]],
         ["intercept"],
         include_cdr=false,

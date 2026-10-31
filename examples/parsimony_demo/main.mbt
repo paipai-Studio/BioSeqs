@@ -65,7 +65,9 @@ fn main {
   println("  G  1.0  1.0  0.0  1.0")
   println("  T  1.0  1.0  1.0  0.0")
   println("")
-  let sankoff_fitch_score = @bio.sankoff_parsimony_score(tree, aln, fitch_matrix)
+  let sankoff_fitch_score = @bio.sankoff_parsimony_score(
+    tree, aln, fitch_matrix,
+  )
   println("Sankoff score (Fitch matrix): " + sankoff_fitch_score.to_string())
   println("  (Should equal Fitch score: " + fitch_score.to_string() + ")")
   println("")
@@ -82,7 +84,9 @@ fn main {
   println("  G  1.0  2.0  0.0  2.0")
   println("  T  2.0  1.0  2.0  0.0")
   println("")
-  let sankoff_biased_score = @bio.sankoff_parsimony_score(tree, aln, sankoff_matrix)
+  let sankoff_biased_score = @bio.sankoff_parsimony_score(
+    tree, aln, sankoff_matrix,
+  )
   println("Sankoff score (biased matrix): " + sankoff_biased_score.to_string())
   println("")
 
@@ -124,9 +128,17 @@ fn main {
   // 6. Unified interface
   // ------------------------------------------------------------------
   println("=== 6. Unified parsimony_get_score Interface ===")
-  println("Without matrix (Fitch): " + @bio.parsimony_get_score(tree, aln).to_string())
-  println("With Fitch matrix: " + @bio.parsimony_get_score(tree, aln, matrix=Some(fitch_matrix)).to_string())
-  println("With biased matrix: " + @bio.parsimony_get_score(tree, aln, matrix=Some(sankoff_matrix)).to_string())
+  println(
+    "Without matrix (Fitch): " + @bio.parsimony_get_score(tree, aln).to_string(),
+  )
+  println(
+    "With Fitch matrix: " +
+    @bio.parsimony_get_score(tree, aln, matrix=Some(fitch_matrix)).to_string(),
+  )
+  println(
+    "With biased matrix: " +
+    @bio.parsimony_get_score(tree, aln, matrix=Some(sankoff_matrix)).to_string(),
+  )
   println("")
 
   println("=== Parsimony Demo Complete ===")

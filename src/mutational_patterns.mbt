@@ -91,7 +91,7 @@ pub fn all_mutation_types() -> Array[MutationCategory] {
 /// Each context is of form "N.N" where N is A, C, G, or T.
 pub fn trinucleotide_contexts() -> Array[String] {
   let bases = ["A", "C", "G", "T"]
-  let contexts : Array[String] = Array::new()
+  let contexts : Array[String] = Array(capacity=0)
   let mut i = 0
   while i < 4 {
     let mut j = 0
@@ -108,7 +108,7 @@ pub fn trinucleotide_contexts() -> Array[String] {
 /// A single somatic mutation record.
 pub struct SomaticMutation {
   chromosome : String
-  position : Int
+  position : Int32
   ref_base : String
   alt_base : String
   /// e.g., "ACT" (ref is middle)
@@ -125,9 +125,9 @@ pub struct MutationMatrix {
   /// 96 channel labels (e.g., "A[C>A]A", "A[C>A]C", ...)
   channel_labels : Array[String]
   /// Count matrix: 96 rows × n_samples columns
-  counts : Array[Array[Int]]
+  counts : Array[Array[Int32]]
   /// per-sample total
-  total_mutations : Array[Int]
+  total_mutations : Array[Int32]
 }
 
 ///|
@@ -142,7 +142,7 @@ pub struct MutSigProfile {
 /// Create a SomaticMutation.
 pub fn SomaticMutation::new(
   chromosome : String,
-  position : Int,
+  position : Int32,
   ref_base : String,
   alt_base : String,
   trinucleotide_context : String,
@@ -162,7 +162,7 @@ pub fn SomaticMutation::new(
 pub fn get_channel_labels() -> Array[String] {
   let contexts = trinucleotide_contexts()
   let types = all_mutation_types()
-  let labels : Array[String] = Array::new()
+  let labels : Array[String] = Array(capacity=0)
   // Order: for each mutation type, iterate over 16 contexts
   let mut ti = 0
   while ti < types.length() {
@@ -172,8 +172,8 @@ pub fn get_channel_labels() -> Array[String] {
       let ctx = contexts[ci]
       // ctx is like "A.C" meaning A[C]C
       let parts = ctx.split(".")
-      let left = parts.next().unwrap_or("A").to_string()
-      let right = parts.next().unwrap_or("A").to_string()
+      let left = parts.next().unwrap_or("A").to_owned()
+      let right = parts.next().unwrap_or("A").to_owned()
       labels.push(left + "[" + type_str + "]" + right)
       ci = ci + 1
     }
@@ -234,12 +234,12 @@ pub fn normalize_context(trinucleotide : String) -> String {
   if upper.length() != 3 {
     return upper
   }
-  let middle = upper.substring(start=1, end=2)
+  let middle = upper[1:2]
   if middle == "A" || middle == "G" {
     // Reverse complement
-    let b0 = complement_base(upper.substring(start=0, end=1))
-    let b1 = complement_base(upper.substring(start=1, end=2))
-    let b2 = complement_base(upper.substring(start=2, end=3))
+    let b0 = complement_base(upper[0:1].to_owned())
+    let b1 = complement_base(upper[1:2].to_owned())
+    let b2 = complement_base(upper[2:3].to_owned())
     b2 + b1 + b0
   } else {
     upper
@@ -253,7 +253,7 @@ pub fn get_channel_index(
   ref_base : String,
   alt_base : String,
   trinucleotide : String,
-) -> Int {
+) -> Int32 {
   let norm_ctx = normalize_context(trinucleotide)
   let mtype = get_mutation_type(ref_base, alt_base)
   // Find type index (0-5)
@@ -269,8 +269,8 @@ pub fn get_channel_index(
   }
   // Find context index (0-15)
   // norm_ctx is like "ACT", middle is the ref base
-  let left = norm_ctx.substring(start=0, end=1)
-  let right = norm_ctx.substring(start=2, end=3)
+  let left = norm_ctx[0:1].to_owned()
+  let right = norm_ctx[2:3].to_owned()
   let bases = ["A", "C", "G", "T"]
   let mut left_idx = 0
   let mut right_idx = 0
@@ -298,10 +298,10 @@ pub fn build_mutation_matrix(
   let n_samples = sample_ids.length()
   let channel_labels = get_channel_labels()
   // Initialize count matrix
-  let counts : Array[Array[Int]] = Array::new()
+  let counts : Array[Array[Int32]] = Array(capacity=0)
   let mut i = 0
   while i < n_channels {
-    let row : Array[Int] = Array::new()
+    let row : Array[Int32] = Array(capacity=0)
     let mut j = 0
     while j < n_samples {
       row.push(0)
@@ -311,7 +311,7 @@ pub fn build_mutation_matrix(
     i = i + 1
   }
   // Build sample index lookup
-  let sample_idx : Map[String, Int] = Map::new()
+  let sample_idx : Map[String, Int32] = Map([])
   let mut si = 0
   while si < n_samples {
     sample_idx.set(sample_ids[si], si)
@@ -335,7 +335,7 @@ pub fn build_mutation_matrix(
     mi = mi + 1
   }
   // Calculate per-sample totals
-  let totals : Array[Int] = Array::new()
+  let totals : Array[Int32] = Array(capacity=0)
   let mut sj = 0
   while sj < n_samples {
     let mut total = 0
@@ -359,9 +359,9 @@ pub fn build_mutation_matrix(
 /// Get a specific count from the matrix.
 pub fn MutationMatrix::get_count(
   self : MutationMatrix,
-  channel_idx : Int,
-  sample_idx : Int,
-) -> Int {
+  channel_idx : Int32,
+  sample_idx : Int32,
+) -> Int32 {
   if channel_idx < 0 || channel_idx >= self.counts.length() {
     return 0
   }
@@ -378,10 +378,10 @@ pub fn MutationMatrix::to_relative_frequencies(
 ) -> Array[Array[Double]] {
   let n_channels = self.counts.length()
   let n_samples = if n_channels > 0 { self.counts[0].length() } else { 0 }
-  let result : Array[Array[Double]] = Array::new()
+  let result : Array[Array[Double]] = Array(capacity=0)
   let mut i = 0
   while i < n_channels {
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     let mut j = 0
     while j < n_samples {
       let total = self.total_mutations[j].to_double()
@@ -428,12 +428,12 @@ pub fn cosine_similarity(vec1 : Array[Double], vec2 : Array[Double]) -> Double {
 /// Compute cosine similarity between two samples in a mutation matrix.
 pub fn MutationMatrix::sample_cosine_similarity(
   self : MutationMatrix,
-  sample_idx1 : Int,
-  sample_idx2 : Int,
+  sample_idx1 : Int32,
+  sample_idx2 : Int32,
 ) -> Double {
   let n_channels = self.counts.length()
-  let vec1 : Array[Double] = Array::new()
-  let vec2 : Array[Double] = Array::new()
+  let vec1 : Array[Double] = Array(capacity=0)
+  let vec2 : Array[Double] = Array(capacity=0)
   let mut i = 0
   while i < n_channels {
     vec1.push(self.counts[i][sample_idx1].to_double())
@@ -441,26 +441,6 @@ pub fn MutationMatrix::sample_cosine_similarity(
     i = i + 1
   }
   cosine_similarity(vec1, vec2)
-}
-
-///|
-/// Calculate signature exposure (contribution) of a known signature to a sample.
-/// Returns the count attributed to the signature.
-pub fn calculate_exposure(
-  sample_profile : Array[Double],
-  signature : MutSigProfile,
-) -> Double {
-  // Project sample profile onto signature
-  let sig = signature.probabilities
-  let dot = cosine_similarity(sample_profile, sig)
-  // Total mutations * cosine similarity gives approximate exposure
-  let mut total = 0.0
-  let mut i = 0
-  while i < sample_profile.length() {
-    total = total + sample_profile[i]
-    i = i + 1
-  }
-  total * dot
 }
 
 ///|
@@ -472,10 +452,10 @@ pub fn fit_signatures(
 ) -> Array[Double] {
   let n_sigs = signatures.length()
   if n_sigs == 0 {
-    return Array::new()
+    return Array(capacity=0)
   }
   // Calculate cosine similarity of each signature to the sample
-  let sims : Array[Double] = Array::new()
+  let sims : Array[Double] = Array(capacity=0)
   let mut total_sim = 0.0
   let mut i = 0
   while i < n_sigs {
@@ -489,7 +469,7 @@ pub fn fit_signatures(
     i = i + 1
   }
   // Normalize to get fractions
-  let result : Array[Double] = Array::new()
+  let result : Array[Double] = Array(capacity=0)
   let mut j = 0
   while j < n_sigs {
     if total_sim > 0.0 {
@@ -508,16 +488,16 @@ pub fn MutSigProfile::new(
   id : String,
   probabilities : Array[Double],
 ) -> MutSigProfile {
-  MutSigProfile::{ id, probabilities }
+  MutSigProfile::{ id, probabilities, }
 }
 
 ///|
 /// Create known COSMIC signatures (simplified versions of SBS1, SBS2, SBS5).
 /// These are approximated for demonstration.
 pub fn known_cosmic_signatures() -> Array[MutSigProfile] {
-  let sigs : Array[MutSigProfile] = Array::new()
+  let sigs : Array[MutSigProfile] = Array(capacity=0)
   // SBS1: spontaneous deamination of 5-methylcytosine (C>T at NpCpG)
-  let sbs1 : Array[Double] = Array::new()
+  let sbs1 : Array[Double] = Array(capacity=0)
   let mut i = 0
   while i < 96 {
     // C>T mutations at NCG contexts (channels 32-47, specifically NCG)
@@ -534,7 +514,7 @@ pub fn known_cosmic_signatures() -> Array[MutSigProfile] {
   }
   sigs.push(MutSigProfile::new("SBS1", sbs1))
   // SBS5: unknown, flat distribution
-  let sbs5 : Array[Double] = Array::new()
+  let sbs5 : Array[Double] = Array(capacity=0)
   let mut j = 0
   while j < 96 {
     sbs5.push(1.0 / 96.0)
@@ -571,7 +551,7 @@ pub fn MutationMatrix::spectrum_summary(self : MutationMatrix) -> String {
 ///|
 /// Generate sample data for testing.
 pub fn mutational_patterns_sample_data() -> Array[SomaticMutation] {
-  let mutations : Array[SomaticMutation] = Array::new()
+  let mutations : Array[SomaticMutation] = Array(capacity=0)
   // Create some test mutations in sample "S1"
   // C>T at ACG context
   mutations.push(SomaticMutation::new("S1", 100, "C", "T", "ACT"))

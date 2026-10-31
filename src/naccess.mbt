@@ -30,27 +30,27 @@
 ///|
 /// Atomic solvent accessible area record.
 pub struct NaccessAtom {
-  pub atom_name : String // e.g. "CA", "N", "O"
-  pub atom_num : Int
-  pub res_name : String // 3-letter residue code
-  pub res_num : Int
-  pub chain_id : String
-  pub abs_asa : Double // absolute accessible surface area (Å²)
-  pub rel_asa : Double // relative accessible surface area (%)
-  pub element : String
+  atom_name : String // e.g. "CA", "N", "O"
+  atom_num : Int32
+  res_name : String // 3-letter residue code
+  res_num : Int32
+  chain_id : String
+  abs_asa : Double // absolute accessible surface area (Å²)
+  rel_asa : Double // relative accessible surface area (%)
+  element : String
 }
 
 ///|
 /// Construct a NaccessAtom.
 pub fn NaccessAtom::new(
   atom_name~ : String,
-  atom_num~ : Int,
+  atom_num~ : Int32,
   res_name~ : String,
-  res_num~ : Int,
+  res_num~ : Int32,
   chain_id~ : String,
   abs_asa~ : Double,
-  rel_asa? : Double = 0.0,
-  element? : String = "",
+  rel_asa~ : Double = 0.0,
+  element~ : String = "",
 ) -> NaccessAtom {
   NaccessAtom::{
     atom_name,
@@ -67,37 +67,37 @@ pub fn NaccessAtom::new(
 ///|
 /// Residue solvent accessible area record.
 pub struct NaccessResidue {
-  pub res_name : String // 3-letter code
-  pub res_num : Int
-  pub chain_id : String
-  pub abs_all : Double // absolute ASA for all atoms
-  pub abs_side_chain : Double // absolute ASA for side chain
-  pub abs_main_chain : Double // absolute ASA for main chain
-  pub rel_all : Double // relative ASA for all atoms (%)
-  pub rel_side_chain : Double // relative ASA for side chain (%)
-  pub rel_main_chain : Double // relative ASA for main chain (%)
-  pub non_polar_abs : Double // non-polar absolute ASA
-  pub non_polar_rel : Double // non-polar relative ASA
-  pub polar_abs : Double // polar absolute ASA
-  pub polar_rel : Double // polar relative ASA
+  res_name : String // 3-letter code
+  res_num : Int32
+  chain_id : String
+  abs_all : Double // absolute ASA for all atoms
+  abs_side_chain : Double // absolute ASA for side chain
+  abs_main_chain : Double // absolute ASA for main chain
+  rel_all : Double // relative ASA for all atoms (%)
+  rel_side_chain : Double // relative ASA for side chain (%)
+  rel_main_chain : Double // relative ASA for main chain (%)
+  non_polar_abs : Double // non-polar absolute ASA
+  non_polar_rel : Double // non-polar relative ASA
+  polar_abs : Double // polar absolute ASA
+  polar_rel : Double // polar relative ASA
 }
 
 ///|
 /// Construct a NaccessResidue.
 pub fn NaccessResidue::new(
   res_name~ : String,
-  res_num~ : Int,
+  res_num~ : Int32,
   chain_id~ : String,
-  abs_all? : Double = 0.0,
-  abs_side_chain? : Double = 0.0,
-  abs_main_chain? : Double = 0.0,
-  rel_all? : Double = 0.0,
-  rel_side_chain? : Double = 0.0,
-  rel_main_chain? : Double = 0.0,
-  non_polar_abs? : Double = 0.0,
-  non_polar_rel? : Double = 0.0,
-  polar_abs? : Double = 0.0,
-  polar_rel? : Double = 0.0,
+  abs_all~ : Double = 0.0,
+  abs_side_chain~ : Double = 0.0,
+  abs_main_chain~ : Double = 0.0,
+  rel_all~ : Double = 0.0,
+  rel_side_chain~ : Double = 0.0,
+  rel_main_chain~ : Double = 0.0,
+  non_polar_abs~ : Double = 0.0,
+  non_polar_rel~ : Double = 0.0,
+  polar_abs~ : Double = 0.0,
+  polar_rel~ : Double = 0.0,
 ) -> NaccessResidue {
   NaccessResidue::{
     res_name,
@@ -119,12 +119,12 @@ pub fn NaccessResidue::new(
 ///|
 /// A parsed NACCESS result.
 pub struct NaccessResult {
-  pub structure_id : String
+  structure_id : String
   residues : Array[NaccessResidue]
   atoms : Array[NaccessAtom]
-  pub mut total_abs_asa : Double
-  pub total_rel_asa : Double
-  pub chain_totals : Map[String, Double]
+  mut total_abs_asa : Double
+  total_rel_asa : Double
+  chain_totals : Map[String, Double]
 }
 
 ///|
@@ -171,13 +171,13 @@ pub fn NaccessResult::get_atoms(self : NaccessResult) -> Array[NaccessAtom] {
 
 ///|
 /// Get the number of residue records.
-pub fn NaccessResult::get_num_residues(self : NaccessResult) -> Int {
+pub fn NaccessResult::get_num_residues(self : NaccessResult) -> Int32 {
   self.residues.length()
 }
 
 ///|
 /// Get the number of atom records.
-pub fn NaccessResult::get_num_atoms(self : NaccessResult) -> Int {
+pub fn NaccessResult::get_num_atoms(self : NaccessResult) -> Int32 {
   self.atoms.length()
 }
 
@@ -192,20 +192,20 @@ pub fn NaccessResult::get_num_atoms(self : NaccessResult) -> Int {
 ///   RES  NUM  CHN  ABS_ALL  REL_ALL  ABS_SIDE  REL_SIDE  ABS_MAIN  REL_MAIN
 ///   NON_POL_ABS  NON_POL_REL  POL_ABS  POL_REL
 pub fn naccess_parse_rsa(content : String) -> Array[NaccessResidue] {
-  let residues = Array::new()
+  let residues = Array(capacity=0)
   let lines = content.split("\n").to_array()
   for line in lines {
-    let trimmed = line.to_string()
+    let trimmed = line.to_owned()
     if trimmed.length() < 10 {
       continue
     }
     // Lines starting with "RES" are residue records
-    if trimmed.starts_with("RES ") {
+    if trimmed.has_prefix("RES ") {
       let parts = trimmed.split(" ").to_array()
       // Filter out empty strings from multiple spaces
-      let filtered = Array::new()
+      let filtered = Array(capacity=0)
       for p in parts {
-        let s = p.to_string()
+        let s = p.to_owned()
         if s.length() > 0 {
           filtered.push(s)
         }
@@ -298,19 +298,19 @@ pub fn naccess_parse_rsa(content : String) -> Array[NaccessResidue] {
 /// ASA file format (space-separated columns):
 ///   ATM  NUM  RES  CHN  ATOM_NAME  ...  ABS_ASA  REL_ASA
 pub fn naccess_parse_asa(content : String) -> Array[NaccessAtom] {
-  let atoms = Array::new()
+  let atoms = Array(capacity=0)
   let lines = content.split("\n").to_array()
   for line in lines {
-    let trimmed = line.to_string()
+    let trimmed = line.to_owned()
     if trimmed.length() < 10 {
       continue
     }
     // Lines starting with "ATM" are atom records
-    if trimmed.starts_with("ATM ") || trimmed.starts_with("HETATM") {
+    if trimmed.has_prefix("ATM ") || trimmed.has_prefix("HETATM") {
       let parts = trimmed.split(" ").to_array()
-      let filtered = Array::new()
+      let filtered = Array(capacity=0)
       for p in parts {
-        let s = p.to_string()
+        let s = p.to_owned()
         if s.length() > 0 {
           filtered.push(s)
         }
@@ -446,7 +446,7 @@ pub fn naccess_atom_to_asa(a : NaccessAtom) -> String {
 ///|
 /// Serialize a NaccessResult to RSA file content.
 pub fn naccess_write_rsa(result : NaccessResult) -> String {
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   sb.write_string("NACCESS  Version 2.1\n")
   sb.write_string(
     "RES     NUM  CHN  ABS_ALL  REL_ALL  ABS_SIDE  REL_SIDE  ABS_MAIN  REL_MAIN  NP_ABS  NP_REL  P_ABS  P_REL\n",
@@ -460,7 +460,7 @@ pub fn naccess_write_rsa(result : NaccessResult) -> String {
 ///|
 /// Serialize a NaccessResult to ASA file content.
 pub fn naccess_write_asa(result : NaccessResult) -> String {
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   sb.write_string("NACCESS  Version 2.1\n")
   sb.write_string("ATM     NUM  RES  CHN  ATOM_NAME  ABS_ASA  REL_ASA\n")
   for a in result.atoms {
@@ -479,7 +479,7 @@ pub fn naccess_exposed_residues(
   result : NaccessResult,
   threshold : Double,
 ) -> Array[NaccessResidue] {
-  let exposed = Array::new()
+  let exposed = Array(capacity=0)
   for r in result.residues {
     if r.rel_all > threshold {
       exposed.push(r)
@@ -494,7 +494,7 @@ pub fn naccess_buried_residues(
   result : NaccessResult,
   threshold : Double,
 ) -> Array[NaccessResidue] {
-  let buried = Array::new()
+  let buried = Array(capacity=0)
   for r in result.residues {
     if r.rel_all < threshold {
       buried.push(r)
@@ -522,7 +522,7 @@ pub fn naccess_get_chain_residues(
   result : NaccessResult,
   chain_id : String,
 ) -> Array[NaccessResidue] {
-  let chain_res = Array::new()
+  let chain_res = Array(capacity=0)
   for r in result.residues {
     if r.chain_id == chain_id {
       chain_res.push(r)
@@ -533,7 +533,10 @@ pub fn naccess_get_chain_residues(
 
 ///|
 /// Count residues by type (exposed vs buried).
-pub fn naccess_count_exposed(result : NaccessResult, threshold : Double) -> Int {
+pub fn naccess_count_exposed(
+  result : NaccessResult,
+  threshold : Double,
+) -> Int32 {
   let mut count = 0
   for r in result.residues {
     if r.rel_all > threshold {
@@ -622,7 +625,7 @@ pub fn naccess_sample() -> NaccessResult {
 ///|
 /// Generate a summary string.
 pub fn naccess_summary(result : NaccessResult) -> String {
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   sb.write_string("NACCESS Result Summary:\n")
   sb.write_string("  Residues: " + result.get_num_residues().to_string() + "\n")
   sb.write_string("  Atoms: " + result.get_num_atoms().to_string() + "\n")
@@ -642,7 +645,9 @@ pub fn naccess_summary(result : NaccessResult) -> String {
     (result.get_num_residues() - naccess_count_exposed(result, 20.0)).to_string() +
     "\n",
   )
-  sb.write_string("  Chains: " + result.chain_totals.size().to_string() + "\n")
+  sb.write_string(
+    "  Chains: " + result.chain_totals.length().to_string() + "\n",
+  )
   for chain_id in result.chain_totals.keys() {
     match result.chain_totals.get(chain_id) {
       Some(v) =>

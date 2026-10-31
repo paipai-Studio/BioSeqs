@@ -27,8 +27,8 @@ fn msf_test_raises(text : String) -> Bool {
 ///|
 fn msf_test_write_raises(
   alignment : @src.MsfAlignment,
-  block_width : Int,
-  group_width : Int,
+  block_width : Int32,
+  group_width : Int32,
   gap_character : String,
 ) -> Bool {
   try {
@@ -61,7 +61,7 @@ fn msf_test_sequence_raises(
   row : String,
   sequence_type : @src.MsfSequenceType,
   weight : Double,
-  checksum : Int,
+  checksum : Int32,
 ) -> Bool {
   try {
     ignore(
@@ -97,7 +97,7 @@ fn msf_test_single_text() -> String {
 }
 
 ///|
-fn msf_test_protein_text() -> String {
+fn _msf_test_protein_text() -> String {
   "!!AA_MULTIPLE_ALIGNMENT 1.0\n" +
   "\n" +
   "Protein fixture MSF: 12 Type: P Check: 8342 ..\n" +
@@ -419,7 +419,7 @@ test "Bio.Align.msf pads official W short rows" {
   let alignment = msf_test_parse(msf_test_w_protein_text())
   assert_eq(alignment.sequences[6].length, 93)
   assert_eq(alignment.sequences[6].aligned_sequence.length(), 99)
-  assert_true(alignment.sequences[6].aligned_sequence.ends_with("RLT------"))
+  assert_true(alignment.sequences[6].aligned_sequence.has_suffix("RLT------"))
   assert_eq(alignment.sequences[6].checksum, 9483)
 }
 

@@ -61,7 +61,7 @@ pub struct SmartFile {
   /// current read position
   /// accumulated content for writing
   lines : Array[String]
-  pos : Int
+  pos : Int32
   written_content : String
 }
 
@@ -72,7 +72,7 @@ pub struct SmartFile {
 ///   - .gz -> gzip
 ///   - .bz2 -> bzip2
 ///   - others -> plain text
-pub fn SmartFile::new(path : String, mode? : String = "r") -> SmartFile {
+pub fn SmartFile::new(path : String, mode~ : String = "r") -> SmartFile {
   let format = detect_compression(path)
   SmartFile::{
     path,
@@ -90,7 +90,7 @@ pub fn SmartFile::new(path : String, mode? : String = "r") -> SmartFile {
 pub fn SmartFile::with_format(
   path : String,
   format : CompressionFormat,
-  mode? : String = "r",
+  mode~ : String = "r",
 ) -> SmartFile {
   SmartFile::{
     path,
@@ -279,7 +279,7 @@ pub fn SmartFile::set_lines(
 pub fn smart_file_from_string(path : String, content : String) -> SmartFile {
   let sf = SmartFile::new(path, mode="r")
   let iter = content.split("\n")
-  let lines : Array[String] = Array::new()
+  let lines : Array[String] = Array(capacity=0)
   for sv in iter {
     lines.push(sv.to_owned())
   }
@@ -297,7 +297,7 @@ pub fn smart_file_from_lines(path : String, lines : Array[String]) -> SmartFile 
 /// Create a write-mode SmartFile.
 pub fn smart_file_writer(
   path : String,
-  format? : CompressionFormat = CompressionFormat::Plain,
+  format~ : CompressionFormat = CompressionFormat::Plain,
 ) -> SmartFile {
   SmartFile::with_format(path, format, mode="w")
 }
@@ -333,9 +333,9 @@ pub fn has_compression_extension(path : String) -> Bool {
 pub fn strip_compression_extension(path : String) -> String {
   let lower = path.to_lower()
   if lower.has_suffix(".gz") {
-    path.substring(start=0, end=path.length() - 3)
+    path[0:path.length() - 3].to_owned()
   } else if lower.has_suffix(".bz2") {
-    path.substring(start=0, end=path.length() - 4)
+    path[0:path.length() - 4].to_owned()
   } else {
     path
   }

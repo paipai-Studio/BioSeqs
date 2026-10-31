@@ -13,7 +13,7 @@ pub struct CircSeq {
   /// The sequence string (linear representation)
   sequence : String
   /// Total length of the circular sequence
-  length : Int
+  length : Int32
   /// GC content (0.0-1.0)
   gc_content : Double
   /// Molecule name (e.g., plasmid name)
@@ -25,7 +25,7 @@ pub struct CircSeq {
 pub fn CircSeq::new(sequence~ : String) -> CircSeq {
   let length = sequence.length()
   let gc = compute_gc_content(sequence)
-  CircSeq::{ sequence, length, gc_content: gc, name: "" }
+  CircSeq::{ sequence, length, gc_content: gc, name: "", }
 }
 
 ///|
@@ -33,7 +33,7 @@ pub fn CircSeq::new(sequence~ : String) -> CircSeq {
 pub fn CircSeq::with_name(sequence~ : String, name~ : String) -> CircSeq {
   let length = sequence.length()
   let gc = compute_gc_content(sequence)
-  CircSeq::{ sequence, length, gc_content: gc, name }
+  CircSeq::{ sequence, length, gc_content: gc, name, }
 }
 
 ///|
@@ -56,7 +56,7 @@ fn compute_gc_content(seq : String) -> Double {
 
 ///|
 /// Get the sequence length.
-pub fn CircSeq::circ_length(self : CircSeq) -> Int {
+pub fn CircSeq::circ_length(self : CircSeq) -> Int32 {
   self.length
 }
 
@@ -80,7 +80,7 @@ pub fn CircSeq::circ_sequence(self : CircSeq) -> String {
 
 ///|
 /// Access a base at a circular position (0-based, wraps around).
-pub fn CircSeq::circ_at(self : CircSeq, pos : Int) -> UInt16 {
+pub fn CircSeq::circ_at(self : CircSeq, pos : Int32) -> UInt16 {
   let wrapped = modulo_pos(pos, self.length)
   self.sequence.unsafe_get(wrapped)
 }
@@ -88,22 +88,26 @@ pub fn CircSeq::circ_at(self : CircSeq, pos : Int) -> UInt16 {
 ///|
 /// Get a sub-sequence from start to end (0-based, inclusive on both ends).
 /// Handles circular wrapping.
-pub fn CircSeq::circ_subseq(self : CircSeq, start : Int, end : Int) -> String {
+pub fn CircSeq::circ_subseq(
+  self : CircSeq,
+  start : Int32,
+  end : Int32,
+) -> String {
   let wrapped_start = modulo_pos(start, self.length)
   let wrapped_end = modulo_pos(end, self.length)
 
   if wrapped_start <= wrapped_end {
     // Simple linear case
     if wrapped_end + 1 <= self.length {
-      return self.sequence.substring(start=wrapped_start, end=wrapped_end + 1)
+      return self.sequence[wrapped_start:wrapped_end + 1].to_owned()
     }
     // Edge case: wrapped_end == length (shouldn't happen with modulo)
-    return self.sequence.substring(start=wrapped_start)
+    return self.sequence[wrapped_start:].to_owned()
   } else {
     // Wraps around: start > end in linear space
     // e.g., length=10, start=8, end=2 -> get 8,9,0,1,2
-    let first_part = self.sequence.substring(start=wrapped_start)
-    let second_part = self.sequence.substring(start=0, end=wrapped_end + 1)
+    let first_part = self.sequence[wrapped_start:].to_owned()
+    let second_part = self.sequence[0:wrapped_end + 1].to_owned()
     return first_part + second_part
   }
 }
@@ -111,7 +115,7 @@ pub fn CircSeq::circ_subseq(self : CircSeq, start : Int, end : Int) -> String {
 ///|
 /// Circular slice: returns a linear segment starting at pos with given length.
 /// Position 0 is the start of the sequence.
-pub fn CircSeq::circ_slice(self : CircSeq, pos : Int, len : Int) -> String {
+pub fn CircSeq::circ_slice(self : CircSeq, pos : Int32, len : Int32) -> String {
   let mut result = ""
   let mut i = 0
   while i < len {
@@ -124,14 +128,14 @@ pub fn CircSeq::circ_slice(self : CircSeq, pos : Int, len : Int) -> String {
 ///|
 /// Rotate the sequence so that the given position becomes the new origin.
 /// Returns a new CircSeq with the rotated sequence.
-pub fn CircSeq::circ_rotate(self : CircSeq, new_origin : Int) -> CircSeq {
+pub fn CircSeq::circ_rotate(self : CircSeq, new_origin : Int32) -> CircSeq {
   let wrapped = modulo_pos(new_origin, self.length)
   if wrapped == 0 {
     return self
   }
   // New sequence: seq[wrapped:] + seq[:wrapped]
-  let new_seq = self.sequence.substring(start=wrapped) +
-    self.sequence.substring(start=0, end=wrapped)
+  let new_seq = self.sequence[wrapped:].to_owned() +
+    self.sequence[0:wrapped].to_owned()
   let gc = compute_gc_content(new_seq)
   CircSeq::{
     sequence: new_seq,
@@ -188,8 +192,8 @@ fn circ_rev_comp(seq : String) -> String {
 ///|
 /// Find all occurrences of a pattern in the circular sequence.
 /// Returns an array of start positions (0-based).
-pub fn CircSeq::circ_find_all(self : CircSeq, pattern : String) -> Array[Int] {
-  let results : Array[Int] = Array::new()
+pub fn CircSeq::circ_find_all(self : CircSeq, pattern : String) -> Array[Int32] {
+  let results : Array[Int32] = Array(capacity=0)
   let plen = pattern.length()
   if plen == 0 || plen > self.length {
     return results
@@ -225,7 +229,7 @@ pub fn CircSeq::circ_find_all(self : CircSeq, pattern : String) -> Array[Int] {
 ///|
 /// Find the first occurrence of a pattern in the circular sequence.
 /// Returns the 0-based position or -1 if not found.
-pub fn CircSeq::circ_find(self : CircSeq, pattern : String) -> Int {
+pub fn CircSeq::circ_find(self : CircSeq, pattern : String) -> Int32 {
   let positions = self.circ_find_all(pattern)
   if positions.length() > 0 {
     return positions[0]
@@ -235,7 +239,7 @@ pub fn CircSeq::circ_find(self : CircSeq, pattern : String) -> Int {
 
 ///|
 /// Find the reverse complement of a pattern in the circular sequence.
-pub fn CircSeq::circ_find_rc(self : CircSeq, pattern : String) -> Array[Int] {
+pub fn CircSeq::circ_find_rc(self : CircSeq, pattern : String) -> Array[Int32] {
   let rc_pattern = circ_rev_comp(pattern)
   self.circ_find_all(rc_pattern)
 }
@@ -252,8 +256,8 @@ pub fn CircSeq::circ_has_site(self : CircSeq, site : String) -> Bool {
 pub fn CircSeq::circ_find_sites(
   self : CircSeq,
   site : String,
-) -> Array[(Int, String)] {
-  let results : Array[(Int, String)] = Array::new()
+) -> Array[(Int32, String)] {
+  let results : Array[(Int32, String)] = Array(capacity=0)
   let fwd = self.circ_find_all(site)
   for pos in fwd {
     results.push((pos, "+"))
@@ -271,8 +275,8 @@ pub fn CircSeq::circ_find_sites(
 pub fn CircSeq::circ_digest(
   self : CircSeq,
   sites : Array[String],
-) -> Array[Int] {
-  let cut_positions : Array[Int] = Array::new()
+) -> Array[Int32] {
+  let cut_positions : Array[Int32] = Array(capacity=0)
 
   // Collect all cut positions from both strands for all enzymes
   for site in sites {
@@ -290,7 +294,7 @@ pub fn CircSeq::circ_digest(
   let sorted = sort_positions(cut_positions)
 
   // Compute fragment sizes
-  let fragments : Array[Int] = Array::new()
+  let fragments : Array[Int32] = Array(capacity=0)
   if sorted.length() == 0 {
     // No cuts - the whole molecule is one fragment
     fragments.push(self.length)
@@ -298,7 +302,7 @@ pub fn CircSeq::circ_digest(
   }
 
   // Remove duplicates
-  let unique : Array[Int] = Array::new()
+  let unique : Array[Int32] = Array(capacity=0)
   for pos in sorted {
     if unique.length() == 0 || pos != unique[unique.length() - 1] {
       unique.push(pos)
@@ -330,7 +334,7 @@ pub fn CircSeq::circ_digest(
 pub fn CircSeq::circ_digest_enzymes(
   self : CircSeq,
   enzymes : Array[String],
-) -> Array[Int] {
+) -> Array[Int32] {
   self.circ_digest(enzymes)
 }
 
@@ -340,11 +344,11 @@ pub fn CircSeq::circ_digest_enzymes(
 /// The forward primer binds to the sense strand, reverse primer to the antisense strand.
 pub fn CircSeq::circ_design_primers(
   self : CircSeq,
-  target_start : Int,
-  target_end : Int,
-  primer_len? : Int = 20,
-  gc_target? : Double = 0.5,
-) -> (Int, Int, Int) {
+  target_start : Int32,
+  target_end : Int32,
+  primer_len~ : Int32 = 20,
+  gc_target~ : Double = 0.5,
+) -> (Int32, Int32, Int32) {
   let product_len = circular_distance(target_start, target_end, self.length)
   let fwd_start = target_start
   let fwd_seq = self.circ_slice(fwd_start, primer_len)
@@ -354,12 +358,16 @@ pub fn CircSeq::circ_design_primers(
   let rev_seq = self.circ_slice(rev_start, primer_len)
 
   // Calculate GC content of primers
-  let fwd_gc = calc_gc(fwd_seq)
-  let rev_gc = calc_gc(rev_seq)
+  let _fwd_gc = calc_gc(fwd_seq)
+  let _rev_gc = calc_gc(rev_seq)
 
   // Adjust primer length to reach target GC content
-  let adj_fwd_len = adjust_primer_length(self, fwd_start, primer_len, gc_target)
-  let adj_rev_len = adjust_primer_length(self, rev_start, primer_len, gc_target)
+  let _adj_fwd_len = adjust_primer_length(
+    self, fwd_start, primer_len, gc_target,
+  )
+  let _adj_rev_len = adjust_primer_length(
+    self, rev_start, primer_len, gc_target,
+  )
 
   // Return the positions (primer_start position, not the primer sequence)
   (fwd_start, rev_start, product_len)
@@ -385,10 +393,10 @@ fn calc_gc(seq : String) -> Double {
 ///|
 fn adjust_primer_length(
   circ : CircSeq,
-  start : Int,
-  target_len : Int,
+  start : Int32,
+  target_len : Int32,
   gc_target : Double,
-) -> Int {
+) -> Int32 {
   let mut len = target_len
   let max_len = if circ.length < 40 { circ.length } else { 40 }
   while len < max_len {
@@ -406,13 +414,13 @@ fn adjust_primer_length(
 /// Insert a sequence at a specific position in the circular sequence.
 pub fn CircSeq::circ_insert(
   self : CircSeq,
-  pos : Int,
+  pos : Int32,
   insert_seq : String,
 ) -> CircSeq {
   let wrapped = modulo_pos(pos, self.length)
-  let new_seq = self.sequence.substring(start=0, end=wrapped) +
+  let new_seq = self.sequence[0:wrapped].to_owned() +
     insert_seq +
-    self.sequence.substring(start=wrapped)
+    self.sequence[wrapped:].to_owned()
   let new_length = new_seq.length()
   let gc = compute_gc_content(new_seq)
   CircSeq::{
@@ -425,7 +433,11 @@ pub fn CircSeq::circ_insert(
 
 ///|
 /// Delete a range from the circular sequence [start, end] inclusive.
-pub fn CircSeq::circ_delete(self : CircSeq, start : Int, end : Int) -> CircSeq {
+pub fn CircSeq::circ_delete(
+  self : CircSeq,
+  start : Int32,
+  end : Int32,
+) -> CircSeq {
   let new_seq = circular_delete(self.sequence, start, end)
   let new_length = new_seq.length()
   let gc = compute_gc_content(new_seq)
@@ -438,24 +450,23 @@ pub fn CircSeq::circ_delete(self : CircSeq, start : Int, end : Int) -> CircSeq {
 }
 
 ///|
-fn circular_delete(seq : String, start : Int, end : Int) -> String {
+fn circular_delete(seq : String, start : Int32, end : Int32) -> String {
   let wrapped_start = modulo_pos(start, seq.length())
   let wrapped_end = modulo_pos(end, seq.length())
 
   if wrapped_start <= wrapped_end {
     // Linear delete
-    return seq.substring(start=0, end=wrapped_start) +
-      seq.substring(start=wrapped_end + 1)
+    return seq[0:wrapped_start].to_owned() + seq[wrapped_end + 1:].to_owned()
   } else {
     // Wraps around: delete from wrapped_start to end, and from start to wrapped_end
-    return seq.substring(start=wrapped_end + 1, end=wrapped_start)
+    return seq[wrapped_end + 1:wrapped_start].to_owned()
   }
 }
 
 ///|
 /// Compute the circular distance between two positions.
 /// Returns the shortest distance going from start to end in the forward direction.
-pub fn circular_distance(start : Int, end : Int, length : Int) -> Int {
+pub fn circular_distance(start : Int32, end : Int32, length : Int32) -> Int32 {
   let wrapped_start = modulo_pos(start, length)
   let wrapped_end = modulo_pos(end, length)
   if wrapped_end >= wrapped_start {
@@ -467,23 +478,23 @@ pub fn circular_distance(start : Int, end : Int, length : Int) -> Int {
 
 ///|
 /// Map circular coordinates to linear coordinates (no wrapping).
-pub fn circ_to_linear(circ_pos : Int, length : Int) -> Int {
+pub fn circ_to_linear(circ_pos : Int32, length : Int32) -> Int32 {
   modulo_pos(circ_pos, length)
 }
 
 ///|
 /// Map linear coordinates back to circular coordinates.
-pub fn linear_to_circular(linear_pos : Int, length : Int) -> Int {
+pub fn linear_to_circular(linear_pos : Int32, length : Int32) -> Int32 {
   modulo_pos(linear_pos, length)
 }
 
 ///|
 /// Check if a position is within a range on the circular sequence.
 pub fn is_within_circular_range(
-  pos : Int,
-  range_start : Int,
-  range_end : Int,
-  length : Int,
+  pos : Int32,
+  range_start : Int32,
+  range_end : Int32,
+  length : Int32,
 ) -> Bool {
   let p = modulo_pos(pos, length)
   let rs = modulo_pos(range_start, length)
@@ -502,12 +513,12 @@ pub fn is_within_circular_range(
 /// Compute the overlap between two ranges on the circular sequence.
 /// Returns the number of overlapping bases.
 pub fn circular_overlap(
-  start1 : Int,
-  end1 : Int,
-  start2 : Int,
-  end2 : Int,
-  length : Int,
-) -> Int {
+  start1 : Int32,
+  end1 : Int32,
+  start2 : Int32,
+  end2 : Int32,
+  length : Int32,
+) -> Int32 {
   let s1 = modulo_pos(start1, length)
   let e1 = modulo_pos(end1, length)
   let s2 = modulo_pos(start2, length)
@@ -528,8 +539,8 @@ pub fn circular_overlap(
 }
 
 ///|
-fn expand_range(start : Int, end : Int, length : Int) -> Array[Int] {
-  let result : Array[Int] = Array::new()
+fn expand_range(start : Int32, end : Int32, length : Int32) -> Array[Int32] {
+  let result : Array[Int32] = Array(capacity=0)
   if start <= end {
     let mut i = start
     while i <= end {
@@ -555,7 +566,7 @@ fn expand_range(start : Int, end : Int, length : Int) -> Array[Int] {
 // --- Utility Functions ---
 
 ///|
-fn modulo_pos(pos : Int, length : Int) -> Int {
+fn modulo_pos(pos : Int32, length : Int32) -> Int32 {
   if length <= 0 {
     return 0
   }
@@ -568,7 +579,7 @@ fn modulo_pos(pos : Int, length : Int) -> Int {
 }
 
 ///|
-fn sort_positions(positions : Array[Int]) -> Array[Int] {
+fn sort_positions(positions : Array[Int32]) -> Array[Int32] {
   let result = positions.copy()
   let n = result.length()
   let mut i = 0
@@ -590,9 +601,9 @@ fn sort_positions(positions : Array[Int]) -> Array[Int] {
 ///|
 /// Generate a random circular sequence of given length and GC content.
 pub fn circ_random_sequence(
-  length : Int,
+  length : Int32,
   gc_content : Double,
-  seed? : Int = 42,
+  seed~ : Int32 = 42,
 ) -> CircSeq {
   let bases = ["A", "T", "G", "C"]
   // Adjust probabilities based on GC content
@@ -616,7 +627,7 @@ pub fn circ_random_sequence(
 }
 
 ///|
-fn pick_base(rand_val : Double, probs : Array[Double]) -> Int {
+fn pick_base(rand_val : Double, probs : Array[Double]) -> Int32 {
   let cumulative = [
     probs[0],
     probs[0] + probs[1],
@@ -640,7 +651,7 @@ fn pick_base(rand_val : Double, probs : Array[Double]) -> Int {
 pub fn circ_ligate(
   linear_fragment : String,
   vector : CircSeq,
-  insert_pos : Int,
+  insert_pos : Int32,
 ) -> CircSeq {
   vector.circ_insert(insert_pos, linear_fragment)
 }
@@ -650,13 +661,14 @@ pub fn circ_ligate(
 /// Uses the nearest-neighbor method approximation.
 pub fn circ_tm(
   template : CircSeq,
-  start : Int,
-  len : Int,
-  oligo_conc? : Double = 5.0e-8,
+  start : Int32,
+  len : Int32,
+  oligo_conc~ : Double = 5.0e-8,
 ) -> Double {
+  ignore(oligo_conc)
   let seq = template.circ_slice(start, len)
   let gc = calc_gc(seq)
-  let at = 1.0 - gc
+  let _at = 1.0 - gc
 
   // Nearest-neighbor Tm calculation (simplified)
   // Tm = 64.9 + 41 * (GC - 0.16) for sequences with < 14 bases
@@ -701,9 +713,9 @@ pub fn circ_common_restriction_sites() -> Array[(String, String)] {
 
 ///|
 /// Find all unique restriction fragments from a digest.
-pub fn circ_unique_fragments(digest_fragments : Array[Int]) -> Array[Int] {
+pub fn circ_unique_fragments(digest_fragments : Array[Int32]) -> Array[Int32] {
   let sorted = sort_positions(digest_fragments)
-  let unique : Array[Int] = Array::new()
+  let unique : Array[Int32] = Array(capacity=0)
   for frag in sorted {
     if unique.length() == 0 || frag != unique[unique.length() - 1] {
       unique.push(frag)
@@ -714,7 +726,7 @@ pub fn circ_unique_fragments(digest_fragments : Array[Int]) -> Array[Int] {
 
 ///|
 /// Find the largest unique fragment in a digest (useful for linearization).
-pub fn circ_largest_fragment(digest_fragments : Array[Int]) -> Int {
+pub fn circ_largest_fragment(digest_fragments : Array[Int32]) -> Int32 {
   let mut largest = 0
   for frag in digest_fragments {
     if frag > largest {

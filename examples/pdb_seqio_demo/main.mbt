@@ -4,7 +4,6 @@
 /// Demonstrates Bio.SeqIO.PdbIO module: extracting amino acid sequences
 /// from PDB structures via SEQRES and ATOM records.
 /// Inspired by BioPython's Bio.SeqIO.PdbIO module.
-
 fn main {
   println("=== PDB SeqIO Demo ===")
   println("Bio.SeqIO.PdbIO: Sequence extraction from PDB structures")
@@ -80,9 +79,9 @@ fn main {
   // === 5. three_to_one_aa conversion ===
   println("\n=== 5. Three-to-One Amino Acid Conversion ===")
   let three_letter_codes = [
-    "ALA", "ARG", "ASN", "ASP", "CYS", "GLN", "GLU", "GLY", "HIS", "ILE",
-    "LEU", "LYS", "MET", "PHE", "PRO", "SER", "THR", "TRP", "TYR", "VAL",
-    "SEC", "PYL", "XXX",
+    "ALA", "ARG", "ASN", "ASP", "CYS", "GLN", "GLU", "GLY", "HIS", "ILE", "LEU",
+    "LYS", "MET", "PHE", "PRO", "SER", "THR", "TRP", "TYR", "VAL", "SEC", "PYL",
+    "XXX",
   ]
   println("  Three-letter -> One-letter:")
   let mut ci = 0
@@ -96,7 +95,7 @@ fn main {
   // === 6. extract_sequence_from_pdb_lines ===
   println("\n=== 6. extract_sequence_from_pdb_lines (chain A) ===")
   let split_result = pdb_text.split("\n").to_array()
-  let pdb_lines : Array[String] = Array::new()
+  let pdb_lines : Array[String] = Array(capacity=0)
   let mut li = 0
   while li < split_result.length() {
     pdb_lines.push(split_result[li].to_owned())

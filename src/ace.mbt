@@ -13,10 +13,10 @@
 pub struct AceRead {
   read_id : String
   sequence : String
-  quality : Array[Int]
-  clip_start : Int
-  clip_end : Int
-  sequence_length : Int
+  quality : Array[Int32]
+  clip_start : Int32
+  clip_end : Int32
+  sequence_length : Int32
   strand : String
   chromat_file : String
   chemistry : String
@@ -28,9 +28,9 @@ pub struct AceRead {
 pub fn AceRead::new(
   read_id : String,
   sequence : String,
-  quality : Array[Int],
-  clip_start : Int,
-  clip_end : Int,
+  quality : Array[Int32],
+  clip_start : Int32,
+  clip_end : Int32,
   strand : String,
   chromat_file : String,
   chemistry : String,
@@ -55,9 +55,9 @@ pub fn AceRead::new(
 pub struct AceContig {
   contig_name : String
   sequence : String
-  length : Int
+  length : Int32
   reads : Array[AceRead]
-  base_qualities : Array[Int]
+  base_qualities : Array[Int32]
   alignment_complement : String
   reverse_complemented : Bool
 }
@@ -68,7 +68,7 @@ pub fn AceContig::new(
   contig_name : String,
   sequence : String,
   reads : Array[AceRead],
-  base_qualities : Array[Int],
+  base_qualities : Array[Int32],
   alignment_complement : String,
   reverse_complemented : Bool,
 ) -> AceContig {
@@ -87,36 +87,36 @@ pub fn AceContig::new(
 /// An alignment entry within a contig.
 pub struct AceAlignment {
   contig_id : String
-  start_position : Int
+  start_position : Int32
   sequence : String
-  quality : Array[Int]
+  quality : Array[Int32]
 }
 
 ///|
 /// Create a new AceAlignment.
 pub fn AceAlignment::new(
   contig_id : String,
-  start_position : Int,
+  start_position : Int32,
   sequence : String,
-  quality : Array[Int],
+  quality : Array[Int32],
 ) -> AceAlignment {
-  AceAlignment::{ contig_id, start_position, sequence, quality }
+  AceAlignment::{ contig_id, start_position, sequence, quality, }
 }
 
 ///|
 /// Top-level container for ACE assembly data.
 pub struct AceData {
   contigs : Array[AceContig]
-  total_reads : Int
-  total_contigs : Int
-  base_qual_threshold : Int
+  total_reads : Int32
+  total_contigs : Int32
+  base_qual_threshold : Int32
 }
 
 ///|
 /// Create a new AceData.
 pub fn AceData::new(
   contigs : Array[AceContig],
-  base_qual_threshold : Int,
+  base_qual_threshold : Int32,
 ) -> AceData {
   let mut sum = 0
   let mut i = 0
@@ -137,7 +137,7 @@ pub fn AceData::new(
 ///|
 /// Split a line into tokens by whitespace.
 fn ace_tokenize(line : String) -> Array[String] {
-  let tokens : Array[String] = Array::new()
+  let tokens : Array[String] = Array(capacity=0)
   let n = line.length()
   let mut i = 0
   while i < n {
@@ -161,10 +161,10 @@ fn ace_tokenize(line : String) -> Array[String] {
 /// Parse quality values from quality lines following sequence data.
 fn ace_parse_quality_lines(
   lines : Array[String],
-  start_idx : Int,
-  expected_length : Int,
-) -> (Array[Int], Int) {
-  let qual : Array[Int] = Array::new()
+  start_idx : Int32,
+  expected_length : Int32,
+) -> (Array[Int32], Int32) {
+  let qual : Array[Int32] = Array(capacity=0)
   let mut idx = start_idx
 
   while idx < lines.length() && qual.length() < expected_length {
@@ -204,7 +204,11 @@ fn ace_parse_quality_lines(
 
 ///|
 /// Write a string to StringBuilder, wrapping at given width.
-fn ace_write_wrapped(buf : StringBuilder, s : String, line_width : Int) -> Unit {
+fn ace_write_wrapped(
+  buf : StringBuilder,
+  s : String,
+  line_width : Int32,
+) -> Unit {
   let n = s.length()
   let mut i = 0
   while i < n {
@@ -219,8 +223,8 @@ fn ace_write_wrapped(buf : StringBuilder, s : String, line_width : Int) -> Unit 
 
 ///|
 /// Convert quality array to space-separated string via StringBuilder.
-fn ace_quality_to_string(qualities : Array[Int]) -> String {
-  let sb = StringBuilder::new()
+fn ace_quality_to_string(qualities : Array[Int32]) -> String {
+  let sb = StringBuilder()
   let mut i = 0
   while i < qualities.length() {
     if i > 0 {
@@ -237,7 +241,7 @@ fn ace_quality_to_string(qualities : Array[Int]) -> String {
 ///|
 /// Parse ACE format content into AceData.
 pub fn ace_parse(content : String) -> AceData {
-  let contigs : Array[AceContig] = Array::new()
+  let contigs : Array[AceContig] = Array(capacity=0)
 
   let lines = split_by_char(content, '\n'.to_int())
   let n = lines.length()
@@ -286,7 +290,7 @@ pub fn ace_parse(content : String) -> AceData {
 ///|
 /// Parse only the reads section from ACE content.
 pub fn ace_parse_reads(content : String) -> Array[AceRead] {
-  let reads : Array[AceRead] = Array::new()
+  let reads : Array[AceRead] = Array(capacity=0)
   let lines = split_by_char(content, '\n'.to_int())
   let n = lines.length()
   let mut i = 0
@@ -310,7 +314,7 @@ pub fn ace_parse_reads(content : String) -> Array[AceRead] {
 ///|
 /// Parse only the contigs section from ACE content.
 pub fn ace_parse_contigs(content : String) -> Array[AceContig] {
-  let contigs : Array[AceContig] = Array::new()
+  let contigs : Array[AceContig] = Array(capacity=0)
   let lines = split_by_char(content, '\n'.to_int())
   let reads_map : Map[String, AceRead] = Map([], capacity=64)
   let n = lines.length()
@@ -346,7 +350,7 @@ pub fn ace_parse_contigs(content : String) -> Array[AceContig] {
 
 ///|
 /// Parse a single RD block starting at the given line index.
-fn ace_parse_read_block(lines : Array[String], start_idx : Int) -> AceRead? {
+fn ace_parse_read_block(lines : Array[String], start_idx : Int32) -> AceRead? {
   if start_idx >= lines.length() {
     return None
   }
@@ -411,7 +415,7 @@ fn ace_parse_read_block(lines : Array[String], start_idx : Int) -> AceRead? {
 
 ///|
 /// Skip past an RD block, returns next index.
-fn ace_skip_read_block(lines : Array[String], start_idx : Int) -> Int {
+fn ace_skip_read_block(lines : Array[String], start_idx : Int32) -> Int32 {
   if start_idx >= lines.length() {
     return start_idx + 1
   }
@@ -476,9 +480,9 @@ fn ace_skip_read_block(lines : Array[String], start_idx : Int) -> Int {
 /// Parse a CT block (contig) starting at the given line index.
 fn ace_parse_contig_block(
   lines : Array[String],
-  start_idx : Int,
+  start_idx : Int32,
   reads_map : Map[String, AceRead],
-) -> (AceContig, Int)? {
+) -> (AceContig, Int32)? {
   if start_idx >= lines.length() {
     return None
   }
@@ -535,11 +539,11 @@ fn ace_parse_contig_block(
   idx = new_idx
 
   // Parse AF alignment lines
-  let reads : Array[AceRead] = Array::new()
-  let alignment_positions : Map[String, (Int, Int, Int, Int, Int, Int, String)] = Map(
-    [],
-    capacity=32,
-  )
+  let reads : Array[AceRead] = Array(capacity=0)
+  let alignment_positions : Map[
+    String,
+    (Int32, Int32, Int32, Int32, Int32, Int32, String),
+  ] = Map([], capacity=32)
 
   while idx < lines.length() {
     let line = lines[idx].to_string()
@@ -638,7 +642,7 @@ fn ace_parse_contig_block(
 ///|
 /// Serialize AceData back to ACE format string.
 pub fn ace_to_string(data : AceData) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
 
   let mut ci = 0
   while ci < data.contigs.length() {
@@ -732,7 +736,7 @@ pub fn ace_get_contig(data : AceData, name : String) -> AceContig? {
 
 ///|
 /// Get the length of a contig by name.
-pub fn ace_contig_length(data : AceData, name : String) -> Int {
+pub fn ace_contig_length(data : AceData, name : String) -> Int32 {
   match ace_get_contig(data, name) {
     Some(contig) => contig.length
     None => 0
@@ -750,8 +754,8 @@ pub fn ace_contig_reads(data : AceData, name : String) -> Array[AceRead] {
 
 ///|
 /// Calculate read coverage per position along a contig.
-pub fn ace_read_coverage(contig : AceContig) -> Map[Int, Int] {
-  let coverage : Map[Int, Int] = Map([], capacity=contig.length)
+pub fn ace_read_coverage(contig : AceContig) -> Map[Int32, Int32] {
+  let coverage : Map[Int32, Int32] = Map([], capacity=contig.length)
 
   let mut pos = 1
   while pos <= contig.length {

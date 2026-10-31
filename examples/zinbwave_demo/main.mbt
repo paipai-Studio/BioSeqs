@@ -32,9 +32,7 @@ fn main {
 
   println("\n2. Inspect the inferred cell representation")
   for cell in 0..<model.n_cells() {
-    println(
-      "   " + model.cell_names[cell] + ": " + model.factors[cell].to_string(),
-    )
+    println("   " + model.cell_names[cell] + ": " + repr(model.factors[cell]))
   }
 
   println("\n3. Inspect zero-inflation diagnostics")

@@ -20,20 +20,20 @@
 ///|
 /// A single motif match at a specific position in a sequence.
 pub struct MastMotifMatch {
-  pub motif_id : String // motif identifier
-  pub position : Int // start position (1-based)
-  pub length : Int // motif length
-  pub pvalue : Double // p-value of the match
-  pub score : Double // match score
-  pub strand : String // strand ("+" or "-")
-  pub sequence : String // matched sequence substring
+  motif_id : String // motif identifier
+  position : Int32 // start position (1-based)
+  length : Int32 // motif length
+  pvalue : Double // p-value of the match
+  score : Double // match score
+  strand : String // strand ("+" or "-")
+  sequence : String // matched sequence substring
 }
 
 ///|
 /// Create a new MastMotifMatch.
 pub fn MastMotifMatch::new(
   motif_id : String,
-  position : Int,
+  position : Int32,
   pvalue : Double,
 ) -> MastMotifMatch {
   MastMotifMatch::{
@@ -50,13 +50,13 @@ pub fn MastMotifMatch::new(
 ///|
 /// A sequence with its motif match results from MAST.
 pub struct MastMotifSeq {
-  pub name : String // sequence name
-  pub mut description : String // sequence description
-  pub mut length : Int // sequence length
-  pub mut combined_pvalue : Double // combined p-value
-  pub mut combined_evalue : Double // combined E-value
-  pub matches : Array[MastMotifMatch] // individual motif matches
-  pub diagram : String // motif diagram string
+  name : String // sequence name
+  mut description : String // sequence description
+  mut length : Int32 // sequence length
+  mut combined_pvalue : Double // combined p-value
+  mut combined_evalue : Double // combined E-value
+  matches : Array[MastMotifMatch] // individual motif matches
+  diagram : String // motif diagram string
 }
 
 ///|
@@ -68,7 +68,7 @@ pub fn MastMotifSeq::new(name : String) -> MastMotifSeq {
     length: 0,
     combined_pvalue: 1.0,
     combined_evalue: 0.0,
-    matches: Array::new(),
+    matches: Array(capacity=0),
     diagram: "",
   }
 }
@@ -84,7 +84,7 @@ pub fn MastMotifSeq::add_match(
 
 ///|
 /// Get the number of motif matches.
-pub fn MastMotifSeq::num_matches(self : MastMotifSeq) -> Int {
+pub fn MastMotifSeq::num_matches(self : MastMotifSeq) -> Int32 {
   self.matches.length()
 }
 
@@ -106,28 +106,28 @@ pub fn MastMotifSeq::best_match(self : MastMotifSeq) -> MastMotifMatch? {
 ///|
 /// A motif used in the MAST search.
 pub struct MastMotifInfo {
-  pub id : String // motif identifier
-  pub name : String // motif name
-  pub width : Int // motif width
-  pub alphabet : String // alphabet used
+  id : String // motif identifier
+  name : String // motif name
+  width : Int32 // motif width
+  alphabet : String // alphabet used
 }
 
 ///|
 /// Create a new MastMotifInfo.
-pub fn MastMotifInfo::new(id : String, width : Int) -> MastMotifInfo {
-  MastMotifInfo::{ id, name: "", width, alphabet: "ACGT" }
+pub fn MastMotifInfo::new(id : String, width : Int32) -> MastMotifInfo {
+  MastMotifInfo::{ id, name: "", width, alphabet: "ACGT", }
 }
 
 ///|
 /// A MAST record holding all search results.
 pub struct MastMotifRecord {
-  pub mut version : String // MAST version
-  pub mut database : String // database name
-  pub motifs : Array[MastMotifInfo] // motifs used in search
-  pub sequences : Array[MastMotifSeq] // sequences with matches
-  pub mut motif_count : Int // number of motifs
-  pub mut sequence_count : Int // number of sequences searched
-  pub mut hit_count : Int // number of sequences with hits
+  mut version : String // MAST version
+  mut database : String // database name
+  motifs : Array[MastMotifInfo] // motifs used in search
+  sequences : Array[MastMotifSeq] // sequences with matches
+  mut motif_count : Int32 // number of motifs
+  mut sequence_count : Int32 // number of sequences searched
+  mut hit_count : Int32 // number of sequences with hits
 }
 
 ///|
@@ -136,8 +136,8 @@ pub fn MastMotifRecord::new() -> MastMotifRecord {
   MastMotifRecord::{
     version: "",
     database: "",
-    motifs: Array::new(),
-    sequences: Array::new(),
+    motifs: Array(capacity=0),
+    sequences: Array(capacity=0),
     motif_count: 0,
     sequence_count: 0,
     hit_count: 0,
@@ -146,7 +146,7 @@ pub fn MastMotifRecord::new() -> MastMotifRecord {
 
 ///|
 /// Get the number of sequences with significant hits.
-pub fn MastMotifRecord::num_hits(self : MastMotifRecord) -> Int {
+pub fn MastMotifRecord::num_hits(self : MastMotifRecord) -> Int32 {
   self.sequences.length()
 }
 
@@ -170,7 +170,7 @@ pub fn MastMotifRecord::motif_matches(
   self : MastMotifRecord,
   motif_id : String,
 ) -> Array[MastMotifMatch] {
-  let result = Array::new()
+  let result = Array(capacity=0)
   for seq in self.sequences {
     for m in seq.matches {
       if m.motif_id == motif_id {
@@ -216,19 +216,19 @@ pub fn mast_motif_parse(text : String) -> MastMotifRecord {
   let mut section = "" // current section name
   while i < n {
     let line = lines[i]
-    let trimmed = line.trim().to_string()
+    let trimmed = line.trim().to_owned()
     if trimmed.length() == 0 {
       i = i + 1
       continue
     }
     // MAST version
-    if trimmed.starts_with("MAST") && trimmed.contains("version") {
+    if trimmed.has_prefix("MAST") && trimmed.contains("version") {
       let parts = trimmed.split(" ").to_array()
       for p in parts {
-        let s = p.trim().to_string()
+        let s = p.trim().to_owned()
         if s.length() > 0 {
-          if s.starts_with("v") ||
-            (s[0:1].to_string() >= "0" && s[0:1].to_string() <= "9") {
+          if s.has_prefix("v") ||
+            (s[0:1].to_owned() >= "0" && s[0:1].to_owned() <= "9") {
             record.version = s
           }
         }
@@ -237,40 +237,40 @@ pub fn mast_motif_parse(text : String) -> MastMotifRecord {
       continue
     }
     // Database line
-    if trimmed.starts_with("DATABASE") || trimmed.contains("database") {
+    if trimmed.has_prefix("DATABASE") || trimmed.contains("database") {
       if trimmed.contains("=") {
         let parts = trimmed.split("=").to_array()
         if parts.length() >= 2 {
-          record.database = parts[1].trim().to_string()
+          record.database = parts[1].trim().to_owned()
         }
       } else {
         let parts = trimmed.split(" ").to_array()
         if parts.length() >= 2 {
-          record.database = parts[1].trim().to_string()
+          record.database = parts[1].trim().to_owned()
         }
       }
       i = i + 1
       continue
     }
     // Section header
-    if trimmed.starts_with("SECTION") {
+    if trimmed.has_prefix("SECTION") {
       section = trimmed
       i = i + 1
       continue
     }
     // Motif info lines (in MOTIF section)
     if section.contains("MOTIF") || section.contains("I") {
-      if trimmed.starts_with("Motif") || trimmed.contains("width=") {
+      if trimmed.has_prefix("Motif") || trimmed.contains("width=") {
         let parts = trimmed.split(" ").to_array()
         let mut motif_id = ""
         let mut width = 0
         for p in parts {
-          let s = p.trim().to_string()
-          if s.starts_with("width=") {
-            let w_str = s.substring(start=6)
+          let s = p.trim().to_owned()
+          if s.has_prefix("width=") {
+            let w_str = s[6:].to_owned()
             width = parse_int(w_str)
-          } else if s.starts_with("Motif") {
-            motif_id = s.substring(start=5)
+          } else if s.has_prefix("Motif") {
+            motif_id = s[5:].to_owned()
           }
         }
         if motif_id.length() > 0 {
@@ -285,9 +285,9 @@ pub fn mast_motif_parse(text : String) -> MastMotifRecord {
       // Parse sequence lines with p-values
       // Format: "sequence_name description length p-value e-value"
       let parts = trimmed.split(" ").to_array()
-      let filtered : Array[String] = Array::new()
+      let filtered : Array[String] = Array(capacity=0)
       for p in parts {
-        let s = p.trim().to_string()
+        let s = p.trim().to_owned()
         if s.length() > 0 {
           filtered.push(s)
         }
@@ -360,7 +360,7 @@ pub fn mast_motif_match_to_string(m : MastMotifMatch) -> String {
 ///|
 /// Serialize a MastMotifSeq to string.
 pub fn mast_motif_seq_to_string(seq : MastMotifSeq) -> String {
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   sb.write_string("Sequence: " + seq.name)
   if seq.description.length() > 0 {
     sb.write_string(" (" + seq.description + ")")
@@ -386,7 +386,7 @@ pub fn mast_motif_seq_to_string(seq : MastMotifSeq) -> String {
 ///|
 /// Serialize a MastMotifRecord to string summary.
 pub fn mast_motif_record_to_string(record : MastMotifRecord) -> String {
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   sb.write_string("MAST Record\n")
   sb.write_string("  Version: " + record.version + "\n")
   sb.write_string("  Database: " + record.database + "\n")

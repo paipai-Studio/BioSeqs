@@ -4,51 +4,51 @@
 
 ///|
 pub struct PolypeptideComposition {
-  amino_acids : Map[String, Int]
-  total_residues : Int
+  amino_acids : Map[String, Int32]
+  total_residues : Int32
 }
 
 ///|
 pub fn PolypeptideComposition::new(
-  amino_acids : Map[String, Int],
-  total_residues : Int,
+  amino_acids : Map[String, Int32],
+  total_residues : Int32,
 ) -> PolypeptideComposition {
-  PolypeptideComposition::{ amino_acids, total_residues }
+  PolypeptideComposition::{ amino_acids, total_residues, }
 }
 
 ///|
 pub struct HydrophobicityProfile {
-  positions : Array[Int]
+  positions : Array[Int32]
   values : Array[Double]
 }
 
 ///|
 pub fn HydrophobicityProfile::new(
-  positions : Array[Int],
+  positions : Array[Int32],
   values : Array[Double],
 ) -> HydrophobicityProfile {
-  HydrophobicityProfile::{ positions, values }
+  HydrophobicityProfile::{ positions, values, }
 }
 
 ///|
 pub struct TransmembraneRegion {
-  start : Int
-  end : Int
+  start : Int32
+  end : Int32
   score : Double
 }
 
 ///|
 pub fn TransmembraneRegion::new(
-  start : Int,
-  end : Int,
+  start : Int32,
+  end : Int32,
   score : Double,
 ) -> TransmembraneRegion {
-  TransmembraneRegion::{ start, end, score }
+  TransmembraneRegion::{ start, end, score, }
 }
 
 ///|
 pub fn calculate_composition(sequence : String) -> PolypeptideComposition {
-  let amino_acids : Map[String, Int] = Map(
+  let amino_acids : Map[String, Int32] = Map(
     [
       ("A", 0),
       ("R", 0),
@@ -122,8 +122,8 @@ pub fn calculate_hydrophobicity(
   sequence : String,
   scale : String,
 ) -> HydrophobicityProfile {
-  let positions : Array[Int] = Array::new()
-  let values : Array[Double] = Array::new()
+  let positions : Array[Int32] = Array(capacity=0)
+  let values : Array[Double] = Array(capacity=0)
 
   let hydrophobicity_map = if scale == "kyte-doolittle" {
     kyte_doolittle_scale()
@@ -208,11 +208,11 @@ fn hopp_woods_scale() -> Map[String, Double] {
 ///|
 pub fn calculate_hydrophobicity_window(
   sequence : String,
-  window_size : Int,
+  window_size : Int32,
   scale : String,
 ) -> HydrophobicityProfile {
-  let positions : Array[Int] = Array::new()
-  let values : Array[Double] = Array::new()
+  let positions : Array[Int32] = Array(capacity=0)
+  let values : Array[Double] = Array(capacity=0)
 
   let hydrophobicity_map = if scale == "kyte-doolittle" {
     kyte_doolittle_scale()
@@ -258,10 +258,10 @@ pub fn calculate_hydrophobicity_window(
 ///|
 pub fn predict_transmembrane_regions(
   sequence : String,
-  window_size : Int,
+  window_size : Int32,
   threshold : Double,
 ) -> Array[TransmembraneRegion] {
-  let regions : Array[TransmembraneRegion] = Array::new()
+  let regions : Array[TransmembraneRegion] = Array(capacity=0)
 
   let profile = calculate_hydrophobicity_window(
     sequence, window_size, "kyte-doolittle",
@@ -269,7 +269,7 @@ pub fn predict_transmembrane_regions(
 
   let mut in_region = false
   let mut region_start = 0
-  let mut region_scores : Array[Double] = Array::new()
+  let mut region_scores : Array[Double] = Array(capacity=0)
 
   let mut i = 0
   while i < profile.values.length() {
@@ -278,7 +278,7 @@ pub fn predict_transmembrane_regions(
     if score >= threshold && !in_region {
       in_region = true
       region_start = profile.positions[i]
-      region_scores = Array::new()
+      region_scores = Array(capacity=0)
       region_scores.push(score)
     } else if score >= threshold && in_region {
       region_scores.push(score)

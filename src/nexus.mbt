@@ -10,7 +10,7 @@ pub struct NexusRow {
 
 ///|
 pub fn NexusRow::new(taxon : String, data : Array[NexusCell]) -> NexusRow {
-  NexusRow::{ taxon, data }
+  NexusRow::{ taxon, data, }
 }
 
 ///|
@@ -34,7 +34,7 @@ pub fn NexusBlock::new(
   block_type : NexusBlockType,
   content : String,
 ) -> NexusBlock {
-  NexusBlock::{ block_type, content }
+  NexusBlock::{ block_type, content, }
 }
 
 ///|
@@ -48,18 +48,18 @@ pub fn NexusFile::new(
   blocks : Array[NexusBlock],
   taxa : Array[String],
 ) -> NexusFile {
-  NexusFile::{ blocks, taxa }
+  NexusFile::{ blocks, taxa, }
 }
 
 ///|
 pub fn parse_nexus(content : String) -> NexusFile {
-  let blocks : Array[NexusBlock] = Array::new()
-  let taxa : Array[String] = Array::new()
+  let blocks : Array[NexusBlock] = Array(capacity=0)
+  let taxa : Array[String] = Array(capacity=0)
   let lines = split_by_char(content, '\n'.to_int())
   let mut i = 0
   while i < lines.length() {
     let line_s = lines[i].to_string()
-    let line = line_s.trim().to_string()
+    let line = line_s.trim().to_owned()
     if line.length() == 0 {
       i = i + 1
       continue
@@ -72,7 +72,7 @@ pub fn parse_nexus(content : String) -> NexusFile {
     if lower_line.has_prefix("begin ") {
       let raw_name = line[6:].trim().to_owned()
       let block_name : String = if raw_name.has_suffix(";") {
-        let without_semicolon = raw_name[:raw_name.length() - 1].to_string()
+        let without_semicolon = raw_name[:raw_name.length() - 1].to_owned()
         without_semicolon.to_upper().to_string()
       } else {
         raw_name.to_upper().to_string()
@@ -89,7 +89,7 @@ pub fn parse_nexus(content : String) -> NexusFile {
       let mut block_content = ""
       while i < lines.length() {
         let inner_line = lines[i].to_string()
-        let trimmed_inner = inner_line.trim().to_string()
+        let trimmed_inner = inner_line.trim().to_owned()
         if trimmed_inner.to_lower().has_prefix("end;") {
           blocks.push(NexusBlock::new(block_type, block_content))
           if block_type is NexusBlockType::Taxa {
@@ -115,7 +115,7 @@ pub fn parse_nexus(content : String) -> NexusFile {
 
 ///|
 fn parse_taxa_from_string(content : String) -> Array[String] {
-  let result : Array[String] = Array::new()
+  let result : Array[String] = Array(capacity=0)
   let lines = split_by_char(content, '\n'.to_int())
   let mut i = 0
   while i < lines.length() {
@@ -130,7 +130,7 @@ fn parse_taxa_from_string(content : String) -> Array[String] {
           !lower.has_prefix(token.to_lower()) &&
           token != ";" {
           let clean_token : String = if token.has_suffix(";") {
-            token[:token.length() - 1].to_string()
+            token[:token.length() - 1].to_owned()
           } else {
             token.to_string()
           }
@@ -149,7 +149,7 @@ fn parse_taxa_from_string(content : String) -> Array[String] {
 
 ///|
 pub fn NexusFile::get_data_matrix(self : NexusFile) -> Array[NexusRow] {
-  let result : Array[NexusRow] = Array::new()
+  let result : Array[NexusRow] = Array(capacity=0)
   let mut block_idx = 0
   while block_idx < self.blocks.length() {
     let block = self.blocks[block_idx]
@@ -159,7 +159,7 @@ pub fn NexusFile::get_data_matrix(self : NexusFile) -> Array[NexusRow] {
       let mut in_matrix = false
       let mut i = 0
       while i < lines.length() {
-        let line = lines[i].to_string().trim().to_string()
+        let line = lines[i].trim()
         let lower = line.to_lower()
         if lower.has_prefix("matrix") {
           in_matrix = true
@@ -180,8 +180,8 @@ pub fn NexusFile::get_data_matrix(self : NexusFile) -> Array[NexusRow] {
             idx = idx + 1
           }
           if idx > 0 && idx < line.length() {
-            let taxon = line[:idx].trim().to_string()
-            let data = line[idx:].trim().to_string()
+            let taxon = line[:idx].trim().to_owned()
+            let data = line[idx:].trim().to_owned()
             if taxon.length() > 0 && data.length() > 0 {
               result.push(NexusRow::new(taxon, [data]))
             }
@@ -197,7 +197,7 @@ pub fn NexusFile::get_data_matrix(self : NexusFile) -> Array[NexusRow] {
 
 ///|
 pub fn NexusFile::get_trees(self : NexusFile) -> Array[(String, String)] {
-  let result : Array[(String, String)] = Array::new()
+  let result : Array[(String, String)] = Array(capacity=0)
   let mut block_idx = 0
   while block_idx < self.blocks.length() {
     let block = self.blocks[block_idx]
@@ -205,7 +205,7 @@ pub fn NexusFile::get_trees(self : NexusFile) -> Array[(String, String)] {
       let lines = split_by_char(block.content, '\n'.to_int())
       let mut i = 0
       while i < lines.length() {
-        let line = lines[i].to_string().trim().to_string()
+        let line = lines[i].trim()
         let lower = line.to_lower()
         if lower.has_prefix("tree") {
           let mut j = 0
@@ -216,7 +216,7 @@ pub fn NexusFile::get_trees(self : NexusFile) -> Array[(String, String)] {
             }
             j = j + 1
           }
-          let after_tree = line[j:].trim().to_string()
+          let after_tree = line[j:].trim().to_owned()
           let mut eq_pos = -1
           let mut k = 0
           while k < after_tree.length() {
@@ -227,8 +227,8 @@ pub fn NexusFile::get_trees(self : NexusFile) -> Array[(String, String)] {
             k = k + 1
           }
           if eq_pos >= 0 {
-            let name = after_tree[:eq_pos].trim().to_string()
-            let newick = after_tree[eq_pos + 1:].trim().to_string()
+            let name = after_tree[:eq_pos].trim().to_owned()
+            let newick = after_tree[eq_pos + 1:].trim().to_owned()
             result.push((name, newick))
           }
         }
@@ -249,7 +249,7 @@ pub fn NexusFile::get_distance_matrix(
 }
 
 ///|
-pub fn NexusFile::get_num_taxa(self : NexusFile) -> Int {
+pub fn NexusFile::get_num_taxa(self : NexusFile) -> Int32 {
   self.taxa.length()
 }
 
@@ -273,9 +273,4 @@ pub fn sample_nexus_content() -> String {
   "Begin Trees;\n" +
   "  Tree tree1 = ((A:0.1,B:0.2):0.3,(C:0.4,D:0.5):0.6);\n" +
   "End;\n"
-}
-
-///|
-pub fn sample_nexus_file() -> NexusFile {
-  parse_nexus(sample_nexus_content())
 }

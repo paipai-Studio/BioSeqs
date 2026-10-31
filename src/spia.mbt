@@ -18,7 +18,7 @@ pub struct PathwayNode {
   /// List of upstream gene IDs (regulators)
   upstream : Array[String]
   /// Activation (1) or inhibition (-1) for each downstream interaction
-  activation : Array[Int]
+  activation : Array[Int32]
 }
 
 ///|
@@ -35,9 +35,9 @@ pub struct SpiaResult {
   pathway_id : String
   pathway_name : String
   /// Number of genes in the pathway
-  n_genes : Int
+  n_genes : Int32
   /// Number of DE genes in the pathway
-  n_de : Int
+  n_de : Int32
   /// Over-representation p-value (from hypergeometric test)
   p_or : Double
   /// Perturbation accumulation factor
@@ -51,15 +51,15 @@ pub struct SpiaResult {
   /// Is the pathway significant?
   mut significant : Bool
   /// Activation status: 1 = activated, -1 = inhibited, 0 = neutral
-  activation_status : Int
+  activation_status : Int32
 }
 
 ///|
 /// Container for SPIA results.
 pub struct SpiaResults {
   results : Array[SpiaResult]
-  n_pathways : Int
-  n_significant : Int
+  n_pathways : Int32
+  n_significant : Int32
   fdr_threshold : Double
 }
 
@@ -69,9 +69,9 @@ pub fn PathwayNode::new(gene_id : String, gene_name : String) -> PathwayNode {
   PathwayNode::{
     gene_id,
     gene_name,
-    downstream: Array::new(),
-    upstream: Array::new(),
-    activation: Array::new(),
+    downstream: Array(capacity=0),
+    upstream: Array(capacity=0),
+    activation: Array(capacity=0),
   }
 }
 
@@ -93,7 +93,7 @@ pub fn PathwayNode::add_downstream(
 ///|
 /// Create a SignalingPathway.
 pub fn SignalingPathway::new(id : String, name : String) -> SignalingPathway {
-  SignalingPathway::{ id, name, nodes: Array::new() }
+  SignalingPathway::{ id, name, nodes: Array(capacity=0), }
 }
 
 ///|
@@ -132,12 +132,12 @@ pub fn SignalingPathway::get_node(
 pub fn run_spia(
   pathways : Array[SignalingPathway],
   de_genes : Map[String, Double],
-  total_genes : Int,
-  fdr_threshold? : Double = 0.05,
+  total_genes : Int32,
+  fdr_threshold~ : Double = 0.05,
 ) -> SpiaResults {
   let n_total = if total_genes > 0 { total_genes } else { 1 }
-  let n_de = de_genes.size()
-  let all_results : Array[SpiaResult] = Array::new()
+  let n_de = de_genes.length()
+  let all_results : Array[SpiaResult] = Array(capacity=0)
   let mut pi = 0
   while pi < pathways.length() {
     let pathway = pathways[pi]
@@ -185,7 +185,7 @@ pub fn run_spia(
     pi = pi + 1
   }
   // Apply BH correction
-  let p_values : Array[Double] = Array::new()
+  let p_values : Array[Double] = Array(capacity=0)
   let mut ri = 0
   while ri < all_results.length() {
     p_values.push(all_results[ri].p_combined)
@@ -288,10 +288,10 @@ fn compute_perturbation(
 ///|
 /// Compute hypergeometric p-value (one-sided, over-representation).
 fn hypergeometric_pvalue(
-  k : Int, /// DE genes in pathway
-  m : Int, /// genes in pathway
-  n : Int, /// total DE genes
-  n_total : Int, /// total genes
+  k : Int32, /// DE genes in pathway
+  m : Int32, /// genes in pathway
+  n : Int32, /// total DE genes
+  n_total : Int32, /// total genes
 ) -> Double {
   // Using a simplified chi-squared approximation
   // Actually, let's use a simple Fisher's exact test approach
@@ -323,7 +323,7 @@ fn hypergeometric_pvalue(
 
 ///|
 /// Compute perturbation p-value using normal approximation.
-fn perturbation_pvalue(pert_factor : Double, n_de : Int) -> Double {
+fn perturbation_pvalue(pert_factor : Double, n_de : Int32) -> Double {
   if n_de == 0 {
     return 1.0
   }
@@ -396,9 +396,9 @@ fn spia_erfc_approx(x : Double) -> Double {
 fn spia_bh_adjust(p_values : Array[Double]) -> Array[Double] {
   let n = p_values.length()
   if n == 0 {
-    return Array::new()
+    return Array(capacity=0)
   }
-  let indexed : Array[(Int, Double)] = Array::new()
+  let indexed : Array[(Int32, Double)] = Array(capacity=0)
   let mut i = 0
   while i < n {
     indexed.push((i, p_values[i]))
@@ -417,7 +417,7 @@ fn spia_bh_adjust(p_values : Array[Double]) -> Array[Double] {
     }
     j = j + 1
   }
-  let adjusted : Array[Double] = Array::new()
+  let adjusted : Array[Double] = Array(capacity=0)
   let mut ai = 0
   while ai < n {
     adjusted.push(0.0)
@@ -445,7 +445,7 @@ fn spia_bh_adjust(p_values : Array[Double]) -> Array[Double] {
 ///|
 /// Get significant pathways.
 pub fn SpiaResults::get_significant(self : SpiaResults) -> Array[SpiaResult] {
-  let sig : Array[SpiaResult] = Array::new()
+  let sig : Array[SpiaResult] = Array(capacity=0)
   let mut i = 0
   while i < self.results.length() {
     if self.results[i].significant {
@@ -459,7 +459,7 @@ pub fn SpiaResults::get_significant(self : SpiaResults) -> Array[SpiaResult] {
 ///|
 /// Get activated pathways.
 pub fn SpiaResults::get_activated(self : SpiaResults) -> Array[SpiaResult] {
-  let act : Array[SpiaResult] = Array::new()
+  let act : Array[SpiaResult] = Array(capacity=0)
   let mut i = 0
   while i < self.results.length() {
     if self.results[i].activation_status > 0 {
@@ -473,7 +473,7 @@ pub fn SpiaResults::get_activated(self : SpiaResults) -> Array[SpiaResult] {
 ///|
 /// Get inhibited pathways.
 pub fn SpiaResults::get_inhibited(self : SpiaResults) -> Array[SpiaResult] {
-  let inh : Array[SpiaResult] = Array::new()
+  let inh : Array[SpiaResult] = Array(capacity=0)
   let mut i = 0
   while i < self.results.length() {
     if self.results[i].activation_status < 0 {
@@ -488,7 +488,7 @@ pub fn SpiaResults::get_inhibited(self : SpiaResults) -> Array[SpiaResult] {
 /// Get top N pathways by combined p-value.
 pub fn SpiaResults::get_top_pathways(
   self : SpiaResults,
-  n : Int,
+  n : Int32,
 ) -> Array[SpiaResult] {
   let sorted = self.results.copy()
   let len = sorted.length()
@@ -505,7 +505,7 @@ pub fn SpiaResults::get_top_pathways(
     }
     i = i + 1
   }
-  let result : Array[SpiaResult] = Array::new()
+  let result : Array[SpiaResult] = Array(capacity=0)
   let take = if n < len { n } else { len }
   let mut k = 0
   while k < take {
@@ -554,7 +554,7 @@ pub fn SpiaResults::summary(self : SpiaResults) -> String {
 ///|
 /// Create sample pathways for testing.
 pub fn spia_sample_pathways() -> Array[SignalingPathway] {
-  let pathways : Array[SignalingPathway] = Array::new()
+  let pathways : Array[SignalingPathway] = Array(capacity=0)
   // Pathway 1: Simple activation cascade
   let p1 = SignalingPathway::new("PW1", "MAPK Cascade")
   let n1 = PathwayNode::new("Gene1", "EGFR")
@@ -589,7 +589,7 @@ pub fn spia_sample_pathways() -> Array[SignalingPathway] {
 ///|
 /// Create sample DE genes for testing.
 pub fn spia_sample_de_genes() -> Map[String, Double] {
-  let de : Map[String, Double] = Map::new()
+  let de : Map[String, Double] = Map([])
   de.set("Gene1", 2.5) // upregulated
   de.set("Gene2", 1.8)
   de.set("Gene5", -1.5) // downregulated

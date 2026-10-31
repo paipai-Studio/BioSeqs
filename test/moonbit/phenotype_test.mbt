@@ -128,7 +128,7 @@ test "phen_control_subtraction" {
 }
 
 ///|
-fn find_well_idx(well_ids : Array[String], target : String) -> Int {
+fn find_well_idx(well_ids : Array[String], target : String) -> Int32 {
   let mut idx = -1
   let mut i = 0
   while i < well_ids.length() {

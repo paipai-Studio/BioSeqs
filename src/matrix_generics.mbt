@@ -27,8 +27,8 @@
 ///|
 /// A simple 2D matrix backed by a flat array (row-major order).
 pub struct MgMatrix {
-  n_rows : Int
-  n_cols : Int
+  n_rows : Int32
+  n_cols : Int32
   data : Array[Double]
 }
 
@@ -37,7 +37,7 @@ pub struct MgMatrix {
 pub fn MgMatrix::new(data : Array[Array[Double]]) -> MgMatrix {
   let n_rows = data.length()
   if n_rows == 0 {
-    return { n_rows: 0, n_cols: 0, data: Array::make(0, 0.0) }
+    return { n_rows: 0, n_cols: 0, data: Array::make(0, 0.0), }
   }
   let n_cols = data[0].length()
   let flat : Array[Double] = []
@@ -46,43 +46,48 @@ pub fn MgMatrix::new(data : Array[Array[Double]]) -> MgMatrix {
       flat.push(data[i][j])
     }
   }
-  { n_rows, n_cols, data: flat }
+  { n_rows, n_cols, data: flat, }
 }
 
 ///|
 /// Create a matrix filled with a value.
-pub fn MgMatrix::zeros(n_rows : Int, n_cols : Int) -> MgMatrix {
+pub fn MgMatrix::zeros(n_rows : Int32, n_cols : Int32) -> MgMatrix {
   let data = Array::make(n_rows * n_cols, 0.0)
-  { n_rows, n_cols, data }
+  { n_rows, n_cols, data, }
 }
 
 ///|
 /// Get number of rows.
-pub fn MgMatrix::dim_rows(self : MgMatrix) -> Int {
+pub fn MgMatrix::dim_rows(self : MgMatrix) -> Int32 {
   self.n_rows
 }
 
 ///|
 /// Get number of columns.
-pub fn MgMatrix::dim_cols(self : MgMatrix) -> Int {
+pub fn MgMatrix::dim_cols(self : MgMatrix) -> Int32 {
   self.n_cols
 }
 
 ///|
 /// Get element at (i, j).
-pub fn MgMatrix::get(self : MgMatrix, i : Int, j : Int) -> Double {
+pub fn MgMatrix::get(self : MgMatrix, i : Int32, j : Int32) -> Double {
   self.data[i * self.n_cols + j]
 }
 
 ///|
 /// Set element at (i, j).
-pub fn MgMatrix::set(self : MgMatrix, i : Int, j : Int, val : Double) -> Unit {
+pub fn MgMatrix::set(
+  self : MgMatrix,
+  i : Int32,
+  j : Int32,
+  val : Double,
+) -> Unit {
   self.data[i * self.n_cols + j] = val
 }
 
 ///|
 /// Get a row as an array.
-pub fn MgMatrix::get_row(self : MgMatrix, i : Int) -> Array[Double] {
+pub fn MgMatrix::get_row(self : MgMatrix, i : Int32) -> Array[Double] {
   let row : Array[Double] = []
   for j in 0..<self.n_cols {
     row.push(self.data[i * self.n_cols + j])
@@ -92,7 +97,7 @@ pub fn MgMatrix::get_row(self : MgMatrix, i : Int) -> Array[Double] {
 
 ///|
 /// Get a column as an array.
-pub fn MgMatrix::get_col(self : MgMatrix, j : Int) -> Array[Double] {
+pub fn MgMatrix::get_col(self : MgMatrix, j : Int32) -> Array[Double] {
   let col : Array[Double] = []
   for i in 0..<self.n_rows {
     col.push(self.data[i * self.n_cols + j])
@@ -207,9 +212,9 @@ pub fn mg_row_ranges(mat : MgMatrix) -> Array[Double] {
 
 ///|
 /// Count non-zero values in each row.
-pub fn mg_row_counts(mat : MgMatrix) -> Array[Int] {
+pub fn mg_row_counts(mat : MgMatrix) -> Array[Int32] {
   let n = mat.n_rows
-  let result : Array[Int] = Array::make(n, 0)
+  let result : Array[Int32] = Array::make(n, 0)
   for i in 0..<n {
     let row = mat.get_row(i)
     let mut count = 0
@@ -424,7 +429,7 @@ pub fn mg_col_alls(mat : MgMatrix, threshold : Double) -> Array[Bool] {
 /// Process rows in blocks of a given size.
 pub fn mg_block_apply_rows(
   mat : MgMatrix,
-  block_size : Int,
+  block_size : Int32,
   block_fn : (MgMatrix) -> Array[Double],
 ) -> Array[Double] {
   let n_rows = mat.n_rows
@@ -465,7 +470,7 @@ pub fn mg_block_apply_rows(
 /// Process columns in blocks of a given size.
 pub fn mg_block_apply_cols(
   mat : MgMatrix,
-  block_size : Int,
+  block_size : Int32,
   block_fn : (MgMatrix) -> Array[Double],
 ) -> Array[Double] {
   let n_rows = mat.n_rows

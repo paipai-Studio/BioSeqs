@@ -16,36 +16,36 @@
 /// Create a vector from an array of 3 values.
 pub fn Vector3::from_array(coords : Array[Double]) -> Vector3 {
   if coords.length() >= 3 {
-    Vector3::{ x: coords[0], y: coords[1], z: coords[2] }
+    Vector3::{ x: coords[0], y: coords[1], z: coords[2], }
   } else if coords.length() == 2 {
-    Vector3::{ x: coords[0], y: coords[1], z: 0.0 }
+    Vector3::{ x: coords[0], y: coords[1], z: 0.0, }
   } else {
-    Vector3::{ x: 0.0, y: 0.0, z: 0.0 }
+    Vector3::{ x: 0.0, y: 0.0, z: 0.0, }
   }
 }
 
 ///|
 /// Create a zero vector.
 pub fn Vector3::zero() -> Vector3 {
-  Vector3::{ x: 0.0, y: 0.0, z: 0.0 }
+  Vector3::{ x: 0.0, y: 0.0, z: 0.0, }
 }
 
 ///|
 /// Create a unit vector along X axis.
 pub fn Vector3::unit_x() -> Vector3 {
-  Vector3::{ x: 1.0, y: 0.0, z: 0.0 }
+  Vector3::{ x: 1.0, y: 0.0, z: 0.0, }
 }
 
 ///|
 /// Create a unit vector along Y axis.
 pub fn Vector3::unit_y() -> Vector3 {
-  Vector3::{ x: 0.0, y: 1.0, z: 0.0 }
+  Vector3::{ x: 0.0, y: 1.0, z: 0.0, }
 }
 
 ///|
 /// Create a unit vector along Z axis.
 pub fn Vector3::unit_z() -> Vector3 {
-  Vector3::{ x: 0.0, y: 0.0, z: 1.0 }
+  Vector3::{ x: 0.0, y: 0.0, z: 1.0, }
 }
 
 ///|
@@ -67,19 +67,19 @@ pub fn Vector3::get_z(self : Vector3) -> Double {
 ///|
 /// Add two vectors.
 pub fn Vector3::add(self : Vector3, other : Vector3) -> Vector3 {
-  Vector3::{ x: self.x + other.x, y: self.y + other.y, z: self.z + other.z }
+  Vector3::{ x: self.x + other.x, y: self.y + other.y, z: self.z + other.z, }
 }
 
 ///|
 /// Subtract two vectors.
 pub fn Vector3::sub(self : Vector3, other : Vector3) -> Vector3 {
-  Vector3::{ x: self.x - other.x, y: self.y - other.y, z: self.z - other.z }
+  Vector3::{ x: self.x - other.x, y: self.y - other.y, z: self.z - other.z, }
 }
 
 ///|
 /// Multiply vector by scalar.
 pub fn Vector3::scale(self : Vector3, scalar : Double) -> Vector3 {
-  Vector3::{ x: self.x * scalar, y: self.y * scalar, z: self.z * scalar }
+  Vector3::{ x: self.x * scalar, y: self.y * scalar, z: self.z * scalar, }
 }
 
 ///|
@@ -117,7 +117,7 @@ pub fn Vector3::normalize(self : Vector3) -> Vector3 {
   if n < 1.0e-15 {
     return Vector3::zero()
   }
-  Vector3::{ x: self.x / n, y: self.y / n, z: self.z / n }
+  Vector3::{ x: self.x / n, y: self.y / n, z: self.z / n, }
 }
 
 ///|
@@ -181,12 +181,12 @@ pub fn Vector3::to_array(self : Vector3) -> Array[Double] {
 ///|
 /// Negate the vector.
 pub fn Vector3::negate(self : Vector3) -> Vector3 {
-  Vector3::{ x: -self.x, y: -self.y, z: -self.z }
+  Vector3::{ x: -self.x, y: -self.y, z: -self.z, }
 }
 
 ///|
 /// Check if vector is zero (within tolerance).
-pub fn Vector3::is_zero(self : Vector3, tol? : Double = 1.0e-10) -> Bool {
+pub fn Vector3::is_zero(self : Vector3, tol~ : Double = 1.0e-10) -> Bool {
   self.norm() < tol
 }
 
@@ -219,7 +219,7 @@ pub fn RotationMatrix3::new(
   m21~ : Double,
   m22~ : Double,
 ) -> RotationMatrix3 {
-  RotationMatrix3::{ m00, m01, m02, m10, m11, m12, m20, m21, m22 }
+  RotationMatrix3::{ m00, m01, m02, m10, m11, m12, m20, m21, m22, }
 }
 
 ///|
@@ -242,8 +242,8 @@ pub fn RotationMatrix3::identity() -> RotationMatrix3 {
 /// Access element at row,col.
 pub fn RotationMatrix3::get(
   self : RotationMatrix3,
-  row : Int,
-  col : Int,
+  row : Int32,
+  col : Int32,
 ) -> Double {
   match (row, col) {
     (0, 0) => self.m00
@@ -263,8 +263,8 @@ pub fn RotationMatrix3::get(
 /// Set element at row,col.
 pub fn RotationMatrix3::set(
   self : RotationMatrix3,
-  row : Int,
-  col : Int,
+  row : Int32,
+  col : Int32,
   value : Double,
 ) -> RotationMatrix3 {
   match (row, col) {
@@ -405,7 +405,7 @@ pub fn RotationMatrix3::transform(
   let new_x = self.m00 * v.x + self.m01 * v.y + self.m02 * v.z
   let new_y = self.m10 * v.x + self.m11 * v.y + self.m12 * v.z
   let new_z = self.m20 * v.x + self.m21 * v.y + self.m22 * v.z
-  Vector3::{ x: new_x, y: new_y, z: new_z }
+  Vector3::{ x: new_x, y: new_y, z: new_z, }
 }
 
 ///|
@@ -529,7 +529,7 @@ pub fn RotationMatrix3::inverse(self : RotationMatrix3) -> RotationMatrix3 {
 /// Check if matrix is a valid rotation matrix (orthogonal with det ~ 1).
 pub fn RotationMatrix3::is_rotation(
   self : RotationMatrix3,
-  tol? : Double = 1.0e-6,
+  tol~ : Double = 1.0e-6,
 ) -> Bool {
   let det = self.determinant()
   if (det.abs() - 1.0).abs() > tol {
@@ -626,8 +626,8 @@ pub fn vector_superposition_rmsd(
   let centroid_a = vector_centroid(set_a)
   let centroid_b = vector_centroid(set_b)
 
-  let centered_a : Array[Vector3] = Array::new()
-  let centered_b : Array[Vector3] = Array::new()
+  let centered_a : Array[Vector3] = Array(capacity=0)
+  let centered_b : Array[Vector3] = Array(capacity=0)
   let mut i = 0
   while i < n {
     centered_a.push(set_a[i].sub(centroid_a))
@@ -637,7 +637,7 @@ pub fn vector_superposition_rmsd(
 
   let opt_rotation = compute_optimal_rotation(centered_a, centered_b)
 
-  let rotated_a : Array[Vector3] = Array::new()
+  let rotated_a : Array[Vector3] = Array(capacity=0)
   i = 0
   while i < n {
     rotated_a.push(opt_rotation.transform(centered_a[i]))
@@ -645,22 +645,6 @@ pub fn vector_superposition_rmsd(
   }
 
   vector_rmsd(rotated_a, centered_b)
-}
-
-///|
-pub fn test_array_full(
-  set_a : Array[Vector3],
-  set_b : Array[Vector3],
-) -> RotationMatrix3 {
-  let n = if set_a.length() < set_b.length() {
-    set_a.length()
-  } else {
-    set_b.length()
-  }
-  if n < 1 {
-    return RotationMatrix3::identity()
-  }
-  RotationMatrix3::identity()
 }
 
 ///|
@@ -770,8 +754,8 @@ pub fn vector_superposition_transform(
   let centroid_a = vector_centroid(set_a)
   let centroid_b = vector_centroid(set_b)
 
-  let centered_a : Array[Vector3] = Array::new()
-  let centered_b : Array[Vector3] = Array::new()
+  let centered_a : Array[Vector3] = Array(capacity=0)
+  let centered_b : Array[Vector3] = Array(capacity=0)
   let mut i = 0
   while i < n {
     centered_a.push(set_a[i].sub(centroid_a))
@@ -793,7 +777,7 @@ pub fn vector_apply_transform(
   rotation : RotationMatrix3,
   translation : Vector3,
 ) -> Array[Vector3] {
-  let result : Array[Vector3] = Array::new()
+  let result : Array[Vector3] = Array(capacity=0)
   for v in vectors {
     let rotated = rotation.transform(v)
     result.push(rotated.add(translation))

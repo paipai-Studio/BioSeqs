@@ -1,6 +1,7 @@
 import {
-  "moonbitlang/core/hashmap",
+  "moonbitlang/core/debug",
   "moonbitlang/core/math",
   "moonbitlang/core/double",
   "moonbitlang/core/string",
+  "IvanAXu/BioSeqs/src/data",
 }

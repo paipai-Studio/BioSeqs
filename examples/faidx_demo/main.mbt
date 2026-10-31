@@ -14,7 +14,7 @@ fn main {
   println("=== FASTA Index (pyfaidx style) ===")
 
   let names = fasta.get_names()
-  println("  Indexed sequences: \{names}")
+  println("  Indexed sequences: \{Repr(names)}")
 
   // === Check if a sequence exists ===
   let has_chr1 = fasta.contains("chr1")

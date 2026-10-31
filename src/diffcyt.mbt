@@ -23,7 +23,7 @@ pub struct CytometryCell {
   sample_id : String
   condition : String
   marker_values : Array[Double]
-  mut cluster_id : Int
+  mut cluster_id : Int32
 }
 
 ///|
@@ -69,26 +69,26 @@ pub fn CytometryCell::marker_values(self : CytometryCell) -> Array[Double] {
 
 ///|
 /// Accessor for cluster id.
-pub fn CytometryCell::cluster_id(self : CytometryCell) -> Int {
+pub fn CytometryCell::cluster_id(self : CytometryCell) -> Int32 {
   self.cluster_id
 }
 
 ///|
 /// Set the cluster id.
-pub fn CytometryCell::set_cluster_id(self : CytometryCell, id : Int) -> Unit {
+pub fn CytometryCell::set_cluster_id(self : CytometryCell, id : Int32) -> Unit {
   self.cluster_id = id
 }
 
 ///|
 /// Number of markers.
-pub fn CytometryCell::n_markers(self : CytometryCell) -> Int {
+pub fn CytometryCell::n_markers(self : CytometryCell) -> Int32 {
   self.marker_values.length()
 }
 
 ///|
 /// Result of differential abundance (DA) testing for one cluster.
 pub struct DiffcytDAResult {
-  cluster_id : Int
+  cluster_id : Int32
   log_fc : Double
   p_value : Double
   mut fdr : Double
@@ -97,7 +97,7 @@ pub struct DiffcytDAResult {
 
 ///|
 /// Accessor for cluster id.
-pub fn DiffcytDAResult::cluster_id(self : DiffcytDAResult) -> Int {
+pub fn DiffcytDAResult::cluster_id(self : DiffcytDAResult) -> Int32 {
   self.cluster_id
 }
 
@@ -128,8 +128,8 @@ pub fn DiffcytDAResult::significant(self : DiffcytDAResult) -> Bool {
 ///|
 /// Result of differential state (DS) testing for one cluster-marker pair.
 pub struct DiffcytDSResult {
-  cluster_id : Int
-  marker_idx : Int
+  cluster_id : Int32
+  marker_idx : Int32
   marker_name : String
   log_fc : Double
   p_value : Double
@@ -139,13 +139,13 @@ pub struct DiffcytDSResult {
 
 ///|
 /// Accessor for cluster id.
-pub fn DiffcytDSResult::cluster_id(self : DiffcytDSResult) -> Int {
+pub fn DiffcytDSResult::cluster_id(self : DiffcytDSResult) -> Int32 {
   self.cluster_id
 }
 
 ///|
 /// Accessor for marker index.
-pub fn DiffcytDSResult::marker_idx(self : DiffcytDSResult) -> Int {
+pub fn DiffcytDSResult::marker_idx(self : DiffcytDSResult) -> Int32 {
   self.marker_idx
 }
 
@@ -182,11 +182,11 @@ pub fn DiffcytDSResult::significant(self : DiffcytDSResult) -> Bool {
 ///|
 /// Summary of a diffcyt analysis run.
 pub struct DiffcytSummary {
-  n_cells : Int
-  n_clusters : Int
-  n_markers : Int
-  n_samples : Int
-  n_conditions : Int
+  n_cells : Int32
+  n_clusters : Int32
+  n_markers : Int32
+  n_samples : Int32
+  n_conditions : Int32
   da_results : Array[DiffcytDAResult]
   ds_results : Array[DiffcytDSResult]
   fdr_threshold : Double
@@ -194,7 +194,7 @@ pub struct DiffcytSummary {
 
 ///|
 /// Number of significant DA results.
-pub fn DiffcytSummary::n_sig_da(self : DiffcytSummary) -> Int {
+pub fn DiffcytSummary::n_sig_da(self : DiffcytSummary) -> Int32 {
   let mut n = 0
   for r in self.da_results {
     if r.significant {
@@ -206,7 +206,7 @@ pub fn DiffcytSummary::n_sig_da(self : DiffcytSummary) -> Int {
 
 ///|
 /// Number of significant DS results.
-pub fn DiffcytSummary::n_sig_ds(self : DiffcytSummary) -> Int {
+pub fn DiffcytSummary::n_sig_ds(self : DiffcytSummary) -> Int32 {
   let mut n = 0
   for r in self.ds_results {
     if r.significant {
@@ -267,18 +267,6 @@ fn dc_log(x : Double) -> Double {
 }
 
 ///|
-/// Logistic sigmoid.
-fn dc_sigmoid(x : Double) -> Double {
-  if x >= 40.0 {
-    return 1.0
-  }
-  if x <= -40.0 {
-    return 0.0000000001
-  }
-  1.0 / (1.0 + @math.exp(-x))
-}
-
-///|
 /// Normal CDF approximation (Abramowitz & Stegun).
 fn dc_normal_cdf(x : Double) -> Double {
   if x < -8.0 {
@@ -314,14 +302,14 @@ fn dc_abs(x : Double) -> Double {
 
 ///|
 /// LCG pseudo-random number generator for reproducible clustering.
-fn dc_lcg_next(state : Int) -> Int {
+fn dc_lcg_next(state : Int32) -> Int32 {
   let s = (state * 1103515245 + 12345) & 0x7FFFFFFF
   s
 }
 
 ///|
 /// Random double in [0, 1) from LCG state.
-fn dc_lcg_rand(state : Int) -> (Int, Double) {
+fn dc_lcg_rand(state : Int32) -> (Int32, Double) {
   let s = dc_lcg_next(state)
   (s, (s % 1000000).to_double() / 1000000.0)
 }
@@ -340,8 +328,8 @@ fn dc_lcg_rand(state : Int) -> (Int, Double) {
 /// Returns the array of cluster codebook vectors (centroids).
 pub fn diffcyt_cluster_cells(
   cells : Array[CytometryCell],
-  n_clusters : Int,
-  n_iterations : Int,
+  n_clusters : Int32,
+  n_iterations : Int32,
 ) -> Array[Array[Double]] {
   let n_cells = cells.length()
   if n_cells == 0 || n_clusters <= 0 {
@@ -350,7 +338,7 @@ pub fn diffcyt_cluster_cells(
   let n_markers = cells[0].marker_values.length()
   // Initialize codebook vectors by sampling random cells.
   let mut rng_state = 42
-  let codebooks : Array[Array[Double]] = Array::new()
+  let codebooks : Array[Array[Double]] = Array(capacity=0)
   for _ in 0..<n_clusters {
     let (s, r) = dc_lcg_rand(rng_state)
     rng_state = s
@@ -434,17 +422,17 @@ pub fn diffcyt_assign_clusters(
 /// Returns a map: (sample_id, cluster_id) -> count.
 pub fn diffcyt_calc_counts(
   cells : Array[CytometryCell],
-  n_clusters : Int,
+  n_clusters : Int32,
   sample_ids : Array[String],
-) -> Array[Array[Int]] {
+) -> Array[Array[Int32]] {
   let n_samples = sample_ids.length()
   // counts[sample_idx][cluster_idx]
-  let counts : Array[Array[Int]] = Array::new()
+  let counts : Array[Array[Int32]] = Array(capacity=0)
   for _ in 0..<n_samples {
     counts.push(Array::make(n_clusters, 0))
   }
   // Build sample index lookup.
-  let sample_idx_map : Map[String, Int] = Map([], capacity=n_samples)
+  let sample_idx_map : Map[String, Int32] = Map([], capacity=n_samples)
   for i in 0..<n_samples {
     sample_idx_map.set(sample_ids[i], i)
   }
@@ -465,23 +453,23 @@ pub fn diffcyt_calc_counts(
 /// aggregated by sample. Returns medians[sample_idx][cluster_idx * n_markers + marker_idx].
 pub fn diffcyt_calc_medians_by_cluster_marker(
   cells : Array[CytometryCell],
-  n_clusters : Int,
-  n_markers : Int,
+  n_clusters : Int32,
+  n_markers : Int32,
   sample_ids : Array[String],
 ) -> Array[Array[Double]] {
   let n_samples = sample_ids.length()
   // Collect expression values per (sample, cluster, marker).
   // Use a nested structure: values[sample][cluster * n_markers + marker] = Array[Double]
   let total_entries = n_clusters * n_markers
-  let all_values : Array[Array[Array[Double]]] = Array::new()
+  let all_values : Array[Array[Array[Double]]] = Array(capacity=0)
   for _ in 0..<n_samples {
-    let per_sample : Array[Array[Double]] = Array::new()
+    let per_sample : Array[Array[Double]] = Array(capacity=0)
     for _ in 0..<total_entries {
-      per_sample.push(Array::new())
+      per_sample.push(Array(capacity=0))
     }
     all_values.push(per_sample)
   }
-  let sample_idx_map : Map[String, Int] = Map([], capacity=n_samples)
+  let sample_idx_map : Map[String, Int32] = Map([], capacity=n_samples)
   for i in 0..<n_samples {
     sample_idx_map.set(sample_ids[i], i)
   }
@@ -497,7 +485,7 @@ pub fn diffcyt_calc_medians_by_cluster_marker(
     }
   }
   // Compute medians.
-  let medians : Array[Array[Double]] = Array::new()
+  let medians : Array[Array[Double]] = Array(capacity=0)
   for si in 0..<n_samples {
     let row = Array::make(total_entries, 0.0)
     for j in 0..<total_entries {
@@ -516,7 +504,7 @@ fn dc_median(arr : Array[Double]) -> Double {
     return 0.0
   }
   // Copy and sort.
-  let sorted = Array::new()
+  let sorted = Array(capacity=0)
   for v in arr {
     sorted.push(v)
   }
@@ -551,14 +539,14 @@ pub fn diffcyt_create_design_matrix(
 ) -> Array[Array[Double]] {
   let n = sample_ids.length()
   // Collect unique conditions preserving order.
-  let unique_conditions : Array[String] = Array::new()
+  let unique_conditions : Array[String] = Array(capacity=0)
   for c in conditions {
     if !unique_conditions.contains(c) {
       unique_conditions.push(c)
     }
   }
   let n_cols = unique_conditions.length() // intercept + (n_conditions - 1) dummies
-  let design : Array[Array[Double]] = Array::new()
+  let design : Array[Array[Double]] = Array(capacity=0)
   for i in 0..<n {
     let row = Array::make(n_cols, 0.0)
     row[0] = 1.0 // intercept
@@ -577,7 +565,7 @@ pub fn diffcyt_create_design_matrix(
 ///|
 /// Get unique conditions from cells.
 pub fn diffcyt_unique_conditions(cells : Array[CytometryCell]) -> Array[String] {
-  let result : Array[String] = Array::new()
+  let result : Array[String] = Array(capacity=0)
   for cell in cells {
     if !result.contains(cell.condition) {
       result.push(cell.condition)
@@ -589,7 +577,7 @@ pub fn diffcyt_unique_conditions(cells : Array[CytometryCell]) -> Array[String] 
 ///|
 /// Get unique sample IDs from cells.
 pub fn diffcyt_unique_samples(cells : Array[CytometryCell]) -> Array[String] {
-  let result : Array[String] = Array::new()
+  let result : Array[String] = Array(capacity=0)
   for cell in cells {
     if !result.contains(cell.sample_id) {
       result.push(cell.sample_id)
@@ -612,13 +600,13 @@ pub fn diffcyt_unique_samples(cells : Array[CytometryCell]) -> Array[String] {
 /// `contrast_col` is the column index of the condition to test.
 /// Returns DA results for each cluster.
 pub fn diffcyt_testDA(
-  counts : Array[Array[Int]],
+  counts : Array[Array[Int32]],
   design : Array[Array[Double]],
-  contrast_col : Int,
-  n_clusters : Int,
+  contrast_col : Int32,
+  n_clusters : Int32,
 ) -> Array[DiffcytDAResult] {
   let n_samples = counts.length()
-  let results : Array[DiffcytDAResult] = Array::new()
+  let results : Array[DiffcytDAResult] = Array(capacity=0)
   // Compute library sizes (total counts per sample).
   let lib_sizes = Array::make(n_samples, 0.0)
   for si in 0..<n_samples {
@@ -673,7 +661,7 @@ pub fn diffcyt_testDA(
         z[si] = eta - offsets[si]
       }
       // Weighted least squares: solve (X^T W X) beta = X^T W z.
-      let xtwx = Array::new()
+      let xtwx = Array(capacity=0)
       for _ in 0..<n_params {
         xtwx.push(Array::make(n_params, 0.0))
       }
@@ -720,7 +708,7 @@ pub fn diffcyt_testDA(
       let var_ = mu[si] + dispersion * mu[si] * mu[si]
       w[si] = mu[si] / var_
     }
-    let xtwx = Array::new()
+    let xtwx = Array(capacity=0)
     for _ in 0..<n_params {
       xtwx.push(Array::make(n_params, 0.0))
     }
@@ -780,8 +768,8 @@ pub fn diffcyt_testDS(
   cells : Array[CytometryCell],
   sample_ids : Array[String],
   conditions : Array[String],
-  n_clusters : Int,
-  n_markers : Int,
+  n_clusters : Int32,
+  n_markers : Int32,
   marker_names : Array[String],
 ) -> Array[DiffcytDSResult] {
   let n_samples = sample_ids.length()
@@ -790,24 +778,24 @@ pub fn diffcyt_testDS(
     cells, n_clusters, n_markers, sample_ids,
   )
   // Collect unique conditions.
-  let unique_conditions : Array[String] = Array::new()
+  let unique_conditions : Array[String] = Array(capacity=0)
   for c in conditions {
     if !unique_conditions.contains(c) {
       unique_conditions.push(c)
     }
   }
   let n_conditions = unique_conditions.length()
-  let results : Array[DiffcytDSResult] = Array::new()
+  let results : Array[DiffcytDSResult] = Array(capacity=0)
   // Gather all sample variances for empirical Bayes prior.
-  let all_variances : Array[Double] = Array::new()
-  let all_df : Array[Double] = Array::new()
+  let all_variances : Array[Double] = Array(capacity=0)
+  let all_df : Array[Double] = Array(capacity=0)
   // Pre-compute per-cluster-per-marker group means and variances.
   for cluster in 0..<n_clusters {
     for marker in 0..<n_markers {
       // Collect median values per condition.
-      let group_values : Array[Array[Double]] = Array::new()
+      let group_values : Array[Array[Double]] = Array(capacity=0)
       for _ in 0..<n_conditions {
-        group_values.push(Array::new())
+        group_values.push(Array(capacity=0))
       }
       for si in 0..<n_samples {
         let val = medians[si][cluster * n_markers + marker]
@@ -859,9 +847,9 @@ pub fn diffcyt_testDS(
   let prior_d0 = 10.0 // prior degrees of freedom
   for cluster in 0..<n_clusters {
     for marker in 0..<n_markers {
-      let group_values : Array[Array[Double]] = Array::new()
+      let group_values : Array[Array[Double]] = Array(capacity=0)
       for _ in 0..<n_conditions {
-        group_values.push(Array::new())
+        group_values.push(Array(capacity=0))
       }
       for si in 0..<n_samples {
         let val = medians[si][cluster * n_markers + marker]
@@ -902,7 +890,7 @@ pub fn diffcyt_testDS(
         )
         let se = if se < 0.0000001 { 0.0000001 } else { se }
         let t_stat = mean_diff / se
-        let df = prior_d0 + d0
+        let _df = prior_d0 + d0
         // Convert t to p-value using normal approximation for large df.
         let p_value = 2.0 * (1.0 - dc_normal_cdf(dc_abs(t_stat)))
         let p_value = if p_value < 0.0 {
@@ -1052,7 +1040,7 @@ fn dc_solve(matrix : Array[Array[Double]], b : Array[Double]) -> Array[Double]? 
   if n == 0 {
     return Some([])
   }
-  let m : Array[Array[Double]] = Array::new()
+  let m : Array[Array[Double]] = Array(capacity=0)
   for i in 0..<n {
     let row = Array::make(n + 1, 0.0)
     for j in 0..<n {
@@ -1113,7 +1101,7 @@ fn dc_matrix_inverse(matrix : Array[Array[Double]]) -> Array[Array[Double]]? {
     return Some([])
   }
   // Augmented [matrix | I]
-  let aug : Array[Array[Double]] = Array::new()
+  let aug : Array[Array[Double]] = Array(capacity=0)
   for i in 0..<n {
     let row = Array::make(2 * n, 0.0)
     for j in 0..<n {
@@ -1155,7 +1143,7 @@ fn dc_matrix_inverse(matrix : Array[Array[Double]]) -> Array[Array[Double]]? {
       }
     }
   }
-  let inv : Array[Array[Double]] = Array::new()
+  let inv : Array[Array[Double]] = Array(capacity=0)
   for i in 0..<n {
     let row = Array::make(n, 0.0)
     for j in 0..<n {
@@ -1204,10 +1192,10 @@ fn dc_variance(arr : Array[Double]) -> Double {
 /// Extract top DA clusters sorted by p-value.
 pub fn diffcyt_top_clusters_da(
   da_results : Array[DiffcytDAResult],
-  n_top : Int,
+  n_top : Int32,
 ) -> Array[DiffcytDAResult] {
   // Copy and sort by p-value.
-  let sorted : Array[DiffcytDAResult] = Array::new()
+  let sorted : Array[DiffcytDAResult] = Array(capacity=0)
   for r in da_results {
     sorted.push(r)
   }
@@ -1224,7 +1212,7 @@ pub fn diffcyt_top_clusters_da(
     }
   }
   let limit = if n_top < n { n_top } else { n }
-  let result : Array[DiffcytDAResult] = Array::new()
+  let result : Array[DiffcytDAResult] = Array(capacity=0)
   for i in 0..<limit {
     result.push(sorted[i])
   }
@@ -1235,9 +1223,9 @@ pub fn diffcyt_top_clusters_da(
 /// Extract top DS cluster-marker pairs sorted by p-value.
 pub fn diffcyt_top_table_ds(
   ds_results : Array[DiffcytDSResult],
-  n_top : Int,
+  n_top : Int32,
 ) -> Array[DiffcytDSResult] {
-  let sorted : Array[DiffcytDSResult] = Array::new()
+  let sorted : Array[DiffcytDSResult] = Array(capacity=0)
   for r in ds_results {
     sorted.push(r)
   }
@@ -1254,7 +1242,7 @@ pub fn diffcyt_top_table_ds(
     }
   }
   let limit = if n_top < n { n_top } else { n }
-  let result : Array[DiffcytDSResult] = Array::new()
+  let result : Array[DiffcytDSResult] = Array(capacity=0)
   for i in 0..<limit {
     result.push(sorted[i])
   }
@@ -1274,11 +1262,11 @@ pub fn diffcyt_top_table_ds(
 /// Returns a DiffcytSummary with all results.
 pub fn diffcyt_run(
   cells : Array[CytometryCell],
-  n_clusters : Int,
+  n_clusters : Int32,
   fdr_threshold : Double,
 ) -> DiffcytSummary {
   let sample_ids = diffcyt_unique_samples(cells)
-  let conditions_arr : Array[String] = Array::new()
+  let conditions_arr : Array[String] = Array(capacity=0)
   let sample_condition_map : Map[String, String] = Map(
     [],
     capacity=sample_ids.length(),
@@ -1302,7 +1290,7 @@ pub fn diffcyt_run(
   // 5. DA testing.
   let da_results = diffcyt_testDA(counts, design, contrast_col, n_clusters)
   // 6. DS testing.
-  let marker_names = Array::new()
+  let marker_names = Array(capacity=0)
   for i in 0..<n_markers {
     marker_names.push("marker_" + i.to_string())
   }
@@ -1334,7 +1322,7 @@ pub fn diffcyt_run(
 /// 4 samples (2 ctrl, 2 stim), 3 markers, 20 cells per sample.
 /// Stimulated samples have higher expression of marker_2 in a subset of cells.
 pub fn diffcyt_sample_data() -> Array[CytometryCell] {
-  let cells : Array[CytometryCell] = Array::new()
+  let cells : Array[CytometryCell] = Array(capacity=0)
   let samples = ["S1", "S2", "S3", "S4"]
   let conditions = ["ctrl", "ctrl", "stim", "stim"]
   let n_markers = 3

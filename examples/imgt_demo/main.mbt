@@ -65,7 +65,9 @@ fn main {
   for i in 0..<hla_a.length() {
     let rec = hla_a[i]
     let h = rec.header()
-    println("  \{i}: accession=\{h.accession()}, seq_id=\{h.seq_id()}, length=\{rec.sequence().length()}")
+    println(
+      "  \{i}: accession=\{h.accession()}, seq_id=\{h.seq_id()}, length=\{rec.sequence().length()}",
+    )
   }
   println("")
   // Also demonstrate filtering by species.
@@ -122,7 +124,9 @@ fn main {
   println("Converted \{seq_records.length()} ImgtRecord(s) to SeqRecord(s)")
   for i in 0..<seq_records.length() {
     let rec = seq_records[i]
-    println("  Record \{i}: id=\{rec.id}, name=\{rec.name}, length=\{rec.seq.to_string().length()}")
+    println(
+      "  Record \{i}: id=\{rec.id}, name=\{rec.name}, length=\{rec.seq.to_string().length()}",
+    )
     println("    description (truncated): \{rec.description}")
   }
   println("")

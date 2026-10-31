@@ -39,9 +39,9 @@ test "dorothea_regulon_targets" {
 test "dorothea_compute_activity_simple" {
   let regulons = @src.dorothea_get_regulons()
   let test_data = @src.dorothea_create_test_data()
-  let (counts, cell_ids, gene_names) = test_data
+  let (counts, _cell_ids, gene_names) = test_data
 
-  let cell_expr : Array[Double] = Array::new()
+  let cell_expr : Array[Double] = Array(capacity=0)
   let n_genes = counts.length()
   let mut g = 0
   while g < n_genes {
@@ -65,9 +65,9 @@ test "dorothea_compute_activity_simple" {
 test "dorothea_compute_viper_activity" {
   let regulons = @src.dorothea_get_regulons()
   let test_data = @src.dorothea_create_test_data()
-  let (counts, cell_ids, gene_names) = test_data
+  let (counts, _cell_ids, gene_names) = test_data
 
-  let cell_expr : Array[Double] = Array::new()
+  let cell_expr : Array[Double] = Array(capacity=0)
   let n_genes = counts.length()
   let mut g = 0
   while g < n_genes {
@@ -93,9 +93,9 @@ test "dorothea_compute_viper_activity" {
 test "dorothea_permutation_test" {
   let regulons = @src.dorothea_get_regulons()
   let test_data = @src.dorothea_create_test_data()
-  let (counts, cell_ids, gene_names) = test_data
+  let (counts, _cell_ids, gene_names) = test_data
 
-  let cell_expr : Array[Double] = Array::new()
+  let cell_expr : Array[Double] = Array(capacity=0)
   let n_genes = counts.length()
   let mut g = 0
   while g < n_genes {
@@ -112,7 +112,7 @@ test "dorothea_permutation_test" {
     }
   }
 
-  let (p_value, z_score) = @src.dorothea_permutation_test(
+  let (p_value, _z_score) = @src.dorothea_permutation_test(
     cell_expr, gene_names, tp53_regulon, 100,
   )
   assert_true(p_value >= 0.0 && p_value <= 1.0)
@@ -122,9 +122,9 @@ test "dorothea_permutation_test" {
 test "dorothea_analyze_cell" {
   let regulons = @src.dorothea_get_regulons()
   let test_data = @src.dorothea_create_test_data()
-  let (counts, cell_ids, gene_names) = test_data
+  let (counts, _cell_ids, gene_names) = test_data
 
-  let cell_expr : Array[Double] = Array::new()
+  let cell_expr : Array[Double] = Array(capacity=0)
   let n_genes = counts.length()
   let mut g = 0
   while g < n_genes {
@@ -188,7 +188,7 @@ test "dorothea_params_with_params" {
 
 ///|
 test "dorothea_filter_results" {
-  let results : Array[@src.TFActivityResult] = Array::new()
+  let results : Array[@src.TFActivityResult] = Array(capacity=0)
   let filtered = @src.dorothea_filter_results(results, 0.05)
   assert_eq(filtered.length(), 0)
 }
@@ -241,9 +241,9 @@ test "dorothea_array_std" {
 test "dorothea_get_target_expression" {
   let regulons = @src.dorothea_get_regulons()
   let test_data = @src.dorothea_create_test_data()
-  let (counts, cell_ids, gene_names) = test_data
+  let (counts, _cell_ids, gene_names) = test_data
 
-  let cell_expr : Array[Double] = Array::new()
+  let cell_expr : Array[Double] = Array(capacity=0)
   let n_genes = counts.length()
   let mut g = 0
   while g < n_genes {

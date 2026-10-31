@@ -8,7 +8,7 @@ pub struct ClustalwCommandline {
 
 ///|
 pub fn ClustalwCommandline::new(executable : String) -> ClustalwCommandline {
-  ClustalwCommandline::{ commandline: AbstractCommandline::new(executable) }
+  ClustalwCommandline::{ commandline: AbstractCommandline::new(executable), }
 }
 
 ///|
@@ -85,7 +85,9 @@ pub struct ClustalOmegaCommandline {
 pub fn ClustalOmegaCommandline::new(
   executable : String,
 ) -> ClustalOmegaCommandline {
-  ClustalOmegaCommandline::{ commandline: AbstractCommandline::new(executable) }
+  ClustalOmegaCommandline::{
+    commandline: AbstractCommandline::new(executable),
+  }
 }
 
 ///|
@@ -121,7 +123,7 @@ pub fn ClustalOmegaCommandline::set_output_format(
 ///|
 pub fn ClustalOmegaCommandline::set_iterations(
   self : ClustalOmegaCommandline,
-  n : Int,
+  n : Int32,
 ) -> ClustalOmegaCommandline {
   ClustalOmegaCommandline::{
     commandline: self.commandline.add_arg("--iterations", Some(n.to_string())),
@@ -149,7 +151,7 @@ pub struct MuscleCommandline {
 
 ///|
 pub fn MuscleCommandline::new(executable : String) -> MuscleCommandline {
-  MuscleCommandline::{ commandline: AbstractCommandline::new(executable) }
+  MuscleCommandline::{ commandline: AbstractCommandline::new(executable), }
 }
 
 ///|
@@ -176,13 +178,13 @@ pub fn MuscleCommandline::set_output(
 pub fn MuscleCommandline::set_diags(
   self : MuscleCommandline,
 ) -> MuscleCommandline {
-  MuscleCommandline::{ commandline: self.commandline.add_arg("-diags", None) }
+  MuscleCommandline::{ commandline: self.commandline.add_arg("-diags", None), }
 }
 
 ///|
 pub fn MuscleCommandline::set_max_iterations(
   self : MuscleCommandline,
-  n : Int,
+  n : Int32,
 ) -> MuscleCommandline {
   MuscleCommandline::{
     commandline: self.commandline.add_arg("-maxiters", Some(n.to_string())),
@@ -201,7 +203,7 @@ pub struct MAFFTCommandline {
 
 ///|
 pub fn MAFFTCommandline::new(executable : String) -> MAFFTCommandline {
-  MAFFTCommandline::{ commandline: AbstractCommandline::new(executable) }
+  MAFFTCommandline::{ commandline: AbstractCommandline::new(executable), }
 }
 
 ///|
@@ -226,13 +228,13 @@ pub fn MAFFTCommandline::set_output(
 
 ///|
 pub fn MAFFTCommandline::set_auto(self : MAFFTCommandline) -> MAFFTCommandline {
-  MAFFTCommandline::{ commandline: self.commandline.add_arg("--auto", None) }
+  MAFFTCommandline::{ commandline: self.commandline.add_arg("--auto", None), }
 }
 
 ///|
 pub fn MAFFTCommandline::set_threads(
   self : MAFFTCommandline,
-  n : Int,
+  n : Int32,
 ) -> MAFFTCommandline {
   MAFFTCommandline::{
     commandline: self.commandline.add_arg("--thread", Some(n.to_string())),

@@ -106,7 +106,7 @@ pub fn chem_covalent_radius(element : String) -> Double {
 /// Returns a tuple of (radius, oxidation_state).
 pub fn chem_ionic_radius(
   element : String,
-  oxidation_state? : Int = 0,
+  oxidation_state~ : Int32 = 0,
 ) -> Double {
   let el = element.to_upper()
   if el == "H" {
@@ -261,34 +261,9 @@ pub fn chem_dihedral_angle(
 }
 
 ///|
-/// Check if two atoms are likely bonded based on distance and covalent radii.
-pub fn chem_is_bonded(
-  atom1_element : String,
-  atom2_element : String,
-  distance : Double,
-  tolerance? : Double = 0.4,
-) -> Bool {
-  let r1 = chem_covalent_radius(atom1_element)
-  let r2 = chem_covalent_radius(atom2_element)
-  let expected_max = r1 + r2 + tolerance
-  let expected_min = r1 + r2 - tolerance
-  distance <= expected_max && distance >= expected_min
-}
-
-///|
-/// Calculate total charge of a molecule given atomic charges.
-pub fn chem_total_charge(charges : Array[Double]) -> Double {
-  let mut total = 0.0
-  for c in charges {
-    total = total + c
-  }
-  total
-}
-
-///|
 /// Calculate empirical formula from element counts.
-pub fn chem_empirical_formula(element_counts : Map[String, Int]) -> String {
-  let result = StringBuilder::new()
+pub fn chem_empirical_formula(element_counts : Map[String, Int32]) -> String {
+  let result = StringBuilder()
   // Standard Hill system: C first, H second, then alphabetical
   let elements = element_counts.keys().collect()
   let has_c = elements.contains("C")
@@ -308,7 +283,7 @@ pub fn chem_empirical_formula(element_counts : Map[String, Int]) -> String {
     }
   }
   // Remaining elements alphabetically
-  let remaining = Array::new()
+  let remaining = Array(capacity=0)
   for el in elements {
     if el != "C" && el != "H" {
       remaining.push(el)
@@ -341,7 +316,7 @@ pub fn chem_empirical_formula(element_counts : Map[String, Int]) -> String {
 
 ///|
 /// Calculate molecular weight from element counts and atomic weights.
-pub fn chem_molecular_weight(element_counts : Map[String, Int]) -> Double {
+pub fn chem_molecular_weight(element_counts : Map[String, Int32]) -> Double {
   let atomic_weights_elements = [
     "H", "C", "N", "O", "F", "P", "S", "CL", "BR", "I", "FE", "ZN", "MG", "CA", "MN",
     "CU", "NA", "K",
@@ -426,9 +401,9 @@ fn atan_approx(x : Double) -> Double {
 
 ///|
 /// Get standard amino acid element composition.
-pub fn chem_amino_acid_elements(aa_name : String) -> Map[String, Int] {
+pub fn chem_amino_acid_elements(aa_name : String) -> Map[String, Int32] {
   let name = aa_name.to_upper()
-  let elements : Map[String, Int] = Map([], capacity=16)
+  let elements : Map[String, Int32] = Map([], capacity=16)
   if name == "ALA" || name == "A" {
     elements.set("C", 3)
     elements.set("H", 7)
@@ -547,49 +522,12 @@ pub fn chem_aa_molecular_weight(aa_name : String) -> Double {
 }
 
 ///|
-/// Get average molecular weight of an amino acid residue (minus water).
-pub fn chem_aa_residue_weight(aa_name : String) -> Double {
-  let full_weight = chem_aa_molecular_weight(aa_name)
-  full_weight - 18.01524 // Subtract water
-}
-
-///|
-/// Calculate extinction coefficient at 280nm for a protein sequence.
-/// Uses Pace et al. (1995) method with Trp, Tyr, and Cys counts.
-pub fn chem_extinction_coefficient(sequence : String) -> Double {
-  let upper_seq = sequence.to_upper()
-  let mut trp_count = 0
-  let mut tyr_count = 0
-  let mut cys_count = 0
-  let mut i = 0
-  while i < upper_seq.length() {
-    let ch = upper_seq.unsafe_get(i).unsafe_to_char()
-    if ch == 'W' {
-      trp_count = trp_count + 1
-    } else if ch == 'Y' {
-      tyr_count = tyr_count + 1
-    } else if ch == 'C' {
-      cys_count = cys_count + 1
-    }
-    i = i + 1
-  }
-  // Pace et al. values
-  let ext_trp = 5500.0
-  let ext_tyr = 1490.0
-  let ext_cystine = 125.0 // per disulfide bond (divide Cys by 2)
-  let n_cystine = cys_count / 2
-  ext_trp * trp_count.to_double() +
-  ext_tyr * tyr_count.to_double() +
-  ext_cystine * n_cystine.to_double()
-}
-
-///|
 /// Calculate isoelectric point (pI) of a protein using pKa values.
 /// Implements a simple pI calculation based on charge balance.
 pub fn chem_isoelectric_point(
   sequence : String,
-  p_nterm? : Double = 7.47,
-  p_cterm? : Double = 3.55,
+  p_nterm~ : Double = 7.47,
+  p_cterm~ : Double = 3.55,
 ) -> Double {
   let upper_seq = sequence.to_upper()
   let mut pos_charge = 0.0
@@ -651,7 +589,7 @@ pub fn chem_isoelectric_point(
 
 ///|
 /// Count occurrences of a character in a string.
-fn count_char(s : String, ch : Char) -> Int {
+fn count_char(s : String, ch : Char) -> Int32 {
   let mut count = 0
   let mut i = 0
   let target = ch.to_int()
@@ -668,28 +606,6 @@ fn count_char(s : String, ch : Char) -> Int {
 /// Calculate 10^x using exp(x * ln(10)).
 fn chem_pow10(x : Double) -> Double {
   @math.exp(x * @math.ln(10.0))
-}
-
-///|
-/// Calculate total number of atoms in a protein sequence.
-pub fn chem_count_atoms(sequence : String) -> Int {
-  let upper_seq = sequence.to_upper()
-  let mut total = 0
-  let mut i = 0
-  while i < upper_seq.length() {
-    let aa = upper_seq.unsafe_get(i).unsafe_to_char().to_string()
-    let elements = chem_amino_acid_elements(aa)
-    let el_entries = elements.to_array()
-    let mut ei = 0
-    while ei < el_entries.length() {
-      total = total + el_entries[ei].1
-      ei = ei + 1
-    }
-    i = i + 1
-  }
-  // Adjust for peptide bonds (subtract water for each bond)
-  let n_bonds = if sequence.length() > 0 { sequence.length() - 1 } else { 0 }
-  total - 3 * n_bonds // Remove H2O atoms (2H + 1O) per peptide bond
 }
 
 ///|

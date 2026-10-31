@@ -17,7 +17,7 @@ pub struct RDPoint3D {
 ///|
 /// Create a new RDPoint3D.
 pub fn RDPoint3D::new(x : Double, y : Double, z : Double) -> RDPoint3D {
-  RDPoint3D::{ x, y, z }
+  RDPoint3D::{ x, y, z, }
 }
 
 ///|
@@ -79,14 +79,14 @@ pub fn RDAtom::new(
   coord : RDPoint3D,
   element : String,
 ) -> RDAtom {
-  RDAtom::{ name, coord, element }
+  RDAtom::{ name, coord, element, }
 }
 
 ///|
 /// A residue for ResidueDepth.
 pub struct RDResidue {
   resname : String
-  resseq : Int
+  resseq : Int32
   atoms : Array[RDAtom]
 }
 
@@ -94,10 +94,10 @@ pub struct RDResidue {
 /// Create a new RDResidue.
 pub fn RDResidue::new(
   resname : String,
-  resseq : Int,
+  resseq : Int32,
   atoms : Array[RDAtom],
 ) -> RDResidue {
-  RDResidue::{ resname, resseq, atoms }
+  RDResidue::{ resname, resseq, atoms, }
 }
 
 ///|
@@ -141,7 +141,7 @@ pub fn RDResidue::get_ca(self : RDResidue) -> RDAtom? {
 ///|
 /// ResidueDepth result struct.
 pub struct RDResult {
-  resseq : Int
+  resseq : Int32
   resname : String
   ca_depth : Double
   com_depth : Double
@@ -152,14 +152,14 @@ pub struct RDResult {
 ///|
 /// Create a new RDResult.
 pub fn RDResult::new(
-  resseq : Int,
+  resseq : Int32,
   resname : String,
   ca_depth : Double,
   com_depth : Double,
   ca_sasa : Double,
   com_sasa : Double,
 ) -> RDResult {
-  RDResult::{ resseq, resname, ca_depth, com_depth, ca_sasa, com_sasa }
+  RDResult::{ resseq, resname, ca_depth, com_depth, ca_sasa, com_sasa, }
 }
 
 ///|
@@ -186,7 +186,7 @@ pub fn calculate_sasa(
       let y = total_radius * @math.sin(theta) * @math.sin(phi)
       let z = total_radius * @math.cos(phi)
 
-      let test_point = RDPoint3D::new(
+      let _test_point = RDPoint3D::new(
         atom.coord.x + x,
         atom.coord.y + y,
         atom.coord.z + z,
@@ -285,7 +285,7 @@ pub fn calculate_residue_depth(
   residue : RDResidue,
   all_residues : Array[RDResidue],
   probe_radius : Double,
-  grid_spacing : Double,
+  _grid_spacing : Double,
 ) -> RDResult {
   let all_atoms = collect_all_atoms(all_residues)
 
@@ -331,7 +331,7 @@ pub fn calculate_residue_depth_default(
 ///|
 /// Collect all atoms from residues.
 pub fn collect_all_atoms(residues : Array[RDResidue]) -> Array[RDAtom] {
-  let atoms : Array[RDAtom] = Array::new()
+  let atoms : Array[RDAtom] = Array(capacity=0)
 
   let mut i = 0
   while i < residues.length() {
@@ -354,7 +354,7 @@ pub fn analyze_residue_depth(
   probe_radius : Double,
   grid_spacing : Double,
 ) -> Array[RDResult] {
-  let results : Array[RDResult] = Array::new()
+  let results : Array[RDResult] = Array(capacity=0)
 
   let mut i = 0
   while i < residues.length() {
@@ -407,7 +407,7 @@ pub fn find_surface_residues(
   results : Array[RDResult],
   depth_threshold : Double,
 ) -> Array[RDResult] {
-  let surface : Array[RDResult] = Array::new()
+  let surface : Array[RDResult] = Array(capacity=0)
 
   let mut i = 0
   while i < results.length() {
@@ -422,20 +422,12 @@ pub fn find_surface_residues(
 }
 
 ///|
-/// Find surface residues (with default threshold).
-pub fn find_surface_residues_default(
-  results : Array[RDResult],
-) -> Array[RDResult] {
-  find_surface_residues(results, 3.0)
-}
-
-///|
 /// Find core residues (depth above threshold).
 pub fn find_core_residues(
   results : Array[RDResult],
   depth_threshold : Double,
 ) -> Array[RDResult] {
-  let core : Array[RDResult] = Array::new()
+  let core : Array[RDResult] = Array(capacity=0)
 
   let mut i = 0
   while i < results.length() {
@@ -450,25 +442,11 @@ pub fn find_core_residues(
 }
 
 ///|
-/// Find core residues (with default threshold).
-pub fn find_core_residues_default(results : Array[RDResult]) -> Array[RDResult] {
-  find_core_residues(results, 8.0)
-}
-
-///|
 /// Bio API functions.
 pub fn bio_residue_depth_analyze(
   residues : Array[RDResidue],
 ) -> Array[RDResult] {
   analyze_residue_depth_default(residues)
-}
-
-///|
-pub fn bio_residue_depth_calculate(
-  residue : RDResidue,
-  all_residues : Array[RDResidue],
-) -> RDResult {
-  calculate_residue_depth_default(residue, all_residues)
 }
 
 ///|

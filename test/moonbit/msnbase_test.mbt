@@ -347,7 +347,7 @@ test "mbn_msnset_impute_mean" {
     [5.0, 15.0, 0.0], // 0 = missing, mean of 5,15 = 10
   ]
   let m = @src.MSnSet::from_names(exprs, ["F1", "F2"], ["S1", "S2", "S3"])
-  let m2 = m.impute_missing(method="mean")
+  let m2 = m.impute_missing(method_="mean")
   let e = m2.exprs()
   assert_true((e[0][1] - 20.0).abs() < 0.0001)
   assert_true((e[1][2] - 10.0).abs() < 0.0001)
@@ -360,7 +360,7 @@ test "mbn_msnset_impute_median" {
     [100.0, 200.0, 0.0], // sorted 100,200 median = 150
   ]
   let m = @src.MSnSet::from_names(exprs, ["F1", "F2"], ["S1", "S2", "S3"])
-  let m2 = m.impute_missing(method="median")
+  let m2 = m.impute_missing(method_="median")
   let e = m2.exprs()
   assert_true((e[0][1] - 3.0).abs() < 0.0001)
   assert_true((e[1][2] - 150.0).abs() < 0.0001)
@@ -413,7 +413,7 @@ test "mbn_msnset_summarize_proteins_sum" {
     @src.MSnSampleData::new("S2", "", "", 0, ""),
   ]
   let m = @src.MSnSet::new(exprs, fd, sd)
-  let m2 = m.summarize_to_proteins(method="sum")
+  let m2 = m.summarize_to_proteins(method_="sum")
   // P1: sum = 400, 600 ; P2: sum = 1000, 2000
   assert_eq(m2.n_features(), 2)
   let e = m2.exprs()

@@ -44,7 +44,7 @@ pub fn UnitCell::new(
   beta~ : Double,
   gamma~ : Double,
 ) -> UnitCell {
-  UnitCell::{ a, b, c, alpha, beta, gamma }
+  UnitCell::{ a, b, c, alpha, beta, gamma, }
 }
 
 ///|
@@ -69,7 +69,7 @@ pub fn unit_cell_volume(cell : UnitCell) -> Double {
 /// N_A = 6.02214076e23 /mol.
 pub fn crystal_density(
   cell : UnitCell,
-  z : Int,
+  z : Int32,
   molecular_weight : Double,
 ) -> Double {
   let v_ang3 = unit_cell_volume(cell)
@@ -200,14 +200,14 @@ pub fn cartesian_to_fractional(
 ///|
 /// A crystallographic space group.
 pub struct SpaceGroup {
-  number : Int // International Tables number (1-230)
+  number : Int32 // International Tables number (1-230)
   symbol : String // Hermann-Mauguin symbol, e.g. "P 21 21 21"
 }
 
 ///|
 /// Construct a SpaceGroup.
-pub fn SpaceGroup::new(number~ : Int, symbol~ : String) -> SpaceGroup {
-  SpaceGroup::{ number, symbol }
+pub fn SpaceGroup::new(number~ : Int32, symbol~ : String) -> SpaceGroup {
+  SpaceGroup::{ number, symbol, }
 }
 
 ///|
@@ -215,7 +215,7 @@ pub fn SpaceGroup::new(number~ : Int, symbol~ : String) -> SpaceGroup {
 /// a small built-in table of the most common space groups; for unknown
 /// numbers a placeholder SpaceGroup with the given number and an empty
 /// symbol is returned.
-pub fn lookup_space_group(number : Int) -> SpaceGroup {
+pub fn lookup_space_group(number : Int32) -> SpaceGroup {
   match number {
     1 => SpaceGroup::new(number=1, symbol="P 1")
     2 => SpaceGroup::new(number=2, symbol="P -1")
@@ -263,10 +263,10 @@ pub fn CrystalAtom::new(
   x~ : Double,
   y~ : Double,
   z~ : Double,
-  occupancy? : Double = 1.0,
-  is_fractional? : Bool = true,
+  occupancy~ : Double = 1.0,
+  is_fractional~ : Bool = true,
 ) -> CrystalAtom {
-  CrystalAtom::{ label, element, x, y, z, occupancy, is_fractional }
+  CrystalAtom::{ label, element, x, y, z, occupancy, is_fractional, }
 }
 
 ///|
@@ -283,10 +283,10 @@ pub struct CrystalBond {
 pub fn CrystalBond::new(
   atom1~ : String,
   atom2~ : String,
-  bond_type? : String = "SINGLE",
-  distance? : Double = 0.0,
+  bond_type~ : String = "SINGLE",
+  distance~ : Double = 0.0,
 ) -> CrystalBond {
-  CrystalBond::{ atom1, atom2, bond_type, distance }
+  CrystalBond::{ atom1, atom2, bond_type, distance, }
 }
 
 ///|
@@ -297,7 +297,7 @@ pub struct CrystalStructure {
   space_group : SpaceGroup
   atoms : Array[CrystalAtom]
   bonds : Array[CrystalBond]
-  z : Int // number of formula units per unit cell
+  z : Int32 // number of formula units per unit cell
   molecular_weight : Double
 }
 
@@ -309,8 +309,8 @@ pub fn CrystalStructure::new(
   space_group~ : SpaceGroup,
   atoms~ : Array[CrystalAtom],
   bonds~ : Array[CrystalBond],
-  z? : Int = 1,
-  molecular_weight? : Double = 0.0,
+  z~ : Int32 = 1,
+  molecular_weight~ : Double = 0.0,
 ) -> CrystalStructure {
   CrystalStructure::{
     name,
@@ -327,7 +327,7 @@ pub fn CrystalStructure::new(
 /// Convert all atoms in a crystal structure to fractional coordinates
 /// (in place-style: returns a new array of atoms).
 pub fn atoms_to_fractional(structure : CrystalStructure) -> Array[CrystalAtom] {
-  let out : Array[CrystalAtom] = Array::new()
+  let out : Array[CrystalAtom] = Array(capacity=0)
   for a in structure.atoms {
     if a.is_fractional {
       out.push(a)
@@ -352,7 +352,7 @@ pub fn atoms_to_fractional(structure : CrystalStructure) -> Array[CrystalAtom] {
 ///|
 /// Convert all atoms in a crystal structure to Cartesian coordinates.
 pub fn atoms_to_cartesian(structure : CrystalStructure) -> Array[CrystalAtom] {
-  let out : Array[CrystalAtom] = Array::new()
+  let out : Array[CrystalAtom] = Array(capacity=0)
   for a in structure.atoms {
     if !a.is_fractional {
       out.push(a)
@@ -460,7 +460,7 @@ pub struct CifBlock {
 ///|
 /// Construct a CifBlock.
 pub fn CifBlock::new(name~ : String) -> CifBlock {
-  CifBlock::{ name, items: Map([], capacity=64) }
+  CifBlock::{ name, items: Map([], capacity=64), }
 }
 
 ///|
@@ -509,7 +509,7 @@ pub fn CifBlock::get_loop(
 ///|
 /// Get all data item names in this block.
 pub fn CifBlock::keys(self : CifBlock) -> Array[String] {
-  let out : Array[String] = Array::new()
+  let out : Array[String] = Array(capacity=0)
   for k in self.items.keys() {
     out.push(k)
   }
@@ -529,7 +529,7 @@ pub fn CifBlock::keys(self : CifBlock) -> Array[String] {
 ///
 /// Multi-line semicolon-delimited text values are not supported.
 pub fn parse_cif(text : String) -> Array[CifBlock] {
-  let blocks : Array[CifBlock] = Array::new()
+  let blocks : Array[CifBlock] = Array(capacity=0)
   let tokens = cif_tokenize(text)
   let mut i = 0
   let mut current : CifBlock? = None
@@ -553,7 +553,7 @@ pub fn parse_cif(text : String) -> Array[CifBlock] {
         }
       }
       i = i + 1
-      let headers : Array[String] = Array::new()
+      let headers : Array[String] = Array(capacity=0)
       while i < tokens.length() {
         let h = tokens[i]
         if h.length() > 0 && h[0:1].to_owned() == "_" {
@@ -564,7 +564,7 @@ pub fn parse_cif(text : String) -> Array[CifBlock] {
         }
       }
       let n_cols = headers.length()
-      let rows : Array[Array[String]] = Array::new()
+      let rows : Array[Array[String]] = Array(capacity=0)
       while i < tokens.length() {
         let r = tokens[i]
         if r == "loop_" || (r.length() >= 5 && r[0:5].to_owned() == "data_") {
@@ -575,7 +575,7 @@ pub fn parse_cif(text : String) -> Array[CifBlock] {
           break
         }
         // Begin a new row.
-        let row : Array[String] = Array::new()
+        let row : Array[String] = Array(capacity=0)
         row.push(r)
         i = i + 1
         while i < tokens.length() && row.length() < n_cols {
@@ -651,7 +651,7 @@ pub fn cif_block_to_crystal(block : CifBlock) -> CrystalStructure {
   }
   // Atom sites (loop_).
   let (headers, rows) = block.get_loop("_atom_site_label")
-  let atoms : Array[CrystalAtom] = Array::new()
+  let atoms : Array[CrystalAtom] = Array(capacity=0)
   if headers.length() > 0 && rows.length() > 0 {
     let label_idx = cif_find_header(headers, "_atom_site_label")
     let type_idx = cif_find_header(headers, "_atom_site_type_symbol")
@@ -705,7 +705,7 @@ pub fn cif_block_to_crystal(block : CifBlock) -> CrystalStructure {
   }
   // Bonds (geom loop), if present.
   let (gheaders, grows) = block.get_loop("_geom_bond_atom_site_label_1")
-  let bonds : Array[CrystalBond] = Array::new()
+  let bonds : Array[CrystalBond] = Array(capacity=0)
   if gheaders.length() > 0 && grows.length() > 0 {
     let a1_idx = cif_find_header(gheaders, "_geom_bond_atom_site_label_1")
     let a2_idx = cif_find_header(gheaders, "_geom_bond_atom_site_label_2")
@@ -814,12 +814,12 @@ pub fn format_crystal_structure(structure : CrystalStructure) -> String {
 /// Summary statistics for a crystal structure.
 pub struct CrystalSummary {
   name : String
-  n_atoms : Int
-  n_bonds : Int
+  n_atoms : Int32
+  n_bonds : Int32
   volume : Double
   density : Double
   space_group : String
-  z : Int
+  z : Int32
 }
 
 ///|
@@ -927,7 +927,7 @@ pub fn crystal_sample_structure() -> CrystalStructure {
 ///|
 /// Tokenize a CIF text into a list of tokens (data_, loop_, _key, value).
 fn cif_tokenize(text : String) -> Array[String] {
-  let tokens : Array[String] = Array::new()
+  let tokens : Array[String] = Array(capacity=0)
   let n = text.length()
   let mut i = 0
   while i < n {
@@ -978,7 +978,7 @@ fn cif_tokenize(text : String) -> Array[String] {
 
 ///|
 /// Find the index of a header in a header array. Returns -1 if not found.
-fn cif_find_header(headers : Array[String], name : String) -> Int {
+fn cif_find_header(headers : Array[String], name : String) -> Int32 {
   for i in 0..<headers.length() {
     if headers[i] == name {
       return i
@@ -999,7 +999,7 @@ fn cif_get_scalar_double(block : CifBlock, name : String) -> Double {
 
 ///|
 /// Get a scalar int from a CifBlock, returning 0 if not present.
-fn cif_get_scalar_int(block : CifBlock, name : String) -> Int {
+fn cif_get_scalar_int(block : CifBlock, name : String) -> Int32 {
   let v = block.get_scalar(name)
   if v.length() == 0 {
     return 0
@@ -1036,7 +1036,7 @@ fn cif_parse_double(s : String) -> Double {
 
 ///|
 /// Parse an int from a CIF value string, stripping trailing uncertainty.
-fn cif_parse_int(s : String) -> Int {
+fn cif_parse_int(s : String) -> Int32 {
   let mut cleaned = ""
   let mut in_paren = false
   for i in 0..<s.length() {

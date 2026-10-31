@@ -30,7 +30,7 @@ pub fn BlastParamSpec::new(
   default_value : String,
   required : Bool,
 ) -> BlastParamSpec {
-  BlastParamSpec::{ name, description, takes_value, default_value, required }
+  BlastParamSpec::{ name, description, takes_value, default_value, required, }
 }
 
 ///|
@@ -216,7 +216,7 @@ pub fn BlastCommandline::blastapp_build_command(
 pub fn BlastCommandline::blastapp_validate(
   self : BlastCommandline,
 ) -> Array[String] {
-  let errors : Array[String] = Array::new()
+  let errors : Array[String] = Array(capacity=0)
   let mut i = 0
   while i < self.param_specs.length() {
     let spec = self.param_specs[i]
@@ -453,22 +453,6 @@ pub fn ncbi_psiblast_commandline() -> BlastCommandline {
     BlastParamSpec::new("-remote", "Execute search remotely", false, "", false),
   )
   BlastCommandline::new("psiblast", specs)
-}
-
-///|
-/// NCBI rpsblast command line (reverse position-specific BLAST).
-pub fn ncbi_rpsblast_commandline() -> BlastCommandline {
-  let specs = blastapp_common_params()
-  specs.push(
-    BlastParamSpec::new("-outfmt", "Output format (0-18)", true, "0", false),
-  )
-  specs.push(
-    BlastParamSpec::new("-max_hsps", "Max HSPs per subject", true, "0", false),
-  )
-  specs.push(
-    BlastParamSpec::new("-remote", "Execute search remotely", false, "", false),
-  )
-  BlastCommandline::new("rpsblast", specs)
 }
 
 ///|

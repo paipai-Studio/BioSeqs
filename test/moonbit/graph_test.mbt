@@ -40,8 +40,8 @@ test "graph_has_edge" {
 test "graph_shortest_path" {
   let graph = @src.create_example_graph()
   let path = @src.graph_shortest_path(graph, "TP53", "CHEK2")
-  assert_true(path.is_some())
-  if path.is_some() {
+  assert_true(path is Some(_))
+  if path is Some(_) {
     assert_true(path.unwrap().length() >= 2)
   }
 }
@@ -72,5 +72,5 @@ test "graph_directed_pathway" {
   let graph = @src.create_pathway_graph()
   assert_eq(@src.graph_node_count(graph), 9)
   let path = @src.graph_shortest_path(graph, "G1", "M")
-  assert_true(path.is_some())
+  assert_true(path is Some(_))
 }

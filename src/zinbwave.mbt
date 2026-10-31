@@ -13,9 +13,9 @@ pub suberror ZinbWaveError {
 
 ///|
 pub struct ZinbWaveConfig {
-  n_factors : Int
-  max_iterations : Int
-  inner_iterations : Int
+  n_factors : Int32
+  max_iterations : Int32
+  inner_iterations : Int32
   tolerance : Double
   ridge : Double
   dispersion_shrinkage : Double
@@ -24,15 +24,21 @@ pub struct ZinbWaveConfig {
 } derive(Eq, Debug)
 
 ///|
+pub extend ZinbWaveConfig with Eq::{equal, not_equal}
+
+///|
+pub extend ZinbWaveConfig with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
 pub fn ZinbWaveConfig::create(
-  n_factors? : Int = 2,
-  max_iterations? : Int = 50,
-  inner_iterations? : Int = 2,
-  tolerance? : Double = 1.0e-5,
-  ridge? : Double = 1.0e-3,
-  dispersion_shrinkage? : Double = 5.0,
-  minimum_mean? : Double = 1.0e-8,
-  minimum_probability? : Double = 1.0e-6,
+  n_factors~ : Int32 = 2,
+  max_iterations~ : Int32 = 50,
+  inner_iterations~ : Int32 = 2,
+  tolerance~ : Double = 1.0e-5,
+  ridge~ : Double = 1.0e-3,
+  dispersion_shrinkage~ : Double = 5.0,
+  minimum_mean~ : Double = 1.0e-8,
+  minimum_probability~ : Double = 1.0e-6,
 ) -> ZinbWaveConfig raise ZinbWaveError {
   if n_factors < 0 {
     raise ZinbWaveError("zinbwave factor count must be non-negative")
@@ -91,13 +97,19 @@ pub fn ZinbWaveConfig::default() -> ZinbWaveConfig {
 
 ///|
 pub struct ZinbWaveDiagnostics {
-  iterations : Int
+  iterations : Int32
   converged : Bool
   initial_log_likelihood : Double
   final_log_likelihood : Double
   log_likelihoods : Array[Double]
   maximum_parameter_change : Double
 } derive(Eq, Debug)
+
+///|
+pub extend ZinbWaveDiagnostics with Eq::{equal, not_equal}
+
+///|
+pub extend ZinbWaveDiagnostics with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct ZinbWaveGeneSummary {
@@ -109,6 +121,12 @@ pub struct ZinbWaveGeneSummary {
   mean_count : Double
   mean_fitted : Double
 } derive(Eq, Debug)
+
+///|
+pub extend ZinbWaveGeneSummary with Eq::{equal, not_equal}
+
+///|
+pub extend ZinbWaveGeneSummary with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct ZinbWaveModel {
@@ -145,11 +163,6 @@ fn zinbwave_is_finite(value : Double) -> Bool {
 }
 
 ///|
-fn zinbwave_clamp(value : Double, lower : Double, upper : Double) -> Double {
-  value.max(lower).min(upper)
-}
-
-///|
 fn zinbwave_sigmoid(value : Double, minimum : Double) -> Double {
   let probability = if value >= 0.0 {
     let inverse = @math.exp(-value.min(40.0))
@@ -158,17 +171,17 @@ fn zinbwave_sigmoid(value : Double, minimum : Double) -> Double {
     let exponential = @math.exp(value.max(-40.0))
     exponential / (1.0 + exponential)
   }
-  zinbwave_clamp(probability, minimum, 1.0 - minimum)
+  clamp(probability, minimum, 1.0 - minimum)
 }
 
 ///|
 fn zinbwave_logit(probability : Double, minimum : Double) -> Double {
-  let bounded = zinbwave_clamp(probability, minimum, 1.0 - minimum)
+  let bounded = clamp(probability, minimum, 1.0 - minimum)
   @math.ln(bounded / (1.0 - bounded))
 }
 
 ///|
-fn zinbwave_zero_matrix(rows : Int, columns : Int) -> Array[Array[Double]] {
+fn zinbwave_zero_matrix(rows : Int32, columns : Int32) -> Array[Array[Double]] {
   let matrix : Array[Array[Double]] = []
   for _ in 0..<rows {
     matrix.push(Array::make(columns, 0.0))
@@ -188,7 +201,7 @@ fn zinbwave_copy_matrix(matrix : Array[Array[Double]]) -> Array[Array[Double]] {
 ///|
 fn zinbwave_validate_counts(
   counts : Array[Array[Double]],
-) -> (Int, Int) raise ZinbWaveError {
+) -> (Int32, Int32) raise ZinbWaveError {
   if counts.length() == 0 {
     raise ZinbWaveError("zinbwave counts must contain at least one gene")
   }
@@ -217,9 +230,9 @@ fn zinbwave_validate_counts(
 ///|
 fn zinbwave_validate_covariates(
   covariates : Array[Array[Double]],
-  expected_rows : Int,
+  expected_rows : Int32,
   label : String,
-) -> Int raise ZinbWaveError {
+) -> Int32 raise ZinbWaveError {
   if covariates.length() == 0 {
     return 0
   }
@@ -246,7 +259,7 @@ fn zinbwave_validate_covariates(
 ///|
 fn zinbwave_design_with_intercept(
   covariates : Array[Array[Double]],
-  rows : Int,
+  rows : Int32,
 ) -> Array[Array[Double]] {
   let columns = if covariates.length() == 0 {
     0
@@ -268,8 +281,8 @@ fn zinbwave_design_with_intercept(
 ///|
 fn zinbwave_validate_offsets(
   offsets : Array[Array[Double]],
-  genes : Int,
-  cells : Int,
+  genes : Int32,
+  cells : Int32,
   label : String,
 ) -> Array[Array[Double]] raise ZinbWaveError {
   if offsets.length() == 0 {
@@ -329,7 +342,7 @@ fn zinbwave_default_mean_offsets(
 ///|
 fn zinbwave_prepare_names(
   supplied : Array[String],
-  length : Int,
+  length : Int32,
   prefix : String,
 ) -> Array[String] raise ZinbWaveError {
   if supplied.length() != 0 && supplied.length() != length {
@@ -453,7 +466,7 @@ fn zinbwave_weighted_ridge(
 fn zinbwave_initialize_factors(
   counts : Array[Array[Double]],
   offsets : Array[Array[Double]],
-  n_factors : Int,
+  n_factors : Int32,
 ) -> Array[Array[Double]] {
   let genes = counts.length()
   let cells = counts[0].length()
@@ -600,7 +613,7 @@ fn zinbwave_initialize_coefficients(
         cell_latent_design, mean_response, mean_weights, ridge, false,
       ),
     )
-    let zero_fraction = zinbwave_clamp(
+    let zero_fraction = clamp(
       stat_mean(zero_response),
       minimum_probability,
       1.0 - minimum_probability,
@@ -669,7 +682,7 @@ fn zinbwave_linear_predictors(
         zero_linear = zero_linear +
           gene_design[gene][parameter] * gamma_pi[cell][parameter]
       }
-      means[gene][cell] = @math.exp(zinbwave_clamp(mean_linear, -30.0, 30.0)).max(
+      means[gene][cell] = @math.exp(clamp(mean_linear, -30.0, 30.0)).max(
         config.minimum_mean,
       )
       probabilities[gene][cell] = zinbwave_sigmoid(
@@ -682,37 +695,15 @@ fn zinbwave_linear_predictors(
 }
 
 ///|
-fn zinbwave_lgamma(value : Double) -> Double {
-  let coefficients = [
-    676.5203681218851, -1259.1392167224028, 771.3234287776531, -176.6150291621406,
-    12.507343278686905, -0.13857109526572012, 0.000009984369578019572, 0.00000015056327351493116,
-  ]
-  if value < 0.5 {
-    return @math.ln(3.141592653589793 / @math.sin(3.141592653589793 * value)) -
-      zinbwave_lgamma(1.0 - value)
-  }
-  let shifted = value - 1.0
-  let mut series = 0.9999999999998099
-  for index in 0..<coefficients.length() {
-    series = series + coefficients[index] / (shifted + index.to_double() + 1.0)
-  }
-  let base = shifted + 7.5
-  0.9189385332046727 +
-  (shifted + 0.5) * @math.ln(base) -
-  base +
-  @math.ln(series)
-}
-
-///|
 fn zinbwave_nb_log_probability(
   count : Double,
   mean : Double,
   dispersion : Double,
 ) -> Double {
   let theta = 1.0 / dispersion.max(1.0e-8)
-  zinbwave_lgamma(count + theta) -
-  zinbwave_lgamma(theta) -
-  zinbwave_lgamma(count + 1.0) +
+  lgamma(count + theta) -
+  lgamma(theta) -
+  lgamma(count + 1.0) +
   theta * (@math.ln(theta) - @math.ln(theta + mean)) +
   count * (@math.ln(mean) - @math.ln(theta + mean))
 }
@@ -1084,7 +1075,7 @@ fn zinbwave_update_dispersions(
   let information = cells.to_double()
   let updated = Array::make(genes, 0.1)
   for gene in 0..<genes {
-    updated[gene] = zinbwave_clamp(
+    updated[gene] = clamp(
       (information * raw[gene] + shrinkage * common) / (information + shrinkage),
       1.0e-4,
       100.0,
@@ -1121,13 +1112,13 @@ fn zinbwave_deviance_residuals(
 ///|
 pub fn zinbwave_fit(
   counts : Array[Array[Double]],
-  config? : ZinbWaveConfig = ZinbWaveConfig::default(),
-  cell_covariates? : Array[Array[Double]] = [],
-  gene_covariates? : Array[Array[Double]] = [],
-  mean_offsets? : Array[Array[Double]] = [],
-  zero_offsets? : Array[Array[Double]] = [],
-  gene_names? : Array[String] = [],
-  cell_names? : Array[String] = [],
+  config~ : ZinbWaveConfig = ZinbWaveConfig::default(),
+  cell_covariates~ : Array[Array[Double]] = [],
+  gene_covariates~ : Array[Array[Double]] = [],
+  mean_offsets~ : Array[Array[Double]] = [],
+  zero_offsets~ : Array[Array[Double]] = [],
+  gene_names~ : Array[String] = [],
+  cell_names~ : Array[String] = [],
 ) -> ZinbWaveModel raise ZinbWaveError {
   let (genes, cells) = zinbwave_validate_counts(counts)
   ignore(
@@ -1305,22 +1296,22 @@ pub fn zinbwave_fit(
 }
 
 ///|
-pub fn ZinbWaveModel::n_genes(self : ZinbWaveModel) -> Int {
+pub fn ZinbWaveModel::n_genes(self : ZinbWaveModel) -> Int32 {
   self.gene_names.length()
 }
 
 ///|
-pub fn ZinbWaveModel::n_cells(self : ZinbWaveModel) -> Int {
+pub fn ZinbWaveModel::n_cells(self : ZinbWaveModel) -> Int32 {
   self.cell_names.length()
 }
 
 ///|
-pub fn ZinbWaveModel::n_factors(self : ZinbWaveModel) -> Int {
+pub fn ZinbWaveModel::n_factors(self : ZinbWaveModel) -> Int32 {
   self.config.n_factors
 }
 
 ///|
-pub fn ZinbWaveModel::n_parameters(self : ZinbWaveModel) -> Int {
+pub fn ZinbWaveModel::n_parameters(self : ZinbWaveModel) -> Int32 {
   let genes = self.n_genes()
   let cells = self.n_cells()
   genes * self.beta_mu[0].length() * 2 +
@@ -1361,8 +1352,8 @@ pub fn ZinbWaveModel::mean_zero_probability(self : ZinbWaveModel) -> Double {
 ///|
 pub fn ZinbWaveModel::expected_mean(
   self : ZinbWaveModel,
-  gene : Int,
-  cell : Int,
+  gene : Int32,
+  cell : Int32,
 ) -> Double? {
   if gene < 0 || gene >= self.n_genes() || cell < 0 || cell >= self.n_cells() {
     None
@@ -1374,8 +1365,8 @@ pub fn ZinbWaveModel::expected_mean(
 ///|
 pub fn ZinbWaveModel::zero_probability_at(
   self : ZinbWaveModel,
-  gene : Int,
-  cell : Int,
+  gene : Int32,
+  cell : Int32,
 ) -> Double? {
   if gene < 0 || gene >= self.n_genes() || cell < 0 || cell >= self.n_cells() {
     None
@@ -1387,7 +1378,7 @@ pub fn ZinbWaveModel::zero_probability_at(
 ///|
 pub fn ZinbWaveModel::cell_factors(
   self : ZinbWaveModel,
-  cell : Int,
+  cell : Int32,
 ) -> Array[Double]? {
   if cell < 0 || cell >= self.n_cells() {
     None
@@ -1435,7 +1426,7 @@ pub fn ZinbWaveModel::impute_zeros(
 pub fn ZinbWaveModel::gene_summary(
   self : ZinbWaveModel,
   counts : Array[Array[Double]],
-  gene : Int,
+  gene : Int32,
 ) -> ZinbWaveGeneSummary? {
   if gene < 0 ||
     gene >= self.n_genes() ||
@@ -1532,13 +1523,13 @@ fn zinbwave_copy_sce(sce : SingleCellExperiment) -> SingleCellExperiment {
 ///|
 pub fn zinbwave_sce(
   sce : SingleCellExperiment,
-  input_assay? : String = "counts",
-  reduced_dim_name? : String = "zinbwave",
-  config? : ZinbWaveConfig = ZinbWaveConfig::default(),
-  cell_covariates? : Array[Array[Double]] = [],
-  gene_covariates? : Array[Array[Double]] = [],
-  mean_offsets? : Array[Array[Double]] = [],
-  zero_offsets? : Array[Array[Double]] = [],
+  input_assay~ : String = "counts",
+  reduced_dim_name~ : String = "zinbwave",
+  config~ : ZinbWaveConfig = ZinbWaveConfig::default(),
+  cell_covariates~ : Array[Array[Double]] = [],
+  gene_covariates~ : Array[Array[Double]] = [],
+  mean_offsets~ : Array[Array[Double]] = [],
+  zero_offsets~ : Array[Array[Double]] = [],
 ) -> ZinbWaveSCEOutput raise ZinbWaveError {
   let counts = sce_get_assay(sce, input_assay)
   if counts.length() == 0 {
@@ -1570,7 +1561,7 @@ pub fn zinbwave_sce(
   enriched.metadata["zinbwave_iterations"] = model.diagnostics.iterations.to_string()
   enriched.metadata["zinbwave_converged"] = model.diagnostics.converged.to_string()
   enriched.metadata["zinbwave_log_likelihood"] = model.log_likelihood.to_string()
-  ZinbWaveSCEOutput::{ experiment: enriched, model }
+  ZinbWaveSCEOutput::{ experiment: enriched, model, }
 }
 
 ///|

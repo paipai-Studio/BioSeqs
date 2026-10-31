@@ -17,14 +17,14 @@
 /// Nodes represent (k-1)-mers.
 /// Edges represent k-mers: edge from "ACG" to "CGT" represents k-mer "ACGT".
 pub struct DeBruijnGraph {
-  k : Int
+  k : Int32
   edges : Map[String, Array[String]]
-  node_info : Map[String, (Int, Int)]
-  mut edge_count : Int
+  node_info : Map[String, (Int32, Int32)]
+  mut edge_count : Int32
 }
 
 ///|
-pub fn DeBruijnGraph::new(k : Int) -> DeBruijnGraph {
+pub fn DeBruijnGraph::new(k : Int32) -> DeBruijnGraph {
   DeBruijnGraph::{
     k,
     edges: Map([], capacity=0),
@@ -34,17 +34,17 @@ pub fn DeBruijnGraph::new(k : Int) -> DeBruijnGraph {
 }
 
 ///|
-pub fn DeBruijnGraph::k(self : DeBruijnGraph) -> Int {
+pub fn DeBruijnGraph::k(self : DeBruijnGraph) -> Int32 {
   self.k
 }
 
 ///|
-pub fn DeBruijnGraph::node_count(self : DeBruijnGraph) -> Int {
+pub fn DeBruijnGraph::node_count(self : DeBruijnGraph) -> Int32 {
   self.node_info.length()
 }
 
 ///|
-pub fn DeBruijnGraph::edge_count(self : DeBruijnGraph) -> Int {
+pub fn DeBruijnGraph::edge_count(self : DeBruijnGraph) -> Int32 {
   self.edge_count
 }
 
@@ -137,7 +137,7 @@ pub fn DeBruijnGraph::contains_node(
 }
 
 ///|
-pub fn DeBruijnGraph::in_degree(self : DeBruijnGraph, kmer : String) -> Int {
+pub fn DeBruijnGraph::in_degree(self : DeBruijnGraph, kmer : String) -> Int32 {
   match self.node_info.get(kmer) {
     Some((in_d, _)) => in_d
     None => 0
@@ -145,7 +145,7 @@ pub fn DeBruijnGraph::in_degree(self : DeBruijnGraph, kmer : String) -> Int {
 }
 
 ///|
-pub fn DeBruijnGraph::out_degree(self : DeBruijnGraph, kmer : String) -> Int {
+pub fn DeBruijnGraph::out_degree(self : DeBruijnGraph, kmer : String) -> Int32 {
   match self.node_info.get(kmer) {
     Some((_, out_d)) => out_d
     None => 0
@@ -170,7 +170,7 @@ pub fn DeBruijnGraph::all_nodes(self : DeBruijnGraph) -> Array[String] {
 
 ///|
 pub fn DeBruijnGraph::start_nodes(self : DeBruijnGraph) -> Array[String] {
-  let result : Array[String] = Array::new()
+  let result : Array[String] = Array(capacity=0)
   let keys = self.node_info.keys().collect()
   for i = 0; i < keys.length(); i = i + 1 {
     match self.node_info.get(keys[i]) {
@@ -183,7 +183,7 @@ pub fn DeBruijnGraph::start_nodes(self : DeBruijnGraph) -> Array[String] {
 
 ///|
 pub fn DeBruijnGraph::end_nodes(self : DeBruijnGraph) -> Array[String] {
-  let result : Array[String] = Array::new()
+  let result : Array[String] = Array(capacity=0)
   let keys = self.node_info.keys().collect()
   for i = 0; i < keys.length(); i = i + 1 {
     match self.node_info.get(keys[i]) {
@@ -196,7 +196,7 @@ pub fn DeBruijnGraph::end_nodes(self : DeBruijnGraph) -> Array[String] {
 
 ///|
 pub fn DeBruijnGraph::branch_nodes(self : DeBruijnGraph) -> Array[String] {
-  let result : Array[String] = Array::new()
+  let result : Array[String] = Array(capacity=0)
   let keys = self.node_info.keys().collect()
   for i = 0; i < keys.length(); i = i + 1 {
     match self.node_info.get(keys[i]) {
@@ -212,8 +212,8 @@ pub fn DeBruijnGraph::hierholzer(
   self : DeBruijnGraph,
   start : String,
 ) -> Array[String] {
-  let current_path : Array[String] = Array::new()
-  let circuit : Array[String] = Array::new()
+  let current_path : Array[String] = Array(capacity=0)
+  let circuit : Array[String] = Array(capacity=0)
   let available : Map[String, Array[String]] = Map([], capacity=0)
   let edge_keys = self.edges.keys().collect()
   for i = 0; i < edge_keys.length(); i = i + 1 {
@@ -248,7 +248,7 @@ pub fn DeBruijnGraph::hierholzer(
       }
     }
   }
-  let result : Array[String] = Array::new()
+  let result : Array[String] = Array(capacity=0)
   for i = circuit.length() - 1; i >= 0; i = i - 1 {
     result.push(circuit[i])
   }
@@ -306,7 +306,7 @@ pub fn DeBruijnGraph::find_eulerian_path(self : DeBruijnGraph) -> String? {
   if path.length() == 0 {
     return None
   }
-  let result = StringBuilder::new()
+  let result = StringBuilder()
   result.write_string(path[0])
   for i = 1; i < path.length(); i = i + 1 {
     let node = path[i]
@@ -319,7 +319,7 @@ pub fn DeBruijnGraph::find_eulerian_path(self : DeBruijnGraph) -> String? {
 
 ///|
 pub fn DeBruijnGraph::to_string(self : DeBruijnGraph) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string("De Bruijn Graph (k=")
   buf.write_string(self.k.to_string())
   buf.write_string("):\n")
@@ -378,14 +378,14 @@ pub fn DeBruijnGraph::to_string(self : DeBruijnGraph) -> String {
 }
 
 ///|
-pub fn assemble_sequences(sequences : Array[String], k : Int) -> String? {
+pub fn assemble_sequences(sequences : Array[String], k : Int32) -> String? {
   let graph = DeBruijnGraph::new(k)
   graph.add_sequences(sequences)
   graph.find_eulerian_path()
 }
 
 ///|
-pub fn assemble_single(seq : String, k : Int) -> String? {
+pub fn assemble_single(seq : String, k : Int32) -> String? {
   let graph = DeBruijnGraph::new(k)
   graph.add_sequence(seq)
   graph.find_eulerian_path()

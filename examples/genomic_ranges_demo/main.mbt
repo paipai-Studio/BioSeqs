@@ -148,10 +148,10 @@ fn main {
   ])
 
   let counts = @bio.count_overlaps(query, subject)
-  println("count_overlaps: \{counts}")
+  println("count_overlaps: \{Repr(counts)}")
 
   let overlaps = @bio.find_overlaps(query, subject)
-  println("find_overlaps: \{overlaps}")
+  println("find_overlaps: \{Repr(overlaps)}")
   println("")
 
   println("6. Distance & Nearest")
@@ -165,57 +165,63 @@ fn main {
   ])
 
   let distances = @bio.granges_distance(gr_a, gr_b)
-  println("distances: \{distances}")
+  println("distances: \{Repr(distances)}")
 
   let indices = @bio.nearest(gr_a, gr_b)
-  println("nearest indices: \{indices}")
+  println("nearest indices: \{Repr(indices)}")
   println("")
 
   println("7. Precede & Follow")
-  let gr_query = @bio.granges(["chr1", "chr1", "chr2"], [(5, 10), (25, 30), (50, 55)], [
-    @bio.strand_plus(),
-    @bio.strand_plus(),
-    @bio.strand_plus(),
-  ])
-  let gr_subject = @bio.granges(["chr1", "chr1", "chr1", "chr2"], [(1, 3), (15, 20), (35, 40), (60, 65)], [
-    @bio.strand_plus(),
-    @bio.strand_plus(),
-    @bio.strand_plus(),
-    @bio.strand_plus(),
-  ])
+  let gr_query = @bio.granges(
+    ["chr1", "chr1", "chr2"],
+    [(5, 10), (25, 30), (50, 55)],
+    [@bio.strand_plus(), @bio.strand_plus(), @bio.strand_plus()],
+  )
+  let gr_subject = @bio.granges(
+    ["chr1", "chr1", "chr1", "chr2"],
+    [(1, 3), (15, 20), (35, 40), (60, 65)],
+    [
+      @bio.strand_plus(),
+      @bio.strand_plus(),
+      @bio.strand_plus(),
+      @bio.strand_plus(),
+    ],
+  )
 
   let precede_indices = @bio.precede(gr_query, gr_subject)
-  println("precede indices: \{precede_indices}")
+  println("precede indices: \{Repr(precede_indices)}")
 
   let follow_indices = @bio.follow(gr_query, gr_subject)
-  println("follow indices: \{follow_indices}")
+  println("follow indices: \{Repr(follow_indices)}")
   println("")
 
   println("8. Coverage Calculation")
-  let gr_cov = @bio.granges(["chr1", "chr1", "chr1"], [(5, 10), (8, 15), (20, 25)], [
-    @bio.strand_plus(),
-    @bio.strand_plus(),
-    @bio.strand_plus(),
-  ])
-  let seqlengths : Map[String, Int] = Map([], capacity=1)
+  let gr_cov = @bio.granges(
+    ["chr1", "chr1", "chr1"],
+    [(5, 10), (8, 15), (20, 25)],
+    [@bio.strand_plus(), @bio.strand_plus(), @bio.strand_plus()],
+  )
+  let seqlengths : Map[String, Int32] = Map([], capacity=1)
   seqlengths["chr1"] = 30
   let coverage = @bio.coverage_granges(gr_cov, seqlengths)
   println("Coverage for chr1 (length 30):")
   let cov_array = coverage["chr1"]
-  println("  Coverage array (chr1): \{cov_array}")
+  println("  Coverage array (chr1): \{Repr(cov_array)}")
   println("")
 
   println("9. Distance to Nearest")
-  let gr_dn = @bio.granges(["chr1", "chr1", "chr1"], [(1, 5), (15, 20), (30, 35)], [
-    @bio.strand_plus(),
-    @bio.strand_plus(),
-    @bio.strand_plus(),
-  ])
+  let gr_dn = @bio.granges(
+    ["chr1", "chr1", "chr1"],
+    [(1, 5), (15, 20), (30, 35)],
+    [@bio.strand_plus(), @bio.strand_plus(), @bio.strand_plus()],
+  )
   let distances_to_nearest = @bio.distance_to_nearest(gr_dn)
   println("Distance to nearest for each range:")
   i = 0
   while i < gr_dn.starts.length() {
-    println("  Range \{i} (\{gr_dn.starts[i]}-\{gr_dn.ends[i]}): distance = \{distances_to_nearest[i]}")
+    println(
+      "  Range \{i} (\{gr_dn.starts[i]}-\{gr_dn.ends[i]}): distance = \{distances_to_nearest[i]}",
+    )
     i = i + 1
   }
 }

@@ -13,7 +13,7 @@ fn main {
   }
 
   // b: 20 probes of width 51 spaced 450 bases apart on chr1
-  let probe_ranges : Array[(Int, Int)] = []
+  let probe_ranges : Array[(Int32, Int32)] = []
   let mut k = 0
   while k < 20 {
     probe_ranges.push((250 + k * 450, 300 + k * 450))
@@ -22,7 +22,7 @@ fn main {
   let probes = mk("chr1", probe_ranges)
 
   // a: the first 5 probes -> strongly associated with b
-  let a_ranges : Array[(Int, Int)] = []
+  let a_ranges : Array[(Int32, Int32)] = []
   let mut j = 0
   while j < 5 {
     a_ranges.push(probe_ranges[j])
@@ -36,13 +36,15 @@ fn main {
   println(
     "   numOverlaps(a, b, once)  = \{@bio.stat_num_overlaps(a, probes, count_once=true)}",
   )
-  println(
-    "   meanDistance(probes, a)  = \{@bio.stat_mean_distance(probes, a)}",
-  )
+  println("   meanDistance(probes, a)  = \{@bio.stat_mean_distance(probes, a)}")
 
   // 2. Randomization strategies
   println("\n2. Randomization")
-  let randomized = @bio.randomize_regions(a, genome, options=@bio.RegionPermOptions::of(seed=42)) catch {
+  let randomized = @bio.randomize_regions(
+    a,
+    genome,
+    options=@bio.RegionPermOptions::of(seed=42),
+  ) catch {
     _ => abort("randomize failed")
   }
   println("   randomizeRegions (per chromosome, mask-free):")
@@ -53,7 +55,11 @@ fn main {
     )
     i = i + 1
   }
-  let circ = @bio.circular_randomize_regions(a, genome, options=@bio.RegionPermOptions::of(seed=42)) catch {
+  let circ = @bio.circular_randomize_regions(
+    a,
+    genome,
+    options=@bio.RegionPermOptions::of(seed=42),
+  ) catch {
     _ => abort("circular randomize failed")
   }
   println("   circularRandomizeRegions keeps widths and chromosomes:")
@@ -69,13 +75,17 @@ fn main {
   let masked = @bio.randomize_regions(
     a,
     genome,
-    mask=mask,
+    mask~,
     options=@bio.RegionPermOptions::of(seed=42),
-  ) catch { _ => abort("masked randomize failed") }
+  ) catch {
+    _ => abort("masked randomize failed")
+  }
   println("   with mask chr1:1-9000 all regions move past 9000:")
   let mut i3 = 0
   while i3 < @bio.granges_length(masked) {
-    println("     \{masked.seqnames[i3]}:\{masked.starts[i3]}-\{masked.ends[i3]}")
+    println(
+      "     \{masked.seqnames[i3]}:\{masked.starts[i3]}-\{masked.ends[i3]}",
+    )
     i3 = i3 + 1
   }
 
@@ -86,7 +96,9 @@ fn main {
     probes,
     genome,
     options=@bio.RegionPermOptions::of(ntimes=200, seed=1),
-  ) catch { _ => abort("permTest failed") }
+  ) catch {
+    _ => abort("permTest failed")
+  }
   println("   observed numOverlaps = \{res.statistic}")
   println("   permutations         = \{res.ntimes}")
   println("   z-score              = \{res.z_score}")
@@ -109,7 +121,9 @@ fn main {
     probes,
     genome,
     options=@bio.RegionPermOptions::of(ntimes=200, seed=1),
-  ) catch { _ => abort("permTest failed") }
+  ) catch {
+    _ => abort("permTest failed")
+  }
   println("   observed numOverlaps = \{res2.statistic}")
   println("   z-score              = \{res2.z_score}")
   println("   p-value              = \{res2.p_value}")
@@ -119,7 +133,11 @@ fn main {
 
 ///|
 /// Build a single-chromosome region set with star strands.
-fn mk(seqname : String, ranges : Array[(Int, Int)]) -> @bio.GRanges {
+fn mk(seqname : String, ranges : Array[(Int32, Int32)]) -> @bio.GRanges {
   let n = ranges.length()
-  @bio.granges(Array::make(n, seqname), ranges, Array::make(n, @bio.strand_star()))
+  @bio.granges(
+    Array::make(n, seqname),
+    ranges,
+    Array::make(n, @bio.strand_star()),
+  )
 }

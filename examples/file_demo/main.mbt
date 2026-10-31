@@ -1,12 +1,11 @@
 ///|
 /// Example: file_demo
 /// Demonstrates the Bio.File module (SmartFile with compression support).
-
 fn main {
   // Example 1: Create a SmartFile with automatic compression detection
   println("=== SmartFile Demo ===")
   println("")
-  
+
   // Plain text file
   let plain_file = @bio.SmartFile::new("data.txt", mode="r")
   let plain_path = plain_file.get_path()
@@ -16,7 +15,7 @@ fn main {
   println("Compression: \{plain_fmt}")
   println("Mode: \{plain_mode}")
   println("")
-  
+
   // Gzip compressed file
   let gz_file = @bio.SmartFile::new("data.txt.gz", mode="r")
   let gz_path = gz_file.get_path()
@@ -24,7 +23,7 @@ fn main {
   println("Gzip file: \{gz_path}")
   println("Compression: \{gz_fmt}")
   println("")
-  
+
   // Bzip2 compressed file
   let bz2_file = @bio.SmartFile::new("data.txt.bz2", mode="r")
   let bz2_path = bz2_file.get_path()
@@ -32,7 +31,7 @@ fn main {
   println("Bzip2 file: \{bz2_path}")
   println("Compression: \{bz2_fmt}")
   println("")
-  
+
   // Example 2: Reading from a SmartFile
   println("=== Reading from SmartFile ===")
   let content = "FASTA sequence data\nline 2\nline 3"
@@ -40,7 +39,7 @@ fn main {
   println("File content:")
   println(reader.read_all())
   println("")
-  
+
   // Example 3: Writing to a SmartFile
   println("=== Writing to SmartFile ===")
   let writer = @bio.SmartFile::new("output.txt", mode="w")
@@ -49,7 +48,7 @@ fn main {
   let written = w2.get_written_content()
   println("Written: \{written}")
   println("")
-  
+
   // Example 4: Open/Close lifecycle
   println("=== File Lifecycle ===")
   let f = @bio.SmartFile::new("test.txt", mode="r")
@@ -62,7 +61,7 @@ fn main {
   let closed_open = closed.is_open()
   println("After close: \{closed_open}")
   println("")
-  
+
   // Example 5: Compression detection utilities
   println("=== Compression Utilities ===")
   let has_gz = @bio.has_compression_extension("data.gz")
@@ -74,7 +73,7 @@ fn main {
   let stripped_txt = @bio.strip_compression_extension("data.txt")
   println("Strip extension (data.txt): \{stripped_txt}")
   println("")
-  
+
   // Example 6: Summary
   println("=== Summary ===")
   println(plain_file.summary())

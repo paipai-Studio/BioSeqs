@@ -19,8 +19,8 @@ fn clustal_demo_write(alignment : @bio.AlignClustalAlignment) -> String {
 }
 
 ///|
-fn clustal_demo_path(path : Array[Int]) -> String {
-  let output = StringBuilder::new()
+fn clustal_demo_path(path : Array[Int32]) -> String {
+  let output = StringBuilder()
   output.write_char('[')
   for index = 0; index < path.length(); index = index + 1 {
     if index > 0 {

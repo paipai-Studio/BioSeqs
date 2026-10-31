@@ -20,7 +20,7 @@ test "kegg_parse_gene" {
 
   let gene = @src.parse_kegg_gene(text)
 
-  assert_true(gene.is_some())
+  assert_true(gene is Some(_))
   assert_eq(gene.unwrap().entry, "hsa:12345")
   assert_eq(gene.unwrap().name, "GeneA")
   assert_eq(gene.unwrap().pathways.length(), 2)
@@ -32,7 +32,7 @@ test "kegg_parse_pathway" {
 
   let pathway = @src.parse_kegg_pathway(text)
 
-  assert_true(pathway.is_some())
+  assert_true(pathway is Some(_))
   assert_eq(pathway.unwrap().entry, "path:hsa00010")
   assert_eq(pathway.unwrap().name, "Glycolysis / Gluconeogenesis")
   assert_eq(pathway.unwrap().genes.length(), 2)
@@ -44,7 +44,7 @@ test "kegg_parse_compound" {
 
   let compound = @src.parse_kegg_compound(text)
 
-  assert_true(compound.is_some())
+  assert_true(compound is Some(_))
   assert_eq(compound.unwrap().entry, "C00033")
   assert_eq(compound.unwrap().name, "Glucose")
   assert_true(compound.unwrap().mass == 180.156)
@@ -56,7 +56,7 @@ test "kegg_parse_enzyme" {
 
   let enzyme = @src.parse_kegg_enzyme(text)
 
-  assert_true(enzyme.is_some())
+  assert_true(enzyme is Some(_))
   assert_eq(enzyme.unwrap().entry, "EC:2.7.1.1")
   assert_eq(enzyme.unwrap().name, "Hexokinase")
   assert_eq(enzyme.unwrap().genes.length(), 2)

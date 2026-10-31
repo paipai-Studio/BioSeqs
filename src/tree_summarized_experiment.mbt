@@ -7,7 +7,7 @@
 pub struct TseLink {
   node_label : String
   node_alias : String
-  node_number : Int
+  node_number : Int32
   is_leaf : Bool
   tree_name : String
 }
@@ -17,11 +17,11 @@ pub struct TseLink {
 pub fn TseLink::new(
   node_label~ : String,
   node_alias~ : String,
-  node_number~ : Int,
+  node_number~ : Int32,
   is_leaf~ : Bool,
-  tree_name? : String = "phylo",
+  tree_name~ : String = "phylo",
 ) -> TseLink {
-  TseLink::{ node_label, node_alias, node_number, is_leaf, tree_name }
+  TseLink::{ node_label, node_alias, node_number, is_leaf, tree_name, }
 }
 
 ///|
@@ -38,7 +38,7 @@ pub fn TseLink::node_alias(self : TseLink) -> String {
 
 ///|
 /// Return the one-based node number.
-pub fn TseLink::node_number(self : TseLink) -> Int {
+pub fn TseLink::node_number(self : TseLink) -> Int32 {
   self.node_number
 }
 
@@ -64,10 +64,7 @@ pub enum TseAggregation {
 } derive(Eq)
 
 ///|
-/// Create a sum aggregation strategy.
-pub fn tse_aggregation_sum() -> TseAggregation {
-  TseAggregation::Sum
-}
+pub extend TseAggregation with Eq::{equal, not_equal}
 
 ///|
 /// Create a mean aggregation strategy.
@@ -105,11 +102,11 @@ pub struct TreeSummarizedExperiment {
 /// nodes. Repeated labels are allowed, matching the Bioconductor link model.
 pub fn TreeSummarizedExperiment::new(
   experiment~ : SummarizedExperiment,
-  row_tree? : Tree? = None,
-  row_node_labels? : Array[String] = [],
-  col_tree? : Tree? = None,
-  col_node_labels? : Array[String] = [],
-  reference_sequences? : Array[String] = [],
+  row_tree~ : Tree? = None,
+  row_node_labels~ : Array[String] = [],
+  col_tree~ : Tree? = None,
+  col_node_labels~ : Array[String] = [],
+  reference_sequences~ : Array[String] = [],
 ) -> TreeSummarizedExperiment {
   TreeSummarizedExperiment::{
     experiment,
@@ -148,13 +145,13 @@ pub fn TreeSummarizedExperiment::assay_names(
 
 ///|
 /// Return the number of assay rows.
-pub fn TreeSummarizedExperiment::nrow(self : TreeSummarizedExperiment) -> Int {
+pub fn TreeSummarizedExperiment::nrow(self : TreeSummarizedExperiment) -> Int32 {
   se_nrow(self.experiment)
 }
 
 ///|
 /// Return the number of assay columns.
-pub fn TreeSummarizedExperiment::ncol(self : TreeSummarizedExperiment) -> Int {
+pub fn TreeSummarizedExperiment::ncol(self : TreeSummarizedExperiment) -> Int32 {
   se_ncol(self.experiment)
 }
 
@@ -239,7 +236,7 @@ pub fn TreeSummarizedExperiment::is_valid(
 /// Subset assay rows while preserving the full tree and updating row links.
 pub fn TreeSummarizedExperiment::subset_rows(
   self : TreeSummarizedExperiment,
-  indices : Array[Int],
+  indices : Array[Int32],
 ) -> TreeSummarizedExperiment {
   let links : Array[TseLink] = []
   let sequences : Array[String] = []
@@ -265,7 +262,7 @@ pub fn TreeSummarizedExperiment::subset_rows(
 /// Subset assay columns while preserving the full tree and updating col links.
 pub fn TreeSummarizedExperiment::subset_cols(
   self : TreeSummarizedExperiment,
-  indices : Array[Int],
+  indices : Array[Int32],
 ) -> TreeSummarizedExperiment {
   let links : Array[TseLink] = []
   for index in indices {
@@ -318,7 +315,7 @@ pub fn TreeSummarizedExperiment::subset_by_col_nodes(
 pub fn TreeSummarizedExperiment::aggregate_rows(
   self : TreeSummarizedExperiment,
   node_labels : Array[String],
-  aggregation? : TseAggregation = TseAggregation::Sum,
+  aggregation~ : TseAggregation = TseAggregation::Sum,
 ) -> TreeSummarizedExperiment? {
   match self.row_tree {
     None => None
@@ -373,7 +370,7 @@ pub fn TreeSummarizedExperiment::aggregate_rows(
 pub fn TreeSummarizedExperiment::aggregate_cols(
   self : TreeSummarizedExperiment,
   node_labels : Array[String],
-  aggregation? : TseAggregation = TseAggregation::Sum,
+  aggregation~ : TseAggregation = TseAggregation::Sum,
 ) -> TreeSummarizedExperiment? {
   match self.col_tree {
     None => None
@@ -430,7 +427,7 @@ pub fn TreeSummarizedExperiment::aggregate_cols(
 pub fn tse_find_descendants(
   tree : Tree,
   node_label : String,
-  leaves_only? : Bool = false,
+  leaves_only~ : Bool = false,
 ) -> Array[String] {
   match tree.find_any(name=Some(node_label)) {
     None => []
@@ -539,8 +536,8 @@ fn tse_link_indices_under(
   tree : Tree,
   links : Array[TseLink],
   node_labels : Array[String],
-) -> Array[Int] {
-  let result : Array[Int] = []
+) -> Array[Int32] {
+  let result : Array[Int32] = []
   for index = 0; index < links.length(); index = index + 1 {
     let mut selected = false
     for node_label in node_labels {
@@ -579,7 +576,7 @@ fn tse_link_groups_under(
   tree : Tree,
   links : Array[TseLink],
   node_labels : Array[String],
-) -> Array[Array[Int]] {
+) -> Array[Array[Int32]] {
   node_labels.map(fn(label) { tse_link_indices_under(tree, links, [label]) })
 }
 

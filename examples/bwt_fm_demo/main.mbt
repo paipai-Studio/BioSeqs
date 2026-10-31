@@ -82,7 +82,7 @@ fn main {
     let pos_str = if pos.length() == 0 {
       "none"
     } else {
-      let buf = StringBuilder::new()
+      let buf = StringBuilder()
       for j = 0; j < pos.length(); j = j + 1 {
         if j > 0 {
           buf.write_string(", ")

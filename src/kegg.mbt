@@ -92,7 +92,7 @@ pub fn KEGGCompound::new(
   enzymes : Array[String],
   reactions : Array[String],
 ) -> KEGGCompound {
-  KEGGCompound::{ entry, name, formula, mass, pathways, enzymes, reactions }
+  KEGGCompound::{ entry, name, formula, mass, pathways, enzymes, reactions, }
 }
 
 ///|
@@ -116,7 +116,7 @@ pub fn KEGGEnzyme::new(
   reactions : Array[String],
   cofactors : Array[String],
 ) -> KEGGEnzyme {
-  KEGGEnzyme::{ entry, name, class, genes, pathways, reactions, cofactors }
+  KEGGEnzyme::{ entry, name, class, genes, pathways, reactions, cofactors, }
 }
 
 ///|
@@ -128,13 +128,13 @@ pub fn parse_kegg_gene(text : String) -> KEGGGene? {
   let mut definition = ""
   let mut orthology = ""
   let mut organism = ""
-  let pathways : Array[String] = Array::new()
+  let pathways : Array[String] = Array(capacity=0)
   let mut position = ""
-  let dblinks : Array[(String, String)] = Array::new()
+  let dblinks : Array[(String, String)] = Array(capacity=0)
 
   let mut i = 0
   while i < lines.length() {
-    let line = lines[i].trim().to_string()
+    let line = lines[i].trim().to_owned()
 
     if starts_with(line, 0, "ENTRY") {
       entry = line[6:].trim().to_owned()
@@ -180,14 +180,14 @@ pub fn parse_kegg_pathway(text : String) -> KEGGPathway? {
   let mut name = ""
   let mut definition = ""
   let mut class = ""
-  let genes : Array[(String, String)] = Array::new()
-  let compounds : Array[String] = Array::new()
-  let enzymes : Array[String] = Array::new()
-  let organisms : Array[String] = Array::new()
+  let genes : Array[(String, String)] = Array(capacity=0)
+  let compounds : Array[String] = Array(capacity=0)
+  let enzymes : Array[String] = Array(capacity=0)
+  let organisms : Array[String] = Array(capacity=0)
 
   let mut i = 0
   while i < lines.length() {
-    let line = lines[i].trim().to_string()
+    let line = lines[i].trim().to_owned()
 
     if starts_with(line, 0, "ENTRY") {
       entry = line[6:].trim().to_owned()
@@ -246,13 +246,13 @@ pub fn parse_kegg_compound(text : String) -> KEGGCompound? {
   let mut name = ""
   let mut formula = ""
   let mut mass = 0.0
-  let pathways : Array[String] = Array::new()
-  let enzymes : Array[String] = Array::new()
-  let reactions : Array[String] = Array::new()
+  let pathways : Array[String] = Array(capacity=0)
+  let enzymes : Array[String] = Array(capacity=0)
+  let reactions : Array[String] = Array(capacity=0)
 
   let mut i = 0
   while i < lines.length() {
-    let line = lines[i].trim().to_string()
+    let line = lines[i].trim().to_owned()
 
     if starts_with(line, 0, "ENTRY") {
       entry = line[6:].trim().to_owned()
@@ -295,14 +295,14 @@ pub fn parse_kegg_enzyme(text : String) -> KEGGEnzyme? {
   let mut entry = ""
   let mut name = ""
   let mut class = ""
-  let genes : Array[(String, String)] = Array::new()
-  let pathways : Array[String] = Array::new()
-  let reactions : Array[String] = Array::new()
-  let cofactors : Array[String] = Array::new()
+  let genes : Array[(String, String)] = Array(capacity=0)
+  let pathways : Array[String] = Array(capacity=0)
+  let reactions : Array[String] = Array(capacity=0)
+  let cofactors : Array[String] = Array(capacity=0)
 
   let mut i = 0
   while i < lines.length() {
-    let line = lines[i].trim().to_string()
+    let line = lines[i].trim().to_owned()
 
     if starts_with(line, 0, "ENTRY") {
       entry = line[6:].trim().to_owned()
@@ -351,7 +351,7 @@ pub fn parse_kegg_enzyme(text : String) -> KEGGEnzyme? {
 
 ///|
 pub fn kegg_pathway_gene_ids(pathway : KEGGPathway) -> Array[String] {
-  let ids : Array[String] = Array::new()
+  let ids : Array[String] = Array(capacity=0)
   let mut i = 0
   while i < pathway.genes.length() {
     ids.push(pathway.genes[i].0)
@@ -361,7 +361,7 @@ pub fn kegg_pathway_gene_ids(pathway : KEGGPathway) -> Array[String] {
 }
 
 ///|
-pub fn kegg_gene_pathway_count(gene : KEGGGene) -> Int {
+pub fn kegg_gene_pathway_count(gene : KEGGGene) -> Int32 {
   gene.pathways.length()
 }
 
@@ -378,7 +378,7 @@ pub fn kegg_compound_in_pathway(
     let path_len = path.length()
     if path_len >= id_len {
       let sub = path[0:id_len]
-      if sub.to_string() == pathway_id {
+      if sub.to_owned() == pathway_id {
         return true
       }
     }

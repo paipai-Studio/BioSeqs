@@ -19,6 +19,9 @@ pub enum ChrOrientation {
 } derive(Eq)
 
 ///|
+pub extend ChrOrientation with Eq::{equal, not_equal}
+
+///|
 /// Create a Forward orientation.
 pub fn chr_orientation_forward() -> ChrOrientation {
   Forward
@@ -45,11 +48,10 @@ pub enum ChrFeatureType {
   CDS
   UTR
   Promoter
-  Enhancer
-  Repetitive
-  Marker
-  Breakpoint
 } derive(Eq)
+
+///|
+pub extend ChrFeatureType with Eq::{equal, not_equal}
 
 ///|
 /// Create a Gene feature type.
@@ -76,18 +78,6 @@ pub fn chr_feature_type_cds() -> ChrFeatureType {
 }
 
 ///|
-/// Create a UTR feature type.
-pub fn chr_feature_type_utr() -> ChrFeatureType {
-  UTR
-}
-
-///|
-/// Create a Promoter feature type.
-pub fn chr_feature_type_promoter() -> ChrFeatureType {
-  Promoter
-}
-
-///|
 /// A genomic feature on a chromosome.
 pub struct ChrFeature {
   name : String
@@ -109,15 +99,6 @@ pub struct ChrRegion {
   color : String
   opacity : Double
   label : String
-}
-
-///|
-/// A chromosome arm (p or q).
-pub struct ChrArm {
-  arm_type : String
-  start : Double
-  end : Double
-  centromere : Double
 }
 
 ///|
@@ -177,11 +158,11 @@ pub fn ChrFeature::new(
   name~ : String,
   start~ : Double,
   end~ : Double,
-  orientation? : ChrOrientation = None,
-  feature_type? : ChrFeatureType = ChrFeatureType::Gene,
-  color? : String = "#45B7D1",
-  label? : String = "",
-  height? : Double = 0.3,
+  orientation~ : ChrOrientation = None,
+  feature_type~ : ChrFeatureType = ChrFeatureType::Gene,
+  color~ : String = "#45B7D1",
+  label~ : String = "",
+  height~ : Double = 0.3,
 ) -> ChrFeature {
   ChrFeature::{
     name,
@@ -205,9 +186,9 @@ pub fn ChrRegion::new(
   name~ : String,
   start~ : Double,
   end~ : Double,
-  color? : String = "#FFD700",
-  opacity? : Double = 0.3,
-  label? : String = "",
+  color~ : String = "#FFD700",
+  opacity~ : Double = 0.3,
+  label~ : String = "",
 ) -> ChrRegion {
   ChrRegion::{
     name,
@@ -228,8 +209,8 @@ pub fn ChrRegion::new(
 pub fn Chromosome::new(
   name~ : String,
   length~ : Double,
-  centromere_pos? : Double = 0.0,
-  is_circular? : Bool = false,
+  centromere_pos~ : Double = 0.0,
+  is_circular~ : Bool = false,
 ) -> Chromosome {
   Chromosome::{
     name,
@@ -245,18 +226,18 @@ pub fn Chromosome::new(
 ///|
 /// Create layout configuration.
 pub fn ChrLayout::new(
-  width? : Double = 800.0,
-  height? : Double = 600.0,
-  margin_left? : Double = 60.0,
-  margin_right? : Double = 60.0,
-  margin_top? : Double = 40.0,
-  margin_bottom? : Double = 40.0,
-  chromosome_thickness? : Double = 10.0,
-  label_font_size? : Double = 12.0,
-  show_labels? : Bool = true,
-  show_centromere? : Bool = true,
-  show_bands? : Bool = false,
-  color_scheme? : String = "default",
+  width~ : Double = 800.0,
+  height~ : Double = 600.0,
+  margin_left~ : Double = 60.0,
+  margin_right~ : Double = 60.0,
+  margin_top~ : Double = 40.0,
+  margin_bottom~ : Double = 40.0,
+  chromosome_thickness~ : Double = 10.0,
+  label_font_size~ : Double = 12.0,
+  show_labels~ : Bool = true,
+  show_centromere~ : Bool = true,
+  show_bands~ : Bool = false,
+  color_scheme~ : String = "default",
 ) -> ChrLayout {
   ChrLayout::{
     width,
@@ -278,10 +259,10 @@ pub fn ChrLayout::new(
 /// Create a chromosome diagram.
 pub fn ChrDiagram::new(
   chromosomes~ : Array[Chromosome],
-  layout? : ChrLayout = ChrLayout::new(),
-  title? : String = "",
+  layout~ : ChrLayout = ChrLayout::new(),
+  title~ : String = "",
 ) -> ChrDiagram {
-  ChrDiagram::{ chromosomes, layout, title, svg_elements: [] }
+  ChrDiagram::{ chromosomes, layout, title, svg_elements: [], }
 }
 
 // ============================================================================
@@ -420,16 +401,6 @@ fn chr_min(a : Double, b : Double) -> Double {
 }
 
 ///|
-/// Helper: abs of double.
-fn chr_abs(x : Double) -> Double {
-  if x < 0.0 {
-    -x
-  } else {
-    x
-  }
-}
-
-///|
 /// Helper: PI constant.
 fn chr_pi() -> Double {
   3.14159265358979323846
@@ -458,7 +429,7 @@ fn chr_svg_elem(
   content : String,
   children : Array[ChrSVGElement],
 ) -> ChrSVGElement {
-  ChrSVGElement::{ element_type, attributes, content, children }
+  ChrSVGElement::{ element_type, attributes, content, children, }
 }
 
 ///|
@@ -861,7 +832,7 @@ pub fn ChrDiagram::to_svg(self : ChrDiagram) -> String {
   let scale = if max_length > 0.0 { available_width / max_length } else { 1.0 }
 
   // Calculate spacing
-  let total_height_needed = n_chr.to_double() *
+  let _total_height_needed = n_chr.to_double() *
     (layout.chromosome_thickness + 80.0)
   let available_height = layout.height -
     layout.margin_top -
@@ -1072,91 +1043,13 @@ pub fn chr_create_human_karyotype() -> ChrDiagram {
   ChrDiagram::new(chromosomes~, layout~, title="Human Chromosome Map")
 }
 
-///|
-/// Create a bacterial circular chromosome diagram.
-pub fn chr_create_bacterial_chromosome() -> ChrDiagram {
-  let layout = ChrLayout::new(
-    width=600.0,
-    height=600.0,
-    chromosome_thickness=8.0,
-    show_labels=true,
-  )
-
-  let ecoli = Chromosome::new(
-    name="E. coli K-12",
-    length=4600000.0,
-    centromere_pos=2300000.0,
-    is_circular=true,
-  )
-  let ecoli = ecoli.add_feature(
-    ChrFeature::new(
-      name="rrl",
-      start=404000.0,
-      end=405000.0,
-      orientation=Forward,
-      feature_type=ChrFeatureType::Gene,
-      color="#FF6B6B",
-      label="rrl",
-    ),
-  )
-  let ecoli = ecoli.add_feature(
-    ChrFeature::new(
-      name="rpoB",
-      start=430000.0,
-      end=435000.0,
-      orientation=Forward,
-      feature_type=ChrFeatureType::Gene,
-      color="#4ECDC4",
-      label="rpoB",
-    ),
-  )
-  let ecoli = ecoli.add_feature(
-    ChrFeature::new(
-      name="lacZ",
-      start=3600000.0,
-      end=3603000.0,
-      orientation=Forward,
-      feature_type=ChrFeatureType::Gene,
-      color="#95E1D3",
-      label="lacZ",
-    ),
-  )
-  let ecoli = ecoli.add_feature(
-    ChrFeature::new(
-      name="trpA",
-      start=4000000.0,
-      end=4001000.0,
-      orientation=Reverse,
-      feature_type=ChrFeatureType::Gene,
-      color="#F38181",
-      label="trpA",
-    ),
-  )
-  let ecoli = ecoli.add_region(
-    ChrRegion::new(
-      name="Pathogenicity Island",
-      start=1000000.0,
-      end=1200000.0,
-      color="#FFE66D",
-      opacity=0.2,
-      label="PAI-1",
-    ),
-  )
-
-  ChrDiagram::new(
-    chromosomes=[ecoli],
-    layout~,
-    title="E. coli K-12 Circular Chromosome",
-  )
-}
-
 // ============================================================================
 // Analysis functions
 // ============================================================================
 
 ///|
 /// Get total number of features across all chromosomes.
-pub fn ChrDiagram::total_features(self : ChrDiagram) -> Int {
+pub fn ChrDiagram::total_features(self : ChrDiagram) -> Int32 {
   let mut count = 0
   for chr in self.chromosomes {
     count = count + chr.features.length()
@@ -1166,8 +1059,8 @@ pub fn ChrDiagram::total_features(self : ChrDiagram) -> Int {
 
 ///|
 /// Get features grouped by type across all chromosomes.
-pub fn ChrDiagram::features_by_type(self : ChrDiagram) -> Map[String, Int] {
-  let counts : Map[String, Int] = Map([], capacity=10)
+pub fn ChrDiagram::features_by_type(self : ChrDiagram) -> Map[String, Int32] {
+  let counts : Map[String, Int32] = Map([], capacity=10)
   for chr in self.chromosomes {
     for feat in chr.features {
       let type_name = chr_feature_type_name(feat.feature_type)
@@ -1210,16 +1103,15 @@ fn chr_feature_type_name(ft : ChrFeatureType) -> String {
     CDS => "cds"
     UTR => "utr"
     Promoter => "promoter"
-    Enhancer => "enhancer"
-    Repetitive => "repetitive"
-    Marker => "marker"
-    Breakpoint => "breakpoint"
   }
 }
 
 ///|
 /// Count features of a specific type across all chromosomes.
-pub fn ChrDiagram::count_by_type(self : ChrDiagram, ft : ChrFeatureType) -> Int {
+pub fn ChrDiagram::count_by_type(
+  self : ChrDiagram,
+  ft : ChrFeatureType,
+) -> Int32 {
   let mut count = 0
   for chr in self.chromosomes {
     for feat in chr.features {

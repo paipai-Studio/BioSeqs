@@ -65,12 +65,12 @@ fn main {
   println("Sequence: \{matrix_seq}")
   let matrix = @bio.letter_frequency_matrix(matrix_seq)
   let a_counts = matrix.get_or_default("A", Array::make(8, 0))
-  println("A counts per position: \{a_counts}")
+  println("A counts per position: \{Repr(a_counts)}")
 
   println("")
   println("=== Consensus Sequence Example ===")
   let alignment = ["ACGT", "ACGT", "TCGA"]
-  println("Alignment: \{alignment}")
+  println("Alignment: \{Repr(alignment)}")
   let consensus = @bio.biostrings_consensus_sequence(alignment)
   println("Consensus: \{consensus}")
 
@@ -106,21 +106,19 @@ fn main {
   println("Pattern: \{pattern}")
 
   // Exact matching
-  let result_exact = @bio.match_pattern(pattern=pattern, subject=subject)
+  let result_exact = @bio.match_pattern(pattern~, subject~)
   println("Exact match hits: \{result_exact.hits.length()}")
   let mut i = 0
   while i < result_exact.hits.length() {
     let hit = result_exact.hits[i]
-    println("  Hit \{i}: start=\{hit.start}, end=\{hit.end}, mismatches=\{hit.mismatches}")
+    println(
+      "  Hit \{i}: start=\{hit.start}, end=\{hit.end}, mismatches=\{hit.mismatches}",
+    )
     i = i + 1
   }
 
   // With 1 mismatch
-  let result_mm = @bio.match_pattern(
-    pattern=pattern,
-    subject=subject,
-    max_mismatches=1,
-  )
+  let result_mm = @bio.match_pattern(pattern~, subject~, max_mismatches=1)
   println("")
   println("With max_mismatches=1 hits: \{result_mm.hits.length()}")
 
@@ -145,6 +143,6 @@ fn main {
   println("=== Vectorized Pattern Matching ===")
   let subjects = ["ACGTACGT", "TGCATGCA", "AAAAAAAA"]
   println("Subjects array: \{subjects.length()} entries")
-  let vmatch_results = @bio.vmatch_pattern(pattern="CGT", subjects=subjects)
+  let vmatch_results = @bio.vmatch_pattern(pattern="CGT", subjects~)
   println("Vectorized match results: \{vmatch_results.length()} entries")
 }

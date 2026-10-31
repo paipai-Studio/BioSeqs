@@ -16,11 +16,23 @@ pub enum FlowSomDistance {
 } derive(Eq, Debug)
 
 ///|
+pub extend FlowSomDistance with Eq::{equal, not_equal}
+
+///|
+pub extend FlowSomDistance with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
 pub enum FlowSomInitialization {
   FlowSomRandom
   FlowSomKwsp
   FlowSomPca
 } derive(Eq, Debug)
+
+///|
+pub extend FlowSomInitialization with Eq::{equal, not_equal}
+
+///|
+pub extend FlowSomInitialization with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub fn flowsom_manhattan_distance() -> FlowSomDistance {
@@ -59,10 +71,10 @@ pub fn flowsom_pca_initialization() -> FlowSomInitialization {
 
 ///|
 pub struct FlowSomConfig {
-  xdim : Int
-  ydim : Int
-  rlen : Int
-  mst_runs : Int
+  xdim : Int32
+  ydim : Int32
+  rlen : Int32
+  mst_runs : Int32
   alpha_start : Double
   alpha_end : Double
   radius_start : Double
@@ -70,29 +82,32 @@ pub struct FlowSomConfig {
   distance : FlowSomDistance
   initialization : FlowSomInitialization
   importance : Array[Double]
-  metaclusters : Int
-  meta_starts : Int
+  metaclusters : Int32
+  meta_starts : Int32
   outlier_mad : Double
-  seed : Int
+  seed : Int32
 } derive(Debug)
 
 ///|
+pub extend FlowSomConfig with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
 pub fn FlowSomConfig::create(
-  xdim? : Int = 10,
-  ydim? : Int = 10,
-  rlen? : Int = 10,
-  mst_runs? : Int = 1,
-  alpha_start? : Double = 0.05,
-  alpha_end? : Double = 0.01,
-  radius_start? : Double = -1.0,
-  radius_end? : Double = 0.0,
-  distance? : FlowSomDistance = FlowSomEuclidean,
-  initialization? : FlowSomInitialization = FlowSomKwsp,
-  importance? : Array[Double] = [],
-  metaclusters? : Int = 0,
-  meta_starts? : Int = 10,
-  outlier_mad? : Double = 4.0,
-  seed? : Int = 1,
+  xdim~ : Int32 = 10,
+  ydim~ : Int32 = 10,
+  rlen~ : Int32 = 10,
+  mst_runs~ : Int32 = 1,
+  alpha_start~ : Double = 0.05,
+  alpha_end~ : Double = 0.01,
+  radius_start~ : Double = -1.0,
+  radius_end~ : Double = 0.0,
+  distance~ : FlowSomDistance = FlowSomEuclidean,
+  initialization~ : FlowSomInitialization = FlowSomKwsp,
+  importance~ : Array[Double] = [],
+  metaclusters~ : Int32 = 0,
+  meta_starts~ : Int32 = 10,
+  outlier_mad~ : Double = 4.0,
+  seed~ : Int32 = 1,
 ) -> FlowSomConfig raise FlowSomError {
   if xdim <= 0 || ydim <= 0 {
     flowsom_fail("FlowSOM grid dimensions must be positive")
@@ -100,8 +115,8 @@ pub fn FlowSomConfig::create(
   if rlen <= 0 || mst_runs <= 0 {
     flowsom_fail("FlowSOM rlen and mst_runs must be positive")
   }
-  if !flowsom_is_finite(alpha_start) ||
-    !flowsom_is_finite(alpha_end) ||
+  if !is_finite(alpha_start) ||
+    !is_finite(alpha_end) ||
     alpha_start <= 0.0 ||
     alpha_end < 0.0 ||
     alpha_start < alpha_end {
@@ -109,8 +124,8 @@ pub fn FlowSomConfig::create(
       "FlowSOM learning rates must be finite, non-negative and decreasing",
     )
   }
-  if !flowsom_is_finite(radius_start) ||
-    !flowsom_is_finite(radius_end) ||
+  if !is_finite(radius_start) ||
+    !is_finite(radius_end) ||
     radius_start < -1.0 ||
     radius_end < 0.0 ||
     (radius_start >= 0.0 && radius_start < radius_end) {
@@ -122,14 +137,14 @@ pub fn FlowSomConfig::create(
   if meta_starts <= 0 {
     flowsom_fail("FlowSOM meta-clustering starts must be positive")
   }
-  if !flowsom_is_finite(outlier_mad) || outlier_mad < 0.0 {
+  if !is_finite(outlier_mad) || outlier_mad < 0.0 {
     flowsom_fail("FlowSOM outlier MAD multiplier must be non-negative")
   }
   if seed <= 0 {
     flowsom_fail("FlowSOM random seed must be positive")
   }
   for value in importance {
-    if !flowsom_is_finite(value) || value <= 0.0 {
+    if !is_finite(value) || value <= 0.0 {
       flowsom_fail("FlowSOM marker importance values must be positive")
     }
   }
@@ -154,64 +169,85 @@ pub fn FlowSomConfig::create(
 
 ///|
 pub struct FlowSomMstEdge {
-  from : Int
-  to : Int
+  from : Int32
+  to : Int32
   weight : Double
 } derive(Eq, Debug)
 
 ///|
+pub extend FlowSomMstEdge with Eq::{equal, not_equal}
+
+///|
+pub extend FlowSomMstEdge with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
 pub struct FlowSomMapping {
-  clusters : Array[Int]
+  clusters : Array[Int32]
   distances : Array[Double]
 } derive(Debug)
+
+///|
+pub extend FlowSomMapping with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct FlowSomOutlierReport {
   median_distances : Array[Double?]
   mad_distances : Array[Double?]
   thresholds : Array[Double?]
-  counts : Array[Int]
+  counts : Array[Int32]
   maximum_distances : Array[Double?]
   per_cell : Array[Bool]
 } derive(Debug)
+
+///|
+pub extend FlowSomOutlierReport with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct FlowSomModel {
   data : Array[Array[Double]]
   marker_names : Array[String]
   codes : Array[Array[Double]]
-  grid : Array[(Int, Int)]
+  grid : Array[(Int32, Int32)]
   mapping : FlowSomMapping
   mst_edges : Array[FlowSomMstEdge]
-  topology_distances : Array[Array[Int]]
-  node_counts : Array[Int]
+  topology_distances : Array[Array[Int32]]
+  node_counts : Array[Int32]
   node_percentages : Array[Double]
   node_medians : Array[Array[Double?]]
   node_cvs : Array[Array[Double?]]
   node_sds : Array[Array[Double?]]
   node_mads : Array[Array[Double?]]
-  meta_clusters : Array[Int]
-  cell_meta_clusters : Array[Int]
+  meta_clusters : Array[Int32]
+  cell_meta_clusters : Array[Int32]
   outliers : FlowSomOutlierReport
   quantization_error : Double
   topographic_error : Double
-  iterations : Int
+  iterations : Int32
   config : FlowSomConfig
 } derive(Debug)
 
 ///|
+pub extend FlowSomModel with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
 pub struct FlowSomMappedData {
   mapping : FlowSomMapping
-  meta_clusters : Array[Int]
+  meta_clusters : Array[Int32]
   outliers : Array[Bool]
 } derive(Debug)
+
+///|
+pub extend FlowSomMappedData with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct FlowSomPurity {
   mean : Double
   worst : Double
-  below_075 : Int
+  below_075 : Int32
 } derive(Debug)
+
+///|
+pub extend FlowSomPurity with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct FlowSomSceOutput {
@@ -225,14 +261,9 @@ fn flowsom_fail(message : String) -> Unit raise FlowSomError {
 }
 
 ///|
-fn flowsom_is_finite(value : Double) -> Bool {
-  value == value && value.abs() <= 1.0e300
-}
-
-///|
 fn flowsom_double_matrix(
-  rows : Int,
-  columns : Int,
+  rows : Int32,
+  columns : Int32,
   value : Double,
 ) -> Array[Array[Double]] {
   let output : Array[Array[Double]] = []
@@ -244,11 +275,11 @@ fn flowsom_double_matrix(
 
 ///|
 fn flowsom_int_matrix(
-  rows : Int,
-  columns : Int,
-  value : Int,
-) -> Array[Array[Int]] {
-  let output : Array[Array[Int]] = []
+  rows : Int32,
+  columns : Int32,
+  value : Int32,
+) -> Array[Array[Int32]] {
+  let output : Array[Array[Int32]] = []
   for _ in 0..<rows {
     output.push(Array::make(columns, value))
   }
@@ -256,7 +287,10 @@ fn flowsom_int_matrix(
 }
 
 ///|
-fn flowsom_optional_matrix(rows : Int, columns : Int) -> Array[Array[Double?]] {
+fn flowsom_optional_matrix(
+  rows : Int32,
+  columns : Int32,
+) -> Array[Array[Double?]] {
   let output : Array[Array[Double?]] = []
   for _ in 0..<rows {
     output.push(Array::make(columns, None))
@@ -272,7 +306,7 @@ fn flowsom_copy_matrix(data : Array[Array[Double]]) -> Array[Array[Double]] {
 ///|
 fn flowsom_matrix_shape(
   data : Array[Array[Double]],
-) -> (Int, Int) raise FlowSomError {
+) -> (Int32, Int32) raise FlowSomError {
   if data.length() == 0 {
     flowsom_fail("FlowSOM data must contain at least one cell")
   }
@@ -285,7 +319,7 @@ fn flowsom_matrix_shape(
       flowsom_fail("FlowSOM data must be rectangular")
     }
     for value in row {
-      if !flowsom_is_finite(value) {
+      if !is_finite(value) {
         flowsom_fail("FlowSOM data must contain only finite values")
       }
     }
@@ -294,7 +328,7 @@ fn flowsom_matrix_shape(
 }
 
 ///|
-fn flowsom_lcg(state : Int) -> (Int, Double) {
+fn flowsom_lcg(state : Int32) -> (Int32, Double) {
   let normalized = (state - 1) % 2147483646 + 1
   let quotient = normalized / 44488
   let remainder = normalized % 44488
@@ -313,12 +347,12 @@ pub fn flowsom_distance(
     flowsom_fail("FlowSOM distance vectors must be non-empty and equal-length")
   }
   for value in left {
-    if !flowsom_is_finite(value) {
+    if !is_finite(value) {
       flowsom_fail("FlowSOM distance vectors must be finite")
     }
   }
   for value in right {
-    if !flowsom_is_finite(value) {
+    if !is_finite(value) {
       flowsom_fail("FlowSOM distance vectors must be finite")
     }
   }
@@ -386,8 +420,8 @@ fn flowsom_weight_data(
 }
 
 ///|
-fn flowsom_grid(xdim : Int, ydim : Int) -> Array[(Int, Int)] {
-  let grid : Array[(Int, Int)] = []
+fn flowsom_grid(xdim : Int32, ydim : Int32) -> Array[(Int32, Int32)] {
+  let grid : Array[(Int32, Int32)] = []
   for y in 0..<ydim {
     for x in 0..<xdim {
       grid.push((x, y))
@@ -397,7 +431,7 @@ fn flowsom_grid(xdim : Int, ydim : Int) -> Array[(Int, Int)] {
 }
 
 ///|
-fn flowsom_grid_distances(grid : Array[(Int, Int)]) -> Array[Array[Int]] {
+fn flowsom_grid_distances(grid : Array[(Int32, Int32)]) -> Array[Array[Int32]] {
   let distances = flowsom_int_matrix(grid.length(), grid.length(), 0)
   for left in 0..<grid.length() {
     let (left_x, left_y) = grid[left]
@@ -412,7 +446,7 @@ fn flowsom_grid_distances(grid : Array[(Int, Int)]) -> Array[Array[Int]] {
 }
 
 ///|
-fn flowsom_default_radius(grid : Array[(Int, Int)]) -> Double {
+fn flowsom_default_radius(grid : Array[(Int32, Int32)]) -> Double {
   let distances : Array[Double] = []
   for left in 0..<grid.length() {
     let (left_x, left_y) = grid[left]
@@ -426,7 +460,7 @@ fn flowsom_default_radius(grid : Array[(Int, Int)]) -> Double {
   if distances.length() == 0 {
     return 0.0
   }
-  distances.sort_by(fn(left : Double, right : Double) -> Int {
+  distances.sort_by(fn(left : Double, right : Double) -> Int32 {
     if left < right {
       -1
     } else if left > right {
@@ -442,8 +476,8 @@ fn flowsom_default_radius(grid : Array[(Int, Int)]) -> Double {
 ///|
 pub fn flowsom_initialize_kwsp(
   data : Array[Array[Double]],
-  nodes : Int,
-  seed? : Int = 1,
+  nodes : Int32,
+  seed~ : Int32 = 1,
 ) -> Array[Array[Double]] raise FlowSomError {
   let (cells, _) = flowsom_matrix_shape(data)
   if nodes <= 0 || nodes > cells {
@@ -454,7 +488,7 @@ pub fn flowsom_initialize_kwsp(
   }
   let (_, first_draw) = flowsom_lcg(seed)
   let first = (first_draw * cells.to_double()).to_int().min(cells - 1)
-  let selected : Array[Int] = [first]
+  let selected : Array[Int32] = [first]
   let distances : Array[Double] = []
   for cell in 0..<cells {
     let distance = flowsom_distance_unchecked(
@@ -493,8 +527,8 @@ pub fn flowsom_initialize_kwsp(
 ///|
 fn flowsom_initialize_random(
   data : Array[Array[Double]],
-  nodes : Int,
-  seed : Int,
+  nodes : Int32,
+  seed : Int32,
 ) -> Array[Array[Double]] raise FlowSomError {
   let (cells, _) = flowsom_matrix_shape(data)
   if nodes <= 0 || nodes > cells {
@@ -644,8 +678,8 @@ fn flowsom_power_component(
 ///|
 pub fn flowsom_initialize_pca(
   data : Array[Array[Double]],
-  xdim : Int,
-  ydim : Int,
+  xdim : Int32,
+  ydim : Int32,
 ) -> Array[Array[Double]] raise FlowSomError {
   let (_, markers) = flowsom_matrix_shape(data)
   if xdim <= 0 || ydim <= 0 {
@@ -749,9 +783,9 @@ pub fn flowsom_build_mst(
 
 ///|
 fn flowsom_topology_from_mst(
-  nodes : Int,
+  nodes : Int32,
   edges : Array[FlowSomMstEdge],
-) -> Array[Array[Int]] {
+) -> Array[Array[Int32]] {
   let infinity = nodes + 1
   let distances = flowsom_int_matrix(nodes, nodes, infinity)
   for node in 0..<nodes {
@@ -776,7 +810,7 @@ fn flowsom_topology_from_mst(
 ///|
 pub fn flowsom_mst_distances(
   codes : Array[Array[Double]],
-) -> Array[Array[Int]] raise FlowSomError {
+) -> Array[Array[Int32]] raise FlowSomError {
   ignore(flowsom_matrix_shape(codes))
   flowsom_topology_from_mst(codes.length(), flowsom_mst_unchecked(codes))
 }
@@ -787,7 +821,7 @@ fn flowsom_map_unchecked(
   data : Array[Array[Double]],
   distance : FlowSomDistance,
 ) -> FlowSomMapping {
-  let clusters : Array[Int] = []
+  let clusters : Array[Int32] = []
   let distances : Array[Double] = []
   for row in data {
     let mut best = 0
@@ -802,14 +836,14 @@ fn flowsom_map_unchecked(
     clusters.push(best)
     distances.push(best_distance)
   }
-  FlowSomMapping::{ clusters, distances }
+  FlowSomMapping::{ clusters, distances, }
 }
 
 ///|
 pub fn flowsom_map_data(
   codes : Array[Array[Double]],
   data : Array[Array[Double]],
-  distance? : FlowSomDistance = FlowSomEuclidean,
+  distance~ : FlowSomDistance = FlowSomEuclidean,
 ) -> FlowSomMapping raise FlowSomError {
   let (_, code_markers) = flowsom_matrix_shape(codes)
   let (_, data_markers) = flowsom_matrix_shape(data)
@@ -823,15 +857,15 @@ pub fn flowsom_map_data(
 fn flowsom_training_stage(
   data : Array[Array[Double]],
   codes : Array[Array[Double]],
-  topology : Array[Array[Int]],
+  topology : Array[Array[Int32]],
   alpha_start : Double,
   alpha_end : Double,
   radius_start : Double,
   radius_end : Double,
-  rlen : Int,
+  rlen : Int32,
   distance : FlowSomDistance,
-  initial_state : Int,
-) -> (Int, Int) {
+  initial_state : Int32,
+) -> (Int32, Int32) {
   let total_iterations = rlen * data.length()
   let radius_step = (radius_start - radius_end) / total_iterations.to_double()
   let mut radius = radius_start
@@ -896,7 +930,7 @@ fn flowsom_training_stage(
 ///|
 fn flowsom_median(values : Array[Double]) -> Double {
   let sorted = values.copy()
-  sorted.sort_by(fn(left : Double, right : Double) -> Int {
+  sorted.sort_by(fn(left : Double, right : Double) -> Int32 {
     if left < right {
       -1
     } else if left > right {
@@ -921,7 +955,7 @@ fn flowsom_mad(values : Array[Double], center : Double) -> Double {
 
 ///|
 priv struct FlowSomNodeSummary {
-  counts : Array[Int]
+  counts : Array[Int32]
   percentages : Array[Double]
   medians : Array[Array[Double?]]
   cvs : Array[Array[Double?]]
@@ -932,8 +966,8 @@ priv struct FlowSomNodeSummary {
 ///|
 fn flowsom_node_summary(
   data : Array[Array[Double]],
-  clusters : Array[Int],
-  nodes : Int,
+  clusters : Array[Int32],
+  nodes : Int32,
 ) -> FlowSomNodeSummary {
   let markers = data[0].length()
   let counts = Array::make(nodes, 0)
@@ -981,13 +1015,13 @@ fn flowsom_node_summary(
       }
     }
   }
-  FlowSomNodeSummary::{ counts, percentages, medians, cvs, sds, mads }
+  FlowSomNodeSummary::{ counts, percentages, medians, cvs, sds, mads, }
 }
 
 ///|
 fn flowsom_outlier_report(
   mapping : FlowSomMapping,
-  nodes : Int,
+  nodes : Int32,
   mad_allowed : Double,
 ) -> FlowSomOutlierReport {
   let medians : Array[Double?] = Array::make(nodes, None)
@@ -1040,10 +1074,10 @@ fn flowsom_outlier_report(
 ///|
 pub fn flowsom_meta_cluster_codes(
   codes : Array[Array[Double]],
-  clusters : Int,
-  starts? : Int = 10,
-  seed? : Int = 1,
-) -> Array[Int] raise FlowSomError {
+  clusters : Int32,
+  starts~ : Int32 = 10,
+  seed~ : Int32 = 1,
+) -> Array[Int32] raise FlowSomError {
   let (nodes, _) = flowsom_matrix_shape(codes)
   if clusters <= 0 || clusters > nodes {
     flowsom_fail(
@@ -1070,8 +1104,8 @@ pub fn flowsom_meta_cluster_codes(
 ///|
 fn flowsom_line_residual(
   values : Array[Double],
-  start : Int,
-  end : Int,
+  start : Int32,
+  end : Int32,
 ) -> Double {
   let count = end - start
   if count <= 1 {
@@ -1105,10 +1139,10 @@ fn flowsom_line_residual(
 ///|
 pub fn flowsom_determine_meta_clusters(
   codes : Array[Array[Double]],
-  maximum : Int,
-  starts? : Int = 10,
-  seed? : Int = 1,
-) -> Int raise FlowSomError {
+  maximum : Int32,
+  starts~ : Int32 = 10,
+  seed~ : Int32 = 1,
+) -> Int32 raise FlowSomError {
   let (nodes, _) = flowsom_matrix_shape(codes)
   if maximum <= 0 || maximum > nodes {
     flowsom_fail("FlowSOM maximum meta-clusters must be within node count")
@@ -1175,7 +1209,7 @@ fn flowsom_quality(
   data : Array[Array[Double]],
   codes : Array[Array[Double]],
   mapping : FlowSomMapping,
-  topology : Array[Array[Int]],
+  topology : Array[Array[Int32]],
   distance : FlowSomDistance,
 ) -> (Double, Double) {
   let mut quantization = 0.0
@@ -1218,7 +1252,7 @@ fn flowsom_quality(
 pub fn flowsom_train(
   data : Array[Array[Double]],
   config : FlowSomConfig,
-  marker_names? : Array[String] = [],
+  marker_names~ : Array[String] = [],
 ) -> FlowSomModel raise FlowSomError {
   let (cells, markers) = flowsom_matrix_shape(data)
   let nodes = config.xdim * config.ydim
@@ -1368,20 +1402,20 @@ pub fn flowsom_map_new(
       None => ()
     }
   }
-  FlowSomMappedData::{ mapping, meta_clusters, outliers }
+  FlowSomMappedData::{ mapping, meta_clusters, outliers, }
 }
 
 ///|
 pub fn flowsom_marker_outliers(
   model : FlowSomModel,
   data : Array[Array[Double]],
-  mad_allowed? : Double = 4.0,
-) -> Array[Array[Int]] raise FlowSomError {
+  mad_allowed~ : Double = 4.0,
+) -> Array[Array[Int32]] raise FlowSomError {
   let (_, markers) = flowsom_matrix_shape(data)
   if markers != model.marker_names.length() {
     flowsom_fail("FlowSOM marker outlier data does not match the model")
   }
-  if !flowsom_is_finite(mad_allowed) || mad_allowed < 0.0 {
+  if !is_finite(mad_allowed) || mad_allowed < 0.0 {
     flowsom_fail("FlowSOM marker outlier MAD multiplier must be non-negative")
   }
   let mapped = flowsom_map_new(model, data)
@@ -1415,7 +1449,7 @@ pub fn flowsom_node_positive_percentages(
     flowsom_fail("FlowSOM positive cutoffs must match marker count")
   }
   for cutoff in cutoffs {
-    if !flowsom_is_finite(cutoff) {
+    if !is_finite(cutoff) {
       flowsom_fail("FlowSOM positive cutoffs must be finite")
     }
   }
@@ -1444,7 +1478,7 @@ pub fn flowsom_node_positive_percentages(
 ///|
 pub fn flowsom_meta_counts(
   model : FlowSomModel,
-) -> Array[Int] raise FlowSomError {
+) -> Array[Int32] raise FlowSomError {
   if model.meta_clusters.length() == 0 {
     flowsom_fail("FlowSOM model does not contain meta-clusters")
   }
@@ -1474,14 +1508,14 @@ pub fn flowsom_meta_medians(
 }
 
 ///|
-fn flowsom_unique_labels(labels : Array[Int]) -> Array[Int] {
-  let output : Array[Int] = []
+fn flowsom_unique_labels(labels : Array[Int32]) -> Array[Int32] {
+  let output : Array[Int32] = []
   for label in labels {
     if !output.contains(label) {
       output.push(label)
     }
   }
-  output.sort_by(fn(left : Int, right : Int) -> Int {
+  output.sort_by(fn(left : Int32, right : Int32) -> Int32 {
     if left < right {
       -1
     } else if left > right {
@@ -1494,7 +1528,7 @@ fn flowsom_unique_labels(labels : Array[Int]) -> Array[Int] {
 }
 
 ///|
-fn flowsom_label_index(labels : Array[Int], value : Int) -> Int {
+fn flowsom_label_index(labels : Array[Int32], value : Int32) -> Int32 {
   for index in 0..<labels.length() {
     if labels[index] == value {
       return index
@@ -1505,9 +1539,9 @@ fn flowsom_label_index(labels : Array[Int], value : Int) -> Int {
 
 ///|
 pub fn flowsom_purity(
-  real_clusters : Array[Int],
-  predicted_clusters : Array[Int],
-  weighted? : Bool = true,
+  real_clusters : Array[Int32],
+  predicted_clusters : Array[Int32],
+  weighted~ : Bool = true,
 ) -> FlowSomPurity raise FlowSomError {
   if real_clusters.length() == 0 ||
     real_clusters.length() != predicted_clusters.length() {
@@ -1545,13 +1579,13 @@ pub fn flowsom_purity(
       mean = mean + purity / predicted.length().to_double()
     }
   }
-  FlowSomPurity::{ mean, worst, below_075: below }
+  FlowSomPurity::{ mean, worst, below_075: below, }
 }
 
 ///|
 pub fn flowsom_f_measure(
-  real_clusters : Array[Int],
-  predicted_clusters : Array[Int],
+  real_clusters : Array[Int32],
+  predicted_clusters : Array[Int32],
 ) -> Double raise FlowSomError {
   if real_clusters.length() == 0 ||
     real_clusters.length() != predicted_clusters.length() {
@@ -1601,7 +1635,7 @@ pub fn flowsom_f_measure(
 ///|
 fn flowsom_config_with_metaclusters(
   config : FlowSomConfig,
-  metaclusters : Int,
+  metaclusters : Int32,
 ) -> FlowSomConfig {
   FlowSomConfig::{
     xdim: config.xdim,
@@ -1625,9 +1659,9 @@ fn flowsom_config_with_metaclusters(
 ///|
 pub fn flowsom_with_metaclusters(
   model : FlowSomModel,
-  clusters : Int,
-  starts? : Int = 10,
-  seed? : Int = 1,
+  clusters : Int32,
+  starts~ : Int32 = 10,
+  seed~ : Int32 = 1,
 ) -> FlowSomModel raise FlowSomError {
   let meta_clusters = flowsom_meta_cluster_codes(
     model.codes,
@@ -1675,9 +1709,9 @@ pub fn flowsom_with_metaclusters(
 ///|
 pub fn flowsom_with_automatic_metaclusters(
   model : FlowSomModel,
-  maximum : Int,
-  starts? : Int = 10,
-  seed? : Int = 1,
+  maximum : Int32,
+  starts~ : Int32 = 10,
+  seed~ : Int32 = 1,
 ) -> FlowSomModel raise FlowSomError {
   let clusters = flowsom_determine_meta_clusters(
     model.codes,
@@ -1690,9 +1724,9 @@ pub fn flowsom_with_automatic_metaclusters(
 
 ///|
 fn flowsom_resolve_marker_indices(
-  marker_count : Int,
-  marker_indices : Array[Int],
-) -> Array[Int] raise FlowSomError {
+  marker_count : Int32,
+  marker_indices : Array[Int32],
+) -> Array[Int32] raise FlowSomError {
   if marker_count <= 0 {
     flowsom_fail("FlowSOM input must contain at least one marker")
   }
@@ -1703,7 +1737,7 @@ fn flowsom_resolve_marker_indices(
     }
     return all
   }
-  let selected : Array[Int] = []
+  let selected : Array[Int32] = []
   for marker in marker_indices {
     if marker < 0 || marker >= marker_count {
       flowsom_fail("FlowSOM marker index is outside the input matrix")
@@ -1720,7 +1754,7 @@ fn flowsom_resolve_marker_indices(
 pub fn flowsom_train_flow_frame(
   frame : FlowFrame,
   config : FlowSomConfig,
-  marker_indices? : Array[Int] = [],
+  marker_indices~ : Array[Int32] = [],
 ) -> FlowSomModel raise FlowSomError {
   let (_, markers) = flowsom_matrix_shape(frame.exprs)
   let selected = flowsom_resolve_marker_indices(markers, marker_indices)
@@ -1786,10 +1820,10 @@ fn flowsom_copy_sce(source : SingleCellExperiment) -> SingleCellExperiment {
 pub fn flowsom_cluster_sce(
   experiment : SingleCellExperiment,
   config : FlowSomConfig,
-  assay_name? : String = "counts",
-  marker_indices? : Array[Int] = [],
-  cluster_column? : String = "FlowSOM.cluster",
-  meta_column? : String = "FlowSOM.metacluster",
+  assay_name~ : String = "counts",
+  marker_indices~ : Array[Int32] = [],
+  cluster_column~ : String = "FlowSOM.cluster",
+  meta_column~ : String = "FlowSOM.metacluster",
 ) -> FlowSomSceOutput raise FlowSomError {
   if assay_name.length() == 0 ||
     cluster_column.length() == 0 ||
@@ -1847,7 +1881,7 @@ pub fn flowsom_cluster_sce(
     config.ydim.to_string()
   output.metadata["FlowSOM.quantization_error"] = model.quantization_error.to_string()
   output.metadata["FlowSOM.topographic_error"] = model.topographic_error.to_string()
-  FlowSomSceOutput::{ experiment: output, model }
+  FlowSomSceOutput::{ experiment: output, model, }
 }
 
 ///|

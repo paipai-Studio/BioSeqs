@@ -15,33 +15,45 @@ pub(all) enum DmnCriterion {
 } derive(Eq, Debug)
 
 ///|
+pub extend DmnCriterion with Eq::{equal, not_equal}
+
+///|
+pub extend DmnCriterion with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
 pub struct DmnConfig {
-  components : Int
-  max_iterations : Int
-  optimizer_iterations : Int
-  soft_kmeans_iterations : Int
+  components : Int32
+  max_iterations : Int32
+  optimizer_iterations : Int32
+  soft_kmeans_iterations : Int32
   tolerance : Double
   optimizer_tolerance : Double
   soft_beta : Double
-  seed : Int
+  seed : Int32
   prior_shape : Double
   prior_rate : Double
   min_alpha : Double
 } derive(Eq, Debug)
 
 ///|
+pub extend DmnConfig with Eq::{equal, not_equal}
+
+///|
+pub extend DmnConfig with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
 pub fn DmnConfig::create(
-  components? : Int = 1,
-  max_iterations? : Int = 100,
-  optimizer_iterations? : Int = 250,
-  soft_kmeans_iterations? : Int = 200,
-  tolerance? : Double = 1.0e-6,
-  optimizer_tolerance? : Double = 1.0e-5,
-  soft_beta? : Double = 50.0,
-  seed? : Int = 42,
-  prior_shape? : Double = 0.1,
-  prior_rate? : Double = 0.1,
-  min_alpha? : Double = 1.0e-8,
+  components~ : Int32 = 1,
+  max_iterations~ : Int32 = 100,
+  optimizer_iterations~ : Int32 = 250,
+  soft_kmeans_iterations~ : Int32 = 200,
+  tolerance~ : Double = 1.0e-6,
+  optimizer_tolerance~ : Double = 1.0e-5,
+  soft_beta~ : Double = 50.0,
+  seed~ : Int32 = 42,
+  prior_shape~ : Double = 0.1,
+  prior_rate~ : Double = 0.1,
+  min_alpha~ : Double = 1.0e-8,
 ) -> DmnConfig raise DirichletMultinomialError {
   if components < 1 {
     raise DirichletMultinomialError(
@@ -55,17 +67,17 @@ pub fn DmnConfig::create(
       "DirichletMultinomial iteration limits must be positive",
     )
   }
-  if !dmn_is_finite(tolerance) || tolerance <= 0.0 {
+  if !is_finite(tolerance) || tolerance <= 0.0 {
     raise DirichletMultinomialError(
       "DirichletMultinomial EM tolerance must be finite and positive",
     )
   }
-  if !dmn_is_finite(optimizer_tolerance) || optimizer_tolerance <= 0.0 {
+  if !is_finite(optimizer_tolerance) || optimizer_tolerance <= 0.0 {
     raise DirichletMultinomialError(
       "DirichletMultinomial optimizer tolerance must be finite and positive",
     )
   }
-  if !dmn_is_finite(soft_beta) || soft_beta <= 0.0 {
+  if !is_finite(soft_beta) || soft_beta <= 0.0 {
     raise DirichletMultinomialError(
       "DirichletMultinomial soft k-means beta must be finite and positive",
     )
@@ -75,17 +87,17 @@ pub fn DmnConfig::create(
       "DirichletMultinomial random seed must be positive",
     )
   }
-  if !dmn_is_finite(prior_shape) || prior_shape <= 0.0 {
+  if !is_finite(prior_shape) || prior_shape <= 0.0 {
     raise DirichletMultinomialError(
       "DirichletMultinomial Gamma prior shape must be finite and positive",
     )
   }
-  if !dmn_is_finite(prior_rate) || prior_rate <= 0.0 {
+  if !is_finite(prior_rate) || prior_rate <= 0.0 {
     raise DirichletMultinomialError(
       "DirichletMultinomial Gamma prior rate must be finite and positive",
     )
   }
-  if !dmn_is_finite(min_alpha) || min_alpha <= 0.0 || min_alpha >= 1.0 {
+  if !is_finite(min_alpha) || min_alpha <= 0.0 || min_alpha >= 1.0 {
     raise DirichletMultinomialError(
       "DirichletMultinomial minimum alpha must be finite and in (0, 1)",
     )
@@ -125,8 +137,8 @@ pub fn DmnConfig::default() -> DmnConfig {
 ///|
 pub fn DmnConfig::with_components(
   self : DmnConfig,
-  components : Int,
-  seed? : Int = self.seed,
+  components : Int32,
+  seed~ : Int32 = self.seed,
 ) -> DmnConfig raise DirichletMultinomialError {
   DmnConfig::create(
     components~,
@@ -153,6 +165,12 @@ pub struct DmnGoodnessOfFit {
 } derive(Eq, Debug)
 
 ///|
+pub extend DmnGoodnessOfFit with Eq::{equal, not_equal}
+
+///|
+pub extend DmnGoodnessOfFit with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
 pub struct DmnFit {
   estimates : Array[Array[Double]]
   lower : Array[Array[Double]]
@@ -164,7 +182,7 @@ pub struct DmnFit {
   goodness : DmnGoodnessOfFit
   log_likelihoods : Array[Double]
   converged : Bool
-  iterations : Int
+  iterations : Int32
   config : DmnConfig
 }
 
@@ -172,7 +190,7 @@ pub struct DmnFit {
 pub struct DmnModelSelection {
   fits : Array[DmnFit]
   scores : Array[Double]
-  best_index : Int
+  best_index : Int32
   criterion : DmnCriterion
 }
 
@@ -190,8 +208,8 @@ pub struct DmnCrossValidation {
   predictions : Array[String]
   truth : Array[String]
   group_names : Array[String]
-  fold_ids : Array[Int]
-  correct : Int
+  fold_ids : Array[Int32]
+  correct : Int32
   accuracy : Double
 }
 
@@ -205,14 +223,15 @@ pub struct DmnRoc {
 } derive(Eq, Debug)
 
 ///|
-fn dmn_is_finite(value : Double) -> Bool {
-  value == value && value.abs() <= 1.0e300
-}
+pub extend DmnRoc with Eq::{equal, not_equal}
+
+///|
+pub extend DmnRoc with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 fn dmn_make_matrix(
-  rows : Int,
-  columns : Int,
+  rows : Int32,
+  columns : Int32,
   value : Double,
 ) -> Array[Array[Double]] {
   let output : Array[Array[Double]] = []
@@ -232,7 +251,7 @@ fn dmn_copy_matrix(values : Array[Array[Double]]) -> Array[Array[Double]] {
 }
 
 ///|
-fn dmn_default_names(prefix : String, count : Int) -> Array[String] {
+fn dmn_default_names(prefix : String, count : Int32) -> Array[String] {
   let names : Array[String] = []
   for index in 0..<count {
     names.push(prefix + (index + 1).to_string())
@@ -243,7 +262,7 @@ fn dmn_default_names(prefix : String, count : Int) -> Array[String] {
 ///|
 fn dmn_validate_names(
   names : Array[String],
-  expected : Int,
+  expected : Int32,
   label : String,
 ) -> Unit raise DirichletMultinomialError {
   if names.length() != expected {
@@ -270,8 +289,8 @@ fn dmn_validate_names(
 
 ///|
 fn dmn_validate_counts(
-  counts : Array[Array[Int]],
-) -> (Int, Int) raise DirichletMultinomialError {
+  counts : Array[Array[Int32]],
+) -> (Int32, Int32) raise DirichletMultinomialError {
   if counts.length() == 0 {
     raise DirichletMultinomialError(
       "DirichletMultinomial count matrix must contain samples",
@@ -379,7 +398,7 @@ fn dmn_log_sum_exp(values : Array[Double]) -> Double {
 }
 
 ///|
-fn dmn_row_total(row : Array[Int]) -> Int {
+fn dmn_row_total(row : Array[Int32]) -> Int32 {
   let mut total = 0
   for value in row {
     total = total + value
@@ -389,7 +408,7 @@ fn dmn_row_total(row : Array[Int]) -> Int {
 
 ///|
 fn dmn_component_log_kernel(
-  counts : Array[Int],
+  counts : Array[Int32],
   alpha : Array[Double],
 ) -> Double {
   let mut alpha_total = 0.0
@@ -409,7 +428,7 @@ fn dmn_component_log_kernel(
 
 ///|
 pub fn dirichlet_multinomial_log_pmf(
-  counts : Array[Int],
+  counts : Array[Int32],
   alpha : Array[Double],
 ) -> Double raise DirichletMultinomialError {
   if counts.length() == 0 || counts.length() != alpha.length() {
@@ -425,7 +444,7 @@ pub fn dirichlet_multinomial_log_pmf(
         "Dirichlet-multinomial counts must be non-negative",
       )
     }
-    if !dmn_is_finite(alpha[index]) || alpha[index] <= 0.0 {
+    if !is_finite(alpha[index]) || alpha[index] <= 0.0 {
       raise DirichletMultinomialError(
         "Dirichlet-multinomial alpha values must be finite and positive",
       )
@@ -439,7 +458,7 @@ pub fn dirichlet_multinomial_log_pmf(
 
 ///|
 pub fn dirichlet_multinomial_mean(
-  total_count : Int,
+  total_count : Int32,
   alpha : Array[Double],
 ) -> Array[Double] raise DirichletMultinomialError {
   if total_count < 0 || alpha.length() == 0 {
@@ -449,7 +468,7 @@ pub fn dirichlet_multinomial_mean(
   }
   let mut concentration = 0.0
   for value in alpha {
-    if !dmn_is_finite(value) || value <= 0.0 {
+    if !is_finite(value) || value <= 0.0 {
       raise DirichletMultinomialError(
         "Dirichlet-multinomial alpha values must be finite and positive",
       )
@@ -461,7 +480,7 @@ pub fn dirichlet_multinomial_mean(
 
 ///|
 pub fn dirichlet_multinomial_covariance(
-  total_count : Int,
+  total_count : Int32,
   alpha : Array[Double],
 ) -> Array[Array[Double]] raise DirichletMultinomialError {
   let mean = dirichlet_multinomial_mean(total_count, alpha)
@@ -491,13 +510,13 @@ pub fn dirichlet_multinomial_covariance(
 }
 
 ///|
-fn dmn_lcg_next(state : Int) -> Int {
+fn dmn_lcg_next(state : Int32) -> Int32 {
   state * 48271 % 2147483647
 }
 
 ///|
 fn dmn_soft_kmeans(
-  counts : Array[Array[Int]],
+  counts : Array[Array[Int32]],
   config : DmnConfig,
 ) -> (Array[Array[Double]], Array[Array[Double]]) {
   let samples = counts.length()
@@ -580,7 +599,7 @@ fn dmn_soft_kmeans(
 ///|
 fn dmn_alpha_objective_gradient(
   lambda : Array[Double],
-  counts : Array[Array[Int]],
+  counts : Array[Array[Int32]],
   membership : Array[Double],
   config : DmnConfig,
 ) -> (Double, Array[Double]) {
@@ -651,7 +670,7 @@ fn dmn_dot(left : Array[Double], right : Array[Double]) -> Double {
 }
 
 ///|
-fn dmn_identity(size : Int) -> Array[Array[Double]] {
+fn dmn_identity(size : Int32) -> Array[Array[Double]] {
   let output = dmn_make_matrix(size, size, 0.0)
   for index in 0..<size {
     output[index][index] = 1.0
@@ -673,7 +692,7 @@ fn dmn_matrix_vector(
 
 ///|
 fn dmn_optimize_alpha(
-  counts : Array[Array[Int]],
+  counts : Array[Array[Int32]],
   membership : Array[Double],
   initial : Array[Double],
   config : DmnConfig,
@@ -702,7 +721,7 @@ fn dmn_optimize_alpha(
     let transformed = dmn_matrix_vector(inverse_hessian, gradient)
     let direction = transformed.map(fn(value) { -value })
     let mut directional_derivative = dmn_dot(gradient, direction)
-    if !dmn_is_finite(directional_derivative) || directional_derivative >= 0.0 {
+    if !is_finite(directional_derivative) || directional_derivative >= 0.0 {
       let norm = dmn_dot(gradient, gradient).sqrt().max(1.0)
       for index in 0..<taxa {
         direction[index] = -gradient[index] / norm
@@ -725,7 +744,7 @@ fn dmn_optimize_alpha(
       let (next_objective, next_gradient) = dmn_alpha_objective_gradient(
         candidate, counts, membership, config,
       )
-      if dmn_is_finite(next_objective) &&
+      if is_finite(next_objective) &&
         next_objective <= objective + 1.0e-4 * step * directional_derivative {
         candidate_objective = next_objective
         candidate_gradient = next_gradient
@@ -745,7 +764,7 @@ fn dmn_optimize_alpha(
       gradient_change.push(candidate_gradient[index] - gradient[index])
     }
     let curvature = dmn_dot(gradient_change, displacement)
-    if dmn_is_finite(curvature) && curvature > 1.0e-12 {
+    if is_finite(curvature) && curvature > 1.0e-12 {
       let rho = 1.0 / curvature
       let hessian_gradient = dmn_matrix_vector(inverse_hessian, gradient_change)
       let quadratic = dmn_dot(gradient_change, hessian_gradient)
@@ -779,7 +798,7 @@ fn dmn_optimize_alpha(
 
 ///|
 fn dmn_expectation(
-  counts : Array[Array[Int]],
+  counts : Array[Array[Int32]],
   estimates : Array[Array[Double]],
   weights : Array[Double],
 ) -> (Array[Array[Double]], Double) {
@@ -839,7 +858,7 @@ fn dmn_negative_log_evidence(
 
 ///|
 fn dmn_hessian(
-  counts : Array[Array[Int]],
+  counts : Array[Array[Int32]],
   membership : Array[Double],
   alpha : Array[Double],
   config : DmnConfig,
@@ -985,11 +1004,11 @@ fn dmn_sort_components(
   weights : Array[Double],
   responsibilities : Array[Array[Double]],
 ) -> (Array[Array[Double]], Array[Double], Array[Array[Double]]) {
-  let order : Array[Int] = []
+  let order : Array[Int32] = []
   for component in 0..<weights.length() {
     order.push(component)
   }
-  order.sort_by(fn(left : Int, right : Int) -> Int {
+  order.sort_by(fn(left : Int32, right : Int32) -> Int32 {
     if weights[left] > weights[right] {
       -1
     } else if weights[left] < weights[right] {
@@ -1019,10 +1038,10 @@ fn dmn_sort_components(
 
 ///|
 pub fn dirichlet_multinomial_fit(
-  counts : Array[Array[Int]],
-  sample_names? : Array[String] = [],
-  taxon_names? : Array[String] = [],
-  config? : DmnConfig = DmnConfig::default(),
+  counts : Array[Array[Int32]],
+  sample_names~ : Array[String] = [],
+  taxon_names~ : Array[String] = [],
+  config~ : DmnConfig = DmnConfig::default(),
 ) -> DmnFit raise DirichletMultinomialError {
   let (samples, taxa) = dmn_validate_counts(counts)
   if config.components > samples {
@@ -1182,17 +1201,17 @@ pub fn dirichlet_multinomial_fit(
 }
 
 ///|
-pub fn DmnFit::component_count(self : DmnFit) -> Int {
+pub fn DmnFit::component_count(self : DmnFit) -> Int32 {
   self.estimates.length()
 }
 
 ///|
-pub fn DmnFit::sample_count(self : DmnFit) -> Int {
+pub fn DmnFit::sample_count(self : DmnFit) -> Int32 {
   self.responsibilities.length()
 }
 
 ///|
-pub fn DmnFit::taxon_count(self : DmnFit) -> Int {
+pub fn DmnFit::taxon_count(self : DmnFit) -> Int32 {
   self.taxon_names.length()
 }
 
@@ -1235,7 +1254,7 @@ pub fn DmnFit::component_proportions(self : DmnFit) -> Array[Array[Double]] {
 ///|
 pub fn DmnFit::fitted(
   self : DmnFit,
-  scale? : Bool = false,
+  scale~ : Bool = false,
 ) -> Array[Array[Double]] {
   let taxa = self.taxon_count()
   let components = self.component_count()
@@ -1257,7 +1276,7 @@ pub fn DmnFit::fitted(
 }
 
 ///|
-pub fn DmnFit::assignments(self : DmnFit) -> Array[Int] {
+pub fn DmnFit::assignments(self : DmnFit) -> Array[Int32] {
   self.responsibilities.map(fn(row) {
     let mut selected = 0
     for component in 1..<row.length() {
@@ -1272,7 +1291,7 @@ pub fn DmnFit::assignments(self : DmnFit) -> Array[Int] {
 ///|
 pub fn DmnFit::negative_log_evidence(
   self : DmnFit,
-  counts : Array[Array[Int]],
+  counts : Array[Array[Int32]],
 ) -> Array[Array[Double]] raise DirichletMultinomialError {
   let (_, taxa) = dmn_validate_counts(counts)
   if taxa != self.taxon_count() {
@@ -1295,7 +1314,7 @@ pub fn DmnFit::negative_log_evidence(
 ///|
 pub fn DmnFit::predict(
   self : DmnFit,
-  counts : Array[Array[Int]],
+  counts : Array[Array[Int32]],
 ) -> Array[Array[Double]] raise DirichletMultinomialError {
   let negative_evidence = self.negative_log_evidence(counts)
   let output = dmn_make_matrix(counts.length(), self.component_count(), 0.0)
@@ -1318,8 +1337,8 @@ pub fn DmnFit::predict(
 ///|
 pub fn DmnFit::predict_assignments(
   self : DmnFit,
-  counts : Array[Array[Int]],
-) -> Array[Int] raise DirichletMultinomialError {
+  counts : Array[Array[Int32]],
+) -> Array[Int32] raise DirichletMultinomialError {
   self
   .predict(counts)
   .map(fn(row) {
@@ -1364,12 +1383,12 @@ fn dmn_criterion_score(fit : DmnFit, criterion : DmnCriterion) -> Double {
 
 ///|
 pub fn dirichlet_multinomial_select(
-  counts : Array[Array[Int]],
-  max_components : Int,
-  criterion? : DmnCriterion = DmnLaplace,
-  sample_names? : Array[String] = [],
-  taxon_names? : Array[String] = [],
-  config? : DmnConfig = DmnConfig::default(),
+  counts : Array[Array[Int32]],
+  max_components : Int32,
+  criterion~ : DmnCriterion = DmnLaplace,
+  sample_names~ : Array[String] = [],
+  taxon_names~ : Array[String] = [],
+  config~ : DmnConfig = DmnConfig::default(),
 ) -> DmnModelSelection raise DirichletMultinomialError {
   let (samples, _) = dmn_validate_counts(counts)
   if max_components < 1 || max_components > samples {
@@ -1398,7 +1417,7 @@ pub fn dirichlet_multinomial_select(
       best_index = components - 1
     }
   }
-  DmnModelSelection::{ fits, scores, best_index, criterion }
+  DmnModelSelection::{ fits, scores, best_index, criterion, }
 }
 
 ///|
@@ -1407,7 +1426,9 @@ pub fn DmnModelSelection::best_fit(self : DmnModelSelection) -> DmnFit {
 }
 
 ///|
-pub fn DmnModelSelection::best_component_count(self : DmnModelSelection) -> Int {
+pub fn DmnModelSelection::best_component_count(
+  self : DmnModelSelection,
+) -> Int32 {
   self.best_index + 1
 }
 
@@ -1426,12 +1447,12 @@ fn dmn_unique_groups(groups : Array[String]) -> Array[String] {
 
 ///|
 pub fn dirichlet_multinomial_group_fit(
-  counts : Array[Array[Int]],
+  counts : Array[Array[Int32]],
   groups : Array[String],
-  components_by_group? : Array[Int] = [],
-  max_components? : Int = 3,
-  taxon_names? : Array[String] = [],
-  config? : DmnConfig = DmnConfig::default(),
+  components_by_group~ : Array[Int32] = [],
+  max_components~ : Int32 = 3,
+  taxon_names~ : Array[String] = [],
+  config~ : DmnConfig = DmnConfig::default(),
 ) -> DmnGroupFit raise DirichletMultinomialError {
   let (samples, taxa) = dmn_validate_counts(counts)
   if groups.length() != samples {
@@ -1472,7 +1493,7 @@ pub fn dirichlet_multinomial_group_fit(
   let models : Array[DmnFit] = []
   let priors : Array[Double] = []
   for group_index in 0..<group_names.length() {
-    let group_counts : Array[Array[Int]] = []
+    let group_counts : Array[Array[Int32]] = []
     let group_samples : Array[String] = []
     for sample in 0..<samples {
       if groups[sample] == group_names[group_index] {
@@ -1523,7 +1544,7 @@ pub fn dirichlet_multinomial_group_fit(
 ///|
 pub fn DmnGroupFit::predict(
   self : DmnGroupFit,
-  counts : Array[Array[Int]],
+  counts : Array[Array[Int32]],
 ) -> Array[Array[Double]] raise DirichletMultinomialError {
   let (_, taxa) = dmn_validate_counts(counts)
   if taxa != self.taxon_names.length() {
@@ -1561,7 +1582,7 @@ pub fn DmnGroupFit::predict(
 ///|
 pub fn DmnGroupFit::predict_assignments(
   self : DmnGroupFit,
-  counts : Array[Array[Int]],
+  counts : Array[Array[Int32]],
 ) -> Array[String] raise DirichletMultinomialError {
   self
   .predict(counts)
@@ -1578,12 +1599,12 @@ pub fn DmnGroupFit::predict_assignments(
 
 ///|
 pub fn dirichlet_multinomial_cross_validate(
-  counts : Array[Array[Int]],
+  counts : Array[Array[Int32]],
   groups : Array[String],
-  folds : Int,
-  components_by_group? : Array[Int] = [],
-  taxon_names? : Array[String] = [],
-  config? : DmnConfig = DmnConfig::default(),
+  folds : Int32,
+  components_by_group~ : Array[Int32] = [],
+  taxon_names~ : Array[String] = [],
+  config~ : DmnConfig = DmnConfig::default(),
 ) -> DmnCrossValidation raise DirichletMultinomialError {
   let (samples, _) = dmn_validate_counts(counts)
   if groups.length() != samples {
@@ -1597,8 +1618,8 @@ pub fn dirichlet_multinomial_cross_validate(
       "DirichletMultinomial cross-validation requires at least two folds",
     )
   }
-  let group_seen : Map[String, Int] = Map([])
-  let group_sizes : Map[String, Int] = Map([])
+  let group_seen : Map[String, Int32] = Map([])
+  let group_sizes : Map[String, Int32] = Map([])
   for group in groups {
     group_sizes[group] = match group_sizes.get(group) {
       Some(value) => value + 1
@@ -1625,10 +1646,10 @@ pub fn dirichlet_multinomial_cross_validate(
   let probabilities = dmn_make_matrix(samples, group_names.length(), 0.0)
   let predictions = Array::make(samples, "")
   for fold in 0..<folds {
-    let training_counts : Array[Array[Int]] = []
+    let training_counts : Array[Array[Int32]] = []
     let training_groups : Array[String] = []
-    let testing_counts : Array[Array[Int]] = []
-    let testing_indices : Array[Int] = []
+    let testing_counts : Array[Array[Int32]] = []
+    let testing_indices : Array[Int32] = []
     for sample in 0..<samples {
       if fold_ids[sample] == fold {
         testing_counts.push(counts[sample].copy())
@@ -1691,7 +1712,7 @@ pub fn dirichlet_multinomial_roc(
   let mut maximum = scores[0]
   let mut minimum = scores[0]
   for index in 0..<scores.length() {
-    if !dmn_is_finite(scores[index]) {
+    if !is_finite(scores[index]) {
       raise DirichletMultinomialError(
         "DirichletMultinomial ROC scores must be finite",
       )
@@ -1710,7 +1731,7 @@ pub fn dirichlet_multinomial_roc(
     )
   }
   let sorted_scores = scores.copy()
-  sorted_scores.sort_by(fn(left : Double, right : Double) -> Int {
+  sorted_scores.sort_by(fn(left : Double, right : Double) -> Int32 {
     if left > right {
       -1
     } else if left < right {
@@ -1780,9 +1801,9 @@ pub fn dirichlet_multinomial_roc(
 pub fn dirichlet_multinomial_fit_se(
   experiment : SummarizedExperiment,
   assay_name : String,
-  sample_names? : Array[String] = [],
-  taxon_names? : Array[String] = [],
-  config? : DmnConfig = DmnConfig::default(),
+  sample_names~ : Array[String] = [],
+  taxon_names~ : Array[String] = [],
+  config~ : DmnConfig = DmnConfig::default(),
 ) -> DmnFit raise DirichletMultinomialError {
   let assay = match se_assay(experiment, assay_name) {
     Some(value) => value
@@ -1798,9 +1819,9 @@ pub fn dirichlet_multinomial_fit_se(
   }
   let taxa = assay.length()
   let samples = assay[0].length()
-  let counts : Array[Array[Int]] = []
+  let counts : Array[Array[Int32]] = []
   for sample in 0..<samples {
-    let row : Array[Int] = []
+    let row : Array[Int32] = []
     for taxon in 0..<taxa {
       if assay[taxon].length() != samples {
         raise DirichletMultinomialError(
@@ -1808,7 +1829,7 @@ pub fn dirichlet_multinomial_fit_se(
         )
       }
       let value = assay[taxon][sample]
-      if !dmn_is_finite(value) ||
+      if !is_finite(value) ||
         value < 0.0 ||
         (value - value.round()).abs() > 1.0e-8 {
         raise DirichletMultinomialError(

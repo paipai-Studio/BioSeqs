@@ -11,7 +11,7 @@ test "pc_quantile_config_new" {
   let config = @src.QuantileNormConfig::new()
   assert_eq(config.copy, true)
   assert_eq(config.keep_names, true)
-  assert_eq(config.method, "quantile")
+  assert_eq(config.method_, "quantile")
 }
 
 ///|

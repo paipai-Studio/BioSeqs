@@ -10,7 +10,11 @@ pub struct PDBList {
 
 ///|
 pub fn PDBList::new(pdb_dir : String) -> PDBList {
-  PDBList::{ pdb_dir, obsolete_pdb_dir: pdb_dir + "/obsolete", update_date: "" }
+  PDBList::{
+    pdb_dir,
+    obsolete_pdb_dir: pdb_dir + "/obsolete",
+    update_date: "",
+  }
 }
 
 ///|
@@ -49,7 +53,7 @@ pub fn PDBList::download_all_pdbs(
   pdb_codes : Array[String],
   file_format : String,
 ) -> Array[String] {
-  let results : Array[String] = Array::new()
+  let results : Array[String] = Array(capacity=0)
 
   let mut i = 0
   while i < pdb_codes.length() {
@@ -62,8 +66,8 @@ pub fn PDBList::download_all_pdbs(
 }
 
 ///|
-pub fn PDBList::get_all_obsolete(self : PDBList) -> Array[String] {
-  let obsolete : Array[String] = Array::new()
+pub fn PDBList::get_all_obsolete(_self : PDBList) -> Array[String] {
+  let obsolete : Array[String] = Array(capacity=0)
   obsolete
 }
 
@@ -81,13 +85,16 @@ pub fn PDBList::update_pdb(self : PDBList) -> (PDBList, String) {
 }
 
 ///|
-pub fn PDBList::get_recent_changes(self : PDBList, days : Int) -> Array[String] {
-  let changes : Array[String] = Array::new()
+pub fn PDBList::get_recent_changes(
+  _self : PDBList,
+  _days : Int32,
+) -> Array[String] {
+  let changes : Array[String] = Array(capacity=0)
   changes
 }
 
 ///|
-pub fn PDBList::resolve_obsolete(self : PDBList, pdb_code : String) -> String {
+pub fn PDBList::resolve_obsolete(_self : PDBList, pdb_code : String) -> String {
   let obsolete_map = Map([("1XYZ", "2XYZ"), ("3ABC", "4ABC")], capacity=2)
 
   if obsolete_map.contains(pdb_code) {

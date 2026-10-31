@@ -3,16 +3,15 @@
 ///
 /// Demonstrates centroiding, peak detection, smoothing, baseline estimation,
 /// calibration, imputation, and aggregation on synthetic MS data.
-
-fn main() -> Unit {
+fn main {
   println("=== MsCoreUtils Signal Processing Demo ===\n")
 
   // 1. Peak detection and centroiding
   println("--- 1. Peak Detection & Centroiding ---\n")
 
   // Simulate profile-mode MS data with 3 peaks
-  let mz : Array[Double] = Array::new()
-  let intensity : Array[Double] = Array::new()
+  let mz : Array[Double] = Array(capacity=0)
+  let intensity : Array[Double] = Array(capacity=0)
   for i in 0..<300 {
     let x = 100.0 + i.to_double() * 0.5
     mz.push(x)
@@ -26,23 +25,41 @@ fn main() -> Unit {
   }
 
   let peaks = @bio.mc_local_maxima(intensity)
-  println("Detected " + peaks.length().to_string() + " local maxima at m/z indices:")
+  println(
+    "Detected " + peaks.length().to_string() + " local maxima at m/z indices:",
+  )
   for p in peaks {
-    println("  index " + p.to_string() + " -> m/z=" + mz[p].to_string() + ", intensity=" + intensity[p].to_string())
+    println(
+      "  index " +
+      p.to_string() +
+      " -> m/z=" +
+      mz[p].to_string() +
+      ", intensity=" +
+      intensity[p].to_string(),
+    )
   }
 
   // Refine centroids
-  let (centroid_mz, centroid_int) = @bio.mc_refine_centroids(mz, intensity, peaks, 3)
+  let (centroid_mz, centroid_int) = @bio.mc_refine_centroids(
+    mz, intensity, peaks, 3,
+  )
   println("\nRefined centroids:")
   for i in 0..<centroid_mz.length() {
-    println("  m/z=" + centroid_mz[i].to_string() + ", intensity=" + centroid_int[i].to_string())
+    println(
+      "  m/z=" +
+      centroid_mz[i].to_string() +
+      ", intensity=" +
+      centroid_int[i].to_string(),
+    )
   }
 
   // 2. Smoothing
   println("\n--- 2. Signal Smoothing ---\n")
 
   // Create noisy signal
-  let noisy : Array[Double] = [10.0, 15.0, 8.0, 12.0, 20.0, 18.0, 25.0, 22.0, 30.0, 28.0]
+  let noisy : Array[Double] = [
+    10.0, 15.0, 8.0, 12.0, 20.0, 18.0, 25.0, 22.0, 30.0, 28.0,
+  ]
   let smoothed_ma = @bio.mc_smooth_moving_average(noisy, 2)
   let smoothed_sg = @bio.mc_smooth_savitzky_golay(noisy, 2)
 
@@ -53,11 +70,13 @@ fn main() -> Unit {
   // 3. Baseline estimation (SNIP)
   println("\n--- 3. Baseline Estimation (SNIP) ---\n")
 
-  let signal : Array[Double] = [10.0, 12.0, 100.0, 500.0, 100.0, 15.0, 10.0, 200.0, 800.0, 200.0, 12.0, 10.0]
+  let signal : Array[Double] = [
+    10.0, 12.0, 100.0, 500.0, 100.0, 15.0, 10.0, 200.0, 800.0, 200.0, 12.0, 10.0,
+  ]
   let baseline = @bio.mc_baseline_snip(signal, 4)
   println("Signal:    " + arr_to_string(signal))
   println("Baseline:  " + arr_to_string(baseline))
-  let corrected = Array::new()
+  let corrected = Array(capacity=0)
   for i in 0..<signal.length() {
     let c = signal[i] - baseline[i]
     corrected.push(if c > 0.0 { c } else { 0.0 })
@@ -85,12 +104,25 @@ fn main() -> Unit {
   let matched_ppm = @bio.mc_join_peaks(peaks_a, peaks_b, 500.0, true)
   println("Peak list A: " + arr_to_string(peaks_a))
   println("Peak list B: " + arr_to_string(peaks_b))
-  println("Matched (tol=0.1 Da): " + matched_tol.length().to_string() + " pairs")
+  println(
+    "Matched (tol=0.1 Da): " + matched_tol.length().to_string() + " pairs",
+  )
   for i in 0..<matched_tol.length() {
     let (a, b) = matched_tol[i]
-    println("  A[" + a.to_string() + "]=" + peaks_a[a].to_string() + " <-> B[" + b.to_string() + "]=" + peaks_b[b].to_string())
+    println(
+      "  A[" +
+      a.to_string() +
+      "]=" +
+      peaks_a[a].to_string() +
+      " <-> B[" +
+      b.to_string() +
+      "]=" +
+      peaks_b[b].to_string(),
+    )
   }
-  println("Matched (tol=500 ppm): " + matched_ppm.length().to_string() + " pairs")
+  println(
+    "Matched (tol=500 ppm): " + matched_ppm.length().to_string() + " pairs",
+  )
 
   // 6. Imputation
   println("\n--- 6. Missing Value Imputation ---\n")
@@ -124,7 +156,9 @@ fn main() -> Unit {
     [20.0, 22.0, 21.0],
     [30.0, 32.0, 31.0],
   ]
-  let (polished, row_eff, col_eff, overall) = @bio.mc_median_polish(expr_matrix, 10, 0.001)
+  let (polished, row_eff, col_eff, overall) = @bio.mc_median_polish(
+    expr_matrix, 10, 0.001,
+  )
   println("Input matrix:")
   print_matrix(expr_matrix)
   println("Overall effect: " + overall.to_string())
@@ -144,6 +178,7 @@ fn main() -> Unit {
   println("\n=== Demo Complete ===")
 }
 
+///|
 fn arr_to_string(arr : Array[Double]) -> String {
   let mut s = "["
   for i in 0..<arr.length() {
@@ -155,6 +190,7 @@ fn arr_to_string(arr : Array[Double]) -> String {
   s + "]"
 }
 
+///|
 fn print_matrix(m : Array[Array[Double]]) -> Unit {
   for row in m {
     println("  " + arr_to_string(row))

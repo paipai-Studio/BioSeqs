@@ -2,13 +2,6 @@
 /// VCF format parsing module, matching pysam VCF specification.
 
 ///|
-/// VCF header line type.
-pub enum VcfHeaderType {
-  Meta
-  Fixed
-} derive(Eq)
-
-///|
 /// VCF meta header record (## lines).
 pub struct VcfMetaHeader {
   key : String
@@ -26,12 +19,12 @@ pub struct VcfFixedHeader {
 /// VCF record.
 pub struct VcfRecord {
   chrom : String
-  pos : Int
-  id : Array[String]
+  pos : Int32
+  mut id : Array[String]
   ref_seq : String
   alt : Array[String]
-  qual : Double?
-  filter : Array[String]
+  mut qual : Double?
+  mut filter : Array[String]
   info : Map[String, String]
   format : Array[String]?
   samples : Map[String, Array[String]]
@@ -58,7 +51,7 @@ fn parse_info(info_str : String) -> Map[String, String] {
   while i < entries.length() {
     let entry = entries[i]
     let eq_pos = entry.find("=")
-    if eq_pos.is_some() {
+    if eq_pos is Some(_) {
       let pos = eq_pos.unwrap()
       let key = entry[0:pos].to_owned()
       let value = if pos + 1 < entry.length() {
@@ -96,7 +89,7 @@ fn parse_vcf_meta_header(line : String) -> VcfMetaHeader? {
 
   let content = line[2:line.length()].to_owned()
   let eq_pos = content.find("=")
-  if eq_pos.is_none() {
+  if eq_pos is None {
     return None
   }
 
@@ -117,7 +110,7 @@ fn parse_vcf_meta_header(line : String) -> VcfMetaHeader? {
       while i < fields.length() {
         let field = fields[i]
         let feq_pos = field.find("=")
-        if feq_pos.is_some() {
+        if feq_pos is Some(_) {
           let fpos = feq_pos.unwrap()
           let fkey = field[0:fpos].to_owned()
           let fvalue = if fpos + 1 < field.length() {
@@ -133,7 +126,7 @@ fn parse_vcf_meta_header(line : String) -> VcfMetaHeader? {
     }
   }
 
-  Some(VcfMetaHeader::{ key, value, tags })
+  Some(VcfMetaHeader::{ key, value, tags, })
 }
 
 ///|
@@ -170,8 +163,8 @@ fn parse_vcf_record(line : String, sample_names : Array[String]) -> VcfRecord? {
   let format = if parts.length() > 8 { parse_format(parts[8]) } else { None }
 
   let samples = Map([], capacity=0)
-  if parts.length() > 9 && format.is_some() {
-    let format_cols = format.unwrap()
+  if parts.length() > 9 && format is Some(_) {
+    let _format_cols = format.unwrap()
     let mut i = 9
     while i < parts.length() {
       let sample_name = if i - 9 < sample_names.length() {
@@ -202,9 +195,9 @@ fn parse_vcf_record(line : String, sample_names : Array[String]) -> VcfRecord? {
 ///|
 /// Parse VCF content from string.
 pub fn parse_vcf(content : String) -> VcfFile {
-  let meta_headers = Array::new()
+  let meta_headers = Array(capacity=0)
   let mut fixed_header : VcfFixedHeader? = None
-  let records = Array::new()
+  let records = Array(capacity=0)
 
   let lines = content.split("\n").to_array()
   let mut i = 0
@@ -220,19 +213,19 @@ pub fn parse_vcf(content : String) -> VcfFile {
     if line.unsafe_get(0).to_int() == '#'.to_int() {
       if line.length() > 1 && line.unsafe_get(1).to_int() == '#'.to_int() {
         let meta_opt = parse_vcf_meta_header(line)
-        if meta_opt.is_some() {
+        if meta_opt is Some(_) {
           meta_headers.push(meta_opt.unwrap())
         }
       } else {
         let fixed_opt = parse_vcf_fixed_header(line)
-        if fixed_opt.is_some() {
+        if fixed_opt is Some(_) {
           fixed_header = fixed_opt
         }
       }
     } else {
       let sample_names = match fixed_header {
         Some(h) => {
-          let names = Array::new()
+          let names = Array(capacity=0)
           let mut j = 9
           while j < h.columns.length() {
             names.push(h.columns[j])
@@ -243,25 +236,25 @@ pub fn parse_vcf(content : String) -> VcfFile {
         None => []
       }
       let record_opt = parse_vcf_record(line, sample_names)
-      if record_opt.is_some() {
+      if record_opt is Some(_) {
         records.push(record_opt.unwrap())
       }
     }
     i = i + 1
   }
 
-  VcfFile::{ meta_headers, fixed_header, records }
+  VcfFile::{ meta_headers, fixed_header, records, }
 }
 
 ///|
 /// Get number of records in VCF file.
-pub fn VcfFile::len(self : VcfFile) -> Int {
+pub fn VcfFile::len(self : VcfFile) -> Int32 {
   self.records.length()
 }
 
 ///|
 /// Get number of meta headers.
-pub fn VcfFile::num_meta_headers(self : VcfFile) -> Int {
+pub fn VcfFile::num_meta_headers(self : VcfFile) -> Int32 {
   self.meta_headers.length()
 }
 
@@ -270,7 +263,7 @@ pub fn VcfFile::num_meta_headers(self : VcfFile) -> Int {
 pub fn VcfFile::get_sample_names(self : VcfFile) -> Array[String] {
   match self.fixed_header {
     Some(h) => {
-      let result = Array::new()
+      let result = Array(capacity=0)
       let mut i = 9
       while i < h.columns.length() {
         result.push(h.columns[i])
@@ -332,4 +325,138 @@ pub fn VcfRecord::get_genotype(
     Some(data) => Some(data.copy())
     None => None
   }
+}
+
+///|
+fn join_str_array(arr : Array[String], sep : String) -> String {
+  if arr.length() == 0 {
+    return "."
+  }
+  let buf = StringBuilder()
+  let mut first = true
+  for v in arr {
+    if !first {
+      buf.write_string(sep)
+    }
+    buf.write_string(v)
+    first = false
+  }
+  buf.to_string()
+}
+
+///|
+fn vcf_format_qual(q : Double?) -> String {
+  match q {
+    None => "."
+    Some(v) => v.to_string()
+  }
+}
+
+///|
+/// Serialize INFO back to `k=v;k2=v2` (flag fields without `=` become bare `k`).
+fn vcf_format_info(info : Map[String, String]) -> String {
+  if info.length() == 0 {
+    return "."
+  }
+  let buf = StringBuilder()
+  let mut first = true
+  for k in info.keys() {
+    if !first {
+      buf.write_string(";")
+    }
+    buf.write_string(k)
+    match info.get(k) {
+      None => ()
+      Some(v) =>
+        if v != "" {
+          buf.write_string("=")
+          buf.write_string(v)
+        }
+    }
+    first = false
+  }
+  buf.to_string()
+}
+
+///|
+fn vcf_format_record(rec : VcfRecord, sample_names : Array[String]) -> String {
+  let parts : Array[String] = Array(capacity=0)
+  parts.push(rec.chrom)
+  parts.push(rec.pos.to_string())
+  parts.push(join_str_array(rec.id, ","))
+  parts.push(rec.ref_seq)
+  parts.push(join_str_array(rec.alt, ","))
+  parts.push(vcf_format_qual(rec.qual))
+  parts.push(join_str_array(rec.filter, ","))
+  parts.push(vcf_format_info(rec.info))
+  match rec.format {
+    None => ()
+    Some(fmt) => {
+      parts.push(join_str_array(fmt, ","))
+      for name in sample_names {
+        match rec.samples.get(name) {
+          None => parts.push(".")
+          Some(data) => parts.push(join_str_array(data, ","))
+        }
+      }
+    }
+  }
+  let buf = StringBuilder()
+  let mut first = true
+  for p in parts {
+    if !first {
+      buf.write_string("\t")
+    }
+    buf.write_string(p)
+    first = false
+  }
+  buf.to_string()
+}
+
+///|
+/// Serialize a `VcfFile` back to VCF text (`VariantFile.write` equivalent),
+/// including `##` meta headers, the `#CHROM ...` fixed header, and records.
+/// Round-trips with `parse_vcf`.
+pub fn VcfFile::to_string(self : VcfFile) -> String {
+  let lines : Array[String] = Array(capacity=0)
+  for mh in self.meta_headers {
+    let line = if mh.tags.length() == 0 {
+      "##" + mh.key + "=" + mh.value
+    } else {
+      "##" + mh.key + "=<" + mh.value + ">"
+    }
+    lines.push(line)
+  }
+  match self.fixed_header {
+    None => ()
+    Some(fh) => {
+      let mut hline = "#"
+      let mut first = true
+      for col in fh.columns {
+        if !first {
+          hline = hline + "\t"
+        }
+        hline = hline + col
+        first = false
+      }
+      lines.push(hline)
+      let sample_names : Array[String] = Array(capacity=0)
+      for j = 9; j < fh.columns.length(); j = j + 1 {
+        sample_names.push(fh.columns[j])
+      }
+      for rec in self.records {
+        lines.push(vcf_format_record(rec, sample_names))
+      }
+    }
+  }
+  let buf = StringBuilder()
+  let mut first = true
+  for l in lines {
+    if !first {
+      buf.write_string("\n")
+    }
+    buf.write_string(l)
+    first = false
+  }
+  buf.to_string()
 }

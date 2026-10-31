@@ -232,23 +232,19 @@ fn main {
   // === 11. Ramachandran quality assessment ===
   println("\n11. Ramachandran Quality Assessment:")
   println("====================================")
-  let (favored_pct, allowed_pct, generous_pct) = @src.ramachandran_quality(chain)
-  println(
-    "  Favored: " + (favored_pct * 100.0).to_string() + "%"
+  let (favored_pct, allowed_pct, generous_pct) = @src.ramachandran_quality(
+    chain,
   )
-  println(
-    "  Allowed: " + (allowed_pct * 100.0).to_string() + "%"
-  )
-  println(
-    "  Generous: " + (generous_pct * 100.0).to_string() + "%"
-  )
+  println("  Favored: " + (favored_pct * 100.0).to_string() + "%")
+  println("  Allowed: " + (allowed_pct * 100.0).to_string() + "%")
+  println("  Generous: " + (generous_pct * 100.0).to_string() + "%")
 
   // === 12. Solvent Accessible Surface Area (SASA) ===
   println("\n12. Solvent Accessible Surface Area (SASA):")
   println("==========================================")
   let total_sasa = @src.calc_total_sasa(chain)
   println("  Total SASA: " + total_sasa.to_string() + " Å²")
-  
+
   let atom_sasa = @src.calc_sasa(chain, probe_radius=1.4, n_points=50)
   println("  Number of atoms analyzed: " + atom_sasa.length().to_string())
   // Print top 5 atoms by SASA
@@ -256,9 +252,7 @@ fn main {
   let mut ai = 0
   while ai < atom_sasa.length() && ai < 5 {
     let entry = atom_sasa[ai]
-    println(
-      "    " + entry.0 + ": " + entry.1.to_string() + " Å²"
-    )
+    println("    " + entry.0 + ": " + entry.1.to_string() + " Å²")
     ai = ai + 1
   }
 
@@ -276,7 +270,7 @@ fn main {
       resname +
       "): " +
       sasa_val.to_string() +
-      " Å²"
+      " Å²",
     )
     ri_sasa = ri_sasa + 1
   }
@@ -284,9 +278,14 @@ fn main {
   // === 14. Hydrophobicity analysis ===
   println("\n14. Hydrophobicity Analysis (Kyte-Doolittle):")
   println("===============================================")
-  let hydrophobic_residues = ["ALA", "VAL", "ILE", "LEU", "MET", "PHE", "TRP", "PRO"]
-  let hydrophilic_residues = ["ARG", "ASN", "ASP", "GLN", "GLU", "LYS", "SER", "THR", "CYS", "TYR", "HIS", "GLY"]
-  
+  let hydrophobic_residues = [
+    "ALA", "VAL", "ILE", "LEU", "MET", "PHE", "TRP", "PRO",
+  ]
+  let hydrophilic_residues = [
+    "ARG", "ASN", "ASP", "GLN", "GLU", "LYS", "SER", "THR", "CYS", "TYR", "HIS",
+    "GLY",
+  ]
+
   println("  Hydrophobic residues:")
   let mut hi_i = 0
   while hi_i < hydrophobic_residues.length() {
@@ -295,7 +294,7 @@ fn main {
     println("    " + res + ": " + hydro.to_string())
     hi_i = hi_i + 1
   }
-  
+
   println("  Hydrophilic residues:")
   let mut hyi = 0
   while hyi < hydrophilic_residues.length() {
@@ -309,7 +308,12 @@ fn main {
   println("\n15. Sequence Property Matrix (Hydrophobicity distance):")
   println("=======================================================")
   let prop_matrix = @src.calc_sequence_property_matrix(chain)
-  println("  Matrix size: " + prop_matrix.length().to_string() + "x" + prop_matrix.length().to_string())
+  println(
+    "  Matrix size: " +
+    prop_matrix.length().to_string() +
+    "x" +
+    prop_matrix.length().to_string(),
+  )
   let mut pmi = 0
   while pmi < prop_matrix.length() {
     let row = prop_matrix[pmi]

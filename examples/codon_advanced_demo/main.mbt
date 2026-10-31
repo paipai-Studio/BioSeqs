@@ -22,8 +22,14 @@ fn main {
     let codon = keys[ci]
     let count = counts.get(codon).unwrap_or(0)
     let freq = @bio.CodonUsageTable::get_frequency(usage, codon)
-    println("  " + codon + ": count=" + count.to_string() +
-      ", freq=" + freq.to_string())
+    println(
+      "  " +
+      codon +
+      ": count=" +
+      count.to_string() +
+      ", freq=" +
+      freq.to_string(),
+    )
     ci = ci + 1
   }
 
@@ -62,7 +68,9 @@ fn main {
   }
 
   let cai_detailed = @bio.calculate_cai_detailed(dna_seq, ref_usage)
-  println("Detailed CAI score: " + @bio.CAIResult::score(cai_detailed).to_string())
+  println(
+    "Detailed CAI score: " + @bio.CAIResult::score(cai_detailed).to_string(),
+  )
 
   println("\n=== Effective Number of Codons ===")
   let enc_val = @bio.calculate_enc(usage)
@@ -135,14 +143,12 @@ fn main {
   }
 
   println("\n=== Multiple Sequence Usage Table ===")
-  let seqs = [
-    "ATGGCCATGAAATGGTGA",
-    "GCCGCCGCCAAAAAAATG",
-    "ATGATGGCCAAAGCCGCC",
-  ]
+  let seqs = ["ATGGCCATGAAATGGTGA", "GCCGCCGCCAAAAAAATG", "ATGATGGCCAAAGCCGCC"]
   let multi_usage = @bio.codon_usage_from_sequences(seqs)
-  println("Total codons (multi): " +
-    @bio.CodonUsageTable::total(multi_usage).to_string())
+  println(
+    "Total codons (multi): " +
+    @bio.CodonUsageTable::total(multi_usage).to_string(),
+  )
 
   println("\n=== Codon Usage Table String ===")
   let table_str = @bio.codon_usage_to_string(usage)

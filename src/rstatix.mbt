@@ -18,8 +18,8 @@ pub struct RstatixTTestResult {
   ci_high : Double
   estimate : Double
   se : Double
-  n1 : Int
-  n2 : Int
+  n1 : Int32
+  n2 : Int32
   method_name : String
   alternative : String
 }
@@ -33,7 +33,7 @@ pub struct RstatixCorTestResult {
   p_adj : Double
   ci_low : Double
   ci_high : Double
-  n : Int
+  n : Int32
   method_name : String
 }
 
@@ -41,7 +41,7 @@ pub struct RstatixCorTestResult {
 /// Result of ANOVA test.
 pub struct RstatixAnovaResult {
   source : String
-  df : Int
+  df : Int32
   ss : Double
   ms : Double
   f : Double
@@ -53,11 +53,11 @@ pub struct RstatixAnovaResult {
 /// Perform a one-sample or two-sample t-test (Welch's).
 pub fn rstatix_t_test(
   x : Array[Double],
-  y? : Array[Double] = [],
-  mu? : Double = 0.0,
-  alternative? : String = "two.sided",
-  paired? : Bool = false,
-  conf_level? : Double = 0.95,
+  y~ : Array[Double] = [],
+  mu~ : Double = 0.0,
+  alternative~ : String = "two.sided",
+  paired~ : Bool = false,
+  conf_level~ : Double = 0.95,
 ) -> RstatixTTestResult {
   let n1 = x.length()
   let is_two_sample = y.length() > 0
@@ -155,10 +155,10 @@ fn rstatix_t_test_one_sample(
 /// Perform a Wilcoxon rank-sum test.
 pub fn rstatix_wilcox_test(
   x : Array[Double],
-  y? : Array[Double] = [],
-  alternative? : String = "two.sided",
-  mu? : Double = 0.0,
-  paired? : Bool = false,
+  y~ : Array[Double] = [],
+  alternative~ : String = "two.sided",
+  mu~ : Double = 0.0,
+  paired~ : Bool = false,
 ) -> RstatixTTestResult {
   let is_two_sample = y.length() > 0
   if !is_two_sample {
@@ -185,7 +185,7 @@ fn rstatix_wilcox_signed(
   alternative : String,
   method_name : String,
 ) -> RstatixTTestResult {
-  let non_zero = Array::new()
+  let non_zero = Array(capacity=0)
   let mut i = 0
   while i < x.length() {
     if x[i].abs() > 1.0e-15 {
@@ -339,9 +339,10 @@ fn rstatix_wilcox_rank_sum(
 pub fn rstatix_cor_test(
   x : Array[Double],
   y : Array[Double],
-  cor_method? : String = "pearson",
-  conf_level? : Double = 0.95,
+  cor_method~ : String = "pearson",
+  conf_level~ : Double = 0.95,
 ) -> RstatixCorTestResult {
+  ignore(conf_level)
   let n = x.length()
   if n != y.length() || n < 3 {
     return RstatixCorTestResult::{
@@ -409,8 +410,9 @@ pub fn rstatix_cor_test(
 /// One-way ANOVA.
 pub fn rstatix_anova_test(
   groups : Array[Array[Double]],
-  group_names? : Array[String] = [],
+  group_names~ : Array[String] = [],
 ) -> RstatixAnovaResult {
+  ignore(group_names)
   let k = groups.length()
   if k < 3 {
     return RstatixAnovaResult::{
@@ -423,7 +425,7 @@ pub fn rstatix_anova_test(
       p_adj: @double.not_a_number,
     }
   }
-  let all_data = Array::new()
+  let all_data = Array(capacity=0)
   let n_groups = Array::make(k, 0)
   let group_means = Array::make(k, 0.0)
   let mut total_n = 0
@@ -502,7 +504,7 @@ pub fn rstatix_anova_test(
 /// Kruskal-Wallis rank sum test.
 pub fn rstatix_kruskal_test(
   groups : Array[Array[Double]],
-  _group_names? : Array[String] = [],
+  _group_names~ : Array[String] = [],
 ) -> RstatixAnovaResult {
   let k = groups.length()
   if k < 3 {
@@ -516,8 +518,8 @@ pub fn rstatix_kruskal_test(
       p_adj: @double.not_a_number,
     }
   }
-  let all_data = Array::new()
-  let group_ids = Array::new()
+  let all_data = Array(capacity=0)
+  let group_ids = Array(capacity=0)
   let mut n_total = 0
   let mut i = 0
   while i < k {
@@ -566,7 +568,7 @@ pub fn rstatix_kruskal_test(
 /// Friedman rank sum test.
 pub fn rstatix_friedman_test(
   groups : Array[Array[Double]],
-  _group_names? : Array[String] = [],
+  _group_names~ : Array[String] = [],
 ) -> RstatixAnovaResult {
   let k = groups.length()
   if k < 3 {
@@ -626,7 +628,7 @@ pub fn rstatix_friedman_test(
 pub fn rstatix_bh_correct(p_values : Array[Double]) -> Array[Double] {
   let n = p_values.length()
   if n == 0 {
-    return Array::new()
+    return Array(capacity=0)
   }
   let result = Array::make(n, 0.0)
   let indices = Array::make(n, 0)
@@ -635,7 +637,7 @@ pub fn rstatix_bh_correct(p_values : Array[Double]) -> Array[Double] {
     indices[i] = i
     i = i + 1
   }
-  indices.sort_by(fn(a : Int, b : Int) -> Int {
+  indices.sort_by(fn(a : Int32, b : Int32) -> Int32 {
     if p_values[a] < p_values[b] {
       -1
     } else if p_values[a] > p_values[b] {
@@ -701,7 +703,7 @@ pub fn rstatix_sample_data() -> Array[Array[Double]] {
 // ============ Private Helpers ============
 
 ///|
-fn rstatix_min_int(a : Int, b : Int) -> Int {
+fn rstatix_min_int(a : Int32, b : Int32) -> Int32 {
   if a < b {
     a
   } else {
@@ -829,7 +831,7 @@ fn rstatix_rank_array(data : Array[Double]) -> Array[Double] {
     indices[i] = i
     i = i + 1
   }
-  indices.sort_by(fn(a : Int, b : Int) -> Int {
+  indices.sort_by(fn(a : Int32, b : Int32) -> Int32 {
     if data[a] < data[b] {
       -1
     } else if data[a] > data[b] {
@@ -885,7 +887,7 @@ fn rstatix_kendall_tau(x : Array[Double], y : Array[Double]) -> Double {
 }
 
 ///|
-fn rstatix_compute_t_p(t : Double, df : Int, alt : String) -> Double {
+fn rstatix_compute_t_p(t : Double, df : Int32, alt : String) -> Double {
   let p_two = 2.0 * rstatix_t_dist_p(t.abs(), df)
   match alt {
     "greater" => if t > 0.0 { p_two / 2.0 } else { 1.0 - p_two / 2.0 }
@@ -895,7 +897,7 @@ fn rstatix_compute_t_p(t : Double, df : Int, alt : String) -> Double {
 }
 
 ///|
-fn rstatix_t_dist_p(t : Double, df : Int) -> Double {
+fn rstatix_t_dist_p(t : Double, df : Int32) -> Double {
   if df <= 0 || t.is_nan() {
     return @double.not_a_number
   }
@@ -911,14 +913,14 @@ fn rstatix_ibeta(a : Double, b : Double, x : Double) -> Double {
   if x == 0.0 || x == 1.0 {
     return x
   }
-  let g = 7.0
-  let c = [
+  let _g = 7.0
+  let _c = [
     0.99999999999980993, 676.5203681218851, -1259.1392167224028, 771.32342877765313,
     -176.61502916214059, 12.507343278686905, -0.13857109526572012, 9.9843695780195716e-6,
     1.5056327351493116e-7,
   ]
-  let pi = 3.14159265358979323846
-  let lbeta = rstatix_lgamma(a) + rstatix_lgamma(b) - rstatix_lgamma(a + b)
+  let _pi = 3.14159265358979323846
+  let lbeta = lgamma(a) + lgamma(b) - lgamma(a + b)
   let front = @math.exp(a * @math.ln(x) + b * @math.ln(1.0 - x) - lbeta) / a
   let max_iter = 100
   let eps = 1.0e-10
@@ -970,38 +972,13 @@ fn rstatix_ibeta(a : Double, b : Double, x : Double) -> Double {
 }
 
 ///|
-fn rstatix_lgamma(x : Double) -> Double {
-  if x <= 0.0 {
-    return @double.not_a_number
-  }
-  let g = 7.0
-  let c = [
-    0.99999999999980993, 676.5203681218851, -1259.1392167224028, 771.32342877765313,
-    -176.61502916214059, 12.507343278686905, -0.13857109526572012, 9.9843695780195716e-6,
-    1.5056327351493116e-7,
-  ]
-  let pi = 3.14159265358979323846
-  if x < 0.5 {
-    return @math.ln(pi / @math.sin(pi * x)) - rstatix_lgamma(1.0 - x)
-  }
-  let mut sum = c[0]
-  let mut i = 1
-  while i < 9 {
-    sum = sum + c[i] / (x + i.to_double() - 1.0)
-    i = i + 1
-  }
-  let t = x + g + 0.5
-  0.5 * @math.ln(2.0 * pi) + (t * @math.ln(t) - t) + @math.ln(sum)
-}
-
-///|
-fn rstatix_t_critical(alpha : Double, df : Int, alt : String) -> Double {
+fn rstatix_t_critical(alpha : Double, df : Int32, alt : String) -> Double {
   let a = if alt == "two.sided" { alpha / 2.0 } else { alpha }
   rstatix_approx_tc(a, df)
 }
 
 ///|
-fn rstatix_approx_tc(alpha : Double, df : Int) -> Double {
+fn rstatix_approx_tc(alpha : Double, df : Int32) -> Double {
   let z = rstatix_norm_q(1.0 - alpha)
   let df_d = df.to_double()
   z +
@@ -1067,7 +1044,7 @@ fn rstatix_norm_p(z : Double, alt : String) -> Double {
 }
 
 ///|
-fn rstatix_f_p(f : Double, df1 : Int, df2 : Int) -> Double {
+fn rstatix_f_p(f : Double, df1 : Int32, df2 : Int32) -> Double {
   if f <= 0.0 {
     return 1.0
   }
@@ -1076,7 +1053,7 @@ fn rstatix_f_p(f : Double, df1 : Int, df2 : Int) -> Double {
 }
 
 ///|
-fn rstatix_chi2_p(chi2 : Double, df : Int) -> Double {
+fn rstatix_chi2_p(chi2 : Double, df : Int32) -> Double {
   if chi2 <= 0.0 {
     return 1.0
   }

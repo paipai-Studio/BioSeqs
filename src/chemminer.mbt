@@ -53,12 +53,6 @@ fn chem_atomic_weight(symbol : String) -> Double {
   }
 }
 
-///|
-/// Whether a symbol is a recognized element.
-fn chem_is_element(symbol : String) -> Bool {
-  chem_atomic_weight(symbol) > 0.0
-}
-
 // ============================================================================
 // SDF atom and bond
 // ============================================================================
@@ -70,7 +64,7 @@ pub struct SdfAtom {
   x : Double
   y : Double
   z : Double
-  charge : Int // formal charge (0 = neutral)
+  charge : Int32 // formal charge (0 = neutral)
 }
 
 ///|
@@ -80,9 +74,9 @@ pub fn SdfAtom::new(
   x : Double,
   y : Double,
   z : Double,
-  charge : Int,
+  charge : Int32,
 ) -> SdfAtom {
-  SdfAtom::{ symbol, x, y, z, charge }
+  SdfAtom::{ symbol, x, y, z, charge, }
 }
 
 ///|
@@ -106,7 +100,7 @@ pub fn SdfAtom::z(self : SdfAtom) -> Double {
 }
 
 ///|
-pub fn SdfAtom::charge(self : SdfAtom) -> Int {
+pub fn SdfAtom::charge(self : SdfAtom) -> Int32 {
   self.charge
 }
 
@@ -123,29 +117,29 @@ pub fn SdfAtom::distance(self : SdfAtom, other : SdfAtom) -> Double {
 /// A single bond in an SDF molecule: atom indices (1-based in SDF, stored
 /// 0-based internally) and bond type.
 pub struct SdfBond {
-  atom1 : Int // 0-based index into the molecule's atom array
-  atom2 : Int
-  bond_type : Int // 1=single, 2=double, 3=triple, 4=aromatic
+  atom1 : Int32 // 0-based index into the molecule's atom array
+  atom2 : Int32
+  bond_type : Int32 // 1=single, 2=double, 3=triple, 4=aromatic
 }
 
 ///|
 /// Construct an SdfBond.
-pub fn SdfBond::new(atom1 : Int, atom2 : Int, bond_type : Int) -> SdfBond {
-  SdfBond::{ atom1, atom2, bond_type }
+pub fn SdfBond::new(atom1 : Int32, atom2 : Int32, bond_type : Int32) -> SdfBond {
+  SdfBond::{ atom1, atom2, bond_type, }
 }
 
 ///|
-pub fn SdfBond::atom1(self : SdfBond) -> Int {
+pub fn SdfBond::atom1(self : SdfBond) -> Int32 {
   self.atom1
 }
 
 ///|
-pub fn SdfBond::atom2(self : SdfBond) -> Int {
+pub fn SdfBond::atom2(self : SdfBond) -> Int32 {
   self.atom2
 }
 
 ///|
-pub fn SdfBond::bond_type(self : SdfBond) -> Int {
+pub fn SdfBond::bond_type(self : SdfBond) -> Int32 {
   self.bond_type
 }
 
@@ -181,7 +175,7 @@ pub fn SdfMolecule::new(
   atoms : Array[SdfAtom],
   bonds : Array[SdfBond],
 ) -> SdfMolecule {
-  SdfMolecule::{ name, atoms, bonds, properties: Map([], capacity=8) }
+  SdfMolecule::{ name, atoms, bonds, properties: Map([], capacity=8), }
 }
 
 ///|
@@ -206,13 +200,13 @@ pub fn SdfMolecule::properties(self : SdfMolecule) -> Map[String, String] {
 
 ///|
 /// Number of atoms.
-pub fn SdfMolecule::n_atoms(self : SdfMolecule) -> Int {
+pub fn SdfMolecule::n_atoms(self : SdfMolecule) -> Int32 {
   self.atoms.length()
 }
 
 ///|
 /// Number of bonds.
-pub fn SdfMolecule::n_bonds(self : SdfMolecule) -> Int {
+pub fn SdfMolecule::n_bonds(self : SdfMolecule) -> Int32 {
   self.bonds.length()
 }
 
@@ -256,13 +250,13 @@ pub fn chem_sdf_molecular_weight(mol : SdfMolecule) -> Double {
 /// Molecular formula as a Hill-order string (C first, H second, then
 /// remaining elements alphabetically).
 pub fn chem_molecular_formula(mol : SdfMolecule) -> String {
-  let counts : Map[String, Int] = Map([], capacity=16)
+  let counts : Map[String, Int32] = Map([], capacity=16)
   for a in mol.atoms {
     let up = a.symbol.to_upper()
     counts[up] = counts.get_or_default(up, 0) + 1
   }
   // Hill order: C, H, then alphabetical.
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   // Carbon
   if counts.contains("C") {
     let c = counts["C"]
@@ -282,11 +276,11 @@ pub fn chem_molecular_formula(mol : SdfMolecule) -> String {
     counts.remove("H")
   }
   // Remaining elements in alphabetical order.
-  let remaining : Array[String] = Array::new()
+  let remaining : Array[String] = Array(capacity=0)
   for k in counts.keys() {
     remaining.push(k)
   }
-  remaining.sort_by(fn(a : String, b : String) -> Int {
+  remaining.sort_by(fn(a : String, b : String) -> Int32 {
     if a < b {
       -1
     } else if a > b {
@@ -307,7 +301,7 @@ pub fn chem_molecular_formula(mol : SdfMolecule) -> String {
 
 ///|
 /// Count of heavy atoms (non-hydrogen).
-pub fn chem_heavy_atom_count(mol : SdfMolecule) -> Int {
+pub fn chem_heavy_atom_count(mol : SdfMolecule) -> Int32 {
   let mut n = 0
   for a in mol.atoms {
     if a.symbol.to_upper() != "H" {
@@ -319,7 +313,7 @@ pub fn chem_heavy_atom_count(mol : SdfMolecule) -> Int {
 
 ///|
 /// Count atoms of a specific element (case-insensitive).
-pub fn chem_count_element(mol : SdfMolecule, element : String) -> Int {
+pub fn chem_count_element(mol : SdfMolecule, element : String) -> Int32 {
   let up = element.to_upper()
   let mut n = 0
   for a in mol.atoms {
@@ -334,18 +328,18 @@ pub fn chem_count_element(mol : SdfMolecule, element : String) -> Int {
 /// Number of rings detected using a simple approach: for a connected
 /// graph, the number of independent cycles (cyclomatic number) equals
 /// E - V + C where E = edges, V = vertices, C = connected components.
-pub fn chem_ring_count(mol : SdfMolecule) -> Int {
+pub fn chem_ring_count(mol : SdfMolecule) -> Int32 {
   let n_atoms = mol.atoms.length()
   if n_atoms == 0 {
     return 0
   }
   let n_bonds = mol.bonds.length()
   // Count connected components via union-find.
-  let parent : Array[Int] = Array::make(n_atoms, 0)
+  let parent : Array[Int32] = Array::make(n_atoms, 0)
   for i in 0..<n_atoms {
     parent[i] = i
   }
-  let find = fn(parent : Array[Int], x : Int) -> Int {
+  let find = fn(parent : Array[Int32], x : Int32) -> Int32 {
     let mut root = x
     while parent[root] != root {
       root = parent[root]
@@ -390,7 +384,7 @@ pub fn chem_ring_count(mol : SdfMolecule) -> Int {
 /// Type = element index * 10 + degree.
 /// Element indices: H=1, C=2, N=3, O=4, F=5, P=6, S=7, Cl=8, Br=9, I=10,
 /// others=0.
-fn chem_atom_type(atom : SdfAtom, degree : Int) -> Int {
+fn chem_atom_type(atom : SdfAtom, degree : Int32) -> Int32 {
   let idx = match atom.symbol.to_upper() {
     "H" => 1
     "C" => 2
@@ -409,7 +403,7 @@ fn chem_atom_type(atom : SdfAtom, degree : Int) -> Int {
 
 ///|
 /// Compute the degree (number of bonds) for each atom.
-fn chem_atom_degrees(mol : SdfMolecule) -> Array[Int] {
+fn chem_atom_degrees(mol : SdfMolecule) -> Array[Int32] {
   let degrees = Array::make(mol.n_atoms(), 0)
   for b in mol.bonds {
     degrees[b.atom1] = degrees[b.atom1] + 1
@@ -421,7 +415,7 @@ fn chem_atom_degrees(mol : SdfMolecule) -> Array[Int] {
 ///|
 /// BFS shortest-path distance between two atom indices in the molecular
 /// graph. Returns -1 if unreachable.
-fn chem_bfs_distance(mol : SdfMolecule, start : Int, end : Int) -> Int {
+fn chem_bfs_distance(mol : SdfMolecule, start : Int32, end : Int32) -> Int32 {
   if start == end {
     return 0
   }
@@ -429,16 +423,16 @@ fn chem_bfs_distance(mol : SdfMolecule, start : Int, end : Int) -> Int {
   let visited = Array::make(n, false)
   let dist = Array::make(n, -1)
   // Build adjacency list.
-  let adj : Array[Array[Int]] = Array::new()
+  let adj : Array[Array[Int32]] = Array(capacity=0)
   for _ in 0..<n {
-    adj.push(Array::new())
+    adj.push(Array(capacity=0))
   }
   for b in mol.bonds {
     adj[b.atom1].push(b.atom2)
     adj[b.atom2].push(b.atom1)
   }
   // BFS.
-  let queue : Array[Int] = Array::new()
+  let queue : Array[Int32] = Array(capacity=0)
   queue.push(start)
   visited[start] = true
   dist[start] = 0
@@ -466,7 +460,7 @@ fn chem_bfs_distance(mol : SdfMolecule, start : Int, end : Int) -> Int {
 ///   hash = type_i * 10000 + dist * 100 + type_j
 /// where type = element_index * 10 + degree and dist is the topological
 /// (graph) distance. The set of unique hashes is the fingerprint.
-pub fn chem_atom_pair_fingerprint(mol : SdfMolecule) -> Array[Int] {
+pub fn chem_atom_pair_fingerprint(mol : SdfMolecule) -> Array[Int32] {
   let n = mol.n_atoms()
   if n < 2 {
     return []
@@ -476,7 +470,7 @@ pub fn chem_atom_pair_fingerprint(mol : SdfMolecule) -> Array[Int] {
   for i in 0..<n {
     types[i] = chem_atom_type(mol.atoms[i], degrees[i])
   }
-  let fp_set : Map[Int, Bool] = Map([], capacity=64)
+  let fp_set : Map[Int32, Bool] = Map([], capacity=64)
   for i in 0..<n {
     for j in (i + 1)..<n {
       let d = chem_bfs_distance(mol, i, j)
@@ -494,11 +488,11 @@ pub fn chem_atom_pair_fingerprint(mol : SdfMolecule) -> Array[Int] {
       fp_set[hash] = true
     }
   }
-  let result : Array[Int] = Array::new()
+  let result : Array[Int32] = Array(capacity=0)
   for k in fp_set.keys() {
     result.push(k)
   }
-  result.sort_by(fn(a : Int, b : Int) -> Int {
+  result.sort_by(fn(a : Int32, b : Int32) -> Int32 {
     if a < b {
       -1
     } else if a > b {
@@ -516,7 +510,7 @@ pub fn chem_atom_pair_fingerprint(mol : SdfMolecule) -> Array[Int] {
 
 ///|
 /// Intersection size of two sorted integer arrays.
-fn chem_sorted_intersection(a : Array[Int], b : Array[Int]) -> Int {
+fn chem_sorted_intersection(a : Array[Int32], b : Array[Int32]) -> Int32 {
   let mut i = 0
   let mut j = 0
   let mut count = 0
@@ -538,7 +532,7 @@ fn chem_sorted_intersection(a : Array[Int], b : Array[Int]) -> Int {
 /// Tanimoto similarity between two fingerprints (sorted int arrays):
 ///   T = |A ∩ B| / |A ∪ B|
 /// Returns 0.0 if both are empty.
-pub fn chem_tanimoto(fp1 : Array[Int], fp2 : Array[Int]) -> Double {
+pub fn chem_tanimoto(fp1 : Array[Int32], fp2 : Array[Int32]) -> Double {
   let inter = chem_sorted_intersection(fp1, fp2)
   let union_size = fp1.length() + fp2.length() - inter
   if union_size == 0 {
@@ -551,7 +545,7 @@ pub fn chem_tanimoto(fp1 : Array[Int], fp2 : Array[Int]) -> Double {
 /// Dice similarity between two fingerprints:
 ///   D = 2|A ∩ B| / (|A| + |B|)
 /// Returns 0.0 if both are empty.
-pub fn chem_dice(fp1 : Array[Int], fp2 : Array[Int]) -> Double {
+pub fn chem_dice(fp1 : Array[Int32], fp2 : Array[Int32]) -> Double {
   let inter = chem_sorted_intersection(fp1, fp2)
   let total = fp1.length() + fp2.length()
   if total == 0 {
@@ -569,14 +563,14 @@ pub fn chem_dice(fp1 : Array[Int], fp2 : Array[Int]) -> Double {
 /// not support recursive local functions, so this is a top-level function
 /// taking all needed parameters.
 fn chem_substructure_try_match(
-  qn : Int,
+  qn : Int32,
   query : SdfMolecule,
   target : SdfMolecule,
-  q_adj : Array[Array[(Int, Int)]],
-  t_adj : Array[Array[(Int, Int)]],
-  mapping : Array[Int],
+  q_adj : Array[Array[(Int32, Int32)]],
+  t_adj : Array[Array[(Int32, Int32)]],
+  mapping : Array[Int32],
   used : Array[Bool],
-  i : Int,
+  i : Int32,
 ) -> Bool {
   if i == qn {
     return true
@@ -662,18 +656,18 @@ pub fn chem_substructure_match(
     return false
   }
   // Build target adjacency: for each atom, list of (neighbor, bond_type).
-  let t_adj : Array[Array[(Int, Int)]] = Array::new()
+  let t_adj : Array[Array[(Int32, Int32)]] = Array(capacity=0)
   for _ in 0..<tn {
-    t_adj.push(Array::new())
+    t_adj.push(Array(capacity=0))
   }
   for b in target.bonds {
     t_adj[b.atom1].push((b.atom2, b.bond_type))
     t_adj[b.atom2].push((b.atom1, b.bond_type))
   }
   // Build query adjacency.
-  let q_adj : Array[Array[(Int, Int)]] = Array::new()
+  let q_adj : Array[Array[(Int32, Int32)]] = Array(capacity=0)
   for _ in 0..<qn {
-    q_adj.push(Array::new())
+    q_adj.push(Array(capacity=0))
   }
   for b in query.bonds {
     q_adj[b.atom1].push((b.atom2, b.bond_type))
@@ -726,7 +720,7 @@ fn chem_parse_double_field(s : StringView) -> Double {
 
 ///|
 /// Parse an integer from a substring field of an SDF line.
-fn chem_parse_int_field(s : StringView) -> Int {
+fn chem_parse_int_field(s : StringView) -> Int32 {
   let trimmed = chem_trim(s)
   match parse_double(trimmed) {
     Some(v) => v.to_int()
@@ -751,7 +745,7 @@ fn chem_parse_int_field(s : StringView) -> Int {
 /// $$$$
 /// ```
 pub fn chem_parse_sdf(content : String) -> Array[SdfMolecule] {
-  let molecules = Array::new()
+  let molecules = Array(capacity=0)
   let lines = content.split("\n").to_array()
   let n_lines = lines.length()
   let mut idx = 0
@@ -779,7 +773,7 @@ pub fn chem_parse_sdf(content : String) -> Array[SdfMolecule] {
     let n_atoms = chem_parse_int_field(counts_line[0:3])
     let n_bonds = chem_parse_int_field(counts_line[3:6])
     // Parse atom block.
-    let atoms : Array[SdfAtom] = Array::new()
+    let atoms : Array[SdfAtom] = Array(capacity=0)
     for _ in 0..<n_atoms {
       if idx >= n_lines {
         break
@@ -810,7 +804,7 @@ pub fn chem_parse_sdf(content : String) -> Array[SdfMolecule] {
       atoms.push(SdfAtom::new(symbol, x, y, z, charge))
     }
     // Parse bond block.
-    let bonds : Array[SdfBond] = Array::new()
+    let bonds : Array[SdfBond] = Array(capacity=0)
     for _ in 0..<n_bonds {
       if idx >= n_lines {
         break
@@ -893,7 +887,7 @@ fn chem_format_coord(v : Double) -> String {
 
 ///|
 /// Format an integer into a fixed-width 3-character field.
-fn chem_format_int3(v : Int) -> String {
+fn chem_format_int3(v : Int32) -> String {
   let s = v.to_string()
   if s.length() >= 3 {
     s
@@ -910,7 +904,7 @@ fn chem_format_int3(v : Int) -> String {
 ///|
 /// Serialize a single molecule to SDF text.
 pub fn chem_molecule_to_sdf(mol : SdfMolecule) -> String {
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   // Header: name, timestamp, comment.
   sb.write_string(mol.name)
   sb.write_char('\n')
@@ -963,7 +957,7 @@ pub fn chem_molecule_to_sdf(mol : SdfMolecule) -> String {
 ///|
 /// Serialize an array of molecules to SDF text.
 pub fn chem_molecules_to_sdf(molecules : Array[SdfMolecule]) -> String {
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   for mol in molecules {
     sb.write_string(chem_molecule_to_sdf(mol))
   }

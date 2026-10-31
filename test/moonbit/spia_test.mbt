@@ -83,7 +83,7 @@ test "spia_sample_pathways" {
 ///|
 test "spia_sample_de_genes" {
   let de = @src.spia_sample_de_genes()
-  assert_eq(de.size(), 4)
+  assert_eq(de.length(), 4)
   assert_true(de.contains("Gene1"))
   assert_true(de.contains("Gene2"))
   assert_true(de.contains("Gene5"))
@@ -268,8 +268,8 @@ test "spia_summary" {
 
 ///|
 test "spia_empty_pathways" {
-  let pathways : Array[@src.SignalingPathway] = Array::new()
-  let de : Map[String, Double] = Map::new()
+  let pathways : Array[@src.SignalingPathway] = Array(capacity=0)
+  let de : Map[String, Double] = Map([])
   let results = @src.run_spia(pathways, de, 100, fdr_threshold=0.05)
   assert_eq(results.n_pathways, 0)
   assert_eq(results.n_significant, 0)
@@ -278,7 +278,7 @@ test "spia_empty_pathways" {
 ///|
 test "spia_no_de_genes" {
   let pathways = @src.spia_sample_pathways()
-  let de : Map[String, Double] = Map::new()
+  let de : Map[String, Double] = Map([])
   let results = @src.run_spia(pathways, de, 100, fdr_threshold=0.05)
   // With no DE genes, all p-values should be 1.0 (not significant)
   assert_eq(results.n_significant, 0)

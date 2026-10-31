@@ -163,7 +163,10 @@ test "seq3_undef_code" {
     @src.seq3("MAIVMGRWKGA--R*", undef_code="---"),
     "MetAlaIleValMetGlyArgTrpLysGlyAla------ArgTer",
   )
-  assert_eq(@src.seq3("MAIVMGRWKGA--R*"), "MetAlaIleValMetGlyArgTrpLysGlyAlaXaaXaaArgTer")
+  assert_eq(
+    @src.seq3("MAIVMGRWKGA--R*"),
+    "MetAlaIleValMetGlyArgTrpLysGlyAlaXaaXaaArgTer",
+  )
 }
 
 ///|
@@ -193,7 +196,10 @@ test "seq1_case_insensitive" {
 ///|
 test "seq1_custom_map" {
   assert_eq(
-    @src.seq1("MetAlaIleValMetGlyArgTrpLysGlyAla***", custom_map=Map([("***", "*")])),
+    @src.seq1(
+      "MetAlaIleValMetGlyArgTrpLysGlyAla***",
+      custom_map=Map([("***", "*")]),
+    ),
     "MAIVMGRWKGA*",
   )
   // A provided custom map replaces the default "Ter" -> "*" mapping
@@ -229,7 +235,10 @@ test "six_frame_translations_doctest" {
 ///|
 test "six_frame_translations_dna_39nt" {
   let expected = "GC_Frame: a:9 t:8 g:14 c:8\nSequence: atggccattg ... tgcccgatag, 39 nt, 56.41 %GC\n\n\n1/1\n  G  H  C  N  G  P  L  K  G  C  P  I\n W  P  L  *  W  A  A  E  R  V  P  D\nM  A  I  V  M  G  R  *  K  G  A  R  *\natggccattgtaatgggccgctgaaagggtgcccgatag   56 %\ntaccggtaacattacccggcgactttcccacgggctatc\nA  M  T  I  P  R  Q  F  P  A  R  Y\n H  G  N  Y  H  A  A  S  L  T  G  S  L\n  P  W  Q  L  P  G  S  F  P  H  G  I\n\n"
-  assert_eq(@src.six_frame_translations("ATGGCCATTGTAATGGGCCGCTGAAAGGGTGCCCGATAG"), expected)
+  assert_eq(
+    @src.six_frame_translations("ATGGCCATTGTAATGGGCCGCTGAAAGGGTGCCCGATAG"),
+    expected,
+  )
 }
 
 ///|
@@ -243,8 +252,16 @@ test "six_frame_translations_multiblock" {
   assert_true(out.contains("\n61/21\n"))
   assert_true(out.contains("\n121/41\n"))
   // Each block shows the nucleotide line followed by the reverse complement
-  assert_true(out.contains("atggccattgtaatgggccgctgaaagggtgcccgatagtaggcattgtaatgggccgct   55 %\n"))
-  assert_true(out.contains("taccggtaacattacccggcgactttcccacgggctatcatccgtaacattacccggcga\n"))
+  assert_true(
+    out.contains(
+      "atggccattgtaatgggccgctgaaagggtgcccgatagtaggcattgtaatgggccgct   55 %\n",
+    ),
+  )
+  assert_true(
+    out.contains(
+      "taccggtaacattacccggcgactttcccacgggctatcatccgtaacattacccggcga\n",
+    ),
+  )
 }
 
 ///|
@@ -268,8 +285,7 @@ test "six_frame_translations_short_seq" {
   // layout is preserved (exact output verified against Biopython 1.88).
   let out = @src.six_frame_translations("ATG")
   assert_eq(
-    out,
-    "GC_Frame: a:1 t:1 g:1 c:0\nSequence: atg, 3 nt, 33.33 %GC\n\n\n1/1\n  \n \nM\natg   33 %\ntac\n\n H\n  \n\n",
+    out, "GC_Frame: a:1 t:1 g:1 c:0\nSequence: atg, 3 nt, 33.33 %GC\n\n\n1/1\n  \n \nM\natg   33 %\ntac\n\n H\n  \n\n",
   )
 }
 

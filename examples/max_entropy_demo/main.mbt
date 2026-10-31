@@ -35,7 +35,7 @@ fn main {
   // ------------------------------------------------------------------
   println("=== 2. Train Model (IIS) ===")
   let model = @bio.max_entropy_train(xs, ys, features)
-  println("Classes: " + model.classes().to_string())
+  println("Classes: " + repr(model.classes()))
   println("Feature weights (alphas):")
   let alphas = model.alphas()
   let feats = model.features()
@@ -43,13 +43,13 @@ fn main {
     let f = feats[i]
     println(
       "  alpha=" +
-        alphas[i].to_string() +
-        "  attr[" +
-        f.attribute_index().to_string() +
-        "]=" +
-        f.attribute_value() +
-        " class=" +
-        f.class_label(),
+      alphas[i].to_string() +
+      "  attr[" +
+      f.attribute_index().to_string() +
+      "]=" +
+      f.attribute_value() +
+      " class=" +
+      f.class_label(),
     )
   }
   println("")
@@ -69,17 +69,17 @@ fn main {
     }
     println(
       "  " +
-        match_str +
-        " " +
-        xs[i][0] +
-        " " +
-        xs[i][1] +
-        " " +
-        xs[i][2] +
-        " => pred=" +
-        pred +
-        " actual=" +
-        ys[i],
+      match_str +
+      " " +
+      xs[i][0] +
+      " " +
+      xs[i][1] +
+      " " +
+      xs[i][2] +
+      " => pred=" +
+      pred +
+      " actual=" +
+      ys[i],
     )
   }
   println("Accuracy: " + correct.to_string() + "/" + xs.length().to_string())
@@ -100,16 +100,16 @@ fn main {
     let scores = @bio.max_entropy_calculate(model, tc)
     println(
       "  " +
-        tc[0] +
-        " " +
-        tc[1] +
-        " " +
-        tc[2] +
-        " => " +
-        pred +
-        " (scores: " +
-        scores.to_string() +
-        ")",
+      tc[0] +
+      " " +
+      tc[1] +
+      " " +
+      tc[2] +
+      " => " +
+      pred +
+      " (scores: " +
+      repr(scores) +
+      ")",
     )
   }
   println("")

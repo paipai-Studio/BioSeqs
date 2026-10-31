@@ -14,7 +14,7 @@
 /// equals `attribute_value` AND the class label equals `class_label`;
 /// otherwise 0.
 pub struct MaxEntFeature {
-  attribute_index : Int
+  attribute_index : Int32
   attribute_value : String
   class_label : String
 }
@@ -22,16 +22,16 @@ pub struct MaxEntFeature {
 ///|
 /// Construct a new indicator feature.
 pub fn MaxEntFeature::new(
-  attribute_index : Int,
+  attribute_index : Int32,
   attribute_value : String,
   class_label : String,
 ) -> MaxEntFeature {
-  MaxEntFeature::{ attribute_index, attribute_value, class_label }
+  MaxEntFeature::{ attribute_index, attribute_value, class_label, }
 }
 
 ///|
 /// Accessor for the attribute index.
-pub fn MaxEntFeature::attribute_index(self : MaxEntFeature) -> Int {
+pub fn MaxEntFeature::attribute_index(self : MaxEntFeature) -> Int32 {
   self.attribute_index
 }
 
@@ -54,7 +54,7 @@ pub fn max_ent_eval_feature(
   feature : MaxEntFeature,
   observation : Array[String],
   class_label : String,
-) -> Int {
+) -> Int32 {
   if feature.attribute_index >= 0 &&
     feature.attribute_index < observation.length() &&
     observation[feature.attribute_index] == feature.attribute_value &&
@@ -99,7 +99,7 @@ pub fn MaxEntropyModel::features(
 
 ///|
 /// Number of features.
-pub fn MaxEntropyModel::n_features(self : MaxEntropyModel) -> Int {
+pub fn MaxEntropyModel::n_features(self : MaxEntropyModel) -> Int32 {
   self.features.length()
 }
 
@@ -205,7 +205,7 @@ pub fn max_entropy_train(
 ) -> MaxEntropyModel {
   let n = training_set.length()
   // Collect unique classes.
-  let classes : Array[String] = Array::new()
+  let classes : Array[String] = Array(capacity=0)
   for r in results {
     if !classes.contains(r) {
       classes.push(r)
@@ -305,7 +305,7 @@ pub fn max_entropy_train(
       break
     }
   }
-  MaxEntropyModel::{ classes, alphas, features }
+  MaxEntropyModel::{ classes, alphas, features, }
 }
 
 // ===========================================================================

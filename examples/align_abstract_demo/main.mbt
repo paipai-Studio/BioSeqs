@@ -11,8 +11,8 @@ fn main {
   let sequences = ["ACGTACGT", "ACGTACGA", "ACGTACGT"]
   let identifiers = ["seq1", "seq2", "seq3"]
   let aln = @bio.AbstractAlignment::new(
-    sequences=sequences,
-    identifiers=identifiers,
+    sequences~,
+    identifiers~,
     alignment_type=@bio.align_abstract_type_from_str("nucleotide"),
   )
   println("   Sequences: \{aln.abstract_n_seqs()}")
@@ -33,8 +33,12 @@ fn main {
   // 4. Column statistics
   println("\n4. Column statistics:")
   let col0_stats = @bio.abstract_column_stats(aln, 0)
-  println("   Column 0 - conservation: \{col0_stats.conservation}, diversity: \{col0_stats.diversity}")
-  println("   Column 0 - gap_fraction: \{col0_stats.gap_fraction}, unique_chars: \{col0_stats.n_unique_chars}")
+  println(
+    "   Column 0 - conservation: \{col0_stats.conservation}, diversity: \{col0_stats.diversity}",
+  )
+  println(
+    "   Column 0 - gap_fraction: \{col0_stats.gap_fraction}, unique_chars: \{col0_stats.n_unique_chars}",
+  )
 
   // 5. All column stats
   println("\n5. All column statistics:")
@@ -42,7 +46,9 @@ fn main {
   let mut i = 0
   while i < all_stats.length() {
     let s = all_stats[i]
-    println("   Col \{i}: conservation=\{s.conservation}, unique=\{s.n_unique_chars}")
+    println(
+      "   Col \{i}: conservation=\{s.conservation}, unique=\{s.n_unique_chars}",
+    )
     i = i + 1
   }
 

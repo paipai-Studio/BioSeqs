@@ -4,23 +4,14 @@
 
 ///|
 pub struct CellDataSet {
-  counts : Array[Array[Int]]
+  counts : Array[Array[Int32]]
   normalized : Array[Array[Double]]
   gene_names : Array[String]
   cell_names : Array[String]
   reduced_dimensions : Array[(String, Array[Array[Double]])]
   pseudotime : Array[Double]
-  cell_partitions : Array[Int]
-  principal_graph : Array[(Int, Array[Double], Array[Int])]
-}
-
-///|
-pub struct TrajectoryResult {
-  pseudotime : Array[Double]
-  partitions : Array[Int]
-  num_partitions : Int
-  principal_graph_nodes : Array[Array[Double]]
-  principal_graph_edges : Array[(Int, Int)]
+  cell_partitions : Array[Int32]
+  principal_graph : Array[(Int32, Array[Double], Array[Int32])]
 }
 
 ///|
@@ -33,24 +24,24 @@ pub struct DiffExprResult {
 
 ///|
 pub fn new_cell_data_set(
-  counts : Array[Array[Int]],
+  counts : Array[Array[Int32]],
   gene_names : Array[String],
   cell_names : Array[String],
 ) -> CellDataSet {
   CellDataSet::{
     counts,
-    normalized: Array::new(),
+    normalized: Array(capacity=0),
     gene_names,
     cell_names,
-    reduced_dimensions: Array::new(),
-    pseudotime: Array::new(),
-    cell_partitions: Array::new(),
-    principal_graph: Array::new(),
+    reduced_dimensions: Array(capacity=0),
+    pseudotime: Array(capacity=0),
+    cell_partitions: Array(capacity=0),
+    principal_graph: Array(capacity=0),
   }
 }
 
 ///|
-pub fn preprocess_cds(cds : CellDataSet, num_dimensions : Int) -> CellDataSet {
+pub fn preprocess_cds(cds : CellDataSet, num_dimensions : Int32) -> CellDataSet {
   let n_cells = cds.counts.length()
   let n_genes = if n_cells > 0 { cds.counts[0].length() } else { 0 }
 
@@ -58,10 +49,10 @@ pub fn preprocess_cds(cds : CellDataSet, num_dimensions : Int) -> CellDataSet {
     return cds
   }
 
-  let normalized : Array[Array[Double]] = Array::new()
+  let normalized : Array[Array[Double]] = Array(capacity=0)
   let mut i = 0
   while i < n_cells {
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     let mut total = 0.0
     let mut j = 0
     while j < n_genes {
@@ -85,7 +76,7 @@ pub fn preprocess_cds(cds : CellDataSet, num_dimensions : Int) -> CellDataSet {
 
   let pca_result = pca(normalized, num_dimensions)
 
-  let reduced_dims : Array[(String, Array[Array[Double]])] = Array::new()
+  let reduced_dims : Array[(String, Array[Array[Double]])] = Array(capacity=0)
   reduced_dims.push(("PCA".to_string(), pca_result.0))
 
   CellDataSet::{
@@ -103,13 +94,13 @@ pub fn preprocess_cds(cds : CellDataSet, num_dimensions : Int) -> CellDataSet {
 ///|
 fn pca(
   data : Array[Array[Double]],
-  n_components : Int,
+  n_components : Int32,
 ) -> (Array[Array[Double]], Array[Double]) {
   let n_samples = data.length()
   let n_features = if n_samples > 0 { data[0].length() } else { 0 }
 
   if n_samples == 0 || n_features == 0 || n_components <= 0 {
-    return (Array::new(), Array::new())
+    return (Array(capacity=0), Array(capacity=0))
   }
 
   let centered = center_data(data)
@@ -119,10 +110,10 @@ fn pca(
     cov_matrix, n_components,
   )
 
-  let transformed : Array[Array[Double]] = Array::new()
+  let transformed : Array[Array[Double]] = Array(capacity=0)
   let mut i = 0
   while i < n_samples {
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     let mut j = 0
     while j < n_components && j < n_features {
       let mut sum = 0.0
@@ -147,7 +138,7 @@ fn center_data(data : Array[Array[Double]]) -> Array[Array[Double]] {
   let n_features = if n_samples > 0 { data[0].length() } else { 0 }
 
   if n_samples == 0 || n_features == 0 {
-    return Array::new()
+    return Array(capacity=0)
   }
 
   let means : Array[Double] = Array::make(n_features, 0.0)
@@ -163,10 +154,10 @@ fn center_data(data : Array[Array[Double]]) -> Array[Array[Double]] {
     j = j + 1
   }
 
-  let centered : Array[Array[Double]] = Array::new()
+  let centered : Array[Array[Double]] = Array(capacity=0)
   let mut i = 0
   while i < n_samples {
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     let mut j = 0
     while j < n_features {
       row.push(data[i][j] - means[j])
@@ -185,7 +176,7 @@ fn covariance_matrix(data : Array[Array[Double]]) -> Array[Array[Double]] {
   let n_features = if n_samples > 0 { data[0].length() } else { 0 }
 
   if n_samples == 0 || n_features == 0 {
-    return Array::new()
+    return Array(capacity=0)
   }
 
   let cov : Array[Array[Double]] = Array::make(
@@ -215,12 +206,12 @@ fn covariance_matrix(data : Array[Array[Double]]) -> Array[Array[Double]] {
 ///|
 fn eigen_decomposition(
   matrix : Array[Array[Double]],
-  n_components : Int,
+  n_components : Int32,
 ) -> (Array[Double], Array[Array[Double]]) {
   let n = matrix.length()
 
   if n == 0 || n_components <= 0 {
-    return (Array::new(), Array::new())
+    return (Array(capacity=0), Array(capacity=0))
   }
 
   let eigenvalues : Array[Double] = Array::make(n_components, 0.0)
@@ -229,14 +220,20 @@ fn eigen_decomposition(
     Array::make(n, 0.0),
   )
 
-  let mut v : Array[Array[Double]] = Array::make(n, Array::make(n, 0.0))
+  let mut v : Array[Array[Double]] = Array::make(n, Array::make(0, 0.0))
+  for idx in 0..<n {
+    v[idx] = Array::make(n, 0.0)
+  }
   let mut i = 0
   while i < n {
     v[i][i] = 1.0
     i = i + 1
   }
 
-  let mut a : Array[Array[Double]] = Array::make(n, Array::make(n, 0.0))
+  let mut a : Array[Array[Double]] = Array::make(n, Array::make(0, 0.0))
+  for idx in 0..<n {
+    a[idx] = Array::make(n, 0.0)
+  }
   i = 0
   while i < n {
     let mut j = 0
@@ -276,7 +273,10 @@ fn eigen_decomposition(
     let cos_theta = @math.cos(theta)
     let sin_theta = @math.sin(theta)
 
-    let p : Array[Array[Double]] = Array::make(n, Array::make(n, 0.0))
+    let p : Array[Array[Double]] = Array::make(n, Array::make(0, 0.0))
+    for idx in 0..<n {
+      p[idx] = Array::make(n, 0.0)
+    }
     i = 0
     while i < n {
       p[i][i] = 1.0
@@ -297,7 +297,7 @@ fn eigen_decomposition(
     iter = iter + 1
   }
 
-  let diag : Array[(Double, Int)] = Array::new()
+  let diag : Array[(Double, Int32)] = Array(capacity=0)
   i = 0
   while i < n {
     diag.push((a[i][i], i))
@@ -343,10 +343,13 @@ fn monocle_matmul(
   let p = if b.length() > 0 { b[0].length() } else { 0 }
 
   if m == 0 || n == 0 || p == 0 {
-    return Array::new()
+    return Array(capacity=0)
   }
 
-  let result : Array[Array[Double]] = Array::make(m, Array::make(p, 0.0))
+  let result : Array[Array[Double]] = Array::make(m, Array::make(0, 0.0))
+  for idx in 0..<m {
+    result[idx] = Array::make(p, 0.0)
+  }
 
   let mut i = 0
   while i < m {
@@ -373,10 +376,13 @@ fn monocle_transpose(m : Array[Array[Double]]) -> Array[Array[Double]] {
   let cols = if rows > 0 { m[0].length() } else { 0 }
 
   if rows == 0 || cols == 0 {
-    return Array::new()
+    return Array(capacity=0)
   }
 
-  let result : Array[Array[Double]] = Array::make(cols, Array::make(rows, 0.0))
+  let result : Array[Array[Double]] = Array::make(cols, Array::make(0, 0.0))
+  for idx in 0..<cols {
+    result[idx] = Array::make(rows, 0.0)
+  }
 
   let mut i = 0
   while i < rows {
@@ -395,7 +401,7 @@ fn monocle_transpose(m : Array[Array[Double]]) -> Array[Array[Double]] {
 pub fn reduce_dimension(
   cds : CellDataSet,
   dim_method : String,
-  num_dimensions : Int,
+  num_dimensions : Int32,
 ) -> CellDataSet {
   if dim_method == "PCA" || dim_method == "pca" {
     return preprocess_cds(cds, num_dimensions)
@@ -455,7 +461,7 @@ fn merge_reduced_dimensions(
   let result_len = if has_name { n } else { n + 1 }
   let result : Array[(String, Array[Array[Double]])] = Array::make(
     result_len,
-    ("".to_string(), Array::new()),
+    ("".to_string(), Array(capacity=0)),
   )
 
   let mut j = 0
@@ -495,13 +501,13 @@ fn get_reduced_dimension(
 ///|
 fn umap(
   data : Array[Array[Double]],
-  n_components : Int,
+  n_components : Int32,
 ) -> Array[Array[Double]] {
   let n_samples = data.length()
   let n_features = if n_samples > 0 { data[0].length() } else { 0 }
 
   if n_samples == 0 || n_features == 0 || n_components <= 0 {
-    return Array::new()
+    return Array(capacity=0)
   }
 
   let embedding : Array[Array[Double]] = Array::make(
@@ -520,19 +526,19 @@ fn umap(
 
   let k = if n_samples > 15 { 15 } else { n_samples - 1 }
 
-  let knn_indices : Array[Array[Int]] = Array::new()
-  let knn_distances : Array[Array[Double]] = Array::new()
+  let knn_indices : Array[Array[Int32]] = Array(capacity=0)
+  let knn_distances : Array[Array[Double]] = Array(capacity=0)
 
   i = 0
   while i < n_samples {
-    knn_indices.push(Array::new())
-    knn_distances.push(Array::new())
+    knn_indices.push(Array(capacity=0))
+    knn_distances.push(Array(capacity=0))
     i = i + 1
   }
 
   i = 0
   while i < n_samples {
-    let distances : Array[(Double, Int)] = Array::new()
+    let distances : Array[(Double, Int32)] = Array(capacity=0)
     let mut j = 0
     while j < n_samples {
       let mut sum_sq = 0.0
@@ -569,10 +575,10 @@ fn umap(
     i = i + 1
   }
 
-  let graph : Array[Array[(Int, Double)]] = Array::new()
+  let graph : Array[Array[(Int32, Double)]] = Array(capacity=0)
   i = 0
   while i < n_samples {
-    graph.push(Array::new())
+    graph.push(Array(capacity=0))
     i = i + 1
   }
 
@@ -708,10 +714,10 @@ pub fn learn_graph(cds : CellDataSet) -> CellDataSet {
     return cds
   }
 
-  let partitions : Array[Int] = Array::make(n_cells, 0)
+  let partitions : Array[Int32] = Array::make(n_cells, 0)
   let num_partitions = 1
 
-  let centers : Array[Array[Double]] = Array::new()
+  let centers : Array[Array[Double]] = Array(capacity=0)
   let center : Array[Double] = Array::make(2, 0.0)
   let mut i = 0
   while i < n_cells {
@@ -723,7 +729,7 @@ pub fn learn_graph(cds : CellDataSet) -> CellDataSet {
   center[1] = center[1] / n_cells.to_double()
   centers.push(center)
 
-  let graph_edges : Array[(Int, Int)] = Array::new()
+  let graph_edges : Array[(Int32, Int32)] = Array(capacity=0)
 
   let mut j = 0
   while j < n_cells {
@@ -746,7 +752,7 @@ pub fn learn_graph(cds : CellDataSet) -> CellDataSet {
     j = j + 1
   }
 
-  let nodes : Array[Array[Double]] = Array::new()
+  let nodes : Array[Array[Double]] = Array(capacity=0)
   let mut node_idx = 0
   while node_idx < num_partitions {
     let node : Array[Double] = Array::make(2, 0.0)
@@ -776,10 +782,12 @@ pub fn learn_graph(cds : CellDataSet) -> CellDataSet {
     }
   }
 
-  let principal_graph : Array[(Int, Array[Double], Array[Int])] = Array::new()
+  let principal_graph : Array[(Int32, Array[Double], Array[Int32])] = Array(
+    capacity=0,
+  )
   i = 0
   while i < nodes.length() {
-    let edges : Array[Int] = Array::new()
+    let edges : Array[Int32] = Array(capacity=0)
     let mut j = 0
     while j < graph_edges.length() {
       if graph_edges[j].0 == i || graph_edges[j].1 == i {
@@ -803,14 +811,14 @@ pub fn learn_graph(cds : CellDataSet) -> CellDataSet {
     gene_names: cds.gene_names,
     cell_names: cds.cell_names,
     reduced_dimensions: cds.reduced_dimensions,
-    pseudotime: Array::new(),
+    pseudotime: Array(capacity=0),
     cell_partitions: partitions,
     principal_graph,
   }
 }
 
 ///|
-pub fn order_cells(cds : CellDataSet, root_cells : Array[Int]) -> CellDataSet {
+pub fn order_cells(cds : CellDataSet, root_cells : Array[Int32]) -> CellDataSet {
   let umap_data = match get_reduced_dimension(cds, "UMAP") {
     Some(data) => data
     None => cds.normalized
@@ -824,7 +832,7 @@ pub fn order_cells(cds : CellDataSet, root_cells : Array[Int]) -> CellDataSet {
 
   let pseudotime : Array[Double] = Array::make(n_cells, -1.0)
 
-  let distances : Array[(Double, Int)] = Array::new()
+  let distances : Array[(Double, Int32)] = Array(capacity=0)
   let mut i = 0
   while i < n_cells {
     let mut min_dist = 1000000000000000000000000000000.0
@@ -897,15 +905,15 @@ pub fn fit_models(
   let n_cells = cds.pseudotime.length()
   let n_genes = gene_names.length()
 
-  let gene_result : Array[String] = Array::new()
-  let pseudotime_result : Array[Double] = Array::new()
-  let q_value_result : Array[Double] = Array::new()
-  let trend_statistic_result : Array[Double] = Array::new()
+  let gene_result : Array[String] = Array(capacity=0)
+  let pseudotime_result : Array[Double] = Array(capacity=0)
+  let q_value_result : Array[Double] = Array(capacity=0)
+  let trend_statistic_result : Array[Double] = Array(capacity=0)
 
   let mut i = 0
   while i < n_genes {
     let gene_idx = find_gene_index(cds.gene_names, gene_names[i])
-    if gene_idx.is_some() {
+    if gene_idx is Some(_) {
       let idx = gene_idx.unwrap()
 
       let mut sum_expr = 0.0
@@ -960,7 +968,7 @@ pub fn fit_models(
 }
 
 ///|
-fn find_gene_index(gene_names : Array[String], name : String) -> Int? {
+fn find_gene_index(gene_names : Array[String], name : String) -> Int32? {
   let mut i = 0
   while i < gene_names.length() {
     if gene_names[i] == name {
@@ -973,23 +981,23 @@ fn find_gene_index(gene_names : Array[String], name : String) -> Int? {
 
 ///|
 pub struct BranchPoint {
-  node_id : Int
+  node_id : Int32
   position : Array[Double]
-  branch_cells : Array[(Array[Int], Array[Int])]
+  branch_cells : Array[(Array[Int32], Array[Int32])]
 }
 
 ///|
 pub fn BranchPoint::new(
-  node_id : Int,
+  node_id : Int32,
   position : Array[Double],
-  branch_cells : Array[(Array[Int], Array[Int])],
+  branch_cells : Array[(Array[Int32], Array[Int32])],
 ) -> BranchPoint {
-  BranchPoint::{ node_id, position, branch_cells }
+  BranchPoint::{ node_id, position, branch_cells, }
 }
 
 ///|
 pub fn find_branch_points(cds : CellDataSet) -> Array[BranchPoint] {
-  let branch_points : Array[BranchPoint] = Array::new()
+  let branch_points : Array[BranchPoint] = Array(capacity=0)
 
   if cds.principal_graph.length() < 3 {
     return branch_points
@@ -1000,8 +1008,8 @@ pub fn find_branch_points(cds : CellDataSet) -> Array[BranchPoint] {
     let edges = cds.principal_graph[i].2
     if edges.length() >= 3 {
       let position = cds.principal_graph[i].1
-      let branch1 : Array[Int] = Array::new()
-      let branch2 : Array[Int] = Array::new()
+      let branch1 : Array[Int32] = Array(capacity=0)
+      let branch2 : Array[Int32] = Array(capacity=0)
 
       let mut j = 0
       while j < cds.cell_partitions.length() {
@@ -1031,15 +1039,15 @@ pub fn differential_gene_test_branches(
   let branch1 = branch_point.branch_cells[0].0
   let branch2 = branch_point.branch_cells[0].1
 
-  let gene_result : Array[String] = Array::new()
-  let pseudotime_result : Array[Double] = Array::new()
-  let q_value_result : Array[Double] = Array::new()
-  let trend_statistic_result : Array[Double] = Array::new()
+  let gene_result : Array[String] = Array(capacity=0)
+  let pseudotime_result : Array[Double] = Array(capacity=0)
+  let q_value_result : Array[Double] = Array(capacity=0)
+  let trend_statistic_result : Array[Double] = Array(capacity=0)
 
   let mut i = 0
   while i < n_genes {
     let gene_idx = find_gene_index(cds.gene_names, gene_names[i])
-    if gene_idx.is_some() {
+    if gene_idx is Some(_) {
       let idx = gene_idx.unwrap()
 
       let mut sum_branch1 = 0.0
@@ -1101,16 +1109,16 @@ pub fn differential_gene_test_branches(
 
 ///|
 pub fn create_example_monocle_data() -> (
-  Array[Array[Int]],
+  Array[Array[Int32]],
   Array[String],
   Array[String],
 ) {
   let n_cells = 50
   let n_genes = 100
 
-  let counts : Array[Array[Int]] = Array::new()
-  let gene_names : Array[String] = Array::new()
-  let cell_names : Array[String] = Array::new()
+  let counts : Array[Array[Int32]] = Array(capacity=0)
+  let gene_names : Array[String] = Array(capacity=0)
+  let cell_names : Array[String] = Array(capacity=0)
 
   let mut i = 0
   while i < n_genes {
@@ -1122,7 +1130,7 @@ pub fn create_example_monocle_data() -> (
   while i < n_cells {
     cell_names.push("Cell_" + i.to_string())
 
-    let row : Array[Int] = Array::new()
+    let row : Array[Int32] = Array(capacity=0)
     let pseudotime = i.to_double() / (n_cells - 1).to_double()
 
     let mut j = 0

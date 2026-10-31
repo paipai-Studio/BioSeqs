@@ -1,18 +1,19 @@
+///|
 fn main {
   println("=== Bioconductor-style PCAtools Demo ===\n")
 
   println("--- 1. Run PCA on sample data ---")
   let data = [
-    [1.0,  2.0,  3.0],
-    [2.0,  4.0,  5.0],
-    [3.0,  6.0,  7.0],
-    [4.0,  8.0,  9.0],
+    [1.0, 2.0, 3.0],
+    [2.0, 4.0, 5.0],
+    [3.0, 6.0, 7.0],
+    [4.0, 8.0, 9.0],
     [5.0, 10.0, 11.0],
     [6.0, 12.0, 10.0],
-    [7.0, 14.0,  8.0],
-    [8.0, 16.0,  5.0],
-    [9.0, 18.0,  3.0],
-    [50.0, 50.0, 50.0],  // outlier
+    [7.0, 14.0, 8.0],
+    [8.0, 16.0, 5.0],
+    [9.0, 18.0, 3.0],
+    [50.0, 50.0, 50.0], // outlier
   ]
   let n_rows = data.length()
   let n_cols = if n_rows > 0 { data[0].length() } else { 0 }
@@ -27,7 +28,7 @@ fn main {
 
   println("\n--- 3. Biplot (ASCII) ---")
   let opts = @bio.BiplotOptions::new()
-  let biplot = @bio.pca_biplot_ascii(res, opts=opts)
+  let biplot = @bio.pca_biplot_ascii(res, opts~)
   println(biplot)
 
   println("\n--- 4. Outlier detection ---")
@@ -40,7 +41,9 @@ fn main {
     let mut idxs = "  Outlier indices: [".to_string()
     let mut oi = 0
     while oi < outlier_res.indices.length() {
-      if oi > 0 { idxs = idxs + ", " }
+      if oi > 0 {
+        idxs = idxs + ", "
+      }
       idxs = idxs + outlier_res.indices[oi].to_string()
       oi = oi + 1
     }
@@ -59,7 +62,9 @@ fn main {
     let mut s = "    var_\{vi + 1} vs PCs: [".to_string()
     let mut pj = 0
     while pj < row.length() {
-      if pj > 0 { s = s + ", " }
+      if pj > 0 {
+        s = s + ", "
+      }
       s = s + row[pj].to_string()
       pj = pj + 1
     }

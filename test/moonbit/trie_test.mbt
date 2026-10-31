@@ -67,7 +67,7 @@ test "trie_lookup_nonexistent_key" {
   let trie = @src.Trie::new()
   @src.trie_insert(trie, "GAATTC", "EcoRI")
   let val = @src.trie_lookup(trie, "GGATCC")
-  assert_eq(val.is_some(), false)
+  assert_eq(val is Some(_), false)
 }
 
 ///|
@@ -230,7 +230,7 @@ test "triefind_match_longest_prefix" {
   @src.trie_insert(trie, "GAATTC", "EcoRI")
   @src.trie_insert(trie, "GAATT", "ShortSite")
   let result = @src.triefind_match(trie, "GAATTCGGG")
-  assert_eq(result.is_some(), true)
+  assert_eq(result is Some(_), true)
   let (key, val) = result.unwrap()
   assert_eq(key, "GAATTC")
   assert_eq(val, "EcoRI")
@@ -241,7 +241,7 @@ test "triefind_match_no_match" {
   let trie = @src.Trie::new()
   @src.trie_insert(trie, "GAATTC", "EcoRI")
   let result = @src.triefind_match(trie, "GGGGGGG")
-  assert_eq(result.is_some(), false)
+  assert_eq(result is Some(_), false)
 }
 
 ///|
@@ -249,7 +249,7 @@ test "triefind_match_empty_text" {
   let trie = @src.Trie::new()
   @src.trie_insert(trie, "GAATTC", "EcoRI")
   let result = @src.triefind_match(trie, "")
-  assert_eq(result.is_some(), false)
+  assert_eq(result is Some(_), false)
 }
 
 ///|

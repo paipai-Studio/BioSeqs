@@ -14,12 +14,12 @@ pub fn alignment(
   alphabet : String,
   description : String,
 ) -> Alignment {
-  Alignment::{ sequences, alphabet, description }
+  Alignment::{ sequences, alphabet, description, }
 }
 
 ///|
 pub fn parse_clustalw(content : String) -> Alignment {
-  let sequences : Array[(String, String)] = Array::new()
+  let sequences : Array[(String, String)] = Array(capacity=0)
   let name_map : Map[String, String] = Map([], capacity=10)
   let n = content.length()
 
@@ -65,12 +65,12 @@ pub fn parse_clustalw(content : String) -> Alignment {
     sequences.push((keys[i], name_map[keys[i]]))
   }
 
-  Alignment::{ sequences, alphabet: "DNA", description: "ClustalW alignment" }
+  Alignment::{ sequences, alphabet: "DNA", description: "ClustalW alignment", }
 }
 
 ///|
 pub fn parse_fasta_alignment(content : String) -> Alignment {
-  let sequences : Array[(String, String)] = Array::new()
+  let sequences : Array[(String, String)] = Array(capacity=0)
   let n = content.length()
 
   let mut current_name = ""
@@ -107,12 +107,12 @@ pub fn parse_fasta_alignment(content : String) -> Alignment {
     sequences.push((current_name, current_seq))
   }
 
-  Alignment::{ sequences, alphabet: "DNA", description: "FASTA alignment" }
+  Alignment::{ sequences, alphabet: "DNA", description: "FASTA alignment", }
 }
 
 ///|
 pub fn parse_stockholm(content : String) -> Alignment {
-  let sequences : Array[(String, String)] = Array::new()
+  let sequences : Array[(String, String)] = Array(capacity=0)
   let name_map : Map[String, String] = Map([], capacity=10)
   let n = content.length()
 
@@ -156,7 +156,7 @@ pub fn parse_stockholm(content : String) -> Alignment {
     sequences.push((keys[i], name_map[keys[i]]))
   }
 
-  Alignment::{ sequences, alphabet: "DNA", description: "Stockholm alignment" }
+  Alignment::{ sequences, alphabet: "DNA", description: "Stockholm alignment", }
 }
 
 ///|
@@ -236,7 +236,7 @@ pub fn write_fasta_alignment(align : Alignment) -> String {
 }
 
 ///|
-pub fn alignment_length(align : Alignment) -> Int {
+pub fn alignment_length(align : Alignment) -> Int32 {
   if align.sequences.length() > 0 {
     align.sequences[0].1.length()
   } else {
@@ -245,7 +245,7 @@ pub fn alignment_length(align : Alignment) -> Int {
 }
 
 ///|
-pub fn num_sequences(align : Alignment) -> Int {
+pub fn num_sequences(align : Alignment) -> Int32 {
   align.sequences.length()
 }
 
@@ -260,12 +260,12 @@ pub fn get_sequence(align : Alignment, name : String) -> String? {
 }
 
 ///|
-pub fn column_consensus(align : Alignment, column : Int) -> String {
+pub fn column_consensus(align : Alignment, column : Int32) -> String {
   if align.sequences.length() == 0 || column >= align.sequences[0].1.length() {
     return "N"
   }
 
-  let counts : Map[String, Int] = Map([], capacity=4)
+  let counts : Map[String, Int32] = Map([], capacity=4)
 
   for i = 0; i < align.sequences.length(); i = i + 1 {
     let c = substring(align.sequences[i].1, column, 1)
@@ -304,7 +304,7 @@ pub fn consensus_sequence(align : Alignment) -> String {
 
 ///|
 fn split_by_whitespace(s : String) -> Array[String] {
-  let result : Array[String] = Array::new()
+  let result : Array[String] = Array(capacity=0)
   let mut current_word = ""
 
   for i = 0; i < s.length(); i = i + 1 {

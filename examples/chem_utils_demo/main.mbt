@@ -55,7 +55,7 @@ fn main {
 
   // Empirical formula
   println("\n6. Empirical Formula:")
-  let water_counts : Map[String, Int] = Map([], capacity=8)
+  let water_counts : Map[String, Int32] = Map([], capacity=8)
   water_counts.set("H", 2)
   water_counts.set("O", 1)
   let formula = @bio.chem_empirical_formula(water_counts)

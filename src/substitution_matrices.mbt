@@ -42,9 +42,9 @@ pub fn subs_nucleotide_alphabet() -> Array[String] {
 /// A 2D numeric array with row and column labels.
 /// Used internally by SubsMatrix for score storage.
 pub struct ArrayData {
-  pub rows : Array[String] // row labels
-  pub cols : Array[String] // column labels
-  pub data : Array[Array[Double]] // row x col values
+  rows : Array[String] // row labels
+  cols : Array[String] // column labels
+  data : Array[Array[Double]] // row x col values
 }
 
 ///|
@@ -67,13 +67,13 @@ pub fn array_data_from_dict(
   }
   // Build row/col index maps
   let row_idx_keys : Array[String] = []
-  let row_idx_vals : Array[Int] = []
+  let row_idx_vals : Array[Int32] = []
   for i in 0..<n_rows {
     row_idx_keys.push(rows[i])
     row_idx_vals.push(i)
   }
   let col_idx_keys : Array[String] = []
-  let col_idx_vals : Array[Int] = []
+  let col_idx_vals : Array[Int32] = []
   for j in 0..<n_cols {
     col_idx_keys.push(cols[j])
     col_idx_vals.push(j)
@@ -101,12 +101,12 @@ pub fn array_data_from_dict(
     }
     pi = pi + 1
   }
-  { rows, cols, data }
+  { rows, cols, data, }
 }
 
 ///|
 /// Get a value from ArrayData by row and column index.
-pub fn ArrayData::get(self : ArrayData, i : Int, j : Int) -> Double {
+pub fn ArrayData::get(self : ArrayData, i : Int32, j : Int32) -> Double {
   if i < 0 || i >= self.rows.length() || j < 0 || j >= self.cols.length() {
     0.0
   } else {
@@ -116,7 +116,12 @@ pub fn ArrayData::get(self : ArrayData, i : Int, j : Int) -> Double {
 
 ///|
 /// Set a value in ArrayData by row and column index.
-pub fn ArrayData::set(self : ArrayData, i : Int, j : Int, v : Double) -> Unit {
+pub fn ArrayData::set(
+  self : ArrayData,
+  i : Int32,
+  j : Int32,
+  v : Double,
+) -> Unit {
   if i >= 0 && i < self.rows.length() && j >= 0 && j < self.cols.length() {
     self.data[i][j] = v
   }
@@ -161,7 +166,7 @@ pub struct SubsMatrix {
   name : String
   alphabet : Array[String]
   matrix : ArrayData // symmetric for protein matrices
-  n_letters : Int
+  n_letters : Int32
 }
 
 ///|
@@ -171,7 +176,7 @@ pub fn subs_matrix(
   alphabet : Array[String],
   matrix : ArrayData,
 ) -> SubsMatrix {
-  { name, alphabet, matrix, n_letters: alphabet.length() }
+  { name, alphabet, matrix, n_letters: alphabet.length(), }
 }
 
 ///|
@@ -197,7 +202,11 @@ pub fn SubsMatrix::get_score(
 
 ///|
 /// Get the score by index (both 0-based positions in the alphabet).
-pub fn SubsMatrix::get_score_idx(self : SubsMatrix, i : Int, j : Int) -> Double {
+pub fn SubsMatrix::get_score_idx(
+  self : SubsMatrix,
+  i : Int32,
+  j : Int32,
+) -> Double {
   self.matrix.get(i, j)
 }
 
@@ -215,8 +224,19 @@ pub fn SubsMatrix::alphabet(self : SubsMatrix) -> Array[String] {
 
 ///|
 /// Number of letters in the alphabet.
-pub fn SubsMatrix::n_letters(self : SubsMatrix) -> Int {
+pub fn SubsMatrix::n_letters(self : SubsMatrix) -> Int32 {
   self.n_letters
+}
+
+///|
+/// Check whether the matrix alphabet contains a letter.
+pub fn SubsMatrix::has_letter(self : SubsMatrix, letter : String) -> Bool {
+  for a in self.alphabet {
+    if a == letter {
+      return true
+    }
+  }
+  false
 }
 
 ///|
@@ -269,10 +289,14 @@ pub fn SubsMatrix::to_table_string(self : SubsMatrix) -> String {
 
 ///|
 /// Registry of named matrices. Stores (name, matrix) pairs.
-let registry_keys : Ref[Array[String]] = Ref::new([])
+let registry_keys : Ref[Array[String]] = Ref::Ref([])
 
 ///|
-let registry_matrices : Ref[Array[SubsMatrix]] = Ref::new([])
+let registry_matrices : Ref[Array[SubsMatrix]] = Ref::Ref([])
+
+///|
+/// Whether the built-in matrices have already been registered.
+let registry_initialized : Ref[Bool] = Ref::Ref(false)
 
 ///|
 /// Register a substitution matrix by name.
@@ -441,16 +465,25 @@ pub fn subs_nuc44_matrix() -> SubsMatrix {
 
 ///|
 /// Register all built-in substitution matrices.
-/// Call this once at program startup.
+///
+/// Registers the 30 canonical Biopython matrices (BLOSUM45/50/62/80/90,
+/// PAM30/70/250, DAYHOFF, GONNET1992, BLASTN/NUC.4.4, BLASTP, HOXD70,
+/// TRANS, SCHNEIDER, ...) plus the legacy "NUC4.4" alias. Idempotent:
+/// repeated calls do not rebuild or overwrite user-registered matrices.
 pub fn subs_initialize_registry() -> Unit {
-  register_matrix("BLOSUM45", subs_blosum45_matrix())
-  register_matrix("BLOSUM62", subs_blosum62_matrix())
-  register_matrix("BLOSUM80", subs_blosum80_matrix())
-  register_matrix("BLOSUM90", subs_blosum90_matrix())
-  register_matrix("PAM30", subs_pam30_matrix())
-  register_matrix("PAM70", subs_pam70_matrix())
-  register_matrix("PAM250", subs_pam250_matrix())
+  if registry_initialized.val {
+    return
+  }
+  register_biopython_matrices()
+  // Legacy alias: simplified 4-letter match/mismatch matrix
   register_matrix("NUC4.4", subs_nuc44_matrix())
+  registry_initialized.val = true
+}
+
+///|
+/// Lazily ensure that the built-in matrices are registered.
+pub fn subs_ensure_registry() -> Unit {
+  subs_initialize_registry()
 }
 
 // ============================================================================
@@ -485,7 +518,7 @@ pub fn calculate_frequency_matrix(
   }
   // Build letter -> index map
   let letter_keys : Array[String] = []
-  let letter_vals : Array[Int] = []
+  let letter_vals : Array[Int32] = []
   for i in 0..<n {
     letter_keys.push(alphabet[i])
     letter_vals.push(i)
@@ -493,7 +526,7 @@ pub fn calculate_frequency_matrix(
   // Count pairs across all sequence pairs
   let n_seq = alignment.length()
   if n_seq < 2 {
-    return { rows: alphabet, cols: alphabet, data }
+    return { rows: alphabet, cols: alphabet, data, }
   }
   let seq_len = alignment[0].length()
   for i in 0..<n_seq {
@@ -531,7 +564,7 @@ pub fn calculate_frequency_matrix(
       }
     }
   }
-  { rows: alphabet, cols: alphabet, data }
+  { rows: alphabet, cols: alphabet, data, }
 }
 
 // ============================================================================
@@ -554,7 +587,7 @@ pub fn calculate_frequency_matrix(
 pub fn calculate_substitution_matrix(
   alignment : Array[String],
   alphabet : Array[String],
-  scale? : Double = 2.0,
+  scale~ : Double = 2.0,
 ) -> SubsMatrix {
   let n = alphabet.length()
   // Step 1: Calculate observed pair frequencies
@@ -700,7 +733,7 @@ pub fn parse_ncbi_matrix(content : String) -> SubsMatrix? {
       // This might be the header line
       for p in parts {
         if p.length() == 1 {
-          alphabet.push(p.to_string())
+          alphabet.push(p.to_owned())
         }
       }
       continue
@@ -710,17 +743,17 @@ pub fn parse_ncbi_matrix(content : String) -> SubsMatrix? {
       // First non-comment line is the header
       for p in parts {
         if p.length() >= 1 {
-          alphabet.push(p.to_string())
+          alphabet.push(p.to_owned())
         }
       }
       continue
     }
     // Data row: first part is letter, rest are scores
     if parts.length() >= 2 {
-      let row_letter = parts[0].to_string()
+      let row_letter = parts[0].to_owned()
       let scores : Array[Double] = []
       for i in 1..<parts.length() {
-        match parse_double(parts[i].to_string()) {
+        match parse_double(parts[i].to_owned()) {
           Some(v) => scores.push(v)
           None => continue
         }
@@ -815,7 +848,7 @@ pub fn matrix_correlation(m1 : SubsMatrix, m2 : SubsMatrix) -> Double {
 // ============================================================================
 
 ///|
-fn blosum62_scores() -> Array[Int] {
+fn blosum62_scores() -> Array[Int32] {
   [
     // A    C    D    E    F    G    H    I    K    L    M    N    P    Q    R    S    T    V    W    Y
     4, 0, -2, -1, -2, 0, -2, -1, -1, -1, -1, -2, -1, -1, -1, 1, 0, 0, -3, -2, // A
@@ -846,7 +879,7 @@ fn blosum62_scores() -> Array[Int] {
 // ============================================================================
 
 ///|
-fn blosum45_scores() -> Array[Int] {
+fn blosum45_scores() -> Array[Int32] {
   [
     5, -1, -2, -1, -2, 0, -2, -1, -1, -1, -1, -2, -1, -1, -1, 1, 0, 0, -3, -2, -1,
     12, -5, -5, -4, -3, -3, -2, -5, -2, -2, -4, -4, -4, -4, -1, -1, -1, -5, -4, -2,
@@ -875,7 +908,7 @@ fn blosum45_scores() -> Array[Int] {
 // ============================================================================
 
 ///|
-fn blosum80_scores() -> Array[Int] {
+fn blosum80_scores() -> Array[Int32] {
   [
     7, -1, -2, -1, -2, 0, -2, -1, -1, -1, -1, -2, -1, -1, -1, 2, 1, 0, -4, -3, -1,
     13, -5, -5, -3, -4, -4, -2, -4, -2, -2, -4, -5, -4, -4, -1, -1, -1, -5, -3, -2,
@@ -904,7 +937,7 @@ fn blosum80_scores() -> Array[Int] {
 // ============================================================================
 
 ///|
-fn blosum90_scores() -> Array[Int] {
+fn blosum90_scores() -> Array[Int32] {
   [
     7, -1, -2, -1, -3, 0, -2, -1, -1, -2, -1, -2, -1, -1, -2, 2, 1, 0, -4, -3, -1,
     14, -6, -6, -4, -4, -4, -2, -5, -3, -3, -5, -5, -5, -4, -1, -1, -2, -5, -4, -2,
@@ -933,7 +966,7 @@ fn blosum90_scores() -> Array[Int] {
 // ============================================================================
 
 ///|
-fn pam30_scores() -> Array[Int] {
+fn pam30_scores() -> Array[Int32] {
   [
     6, -7, -4, -2, -6, -2, -5, -3, -3, -5, -4, -3, -3, -3, -5, 0, 0, -3, -10, -6,
     -7, 12, -9, -9, -6, -9, -6, -7, -9, -7, -7, -7, -8, -7, -7, -4, -5, -6, -10,
@@ -963,7 +996,7 @@ fn pam30_scores() -> Array[Int] {
 // ============================================================================
 
 ///|
-fn pam70_scores() -> Array[Int] {
+fn pam70_scores() -> Array[Int32] {
   [
     5, -4, -3, -1, -5, -1, -4, -2, -2, -4, -3, -2, -2, -2, -4, 1, 1, -2, -8, -4,
     -4, 10, -7, -6, -4, -7, -4, -5, -6, -5, -5, -5, -6, -5, -5, -2, -3, -4, -7, -5,
@@ -993,7 +1026,7 @@ fn pam70_scores() -> Array[Int] {
 // ============================================================================
 
 ///|
-fn pam250_scores() -> Array[Int] {
+fn pam250_scores() -> Array[Int32] {
   [
     2, -2, 0, 0, -3, 1, -1, -1, -1, -2, -1, 0, 1, 0, -2, 1, 1, 0, -6, -3, -2, 12,
     -5, -5, -4, -3, -3, -2, -3, -2, -2, -4, -4, -4, -4, 0, -2, -2, -7, -4, 0, -5,

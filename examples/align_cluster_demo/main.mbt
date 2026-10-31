@@ -3,7 +3,6 @@
 /// Demonstrates Bio.Align.AlignClusterer functionality
 ///
 /// Run: moon run examples/align_cluster_demo/
-
 fn main {
   // Create aligner with default parameters
   let aligner = @bio.align_cluster_new()
@@ -13,10 +12,7 @@ fn main {
 
   // Prepare sequences (simulated homologous sequences)
   let sequences = [
-    "ACGTACGTACGTACGT",
-    "ACGTACGTTCGTACGT",
-    "ACGTACGTACGTTCGT",
-    "TCGTACGTACGTACGT",
+    "ACGTACGTACGTACGT", "ACGTACGTTCGTACGT", "ACGTACGTACGTTCGT", "TCGTACGTACGTACGT",
   ]
   let ids = ["seq1", "seq2", "seq3", "seq4"]
 

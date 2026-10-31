@@ -33,31 +33,31 @@ pub struct TFActivityResult {
   normalized_activity : Double
   p_value : Double
   z_score : Double
-  n_targets : Int
+  n_targets : Int32
 }
 
 ///|
 /// Parameters for dorothea TF activity scoring.
 pub struct DorotheaParams {
-  n_permutations : Int
-  min_targets : Int
+  n_permutations : Int32
+  min_targets : Int32
   significance : Double
 }
 
 ///|
 /// Create default dorothea parameters.
 pub fn DorotheaParams::new() -> DorotheaParams {
-  DorotheaParams::{ n_permutations: 1000, min_targets: 5, significance: 0.05 }
+  DorotheaParams::{ n_permutations: 1000, min_targets: 5, significance: 0.05, }
 }
 
 ///|
 /// Create custom dorothea parameters.
 pub fn DorotheaParams::with_params(
-  n_perms : Int,
-  min_targets : Int,
+  n_perms : Int32,
+  min_targets : Int32,
   alpha : Double,
 ) -> DorotheaParams {
-  DorotheaParams::{ n_permutations: n_perms, min_targets, significance: alpha }
+  DorotheaParams::{ n_permutations: n_perms, min_targets, significance: alpha, }
 }
 
 ///|
@@ -68,163 +68,163 @@ pub fn dorothea_get_regulons() -> Array[Regulon] {
     Regulon::{
       tf: "TP53",
       targets: [
-        TargetGene::{ gene: "CDKN1A", direction: "activation" },
-        TargetGene::{ gene: "BAX", direction: "activation" },
-        TargetGene::{ gene: "BBC3", direction: "activation" },
-        TargetGene::{ gene: "PMAIP1", direction: "activation" },
-        TargetGene::{ gene: "SFN", direction: "activation" },
-        TargetGene::{ gene: "CCNG1", direction: "activation" },
-        TargetGene::{ gene: "MDM2", direction: "activation" },
-        TargetGene::{ gene: "RRM2B", direction: "activation" },
-        TargetGene::{ gene: "SESN1", direction: "activation" },
-        TargetGene::{ gene: "SESN2", direction: "activation" },
-        TargetGene::{ gene: "CDK4", direction: "repression" },
-        TargetGene::{ gene: "CDK6", direction: "repression" },
+        TargetGene::{ gene: "CDKN1A", direction: "activation", },
+        TargetGene::{ gene: "BAX", direction: "activation", },
+        TargetGene::{ gene: "BBC3", direction: "activation", },
+        TargetGene::{ gene: "PMAIP1", direction: "activation", },
+        TargetGene::{ gene: "SFN", direction: "activation", },
+        TargetGene::{ gene: "CCNG1", direction: "activation", },
+        TargetGene::{ gene: "MDM2", direction: "activation", },
+        TargetGene::{ gene: "RRM2B", direction: "activation", },
+        TargetGene::{ gene: "SESN1", direction: "activation", },
+        TargetGene::{ gene: "SESN2", direction: "activation", },
+        TargetGene::{ gene: "CDK4", direction: "repression", },
+        TargetGene::{ gene: "CDK6", direction: "repression", },
       ],
     },
     Regulon::{
       tf: "MYC",
       targets: [
-        TargetGene::{ gene: "CCND1", direction: "activation" },
-        TargetGene::{ gene: "CCNE1", direction: "activation" },
-        TargetGene::{ gene: "E2F1", direction: "activation" },
-        TargetGene::{ gene: "RRM1", direction: "activation" },
-        TargetGene::{ gene: "RRM2", direction: "activation" },
-        TargetGene::{ gene: "TYMS", direction: "activation" },
-        TargetGene::{ gene: "LDHA", direction: "activation" },
-        TargetGene::{ gene: "HK2", direction: "activation" },
-        TargetGene::{ gene: "PFKL", direction: "activation" },
-        TargetGene::{ gene: "CDKN1A", direction: "repression" },
-        TargetGene::{ gene: "CDKN2A", direction: "repression" },
+        TargetGene::{ gene: "CCND1", direction: "activation", },
+        TargetGene::{ gene: "CCNE1", direction: "activation", },
+        TargetGene::{ gene: "E2F1", direction: "activation", },
+        TargetGene::{ gene: "RRM1", direction: "activation", },
+        TargetGene::{ gene: "RRM2", direction: "activation", },
+        TargetGene::{ gene: "TYMS", direction: "activation", },
+        TargetGene::{ gene: "LDHA", direction: "activation", },
+        TargetGene::{ gene: "HK2", direction: "activation", },
+        TargetGene::{ gene: "PFKL", direction: "activation", },
+        TargetGene::{ gene: "CDKN1A", direction: "repression", },
+        TargetGene::{ gene: "CDKN2A", direction: "repression", },
       ],
     },
     Regulon::{
       tf: "JUN",
       targets: [
-        TargetGene::{ gene: "CCL2", direction: "activation" },
-        TargetGene::{ gene: "CXCL8", direction: "activation" },
-        TargetGene::{ gene: "MMP1", direction: "activation" },
-        TargetGene::{ gene: "MMP9", direction: "activation" },
-        TargetGene::{ gene: "VEGFA", direction: "activation" },
-        TargetGene::{ gene: "EGFR", direction: "activation" },
-        TargetGene::{ gene: "FOS", direction: "activation" },
-        TargetGene::{ gene: "NFKB1", direction: "activation" },
+        TargetGene::{ gene: "CCL2", direction: "activation", },
+        TargetGene::{ gene: "CXCL8", direction: "activation", },
+        TargetGene::{ gene: "MMP1", direction: "activation", },
+        TargetGene::{ gene: "MMP9", direction: "activation", },
+        TargetGene::{ gene: "VEGFA", direction: "activation", },
+        TargetGene::{ gene: "EGFR", direction: "activation", },
+        TargetGene::{ gene: "FOS", direction: "activation", },
+        TargetGene::{ gene: "NFKB1", direction: "activation", },
       ],
     },
     Regulon::{
       tf: "FOS",
       targets: [
-        TargetGene::{ gene: "AP-1", direction: "activation" },
-        TargetGene::{ gene: "MMP1", direction: "activation" },
-        TargetGene::{ gene: "MMP3", direction: "activation" },
-        TargetGene::{ gene: "MMP9", direction: "activation" },
-        TargetGene::{ gene: "VEGFA", direction: "activation" },
-        TargetGene::{ gene: "IL6", direction: "activation" },
-        TargetGene::{ gene: "CXCL8", direction: "activation" },
+        TargetGene::{ gene: "AP-1", direction: "activation", },
+        TargetGene::{ gene: "MMP1", direction: "activation", },
+        TargetGene::{ gene: "MMP3", direction: "activation", },
+        TargetGene::{ gene: "MMP9", direction: "activation", },
+        TargetGene::{ gene: "VEGFA", direction: "activation", },
+        TargetGene::{ gene: "IL6", direction: "activation", },
+        TargetGene::{ gene: "CXCL8", direction: "activation", },
       ],
     },
     Regulon::{
       tf: "NFKB1",
       targets: [
-        TargetGene::{ gene: "IL6", direction: "activation" },
-        TargetGene::{ gene: "IL1B", direction: "activation" },
-        TargetGene::{ gene: "TNF", direction: "activation" },
-        TargetGene::{ gene: "CXCL8", direction: "activation" },
-        TargetGene::{ gene: "CCL2", direction: "activation" },
-        TargetGene::{ gene: "VEGFA", direction: "activation" },
-        TargetGene::{ gene: "BCL2", direction: "activation" },
-        TargetGene::{ gene: "XIAP", direction: "activation" },
+        TargetGene::{ gene: "IL6", direction: "activation", },
+        TargetGene::{ gene: "IL1B", direction: "activation", },
+        TargetGene::{ gene: "TNF", direction: "activation", },
+        TargetGene::{ gene: "CXCL8", direction: "activation", },
+        TargetGene::{ gene: "CCL2", direction: "activation", },
+        TargetGene::{ gene: "VEGFA", direction: "activation", },
+        TargetGene::{ gene: "BCL2", direction: "activation", },
+        TargetGene::{ gene: "XIAP", direction: "activation", },
       ],
     },
     Regulon::{
       tf: "STAT3",
       targets: [
-        TargetGene::{ gene: "SOCS3", direction: "activation" },
-        TargetGene::{ gene: "BCL2", direction: "activation" },
-        TargetGene::{ gene: "BCL2L1", direction: "activation" },
-        TargetGene::{ gene: "MCL1", direction: "activation" },
-        TargetGene::{ gene: "CCND1", direction: "activation" },
-        TargetGene::{ gene: "MYC", direction: "activation" },
-        TargetGene::{ gene: "IL17", direction: "activation" },
+        TargetGene::{ gene: "SOCS3", direction: "activation", },
+        TargetGene::{ gene: "BCL2", direction: "activation", },
+        TargetGene::{ gene: "BCL2L1", direction: "activation", },
+        TargetGene::{ gene: "MCL1", direction: "activation", },
+        TargetGene::{ gene: "CCND1", direction: "activation", },
+        TargetGene::{ gene: "MYC", direction: "activation", },
+        TargetGene::{ gene: "IL17", direction: "activation", },
       ],
     },
     Regulon::{
       tf: "HIF1A",
       targets: [
-        TargetGene::{ gene: "VEGFA", direction: "activation" },
-        TargetGene::{ gene: "EPO", direction: "activation" },
-        TargetGene::{ gene: "LDHA", direction: "activation" },
-        TargetGene::{ gene: "HK2", direction: "activation" },
-        TargetGene::{ gene: "PFKL", direction: "activation" },
-        TargetGene::{ gene: "PGK1", direction: "activation" },
-        TargetGene::{ gene: "CA9", direction: "activation" },
+        TargetGene::{ gene: "VEGFA", direction: "activation", },
+        TargetGene::{ gene: "EPO", direction: "activation", },
+        TargetGene::{ gene: "LDHA", direction: "activation", },
+        TargetGene::{ gene: "HK2", direction: "activation", },
+        TargetGene::{ gene: "PFKL", direction: "activation", },
+        TargetGene::{ gene: "PGK1", direction: "activation", },
+        TargetGene::{ gene: "CA9", direction: "activation", },
       ],
     },
     Regulon::{
       tf: "E2F1",
       targets: [
-        TargetGene::{ gene: "CCNE1", direction: "activation" },
-        TargetGene::{ gene: "CCND1", direction: "activation" },
-        TargetGene::{ gene: "RRM1", direction: "activation" },
-        TargetGene::{ gene: "RRM2", direction: "activation" },
-        TargetGene::{ gene: "TYMS", direction: "activation" },
-        TargetGene::{ gene: "POLA1", direction: "activation" },
-        TargetGene::{ gene: "POLE", direction: "activation" },
-        TargetGene::{ gene: "PCNA", direction: "activation" },
-        TargetGene::{ gene: "CDKN1A", direction: "repression" },
+        TargetGene::{ gene: "CCNE1", direction: "activation", },
+        TargetGene::{ gene: "CCND1", direction: "activation", },
+        TargetGene::{ gene: "RRM1", direction: "activation", },
+        TargetGene::{ gene: "RRM2", direction: "activation", },
+        TargetGene::{ gene: "TYMS", direction: "activation", },
+        TargetGene::{ gene: "POLA1", direction: "activation", },
+        TargetGene::{ gene: "POLE", direction: "activation", },
+        TargetGene::{ gene: "PCNA", direction: "activation", },
+        TargetGene::{ gene: "CDKN1A", direction: "repression", },
       ],
     },
     Regulon::{
       tf: "SMAD4",
       targets: [
-        TargetGene::{ gene: "CDKN1A", direction: "activation" },
-        TargetGene::{ gene: "CDKN2B", direction: "activation" },
-        TargetGene::{ gene: "FOS", direction: "activation" },
-        TargetGene::{ gene: "JUN", direction: "activation" },
-        TargetGene::{ gene: "MYC", direction: "repression" },
-        TargetGene::{ gene: "CCND1", direction: "repression" },
+        TargetGene::{ gene: "CDKN1A", direction: "activation", },
+        TargetGene::{ gene: "CDKN2B", direction: "activation", },
+        TargetGene::{ gene: "FOS", direction: "activation", },
+        TargetGene::{ gene: "JUN", direction: "activation", },
+        TargetGene::{ gene: "MYC", direction: "repression", },
+        TargetGene::{ gene: "CCND1", direction: "repression", },
       ],
     },
     Regulon::{
       tf: "NFE2L2",
       targets: [
-        TargetGene::{ gene: "HMOX1", direction: "activation" },
-        TargetGene::{ gene: "NQO1", direction: "activation" },
-        TargetGene::{ gene: "GCLC", direction: "activation" },
-        TargetGene::{ gene: "GCLM", direction: "activation" },
-        TargetGene::{ gene: "TXNRD1", direction: "activation" },
-        TargetGene::{ gene: "GSR", direction: "activation" },
-        TargetGene::{ gene: "KEAP1", direction: "repression" },
+        TargetGene::{ gene: "HMOX1", direction: "activation", },
+        TargetGene::{ gene: "NQO1", direction: "activation", },
+        TargetGene::{ gene: "GCLC", direction: "activation", },
+        TargetGene::{ gene: "GCLM", direction: "activation", },
+        TargetGene::{ gene: "TXNRD1", direction: "activation", },
+        TargetGene::{ gene: "GSR", direction: "activation", },
+        TargetGene::{ gene: "KEAP1", direction: "repression", },
       ],
     },
     Regulon::{
       tf: "SOX2",
       targets: [
-        TargetGene::{ gene: "NANOG", direction: "activation" },
-        TargetGene::{ gene: "OCT4", direction: "activation" },
-        TargetGene::{ gene: "KLF4", direction: "activation" },
-        TargetGene::{ gene: "MYC", direction: "activation" },
-        TargetGene::{ gene: "LIN28A", direction: "activation" },
+        TargetGene::{ gene: "NANOG", direction: "activation", },
+        TargetGene::{ gene: "OCT4", direction: "activation", },
+        TargetGene::{ gene: "KLF4", direction: "activation", },
+        TargetGene::{ gene: "MYC", direction: "activation", },
+        TargetGene::{ gene: "LIN28A", direction: "activation", },
       ],
     },
     Regulon::{
       tf: "OCT4",
       targets: [
-        TargetGene::{ gene: "SOX2", direction: "activation" },
-        TargetGene::{ gene: "NANOG", direction: "activation" },
-        TargetGene::{ gene: "KLF4", direction: "activation" },
-        TargetGene::{ gene: "MYC", direction: "activation" },
-        TargetGene::{ gene: "CD45", direction: "activation" },
+        TargetGene::{ gene: "SOX2", direction: "activation", },
+        TargetGene::{ gene: "NANOG", direction: "activation", },
+        TargetGene::{ gene: "KLF4", direction: "activation", },
+        TargetGene::{ gene: "MYC", direction: "activation", },
+        TargetGene::{ gene: "CD45", direction: "activation", },
       ],
     },
     Regulon::{
       tf: "GATA3",
       targets: [
-        TargetGene::{ gene: "IL4", direction: "activation" },
-        TargetGene::{ gene: "IL5", direction: "activation" },
-        TargetGene::{ gene: "IL13", direction: "activation" },
-        TargetGene::{ gene: "CCR8", direction: "activation" },
-        TargetGene::{ gene: "CXCR4", direction: "activation" },
+        TargetGene::{ gene: "IL4", direction: "activation", },
+        TargetGene::{ gene: "IL5", direction: "activation", },
+        TargetGene::{ gene: "IL13", direction: "activation", },
+        TargetGene::{ gene: "CCR8", direction: "activation", },
+        TargetGene::{ gene: "CXCR4", direction: "activation", },
       ],
     },
   ]
@@ -232,7 +232,7 @@ pub fn dorothea_get_regulons() -> Array[Regulon] {
 
 ///|
 /// Find the index of a gene in the gene names array.
-fn dorothea_find_gene_index(gene_names : Array[String], gene : String) -> Int {
+fn dorothea_find_gene_index(gene_names : Array[String], gene : String) -> Int32 {
   let n = gene_names.length()
   let mut i = 0
   while i < n {
@@ -251,7 +251,7 @@ pub fn dorothea_get_target_expression(
   gene_names : Array[String],
   regulon : Regulon,
 ) -> Array[(String, Double)] {
-  let result : Array[(String, Double)] = Array::new()
+  let result : Array[(String, Double)] = Array(capacity=0)
   for target in regulon.targets {
     let idx = dorothea_find_gene_index(gene_names, target.gene)
     if idx >= 0 {
@@ -339,14 +339,14 @@ pub fn dorothea_permutation_test(
   cell_expression : Array[Double],
   gene_names : Array[String],
   regulon : Regulon,
-  n_permutations : Int,
+  n_permutations : Int32,
 ) -> (Double, Double) {
   let observed = dorothea_compute_viper_activity(
     cell_expression, gene_names, regulon,
   )
 
   // Generate null distribution by shuffling gene labels
-  let null_scores : Array[Double] = Array::new()
+  let null_scores : Array[Double] = Array(capacity=0)
   let n_genes = cell_expression.length()
 
   let mut perm = 0
@@ -400,7 +400,7 @@ pub fn dorothea_permutation_test(
 
 ///|
 /// Simple pseudo-random number generator (deterministic for reproducibility).
-fn dorothea_pseudo_random(seed : Int) -> Double {
+fn dorothea_pseudo_random(seed : Int32) -> Double {
   let x = (seed * 1103515245 + 12345) & 0x7FFFFFFF
   (x.to_double() / 2147483647.0).abs()
 }
@@ -443,7 +443,7 @@ pub fn dorothea_analyze_cell(
   regulons : Array[Regulon],
   params : DorotheaParams,
 ) -> Array[TFActivityResult] {
-  let results : Array[TFActivityResult] = Array::new()
+  let results : Array[TFActivityResult] = Array(capacity=0)
 
   for regulon in regulons {
     if regulon.targets.length() < params.min_targets {
@@ -497,7 +497,7 @@ pub fn dorothea_analyze_cells(
   // Process each cell
   let mut c = 0
   while c < n_cells {
-    let cell_expr : Array[Double] = Array::new()
+    let cell_expr : Array[Double] = Array(capacity=0)
     let n_genes = counts.length()
     let mut g = 0
     while g < n_genes {
@@ -520,7 +520,7 @@ pub fn dorothea_analyze_cells(
   }
 
   // Compute summary statistics
-  let results : Array[TFActivityResult] = Array::new()
+  let results : Array[TFActivityResult] = Array(capacity=0)
   let keys = tf_activities.keys()
   for tf in keys {
     let activities = tf_activities.get(tf).unwrap_or([])
@@ -562,7 +562,7 @@ pub fn dorothea_filter_results(
   results : Array[TFActivityResult],
   alpha : Double,
 ) -> Array[TFActivityResult] {
-  let filtered : Array[TFActivityResult] = Array::new()
+  let filtered : Array[TFActivityResult] = Array(capacity=0)
   for result in results {
     if result.p_value <= alpha {
       filtered.push(result)
@@ -605,7 +605,7 @@ pub fn dorothea_create_test_data() -> (
   let regulons = dorothea_get_regulons()
 
   // Collect all unique genes from regulons
-  let gene_names : Array[String] = Array::new()
+  let gene_names : Array[String] = Array(capacity=0)
   for regulon in regulons {
     for target in regulon.targets {
       if !gene_names.contains(target.gene) {
@@ -618,12 +618,12 @@ pub fn dorothea_create_test_data() -> (
   let n_cells = 10
 
   // Create expression data
-  let gene_expr : Array[Array[Double]] = Array::new()
-  let cell_ids : Array[String] = Array::new()
+  let gene_expr : Array[Array[Double]] = Array(capacity=0)
+  let cell_ids : Array[String] = Array(capacity=0)
 
   let mut g = 0
   while g < n_genes {
-    let col : Array[Double] = Array::new()
+    let col : Array[Double] = Array(capacity=0)
     let mut c = 0
     while c < n_cells {
       // Vary expression across cells with some structure
@@ -651,10 +651,10 @@ pub fn dorothea_create_test_data() -> (
 /// Get top TF results by absolute activity.
 pub fn dorothea_get_top_tfs(
   results : Array[TFActivityResult],
-  n : Int,
+  n : Int32,
 ) -> Array[TFActivityResult] {
   let sorted = dorothea_sort_by_activity(results)
-  let top : Array[TFActivityResult] = Array::new()
+  let top : Array[TFActivityResult] = Array(capacity=0)
   let limit = if n < sorted.length() { n } else { sorted.length() }
   let mut i = 0
   while i < limit {

@@ -8,10 +8,10 @@
 pub struct ApproxMatch {
   pattern : String
   query : String
-  start : Int
-  end : Int
-  mismatches : Int
-  score : Int
+  start : Int32
+  end : Int32
+  mismatches : Int32
+  score : Int32
   is_match : Bool
 }
 
@@ -29,25 +29,25 @@ pub fn ApproxMatch::get_query(self : ApproxMatch) -> String {
 
 ///|
 /// Get the start position of the match (0-based).
-pub fn ApproxMatch::get_start(self : ApproxMatch) -> Int {
+pub fn ApproxMatch::get_start(self : ApproxMatch) -> Int32 {
   self.start
 }
 
 ///|
 /// Get the end position of the match (exclusive, 0-based).
-pub fn ApproxMatch::get_end(self : ApproxMatch) -> Int {
+pub fn ApproxMatch::get_end(self : ApproxMatch) -> Int32 {
   self.end
 }
 
 ///|
 /// Get the number of mismatches in the alignment.
-pub fn ApproxMatch::get_mismatches(self : ApproxMatch) -> Int {
+pub fn ApproxMatch::get_mismatches(self : ApproxMatch) -> Int32 {
   self.mismatches
 }
 
 ///|
 /// Get the score of the match (positive = match, negative = mismatch).
-pub fn ApproxMatch::get_score(self : ApproxMatch) -> Int {
+pub fn ApproxMatch::get_score(self : ApproxMatch) -> Int32 {
   self.score
 }
 
@@ -73,24 +73,24 @@ pub fn ApproxMatch::to_string(self : ApproxMatch) -> String {
 pub fn approx_match_new(
   pattern : String,
   query : String,
-  start : Int,
-  end : Int,
-  mismatches : Int,
-  score : Int,
+  start : Int32,
+  end : Int32,
+  mismatches : Int32,
+  score : Int32,
   is_match : Bool,
 ) -> ApproxMatch {
-  ApproxMatch::{ pattern, query, start, end, mismatches, score, is_match }
+  ApproxMatch::{ pattern, query, start, end, mismatches, score, is_match, }
 }
 
 ///|
 /// Count mismatches between two equal-length strings.
-pub fn count_mismatches(s1 : String, s2 : String) -> Int {
+pub fn count_mismatches(s1 : String, s2 : String) -> Int32 {
   let len = if s1.length() < s2.length() { s1.length() } else { s2.length() }
   let mut count = 0
   let mut i = 0
   while i < len {
-    let c1 = s1.substring(start=i, end=i + 1).to_upper()
-    let c2 = s2.substring(start=i, end=i + 1).to_upper()
+    let c1 = s1[i:i + 1].to_upper()
+    let c2 = s2[i:i + 1].to_upper()
     if c1 != c2 {
       count = count + 1
     }
@@ -105,7 +105,7 @@ pub fn count_mismatches(s1 : String, s2 : String) -> Int {
 pub fn approx_search(
   pattern : String,
   query : String,
-  max_mismatches : Int,
+  max_mismatches : Int32,
 ) -> ApproxMatch {
   let pat_len = pattern.length()
   let qry_len = query.length()
@@ -126,7 +126,7 @@ pub fn approx_search(
   let max_pos = qry_len - pat_len
 
   while pos <= max_pos {
-    let substr = query.substring(start=pos, end=pos + pat_len)
+    let substr = query[pos:pos + pat_len].to_owned()
     let mm = count_mismatches(pattern, substr)
 
     if mm <= max_mismatches {
@@ -172,7 +172,7 @@ pub fn approx_search(
 pub fn approx_search_with_indels(
   pattern : String,
   query : String,
-  max_errors : Int,
+  max_errors : Int32,
 ) -> ApproxMatch {
   let pat_len = pattern.length()
   let qry_len = query.length()
@@ -216,7 +216,7 @@ pub fn approx_search_with_indels(
     let init_end = if min_end > start { min_end } else { start + 1 }
     let mut end = init_end
     while end <= max_end {
-      let seg = query.substring(start~, end~)
+      let seg = query[start:end].to_owned()
       let errors = levenshtein_distance(pattern, seg)
       if errors <= max_errors && errors < best_errors {
         best_errors = errors
@@ -241,7 +241,7 @@ pub fn approx_search_with_indels(
   }
 
   if found {
-    let seg = query.substring(start=best_start, end=best_end)
+    let _seg = query[best_start:best_end]
     let score = pat_len - best_errors
     ApproxMatch::{
       pattern,
@@ -268,7 +268,7 @@ pub fn approx_search_with_indels(
 ///|
 /// Calculate Levenshtein edit distance between two strings.
 /// Allowed operations: substitution, insertion, deletion (all cost 1).
-pub fn levenshtein_distance(s1 : String, s2 : String) -> Int {
+pub fn levenshtein_distance(s1 : String, s2 : String) -> Int32 {
   let len1 = s1.length()
   let len2 = s2.length()
 
@@ -279,23 +279,23 @@ pub fn levenshtein_distance(s1 : String, s2 : String) -> Int {
     return len1
   }
 
-  let mut prev : Array[Int] = Array::new()
+  let mut prev : Array[Int32] = Array(capacity=0)
   let mut i = 0
   while i <= len2 {
     prev.push(i)
     i = i + 1
   }
 
-  let mut row : Array[Int] = Array::new()
+  let mut row : Array[Int32] = Array(capacity=0)
   i = 1
   while i <= len1 {
-    row = Array::new()
+    row = Array(capacity=0)
     row.push(i)
-    let c1 = s1.substring(start=i - 1, end=i).to_upper()
+    let c1 = s1[i - 1:i].to_upper()
 
     let mut j = 1
     while j <= len2 {
-      let c2 = s2.substring(start=j - 1, end=j).to_upper()
+      let c2 = s2[j - 1:j].to_upper()
       let cost = if c1 == c2 { 0 } else { 1 }
       let deletion = prev[j] + 1
       let insertion = row[j - 1] + 1
@@ -327,11 +327,11 @@ pub fn levenshtein_distance(s1 : String, s2 : String) -> Int {
 pub fn approx_find_all(
   pattern : String,
   query : String,
-  max_mismatches : Int,
+  max_mismatches : Int32,
 ) -> Array[ApproxMatch] {
   let pat_len = pattern.length()
   let qry_len = query.length()
-  let results : Array[ApproxMatch] = Array::new()
+  let results : Array[ApproxMatch] = Array(capacity=0)
 
   if pat_len == 0 || qry_len < pat_len {
     return results
@@ -341,7 +341,7 @@ pub fn approx_find_all(
   let max_pos = qry_len - pat_len
 
   while pos <= max_pos {
-    let substr = query.substring(start=pos, end=pos + pat_len)
+    let substr = query[pos:pos + pat_len].to_owned()
     let mm = count_mismatches(pattern, substr)
 
     if mm <= max_mismatches {
@@ -366,9 +366,9 @@ pub fn approx_find_all(
 /// Approximate word search: split query into words and find approximate matches for each.
 pub struct ApproxWordResult {
   word : String
-  match_start : Int
-  match_end : Int
-  edit_distance : Int
+  match_start : Int32
+  match_end : Int32
+  edit_distance : Int32
   is_found : Bool
 }
 
@@ -377,7 +377,7 @@ pub struct ApproxWordResult {
 pub fn approx_word_search(
   word : String,
   text : String,
-  max_errors : Int,
+  max_errors : Int32,
 ) -> ApproxWordResult {
   let len = word.length()
   let text_len = text.length()
@@ -406,7 +406,7 @@ pub fn approx_word_search(
     }
     let mut end = start + len
     while end <= max_end {
-      let seg = text.substring(start~, end~)
+      let seg = text[start:end].to_owned()
       let dist = levenshtein_distance(word, seg)
       if dist <= max_errors && dist < best_dist {
         best_dist = dist

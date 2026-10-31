@@ -9,7 +9,7 @@
 ///|
 /// Result for a single gene from baySeq analysis.
 pub struct BayesGeneResult {
-  gene_index : Int
+  gene_index : Int32
   gene_name : String
   log_fold_change : Double
   dispersion : Double
@@ -23,7 +23,7 @@ pub struct BayesGeneResult {
 /// Full baySeq analysis result.
 pub struct BayesResult {
   gene_results : Array[BayesGeneResult]
-  n_de_genes : Int
+  n_de_genes : Int32
   dispersion_prior_shape : Double
   dispersion_prior_rate : Double
   alpha_level : Double
@@ -102,7 +102,7 @@ pub fn bayseq_estimate_dispersion_gene(
 /// Estimate dispersion prior parameters (shape, rate) from all genes.
 pub fn bayseq_estimate_prior(
   counts : Array[Array[Double]],
-  groups : Array[Int],
+  groups : Array[Int32],
 ) -> (Double, Double) {
   let n_genes = counts.length()
   if n_genes == 0 {
@@ -175,7 +175,7 @@ pub fn bayseq_estimate_prior(
 
 ///|
 /// Count number of samples in a given group.
-pub fn hts_count_group(groups : Array[Int], group_id : Int) -> Int {
+pub fn hts_count_group(groups : Array[Int32], group_id : Int32) -> Int32 {
   let mut count = 0
   let mut i = 0
   while i < groups.length() {
@@ -272,40 +272,9 @@ pub fn bayseq_nb_log_likelihood(
 }
 
 ///|
-/// Approximation of log-gamma function using Lanczos with g=5.
+/// Log-gamma(转发至 mathx 统一 Lanczos g=7 实现, 保持 API 兼容).
 pub fn bayseq_lgamma(x : Double) -> Double {
-  if x <= 0.0 {
-    return 0.0
-  }
-  // For integer x <= 20, use exact recursive relation
-  if x == 1.0 || x == 2.0 {
-    return 0.0
-  }
-  if x < 1.0 {
-    // Reflection formula: lgamma(x) = lgamma(x+1) - ln(x)
-    return bayseq_lgamma(x + 1.0) - @math.ln(x)
-  }
-  // For x in [1, 2], interpolate
-  if x < 2.0 {
-    // lgamma(x) = lgamma(x+1) - ln(x)
-    return bayseq_lgamma(x + 1.0) - @math.ln(x)
-  }
-  // Lanczos approximation for x >= 2
-  // Coefficients for g=5
-  let c = [
-    76.18009172947146, -86.50532032941677, 24.01409824083091, -1.231739572450155,
-    0.1208650973866179e-2, -0.5395239384953e-5,
-  ]
-  let y = x
-  let mut tmp = x + 5.5
-  tmp = tmp - (x + 0.5) * @math.ln(tmp)
-  let mut ser = 1.000000000190015
-  let mut i = 0
-  while i < 6 {
-    ser = ser + c[i] / (y + i.to_double())
-    i = i + 1
-  }
-  -tmp + @math.ln(2.5066282746310005 * ser / y)
+  lgamma(x)
 }
 
 ///|
@@ -313,11 +282,11 @@ pub fn bayseq_lgamma(x : Double) -> Double {
 /// Returns BayesGeneResult for each gene.
 pub fn bayseq_test(
   counts : Array[Array[Double]],
-  groups : Array[Int],
+  groups : Array[Int32],
   gene_names : Array[String],
-  dispersion_shape? : Double = 2.0,
-  dispersion_rate? : Double = 0.5,
-  alpha? : Double = 0.05,
+  dispersion_shape~ : Double = 2.0,
+  dispersion_rate~ : Double = 0.5,
+  alpha~ : Double = 0.05,
 ) -> BayesResult {
   let n_genes = counts.length()
   let n_samples = counts[0].length()
@@ -426,7 +395,7 @@ pub fn bayseq_get_de_genes(result : BayesResult) -> Array[BayesGeneResult] {
 /// Get top DE genes sorted by absolute log fold change.
 pub fn bayseq_get_top_de(
   result : BayesResult,
-  n : Int,
+  n : Int32,
 ) -> Array[BayesGeneResult] {
   let all = result.gene_results
   // Sort by absolute log_fold_change descending (bubble sort)
@@ -466,7 +435,11 @@ pub fn bayseq_get_top_de(
 ///|
 /// Generate sample RNA-seq data with clear differential expression signal.
 /// Returns (counts, groups, gene_names) with some genes truly DE.
-pub fn bayseq_sample_data() -> (Array[Array[Double]], Array[Int], Array[String]) {
+pub fn bayseq_sample_data() -> (
+  Array[Array[Double]],
+  Array[Int32],
+  Array[String],
+) {
   let n_genes = 30
   let n_samples = 8
   let counts : Array[Array[Double]] = []

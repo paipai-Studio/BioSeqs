@@ -7,7 +7,7 @@
 /// documentation (plus hand-computed weighted cases).
 
 ///|
-fn afreq_close(a : Double, b : Double, tol? : Double = 1.0e-9) -> Bool {
+fn afreq_close(a : Double, b : Double, tol~ : Double = 1.0e-9) -> Bool {
   (a - b).abs() < tol
 }
 
@@ -23,7 +23,7 @@ fn afreq_val(m : Map[String, Double], key : String) -> Double {
 fn afreq_mat_close(
   a : Array[Array[Double]],
   b : Array[Array[Double]],
-  tol? : Double = 1.0e-9,
+  tol~ : Double = 1.0e-9,
 ) -> Bool {
   if a.length() != b.length() {
     return false
@@ -35,7 +35,7 @@ fn afreq_mat_close(
     }
     let mut j = 0
     while j < a[i].length() {
-      if not(afreq_close(a[i][j], b[i][j], tol=tol)) {
+      if !afreq_close(a[i][j], b[i][j], tol~) {
         return false
       }
       j = j + 1
@@ -98,7 +98,7 @@ test "alignment_substitutions_simple_pair" {
 test "alignment_substitutions_weighted" {
   let rows : Array[String] = ["GTATC", "AT--C", "CTGTC"]
   let weights : Array[Double] = [0.5, 0.8, 1.0]
-  let m = @src.alignment_substitution_matrix(rows, weights=weights) catch {
+  let m = @src.alignment_substitution_matrix(rows, weights~) catch {
     _ => abort("weighted substitution matrix should build")
   }
   let expected : Array[Array[Double]] = [
@@ -226,7 +226,7 @@ test "alignment_background_frequencies" {
   assert_true(afreq_close(afreq_val(col_bg, "C"), 3.0 / 14.0))
   assert_true(afreq_close(afreq_val(col_bg, "G"), 2.0 / 14.0))
   assert_true(afreq_close(afreq_val(col_bg, "T"), 5.0 / 14.0))
-  assert_true(col_bg.get("-").is_none())
+  assert_true(col_bg.get("-") is None)
 
   let m = @src.alignment_substitution_matrix(rows) catch {
     _ => abort("substitution matrix should build")
@@ -268,7 +268,10 @@ test "alignment_relative_frequencies" {
   assert_true(afreq_close(rel[0][3], rel[3][0]))
 
   let uniform : Map[String, Double] = {
-    "A": 0.25, "C": 0.25, "G": 0.25, "T": 0.25
+    "A": 0.25,
+    "C": 0.25,
+    "G": 0.25,
+    "T": 0.25,
   }
   let relu = m.relative_frequencies_expected(uniform) catch {
     _ => abort("relative frequencies with uniform background should build")
@@ -336,7 +339,10 @@ test "alignment_frequency_errors" {
   let bad_bg = try {
     let m = @src.alignment_substitution_matrix(["ACGT", "ACGA"])
     let bg : Map[String, Double] = Map([
-      ("A", 0.25), ("C", 0.25), ("G", 0.25), ("T", 0.0),
+      ("A", 0.25),
+      ("C", 0.25),
+      ("G", 0.25),
+      ("T", 0.0),
     ])
     ignore(m.relative_frequencies_expected(bg))
     false

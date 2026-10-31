@@ -4,7 +4,7 @@
 
 ///|
 pub struct SNP {
-  position : Int
+  position : Int32
   ref_allele : String
   alt_allele : String
   quality : Double
@@ -13,20 +13,20 @@ pub struct SNP {
 
 ///|
 pub fn SNP::new(
-  position : Int,
+  position : Int32,
   ref_allele : String,
   alt_allele : String,
   quality : Double,
   filter : String,
 ) -> SNP {
-  SNP::{ position, ref_allele, alt_allele, quality, filter }
+  SNP::{ position, ref_allele, alt_allele, quality, filter, }
 }
 
 ///|
 pub struct Mutation {
   gene : String
   protein : String
-  position : Int
+  position : Int32
   original_aa : String
   mutated_aa : String
   mutation_type : String
@@ -37,7 +37,7 @@ pub struct Mutation {
 pub fn Mutation::new(
   gene : String,
   protein : String,
-  position : Int,
+  position : Int32,
   original_aa : String,
   mutated_aa : String,
   mutation_type : String,
@@ -57,7 +57,7 @@ pub fn Mutation::new(
 ///|
 pub struct VariationRecord {
   chromosome : String
-  position : Int
+  position : Int32
   ref_allele : String
   alt_allele : String
   mutations : Array[Mutation]
@@ -66,19 +66,19 @@ pub struct VariationRecord {
 ///|
 pub fn VariationRecord::new(
   chromosome : String,
-  position : Int,
+  position : Int32,
   ref_allele : String,
   alt_allele : String,
   mutations : Array[Mutation],
 ) -> VariationRecord {
-  VariationRecord::{ chromosome, position, ref_allele, alt_allele, mutations }
+  VariationRecord::{ chromosome, position, ref_allele, alt_allele, mutations, }
 }
 
 ///|
 pub struct AminoAcidSubstitution {
   original : String
   mutated : String
-  blosum62_score : Int
+  blosum62_score : Int32
   grantham_distance : Double
 }
 
@@ -86,7 +86,7 @@ pub struct AminoAcidSubstitution {
 pub fn AminoAcidSubstitution::new(
   original : String,
   mutated : String,
-  blosum62_score : Int,
+  blosum62_score : Int32,
   grantham_distance : Double,
 ) -> AminoAcidSubstitution {
   AminoAcidSubstitution::{
@@ -98,8 +98,8 @@ pub fn AminoAcidSubstitution::new(
 }
 
 ///|
-fn blosum62_matrix() -> Map[String, Map[String, Int]] {
-  let matrix : Map[String, Map[String, Int]] = Map([], capacity=20)
+fn blosum62_matrix() -> Map[String, Map[String, Int32]] {
+  let matrix : Map[String, Map[String, Int32]] = Map([], capacity=20)
 
   let amino_acids = [
     "A", "R", "N", "D", "C", "Q", "E", "G", "H", "I", "L", "K", "M", "F", "P", "S",
@@ -138,7 +138,7 @@ fn blosum62_matrix() -> Map[String, Map[String, Int]] {
 
   let mut i = 0
   while i < amino_acids.length() {
-    let row_map : Map[String, Int] = Map([], capacity=20)
+    let row_map : Map[String, Int32] = Map([], capacity=20)
     let mut j = 0
     while j < amino_acids.length() {
       row_map.set(amino_acids[j], scores[i][j])
@@ -260,7 +260,7 @@ fn grantham_matrix() -> Map[String, Map[String, Double]] {
 
 ///|
 pub fn analyze_snp(
-  position : Int,
+  position : Int32,
   ref_allele : String,
   alt_allele : String,
   quality : Double,
@@ -274,10 +274,10 @@ pub fn detect_mutations(
   gene : String,
   protein : String,
   dna_sequence : String,
-  variant_position : Int,
+  variant_position : Int32,
   alt_allele : String,
 ) -> Array[Mutation] {
-  let mutations : Array[Mutation] = Array::new()
+  let mutations : Array[Mutation] = Array(capacity=0)
 
   let codon_start = (variant_position - 1) / 3 * 3
   let codon_end = codon_start + 3
@@ -314,7 +314,7 @@ pub fn detect_mutations(
 }
 
 ///|
-fn replace_char_at(s : String, idx : Int, replacement : String) -> String {
+fn replace_char_at(s : String, idx : Int32, replacement : String) -> String {
   if idx < 0 || idx >= s.length() || replacement.length() == 0 {
     return s
   }
@@ -411,7 +411,7 @@ fn variation_to_uppercase(s : String) -> String {
     let c_int = c.to_int()
     if c_int >= 'a'.to_int() && c_int <= 'z'.to_int() {
       result = result +
-        (c_int - 'a'.to_int() + 'A'.to_int()).to_char().to_string()
+        (c_int - 'a'.to_int() + 'A'.to_int()).unsafe_to_char().to_string()
     } else {
       result = result + c.to_string()
     }
@@ -468,8 +468,8 @@ fn classify_mutation(original : String, mutated : String) -> String {
 
 ///|
 fn predict_impact(
-  original : String,
-  mutated : String,
+  _original : String,
+  _mutated : String,
   mutation_type : String,
 ) -> String {
   if mutation_type == "Nonsense" {
@@ -496,14 +496,14 @@ pub fn analyze_amino_acid_substitution(
   let grantham = grantham_matrix()
 
   let blosum_val = blosum62.get(original)
-  let blosum_score = if blosum_val.is_some() {
+  let blosum_score = if blosum_val is Some(_) {
     blosum_val.unwrap().get(mutated).unwrap_or(0)
   } else {
     0
   }
 
   let grantham_val = grantham.get(original)
-  let grantham_dist = if grantham_val.is_some() {
+  let grantham_dist = if grantham_val is Some(_) {
     grantham_val.unwrap().get(mutated).unwrap_or(0.0)
   } else {
     0.0
@@ -537,14 +537,14 @@ pub fn parse_vcf_line(line : String) -> VariationRecord? {
       position,
       ref_allele,
       alt_allele,
-      Array::new(),
+      Array(capacity=0),
     ),
   )
 }
 
 ///|
 pub fn create_example_variation_data() -> Array[VariationRecord] {
-  let records : Array[VariationRecord] = Array::new()
+  let records : Array[VariationRecord] = Array(capacity=0)
 
   let mutations1 = [
     Mutation::new(

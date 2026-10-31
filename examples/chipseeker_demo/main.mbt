@@ -5,7 +5,6 @@
 /// with its nearest gene and genomic feature, prints the per-peak
 /// annotations, summarizes the feature distribution, and demonstrates
 /// filtering by feature and by distance to TSS.
-
 fn main {
   println("=== ChIPseeker Peak Annotation Demo ===")
   println("Inspired by the Bioconductor ChIPseeker package")
@@ -32,7 +31,9 @@ fn main {
   while i < annotations.length() && i < 6 {
     let ann = annotations[i]
     let p = ann.get_peak()
-    println("   Peak \{i + 1}: \{p.chr}:\{p.start}-\{p.end} (summit=\{p.summit})")
+    println(
+      "   Peak \{i + 1}: \{p.chr}:\{p.start}-\{p.end} (summit=\{p.summit})",
+    )
     println("     Gene      : \{ann.gene_name} (\{ann.gene_id})")
     println("     TSS       : \{ann.tss}")
     println("     Distance  : \{ann.distance_to_tss} (signed, + = downstream)")
@@ -54,7 +55,9 @@ fn main {
   println("   Promoter peaks: \{promoters.length()}")
   for ann in promoters {
     let p = ann.get_peak()
-    println("     - \{p.chr}:\{p.summit} -> \{ann.gene_name} (dist=\{ann.distance_to_tss})")
+    println(
+      "     - \{p.chr}:\{p.summit} -> \{ann.gene_name} (dist=\{ann.distance_to_tss})",
+    )
   }
   println("")
 
@@ -64,7 +67,9 @@ fn main {
   println("   Exon peaks: \{exons.length()}")
   for ann in exons {
     let p = ann.get_peak()
-    println("     - \{p.chr}:\{p.summit} -> \{ann.gene_name} (dist=\{ann.distance_to_tss})")
+    println(
+      "     - \{p.chr}:\{p.summit} -> \{ann.gene_name} (dist=\{ann.distance_to_tss})",
+    )
   }
   println("")
 
@@ -74,7 +79,9 @@ fn main {
   println("   Close peaks: \{close.length()}")
   for ann in close {
     let p = ann.get_peak()
-    println("     - \{p.chr}:\{p.summit} -> \{ann.gene_name} (dist=\{ann.distance_to_tss}, \{ann.feature})")
+    println(
+      "     - \{p.chr}:\{p.summit} -> \{ann.gene_name} (dist=\{ann.distance_to_tss}, \{ann.feature})",
+    )
   }
   println("")
 
@@ -83,7 +90,12 @@ fn main {
   //    no longer sits entirely inside the promoter window.
   println("8. Promoter window customization (window=100bp):")
   println("   Annotating a peak inside the 5'UTR of GeneA (summit=10300)...")
-  let peak_in_5utr = @bio.Peak::new(chr="chr1", start=10200, end=10400, summit=10300)
+  let peak_in_5utr = @bio.Peak::new(
+    chr="chr1",
+    start=10200,
+    end=10400,
+    summit=10300,
+  )
   let ann_small_window = @bio.annotate_peak(peak_in_5utr, genes, 100)
   println("   Feature with window=100 : \{ann_small_window.feature}")
   let ann_large_window = @bio.annotate_peak(peak_in_5utr, genes, 3000)
@@ -93,7 +105,12 @@ fn main {
 
   // 9. Edge case: peak on a chromosome with no genes.
   println("9. Edge case: peak on a chromosome with no genes (chrZ)")
-  let orphan_peak = @bio.Peak::new(chr="chrZ", start=1000, end=2000, summit=1500)
+  let orphan_peak = @bio.Peak::new(
+    chr="chrZ",
+    start=1000,
+    end=2000,
+    summit=1500,
+  )
   let orphan_ann = @bio.annotate_peak(orphan_peak, genes, 3000)
   println("   Gene id   : '\{orphan_ann.gene_id}' (empty -> no nearby gene)")
   println("   Feature   : \{orphan_ann.feature}")

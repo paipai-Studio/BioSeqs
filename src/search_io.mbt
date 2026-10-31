@@ -3,14 +3,14 @@
 
 ///|
 pub struct HSPFragment {
-  query_start : Int
-  query_end : Int
-  hit_start : Int
-  hit_end : Int
+  query_start : Int32
+  query_end : Int32
+  hit_start : Int32
+  hit_end : Int32
   query_strand : Strand
   hit_strand : Strand
-  aln_span : Int
-  gap_num : Int
+  aln_span : Int32
+  gap_num : Int32
   bitscore : Double
   evalue : Double
   query_seq : String
@@ -20,14 +20,14 @@ pub struct HSPFragment {
 
 ///|
 pub fn HSPFragment::new(
-  query_start : Int,
-  query_end : Int,
-  hit_start : Int,
-  hit_end : Int,
+  query_start : Int32,
+  query_end : Int32,
+  hit_start : Int32,
+  hit_end : Int32,
   query_strand : Strand,
   hit_strand : Strand,
-  aln_span : Int,
-  gap_num : Int,
+  aln_span : Int32,
+  gap_num : Int32,
   bitscore : Double,
   evalue : Double,
   query_seq : String,
@@ -70,7 +70,7 @@ pub fn HSP::new(
   evalue : Double,
   score : Double,
 ) -> HSP {
-  HSP::{ hit_id, hit_def, fragments, bitscore, evalue, score }
+  HSP::{ hit_id, hit_def, fragments, bitscore, evalue, score, }
 }
 
 ///|
@@ -92,14 +92,14 @@ pub fn Hit::new(
   bitscore : Double,
   evalue : Double,
 ) -> Hit {
-  Hit::{ id, description, accession, hsps, bitscore, evalue }
+  Hit::{ id, description, accession, hsps, bitscore, evalue, }
 }
 
 ///|
 pub struct QueryResult {
   id : String
   description : String
-  seq_len : Int
+  seq_len : Int32
   hits : Array[Hit]
   program : String
   version : String
@@ -110,23 +110,23 @@ pub struct QueryResult {
 pub fn QueryResult::new(
   id : String,
   description : String,
-  seq_len : Int,
+  seq_len : Int32,
   hits : Array[Hit],
   program : String,
   version : String,
   target : String,
 ) -> QueryResult {
-  QueryResult::{ id, description, seq_len, hits, program, version, target }
+  QueryResult::{ id, description, seq_len, hits, program, version, target, }
 }
 
 ///|
 pub fn parse_hmmer3_tab(content : String) -> Array[QueryResult] {
   let lines = split_by_char(content, '\n'.to_int())
 
-  let results : Array[QueryResult] = Array::new()
+  let results : Array[QueryResult] = Array(capacity=0)
   let mut cq = ""
   let mut hc = false
-  let mut ch : Array[Hit] = Array::new()
+  let mut ch : Array[Hit] = Array(capacity=0)
 
   let mut i = 0
   while i < lines.length() {
@@ -161,11 +161,11 @@ pub fn parse_hmmer3_tab(content : String) -> Array[QueryResult] {
         results.push(QueryResult::new(cq, "", 0, ch, "hmmscan", "3.0", ta))
       }
       cq = qn
-      ch = Array::new()
+      ch = Array(capacity=0)
       hc = true
     }
 
-    let frags : Array[HSPFragment] = Array::new()
+    let frags : Array[HSPFragment] = Array(capacity=0)
     frags.push(
       HSPFragment::new(
         0,
@@ -183,7 +183,7 @@ pub fn parse_hmmer3_tab(content : String) -> Array[QueryResult] {
         "",
       ),
     )
-    let hsps_arr : Array[HSP] = Array::new()
+    let hsps_arr : Array[HSP] = Array(capacity=0)
     hsps_arr.push(HSP::new(tn, desc, frags, bs, ev, sc))
     ch.push(Hit::new(tn, desc, ta, hsps_arr, bs, ev))
 
@@ -201,10 +201,10 @@ pub fn parse_hmmer3_tab(content : String) -> Array[QueryResult] {
 pub fn parse_blat_psl(content : String) -> Array[QueryResult] {
   let lines = split_by_char(content, '\n'.to_int())
 
-  let results : Array[QueryResult] = Array::new()
+  let results : Array[QueryResult] = Array(capacity=0)
   let mut cq = ""
   let mut hc = false
-  let mut ch : Array[Hit] = Array::new()
+  let mut ch : Array[Hit] = Array(capacity=0)
   let mut cqs = 0
 
   let mut i = 0
@@ -252,11 +252,11 @@ pub fn parse_blat_psl(content : String) -> Array[QueryResult] {
       }
       cq = qn
       cqs = qsz
-      ch = Array::new()
+      ch = Array(capacity=0)
       hc = true
     }
 
-    let frags : Array[HSPFragment] = Array::new()
+    let frags : Array[HSPFragment] = Array(capacity=0)
 
     let mut j = 0
     while j < bc {
@@ -284,7 +284,7 @@ pub fn parse_blat_psl(content : String) -> Array[QueryResult] {
       j = j + 1
     }
 
-    let hsps_arr : Array[HSP] = Array::new()
+    let hsps_arr : Array[HSP] = Array(capacity=0)
     hsps_arr.push(HSP::new(tn, "", frags, score, 0.0, score))
     ch.push(Hit::new(tn, "", "", hsps_arr, score, 0.0))
 
@@ -299,94 +299,8 @@ pub fn parse_blat_psl(content : String) -> Array[QueryResult] {
 }
 
 ///|
-pub fn blast_to_searchio(
-  blast_records : Array[BlastRecord],
-) -> Array[QueryResult] {
-  let results : Array[QueryResult] = Array::new()
-
-  let mut i = 0
-  while i < blast_records.length() {
-    let record = blast_records[i]
-    let hits : Array[Hit] = Array::new()
-
-    let mut j = 0
-    while j < record.hits.length() {
-      let bh = record.hits[j]
-      let hsps_arr : Array[HSP] = Array::new()
-
-      let mut k = 0
-      while k < bh.hsps.length() {
-        let bhsp = bh.hsps[k]
-
-        let frags : Array[HSPFragment] = Array::new()
-        frags.push(
-          HSPFragment::new(
-            bhsp.query_start(),
-            bhsp.query_end(),
-            bhsp.subject_start(),
-            bhsp.subject_end(),
-            bhsp.query_strand(),
-            bhsp.subject_strand(),
-            bhsp.align_length(),
-            bhsp.gaps(),
-            bhsp.bitscore(),
-            bhsp.evalue(),
-            bhsp.query_seq(),
-            bhsp.subject_seq(),
-            bhsp.match_seq(),
-          ),
-        )
-
-        hsps_arr.push(
-          HSP::new(
-            bh.subject_id(),
-            bh.subject_def(),
-            frags,
-            bhsp.bitscore(),
-            bhsp.evalue(),
-            bhsp.bitscore(),
-          ),
-        )
-        k = k + 1
-      }
-
-      let mut tbs = 0.0
-      let mut mev = 1.0
-      let mut l = 0
-      while l < hsps_arr.length() {
-        tbs = tbs + hsps_arr[l].bitscore
-        if hsps_arr[l].evalue < mev {
-          mev = hsps_arr[l].evalue
-        }
-        l = l + 1
-      }
-
-      hits.push(
-        Hit::new(bh.subject_id(), bh.subject_def(), "", hsps_arr, tbs, mev),
-      )
-      j = j + 1
-    }
-
-    results.push(
-      QueryResult::new(
-        record.query_id(),
-        record.query_def(),
-        record.query_length(),
-        hits,
-        "blast",
-        "2.14.0",
-        record.database(),
-      ),
-    )
-    i = i + 1
-  }
-
-  results
-}
-
-///|
-pub fn top_hits(qr : QueryResult, n : Int, threshold : Double) -> Array[Hit] {
-  let filtered : Array[Hit] = Array::new()
+pub fn top_hits(qr : QueryResult, n : Int32, threshold : Double) -> Array[Hit] {
+  let filtered : Array[Hit] = Array(capacity=0)
 
   let mut i = 0
   while i < qr.hits.length() {
@@ -397,7 +311,7 @@ pub fn top_hits(qr : QueryResult, n : Int, threshold : Double) -> Array[Hit] {
   }
 
   let cnt = filtered.length()
-  let sorted : Array[Hit] = Array::new()
+  let sorted : Array[Hit] = Array(capacity=0)
   let mut j = 0
   while j < cnt {
     sorted.push(filtered[j])
@@ -419,7 +333,7 @@ pub fn top_hits(qr : QueryResult, n : Int, threshold : Double) -> Array[Hit] {
   }
 
   let take = if n < cnt { n } else { cnt }
-  let result : Array[Hit] = Array::new()
+  let result : Array[Hit] = Array(capacity=0)
   let mut m = 0
   while m < take {
     result.push(sorted[m])
@@ -429,7 +343,7 @@ pub fn top_hits(qr : QueryResult, n : Int, threshold : Double) -> Array[Hit] {
 }
 
 ///|
-pub fn count_hsps(qr : QueryResult) -> Int {
+pub fn count_hsps(qr : QueryResult) -> Int32 {
   let mut total = 0
   let mut i = 0
   while i < qr.hits.length() {

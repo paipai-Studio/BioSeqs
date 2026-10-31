@@ -15,6 +15,12 @@ pub(all) enum CeldaAlgorithm {
 } derive(Eq, Debug)
 
 ///|
+pub extend CeldaAlgorithm with Eq::{equal, not_equal}
+
+///|
+pub extend CeldaAlgorithm with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
 pub(all) enum CeldaCGCriterion {
   CeldaBic
   CeldaPerplexity
@@ -22,35 +28,47 @@ pub(all) enum CeldaCGCriterion {
 } derive(Eq, Debug)
 
 ///|
+pub extend CeldaCGCriterion with Eq::{equal, not_equal}
+
+///|
+pub extend CeldaCGCriterion with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
 pub struct CeldaCGConfig {
-  cell_populations : Int
-  feature_modules : Int
+  cell_populations : Int32
+  feature_modules : Int32
   alpha : Double
   beta : Double
   delta : Double
   gamma : Double
   algorithm : CeldaAlgorithm
-  max_iterations : Int
-  stop_iterations : Int
-  chains : Int
+  max_iterations : Int32
+  stop_iterations : Int32
+  chains : Int32
   tolerance : Double
-  seed : Int
+  seed : Int32
 } derive(Eq, Debug)
 
 ///|
+pub extend CeldaCGConfig with Eq::{equal, not_equal}
+
+///|
+pub extend CeldaCGConfig with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
 pub fn CeldaCGConfig::create(
-  cell_populations : Int,
-  feature_modules : Int,
-  alpha? : Double = 1.0,
-  beta? : Double = 1.0,
-  delta? : Double = 1.0,
-  gamma? : Double = 1.0,
-  algorithm? : CeldaAlgorithm = CeldaEm,
-  max_iterations? : Int = 200,
-  stop_iterations? : Int = 10,
-  chains? : Int = 3,
-  tolerance? : Double = 1.0e-8,
-  seed? : Int = 12345,
+  cell_populations : Int32,
+  feature_modules : Int32,
+  alpha~ : Double = 1.0,
+  beta~ : Double = 1.0,
+  delta~ : Double = 1.0,
+  gamma~ : Double = 1.0,
+  algorithm~ : CeldaAlgorithm = CeldaEm,
+  max_iterations~ : Int32 = 200,
+  stop_iterations~ : Int32 = 10,
+  chains~ : Int32 = 3,
+  tolerance~ : Double = 1.0e-8,
+  seed~ : Int32 = 12345,
 ) -> CeldaCGConfig raise CeldaError {
   if cell_populations < 1 {
     raise CeldaError::CeldaError("celda_CG cell_populations must be positive")
@@ -58,16 +76,16 @@ pub fn CeldaCGConfig::create(
   if feature_modules < 1 {
     raise CeldaError::CeldaError("celda_CG feature_modules must be positive")
   }
-  if !celda_is_finite(alpha) || alpha <= 0.0 {
+  if !is_finite(alpha) || alpha <= 0.0 {
     raise CeldaError::CeldaError("celda_CG alpha must be finite and positive")
   }
-  if !celda_is_finite(beta) || beta <= 0.0 {
+  if !is_finite(beta) || beta <= 0.0 {
     raise CeldaError::CeldaError("celda_CG beta must be finite and positive")
   }
-  if !celda_is_finite(delta) || delta <= 0.0 {
+  if !is_finite(delta) || delta <= 0.0 {
     raise CeldaError::CeldaError("celda_CG delta must be finite and positive")
   }
-  if !celda_is_finite(gamma) || gamma <= 0.0 {
+  if !is_finite(gamma) || gamma <= 0.0 {
     raise CeldaError::CeldaError("celda_CG gamma must be finite and positive")
   }
   if max_iterations < 1 || stop_iterations < 1 {
@@ -76,7 +94,7 @@ pub fn CeldaCGConfig::create(
   if chains < 1 {
     raise CeldaError::CeldaError("celda_CG chains must be positive")
   }
-  if !celda_is_finite(tolerance) || tolerance <= 0.0 {
+  if !is_finite(tolerance) || tolerance <= 0.0 {
     raise CeldaError::CeldaError(
       "celda_CG tolerance must be finite and positive",
     )
@@ -103,9 +121,9 @@ pub fn CeldaCGConfig::create(
 ///|
 pub fn CeldaCGConfig::with_dimensions(
   self : CeldaCGConfig,
-  cell_populations : Int,
-  feature_modules : Int,
-  seed? : Int = self.seed,
+  cell_populations : Int32,
+  feature_modules : Int32,
+  seed~ : Int32 = self.seed,
 ) -> CeldaCGConfig raise CeldaError {
   CeldaCGConfig::create(
     cell_populations,
@@ -125,26 +143,38 @@ pub fn CeldaCGConfig::with_dimensions(
 
 ///|
 pub struct CeldaCGDiagnostics {
-  iterations : Int
+  iterations : Int32
   converged : Bool
   log_likelihoods : Array[Double]
   chain_scores : Array[Double]
-  best_chain : Int
+  best_chain : Int32
 } derive(Eq, Debug)
 
 ///|
+pub extend CeldaCGDiagnostics with Eq::{equal, not_equal}
+
+///|
+pub extend CeldaCGDiagnostics with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
 pub struct CeldaFeatureScore {
-  feature_index : Int
+  feature_index : Int32
   feature_name : String
   probability : Double
   total_count : Double
 } derive(Eq, Debug)
 
 ///|
+pub extend CeldaFeatureScore with Eq::{equal, not_equal}
+
+///|
+pub extend CeldaFeatureScore with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
 pub struct CeldaCGResult {
-  cell_clusters : Array[Int]
-  feature_modules : Array[Int]
-  sample_indices : Array[Int]
+  cell_clusters : Array[Int32]
+  feature_modules : Array[Int32]
+  sample_indices : Array[Int32]
   sample_names : Array[String]
   feature_names : Array[String]
   cell_names : Array[String]
@@ -166,13 +196,19 @@ pub struct CeldaCGResult {
 ///|
 pub struct CeldaCGPrediction {
   probabilities : Array[Array[Double]]
-  assignments : Array[Int]
+  assignments : Array[Int32]
 } derive(Eq, Debug)
 
 ///|
+pub extend CeldaCGPrediction with Eq::{equal, not_equal}
+
+///|
+pub extend CeldaCGPrediction with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
 pub struct CeldaCGGridEntry {
-  cell_populations : Int
-  feature_modules : Int
+  cell_populations : Int32
+  feature_modules : Int32
   score : Double
   result : CeldaCGResult
 }
@@ -180,7 +216,7 @@ pub struct CeldaCGGridEntry {
 ///|
 pub struct CeldaCGGridSearch {
   entries : Array[CeldaCGGridEntry]
-  best_index : Int
+  best_index : Int32
   criterion : CeldaCGCriterion
 }
 
@@ -196,19 +232,19 @@ priv struct CeldaCGSufficient {
   module_by_population : Array[Array[Double]]
   feature_totals : Array[Double]
   module_totals : Array[Double]
-  features_by_module : Array[Int]
+  features_by_module : Array[Int32]
   cell_totals : Array[Double]
 }
 
 ///|
 priv struct CeldaRng {
-  mut state : Int
+  mut state : Int32
 }
 
 ///|
-fn CeldaRng::new(seed : Int) -> CeldaRng {
+fn CeldaRng::new(seed : Int32) -> CeldaRng {
   let normalized = (seed - 1) % 2147483646 + 1
-  CeldaRng::{ state: normalized }
+  CeldaRng::{ state: normalized, }
 }
 
 ///|
@@ -218,11 +254,6 @@ fn CeldaRng::uniform(self : CeldaRng) -> Double {
   let candidate = 48271 * remainder - 3399 * quotient
   self.state = if candidate > 0 { candidate } else { candidate + 2147483647 }
   self.state.to_double() / 2147483647.0
-}
-
-///|
-fn celda_is_finite(value : Double) -> Bool {
-  value == value && value.abs() <= 1.0e300
 }
 
 ///|
@@ -248,7 +279,7 @@ fn celda_log_gamma(value : Double) -> Double {
 }
 
 ///|
-fn celda_zero_matrix(rows : Int, columns : Int) -> Array[Array[Double]] {
+fn celda_zero_matrix(rows : Int32, columns : Int32) -> Array[Array[Double]] {
   let output : Array[Array[Double]] = []
   for _ in 0..<rows {
     output.push(Array::make(columns, 0.0))
@@ -266,7 +297,7 @@ fn celda_copy_matrix(values : Array[Array[Double]]) -> Array[Array[Double]] {
 }
 
 ///|
-fn celda_default_names(prefix : String, count : Int) -> Array[String] {
+fn celda_default_names(prefix : String, count : Int32) -> Array[String] {
   let output : Array[String] = []
   for index in 0..<count {
     output.push(prefix + (index + 1).to_string())
@@ -277,7 +308,7 @@ fn celda_default_names(prefix : String, count : Int) -> Array[String] {
 ///|
 fn celda_prepare_names(
   supplied : Array[String],
-  count : Int,
+  count : Int32,
   prefix : String,
 ) -> Array[String] raise CeldaError {
   if supplied.length() == 0 {
@@ -311,7 +342,7 @@ fn celda_prepare_names(
 ///|
 fn celda_validate_counts(
   counts : Array[Array[Double]],
-) -> (Int, Int) raise CeldaError {
+) -> (Int32, Int32) raise CeldaError {
   if counts.length() == 0 {
     raise CeldaError::CeldaError(
       "celda_CG counts must contain at least one feature",
@@ -333,7 +364,7 @@ fn celda_validate_counts(
     let mut feature_total = 0.0
     for cell in 0..<cells {
       let value = counts[feature][cell]
-      if !celda_is_finite(value) || value < 0.0 || value.floor() != value {
+      if !is_finite(value) || value < 0.0 || value.floor() != value {
         raise CeldaError::CeldaError(
           "celda_CG counts must be finite non-negative integers",
         )
@@ -359,9 +390,9 @@ fn celda_validate_counts(
 
 ///|
 fn celda_validate_labels(
-  labels : Array[Int],
-  count : Int,
-  groups : Int,
+  labels : Array[Int32],
+  count : Int32,
+  groups : Int32,
   label : String,
 ) -> Unit raise CeldaError {
   if labels.length() != count {
@@ -390,8 +421,8 @@ fn celda_validate_labels(
 ///|
 fn celda_encode_samples(
   labels : Array[String],
-  cells : Int,
-) -> (Array[String], Array[Int]) raise CeldaError {
+  cells : Int32,
+) -> (Array[String], Array[Int32]) raise CeldaError {
   let source = if labels.length() == 0 {
     Array::make(cells, "Sample1")
   } else {
@@ -403,7 +434,7 @@ fn celda_encode_samples(
     )
   }
   let names : Array[String] = []
-  let indices : Array[Int] = []
+  let indices : Array[Int32] = []
   for raw in source {
     let label = raw.trim().to_owned()
     if label.length() == 0 {
@@ -425,7 +456,7 @@ fn celda_encode_samples(
 }
 
 ///|
-fn celda_group_sizes(labels : Array[Int], groups : Int) -> Array[Int] {
+fn celda_group_sizes(labels : Array[Int32], groups : Int32) -> Array[Int32] {
   let sizes = Array::make(groups, 0)
   for label in labels {
     sizes[label] = sizes[label] + 1
@@ -435,11 +466,11 @@ fn celda_group_sizes(labels : Array[Int], groups : Int) -> Array[Int] {
 
 ///|
 fn celda_balanced_random_labels(
-  count : Int,
-  groups : Int,
+  count : Int32,
+  groups : Int32,
   rng : CeldaRng,
-) -> Array[Int] {
-  let labels : Array[Int] = []
+) -> Array[Int32] {
+  let labels : Array[Int32] = []
   for index in 0..<count {
     labels.push(index % groups)
   }
@@ -506,11 +537,11 @@ fn celda_feature_profiles(
 ///|
 fn celda_farthest_labels(
   profiles : Array[Array[Double]],
-  groups : Int,
-  offset : Int,
-) -> Array[Int] {
+  groups : Int32,
+  offset : Int32,
+) -> Array[Int32] {
   let count = profiles.length()
-  let centers : Array[Int] = [offset % count]
+  let centers : Array[Int32] = [offset % count]
   while centers.length() < groups {
     let mut best_index = -1
     let mut best_distance = -1.0
@@ -571,12 +602,12 @@ fn celda_farthest_labels(
 ///|
 fn celda_sufficient(
   counts : Array[Array[Double]],
-  sample_indices : Array[Int],
-  sample_count : Int,
-  cell_clusters : Array[Int],
-  feature_modules : Array[Int],
-  populations : Int,
-  modules : Int,
+  sample_indices : Array[Int32],
+  sample_count : Int32,
+  cell_clusters : Array[Int32],
+  feature_modules : Array[Int32],
+  populations : Int32,
+  modules : Int32,
 ) -> CeldaCGSufficient {
   let features = counts.length()
   let cells = counts[0].length()
@@ -615,7 +646,7 @@ fn celda_sufficient(
 ///|
 fn celda_log_likelihood_from_sufficient(
   sufficient : CeldaCGSufficient,
-  sample_count : Int,
+  sample_count : Int32,
   config : CeldaCGConfig,
 ) -> Double {
   let populations = config.cell_populations
@@ -679,10 +710,10 @@ fn celda_log_likelihood_from_sufficient(
 ///|
 fn celda_internal_log_likelihood(
   counts : Array[Array[Double]],
-  sample_indices : Array[Int],
-  sample_count : Int,
-  cell_clusters : Array[Int],
-  feature_modules : Array[Int],
+  sample_indices : Array[Int32],
+  sample_count : Int32,
+  cell_clusters : Array[Int32],
+  feature_modules : Array[Int32],
   config : CeldaCGConfig,
 ) -> Double {
   let sufficient = celda_sufficient(
@@ -701,8 +732,8 @@ fn celda_internal_log_likelihood(
 pub fn celda_cg_log_likelihood(
   counts : Array[Array[Double]],
   sample_labels : Array[String],
-  cell_clusters : Array[Int],
-  feature_modules : Array[Int],
+  cell_clusters : Array[Int32],
+  feature_modules : Array[Int32],
   config : CeldaCGConfig,
 ) -> Double raise CeldaError {
   let (features, cells) = celda_validate_counts(counts)
@@ -760,10 +791,10 @@ fn celda_softmax(scores : Array[Double]) -> Array[Double] {
 ///|
 fn celda_choose_label(
   scores : Array[Double],
-  current : Int,
+  current : Int32,
   algorithm : CeldaAlgorithm,
   rng : CeldaRng,
-) -> Int {
+) -> Int32 {
   match algorithm {
     CeldaEm => {
       let mut best = current
@@ -794,10 +825,10 @@ fn celda_choose_label(
 ///|
 fn celda_update_features(
   counts : Array[Array[Double]],
-  sample_indices : Array[Int],
-  sample_count : Int,
-  cell_clusters : Array[Int],
-  feature_modules : Array[Int],
+  sample_indices : Array[Int32],
+  sample_count : Int32,
+  cell_clusters : Array[Int32],
+  feature_modules : Array[Int32],
   config : CeldaCGConfig,
   rng : CeldaRng,
 ) -> Unit {
@@ -826,10 +857,10 @@ fn celda_update_features(
 ///|
 fn celda_update_cells(
   counts : Array[Array[Double]],
-  sample_indices : Array[Int],
-  sample_count : Int,
-  cell_clusters : Array[Int],
-  feature_modules : Array[Int],
+  sample_indices : Array[Int32],
+  sample_count : Int32,
+  cell_clusters : Array[Int32],
+  feature_modules : Array[Int32],
   config : CeldaCGConfig,
   rng : CeldaRng,
 ) -> Unit {
@@ -857,15 +888,15 @@ fn celda_update_cells(
 
 ///|
 fn celda_reorder_labels(
-  labels : Array[Int],
+  labels : Array[Int32],
   weights : Array[Double],
-  groups : Int,
-) -> Array[Int] {
+  groups : Int32,
+) -> Array[Int32] {
   let totals = Array::make(groups, 0.0)
   for index in 0..<labels.length() {
     totals[labels[index]] = totals[labels[index]] + weights[index]
   }
-  let order : Array[Int] = []
+  let order : Array[Int32] = []
   for group in 0..<groups {
     order.push(group)
   }
@@ -886,7 +917,7 @@ fn celda_reorder_labels(
   for index in 0..<groups {
     mapping[order[index]] = index
   }
-  let output : Array[Int] = []
+  let output : Array[Int32] = []
   for label in labels {
     output.push(mapping[label])
   }
@@ -896,10 +927,10 @@ fn celda_reorder_labels(
 ///|
 fn celda_factorize(
   counts : Array[Array[Double]],
-  sample_indices : Array[Int],
-  sample_count : Int,
-  cell_clusters : Array[Int],
-  feature_modules : Array[Int],
+  sample_indices : Array[Int32],
+  sample_count : Int32,
+  cell_clusters : Array[Int32],
+  feature_modules : Array[Int32],
   config : CeldaCGConfig,
 ) -> (
   Array[Array[Double]],
@@ -1022,9 +1053,9 @@ fn celda_perplexity(
 ///|
 fn celda_information_criteria(
   log_likelihood : Double,
-  features : Int,
-  cells : Int,
-  samples : Int,
+  features : Int32,
+  cells : Int32,
+  samples : Int32,
   config : CeldaCGConfig,
 ) -> (Double, Double) {
   let parameter_count = samples * (config.cell_populations - 1) +
@@ -1044,10 +1075,10 @@ pub fn celda_cg_fit(
   counts : Array[Array[Double]],
   sample_labels : Array[String],
   config : CeldaCGConfig,
-  feature_names? : Array[String] = [],
-  cell_names? : Array[String] = [],
-  initial_cell_clusters? : Array[Int] = [],
-  initial_feature_modules? : Array[Int] = [],
+  feature_names~ : Array[String] = [],
+  cell_names~ : Array[String] = [],
+  initial_cell_clusters~ : Array[Int32] = [],
+  initial_feature_modules~ : Array[Int32] = [],
 ) -> CeldaCGResult raise CeldaError {
   let (features, cells) = celda_validate_counts(counts)
   if config.cell_populations > cells {
@@ -1087,8 +1118,8 @@ pub fn celda_cg_fit(
   let feature_profiles = celda_feature_profiles(counts)
   let chain_scores : Array[Double] = []
   let mut global_score = -1.0e300
-  let mut global_cells : Array[Int] = []
-  let mut global_features : Array[Int] = []
+  let mut global_cells : Array[Int32] = []
+  let mut global_features : Array[Int32] = []
   let mut global_history : Array[Double] = []
   let mut global_iterations = 0
   let mut global_converged = false
@@ -1250,27 +1281,27 @@ pub fn celda_cg_fit(
 }
 
 ///|
-pub fn CeldaCGResult::n_features(self : CeldaCGResult) -> Int {
+pub fn CeldaCGResult::n_features(self : CeldaCGResult) -> Int32 {
   self.feature_names.length()
 }
 
 ///|
-pub fn CeldaCGResult::n_cells(self : CeldaCGResult) -> Int {
+pub fn CeldaCGResult::n_cells(self : CeldaCGResult) -> Int32 {
   self.cell_names.length()
 }
 
 ///|
-pub fn CeldaCGResult::n_samples(self : CeldaCGResult) -> Int {
+pub fn CeldaCGResult::n_samples(self : CeldaCGResult) -> Int32 {
   self.sample_names.length()
 }
 
 ///|
-pub fn CeldaCGResult::population_sizes(self : CeldaCGResult) -> Array[Int] {
+pub fn CeldaCGResult::population_sizes(self : CeldaCGResult) -> Array[Int32] {
   celda_group_sizes(self.cell_clusters, self.config.cell_populations)
 }
 
 ///|
-pub fn CeldaCGResult::module_sizes(self : CeldaCGResult) -> Array[Int] {
+pub fn CeldaCGResult::module_sizes(self : CeldaCGResult) -> Array[Int32] {
   celda_group_sizes(self.feature_modules, self.config.feature_modules)
 }
 
@@ -1278,7 +1309,7 @@ pub fn CeldaCGResult::module_sizes(self : CeldaCGResult) -> Array[Int] {
 pub fn CeldaCGResult::cell_population(
   self : CeldaCGResult,
   name : String,
-) -> Int? {
+) -> Int32? {
   for index in 0..<self.cell_names.length() {
     if self.cell_names[index] == name {
       return Some(self.cell_clusters[index])
@@ -1291,7 +1322,7 @@ pub fn CeldaCGResult::cell_population(
 pub fn CeldaCGResult::feature_module(
   self : CeldaCGResult,
   name : String,
-) -> Int? {
+) -> Int32? {
   for index in 0..<self.feature_names.length() {
     if self.feature_names[index] == name {
       return Some(self.feature_modules[index])
@@ -1303,7 +1334,7 @@ pub fn CeldaCGResult::feature_module(
 ///|
 pub fn CeldaCGResult::cells_in_population(
   self : CeldaCGResult,
-  population : Int,
+  population : Int32,
 ) -> Array[String] raise CeldaError {
   if population < 0 || population >= self.config.cell_populations {
     raise CeldaError::CeldaError("celda_CG population index is out of range")
@@ -1320,7 +1351,7 @@ pub fn CeldaCGResult::cells_in_population(
 ///|
 pub fn CeldaCGResult::features_in_module(
   self : CeldaCGResult,
-  module_ : Int,
+  module_ : Int32,
 ) -> Array[String] raise CeldaError {
   if module_ < 0 || module_ >= self.config.feature_modules {
     raise CeldaError::CeldaError("celda_CG module index is out of range")
@@ -1337,8 +1368,8 @@ pub fn CeldaCGResult::features_in_module(
 ///|
 pub fn CeldaCGResult::top_features(
   self : CeldaCGResult,
-  module_ : Int,
-  limit? : Int = 10,
+  module_ : Int32,
+  limit~ : Int32 = 10,
 ) -> Array[CeldaFeatureScore] raise CeldaError {
   if module_ < 0 || module_ >= self.config.feature_modules {
     raise CeldaError::CeldaError("celda_CG module index is out of range")
@@ -1445,19 +1476,19 @@ pub fn celda_cg_predict_cells(
     }
     assignments[cell] = best
   }
-  CeldaCGPrediction::{ probabilities, assignments }
+  CeldaCGPrediction::{ probabilities, assignments, }
 }
 
 ///|
 pub fn celda_cg_grid_search(
   counts : Array[Array[Double]],
   sample_labels : Array[String],
-  cell_populations : Array[Int],
-  feature_modules : Array[Int],
+  cell_populations : Array[Int32],
+  feature_modules : Array[Int32],
   base_config : CeldaCGConfig,
-  criterion? : CeldaCGCriterion = CeldaBic,
-  feature_names? : Array[String] = [],
-  cell_names? : Array[String] = [],
+  criterion~ : CeldaCGCriterion = CeldaBic,
+  feature_names~ : Array[String] = [],
+  cell_names~ : Array[String] = [],
 ) -> CeldaCGGridSearch raise CeldaError {
   if cell_populations.length() == 0 || feature_modules.length() == 0 {
     raise CeldaError::CeldaError(
@@ -1507,7 +1538,7 @@ pub fn celda_cg_grid_search(
       }
     }
   }
-  CeldaCGGridSearch::{ entries, best_index, criterion }
+  CeldaCGGridSearch::{ entries, best_index, criterion, }
 }
 
 ///|
@@ -1559,9 +1590,9 @@ fn celda_copy_sce(sce : SingleCellExperiment) -> SingleCellExperiment {
 pub fn celda_cg_sce(
   sce : SingleCellExperiment,
   config : CeldaCGConfig,
-  sample_column? : String = "",
-  input_assay? : String = "counts",
-  fitted_assay? : String = "celda_fitted",
+  sample_column~ : String = "",
+  input_assay~ : String = "counts",
+  fitted_assay~ : String = "celda_fitted",
 ) -> CeldaCGSCEOutput raise CeldaError {
   let counts = sce_get_assay(sce, input_assay)
   if counts.length() == 0 {
@@ -1609,7 +1640,7 @@ pub fn celda_cg_sce(
   enriched.metadata["celda_perplexity"] = result.perplexity.to_string()
   enriched.metadata["celda_converged"] = result.diagnostics.converged.to_string()
   enriched.metadata["celda_iterations"] = result.diagnostics.iterations.to_string()
-  CeldaCGSCEOutput::{ experiment: enriched, result }
+  CeldaCGSCEOutput::{ experiment: enriched, result, }
 }
 
 ///|

@@ -21,7 +21,7 @@ fn align_nexus_test_raises(text : String) -> Bool {
 fn align_nexus_test_write(
   alignment : @src.AlignNexusAlignment,
   interleave : Bool?,
-  block_width : Int,
+  block_width : Int32,
 ) -> String {
   @src.align_nexus_write(alignment, interleave~, block_width~) catch {
     AlignNexusError(message) => abort("NEXUS writing failed: " + message)
@@ -31,7 +31,7 @@ fn align_nexus_test_write(
 ///|
 fn align_nexus_test_write_raises(
   alignment : @src.AlignNexusAlignment,
-  block_width : Int,
+  block_width : Int32,
 ) -> Bool {
   try {
     ignore(@src.align_nexus_write(alignment, block_width~))
@@ -496,8 +496,8 @@ test "Bio.Align.nexus writer uses canonical terminator" {
 
 ///|
 test "Bio.Align.nexus writer auto-interleaves above 1000 columns" {
-  let short_builder = StringBuilder::new(size_hint=1000)
-  let long_builder = StringBuilder::new(size_hint=1001)
+  let short_builder = StringBuilder(size_hint=1000)
+  let long_builder = StringBuilder(size_hint=1001)
   for _index = 0; _index < 1000; _index = _index + 1 {
     short_builder.write_char('A')
     long_builder.write_char('A')

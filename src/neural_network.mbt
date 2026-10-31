@@ -12,8 +12,8 @@
 /// A layer in the neural network: weights[n_out][n_in], biases[n_out],
 /// and the last activation values for backprop.
 pub struct NnLayer {
-  n_in : Int
-  n_out : Int
+  n_in : Int32
+  n_out : Int32
   weights : Array[Array[Double]] // [n_out][n_in]
   biases : Array[Double] // [n_out]
   last_input : Array[Double] // cached input for backprop
@@ -25,9 +25,9 @@ pub struct NnLayer {
 ///|
 /// Construct a new layer with given input and output sizes. Weights are
 /// initialized with small random values; biases to zero.
-pub fn NnLayer::new(n_in : Int, n_out : Int) -> NnLayer {
-  let weights : Array[Array[Double]] = Array::new()
-  let weight_grads : Array[Array[Double]] = Array::new()
+pub fn NnLayer::new(n_in : Int32, n_out : Int32) -> NnLayer {
+  let weights : Array[Array[Double]] = Array(capacity=0)
+  let weight_grads : Array[Array[Double]] = Array(capacity=0)
   for _ in 0..<n_out {
     let row = Array::make(n_in, 0.0)
     let grad_row = Array::make(n_in, 0.0)
@@ -54,13 +54,13 @@ pub fn NnLayer::new(n_in : Int, n_out : Int) -> NnLayer {
 
 ///|
 /// Accessor for the number of input units.
-pub fn NnLayer::n_in(self : NnLayer) -> Int {
+pub fn NnLayer::n_in(self : NnLayer) -> Int32 {
   self.n_in
 }
 
 ///|
 /// Accessor for the number of output units.
-pub fn NnLayer::n_out(self : NnLayer) -> Int {
+pub fn NnLayer::n_out(self : NnLayer) -> Int32 {
   self.n_out
 }
 
@@ -101,18 +101,18 @@ pub struct NeuralNetwork {
 /// n_hidden: number of hidden units.
 /// n_output: number of output classes.
 pub fn NeuralNetwork::new(
-  n_input : Int,
-  n_hidden : Int,
-  n_output : Int,
+  n_input : Int32,
+  n_hidden : Int32,
+  n_output : Int32,
 ) -> NeuralNetwork {
   let hidden = NnLayer::new(n_input, n_hidden)
   let output = NnLayer::new(n_hidden, n_output)
   let input = NnLayer::new(n_input, n_input) // pass-through (identity)
-  let prev_hidden_deltas : Array[Array[Double]] = Array::new()
+  let prev_hidden_deltas : Array[Array[Double]] = Array(capacity=0)
   for _ in 0..<n_hidden {
     prev_hidden_deltas.push(Array::make(n_input, 0.0))
   }
-  let prev_output_deltas : Array[Array[Double]] = Array::new()
+  let prev_output_deltas : Array[Array[Double]] = Array(capacity=0)
   for _ in 0..<n_output {
     prev_output_deltas.push(Array::make(n_hidden, 0.0))
   }
@@ -135,7 +135,7 @@ pub fn NeuralNetwork::set_learning_rate(
   self : NeuralNetwork,
   lr : Double,
 ) -> NeuralNetwork {
-  { ..self, learning_rate: lr }
+  { ..self, learning_rate: lr, }
 }
 
 ///|
@@ -144,7 +144,7 @@ pub fn NeuralNetwork::set_momentum(
   self : NeuralNetwork,
   m : Double,
 ) -> NeuralNetwork {
-  { ..self, momentum: m }
+  { ..self, momentum: m, }
 }
 
 ///|
@@ -178,7 +178,7 @@ pub fn NeuralNetwork::momentum(self : NeuralNetwork) -> Double {
 ///|
 /// Simple pseudo-random number generator state (LCG).
 /// Uses a fixed seed for reproducibility.
-let nn_rng_counter : Ref[Int] = Ref(42)
+let nn_rng_counter : Ref[Int32] = Ref(42)
 
 ///|
 /// Generate a pseudo-random weight in [-0.5, 0.5].
@@ -247,7 +247,7 @@ pub fn nn_forward(
 
 ///|
 /// Predict the class index (argmax of output).
-pub fn nn_predict(network : NeuralNetwork, input : Array[Double]) -> Int {
+pub fn nn_predict(network : NeuralNetwork, input : Array[Double]) -> Int32 {
   let output = nn_forward(network, input)
   let mut best = 0
   let mut best_val = output[0]
@@ -330,7 +330,7 @@ pub fn nn_train(
   network : NeuralNetwork,
   inputs : Array[Array[Double]],
   targets : Array[Array[Double]],
-  n_epochs : Int,
+  n_epochs : Int32,
 ) -> Double {
   let n = inputs.length()
   let mut final_error = 0.0

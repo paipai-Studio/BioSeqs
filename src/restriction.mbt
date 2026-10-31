@@ -5,7 +5,7 @@
 pub struct RestrictionEnzyme {
   name : String
   recognition_site : String
-  cutting_position : Int
+  cutting_position : Int32
   overhang_5 : String
   overhang_3 : String
 }
@@ -14,7 +14,7 @@ pub struct RestrictionEnzyme {
 pub fn restriction_enzyme(
   name : String,
   recognition_site : String,
-  cutting_position : Int,
+  cutting_position : Int32,
   overhang_5 : String,
   overhang_3 : String,
 ) -> RestrictionEnzyme {
@@ -162,8 +162,8 @@ pub fn builtin_enzymes() -> Map[String, RestrictionEnzyme] {
 }
 
 ///|
-pub fn find_cut_sites(seq : String, enzyme : RestrictionEnzyme) -> Array[Int] {
-  let sites : Array[Int] = Array::new()
+pub fn find_cut_sites(seq : String, enzyme : RestrictionEnzyme) -> Array[Int32] {
+  let sites : Array[Int32] = Array(capacity=0)
   let pattern = enzyme.recognition_site
   let seq_len = seq.length()
   let pattern_len = pattern.length()
@@ -191,7 +191,7 @@ pub fn find_cut_sites(seq : String, enzyme : RestrictionEnzyme) -> Array[Int] {
 ///|
 pub fn digest(seq : String, enzyme : RestrictionEnzyme) -> Array[String] {
   let sites = find_cut_sites(seq, enzyme)
-  let fragments : Array[String] = Array::new()
+  let fragments : Array[String] = Array(capacity=0)
 
   let mut prev_pos = 0
   for i = 0; i < sites.length(); i = i + 1 {
@@ -211,7 +211,7 @@ pub fn digest_with_multiple(
   seq : String,
   enzymes : Array[RestrictionEnzyme],
 ) -> Array[String] {
-  let all_sites : Array[Int] = Array::new()
+  let all_sites : Array[Int32] = Array(capacity=0)
 
   for i = 0; i < enzymes.length(); i = i + 1 {
     let sites = find_cut_sites(seq, enzymes[i])
@@ -230,7 +230,7 @@ pub fn digest_with_multiple(
     }
   }
 
-  let fragments : Array[String] = Array::new()
+  let fragments : Array[String] = Array(capacity=0)
   let mut prev_pos = 0
 
   for i = 0; i < all_sites.length(); i = i + 1 {
@@ -248,8 +248,8 @@ pub fn digest_with_multiple(
 }
 
 ///|
-pub fn fragment_sizes(fragments : Array[String]) -> Array[Int] {
-  let sizes : Array[Int] = Array::make(fragments.length(), 0)
+pub fn fragment_sizes(fragments : Array[String]) -> Array[Int32] {
+  let sizes : Array[Int32] = Array::make(fragments.length(), 0)
   for i = 0; i < fragments.length(); i = i + 1 {
     sizes[i] = fragments[i].length()
   }
@@ -280,7 +280,7 @@ pub fn list_enzymes() -> Array[String] {
 pub fn enzymes_by_overhang(overhang : String) -> Array[RestrictionEnzyme] {
   let enzymes = builtin_enzymes()
   let keys = enzymes.keys().collect()
-  let result : Array[RestrictionEnzyme] = Array::new()
+  let result : Array[RestrictionEnzyme] = Array(capacity=0)
 
   for i = 0; i < keys.length(); i = i + 1 {
     let enzyme = enzymes[keys[i]]
@@ -294,12 +294,12 @@ pub fn enzymes_by_overhang(overhang : String) -> Array[RestrictionEnzyme] {
 
 ///|
 pub fn enzymes_by_site_length(
-  min_len : Int,
-  max_len : Int,
+  min_len : Int32,
+  max_len : Int32,
 ) -> Array[RestrictionEnzyme] {
   let enzymes = builtin_enzymes()
   let keys = enzymes.keys().collect()
-  let result : Array[RestrictionEnzyme] = Array::new()
+  let result : Array[RestrictionEnzyme] = Array(capacity=0)
 
   for i = 0; i < keys.length(); i = i + 1 {
     let enzyme = enzymes[keys[i]]

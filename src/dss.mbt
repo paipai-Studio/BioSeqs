@@ -5,13 +5,6 @@
 /// and differential methylation analysis for bisulfite sequencing data.
 
 ///|
-/// Dispersion estimation methods
-pub enum DSSDispMethod {
-  /// Maximum likelihood estimation
-  ML
-  /// Shrinkage estimator
-  Shrink
-}
 
 ///|
 /// Result of dispersion estimation
@@ -68,7 +61,7 @@ pub struct DSSMethylData {
   /// Chromosome
   chrom : Array[String]
   /// Position
-  pos : Array[Int]
+  pos : Array[Int32]
   /// Methylation counts
   meth_counts : Array[Array[Double]]
   /// Total counts
@@ -106,11 +99,11 @@ pub struct DSSDMRResult {
   /// Chromosome
   chrom : Array[String]
   /// Start position
-  start : Array[Int]
+  start : Array[Int32]
   /// End position
-  end : Array[Int]
+  end : Array[Int32]
   /// Number of CpGs in DMR
-  n_cpgs : Array[Int]
+  n_cpgs : Array[Int32]
   /// Mean methylation difference
   mean_delta : Array[Double]
   /// DMR statistics
@@ -129,7 +122,7 @@ pub fn DSSDispResult::new(
   prior_df : Double,
   prior_var : Double,
 ) -> DSSDispResult {
-  DSSDispResult::{ dispersions, shrunken_dispersions, prior_df, prior_var }
+  DSSDispResult::{ dispersions, shrunken_dispersions, prior_df, prior_var, }
 }
 
 ///|
@@ -158,28 +151,28 @@ pub fn DSSCountData::new(
   groups : Array[String],
   lib_sizes : Array[Double],
 ) -> DSSCountData {
-  DSSCountData::{ gene_ids, counts, groups, lib_sizes }
+  DSSCountData::{ gene_ids, counts, groups, lib_sizes, }
 }
 
 ///|
 /// Get gene count for specific gene and sample
 pub fn DSSCountData::dss_get_count(
   self : DSSCountData,
-  gene_idx : Int,
-  sample_idx : Int,
+  gene_idx : Int32,
+  sample_idx : Int32,
 ) -> Double {
   self.counts[gene_idx][sample_idx]
 }
 
 ///|
 /// Get number of genes
-pub fn DSSCountData::dss_n_genes(self : DSSCountData) -> Int {
+pub fn DSSCountData::dss_n_genes(self : DSSCountData) -> Int32 {
   self.gene_ids.length()
 }
 
 ///|
 /// Get number of samples
-pub fn DSSCountData::dss_n_samples(self : DSSCountData) -> Int {
+pub fn DSSCountData::dss_n_samples(self : DSSCountData) -> Int32 {
   self.groups.length()
 }
 
@@ -188,11 +181,11 @@ pub fn DSSCountData::dss_n_samples(self : DSSCountData) -> Int {
 pub fn DSSCountData::dss_normalize(self : DSSCountData) -> Array[Array[Double]] {
   let n_genes = self.counts.length()
   let n_samples = if n_genes > 0 { self.counts[0].length() } else { 0 }
-  let normalized : Array[Array[Double]] = Array::new()
+  let normalized : Array[Array[Double]] = Array(capacity=0)
 
   let mut i = 0
   while i < n_genes {
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     let mut j = 0
     while j < n_samples {
       let lib_size = if j < self.lib_sizes.length() {
@@ -215,10 +208,10 @@ pub fn DSSCountData::dss_normalize(self : DSSCountData) -> Array[Array[Double]] 
 pub fn DSSCountData::dss_filter_low_counts(
   self : DSSCountData,
   min_count : Double,
-  min_samples : Int,
+  min_samples : Int32,
 ) -> DSSCountData {
-  let new_gene_ids : Array[String] = Array::new()
-  let new_counts : Array[Array[Double]] = Array::new()
+  let new_gene_ids : Array[String] = Array(capacity=0)
+  let new_counts : Array[Array[Double]] = Array(capacity=0)
 
   let mut i = 0
   while i < self.gene_ids.length() {
@@ -272,13 +265,13 @@ pub fn DSSDEResult::new(
 
 ///|
 /// Get number of genes
-pub fn DSSDEResult::dss_n_genes(self : DSSDEResult) -> Int {
+pub fn DSSDEResult::dss_n_genes(self : DSSDEResult) -> Int32 {
   self.gene_ids.length()
 }
 
 ///|
 /// Get significant gene count
-pub fn DSSDEResult::dss_n_significant(self : DSSDEResult) -> Int {
+pub fn DSSDEResult::dss_n_significant(self : DSSDEResult) -> Int32 {
   let mut count = 0
   let mut i = 0
   while i < self.significant.length() {
@@ -292,25 +285,28 @@ pub fn DSSDEResult::dss_n_significant(self : DSSDEResult) -> Int {
 
 ///|
 /// Get gene ID at index
-pub fn DSSDEResult::dss_get_gene_id(self : DSSDEResult, idx : Int) -> String {
+pub fn DSSDEResult::dss_get_gene_id(self : DSSDEResult, idx : Int32) -> String {
   self.gene_ids[idx]
 }
 
 ///|
 /// Get p-value at index
-pub fn DSSDEResult::dss_get_pvalue(self : DSSDEResult, idx : Int) -> Double {
+pub fn DSSDEResult::dss_get_pvalue(self : DSSDEResult, idx : Int32) -> Double {
   self.p_values[idx]
 }
 
 ///|
 /// Get adjusted p-value at index
-pub fn DSSDEResult::dss_get_adj_pvalue(self : DSSDEResult, idx : Int) -> Double {
+pub fn DSSDEResult::dss_get_adj_pvalue(
+  self : DSSDEResult,
+  idx : Int32,
+) -> Double {
   self.adj_p_values[idx]
 }
 
 ///|
 /// Get fold change at index (log2 scale)
-pub fn DSSDEResult::dss_get_logfc(self : DSSDEResult, idx : Int) -> Double {
+pub fn DSSDEResult::dss_get_logfc(self : DSSDEResult, idx : Int32) -> Double {
   if self.mean1[idx] > 0.0 && self.mean2[idx] > 0.0 {
     @math.log2(self.mean2[idx] / self.mean1[idx])
   } else {
@@ -325,23 +321,23 @@ pub fn DSSDEResult::dss_get_logfc(self : DSSDEResult, idx : Int) -> Double {
 pub fn DSSMethylData::new(
   cpg_ids : Array[String],
   chrom : Array[String],
-  pos : Array[Int],
+  pos : Array[Int32],
   meth_counts : Array[Array[Double]],
   total_counts : Array[Array[Double]],
   groups : Array[String],
 ) -> DSSMethylData {
-  DSSMethylData::{ cpg_ids, chrom, pos, meth_counts, total_counts, groups }
+  DSSMethylData::{ cpg_ids, chrom, pos, meth_counts, total_counts, groups, }
 }
 
 ///|
 /// Get number of CpG sites
-pub fn DSSMethylData::dss_n_cpgs(self : DSSMethylData) -> Int {
+pub fn DSSMethylData::dss_n_cpgs(self : DSSMethylData) -> Int32 {
   self.cpg_ids.length()
 }
 
 ///|
 /// Get number of samples
-pub fn DSSMethylData::dss_n_samples(self : DSSMethylData) -> Int {
+pub fn DSSMethylData::dss_n_samples(self : DSSMethylData) -> Int32 {
   self.groups.length()
 }
 
@@ -349,8 +345,8 @@ pub fn DSSMethylData::dss_n_samples(self : DSSMethylData) -> Int {
 /// Calculate methylation proportion for a site and sample
 pub fn DSSMethylData::dss_get_meth_prop(
   self : DSSMethylData,
-  cpg_idx : Int,
-  sample_idx : Int,
+  cpg_idx : Int32,
+  sample_idx : Int32,
 ) -> Double {
   let total = self.total_counts[cpg_idx][sample_idx]
   if total > 0.0 {
@@ -388,13 +384,13 @@ pub fn DSSDMResult::new(
 
 ///|
 /// Get number of sites
-pub fn DSSDMResult::dss_n_sites(self : DSSDMResult) -> Int {
+pub fn DSSDMResult::dss_n_sites(self : DSSDMResult) -> Int32 {
   self.cpg_ids.length()
 }
 
 ///|
 /// Get significant site count
-pub fn DSSDMResult::dss_n_significant(self : DSSDMResult) -> Int {
+pub fn DSSDMResult::dss_n_significant(self : DSSDMResult) -> Int32 {
   let mut count = 0
   let mut i = 0
   while i < self.significant.length() {
@@ -408,7 +404,10 @@ pub fn DSSDMResult::dss_n_significant(self : DSSDMResult) -> Int {
 
 ///|
 /// Get delta methylation at index
-pub fn DSSDMResult::dss_get_delta_meth(self : DSSDMResult, idx : Int) -> Double {
+pub fn DSSDMResult::dss_get_delta_meth(
+  self : DSSDMResult,
+  idx : Int32,
+) -> Double {
   self.delta_meth[idx]
 }
 
@@ -419,9 +418,9 @@ pub fn DSSDMResult::dss_get_delta_meth(self : DSSDMResult, idx : Int) -> Double 
 pub fn DSSDMRResult::new(
   dmr_ids : Array[String],
   chrom : Array[String],
-  start : Array[Int],
-  end : Array[Int],
-  n_cpgs : Array[Int],
+  start : Array[Int32],
+  end : Array[Int32],
+  n_cpgs : Array[Int32],
   mean_delta : Array[Double],
   stats : Array[Double],
   p_values : Array[Double],
@@ -440,7 +439,7 @@ pub fn DSSDMRResult::new(
 
 ///|
 /// Get number of DMRs
-pub fn DSSDMRResult::dss_n_dmrs(self : DSSDMRResult) -> Int {
+pub fn DSSDMRResult::dss_n_dmrs(self : DSSDMRResult) -> Int32 {
   self.dmr_ids.length()
 }
 
@@ -448,8 +447,8 @@ pub fn DSSDMRResult::dss_n_dmrs(self : DSSDMRResult) -> Int {
 /// Get DMR at index
 pub fn DSSDMRResult::dss_get_dmr(
   self : DSSDMRResult,
-  idx : Int,
-) -> (String, String, Int, Int, Int, Double) {
+  idx : Int32,
+) -> (String, String, Int32, Int32, Int32, Double) {
   (
     self.dmr_ids[idx],
     self.chrom[idx],
@@ -487,7 +486,7 @@ fn dss_var(arr : Array[Double]) -> Double {
   let mut sum_sq = 0.0
   let mut i = 0
   while i < arr.length() {
-    sum_sq = sum_sq + (arr[i] - m).pow(2.0)
+    sum_sq = sum_sq + @math.pow(arr[i] - m, 2.0)
     i = i + 1
   }
   sum_sq / (arr.length() - 1).to_double()
@@ -501,7 +500,7 @@ pub fn dss_estimate_dispersion(counts_data : DSSCountData) -> DSSDispResult {
   let n_genes = counts_data.dss_n_genes()
   let n_samples = counts_data.dss_n_samples()
 
-  let dispersions : Array[Double] = Array::new()
+  let dispersions : Array[Double] = Array(capacity=0)
   let norm_counts = counts_data.dss_normalize()
 
   let mut i = 0
@@ -510,7 +509,7 @@ pub fn dss_estimate_dispersion(counts_data : DSSCountData) -> DSSDispResult {
     let m = dss_mean(expr)
     let v = dss_var(expr)
 
-    let disp = if m > 0.0 { v / m.pow(2.0) } else { 0.0000000001 }
+    let disp = if m > 0.0 { v / @math.pow(m, 2.0) } else { 0.0000000001 }
 
     dispersions.push(disp)
     i = i + 1
@@ -521,13 +520,13 @@ pub fn dss_estimate_dispersion(counts_data : DSSCountData) -> DSSDispResult {
   let var_disp = dss_var(dispersions)
 
   let prior_df = if var_disp > 0.0 {
-    2.0 * mean_disp.pow(2.0) / var_disp
+    2.0 * @math.pow(mean_disp, 2.0) / var_disp
   } else {
     10.0
   }
   let prior_var = mean_disp
 
-  let shrunken : Array[Double] = Array::new()
+  let shrunken : Array[Double] = Array(capacity=0)
   i = 0
   while i < n_genes {
     let disp = dispersions[i]
@@ -552,8 +551,8 @@ pub fn dss_deseq(
   let n_samples = counts_data.dss_n_samples()
   let norm_counts = counts_data.dss_normalize()
 
-  let group1_idx : Array[Int] = Array::new()
-  let group2_idx : Array[Int] = Array::new()
+  let group1_idx : Array[Int32] = Array(capacity=0)
+  let group2_idx : Array[Int32] = Array(capacity=0)
 
   let mut j = 0
   while j < n_samples {
@@ -568,12 +567,12 @@ pub fn dss_deseq(
   let n1 = group1_idx.length().to_double()
   let n2 = group2_idx.length().to_double()
 
-  let mean1_arr : Array[Double] = Array::new()
-  let mean2_arr : Array[Double] = Array::new()
-  let disp_arr : Array[Double] = Array::new()
-  let wald_stat_arr : Array[Double] = Array::new()
-  let p_values_arr : Array[Double] = Array::new()
-  let gene_ids_arr : Array[String] = Array::new()
+  let mean1_arr : Array[Double] = Array(capacity=0)
+  let mean2_arr : Array[Double] = Array(capacity=0)
+  let disp_arr : Array[Double] = Array(capacity=0)
+  let wald_stat_arr : Array[Double] = Array(capacity=0)
+  let p_values_arr : Array[Double] = Array(capacity=0)
+  let gene_ids_arr : Array[String] = Array(capacity=0)
 
   let mut i = 0
   while i < n_genes {
@@ -637,7 +636,7 @@ pub fn dss_deseq(
   let adj_p_values = dss_benjamini_hochberg(p_values_arr)
 
   // Determine significance (FDR < 0.05)
-  let significant : Array[Bool] = Array::new()
+  let significant : Array[Bool] = Array(capacity=0)
   let mut k = 0
   while k < n_genes {
     significant.push(adj_p_values[k] < 0.05)
@@ -656,8 +655,8 @@ pub fn dss_dml(methyl_data : DSSMethylData) -> DSSDMResult {
   let n_sites = methyl_data.dss_n_cpgs()
   let n_samples = methyl_data.dss_n_samples()
 
-  let group1_idx : Array[Int] = Array::new()
-  let group2_idx : Array[Int] = Array::new()
+  let group1_idx : Array[Int32] = Array(capacity=0)
+  let group2_idx : Array[Int32] = Array(capacity=0)
 
   let mut j = 0
   while j < n_samples {
@@ -669,15 +668,15 @@ pub fn dss_dml(methyl_data : DSSMethylData) -> DSSDMResult {
     j = j + 1
   }
 
-  let n1 = group1_idx.length().to_double()
-  let n2 = group2_idx.length().to_double()
+  let _n1 = group1_idx.length().to_double()
+  let _n2 = group2_idx.length().to_double()
 
-  let meth_mean1_arr : Array[Double] = Array::new()
-  let meth_mean2_arr : Array[Double] = Array::new()
-  let delta_meth_arr : Array[Double] = Array::new()
-  let stats_arr : Array[Double] = Array::new()
-  let p_values_arr : Array[Double] = Array::new()
-  let cpg_ids_arr : Array[String] = Array::new()
+  let meth_mean1_arr : Array[Double] = Array(capacity=0)
+  let meth_mean2_arr : Array[Double] = Array(capacity=0)
+  let delta_meth_arr : Array[Double] = Array(capacity=0)
+  let stats_arr : Array[Double] = Array(capacity=0)
+  let p_values_arr : Array[Double] = Array(capacity=0)
+  let cpg_ids_arr : Array[String] = Array(capacity=0)
 
   let mut i = 0
   while i < n_sites {
@@ -733,7 +732,7 @@ pub fn dss_dml(methyl_data : DSSMethylData) -> DSSDMResult {
   // Multiple testing correction
   let adj_p_values = dss_benjamini_hochberg(p_values_arr)
 
-  let significant : Array[Bool] = Array::new()
+  let significant : Array[Bool] = Array(capacity=0)
   let mut s = 0
   while s < n_sites {
     significant.push(adj_p_values[s] < 0.05)
@@ -751,17 +750,17 @@ pub fn dss_dml(methyl_data : DSSMethylData) -> DSSDMResult {
 pub fn dss_dmr(
   methyl_data : DSSMethylData,
   dm_result : DSSDMResult,
-  min_cpgs : Int,
+  min_cpgs : Int32,
   min_delta : Double,
 ) -> DSSDMRResult {
-  let dmr_ids : Array[String] = Array::new()
-  let chrom_arr : Array[String] = Array::new()
-  let start_arr : Array[Int] = Array::new()
-  let end_arr : Array[Int] = Array::new()
-  let n_cpgs_arr : Array[Int] = Array::new()
-  let mean_delta_arr : Array[Double] = Array::new()
-  let stats_arr : Array[Double] = Array::new()
-  let p_values_arr : Array[Double] = Array::new()
+  let dmr_ids : Array[String] = Array(capacity=0)
+  let chrom_arr : Array[String] = Array(capacity=0)
+  let start_arr : Array[Int32] = Array(capacity=0)
+  let end_arr : Array[Int32] = Array(capacity=0)
+  let n_cpgs_arr : Array[Int32] = Array(capacity=0)
+  let mean_delta_arr : Array[Double] = Array(capacity=0)
+  let stats_arr : Array[Double] = Array(capacity=0)
+  let p_values_arr : Array[Double] = Array(capacity=0)
 
   let mut i = 0
   while i < dm_result.cpg_ids.length() {
@@ -867,8 +866,8 @@ fn dss_benjamini_hochberg(p_values : Array[Double]) -> Array[Double] {
   }
 
   // Create index array and sort by p-value
-  let indices : Array[Int] = Array::new()
-  let sorted_pvals : Array[Double] = Array::new()
+  let indices : Array[Int32] = Array(capacity=0)
+  let sorted_pvals : Array[Double] = Array(capacity=0)
 
   let mut i = 0
   while i < n {

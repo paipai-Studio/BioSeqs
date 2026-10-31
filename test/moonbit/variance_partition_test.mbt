@@ -67,7 +67,7 @@ fn vp_test_batches() -> Array[String] {
 
 ///|
 fn vp_test_design(
-  include_batch? : Bool = false,
+  include_batch~ : Bool = false,
 ) -> @src.VariancePartitionDesign {
   let treatment = @src.vp_categorical_effect(
     "Treatment",

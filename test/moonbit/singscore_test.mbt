@@ -53,7 +53,7 @@ test "singscore_single_gene" {
 test "singscore_multiple_samples" {
   let (sample1, spec) = @src.singscore_create_example()
   let genes = sample1.gene_names
-  let expression2 : Array[Double] = Array::new()
+  let expression2 : Array[Double] = Array(capacity=0)
   for _g in genes {
     expression2.push(1.0)
   }

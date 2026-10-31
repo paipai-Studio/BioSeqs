@@ -38,11 +38,11 @@ priv struct CaaNg86Components {
   ds : Double // Jukes-Cantor corrected dS
   p_n : Double // pN = Nd / Nn (raw nonsyn difference proportion)
   p_s : Double // pS = Sd / Sn (raw syn difference proportion)
-  n_diff : Int // Nd — nonsynonymous differences
-  s_diff : Int // Sd — synonymous differences
+  n_diff : Int32 // Nd — nonsynonymous differences
+  s_diff : Int32 // Sd — synonymous differences
   n_sites : Double // Nn — nonsynonymous sites (averaged over both seqs)
   s_sites : Double // Sn — synonymous sites (averaged over both seqs)
-  n_codons : Int // number of valid codon pairs analysed
+  n_codons : Int32 // number of valid codon pairs analysed
 }
 
 ///|
@@ -63,7 +63,9 @@ fn caa_ng86_components(
     caa_fail("CodonAlign advanced requires equal-length sequences")
   }
   if len1 % 3 != 0 {
-    caa_fail("CodonAlign advanced requires codon-aligned (multiple-of-3) sequences")
+    caa_fail(
+      "CodonAlign advanced requires codon-aligned (multiple-of-3) sequences",
+    )
   }
   let n_codons_total = len1 / 3
   let mut s_sites = 0.0
@@ -77,15 +79,16 @@ fn caa_ng86_components(
     let codon1 = seq1[start:start + 3].to_owned()
     let codon2 = seq2[start:start + 3].to_owned()
     // Skip codon pairs containing gaps or stop codons.
-    if !is_stop_codon(codon1) && !is_stop_codon(codon2) && codon1.length() == 3 && codon2.length() == 3 {
+    if !is_stop_codon(codon1) &&
+      !is_stop_codon(codon2) &&
+      codon1.length() == 3 &&
+      codon2.length() == 3 {
       let (s1, ns1) = count_codon_sites(codon1)
       let (s2, ns2) = count_codon_sites(codon2)
       s_sites = s_sites + (s1 + s2) / 2.0
       ns_sites = ns_sites + (ns1 + ns2) / 2.0
       match classify_codon_substitution(codon1, codon2) {
-        Synonymous => if codon1 != codon2 {
-          s_diff = s_diff + 1
-        }
+        Synonymous => if codon1 != codon2 { s_diff = s_diff + 1 }
         NonSynonymous => ns_diff = ns_diff + 1
         Unknown => ()
       }
@@ -97,11 +100,7 @@ fn caa_ng86_components(
     caa_fail("CodonAlign advanced found no analysable codon pairs")
   }
   let p_s = if s_sites > 0.0 { s_diff.to_double() / s_sites } else { 0.0 }
-  let p_n = if ns_sites > 0.0 {
-    ns_diff.to_double() / ns_sites
-  } else {
-    0.0
-  }
+  let p_n = if ns_sites > 0.0 { ns_diff.to_double() / ns_sites } else { 0.0 }
   let d_s = jukes_cantor_correction(p_s)
   let d_n = jukes_cantor_correction(p_n)
   CaaNg86Components::{
@@ -128,9 +127,11 @@ fn caa_normal_cdf(x : Double) -> Double {
   let d = 0.3989422804014327 * @math.exp(-x * x / 2.0)
   let p = d *
     t *
-    (0.31938153 +
-    t *
-      (-0.356563782 + t * (1.781477937 + t * (-1.821255978 + t * 1.330274429))))
+    (
+      0.31938153 +
+      t *
+      (-0.356563782 + t * (1.781477937 + t * (-1.821255978 + t * 1.330274429)))
+    )
   if x > 0.0 {
     1.0 - p
   } else {
@@ -154,6 +155,9 @@ pub struct SelectionTestResult {
   test_type : String // "positive" | "purifying" | "neutrality"
   conclusion : String // human-readable conclusion
 } derive(Debug)
+
+///|
+pub extend SelectionTestResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub fn SelectionTestResult::dn(self : SelectionTestResult) -> Double {
@@ -211,7 +215,7 @@ pub fn SelectionTestResult::conclusion(self : SelectionTestResult) -> String {
 pub fn codon_test_selection(
   seq1 : String,
   seq2 : String,
-  test_type? : String = "positive",
+  test_type~ : String = "positive",
 ) -> SelectionTestResult raise CodonAlignAdvancedError {
   let comps = caa_ng86_components(seq1, seq2)
   let p_n = comps.p_n
@@ -219,12 +223,12 @@ pub fn codon_test_selection(
   let nn = comps.n_sites
   let sn = comps.s_sites
   // Variance under Jukes-Cantor correction (Nei & Gojobori 1986, eq. 6).
-  let v_dn = if nn > 0.0 && (1.0 - 4.0 * p_n / 3.0) > 0.0 {
+  let v_dn = if nn > 0.0 && 1.0 - 4.0 * p_n / 3.0 > 0.0 {
     p_n * (1.0 - p_n) / (nn * (1.0 - 4.0 * p_n / 3.0) * (1.0 - 4.0 * p_n / 3.0))
   } else {
     0.0
   }
-  let v_ds = if sn > 0.0 && (1.0 - 4.0 * p_s / 3.0) > 0.0 {
+  let v_ds = if sn > 0.0 && 1.0 - 4.0 * p_s / 3.0 > 0.0 {
     p_s * (1.0 - p_s) / (sn * (1.0 - 4.0 * p_s / 3.0) * (1.0 - 4.0 * p_s / 3.0))
   } else {
     0.0
@@ -263,11 +267,12 @@ pub fn codon_test_selection(
     match test_type {
       "positive" => "significant positive selection (dN > dS)"
       "purifying" => "significant purifying selection (dN < dS)"
-      _ => if z_score > 0.0 {
-        "significant positive selection (dN > dS)"
-      } else {
-        "significant purifying selection (dN < dS)"
-      }
+      _ =>
+        if z_score > 0.0 {
+          "significant positive selection (dN > dS)"
+        } else {
+          "significant purifying selection (dN < dS)"
+        }
     }
   } else {
     "not significant (consistent with neutrality)"
@@ -290,7 +295,7 @@ pub fn codon_test_selection(
 
 ///|
 /// Log-factorial computed by summation of natural logs (no overflow).
-fn caa_log_factorial(n : Int) -> Double {
+fn caa_log_factorial(n : Int32) -> Double {
   if n <= 1 {
     return 0.0
   }
@@ -305,7 +310,7 @@ fn caa_log_factorial(n : Int) -> Double {
 
 ///|
 /// Log binomial coefficient ln C(n, k) = ln(n!) − ln(k!) − ln((n−k)!).
-fn caa_log_binom(n : Int, k : Int) -> Double {
+fn caa_log_binom(n : Int32, k : Int32) -> Double {
   if k < 0 || k > n {
     return -1.0e300
   }
@@ -327,10 +332,10 @@ fn caa_log_binom(n : Int, k : Int) -> Double {
 ///   - "greater"    — P(X ≥ a)
 ///   - "less"       — P(X ≤ a)
 fn caa_fisher_exact(
-  a : Int,
-  b : Int,
-  c : Int,
-  d : Int,
+  a : Int32,
+  b : Int32,
+  c : Int32,
+  d : Int32,
   test_type : String,
 ) -> (Double, Double) {
   let n = a + b + c + d
@@ -339,10 +344,10 @@ fn caa_fisher_exact(
   let col1 = a + c // D  (total differences)
   // Haldane–Anscombe correction for odds ratio when a cell is zero.
   let odds_ratio = if b == 0 || c == 0 || d == 0 || a == 0 {
-    let a2 = (a.to_double() + 0.5)
-    let b2 = (b.to_double() + 0.5)
-    let c2 = (c.to_double() + 0.5)
-    let d2 = (d.to_double() + 0.5)
+    let a2 = a.to_double() + 0.5
+    let b2 = b.to_double() + 0.5
+    let c2 = c.to_double() + 0.5
+    let d2 = d.to_double() + 0.5
     a2 * d2 / (b2 * c2)
   } else {
     a.to_double() * d.to_double() / (b.to_double() * c.to_double())
@@ -385,8 +390,8 @@ fn caa_fisher_exact(
 pub struct CodonNeutralityTestResult {
   p_value : Double
   odds_ratio : Double
-  n_diff : Int // nonsynonymous differences (Nd)
-  s_diff : Int // synonymous differences (Sd)
+  n_diff : Int32 // nonsynonymous differences (Nd)
+  s_diff : Int32 // synonymous differences (Sd)
   n_sites : Double // nonsynonymous sites (Nn)
   s_sites : Double // synonymous sites (Sn)
   test_type : String
@@ -394,37 +399,56 @@ pub struct CodonNeutralityTestResult {
 } derive(Debug)
 
 ///|
-pub fn CodonNeutralityTestResult::p_value(self : CodonNeutralityTestResult) -> Double {
+pub extend CodonNeutralityTestResult with @moonbitlang/core/debug.Debug::{
+  to_repr,
+}
+
+///|
+pub fn CodonNeutralityTestResult::p_value(
+  self : CodonNeutralityTestResult,
+) -> Double {
   self.p_value
 }
 
 ///|
-pub fn CodonNeutralityTestResult::odds_ratio(self : CodonNeutralityTestResult) -> Double {
+pub fn CodonNeutralityTestResult::odds_ratio(
+  self : CodonNeutralityTestResult,
+) -> Double {
   self.odds_ratio
 }
 
 ///|
-pub fn CodonNeutralityTestResult::n_diff(self : CodonNeutralityTestResult) -> Int {
+pub fn CodonNeutralityTestResult::n_diff(
+  self : CodonNeutralityTestResult,
+) -> Int32 {
   self.n_diff
 }
 
 ///|
-pub fn CodonNeutralityTestResult::s_diff(self : CodonNeutralityTestResult) -> Int {
+pub fn CodonNeutralityTestResult::s_diff(
+  self : CodonNeutralityTestResult,
+) -> Int32 {
   self.s_diff
 }
 
 ///|
-pub fn CodonNeutralityTestResult::n_sites(self : CodonNeutralityTestResult) -> Double {
+pub fn CodonNeutralityTestResult::n_sites(
+  self : CodonNeutralityTestResult,
+) -> Double {
   self.n_sites
 }
 
 ///|
-pub fn CodonNeutralityTestResult::s_sites(self : CodonNeutralityTestResult) -> Double {
+pub fn CodonNeutralityTestResult::s_sites(
+  self : CodonNeutralityTestResult,
+) -> Double {
   self.s_sites
 }
 
 ///|
-pub fn CodonNeutralityTestResult::test_type(self : CodonNeutralityTestResult) -> String {
+pub fn CodonNeutralityTestResult::test_type(
+  self : CodonNeutralityTestResult,
+) -> String {
   self.test_type
 }
 
@@ -447,7 +471,7 @@ pub fn CodonNeutralityTestResult::conclusion(
 pub fn codon_test_neutrality(
   seq1 : String,
   seq2 : String,
-  test_type? : String = "two-sided",
+  test_type~ : String = "two-sided",
 ) -> CodonNeutralityTestResult raise CodonAlignAdvancedError {
   let comps = caa_ng86_components(seq1, seq2)
   let nd = comps.n_diff
@@ -468,11 +492,12 @@ pub fn codon_test_neutrality(
     match test_type {
       "greater" => "significant positive selection (reject neutrality)"
       "less" => "significant purifying selection (reject neutrality)"
-      _ => if odds_ratio > 1.0 {
-        "significant positive selection (reject neutrality)"
-      } else {
-        "significant purifying selection (reject neutrality)"
-      }
+      _ =>
+        if odds_ratio > 1.0 {
+          "significant positive selection (reject neutrality)"
+        } else {
+          "significant purifying selection (reject neutrality)"
+        }
     }
   } else {
     "not significant (consistent with neutrality)"
@@ -499,8 +524,11 @@ pub fn codon_test_neutrality(
 pub struct CodonAlignment {
   sequences : Array[String]
   names : Array[String]
-  n_codons : Int // number of codon columns (including gap columns)
+  n_codons : Int32 // number of codon columns (including gap columns)
 } derive(Debug)
+
+///|
+pub extend CodonAlignment with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub fn CodonAlignment::sequences(self : CodonAlignment) -> Array[String] {
@@ -513,7 +541,7 @@ pub fn CodonAlignment::names(self : CodonAlignment) -> Array[String] {
 }
 
 ///|
-pub fn CodonAlignment::n_codons(self : CodonAlignment) -> Int {
+pub fn CodonAlignment::n_codons(self : CodonAlignment) -> Int32 {
   self.n_codons
 }
 
@@ -531,7 +559,7 @@ pub fn CodonAlignment::n_codons(self : CodonAlignment) -> Int {
 pub fn build_codon_alignment(
   protein_aln : Array[String],
   nucleotide_seqs : Array[String],
-  names? : Array[String] = [],
+  names~ : Array[String] = [],
 ) -> CodonAlignment raise CodonAlignAdvancedError {
   let n_seqs = protein_aln.length()
   if n_seqs == 0 {
@@ -543,7 +571,9 @@ pub fn build_codon_alignment(
   let aln_len = protein_aln[0].length()
   for i in 0..<n_seqs {
     if protein_aln[i].length() != aln_len {
-      caa_fail("CodonAlign advanced builder: protein alignment rows have different lengths")
+      caa_fail(
+        "CodonAlign advanced builder: protein alignment rows have different lengths",
+      )
     }
   }
   let seq_names : Array[String] = []
@@ -609,7 +639,7 @@ pub fn build_codon_alignment(
     }
     aligned.push(codon_seq)
   }
-  CodonAlignment::{ sequences: aligned, names: seq_names, n_codons: aln_len }
+  CodonAlignment::{ sequences: aligned, names: seq_names, n_codons: aln_len, }
 }
 
 // ===========================================================================
@@ -619,21 +649,24 @@ pub fn build_codon_alignment(
 ///|
 /// One window of a sliding-window dN/dS scan.
 pub struct WindowDnDs {
-  start_codon : Int // 0-based start codon index
-  end_codon : Int // 0-based end codon index (exclusive)
+  start_codon : Int32 // 0-based start codon index
+  end_codon : Int32 // 0-based end codon index (exclusive)
   dn : Double
   ds : Double
   dnds : Double
-  n_codons : Int // number of valid codon pairs in the window
+  n_codons : Int32 // number of valid codon pairs in the window
 } derive(Debug)
 
 ///|
-pub fn WindowDnDs::start_codon(self : WindowDnDs) -> Int {
+pub extend WindowDnDs with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub fn WindowDnDs::start_codon(self : WindowDnDs) -> Int32 {
   self.start_codon
 }
 
 ///|
-pub fn WindowDnDs::end_codon(self : WindowDnDs) -> Int {
+pub fn WindowDnDs::end_codon(self : WindowDnDs) -> Int32 {
   self.end_codon
 }
 
@@ -653,7 +686,7 @@ pub fn WindowDnDs::dnds(self : WindowDnDs) -> Double {
 }
 
 ///|
-pub fn WindowDnDs::n_codons(self : WindowDnDs) -> Int {
+pub fn WindowDnDs::n_codons(self : WindowDnDs) -> Int32 {
   self.n_codons
 }
 
@@ -664,7 +697,12 @@ pub struct SlidingWindowResult {
 } derive(Debug)
 
 ///|
-pub fn SlidingWindowResult::windows(self : SlidingWindowResult) -> Array[WindowDnDs] {
+pub extend SlidingWindowResult with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub fn SlidingWindowResult::windows(
+  self : SlidingWindowResult,
+) -> Array[WindowDnDs] {
   self.windows
 }
 
@@ -677,8 +715,8 @@ pub fn SlidingWindowResult::windows(self : SlidingWindowResult) -> Array[WindowD
 pub fn sliding_window_dnds(
   seq1 : String,
   seq2 : String,
-  window_size? : Int = 10,
-  step_size? : Int = 5,
+  window_size~ : Int32 = 10,
+  step_size~ : Int32 = 5,
 ) -> SlidingWindowResult raise CodonAlignAdvancedError {
   if window_size < 3 {
     caa_fail("CodonAlign advanced sliding window requires window_size >= 3")
@@ -689,7 +727,9 @@ pub fn sliding_window_dnds(
   let len1 = seq1.length()
   let len2 = seq2.length()
   if len1 != len2 || len1 % 3 != 0 {
-    caa_fail("CodonAlign advanced sliding window requires equal codon-aligned sequences")
+    caa_fail(
+      "CodonAlign advanced sliding window requires equal codon-aligned sequences",
+    )
   }
   let n_codons_total = len1 / 3
   let windows : Array[WindowDnDs] = []
@@ -719,20 +759,18 @@ pub fn sliding_window_dnds(
       } else {
         comps.dn / comps.ds
       }
-      windows.push(
-        WindowDnDs::{
-          start_codon: start,
-          end_codon: end,
-          dn: comps.dn,
-          ds: comps.ds,
-          dnds,
-          n_codons: comps.n_codons,
-        },
-      )
+      windows.push(WindowDnDs::{
+        start_codon: start,
+        end_codon: end,
+        dn: comps.dn,
+        ds: comps.ds,
+        dnds,
+        n_codons: comps.n_codons,
+      })
     }
     start = start + step_size
   }
-  SlidingWindowResult::{ windows }
+  SlidingWindowResult::{ windows, }
 }
 
 // ===========================================================================
@@ -747,19 +785,13 @@ pub fn codon_align_advanced_bh_fdr(p_values : Array[Double]) -> Array[Double] {
   if count == 0 {
     return output
   }
-  let indexed : Array[(Double, Int)] = []
+  let indexed : Array[(Double, Int32)] = []
   for index in 0..<count {
     let pv = p_values[index]
-    let clamped = if pv < 0.0 {
-      0.0
-    } else if pv > 1.0 {
-      1.0
-    } else {
-      pv
-    }
+    let clamped = if pv < 0.0 { 0.0 } else if pv > 1.0 { 1.0 } else { pv }
     indexed.push((clamped, index))
   }
-  indexed.sort_by(fn(left : (Double, Int), right : (Double, Int)) -> Int {
+  indexed.sort_by(fn(left : (Double, Int32), right : (Double, Int32)) -> Int32 {
     if left.0 < right.0 {
       -1
     } else if left.0 > right.0 {
@@ -798,6 +830,9 @@ pub struct KaksTableRow {
   fdr : Double
   conclusion : String
 } derive(Debug)
+
+///|
+pub extend KaksTableRow with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub fn KaksTableRow::seq1_name(self : KaksTableRow) -> String {
@@ -853,8 +888,8 @@ pub fn KaksTableRow::conclusion(self : KaksTableRow) -> String {
 /// `fdr_threshold` (default 0.05) determines the "significant" conclusion.
 pub fn pairwise_kaks_table(
   sequences : Array[String],
-  names? : Array[String] = [],
-  fdr_threshold? : Double = 0.05,
+  names~ : Array[String] = [],
+  fdr_threshold~ : Double = 0.05,
 ) -> Array[KaksTableRow] raise CodonAlignAdvancedError {
   let n = sequences.length()
   if n < 2 {
@@ -871,7 +906,7 @@ pub fn pairwise_kaks_table(
     }
   }
   // Collect raw results and p-values.
-  let raw : Array[(Int, Int, SelectionTestResult)] = []
+  let raw : Array[(Int32, Int32, SelectionTestResult)] = []
   let p_values : Array[Double] = []
   let mut i = 0
   while i < n {
@@ -898,19 +933,17 @@ pub fn pairwise_kaks_table(
     } else {
       "not significant"
     }
-    rows.push(
-      KaksTableRow::{
-        seq1_name: seq_names[si],
-        seq2_name: seq_names[sj],
-        dn: result.dn,
-        ds: result.ds,
-        dnds: result.dnds,
-        z_score: result.z_score,
-        p_value: result.p_value,
-        fdr: f,
-        conclusion,
-      },
-    )
+    rows.push(KaksTableRow::{
+      seq1_name: seq_names[si],
+      seq2_name: seq_names[sj],
+      dn: result.dn,
+      ds: result.ds,
+      dnds: result.dnds,
+      z_score: result.z_score,
+      p_value: result.p_value,
+      fdr: f,
+      conclusion,
+    })
   }
   rows
 }
@@ -925,9 +958,7 @@ pub fn create_purifying_selection_alignment() -> Array[String] {
   // 9-codon (27 nt) sequences: M-A-L-K-W-Q-Q-P-W
   // Only synonymous codon switches across the variants.
   [
-    "ATGGCCCTGAAATGGCAGCAGCCATGG",
-    "ATGGCGCTCAAATGGCAGCAGCCATGG",
-    "ATGGCCCTGAAATGGCAGCAGCGATGG",
+    "ATGGCCCTGAAATGGCAGCAGCCATGG", "ATGGCGCTCAAATGGCAGCAGCCATGG", "ATGGCCCTGAAATGGCAGCAGCGATGG",
     "ATGGCCCTCAAATGGCAGCAGCCATGG",
   ]
 }
@@ -939,15 +970,9 @@ pub fn create_positive_selection_alignment() -> Array[String] {
   // Seq1: M A L K W Q Q P W
   // Seq2: M G L E R H P S M  (7 nonsyn, 2 syn)
   [
-    "ATGGCCCTGAAATGGCAGCAGCCATGG",
-    "ATGGGTCTGGAGAGACACCCCAGCATG",
-    "ATGGCCCTGAAATGGCAGCAGCCATGG",
-    "ATGGGTCTGGAGAGACACCCCAGCATG",
-    "ATGGCCCTGAAATGGCAGCAGCCATGG",
-    "ATGGGTCTGGAGAGACACCCCAGCATG",
-    "ATGGCCCTGAAATGGCAGCAGCCATGG",
-    "ATGGGTCTGGAGAGACACCCCAGCATG",
-    "ATGGCCCTGAAATGGCAGCAGCCATGG",
+    "ATGGCCCTGAAATGGCAGCAGCCATGG", "ATGGGTCTGGAGAGACACCCCAGCATG", "ATGGCCCTGAAATGGCAGCAGCCATGG",
+    "ATGGGTCTGGAGAGACACCCCAGCATG", "ATGGCCCTGAAATGGCAGCAGCCATGG", "ATGGGTCTGGAGAGACACCCCAGCATG",
+    "ATGGCCCTGAAATGGCAGCAGCCATGG", "ATGGGTCTGGAGAGACACCCCAGCATG", "ATGGCCCTGAAATGGCAGCAGCCATGG",
     "ATGGGTCTGGAGAGACACCCCAGCATG",
   ]
 }
@@ -959,8 +984,8 @@ pub fn create_demo_protein_alignment() -> (Array[String], Array[String]) {
   let protein_aln = ["M-A-K", "MTASK", "M-ASK"]
   let coding_seqs = [
     "ATGGCCAAG", // M-A-K → 3 codons (gaps at positions 2, 4)
-    "ATGACCGCCAGCAAG", // MTASK → 5 codons
-    "ATGGCCAGCAAG", // M-ASK → 4 codons (gap at position 2)
+     "ATGACCGCCAGCAAG", // MTASK → 5 codons
+     "ATGGCCAGCAAG", // M-ASK → 4 codons (gap at position 2)
   ]
   (protein_aln, coding_seqs)
 }

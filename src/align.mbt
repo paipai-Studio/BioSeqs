@@ -19,18 +19,21 @@ pub suberror AlignIOError {
 /// All sequences in the alignment must have the same length. Can be accessed
 /// like an array of SeqRecords.
 pub struct MultipleSeqAlignment {
-  pub records : Array[SeqRecord]
-  pub annotations : Map[String, String]
-  pub column_annotations : Map[String, Array[String]]
+  records : Array[SeqRecord]
+  annotations : Map[String, String]
+  column_annotations : Map[String, Array[String]]
 } derive(Eq)
+
+///|
+pub extend MultipleSeqAlignment with Eq::{equal, not_equal}
 
 ///|
 /// Create a new MultipleSeqAlignment from an array of SeqRecords.
 /// All sequences must have the same length.
 pub fn MultipleSeqAlignment::new(
   records : Array[SeqRecord],
-  annotations? : Map[String, String] = Map([], capacity=0),
-  column_annotations? : Map[String, Array[String]] = Map([], capacity=0),
+  annotations~ : Map[String, String] = Map([], capacity=0),
+  column_annotations~ : Map[String, Array[String]] = Map([], capacity=0),
 ) -> MultipleSeqAlignment raise AlignIOError {
   if records.length() > 0 {
     let first_len = records[0].length()
@@ -42,12 +45,12 @@ pub fn MultipleSeqAlignment::new(
       }
     }
   }
-  MultipleSeqAlignment::{ records, annotations, column_annotations }
+  MultipleSeqAlignment::{ records, annotations, column_annotations, }
 }
 
 ///|
 /// Return the number of sequences (rows) in the alignment.
-pub fn MultipleSeqAlignment::num_records(self : MultipleSeqAlignment) -> Int {
+pub fn MultipleSeqAlignment::num_records(self : MultipleSeqAlignment) -> Int32 {
   self.records.length()
 }
 
@@ -55,7 +58,7 @@ pub fn MultipleSeqAlignment::num_records(self : MultipleSeqAlignment) -> Int {
 /// Return the number of columns in the alignment.
 pub fn MultipleSeqAlignment::get_alignment_length(
   self : MultipleSeqAlignment,
-) -> Int {
+) -> Int32 {
   if self.records.length() == 0 {
     0
   } else {
@@ -67,7 +70,7 @@ pub fn MultipleSeqAlignment::get_alignment_length(
 /// Access the SeqRecord at index `i`.
 pub fn MultipleSeqAlignment::get(
   self : MultipleSeqAlignment,
-  i : Int,
+  i : Int32,
 ) -> SeqRecord? {
   if i >= 0 && i < self.records.length() {
     Some(self.records[i])
@@ -80,7 +83,7 @@ pub fn MultipleSeqAlignment::get(
 /// Get the column at position `col` as a String.
 pub fn MultipleSeqAlignment::column(
   self : MultipleSeqAlignment,
-  col : Int,
+  col : Int32,
 ) -> String? {
   if self.records.length() == 0 {
     return None
@@ -88,7 +91,7 @@ pub fn MultipleSeqAlignment::column(
   if col < 0 || col >= self.get_alignment_length() {
     return None
   }
-  let buf = StringBuilder::new(size_hint=self.records.length())
+  let buf = StringBuilder(size_hint=self.records.length())
   for rec in self.records {
     match rec.seq.get_char(col) {
       Some(c) => buf.write_char(c)
@@ -103,10 +106,10 @@ pub fn MultipleSeqAlignment::column(
 /// Returns a new MultipleSeqAlignment with the specified rows and columns.
 pub fn MultipleSeqAlignment::slice(
   self : MultipleSeqAlignment,
-  row_start? : Int = 0,
-  row_end? : Int = -1,
-  col_start? : Int = 0,
-  col_end? : Int = -1,
+  row_start~ : Int32 = 0,
+  row_end~ : Int32 = -1,
+  col_start~ : Int32 = 0,
+  col_end~ : Int32 = -1,
 ) -> MultipleSeqAlignment {
   let n_rows = self.records.length()
   let n_cols = self.get_alignment_length()
@@ -141,11 +144,11 @@ pub fn MultipleSeqAlignment::slice(
     col_end
   }
 
-  let new_records = Array::new()
+  let new_records = Array(capacity=0)
   for i = rs; i < re; i = i + 1 {
     let rec = self.records[i]
     let sliced_seq = rec.seq.slice(start=cs, end=ce)
-    let new_rec = SeqRecord::{ ..rec, seq: sliced_seq }
+    let new_rec = SeqRecord::{ ..rec, seq: sliced_seq, }
     new_records.push(new_rec)
   }
 
@@ -166,18 +169,18 @@ pub fn MultipleSeqAlignment::add_sequence(
   if align_len > 0 && seq.length() != align_len {
     raise AlignIOError("Sequence length does not match alignment length")
   }
-  let new_records = Array::new()
+  let new_records = Array(capacity=0)
   for r in self.records {
     new_records.push(r)
   }
   new_records.push(seq)
-  MultipleSeqAlignment::{ ..self, records: new_records }
+  MultipleSeqAlignment::{ ..self, records: new_records, }
 }
 
 ///|
 /// Convert the alignment to a string representation (similar to BioPython's __str__).
 pub fn MultipleSeqAlignment::repr(self : MultipleSeqAlignment) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   let n_records = self.records.length()
   let n_cols = self.get_alignment_length()
   buf.write_string("Alignment with ")

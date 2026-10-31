@@ -40,7 +40,7 @@ pub fn tx2gene_new(
   gene_id : String,
   gene_name : String,
 ) -> Tx2Gene {
-  Tx2Gene::{ tx_id, gene_id, gene_name }
+  Tx2Gene::{ tx_id, gene_id, gene_name, }
 }
 
 ///|
@@ -49,15 +49,15 @@ pub fn parse_quant_sf(
 ) -> (Array[String], Array[Double], Array[Double], Array[Double]) {
   let lines = split_by_char(content, '\n'.to_int())
 
-  let tx_names : Array[String] = Array::new()
-  let abundance : Array[Double] = Array::new()
-  let counts : Array[Double] = Array::new()
-  let length : Array[Double] = Array::new()
+  let tx_names : Array[String] = Array(capacity=0)
+  let abundance : Array[Double] = Array(capacity=0)
+  let counts : Array[Double] = Array(capacity=0)
+  let length : Array[Double] = Array(capacity=0)
 
   let mut i = 0
   while i < lines.length() {
     let line = lines[i]
-    if line.length() == 0 || line.starts_with("#") {
+    if line.length() == 0 || line.has_prefix("#") {
       i = i + 1
       continue
     }
@@ -98,12 +98,12 @@ pub fn tx_import(
   tx2gene : Array[Tx2Gene],
   ignore_tx_version : Bool,
 ) -> TxImportData {
-  let mut all_tx_names : Array[String] = Array::new()
-  let all_abundance : Array[Array[Double]] = Array::new()
-  let all_counts : Array[Array[Double]] = Array::new()
-  let all_length : Array[Array[Double]] = Array::new()
+  let mut all_tx_names : Array[String] = Array(capacity=0)
+  let all_abundance : Array[Array[Double]] = Array(capacity=0)
+  let all_counts : Array[Array[Double]] = Array(capacity=0)
+  let all_length : Array[Array[Double]] = Array(capacity=0)
 
-  let sample_names : Array[String] = Array::new()
+  let sample_names : Array[String] = Array(capacity=0)
 
   let mut i = 0
   while i < files.length() {
@@ -140,10 +140,10 @@ fn extract_sample_name(content : String) -> String {
   let lines = split_by_char(content, '\n'.to_int())
   if lines.length() > 0 {
     let first_line = lines[0]
-    if first_line.starts_with("#") {
+    if first_line.has_prefix("#") {
       let idx = first_line.find(":")
-      if idx.is_some() {
-        return first_line[idx.unwrap() + 1:].to_string()
+      if idx is Some(_) {
+        return first_line[idx.unwrap() + 1:].to_owned()
       }
     }
   }
@@ -170,7 +170,7 @@ fn map_tx_to_gene(
     i = i + 1
   }
 
-  let gene_names : Array[String] = Array::new()
+  let gene_names : Array[String] = Array(capacity=0)
   i = 0
   while i < tx_names.length() {
     let tx = if ignore_tx_version {
@@ -192,8 +192,8 @@ fn map_tx_to_gene(
 ///|
 fn remove_tx_version(tx_id : String) -> String {
   let idx = tx_id.find(".")
-  if idx.is_some() {
-    tx_id[0:idx.unwrap()].to_string()
+  if idx is Some(_) {
+    tx_id[0:idx.unwrap()].to_owned()
   } else {
     tx_id
   }
@@ -205,7 +205,7 @@ pub fn summarize_to_gene(
   tx2gene : Array[Tx2Gene],
   ignore_tx_version : Bool,
 ) -> TxImportData {
-  let gene_to_tx : Map[String, Array[Int]] = Map([], capacity=100)
+  let gene_to_tx : Map[String, Array[Int32]] = Map([], capacity=100)
 
   let mut i = 0
   while i < txi.tx_names.length() {
@@ -242,15 +242,15 @@ pub fn summarize_to_gene(
   let ngene = gene_list.length()
   let nsample = txi.sample_names.length()
 
-  let gene_abundance : Array[Array[Double]] = Array::new()
-  let gene_counts : Array[Array[Double]] = Array::new()
-  let gene_length : Array[Array[Double]] = Array::new()
+  let gene_abundance : Array[Array[Double]] = Array(capacity=0)
+  let gene_counts : Array[Array[Double]] = Array(capacity=0)
+  let gene_length : Array[Array[Double]] = Array(capacity=0)
 
   let mut k = 0
   while k < nsample {
-    let row_ab : Array[Double] = Array::new()
-    let row_ct : Array[Double] = Array::new()
-    let row_len : Array[Double] = Array::new()
+    let row_ab : Array[Double] = Array(capacity=0)
+    let row_ct : Array[Double] = Array(capacity=0)
+    let row_len : Array[Double] = Array(capacity=0)
     let mut g = 0
     while g < ngene {
       row_ab.push(0.0)
@@ -367,7 +367,7 @@ pub fn tx_import_data_summary(txi : TxImportData) -> String {
 }
 
 ///|
-fn count_unique(arr : Array[String]) -> Int {
+fn count_unique(arr : Array[String]) -> Int32 {
   let seen : Map[String, Bool] = Map([], capacity=arr.length())
   let mut count = 0
   let mut i = 0
@@ -389,7 +389,7 @@ pub fn tx_import_filter_low_expression(
   let nsample = txi.counts.length()
   let ntx = if nsample > 0 { txi.counts[0].length() } else { 0 }
 
-  let keep_tx : Array[Int] = Array::new()
+  let keep_tx : Array[Int32] = Array(capacity=0)
   let mut i = 0
   while i < ntx {
     let mut total = 0.0
@@ -406,17 +406,17 @@ pub fn tx_import_filter_low_expression(
     i = i + 1
   }
 
-  let new_abundance : Array[Array[Double]] = Array::new()
-  let new_counts : Array[Array[Double]] = Array::new()
-  let new_length : Array[Array[Double]] = Array::new()
-  let new_tx_names : Array[String] = Array::new()
-  let new_gene_names : Array[String] = Array::new()
+  let new_abundance : Array[Array[Double]] = Array(capacity=0)
+  let new_counts : Array[Array[Double]] = Array(capacity=0)
+  let new_length : Array[Array[Double]] = Array(capacity=0)
+  let new_tx_names : Array[String] = Array(capacity=0)
+  let new_gene_names : Array[String] = Array(capacity=0)
 
   let mut k = 0
   while k < nsample {
-    let row_ab : Array[Double] = Array::new()
-    let row_ct : Array[Double] = Array::new()
-    let row_len : Array[Double] = Array::new()
+    let row_ab : Array[Double] = Array(capacity=0)
+    let row_ct : Array[Double] = Array(capacity=0)
+    let row_len : Array[Double] = Array(capacity=0)
 
     let mut j = 0
     while j < keep_tx.length() {

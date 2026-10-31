@@ -10,12 +10,12 @@ pub struct SpatialCoord {
 
 ///|
 pub fn SpatialCoord::new(x : Double, y : Double, z : Double) -> SpatialCoord {
-  SpatialCoord::{ x, y, z }
+  SpatialCoord::{ x, y, z, }
 }
 
 ///|
 pub fn SpatialCoord::new_2d(x : Double, y : Double) -> SpatialCoord {
-  SpatialCoord::{ x, y, z: 0.0 }
+  SpatialCoord::{ x, y, z: 0.0, }
 }
 
 ///|
@@ -31,7 +31,7 @@ pub fn SpatialImage::new(
   data : Array[Array[Double]],
   scale_factor : Double,
 ) -> SpatialImage {
-  SpatialImage::{ id, data, scale_factor }
+  SpatialImage::{ id, data, scale_factor, }
 }
 
 ///|
@@ -48,10 +48,10 @@ pub struct SpatialExperiment {
 pub fn SpatialExperiment::new() -> SpatialExperiment {
   SpatialExperiment::{
     assay: Map([], capacity=0),
-    row_data: Array::new(),
-    col_data: Array::new(),
-    spatial_coords: Array::new(),
-    images: Array::new(),
+    row_data: Array(capacity=0),
+    col_data: Array(capacity=0),
+    spatial_coords: Array(capacity=0),
+    images: Array(capacity=0),
     metadata: Map([], capacity=0),
   }
 }
@@ -94,15 +94,6 @@ pub fn se_add_spatial_coord(
 }
 
 ///|
-pub fn se_add_image(
-  se : SpatialExperiment,
-  image : SpatialImage,
-) -> SpatialExperiment {
-  se.images.push(image)
-  se
-}
-
-///|
 pub fn se_set_metadata(
   se : SpatialExperiment,
   key : String,
@@ -113,18 +104,18 @@ pub fn se_set_metadata(
 }
 
 ///|
-pub fn se_num_rows(se : SpatialExperiment) -> Int {
+pub fn se_num_rows(se : SpatialExperiment) -> Int32 {
   se.row_data.length()
 }
 
 ///|
-pub fn se_num_cols(se : SpatialExperiment) -> Int {
+pub fn se_num_cols(se : SpatialExperiment) -> Int32 {
   se.col_data.length()
 }
 
 ///|
-pub fn se_num_assays(se : SpatialExperiment) -> Int {
-  se.assay.keys().length()
+pub fn se_num_assays(se : SpatialExperiment) -> Int32 {
+  se.assay.keys().count()
 }
 
 ///|
@@ -243,7 +234,7 @@ pub fn create_example_spatial_experiment() -> SpatialExperiment {
   se.spatial_coords.push(SpatialCoord::new_2d(300.0, 250.0))
   se.spatial_coords.push(SpatialCoord::new_2d(350.0, 150.0))
 
-  let image_data : Array[Array[Double]] = Array::new()
+  let image_data : Array[Array[Double]] = Array(capacity=0)
   let image = SpatialImage::new("HE", image_data, 0.1)
   se.images.push(image)
 

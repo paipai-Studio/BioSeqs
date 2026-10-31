@@ -33,20 +33,24 @@ fn main {
   let with_gc = @src.tgr_mutate(gr, "gc_content", [0.45, 0.62, 0.38, 0.71, 0.52])
   println("Added gc_content metadata")
 
-  let with_gene = @src.tgr_mutate_str(with_gc, "gene_name", ["BRCA1", "TP53", "EGFR", "MYC", "KRAS"])
+  let with_gene = @src.tgr_mutate_str(with_gc, "gene_name", [
+    "BRCA1", "TP53", "EGFR", "MYC", "KRAS",
+  ])
   println("Added gene_name metadata")
 
   // Arrange by start position
   let arranged = @src.tgr_arrange(with_gene)
   println("Arranged by start position")
-  println("First start: \{arranged.starts[0]}, Last start: \{arranged.starts[arranged.starts.length() - 1]}")
+  println(
+    "First start: \{arranged.starts[0]}, Last start: \{arranged.starts[arranged.starts.length() - 1]}",
+  )
 
   // Select columns
   let selected = @src.tgr_select(arranged, ["gc_content", "gene_name"])
   println("Selected metadata columns")
 
   // Rename
-  let renamed = @src.tgr_rename(selected, "gc_content", "GC")
+  let _renamed = @src.tgr_rename(selected, "gc_content", "GC")
   println("Renamed gc_content to GC")
 
   // Summary

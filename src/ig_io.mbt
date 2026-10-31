@@ -39,7 +39,7 @@ pub fn IgRecord::new(
   comment : String,
   sequence : String,
 ) -> IgRecord {
-  IgRecord::{ title, comment, sequence }
+  IgRecord::{ title, comment, sequence, }
 }
 
 ///|
@@ -80,14 +80,14 @@ pub fn IgRecord::description(self : IgRecord) -> String {
 
 ///|
 /// Sequence length in nucleotides / amino acids.
-pub fn IgRecord::length(self : IgRecord) -> Int {
+pub fn IgRecord::length(self : IgRecord) -> Int32 {
   self.sequence.length()
 }
 
 ///|
 /// Human-readable representation of this record.
 pub fn IgRecord::to_string(self : IgRecord) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string("IgRecord(id=")
   buf.write_string(self.title)
   buf.write_string(", length=")
@@ -179,7 +179,7 @@ fn ig_strip(s : String) -> String {
 /// Remove all whitespace from a string (used for sequence lines).
 fn ig_remove_whitespace(s : String) -> String {
   let n = s.length()
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   let sp = ig_char_code(' ')
   let tab = ig_char_code('\t')
   let cr = ig_char_code('\r')
@@ -204,10 +204,10 @@ fn ig_remove_whitespace(s : String) -> String {
 /// - Subsequent lines until the next ";" (or EOF) are sequence lines.
 ///   Whitespace is removed. A trailing "1" terminator is stripped.
 pub fn ig_parse(content : String) -> Array[IgRecord] {
-  let records = Array::new()
+  let records = Array(capacity=0)
   let raw_lines = content.split("\n").to_array()
   // Materialize lines as owned strings up-front for simpler downstream use.
-  let lines : Array[String] = Array::new()
+  let lines : Array[String] = Array(capacity=0)
   for i in 0..<raw_lines.length() {
     lines.push(raw_lines[i].to_owned())
   }
@@ -241,7 +241,7 @@ pub fn ig_parse(content : String) -> Array[IgRecord] {
       continue
     }
     // Collect comment lines.
-    let comment_parts : Array[String] = Array::new()
+    let comment_parts : Array[String] = Array(capacity=0)
     while idx < n_lines {
       let line2 = ig_strip_cr(lines[idx])
       if ig_starts_with(line2, semi) {
@@ -275,7 +275,7 @@ pub fn ig_parse(content : String) -> Array[IgRecord] {
       break
     }
     // Collect sequence lines until the next ";" or EOF.
-    let seq_buf = StringBuilder::new()
+    let seq_buf = StringBuilder()
     let mut hit_next_record = false
     while idx < n_lines {
       let line2 = ig_strip_cr(lines[idx])
@@ -314,7 +314,7 @@ fn ig_join_lines(parts : Array[String]) -> String {
   while end > 0 && parts[end - 1].length() == 0 {
     end = end - 1
   }
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   for i = 0; i < end; i = i + 1 {
     if i > 0 {
       buf.write_char('\n')
@@ -330,7 +330,7 @@ fn ig_join_lines(parts : Array[String]) -> String {
 
 ///|
 /// Default line width for wrapping IntelliGenetics sequence output.
-let ig_line_width : Int = 60
+let ig_line_width : Int32 = 60
 
 ///|
 /// Render an `IgRecord` to IntelliGenetics text (without a trailing blank line).
@@ -349,8 +349,8 @@ pub fn ig_record_to_string(record : IgRecord) -> String {
 ///|
 /// Render an `IgRecord` with a custom sequence line width. A width <= 0
 /// disables wrapping (the sequence is emitted on a single line).
-pub fn ig_record_to_string_width(record : IgRecord, width : Int) -> String {
-  let buf = StringBuilder::new()
+pub fn ig_record_to_string_width(record : IgRecord, width : Int32) -> String {
+  let buf = StringBuilder()
   // Comment lines.
   if record.comment.length() > 0 {
     let parts = record.comment.split("\n").to_array()
@@ -402,7 +402,7 @@ pub fn ig_records_to_string(
   records : Array[IgRecord],
   file_header : Array[String]?,
 ) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   // Optional file header.
   match file_header {
     Some(hs) =>
@@ -453,7 +453,7 @@ pub fn ig_to_seq_record(record : IgRecord) -> SeqRecord {
 ///|
 /// Convert an array of `IgRecord` objects to an array of `SeqRecord` objects.
 pub fn ig_to_seq_records(records : Array[IgRecord]) -> Array[SeqRecord] {
-  let out = Array::new()
+  let out = Array(capacity=0)
   for i in 0..<records.length() {
     out.push(ig_to_seq_record(records[i]))
   }
@@ -479,7 +479,7 @@ pub fn ig_from_seq_record(record : SeqRecord) -> IgRecord {
 ///|
 /// Convert an array of `SeqRecord` objects to an array of `IgRecord` objects.
 pub fn ig_from_seq_records(records : Array[SeqRecord]) -> Array[IgRecord] {
-  let out = Array::new()
+  let out = Array(capacity=0)
   for i in 0..<records.length() {
     out.push(ig_from_seq_record(records[i]))
   }

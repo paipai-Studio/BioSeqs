@@ -22,17 +22,17 @@ pub struct QfAssay {
   row_names : Array[String]
   col_names : Array[String]
   data : Array[Array[Double]]
-  n_rows : Int
-  n_cols : Int
+  n_rows : Int32
+  n_cols : Int32
 }
 
 ///|
 /// A link between two features across assay levels.
 pub struct QfFeatureLink {
   from_assay : String
-  from_row : Int
+  from_row : Int32
   to_assay : String
-  to_row : Int
+  to_row : Int32
 }
 
 ///|
@@ -46,7 +46,7 @@ pub struct QfFeatureLinks {
 pub struct QFeatures {
   assays : Array[QfAssay]
   links : QfFeatureLinks
-  mut n_assays : Int
+  mut n_assays : Int32
 }
 
 // ============================================================================
@@ -63,22 +63,22 @@ pub fn QfAssay::new(
 ) -> QfAssay {
   let nr = data.length()
   let nc = if nr > 0 { data[0].length() } else { 0 }
-  QfAssay::{ name, row_names, col_names, data, n_rows: nr, n_cols: nc }
+  QfAssay::{ name, row_names, col_names, data, n_rows: nr, n_cols: nc, }
 }
 
 ///|
 /// Construct a QfAssay filled with zeros.
-pub fn QfAssay::zeros(name : String, n_rows : Int, n_cols : Int) -> QfAssay {
-  let data : Array[Array[Double]] = Array::new()
+pub fn QfAssay::zeros(name : String, n_rows : Int32, n_cols : Int32) -> QfAssay {
+  let data : Array[Array[Double]] = Array(capacity=0)
   for _ in 0..<n_rows {
     let row : Array[Double] = Array::make(n_cols, 0.0)
     data.push(row)
   }
-  let row_names : Array[String] = Array::new()
+  let row_names : Array[String] = Array(capacity=0)
   for i in 0..<n_rows {
     row_names.push("row\{i}")
   }
-  let col_names : Array[String] = Array::new()
+  let col_names : Array[String] = Array(capacity=0)
   for j in 0..<n_cols {
     col_names.push("col\{j}")
   }
@@ -111,32 +111,32 @@ pub fn QfAssay::data(self : QfAssay) -> Array[Array[Double]] {
 
 ///|
 /// Get number of rows.
-pub fn QfAssay::n_rows(self : QfAssay) -> Int {
+pub fn QfAssay::n_rows(self : QfAssay) -> Int32 {
   self.n_rows
 }
 
 ///|
 /// Get number of columns.
-pub fn QfAssay::n_cols(self : QfAssay) -> Int {
+pub fn QfAssay::n_cols(self : QfAssay) -> Int32 {
   self.n_cols
 }
 
 ///|
 /// Get value at row i, column j.
-pub fn QfAssay::get(self : QfAssay, i : Int, j : Int) -> Double {
+pub fn QfAssay::get(self : QfAssay, i : Int32, j : Int32) -> Double {
   self.data[i][j]
 }
 
 ///|
 /// Set value at row i, column j.
-pub fn QfAssay::set(self : QfAssay, i : Int, j : Int, val : Double) -> Unit {
+pub fn QfAssay::set(self : QfAssay, i : Int32, j : Int32, val : Double) -> Unit {
   self.data[i][j] = val
 }
 
 ///|
 /// Get a copy of row i.
-pub fn QfAssay::get_row(self : QfAssay, i : Int) -> Array[Double] {
-  let row : Array[Double] = Array::new()
+pub fn QfAssay::get_row(self : QfAssay, i : Int32) -> Array[Double] {
+  let row : Array[Double] = Array(capacity=0)
   for j in 0..<self.n_cols {
     row.push(self.data[i][j])
   }
@@ -145,8 +145,8 @@ pub fn QfAssay::get_row(self : QfAssay, i : Int) -> Array[Double] {
 
 ///|
 /// Get a copy of column j.
-pub fn QfAssay::get_col(self : QfAssay, j : Int) -> Array[Double] {
-  let col : Array[Double] = Array::new()
+pub fn QfAssay::get_col(self : QfAssay, j : Int32) -> Array[Double] {
+  let col : Array[Double] = Array(capacity=0)
   for i in 0..<self.n_rows {
     col.push(self.data[i][j])
   }
@@ -156,7 +156,7 @@ pub fn QfAssay::get_col(self : QfAssay, j : Int) -> Array[Double] {
 ///|
 /// Compute mean of each row (skipping NaN values).
 pub fn QfAssay::row_means(self : QfAssay) -> Array[Double] {
-  let means : Array[Double] = Array::new()
+  let means : Array[Double] = Array(capacity=0)
   for i in 0..<self.n_rows {
     let mut s = 0.0
     let mut c = 0
@@ -179,7 +179,7 @@ pub fn QfAssay::row_means(self : QfAssay) -> Array[Double] {
 ///|
 /// Compute mean of each column (skipping NaN values).
 pub fn QfAssay::col_means(self : QfAssay) -> Array[Double] {
-  let means : Array[Double] = Array::new()
+  let means : Array[Double] = Array(capacity=0)
   for j in 0..<self.n_cols {
     let mut s = 0.0
     let mut c = 0
@@ -202,7 +202,7 @@ pub fn QfAssay::col_means(self : QfAssay) -> Array[Double] {
 ///|
 /// Compute sum of each row (skipping NaN values).
 pub fn QfAssay::row_sums(self : QfAssay) -> Array[Double] {
-  let sums : Array[Double] = Array::new()
+  let sums : Array[Double] = Array(capacity=0)
   for i in 0..<self.n_rows {
     let mut s = 0.0
     for j in 0..<self.n_cols {
@@ -219,7 +219,7 @@ pub fn QfAssay::row_sums(self : QfAssay) -> Array[Double] {
 ///|
 /// Compute sum of each column (skipping NaN values).
 pub fn QfAssay::col_sums(self : QfAssay) -> Array[Double] {
-  let sums : Array[Double] = Array::new()
+  let sums : Array[Double] = Array(capacity=0)
   for j in 0..<self.n_cols {
     let mut s = 0.0
     for i in 0..<self.n_rows {
@@ -236,7 +236,7 @@ pub fn QfAssay::col_sums(self : QfAssay) -> Array[Double] {
 ///|
 /// String representation of the assay.
 pub fn QfAssay::to_string(self : QfAssay) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string(
     "QfAssay '\{self.name}': \{self.n_rows} rows x \{self.n_cols} cols",
   )
@@ -254,11 +254,11 @@ pub fn QfAssay::to_string(self : QfAssay) -> String {
 /// Construct a feature link.
 pub fn QfFeatureLink::new(
   from_assay : String,
-  from_row : Int,
+  from_row : Int32,
   to_assay : String,
-  to_row : Int,
+  to_row : Int32,
 ) -> QfFeatureLink {
-  QfFeatureLink::{ from_assay, from_row, to_assay, to_row }
+  QfFeatureLink::{ from_assay, from_row, to_assay, to_row, }
 }
 
 ///|
@@ -269,7 +269,7 @@ pub fn QfFeatureLink::from_assay(self : QfFeatureLink) -> String {
 
 ///|
 /// Get source row index.
-pub fn QfFeatureLink::from_row(self : QfFeatureLink) -> Int {
+pub fn QfFeatureLink::from_row(self : QfFeatureLink) -> Int32 {
   self.from_row
 }
 
@@ -281,7 +281,7 @@ pub fn QfFeatureLink::to_assay(self : QfFeatureLink) -> String {
 
 ///|
 /// Get target row index.
-pub fn QfFeatureLink::to_row(self : QfFeatureLink) -> Int {
+pub fn QfFeatureLink::to_row(self : QfFeatureLink) -> Int32 {
   self.to_row
 }
 
@@ -292,7 +292,7 @@ pub fn QfFeatureLink::to_row(self : QfFeatureLink) -> Int {
 ///|
 /// Construct an empty QfFeatureLinks.
 pub fn QfFeatureLinks::new() -> QfFeatureLinks {
-  QfFeatureLinks::{ links: Array::new() }
+  QfFeatureLinks::{ links: Array(capacity=0), }
 }
 
 ///|
@@ -306,7 +306,7 @@ pub fn QfFeatureLinks::add_link(
 
 ///|
 /// Get the number of links.
-pub fn QfFeatureLinks::n_links(self : QfFeatureLinks) -> Int {
+pub fn QfFeatureLinks::n_links(self : QfFeatureLinks) -> Int32 {
   self.links.length()
 }
 
@@ -315,9 +315,9 @@ pub fn QfFeatureLinks::n_links(self : QfFeatureLinks) -> Int {
 pub fn QfFeatureLinks::get_links_from(
   self : QfFeatureLinks,
   assay : String,
-  row : Int,
+  row : Int32,
 ) -> Array[QfFeatureLink] {
-  let result : Array[QfFeatureLink] = Array::new()
+  let result : Array[QfFeatureLink] = Array(capacity=0)
   for l in self.links {
     if l.from_assay == assay && l.from_row == row {
       result.push(l)
@@ -331,9 +331,9 @@ pub fn QfFeatureLinks::get_links_from(
 pub fn QfFeatureLinks::get_links_to(
   self : QfFeatureLinks,
   assay : String,
-  row : Int,
+  row : Int32,
 ) -> Array[QfFeatureLink] {
-  let result : Array[QfFeatureLink] = Array::new()
+  let result : Array[QfFeatureLink] = Array(capacity=0)
   for l in self.links {
     if l.to_assay == assay && l.to_row == row {
       result.push(l)
@@ -349,7 +349,11 @@ pub fn QfFeatureLinks::get_links_to(
 ///|
 /// Construct an empty QFeatures.
 pub fn QFeatures::new() -> QFeatures {
-  QFeatures::{ assays: Array::new(), links: QfFeatureLinks::new(), n_assays: 0 }
+  QFeatures::{
+    assays: Array(capacity=0),
+    links: QfFeatureLinks::new(),
+    n_assays: 0,
+  }
 }
 
 ///|
@@ -366,7 +370,7 @@ pub fn QFeatures::links(self : QFeatures) -> QfFeatureLinks {
 
 ///|
 /// Get number of assays.
-pub fn QFeatures::n_assays(self : QFeatures) -> Int {
+pub fn QFeatures::n_assays(self : QFeatures) -> Int32 {
   self.n_assays
 }
 
@@ -384,7 +388,7 @@ pub fn QFeatures::get_assay(self : QFeatures, name : String) -> QfAssay? {
 ///|
 /// Get names of all assays.
 pub fn QFeatures::assay_names(self : QFeatures) -> Array[String] {
-  let names : Array[String] = Array::new()
+  let names : Array[String] = Array(capacity=0)
   for a in self.assays {
     names.push(a.name)
   }
@@ -403,9 +407,9 @@ pub fn QFeatures::add_assay(self : QFeatures, assay : QfAssay) -> Unit {
 pub fn QFeatures::add_link(
   self : QFeatures,
   from_assay : String,
-  from_row : Int,
+  from_row : Int32,
   to_assay : String,
-  to_row : Int,
+  to_row : Int32,
 ) -> Unit {
   self.links.add_link(
     QfFeatureLink::new(from_assay, from_row, to_assay, to_row),
@@ -414,7 +418,7 @@ pub fn QFeatures::add_link(
 
 ///|
 /// Get number of features (rows) in an assay.
-pub fn QFeatures::n_features(self : QFeatures, assay_name : String) -> Int {
+pub fn QFeatures::n_features(self : QFeatures, assay_name : String) -> Int32 {
   match self.get_assay(assay_name) {
     Some(a) => a.n_rows
     None => 0
@@ -423,7 +427,7 @@ pub fn QFeatures::n_features(self : QFeatures, assay_name : String) -> Int {
 
 ///|
 /// Get number of samples (columns) in an assay.
-pub fn QFeatures::n_samples(self : QFeatures, assay_name : String) -> Int {
+pub fn QFeatures::n_samples(self : QFeatures, assay_name : String) -> Int32 {
   match self.get_assay(assay_name) {
     Some(a) => a.n_cols
     None => 0
@@ -452,11 +456,11 @@ fn qf_median(values : Array[Double]) -> Double {
   if n == 0 {
     return 0.0 / 0.0
   }
-  let sorted : Array[Double] = Array::new()
+  let sorted : Array[Double] = Array(capacity=0)
   for v in values {
     sorted.push(v)
   }
-  sorted.sort_by(fn(a : Double, b : Double) -> Int {
+  sorted.sort_by(fn(a : Double, b : Double) -> Int32 {
     if a < b {
       -1
     } else if a > b {
@@ -475,8 +479,8 @@ fn qf_median(values : Array[Double]) -> Double {
 
 ///|
 /// Aggregate a list of values using the specified method (skipping NaN).
-fn qf_aggregate_values(values : Array[Double], method : String) -> Double {
-  let clean : Array[Double] = Array::new()
+fn qf_aggregate_values(values : Array[Double], method_ : String) -> Double {
+  let clean : Array[Double] = Array(capacity=0)
   for v in values {
     if !qf_is_na(v) {
       clean.push(v)
@@ -485,7 +489,7 @@ fn qf_aggregate_values(values : Array[Double], method : String) -> Double {
   if clean.length() == 0 {
     return 0.0 / 0.0
   }
-  match method {
+  match method_ {
     "sum" => {
       let mut s = 0.0
       for v in clean {
@@ -544,9 +548,9 @@ fn qf_row_distance(a : Array[Double], b : Array[Double]) -> Double {
 /// Deep-copy a data matrix.
 fn qf_copy_matrix(data : Array[Array[Double]]) -> Array[Array[Double]] {
   let nr = data.length()
-  let out : Array[Array[Double]] = Array::new()
+  let out : Array[Array[Double]] = Array(capacity=0)
   for i in 0..<nr {
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     for j in 0..<data[i].length() {
       row.push(data[i][j])
     }
@@ -570,15 +574,15 @@ pub fn qf_aggregate(
   qf : QFeatures,
   from_assay : String,
   to_assay : String,
-  mapping : Array[(Int, String)],
-  method : String,
+  mapping : Array[(Int32, String)],
+  method_ : String,
 ) -> QFeatures {
   let src = match qf.get_assay(from_assay) {
     Some(a) => a
     None => return qf
   }
   // Determine unique group names in order of first appearance.
-  let group_names : Array[String] = Array::new()
+  let group_names : Array[String] = Array(capacity=0)
   for m in mapping {
     let gname = m.1
     let mut found = false
@@ -595,9 +599,9 @@ pub fn qf_aggregate(
   let n_groups = group_names.length()
   let nc = src.n_cols
   // Collect source row indices for each group.
-  let group_rows : Array[Array[Int]] = Array::new()
+  let group_rows : Array[Array[Int32]] = Array(capacity=0)
   for _ in 0..<n_groups {
-    group_rows.push(Array::new())
+    group_rows.push(Array(capacity=0))
   }
   for m in mapping {
     let row_idx = m.0
@@ -610,23 +614,23 @@ pub fn qf_aggregate(
     }
   }
   // Compute aggregated data.
-  let new_data : Array[Array[Double]] = Array::new()
+  let new_data : Array[Array[Double]] = Array(capacity=0)
   for g in 0..<n_groups {
     let row : Array[Double] = Array::make(nc, 0.0)
     for j in 0..<nc {
-      let values : Array[Double] = Array::new()
+      let values : Array[Double] = Array(capacity=0)
       for r in group_rows[g] {
         if r >= 0 && r < src.n_rows {
           values.push(src.data[r][j])
         }
       }
-      row[j] = qf_aggregate_values(values, method)
+      row[j] = qf_aggregate_values(values, method_)
     }
     new_data.push(row)
   }
   let new_assay = QfAssay::new(to_assay, group_names, src.col_names, new_data)
   // Build new QFeatures with the assay and links added.
-  let new_assays : Array[QfAssay] = Array::new()
+  let new_assays : Array[QfAssay] = Array(capacity=0)
   for a in qf.assays {
     new_assays.push(a)
   }
@@ -658,7 +662,7 @@ pub fn qf_aggregate_by_col(
   from_assay : String,
   to_assay : String,
   group_labels : Array[String],
-  method : String,
+  method_ : String,
 ) -> QFeatures {
   let src = match qf.get_assay(from_assay) {
     Some(a) => a
@@ -666,7 +670,7 @@ pub fn qf_aggregate_by_col(
   }
   let nc = src.n_cols
   // Determine unique labels in order of first appearance.
-  let unique_labels : Array[String] = Array::new()
+  let unique_labels : Array[String] = Array(capacity=0)
   for j in 0..<nc {
     if j < group_labels.length() {
       let label = group_labels[j]
@@ -683,9 +687,9 @@ pub fn qf_aggregate_by_col(
     }
   }
   // Collect column indices for each unique label.
-  let group_cols : Array[Array[Int]] = Array::new()
+  let group_cols : Array[Array[Int32]] = Array(capacity=0)
   for _ in 0..<unique_labels.length() {
-    group_cols.push(Array::new())
+    group_cols.push(Array(capacity=0))
   }
   for j in 0..<nc {
     if j < group_labels.length() {
@@ -700,15 +704,15 @@ pub fn qf_aggregate_by_col(
   }
   // Compute aggregated data.
   let nr = src.n_rows
-  let new_data : Array[Array[Double]] = Array::new()
+  let new_data : Array[Array[Double]] = Array(capacity=0)
   for i in 0..<nr {
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     for g in 0..<unique_labels.length() {
-      let values : Array[Double] = Array::new()
+      let values : Array[Double] = Array(capacity=0)
       for j in group_cols[g] {
         values.push(src.data[i][j])
       }
-      match method {
+      match method_ {
         "sum" => {
           let mut s = 0.0
           for v in values {
@@ -738,7 +742,7 @@ pub fn qf_aggregate_by_col(
     new_data.push(row)
   }
   let new_assay = QfAssay::new(to_assay, src.row_names, unique_labels, new_data)
-  let new_assays : Array[QfAssay] = Array::new()
+  let new_assays : Array[QfAssay] = Array(capacity=0)
   for a in qf.assays {
     new_assays.push(a)
   }
@@ -764,7 +768,7 @@ pub fn qf_aggregate_by_col(
 pub fn qf_filter_features(
   qf : QFeatures,
   assay_name : String,
-  keep_rows : Array[Int],
+  keep_rows : Array[Int32],
 ) -> QFeatures {
   // Find source assay dimension.
   let mut src_n_rows = 0
@@ -780,7 +784,7 @@ pub fn qf_filter_features(
     return qf
   }
   // Build old-to-new index map.
-  let old_to_new : Array[Int] = Array::make(src_n_rows, -1)
+  let old_to_new : Array[Int32] = Array::make(src_n_rows, -1)
   for new_idx in 0..<keep_rows.length() {
     let old_idx = keep_rows[new_idx]
     if old_idx >= 0 && old_idx < src_n_rows {
@@ -788,15 +792,15 @@ pub fn qf_filter_features(
     }
   }
   // Build new assays.
-  let new_assays : Array[QfAssay] = Array::new()
+  let new_assays : Array[QfAssay] = Array(capacity=0)
   for a in qf.assays {
     if a.name == assay_name {
-      let new_row_names : Array[String] = Array::new()
-      let new_data : Array[Array[Double]] = Array::new()
+      let new_row_names : Array[String] = Array(capacity=0)
+      let new_data : Array[Array[Double]] = Array(capacity=0)
       for r in keep_rows {
         if r >= 0 && r < a.n_rows {
           new_row_names.push(a.row_names[r])
-          let row_copy : Array[Double] = Array::new()
+          let row_copy : Array[Double] = Array(capacity=0)
           for j in 0..<a.n_cols {
             row_copy.push(a.data[r][j])
           }
@@ -853,20 +857,20 @@ pub fn qf_filter_features(
 pub fn qf_filter_samples(
   qf : QFeatures,
   assay_name : String,
-  keep_cols : Array[Int],
+  keep_cols : Array[Int32],
 ) -> QFeatures {
-  let new_assays : Array[QfAssay] = Array::new()
+  let new_assays : Array[QfAssay] = Array(capacity=0)
   for a in qf.assays {
     if a.name == assay_name {
-      let new_col_names : Array[String] = Array::new()
+      let new_col_names : Array[String] = Array(capacity=0)
       for c in keep_cols {
         if c >= 0 && c < a.n_cols {
           new_col_names.push(a.col_names[c])
         }
       }
-      let new_data : Array[Array[Double]] = Array::new()
+      let new_data : Array[Array[Double]] = Array(capacity=0)
       for i in 0..<a.n_rows {
-        let row : Array[Double] = Array::new()
+        let row : Array[Double] = Array(capacity=0)
         for c in keep_cols {
           if c >= 0 && c < a.n_cols {
             row.push(a.data[i][c])
@@ -904,7 +908,7 @@ pub fn qf_filter_na(
     None => return qf
   }
   let nc = src.n_cols
-  let keep_rows : Array[Int] = Array::new()
+  let keep_rows : Array[Int32] = Array(capacity=0)
   for i in 0..<src.n_rows {
     let mut na_count = 0
     for j in 0..<nc {
@@ -931,7 +935,7 @@ pub fn qf_filter_low_abundance(
     Some(a) => a
     None => return qf
   }
-  let keep_rows : Array[Int] = Array::new()
+  let keep_rows : Array[Int32] = Array(capacity=0)
   for i in 0..<src.n_rows {
     let mut all_below = true
     for j in 0..<src.n_cols {
@@ -964,10 +968,10 @@ pub fn qf_normalize_quantiles(assay : QfAssay) -> QfAssay {
     return assay
   }
   // Sort each column independently.
-  let sorted_cols : Array[Array[Double]] = Array::new()
+  let sorted_cols : Array[Array[Double]] = Array(capacity=0)
   for j in 0..<nc {
     let col = assay.get_col(j)
-    col.sort_by(fn(a : Double, b : Double) -> Int {
+    col.sort_by(fn(a : Double, b : Double) -> Int32 {
       if a < b {
         -1
       } else if a > b {
@@ -988,17 +992,17 @@ pub fn qf_normalize_quantiles(assay : QfAssay) -> QfAssay {
     rank_means[i] = s / nc.to_double()
   }
   // For each column, assign rank means based on the rank of each value.
-  let new_data : Array[Array[Double]] = Array::new()
+  let new_data : Array[Array[Double]] = Array(capacity=0)
   for _ in 0..<nr {
     new_data.push(Array::make(nc, 0.0))
   }
   for j in 0..<nc {
     // Build (original_index, value) pairs and sort by value to determine ranks.
-    let pairs : Array[(Int, Double)] = Array::new()
+    let pairs : Array[(Int32, Double)] = Array(capacity=0)
     for i in 0..<nr {
       pairs.push((i, assay.data[i][j]))
     }
-    pairs.sort_by(fn(a : (Int, Double), b : (Int, Double)) -> Int {
+    pairs.sort_by(fn(a : (Int32, Double), b : (Int32, Double)) -> Int32 {
       if a.1 < b.1 {
         -1
       } else if a.1 > b.1 {
@@ -1030,7 +1034,7 @@ pub fn qf_normalize_center_scale(
   if nr == 0 || nc == 0 {
     return assay
   }
-  let new_data : Array[Array[Double]] = Array::new()
+  let new_data : Array[Array[Double]] = Array(capacity=0)
   for _ in 0..<nr {
     new_data.push(Array::make(nc, 0.0))
   }
@@ -1085,9 +1089,9 @@ pub fn qf_log_transform(
   let nr = assay.n_rows
   let nc = assay.n_cols
   let log_base = @math.ln(base)
-  let new_data : Array[Array[Double]] = Array::new()
+  let new_data : Array[Array[Double]] = Array(capacity=0)
   for i in 0..<nr {
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     for j in 0..<nc {
       let v = assay.data[i][j]
       if qf_is_na(v) {
@@ -1116,7 +1120,7 @@ pub fn qf_log_transform(
 /// For each row with NaN, finds k nearest rows by Euclidean distance on
 /// shared non-NaN columns, then imputes NaN positions with the
 /// inverse-distance-weighted average of the neighbors' values.
-pub fn qf_impute_knn(assay : QfAssay, k : Int) -> QfAssay {
+pub fn qf_impute_knn(assay : QfAssay, k : Int32) -> QfAssay {
   let nr = assay.n_rows
   let nc = assay.n_cols
   if nr == 0 || nc == 0 {
@@ -1137,7 +1141,7 @@ pub fn qf_impute_knn(assay : QfAssay, k : Int) -> QfAssay {
       continue
     }
     // Compute distances to all other rows.
-    let pairs : Array[(Int, Double)] = Array::new()
+    let pairs : Array[(Int32, Double)] = Array(capacity=0)
     for other in 0..<nr {
       if other == i {
         continue
@@ -1146,7 +1150,7 @@ pub fn qf_impute_knn(assay : QfAssay, k : Int) -> QfAssay {
       pairs.push((other, dist))
     }
     // Sort by distance (ascending).
-    pairs.sort_by(fn(a : (Int, Double), b : (Int, Double)) -> Int {
+    pairs.sort_by(fn(a : (Int32, Double), b : (Int32, Double)) -> Int32 {
       if a.1 < b.1 {
         -1
       } else if a.1 > b.1 {
@@ -1206,9 +1210,9 @@ pub fn qf_impute_mean(assay : QfAssay) -> QfAssay {
     }
     col_means[j] = if c > 0 { s / c.to_double() } else { 0.0 }
   }
-  let new_data : Array[Array[Double]] = Array::new()
+  let new_data : Array[Array[Double]] = Array(capacity=0)
   for i in 0..<nr {
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     for j in 0..<nc {
       let v = assay.data[i][j]
       if qf_is_na(v) {
@@ -1227,9 +1231,9 @@ pub fn qf_impute_mean(assay : QfAssay) -> QfAssay {
 pub fn qf_impute_zero(assay : QfAssay) -> QfAssay {
   let nr = assay.n_rows
   let nc = assay.n_cols
-  let new_data : Array[Array[Double]] = Array::new()
+  let new_data : Array[Array[Double]] = Array(capacity=0)
   for i in 0..<nr {
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     for j in 0..<nc {
       let v = assay.data[i][j]
       if qf_is_na(v) {
@@ -1249,7 +1253,7 @@ pub fn qf_impute_zero(assay : QfAssay) -> QfAssay {
 
 ///|
 /// Count total NaN values in an assay.
-pub fn qf_count_na(assay : QfAssay) -> Int {
+pub fn qf_count_na(assay : QfAssay) -> Int32 {
   let mut count = 0
   for i in 0..<assay.n_rows {
     for j in 0..<assay.n_cols {
@@ -1263,8 +1267,8 @@ pub fn qf_count_na(assay : QfAssay) -> Int {
 
 ///|
 /// Count NaN values per row.
-pub fn qf_count_na_by_row(assay : QfAssay) -> Array[Int] {
-  let counts : Array[Int] = Array::new()
+pub fn qf_count_na_by_row(assay : QfAssay) -> Array[Int32] {
+  let counts : Array[Int32] = Array(capacity=0)
   for i in 0..<assay.n_rows {
     let mut c = 0
     for j in 0..<assay.n_cols {
@@ -1285,7 +1289,7 @@ pub fn qf_count_na_by_row(assay : QfAssay) -> Array[Int] {
 /// Print a summary of the QFeatures container: number of assays, names,
 /// dimensions, and link count.
 pub fn qf_summary(qf : QFeatures) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string("QFeatures Summary\n")
   buf.write_string("================\n")
   buf.write_string("Number of assays: \{qf.n_assays}\n")
@@ -1302,13 +1306,13 @@ pub fn qf_summary(qf : QFeatures) -> String {
 ///|
 /// Print an assay summary: dimensions, mean, range, and NA count.
 pub fn qf_assay_summary(assay : QfAssay) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string("QfAssay Summary: '\{assay.name}'\n")
   buf.write_string(
     "  Dimensions: \{assay.n_rows} rows x \{assay.n_cols} cols\n",
   )
   // Collect non-NaN values for statistics.
-  let all_vals : Array[Double] = Array::new()
+  let all_vals : Array[Double] = Array(capacity=0)
   for i in 0..<assay.n_rows {
     for j in 0..<assay.n_cols {
       let v = assay.data[i][j]
@@ -1349,7 +1353,7 @@ pub fn qf_to_long_format(
   qf : QFeatures,
   assay_name : String,
 ) -> Array[(String, String, Double)] {
-  let result : Array[(String, String, Double)] = Array::new()
+  let result : Array[(String, String, Double)] = Array(capacity=0)
   let src = match qf.get_assay(assay_name) {
     Some(a) => a
     None => return result
@@ -1393,7 +1397,7 @@ pub fn qf_sample_data() -> QFeatures {
   // PSM3, PSM4 -> PepB
   // PSM5 -> PepC
   // PSM6 -> PepD
-  let psm_to_peptide : Array[(Int, String)] = [
+  let psm_to_peptide : Array[(Int32, String)] = [
     (0, "PepA"),
     (1, "PepA"),
     (2, "PepB"),
@@ -1406,7 +1410,7 @@ pub fn qf_sample_data() -> QFeatures {
   // PepA, PepB -> Prot1
   // PepC -> Prot2
   // PepD -> Prot3
-  let peptide_to_protein : Array[(Int, String)] = [
+  let peptide_to_protein : Array[(Int32, String)] = [
     (0, "Prot1"),
     (1, "Prot1"),
     (2, "Prot2"),

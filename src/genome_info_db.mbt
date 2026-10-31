@@ -6,7 +6,7 @@
 /// Chromosome information.
 pub struct ChromInfo {
   name : String
-  length : Int
+  length : Int32
   is_circular : Bool
   genome : String
 }
@@ -15,25 +15,29 @@ pub struct ChromInfo {
 /// Construct ChromInfo.
 pub fn ChromInfo::new(
   name~ : String,
-  length~ : Int,
-  is_circular? : Bool = false,
-  genome? : String = "",
+  length~ : Int32,
+  is_circular~ : Bool = false,
+  genome~ : String = "",
 ) -> ChromInfo {
-  ChromInfo::{ name, length, is_circular, genome }
+  ChromInfo::{ name, length, is_circular, genome, }
 }
 
 ///|
 /// Centromere position information.
 pub struct Centromere {
   chrom : String
-  start : Int
-  end : Int
+  start : Int32
+  end : Int32
 }
 
 ///|
 /// Construct Centromere.
-pub fn Centromere::new(chrom~ : String, start~ : Int, end~ : Int) -> Centromere {
-  Centromere::{ chrom, start, end }
+pub fn Centromere::new(
+  chrom~ : String,
+  start~ : Int32,
+  end~ : Int32,
+) -> Centromere {
+  Centromere::{ chrom, start, end, }
 }
 
 ///|
@@ -49,9 +53,9 @@ pub struct GenomeInfoDb {
 /// Construct GenomeInfoDb.
 pub fn GenomeInfoDb::new(
   genome_build~ : String,
-  organism? : String = "",
+  organism~ : String = "",
 ) -> GenomeInfoDb {
-  GenomeInfoDb::{ genome_build, organism, chrom_infos: [], centromeres: [] }
+  GenomeInfoDb::{ genome_build, organism, chrom_infos: [], centromeres: [], }
 }
 
 ///|
@@ -59,8 +63,8 @@ pub fn GenomeInfoDb::new(
 pub fn GenomeInfoDb::add_chrom(
   self : GenomeInfoDb,
   name : String,
-  length : Int,
-  is_circular? : Bool = false,
+  length : Int32,
+  is_circular~ : Bool = false,
 ) -> GenomeInfoDb {
   let new_info = ChromInfo::new(
     name~,
@@ -83,8 +87,8 @@ pub fn GenomeInfoDb::add_chrom(
 pub fn GenomeInfoDb::add_centromere(
   self : GenomeInfoDb,
   chrom : String,
-  start : Int,
-  end : Int,
+  start : Int32,
+  end : Int32,
 ) -> GenomeInfoDb {
   let c = Centromere::new(chrom~, start~, end~)
   let new_centromeres = self.centromeres.copy()
@@ -105,7 +109,7 @@ pub fn GenomeInfoDb::seqnames(self : GenomeInfoDb) -> Array[String] {
 
 ///|
 /// Get total genome length.
-pub fn GenomeInfoDb::genome_length(self : GenomeInfoDb) -> Int {
+pub fn GenomeInfoDb::genome_length(self : GenomeInfoDb) -> Int32 {
   let mut total = 0
   for ci in self.chrom_infos {
     total = total + ci.length
@@ -115,7 +119,7 @@ pub fn GenomeInfoDb::genome_length(self : GenomeInfoDb) -> Int {
 
 ///|
 /// Get chromosome length by name.
-pub fn GenomeInfoDb::seqLength(self : GenomeInfoDb, chrom : String) -> Int? {
+pub fn GenomeInfoDb::seqLength(self : GenomeInfoDb, chrom : String) -> Int32? {
   let mut i = 0
   while i < self.chrom_infos.length() {
     if self.chrom_infos[i].name == chrom {
@@ -195,7 +199,7 @@ pub fn GenomeInfoDb::non_standard_chromosomes(
 
 ///|
 /// Get number of chromosomes.
-pub fn GenomeInfoDb::num_chromosomes(self : GenomeInfoDb) -> Int {
+pub fn GenomeInfoDb::num_chromosomes(self : GenomeInfoDb) -> Int32 {
   self.chrom_infos.length()
 }
 
@@ -369,7 +373,7 @@ pub fn organism_from_build(build : String) -> String {
 pub fn GenomeInfoDb::get_arm(
   self : GenomeInfoDb,
   chrom : String,
-  position : Int,
+  position : Int32,
 ) -> String {
   match self.centromere(chrom) {
     Some(c) =>

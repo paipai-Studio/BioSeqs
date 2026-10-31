@@ -60,11 +60,11 @@ pub struct Cdaotree {
 /// Construct a Cdaotree.
 pub fn Cdaotree::new(
   id : String,
-  rooted? : Bool = false,
-  root_node_id? : String = "",
-  name? : String? = None,
+  rooted~ : Bool = false,
+  root_node_id~ : String = "",
+  name~ : String? = None,
 ) -> Cdaotree {
-  Cdaotree::{ id, rooted, root_node_id, name }
+  Cdaotree::{ id, rooted, root_node_id, name, }
 }
 
 ///|
@@ -82,13 +82,13 @@ pub struct CdaoNode {
 /// Construct a CdaoNode.
 pub fn CdaoNode::new(
   id : String,
-  children? : Array[String] = [],
-  parent_id? : String? = None,
-  tu_id? : String? = None,
-  branch_length? : Double? = None,
-  label? : String? = None,
+  children~ : Array[String] = [],
+  parent_id~ : String? = None,
+  tu_id~ : String? = None,
+  branch_length~ : Double? = None,
+  label~ : String? = None,
 ) -> CdaoNode {
-  CdaoNode::{ id, children, parent_id, tu_id, branch_length, label }
+  CdaoNode::{ id, children, parent_id, tu_id, branch_length, label, }
 }
 
 ///|
@@ -100,8 +100,8 @@ pub struct CdaoTU {
 
 ///|
 /// Construct a CdaoTU.
-pub fn CdaoTU::new(id : String, label? : String? = None) -> CdaoTU {
-  CdaoTU::{ id, label }
+pub fn CdaoTU::new(id : String, label~ : String? = None) -> CdaoTU {
+  CdaoTU::{ id, label, }
 }
 
 ///|
@@ -137,17 +137,16 @@ pub fn cdao_parse(xml : String) -> CdaoDocument {
 
 ///|
 /// An RDF triple (subject, predicate, object).
-struct CdaoTriple {
+priv struct CdaoTriple {
   subject : String
   predicate : String
   object : String
-  is_literal : Bool
 }
 
 ///|
 /// Parse RDF/XML into a list of triples.
 fn cdao_parse_rdf_xml(xml : String) -> Array[CdaoTriple] {
-  let triples : Array[CdaoTriple] = Array::new()
+  let triples : Array[CdaoTriple] = Array(capacity=0)
   let normalized = cdao_normalize_xml(xml)
   cdao_extract_elements(normalized, triples)
   triples
@@ -221,7 +220,6 @@ fn cdao_extract_elements(xml : String, triples : Array[CdaoTriple]) -> Unit {
           subject,
           predicate: "rdf:type",
           object: tag_name,
-          is_literal: false,
         })
         if is_self_closing {
           pos = tag_end + 1
@@ -277,23 +275,17 @@ fn cdao_parse_children(
     let text_content = if is_self_closing {
       ""
     } else if close_pos >= 0 {
-      inner[tag_end + 1:close_pos].trim().to_string()
+      inner[tag_end + 1:close_pos].trim().to_owned()
     } else {
       ""
     }
     if resource is Some(res) {
-      triples.push(CdaoTriple::{
-        subject,
-        predicate: tag_name,
-        object: res,
-        is_literal: false,
-      })
+      triples.push(CdaoTriple::{ subject, predicate: tag_name, object: res, })
     } else if text_content.length() > 0 {
       triples.push(CdaoTriple::{
         subject,
         predicate: tag_name,
         object: text_content,
-        is_literal: true,
       })
     }
     if is_self_closing {
@@ -413,7 +405,7 @@ fn cdao_build_document(doc : CdaoDocument, triples : Array[CdaoTriple]) -> Unit 
 ///|
 /// Convert a CdaoDocument to an array of BioSeqs Tree objects.
 pub fn cdao_to_trees(doc : CdaoDocument) -> Array[Tree] {
-  let result : Array[Tree] = Array::new()
+  let result : Array[Tree] = Array(capacity=0)
   let mut i = 0
   while i < doc.trees.length() {
     let cdao_tree = doc.trees[i]
@@ -451,7 +443,7 @@ fn cdao_build_clade(doc : CdaoDocument, node_id : String) -> Clade {
             None => None
           }
       }
-      let children : Array[Clade] = Array::new()
+      let children : Array[Clade] = Array(capacity=0)
       let mut ci = 0
       while ci < n.children.length() {
         children.push(cdao_build_clade(doc, n.children[ci]))
@@ -469,9 +461,9 @@ fn cdao_build_clade(doc : CdaoDocument, node_id : String) -> Clade {
 
 ///|
 /// Mutable counter holder for CDAO writer.
-struct CdaoWriteState {
-  mut node_counter : Int
-  mut tu_counter : Int
+priv struct CdaoWriteState {
+  mut node_counter : Int32
+  mut tu_counter : Int32
   tu_map : Map[String, String]
 }
 
@@ -552,7 +544,7 @@ fn cdao_write_clade(
       "\"/>\n"
   }
   // Collect child URIs
-  let child_uris : Array[String] = Array::new()
+  let child_uris : Array[String] = Array(capacity=0)
   let mut ci = 0
   while ci < clade.clades.length() {
     state.node_counter = state.node_counter + 1
@@ -691,8 +683,8 @@ pub fn cdao_sample_xml() -> String {
 pub fn cdao_document_summary(doc : CdaoDocument) -> String {
   let mut s = "=== CDAO Document Summary ===\n"
   s = s + "Trees: " + doc.trees.length().to_string() + "\n"
-  s = s + "Nodes: " + doc.nodes.size().to_string() + "\n"
-  s = s + "TUs: " + doc.tus.size().to_string() + "\n"
+  s = s + "Nodes: " + doc.nodes.length().to_string() + "\n"
+  s = s + "TUs: " + doc.tus.length().to_string() + "\n"
   let mut i = 0
   while i < doc.trees.length() {
     let tree = doc.trees[i]
@@ -709,7 +701,7 @@ pub fn cdao_document_summary(doc : CdaoDocument) -> String {
 
 ///|
 /// Find the position of a substring, starting from a given index.
-fn cdao_find_substring(s : String, sub : String, start : Int) -> Int {
+fn cdao_find_substring(s : String, sub : String, start : Int32) -> Int32 {
   if start >= s.length() {
     return -1
   }
@@ -771,10 +763,10 @@ fn cdao_get_attribute(tag_content : String, attr_name : String) -> String? {
 ///|
 /// Parse a double from a string.
 fn cdao_parse_double(s : String) -> Double {
-  let trimmed = s.trim().to_string()
+  let trimmed = s.trim().to_owned()
   let neg = trimmed[0:1].to_owned() == "-"
   let digits = if neg {
-    trimmed[1:trimmed.length()].to_string()
+    trimmed[1:trimmed.length()].to_owned()
   } else {
     trimmed
   }

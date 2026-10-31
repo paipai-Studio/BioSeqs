@@ -44,7 +44,7 @@ fn main {
   println("Packed hex: \{hex}")
   println("Packed bytes: \{nib.packed_data().length()}")
   let pb = nib.packed_data()
-  let pack_sb = StringBuilder::new()
+  let pack_sb = StringBuilder()
   pack_sb.write_string("  bytes: ")
   for i in 0..<pb.length() {
     if i > 0 {

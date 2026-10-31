@@ -28,7 +28,7 @@ pub struct HmiscCorrResult {
   /// P-value matrix
   p_values : Array[Array[Double]]
   /// Number of observations used
-  n : Array[Array[Int]]
+  n : Array[Array[Int32]]
   /// Variable names
   names : Array[String]
   /// Correlation type
@@ -41,9 +41,9 @@ pub struct HmiscDescriptiveStats {
   /// Variable name
   name : String
   /// Number of non-missing observations
-  n : Int
+  n : Int32
   /// Number of missing observations
-  n_missing : Int
+  n_missing : Int32
   /// Mean
   mean : Double
   /// Standard deviation
@@ -64,13 +64,13 @@ pub struct HmiscDescriptiveStats {
 /// Variable clustering result.
 pub struct HmiscVarClusResult {
   /// Dendrogram-like merge steps
-  merges : Array[Array[Int]]
+  merges : Array[Array[Int32]]
   /// Heights at which clusters merge
   heights : Array[Double]
   /// Variable assignments to clusters
-  cluster_assignments : Array[Int]
+  cluster_assignments : Array[Int32]
   /// Number of clusters
-  n_clusters : Int
+  n_clusters : Int32
   /// Variable names
   names : Array[String]
 }
@@ -85,7 +85,7 @@ pub struct HmiscSomersResult {
   /// Upper confidence limit
   upper : Double
   /// Number of observations
-  n : Int
+  n : Int32
 }
 
 ///|
@@ -93,9 +93,9 @@ pub struct HmiscSomersResult {
 /// Missing values (NaN) are automatically excluded.
 pub fn hmisc_describe(
   values : Array[Double],
-  name? : String = "",
+  name~ : String = "",
 ) -> HmiscDescriptiveStats {
-  let valid : Array[Double] = Array::new()
+  let valid : Array[Double] = Array(capacity=0)
   let mut n_missing = 0
   let mut i = 0
   while i < values.length() {
@@ -237,7 +237,7 @@ fn hmisc_rank_array(data : Array[Double]) -> Array[Double] {
     indices[i] = i
     i = i + 1
   }
-  indices.sort_by(fn(a : Int, b : Int) -> Int {
+  indices.sort_by(fn(a : Int32, b : Int32) -> Int32 {
     if data[a] < data[b] {
       -1
     } else if data[a] > data[b] {
@@ -269,8 +269,8 @@ fn hmisc_rank_array(data : Array[Double]) -> Array[Double] {
 /// Missing values (NaN) are handled by pairwise deletion.
 pub fn hmisc_rcorr(
   data : Array[Array[Double]],
-  names? : Array[String] = [],
-  cor_type? : HmiscCorType = HmiscCorType::HC_Pearson,
+  names~ : Array[String] = [],
+  cor_type~ : HmiscCorType = HmiscCorType::HC_Pearson,
 ) -> HmiscCorrResult {
   let n_vars = data.length()
   let n_obs = if n_vars > 0 { data[0].length() } else { 0 }
@@ -285,9 +285,9 @@ pub fn hmisc_rcorr(
     }
     default_names
   }
-  let matrix : Array[Array[Double]] = Array::new()
-  let p_values : Array[Array[Double]] = Array::new()
-  let n_matrix : Array[Array[Int]] = Array::new()
+  let matrix : Array[Array[Double]] = Array(capacity=0)
+  let p_values : Array[Array[Double]] = Array(capacity=0)
+  let n_matrix : Array[Array[Int32]] = Array(capacity=0)
   let mut i = 0
   while i < n_vars {
     matrix.push(Array::make(n_vars, 0.0))
@@ -304,8 +304,8 @@ pub fn hmisc_rcorr(
         p_values[i][j] = 0.0
         n_matrix[i][j] = n_obs
       } else if i < j {
-        let x : Array[Double] = Array::new()
-        let y : Array[Double] = Array::new()
+        let x : Array[Double] = Array(capacity=0)
+        let y : Array[Double] = Array(capacity=0)
         let mut k = 0
         while k < n_obs {
           if !data[i][k].is_nan() && !data[j][k].is_nan() {
@@ -336,12 +336,18 @@ pub fn hmisc_rcorr(
     }
     i = i + 1
   }
-  HmiscCorrResult::{ matrix, p_values, n: n_matrix, names: var_names, cor_type }
+  HmiscCorrResult::{
+    matrix,
+    p_values,
+    n: n_matrix,
+    names: var_names,
+    cor_type,
+  }
 }
 
 ///|
 /// Approximate two-tailed p-value from Student's t-distribution.
-fn hmisc_t_dist_p(t : Double, df : Int) -> Double {
+fn hmisc_t_dist_p(t : Double, df : Int32) -> Double {
   if df <= 0 || t.is_nan() {
     return @double.not_a_number
   }
@@ -358,7 +364,7 @@ fn hmisc_ibeta(a : Double, b : Double, x : Double) -> Double {
   if x == 0.0 || x == 1.0 {
     return x
   }
-  let result = hmisc_log_gamma(a + b) - hmisc_log_gamma(a) - hmisc_log_gamma(b)
+  let result = lgamma(a + b) - lgamma(a) - lgamma(b)
   let front = @math.exp(result + a * @math.ln(x) + b * @math.ln(1.0 - x)) / a
   let max_iter = 200
   let eps = 1.0e-10
@@ -410,37 +416,11 @@ fn hmisc_ibeta(a : Double, b : Double, x : Double) -> Double {
 }
 
 ///|
-/// Natural log of the gamma function using Lanczos approximation.
-fn hmisc_log_gamma(x : Double) -> Double {
-  if x <= 0.0 {
-    return @double.not_a_number
-  }
-  let g = 7.0
-  let c = [
-    0.99999999999980993, 676.5203681218851, -1259.1392167224028, 771.32342877765313,
-    -176.61502916214059, 12.507343278686905, -0.13857109526572012, 9.9843695780195716e-6,
-    1.5056327351493116e-7,
-  ]
-  let pi = 3.14159265358979323846
-  if x < 0.5 {
-    return @math.ln(pi / @math.sin(pi * x)) - hmisc_log_gamma(1.0 - x)
-  }
-  let mut sum = c[0]
-  let mut i = 1
-  while i < 9 {
-    sum = sum + c[i] / (x + i.to_double() - 1.0)
-    i = i + 1
-  }
-  let t = x + g + 0.5
-  0.5 * @math.ln(2.0 * pi) + (t * @math.ln(t) - t) + @math.ln(sum)
-}
-
-///|
 /// Compute variable clustering using hierarchical clustering.
 pub fn hmisc_varclus(
   data : Array[Array[Double]],
-  names? : Array[String] = [],
-  min_cluster_size? : Int = 2,
+  names~ : Array[String] = [],
+  min_cluster_size~ : Int32 = 2,
 ) -> HmiscVarClusResult {
   let n_vars = data.length()
   let var_names = if names.length() == n_vars {
@@ -462,8 +442,8 @@ pub fn hmisc_varclus(
       i = i + 1
     }
     return HmiscVarClusResult::{
-      merges: Array::new(),
-      heights: Array::new(),
+      merges: Array(capacity=0),
+      heights: Array(capacity=0),
       cluster_assignments: assignments,
       n_clusters: 1,
       names: var_names,
@@ -480,8 +460,8 @@ pub fn hmisc_varclus(
     assignments[i] = i
     i = i + 1
   }
-  let merges : Array[Array[Int]] = Array::new()
-  let heights : Array[Double] = Array::new()
+  let merges : Array[Array[Int32]] = Array(capacity=0)
+  let heights : Array[Double] = Array(capacity=0)
   let mut current_n = n_vars
   let max_clusters = hmisc_max_cluster_count(n_vars, min_cluster_size)
   while current_n > max_clusters {
@@ -546,7 +526,7 @@ pub fn hmisc_varclus(
 
 ///|
 /// Compute maximum number of clusters.
-fn hmisc_max_cluster_count(n_vars : Int, min_size : Int) -> Int {
+fn hmisc_max_cluster_count(n_vars : Int32, min_size : Int32) -> Int32 {
   if min_size <= 1 {
     return 1
   }
@@ -561,13 +541,13 @@ fn hmisc_max_cluster_count(n_vars : Int, min_size : Int) -> Int {
 ///|
 /// Compute average correlation between two clusters.
 fn hmisc_cluster_similarity(
-  assignments : Array[Int],
+  assignments : Array[Int32],
   cor_matrix : Array[Array[Double]],
-  cluster_a : Int,
-  cluster_b : Int,
+  cluster_a : Int32,
+  cluster_b : Int32,
 ) -> Double {
-  let members_a : Array[Int] = Array::new()
-  let members_b : Array[Int] = Array::new()
+  let members_a : Array[Int32] = Array(capacity=0)
+  let members_b : Array[Int32] = Array(capacity=0)
   let mut i = 0
   while i < assignments.length() {
     if assignments[i] == cluster_a {
@@ -604,10 +584,10 @@ fn hmisc_cluster_similarity(
 
 ///|
 /// Extract unique values from an array (sorted).
-fn hmisc_unique_values(arr : Array[Int]) -> Array[Int] {
+fn hmisc_unique_values(arr : Array[Int32]) -> Array[Int32] {
   let sorted = arr.copy()
   sorted.sort()
-  let result = Array::new()
+  let result = Array(capacity=0)
   let mut i = 0
   while i < sorted.length() {
     if i == 0 || sorted[i] != sorted[i - 1] {
@@ -684,7 +664,7 @@ pub fn hmisc_impute(data : Array[Array[Double]]) -> Array[Array[Double]] {
     col_means[col] = if count > 0 { sum / count.to_double() } else { 0.0 }
     col = col + 1
   }
-  let result : Array[Array[Double]] = Array::new()
+  let result : Array[Array[Double]] = Array(capacity=0)
   let mut row = 0
   while row < n_rows {
     let new_row = Array::make(n_cols, 0.0)
@@ -784,7 +764,7 @@ pub fn hmisc_varclus_summary(result : HmiscVarClusResult) -> String {
 
 ///|
 /// Format double with decimals.
-fn hmisc_fmt_dbl(value : Double, decimals : Int) -> String {
+fn hmisc_fmt_dbl(value : Double, decimals : Int32) -> String {
   if value.is_nan() {
     return "     NA"
   }
@@ -805,7 +785,7 @@ fn hmisc_fmt_dbl(value : Double, decimals : Int) -> String {
 
 ///|
 /// Pad integer with leading zeros.
-fn hmisc_pad_zeros(value : Int, length : Int) -> String {
+fn hmisc_pad_zeros(value : Int32, length : Int32) -> String {
   let abs_val = value.abs()
   let s = "\{abs_val}"
   if s.length() >= length {

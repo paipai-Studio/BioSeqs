@@ -5,8 +5,9 @@
 /// clustering, k-means/k-medoids, self-organizing maps, PCA, and the
 /// Eisen Cluster/TreeView Record file format.
 
+///|
 /// Format a Double to a String with a given number of decimal places.
-fn fmt(value : Double, decimals : Int) -> String {
+fn fmt(value : Double, decimals : Int32) -> String {
   let s = value.to_string()
   let parts = s.split(".").to_array()
   let int_part = if parts.length() > 0 { parts[0].to_owned() } else { "0" }
@@ -20,18 +21,20 @@ fn fmt(value : Double, decimals : Int) -> String {
   int_part + "." + padded_frac
 }
 
+///|
 fn print_vector(name : String, v : Array[Double]) -> Unit {
-  let parts : Array[String] = Array::new()
+  let parts : Array[String] = Array(capacity=0)
   for x in v {
     parts.push(fmt(x, 4))
   }
   println("\{name}: [\{parts.join(", ")}]")
 }
 
+///|
 fn print_matrix(name : String, m : Array[Array[Double]]) -> Unit {
   println("\{name}:")
   for row in m {
-    let parts : Array[String] = Array::new()
+    let parts : Array[String] = Array(capacity=0)
     for x in row {
       parts.push(fmt(x, 4))
     }
@@ -39,8 +42,9 @@ fn print_matrix(name : String, m : Array[Array[Double]]) -> Unit {
   }
 }
 
-fn print_int_array(name : String, v : Array[Int]) -> Unit {
-  let parts : Array[String] = Array::new()
+///|
+fn print_int_array(name : String, v : Array[Int32]) -> Unit {
+  let parts : Array[String] = Array(capacity=0)
   for x in v {
     parts.push("\{x}")
   }
@@ -70,7 +74,7 @@ fn main raise {
   println("spearman(g0, g1)   = \{fmt(d_spear, 4)}")
 
   println("\n=== 2. Hierarchical clustering (treecluster) ===")
-  let tree = @src.treecluster(data, method="a", dist="e")
+  let tree = @src.treecluster(data, method_="a", dist="e")
   println("number of nodes = \{tree.length()}")
   for i = 0; i < tree.length(); i = i + 1 {
     let n = tree.node(i)
@@ -84,13 +88,13 @@ fn main raise {
   let dm = @src.distancematrix(data)
   println("lower-triangular distance matrix (\{dm.length()} rows):")
   for i = 0; i < dm.length(); i = i + 1 {
-    let parts : Array[String] = Array::new()
+    let parts : Array[String] = Array(capacity=0)
     for j = 0; j < dm[i].length(); j = j + 1 {
       parts.push(fmt(dm[i][j], 4))
     }
     println("  [\{parts.join(", ")}]")
   }
-  let tree2 = @src.treecluster_from_distance(dm, method="s")
+  let tree2 = @src.treecluster_from_distance(dm, method_="s")
   print_int_array("single-linkage cut into 2 clusters", tree2.cut(nclusters=2))
 
   println("\n=== 4. k-means / k-medoids clustering ===")
@@ -104,7 +108,7 @@ fn main raise {
   println("kmedoids total distance = \{fmt(kmed.error(), 4)}")
 
   println("\n=== 5. Cluster centroids ===")
-  let cent = @src.clustercentroids(data, clusterid=[0, 0, 1, 1], method="a")
+  let cent = @src.clustercentroids(data, clusterid=[0, 0, 1, 1], method_="a")
   print_matrix("cluster means", cent.cdata())
 
   println("\n=== 6. Self-organizing map (somcluster) ===")
@@ -137,9 +141,11 @@ fn main raise {
     None => "(none)"
   }
   println("genename = [\{names}]")
-  let rt = rec.treecluster(method="s")
-  print_int_array("Record.treecluster(method=\"s\") cut into 2",
-    rt.cut(nclusters=2))
+  let rt = rec.treecluster(method_="s")
+  print_int_array(
+    "Record.treecluster(method=\"s\") cut into 2",
+    rt.cut(nclusters=2),
+  )
   let rk = rec.kcluster(nclusters=2, initialid=[0, 0, 1, 1])
   print_int_array("Record.kcluster(nclusters=2)", rk.clusterid())
   let rcd = rec.clusterdistance(index1=[0], index2=[3], dist="e")

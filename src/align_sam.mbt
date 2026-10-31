@@ -19,21 +19,36 @@ pub(all) enum AlignSamOperation {
 } derive(Eq, Debug)
 
 ///|
+pub extend AlignSamOperation with Eq::{equal, not_equal}
+
+///|
+pub extend AlignSamOperation with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
 pub(all) enum AlignSamTagValue {
-  SamTagInteger(Int)
+  SamTagInteger(Int32)
   SamTagFloat(Double)
   SamTagCharacter(String)
   SamTagString(String)
   SamTagHex(String)
-  SamTagIntegerArray(String, Array[Int])
+  SamTagIntegerArray(String, Array[Int32])
   SamTagFloatArray(Array[Double])
 } derive(Debug)
+
+///|
+pub extend AlignSamTagValue with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct AlignSamHeaderField {
   key : String
   value : String
 } derive(Eq, Debug)
+
+///|
+pub extend AlignSamHeaderField with Eq::{equal, not_equal}
+
+///|
+pub extend AlignSamHeaderField with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct AlignSamHeader {
@@ -43,17 +58,29 @@ pub struct AlignSamHeader {
 } derive(Debug)
 
 ///|
+pub extend AlignSamHeader with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
 pub struct AlignSamReference {
   name : String
-  length : Int
+  length : Int32
   annotations : Array[AlignSamHeaderField]
 } derive(Debug)
 
 ///|
+pub extend AlignSamReference with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
 pub struct AlignSamCigarElement {
   operation : String
-  length : Int
+  length : Int32
 } derive(Eq, Debug)
+
+///|
+pub extend AlignSamCigarElement with Eq::{equal, not_equal}
+
+///|
+pub extend AlignSamCigarElement with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct AlignSamTag {
@@ -62,37 +89,46 @@ pub struct AlignSamTag {
 } derive(Debug)
 
 ///|
+pub extend AlignSamTag with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
 pub struct AlignSamStats {
-  reference_consumed : Int
-  query_consumed : Int
-  aligned : Int
-  inserted : Int
-  deleted : Int
-  skipped : Int
-  soft_clipped : Int
-  hard_clipped : Int
+  reference_consumed : Int32
+  query_consumed : Int32
+  aligned : Int32
+  inserted : Int32
+  deleted : Int32
+  skipped : Int32
+  soft_clipped : Int32
+  hard_clipped : Int32
 } derive(Eq, Debug)
+
+///|
+pub extend AlignSamStats with Eq::{equal, not_equal}
+
+///|
+pub extend AlignSamStats with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct AlignSamAlignment {
   query_name : String
-  flag : Int
+  flag : Int32
   reference_name : String
-  reference_length : Int?
-  target_coordinates : Array[Int]
-  query_coordinates : Array[Int]
+  reference_length : Int32?
+  target_coordinates : Array[Int32]
+  query_coordinates : Array[Int32]
   operations : Array[AlignSamOperation]
   cigar : Array[AlignSamCigarElement]
-  mapq : Int?
+  mapq : Int32?
   mate_reference : String?
-  mate_position : Int?
-  template_length : Int?
+  mate_position : Int32?
+  template_length : Int32?
   query_sequence : String
   sequence_known : Bool
-  qualities : Array[Int]
+  qualities : Array[Int32]
   qualities_known : Bool
-  hard_clip_left : Int?
-  hard_clip_right : Int?
+  hard_clip_left : Int32?
+  hard_clip_right : Int32?
   tags : Array[AlignSamTag]
 }
 
@@ -109,8 +145,8 @@ fn align_sam_fail(message : String) -> Unit raise AlignSamError {
 }
 
 ///|
-fn align_sam_copy_ints(values : Array[Int]) -> Array[Int] {
-  let copy : Array[Int] = []
+fn align_sam_copy_ints(values : Array[Int32]) -> Array[Int32] {
+  let copy : Array[Int32] = []
   for value in values {
     copy.push(value)
   }
@@ -160,7 +196,7 @@ fn align_sam_copy_fields(
 ) -> Array[AlignSamHeaderField] {
   let copy : Array[AlignSamHeaderField] = []
   for value in values {
-    copy.push(AlignSamHeaderField::{ key: value.key, value: value.value })
+    copy.push(AlignSamHeaderField::{ key: value.key, value: value.value, })
   }
   copy
 }
@@ -206,7 +242,11 @@ fn align_sam_split_char(value : String, separator : Char) -> Array[String] {
 }
 
 ///|
-fn align_sam_find_char(value : String, separator : Char, start : Int) -> Int? {
+fn align_sam_find_char(
+  value : String,
+  separator : Char,
+  start : Int32,
+) -> Int32? {
   for index in start..<value.length() {
     if value.unsafe_get(index).to_int() == separator.to_int() {
       return Some(index)
@@ -219,7 +259,7 @@ fn align_sam_find_char(value : String, separator : Char, start : Int) -> Int? {
 fn align_sam_parse_int(
   value : String,
   label : String,
-) -> Int raise AlignSamError {
+) -> Int32 raise AlignSamError {
   if value.length() == 0 {
     align_sam_fail(label + " is missing")
   }
@@ -311,14 +351,14 @@ fn align_sam_validate_tag_name(name : String) -> Unit raise AlignSamError {
 }
 
 ///|
-fn align_sam_is_hex(code : Int) -> Bool {
+fn align_sam_is_hex(code : Int32) -> Bool {
   (code >= '0'.to_int() && code <= '9'.to_int()) ||
   (code >= 'A'.to_int() && code <= 'F'.to_int()) ||
   (code >= 'a'.to_int() && code <= 'f'.to_int())
 }
 
 ///|
-fn align_sam_is_md_base(code : Int) -> Bool {
+fn align_sam_is_md_base(code : Int32) -> Bool {
   code == 'A'.to_int() ||
   code == 'C'.to_int() ||
   code == 'G'.to_int() ||
@@ -406,7 +446,7 @@ pub fn align_sam_parse_cigar(
     if !align_sam_is_clip(operation) && !align_sam_is_core(operation) {
       align_sam_fail("unknown CIGAR operation " + operation)
     }
-    elements.push(AlignSamCigarElement::{ operation, length })
+    elements.push(AlignSamCigarElement::{ operation, length, })
     index = index + 1
     start = index
   }
@@ -461,7 +501,7 @@ pub fn align_sam_cigar_string(elements : Array[AlignSamCigarElement]) -> String 
   if elements.length() == 0 {
     return "*"
   }
-  let output = StringBuilder::new()
+  let output = StringBuilder()
   for element in elements {
     output.write_string(element.length.to_string())
     output.write_string(element.operation)
@@ -472,7 +512,7 @@ pub fn align_sam_cigar_string(elements : Array[AlignSamCigarElement]) -> String 
 ///|
 fn align_sam_cigar_query_consumed(
   elements : Array[AlignSamCigarElement],
-) -> Int {
+) -> Int32 {
   let mut total = 0
   for element in elements {
     if element.operation == "M" ||
@@ -487,7 +527,7 @@ fn align_sam_cigar_query_consumed(
 }
 
 ///|
-fn align_sam_left_soft(elements : Array[AlignSamCigarElement]) -> Int {
+fn align_sam_left_soft(elements : Array[AlignSamCigarElement]) -> Int32 {
   let mut total = 0
   for element in elements {
     if align_sam_is_core(element.operation) {
@@ -503,7 +543,7 @@ fn align_sam_left_soft(elements : Array[AlignSamCigarElement]) -> Int {
 ///|
 fn align_sam_raw_hard_clips(
   elements : Array[AlignSamCigarElement],
-) -> (Int?, Int?) {
+) -> (Int32?, Int32?) {
   let mut left = 0
   let mut right = 0
   for element in elements {
@@ -541,13 +581,13 @@ fn align_sam_raw_hard_clips(
 
 ///|
 fn align_sam_build_path(
-  target_start : Int,
+  target_start : Int32,
   cigar : Array[AlignSamCigarElement],
-  query_length : Int,
+  query_length : Int32,
   reverse : Bool,
-) -> (Array[Int], Array[Int], Array[AlignSamOperation]) raise AlignSamError {
-  let target_coordinates : Array[Int] = [target_start]
-  let query_coordinates : Array[Int] = [align_sam_left_soft(cigar)]
+) -> (Array[Int32], Array[Int32], Array[AlignSamOperation]) raise AlignSamError {
+  let target_coordinates : Array[Int32] = [target_start]
+  let query_coordinates : Array[Int32] = [align_sam_left_soft(cigar)]
   let operations : Array[AlignSamOperation] = []
   let mut target = target_start
   let mut query = query_coordinates[0]
@@ -650,7 +690,7 @@ fn align_sam_parse_tag(field : String) -> AlignSamTag raise AlignSamError {
       subtype == "S" ||
       subtype == "i" ||
       subtype == "I" {
-      let items : Array[Int] = []
+      let items : Array[Int32] = []
       for index in 1..<values.length() {
         let item = align_sam_parse_int(values[index], "SAM B tag " + name)
         if subtype == "c" && (item < -128 || item > 127) {
@@ -679,7 +719,7 @@ fn align_sam_parse_tag(field : String) -> AlignSamTag raise AlignSamError {
     align_sam_fail("unknown SAM optional tag datatype " + datatype)
     SamTagString("")
   }
-  AlignSamTag::{ name, value }
+  AlignSamTag::{ name, value, }
 }
 
 ///|
@@ -692,7 +732,7 @@ fn align_sam_tag_text(tag : AlignSamTag) -> String {
     SamTagString(value) => prefix + "Z:" + value
     SamTagHex(value) => prefix + "H:" + value
     SamTagIntegerArray(kind, values) => {
-      let output = StringBuilder::new()
+      let output = StringBuilder()
       output.write_string(prefix)
       output.write_string("B:")
       output.write_string(kind)
@@ -703,7 +743,7 @@ fn align_sam_tag_text(tag : AlignSamTag) -> String {
       output.to_string()
     }
     SamTagFloatArray(values) => {
-      let output = StringBuilder::new()
+      let output = StringBuilder()
       output.write_string(prefix)
       output.write_string("B:f")
       for value in values {
@@ -718,10 +758,10 @@ fn align_sam_tag_text(tag : AlignSamTag) -> String {
 ///|
 pub fn align_sam_integer_tag(
   name : String,
-  value : Int,
+  value : Int32,
 ) -> AlignSamTag raise AlignSamError {
   align_sam_validate_tag_name(name)
-  AlignSamTag::{ name, value: SamTagInteger(value) }
+  AlignSamTag::{ name, value: SamTagInteger(value), }
 }
 
 ///|
@@ -733,7 +773,7 @@ pub fn align_sam_float_tag(
   if value.abs() > 1.0e300 {
     align_sam_fail("SAM floating-point tag value must be finite")
   }
-  AlignSamTag::{ name, value: SamTagFloat(value) }
+  AlignSamTag::{ name, value: SamTagFloat(value), }
 }
 
 ///|
@@ -764,9 +804,9 @@ pub fn align_sam_hex_tag(
 pub fn align_sam_integer_array_tag(
   name : String,
   subtype : String,
-  values : Array[Int],
+  values : Array[Int32],
 ) -> AlignSamTag raise AlignSamError {
-  let output = StringBuilder::new()
+  let output = StringBuilder()
   output.write_string(name)
   output.write_string(":B:")
   output.write_string(subtype)
@@ -782,7 +822,7 @@ pub fn align_sam_float_array_tag(
   name : String,
   values : Array[Double],
 ) -> AlignSamTag raise AlignSamError {
-  let output = StringBuilder::new()
+  let output = StringBuilder()
   output.write_string(name)
   output.write_string(":B:f")
   for value in values {
@@ -810,7 +850,7 @@ fn align_sam_parse_header(line : String) -> AlignSamHeader raise AlignSamError {
       }
       comment = comment + parts[index]
     }
-    return AlignSamHeader::{ record_type, fields: [], comment }
+    return AlignSamHeader::{ record_type, fields: [], comment, }
   }
   let fields : Array[AlignSamHeaderField] = []
   let seen : Map[String, Bool] = Map([])
@@ -832,9 +872,9 @@ fn align_sam_parse_header(line : String) -> AlignSamHeader raise AlignSamError {
       align_sam_fail("duplicate SAM header field " + key)
     }
     seen[key] = true
-    fields.push(AlignSamHeaderField::{ key, value })
+    fields.push(AlignSamHeaderField::{ key, value, })
   }
-  AlignSamHeader::{ record_type, fields, comment: "" }
+  AlignSamHeader::{ record_type, fields, comment: "", }
 }
 
 ///|
@@ -883,7 +923,7 @@ fn align_sam_parse_reference(
       })
     }
   }
-  AlignSamReference::{ name, length, annotations }
+  AlignSamReference::{ name, length, annotations, }
 }
 
 ///|
@@ -901,8 +941,8 @@ fn align_sam_validate_sequence(sequence : String) -> Unit raise AlignSamError {
 }
 
 ///|
-fn align_sam_reverse_ints(values : Array[Int]) -> Array[Int] {
-  let reversed : Array[Int] = []
+fn align_sam_reverse_ints(values : Array[Int32]) -> Array[Int32] {
+  let reversed : Array[Int32] = []
   let mut index = values.length()
   while index > 0 {
     index = index - 1
@@ -920,7 +960,7 @@ fn align_sam_reverse_complement(sequence : String) -> String {
 fn align_sam_reference_length(
   references : Array[AlignSamReference],
   name : String,
-) -> Int? {
+) -> Int32? {
   for reference in references {
     if reference.name == name {
       return Some(reference.length)
@@ -1071,7 +1111,7 @@ fn align_sam_parse_alignment(
   }
   let quality_text = fields[10]
   let qualities_known = quality_text != "*"
-  let raw_qualities : Array[Int] = []
+  let raw_qualities : Array[Int32] = []
   if qualities_known {
     if !sequence_known || quality_text.length() != raw_sequence.length() {
       align_sam_fail("QUAL length must equal SEQ length")
@@ -1134,7 +1174,7 @@ fn align_sam_parse_alignment(
   } else {
     align_sam_cigar_query_consumed(cigar)
   }
-  let reference_length : Int? = if unmapped {
+  let reference_length : Int32? = if unmapped {
     None
   } else {
     let length = align_sam_reference_length(references, reference_name)
@@ -1168,7 +1208,7 @@ fn align_sam_parse_alignment(
     }
     None => ()
   }
-  let raw_hard_clips : (Int?, Int?) = if unmapped {
+  let raw_hard_clips : (Int32?, Int32?) = if unmapped {
     (None, None)
   } else {
     align_sam_raw_hard_clips(cigar)
@@ -1276,7 +1316,7 @@ pub fn align_sam_parse(text : String) -> AlignSamDocument raise AlignSamError {
       alignments.push(align_sam_parse_alignment(line, references))
     }
   }
-  AlignSamDocument::{ headers, references, alignments }
+  AlignSamDocument::{ headers, references, alignments, }
 }
 
 ///|
@@ -1322,7 +1362,7 @@ pub fn AlignSamAlignment::is_supplementary(self : AlignSamAlignment) -> Bool {
 }
 
 ///|
-pub fn AlignSamAlignment::query_length(self : AlignSamAlignment) -> Int {
+pub fn AlignSamAlignment::query_length(self : AlignSamAlignment) -> Int32 {
   if self.sequence_known {
     self.query_sequence.length()
   } else {
@@ -1331,7 +1371,7 @@ pub fn AlignSamAlignment::query_length(self : AlignSamAlignment) -> Int {
 }
 
 ///|
-pub fn AlignSamAlignment::reference_start(self : AlignSamAlignment) -> Int? {
+pub fn AlignSamAlignment::reference_start(self : AlignSamAlignment) -> Int32? {
   if self.target_coordinates.length() == 0 {
     None
   } else {
@@ -1340,7 +1380,7 @@ pub fn AlignSamAlignment::reference_start(self : AlignSamAlignment) -> Int? {
 }
 
 ///|
-pub fn AlignSamAlignment::reference_end(self : AlignSamAlignment) -> Int? {
+pub fn AlignSamAlignment::reference_end(self : AlignSamAlignment) -> Int32? {
   if self.target_coordinates.length() == 0 {
     None
   } else {
@@ -1368,7 +1408,7 @@ pub fn AlignSamAlignment::tag(
 pub fn AlignSamAlignment::integer_tag(
   self : AlignSamAlignment,
   name : String,
-) -> Int? {
+) -> Int32? {
   match self.tag(name) {
     Some(tag) =>
       match tag.value {
@@ -1450,8 +1490,8 @@ fn align_sam_is_aligned_operation(operation : AlignSamOperation) -> Bool {
 ///|
 pub fn AlignSamAlignment::target_to_query(
   self : AlignSamAlignment,
-  position : Int,
-) -> Int? {
+  position : Int32,
+) -> Int32? {
   for index in 0..<self.operations.length() {
     if !align_sam_is_aligned_operation(self.operations[index]) {
       continue
@@ -1475,8 +1515,8 @@ pub fn AlignSamAlignment::target_to_query(
 ///|
 pub fn AlignSamAlignment::query_to_target(
   self : AlignSamAlignment,
-  position : Int,
-) -> Int? {
+  position : Int32,
+) -> Int32? {
   for index in 0..<self.operations.length() {
     if !align_sam_is_aligned_operation(self.operations[index]) {
       continue
@@ -1508,8 +1548,8 @@ fn align_sam_raw_sequence(alignment : AlignSamAlignment) -> String {
 ///|
 fn align_sam_md_positions(
   alignment : AlignSamAlignment,
-) -> (Array[Int], Array[String]) {
-  let positions : Array[Int] = []
+) -> (Array[Int32], Array[String]) {
+  let positions : Array[Int32] = []
   let defaults : Array[String] = []
   let raw_sequence = align_sam_raw_sequence(alignment)
   let mut target = match alignment.reference_start() {
@@ -1552,7 +1592,7 @@ fn align_sam_md_positions(
 ///|
 fn align_sam_reference_from_md(
   alignment : AlignSamAlignment,
-) -> (Array[Int], Array[String]) raise AlignSamError {
+) -> (Array[Int32], Array[String]) raise AlignSamError {
   let (positions, values) = align_sam_md_positions(alignment)
   let md = match alignment.string_tag("MD") {
     Some(value) => value
@@ -1601,9 +1641,9 @@ fn align_sam_reference_from_md(
 
 ///|
 fn align_sam_reference_char(
-  positions : Array[Int],
+  positions : Array[Int32],
   values : Array[String],
-  position : Int,
+  position : Int32,
 ) -> String {
   for index in 0..<positions.length() {
     if positions[index] == position {
@@ -1616,7 +1656,7 @@ fn align_sam_reference_char(
 ///|
 pub fn AlignSamAlignment::aligned_rows(
   self : AlignSamAlignment,
-  reference_sequence? : String = "",
+  reference_sequence~ : String = "",
 ) -> (String, String) raise AlignSamError {
   if self.is_unmapped() {
     align_sam_fail("unmapped SAM records do not have aligned rows")
@@ -1632,8 +1672,8 @@ pub fn AlignSamAlignment::aligned_rows(
   }
   let (md_positions, md_values) = align_sam_reference_from_md(self)
   let raw_sequence = align_sam_raw_sequence(self)
-  let target_row = StringBuilder::new()
-  let query_row = StringBuilder::new()
+  let target_row = StringBuilder()
+  let query_row = StringBuilder()
   let mut target = match self.reference_start() {
     Some(value) => value
     None => 0
@@ -1696,7 +1736,7 @@ pub fn AlignSamAlignment::aligned_rows(
 }
 
 ///|
-pub fn AlignSamAlignment::computed_nm(self : AlignSamAlignment) -> Int? {
+pub fn AlignSamAlignment::computed_nm(self : AlignSamAlignment) -> Int32? {
   if self.is_unmapped() {
     return None
   }
@@ -1768,7 +1808,7 @@ pub fn align_sam_calculate_md(
   }
   let mut query = 0
   let mut matches = 0
-  let output = StringBuilder::new()
+  let output = StringBuilder()
   for element in alignment.cigar {
     let operation = element.operation
     if operation == "S" {
@@ -1817,7 +1857,7 @@ fn align_sam_quality_text(
   } else {
     align_sam_copy_ints(alignment.qualities)
   }
-  let output = StringBuilder::new()
+  let output = StringBuilder()
   for value in values {
     if value < 0 || value > 93 {
       align_sam_fail("PHRED quality must be between 0 and 93")
@@ -1830,10 +1870,10 @@ fn align_sam_quality_text(
 ///|
 pub fn align_sam_format(
   alignment : AlignSamAlignment,
-  calculate_md? : Bool = false,
-  reference_sequence? : String = "",
+  calculate_md~ : Bool = false,
+  reference_sequence~ : String = "",
 ) -> String raise AlignSamError {
-  let output = StringBuilder::new()
+  let output = StringBuilder()
   output.write_string(alignment.query_name)
   output.write_char('\t')
   output.write_string(alignment.flag.to_string())
@@ -1903,7 +1943,7 @@ pub fn align_sam_format(
 
 ///|
 fn align_sam_header_text(header : AlignSamHeader) -> String {
-  let output = StringBuilder::new()
+  let output = StringBuilder()
   output.write_char('@')
   output.write_string(header.record_type)
   if header.record_type == "CO" {
@@ -1927,7 +1967,7 @@ fn align_sam_header_text(header : AlignSamHeader) -> String {
 pub fn align_sam_write(
   document : AlignSamDocument,
 ) -> String raise AlignSamError {
-  let output = StringBuilder::new()
+  let output = StringBuilder()
   for header in document.headers {
     output.write_string(align_sam_header_text(header))
   }
@@ -1939,7 +1979,7 @@ pub fn align_sam_write(
 
 ///|
 fn align_sam_format_tags(tags : Array[AlignSamTag]) -> String {
-  let output = StringBuilder::new()
+  let output = StringBuilder()
   for tag in tags {
     output.write_char('\t')
     output.write_string(align_sam_tag_text(tag))
@@ -1949,9 +1989,9 @@ fn align_sam_format_tags(tags : Array[AlignSamTag]) -> String {
 
 ///|
 fn align_sam_quality_from_values(
-  qualities : Array[Int],
+  qualities : Array[Int32],
 ) -> String raise AlignSamError {
-  let output = StringBuilder::new()
+  let output = StringBuilder()
   for value in qualities {
     if value < 0 || value > 93 {
       align_sam_fail("PHRED quality must be between 0 and 93")
@@ -1965,15 +2005,15 @@ fn align_sam_quality_from_values(
 pub fn align_sam_create(
   query_name : String,
   reference_name : String,
-  reference_length : Int,
-  target_start : Int,
+  reference_length : Int32,
+  target_start : Int32,
   query_sequence : String,
   cigar : String,
-  reverse? : Bool = false,
-  mapq? : Int = 255,
-  qualities? : Array[Int] = [],
-  tags? : Array[AlignSamTag] = [],
-  flag? : Int = 0,
+  reverse~ : Bool = false,
+  mapq~ : Int32 = 255,
+  qualities~ : Array[Int32] = [],
+  tags~ : Array[AlignSamTag] = [],
+  flag~ : Int32 = 0,
 ) -> AlignSamAlignment raise AlignSamError {
   if reference_length <= 0 {
     align_sam_fail("reference_length must be positive")

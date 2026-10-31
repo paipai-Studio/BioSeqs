@@ -13,18 +13,18 @@ fn main {
   let result1 = @bio.checksum_gcg(seq1)
   println("   Seq: \{seq1}")
   println("   Checksum: \{result1.checksum}")
-  println("   Method: \{result1.method}")
+  println("   Method: \{result1.method_}")
 
   println("\n2. SEGUID checksum:")
   let result2 = @bio.checksum_seguid(seq2)
   println("   Seq: \{seq2}")
   println("   Checksum: \{result2.checksum}")
-  println("   Method: \{result2.method}")
+  println("   Method: \{result2.method_}")
 
   let result3 = @bio.checksum_seguid(seq3)
   println("\n   Seq (long): \{seq3.length()} bp")
   println("   Checksum: \{result3.checksum}")
-  println("   Method: \{result3.method}")
+  println("   Method: \{result3.method_}")
 
   println("\n3. Verify checksum:")
   let verified_gcg = @bio.verify_checksum(seq1, result1.checksum, "gcg")

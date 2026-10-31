@@ -13,8 +13,8 @@ pub struct GeneInfo {
   symbol : String
   description : String
   chr : String
-  start : Int
-  end : Int
+  start : Int32
+  end : Int32
   strand : String
   biotype : String
 }
@@ -25,12 +25,12 @@ pub fn GeneInfo::new(
   symbol : String,
   description : String,
   chr : String,
-  start : Int,
-  end : Int,
+  start : Int32,
+  end : Int32,
   strand : String,
   biotype : String,
 ) -> GeneInfo {
-  GeneInfo::{ gene_id, symbol, description, chr, start, end, strand, biotype }
+  GeneInfo::{ gene_id, symbol, description, chr, start, end, strand, biotype, }
 }
 
 ///|
@@ -48,7 +48,7 @@ pub fn AnnotationGOTerm::new(
   evidence_code : String,
   ontology : String,
 ) -> AnnotationGOTerm {
-  AnnotationGOTerm::{ go_id, go_name, evidence_code, ontology }
+  AnnotationGOTerm::{ go_id, go_name, evidence_code, ontology, }
 }
 
 ///|
@@ -64,7 +64,7 @@ pub fn AnnotationKEGGTerm::new(
   kegg_name : String,
   pathway_type : String,
 ) -> AnnotationKEGGTerm {
-  AnnotationKEGGTerm::{ kegg_id, kegg_name, pathway_type }
+  AnnotationKEGGTerm::{ kegg_id, kegg_name, pathway_type, }
 }
 
 ///|
@@ -127,7 +127,7 @@ pub fn map_ids(
   db : AnnotationDb,
   ids : Array[String],
   from_type : String,
-  to_type : String,
+  _to_type : String,
 ) -> Map[String, String] {
   let result = Map([], capacity=ids.length())
 
@@ -231,29 +231,17 @@ pub fn get_kegg_annotations(
 }
 
 ///|
-pub fn annotation_dbi_keys(db : AnnotationDb) -> Array[String] {
-  db.gene_info.keys().collect()
-}
-
-///|
-pub fn annotation_dbi_columns(db : AnnotationDb) -> Array[String] {
-  [
-    "gene_id", "symbol", "description", "chr", "start", "end", "strand", "biotype",
-  ]
-}
-
-///|
-pub fn nrow(db : AnnotationDb) -> Int {
+pub fn nrow(db : AnnotationDb) -> Int32 {
   db.gene_info.length()
 }
 
 ///|
-pub fn ncol(db : AnnotationDb) -> Int {
+pub fn ncol(_db : AnnotationDb) -> Int32 {
   8
 }
 
 ///|
-pub fn head(db : AnnotationDb, n : Int) -> Array[GeneInfo] {
+pub fn head(db : AnnotationDb, n : Int32) -> Array[GeneInfo] {
   let result : Array[GeneInfo] = []
   let keys = db.gene_info.keys().collect()
 

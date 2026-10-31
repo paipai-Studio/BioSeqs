@@ -178,7 +178,7 @@ fn mm_ln_factorial(x : Double) -> Double {
 
 ///|
 /// Multivariate hypergeometric PMF for a 2x2 table.
-fn mm_hypergeom_pmf(a : Int, b : Int, c : Int, d : Int) -> Double {
+fn mm_hypergeom_pmf(a : Int32, b : Int32, c : Int32, d : Int32) -> Double {
   let n = (a + b + c + d).to_double()
   if n <= 0.0 {
     return 0.0
@@ -216,23 +216,11 @@ fn mm_contains(arr : Array[String], val : String) -> Bool {
 }
 
 ///|
-/// Return the unique strings of an array, preserving first-seen order.
-fn mm_unique(arr : Array[String]) -> Array[String] {
-  let result : Array[String] = Array::new()
-  for v in arr {
-    if not(mm_contains(result, v)) {
-      result.push(v)
-    }
-  }
-  result
-}
-
-///|
 /// Intersection of two string arrays (unique, first-seen order).
 fn mm_intersect(a : Array[String], b : Array[String]) -> Array[String] {
-  let result : Array[String] = Array::new()
+  let result : Array[String] = Array(capacity=0)
   for v in a {
-    if mm_contains(b, v) && not(mm_contains(result, v)) {
+    if mm_contains(b, v) && !mm_contains(result, v) {
       result.push(v)
     }
   }
@@ -242,9 +230,9 @@ fn mm_intersect(a : Array[String], b : Array[String]) -> Array[String] {
 ///|
 /// Collect all unique GO IDs from the database.
 fn mm_unique_go_ids(db : MmGoDatabase) -> Array[String] {
-  let result : Array[String] = Array::new()
+  let result : Array[String] = Array(capacity=0)
   for entry in db.entries {
-    if not(mm_contains(result, entry.0)) {
+    if !mm_contains(result, entry.0) {
       result.push(entry.0)
     }
   }
@@ -271,7 +259,7 @@ fn mm_go_meta(db : MmGoDatabase, go_id : String) -> (String, String) {
 pub struct MmProbeAnnotation {
   probe_id : String
   chr : String
-  pos : Int
+  pos : Int32
   gene : String
   island_relation : String
   probe_type : String
@@ -282,12 +270,12 @@ pub struct MmProbeAnnotation {
 pub fn MmProbeAnnotation::new(
   probe_id : String,
   chr : String,
-  pos : Int,
+  pos : Int32,
   gene : String,
   island_relation : String,
   probe_type : String,
 ) -> MmProbeAnnotation {
-  MmProbeAnnotation::{ probe_id, chr, pos, gene, island_relation, probe_type }
+  MmProbeAnnotation::{ probe_id, chr, pos, gene, island_relation, probe_type, }
 }
 
 ///|
@@ -304,7 +292,7 @@ pub fn MmProbeAnnotation::chr(self : MmProbeAnnotation) -> String {
 
 ///|
 /// Genomic position.
-pub fn MmProbeAnnotation::pos(self : MmProbeAnnotation) -> Int {
+pub fn MmProbeAnnotation::pos(self : MmProbeAnnotation) -> Int32 {
   self.pos
 }
 
@@ -329,7 +317,7 @@ pub fn MmProbeAnnotation::probe_type(self : MmProbeAnnotation) -> String {
 ///|
 /// Human-readable representation.
 pub fn MmProbeAnnotation::to_string(self : MmProbeAnnotation) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string("MmProbeAnnotation(probe_id=")
   buf.write_string(self.probe_id)
   buf.write_string(", chr=")
@@ -355,7 +343,7 @@ pub struct MmDmpResult {
   p_value : Double
   adj_p_value : Double
   chr : String
-  pos : Int
+  pos : Int32
   gene : String
 }
 
@@ -368,7 +356,7 @@ pub fn MmDmpResult::new(
   p_value : Double,
   adj_p_value : Double,
   chr : String,
-  pos : Int,
+  pos : Int32,
   gene : String,
 ) -> MmDmpResult {
   MmDmpResult::{
@@ -421,7 +409,7 @@ pub fn MmDmpResult::chr(self : MmDmpResult) -> String {
 
 ///|
 /// Genomic position.
-pub fn MmDmpResult::pos(self : MmDmpResult) -> Int {
+pub fn MmDmpResult::pos(self : MmDmpResult) -> Int32 {
   self.pos
 }
 
@@ -446,8 +434,8 @@ pub struct MmGoResult {
   go_id : String
   go_term : String
   ontology : String
-  n_probes : Int
-  n_sig_probes : Int
+  n_probes : Int32
+  n_sig_probes : Int32
   p_value : Double
   adj_p_value : Double
   expected : Double
@@ -459,8 +447,8 @@ pub fn MmGoResult::new(
   go_id : String,
   go_term : String,
   ontology : String,
-  n_probes : Int,
-  n_sig_probes : Int,
+  n_probes : Int32,
+  n_sig_probes : Int32,
   p_value : Double,
   adj_p_value : Double,
   expected : Double,
@@ -497,13 +485,13 @@ pub fn MmGoResult::ontology(self : MmGoResult) -> String {
 
 ///|
 /// Number of background probes annotated to this GO term.
-pub fn MmGoResult::n_probes(self : MmGoResult) -> Int {
+pub fn MmGoResult::n_probes(self : MmGoResult) -> Int32 {
   self.n_probes
 }
 
 ///|
 /// Number of significant probes annotated to this GO term.
-pub fn MmGoResult::n_sig_probes(self : MmGoResult) -> Int {
+pub fn MmGoResult::n_sig_probes(self : MmGoResult) -> Int32 {
   self.n_sig_probes
 }
 
@@ -534,7 +522,7 @@ pub struct MmGoDatabase {
 ///|
 /// Construct an empty GO database.
 pub fn MmGoDatabase::new() -> MmGoDatabase {
-  MmGoDatabase::{ entries: Array::new() }
+  MmGoDatabase::{ entries: Array(capacity=0), }
 }
 
 ///|
@@ -555,9 +543,9 @@ pub fn MmGoDatabase::genes_for_go(
   self : MmGoDatabase,
   go_id : String,
 ) -> Array[String] {
-  let result : Array[String] = Array::new()
+  let result : Array[String] = Array(capacity=0)
   for entry in self.entries {
-    if entry.0 == go_id && not(mm_contains(result, entry.1)) {
+    if entry.0 == go_id && !mm_contains(result, entry.1) {
       result.push(entry.1)
     }
   }
@@ -570,9 +558,9 @@ pub fn MmGoDatabase::go_for_gene(
   self : MmGoDatabase,
   gene : String,
 ) -> Array[String] {
-  let result : Array[String] = Array::new()
+  let result : Array[String] = Array(capacity=0)
   for entry in self.entries {
-    if entry.1 == gene && not(mm_contains(result, entry.0)) {
+    if entry.1 == gene && !mm_contains(result, entry.0) {
       result.push(entry.0)
     }
   }
@@ -648,7 +636,7 @@ pub fn mm_t_test(
 pub fn mm_bh_correct(p_values : Array[Double]) -> Array[Double] {
   let n = p_values.length()
   if n == 0 {
-    return Array::new()
+    return Array(capacity=0)
   }
   // Sort indices by ascending p-value (bubble sort).
   let indices = Array::make(n, 0)
@@ -690,7 +678,7 @@ pub fn mm_bh_correct(p_values : Array[Double]) -> Array[Double] {
 ///|
 /// Two-sided Fisher's exact test for a 2x2 contingency table.
 /// Table: [[a, b], [c, d]]. Returns the two-sided p-value.
-pub fn mm_fisher_exact(a : Int, b : Int, c : Int, d : Int) -> Double {
+pub fn mm_fisher_exact(a : Int32, b : Int32, c : Int32, d : Int32) -> Double {
   let n = a + b + c + d
   if n == 0 {
     return 1.0
@@ -748,8 +736,8 @@ pub fn mm_dmp_analysis(
   let t_stats = Array::make(n_probes, 0.0)
   let log_fcs = Array::make(n_probes, 0.0)
   for p in 0..<n_probes {
-    let treatment : Array[Double] = Array::new()
-    let control : Array[Double] = Array::new()
+    let treatment : Array[Double] = Array(capacity=0)
+    let control : Array[Double] = Array(capacity=0)
     let row = beta[p]
     for s in 0..<group.length() {
       if s < row.length() {
@@ -767,7 +755,7 @@ pub fn mm_dmp_analysis(
     log_fcs[p] = mm_mean(treatment) - mm_mean(control)
   }
   let adj_p = mm_bh_correct(p_values)
-  let results : Array[MmDmpResult] = Array::new()
+  let results : Array[MmDmpResult] = Array(capacity=0)
   for p in 0..<n_probes {
     let ann = if p < probe_annotations.length() {
       probe_annotations[p]
@@ -800,10 +788,9 @@ pub fn mm_map_probes_to_genes(
   probes : Array[String],
   annotations : Array[MmProbeAnnotation],
 ) -> Array[String] {
-  let result : Array[String] = Array::new()
+  let result : Array[String] = Array(capacity=0)
   for ann in annotations {
-    if mm_contains(probes, ann.probe_id()) &&
-      not(mm_contains(result, ann.gene())) {
+    if mm_contains(probes, ann.probe_id()) && !mm_contains(result, ann.gene()) {
       result.push(ann.gene())
     }
   }
@@ -816,10 +803,9 @@ fn mm_probes_for_genes(
   genes : Array[String],
   annotations : Array[MmProbeAnnotation],
 ) -> Array[String] {
-  let result : Array[String] = Array::new()
+  let result : Array[String] = Array(capacity=0)
   for ann in annotations {
-    if mm_contains(genes, ann.gene()) &&
-      not(mm_contains(result, ann.probe_id())) {
+    if mm_contains(genes, ann.gene()) && !mm_contains(result, ann.probe_id()) {
       result.push(ann.probe_id())
     }
   }
@@ -842,8 +828,8 @@ pub fn mm_go_enrichment(
   let n_bg = bg_genes.length()
   let n_sig = sig_genes.length()
   let go_ids = mm_unique_go_ids(go_db)
-  let raw_results : Array[MmGoResult] = Array::new()
-  let p_values : Array[Double] = Array::new()
+  let raw_results : Array[MmGoResult] = Array(capacity=0)
+  let p_values : Array[Double] = Array(capacity=0)
   for go_id in go_ids {
     let go_genes_all = go_db.genes_for_go(go_id)
     let go_genes = mm_intersect(go_genes_all, bg_genes)
@@ -873,7 +859,7 @@ pub fn mm_go_enrichment(
     p_values.push(p_val)
   }
   let adj_p = mm_bh_correct(p_values)
-  let final_results : Array[MmGoResult] = Array::new()
+  let final_results : Array[MmGoResult] = Array(capacity=0)
   for i in 0..<raw_results.length() {
     let r = raw_results[i]
     final_results.push(
@@ -909,8 +895,8 @@ pub fn mm_probe_bias_correction(
   let n_sig = sig_probes.length()
   let n_bg = all_probes.length()
   let go_ids = mm_unique_go_ids(go_db)
-  let raw_results : Array[MmGoResult] = Array::new()
-  let p_values : Array[Double] = Array::new()
+  let raw_results : Array[MmGoResult] = Array(capacity=0)
+  let p_values : Array[Double] = Array(capacity=0)
   for go_id in go_ids {
     let go_genes = go_db.genes_for_go(go_id)
     let go_probes = mm_probes_for_genes(go_genes, annotations)
@@ -942,7 +928,7 @@ pub fn mm_probe_bias_correction(
     p_values.push(p_val)
   }
   let adj_p = mm_bh_correct(p_values)
-  let final_results : Array[MmGoResult] = Array::new()
+  let final_results : Array[MmGoResult] = Array(capacity=0)
   for i in 0..<raw_results.length() {
     let r = raw_results[i]
     final_results.push(
@@ -973,7 +959,7 @@ pub fn mm_filter_probes(
   chr_filter : String,
   island_filter : String,
 ) -> Array[MmProbeAnnotation] {
-  let result : Array[MmProbeAnnotation] = Array::new()
+  let result : Array[MmProbeAnnotation] = Array(capacity=0)
   for ann in annotations {
     let chr_ok = chr_filter == "" ||
       chr_filter == "all" ||
@@ -1009,7 +995,7 @@ pub fn mm_summary(dmp_results : Array[MmDmpResult]) -> String {
       n_sig_01 = n_sig_01 + 1
     }
   }
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string("DMP Analysis Summary\n")
   buf.write_string("====================\n")
   buf.write_string("Total probes tested: ")
@@ -1031,7 +1017,7 @@ pub fn mm_summary(dmp_results : Array[MmDmpResult]) -> String {
 pub fn mm_go_summary(go_results : Array[MmGoResult]) -> String {
   let n = go_results.length()
   let mut n_sig = 0
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string("GO Enrichment Summary\n")
   buf.write_string("=====================\n")
   buf.write_string("GO terms tested: ")
@@ -1068,7 +1054,7 @@ pub fn mm_go_summary(go_results : Array[MmGoResult]) -> String {
 ///|
 /// Twenty sample probe annotations spanning chromosomes 1-3.
 pub fn mm_sample_annotations() -> Array[MmProbeAnnotation] {
-  let result : Array[MmProbeAnnotation] = Array::new()
+  let result : Array[MmProbeAnnotation] = Array(capacity=0)
   result.push(MmProbeAnnotation::new("cg001", "chr1", 1000, "A", "Island", "I"))
   result.push(MmProbeAnnotation::new("cg002", "chr1", 2000, "B", "Shore", "I"))
   result.push(MmProbeAnnotation::new("cg003", "chr1", 3000, "C", "Shelf", "II"))
@@ -1124,9 +1110,9 @@ pub fn mm_sample_go_database() -> MmGoDatabase {
 /// The first five probes are strongly differential (hypermethylated in
 /// treatment); the remaining probes show no consistent group difference.
 pub fn mm_sample_beta() -> Array[Array[Double]] {
-  let matrix : Array[Array[Double]] = Array::new()
+  let matrix : Array[Array[Double]] = Array(capacity=0)
   for p in 0..<20 {
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     for s in 0..<8 {
       if p < 5 {
         // Differential probes: low beta in control, high in treatment.

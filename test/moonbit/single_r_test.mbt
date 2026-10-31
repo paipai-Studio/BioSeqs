@@ -113,7 +113,7 @@ test "single_r_aggregate_scores_by_type" {
     "spearman",
   )
   let agg = @src.single_r_aggregate_scores_by_type(scores, ref_data, 1)
-  assert_true(agg.size() > 0)
+  assert_true(agg.length() > 0)
   assert_true(agg.contains("T cells"))
 }
 
@@ -189,7 +189,7 @@ test "single_r_annotation_summary" {
   let result = @src.single_r_annotate_cells(test_data, ref_data, params)
   let summary = @src.single_r_annotation_summary(result)
 
-  assert_true(summary.size() > 0)
+  assert_true(summary.length() > 0)
   assert_true(summary.contains("n_cells"))
   assert_eq(summary.get("n_cells").unwrap_or(0.0), 50.0)
   assert_true(summary.contains("avg_score"))
@@ -199,7 +199,7 @@ test "single_r_annotation_summary" {
 ///|
 test "single_r_params_default" {
   let params = @src.SingleRParams::new()
-  assert_eq(params.method, "spearman")
+  assert_eq(params.method_, "spearman")
   assert_eq(params.n_top_scores, 1)
   assert_true(params.fine_tune)
   assert_true((params.min_score - 0.0).abs() < 0.001)
@@ -208,7 +208,7 @@ test "single_r_params_default" {
 ///|
 test "single_r_params_pearson" {
   let params = @src.SingleRParams::with_method("pearson")
-  assert_eq(params.method, "pearson")
+  assert_eq(params.method_, "pearson")
 }
 
 ///|

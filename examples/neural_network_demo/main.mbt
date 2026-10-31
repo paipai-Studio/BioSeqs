@@ -21,11 +21,11 @@ fn main {
   for i in 0..<xor_inputs.length() {
     println(
       "  [" +
-        xor_inputs[i][0].to_string() +
-        ", " +
-        xor_inputs[i][1].to_string() +
-        "] => " +
-        xor_targets[i][0].to_string(),
+      xor_inputs[i][0].to_string() +
+      ", " +
+      xor_inputs[i][1].to_string() +
+      "] => " +
+      xor_targets[i][0].to_string(),
     )
   }
   println("")
@@ -44,17 +44,17 @@ fn main {
     let match_str = if pred == target { "✓" } else { "✗" }
     println(
       "  " +
-        match_str +
-        " [" +
-        xor_inputs[i][0].to_string() +
-        ", " +
-        xor_inputs[i][1].to_string() +
-        "] => output=" +
-        output[0].to_string() +
-        " pred=" +
-        pred.to_string() +
-        " target=" +
-        target.to_string(),
+      match_str +
+      " [" +
+      xor_inputs[i][0].to_string() +
+      ", " +
+      xor_inputs[i][1].to_string() +
+      "] => output=" +
+      output[0].to_string() +
+      " pred=" +
+      pred.to_string() +
+      " target=" +
+      target.to_string(),
     )
   }
   println("")
@@ -64,7 +64,9 @@ fn main {
   // ------------------------------------------------------------------
   println("=== 2. Iris-like Classification ===")
   let (iris_inputs, iris_targets) = @bio.nn_sample_iris_data()
-  println("Training data: " + iris_inputs.length().to_string() + " samples, 3 classes")
+  println(
+    "Training data: " + iris_inputs.length().to_string() + " samples, 3 classes",
+  )
   let class_names = ["setosa", "versicolor", "virginica"]
   for i in 0..<class_names.length() {
     println("  Class " + i.to_string() + ": " + class_names[i])
@@ -96,18 +98,20 @@ fn main {
     }
     println(
       "  " +
-        match_str +
-        " [" +
-        iris_inputs[i][0].to_string() +
-        ", " +
-        iris_inputs[i][1].to_string() +
-        "] => pred=" +
-        class_names[pred] +
-        " actual=" +
-        class_names[target_class],
+      match_str +
+      " [" +
+      iris_inputs[i][0].to_string() +
+      ", " +
+      iris_inputs[i][1].to_string() +
+      "] => pred=" +
+      class_names[pred] +
+      " actual=" +
+      class_names[target_class],
     )
   }
-  println("Accuracy: " + correct.to_string() + "/" + iris_inputs.length().to_string())
+  println(
+    "Accuracy: " + correct.to_string() + "/" + iris_inputs.length().to_string(),
+  )
   println("")
 
   // ------------------------------------------------------------------
@@ -117,9 +121,24 @@ fn main {
   let hidden = iris_net.hidden_layer()
   let output = iris_net.output_layer()
   println("Input layer: 2 units")
-  println("Hidden layer: " + hidden.n_out().to_string() + " units, " + hidden.n_in().to_string() + " inputs")
-  println("Output layer: " + output.n_out().to_string() + " units, " + output.n_in().to_string() + " inputs")
-  println("Total weights: " + (hidden.n_out() * hidden.n_in() + output.n_out() * output.n_in()).to_string())
+  println(
+    "Hidden layer: " +
+    hidden.n_out().to_string() +
+    " units, " +
+    hidden.n_in().to_string() +
+    " inputs",
+  )
+  println(
+    "Output layer: " +
+    output.n_out().to_string() +
+    " units, " +
+    output.n_in().to_string() +
+    " inputs",
+  )
+  println(
+    "Total weights: " +
+    (hidden.n_out() * hidden.n_in() + output.n_out() * output.n_in()).to_string(),
+  )
   println("")
 
   println("=== Demo complete ===")

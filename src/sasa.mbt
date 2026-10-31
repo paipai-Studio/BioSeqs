@@ -20,29 +20,29 @@
 ///|
 /// Per-atom SASA result.
 pub struct SasaResult {
-  atom_index : Int
+  atom_index : Int32
   atom_name : String
   resname : String
   chainid : Char
-  resseq : Int
+  resseq : Int32
   sasa : Double
 }
 
 ///|
 /// Construct a `SasaResult`.
 pub fn SasaResult::new(
-  atom_index~ : Int,
+  atom_index~ : Int32,
   atom_name~ : String,
   resname~ : String,
   chainid~ : Char,
-  resseq~ : Int,
+  resseq~ : Int32,
   sasa~ : Double,
 ) -> SasaResult {
-  SasaResult::{ atom_index, atom_name, resname, chainid, resseq, sasa }
+  SasaResult::{ atom_index, atom_name, resname, chainid, resseq, sasa, }
 }
 
 ///|
-pub fn SasaResult::get_atom_index(self : SasaResult) -> Int {
+pub fn SasaResult::get_atom_index(self : SasaResult) -> Int32 {
   self.atom_index
 }
 
@@ -62,7 +62,7 @@ pub fn SasaResult::get_chainid(self : SasaResult) -> Char {
 }
 
 ///|
-pub fn SasaResult::get_resseq(self : SasaResult) -> Int {
+pub fn SasaResult::get_resseq(self : SasaResult) -> Int32 {
   self.resseq
 }
 
@@ -76,11 +76,11 @@ pub fn SasaResult::get_sasa(self : SasaResult) -> Double {
 pub struct ResidueSasa {
   resname : String
   chainid : Char
-  resseq : Int
+  resseq : Int32
   total_sasa : Double
   backbone_sasa : Double
   sidechain_sasa : Double
-  num_atoms : Int
+  num_atoms : Int32
 }
 
 ///|
@@ -88,11 +88,11 @@ pub struct ResidueSasa {
 pub fn ResidueSasa::new(
   resname~ : String,
   chainid~ : Char,
-  resseq~ : Int,
+  resseq~ : Int32,
   total_sasa~ : Double,
   backbone_sasa~ : Double,
   sidechain_sasa~ : Double,
-  num_atoms~ : Int,
+  num_atoms~ : Int32,
 ) -> ResidueSasa {
   ResidueSasa::{
     resname,
@@ -116,7 +116,7 @@ pub fn ResidueSasa::get_chainid(self : ResidueSasa) -> Char {
 }
 
 ///|
-pub fn ResidueSasa::get_resseq(self : ResidueSasa) -> Int {
+pub fn ResidueSasa::get_resseq(self : ResidueSasa) -> Int32 {
   self.resseq
 }
 
@@ -136,7 +136,7 @@ pub fn ResidueSasa::get_sidechain_sasa(self : ResidueSasa) -> Double {
 }
 
 ///|
-pub fn ResidueSasa::get_num_atoms(self : ResidueSasa) -> Int {
+pub fn ResidueSasa::get_num_atoms(self : ResidueSasa) -> Int32 {
   self.num_atoms
 }
 
@@ -146,8 +146,8 @@ pub struct SasaSummary {
   total_sasa : Double
   backbone_sasa : Double
   sidechain_sasa : Double
-  num_atoms : Int
-  num_residues : Int
+  num_atoms : Int32
+  num_residues : Int32
 }
 
 ///|
@@ -156,8 +156,8 @@ pub fn SasaSummary::new(
   total_sasa~ : Double,
   backbone_sasa~ : Double,
   sidechain_sasa~ : Double,
-  num_atoms~ : Int,
-  num_residues~ : Int,
+  num_atoms~ : Int32,
+  num_residues~ : Int32,
 ) -> SasaSummary {
   SasaSummary::{
     total_sasa,
@@ -184,12 +184,12 @@ pub fn SasaSummary::get_sidechain_sasa(self : SasaSummary) -> Double {
 }
 
 ///|
-pub fn SasaSummary::get_num_atoms(self : SasaSummary) -> Int {
+pub fn SasaSummary::get_num_atoms(self : SasaSummary) -> Int32 {
   self.num_atoms
 }
 
 ///|
-pub fn SasaSummary::get_num_residues(self : SasaSummary) -> Int {
+pub fn SasaSummary::get_num_residues(self : SasaSummary) -> Int32 {
   self.num_residues
 }
 
@@ -258,8 +258,8 @@ fn sasa_is_backbone(name : String) -> Bool {
 /// Generate approximately uniform points on a unit sphere using the
 /// Fibonacci spiral (golden angle) algorithm. Returns unit vectors.
 /// `n` is clamped to at least 1.
-pub fn sasa_generate_sphere_points(n : Int) -> Array[Vector3] {
-  let points : Array[Vector3] = Array::new()
+pub fn sasa_generate_sphere_points(n : Int32) -> Array[Vector3] {
+  let points : Array[Vector3] = Array(capacity=0)
   let count = if n < 1 { 1 } else { n }
   if count == 1 {
     points.push(Vector3::new(0.0, 0.0, 1.0))
@@ -286,10 +286,10 @@ pub fn sasa_generate_sphere_points(n : Int) -> Array[Vector3] {
 /// `probe_radius`: solvent probe radius in Angstroms (1.4 for water).
 pub fn sasa_calc(
   structure : Structure,
-  n_points : Int,
+  n_points : Int32,
   probe_radius : Double,
 ) -> Array[SasaResult] {
-  let results : Array[SasaResult] = Array::new()
+  let results : Array[SasaResult] = Array(capacity=0)
   let atoms = structure.get_atoms()
   let n_atoms = atoms.length()
   if n_atoms == 0 {
@@ -297,8 +297,8 @@ pub fn sasa_calc(
   }
 
   // Collect coordinates and per-atom probe-sphere radii.
-  let coords : Array[Vector3] = Array::new()
-  let radii : Array[Double] = Array::new()
+  let coords : Array[Vector3] = Array(capacity=0)
+  let radii : Array[Double] = Array(capacity=0)
   for i in 0..<n_atoms {
     let a = atoms[i]
     coords.push(a.coord)
@@ -325,9 +325,9 @@ pub fn sasa_calc(
 
   // Precompute neighbors for pruning: a point on atom i's sphere can be
   // buried by atom j only if dist(i, j) < radii[i] + radii[j].
-  let neighbors : Array[Array[Int]] = Array::new()
+  let neighbors : Array[Array[Int32]] = Array(capacity=0)
   for i in 0..<n_atoms {
-    let nb : Array[Int] = Array::new()
+    let nb : Array[Int32] = Array(capacity=0)
     let ci = coords[i]
     let ri = radii[i]
     for j in 0..<n_atoms {
@@ -399,10 +399,10 @@ pub fn sasa_calc_residue(
   atom_results : Array[SasaResult],
   structure : Structure,
 ) -> Array[ResidueSasa] {
-  let results : Array[ResidueSasa] = Array::new()
+  let results : Array[ResidueSasa] = Array(capacity=0)
 
   // Map atom index -> sasa value for robust lookup.
-  let sasa_map : Map[Int, Double] = Map([], capacity=atom_results.length())
+  let sasa_map : Map[Int32, Double] = Map([], capacity=atom_results.length())
   for r in atom_results {
     sasa_map[r.atom_index] = r.sasa
   }

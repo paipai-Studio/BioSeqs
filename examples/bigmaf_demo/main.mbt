@@ -39,7 +39,7 @@ fn main {
     "   hits=\{hits.length()}, reference=\{reference_component.source}:\{reference_component.start}-\{reference_component.start + reference_component.size}, columns=\{block.aligned_columns()}",
   )
   println(
-    "   score=\{block.score}, pass=\{block.pass_number}, identity=\{block.pairwise_identity()}",
+    "   score=\{Repr(block.score)}, pass=\{Repr(block.pass_number)}, identity=\{block.pairwise_identity()}",
   )
 
   println("\n4. Map a reference base to a reverse-strand component")

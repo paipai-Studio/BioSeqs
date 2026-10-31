@@ -5,7 +5,9 @@
 fn main {
   println("=== QFeatures Module Demo ===")
   println("Quantitative proteomics: PSM -> peptide -> protein aggregation")
-  println("Reference: Gatto L et al. (2020) QFeatures, bioRxiv 2020.10.27.358273")
+  println(
+    "Reference: Gatto L et al. (2020) QFeatures, bioRxiv 2020.10.27.358273",
+  )
   println("")
 
   // ------------------------------------------------------------------
@@ -26,9 +28,7 @@ fn main {
   while i < names.length() {
     match qf.get_assay(names[i]) {
       Some(a) =>
-        println(
-          "  \{names[i]}: \{a.n_rows()} features x \{a.n_cols()} samples",
-        )
+        println("  \{names[i]}: \{a.n_rows()} features x \{a.n_cols()} samples")
       None => println("  \{names[i]}: not found")
     }
     i = i + 1
@@ -113,7 +113,9 @@ fn main {
   let peptide = qf.get_assay("peptide").unwrap()
   let peptide_norm = @bio.qf_normalize_center_scale(peptide, true, true)
   println("Peptide before normalization (row 0): " + row_to_string(peptide, 0))
-  println("Peptide after  normalization (row 0): " + row_to_string(peptide_norm, 0))
+  println(
+    "Peptide after  normalization (row 0): " + row_to_string(peptide_norm, 0),
+  )
   println("")
 
   // ------------------------------------------------------------------
@@ -155,8 +157,9 @@ fn main {
   println("=== Demo complete ===")
 }
 
+///|
 /// Format a single assay row as a tab-separated string of values.
-fn row_to_string(assay : @bio.QfAssay, row : Int) -> String {
+fn row_to_string(assay : @bio.QfAssay, row : Int32) -> String {
   let mut s = ""
   let mut c = 0
   while c < assay.n_cols() {

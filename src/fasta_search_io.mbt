@@ -53,7 +53,7 @@ fn fasta_sio_parse_double(s : String) -> Double {
 }
 
 ///|
-fn fasta_sio_parse_int(s : String) -> Int {
+fn fasta_sio_parse_int(s : String) -> Int32 {
   parse_int(s)
 }
 
@@ -79,7 +79,7 @@ fn fasta_sio_trim(s : String) -> String {
       break
     }
   }
-  s[start:end].to_string()
+  s[start:end].to_owned()
 }
 
 ///|
@@ -95,7 +95,7 @@ fn fasta_sio_split_whitespace(s : String) -> Array[String] {
     let is_ws = c == ' '.to_int() || c == '\t'.to_int() || c == '\r'.to_int()
     if is_ws {
       if in_token {
-        tokens.push(s[start:i].to_string())
+        tokens.push(s[start:i].to_owned())
         in_token = false
       }
     } else if !in_token {
@@ -105,7 +105,7 @@ fn fasta_sio_split_whitespace(s : String) -> Array[String] {
     i = i + 1
   }
   if in_token {
-    tokens.push(s[start:n].to_string())
+    tokens.push(s[start:n].to_owned())
   }
   tokens
 }
@@ -129,7 +129,7 @@ pub struct FastaMeta {
 
 ///|
 pub fn FastaMeta::new() -> FastaMeta {
-  FastaMeta::{ program: "", version: "", database: "", comments: [] }
+  FastaMeta::{ program: "", version: "", database: "", comments: [], }
 }
 
 ///|
@@ -147,7 +147,7 @@ pub fn FastaSearchResult::new(
   queries : Array[QueryResult],
   meta : FastaMeta,
 ) -> FastaSearchResult {
-  FastaSearchResult::{ queries, meta }
+  FastaSearchResult::{ queries, meta, }
 }
 
 // ============================================================================
@@ -314,7 +314,7 @@ pub fn parse_fasta_m9(content : String) -> FastaSearchResult {
       meta.comments.push(comment)
       // "# FASTA 36.3.8h May 10, 2023"
       if fasta_sio_starts_with(comment, "# FASTA ") {
-        let rest = comment[2:comment.length()].to_string()
+        let rest = comment[2:comment.length()].to_owned()
         let parts = fasta_sio_split_whitespace(rest)
         if parts.length() > 0 {
           meta.program = parts[0]
@@ -376,7 +376,7 @@ fn fasta_sio_substr_after(s : String, marker : String) -> String {
       j = j + 1
     }
     if matched {
-      return s[i + m:n].to_string()
+      return s[i + m:n].to_owned()
     }
     i = i + 1
   }
@@ -385,17 +385,17 @@ fn fasta_sio_substr_after(s : String, marker : String) -> String {
 
 ///|
 /// Parsed FASTA tabular row.
-struct FastaRow {
+priv struct FastaRow {
   query_id : String
   subject_id : String
   percent_identity : Double
-  alignment_length : Int
-  mismatches : Int
-  gap_openings : Int
-  query_start : Int
-  query_end : Int
-  subject_start : Int
-  subject_end : Int
+  alignment_length : Int32
+  mismatches : Int32
+  gap_openings : Int32
+  query_start : Int32
+  query_end : Int32
+  subject_start : Int32
+  subject_end : Int32
   evalue : Double
   bit_score : Double
 }

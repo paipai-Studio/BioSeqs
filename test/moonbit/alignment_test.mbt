@@ -26,7 +26,7 @@ test "protein_creation" {
 test "alignment_tabular_msa_creation" {
   let dna1 = @src.DNA::new("ACGT")
   let dna2 = @src.DNA::new("ACCT")
-  let seqs : Array[@src.DNA] = Array::new()
+  let seqs : Array[@src.DNA] = Array(capacity=0)
   seqs.push(dna1)
   seqs.push(dna2)
   let msa = @src.TabularMSA::from_dna(seqs)
@@ -39,7 +39,7 @@ test "alignment_tabular_msa_creation" {
 test "alignment_tabular_msa_column" {
   let dna1 = @src.DNA::new("ACGT")
   let dna2 = @src.DNA::new("ACCT")
-  let seqs : Array[@src.DNA] = Array::new()
+  let seqs : Array[@src.DNA] = Array(capacity=0)
   seqs.push(dna1)
   seqs.push(dna2)
   let msa = @src.TabularMSA::from_dna(seqs)
@@ -55,7 +55,7 @@ test "alignment_tabular_msa_consensus" {
   let dna1 = @src.DNA::new("ACGT")
   let dna2 = @src.DNA::new("ACCT")
   let dna3 = @src.DNA::new("AGGT")
-  let seqs : Array[@src.DNA] = Array::new()
+  let seqs : Array[@src.DNA] = Array(capacity=0)
   seqs.push(dna1)
   seqs.push(dna2)
   seqs.push(dna3)
@@ -70,7 +70,7 @@ test "alignment_tabular_msa_conservation" {
   let dna1 = @src.DNA::new("ACGT")
   let dna2 = @src.DNA::new("ACCT")
   let dna3 = @src.DNA::new("AGGT")
-  let seqs : Array[@src.DNA] = Array::new()
+  let seqs : Array[@src.DNA] = Array(capacity=0)
   seqs.push(dna1)
   seqs.push(dna2)
   seqs.push(dna3)
@@ -92,7 +92,7 @@ test "alignment_global_pairwise_nucleotide" {
   let seq1 = @src.DNA::new("ACGT")
   let seq2 = @src.DNA::new("AGT")
 
-  let (msa, score, pos1, pos2) = @src.global_pairwise_align_nucleotide(
+  let (msa, _score, pos1, pos2) = @src.global_pairwise_align_nucleotide(
     seq1, seq2,
   )
 
@@ -108,7 +108,7 @@ test "alignment_local_pairwise_nucleotide" {
   let seq1 = @src.DNA::new("ACGTACGT")
   let seq2 = @src.DNA::new("CGT")
 
-  let (msa, score, pos1, pos2) = @src.local_pairwise_align_nucleotide(
+  let (msa, _score, _pos1, _pos2) = @src.local_pairwise_align_nucleotide(
     seq1, seq2,
   )
 
@@ -127,7 +127,9 @@ test "alignment_global_pairwise_protein" {
   let seq1 = @src.Protein::new("ACDE")
   let seq2 = @src.Protein::new("ACE")
 
-  let (msa, score, pos1, pos2) = @src.global_pairwise_align_protein(seq1, seq2)
+  let (msa, _score, _pos1, _pos2) = @src.global_pairwise_align_protein(
+    seq1, seq2,
+  )
 
   assert_eq(msa.num_records(), 2)
 }
@@ -137,7 +139,9 @@ test "alignment_local_pairwise_protein" {
   let seq1 = @src.Protein::new("ACDEFGHI")
   let seq2 = @src.Protein::new("EFG")
 
-  let (msa, score, pos1, pos2) = @src.local_pairwise_align_protein(seq1, seq2)
+  let (msa, _score, _pos1, _pos2) = @src.local_pairwise_align_protein(
+    seq1, seq2,
+  )
 
   assert_eq(msa.num_records(), 2)
 }
@@ -146,7 +150,7 @@ test "alignment_local_pairwise_protein" {
 test "alignment_score" {
   let dna1 = @src.DNA::new("ACGT")
   let dna2 = @src.DNA::new("ACGT")
-  let seqs : Array[@src.DNA] = Array::new()
+  let seqs : Array[@src.DNA] = Array(capacity=0)
   seqs.push(dna1)
   seqs.push(dna2)
   let msa = @src.TabularMSA::from_dna(seqs)

@@ -19,8 +19,8 @@ pub struct SmartDomain {
   domain_id : String
   domain_name : String
   domain_type : String
-  start : Int
-  end : Int
+  start : Int32
+  end : Int32
   evalue : Double
   sequence : String
   description : String
@@ -34,9 +34,9 @@ pub struct SmartDomain {
 pub fn SmartDomain::new(
   domain_id : String,
   domain_name : String,
-  start : Int,
-  end : Int,
-  evalue? : Double = 0.0,
+  start : Int32,
+  end : Int32,
+  evalue~ : Double = 0.0,
 ) -> SmartDomain {
   SmartDomain::{
     domain_id,
@@ -57,7 +57,7 @@ pub fn SmartDomain::new(
 /// Represents a complete SMART annotation result for a protein sequence.
 pub struct SmartResult {
   mut sequence_id : String
-  mut sequence_length : Int
+  mut sequence_length : Int32
   domains : Array[SmartDomain]
   pfam_domains : Array[SmartDomain]
   signal_peptides : Array[SmartDomain]
@@ -68,7 +68,7 @@ pub struct SmartResult {
 /// Construct a SmartResult.
 pub fn SmartResult::new(
   sequence_id : String,
-  sequence_length? : Int = 0,
+  sequence_length~ : Int32 = 0,
 ) -> SmartResult {
   SmartResult::{
     sequence_id,
@@ -105,7 +105,7 @@ pub fn smart_parse(content : String) -> SmartResult {
   let mut i = 0
   while i < lines.length() {
     let line = lines[i]
-    let trimmed = line.trim().to_string()
+    let trimmed = line.trim().to_owned()
     if trimmed.length() == 0 {
       i = i + 1
       continue
@@ -175,7 +175,7 @@ pub fn smart_find_domains(
   result : SmartResult,
   name : String,
 ) -> Array[SmartDomain] {
-  let matches : Array[SmartDomain] = Array::new()
+  let matches : Array[SmartDomain] = Array(capacity=0)
   let mut i = 0
   while i < result.domains.length() {
     if result.domains[i].domain_name.contains(name) {
@@ -187,33 +187,6 @@ pub fn smart_find_domains(
   while j < result.pfam_domains.length() {
     if result.pfam_domains[j].domain_name.contains(name) {
       matches.push(result.pfam_domains[j])
-    }
-    j = j + 1
-  }
-  matches
-}
-
-///|
-/// Find all domains overlapping with a given region [start, end].
-pub fn smart_find_overlapping_domains(
-  result : SmartResult,
-  start : Int,
-  end : Int,
-) -> Array[SmartDomain] {
-  let matches : Array[SmartDomain] = Array::new()
-  let mut i = 0
-  while i < result.domains.length() {
-    let d = result.domains[i]
-    if d.start <= end && d.end >= start {
-      matches.push(d)
-    }
-    i = i + 1
-  }
-  let mut j = 0
-  while j < result.pfam_domains.length() {
-    let d = result.pfam_domains[j]
-    if d.start <= end && d.end >= start {
-      matches.push(d)
     }
     j = j + 1
   }
@@ -251,7 +224,7 @@ pub fn smart_best_domain(result : SmartResult) -> SmartDomain? {
 
 ///|
 /// Get total number of domains (SMART + Pfam).
-pub fn smart_total_domains(result : SmartResult) -> Int {
+pub fn smart_total_domains(result : SmartResult) -> Int32 {
   result.domains.length() + result.pfam_domains.length()
 }
 
@@ -261,7 +234,7 @@ pub fn smart_filter_evalue(
   result : SmartResult,
   max_evalue : Double,
 ) -> Array[SmartDomain] {
-  let filtered : Array[SmartDomain] = Array::new()
+  let filtered : Array[SmartDomain] = Array(capacity=0)
   let mut i = 0
   while i < result.domains.length() {
     if result.domains[i].evalue <= max_evalue {
@@ -346,14 +319,14 @@ pub fn smart_summary(result : SmartResult) -> String {
 ///|
 /// Split a string into lines.
 fn smart_split_lines(content : String) -> Array[String] {
-  let lines : Array[String] = Array::new()
+  let lines : Array[String] = Array(capacity=0)
   let mut start = 0
   let mut i = 0
   while i < content.length() {
     let ch = content[i:i + 1].to_owned()
     if ch == "\n" || ch == "\r" {
       if start < i {
-        lines.push(content[start:i].trim().to_string())
+        lines.push(content[start:i].trim().to_owned())
       }
       if ch == "\r" &&
         i + 1 < content.length() &&
@@ -365,7 +338,7 @@ fn smart_split_lines(content : String) -> Array[String] {
     i = i + 1
   }
   if start < content.length() {
-    lines.push(content[start:content.length()].trim().to_string())
+    lines.push(content[start:content.length()].trim().to_owned())
   }
   lines
 }
@@ -373,24 +346,24 @@ fn smart_split_lines(content : String) -> Array[String] {
 ///|
 /// Split a string by tab delimiter.
 fn smart_split_tab(line : String) -> Array[String] {
-  let cols : Array[String] = Array::new()
+  let cols : Array[String] = Array(capacity=0)
   let mut start = 0
   let mut i = 0
   while i < line.length() {
     if line[i:i + 1].to_owned() == "\t" {
-      cols.push(line[start:i].to_string())
+      cols.push(line[start:i].to_owned())
       start = i + 1
     }
     i = i + 1
   }
-  cols.push(line[start:line.length()].to_string())
+  cols.push(line[start:line.length()].to_owned())
   cols
 }
 
 ///|
 /// Split a string by semicolon delimiter.
 fn smart_split_semicolon(s : String) -> Array[String] {
-  let items : Array[String] = Array::new()
+  let items : Array[String] = Array(capacity=0)
   if s.length() == 0 {
     return items
   }
@@ -398,7 +371,7 @@ fn smart_split_semicolon(s : String) -> Array[String] {
   let mut i = 0
   while i < s.length() {
     if s[i:i + 1].to_owned() == ";" {
-      let item = s[start:i].trim().to_string()
+      let item = s[start:i].trim().to_owned()
       if item.length() > 0 {
         items.push(item)
       }
@@ -406,7 +379,7 @@ fn smart_split_semicolon(s : String) -> Array[String] {
     }
     i = i + 1
   }
-  let last = s[start:s.length()].trim().to_string()
+  let last = s[start:s.length()].trim().to_owned()
   if last.length() > 0 {
     items.push(last)
   }
@@ -418,12 +391,12 @@ fn smart_split_semicolon(s : String) -> Array[String] {
 fn smart_extract_value(line : String) -> String {
   let colon_pos = line.find(":")
   match colon_pos {
-    Some(pos) => line[pos + 1:line.length()].trim().to_string()
+    Some(pos) => line[pos + 1:line.length()].trim().to_owned()
     None => {
       let tab_pos = line.find("\t")
       match tab_pos {
-        Some(tp) => line[tp + 1:line.length()].trim().to_string()
-        None => line.trim().to_string()
+        Some(tp) => line[tp + 1:line.length()].trim().to_owned()
+        None => line.trim().to_owned()
       }
     }
   }
@@ -431,7 +404,7 @@ fn smart_extract_value(line : String) -> String {
 
 ///|
 /// Parse an integer from a string, returning 0 on failure.
-fn smart_parse_int(s : String) -> Int {
+fn smart_parse_int(s : String) -> Int32 {
   let sv = s.to_string().trim()
   let n = sv.length()
   if n == 0 {

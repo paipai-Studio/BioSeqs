@@ -50,7 +50,17 @@ fn main {
     } else {
       "low"
     }
-    println("  pos " + i.to_string() + ": base=" + base + " Q=" + q.to_string() + " (" + label + ")")
+    println(
+      "  pos " +
+      i.to_string() +
+      ": base=" +
+      base +
+      " Q=" +
+      q.to_string() +
+      " (" +
+      label +
+      ")",
+    )
     i = i + 1
   }
   println("")
@@ -60,7 +70,7 @@ fn main {
   // ------------------------------------------------------------------
   println("=== 4. Peak Positions ===")
   let mut p = 0
-  let parts = StringBuilder::new()
+  let parts = StringBuilder()
   while p < trace.base_positions.length() {
     if p > 0 {
       parts.write_string(", ")
@@ -78,7 +88,11 @@ fn main {
   let mut ch = 0
   while ch < trace.traces.length() {
     let channel = trace.traces[ch]
-    let name = if ch < trace.trace_names.length() { trace.trace_names[ch] } else { "ch" + ch.to_string() }
+    let name = if ch < trace.trace_names.length() {
+      trace.trace_names[ch]
+    } else {
+      "ch" + ch.to_string()
+    }
     // Find max value in channel
     let mut max_val = 0
     let mut k = 0
@@ -88,7 +102,14 @@ fn main {
       }
       k = k + 1
     }
-    println("  " + name + ": " + channel.length().to_string() + " points, max=" + max_val.to_string())
+    println(
+      "  " +
+      name +
+      ": " +
+      channel.length().to_string() +
+      " points, max=" +
+      max_val.to_string(),
+    )
     ch = ch + 1
   }
   println("")
@@ -104,7 +125,9 @@ fn main {
   let mut peak_idx = 0
   while peak_idx < g_trace.length() {
     if g_trace[peak_idx] > 500 {
-      println("  point " + peak_idx.to_string() + ": " + g_trace[peak_idx].to_string())
+      println(
+        "  point " + peak_idx.to_string() + ": " + g_trace[peak_idx].to_string(),
+      )
     }
     peak_idx = peak_idx + 1
   }
@@ -116,9 +139,24 @@ fn main {
   println("=== 7. Binary Encode/Decode ===")
   let bytes = @bio.abi_encode(trace)
   println("Encoded bytes: " + bytes.length().to_string() + " bytes")
-  println("Magic (first 4 bytes): " + bytes[0].to_string() + " " + bytes[1].to_string() + " " + bytes[2].to_string() + " " + bytes[3].to_string() + " (ABIF)")
+  println(
+    "Magic (first 4 bytes): " +
+    bytes[0].to_string() +
+    " " +
+    bytes[1].to_string() +
+    " " +
+    bytes[2].to_string() +
+    " " +
+    bytes[3].to_string() +
+    " (ABIF)",
+  )
   let parsed = @bio.abi_parse(@bio.abi_sample_bytes())
-  println("Parsed from sample bytes: bases=" + parsed.bases + ", order=" + parsed.base_order)
+  println(
+    "Parsed from sample bytes: bases=" +
+    parsed.bases +
+    ", order=" +
+    parsed.base_order,
+  )
   println("")
 
   // ------------------------------------------------------------------

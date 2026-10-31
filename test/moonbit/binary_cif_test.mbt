@@ -488,7 +488,7 @@ test "binary cif rejects empty gzip and non-byte inputs" {
 ///|
 test "binary cif rejects truncated and trailing MessagePack data" {
   let bytes = @src.binary_cif_sample_bytes()
-  let truncated : Array[Int] = []
+  let truncated : Array[Int32] = []
   for i in 0..<(bytes.length() - 1) {
     truncated.push(bytes[i])
   }

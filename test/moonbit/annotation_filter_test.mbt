@@ -57,7 +57,7 @@ test "af_filter_region" {
 test "af_count_by_biotype" {
   let annotations = @src.af_create_example_annotations()
   let counts = @src.af_count_by_biotype(annotations)
-  assert_true(counts.get("protein_coding").is_some())
+  assert_true(counts.get("protein_coding") is Some(_))
 }
 
 ///|

@@ -2,16 +2,17 @@
 /// Advanced Population Genetics Demo.
 /// Demonstrates neutrality tests, allele frequency spectrum analysis,
 /// and the McDonald-Kreitman test.
-
 fn main {
   println("=== Advanced Population Genetics Demo ===\n")
 
   println("1. Creating polymorphic sites...")
-  let sites : Array[@src.PolymorphicSite] = Array::new()
+  let sites : Array[@src.PolymorphicSite] = Array(capacity=0)
   let sample_size = 30
   let mut i = 0
   while i < 10 {
-    sites.push(@src.new_polymorphic_site(i * 100 + 1, 1, sample_size, i % 3 == 0))
+    sites.push(
+      @src.new_polymorphic_site(i * 100 + 1, 1, sample_size, i % 3 == 0),
+    )
     i = i + 1
   }
   let mut j = 0
@@ -21,10 +22,14 @@ fn main {
   }
   let mut k = 0
   while k < 3 {
-    sites.push(@src.new_polymorphic_site(2000 + k * 100, 5, sample_size, k == 1))
+    sites.push(
+      @src.new_polymorphic_site(2000 + k * 100, 5, sample_size, k == 1),
+    )
     k = k + 1
   }
-  println("   Created \{sites.length()} polymorphic sites (sample size = \{sample_size})")
+  println(
+    "   Created \{sites.length()} polymorphic sites (sample size = \{sample_size})",
+  )
 
   println("\n2. Computing Watterson's theta...")
   let theta_w = @src.popgen_watterson_theta(sites.length(), sample_size)
@@ -34,7 +39,12 @@ fn main {
 
   println("\n3. Computing Tajima's D...")
   let sequence_length = 5000
-  let result_d = @src.popgen_tajima_d(0.02, sites.length(), sample_size, sequence_length)
+  let result_d = @src.popgen_tajima_d(
+    0.02,
+    sites.length(),
+    sample_size,
+    sequence_length,
+  )
   println("   Tajima's D = \{result_d.statistic}")
   println("   Standard error = \{result_d.standard_error}")
   if result_d.p_value != None {
@@ -66,8 +76,12 @@ fn main {
 
   println("\n6. McDonald-Kreitman test...")
   let mk_result = @src.mcdonald_kreitman_test(25, 35, 8, 42)
-  println("   Polymorphisms: p_nonsyn = \{mk_result.p_nonsyn}, p_syn = \{mk_result.p_syn}")
-  println("   Fixations: d_nonsyn = \{mk_result.d_nonsyn}, d_syn = \{mk_result.d_syn}")
+  println(
+    "   Polymorphisms: p_nonsyn = \{mk_result.p_nonsyn}, p_syn = \{mk_result.p_syn}",
+  )
+  println(
+    "   Fixations: d_nonsyn = \{mk_result.d_nonsyn}, d_syn = \{mk_result.d_syn}",
+  )
   println("   Neutrality index (NI) = \{mk_result.neutrality_index}")
   println("   p-value = \{mk_result.p_value}")
   println("   Has selection: \{mk_result.has_selection}")

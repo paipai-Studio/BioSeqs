@@ -13,9 +13,9 @@ fn main {
   println("   v1: (\{v1.get_x()}, \{v1.get_y()}, \{v1.get_z()})")
   println("   v2: (\{v2.get_x()}, \{v2.get_y()}, \{v2.get_z()})")
 
-  let unit_x = @bio.Vector3::unit_x()
-  let unit_y = @bio.Vector3::unit_y()
-  let unit_z = @bio.Vector3::unit_z()
+  let _unit_x = @bio.Vector3::unit_x()
+  let _unit_y = @bio.Vector3::unit_y()
+  let _unit_z = @bio.Vector3::unit_z()
   println("   Unit vectors created successfully")
 
   // 2. Vector arithmetic
@@ -27,7 +27,9 @@ fn main {
   println("   v1 - v2: (\{v_sub.get_x()}, \{v_sub.get_y()}, \{v_sub.get_z()})")
 
   let v_scale = v1.scale(2.0)
-  println("   v1 * 2: (\{v_scale.get_x()}, \{v_scale.get_y()}, \{v_scale.get_z()})")
+  println(
+    "   v1 * 2: (\{v_scale.get_x()}, \{v_scale.get_y()}, \{v_scale.get_z()})",
+  )
 
   // 3. Vector products and norms
   println("\n3. Vector products and norms:")
@@ -35,7 +37,9 @@ fn main {
   println("   v1 . v2 (dot product): \{dot}")
 
   let cross = v1.cross(v2)
-  println("   v1 x v2 (cross product): (\{cross.get_x()}, \{cross.get_y()}, \{cross.get_z()})")
+  println(
+    "   v1 x v2 (cross product): (\{cross.get_x()}, \{cross.get_y()}, \{cross.get_z()})",
+  )
 
   let norm = v1.norm()
   println("   |v1| (norm): \{norm}")
@@ -72,7 +76,9 @@ fn main {
   // 7. Transform a vector
   println("\n7. Vector transformation:")
   let transformed = rot_x.transform(v1)
-  println("   Rotated v1 90 around X: (\{transformed.get_x()}, \{transformed.get_y()}, \{transformed.get_z()})")
+  println(
+    "   Rotated v1 90 around X: (\{transformed.get_x()}, \{transformed.get_y()}, \{transformed.get_z()})",
+  )
 
   // 8. Superposition (Kabsch algorithm)
   println("\n8. Structural superposition:")
@@ -90,7 +96,9 @@ fn main {
   println("   Superposition RMSD: \{rmsd}")
 
   let (rot, trans) = @bio.vector_superposition_transform(set_a, set_b)
-  println("   Optimal rotation found, translation: (\{trans.get_x()}, \{trans.get_y()}, \{trans.get_z()})")
+  println(
+    "   Optimal rotation found, translation: (\{trans.get_x()}, \{trans.get_y()}, \{trans.get_z()})",
+  )
 
   let rotated_set = @bio.vector_apply_transform(set_a, rot, trans)
   println("   Applied transformation to \{rotated_set.length()} vectors")
@@ -109,7 +117,9 @@ fn main {
   // 10. Centroid
   println("\n10. Centroid calculation:")
   let centroid = @bio.vector_centroid(set_a)
-  println("   Centroid: (\{centroid.get_x()}, \{centroid.get_y()}, \{centroid.get_z()})")
+  println(
+    "   Centroid: (\{centroid.get_x()}, \{centroid.get_y()}, \{centroid.get_z()})",
+  )
 
   println("\n=== Demo Complete ===")
 }

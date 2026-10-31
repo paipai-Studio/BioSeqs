@@ -11,10 +11,18 @@ fn main {
   println("=== 1. Load Sample Data ===")
   let fcs = @bio.gage_sample_fold_changes()
   let sets = @bio.gage_sample_gene_sets()
-  println("Gene fold changes: " + fcs.size().to_string())
+  println("Gene fold changes: " + fcs.length().to_string())
   let mut si = 0
   while si < sets.length() {
-    println("  " + sets[si].id + " (" + sets[si].name + "): " + sets[si].gene_ids.length().to_string() + " genes")
+    println(
+      "  " +
+      sets[si].id +
+      " (" +
+      sets[si].name +
+      "): " +
+      sets[si].gene_ids.length().to_string() +
+      " genes",
+    )
     si = si + 1
   }
   println("")
@@ -30,10 +38,32 @@ fn main {
   let mut i = 0
   while i < results.results.length() {
     let r = results.results[i]
-    let direction = if r.is_up { "UP" } else if r.is_down { "DOWN" } else { "NEUTRAL" }
+    let direction = if r.is_up {
+      "UP"
+    } else if r.is_down {
+      "DOWN"
+    } else {
+      "NEUTRAL"
+    }
     println("  " + r.gene_set_id + " (" + r.gene_set_name + "):")
-    println("    n_genes=" + r.n_genes.to_string() + ", mean_fc=" + r.mean_fc.to_string() + ", stat=" + r.stat.to_string())
-    println("    direction=" + direction + ", p_val=" + r.p_val.to_string() + ", p_adj=" + r.p_adj.to_string() + ", sig=" + r.significant.to_string())
+    println(
+      "    n_genes=" +
+      r.n_genes.to_string() +
+      ", mean_fc=" +
+      r.mean_fc.to_string() +
+      ", stat=" +
+      r.stat.to_string(),
+    )
+    println(
+      "    direction=" +
+      direction +
+      ", p_val=" +
+      r.p_val.to_string() +
+      ", p_adj=" +
+      r.p_adj.to_string() +
+      ", sig=" +
+      r.significant.to_string(),
+    )
     i = i + 1
   }
   println("")
@@ -55,7 +85,14 @@ fn main {
   println("Total up-regulated: " + up.length().to_string())
   let mut k = 0
   while k < up.length() {
-    println("  " + up[k].gene_set_id + " (" + up[k].gene_set_name + "): mean_fc=" + up[k].mean_fc.to_string())
+    println(
+      "  " +
+      up[k].gene_set_id +
+      " (" +
+      up[k].gene_set_name +
+      "): mean_fc=" +
+      up[k].mean_fc.to_string(),
+    )
     k = k + 1
   }
   println("")
@@ -66,7 +103,14 @@ fn main {
   println("Total down-regulated: " + down.length().to_string())
   let mut m = 0
   while m < down.length() {
-    println("  " + down[m].gene_set_id + " (" + down[m].gene_set_name + "): mean_fc=" + down[m].mean_fc.to_string())
+    println(
+      "  " +
+      down[m].gene_set_id +
+      " (" +
+      down[m].gene_set_name +
+      "): mean_fc=" +
+      down[m].mean_fc.to_string(),
+    )
     m = m + 1
   }
   println("")
@@ -76,7 +120,15 @@ fn main {
   let top = results.get_top_sets(3)
   let mut n = 0
   while n < top.length() {
-    println("  Rank " + (n + 1).to_string() + ": " + top[n].gene_set_id + " (p_adj=" + top[n].p_adj.to_string() + ")")
+    println(
+      "  Rank " +
+      (n + 1).to_string() +
+      ": " +
+      top[n].gene_set_id +
+      " (p_adj=" +
+      top[n].p_adj.to_string() +
+      ")",
+    )
     n = n + 1
   }
   println("")

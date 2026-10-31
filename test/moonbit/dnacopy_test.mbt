@@ -5,7 +5,7 @@
 ///|
 /// Build a Cna with one probe per 1kb step starting at 1000.
 fn dc_make_cna(chrom : Array[String], vals : Array[Double]) -> @src.Cna raise {
-  let maploc : Array[Int] = []
+  let maploc : Array[Int32] = []
   let mut i = 0
   while i < vals.length() {
     maploc.push((i + 1) * 1000)
@@ -134,7 +134,11 @@ test "dnacopy_sdundo_merges_when_sd_large" {
   let cna = dc_make_cna(chrom, vals)
   let res = @src.segment(
     cna,
-    options=@src.DnaCopyOptions::of(nperm=500, undo_splits="sdundo", undo_sd=1000.0),
+    options=@src.DnaCopyOptions::of(
+      nperm=500,
+      undo_splits="sdundo",
+      undo_sd=1000.0,
+    ),
   )
   assert_eq(res.segments.length(), 1)
   assert_eq(res.segments[0].num_mark, 60)
@@ -161,7 +165,11 @@ test "dnacopy_sdundo_keeps_when_sd_tiny" {
   let cna = dc_make_cna(chrom, vals)
   let res = @src.segment(
     cna,
-    options=@src.DnaCopyOptions::of(nperm=500, undo_splits="sdundo", undo_sd=0.001),
+    options=@src.DnaCopyOptions::of(
+      nperm=500,
+      undo_splits="sdundo",
+      undo_sd=0.001,
+    ),
   )
   assert_eq(res.segments.length(), 4)
 }
@@ -189,7 +197,9 @@ test "dnacopy_invalid_min_width_raises" {
 test "dnacopy_invalid_undo_splits_raises" {
   let cna = dc_make_cna(Array::make(4, "chr1"), [0.0, 1.0, 0.0, 0.0])
   let result = try {
-    ignore(@src.segment(cna, options=@src.DnaCopyOptions::of(undo_splits="prune")))
+    ignore(
+      @src.segment(cna, options=@src.DnaCopyOptions::of(undo_splits="prune")),
+    )
     false
   } catch {
     SeqError(_) => true

@@ -21,7 +21,7 @@ fn main {
   let samples = @bio.diffcyt_unique_samples(cells)
   let conditions = @bio.diffcyt_unique_conditions(cells)
   println("Samples: " + samples.length().to_string())
-  println("Conditions: " + conditions.to_string())
+  println("Conditions: " + repr(conditions))
   println("Markers: " + cells[0].n_markers().to_string())
   println("")
 
@@ -30,7 +30,7 @@ fn main {
   // ------------------------------------------------------------------
   println("=== 2. Cluster Cells (FlowSOM) ===")
   let n_clusters = 5
-  let codebooks = @bio.diffcyt_cluster_cells(cells, n_clusters, 10)
+  let _codebooks = @bio.diffcyt_cluster_cells(cells, n_clusters, 10)
   println("Number of clusters: " + n_clusters.to_string())
   // Count cells per cluster.
   let cluster_counts = Array::make(n_clusters, 0)
@@ -38,7 +38,13 @@ fn main {
     cluster_counts[cell.cluster_id()] = cluster_counts[cell.cluster_id()] + 1
   }
   for i in 0..<n_clusters {
-    println("  Cluster " + i.to_string() + ": " + cluster_counts[i].to_string() + " cells")
+    println(
+      "  Cluster " +
+      i.to_string() +
+      ": " +
+      cluster_counts[i].to_string() +
+      " cells",
+    )
   }
   println("")
 
@@ -61,8 +67,8 @@ fn main {
   // 4. Build design matrix
   // ------------------------------------------------------------------
   println("=== 4. Design Matrix ===")
-  let conditions_arr : Array[String] = Array::new()
-  let cond_map : Map[String, String] = Map::new()
+  let conditions_arr : Array[String] = Array(capacity=0)
+  let cond_map : Map[String, String] = Map([])
   for cell in cells {
     cond_map.set(cell.sample_id(), cell.condition())
   }
@@ -70,7 +76,12 @@ fn main {
     conditions_arr.push(cond_map.get(sid).unwrap_or(""))
   }
   let design = @bio.diffcyt_create_design_matrix(samples, conditions_arr)
-  println("Design matrix dimensions: " + design.length().to_string() + " x " + design[0].length().to_string())
+  println(
+    "Design matrix dimensions: " +
+    design.length().to_string() +
+    " x " +
+    design[0].length().to_string(),
+  )
   println("Columns: [intercept, condition_stim]")
   println("")
 
@@ -96,15 +107,15 @@ fn main {
     let sig = if r.significant() { "*" } else { "" }
     println(
       "  Cluster " +
-        r.cluster_id().to_string() +
-        ": logFC=" +
-        r.log_fc().to_string() +
-        " p=" +
-        r.p_value().to_string() +
-        " FDR=" +
-        r.fdr().to_string() +
-        " " +
-        sig,
+      r.cluster_id().to_string() +
+      ": logFC=" +
+      r.log_fc().to_string() +
+      " p=" +
+      r.p_value().to_string() +
+      " FDR=" +
+      r.fdr().to_string() +
+      " " +
+      sig,
     )
   }
   println("Significant DA clusters: " + summary.n_sig_da().to_string())
@@ -119,17 +130,17 @@ fn main {
     let sig = if r.significant() { "*" } else { "" }
     println(
       "  Cluster " +
-        r.cluster_id().to_string() +
-        " " +
-        r.marker_name() +
-        ": logFC=" +
-        r.log_fc().to_string() +
-        " p=" +
-        r.p_value().to_string() +
-        " FDR=" +
-        r.fdr().to_string() +
-        " " +
-        sig,
+      r.cluster_id().to_string() +
+      " " +
+      r.marker_name() +
+      ": logFC=" +
+      r.log_fc().to_string() +
+      " p=" +
+      r.p_value().to_string() +
+      " FDR=" +
+      r.fdr().to_string() +
+      " " +
+      sig,
     )
   }
   println("Significant DS results: " + summary.n_sig_ds().to_string())

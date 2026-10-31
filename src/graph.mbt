@@ -7,7 +7,7 @@ pub struct Node {
 
 ///|
 pub fn Node::new(node_id : String, label : String) -> Node {
-  Node::{ node_id, label, attributes: Map([], capacity=5) }
+  Node::{ node_id, label, attributes: Map([], capacity=5), }
 }
 
 ///|
@@ -26,7 +26,7 @@ pub struct Edge {
 
 ///|
 pub fn Edge::new(source : String, target : String, weight : Double) -> Edge {
-  Edge::{ source, target, weight, label: "", attributes: Map([], capacity=5) }
+  Edge::{ source, target, weight, label: "", attributes: Map([], capacity=5), }
 }
 
 ///|
@@ -76,17 +76,17 @@ pub struct Graph {
 
 ///|
 pub fn Graph::new(name : String, graph_type : GraphType) -> Graph {
-  Graph::{ nodes: Array::new(), edges: Array::new(), graph_type, name }
+  Graph::{
+    nodes: Array(capacity=0),
+    edges: Array(capacity=0),
+    graph_type,
+    name,
+  }
 }
 
 ///|
 pub fn graph_add_node(graph : Graph, node : Node) -> Unit {
   graph.nodes.push(node)
-}
-
-///|
-pub fn graph_add_edge(graph : Graph, edge : Edge) -> Unit {
-  graph.edges.push(edge)
 }
 
 ///|
@@ -100,49 +100,8 @@ pub fn graph_add_edge_by_id(
 }
 
 ///|
-pub fn graph_get_node_by_id(graph : Graph, node_id : String) -> Node? {
-  let mut i = 0
-  while i < graph.nodes.length() {
-    let node = graph.nodes[i]
-    if node.node_id == node_id {
-      return Some(node)
-    }
-    i = i + 1
-  }
-  None
-}
-
-///|
-pub fn graph_get_edges_from(graph : Graph, node_id : String) -> Array[Edge] {
-  let results : Array[Edge] = Array::new()
-  let mut i = 0
-  while i < graph.edges.length() {
-    let edge = graph.edges[i]
-    if edge.source == node_id {
-      results.push(edge)
-    }
-    i = i + 1
-  }
-  results
-}
-
-///|
-pub fn graph_get_edges_to(graph : Graph, node_id : String) -> Array[Edge] {
-  let results : Array[Edge] = Array::new()
-  let mut i = 0
-  while i < graph.edges.length() {
-    let edge = graph.edges[i]
-    if edge.target == node_id {
-      results.push(edge)
-    }
-    i = i + 1
-  }
-  results
-}
-
-///|
 pub fn graph_get_neighbors(graph : Graph, node_id : String) -> Array[String] {
-  let results : Array[String] = Array::new()
+  let results : Array[String] = Array(capacity=0)
   let mut i = 0
   while i < graph.edges.length() {
     let edge = graph.edges[i]
@@ -158,7 +117,7 @@ pub fn graph_get_neighbors(graph : Graph, node_id : String) -> Array[String] {
 }
 
 ///|
-pub fn graph_get_degree(graph : Graph, node_id : String) -> Int {
+pub fn graph_get_degree(graph : Graph, node_id : String) -> Int32 {
   let mut degree = 0
   let mut i = 0
   while i < graph.edges.length() {
@@ -176,12 +135,12 @@ pub fn graph_get_degree(graph : Graph, node_id : String) -> Int {
 }
 
 ///|
-pub fn graph_node_count(graph : Graph) -> Int {
+pub fn graph_node_count(graph : Graph) -> Int32 {
   graph.nodes.length()
 }
 
 ///|
-pub fn graph_edge_count(graph : Graph) -> Int {
+pub fn graph_edge_count(graph : Graph) -> Int32 {
   graph.edges.length()
 }
 
@@ -219,7 +178,7 @@ pub fn graph_shortest_path(
 
   let visited : Map[String, Bool] = Map([], capacity=graph.nodes.length())
   let parent : Map[String, String] = Map([], capacity=graph.nodes.length())
-  let queue : Array[String] = Array::new()
+  let queue : Array[String] = Array(capacity=0)
 
   queue.push(start_id)
   visited[start_id] = true
@@ -233,7 +192,7 @@ pub fn graph_shortest_path(
     while i < neighbors.length() && !found {
       let neighbor = neighbors[i]
       let visited_neighbor = visited.get(neighbor)
-      if visited_neighbor.is_none() || !visited_neighbor.unwrap() {
+      if visited_neighbor is None || !visited_neighbor.unwrap() {
         visited[neighbor] = true
         parent[neighbor] = current
         if neighbor == end_id {
@@ -250,19 +209,19 @@ pub fn graph_shortest_path(
     return None
   }
 
-  let path : Array[String] = Array::new()
+  let path : Array[String] = Array(capacity=0)
   let mut current = end_id
   while current != start_id {
     path.push(current)
     let p = parent.get(current)
-    if p.is_none() {
+    if p is None {
       return None
     }
     current = p.unwrap()
   }
   path.push(start_id)
 
-  let reversed : Array[String] = Array::new()
+  let reversed : Array[String] = Array(capacity=0)
   let mut i = path.length() - 1
   while i >= 0 {
     reversed.push(path[i])
@@ -275,15 +234,15 @@ pub fn graph_shortest_path(
 ///|
 pub fn graph_connected_components(graph : Graph) -> Array[Array[String]] {
   let visited : Map[String, Bool] = Map([], capacity=graph.nodes.length())
-  let components : Array[Array[String]] = Array::new()
+  let components : Array[Array[String]] = Array(capacity=0)
 
   let mut i = 0
   while i < graph.nodes.length() {
     let node = graph.nodes[i]
     let visited_node = visited.get(node.node_id)
-    if visited_node.is_none() || !visited_node.unwrap() {
-      let component : Array[String] = Array::new()
-      let queue : Array[String] = Array::new()
+    if visited_node is None || !visited_node.unwrap() {
+      let component : Array[String] = Array(capacity=0)
+      let queue : Array[String] = Array(capacity=0)
 
       queue.push(node.node_id)
       visited[node.node_id] = true
@@ -297,7 +256,7 @@ pub fn graph_connected_components(graph : Graph) -> Array[Array[String]] {
         while j < neighbors.length() {
           let neighbor = neighbors[j]
           let visited_neighbor = visited.get(neighbor)
-          if visited_neighbor.is_none() || !visited_neighbor.unwrap() {
+          if visited_neighbor is None || !visited_neighbor.unwrap() {
             visited[neighbor] = true
             queue.push(neighbor)
           }
@@ -322,7 +281,7 @@ pub fn graph_summarize(graph : Graph) -> String {
   result = result + "Nodes: " + graph_node_count(graph).to_string() + "\n"
   result = result + "Edges: " + graph_edge_count(graph).to_string() + "\n\n"
 
-  let degrees : Array[Int] = Array::new()
+  let degrees : Array[Int32] = Array(capacity=0)
   let mut i = 0
   while i < graph.nodes.length() {
     let node = graph.nodes[i]

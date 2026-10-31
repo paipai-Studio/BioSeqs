@@ -12,7 +12,7 @@ pub suberror DecontXError {
 ///|
 /// Parameters for deterministic expectation-maximization inference.
 pub struct DecontXConfig {
-  max_iterations : Int
+  max_iterations : Int32
   tolerance : Double
   contamination_prior_alpha : Double
   contamination_prior_beta : Double
@@ -22,14 +22,20 @@ pub struct DecontXConfig {
 } derive(Eq, Debug)
 
 ///|
+pub extend DecontXConfig with Eq::{equal, not_equal}
+
+///|
+pub extend DecontXConfig with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
 pub fn DecontXConfig::create(
-  max_iterations? : Int = 100,
-  tolerance? : Double = 1.0e-6,
-  contamination_prior_alpha? : Double = 1.0,
-  contamination_prior_beta? : Double = 9.0,
-  profile_pseudocount? : Double = 0.5,
-  initial_contamination? : Double = 0.1,
-  minimum_probability? : Double = 1.0e-12,
+  max_iterations~ : Int32 = 100,
+  tolerance~ : Double = 1.0e-6,
+  contamination_prior_alpha~ : Double = 1.0,
+  contamination_prior_beta~ : Double = 9.0,
+  profile_pseudocount~ : Double = 0.5,
+  initial_contamination~ : Double = 0.1,
+  minimum_probability~ : Double = 1.0e-12,
 ) -> DecontXConfig raise DecontXError {
   if max_iterations < 1 {
     raise DecontXError::DecontXError("max_iterations must be positive")
@@ -75,12 +81,18 @@ pub fn DecontXConfig::default() -> DecontXConfig {
 
 ///|
 pub struct DecontXDiagnostics {
-  iterations : Int
+  iterations : Int32
   converged : Bool
   initial_log_likelihood : Double
   final_log_likelihood : Double
   log_likelihoods : Array[Double]
 } derive(Eq, Debug)
+
+///|
+pub extend DecontXDiagnostics with Eq::{equal, not_equal}
+
+///|
+pub extend DecontXDiagnostics with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct DecontXCellEstimate {
@@ -93,14 +105,26 @@ pub struct DecontXCellEstimate {
 } derive(Eq, Debug)
 
 ///|
+pub extend DecontXCellEstimate with Eq::{equal, not_equal}
+
+///|
+pub extend DecontXCellEstimate with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
 pub struct DecontXClusterEstimate {
   cluster : String
-  n_cells : Int
+  n_cells : Int32
   mean_contamination : Double
   total_counts : Double
   native_counts : Double
   contaminant_counts : Double
 } derive(Eq, Debug)
+
+///|
+pub extend DecontXClusterEstimate with Eq::{equal, not_equal}
+
+///|
+pub extend DecontXClusterEstimate with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct DecontXResult {
@@ -110,12 +134,18 @@ pub struct DecontXResult {
   native_profiles : Array[Array[Double]]
   contaminant_profiles : Array[Array[Double]]
   cluster_names : Array[String]
-  cluster_indices : Array[Int]
+  cluster_indices : Array[Int32]
   gene_names : Array[String]
   cell_names : Array[String]
   used_background : Bool
   diagnostics : DecontXDiagnostics
 } derive(Eq, Debug)
+
+///|
+pub extend DecontXResult with Eq::{equal, not_equal}
+
+///|
+pub extend DecontXResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Result of adding decontamination outputs to a SingleCellExperiment copy.
@@ -125,8 +155,8 @@ pub struct DecontXSCEOutput {
 }
 
 ///|
-fn decontx_zero_matrix(rows : Int, columns : Int) -> Array[Array[Double]] {
-  let result : Array[Array[Double]] = Array::new()
+fn decontx_zero_matrix(rows : Int32, columns : Int32) -> Array[Array[Double]] {
+  let result : Array[Array[Double]] = Array(capacity=0)
   let mut row = 0
   while row < rows {
     result.push(Array::make(columns, 0.0))
@@ -137,7 +167,7 @@ fn decontx_zero_matrix(rows : Int, columns : Int) -> Array[Array[Double]] {
 
 ///|
 fn decontx_copy_matrix(matrix : Array[Array[Double]]) -> Array[Array[Double]] {
-  let result : Array[Array[Double]] = Array::new()
+  let result : Array[Array[Double]] = Array(capacity=0)
   let mut row = 0
   while row < matrix.length() {
     result.push(matrix[row].copy())
@@ -150,8 +180,8 @@ fn decontx_copy_matrix(matrix : Array[Array[Double]]) -> Array[Array[Double]] {
 fn decontx_validate_matrix(
   matrix : Array[Array[Double]],
   label : String,
-  expected_rows? : Int = -1,
-) -> (Int, Int) raise DecontXError {
+  expected_rows~ : Int32 = -1,
+) -> (Int32, Int32) raise DecontXError {
   if matrix.length() == 0 {
     raise DecontXError::DecontXError(label + " must contain at least one gene")
   }
@@ -187,7 +217,7 @@ fn decontx_validate_matrix(
 ///|
 fn decontx_prepare_names(
   supplied : Array[String],
-  length : Int,
+  length : Int32,
   prefix : String,
 ) -> Array[String] raise DecontXError {
   if supplied.length() != 0 && supplied.length() != length {
@@ -195,7 +225,7 @@ fn decontx_prepare_names(
       prefix + " names must match the matrix dimension",
     )
   }
-  let names : Array[String] = Array::new()
+  let names : Array[String] = Array(capacity=0)
   let mut index = 0
   while index < length {
     let name = if supplied.length() == 0 {
@@ -224,15 +254,15 @@ fn decontx_prepare_names(
 ///|
 fn decontx_encode_clusters(
   labels : Array[String],
-  n_cells : Int,
-) -> (Array[String], Array[Int]) raise DecontXError {
+  n_cells : Int32,
+) -> (Array[String], Array[Int32]) raise DecontXError {
   if labels.length() != n_cells {
     raise DecontXError::DecontXError(
       "cluster labels must match the number of cells",
     )
   }
-  let names : Array[String] = Array::new()
-  let indices : Array[Int] = Array::new()
+  let names : Array[String] = Array(capacity=0)
+  let indices : Array[Int32] = Array(capacity=0)
   let mut cell = 0
   while cell < labels.length() {
     let label = labels[cell]
@@ -292,8 +322,8 @@ fn decontx_normalize_profiles(
 ///|
 fn decontx_initial_native_sums(
   counts : Array[Array[Double]],
-  cluster_indices : Array[Int],
-  n_clusters : Int,
+  cluster_indices : Array[Int32],
+  n_clusters : Int32,
 ) -> Array[Array[Double]] {
   let sums = decontx_zero_matrix(n_clusters, counts.length())
   let n_cells = if counts.length() > 0 { counts[0].length() } else { 0 }
@@ -313,7 +343,7 @@ fn decontx_initial_native_sums(
 ///|
 fn decontx_background_profile(
   background : Array[Array[Double]],
-  n_genes : Int,
+  n_genes : Int32,
   pseudocount : Double,
 ) -> Array[Double] raise DecontXError {
   let (_, n_droplets) = decontx_validate_matrix(
@@ -395,7 +425,7 @@ fn decontx_contaminant_profiles(
 ///|
 fn decontx_expectation(
   counts : Array[Array[Double]],
-  cluster_indices : Array[Int],
+  cluster_indices : Array[Int32],
   contamination : Array[Double],
   native_profiles : Array[Array[Double]],
   contaminant_profiles : Array[Array[Double]],
@@ -475,8 +505,8 @@ pub fn decontx(
   gene_names : Array[String],
   cell_names : Array[String],
   cluster_labels : Array[String],
-  config? : DecontXConfig = DecontXConfig::default(),
-  background? : Array[Array[Double]] = [],
+  config~ : DecontXConfig = DecontXConfig::default(),
+  background~ : Array[Array[Double]] = [],
 ) -> DecontXResult raise DecontXError {
   let (n_genes, n_cells) = decontx_validate_matrix(counts, "counts")
   let genes = decontx_prepare_names(gene_names, n_genes, "Gene")
@@ -517,7 +547,7 @@ pub fn decontx(
   )
   let contamination = Array::make(n_cells, config.initial_contamination)
   let library_sizes = decontx_library_sizes(counts)
-  let log_likelihoods : Array[Double] = Array::new()
+  let log_likelihoods : Array[Double] = Array(capacity=0)
   let mut iterations = 0
   let mut converged = false
   while iterations < config.max_iterations && !converged {
@@ -634,9 +664,9 @@ pub fn decontx_auto(
   counts : Array[Array[Double]],
   gene_names : Array[String],
   cell_names : Array[String],
-  n_clusters : Int,
-  config? : DecontXConfig = DecontXConfig::default(),
-  background? : Array[Array[Double]] = [],
+  n_clusters : Int32,
+  config~ : DecontXConfig = DecontXConfig::default(),
+  background~ : Array[Array[Double]] = [],
 ) -> DecontXResult raise DecontXError {
   let (n_genes, n_cells) = decontx_validate_matrix(counts, "counts")
   if n_clusters < 2 || n_clusters > n_cells {
@@ -645,10 +675,10 @@ pub fn decontx_auto(
     )
   }
   let library_sizes = decontx_library_sizes(counts)
-  let points : Array[Point] = Array::new()
+  let points : Array[Point] = Array(capacity=0)
   let mut cell = 0
   while cell < n_cells {
-    let point : Array[Double] = Array::new()
+    let point : Array[Double] = Array(capacity=0)
     let scale = if library_sizes[cell] > 0.0 {
       10000.0 / library_sizes[cell]
     } else {
@@ -663,7 +693,7 @@ pub fn decontx_auto(
     cell = cell + 1
   }
   let model = KMeans::new(n_clusters, 100, 1.0e-8).fit(points)
-  let labels : Array[String] = Array::new()
+  let labels : Array[String] = Array(capacity=0)
   let assigned = model.get_labels()
   cell = 0
   while cell < assigned.length() {
@@ -674,12 +704,12 @@ pub fn decontx_auto(
 }
 
 ///|
-pub fn DecontXResult::n_genes(self : DecontXResult) -> Int {
+pub fn DecontXResult::n_genes(self : DecontXResult) -> Int32 {
   self.corrected_counts.length()
 }
 
 ///|
-pub fn DecontXResult::n_cells(self : DecontXResult) -> Int {
+pub fn DecontXResult::n_cells(self : DecontXResult) -> Int32 {
   if self.corrected_counts.length() > 0 {
     self.corrected_counts[0].length()
   } else {
@@ -688,7 +718,7 @@ pub fn DecontXResult::n_cells(self : DecontXResult) -> Int {
 }
 
 ///|
-pub fn DecontXResult::n_clusters(self : DecontXResult) -> Int {
+pub fn DecontXResult::n_clusters(self : DecontXResult) -> Int32 {
   self.cluster_names.length()
 }
 
@@ -707,7 +737,7 @@ pub fn DecontXResult::mean_contamination(self : DecontXResult) -> Double {
 }
 
 ///|
-pub fn DecontXResult::gene_index(self : DecontXResult, name : String) -> Int? {
+pub fn DecontXResult::gene_index(self : DecontXResult, name : String) -> Int32? {
   let mut gene = 0
   while gene < self.gene_names.length() {
     if self.gene_names[gene] == name {
@@ -719,7 +749,7 @@ pub fn DecontXResult::gene_index(self : DecontXResult, name : String) -> Int? {
 }
 
 ///|
-pub fn DecontXResult::cell_index(self : DecontXResult, name : String) -> Int? {
+pub fn DecontXResult::cell_index(self : DecontXResult, name : String) -> Int32? {
   let mut cell = 0
   while cell < self.cell_names.length() {
     if self.cell_names[cell] == name {
@@ -733,7 +763,7 @@ pub fn DecontXResult::cell_index(self : DecontXResult, name : String) -> Int? {
 ///|
 pub fn DecontXResult::cell_estimate(
   self : DecontXResult,
-  index : Int,
+  index : Int32,
 ) -> DecontXCellEstimate? {
   if index < 0 || index >= self.n_cells() {
     return None
@@ -760,7 +790,7 @@ pub fn DecontXResult::cell_estimate(
 pub fn DecontXResult::cluster_estimates(
   self : DecontXResult,
 ) -> Array[DecontXClusterEstimate] {
-  let result : Array[DecontXClusterEstimate] = Array::new()
+  let result : Array[DecontXClusterEstimate] = Array(capacity=0)
   let mut cluster = 0
   while cluster < self.cluster_names.length() {
     let mut n_cells = 0
@@ -801,12 +831,12 @@ pub fn DecontXResult::cluster_estimates(
 ///|
 pub fn DecontXResult::most_contaminated_cells(
   self : DecontXResult,
-  n : Int,
+  n : Int32,
 ) -> Array[DecontXCellEstimate] {
   if n <= 0 {
     return []
   }
-  let indices : Array[Int] = Array::new()
+  let indices : Array[Int32] = Array(capacity=0)
   let mut cell = 0
   while cell < self.n_cells() {
     indices.push(cell)
@@ -830,7 +860,7 @@ pub fn DecontXResult::most_contaminated_cells(
     }
     position = position + 1
   }
-  let result : Array[DecontXCellEstimate] = Array::new()
+  let result : Array[DecontXCellEstimate] = Array(capacity=0)
   let limit = if n < indices.length() { n } else { indices.length() }
   position = 0
   while position < limit {
@@ -921,11 +951,11 @@ fn decontx_copy_sce(sce : SingleCellExperiment) -> SingleCellExperiment {
 /// Run decontamination on an SCE assay and return an immutable enriched copy.
 pub fn decontx_sce(
   sce : SingleCellExperiment,
-  cluster_column? : String = "cluster",
-  input_assay? : String = "counts",
-  output_assay? : String = "decontXcounts",
-  config? : DecontXConfig = DecontXConfig::default(),
-  background? : Array[Array[Double]] = [],
+  cluster_column~ : String = "cluster",
+  input_assay~ : String = "counts",
+  output_assay~ : String = "decontXcounts",
+  config~ : DecontXConfig = DecontXConfig::default(),
+  background~ : Array[Array[Double]] = [],
 ) -> DecontXSCEOutput raise DecontXError {
   let counts = sce_get_assay(sce, input_assay)
   if counts.length() == 0 {
@@ -949,7 +979,7 @@ pub fn decontx_sce(
   )
   let enriched = decontx_copy_sce(sce)
   enriched.assays[output_assay] = decontx_copy_matrix(result.corrected_counts)
-  let contamination_strings : Array[String] = Array::new()
+  let contamination_strings : Array[String] = Array(capacity=0)
   let mut cell = 0
   while cell < result.contamination.length() {
     contamination_strings.push(result.contamination[cell].to_string())
@@ -960,7 +990,7 @@ pub fn decontx_sce(
   enriched.metadata["decontX_iterations"] = result.diagnostics.iterations.to_string()
   enriched.metadata["decontX_converged"] = result.diagnostics.converged.to_string()
   enriched.metadata["decontX_background"] = result.used_background.to_string()
-  DecontXSCEOutput::{ experiment: enriched, result }
+  DecontXSCEOutput::{ experiment: enriched, result, }
 }
 
 ///|

@@ -24,9 +24,7 @@ fn main {
   // 1. Wallace rule of thumb: Tm = 4*(G+C) + 2*(A+T), extended with
   //    expected contributions from ambiguous bases.
   println("1. Wallace rule of thumb")
-  let wallace = @bio.tm_wallace_full(s) catch {
-    _ => abort("wallace failed")
-  }
+  let wallace = @bio.tm_wallace_full(s) catch { _ => abort("wallace failed") }
   println("   Tm_Wallace(primer) = \{p2(wallace)} C")
   println("   (non-base characters such as digits/spaces are ignored)\n")
 
@@ -48,9 +46,7 @@ fn main {
 
   // 3. Nearest-neighbor thermodynamics (Allawi & SantaLucia 1997 default)
   println("3. Tm_NN nearest-neighbor thermodynamics")
-  let tm_nn = @bio.tm_nn_full(s) catch {
-    _ => abort("tm_nn failed")
-  }
+  let tm_nn = @bio.tm_nn_full(s) catch { _ => abort("tm_nn failed") }
   println("   DNA_NN3 (default), 50 mM Na+: Tm = \{p2(tm_nn)} C")
   for table in ["DNA_NN1", "DNA_NN2", "DNA_NN4"] {
     let tm = @bio.tm_nn_full(s, options=@bio.TmOptions::of(nn_table=table)) catch {
@@ -65,7 +61,10 @@ fn main {
     }
     println("   \{rtable} (RNA): Tm = \{p2(tm)} C")
   }
-  let tm_hybrid = @bio.tm_nn_full(s, options=@bio.TmOptions::of(nn_table="R_DNA_NN1")) catch {
+  let tm_hybrid = @bio.tm_nn_full(
+    s,
+    options=@bio.TmOptions::of(nn_table="R_DNA_NN1"),
+  ) catch {
     _ => abort("tm_nn hybrid failed")
   }
   println("   R_DNA_NN1 (RNA/DNA hybrid): Tm = \{p2(tm_hybrid)} C\n")
@@ -82,7 +81,10 @@ fn main {
     _ => abort("tm_nn tris failed")
   }
   println("   + 10 mM Tris: Tm = \{p2(tm_tris)} C")
-  let tm_mg = @bio.tm_nn_full(s, options=@bio.TmOptions::of(tris=10.0, mg=1.5, saltcorr=7)) catch {
+  let tm_mg = @bio.tm_nn_full(
+    s,
+    options=@bio.TmOptions::of(tris=10.0, mg=1.5, saltcorr=7),
+  ) catch {
     _ => abort("tm_nn mg failed")
   }
   println("   + 1.5 mM Mg2+ (Owczarzy 2008): Tm = \{p2(tm_mg)} C")
@@ -98,10 +100,7 @@ fn main {
   //    direction; a lowercase base marks the mismatch site.
   println("5. Mismatch and dangling-end corrections")
   let template = "GCAAGGcTTCTACACCCGTACTCGAATG"
-  let tm_mis = @bio.tm_nn_full(
-    s,
-    options=@bio.TmOptions::of(c_seq=template),
-  ) catch {
+  let tm_mis = @bio.tm_nn_full(s, options=@bio.TmOptions::of(c_seq=template)) catch {
     _ => abort("tm_nn mismatch failed")
   }
   println("   one internal mismatch: Tm = \{p2(tm_mis)} C")

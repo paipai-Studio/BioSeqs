@@ -1,6 +1,6 @@
 ///|
 fn psl_test_join(values : Array[String], separator : String) -> String {
-  let output = StringBuilder::new()
+  let output = StringBuilder()
   for index in 0..<values.length() {
     if index > 0 {
       output.write_string(separator)
@@ -35,8 +35,8 @@ fn psl_test_parse_raises(content : String) -> Bool {
 
 ///|
 fn psl_test_create_raises(
-  target_coordinates : Array[Int],
-  query_coordinates : Array[Int],
+  target_coordinates : Array[Int32],
+  query_coordinates : Array[Int32],
 ) -> Bool {
   try {
     ignore(

@@ -22,18 +22,6 @@ pub fn volcano_classification_up() -> VolcanoClassification {
 }
 
 ///|
-/// Create a Down classification.
-pub fn volcano_classification_down() -> VolcanoClassification {
-  VolcanoClassification::Down
-}
-
-///|
-/// Create a NonSig classification.
-pub fn volcano_classification_nonsig() -> VolcanoClassification {
-  VolcanoClassification::NonSig
-}
-
-///|
 /// A single gene result for volcano plot.
 pub struct VolcanoGene {
   gene_id : String
@@ -53,9 +41,9 @@ pub struct VolcanoResult {
   title : String
   x_label : String
   y_label : String
-  n_up : Int
-  n_down : Int
-  n_nonsig : Int
+  n_up : Int32
+  n_down : Int32
+  n_nonsig : Int32
 }
 
 ///|
@@ -74,14 +62,14 @@ pub fn volcano_plot(
   gene_ids : Array[String],
   log2fc_values : Array[Double],
   p_values : Array[Double],
-  p_cutoff? : Double = 0.05,
-  fc_cutoff? : Double = 1.0,
-  title? : String = "",
-  x_label? : String = "log2 Fold Change",
-  y_label? : String = "-log10(p-value)",
+  p_cutoff~ : Double = 0.05,
+  fc_cutoff~ : Double = 1.0,
+  title~ : String = "",
+  x_label~ : String = "log2 Fold Change",
+  y_label~ : String = "-log10(p-value)",
 ) -> VolcanoResult {
   let n = gene_ids.length()
-  let genes : Array[VolcanoGene] = Array::new()
+  let genes : Array[VolcanoGene] = Array(capacity=0)
   let mut n_up = 0
   let mut n_down = 0
   let mut n_nonsig = 0
@@ -150,25 +138,25 @@ pub fn volcano_plot_default(
 
 ///|
 /// Get the number of genes.
-pub fn VolcanoResult::get_n_genes(self : VolcanoResult) -> Int {
+pub fn VolcanoResult::get_n_genes(self : VolcanoResult) -> Int32 {
   self.genes.length()
 }
 
 ///|
 /// Get the number of up-regulated genes.
-pub fn VolcanoResult::get_n_up(self : VolcanoResult) -> Int {
+pub fn VolcanoResult::get_n_up(self : VolcanoResult) -> Int32 {
   self.n_up
 }
 
 ///|
 /// Get the number of down-regulated genes.
-pub fn VolcanoResult::get_n_down(self : VolcanoResult) -> Int {
+pub fn VolcanoResult::get_n_down(self : VolcanoResult) -> Int32 {
   self.n_down
 }
 
 ///|
 /// Get the number of non-significant genes.
-pub fn VolcanoResult::get_n_nonsig(self : VolcanoResult) -> Int {
+pub fn VolcanoResult::get_n_nonsig(self : VolcanoResult) -> Int32 {
   self.n_nonsig
 }
 
@@ -195,7 +183,7 @@ pub fn VolcanoResult::get_genes(self : VolcanoResult) -> Array[VolcanoGene] {
 pub fn VolcanoResult::get_significant_genes(
   self : VolcanoResult,
 ) -> Array[VolcanoGene] {
-  let sig : Array[VolcanoGene] = Array::new()
+  let sig : Array[VolcanoGene] = Array(capacity=0)
   let mut i = 0
   while i < self.genes.length() {
     if self.genes[i].significant {
@@ -210,7 +198,7 @@ pub fn VolcanoResult::get_significant_genes(
 /// Get top significant genes by p-value.
 pub fn VolcanoResult::get_top_genes(
   self : VolcanoResult,
-  n : Int,
+  n : Int32,
 ) -> Array[VolcanoGene] {
   let sig = self.get_significant_genes()
   let sorted = sig.copy()
@@ -229,7 +217,7 @@ pub fn VolcanoResult::get_top_genes(
     i = i + 1
   }
 
-  let result : Array[VolcanoGene] = Array::new()
+  let result : Array[VolcanoGene] = Array(capacity=0)
   let take = if n < len { n } else { len }
   let mut k = 0
   while k < take {
@@ -242,7 +230,7 @@ pub fn VolcanoResult::get_top_genes(
 ///|
 /// Get up-regulated genes.
 pub fn VolcanoResult::get_up_genes(self : VolcanoResult) -> Array[VolcanoGene] {
-  let up : Array[VolcanoGene] = Array::new()
+  let up : Array[VolcanoGene] = Array(capacity=0)
   let mut i = 0
   while i < self.genes.length() {
     if self.genes[i].classification is VolcanoClassification::Up {
@@ -258,7 +246,7 @@ pub fn VolcanoResult::get_up_genes(self : VolcanoResult) -> Array[VolcanoGene] {
 pub fn VolcanoResult::get_down_genes(
   self : VolcanoResult,
 ) -> Array[VolcanoGene] {
-  let down : Array[VolcanoGene] = Array::new()
+  let down : Array[VolcanoGene] = Array(capacity=0)
   let mut i = 0
   while i < self.genes.length() {
     if self.genes[i].classification is VolcanoClassification::Down {
@@ -280,8 +268,8 @@ pub fn neg_log10_p(p_val : Double) -> Double {
 /// Format the volcano result as an ASCII visualization.
 pub fn VolcanoResult::to_ascii(
   self : VolcanoResult,
-  width? : Int = 60,
-  height? : Int = 20,
+  width~ : Int32 = 60,
+  height~ : Int32 = 20,
 ) -> String {
   let w = if width < 20 { 60 } else { width }
   let h = if height < 10 { 20 } else { height }
@@ -316,10 +304,10 @@ pub fn VolcanoResult::to_ascii(
   let nlp_range = if max_neglog < 0.5 { 1.0 } else { max_neglog }
 
   // Build plot
-  let plot : Array[Array[String]] = Array::new()
+  let plot : Array[Array[String]] = Array(capacity=0)
   let mut r = 0
   while r < h {
-    let row : Array[String] = Array::new()
+    let row : Array[String] = Array(capacity=0)
     let mut c = 0
     while c < w {
       row.push(".")
@@ -429,11 +417,11 @@ pub fn VolcanoResult::summary(self : VolcanoResult) -> String {
 
 ///|
 /// Create sample data for demo purposes.
-pub fn volcano_sample(n_genes : Int) -> VolcanoResult {
+pub fn volcano_sample(n_genes : Int32) -> VolcanoResult {
   let n = if n_genes < 10 { 10 } else { n_genes }
-  let ids : Array[String] = Array::new()
-  let lfcs : Array[Double] = Array::new()
-  let pvals : Array[Double] = Array::new()
+  let ids : Array[String] = Array(capacity=0)
+  let lfcs : Array[Double] = Array(capacity=0)
+  let pvals : Array[Double] = Array(capacity=0)
 
   // Generate deterministic sample data
   let names = [

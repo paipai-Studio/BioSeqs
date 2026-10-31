@@ -141,7 +141,7 @@ fn main {
   for i = 0; i < rows; i = i + 1 {
     let row = matrix[i]
     let cols = if row.length() > 5 { 5 } else { row.length() }
-    let buf = StringBuilder::new()
+    let buf = StringBuilder()
     buf.write_string("   [")
     for j = 0; j < cols; j = j + 1 {
       if j > 0 {

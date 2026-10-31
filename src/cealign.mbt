@@ -18,9 +18,9 @@ pub suberror CeAlignError {
 /// Proteins contribute CA atoms and nucleic acids contribute C4' atoms when
 /// no CA atom is present in the residue.
 pub struct CeGuideAtom {
-  model_id : Int
+  model_id : Int32
   chain_id : Char
-  residue_number : Int
+  residue_number : Int32
   atom_name : String
   coordinate : Vector3
 }
@@ -28,28 +28,28 @@ pub struct CeGuideAtom {
 ///|
 /// Create a CE guide atom.
 pub fn CeGuideAtom::new(
-  model_id~ : Int,
+  model_id~ : Int32,
   chain_id~ : Char,
-  residue_number~ : Int,
+  residue_number~ : Int32,
   atom_name~ : String,
   coordinate~ : Vector3,
 ) -> CeGuideAtom {
-  CeGuideAtom::{ model_id, chain_id, residue_number, atom_name, coordinate }
+  CeGuideAtom::{ model_id, chain_id, residue_number, atom_name, coordinate, }
 }
 
 ///|
 /// One CE alignment path expanded to individual guide atom indices.
 pub struct CeAlignmentPath {
-  reference_indices : Array[Int]
-  mobile_indices : Array[Int]
-  fragment_count : Int
+  reference_indices : Array[Int32]
+  mobile_indices : Array[Int32]
+  fragment_count : Int32
   similarity : Double
   z_score : Double
 }
 
 ///|
 /// Number of aligned guide atom pairs.
-pub fn CeAlignmentPath::aligned_length(self : CeAlignmentPath) -> Int {
+pub fn CeAlignmentPath::aligned_length(self : CeAlignmentPath) -> Int32 {
   self.reference_indices.length()
 }
 
@@ -57,8 +57,8 @@ pub fn CeAlignmentPath::aligned_length(self : CeAlignmentPath) -> Int {
 /// Return aligned index pairs.
 pub fn CeAlignmentPath::aligned_pairs(
   self : CeAlignmentPath,
-) -> Array[(Int, Int)] {
-  let pairs : Array[(Int, Int)] = []
+) -> Array[(Int32, Int32)] {
+  let pairs : Array[(Int32, Int32)] = []
   let mut index = 0
   while index < self.reference_indices.length() {
     pairs.push((self.reference_indices[index], self.mobile_indices[index]))
@@ -69,13 +69,13 @@ pub fn CeAlignmentPath::aligned_pairs(
 
 ///|
 /// Return a defensive copy of the reference indices.
-pub fn CeAlignmentPath::reference_path(self : CeAlignmentPath) -> Array[Int] {
+pub fn CeAlignmentPath::reference_path(self : CeAlignmentPath) -> Array[Int32] {
   self.reference_indices.copy()
 }
 
 ///|
 /// Return a defensive copy of the mobile indices.
-pub fn CeAlignmentPath::mobile_path(self : CeAlignmentPath) -> Array[Int] {
+pub fn CeAlignmentPath::mobile_path(self : CeAlignmentPath) -> Array[Int32] {
   self.mobile_indices.copy()
 }
 
@@ -86,8 +86,8 @@ pub struct CeAlignmentResult {
   rmsd : Double
   rotation : Array[Array[Double]]
   translation : Array[Double]
-  reference_guide_count : Int
-  mobile_guide_count : Int
+  reference_guide_count : Int32
+  mobile_guide_count : Int32
   transformed : Bool
   optimization_applied : Bool
   structure : Structure
@@ -157,16 +157,16 @@ pub fn CeAlignmentResult::summary(self : CeAlignmentResult) -> String {
 ///|
 /// Immutable CE aligner configuration and reference guide atom set.
 pub struct CEAligner {
-  window_size : Int
-  max_gap : Int
+  window_size : Int32
+  max_gap : Int32
   reference_atoms : Array[CeGuideAtom]
 }
 
 ///|
 /// Create a CEAligner.
 pub fn CEAligner::new(
-  window_size? : Int = 8,
-  max_gap? : Int = 30,
+  window_size~ : Int32 = 8,
+  max_gap~ : Int32 = 30,
 ) -> CEAligner raise CeAlignError {
   if window_size <= 0 {
     raise CeAlignError("window_size must be greater than zero")
@@ -174,12 +174,12 @@ pub fn CEAligner::new(
   if max_gap < 0 {
     raise CeAlignError("max_gap must be non-negative")
   }
-  CEAligner::{ window_size, max_gap, reference_atoms: [] }
+  CEAligner::{ window_size, max_gap, reference_atoms: [], }
 }
 
 ///|
 /// Number of guide atoms in the current reference.
-pub fn CEAligner::reference_length(self : CEAligner) -> Int {
+pub fn CEAligner::reference_length(self : CEAligner) -> Int32 {
   self.reference_atoms.length()
 }
 
@@ -225,7 +225,7 @@ pub fn cealign_get_guide_atoms(
       }
     }
   }
-  atoms.sort_by(fn(left : CeGuideAtom, right : CeGuideAtom) -> Int {
+  atoms.sort_by(fn(left : CeGuideAtom, right : CeGuideAtom) -> Int32 {
     if left.model_id < right.model_id {
       -1
     } else if left.model_id > right.model_id {
@@ -265,7 +265,7 @@ pub fn CEAligner::set_reference(
       (self.window_size * 2).to_string(),
     )
   }
-  CEAligner::{ ..self, reference_atoms: atoms }
+  CEAligner::{ ..self, reference_atoms: atoms, }
 }
 
 ///|
@@ -301,9 +301,9 @@ pub fn cealign_distance_matrix(
 pub fn cealign_fragment_similarity(
   reference_distances : Array[Array[Double]],
   mobile_distances : Array[Array[Double]],
-  reference_start : Int,
-  mobile_start : Int,
-  window_size : Int,
+  reference_start : Int32,
+  mobile_start : Int32,
+  window_size : Int32,
 ) -> Double {
   if window_size <= 1 {
     return 0.0
@@ -333,7 +333,7 @@ pub fn cealign_fragment_similarity(
 pub fn cealign_similarity_matrix(
   reference : Array[Vector3],
   mobile : Array[Vector3],
-  window_size : Int,
+  window_size : Int32,
 ) -> Array[Array[Double]] raise CeAlignError {
   if window_size <= 0 {
     raise CeAlignError("window_size must be greater than zero")
@@ -365,10 +365,10 @@ pub fn cealign_similarity_matrix(
 }
 
 ///|
-struct CePathCandidate {
-  reference_starts : Array[Int]
-  mobile_starts : Array[Int]
-  fragment_count : Int
+priv struct CePathCandidate {
+  reference_starts : Array[Int32]
+  mobile_starts : Array[Int32]
+  fragment_count : Int32
   similarity : Double
   z_score : Double
 }
@@ -377,11 +377,11 @@ struct CePathCandidate {
 fn cealign_extension_similarity(
   reference_distances : Array[Array[Double]],
   mobile_distances : Array[Array[Double]],
-  reference_start_i : Int,
-  mobile_start_i : Int,
-  reference_start_j : Int,
-  mobile_start_j : Int,
-  window_size : Int,
+  reference_start_i : Int32,
+  mobile_start_i : Int32,
+  reference_start_j : Int32,
+  mobile_start_j : Int32,
+  window_size : Int32,
 ) -> Double {
   let last = window_size - 1
   let mut difference = (reference_distances[reference_start_i][reference_start_j] -
@@ -430,7 +430,7 @@ fn cealign_inverse_survival(probability : Double) -> Double {
 
 ///|
 fn cealign_similarity_z_score(
-  fragment_count : Int,
+  fragment_count : Int32,
   similarity : Double,
 ) -> Double {
   if fragment_count < 1 {
@@ -463,7 +463,7 @@ fn cealign_similarity_z_score(
 }
 
 ///|
-fn cealign_gap_z_score(fragment_count : Int, gap_count : Int) -> Double {
+fn cealign_gap_z_score(fragment_count : Int32, gap_count : Int32) -> Double {
   if fragment_count <= 1 {
     return 0.0
   }
@@ -494,10 +494,10 @@ fn cealign_gap_z_score(fragment_count : Int, gap_count : Int) -> Double {
 
 ///|
 fn cealign_z_score(
-  window_size : Int,
-  fragment_count : Int,
+  window_size : Int32,
+  fragment_count : Int32,
   similarity : Double,
-  gap_count : Int,
+  gap_count : Int32,
 ) -> Double {
   if window_size != 8 {
     return 0.0
@@ -518,7 +518,7 @@ fn cealign_store_candidate(
   candidates.sort_by(fn(
     left : CePathCandidate,
     right : CePathCandidate,
-  ) -> Int {
+  ) -> Int32 {
     if left.fragment_count > right.fragment_count {
       -1
     } else if left.fragment_count < right.fragment_count {
@@ -539,10 +539,10 @@ fn cealign_store_candidate(
 ///|
 fn cealign_expand_candidate(
   candidate : CePathCandidate,
-  window_size : Int,
+  window_size : Int32,
 ) -> CeAlignmentPath {
-  let reference_indices : Array[Int] = []
-  let mobile_indices : Array[Int] = []
+  let reference_indices : Array[Int32] = []
+  let mobile_indices : Array[Int32] = []
   let mut fragment = 0
   while fragment < candidate.fragment_count {
     let mut offset = 0
@@ -567,8 +567,8 @@ fn cealign_expand_candidate(
 pub fn cealign_find_paths(
   reference : Array[Vector3],
   mobile : Array[Vector3],
-  window_size : Int,
-  max_gap : Int,
+  window_size : Int32,
+  max_gap : Int32,
 ) -> Array[CeAlignmentPath] raise CeAlignError {
   if window_size <= 0 {
     raise CeAlignError("window_size must be greater than zero")
@@ -729,8 +729,8 @@ fn cealign_fit_path(
 ///|
 fn cealign_path_with_indices(
   path : CeAlignmentPath,
-  reference_indices : Array[Int],
-  mobile_indices : Array[Int],
+  reference_indices : Array[Int32],
+  mobile_indices : Array[Int32],
 ) -> CeAlignmentPath {
   CeAlignmentPath::{
     ..path,
@@ -744,7 +744,7 @@ fn cealign_optimize_path(
   path : CeAlignmentPath,
   reference : Array[Vector3],
   mobile : Array[Vector3],
-  window_size : Int,
+  window_size : Int32,
   initial_fit : QCPSuperimposer,
 ) -> (CeAlignmentPath, QCPSuperimposer) {
   let reference_indices = path.reference_indices.copy()
@@ -881,8 +881,8 @@ pub fn cealign_transform_structure(
 pub fn CEAligner::align(
   self : CEAligner,
   mobile_structure : Structure,
-  transform? : Bool = true,
-  final_optimization? : Bool = true,
+  transform~ : Bool = true,
+  final_optimization~ : Bool = true,
 ) -> CeAlignmentResult raise CeAlignError {
   if self.reference_atoms.length() == 0 {
     raise CeAlignError("reference structure has not been set")

@@ -85,7 +85,7 @@ fn main {
 
   // 11. find_dmps - differential methylation analysis
   println("\n11. find_dmps (groups: 0,0,1,1):")
-  let groups : Array[Int] = [0, 0, 1, 1]
+  let groups : Array[Int32] = [0, 0, 1, 1]
   let dmp_result = @src.minfi_find_dmps(grset, groups)
   println(dmp_result.to_string())
 
@@ -125,7 +125,7 @@ fn main {
   while k < keys.length() && k < 5 {
     let probe = keys[k]
     let loc = loc_map.get(probe)
-    if loc.is_some() {
+    if loc is Some(_) {
       let (chr_s, pos_i) = loc.unwrap()
       println("  " + probe + " -> " + chr_s + ":" + pos_i.to_string())
     }

@@ -29,7 +29,7 @@
 ///
 /// Mirrors BioPython's SeqIO.parse(handle, "pir").
 pub fn parse_pir(content : String) -> Array[SeqRecord] {
-  let records = Array::new()
+  let records = Array(capacity=0)
   let lines = content.split("\n").to_array()
   let n = lines.length()
   let mut i = 0
@@ -50,7 +50,7 @@ pub fn parse_pir(content : String) -> Array[SeqRecord] {
       // Parse header ">P1;NAME"
       let header = line[1:trimmed].to_owned()
       let hl = header.length()
-      let mut semi_pos : Int? = None
+      let mut semi_pos : Int32? = None
       for j = 0; j < hl; j = j + 1 {
         if header.unsafe_get(j) == semi {
           semi_pos = Some(j)
@@ -77,7 +77,7 @@ pub fn parse_pir(content : String) -> Array[SeqRecord] {
       }
 
       // Sequence lines until "*" (included) or next ">"
-      let seq_buf = StringBuilder::new()
+      let seq_buf = StringBuilder()
       while i < n {
         let sl = lines[i]
         let sll = sl.length()

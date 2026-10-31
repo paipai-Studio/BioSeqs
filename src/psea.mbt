@@ -12,7 +12,7 @@ pub struct PseaAtom {
   /// Residue name (e.g., "ALA")
   res_name : String
   /// Residue number
-  res_num : Int
+  res_num : Int32
   /// Atom name (e.g., "CA")
   atom_name : String
   /// X coordinate
@@ -27,7 +27,7 @@ pub struct PseaAtom {
 /// PSEA secondary structure assignment result.
 pub struct PseaResult {
   /// Residue numbers
-  res_nums : Array[Int]
+  res_nums : Array[Int32]
   /// Residue names
   res_names : Array[String]
   /// Secondary structure per residue: "H" (helix), "E" (strand), "C" (coil)
@@ -35,11 +35,11 @@ pub struct PseaResult {
   /// Confidence scores (0.0 - 1.0)
   confidence : Array[Double]
   /// Summary counts
-  n_helix : Int
+  n_helix : Int32
   /// Summary counts
-  n_strand : Int
+  n_strand : Int32
   /// Summary counts
-  n_coil : Int
+  n_coil : Int32
 }
 
 ///|
@@ -59,13 +59,13 @@ pub struct PseaGeometry {
 /// Create a new atom.
 pub fn PseaAtom::new(
   res_name : String,
-  res_num : Int,
+  res_num : Int32,
   atom_name : String,
   x : Double,
   y : Double,
   z : Double,
 ) -> PseaAtom {
-  PseaAtom::{ res_name, res_num, atom_name, x, y, z }
+  PseaAtom::{ res_name, res_num, atom_name, x, y, z, }
 }
 
 ///|
@@ -165,12 +165,6 @@ fn psea_arccos_deg(x : Double) -> Double {
   @math.acos(x) * 180.0 / 3.141592653589793
 }
 
-///|
-/// Arctangent2 in degrees.
-fn psea_atan2_deg(y : Double, x : Double) -> Double {
-  @math.atan2(y, x) * 180.0 / 3.141592653589793
-}
-
 // ===== Geometry computation =====
 
 ///|
@@ -178,9 +172,9 @@ fn psea_atan2_deg(y : Double, x : Double) -> Double {
 /// for a chain of CA atoms.
 pub fn psea_compute_geometry(ca_atoms : Array[PseaAtom]) -> PseaGeometry {
   let n = ca_atoms.length()
-  let ca_distances : Array[Double] = Array::new()
-  let bond_angles : Array[Double] = Array::new()
-  let dihedral_angles : Array[Double] = Array::new()
+  let ca_distances : Array[Double] = Array(capacity=0)
+  let bond_angles : Array[Double] = Array(capacity=0)
+  let dihedral_angles : Array[Double] = Array(capacity=0)
   // CA-CA distances
   let mut i = 1
   while i < n {
@@ -208,7 +202,7 @@ pub fn psea_compute_geometry(ca_atoms : Array[PseaAtom]) -> PseaGeometry {
     )
     k = k + 1
   }
-  PseaGeometry::{ ca_distances, bond_angles, dihedral_angles }
+  PseaGeometry::{ ca_distances, bond_angles, dihedral_angles, }
 }
 
 // ===== PSEA secondary structure assignment =====
@@ -223,8 +217,8 @@ pub fn psea_compute_geometry(ca_atoms : Array[PseaAtom]) -> PseaGeometry {
 /// - Coil (C): everything else.
 pub fn psea_run(ca_atoms : Array[PseaAtom]) -> PseaResult {
   let n = ca_atoms.length()
-  let ss : Array[String] = Array::new()
-  let confidence : Array[Double] = Array::new()
+  let ss : Array[String] = Array(capacity=0)
+  let confidence : Array[Double] = Array(capacity=0)
   // Initialize all to coil
   let mut idx = 0
   while idx < n {
@@ -234,8 +228,8 @@ pub fn psea_run(ca_atoms : Array[PseaAtom]) -> PseaResult {
   }
   if n < 4 {
     // Not enough atoms for dihedral analysis; mark as coil
-    let res_nums : Array[Int] = Array::new()
-    let res_names : Array[String] = Array::new()
+    let res_nums : Array[Int32] = Array(capacity=0)
+    let res_names : Array[String] = Array(capacity=0)
     let mut r = 0
     while r < n {
       res_nums.push(ca_atoms[r].res_num)
@@ -256,8 +250,8 @@ pub fn psea_run(ca_atoms : Array[PseaAtom]) -> PseaResult {
   // Score each residue based on local dihedral angles
   // Dihedral angle for residues i..i+3 corresponds to central residue i+1
   // Map dihedral angle index k to residue (k+1)
-  let helix_scores : Array[Double] = Array::new()
-  let strand_scores : Array[Double] = Array::new()
+  let helix_scores : Array[Double] = Array(capacity=0)
+  let strand_scores : Array[Double] = Array(capacity=0)
   let mut s = 0
   while s < n {
     helix_scores.push(0.0)
@@ -326,8 +320,8 @@ pub fn psea_run(ca_atoms : Array[PseaAtom]) -> PseaResult {
   // - Strands need at least 3 consecutive residues
   psea_enforce_min_lengths(ss, 4, 3)
   // Build result
-  let res_nums : Array[Int] = Array::new()
-  let res_names : Array[String] = Array::new()
+  let res_nums : Array[Int32] = Array(capacity=0)
+  let res_names : Array[String] = Array(capacity=0)
   let mut n_helix = 0
   let mut n_strand = 0
   let mut n_coil = 0
@@ -344,15 +338,23 @@ pub fn psea_run(ca_atoms : Array[PseaAtom]) -> PseaResult {
     }
     r = r + 1
   }
-  PseaResult::{ res_nums, res_names, ss, confidence, n_helix, n_strand, n_coil }
+  PseaResult::{
+    res_nums,
+    res_names,
+    ss,
+    confidence,
+    n_helix,
+    n_strand,
+    n_coil,
+  }
 }
 
 ///|
 /// Enforce minimum lengths for helix and strand segments.
 fn psea_enforce_min_lengths(
   ss : Array[String],
-  min_helix : Int,
-  min_strand : Int,
+  min_helix : Int32,
+  min_strand : Int32,
 ) -> Unit {
   let n = ss.length()
   let mut i = 0
@@ -398,31 +400,34 @@ pub fn PseaResult::psea_ss_string(self : PseaResult) -> String {
 
 ///|
 /// Get number of residues.
-pub fn PseaResult::psea_n_residues(self : PseaResult) -> Int {
+pub fn PseaResult::psea_n_residues(self : PseaResult) -> Int32 {
   self.ss.length()
 }
 
 ///|
 /// Get the secondary structure assignment at an index.
-pub fn PseaResult::psea_get_ss(self : PseaResult, idx : Int) -> String {
+pub fn PseaResult::psea_get_ss(self : PseaResult, idx : Int32) -> String {
   self.ss[idx]
 }
 
 ///|
 /// Get the confidence score at an index.
-pub fn PseaResult::psea_get_confidence(self : PseaResult, idx : Int) -> Double {
+pub fn PseaResult::psea_get_confidence(
+  self : PseaResult,
+  idx : Int32,
+) -> Double {
   self.confidence[idx]
 }
 
 ///|
 /// Get the residue number at an index.
-pub fn PseaResult::psea_get_res_num(self : PseaResult, idx : Int) -> Int {
+pub fn PseaResult::psea_get_res_num(self : PseaResult, idx : Int32) -> Int32 {
   self.res_nums[idx]
 }
 
 ///|
 /// Get the residue name at an index.
-pub fn PseaResult::psea_get_res_name(self : PseaResult, idx : Int) -> String {
+pub fn PseaResult::psea_get_res_name(self : PseaResult, idx : Int32) -> String {
   self.res_names[idx]
 }
 
@@ -451,7 +456,7 @@ pub fn PseaResult::psea_summary(self : PseaResult) -> String {
 /// C -> T (turn), S (bend), L (loop), C (coil)
 pub fn psea_three_to_eight_state(ss : Array[String]) -> Array[String] {
   let n = ss.length()
-  let result : Array[String] = Array::new()
+  let result : Array[String] = Array(capacity=0)
   let mut i = 0
   while i < n {
     let s = ss[i]
@@ -508,7 +513,7 @@ pub fn psea_three_to_eight_state(ss : Array[String]) -> Array[String] {
 pub fn psea_create_example_helix() -> Array[PseaAtom] {
   // Approximate alpha-helix CA coordinates: helix rise ~1.5 Å, radius ~2.3 Å
   // 100 degrees per residue (3.6 residues per turn)
-  let atoms : Array[PseaAtom] = Array::new()
+  let atoms : Array[PseaAtom] = Array(capacity=0)
   let names = [
     "ALA", "GLY", "VAL", "LEU", "SER", "THR", "PHE", "TRP", "TYR", "CYS", "MET",
     "ILE",
@@ -531,7 +536,7 @@ pub fn psea_create_example_helix() -> Array[PseaAtom] {
 /// Generate a small example CA chain with a beta-strand-like geometry.
 /// Produces ~8 residues in an extended conformation.
 pub fn psea_create_example_strand() -> Array[PseaAtom] {
-  let atoms : Array[PseaAtom] = Array::new()
+  let atoms : Array[PseaAtom] = Array(capacity=0)
   let names = ["ALA", "GLY", "VAL", "LEU", "SER", "THR", "PHE", "TRP"]
   // Extended strand: alternating zig-zag with ~3.8 Å CA-CA distance
   let mut i = 0
@@ -551,7 +556,7 @@ pub fn psea_create_example_strand() -> Array[PseaAtom] {
 pub fn psea_create_example_mixed() -> Array[PseaAtom] {
   let helix_part = psea_create_example_helix()
   let strand_part = psea_create_example_strand()
-  let atoms : Array[PseaAtom] = Array::new()
+  let atoms : Array[PseaAtom] = Array(capacity=0)
   // Take first 6 helix residues, then a 3-residue coil, then 6 strand residues
   let mut idx = 0
   while idx < 6 && idx < helix_part.length() {

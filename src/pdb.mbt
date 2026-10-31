@@ -12,7 +12,7 @@ pub struct Vector3 {
 ///|
 /// Construct a Vector3.
 pub fn Vector3::new(x : Double, y : Double, z : Double) -> Vector3 {
-  Vector3::{ x, y, z }
+  Vector3::{ x, y, z, }
 }
 
 ///|
@@ -31,13 +31,13 @@ pub struct Atom {
   altloc : Char
   resname : String
   chainid : Char
-  resseq : Int
+  resseq : Int32
   icode : Char
   coord : Vector3
   occupancy : Double
   bfactor : Double
   element : String
-  charge : Int
+  charge : Int32
 }
 
 ///|
@@ -45,13 +45,13 @@ pub struct Atom {
 pub fn Atom::new(
   name~ : String,
   coord~ : Vector3,
-  resname? : String = "UNK",
-  chainid? : Char = ' ',
-  resseq? : Int = 1,
-  occupancy? : Double = 1.0,
-  bfactor? : Double = 0.0,
-  element? : String = "",
-  charge? : Int = 0,
+  resname~ : String = "UNK",
+  chainid~ : Char = ' ',
+  resseq~ : Int32 = 1,
+  occupancy~ : Double = 1.0,
+  bfactor~ : Double = 0.0,
+  element~ : String = "",
+  charge~ : Int32 = 0,
 ) -> Atom {
   Atom::{
     name,
@@ -85,7 +85,7 @@ pub fn Atom::distance(self : Atom, other : Atom) -> Double {
 pub struct Residue {
   resname : String
   chainid : Char
-  resseq : Int
+  resseq : Int32
   icode : Char
   atoms : Array[Atom]
   hetfield : String
@@ -96,11 +96,11 @@ pub struct Residue {
 pub fn Residue::new(
   resname~ : String,
   chainid~ : Char,
-  resseq~ : Int,
-  atoms? : Array[Atom] = [],
-  hetfield? : String = " ",
+  resseq~ : Int32,
+  atoms~ : Array[Atom] = [],
+  hetfield~ : String = " ",
 ) -> Residue {
-  Residue::{ resname, chainid, resseq, icode: ' ', atoms, hetfield }
+  Residue::{ resname, chainid, resseq, icode: ' ', atoms, hetfield, }
 }
 
 ///|
@@ -111,7 +111,7 @@ pub fn Residue::is_het(self : Residue) -> Bool {
 
 ///|
 /// Get the number of atoms in this residue.
-pub fn Residue::get_num_atoms(self : Residue) -> Int {
+pub fn Residue::get_num_atoms(self : Residue) -> Int32 {
   self.atoms.length()
 }
 
@@ -167,8 +167,8 @@ pub struct Chain {
 
 ///|
 /// Construct a Chain.
-pub fn Chain::new(id~ : Char, residues? : Array[Residue] = []) -> Chain {
-  Chain::{ id, residues }
+pub fn Chain::new(id~ : Char, residues~ : Array[Residue] = []) -> Chain {
+  Chain::{ id, residues, }
 }
 
 ///|
@@ -179,7 +179,7 @@ pub fn Chain::get_id(self : Chain) -> Char {
 
 ///|
 /// Get the number of residues in this chain.
-pub fn Chain::get_num_residues(self : Chain) -> Int {
+pub fn Chain::get_num_residues(self : Chain) -> Int32 {
   self.residues.length()
 }
 
@@ -191,7 +191,7 @@ pub fn Chain::get_residues(self : Chain) -> Array[Residue] {
 
 ///|
 /// Find a residue by sequence number.
-pub fn Chain::find_residue(self : Chain, resseq : Int) -> Residue? {
+pub fn Chain::find_residue(self : Chain, resseq : Int32) -> Residue? {
   for residue in self.residues {
     if residue.resseq == resseq {
       return Some(residue)
@@ -203,7 +203,7 @@ pub fn Chain::find_residue(self : Chain, resseq : Int) -> Residue? {
 ///|
 /// Get all atoms in this chain.
 pub fn Chain::get_atoms(self : Chain) -> Array[Atom] {
-  let result = Array::new()
+  let result = Array(capacity=0)
   for residue in self.residues {
     for atom in residue.atoms {
       result.push(atom)
@@ -215,25 +215,25 @@ pub fn Chain::get_atoms(self : Chain) -> Array[Atom] {
 ///|
 /// A model in a protein structure.
 pub struct Model {
-  id : Int
+  id : Int32
   chains : Array[Chain]
 }
 
 ///|
 /// Construct a Model.
-pub fn Model::new(id~ : Int, chains? : Array[Chain] = []) -> Model {
-  Model::{ id, chains }
+pub fn Model::new(id~ : Int32, chains~ : Array[Chain] = []) -> Model {
+  Model::{ id, chains, }
 }
 
 ///|
 /// Get the model ID.
-pub fn Model::get_id(self : Model) -> Int {
+pub fn Model::get_id(self : Model) -> Int32 {
   self.id
 }
 
 ///|
 /// Get the number of chains in this model.
-pub fn Model::get_num_chains(self : Model) -> Int {
+pub fn Model::get_num_chains(self : Model) -> Int32 {
   self.chains.length()
 }
 
@@ -257,7 +257,7 @@ pub fn Model::find_chain(self : Model, id : Char) -> Chain? {
 ///|
 /// Get all residues in this model.
 pub fn Model::get_residues(self : Model) -> Array[Residue] {
-  let result = Array::new()
+  let result = Array(capacity=0)
   for chain in self.chains {
     for residue in chain.residues {
       result.push(residue)
@@ -269,7 +269,7 @@ pub fn Model::get_residues(self : Model) -> Array[Residue] {
 ///|
 /// Get all atoms in this model.
 pub fn Model::get_atoms(self : Model) -> Array[Atom] {
-  let result = Array::new()
+  let result = Array(capacity=0)
   for chain in self.chains {
     for residue in chain.residues {
       for atom in residue.atoms {
@@ -289,8 +289,8 @@ pub struct Structure {
 
 ///|
 /// Construct a Structure.
-pub fn Structure::new(id~ : String, models? : Array[Model] = []) -> Structure {
-  Structure::{ id, models }
+pub fn Structure::new(id~ : String, models~ : Array[Model] = []) -> Structure {
+  Structure::{ id, models, }
 }
 
 ///|
@@ -301,25 +301,25 @@ pub fn Structure::get_id(self : Structure) -> String {
 
 ///|
 /// Get the number of models in this structure.
-pub fn Structure::get_num_models(self : Structure) -> Int {
+pub fn Structure::get_num_models(self : Structure) -> Int32 {
   self.models.length()
 }
 
 ///|
 /// Get the number of chains in this structure.
-pub fn Structure::get_num_chains(self : Structure) -> Int {
+pub fn Structure::get_num_chains(self : Structure) -> Int32 {
   self.get_chains().length()
 }
 
 ///|
 /// Get the number of atoms in this structure.
-pub fn Structure::get_num_atoms(self : Structure) -> Int {
+pub fn Structure::get_num_atoms(self : Structure) -> Int32 {
   self.get_atoms().length()
 }
 
 ///|
 /// Get the number of residues in this structure.
-pub fn Structure::get_num_residues(self : Structure) -> Int {
+pub fn Structure::get_num_residues(self : Structure) -> Int32 {
   self.get_residues().length()
 }
 
@@ -331,7 +331,7 @@ pub fn Structure::get_models(self : Structure) -> Array[Model] {
 
 ///|
 /// Find a model by ID.
-pub fn Structure::find_model(self : Structure, id : Int) -> Model? {
+pub fn Structure::find_model(self : Structure, id : Int32) -> Model? {
   for model in self.models {
     if model.id == id {
       return Some(model)
@@ -343,7 +343,7 @@ pub fn Structure::find_model(self : Structure, id : Int) -> Model? {
 ///|
 /// Get all chains in this structure.
 pub fn Structure::get_chains(self : Structure) -> Array[Chain] {
-  let result = Array::new()
+  let result = Array(capacity=0)
   for model in self.models {
     for chain in model.chains {
       result.push(chain)
@@ -355,7 +355,7 @@ pub fn Structure::get_chains(self : Structure) -> Array[Chain] {
 ///|
 /// Get all residues in this structure.
 pub fn Structure::get_residues(self : Structure) -> Array[Residue] {
-  let result = Array::new()
+  let result = Array(capacity=0)
   for model in self.models {
     for chain in model.chains {
       for residue in chain.residues {
@@ -369,7 +369,7 @@ pub fn Structure::get_residues(self : Structure) -> Array[Residue] {
 ///|
 /// Get all atoms in this structure.
 pub fn Structure::get_atoms(self : Structure) -> Array[Atom] {
-  let result = Array::new()
+  let result = Array(capacity=0)
   for model in self.models {
     for chain in model.chains {
       for residue in chain.residues {

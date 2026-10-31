@@ -21,18 +21,18 @@ pub fn Experiment::new(
   row_names~ : Array[String],
   col_names~ : Array[String],
 ) -> Experiment {
-  Experiment::{ name, assay_type, data, row_names, col_names }
+  Experiment::{ name, assay_type, data, row_names, col_names, }
 }
 
 ///|
 /// Get number of rows.
-pub fn Experiment::nrow(self : Experiment) -> Int {
+pub fn Experiment::nrow(self : Experiment) -> Int32 {
   self.data.length()
 }
 
 ///|
 /// Get number of columns.
-pub fn Experiment::ncol(self : Experiment) -> Int {
+pub fn Experiment::ncol(self : Experiment) -> Int32 {
   if self.data.length() > 0 {
     self.data[0].length()
   } else {
@@ -55,13 +55,13 @@ pub fn SampleMap::new(
   primary_ids~ : Array[String],
   colnames~ : Array[String],
 ) -> SampleMap {
-  SampleMap::{ assays, primary_ids, colnames }
+  SampleMap::{ assays, primary_ids, colnames, }
 }
 
 ///|
 /// Get unique primary sample IDs.
 pub fn SampleMap::primary_ids(self : SampleMap) -> Array[String] {
-  let result : Array[String] = Array::new()
+  let result : Array[String] = Array(capacity=0)
   for id in self.primary_ids {
     let mut found = false
     for r in result {
@@ -91,9 +91,9 @@ pub fn MultiAssayExperiment::new(
   experiments~ : Array[Experiment],
   sample_map~ : SampleMap,
   col_data~ : Array[(String, Map[String, String])],
-  metadata? : Map[String, String] = Map([]),
+  metadata~ : Map[String, String] = Map([]),
 ) -> MultiAssayExperiment {
-  MultiAssayExperiment::{ experiments, sample_map, col_data, metadata }
+  MultiAssayExperiment::{ experiments, sample_map, col_data, metadata, }
 }
 
 ///|
@@ -122,7 +122,7 @@ pub fn MultiAssayExperiment::experiment_names(
 /// Get number of experiments.
 pub fn MultiAssayExperiment::num_experiments(
   self : MultiAssayExperiment,
-) -> Int {
+) -> Int32 {
   self.experiments.length()
 }
 
@@ -136,7 +136,7 @@ pub fn MultiAssayExperiment::primary_ids(
 
 ///|
 /// Get number of primary samples.
-pub fn MultiAssayExperiment::num_samples(self : MultiAssayExperiment) -> Int {
+pub fn MultiAssayExperiment::num_samples(self : MultiAssayExperiment) -> Int32 {
   self.primary_ids().length()
 }
 
@@ -149,7 +149,7 @@ pub fn MultiAssayExperiment::common_samples(
     return []
   }
   let first_exp = self.experiments[0]
-  let common : Array[String] = Array::new()
+  let common : Array[String] = Array(capacity=0)
   for col in first_exp.col_names {
     let mut in_all = true
     for exp in self.experiments {
@@ -199,10 +199,10 @@ pub fn MultiAssayExperiment::subset_by_sample(
   self : MultiAssayExperiment,
   sample_ids : Array[String],
 ) -> MultiAssayExperiment {
-  let new_experiments : Array[Experiment] = Array::new()
+  let new_experiments : Array[Experiment] = Array(capacity=0)
   for exp in self.experiments {
-    let new_data : Array[Array[Double]] = Array::new()
-    let new_cols : Array[String] = Array::new()
+    let new_data : Array[Array[Double]] = Array(capacity=0)
+    let new_cols : Array[String] = Array(capacity=0)
     let mut col_idx = 0
     while col_idx < exp.col_names.length() {
       let col_name = exp.col_names[col_idx]
@@ -221,7 +221,7 @@ pub fn MultiAssayExperiment::subset_by_sample(
       }
       if should_keep {
         new_cols.push(col_name)
-        let row : Array[Double] = Array::new()
+        let row : Array[Double] = Array(capacity=0)
         let mut r = 0
         while r < exp.data.length() {
           row.push(exp.data[r][col_idx])
@@ -232,12 +232,12 @@ pub fn MultiAssayExperiment::subset_by_sample(
       col_idx = col_idx + 1
     }
     // Transpose back
-    let transposed : Array[Array[Double]] = Array::new()
+    let transposed : Array[Array[Double]] = Array(capacity=0)
     if new_data.length() > 0 {
       let n_rows = exp.data.length()
       let mut r = 0
       while r < n_rows {
-        let row : Array[Double] = Array::new()
+        let row : Array[Double] = Array(capacity=0)
         let mut c = 0
         while c < new_data.length() {
           row.push(new_data[c][r])
@@ -322,7 +322,7 @@ pub fn MultiAssayExperiment::colnames(
 /// Get dimensions of all experiments.
 pub fn MultiAssayExperiment::dims(
   self : MultiAssayExperiment,
-) -> Array[(String, Int, Int)] {
+) -> Array[(String, Int32, Int32)] {
   self.experiments.map(fn(e) { (e.name, e.nrow(), e.ncol()) })
 }
 
@@ -392,9 +392,9 @@ pub fn create_multi_omics(
     row_names=chip_peaks,
     col_names=chip_samples,
   )
-  let assays : Array[String] = Array::new()
-  let primary : Array[String] = Array::new()
-  let colnames : Array[String] = Array::new()
+  let assays : Array[String] = Array(capacity=0)
+  let primary : Array[String] = Array(capacity=0)
+  let colnames : Array[String] = Array(capacity=0)
   for s in rna_samples {
     assays.push("RNA-seq")
     colnames.push(s)
@@ -418,7 +418,7 @@ pub fn create_multi_omics(
     idx = idx + 1
   }
   let sm = SampleMap::new(assays~, primary_ids=primary, colnames~)
-  let col_data : Array[(String, Map[String, String])] = Array::new()
+  let col_data : Array[(String, Map[String, String])] = Array(capacity=0)
   for sid in sample_ids {
     let m : Map[String, String] = Map([])
     col_data.push((sid, m))

@@ -12,20 +12,28 @@ fn main {
 
   let gene_annots = [
     @bio.GeneAnnotation::new(
-      gene_id="gene1", gene_name="GENE1", chr="chr1",
-      gene_start=1, gene_end=5000, strand="+",
+      gene_id="gene1",
+      gene_name="GENE1",
+      chr="chr1",
+      gene_start=1,
+      gene_end=5000,
+      strand="+",
     ),
     @bio.GeneAnnotation::new(
-      gene_id="gene2", gene_name="GENE2", chr="chr2",
-      gene_start=10001, gene_end=20000, strand="-",
+      gene_id="gene2",
+      gene_name="GENE2",
+      chr="chr2",
+      gene_start=10001,
+      gene_end=20000,
+      strand="-",
     ),
   ]
 
-  let peak_objs : Array[@bio.Peak] = Array::new()
+  let peak_objs : Array[@bio.Peak] = Array(capacity=0)
   let mut i = 0
   while i < peak_specs.length() {
     let (chr, start, end) = peak_specs[i]
-    peak_objs.push(@bio.Peak::new(chr=chr, start=start, end=end, summit=(start + end) / 2))
+    peak_objs.push(@bio.Peak::new(chr~, start~, end~, summit=(start + end) / 2))
     i = i + 1
   }
 
@@ -74,7 +82,9 @@ fn main {
   disease_db["DOID:9012"] = ["GAPDH", "ACTB"]
   disease_db["DOID:3456"] = ["MYC", "EGFR"]
 
-  let dose_result = @bio.enrich_disease(gene_list, disease_db, background_genes)
+  let dose_result = @bio.enrich_disease_fisher(
+    gene_list, disease_db, background_genes,
+  )
 
   println("1. Enrichment Results")
   println("   Total enriched terms: \{dose_result.terms.length().to_string()}")
@@ -83,7 +93,8 @@ fn main {
   println("")
 
   println("2. Top 3 Enriched Terms")
-  let top_terms = @bio.get_top_terms(dose_result, 3)
+  let top_dose = @bio.dose_top_terms(dose_result, 3)
+  let top_terms = top_dose.terms
   i = 0
   while i < top_terms.length() {
     let term = top_terms[i]
@@ -93,18 +104,18 @@ fn main {
     println("     - Gene count: \{term.gene_count.to_string()}")
     println("     - P-value: \{term.p_value.to_string()}")
     println("     - Adjusted P-value: \{term.adjusted_p_value.to_string()}")
-    println("     - Enrichment score: \{term.enrichment_score.to_string()}")
+    println("     - Enrichment score: \{term.fold_enrichment.to_string()}")
     println("")
     i = i + 1
   }
 
   println("3. Filtered Results (adjusted p-value < 0.05)")
-  let filtered = @bio.filter_results(dose_result, 0.05)
+  let filtered = @bio.dose_filter_by_adjp(dose_result, 0.05)
   println("   Significant terms: \{filtered.terms.length().to_string()}")
   println("")
 
   println("4. Summary")
-  println(@bio.summarize_result(dose_result))
+  println(@bio.dose_summarize(dose_result))
   println("")
 
   println("\n")
@@ -218,7 +229,7 @@ fn main {
 
   println("2. Gene Info Query")
   let tp53_info = @bio.annotation_dbi_get_gene_info(db, "ENSG00000130203")
-  if tp53_info.is_some() {
+  if tp53_info is Some(_) {
     println("   Found TP53: \{tp53_info.unwrap().symbol}")
   } else {
     println("   TP53 not found")
@@ -332,7 +343,7 @@ fn main {
 
   println("2. Pick Soft Threshold")
   let powers = [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0]
-  let best_power = @bio.pick_soft_threshold(wgcna_data, powers)
+  let best_power = @bio.pick_soft_threshold(wgcna_data, powers, 0.8)
   println("   Best power: \{best_power.to_string()}")
   println("")
 
@@ -388,23 +399,27 @@ fn main {
   println("")
 
   println("1. Generate simulated single-cell data with batch effects")
-  let (batches, batch_names) = @bio.batchelor_create_example_data(2, 50, 200, 2.0)
+  let (batches, batch_names) = @bio.batchelor_create_example_data(
+    2, 50, 200, 2.0,
+  )
   let mut idx = 0
   while idx < batches.length() {
-    println("   \{batch_names[idx]}: \{batches[idx].length().to_string()} cells, \{batches[idx][0].length().to_string()} genes")
+    println(
+      "   \{batch_names[idx]}: \{batches[idx].length().to_string()} cells, \{batches[idx][0].length().to_string()} genes",
+    )
     idx = idx + 1
   }
   println("")
 
   println("2. Evaluate batch mixing before correction")
-  let raw_data : Array[Array[Double]] = Array::new()
+  let raw_data : Array[Array[Double]] = Array(capacity=0)
   for cell in batches[0] {
     raw_data.push(cell)
   }
   for cell in batches[1] {
     raw_data.push(cell)
   }
-  let raw_batch_indices : Array[Int] = Array::new()
+  let raw_batch_indices : Array[Int32] = Array(capacity=0)
   let mut bi = 0
   while bi < 50 {
     raw_batch_indices.push(0)
@@ -421,19 +436,35 @@ fn main {
 
   println("3. Method 1: rescaleBatches")
   let rescale_result = @bio.rescale_batches(batches, batch_names)
-  let rescale_score = @bio.compute_batch_mixing_score(rescale_result.corrected, rescale_result.batch_indices)
-  println("   Corrected cells: \{rescale_result.corrected.length().to_string()}")
+  let rescale_score = @bio.compute_batch_mixing_score(
+    rescale_result.corrected,
+    rescale_result.batch_indices,
+  )
+  println(
+    "   Corrected cells: \{rescale_result.corrected.length().to_string()}",
+  )
   println("   Batch mixing score: \{rescale_score.to_string()}")
-  println("   Improvement: +\{((rescale_score - raw_score) / raw_score * 100.0).to_string()}%")
+  println(
+    "   Improvement: +\{((rescale_score - raw_score) / raw_score * 100.0).to_string()}%",
+  )
   println("")
 
   println("4. Method 2: fastMNN")
   let fastmnn_result = @bio.fast_mnn(batches, batch_names, 5, 20)
-  let fastmnn_score = @bio.compute_batch_mixing_score(fastmnn_result.corrected, fastmnn_result.batch_indices)
-  println("   Corrected dimensions: \{fastmnn_result.corrected.length().to_string()} cells, \{fastmnn_result.corrected[0].length().to_string()} PCs")
-  println("   Number of MNN pairs: \{fastmnn_result.mnn_pairs.length().to_string()}")
+  let fastmnn_score = @bio.compute_batch_mixing_score(
+    fastmnn_result.corrected,
+    fastmnn_result.batch_indices,
+  )
+  println(
+    "   Corrected dimensions: \{fastmnn_result.corrected.length().to_string()} cells, \{fastmnn_result.corrected[0].length().to_string()} PCs",
+  )
+  println(
+    "   Number of MNN pairs: \{fastmnn_result.mnn_pairs.length().to_string()}",
+  )
   println("   Batch mixing score: \{fastmnn_score.to_string()}")
-  println("   Improvement: +\{((fastmnn_score - raw_score) / raw_score * 100.0).to_string()}%")
+  println(
+    "   Improvement: +\{((fastmnn_score - raw_score) / raw_score * 100.0).to_string()}%",
+  )
   println("")
 
   println("5. Find Mutual Nearest Neighbors")
@@ -444,7 +475,9 @@ fn main {
     let mut pi = 0
     while pi < 3 && pi < mnn_pairs.length() {
       let pair = mnn_pairs[pi]
-      println("     (Batch_0 cell \{pair.0.to_string()}, Batch_1 cell \{pair.1.to_string()})")
+      println(
+        "     (Batch_0 cell \{pair.0.to_string()}, Batch_1 cell \{pair.1.to_string()})",
+      )
       pi = pi + 1
     }
   }
@@ -489,20 +522,24 @@ fn main {
   println("   Number of PCs: \{seurat_pca.pca[0].length().to_string()}")
   let mut pc_idx = 0
   while pc_idx < 3 && pc_idx < seurat_pca.var_explained.length() {
-    println("   PC\{(pc_idx + 1).to_string()}: \{(seurat_pca.var_explained[pc_idx] * 100.0).to_string()}% variance")
+    println(
+      "   PC\{(pc_idx + 1).to_string()}: \{(seurat_pca.var_explained[pc_idx] * 100.0).to_string()}% variance",
+    )
     pc_idx = pc_idx + 1
   }
   println("")
 
   println("6. Find nearest neighbors")
   let seurat_neighbors = @bio.find_neighbors(seurat_pca)
-  println("   Neighbors per cell: \{seurat_neighbors.neighbors[0].length().to_string()}")
+  println(
+    "   Neighbors per cell: \{seurat_neighbors.neighbors[0].length().to_string()}",
+  )
   println("")
 
   println("7. Find clusters")
   let seurat_clusters = @bio.find_clusters(seurat_neighbors)
-  
-  let unique_clusters : Array[Int] = Array::new()
+
+  let unique_clusters : Array[Int32] = Array(capacity=0)
   for c in seurat_clusters.clusters {
     let mut exists = false
     for u in unique_clusters {
@@ -519,21 +556,23 @@ fn main {
   println("")
 
   println("8. Run UMAP")
-  let seurat_umap = @bio.run_umap(seurat_pca)
+  let _seurat_umap = @bio.run_umap(seurat_pca)
   println("   UMAP completed with 2 dimensions")
   println("")
 
   println("9. Find marker genes")
   let markers = @bio.find_all_markers(seurat_clusters)
   println("   Markers found: \{markers.length().to_string()}")
-  
+
   if markers.length() > 0 {
     let top_markers = @bio.get_top_markers(markers, 3)
     println("   Top 3 markers:")
     let mut mi = 0
     while mi < top_markers.length() {
       let marker = top_markers[mi]
-      println("     \{marker.gene}: log2FC=\{marker.avg_log2_fc.to_string()}, padj=\{marker.adjusted_p_value.to_string()}")
+      println(
+        "     \{marker.gene}: log2FC=\{marker.avg_log2_fc.to_string()}, padj=\{marker.adjusted_p_value.to_string()}",
+      )
       mi = mi + 1
     }
   }

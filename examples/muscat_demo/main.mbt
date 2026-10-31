@@ -28,11 +28,13 @@ fn main {
 
   // Aggregate cells to pseudo-bulk
   println("=== Pseudo-bulk Aggregation (Sum) ===")
-  let pb = @bio.aggregate_cells(cells, method=@bio.aggregation_sum())
+  let pb = @bio.aggregate_cells(cells, method_=@bio.aggregation_sum())
   println("Pseudo-bulk samples: \{pb.length()}")
   let mut j = 0
   while j < pb.length() {
-    println("  Sample: \{pb[j].sample_id}, Cluster: \{pb[j].cluster_id}, Group: \{pb[j].group_id}, Cells: \{pb[j].n_cells}")
+    println(
+      "  Sample: \{pb[j].sample_id}, Cluster: \{pb[j].cluster_id}, Group: \{pb[j].group_id}, Cells: \{pb[j].n_cells}",
+    )
     j = j + 1
   }
   println("")
@@ -42,14 +44,21 @@ fn main {
   let qc = @bio.compute_qc(pb)
   let mut k = 0
   while k < qc.length() {
-    println("  \{qc[k].sample_id}/\{qc[k].cluster_id}: \{qc[k].n_cells} cells, \{qc[k].n_genes} genes, \{qc[k].total_counts} total counts")
+    println(
+      "  \{qc[k].sample_id}/\{qc[k].cluster_id}: \{qc[k].n_cells} cells, \{qc[k].n_genes} genes, \{qc[k].total_counts} total counts",
+    )
     k = k + 1
   }
   println("")
 
   // Run DS analysis
   println("=== Differential State Analysis ===")
-  let results = @bio.run_ds_analysis(pb, method=@bio.ds_method_edger(), fdr_threshold=0.1, log2fc_threshold=0.5)
+  let results = @bio.run_ds_analysis(
+    pb,
+    method_=@bio.ds_method_edger(),
+    fdr_threshold=0.1,
+    log2fc_threshold=0.5,
+  )
   println(results.summary())
   println("")
 
@@ -59,7 +68,9 @@ fn main {
   let mut m = 0
   while m < top.length() {
     let g = top[m]
-    println("  \{g.gene_id} [\{g.cluster_id}]: log2FC=\{g.log2fc}, p_adj=\{g.p_adj}, sig=\{g.significant}")
+    println(
+      "  \{g.gene_id} [\{g.cluster_id}]: log2FC=\{g.log2fc}, p_adj=\{g.p_adj}, sig=\{g.significant}",
+    )
     m = m + 1
   }
   println("")
@@ -72,8 +83,8 @@ fn main {
 
   // Aggregation methods comparison
   println("=== Aggregation Methods ===")
-  let pb_mean = @bio.aggregate_cells(cells, method=@bio.aggregation_mean())
-  let pb_med = @bio.aggregate_cells(cells, method=@bio.aggregation_median())
+  let pb_mean = @bio.aggregate_cells(cells, method_=@bio.aggregation_mean())
+  let pb_med = @bio.aggregate_cells(cells, method_=@bio.aggregation_median())
   println("Sum aggregation: \{pb.length()} samples")
   println("Mean aggregation: \{pb_mean.length()} samples")
   println("Median aggregation: \{pb_med.length()} samples")

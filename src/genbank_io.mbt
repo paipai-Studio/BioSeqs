@@ -39,7 +39,7 @@ let uppercase_table : FixedArray[UInt16] = {
 
 ///|
 pub fn parse_genbank(content : String) -> Array[SeqRecord] {
-  let records = Array::new()
+  let records = Array(capacity=0)
   let lines = content.split("\n").to_array()
   let n = lines.length()
   let mut i = 0
@@ -109,7 +109,7 @@ pub fn parse_genbank(content : String) -> Array[SeqRecord] {
           while dj < dpl && def_part.unsafe_get(dj) == sp {
             dj = dj + 1
           }
-          let def_buf = StringBuilder::new()
+          let def_buf = StringBuilder()
           def_buf.write_string(def_part[dj:dpl].to_owned())
           i = i + 1
           while i < n {
@@ -201,6 +201,8 @@ pub fn parse_genbank(content : String) -> Array[SeqRecord] {
         name,
         description,
         letter_annotations: Map([], capacity=0),
+        annotations: Map([], capacity=0),
+        features: [],
       })
     }
     i = i + 1
@@ -219,7 +221,7 @@ pub fn parse_genbank(content : String) -> Array[SeqRecord] {
 ///   - ORIGIN section with sequence wrapped at 60 chars, grouped in 10s, position labels
 ///   - End with "//"
 pub fn write_genbank(records : Array[SeqRecord]) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   for rec in records {
     // --- LOCUS line ---
     // LOCUS       NM_001     5028 bp    DNA    linear   PRI 21-JUN-1999
@@ -289,8 +291,8 @@ pub fn write_genbank(records : Array[SeqRecord]) -> String {
 /// Build text wrapped into lines, returning the wrapped string.
 /// `indent` = chars already written (so we know where we are)
 /// `width`  = max chars per line
-fn build_wrapped(text : String, indent : Int, width : Int) -> String {
-  let buf = StringBuilder::new()
+fn build_wrapped(text : String, indent : Int32, width : Int32) -> String {
+  let buf = StringBuilder()
   let total = text.length()
   let mut pos = 0
   let mut cur_indent = indent
@@ -336,7 +338,7 @@ fn build_wrapped(text : String, indent : Int, width : Int) -> String {
 /// Position label: right-aligned in 9 chars
 /// Sequence: 6 groups of 10 bases per line
 fn build_genbank_sequence(seq : String) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   let total = seq.length()
   let mut i = 0
   let mut line_start = 0

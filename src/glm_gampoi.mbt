@@ -42,24 +42,24 @@ pub fn GlmDesign::new(
   coef_names : Array[String],
   matrix : Array[Array[Double]],
 ) -> GlmDesign {
-  { sample_names, coef_names, matrix }
+  { sample_names, coef_names, matrix, }
 }
 
 ///|
 /// Get number of samples (rows).
-pub fn GlmDesign::n_samples(self : GlmDesign) -> Int {
+pub fn GlmDesign::n_samples(self : GlmDesign) -> Int32 {
   self.sample_names.length()
 }
 
 ///|
 /// Get number of coefficients (columns).
-pub fn GlmDesign::n_coefs(self : GlmDesign) -> Int {
+pub fn GlmDesign::n_coefs(self : GlmDesign) -> Int32 {
   self.coef_names.length()
 }
 
 ///|
 /// Get design matrix value at (i, j).
-pub fn GlmDesign::get(self : GlmDesign, i : Int, j : Int) -> Double {
+pub fn GlmDesign::get(self : GlmDesign, i : Int32, j : Int32) -> Double {
   self.matrix[i][j]
 }
 
@@ -75,7 +75,7 @@ pub struct GlmFit {
   /// Dispersion estimate
   dispersion : Double
   /// Residual degrees of freedom
-  df_residual : Int
+  df_residual : Int32
   /// Dispersion degrees of freedom
   df_dispersion : Double
 }
@@ -87,10 +87,10 @@ pub fn GlmFit::new(
   coefficients : Array[Double],
   std_errors : Array[Double],
   dispersion : Double,
-  df_residual : Int,
+  df_residual : Int32,
   df_dispersion : Double,
 ) -> GlmFit {
-  { gene, coefficients, std_errors, dispersion, df_residual, df_dispersion }
+  { gene, coefficients, std_errors, dispersion, df_residual, df_dispersion, }
 }
 
 ///|
@@ -198,18 +198,18 @@ pub fn GlmPseudobulk::new(
   sample_groups : Array[Array[String]],
   counts : Array[Array[Double]],
 ) -> GlmPseudobulk {
-  { group_labels: [], sample_groups, counts, gene_names, group_names }
+  { group_labels: [], sample_groups, counts, gene_names, group_names, }
 }
 
 ///|
 /// Get number of genes.
-pub fn GlmPseudobulk::n_genes(self : GlmPseudobulk) -> Int {
+pub fn GlmPseudobulk::n_genes(self : GlmPseudobulk) -> Int32 {
   self.gene_names.length()
 }
 
 ///|
 /// Get number of groups.
-pub fn GlmPseudobulk::n_groups(self : GlmPseudobulk) -> Int {
+pub fn GlmPseudobulk::n_groups(self : GlmPseudobulk) -> Int32 {
   self.group_names.length()
 }
 
@@ -295,7 +295,7 @@ pub fn glm_pseudobulk(
 
   // Find unique groups
   let unique_groups : Array[String] = []
-  let group_map : Map[String, Int] = Map([], capacity=20)
+  let group_map : Map[String, Int32] = Map([], capacity=20)
   for i in 0..<group_labels.length() {
     let label = group_labels[i]
     if !group_map.contains(label) {
@@ -307,7 +307,7 @@ pub fn glm_pseudobulk(
 
   // Assign samples to groups
   let sample_groups : Array[Array[String]] = []
-  for g in 0..<n_groups {
+  for _ in 0..<n_groups {
     sample_groups.push([])
   }
   for s in 0..<n_samples {
@@ -317,7 +317,7 @@ pub fn glm_pseudobulk(
 
   // Aggregate counts
   let agg_counts : Array[Array[Double]] = []
-  for g in 0..<n_groups {
+  for _ in 0..<n_groups {
     agg_counts.push(Array::make(n_genes, 0.0))
   }
   for i in 0..<n_genes {
@@ -412,7 +412,7 @@ pub fn glm_test_de(
   gene_names : Array[String],
   design : GlmDesign,
   size_factors : Array[Double],
-  test_coef_index : Int,
+  test_coef_index : Int32,
 ) -> Array[GlmTestResult] {
   let n_genes = counts.length()
   let results : Array[GlmTestResult] = []
@@ -480,7 +480,7 @@ pub fn glm_initial_estimates(
   // Simple least squares: solve X^T X beta = X^T y
   // Build X^T X (k x k) and X^T y (k)
   let xtx : Array[Array[Double]] = []
-  for i in 0..<n_coefs {
+  for _ in 0..<n_coefs {
     xtx.push(Array::make(n_coefs, 0.0))
   }
   let xty : Array[Double] = Array::make(n_coefs, 0.0)
@@ -553,7 +553,7 @@ pub fn glm_iwlcs_fit(
 
   let coefs = initial_coefs.copy()
 
-  for iter in 0..<max_iter {
+  for _ in 0..<max_iter {
     // Compute fitted values
     let fitted : Array[Double] = Array::make(n, 0.0)
     for s in 0..<n {
@@ -584,7 +584,7 @@ pub fn glm_iwlcs_fit(
 
     // Weighted least squares: solve (X^T W X) delta = X^T W (z - X beta)
     let xtwx : Array[Array[Double]] = []
-    for i in 0..<n_coefs {
+    for _ in 0..<n_coefs {
       xtwx.push(Array::make(n_coefs, 0.0))
     }
     let xtwr : Array[Double] = Array::make(n_coefs, 0.0)
@@ -633,7 +633,7 @@ pub fn glm_compute_se(
   design : GlmDesign,
   dispersion : Double,
   coefs : Array[Double],
-  size_factors : Array[Double],
+  _size_factors : Array[Double],
 ) -> Array[Double] {
   let n = design.n_samples()
   let n_coefs = design.n_coefs()
@@ -654,7 +654,7 @@ pub fn glm_compute_se(
   // Compute weight matrix inverse diagonal elements
   // Var(beta_j) = (X^T W X)^{-1}_{jj}
   let xtwx : Array[Array[Double]] = []
-  for i in 0..<n_coefs {
+  for _ in 0..<n_coefs {
     xtwx.push(Array::make(n_coefs, 0.0))
   }
 
@@ -745,7 +745,7 @@ pub fn glm_bh_correct_array(pvalues : Array[Double]) -> Array[Double] {
   }
 
   // Create index-value pairs and sort by p-value
-  let indexed : Array[(Double, Int)] = []
+  let indexed : Array[(Double, Int32)] = []
   for i in 0..<n {
     indexed.push((pvalues[i], i))
   }
@@ -773,7 +773,7 @@ pub fn glm_bh_correct_array(pvalues : Array[Double]) -> Array[Double] {
 
 ///|
 /// Sort an array of (Double, Int) pairs by the first element (descending).
-pub fn glm_sort_pairs(arr : Array[(Double, Int)]) -> Unit {
+pub fn glm_sort_pairs(arr : Array[(Double, Int32)]) -> Unit {
   let n = arr.length()
   let n_minus_1 = n - 1
   for i in 0..<n_minus_1 {
@@ -798,7 +798,7 @@ pub fn glm_sort_pairs(arr : Array[(Double, Int)]) -> Unit {
 pub fn glm_solve_linear_system(
   a : Array[Array[Double]],
   b : Array[Double],
-  n : Int,
+  n : Int32,
 ) -> Array[Double] {
   // Augmented matrix
   let aug : Array[Array[Double]] = []
@@ -867,7 +867,7 @@ pub fn glm_solve_linear_system(
 /// Invert a matrix using Gauss-Jordan elimination.
 pub fn glm_invert_matrix(
   a : Array[Array[Double]],
-  n : Int,
+  n : Int32,
 ) -> Array[Array[Double]] {
   // Build augmented matrix [A | I]
   let aug : Array[Array[Double]] = []

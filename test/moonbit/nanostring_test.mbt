@@ -142,7 +142,7 @@ test "ns_positive_control_norm_basic" {
   let results = @src.ns_positive_control_norm(data)
   assert_eq(results.length(), 6)
   for r in results {
-    assert_eq(r.method(), "positive_control")
+    assert_eq(r.method_(), "positive_control")
     assert_eq(r.norm_factors().length(), 1)
     assert_eq(r.normalized_counts().length(), 20)
   }
@@ -176,7 +176,7 @@ test "ns_negative_control_norm_basic" {
   let results = @src.ns_negative_control_norm(data)
   assert_eq(results.length(), 6)
   for r in results {
-    assert_eq(r.method(), "negative_control")
+    assert_eq(r.method_(), "negative_control")
     assert_eq(r.normalized_counts().length(), 20)
     // Background-subtracted values floored at 0.5.
     for c in r.normalized_counts() {
@@ -195,7 +195,7 @@ test "ns_housekeeping_norm_basic" {
   let results = @src.ns_housekeeping_norm(data)
   assert_eq(results.length(), 6)
   for r in results {
-    assert_eq(r.method(), "housekeeping")
+    assert_eq(r.method_(), "housekeeping")
     assert_eq(r.norm_factors().length(), 1)
     assert_eq(r.normalized_counts().length(), 20)
   }
@@ -211,7 +211,7 @@ test "ns_content_norm_basic" {
   let results = @src.ns_content_norm(data)
   assert_eq(results.length(), 6)
   for r in results {
-    assert_eq(r.method(), "content")
+    assert_eq(r.method_(), "content")
     // Content norm has two factors: pos and hk.
     assert_eq(r.norm_factors().length(), 2)
     assert_eq(r.normalized_counts().length(), 20)

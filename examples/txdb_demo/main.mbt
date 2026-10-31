@@ -95,7 +95,7 @@ fn main {
   while i < tx_ids.length() {
     let tx_id = tx_ids[i]
     let introns_opt = introns_map.get(tx_id)
-    if introns_opt.is_some() {
+    if introns_opt is Some(_) {
       let introns = introns_opt.unwrap()
       println("  \{tx_id}:")
       let mut j = 0
@@ -133,7 +133,7 @@ fn main {
   println("")
 
   println("11. ID Lists")
-  println("Gene IDs: \{@bio.gene_ids(txdb)}")
-  println("Transcript IDs: \{@bio.transcript_ids(txdb)}")
-  println("Exon IDs: \{@bio.exon_ids(txdb)}")
+  println("Gene IDs: \{Repr(@bio.gene_ids(txdb))}")
+  println("Transcript IDs: \{Repr(@bio.transcript_ids(txdb))}")
+  println("Exon IDs: \{Repr(@bio.exon_ids(txdb))}")
 }

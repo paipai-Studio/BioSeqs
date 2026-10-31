@@ -15,13 +15,13 @@ pub struct MAFSequence {
   /// Sequence name (e.g., "hg19.chr1")
   seq_name : String
   /// Start position in the sequence
-  start : Int
+  start : Int32
   /// Length of the alignment region
-  length : Int
+  length : Int32
   /// Strand ('+' or '-')
   strand : String
   /// Total size of the sequence
-  seq_size : Int
+  seq_size : Int32
   /// The aligned sequence string (may contain dashes for gaps)
   aligned_seq : String
 }
@@ -35,7 +35,7 @@ pub struct MAFEvent {
   /// Sequence name
   seq_name : String
   /// Position
-  position : Int
+  position : Int32
   /// Additional information
   description : String
 }
@@ -89,7 +89,7 @@ pub struct MAFConfig {
 ///|
 /// Default MAF configuration.
 pub fn MAFConfig::default() -> MAFConfig {
-  MAFConfig::{ store_sequences: true, min_score: 0.0 }
+  MAFConfig::{ store_sequences: true, min_score: 0.0, }
 }
 
 // ============================================================================
@@ -100,18 +100,18 @@ pub fn MAFConfig::default() -> MAFConfig {
 /// Create a new MAFSequence.
 pub fn new_maf_sequence(
   seq_name : String,
-  start : Int,
-  length : Int,
+  start : Int32,
+  length : Int32,
   strand : String,
-  seq_size : Int,
+  seq_size : Int32,
   aligned_seq : String,
 ) -> MAFSequence {
-  MAFSequence::{ seq_name, start, length, strand, seq_size, aligned_seq }
+  MAFSequence::{ seq_name, start, length, strand, seq_size, aligned_seq, }
 }
 
 ///|
 /// Get the end position (start + length).
-pub fn maf_seq_end(seq : MAFSequence) -> Int {
+pub fn maf_seq_end(seq : MAFSequence) -> Int32 {
   seq.start + seq.length
 }
 
@@ -149,9 +149,9 @@ pub fn new_maf_block() -> MAFBlock {
   MAFBlock::{
     score: None,
     attributes: Map([], capacity=10),
-    sequences: Array::new(),
-    comments: Array::new(),
-    events: Array::new(),
+    sequences: Array(capacity=0),
+    comments: Array(capacity=0),
+    events: Array(capacity=0),
     is_complete: false,
   }
 }
@@ -189,13 +189,13 @@ pub fn maf_block_set_score(block : MAFBlock, score : Double?) -> MAFBlock {
 
 ///|
 /// Get the number of sequences in the block.
-pub fn maf_block_num_seqs(block : MAFBlock) -> Int {
+pub fn maf_block_num_seqs(block : MAFBlock) -> Int32 {
   block.sequences.length()
 }
 
 ///|
 /// Get the alignment length (number of columns).
-pub fn maf_block_alignment_length(block : MAFBlock) -> Int {
+pub fn maf_block_alignment_length(block : MAFBlock) -> Int32 {
   if block.sequences.length() == 0 {
     return 0
   }
@@ -219,7 +219,7 @@ pub fn maf_block_percent_identity(block : MAFBlock) -> Double {
   let mut total_pairs = 0
 
   for col = 0; col < aln_len; col = col + 1 {
-    let bases = Array::new()
+    let bases = Array(capacity=0)
     for s = 0; s < block.sequences.length(); s = s + 1 {
       let seq = block.sequences[s]
       let c = seq.aligned_seq.unsafe_get(col)
@@ -270,8 +270,8 @@ pub fn new_maf_alignment() -> MAFAliignment {
   MAFAliignment::{
     version: "1",
     score: None,
-    comments: Array::new(),
-    blocks: Array::new(),
+    comments: Array(capacity=0),
+    blocks: Array(capacity=0),
   }
 }
 
@@ -284,13 +284,13 @@ pub fn maf_add_block(ali : MAFAliignment, block : MAFBlock) -> MAFAliignment {
 
 ///|
 /// Get the number of blocks.
-pub fn maf_num_blocks(ali : MAFAliignment) -> Int {
+pub fn maf_num_blocks(ali : MAFAliignment) -> Int32 {
   ali.blocks.length()
 }
 
 ///|
 /// Get total alignment length across all blocks.
-pub fn maf_total_length(ali : MAFAliignment) -> Int {
+pub fn maf_total_length(ali : MAFAliignment) -> Int32 {
   let mut total = 0
   for b = 0; b < ali.blocks.length(); b = b + 1 {
     total = total + maf_block_alignment_length(ali.blocks[b])
@@ -301,7 +301,7 @@ pub fn maf_total_length(ali : MAFAliignment) -> Int {
 ///|
 /// Get all sequence names across all blocks.
 pub fn maf_all_seq_names(ali : MAFAliignment) -> Array[String] {
-  let names = Array::new()
+  let names = Array(capacity=0)
   for b = 0; b < ali.blocks.length(); b = b + 1 {
     let block = ali.blocks[b]
     for s = 0; s < block.sequences.length(); s = s + 1 {
@@ -378,7 +378,7 @@ pub fn parse_maf(content : String) -> MAFAliignment {
       // Comment line
       match current_block {
         Some(block) => {
-          let comment = MAFComment::{ key: trimmed }
+          let comment = MAFComment::{ key: trimmed, }
           current_block = Some(maf_block_add_comment(block, comment))
         }
         None => result.comments.push(trimmed)
@@ -455,7 +455,7 @@ pub fn parse_maf(content : String) -> MAFAliignment {
         let seq_name = parts[2]
         let position = if parts.length() >= 4 { parse_int(parts[3]) } else { 0 }
         let description = if parts.length() >= 5 { parts[4] } else { "" }
-        let event = MAFEvent::{ event_type, seq_name, position, description }
+        let event = MAFEvent::{ event_type, seq_name, position, description, }
         match current_block {
           Some(block) => current_block = Some(maf_block_add_event(block, event))
           None => ()
@@ -628,7 +628,7 @@ pub fn maf_select_seqs(
 /// Filter blocks by minimum alignment length.
 pub fn maf_filter_by_length(
   ali : MAFAliignment,
-  min_length : Int,
+  min_length : Int32,
 ) -> MAFAliignment {
   let mut result = new_maf_alignment()
   result.version = ali.version
@@ -639,28 +639,6 @@ pub fn maf_filter_by_length(
     let block = ali.blocks[b]
     let aln_len = maf_block_alignment_length(block)
     if aln_len >= min_length {
-      result = maf_add_block(result, block)
-    }
-  }
-
-  result
-}
-
-///|
-/// Filter blocks by minimum percent identity.
-pub fn maf_filter_by_identity(
-  ali : MAFAliignment,
-  min_identity : Double,
-) -> MAFAliignment {
-  let mut result = new_maf_alignment()
-  result.version = ali.version
-  result.score = ali.score
-  result.comments = ali.comments
-
-  for b = 0; b < ali.blocks.length(); b = b + 1 {
-    let block = ali.blocks[b]
-    let identity = maf_block_percent_identity(block)
-    if identity >= min_identity {
       result = maf_add_block(result, block)
     }
   }
@@ -761,13 +739,13 @@ pub fn maf_sequence_coverage(ali : MAFAliignment) -> Map[String, Double] {
 ///|
 /// Calculate alignment statistics for a MAFAliignment.
 pub struct MAFStats {
-  num_blocks : Int
-  total_length : Int
-  num_sequences : Int
+  num_blocks : Int32
+  total_length : Int32
+  num_sequences : Int32
   avg_percent_identity : Double
   avg_block_coverage : Double
-  min_block_length : Int
-  max_block_length : Int
+  min_block_length : Int32
+  max_block_length : Int32
   median_block_length : Double
 }
 
@@ -780,7 +758,7 @@ pub fn maf_compute_stats(ali : MAFAliignment) -> MAFStats {
   let avg_percent_identity = maf_average_percent_identity(ali)
 
   let mut total_coverage = 0.0
-  let lengths = Array::new()
+  let lengths = Array(capacity=0)
   let mut min_len = 99999999
   let mut max_len = 0
 

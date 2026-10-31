@@ -52,10 +52,14 @@ fn main raise {
   let strict = @bio.pqs_finder(
     seq,
     options=@bio.PqsOptions::of(run_min_len=3, min_score=60),
-  ) catch { _ => [] }
+  ) catch {
+    _ => []
+  }
   println("   run_min_len=3, min_score=60 -> \{strict.length()} PQS")
   for p in strict {
-    println("   [\{p.start},\{p.end}) score=\{p.score} runs=\{p.rl1},\{p.rl2},\{p.rl3}")
+    println(
+      "   [\{p.start},\{p.end}) score=\{p.score} runs=\{p.rl1},\{p.rl2},\{p.rl3}",
+    )
   }
 
   // 5. Deep search: per-position density and max scores

@@ -27,7 +27,7 @@ pub fn McpCellPopulation::new(
   name : String,
   markers : Array[String],
 ) -> McpCellPopulation {
-  { name, markers }
+  { name, markers, }
 }
 
 ///|
@@ -224,7 +224,7 @@ pub fn mcp_run(
   gene_names : Array[String],
   sample_names : Array[String],
   expression : Array[Array[Double]],
-  populations? : Array[McpCellPopulation] = mcp_default_populations(),
+  populations~ : Array[McpCellPopulation] = mcp_default_populations(),
 ) -> McpResult {
   let n_samples = sample_names.length()
   let pop_names : Array[String] = []
@@ -252,7 +252,7 @@ pub fn mcp_run(
     }
     scores.push(sample_scores)
   }
-  { populations: pop_names, sample_names: sample_names.copy(), scores }
+  { populations: pop_names, sample_names: sample_names.copy(), scores, }
 }
 
 ///|

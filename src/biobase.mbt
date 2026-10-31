@@ -31,12 +31,12 @@ pub fn ExpressionSet::new(
 }
 
 ///|
-pub fn expression_set_nrow(eset : ExpressionSet) -> Int {
+pub fn expression_set_nrow(eset : ExpressionSet) -> Int32 {
   eset.assay_data.length()
 }
 
 ///|
-pub fn expression_set_ncol(eset : ExpressionSet) -> Int {
+pub fn expression_set_ncol(eset : ExpressionSet) -> Int32 {
   if eset.assay_data.length() > 0 {
     eset.assay_data[0].length()
   } else {
@@ -52,7 +52,7 @@ pub fn expression_set_sample_names(eset : ExpressionSet) -> Array[String] {
     eset.pheno_data["samples"]
   } else {
     let n = expression_set_ncol(eset)
-    let result : Array[String] = Array::new()
+    let result : Array[String] = Array(capacity=0)
     let mut i = 0
     while i < n {
       result.push("sample_" + i.to_string())
@@ -70,7 +70,7 @@ pub fn expression_set_feature_names(eset : ExpressionSet) -> Array[String] {
     eset.feature_data["genes"]
   } else {
     let n = expression_set_nrow(eset)
-    let result : Array[String] = Array::new()
+    let result : Array[String] = Array(capacity=0)
     let mut i = 0
     while i < n {
       result.push("gene_" + i.to_string())
@@ -81,25 +81,6 @@ pub fn expression_set_feature_names(eset : ExpressionSet) -> Array[String] {
 }
 
 ///|
-pub fn expression_set_get_assay(eset : ExpressionSet) -> Array[Array[Double]] {
-  eset.assay_data
-}
-
-///|
-pub fn expression_set_get_pheno_data(
-  eset : ExpressionSet,
-) -> Map[String, Array[String]] {
-  eset.pheno_data
-}
-
-///|
-pub fn expression_set_get_feature_data(
-  eset : ExpressionSet,
-) -> Map[String, Array[String]] {
-  eset.feature_data
-}
-
-///|
 pub fn expression_set_get_annotation(eset : ExpressionSet) -> String {
   eset.annotation
 }
@@ -107,14 +88,14 @@ pub fn expression_set_get_annotation(eset : ExpressionSet) -> String {
 ///|
 pub fn expression_set_subset(
   eset : ExpressionSet,
-  rows : Array[Int],
-  cols : Array[Int],
+  rows : Array[Int32],
+  cols : Array[Int32],
 ) -> ExpressionSet {
-  let new_assay : Array[Array[Double]] = Array::new()
+  let new_assay : Array[Array[Double]] = Array(capacity=0)
   let mut i = 0
   while i < rows.length() {
     let row_idx = rows[i]
-    let new_row : Array[Double] = Array::new()
+    let new_row : Array[Double] = Array(capacity=0)
     let mut j = 0
     while j < cols.length() {
       let col_idx = cols[j]
@@ -139,7 +120,7 @@ pub fn expression_set_subset(
   while i < pheno_keys.length() {
     let key = pheno_keys[i]
     let values = eset.pheno_data[key]
-    let new_values : Array[String] = Array::new()
+    let new_values : Array[String] = Array(capacity=0)
     let mut j = 0
     while j < cols.length() {
       let col_idx = cols[j]
@@ -163,7 +144,7 @@ pub fn expression_set_subset(
   while i < feature_keys.length() {
     let key = feature_keys[i]
     let values = eset.feature_data[key]
-    let new_values : Array[String] = Array::new()
+    let new_values : Array[String] = Array(capacity=0)
     let mut j = 0
     while j < rows.length() {
       let row_idx = rows[j]
@@ -190,7 +171,7 @@ pub fn expression_set_filter_by_row(
   eset : ExpressionSet,
   threshold : Double,
 ) -> ExpressionSet {
-  let keep_rows : Array[Int] = Array::new()
+  let keep_rows : Array[Int32] = Array(capacity=0)
   let mut i = 0
   while i < eset.assay_data.length() {
     let mut max_val = 0.0
@@ -207,7 +188,7 @@ pub fn expression_set_filter_by_row(
     i = i + 1
   }
   let ncols = expression_set_ncol(eset)
-  let cols : Array[Int] = Array::new()
+  let cols : Array[Int32] = Array(capacity=0)
   i = 0
   while i < ncols {
     cols.push(i)
@@ -221,7 +202,7 @@ pub fn expression_set_normalize(eset : ExpressionSet) -> ExpressionSet {
   let nrows = expression_set_nrow(eset)
   let ncols = expression_set_ncol(eset)
 
-  let col_means : Array[Double] = Array::new()
+  let col_means : Array[Double] = Array(capacity=0)
   let mut i = 0
   while i < ncols {
     col_means.push(0.0)
@@ -240,7 +221,7 @@ pub fn expression_set_normalize(eset : ExpressionSet) -> ExpressionSet {
     i = i + 1
   }
 
-  let col_sds : Array[Double] = Array::new()
+  let col_sds : Array[Double] = Array(capacity=0)
   i = 0
   while i < ncols {
     col_sds.push(0.0)
@@ -260,10 +241,10 @@ pub fn expression_set_normalize(eset : ExpressionSet) -> ExpressionSet {
     i = i + 1
   }
 
-  let new_assay : Array[Array[Double]] = Array::new()
+  let new_assay : Array[Array[Double]] = Array(capacity=0)
   i = 0
   while i < nrows {
-    let new_row : Array[Double] = Array::new()
+    let new_row : Array[Double] = Array(capacity=0)
     let mut j = 0
     while j < ncols {
       if col_sds[j] > 0.0 {
@@ -291,10 +272,10 @@ pub fn expression_set_log2(eset : ExpressionSet) -> ExpressionSet {
   let nrows = expression_set_nrow(eset)
   let ncols = expression_set_ncol(eset)
 
-  let new_assay : Array[Array[Double]] = Array::new()
+  let new_assay : Array[Array[Double]] = Array(capacity=0)
   let mut i = 0
   while i < nrows {
-    let new_row : Array[Double] = Array::new()
+    let new_row : Array[Double] = Array(capacity=0)
     let mut j = 0
     while j < ncols {
       let val = eset.assay_data[i][j]
@@ -365,11 +346,11 @@ pub fn AnnotatedDataFrame::new(
   data : Map[String, Array[String]],
   var_metadata : Map[String, String],
 ) -> AnnotatedDataFrame {
-  AnnotatedDataFrame::{ data, var_metadata }
+  AnnotatedDataFrame::{ data, var_metadata, }
 }
 
 ///|
-pub fn annotated_data_frame_nrow(adf : AnnotatedDataFrame) -> Int {
+pub fn annotated_data_frame_nrow(adf : AnnotatedDataFrame) -> Int32 {
   let keys = adf.data.keys().collect()
   if keys.length() > 0 {
     adf.data[keys[0]].length()
@@ -379,7 +360,7 @@ pub fn annotated_data_frame_nrow(adf : AnnotatedDataFrame) -> Int {
 }
 
 ///|
-pub fn annotated_data_frame_ncol(adf : AnnotatedDataFrame) -> Int {
+pub fn annotated_data_frame_ncol(adf : AnnotatedDataFrame) -> Int32 {
   adf.data.keys().collect().length()
 }
 

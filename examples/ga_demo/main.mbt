@@ -9,10 +9,24 @@ fn main {
   println("")
 
   println("1. Creating GA Individuals")
-  let ind1 = @bio.GAIndividual::new(sequence="ATCGATCG", fitness=0.5, generation=0, id=1)
-  let ind2 = @bio.GAIndividual::new(sequence="GGCCGGCC", fitness=0.8, generation=0, id=2)
-  println("   Individual 1: seq=\{ind1.sequence}, fitness=\{ind1.fitness.to_string()}")
-  println("   Individual 2: seq=\{ind2.sequence}, fitness=\{ind2.fitness.to_string()}")
+  let ind1 = @bio.GAIndividual::new(
+    sequence="ATCGATCG",
+    fitness=0.5,
+    generation=0,
+    id=1,
+  )
+  let ind2 = @bio.GAIndividual::new(
+    sequence="GGCCGGCC",
+    fitness=0.8,
+    generation=0,
+    id=2,
+  )
+  println(
+    "   Individual 1: seq=\{ind1.sequence}, fitness=\{ind1.fitness.to_string()}",
+  )
+  println(
+    "   Individual 2: seq=\{ind2.sequence}, fitness=\{ind2.fitness.to_string()}",
+  )
   println("")
 
   println("2. Creating a Population")
@@ -23,7 +37,7 @@ fn main {
     @bio.GAIndividual::new(sequence="TTTT", fitness=0.4, generation=0, id=3),
     @bio.GAIndividual::new(sequence="ACGT", fitness=0.7, generation=0, id=4),
   ]
-  let pop = @bio.GAPopulation::new(individuals=individuals)
+  let pop = @bio.GAPopulation::new(individuals~)
   println("   Population size: \{pop.individuals.length().to_string()}")
   println("   Best fitness: \{pop.best_fitness.to_string()}")
   println("   Avg fitness: \{pop.avg_fitness.to_string()}")
@@ -37,14 +51,30 @@ fn main {
   for seq in test_seqs {
     let ind = @bio.GAIndividual::new(sequence=seq)
     let fit = fitness_fn(ind)
-    println("   Sequence '\{seq}' fitness (match to '\{target}'): \{fit.to_string()}")
+    println(
+      "   Sequence '\{seq}' fitness (match to '\{target}'): \{fit.to_string()}",
+    )
   }
   println("")
 
   println("4. Crossover Operations")
-  let parent1 = @bio.GAIndividual::new(sequence="AAAA", fitness=0.8, generation=0, id=10)
-  let parent2 = @bio.GAIndividual::new(sequence="CCCC", fitness=0.6, generation=0, id=11)
-  let (child1, child2) = @bio.ga_single_point_crossover(parent1, parent2, point=2)
+  let parent1 = @bio.GAIndividual::new(
+    sequence="AAAA",
+    fitness=0.8,
+    generation=0,
+    id=10,
+  )
+  let parent2 = @bio.GAIndividual::new(
+    sequence="CCCC",
+    fitness=0.6,
+    generation=0,
+    id=11,
+  )
+  let (child1, child2) = @bio.ga_single_point_crossover(
+    parent1,
+    parent2,
+    point=2,
+  )
   println("   Parent1: \{parent1.sequence}")
   println("   Parent2: \{parent2.sequence}")
   println("   Child1 (crossover at 2): \{child1.sequence}")
@@ -52,7 +82,12 @@ fn main {
   println("")
 
   println("5. Mutation Operations")
-  let original = @bio.GAIndividual::new(sequence="AAAA", fitness=0.0, generation=0, id=20)
+  let original = @bio.GAIndividual::new(
+    sequence="AAAA",
+    fitness=0.0,
+    generation=0,
+    id=20,
+  )
   let mutated = @bio.ga_point_mutate(original, 1.0, "ACGT")
   println("   Original: \{original.sequence}")
   println("   Mutated:  \{mutated.sequence}")
@@ -60,9 +95,13 @@ fn main {
 
   println("6. Selection Operations")
   let tournament_winner = @bio.ga_tournament_select(individuals, 3)
-  println("   Tournament selection winner: seq=\{tournament_winner.sequence}, fitness=\{tournament_winner.fitness.to_string()}")
+  println(
+    "   Tournament selection winner: seq=\{tournament_winner.sequence}, fitness=\{tournament_winner.fitness.to_string()}",
+  )
   let roulette_winner = @bio.ga_roulette_select(individuals)
-  println("   Roulette selection winner: seq=\{roulette_winner.sequence}, fitness=\{roulette_winner.fitness.to_string()}")
+  println(
+    "   Roulette selection winner: seq=\{roulette_winner.sequence}, fitness=\{roulette_winner.fitness.to_string()}",
+  )
   println("")
 
   println("7. GA Configuration")
@@ -98,17 +137,23 @@ fn main {
   let result = @bio.ga_evolve(evo_config, fit_fn)
   println("   Generations reached: \{result.generation_reached.to_string()}")
   println("   Converged: \{result.converged.to_string()}")
-  println("   Best individual: seq=\{result.best_individual.sequence}, fitness=\{result.best_individual.fitness.to_string()}")
+  println(
+    "   Best individual: seq=\{result.best_individual.sequence}, fitness=\{result.best_individual.fitness.to_string()}",
+  )
   println("   Best fitness history (first 5):")
   let mut i = 0
   while i < 5 && i < result.best_fitness_history.length() {
-    println("     Gen \{i.to_string()}: best = \{result.best_fitness_history[i].to_string()}")
+    println(
+      "     Gen \{i.to_string()}: best = \{result.best_fitness_history[i].to_string()}",
+    )
     i = i + 1
   }
   println("   Avg fitness history (first 5):")
   let mut j = 0
   while j < 5 && j < result.avg_fitness_history.length() {
-    println("     Gen \{j.to_string()}: avg = \{result.avg_fitness_history[j].to_string()}")
+    println(
+      "     Gen \{j.to_string()}: avg = \{result.avg_fitness_history[j].to_string()}",
+    )
     j = j + 1
   }
   println("")

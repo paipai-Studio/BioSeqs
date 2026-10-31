@@ -7,7 +7,7 @@ fn main {
   println("\n1. Parse KEGG Gene Record:")
   println("==========================")
   let gene = @bio.parse_kegg_gene(gene_text)
-  if gene.is_some() {
+  if gene is Some(_) {
     let g = gene.unwrap()
     println("Entry: " + g.entry)
     println("Name: " + g.name)
@@ -39,7 +39,7 @@ fn main {
   println("\n2. Parse KEGG Pathway Record:")
   println("==============================")
   let pathway = @bio.parse_kegg_pathway(pathway_text)
-  if pathway.is_some() {
+  if pathway is Some(_) {
     let p = pathway.unwrap()
     println("Entry: " + p.entry)
     println("Name: " + p.name)
@@ -81,7 +81,7 @@ fn main {
   println("\n3. Parse KEGG Compound Record:")
   println("===============================")
   let compound = @bio.parse_kegg_compound(compound_text)
-  if compound.is_some() {
+  if compound is Some(_) {
     let c = compound.unwrap()
     println("Entry: " + c.entry)
     println("Name: " + c.name)
@@ -125,7 +125,7 @@ fn main {
   println("\n4. Parse KEGG Enzyme Record:")
   println("=============================")
   let enzyme = @bio.parse_kegg_enzyme(enzyme_text)
-  if enzyme.is_some() {
+  if enzyme is Some(_) {
     let e = enzyme.unwrap()
     println("Entry: " + e.entry)
     println("Name: " + e.name)

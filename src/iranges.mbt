@@ -3,54 +3,49 @@
 
 ///|
 pub struct IRanges {
-  starts : Array[Int]
-  ends : Array[Int]
-  widths : Array[Int]
+  starts : Array[Int32]
+  ends : Array[Int32]
+  widths : Array[Int32]
 }
 
 ///|
-pub fn iranges(starts : Array[Int], ends : Array[Int]) -> IRanges {
+pub fn iranges(starts : Array[Int32], ends : Array[Int32]) -> IRanges {
   let n = starts.length()
-  let widths : Array[Int] = Array::make(n, 0)
+  let widths : Array[Int32] = Array::make(n, 0)
 
   for i = 0; i < n; i = i + 1 {
     widths[i] = ends[i] - starts[i] + 1
   }
 
-  IRanges::{ starts, ends, widths }
+  IRanges::{ starts, ends, widths, }
 }
 
 ///|
-pub fn iranges_single(start : Int, end : Int) -> IRanges {
-  IRanges::{ starts: [start], ends: [end], widths: [end - start + 1] }
+pub fn iranges_single(start : Int32, end : Int32) -> IRanges {
+  IRanges::{ starts: [start], ends: [end], widths: [end - start + 1], }
 }
 
 ///|
-pub fn ir_length(ir : IRanges) -> Int {
-  ir.starts.length()
-}
-
-///|
-pub fn ir_start(ir : IRanges) -> Array[Int] {
+pub fn ir_start(ir : IRanges) -> Array[Int32] {
   ir.starts
 }
 
 ///|
-pub fn ir_end(ir : IRanges) -> Array[Int] {
+pub fn ir_end(ir : IRanges) -> Array[Int32] {
   ir.ends
 }
 
 ///|
-pub fn ir_width(ir : IRanges) -> Array[Int] {
+pub fn ir_width(ir : IRanges) -> Array[Int32] {
   ir.widths
 }
 
 ///|
-pub fn ir_shift(ir : IRanges, shift : Int) -> IRanges {
+pub fn ir_shift(ir : IRanges, shift : Int32) -> IRanges {
   let n = ir.starts.length()
-  let new_starts : Array[Int] = Array::make(n, 0)
-  let new_ends : Array[Int] = Array::make(n, 0)
-  let new_widths : Array[Int] = Array::make(n, 0)
+  let new_starts : Array[Int32] = Array::make(n, 0)
+  let new_ends : Array[Int32] = Array::make(n, 0)
+  let new_widths : Array[Int32] = Array::make(n, 0)
 
   for i = 0; i < n; i = i + 1 {
     new_starts[i] = ir.starts[i] + shift
@@ -58,15 +53,15 @@ pub fn ir_shift(ir : IRanges, shift : Int) -> IRanges {
     new_widths[i] = ir.widths[i]
   }
 
-  IRanges::{ starts: new_starts, ends: new_ends, widths: new_widths }
+  IRanges::{ starts: new_starts, ends: new_ends, widths: new_widths, }
 }
 
 ///|
-pub fn ir_narrow(ir : IRanges, start : Int, end : Int) -> IRanges {
+pub fn ir_narrow(ir : IRanges, start : Int32, end : Int32) -> IRanges {
   let n = ir.starts.length()
-  let new_starts : Array[Int] = Array::make(n, 0)
-  let new_ends : Array[Int] = Array::make(n, 0)
-  let new_widths : Array[Int] = Array::make(n, 0)
+  let new_starts : Array[Int32] = Array::make(n, 0)
+  let new_ends : Array[Int32] = Array::make(n, 0)
+  let new_widths : Array[Int32] = Array::make(n, 0)
 
   for i = 0; i < n; i = i + 1 {
     new_starts[i] = ir.starts[i] + start - 1
@@ -74,15 +69,15 @@ pub fn ir_narrow(ir : IRanges, start : Int, end : Int) -> IRanges {
     new_widths[i] = end - start + 1
   }
 
-  IRanges::{ starts: new_starts, ends: new_ends, widths: new_widths }
+  IRanges::{ starts: new_starts, ends: new_ends, widths: new_widths, }
 }
 
 ///|
-pub fn ir_resize(ir : IRanges, width : Int, fix : String) -> IRanges {
+pub fn ir_resize(ir : IRanges, width : Int32, fix : String) -> IRanges {
   let n = ir.starts.length()
-  let new_starts : Array[Int] = Array::make(n, 0)
-  let new_ends : Array[Int] = Array::make(n, 0)
-  let new_widths : Array[Int] = Array::make(n, width)
+  let new_starts : Array[Int32] = Array::make(n, 0)
+  let new_ends : Array[Int32] = Array::make(n, 0)
+  let new_widths : Array[Int32] = Array::make(n, width)
 
   for i = 0; i < n; i = i + 1 {
     if fix == "start" {
@@ -98,62 +93,62 @@ pub fn ir_resize(ir : IRanges, width : Int, fix : String) -> IRanges {
     }
   }
 
-  IRanges::{ starts: new_starts, ends: new_ends, widths: new_widths }
+  IRanges::{ starts: new_starts, ends: new_ends, widths: new_widths, }
 }
 
 ///|
 pub fn ir_flank(
   ir : IRanges,
-  width : Int,
+  width : Int32,
   start : Bool,
   both : Bool,
 ) -> IRanges {
   let n = ir.starts.length()
 
   if both {
-    let new_starts : Array[Int] = Array::make(n, 0)
-    let new_ends : Array[Int] = Array::make(n, 0)
-    let new_widths : Array[Int] = Array::make(n, width * 2)
+    let new_starts : Array[Int32] = Array::make(n, 0)
+    let new_ends : Array[Int32] = Array::make(n, 0)
+    let new_widths : Array[Int32] = Array::make(n, width * 2)
 
     for i = 0; i < n; i = i + 1 {
       new_starts[i] = ir.starts[i] - width
       new_ends[i] = ir.ends[i] + width
     }
 
-    IRanges::{ starts: new_starts, ends: new_ends, widths: new_widths }
+    IRanges::{ starts: new_starts, ends: new_ends, widths: new_widths, }
   } else if start {
-    let new_starts : Array[Int] = Array::make(n, 0)
-    let new_ends : Array[Int] = Array::make(n, 0)
-    let new_widths : Array[Int] = Array::make(n, width)
+    let new_starts : Array[Int32] = Array::make(n, 0)
+    let new_ends : Array[Int32] = Array::make(n, 0)
+    let new_widths : Array[Int32] = Array::make(n, width)
 
     for i = 0; i < n; i = i + 1 {
       new_starts[i] = ir.starts[i] - width
       new_ends[i] = ir.starts[i] - 1
     }
 
-    IRanges::{ starts: new_starts, ends: new_ends, widths: new_widths }
+    IRanges::{ starts: new_starts, ends: new_ends, widths: new_widths, }
   } else {
-    let new_starts : Array[Int] = Array::make(n, 0)
-    let new_ends : Array[Int] = Array::make(n, 0)
-    let new_widths : Array[Int] = Array::make(n, width)
+    let new_starts : Array[Int32] = Array::make(n, 0)
+    let new_ends : Array[Int32] = Array::make(n, 0)
+    let new_widths : Array[Int32] = Array::make(n, width)
 
     for i = 0; i < n; i = i + 1 {
       new_starts[i] = ir.ends[i] + 1
       new_ends[i] = ir.ends[i] + width
     }
 
-    IRanges::{ starts: new_starts, ends: new_ends, widths: new_widths }
+    IRanges::{ starts: new_starts, ends: new_ends, widths: new_widths, }
   }
 }
 
 ///|
-pub fn ir_reduce(ir : IRanges, min_gapwidth : Int) -> IRanges {
+pub fn ir_reduce(ir : IRanges, min_gapwidth : Int32) -> IRanges {
   if ir.starts.length() == 0 {
-    return IRanges::{ starts: [], ends: [], widths: [] }
+    return IRanges::{ starts: [], ends: [], widths: [], }
   }
 
   let n = ir.starts.length()
-  let indices : Array[(Int, Int)] = Array::make(n, (0, 0))
+  let indices : Array[(Int32, Int32)] = Array::make(n, (0, 0))
   for i = 0; i < n; i = i + 1 {
     indices[i] = (ir.starts[i], ir.ends[i])
   }
@@ -168,7 +163,7 @@ pub fn ir_reduce(ir : IRanges, min_gapwidth : Int) -> IRanges {
     }
   }
 
-  let reduced : Array[(Int, Int)] = Array::new()
+  let reduced : Array[(Int32, Int32)] = Array(capacity=0)
   reduced.push(indices[0])
 
   for i = 1; i < n; i = i + 1 {
@@ -183,9 +178,9 @@ pub fn ir_reduce(ir : IRanges, min_gapwidth : Int) -> IRanges {
     }
   }
 
-  let new_starts : Array[Int] = Array::make(reduced.length(), 0)
-  let new_ends : Array[Int] = Array::make(reduced.length(), 0)
-  let new_widths : Array[Int] = Array::make(reduced.length(), 0)
+  let new_starts : Array[Int32] = Array::make(reduced.length(), 0)
+  let new_ends : Array[Int32] = Array::make(reduced.length(), 0)
+  let new_widths : Array[Int32] = Array::make(reduced.length(), 0)
 
   for i = 0; i < reduced.length(); i = i + 1 {
     new_starts[i] = reduced[i].0
@@ -193,17 +188,17 @@ pub fn ir_reduce(ir : IRanges, min_gapwidth : Int) -> IRanges {
     new_widths[i] = reduced[i].1 - reduced[i].0 + 1
   }
 
-  IRanges::{ starts: new_starts, ends: new_ends, widths: new_widths }
+  IRanges::{ starts: new_starts, ends: new_ends, widths: new_widths, }
 }
 
 ///|
 pub fn ir_disjoin(ir : IRanges) -> IRanges {
   if ir.starts.length() == 0 {
-    return IRanges::{ starts: [], ends: [], widths: [] }
+    return IRanges::{ starts: [], ends: [], widths: [], }
   }
 
   let n = ir.starts.length()
-  let events : Array[(Int, Int)] = Array::make(n * 2, (0, 0))
+  let events : Array[(Int32, Int32)] = Array::make(n * 2, (0, 0))
 
   for i = 0; i < n; i = i + 1 {
     events[i * 2] = (ir.starts[i], 1)
@@ -221,7 +216,7 @@ pub fn ir_disjoin(ir : IRanges) -> IRanges {
     }
   }
 
-  let disjoined : Array[(Int, Int)] = Array::new()
+  let disjoined : Array[(Int32, Int32)] = Array(capacity=0)
   let mut coverage = 0
   let mut current_start = 0
 
@@ -237,9 +232,9 @@ pub fn ir_disjoin(ir : IRanges) -> IRanges {
     current_start = pos
   }
 
-  let new_starts : Array[Int] = Array::make(disjoined.length(), 0)
-  let new_ends : Array[Int] = Array::make(disjoined.length(), 0)
-  let new_widths : Array[Int] = Array::make(disjoined.length(), 0)
+  let new_starts : Array[Int32] = Array::make(disjoined.length(), 0)
+  let new_ends : Array[Int32] = Array::make(disjoined.length(), 0)
+  let new_widths : Array[Int32] = Array::make(disjoined.length(), 0)
 
   for i = 0; i < disjoined.length(); i = i + 1 {
     new_starts[i] = disjoined[i].0
@@ -247,12 +242,12 @@ pub fn ir_disjoin(ir : IRanges) -> IRanges {
     new_widths[i] = disjoined[i].1 - disjoined[i].0 + 1
   }
 
-  IRanges::{ starts: new_starts, ends: new_ends, widths: new_widths }
+  IRanges::{ starts: new_starts, ends: new_ends, widths: new_widths, }
 }
 
 ///|
 pub fn ir_intersect(ir1 : IRanges, ir2 : IRanges) -> IRanges {
-  let intersects : Array[(Int, Int)] = Array::new()
+  let intersects : Array[(Int32, Int32)] = Array(capacity=0)
 
   for i = 0; i < ir1.starts.length(); i = i + 1 {
     for j = 0; j < ir2.starts.length(); j = j + 1 {
@@ -273,9 +268,9 @@ pub fn ir_intersect(ir1 : IRanges, ir2 : IRanges) -> IRanges {
     }
   }
 
-  let new_starts : Array[Int] = Array::make(intersects.length(), 0)
-  let new_ends : Array[Int] = Array::make(intersects.length(), 0)
-  let new_widths : Array[Int] = Array::make(intersects.length(), 0)
+  let new_starts : Array[Int32] = Array::make(intersects.length(), 0)
+  let new_ends : Array[Int32] = Array::make(intersects.length(), 0)
+  let new_widths : Array[Int32] = Array::make(intersects.length(), 0)
 
   for i = 0; i < intersects.length(); i = i + 1 {
     new_starts[i] = intersects[i].0
@@ -283,16 +278,16 @@ pub fn ir_intersect(ir1 : IRanges, ir2 : IRanges) -> IRanges {
     new_widths[i] = intersects[i].1 - intersects[i].0 + 1
   }
 
-  IRanges::{ starts: new_starts, ends: new_ends, widths: new_widths }
+  IRanges::{ starts: new_starts, ends: new_ends, widths: new_widths, }
 }
 
 ///|
 pub fn ir_union(ir1 : IRanges, ir2 : IRanges) -> IRanges {
-  let combined_starts : Array[Int] = Array::make(
+  let combined_starts : Array[Int32] = Array::make(
     ir1.starts.length() + ir2.starts.length(),
     0,
   )
-  let combined_ends : Array[Int] = Array::make(
+  let combined_ends : Array[Int32] = Array::make(
     ir1.starts.length() + ir2.starts.length(),
     0,
   )
@@ -318,7 +313,7 @@ pub fn ir_setdiff(ir1 : IRanges, ir2 : IRanges) -> IRanges {
   let disjoined = ir_disjoin(ir_union(ir1, ir2))
   let intersected = ir_intersect(ir1, ir2)
 
-  let diffs : Array[(Int, Int)] = Array::new()
+  let diffs : Array[(Int32, Int32)] = Array(capacity=0)
 
   for i = 0; i < disjoined.starts.length(); i = i + 1 {
     let mut is_in_intersect = false
@@ -346,9 +341,9 @@ pub fn ir_setdiff(ir1 : IRanges, ir2 : IRanges) -> IRanges {
     }
   }
 
-  let new_starts : Array[Int] = Array::make(diffs.length(), 0)
-  let new_ends : Array[Int] = Array::make(diffs.length(), 0)
-  let new_widths : Array[Int] = Array::make(diffs.length(), 0)
+  let new_starts : Array[Int32] = Array::make(diffs.length(), 0)
+  let new_ends : Array[Int32] = Array::make(diffs.length(), 0)
+  let new_widths : Array[Int32] = Array::make(diffs.length(), 0)
 
   for i = 0; i < diffs.length(); i = i + 1 {
     new_starts[i] = diffs[i].0
@@ -356,12 +351,12 @@ pub fn ir_setdiff(ir1 : IRanges, ir2 : IRanges) -> IRanges {
     new_widths[i] = diffs[i].1 - diffs[i].0 + 1
   }
 
-  IRanges::{ starts: new_starts, ends: new_ends, widths: new_widths }
+  IRanges::{ starts: new_starts, ends: new_ends, widths: new_widths, }
 }
 
 ///|
-pub fn ir_overlaps(ir1 : IRanges, ir2 : IRanges) -> Array[(Int, Int)] {
-  let overlaps : Array[(Int, Int)] = Array::new()
+pub fn ir_overlaps(ir1 : IRanges, ir2 : IRanges) -> Array[(Int32, Int32)] {
+  let overlaps : Array[(Int32, Int32)] = Array(capacity=0)
 
   for i = 0; i < ir1.starts.length(); i = i + 1 {
     for j = 0; j < ir2.starts.length(); j = j + 1 {
@@ -375,8 +370,8 @@ pub fn ir_overlaps(ir1 : IRanges, ir2 : IRanges) -> Array[(Int, Int)] {
 }
 
 ///|
-pub fn ir_count_overlaps(query : IRanges, subject : IRanges) -> Array[Int] {
-  let counts : Array[Int] = Array::make(query.starts.length(), 0)
+pub fn ir_count_overlaps(query : IRanges, subject : IRanges) -> Array[Int32] {
+  let counts : Array[Int32] = Array::make(query.starts.length(), 0)
 
   for i = 0; i < query.starts.length(); i = i + 1 {
     let mut count = 0
@@ -398,9 +393,9 @@ pub fn ir_count_overlaps(query : IRanges, subject : IRanges) -> Array[Int] {
 pub fn find_overlaps_advanced(
   query~ : IRanges,
   subject~ : IRanges,
-  type_? : String = "any",
-) -> Array[(Int, Int)] {
-  let results : Array[(Int, Int)] = Array::new()
+  type_~ : String = "any",
+) -> Array[(Int32, Int32)] {
+  let results : Array[(Int32, Int32)] = Array(capacity=0)
 
   let mut i = 0
   while i < query.starts.length() {
@@ -434,9 +429,9 @@ pub fn find_overlaps_advanced(
 
 ///|
 /// Find nearest neighbor in subject for each query range.
-pub fn ir_nearest(query : IRanges, subject : IRanges) -> Array[Int] {
+pub fn ir_nearest(query : IRanges, subject : IRanges) -> Array[Int32] {
   let n = query.starts.length()
-  let indices : Array[Int] = Array::make(n, -1)
+  let indices : Array[Int32] = Array::make(n, -1)
 
   let mut i = 0
   while i < n {
@@ -468,9 +463,9 @@ pub fn ir_nearest(query : IRanges, subject : IRanges) -> Array[Int] {
 
 ///|
 /// Find preceding ranges in subject for each query.
-pub fn ir_precede(query : IRanges, subject : IRanges) -> Array[Int] {
+pub fn ir_precede(query : IRanges, subject : IRanges) -> Array[Int32] {
   let n = query.starts.length()
-  let indices : Array[Int] = Array::make(n, -1)
+  let indices : Array[Int32] = Array::make(n, -1)
 
   let mut i = 0
   while i < n {
@@ -500,9 +495,9 @@ pub fn ir_precede(query : IRanges, subject : IRanges) -> Array[Int] {
 
 ///|
 /// Find following ranges in subject for each query.
-pub fn ir_follow(query : IRanges, subject : IRanges) -> Array[Int] {
+pub fn ir_follow(query : IRanges, subject : IRanges) -> Array[Int32] {
   let n = query.starts.length()
-  let indices : Array[Int] = Array::make(n, -1)
+  let indices : Array[Int32] = Array::make(n, -1)
 
   let mut i = 0
   while i < n {
@@ -532,9 +527,9 @@ pub fn ir_follow(query : IRanges, subject : IRanges) -> Array[Int] {
 
 ///|
 /// Calculate coverage of integer ranges.
-pub fn ir_coverage(ir : IRanges, max_end : Int) -> Array[Int] {
+pub fn ir_coverage(ir : IRanges, max_end : Int32) -> Array[Int32] {
   let n = ir.starts.length()
-  let cov : Array[Int] = Array::make(max_end, 0)
+  let cov : Array[Int32] = Array::make(max_end, 0)
 
   let mut i = 0
   while i < n {
@@ -556,9 +551,12 @@ pub fn ir_coverage(ir : IRanges, max_end : Int) -> Array[Int] {
 
 ///|
 /// Calculate coverage as run-length encoded ranges.
-pub fn ir_coverage_rle(ir : IRanges, max_end : Int) -> Array[(Int, Int, Int)] {
+pub fn ir_coverage_rle(
+  ir : IRanges,
+  max_end : Int32,
+) -> Array[(Int32, Int32, Int32)] {
   let cov = ir_coverage(ir, max_end)
-  let results : Array[(Int, Int, Int)] = Array::new()
+  let results : Array[(Int32, Int32, Int32)] = Array(capacity=0)
 
   let n = cov.length()
   let mut i = 0
@@ -584,10 +582,13 @@ pub fn ir_coverage_rle(ir : IRanges, max_end : Int) -> Array[(Int, Int, Int)] {
 
 ///|
 /// Calculate distance matrix between two sets of ranges.
-pub fn ir_distance(ir1 : IRanges, ir2 : IRanges) -> Array[Array[Int]] {
+pub fn ir_distance(ir1 : IRanges, ir2 : IRanges) -> Array[Array[Int32]] {
   let n1 = ir1.starts.length()
   let n2 = ir2.starts.length()
-  let distances : Array[Array[Int]] = Array::make(n1, Array::make(n2, -1))
+  let distances : Array[Array[Int32]] = Array::make(n1, Array::make(0, -1))
+  for idx in 0..<n1 {
+    distances[idx] = Array::make(n2, -1)
+  }
 
   let mut i = 0
   while i < n1 {
@@ -616,9 +617,9 @@ pub fn ir_distance(ir1 : IRanges, ir2 : IRanges) -> Array[Array[Int]] {
 
 ///|
 /// Calculate distance to nearest neighbor within the same set.
-pub fn ir_distance_to_nearest(ir : IRanges) -> Array[Int] {
+pub fn ir_distance_to_nearest(ir : IRanges) -> Array[Int32] {
   let n = ir.starts.length()
-  let distances : Array[Int] = Array::make(n, -1)
+  let distances : Array[Int32] = Array::make(n, -1)
 
   let mut i = 0
   while i < n {
@@ -657,9 +658,9 @@ pub fn ir_distance_to_nearest(ir : IRanges) -> Array[Int] {
 /// Subset IRanges by a boolean mask.
 pub fn ir_subset(ir : IRanges, keep : Array[Bool]) -> IRanges {
   let n = ir.starts.length()
-  let new_starts : Array[Int] = Array::new()
-  let new_ends : Array[Int] = Array::new()
-  let new_widths : Array[Int] = Array::new()
+  let new_starts : Array[Int32] = Array(capacity=0)
+  let new_ends : Array[Int32] = Array(capacity=0)
+  let new_widths : Array[Int32] = Array(capacity=0)
 
   let mut i = 0
   while i < n {
@@ -671,14 +672,14 @@ pub fn ir_subset(ir : IRanges, keep : Array[Bool]) -> IRanges {
     i = i + 1
   }
 
-  IRanges::{ starts: new_starts, ends: new_ends, widths: new_widths }
+  IRanges::{ starts: new_starts, ends: new_ends, widths: new_widths, }
 }
 
 ///|
 /// Sort IRanges by start position.
 pub fn ir_sort(ir : IRanges) -> IRanges {
   let n = ir.starts.length()
-  let pairs : Array[(Int, Int)] = Array::make(n, (0, 0))
+  let pairs : Array[(Int32, Int32)] = Array::make(n, (0, 0))
 
   let mut i = 0
   while i < n {
@@ -703,9 +704,9 @@ pub fn ir_sort(ir : IRanges) -> IRanges {
     }
   }
 
-  let new_starts : Array[Int] = Array::make(n, 0)
-  let new_ends : Array[Int] = Array::make(n, 0)
-  let new_widths : Array[Int] = Array::make(n, 0)
+  let new_starts : Array[Int32] = Array::make(n, 0)
+  let new_ends : Array[Int32] = Array::make(n, 0)
+  let new_widths : Array[Int32] = Array::make(n, 0)
 
   let mut k = 0
   while k < n {
@@ -715,37 +716,7 @@ pub fn ir_sort(ir : IRanges) -> IRanges {
     k = k + 1
   }
 
-  IRanges::{ starts: new_starts, ends: new_ends, widths: new_widths }
-}
-
-///|
-/// Calculate total width of all ranges.
-pub fn ir_total_width(ir : IRanges) -> Int {
-  let n = ir.starts.length()
-  let mut total = 0
-  let mut i = 0
-  while i < n {
-    total = total + ir.widths[i]
-    i = i + 1
-  }
-  total
-}
-
-///|
-/// Calculate gap width between ranges.
-pub fn ir_gap_width(ir : IRanges) -> Int {
-  let sorted = ir_sort(ir)
-  let n = sorted.starts.length()
-  let mut total_gap = 0
-  let mut i = 1
-  while i < n {
-    let gap = sorted.starts[i] - sorted.ends[i - 1] - 1
-    if gap > 0 {
-      total_gap = total_gap + gap
-    }
-    i = i + 1
-  }
-  total_gap
+  IRanges::{ starts: new_starts, ends: new_ends, widths: new_widths, }
 }
 
 ///|

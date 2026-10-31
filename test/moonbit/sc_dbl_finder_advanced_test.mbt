@@ -207,7 +207,7 @@ test "scDblFinder rejects non-finite and negative counts" {
   let nan = try {
     ignore(
       @src.SingleCellData::create(
-        [[1.0, Double::nan()], [3.0, 4.0], [5.0, 6.0]],
+        [[1.0, @double.not_a_number], [3.0, 4.0], [5.0, 6.0]],
         ["a", "b", "c"],
         ["x", "y"],
       ),
@@ -671,7 +671,7 @@ test "scDblFinder threshold requires both classes" {
 ///|
 test "scDblFinder threshold rejects invalid scores" {
   let nan = try {
-    ignore(@src.scdf_optimize_threshold([Double::nan()], [0.8], 0.1))
+    ignore(@src.scdf_optimize_threshold([@double.not_a_number], [0.8], 0.1))
     false
   } catch {
     _ => true

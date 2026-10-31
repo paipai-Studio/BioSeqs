@@ -247,9 +247,9 @@ test "volcano_classification_to_string" {
 
 ///|
 test "volcano_empty_inputs" {
-  let ids : Array[String] = Array::new()
-  let lfcs : Array[Double] = Array::new()
-  let pvals : Array[Double] = Array::new()
+  let ids : Array[String] = Array(capacity=0)
+  let lfcs : Array[Double] = Array(capacity=0)
+  let pvals : Array[Double] = Array(capacity=0)
   let result = @src.volcano_plot_default(ids, lfcs, pvals)
   assert_eq(result.get_n_genes(), 0)
 }

@@ -18,7 +18,7 @@ pub fn Alphabet::new(
   letters : Array[String],
   is_gapped : Bool,
 ) -> Alphabet {
-  Alphabet::{ name, letters, is_gapped }
+  Alphabet::{ name, letters, is_gapped, }
 }
 
 ///|
@@ -76,15 +76,6 @@ pub fn iupac_ambiguous_dna() -> Alphabet {
 }
 
 ///|
-/// IUPAC ambiguous RNA alphabet (A, C, G, U, R, Y, S, W, K, M, B, D, H, V, N).
-pub fn iupac_ambiguous_rna() -> Alphabet {
-  let letters = [
-    "A", "C", "G", "U", "R", "Y", "S", "W", "K", "M", "B", "D", "H", "V", "N",
-  ]
-  Alphabet::new("IUPACAmbiguousRNA", letters, false)
-}
-
-///|
 /// IUPAC protein alphabet (20 standard amino acids + B, Z, X).
 pub fn iupac_protein() -> Alphabet {
   let letters = [
@@ -95,37 +86,10 @@ pub fn iupac_protein() -> Alphabet {
 }
 
 ///|
-/// Extended IUPAC protein alphabet (20 standard + B, Z, X, U, O).
-pub fn iupac_extended_protein() -> Alphabet {
-  let letters = [
-    "A", "C", "D", "E", "F", "G", "H", "I", "K", "L", "M", "N", "P", "Q", "R", "S",
-    "T", "V", "W", "Y", "B", "Z", "X", "U", "O",
-  ]
-  Alphabet::new("IUPACExtendedProtein", letters, false)
-}
-
-///|
 /// Gapped DNA alphabet (includes gap character '-').
 pub fn gapped_dna() -> Alphabet {
   let letters = ["A", "C", "G", "T", "-"]
   Alphabet::new("GappedDNA", letters, true)
-}
-
-///|
-/// Gapped RNA alphabet (includes gap character '-').
-pub fn gapped_rna() -> Alphabet {
-  let letters = ["A", "C", "G", "U", "-"]
-  Alphabet::new("GappedRNA", letters, true)
-}
-
-///|
-/// Gapped protein alphabet (includes gap character '-').
-pub fn gapped_protein() -> Alphabet {
-  let letters = [
-    "A", "C", "D", "E", "F", "G", "H", "I", "K", "L", "M", "N", "P", "Q", "R", "S",
-    "T", "V", "W", "Y", "-",
-  ]
-  Alphabet::new("GappedProtein", letters, true)
 }
 
 ///|
@@ -137,42 +101,6 @@ pub fn reduced_protein() -> Alphabet {
     "T", "V", "W", "Y",
   ]
   Alphabet::new("ReducedProtein", letters, false)
-}
-
-///|
-/// Get all ambiguous codes for IUPAC DNA.
-pub fn iupac_dna_ambiguities() -> Map[String, Array[String]] {
-  let ambiguities : Map[String, Array[String]] = Map([], capacity=16)
-  ambiguities.set("R", ["A", "G"])
-  ambiguities.set("Y", ["C", "T"])
-  ambiguities.set("S", ["G", "C"])
-  ambiguities.set("W", ["A", "T"])
-  ambiguities.set("K", ["G", "T"])
-  ambiguities.set("M", ["A", "C"])
-  ambiguities.set("B", ["C", "G", "T"])
-  ambiguities.set("D", ["A", "G", "T"])
-  ambiguities.set("H", ["A", "C", "T"])
-  ambiguities.set("V", ["A", "C", "G"])
-  ambiguities.set("N", ["A", "C", "G", "T"])
-  ambiguities
-}
-
-///|
-/// Get all ambiguous codes for IUPAC RNA.
-pub fn iupac_rna_ambiguities() -> Map[String, Array[String]] {
-  let ambiguities : Map[String, Array[String]] = Map([], capacity=16)
-  ambiguities.set("R", ["A", "G"])
-  ambiguities.set("Y", ["C", "U"])
-  ambiguities.set("S", ["G", "C"])
-  ambiguities.set("W", ["A", "U"])
-  ambiguities.set("K", ["G", "U"])
-  ambiguities.set("M", ["A", "C"])
-  ambiguities.set("B", ["C", "G", "U"])
-  ambiguities.set("D", ["A", "G", "U"])
-  ambiguities.set("H", ["A", "C", "U"])
-  ambiguities.set("V", ["A", "C", "G"])
-  ambiguities.set("N", ["A", "C", "G", "U"])
-  ambiguities
 }
 
 ///|

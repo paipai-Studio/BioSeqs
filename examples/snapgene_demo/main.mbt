@@ -90,7 +90,7 @@ fn main {
   let bytes = @bio.snapgene_to_bytes(file)
   println("Serialized to \{bytes.length()} byte(s)")
   let preview_len = if bytes.length() < 20 { bytes.length() } else { 20 }
-  let byte_sb = StringBuilder::new()
+  let byte_sb = StringBuilder()
   byte_sb.write_string("  first ")
   byte_sb.write_string(preview_len.to_string())
   byte_sb.write_string(" byte(s): ")
@@ -115,7 +115,9 @@ fn main {
   let hex_preview_len = if hex.length() < 40 { hex.length() } else { 40 }
   println("  first \{hex_preview_len} chars: \{hex[0:hex_preview_len]}")
   let file3 = @bio.snapgene_parse(hex)
-  println("Deserialized from hex: sequence length=\{@bio.snapgene_seq_length(file3)}")
+  println(
+    "Deserialized from hex: sequence length=\{@bio.snapgene_seq_length(file3)}",
+  )
   println("Hex round-trip verify: \{file3.sequence == file.sequence}")
   println("")
 

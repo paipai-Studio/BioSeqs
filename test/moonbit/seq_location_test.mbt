@@ -25,7 +25,7 @@ test "after_position" {
 
 ///|
 test "one_of_position" {
-  let opts : Array[@src.Pos] = Array::new()
+  let opts : Array[@src.Pos] = Array(capacity=0)
   opts.push(@src.exact_position(5))
   opts.push(@src.exact_position(7))
   opts.push(@src.exact_position(9))
@@ -33,7 +33,7 @@ test "one_of_position" {
   assert_eq(pos.get(), 7)
   assert_eq(pos.is_exact(), false)
   let s = pos.to_string()
-  assert_eq(s.starts_with("{"), true)
+  assert_eq(s.has_prefix("{"), true)
   assert_eq(s.contains("5"), true)
   assert_eq(s.contains("7"), true)
   assert_eq(s.contains("9"), true)
@@ -49,7 +49,7 @@ test "within_position" {
   assert_eq(pos.get(), 50)
   assert_eq(pos.is_exact(), false)
   let s = pos.to_string()
-  assert_eq(s.starts_with("("), true)
+  assert_eq(s.has_prefix("("), true)
   assert_eq(s.contains("40"), true)
   assert_eq(s.contains("60"), true)
 }
@@ -122,7 +122,7 @@ test "compound_location_basic" {
     @src.exact_position(200),
     @src.exact_position(350),
   )
-  let locs : Array[@src.Loc] = Array::new()
+  let locs : Array[@src.Loc] = Array(capacity=0)
   locs.push(exon1)
   locs.push(exon2)
   let cl = @src.compound_location(locs, strand="+")
@@ -133,8 +133,8 @@ test "compound_location_basic" {
 
 ///|
 test "compound_from_simple" {
-  let starts : Array[Int] = [0, 200, 500]
-  let ends : Array[Int] = [100, 350, 600]
+  let starts : Array[Int32] = [0, 200, 500]
+  let ends : Array[Int32] = [100, 350, 600]
   let cl = @src.compound_from_simple(starts, ends, strand="+")
   assert_eq(cl.is_compound(), true)
   assert_eq(cl.parts().length(), 3)
@@ -151,7 +151,7 @@ test "compound_location_overlaps" {
     @src.exact_position(200),
     @src.exact_position(350),
   )
-  let locs : Array[@src.Loc] = Array::new()
+  let locs : Array[@src.Loc] = Array(capacity=0)
   locs.push(exon1)
   locs.push(exon2)
   let cl = @src.compound_location(locs)
@@ -178,7 +178,7 @@ test "compound_location_contains" {
     @src.exact_position(200),
     @src.exact_position(350),
   )
-  let locs : Array[@src.Loc] = Array::new()
+  let locs : Array[@src.Loc] = Array(capacity=0)
   locs.push(exon1)
   locs.push(exon2)
   let cl = @src.compound_location(locs)

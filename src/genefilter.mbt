@@ -62,7 +62,7 @@ pub fn FilterResult::new(
   statistics : Array[Double],
   p_values : Array[Double],
 ) -> FilterResult {
-  FilterResult::{ passing_genes, statistics, p_values }
+  FilterResult::{ passing_genes, statistics, p_values, }
 }
 
 ///|
@@ -78,7 +78,7 @@ pub fn GeneExpression::new(
   expression : Array[Array[Double]],
   groups : Array[String],
 ) -> GeneExpression {
-  GeneExpression::{ gene_ids, expression, groups }
+  GeneExpression::{ gene_ids, expression, groups, }
 }
 
 ///|
@@ -87,16 +87,16 @@ pub fn row_ttest(
   group1 : String,
   group2 : String,
 ) -> FilterResult {
-  let passing_genes : Array[String] = Array::new()
-  let statistics : Array[Double] = Array::new()
-  let p_values : Array[Double] = Array::new()
+  let passing_genes : Array[String] = Array(capacity=0)
+  let statistics : Array[Double] = Array(capacity=0)
+  let p_values : Array[Double] = Array(capacity=0)
 
   let mut i = 0
   while i < expression.gene_ids.length() {
     let expr = expression.expression[i]
 
-    let group1_vals : Array[Double] = Array::new()
-    let group2_vals : Array[Double] = Array::new()
+    let group1_vals : Array[Double] = Array(capacity=0)
+    let group2_vals : Array[Double] = Array(capacity=0)
 
     let mut j = 0
     while j < expression.groups.length() {
@@ -139,16 +139,16 @@ pub fn row_wilcoxon(
   group1 : String,
   group2 : String,
 ) -> FilterResult {
-  let passing_genes : Array[String] = Array::new()
-  let statistics : Array[Double] = Array::new()
-  let p_values : Array[Double] = Array::new()
+  let passing_genes : Array[String] = Array(capacity=0)
+  let statistics : Array[Double] = Array(capacity=0)
+  let p_values : Array[Double] = Array(capacity=0)
 
   let mut i = 0
   while i < expression.gene_ids.length() {
     let expr = expression.expression[i]
 
-    let group1_vals : Array[Double] = Array::new()
-    let group2_vals : Array[Double] = Array::new()
+    let group1_vals : Array[Double] = Array(capacity=0)
+    let group2_vals : Array[Double] = Array(capacity=0)
 
     let mut j = 0
     while j < expression.groups.length() {
@@ -217,7 +217,7 @@ pub fn variance_filter(
   expression : GeneExpression,
   threshold : Double,
 ) -> Array[String] {
-  let passing_genes : Array[String] = Array::new()
+  let passing_genes : Array[String] = Array(capacity=0)
 
   let mut i = 0
   while i < expression.gene_ids.length() {
@@ -239,7 +239,7 @@ pub fn cv_filter(
   expression : GeneExpression,
   threshold : Double,
 ) -> Array[String] {
-  let passing_genes : Array[String] = Array::new()
+  let passing_genes : Array[String] = Array(capacity=0)
 
   let mut i = 0
   while i < expression.gene_ids.length() {
@@ -263,9 +263,9 @@ pub fn row_quantile_filter(
   q_low : Double,
   q_high : Double,
 ) -> Array[String] {
-  let passing_genes : Array[String] = Array::new()
+  let passing_genes : Array[String] = Array(capacity=0)
 
-  let all_vals : Array[Double] = Array::new()
+  let all_vals : Array[Double] = Array(capacity=0)
 
   let mut i = 0
   while i < expression.expression.length() {
@@ -377,21 +377,4 @@ fn calc_max(vals : Array[Double]) -> Double {
   }
 
   m
-}
-
-///|
-pub fn create_example_gene_expression() -> GeneExpression {
-  let gene_ids = ["gene1", "gene2", "gene3", "gene4", "gene5"]
-  let expression = [
-    [10.5, 12.3, 11.1, 25.0, 27.5, 26.2],
-    [5.8, 6.2, 5.5, 7.0, 6.8, 7.2],
-    [100.2, 98.5, 102.1, 50.0, 48.5, 52.0],
-    [15.7, 16.2, 15.9, 14.8, 15.2, 14.5],
-    [3.2, 3.5, 3.1, 3.0, 3.3, 2.9],
-  ]
-  let groups = [
-    "control", "control", "control", "treatment", "treatment", "treatment",
-  ]
-
-  GeneExpression::new(gene_ids, expression, groups)
 }

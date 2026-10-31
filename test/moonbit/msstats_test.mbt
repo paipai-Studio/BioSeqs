@@ -13,7 +13,7 @@ test "msstats_feature_creation" {
 
 ///|
 test "msstats_data_process_log_transform" {
-  let features : Array[@src.MSFeature] = Array::new()
+  let features : Array[@src.MSFeature] = Array(capacity=0)
   features.push(
     @src.MSFeature::new("P1", "pep1", "tr1", "Ctrl", "S1", "R1", 1024.0),
   )
@@ -34,7 +34,7 @@ test "msstats_data_process_log_transform" {
 
 ///|
 test "msstats_data_process_median_norm" {
-  let features : Array[@src.MSFeature] = Array::new()
+  let features : Array[@src.MSFeature] = Array(capacity=0)
   features.push(
     @src.MSFeature::new("P1", "pep1", "tr1", "Ctrl", "S1", "R1", 1024.0),
   )
@@ -62,7 +62,7 @@ test "msstats_data_process_median_norm" {
 
 ///|
 test "msstats_data_process_zero_intensity" {
-  let features : Array[@src.MSFeature] = Array::new()
+  let features : Array[@src.MSFeature] = Array(capacity=0)
   features.push(
     @src.MSFeature::new("P1", "pep1", "tr1", "Ctrl", "S1", "R1", 0.0),
   )
@@ -77,7 +77,7 @@ test "msstats_data_process_zero_intensity" {
 
 ///|
 test "msstats_summarize_tukey" {
-  let features : Array[@src.MSFeature] = Array::new()
+  let features : Array[@src.MSFeature] = Array(capacity=0)
   // Two peptides for protein P1 in run R1
   features.push(
     @src.MSFeature::new("P1", "pep1", "tr1", "Ctrl", "S1", "R1", 1024.0),
@@ -90,7 +90,7 @@ test "msstats_summarize_tukey" {
     features,
     normalization=@src.ms_norm_none(),
   )
-  let summarized = @src.ms_summarize(processed, method=@src.ms_summary_tukey())
+  let summarized = @src.ms_summarize(processed, method_=@src.ms_summary_tukey())
   assert_eq(summarized.length(), 1) // One protein-run combo
   assert_eq(summarized[0].protein, "P1")
   assert_eq(summarized[0].run, "R1")
@@ -100,7 +100,7 @@ test "msstats_summarize_tukey" {
 
 ///|
 test "msstats_summarize_linear" {
-  let features : Array[@src.MSFeature] = Array::new()
+  let features : Array[@src.MSFeature] = Array(capacity=0)
   features.push(
     @src.MSFeature::new("P1", "pep1", "tr1", "Ctrl", "S1", "R1", 1024.0),
   )
@@ -112,7 +112,10 @@ test "msstats_summarize_linear" {
     features,
     normalization=@src.ms_norm_none(),
   )
-  let summarized = @src.ms_summarize(processed, method=@src.ms_summary_linear())
+  let summarized = @src.ms_summarize(
+    processed,
+    method_=@src.ms_summary_linear(),
+  )
   // Mean of log2(1024)=10 and log2(4096)=12 is 11
   assert_true((summarized[0].log2_abundance - 11.0).abs() < 0.01)
 }

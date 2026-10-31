@@ -24,10 +24,10 @@ pub struct PhdComment {
   chromat_file : String
   phred_version : String
   phred_parameter_file : String
-  trace_index_min : Int
-  trace_index_max : Int
-  trim_start : Int
-  trim_end : Int
+  trace_index_min : Int32
+  trace_index_max : Int32
+  trim_start : Int32
+  trim_end : Int32
   trim_prob : Double
   chemistry : String
   dye : String
@@ -39,10 +39,10 @@ pub fn PhdComment::new(
   chromat_file : String,
   phred_version : String,
   phred_parameter_file : String,
-  trace_index_min : Int,
-  trace_index_max : Int,
-  trim_start : Int,
-  trim_end : Int,
+  trace_index_min : Int32,
+  trace_index_max : Int32,
+  trim_start : Int32,
+  trim_end : Int32,
   trim_prob : Double,
   chemistry : String,
   dye : String,
@@ -81,25 +81,25 @@ pub fn PhdComment::phred_parameter_file(self : PhdComment) -> String {
 
 ///|
 /// Get trace index minimum.
-pub fn PhdComment::trace_index_min(self : PhdComment) -> Int {
+pub fn PhdComment::trace_index_min(self : PhdComment) -> Int32 {
   self.trace_index_min
 }
 
 ///|
 /// Get trace index maximum.
-pub fn PhdComment::trace_index_max(self : PhdComment) -> Int {
+pub fn PhdComment::trace_index_max(self : PhdComment) -> Int32 {
   self.trace_index_max
 }
 
 ///|
 /// Get trim start position.
-pub fn PhdComment::trim_start(self : PhdComment) -> Int {
+pub fn PhdComment::trim_start(self : PhdComment) -> Int32 {
   self.trim_start
 }
 
 ///|
 /// Get trim end position.
-pub fn PhdComment::trim_end(self : PhdComment) -> Int {
+pub fn PhdComment::trim_end(self : PhdComment) -> Int32 {
   self.trim_end
 }
 
@@ -125,18 +125,18 @@ pub fn PhdComment::dye(self : PhdComment) -> String {
 /// A single base call with quality and peak position.
 pub struct PhdBase {
   base : String
-  quality : Int
-  peak_position : Int
+  quality : Int32
+  peak_position : Int32
 }
 
 ///|
 /// Create a PhdBase.
 pub fn PhdBase::new(
   base : String,
-  quality : Int,
-  peak_position : Int,
+  quality : Int32,
+  peak_position : Int32,
 ) -> PhdBase {
-  { base, quality, peak_position }
+  { base, quality, peak_position, }
 }
 
 ///|
@@ -147,13 +147,13 @@ pub fn PhdBase::base(self : PhdBase) -> String {
 
 ///|
 /// Get quality score.
-pub fn PhdBase::quality(self : PhdBase) -> Int {
+pub fn PhdBase::quality(self : PhdBase) -> Int32 {
   self.quality
 }
 
 ///|
 /// Get peak position (trace index).
-pub fn PhdBase::peak_position(self : PhdBase) -> Int {
+pub fn PhdBase::peak_position(self : PhdBase) -> Int32 {
   self.peak_position
 }
 
@@ -172,7 +172,7 @@ pub fn PhdRead::new(
   bases : Array[PhdBase],
   comment : PhdComment,
 ) -> PhdRead {
-  { name, bases, comment }
+  { name, bases, comment, }
 }
 
 ///|
@@ -205,8 +205,8 @@ pub fn PhdRead::sequence(self : PhdRead) -> String {
 
 ///|
 /// Get quality scores as an array of integers.
-pub fn PhdRead::quality(self : PhdRead) -> Array[Int] {
-  let quals : Array[Int] = []
+pub fn PhdRead::quality(self : PhdRead) -> Array[Int32] {
+  let quals : Array[Int32] = []
   for b in self.bases {
     quals.push(b.quality)
   }
@@ -215,8 +215,8 @@ pub fn PhdRead::quality(self : PhdRead) -> Array[Int] {
 
 ///|
 /// Get peak positions as an array of integers.
-pub fn PhdRead::peak_positions(self : PhdRead) -> Array[Int] {
-  let peaks : Array[Int] = []
+pub fn PhdRead::peak_positions(self : PhdRead) -> Array[Int32] {
+  let peaks : Array[Int32] = []
   for b in self.bases {
     peaks.push(b.peak_position)
   }
@@ -225,7 +225,7 @@ pub fn PhdRead::peak_positions(self : PhdRead) -> Array[Int] {
 
 ///|
 /// Number of base calls.
-pub fn PhdRead::length(self : PhdRead) -> Int {
+pub fn PhdRead::length(self : PhdRead) -> Int32 {
   self.bases.length()
 }
 
@@ -249,13 +249,13 @@ pub fn PhdFile::reads(self : PhdFile) -> Array[PhdRead] {
 
 ///|
 /// Number of reads.
-pub fn PhdFile::num_reads(self : PhdFile) -> Int {
+pub fn PhdFile::num_reads(self : PhdFile) -> Int32 {
   self.reads.length()
 }
 
 ///|
 /// Get read by index.
-pub fn PhdFile::get(self : PhdFile, index : Int) -> PhdRead? {
+pub fn PhdFile::get(self : PhdFile, index : Int32) -> PhdRead? {
   if index < 0 || index >= self.reads.length() {
     None
   } else {
@@ -317,7 +317,7 @@ fn phd_extract_value(line : String) -> String {
           break
         }
       }
-      return line[i:n].to_string()
+      return line[i:n].to_owned()
     }
     i = i + 1
   }
@@ -326,7 +326,10 @@ fn phd_extract_value(line : String) -> String {
 
 ///|
 /// Parse a PHD comment block from lines between BEGIN_COMMENT and END_COMMENT.
-fn phd_parse_comment(lines : Array[String], start : Int) -> (PhdComment, Int) {
+fn phd_parse_comment(
+  lines : Array[String],
+  start : Int32,
+) -> (PhdComment, Int32) {
   let mut chromat_file = ""
   let mut phred_version = ""
   let mut phred_parameter_file = ""
@@ -382,7 +385,10 @@ fn phd_parse_comment(lines : Array[String], start : Int) -> (PhdComment, Int) {
 
 ///|
 /// Parse a PHD DNA block from lines between BEGIN_DNA and END_DNA.
-fn phd_parse_dna(lines : Array[String], start : Int) -> (Array[PhdBase], Int) {
+fn phd_parse_dna(
+  lines : Array[String],
+  start : Int32,
+) -> (Array[PhdBase], Int32) {
   let bases : Array[PhdBase] = []
   let mut idx = start
   while idx < lines.length() {
@@ -409,7 +415,10 @@ fn phd_parse_dna(lines : Array[String], start : Int) -> (Array[PhdBase], Int) {
 
 ///|
 /// Parse a single PHD sequence block (BEGIN_SEQUENCE ... END_SEQUENCE).
-fn phd_parse_sequence(lines : Array[String], start : Int) -> (PhdRead?, Int) {
+fn phd_parse_sequence(
+  lines : Array[String],
+  start : Int32,
+) -> (PhdRead?, Int32) {
   let first_line = trim(lines[start].to_string())
   // Extract read name from "BEGIN_SEQUENCE name"
   let tokens = phd_tokenize(first_line)

@@ -63,7 +63,7 @@ test "cnvkit_filter_chromosome" {
 
 ///|
 test "cnvkit_cbs_segmentation" {
-  let probes : Array[@src.CNVProbe] = Array::new()
+  let probes : Array[@src.CNVProbe] = Array(capacity=0)
 
   // Create probes with a clear change point
   let mut i = 0
@@ -90,7 +90,7 @@ test "cnvkit_cbs_segmentation" {
 
 ///|
 test "cnvkit_smooth_log2_ratios" {
-  let probes : Array[@src.CNVProbe] = Array::new()
+  let probes : Array[@src.CNVProbe] = Array(capacity=0)
 
   let mut i = 0
   while i < 10 {
@@ -180,7 +180,7 @@ test "cnvkit_summarize_string" {
 
 ///|
 test "cnvkit_empty_segmentation" {
-  let empty_probes : Array[@src.CNVProbe] = Array::new()
+  let empty_probes : Array[@src.CNVProbe] = Array(capacity=0)
   let result = @src.cbs_segment(empty_probes, 0.05)
 
   assert_eq(result.n_segments, 0)
@@ -199,7 +199,7 @@ test "cnvkit_single_probe" {
 
 ///|
 test "cnvkit_smooth_edge_cases" {
-  let empty_probes : Array[@src.CNVProbe] = Array::new()
+  let empty_probes : Array[@src.CNVProbe] = Array(capacity=0)
   let smoothed = @src.smooth_log2_ratios(empty_probes, 3)
 
   assert_eq(smoothed.length(), 0)

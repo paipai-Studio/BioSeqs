@@ -35,7 +35,9 @@ fn main {
   let result = @bio.ic_build_extended_chain(sequence)
   println("   Number of atoms: \{result.x.length().to_string()}")
   println("   Number of residues: \{result.residue_ids.length().to_string()}")
-  println("   First atom: \{result.atom_names[0]} at (\{result.x[0].to_string()}, \{result.y[0].to_string()}, \{result.z[0].to_string()})")
+  println(
+    "   First atom: \{result.atom_names[0]} at (\{result.x[0].to_string()}, \{result.y[0].to_string()}, \{result.z[0].to_string()})",
+  )
   println("")
 
   println("4. Backbone Torsion Angles (phi/psi)")
@@ -46,22 +48,38 @@ fn main {
   let n_next = [3.0, 0.5, 0.0]
   let phi = @bio.ic_compute_phi(c_prev, n_curr, ca_curr, c_curr)
   let psi = @bio.ic_compute_psi(n_curr, ca_curr, c_curr, n_next)
-  println("   Phi angle (rad): \{phi.to_string()}, (deg): \{@bio.ic_rad_to_deg(phi).to_string()}")
-  println("   Psi angle (rad): \{psi.to_string()}, (deg): \{@bio.ic_rad_to_deg(psi).to_string()}")
+  println(
+    "   Phi angle (rad): \{phi.to_string()}, (deg): \{@bio.ic_rad_to_deg(phi).to_string()}",
+  )
+  println(
+    "   Psi angle (rad): \{psi.to_string()}, (deg): \{@bio.ic_rad_to_deg(psi).to_string()}",
+  )
   println("")
 
   println("5. Standard Bond Geometry Parameters")
-  println("   Peptide bond length (C-N): \{@bio.ic_peptide_bond_length().to_string()} Angstroms")
-  println("   CA-C bond length: \{@bio.ic_ca_c_bond_length().to_string()} Angstroms")
-  println("   N-CA bond length: \{@bio.ic_n_ca_bond_length().to_string()} Angstroms")
+  println(
+    "   Peptide bond length (C-N): \{@bio.ic_peptide_bond_length().to_string()} Angstroms",
+  )
+  println(
+    "   CA-C bond length: \{@bio.ic_ca_c_bond_length().to_string()} Angstroms",
+  )
+  println(
+    "   N-CA bond length: \{@bio.ic_n_ca_bond_length().to_string()} Angstroms",
+  )
   println("")
 
   println("6. Ramachandran Plot Data (phi/psi statistics)")
   let phi_vals = [-0.8, -0.5, -0.3, 0.2, 0.5, 0.7]
   let psi_vals = [-0.6, -0.2, 0.1, 0.3, 0.6, 0.8]
-  let (mean_phi, mean_psi, var_phi, var_psi) = @bio.ic_ramachandran_data(phi_vals, psi_vals)
-  println("   Mean phi: \{mean_phi.to_string()} rad (\{@bio.ic_rad_to_deg(mean_phi).to_string()} deg)")
-  println("   Mean psi: \{mean_psi.to_string()} rad (\{@bio.ic_rad_to_deg(mean_psi).to_string()} deg)")
+  let (mean_phi, mean_psi, var_phi, var_psi) = @bio.ic_ramachandran_data(
+    phi_vals, psi_vals,
+  )
+  println(
+    "   Mean phi: \{mean_phi.to_string()} rad (\{@bio.ic_rad_to_deg(mean_phi).to_string()} deg)",
+  )
+  println(
+    "   Mean psi: \{mean_psi.to_string()} rad (\{@bio.ic_rad_to_deg(mean_psi).to_string()} deg)",
+  )
   println("   Variance phi: \{var_phi.to_string()}")
   println("   Variance psi: \{var_psi.to_string()}")
   println("")
@@ -72,7 +90,9 @@ fn main {
     let rotamers = @bio.ic_chi1_rotamers(aa)
     println("   \{aa}: \{rotamers.length().to_string()} rotamers")
     for r in rotamers {
-      println("     - \{r.name}: probability = \{r.probability.to_string()}, chi angles = \{r.chi_angles.length().to_string()}")
+      println(
+        "     - \{r.name}: probability = \{r.probability.to_string()}, chi angles = \{r.chi_angles.length().to_string()}",
+      )
     }
   }
   println("")

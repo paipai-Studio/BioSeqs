@@ -8,7 +8,6 @@
 ///   - Location utilities (complement, shift, merge)
 ///
 /// Run: moon run examples/seqfeature_advanced_demo/
-
 fn main {
   println("=== SeqFeature Advanced Demo ===")
 
@@ -98,7 +97,7 @@ fn main {
       Some(loc) => {
         println("  start: \{loc.start().repr()}")
         println("  end: \{loc.end().repr()}")
-        println("  strand: \{loc.strand()}")
+        println("  strand: \{Repr(loc.strand())}")
       }
       None => println("  (unexpected compound location)")
     }
@@ -131,7 +130,7 @@ fn main {
       Some(loc) => {
         println("  start: \{loc.start().repr()}")
         println("  end: \{loc.end().repr()}")
-        println("  strand: \{loc.strand()}")
+        println("  strand: \{Repr(loc.strand())}")
       }
       None => println("  (unexpected compound location)")
     }
@@ -238,8 +237,8 @@ fn main {
   let comp_loc = @bio.feature_location_complement(test_loc)
   println("")
   println("Complement of test_loc:")
-  println("  original strand: \{test_loc.strand()}")
-  println("  complement strand: \{comp_loc.strand()}")
+  println("  original strand: \{Repr(test_loc.strand())}")
+  println("  complement strand: \{Repr(comp_loc.strand())}")
   println("  complement string: \{@bio.location_to_string(comp_loc)}")
 
   let shifted = @bio.feature_location_shift(test_loc, 50)

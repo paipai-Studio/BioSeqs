@@ -5,10 +5,10 @@
 /// Parse a PDB file content into a Structure.
 pub fn parse_pdb(content : String) -> Structure {
   let lines = content.split("\n").to_array()
-  let models = Array::new()
-  let mut current_model_chains = Array::new()
-  let mut current_chain_residues = Array::new()
-  let mut current_residue_atoms = Array::new()
+  let models = Array(capacity=0)
+  let mut current_model_chains = Array(capacity=0)
+  let mut current_chain_residues = Array(capacity=0)
+  let mut current_residue_atoms = Array(capacity=0)
   let mut current_resname = ""
   let mut current_chainid = ' '
   let mut current_resseq = 1
@@ -39,17 +39,17 @@ pub fn parse_pdb(content : String) -> Structure {
           hetfield=current_hetfield,
         )
         current_chain_residues.push(r)
-        current_residue_atoms = Array::new()
+        current_residue_atoms = Array(capacity=0)
       }
       if current_chain_residues.length() > 0 {
         let c = Chain::new(id=current_chainid, residues=current_chain_residues)
         current_model_chains.push(c)
-        current_chain_residues = Array::new()
+        current_chain_residues = Array(capacity=0)
       }
       if current_model_chains.length() > 0 {
         let m = Model::new(id=models.length() + 1, chains=current_model_chains)
         models.push(m)
-        current_model_chains = Array::new()
+        current_model_chains = Array(capacity=0)
       }
     } else if record_type[0:4] == "ATOM" || record_type == "HETATM" {
       let atom = parse_atom_line(line, record_type == "HETATM")
@@ -64,7 +64,7 @@ pub fn parse_pdb(content : String) -> Structure {
           hetfield=current_hetfield,
         )
         current_chain_residues.push(r)
-        current_residue_atoms = Array::new()
+        current_residue_atoms = Array(capacity=0)
 
         if atom.chainid != current_chainid {
           let c = Chain::new(
@@ -72,7 +72,7 @@ pub fn parse_pdb(content : String) -> Structure {
             residues=current_chain_residues,
           )
           current_model_chains.push(c)
-          current_chain_residues = Array::new()
+          current_chain_residues = Array(capacity=0)
         }
       }
 
@@ -91,12 +91,12 @@ pub fn parse_pdb(content : String) -> Structure {
           hetfield=current_hetfield,
         )
         current_chain_residues.push(r)
-        current_residue_atoms = Array::new()
+        current_residue_atoms = Array(capacity=0)
       }
       if current_chain_residues.length() > 0 {
         let c = Chain::new(id=current_chainid, residues=current_chain_residues)
         current_model_chains.push(c)
-        current_chain_residues = Array::new()
+        current_chain_residues = Array(capacity=0)
       }
     } else if record_type == "ENDMDL" {
       if current_residue_atoms.length() > 0 {
@@ -108,17 +108,17 @@ pub fn parse_pdb(content : String) -> Structure {
           hetfield=current_hetfield,
         )
         current_chain_residues.push(r)
-        current_residue_atoms = Array::new()
+        current_residue_atoms = Array(capacity=0)
       }
       if current_chain_residues.length() > 0 {
         let c = Chain::new(id=current_chainid, residues=current_chain_residues)
         current_model_chains.push(c)
-        current_chain_residues = Array::new()
+        current_chain_residues = Array(capacity=0)
       }
       if current_model_chains.length() > 0 {
         let m = Model::new(id=models.length() + 1, chains=current_model_chains)
         models.push(m)
-        current_model_chains = Array::new()
+        current_model_chains = Array(capacity=0)
       }
     }
   }
@@ -207,12 +207,12 @@ fn pdb_trim_string(s : StringView) -> String {
     end = end - 1
   }
 
-  s[start:end + 1].to_string()
+  s[start:end + 1].to_owned()
 }
 
 ///|
 /// Fast integer parser for PDB format (no error checking).
-fn pdb_parse_int_fast(s : StringView) -> Int {
+pub fn pdb_parse_int_fast(s : StringView) -> Int32 {
   let n = s.length()
   if n == 0 {
     return 0
@@ -244,42 +244,8 @@ fn pdb_parse_int_fast(s : StringView) -> Int {
 }
 
 ///|
-/// Parse an integer from a string.
-fn pdb_parse_int(s : String) -> Int? {
-  let n = s.length()
-  if n == 0 {
-    None
-  } else {
-    let mut result = 0
-    let zero = '0'.to_int()
-    let mut i = 0
-    let mut is_negative = false
-
-    if s.unsafe_get(0).to_int() == 45 {
-      is_negative = true
-      i = 1
-    }
-
-    while i < n {
-      let c = s.unsafe_get(i).to_int()
-      if c < zero || c > zero + 9 {
-        return None
-      }
-      result = result * 10 + (c - zero)
-      i = i + 1
-    }
-
-    if is_negative {
-      Some(-result)
-    } else {
-      Some(result)
-    }
-  }
-}
-
-///|
 /// Fast double parser for PDB format (no error checking).
-fn pdb_parse_double_fast(s : StringView) -> Double {
+pub fn pdb_parse_double_fast(s : StringView) -> Double {
   let n = s.length()
   if n == 0 {
     return 0.0
@@ -331,64 +297,9 @@ fn pdb_parse_double_fast(s : StringView) -> Double {
 }
 
 ///|
-/// Parse a double from a string.
-fn pdb_parse_double(s : String) -> Double? {
-  let n = s.length()
-  if n == 0 {
-    None
-  } else {
-    let mut result = 0.0
-    let mut decimal = 0.0
-    let mut decimal_places = 0
-    let mut is_negative = false
-    let zero = '0'.to_int()
-    let mut i = 0
-
-    if s.unsafe_get(0).to_int() == 45 {
-      is_negative = true
-      i = 1
-    }
-
-    while i < n {
-      let c = s.unsafe_get(i).to_int()
-      if c == 46 {
-        i = i + 1
-        while i < n {
-          let dc = s.unsafe_get(i).to_int()
-          if dc < zero || dc > zero + 9 {
-            break
-          }
-          decimal = decimal * 10.0 + (dc - zero).to_double()
-          decimal_places = decimal_places + 1
-          i = i + 1
-        }
-        break
-      }
-      if c < zero || c > zero + 9 {
-        return None
-      }
-      result = result * 10.0 + (c - zero).to_double()
-      i = i + 1
-    }
-
-    while decimal_places > 0 {
-      decimal = decimal / 10.0
-      decimal_places = decimal_places - 1
-    }
-
-    let final_result = result + decimal
-    if is_negative {
-      Some(-final_result)
-    } else {
-      Some(final_result)
-    }
-  }
-}
-
-///|
 /// Write a Structure to PDB format string.
 pub fn write_pdb(structure : Structure) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
 
   let mut model_idx = 0
   for model in structure.models {
@@ -417,7 +328,7 @@ pub fn write_pdb(structure : Structure) -> String {
 ///|
 /// Write an atom to a PDB ATOM or HETATM line.
 fn write_atom_line(atom : Atom, is_hetatm : Bool) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
 
   buf.write_string(if is_hetatm { "HETATM" } else { "ATOM  " })
 
@@ -471,7 +382,7 @@ fn write_atom_line(atom : Atom, is_hetatm : Bool) -> String {
 
 ///|
 /// Pad string to the left.
-fn pad_left(s : String, width : Int, pad_char : Char) -> String {
+fn pad_left(s : String, width : Int32, pad_char : Char) -> String {
   let n = s.length()
   if n >= width {
     s
@@ -482,7 +393,7 @@ fn pad_left(s : String, width : Int, pad_char : Char) -> String {
 
 ///|
 /// Pad string to the right.
-fn pad_right(s : String, width : Int, pad_char : Char) -> String {
+fn pad_right(s : String, width : Int32, pad_char : Char) -> String {
   let n = s.length()
   if n >= width {
     s
@@ -493,17 +404,17 @@ fn pad_right(s : String, width : Int, pad_char : Char) -> String {
 
 ///|
 /// Format a double with specified width and precision.
-fn format_double(value : Double, width : Int, precision : Int) -> String {
+fn format_double(value : Double, width : Int32, precision : Int32) -> String {
   let s = value.to_string()
   let parts = s.split(".").to_array()
-  let int_part = if parts.length() > 0 { parts[0].to_string() } else { "0" }
-  let frac_part = if parts.length() > 1 { parts[1].to_string() } else { "" }
+  let int_part = if parts.length() > 0 { parts[0].to_owned() } else { "0" }
+  let frac_part = if parts.length() > 1 { parts[1].to_owned() } else { "" }
 
   let mut padded_frac = frac_part
   if padded_frac.length() < precision {
     padded_frac = padded_frac + "0".repeat(precision - padded_frac.length())
   } else if padded_frac.length() > precision {
-    padded_frac = padded_frac[0:precision].to_string()
+    padded_frac = padded_frac[0:precision].to_owned()
   }
 
   let result = int_part + "." + padded_frac

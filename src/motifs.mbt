@@ -9,7 +9,7 @@ pub struct Motif {
 
 ///|
 pub struct MotifHit {
-  position : Int
+  position : Int32
   score : Double
   strand : String
   sequence : String
@@ -22,7 +22,7 @@ pub type PSSM = Array[Array[Double]]
 let dna_alphabet : Array[String] = ["A", "C", "G", "T"]
 
 ///|
-let protein_alphabet : Array[String] = [
+let _protein_alphabet : Array[String] = [
   "A", "R", "N", "D", "C", "E", "Q", "G", "H", "I", "L", "K", "M", "F", "P", "S",
   "T", "W", "Y", "V",
 ]
@@ -34,27 +34,30 @@ pub fn Motif::new(
   alphabet : Array[String],
   sites : Array[String],
 ) -> Motif {
-  Motif::{ name, pwm, alphabet, sites }
+  Motif::{ name, pwm, alphabet, sites, }
 }
 
 ///|
 pub fn MotifHit::new(
-  position : Int,
+  position : Int32,
   score : Double,
   strand : String,
   sequence : String,
 ) -> MotifHit {
-  MotifHit::{ position, score, strand, sequence }
+  MotifHit::{ position, score, strand, sequence, }
 }
 
 ///|
-pub fn count_matrix(sites : Array[String]) -> Array[Array[Int]] {
+pub fn count_matrix(sites : Array[String]) -> Array[Array[Int32]] {
   if sites.length() == 0 {
     return []
   }
   let width = sites[0].length()
   let alphabet_size = dna_alphabet.length()
-  let counts = Array::make(width, Array::make(alphabet_size, 0))
+  let counts = Array::make(width, Array::make(0, 0))
+  for idx in 0..<width {
+    counts[idx] = Array::make(alphabet_size, 0)
+  }
 
   for idx = 0; idx < sites.length(); idx = idx + 1 {
     let site = sites[idx]
@@ -73,7 +76,7 @@ pub fn count_matrix(sites : Array[String]) -> Array[Array[Int]] {
 
 ///|
 pub fn pwm_from_counts(
-  counts : Array[Array[Int]],
+  counts : Array[Array[Int32]],
   pseudocount : Double,
 ) -> Array[Array[Double]] {
   if counts.length() == 0 {
@@ -81,7 +84,10 @@ pub fn pwm_from_counts(
   }
   let width = counts.length()
   let alphabet_size = counts[0].length()
-  let pwm = Array::make(width, Array::make(alphabet_size, 0.0))
+  let pwm = Array::make(width, Array::make(0, 0.0))
+  for idx in 0..<width {
+    pwm[idx] = Array::make(alphabet_size, 0.0)
+  }
 
   for pos = 0; pos < width; pos = pos + 1 {
     let row = counts[pos]
@@ -110,7 +116,10 @@ pub fn pssm_from_pwm(
   }
   let width = pwm.length()
   let alphabet_size = pwm[0].length()
-  let pssm = Array::make(width, Array::make(alphabet_size, 0.0))
+  let pssm = Array::make(width, Array::make(0, 0.0))
+  for idx in 0..<width {
+    pssm[idx] = Array::make(alphabet_size, 0.0)
+  }
 
   for pos = 0; pos < width; pos = pos + 1 {
     let row = pwm[pos]
@@ -189,7 +198,7 @@ pub fn search_motif(
   let background = [0.25, 0.25, 0.25, 0.25]
   let pssm = pssm_from_pwm(motif.pwm, background)
   let width = pssm.length()
-  let hits : Array[MotifHit] = Array::new()
+  let hits : Array[MotifHit] = Array(capacity=0)
 
   for pos = 0; pos <= sequence.length() - width; pos = pos + 1 {
     let subseq = sequence[pos:pos + width].to_owned()
@@ -282,7 +291,7 @@ pub fn motif_ic(motif : Motif) -> Double {
 pub fn meme_to_motif(meme_content : String) -> Motif {
   let lines = meme_content.split("\n").to_array()
   let mut name = ""
-  let sites : Array[String] = Array::new()
+  let sites : Array[String] = Array(capacity=0)
 
   let mut in_sites = false
   for i = 0; i < lines.length(); i = i + 1 {
@@ -302,7 +311,10 @@ pub fn meme_to_motif(meme_content : String) -> Motif {
   }
 
   let width = sites.length()
-  let pwm = Array::make(width, Array::make(4, 0.0))
+  let pwm = Array::make(width, Array::make(0, 0.0))
+  for idx in 0..<width {
+    pwm[idx] = Array::make(4, 0.0)
+  }
 
   for pos = 0; pos < width; pos = pos + 1 {
     let probs = sites[pos].split(" ").to_array()
@@ -373,7 +385,7 @@ pub fn align_motifs(motif1 : Motif, motif2 : Motif) -> Double {
 /// Calculate per-position information content for a motif.
 /// Returns an array of information content values for each position.
 pub fn motif_per_position_ic(motif : Motif) -> Array[Double] {
-  let result : Array[Double] = Array::new()
+  let result : Array[Double] = Array(capacity=0)
   if motif.pwm.length() == 0 {
     return result
   }
@@ -395,195 +407,6 @@ pub fn motif_per_position_ic(motif : Motif) -> Array[Double] {
     pos = pos + 1
   }
   result
-}
-
-///|
-/// Calculate the total information content of a motif in bits.
-pub fn motif_total_ic(motif : Motif) -> Double {
-  let per_pos = motif_per_position_ic(motif)
-  let mut total = 0.0
-  let mut i = 0
-  while i < per_pos.length() {
-    total = total + per_pos[i]
-    i = i + 1
-  }
-  total
-}
-
-///|
-/// Generate a sequence logo data from aligned sequences.
-/// Returns an array of (position, letter, frequency, information_content).
-pub fn generate_logo_data(
-  sequences : Array[String],
-) -> Array[(Int, String, Double, Double)] {
-  if sequences.length() == 0 {
-    return Array::new()
-  }
-
-  let width = sequences[0].length()
-  let logo_data : Array[(Int, String, Double, Double)] = Array::new()
-
-  let alphabet = ["A", "C", "G", "T"]
-  let n = sequences.length().to_double()
-
-  let mut pos = 0
-  while pos < width {
-    let counts = Map([], capacity=4)
-    let mut i = 0
-    while i < sequences.length() {
-      let base = sequences[i][pos:pos + 1].to_owned().to_upper()
-      counts.set(base, counts.get(base).unwrap_or(0) + 1)
-      i = i + 1
-    }
-
-    let background = 0.25
-    let mut ic = 0.0
-    let mut max_freq = 0.0
-    let mut max_base = ""
-
-    let mut ai = 0
-    while ai < alphabet.length() {
-      let base = alphabet[ai]
-      let count = counts.get(base).unwrap_or(0).to_double()
-      let freq = count / n
-
-      if freq > max_freq {
-        max_freq = freq
-        max_base = base
-      }
-
-      if freq > 0.0 {
-        ic = ic + freq * log2_val(freq / background)
-      }
-      ai = ai + 1
-    }
-
-    logo_data.push((pos, max_base, max_freq, ic))
-    pos = pos + 1
-  }
-
-  logo_data
-}
-
-///|
-/// Calculate the similarity between two motifs using Pearson correlation.
-pub fn motif_pearson_correlation(motif1 : Motif, motif2 : Motif) -> Double {
-  if motif1.pwm.length() == 0 || motif2.pwm.length() == 0 {
-    return 0.0
-  }
-
-  let min_len = if motif1.pwm.length() < motif2.pwm.length() {
-    motif1.pwm.length()
-  } else {
-    motif2.pwm.length()
-  }
-
-  let n = (min_len * motif1.alphabet.length()).to_double()
-
-  let mut sum_x = 0.0
-  let mut sum_y = 0.0
-  let mut sum_xy = 0.0
-  let mut sum_x2 = 0.0
-  let mut sum_y2 = 0.0
-
-  let mut pos = 0
-  while pos < min_len {
-    let row1 = motif1.pwm[pos]
-    let row2 = motif2.pwm[pos]
-    let mut alpha_idx = 0
-    while alpha_idx < motif1.alphabet.length() {
-      let x = row1[alpha_idx]
-      let y = row2[alpha_idx]
-      sum_x = sum_x + x
-      sum_y = sum_y + y
-      sum_xy = sum_xy + x * y
-      sum_x2 = sum_x2 + x * x
-      sum_y2 = sum_y2 + y * y
-      alpha_idx = alpha_idx + 1
-    }
-    pos = pos + 1
-  }
-
-  let numerator = n * sum_xy - sum_x * sum_x
-  let denom1 = sqrt_val(n * sum_x2 - sum_x * sum_x)
-  let denom2 = sqrt_val(n * sum_y2 - sum_y * sum_y)
-
-  if denom1 * denom2 > 0.0 {
-    numerator / (denom1 * denom2)
-  } else {
-    0.0
-  }
-}
-
-///|
-/// Perform motif enrichment analysis.
-/// Returns a list of motifs found in a set of sequences with their enrichment scores.
-pub fn motif_enrichment(
-  motifs : Array[Motif],
-  sequences : Array[String],
-  background? : Array[String] = [],
-) -> Array[(String, Double, Double)] {
-  let results : Array[(String, Double, Double)] = Array::new()
-
-  // Count motif occurrences in target sequences
-  let motif_counts : Map[String, Int] = Map([], capacity=motifs.length())
-  let seq_lengths : Map[String, Double] = Map([], capacity=motifs.length())
-
-  let mut mi = 0
-  while mi < motifs.length() {
-    let motif = motifs[mi]
-    let width = motif.pwm.length()
-    let mut total_sites = 0
-
-    let mut si = 0
-    while si < sequences.length() {
-      let seq = sequences[si]
-      let mut pos = 0
-      while pos <= seq.length() - width {
-        let subseq = seq[pos:pos + width].to_owned()
-        let score = score_sequence(
-          pssm_from_pwm(motif.pwm, [0.25, 0.25, 0.25, 0.25]),
-          subseq,
-          motif.alphabet,
-        )
-        if score > 0.0 {
-          total_sites = total_sites + 1
-        }
-        pos = pos + 1
-      }
-      si = si + 1
-    }
-
-    motif_counts.set(motif.name, total_sites)
-    seq_lengths.set(motif.name, sequences.length().to_double())
-    mi = mi + 1
-  }
-
-  // Calculate enrichment score (simplified)
-  let names = motif_counts.keys().collect()
-  let mut ni = 0
-  while ni < names.length() {
-    let name = names[ni]
-    let count = motif_counts[name]
-    let total_seqs = sequences.length().to_double()
-
-    let frequency = if total_seqs > 0.0 {
-      count.to_double() / total_seqs
-    } else {
-      0.0
-    }
-
-    let enrichment = if frequency > 0.0 && total_seqs > 0.0 {
-      log2_val(frequency * total_seqs)
-    } else {
-      0.0
-    }
-
-    results.push((name, count.to_double(), enrichment))
-    ni = ni + 1
-  }
-
-  results
 }
 
 ///|
@@ -610,37 +433,6 @@ pub fn motif_gc_content(motif : Motif) -> Double {
   } else {
     0.0
   }
-}
-
-///|
-/// Generate a random motif with given properties.
-pub fn generate_random_motif(
-  name : String,
-  length : Int,
-  gc_content? : Double = 0.5,
-) -> Motif {
-  let pwm = Array::make(length, Array::make(4, 0.0))
-
-  let at_content = 1.0 - gc_content
-
-  let mut pos = 0
-  while pos < length {
-    let row = Array::make(4, 0.0)
-    // A, T get equal share of AT content
-    // C, G get equal share of GC content
-    let at_share = at_content / 2.0
-    let gc_share = gc_content / 2.0
-
-    row[0] = at_share // A
-    row[1] = gc_share // C
-    row[2] = gc_share // G
-    row[3] = at_share // T
-
-    pwm[pos] = row
-    pos = pos + 1
-  }
-
-  Motif::new(name, pwm, dna_alphabet, [])
 }
 
 ///|
@@ -683,21 +475,6 @@ fn parse_float_str(s : String) -> Double? {
 }
 
 ///|
-/// Calculate the square root of a number.
-fn sqrt_val(x : Double) -> Double {
-  if x <= 0.0 {
-    return 0.0
-  }
-  let mut guess = x / 2.0
-  let mut i = 0
-  while i < 100 {
-    guess = (guess + x / guess) / 2.0
-    i = i + 1
-  }
-  guess
-}
-
-///|
 /// Calculate log2 of a number.
 fn log2_val(x : Double) -> Double {
   if x <= 0.0 {
@@ -705,7 +482,7 @@ fn log2_val(x : Double) -> Double {
   }
   // Use natural log conversion: log2(x) = ln(x) / ln(2)
   let ln2 = 0.6931471805599453
-  let mut result = 0.0
+  let mut _result = 0.0
   let term = (x - 1.0) / (x + 1.0)
   let term2 = term * term
   let mut sum = term

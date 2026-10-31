@@ -7,8 +7,8 @@
 ///|
 /// Generate a deterministic pseudo-random DNA sequence of length `n`
 /// using a simple LCG so results are reproducible across runs.
-fn gen_dna(n : Int) -> String {
-  let buf = StringBuilder::new()
+fn gen_dna(n : Int32) -> String {
+  let buf = StringBuilder()
   let bases = ['A', 'C', 'G', 'T']
   let mut state = 12345
   for i = 0; i < n; i = i + 1 {
@@ -21,7 +21,7 @@ fn gen_dna(n : Int) -> String {
 
 ///|
 /// Measure how long `f` takes when called `iters` times; returns total us.
-fn bench(label : String, iters : Int, f : () -> Unit) -> Double {
+fn bench(label : String, iters : Int32, f : () -> Unit) -> Double {
   let ts = @mb.monotonic_clock_start()
   for i = 0; i < iters; i = i + 1 {
     f()
@@ -37,7 +37,7 @@ fn bench(label : String, iters : Int, f : () -> Unit) -> Double {
 ///|
 /// Measure how long `f` takes when called `iters` times; returns total us.
 /// Supports functions that may raise errors.
-fn bench_err(label : String, iters : Int, f : () -> Unit) -> Double {
+fn bench_err(label : String, iters : Int32, f : () -> Unit) -> Double {
   let ts = @mb.monotonic_clock_start()
   for i = 0; i < iters; i = i + 1 {
     f()
@@ -54,8 +54,8 @@ fn bench_err(label : String, iters : Int, f : () -> Unit) -> Double {
 
 ///|
 /// Generate a FASTA string with `n_records` records, each of length `seq_len`.
-fn gen_fasta(n_records : Int, seq_len : Int) -> String {
-  let buf = StringBuilder::new()
+fn gen_fasta(n_records : Int32, seq_len : Int32) -> String {
+  let buf = StringBuilder()
   for i = 0; i < n_records; i = i + 1 {
     buf.write_char('>')
     buf.write_string("seq")
@@ -72,8 +72,8 @@ fn gen_fasta(n_records : Int, seq_len : Int) -> String {
 
 ///|
 /// Generate a FASTQ string with `n_records` records, each of length `seq_len`.
-fn gen_fastq(n_records : Int, seq_len : Int) -> String {
-  let buf = StringBuilder::new()
+fn gen_fastq(n_records : Int32, seq_len : Int32) -> String {
+  let buf = StringBuilder()
   for i = 0; i < n_records; i = i + 1 {
     buf.write_char('@')
     buf.write_string("seq")
@@ -203,7 +203,9 @@ fn main {
   )
 
   // FASTQ write
-  let fq_records = @lib.parse_fastq(fastq_content) catch { _ => Array::new() }
+  let fq_records = @lib.parse_fastq(fastq_content) catch {
+    _ => Array(capacity=0)
+  }
   ignore(
     bench("write_fastq (100x1000)", iters_small, fn() {
       ignore(@lib.write_fastq(fq_records)) catch {
@@ -422,7 +424,7 @@ fn main {
   )
 
   // Generate a larger tree for more meaningful benchmarks
-  let large_newick_buf = StringBuilder::new()
+  let large_newick_buf = StringBuilder()
   large_newick_buf.write_char('(')
   for i = 0; i < 50; i = i + 1 {
     if i > 0 {
@@ -464,7 +466,7 @@ fn main {
   println("")
 
   // Generate PDB content
-  let pdb_buf = StringBuilder::new()
+  let pdb_buf = StringBuilder()
   pdb_buf.write_string("MODEL     1\n")
   for i = 0; i < 100; i = i + 1 {
     pdb_buf.write_string("ATOM      1  N   ALA A   ")
@@ -579,7 +581,7 @@ fn main {
 
   // BAM to_sam
   let bam_file_opt = @lib.try_parse_bam_base64(test_bam_base64)
-  if bam_file_opt.is_some() {
+  if bam_file_opt is Some(_) {
     let bam_file = bam_file_opt.unwrap()
     ignore(
       bench("BamFile::to_sam", iters_find, fn() { ignore(bam_file.to_sam()) }),
@@ -611,7 +613,7 @@ fn main {
   println("")
 
   // Generate CRAM test data
-  let cram_buf = StringBuilder::new()
+  let cram_buf = StringBuilder()
   cram_buf.write_string("CRAM")
   cram_buf.write_char('\u{0001}')
   cram_buf.write_char('\u{0003}')

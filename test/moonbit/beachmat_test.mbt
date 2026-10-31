@@ -147,12 +147,12 @@ test "bmat_get_row" {
 test "bmat_block_properties" {
   let data = [[1.0, 2.0, 3.0], [4.0, 5.0, 6.0], [7.0, 8.0, 9.0]]
   let bmat = @src.Bmat::new(data, @src.BmatParam::new())
-  let row_starts : Array[Int] = []
-  let row_ends : Array[Int] = []
-  let col_starts : Array[Int] = []
-  let col_ends : Array[Int] = []
-  let block_nrows : Array[Int] = []
-  let block_ncols : Array[Int] = []
+  let row_starts : Array[Int32] = []
+  let row_ends : Array[Int32] = []
+  let col_starts : Array[Int32] = []
+  let col_ends : Array[Int32] = []
+  let block_nrows : Array[Int32] = []
+  let block_ncols : Array[Int32] = []
   @src.bmat_apply_col_blocks(bmat, 2, fn(block) {
     row_starts.push(block.row_start())
     row_ends.push(block.row_end())
@@ -218,8 +218,8 @@ test "bmat_block_get_data" {
 test "bmat_apply_col_blocks_basic" {
   let data = [[1.0, 2.0, 3.0], [4.0, 5.0, 6.0], [7.0, 8.0, 9.0]]
   let bmat = @src.Bmat::new(data, @src.BmatParam::new())
-  let col_starts : Array[Int] = []
-  let col_ends : Array[Int] = []
+  let col_starts : Array[Int32] = []
+  let col_ends : Array[Int32] = []
   @src.bmat_apply_col_blocks(bmat, 2, fn(block) {
     col_starts.push(block.col_start())
     col_ends.push(block.col_end())
@@ -235,7 +235,7 @@ test "bmat_apply_col_blocks_basic" {
 test "bmat_apply_col_blocks_three_blocks" {
   let data = [[1.0, 2.0, 3.0, 4.0, 5.0], [6.0, 7.0, 8.0, 9.0, 10.0]]
   let bmat = @src.Bmat::new(data, @src.BmatParam::new())
-  let col_starts : Array[Int] = []
+  let col_starts : Array[Int32] = []
   @src.bmat_apply_col_blocks(bmat, 2, fn(block) {
     col_starts.push(block.col_start())
   })
@@ -274,8 +274,8 @@ test "bmat_apply_col_blocks_verification" {
 test "bmat_apply_row_blocks_basic" {
   let data = [[1.0, 2.0, 3.0], [4.0, 5.0, 6.0], [7.0, 8.0, 9.0]]
   let bmat = @src.Bmat::new(data, @src.BmatParam::new())
-  let row_starts : Array[Int] = []
-  let row_ends : Array[Int] = []
+  let row_starts : Array[Int32] = []
+  let row_ends : Array[Int32] = []
   @src.bmat_apply_row_blocks(bmat, 2, fn(block) {
     row_starts.push(block.row_start())
     row_ends.push(block.row_end())
@@ -316,7 +316,7 @@ test "bmat_apply_row_blocks_verification" {
 test "bmat_apply_row_blocks_three_blocks" {
   let data = [[1.0, 2.0], [3.0, 4.0], [5.0, 6.0], [7.0, 8.0], [9.0, 10.0]]
   let bmat = @src.Bmat::new(data, @src.BmatParam::new())
-  let row_starts : Array[Int] = []
+  let row_starts : Array[Int32] = []
   @src.bmat_apply_row_blocks(bmat, 2, fn(block) {
     row_starts.push(block.row_start())
   })
@@ -331,7 +331,7 @@ test "bmat_foreach" {
   let data = [[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]]
   let bmat = @src.Bmat::new(data, @src.BmatParam::new())
   let values : Array[Double] = []
-  @src.bmat_foreach(bmat, fn(row, col, val) { values.push(val) })
+  @src.bmat_foreach(bmat, fn(_row, _col, val) { values.push(val) })
   assert_eq(values.length(), 6)
   assert_eq(values[0], 1.0)
   assert_eq(values[1], 2.0)
@@ -345,8 +345,8 @@ test "bmat_foreach" {
 test "bmat_foreach_row_col_verification" {
   let data = [[10.0, 20.0], [30.0, 40.0]]
   let bmat = @src.Bmat::new(data, @src.BmatParam::new())
-  let rows : Array[Int] = []
-  let cols : Array[Int] = []
+  let rows : Array[Int32] = []
+  let cols : Array[Int32] = []
   let vals : Array[Double] = []
   @src.bmat_foreach(bmat, fn(row, col, val) {
     rows.push(row)
@@ -786,7 +786,7 @@ test "bmat_single_element" {
 test "bmat_apply_col_blocks_single_block" {
   let data = [[1.0, 2.0], [3.0, 4.0]]
   let bmat = @src.Bmat::new(data, @src.BmatParam::new())
-  let col_starts : Array[Int] = []
+  let col_starts : Array[Int32] = []
   @src.bmat_apply_col_blocks(bmat, 10, fn(block) {
     col_starts.push(block.col_start())
   })
@@ -798,7 +798,7 @@ test "bmat_apply_col_blocks_single_block" {
 test "bmat_apply_row_blocks_single_block" {
   let data = [[1.0, 2.0], [3.0, 4.0]]
   let bmat = @src.Bmat::new(data, @src.BmatParam::new())
-  let row_starts : Array[Int] = []
+  let row_starts : Array[Int32] = []
   @src.bmat_apply_row_blocks(bmat, 10, fn(block) {
     row_starts.push(block.row_start())
   })
@@ -810,7 +810,7 @@ test "bmat_apply_row_blocks_single_block" {
 test "bmat_apply_col_blocks_exact_fit" {
   let data = [[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]]
   let bmat = @src.Bmat::new(data, @src.BmatParam::new())
-  let col_starts : Array[Int] = []
+  let col_starts : Array[Int32] = []
   @src.bmat_apply_col_blocks(bmat, 3, fn(block) {
     col_starts.push(block.col_start())
   })
@@ -822,7 +822,7 @@ test "bmat_apply_col_blocks_exact_fit" {
 test "bmat_apply_row_blocks_exact_fit" {
   let data = [[1.0, 2.0], [3.0, 4.0], [5.0, 6.0]]
   let bmat = @src.Bmat::new(data, @src.BmatParam::new())
-  let row_starts : Array[Int] = []
+  let row_starts : Array[Int32] = []
   @src.bmat_apply_row_blocks(bmat, 3, fn(block) {
     row_starts.push(block.row_start())
   })
@@ -867,7 +867,7 @@ test "bmat_foreach_empty" {
   let data : Array[Array[Double]] = []
   let bmat = @src.Bmat::new(data, @src.BmatParam::new())
   let values : Array[Double] = []
-  @src.bmat_foreach(bmat, fn(row, col, val) { values.push(val) })
+  @src.bmat_foreach(bmat, fn(_row, _col, val) { values.push(val) })
   assert_eq(values.length(), 0)
 }
 
@@ -943,7 +943,7 @@ test "bmat_get_set_multiple" {
 test "bmat_apply_col_blocks_last_block_partial" {
   let data = [[1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0]]
   let bmat = @src.Bmat::new(data, @src.BmatParam::new())
-  let col_ends : Array[Int] = []
+  let col_ends : Array[Int32] = []
   @src.bmat_apply_col_blocks(bmat, 3, fn(block) {
     col_ends.push(block.col_end())
   })
@@ -957,7 +957,7 @@ test "bmat_apply_col_blocks_last_block_partial" {
 test "bmat_apply_row_blocks_last_block_partial" {
   let data = [[1.0, 2.0], [3.0, 4.0], [5.0, 6.0], [7.0, 8.0], [9.0, 10.0]]
   let bmat = @src.Bmat::new(data, @src.BmatParam::new())
-  let row_ends : Array[Int] = []
+  let row_ends : Array[Int32] = []
   @src.bmat_apply_row_blocks(bmat, 2, fn(block) {
     row_ends.push(block.row_end())
   })

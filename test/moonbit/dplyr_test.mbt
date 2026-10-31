@@ -58,7 +58,7 @@ test "dplyr_filter" {
   let fil_df = @src.dataframe(fil_cols)
   let fil_result = @src.dataframe_filter(fil_df, fn(
     d : @src.DataFrame,
-    i : Int,
+    i : Int32,
   ) -> Bool {
     match d.columns[1].values[i] {
       @src.DataValue::IntValue(a) => a > 28
@@ -82,7 +82,7 @@ test "dplyr_mutate" {
     (
       "age_plus_10",
       @src.data_type_int(),
-      fn(d : @src.DataFrame, i : Int) -> @src.DataValue {
+      fn(d : @src.DataFrame, i : Int32) -> @src.DataValue {
         match d.columns[0].values[i] {
           @src.DataValue::IntValue(a) => @src.data_value_int(a + 10)
           _ => @src.data_value_int(0)

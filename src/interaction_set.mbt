@@ -6,19 +6,19 @@
 /// Anchor for chromatin interaction (genomic region).
 pub struct Anchor {
   chrom : String
-  start : Int
-  end : Int
+  start : Int32
+  end : Int32
 }
 
 ///|
 /// Construct Anchor.
-pub fn Anchor::new(chrom~ : String, start~ : Int, end~ : Int) -> Anchor {
-  Anchor::{ chrom, start, end }
+pub fn Anchor::new(chrom~ : String, start~ : Int32, end~ : Int32) -> Anchor {
+  Anchor::{ chrom, start, end, }
 }
 
 ///|
 /// Get anchor width.
-pub fn Anchor::width(self : Anchor) -> Int {
+pub fn Anchor::width(self : Anchor) -> Int32 {
   self.end - self.start + 1
 }
 
@@ -36,7 +36,7 @@ pub fn anchors_overlap(a1 : Anchor, a2 : Anchor) -> Bool {
 pub struct GInteraction {
   anchor1 : Anchor
   anchor2 : Anchor
-  count : Int
+  count : Int32
 }
 
 ///|
@@ -44,14 +44,14 @@ pub struct GInteraction {
 pub fn GInteraction::new(
   anchor1~ : Anchor,
   anchor2~ : Anchor,
-  count? : Int = 0,
+  count~ : Int32 = 0,
 ) -> GInteraction {
-  GInteraction::{ anchor1, anchor2, count }
+  GInteraction::{ anchor1, anchor2, count, }
 }
 
 ///|
 /// Get interaction distance (bp between anchor midpoints on same chrom).
-pub fn GInteraction::distance(self : GInteraction) -> Int? {
+pub fn GInteraction::distance(self : GInteraction) -> Int32? {
   if self.anchor1.chrom != self.anchor2.chrom {
     return None
   }
@@ -80,21 +80,21 @@ pub fn GInteraction::is_inter_chromosomal(self : GInteraction) -> Bool {
 /// InteractionSet - a collection of genomic interactions.
 pub struct InteractionSet {
   interactions : Array[GInteraction]
-  bin_size : Int
+  bin_size : Int32
 }
 
 ///|
 /// Construct InteractionSet.
 pub fn InteractionSet::new(
   interactions~ : Array[GInteraction],
-  bin_size? : Int = 0,
+  bin_size~ : Int32 = 0,
 ) -> InteractionSet {
-  InteractionSet::{ interactions, bin_size }
+  InteractionSet::{ interactions, bin_size, }
 }
 
 ///|
 /// Get number of interactions.
-pub fn InteractionSet::num_interactions(self : InteractionSet) -> Int {
+pub fn InteractionSet::num_interactions(self : InteractionSet) -> Int32 {
   self.interactions.length()
 }
 
@@ -108,7 +108,7 @@ pub fn InteractionSet::interactions(
 
 ///|
 /// Get total interaction count.
-pub fn InteractionSet::total_count(self : InteractionSet) -> Int {
+pub fn InteractionSet::total_count(self : InteractionSet) -> Int32 {
   let mut total = 0
   for i in self.interactions {
     total = total + i.count
@@ -120,7 +120,7 @@ pub fn InteractionSet::total_count(self : InteractionSet) -> Int {
 /// Filter interactions by minimum count.
 pub fn InteractionSet::filter_by_count(
   self : InteractionSet,
-  min_count : Int,
+  min_count : Int32,
 ) -> InteractionSet {
   let filtered = self.interactions.filter(fn(i) { i.count >= min_count })
   InteractionSet::new(interactions=filtered, bin_size=self.bin_size)
@@ -161,12 +161,12 @@ pub fn InteractionSet::interactions_on_chrom(
 pub fn InteractionSet::interaction_matrix(
   self : InteractionSet,
   chroms : Array[String],
-) -> Array[Array[Int]] {
+) -> Array[Array[Int32]] {
   let n = chroms.length()
-  let matrix : Array[Array[Int]] = Array::new()
+  let matrix : Array[Array[Int32]] = Array(capacity=0)
   let mut i = 0
   while i < n {
-    let row : Array[Int] = Array::make(n, 0)
+    let row : Array[Int32] = Array::make(n, 0)
     matrix.push(row)
     i = i + 1
   }
@@ -197,10 +197,10 @@ pub fn InteractionSet::interaction_matrix(
 /// Get distance distribution (histogram of interaction distances).
 pub fn InteractionSet::distance_distribution(
   self : InteractionSet,
-  bin_width : Int,
-) -> Array[(Int, Int)] {
-  let result : Array[(Int, Int)] = Array::new()
-  let distances : Array[Int] = Array::new()
+  bin_width : Int32,
+) -> Array[(Int32, Int32)] {
+  let result : Array[(Int32, Int32)] = Array(capacity=0)
+  let distances : Array[Int32] = Array(capacity=0)
   for i in self.interactions {
     match i.distance() {
       Some(d) => distances.push(d)
@@ -217,7 +217,7 @@ pub fn InteractionSet::distance_distribution(
     }
   }
   let num_bins = max_dist / bin_width + 1
-  let counts : Array[Int] = Array::make(num_bins, 0)
+  let counts : Array[Int32] = Array::make(num_bins, 0)
   for d in distances {
     let bin = d / bin_width
     counts[bin] = counts[bin] + 1
@@ -236,7 +236,7 @@ pub fn InteractionSet::distance_distribution(
 /// Get top N interactions by count.
 pub fn InteractionSet::top_interactions(
   self : InteractionSet,
-  n : Int,
+  n : Int32,
 ) -> Array[GInteraction] {
   let sorted = self.interactions
   let len = sorted.length()
@@ -253,7 +253,7 @@ pub fn InteractionSet::top_interactions(
     }
     i = i + 1
   }
-  let result : Array[GInteraction] = Array::new()
+  let result : Array[GInteraction] = Array(capacity=0)
   let mut k = 0
   while k < n && k < sorted.length() {
     result.push(sorted[k])
@@ -277,7 +277,7 @@ pub fn InteractionSet::inter_fraction(self : InteractionSet) -> Double {
 ///|
 /// Get anchor regions from interactions.
 pub fn InteractionSet::anchors(self : InteractionSet) -> Array[Anchor] {
-  let result : Array[Anchor] = Array::new()
+  let result : Array[Anchor] = Array(capacity=0)
   for i in self.interactions {
     result.push(i.anchor1)
     result.push(i.anchor2)
@@ -289,10 +289,10 @@ pub fn InteractionSet::anchors(self : InteractionSet) -> Array[Anchor] {
 /// Create a simple Hi-C interaction set from bin data.
 pub fn create_binned_interactions(
   chrom : String,
-  bins : Array[(Int, Int)],
-  counts : Array[Array[Int]],
+  bins : Array[(Int32, Int32)],
+  counts : Array[Array[Int32]],
 ) -> InteractionSet {
-  let interactions : Array[GInteraction] = Array::new()
+  let interactions : Array[GInteraction] = Array(capacity=0)
   let n = bins.length()
   let mut i = 0
   while i < n {

@@ -689,7 +689,7 @@ test "edge_case_hex_round_trip_various_lengths" {
 
 ///|
 test "edge_case_long_sequence_round_trip" {
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   for i in 0..<100 {
     let bases = ["A", "C", "G", "T"]
     sb.write_string(bases[i % 4])

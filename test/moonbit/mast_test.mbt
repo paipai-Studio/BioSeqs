@@ -27,7 +27,7 @@ test "mast_data_new_empty" {
   let expression : Array[Array[Double]] = []
   let gene_names : Array[String] = []
   let cell_names : Array[String] = []
-  let groups : Array[Int] = []
+  let groups : Array[Int32] = []
   let data = @src.MastData::new(expression, gene_names, cell_names, groups)
   assert_eq(data.n_cells, 0)
   assert_eq(data.n_genes, 0)

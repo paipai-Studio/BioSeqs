@@ -86,7 +86,7 @@ pub fn prot_dao_energy_score(aa : UInt16) -> Double {
 ///|
 /// A single residue disorder prediction result.
 pub struct DisorderResidue {
-  position : Int
+  position : Int32
   amino_acid : UInt16
   mut disorder_score : Double
   energy_score : Double
@@ -97,7 +97,7 @@ pub struct DisorderResidue {
 ///|
 /// Create a disorder residue result.
 pub fn DisorderResidue::new(
-  position : Int,
+  position : Int32,
   amino_acid : UInt16,
   disorder_score : Double,
   energy_score : Double,
@@ -115,9 +115,9 @@ pub fn DisorderResidue::new(
 ///|
 /// A region of disorder in the protein sequence.
 pub struct DisorderRegion {
-  start : Int
-  end_ : Int
-  length : Int
+  start : Int32
+  end_ : Int32
+  length : Int32
   avg_score : Double
   max_score : Double
   region_type : String
@@ -126,11 +126,11 @@ pub struct DisorderRegion {
 ///|
 /// Create a disorder region.
 pub fn DisorderRegion::new(
-  start : Int,
-  end_ : Int,
+  start : Int32,
+  end_ : Int32,
   avg_score : Double,
   max_score : Double,
-  region_type? : String = "disordered",
+  region_type~ : String = "disordered",
 ) -> DisorderRegion {
   DisorderRegion::{
     start,
@@ -148,12 +148,12 @@ pub struct DisorderResult {
   sequence : String
   residues : Array[DisorderResidue]
   regions : Array[DisorderRegion]
-  n_disordered : Int
-  n_disordered_long : Int
+  n_disordered : Int32
+  n_disordered_long : Int32
   fraction_disordered : Double
   threshold_disordered : Double
   threshold_long : Double
-  method : String
+  method_ : String
 }
 
 // ============================================================================
@@ -172,11 +172,11 @@ pub struct DisorderResult {
 /// DisorderResult with per-residue scores and predicted regions.
 pub fn prot_dao_predict(
   sequence : String,
-  threshold_disordered? : Double = 0.5,
-  threshold_long? : Double = 0.686,
+  threshold_disordered~ : Double = 0.5,
+  threshold_long~ : Double = 0.686,
 ) -> DisorderResult {
   let seq_len = sequence.length()
-  let residues : Array[DisorderResidue] = Array::new()
+  let residues : Array[DisorderResidue] = Array(capacity=0)
 
   // Step 1: Compute raw disorder scores per residue
   let mut i = 0
@@ -193,7 +193,7 @@ pub fn prot_dao_predict(
   let half_w = window / 2
 
   // Compute smoothed scores
-  let smoothed : Array[Double] = Array::new()
+  let smoothed : Array[Double] = Array(capacity=0)
   let mut si = 0
   while si < seq_len {
     let start = if si - half_w < 0 { 0 } else { si - half_w }
@@ -228,7 +228,7 @@ pub fn prot_dao_predict(
   }
 
   // Step 4: Find contiguous disordered regions
-  let regions : Array[DisorderRegion] = Array::new()
+  let regions : Array[DisorderRegion] = Array(capacity=0)
   let mut ri = 0
   while ri < seq_len {
     if residues[ri].is_disordered {
@@ -283,7 +283,7 @@ pub fn prot_dao_predict(
     fraction_disordered: frac,
     threshold_disordered,
     threshold_long,
-    method: "IUPred-like",
+    method_: "IUPred-like",
   }
 }
 
@@ -293,13 +293,13 @@ pub fn prot_dao_predict(
 
 ///|
 /// Get number of disordered residues.
-pub fn DisorderResult::get_n_disordered(self : DisorderResult) -> Int {
+pub fn DisorderResult::get_n_disordered(self : DisorderResult) -> Int32 {
   self.n_disordered
 }
 
 ///|
 /// Get number of long disordered residues.
-pub fn DisorderResult::get_n_disordered_long(self : DisorderResult) -> Int {
+pub fn DisorderResult::get_n_disordered_long(self : DisorderResult) -> Int32 {
   self.n_disordered_long
 }
 
@@ -319,7 +319,7 @@ pub fn DisorderResult::get_regions(
 
 ///|
 /// Get number of disordered regions.
-pub fn DisorderResult::get_n_regions(self : DisorderResult) -> Int {
+pub fn DisorderResult::get_n_regions(self : DisorderResult) -> Int32 {
   self.regions.length()
 }
 
@@ -349,7 +349,7 @@ pub fn DisorderResult::disordered_sequence(self : DisorderResult) -> String {
   let mut i = 0
   while i < self.residues.length() {
     if self.residues[i].is_disordered {
-      s = s + self.residues[i].amino_acid.to_char().to_string()
+      s = s + self.residues[i].amino_acid.unsafe_to_char().to_string()
     } else {
       s = s + "-"
     }
@@ -361,7 +361,7 @@ pub fn DisorderResult::disordered_sequence(self : DisorderResult) -> String {
 ///|
 /// Get disorder score array.
 pub fn DisorderResult::get_scores(self : DisorderResult) -> Array[Double] {
-  let scores : Array[Double] = Array::new()
+  let scores : Array[Double] = Array(capacity=0)
   let mut i = 0
   while i < self.residues.length() {
     scores.push(self.residues[i].disorder_score)
@@ -374,7 +374,7 @@ pub fn DisorderResult::get_scores(self : DisorderResult) -> Array[Double] {
 /// Summary of disorder prediction.
 pub fn DisorderResult::summary(self : DisorderResult) -> String {
   let mut s = "Disorder Prediction Summary\n"
-  s = s + "Method: " + self.method + "\n"
+  s = s + "Method: " + self.method_ + "\n"
   s = s + "Sequence length: " + self.sequence.length().to_string() + "\n"
   s = s +
     "Disordered residues: " +
@@ -399,9 +399,9 @@ pub fn DisorderResult::summary(self : DisorderResult) -> String {
 /// Format disorder result as ASCII visualization.
 pub fn DisorderResult::to_ascii(
   self : DisorderResult,
-  width? : Int = 80,
+  width~ : Int32 = 80,
 ) -> String {
-  let w = if width > 0 { width } else { 80 }
+  let _w = if width > 0 { width } else { 80 }
   let seq_len = self.sequence.length()
   if seq_len == 0 {
     return "Empty sequence"
@@ -438,7 +438,7 @@ pub fn DisorderResult::to_ascii(
         } else {
           spaces.length()
         }
-        ruler = ruler + spaces.substring(start=0, end=take)
+        ruler = ruler + spaces[0:take].to_owned()
       }
       ruler = ruler + label
     } else {

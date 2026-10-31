@@ -1,11 +1,12 @@
+///|
 fn main {
   println("=== Bioconductor-style impute Demo ===\n")
 
   println("--- 1. Data with missing values ---")
   let data = [
-    [1.0, 2.0, Double::nan(), 4.0, 5.0],
-    [Double::nan(), 7.0, 8.0, Double::nan(), 10.0],
-    [11.0, Double::nan(), 13.0, 14.0, Double::nan()],
+    [1.0, 2.0, @double.not_a_number, 4.0, 5.0],
+    [@double.not_a_number, 7.0, 8.0, @double.not_a_number, 10.0],
+    [11.0, @double.not_a_number, 13.0, 14.0, @double.not_a_number],
   ]
   let stats = @bio.impute_na_stats(data)
   println(@bio.impute_na_summary(stats))
@@ -18,7 +19,9 @@ fn main {
     let mut s = "  row[\{r}]: [".to_string()
     let mut c = 0
     while c < row.length() {
-      if c > 0 { s = s + ", " }
+      if c > 0 {
+        s = s + ", "
+      }
       s = s + row[c].to_string()
       c = c + 1
     }
@@ -35,7 +38,9 @@ fn main {
     let mut s = "  row[\{i}]: [".to_string()
     let mut c = 0
     while c < row.length() {
-      if c > 0 { s = s + ", " }
+      if c > 0 {
+        s = s + ", "
+      }
       s = s + row[c].to_string()
       c = c + 1
     }
@@ -52,7 +57,9 @@ fn main {
     let mut s = "  row[\{j}]: [".to_string()
     let mut c = 0
     while c < row.length() {
-      if c > 0 { s = s + ", " }
+      if c > 0 {
+        s = s + ", "
+      }
       let v = row[c]
       s = s + (if v.is_nan() { "NA".to_string() } else { v.to_string() })
       c = c + 1
@@ -70,7 +77,9 @@ fn main {
     let mut s = "  row[\{k}]: [".to_string()
     let mut c = 0
     while c < row.length() {
-      if c > 0 { s = s + ", " }
+      if c > 0 {
+        s = s + ", "
+      }
       let v = row[c]
       s = s + (if v.is_nan() { "NA".to_string() } else { v.to_string() })
       c = c + 1
@@ -89,7 +98,9 @@ fn main {
     let mut s = "  row[\{m}]: [".to_string()
     let mut c = 0
     while c < row.length() {
-      if c > 0 { s = s + ", " }
+      if c > 0 {
+        s = s + ", "
+      }
       s = s + row[c].to_string()
       c = c + 1
     }

@@ -1,0 +1,392 @@
+///|
+/// scanpy `preprocessing` 核心：`normalize_total`（每细胞文库归一化）、`log1p`、
+/// `scale`（每基因 z-score + 裁剪）、`highly_variable_genes`（Seurat flavor 的
+/// 高变基因检测）。语义对齐 scanpy 源码（`_normalization.py` / `_simple.py` /
+/// `_scale.py` / `_highly_variable_genes.py`），`x` 均为 n_obs × n_vars（行=细胞、
+/// 列=基因）。
+
+///|
+fn col_mean(x : Array[Array[Double]], j : Int32) -> Double {
+  let n = x.length()
+  if n == 0 {
+    return 0.0
+  }
+  let mut s = 0.0
+  let mut i = 0
+  while i < n {
+    s = s + x[i][j]
+    i = i + 1
+  }
+  s / n.to_double()
+}
+
+///|
+fn col_sample_var(x : Array[Array[Double]], j : Int32, mean : Double) -> Double {
+  let n = x.length()
+  if n <= 1 {
+    return 0.0
+  }
+  let mut s = 0.0
+  let mut i = 0
+  while i < n {
+    let d = x[i][j] - mean
+    s = s + d * d
+    i = i + 1
+  }
+  s / (n - 1).to_double()
+}
+
+///|
+/// Normalize each cell to `target_sum` total counts (`pp.normalize_total`):
+/// `x[i][j] = x[i][j] * target_sum / sum(x[i])`. Cells with a zero total are left
+/// at zero.
+pub fn scanpy_normalize_total(
+  x : Array[Array[Double]],
+  target_sum : Double,
+) -> Array[Array[Double]] {
+  let out : Array[Array[Double]] = Array(capacity=0)
+  for row in x {
+    let mut s = 0.0
+    for v in row {
+      s = s + v
+    }
+    let nor : Array[Double] = Array(capacity=0)
+    if s == 0.0 {
+      for _ in row {
+        nor.push(0.0)
+      }
+    } else {
+      let f = target_sum / s
+      for v in row {
+        nor.push(v * f)
+      }
+    }
+    out.push(nor)
+  }
+  out
+}
+
+///|
+/// Natural-log transform `x -> ln(1 + x)` element-wise (`pp.log1p`).
+pub fn scanpy_log1p(x : Array[Array[Double]]) -> Array[Array[Double]] {
+  let out : Array[Array[Double]] = Array(capacity=0)
+  for row in x {
+    let r : Array[Double] = Array(capacity=0)
+    for v in row {
+      r.push(@math.ln(1.0 + v))
+    }
+    out.push(r)
+  }
+  out
+}
+
+///|
+/// Zero-center and unit-variance scale each gene across cells (`pp.scale`,
+/// ddof=1). Genes with zero variance are set to 0. When `max_value` is given the
+/// result is clipped to `[-max_value, max_value]` (matching `pp.scale(max_value=)`).
+pub fn scanpy_scale(
+  x : Array[Array[Double]],
+  max_value : Double?,
+) -> Array[Array[Double]] {
+  let n_genes = if x.length() == 0 { 0 } else { x[0].length() }
+  let out : Array[Array[Double]] = Array(capacity=0)
+  let mut i = 0
+  while i < x.length() {
+    out.push(Array::make(n_genes, 0.0))
+    i = i + 1
+  }
+  for j = 0; j < n_genes; j = j + 1 {
+    let mean = col_mean(x, j)
+    let variance = col_sample_var(x, j, mean)
+    let std = if variance > 0.0 { variance.sqrt() } else { 0.0 }
+    let mut r = 0
+    while r < x.length() {
+      let z = if std == 0.0 { 0.0 } else { (x[r][j] - mean) / std }
+      let mut v = z
+      match max_value {
+        None => ()
+        Some(mx) => if v > mx { v = mx } else if v < -mx { v = -mx }
+      }
+      out[r][j] = v
+      r = r + 1
+    }
+  }
+  out
+}
+
+///|
+/// Seurat flavor `highly_variable_genes`.
+pub struct HvgResult {
+  means : Array[Double]
+  dispersions : Array[Double]
+  dispersions_norm : Array[Double]
+  highly_variable : Array[Bool]
+}
+
+///|
+fn dmin(a : Array[Double]) -> Double {
+  let mut m = a[0]
+  for v in a {
+    if v < m {
+      m = v
+    }
+  }
+  m
+}
+
+///|
+fn dmax(a : Array[Double]) -> Double {
+  let mut m = a[0]
+  for v in a {
+    if v > m {
+      m = v
+    }
+  }
+  m
+}
+
+///|
+fn is_nan(v : Double) -> Bool {
+  v != v
+}
+
+///|
+/// Identify highly variable genes using the Seurat `vst` heuristic (`flavor=
+/// "seurat"`): per gene compute mean and sample variance across cells, dispersion
+/// = var/mean, then log both dispersion and (log1p'd) mean; bin genes into
+/// `n_bins` equal-width bins on the log1p mean, z-score the log dispersion within
+/// each bin, and flag genes whose log1p mean falls in `(min_mean, max_mean)` and
+/// whose binned z-score exceeds `min_disp`. Matches scanpy defaults
+/// (n_bins=20, min_disp=0.5, min_mean=0.0125, max_mean=3).
+pub fn scanpy_highly_variable_genes(
+  x : Array[Array[Double]],
+  n_bins : Int32,
+  min_mean : Double,
+  max_mean : Double,
+  min_disp : Double,
+) -> HvgResult {
+  let n_genes = if x.length() == 0 { 0 } else { x[0].length() }
+  let means : Array[Double] = Array(capacity=0)
+  let dispersions : Array[Double] = Array(capacity=0)
+  let mut j = 0
+  while j < n_genes {
+    let raw_mean = col_mean(x, j)
+    let variance = col_sample_var(x, j, raw_mean)
+    let m_adj = if raw_mean == 0.0 { 1.0e-12 } else { raw_mean }
+    let d = variance / m_adj
+    means.push(@math.ln(1.0 + m_adj))
+    if d == 0.0 {
+      dispersions.push(0.0 / 0.0)
+    } else {
+      dispersions.push(@math.ln(d))
+    }
+    j = j + 1
+  }
+  let dispersions_norm : Array[Double] = Array::make(n_genes, 0.0)
+  if n_genes > 0 {
+    let mn = dmin(means)
+    let mx = dmax(means)
+    let width = if mx == mn { 1.0 } else { (mx - mn) / n_bins.to_double() }
+    // per-bin accumulation of valid log-dispersions
+    let bin_count : Array[Int32] = Array::make(n_bins, 0)
+    let bin_sum : Array[Double] = Array::make(n_bins, 0.0)
+    let bin_sumsq : Array[Double] = Array::make(n_bins, 0.0)
+    let gene_bin : Array[Int32] = Array::make(n_genes, 0)
+    let mut g = 0
+    while g < n_genes {
+      let b = if width == 1.0 {
+        0
+      } else {
+        let t = ((means[g] - mn) / width).to_int()
+        if t >= n_bins {
+          n_bins - 1
+        } else if t < 0 {
+          0
+        } else {
+          t
+        }
+      }
+      gene_bin[g] = b
+      if !is_nan(dispersions[g]) {
+        bin_count[b] = bin_count[b] + 1
+        bin_sum[b] = bin_sum[b] + dispersions[g]
+        bin_sumsq[b] = bin_sumsq[b] + dispersions[g] * dispersions[g]
+      }
+      g = g + 1
+    }
+    // z-score within bin
+    let mut k = 0
+    while k < n_genes {
+      let b = gene_bin[k]
+      if bin_count[b] >= 2 {
+        let avg = bin_sum[b] / bin_count[b].to_double()
+        let dev = ((bin_sumsq[b] - bin_count[b].to_double() * avg * avg) /
+        (bin_count[b] - 1).to_double()).sqrt()
+        if dev > 0.0 && !is_nan(dispersions[k]) {
+          dispersions_norm[k] = (dispersions[k] - avg) / dev
+        }
+      } else if !is_nan(dispersions[k]) {
+        // single valid gene in bin -> normalized dispersion of 1
+        dispersions_norm[k] = 1.0
+      } else {
+        // constant gene (zero dispersion) -> NaN, excluded from HV
+        dispersions_norm[k] = 0.0 / 0.0
+      }
+      k = k + 1
+    }
+  }
+  let highly_variable : Array[Bool] = Array::make(n_genes, false)
+  let mut h = 0
+  while h < n_genes {
+    if means[h] > min_mean &&
+      means[h] < max_mean &&
+      dispersions_norm[h] > min_disp {
+      highly_variable[h] = true
+    }
+    h = h + 1
+  }
+  HvgResult::{ means, dispersions, dispersions_norm, highly_variable, }
+}
+
+///|
+/// Regress out unwanted sources of variation by linear least squares
+/// (`scanpy.pp.regress_out`, numeric covariates). Fits `X ~ [1, covariates]`
+/// per gene and returns the residuals, removing the linear effect of the
+/// confounders (including the intercept).
+pub fn scanpy_regress_out(
+  x : Array[Array[Double]],
+  covariates : Array[Array[Double]],
+) -> Array[Array[Double]] {
+  let n_obs = x.length()
+  let n_vars = if n_obs > 0 { x[0].length() } else { 0 }
+  let n_cov = if n_obs > 0 { covariates[0].length() } else { 0 }
+  // R = [1 | covariates]
+  let r : Array[Array[Double]] = Array(capacity=0)
+  for i = 0; i < n_obs; i = i + 1 {
+    let row : Array[Double] = Array(capacity=0)
+    row.push(1.0)
+    for d = 0; d < n_cov; d = d + 1 {
+      row.push(covariates[i][d])
+    }
+    r.push(row)
+  }
+  let rt = linalg_transpose(r)
+  let gram = linalg_mat_mul(rt, r)
+  let gram_inv = linalg_inverse(gram)
+  let rt_x = linalg_mat_mul(rt, x)
+  let coeff = linalg_mat_mul(gram_inv, rt_x)
+  let fitted = linalg_mat_mul(r, coeff)
+  let resid : Array[Array[Double]] = Array(capacity=0)
+  for i = 0; i < n_obs; i = i + 1 {
+    let row : Array[Double] = Array(capacity=0)
+    for j = 0; j < n_vars; j = j + 1 {
+      row.push(x[i][j] - fitted[i][j])
+    }
+    resid.push(row)
+  }
+  resid
+}
+
+// ============================================================================
+// filter_cells / filter_genes / one-hot / regress_out categorical
+// ============================================================================
+
+///|
+/// Keep only cells expressing at least `min_genes` genes (`pp.filter_cells`).
+/// `x` is n_obs × n_vars; a gene is "expressed" when its count is > 0.
+pub fn scanpy_filter_cells(
+  x : Array[Array[Double]],
+  min_genes : Int32,
+) -> Array[Array[Double]] {
+  let out : Array[Array[Double]] = Array(capacity=0)
+  for row in x {
+    let mut n_expressed = 0
+    for v in row {
+      if v > 0.0 {
+        n_expressed = n_expressed + 1
+      }
+    }
+    if n_expressed >= min_genes {
+      out.push(row)
+    }
+  }
+  out
+}
+
+///|
+/// Keep only genes expressed in at least `min_cells` cells (`pp.filter_genes`).
+/// `x` is n_obs × n_vars.
+pub fn scanpy_filter_genes(
+  x : Array[Array[Double]],
+  min_cells : Int32,
+) -> Array[Array[Double]] {
+  let n_cells = x.length()
+  let n_genes = if n_cells > 0 { x[0].length() } else { 0 }
+  let expressed : Array[Int32] = Array::make(n_genes, 0)
+  for j = 0; j < n_genes; j = j + 1 {
+    let mut c = 0
+    for i = 0; i < n_cells; i = i + 1 {
+      if x[i][j] > 0.0 {
+        c = c + 1
+      }
+    }
+    expressed[j] = c
+  }
+  let out : Array[Array[Double]] = Array(capacity=0)
+  for i = 0; i < n_cells; i = i + 1 {
+    let row : Array[Double] = Array(capacity=0)
+    for j = 0; j < n_genes; j = j + 1 {
+      if expressed[j] >= min_cells {
+        row.push(x[i][j])
+      }
+    }
+    out.push(row)
+  }
+  out
+}
+
+///|
+/// One-hot encode a categorical covariate (used to feed `regress_out` with
+/// categories). Levels are kept in first-appearance order.
+pub fn scanpy_one_hot(categories : Array[String]) -> Array[Array[Double]] {
+  let levels : Array[String] = Array(capacity=0)
+  for c in categories {
+    let mut found = false
+    for l in levels {
+      if l == c {
+        found = true
+        break
+      }
+    }
+    if !found {
+      levels.push(c)
+    }
+  }
+  let nlev = levels.length()
+  let out : Array[Array[Double]] = Array(capacity=0)
+  for c in categories {
+    let mut idx = 0
+    for j = 0; j < nlev; j = j + 1 {
+      if levels[j] == c {
+        idx = j
+        break
+      }
+    }
+    let row : Array[Double] = Array(capacity=0)
+    for j = 0; j < nlev; j = j + 1 {
+      row.push(if j == idx { 1.0 } else { 0.0 })
+    }
+    out.push(row)
+  }
+  out
+}
+
+///|
+/// Regress out a categorical covariate by one-hot encoding it and calling
+/// `scanpy_regress_out`.
+pub fn scanpy_regress_out_categorical(
+  x : Array[Array[Double]],
+  categories : Array[String],
+) -> Array[Array[Double]] {
+  scanpy_regress_out(x, scanpy_one_hot(categories))
+}

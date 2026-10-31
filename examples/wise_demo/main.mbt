@@ -85,7 +85,7 @@ fn main {
   let gene_seq = wise_build_gene_sequence()
   println("Gene sequence length: \{gene_seq.length()} nt")
   let translated = @bio.wise_translate_gene(result, gene_seq)
-  println("Translated protein (first 20 aa): \{translated.substring(start=0, end=20).to_string()}")
+  println("Translated protein (first 20 aa): \{repr(translated[0:20])}")
   println("Total translated length: \{translated.length()} aa")
   // Build a matching protein to compute identity.
   // Exon 1 (100 nt) -> 33 M's, Exon 2 (100 nt) -> 33 A's, Exon 3 (80 nt) -> 26 G's
@@ -123,7 +123,9 @@ fn main {
   )
   seg1.wise_result.set_protein_id("P12345")
   seg1.wise_result.set_gene_id("G67890")
-  seg1.wise_result.add_exon(@bio.WiseExon::new(start=0, end=99, phase=0, score=45.5))
+  seg1.wise_result.add_exon(
+    @bio.WiseExon::new(start=0, end=99, phase=0, score=45.5),
+  )
   let seg2 = @bio.GenomeWiseSegment::new(
     segment_id="segment_2",
     start=1000,
@@ -132,14 +134,18 @@ fn main {
   )
   seg2.wise_result.set_protein_id("P12345")
   seg2.wise_result.set_gene_id("G67890")
-  seg2.wise_result.add_exon(@bio.WiseExon::new(start=0, end=99, phase=0, score=52.3))
+  seg2.wise_result.add_exon(
+    @bio.WiseExon::new(start=0, end=99, phase=0, score=52.3),
+  )
   gw.add_segment(seg1)
   gw.add_segment(seg2)
   println("GenomeWise segments: \{gw.get_num_segments()}")
   let segs = gw.get_segments()
   for i in 0..<segs.length() {
     let s = segs[i]
-    println("Segment \{i + 1}: id=\{s.segment_id}, range=\{s.start}-\{s.end}, score=\{s.score}, exons=\{s.wise_result.get_num_exons()}")
+    println(
+      "Segment \{i + 1}: id=\{s.segment_id}, range=\{s.start}-\{s.end}, score=\{s.score}, exons=\{s.wise_result.get_num_exons()}",
+    )
   }
   println("")
   println("=== Wise Module Demo Complete ===")
@@ -166,13 +172,15 @@ fn wise_build_gene_sequence() -> String {
 /// Build the expected protein from the sample exons.
 /// Exon 1 (100 nt) -> 33 M's, Exon 2 (100 nt) -> 33 A's, Exon 3 (80 nt) -> 26 G's
 fn wise_build_expected_protein() -> String {
-  wise_repeat_char('M', 33) + wise_repeat_char('A', 33) + wise_repeat_char('G', 26)
+  wise_repeat_char('M', 33) +
+  wise_repeat_char('A', 33) +
+  wise_repeat_char('G', 26)
 }
 
 ///|
 /// Repeat a pattern string to fill an exact length.
-fn wise_repeat_pattern(pattern : String, length : Int) -> String {
-  let sb = StringBuilder::new()
+fn wise_repeat_pattern(pattern : String, length : Int32) -> String {
+  let sb = StringBuilder()
   let chars = pattern.to_array()
   let plen = chars.length()
   for i in 0..<length {
@@ -183,8 +191,8 @@ fn wise_repeat_pattern(pattern : String, length : Int) -> String {
 
 ///|
 /// Repeat a character to fill an exact length.
-fn wise_repeat_char(c : Char, length : Int) -> String {
-  let sb = StringBuilder::new()
+fn wise_repeat_char(c : Char, length : Int32) -> String {
+  let sb = StringBuilder()
   for _ in 0..<length {
     sb.write_char(c)
   }

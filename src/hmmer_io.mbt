@@ -28,7 +28,7 @@ fn hmmer_io_split_whitespace(s : String) -> Array[String] {
     let is_ws = c == ' '.to_int() || c == '\t'.to_int() || c == '\r'.to_int()
     if is_ws {
       if in_token {
-        tokens.push(s[start:i].to_string())
+        tokens.push(s[start:i].to_owned())
         in_token = false
       }
     } else if !in_token {
@@ -38,7 +38,7 @@ fn hmmer_io_split_whitespace(s : String) -> Array[String] {
     i = i + 1
   }
   if in_token {
-    tokens.push(s[start:n].to_string())
+    tokens.push(s[start:n].to_owned())
   }
   tokens
 }
@@ -70,7 +70,7 @@ fn hmmer_io_parse_double(s : String) -> Double {
 }
 
 ///|
-fn hmmer_io_parse_int(s : String) -> Int {
+fn hmmer_io_parse_int(s : String) -> Int32 {
   parse_int(s)
 }
 
@@ -152,7 +152,6 @@ pub fn parse_hmmer3_domtab(content : String) -> Array[QueryResult] {
     let hit = HmmerDomHit::{
       target_name,
       target_acc,
-      query_name,
       query_acc,
       evalue_full,
       score_full,
@@ -313,24 +312,23 @@ pub fn parse_hmmer3_domtab(content : String) -> Array[QueryResult] {
 
 ///|
 /// Intermediate domain-table row record.
-struct HmmerDomHit {
+priv struct HmmerDomHit {
   target_name : String
   target_acc : String
-  query_name : String
   query_acc : String
   evalue_full : Double
   score_full : Double
-  dom_idx : Int
-  dom_total : Int
+  dom_idx : Int32
+  dom_total : Int32
   c_evalue : Double
   i_evalue : Double
   score_dom : Double
-  hmm_from : Int
-  hmm_to : Int
-  ali_from : Int
-  ali_to : Int
-  env_from : Int
-  env_to : Int
+  hmm_from : Int32
+  hmm_to : Int32
+  ali_from : Int32
+  ali_to : Int32
+  env_from : Int32
+  env_to : Int32
   description : String
 }
 
@@ -568,7 +566,7 @@ fn hmmer_io_trim(s : String) -> String {
       break
     }
   }
-  s[start:end].to_string()
+  s[start:end].to_owned()
 }
 
 ///|
@@ -591,7 +589,7 @@ fn hmmer_io_substr_after(s : String, marker : String) -> String {
       j = j + 1
     }
     if matched {
-      return s[i + m:n].to_string()
+      return s[i + m:n].to_owned()
     }
     i = i + 1
   }
@@ -656,7 +654,7 @@ pub fn hmmer3_text_sample() -> String {
 ///|
 /// Return the number of HSP fragments across all hits in a QueryResult.
 /// (Convenience alias; same semantics as count_hsps in search_io.mbt.)
-pub fn hmmer_io_count_hsps(qr : QueryResult) -> Int {
+pub fn hmmer_io_count_hsps(qr : QueryResult) -> Int32 {
   let mut total = 0
   let mut i = 0
   while i < qr.hits.length() {

@@ -66,17 +66,17 @@ fn main {
   for r in result.results() {
     println(
       "  " +
-        r.feature() +
-        ": logFC=" +
-        r.log_fold_change().to_string() +
-        ", W=" +
-        r.w_stat().to_string() +
-        ", p=" +
-        r.p_value().to_string() +
-        ", q=" +
-        r.q_value().to_string() +
-        ", sig=" +
-        r.significant().to_string(),
+      r.feature() +
+      ": logFC=" +
+      r.log_fold_change().to_string() +
+      ", W=" +
+      r.w_stat().to_string() +
+      ", p=" +
+      r.p_value().to_string() +
+      ", q=" +
+      r.q_value().to_string() +
+      ", sig=" +
+      r.significant().to_string(),
     )
   }
   println("")

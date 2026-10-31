@@ -513,7 +513,7 @@ test "reverse_complement_non_acgt_passthrough" {
 
 ///|
 test "pwm_from_counts_empty" {
-  let counts : Array[Array[Int]] = []
+  let counts : Array[Array[Int32]] = []
   let pwm = @src.motif_scan_pwm_from_counts("E", "Empty", counts, 1.0)
   assert_eq(pwm.matrix.length(), 0)
 }

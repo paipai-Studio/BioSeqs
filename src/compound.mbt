@@ -9,7 +9,7 @@ pub struct Compound {
   id : String
   name : String
   formula : String
-  charge : Int
+  charge : Int32
   smiles : String
   inchikey : String
   inchi : String
@@ -43,7 +43,7 @@ pub fn Compound::with_chemical(
   id : String,
   name : String,
   formula : String,
-  charge : Int,
+  charge : Int32,
   smiles : String,
 ) -> Compound {
   Compound::{
@@ -100,13 +100,13 @@ pub fn Compound::set_formula(self : Compound, formula : String) -> Compound {
 
 ///|
 /// Get charge.
-pub fn Compound::get_charge(self : Compound) -> Int {
+pub fn Compound::get_charge(self : Compound) -> Int32 {
   self.charge
 }
 
 ///|
 /// Set charge.
-pub fn Compound::set_charge(self : Compound, charge : Int) -> Compound {
+pub fn Compound::set_charge(self : Compound, charge : Int32) -> Compound {
   let c = self
   Compound::{
     id: c.id,
@@ -156,10 +156,10 @@ pub fn Compound::get_aliases(self : Compound) -> Array[String] {
 
 ///|
 /// Add an alias.
-pub fn Compound::add_alias(self : Compound, alias : String) -> Compound {
+pub fn Compound::add_alias(self : Compound, alias_ : String) -> Compound {
   let c = self
   let new_aliases = c.aliases.copy()
-  new_aliases.push(alias)
+  new_aliases.push(alias_)
   Compound::{
     id: c.id,
     name: c.name,
@@ -277,28 +277,28 @@ pub fn Compound::to_string(self : Compound) -> String {
 ///|
 /// Calculate molecular formula from a string representation.
 /// Supports formats like "C6H12O6" (glucose).
-pub fn parse_formula(formula : String) -> Map[String, Int] {
-  let counts : Map[String, Int] = Map([], capacity=20)
+pub fn parse_formula(formula : String) -> Map[String, Int32] {
+  let counts : Map[String, Int32] = Map([], capacity=20)
   let mut i = 0
   let len = formula.length()
 
   while i < len {
-    let c = formula.substring(start=i, end=i + 1)
+    let c = formula[i:i + 1]
 
     if c >= "A" && c <= "Z" {
-      let mut atom = c
+      let mut atom = c.to_owned()
       i = i + 1
       if i < len {
-        let next_c = formula.substring(start=i, end=i + 1)
+        let next_c = formula[i:i + 1]
         if next_c >= "a" && next_c <= "z" {
-          atom = atom + next_c
+          atom = atom + next_c.to_owned()
           i = i + 1
         }
       }
 
       let mut count = ""
       while i < len {
-        let digit = formula.substring(start=i, end=i + 1)
+        let digit = formula[i:i + 1].to_owned()
         if digit >= "0" && digit <= "9" {
           count = count + digit
           i = i + 1
@@ -319,59 +319,6 @@ pub fn parse_formula(formula : String) -> Map[String, Int] {
   }
 
   counts
-}
-
-///|
-/// Get molecular formula as a string from parsed counts.
-pub fn formula_to_string(counts : Map[String, Int]) -> String {
-  let mut result = ""
-  let elements = [
-    "C", "H", "N", "O", "S", "P", "Fe", "Mg", "Ca", "K", "Na", "Cl", "Br", "I",
-  ]
-
-  let mut i = 0
-  while i < elements.length() {
-    let el = elements[i]
-    match counts.get(el) {
-      Some(n) =>
-        if n > 0 {
-          result = result + el
-          if n > 1 {
-            result = result + n.to_string()
-          }
-        }
-      None => ()
-    }
-    i = i + 1
-  }
-
-  // Add any remaining elements not in the predefined list
-  let counted = elements.copy()
-  for el in counts.keys() {
-    let mut found = false
-    let mut j = 0
-    while j < counted.length() {
-      if counted[j] == el {
-        found = true
-        break
-      }
-      j = j + 1
-    }
-    if !found {
-      match counts.get(el) {
-        Some(n) =>
-          if n > 0 {
-            result = result + el
-            if n > 1 {
-              result = result + n.to_string()
-            }
-          }
-        None => ()
-      }
-    }
-  }
-
-  result
 }
 
 ///|
@@ -626,7 +573,7 @@ pub struct CompoundPathwayMap {
 ///|
 /// Create a new pathway map.
 pub fn CompoundPathwayMap::new(name : String) -> CompoundPathwayMap {
-  CompoundPathwayMap::{ name, compounds: [], reactions: [], description: "" }
+  CompoundPathwayMap::{ name, compounds: [], reactions: [], description: "", }
 }
 
 ///|

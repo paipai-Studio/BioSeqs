@@ -25,11 +25,11 @@ fn main {
     let mean_u = gd.unspliced()[0]
     println(
       "  " +
-        gd.gene_name() +
-        ": spliced[0]=" +
-        mean_s.to_string() +
-        " unspliced[0]=" +
-        mean_u.to_string(),
+      gd.gene_name() +
+      ": spliced[0]=" +
+      mean_s.to_string() +
+      " unspliced[0]=" +
+      mean_u.to_string(),
     )
   }
   println("")
@@ -40,17 +40,18 @@ fn main {
   println("=== 2. Steady-State Model ===")
   for gd in gene_data {
     let (ratio, ss_s, ss_u) = @bio.velocity_steady_state(
-      gd.spliced(), gd.unspliced()
+      gd.spliced(),
+      gd.unspliced(),
     )
     println(
       "  " +
-        gd.gene_name() +
-        ": gamma/beta=" +
-        ratio.to_string() +
-        " ss_s=" +
-        ss_s.to_string() +
-        " ss_u=" +
-        ss_u.to_string(),
+      gd.gene_name() +
+      ": gamma/beta=" +
+      ratio.to_string() +
+      " ss_s=" +
+      ss_s.to_string() +
+      " ss_u=" +
+      ss_u.to_string(),
     )
   }
   println("")
@@ -59,23 +60,26 @@ fn main {
   // 3. Kinetic model (EM)
   // ------------------------------------------------------------------
   println("=== 3. Kinetic Model (EM) ===")
-  let kinetics : Array[@bio.GeneKinetics] = Array::new()
+  let kinetics : Array[@bio.GeneKinetics] = Array(capacity=0)
   for gd in gene_data {
     let k = @bio.velocity_kinetic_model(
-      gd.gene_name(), gd.spliced(), gd.unspliced(), 50
+      gd.gene_name(),
+      gd.spliced(),
+      gd.unspliced(),
+      50,
     )
     kinetics.push(k)
     println(
       "  " +
-        k.gene_name() +
-        ": alpha=" +
-        k.alpha().to_string() +
-        " beta=" +
-        k.beta().to_string() +
-        " gamma=" +
-        k.gamma().to_string() +
-        " likelihood=" +
-        k.likelihood().to_string(),
+      k.gene_name() +
+      ": alpha=" +
+      k.alpha().to_string() +
+      " beta=" +
+      k.beta().to_string() +
+      " gamma=" +
+      k.gamma().to_string() +
+      " likelihood=" +
+      k.likelihood().to_string(),
     )
   }
   println("")
@@ -94,7 +98,13 @@ fn main {
       max_speed_cell = i
     }
   }
-  println("Max speed cell: " + max_speed_cell.to_string() + " (speed=" + max_speed.to_string() + ")")
+  println(
+    "Max speed cell: " +
+    max_speed_cell.to_string() +
+    " (speed=" +
+    max_speed.to_string() +
+    ")",
+  )
   // Show velocity for first 5 cells.
   for i in 0..<5 {
     let v = velocities[i]
@@ -106,7 +116,14 @@ fn main {
       }
     }
     vel_str = vel_str + "]"
-    println("  Cell " + i.to_string() + ": vel=" + vel_str + " speed=" + v.speed().to_string())
+    println(
+      "  Cell " +
+      i.to_string() +
+      ": vel=" +
+      vel_str +
+      " speed=" +
+      v.speed().to_string(),
+    )
   }
   println("")
 
@@ -121,16 +138,16 @@ fn main {
     let ev = emb_vel[i]
     println(
       "  Cell " +
-        i.to_string() +
-        ": pos=[" +
-        ev.embedding()[0].to_string() +
-        ", " +
-        ev.embedding()[1].to_string() +
-        "] vel=[" +
-        ev.velocity_embedding()[0].to_string() +
-        ", " +
-        ev.velocity_embedding()[1].to_string() +
-        "]",
+      i.to_string() +
+      ": pos=[" +
+      ev.embedding()[0].to_string() +
+      ", " +
+      ev.embedding()[1].to_string() +
+      "] vel=[" +
+      ev.velocity_embedding()[0].to_string() +
+      ", " +
+      ev.velocity_embedding()[1].to_string() +
+      "]",
     )
   }
   println("")
@@ -144,10 +161,10 @@ fn main {
   for r in roots {
     println(
       "  Cell " +
-        r.to_string() +
-        " (speed=" +
-        velocities[r].speed().to_string() +
-        ")",
+      r.to_string() +
+      " (speed=" +
+      velocities[r].speed().to_string() +
+      ")",
     )
   }
   println("")
@@ -157,12 +174,22 @@ fn main {
   // ------------------------------------------------------------------
   println("=== 7. Transition Matrix ===")
   let matrix = @bio.velocity_transition_matrix(velocities, embeddings, 5, 1.0)
-  println("Transition matrix: " + matrix.length().to_string() + " x " + matrix.length().to_string())
+  println(
+    "Transition matrix: " +
+    matrix.length().to_string() +
+    " x " +
+    matrix.length().to_string(),
+  )
   // Show transition probabilities for cell 0.
   let mut row_str = "  Cell 0 -> "
   for j in 0..<5 {
     if matrix[0][j] > 0.0 {
-      row_str = row_str + "cell" + j.to_string() + "(" + matrix[0][j].to_string() + ") "
+      row_str = row_str +
+        "cell" +
+        j.to_string() +
+        "(" +
+        matrix[0][j].to_string() +
+        ") "
     }
   }
   println(row_str)

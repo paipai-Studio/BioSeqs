@@ -18,7 +18,13 @@ pub enum NWTrace {
   Up // gap in seq2 (deletion): comes from (i-1, j)
   Left // gap in seq1 (insertion): comes from (i, j-1)
   Start // only used at (0, 0) to terminate traceback
-} derive(Eq, Show)
+} derive(Eq, Debug)
+
+///|
+pub extend NWTrace with Eq::{equal, not_equal}
+
+///|
+pub extend NWTrace with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Scoring scheme for global alignment.
@@ -38,19 +44,19 @@ pub fn NWScoring::new(
   mismatch_penalty : Double,
   gap_penalty : Double,
 ) -> NWScoring {
-  NWScoring::{ match_reward, mismatch_penalty, gap_penalty }
+  NWScoring::{ match_reward, mismatch_penalty, gap_penalty, }
 }
 
 ///|
 /// Default DNA scoring: match=2, mismatch=-1, gap=-1.
 pub fn NWScoring::default_dna() -> NWScoring {
-  NWScoring::{ match_reward: 2.0, mismatch_penalty: -1.0, gap_penalty: -1.0 }
+  NWScoring::{ match_reward: 2.0, mismatch_penalty: -1.0, gap_penalty: -1.0, }
 }
 
 ///|
 /// Default protein scoring: match=5, mismatch=-4, gap=-3.
 pub fn NWScoring::default_protein() -> NWScoring {
-  NWScoring::{ match_reward: 5.0, mismatch_penalty: -4.0, gap_penalty: -3.0 }
+  NWScoring::{ match_reward: 5.0, mismatch_penalty: -4.0, gap_penalty: -3.0, }
 }
 
 ///|
@@ -102,13 +108,13 @@ pub fn NWResult::trace_matrix(self : NWResult) -> Array[Array[NWTrace]] {
 
 ///|
 /// Get alignment length (both aligned sequences have the same length).
-pub fn NWResult::alignment_length(self : NWResult) -> Int {
+pub fn NWResult::alignment_length(self : NWResult) -> Int32 {
   self.aligned_seq1.length()
 }
 
 ///|
 /// Count the number of matches in the alignment.
-pub fn NWResult::num_matches(self : NWResult) -> Int {
+pub fn NWResult::num_matches(self : NWResult) -> Int32 {
   let mut count = 0
   for i = 0; i < self.match_line.length(); i = i + 1 {
     if self.match_line.unsafe_get(i).unsafe_to_char() == '|' {
@@ -120,7 +126,7 @@ pub fn NWResult::num_matches(self : NWResult) -> Int {
 
 ///|
 /// Count the number of mismatches (excluding gaps).
-pub fn NWResult::num_mismatches(self : NWResult) -> Int {
+pub fn NWResult::num_mismatches(self : NWResult) -> Int32 {
   let mut count = 0
   for i = 0; i < self.match_line.length(); i = i + 1 {
     if self.match_line.unsafe_get(i).unsafe_to_char() == '.' {
@@ -132,7 +138,7 @@ pub fn NWResult::num_mismatches(self : NWResult) -> Int {
 
 ///|
 /// Count the number of gap positions in sequence 1.
-pub fn NWResult::num_gaps_seq1(self : NWResult) -> Int {
+pub fn NWResult::num_gaps_seq1(self : NWResult) -> Int32 {
   let mut count = 0
   for i = 0; i < self.aligned_seq1.length(); i = i + 1 {
     if self.aligned_seq1.unsafe_get(i).unsafe_to_char() == '-' {
@@ -144,7 +150,7 @@ pub fn NWResult::num_gaps_seq1(self : NWResult) -> Int {
 
 ///|
 /// Count the number of gap positions in sequence 2.
-pub fn NWResult::num_gaps_seq2(self : NWResult) -> Int {
+pub fn NWResult::num_gaps_seq2(self : NWResult) -> Int32 {
   let mut count = 0
   for i = 0; i < self.aligned_seq2.length(); i = i + 1 {
     if self.aligned_seq2.unsafe_get(i).unsafe_to_char() == '-' {
@@ -167,7 +173,7 @@ pub fn NWResult::percent_identity(self : NWResult) -> Double {
 ///|
 /// Format the alignment as a readable block (3 lines).
 pub fn NWResult::format(self : NWResult) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string(self.aligned_seq1)
   buf.write_char('\n')
   buf.write_string(self.match_line)
@@ -179,8 +185,8 @@ pub fn NWResult::format(self : NWResult) -> String {
 ///|
 /// Format the alignment with line wrapping for long sequences.
 /// `width` — number of characters per line.
-pub fn NWResult::format_wrapped(self : NWResult, width : Int) -> String {
-  let buf = StringBuilder::new()
+pub fn NWResult::format_wrapped(self : NWResult, width : Int32) -> String {
+  let buf = StringBuilder()
   let total = self.aligned_seq1.length()
   let mut start = 0
   let mut block = 1
@@ -225,11 +231,11 @@ pub fn needleman_wunsch(
   let n = seq1.length()
   let m = seq2.length()
   // Build score matrix: (n+1) x (m+1).
-  let dp : Array[Array[Double]] = Array::new()
-  let trace : Array[Array[NWTrace]] = Array::new()
+  let dp : Array[Array[Double]] = Array(capacity=0)
+  let trace : Array[Array[NWTrace]] = Array(capacity=0)
   for i = 0; i <= n; i = i + 1 {
-    let drow : Array[Double] = Array::new()
-    let trow : Array[NWTrace] = Array::new()
+    let drow : Array[Double] = Array(capacity=0)
+    let trow : Array[NWTrace] = Array(capacity=0)
     for j = 0; j <= m; j = j + 1 {
       drow.push(0.0)
       trow.push(NWTrace::Start)
@@ -273,8 +279,8 @@ pub fn needleman_wunsch(
     }
   }
   // Traceback from (n, m) to (0, 0).
-  let r1 = StringBuilder::new()
-  let r2 = StringBuilder::new()
+  let r1 = StringBuilder()
+  let r2 = StringBuilder()
   let mut i = n
   let mut j = m
   while i > 0 || j > 0 {
@@ -327,7 +333,7 @@ pub fn needleman_wunsch_protein(seq1 : String, seq2 : String) -> NWResult {
 /// Run Needleman-Wunsch global alignment using a substitution matrix.
 ///
 /// `seq1`, `seq2` — protein sequences (single-letter code strings).
-/// `matrix` — substitution matrix (e.g., `blosum62()`).
+/// `matrix` — substitution matrix (e.g., `@data.blosum62()`).
 /// `gap_penalty` — penalty for a gap (typically negative).
 ///
 /// Returns an `NWResult` containing aligned sequences, score,
@@ -335,16 +341,16 @@ pub fn needleman_wunsch_protein(seq1 : String, seq2 : String) -> NWResult {
 pub fn needleman_wunsch_with_matrix(
   seq1 : String,
   seq2 : String,
-  matrix : SubstitutionMatrix,
+  matrix : @data.SubstitutionMatrix,
   gap_penalty : Double,
 ) -> NWResult {
   let n = seq1.length()
   let m = seq2.length()
-  let dp : Array[Array[Double]] = Array::new()
-  let trace : Array[Array[NWTrace]] = Array::new()
+  let dp : Array[Array[Double]] = Array(capacity=0)
+  let trace : Array[Array[NWTrace]] = Array(capacity=0)
   for i = 0; i <= n; i = i + 1 {
-    let drow : Array[Double] = Array::new()
-    let trow : Array[NWTrace] = Array::new()
+    let drow : Array[Double] = Array(capacity=0)
+    let trow : Array[NWTrace] = Array(capacity=0)
     for j = 0; j <= m; j = j + 1 {
       drow.push(0.0)
       trow.push(NWTrace::Start)
@@ -379,8 +385,8 @@ pub fn needleman_wunsch_with_matrix(
       trace[i][j] = dir
     }
   }
-  let r1 = StringBuilder::new()
-  let r2 = StringBuilder::new()
+  let r1 = StringBuilder()
+  let r2 = StringBuilder()
   let mut i = n
   let mut j = m
   while i > 0 || j > 0 {
@@ -424,7 +430,7 @@ pub fn needleman_wunsch_blosum62(
   seq2 : String,
   gap_penalty : Double,
 ) -> NWResult {
-  needleman_wunsch_with_matrix(seq1, seq2, blosum62(), gap_penalty)
+  needleman_wunsch_with_matrix(seq1, seq2, @data.blosum62(), gap_penalty)
 }
 
 ///|
@@ -434,13 +440,13 @@ pub fn needleman_wunsch_pam250(
   seq2 : String,
   gap_penalty : Double,
 ) -> NWResult {
-  needleman_wunsch_with_matrix(seq1, seq2, pam250(), gap_penalty)
+  needleman_wunsch_with_matrix(seq1, seq2, @data.pam250(), gap_penalty)
 }
 
 ///|
 /// Build the match line: '|' for match, '.' for mismatch, ' ' for gap.
 fn nw_build_match_line(s1 : String, s2 : String) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   for i = 0; i < s1.length(); i = i + 1 {
     let c1 = s1.unsafe_get(i).unsafe_to_char()
     let c2 = s2.unsafe_get(i).unsafe_to_char()
@@ -459,7 +465,7 @@ fn nw_build_match_line(s1 : String, s2 : String) -> String {
 /// Reverse a string (local to avoid clashing with alignment.mbt).
 fn nw_reverse_string(s : String) -> String {
   let n = s.length()
-  let result = StringBuilder::new()
+  let result = StringBuilder()
   let mut i = n - 1
   while i >= 0 {
     result.write_char(s.unsafe_get(i).unsafe_to_char())

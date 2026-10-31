@@ -31,7 +31,7 @@ fn main {
     println("  Sequence length: \{r.length()} nt")
     let seq = r.sequence()
     let preview_len = if seq.length() > 40 { 40 } else { seq.length() }
-    println("  Sequence preview: \{seq.substring(start=0, end=preview_len)}...")
+    println("  Sequence preview: \{seq[0:preview_len]}...")
     println("")
   }
 

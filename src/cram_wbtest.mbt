@@ -9,8 +9,8 @@ test "cram_magic" {
 
 ///|
 test "cram_record_is_paired" {
-  let cigar : Array[BamCigarElement] = Array::new()
-  cigar.push(BamCigarElement::{ op: BamCigarOp::Match, length: 100 })
+  let cigar : Array[BamCigarElement] = Array(capacity=0)
+  cigar.push(BamCigarElement::{ op: BamCigarOp::Match, length: 100, })
 
   let read_features = CramReadFeatures::{
     read_group: 0,
@@ -20,16 +20,16 @@ test "cram_record_is_paired" {
     cigar,
     sequence: "ACGT",
     quality: "!!!!",
-    tags: Array::new(),
+    tags: Array(capacity=0),
   }
 
-  let record = CramRecord::{ ref_id: 0, pos: 100, read_features }
+  let record = CramRecord::{ ref_id: 0, pos: 100, read_features, }
   assert_true((record.read_features.flags & 1) != 0)
 }
 
 ///|
 test "cram_record_is_mapped" {
-  let cigar : Array[BamCigarElement] = Array::new()
+  let cigar : Array[BamCigarElement] = Array(capacity=0)
 
   let read_features = CramReadFeatures::{
     read_group: 0,
@@ -39,16 +39,16 @@ test "cram_record_is_mapped" {
     cigar,
     sequence: "ACGT",
     quality: "!!!!",
-    tags: Array::new(),
+    tags: Array(capacity=0),
   }
 
-  let record = CramRecord::{ ref_id: 0, pos: 100, read_features }
+  let record = CramRecord::{ ref_id: 0, pos: 100, read_features, }
   assert_true((record.read_features.flags & 4) == 0)
 }
 
 ///|
 test "cram_record_is_unmapped" {
-  let cigar : Array[BamCigarElement] = Array::new()
+  let cigar : Array[BamCigarElement] = Array(capacity=0)
 
   let read_features = CramReadFeatures::{
     read_group: 0,
@@ -58,16 +58,16 @@ test "cram_record_is_unmapped" {
     cigar,
     sequence: "ACGT",
     quality: "!!!!",
-    tags: Array::new(),
+    tags: Array(capacity=0),
   }
 
-  let record = CramRecord::{ ref_id: -1, pos: 0, read_features }
+  let record = CramRecord::{ ref_id: -1, pos: 0, read_features, }
   assert_true((record.read_features.flags & 4) != 0)
 }
 
 ///|
 test "cram_record_is_reverse" {
-  let cigar : Array[BamCigarElement] = Array::new()
+  let cigar : Array[BamCigarElement] = Array(capacity=0)
 
   let read_features = CramReadFeatures::{
     read_group: 0,
@@ -77,16 +77,16 @@ test "cram_record_is_reverse" {
     cigar,
     sequence: "ACGT",
     quality: "!!!!",
-    tags: Array::new(),
+    tags: Array(capacity=0),
   }
 
-  let record = CramRecord::{ ref_id: 0, pos: 100, read_features }
+  let record = CramRecord::{ ref_id: 0, pos: 100, read_features, }
   assert_true((record.read_features.flags & 16) != 0)
 }
 
 ///|
 test "cram_file_num_references" {
-  let references : Array[CramReference] = Array::new()
+  let references : Array[CramReference] = Array(capacity=0)
   references.push(CramReference::{
     name: "chr1",
     length: 1000,
@@ -107,22 +107,22 @@ test "cram_file_num_references" {
   })
 
   let header = CramHeader::{
-    version: CramVersion::{ major: 3, minor: 0 },
+    version: CramVersion::{ major: 3, minor: 0, },
     reference_count: 3,
     references,
     compression: CramCompression::Gzip,
     stream_count: 0,
-    stream_info: Array::new(),
+    stream_info: Array(capacity=0),
     sam_header: "",
   }
-  let file = CramFile::{ header, records: Array::new() }
+  let file = CramFile::{ header, records: Array(capacity=0), }
   assert_eq(file.header.references.length(), 3)
 }
 
 ///|
 test "cram_record_to_bam_record" {
-  let cigar : Array[BamCigarElement] = Array::new()
-  cigar.push(BamCigarElement::{ op: BamCigarOp::Match, length: 100 })
+  let cigar : Array[BamCigarElement] = Array(capacity=0)
+  cigar.push(BamCigarElement::{ op: BamCigarOp::Match, length: 100, })
 
   let read_features = CramReadFeatures::{
     read_group: 0,
@@ -132,10 +132,10 @@ test "cram_record_to_bam_record" {
     cigar,
     sequence: "ACGT",
     quality: "!!!!",
-    tags: Array::new(),
+    tags: Array(capacity=0),
   }
 
-  let record = CramRecord::{ ref_id: 0, pos: 100, read_features }
+  let record = CramRecord::{ ref_id: 0, pos: 100, read_features, }
   let bam_record = record.to_bam_record()
 
   assert_eq(bam_record.ref_id, 0)
@@ -145,7 +145,7 @@ test "cram_record_to_bam_record" {
 }
 
 ///|
-fn read_itf8(data : String, pos : Int) -> (Int, Int) {
+fn read_itf8(data : String, pos : Int32) -> (Int32, Int32) {
   let byte = data[pos].to_int() & 0xFF
   let value = byte >> 1
   if (byte & 0x01) == 0 {
@@ -156,14 +156,14 @@ fn read_itf8(data : String, pos : Int) -> (Int, Int) {
 }
 
 ///|
-fn read_ltf8(data : String, pos : Int) -> (Int, Int) {
+fn read_ltf8(data : String, pos : Int32) -> (Int32, Int32) {
   let byte = data[pos].to_int() & 0xFF
   (byte >> 1, pos + 1)
 }
 
 ///|
 test "read_itf8_positive" {
-  let data = "\x02"
+  let data = "\u{02}"
   let (val, pos) = read_itf8(data, 0)
   assert_eq(val, 1)
   assert_eq(pos, 1)
@@ -171,7 +171,7 @@ test "read_itf8_positive" {
 
 ///|
 test "read_itf8_negative" {
-  let data = "\x03"
+  let data = "\u{03}"
   let (val, pos) = read_itf8(data, 0)
   assert_eq(val, -1)
   assert_eq(pos, 1)
@@ -179,7 +179,7 @@ test "read_itf8_negative" {
 
 ///|
 test "read_ltf8" {
-  let data = "\x02"
+  let data = "\u{02}"
   let (val, pos) = read_ltf8(data, 0)
   assert_eq(val, 1)
   assert_eq(pos, 1)

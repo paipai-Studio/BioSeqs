@@ -278,7 +278,7 @@ test "parsimony_get_score_sankoff_with_matrix" {
 ///|
 test "parsimony_sample_alignment_structure" {
   let aln = @src.parsimony_sample_alignment()
-  assert_eq(aln.size(), 4)
+  assert_eq(aln.length(), 4)
   assert_eq(aln["A"], "ACGTA")
   assert_eq(aln["B"], "ACGTA")
   assert_eq(aln["C"], "ATCTA")
@@ -302,7 +302,7 @@ test "parsimony_sample_tree_structure" {
 ///|
 test "parsimony_sample_alignment_varied_structure" {
   let aln = @src.parsimony_sample_alignment_varied()
-  assert_eq(aln.size(), 5)
+  assert_eq(aln.length(), 5)
   assert_eq(aln["A"].length(), 8)
 }
 

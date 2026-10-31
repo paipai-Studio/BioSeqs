@@ -6,38 +6,38 @@
 ///|
 pub struct SeqLogo {
   sequences : Array[String]
-  height : Int
-  width : Int
+  height : Int32
+  width : Int32
   colors : Map[String, String]
 }
 
 ///|
 pub fn SeqLogo::new(sequences : Array[String]) -> SeqLogo {
-  SeqLogo::{ sequences, height: 50, width: 400, colors: get_default_colors() }
+  SeqLogo::{ sequences, height: 50, width: 400, colors: get_default_colors(), }
 }
 
 ///|
 pub struct LogoColumn {
-  position : Int
+  position : Int32
   letter_frequencies : Map[String, Double]
   information_content : Double
   letters : Array[(String, Double, Double)]
 }
 
 ///|
-pub fn LogoColumn::new(position : Int) -> LogoColumn {
+pub fn LogoColumn::new(position : Int32) -> LogoColumn {
   LogoColumn::{
     position,
     letter_frequencies: Map([], capacity=4),
     information_content: 0.0,
-    letters: Array::new(),
+    letters: Array(capacity=0),
   }
 }
 
 ///|
 pub struct AlignmentPlot {
   sequences : Array[(String, String)]
-  highlight_regions : Array[(Int, Int, String)]
+  highlight_regions : Array[(Int32, Int32, String)]
   consensus : String
   show_consensus : Bool
 }
@@ -46,7 +46,7 @@ pub struct AlignmentPlot {
 pub fn AlignmentPlot::new(sequences : Array[(String, String)]) -> AlignmentPlot {
   AlignmentPlot::{
     sequences,
-    highlight_regions: Array::new(),
+    highlight_regions: Array(capacity=0),
     consensus: "",
     show_consensus: true,
   }
@@ -54,17 +54,17 @@ pub fn AlignmentPlot::new(sequences : Array[(String, String)]) -> AlignmentPlot 
 
 ///|
 pub struct FeaturePlot {
-  features : Array[(String, Int, Int, String, String)]
-  sequence_length : Int
+  features : Array[(String, Int32, Int32, String, String)]
+  sequence_length : Int32
   colors : Map[String, String]
 }
 
 ///|
 pub fn FeaturePlot::new(
-  features : Array[(String, Int, Int, String, String)],
-  sequence_length : Int,
+  features : Array[(String, Int32, Int32, String, String)],
+  sequence_length : Int32,
 ) -> FeaturePlot {
-  FeaturePlot::{ features, sequence_length, colors: get_feature_colors() }
+  FeaturePlot::{ features, sequence_length, colors: get_feature_colors(), }
 }
 
 ///|
@@ -125,7 +125,7 @@ pub fn get_feature_colors() -> Map[String, String] {
 pub fn seqlogo_calculate_columns(
   sequences : Array[String],
 ) -> Array[LogoColumn] {
-  let columns : Array[LogoColumn] = Array::new()
+  let columns : Array[LogoColumn] = Array(capacity=0)
 
   if sequences.length() == 0 {
     return columns
@@ -184,7 +184,7 @@ pub fn seqlogo_calculate_columns(
 
       let info_content = ic / ic_max * ic_max
 
-      let sorted_letters : Array[(String, Double)] = Array::new()
+      let sorted_letters : Array[(String, Double)] = Array(capacity=0)
       let mut k = 0
       while k < count_keys.length() {
         let key = count_keys[k]
@@ -208,7 +208,7 @@ pub fn seqlogo_calculate_columns(
         l = l + 1
       }
 
-      let letters : Array[(String, Double, Double)] = Array::new()
+      let letters : Array[(String, Double, Double)] = Array(capacity=0)
       let mut cum_height = 0.0
       let mut n = 0
       while n < sorted_letters.length() {
@@ -401,7 +401,7 @@ pub fn feature_plot_generate_ascii(plot : FeaturePlot) -> String {
 
   let mut feat_idx = 0
   while feat_idx < plot.features.length() {
-    let (name, start, end, feat_type, strand) = plot.features[feat_idx]
+    let (name, start, end, _feat_type, strand) = plot.features[feat_idx]
 
     let mut line = ""
     let mut pos = 0

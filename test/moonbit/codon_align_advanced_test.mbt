@@ -1,7 +1,11 @@
 // Tests for the advanced codon alignment selection-pressure statistics module.
 
 ///|
-fn caa_test_close(actual : Double, expected : Double, tolerance : Double) -> Unit {
+fn caa_test_close(
+  actual : Double,
+  expected : Double,
+  tolerance : Double,
+) -> Unit {
   if (actual - expected).abs() > tolerance {
     abort(
       "CodonAlign advanced value " +
@@ -19,20 +23,14 @@ fn caa_test_close(actual : Double, expected : Double, tolerance : Double) -> Uni
 // Sequences with many nonsynonymous changes → positive selection pressure.
 // 9 codons (27 nt): Seq1 M-A-L-K-W-Q-Q-P-W, Seq2 M-G-L-E-R-H-P-S-M (7 nonsyn, 2 syn)
 fn caa_test_positive_selection_pair() -> (String, String) {
-  (
-    "ATGGCCCTGAAATGGCAGCAGCCATGG",
-    "ATGGGTCTGGAGAGACACCCCAGCATG",
-  )
+  ("ATGGCCCTGAAATGGCAGCAGCCATGG", "ATGGGTCTGGAGAGACACCCCAGCATG")
 }
 
 ///|
 // Sequences with mostly synonymous changes → purifying selection pressure.
 // 9 codons (27 nt): Seq1 M-A-L-K-W-Q-Q-P-W, Seq2 has only synonymous codon switches.
 fn caa_test_purifying_selection_pair() -> (String, String) {
-  (
-    "ATGGCCCTGAAATGGCAGCAGCCATGG",
-    "ATGGCGCTCAAATGGCAGCAGCGATGG",
-  )
+  ("ATGGCCCTGAAATGGCAGCAGCCATGG", "ATGGCGCTCAAATGGCAGCAGCGATGG")
 }
 
 ///|
@@ -213,11 +211,9 @@ test "CodonAlign advanced builder constructs codon alignment with gaps" {
 test "CodonAlign advanced builder with names" {
   let protein_aln = ["MAK", "MAK"]
   let coding_seqs = ["ATGGCCAAG", "ATGGCCAAG"]
-  let alignment = @src.build_codon_alignment(
-    protein_aln,
-    coding_seqs,
-    names=["gene1", "gene2"],
-  ) catch {
+  let alignment = @src.build_codon_alignment(protein_aln, coding_seqs, names=[
+    "gene1", "gene2",
+  ]) catch {
     _ => abort("codon alignment builder should succeed")
   }
   let names = alignment.names()
@@ -328,7 +324,9 @@ test "CodonAlign advanced sliding window skips degenerate windows" {
 ///|
 test "CodonAlign advanced sliding window rejects small window" {
   let failed = try {
-    ignore(@src.sliding_window_dnds("ATGGCCATGGCC", "ATGGCCATGGCC", window_size=2))
+    ignore(
+      @src.sliding_window_dnds("ATGGCCATGGCC", "ATGGCCATGGCC", window_size=2),
+    )
     false
   } catch {
     CodonAlignAdvancedError(_) => true
@@ -339,7 +337,9 @@ test "CodonAlign advanced sliding window rejects small window" {
 ///|
 test "CodonAlign advanced sliding window rejects invalid step" {
   let failed = try {
-    ignore(@src.sliding_window_dnds("ATGGCCATGGCC", "ATGGCCATGGCC", step_size=0))
+    ignore(
+      @src.sliding_window_dnds("ATGGCCATGGCC", "ATGGCCATGGCC", step_size=0),
+    )
     false
   } catch {
     CodonAlignAdvancedError(_) => true
@@ -357,11 +357,11 @@ test "CodonAlign advanced BH-FDR is monotonic non-decreasing in rank" {
   let fdr = @src.codon_align_advanced_bh_fdr(p_values)
   assert_eq(fdr.length(), 5)
   // Sort p-values and verify FDR is non-decreasing in sorted order.
-  let indexed : Array[(Double, Int)] = []
+  let indexed : Array[(Double, Int32)] = []
   for i in 0..<p_values.length() {
     indexed.push((p_values[i], i))
   }
-  indexed.sort_by(fn(a : (Double, Int), b : (Double, Int)) -> Int {
+  indexed.sort_by(fn(a : (Double, Int32), b : (Double, Int32)) -> Int32 {
     if a.0 < b.0 {
       -1
     } else if a.0 > b.0 {

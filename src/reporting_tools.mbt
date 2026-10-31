@@ -36,18 +36,6 @@ pub fn report_section_plot() -> ReportSectionType {
 }
 
 ///|
-/// Create a Section section type.
-pub fn report_section_section() -> ReportSectionType {
-  ReportSectionType::Section
-}
-
-///|
-/// Create a Header section type.
-pub fn report_section_header() -> ReportSectionType {
-  ReportSectionType::Header
-}
-
-///|
 /// A single report section.
 pub struct ReportSection {
   section_id : String
@@ -55,7 +43,7 @@ pub struct ReportSection {
   title : String
   content : String
   children : Array[ReportSection]
-  level : Int
+  level : Int32
 }
 
 ///|
@@ -104,8 +92,8 @@ pub fn ReportDocument::new(title : String) -> ReportDocument {
   ReportDocument::{
     title,
     author: "BioSeqs",
-    sections: Array::new(),
-    tables: Array::new(),
+    sections: Array(capacity=0),
+    tables: Array(capacity=0),
     timestamp: "",
     version: "1.0.0",
   }
@@ -141,7 +129,7 @@ pub fn ReportDocument::add_text(
     section_type: ReportSectionType::Text,
     title,
     content,
-    children: Array::new(),
+    children: Array(capacity=0),
     level: 1,
   })
   ReportDocument::{
@@ -169,7 +157,7 @@ pub fn ReportDocument::add_table(
     section_type: ReportSectionType::Table,
     title: table.title,
     content: table.table_id,
-    children: Array::new(),
+    children: Array(capacity=0),
     level: 1,
   })
   ReportDocument::{
@@ -196,7 +184,7 @@ pub fn ReportDocument::add_plot(
     section_type: ReportSectionType::Plot,
     title,
     content: plot_ascii,
-    children: Array::new(),
+    children: Array(capacity=0),
     level: 1,
   })
   ReportDocument::{
@@ -223,13 +211,13 @@ pub fn ReportDocument::get_author(doc : ReportDocument) -> String {
 
 ///|
 /// Get the number of sections.
-pub fn ReportDocument::get_n_sections(doc : ReportDocument) -> Int {
+pub fn ReportDocument::get_n_sections(doc : ReportDocument) -> Int32 {
   doc.sections.length()
 }
 
 ///|
 /// Get the number of tables.
-pub fn ReportDocument::get_n_tables(doc : ReportDocument) -> Int {
+pub fn ReportDocument::get_n_tables(doc : ReportDocument) -> Int32 {
   doc.tables.length()
 }
 
@@ -240,7 +228,7 @@ pub fn ReportColumn::new(
   values : Array[String],
   numeric : Bool,
 ) -> ReportColumn {
-  ReportColumn::{ name, values, numeric }
+  ReportColumn::{ name, values, numeric, }
 }
 
 ///|
@@ -252,7 +240,7 @@ pub fn ReportTable::new(
   column_data : Array[Array[String]],
   caption : String,
 ) -> ReportTable {
-  let columns : Array[ReportColumn] = Array::new()
+  let columns : Array[ReportColumn] = Array(capacity=0)
   let n = column_names.length()
   let mut i = 0
   while i < n {
@@ -263,7 +251,7 @@ pub fn ReportTable::new(
     })
     i = i + 1
   }
-  ReportTable::{ table_id, title, columns, caption }
+  ReportTable::{ table_id, title, columns, caption, }
 }
 
 ///|
@@ -274,13 +262,13 @@ pub fn ReportTable::from_columns(
   columns : Array[ReportColumn],
   caption : String,
 ) -> ReportTable {
-  ReportTable::{ table_id, title, columns, caption }
+  ReportTable::{ table_id, title, columns, caption, }
 }
 
 ///|
 /// Get column names.
 pub fn ReportTable::get_column_names(table : ReportTable) -> Array[String] {
-  let names : Array[String] = Array::new()
+  let names : Array[String] = Array(capacity=0)
   let mut i = 0
   while i < table.columns.length() {
     names.push(table.columns[i].name)
@@ -291,7 +279,7 @@ pub fn ReportTable::get_column_names(table : ReportTable) -> Array[String] {
 
 ///|
 /// Get number of rows in a table.
-pub fn ReportTable::get_n_rows(table : ReportTable) -> Int {
+pub fn ReportTable::get_n_rows(table : ReportTable) -> Int32 {
   if table.columns.length() == 0 {
     0
   } else {
@@ -301,14 +289,14 @@ pub fn ReportTable::get_n_rows(table : ReportTable) -> Int {
 
 ///|
 /// Get number of columns.
-pub fn ReportTable::get_n_columns(table : ReportTable) -> Int {
+pub fn ReportTable::get_n_columns(table : ReportTable) -> Int32 {
   table.columns.length()
 }
 
 ///|
-fn rt_pad_right(s : String, width : Int) -> String {
+fn rt_pad_right(s : String, width : Int32) -> String {
   if s.length() >= width {
-    s.substring(start=0, end=width).to_string()
+    s[0:width].to_owned()
   } else {
     let mut result = s
     let mut i = s.length()
@@ -321,7 +309,7 @@ fn rt_pad_right(s : String, width : Int) -> String {
 }
 
 ///|
-fn rt_repeat_char(c : String, n : Int) -> String {
+fn rt_repeat_char(c : String, n : Int32) -> String {
   let mut result = ""
   let mut i = 0
   while i < n {
@@ -339,7 +327,7 @@ pub fn ReportTable::to_ascii(table : ReportTable) -> String {
   let n_rows = table.get_n_rows()
 
   // Calculate column widths based on max of name length and data value lengths
-  let widths : Array[Int] = Array::new()
+  let widths : Array[Int32] = Array(capacity=0)
   let mut ci = 0
   while ci < n_cols {
     let name_len = names[ci].length()
@@ -424,7 +412,7 @@ pub fn ReportDocument::get_section(
     section_type: ReportSectionType::Text,
     title: "",
     content: "Section not found",
-    children: Array::new(),
+    children: Array(capacity=0),
     level: 0,
   }
 }

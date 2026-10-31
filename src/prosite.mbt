@@ -33,8 +33,8 @@ pub fn PrositePattern::new(
 pub struct PrositeMatch {
   pattern_accession : String
   pattern_name : String
-  start : Int
-  end : Int
+  start : Int32
+  end : Int32
   matched_sequence : String
   score : Double
 }
@@ -43,8 +43,8 @@ pub struct PrositeMatch {
 pub fn PrositeMatch::new(
   pattern_accession : String,
   pattern_name : String,
-  start : Int,
-  end : Int,
+  start : Int32,
+  end : Int32,
   matched_sequence : String,
 ) -> PrositeMatch {
   PrositeMatch::{
@@ -68,7 +68,7 @@ pub struct PrositeEntry {
   taxonomic_range : String
   created : String
   modified : String
-  entries_with_motif : Int
+  entries_with_motif : Int32
   literature_references : Array[String]
 }
 
@@ -85,7 +85,7 @@ pub fn PrositeEntry::new(accession : String, name : String) -> PrositeEntry {
     created: "",
     modified: "",
     entries_with_motif: 0,
-    literature_references: Array::new(),
+    literature_references: Array(capacity=0),
   }
 }
 
@@ -169,7 +169,7 @@ pub fn prosite_search(
   pattern : String,
   sequence : String,
 ) -> Array[PrositeMatch] {
-  let matches : Array[PrositeMatch] = Array::new()
+  let matches : Array[PrositeMatch] = Array(capacity=0)
 
   if pattern.length() == 0 || sequence.length() == 0 {
     return matches
@@ -294,7 +294,7 @@ pub fn prosite_scan(
   sequence : String,
   patterns : Array[PrositePattern],
 ) -> Array[PrositeMatch] {
-  let all_matches : Array[PrositeMatch] = Array::new()
+  let all_matches : Array[PrositeMatch] = Array(capacity=0)
 
   for pattern in patterns {
     let matches = prosite_search(pattern.pattern, sequence)
@@ -389,7 +389,7 @@ pub fn prosite_calculate_score(
 
 ///|
 pub fn prosite_create_example_patterns() -> Array[PrositePattern] {
-  let patterns : Array[PrositePattern] = Array::new()
+  let patterns : Array[PrositePattern] = Array(capacity=0)
 
   let ps1 = PrositePattern::new(
     "PS00001", "ATP/GTP-binding site motif", "[AG]-X(4)-G-K-[ST]",

@@ -21,19 +21,28 @@ pub enum MiloSpatialWeighting {
 } derive(Eq, Debug)
 
 ///|
+pub extend MiloSpatialWeighting with Eq::{equal, not_equal}
+
+///|
+pub extend MiloSpatialWeighting with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
 pub struct MiloExperiment {
   coordinates : Array[Array[Double]]
   cell_names : Array[String]
-  dimensions : Int
-  k : Int
-  knn_indices : Array[Array[Int]]
+  dimensions : Int32
+  k : Int32
+  knn_indices : Array[Array[Int32]]
   knn_distances : Array[Array[Double]]
-  graph_neighbors : Array[Array[Int]]
-  neighborhood_indices : Array[Int]
-  neighborhoods : Array[Array[Int]]
+  graph_neighbors : Array[Array[Int32]]
+  neighborhood_indices : Array[Int32]
+  neighborhoods : Array[Array[Int32]]
   sample_names : Array[String]
-  neighborhood_counts : Array[Array[Int]]
+  neighborhood_counts : Array[Array[Int32]]
 } derive(Debug)
+
+///|
+pub extend MiloExperiment with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct MiloDesign {
@@ -44,9 +53,12 @@ pub struct MiloDesign {
 } derive(Debug)
 
 ///|
+pub extend MiloDesign with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
 pub struct MiloDAResult {
-  neighborhood : Int
-  index_cell : Int
+  neighborhood : Int32
+  index_cell : Int32
   tested : Bool
   log_fc : Double
   log_cpm : Double
@@ -59,6 +71,9 @@ pub struct MiloDAResult {
 } derive(Debug)
 
 ///|
+pub extend MiloDAResult with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
 pub struct MiloSampleData {
   coordinates : Array[Array[Double]]
   cell_names : Array[String]
@@ -68,6 +83,9 @@ pub struct MiloSampleData {
 } derive(Debug)
 
 ///|
+pub extend MiloSampleData with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
 priv struct MiloFit {
   log_fc : Double
   log_cpm : Double
@@ -75,11 +93,6 @@ priv struct MiloFit {
   p_value : Double
   dispersion : Double
   mean_count : Double
-}
-
-///|
-pub fn milo_k_distance_weighting() -> MiloSpatialWeighting {
-  KDistance
 }
 
 ///|
@@ -103,11 +116,6 @@ pub fn milo_no_spatial_weighting() -> MiloSpatialWeighting {
 }
 
 ///|
-fn milo_is_finite(value : Double) -> Bool {
-  value == value && value.abs() < 1.0e300
-}
-
-///|
 fn milo_copy_double_matrix(
   matrix : Array[Array[Double]],
 ) -> Array[Array[Double]] {
@@ -119,8 +127,8 @@ fn milo_copy_double_matrix(
 }
 
 ///|
-fn milo_copy_int_matrix(matrix : Array[Array[Int]]) -> Array[Array[Int]] {
-  let output : Array[Array[Int]] = []
+fn milo_copy_int_matrix(matrix : Array[Array[Int32]]) -> Array[Array[Int32]] {
+  let output : Array[Array[Int32]] = []
   for row in matrix {
     output.push(row.copy())
   }
@@ -130,8 +138,8 @@ fn milo_copy_int_matrix(matrix : Array[Array[Int]]) -> Array[Array[Int]] {
 ///|
 fn milo_validate_coordinates(
   coordinates : Array[Array[Double]],
-  dimensions : Int,
-) -> (Int, Int) raise MiloError {
+  dimensions : Int32,
+) -> (Int32, Int32) raise MiloError {
   let cells = coordinates.length()
   if cells < 2 {
     raise MiloError("miloR graph construction requires at least two cells")
@@ -145,7 +153,7 @@ fn milo_validate_coordinates(
       raise MiloError("miloR coordinates must be rectangular")
     }
     for value in row {
-      if !milo_is_finite(value) {
+      if !is_finite(value) {
         raise MiloError("miloR coordinates must contain finite values")
       }
     }
@@ -166,7 +174,7 @@ fn milo_validate_coordinates(
 ///|
 fn milo_validate_names(
   names : Array[String],
-  cells : Int,
+  cells : Int32,
 ) -> Array[String] raise MiloError {
   if names.length() == 0 {
     let generated : Array[String] = []
@@ -195,7 +203,7 @@ fn milo_validate_names(
 fn milo_distance(
   left : Array[Double],
   right : Array[Double],
-  dimensions : Int,
+  dimensions : Int32,
 ) -> Double {
   let mut total = 0.0
   for dimension in 0..<dimensions {
@@ -206,8 +214,8 @@ fn milo_distance(
 }
 
 ///|
-fn milo_sort_ints(values : Array[Int]) -> Unit {
-  values.sort_by(fn(left : Int, right : Int) -> Int {
+fn milo_sort_ints(values : Array[Int32]) -> Unit {
+  values.sort_by(fn(left : Int32, right : Int32) -> Int32 {
     if left < right {
       -1
     } else if left > right {
@@ -221,14 +229,14 @@ fn milo_sort_ints(values : Array[Int]) -> Unit {
 ///|
 fn milo_build_knn(
   coordinates : Array[Array[Double]],
-  dimensions : Int,
-  k : Int,
-) -> (Array[Array[Int]], Array[Array[Double]]) {
+  dimensions : Int32,
+  k : Int32,
+) -> (Array[Array[Int32]], Array[Array[Double]]) {
   let cells = coordinates.length()
-  let indices : Array[Array[Int]] = []
+  let indices : Array[Array[Int32]] = []
   let distances : Array[Array[Double]] = []
   for cell in 0..<cells {
-    let candidates : Array[(Double, Int)] = []
+    let candidates : Array[(Double, Int32)] = []
     for other in 0..<cells {
       if other != cell {
         candidates.push(
@@ -239,7 +247,10 @@ fn milo_build_knn(
         )
       }
     }
-    candidates.sort_by(fn(left : (Double, Int), right : (Double, Int)) -> Int {
+    candidates.sort_by(fn(
+      left : (Double, Int32),
+      right : (Double, Int32),
+    ) -> Int32 {
       if left.0 < right.0 {
         -1
       } else if left.0 > right.0 {
@@ -252,7 +263,7 @@ fn milo_build_knn(
         0
       }
     })
-    let cell_indices : Array[Int] = []
+    let cell_indices : Array[Int32] = []
     let cell_distances : Array[Double] = []
     for neighbor in 0..<k {
       cell_indices.push(candidates[neighbor].1)
@@ -265,8 +276,10 @@ fn milo_build_knn(
 }
 
 ///|
-fn milo_symmetrize_knn(knn_indices : Array[Array[Int]]) -> Array[Array[Int]] {
-  let neighbors : Array[Array[Int]] = []
+fn milo_symmetrize_knn(
+  knn_indices : Array[Array[Int32]],
+) -> Array[Array[Int32]] {
+  let neighbors : Array[Array[Int32]] = []
   for _ in 0..<knn_indices.length() {
     neighbors.push([])
   }
@@ -293,9 +306,9 @@ fn milo_symmetrize_knn(knn_indices : Array[Array[Int]]) -> Array[Array[Int]] {
 /// uses every available dimension. Cell names are generated when omitted.
 pub fn milo_build_graph(
   coordinates : Array[Array[Double]],
-  cell_names? : Array[String] = [],
-  k? : Int = 10,
-  dimensions? : Int = 0,
+  cell_names~ : Array[String] = [],
+  k~ : Int32 = 10,
+  dimensions~ : Int32 = 0,
 ) -> MiloExperiment raise MiloError {
   let (cells, used_dimensions) = milo_validate_coordinates(
     coordinates, dimensions,
@@ -328,9 +341,9 @@ pub fn milo_build_graph(
 /// Construct a Milo graph from a `SingleCellExperiment` reduced dimension.
 pub fn milo_from_single_cell_experiment(
   sce : SingleCellExperiment,
-  reduced_dim? : String = "PCA",
-  k? : Int = 10,
-  dimensions? : Int = 0,
+  reduced_dim~ : String = "PCA",
+  k~ : Int32 = 10,
+  dimensions~ : Int32 = 0,
 ) -> MiloExperiment raise MiloError {
   let coordinates = sce_get_reduced_dim(sce, reduced_dim)
   if coordinates.length() == 0 {
@@ -342,7 +355,7 @@ pub fn milo_from_single_cell_experiment(
 }
 
 ///|
-fn milo_rng_next(state : Int) -> Int {
+fn milo_rng_next(state : Int32) -> Int32 {
   let high = state / 44488
   let low = state % 44488
   let candidate = 48271 * low - 3399 * high
@@ -354,8 +367,12 @@ fn milo_rng_next(state : Int) -> Int {
 }
 
 ///|
-fn milo_sample_vertices(cells : Int, count : Int, seed : Int) -> Array[Int] {
-  let sampled : Array[Int] = []
+fn milo_sample_vertices(
+  cells : Int32,
+  count : Int32,
+  seed : Int32,
+) -> Array[Int32] {
+  let sampled : Array[Int32] = []
   let used = Array::make(cells, false)
   let normalized_seed = if seed == 0 {
     1
@@ -376,7 +393,7 @@ fn milo_sample_vertices(cells : Int, count : Int, seed : Int) -> Array[Int] {
 }
 
 ///|
-fn milo_refine_vertex(experiment : MiloExperiment, vertex : Int) -> Int {
+fn milo_refine_vertex(experiment : MiloExperiment, vertex : Int32) -> Int32 {
   let median_profile = Array::make(experiment.dimensions, 0.0)
   for dimension in 0..<experiment.dimensions {
     let values : Array[Double] = []
@@ -411,18 +428,18 @@ fn milo_refine_vertex(experiment : MiloExperiment, vertex : Int) -> Int {
 /// seed's KNN profile and selects the nearest observed cell.
 pub fn MiloExperiment::make_neighborhoods(
   self : MiloExperiment,
-  proportion? : Double = 0.1,
-  refined? : Bool = true,
-  seed? : Int = 42,
+  proportion~ : Double = 0.1,
+  refined~ : Bool = true,
+  seed~ : Int32 = 42,
 ) -> MiloExperiment raise MiloError {
-  if !milo_is_finite(proportion) || proportion <= 0.0 || proportion >= 1.0 {
+  if !is_finite(proportion) || proportion <= 0.0 || proportion >= 1.0 {
     raise MiloError("miloR sampling proportion must be in (0, 1)")
   }
   let cells = self.coordinates.length()
   let requested = (proportion * cells.to_double()).to_int()
   let sample_count = requested.max(1).min(cells)
   let initial = milo_sample_vertices(cells, sample_count, seed)
-  let indices : Array[Int] = []
+  let indices : Array[Int32] = []
   for vertex in initial {
     let selected = if refined {
       milo_refine_vertex(self, vertex)
@@ -433,9 +450,9 @@ pub fn MiloExperiment::make_neighborhoods(
       indices.push(selected)
     }
   }
-  let neighborhoods : Array[Array[Int]] = []
+  let neighborhoods : Array[Array[Int32]] = []
   for index_cell in indices {
-    let members : Array[Int] = [index_cell]
+    let members : Array[Int32] = [index_cell]
     for neighbor in self.graph_neighbors[index_cell] {
       if !members.contains(neighbor) {
         members.push(neighbor)
@@ -474,7 +491,7 @@ pub fn MiloExperiment::count_cells(
     raise MiloError("miloR sample IDs must match the number of cells")
   }
   let sample_names : Array[String] = []
-  let sample_lookup : Map[String, Int] = Map([], capacity=sample_ids.length())
+  let sample_lookup : Map[String, Int32] = Map([], capacity=sample_ids.length())
   for sample in sample_ids {
     if sample == "" {
       raise MiloError("miloR sample IDs must not be empty")
@@ -484,7 +501,7 @@ pub fn MiloExperiment::count_cells(
       sample_names.push(sample)
     }
   }
-  let counts : Array[Array[Int]] = []
+  let counts : Array[Array[Int32]] = []
   for neighborhood in self.neighborhoods {
     let row = Array::make(sample_names.length(), 0)
     for cell in neighborhood {
@@ -532,7 +549,7 @@ pub fn MiloExperiment::neighborhood_expression(
       let mut total = 0.0
       for cell in neighborhood {
         let value = feature[cell]
-        if !milo_is_finite(value) {
+        if !is_finite(value) {
           raise MiloError("miloR expression values must be finite")
         }
         total = total + value
@@ -548,9 +565,9 @@ pub fn MiloExperiment::neighborhood_expression(
 /// Return pairwise cell-overlap counts between neighbourhoods.
 pub fn MiloExperiment::neighborhood_overlap_matrix(
   self : MiloExperiment,
-) -> Array[Array[Int]] {
+) -> Array[Array[Int32]] {
   let count = self.neighborhoods.length()
-  let overlaps : Array[Array[Int]] = []
+  let overlaps : Array[Array[Int32]] = []
   for _ in 0..<count {
     overlaps.push(Array::make(count, 0))
   }
@@ -572,7 +589,7 @@ pub fn MiloExperiment::neighborhood_overlap_matrix(
 ///|
 fn milo_neighborhood_pairwise_mean(
   experiment : MiloExperiment,
-  members : Array[Int],
+  members : Array[Int32],
 ) -> Double {
   if members.length() < 2 {
     return 0.0
@@ -655,14 +672,14 @@ fn milo_spatial_connectivity(
 pub fn milo_graph_spatial_fdr(
   experiment : MiloExperiment,
   p_values : Array[Double],
-  weighting? : MiloSpatialWeighting = KDistance,
+  weighting~ : MiloSpatialWeighting = KDistance,
 ) -> Array[Double] raise MiloError {
   let count = experiment.neighborhoods.length()
   if p_values.length() != count {
     raise MiloError("miloR p-values must match the neighborhood count")
   }
   for p_value in p_values {
-    if !milo_is_finite(p_value) || p_value < 0.0 || p_value > 1.0 {
+    if !is_finite(p_value) || p_value < 0.0 || p_value > 1.0 {
       raise MiloError("miloR p-values must be finite values in [0, 1]")
     }
   }
@@ -673,17 +690,17 @@ pub fn milo_graph_spatial_fdr(
   let weights = Array::make(count, 1.0)
   for index in 0..<count {
     let value = connectivity[index]
-    weights[index] = if milo_is_finite(value) && value > 1.0e-12 {
+    weights[index] = if is_finite(value) && value > 1.0e-12 {
       1.0 / value
     } else {
       1.0
     }
   }
-  let order : Array[Int] = []
+  let order : Array[Int32] = []
   for index in 0..<count {
     order.push(index)
   }
-  order.sort_by(fn(left : Int, right : Int) -> Int {
+  order.sort_by(fn(left : Int32, right : Int32) -> Int32 {
     if p_values[left] < p_values[right] {
       -1
     } else if p_values[left] > p_values[right] {
@@ -722,7 +739,7 @@ pub fn milo_graph_spatial_fdr(
 /// Build an intercept-plus-binary-condition design matrix.
 pub fn milo_binary_design(
   conditions : Array[String],
-  reference? : String = "",
+  reference~ : String = "",
 ) -> MiloDesign raise MiloError {
   if conditions.length() == 0 {
     raise MiloError("miloR binary design requires at least one sample")
@@ -859,9 +876,9 @@ fn milo_design_information(
 ///|
 fn milo_validate_design(
   design : Array[Array[Double]],
-  samples : Int,
-  contrast_column : Int,
-) -> Int raise MiloError {
+  samples : Int32,
+  contrast_column : Int32,
+) -> Int32 raise MiloError {
   if design.length() != samples {
     raise MiloError("miloR design rows must match neighborhood count columns")
   }
@@ -880,7 +897,7 @@ fn milo_validate_design(
       raise MiloError("miloR design matrix must be rectangular")
     }
     for value in row {
-      if !milo_is_finite(value) {
+      if !is_finite(value) {
         raise MiloError("miloR design matrix must contain finite values")
       }
     }
@@ -893,7 +910,7 @@ fn milo_validate_design(
 
 ///|
 fn milo_library_offsets(
-  counts : Array[Array[Int]],
+  counts : Array[Array[Int32]],
   cell_sizes : Array[Double],
 ) -> (Array[Double], Array[Double]) raise MiloError {
   let samples = counts[0].length()
@@ -903,7 +920,7 @@ fn milo_library_offsets(
       raise MiloError("miloR cell sizes must match the sample count")
     }
     for sample in 0..<samples {
-      if !milo_is_finite(cell_sizes[sample]) || cell_sizes[sample] <= 0.0 {
+      if !is_finite(cell_sizes[sample]) || cell_sizes[sample] <= 0.0 {
         raise MiloError("miloR cell sizes must be finite and positive")
       }
       library_sizes[sample] = cell_sizes[sample]
@@ -936,7 +953,7 @@ fn milo_library_offsets(
 }
 
 ///|
-fn milo_raw_dispersion(counts : Array[Int], scales : Array[Double]) -> Double {
+fn milo_raw_dispersion(counts : Array[Int32], scales : Array[Double]) -> Double {
   let normalized = Array::make(counts.length(), 0.0)
   for sample in 0..<counts.length() {
     normalized[sample] = counts[sample].to_double() / scales[sample]
@@ -951,11 +968,11 @@ fn milo_raw_dispersion(counts : Array[Int], scales : Array[Double]) -> Double {
 
 ///|
 fn milo_fit_nb_glm(
-  counts : Array[Int],
+  counts : Array[Int32],
   design : Array[Array[Double]],
   offsets : Array[Double],
   library_sizes : Array[Double],
-  contrast_column : Int,
+  contrast_column : Int32,
   dispersion : Double,
 ) -> MiloFit {
   let samples = counts.length()
@@ -1027,7 +1044,7 @@ fn milo_fit_nb_glm(
     None => 1.0e300
   }
   let statistic = coefficients[contrast_column] / standard_error
-  let p_value = if milo_is_finite(statistic) {
+  let p_value = if is_finite(statistic) {
     (2.0 * (1.0 - stat_normal_cdf(statistic.abs()))).max(0.0).min(1.0)
   } else {
     1.0
@@ -1058,17 +1075,17 @@ fn milo_fit_nb_glm(
 pub fn MiloExperiment::test_neighborhoods(
   self : MiloExperiment,
   design : Array[Array[Double]],
-  contrast_column : Int,
-  min_mean? : Double = 0.0,
-  weighting? : MiloSpatialWeighting = KDistance,
-  cell_sizes? : Array[Double] = [],
+  contrast_column : Int32,
+  min_mean~ : Double = 0.0,
+  weighting~ : MiloSpatialWeighting = KDistance,
+  cell_sizes~ : Array[Double] = [],
 ) -> Array[MiloDAResult] raise MiloError {
   if self.neighborhood_counts.length() == 0 {
     raise MiloError(
       "miloR neighborhood counts are missing; run count_cells first",
     )
   }
-  if !milo_is_finite(min_mean) || min_mean < 0.0 {
+  if !is_finite(min_mean) || min_mean < 0.0 {
     raise MiloError("miloR minimum mean count must be finite and non-negative")
   }
   let samples = self.sample_names.length()
@@ -1205,19 +1222,19 @@ pub fn milo_sample_data() -> MiloSampleData {
     sample_conditions.push(condition)
     let left_count = if condition == "A" { 3 } else { 1 }
     let right_count = 4 - left_count
-    for local in 0..<left_count {
+    for local_ in 0..<left_count {
       coordinates.push([
-        (sample % 4).to_double() * 0.03 + local.to_double() * 0.08,
-        local.to_double() * 0.15,
+        (sample % 4).to_double() * 0.03 + local_.to_double() * 0.08,
+        local_.to_double() * 0.15,
       ])
       cell_names.push("Cell" + cell_number.to_string())
       sample_ids.push(sample_name)
       cell_number = cell_number + 1
     }
-    for local in 0..<right_count {
+    for local_ in 0..<right_count {
       coordinates.push([
-        5.0 + (sample % 4).to_double() * 0.03 + local.to_double() * 0.08,
-        local.to_double() * 0.15,
+        5.0 + (sample % 4).to_double() * 0.03 + local_.to_double() * 0.08,
+        local_.to_double() * 0.15,
       ])
       cell_names.push("Cell" + cell_number.to_string())
       sample_ids.push(sample_name)

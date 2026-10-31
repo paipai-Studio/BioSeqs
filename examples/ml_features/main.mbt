@@ -25,9 +25,9 @@ fn main {
   let kmer4 = @bio.kmer_frequency(dna_seq, 4, true)
 
   println("\nk-mer Frequency:")
-  println("  Dinucleotides: \{kmer2.keys().length()} unique")
-  println("  Trinucleotides: \{kmer3.keys().length()} unique")
-  println("  Tetranucleotides: \{kmer4.keys().length()} unique")
+  println("  Dinucleotides: \{kmer2.keys().count()} unique")
+  println("  Trinucleotides: \{kmer3.keys().count()} unique")
+  println("  Tetranucleotides: \{kmer4.keys().count()} unique")
 
   let dinuc_keys = kmer2.keys().collect()
   let dinuc_limit = min_int(dinuc_keys.length(), 5)
@@ -37,7 +37,7 @@ fn main {
 
   let canonical = @bio.dna_canonical_kmer_frequency(dna_seq, 3, true)
   println("\nCanonical k-mer Frequency (k=3):")
-  println("  Unique canonical: \{canonical.keys().length()}")
+  println("  Unique canonical: \{canonical.keys().count()}")
 
   let dna_features = @bio.dna_feature_vector(dna_seq)
   let dna_names = @bio.dna_feature_names()
@@ -69,8 +69,8 @@ fn main {
 
   let dipep = @bio.dipeptide_composition(prot_seq)
   let tripep = @bio.tripeptide_composition(prot_seq)
-  println("\nDipeptide Composition: \{dipep.keys().length()} unique")
-  println("Tripeptide Composition: \{tripep.keys().length()} unique")
+  println("\nDipeptide Composition: \{dipep.keys().count()} unique")
+  println("Tripeptide Composition: \{tripep.keys().count()} unique")
 
   let avg_h = @bio.avg_hydrophobicity(prot_seq)
   let avg_c = @bio.avg_charge(prot_seq)
@@ -112,7 +112,7 @@ fn main {
 }
 
 ///|
-fn min_int(a : Int, b : Int) -> Int {
+fn min_int(a : Int32, b : Int32) -> Int32 {
   if a < b {
     a
   } else {

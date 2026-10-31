@@ -13,7 +13,7 @@ pub fn shannon_entropy_bits(seq : String) -> Double {
     return 0.0
   }
   // Count character frequencies
-  let freq : Map[Char, Int] = Map([], capacity=16)
+  let freq : Map[Char, Int32] = Map([], capacity=16)
   let mut i = 0
   while i < n {
     let c = seq.unsafe_get(i).unsafe_to_char()
@@ -38,7 +38,7 @@ pub fn shannon_entropy_bits(seq : String) -> Double {
 /// Linguistic complexity = observed_kmers / max_possible_kmers
 /// For a sequence of length n with alphabet size a,
 /// max possible k-mers of length k = min(a^k, n-k+1)
-pub fn linguistic_complexity(seq : String, k? : Int = 2) -> Double {
+pub fn linguistic_complexity(seq : String, k~ : Int32 = 2) -> Double {
   let n = seq.length()
   if n < k {
     return 0.0
@@ -64,7 +64,7 @@ pub fn linguistic_complexity(seq : String, k? : Int = 2) -> Double {
 
 ///|
 /// Count the number of unique characters in a sequence.
-fn count_unique_chars(seq : String) -> Int {
+fn count_unique_chars(seq : String) -> Int32 {
   let seen : Map[Char, Bool] = Map([], capacity=16)
   let n = seq.length()
   let mut i = 0
@@ -78,7 +78,7 @@ fn count_unique_chars(seq : String) -> Int {
 
 ///|
 /// Count the number of unique k-mers in a sequence.
-fn count_unique_kmers(seq : String, k : Int) -> Int {
+fn count_unique_kmers(seq : String, k : Int32) -> Int32 {
   let n = seq.length()
   if n < k {
     return 0
@@ -141,7 +141,7 @@ pub fn dust_score(seq : String) -> Double {
     return 0.0
   }
   // Count 3-mers
-  let freq : Map[String, Int] = Map([], capacity=64)
+  let freq : Map[String, Int32] = Map([], capacity=64)
   let mut i = 0
   while i <= n - 3 {
     let kmer = seq[i:i + 3].to_owned()
@@ -167,7 +167,7 @@ pub fn dust_score(seq : String) -> Double {
 ///|
 /// Calculate the sequence signature as a k-mer frequency vector.
 /// Returns a map of k-mer -> frequency (normalized).
-pub fn sequence_signature(seq : String, k? : Int = 3) -> Map[String, Double] {
+pub fn sequence_signature(seq : String, k~ : Int32 = 3) -> Map[String, Double] {
   let result : Map[String, Double] = Map([], capacity=64)
   let n = seq.length()
   if n < k {
@@ -265,7 +265,7 @@ pub fn chaos_game_representation(seq : String) -> (Double, Double) {
 pub fn sequence_similarity_kmer(
   seq1 : String,
   seq2 : String,
-  k? : Int = 3,
+  k~ : Int32 = 3,
 ) -> Double {
   let sig1 = sequence_signature(seq1, k~)
   let sig2 = sequence_signature(seq2, k~)
@@ -305,9 +305,9 @@ pub fn sequence_similarity_kmer(
 ///
 /// The LCC score for a window is based on the number of different characters
 /// (k-words) of a given length k, normalized by the maximum possible.
-pub fn lcc(seq : String, window? : Int = 12, k? : Int = 3) -> Array[Double] {
+pub fn lcc(seq : String, window~ : Int32 = 12, k~ : Int32 = 3) -> Array[Double] {
   let n = seq.length()
-  let result = Array::new()
+  let result = Array(capacity=0)
   if n < window || k <= 0 {
     return result
   }
@@ -334,12 +334,12 @@ pub fn lcc(seq : String, window? : Int = 12, k? : Int = 3) -> Array[Double] {
 /// Returns an array of (start, end) ranges where LCC score < threshold.
 pub fn lcc_low_complexity_regions(
   seq : String,
-  window? : Int = 12,
-  k? : Int = 3,
-  threshold? : Double = 0.5,
-) -> Array[(Int, Int)] {
+  window~ : Int32 = 12,
+  k~ : Int32 = 3,
+  threshold~ : Double = 0.5,
+) -> Array[(Int32, Int32)] {
   let scores = lcc(seq, window~, k~)
-  let regions = Array::new()
+  let regions = Array(capacity=0)
   let mut i = 0
   while i < scores.length() {
     if scores[i] < threshold {

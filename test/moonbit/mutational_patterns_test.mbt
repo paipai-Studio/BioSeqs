@@ -154,7 +154,7 @@ test "known_cosmic_signatures" {
 ///|
 test "fit_signatures" {
   let sigs = @src.known_cosmic_signatures()
-  let profile : Array[Double] = Array::new()
+  let profile : Array[Double] = Array(capacity=0)
   let mut i = 0
   while i < 96 {
     profile.push(1.0 / 96.0)

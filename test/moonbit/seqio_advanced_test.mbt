@@ -236,8 +236,8 @@ test "write_genbank_multiple_records" {
   )
   let out = @src.write_genbank([r1, r2])
   // Should have two LOCUS and two terminators
-  assert_eq(out.split("LOCUS").length(), 3) // includes 1 before first match
-  assert_eq(out.split("//").length(), 3)
+  assert_eq(out.split("LOCUS").count(), 3) // includes 1 before first match
+  assert_eq(out.split("//").count(), 3)
 }
 
 // --- seqio_parse/write unified interface Tests ---

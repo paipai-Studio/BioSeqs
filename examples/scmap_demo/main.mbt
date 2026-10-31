@@ -13,11 +13,15 @@ fn main {
   // ------------------------------------------------------------------
   println("=== 1. Load reference atlas and query data ===")
   let reference = @bio.scmap_sample_reference()
-  println("Reference: \{reference.gene_names().length()} genes, \{reference.cell_names().length()} cells")
-  println("Cell types: \{reference.unique_cell_types()}")
+  println(
+    "Reference: \{reference.gene_names().length()} genes, \{reference.cell_names().length()} cells",
+  )
+  println("Cell types: \{Repr(reference.unique_cell_types())}")
   let query = @bio.scmap_sample_query()
-  println("Query: \{query.gene_names().length()} genes, \{query.cell_names().length()} cells")
-  println("Query cells: \{query.cell_names()}")
+  println(
+    "Query: \{query.gene_names().length()} genes, \{query.cell_names().length()} cells",
+  )
+  println("Query cells: \{Repr(query.cell_names())}")
   println("")
 
   // ------------------------------------------------------------------
@@ -51,7 +55,7 @@ fn main {
   let cell_assignments = @bio.scmap_cell(reference, query, 5, 0.5)
   for a in cell_assignments {
     println(
-      "  \{a.cell_name()} -> \{a.assigned_type()} (best_corr=\{a.best_correlation()}, method=\{a.method()})",
+      "  \{a.cell_name()} -> \{a.assigned_type()} (best_corr=\{a.best_correlation()}, method=\{a.method_()})",
     )
   }
   println("")

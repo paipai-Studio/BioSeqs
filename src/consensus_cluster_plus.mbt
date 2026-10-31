@@ -6,8 +6,8 @@
 /// Represents a consensus clustering result.
 pub struct CCPResult {
   consensus_matrix : Array[Array[Double]]
-  cluster_labels : Array[Int]
-  k : Int
+  cluster_labels : Array[Int32]
+  k : Int32
   consensus_score : Double
   stability_scores : Array[Double]
 }
@@ -16,8 +16,8 @@ pub struct CCPResult {
 /// Create a new CCPResult.
 pub fn CCPResult::new(
   consensus_matrix : Array[Array[Double]],
-  cluster_labels : Array[Int],
-  k : Int,
+  cluster_labels : Array[Int32],
+  k : Int32,
   consensus_score : Double,
   stability_scores : Array[Double],
 ) -> CCPResult {
@@ -34,16 +34,16 @@ pub fn CCPResult::new(
 /// Calculate consensus matrix from clustering results.
 pub fn ccp_calculate_consensus_matrix(
   data : Array[Array[Double]],
-  k : Int,
-  n_iterations : Int,
+  k : Int32,
+  n_iterations : Int32,
   sample_fraction : Double,
 ) -> Array[Array[Double]] {
   let n = data.length()
 
-  let consensus : Array[Array[Double]] = Array::new()
+  let consensus : Array[Array[Double]] = Array(capacity=0)
   let mut i = 0
   while i < n {
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     let mut j = 0
     while j < n {
       row.push(0.0)
@@ -53,10 +53,10 @@ pub fn ccp_calculate_consensus_matrix(
     i = i + 1
   }
 
-  let counts : Array[Array[Int]] = Array::new()
+  let counts : Array[Array[Int32]] = Array(capacity=0)
   let mut m = 0
   while m < n {
-    let row : Array[Int] = Array::new()
+    let row : Array[Int32] = Array(capacity=0)
     let mut p = 0
     while p < n {
       row.push(0)
@@ -71,7 +71,7 @@ pub fn ccp_calculate_consensus_matrix(
     let sample_size = (n.to_double() * sample_fraction).to_int()
     let sample_indices = ccp_deterministic_sample(n, sample_size, iter)
 
-    let sample_data : Array[Array[Double]] = Array::new()
+    let sample_data : Array[Array[Double]] = Array(capacity=0)
     let mut idx = 0
     while idx < sample_indices.length() {
       sample_data.push(data[sample_indices[idx]])
@@ -117,8 +117,12 @@ pub fn ccp_calculate_consensus_matrix(
 
 ///|
 /// Generate deterministic sample indices using seed.
-pub fn ccp_deterministic_sample(n : Int, size : Int, seed : Int) -> Array[Int] {
-  let indices : Array[Int] = Array::new()
+pub fn ccp_deterministic_sample(
+  n : Int32,
+  size : Int32,
+  seed : Int32,
+) -> Array[Int32] {
+  let indices : Array[Int32] = Array(capacity=0)
   let mut i = 0
   while i < n {
     indices.push(i)
@@ -137,7 +141,7 @@ pub fn ccp_deterministic_sample(n : Int, size : Int, seed : Int) -> Array[Int] {
     j = j - 1
   }
 
-  let result : Array[Int] = Array::new()
+  let result : Array[Int32] = Array(capacity=0)
   let mut m = 0
   while m < size && m < n {
     result.push(indices[m])
@@ -149,18 +153,21 @@ pub fn ccp_deterministic_sample(n : Int, size : Int, seed : Int) -> Array[Int] {
 
 ///|
 /// Perform k-means clustering with deterministic initialization.
-pub fn ccp_kmeans_cluster(data : Array[Array[Double]], k : Int) -> Array[Int] {
+pub fn ccp_kmeans_cluster(
+  data : Array[Array[Double]],
+  k : Int32,
+) -> Array[Int32] {
   let n = data.length()
   let dim = if n > 0 { data[0].length() } else { 0 }
 
-  let centroids : Array[Array[Double]] = Array::new()
+  let centroids : Array[Array[Double]] = Array(capacity=0)
   let mut c = 0
   while c < k && c < n {
     centroids.push(data[c])
     c = c + 1
   }
 
-  let labels : Array[Int] = Array::new()
+  let labels : Array[Int32] = Array(capacity=0)
   let mut j = 0
   while j < n {
     labels.push(0)
@@ -196,7 +203,7 @@ pub fn ccp_kmeans_cluster(data : Array[Array[Double]], k : Int) -> Array[Int] {
 
     let mut r = 0
     while r < centroids.length() {
-      let sum : Array[Double] = Array::new()
+      let sum : Array[Double] = Array(capacity=0)
       let mut s = 0
       while s < dim {
         sum.push(0.0)
@@ -281,15 +288,15 @@ pub fn ccp_calculate_consensus_score(
 /// Calculate stability scores for each cluster.
 pub fn ccp_calculate_stability_scores(
   consensus_matrix : Array[Array[Double]],
-  cluster_labels : Array[Int],
-  k : Int,
+  cluster_labels : Array[Int32],
+  k : Int32,
 ) -> Array[Double] {
   let n = consensus_matrix.length()
-  let scores : Array[Double] = Array::new()
+  let scores : Array[Double] = Array(capacity=0)
 
   let mut c = 0
   while c < k {
-    let members : Array[Int] = Array::new()
+    let members : Array[Int32] = Array(capacity=0)
     let mut i = 0
     while i < n {
       if cluster_labels[i] == c {
@@ -328,9 +335,9 @@ pub fn ccp_calculate_stability_scores(
 /// Perform consensus clustering.
 pub fn ccp_consensus_cluster(
   data : Array[Array[Double]],
-  k : Int,
-  n_iterations? : Int = 100,
-  sample_fraction? : Double = 0.8,
+  k : Int32,
+  n_iterations~ : Int32 = 100,
+  sample_fraction~ : Double = 0.8,
 ) -> CCPResult {
   let consensus_matrix = ccp_calculate_consensus_matrix(
     data, k, n_iterations, sample_fraction,
@@ -350,12 +357,12 @@ pub fn ccp_consensus_cluster(
 /// Find optimal k by evaluating consensus scores across a range.
 pub fn ccp_find_optimal_k(
   data : Array[Array[Double]],
-  min_k : Int,
-  max_k : Int,
-  n_iterations? : Int = 100,
-  sample_fraction? : Double = 0.8,
-) -> (Int, Array[Double]) {
-  let scores : Array[Double] = Array::new()
+  min_k : Int32,
+  max_k : Int32,
+  n_iterations~ : Int32 = 100,
+  sample_fraction~ : Double = 0.8,
+) -> (Int32, Array[Double]) {
+  let scores : Array[Double] = Array(capacity=0)
   let mut best_k = min_k
   let mut best_score = 0.0
 
@@ -377,16 +384,19 @@ pub fn ccp_find_optimal_k(
 
 ///|
 /// Bio API functions.
-pub fn bio_consensus_cluster(data : Array[Array[Double]], k : Int) -> CCPResult {
+pub fn bio_consensus_cluster(
+  data : Array[Array[Double]],
+  k : Int32,
+) -> CCPResult {
   ccp_consensus_cluster(data, k)
 }
 
 ///|
 pub fn bio_consensus_cluster_find_optimal_k(
   data : Array[Array[Double]],
-  min_k : Int,
-  max_k : Int,
-) -> (Int, Array[Double]) {
+  min_k : Int32,
+  max_k : Int32,
+) -> (Int32, Array[Double]) {
   ccp_find_optimal_k(data, min_k, max_k)
 }
 

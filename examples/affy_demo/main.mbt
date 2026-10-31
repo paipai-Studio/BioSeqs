@@ -29,7 +29,7 @@ fn main {
   println("  Background corrected probe set 0:")
   let mut i = 0
   while i < bg_corrected.length() {
-    println("    Probe \{i}: \{bg_corrected[i]}")
+    println("    Probe \{i}: \{Repr(bg_corrected[i])}")
     i = i + 1
   }
   println("")
@@ -42,16 +42,16 @@ fn main {
   println("  PM-MM differences:")
   i = 0
   while i < diff.length() {
-    println("    Probe \{i}: \{diff[i]}")
+    println("    Probe \{i}: \{Repr(diff[i])}")
     i = i + 1
   }
   println("")
 
   println("4. Probe set summarization (median)")
   let median_summary = @bio.summarize_probeset(probe_set, "median")
-  println("  Median summary: \{median_summary}")
+  println("  Median summary: \{Repr(median_summary)}")
   let mean_summary = @bio.summarize_probeset(probe_set, "mean")
-  println("  Mean summary: \{mean_summary}")
+  println("  Mean summary: \{Repr(mean_summary)}")
   println("")
 
   println("5. Full RMA normalization")
@@ -59,7 +59,7 @@ fn main {
   println("  RMA normalized expression values:")
   i = 0
   while i < normalized.length() {
-    println("    \{probe_set_ids[i]}: \{normalized[i]}")
+    println("    \{probe_set_ids[i]}: \{Repr(normalized[i])}")
     i = i + 1
   }
 }

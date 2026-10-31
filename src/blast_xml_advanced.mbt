@@ -17,21 +17,39 @@ pub(all) enum BlastXmlFormat {
 } derive(Eq, Debug)
 
 ///|
+pub extend BlastXmlFormat with Eq::{equal, not_equal}
+
+///|
+pub extend BlastXmlFormat with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
 /// One masked interval on the query, using zero-based half-open coordinates.
 pub struct BlastXmlMask {
-  start : Int
-  end : Int
+  start : Int32
+  end : Int32
 } derive(Eq, Debug)
+
+///|
+pub extend BlastXmlMask with Eq::{equal, not_equal}
+
+///|
+pub extend BlastXmlMask with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Query metadata for one BLAST record.
 pub struct BlastXmlQuery {
   id : String
   description : String
-  length : Int
+  length : Int32
   sequence : String?
   masks : Array[BlastXmlMask]
 } derive(Eq, Debug)
+
+///|
+pub extend BlastXmlQuery with Eq::{equal, not_equal}
+
+///|
+pub extend BlastXmlQuery with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Search parameters stored in a BLAST XML header.
@@ -39,18 +57,24 @@ pub struct BlastXmlParameters {
   matrix : String?
   expect : Double
   inclusion_threshold : Double?
-  score_match : Int?
-  score_mismatch : Int?
-  gap_open : Int?
-  gap_extend : Int?
+  score_match : Int32?
+  score_mismatch : Int32?
+  gap_open : Int32?
+  gap_extend : Int32?
   filter : String?
   pattern : String?
   entrez_query : String?
-  composition_based_statistics : Int?
-  query_genetic_code : Int?
-  database_genetic_code : Int?
-  bl2seq_mode : Int?
+  composition_based_statistics : Int32?
+  query_genetic_code : Int32?
+  database_genetic_code : Int32?
+  bl2seq_mode : Int32?
 } derive(Eq, Debug)
+
+///|
+pub extend BlastXmlParameters with Eq::{equal, not_equal}
+
+///|
+pub extend BlastXmlParameters with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Database and Karlin-Altschul statistics for one query.
@@ -58,9 +82,9 @@ pub struct BlastXmlParameters {
 /// `database_letters` is a `Double` because BLAST databases can exceed the
 /// platform `Int` range. Integer values below 2^53 remain exactly represented.
 pub struct BlastXmlStatistics {
-  database_sequences : Int
+  database_sequences : Int32
   database_letters : Double
-  effective_hsp_length : Int
+  effective_hsp_length : Int32
   effective_search_space : Double
   kappa : Double
   lambda : Double
@@ -68,14 +92,26 @@ pub struct BlastXmlStatistics {
 } derive(Eq, Debug)
 
 ///|
+pub extend BlastXmlStatistics with Eq::{equal, not_equal}
+
+///|
+pub extend BlastXmlStatistics with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
 /// One target description. XML2 can attach several descriptions to one hit.
 pub struct BlastXmlDescription {
   id : String
   accession : String
   title : String
-  taxid : Int?
+  taxid : Int32?
   scientific_name : String?
 } derive(Eq, Debug)
+
+///|
+pub extend BlastXmlDescription with Eq::{equal, not_equal}
+
+///|
+pub extend BlastXmlDescription with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// One breakpoint in an HSP coordinate path.
@@ -83,32 +119,38 @@ pub struct BlastXmlDescription {
 /// Coordinates are zero-based boundaries. Reverse-strand axes decrease.
 /// Translated nucleotide axes move in steps of three.
 pub struct BlastXmlCoordinate {
-  target : Int
-  query : Int
+  target : Int32
+  query : Int32
 } derive(Eq, Debug)
+
+///|
+pub extend BlastXmlCoordinate with Eq::{equal, not_equal}
+
+///|
+pub extend BlastXmlCoordinate with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// One high-scoring segment pair.
 pub struct BlastXmlHsp {
-  number : Int
+  number : Int32
   bit_score : Double
   score : Double
   evalue : Double
-  query_from : Int
-  query_to : Int
-  target_from : Int
-  target_to : Int
-  query_frame : Int?
-  target_frame : Int?
+  query_from : Int32
+  query_to : Int32
+  target_from : Int32
+  target_to : Int32
+  query_frame : Int32?
+  target_frame : Int32?
   query_strand : String?
   target_strand : String?
-  identity : Int
-  positive : Int?
-  gaps : Int?
-  alignment_length : Int?
-  density : Int?
-  pattern_from : Int?
-  pattern_to : Int?
+  identity : Int32
+  positive : Int32?
+  gaps : Int32?
+  alignment_length : Int32?
+  density : Int32?
+  pattern_from : Int32?
+  pattern_to : Int32?
   query_sequence : String
   target_sequence : String
   midline : String?
@@ -118,23 +160,41 @@ pub struct BlastXmlHsp {
 } derive(Eq, Debug)
 
 ///|
+pub extend BlastXmlHsp with Eq::{equal, not_equal}
+
+///|
+pub extend BlastXmlHsp with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
 /// One BLAST database hit and its HSPs.
 pub struct BlastXmlHit {
-  number : Int
+  number : Int32
   descriptions : Array[BlastXmlDescription]
-  length : Int
+  length : Int32
   hsps : Array[BlastXmlHsp]
 } derive(Eq, Debug)
 
 ///|
+pub extend BlastXmlHit with Eq::{equal, not_equal}
+
+///|
+pub extend BlastXmlHit with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
 /// Results for one query.
 pub struct BlastXmlRecord {
-  number : Int
+  number : Int32
   query : BlastXmlQuery
   hits : Array[BlastXmlHit]
   statistics : BlastXmlStatistics?
   message : String?
 } derive(Eq, Debug)
+
+///|
+pub extend BlastXmlRecord with Eq::{equal, not_equal}
+
+///|
+pub extend BlastXmlRecord with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// A complete BLAST XML1 or XML2 document.
@@ -149,6 +209,12 @@ pub struct BlastXmlDocument {
   records : Array[BlastXmlRecord]
   megablast_statistics : BlastXmlStatistics?
 } derive(Eq, Debug)
+
+///|
+pub extend BlastXmlDocument with Eq::{equal, not_equal}
+
+///|
+pub extend BlastXmlDocument with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 priv struct BlastXmlNode {
@@ -234,12 +300,12 @@ fn blast_xml_copy_query(query : BlastXmlQuery) -> BlastXmlQuery {
 }
 
 ///|
-pub fn BlastXmlMask::start(self : BlastXmlMask) -> Int {
+pub fn BlastXmlMask::start(self : BlastXmlMask) -> Int32 {
   self.start
 }
 
 ///|
-pub fn BlastXmlMask::end(self : BlastXmlMask) -> Int {
+pub fn BlastXmlMask::end(self : BlastXmlMask) -> Int32 {
   self.end
 }
 
@@ -254,7 +320,7 @@ pub fn BlastXmlQuery::description(self : BlastXmlQuery) -> String {
 }
 
 ///|
-pub fn BlastXmlQuery::length(self : BlastXmlQuery) -> Int {
+pub fn BlastXmlQuery::length(self : BlastXmlQuery) -> Int32 {
   self.length
 }
 
@@ -286,22 +352,22 @@ pub fn BlastXmlParameters::inclusion_threshold(
 }
 
 ///|
-pub fn BlastXmlParameters::score_match(self : BlastXmlParameters) -> Int? {
+pub fn BlastXmlParameters::score_match(self : BlastXmlParameters) -> Int32? {
   self.score_match
 }
 
 ///|
-pub fn BlastXmlParameters::score_mismatch(self : BlastXmlParameters) -> Int? {
+pub fn BlastXmlParameters::score_mismatch(self : BlastXmlParameters) -> Int32? {
   self.score_mismatch
 }
 
 ///|
-pub fn BlastXmlParameters::gap_open(self : BlastXmlParameters) -> Int? {
+pub fn BlastXmlParameters::gap_open(self : BlastXmlParameters) -> Int32? {
   self.gap_open
 }
 
 ///|
-pub fn BlastXmlParameters::gap_extend(self : BlastXmlParameters) -> Int? {
+pub fn BlastXmlParameters::gap_extend(self : BlastXmlParameters) -> Int32? {
   self.gap_extend
 }
 
@@ -323,31 +389,33 @@ pub fn BlastXmlParameters::entrez_query(self : BlastXmlParameters) -> String? {
 ///|
 pub fn BlastXmlParameters::composition_based_statistics(
   self : BlastXmlParameters,
-) -> Int? {
+) -> Int32? {
   self.composition_based_statistics
 }
 
 ///|
 pub fn BlastXmlParameters::query_genetic_code(
   self : BlastXmlParameters,
-) -> Int? {
+) -> Int32? {
   self.query_genetic_code
 }
 
 ///|
 pub fn BlastXmlParameters::database_genetic_code(
   self : BlastXmlParameters,
-) -> Int? {
+) -> Int32? {
   self.database_genetic_code
 }
 
 ///|
-pub fn BlastXmlParameters::bl2seq_mode(self : BlastXmlParameters) -> Int? {
+pub fn BlastXmlParameters::bl2seq_mode(self : BlastXmlParameters) -> Int32? {
   self.bl2seq_mode
 }
 
 ///|
-pub fn BlastXmlStatistics::database_sequences(self : BlastXmlStatistics) -> Int {
+pub fn BlastXmlStatistics::database_sequences(
+  self : BlastXmlStatistics,
+) -> Int32 {
   self.database_sequences
 }
 
@@ -361,7 +429,7 @@ pub fn BlastXmlStatistics::database_letters(
 ///|
 pub fn BlastXmlStatistics::effective_hsp_length(
   self : BlastXmlStatistics,
-) -> Int {
+) -> Int32 {
   self.effective_hsp_length
 }
 
@@ -403,7 +471,7 @@ pub fn BlastXmlDescription::title(self : BlastXmlDescription) -> String {
 }
 
 ///|
-pub fn BlastXmlDescription::taxid(self : BlastXmlDescription) -> Int? {
+pub fn BlastXmlDescription::taxid(self : BlastXmlDescription) -> Int32? {
   self.taxid
 }
 
@@ -415,17 +483,17 @@ pub fn BlastXmlDescription::scientific_name(
 }
 
 ///|
-pub fn BlastXmlCoordinate::target(self : BlastXmlCoordinate) -> Int {
+pub fn BlastXmlCoordinate::target(self : BlastXmlCoordinate) -> Int32 {
   self.target
 }
 
 ///|
-pub fn BlastXmlCoordinate::query(self : BlastXmlCoordinate) -> Int {
+pub fn BlastXmlCoordinate::query(self : BlastXmlCoordinate) -> Int32 {
   self.query
 }
 
 ///|
-pub fn BlastXmlHsp::number(self : BlastXmlHsp) -> Int {
+pub fn BlastXmlHsp::number(self : BlastXmlHsp) -> Int32 {
   self.number
 }
 
@@ -445,32 +513,32 @@ pub fn BlastXmlHsp::evalue(self : BlastXmlHsp) -> Double {
 }
 
 ///|
-pub fn BlastXmlHsp::query_from(self : BlastXmlHsp) -> Int {
+pub fn BlastXmlHsp::query_from(self : BlastXmlHsp) -> Int32 {
   self.query_from
 }
 
 ///|
-pub fn BlastXmlHsp::query_to(self : BlastXmlHsp) -> Int {
+pub fn BlastXmlHsp::query_to(self : BlastXmlHsp) -> Int32 {
   self.query_to
 }
 
 ///|
-pub fn BlastXmlHsp::target_from(self : BlastXmlHsp) -> Int {
+pub fn BlastXmlHsp::target_from(self : BlastXmlHsp) -> Int32 {
   self.target_from
 }
 
 ///|
-pub fn BlastXmlHsp::target_to(self : BlastXmlHsp) -> Int {
+pub fn BlastXmlHsp::target_to(self : BlastXmlHsp) -> Int32 {
   self.target_to
 }
 
 ///|
-pub fn BlastXmlHsp::query_frame(self : BlastXmlHsp) -> Int? {
+pub fn BlastXmlHsp::query_frame(self : BlastXmlHsp) -> Int32? {
   self.query_frame
 }
 
 ///|
-pub fn BlastXmlHsp::target_frame(self : BlastXmlHsp) -> Int? {
+pub fn BlastXmlHsp::target_frame(self : BlastXmlHsp) -> Int32? {
   self.target_frame
 }
 
@@ -485,27 +553,27 @@ pub fn BlastXmlHsp::target_strand(self : BlastXmlHsp) -> String? {
 }
 
 ///|
-pub fn BlastXmlHsp::identity(self : BlastXmlHsp) -> Int {
+pub fn BlastXmlHsp::identity(self : BlastXmlHsp) -> Int32 {
   self.identity
 }
 
 ///|
-pub fn BlastXmlHsp::positive(self : BlastXmlHsp) -> Int? {
+pub fn BlastXmlHsp::positive(self : BlastXmlHsp) -> Int32? {
   self.positive
 }
 
 ///|
-pub fn BlastXmlHsp::gaps(self : BlastXmlHsp) -> Int? {
+pub fn BlastXmlHsp::gaps(self : BlastXmlHsp) -> Int32? {
   self.gaps
 }
 
 ///|
-pub fn BlastXmlHsp::alignment_length(self : BlastXmlHsp) -> Int? {
+pub fn BlastXmlHsp::alignment_length(self : BlastXmlHsp) -> Int32? {
   self.alignment_length
 }
 
 ///|
-pub fn BlastXmlHsp::density(self : BlastXmlHsp) -> Int? {
+pub fn BlastXmlHsp::density(self : BlastXmlHsp) -> Int32? {
   self.density
 }
 
@@ -555,7 +623,7 @@ pub fn BlastXmlHsp::identity_fraction(self : BlastXmlHsp) -> Double {
 }
 
 ///|
-pub fn BlastXmlHit::number(self : BlastXmlHit) -> Int {
+pub fn BlastXmlHit::number(self : BlastXmlHit) -> Int32 {
   self.number
 }
 
@@ -574,7 +642,7 @@ pub fn BlastXmlHit::primary_description(
 }
 
 ///|
-pub fn BlastXmlHit::length(self : BlastXmlHit) -> Int {
+pub fn BlastXmlHit::length(self : BlastXmlHit) -> Int32 {
   self.length
 }
 
@@ -600,7 +668,7 @@ pub fn BlastXmlHit::best_hsp(self : BlastXmlHit) -> BlastXmlHsp? {
 }
 
 ///|
-pub fn BlastXmlRecord::number(self : BlastXmlRecord) -> Int {
+pub fn BlastXmlRecord::number(self : BlastXmlRecord) -> Int32 {
   self.number
 }
 
@@ -772,7 +840,7 @@ pub fn BlastXmlDocument::record(
 }
 
 ///|
-pub fn BlastXmlDocument::total_hits(self : BlastXmlDocument) -> Int {
+pub fn BlastXmlDocument::total_hits(self : BlastXmlDocument) -> Int32 {
   let mut total = 0
   for record in self.records {
     total = total + record.hits.length()
@@ -781,7 +849,7 @@ pub fn BlastXmlDocument::total_hits(self : BlastXmlDocument) -> Int {
 }
 
 ///|
-pub fn BlastXmlDocument::total_hsps(self : BlastXmlDocument) -> Int {
+pub fn BlastXmlDocument::total_hsps(self : BlastXmlDocument) -> Int32 {
   let mut total = 0
   for record in self.records {
     for hit in record.hits {
@@ -792,7 +860,7 @@ pub fn BlastXmlDocument::total_hsps(self : BlastXmlDocument) -> Int {
 }
 
 ///|
-fn blast_xml_is_space(code : Int) -> Bool {
+fn blast_xml_is_space(code : Int32) -> Bool {
   code == 32 || code == 9 || code == 10 || code == 13
 }
 
@@ -810,7 +878,7 @@ fn blast_xml_trim(value : String) -> String {
 }
 
 ///|
-fn blast_xml_starts_at(text : String, index : Int, token : String) -> Bool {
+fn blast_xml_starts_at(text : String, index : Int32, token : String) -> Bool {
   if index < 0 || index + token.length() > text.length() {
     return false
   }
@@ -823,7 +891,7 @@ fn blast_xml_starts_at(text : String, index : Int, token : String) -> Bool {
 }
 
 ///|
-fn blast_xml_find(text : String, token : String, start : Int) -> Int {
+fn blast_xml_find(text : String, token : String, start : Int32) -> Int32 {
   if token.length() == 0 {
     return start
   }
@@ -838,7 +906,7 @@ fn blast_xml_find(text : String, token : String, start : Int) -> Int {
 }
 
 ///|
-fn blast_xml_parse_radix_digits(value : String, radix : Int) -> Int? {
+fn blast_xml_parse_radix_digits(value : String, radix : Int32) -> Int32? {
   if value.length() == 0 {
     return None
   }
@@ -863,7 +931,7 @@ fn blast_xml_parse_radix_digits(value : String, radix : Int) -> Int? {
 }
 
 ///|
-fn blast_xml_character(code : Int) -> Char {
+fn blast_xml_character(code : Int32) -> Char {
   code.unsafe_to_char()
 }
 
@@ -913,7 +981,7 @@ fn blast_xml_entity_character(entity : String) -> Char? {
 
 ///|
 fn blast_xml_unescape_once(value : String) -> String {
-  let output = StringBuilder::new()
+  let output = StringBuilder()
   let mut index = 0
   while index < value.length() {
     if value.unsafe_get(index).to_int() == 38 {
@@ -961,7 +1029,10 @@ fn blast_xml_normalize_tag(raw : String) -> String {
 }
 
 ///|
-fn blast_xml_open_end(text : String, start : Int) -> Int raise BlastXmlError {
+fn blast_xml_open_end(
+  text : String,
+  start : Int32,
+) -> Int32 raise BlastXmlError {
   let mut quote = 0
   let mut index = start
   while index < text.length() {
@@ -997,8 +1068,8 @@ fn blast_xml_tag_name(opening : String) -> String raise BlastXmlError {
 ///|
 fn blast_xml_skip_declaration(
   text : String,
-  start : Int,
-) -> Int raise BlastXmlError {
+  start : Int32,
+) -> Int32 raise BlastXmlError {
   if blast_xml_starts_at(text, start, "<!--") {
     let end = blast_xml_find(text, "-->", start + 4)
     if end < 0 {
@@ -1041,8 +1112,8 @@ fn blast_xml_skip_declaration(
 ///|
 fn blast_xml_parse_node(
   text : String,
-  start : Int,
-) -> (BlastXmlNode, Int) raise BlastXmlError {
+  start : Int32,
+) -> (BlastXmlNode, Int32) raise BlastXmlError {
   if start >= text.length() || text.unsafe_get(start).to_int() != 60 {
     blast_xml_fail("Expected a BLAST XML opening tag")
   }
@@ -1056,10 +1127,10 @@ fn blast_xml_parse_node(
   let self_closing = trimmed_opening.length() > 0 &&
     trimmed_opening.unsafe_get(trimmed_opening.length() - 1).to_int() == 47
   if self_closing {
-    return (BlastXmlNode::{ name, text: "", children: [] }, open_end + 1)
+    return (BlastXmlNode::{ name, text: "", children: [], }, open_end + 1)
   }
   let children : Array[BlastXmlNode] = []
-  let content = StringBuilder::new()
+  let content = StringBuilder()
   let mut index = open_end + 1
   while index < text.length() {
     if blast_xml_starts_at(text, index, "</") {
@@ -1107,7 +1178,7 @@ fn blast_xml_parse_node(
     index = index + 1
   }
   blast_xml_fail("Premature end of BLAST XML document")
-  (BlastXmlNode::{ name: "", text: "", children: [] }, 0)
+  (BlastXmlNode::{ name: "", text: "", children: [], }, 0)
 }
 
 ///|
@@ -1191,7 +1262,7 @@ fn blast_xml_required_child(
     Some(child) => child
     None => {
       blast_xml_fail("Missing BLAST XML element: " + name)
-      BlastXmlNode::{ name: "", text: "", children: [] }
+      BlastXmlNode::{ name: "", text: "", children: [], }
     }
   }
 }
@@ -1251,7 +1322,7 @@ fn blast_xml_parse_number(
 fn blast_xml_parse_integer(
   value : String,
   label : String,
-) -> Int raise BlastXmlError {
+) -> Int32 raise BlastXmlError {
   let number = blast_xml_parse_number(value, label)
   let integer = number.to_int()
   if number != integer.to_double() {
@@ -1264,7 +1335,7 @@ fn blast_xml_parse_integer(
 fn blast_xml_required_int(
   node : BlastXmlNode,
   name : String,
-) -> Int raise BlastXmlError {
+) -> Int32 raise BlastXmlError {
   blast_xml_parse_integer(blast_xml_required_text(node, name), name)
 }
 
@@ -1272,7 +1343,7 @@ fn blast_xml_required_int(
 fn blast_xml_optional_int(
   node : BlastXmlNode,
   name : String,
-) -> Int? raise BlastXmlError {
+) -> Int32? raise BlastXmlError {
   match blast_xml_optional_text(node, name) {
     Some(value) => Some(blast_xml_parse_integer(value, name))
     None => None
@@ -1415,10 +1486,10 @@ fn blast_xml_parse_query(
       if start < 0 || end <= start || end > length {
         blast_xml_fail("BLAST XML query-masking range is out of bounds")
       }
-      masks.push(BlastXmlMask::{ start, end })
+      masks.push(BlastXmlMask::{ start, end, })
     }
   }
-  BlastXmlQuery::{ id, description, length, sequence, masks }
+  BlastXmlQuery::{ id, description, length, sequence, masks, }
 }
 
 ///|
@@ -1553,7 +1624,7 @@ fn blast_xml_target_translated(program : String) -> Bool {
 ///|
 fn blast_xml_validate_frame(
   program : String,
-  frame : Int?,
+  frame : Int32?,
   query_axis : Bool,
 ) -> Unit raise BlastXmlError {
   match frame {
@@ -1600,11 +1671,11 @@ fn blast_xml_validate_strand(
 ///|
 fn blast_xml_axis_direction(
   translated : Bool,
-  from : Int,
-  to : Int,
-  frame : Int?,
+  from : Int32,
+  to : Int32,
+  frame : Int32?,
   strand : String?,
-) -> Int {
+) -> Int32 {
   if translated {
     match frame {
       Some(value) => if value < 0 { -1 } else { 1 }
@@ -1624,7 +1695,7 @@ fn blast_xml_axis_direction(
 }
 
 ///|
-fn blast_xml_axis_start(from : Int, to : Int, direction : Int) -> Int {
+fn blast_xml_axis_start(from : Int32, to : Int32, direction : Int32) -> Int32 {
   if direction > 0 {
     if from < to {
       from - 1
@@ -1639,7 +1710,11 @@ fn blast_xml_axis_start(from : Int, to : Int, direction : Int) -> Int {
 }
 
 ///|
-fn blast_xml_axis_expected_end(from : Int, to : Int, direction : Int) -> Int {
+fn blast_xml_axis_expected_end(
+  from : Int32,
+  to : Int32,
+  direction : Int32,
+) -> Int32 {
   if direction > 0 {
     if from > to {
       from
@@ -1654,7 +1729,7 @@ fn blast_xml_axis_expected_end(from : Int, to : Int, direction : Int) -> Int {
 }
 
 ///|
-fn blast_xml_ungapped_length(value : String) -> Int {
+fn blast_xml_ungapped_length(value : String) -> Int32 {
   let mut length = 0
   for i = 0; i < value.length(); i = i + 1 {
     if value.unsafe_get(i).to_int() != 45 {
@@ -1681,14 +1756,14 @@ fn blast_xml_validate_aligned_sequence(
 fn blast_xml_build_coordinates(
   query_sequence : String,
   target_sequence : String,
-  query_from : Int,
-  query_to : Int,
-  target_from : Int,
-  target_to : Int,
-  query_step : Int,
-  target_step : Int,
-  query_direction : Int,
-  target_direction : Int,
+  query_from : Int32,
+  query_to : Int32,
+  target_from : Int32,
+  target_to : Int32,
+  query_step : Int32,
+  target_step : Int32,
+  query_direction : Int32,
+  target_direction : Int32,
 ) -> Array[BlastXmlCoordinate] raise BlastXmlError {
   let coordinates : Array[BlastXmlCoordinate] = []
   let mut query_coordinate = blast_xml_axis_start(
@@ -1754,9 +1829,9 @@ fn blast_xml_build_coordinates(
 ///|
 fn blast_xml_coded_by(
   identifier : String,
-  from : Int,
-  to : Int,
-  direction : Int,
+  from : Int32,
+  to : Int32,
+  direction : Int32,
 ) -> String {
   let lower = if from < to { from } else { to }
   let upper = if from < to { to } else { from }
@@ -1774,7 +1849,7 @@ fn blast_xml_parse_hsp(
   program : String,
   query : BlastXmlQuery,
   target : BlastXmlDescription,
-  target_length : Int,
+  target_length : Int32,
 ) -> BlastXmlHsp raise BlastXmlError {
   let number = blast_xml_required_int(node, "num")
   let bit_score = blast_xml_required_double(node, "bit-score")
@@ -2085,7 +2160,7 @@ fn blast_xml_parse_hit(
     }
     hsps.push(hsp)
   }
-  BlastXmlHit::{ number, descriptions, length, hsps }
+  BlastXmlHit::{ number, descriptions, length, hsps, }
 }
 
 ///|
@@ -2108,7 +2183,7 @@ fn blast_xml_parse_record(
   program : String,
   xml2 : Bool,
   fallback_query : BlastXmlQuery?,
-  default_number : Int,
+  default_number : Int32,
 ) -> BlastXmlRecord raise BlastXmlError {
   let number = match blast_xml_optional_int(node, "iter-num") {
     Some(value) => value
@@ -2316,7 +2391,7 @@ pub fn blast_xml_parse(text : String) -> BlastXmlDocument raise BlastXmlError {
 
 ///|
 fn blast_xml_escape(value : String) -> String raise BlastXmlError {
-  let output = StringBuilder::new()
+  let output = StringBuilder()
   for index = 0; index < value.length(); index = index + 1 {
     let code = value.unsafe_get(index).to_int()
     match code {
@@ -2372,7 +2447,7 @@ fn blast_xml_write_optional_int(
   output : StringBuilder,
   indent : String,
   name : String,
-  value : Int?,
+  value : Int32?,
 ) -> Unit raise BlastXmlError {
   match value {
     Some(number) =>
@@ -2618,7 +2693,7 @@ fn blast_xml_write_statistics(
 
 ///|
 fn blast_xml_legacy_description(hit : BlastXmlHit) -> String {
-  let output = StringBuilder::new()
+  let output = StringBuilder()
   output.write_string(hit.descriptions[0].title)
   for index = 1; index < hit.descriptions.length(); index = index + 1 {
     let description = hit.descriptions[index]
@@ -2631,7 +2706,7 @@ fn blast_xml_legacy_description(hit : BlastXmlHit) -> String {
 }
 
 ///|
-fn blast_xml_xml1_frame(frame : Int?, strand : String?) -> Int? {
+fn blast_xml_xml1_frame(frame : Int32?, strand : String?) -> Int32? {
   match frame {
     Some(value) => Some(value)
     None =>
@@ -2644,7 +2719,7 @@ fn blast_xml_xml1_frame(frame : Int?, strand : String?) -> Int? {
 }
 
 ///|
-fn blast_xml_xml2_strand(strand : String?, frame : Int?) -> String? {
+fn blast_xml_xml2_strand(strand : String?, frame : Int32?) -> String? {
   match strand {
     Some(value) => Some(value)
     None =>
@@ -2831,7 +2906,7 @@ fn blast_xml_write_record_xml1(
 fn blast_xml_write_xml1(
   document : BlastXmlDocument,
 ) -> String raise BlastXmlError {
-  let output = StringBuilder::new()
+  let output = StringBuilder()
   output.write_string("<?xml version=\"1.0\"?>\n")
   output.write_string(
     "<!DOCTYPE BlastOutput PUBLIC \"-//NCBI//NCBI BlastOutput/EN\" \"http://www.ncbi.nlm.nih.gov/dtd/NCBI_BlastOutput.dtd\">\n",
@@ -3116,8 +3191,8 @@ fn blast_xml_write_record_xml2(
 fn blast_xml_write_output_xml2(
   output : StringBuilder,
   document : BlastXmlDocument,
-  start : Int,
-  end : Int,
+  start : Int32,
+  end : Int32,
 ) -> Unit raise BlastXmlError {
   output.write_string("<BlastOutput2>\n")
   output.write_string("  <report>\n")
@@ -3161,7 +3236,7 @@ fn blast_xml_write_output_xml2(
 fn blast_xml_write_xml2(
   document : BlastXmlDocument,
 ) -> String raise BlastXmlError {
-  let output = StringBuilder::new()
+  let output = StringBuilder()
   output.write_string("<?xml version=\"1.0\"?>\n")
   output.write_string(
     "<BlastXML2 xmlns=\"http://www.ncbi.nlm.nih.gov\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema-instance\" xs:schemaLocation=\"http://www.ncbi.nlm.nih.gov http://www.ncbi.nlm.nih.gov/data_specs/schema_alt/NCBI_BlastOutput2.xsd\">\n",

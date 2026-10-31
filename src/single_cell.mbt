@@ -18,23 +18,28 @@ pub fn SimpleSCE::new(
   col_data : Array[Array[String]],
   row_data : Array[Array[String]],
 ) -> SimpleSCE {
-  SimpleSCE::{ assays, col_data, row_data, reduced_dimensions: Array::new() }
+  SimpleSCE::{
+    assays,
+    col_data,
+    row_data,
+    reduced_dimensions: Array(capacity=0),
+  }
 }
 
 ///|
 pub struct QCMetrics {
   n_umi : Array[Double]
-  n_genes : Array[Int]
+  n_genes : Array[Int32]
   mito_percent : Array[Double]
 }
 
 ///|
 pub fn QCMetrics::new(
   n_umi : Array[Double],
-  n_genes : Array[Int],
+  n_genes : Array[Int32],
   mito_percent : Array[Double],
 ) -> QCMetrics {
-  QCMetrics::{ n_umi, n_genes, mito_percent }
+  QCMetrics::{ n_umi, n_genes, mito_percent, }
 }
 
 ///|
@@ -45,9 +50,9 @@ pub fn calculate_qc_metrics(
   let n_cells = counts.length()
   let n_genes = if n_cells > 0 { counts[0].length() } else { 0 }
 
-  let n_umi : Array[Double] = Array::new()
-  let n_gene_arr : Array[Int] = Array::new()
-  let mito_percent_arr : Array[Double] = Array::new()
+  let n_umi : Array[Double] = Array(capacity=0)
+  let n_gene_arr : Array[Int32] = Array(capacity=0)
+  let mito_percent_arr : Array[Double] = Array(capacity=0)
 
   let mut i = 0
   while i < n_cells {
@@ -65,7 +70,7 @@ pub fn calculate_qc_metrics(
       if j < gene_names.length() {
         let gene_name = gene_names[j]
         let gene_upper = gene_name.to_upper()
-        if gene_upper.starts_with("MT-") || gene_upper.starts_with("MT") {
+        if gene_upper.has_prefix("MT-") || gene_upper.has_prefix("MT") {
           mito_total = mito_total + count
         }
       }
@@ -88,12 +93,12 @@ pub fn calculate_qc_metrics(
 pub fn filter_cells(
   counts : Array[Array[Double]],
   qc : QCMetrics,
-  min_n_umi : Int,
-  max_n_umi : Int,
-  min_n_genes : Int,
+  min_n_umi : Int32,
+  max_n_umi : Int32,
+  min_n_genes : Int32,
   max_mito_percent : Double,
 ) -> Array[Array[Double]] {
-  let filtered : Array[Array[Double]] = Array::new()
+  let filtered : Array[Array[Double]] = Array(capacity=0)
 
   let mut i = 0
   while i < counts.length() {
@@ -119,7 +124,7 @@ pub fn log_normalize(
 
   let sf = match size_factors {
     None => {
-      let sf_arr : Array[Double] = Array::new()
+      let sf_arr : Array[Double] = Array(capacity=0)
       let mut i = 0
       while i < n_cells {
         let mut sum = 0.0
@@ -136,11 +141,11 @@ pub fn log_normalize(
     Some(sf_val) => sf_val
   }
 
-  let normalized : Array[Array[Double]] = Array::new()
+  let normalized : Array[Array[Double]] = Array(capacity=0)
 
   let mut i = 0
   while i < n_cells {
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     let mut j = 0
     while j < n_genes {
       let norm = if sf[i] > 0.0 { counts[i][j] / sf[i] } else { 0.0 }
@@ -164,10 +169,10 @@ fn matmul(
   let n = if m > 0 { a[0].length() } else { 0 }
   let p = if b.length() > 0 { b[0].length() } else { 0 }
 
-  let result : Array[Array[Double]] = Array::new()
+  let result : Array[Array[Double]] = Array(capacity=0)
   let mut i = 0
   while i < m {
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     let mut j = 0
     while j < p {
       let mut sum = 0.0
@@ -188,7 +193,7 @@ fn matmul(
 
 ///|
 fn matmul_vec(m : Array[Array[Double]], v : Array[Double]) -> Array[Double] {
-  let result : Array[Double] = Array::new()
+  let result : Array[Double] = Array(capacity=0)
   let mut i = 0
   while i < m.length() {
     let mut sum = 0.0
@@ -211,10 +216,10 @@ fn transpose(m : Array[Array[Double]]) -> Array[Array[Double]] {
   }
   let cols = m[0].length()
 
-  let result : Array[Array[Double]] = Array::new()
+  let result : Array[Array[Double]] = Array(capacity=0)
   let mut i = 0
   while i < cols {
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     let mut j = 0
     while j < rows {
       if i < m[j].length() {
@@ -247,7 +252,7 @@ fn center_matrix(m : Array[Array[Double]]) -> Array[Array[Double]] {
   let rows = m.length()
   let cols = if rows > 0 { m[0].length() } else { 0 }
 
-  let means : Array[Double] = Array::new()
+  let means : Array[Double] = Array(capacity=0)
   let mut j = 0
   while j < cols {
     let mut sum = 0.0
@@ -260,10 +265,10 @@ fn center_matrix(m : Array[Array[Double]]) -> Array[Array[Double]] {
     j = j + 1
   }
 
-  let centered : Array[Array[Double]] = Array::new()
+  let centered : Array[Array[Double]] = Array(capacity=0)
   let mut i = 0
   while i < rows {
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     let mut j = 0
     while j < cols {
       row.push(m[i][j] - means[j])
@@ -279,14 +284,14 @@ fn center_matrix(m : Array[Array[Double]]) -> Array[Array[Double]] {
 ///|
 pub fn pca_power_iteration(
   data : Array[Array[Double]],
-  n_components : Int,
+  n_components : Int32,
 ) -> (Array[Array[Double]], Array[Double]) {
   let centered = center_matrix(data)
   let mut cov = matmul(transpose(centered), centered)
 
   let n = cov.length()
-  let components : Array[Array[Double]] = Array::new()
-  let eigenvalues : Array[Double] = Array::new()
+  let components : Array[Array[Double]] = Array(capacity=0)
+  let eigenvalues : Array[Double] = Array(capacity=0)
 
   let mut i = 0
   while i < n_components {
@@ -313,10 +318,10 @@ pub fn pca_power_iteration(
 
     let eigenvalue = vec_norm(matmul_vec(cov, v))
 
-    let outer : Array[Array[Double]] = Array::new()
+    let outer : Array[Array[Double]] = Array(capacity=0)
     let mut k = 0
     while k < n {
-      let row : Array[Double] = Array::new()
+      let row : Array[Double] = Array(capacity=0)
       let mut l = 0
       while l < n {
         row.push(v[k] * v[l])
@@ -326,10 +331,10 @@ pub fn pca_power_iteration(
       k = k + 1
     }
 
-    let new_cov : Array[Array[Double]] = Array::new()
+    let new_cov : Array[Array[Double]] = Array(capacity=0)
     k = 0
     while k < n {
-      let row : Array[Double] = Array::new()
+      let row : Array[Double] = Array(capacity=0)
       let mut l = 0
       while l < n {
         row.push(cov[k][l] - eigenvalue * outer[k][l])
@@ -360,13 +365,13 @@ pub fn pca_power_iteration(
 ///|
 pub fn find_variable_genes(
   normalized : Array[Array[Double]],
-  n_top_genes : Int,
-) -> Array[Int] {
+  n_top_genes : Int32,
+) -> Array[Int32] {
   let n_genes = if normalized.length() > 0 { normalized[0].length() } else { 0 }
   let n_cells = normalized.length()
 
-  let means : Array[Double] = Array::new()
-  let vars : Array[Double] = Array::new()
+  let means : Array[Double] = Array(capacity=0)
+  let vars : Array[Double] = Array(capacity=0)
 
   let mut i = 0
   while i < n_genes {
@@ -391,7 +396,7 @@ pub fn find_variable_genes(
     i = i + 1
   }
 
-  let gene_vars : Array[(Double, Int)] = Array::new()
+  let gene_vars : Array[(Double, Int32)] = Array(capacity=0)
   i = 0
   while i < n_genes {
     gene_vars.push((vars[i], i))
@@ -412,7 +417,7 @@ pub fn find_variable_genes(
     j = j + 1
   }
 
-  let top_indices : Array[Int] = Array::new()
+  let top_indices : Array[Int32] = Array(capacity=0)
   i = 0
   while i < n_top_genes && i < gene_vars.length() {
     top_indices.push(gene_vars[i].1)
@@ -425,15 +430,15 @@ pub fn find_variable_genes(
 ///|
 pub fn select_genes_by_indices(
   data : Array[Array[Double]],
-  indices : Array[Int],
+  indices : Array[Int32],
 ) -> Array[Array[Double]] {
   let n_cells = data.length()
   let n_selected = indices.length()
 
-  let selected : Array[Array[Double]] = Array::new()
+  let selected : Array[Array[Double]] = Array(capacity=0)
   let mut i = 0
   while i < n_cells {
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     let mut j = 0
     while j < n_selected {
       let idx = indices[j]

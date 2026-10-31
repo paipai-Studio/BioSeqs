@@ -22,14 +22,20 @@ fn main {
   println("========================")
   let scop = @bio.Scop::new(cla_records, des_records, hie_records)
   println("Root sunid: " + scop.root().sunid().to_string())
-  println("Root type: " + scop.root().nodetype() + " (" + @bio.scop_node_type_name(scop.root().nodetype()) + ")")
+  println(
+    "Root type: " +
+    scop.root().nodetype() +
+    " (" +
+    @bio.scop_node_type_name(scop.root().nodetype()) +
+    ")",
+  )
   println("Total domains: " + scop.get_domains().length().to_string())
 
   // 3. Look up domain by sid
   println("\n3. Look Up Domain by SID:")
   println("=========================")
   let d = scop.get_domain_by_sid("d1hba_")
-  if d.is_some() {
+  if d is Some(_) {
     let domain = d.unwrap()
     println("SID: " + domain.sid())
     println("Sunid: " + domain.sunid().to_string())
@@ -37,12 +43,14 @@ fn main {
     println("PDB ID: " + domain.pdbid())
     println("Description: " + domain.description())
     let res = domain.residues()
-    if res.is_some() {
+    if res is Some(_) {
       let r = res.unwrap()
       println("PDB ID (residues): " + r.pdbid())
       println("Fragments: " + r.fragments().length().to_string())
       for frag in r.fragments() {
-        println("  Chain " + frag.chain() + ": " + frag.start() + "-" + frag.end_())
+        println(
+          "  Chain " + frag.chain() + ": " + frag.start() + "-" + frag.end_(),
+        )
       }
     }
   }
@@ -50,14 +58,21 @@ fn main {
   // 4. Traverse hierarchy (get ascendents)
   println("\n4. Get Ascendents of Domain:")
   println("============================")
-  if d.is_some() {
+  if d is Some(_) {
     let domain = d.unwrap()
     let types = ["class", "fold", "superfamily", "family", "protein", "species"]
     for t in types {
       let asc = scop.get_ascendent(domain, t)
-      if asc.is_some() {
+      if asc is Some(_) {
         let n = asc.unwrap()
-        println(t + ": sunid=" + n.sunid().to_string() + " desc=\"" + n.description() + "\"")
+        println(
+          t +
+          ": sunid=" +
+          n.sunid().to_string() +
+          " desc=\"" +
+          n.description() +
+          "\"",
+        )
       }
     }
   }
@@ -94,7 +109,8 @@ fn main {
   println("\n=== Demo Complete ===")
 }
 
-fn count_lines(s : String) -> Int {
+///|
+fn count_lines(s : String) -> Int32 {
   let mut count = 1
   for i = 0; i < s.length(); i = i + 1 {
     if s.unsafe_get(i).to_int() == '\n'.to_int() {

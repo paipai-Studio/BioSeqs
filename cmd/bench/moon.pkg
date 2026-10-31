@@ -3,6 +3,4 @@ import {
   "moonbitlang/core/bench" @mb,
 }
 
-options(
-  "is-main": true,
-)
+pkgtype(kind: "executable")
