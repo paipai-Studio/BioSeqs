@@ -762,7 +762,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 ```
 IvanAXu/BioSeqs/
 ├── moon.mod                          # 模块配置 (name="IvanAXu/BioSeqs", version=0.1.25)
-├── src/                              # 源代码（724 个 .mbt 模块）
+├── src/                              # 源代码（725 个 .mbt 模块）
 │   ├── seq.mbt                       # Bio.Seq 序列对象
 │   ├── seqio.mbt / fasta_io.mbt / ... # 序列 I/O（30+ 种格式）
 │   ├── alignment.mbt / align_*.mbt   # 比对算法 + 20+ 种比对格式严格 API
@@ -783,7 +783,7 @@ IvanAXu/BioSeqs/
 │   ├── acmg.mbt / qtlseq.mbt / circrna.mbt / docking.mbt / conservation_scores.mbt # 第九阶段: ACMG 2015 临床致病性自动化分级 + ClinVar 摄取 / QTL-seq 混池分离定位(SNP-index) / circRNA 检测(反向剪接 BSJ) / 蛋白-配体刚体对接(Vina-lite) / 进化约束打分(GERP/phastCons-lite)
 │   ├── statistics.mbt / kmeans.mbt / hmm.mbt / neural_network.mbt / ... # ML 与统计
 │   └── utils.mbt / data.mbt / ...    # 通用工具与常量
-├── examples/                         # 示例程序（558 个演示 demo）
+├── examples/                         # 示例程序（559 个演示 demo）
 │   ├── basic_seq/                    # 基础序列操作
 │   ├── seqcode_demo/ / seq_utils_demo/ # SeqUtils 序列工具（gc_fraction/GC123/nt_search/六框翻译/seq3/seq1）
 │   ├── codon_utils_demo/               # CodonUtils 密码子分析（NCBI 27 表/GC123/六框翻译/CAI/Nc Wright 1990/表元数据）
@@ -844,7 +844,7 @@ IvanAXu/BioSeqs/
 │   ├── acmg_demo/ / qtlseq_demo/ / circrna_demo/ / docking_demo/ / conservation_demo/ # 第九阶段（临床变异解读：ClinVar 摄取→证据推导→五级分类→报告闭环；QTL-seq 定位：双池 SNP-index→ΔSNP-index 滑窗→候选区间 BED 闭环；circRNA 检测：BSJ split-read→聚合过滤→circRNA 记录闭环；蛋白对接：口袋检测→构象枚举→能量排名→姿势输出闭环；约束打分：MSA→GERP-lite→后验→保守区段→打分容器闭环）
 │   └── ... （更多 examples/*_demo/）
 ├── test/
-│   ├── moonbit/                      # MoonBit 单元测试（725 个测试文件，16431 用例）
+│   ├── moonbit/                      # MoonBit 单元测试（726 个测试文件，16438 用例）
 │   │   ├── bio_seq_test.mbt / seqio_wb_test.mbt / ...
 │   │   ├── alignment_test.mbt / pdb_test.mbt / phylo_test.mbt / ...
 │   │   ├── deseq2_test.mbt / rankprod_test.mbt / seurat_test.mbt / scran_test.mbt / ...
@@ -881,7 +881,7 @@ IvanAXu/BioSeqs/
 
 ```bash
 moon build                                              # ✅ 成功
-moon test                                               # ✅ 16431 个测试全部通过（test/moonbit 包）
+moon test                                               # ✅ 16438 个测试全部通过（test/moonbit 包）
 ```
 
 ---
@@ -890,7 +890,7 @@ moon test                                               # ✅ 16431 个测试全
 
 ```bash
 moon build      # 构建项目
-moon test       # 运行全部测试 (16431 个测试用例，test/moonbit 包)
+moon test       # 运行全部测试 (16438 个测试用例，test/moonbit 包)
 ```
 
 ---

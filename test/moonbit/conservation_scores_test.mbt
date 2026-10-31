@@ -125,12 +125,12 @@ test "conservation: TSV/JSON/摘要导出" {
 
 ///|
 test "conservation: 空输入" {
-   let empty_gerp = @src.conservation_gerp([])
-   assert_eq(empty_gerp.length(), 0)
-   let empty_post = @src.conservation_posterior([])
-   assert_eq(empty_post.length(), 0)
-   let empty_segs = @src.conservation_viterbi_segments([])
-   assert_eq(empty_segs.length(), 0)
-   let line = @src.conservation_summary_line([], [])
-   assert_eq(line.contains("cols=0"), true)
- }
+  let empty_gerp = @src.conservation_gerp([])
+  assert_eq(empty_gerp.length(), 0)
+  let empty_post = @src.conservation_posterior([])
+  assert_eq(empty_post.length(), 0)
+  let empty_segs = @src.conservation_viterbi_segments([])
+  assert_eq(empty_segs.length(), 0)
+  let line = @src.conservation_summary_line([], [])
+  assert_eq(line.contains("cols=0"), true)
+}
