@@ -15,13 +15,13 @@
 ///|
 /// 长读长 SV 调用结果.
 pub struct SvCall {
-  pub chrom : String
-  pub sv_type : SvType
-  pub start : Int32
-  pub end : Int32
-  pub support_reads : Int32
-  pub total_reads : Int32
-  pub score : Double
+  chrom : String
+  sv_type : SvType
+  start : Int32
+  end : Int32
+  support_reads : Int32
+  total_reads : Int32
+  score : Double
 }
 
 ///|

@@ -26,7 +26,7 @@ pub enum SvType {
   INS // insertion
   TRA // translocation (inter-chromosomal)
   BND // breakend (unresolved junction)
-} derive(Eq, Debug)
+}
 
 ///|
 /// Construct a DEL type tag.

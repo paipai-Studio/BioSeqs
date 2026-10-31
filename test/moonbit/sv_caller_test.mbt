@@ -41,7 +41,7 @@ test "sv candidates from sam deletion" {
   let params = @src.SvParams::default()
   let calls = @src.sv_candidates_from_sam("chr1", 100, cigar, params)
   assert_eq(calls.length(), 1)
-  assert_eq(calls[0].sv_type(), @src.sv_type_del())
+  assert_eq(@src.sv_type_label(calls[0].sv_type()), "DEL")
   assert_eq(calls[0].start(), 110)
   assert_eq(calls[0].end(), 160)
 }
@@ -52,7 +52,7 @@ test "sv candidates from sam insertion" {
   let params = @src.SvParams::default()
   let calls = @src.sv_candidates_from_sam("chr1", 100, cigar, params)
   assert_eq(calls.length(), 1)
-  assert_eq(calls[0].sv_type(), @src.sv_type_ins())
+  assert_eq(@src.sv_type_label(calls[0].sv_type()), "INS")
 }
 
 ///|
@@ -61,7 +61,7 @@ test "sv candidates from sam skip" {
   let params = @src.SvParams::default()
   let calls = @src.sv_candidates_from_sam("chr1", 100, cigar, params)
   assert_eq(calls.length(), 1)
-  assert_eq(calls[0].sv_type(), @src.sv_type_del())
+  assert_eq(@src.sv_type_label(calls[0].sv_type()), "DEL")
 }
 
 ///|
@@ -151,7 +151,7 @@ test "sv call fields" {
   let calls = @src.sv_candidates_from_sam("chr1", 100, cigar, params)
   let c = calls[0]
   assert_eq(c.chrom(), "chr1")
-  assert_eq(c.sv_type(), @src.sv_type_del())
+  assert_eq(@src.sv_type_label(c.sv_type()), "DEL")
   assert_eq(c.start(), 110)
   assert_eq(c.end(), 160)
 }
