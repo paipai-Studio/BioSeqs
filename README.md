@@ -753,6 +753,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **QTL-seq / BSA 混池分离定位** | QTL-seq / MutMap | `qtlseq.mbt`：双混池（突变体池 + 野生型池）VCF 逐双等位 SNP 位点 SNP-index（alt AD/(ref AD+alt AD)，FORMAT AD 解析含 vcf.mbt 整串拆分适配、深度过滤）、ΔSNP-index = mut − wt、滑动窗口聚合（固定网格 1-based 闭区间）、候选区间调用（\|ΔSNP-index\| ≥ 阈值的连续窗口合并、峰值方向标记 mutant/wt 富集）、MutMap 单池模式（wt_index 恒 0 即 mutant SNP-index 自身）、逐窗 TSV 与候选区间 BED（0-based 半开）与 JSON 导出 |
 | **circRNA 检测(反向剪接)** | find_circ / CIRI / CircExplorer | `circrna.mbt`：从 SAM split-read 检测环状 RNA——主定位 + 标准 SA 补充标签解析，BSJ（反向剪接）读段判定为 SA 定位整体位于主定位上游（读段跨 junction 后基因组坐标倒退，线性融合/剪接为正向不计）、circRNA 坐标 = [SA 起点, 主定位终点)（0-based 半开，BSJ 断点 = (主终点, SA 起点)）、同断点簇聚合为 BSJ 支持数、最小支持/最小环长过滤、链方向（主与 SA 链一致标链否则 "."）、secondary/supplementary 双计防护、find_circ 风格 TSV（circ_name 命名）与 JSON 导出；已知简化：不做 CIRI 穷举种子扩展（仅 SA split-read）、不区分 Alu 介导环 |
 | **蛋白-配体对接(Vina-lite 刚体)** | AutoDock Vina / rDock | `docking.mbt`：刚体对接（诚实定位：构象搜索为口袋内平移格点穷举 × 均匀欧拉角旋转网格 Z-Y-Z 矩阵，无可旋转键扭转；Vina 为遗传算法 + 柔性键）——口袋检测（参考中心邻域收集或 3Å 格点 8Å 邻域原子密度峰值）、打分 = LJ 12-6（元素参数表 σ/ε 组合规则）+ Coulomb（k_e = 332.0637，电荷可选）+ 硬冲突惩罚（r < 0.65σ 时 +100 模拟 repulsion，12Å 长程截断）、配体质心放置与能量升序 top-k 姿势排名、PDBQT 风格姿势输出与 JSON 导出；已知简化：打分为物理势而非 Vina 经验项（gauss/hydrophobic/hbond） |
+| **进化约束打分(GERP/phastCons-lite 计算端)** | GERP++ / phastCons / phyloP | `conservation_scores.mbt`：从 MSA 计算逐列约束打分（补全 genomic_scores.mbt"只存不算"的计算端）——GERP-lite 拒绝打分 RS = tree_length × (1 − H_obs/ln4)（熵代理，诚实声明：GERP++ 为中性树似然差；保守列满分、可变列趋零、gap/N 排除与 min_effective 过滤）、phastCons-lite 保守后验（发射对数似然比：conserved 中心模型 p_keep=0.95 vs 均匀中性，logistic 压缩 0-1）、两状态 Viterbi 解码保守区段（固定转移概率 + 逐位后验均值）、GenomicScores 容器写入闭环（`conservation_to_gscores` + score_at/range_score 检索）、TSV/JSON 导出 |
 
 ## 架构设计
 
@@ -761,7 +762,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 ```
 IvanAXu/BioSeqs/
 ├── moon.mod                          # 模块配置 (name="IvanAXu/BioSeqs", version=0.1.25)
-├── src/                              # 源代码（723 个 .mbt 模块）
+├── src/                              # 源代码（724 个 .mbt 模块）
 │   ├── seq.mbt                       # Bio.Seq 序列对象
 │   ├── seqio.mbt / fasta_io.mbt / ... # 序列 I/O（30+ 种格式）
 │   ├── alignment.mbt / align_*.mbt   # 比对算法 + 20+ 种比对格式严格 API
@@ -779,10 +780,10 @@ IvanAXu/BioSeqs/
 │   ├── umi.mbt / codon_optimizer.mbt / read_simulator.mbt / variant_benchmark.mbt / phylo_clock.mbt / kraken_lite.mbt # 第五、六阶段: UMI/密码子优化/读段模拟/变异检出基准/分子钟/宏基因组丰度
 │   ├── phase_lite.mbt / assembly_graph.mbt / gvcf.mbt / pedigree_qc.mbt / gwas_regression.mbt # 第七阶段: VCF 定相 / 组装图简化与抛光 / gVCF 联合分型 / 家系一致性 QC / GWAS 回归闭环
 │   ├── mutect_lite.mbt / bam_postprocess.mbt / transcript_assembly.mbt / methylation_caller.mbt / foldx_lite.mbt / vg_lite.mbt # 第八阶段: 体细胞变异检出(Mutect2 LOD) / BAM 后处理(fixmate/markdup/BQSR) / 转录本组装(剪接图流) / 甲基化调用器(Bismark extractor) / 蛋白稳定性 ΔΔG(FoldX-lite) / 泛基因组变异图分型(vg-lite)
-│   ├── acmg.mbt / qtlseq.mbt / circrna.mbt / docking.mbt # 第九阶段: ACMG 2015 临床致病性自动化分级 + ClinVar 摄取 / QTL-seq 混池分离定位(SNP-index) / circRNA 检测(反向剪接 BSJ) / 蛋白-配体刚体对接(Vina-lite)
+│   ├── acmg.mbt / qtlseq.mbt / circrna.mbt / docking.mbt / conservation_scores.mbt # 第九阶段: ACMG 2015 临床致病性自动化分级 + ClinVar 摄取 / QTL-seq 混池分离定位(SNP-index) / circRNA 检测(反向剪接 BSJ) / 蛋白-配体刚体对接(Vina-lite) / 进化约束打分(GERP/phastCons-lite)
 │   ├── statistics.mbt / kmeans.mbt / hmm.mbt / neural_network.mbt / ... # ML 与统计
 │   └── utils.mbt / data.mbt / ...    # 通用工具与常量
-├── examples/                         # 示例程序（557 个演示 demo）
+├── examples/                         # 示例程序（558 个演示 demo）
 │   ├── basic_seq/                    # 基础序列操作
 │   ├── seqcode_demo/ / seq_utils_demo/ # SeqUtils 序列工具（gc_fraction/GC123/nt_search/六框翻译/seq3/seq1）
 │   ├── codon_utils_demo/               # CodonUtils 密码子分析（NCBI 27 表/GC123/六框翻译/CAI/Nc Wright 1990/表元数据）
@@ -840,10 +841,10 @@ IvanAXu/BioSeqs/
 │   ├── umi_demo/ / codon_optimizer_demo/ / read_simulator_demo/ / variant_benchmark_demo/ / treetime_demo/ / kraken_lite_demo/ # 第五、六阶段（UMI/密码子优化/读段模拟/变异检出基准/分子钟/TreeTime/宏基因组丰度）
 │   ├── phase_demo/ / assembly_graph_demo/ / gvcf_demo/ / pedigree_qc_demo/ / gwas_regression_demo/ # 第七阶段（读段定相；组装图简化与抛光；gVCF 联合分型；家系一致性 QC；GWAS 回归闭环）
 │   ├── mutect_lite_demo/ / bam_postprocess_demo/ / transcript_assembly_demo/ / methylation_caller_demo/ / foldx_lite_demo/ / vg_lite_demo/ # 第八阶段（体细胞变异检出：LOD/过滤/TMB/VCF/突变签名闭环；BAM 后处理：fixmate/markdup/BQSR 链；转录本组装：junction/贪心流/GTF/FPKM 闭环；甲基化调用：转化读段→逐位点计数→bsseq 统计链闭环；蛋白稳定性：单点 ΔΔG→饱和扫描→文库排名闭环；变异图分型：VCF→图→路径→GT 闭环）
-│   ├── acmg_demo/ / qtlseq_demo/ / circrna_demo/ / docking_demo/ # 第九阶段（临床变异解读：ClinVar 摄取→证据推导→五级分类→报告闭环；QTL-seq 定位：双池 SNP-index→ΔSNP-index 滑窗→候选区间 BED 闭环；circRNA 检测：BSJ split-read→聚合过滤→circRNA 记录闭环；蛋白对接：口袋检测→构象枚举→能量排名→姿势输出闭环）
+│   ├── acmg_demo/ / qtlseq_demo/ / circrna_demo/ / docking_demo/ / conservation_demo/ # 第九阶段（临床变异解读：ClinVar 摄取→证据推导→五级分类→报告闭环；QTL-seq 定位：双池 SNP-index→ΔSNP-index 滑窗→候选区间 BED 闭环；circRNA 检测：BSJ split-read→聚合过滤→circRNA 记录闭环；蛋白对接：口袋检测→构象枚举→能量排名→姿势输出闭环；约束打分：MSA→GERP-lite→后验→保守区段→打分容器闭环）
 │   └── ... （更多 examples/*_demo/）
 ├── test/
-│   ├── moonbit/                      # MoonBit 单元测试（724 个测试文件，16423 用例）
+│   ├── moonbit/                      # MoonBit 单元测试（725 个测试文件，16431 用例）
 │   │   ├── bio_seq_test.mbt / seqio_wb_test.mbt / ...
 │   │   ├── alignment_test.mbt / pdb_test.mbt / phylo_test.mbt / ...
 │   │   ├── deseq2_test.mbt / rankprod_test.mbt / seurat_test.mbt / scran_test.mbt / ...
@@ -880,7 +881,7 @@ IvanAXu/BioSeqs/
 
 ```bash
 moon build                                              # ✅ 成功
-moon test                                               # ✅ 16423 个测试全部通过（test/moonbit 包）
+moon test                                               # ✅ 16431 个测试全部通过（test/moonbit 包）
 ```
 
 ---
@@ -889,7 +890,7 @@ moon test                                               # ✅ 16423 个测试全
 
 ```bash
 moon build      # 构建项目
-moon test       # 运行全部测试 (16423 个测试用例，test/moonbit 包)
+moon test       # 运行全部测试 (16431 个测试用例，test/moonbit 包)
 ```
 
 ---
