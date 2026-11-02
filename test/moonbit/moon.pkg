@@ -5,3 +5,5 @@ import {
   "moonbitlang/core/double",
   "moonbitlang/core/math",
 }
+
+warnings = "-unused_package"
