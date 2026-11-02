@@ -580,12 +580,10 @@ test "slingshot_single_cluster_noop" {
     Some("ok")
   } catch {
     @src.SlingshotAdvancedError(_) => None
-    _ => None
   }
   match result {
     Some(_) => ()
     None => ()
-    _ => ()
   }
 }
 

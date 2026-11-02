@@ -38,7 +38,7 @@ pub fn primer3_design_report_json(
   template : String,
   config~ : Primer3Config = primer3_default_config(),
   max_pairs~ : Int32 = 50,
-) -> String raise SeqError {
+) -> String {
   json_to_string(primer3_design_report_value(template, config, max_pairs))
 }
 
@@ -48,7 +48,7 @@ pub fn primer3_design_report_value(
   template : String,
   config : Primer3Config,
   max_pairs : Int32,
-) -> JsonValue raise SeqError {
+) -> JsonValue {
   let design = primer3_design_primers(template, config)
   let t_gc = primer3_gc_content(template)
   let t_tm = primer3_tm_wallace(template)

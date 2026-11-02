@@ -62,7 +62,7 @@ pub fn xtc_read(data : Array[Int32]) -> Array[XtcFrame] raise XtcError {
 ///|
 /// Write a single XTC frame to a byte array (uncompressed).
 /// Returns the byte array containing the XDR-encoded frame.
-pub fn xtc_write_frame(frame : XtcFrame) -> Array[Int32] raise XtcError {
+pub fn xtc_write_frame(frame : XtcFrame) -> Array[Int32] {
   let buf : Array[Int32] = Array(capacity=0)
   xtc_write_xdr_int(buf, 1995)
   xtc_write_xdr_int(buf, frame.natoms)

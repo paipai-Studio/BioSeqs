@@ -103,7 +103,7 @@ fn vcf_bench_gt(rec : VcfRecord, sample : String) -> String? {
 
 ///|
 /// GT -> alt 剂量; 缺失返回 None.
-fn geno_alt_dosage(gt : String?) -> Int32? raise {
+fn geno_alt_dosage(gt : String?) -> Int32? {
   match gt {
     None => None
     Some(text) => {
@@ -153,7 +153,7 @@ fn variant_kind(ref_allele : String, alt_allele : String) -> VariantKind {
 pub fn normalize_variant(
   rec : VcfRecord,
   sample~ : String = "",
-) -> BenchVariant? raise {
+) -> BenchVariant? {
   if rec.alt.length() == 0 {
     return None
   }
@@ -213,7 +213,7 @@ pub fn load_variants(
   vcf : VcfFile,
   sample~ : String = "",
   pass_only~ : Bool = false,
-) -> Array[BenchVariant] raise {
+) -> Array[BenchVariant] {
   let out : Array[BenchVariant] = Array(capacity=vcf.records.length())
   for rec in vcf.records {
     match normalize_variant(rec, sample~) {

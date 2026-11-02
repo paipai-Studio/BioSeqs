@@ -10,7 +10,7 @@ fn tgw_make_client(
   responses : Map[String, String],
   calls : Array[String],
   posts : Array[String?],
-) -> @src.TogoWSClient raise {
+) -> @src.TogoWSClient {
   @src.TogoWSClient::new(fetch=fn(url : String, post : String?) -> String {
     calls.push(url)
     posts.push(post)

@@ -63,10 +63,7 @@ fn seqio_stream_clean_seq_line(line : StringView) -> String {
 ///|
 /// 流式取下一条 FASTA 记录; 无更多记录返回 None.
 /// 游标停在下一记录标题行行首, 可继续调用.
-pub fn fasta_next_record(
-  content : String,
-  cursor : SeqioCursor,
-) -> SeqRecord? raise SeqIOError {
+pub fn fasta_next_record(content : String, cursor : SeqioCursor) -> SeqRecord? {
   let mut title : String? = None
   let mut sb = StringBuilder()
   let mut finished = false
@@ -208,7 +205,7 @@ pub fn fastq_next_record(
 pub fn fasta_each_record(
   content : String,
   callback : (SeqRecord) -> Unit,
-) -> Unit raise SeqIOError {
+) -> Unit {
   let cursor = SeqioCursor::new()
   let mut finished = false
   while !finished {
@@ -242,7 +239,7 @@ pub fn fasta_chunks(
   content : String,
   chunk : Int32,
   callback : (Array[SeqRecord]) -> Unit,
-) -> Unit raise SeqIOError {
+) -> Unit {
   let size = if chunk < 1 { 1 } else { chunk }
   let cursor = SeqioCursor::new()
   let batch : Array[SeqRecord] = Array(capacity=size)

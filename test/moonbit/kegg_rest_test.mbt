@@ -5,7 +5,7 @@
 ///|
 fn mk_client(urls : Ref[Array[String]]) -> @src.KeggRestClient {
   @src.KeggRestClient::new(
-    fetch=fn(url : String) -> String raise @src.KeggRestError {
+    fetch=fn(url : String) -> String {
       urls.val.push(url)
       "MOCK"
     },

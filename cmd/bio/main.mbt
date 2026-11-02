@@ -144,7 +144,7 @@ fn bio_cmd_gc(args : Array[String]) -> Unit {
 }
 
 ///|
-fn bio_cmd_stats(args : Array[String]) -> Unit raise @lib.SeqIOError {
+fn bio_cmd_stats(args : Array[String]) -> Unit {
   let input = match bio_require_input("stats", args) {
     Some(t) => t
     None => return
@@ -313,7 +313,7 @@ fn bio_cmd_info(args : Array[String]) -> Unit {
 }
 
 ///|
-fn main raise {
+fn main {
   let argv = @env.args()
   let rest : Array[String] = []
   for i, a in argv {

@@ -80,7 +80,6 @@ test "parse_bcf_records" {
       assert_eq(@src.bcf_gt_allele(v), Some(0))
     }
     _ => abort("expected GT int")
-    _ => abort("expected GT int")
   }
   assert_eq(r.formats[1].key_id, 6)
   assert_eq(r.formats[1].values_per_sample, 2)

@@ -5,7 +5,7 @@
 /// 由同目录 index.html 渲染候选表/引物对产物视图.
 /// 生成: moon run examples/primer_web -- "$(cat template.txt)" > report.json
 /// 演示: moon run examples/primer_web -- --demo > report.json
-fn main raise {
+fn main {
   let argv : Array[String] = []
   for i, a in @env.args() {
     let is_prog = i == 0 && a.find("/") is Some(_)

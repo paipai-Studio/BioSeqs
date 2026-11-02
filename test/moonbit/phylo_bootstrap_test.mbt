@@ -97,7 +97,6 @@ fn pbs_raise_strict(trees : Array[@src.Tree]) -> String {
     "NO_ERROR"
   } catch {
     @src.PhyloConsensusError(msg) => msg
-    _ => "OTHER_ERROR"
   }
 }
 
@@ -113,7 +112,6 @@ fn pbs_raise_bootstrap(
     "NO_ERROR"
   } catch {
     @src.PhyloConsensusError(msg) => msg
-    _ => "OTHER_ERROR"
   }
 }
 

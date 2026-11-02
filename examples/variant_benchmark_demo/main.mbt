@@ -1,6 +1,6 @@
 ///|
 /// 变异检出基准评估演示: truth vs query.
-fn main raise {
+fn main {
   println("=== 变异检出基准评估 (vcfeval 风格, 本地完成) ===")
 
   let truth_text = "##fileformat=VCFv4.2\n#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\tS1\nchr1\t100\t.\tA\tT\t50\tPASS\t.\tGT\t0/1\nchr1\t200\t.\tAT\tA\t40\tPASS\t.\tGT\t1/1\nchr2\t300\t.\tG\tC\t30\tPASS\t.\tGT\t0/0\n"
