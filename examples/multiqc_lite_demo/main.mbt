@@ -48,7 +48,7 @@ fn main raise {
   // JSON 输出与 roundtrip
   println("2. JSON 输出(roundtrip)")
   let json = @src.multiqc_write_json(merged)
-  println("  " + json.substring(start=0, end=120) + "...")
+  println("  " + json[:120].to_owned() + "...")
   let parsed = @src.multiqc_parse_json(json).unwrap()
   println("  reparsed: " + parsed.summary())
 

@@ -100,7 +100,7 @@ fn main raise {
       arr[mpos] = aas.unsafe_get(rng.next_int(20)).to_int()
       let sb = StringBuilder()
       for v in arr {
-        sb.write_char(Char::from_int(v))
+        sb.write_char(v.unsafe_to_char())
       }
       ignore(
         cdb.add(sb.to_string(), id="sp" + s.to_string() + "_" + c.to_string()),

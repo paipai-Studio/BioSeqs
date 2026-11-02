@@ -34,7 +34,7 @@ pub struct DopePotential {
 // 20 standard amino acids in canonical order
 
 ///|
-let aa_names = [
+let aa_names : ReadOnlyArray[String] = [
   "ALA", "ARG", "ASN", "ASP", "CYS", "GLN", "GLU", "GLY", "HIS", "ILE", "LEU", "LYS",
   "MET", "PHE", "PRO", "SER", "THR", "TRP", "TYR", "VAL",
 ]
@@ -46,18 +46,24 @@ let aa_names = [
 // size: 0=small, 1=medium, 2=large
 
 ///|
-let aa_hydro = [1, 0, 0, 0, 1, 0, 0, 0, 0, 2, 2, 0, 1, 2, 1, 0, 0, 2, 1, 2]
+let aa_hydro : ReadOnlyArray[Int32] = [
+  1, 0, 0, 0, 1, 0, 0, 0, 0, 2, 2, 0, 1, 2, 1, 0, 0, 2, 1, 2,
+]
 
 ///|
-let dope_aa_charge = [
+let dope_aa_charge : ReadOnlyArray[Int32] = [
   0, 1, 0, -1, 0, 0, -1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0,
 ]
 
 ///|
-let aa_arom = [0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0]
+let aa_arom : ReadOnlyArray[Int32] = [
+  0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0,
+]
 
 ///|
-let aa_size = [0, 2, 1, 1, 0, 1, 1, 0, 1, 2, 2, 1, 1, 2, 1, 0, 0, 2, 2, 1]
+let aa_size : ReadOnlyArray[Int32] = [
+  0, 2, 1, 1, 0, 1, 1, 0, 1, 2, 2, 1, 1, 2, 1, 0, 0, 2, 2, 1,
+]
 
 ///|
 /// Get amino acid index (0-19) from residue name, or -1 if non-standard.

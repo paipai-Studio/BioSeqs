@@ -61,7 +61,7 @@ fn fq_qc_web_demo() -> String {
       let decay = 36.0 - 14.0 * (j.to_double() / len.to_double()).sqrt()
       let q = rng.normal(decay, 3.0)
       let q = if q > 40.0 { 40.0 } else if q < 2.0 { 2.0 } else { q }
-      qual.write_char(Char::from_int(33 + q.to_int()))
+      qual.write_char((33 + q.to_int()).unsafe_to_char())
     }
     sb.write_string("@demo_read_")
     sb.write_string(i.to_string())

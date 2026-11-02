@@ -66,7 +66,6 @@ pub fn phylo_ladderize(clade : Clade, direction : LadderizeDirection) -> Clade {
 ///|
 /// Flat node representation for tree manipulation.
 priv struct FlatNode {
-  id : Int32
   parent_id : Int32 // -1 for root
   branch_length : Double // length to parent
   children : Array[Int32]
@@ -92,7 +91,6 @@ fn flatten_rec(
   let id = nodes.length()
   let is_leaf = clade.is_terminal()
   let node = FlatNode::{
-    id,
     parent_id,
     branch_length,
     children: Array(capacity=0),

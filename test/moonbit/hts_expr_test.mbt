@@ -1,7 +1,7 @@
 ///|
 test "expr basic arithmetic" {
   let f = @src.hts_filter_init("1 + 2 * 3")
-  let symbols : Map[String, @src.ExprVal] = {}
+  let symbols : Map[String, @src.ExprVal] = Map([])
   let r = @src.hts_filter_eval(f, symbols)
   assert_true((r.d - 7.0).abs() < 0.000001)
 }
@@ -9,7 +9,7 @@ test "expr basic arithmetic" {
 ///|
 test "expr comparison" {
   let f = @src.hts_filter_init("5 > 3")
-  let symbols : Map[String, @src.ExprVal] = {}
+  let symbols : Map[String, @src.ExprVal] = Map([])
   let r = @src.hts_filter_eval(f, symbols)
   assert_true((r.d - 1.0).abs() < 0.000001)
 }
@@ -19,7 +19,7 @@ test "expr boolean and" {
   let f1 = @src.hts_filter_init("1 && 1")
   let f2 = @src.hts_filter_init("1 && 0")
   let f3 = @src.hts_filter_init("0 && 1")
-  let symbols : Map[String, @src.ExprVal] = {}
+  let symbols : Map[String, @src.ExprVal] = Map([])
   assert_true((@src.hts_filter_eval(f1, symbols).d - 1.0).abs() < 0.000001)
   assert_true((@src.hts_filter_eval(f2, symbols).d - 0.0).abs() < 0.000001)
   assert_true((@src.hts_filter_eval(f3, symbols).d - 0.0).abs() < 0.000001)
@@ -29,7 +29,7 @@ test "expr boolean and" {
 test "expr boolean or" {
   let f1 = @src.hts_filter_init("1 || 0")
   let f2 = @src.hts_filter_init("0 || 0")
-  let symbols : Map[String, @src.ExprVal] = {}
+  let symbols : Map[String, @src.ExprVal] = Map([])
   assert_true((@src.hts_filter_eval(f1, symbols).d - 1.0).abs() < 0.000001)
   assert_true((@src.hts_filter_eval(f2, symbols).d - 0.0).abs() < 0.000001)
 }
@@ -75,7 +75,7 @@ test "expr equality" {
   let f1 = @src.hts_filter_init("5 == 5")
   let f2 = @src.hts_filter_init("5 == 3")
   let f3 = @src.hts_filter_init("5 != 3")
-  let symbols : Map[String, @src.ExprVal] = {}
+  let symbols : Map[String, @src.ExprVal] = Map([])
   assert_true((@src.hts_filter_eval(f1, symbols).d - 1.0).abs() < 0.000001)
   assert_true((@src.hts_filter_eval(f2, symbols).d - 0.0).abs() < 0.000001)
   assert_true((@src.hts_filter_eval(f3, symbols).d - 1.0).abs() < 0.000001)
@@ -84,7 +84,7 @@ test "expr equality" {
 ///|
 test "expr unary minus" {
   let f = @src.hts_filter_init("-5 + 10")
-  let symbols : Map[String, @src.ExprVal] = {}
+  let symbols : Map[String, @src.ExprVal] = Map([])
   let r = @src.hts_filter_eval(f, symbols)
   assert_true((r.d - 5.0).abs() < 0.000001)
 }
@@ -93,7 +93,7 @@ test "expr unary minus" {
 test "expr unary not" {
   let f1 = @src.hts_filter_init("!0")
   let f2 = @src.hts_filter_init("!1")
-  let symbols : Map[String, @src.ExprVal] = {}
+  let symbols : Map[String, @src.ExprVal] = Map([])
   assert_true((@src.hts_filter_eval(f1, symbols).d - 1.0).abs() < 0.000001)
   assert_true((@src.hts_filter_eval(f2, symbols).d - 0.0).abs() < 0.000001)
 }
@@ -101,7 +101,7 @@ test "expr unary not" {
 ///|
 test "expr parentheses" {
   let f = @src.hts_filter_init("(1 + 2) * 3")
-  let symbols : Map[String, @src.ExprVal] = {}
+  let symbols : Map[String, @src.ExprVal] = Map([])
   let r = @src.hts_filter_eval(f, symbols)
   assert_true((r.d - 9.0).abs() < 0.000001)
 }
@@ -110,7 +110,7 @@ test "expr parentheses" {
 test "expr division and modulo" {
   let f1 = @src.hts_filter_init("10 / 3")
   let f2 = @src.hts_filter_init("10 % 3")
-  let symbols : Map[String, @src.ExprVal] = {}
+  let symbols : Map[String, @src.ExprVal] = Map([])
   let r1 = @src.hts_filter_eval(f1, symbols)
   let r2 = @src.hts_filter_eval(f2, symbols)
   assert_true((r1.d - 3.333333).abs() < 0.001)
@@ -120,7 +120,7 @@ test "expr division and modulo" {
 ///|
 test "expr float arithmetic" {
   let f = @src.hts_filter_init("3.14 * 2.0")
-  let symbols : Map[String, @src.ExprVal] = {}
+  let symbols : Map[String, @src.ExprVal] = Map([])
   let r = @src.hts_filter_eval(f, symbols)
   assert_true((r.d - 6.28).abs() < 0.001)
 }
@@ -128,7 +128,7 @@ test "expr float arithmetic" {
 ///|
 test "expr string literal" {
   let f = @src.hts_filter_init("\"hello\"")
-  let symbols : Map[String, @src.ExprVal] = {}
+  let symbols : Map[String, @src.ExprVal] = Map([])
   let r = @src.hts_filter_eval(f, symbols)
   assert_eq(r.s, "hello")
 }
@@ -136,7 +136,7 @@ test "expr string literal" {
 ///|
 test "expr func sqrt" {
   let f = @src.hts_filter_init("sqrt(16)")
-  let symbols : Map[String, @src.ExprVal] = {}
+  let symbols : Map[String, @src.ExprVal] = Map([])
   let r = @src.hts_filter_eval(f, symbols)
   assert_true((r.d - 4.0).abs() < 0.001)
 }
@@ -144,7 +144,7 @@ test "expr func sqrt" {
 ///|
 test "expr func pow" {
   let f = @src.hts_filter_init("pow(2, 10)")
-  let symbols : Map[String, @src.ExprVal] = {}
+  let symbols : Map[String, @src.ExprVal] = Map([])
   let r = @src.hts_filter_eval(f, symbols)
   assert_true((r.d - 1024.0).abs() < 0.001)
 }

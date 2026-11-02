@@ -169,7 +169,7 @@ fn ccd_guess_element(atom_name : String) -> String {
 
 ///|
 fn ccd_standard_table() -> Map[String, CcdEntry] {
-  let m : Map[String, CcdEntry] = {}
+  let m : Map[String, CcdEntry] = Map([])
   ccd_add_aa(m, "ALA", "ALANINE", "A", "C3 H7 N O2")
   ccd_add_aa(m, "ARG", "ARGININE", "R", "C6 H14 N4 O2")
   ccd_add_aa(m, "ASN", "ASPARAGINE", "N", "C4 H8 N2 O3")

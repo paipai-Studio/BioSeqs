@@ -22,7 +22,7 @@ pub fn kmer_table_build(
   k : Int32,
   alphabet : String,
 ) -> KmerTable {
-  let counts : Map[String, Int32] = {}
+  let counts : Map[String, Int32] = Map([])
   let n = seq.length()
   let mut total = 0
   if k <= 0 || n < k {
@@ -242,7 +242,7 @@ fn kmer_valid_set(alphabet : String) -> Map[String, Bool] {
   } else {
     ["A", "C", "G", "T"]
   }
-  let m : Map[String, Bool] = {}
+  let m : Map[String, Bool] = Map([])
   for i = 0; i < chars.length(); i = i + 1 {
     m[chars[i]] = true
   }
