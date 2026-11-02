@@ -121,7 +121,7 @@ pub fn phylo_simulate_coalescent_ne(
 
 ///|
 /// Internal helper: a lineage in the coalescent process.
-struct CoalescentLineage {
+priv struct CoalescentLineage {
   clade : Clade
   time : Double
 }

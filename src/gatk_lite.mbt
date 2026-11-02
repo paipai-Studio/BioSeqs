@@ -43,7 +43,7 @@ pub(all) struct GatkGenotype {
 pub(all) struct GatkVariant {
   chrom : String
   pos : Int32
-  ref : String
+  ref_allele : String
   alt : String
   qual : Double
   filter : String
@@ -478,7 +478,7 @@ pub fn gatk_call_variants(
     variants.push({
       chrom,
       pos: p + 1,
-      ref: site.ref_base.to_string(),
+      ref_allele: site.ref_base.to_string(),
       alt: alt.to_string(),
       qual: best.log10_error,
       filter: "PASS",
@@ -530,7 +530,7 @@ pub fn gatk_call_variants(
         variants.push({
           chrom,
           pos: p + 1,
-          ref: deleted,
+          ref_allele: deleted,
           alt: kept,
           qual: 30.0,
           filter: "PASS",
@@ -550,7 +550,7 @@ pub fn gatk_call_variants(
         variants.push({
           chrom,
           pos: p + 1,
-          ref: anchor,
+          ref_allele: anchor,
           alt: anchor + ins_seq,
           qual: 30.0,
           filter: "PASS",
@@ -577,9 +577,9 @@ pub fn gatk_variants_summary(variants : Array[GatkVariant]) -> String {
   let mut n_ins = 0
   let mut n_del = 0
   for v in variants {
-    if v.ref.length() == 1 && v.alt.length() == 1 {
+    if v.ref_allele.length() == 1 && v.alt.length() == 1 {
       n_snp = n_snp + 1
-    } else if v.alt.length() > v.ref.length() {
+    } else if v.alt.length() > v.ref_allele.length() {
       n_ins = n_ins + 1
     } else {
       n_del = n_del + 1
@@ -621,7 +621,7 @@ pub fn gatk_write_vcf(
     sb.write_char('\t')
     sb.write_string(v.pos.to_string())
     sb.write_string("\t.\t")
-    sb.write_string(v.ref)
+    sb.write_string(v.ref_allele)
     sb.write_char('\t')
     sb.write_string(v.alt)
     sb.write_char('\t')

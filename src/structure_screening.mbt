@@ -43,7 +43,7 @@ pub fn structure_screening(
   let warnings : Array[String] = Array(capacity=0)
   // 1. 二级结构(Chou-Fasman)
   let cf : ChouFasmanResult = chou_fasman_predict(sequence) catch {
-    e => raise StructureScreeningError("chou-fasman failed")
+    _ => raise StructureScreeningError("chou-fasman failed")
   }
   let pred = cf.prediction()
   if pred.length() != n {

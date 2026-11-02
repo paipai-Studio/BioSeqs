@@ -120,7 +120,7 @@ test "gatk call heterozygous snp" {
   let v = variants[0]
   assert_eq(v.chrom, "chr1")
   assert_eq(v.pos, 16)
-  assert_eq(v.ref, "G")
+  assert_eq(v.ref_allele, "G")
   assert_eq(v.alt, "C")
   assert_eq(v.gt, "0/1")
   assert_eq(v.dp, 10)
@@ -143,7 +143,7 @@ test "gatk call homozygous snp" {
   let variants = @src.gatk_call_variants("chr1", reference, reads)
   assert_eq(variants.length(), 1)
   assert_eq(variants[0].gt, "1/1")
-  assert_eq(variants[0].ref, "T")
+  assert_eq(variants[0].ref_allele, "T")
   assert_eq(variants[0].alt, "A")
   assert_eq(variants[0].ad_alt, 10)
 }
@@ -234,9 +234,9 @@ test "gatk call insertion variant" {
   let variants = @src.gatk_call_variants("chr1", reference, reads)
   let mut found_ins = false
   for v in variants {
-    if v.alt.length() > v.ref.length() {
+    if v.alt.length() > v.ref_allele.length() {
       found_ins = true
-      assert_true(v.alt.length() - v.ref.length() == 2)
+      assert_true(v.alt.length() - v.ref_allele.length() == 2)
     }
   }
   assert_true(found_ins)
@@ -260,9 +260,9 @@ test "gatk call deletion variant" {
   let variants = @src.gatk_call_variants("chr1", reference, reads)
   let mut found_del = false
   for v in variants {
-    if v.ref.length() > v.alt.length() {
+    if v.ref_allele.length() > v.alt.length() {
       found_del = true
-      assert_true(v.ref.length() - v.alt.length() >= 1)
+      assert_true(v.ref_allele.length() - v.alt.length() >= 1)
     }
   }
   assert_true(found_del)

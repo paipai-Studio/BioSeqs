@@ -65,7 +65,7 @@ pub fn phylo_ladderize(clade : Clade, direction : LadderizeDirection) -> Clade {
 
 ///|
 /// Flat node representation for tree manipulation.
-struct FlatNode {
+priv struct FlatNode {
   id : Int32
   parent_id : Int32 // -1 for root
   branch_length : Double // length to parent
@@ -682,7 +682,7 @@ fn yule_add_leaf(tree : Clade, new_id : Int32, rng : Rng) -> Clade {
 
 ///|
 /// Mutable counter for tracking leaf index during traversal.
-struct Counter {
+priv struct Counter {
   mut val : Int32
 }
 

@@ -127,7 +127,7 @@ test "medaka call snp with ont error model" {
   assert_eq(variants.length(), 1)
   let v = variants[0]
   assert_eq(v.pos, 16)
-  assert_eq(v.ref, reference[15:16].to_owned())
+  assert_eq(v.ref_allele, reference[15:16].to_owned())
   assert_eq(v.alt, "A")
   assert_eq(v.gt, "0/1")
   assert_eq(v.dp, 5)
@@ -151,9 +151,9 @@ test "medaka call deletion in noisy long reads" {
   let variants = @src.medaka_call_variants("chr1", reference, reads)
   let mut found_del = false
   for v in variants {
-    if v.ref.length() > v.alt.length() {
+    if v.ref_allele.length() > v.alt.length() {
       found_del = true
-      assert_eq(v.ref.length() - v.alt.length(), 3)
+      assert_eq(v.ref_allele.length() - v.alt.length(), 3)
     }
   }
   assert_true(found_del)

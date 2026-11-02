@@ -26,7 +26,6 @@ fn main raise {
   // 4. JSON 报告
   println("\n4. JSON 报告(parse_json 闭环)")
   let json = @src.structure_screening_report_json(alpha_report)
-  let lines = json.split("\n").to_array()
   println("  长度: \{json.length()} 字符")
   let v = @src.parse_json(json)
   println("  parse_json 解析: \{v is Some(_)}")

@@ -84,7 +84,7 @@ pub fn hts_filter_init(expr : String) -> HtsFilter {
 
 ///|
 /// Parser state for recursive descent parsing.
-struct Parser {
+priv struct Parser {
   chars : Array[Char]
   mut pos : Int32
   symbols : Map[String, ExprVal]

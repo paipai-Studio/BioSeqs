@@ -208,7 +208,7 @@ test "pathway_map_find_compound" {
   let c = @src.Compound::with_chemical("C0003", "Glucose", "C6H12O6", 0, "CCO")
   let p2 = p.add_compound(c)
   let found = p2.find_compound("C0003")
-  assert_true(found is Option::Some)
+  assert_true(found is Option::Some(_))
   match found {
     Some(comp) => assert_eq(comp.get_name(), "Glucose")
     None => assert_true(false)
@@ -223,7 +223,7 @@ test "pathway_map_find_reaction" {
   let r = @src.ChemicalReaction::new("R0001", "HK1 reaction")
   let p2 = p.add_reaction(r)
   let found = p2.find_reaction("R0001")
-  assert_true(found is Option::Some)
+  assert_true(found is Option::Some(_))
   let not_found = p2.find_reaction("R9999")
   assert_true(not_found is Option::None)
 }

@@ -37,7 +37,7 @@ fn main {
   println("  " + @src.gatk_variants_summary(variants))
   for v in variants {
     println(
-      "  \{v.chrom}:\{v.pos} \{v.ref}>\{v.alt} GT=\{v.gt} DP=\{v.dp} AD=\{v.ad_ref},\{v.ad_alt} GQ=\{v.gq} AF=\{v.af}",
+      "  \{v.chrom}:\{v.pos} \{v.ref_allele}>\{v.alt} GT=\{v.gt} DP=\{v.dp} AD=\{v.ad_ref},\{v.ad_alt} GQ=\{v.gq} AF=\{v.af}",
     )
   }
   // 4. indel 场景
@@ -56,7 +56,7 @@ fn main {
   println("  " + @src.gatk_variants_summary(del_variants))
   for v in del_variants {
     println(
-      "  \{v.chrom}:\{v.pos} \{v.ref}>\{v.alt} GT=\{v.gt} AD=\{v.ad_ref},\{v.ad_alt}",
+      "  \{v.chrom}:\{v.pos} \{v.ref_allele}>\{v.alt} GT=\{v.gt} AD=\{v.ad_ref},\{v.ad_alt}",
     )
   }
   // 5. VCF 输出与 parse_vcf 闭环

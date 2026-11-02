@@ -25,6 +25,12 @@ pub(all) enum VariantKind {
 } derive(Eq, Debug)
 
 ///|
+pub extend VariantKind with Eq::{not_equal, equal}
+
+///|
+pub extend VariantKind with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
 /// 归一化后的变异记录.
 pub(all) struct BenchVariant {
   chrom : String

@@ -154,9 +154,9 @@ pub fn multiqc_collect_gatk(
   let mut n_del = 0
   let mut qual_sum = 0.0
   for v in variants {
-    if v.ref.length() == 1 && v.alt.length() == 1 {
+    if v.ref_allele.length() == 1 && v.alt.length() == 1 {
       n_snp = n_snp + 1
-    } else if v.alt.length() > v.ref.length() {
+    } else if v.alt.length() > v.ref_allele.length() {
       n_ins = n_ins + 1
     } else {
       n_del = n_del + 1

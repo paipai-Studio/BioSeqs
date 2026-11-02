@@ -54,7 +54,7 @@ fn main {
   println("  " + @src.medaka_variants_summary(variants))
   for v in variants {
     println(
-      "  \{v.chrom}:\{v.pos} \{v.ref}>\{v.alt} GT=\{v.gt} DP=\{v.dp} AD=\{v.ad_ref},\{v.ad_alt} GQ=\{v.gq}",
+      "  \{v.chrom}:\{v.pos} \{v.ref_allele}>\{v.alt} GT=\{v.gt} DP=\{v.dp} AD=\{v.ad_ref},\{v.ad_alt} GQ=\{v.gq}",
     )
   }
   // 4. HiFi 对照
@@ -67,7 +67,7 @@ fn main {
   )
   for v in v_hifi {
     println(
-      "  \{v.chrom}:\{v.pos} \{v.ref}>\{v.alt} GQ=\{v.gq} (ONT 时更低)",
+      "  \{v.chrom}:\{v.pos} \{v.ref_allele}>\{v.alt} GQ=\{v.gq} (ONT 时更低)",
     )
   }
   // 5. VCF 输出

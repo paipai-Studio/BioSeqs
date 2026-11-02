@@ -229,7 +229,7 @@ pub fn fm_locate(index : FmIndex, pattern : String) -> Array[Int32] {
 
 ///|
 /// A candidate in the backtracking search.
-struct BtEntry {
+priv struct BtEntry {
   pos : Int32 // position in pattern (from right)
   lo : Int32 // current interval [lo, hi)
   hi : Int32

@@ -32,7 +32,7 @@ pub fn phylo_nni_count(clade : Clade) -> Int32 {
 }
 
 ///|
-struct NniCounter {
+priv struct NniCounter {
   mut val : Int32
 }
 

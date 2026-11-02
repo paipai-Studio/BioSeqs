@@ -103,7 +103,7 @@ pub fn medaka_call_variants(
     variants.push({
       chrom,
       pos: p + 1,
-      ref: site.ref_base.to_string(),
+      ref_allele: site.ref_base.to_string(),
       alt: alt.to_string(),
       qual: best.log10_error,
       filter: "PASS",
@@ -153,7 +153,7 @@ pub fn medaka_call_variants(
         variants.push({
           chrom,
           pos: p + 1,
-          ref: deleted,
+          ref_allele: deleted,
           alt: kept,
           qual: 20.0,
           filter: "PASS",
@@ -173,7 +173,7 @@ pub fn medaka_call_variants(
         variants.push({
           chrom,
           pos: p + 1,
-          ref: anchor,
+          ref_allele: anchor,
           alt: anchor + ins_seq,
           qual: 20.0,
           filter: "PASS",
@@ -197,7 +197,7 @@ pub fn medaka_variants_summary(variants : Array[GatkVariant]) -> String {
   let mut n_snp = 0
   let mut n_indel = 0
   for v in variants {
-    if v.ref.length() == 1 && v.alt.length() == 1 {
+    if v.ref_allele.length() == 1 && v.alt.length() == 1 {
       n_snp = n_snp + 1
     } else {
       n_indel = n_indel + 1

@@ -119,7 +119,7 @@ pub fn prodigal_params_full(
 
 ///|
 /// An ORF candidate found during scanning.
-struct OrfCandidate {
+priv struct OrfCandidate {
   start_pos : Int32 // 0-based start position in the original sequence
   end_pos : Int32 // 0-based end position (exclusive) in the original sequence
   strand : String // "+" or "-"

@@ -276,7 +276,7 @@ test "sqt_trim_by_length_keep" {
   let seq = "ACGTACGTACGTACGT"
   let qual = "IIIIIIIIIIIIIIII"
   let result = @src.sqt_trim_by_length(seq, qual, min_length=5)
-  assert_true(result is Some)
+  assert_true(result is Some(_))
 }
 
 ///|
@@ -292,7 +292,7 @@ test "sqt_trim_by_length_exact_boundary" {
   let seq = "ACGTACGT"
   let qual = "IIIIIIII"
   let result = @src.sqt_trim_by_length(seq, qual, min_length=8)
-  assert_true(result is Some)
+  assert_true(result is Some(_))
 }
 
 ///|
@@ -300,7 +300,7 @@ test "sqt_trim_by_length_zero_length" {
   let seq = ""
   let qual = ""
   let result = @src.sqt_trim_by_length(seq, qual, min_length=0)
-  assert_true(result is Some)
+  assert_true(result is Some(_))
 }
 
 ///|
@@ -308,7 +308,7 @@ test "sqt_trim_by_gc_within_range" {
   let seq = "ACGTACGT"
   let qual = "IIIIIIII"
   let result = @src.sqt_trim_by_gc(seq, qual, gc_min=0.3, gc_max=0.7)
-  assert_true(result is Some)
+  assert_true(result is Some(_))
 }
 
 ///|
@@ -332,7 +332,7 @@ test "sqt_trim_by_gc_mid_range" {
   let seq = "ACGTACGTACGT"
   let qual = "IIIIIIIIIIII"
   let result = @src.sqt_trim_by_gc(seq, qual, gc_min=0.4, gc_max=0.6)
-  assert_true(result is Some)
+  assert_true(result is Some(_))
 }
 
 ///|
@@ -340,7 +340,7 @@ test "sqt_trim_by_gc_boundary_values" {
   let seq = "ACGT"
   let qual = "IIII"
   let result = @src.sqt_trim_by_gc(seq, qual, gc_min=0.5, gc_max=0.5)
-  assert_true(result is Some)
+  assert_true(result is Some(_))
 }
 
 ///|

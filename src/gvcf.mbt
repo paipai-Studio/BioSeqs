@@ -229,11 +229,11 @@ pub fn gvcf_build_from_variants(
       dp: v.dp,
       gq: gvcf_gq_from_pl(pl),
     }
-    let span = if v.ref.length() > 0 { v.ref.length() } else { 1 }
+    let span = if v.ref_allele.length() > 0 { v.ref_allele.length() } else { 1 }
     records.push(GvcfRecord::{
       chrom,
       pos: start,
-      ref_allele: v.ref,
+      ref_allele: v.ref_allele,
       alts: [v.alt],
       is_block: false,
       block_end: start + span - 1,

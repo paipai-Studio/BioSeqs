@@ -661,7 +661,7 @@ pub fn scanpy_read_h5ad(content : String) -> AnnData? {
 
 ///|
 /// Binary buffer writer (little-endian).
-struct BinWriter {
+priv struct BinWriter {
   buf : Array[Int32]
 }
 
@@ -770,7 +770,7 @@ fn BinWriter::write_uns_map(
 
 ///|
 /// Binary buffer reader (little-endian).
-struct BinReader {
+priv struct BinReader {
   buf : Array[Int32]
   mut pos : Int32
 }

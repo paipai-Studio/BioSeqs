@@ -471,7 +471,7 @@ fn motif_disco_finalize(
   pwm : Array[Array[Double]],
   bg : Array[Double],
   ll : Double,
-  iterations : Int32,
+  _iterations : Int32,
   algorithm : String,
 ) -> DiscoveredMotif {
   let n_seq = sequences.length()

@@ -1106,7 +1106,7 @@ fn md_chars_to_string(
 
 ///|
 /// Expression parser state.
-struct MdExprParser {
+priv struct MdExprParser {
   chars : Array[Char]
   mut pos : Int32
   var_name : String

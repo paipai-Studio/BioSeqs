@@ -137,7 +137,7 @@ pub fn MmseqsIndex::k(self : MmseqsIndex) -> Int32 {
 ///|
 /// 索引条目数(不同 k-mer 数).
 pub fn MmseqsIndex::num_kmers(self : MmseqsIndex) -> Int32 {
-  self.table.size()
+  self.table.length()
 }
 
 ///|

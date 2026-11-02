@@ -11,10 +11,6 @@
 /// - Combine multiple samples into coverage matrices
 
 ///|
-/// Natural logarithm of 2.
-let bsseq_ln2 : Double = 0.69314718055994530942
-
-///|
 /// Newton's method for square root. Returns 0 for negative input.
 pub fn bsseq_sqrt(x : Double) -> Double {
   if x <= 0.0 {

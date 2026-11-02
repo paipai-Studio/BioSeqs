@@ -6,7 +6,7 @@
 ///|
 /// Amino acid pKa values for the terminal groups and side chains.
 /// Source: Biopython's IUPAC data (standard pKa table)
-struct IonizableGroup {
+priv struct IonizableGroup {
   pKa : Double
   n_term : Bool
   c_term : Bool

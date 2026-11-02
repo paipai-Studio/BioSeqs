@@ -16,7 +16,7 @@
 ///|
 /// kd-tree node stored in a flat array for cache efficiency.  Children are
 /// referenced by index into the node array (-1 = no child).
-struct KdNode {
+priv struct KdNode {
   point_idx : Int32 // index into original data
   split_dim : Int32 // split dimension (-1 for leaf)
   split_val : Double // split value at split_dim

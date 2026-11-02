@@ -145,7 +145,7 @@ fn is_number(s : String) -> Bool {
 //   primary := '(' expr ')' | atom_sel | spatial_sel
 
 ///|
-struct SelParser {
+priv struct SelParser {
   tokens : Array[Token]
   pos : Ref[Int32]
 }
