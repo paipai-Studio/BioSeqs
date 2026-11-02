@@ -32,7 +32,11 @@ fn main {
   println("Number of optimal codons: " + optimal.length().to_string())
 
   println("\n=== CAI (Codon Adaptation Index) ===")
-  let cai_val = @bio.codon_cai(dna_seq, optimal.copy())
+  let opt_weights : Map[String, Double] = Map([], capacity=64)
+  for c in optimal {
+    opt_weights[c] = rscu_map.get(c).unwrap_or(1.0)
+  }
+  let cai_val = @bio.codon_cai(dna_seq, opt_weights)
   println("CAI value: " + cai_val.to_string())
   if cai_val > 0.8 {
     println("Interpretation: High codon adaptation")
