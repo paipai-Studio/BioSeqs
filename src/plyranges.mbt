@@ -390,6 +390,7 @@ pub fn tgr_select(
 
 ///|
 /// Group by a metadata string column and compute summary statistics.
+#warnings("-struct_never_constructed")
 pub struct GroupSummary {
   group_value : String
   group_count : Int32

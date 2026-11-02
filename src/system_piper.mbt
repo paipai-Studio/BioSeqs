@@ -9,6 +9,7 @@
 
 ///|
 /// Pipeline step status.
+#warnings("-unused_constructor")
 pub enum StepStatus {
   Pending
   Running

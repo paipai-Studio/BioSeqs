@@ -309,6 +309,7 @@ fn treeio_newick_from_tree(tree : TreeioTreeData, node_id : Int32) -> String {
 
 ///|
 /// jplace placement entry.
+#warnings("-struct_never_constructed")
 pub struct TreeioJplacePlacement {
   p : Int32
   pendant_length : Double

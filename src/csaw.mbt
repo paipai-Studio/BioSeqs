@@ -13,6 +13,7 @@ pub enum CswNormMethod {
 
 ///|
 /// Filtering status for a window
+#warnings("-unused_constructor")
 pub enum CswFilterStatus {
   /// Window passes filter
   Pass

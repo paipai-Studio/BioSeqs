@@ -1056,6 +1056,7 @@ pub fn extract_kmers(seq : String, k : Int32) -> Array[String] {
 
 ///|
 /// Complete dada2 pipeline: from raw sequences to ASV table with taxonomy.
+#warnings("-struct_never_constructed")
 pub struct PipelineResult {
   seq_table : SequenceTable
   taxonomy : Array[TaxonomyResult]

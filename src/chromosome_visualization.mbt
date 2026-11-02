@@ -41,6 +41,7 @@ pub fn chr_orientation_none() -> ChrOrientation {
 
 ///|
 /// Type of a genomic feature.
+#warnings("-unused_constructor")
 pub enum ChrFeatureType {
   Gene
   Exon

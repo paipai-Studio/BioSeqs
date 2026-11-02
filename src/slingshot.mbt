@@ -5,6 +5,7 @@
 
 ///|
 /// Distance metric for cell comparisons
+#warnings("-unused_constructor")
 pub enum SlingshotDistMetric {
   /// Euclidean distance
   Euclidean

@@ -59,6 +59,7 @@ pub struct CoOccurrenceResult {
 }
 
 ///|
+#warnings("-struct_never_constructed")
 pub struct MutationalSignature {
   name : String
   contribution : Double

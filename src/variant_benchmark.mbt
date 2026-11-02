@@ -11,6 +11,7 @@
 
 ///|
 /// 基准评估错误.
+#warnings("-unused_constructor")
 pub suberror VariantBenchmarkError {
   VariantBenchmarkError(String)
 }

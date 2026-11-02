@@ -9,6 +9,7 @@
 
 ///|
 /// Report section types.
+#warnings("-unused_constructor")
 pub enum ReportSectionType {
   Text
   Table

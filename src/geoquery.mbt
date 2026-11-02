@@ -18,6 +18,7 @@ pub struct GEOSeries {
 }
 
 ///|
+#warnings("-struct_never_constructed")
 pub struct GEOSample {
   gsm_id : String
   title : String
@@ -27,6 +28,7 @@ pub struct GEOSample {
 }
 
 ///|
+#warnings("-struct_never_constructed")
 pub struct GEOPlatform {
   gpl_id : String
   title : String

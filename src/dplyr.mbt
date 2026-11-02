@@ -2,6 +2,7 @@
 /// dplyr - Data manipulation library inspired by R/dplyr.
 
 ///|
+#warnings("-unused_constructor")
 pub enum DataType {
   IntType
   DoubleType
@@ -10,6 +11,7 @@ pub enum DataType {
 }
 
 ///|
+#warnings("-unused_constructor")
 pub enum DataValue {
   IntValue(Int32)
   DoubleValue(Double)

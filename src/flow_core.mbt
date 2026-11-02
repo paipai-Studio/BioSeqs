@@ -131,6 +131,7 @@ pub extend GateType with Eq::{equal, not_equal}
 
 ///|
 /// Transformation type enumeration.
+#warnings("-unused_constructor")
 pub enum TransformType {
   LogTransform
   AsinhTransform

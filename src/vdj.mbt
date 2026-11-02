@@ -12,6 +12,7 @@
 /// 内置 germline 库为教学级精简合成参考(各基因段含唯一区分核心 +
 /// IMGT 保守端序), 生产使用建议经 `vdj_build_gene_db` 导入 IMGT
 /// 完整 germline 序列. 数据不出本机.
+#warnings("-unused_constructor")
 pub suberror VdjError {
   VdjError(String)
 }

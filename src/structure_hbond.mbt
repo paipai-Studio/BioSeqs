@@ -9,6 +9,7 @@
 
 ///|
 /// A detected hydrogen bond.
+#warnings("-struct_never_constructed")
 pub struct HBond {
   donor_resname : String
   donor_resseq : Int32

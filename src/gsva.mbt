@@ -43,6 +43,7 @@ pub struct GSVAParams {
 
 ///|
 /// Represents enrichment result for a gene set.
+#warnings("-struct_never_constructed")
 pub struct GSVAEnrichment {
   gene_set_name : String
   enrichment_score : Double

@@ -11,6 +11,7 @@
 /// - Font size and display options
 
 ///|
+#warnings("-unused_constructor")
 pub enum DistanceMethod {
   Euclidean
   Manhattan
@@ -29,6 +30,7 @@ pub fn distance_method_manhattan() -> DistanceMethod {
 }
 
 ///|
+#warnings("-unused_constructor")
 pub enum ClusterMethod {
   Complete
   Average
