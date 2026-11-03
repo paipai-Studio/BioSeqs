@@ -58,14 +58,14 @@ pub fn bam_parse_bed(content : String) -> Array[BedRegion] {
   let lines = content.split("\n").to_array()
   for line in lines {
     let trimmed = line.trim()
-    if trimmed.length() == 0 || trimmed[0:1].to_string() == "#" {
+    if trimmed.length() == 0 || trimmed[0:1].to_owned() == "#" {
       continue
     }
     let fields = trimmed.split("\t").to_array()
     if fields.length() >= 3 {
-      let chrom = fields[0].to_string()
-      let start = parse_int(fields[1].to_string())
-      let end = parse_int(fields[2].to_string())
+      let chrom = fields[0].to_owned()
+      let start = parse_int(fields[1].to_owned())
+      let end = parse_int(fields[2].to_owned())
       regions.push({ chrom, start, end, })
     }
   }

@@ -207,3 +207,8 @@ pub fn AnnDataPairwise::subset(
   }
   { name: self.name, matrix: mat, kind: self.kind, }
 }
+
+///|
+fn _pairwise_type_unused_constructors() -> Unit {
+  ignore(AnnDataPairwiseType::PairwiseCustom(""))
+}

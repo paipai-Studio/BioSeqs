@@ -12,6 +12,7 @@ pub suberror ZinbWaveError {
 }
 
 ///|
+#derive(Eq, Debug)
 pub struct ZinbWaveConfig {
   n_factors : Int32
   max_iterations : Int32
@@ -21,7 +22,7 @@ pub struct ZinbWaveConfig {
   dispersion_shrinkage : Double
   minimum_mean : Double
   minimum_probability : Double
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend ZinbWaveConfig with Eq::{equal, not_equal}
@@ -96,6 +97,7 @@ pub fn ZinbWaveConfig::default() -> ZinbWaveConfig {
 }
 
 ///|
+#derive(Eq, Debug)
 pub struct ZinbWaveDiagnostics {
   iterations : Int32
   converged : Bool
@@ -103,7 +105,7 @@ pub struct ZinbWaveDiagnostics {
   final_log_likelihood : Double
   log_likelihoods : Array[Double]
   maximum_parameter_change : Double
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend ZinbWaveDiagnostics with Eq::{equal, not_equal}
@@ -112,6 +114,7 @@ pub extend ZinbWaveDiagnostics with Eq::{equal, not_equal}
 pub extend ZinbWaveDiagnostics with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Eq, Debug)
 pub struct ZinbWaveGeneSummary {
   gene_name : String
   dispersion : Double
@@ -120,7 +123,7 @@ pub struct ZinbWaveGeneSummary {
   fitted_zero_fraction : Double
   mean_count : Double
   mean_fitted : Double
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend ZinbWaveGeneSummary with Eq::{equal, not_equal}

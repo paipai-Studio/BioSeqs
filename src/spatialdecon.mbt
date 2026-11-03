@@ -6,28 +6,31 @@ pub suberror SpatialDeconError {
 }
 
 ///|
+#derive(Debug)
 pub struct SpatialDeconProfile {
   gene_names : Array[String]
   cell_types : Array[String]
   values : Array[Array[Double]]
-} derive(Debug)
+}
 
 ///|
 pub extend SpatialDeconProfile with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Debug)
 pub struct SpatialDeconData {
   gene_names : Array[String]
   spot_ids : Array[String]
   values : Array[Array[Double]]
   background : Array[Array[Double]]
   weights : Array[Array[Double]]
-} derive(Debug)
+}
 
 ///|
 pub extend SpatialDeconData with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Debug)
 pub struct SpatialDeconConfig {
   residual_threshold : Double
   lower_threshold : Double
@@ -40,12 +43,13 @@ pub struct SpatialDeconConfig {
   line_search_steps : Int32
   tolerance : Double
   ridge : Double
-} derive(Debug)
+}
 
 ///|
 pub extend SpatialDeconConfig with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Debug)
 pub struct SpatialDeconAbundance {
   cell_type : String
   spot_id : String
@@ -53,12 +57,13 @@ pub struct SpatialDeconAbundance {
   proportion : Double
   standard_error : Double
   p_value : Double
-} derive(Debug)
+}
 
 ///|
 pub extend SpatialDeconAbundance with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Debug)
 pub struct SpatialDeconResult {
   gene_names : Array[String]
   spot_ids : Array[String]
@@ -80,21 +85,23 @@ pub struct SpatialDeconResult {
   iterations : Array[Int32]
   converged : Array[Bool]
   config : SpatialDeconConfig
-} derive(Debug)
+}
 
 ///|
 pub extend SpatialDeconResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Debug)
 pub struct SpatialDeconCellMerge {
   name : String
   members : Array[String]
-} derive(Debug)
+}
 
 ///|
 pub extend SpatialDeconCellMerge with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Debug)
 pub struct SpatialDeconReverseResult {
   gene_names : Array[String]
   spot_ids : Array[String]
@@ -107,7 +114,7 @@ pub struct SpatialDeconReverseResult {
   objectives : Array[Double]
   iterations : Array[Int32]
   converged : Array[Bool]
-} derive(Debug)
+}
 
 ///|
 pub extend SpatialDeconReverseResult with @moonbitlang/core/debug.Debug::{

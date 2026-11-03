@@ -71,7 +71,7 @@ pub fn omm_shake(
       let dy = result[j][1] - result[i][1]
       let dz = result[j][2] - result[i][2]
       let d_sq = dx * dx + dy * dy + dz * dz
-      let d_curr = d_sq.sqrt()
+      let _d_curr = d_sq.sqrt()
       let error = d_sq - d0 * d0
       let abs_err = if error < 0.0 { -error } else { error }
       if abs_err > max_error {

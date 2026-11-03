@@ -10,6 +10,7 @@
 
 ///|
 /// Mutation type enumeration.
+#derive(Eq, Debug)
 pub enum MutationType {
   Missense_Mutation
   Nonsense_Mutation
@@ -17,7 +18,7 @@ pub enum MutationType {
   Frame_Shift_Del
   Splice_Site
   Silent_Mutation
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend MutationType with Eq::{equal, not_equal}

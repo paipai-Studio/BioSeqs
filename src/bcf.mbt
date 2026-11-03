@@ -25,12 +25,13 @@ fn[T] bcf_fail(msg : String) -> T raise BcfError {
 }
 
 ///|
+#derive(Debug)
 pub enum BcfValue {
   BcfInt(Int32)
   BcfFloat(Double)
   BcfStr(String)
   BcfFlag
-} derive(Debug)
+}
 
 ///|
 pub extend BcfValue with @moonbitlang/core/debug.Debug::{to_repr}

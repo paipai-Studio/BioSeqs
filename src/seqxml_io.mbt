@@ -25,12 +25,13 @@
 
 ///|
 /// The molecular type of a SeqXML sequence element.
+#derive(Eq)
 pub enum SeqXmlType {
   DnaType
   RnaType
   ProteinType
   UnknownType
-} derive(Eq)
+}
 
 ///|
 pub extend SeqXmlType with Eq::{equal, not_equal}

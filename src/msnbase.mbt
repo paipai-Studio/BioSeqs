@@ -22,11 +22,12 @@
 
 ///|
 /// Mass spectrum acquisition level (MS1 = full scan, MS2 = MS/MS, MSn = higher).
+#derive(Eq, Debug)
 pub enum MSLevel {
   MS1
   MS2
   MSn(Int32)
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend MSLevel with Eq::{equal, not_equal}
@@ -54,11 +55,12 @@ pub fn ms_level_msn(n : Int32) -> MSLevel {
 
 ///|
 /// Ionization mode.
+#derive(Eq, Debug)
 pub enum Polarity {
   Positive
   Negative
   Unknown
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend Polarity with Eq::{equal, not_equal}

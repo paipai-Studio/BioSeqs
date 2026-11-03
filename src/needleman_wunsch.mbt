@@ -13,12 +13,13 @@
 ///
 /// Unlike Smith-Waterman, there is no `Stop` variant because global
 /// alignment always traces back from (n, m) to (0, 0).
+#derive(Eq, Debug)
 pub enum NWTrace {
   Diag // match/mismatch: comes from (i-1, j-1)
   Up // gap in seq2 (deletion): comes from (i-1, j)
   Left // gap in seq1 (insertion): comes from (i, j-1)
   Start // only used at (0, 0) to terminate traceback
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend NWTrace with Eq::{equal, not_equal}

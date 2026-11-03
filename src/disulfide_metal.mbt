@@ -126,7 +126,7 @@ pub fn MetalCoordSite::coordination_number(self : MetalCoordSite) -> Int32 {
 pub fn detect_metal_sites(
   coords : Array[Vector3],
   elements : Array[String],
-  atom_names : Array[String],
+  _atom_names : Array[String],
   max_distance~ : Double = 3.0,
 ) -> Array[MetalCoordSite] {
   let metals = ["FE", "ZN", "CU", "MG", "CA", "MN", "NI", "CO", "MO", "W"]
@@ -198,4 +198,10 @@ pub fn average_metal_ligand_distance(site : MetalCoordSite) -> Double {
     sum = sum + d
   }
   sum / site.ligand_distances.length().to_double()
+}
+
+///|
+fn _coord_geom_unused_constructors() -> Unit {
+  ignore(CoordinationGeometry::SquarePlanar)
+  ignore(CoordinationGeometry::SquarePyramidal)
 }

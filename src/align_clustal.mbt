@@ -15,11 +15,12 @@ pub suberror AlignClustalError {
 ///
 /// Known generators follow Biopython 1.86: CLUSTAL, PROBCONS, MUSCLE,
 /// MSAPROBS, Kalign, and Biopython.
+#derive(Eq, Debug)
 pub struct AlignClustalMetadata {
   program : String
   version : String
   header : String
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend AlignClustalMetadata with Eq::{equal, not_equal}
@@ -29,11 +30,12 @@ pub extend AlignClustalMetadata with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// One coordinate-bearing row in a CLUSTAL alignment.
+#derive(Eq, Debug)
 pub struct AlignClustalSequence {
   id : String
   sequence : String
   aligned_sequence : String
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend AlignClustalSequence with Eq::{equal, not_equal}
@@ -46,11 +48,12 @@ pub extend AlignClustalSequence with @moonbitlang/core/debug.Debug::{to_repr}
 ///
 /// `consensus` retains the `*`, `:`, `.`, and space column annotation when it
 /// is present. Sparse source annotations are padded with spaces.
+#derive(Eq, Debug)
 pub struct AlignClustalAlignment {
   metadata : AlignClustalMetadata
   sequences : Array[AlignClustalSequence]
   consensus : String?
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend AlignClustalAlignment with Eq::{equal, not_equal}
@@ -60,6 +63,7 @@ pub extend AlignClustalAlignment with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Pairwise or all-pairs alignment statistics.
+#derive(Eq, Debug)
 pub struct AlignClustalCounts {
   pairs : Int32
   aligned : Int32
@@ -68,7 +72,7 @@ pub struct AlignClustalCounts {
   gap_columns : Int32
   double_gap_columns : Int32
   gap_opens : Int32
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend AlignClustalCounts with Eq::{equal, not_equal}

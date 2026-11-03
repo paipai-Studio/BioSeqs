@@ -16,13 +16,14 @@
 
 ///|
 /// Semantic similarity measure types.
+#derive(Eq, Debug)
 pub enum SimMeasure {
   Resnik
   Lin
   Rel
   Jiang
   Wang
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend SimMeasure with Eq::{equal, not_equal}
@@ -66,13 +67,14 @@ pub fn wang_measure() -> SimMeasure {
 
 ///|
 /// A node in the GO DAG.
+#derive(Debug)
 pub struct GOTermNode {
   go_id : String
   term_name : String
   ic : Double
   parents : Array[String]
   children : Array[String]
-} derive(Debug)
+}
 
 ///|
 pub extend GOTermNode with @moonbitlang/core/debug.Debug::{to_repr}
@@ -120,10 +122,11 @@ pub fn GOTermNode::new(
 
 ///|
 /// Gene Ontology Directed Acyclic Graph.
+#derive(Debug)
 pub struct GOGraph {
   root_id : String
   terms : Map[String, GOTermNode]
-} derive(Debug)
+}
 
 ///|
 pub extend GOGraph with @moonbitlang/core/debug.Debug::{to_repr}

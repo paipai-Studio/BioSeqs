@@ -145,6 +145,7 @@ fn caa_normal_cdf(x : Double) -> Double {
 
 ///|
 /// Result of the Z-test for selection.
+#derive(Debug)
 pub struct SelectionTestResult {
   dn : Double // corrected nonsynonymous rate
   ds : Double // corrected synonymous rate
@@ -154,7 +155,7 @@ pub struct SelectionTestResult {
   p_value : Double
   test_type : String // "positive" | "purifying" | "neutrality"
   conclusion : String // human-readable conclusion
-} derive(Debug)
+}
 
 ///|
 pub extend SelectionTestResult with @moonbitlang/core/debug.Debug::{to_repr}
@@ -387,6 +388,7 @@ fn caa_fisher_exact(
 
 ///|
 /// Result of Fisher's exact test for neutrality.
+#derive(Debug)
 pub struct CodonNeutralityTestResult {
   p_value : Double
   odds_ratio : Double
@@ -396,7 +398,7 @@ pub struct CodonNeutralityTestResult {
   s_sites : Double // synonymous sites (Sn)
   test_type : String
   conclusion : String
-} derive(Debug)
+}
 
 ///|
 pub extend CodonNeutralityTestResult with @moonbitlang/core/debug.Debug::{
@@ -521,11 +523,12 @@ pub fn codon_test_neutrality(
 ///|
 /// A codon alignment: aligned nucleotide sequences built from a protein
 /// alignment and un-aligned coding sequences.
+#derive(Debug)
 pub struct CodonAlignment {
   sequences : Array[String]
   names : Array[String]
   n_codons : Int32 // number of codon columns (including gap columns)
-} derive(Debug)
+}
 
 ///|
 pub extend CodonAlignment with @moonbitlang/core/debug.Debug::{to_repr}
@@ -648,6 +651,7 @@ pub fn build_codon_alignment(
 
 ///|
 /// One window of a sliding-window dN/dS scan.
+#derive(Debug)
 pub struct WindowDnDs {
   start_codon : Int32 // 0-based start codon index
   end_codon : Int32 // 0-based end codon index (exclusive)
@@ -655,7 +659,7 @@ pub struct WindowDnDs {
   ds : Double
   dnds : Double
   n_codons : Int32 // number of valid codon pairs in the window
-} derive(Debug)
+}
 
 ///|
 pub extend WindowDnDs with @moonbitlang/core/debug.Debug::{to_repr}
@@ -692,9 +696,10 @@ pub fn WindowDnDs::n_codons(self : WindowDnDs) -> Int32 {
 
 ///|
 /// Result of a sliding-window dN/dS scan.
+#derive(Debug)
 pub struct SlidingWindowResult {
   windows : Array[WindowDnDs]
-} derive(Debug)
+}
 
 ///|
 pub extend SlidingWindowResult with @moonbitlang/core/debug.Debug::{to_repr}
@@ -819,6 +824,7 @@ pub fn codon_align_advanced_bh_fdr(p_values : Array[Double]) -> Array[Double] {
 
 ///|
 /// One row of the pairwise Ka/Ks table with Z-test and FDR.
+#derive(Debug)
 pub struct KaksTableRow {
   seq1_name : String
   seq2_name : String
@@ -829,7 +835,7 @@ pub struct KaksTableRow {
   p_value : Double
   fdr : Double
   conclusion : String
-} derive(Debug)
+}
 
 ///|
 pub extend KaksTableRow with @moonbitlang/core/debug.Debug::{to_repr}

@@ -18,11 +18,12 @@ pub suberror AlignIOError {
 ///
 /// All sequences in the alignment must have the same length. Can be accessed
 /// like an array of SeqRecords.
+#derive(Eq)
 pub struct MultipleSeqAlignment {
   records : Array[SeqRecord]
   annotations : Map[String, String]
   column_annotations : Map[String, Array[String]]
-} derive(Eq)
+}
 
 ///|
 pub extend MultipleSeqAlignment with Eq::{equal, not_equal}

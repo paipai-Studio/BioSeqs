@@ -11,10 +11,11 @@
 
 ///|
 /// Type of robust M-estimator for IRLS weighting.
+#derive(Eq)
 pub(all) enum PlmEstimator {
   Huber(Double)
   Tukey(Double)
-} derive(Eq)
+}
 
 ///|
 pub extend PlmEstimator with Eq::{equal, not_equal}
@@ -28,10 +29,11 @@ pub fn plm_default_estimator() -> PlmEstimator {
 ///|
 /// A probeset: one row of probe intensities per sample (probes x
 /// samples matrix), plus a name.
+#derive(Eq)
 pub struct PlmProbeset {
   name : String
   probes : Array[Array[Double]]
-} derive(Eq)
+}
 
 ///|
 pub extend PlmProbeset with Eq::{equal, not_equal}
@@ -46,6 +48,7 @@ pub fn PlmProbeset::new(
 
 ///|
 /// Result of fitting a PLM to one probeset.
+#derive(Eq)
 pub struct PlmFit {
   probeset_name : String
   chip_effects : Array[Double]
@@ -54,7 +57,7 @@ pub struct PlmFit {
   weights : Array[Array[Double]]
   n_iterations : Int32
   sigma : Double
-} derive(Eq)
+}
 
 ///|
 pub extend PlmFit with Eq::{equal, not_equal}
@@ -426,11 +429,12 @@ fn beclear_median_ref(arr : Array[Double]) -> Double {
 
 ///|
 /// Combined QC report: NUSE and RLE per sample.
+#derive(Eq)
 pub struct PlmQCReport {
   nuse : Array[Double]
   rle : Array[Double]
   n_probesets : Int32
-} derive(Eq)
+}
 
 ///|
 pub extend PlmQCReport with Eq::{equal, not_equal}

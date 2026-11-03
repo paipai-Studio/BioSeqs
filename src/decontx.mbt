@@ -11,6 +11,7 @@ pub suberror DecontXError {
 
 ///|
 /// Parameters for deterministic expectation-maximization inference.
+#derive(Eq, Debug)
 pub struct DecontXConfig {
   max_iterations : Int32
   tolerance : Double
@@ -19,7 +20,7 @@ pub struct DecontXConfig {
   profile_pseudocount : Double
   initial_contamination : Double
   minimum_probability : Double
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend DecontXConfig with Eq::{equal, not_equal}
@@ -80,13 +81,14 @@ pub fn DecontXConfig::default() -> DecontXConfig {
 }
 
 ///|
+#derive(Eq, Debug)
 pub struct DecontXDiagnostics {
   iterations : Int32
   converged : Bool
   initial_log_likelihood : Double
   final_log_likelihood : Double
   log_likelihoods : Array[Double]
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend DecontXDiagnostics with Eq::{equal, not_equal}
@@ -95,6 +97,7 @@ pub extend DecontXDiagnostics with Eq::{equal, not_equal}
 pub extend DecontXDiagnostics with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Eq, Debug)
 pub struct DecontXCellEstimate {
   cell_name : String
   cluster : String
@@ -102,7 +105,7 @@ pub struct DecontXCellEstimate {
   library_size : Double
   native_counts : Double
   contaminant_counts : Double
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend DecontXCellEstimate with Eq::{equal, not_equal}
@@ -111,6 +114,7 @@ pub extend DecontXCellEstimate with Eq::{equal, not_equal}
 pub extend DecontXCellEstimate with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Eq, Debug)
 pub struct DecontXClusterEstimate {
   cluster : String
   n_cells : Int32
@@ -118,7 +122,7 @@ pub struct DecontXClusterEstimate {
   total_counts : Double
   native_counts : Double
   contaminant_counts : Double
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend DecontXClusterEstimate with Eq::{equal, not_equal}
@@ -127,6 +131,7 @@ pub extend DecontXClusterEstimate with Eq::{equal, not_equal}
 pub extend DecontXClusterEstimate with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Eq, Debug)
 pub struct DecontXResult {
   corrected_counts : Array[Array[Double]]
   contamination_counts : Array[Array[Double]]
@@ -139,7 +144,7 @@ pub struct DecontXResult {
   cell_names : Array[String]
   used_background : Bool
   diagnostics : DecontXDiagnostics
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend DecontXResult with Eq::{equal, not_equal}

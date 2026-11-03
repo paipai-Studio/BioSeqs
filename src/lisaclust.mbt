@@ -10,10 +10,11 @@ pub suberror LisaError {
 }
 
 ///|
+#derive(Eq, Debug)
 pub enum LisaCurveKind {
   LisaStandardizedK
   LisaCenteredL
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend LisaCurveKind with Eq::{equal, not_equal}
@@ -32,10 +33,11 @@ pub fn lisa_l_curve() -> LisaCurveKind {
 }
 
 ///|
+#derive(Eq, Debug)
 pub enum LisaWindowKind {
   LisaRectangle
   LisaConvexHull
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend LisaWindowKind with Eq::{equal, not_equal}
@@ -54,13 +56,14 @@ pub fn lisa_convex_window() -> LisaWindowKind {
 }
 
 ///|
+#derive(Eq, Debug)
 pub struct LisaCell {
   cell_id : String
   image_id : String
   cell_type : String
   x : Double
   y : Double
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend LisaCell with Eq::{equal, not_equal}
@@ -92,6 +95,7 @@ pub fn LisaCell::create(
 }
 
 ///|
+#derive(Debug)
 pub struct LisaConfig {
   radii : Array[Double]
   curve_kind : LisaCurveKind
@@ -107,7 +111,7 @@ pub struct LisaConfig {
   tolerance : Double
   seed : Int32
   region_prefix : String
-} derive(Debug)
+}
 
 ///|
 pub extend LisaConfig with @moonbitlang/core/debug.Debug::{to_repr}
@@ -210,26 +214,29 @@ pub fn LisaConfig::default() -> LisaConfig {
 }
 
 ///|
+#derive(Debug)
 pub struct LisaImageWindow {
   image_id : String
   vertices : Array[(Double, Double)]
   area : Double
   max_radius : Double
-} derive(Debug)
+}
 
 ///|
 pub extend LisaImageWindow with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Debug)
 pub struct LisaImageRadii {
   image_id : String
   radii : Array[Double]
-} derive(Debug)
+}
 
 ///|
 pub extend LisaImageRadii with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Debug)
 pub struct LisaCurveSet {
   cell_ids : Array[String]
   image_ids : Array[String]
@@ -241,7 +248,7 @@ pub struct LisaCurveSet {
   effective_radii : Array[LisaImageRadii]
   windows : Array[LisaImageWindow]
   curve_kind : LisaCurveKind
-} derive(Debug)
+}
 
 ///|
 pub extend LisaCurveSet with @moonbitlang/core/debug.Debug::{to_repr}
@@ -313,29 +320,32 @@ pub fn LisaCurveSet::effective_radii_for_image(
 }
 
 ///|
+#derive(Debug)
 pub struct LisaRegionEnrichment {
   cell_type : String
   region : String
   observed : Int32
   expected : Double
   relative_frequency : Double
-} derive(Debug)
+}
 
 ///|
 pub extend LisaRegionEnrichment with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Debug)
 pub struct LisaRegionSummary {
   region : String
   size : Int32
   dominant_cell_type : String
   maximum_enrichment : Double
-} derive(Debug)
+}
 
 ///|
 pub extend LisaRegionSummary with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Debug)
 pub struct LisaResult {
   curves : LisaCurveSet
   labels : Array[Int32]
@@ -349,7 +359,7 @@ pub struct LisaResult {
   enrichment : Array[LisaRegionEnrichment]
   region_summaries : Array[LisaRegionSummary]
   config : LisaConfig
-} derive(Debug)
+}
 
 ///|
 pub extend LisaResult with @moonbitlang/core/debug.Debug::{to_repr}

@@ -53,18 +53,18 @@ pub fn omm_parse_prmtop(content : String) -> OmmAmberParams {
   let atom_types : Array[String] = Array(capacity=0)
   let residue_names : Array[String] = Array(capacity=0)
   // Parse flags and data
-  let mut current_flag = ""
+  let mut _current_flag = ""
   let mut i = 0
   while i < lines.length() {
-    let line = lines[i].to_string().trim()
+    let line = lines[i].to_owned().trim()
     if line.has_prefix("%FLAG") {
       // Extract flag name after "%FLAG "
       if line.length() > 6 {
-        current_flag = line.to_string().substring(start=6).to_string()
+        _current_flag = line.to_owned()[6:].to_owned()
       }
       i = i + 1
       // Skip %FORMAT line
-      if i < lines.length() && lines[i].to_string().trim().has_prefix("%FORMAT") {
+      if i < lines.length() && lines[i].to_owned().trim().has_prefix("%FORMAT") {
         i = i + 1
       }
       continue
@@ -88,7 +88,7 @@ pub fn omm_parse_prmtop(content : String) -> OmmAmberParams {
 ///|
 /// Build a simple harmonic bond force field for testing.
 pub fn omm_simple_bond_ff(
-  n_atoms : Int32,
+  _n_atoms : Int32,
   bond_pairs : Array[(Int32, Int32)],
   k~ : Double = 100.0,
   r0~ : Double = 1.0,

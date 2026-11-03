@@ -109,7 +109,7 @@ pub fn bam_consensus(
                 let weight = if use_qualities && qpos < qual.length() {
                   let q = qual.unsafe_get(qpos).to_int()
                   let phred = q - 33
-                  10.0.pow(phred.to_double() / -10.0)
+                  @math.pow(10.0, phred.to_double() / -10.0)
                 } else {
                   1.0
                 }
@@ -137,7 +137,7 @@ pub fn bam_consensus(
       .values()
       .to_array()
       .fold(init=0.0, fn(acc : Double, v : Double) -> Double { acc + v })
-    let cov_int = counts[pi].size()
+    let cov_int = counts[pi].length()
     if cov_int < min_coverage || total == 0.0 {
       buf.write_string("N")
       positions.push({

@@ -82,7 +82,7 @@ fn rdkit_sa_macrocycle_penalty(mol : Molecule) -> Double {
 ///|
 /// Size penalty: very large molecules are harder.
 fn rdkit_sa_size_penalty(mol : Molecule) -> Double {
-  let n = mol.num_atoms()
+  let _n = mol.num_atoms()
   let heavy = mol_heavy_atom_count(mol)
   // Logarithmic size penalty
   if heavy > 0 {

@@ -13,12 +13,13 @@
 
 ///|
 /// Represents a protein structure for multiple alignment.
+#derive(Eq)
 pub struct StructureData {
   structure_id : String
   ca_coordinates : Array[(Double, Double, Double)]
   sequence : String
   residue_names : Array[String]
-} derive(Eq)
+}
 
 ///|
 pub extend StructureData with Eq::{equal, not_equal}

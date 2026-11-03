@@ -25,6 +25,7 @@
 
 ///|
 /// Type of a Wise2 alignment block.
+#derive(Eq)
 pub enum WiseBlockType {
   WiseExon // exon region
   WiseIntron // intron region
@@ -32,7 +33,7 @@ pub enum WiseBlockType {
   WiseMismatch // mismatch block
   WiseInsertion // insertion (gap in protein)
   WiseDeletion // deletion (gap in gene)
-} derive(Eq)
+}
 
 ///|
 pub extend WiseBlockType with Eq::{equal, not_equal}

@@ -26,17 +26,19 @@
 
 ///|
 /// INSDC feature table feature record.
+#derive(Eq)
 pub struct InsdcFeature {
   feature_type : String
   location_str : String
   qualifiers : Map[String, Array[String]]
-} derive(Eq)
+}
 
 ///|
 pub extend InsdcFeature with Eq::{equal, not_equal}
 
 ///|
 /// INSDC record combining header metadata, features, and sequence.
+#derive(Eq)
 pub struct InsdcRecord {
   locus_name : String
   sequence_length : Int32
@@ -50,7 +52,7 @@ pub struct InsdcRecord {
   organism : String
   features : Array[InsdcFeature]
   sequence : String
-} derive(Eq)
+}
 
 ///|
 pub extend InsdcRecord with Eq::{equal, not_equal}

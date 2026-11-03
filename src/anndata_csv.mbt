@@ -10,14 +10,14 @@ fn anndata_parse_csv(content : String) -> Array[Array[String]] {
   let lines = content.split("\n").to_array()
   let out : Array[Array[String]] = Array(capacity=0)
   for line in lines {
-    let trimmed = line.to_string().trim()
+    let trimmed = line.to_owned().trim()
     if trimmed.length() == 0 {
       continue
     }
     let fields = trimmed.split(",").to_array()
     let row : Array[String] = Array(capacity=0)
     for f in fields {
-      row.push(f.to_string().trim().to_string())
+      row.push(f.to_owned().trim().to_owned())
     }
     out.push(row)
   }

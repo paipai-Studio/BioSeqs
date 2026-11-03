@@ -12,12 +12,13 @@ pub suberror AlignNexusError {
 
 ///|
 /// Sequence datatype declared by a NEXUS FORMAT command.
+#derive(Eq, Debug)
 pub(all) enum AlignNexusDataType {
   AlignNexusDna
   AlignNexusRna
   AlignNexusProtein
   AlignNexusStandard
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend AlignNexusDataType with Eq::{equal, not_equal}
@@ -31,6 +32,7 @@ pub extend AlignNexusDataType with @moonbitlang/core/debug.Debug::{to_repr}
 /// `declared_characters` is the NCHAR value in the source file.
 /// `removed_all_gap_columns` records columns omitted from the alignment,
 /// matching Biopython's `Bio.Align.nexus` behavior.
+#derive(Eq, Debug)
 pub struct AlignNexusMetadata {
   block_name : String
   declared_taxa : Int32
@@ -43,7 +45,7 @@ pub struct AlignNexusMetadata {
   respect_case : Bool
   symbols : String
   removed_all_gap_columns : Int32
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend AlignNexusMetadata with Eq::{equal, not_equal}
@@ -56,11 +58,12 @@ pub extend AlignNexusMetadata with @moonbitlang/core/debug.Debug::{to_repr}
 ///
 /// `aligned_sequence` always uses `-` for gaps. `sequence` is the same row
 /// with gaps removed; missing-data symbols remain coordinate-bearing.
+#derive(Eq, Debug)
 pub struct AlignNexusSequence {
   id : String
   sequence : String
   aligned_sequence : String
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend AlignNexusSequence with Eq::{equal, not_equal}
@@ -70,10 +73,11 @@ pub extend AlignNexusSequence with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// A coordinate-aware NEXUS multiple sequence alignment.
+#derive(Eq, Debug)
 pub struct AlignNexusAlignment {
   metadata : AlignNexusMetadata
   sequences : Array[AlignNexusSequence]
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend AlignNexusAlignment with Eq::{equal, not_equal}
@@ -83,6 +87,7 @@ pub extend AlignNexusAlignment with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Pairwise or all-pairs alignment statistics.
+#derive(Eq, Debug)
 pub struct AlignNexusCounts {
   pairs : Int32
   aligned : Int32
@@ -91,7 +96,7 @@ pub struct AlignNexusCounts {
   gap_columns : Int32
   double_gap_columns : Int32
   gap_opens : Int32
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend AlignNexusCounts with Eq::{equal, not_equal}

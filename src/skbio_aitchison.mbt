@@ -103,9 +103,9 @@ pub fn skbio_aitchison_distance_matrix(
 pub fn skbio_composition_distance(
   x : Array[Double],
   y : Array[Double],
-  method~ : String = "aitchison",
+  method_~ : String = "aitchison",
 ) -> Double {
-  match method {
+  match method_ {
     "aitchison" => skbio_aitchison_distance(x, y)
     "euclidean" => {
       let mut sum = 0.0

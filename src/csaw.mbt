@@ -13,6 +13,7 @@ pub enum CswNormMethod {
 
 ///|
 /// Filtering status for a window
+#derive(Eq)
 #warnings("-unused_constructor")
 pub enum CswFilterStatus {
   /// Window passes filter
@@ -21,7 +22,7 @@ pub enum CswFilterStatus {
   LowAbundance
   /// Window fails spatial filter (merged with neighbor)
   Merged
-} derive(Eq)
+}
 
 ///|
 pub extend CswFilterStatus with Eq::{equal, not_equal}

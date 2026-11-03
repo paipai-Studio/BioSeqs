@@ -15,11 +15,12 @@
 ///|
 /// One index entry: record key, start offset in the file text, and the
 /// raw record length.
+#derive(Debug)
 pub struct SeqIndexEntry {
   key : String
   offset : Int32
   length : Int32
-} derive(Debug)
+}
 
 ///|
 pub extend SeqIndexEntry with @moonbitlang/core/debug.Debug::{to_repr}
@@ -35,11 +36,12 @@ pub fn SeqIndexEntry::new(
 
 ///|
 /// Random-access index over a sequence file.
+#derive(Debug)
 pub struct SeqIndex {
   format : String
   entries : Array[SeqIndexEntry]
   positions : Map[String, Int32]
-} derive(Debug)
+}
 
 ///|
 pub extend SeqIndex with @moonbitlang/core/debug.Debug::{to_repr}

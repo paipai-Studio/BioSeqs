@@ -12,11 +12,12 @@
 
 ///|
 /// Per-CpG input: identifiers, p-values and a CpG-to-gene mapping.
+#derive(Eq)
 pub struct MethylgsaInput {
   cpg_ids : Array[String]
   cpg_pvalues : Array[Double]
   cpg_to_gene : Map[String, String]
-} derive(Eq)
+}
 
 ///|
 pub extend MethylgsaInput with Eq::{equal, not_equal}
@@ -32,13 +33,14 @@ pub fn MethylgsaInput::new(
 
 ///|
 /// Result for one gene set.
+#derive(Eq, Debug)
 pub struct MethylgsaResult {
   set_name : String
   set_size : Int32
   statistic : Double
   pvalue : Double
   qvalue : Double
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend MethylgsaResult with Eq::{equal, not_equal}

@@ -7,11 +7,12 @@
 /// edge kept in both directions), giving `O(n·k)` memory.
 
 ///|
+#derive(Eq)
 pub struct SparseGraph {
   n : Int32
   diag : Array[Double]
   adj : Array[Array[(Int32, Double)]]
-} derive(Eq)
+}
 
 ///|
 pub extend SparseGraph with Eq::{equal, not_equal}

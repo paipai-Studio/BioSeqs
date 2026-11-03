@@ -11,11 +11,12 @@ pub suberror BigBedError {
 }
 
 ///|
+#derive(Eq, Debug)
 pub struct BigBedField {
   as_type : String
   name : String
   comment : String
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend BigBedField with Eq::{equal, not_equal}
@@ -24,11 +25,12 @@ pub extend BigBedField with Eq::{equal, not_equal}
 pub extend BigBedField with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Eq, Debug)
 pub struct BigBedSchema {
   name : String
   comment : String
   fields : Array[BigBedField]
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend BigBedSchema with Eq::{equal, not_equal}
@@ -37,10 +39,11 @@ pub extend BigBedSchema with Eq::{equal, not_equal}
 pub extend BigBedSchema with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Eq, Debug)
 pub struct BigBedTarget {
   name : String
   length : Int32
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend BigBedTarget with Eq::{equal, not_equal}
@@ -49,6 +52,7 @@ pub extend BigBedTarget with Eq::{equal, not_equal}
 pub extend BigBedTarget with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Eq, Debug)
 pub struct BigBedRecord {
   chrom : String
   chrom_start : Int32
@@ -63,7 +67,7 @@ pub struct BigBedRecord {
   block_sizes : Array[Int32]
   block_starts : Array[Int32]
   extra_fields : Array[String]
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend BigBedRecord with Eq::{equal, not_equal}
@@ -72,6 +76,7 @@ pub extend BigBedRecord with Eq::{equal, not_equal}
 pub extend BigBedRecord with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Eq, Debug)
 pub struct BigBedWriteConfig {
   bed_columns : Int32
   items_per_slot : Int32
@@ -80,7 +85,7 @@ pub struct BigBedWriteConfig {
   schema_name : String
   schema_comment : String
   custom_fields : Array[BigBedField]
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend BigBedWriteConfig with Eq::{equal, not_equal}
@@ -89,6 +94,7 @@ pub extend BigBedWriteConfig with Eq::{equal, not_equal}
 pub extend BigBedWriteConfig with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Eq, Debug)
 pub struct BigBedHeader {
   little_endian : Bool
   version : Int32
@@ -102,7 +108,7 @@ pub struct BigBedHeader {
   total_summary_offset : Int32
   uncompress_buffer_size : Int32
   extra_indices_offset : Int32
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend BigBedHeader with Eq::{equal, not_equal}
@@ -111,6 +117,7 @@ pub extend BigBedHeader with Eq::{equal, not_equal}
 pub extend BigBedHeader with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Eq, Debug)
 pub struct BigBedBlockIndex {
   start_chrom : Int32
   start_base : Int32
@@ -118,7 +125,7 @@ pub struct BigBedBlockIndex {
   end_base : Int32
   data_offset : Int32
   data_size : Int32
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend BigBedBlockIndex with Eq::{equal, not_equal}
@@ -127,6 +134,7 @@ pub extend BigBedBlockIndex with Eq::{equal, not_equal}
 pub extend BigBedBlockIndex with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Eq, Debug)
 pub struct BigBedSummary {
   record_count : Int32
   target_count : Int32
@@ -135,7 +143,7 @@ pub struct BigBedSummary {
   minimum_span : Int32
   maximum_span : Int32
   compressed : Bool
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend BigBedSummary with Eq::{equal, not_equal}
@@ -154,10 +162,11 @@ pub struct BigBedFile {
 }
 
 ///|
+#derive(Eq)
 enum BigBedEndian {
   BigBedLittleEndian
   BigBedBigEndian
-} derive(Eq)
+}
 
 ///|
 pub extend BigBedEndian with Eq::{equal, not_equal}

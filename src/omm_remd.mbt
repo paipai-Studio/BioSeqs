@@ -47,7 +47,7 @@ pub fn omm_create_replicas(
       t_min
     } else {
       let ratio = t_max / t_min
-      t_min * ratio.pow(i.to_double() / (n_replicas - 1).to_double())
+      t_min * @math.pow(ratio, i.to_double() / (n_replicas - 1).to_double())
     }
     let n = initial_positions.length()
     let pos : Array[Array[Double]] = Array::make(n, [0.0, 0.0, 0.0])

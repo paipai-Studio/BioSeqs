@@ -12,10 +12,11 @@ pub suberror CellosaurusError {
 
 ///|
 /// A Cellosaurus `DR` cross-reference.
+#derive(Eq)
 pub struct CellosaurusCrossReference {
   database : String
   accession : String
-} derive(Eq)
+}
 
 ///|
 pub extend CellosaurusCrossReference with Eq::{equal, not_equal}
@@ -34,6 +35,7 @@ pub fn CellosaurusCrossReference::new(
 ///
 /// Fields correspond to the official two-letter line codes:
 /// ID, AC, AS, SY, DR, RX, WW, CC, ST, DI, OX, HI, OI, SX, AG, CA, and DT.
+#derive(Eq)
 pub struct CellosaurusRecord {
   identifier : String
   accession : String
@@ -52,7 +54,7 @@ pub struct CellosaurusRecord {
   age : String
   category : String
   date : String
-} derive(Eq)
+}
 
 ///|
 pub extend CellosaurusRecord with Eq::{equal, not_equal}

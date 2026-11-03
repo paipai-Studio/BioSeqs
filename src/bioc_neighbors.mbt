@@ -6,12 +6,13 @@
 
 ///|
 /// Result of a k-nearest neighbor query.
+#derive(Eq, Debug)
 pub struct KNNResult {
   indices : Array[Array[Int32]]
   distances : Array[Array[Double]]
   n_query : Int32
   k : Int32
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend KNNResult with Eq::{equal, not_equal}
@@ -21,11 +22,12 @@ pub extend KNNResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Neighbor search method enumeration.
+#derive(Eq, Debug)
 pub enum NeighborSearchMethod {
   KMKNN
   Annoy
   BruteForce
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend NeighborSearchMethod with Eq::{equal, not_equal}
@@ -53,13 +55,14 @@ pub fn brute_force_method() -> NeighborSearchMethod {
 
 ///|
 /// Options for k-nearest neighbor search.
+#derive(Eq, Debug)
 pub struct KNNOptions {
   method_ : NeighborSearchMethod
   k : Int32
   distance : String
   n_trees : Int32
   search_k : Int32
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend KNNOptions with Eq::{equal, not_equal}
@@ -69,6 +72,7 @@ pub extend KNNOptions with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Index result for fast nearest neighbor lookup.
+#derive(Eq, Debug)
 pub struct IndexResult {
   method_ : NeighborSearchMethod
   n_points : Int32
@@ -76,7 +80,7 @@ pub struct IndexResult {
   data : Array[Array[Double]]
   centroids : Array[Array[Double]]
   tree_nodes : Array[AnnoyNode]
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend IndexResult with Eq::{equal, not_equal}
@@ -86,6 +90,7 @@ pub extend IndexResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// A node in the Annoy tree structure.
+#derive(Eq, Debug)
 pub struct AnnoyNode {
   node_id : Int32
   is_leaf : Bool
@@ -93,7 +98,7 @@ pub struct AnnoyNode {
   split_val : Double
   children : Array[Int32]
   point_indices : Array[Int32]
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend AnnoyNode with Eq::{equal, not_equal}

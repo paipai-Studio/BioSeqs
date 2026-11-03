@@ -5,6 +5,7 @@
 
 ///|
 /// JASPAR motif record.
+#derive(Eq)
 pub struct JasparMotif {
   matrix_id : String
   name : String
@@ -16,13 +17,14 @@ pub struct JasparMotif {
   acc : Array[String]
   pwm : Array[Array[Double]]
   alphabet : Array[String]
-} derive(Eq)
+}
 
 ///|
 pub extend JasparMotif with Eq::{equal, not_equal}
 
 ///|
 /// TRANSFAC motif record.
+#derive(Eq)
 pub struct TransfacMotif {
   accession : String
   id : String
@@ -31,31 +33,33 @@ pub struct TransfacMotif {
   pwm : Array[Array[Double]]
   alphabet : Array[String]
   binding_sites : Array[String]
-} derive(Eq)
+}
 
 ///|
 pub extend TransfacMotif with Eq::{equal, not_equal}
 
 ///|
 /// Motif alignment result.
+#derive(Eq)
 pub struct MotifAlignmentResult {
   score : Double
   offset : Int32
   strand : String
   aligned_length : Int32
-} derive(Eq)
+}
 
 ///|
 pub extend MotifAlignmentResult with Eq::{equal, not_equal}
 
 ///|
 /// Clustered motif group.
+#derive(Eq)
 pub struct MotifCluster {
   cluster_id : Int32
   motifs : Array[String]
   representative : String
   avg_similarity : Double
-} derive(Eq)
+}
 
 ///|
 pub extend MotifCluster with Eq::{equal, not_equal}

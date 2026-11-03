@@ -22,6 +22,7 @@ pub fn DihedralAngles::new(
 
 ///|
 /// Secondary structure types (DSSP-style).
+#derive(Eq, Debug)
 pub enum SSType {
   AlphaHelix // H
   Helix3_10 // G
@@ -31,7 +32,7 @@ pub enum SSType {
   Turn // T
   Bend // S
   Coil // -
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend SSType with Eq::{equal, not_equal}
@@ -517,11 +518,12 @@ pub fn ramachandran_plot(
 
 ///|
 /// Classify a residue's position in the Ramachandran plot.
+#derive(Eq, Debug)
 pub enum RamachandranRegion {
   Favored // Most favorable region
   Allowed // Allowed region
   Generous // Generous/outlier region
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend RamachandranRegion with Eq::{equal, not_equal}

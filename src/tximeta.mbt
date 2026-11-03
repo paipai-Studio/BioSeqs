@@ -11,6 +11,7 @@
 
 ///|
 /// Transcriptome provenance metadata attached by `link_txome`.
+#derive(Eq, Debug)
 pub struct TximetaTxome {
   sha : String
   genome : String
@@ -18,7 +19,7 @@ pub struct TximetaTxome {
   release : String
   source : String
   versioned_tags : Array[String]
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend TximetaTxome with Eq::{equal, not_equal}
@@ -40,6 +41,7 @@ pub fn TximetaTxome::new(
 
 ///|
 /// Quantification data plus injected transcriptome metadata.
+#derive(Eq, Debug)
 pub struct TximetaData {
   sample_names : Array[String]
   transcript_names : Array[String]
@@ -48,7 +50,7 @@ pub struct TximetaData {
   coldata : Map[String, Map[String, String]]
   txome : TximetaTxome?
   linked : Bool
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend TximetaData with Eq::{equal, not_equal}

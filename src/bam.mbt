@@ -40,10 +40,11 @@ pub fn is_bgzf(data : String) -> Bool {
 
 ///|
 /// Reference sequence entry from BAM header.
+#derive(Eq)
 pub struct BamReference {
   name : String
   length : Int32
-} derive(Eq)
+}
 
 ///|
 pub extend BamReference with Eq::{equal, not_equal}
@@ -57,6 +58,7 @@ pub struct BamHeader {
 
 ///|
 /// CIGAR operation types for BAM (same as SAM).
+#derive(Eq)
 pub enum BamCigarOp {
   Match
   Insert
@@ -67,17 +69,18 @@ pub enum BamCigarOp {
   Pad
   Equal
   Diff
-} derive(Eq)
+}
 
 ///|
 pub extend BamCigarOp with Eq::{equal, not_equal}
 
 ///|
 /// CIGAR element: operation + length.
+#derive(Eq)
 pub struct BamCigarElement {
   op : BamCigarOp
   length : Int32
-} derive(Eq)
+}
 
 ///|
 pub extend BamCigarElement with Eq::{equal, not_equal}

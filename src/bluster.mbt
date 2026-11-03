@@ -8,11 +8,12 @@ pub suberror BlusterError {
 }
 
 ///|
+#derive(Eq, Debug)
 pub enum BlusterDistance {
   BlusterEuclidean
   BlusterManhattan
   BlusterCosine
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend BlusterDistance with Eq::{equal, not_equal}
@@ -21,11 +22,12 @@ pub extend BlusterDistance with Eq::{equal, not_equal}
 pub extend BlusterDistance with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Eq, Debug)
 pub enum BlusterSnnWeight {
   BlusterRank
   BlusterNumber
   BlusterJaccard
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend BlusterSnnWeight with Eq::{equal, not_equal}
@@ -34,11 +36,12 @@ pub extend BlusterSnnWeight with Eq::{equal, not_equal}
 pub extend BlusterSnnWeight with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Eq, Debug)
 pub enum BlusterLinkDenominator {
   BlusterLinkMinimum
   BlusterLinkMaximum
   BlusterLinkUnion
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend BlusterLinkDenominator with Eq::{equal, not_equal}
@@ -92,12 +95,13 @@ pub fn bluster_link_union() -> BlusterLinkDenominator {
 }
 
 ///|
+#derive(Debug)
 pub struct BlusterGraph {
   weights : Array[Array[Double]]
   directed : Bool
   k : Int32
   graph_kind : String
-} derive(Debug)
+}
 
 ///|
 pub extend BlusterGraph with @moonbitlang/core/debug.Debug::{to_repr}
@@ -131,13 +135,14 @@ pub fn BlusterGraph::edge_count(self : BlusterGraph) -> Int32 {
 }
 
 ///|
+#derive(Eq, Debug)
 pub struct BlusterKmeansConfig {
   centers : Int32
   max_iterations : Int32
   starts : Int32
   tolerance : Double
   seed : Int32
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend BlusterKmeansConfig with Eq::{equal, not_equal}
@@ -172,18 +177,20 @@ pub fn BlusterKmeansConfig::create(
 }
 
 ///|
+#derive(Debug)
 pub struct BlusterKmeansResult {
   clusters : Array[Int32]
   centers : Array[Array[Double]]
   within_sum_squares : Array[Double]
   total_within_sum_squares : Double
   iterations : Int32
-} derive(Debug)
+}
 
 ///|
 pub extend BlusterKmeansResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Eq, Debug)
 pub struct BlusterGraphConfig {
   k : Int32
   shared : Bool
@@ -192,7 +199,7 @@ pub struct BlusterGraphConfig {
   resolution : Double
   max_iterations : Int32
   seed : Int32
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend BlusterGraphConfig with Eq::{equal, not_equal}
@@ -234,12 +241,13 @@ pub fn BlusterGraphConfig::create(
 }
 
 ///|
+#derive(Debug)
 pub struct BlusterGraphClusterResult {
   clusters : Array[Int32]
   graph : BlusterGraph
   modularity : Double
   iterations : Int32
-} derive(Debug)
+}
 
 ///|
 pub extend BlusterGraphClusterResult with @moonbitlang/core/debug.Debug::{
@@ -247,6 +255,7 @@ pub extend BlusterGraphClusterResult with @moonbitlang/core/debug.Debug::{
 }
 
 ///|
+#derive(Eq, Debug)
 pub struct BlusterTwoStepConfig {
   first_centers : Int32
   first_starts : Int32
@@ -257,7 +266,7 @@ pub struct BlusterTwoStepConfig {
   resolution : Double
   second_max_iterations : Int32
   seed : Int32
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend BlusterTwoStepConfig with Eq::{equal, not_equal}
@@ -308,6 +317,7 @@ pub fn BlusterTwoStepConfig::create(
 }
 
 ///|
+#derive(Debug)
 pub struct BlusterTwoStepResult {
   clusters : Array[Int32]
   first : BlusterKmeansResult
@@ -315,12 +325,13 @@ pub struct BlusterTwoStepResult {
   centroid_clusters : Array[Int32]
   graph : BlusterGraph
   modularity : Double
-} derive(Debug)
+}
 
 ///|
 pub extend BlusterTwoStepResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Debug)
 pub struct BlusterRandResult {
   cluster_names : Array[Int32]
   correct : Array[Array[Double?]]
@@ -328,41 +339,45 @@ pub struct BlusterRandResult {
   ratios : Array[Array[Double?]]
   index : Double?
   adjusted : Bool
-} derive(Debug)
+}
 
 ///|
 pub extend BlusterRandResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Debug)
 pub struct BlusterSilhouetteResult {
   clusters : Array[Int32]
   other_clusters : Array[Int32]
   widths : Array[Double]
-} derive(Debug)
+}
 
 ///|
 pub extend BlusterSilhouetteResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Debug)
 pub struct BlusterClusterMetric {
   cluster_names : Array[Int32]
   values : Array[Double?]
-} derive(Debug)
+}
 
 ///|
 pub extend BlusterClusterMetric with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Debug)
 pub struct BlusterPurityResult {
   purity : Array[Double]
   maximum_clusters : Array[Int32]
   radius : Double
-} derive(Debug)
+}
 
 ///|
 pub extend BlusterPurityResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Debug)
 pub struct BlusterModularityResult {
   cluster_names : Array[Int32]
   observed : Array[Array[Double?]]
@@ -370,12 +385,13 @@ pub struct BlusterModularityResult {
   modularity : Array[Array[Double?]]
   ratios : Array[Array[Double?]]
   total_weight : Double
-} derive(Debug)
+}
 
 ///|
 pub extend BlusterModularityResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Debug)
 pub struct BlusterNestedResult {
   reference_names : Array[Int32]
   alternative_names : Array[Int32]
@@ -383,17 +399,18 @@ pub struct BlusterNestedResult {
   alternative_mapping : Array[Int32]
   alternative_maximum : Array[Double]
   reference_scores : Array[Double]
-} derive(Debug)
+}
 
 ///|
 pub extend BlusterNestedResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Debug)
 pub struct BlusterStabilityResult {
   cluster_names : Array[Int32]
   ratios : Array[Array[Double?]]
   adjusted_indices : Array[Double?]
-} derive(Debug)
+}
 
 ///|
 pub extend BlusterStabilityResult with @moonbitlang/core/debug.Debug::{to_repr}

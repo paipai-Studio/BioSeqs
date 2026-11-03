@@ -5,11 +5,12 @@
 
 ///|
 /// Markov chain order type.
+#derive(Eq, Debug)
 pub enum ChainType {
   FirstOrder
   SecondOrder
   ThirdOrder
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend ChainType with Eq::{equal, not_equal}

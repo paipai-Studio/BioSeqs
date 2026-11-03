@@ -8,12 +8,13 @@ pub suberror FlowSomError {
 }
 
 ///|
+#derive(Eq, Debug)
 pub enum FlowSomDistance {
   FlowSomManhattan
   FlowSomEuclidean
   FlowSomChebyshev
   FlowSomCosine
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend FlowSomDistance with Eq::{equal, not_equal}
@@ -22,11 +23,12 @@ pub extend FlowSomDistance with Eq::{equal, not_equal}
 pub extend FlowSomDistance with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Eq, Debug)
 pub enum FlowSomInitialization {
   FlowSomRandom
   FlowSomKwsp
   FlowSomPca
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend FlowSomInitialization with Eq::{equal, not_equal}
@@ -70,6 +72,7 @@ pub fn flowsom_pca_initialization() -> FlowSomInitialization {
 }
 
 ///|
+#derive(Debug)
 pub struct FlowSomConfig {
   xdim : Int32
   ydim : Int32
@@ -86,7 +89,7 @@ pub struct FlowSomConfig {
   meta_starts : Int32
   outlier_mad : Double
   seed : Int32
-} derive(Debug)
+}
 
 ///|
 pub extend FlowSomConfig with @moonbitlang/core/debug.Debug::{to_repr}
@@ -168,11 +171,12 @@ pub fn FlowSomConfig::create(
 }
 
 ///|
+#derive(Eq, Debug)
 pub struct FlowSomMstEdge {
   from : Int32
   to : Int32
   weight : Double
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend FlowSomMstEdge with Eq::{equal, not_equal}
@@ -181,15 +185,17 @@ pub extend FlowSomMstEdge with Eq::{equal, not_equal}
 pub extend FlowSomMstEdge with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Debug)
 pub struct FlowSomMapping {
   clusters : Array[Int32]
   distances : Array[Double]
-} derive(Debug)
+}
 
 ///|
 pub extend FlowSomMapping with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Debug)
 pub struct FlowSomOutlierReport {
   median_distances : Array[Double?]
   mad_distances : Array[Double?]
@@ -197,12 +203,13 @@ pub struct FlowSomOutlierReport {
   counts : Array[Int32]
   maximum_distances : Array[Double?]
   per_cell : Array[Bool]
-} derive(Debug)
+}
 
 ///|
 pub extend FlowSomOutlierReport with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Debug)
 pub struct FlowSomModel {
   data : Array[Array[Double]]
   marker_names : Array[String]
@@ -224,27 +231,29 @@ pub struct FlowSomModel {
   topographic_error : Double
   iterations : Int32
   config : FlowSomConfig
-} derive(Debug)
+}
 
 ///|
 pub extend FlowSomModel with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Debug)
 pub struct FlowSomMappedData {
   mapping : FlowSomMapping
   meta_clusters : Array[Int32]
   outliers : Array[Bool]
-} derive(Debug)
+}
 
 ///|
 pub extend FlowSomMappedData with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Debug)
 pub struct FlowSomPurity {
   mean : Double
   worst : Double
   below_075 : Int32
-} derive(Debug)
+}
 
 ///|
 pub extend FlowSomPurity with @moonbitlang/core/debug.Debug::{to_repr}

@@ -13,10 +13,11 @@ pub suberror AlignPhylipError {
 
 ///|
 /// Physical layout detected in or requested for a PHYLIP document.
+#derive(Eq, Debug)
 pub(all) enum AlignPhylipLayout {
   PhylipSequential
   PhylipInterleaved
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend AlignPhylipLayout with Eq::{equal, not_equal}
@@ -26,11 +27,12 @@ pub extend AlignPhylipLayout with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// One coordinate-bearing PHYLIP row.
+#derive(Eq, Debug)
 pub struct AlignPhylipSequence {
   id : String
   sequence : String
   aligned_sequence : String
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend AlignPhylipSequence with Eq::{equal, not_equal}
@@ -44,10 +46,11 @@ pub extend AlignPhylipSequence with @moonbitlang/core/debug.Debug::{to_repr}
 /// PHYLIP identifiers read from files are the trimmed fixed-width 10-column
 /// fields. Programmatically constructed rows may retain longer identifiers;
 /// the writer applies Biopython's PHYLIP normalization when serializing them.
+#derive(Eq, Debug)
 pub struct AlignPhylipAlignment {
   sequences : Array[AlignPhylipSequence]
   source_layout : AlignPhylipLayout
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend AlignPhylipAlignment with Eq::{equal, not_equal}
@@ -57,6 +60,7 @@ pub extend AlignPhylipAlignment with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Pairwise or all-pairs alignment statistics.
+#derive(Eq, Debug)
 pub struct AlignPhylipCounts {
   pairs : Int32
   aligned : Int32
@@ -65,7 +69,7 @@ pub struct AlignPhylipCounts {
   gap_columns : Int32
   double_gap_columns : Int32
   gap_opens : Int32
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend AlignPhylipCounts with Eq::{equal, not_equal}

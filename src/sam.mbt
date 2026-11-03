@@ -3,13 +3,14 @@
 
 ///|
 /// SAM header line types.
+#derive(Eq)
 pub enum SamHeaderType {
   HD
   SQ
   RG
   PG
   CO
-} derive(Eq)
+}
 
 ///|
 pub extend SamHeaderType with Eq::{equal, not_equal}
@@ -23,6 +24,7 @@ pub struct SamHeader {
 
 ///|
 /// CIGAR operation types.
+#derive(Eq)
 pub enum CigarOp {
   Match
   Insert
@@ -33,17 +35,18 @@ pub enum CigarOp {
   Pad
   Equal
   Diff
-} derive(Eq)
+}
 
 ///|
 pub extend CigarOp with Eq::{equal, not_equal}
 
 ///|
 /// CIGAR element: operation + length.
+#derive(Eq)
 pub struct CigarElement {
   op : CigarOp
   length : Int32
-} derive(Eq)
+}
 
 ///|
 pub extend CigarElement with Eq::{equal, not_equal}

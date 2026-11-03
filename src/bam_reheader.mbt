@@ -51,19 +51,19 @@ pub fn bam_parse_sam_header(header_text : String) -> BamHeader {
   let refs : Array[BamReference] = Array(capacity=0)
   let lines = header_text.split("\n").to_array()
   for line in lines {
-    if line.length() >= 3 && line[0:3].to_string() == "@SQ" {
+    if line.length() >= 3 && line[0:3].to_owned() == "@SQ" {
       let mut name = ""
       let mut length : Int32 = 0
       let fields = line.split("\t").to_array()
       for field in fields {
         if field.length() >= 3 &&
-          field[0:2].to_string() == "SN" &&
-          field[2:3].to_string() == ":" {
-          name = field[3:].to_string()
+          field[0:2].to_owned() == "SN" &&
+          field[2:3].to_owned() == ":" {
+          name = field[3:].to_owned()
         } else if field.length() >= 3 &&
-          field[0:2].to_string() == "LN" &&
-          field[2:3].to_string() == ":" {
-          let len_str = field[3:].to_string()
+          field[0:2].to_owned() == "LN" &&
+          field[2:3].to_owned() == ":" {
+          let len_str = field[3:].to_owned()
           length = parse_int(len_str)
         }
       }

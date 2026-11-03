@@ -14,7 +14,7 @@ pub fn skbio_dinucleotide_counts(seq : String) -> Map[String, Int32] {
     return result
   }
   for i = 0; i < seq.length() - 1; i = i + 1 {
-    let di = seq.substring(start=i, end=i + 2)
+    let di = seq[i:i + 2].to_owned()
     match result.get(di) {
       Some(c) => result[di] = c + 1
       None => result[di] = 1
@@ -48,7 +48,7 @@ pub fn skbio_trinucleotide_counts(seq : String) -> Map[String, Int32] {
     return result
   }
   for i = 0; i < seq.length() - 2; i = i + 1 {
-    let tri = seq.substring(start=i, end=i + 3)
+    let tri = seq[i:i + 3].to_owned()
     match result.get(tri) {
       Some(c) => result[tri] = c + 1
       None => result[tri] = 1
@@ -82,7 +82,7 @@ pub fn skbio_codon_counts(seq : String) -> Map[String, Int32] {
   let n = seq.length()
   let mut i = 0
   while i + 3 <= n {
-    let codon = seq.substring(start=i, end=i + 3)
+    let codon = seq[i:i + 3].to_owned()
     match result.get(codon) {
       Some(c) => result[codon] = c + 1
       None => result[codon] = 1
@@ -153,7 +153,7 @@ pub fn skbio_kmer_counts(seq : String, k : Int32) -> Map[String, Int32] {
     return result
   }
   for i = 0; i <= n - k; i = i + 1 {
-    let kmer = seq.substring(start=i, end=i + k)
+    let kmer = seq[i:i + k].to_owned()
     match result.get(kmer) {
       Some(c) => result[kmer] = c + 1
       None => result[kmer] = 1
@@ -196,8 +196,8 @@ pub fn skbio_dinucleotide_odds_ratio(seq : String, di : String) -> Double {
   if total == 0.0 {
     return 0.0
   }
-  let x = di.substring(start=0, end=1)
-  let y = di.substring(start=1, end=2)
+  let x = di[0:1].to_owned()
+  let y = di[1:2].to_owned()
   let x_count = match x {
     "A" | "a" => a
     "C" | "c" => c

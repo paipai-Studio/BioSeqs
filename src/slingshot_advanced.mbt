@@ -8,11 +8,12 @@ pub suberror SlingshotAdvancedError {
 }
 
 ///|
+#derive(Eq, Debug)
 pub enum SlingshotClusterDistance {
   SlingshotCenterEuclidean
   SlingshotScaledDiagonal
   SlingshotScaledFull
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend SlingshotClusterDistance with Eq::{equal, not_equal}
@@ -23,11 +24,12 @@ pub extend SlingshotClusterDistance with @moonbitlang/core/debug.Debug::{
 }
 
 ///|
+#derive(Eq, Debug)
 pub enum SlingshotCurveExtension {
   SlingshotExtendNone
   SlingshotExtendLine
   SlingshotExtendPc1
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend SlingshotCurveExtension with Eq::{equal, not_equal}
@@ -66,6 +68,7 @@ pub fn slingshot_extend_pc1() -> SlingshotCurveExtension {
 }
 
 ///|
+#derive(Debug)
 pub struct SlingshotAdvancedConfig {
   start_clusters : Array[String]
   end_clusters : Array[String]
@@ -83,7 +86,7 @@ pub struct SlingshotAdvancedConfig {
   smoother_span : Double
   curve_points : Int32
   covariance_ridge : Double
-} derive(Debug)
+}
 
 ///|
 pub extend SlingshotAdvancedConfig with @moonbitlang/core/debug.Debug::{to_repr}
@@ -162,22 +165,24 @@ pub fn SlingshotAdvancedConfig::create(
 }
 
 ///|
+#derive(Debug)
 pub struct SlingshotClusterSummary {
   name : String
   center : Array[Double]
   covariance : Array[Array[Double]]
   size : Double
-} derive(Debug)
+}
 
 ///|
 pub extend SlingshotClusterSummary with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Eq, Debug)
 pub struct SlingshotLineageEdge {
   from : Int32
   to : Int32
   distance : Double
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend SlingshotLineageEdge with Eq::{equal, not_equal}
@@ -186,6 +191,7 @@ pub extend SlingshotLineageEdge with Eq::{equal, not_equal}
 pub extend SlingshotLineageEdge with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Debug)
 pub struct SlingshotLineageModel {
   coordinates : Array[Array[Double]]
   cluster_names : Array[String]
@@ -198,12 +204,13 @@ pub struct SlingshotLineageModel {
   lineages : Array[Array[Int32]]
   initial_weights : Array[Array[Double]]
   omega_threshold : Double
-} derive(Debug)
+}
 
 ///|
 pub extend SlingshotLineageModel with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Debug)
 pub struct SlingshotAdvancedCurve {
   name : String
   lineage : Array[Int32]
@@ -212,12 +219,13 @@ pub struct SlingshotAdvancedCurve {
   distances : Array[Double]
   weights : Array[Double]
   length : Double
-} derive(Debug)
+}
 
 ///|
 pub extend SlingshotAdvancedCurve with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Debug)
 pub struct SlingshotAdvancedResult {
   lineage_model : SlingshotLineageModel
   curves : Array[SlingshotAdvancedCurve]
@@ -229,19 +237,20 @@ pub struct SlingshotAdvancedResult {
   converged : Bool
   total_distance : Double
   config : SlingshotAdvancedConfig
-} derive(Debug)
+}
 
 ///|
 pub extend SlingshotAdvancedResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Debug)
 pub struct SlingshotProjection {
   pseudotime : Array[Array[Double?]]
   weights : Array[Array[Double]]
   distances : Array[Array[Double]]
   average_pseudotime : Array[Double]
   branch_ids : Array[String]
-} derive(Debug)
+}
 
 ///|
 pub extend SlingshotProjection with @moonbitlang/core/debug.Debug::{to_repr}

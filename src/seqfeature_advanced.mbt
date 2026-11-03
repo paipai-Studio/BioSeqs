@@ -568,13 +568,14 @@ fn _set_strand(loc : FeatureLocation, strand : Int32) -> FeatureLocation {
 ///
 /// This provides a richer feature representation than SeqFeature,
 /// with explicit qualifiers and a GenBank-compatible string representation.
+#derive(Eq)
 pub struct SeqFeatureExtended {
   location : FeatureLocation
   type_ : String
   qualifiers : Map[String, Array[String]]
   id : String
   description : String
-} derive(Eq)
+}
 
 ///|
 pub extend SeqFeatureExtended with Eq::{equal, not_equal}

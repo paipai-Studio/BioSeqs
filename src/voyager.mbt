@@ -317,12 +317,13 @@ fn voy_pairwise_distances(
 ///   "B" — binary (w_ij = 1 for each link)
 ///   "C" — globally standardized (w_ij = 1 / S0, total sum = 1)
 ///   "S" — Caussinus–Mestre (w_ij = 1 / sqrt(k_i * k_j))
+#derive(Debug)
 pub struct VoyagerWeights {
   style : String
   n : Int32
   neighbors : Array[Array[Int32]]
   weights : Array[Array[Double]]
-} derive(Debug)
+}
 
 ///|
 pub extend VoyagerWeights with @moonbitlang/core/debug.Debug::{to_repr}
@@ -660,6 +661,7 @@ pub fn voyager_weights_inverse_distance(
 // ===========================================================================
 
 ///|
+#derive(Debug)
 pub struct VoyagerGlobalMoranI {
   feature : String
   estimate : Double
@@ -671,7 +673,7 @@ pub struct VoyagerGlobalMoranI {
   s0 : Double
   s1 : Double
   s2 : Double
-} derive(Debug)
+}
 
 ///|
 pub extend VoyagerGlobalMoranI with @moonbitlang/core/debug.Debug::{to_repr}
@@ -778,6 +780,7 @@ pub fn voyager_global_morans_i(
 // ===========================================================================
 
 ///|
+#derive(Debug)
 pub struct VoyagerGlobalGearyC {
   feature : String
   estimate : Double
@@ -789,7 +792,7 @@ pub struct VoyagerGlobalGearyC {
   s0 : Double
   s1 : Double
   s2 : Double
-} derive(Debug)
+}
 
 ///|
 pub extend VoyagerGlobalGearyC with @moonbitlang/core/debug.Debug::{to_repr}
@@ -922,6 +925,7 @@ fn voy_perm_p_value_two_sided(
 // ===========================================================================
 
 ///|
+#derive(Debug)
 pub struct VoyagerLocalMoranI {
   feature : String
   local_i : Array[Double]
@@ -936,7 +940,7 @@ pub struct VoyagerLocalMoranI {
   n : Int32
   permutations : Int32
   style : String
-} derive(Debug)
+}
 
 ///|
 pub extend VoyagerLocalMoranI with @moonbitlang/core/debug.Debug::{to_repr}
@@ -1147,6 +1151,7 @@ pub fn voyager_local_morans_i(
 // ===========================================================================
 
 ///|
+#derive(Debug)
 pub struct VoyagerLocalGearyC {
   feature : String
   local_c : Array[Double]
@@ -1157,7 +1162,7 @@ pub struct VoyagerLocalGearyC {
   classifications : Array[String]
   n : Int32
   permutations : Int32
-} derive(Debug)
+}
 
 ///|
 pub extend VoyagerLocalGearyC with @moonbitlang/core/debug.Debug::{to_repr}
@@ -1288,6 +1293,7 @@ pub fn voyager_local_gearys_c(
 // ===========================================================================
 
 ///|
+#derive(Debug)
 pub struct VoyagerLocalGetisOrd {
   feature : String
   statistic : Array[Double]
@@ -1298,7 +1304,7 @@ pub struct VoyagerLocalGetisOrd {
   classifications : Array[String]
   star : Bool
   n : Int32
-} derive(Debug)
+}
 
 ///|
 pub extend VoyagerLocalGetisOrd with @moonbitlang/core/debug.Debug::{to_repr}
@@ -1416,6 +1422,7 @@ pub fn voyager_local_getis_ord(
 // ===========================================================================
 
 ///|
+#derive(Debug)
 pub struct VoyagerLeesL {
   feature_x : String
   feature_y : String
@@ -1426,7 +1433,7 @@ pub struct VoyagerLeesL {
   fdr : Array[Double]
   n : Int32
   s0 : Double
-} derive(Debug)
+}
 
 ///|
 pub extend VoyagerLeesL with @moonbitlang/core/debug.Debug::{to_repr}
@@ -1578,6 +1585,7 @@ pub fn voyager_lees_l(
 // ===========================================================================
 
 ///|
+#derive(Debug)
 pub struct VoyagerMultivariateLocalGeary {
   feature_set : Array[String]
   local_statistic : Array[Double]
@@ -1589,7 +1597,7 @@ pub struct VoyagerMultivariateLocalGeary {
   n : Int32
   n_features : Int32
   permutations : Int32
-} derive(Debug)
+}
 
 ///|
 pub extend VoyagerMultivariateLocalGeary with @moonbitlang/core/debug.Debug::{
@@ -1752,16 +1760,18 @@ pub fn voyager_multivariate_local_geary(
 // ===========================================================================
 
 ///|
+#derive(Debug)
 pub struct VoyagerVariogramPoint {
   lag : Double
   gamma : Double
   npairs : Int32
-} derive(Debug)
+}
 
 ///|
 pub extend VoyagerVariogramPoint with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Debug)
 pub struct VoyagerVariogramModel {
   model_type : String
   nugget : Double
@@ -1769,7 +1779,7 @@ pub struct VoyagerVariogramModel {
   range : Double
   fitted_sse : Double
   n_points : Int32
-} derive(Debug)
+}
 
 ///|
 pub extend VoyagerVariogramModel with @moonbitlang/core/debug.Debug::{to_repr}
@@ -2071,6 +2081,7 @@ pub fn voyager_variogram_predict(
 // ===========================================================================
 
 ///|
+#derive(Debug)
 pub struct VoyagerCorrelogramPoint {
   lag : Double
   bin_min : Double
@@ -2078,7 +2089,7 @@ pub struct VoyagerCorrelogramPoint {
   morans_i : Double
   expectation : Double
   npairs : Int32
-} derive(Debug)
+}
 
 ///|
 pub extend VoyagerCorrelogramPoint with @moonbitlang/core/debug.Debug::{to_repr}

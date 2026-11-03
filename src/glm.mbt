@@ -21,11 +21,12 @@
 
 ///|
 /// Link function g: eta = g(mu) where mu = mean of the response.
+#derive(Eq, Debug)
 pub enum GlmLink {
   Identity
   Log
   Logit
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend GlmLink with Eq::{equal, not_equal}
@@ -35,6 +36,7 @@ pub extend GlmLink with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Exponential-family distribution (with variance function).
+#derive(Eq, Debug)
 pub enum GlmFamily {
   Gaussian
   Poisson
@@ -42,7 +44,7 @@ pub enum GlmFamily {
   NegativeBinomial(Double)
   /// Binomial with a single trial (Bernoulli), V(mu) = mu(1-mu).
   Binomial
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend GlmFamily with Eq::{equal, not_equal}

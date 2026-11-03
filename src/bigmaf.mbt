@@ -10,12 +10,13 @@ pub suberror BigMafError {
 }
 
 ///|
+#derive(Eq, Debug)
 pub struct BigMafInsertion {
   left_status : String
   left_count : Int32
   right_status : String
   right_count : Int32
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend BigMafInsertion with Eq::{equal, not_equal}
@@ -24,6 +25,7 @@ pub extend BigMafInsertion with Eq::{equal, not_equal}
 pub extend BigMafInsertion with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Eq, Debug)
 pub struct BigMafComponent {
   source : String
   start : Int32
@@ -33,7 +35,7 @@ pub struct BigMafComponent {
   text : String
   insertion : BigMafInsertion?
   quality : String?
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend BigMafComponent with Eq::{equal, not_equal}
@@ -42,6 +44,7 @@ pub extend BigMafComponent with Eq::{equal, not_equal}
 pub extend BigMafComponent with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Eq, Debug)
 pub struct BigMafEmptyComponent {
   source : String
   start : Int32
@@ -49,7 +52,7 @@ pub struct BigMafEmptyComponent {
   strand : String
   source_size : Int32
   status : String
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend BigMafEmptyComponent with Eq::{equal, not_equal}
@@ -58,13 +61,14 @@ pub extend BigMafEmptyComponent with Eq::{equal, not_equal}
 pub extend BigMafEmptyComponent with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Eq, Debug)
 pub struct BigMafBlock {
   score : Double?
   pass_number : Int32?
   components : Array[BigMafComponent]
   empty_components : Array[BigMafEmptyComponent]
   comments : Array[String]
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend BigMafBlock with Eq::{equal, not_equal}
@@ -73,11 +77,12 @@ pub extend BigMafBlock with Eq::{equal, not_equal}
 pub extend BigMafBlock with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Eq, Debug)
 pub struct BigMafWriteConfig {
   compress : Bool
   block_size : Int32
   items_per_slot : Int32
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend BigMafWriteConfig with Eq::{equal, not_equal}
@@ -86,6 +91,7 @@ pub extend BigMafWriteConfig with Eq::{equal, not_equal}
 pub extend BigMafWriteConfig with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Eq, Debug)
 pub struct BigMafSummary {
   alignment_count : Int32
   target_count : Int32
@@ -94,7 +100,7 @@ pub struct BigMafSummary {
   aligned_columns : Int32
   covered_reference_bases : Int32
   compressed : Bool
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend BigMafSummary with Eq::{equal, not_equal}

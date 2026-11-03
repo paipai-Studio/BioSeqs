@@ -28,10 +28,11 @@ let medaka_hifi_epsilon : Double = 0.005
 
 ///|
 /// 长读错误模型.
+#derive(Eq, Debug)
 pub(all) enum MedakaModel {
   Ont
   Hifi
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend MedakaModel with Eq::{equal, not_equal}

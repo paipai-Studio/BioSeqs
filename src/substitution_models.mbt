@@ -91,7 +91,7 @@ fn _sm_nucleotide_frequencies(seq : String) -> (Double, Double, Double, Double) 
 ///|
 /// Combined GC frequency
 fn _sm_gc_freq(seq : String) -> Double {
-  let (a, g, c, t) = nucleotide_frequencies(seq)
+  let (_a, g, c, _t) = nucleotide_frequencies(seq)
   g + c
 }
 

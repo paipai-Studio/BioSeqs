@@ -13,11 +13,12 @@ pub suberror ExonerateTextError {
 
 ///|
 /// Strand semantics used by Exonerate SearchIO fragments.
+#derive(Eq, Debug)
 pub(all) enum ExonerateTextStrand {
   ExonerateTextForward
   ExonerateTextReverse
   ExonerateTextProtein
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend ExonerateTextStrand with Eq::{equal, not_equal}
@@ -27,10 +28,11 @@ pub extend ExonerateTextStrand with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// A normalized zero-based half-open coordinate range.
+#derive(Eq, Debug)
 pub struct ExonerateTextRange {
   start : Int32
   end : Int32
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend ExonerateTextRange with Eq::{equal, not_equal}
@@ -40,11 +42,12 @@ pub extend ExonerateTextRange with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// File-level metadata from an Exonerate report.
+#derive(Eq, Debug)
 pub struct ExonerateTextMetadata {
   program : String
   command_line : String
   hostname : String
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend ExonerateTextMetadata with Eq::{equal, not_equal}
@@ -58,6 +61,7 @@ pub extend ExonerateTextMetadata with @moonbitlang/core/debug.Debug::{to_repr}
 /// Translated alignments expose one-letter amino-acid sequences on both rows.
 /// `query_step` and `hit_step` retain the coordinate width represented by one
 /// displayed residue (one for protein, usually three for translated DNA).
+#derive(Eq, Debug)
 pub struct ExonerateTextFragment {
   query_sequence : String
   hit_sequence : String
@@ -75,7 +79,7 @@ pub struct ExonerateTextFragment {
   phase : Int32
   query_step : Int32
   hit_step : Int32
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend ExonerateTextFragment with Eq::{equal, not_equal}
@@ -85,6 +89,7 @@ pub extend ExonerateTextFragment with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// One Exonerate high-scoring pair, potentially split into many fragments.
+#derive(Eq, Debug)
 pub struct ExonerateTextHsp {
   score : Int32
   model : String
@@ -97,7 +102,7 @@ pub struct ExonerateTextHsp {
   fragments : Array[ExonerateTextFragment]
   query_split_codons : Array[ExonerateTextRange]
   hit_split_codons : Array[ExonerateTextRange]
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend ExonerateTextHsp with Eq::{equal, not_equal}
@@ -107,11 +112,12 @@ pub extend ExonerateTextHsp with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// One target and all HSPs associated with it.
+#derive(Eq, Debug)
 pub struct ExonerateTextHit {
   id : String
   description : String
   hsps : Array[ExonerateTextHsp]
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend ExonerateTextHit with Eq::{equal, not_equal}
@@ -121,12 +127,13 @@ pub extend ExonerateTextHit with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// One query result and all target hits associated with it.
+#derive(Eq, Debug)
 pub struct ExonerateTextQueryResult {
   id : String
   description : String
   model : String
   hits : Array[ExonerateTextHit]
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend ExonerateTextQueryResult with Eq::{equal, not_equal}
@@ -138,10 +145,11 @@ pub extend ExonerateTextQueryResult with @moonbitlang/core/debug.Debug::{
 
 ///|
 /// A complete Exonerate human-readable report.
+#derive(Eq, Debug)
 pub struct ExonerateTextDocument {
   metadata : ExonerateTextMetadata
   queries : Array[ExonerateTextQueryResult]
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend ExonerateTextDocument with Eq::{equal, not_equal}
@@ -151,6 +159,7 @@ pub extend ExonerateTextDocument with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Aggregate statistics for one HSP.
+#derive(Eq, Debug)
 pub struct ExonerateTextCounts {
   fragments : Int32
   alignment_columns : Int32
@@ -162,7 +171,7 @@ pub struct ExonerateTextCounts {
   hit_gap_opens : Int32
   introns_or_ner_gaps : Int32
   frameshift_gaps : Int32
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend ExonerateTextCounts with Eq::{equal, not_equal}

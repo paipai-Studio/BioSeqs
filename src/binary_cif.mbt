@@ -9,11 +9,12 @@ pub suberror BinaryCifError {
 }
 
 ///|
+#derive(Eq, Debug)
 pub enum BinaryCifMask {
   BinaryCifPresent
   BinaryCifNotPresent
   BinaryCifUnknown
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend BinaryCifMask with Eq::{equal, not_equal}
@@ -22,11 +23,12 @@ pub extend BinaryCifMask with Eq::{equal, not_equal}
 pub extend BinaryCifMask with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Eq, Debug)
 pub enum BinaryCifColumnKind {
   BinaryCifInteger
   BinaryCifFloat
   BinaryCifText
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend BinaryCifColumnKind with Eq::{equal, not_equal}

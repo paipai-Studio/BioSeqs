@@ -7,6 +7,7 @@ pub suberror Aldex2Error {
 }
 
 ///|
+#derive(Eq, Debug)
 pub(all) enum Aldex2Denominator {
   Aldex2All
   Aldex2Median
@@ -14,7 +15,7 @@ pub(all) enum Aldex2Denominator {
   Aldex2Zero
   Aldex2Lvha
   Aldex2User
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend Aldex2Denominator with Eq::{equal, not_equal}
@@ -23,6 +24,7 @@ pub extend Aldex2Denominator with Eq::{equal, not_equal}
 pub extend Aldex2Denominator with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Eq, Debug)
 pub struct Aldex2Config {
   mc_samples : Int32
   prior : Double
@@ -31,7 +33,7 @@ pub struct Aldex2Config {
   seed : Int32
   paired : Bool
   interval_level : Double
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend Aldex2Config with Eq::{equal, not_equal}
@@ -113,13 +115,14 @@ pub struct Aldex2Clr {
 }
 
 ///|
+#derive(Eq, Debug)
 pub struct Aldex2TestFeature {
   feature_name : String
   welch_p_value : Double
   welch_adjusted : Double
   wilcoxon_p_value : Double
   wilcoxon_adjusted : Double
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend Aldex2TestFeature with Eq::{equal, not_equal}
@@ -137,6 +140,7 @@ pub struct Aldex2TestResult {
 }
 
 ///|
+#derive(Eq, Debug)
 pub struct Aldex2EffectFeature {
   feature_name : String
   rab_all : Double
@@ -148,7 +152,7 @@ pub struct Aldex2EffectFeature {
   effect_low : Double
   effect_high : Double
   overlap : Double
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend Aldex2EffectFeature with Eq::{equal, not_equal}
@@ -173,6 +177,7 @@ pub struct Aldex2Result {
 }
 
 ///|
+#derive(Eq, Debug)
 pub struct Aldex2Summary {
   feature_count : Int32
   sample_count : Int32
@@ -185,7 +190,7 @@ pub struct Aldex2Summary {
   mc_samples : Int32
   denominator : String
   scale_model : Bool
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend Aldex2Summary with Eq::{equal, not_equal}

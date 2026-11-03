@@ -105,7 +105,7 @@ pub fn hbond_frequency(
           break
         }
       }
-      if not(found) {
+      if !found {
         keys.push(key)
         counts.push(1)
         distances.push(obs.distance)
@@ -117,10 +117,10 @@ pub fn hbond_frequency(
   for i in 0..<keys.length() {
     let parts = keys[i].split(":").to_array()
     if parts.length() >= 4 {
-      let d_res = parse_int_safe(parts[0].to_string())
-      let a_res = parse_int_safe(parts[1].to_string())
-      let d_atom = parts[2].to_string()
-      let a_atom = parts[3].to_string()
+      let d_res = parse_int_safe(parts[0].to_owned())
+      let a_res = parse_int_safe(parts[1].to_owned())
+      let d_atom = parts[2].to_owned()
+      let a_atom = parts[3].to_owned()
       let cnt = counts[i]
       let freq = if total_models > 0 {
         cnt.to_double() / total_models.to_double()

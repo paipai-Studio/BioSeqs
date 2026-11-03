@@ -149,7 +149,7 @@ fn compare_chrom_names(a : String, b : String) -> Int32 {
 ///|
 /// Write chromsizes to chrom.sizes file format string.
 pub fn bf_write_chromsizes(chromsizes : Array[BfChromSize]) -> String {
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   for cs in chromsizes {
     sb.write_string(cs.name)
     sb.write_char('\t')

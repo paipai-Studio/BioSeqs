@@ -16,10 +16,11 @@ pub suberror NnsvgError {
 }
 
 ///|
+#derive(Eq, Debug)
 pub enum NnsvgOrdering {
   Ammd
   SumCoordinates
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend NnsvgOrdering with Eq::{equal, not_equal}
@@ -38,6 +39,7 @@ pub fn nnsvg_sum_coordinates_ordering() -> NnsvgOrdering {
 }
 
 ///|
+#derive(Eq, Debug)
 pub struct NnsvgConfig {
   n_neighbors : Int32
   ordering : NnsvgOrdering
@@ -48,7 +50,7 @@ pub struct NnsvgConfig {
   refinement_steps : Int32
   minimum_variance : Double
   fdr_threshold : Double
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend NnsvgConfig with Eq::{equal, not_equal}
@@ -120,6 +122,7 @@ pub fn NnsvgConfig::default() -> NnsvgConfig {
 }
 
 ///|
+#derive(Debug)
 pub struct NnsvgNeighborGraph {
   coordinates : Array[Array[Double]]
   order : Array[Int32]
@@ -129,12 +132,13 @@ pub struct NnsvgNeighborGraph {
   n_neighbors : Int32
   ordering : NnsvgOrdering
   range_scale : Double
-} derive(Debug)
+}
 
 ///|
 pub extend NnsvgNeighborGraph with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Debug)
 pub struct NnsvgGeneResult {
   gene_name : String
   sigma_sq : Double
@@ -153,31 +157,33 @@ pub struct NnsvgGeneResult {
   adjusted_p_value : Double
   beta : Array[Double]
   converged : Bool
-} derive(Debug)
+}
 
 ///|
 pub extend NnsvgGeneResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Debug)
 pub struct NnsvgResult {
   gene_names : Array[String]
   genes : Array[NnsvgGeneResult]
   graph : NnsvgNeighborGraph
   design_columns : Int32
   config : NnsvgConfig
-} derive(Debug)
+}
 
 ///|
 pub extend NnsvgResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Debug)
 pub struct NnsvgFilterResult {
   counts : Array[Array[Double]]
   gene_names : Array[String]
   kept_indices : Array[Int32]
   removed_low_expression : Array[Int32]
   removed_mitochondrial : Array[Int32]
-} derive(Debug)
+}
 
 ///|
 pub extend NnsvgFilterResult with @moonbitlang/core/debug.Debug::{to_repr}

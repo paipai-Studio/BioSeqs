@@ -72,7 +72,7 @@ pub fn omm_virtual_site_position(
         positions[p1][2] + w12 * v12z + w13 * v13z + wCross * cross_z,
       ]
     }
-    OmmVirtualSiteType::LocalCoordinate(p1, p2, p3, wx, wy, wz, u1, u2, u3) =>
+    OmmVirtualSiteType::LocalCoordinate(p1, p2, p3, wx, wy, wz, _u1, _u2, _u3) =>
       // Simplified: weighted average with local frame weights
       [
         wx * positions[p1][0] + wy * positions[p2][0] + wz * positions[p3][0],
@@ -127,7 +127,7 @@ pub fn omm_tip4p_virtual_site(
 pub fn omm_drude_virtual_site(
   parent_idx : Int32,
   drude_idx : Int32,
-  offset~ : Double = 0.0,
+  _offset~ : Double = 0.0,
 ) -> OmmVirtualSite {
   // DRUDE particle is offset from parent along a fixed direction
   // Simplified as TwoParticleAverage with weights
@@ -137,4 +137,12 @@ pub fn omm_drude_virtual_site(
       parent_idx, parent_idx, 1.0, 0.0,
     ),
   }
+}
+
+///|
+fn _omm_vs_unused_constructors() -> Unit {
+  ignore(OmmVirtualSiteType::OutOfPlane(0, 0, 0, 0.0, 0.0, 0.0))
+  ignore(
+    OmmVirtualSiteType::LocalCoordinate(0, 0, 0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
+  )
 }

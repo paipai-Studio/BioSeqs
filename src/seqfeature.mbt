@@ -7,6 +7,7 @@ pub suberror LocationParserError {
 ///|
 /// Position types for feature locations.
 /// These represent different types of fuzzy positions.
+#derive(Eq)
 pub enum Position {
   ExactPosition(Int32)
   WithinPosition(Int32, Int32, Int32)
@@ -14,7 +15,7 @@ pub enum Position {
   AfterPosition(Int32)
   UncertainPosition(Int32)
   UnknownPosition
-} derive(Eq)
+}
 
 ///|
 pub extend Position with Eq::{equal, not_equal}
@@ -110,13 +111,14 @@ pub fn Position::str(self : Position) -> String {
 ///|
 /// FeatureLocation: specifies the start and end position of a feature.
 /// Supports strand (+1, -1, 0, or None) and reference information.
+#derive(Eq)
 pub struct FeatureLocation {
   start : Position
   end : Position
   strand : Int32?
   ref_seq : String?
   ref_db : String?
-} derive(Eq)
+}
 
 ///|
 pub extend FeatureLocation with Eq::{equal, not_equal}
@@ -272,12 +274,13 @@ pub fn FeatureLocation::extract(
 
 ///|
 /// CompoundLocation: collection of FeatureLocation objects (for joins etc).
+#derive(Eq)
 pub struct CompoundLocation {
   parts : Array[FeatureLocation]
   operator : String
   ref_seq : String?
   ref_db : String?
-} derive(Eq)
+}
 
 ///|
 pub extend CompoundLocation with Eq::{equal, not_equal}
@@ -337,6 +340,7 @@ pub fn CompoundLocation::str(self : CompoundLocation) -> String {
 
 ///|
 /// SeqFeature: represents a sequence feature on an object.
+#derive(Eq)
 pub struct SeqFeature {
   location : FeatureLocation?
   feature_type : String
@@ -346,7 +350,7 @@ pub struct SeqFeature {
   ref_seq : String?
   ref_db : String?
   strand : Int32?
-} derive(Eq)
+}
 
 ///|
 pub extend SeqFeature with Eq::{equal, not_equal}
@@ -515,13 +519,14 @@ pub fn SeqFeature::add_qualifier(
 
 ///|
 /// Reference: holds information about a sequence reference.
+#derive(Eq)
 pub struct Reference {
   authors : String
   title : String
   journal : String
   pubmed_id : String
   comment : String
-} derive(Eq)
+}
 
 ///|
 pub extend Reference with Eq::{equal, not_equal}

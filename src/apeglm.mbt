@@ -10,6 +10,7 @@ pub suberror ApeglmError {
 }
 
 ///|
+#derive(Eq, Debug)
 pub struct ApeglmConfig {
   coefficient : Int32
   threshold : Double
@@ -23,7 +24,7 @@ pub struct ApeglmConfig {
   tolerance : Double
   max_step : Double
   random_starts : Int32
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend ApeglmConfig with Eq::{equal, not_equal}
@@ -120,6 +121,7 @@ pub fn ApeglmConfig::default() -> ApeglmConfig {
 }
 
 ///|
+#derive(Debug)
 pub struct ApeglmPriorControl {
   no_shrink : Array[Int32]
   prior_mean : Double
@@ -128,12 +130,13 @@ pub struct ApeglmPriorControl {
   prior_df : Double
   prior_no_shrink_scale : Double
   adaptive : Bool
-} derive(Debug)
+}
 
 ///|
 pub extend ApeglmPriorControl with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Debug)
 pub struct ApeglmGeneResult {
   gene_name : String
   base_mean : Double
@@ -149,12 +152,13 @@ pub struct ApeglmGeneResult {
   log_posterior : Double
   converged : Bool
   iterations : Int32
-} derive(Debug)
+}
 
 ///|
 pub extend ApeglmGeneResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Debug)
 pub struct ApeglmResult {
   gene_names : Array[String]
   coefficient_names : Array[String]
@@ -164,12 +168,13 @@ pub struct ApeglmResult {
   threshold : Double
   interval_level : Double
   config : ApeglmConfig
-} derive(Debug)
+}
 
 ///|
 pub extend ApeglmResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Eq, Debug)
 pub struct ApeglmSummary {
   gene_count : Int32
   converged_count : Int32
@@ -178,7 +183,7 @@ pub struct ApeglmSummary {
   prior_scale : Double
   median_absolute_effect : Double
   coefficient_name : String
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend ApeglmSummary with Eq::{equal, not_equal}

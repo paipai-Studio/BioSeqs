@@ -9,7 +9,7 @@
 /// Remove all gap characters from a sequence.
 /// Default gap character is '-'.
 pub fn skbio_degap(seq : String, gap~ : Char = '-') -> String {
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   for c in seq {
     if c != gap {
       sb.write_char(c)
@@ -131,7 +131,7 @@ pub fn skbio_insert_gaps(
   positions : Array[Int32],
   gap~ : Char = '-',
 ) -> String {
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   let pos_set : Set[Int32] = Set::from_array(positions)
   let mut i : Int32 = 0
   for c in seq {

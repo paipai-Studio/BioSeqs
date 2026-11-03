@@ -20,11 +20,12 @@
 
 ///|
 /// A TF-target co-expression module from Step 1.
+#derive(Debug)
 pub struct CoExpressionModule {
   tf_name : String
   targets : Array[String]
   weights : Array[Double] // importance weights, parallel to targets
-} derive(Debug)
+}
 
 ///|
 pub extend CoExpressionModule with @moonbitlang/core/debug.Debug::{to_repr}
@@ -41,12 +42,13 @@ pub fn co_expression_module(
 
 ///|
 /// A regulon: TF + pruned direct target set with weights (Step 2 output).
+#derive(Debug)
 pub struct ScenicRegulon {
   tf_name : String
   targets : Array[String]
   weights : Array[Double] // weight per target (from GRN importance)
   n_targets : Int32
-} derive(Debug)
+}
 
 ///|
 pub extend ScenicRegulon with @moonbitlang/core/debug.Debug::{to_repr}
@@ -63,6 +65,7 @@ pub fn scenic_regulon(
 
 ///|
 /// SCENIC input: expression matrix + gene/cell names + TF list.
+#derive(Debug)
 pub struct SCENICInput {
   n_genes : Int32
   n_cells : Int32
@@ -70,7 +73,7 @@ pub struct SCENICInput {
   gene_names : Array[String]
   cell_names : Array[String]
   tf_names : Array[String] // subset of gene_names that are TFs
-} derive(Debug)
+}
 
 ///|
 pub extend SCENICInput with @moonbitlang/core/debug.Debug::{to_repr}

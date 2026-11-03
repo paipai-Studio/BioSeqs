@@ -11,10 +11,11 @@ pub suberror Yn00Error {
 
 ///|
 /// One validated YN00 option retained in canonical text form.
+#derive(Eq, Debug)
 pub struct Yn00Option {
   name : String
   value : String
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend Yn00Option with Eq::{equal, not_equal}
@@ -24,11 +25,12 @@ pub extend Yn00Option with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// A YN00 control file.
+#derive(Eq, Debug)
 pub struct Yn00Control {
   sequence_file : String
   output_file : String
   options : Array[Yn00Option]
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend Yn00Control with Eq::{equal, not_equal}
@@ -38,11 +40,12 @@ pub extend Yn00Control with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Nei-Gojobori (1986) estimates for one sequence pair.
+#derive(Eq, Debug)
 pub struct Yn00Ng86Estimate {
   omega : Double
   dn : Double
   ds : Double
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend Yn00Ng86Estimate with Eq::{equal, not_equal}
@@ -52,6 +55,7 @@ pub extend Yn00Ng86Estimate with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Yang-Nielsen (2000) estimates and standard errors for one sequence pair.
+#derive(Eq, Debug)
 pub struct Yn00YangNielsenEstimate {
   synonymous_sites : Double
   nonsynonymous_sites : Double
@@ -62,7 +66,7 @@ pub struct Yn00YangNielsenEstimate {
   dn_standard_error : Double
   ds : Double
   ds_standard_error : Double
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend Yn00YangNielsenEstimate with Eq::{equal, not_equal}
@@ -75,6 +79,7 @@ pub extend Yn00YangNielsenEstimate with @moonbitlang/core/debug.Debug::{to_repr}
 ///
 /// Undefined PAML values such as `nan`, `-nan`, and `inf` are represented by
 /// `None` instead of leaking non-finite values into downstream calculations.
+#derive(Eq, Debug)
 pub struct Yn00CountingEstimate {
   method_name : String
   ds : Double?
@@ -83,7 +88,7 @@ pub struct Yn00CountingEstimate {
   synonymous_sites : Double?
   nonsynonymous_sites : Double?
   rho : Double?
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend Yn00CountingEstimate with Eq::{equal, not_equal}
@@ -93,6 +98,7 @@ pub extend Yn00CountingEstimate with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// All five YN00 estimates for one unordered sequence pair.
+#derive(Eq, Debug)
 pub struct Yn00PairResult {
   first : String
   second : String
@@ -101,7 +107,7 @@ pub struct Yn00PairResult {
   lwl85 : Yn00CountingEstimate
   lwl85_modified : Yn00CountingEstimate
   lpb93 : Yn00CountingEstimate
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend Yn00PairResult with Eq::{equal, not_equal}
@@ -111,10 +117,11 @@ pub extend Yn00PairResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// A symmetric matrix for one method/statistic combination.
+#derive(Eq, Debug)
 pub struct Yn00DistanceMatrix {
   names : Array[String]
   values : Array[Array[Double?]]
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend Yn00DistanceMatrix with Eq::{equal, not_equal}
@@ -124,13 +131,14 @@ pub extend Yn00DistanceMatrix with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Parsed YN00 pairwise results.
+#derive(Eq, Debug)
 pub struct Yn00Results {
   alignment_file : String
   sequence_count : Int32
   codon_count : Int32
   sequence_names : Array[String]
   pairs : Array[Yn00PairResult]
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend Yn00Results with Eq::{equal, not_equal}

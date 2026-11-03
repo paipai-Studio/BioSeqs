@@ -15,6 +15,7 @@
 ///
 /// Enzymes are value records, so equality is structural: two records are equal
 /// exactly when all fields (including the name) are equal.
+#derive(Eq)
 pub struct BioRestrictionEnzyme {
   name : String
   site : String
@@ -34,7 +35,7 @@ pub struct BioRestrictionEnzyme {
   /// 0 = defined, 1 = ambiguous overhang, 2 = not defined (uncharacterised).
   spec : Int32
   elucidation : String
-} derive(Eq)
+}
 
 ///|
 pub extend BioRestrictionEnzyme with Eq::{equal, not_equal}

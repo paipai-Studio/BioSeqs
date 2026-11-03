@@ -54,7 +54,7 @@ fn qed_gaussian(x : Double, mu : Double, sigma : Double) -> Double {
 /// Desirability function: asymmetric with plateau.
 fn qed_asymmetric(
   x : Double,
-  mu : Double,
+  _mu : Double,
   top : Double,
   bottom : Double,
   left : Double,

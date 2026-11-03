@@ -10,11 +10,12 @@
 
 ///|
 /// Effect of a SNP on a motif occurrence.
+#derive(Eq, Debug)
 pub(all) enum MotifbreakrEffect {
   Gain
   Loss
   Neutral
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend MotifbreakrEffect with Eq::{equal, not_equal}
@@ -24,13 +25,14 @@ pub extend MotifbreakrEffect with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// A single nucleotide variant to evaluate.
+#derive(Eq)
 pub struct MotifbreakrVariant {
   name : String
   chrom : String
   position : Int32
   ref_allele : String
   alt_allele : String
-} derive(Eq)
+}
 
 ///|
 pub extend MotifbreakrVariant with Eq::{equal, not_equal}
@@ -48,6 +50,7 @@ pub fn MotifbreakrVariant::new(
 
 ///|
 /// Result of evaluating one variant against one motif.
+#derive(Eq)
 pub struct MotifbreakrResult {
   variant_name : String
   motif_name : String
@@ -58,7 +61,7 @@ pub struct MotifbreakrResult {
   delta : Double
   effect : MotifbreakrEffect
   strand : String
-} derive(Eq)
+}
 
 ///|
 pub extend MotifbreakrResult with Eq::{equal, not_equal}

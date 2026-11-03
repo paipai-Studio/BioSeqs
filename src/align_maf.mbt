@@ -10,6 +10,7 @@ pub suberror AlignMafError {
 }
 
 ///|
+#derive(Eq, Debug)
 pub struct AlignMafTrack {
   name : String?
   description : String?
@@ -17,7 +18,7 @@ pub struct AlignMafTrack {
   maf_dot : String?
   visibility : String?
   species_order : Array[String]
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend AlignMafTrack with Eq::{equal, not_equal}
@@ -26,6 +27,7 @@ pub extend AlignMafTrack with Eq::{equal, not_equal}
 pub extend AlignMafTrack with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Eq, Debug)
 pub struct AlignMafDocument {
   version : String
   scoring : String?
@@ -33,7 +35,7 @@ pub struct AlignMafDocument {
   comments : Array[String]
   track : AlignMafTrack?
   blocks : Array[BigMafBlock]
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend AlignMafDocument with Eq::{equal, not_equal}
@@ -42,10 +44,11 @@ pub extend AlignMafDocument with Eq::{equal, not_equal}
 pub extend AlignMafDocument with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Eq, Debug)
 pub struct AlignMafCoordinate {
   column : Int32
   positions : Array[Int32]
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend AlignMafCoordinate with Eq::{equal, not_equal}
@@ -54,11 +57,12 @@ pub extend AlignMafCoordinate with Eq::{equal, not_equal}
 pub extend AlignMafCoordinate with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Eq, Debug)
 pub struct AlignMafIndexEntry {
   block_index : Int32
   start : Int32
   end : Int32
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend AlignMafIndexEntry with Eq::{equal, not_equal}
@@ -67,13 +71,14 @@ pub extend AlignMafIndexEntry with Eq::{equal, not_equal}
 pub extend AlignMafIndexEntry with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Eq, Debug)
 pub struct AlignMafIndex {
   reference : String
   source_size : Int32
   reference_strand : String
   entries : Array[AlignMafIndexEntry]
   blocks : Array[BigMafBlock]
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend AlignMafIndex with Eq::{equal, not_equal}
@@ -82,10 +87,11 @@ pub extend AlignMafIndex with Eq::{equal, not_equal}
 pub extend AlignMafIndex with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Eq, Debug)
 pub struct AlignMafSplicedSequence {
   source : String
   text : String
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend AlignMafSplicedSequence with Eq::{equal, not_equal}
@@ -94,6 +100,7 @@ pub extend AlignMafSplicedSequence with Eq::{equal, not_equal}
 pub extend AlignMafSplicedSequence with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Eq, Debug)
 pub struct AlignMafSplicedAlignment {
   reference : String
   strand : String
@@ -101,7 +108,7 @@ pub struct AlignMafSplicedAlignment {
   ends : Array[Int32]
   sequences : Array[AlignMafSplicedSequence]
   columns : Int32
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend AlignMafSplicedAlignment with Eq::{equal, not_equal}
@@ -112,6 +119,7 @@ pub extend AlignMafSplicedAlignment with @moonbitlang/core/debug.Debug::{
 }
 
 ///|
+#derive(Eq, Debug)
 pub struct AlignMafSummary {
   block_count : Int32
   component_count : Int32
@@ -119,7 +127,7 @@ pub struct AlignMafSummary {
   aligned_columns : Int32
   reference_bases : Int32
   source_count : Int32
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend AlignMafSummary with Eq::{equal, not_equal}

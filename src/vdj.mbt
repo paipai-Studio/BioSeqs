@@ -19,11 +19,12 @@ pub suberror VdjError {
 
 ///|
 /// 基因段类别.
+#derive(Eq, Debug)
 pub(all) enum VdjGeneKind {
   VGene
   DGene
   JGene
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend VdjGeneKind with Eq::{equal, not_equal}

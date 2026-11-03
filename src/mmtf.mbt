@@ -23,6 +23,7 @@
 
 ///|
 /// Secondary structure type codes used in MMTF.
+#derive(Eq)
 pub enum MmtfSecStruct {
   MmtfSecPpiHelix // pi helix
   MmtfSecBend
@@ -33,7 +34,7 @@ pub enum MmtfSecStruct {
   MmtfSecTurn
   MmtfSecCoil
   MmtfSecUndefined
-} derive(Eq)
+}
 
 ///|
 pub extend MmtfSecStruct with Eq::{equal, not_equal}
@@ -235,13 +236,14 @@ pub fn MmtfModel::get_num_chains(self : MmtfModel) -> Int32 {
 
 ///|
 /// Entity type classification.
+#derive(Eq)
 pub enum MmtfEntityType {
   MmtfEntityPolymer
   MmtfEntityNonPolymer
   MmtfEntityWater
   MmtfEntityBranched
   MmtfEntityUndefined
-} derive(Eq)
+}
 
 ///|
 pub extend MmtfEntityType with Eq::{equal, not_equal}

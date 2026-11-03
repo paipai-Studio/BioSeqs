@@ -15,6 +15,7 @@
 /// Represents a Locally Collinear Block (LCB) in a Mauve alignment.
 /// LCBs are conserved regions between genomes that appear
 /// in the same order without rearrangements.
+#derive(Eq)
 pub struct MauveLCB {
   /// Block identifier
   id : String
@@ -24,13 +25,14 @@ pub struct MauveLCB {
   sequences : Array[MauveSequence]
   /// Whether this block is collinear (no rearrangements)
   is_collinear : Bool
-} derive(Eq)
+}
 
 ///|
 pub extend MauveLCB with Eq::{equal, not_equal}
 
 ///|
 /// Represents a sequence entry in a Mauve alignment block.
+#derive(Eq)
 pub struct MauveSequence {
   /// Sequence name (genome.chromosome)
   name : String
@@ -50,13 +52,14 @@ pub struct MauveSequence {
   group : Int32
   /// Parent block ID (for progressive alignment)
   parent_id : String
-} derive(Eq)
+}
 
 ///|
 pub extend MauveSequence with Eq::{equal, not_equal}
 
 ///|
 /// Represents a breakpoint between LCBs.
+#derive(Eq)
 pub struct MauveBreakpoint {
   /// The first LCB ID
   lcb1_id : String
@@ -68,13 +71,14 @@ pub struct MauveBreakpoint {
   position : Int32
   /// Breakpoint type (inversion, translocation, etc.)
   breakpoint_type : String
-} derive(Eq)
+}
 
 ///|
 pub extend MauveBreakpoint with Eq::{equal, not_equal}
 
 ///|
 /// Represents an inversion in a Mauve alignment.
+#derive(Eq)
 pub struct MauveInversion {
   /// Sequence name
   seq_name : String
@@ -86,13 +90,14 @@ pub struct MauveInversion {
   length : Int32
   /// Affected LCB IDs
   affected_lcbs : Array[String]
-} derive(Eq)
+}
 
 ///|
 pub extend MauveInversion with Eq::{equal, not_equal}
 
 ///|
 /// Configuration for Mauve alignment parsing and analysis.
+#derive(Eq)
 pub struct MauveConfig {
   /// Minimum LCB score to report
   min_lcb_score : Double
@@ -102,7 +107,7 @@ pub struct MauveConfig {
   detect_inversions : Bool
   /// Whether to detect breakpoints
   detect_breakpoints : Bool
-} derive(Eq)
+}
 
 ///|
 pub extend MauveConfig with Eq::{equal, not_equal}
@@ -120,6 +125,7 @@ pub fn MauveConfig::default() -> MauveConfig {
 
 ///|
 /// Represents a complete Mauve alignment.
+#derive(Eq)
 pub struct MauveAlignment {
   /// Version string
   version : String
@@ -133,7 +139,7 @@ pub struct MauveAlignment {
   breakpoints : Array[MauveBreakpoint]
   /// Progressive alignment groups
   groups : Map[Int32, Array[String]]
-} derive(Eq)
+}
 
 ///|
 pub extend MauveAlignment with Eq::{equal, not_equal}

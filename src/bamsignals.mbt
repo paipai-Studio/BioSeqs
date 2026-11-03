@@ -5,6 +5,7 @@
 
 ///|
 /// Count mode for signal extraction
+#derive(Eq)
 pub enum BamsigCountMode {
   /// Count all reads
   All
@@ -12,7 +13,7 @@ pub enum BamsigCountMode {
   Sense
   /// Only count reads on opposite strand
   Antisense
-} derive(Eq)
+}
 
 ///|
 pub extend BamsigCountMode with Eq::{equal, not_equal}

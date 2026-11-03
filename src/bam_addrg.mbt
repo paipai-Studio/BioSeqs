@@ -80,7 +80,7 @@ pub fn bam_addrg_by_prefix(
     for k = 0; k < keys.length(); k = k + 1 {
       let prefix = keys[k]
       if rec.qname.length() >= prefix.length() &&
-        rec.qname[0:prefix.length()].to_string() == prefix {
+        rec.qname[0:prefix.length()].to_owned() == prefix {
         rg = prefix_map[prefix]
         break
       }

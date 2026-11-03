@@ -93,12 +93,13 @@ pub fn gc_fraction(
 ///|
 /// Result of [gc123]: total GC content plus GC content per codon position,
 /// all as percentages between 0 and 100.
+#derive(Eq, Debug)
 pub struct GC123Result {
   gc_all : Double
   gc1 : Double
   gc2 : Double
   gc3 : Double
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend GC123Result with Eq::{equal, not_equal}
@@ -184,10 +185,11 @@ pub fn gc123(seq : String) -> GC123Result {
 ///|
 /// Result of [nt_search]: the regex-style IUPAC pattern (as built by
 /// Biopython) and the 0-based start positions of the (overlapping) matches.
+#derive(Eq, Debug)
 pub struct NtSearchResult {
   pattern : String
   positions : Array[Int32]
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend NtSearchResult with Eq::{equal, not_equal}

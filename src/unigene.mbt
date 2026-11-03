@@ -13,10 +13,11 @@ pub suberror UniGeneError {
 
 ///|
 /// A key-value field not covered by the standard UniGene schema.
+#derive(Eq)
 pub struct UniGeneExtraField {
   key : String
   value : String
-} derive(Eq)
+}
 
 ///|
 pub extend UniGeneExtraField with Eq::{equal, not_equal}
@@ -31,6 +32,7 @@ pub fn UniGeneExtraField::new(
 
 ///|
 /// One `SEQUENCE` line from a UniGene record.
+#derive(Eq)
 pub struct UniGeneSequence {
   accession : String
   nucleotide_id : String
@@ -44,7 +46,7 @@ pub struct UniGeneSequence {
   is_image : Bool
   image_id : String
   extra_fields : Array[UniGeneExtraField]
-} derive(Eq)
+}
 
 ///|
 pub extend UniGeneSequence with Eq::{equal, not_equal}
@@ -117,6 +119,7 @@ pub fn UniGeneSequence::to_value(self : UniGeneSequence) -> String {
 
 ///|
 /// One `PROTSIM` protein-similarity line.
+#derive(Eq)
 pub struct UniGeneProteinSimilarity {
   organism : String
   protein_gi : String
@@ -124,7 +127,7 @@ pub struct UniGeneProteinSimilarity {
   percent : String
   alignment_length : String
   extra_fields : Array[UniGeneExtraField]
-} derive(Eq)
+}
 
 ///|
 pub extend UniGeneProteinSimilarity with Eq::{equal, not_equal}
@@ -182,11 +185,12 @@ pub fn UniGeneProteinSimilarity::to_value(
 
 ///|
 /// One `STS` sequence-tagged-site line.
+#derive(Eq)
 pub struct UniGeneSTS {
   accession : String
   unists : String
   extra_fields : Array[UniGeneExtraField]
-} derive(Eq)
+}
 
 ///|
 pub extend UniGeneSTS with Eq::{equal, not_equal}
@@ -222,11 +226,12 @@ pub fn UniGeneSTS::to_value(self : UniGeneSTS) -> String {
 
 ///|
 /// One `TXMAP` transcript-map line.
+#derive(Eq)
 pub struct UniGeneTranscriptMap {
   marker : String
   radiation_hybrid_panel : String
   extra_fields : Array[UniGeneExtraField]
-} derive(Eq)
+}
 
 ///|
 pub extend UniGeneTranscriptMap with Eq::{equal, not_equal}
@@ -265,6 +270,7 @@ pub fn UniGeneTranscriptMap::to_value(self : UniGeneTranscriptMap) -> String {
 
 ///|
 /// A complete UniGene cluster record.
+#derive(Eq)
 pub struct UniGeneRecord {
   identifier : String
   species : String
@@ -283,7 +289,7 @@ pub struct UniGeneRecord {
   sts : Array[UniGeneSTS]
   transcript_maps : Array[UniGeneTranscriptMap]
   declared_sequence_count : Int32
-} derive(Eq)
+}
 
 ///|
 pub extend UniGeneRecord with Eq::{equal, not_equal}

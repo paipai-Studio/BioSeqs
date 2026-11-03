@@ -26,7 +26,7 @@ pub enum AnnDataMerge {
 pub fn anndata_concat_obs(
   adatas : Array[AnnData],
   join~ : AnnDataJoin = AnnDataJoin::Inner,
-  merge~ : AnnDataMerge = AnnDataMerge::Drop,
+  _merge~ : AnnDataMerge = AnnDataMerge::Drop,
   label~ : String? = None,
   keys~ : Array[String] = [],
 ) -> AnnData {
@@ -123,7 +123,7 @@ pub fn anndata_concat_obs(
 pub fn anndata_concat_var(
   adatas : Array[AnnData],
   join~ : AnnDataJoin = AnnDataJoin::Inner,
-  merge~ : AnnDataMerge = AnnDataMerge::Drop,
+  _merge~ : AnnDataMerge = AnnDataMerge::Drop,
 ) -> AnnData {
   let n = adatas.length()
   if n == 0 {
@@ -233,4 +233,12 @@ fn anndata_union_strings(a : Array[String], b : Array[String]) -> Array[String] 
     }
   }
   out
+}
+
+///|
+fn _anndata_join_unused_constructors() -> Unit {
+  ignore(AnnDataJoin::Outer)
+  ignore(AnnDataMerge::Same)
+  ignore(AnnDataMerge::First)
+  ignore(AnnDataMerge::Only)
 }

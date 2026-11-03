@@ -43,7 +43,7 @@ pub fn BackTranslateResult::mode(self : BackTranslateResult) -> String {
 
 ///|
 /// Simple LCG random for deterministic "random" mode
-struct BtRng {
+priv struct BtRng {
   mut state : Int32
 }
 

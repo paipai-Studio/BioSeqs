@@ -13,10 +13,11 @@
 /// A, C, G, T). When the input is a position frequency matrix (PFM),
 /// `motif_pwm_from_counts` converts it to a PWM using pseudocounts and a
 /// background nucleotide distribution.
+#derive(Eq)
 pub struct MatchrMotif {
   name : String
   pwm : Array[Array[Double]]
-} derive(Eq)
+}
 
 ///|
 pub extend MatchrMotif with Eq::{equal, not_equal}
@@ -46,6 +47,7 @@ pub fn MatchrMotif::len(self : MatchrMotif) -> Int32 {
 /// cutoff; `scores[seq][pos]` is that score (forward vs reverse-complement
 /// maximum); `counts[seq]` is the number of hits in the sequence;
 /// `max_scores[seq]` is the best score over all positions.
+#derive(Eq)
 pub struct MotifMatches {
   motif : MatchrMotif
   seq_names : Array[String]
@@ -53,7 +55,7 @@ pub struct MotifMatches {
   scores : Array[Array[Double]]
   counts : Array[Int32]
   max_scores : Array[Double]
-} derive(Eq)
+}
 
 ///|
 pub extend MotifMatches with Eq::{equal, not_equal}

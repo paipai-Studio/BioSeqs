@@ -18,12 +18,13 @@ pub suberror VariantBenchmarkError {
 
 ///|
 /// 变异类型.
+#derive(Eq, Debug)
 pub(all) enum VariantKind {
   Snp
   Indel
   Mnv
   Other
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend VariantKind with Eq::{not_equal, equal}

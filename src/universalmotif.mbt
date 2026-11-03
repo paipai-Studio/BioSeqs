@@ -19,12 +19,13 @@
 
 ///|
 /// Type of the matrix held in a `UniversalMotif`.
+#derive(Eq)
 pub(all) enum UMotifType {
   PCM
   PPM
   PWM
   ICM
-} derive(Eq)
+}
 
 ///|
 pub extend UMotifType with Eq::{equal, not_equal}
@@ -64,11 +65,12 @@ pub(all) enum UScoreStrat {
 
 ///|
 /// Which edges to trim in `trim_motif`.
+#derive(Eq)
 pub(all) enum UTrimFrom {
   UBoth
   ULeft
   URight
-} derive(Eq)
+}
 
 ///|
 pub extend UTrimFrom with Eq::{equal, not_equal}

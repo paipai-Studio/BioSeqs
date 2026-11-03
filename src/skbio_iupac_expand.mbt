@@ -43,7 +43,7 @@ pub fn skbio_expand_iupac_seq(seq : String) -> Array[String] {
     let new_results : Array[String] = Array(capacity=0)
     for r in results {
       for b in bases {
-        let sb = StringBuilder::new()
+        let sb = StringBuilder()
         sb.write_string(r)
         sb.write_char(b)
         new_results.push(sb.to_string())
@@ -62,7 +62,7 @@ pub fn skbio_expand_iupac_seq(seq : String) -> Array[String] {
 /// Each IUPAC code becomes a character class.
 /// Example: "ARY" → "[A][AG][CT]"
 pub fn skbio_iupac_to_regex(seq : String) -> String {
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   for c in seq {
     let bases = skbio_expand_iupac(c)
     if bases.length() == 1 {
@@ -129,7 +129,7 @@ pub fn skbio_iupac_code(bases : Array[Char]) -> Char {
   let sorted = bases.copy()
   sorted.sort()
   let key = {
-    let sb = StringBuilder::new()
+    let sb = StringBuilder()
     for b in sorted {
       sb.write_char(b)
     }

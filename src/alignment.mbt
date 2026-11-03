@@ -1,26 +1,29 @@
 ///|
 /// DNA sequence type.
+#derive(Eq)
 pub struct DNA {
   seq : Seq
-} derive(Eq)
+}
 
 ///|
 pub extend DNA with Eq::{equal, not_equal}
 
 ///|
 /// RNA sequence type.
+#derive(Eq)
 pub struct RNA {
   seq : Seq
-} derive(Eq)
+}
 
 ///|
 pub extend RNA with Eq::{equal, not_equal}
 
 ///|
 /// Protein sequence type.
+#derive(Eq)
 pub struct Protein {
   seq : Seq
-} derive(Eq)
+}
 
 ///|
 pub extend Protein with Eq::{equal, not_equal}
@@ -117,10 +120,11 @@ pub fn Protein::get_char(self : Protein, i : Int32) -> Char? {
 
 ///|
 /// TabularMSA stores a multiple sequence alignment in tabular form.
+#derive(Eq)
 pub struct TabularMSA {
   records : Array[SeqRecord]
   dtype : String
-} derive(Eq)
+}
 
 ///|
 pub extend TabularMSA with Eq::{equal, not_equal}

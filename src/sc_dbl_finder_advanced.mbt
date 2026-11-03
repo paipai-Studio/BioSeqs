@@ -6,6 +6,7 @@ pub suberror ScDblFinderError {
 }
 
 ///|
+#derive(Debug)
 pub struct ScDblFinderConfig {
   expected_doublet_rate : Double
   doublet_rate_per_1000 : Double
@@ -24,19 +25,20 @@ pub struct ScDblFinderConfig {
   unidentifiable_threshold : Double
   cluster_count : Int32
   seed : Int32
-} derive(Debug)
+}
 
 ///|
 pub extend ScDblFinderConfig with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Debug)
 pub struct ScDblFinderArtificialData {
   counts : Array[Array[Double]]
   names : Array[String]
   parent_one : Array[Int32]
   parent_two : Array[Int32]
   origins : Array[String]
-} derive(Debug)
+}
 
 ///|
 pub extend ScDblFinderArtificialData with @moonbitlang/core/debug.Debug::{
@@ -44,18 +46,20 @@ pub extend ScDblFinderArtificialData with @moonbitlang/core/debug.Debug::{
 }
 
 ///|
+#derive(Debug)
 pub struct ScDblFinderThreshold {
   threshold : Double
   cost : Double
   false_positive_rate : Double
   false_negative_rate : Double
   called_rate : Double
-} derive(Debug)
+}
 
 ///|
 pub extend ScDblFinderThreshold with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Debug)
 pub struct ScDblFinderCellResult {
   cell_name : String
   sample : String
@@ -68,12 +72,13 @@ pub struct ScDblFinderCellResult {
   nearest_class : String
   origin : String
   origin_ambiguity : Double
-} derive(Debug)
+}
 
 ///|
 pub extend ScDblFinderCellResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Debug)
 pub struct ScDblFinderResult {
   cell_names : Array[String]
   gene_names : Array[String]
@@ -102,12 +107,13 @@ pub struct ScDblFinderResult {
   artificial_doublets : Int32
   classifier_iterations : Int32
   config : ScDblFinderConfig
-} derive(Debug)
+}
 
 ///|
 pub extend ScDblFinderResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Debug)
 pub struct ScDblFinderEnrichment {
   combination : String
   observed : Int32
@@ -115,7 +121,7 @@ pub struct ScDblFinderEnrichment {
   log2_enrichment : Double
   p_value : Double
   adjusted_p_value : Double
-} derive(Debug)
+}
 
 ///|
 pub extend ScDblFinderEnrichment with @moonbitlang/core/debug.Debug::{to_repr}

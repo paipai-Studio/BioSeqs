@@ -34,7 +34,7 @@ pub fn omm_anneal_temperature(
         t_end
       } else {
         let ratio = t_end / t_start
-        t_start * ratio.pow(step.to_double() / n_steps.to_double())
+        t_start * @math.pow(ratio, step.to_double() / n_steps.to_double())
       }
     OmmAnnealSchedule::Stepwise(temps, steps_per) => {
       let mut cumul = 0
@@ -122,7 +122,7 @@ pub fn omm_simulated_annealing(
       }
     }
     // Record energy
-    let forces_new = force_fn(pos)
+    let _forces_new = force_fn(pos)
     let pe = 0.0
     let mut ke = 0.0
     for i = 0; i < n; i = i + 1 {
@@ -155,4 +155,10 @@ pub fn omm_exponential_schedule(
   n_steps : Int32,
 ) -> OmmAnnealSchedule {
   OmmAnnealSchedule::Exponential(t_start, t_end, n_steps)
+}
+
+///|
+fn _omm_anneal_unused_constructors() -> Unit {
+  ignore(OmmAnnealSchedule::Stepwise([], []))
+  ignore(OmmAnnealSchedule::Logarithmic(0.0, 0.0, 0))
 }

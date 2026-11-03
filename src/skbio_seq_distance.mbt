@@ -113,7 +113,7 @@ pub fn skbio_kmer_jaccard_distance(
   for s in kmers2 {
     all_keys.add(s)
   }
-  union = all_keys.size()
+  union = all_keys.length()
   for s in set1.to_array() {
     if set2.contains(s) {
       intersection = intersection + 1
@@ -134,7 +134,7 @@ fn skbio_extract_kmers(seq : String, k : Int32) -> Array[String] {
     return result
   }
   for i = 0; i <= n - k; i = i + 1 {
-    result.push(seq.substring(start=i, end=i + k))
+    result.push(seq[i:i + k].to_owned())
   }
   result
 }
@@ -151,10 +151,10 @@ fn skbio_extract_kmers(seq : String, k : Int32) -> Array[String] {
 pub fn skbio_sequence_distance(
   seq1 : String,
   seq2 : String,
-  method~ : String = "levenshtein",
+  method_~ : String = "levenshtein",
   k~ : Int32 = 3,
 ) -> Double {
-  match method {
+  match method_ {
     "hamming" => skbio_hamming_distance(seq1, seq2).to_double()
     "hamming_norm" => skbio_hamming_normalized(seq1, seq2)
     "levenshtein" => skbio_levenshtein_distance(seq1, seq2).to_double()
@@ -168,7 +168,7 @@ pub fn skbio_sequence_distance(
 /// Compute pairwise distance matrix for a set of sequences.
 pub fn skbio_sequence_distance_matrix(
   sequences : Array[String],
-  method~ : String = "levenshtein",
+  method_~ : String = "levenshtein",
   k~ : Int32 = 3,
 ) -> Array[Array[Double]] {
   let n = sequences.length()
@@ -178,7 +178,7 @@ pub fn skbio_sequence_distance_matrix(
   }
   for i = 0; i < n; i = i + 1 {
     for j = i + 1; j < n; j = j + 1 {
-      let d = skbio_sequence_distance(sequences[i], sequences[j], method~, k~)
+      let d = skbio_sequence_distance(sequences[i], sequences[j], method_~, k~)
       result[i][j] = d
       result[j][i] = d
     }

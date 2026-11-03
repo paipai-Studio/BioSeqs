@@ -9,6 +9,7 @@ pub suberror TradeSeqAdvancedError {
 }
 
 ///|
+#derive(Debug)
 pub struct TradeSeqAdvancedConfig {
   n_knots : Int32
   smoothing_penalty : Double
@@ -19,7 +20,7 @@ pub struct TradeSeqAdvancedConfig {
   ridge : Double
   fdr_threshold : Double
   test_points : Int32
-} derive(Debug)
+}
 
 ///|
 pub extend TradeSeqAdvancedConfig with @moonbitlang/core/debug.Debug::{to_repr}
@@ -101,6 +102,7 @@ pub fn TradeSeqAdvancedConfig::default() -> TradeSeqAdvancedConfig {
 }
 
 ///|
+#derive(Debug)
 pub struct TradeSeqGeneModel {
   gene_id : String
   coefficients : Array[Double]
@@ -112,12 +114,13 @@ pub struct TradeSeqGeneModel {
   effective_df : Double
   converged : Bool
   iterations : Int32
-} derive(Debug)
+}
 
 ///|
 pub extend TradeSeqGeneModel with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Debug)
 pub struct TradeSeqAdvancedFit {
   gene_names : Array[String]
   lineage_names : Array[String]
@@ -131,12 +134,13 @@ pub struct TradeSeqAdvancedFit {
   n_genes : Int32
   n_cells : Int32
   n_lineages : Int32
-} derive(Debug)
+}
 
 ///|
 pub extend TradeSeqAdvancedFit with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Debug)
 pub struct TradeSeqAdvancedTestResult {
   gene_id : String
   wald_statistic : Double
@@ -145,7 +149,7 @@ pub struct TradeSeqAdvancedTestResult {
   adjusted_p_value : Double
   log2_fold_change : Double
   significant : Bool
-} derive(Debug)
+}
 
 ///|
 pub extend TradeSeqAdvancedTestResult with @moonbitlang/core/debug.Debug::{
@@ -153,11 +157,12 @@ pub extend TradeSeqAdvancedTestResult with @moonbitlang/core/debug.Debug::{
 }
 
 ///|
+#derive(Debug)
 pub struct TradeSeqAdvancedTestTable {
   test_name : String
   results : Array[TradeSeqAdvancedTestResult]
   fdr_threshold : Double
-} derive(Debug)
+}
 
 ///|
 pub extend TradeSeqAdvancedTestTable with @moonbitlang/core/debug.Debug::{
@@ -165,23 +170,25 @@ pub extend TradeSeqAdvancedTestTable with @moonbitlang/core/debug.Debug::{
 }
 
 ///|
+#derive(Debug)
 pub struct TradeSeqKnotEvaluation {
   candidates : Array[Int32]
   gene_aic : Array[Array[Double]]
   mean_aic : Array[Double]
   selected_n_knots : Int32
-} derive(Debug)
+}
 
 ///|
 pub extend TradeSeqKnotEvaluation with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Debug)
 pub struct TradeSeqSmoothPrediction {
   gene_id : String
   pseudotime : Array[Array[Double]]
   fitted : Array[Array[Double]]
   standard_errors : Array[Array[Double]]
-} derive(Debug)
+}
 
 ///|
 pub extend TradeSeqSmoothPrediction with @moonbitlang/core/debug.Debug::{

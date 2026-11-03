@@ -12,10 +12,11 @@ pub suberror AlignChainError {
 
 ///|
 /// One point in a two-row absolute coordinate path.
+#derive(Eq, Debug)
 pub struct AlignChainCoordinate {
   target : Int32
   query : Int32
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend AlignChainCoordinate with Eq::{equal, not_equal}
@@ -28,11 +29,12 @@ pub extend AlignChainCoordinate with @moonbitlang/core/debug.Debug::{to_repr}
 ///
 /// A non-final row contains all three fields. The final row uses `size` only,
 /// and therefore has zero target and query gaps.
+#derive(Eq, Debug)
 pub struct AlignChainBlock {
   size : Int32
   target_gap : Int32
   query_gap : Int32
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend AlignChainBlock with Eq::{equal, not_equal}
@@ -44,6 +46,7 @@ pub extend AlignChainBlock with @moonbitlang/core/debug.Debug::{to_repr}
 /// One aligned part of a requested genomic range.
 ///
 /// Coordinates are always zero-based, forward-axis, half-open intervals.
+#derive(Eq, Debug)
 pub struct AlignChainRangeMapping {
   target_start : Int32
   target_end : Int32
@@ -51,7 +54,7 @@ pub struct AlignChainRangeMapping {
   query_end : Int32
   target_strand : String
   query_strand : String
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend AlignChainRangeMapping with Eq::{equal, not_equal}
@@ -61,10 +64,11 @@ pub extend AlignChainRangeMapping with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// One aligned residue pair in forward genomic coordinates.
+#derive(Eq, Debug)
 pub struct AlignChainPair {
   target : Int32
   query : Int32
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend AlignChainPair with Eq::{equal, not_equal}
@@ -74,6 +78,7 @@ pub extend AlignChainPair with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Coordinate-only chain alignment statistics.
+#derive(Eq, Debug)
 pub struct AlignChainCounts {
   aligned : Int32
   target_gap_bases : Int32
@@ -83,7 +88,7 @@ pub struct AlignChainCounts {
   query_gap_opens : Int32
   aligned_blocks : Int32
   path_segments : Int32
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend AlignChainCounts with Eq::{equal, not_equal}
@@ -97,6 +102,7 @@ pub extend AlignChainCounts with @moonbitlang/core/debug.Debug::{to_repr}
 /// `coordinates` follows Biopython's `Alignment.coordinates` convention.
 /// Reverse strands are represented by decreasing coordinates. Chain files do
 /// not store sequence letters, only sequence lengths and the coordinate path.
+#derive(Eq, Debug)
 pub struct AlignChainAlignment {
   target_id : String
   target_size : Int32
@@ -105,7 +111,7 @@ pub struct AlignChainAlignment {
   score : Double
   chain_id : String
   coordinates : Array[AlignChainCoordinate]
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend AlignChainAlignment with Eq::{equal, not_equal}

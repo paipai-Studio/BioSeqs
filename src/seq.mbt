@@ -53,9 +53,10 @@ fn find_from(s : String, sub : String, from : Int32) -> Int32? {
 
 ///|
 /// An immutable biological sequence, equivalent to Bio.Seq.Seq.
+#derive(Eq, Hash)
 pub struct Seq {
   data : String
-} derive(Eq, Hash)
+}
 
 ///|
 pub extend Seq with Eq::{equal, not_equal}

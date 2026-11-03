@@ -11,10 +11,11 @@ pub suberror BasemlError {
 
 ///|
 /// One validated BASEML option retained in canonical text form.
+#derive(Eq, Debug)
 pub struct BasemlOption {
   name : String
   value : String
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend BasemlOption with Eq::{equal, not_equal}
@@ -24,12 +25,13 @@ pub extend BasemlOption with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// A BASEML control file.
+#derive(Eq, Debug)
 pub struct BasemlControl {
   sequence_file : String
   output_file : String
   tree_file : String
   options : Array[BasemlOption]
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend BasemlControl with Eq::{equal, not_equal}
@@ -39,12 +41,13 @@ pub extend BasemlControl with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Nucleotide frequencies in PAML's T, C, A, G order.
+#derive(Eq, Debug)
 pub struct BasemlBaseFrequencies {
   thymine : Double
   cytosine : Double
   adenine : Double
   guanine : Double
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend BasemlBaseFrequencies with Eq::{equal, not_equal}
@@ -55,10 +58,11 @@ pub extend BasemlBaseFrequencies with @moonbitlang/core/debug.Debug::{to_repr}
 ///|
 /// A nucleotide rate matrix and its reported average transition/transversion
 /// ratio.
+#derive(Eq, Debug)
 pub struct BasemlQMatrix {
   average_ts_tv : Double?
   rows : Array[Array[Double]]
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend BasemlQMatrix with Eq::{equal, not_equal}
@@ -68,13 +72,14 @@ pub extend BasemlQMatrix with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Branch-specific quantities emitted by a non-homogeneous kappa model.
+#derive(Eq, Debug)
 pub struct BasemlBranchParameter {
   branch : String
   time : Double
   kappa : Double
   transitions : Double
   transversions : Double
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend BasemlBranchParameter with Eq::{equal, not_equal}
@@ -84,12 +89,13 @@ pub extend BasemlBranchParameter with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Frequency parameters and optional realized frequencies for one node.
+#derive(Eq, Debug)
 pub struct BasemlNodeFrequencies {
   node : Int32
   root : Bool
   frequency_parameters : Array[Double]
   base_frequencies : BasemlBaseFrequencies?
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend BasemlNodeFrequencies with Eq::{equal, not_equal}
@@ -99,6 +105,7 @@ pub extend BasemlNodeFrequencies with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Parsed BASEML maximum-likelihood result.
+#derive(Eq, Debug)
 pub struct BasemlResults {
   version : String
   model_description : String
@@ -120,7 +127,7 @@ pub struct BasemlResults {
   transition_probabilities : Array[Array[Double]]
   base_frequencies : BasemlBaseFrequencies?
   nodes : Array[BasemlNodeFrequencies]
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend BasemlResults with Eq::{equal, not_equal}
@@ -130,13 +137,14 @@ pub extend BasemlResults with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Likelihood-ratio comparison between nested BASEML models.
+#derive(Eq, Debug)
 pub struct BasemlLikelihoodRatio {
   statistic : Double
   degrees_of_freedom : Int32
   p_value : Double
   alpha : Double
   significant : Bool
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend BasemlLikelihoodRatio with Eq::{equal, not_equal}

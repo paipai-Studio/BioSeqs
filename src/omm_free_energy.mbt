@@ -140,11 +140,11 @@ pub fn omm_alchemical_energy(
     (1.0 - lambda) *
     lambda
   let r_eff6 = r6 + sc
-  let r_eff = r_eff6.pow(1.0 / 6.0)
+  let r_eff = @math.pow(r_eff6, 1.0 / 6.0)
   // LJ potential for state A and B
-  let sr6_A = (sigma_A / r_eff).pow(6.0)
+  let sr6_A = @math.pow(sigma_A / r_eff, 6.0)
   let u_A = 4.0 * epsilon_A * (sr6_A * sr6_A - sr6_A)
-  let sr6_B = (sigma_B / r_eff).pow(6.0)
+  let sr6_B = @math.pow(sigma_B / r_eff, 6.0)
   let u_B = 4.0 * epsilon_B * (sr6_B * sr6_B - sr6_B)
   (1.0 - lambda) * u_A + lambda * u_B
 }

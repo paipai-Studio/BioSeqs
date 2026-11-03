@@ -57,7 +57,7 @@ pub fn parse_md_tag(
 ) -> Array[MdMismatch] {
   let mismatches : Array[MdMismatch] = []
   let mut ref_pos = alignment_start
-  let mut qpos : Int32 = 0
+  let mut _qpos : Int32 = 0
   // Build a reference-to-query position map from CIGAR (for M/=/X ops)
   let ref_to_query : Map[Int32, Int32] = Map([])
   let mut rq_qpos : Int32 = 0

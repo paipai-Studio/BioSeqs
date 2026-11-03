@@ -12,12 +12,13 @@
 
 ///|
 /// Where a cached resource came from.
+#derive(Eq, Debug)
 pub(all) enum BfcResourceType {
   Local
   Relative
   Remote
   Web
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend BfcResourceType with Eq::{equal, not_equal}
@@ -27,6 +28,7 @@ pub extend BfcResourceType with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// A single cached resource record.
+#derive(Eq, Debug)
 pub struct BfcEntry {
   rid : String
   rname : String
@@ -39,7 +41,7 @@ pub struct BfcEntry {
   create_time : Int32
   access_time : Int32
   tags : Map[String, String]
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend BfcEntry with Eq::{equal, not_equal}
@@ -49,13 +51,14 @@ pub extend BfcEntry with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// The cache itself: entries keyed by rid plus hit/miss statistics.
+#derive(Eq, Debug)
 pub struct BfcCache {
   cache_root : String
   entries : Map[String, BfcEntry]
   mut hits : Int32
   mut misses : Int32
   mut next_rid : Int32
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend BfcCache with Eq::{equal, not_equal}

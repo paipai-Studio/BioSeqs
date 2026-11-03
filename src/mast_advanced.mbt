@@ -10,6 +10,7 @@ pub suberror MastAdvancedError {
 }
 
 ///|
+#derive(Debug)
 pub struct MastAdvancedConfig {
   max_iterations : Int32
   tolerance : Double
@@ -21,7 +22,7 @@ pub struct MastAdvancedConfig {
   minimum_detected : Int32
   minimum_probability : Double
   fdr_threshold : Double
-} derive(Debug)
+}
 
 ///|
 pub extend MastAdvancedConfig with @moonbitlang/core/debug.Debug::{to_repr}
@@ -94,6 +95,7 @@ pub fn MastAdvancedConfig::default() -> MastAdvancedConfig {
 }
 
 ///|
+#derive(Debug)
 pub struct MastAdvancedData {
   expression : Array[Array[Double]]
   gene_names : Array[String]
@@ -105,12 +107,13 @@ pub struct MastAdvancedData {
   n_genes : Int32
   n_cells : Int32
   n_coefficients : Int32
-} derive(Debug)
+}
 
 ///|
 pub extend MastAdvancedData with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Debug)
 pub struct MastAdvancedResult {
   gene_names : Array[String]
   coefficient_names : Array[String]
@@ -141,7 +144,7 @@ pub struct MastAdvancedResult {
   prior_df : Double
   empirical_bayes : Bool
   fdr_threshold : Double
-} derive(Debug)
+}
 
 ///|
 pub extend MastAdvancedResult with @moonbitlang/core/debug.Debug::{to_repr}

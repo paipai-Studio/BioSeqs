@@ -9,7 +9,7 @@
 /// Helper: convert char to lowercase
 fn skbio_char_to_lower(c : Char) -> Char {
   if c >= 'A' && c <= 'Z' {
-    Char::from_int(c.to_int() + 32)
+    (c.to_int() + 32).unsafe_to_char()
   } else {
     c
   }
@@ -19,7 +19,7 @@ fn skbio_char_to_lower(c : Char) -> Char {
 /// Helper: convert char to uppercase
 fn skbio_char_to_upper(c : Char) -> Char {
   if c >= 'a' && c <= 'z' {
-    Char::from_int(c.to_int() - 32)
+    (c.to_int() - 32).unsafe_to_char()
   } else {
     c
   }
@@ -98,10 +98,10 @@ pub fn skbio_get_mask_regions(seq : String) -> Array[(Int32, Int32)] {
   let mut i = 0
   for c in seq {
     let is_lower = c >= 'a' && c <= 'z'
-    if is_lower && not(in_mask) {
+    if is_lower && !in_mask {
       start = i
       in_mask = true
-    } else if not(is_lower) && in_mask {
+    } else if !is_lower && in_mask {
       regions.push((start, i))
       in_mask = false
     }

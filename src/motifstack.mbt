@@ -11,10 +11,11 @@
 
 ///|
 /// A named DNA motif with a 4 x L PWM.
+#derive(Eq, Debug)
 pub struct StackMotif {
   name : String
   pwm : Array[Array[Double]]
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend StackMotif with Eq::{equal, not_equal}

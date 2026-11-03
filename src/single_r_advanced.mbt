@@ -11,6 +11,7 @@ pub suberror SingleRAdvancedError {
 }
 
 ///|
+#derive(Debug)
 pub struct SingleRAdvancedConfig {
   quantile : Double
   fine_tune : Bool
@@ -21,7 +22,7 @@ pub struct SingleRAdvancedConfig {
   minimum_delta_next : Double
   marker_count : Int32
   combine_marker_count : Int32
-} derive(Debug)
+}
 
 ///|
 pub extend SingleRAdvancedConfig with @moonbitlang/core/debug.Debug::{to_repr}
@@ -88,6 +89,7 @@ pub fn SingleRAdvancedConfig::default() -> SingleRAdvancedConfig {
 }
 
 ///|
+#derive(Debug)
 pub struct SingleRAdvancedReference {
   expression : Array[Array[Double]]
   labels : Array[String]
@@ -97,7 +99,7 @@ pub struct SingleRAdvancedReference {
   reference_name : String
   n_genes : Int32
   n_samples : Int32
-} derive(Debug)
+}
 
 ///|
 pub extend SingleRAdvancedReference with @moonbitlang/core/debug.Debug::{
@@ -105,18 +107,20 @@ pub extend SingleRAdvancedReference with @moonbitlang/core/debug.Debug::{
 }
 
 ///|
+#derive(Debug)
 pub struct SingleRAdvancedData {
   expression : Array[Array[Double]]
   gene_names : Array[String]
   cell_names : Array[String]
   n_genes : Int32
   n_cells : Int32
-} derive(Debug)
+}
 
 ///|
 pub extend SingleRAdvancedData with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Debug)
 pub struct SingleRAdvancedTraining {
   reference : SingleRAdvancedReference
   test_gene_names : Array[String]
@@ -128,12 +132,13 @@ pub struct SingleRAdvancedTraining {
   pairwise_markers : Array[Array[Array[Int32]]]
   common_markers : Array[Int32]
   marker_count : Int32
-} derive(Debug)
+}
 
 ///|
 pub extend SingleRAdvancedTraining with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Debug)
 pub struct SingleRAdvancedResult {
   cell_names : Array[String]
   label_names : Array[String]
@@ -149,12 +154,13 @@ pub struct SingleRAdvancedResult {
   marker_gene_names : Array[String]
   reference_name : String
   quantile : Double
-} derive(Debug)
+}
 
 ///|
 pub extend SingleRAdvancedResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Debug)
 pub struct SingleRAdvancedCombinedResult {
   cell_names : Array[String]
   labels : Array[String]
@@ -165,7 +171,7 @@ pub struct SingleRAdvancedCombinedResult {
   delta_next : Array[Double]
   per_reference : Array[SingleRAdvancedResult]
   marker_gene_names : Array[String]
-} derive(Debug)
+}
 
 ///|
 pub extend SingleRAdvancedCombinedResult with @moonbitlang/core/debug.Debug::{

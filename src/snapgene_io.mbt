@@ -29,12 +29,13 @@
 
 ///|
 /// The molecular type stored in the SnapGene comments packet.
+#derive(Eq)
 pub enum SnapgeneSeqType {
   SnapgeneDna
   SnapgeneRna
   SnapgeneProtein
   SnapgeneUnknown
-} derive(Eq)
+}
 
 ///|
 pub extend SnapgeneSeqType with Eq::{equal, not_equal}
