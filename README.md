@@ -8,7 +8,7 @@
 
 ## 项目概述
 
-BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，复刻主流生物信息学库（Biopython、Bioconductor、scikit-bio、Scanpy、scikit-allel、SeqKit、DendroPy、gffutils 等）的核心功能，并实现高效的序列组装算法。项目当前版本：`0.1.11`。
+BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，复刻主流生物信息学库（Biopython、Bioconductor、scikit-bio、Scanpy、scikit-allel、SeqKit、DendroPy、gffutils 等）的核心功能，并实现高效的序列组装算法。项目当前版本：`0.1.12`。
 
 ## 目录
 
@@ -763,7 +763,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 
 ```
 IvanAXu/BioSeqs/
-├── moon.mod                          # 模块配置 (name="IvanAXu/BioSeqs", version=0.1.11)
+├── moon.mod                          # 模块配置 (name="IvanAXu/BioSeqs", version=0.1.12)
 ├── src/                              # 源代码（920 个 .mbt 模块）
 │   ├── seq.mbt                       # Bio.Seq 序列对象
 │   ├── seqio.mbt / fasta_io.mbt / ... # 序列 I/O（30+ 种格式）
