@@ -28,12 +28,13 @@
 
 ///|
 /// The molecular type stored in an XDNA record's header byte 3.
+#derive(Eq)
 pub enum XdnaSeqType {
   DnaType
   RnaType
   ProteinType
   UnknownType
-} derive(Eq)
+}
 
 ///|
 pub extend XdnaSeqType with Eq::{equal, not_equal}

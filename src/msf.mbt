@@ -12,10 +12,11 @@ pub suberror MsfError {
 
 ///|
 /// Sequence type declared by the GCG MSF header.
+#derive(Eq, Debug)
 pub(all) enum MsfSequenceType {
   MsfProtein
   MsfNucleotide
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend MsfSequenceType with Eq::{equal, not_equal}
@@ -29,6 +30,7 @@ pub extend MsfSequenceType with @moonbitlang/core/debug.Debug::{to_repr}
 /// `declared_length` is retained even when a third-party file reports a value
 /// different from the actual alignment width, matching Biopython's warning
 /// behavior while making the discrepancy queryable.
+#derive(Eq, Debug)
 pub struct MsfMetadata {
   header : String
   title : String
@@ -38,7 +40,7 @@ pub struct MsfMetadata {
   date_text : String
   checksum_label : String
   declared_checksum : Int32
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend MsfMetadata with Eq::{equal, not_equal}
@@ -52,6 +54,7 @@ pub extend MsfMetadata with @moonbitlang/core/debug.Debug::{to_repr}
 /// `aligned_sequence` uses `-` for every gap. `sequence` is the ungapped
 /// residue string. `checksum` is the value declared in the file; zero means
 /// that the producer did not provide a checksum.
+#derive(Eq, Debug)
 pub struct MsfSequence {
   id : String
   sequence : String
@@ -59,7 +62,7 @@ pub struct MsfSequence {
   length : Int32
   checksum : Int32
   weight : Double
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend MsfSequence with Eq::{equal, not_equal}
@@ -69,10 +72,11 @@ pub extend MsfSequence with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// A coordinate-aware GCG MSF multiple sequence alignment.
+#derive(Eq, Debug)
 pub struct MsfAlignment {
   metadata : MsfMetadata
   sequences : Array[MsfSequence]
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend MsfAlignment with Eq::{equal, not_equal}
@@ -82,6 +86,7 @@ pub extend MsfAlignment with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Pairwise statistics for two rows in an MSF alignment.
+#derive(Eq, Debug)
 pub struct MsfPairCounts {
   columns : Int32
   aligned : Int32
@@ -90,7 +95,7 @@ pub struct MsfPairCounts {
   gap_columns : Int32
   double_gap_columns : Int32
   gap_opens : Int32
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend MsfPairCounts with Eq::{equal, not_equal}

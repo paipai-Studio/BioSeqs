@@ -9,6 +9,7 @@ pub suberror AlignSamError {
 }
 
 ///|
+#derive(Eq, Debug)
 pub(all) enum AlignSamOperation {
   SamAligned
   SamInsertion
@@ -16,7 +17,7 @@ pub(all) enum AlignSamOperation {
   SamSkipped
   SamEqual
   SamMismatch
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend AlignSamOperation with Eq::{equal, not_equal}
@@ -25,6 +26,7 @@ pub extend AlignSamOperation with Eq::{equal, not_equal}
 pub extend AlignSamOperation with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Debug)
 pub(all) enum AlignSamTagValue {
   SamTagInteger(Int32)
   SamTagFloat(Double)
@@ -33,16 +35,17 @@ pub(all) enum AlignSamTagValue {
   SamTagHex(String)
   SamTagIntegerArray(String, Array[Int32])
   SamTagFloatArray(Array[Double])
-} derive(Debug)
+}
 
 ///|
 pub extend AlignSamTagValue with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Eq, Debug)
 pub struct AlignSamHeaderField {
   key : String
   value : String
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend AlignSamHeaderField with Eq::{equal, not_equal}
@@ -51,30 +54,33 @@ pub extend AlignSamHeaderField with Eq::{equal, not_equal}
 pub extend AlignSamHeaderField with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Debug)
 pub struct AlignSamHeader {
   record_type : String
   fields : Array[AlignSamHeaderField]
   comment : String
-} derive(Debug)
+}
 
 ///|
 pub extend AlignSamHeader with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Debug)
 pub struct AlignSamReference {
   name : String
   length : Int32
   annotations : Array[AlignSamHeaderField]
-} derive(Debug)
+}
 
 ///|
 pub extend AlignSamReference with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Eq, Debug)
 pub struct AlignSamCigarElement {
   operation : String
   length : Int32
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend AlignSamCigarElement with Eq::{equal, not_equal}
@@ -83,15 +89,17 @@ pub extend AlignSamCigarElement with Eq::{equal, not_equal}
 pub extend AlignSamCigarElement with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Debug)
 pub struct AlignSamTag {
   name : String
   value : AlignSamTagValue
-} derive(Debug)
+}
 
 ///|
 pub extend AlignSamTag with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Eq, Debug)
 pub struct AlignSamStats {
   reference_consumed : Int32
   query_consumed : Int32
@@ -101,7 +109,7 @@ pub struct AlignSamStats {
   skipped : Int32
   soft_clipped : Int32
   hard_clipped : Int32
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend AlignSamStats with Eq::{equal, not_equal}

@@ -13,6 +13,7 @@ pub suberror HhrError {
 
 ///|
 /// File-level metadata from the HHR header.
+#derive(Eq)
 pub struct HhrMetadata {
   query_name : String
   match_columns : Int32
@@ -23,7 +24,7 @@ pub struct HhrMetadata {
   searched_hmms : Int32
   run_date : String
   command_line : String
-} derive(Eq)
+}
 
 ///|
 pub extend HhrMetadata with Eq::{equal, not_equal}
@@ -59,6 +60,7 @@ pub fn HhrMetadata::new(
 ///
 /// Coordinates are 0-based and end-exclusive, matching Biopython's alignment
 /// coordinate convention.
+#derive(Eq)
 pub struct HhrHitSummary {
   rank : Int32
   target_name : String
@@ -74,7 +76,7 @@ pub struct HhrHitSummary {
   target_start : Int32
   target_end : Int32
   target_length : Int32
-} derive(Eq)
+}
 
 ///|
 pub extend HhrHitSummary with Eq::{equal, not_equal}
@@ -84,6 +86,7 @@ pub extend HhrHitSummary with Eq::{equal, not_equal}
 ///
 /// Sequence and annotation strings contain alignment gaps and therefore all
 /// non-empty annotation strings have the same length as `query_sequence`.
+#derive(Eq)
 pub struct HhrAlignment {
   rank : Int32
   query_name : String
@@ -113,18 +116,19 @@ pub struct HhrAlignment {
   target_dssp : String
   column_score : String
   confidence : String
-} derive(Eq)
+}
 
 ///|
 pub extend HhrAlignment with Eq::{equal, not_equal}
 
 ///|
 /// A complete HHR document.
+#derive(Eq)
 pub struct HhrRecord {
   metadata : HhrMetadata
   hit_summaries : Array[HhrHitSummary]
   alignments : Array[HhrAlignment]
-} derive(Eq)
+}
 
 ///|
 pub extend HhrRecord with Eq::{equal, not_equal}

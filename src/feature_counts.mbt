@@ -10,11 +10,12 @@
 
 ///|
 /// Strand-specificity mode for counting.
+#derive(Eq)
 pub enum StrandMode {
   Unstranded
   Stranded
   Reversed
-} derive(Eq)
+}
 
 ///|
 pub extend StrandMode with Eq::{equal, not_equal}

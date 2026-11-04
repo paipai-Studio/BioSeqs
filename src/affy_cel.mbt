@@ -20,6 +20,7 @@ pub suberror CelError {
 /// `intensities[y][x]`, `stdevs[y][x]`, and `npix[y][x]` follow the
 /// Biopython layout: the first index is the row (`y`), the second the
 /// column (`x`).
+#derive(Eq)
 pub struct CelRecord {
   version : String
   headers : Array[(String, String)]
@@ -33,7 +34,7 @@ pub struct CelRecord {
   outliers : Array[Int32]
   modified : Array[Int32]
   cells_read : Int32
-} derive(Eq)
+}
 
 ///|
 pub extend CelRecord with Eq::{equal, not_equal}

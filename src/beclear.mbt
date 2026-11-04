@@ -11,12 +11,13 @@
 ///|
 /// A data matrix with row names (features) and column names (samples),
 /// plus a mapping from sample name to batch id.
+#derive(Eq)
 pub struct BEclearMatrix {
   row_names : Array[String]
   col_names : Array[String]
   data : Array[Array[Double]]
   batch : Map[String, Int32]
-} derive(Eq)
+}
 
 ///|
 pub extend BEclearMatrix with Eq::{equal, not_equal}
@@ -71,13 +72,14 @@ fn beclear_abs(x : Double) -> Double {
 
 ///|
 /// Summary of batch effect analysis for one feature row.
+#derive(Eq)
 pub struct BEclearBatchSummary {
   row_name : String
   batch_medians : Map[Int32, Double]
   overall_median : Double
   max_deviation : Double
   affected : Bool
-} derive(Eq)
+}
 
 ///|
 pub extend BEclearBatchSummary with Eq::{equal, not_equal}

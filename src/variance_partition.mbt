@@ -8,11 +8,12 @@ pub suberror VariancePartitionError {
 }
 
 ///|
+#derive(Debug)
 pub struct VariancePartitionFixedEffect {
   name : String
   column_names : Array[String]
   columns : Array[Array[Double]]
-} derive(Debug)
+}
 
 ///|
 pub extend VariancePartitionFixedEffect with @moonbitlang/core/debug.Debug::{
@@ -20,11 +21,12 @@ pub extend VariancePartitionFixedEffect with @moonbitlang/core/debug.Debug::{
 }
 
 ///|
+#derive(Debug)
 pub struct VariancePartitionRandomEffect {
   name : String
   levels : Array[String]
   level_indices : Array[Int32]
-} derive(Debug)
+}
 
 ///|
 pub extend VariancePartitionRandomEffect with @moonbitlang/core/debug.Debug::{
@@ -32,6 +34,7 @@ pub extend VariancePartitionRandomEffect with @moonbitlang/core/debug.Debug::{
 }
 
 ///|
+#derive(Debug)
 pub struct VariancePartitionDesign {
   sample_names : Array[String]
   fixed_effects : Array[VariancePartitionFixedEffect]
@@ -41,22 +44,24 @@ pub struct VariancePartitionDesign {
   fixed_starts : Array[Int32]
   fixed_widths : Array[Int32]
   intercept : Bool
-} derive(Debug)
+}
 
 ///|
 pub extend VariancePartitionDesign with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Debug)
 pub struct VariancePartitionBLUP {
   effect_name : String
   levels : Array[String]
   estimates : Array[Double]
-} derive(Debug)
+}
 
 ///|
 pub extend VariancePartitionBLUP with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Debug)
 pub struct VariancePartitionFit {
   gene_name : String
   coefficient_names : Array[String]
@@ -76,33 +81,36 @@ pub struct VariancePartitionFit {
   converged : Bool
   iterations : Int32
   reml : Bool
-} derive(Debug)
+}
 
 ///|
 pub extend VariancePartitionFit with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Debug)
 pub struct VariancePartitionResult {
   gene_names : Array[String]
   component_names : Array[String]
   fractions : Array[Array[Double]]
   median_fractions : Array[Double]
   fits : Array[VariancePartitionFit]
-} derive(Debug)
+}
 
 ///|
 pub extend VariancePartitionResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Debug)
 pub struct DreamContrast {
   name : String
   coefficients : Array[Double]
-} derive(Debug)
+}
 
 ///|
 pub extend DreamContrast with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Debug)
 pub struct DreamGeneResult {
   gene_name : String
   estimate : Double
@@ -114,17 +122,18 @@ pub struct DreamGeneResult {
   converged : Bool
   random_variances : Array[Double]
   residual_variance : Double
-} derive(Debug)
+}
 
 ///|
 pub extend DreamGeneResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Debug)
 pub struct DreamResult {
   contrast_name : String
   coefficient_names : Array[String]
   genes : Array[DreamGeneResult]
-} derive(Debug)
+}
 
 ///|
 pub extend DreamResult with @moonbitlang/core/debug.Debug::{to_repr}

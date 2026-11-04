@@ -6,6 +6,7 @@
 
 ///|
 /// Results from Singular Value Decomposition.
+#derive(Eq)
 pub struct SVResult {
   d : Array[Double]
   u : Array[Array[Double]]
@@ -13,18 +14,19 @@ pub struct SVResult {
   nrow : Int32
   ncol : Int32
   rank : Int32
-} derive(Eq)
+}
 
 ///|
 pub extend SVResult with Eq::{equal, not_equal}
 
 ///|
 /// SVD computation method.
+#derive(Eq, Debug)
 pub enum SVDMethod {
   ExactSVD
   IRLBA
   Randomized
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend SVDMethod with Eq::{equal, not_equal}
@@ -52,13 +54,14 @@ pub fn randomized_method() -> SVDMethod {
 
 ///|
 /// Options for SVD computation.
+#derive(Eq, Debug)
 pub struct SVDOptions {
   method_ : SVDMethod
   rank : Int32
   tol : Double
   max_iter : Int32
   n_oversamples : Int32
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend SVDOptions with Eq::{equal, not_equal}

@@ -2,11 +2,12 @@
 /// GenomicRanges - Genomic range operations inspired by R/Bioconductor GenomicRanges.
 
 ///|
+#derive(Eq, Debug)
 pub enum Strand {
   Plus
   Minus
   Star
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend Strand with Eq::{equal, not_equal}

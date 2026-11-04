@@ -267,3 +267,8 @@ pub fn detect_base_pairs(
   }
   pairs
 }
+
+///|
+fn _na_base_edge_unused_constructors() -> Unit {
+  ignore(NABaseEdge::Sugar)
+}

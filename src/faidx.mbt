@@ -18,13 +18,14 @@ pub suberror FastaIndexError {
 
 ///|
 /// A single index entry in the .fai file.
+#derive(Debug)
 pub struct FaiRecord {
   name : String
   length : Int32
   offset : Int32
   line_len : Int32
   line_blen : Int32
-} derive(Debug)
+}
 
 ///|
 pub extend FaiRecord with @moonbitlang/core/debug.Debug::{to_repr}
@@ -43,10 +44,11 @@ pub fn FaiRecord::new(
 
 ///|
 /// FastaIndex holds the parsed .fai index for fast random access.
+#derive(Debug)
 pub struct FastaIndex {
   records : Array[FaiRecord]
   index : Map[String, Int32]
-} derive(Debug)
+}
 
 ///|
 pub extend FastaIndex with @moonbitlang/core/debug.Debug::{to_repr}
@@ -259,10 +261,11 @@ pub fn write_fai(idx : FastaIndex) -> String {
 /// Example:
 ///   let fasta = Fasta::new(fasta_content, fai_content)?
 ///   let seq = fasta.fetch("chr1", 1000, 2000)?
+#derive(Debug)
 pub struct Fasta {
   content : String
   index : FastaIndex
-} derive(Debug)
+}
 
 ///|
 pub extend Fasta with @moonbitlang/core/debug.Debug::{to_repr}

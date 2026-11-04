@@ -10,24 +10,26 @@
 
 ///|
 /// A residue identifier (chain, resseq, icode).
+#derive(Eq)
 pub struct ResidueId {
   chain_id : Char
   resseq : Int32
   icode : Char
-} derive(Eq)
+}
 
 ///|
 pub extend ResidueId with Eq::{equal, not_equal}
 
 ///|
 /// Dice selection result containing extracted structure info.
+#derive(Eq)
 pub struct DiceResult {
   structure_id : String
   num_atoms : Int32
   num_residues : Int32
   num_chains : Int32
   num_models : Int32
-} derive(Eq)
+}
 
 ///|
 pub extend DiceResult with Eq::{equal, not_equal}

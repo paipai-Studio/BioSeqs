@@ -9,12 +9,13 @@
 
 ///|
 /// Traceback direction codes for the DP matrix.
+#derive(Eq, Debug)
 pub enum TraceDirection {
   Stop // score is 0, alignment ends here
   Diag // match/mismatch: comes from (i-1, j-1)
   Up // gap in seq2 (deletion): comes from (i-1, j)
   Left // gap in seq1 (insertion): comes from (i, j-1)
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend TraceDirection with Eq::{equal, not_equal}

@@ -56,12 +56,13 @@ pub fn TseLink::tree_name(self : TseLink) -> String {
 
 ///|
 /// Supported aggregation functions for tree-level summaries.
+#derive(Eq)
 pub enum TseAggregation {
   Sum
   Mean
   Min
   Max
-} derive(Eq)
+}
 
 ///|
 pub extend TseAggregation with Eq::{equal, not_equal}

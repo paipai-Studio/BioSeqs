@@ -9,41 +9,45 @@
 
 ///|
 /// Sequence annotation associated with a PhyloXML node.
+#derive(Eq)
 pub struct SequenceAnnotation {
   sequence_id : String
   molecular_type : String
   symbol : String
   uri : String
-} derive(Eq)
+}
 
 ///|
 pub extend SequenceAnnotation with Eq::{equal, not_equal}
 
 ///|
 /// Taxonomic information associated with a PhyloXML node.
+#derive(Eq)
 pub struct TaxonInfo {
   taxon_id : String
   scientific_name : String
   common_name : String
   authority : String
   taxon_rank : String
-} derive(Eq)
+}
 
 ///|
 pub extend TaxonInfo with Eq::{equal, not_equal}
 
 ///|
 /// Taxon namespace definition for PhyloXML.
+#derive(Eq)
 pub struct TaxonNamespace {
   namespace_id : String
   name : String
-} derive(Eq)
+}
 
 ///|
 pub extend TaxonNamespace with Eq::{equal, not_equal}
 
 ///|
 /// A node (clade) in a PhyloXML tree.
+#derive(Eq)
 pub struct PhyloXMLNode {
   node_id : String
   name : String
@@ -53,13 +57,14 @@ pub struct PhyloXMLNode {
   annotations : Map[String, String]
   sequence_annotation : SequenceAnnotation?
   taxon : TaxonInfo?
-} derive(Eq)
+}
 
 ///|
 pub extend PhyloXMLNode with Eq::{equal, not_equal}
 
 ///|
 /// A phylogenetic tree in PhyloXML format.
+#derive(Eq)
 pub struct PhyloXMLTree {
   tree_id : String
   name : String
@@ -67,18 +72,19 @@ pub struct PhyloXMLTree {
   root : PhyloXMLNode
   phylogeny_metadata : Map[String, String]
   taxon_namespaces : Array[TaxonNamespace]
-} derive(Eq)
+}
 
 ///|
 pub extend PhyloXMLTree with Eq::{equal, not_equal}
 
 ///|
 /// Top-level result of PhyloXML parsing.
+#derive(Eq)
 pub struct PhyloXMLResult {
   trees : Array[PhyloXMLTree]
   metadata : Map[String, String]
   taxon_namespaces : Array[TaxonNamespace]
-} derive(Eq)
+}
 
 ///|
 pub extend PhyloXMLResult with Eq::{equal, not_equal}

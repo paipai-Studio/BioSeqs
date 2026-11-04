@@ -11,13 +11,14 @@ pub suberror AlignmentMapError {
 
 ///|
 /// One aligned block in a coordinate-based pairwise alignment.
+#derive(Eq, Debug)
 pub struct CoordinateAlignmentBlock {
   target_start : Int32
   target_end : Int32
   query_start : Int32
   query_end : Int32
   size : Int32
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend CoordinateAlignmentBlock with Eq::{equal, not_equal}
@@ -33,6 +34,7 @@ pub extend CoordinateAlignmentBlock with @moonbitlang/core/debug.Debug::{
 /// Sequence text may be empty when only lengths and coordinates are known.
 /// Target coordinates are non-decreasing. Query coordinates may increase or
 /// decrease, allowing reverse-strand alignments.
+#derive(Eq, Debug)
 pub struct CoordinatePairwiseAlignment {
   target_name : String
   query_name : String
@@ -42,7 +44,7 @@ pub struct CoordinatePairwiseAlignment {
   query_length : Int32
   target_coordinates : Array[Int32]
   query_coordinates : Array[Int32]
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend CoordinatePairwiseAlignment with Eq::{equal, not_equal}
@@ -54,11 +56,12 @@ pub extend CoordinatePairwiseAlignment with @moonbitlang/core/debug.Debug::{
 
 ///|
 /// Coordinate representation of a multiple sequence alignment.
+#derive(Eq, Debug)
 pub struct CoordinateMultipleAlignment {
   names : Array[String]
   sequences : Array[String]
   coordinates : Array[Array[Int32]]
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend CoordinateMultipleAlignment with Eq::{equal, not_equal}
@@ -70,6 +73,7 @@ pub extend CoordinateMultipleAlignment with @moonbitlang/core/debug.Debug::{
 
 ///|
 /// Basic alignment statistics derived from a coordinate path.
+#derive(Eq, Debug)
 pub struct CoordinateAlignmentCounts {
   aligned : Int32
   target_gap_bases : Int32
@@ -77,7 +81,7 @@ pub struct CoordinateAlignmentCounts {
   target_gap_events : Int32
   query_gap_events : Int32
   blocks : Int32
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend CoordinateAlignmentCounts with Eq::{equal, not_equal}

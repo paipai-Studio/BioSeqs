@@ -12,13 +12,14 @@ pub suberror MuscatAdvancedError {
 }
 
 ///|
+#derive(Eq, Debug)
 pub enum MuscatAdvancedAggregation {
   SumCounts
   MeanExpression
   MedianExpression
   ProportionDetected
   NumberDetected
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend MuscatAdvancedAggregation with Eq::{equal, not_equal}
@@ -54,6 +55,7 @@ pub fn muscat_number_detected() -> MuscatAdvancedAggregation {
 }
 
 ///|
+#derive(Debug)
 pub struct MuscatAdvancedConfig {
   min_cells : Int32
   min_count : Double
@@ -67,7 +69,7 @@ pub struct MuscatAdvancedConfig {
   fdr_threshold : Double
   lfc_threshold : Double
   detection_filter : Double
-} derive(Debug)
+}
 
 ///|
 pub extend MuscatAdvancedConfig with @moonbitlang/core/debug.Debug::{to_repr}
@@ -167,6 +169,7 @@ pub fn MuscatAdvancedConfig::default() -> MuscatAdvancedConfig {
 }
 
 ///|
+#derive(Debug)
 pub struct MuscatAdvancedData {
   counts : Array[Array[Double]]
   gene_names : Array[String]
@@ -178,12 +181,13 @@ pub struct MuscatAdvancedData {
   sample_groups : Array[String]
   cluster_names : Array[String]
   group_names : Array[String]
-} derive(Debug)
+}
 
 ///|
 pub extend MuscatAdvancedData with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Debug)
 pub struct MuscatAdvancedPseudoBulk {
   values : Array[Array[Array[Double]]]
   gene_names : Array[String]
@@ -194,7 +198,7 @@ pub struct MuscatAdvancedPseudoBulk {
   library_sizes : Array[Array[Double]]
   aggregation : MuscatAdvancedAggregation
   scaled_cpm : Bool
-} derive(Debug)
+}
 
 ///|
 pub extend MuscatAdvancedPseudoBulk with @moonbitlang/core/debug.Debug::{
@@ -202,25 +206,28 @@ pub extend MuscatAdvancedPseudoBulk with @moonbitlang/core/debug.Debug::{
 }
 
 ///|
+#derive(Debug)
 pub struct MuscatAdvancedDesign {
   matrix : Array[Array[Double]]
   sample_names : Array[String]
   coefficient_names : Array[String]
-} derive(Debug)
+}
 
 ///|
 pub extend MuscatAdvancedDesign with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Debug)
 pub struct MuscatAdvancedContrast {
   values : Array[Double]
   name : String
-} derive(Debug)
+}
 
 ///|
 pub extend MuscatAdvancedContrast with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Debug)
 pub struct MuscatAdvancedGeneResult {
   gene_name : String
   cluster_name : String
@@ -238,7 +245,7 @@ pub struct MuscatAdvancedGeneResult {
   mean_count : Double
   n_samples : Int32
   converged : Bool
-} derive(Debug)
+}
 
 ///|
 pub extend MuscatAdvancedGeneResult with @moonbitlang/core/debug.Debug::{
@@ -246,6 +253,7 @@ pub extend MuscatAdvancedGeneResult with @moonbitlang/core/debug.Debug::{
 }
 
 ///|
+#derive(Debug)
 pub struct MuscatAdvancedResults {
   results : Array[MuscatAdvancedGeneResult]
   gene_names : Array[String]
@@ -253,12 +261,13 @@ pub struct MuscatAdvancedResults {
   contrast_names : Array[String]
   mode : String
   fdr_threshold : Double
-} derive(Debug)
+}
 
 ///|
 pub extend MuscatAdvancedResults with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Debug)
 pub struct MuscatStagewiseGeneResult {
   gene_name : String
   cluster_name : String
@@ -270,7 +279,7 @@ pub struct MuscatStagewiseGeneResult {
   mut ds_confirmation : Double
   mut dd_confirmation : Double
   mut classification : String
-} derive(Debug)
+}
 
 ///|
 pub extend MuscatStagewiseGeneResult with @moonbitlang/core/debug.Debug::{
@@ -278,13 +287,14 @@ pub extend MuscatStagewiseGeneResult with @moonbitlang/core/debug.Debug::{
 }
 
 ///|
+#derive(Debug)
 pub struct MuscatStagewiseResults {
   results : Array[MuscatStagewiseGeneResult]
   gene_names : Array[String]
   cluster_names : Array[String]
   contrast_names : Array[String]
   alpha : Double
-} derive(Debug)
+}
 
 ///|
 pub extend MuscatStagewiseResults with @moonbitlang/core/debug.Debug::{to_repr}

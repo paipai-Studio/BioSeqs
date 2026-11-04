@@ -12,13 +12,14 @@ pub suberror MiloError {
 }
 
 ///|
+#derive(Eq, Debug)
 pub enum MiloSpatialWeighting {
   KDistance
   NeighbourDistance
   MaxDistance
   GraphOverlap
   NoSpatialWeighting
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend MiloSpatialWeighting with Eq::{equal, not_equal}
@@ -27,6 +28,7 @@ pub extend MiloSpatialWeighting with Eq::{equal, not_equal}
 pub extend MiloSpatialWeighting with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Debug)
 pub struct MiloExperiment {
   coordinates : Array[Array[Double]]
   cell_names : Array[String]
@@ -39,23 +41,25 @@ pub struct MiloExperiment {
   neighborhoods : Array[Array[Int32]]
   sample_names : Array[String]
   neighborhood_counts : Array[Array[Int32]]
-} derive(Debug)
+}
 
 ///|
 pub extend MiloExperiment with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Debug)
 pub struct MiloDesign {
   matrix : Array[Array[Double]]
   levels : Array[String]
   reference : String
   coefficient_name : String
-} derive(Debug)
+}
 
 ///|
 pub extend MiloDesign with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Debug)
 pub struct MiloDAResult {
   neighborhood : Int32
   index_cell : Int32
@@ -68,19 +72,20 @@ pub struct MiloDAResult {
   spatial_fdr : Double
   dispersion : Double
   mean_count : Double
-} derive(Debug)
+}
 
 ///|
 pub extend MiloDAResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Debug)
 pub struct MiloSampleData {
   coordinates : Array[Array[Double]]
   cell_names : Array[String]
   sample_ids : Array[String]
   sample_names : Array[String]
   sample_conditions : Array[String]
-} derive(Debug)
+}
 
 ///|
 pub extend MiloSampleData with @moonbitlang/core/debug.Debug::{to_repr}

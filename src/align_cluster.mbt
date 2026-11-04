@@ -48,12 +48,13 @@ fn profile_index_to_uint16(idx : Int32) -> UInt16 {
 
 ///|
 /// Progressive alignment clusterer with customizable scoring parameters.
+#derive(Eq)
 pub struct AlignClusterer {
   match_score : Double
   mismatch_score : Double
   open_gap_penalty : Double
   extend_gap_penalty : Double
-} derive(Eq)
+}
 
 ///|
 pub extend AlignClusterer with Eq::{equal, not_equal}
@@ -93,10 +94,11 @@ pub fn align_cluster_with_scoring(
 
 ///|
 /// Distance matrix for storing pairwise distances between sequences.
+#derive(Eq)
 pub struct MSADistanceMatrix {
   matrix : Array[Array[Double]]
   sequence_ids : Array[String]
-} derive(Eq)
+}
 
 ///|
 pub extend MSADistanceMatrix with Eq::{equal, not_equal}
@@ -138,13 +140,14 @@ pub fn MSADistanceMatrix::get(
 
 ///|
 /// A node in the guide tree.
+#derive(Eq)
 pub struct GuideTreeNode {
   node_id : Int32
   children : Array[Int32]
   height : Double
   is_leaf : Bool
   sequence_index : Int32
-} derive(Eq)
+}
 
 ///|
 pub extend GuideTreeNode with Eq::{equal, not_equal}
@@ -179,9 +182,10 @@ fn guide_tree_internal(
 
 ///|
 /// Guide tree for progressive alignment.
+#derive(Eq)
 pub struct GuideTree {
   nodes : Array[GuideTreeNode]
-} derive(Eq)
+}
 
 ///|
 pub extend GuideTree with Eq::{equal, not_equal}

@@ -11,10 +11,11 @@ pub suberror AlignBedError {
 
 ///|
 /// A BED score. Biopython preserves non-numeric score tokens as text.
+#derive(Eq, Debug)
 pub enum AlignBedScore {
   AlignBedNumeric(Double)
   AlignBedText(String)
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend AlignBedScore with Eq::{equal, not_equal}
@@ -24,10 +25,11 @@ pub extend AlignBedScore with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// One point in the target/query absolute coordinate path.
+#derive(Eq, Debug)
 pub struct AlignBedCoordinate {
   target : Int32
   query : Int32
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend AlignBedCoordinate with Eq::{equal, not_equal}
@@ -37,12 +39,13 @@ pub extend AlignBedCoordinate with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// One aligned BED block in absolute target and query coordinates.
+#derive(Eq, Debug)
 pub struct AlignBedBlock {
   target_start : Int32
   target_end : Int32
   query_start : Int32
   query_end : Int32
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend AlignBedBlock with Eq::{equal, not_equal}
@@ -52,6 +55,7 @@ pub extend AlignBedBlock with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Coordinate-only alignment counts.
+#derive(Eq, Debug)
 pub struct AlignBedCounts {
   aligned : Int32
   target_skip_bases : Int32
@@ -60,7 +64,7 @@ pub struct AlignBedCounts {
   query_skip_opens : Int32
   blocks : Int32
   columns : Int32
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend AlignBedCounts with Eq::{equal, not_equal}
@@ -74,6 +78,7 @@ pub extend AlignBedCounts with @moonbitlang/core/debug.Debug::{to_repr}
 /// Target coordinates may be stored in either orientation by callers; BED
 /// serialization normalizes them to increasing genomic coordinates. Query
 /// coordinates decrease for reverse-strand alignments.
+#derive(Eq, Debug)
 pub struct AlignBedAlignment {
   target_id : String
   query_id : String?
@@ -83,7 +88,7 @@ pub struct AlignBedAlignment {
   thick_end : Int32?
   item_rgb : String?
   source_columns : Int32
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend AlignBedAlignment with Eq::{equal, not_equal}
@@ -93,6 +98,7 @@ pub extend AlignBedAlignment with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Summary across all records in a BED document.
+#derive(Eq, Debug)
 pub struct AlignBedSummary {
   alignment_count : Int32
   target_count : Int32
@@ -101,7 +107,7 @@ pub struct AlignBedSummary {
   minus_strand_count : Int32
   aligned_bases : Int32
   target_skip_bases : Int32
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend AlignBedSummary with Eq::{equal, not_equal}
@@ -111,9 +117,10 @@ pub extend AlignBedSummary with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// A standalone BED document containing zero or more pairwise alignments.
+#derive(Eq, Debug)
 pub struct AlignBedDocument {
   alignments : Array[AlignBedAlignment]
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend AlignBedDocument with Eq::{equal, not_equal}

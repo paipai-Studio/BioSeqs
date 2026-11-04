@@ -10,10 +10,11 @@ pub suberror SpicyError {
 }
 
 ///|
+#derive(Eq, Debug)
 pub enum SpicyModelKind {
   WeightedLinear
   WeightedRandomIntercept
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend SpicyModelKind with Eq::{equal, not_equal}
@@ -22,12 +23,13 @@ pub extend SpicyModelKind with Eq::{equal, not_equal}
 pub extend SpicyModelKind with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Eq, Debug)
 pub struct SpicyCell {
   image_id : String
   cell_type : String
   x : Double
   y : Double
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend SpicyCell with Eq::{equal, not_equal}
@@ -55,12 +57,13 @@ pub fn SpicyCell::create(
 }
 
 ///|
+#derive(Debug)
 pub struct SpicyImageMetadata {
   image_id : String
   condition : String
   subject : String
   covariates : Map[String, Double]
-} derive(Debug)
+}
 
 ///|
 pub extend SpicyImageMetadata with @moonbitlang/core/debug.Debug::{to_repr}
@@ -93,10 +96,11 @@ pub fn SpicyImageMetadata::create(
 }
 
 ///|
+#derive(Eq, Debug)
 pub struct SpicyPair {
   from_cell_type : String
   to_cell_type : String
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend SpicyPair with Eq::{equal, not_equal}
@@ -121,6 +125,7 @@ pub fn SpicyPair::label(self : SpicyPair) -> String {
 }
 
 ///|
+#derive(Debug)
 pub struct SpicyConfig {
   radii : Array[Double]
   edge_correction : Bool
@@ -132,7 +137,7 @@ pub struct SpicyConfig {
   reference_condition : String
   max_iterations : Int32
   tolerance : Double
-} derive(Debug)
+}
 
 ///|
 pub extend SpicyConfig with @moonbitlang/core/debug.Debug::{to_repr}
@@ -213,6 +218,7 @@ pub fn SpicyConfig::default() -> SpicyConfig {
 }
 
 ///|
+#derive(Debug)
 pub struct SpicyAssociation {
   image_id : String
   from_cell_type : String
@@ -225,7 +231,7 @@ pub struct SpicyAssociation {
   observed : Bool
   available : Bool
   weight : Double
-} derive(Debug)
+}
 
 ///|
 pub extend SpicyAssociation with @moonbitlang/core/debug.Debug::{to_repr}
@@ -269,6 +275,7 @@ pub fn SpicyAssociation::create(
 }
 
 ///|
+#derive(Debug)
 pub struct SpicyConditionResult {
   condition_level : String
   estimate : Double
@@ -278,12 +285,13 @@ pub struct SpicyConditionResult {
   p_value : Double
   adjusted_p_value : Double
   converged : Bool
-} derive(Debug)
+}
 
 ///|
 pub extend SpicyConditionResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Debug)
 pub struct SpicyPairResult {
   pair : SpicyPair
   model : SpicyModelKind
@@ -292,19 +300,20 @@ pub struct SpicyPairResult {
   random_intercept_variance : Double
   residual_variance : Double
   associations : Array[SpicyAssociation]
-} derive(Debug)
+}
 
 ///|
 pub extend SpicyPairResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Debug)
 pub struct SpicyResult {
   reference_condition : String
   condition_levels : Array[String]
   image_ids : Array[String]
   pairs : Array[SpicyPairResult]
   config : SpicyConfig
-} derive(Debug)
+}
 
 ///|
 pub extend SpicyResult with @moonbitlang/core/debug.Debug::{to_repr}

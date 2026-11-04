@@ -1,10 +1,11 @@
 ///|
 /// SAM header tag (key:value pair on a header line).
 /// Ported from htslib header.c sam_hrec_tag_t.
+#derive(Eq)
 pub struct SamHrecTag {
   key : String
   value : String
-} derive(Eq)
+}
 
 ///|
 pub extend SamHrecTag with Eq::{equal, not_equal}
@@ -12,10 +13,11 @@ pub extend SamHrecTag with Eq::{equal, not_equal}
 ///|
 /// A parsed SAM header line (e.g. "@SQ\tSN:chr1\tLN:100").
 /// Ported from htslib header.c sam_hrec_type_t.
+#derive(Eq)
 pub struct SamHrecLine {
   type_str : String
   tags : Array[SamHrecTag]
-} derive(Eq)
+}
 
 ///|
 pub extend SamHrecLine with Eq::{equal, not_equal}

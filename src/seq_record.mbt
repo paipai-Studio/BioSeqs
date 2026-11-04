@@ -22,6 +22,7 @@ pub suberror SeqIOError {
 ///|
 /// An annotated biological sequence record, equivalent to
 /// Bio.SeqRecord.SeqRecord.
+#derive(Eq)
 pub struct SeqRecord {
   seq : Seq
   id : String
@@ -30,7 +31,7 @@ pub struct SeqRecord {
   letter_annotations : Map[String, Array[Int32]]
   annotations : Map[String, String]
   features : Array[SeqFeature]
-} derive(Eq)
+}
 
 ///|
 pub extend SeqRecord with Eq::{equal, not_equal}

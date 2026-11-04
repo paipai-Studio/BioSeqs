@@ -12,11 +12,12 @@ pub suberror AlignExonerateError {
 
 ///|
 /// Orientation or molecule type reported for an Exonerate sequence.
+#derive(Eq, Debug)
 pub(all) enum AlignExonerateStrand {
   AlignExonerateForward
   AlignExonerateReverse
   AlignExonerateProtein
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend AlignExonerateStrand with Eq::{equal, not_equal}
@@ -26,11 +27,12 @@ pub extend AlignExonerateStrand with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// File-level Exonerate metadata.
+#derive(Eq, Debug)
 pub struct AlignExonerateMetadata {
   program : String
   command_line : String
   hostname : String
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend AlignExonerateMetadata with Eq::{equal, not_equal}
@@ -45,11 +47,12 @@ pub extend AlignExonerateMetadata with @moonbitlang/core/debug.Debug::{to_repr}
 /// `M` match, `5`/`3` splice sites, `N` intron, `C` codon, `D` deletion,
 /// `I` insertion, `U` non-equivalenced region, `S` split codon, and `F`
 /// frame shift. Steps are non-negative molecular coordinates.
+#derive(Eq, Debug)
 pub struct AlignExonerateOperation {
   code : String
   query_step : Int32
   target_step : Int32
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend AlignExonerateOperation with Eq::{equal, not_equal}
@@ -59,6 +62,7 @@ pub extend AlignExonerateOperation with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// One pairwise alignment from an Exonerate report.
+#derive(Eq, Debug)
 pub struct AlignExonerateAlignment {
   query_id : String
   query_start : Int32
@@ -70,7 +74,7 @@ pub struct AlignExonerateAlignment {
   target_strand : AlignExonerateStrand
   score : Double
   operations : Array[AlignExonerateOperation]
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend AlignExonerateAlignment with Eq::{equal, not_equal}
@@ -80,10 +84,11 @@ pub extend AlignExonerateAlignment with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// A complete Exonerate report.
+#derive(Eq, Debug)
 pub struct AlignExonerateDocument {
   metadata : AlignExonerateMetadata
   alignments : Array[AlignExonerateAlignment]
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend AlignExonerateDocument with Eq::{equal, not_equal}
@@ -93,6 +98,7 @@ pub extend AlignExonerateDocument with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Operation and coordinate statistics for one Exonerate alignment.
+#derive(Eq, Debug)
 pub struct AlignExonerateCounts {
   operations : Int32
   matching_operations : Int32
@@ -107,7 +113,7 @@ pub struct AlignExonerateCounts {
   non_equivalenced_units : Int32
   split_codons : Int32
   frameshifts : Int32
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend AlignExonerateCounts with Eq::{equal, not_equal}

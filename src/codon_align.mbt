@@ -4,11 +4,12 @@
 
 ///|
 /// Codon substitution type.
+#derive(Eq, Debug)
 pub enum CodonSubstitution {
   Synonymous // dS - no amino acid change
   NonSynonymous // dN - amino acid change
   Unknown // ambiguous or stop codon
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend CodonSubstitution with Eq::{equal, not_equal}

@@ -122,22 +122,24 @@ pub fn flow_core_asinh(x : Double) -> Double {
 
 ///|
 /// Gate type enumeration.
+#derive(Eq)
 pub enum GateType {
   RectangleGate
-} derive(Eq)
+}
 
 ///|
 pub extend GateType with Eq::{equal, not_equal}
 
 ///|
 /// Transformation type enumeration.
+#derive(Eq)
 #warnings("-unused_constructor")
 pub enum TransformType {
   LogTransform
   AsinhTransform
   LogicleTransform
   LinearTransform
-} derive(Eq)
+}
 
 ///|
 pub extend TransformType with Eq::{equal, not_equal}

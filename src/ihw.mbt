@@ -19,6 +19,7 @@
 ///|
 /// Result of the IHW procedure, containing adjusted p-values,
 /// weights, and diagnostic information.
+#derive(Eq)
 pub struct IHWResult {
   p_values : Array[Double]
   adjusted_p_values : Array[Double]
@@ -26,7 +27,7 @@ pub struct IHWResult {
   covariates : Array[Double]
   alpha : Double
   n_attempts : Int32
-} derive(Eq)
+}
 
 ///|
 pub extend IHWResult with Eq::{equal, not_equal}
@@ -97,11 +98,12 @@ pub fn IHWResult::n_attempts(self : IHWResult) -> Int32 {
 /// - alpha: significance level (default 0.05)
 /// - n_attempts: maximum number of iterations (default 10)
 /// - scale_type: "global" (equal weights) or "local" (covariate-dependent)
+#derive(Eq)
 pub struct IHWConfig {
   alpha : Double
   n_attempts : Int32
   scale_type : String
-} derive(Eq)
+}
 
 ///|
 pub extend IHWConfig with Eq::{equal, not_equal}

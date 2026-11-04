@@ -942,12 +942,13 @@ pub fn bgzf_compress(data : String) -> String raise BgzfError {
 /// Metadata for one on-disk BGZF block, as reported by `bgzf_blocks`.
 /// Mirrors Biopython's BgzfBlocks tuples:
 /// (start_offset, block_length, data_offset, data_length).
+#derive(Debug)
 pub struct BgzfBlockInfo {
   start_offset : Int32
   block_length : Int32
   data_offset : Int32
   data_length : Int32
-} derive(Debug)
+}
 
 ///|
 pub extend BgzfBlockInfo with @moonbitlang/core/debug.Debug::{to_repr}

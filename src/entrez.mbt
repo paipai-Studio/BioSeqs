@@ -4,6 +4,7 @@
 
 ///|
 /// Entrez database record type.
+#derive(Eq, Debug)
 pub enum EntrezDB {
   Pubmed // PubMed citations
   Nucleotide // Nucleotide sequences
@@ -11,7 +12,7 @@ pub enum EntrezDB {
   Gene // Gene information
   SNP // Single nucleotide polymorphisms
   Taxonomy // Taxonomy data
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend EntrezDB with Eq::{equal, not_equal}

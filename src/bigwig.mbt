@@ -25,12 +25,13 @@ pub suberror BigWigError {
 /// One dense interval: chromosome name, 0-based half-open range, value.
 
 ///|
+#derive(Eq, Debug)
 pub struct BigWigInterval {
   chrom : String
   start : Int32
   end : Int32
   value : Double
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend BigWigInterval with Eq::{equal, not_equal}
@@ -50,13 +51,14 @@ pub fn BigWigInterval::create(
 
 ///|
 /// Aggregate statistics over a range (total summary or a zoom element).
+#derive(Eq, Debug)
 pub struct BigWigSummary {
   valid_count : Int32
   min_val : Double
   max_val : Double
   sum_data : Double
   sum_squares : Double
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend BigWigSummary with Eq::{equal, not_equal}
@@ -66,11 +68,12 @@ pub extend BigWigSummary with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// One zoom (reduction) level: reduction width and file offsets.
+#derive(Eq, Debug)
 pub struct BigWigZoomHeader {
   reduction_level : Int32
   data_offset : Int32
   index_offset : Int32
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend BigWigZoomHeader with Eq::{equal, not_equal}
@@ -79,6 +82,7 @@ pub extend BigWigZoomHeader with Eq::{equal, not_equal}
 pub extend BigWigZoomHeader with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Eq, Debug)
 pub struct BigWigHeader {
   little_endian : Bool
   version : Int32
@@ -88,7 +92,7 @@ pub struct BigWigHeader {
   full_index_offset : Int32
   total_summary_offset : Int32
   uncompress_buffer_size : Int32
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend BigWigHeader with Eq::{equal, not_equal}
@@ -97,10 +101,11 @@ pub extend BigWigHeader with Eq::{equal, not_equal}
 pub extend BigWigHeader with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Eq, Debug)
 pub struct BigWigWriteConfig {
   block_size : Int32
   compress : Bool
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend BigWigWriteConfig with Eq::{equal, not_equal}

@@ -13,6 +13,7 @@ pub suberror SharedReferenceAlignmentError {
 
 ///|
 /// One query row in an input or merged shared-reference alignment.
+#derive(Eq, Debug)
 pub struct SharedReferenceSequence {
   name : String
   description : String
@@ -20,7 +21,7 @@ pub struct SharedReferenceSequence {
   aligned_sequence : String
   start : Int32
   end : Int32
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend SharedReferenceSequence with Eq::{equal, not_equal}
@@ -30,6 +31,7 @@ pub extend SharedReferenceSequence with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// An alignment containing one reference row and one or more query rows.
+#derive(Eq, Debug)
 pub struct SharedReferenceInput {
   reference_name : String
   reference_description : String
@@ -38,7 +40,7 @@ pub struct SharedReferenceInput {
   reference_start : Int32
   reference_end : Int32
   queries : Array[SharedReferenceSequence]
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend SharedReferenceInput with Eq::{equal, not_equal}
@@ -48,13 +50,14 @@ pub extend SharedReferenceInput with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Counts comparing one merged query row with the shared reference.
+#derive(Eq, Debug)
 pub struct SharedReferenceCounts {
   identities : Int32
   mismatches : Int32
   insertions : Int32
   deletions : Int32
   aligned_pairs : Int32
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend SharedReferenceCounts with Eq::{equal, not_equal}
@@ -64,6 +67,7 @@ pub extend SharedReferenceCounts with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// A multiple sequence alignment formed without realigning the input queries.
+#derive(Eq, Debug)
 pub struct SharedReferenceAlignment {
   reference_name : String
   reference_description : String
@@ -73,7 +77,7 @@ pub struct SharedReferenceAlignment {
   aligned_reference : String
   queries : Array[SharedReferenceSequence]
   insertion_widths : Array[Int32]
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend SharedReferenceAlignment with Eq::{equal, not_equal}

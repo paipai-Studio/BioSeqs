@@ -25,11 +25,12 @@ pub struct RNAStructureResult {
 ///|
 /// A loop region in the RNA secondary structure.
 /// Classified as hairpin, internal, bulge, or multi-loop.
+#derive(Eq)
 pub struct LoopRegion {
   start : Int32
   end : Int32
   loop_type : String
-} derive(Eq)
+}
 
 ///|
 pub extend LoopRegion with Eq::{equal, not_equal}

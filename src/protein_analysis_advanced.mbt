@@ -120,13 +120,14 @@ fn cf_turn_propensity() -> Array[Double] {
 
 ///|
 /// Result of Chou–Fasman secondary-structure prediction.
+#derive(Debug)
 pub struct ChouFasmanResult {
   sequence : String
   prediction : Array[String]
   helices : Array[(Int32, Int32)]
   sheets : Array[(Int32, Int32)]
   turns : Array[(Int32, Int32)]
-} derive(Debug)
+}
 
 ///|
 pub extend ChouFasmanResult with @moonbitlang/core/debug.Debug::{to_repr}
@@ -463,11 +464,12 @@ fn iupred_energy_matrix() -> Array[Array[Double]] {
 
 ///|
 /// Result of IUPred disorder prediction.
+#derive(Debug)
 pub struct IupredResult {
   sequence : String
   scores : Array[Double]
   disordered_regions : Array[(Int32, Int32)]
-} derive(Debug)
+}
 
 ///|
 pub extend IupredResult with @moonbitlang/core/debug.Debug::{to_repr}
@@ -619,11 +621,12 @@ fn coils_matrix() -> Array[Array[Double]] {
 
 ///|
 /// Result of COILS coiled-coil prediction.
+#derive(Debug)
 pub struct CoilsResult {
   sequence : String
   scores : Array[Double]
   coiled_coil_regions : Array[(Int32, Int32)]
-} derive(Debug)
+}
 
 ///|
 pub extend CoilsResult with @moonbitlang/core/debug.Debug::{to_repr}
@@ -734,11 +737,12 @@ fn kolaskar_propensity() -> Array[Double] {
 
 ///|
 /// Result of Kolaskar–Tongaonkar antigenicity prediction.
+#derive(Debug)
 pub struct AntigenicityResult {
   sequence : String
   scores : Array[Double]
   antigenic_sites : Array[(Int32, Int32)]
-} derive(Debug)
+}
 
 ///|
 pub extend AntigenicityResult with @moonbitlang/core/debug.Debug::{to_repr}

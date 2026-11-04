@@ -15,10 +15,11 @@
 
 ///|
 /// A labeled training sample with an n-dimensional feature vector.
+#derive(Eq)
 pub struct KnnSample {
   features : Array[Double]
   label : String
-} derive(Eq)
+}
 
 ///|
 pub extend KnnSample with Eq::{equal, not_equal}
@@ -30,20 +31,22 @@ pub fn KnnSample::new(features~ : Array[Double], label~ : String) -> KnnSample {
 
 ///|
 /// One (label, weight) entry produced by the voting stage.
+#derive(Eq)
 pub struct KnnVote {
   label : String
   weight : Double
-} derive(Eq)
+}
 
 ///|
 pub extend KnnVote with Eq::{equal, not_equal}
 
 ///|
 /// Result of a weighted classification: winner plus the full vote table.
+#derive(Eq)
 pub struct KnnClassification {
   label : String
   votes : Array[KnnVote]
-} derive(Eq)
+}
 
 ///|
 pub extend KnnClassification with Eq::{equal, not_equal}

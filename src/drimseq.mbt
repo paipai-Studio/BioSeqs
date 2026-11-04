@@ -10,11 +10,12 @@
 
 ///|
 /// Normalization method for DRIMSeq.
+#derive(Eq)
 pub enum DRIMSeqNorm {
   None
   TMM
   Sum
-} derive(Eq)
+}
 
 ///|
 pub extend DRIMSeqNorm with Eq::{equal, not_equal}

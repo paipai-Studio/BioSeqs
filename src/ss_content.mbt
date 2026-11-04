@@ -56,7 +56,7 @@ fn is_turn(ss : Char) -> Bool {
 }
 
 ///|
-fn is_coil(ss : Char) -> Bool {
+fn _is_coil(ss : Char) -> Bool {
   ss == 'C' || ss == ' ' || (!is_helix(ss) && !is_sheet(ss) && !is_turn(ss))
 }
 

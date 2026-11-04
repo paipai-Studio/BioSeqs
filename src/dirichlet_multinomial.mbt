@@ -8,11 +8,12 @@ pub suberror DirichletMultinomialError {
 }
 
 ///|
+#derive(Eq, Debug)
 pub(all) enum DmnCriterion {
   DmnLaplace
   DmnBic
   DmnAic
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend DmnCriterion with Eq::{equal, not_equal}
@@ -21,6 +22,7 @@ pub extend DmnCriterion with Eq::{equal, not_equal}
 pub extend DmnCriterion with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Eq, Debug)
 pub struct DmnConfig {
   components : Int32
   max_iterations : Int32
@@ -33,7 +35,7 @@ pub struct DmnConfig {
   prior_shape : Double
   prior_rate : Double
   min_alpha : Double
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend DmnConfig with Eq::{equal, not_equal}
@@ -156,13 +158,14 @@ pub fn DmnConfig::with_components(
 }
 
 ///|
+#derive(Eq, Debug)
 pub struct DmnGoodnessOfFit {
   negative_log_evidence : Double
   log_determinant : Double
   laplace : Double
   bic : Double
   aic : Double
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend DmnGoodnessOfFit with Eq::{equal, not_equal}
@@ -214,13 +217,14 @@ pub struct DmnCrossValidation {
 }
 
 ///|
+#derive(Eq, Debug)
 pub struct DmnRoc {
   thresholds : Array[Double]
   sensitivity : Array[Double]
   specificity : Array[Double]
   auc : Double
   best_threshold : Double
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend DmnRoc with Eq::{equal, not_equal}

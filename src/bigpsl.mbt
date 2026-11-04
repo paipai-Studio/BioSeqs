@@ -11,11 +11,12 @@ pub suberror BigPslError {
 }
 
 ///|
+#derive(Eq, Debug)
 pub(all) enum BigPslSequenceType {
   BigPslUnknown
   BigPslNucleotide
   BigPslProtein
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend BigPslSequenceType with Eq::{equal, not_equal}
@@ -24,11 +25,12 @@ pub extend BigPslSequenceType with Eq::{equal, not_equal}
 pub extend BigPslSequenceType with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Eq, Debug)
 pub(all) enum BigPslMaskMode {
   BigPslNoMask
   BigPslMaskLower
   BigPslMaskUpper
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend BigPslMaskMode with Eq::{equal, not_equal}
@@ -37,6 +39,7 @@ pub extend BigPslMaskMode with Eq::{equal, not_equal}
 pub extend BigPslMaskMode with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Eq, Debug)
 pub struct BigPslBlock {
   target_start : Int32
   target_end : Int32
@@ -44,7 +47,7 @@ pub struct BigPslBlock {
   query_end : Int32
   target_size : Int32
   query_size : Int32
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend BigPslBlock with Eq::{equal, not_equal}
@@ -53,6 +56,7 @@ pub extend BigPslBlock with Eq::{equal, not_equal}
 pub extend BigPslBlock with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Eq, Debug)
 pub struct BigPslAlignment {
   target_name : String
   target_size : Int32
@@ -71,7 +75,7 @@ pub struct BigPslAlignment {
   repeat_matches : Int32
   n_count : Int32
   sequence_type : BigPslSequenceType
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend BigPslAlignment with Eq::{equal, not_equal}
@@ -80,13 +84,14 @@ pub extend BigPslAlignment with Eq::{equal, not_equal}
 pub extend BigPslAlignment with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Eq, Debug)
 pub struct BigPslWriteConfig {
   compress : Bool
   block_size : Int32
   items_per_slot : Int32
   store_query_sequence : Bool
   store_cds : Bool
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend BigPslWriteConfig with Eq::{equal, not_equal}
@@ -95,6 +100,7 @@ pub extend BigPslWriteConfig with Eq::{equal, not_equal}
 pub extend BigPslWriteConfig with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Eq, Debug)
 pub struct BigPslAlignmentCounts {
   aligned_query_units : Int32
   query_insert_units : Int32
@@ -102,7 +108,7 @@ pub struct BigPslAlignmentCounts {
   query_insert_events : Int32
   target_insert_events : Int32
   block_count : Int32
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend BigPslAlignmentCounts with Eq::{equal, not_equal}
@@ -111,6 +117,7 @@ pub extend BigPslAlignmentCounts with Eq::{equal, not_equal}
 pub extend BigPslAlignmentCounts with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Eq, Debug)
 pub struct BigPslSummary {
   alignment_count : Int32
   target_count : Int32
@@ -120,7 +127,7 @@ pub struct BigPslSummary {
   aligned_query_units : Int32
   covered_target_bases : Int32
   compressed : Bool
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend BigPslSummary with Eq::{equal, not_equal}

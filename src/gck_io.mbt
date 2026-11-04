@@ -34,12 +34,13 @@
 
 ///|
 /// The molecular type stored in a GCK file.
+#derive(Eq)
 pub enum GckSeqType {
   GckDna
   GckRna
   GckProtein
   GckUnknown
-} derive(Eq)
+}
 
 ///|
 pub extend GckSeqType with Eq::{equal, not_equal}

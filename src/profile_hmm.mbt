@@ -29,6 +29,7 @@
 
 ///|
 /// Position-specific profile HMM over a residue alphabet.
+#derive(Debug)
 pub struct ProfileHMM {
   alphabet : Array[String]
   /// Number of match states nmat.
@@ -56,7 +57,7 @@ pub struct ProfileHMM {
   background : Map[String, Double]
   /// Number of sequences the profile was built from.
   n_seqs : Int32
-} derive(Debug)
+}
 
 ///|
 pub extend ProfileHMM with @moonbitlang/core/debug.Debug::{to_repr}
@@ -233,11 +234,12 @@ fn profile_background(
 
 ///|
 /// Internal path state for transition counting.
+#derive(Eq, Debug)
 enum PState {
   M(Int32) // M_k, k >= 1
   I(Int32) // I_k, k >= 0
   D(Int32) // D_k, k >= 1
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend PState with Eq::{equal, not_equal}

@@ -9,16 +9,18 @@ pub suberror DropletUtilsAdvancedError {
 }
 
 ///|
+#derive(Debug)
 pub struct DropletCountMatrix {
   counts : Array[Array[Int32]]
   feature_names : Array[String]
   barcodes : Array[String]
-} derive(Debug)
+}
 
 ///|
 pub extend DropletCountMatrix with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Debug)
 pub struct DropletUtilsConfig {
   lower : Int32
   iterations : Int32
@@ -34,36 +36,39 @@ pub struct DropletUtilsConfig {
   gradient_threshold : Double
   round_counts : Bool
   seed : Int32
-} derive(Debug)
+}
 
 ///|
 pub extend DropletUtilsConfig with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Debug)
 pub struct DropletAmbientProfile {
   raw_counts : Array[Int32]
   proportions : Array[Double]
   assumed_empty : Array[Bool]
   lower : Int32
   total : Int32
-} derive(Debug)
+}
 
 ///|
 pub extend DropletAmbientProfile with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Debug)
 pub struct DropletBarcodeRanks {
   barcodes : Array[String]
   ranks : Array[Double]
   totals : Array[Int32]
   knee : Double
   inflection : Double
-} derive(Debug)
+}
 
 ///|
 pub extend DropletBarcodeRanks with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Debug)
 pub struct DropletEmptyDropsResult {
   barcodes : Array[String]
   totals : Array[Int32]
@@ -80,7 +85,7 @@ pub struct DropletEmptyDropsResult {
   alpha_estimated : Bool
   iterations : Int32
   fdr_threshold : Double
-} derive(Debug)
+}
 
 ///|
 pub extend DropletEmptyDropsResult with @moonbitlang/core/debug.Debug::{to_repr}

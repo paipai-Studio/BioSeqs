@@ -12,6 +12,7 @@ pub suberror AlignmentCountsError {
 ///
 /// An insertion is a gap in the target row; a deletion is a gap in the query
 /// row. A gap of length n contributes one open score and n - 1 extend scores.
+#derive(Eq, Debug)
 pub struct AlignmentGapScores {
   open_left_insertion_score : Double
   extend_left_insertion_score : Double
@@ -25,7 +26,7 @@ pub struct AlignmentGapScores {
   extend_right_insertion_score : Double
   open_right_deletion_score : Double
   extend_right_deletion_score : Double
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend AlignmentGapScores with Eq::{equal, not_equal}
@@ -267,6 +268,7 @@ pub fn AlignmentCountsConfig::scored_matrix(
 
 ///|
 /// Detailed counts and optional scores for a coordinate alignment.
+#derive(Debug)
 pub struct AlignmentCounts {
   open_left_insertions : Int32
   extend_left_insertions : Int32
@@ -287,7 +289,7 @@ pub struct AlignmentCounts {
   gap_score : Double?
   substitution_score : Double?
   score : Double?
-} derive(Debug)
+}
 
 ///|
 pub extend AlignmentCounts with @moonbitlang/core/debug.Debug::{to_repr}

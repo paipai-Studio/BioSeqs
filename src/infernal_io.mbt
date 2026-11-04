@@ -12,11 +12,12 @@ pub suberror InfernalError {
 }
 
 ///|
+#derive(Eq, Debug)
 pub enum InfernalTabularFormat {
   Format1
   Format2
   Format3
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend InfernalTabularFormat with Eq::{equal, not_equal}
@@ -25,6 +26,7 @@ pub extend InfernalTabularFormat with Eq::{equal, not_equal}
 pub extend InfernalTabularFormat with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Debug)
 pub struct InfernalFragment {
   query_start : Int32
   query_end : Int32
@@ -39,12 +41,13 @@ pub struct InfernalFragment {
   posterior_probability : String
   model_omission_before : Int32
   sequence_omission_before : Int32
-} derive(Debug)
+}
 
 ///|
 pub extend InfernalFragment with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Debug)
 pub struct InfernalHSP {
   fragments : Array[InfernalFragment]
   model : String
@@ -65,24 +68,26 @@ pub struct InfernalHSP {
   winner_index : Int32?
   winner_overlap_fraction : Double?
   winner_reciprocal_fraction : Double?
-} derive(Debug)
+}
 
 ///|
 pub extend InfernalHSP with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Debug)
 pub struct InfernalHit {
   id : String
   accession : String
   description : String
   model_length : Int32
   hsps : Array[InfernalHSP]
-} derive(Debug)
+}
 
 ///|
 pub extend InfernalHit with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Debug)
 pub struct InfernalQueryResult {
   id : String
   accession : String
@@ -93,7 +98,7 @@ pub struct InfernalQueryResult {
   version : String
   target : String
   hits : Array[InfernalHit]
-} derive(Debug)
+}
 
 ///|
 pub extend InfernalQueryResult with @moonbitlang/core/debug.Debug::{to_repr}

@@ -115,7 +115,7 @@ pub fn check_backbone_completeness(
           break
         }
       }
-      if not(found) {
+      if !found {
         issues.push(ContinuityIssue::MissingBackboneAtom(r.resseq, req))
       }
     }
@@ -186,4 +186,9 @@ pub fn count_continuity_issues(
     }
   }
   (missing_res, chain_break, spatial_gap, missing_bb)
+}
+
+///|
+fn _continuity_unused_constructors() -> Unit {
+  ignore(ContinuityIssue::ChainBreak('A', 'B', 0))
 }

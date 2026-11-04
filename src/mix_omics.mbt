@@ -58,13 +58,14 @@ pub struct DIABLOResult {
 
 ///|
 /// Options for PLS computation.
+#derive(Eq, Debug)
 pub struct PLSOptions {
   ncomp : Int32
   mode : String
   scale : Bool
   max_iter : Int32
   tol : Double
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend PLSOptions with Eq::{equal, not_equal}
@@ -74,6 +75,7 @@ pub extend PLSOptions with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Options for sparse PLS computation.
+#derive(Eq, Debug)
 pub struct SPLSOptions {
   ncomp : Int32
   keep_x : Array[Int32]
@@ -81,7 +83,7 @@ pub struct SPLSOptions {
   scale : Bool
   max_iter : Int32
   tol : Double
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend SPLSOptions with Eq::{equal, not_equal}
@@ -91,6 +93,7 @@ pub extend SPLSOptions with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Options for DIABLO multi-block integration.
+#derive(Eq, Debug)
 pub struct DIABLOOptions {
   ncomp : Int32
   keep_variables : Array[Array[Int32]]
@@ -98,7 +101,7 @@ pub struct DIABLOOptions {
   scale : Bool
   max_iter : Int32
   tol : Double
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend DIABLOOptions with Eq::{equal, not_equal}

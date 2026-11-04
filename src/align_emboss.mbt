@@ -13,10 +13,11 @@ pub suberror AlignEmbossError {
 
 ///|
 /// Orientation of a sequence row in an EMBOSS alignment.
+#derive(Eq, Debug)
 pub(all) enum AlignEmbossStrand {
   AlignEmbossForward
   AlignEmbossReverse
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend AlignEmbossStrand with Eq::{equal, not_equal}
@@ -26,13 +27,14 @@ pub extend AlignEmbossStrand with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// File-level metadata from the EMBOSS report header.
+#derive(Eq, Debug)
 pub struct AlignEmbossMetadata {
   program : String
   rundate : String
   report_file : String
   align_format : String
   command_line : String
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend AlignEmbossMetadata with Eq::{equal, not_equal}
@@ -42,6 +44,7 @@ pub extend AlignEmbossMetadata with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Per-alignment annotations reported by EMBOSS.
+#derive(Eq, Debug)
 pub struct AlignEmbossAnnotations {
   matrix : String
   gap_penalty : Double?
@@ -55,7 +58,7 @@ pub struct AlignEmbossAnnotations {
   longest_similarity : String
   shortest_identity : String
   shortest_similarity : String
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend AlignEmbossAnnotations with Eq::{equal, not_equal}
@@ -70,6 +73,7 @@ pub extend AlignEmbossAnnotations with @moonbitlang/core/debug.Debug::{to_repr}
 /// `start <= end`; reverse rows have `start > end`. `aligned_sequence` is in
 /// displayed alignment orientation and `sequence` is the same row without
 /// gap characters.
+#derive(Eq, Debug)
 pub struct AlignEmbossSequence {
   id : String
   sequence : String
@@ -77,7 +81,7 @@ pub struct AlignEmbossSequence {
   start : Int32
   end : Int32
   strand : AlignEmbossStrand
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend AlignEmbossSequence with Eq::{equal, not_equal}
@@ -87,11 +91,12 @@ pub extend AlignEmbossSequence with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// One parsed EMBOSS pairwise or multiple sequence alignment.
+#derive(Eq, Debug)
 pub struct AlignEmbossAlignment {
   sequences : Array[AlignEmbossSequence]
   consensus : String
   annotations : AlignEmbossAnnotations
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend AlignEmbossAlignment with Eq::{equal, not_equal}
@@ -101,10 +106,11 @@ pub extend AlignEmbossAlignment with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// A complete EMBOSS report containing one or more alignments.
+#derive(Eq, Debug)
 pub struct AlignEmbossDocument {
   metadata : AlignEmbossMetadata
   alignments : Array[AlignEmbossAlignment]
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend AlignEmbossDocument with Eq::{equal, not_equal}
@@ -114,6 +120,7 @@ pub extend AlignEmbossDocument with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Pairwise statistics for two rows in an EMBOSS alignment.
+#derive(Eq, Debug)
 pub struct AlignEmbossPairCounts {
   columns : Int32
   aligned : Int32
@@ -125,7 +132,7 @@ pub struct AlignEmbossPairCounts {
   insertion_opens : Int32
   deletion_opens : Int32
   positives : Int32
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend AlignEmbossPairCounts with Eq::{equal, not_equal}

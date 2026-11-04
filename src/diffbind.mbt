@@ -7,18 +7,20 @@
 
 ///|
 /// Peak file format enumeration.
+#derive(Eq)
 pub enum PeakFormat {
   BedFormat
-} derive(Eq)
+}
 
 ///|
 pub extend PeakFormat with Eq::{equal, not_equal}
 
 ///|
 /// Score type enumeration for peak scoring.
+#derive(Eq)
 pub enum ScoreType {
   DBA_SCORE_READS
-} derive(Eq)
+}
 
 ///|
 pub extend ScoreType with Eq::{equal, not_equal}

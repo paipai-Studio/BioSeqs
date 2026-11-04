@@ -12,11 +12,12 @@ pub suberror AlignTabularError {
 
 ///|
 /// Source used to construct an alignment path.
+#derive(Eq, Debug)
 pub enum AlignTabularTrace {
   NoTrace
   Btop
   Cigar
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend AlignTabularTrace with Eq::{equal, not_equal}
@@ -29,11 +30,12 @@ pub extend AlignTabularTrace with @moonbitlang/core/debug.Debug::{to_repr}
 ///
 /// `Aligned` consumes both rows, `QueryGap` consumes only the target row, and
 /// `TargetGap` consumes only the query row.
+#derive(Eq, Debug)
 pub enum AlignTabularOperation {
   Aligned
   QueryGap
   TargetGap
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend AlignTabularOperation with Eq::{equal, not_equal}
@@ -43,10 +45,11 @@ pub extend AlignTabularOperation with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// One original field/value pair from a tabular row.
+#derive(Eq, Debug)
 pub struct AlignTabularField {
   name : String
   value : String
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend AlignTabularField with Eq::{equal, not_equal}
@@ -56,13 +59,14 @@ pub extend AlignTabularField with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Metadata attached to one BLAST or FASTA query block.
+#derive(Eq, Debug)
 pub struct AlignTabularMetadata {
   program : String
   version : String
   command_line : String
   database : String
   rid : String
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend AlignTabularMetadata with Eq::{equal, not_equal}
@@ -76,6 +80,7 @@ pub extend AlignTabularMetadata with @moonbitlang/core/debug.Debug::{to_repr}
 /// Intervals are zero-based and half-open. Coordinate paths preserve the
 /// reported strand direction. For translated searches, nucleotide axes use
 /// nucleotide coordinates and have `units_per_residue == 3`.
+#derive(Debug)
 pub struct AlignTabularAlignment {
   metadata : AlignTabularMetadata
   query_id : String
@@ -100,13 +105,14 @@ pub struct AlignTabularAlignment {
   target_units_per_residue : Int32
   query_units_per_residue : Int32
   fields : Array[AlignTabularField]
-} derive(Debug)
+}
 
 ///|
 pub extend AlignTabularAlignment with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// One query block, including zero-hit queries.
+#derive(Debug)
 pub struct AlignTabularQueryResult {
   metadata : AlignTabularMetadata
   query_id : String
@@ -116,17 +122,18 @@ pub struct AlignTabularQueryResult {
   field_names : Array[String]
   declared_hits : Int32
   alignments : Array[AlignTabularAlignment]
-} derive(Debug)
+}
 
 ///|
 pub extend AlignTabularQueryResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Complete parsed document.
+#derive(Debug)
 pub struct AlignTabularDocument {
   queries : Array[AlignTabularQueryResult]
   processed_queries : Int32?
-} derive(Debug)
+}
 
 ///|
 pub extend AlignTabularDocument with @moonbitlang/core/debug.Debug::{to_repr}

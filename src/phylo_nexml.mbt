@@ -9,84 +9,92 @@
 
 ///|
 /// NeXML state (for discrete characters).
+#derive(Eq)
 pub struct NeXMLState {
   id : String
   symbol : String
-} derive(Eq)
+}
 
 ///|
 pub extend NeXMLState with Eq::{equal, not_equal}
 
 ///|
 /// NeXML character definition.
+#derive(Eq)
 pub struct NeXMLCharacter {
   id : String
   label : String
   states : Array[String]
-} derive(Eq)
+}
 
 ///|
 pub extend NeXMLCharacter with Eq::{equal, not_equal}
 
 ///|
 /// NeXML characters matrix.
+#derive(Eq)
 pub struct NeXMLCharacters {
   id : String
   otus_id : String
   matrix_type : String
   characters : Array[NeXMLCharacter]
   matrix : Map[String, Array[String]]
-} derive(Eq)
+}
 
 ///|
 pub extend NeXMLCharacters with Eq::{equal, not_equal}
 
 ///|
 /// NeXML OTU (Operational Taxonomic Unit).
+#derive(Eq)
 pub struct NeXMLOTU {
   id : String
   label : String
-} derive(Eq)
+}
 
 ///|
 pub extend NeXMLOTU with Eq::{equal, not_equal}
 
 ///|
 /// NeXML OTUs block.
+#derive(Eq)
 pub struct NeXMLOTUs {
   id : String
   otus : Array[NeXMLOTU]
-} derive(Eq)
+}
 
 ///|
 pub extend NeXMLOTUs with Eq::{equal, not_equal}
 
 ///|
 /// NeXML tree node.
+#derive(Eq)
 pub struct NeXMLNode {
   id : String
   label : String
   otu : String
   length : Double?
-} derive(Eq)
+}
 
 ///|
 pub extend NeXMLNode with Eq::{equal, not_equal}
 
 ///|
 /// NeXML tree edge.
+#derive(Eq)
 pub struct NeXMLEdge {
   id : String
   source : String
   target : String
   length : Double?
-} derive(Eq)
+}
 
 ///|
 pub extend NeXMLEdge with Eq::{equal, not_equal}
 
 ///|
 /// NeXML tree (edges + nodes).
+#derive(Eq)
 pub struct NeXMLTree {
   id : String
   name : String
@@ -94,31 +102,33 @@ pub struct NeXMLTree {
   rooted : Bool
   nodes : Array[NeXMLNode]
   edges : Array[NeXMLEdge]
-} derive(Eq)
+}
 
 ///|
 pub extend NeXMLTree with Eq::{equal, not_equal}
 
 ///|
 /// NeXML trees block.
+#derive(Eq)
 pub struct NeXMLTrees {
   id : String
   otus_id : String
   trees : Array[NeXMLTree]
-} derive(Eq)
+}
 
 ///|
 pub extend NeXMLTrees with Eq::{equal, not_equal}
 
 ///|
 /// NeXML document root.
+#derive(Eq)
 pub struct NeXMLDocument {
   version : String
   generator : String
   otus_blocks : Array[NeXMLOTUs]
   characters_blocks : Array[NeXMLCharacters]
   trees_blocks : Array[NeXMLTrees]
-} derive(Eq)
+}
 
 ///|
 pub extend NeXMLDocument with Eq::{equal, not_equal}

@@ -10,35 +10,39 @@ pub suberror DreamletError {
 }
 
 ///|
+#derive(Debug)
 pub enum DreamletEffectKind {
   Numeric
   Categorical
   Random
-} derive(Debug)
+}
 
 ///|
 pub extend DreamletEffectKind with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Debug)
 pub struct DreamletEffectSpec {
   name : String
   kind : DreamletEffectKind
   reference : String
-} derive(Debug)
+}
 
 ///|
 pub extend DreamletEffectSpec with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Debug)
 pub struct DreamletModelSpec {
   effects : Array[DreamletEffectSpec]
   intercept : Bool
-} derive(Debug)
+}
 
 ///|
 pub extend DreamletModelSpec with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Debug)
 pub struct DreamletPseudobulkAssay {
   cluster_id : String
   sample_names : Array[String]
@@ -46,22 +50,24 @@ pub struct DreamletPseudobulkAssay {
   cell_counts : Array[Int32]
   library_sizes : Array[Double]
   metadata : Map[String, Array[String]]
-} derive(Debug)
+}
 
 ///|
 pub extend DreamletPseudobulkAssay with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Debug)
 pub struct DreamletPseudobulk {
   gene_names : Array[String]
   sample_names : Array[String]
   assays : Array[DreamletPseudobulkAssay]
-} derive(Debug)
+}
 
 ///|
 pub extend DreamletPseudobulk with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Debug)
 pub struct DreamletProcessConfig {
   min_cells : Int32
   min_count : Double
@@ -76,30 +82,33 @@ pub struct DreamletProcessConfig {
   rescale_initial_weights : Bool
   max_iterations : Int32
   tolerance : Double
-} derive(Debug)
+}
 
 ///|
 pub extend DreamletProcessConfig with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Debug)
 pub struct DreamletTmmResult {
   factors : Array[Double]
   reference_sample : Int32
-} derive(Debug)
+}
 
 ///|
 pub extend DreamletTmmResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Debug)
 pub struct DreamletExclusion {
   cluster_id : String
   reason : String
-} derive(Debug)
+}
 
 ///|
 pub extend DreamletExclusion with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Debug)
 pub struct DreamletProcessedAssay {
   cluster_id : String
   sample_names : Array[String]
@@ -122,31 +131,34 @@ pub struct DreamletProcessedAssay {
   voom_x : Array[Double]
   voom_y : Array[Double]
   voom_fitted : Array[Double]
-} derive(Debug)
+}
 
 ///|
 pub extend DreamletProcessedAssay with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Debug)
 pub struct DreamletProcessedData {
   assays : Array[DreamletProcessedAssay]
   exclusions : Array[DreamletExclusion]
   config : DreamletProcessConfig
-} derive(Debug)
+}
 
 ///|
 pub extend DreamletProcessedData with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Debug)
 pub struct DreamletAssayResult {
   cluster_id : String
   result : DreamResult
-} derive(Debug)
+}
 
 ///|
 pub extend DreamletAssayResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Debug)
 pub struct DreamletGeneResult {
   cluster_id : String
   gene_name : String
@@ -160,19 +172,20 @@ pub struct DreamletGeneResult {
   converged : Bool
   random_variances : Array[Double]
   residual_variance : Double
-} derive(Debug)
+}
 
 ///|
 pub extend DreamletGeneResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Debug)
 pub struct DreamletResult {
   contrast_name : String
   coefficient_name : String
   assays : Array[DreamletAssayResult]
   genes : Array[DreamletGeneResult]
   exclusions : Array[DreamletExclusion]
-} derive(Debug)
+}
 
 ///|
 pub extend DreamletResult with @moonbitlang/core/debug.Debug::{to_repr}

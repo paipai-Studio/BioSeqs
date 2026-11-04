@@ -16,19 +16,21 @@ pub suberror ParquetError {
 
 ///|
 /// 列物理类型(parquet 常用子集).
+#derive(Eq)
 pub(all) enum ParquetType {
   PBool
   PInt32
   PInt64
   PDouble
   PStr
-} derive(Eq)
+}
 
 ///|
 pub extend ParquetType with Eq::{equal, not_equal}
 
 ///|
 /// 列值(NULL 语义对齐 parquet 可空列).
+#derive(Eq, Debug)
 pub(all) enum ParquetValue {
   PvNull
   PvBool(Bool)
@@ -36,7 +38,7 @@ pub(all) enum ParquetValue {
   PvLong(Int64)
   PvDouble(Double)
   PvStr(String)
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend ParquetValue with Eq::{equal, not_equal}

@@ -14,11 +14,12 @@ pub suberror ScuttleError {
 }
 
 ///|
+#derive(Eq, Debug)
 pub enum ScuttleOutlierDirection {
   ScuttleBoth
   ScuttleLower
   ScuttleHigher
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend ScuttleOutlierDirection with Eq::{equal, not_equal}
@@ -27,11 +28,12 @@ pub extend ScuttleOutlierDirection with Eq::{equal, not_equal}
 pub extend ScuttleOutlierDirection with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Eq, Debug)
 pub enum ScuttleBatchSummary {
   ScuttleBatchMedian
   ScuttleBatchMean
   ScuttleBatchGeometricMean
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend ScuttleBatchSummary with Eq::{equal, not_equal}

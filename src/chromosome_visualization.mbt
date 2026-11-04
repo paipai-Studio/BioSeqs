@@ -12,11 +12,12 @@
 
 ///|
 /// Orientation of a feature on the chromosome.
+#derive(Eq)
 pub enum ChrOrientation {
   Forward
   Reverse
   None
-} derive(Eq)
+}
 
 ///|
 pub extend ChrOrientation with Eq::{equal, not_equal}
@@ -41,6 +42,7 @@ pub fn chr_orientation_none() -> ChrOrientation {
 
 ///|
 /// Type of a genomic feature.
+#derive(Eq)
 #warnings("-unused_constructor")
 pub enum ChrFeatureType {
   Gene
@@ -49,7 +51,7 @@ pub enum ChrFeatureType {
   CDS
   UTR
   Promoter
-} derive(Eq)
+}
 
 ///|
 pub extend ChrFeatureType with Eq::{equal, not_equal}

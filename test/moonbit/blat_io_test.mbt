@@ -181,7 +181,6 @@ test "blat-psl parse: nucleotide rows grouped into qresults and hits" {
   assert_eq(nuc[1].hits[0].hsps[0].blocks[0].hit_strand, 1)
   assert_eq(nuc[1].hits[0].hsps[0].blocks[0].query_seq, "")
   assert_eq(nuc[1].hits[0].hsps[0].blocks[0].hit_seq, "")
-  println("nuc structure ok")
 }
 
 ///|
@@ -260,7 +259,6 @@ test "blat-psl parse: single-char strand and protein query" {
   assert_eq(mix[1].hits[0].hsps[0].blocks[1].hit_strand, 1)
   assert_eq(mix[1].hits[0].hsps[0].blocks[1].query_seq, "")
   assert_eq(mix[1].hits[0].hsps[0].blocks[1].hit_seq, "")
-  println("mix structure ok")
 }
 
 ///|
@@ -345,7 +343,6 @@ test "blat-pslx parse: block sequences and minus/plus strands" {
   assert_eq(pslx_res[0].hits[1].hsps[0].blocks[1].hit_strand, 1)
   assert_eq(pslx_res[0].hits[1].hsps[0].blocks[1].query_seq, "TGCATGCA")
   assert_eq(pslx_res[0].hits[1].hsps[0].blocks[1].hit_seq, "TGC-TGCA")
-  println("pslx structure ok")
 }
 
 ///|
@@ -561,7 +558,6 @@ test "blat-psl round trip: re-parsed writer output matches Biopython" {
   assert_eq(rt_nuc[1].hits[0].hsps[0].blocks[0].hit_strand, 1)
   assert_eq(rt_nuc[1].hits[0].hsps[0].blocks[0].query_seq, "")
   assert_eq(rt_nuc[1].hits[0].hsps[0].blocks[0].hit_seq, "")
-  println("roundtrip nuc structure ok")
 }
 
 ///|
@@ -652,7 +648,6 @@ test "blat-pslx round trip: sequences survive writing" {
   assert_eq(rt_pslx[0].hits[1].hsps[0].blocks[1].hit_strand, 1)
   assert_eq(rt_pslx[0].hits[1].hsps[0].blocks[1].query_seq, "TGCATGCA")
   assert_eq(rt_pslx[0].hits[1].hsps[0].blocks[1].hit_seq, "TGC-TGCA")
-  println("roundtrip pslx structure ok")
 }
 
 ///|

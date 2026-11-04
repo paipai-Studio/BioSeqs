@@ -11,6 +11,7 @@ pub suberror BanksyError {
 }
 
 ///|
+#derive(Eq, Debug)
 pub(all) enum BanksySpatialMode {
   BanksyKnnMedian
   BanksyKnnInverseDistance
@@ -18,7 +19,7 @@ pub(all) enum BanksySpatialMode {
   BanksyKnnRank
   BanksyKnnUniform
   BanksyRadiusGaussian
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend BanksySpatialMode with Eq::{equal, not_equal}
@@ -57,6 +58,7 @@ pub fn banksy_radius_gaussian() -> BanksySpatialMode {
 }
 
 ///|
+#derive(Debug)
 pub struct BanksyComputeConfig {
   max_harmonic : Int32
   k_geom : Array[Int32]
@@ -69,7 +71,7 @@ pub struct BanksyComputeConfig {
   sample_renormalize : Bool
   seed : Int32
   center_harmonics : Bool
-} derive(Debug)
+}
 
 ///|
 pub extend BanksyComputeConfig with @moonbitlang/core/debug.Debug::{to_repr}
@@ -152,12 +154,13 @@ pub fn BanksyComputeConfig::default() -> BanksyComputeConfig {
 }
 
 ///|
+#derive(Eq, Debug)
 pub struct BanksyNeighbor {
   index : Int32
   distance : Double
   weight : Double
   angle : Double
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend BanksyNeighbor with Eq::{equal, not_equal}
@@ -166,6 +169,7 @@ pub extend BanksyNeighbor with Eq::{equal, not_equal}
 pub extend BanksyNeighbor with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Debug)
 pub struct BanksyModel {
   expression : Array[Array[Double]]
   coordinates : Array[Array[Double]]
@@ -174,12 +178,13 @@ pub struct BanksyModel {
   harmonics : Array[Array[Array[Double]]]
   neighbors : Array[Array[Array[BanksyNeighbor]]]
   config : BanksyComputeConfig
-} derive(Debug)
+}
 
 ///|
 pub extend BanksyModel with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Debug)
 pub struct BanksyMatrix {
   values : Array[Array[Double]]
   feature_names : Array[String]
@@ -187,31 +192,33 @@ pub struct BanksyMatrix {
   lambda : Double
   max_harmonic : Int32
   scaled : Bool
-} derive(Debug)
+}
 
 ///|
 pub extend BanksyMatrix with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Debug)
 pub struct BanksyPcaResult {
   scores : Array[Array[Double]]
   loadings : Array[Array[Double]]
   eigenvalues : Array[Double]
   variance_explained : Array[Double]
   n_components : Int32
-} derive(Debug)
+}
 
 ///|
 pub extend BanksyPcaResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Eq, Debug)
 pub struct BanksyClusterConfig {
   n_clusters : Int32
   n_starts : Int32
   max_iterations : Int32
   tolerance : Double
   seed : Int32
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend BanksyClusterConfig with Eq::{equal, not_equal}
@@ -263,6 +270,7 @@ pub fn BanksyClusterConfig::default() -> BanksyClusterConfig {
 }
 
 ///|
+#derive(Debug)
 pub struct BanksyClusterResult {
   labels : Array[Int32]
   centroids : Array[Array[Double]]
@@ -271,18 +279,19 @@ pub struct BanksyClusterResult {
   iterations : Int32
   converged : Bool
   silhouette : Double
-} derive(Debug)
+}
 
 ///|
 pub extend BanksyClusterResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Eq, Debug)
 pub struct BanksySmoothingResult {
   labels : Array[Int32]
   iterations : Int32
   changed_labels : Int32
   converged : Bool
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend BanksySmoothingResult with Eq::{equal, not_equal}
@@ -291,6 +300,7 @@ pub extend BanksySmoothingResult with Eq::{equal, not_equal}
 pub extend BanksySmoothingResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Debug)
 pub struct BanksyRun {
   lambda : Double
   matrix : BanksyMatrix
@@ -298,7 +308,7 @@ pub struct BanksyRun {
   clustering : BanksyClusterResult
   smoothing : BanksySmoothingResult?
   spatial_agreement : Double
-} derive(Debug)
+}
 
 ///|
 pub extend BanksyRun with @moonbitlang/core/debug.Debug::{to_repr}

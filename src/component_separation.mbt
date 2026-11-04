@@ -8,6 +8,7 @@
 
 ///|
 /// Classification of a single residue.
+#derive(Eq, Debug)
 pub enum ResidueClass {
   Protein
   Nucleic
@@ -15,7 +16,7 @@ pub enum ResidueClass {
   Ion
   Ligand
   Other
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend ResidueClass with Eq::{equal, not_equal}

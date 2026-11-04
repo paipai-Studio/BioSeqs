@@ -8,6 +8,7 @@
 
 ///|
 /// Fragment classification types based on DSSP assignments.
+#derive(Eq, Debug)
 pub enum FragmentType {
   Helix
   Sheet
@@ -15,7 +16,7 @@ pub enum FragmentType {
   Coil
   Bridge
   Turn
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend FragmentType with Eq::{equal, not_equal}
@@ -61,13 +62,14 @@ pub fn ft_turn() -> FragmentType {
 
 ///|
 /// A single residue within a fragment.
+#derive(Eq, Debug)
 pub struct FragmentResidue {
   res_name : String
   res_num : Int32
   atom_count : Int32
   is_c_alpha : Bool
   is_sidechain : Bool
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend FragmentResidue with Eq::{equal, not_equal}
@@ -77,6 +79,7 @@ pub extend FragmentResidue with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// A protein structure fragment.
+#derive(Eq, Debug)
 pub struct Fragment {
   id : String
   start_residue : Int32
@@ -84,7 +87,7 @@ pub struct Fragment {
   chain_id : String
   fragment_type : FragmentType
   residues : Array[FragmentResidue]
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend Fragment with Eq::{equal, not_equal}

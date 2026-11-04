@@ -63,12 +63,13 @@ pub fn ref_method_custom(ref_profile : Array[Double]) -> ReferenceMethod {
 
 ///|
 /// Genomic position of a gene.
+#derive(Debug, Default)
 pub struct GenePosition {
   gene_id : String
   chromosome : String
   start : Int32
   end : Int32
-} derive(Debug, Default)
+}
 
 ///|
 pub extend GenePosition with @moonbitlang/core/debug.Debug::{to_repr}
@@ -89,10 +90,11 @@ pub fn gene_position(
 
 ///|
 /// An ordered gene set together with per-gene genomic positions.
+#derive(Debug, Default)
 pub struct OrderedGenes {
   gene_order : Array[GenePosition] // sorted by chr, then start position
   n_genes : Int32
-} derive(Debug, Default)
+}
 
 ///|
 pub extend OrderedGenes with @moonbitlang/core/debug.Debug::{to_repr}
@@ -177,10 +179,11 @@ pub fn exclude_chromosomes(
 
 ///|
 /// Cell metadata record.
+#derive(Debug, Default)
 pub struct CellAnnotation {
   cell_id : String
   category : String // e.g. cell type / sample label
-} derive(Debug, Default)
+}
 
 ///|
 pub extend CellAnnotation with @moonbitlang/core/debug.Debug::{to_repr}
@@ -199,13 +202,14 @@ pub fn cell_annotation(cell_id : String, category : String) -> CellAnnotation {
 /// Rows of `expression` are cells; columns are genes in the order of
 /// `ordered_genes.gene_order`. Values are expected to be log-normalized
 /// (typically log2(TP100K+1)). Use `log_normalize_counts` if you have raw counts.
+#derive(Debug, Default)
 pub struct InferCNVInput {
   n_cells : Int32
   n_genes : Int32
   expression : Array[Array[Double]] // cell x gene (ordered)
   annotations : Array[CellAnnotation] // length n_cells
   ordered_genes : OrderedGenes
-} derive(Debug, Default)
+}
 
 ///|
 pub extend InferCNVInput with @moonbitlang/core/debug.Debug::{to_repr}

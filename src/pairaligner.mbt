@@ -20,10 +20,11 @@
 
 ///|
 /// Alignment mode: Global (Needleman-Wunsch) or Local (Smith-Waterman).
+#derive(Eq, Debug)
 pub enum AlignmentMode {
   Global
   Local
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend AlignmentMode with Eq::{equal, not_equal}
@@ -45,10 +46,11 @@ pub fn pairaligner_local() -> AlignmentMode {
 
 ///|
 /// Substitution matrix choice for protein alignment.
+#derive(Eq, Debug)
 pub enum SubstitutionMatrixChoice {
   NoSubstMatrix
   Blosum62
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend SubstitutionMatrixChoice with Eq::{equal, not_equal}

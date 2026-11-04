@@ -10,10 +10,11 @@ pub suberror PslError {
 }
 
 ///|
+#derive(Eq, Debug)
 pub(all) enum PslSequenceType {
   PslNucleotide
   PslProtein
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend PslSequenceType with Eq::{equal, not_equal}
@@ -22,11 +23,12 @@ pub extend PslSequenceType with Eq::{equal, not_equal}
 pub extend PslSequenceType with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Eq, Debug)
 pub(all) enum PslMaskMode {
   PslNoMask
   PslMaskLower
   PslMaskUpper
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend PslMaskMode with Eq::{equal, not_equal}
@@ -35,6 +37,7 @@ pub extend PslMaskMode with Eq::{equal, not_equal}
 pub extend PslMaskMode with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Eq, Debug)
 pub struct PslBlock {
   target_start : Int32
   target_end : Int32
@@ -44,7 +47,7 @@ pub struct PslBlock {
   query_size : Int32
   query_sequence : String
   target_sequence : String
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend PslBlock with Eq::{equal, not_equal}
@@ -53,6 +56,7 @@ pub extend PslBlock with Eq::{equal, not_equal}
 pub extend PslBlock with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
+#derive(Eq, Debug)
 pub struct PslCounts {
   aligned_query_units : Int32
   query_insert_count : Int32
@@ -60,7 +64,7 @@ pub struct PslCounts {
   target_insert_count : Int32
   target_insert_bases : Int32
   block_count : Int32
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend PslCounts with Eq::{equal, not_equal}

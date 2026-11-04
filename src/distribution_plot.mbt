@@ -10,10 +10,11 @@
 
 ///|
 /// A 2D point used by scatter and line plots.
+#derive(Eq)
 pub struct PlotPoint {
   x : Double
   y : Double
-} derive(Eq)
+}
 
 ///|
 pub extend PlotPoint with Eq::{equal, not_equal}
@@ -25,11 +26,12 @@ pub fn PlotPoint::new(x~ : Double, y~ : Double) -> PlotPoint {
 
 ///|
 /// A labeled series with an SVG stroke/fill color.
+#derive(Eq)
 pub struct PlotSeries {
   points : Array[PlotPoint]
   color : String
   label : String
-} derive(Eq)
+}
 
 ///|
 pub extend PlotSeries with Eq::{equal, not_equal}
@@ -45,23 +47,25 @@ pub fn PlotSeries::new(
 
 ///|
 /// One histogram bin: half-open `[lo, hi)` with `count` observations.
+#derive(Eq)
 pub struct HistBin {
   lo : Double
   hi : Double
   count : Int32
-} derive(Eq)
+}
 
 ///|
 pub extend HistBin with Eq::{equal, not_equal}
 
 ///|
 /// Histogram data: bin edges plus counts, ready to render.
+#derive(Eq)
 pub struct Histogram {
   bins : Array[HistBin]
   data_min : Double
   data_max : Double
   total : Int32
-} derive(Eq)
+}
 
 ///|
 pub extend Histogram with Eq::{equal, not_equal}
@@ -137,9 +141,10 @@ pub fn Histogram::max_count(self : Histogram) -> Int32 {
 
 ///|
 /// A scatter plot of one or more series.
+#derive(Eq)
 pub struct ScatterPlot {
   series : Array[PlotSeries]
-} derive(Eq)
+}
 
 ///|
 pub extend ScatterPlot with Eq::{equal, not_equal}
@@ -151,9 +156,10 @@ pub fn ScatterPlot::new(series~ : Array[PlotSeries]) -> ScatterPlot {
 
 ///|
 /// A line plot of one or more series (each rendered as a polyline).
+#derive(Eq)
 pub struct LinePlot {
   series : Array[PlotSeries]
-} derive(Eq)
+}
 
 ///|
 pub extend LinePlot with Eq::{equal, not_equal}
@@ -165,23 +171,25 @@ pub fn LinePlot::new(series~ : Array[PlotSeries]) -> LinePlot {
 
 ///|
 /// One panel of a distribution page.
+#derive(Eq)
 pub(all) enum PlotPanel {
   HistPanel(String, Histogram)
   ScatterPanel(String, ScatterPlot)
   LinePanel(String, LinePlot)
-} derive(Eq)
+}
 
 ///|
 pub extend PlotPanel with Eq::{equal, not_equal}
 
 ///|
 /// A grid of panels rendered together, mirroring `DistributionPage`.
+#derive(Eq)
 pub struct DistributionPage {
   title : String
   rows : Int32
   cols : Int32
   panels : Array[PlotPanel]
-} derive(Eq)
+}
 
 ///|
 pub extend DistributionPage with Eq::{equal, not_equal}

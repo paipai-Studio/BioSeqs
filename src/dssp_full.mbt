@@ -15,6 +15,7 @@
 
 ///|
 /// DSSP 8-state secondary structure types.
+#derive(Eq, Debug)
 pub enum DSSPType {
   DSSP_H // H
   DSSP_G // G
@@ -24,7 +25,7 @@ pub enum DSSPType {
   DSSP_T // T
   DSSP_S // S
   DSSP_C // -
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend DSSPType with Eq::{equal, not_equal}

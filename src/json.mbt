@@ -4,6 +4,7 @@
 /// string extraction.
 
 ///|
+#derive(Debug)
 pub(all) enum JsonValue {
   JsonNull
   JsonBool(Bool)
@@ -11,7 +12,7 @@ pub(all) enum JsonValue {
   JsonStr(String)
   JsonArr(Array[JsonValue])
   JsonObj(Map[String, JsonValue])
-} derive(Debug)
+}
 
 ///|
 pub extend JsonValue with @moonbitlang/core/debug.Debug::{to_repr}

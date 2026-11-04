@@ -1,10 +1,11 @@
 ///|
 /// A single genomic interval (0-based, half-open [start, end]).
 /// Ported from htslib synced_bcf_reader.c region1_t.
+#derive(Eq)
 pub struct Region1 {
   start : Int32
   end : Int32
-} derive(Eq)
+}
 
 ///|
 pub extend Region1 with Eq::{equal, not_equal}
@@ -508,13 +509,14 @@ pub fn pair_compatible(
 
 ///|
 /// A minimal VCF variant record for synced reading.
+#derive(Eq)
 pub struct SyncVariant {
   chrom : String
   pos : Int32 // 0-based position
   ref_allele : String
   alts : Array[String]
   id : String
-} derive(Eq)
+}
 
 ///|
 pub extend SyncVariant with Eq::{equal, not_equal}

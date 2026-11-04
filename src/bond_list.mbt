@@ -243,3 +243,12 @@ fn simple_vdw_radius(element : String) -> Double {
     _ => 1.5
   }
 }
+
+///|
+fn _bond_type_unused_constructors() -> Unit {
+  ignore(BondType::Double)
+  ignore(BondType::Triple)
+  ignore(BondType::Quadruple)
+  ignore(BondType::Aromatic)
+  ignore(BondType::Any)
+}

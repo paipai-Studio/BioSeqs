@@ -38,12 +38,13 @@ pub let ncbi_blast_programs : Array[String] = [
 
 ///|
 /// Status of a submitted NCBI BLAST search.
+#derive(Debug)
 pub enum NcbiBlastStatus {
   Waiting
   Ready
   Failed
   Unknown
-} derive(Debug)
+}
 
 ///|
 pub extend NcbiBlastStatus with @moonbitlang/core/debug.Debug::{to_repr}

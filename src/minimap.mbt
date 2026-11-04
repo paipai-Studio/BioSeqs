@@ -733,11 +733,12 @@ pub fn minimap_align_batch(
 
 ///|
 /// 比对预设: map-ont(低噪声 ONT) / map-pb(HiFi) / map-sr(短读).
+#derive(Eq, Debug)
 pub(all) enum MinimapPreset {
   MapOnt
   MapPb
   MapSr
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend MinimapPreset with Eq::{equal, not_equal}

@@ -14,10 +14,11 @@ pub suberror A2mError {
 
 ///|
 /// State assigned to an A2M alignment column.
+#derive(Eq, Debug)
 pub(all) enum A2mColumnState {
   A2mMatch
   A2mInsertion
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend A2mColumnState with Eq::{equal, not_equal}
@@ -30,12 +31,13 @@ pub extend A2mColumnState with @moonbitlang/core/debug.Debug::{to_repr}
 ///
 /// `aligned_sequence` contains upper-case residues and '-' gaps. `sequence`
 /// contains the ungapped residues.
+#derive(Eq, Debug)
 pub struct A2mSequence {
   id : String
   description : String
   sequence : String
   aligned_sequence : String
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend A2mSequence with Eq::{equal, not_equal}
@@ -48,10 +50,11 @@ pub extend A2mSequence with @moonbitlang/core/debug.Debug::{to_repr}
 ///
 /// `states` contains one `D` (model match/deletion) or `I` (insertion) for
 /// each alignment column, following Biopython's column annotation convention.
+#derive(Eq, Debug)
 pub struct A2mAlignment {
   sequences : Array[A2mSequence]
   states : String
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend A2mAlignment with Eq::{equal, not_equal}
@@ -65,12 +68,13 @@ pub extend A2mAlignment with @moonbitlang/core/debug.Debug::{to_repr}
 /// `slot` is the number of match columns preceding the run. Therefore slot 0
 /// is before the first match column and slot `match_columns()` is after the
 /// final match column.
+#derive(Eq, Debug)
 pub struct A2mInsertionRun {
   slot : Int32
   start_column : Int32
   end_column : Int32
   width : Int32
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend A2mInsertionRun with Eq::{equal, not_equal}
@@ -80,6 +84,7 @@ pub extend A2mInsertionRun with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Pairwise statistics for two rows in an A2M alignment.
+#derive(Eq, Debug)
 pub struct A2mPairCounts {
   columns : Int32
   aligned : Int32
@@ -89,7 +94,7 @@ pub struct A2mPairCounts {
   double_gap_columns : Int32
   match_aligned : Int32
   insertion_aligned : Int32
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend A2mPairCounts with Eq::{equal, not_equal}

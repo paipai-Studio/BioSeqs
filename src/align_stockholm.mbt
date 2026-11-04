@@ -14,11 +14,12 @@ pub suberror AlignStockholmError {
 /// A mapped GF or GS annotation.
 ///
 /// `code` is the Stockholm tag and `feature` is Biopython's descriptive name.
+#derive(Eq, Debug)
 pub struct AlignStockholmAnnotation {
   code : String
   feature : String
   value : String
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend AlignStockholmAnnotation with Eq::{equal, not_equal}
@@ -30,11 +31,12 @@ pub extend AlignStockholmAnnotation with @moonbitlang/core/debug.Debug::{
 
 ///|
 /// A mapped GC annotation with one character per retained alignment column.
+#derive(Eq, Debug)
 pub struct AlignStockholmColumnAnnotation {
   code : String
   feature : String
   value : String
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend AlignStockholmColumnAnnotation with Eq::{equal, not_equal}
@@ -49,12 +51,13 @@ pub extend AlignStockholmColumnAnnotation with @moonbitlang/core/debug.Debug::{
 ///
 /// `value` contains one character per ungapped residue. `aligned_value`
 /// contains one character per retained alignment column.
+#derive(Eq, Debug)
 pub struct AlignStockholmLetterAnnotation {
   code : String
   feature : String
   value : String
   aligned_value : String
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend AlignStockholmLetterAnnotation with Eq::{equal, not_equal}
@@ -66,6 +69,7 @@ pub extend AlignStockholmLetterAnnotation with @moonbitlang/core/debug.Debug::{
 
 ///|
 /// One structured Stockholm reference.
+#derive(Eq, Debug)
 pub struct AlignStockholmReference {
   number : Int32
   medline : String
@@ -73,7 +77,7 @@ pub struct AlignStockholmReference {
   author : String
   location : String
   comment : String
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend AlignStockholmReference with Eq::{equal, not_equal}
@@ -83,10 +87,11 @@ pub extend AlignStockholmReference with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// One structured database reference.
+#derive(Eq, Debug)
 pub struct AlignStockholmDatabaseReference {
   reference : String
   comment : String
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend AlignStockholmDatabaseReference with Eq::{equal, not_equal}
@@ -98,10 +103,11 @@ pub extend AlignStockholmDatabaseReference with @moonbitlang/core/debug.Debug::{
 
 ///|
 /// One nested-domain annotation.
+#derive(Eq, Debug)
 pub struct AlignStockholmNestedDomain {
   accession : String
   location : String
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend AlignStockholmNestedDomain with Eq::{equal, not_equal}
@@ -113,6 +119,7 @@ pub extend AlignStockholmNestedDomain with @moonbitlang/core/debug.Debug::{
 
 ///|
 /// One sequence row and its GS/GR annotations.
+#derive(Eq, Debug)
 pub struct AlignStockholmSequence {
   id : String
   description : String
@@ -121,7 +128,7 @@ pub struct AlignStockholmSequence {
   annotations : Array[AlignStockholmAnnotation]
   dbxrefs : Array[String]
   letter_annotations : Array[AlignStockholmLetterAnnotation]
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend AlignStockholmSequence with Eq::{equal, not_equal}
@@ -135,6 +142,7 @@ pub extend AlignStockholmSequence with @moonbitlang/core/debug.Debug::{to_repr}
 /// `operations` contains one `M`, `D`, or `I` per retained column. A source
 /// `-` gap marks a deletion column and a source `.` gap marks an insertion
 /// column, matching Biopython's `Bio.Align.stockholm` behavior.
+#derive(Eq, Debug)
 pub struct AlignStockholmAlignment {
   version : String
   sequences : Array[AlignStockholmSequence]
@@ -146,7 +154,7 @@ pub struct AlignStockholmAlignment {
   operations : String
   source_columns : Int32
   removed_all_gap_columns : Int32
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend AlignStockholmAlignment with Eq::{equal, not_equal}
@@ -156,6 +164,7 @@ pub extend AlignStockholmAlignment with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Pairwise or all-pairs Stockholm alignment statistics.
+#derive(Eq, Debug)
 pub struct AlignStockholmCounts {
   pairs : Int32
   aligned : Int32
@@ -164,7 +173,7 @@ pub struct AlignStockholmCounts {
   gap_columns : Int32
   double_gap_columns : Int32
   gap_opens : Int32
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend AlignStockholmCounts with Eq::{equal, not_equal}

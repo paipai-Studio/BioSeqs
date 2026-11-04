@@ -41,10 +41,11 @@ pub struct ScrapperRnaQcResult {
 }
 
 ///|
+#derive(Eq, Debug)
 pub enum ScrapperCenterMode {
   Lowest
   PerBlock
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend ScrapperCenterMode with Eq::{equal, not_equal}

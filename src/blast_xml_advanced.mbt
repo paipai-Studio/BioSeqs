@@ -11,10 +11,11 @@ pub suberror BlastXmlError {
 
 ///|
 /// NCBI BLAST XML dialect.
+#derive(Eq, Debug)
 pub(all) enum BlastXmlFormat {
   Xml1
   Xml2
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend BlastXmlFormat with Eq::{equal, not_equal}
@@ -24,10 +25,11 @@ pub extend BlastXmlFormat with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// One masked interval on the query, using zero-based half-open coordinates.
+#derive(Eq, Debug)
 pub struct BlastXmlMask {
   start : Int32
   end : Int32
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend BlastXmlMask with Eq::{equal, not_equal}
@@ -37,13 +39,14 @@ pub extend BlastXmlMask with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Query metadata for one BLAST record.
+#derive(Eq, Debug)
 pub struct BlastXmlQuery {
   id : String
   description : String
   length : Int32
   sequence : String?
   masks : Array[BlastXmlMask]
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend BlastXmlQuery with Eq::{equal, not_equal}
@@ -53,6 +56,7 @@ pub extend BlastXmlQuery with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Search parameters stored in a BLAST XML header.
+#derive(Eq, Debug)
 pub struct BlastXmlParameters {
   matrix : String?
   expect : Double
@@ -68,7 +72,7 @@ pub struct BlastXmlParameters {
   query_genetic_code : Int32?
   database_genetic_code : Int32?
   bl2seq_mode : Int32?
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend BlastXmlParameters with Eq::{equal, not_equal}
@@ -81,6 +85,7 @@ pub extend BlastXmlParameters with @moonbitlang/core/debug.Debug::{to_repr}
 ///
 /// `database_letters` is a `Double` because BLAST databases can exceed the
 /// platform `Int` range. Integer values below 2^53 remain exactly represented.
+#derive(Eq, Debug)
 pub struct BlastXmlStatistics {
   database_sequences : Int32
   database_letters : Double
@@ -89,7 +94,7 @@ pub struct BlastXmlStatistics {
   kappa : Double
   lambda : Double
   entropy : Double
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend BlastXmlStatistics with Eq::{equal, not_equal}
@@ -99,13 +104,14 @@ pub extend BlastXmlStatistics with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// One target description. XML2 can attach several descriptions to one hit.
+#derive(Eq, Debug)
 pub struct BlastXmlDescription {
   id : String
   accession : String
   title : String
   taxid : Int32?
   scientific_name : String?
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend BlastXmlDescription with Eq::{equal, not_equal}
@@ -118,10 +124,11 @@ pub extend BlastXmlDescription with @moonbitlang/core/debug.Debug::{to_repr}
 ///
 /// Coordinates are zero-based boundaries. Reverse-strand axes decrease.
 /// Translated nucleotide axes move in steps of three.
+#derive(Eq, Debug)
 pub struct BlastXmlCoordinate {
   target : Int32
   query : Int32
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend BlastXmlCoordinate with Eq::{equal, not_equal}
@@ -131,6 +138,7 @@ pub extend BlastXmlCoordinate with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// One high-scoring segment pair.
+#derive(Eq, Debug)
 pub struct BlastXmlHsp {
   number : Int32
   bit_score : Double
@@ -157,7 +165,7 @@ pub struct BlastXmlHsp {
   coordinates : Array[BlastXmlCoordinate]
   query_coded_by : String?
   target_coded_by : String?
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend BlastXmlHsp with Eq::{equal, not_equal}
@@ -167,12 +175,13 @@ pub extend BlastXmlHsp with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// One BLAST database hit and its HSPs.
+#derive(Eq, Debug)
 pub struct BlastXmlHit {
   number : Int32
   descriptions : Array[BlastXmlDescription]
   length : Int32
   hsps : Array[BlastXmlHsp]
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend BlastXmlHit with Eq::{equal, not_equal}
@@ -182,13 +191,14 @@ pub extend BlastXmlHit with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Results for one query.
+#derive(Eq, Debug)
 pub struct BlastXmlRecord {
   number : Int32
   query : BlastXmlQuery
   hits : Array[BlastXmlHit]
   statistics : BlastXmlStatistics?
   message : String?
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend BlastXmlRecord with Eq::{equal, not_equal}
@@ -198,6 +208,7 @@ pub extend BlastXmlRecord with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// A complete BLAST XML1 or XML2 document.
+#derive(Eq, Debug)
 pub struct BlastXmlDocument {
   format : BlastXmlFormat
   program : String
@@ -208,7 +219,7 @@ pub struct BlastXmlDocument {
   parameters : BlastXmlParameters
   records : Array[BlastXmlRecord]
   megablast_statistics : BlastXmlStatistics?
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend BlastXmlDocument with Eq::{equal, not_equal}
