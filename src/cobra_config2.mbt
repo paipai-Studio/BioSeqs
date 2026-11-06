@@ -69,7 +69,7 @@ pub fn cobra2_show_versions() -> String {
   let _ = sb.write("==================\n")
   let _ = sb.write("OS: linux\n")
   let _ = sb.write("Architecture: arm64\n")
-  let _ = sb.write("BioSeqs: 0.1.12\n")
+  let _ = sb.write("BioSeqs: 0.1.13\n")
   let _ = sb.write("COBRA compatibility: COBRApy v0.32.1\n")
   sb.to_string()
 }
