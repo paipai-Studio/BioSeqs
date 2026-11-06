@@ -3,10 +3,10 @@
 
 ///|
 pub struct Skbio3FourGameteResult {
-  site1 : Int
-  site2 : Int
+  site1 : Int32
+  site2 : Int32
   violates : Bool
-  gametes : Array[String]  // observed gamete types
+  gametes : Array[String] // observed gamete types
 }
 
 ///|
@@ -31,8 +31,8 @@ pub fn skbio3_four_gamete_test(
         let c2 = sequences[s][j]
         let gamete = {
           let sb = StringBuilder()
-          let _ = sb.write_char(Int::unsafe_to_char(c1.to_int()))
-          let _ = sb.write_char(Int::unsafe_to_char(c2.to_int()))
+          let _ = sb.write_char(Int32::unsafe_to_char(c1.to_int()))
+          let _ = sb.write_char(Int32::unsafe_to_char(c2.to_int()))
           sb.to_string()
         }
         let mut found = false
@@ -47,16 +47,14 @@ pub fn skbio3_four_gamete_test(
         }
       }
       let violates = gametes.length() >= 4
-      results.push({ site1: i, site2: j, violates, gametes })
+      results.push({ site1: i, site2: j, violates, gametes, })
     }
   }
   results
 }
 
 ///|
-pub fn skbio3_haplotype_diversity(
-  haplotype_counts : Array[Int],
-) -> Double {
+pub fn skbio3_haplotype_diversity(haplotype_counts : Array[Int32]) -> Double {
   // Haplotype diversity: h = n/(n-1) * (1 - sum(f_i^2))
   // where f_i = frequency of haplotype i, n = total samples
   let mut n = 0
@@ -79,25 +77,31 @@ pub fn skbio3_haplotype_diversity(
 pub struct Skbio3LDResult {
   locus_a : String
   locus_b : String
-  d : Double          // raw D = f_AB - f_A * f_B
-  d_prime : Double    // normalized D'
-  r_squared : Double  // correlation coefficient squared
+  d : Double // raw D = f_AB - f_A * f_B
+  d_prime : Double // normalized D'
+  r_squared : Double // correlation coefficient squared
 }
 
 ///|
 pub fn skbio3_linkage_disequilibrium(
   locus_a_name : String,
   locus_b_name : String,
-  count_AB : Int,
-  count_Ab : Int,
-  count_aB : Int,
-  count_ab : Int,
+  count_AB : Int32,
+  count_Ab : Int32,
+  count_aB : Int32,
+  count_ab : Int32,
 ) -> Skbio3LDResult {
   // Linkage disequilibrium between two loci
   // Gamete frequencies: AB, Ab, aB, ab
   let total = count_AB + count_Ab + count_aB + count_ab
   if total == 0 {
-    return { locus_a: locus_a_name, locus_b: locus_b_name, d: 0.0, d_prime: 0.0, r_squared: 0.0 }
+    return {
+      locus_a: locus_a_name,
+      locus_b: locus_b_name,
+      d: 0.0,
+      d_prime: 0.0,
+      r_squared: 0.0,
+    }
   }
   let t = total.to_double()
   let f_AB = count_AB.to_double() / t
@@ -117,11 +121,19 @@ pub fn skbio3_linkage_disequilibrium(
   let d_max = if d > 0.0 {
     let v1 = f_A * f_b
     let v2 = f_a * f_B
-    if v1 < v2 { v1 } else { v2 }
+    if v1 < v2 {
+      v1
+    } else {
+      v2
+    }
   } else if d < 0.0 {
     let v1 = 0.0 - f_A * f_B
     let v2 = 0.0 - f_a * f_b
-    if v1 > v2 { v1 } else { v2 }
+    if v1 > v2 {
+      v1
+    } else {
+      v2
+    }
   } else {
     1.0
   }
@@ -129,5 +141,5 @@ pub fn skbio3_linkage_disequilibrium(
   // r^2 = D^2 / (f_A * f_a * f_B * f_b)
   let denom = f_A * f_a * f_B * f_b
   let r_squared = if denom > 0.0 { d * d / denom } else { 0.0 }
-  { locus_a: locus_a_name, locus_b: locus_b_name, d, d_prime, r_squared }
+  { locus_a: locus_a_name, locus_b: locus_b_name, d, d_prime, r_squared, }
 }

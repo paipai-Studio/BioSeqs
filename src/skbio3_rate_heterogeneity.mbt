@@ -4,7 +4,7 @@
 ///|
 pub fn skbio3_discrete_gamma_rates(
   alpha : Double,
-  n_categories : Int,
+  n_categories : Int32,
 ) -> Array[Double] {
   // Discrete gamma approximation: divide Gamma(alpha, 1/beta) into n equal-probability categories
   // Return the mean rate of each category
@@ -38,11 +38,8 @@ pub fn skbio3_discrete_gamma_rates(
   rates
 }
 
-fn skbio3_gamma_inv_cdf(
-  p : Double,
-  alpha : Double,
-  beta : Double,
-) -> Double {
+///|
+fn skbio3_gamma_inv_cdf(p : Double, alpha : Double, beta : Double) -> Double {
   // Approximate inverse CDF of Gamma(alpha, beta) using Newton's method
   // Start with a reasonable initial guess: alpha * beta (the mean)
   let mut x = alpha * beta
@@ -71,25 +68,21 @@ fn skbio3_gamma_inv_cdf(
   x
 }
 
-fn skbio3_gamma_pdf(
-  x : Double,
-  alpha : Double,
-  beta : Double,
-) -> Double {
+///|
+fn skbio3_gamma_pdf(x : Double, alpha : Double, beta : Double) -> Double {
   // Gamma PDF: (beta^alpha / Gamma(alpha)) * x^(alpha-1) * exp(-beta*x)
   if x <= 0.0 {
     return 0.0
   }
-  let log_pdf = alpha * @math.ln(beta) - skbio3_log_gamma(alpha) +
-    (alpha - 1.0) * @math.ln(x) - beta * x
+  let log_pdf = alpha * @math.ln(beta) -
+    skbio3_log_gamma(alpha) +
+    (alpha - 1.0) * @math.ln(x) -
+    beta * x
   @math.exp(log_pdf)
 }
 
-fn skbio3_gamma_cdf(
-  x : Double,
-  alpha : Double,
-  beta : Double,
-) -> Double {
+///|
+fn skbio3_gamma_cdf(x : Double, alpha : Double, beta : Double) -> Double {
   // Gamma CDF via series expansion (lower incomplete gamma / complete gamma)
   if x <= 0.0 {
     return 0.0
@@ -105,7 +98,10 @@ fn skbio3_gamma_cdf(
       break
     }
   }
-  let result = @math.exp(alpha * @math.ln(scaled_x) - scaled_x - skbio3_log_gamma(alpha)) * sum
+  let result = @math.exp(
+      alpha * @math.ln(scaled_x) - scaled_x - skbio3_log_gamma(alpha),
+    ) *
+    sum
   if result > 1.0 {
     1.0
   } else if result < 0.0 {
@@ -115,25 +111,19 @@ fn skbio3_gamma_cdf(
   }
 }
 
-fn skbio3_log_gamma(
-  x : Double,
-) -> Double {
+///|
+fn skbio3_log_gamma(x : Double) -> Double {
   // Lanczos approximation for log(Gamma(x))
   let g = 7.0
   let c = [
-    0.99999999999980993,
-    676.5203681218851,
-    -1259.1392167224028,
-    771.32342877765313,
-    -176.61501716214001,
-    12.5073436283956,
-    -0.13857109526572012,
-    9.9843695780195716e-6,
+    0.99999999999980993, 676.5203681218851, -1259.1392167224028, 771.32342877765313,
+    -176.61501716214001, 12.5073436283956, -0.13857109526572012, 9.9843695780195716e-6,
     1.5056327351493116e-7,
   ]
   if x < 0.5 {
     // Reflection formula
-    @math.ln(3.141592653589793 / (@math.sin(3.141592653589793 * x))) - skbio3_log_gamma(1.0 - x)
+    @math.ln(3.141592653589793 / @math.sin(3.141592653589793 * x)) -
+    skbio3_log_gamma(1.0 - x)
   } else {
     let z = x - 1.0
     let mut x0 = c[0]
@@ -141,7 +131,10 @@ fn skbio3_log_gamma(
       x0 = x0 + c[i] / (z + i.to_double())
     }
     let t = z + g + 0.5
-    0.5 * @math.ln(2.0 * 3.141592653589793) + (z + 0.5) * @math.ln(t) - t + @math.ln(x0)
+    0.5 * @math.ln(2.0 * 3.141592653589793) +
+    (z + 0.5) * @math.ln(t) -
+    t +
+    @math.ln(x0)
   }
 }
 
@@ -192,9 +185,7 @@ pub fn skbio3_site_specific_rates(
 }
 
 ///|
-pub fn skbio3_invariant_sites_fraction(
-  alignment : Array[String],
-) -> Double {
+pub fn skbio3_invariant_sites_fraction(alignment : Array[String]) -> Double {
   // Estimate fraction of invariant sites
   let n_sites = if alignment.is_empty() { 0 } else { alignment[0].length() }
   if n_sites == 0 {

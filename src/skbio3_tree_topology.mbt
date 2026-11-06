@@ -30,7 +30,7 @@ pub fn skbio3_triplet_distance(
   bipartitions_a : Array[(Array[String], Array[String])],
   tips_b : Array[String],
   bipartitions_b : Array[(Array[String], Array[String])],
-) -> Int {
+) -> Int32 {
   // Triplet distance: count triplets of taxa with different topologies in two trees
   // A triplet is defined by choosing 3 taxa; the topology is determined by
   // which pair is more closely related (sister)
@@ -44,10 +44,20 @@ pub fn skbio3_triplet_distance(
     let _next = i + 1
     for j in _next..<n {
       let _next = j + 1
-    for k in _next..<n {
+      for k in _next..<n {
         // Get the topology in tree A: which pair is sister?
-        let topo_a = skbio3_triplet_topology(tips_a[i], tips_a[j], tips_a[k], bipartitions_a)
-        let topo_b = skbio3_triplet_topology(tips_b[i], tips_b[j], tips_b[k], bipartitions_b)
+        let topo_a = skbio3_triplet_topology(
+          tips_a[i],
+          tips_a[j],
+          tips_a[k],
+          bipartitions_a,
+        )
+        let topo_b = skbio3_triplet_topology(
+          tips_b[i],
+          tips_b[j],
+          tips_b[k],
+          bipartitions_b,
+        )
         if topo_a != topo_b {
           diff_count = diff_count + 1
         }
@@ -57,12 +67,13 @@ pub fn skbio3_triplet_distance(
   diff_count
 }
 
+///|
 fn skbio3_triplet_topology(
   t1 : String,
   t2 : String,
   t3 : String,
   bipartitions : Array[(Array[String], Array[String])],
-) -> Int {
+) -> Int32 {
   // Determine which pair is sister: returns 0 (t1,t2), 1 (t1,t3), 2 (t2,t3)
   // Check bipartitions: if a bipartition separates {t1,t2} from {t3}, then t1,t2 are sister
   for i in 0..<bipartitions.length() {
@@ -83,13 +94,11 @@ fn skbio3_triplet_topology(
       return 2
     }
   }
-  0  // default
+  0 // default
 }
 
-fn skbio3_in_array(
-  s : String,
-  arr : Array[String],
-) -> Bool {
+///|
+fn skbio3_in_array(s : String, arr : Array[String]) -> Bool {
   for i in 0..<arr.length() {
     if arr[i] == s {
       return true
@@ -104,7 +113,7 @@ pub fn skbio3_quartet_distance(
   bipartitions_a : Array[(Array[String], Array[String])],
   tips_b : Array[String],
   bipartitions_b : Array[(Array[String], Array[String])],
-) -> Int {
+) -> Int32 {
   // Quartet distance: count quartets of taxa with different topologies
   let n = tips_a.length()
   if n < 4 {
@@ -115,11 +124,23 @@ pub fn skbio3_quartet_distance(
     let _next = i + 1
     for j in _next..<n {
       let _next = j + 1
-    for k in _next..<n {
+      for k in _next..<n {
         let _next = k + 1
-    for l in _next..<n {
-          let topo_a = skbio3_quartet_topology(tips_a[i], tips_a[j], tips_a[k], tips_a[l], bipartitions_a)
-          let topo_b = skbio3_quartet_topology(tips_b[i], tips_b[j], tips_b[k], tips_b[l], bipartitions_b)
+        for l in _next..<n {
+          let topo_a = skbio3_quartet_topology(
+            tips_a[i],
+            tips_a[j],
+            tips_a[k],
+            tips_a[l],
+            bipartitions_a,
+          )
+          let topo_b = skbio3_quartet_topology(
+            tips_b[i],
+            tips_b[j],
+            tips_b[k],
+            tips_b[l],
+            bipartitions_b,
+          )
           if topo_a != topo_b {
             diff_count = diff_count + 1
           }
@@ -130,13 +151,14 @@ pub fn skbio3_quartet_distance(
   diff_count
 }
 
+///|
 fn skbio3_quartet_topology(
   t1 : String,
   t2 : String,
   t3 : String,
   t4 : String,
   bipartitions : Array[(Array[String], Array[String])],
-) -> Int {
+) -> Int32 {
   // Quartet topology: which pair of pairs are grouped together
   // Returns: 0 = (t1,t2)|(t3,t4), 1 = (t1,t3)|(t2,t4), 2 = (t1,t4)|(t2,t3)
   for i in 0..<bipartitions.length() {
@@ -163,8 +185,8 @@ fn skbio3_quartet_topology(
 
 ///|
 pub fn skbio3_transfer_bootstrap_expectation(
-  site_supports : Array[Int],
-  n_taxa : Int,
+  site_supports : Array[Int32],
+  n_taxa : Int32,
 ) -> Array[Double] {
   // Transfer Bootstrap Expectation (TBE): for each site, compute TBE support
   // TBE = 1 - (min_transfer_distance / (n_taxa - 3))

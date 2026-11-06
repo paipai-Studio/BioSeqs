@@ -9,11 +9,12 @@ pub fn skbio3_simulate_seq_on_tree(
 ) -> String {
   // Simulate sequence evolution along a single branch
   // Jukes-Cantor model: each site has probability p = 3/4(1 - exp(-4*mu*t/3)) of changing
-  let p_change = 0.75 * (1.0 - @math.exp(-4.0 * mutation_rate * branch_length / 3.0))
+  let p_change = 0.75 *
+    (1.0 - @math.exp(-4.0 * mutation_rate * branch_length / 3.0))
   let n = root_seq.length()
   let sb = StringBuilder()
   for i in 0..<n {
-    let c = Int::unsafe_to_char(root_seq[i].to_int())
+    let c = Int32::unsafe_to_char(root_seq[i].to_int())
     // With probability p_change, mutate to a random different nucleotide
     let r = skbio3_pseudo_random()
     if r < p_change {
@@ -40,20 +41,26 @@ pub fn skbio3_simulate_seq_on_tree(
   sb.to_string()
 }
 
+///|
 fn skbio3_pseudo_random() -> Double {
   // Simple LCG pseudo-random number generator for simulation
   // Uses a global mutable state
   skbio3_rng_state[0] = skbio3_rng_state[0] * 1103515245 + 12345
   let r = (skbio3_rng_state[0] % 2147483647).to_double() / 2147483647.0
-  if r < 0.0 { 0.0 - r } else { r }
+  if r < 0.0 {
+    0.0 - r
+  } else {
+    r
+  }
 }
 
-let skbio3_rng_state : Array[Int] = [42]
+///|
+let skbio3_rng_state : Array[Int32] = [42]
 
 ///|
 pub fn skbio3_feature_frequency_profile(
   seq : String,
-  k : Int,
+  k : Int32,
 ) -> Map[String, Double] {
   // Feature Frequency Profile (FFP): k-mer frequency distribution
   // Returns normalized k-mer frequencies
@@ -71,27 +78,19 @@ pub fn skbio3_feature_frequency_profile(
     total = total + 1
   }
   if total > 0 {
-    profile.each(fn(key, value) {
-      profile[key] = value / total.to_double()
-    })
+    profile.each(fn(key, value) { profile[key] = value / total.to_double() })
   }
   profile
 }
 
 ///|
-pub fn skbio3_ffp_distance(
-  seq1 : String,
-  seq2 : String,
-  k : Int,
-) -> Double {
+pub fn skbio3_ffp_distance(seq1 : String, seq2 : String, k : Int32) -> Double {
   // FFP distance: Jensen-Shannon divergence between k-mer profiles
   let p1 = skbio3_feature_frequency_profile(seq1, k)
   let p2 = skbio3_feature_frequency_profile(seq2, k)
   // Collect all k-mers
   let all_kmers : Array[String] = []
-  p1.each(fn(key, _) {
-    all_kmers.push(key)
-  })
+  p1.each(fn(key, _) { all_kmers.push(key) })
   p2.each(fn(key, _) {
     let mut found = false
     for i in 0..<all_kmers.length() {
@@ -127,16 +126,14 @@ pub fn skbio3_ffp_distance(
 pub fn skbio3_composition_vector_distance(
   seq1 : String,
   seq2 : String,
-  k : Int,
+  k : Int32,
 ) -> Double {
   // Composition Vector (CV) distance: remove compositional bias, compare residual vectors
   let p1 = skbio3_feature_frequency_profile(seq1, k)
   let p2 = skbio3_feature_frequency_profile(seq2, k)
   // Collect all k-mers
   let all_kmers : Array[String] = []
-  p1.each(fn(key, _) {
-    all_kmers.push(key)
-  })
+  p1.each(fn(key, _) { all_kmers.push(key) })
   p2.each(fn(key, _) {
     let mut found = false
     for i in 0..<all_kmers.length() {
@@ -176,7 +173,7 @@ pub fn skbio3_composition_vector_distance(
 pub fn skbio3_return_time_distance(
   seq1 : String,
   seq2 : String,
-  k : Int,
+  k : Int32,
 ) -> Double {
   // Return Time Distance (RTD): based on first return times of k-mers
   // RTD measures the average time for a k-mer to reappear in the sequence
@@ -184,9 +181,7 @@ pub fn skbio3_return_time_distance(
   let rtd2 = skbio3_return_time_vector(seq2, k)
   // Euclidean distance between RTD vectors
   let all_kmers : Array[String] = []
-  rtd1.each(fn(key, _) {
-    all_kmers.push(key)
-  })
+  rtd1.each(fn(key, _) { all_kmers.push(key) })
   rtd2.each(fn(key, _) {
     let mut found = false
     for i in 0..<all_kmers.length() {
@@ -210,10 +205,8 @@ pub fn skbio3_return_time_distance(
   sum_sq.sqrt()
 }
 
-fn skbio3_return_time_vector(
-  seq : String,
-  k : Int,
-) -> Map[String, Double] {
+///|
+fn skbio3_return_time_vector(seq : String, k : Int32) -> Map[String, Double] {
   // For each k-mer, compute the mean return time (distance between consecutive occurrences)
   let n = seq.length()
   let rtd : Map[String, Double] = Map([])
@@ -221,7 +214,7 @@ fn skbio3_return_time_vector(
     return rtd
   }
   // Track positions of each k-mer
-  let positions : Map[String, Array[Int]] = Map([])
+  let positions : Map[String, Array[Int32]] = Map([])
   let n_minus_k = n - k + 1
   for i in 0..<n_minus_k {
     let kmer = seq[i:i + k].to_owned()
@@ -238,7 +231,7 @@ fn skbio3_return_time_vector(
       }
       rtd[key] = sum_rts / (pos_list.length() - 1).to_double()
     } else {
-      rtd[key] = n.to_double()  // single occurrence → large return time
+      rtd[key] = n.to_double() // single occurrence → large return time
     }
   })
   rtd

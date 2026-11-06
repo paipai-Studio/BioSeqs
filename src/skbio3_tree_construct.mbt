@@ -13,23 +13,19 @@ pub fn skbio3_tree_node(
   name : String,
   branch_length : Double,
 ) -> Skbio3TreeNode {
-  { name, branch_length, children: [] }
+  { name, branch_length, children: [], }
 }
 
 ///|
-pub fn skbio3_tree_to_newick(
-  node : Skbio3TreeNode,
-) -> String {
+pub fn skbio3_tree_to_newick(node : Skbio3TreeNode) -> String {
   let sb = StringBuilder()
   let _ = skbio3_write_newick(sb, node)
   let _ = sb.write_char(';')
   sb.to_string()
 }
 
-fn skbio3_write_newick(
-  sb : StringBuilder,
-  node : Skbio3TreeNode,
-) -> Unit {
+///|
+fn skbio3_write_newick(sb : StringBuilder, node : Skbio3TreeNode) -> Unit {
   if node.children.length() > 0 {
     let _ = sb.write_char('(')
     for i in 0..<node.children.length() {
@@ -66,10 +62,7 @@ pub fn skbio3_neighbor_joining(
     return Skbio3TreeNode::{
       name: "",
       branch_length: 0.0,
-      children: [
-        skbio3_tree_node(names[0], bl),
-        skbio3_tree_node(names[1], bl),
-      ],
+      children: [skbio3_tree_node(names[0], bl), skbio3_tree_node(names[1], bl)],
     }
   }
   let active_names = names.copy()
@@ -97,7 +90,9 @@ pub fn skbio3_neighbor_joining(
     for i in 0..<cn {
       let next_i = i + 1
       for j in next_i..<cn {
-        let q = (cn - 2).to_double() * current_dist[i][j] - row_sums[i] - row_sums[j]
+        let q = (cn - 2).to_double() * current_dist[i][j] -
+          row_sums[i] -
+          row_sums[j]
         if q < best_q {
           best_q = q
           best_i = i
@@ -137,7 +132,7 @@ pub fn skbio3_neighbor_joining(
       }
       new_dist.push(row)
     }
-    let idx_map : Array[Int] = []
+    let idx_map : Array[Int32] = []
     for i in 0..<cn {
       if i == best_i || i == best_j {
         continue
@@ -152,7 +147,8 @@ pub fn skbio3_neighbor_joining(
     }
     for i in 0..<nm1 {
       let orig_i = idx_map[i]
-      let d_new = 0.5 * (current_dist[best_i][orig_i] + current_dist[best_j][orig_i] - dij)
+      let d_new = 0.5 *
+        (current_dist[best_i][orig_i] + current_dist[best_j][orig_i] - dij)
       new_dist[i][nm1] = d_new
       new_dist[nm1][i] = d_new
     }
@@ -168,7 +164,11 @@ pub fn skbio3_neighbor_joining(
   final_0.branch_length = bl
   let final_1 = tree_nodes[1]
   final_1.branch_length = bl
-  Skbio3TreeNode::{ name: "", branch_length: 0.0, children: [final_0, final_1] }
+  Skbio3TreeNode::{
+    name: "",
+    branch_length: 0.0,
+    children: [final_0, final_1],
+  }
 }
 
 // --- UPGMA ---
@@ -192,7 +192,7 @@ pub fn skbio3_upgma(
     cluster_nodes.push(skbio3_tree_node(names[i], 0.0))
   }
   let cluster_heights : Array[Double] = []
-  let cluster_sizes : Array[Int] = []
+  let cluster_sizes : Array[Int32] = []
   for _ in 0..<n {
     cluster_heights.push(0.0)
     cluster_sizes.push(1)
@@ -227,8 +227,8 @@ pub fn skbio3_upgma(
     let new_names : Array[String] = []
     let new_nodes : Array[Skbio3TreeNode] = []
     let new_heights : Array[Double] = []
-    let new_sizes : Array[Int] = []
-    let idx_map : Array[Int] = []
+    let new_sizes : Array[Int32] = []
+    let idx_map : Array[Int32] = []
     for i in 0..<cn {
       if i == best_i || i == best_j {
         continue
@@ -262,7 +262,10 @@ pub fn skbio3_upgma(
     let sj = cluster_sizes[best_j].to_double()
     for i in 0..<nm1 {
       let orig_i = idx_map[i]
-      let d_new = (si * cluster_dist[best_i][orig_i] + sj * cluster_dist[best_j][orig_i]) / (si + sj)
+      let d_new = (
+          si * cluster_dist[best_i][orig_i] + sj * cluster_dist[best_j][orig_i]
+        ) /
+        (si + sj)
       new_dist[i][nm1] = d_new
       new_dist[nm1][i] = d_new
     }
@@ -289,7 +292,11 @@ pub fn skbio3_upgma(
   final_0.branch_length = final_height - cluster_heights[0]
   let final_1 = cluster_nodes[1]
   final_1.branch_length = final_height - cluster_heights[1]
-  Skbio3TreeNode::{ name: "", branch_length: 0.0, children: [final_0, final_1] }
+  Skbio3TreeNode::{
+    name: "",
+    branch_length: 0.0,
+    children: [final_0, final_1],
+  }
 }
 
 // --- Minimum Evolution (simplified via NNI) ---
@@ -304,9 +311,7 @@ pub fn skbio3_minimum_evolution(
 }
 
 ///|
-pub fn skbio3_total_branch_length(
-  node : Skbio3TreeNode,
-) -> Double {
+pub fn skbio3_total_branch_length(node : Skbio3TreeNode) -> Double {
   let mut total = node.branch_length
   for i in 0..<node.children.length() {
     total = total + skbio3_total_branch_length(node.children[i])

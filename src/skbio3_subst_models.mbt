@@ -2,9 +2,7 @@
 // JC69, K80, HKY85, GTR, TN93 distance corrections
 
 ///|
-pub fn skbio3_jc69_distance(
-  p : Double,
-) -> Double {
+pub fn skbio3_jc69_distance(p : Double) -> Double {
   // Jukes-Cantor 1969: d = -3/4 * ln(1 - 4p/3)
   // p = observed proportion of differences
   let val = 1.0 - 4.0 * p / 3.0
@@ -15,10 +13,7 @@ pub fn skbio3_jc69_distance(
 }
 
 ///|
-pub fn skbio3_jc69_from_sequences(
-  seq1 : String,
-  seq2 : String,
-) -> Double {
+pub fn skbio3_jc69_from_sequences(seq1 : String, seq2 : String) -> Double {
   // Calculate JC69 corrected distance from two aligned sequences
   let n = seq1.length()
   if n == 0 {
@@ -38,7 +33,7 @@ pub fn skbio3_jc69_from_sequences(
 pub fn skbio3_k80_distance(
   transitions : Double,
   transversions : Double,
-  n : Int,
+  n : Int32,
 ) -> Double {
   // Kimura 2-parameter: d = -1/2 * ln((1 - 2P - Q) * sqrt(1 - 2Q))
   // P = transition fraction, Q = transversion fraction
@@ -56,10 +51,7 @@ pub fn skbio3_k80_distance(
 }
 
 ///|
-pub fn skbio3_k80_from_sequences(
-  seq1 : String,
-  seq2 : String,
-) -> Double {
+pub fn skbio3_k80_from_sequences(seq1 : String, seq2 : String) -> Double {
   // Count transitions (A<->G, C<->T) and transversions separately
   let n = seq1.length()
   if n == 0 {
@@ -87,7 +79,7 @@ pub fn skbio3_k80_from_sequences(
 pub fn skbio3_hky85_distance(
   transitions : Double,
   transversions : Double,
-  n : Int,
+  n : Int32,
   freq_a : Double,
   freq_g : Double,
   freq_c : Double,
@@ -100,8 +92,8 @@ pub fn skbio3_hky85_distance(
   }
   let p = transitions / n.to_double()
   let q = transversions / n.to_double()
-  let pi_r = freq_a + freq_g  // purine frequency
-  let pi_y = freq_c + freq_t  // pyrimidine frequency
+  let pi_r = freq_a + freq_g // purine frequency
+  let pi_y = freq_c + freq_t // pyrimidine frequency
   if pi_r <= 0.0 || pi_y <= 0.0 {
     return skbio3_k80_distance(transitions, transversions, n)
   }
@@ -121,7 +113,7 @@ pub fn skbio3_gtr_distance(
   p_gc : Double,
   p_gt : Double,
   p_ct : Double,
-  n : Int,
+  n : Int32,
   freq_a : Double,
   freq_g : Double,
   freq_c : Double,
@@ -135,10 +127,15 @@ pub fn skbio3_gtr_distance(
   let total_sub = p_ag + p_at + p_ac + p_gc + p_gt + p_ct
   let p = total_sub / n.to_double()
   // Expected substitution rate under equilibrium
-  let expected_rate = 2.0 * (
-    freq_a * freq_g + freq_a * freq_t + freq_a * freq_c +
-    freq_g * freq_c + freq_g * freq_t + freq_c * freq_t
-  )
+  let expected_rate = 2.0 *
+    (
+      freq_a * freq_g +
+      freq_a * freq_t +
+      freq_a * freq_c +
+      freq_g * freq_c +
+      freq_g * freq_t +
+      freq_c * freq_t
+    )
   if expected_rate <= 0.0 {
     return 0.0
   }
@@ -154,7 +151,7 @@ pub fn skbio3_tn93_distance(
   transitions1 : Double,
   transitions2 : Double,
   transversions : Double,
-  n : Int,
+  n : Int32,
   freq_a : Double,
   freq_g : Double,
   freq_c : Double,
@@ -164,12 +161,17 @@ pub fn skbio3_tn93_distance(
   if n == 0 {
     return 0.0
   }
-  let p1 = transitions1 / n.to_double()  // A<->G transitions
-  let p2 = transitions2 / n.to_double()  // C<->T transitions
+  let p1 = transitions1 / n.to_double() // A<->G transitions
+  let p2 = transitions2 / n.to_double() // C<->T transitions
   let q = transversions / n.to_double()
   let pi_r = freq_a + freq_g
   let pi_y = freq_c + freq_t
-  if pi_r <= 0.0 || pi_y <= 0.0 || freq_a <= 0.0 || freq_g <= 0.0 || freq_c <= 0.0 || freq_t <= 0.0 {
+  if pi_r <= 0.0 ||
+    pi_y <= 0.0 ||
+    freq_a <= 0.0 ||
+    freq_g <= 0.0 ||
+    freq_c <= 0.0 ||
+    freq_t <= 0.0 {
     return skbio3_k80_distance(transitions1 + transitions2, transversions, n)
   }
   let term1 = 1.0 - p1 / (2.0 * freq_a * freq_g / pi_r) - q / (2.0 * pi_y)
@@ -179,6 +181,6 @@ pub fn skbio3_tn93_distance(
     return 0.0
   }
   -2.0 * freq_a * freq_g * @math.ln(term1) / pi_r -
-    2.0 * freq_c * freq_t * @math.ln(term2) / pi_y -
-    2.0 * pi_r * pi_y * @math.ln(term3)
+  2.0 * freq_c * freq_t * @math.ln(term2) / pi_y -
+  2.0 * pi_r * pi_y * @math.ln(term3)
 }

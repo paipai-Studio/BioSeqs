@@ -15,16 +15,16 @@ pub fn skbio3_genetic_code_bacterial() -> Map[String, String] {
       for k in 0..<4 {
         let codon = {
           let sb = StringBuilder()
-          let _ = sb.write_char(Int::unsafe_to_char(bases[i].to_int()))
-          let _ = sb.write_char(Int::unsafe_to_char(bases[j].to_int()))
-          let _ = sb.write_char(Int::unsafe_to_char(bases[k].to_int()))
+          let _ = sb.write_char(Int32::unsafe_to_char(bases[i].to_int()))
+          let _ = sb.write_char(Int32::unsafe_to_char(bases[j].to_int()))
+          let _ = sb.write_char(Int32::unsafe_to_char(bases[k].to_int()))
           sb.to_string()
         }
         let idx = i * 16 + j * 4 + k
         let mut aa = {
           let c = standard_aas[idx].to_int()
           let sb = StringBuilder()
-          let _ = sb.write_char(Int::unsafe_to_char(c))
+          let _ = sb.write_char(Int32::unsafe_to_char(c))
           sb.to_string()
         }
         // Bacterial code differences:
@@ -53,16 +53,16 @@ pub fn skbio3_genetic_code_alt_yeast() -> Map[String, String] {
       for k in 0..<4 {
         let codon = {
           let sb = StringBuilder()
-          let _ = sb.write_char(Int::unsafe_to_char(bases[i].to_int()))
-          let _ = sb.write_char(Int::unsafe_to_char(bases[j].to_int()))
-          let _ = sb.write_char(Int::unsafe_to_char(bases[k].to_int()))
+          let _ = sb.write_char(Int32::unsafe_to_char(bases[i].to_int()))
+          let _ = sb.write_char(Int32::unsafe_to_char(bases[j].to_int()))
+          let _ = sb.write_char(Int32::unsafe_to_char(bases[k].to_int()))
           sb.to_string()
         }
         let idx = i * 16 + j * 4 + k
         let mut aa = {
           let c = standard_aas[idx].to_int()
           let sb = StringBuilder()
-          let _ = sb.write_char(Int::unsafe_to_char(c))
+          let _ = sb.write_char(Int32::unsafe_to_char(c))
           sb.to_string()
         }
         // Alternative yeast: CTG -> S
@@ -88,16 +88,16 @@ pub fn skbio3_genetic_code_ciliate() -> Map[String, String] {
       for k in 0..<4 {
         let codon = {
           let sb = StringBuilder()
-          let _ = sb.write_char(Int::unsafe_to_char(bases[i].to_int()))
-          let _ = sb.write_char(Int::unsafe_to_char(bases[j].to_int()))
-          let _ = sb.write_char(Int::unsafe_to_char(bases[k].to_int()))
+          let _ = sb.write_char(Int32::unsafe_to_char(bases[i].to_int()))
+          let _ = sb.write_char(Int32::unsafe_to_char(bases[j].to_int()))
+          let _ = sb.write_char(Int32::unsafe_to_char(bases[k].to_int()))
           sb.to_string()
         }
         let idx = i * 16 + j * 4 + k
         let mut aa = {
           let c = standard_aas[idx].to_int()
           let sb = StringBuilder()
-          let _ = sb.write_char(Int::unsafe_to_char(c))
+          let _ = sb.write_char(Int32::unsafe_to_char(c))
           sb.to_string()
         }
         // Ciliate: TAA -> Q, TAG -> Q
@@ -205,7 +205,11 @@ pub fn skbio3_multiplicative_replacement(
     0.01 / d.to_double()
   }
   // Ensure delta is small enough
-  let max_delta = if sum_nonzero > 0.0 { sum_nonzero / d.to_double() * 0.5 } else { 0.001 }
+  let max_delta = if sum_nonzero > 0.0 {
+    sum_nonzero / d.to_double() * 0.5
+  } else {
+    0.001
+  }
   let actual_delta = if delta > max_delta { max_delta } else { delta }
   // Replace zeros and rescale non-zeros
   let result : Array[Double] = []

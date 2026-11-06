@@ -5,7 +5,7 @@
 pub fn skbio3_blomberg_k(
   trait_values : Array[Double],
   tree_branch_lengths : Array[Double],
-  n_tips : Int,
+  n_tips : Int32,
 ) -> Double {
   // Blomberg's K: ratio of observed to expected variance under Brownian motion
   // K > 1: strong phylogenetic signal; K < 1: weak signal
@@ -45,7 +45,7 @@ pub fn skbio3_blomberg_k(
 pub fn skbio3_pagel_lambda(
   trait_values : Array[Double],
   tree_branch_lengths : Array[Double],
-  n_tips : Int,
+  n_tips : Int32,
 ) -> Double {
   // Pagel's lambda: transformation parameter for internal branches
   // lambda = 0: no phylogenetic signal; lambda = 1: pure Brownian motion
@@ -112,7 +112,7 @@ pub fn skbio3_phylo_independent_contrasts(
   let values = tip_values.copy()
   let branches = tip_branches.copy()
   let names_ = tip_names.copy()
-  let mut ib_idx = 0  // internal branch index
+  let mut ib_idx = 0 // internal branch index
   while values.length() > 1 {
     // Take the first two nodes and compute contrast
     let v1 = values[0]
@@ -123,11 +123,7 @@ pub fn skbio3_phylo_independent_contrasts(
     let n2 = names_[1]
     // Contrast: (v1 - v2) / sqrt(b1 + b2)
     let var_sum = b1 + b2
-    let contrast = if var_sum > 0.0 {
-      (v1 - v2) / var_sum.sqrt()
-    } else {
-      0.0
-    }
+    let contrast = if var_sum > 0.0 { (v1 - v2) / var_sum.sqrt() } else { 0.0 }
     results.push({
       node_name: n1 + "-" + n2,
       contrast,
@@ -161,7 +157,7 @@ pub fn skbio3_phylo_independent_contrasts(
 pub struct Skbio3PhyloAnovaResult {
   group : String
   mean : Double
-  n : Int
+  n : Int32
   f_statistic : Double
   p_value : Double
 }
@@ -224,7 +220,8 @@ pub fn skbio3_phylo_anova(
     }
     gmean = gmean / gn.to_double()
     // Between-group SS
-    ss_between = ss_between + gn.to_double() * (gmean - grand_mean) * (gmean - grand_mean)
+    ss_between = ss_between +
+      gn.to_double() * (gmean - grand_mean) * (gmean - grand_mean)
     // Within-group SS
     for i in 0..<gn {
       let diff = group_values[i] - gmean
@@ -233,12 +230,28 @@ pub fn skbio3_phylo_anova(
     // F-statistic (simplified, no phylogenetic correction)
     let df_between = (unique_groups.length() - 1).to_double()
     let df_within = (n - unique_groups.length()).to_double()
-    let ms_between = if df_between > 0.0 { ss_between / df_between } else { 0.0 }
+    let ms_between = if df_between > 0.0 {
+      ss_between / df_between
+    } else {
+      0.0
+    }
     let ms_within = if df_within > 0.0 { ss_within / df_within } else { 0.0 }
     let f_stat = if ms_within > 0.0 { ms_between / ms_within } else { 0.0 }
     // Approximate p-value from F distribution (very rough)
-    let p_val = if f_stat > 3.0 { 0.05 } else if f_stat > 6.0 { 0.01 } else { 0.5 }
-    results.push({ group, mean: gmean, n: gn, f_statistic: f_stat, p_value: p_val })
+    let p_val = if f_stat > 3.0 {
+      0.05
+    } else if f_stat > 6.0 {
+      0.01
+    } else {
+      0.5
+    }
+    results.push({
+      group,
+      mean: gmean,
+      n: gn,
+      f_statistic: f_stat,
+      p_value: p_val,
+    })
   }
   results
 }
