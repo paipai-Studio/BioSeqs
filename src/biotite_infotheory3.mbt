@@ -1,3 +1,4 @@
+///|
 /// biotite_infotheory3.mbt — Biotite round 3: information theory
 /// 3 features: BLOSUM/PAM construction from alignments, mutual information,
 /// Shannon entropy.
@@ -9,7 +10,12 @@ pub struct Biotite3SubstMatrix {
   name : String
 }
 
-pub fn biotite3_build_blosum(aligned : Array[String], alphabet : Array[String], scale : Double) -> Biotite3SubstMatrix {
+///|
+pub fn biotite3_build_blosum(
+  aligned : Array[String],
+  alphabet : Array[String],
+  scale : Double,
+) -> Biotite3SubstMatrix {
   let n = alphabet.length()
   let counts = Array(capacity=n)
   for _i in 0..<n {
@@ -26,13 +32,17 @@ pub fn biotite3_build_blosum(aligned : Array[String], alphabet : Array[String], 
       let _start_j = i + 1
       for j in _start_j..<aligned.length() {
         if col < aligned[i].length() && col < aligned[j].length() {
-          let c1 = aligned[i][col:col+1].to_owned()
-          let c2 = aligned[j][col:col+1].to_owned()
+          let c1 = aligned[i][col:col + 1].to_owned()
+          let c2 = aligned[j][col:col + 1].to_owned()
           let mut idx1 = -1
           let mut idx2 = -1
           for a in 0..<n {
-            if alphabet[a] == c1 { idx1 = a }
-            if alphabet[a] == c2 { idx2 = a }
+            if alphabet[a] == c1 {
+              idx1 = a
+            }
+            if alphabet[a] == c2 {
+              idx2 = a
+            }
           }
           if idx1 >= 0 && idx2 >= 0 {
             counts[idx1][idx2] = counts[idx1][idx2] + 1.0
@@ -77,28 +87,46 @@ pub fn biotite3_build_blosum(aligned : Array[String], alphabet : Array[String], 
     }
     scores.push(row)
   }
-  { alphabet, scores, name: "BLOSUM" }
+  { alphabet, scores, name: "BLOSUM", }
 }
 
-pub fn biotite3_build_pam(aligned : Array[String], alphabet : Array[String], scale : Double) -> Biotite3SubstMatrix {
+///|
+pub fn biotite3_build_pam(
+  aligned : Array[String],
+  alphabet : Array[String],
+  scale : Double,
+) -> Biotite3SubstMatrix {
   let blosum = biotite3_build_blosum(aligned, alphabet, scale)
-  { ..blosum, name: "PAM" }
+  { ..blosum, name: "PAM", }
 }
 
-pub fn biotite3_subst_matrix_get_score(matrix : Biotite3SubstMatrix, sym1 : String, sym2 : String) -> Double {
+///|
+pub fn biotite3_subst_matrix_get_score(
+  matrix : Biotite3SubstMatrix,
+  sym1 : String,
+  sym2 : String,
+) -> Double {
   let mut idx1 = -1
   let mut idx2 = -1
   for i in 0..<matrix.alphabet.length() {
-    if matrix.alphabet[i] == sym1 { idx1 = i }
-    if matrix.alphabet[i] == sym2 { idx2 = i }
+    if matrix.alphabet[i] == sym1 {
+      idx1 = i
+    }
+    if matrix.alphabet[i] == sym2 {
+      idx2 = i
+    }
   }
-  if idx1 >= 0 && idx2 >= 0 && idx1 < matrix.scores.length() && idx2 < matrix.scores[idx1].length() {
+  if idx1 >= 0 &&
+    idx2 >= 0 &&
+    idx1 < matrix.scores.length() &&
+    idx2 < matrix.scores[idx1].length() {
     matrix.scores[idx1][idx2]
   } else {
     -99.0
   }
 }
 
+///|
 pub fn biotite3_subst_matrix_to_string(matrix : Biotite3SubstMatrix) -> String {
   let sb = StringBuilder()
   let _ = sb.write("  ")
@@ -119,7 +147,14 @@ pub fn biotite3_subst_matrix_to_string(matrix : Biotite3SubstMatrix) -> String {
 }
 
 // #29 mutual_information — column co-evolution
-pub fn biotite3_mutual_information(aligned : Array[String], col1 : Int, col2 : Int, alphabet : Array[String]) -> Double {
+
+///|
+pub fn biotite3_mutual_information(
+  aligned : Array[String],
+  col1 : Int32,
+  col2 : Int32,
+  alphabet : Array[String],
+) -> Double {
   let n = alphabet.length()
   let joint : Array[Array[Double]] = Array(capacity=n)
   for _i in 0..<n {
@@ -132,13 +167,17 @@ pub fn biotite3_mutual_information(aligned : Array[String], col1 : Int, col2 : I
   let mut total = 0.0
   for seq in 0..<aligned.length() {
     if col1 < aligned[seq].length() && col2 < aligned[seq].length() {
-      let c1 = aligned[seq][col1:col1+1].to_owned()
-      let c2 = aligned[seq][col2:col2+1].to_owned()
+      let c1 = aligned[seq][col1:col1 + 1].to_owned()
+      let c2 = aligned[seq][col2:col2 + 1].to_owned()
       let mut idx1 = -1
       let mut idx2 = -1
       for a in 0..<n {
-        if alphabet[a] == c1 { idx1 = a }
-        if alphabet[a] == c2 { idx2 = a }
+        if alphabet[a] == c1 {
+          idx1 = a
+        }
+        if alphabet[a] == c2 {
+          idx2 = a
+        }
       }
       if idx1 >= 0 && idx2 >= 0 {
         joint[idx1][idx2] = joint[idx1][idx2] + 1.0
@@ -177,7 +216,11 @@ pub fn biotite3_mutual_information(aligned : Array[String], col1 : Int, col2 : I
   mi
 }
 
-pub fn biotite3_mutual_information_matrix(aligned : Array[String], alphabet : Array[String]) -> Array[Array[Double]] {
+///|
+pub fn biotite3_mutual_information_matrix(
+  aligned : Array[String],
+  alphabet : Array[String],
+) -> Array[Array[Double]] {
   let seq_len = if aligned.length() > 0 { aligned[0].length() } else { 0 }
   let result = Array(capacity=seq_len)
   for i in 0..<seq_len {
@@ -195,7 +238,13 @@ pub fn biotite3_mutual_information_matrix(aligned : Array[String], alphabet : Ar
 }
 
 // #30 shannon_entropy — per-column conservation
-pub fn biotite3_shannon_entropy(aligned : Array[String], col : Int, alphabet : Array[String]) -> Double {
+
+///|
+pub fn biotite3_shannon_entropy(
+  aligned : Array[String],
+  col : Int32,
+  alphabet : Array[String],
+) -> Double {
   let n = alphabet.length()
   let counts = Array(capacity=n)
   for _i in 0..<n {
@@ -204,7 +253,7 @@ pub fn biotite3_shannon_entropy(aligned : Array[String], col : Int, alphabet : A
   let mut total = 0.0
   for seq in 0..<aligned.length() {
     if col < aligned[seq].length() {
-      let ch = aligned[seq][col:col+1].to_owned()
+      let ch = aligned[seq][col:col + 1].to_owned()
       for a in 0..<n {
         if alphabet[a] == ch {
           counts[a] = counts[a] + 1.0
@@ -227,7 +276,11 @@ pub fn biotite3_shannon_entropy(aligned : Array[String], col : Int, alphabet : A
   h
 }
 
-pub fn biotite3_shannon_entropy_profile(aligned : Array[String], alphabet : Array[String]) -> Array[Double] {
+///|
+pub fn biotite3_shannon_entropy_profile(
+  aligned : Array[String],
+  alphabet : Array[String],
+) -> Array[Double] {
   let seq_len = if aligned.length() > 0 { aligned[0].length() } else { 0 }
   let result = Array(capacity=seq_len)
   for col in 0..<seq_len {
@@ -236,7 +289,13 @@ pub fn biotite3_shannon_entropy_profile(aligned : Array[String], alphabet : Arra
   result
 }
 
-pub fn biotite3_relative_entropy(aligned : Array[String], col : Int, alphabet : Array[String], bg_freq : Array[Double]) -> Double {
+///|
+pub fn biotite3_relative_entropy(
+  aligned : Array[String],
+  col : Int32,
+  alphabet : Array[String],
+  bg_freq : Array[Double],
+) -> Double {
   let n = alphabet.length()
   let counts = Array(capacity=n)
   for _i in 0..<n {
@@ -245,7 +304,7 @@ pub fn biotite3_relative_entropy(aligned : Array[String], col : Int, alphabet : 
   let mut total = 0.0
   for seq in 0..<aligned.length() {
     if col < aligned[seq].length() {
-      let ch = aligned[seq][col:col+1].to_owned()
+      let ch = aligned[seq][col:col + 1].to_owned()
       for a in 0..<n {
         if alphabet[a] == ch {
           counts[a] = counts[a] + 1.0
@@ -269,6 +328,7 @@ pub fn biotite3_relative_entropy(aligned : Array[String], col : Int, alphabet : 
   re
 }
 
+///|
 pub fn _biotite_infotheory3_dummy() -> Unit {
-  let _ = Biotite3SubstMatrix::{ alphabet: [], scores: [], name: "" }
+  let _ = Biotite3SubstMatrix::{ alphabet: [], scores: [], name: "", }
 }
