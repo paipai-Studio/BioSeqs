@@ -124,12 +124,11 @@ pub fn anndata_read_zarr(content : String) -> AnnData? {
     return None
   }
   let mut idx = 1
-  // Skip .zattrs section
+  // Skip .zattrs section (uns lines of the form "key\tjson") until the
+  // "X\tn_obs\tn_vars" header line
   if idx < lines.length() && lines[idx].to_owned() == ".zattrs" {
     idx = idx + 1
-    while idx < lines.length() &&
-          lines[idx].to_owned() != "X" &&
-          !lines[idx].has_suffix("\t") {
+    while idx < lines.length() && not(lines[idx].to_owned().has_prefix("X\t")) {
       idx = idx + 1
     }
   }

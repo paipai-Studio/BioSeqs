@@ -118,24 +118,24 @@ pub fn anndata_write_var_csv(adata : AnnData) -> String {
 }
 
 ///|
-/// Write X matrix as CSV.
+/// Write X matrix as CSV. The header carries an "obs_name" placeholder
+/// column and each row starts with the observation name, matching the
+/// format expected by `anndata_read_csv` (first column = obs_names).
 pub fn anndata_write_x_csv(adata : AnnData) -> String {
   let var_names = adata.get_var_names()
-  let mut header = ""
+  let mut header = "obs_name"
   for j = 0; j < var_names.length(); j = j + 1 {
-    if j > 0 {
-      header = header + ","
-    }
-    header = header + var_names[j]
+    header = header + "," + var_names[j]
   }
   header = header + "\n"
   let mut out = header
+  let obs_names = adata.get_obs_names()
   for i = 0; i < adata.n_obs(); i = i + 1 {
+    if i < obs_names.length() {
+      out = out + obs_names[i]
+    }
     for j = 0; j < adata.n_vars(); j = j + 1 {
-      if j > 0 {
-        out = out + ","
-      }
-      out = out + adata.get_x(i, j).to_string()
+      out = out + "," + adata.get_x(i, j).to_string()
     }
     out = out + "\n"
   }

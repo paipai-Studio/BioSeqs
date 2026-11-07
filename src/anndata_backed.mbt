@@ -14,17 +14,23 @@ pub struct AnnDataBacked {
   n_vars : Int32
   obs_names : Array[String]
   var_names : Array[String]
-  loaded : Bool // whether full data has been loaded
+  mut loaded : Bool // whether full data has been loaded
   cached : AnnData? // cached full load
+  mode : String // "r" (read-only) or "r+" (writable)
+  chunk_size : Int32 // chunk granularity for pad-aligned reads
 }
 
 ///|
-/// Open a backed AnnData from an h5ad file (read-only).
+/// Open a backed AnnData from an h5ad file (read-only by default).
 /// Only reads metadata (shape, names); X is loaded on demand.
+/// `mode="r+"` enables chunk write-back (see `set_chunk` / `flush`).
 pub fn anndata_backed_open(
   filename : String,
   content : String,
+  mode~ : String = "r",
+  chunk_size~ : Int32 = 1000,
 ) -> AnnDataBacked {
+  let effective_chunk = if chunk_size <= 0 { 1000 } else { chunk_size }
   // Parse metadata from h5ad content
   match scanpy_read_h5ad(content) {
     Some(adata) =>
@@ -36,6 +42,8 @@ pub fn anndata_backed_open(
         var_names: adata.get_var_names(),
         loaded: false,
         cached: Some(adata),
+        mode,
+        chunk_size: effective_chunk,
       }
     None =>
       {
@@ -46,6 +54,8 @@ pub fn anndata_backed_open(
         var_names: [],
         loaded: false,
         cached: None,
+        mode,
+        chunk_size: effective_chunk,
       }
   }
 }
@@ -180,4 +190,164 @@ pub fn AnnDataBacked::col_sums(self : AnnDataBacked) -> Array[Double] {
     Some(adata) => adata.col_sums()
     None => Array::make(self.n_vars, 0.0)
   }
+}
+
+// === r+ write-back (anndata backed="r+") ===
+
+///|
+/// True when the backing file was opened in `r+` mode (writable).
+pub fn AnnDataBacked::is_writable(self : AnnDataBacked) -> Bool {
+  self.mode == "r+"
+}
+
+///|
+/// The open mode: "r" or "r+".
+pub fn AnnDataBacked::mode(self : AnnDataBacked) -> String {
+  self.mode
+}
+
+///|
+/// Inplace write a chunk of rows back into the backing store (`r+` only).
+/// `rows[i]` replaces source row `start + i`. Silently ignored in "r" mode
+/// or when the data has not been loaded.
+pub fn AnnDataBacked::set_chunk(
+  self : AnnDataBacked,
+  start : Int32,
+  rows : Array[Array[Double]],
+) -> Unit {
+  if not(self.is_writable()) {
+    return
+  }
+  match self.cached {
+    Some(adata) => {
+      if adata.is_sparse() {
+        return
+      }
+      for i = 0; i < rows.length(); i = i + 1 {
+        let r = start + i
+        if r >= 0 && r < adata.x.length() {
+          adata.x[r] = rows[i]
+        }
+      }
+      self.loaded = true
+    }
+    None => ()
+  }
+}
+
+///|
+/// Flush in-place modifications back to the backing file (`r+` only).
+/// Serializes the mutated in-memory object; the returned string is the new
+/// file content to persist, or `None` when read-only / not loaded.
+pub fn AnnDataBacked::flush(self : AnnDataBacked) -> String? {
+  if not(self.is_writable()) {
+    return None
+  }
+  match self.cached {
+    Some(adata) => Some(scanpy_write_h5ad(adata))
+    None => None
+  }
+}
+
+// === pad-backed chunk-aligned reads ===
+
+///|
+/// Round `v` up to the next multiple of `chunk` (at least 1).
+fn backed_pad_up(v : Int32, chunk : Int32) -> Int32 {
+  if chunk <= 0 {
+    return v
+  }
+  let rem = v % chunk
+  if rem == 0 {
+    v
+  } else {
+    v + (chunk - rem)
+  }
+}
+
+///|
+/// Chunk-aligned (padded) row read, mirroring `anndata._io.pad_backed`:
+/// the range [start, end) is expanded outward to `chunk_size` boundaries
+/// and the full padded chunk is returned (may extend past `n_obs` rows
+/// are clamped to the data).
+pub fn AnnDataBacked::pad_read(
+  self : AnnDataBacked,
+  start : Int32,
+  end_ : Int32,
+) -> Array[Array[Double]] {
+  let chunk = if self.chunk_size <= 0 { 1000 } else { self.chunk_size }
+  let s = if start < 0 { 0 } else { start }
+  let e = if end_ > self.n_obs { self.n_obs } else { end_ }
+  if s >= e {
+    return []
+  }
+  let cs = s / chunk * chunk
+  let ce = backed_pad_up(e, chunk)
+  let out : Array[Array[Double]] = Array(capacity=0)
+  match self.cached {
+    Some(adata) =>
+      for i = cs; i < ce && i < adata.n_obs(); i = i + 1 {
+        let row : Array[Double] = Array(capacity=self.n_vars)
+        for j = 0; j < self.n_vars; j = j + 1 {
+          row.push(adata.get_x(i, j))
+        }
+        out.push(row)
+      }
+    None => ()
+  }
+  out
+}
+
+///|
+/// Chunk size used for padded reads.
+pub fn AnnDataBacked::chunk_size(self : AnnDataBacked) -> Int32 {
+  self.chunk_size
+}
+
+// === backed subsetting ===
+
+///|
+/// Subset a backed AnnData along the obs axis. Mirrors anndata: subsetting
+/// a backed object yields a new backed handle whose cached metadata (names,
+/// shape) reflects the slice; X stays backed (rows resolved on demand).
+pub fn AnnDataBacked::subset(
+  self : AnnDataBacked,
+  obs_idx : Array[Int32],
+) -> AnnDataBacked {
+  let new_obs_names : Array[String] = Array(capacity=obs_idx.length())
+  for i in obs_idx {
+    if i >= 0 && i < self.obs_names.length() {
+      new_obs_names.push(self.obs_names[i])
+    } else {
+      new_obs_names.push("")
+    }
+  }
+  let new_cached = match self.cached {
+    Some(adata) => {
+      let all_vars : Array[Int32] = Array(capacity=adata.n_vars())
+      for j = 0; j < adata.n_vars(); j = j + 1 {
+        all_vars.push(j)
+      }
+      Some(adata.subset(obs_idx, all_vars))
+    }
+    None => None
+  }
+  {
+    filename: self.filename,
+    n_obs: new_obs_names.length(),
+    n_vars: self.n_vars,
+    obs_names: new_obs_names,
+    var_names: self.var_names.copy(),
+    loaded: false,
+    cached: new_cached,
+    mode: self.mode,
+    chunk_size: self.chunk_size,
+  }
+}
+
+///|
+/// True when the backed data has been materialized into memory.
+/// `to_memory()` + any access marks the handle as loaded.
+pub fn AnnDataBacked::mark_loaded(self : AnnDataBacked) -> Unit {
+  self.loaded = true
 }

@@ -157,3 +157,45 @@ pub fn anndata_var_factorize(adata : AnnData, key : String) -> Unit {
     None => ()
   }
 }
+
+///|
+/// Convert all string obs/var columns with repeated values into
+/// categorical (code) storage, mirroring `AnnData.strings_to_categoricals`.
+/// Each converted column is replaced by its integer codes (as strings) and
+/// the category labels are stored in `uns` under `<key>_categories`.
+/// Returns the number of columns converted.
+pub fn anndata_strings_to_categoricals(adata : AnnData) -> Int32 {
+  let mut converted = 0
+  // obs columns (snapshot keys: factorize mutates the maps)
+  let obs_keys = adata.obs.keys().collect()
+  for k in obs_keys {
+    match adata.obs.get(k) {
+      Some(col) =>
+        if col.length() > 0 {
+          let cat = anndata_encode_categorical(col)
+          // Only convert when there are actual repeats (true categorical)
+          if cat.categories.length() < col.length() {
+            anndata_obs_factorize(adata, k)
+            converted = converted + 1
+          }
+        }
+      None => ()
+    }
+  }
+  // var columns
+  let var_keys = adata.variables.keys().collect()
+  for k in var_keys {
+    match adata.variables.get(k) {
+      Some(col) =>
+        if col.length() > 0 {
+          let cat = anndata_encode_categorical(col)
+          if cat.categories.length() < col.length() {
+            anndata_var_factorize(adata, k)
+            converted = converted + 1
+          }
+        }
+      None => ()
+    }
+  }
+  converted
+}

@@ -11,12 +11,12 @@ pub struct SeuratObject {
   col_names : Array[String]
   meta_data : Map[String, Array[String]]
   var_features : Array[String]
-  pca : Array[Array[Double]]
+  mut pca : Array[Array[Double]]
   pca_loadings : Array[Array[Double]]
   var_explained : Array[Double]
   neighbors : Array[Array[Int32]]
   clusters : Array[Int32]
-  umap : Array[Array[Double]]
+  mut umap : Array[Array[Double]]
 }
 
 ///|

@@ -9,8 +9,8 @@
 
 ///|
 pub struct AnnData {
-  x : Array[Array[Double]]
-  x_sparse : SparseArray? // sparse storage (when set, x is empty)
+  mut x : Array[Array[Double]]
+  mut x_sparse : SparseArray? // sparse storage (when set, x is empty)
   obs : Map[String, Array[String]]
   variables : Map[String, Array[String]]
   layers : Map[String, Array[Array[Double]]]
@@ -21,6 +21,7 @@ pub struct AnnData {
   obs_names : Array[String]
   var_names : Array[String]
   uns : Map[String, JsonValue]
+  mut raw : AnnDataRaw? // frozen pre-processing snapshot (adata.raw)
 }
 
 ///|
@@ -45,6 +46,7 @@ pub fn AnnData::new(
     obs_names,
     var_names,
     uns: Map([], capacity=4),
+    raw: None,
   }
 }
 
@@ -327,6 +329,10 @@ pub fn AnnData::subset(
     obs_names: pick_strs(self.obs_names, obs_idx),
     var_names: pick_strs(self.var_names, var_idx),
     uns: self.uns,
+    raw: match self.raw {
+      Some(r) => Some(r.subset_obs(obs_idx))
+      None => None
+    },
   }
 }
 
@@ -371,6 +377,7 @@ pub fn AnnData::copy(self : AnnData) -> AnnData {
     obs_names: self.obs_names.copy(),
     var_names: self.var_names.copy(),
     uns: copy_uns_map(self.uns),
+    raw: self.raw,
   }
 }
 
@@ -493,6 +500,7 @@ pub fn AnnData::new_sparse(
     obs_names,
     var_names,
     uns: Map([], capacity=4),
+    raw: None,
   }
 }
 
@@ -635,6 +643,7 @@ pub fn AnnData::to_sparse(self : AnnData) -> AnnData {
         obs_names: self.obs_names.copy(),
         var_names: self.var_names.copy(),
         uns: copy_uns_map(self.uns),
+        raw: self.raw,
       }
     }
   }
@@ -661,6 +670,7 @@ pub fn AnnData::to_dense(self : AnnData) -> AnnData {
         obs_names: self.obs_names.copy(),
         var_names: self.var_names.copy(),
         uns: copy_uns_map(self.uns),
+        raw: self.raw,
       }
     }
   }
@@ -696,4 +706,25 @@ pub fn AnnData::x_sum(self : AnnData) -> Double {
       total
     }
   }
+}
+
+///|
+/// Attach a raw snapshot (`adata.raw`). Mirrors anndata: capture the
+/// pre-processing state once, then keep it through normalization/filtering.
+/// Returns `self` for chaining.
+pub fn AnnData::set_raw(self : AnnData, raw : AnnDataRaw) -> AnnData {
+  self.raw = Some(raw)
+  self
+}
+
+///|
+/// The raw snapshot, or `None` when no raw was attached.
+pub fn AnnData::get_raw(self : AnnData) -> AnnDataRaw? {
+  self.raw
+}
+
+///|
+/// True when a raw snapshot is attached.
+pub fn AnnData::has_raw(self : AnnData) -> Bool {
+  self.raw is Some(_)
 }
