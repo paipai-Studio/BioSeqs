@@ -66,6 +66,21 @@ pub fn OmmSystem::num_constraints(self : OmmSystem) -> Int32 {
 }
 
 ///|
+pub fn OmmSystem::num_bonds(self : OmmSystem) -> Int32 {
+  self.bonds.length()
+}
+
+///|
+pub fn OmmSystem::num_angles(self : OmmSystem) -> Int32 {
+  self.angles.length()
+}
+
+///|
+pub fn OmmSystem::num_dihedrals(self : OmmSystem) -> Int32 {
+  self.dihedrals.length()
+}
+
+///|
 pub fn OmmSystem::add_particle(
   self : OmmSystem,
   particle~ : OmmParticle,
@@ -189,6 +204,55 @@ pub fn OmmSystem::potential_energy(
       energy = energy + 0.5 * a.3 * (theta - a.4) * (theta - a.4)
     }
   }
+  // Dihedral energy: periodic torsion E = k (1 + cos(n*phi - phi0)).
+  // phi is the i-j-k-l dihedral in radians; phi0 and k use the same units.
+  for di in self.dihedrals {
+    let (i0, j0, k0, l0, k_phi, phi0, n) = di
+    let b1x = positions[j0][0] - positions[i0][0]
+    let b1y = positions[j0][1] - positions[i0][1]
+    let b1z = positions[j0][2] - positions[i0][2]
+    let b2x = positions[k0][0] - positions[j0][0]
+    let b2y = positions[k0][1] - positions[j0][1]
+    let b2z = positions[k0][2] - positions[j0][2]
+    let b3x = positions[l0][0] - positions[k0][0]
+    let b3y = positions[l0][1] - positions[k0][1]
+    let b3z = positions[l0][2] - positions[k0][2]
+    let m1 = (
+      b1y * b2z - b1z * b2y,
+      b1z * b2x - b1x * b2z,
+      b1x * b2y - b1y * b2x,
+    )
+    let m2 = (
+      b2y * b3z - b2z * b3y,
+      b2z * b3x - b2x * b3z,
+      b2x * b3y - b2y * b3x,
+    )
+    let m1_len = @math.pow(m1.0 * m1.0 + m1.1 * m1.1 + m1.2 * m1.2, 0.5)
+    let m2_len = @math.pow(m2.0 * m2.0 + m2.1 * m2.1 + m2.2 * m2.2, 0.5)
+    let b2_len = @math.pow(b2x * b2x + b2y * b2y + b2z * b2z, 0.5)
+    if m1_len > 1.0e-12 && m2_len > 1.0e-12 && b2_len > 1.0e-12 {
+      let cos_phi = (m1.0 * m2.0 + m1.1 * m2.1 + m1.2 * m2.2) /
+        (m1_len * m2_len)
+      let c = if cos_phi > 1.0 {
+        1.0
+      } else if cos_phi < -1.0 {
+        -1.0
+      } else {
+        cos_phi
+      }
+      // Sign from the mixed product (m1 x b2) . m2 to place phi in (-pi, pi].
+      let cross_x = m1.1 * b2z - m1.2 * b2y
+      let cross_y = m1.2 * b2x - m1.0 * b2z
+      let cross_z = m1.0 * b2y - m1.1 * b2x
+      let sgn = if cross_x * m2.0 + cross_y * m2.1 + cross_z * m2.2 >= 0.0 {
+        1.0
+      } else {
+        -1.0
+      }
+      let phi = sgn * @math.acos(c)
+      energy = energy + k_phi * (1.0 + @math.cos(n.to_double() * phi - phi0))
+    }
+  }
   // LJ energy
   let n = self.particles.length()
   for i = 0; i < n; i = i + 1 {
@@ -224,6 +288,9 @@ pub fn OmmSystem::forces(
 ) -> Array[Array[Double]] {
   let n = positions.length()
   let forces : Array[Array[Double]] = Array::make(n, [0.0, 0.0, 0.0])
+  for i = 0; i < n; i = i + 1 {
+    forces[i] = [0.0, 0.0, 0.0]
+  }
   let delta = 0.0001
   for i = 0; i < n; i = i + 1 {
     for d = 0; d < 3; d = d + 1 {

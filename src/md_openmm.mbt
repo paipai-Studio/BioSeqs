@@ -34,7 +34,7 @@ pub fn md_seed_rng(seed : Int64) -> Unit {
 
 ///|
 /// Standard normal via Box-Muller transform.
-fn md_gaussian() -> Double {
+pub fn md_gaussian() -> Double {
   let mut u1 = md_rand_double()
   if u1 < 1.0e-12 {
     u1 = 1.0e-12

@@ -595,7 +595,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 
 ## 分子动力学与结构分析
 
-对标 MDAnalysis / OpenMM / ProDy 的分子动力学（MD）模拟与结构分析模块族。此前版本已内置 `mdanalysis.mbt` 主分析库、19 个 `mda_*` 扩展分析模块、27 个 `omm_*` OpenMM 风格 MD 引擎模块以及约 80 个结构解析/叠合/二级结构/表面分析模块；本批新增以下内容。
+对标 MDAnalysis / OpenMM / ProDy 的分子动力学（MD）模拟与结构分析模块族。此前版本已内置 `mdanalysis.mbt` 主分析库、19 个 `mda_*` 扩展分析模块、27 个 `omm_*` OpenMM 风格 MD 引擎模块以及约 80 个结构解析/叠合/二级结构/表面分析模块；本批新增以下内容（`omm_*` 扩展至 40 个模块）。
 
 ### 轨迹与拓扑格式（新增）
 
@@ -626,13 +626,32 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **mda_rdf_site** | MDAnalysis InterRDF_s | 位点特异 RDF：逐对 (i,j) 计数与 g(r) 归一化；附 2D 平面 RDF（\|dx\|/\|dy\| 象限折叠直方图，PBC 可选） |
 | **mda_dipole** | MDAnalysis dipole moments | 体系偶极矩：μ=Σq·r（e·Å）、轨迹逐帧偶极、Debye 转换（×4.80320425）、模长与多时间原点偶极自相关 C(t) |
 
+### OpenMM 应用层与力场扩展（新增）
+
+| 模块 | 对应库 | 功能说明 |
+| :--- | :--- | :--- |
+| **omm_modeller** | openmm.app.Modeller | 体系构建与编辑：add_solvent（周期水盒格点填充+最小镜像过滤）、add_hydrogens（价态规则质子化）、center_in_box、delete_water、neutralize（水→反离子替换）、net_charge |
+| **omm_simulation** | openmm.app.Simulation | Simulation/State 应用层：OmmState 快照（positions/velocities/box/time/step/能量深拷贝）、minimize→equilibrate→production 工作流、Maxwell-Boltzmann 初速度+质心动量清零、checkpoint 文本序列化 `omm_checkpoint_save/load` |
+| **omm_variable_integrator** | VariableVerlet/LangevinIntegrator | 变步长积分器：全步 vs 双半步嵌入误差估计、PI-free 控制器 dt'=0.9dt(tol/err)^(1/3) 带夹紧；Langevin 变体附 Berendsen 式速度重标定 |
+| **omm_bridge** | — | omm↔mda 互转桥：OmmSystem↔Universe 双向转换（元素按质量猜测）、完整 AMBER prmtop 解析器 `omm_parse_prmtop_full`（FLAG 分节+固定宽字段+18.2223 电荷换算）、prmtop→Universe/OmmSystem、LJ A/B 系数→σ/ε 组合规则、inpcrd 坐标读取 |
+| **omm_xml_ff** | openmm.app.ForceField | XML 力场补全：HarmonicAngleForce/PeriodicTorsionForce（Proper/Improper 多重 Fourier 项）解析、`omm_xml_ff_build_system`（模板匹配→键/角/二面体参数化，OpenMM XML 单位 kJ/mol/nm → kcal/mol/Å 自动转换，元素级类型 fallback） |
+| **omm_builtin_ff** | amber99sb | 内置 amber99sb 教学子集力场：20 标准氨基酸残基模板（PRO 环闭合/GLY 双 HA 等特例）、14 种原子类型、键/角/二面角/非键参数（kJ/mol/nm 单位，电荷置零需自定义） |
+| **omm_custom_force** | CustomBond/Angle/Torsion/NonbondedForce | 自定义力：表达式以 r/theta/phi 为变量（全局+逐项参数覆盖）、能量精确求值、力经链式法则/有限差分 |
+| **omm_pme_fft** | PME (SPME) | 网格化倒易空间 Ewald：radix-2 三维 FFT（位反转+蝶形，三轴步进）、三线性电荷分配、sinc 窗口逆修正、与解析 k 空间求和对拍（<2%）；并修复既有 `omm_erfc`（A&S 7.1.26 系数符号反，erfc(0)≈1e-9 → 1） |
+| **omm_mbar** | pymbar | MBAR 多态重加权：对数域自洽迭代（logsumexp 混合归一化+似然平稳条件）、Beutler soft-core LJ/Coulomb 独立 API、λ 调度器（线性+按 ⟨dU/dλ⟩ 积分反插值重平衡） |
+| **omm_amd** | aMD / GaMD | 加速分子动力学：Hamelberg boost (E−V)²/(α+E−V) 与 Gaussian 变体 (E−V)²/(α+(E−V)²)、dV'/dV 力缩放、boosted 势能 velocity-Verlet 模拟循环 |
+| **omm_hremd** | HREMD | Hamiltonian 副本交换：混合温度/Hamiltonian 的 Metropolis 判据 Δ=βᵢ(Uᵢ(xⱼ)−Uᵢ(xᵢ))+βⱼ(Uⱼ(xᵢ)−Uⱼ(xⱼ))、偶对交换循环、占据簿记与最终构型归属 |
+| **omm_lincs** | LINCS | 约束求解器：B M⁻¹ Bᵀ 耦合矩阵高斯消元（部分主元）精确求解+外层再线性化、质量加权 COM 保持投影、位置与速度双投影 |
+| **omm_drude** | DrudeForce / DrudeLangevinIntegrator | Drude 振子：核-振子弹簧对、静态极化率 α=q²·332.06371/k、n_inner 子步 velocity-Verlet+相对坐标 OU 恒温（折合质量，不注入质心动量）、核心弱摩擦 |
+| **omm_reporter_file** | DCDFile / PDBFile | 落盘报告器：流式 DCD writer（复用 `write_dcd` 编码器，parse 往返校验）、`Simulation::record_dcd` 周期采样、多帧 PDB 文本（MODEL/ENDMDL，%8.3f 坐标格式化） |
+
 ### 既有 MD / 结构动力学能力（本批补齐测试覆盖）
 
 | 模块族 | 对应库 | 功能说明 |
 | :--- | :--- | :--- |
 | `mdanalysis.mbt` | MDAnalysis | 距离阵列、RMSD/RMSF、RDF、MSD、氢键、接触分数、phi/psi 与 BAT 扭角、密度分布、介电、扩散/持久长度、PCA/TICA、准谐熵等 |
 | `mda_*`（19 个扩展） | MDAnalysis | 轨迹操作（merge/slice/wrap/unwrap/对齐/B-factor）、构象聚类、空腔检测、HOLE 孔道剖面、脂质序参数、leaflet finder、压力张量、水桥/驻留、盐桥/π 堆积/疏水接触、回转张量、距离矩阵时序/DCCM 等 |
-| `omm_*`（27 个模块） | OpenMM | AMBER/CHARMM/GROMACS/Tinker 力场解析、PME 静电、RESPA 多时间步、SHAKE/SETTLE/RATTLE 约束、REMD 复制交换、伞形采样+WHAM、Metadynamics、SMD/REST2、自由能（TI/FEP/BAR）、隐式溶剂 GB/OBC、恒压器、L-BFGS/最速下降最小化、虚拟位点、水模型、报告器 |
+| `omm_*`（40 个模块） | OpenMM | AMBER/CHARMM/GROMACS/Tinker 力场解析、PME 静电（解析 k 空间 + FFT 网格 SPME）、RESPA 多时间步、SHAKE/SETTLE/RATTLE/LINCS 约束、REMD/HREMD 复制交换、伞形采样+WHAM、Metadynamics、SMD/REST2、aMD/GaMD 加速采样、自由能（TI/FEP/BAR/MBAR+soft-core）、隐式溶剂 GB/OBC、恒压器、L-BFGS/最速下降最小化、虚拟位点、Drude 振子、水模型、变步长积分器、Modeller/Simulation/State/checkpoint、XML 力场+内置 amber99sb、自定义力表达式、DCD/PDB 落盘报告器 |
 | 结构分析族 | Bio.PDB / Biotite / ProDy | PDB/mmCIF/MMTF/GRO/PDBQT 解析、DSSP、SASA（Shrake-Rupley/NACCESS/Lee-Richards）、SVD/QCP/四元数/CE/TM-score 叠合、弹性网络（ANM/GNM/RTB）、系综 PCA、氢键/二硫键/旋转异构体等 |
 
 MD 轨迹分析另提供与 MDAnalysis 的 Python 对拍基准：`test/python/mdanalysis_compare.sh`（距离矩阵/RMSD/RMSF/回转半径/质心/二面角等，容差 1e-4）。
@@ -811,7 +830,7 @@ MD 轨迹分析另提供与 MDAnalysis 的 Python 对拍基准：`test/python/md
 ```
 IvanAXu/BioSeqs/
 ├── moon.mod                          # 模块配置 (name="IvanAXu/BioSeqs", version=0.1.12)
-├── src/                              # 源代码（1151 个 .mbt 模块）
+├── src/                              # 源代码（1164 个 .mbt 模块）
 │   ├── seq.mbt                       # Bio.Seq 序列对象
 │   ├── seqio.mbt / fasta_io.mbt / ... # 序列 I/O（30+ 种格式）
 │   ├── alignment.mbt / align_*.mbt   # 比对算法 + 20+ 种比对格式严格 API
@@ -895,7 +914,7 @@ IvanAXu/BioSeqs/
 │   ├── hla_typing_demo/ / sv_caller_demo/ # 第十阶段 K 系列（HLA 分型：参考序列库→读取比对→GL String 闭环；SV 检测：CIGAR/SA tag→DEL/INS/DUP/INV/BND→深度置信度闭环）
 │   └── ... （更多 examples/*_demo/）
 ├── test/
-│   ├── moonbit/                      # MoonBit 单元测试（802 个测试文件，17001 用例）
+│   ├── moonbit/                      # MoonBit 单元测试（815 个测试文件，17059 用例）
 │   │   ├── bio_seq_test.mbt / seqio_wb_test.mbt / ...
 │   │   ├── alignment_test.mbt / pdb_test.mbt / phylo_test.mbt / ...
 │   │   ├── deseq2_test.mbt / rankprod_test.mbt / seurat_test.mbt / scran_test.mbt / ...
@@ -932,7 +951,7 @@ IvanAXu/BioSeqs/
 
 ```bash
 moon build                                              # ✅ 成功
-moon test                                               # ✅ 17001 个测试全部通过（test/moonbit 包）
+moon test                                               # ✅ 17059 个测试全部通过（test/moonbit 包）
 ```
 
 ---
@@ -941,7 +960,7 @@ moon test                                               # ✅ 17001 个测试全
 
 ```bash
 moon build      # 构建项目
-moon test       # 运行全部测试 (17001 个测试用例，test/moonbit 包)
+moon test       # 运行全部测试 (17059 个测试用例，test/moonbit 包)
 ```
 
 ---

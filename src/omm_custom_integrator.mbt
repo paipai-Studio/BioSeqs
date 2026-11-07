@@ -75,7 +75,93 @@ fn omm_lookup_var(
 }
 
 ///|
-/// Tokenize expression into numbers, operators, and variable names
+/// Supported math functions (OpenMM-style): unary sqrt/exp/log/sin/cos/
+/// tan/abs/floor/ceil/square/step, binary min/max, ternary select.
+fn omm_is_function(token : String) -> Bool {
+  token == "sqrt" ||
+  token == "exp" ||
+  token == "log" ||
+  token == "sin" ||
+  token == "cos" ||
+  token == "tan" ||
+  token == "abs" ||
+  token == "floor" ||
+  token == "ceil" ||
+  token == "square" ||
+  token == "step" ||
+  token == "min" ||
+  token == "max" ||
+  token == "select"
+}
+
+///|
+/// Arity of a supported function.
+fn omm_function_arity(token : String) -> Int32 {
+  if token == "min" || token == "max" {
+    2
+  } else if token == "select" {
+    3
+  } else {
+    1
+  }
+}
+
+///|
+/// Apply a function to popped stack values (in source order).
+fn omm_apply_function(fn_name : String, args : Array[Double]) -> Double {
+  if fn_name == "sqrt" {
+    @math.pow(args[0], 0.5)
+  } else if fn_name == "exp" {
+    @math.exp(args[0])
+  } else if fn_name == "log" {
+    @math.ln(args[0])
+  } else if fn_name == "sin" {
+    @math.sin(args[0])
+  } else if fn_name == "cos" {
+    @math.cos(args[0])
+  } else if fn_name == "tan" {
+    @math.tan(args[0])
+  } else if fn_name == "abs" {
+    args[0].abs()
+  } else if fn_name == "floor" {
+    @math.floor(args[0])
+  } else if fn_name == "ceil" {
+    @math.ceil(args[0])
+  } else if fn_name == "square" {
+    args[0] * args[0]
+  } else if fn_name == "step" {
+    if args[0] >= 0.0 {
+      1.0
+    } else {
+      0.0
+    }
+  } else if fn_name == "min" {
+    if args[0] < args[1] {
+      args[0]
+    } else {
+      args[1]
+    }
+  } else if fn_name == "max" {
+    if args[0] > args[1] {
+      args[0]
+    } else {
+      args[1]
+    }
+  } else if fn_name == "select" {
+    // select(x, y, z) = x > 0 ? y : z
+    if args[0] > 0.0 {
+      args[1]
+    } else {
+      args[2]
+    }
+  } else {
+    0.0
+  }
+}
+
+///|
+/// Tokenize expression into numbers, operators, function names, variables,
+/// and parentheses/commas. Unary minus becomes the "neg" token.
 fn omm_tokenize(expr : String) -> Array[String] {
   let tokens : Array[String] = Array(capacity=0)
   let mut current = ""
@@ -90,12 +176,23 @@ fn omm_tokenize(expr : String) -> Array[String] {
       c == '*' ||
       c == '/' ||
       c == '(' ||
-      c == ')' {
+      c == ')' ||
+      c == ',' {
       if current.length() > 0 {
         tokens.push(current)
         current = ""
       }
-      tokens.push(c.to_string())
+      if c == '-' {
+        // Unary minus: at the start, after an operator, "(", or ",".
+        let unary = tokens.length() == 0 ||
+          omm_is_operator(tokens[tokens.length() - 1]) ||
+          tokens[tokens.length() - 1] == "(" ||
+          tokens[tokens.length() - 1] == "," ||
+          omm_is_function(tokens[tokens.length() - 1])
+        tokens.push(if unary { "neg" } else { "-" })
+      } else {
+        tokens.push(c.to_string())
+      }
     } else {
       current = current + c.to_string()
     }
@@ -202,21 +299,39 @@ fn omm_eval_tokens(
   let output : Array[String] = Array(capacity=0)
   let operators : Array[String] = Array(capacity=0)
   for token in tokens {
-    if omm_is_operator(token) {
+    if token == "neg" {
+      // Unary minus: right-binding, treated like a function call.
+      operators.push(token)
+    } else if omm_is_function(token) {
+      // Function names wait for their argument list; highest precedence.
+      operators.push(token)
+    } else if omm_is_operator(token) {
       while operators.length() > 0 &&
             operators[operators.length() - 1] != "(" &&
+            !omm_is_function(operators[operators.length() - 1]) &&
+            operators[operators.length() - 1] != "neg" &&
             omm_op_prec(operators[operators.length() - 1]) >= omm_op_prec(token) {
         output.push(operators.remove(operators.length() - 1))
       }
       operators.push(token)
     } else if token == "(" {
       operators.push(token)
+    } else if token == "," {
+      // Argument separator: flush operators back to the opening "(".
+      while operators.length() > 0 && operators[operators.length() - 1] != "(" {
+        output.push(operators.remove(operators.length() - 1))
+      }
     } else if token == ")" {
       while operators.length() > 0 && operators[operators.length() - 1] != "(" {
         output.push(operators.remove(operators.length() - 1))
       }
       if operators.length() > 0 {
         ignore(operators.remove(operators.length() - 1))
+      }
+      // The function itself goes to the output after its arguments.
+      if operators.length() > 0 &&
+        omm_is_function(operators[operators.length() - 1]) {
+        output.push(operators.remove(operators.length() - 1))
       }
     } else {
       output.push(token)
@@ -228,7 +343,13 @@ fn omm_eval_tokens(
   // Evaluate RPN
   let stack : Array[Double] = Array(capacity=0)
   for token in output {
-    if omm_is_operator(token) {
+    if token == "neg" {
+      if stack.length() < 1 {
+        return 0.0
+      }
+      let a = stack.remove(stack.length() - 1)
+      stack.push(-a)
+    } else if omm_is_operator(token) {
       if stack.length() < 2 {
         return 0.0
       }
@@ -245,6 +366,16 @@ fn omm_eval_tokens(
       } else {
         stack.push(0.0)
       }
+    } else if omm_is_function(token) {
+      let arity = omm_function_arity(token)
+      if stack.length() < arity {
+        return 0.0
+      }
+      let args : Array[Double] = Array(capacity=0)
+      for _k = 0; _k < arity; _k = _k + 1 {
+        args.insert(0, stack.remove(stack.length() - 1))
+      }
+      stack.push(omm_apply_function(token, args))
     } else {
       let parsed = omm_try_parse_double(token)
       match parsed {

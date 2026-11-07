@@ -84,10 +84,9 @@ test "omm_system_forces_match_analytic_gradient" {
   sys.add_bond(0, 1, 10.0, 1.0)
   let pos = [[0.0, 0.0, 0.0], [1.2, 0.0, 0.0]]
   let f = sys.forces(pos)
-  // dU/dr = k * (r - r0) = 2.0 on the second particle
-  // NOTE: forces() allocates its result via Array::make(n, [0,0,0]), so all
-  // particles share one array and the last particle's entry overwrites the
-  // others; only particle 1's forces are stable to assert here.
+  // dU/dr = k * (r - r0) = 2.0; the force is opposite on each particle
+  // (row-independent allocation since the shared-row bug was fixed).
+  assert_true(@moonbit.assert_num_close(f[0][0], 2.0, 1.0e-5))
   assert_true(@moonbit.assert_num_close(f[1][0], -2.0, 1.0e-5))
 }
 
