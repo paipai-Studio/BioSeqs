@@ -990,8 +990,6 @@ pub fn mol_to_smiles(mol : Molecule) -> String {
   let ring_map = mol_ring_digit_map(mol, neighbors, start)
   let visited = Array::make(n, false)
   let result : StringBuilder = StringBuilder()
-  mol_smiles_dfs(
-    mol, start, -1, visited, neighbors, ranks, ring_map, result,
-  )
+  mol_smiles_dfs(mol, start, -1, visited, neighbors, ranks, ring_map, result)
   result.to_string()
 }

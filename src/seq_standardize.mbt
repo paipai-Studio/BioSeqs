@@ -96,7 +96,26 @@ fn seq_std_is_core_rna(c : Char) -> Bool {
 ///|
 fn seq_std_is_core_protein(c : Char) -> Bool {
   match c {
-    'A' | 'C' | 'D' | 'E' | 'F' | 'G' | 'H' | 'I' | 'K' | 'L' | 'M' | 'N' | 'P' | 'Q' | 'R' | 'S' | 'T' | 'V' | 'W' | 'Y' => true
+    'A'
+    | 'C'
+    | 'D'
+    | 'E'
+    | 'F'
+    | 'G'
+    | 'H'
+    | 'I'
+    | 'K'
+    | 'L'
+    | 'M'
+    | 'N'
+    | 'P'
+    | 'Q'
+    | 'R'
+    | 'S'
+    | 'T'
+    | 'V'
+    | 'W'
+    | 'Y' => true
     'B' | 'X' | 'Z' | 'J' | 'U' | 'O' => true
     _ => false
   }
@@ -116,7 +135,8 @@ pub fn seq_std_detect_alphabet(s : String) -> String {
     match c {
       'U' => has_u = true
       'T' => has_t = true
-      'D' | 'E' | 'F' | 'I' | 'L' | 'K' | 'M' | 'P' | 'Q' | 'W' | 'Y' => protein_specific = true
+      'D' | 'E' | 'F' | 'I' | 'L' | 'K' | 'M' | 'P' | 'Q' | 'W' | 'Y' =>
+        protein_specific = true
       _ => ()
     }
     i = i + 1

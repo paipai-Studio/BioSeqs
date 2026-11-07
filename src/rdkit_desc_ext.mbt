@@ -62,7 +62,8 @@ fn rdkit_desc_count_paths(
   }
   let mut total = 0
   for start = 0; start < n; start = start + 1 {
-    total = total + rdkit_desc_path_dfs_impl(
+    total = total +
+      rdkit_desc_path_dfs_impl(
         start,
         start,
         length,
@@ -88,7 +89,8 @@ fn rdkit_desc_path_dfs_impl(
   let mut count = 0
   for nb in neighbors[cur] {
     if !visited[nb] {
-      count = count + rdkit_desc_path_dfs_impl(start, nb, remaining - 1, neighbors, visited)
+      count = count +
+        rdkit_desc_path_dfs_impl(start, nb, remaining - 1, neighbors, visited)
     }
   }
   visited[cur] = false
@@ -143,7 +145,9 @@ fn rdkit_desc_adj(mol : Molecule) -> Array[Array[Int32]] {
 /// Chi connectivity indices using degree deltas (approximation of the
 /// valence-delta values): Chi_m = sum over m-step simple paths of
 /// 1/sqrt(prod of endpoint-and-inner degrees).
-pub fn rdkit_chi_indices(mol : Molecule) -> (Double, Double, Double, Double, Double) {
+pub fn rdkit_chi_indices(
+  mol : Molecule,
+) -> (Double, Double, Double, Double, Double) {
   let n = mol.num_atoms()
   if n == 0 {
     return (0.0, 0.0, 0.0, 0.0, 0.0)
@@ -281,7 +285,11 @@ fn rdkit_desc_jacobi_eigenvalues(
 
 ///|
 fn rdkit_desc_abs(x : Double) -> Double {
-  if x < 0.0 { -x } else { x }
+  if x < 0.0 {
+    -x
+  } else {
+    x
+  }
 }
 
 ///|
@@ -362,7 +370,10 @@ fn rdkit_desc_jacobi_full(
 ///|
 /// Build a Burden-style matrix: diagonal = per-atom property, bonded
 /// off-diagonal entries = 1.0.
-fn rdkit_desc_burden(mol : Molecule, props : Array[Double]) -> Array[Array[Double]] {
+fn rdkit_desc_burden(
+  mol : Molecule,
+  props : Array[Double],
+) -> Array[Array[Double]] {
   let n = mol.num_atoms()
   let mat : Array[Array[Double]] = Array::make(n, [])
   for i = 0; i < n; i = i + 1 {
@@ -380,7 +391,10 @@ fn rdkit_desc_burden(mol : Molecule, props : Array[Double]) -> Array[Array[Doubl
 }
 
 ///|
-fn rdkit_desc_bcut_from_props(mol : Molecule, props : Array[Double]) -> (Double, Double) {
+fn rdkit_desc_bcut_from_props(
+  mol : Molecule,
+  props : Array[Double],
+) -> (Double, Double) {
   let n = mol.num_atoms()
   if n == 0 {
     return (0.0, 0.0)
@@ -404,7 +418,10 @@ fn rdkit_desc_bcut_from_props(mol : Molecule, props : Array[Double]) -> (Double,
 /// BCUT2D descriptors (4 of the 8 RDKit values): MW and Gasteiger charge
 /// extremes of the Burden matrix.
 pub fn rdkit_bcut2d(mol : Molecule) -> (Double, Double, Double, Double) {
-  let (mw_hi, mw_lo) = rdkit_desc_bcut_from_props(mol, rdkit_desc_mol_weights(mol))
+  let (mw_hi, mw_lo) = rdkit_desc_bcut_from_props(
+    mol,
+    rdkit_desc_mol_weights(mol),
+  )
   let charges = rdkit_gasteiger_charges(mol)
   let (ch_hi, ch_lo) = rdkit_desc_bcut_from_props(mol, charges)
   (mw_hi, mw_lo, ch_hi, ch_lo)

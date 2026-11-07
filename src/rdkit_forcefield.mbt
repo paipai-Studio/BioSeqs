@@ -15,7 +15,7 @@ pub fn RdkitConformer::from_coords(
   atoms : Array[String],
   coords : Array[(Double, Double, Double)],
 ) -> RdkitConformer {
-  RdkitConformer::{ atoms, coords, energy: 0.0 }
+  RdkitConformer::{ atoms, coords, energy: 0.0, }
 }
 
 ///|
@@ -176,8 +176,12 @@ fn ff_angle(
     return 0.0
   }
   let mut cosv = (v1x * v2x + v1y * v2y + v1z * v2z) / (d1 * d2)
-  if cosv > 1.0 { cosv = 1.0 }
-  if cosv < -1.0 { cosv = -1.0 }
+  if cosv > 1.0 {
+    cosv = 1.0
+  }
+  if cosv < -1.0 {
+    cosv = -1.0
+  }
   @math.acos(cosv)
 }
 
@@ -216,8 +220,12 @@ fn ff_torsion(
     return 0.0
   }
   let mut cosv = (n1x * n2x + n1y * n2y + n1z * n2z) / (n1l * n2l)
-  if cosv > 1.0 { cosv = 1.0 }
-  if cosv < -1.0 { cosv = -1.0 }
+  if cosv > 1.0 {
+    cosv = 1.0
+  }
+  if cosv < -1.0 {
+    cosv = -1.0
+  }
   @math.acos(cosv)
 }
 
@@ -236,7 +244,11 @@ pub fn rdkit_ff_energy(
   // bond stretch
   for b in mol.bonds {
     let r = ff_dist(coords, b.from, b.to)
-    let r0 = ff_bond_r0(mol.atoms[b.from].symbol, mol.atoms[b.to].symbol, b.order)
+    let r0 = ff_bond_r0(
+      mol.atoms[b.from].symbol,
+      mol.atoms[b.to].symbol,
+      b.order,
+    )
     let dr = r - r0
     e = e + ff_bond_kb(b.order) * dr * dr
   }
@@ -301,7 +313,7 @@ pub fn rdkit_ff_energy(
           ff_vdw_epsilon(mol.atoms[i].symbol) *
           ff_vdw_epsilon(mol.atoms[j].symbol),
         )
-        let sr6 = (sigma / r) * (sigma / r) * (sigma / r)
+        let sr6 = sigma / r * (sigma / r) * (sigma / r)
         let sr6 = sr6 * sr6
         e = e + eps * (sr6 * sr6 - 2.0 * sr6)
       }
@@ -395,10 +407,7 @@ pub fn rdkit_ff_optimize(
 ///|
 /// RMSD between two conformers with matching atom counts, after optimal
 /// rigid-body superposition (self-contained Kabsch implementation).
-pub fn rdkit_conformer_rmsd(
-  a : RdkitConformer,
-  b : RdkitConformer,
-) -> Double {
+pub fn rdkit_conformer_rmsd(a : RdkitConformer, b : RdkitConformer) -> Double {
   aligned_rms(a.coords, b.coords)
 }
 
@@ -419,7 +428,7 @@ pub fn rdkit_embed_multiple_conformers(
     let raw = rdkit_generate_conformer(smiles, seed=seed + k * 7919)
     let conf = if optimize {
       let (e, coords) = rdkit_ff_optimize(mol, raw.coords)
-      RdkitConformer::{ atoms: raw.atoms, coords, energy: e }
+      RdkitConformer::{ atoms: raw.atoms, coords, energy: e, }
     } else {
       raw
     }

@@ -24,9 +24,7 @@ test "seq_filter_poly_a_and_clean" {
 
 ///|
 test "seq_filter_adapter_contamination" {
-  let hits = @src.seq_apply_filter_catalog(
-    seq_ft_seq("AGATCGGAAGAGCACGT"),
-  )
+  let hits = @src.seq_apply_filter_catalog(seq_ft_seq("AGATCGGAAGAGCACGT"))
   let mut found = false
   for h in hits {
     if h.rule_id == "illumina_adapter" {
@@ -71,10 +69,18 @@ test "seq_saturate_site_excludes_wildtype" {
 
 ///|
 test "seq_degenerate_sequence_writes_scheme" {
-  let deg = @src.seq_degenerate_sequence(@src.Seq::new("AAACCC"), [0], scheme="NNK")
+  let deg = @src.seq_degenerate_sequence(
+    @src.Seq::new("AAACCC"),
+    [0],
+    scheme="NNK",
+  )
   assert_eq(deg.to_string(), "NNKCCC")
   // two codon sites
-  let deg2 = @src.seq_degenerate_sequence(@src.Seq::new("AAACCC"), [0, 1], scheme="NDT")
+  let deg2 = @src.seq_degenerate_sequence(
+    @src.Seq::new("AAACCC"),
+    [0, 1],
+    scheme="NDT",
+  )
   assert_eq(deg2.to_string(), "NDTNDT")
 }
 
@@ -96,7 +102,9 @@ test "seq_degenerate_variant_count_and_expansion" {
   for v in variants {
     let s = v.to_string()
     assert_eq(s.length(), 6)
-    assert_true(s == "GGACCC" || s == "GTACCC" || s == "TGACCC" || s == "TTACCC")
+    assert_true(
+      s == "GGACCC" || s == "GTACCC" || s == "TGACCC" || s == "TTACCC",
+    )
     seen = seen + 1
   }
   assert_eq(seen, 4)

@@ -17,7 +17,9 @@ fn mmp_candidate_bonds(mol : Molecule) -> Array[Int32] {
   let out : Array[Int32] = Array(capacity=0)
   for i = 0; i < mol.bonds.length(); i = i + 1 {
     let b = mol.bonds[i]
-    if b.order == 1 && !mol_is_in_ring(mol, b.from) && !mol_is_in_ring(mol, b.to) {
+    if b.order == 1 &&
+      !mol_is_in_ring(mol, b.from) &&
+      !mol_is_in_ring(mol, b.to) {
       out.push(i)
     }
   }
@@ -56,7 +58,8 @@ fn mmp_component(
         for i = 0; i < mol.bonds.length(); i = i + 1 {
           if cut_bonds.contains(i) {
             let bb = mol.bonds[i]
-            if (bb.from == cur && bb.to == other) || (bb.from == other && bb.to == cur) {
+            if (bb.from == cur && bb.to == other) ||
+              (bb.from == other && bb.to == cur) {
               is_cut = true
             }
           }
@@ -82,12 +85,20 @@ fn mmp_sub_mol(mol : Molecule, atoms : Array[Int32]) -> Molecule {
   let new_atoms : Array[MolAtom] = Array(capacity=0)
   for a in atoms {
     index_map[a] = new_atoms.length()
-    new_atoms.push(MolAtom::{ symbol: mol.atoms[a].symbol, charge: mol.atoms[a].charge, aromatic: mol.atoms[a].aromatic, })
+    new_atoms.push(MolAtom::{
+      symbol: mol.atoms[a].symbol,
+      charge: mol.atoms[a].charge,
+      aromatic: mol.atoms[a].aromatic,
+    })
   }
   let new_bonds : Array[MolBond] = Array(capacity=0)
   for b in mol.bonds {
     if in_set[b.from] && in_set[b.to] {
-      new_bonds.push(MolBond::{ from: index_map[b.from], to: index_map[b.to], order: b.order, })
+      new_bonds.push(MolBond::{
+        from: index_map[b.from],
+        to: index_map[b.to],
+        order: b.order,
+      })
     }
   }
   Molecule::{ atoms: new_atoms, bonds: new_bonds, }
@@ -151,10 +162,10 @@ pub fn rdkit_mmp_cuts(
       let frag = mmp_component_smiles(mol, comps1[0])
       let ctx = mmp_component_smiles(mol, comps1[1])
       out.push(RdkitMmpCut::{
-          context: ctx,
-          fragments: [frag],
-          cut_bonds: [(mol.bonds[cands[i]].from, mol.bonds[cands[i]].to)],
-        })
+        context: ctx,
+        fragments: [frag],
+        cut_bonds: [(mol.bonds[cands[i]].from, mol.bonds[cands[i]].to)],
+      })
     }
     if max_cuts >= 2 {
       for j = i + 1; j < limit; j = j + 1 {
@@ -181,13 +192,13 @@ pub fn rdkit_mmp_cuts(
               let _ = sb.write(rest[k])
             }
             out.push(RdkitMmpCut::{
-                context: sb.to_string(),
-                fragments: frags,
-                cut_bonds: [
-                  (mol.bonds[cands[i]].from, mol.bonds[cands[i]].to),
-                  (mol.bonds[cands[j]].from, mol.bonds[cands[j]].to),
-                ],
-              })
+              context: sb.to_string(),
+              fragments: frags,
+              cut_bonds: [
+                (mol.bonds[cands[i]].from, mol.bonds[cands[i]].to),
+                (mol.bonds[cands[j]].from, mol.bonds[cands[j]].to),
+              ],
+            })
           }
         }
       }

@@ -65,7 +65,7 @@ pub fn rdkit_find_potential_stereocenters(mol : Molecule) -> Array[Int32] {
 ///|
 /// Count stereoisomers as 2^n over potential centers (1 when the
 /// molecule has no potential center, matching the RDKit convention).
-pub fn rdkit_count_stereoisomers(mol : Molecule) -> Int {
+pub fn rdkit_count_stereoisomers(mol : Molecule) -> Int32 {
   let n = rdkit_find_potential_stereocenters(mol).length()
   1 << n
 }
@@ -85,11 +85,7 @@ pub fn rdkit_enumerate_stereoisomers(
     return out
   }
   let n_combos = 1 << n
-  let limit = if n_combos > max_isomers {
-    max_isomers
-  } else {
-    n_combos
-  }
+  let limit = if n_combos > max_isomers { max_isomers } else { n_combos }
   for combo = 0; combo < limit; combo = combo + 1 {
     let assignments : Array[(Int32, Bool)] = Array(capacity=0)
     let label_parts : Array[String] = Array(capacity=0)
@@ -146,15 +142,7 @@ pub fn rdkit_stereo_smiles(
   let visited : Array[Bool] = Array::make(n, false)
   let result = StringBuilder()
   stereo_smiles_dfs(
-    mol,
-    start,
-    -1,
-    visited,
-    neighbors,
-    ranks,
-    ring_map,
-    is_r,
-    result,
+    mol, start, -1, visited, neighbors, ranks, ring_map, is_r, result,
   )
   result.to_string()
 }

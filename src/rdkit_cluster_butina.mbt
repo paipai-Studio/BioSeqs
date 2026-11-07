@@ -81,10 +81,7 @@ pub fn rdkit_butina_cluster(
 /// Tanimoto similarity of two fingerprint hash multisets (min-count
 /// intersection over max-count union). The existing rdkit_fp_tanimoto
 /// expects bit vectors, which does not match Morgan hash multisets.
-fn rdkit_fps_multiset_tanimoto(
-  a : Array[Int32],
-  b : Array[Int32],
-) -> Double {
+fn rdkit_fps_multiset_tanimoto(a : Array[Int32], b : Array[Int32]) -> Double {
   let ca : Map[Int32, Int32] = Map([], capacity=0)
   for h in a {
     ca[h] = match ca.get(h) {

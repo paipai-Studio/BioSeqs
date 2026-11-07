@@ -32,16 +32,16 @@ pub struct SeqFilterHit {
 /// sites and premature stop codon scan.
 pub fn seq_filter_catalog_default() -> Array[SeqFilterRule] {
   [
-    { id: "low_complexity_dust", category: "low_complexity", severity: "warn" },
-    { id: "poly_a_tail", category: "artifact", severity: "warn" },
-    { id: "poly_t_head", category: "artifact", severity: "warn" },
-    { id: "n_run", category: "artifact", severity: "fail" },
-    { id: "illumina_adapter", category: "contamination", severity: "fail" },
-    { id: "nextera_adapter", category: "contamination", severity: "fail" },
-    { id: "ecori_site", category: "feature", severity: "warn" },
-    { id: "bamhi_site", category: "feature", severity: "warn" },
-    { id: "pstI_site", category: "feature", severity: "warn" },
-    { id: "stop_codon_scan", category: "feature", severity: "warn" },
+    { id: "low_complexity_dust", category: "low_complexity", severity: "warn", },
+    { id: "poly_a_tail", category: "artifact", severity: "warn", },
+    { id: "poly_t_head", category: "artifact", severity: "warn", },
+    { id: "n_run", category: "artifact", severity: "fail", },
+    { id: "illumina_adapter", category: "contamination", severity: "fail", },
+    { id: "nextera_adapter", category: "contamination", severity: "fail", },
+    { id: "ecori_site", category: "feature", severity: "warn", },
+    { id: "bamhi_site", category: "feature", severity: "warn", },
+    { id: "pstI_site", category: "feature", severity: "warn", },
+    { id: "stop_codon_scan", category: "feature", severity: "warn", },
   ]
 }
 

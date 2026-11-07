@@ -135,7 +135,11 @@ pub fn rdkit_pbf(conf : RdkitConformer) -> Double {
     return 0.0
   }
   let lambda_min = if eigs[0] < eigs[1] {
-    if eigs[0] < eigs[2] { eigs[0] } else { eigs[2] }
+    if eigs[0] < eigs[2] {
+      eigs[0]
+    } else {
+      eigs[2]
+    }
   } else if eigs[1] < eigs[2] {
     eigs[1]
   } else {
@@ -253,7 +257,7 @@ pub fn rdkit_usr_distance(a : Array[Double], b : Array[Double]) -> Double {
 pub fn rdkit_get_best_rms(
   probe : RdkitConformer,
   reference : RdkitConformer,
-) -> Option[(Double, RdkitConformer)] {
+) -> (Double, RdkitConformer)? {
   let n = probe.coords.length()
   if n != reference.coords.length() || n == 0 {
     return None
@@ -288,9 +292,7 @@ pub fn rdkit_get_best_rms(
   }
   for s, c in probe_counts {
     match ref_counts.get(s) {
-      Some(c2) => if c != c2 {
-        return None
-      }
+      Some(c2) => if c != c2 { return None }
       None => return None
     }
   }
@@ -325,10 +327,16 @@ pub fn rdkit_get_best_rms(
     best_rms = aligned_rms(probe.coords, reference.coords)
     best_coords = transform_coords(probe.coords, reference.coords)
   }
-  Some((
-    best_rms,
-    RdkitConformer::{ atoms: probe.atoms, coords: best_coords, energy: probe.energy, },
-  ))
+  Some(
+    (
+      best_rms,
+      RdkitConformer::{
+        atoms: probe.atoms,
+        coords: best_coords,
+        energy: probe.energy,
+      },
+    ),
+  )
 }
 
 ///|
@@ -524,14 +532,20 @@ fn kabsch_fit(
   let mut u2 = [0.0, 0.0, 0.0]
   if s1 > tol {
     for a = 0; a < 3; a = a + 1 {
-      u1[a] = (m[a][0] * vecs[0][0] + m[a][1] * vecs[1][0] + m[a][2] * vecs[2][0]) / s1
+      u1[a] = (
+          m[a][0] * vecs[0][0] + m[a][1] * vecs[1][0] + m[a][2] * vecs[2][0]
+        ) /
+        s1
     }
   } else {
     u1 = [1.0, 0.0, 0.0]
   }
   if s2 > tol {
     for a = 0; a < 3; a = a + 1 {
-      u2[a] = (m[a][0] * vecs[0][1] + m[a][1] * vecs[1][1] + m[a][2] * vecs[2][1]) / s2
+      u2[a] = (
+          m[a][0] * vecs[0][1] + m[a][1] * vecs[1][1] + m[a][2] * vecs[2][1]
+        ) /
+        s2
     }
   } else {
     // orthogonal complement of u1
@@ -600,9 +614,15 @@ fn kabsch_fit(
   for i = 0; i < n; i = i + 1 {
     let (px, py, pz) = probe[i]
     let (qx, qy, qz) = reference[i]
-    let tx = rot[0][0] * (px - cpx) + rot[0][1] * (py - cpy) + rot[0][2] * (pz - cpz)
-    let ty = rot[1][0] * (px - cpx) + rot[1][1] * (py - cpy) + rot[1][2] * (pz - cpz)
-    let tz = rot[2][0] * (px - cpx) + rot[2][1] * (py - cpy) + rot[2][2] * (pz - cpz)
+    let tx = rot[0][0] * (px - cpx) +
+      rot[0][1] * (py - cpy) +
+      rot[0][2] * (pz - cpz)
+    let ty = rot[1][0] * (px - cpx) +
+      rot[1][1] * (py - cpy) +
+      rot[1][2] * (pz - cpz)
+    let tz = rot[2][0] * (px - cpx) +
+      rot[2][1] * (py - cpy) +
+      rot[2][2] * (pz - cpz)
     let dx = cqx + tx - qx
     let dy = cqy + ty - qy
     let dz = cqz + tz - qz
@@ -613,7 +633,11 @@ fn kabsch_fit(
 
 ///|
 fn rdkit_desc_max0(x : Double) -> Double {
-  if x < 0.0 { 0.0 } else { x }
+  if x < 0.0 {
+    0.0
+  } else {
+    x
+  }
 }
 
 ///|
@@ -693,11 +717,13 @@ fn transform_coords(
     let dx = px - cpx
     let dy = py - cpy
     let dz = pz - cpz
-    out.push((
-      rot[0][0] * dx + rot[0][1] * dy + rot[0][2] * dz + cqx,
-      rot[1][0] * dx + rot[1][1] * dy + rot[1][2] * dz + cqy,
-      rot[2][0] * dx + rot[2][1] * dy + rot[2][2] * dz + cqz,
-    ))
+    out.push(
+      (
+        rot[0][0] * dx + rot[0][1] * dy + rot[0][2] * dz + cqx,
+        rot[1][0] * dx + rot[1][1] * dy + rot[1][2] * dz + cqy,
+        rot[2][0] * dx + rot[2][1] * dy + rot[2][2] * dz + cqz,
+      ),
+    )
   }
   out
 }
@@ -728,12 +754,24 @@ pub fn rdkit_shape_align(
   let mut maxy = -1.0e300
   let mut maxz = -1.0e300
   for (x, y, z) in reference.coords {
-    if x < minx { minx = x }
-    if y < miny { miny = y }
-    if z < minz { minz = z }
-    if x > maxx { maxx = x }
-    if y > maxy { maxy = y }
-    if z > maxz { maxz = z }
+    if x < minx {
+      minx = x
+    }
+    if y < miny {
+      miny = y
+    }
+    if z < minz {
+      minz = z
+    }
+    if x > maxx {
+      maxx = x
+    }
+    if y > maxy {
+      maxy = y
+    }
+    if z > maxz {
+      maxz = z
+    }
   }
   minx = minx - 3.0
   miny = miny - 3.0
@@ -763,7 +801,9 @@ pub fn rdkit_shape_align(
         let pz = minz + gz.to_double() * spacing
         // gaussian density of each molecule
         let mut dp = 0.0
-        for i = 0; i < probe.atoms.length() && i < transformed.length(); i = i + 1 {
+        for i = 0
+            i < probe.atoms.length() && i < transformed.length()
+            i = i + 1 {
           let (x, y, z) = transformed[i]
           let dx = x - px
           let dy = y - py

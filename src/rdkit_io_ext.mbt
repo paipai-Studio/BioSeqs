@@ -117,29 +117,29 @@ pub fn rdkit_mol_to_molblock(mol : Molecule, name~ : String = "") -> String {
   let _ = sb.write(name)
   let _ = sb.write("\n  BioSeqs          2D\n\n")
   let _ = sb.write(
-      io_pad_left_num(mol.num_atoms(), 3) +
-      io_pad_left_num(mol.num_bonds(), 3) +
-      "  0  0  0  0  0  0  0  0999 V2000\n",
-    )
+    io_pad_left_num(mol.num_atoms(), 3) +
+    io_pad_left_num(mol.num_bonds(), 3) +
+    "  0  0  0  0  0  0  0  0999 V2000\n",
+  )
   for atom in mol.atoms {
     let _ = sb.write(
-        io_fmt_10_4(0.0) +
-        io_fmt_10_4(0.0) +
-        io_fmt_10_4(0.0) +
-        " " +
-        io_pad_right(atom.symbol, 3) +
-        " 0" +
-        io_pad_left_num(io_atom_charge_code(atom.charge), 3) +
-        "  0  0  0  0  0  0  0  0  0  0\n",
-      )
+      io_fmt_10_4(0.0) +
+      io_fmt_10_4(0.0) +
+      io_fmt_10_4(0.0) +
+      " " +
+      io_pad_right(atom.symbol, 3) +
+      " 0" +
+      io_pad_left_num(io_atom_charge_code(atom.charge), 3) +
+      "  0  0  0  0  0  0  0  0  0  0\n",
+    )
   }
   for bond in mol.bonds {
     let _ = sb.write(
-        io_pad_left_num(bond.from + 1, 3) +
-        io_pad_left_num(bond.to + 1, 3) +
-        io_pad_left_num(bond.order, 3) +
-        "  0\n",
-      )
+      io_pad_left_num(bond.from + 1, 3) +
+      io_pad_left_num(bond.to + 1, 3) +
+      io_pad_left_num(bond.order, 3) +
+      "  0\n",
+    )
   }
   let _ = sb.write("M  END\n")
   sb.to_string()
@@ -184,7 +184,11 @@ fn io_trim_parse(s : String) -> Int32 {
     }
     i = i + 1
   }
-  if neg { -v } else { v }
+  if neg {
+    -v
+  } else {
+    v
+  }
 }
 
 ///|
@@ -230,7 +234,7 @@ fn io_starts_with(s : String, prefix : String) -> Bool {
 pub fn rdkit_molblock_to_mol(text : String) -> Molecule {
   let lines = io_split_lines(text)
   if lines.length() < 4 {
-    return Molecule::{ atoms: [], bonds: [] }
+    return Molecule::{ atoms: [], bonds: [], }
   }
   let n_atoms = io_parse_int_field(lines[3], 0, 3)
   let n_bonds = io_parse_int_field(lines[3], 3, 6)
@@ -244,7 +248,11 @@ pub fn rdkit_molblock_to_mol(text : String) -> Molecule {
     let sym = io_trim_str(io_sub(line, 31, 34))
     let sym = if sym.length() == 0 { "C" } else { sym }
     let code = io_trim_parse(io_sub(line, 36, 39))
-    atoms.push(MolAtom::{ symbol: sym, charge: io_code_charge(code), aromatic: false, })
+    atoms.push(MolAtom::{
+      symbol: sym,
+      charge: io_code_charge(code),
+      aromatic: false,
+    })
   }
   let bonds : Array[MolBond] = Array(capacity=0)
   for i = 0; i < n_bonds; i = i + 1 {
@@ -429,12 +437,12 @@ pub fn rdkit_write_rxn_file(rxn : RdkitReaction) -> String {
   let _ = sb.write(rxn.name)
   let _ = sb.write("\n  BioSeqs\n\n")
   let _ = sb.write(
-      "  " +
-      io_pad_left_num(rxn.reactants.length(), 2) +
-      " " +
-      io_pad_left_num(rxn.products.length(), 2) +
-      "\n",
-    )
+    "  " +
+    io_pad_left_num(rxn.reactants.length(), 2) +
+    " " +
+    io_pad_left_num(rxn.products.length(), 2) +
+    "\n",
+  )
   for smi in rxn.reactants {
     let _ = sb.write("$MOL\n")
     let _ = sb.write(rdkit_mol_to_molblock(parse_smiles(smi)))
@@ -497,7 +505,7 @@ pub fn rdkit_write_smi(records : Array[(String, String)]) -> String {
 /// canonical SMILES is produced. The H layer, charges and stereo layers
 /// are ignored. Returns None when the connection layer references an
 /// atom outside the formula-derived backbone or cannot be tokenized.
-pub fn rdkit_inchi_to_smiles(inchi : String) -> Option[String] {
+pub fn rdkit_inchi_to_smiles(inchi : String) -> String? {
   let layers = io_split_marker(inchi, "/")
   if layers.length() == 0 {
     return None
@@ -522,7 +530,7 @@ pub fn rdkit_inchi_to_smiles(inchi : String) -> Option[String] {
   if n == 0 {
     return None
   }
-  let mut conn : Option[String] = None
+  let mut conn : String? = None
   for i = 1; i < layers.length(); i = i + 1 {
     let layer = layers[i]
     if layer.length() > 1 && io_char(layer, 0) == 99 {
@@ -544,11 +552,10 @@ pub fn rdkit_inchi_to_smiles(inchi : String) -> Option[String] {
       Some(tok) =>
         match io_inchi_apply_tokens(tok, n) {
           None => return None
-          Some(bs) => {
+          Some(bs) =>
             for b in bs {
               bonds.push(b)
             }
-          }
         }
     }
   }
@@ -608,7 +615,7 @@ fn io_inchi_formula_backbone(formula : String) -> Array[String] {
 ///|
 /// Tokenize an InChI connections layer body: integers separated by '-',
 /// '(' opens a branch, ')' closes it.
-fn io_inchi_conn_tokens(body : String) -> Option[Array[Int32]] {
+fn io_inchi_conn_tokens(body : String) -> Array[Int32]? {
   let out : Array[Int32] = Array(capacity=0)
   let n = body.length()
   let mut i = 0
@@ -642,10 +649,7 @@ fn io_inchi_conn_tokens(body : String) -> Option[Array[Int32]] {
 /// Interpret tokenized connections: positive = new atom (bonded to the
 /// current atom, current moves there), negative = ring closure to |t|
 /// (current stays), 1000000/1000001 = open/close a branch.
-fn io_inchi_apply_tokens(
-  tokens : Array[Int32],
-  n : Int32,
-) -> Option[Array[MolBond]] {
+fn io_inchi_apply_tokens(tokens : Array[Int32], n : Int32) -> Array[MolBond]? {
   let bonds : Array[MolBond] = Array(capacity=0)
   let mut cur = -1
   let stack : Array[Int32] = Array(capacity=0)

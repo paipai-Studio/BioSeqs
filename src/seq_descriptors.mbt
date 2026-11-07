@@ -219,7 +219,8 @@ pub fn seq_calc_nucleotide_descriptors(seq : Seq) -> Map[String, Double] {
   // CpG count (overlapping), normalized per kilobase
   let mut cpg = 0
   for i = 0; i < n - 1; i = i + 1 {
-    if s.unsafe_get(i).unsafe_to_char() == 'C' && s.unsafe_get(i + 1).unsafe_to_char() == 'G' {
+    if s.unsafe_get(i).unsafe_to_char() == 'C' &&
+      s.unsafe_get(i + 1).unsafe_to_char() == 'G' {
       cpg = cpg + 1
     }
   }

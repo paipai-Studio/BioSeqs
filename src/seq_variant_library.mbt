@@ -35,7 +35,9 @@ pub fn seq_var_iupac_from_set(bases : Set[Char]) -> Char {
   let has = (c : Char) => bases.contains(c)
   let n = bases.length()
   if n == 1 {
-    if has('A') { 'A' } else if has('C') {
+    if has('A') {
+      'A'
+    } else if has('C') {
       'C'
     } else if has('G') {
       'G'
@@ -156,11 +158,12 @@ pub fn seq_degenerate_sequence(
 pub fn seq_degenerate_variant_count(
   codon_sites : Array[Int32],
   scheme~ : String = "NNK",
-) -> Int {
+) -> Int32 {
   let mut total = 1
   for _site in codon_sites {
     for i = 0; i < scheme.length(); i = i + 1 {
-      total = total * seq_var_iupac_bases(scheme.unsafe_get(i).unsafe_to_char()).length()
+      total = total *
+        seq_var_iupac_bases(scheme.unsafe_get(i).unsafe_to_char()).length()
     }
   }
   total
@@ -305,7 +308,7 @@ pub fn seq_combo_library(
 pub fn seq_reverse_translate_degenerate(
   protein : Seq,
   table_id~ : Int32 = 1,
-) -> Option[String] {
+) -> String? {
   let s = protein.to_string()
   let n = s.length()
   if n == 0 {

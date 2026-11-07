@@ -23,11 +23,7 @@ fn seq_cluster_kmers(s : String, k : Int32) -> Array[String] {
 ///|
 /// Multiset Tanimoto similarity of two sequences' k-mer bags:
 /// min-count intersection over max-count union.
-pub fn seq_kmer_tanimoto(
-  a : Seq,
-  b : Seq,
-  k~ : Int32 = 3,
-) -> Double {
+pub fn seq_kmer_tanimoto(a : Seq, b : Seq, k~ : Int32 = 3) -> Double {
   let ka = seq_cluster_kmers(a.to_string(), k)
   let kb = seq_cluster_kmers(b.to_string(), k)
   if ka.length() == 0 && kb.length() == 0 {
@@ -94,9 +90,7 @@ pub fn seq_butina_cluster(
 
 ///|
 /// Largest cluster size for a quick overview of the clustering result.
-pub fn seq_butina_largest_cluster(
-  clusters : Array[Array[Int32]],
-) -> Int32 {
+pub fn seq_butina_largest_cluster(clusters : Array[Array[Int32]]) -> Int32 {
   let mut best = 0
   for c in clusters {
     if c.length() > best {

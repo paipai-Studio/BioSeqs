@@ -30,7 +30,11 @@ fn recap_adj(mol : Molecule) -> Array[Array[(Int32, Int32)]] {
 }
 
 ///|
-fn recap_has_double_o(mol : Molecule, atom : Int32, neighbors : Array[Array[(Int32, Int32)]]) -> Bool {
+fn recap_has_double_o(
+  mol : Molecule,
+  atom : Int32,
+  neighbors : Array[Array[(Int32, Int32)]],
+) -> Bool {
   for (nb, _) in neighbors[atom] {
     if mol.atoms[nb].symbol == "O" {
       if mol_bond_order(mol, atom, nb) == 2 {
@@ -69,10 +73,15 @@ fn recap_classify_bond(
   let c = mol.atoms[b.to]
   let sym_a = a.symbol
   let sym_b = c.symbol
-  if b.order == 2 && sym_a == "C" && sym_b == "C" && !mol_is_in_ring(mol, b.from) && !mol_is_in_ring(mol, b.to) {
+  if b.order == 2 &&
+    sym_a == "C" &&
+    sym_b == "C" &&
+    !mol_is_in_ring(mol, b.from) &&
+    !mol_is_in_ring(mol, b.to) {
     return "olefin"
   }
-  if b.order == 1 && ((sym_a == "C" && sym_b == "N") || (sym_a == "N" && sym_b == "C")) {
+  if b.order == 1 &&
+    ((sym_a == "C" && sym_b == "N") || (sym_a == "N" && sym_b == "C")) {
     let c_idx = if sym_a == "C" { b.from } else { b.to }
     let c_has_oco = recap_has_double_o(mol, c_idx, neighbors)
     if c_has_oco && recap_n_neighbor_symbol(mol, c_idx, neighbors) >= 2 {
@@ -100,7 +109,10 @@ fn recap_classify_bond(
   if b.order == 1 && sym_a == "O" && sym_b == "O" {
     return ""
   }
-  if b.order == 1 && sym_a == "O" && sym_b == "C" && neighbors[b.from].length() == 2 {
+  if b.order == 1 &&
+    sym_a == "O" &&
+    sym_b == "C" &&
+    neighbors[b.from].length() == 2 {
     // ether: O bonded to two carbons
     let mut both_c = true
     for (nb, _) in neighbors[b.from] {
@@ -112,7 +124,10 @@ fn recap_classify_bond(
       return "ether"
     }
   }
-  if b.order == 1 && sym_a == "C" && sym_b == "O" && neighbors[b.to].length() == 2 {
+  if b.order == 1 &&
+    sym_a == "C" &&
+    sym_b == "O" &&
+    neighbors[b.to].length() == 2 {
     let mut both_c = true
     for (nb, _) in neighbors[b.to] {
       if mol.atoms[nb].symbol != "C" {
@@ -177,7 +192,8 @@ fn recap_bond_in_cut(
   for i = 0; i < mol.bonds.length(); i = i + 1 {
     if cut_bonds.contains(i) {
       let bond = mol.bonds[i]
-      let matches = (bond.from == a && bond.to == b) || (bond.from == b && bond.to == a)
+      let matches = (bond.from == a && bond.to == b) ||
+        (bond.from == b && bond.to == a)
       if matches {
         return true
       }
@@ -198,12 +214,20 @@ fn recap_sub_mol(mol : Molecule, atoms : Array[Int32]) -> Molecule {
   let new_atoms : Array[MolAtom] = Array(capacity=0)
   for a in atoms {
     index_map[a] = new_atoms.length()
-    new_atoms.push(MolAtom::{ symbol: mol.atoms[a].symbol, charge: mol.atoms[a].charge, aromatic: mol.atoms[a].aromatic, })
+    new_atoms.push(MolAtom::{
+      symbol: mol.atoms[a].symbol,
+      charge: mol.atoms[a].charge,
+      aromatic: mol.atoms[a].aromatic,
+    })
   }
   let new_bonds : Array[MolBond] = Array(capacity=0)
   for b in mol.bonds {
     if in_set[b.from] && in_set[b.to] {
-      new_bonds.push(MolBond::{ from: index_map[b.from], to: index_map[b.to], order: b.order, })
+      new_bonds.push(MolBond::{
+        from: index_map[b.from],
+        to: index_map[b.to],
+        order: b.order,
+      })
     }
   }
   Molecule::{ atoms: new_atoms, bonds: new_bonds, }

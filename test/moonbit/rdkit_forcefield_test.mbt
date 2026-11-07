@@ -37,14 +37,11 @@ test "conformer_rmsd_zero_for_identical" {
 ///|
 test "conformer_rmsd_invariant_under_translation" {
   let conf = @src.rdkit_generate_conformer("CCO", seed=5)
-  let shifted = @src.RdkitConformer::from_coords(
-    conf.atoms,
-    [
-      (conf.coords[0].0 + 5.0, conf.coords[0].1 - 2.0, conf.coords[0].2 + 1.0),
-      (conf.coords[1].0 + 5.0, conf.coords[1].1 - 2.0, conf.coords[1].2 + 1.0),
-      (conf.coords[2].0 + 5.0, conf.coords[2].1 - 2.0, conf.coords[2].2 + 1.0),
-    ],
-  )
+  let shifted = @src.RdkitConformer::from_coords(conf.atoms, [
+    (conf.coords[0].0 + 5.0, conf.coords[0].1 - 2.0, conf.coords[0].2 + 1.0),
+    (conf.coords[1].0 + 5.0, conf.coords[1].1 - 2.0, conf.coords[1].2 + 1.0),
+    (conf.coords[2].0 + 5.0, conf.coords[2].1 - 2.0, conf.coords[2].2 + 1.0),
+  ])
   assert_true(@src.rdkit_conformer_rmsd(conf, shifted) < 0.000001)
 }
 
