@@ -14,6 +14,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 
 - [Biopython 系列功能](#biopython-系列功能)
 - [Bioconductor 系列功能](#bioconductor-系列功能)
+- [分子动力学与结构分析](#分子动力学与结构分析)
 - [Others 其他功能与算法](#others-其他功能与算法)
 - [序列组装算法](#序列组装算法)
 - [架构设计](#架构设计)
@@ -592,6 +593,52 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 
 ---
 
+## 分子动力学与结构分析
+
+对标 MDAnalysis / OpenMM / ProDy 的分子动力学（MD）模拟与结构分析模块族。此前版本已内置 `mdanalysis.mbt` 主分析库、19 个 `mda_*` 扩展分析模块、27 个 `omm_*` OpenMM 风格 MD 引擎模块以及约 80 个结构解析/叠合/二级结构/表面分析模块；本批新增以下内容。
+
+### 轨迹与拓扑格式（新增）
+
+| 模块 | 对应库 | 功能说明 |
+| :--- | :--- | :--- |
+| **structure_trr** | MDAnalysis TRRReader/Writer | GROMACS TRR 全精度轨迹（XDR 大端）：多帧读写，坐标/速度/力/盒子/lambda，`trr_read`/`trr_write_frame`、与通用 `Trajectory` 互转 |
+| **structure_ncdf** | MDAnalysis NCDFReader/Writer | AMBER NetCDF (CDF-1) 轨迹：NetCDF 维度/属性/变量头解析、记录交错布局，`ncdf_write_amber`/`ncdf_read_amber`（coordinates/time/cell_lengths/cell_angles） |
+| **structure_lammps** | MDAnalysis LAMMPS DumpReader | LAMMPS dump 文本解析：正交与 triclinic 盒（xy/xz/yz 倾斜因子）、任意 ATOMS 列布局（id/mol/type/q 等）、`lammps_dump_read` |
+| **structure_psf** | MDAnalysis PSFParser | CHARMM/XPLOR/NAMD PSF 拓扑：NATOM（segid/resid/resname/charge/mass）、NBOND/NTHETA/NPHI/NIMPHI/NDON/NACC 流式切组、`psf_parse`/`psf_write` |
+| **structure_pqr** | MDAnalysis PQRParser | PQR 结构（拓扑+电荷+半径）：whitespace/固定列双模式解析、`pqr_parse`/`pqr_write`、总电荷与包围盒 |
+| **structure_h5md** | H5MD 规范 | H5MD 数据布局对象层（基于内存对象模型）：particles 组（position/velocity/force/box）、step/time 一致性校验 `h5md_validate`、与 `Trajectory` 互转、元数据 JSON 序列化 |
+
+### Universe / AtomGroup 对象模型（新增）
+
+| 模块 | 对应库 | 功能说明 |
+| :--- | :--- | :--- |
+| **mda_universe** | MDAnalysis Universe | 拓扑+轨迹+当前帧游标的统一对象模型：`universe_from_psf_dcd`（PSF+DCD 经典组合）、`universe_from_pdb_text`（多 MODEL→多帧）、`universe_from_pqr_text`；元素推断（`mda_infer_element`）、元素质量表、蛋白/水/骨架分类 |
+| **mda_universe** | MDAnalysis AtomGroup | 选择视图：positions（含 `positions_at` 逐帧）、center_of_geometry/mass、radius_of_gyration、charges/masses、子组再选择 |
+| **mda_selection_ext** | MDAnalysis select_atoms | 扩展选择语言：基础关键字（protein/water/backbone/name/resname/chain/element/resid/all/none）之外新增 `segid`/`type`/`bynum`（1-based 编号与区间）/`byres`（残基扩展）/`around`（近邻，正交盒最小镜像 PBC）/`point`（定点邻域）/`prop mass/charge <op> <v>`（属性比较）；递归下降求值，`not` > `and` > `or` 优先级 + 括号分组 |
+
+### 轨迹分析新模块（新增）
+
+| 模块 | 对应库 | 功能说明 |
+| :--- | :--- | :--- |
+| **mda_guess_bonds** | MDAnalysis guess_bonds | 由坐标几何推断共价键：共价半径表 + 容差判据、正交盒 PBC 最小镜像、邻接表构建 |
+| **mda_helanal** | MDAnalysis helix_analysis (HELANAL) | 螺旋轴系综分析：4-Cα 窗口协方差主方向（幂迭代）拟合局部轴，逐帧全局轴弯曲角（bend）、相邻窗口扭转角（twist） |
+| **mda_lmi** | MDAnalysis lmi | 线性互信息：等宽直方图联合熵 I(X;Y)、成对信号矩阵、归一化 NMI、边缘熵 |
+| **mda_rdf_site** | MDAnalysis InterRDF_s | 位点特异 RDF：逐对 (i,j) 计数与 g(r) 归一化；附 2D 平面 RDF（\|dx\|/\|dy\| 象限折叠直方图，PBC 可选） |
+| **mda_dipole** | MDAnalysis dipole moments | 体系偶极矩：μ=Σq·r（e·Å）、轨迹逐帧偶极、Debye 转换（×4.80320425）、模长与多时间原点偶极自相关 C(t) |
+
+### 既有 MD / 结构动力学能力（本批补齐测试覆盖）
+
+| 模块族 | 对应库 | 功能说明 |
+| :--- | :--- | :--- |
+| `mdanalysis.mbt` | MDAnalysis | 距离阵列、RMSD/RMSF、RDF、MSD、氢键、接触分数、phi/psi 与 BAT 扭角、密度分布、介电、扩散/持久长度、PCA/TICA、准谐熵等 |
+| `mda_*`（19 个扩展） | MDAnalysis | 轨迹操作（merge/slice/wrap/unwrap/对齐/B-factor）、构象聚类、空腔检测、HOLE 孔道剖面、脂质序参数、leaflet finder、压力张量、水桥/驻留、盐桥/π 堆积/疏水接触、回转张量、距离矩阵时序/DCCM 等 |
+| `omm_*`（27 个模块） | OpenMM | AMBER/CHARMM/GROMACS/Tinker 力场解析、PME 静电、RESPA 多时间步、SHAKE/SETTLE/RATTLE 约束、REMD 复制交换、伞形采样+WHAM、Metadynamics、SMD/REST2、自由能（TI/FEP/BAR）、隐式溶剂 GB/OBC、恒压器、L-BFGS/最速下降最小化、虚拟位点、水模型、报告器 |
+| 结构分析族 | Bio.PDB / Biotite / ProDy | PDB/mmCIF/MMTF/GRO/PDBQT 解析、DSSP、SASA（Shrake-Rupley/NACCESS/Lee-Richards）、SVD/QCP/四元数/CE/TM-score 叠合、弹性网络（ANM/GNM/RTB）、系综 PCA、氢键/二硫键/旋转异构体等 |
+
+MD 轨迹分析另提供与 MDAnalysis 的 Python 对拍基准：`test/python/mdanalysis_compare.sh`（距离矩阵/RMSD/RMSF/回转半径/质心/二面角等，容差 1e-4）。
+
+---
+
 ## Others 其他功能与算法
 
 ### 序列组装算法
@@ -764,7 +811,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 ```
 IvanAXu/BioSeqs/
 ├── moon.mod                          # 模块配置 (name="IvanAXu/BioSeqs", version=0.1.12)
-├── src/                              # 源代码（1138 个 .mbt 模块）
+├── src/                              # 源代码（1151 个 .mbt 模块）
 │   ├── seq.mbt                       # Bio.Seq 序列对象
 │   ├── seqio.mbt / fasta_io.mbt / ... # 序列 I/O（30+ 种格式）
 │   ├── alignment.mbt / align_*.mbt   # 比对算法 + 20+ 种比对格式严格 API
@@ -848,7 +895,7 @@ IvanAXu/BioSeqs/
 │   ├── hla_typing_demo/ / sv_caller_demo/ # 第十阶段 K 系列（HLA 分型：参考序列库→读取比对→GL String 闭环；SV 检测：CIGAR/SA tag→DEL/INS/DUP/INV/BND→深度置信度闭环）
 │   └── ... （更多 examples/*_demo/）
 ├── test/
-│   ├── moonbit/                      # MoonBit 单元测试（740 个测试文件，16573 用例）
+│   ├── moonbit/                      # MoonBit 单元测试（802 个测试文件，17001 用例）
 │   │   ├── bio_seq_test.mbt / seqio_wb_test.mbt / ...
 │   │   ├── alignment_test.mbt / pdb_test.mbt / phylo_test.mbt / ...
 │   │   ├── deseq2_test.mbt / rankprod_test.mbt / seurat_test.mbt / scran_test.mbt / ...
@@ -885,7 +932,7 @@ IvanAXu/BioSeqs/
 
 ```bash
 moon build                                              # ✅ 成功
-moon test                                               # ✅ 16573 个测试全部通过（test/moonbit 包）
+moon test                                               # ✅ 17001 个测试全部通过（test/moonbit 包）
 ```
 
 ---
@@ -894,7 +941,7 @@ moon test                                               # ✅ 16573 个测试全
 
 ```bash
 moon build      # 构建项目
-moon test       # 运行全部测试 (16573 个测试用例，test/moonbit 包)
+moon test       # 运行全部测试 (17001 个测试用例，test/moonbit 包)
 ```
 
 ---
