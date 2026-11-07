@@ -850,10 +850,12 @@ fn mol_smiles_dfs(
   visited : Array[Bool],
   neighbors : Array[Array[(Int32, Int32)]],
   ranks : Array[Int32],
-  ring_num : Map[(Int32, Int32), Int32],
-  ring_counter : Ref[Int32],
+  ring_map : Map[Int32, Array[Int32]],
   result : StringBuilder,
 ) -> Unit {
+  if visited[atom] {
+    return
+  }
   visited[atom] = true
   if parent >= 0 {
     let bo = mol_bond_order(mol, parent, atom)
@@ -861,26 +863,20 @@ fn mol_smiles_dfs(
     result.write_string(mol_bond_symbol(bo, arom))
   }
   result.write_string(mol_smiles_symbol(mol.atoms[atom]))
-  // Collect ring closures and unvisited neighbors
-  let ring_neighbors : Array[Int32] = Array(capacity=0)
+  // Ring closure digits touching this atom (emitted once per endpoint so
+  // the round trip through the parser restores the bond)
+  match ring_map.get(atom) {
+    Some(nums) =>
+      for rn in nums {
+        result.write_string(rn.to_string())
+      }
+    None => ()
+  }
+  // Collect unvisited neighbors
   let unvisited : Array[Int32] = Array(capacity=0)
   for (nb, _) in neighbors[atom] {
-    if visited[nb] && nb != parent {
-      ring_neighbors.push(nb)
-    } else if !visited[nb] {
+    if !visited[nb] {
       unvisited.push(nb)
-    }
-  }
-  // Handle ring closures
-  for rn in ring_neighbors {
-    let key = if atom < rn { (atom, rn) } else { (rn, atom) }
-    match ring_num.get(key) {
-      Some(num) => result.write_string(num.to_string())
-      None => {
-        ring_num[key] = ring_counter.val
-        result.write_string(ring_counter.val.to_string())
-        ring_counter.val = ring_counter.val + 1
-      }
     }
   }
   // Sort unvisited by rank (ascending = best first)
@@ -905,14 +901,71 @@ fn mol_smiles_dfs(
       visited,
       neighbors,
       ranks,
-      ring_num,
-      ring_counter,
+      ring_map,
       result,
     )
     if i > 0 {
       result.write_string(")")
     }
   }
+}
+
+///|
+/// Mark the DFS tree (parent links) rooted at `atom`.
+fn mol_smiles_mark(
+  atom : Int32,
+  visited : Array[Bool],
+  neighbors : Array[Array[(Int32, Int32)]],
+  parent_of : Array[Int32],
+) -> Unit {
+  if visited[atom] {
+    return
+  }
+  visited[atom] = true
+  for (nb, _) in neighbors[atom] {
+    if !visited[nb] {
+      parent_of[nb] = atom
+      mol_smiles_mark(nb, visited, neighbors, parent_of)
+    }
+  }
+}
+
+///|
+/// Build the ring-closure digit map: every non-tree bond (w.r.t. the DFS
+/// tree rooted at `start`) gets a digit that is emitted once at each
+/// endpoint, so parsing the SMILES restores the bond.
+fn mol_ring_digit_map(
+  mol : Molecule,
+  neighbors : Array[Array[(Int32, Int32)]],
+  start : Int32,
+) -> Map[Int32, Array[Int32]] {
+  let n = mol.atoms.length()
+  let visited : Array[Bool] = Array::make(n, false)
+  let parent_of : Array[Int32] = Array::make(n, -2)
+  mol_smiles_mark(start, visited, neighbors, parent_of)
+  let ring_map : Map[Int32, Array[Int32]] = Map([], capacity=0)
+  let counter = Ref(1)
+  for b in mol.bonds {
+    if !visited[b.from] || !visited[b.to] || b.from == b.to {
+      continue
+    }
+    let is_tree = parent_of[b.to] == b.from || parent_of[b.from] == b.to
+    if !is_tree {
+      let num = counter.val
+      for endpoint in [b.from, b.to] {
+        match ring_map.get(endpoint) {
+          Some(arr) => arr.push(num)
+          None => {
+            let arr : Array[Int32] = []
+            arr.push(num)
+            ring_map[endpoint] = arr
+          }
+        }
+      }
+      counter.val = counter.val + 1
+    }
+  }
+  ring_map
 }
 
 ///|
@@ -934,12 +987,11 @@ pub fn mol_to_smiles(mol : Molecule) -> String {
       start = k
     }
   }
+  let ring_map = mol_ring_digit_map(mol, neighbors, start)
   let visited = Array::make(n, false)
-  let ring_num : Map[(Int32, Int32), Int32] = Map([], capacity=0)
-  let ring_counter = Ref(1)
   let result : StringBuilder = StringBuilder()
   mol_smiles_dfs(
-    mol, start, -1, visited, neighbors, ranks, ring_num, ring_counter, result,
+    mol, start, -1, visited, neighbors, ranks, ring_map, result,
   )
   result.to_string()
 }
