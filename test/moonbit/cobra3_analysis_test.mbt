@@ -17,7 +17,29 @@ test "cobra3 analysis flux coupling" {
     }
   }
   assert_eq(r1_r2, "fully_coupled")
-  assert_eq(ex_r1, "directionally_coupled")
+  // EX_A 强制正向（分泌 A）在 toy 中不可行（R1 不可逆），不应报告耦合
+  assert_eq(ex_r1, "")
+}
+
+///|
+test "cobra3 analysis flux coupling ignores blocked reaction" {
+  let mut m = @src.cobra3_model_new("blocked")
+  m = @src.cobra3_model_add_reaction(
+    m,
+    cobra3_make_rxn("EX_A", [("A", -1.0)], -10.0, 1000.0, ""),
+  )
+  m = @src.cobra3_model_add_reaction(
+    m,
+    cobra3_make_rxn("R1", [("A", -1.0), ("B", 1.0)], 0.0, 1000.0, ""),
+  )
+  m = @src.cobra3_model_add_reaction(
+    m,
+    cobra3_make_rxn("R2", [("B", -1.0), ("C", 1.0)], 0.0, 1000.0, ""),
+  )
+  let pairs = @src.cobra3_flux_coupling(m)
+  for p in pairs {
+    assert_true(!(p.reaction_a == "EX_A" && p.reaction_b == "R2"))
+  }
 }
 
 ///|
@@ -90,4 +112,31 @@ test "cobra3 analysis model diff" {
   let d2 = @src.cobra3_model_diff(a, c)
   assert_eq(d2.removed_reactions.length(), 1)
   assert_eq(d2.removed_reactions[0], "R1")
+}
+
+///|
+test "cobra3 analysis model diff detects stoichiometry" {
+  let mut a = @src.cobra3_model_new("a")
+  a = @src.cobra3_model_add_reaction(
+    a,
+    cobra3_make_rxn("EX_A", [("A", -1.0)], -10.0, 1000.0, ""),
+  )
+  a = @src.cobra3_model_add_reaction(
+    a,
+    cobra3_make_rxn("R1", [("A", -1.0), ("B", 1.0)], 0.0, 1000.0, ""),
+  )
+  let mut b = @src.cobra3_model_new("b")
+  b = @src.cobra3_model_add_reaction(
+    b,
+    cobra3_make_rxn("EX_A", [("A", -1.0)], -10.0, 1000.0, ""),
+  )
+  b = @src.cobra3_model_add_reaction(
+    b,
+    cobra3_make_rxn("R1", [("A", -2.0), ("B", 1.0)], 0.0, 1000.0, ""),
+  )
+  let d = @src.cobra3_model_diff(a, b)
+  assert_eq(d.changed_stoichiometry.length(), 1)
+  assert_eq(d.changed_stoichiometry[0], "R1")
+  assert_eq(d.changed_bounds.length(), 0)
+  assert_eq(d.changed_objective.length(), 0)
 }

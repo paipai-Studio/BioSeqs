@@ -660,8 +660,9 @@ pub fn cobra3_sample_flux(
       var_sum = var_sum + (v - mean) * (v - mean)
     }
     let sd = @math.pow(var_sum / vals.length().to_double(), 0.5)
-    let q05 = vals[(vals.length().to_double() * 0.05).to_int()]
-    let q95 = vals[(vals.length().to_double() * 0.95).to_int()]
+    let last = (vals.length() - 1).to_double()
+    let q05 = vals[(last * 0.05).to_int()]
+    let q95 = vals[(last * 0.95).to_int()]
     out.push({
       reaction_id: model.reactions[j].id,
       mean,
@@ -850,10 +851,11 @@ pub fn cobra3_loopless_fba(model : Cobra3Model) -> Cobra3FluxResult {
   if n == 0 {
     return opt
   }
+  let obj_vec = cobra3_model_objective_vector(model)
   let base = cobra3_steady_state_constraints(model)
   if opt.objective_value.abs() > 1.0e-9 {
     base.push({
-      coeffs: cobra3_model_objective_vector(model),
+      coeffs: obj_vec,
       rhs: opt.objective_value * (1.0 - 1.0e-6),
       sense: Cobra3Sense::GreaterEqual,
     })
@@ -908,12 +910,14 @@ pub fn cobra3_loopless_fba(model : Cobra3Model) -> Cobra3FluxResult {
   }
   let sol = cobra3_solve_milp(cons, obj, lb, ub, integer)
   let fluxes : Array[Double] = Array(capacity=n)
+  let mut growth = 0.0
   for j in 0..<n {
     fluxes.push(sol.x[j])
+    growth = growth + obj_vec[j] * sol.x[j]
   }
   {
     status: sol.status,
-    objective_value: opt.objective_value,
+    objective_value: growth,
     fluxes,
     shadow_prices: Array::make(model.metabolites.length(), 0.0),
     reduced_costs: Array::make(n, 0.0),

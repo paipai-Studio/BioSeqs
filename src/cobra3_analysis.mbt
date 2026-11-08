@@ -50,11 +50,20 @@ pub fn cobra3_flux_coupling(
       c_min[j] = -1.0
       let smax = cobra3_solve_lp(cons, c_max, lb, ub)
       let smin = cobra3_solve_lp(cons, c_min, lb, ub)
-      let mx = if smax.status is Optimal { smax.objective_value } else { 0.0 }
-      let mn = if smin.status is Optimal { -smin.objective_value } else { 0.0 }
+      // 强制 a 正本身不可行（或未解出）时，任何 b 的耦合都无意义
+      if !(smax.status is Optimal) || !(smin.status is Optimal) {
+        continue
+      }
+      let mx = smax.objective_value
+      let mn = -smin.objective_value
       let kind = if mn >= epsilon * 0.99 {
+        // 强制 a 正时，b 必须正
         "fully_coupled"
-      } else if mx <= epsilon * 1.01 {
+      } else if mn >= -epsilon * 1.01 && mx >= epsilon * 0.99 {
+        // b 可为正但不能显著为负
+        "directionally_coupled"
+      } else if mx <= epsilon * 1.01 && mn <= -epsilon * 0.99 {
+        // b 可为负但不能显著为正
         "directionally_coupled"
       } else if mx - mn > epsilon {
         "partial_coupled"
@@ -322,8 +331,28 @@ pub(all) struct Cobra3ModelDiff {
   removed_reactions : Array[String]
   changed_bounds : Array[String]
   changed_objective : Array[String]
+  changed_stoichiometry : Array[String]
   added_metabolites : Array[String]
   removed_metabolites : Array[String]
+}
+
+///|
+
+///|
+fn cobra3_same_metabolites(
+  a : Map[String, Double],
+  b : Map[String, Double],
+) -> Bool {
+  if a.length() != b.length() {
+    return false
+  }
+  for k in a.keys() {
+    match b.get(k) {
+      Some(v) => if (a[k] - v).abs() > 1.0e-9 { return false }
+      None => return false
+    }
+  }
+  true
 }
 
 ///|
@@ -332,6 +361,7 @@ pub fn cobra3_model_diff(a : Cobra3Model, b : Cobra3Model) -> Cobra3ModelDiff {
   let removed_reactions : Array[String] = Array(capacity=0)
   let changed_bounds : Array[String] = Array(capacity=0)
   let changed_objective : Array[String] = Array(capacity=0)
+  let changed_stoichiometry : Array[String] = Array(capacity=0)
   for ra in a.reactions {
     match cobra3_model_get_reaction(b, ra.id) {
       None => removed_reactions.push(ra.id)
@@ -342,6 +372,9 @@ pub fn cobra3_model_diff(a : Cobra3Model, b : Cobra3Model) -> Cobra3ModelDiff {
         }
         if (ra.objective - rb.objective).abs() > 1.0e-9 {
           changed_objective.push(ra.id)
+        }
+        if !cobra3_same_metabolites(ra.metabolites, rb.metabolites) {
+          changed_stoichiometry.push(ra.id)
         }
       }
     }
@@ -367,6 +400,7 @@ pub fn cobra3_model_diff(a : Cobra3Model, b : Cobra3Model) -> Cobra3ModelDiff {
   cobra3_sort_strings(removed_reactions)
   cobra3_sort_strings(changed_bounds)
   cobra3_sort_strings(changed_objective)
+  cobra3_sort_strings(changed_stoichiometry)
   cobra3_sort_strings(added_metabolites)
   cobra3_sort_strings(removed_metabolites)
   {
@@ -374,6 +408,7 @@ pub fn cobra3_model_diff(a : Cobra3Model, b : Cobra3Model) -> Cobra3ModelDiff {
     removed_reactions,
     changed_bounds,
     changed_objective,
+    changed_stoichiometry,
     added_metabolites,
     removed_metabolites,
   }
