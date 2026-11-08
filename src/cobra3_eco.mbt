@@ -73,6 +73,10 @@ fn cobra3_efm_flow(
 ///|
 /// EFM 辅助：贪心缩小支撑。逐个尝试把活跃反应置零后重解，仅当新解支撑
 /// 是原支撑的真子集时接受，保证支撑单调收缩到极小。
+///
+/// 重解时必须把当前所有不活跃反应固定为 0：否则 LP 虽然删除了候选反应，
+/// 却可能激活新的反应并返回一个"交叉"解，导致真子集可行流被拒绝、支撑
+/// 收缩不到极小。
 fn cobra3_efm_prune(
   model : Cobra3Model,
   basis : Array[Array[Double]],
@@ -90,7 +94,13 @@ fn cobra3_efm_prune(
     let mut j = 0
     while j < n {
       if v[j].abs() > epsilon && budget[0] > 0 {
-        let fixed : Array[Int32] = [j]
+        let fixed : Array[Int32] = Array(capacity=n)
+        for r in 0..<n {
+          if r != j && v[r].abs() <= epsilon {
+            fixed.push(r)
+          }
+        }
+        fixed.push(j)
         match
           cobra3_efm_flow(model, basis, cols, target, fixed, budget, epsilon) {
           Some(v2) => {
@@ -157,13 +167,17 @@ fn cobra3_efm_support_key(supp : Array[Bool]) -> String {
 ///|
 /// EFM 枚举：对零空间基的每个非空列子集，用 LP 在基系数空间求非零可行流
 /// （支持任意实数系数，而非仅 0/1 组合），再贪心压缩支撑并做全局极小筛选。
+/// 对每个子集枚举全部基坐标的 ±目标方向（旧实现找到第一个可行方向就停止，
+/// 会漏掉同一子空间内的其它极射线），压缩时把不活跃反应固定为 0 以保证
+/// 支撑单调收缩到极小。
 ///
 /// 与旧实现的区别：可逆性完全由反应 lb/ub 表达（不再用"内部反应不得正负
 /// 混合"的错误规则丢弃合法的内部循环），且能找回基向量方向与可行方向相反、
 /// 需要负系数的模式。
 ///
 /// 边界：仍是基于零空间基子集的启发式（非双描述法/极射线枚举），当基维数
-/// 超过 12 时直接返回空；`max_lp` 限制总 LP 次数，达到上限后结果可能不完整；
+/// 超过 12 时直接返回空；`max_lp` 限制总 LP 次数（每个子集最多 2k 次方向
+/// 试探，预算比单方向版本更容易耗尽），达到上限后结果可能不完整；
 /// `max_modes` 限制返回模式数。
 pub fn cobra3_elementary_flux_modes(
   model : Cobra3Model,
@@ -196,46 +210,43 @@ pub fn cobra3_elementary_flux_modes(
         cols.push(b)
       }
     }
-    // 依次用 ±λ_a 作目标找非零流；任何一个成功即可
-    let mut a = 0
-    let mut v_opt : Array[Double]? = None
+    // 对每个基坐标的 ±方向都求一次非零流并收缩支撑。旧实现找到第一个可行
+    // 方向就停止，同一基列子空间内的其它极射线会被漏掉。
     let target : Array[Double] = Array::make(cols.length(), 0.0)
-    while a < cols.length() && v_opt is None {
+    for d in 0..<(2 * cols.length()) {
+      if budget[0] <= 0 {
+        break
+      }
       for c in 0..<cols.length() {
         target[c] = 0.0
       }
-      target[a] = 1.0
-      v_opt = cobra3_efm_flow(model, basis, cols, target, [], budget, epsilon)
-      if v_opt is None {
-        target[a] = -1.0
-        v_opt = cobra3_efm_flow(model, basis, cols, target, [], budget, epsilon)
-      }
-      a = a + 1
-    }
-    match v_opt {
-      Some(v0) => {
-        let v1 = cobra3_efm_prune(
-          model, basis, cols, v0, target, epsilon, budget,
-        )
-        let v = cobra3_efm_normalize(v1, epsilon)
-        let supp : Array[Bool] = Array::make(n, false)
-        let mut active = false
-        for j in 0..<n {
-          supp[j] = v[j].abs() > epsilon
-          if supp[j] {
-            active = true
+      let a = d / 2
+      target[a] = if d % 2 == 0 { 1.0 } else { -1.0 }
+      match cobra3_efm_flow(model, basis, cols, target, [], budget, epsilon) {
+        Some(v0) => {
+          let v1 = cobra3_efm_prune(
+            model, basis, cols, v0, target, epsilon, budget,
+          )
+          let v = cobra3_efm_normalize(v1, epsilon)
+          let supp : Array[Bool] = Array::make(n, false)
+          let mut active = false
+          for j in 0..<n {
+            supp[j] = v[j].abs() > epsilon
+            if supp[j] {
+              active = true
+            }
+          }
+          if active {
+            let key = cobra3_efm_support_key(supp)
+            if !seen.contains(key) {
+              seen[key] = true
+              supports.push(supp)
+              vectors.push(v)
+            }
           }
         }
-        if active {
-          let key = cobra3_efm_support_key(supp)
-          if !seen.contains(key) {
-            seen[key] = true
-            supports.push(supp)
-            vectors.push(v)
-          }
-        }
+        None => ()
       }
-      None => ()
     }
   }
   // 支撑极小化：若存在另一个模式的支撑是其真子集，则丢弃

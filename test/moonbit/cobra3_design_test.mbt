@@ -201,6 +201,44 @@ test "cobra3 design minimal cut sets honors exclude" {
 }
 
 ///|
+test "cobra3 design minimal cut sets milp finds triple cut" {
+  let mut m = @src.cobra3_model_new("mcs_milp3")
+  m = @src.cobra3_model_add_reaction(
+    m,
+    cobra3_make_rxn("EX_A", [("A", -1.0)], -20.0, 1000.0, ""),
+  )
+  for id in ["P1", "P2", "P3"] {
+    m = @src.cobra3_model_add_reaction(
+      m,
+      cobra3_make_rxn(id, [("A", -1.0), ("P", 1.0)], 0.0, 1000.0, ""),
+    )
+  }
+  m = @src.cobra3_model_add_reaction(
+    m,
+    cobra3_make_rxn("BIO", [("P", -1.0)], 0.0, 1000.0, ""),
+  )
+  m = @src.cobra3_model_set_objective(m, "BIO", 1.0)
+  // 单层 MILP 若把"存在低目标通量"写错，会被零通量平凡满足而返回空；
+  // 这里排除 BIO/EX_A 后唯一最小割集必须同时敲掉三条并行通路。
+  let mcs = @src.cobra3_minimal_cut_sets_milp(m, threshold=0.01, exclude=[
+    "BIO", "EX_A",
+  ])
+  assert_eq(mcs.length(), 1)
+  assert_eq(mcs[0].size, 3)
+  assert_true(mcs[0].reaction_ids.contains("P1"))
+  assert_true(mcs[0].reaction_ids.contains("P2"))
+  assert_true(mcs[0].reaction_ids.contains("P3"))
+  assert_true(mcs[0].growth <= 0.01 + 1.0e-6)
+}
+
+///|
+test "cobra3 design minimal cut sets milp returns empty when no cut needed" {
+  let m = cobra3_toy()
+  let mcs = @src.cobra3_minimal_cut_sets_milp(m, threshold=100.0)
+  assert_eq(mcs.length(), 0)
+}
+
+///|
 test "cobra3 design nullspace dimension" {
   let m = cobra3_toy()
   let basis = @src.cobra3_nullspace_basis(m)

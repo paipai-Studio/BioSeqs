@@ -111,9 +111,13 @@ test "cobra3 eco efm keeps internal loop mode" {
     cobra3_make_rxn("EX_B", [("B", -1.0)], -10.0, 0.0, ""),
   )
   let modes = @src.cobra3_elementary_flux_modes(m)
-  assert_eq(modes.length(), 2)
+  // 三条模式：内部循环、A 由 EX_A 消耗/B 由 EX_B 供给的主通路，以及
+  // EX_A→A、R3→A、R2→C、EX_B→B 的旁路（旧实现每个基列子集只取第一个
+  // 可行方向，会漏掉这条）。
+  assert_eq(modes.length(), 3)
   let mut found_loop = false
   let mut found_exchange = false
+  let mut found_bypass = false
   for v in modes {
     let loop_only = v[0].abs() < 1.0e-9 &&
       v[1].abs() > 1.0e-9 &&
@@ -125,15 +129,24 @@ test "cobra3 eco efm keeps internal loop mode" {
       v[2].abs() < 1.0e-9 &&
       v[3].abs() < 1.0e-9 &&
       v[4].abs() > 1.0e-9
+    let bypass = v[0].abs() > 1.0e-9 &&
+      v[1].abs() < 1.0e-9 &&
+      v[2].abs() > 1.0e-9 &&
+      v[3].abs() > 1.0e-9 &&
+      v[4].abs() > 1.0e-9
     if loop_only {
       found_loop = true
     }
     if exchange {
       found_exchange = true
     }
+    if bypass {
+      found_bypass = true
+    }
   }
   assert_true(found_loop)
   assert_true(found_exchange)
+  assert_true(found_bypass)
 }
 
 ///|
@@ -141,6 +154,58 @@ test "cobra3 eco efm branch model yields two modes" {
   let m = cobra3_branch_model()
   let modes = @src.cobra3_elementary_flux_modes(m)
   assert_eq(modes.length(), 2)
+}
+
+///|
+test "cobra3 eco efm enumerates parallel branches" {
+  let mut m = @src.cobra3_model_new("efmpar")
+  m = @src.cobra3_model_add_reaction(
+    m,
+    cobra3_make_rxn("EX_A", [("A", 1.0)], 0.0, 10.0, ""),
+  )
+  m = @src.cobra3_model_add_reaction(
+    m,
+    cobra3_make_rxn("R1", [("A", -1.0), ("B", 1.0)], 0.0, 10.0, ""),
+  )
+  m = @src.cobra3_model_add_reaction(
+    m,
+    cobra3_make_rxn("R2", [("A", -1.0), ("B", 1.0)], 0.0, 10.0, ""),
+  )
+  m = @src.cobra3_model_add_reaction(
+    m,
+    cobra3_make_rxn("R3", [("A", -1.0), ("B", 1.0)], 0.0, 10.0, ""),
+  )
+  m = @src.cobra3_model_add_reaction(
+    m,
+    cobra3_make_rxn("BIO", [("B", -1.0)], 0.0, 1000.0, ""),
+  )
+  let modes = @src.cobra3_elementary_flux_modes(m)
+  assert_eq(modes.length(), 3)
+  let mut used_r1 = false
+  let mut used_r2 = false
+  let mut used_r3 = false
+  for v in modes {
+    if v[1].abs() > 1.0e-9 {
+      used_r1 = true
+    }
+    if v[2].abs() > 1.0e-9 {
+      used_r2 = true
+    }
+    if v[3].abs() > 1.0e-9 {
+      used_r3 = true
+    }
+    let s = @src.cobra3_model_stoichiometric_matrix(m)
+    for i in 0..<s.length() {
+      let mut sum = 0.0
+      for j in 0..<s[i].length() {
+        sum = sum + s[i][j] * v[j]
+      }
+      assert_true(sum.abs() < 1.0e-9)
+    }
+  }
+  assert_true(used_r1)
+  assert_true(used_r2)
+  assert_true(used_r3)
 }
 
 ///|

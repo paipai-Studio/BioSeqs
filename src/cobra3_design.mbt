@@ -458,6 +458,153 @@ pub fn cobra3_minimal_cut_sets(
 }
 
 ///|
+/// 最小割集（单层 MILP，Farkas/对偶证书形式）：一次求解直接给出基数最小的
+/// 一个割集，避免组合枚举在 `max_size` 之外的指数爆炸。
+///
+/// 原理：敲除集合 y 下原问题是 `max c·v s.t. S v = 0, lb(1−y) ≤ v ≤ ub(1−y)`。
+/// 其最大目标 ≤ threshold 的充要条件是对偶问题存在可行解且目标 ≤ threshold：
+/// `min Σ(ub_j α_j − lb_j β_j) s.t. α_j − β_j − (Sᵀλ)_j = c_j, α,β ≥ 0`。
+/// 用 `a_j = (1−y_j)·α_j`、`b_j = (1−y_j)·β_j` 的 big-M 线性化把对偶目标
+/// 写成 `Σ(ub_j a_j − lb_j b_j) ≤ threshold`，再最小化 `Σ y_j`，得到一个
+/// 最小基数割集（最小基数自动保证极小：否则其真子集会是更小的割集）。
+///
+/// 与 `cobra3_minimal_cut_sets`（组合枚举 + 重复 FBA）并存：枚举版能列出
+/// 全部 ≤ max_size 的极小割集，本函数只返回一个最小割集但不受组合数限制。
+/// 边界：对偶变量上界取 `big_m`，若真实对偶解超出该范围会漏解；若敲除后
+/// 原问题不可行（如存在 lb>0 的强制反应）对偶无界，本函数返回空，此时
+/// 仍需用枚举版（枚举版会把"不可行"视为割集）。
+pub fn cobra3_minimal_cut_sets_milp(
+  model : Cobra3Model,
+  threshold~ : Double = 0.01,
+  exclude~ : Array[String] = [],
+  max_nodes~ : Int32 = 4000,
+  big_m~ : Double = 1.0e6,
+) -> Array[Cobra3McsResult] {
+  let out : Array[Cobra3McsResult] = Array(capacity=0)
+  let base = cobra3_model_optimize(model)
+  if !(base.status is Optimal) || base.objective_value <= threshold {
+    return out
+  }
+  let n = model.reactions.length()
+  let s = cobra3_model_stoichiometric_matrix(model)
+  let m = s.length()
+  let obj = cobra3_model_objective_vector(model)
+  let lb = cobra3_model_lower_bounds(model)
+  let ub = cobra3_model_upper_bounds(model)
+  // 变量布局：λ(m, free) | α(n) | β(n) | y(n, 0/1) | a(n) | b(n)
+  let lam0 = 0
+  let alpha0 = m
+  let beta0 = m + n
+  let y0 = m + 2 * n
+  let a0 = m + 3 * n
+  let b0 = m + 4 * n
+  let nv = m + 5 * n
+  let vlb : Array[Double] = Array(capacity=nv)
+  let vub : Array[Double] = Array(capacity=nv)
+  for _ in 0..<m {
+    vlb.push(-big_m)
+    vub.push(big_m)
+  }
+  for _ in 0..<(2 * n) {
+    vlb.push(0.0)
+    vub.push(big_m)
+  }
+  for _ in 0..<n {
+    vlb.push(0.0)
+    vub.push(1.0)
+  }
+  for _ in 0..<(2 * n) {
+    vlb.push(0.0)
+    vub.push(big_m)
+  }
+  // 对偶等式：α_j − β_j − (Sᵀλ)_j = c_j
+  let cons : Array[Cobra3LinConstraint] = Array(capacity=m + 4 * n + 1)
+  for j in 0..<n {
+    let row : Array[Double] = Array::make(nv, 0.0)
+    row[alpha0 + j] = 1.0
+    row[beta0 + j] = -1.0
+    for i in 0..<m {
+      row[lam0 + i] = -s[i][j]
+    }
+    cons.push({ coeffs: row, rhs: obj[j], sense: Cobra3Sense::Equal, })
+  }
+  // a_j = (1−y_j)·α_j 与 b_j = (1−y_j)·β_j 的 big-M 线性化
+  for j in 0..<n {
+    let r1 : Array[Double] = Array::make(nv, 0.0)
+    r1[a0 + j] = 1.0
+    r1[alpha0 + j] = -1.0
+    cons.push({ coeffs: r1, rhs: 0.0, sense: Cobra3Sense::LessEqual, })
+    let r2 : Array[Double] = Array::make(nv, 0.0)
+    r2[a0 + j] = 1.0
+    r2[y0 + j] = big_m
+    cons.push({ coeffs: r2, rhs: big_m, sense: Cobra3Sense::LessEqual, })
+    let r3 : Array[Double] = Array::make(nv, 0.0)
+    r3[a0 + j] = -1.0
+    r3[alpha0 + j] = 1.0
+    r3[y0 + j] = -big_m
+    cons.push({ coeffs: r3, rhs: 0.0, sense: Cobra3Sense::LessEqual, })
+    let r4 : Array[Double] = Array::make(nv, 0.0)
+    r4[b0 + j] = 1.0
+    r4[beta0 + j] = -1.0
+    cons.push({ coeffs: r4, rhs: 0.0, sense: Cobra3Sense::LessEqual, })
+    let r5 : Array[Double] = Array::make(nv, 0.0)
+    r5[b0 + j] = 1.0
+    r5[y0 + j] = big_m
+    cons.push({ coeffs: r5, rhs: big_m, sense: Cobra3Sense::LessEqual, })
+    let r6 : Array[Double] = Array::make(nv, 0.0)
+    r6[b0 + j] = -1.0
+    r6[beta0 + j] = 1.0
+    r6[y0 + j] = -big_m
+    cons.push({ coeffs: r6, rhs: 0.0, sense: Cobra3Sense::LessEqual, })
+  }
+  // 对偶目标值 ≤ threshold（敲除后的最大目标不超过阈值）
+  let objrow : Array[Double] = Array::make(nv, 0.0)
+  for j in 0..<n {
+    objrow[a0 + j] = ub[j]
+    objrow[b0 + j] = -lb[j]
+  }
+  cons.push({ coeffs: objrow, rhs: threshold, sense: Cobra3Sense::LessEqual, })
+  // 最小化敲除数；exclude 的反应固定 y = 0
+  let cobj : Array[Double] = Array::make(nv, 0.0)
+  let ints : Array[Int32] = Array(capacity=n)
+  for j in 0..<n {
+    cobj[y0 + j] = 1.0
+    ints.push(y0 + j)
+    if exclude.contains(model.reactions[j].id) {
+      vub[y0 + j] = 0.0
+    }
+  }
+  let sol = cobra3_solve_milp(cons, cobj, vlb, vub, ints, max_nodes~)
+  let ok = match sol.status {
+    Cobra3Status::Optimal | Cobra3Status::Feasible => true
+    _ => false
+  }
+  if !ok {
+    return out
+  }
+  let ids : Array[String] = Array(capacity=0)
+  for j in 0..<n {
+    if sol.x[y0 + j] > 0.5 {
+      ids.push(model.reactions[j].id)
+    }
+  }
+  if ids.length() == 0 {
+    return out
+  }
+  // 用真实 FBA 校验 MILP 证书（数值误差下 false positive 直接丢弃）
+  let ko = cobra3_knockout_reactions(model, ids)
+  let ver = cobra3_model_optimize(ko)
+  if ver.status is Optimal && ver.objective_value <= threshold + 1.0e-6 {
+    out.push({
+      reaction_ids: ids,
+      growth: ver.objective_value,
+      size: ids.length(),
+    })
+  }
+  out
+}
+
+///|
 fn cobra3_knockout_reactions(
   model : Cobra3Model,
   ids : Array[String],
