@@ -291,6 +291,61 @@ test "cobra3 eco optknock supports triple knockouts" {
 }
 
 ///|
+fn cobra3_optknock_milp_model() -> @src.Cobra3Model {
+  let mut m = @src.cobra3_model_new("optknock_milp")
+  m = @src.cobra3_model_add_reaction(
+    m,
+    cobra3_make_rxn("EX_A", [("A", -1.0)], -10.0, 1000.0, ""),
+  )
+  m = @src.cobra3_model_add_reaction(
+    m,
+    cobra3_make_rxn("R1", [("A", -1.0), ("B", 1.0)], 0.0, 1000.0, ""),
+  )
+  m = @src.cobra3_model_add_reaction(
+    m,
+    cobra3_make_rxn("R2", [("B", -1.0), ("C", 1.0)], 0.0, 1000.0, ""),
+  )
+  m = @src.cobra3_model_add_reaction(
+    m,
+    cobra3_make_rxn("BIO", [("C", -1.0)], 0.0, 1000.0, ""),
+  )
+  m = @src.cobra3_model_add_reaction(
+    m,
+    cobra3_make_rxn("P", [("B", -1.0)], 0.0, 1000.0, ""),
+  )
+  m = @src.cobra3_model_set_objective(m, "BIO", 1.0)
+  m
+}
+
+///|
+test "cobra3 eco optknock milp trades growth for product" {
+  let m = cobra3_optknock_milp_model()
+  let res = @src.cobra3_optknock_milp(m, "P", min_growth=0.0, max_knockouts=1)
+  assert_eq(res.length(), 1)
+  assert_true((res[0].target_flux - 10.0).abs() < 1.0e-6)
+  assert_true(res[0].growth.abs() < 1.0e-6)
+  assert_eq(res[0].knockout_ids.length(), 1)
+}
+
+///|
+test "cobra3 eco optknock milp respects min growth" {
+  let m = cobra3_optknock_milp_model()
+  let res = @src.cobra3_optknock_milp(m, "P", min_growth=5.0, max_knockouts=1)
+  assert_eq(res.length(), 1)
+  assert_eq(res[0].knockout_ids.length(), 0)
+  assert_true((res[0].target_flux - 5.0).abs() < 1.0e-6)
+  assert_true((res[0].growth - 5.0).abs() < 1.0e-6)
+}
+
+///|
+test "cobra3 eco optknock milp reports infeasible" {
+  let m = cobra3_optknock_milp_model()
+  // 要求生长 20 超过最大生长 10，MILP 不可行
+  let res = @src.cobra3_optknock_milp(m, "P", min_growth=20.0, max_knockouts=0)
+  assert_eq(res.length(), 0)
+}
+
+///|
 test "cobra3 eco community sums independent models" {
   let m1 = cobra3_toy()
   let mut m2 = @src.cobra3_model_new("second")
