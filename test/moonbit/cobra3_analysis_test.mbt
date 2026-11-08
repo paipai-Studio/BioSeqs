@@ -49,10 +49,12 @@ test "cobra3 analysis phase plane" {
   assert_eq(pts.length(), 9)
   // 对角线可行，目标 = R2
   let diag = pts[4]
+  assert_true(diag.feasible)
   assert_true((diag.x_flux - 5.0).abs() < 1.0e-6)
   assert_true((diag.objective - 5.0).abs() < 1.0e-6)
-  // 非对角不可行 -> 0
+  // 非对角不可行 -> objective 0 且 feasible=false
   let off = pts[1]
+  assert_true(!off.feasible)
   assert_true(off.objective.abs() < 1.0e-9)
 }
 

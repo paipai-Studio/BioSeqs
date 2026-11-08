@@ -83,10 +83,11 @@ pub(all) struct Cobra3PhasePlanePoint {
   x_flux : Double
   y_flux : Double
   objective : Double
+  feasible : Bool
 }
 
 ///|
-/// 相平面：固定两个反应的通量，求目标函数值（不可行点的目标记为 0.0）.
+/// 相平面：固定两个反应的通量，求目标函数值；不可行点 objective=0 且 feasible=false.
 pub fn cobra3_phase_plane(
   model : Cobra3Model,
   reaction_x : String,
@@ -144,8 +145,9 @@ pub fn cobra3_phase_plane(
       fy[iy] = 1.0
       cons.push({ coeffs: fy, rhs: yv, sense: Cobra3Sense::Equal, })
       let sol = cobra3_solve_lp(cons, c, lb, ub)
-      let obj = if sol.status is Optimal { sol.objective_value } else { 0.0 }
-      out.push({ x_flux: xv, y_flux: yv, objective: obj, })
+      let feasible = sol.status is Optimal
+      let obj = if feasible { sol.objective_value } else { 0.0 }
+      out.push({ x_flux: xv, y_flux: yv, objective: obj, feasible, })
     }
   }
   out

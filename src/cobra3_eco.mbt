@@ -649,14 +649,16 @@ pub fn cobra3_thermo_fba(
         let mut lb = r.lower_bound
         let mut ub = r.upper_bound
         if dg > 1.0e-6 {
-          // 吸能：禁止正向
-          if ub > 0.0 {
-            ub = 0.0
+          // 吸能：禁止正向；若原本只能正向，则整个反应关闭而非留下 lb>ub
+          ub = 0.0
+          if lb > 0.0 {
+            lb = 0.0
           }
         } else if dg < -1.0e-6 {
-          // 放能：禁止反向
-          if lb < 0.0 {
-            lb = 0.0
+          // 放能：禁止反向；若原本只能反向，则整个反应关闭而非留下 lb>ub
+          lb = 0.0
+          if ub < 0.0 {
+            ub = 0.0
           }
         }
         reactions.push({

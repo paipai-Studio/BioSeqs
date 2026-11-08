@@ -212,3 +212,26 @@ test "cobra3 eco thermo blocks unfavorable direction" {
   let bad = @src.cobra3_thermo_fba(m, unfavorable)
   assert_true(bad.objective_value.abs() < 1.0e-6)
 }
+
+///|
+test "cobra3 eco thermo closes forced unfavorable reaction" {
+  let mut m = @src.cobra3_model_new("thermo-forced")
+  m = @src.cobra3_model_add_reaction(
+    m,
+    cobra3_make_rxn("EX_A", [("A", -1.0)], -10.0, 1000.0, ""),
+  )
+  // 原本只能正向的反应，遇到吸能方向应整反应关闭，而不是留下 lb>ub
+  m = @src.cobra3_model_add_reaction(
+    m,
+    cobra3_make_rxn("R1", [("A", -1.0), ("B", 1.0)], 1.0, 1000.0, ""),
+  )
+  m = @src.cobra3_model_add_reaction(
+    m,
+    cobra3_make_rxn("BIO", [("B", -1.0)], 0.0, 1000.0, ""),
+  )
+  m = @src.cobra3_model_set_objective(m, "BIO", 1.0)
+  let dg : Map[String, Double] = Map([("R1", 5.0)])
+  let res = @src.cobra3_thermo_fba(m, dg)
+  assert_true(res.status is @src.Cobra3Status::Optimal)
+  assert_true(res.objective_value.abs() < 1.0e-9)
+}
