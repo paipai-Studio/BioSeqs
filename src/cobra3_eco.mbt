@@ -409,11 +409,52 @@ fn cobra3_optknock_inner(
 }
 
 ///|
-/// OptKnock：枚举单/双反应敲除；内层先取最大生长，再在保持最大生长下最大化目标产物.
+/// 递归枚举尺寸为 `k` 的敲除组合；每测试一个组合 `budget[0]` 递减，
+/// 归零即停止，避免组合爆炸.
+fn cobra3_optknock_extend(
+  model : Cobra3Model,
+  target_idx : Int32,
+  k : Int32,
+  start : Int32,
+  cur : Array[String],
+  out : Array[Cobra3OptKnockResult],
+  budget : Array[Int32],
+) -> Unit {
+  let n = model.reactions.length()
+  let need = k - cur.length()
+  let mut i = start
+  while i < n && n - i >= need && budget[0] > 0 {
+    cur.push(model.reactions[i].id)
+    if cur.length() == k {
+      budget[0] = budget[0] - 1
+      let ko = cobra3_knockout_reactions(model, cur)
+      match cobra3_optknock_inner(ko, target_idx) {
+        Some(pair) => {
+          let ids : Array[String] = Array(capacity=cur.length())
+          for id in cur {
+            ids.push(id)
+          }
+          out.push({ knockout_ids: ids, growth: pair.0, target_flux: pair.1, })
+        }
+        None => ()
+      }
+    } else {
+      cobra3_optknock_extend(model, target_idx, k, i + 1, cur, out, budget)
+    }
+    ignore(cur.pop())
+    i = i + 1
+  }
+}
+
+///|
+/// OptKnock：枚举单反应直到 `max_knockouts` 元敲除（默认 2，与旧行为一致）；
+/// 内层先取最大生长，再在保持最大生长下最大化目标产物。`max_candidates`
+/// 限制内层 LP 的求解次数，达到上限即停止枚举（结果可能不完整）。
 pub fn cobra3_optknock(
   model : Cobra3Model,
   target_id : String,
   max_knockouts~ : Int32 = 2,
+  max_candidates~ : Int32 = 5000,
 ) -> Array[Cobra3OptKnockResult] {
   let out : Array[Cobra3OptKnockResult] = Array(capacity=0)
   let n = model.reactions.length()
@@ -421,35 +462,12 @@ pub fn cobra3_optknock(
   if target_idx < 0 || n > 80 {
     return out
   }
-  for i in 0..<n {
-    let ko1 = cobra3_knockout_reactions(model, [model.reactions[i].id])
-    match cobra3_optknock_inner(ko1, target_idx) {
-      Some(pair) =>
-        out.push({
-          knockout_ids: [model.reactions[i].id],
-          growth: pair.0,
-          target_flux: pair.1,
-        })
-      None => ()
-    }
-    if max_knockouts >= 2 {
-      let start = i + 1
-      for j in start..<n {
-        let ko2 = cobra3_knockout_reactions(model, [
-          model.reactions[i].id,
-          model.reactions[j].id,
-        ])
-        match cobra3_optknock_inner(ko2, target_idx) {
-          Some(pair) =>
-            out.push({
-              knockout_ids: [model.reactions[i].id, model.reactions[j].id],
-              growth: pair.0,
-              target_flux: pair.1,
-            })
-          None => ()
-        }
-      }
-    }
+  let budget : Array[Int32] = [max_candidates]
+  let mut k = 1
+  while k <= max_knockouts && k <= n && budget[0] > 0 {
+    let cur : Array[String] = Array(capacity=k)
+    cobra3_optknock_extend(model, target_idx, k, 0, cur, out, budget)
+    k = k + 1
   }
   out
 }

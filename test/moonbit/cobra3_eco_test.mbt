@@ -181,6 +181,21 @@ test "cobra3 eco optknock inner maximizes target" {
 }
 
 ///|
+test "cobra3 eco optknock supports triple knockouts" {
+  let m = cobra3_toy()
+  let res = @src.cobra3_optknock(m, "R2", max_knockouts=3)
+  let mut has_triple = false
+  for r in res {
+    if r.knockout_ids.length() == 3 {
+      has_triple = true
+    }
+  }
+  assert_true(has_triple)
+  let capped = @src.cobra3_optknock(m, "R2", max_knockouts=3, max_candidates=1)
+  assert_true(capped.length() <= 1)
+}
+
+///|
 test "cobra3 eco community sums independent models" {
   let m1 = cobra3_toy()
   let mut m2 = @src.cobra3_model_new("second")

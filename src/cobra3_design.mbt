@@ -343,51 +343,91 @@ pub(all) struct Cobra3McsResult {
 }
 
 ///|
-/// MCS-lite：枚举单/双反应删除，找使目标 <= threshold 的最小割集.
+/// 判断 `ids` 是否包含 `sets` 中任一集合（即该组合不是极小割集）.
+fn cobra3_mcs_contains_smaller(
+  ids : Array[String],
+  sets : Array[Array[String]],
+) -> Bool {
+  for set in sets {
+    let mut contained = true
+    for id in set {
+      if !ids.contains(id) {
+        contained = false
+        break
+      }
+    }
+    if contained {
+      return true
+    }
+  }
+  false
+}
+
+///|
+/// 递归枚举尺寸为 `k` 的反应删除组合；组合被测试一次后 `budget[0]` 递减，
+/// 归零即停止，避免大模型上组合爆炸.
+fn cobra3_mcs_extend(
+  model : Cobra3Model,
+  threshold : Double,
+  k : Int32,
+  start : Int32,
+  cur : Array[String],
+  found : Array[Array[String]],
+  out : Array[Cobra3McsResult],
+  budget : Array[Int32],
+) -> Unit {
+  let n = model.reactions.length()
+  let need = k - cur.length()
+  let mut i = start
+  while i < n && n - i >= need && budget[0] > 0 {
+    cur.push(model.reactions[i].id)
+    if cur.length() == k {
+      budget[0] = budget[0] - 1
+      // 包含已找到的更小割集 => 不是极小割集
+      if !cobra3_mcs_contains_smaller(cur, found) {
+        let ko = cobra3_knockout_reactions(model, cur)
+        let sol = cobra3_model_optimize(ko)
+        if sol.status is Optimal && sol.objective_value <= threshold {
+          let ids : Array[String] = Array(capacity=cur.length())
+          for id in cur {
+            ids.push(id)
+          }
+          found.push(ids)
+          out.push({ reaction_ids: ids, growth: sol.objective_value, size: k, })
+        }
+      }
+    } else {
+      cobra3_mcs_extend(model, threshold, k, i + 1, cur, found, out, budget)
+    }
+    ignore(cur.pop())
+    i = i + 1
+  }
+}
+
+///|
+/// 最小割集：按尺寸 1..max_size 递增枚举反应删除组合，跳过任何包含
+/// 已知更小割集的组合，保证返回值都是极小割集（旧实现只支持 size<=2，
+/// 且遇到单割集就漏掉不相交的双割集）。`max_candidates` 限制组合测试
+/// 次数，达到上限即停止枚举。
 pub fn cobra3_minimal_cut_sets(
   model : Cobra3Model,
   threshold~ : Double = 0.01,
+  max_size~ : Int32 = 2,
+  max_candidates~ : Int32 = 20000,
 ) -> Array[Cobra3McsResult] {
   let out : Array[Cobra3McsResult] = Array(capacity=0)
-  let n = model.reactions.length()
   let base = cobra3_model_optimize(model)
   if !(base.status is Optimal) || base.objective_value <= threshold {
     return out
   }
-  // 单反应割集
-  let single_ids : Array[String] = Array(capacity=0)
-  for j in 0..<n {
-    let id = model.reactions[j].id
-    let ko = cobra3_knockout_reactions(model, [id])
-    let sol = cobra3_model_optimize(ko)
-    if sol.status is Optimal && sol.objective_value <= threshold {
-      out.push({ reaction_ids: [id], growth: sol.objective_value, size: 1, })
-      single_ids.push(id)
-    }
-  }
-  // 双反应割集：跳过包含单割集元素的组合，否则不是极小割集
-  for i in 0..<n {
-    if single_ids.contains(model.reactions[i].id) {
-      continue
-    }
-    let start = i + 1
-    for j in start..<n {
-      if single_ids.contains(model.reactions[j].id) {
-        continue
-      }
-      let ko = cobra3_knockout_reactions(model, [
-        model.reactions[i].id,
-        model.reactions[j].id,
-      ])
-      let sol = cobra3_model_optimize(ko)
-      if sol.status is Optimal && sol.objective_value <= threshold {
-        out.push({
-          reaction_ids: [model.reactions[i].id, model.reactions[j].id],
-          growth: sol.objective_value,
-          size: 2,
-        })
-      }
-    }
+  let n = model.reactions.length()
+  let found : Array[Array[String]] = Array(capacity=0)
+  let budget : Array[Int32] = [max_candidates]
+  let mut k = 1
+  while k <= max_size && k <= n && budget[0] > 0 {
+    let cur : Array[String] = Array(capacity=k)
+    cobra3_mcs_extend(model, threshold, k, 0, cur, found, out, budget)
+    k = k + 1
   }
   out
 }

@@ -110,6 +110,50 @@ test "cobra3 design minimal cut sets includes disjoint pairs" {
 }
 
 ///|
+test "cobra3 design minimal cut sets supports triple knockouts" {
+  let mut m = @src.cobra3_model_new("mcs3")
+  m = @src.cobra3_model_add_reaction(
+    m,
+    cobra3_make_rxn("EX_A", [("A", -1.0)], -20.0, 1000.0, ""),
+  )
+  for id in ["P1", "P2", "P3"] {
+    m = @src.cobra3_model_add_reaction(
+      m,
+      cobra3_make_rxn(id, [("A", -1.0), ("P", 1.0)], 0.0, 1000.0, ""),
+    )
+  }
+  m = @src.cobra3_model_add_reaction(
+    m,
+    cobra3_make_rxn("BIO", [("P", -1.0)], 0.0, 1000.0, ""),
+  )
+  m = @src.cobra3_model_set_objective(m, "BIO", 1.0)
+  // 任意两个产 P 反应被敲除后仍有通路，生长不降，故 size<=2 找不到该割集
+  let two = @src.cobra3_minimal_cut_sets(m, threshold=0.01, max_size=2)
+  for s in two {
+    assert_true(s.size <= 2)
+  }
+  let three = @src.cobra3_minimal_cut_sets(m, threshold=0.01, max_size=3)
+  let mut has_triple = false
+  for s in three {
+    if s.size == 3 &&
+      s.reaction_ids.contains("P1") &&
+      s.reaction_ids.contains("P2") &&
+      s.reaction_ids.contains("P3") {
+      has_triple = true
+    }
+  }
+  assert_true(has_triple)
+  // max_candidates 限流：只允许测试一个组合
+  let capped = @src.cobra3_minimal_cut_sets(
+    m,
+    threshold=0.01,
+    max_size=3,
+    max_candidates=1,
+  )
+  assert_true(capped.length() <= 1)
+}
+
+///|
 test "cobra3 design nullspace dimension" {
   let m = cobra3_toy()
   let basis = @src.cobra3_nullspace_basis(m)
