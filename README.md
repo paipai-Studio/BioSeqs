@@ -796,6 +796,11 @@ MD 轨迹分析另提供与 MDAnalysis 的 Python 对拍基准：`test/python/md
 | **GWAS 可视化** | qqman / CMplot | `gwas_plot.mbt`：Manhattan（染色体交替着色散点、全基因组显著/suggestive 双线）、QQ plot（观测 vs 期望 -log10 p 分位数配对 + 置信带）、λGC 膨胀因子（χ²median/0.4549）与解读文案、内嵌 SVG 渲染（`gwas_manhattan_svg`/`gwas_qq_svg`）输出独立可打开 .svg |
 | **融合基因 caller** | STAR-Fusion / Arriba | `fusion.mbt`：SAM SA 标签 split-read 断点提取（pos + CIGAR M/D 段和近似断点）、(chromA, chromB) 有序对内断点邻近聚类（bp 容差）、支持读数阈值候选判定、同链 read-through 过滤、`fusion_write_tsv`/`fusion_write_bedpe` 输出与 bedpe.mbt 闭环 |
 | **FBA 代谢通量平衡** | cobrapy (cobra-lite) | `fba_lite.mbt`：化学计量模型（S 矩阵 + 反应上下界）、稳态约束 S·v=0 下最大化 biomass、两阶段单纯形 LP 求解（Bland 规则防循环、双向反应 v=base+x⁺−x⁻ 非负拆分）、`fba_knockout`/`fba_knockout_screen` 基因敲除表型筛查、模型 JSON 交换格式 IO |
+| **COBRApy 对象模型 v2** | cobrapy core（Model/Reaction/Metabolite/Gene） | `cobra3_core.mbt`：Metabolite（formula/charge/compartment/annotation）、Gene、结构化 GPR（And/Or/Gene 的解析/求值/化简/敲除语义）、Reaction（Map 计量/subsystem/annotation）、Model（by-id 索引、增删、快照撤销、medium、质量平衡、与 `fba_lite` 互转） |
+| **精确对偶 LP / MILP / QP** | cobrapy + optlang（GLPK/Gurobi 接口语义） | `cobra3_solver.mbt`：两阶段单纯形（Phase-1 人工基清理 + Bland 规则）返回**精确对偶** shadow price/reduced cost；分支定界 MILP；增广拉格朗日 + 坐标下降 QP（MOMA L2） |
+| **通量分析与设计** | cobrapy `flux_analysis` | `cobra3_flux.mbt` / `cobra3_design.mbt`：FBA/pFBA/FVA（`fraction_of_optimum` 真正生效）/GPR 布尔敲除/linear+quadratic MOMA/ROOM（MILP）/geometric FBA（QP）、gapfill（MILP 最小补反应）/minimal_medium（MILP 最小开放交换）/production envelope/MCS-lite/通量采样（hit-and-run）+ sample_flux + R-hat/Geweke/ESS/FastCC/loopless-lite |
+| **FBC v2 / JSON / YAML / TSV IO** | cobrapy `io.sbml` / `io.json` / `io.yaml` | `cobra3_sbml.mbt` / `cobra3_json.mbt`：SBML L3V2 + FBC v2（fluxBounds、geneProduct、GPR、objective、化学式/电荷）读写；模型 JSON/YAML/TSV 往返；JSON 递归解析器 |
+| **模型分析与生态扩展** | cobrapy `analysis` + iMAT/GIMME/CORDA/OptKnock 生态 | `cobra3_analysis.mbt` / `cobra3_eco.mbt`：通量耦合（fully/partial/directional）、相平面、模型/反应/代谢物摘要、敏感性、模型差异；EFM 枚举、iMAT、GIMME、CORDA-lite、GrowMatch-lite、OptKnock-lite、群落 FBA、热力学约束 FBA |
 | **3D 基因组建模** | ShRec3D / 3DMax | `genome3d.mbt`：Hi-C 接触矩阵倒数变换距离（d=1/contact，零接触取 d_max）、经典 MDS（距离平方双中心化 B=−0.5·J·D²·J + Jacobi 特征分解取前 3 维 X=V·Λ^0.5）、应力质量评估（恢复距离与目标距离 Pearson 相关）、`Genome3dModel::to_pdb` ATOM 记录输出与结构栈（tm_score/cealign/dssp）闭环 |
 
 ### 单细胞 / NGS 预处理进阶（第五阶段 G1-G6）
@@ -848,7 +853,7 @@ MD 轨迹分析另提供与 MDAnalysis 的 Python 对拍基准：`test/python/md
 ```
 IvanAXu/BioSeqs/
 ├── moon.mod                          # 模块配置 (name="IvanAXu/BioSeqs", version=0.1.12)
-├── src/                              # 源代码（1198 个 .mbt 模块）
+├── src/                              # 源代码（1206 个 .mbt 模块）
 │   ├── seq.mbt                       # Bio.Seq 序列对象
 │   ├── seqio.mbt / fasta_io.mbt / ... # 序列 I/O（30+ 种格式）
 │   ├── alignment.mbt / align_*.mbt   # 比对算法 + 20+ 种比对格式严格 API
@@ -870,7 +875,7 @@ IvanAXu/BioSeqs/
 │   ├── hla_typing.mbt / sv_caller.mbt # 第十阶段 K 系列: HLA 分型(NGS 读取水平) / 长读长 SV 检测(CIGAR + SA tag)
 │   ├── statistics.mbt / kmeans.mbt / hmm.mbt / neural_network.mbt / ... # ML 与统计
 │   └── utils.mbt / data.mbt / ...    # 通用工具与常量
-├── examples/                         # 示例程序（562 个演示 demo）
+├── examples/                         # 示例程序（563 个演示 demo）
 │   ├── basic_seq/                    # 基础序列操作
 │   ├── seqcode_demo/ / seq_utils_demo/ # SeqUtils 序列工具（gc_fraction/GC123/nt_search/六框翻译/seq3/seq1）
 │   ├── codon_utils_demo/               # CodonUtils 密码子分析（NCBI 27 表/GC123/六框翻译/CAI/Nc Wright 1990/表元数据）
@@ -932,7 +937,7 @@ IvanAXu/BioSeqs/
 │   ├── hla_typing_demo/ / sv_caller_demo/ # 第十阶段 K 系列（HLA 分型：参考序列库→读取比对→GL String 闭环；SV 检测：CIGAR/SA tag→DEL/INS/DUP/INV/BND→深度置信度闭环）
 │   └── ... （更多 examples/*_demo/）
 ├── test/
-│   ├── moonbit/                      # MoonBit 单元测试（832 个测试文件，17180 用例）
+│   ├── moonbit/                      # MoonBit 单元测试（840 个测试文件，17250 用例）
 │   │   ├── bio_seq_test.mbt / seqio_wb_test.mbt / ...
 │   │   ├── alignment_test.mbt / pdb_test.mbt / phylo_test.mbt / ...
 │   │   ├── deseq2_test.mbt / rankprod_test.mbt / seurat_test.mbt / scran_test.mbt / ...
@@ -969,7 +974,7 @@ IvanAXu/BioSeqs/
 
 ```bash
 moon build                                              # ✅ 成功
-moon test                                               # ✅ 17180 个测试全部通过（test/moonbit 包）
+moon test                                               # ✅ 17250 个测试全部通过（test/moonbit 包）
 ```
 
 ---
@@ -978,7 +983,7 @@ moon test                                               # ✅ 17180 个测试全
 
 ```bash
 moon build      # 构建项目
-moon test       # 运行全部测试 (17180 个测试用例，test/moonbit 包)
+moon test       # 运行全部测试 (17250 个测试用例，test/moonbit 包)
 ```
 
 ---

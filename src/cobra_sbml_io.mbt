@@ -79,9 +79,17 @@ pub fn cobra_write_sbml(model : FbaModel) -> String {
 }
 
 ///|
-/// Parse SBML XML string to FBA model.
-/// This is a simplified parser that extracts metabolites, reactions, and stoichiometry.
+/// Parse SBML XML string to FBA model；优先使用 FBC v2 解析，失败时回退旧版简化解析.
 pub fn cobra_read_sbml(text : String) -> FbaModel? {
+  match cobra3_read_sbml(text) {
+    Some(m) => Some(cobra3_to_fba_model(m))
+    None => cobra_read_sbml_legacy(text)
+  }
+}
+
+///|
+/// 旧版简化 SBML 解析（仅作为 FBC 解析失败时的回退）.
+fn cobra_read_sbml_legacy(text : String) -> FbaModel? {
   // Extract species
   let metabolites : Array[String] = Array(capacity=0)
   let species_pattern = "species id=\""
