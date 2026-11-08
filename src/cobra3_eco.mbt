@@ -332,13 +332,15 @@ pub fn cobra3_corda(
 ) -> Cobra3CordaResult {
   let gimme = cobra3_gimme(model, low_genes, min_growth~)
   let removed : Array[String] = Array(capacity=0)
+  let low_ids = cobra3_reaction_ids_for_genes(model, low_genes)
   let mut context = model
   for j in 0..<model.reactions.length() {
-    if gimme.fluxes[j].abs() < 1.0e-8 &&
-      cobra3_reaction_ids_for_genes(model, low_genes).contains(
+    if gimme.fluxes[j].abs() < 1.0e-8 && low_ids.contains(model.reactions[j].id) {
+      context = cobra3_model_remove_reaction(
+        context,
         model.reactions[j].id,
-      ) {
-      context = cobra3_model_remove_reaction(context, model.reactions[j].id)
+        remove_orphans=false,
+      )
       removed.push(model.reactions[j].id)
     }
   }

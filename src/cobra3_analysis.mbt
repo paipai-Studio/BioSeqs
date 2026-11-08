@@ -334,11 +334,34 @@ pub(all) struct Cobra3ModelDiff {
   changed_bounds : Array[String]
   changed_objective : Array[String]
   changed_stoichiometry : Array[String]
+  changed_gpr : Array[String]
   added_metabolites : Array[String]
   removed_metabolites : Array[String]
+  changed_metabolites : Array[String]
 }
 
 ///|
+fn cobra3_same_gpr(a : Cobra3Gpr?, b : Cobra3Gpr?) -> Bool {
+  match a {
+    None => b is None
+    Some(x) =>
+      match b {
+        None => false
+        Some(y) => cobra3_gpr_to_string(x) == cobra3_gpr_to_string(y)
+      }
+  }
+}
+
+///|
+fn cobra3_same_metabolite_meta(
+  a : Cobra3Metabolite,
+  b : Cobra3Metabolite,
+) -> Bool {
+  a.formula == b.formula &&
+  (a.charge - b.charge).abs() < 1.0e-9 &&
+  a.compartment == b.compartment &&
+  a.boundary == b.boundary
+}
 
 ///|
 fn cobra3_same_metabolites(
@@ -364,6 +387,7 @@ pub fn cobra3_model_diff(a : Cobra3Model, b : Cobra3Model) -> Cobra3ModelDiff {
   let changed_bounds : Array[String] = Array(capacity=0)
   let changed_objective : Array[String] = Array(capacity=0)
   let changed_stoichiometry : Array[String] = Array(capacity=0)
+  let changed_gpr : Array[String] = Array(capacity=0)
   for ra in a.reactions {
     match cobra3_model_get_reaction(b, ra.id) {
       None => removed_reactions.push(ra.id)
@@ -378,6 +402,9 @@ pub fn cobra3_model_diff(a : Cobra3Model, b : Cobra3Model) -> Cobra3ModelDiff {
         if !cobra3_same_metabolites(ra.metabolites, rb.metabolites) {
           changed_stoichiometry.push(ra.id)
         }
+        if !cobra3_same_gpr(ra.gpr, rb.gpr) {
+          changed_gpr.push(ra.id)
+        }
       }
     }
   }
@@ -388,9 +415,13 @@ pub fn cobra3_model_diff(a : Cobra3Model, b : Cobra3Model) -> Cobra3ModelDiff {
   }
   let added_metabolites : Array[String] = Array(capacity=0)
   let removed_metabolites : Array[String] = Array(capacity=0)
+  let changed_metabolites : Array[String] = Array(capacity=0)
   for ma in a.metabolites {
-    if cobra3_model_metabolite_index(b, ma.id) < 0 {
+    let idx = cobra3_model_metabolite_index(b, ma.id)
+    if idx < 0 {
       removed_metabolites.push(ma.id)
+    } else if !cobra3_same_metabolite_meta(ma, b.metabolites[idx]) {
+      changed_metabolites.push(ma.id)
     }
   }
   for mb in b.metabolites {
@@ -403,15 +434,19 @@ pub fn cobra3_model_diff(a : Cobra3Model, b : Cobra3Model) -> Cobra3ModelDiff {
   cobra3_sort_strings(changed_bounds)
   cobra3_sort_strings(changed_objective)
   cobra3_sort_strings(changed_stoichiometry)
+  cobra3_sort_strings(changed_gpr)
   cobra3_sort_strings(added_metabolites)
   cobra3_sort_strings(removed_metabolites)
+  cobra3_sort_strings(changed_metabolites)
   {
     added_reactions,
     removed_reactions,
     changed_bounds,
     changed_objective,
     changed_stoichiometry,
+    changed_gpr,
     added_metabolites,
     removed_metabolites,
+    changed_metabolites,
   }
 }

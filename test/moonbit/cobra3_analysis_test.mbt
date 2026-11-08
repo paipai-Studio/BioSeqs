@@ -142,3 +142,59 @@ test "cobra3 analysis model diff detects stoichiometry" {
   assert_eq(d.changed_bounds.length(), 0)
   assert_eq(d.changed_objective.length(), 0)
 }
+
+///|
+test "cobra3 analysis model diff detects gpr and metabolite metadata" {
+  let mut a = @src.cobra3_model_new("a")
+  let ma : @src.Cobra3Metabolite = {
+    id: "A",
+    name: "A",
+    formula: "C",
+    charge: 0.0,
+    compartment: "c",
+    boundary: false,
+    annotation: Map([], capacity=1),
+  }
+  a = @src.cobra3_model_add_metabolite(a, ma)
+  let participants : Array[(String, Double)] = [("A", -1.0)]
+  let ra : @src.Cobra3Reaction = {
+    id: "R1",
+    name: "R1",
+    metabolites: Map(participants),
+    lower_bound: 0.0,
+    upper_bound: 1000.0,
+    objective: 0.0,
+    subsystem: "",
+    gpr: @src.cobra3_gpr_parse("g1"),
+    annotation: Map([], capacity=1),
+  }
+  a = @src.cobra3_model_add_reaction(a, ra)
+  let mut b = @src.cobra3_model_new("b")
+  let mb : @src.Cobra3Metabolite = {
+    id: "A",
+    name: "A",
+    formula: "C2",
+    charge: 0.0,
+    compartment: "c",
+    boundary: false,
+    annotation: Map([], capacity=1),
+  }
+  b = @src.cobra3_model_add_metabolite(b, mb)
+  let rb : @src.Cobra3Reaction = {
+    id: "R1",
+    name: "R1",
+    metabolites: Map(participants),
+    lower_bound: 0.0,
+    upper_bound: 1000.0,
+    objective: 0.0,
+    subsystem: "",
+    gpr: @src.cobra3_gpr_parse("g2"),
+    annotation: Map([], capacity=1),
+  }
+  b = @src.cobra3_model_add_reaction(b, rb)
+  let d = @src.cobra3_model_diff(a, b)
+  assert_eq(d.changed_gpr.length(), 1)
+  assert_eq(d.changed_gpr[0], "R1")
+  assert_eq(d.changed_metabolites.length(), 1)
+  assert_eq(d.changed_metabolites[0], "A")
+}

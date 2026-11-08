@@ -1070,6 +1070,22 @@ pub fn cobra3_to_fba_model(model : Cobra3Model) -> FbaModel {
   { metabolites: met_ids, reactions, stoichiometry: s, }
 }
 
+///|
+/// 与 cobra3_to_fba_model 相同，但额外返回反应的 GPR 字符串（key=reaction id），
+/// 供需要保留 AND/嵌套结构的外部调用方使用.
+pub fn cobra3_to_fba_model_with_gpr(
+  model : Cobra3Model,
+) -> (FbaModel, Map[String, String]) {
+  let gprs : Map[String, String] = Map([], capacity=model.reactions.length())
+  for r in model.reactions {
+    match r.gpr {
+      Some(g) => gprs[r.id] = cobra3_gpr_to_string(g)
+      None => ()
+    }
+  }
+  (cobra3_to_fba_model(model), gprs)
+}
+
 // ---------------------------------------------------------------------------
 // GPR：解析、求值、基因集、化简、输出
 // ---------------------------------------------------------------------------

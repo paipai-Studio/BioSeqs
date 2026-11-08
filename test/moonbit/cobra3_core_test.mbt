@@ -322,3 +322,27 @@ test "cobra3 core undo stack is bounded" {
   }
   assert_eq(model.undo_stack.length(), 100)
 }
+
+///|
+test "cobra3 core to fba keeps gpr sidecar" {
+  let mut model = @src.cobra3_model_new("gpr")
+  let participants : Array[(String, Double)] = [("A", -1.0)]
+  let r : @src.Cobra3Reaction = {
+    id: "R",
+    name: "R",
+    metabolites: Map(participants),
+    lower_bound: 0.0,
+    upper_bound: 1000.0,
+    objective: 0.0,
+    subsystem: "",
+    gpr: @src.cobra3_gpr_parse("g1 and g2"),
+    annotation: Map([], capacity=1),
+  }
+  model = @src.cobra3_model_add_reaction(model, r)
+  let (fba, gprs) = @src.cobra3_to_fba_model_with_gpr(model)
+  assert_eq(fba.reactions.length(), 1)
+  match gprs.get("R") {
+    Some(g) => assert_eq(g, "(g1 and g2)")
+    None => fail("gpr missing")
+  }
+}
