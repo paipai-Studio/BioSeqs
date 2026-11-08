@@ -431,6 +431,24 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **WNN 多模态整合** | Seurat v4 WNN (Hao et al. 2021) | 加权最近邻多模态整合（`wnn.mbt`）：各模态 KNN 图（欧氏 k 近邻 + 高斯核加权 SparseGraph）、细胞级模态权重（跨模态邻域一致性 → 温度软化 + 模态图邻域平滑，w_A+w_B=1 归一化）、联合加权图 J=w_A·A+w_B·B 再对称化、`WnnResult::cluster` 接 leiden 聚类闭环、权重 summary 与归一化校验 |
 | **scDblFinder / decontX / celda / milo 等容器接入** | 所有上面模块 | 统一 SingleCellExperiment 不可变写回与跨模块集成 |
 
+### scvi-tools 系列功能
+
+| 功能模块 | 对应 scvi-tools | 核心功能 |
+| :--- | :--- | :--- |
+| **scvi_distributions** | `scvi.distributions` | 单细胞计数分布族：`NegativeBinomial` / `ZeroInflatedNegativeBinomial`（`zi_logits` 零膨胀）/ `Poisson` / `Bernoulli` / 双组分 `NegativeBinomialMixture` / 多组分 `MixturePoisson`；统一提供 `log_prob` / `mean` / `variance` / `sample`，含 Lanczos `lgamma`、Poisson-Gamma 负二项采样与数值稳定化 |
+| **scvi_autograd** | PyTorch autograd | 反向模式自动微分 tape：向量/标量节点、`dense` 仿射层、ReLU/Sigmoid/Softmax、log/exp/square/neg、sum/mean/select、KL 散度、负二项/泊松 NLL；参数矩阵与向量梯度累积、全局梯度范数裁剪 |
+| **scvi_optim** | `torch.optim` | SGD、momentum SGD、Adam（含偏差校正/权重衰减），供 SCVI/SCANVI/LinearSCVI 真实训练使用 |
+| **scvi 模型训练重写** | `SCVI` / `SCANVI` / `LinearSCVI` | 三个核心模型的 `train` 由随机权重扰动改为 autograd + Adam 端到端训练；修正 encoder/decoder/classifier 权重维度约定；配套测试验证 ELBO 提升与潜变量形状 |
+| **scvi_dataloaders** | `scvi.dataloaders` | `AnnDataLoader`（batch/shuffle/epoch 重排）、`DataSplitter`（train/val/test 比例切分）、按标签分层切分、半监督 labeled/unlabeled 划分、masked-gene 批次、`ConcatenateLoader` 多数据集合并 |
+| **scvi_model_base** | `scvi.model.base` | 统一模型状态：`n_obs`/`n_vars`/`n_batch`、`is_trained`、train/validation/test 索引、split 合法性校验（越界/重复检测）、summary 与训练前 guard |
+| **scvi_data** | `scvi.data` | `setup_anndata`（scVI/scanVI/totalVI 入口）、字段注册与查询、`synthetic_iid` 合成计数数据、`read_10x_multiome` RNA+ATAC 合并、protein 矩阵挂载、`transfer_fields` 元数据迁移 |
+| **scvi_train_plans** | `scvi.train` | unsupervised / semi-supervised（交叉熵+熵正则）/ classifier / adversarial 训练方案；通用训练循环与早停（patience/min_delta）、loss 历史与最近窗口 |
+| **scvi_settings** | `scvi.settings` / `scvi.utils` | 运行时设置（seed/verbosity/dl_num_workers/num_threads/save_dir）；`DEFAULT_KEYS`、attrdict 键值查询、均匀/分层子采样、时长格式化、分类准确率 |
+| **scvi_stereoscope** | `scvi.external.RNAStereoscope` / `SpatialStereoscope` | 从单细胞参考估计细胞类型表达谱，乘法更新反卷积 bulk/空间点得到比例；`predict_expression`、主导细胞类型；提供 RNAStereoscope/SpatialStereoscope 别名接口 |
+| **scvi_spatial_stats** | squidpy 风格 | kNN 距离权重矩阵、Moran's I、Geary's C、置换检验 p 值、空间邻域同标签富集与全局标签比例 |
+| **scvi_autotune** | `scvi.autotune.ModelTuner` | 无外部依赖的超参搜索：网格搜索（笛卡尔积）、随机搜索、ModelTuner 别名；最优参数/得分/trial 记录与参数提取 |
+| **scvi_hub** | `scvi.hub` | 模型卡元数据（名称/版本/描述/URL/license/scvi 与 anndata 版本/维度）、校验、JSON 序列化、键值卡重建、缓存路径与下载 URL、模糊匹配与摘要 |
+
 ### 空间转录组
 
 | 功能模块 | 对应 Bioconductor | 核心功能 |
@@ -830,7 +848,7 @@ MD 轨迹分析另提供与 MDAnalysis 的 Python 对拍基准：`test/python/md
 ```
 IvanAXu/BioSeqs/
 ├── moon.mod                          # 模块配置 (name="IvanAXu/BioSeqs", version=0.1.12)
-├── src/                              # 源代码（1186 个 .mbt 模块）
+├── src/                              # 源代码（1198 个 .mbt 模块）
 │   ├── seq.mbt                       # Bio.Seq 序列对象
 │   ├── seqio.mbt / fasta_io.mbt / ... # 序列 I/O（30+ 种格式）
 │   ├── alignment.mbt / align_*.mbt   # 比对算法 + 20+ 种比对格式严格 API
@@ -852,7 +870,7 @@ IvanAXu/BioSeqs/
 │   ├── hla_typing.mbt / sv_caller.mbt # 第十阶段 K 系列: HLA 分型(NGS 读取水平) / 长读长 SV 检测(CIGAR + SA tag)
 │   ├── statistics.mbt / kmeans.mbt / hmm.mbt / neural_network.mbt / ... # ML 与统计
 │   └── utils.mbt / data.mbt / ...    # 通用工具与常量
-├── examples/                         # 示例程序（561 个演示 demo）
+├── examples/                         # 示例程序（562 个演示 demo）
 │   ├── basic_seq/                    # 基础序列操作
 │   ├── seqcode_demo/ / seq_utils_demo/ # SeqUtils 序列工具（gc_fraction/GC123/nt_search/六框翻译/seq3/seq1）
 │   ├── codon_utils_demo/               # CodonUtils 密码子分析（NCBI 27 表/GC123/六框翻译/CAI/Nc Wright 1990/表元数据）
@@ -914,7 +932,7 @@ IvanAXu/BioSeqs/
 │   ├── hla_typing_demo/ / sv_caller_demo/ # 第十阶段 K 系列（HLA 分型：参考序列库→读取比对→GL String 闭环；SV 检测：CIGAR/SA tag→DEL/INS/DUP/INV/BND→深度置信度闭环）
 │   └── ... （更多 examples/*_demo/）
 ├── test/
-│   ├── moonbit/                      # MoonBit 单元测试（829 个测试文件，17149 用例）
+│   ├── moonbit/                      # MoonBit 单元测试（832 个测试文件，17180 用例）
 │   │   ├── bio_seq_test.mbt / seqio_wb_test.mbt / ...
 │   │   ├── alignment_test.mbt / pdb_test.mbt / phylo_test.mbt / ...
 │   │   ├── deseq2_test.mbt / rankprod_test.mbt / seurat_test.mbt / scran_test.mbt / ...
@@ -951,7 +969,7 @@ IvanAXu/BioSeqs/
 
 ```bash
 moon build                                              # ✅ 成功
-moon test                                               # ✅ 17149 个测试全部通过（test/moonbit 包）
+moon test                                               # ✅ 17180 个测试全部通过（test/moonbit 包）
 ```
 
 ---
@@ -960,7 +978,7 @@ moon test                                               # ✅ 17149 个测试全
 
 ```bash
 moon build      # 构建项目
-moon test       # 运行全部测试 (17149 个测试用例，test/moonbit 包)
+moon test       # 运行全部测试 (17180 个测试用例，test/moonbit 包)
 ```
 
 ---

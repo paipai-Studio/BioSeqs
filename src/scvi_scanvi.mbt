@@ -59,13 +59,13 @@ pub fn scanvi_init(
   }
   {
     config,
-    encoder_w: init_w(n_genes, config.n_hidden),
+    encoder_w: init_w(config.n_hidden, n_genes),
     encoder_b: init_b(config.n_hidden),
-    z_encoder_w: init_w(config.n_hidden, config.n_latent),
+    z_encoder_w: init_w(config.n_latent, config.n_hidden),
     z_encoder_b: init_b(config.n_latent),
-    classifier_w: init_w(config.n_latent, n_labels),
+    classifier_w: init_w(n_labels, config.n_latent),
     classifier_b: init_b(n_labels),
-    decoder_w: init_w(config.n_latent, n_genes),
+    decoder_w: init_w(n_genes, config.n_latent),
     decoder_b: init_b(n_genes),
     n_genes,
     label_names,
@@ -147,33 +147,69 @@ pub fn scanvi_train(
   n_epochs : Int32,
 ) -> SCANVIModel {
   let m = model
-  for epoch in 0..<n_epochs {
-    // Supervised loss on labeled data
-    let mut sup_loss = 0.0
-    for i in 0..<x_labeled.length() {
-      let probs = scanvi_predict_proba(m, x_labeled[i])
-      let label = y_labeled[i]
-      sup_loss += -@math.ln(probs[label] + 0.0000000001)
+  let n_labeled = x_labeled.length()
+  let n_unlabeled = x_unlabeled.length()
+  let n_total = n_labeled + n_unlabeled
+  if n_total == 0 {
+    m.trained = true
+    return m
+  }
+  let theta = Array(capacity=m.n_genes)
+  for _g in 0..<m.n_genes {
+    theta.push(1.0)
+  }
+  let template = ScviAgTape::new()
+  ignore(template.matrix_param(m.encoder_w))
+  ignore(template.vector_param(m.encoder_b))
+  ignore(template.matrix_param(m.z_encoder_w))
+  ignore(template.vector_param(m.z_encoder_b))
+  ignore(template.matrix_param(m.classifier_w))
+  ignore(template.vector_param(m.classifier_b))
+  ignore(template.matrix_param(m.decoder_w))
+  ignore(template.vector_param(m.decoder_b))
+  let adam = scvi_adam_init(template, m.config.learning_rate)
+  let n_total_d = n_total.to_double()
+  for _epoch in 0..<n_epochs {
+    let t = ScviAgTape::new()
+    let w_enc = t.matrix_param(m.encoder_w)
+    let b_enc = t.vector_param(m.encoder_b)
+    let w_z = t.matrix_param(m.z_encoder_w)
+    let b_z = t.vector_param(m.z_encoder_b)
+    let w_cls = t.matrix_param(m.classifier_w)
+    let b_cls = t.vector_param(m.classifier_b)
+    let w_dec = t.matrix_param(m.decoder_w)
+    let b_dec = t.vector_param(m.decoder_b)
+    let mut total = t.leaf([0.0])
+    for i in 0..<n_labeled {
+      let xi = x_labeled[i]
+      let lib = scvi_array_sum(xi)
+      let lib_size = if lib <= 0.0 { 1.0 } else { lib }
+      let xin = t.leaf(xi)
+      let hidden = t.relu(t.dense(xin, w_enc, b_enc))
+      let z = t.dense(hidden, w_z, b_z)
+      let probs = t.softmax(t.dense(z, w_cls, b_cls))
+      let ce = t.neg(t.log(t.select(probs, y_labeled[i])))
+      let rates = t.softmax(t.dense(z, w_dec, b_dec))
+      let nll = t.nb_nll(t.scale(rates, lib_size), xi, theta)
+      total = t.add(total, t.add(ce, nll))
     }
-    // Unsupervised loss (entropy minimization)
-    let mut unsup_loss = 0.0
-    for i in 0..<x_unlabeled.length() {
-      let probs = scanvi_predict_proba(m, x_unlabeled[i])
-      for j in 0..<probs.length() {
-        if probs[j] > 0.001 {
-          unsup_loss += -probs[j] * @math.ln(probs[j])
-        }
-      }
+    for i in 0..<n_unlabeled {
+      let xi = x_unlabeled[i]
+      let lib = scvi_array_sum(xi)
+      let lib_size = if lib <= 0.0 { 1.0 } else { lib }
+      let xin = t.leaf(xi)
+      let hidden = t.relu(t.dense(xin, w_enc, b_enc))
+      let z = t.dense(hidden, w_z, b_z)
+      let probs = t.softmax(t.dense(z, w_cls, b_cls))
+      let ent = t.neg(t.sum(t.mul(probs, t.log(probs))))
+      let rates = t.softmax(t.dense(z, w_dec, b_dec))
+      let nll = t.nb_nll(t.scale(rates, lib_size), xi, theta)
+      total = t.add(total, t.add(ent, nll))
     }
-    // Update weights (simplified)
-    let lr = m.config.learning_rate
-    for j in 0..<m.classifier_w.length() {
-      for k in 0..<m.classifier_w[0].length() {
-        m.classifier_w[j][k] += lr * scvi_rand(epoch * 500 + j * 50 + k) * 0.01
-      }
-    }
-    ignore(sup_loss)
-    ignore(unsup_loss)
+    let loss = t.scale(total, 1.0 / n_total_d)
+    t.backward(loss)
+    ignore(t.clip_grad_norm(5.0))
+    scvi_adam_step(t, adam)
   }
   m.trained = true
   m
@@ -192,6 +228,17 @@ pub fn scanvi_get_latent(
     result.push(z)
   }
   result
+}
+
+///|
+pub fn SCANVIConfig::new(
+  n_hidden : Int32,
+  n_latent : Int32,
+  n_labels : Int32,
+  learning_rate : Double,
+  max_epochs : Int32,
+) -> SCANVIConfig {
+  { n_hidden, n_latent, n_labels, learning_rate, max_epochs, }
 }
 
 ///|
