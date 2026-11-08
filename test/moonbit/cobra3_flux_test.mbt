@@ -189,6 +189,14 @@ test "cobra3 quadratic moma" {
 }
 
 ///|
+test "cobra3 moma multi-target growth" {
+  let m = cobra3_branch_model()
+  let res = @src.cobra3_moma(m, ["g1"])
+  assert_true(res.status is @src.Cobra3Status::Optimal)
+  assert_true((res.growth - 10.0).abs() < 1.0e-4)
+}
+
+///|
 test "cobra3 room keeps backup route" {
   let m = cobra3_toy()
   let res = @src.cobra3_room(m, ["g1"])
@@ -211,7 +219,8 @@ test "cobra3 geometric fba" {
   let m = cobra3_toy()
   let res = @src.cobra3_geometric_fba(m)
   assert_true(res.status is @src.Cobra3Status::Optimal)
-  assert_true((res.objective_value - 10.0).abs() < 1.0e-6)
+  // 99% 最优生长：解的通量应为 9.9，objective_value 应与通量一致
+  assert_true((res.objective_value - 9.9).abs() < 1.0e-4)
   let mut total = 0.0
   for v in res.fluxes {
     total = total + v * v

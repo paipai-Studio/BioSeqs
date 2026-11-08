@@ -480,6 +480,7 @@ pub fn cobra3_moma(
       status: Cobra3Status::Infeasible,
     }
   }
+  let obj_vec = cobra3_model_objective_vector(ko)
   let lb = cobra3_model_lower_bounds(ko)
   let ub = cobra3_model_upper_bounds(ko)
   let s = cobra3_model_stoichiometric_matrix(ko)
@@ -503,12 +504,9 @@ pub fn cobra3_moma(
         2.0 * wt.fluxes[j] * sol.x[j] +
         wt.fluxes[j] * wt.fluxes[j]
     }
-    let growth = match cobra3_model_biomass_reaction(ko) {
-      Some(id) =>
-        match cobra3_model_reaction_index(ko, id) {
-          i => if i >= 0 { sol.x[i] } else { 0.0 }
-        }
-      None => 0.0
+    let mut growth = 0.0
+    for j in 0..<n {
+      growth = growth + obj_vec[j] * sol.x[j]
     }
     { growth, fluxes: sol.x, distance: dist, status: sol.status, }
   } else {
@@ -558,12 +556,9 @@ pub fn cobra3_moma(
     for j in 0..<n {
       fluxes.push(sol.x[j])
     }
-    let growth = match cobra3_model_biomass_reaction(ko) {
-      Some(id) =>
-        match cobra3_model_reaction_index(ko, id) {
-          i => if i >= 0 { fluxes[i] } else { 0.0 }
-        }
-      None => 0.0
+    let mut growth = 0.0
+    for j in 0..<n {
+      growth = growth + obj_vec[j] * fluxes[j]
     }
     { growth, fluxes, distance: -sol.objective_value, status: sol.status, }
   }
@@ -727,9 +722,14 @@ pub fn cobra3_geometric_fba(model : Cobra3Model) -> Cobra3FluxResult {
     eq.push(s[i])
   }
   let sol = cobra3_solve_qp(q, c, eq, zero, lb, ub)
+  let obj_vec = cobra3_model_objective_vector(model)
+  let mut growth = 0.0
+  for j in 0..<n {
+    growth = growth + obj_vec[j] * sol.x[j]
+  }
   {
     status: sol.status,
-    objective_value: opt.objective_value,
+    objective_value: growth,
     fluxes: sol.x,
     shadow_prices: Array::make(model.metabolites.length(), 0.0),
     reduced_costs: Array::make(n, 0.0),
