@@ -29,6 +29,28 @@ fn cobra3_json_skip(s : String, pos : Int32) -> Int32 {
 }
 
 ///|
+fn cobra3_json_hex4(s : String, pos : Int32) -> Int32? {
+  if pos + 4 > s.length() {
+    return None
+  }
+  let mut value = 0
+  for k in 0..<4 {
+    let c = s[pos + k].to_int()
+    let digit = if c >= 48 && c <= 57 {
+      c - 48
+    } else if c >= 65 && c <= 70 {
+      c - 55
+    } else if c >= 97 && c <= 102 {
+      c - 87
+    } else {
+      return None
+    }
+    value = value * 16 + digit
+  }
+  Some(value)
+}
+
+///|
 fn cobra3_json_parse_string(s : String, pos : Int32) -> (String?, Int32) {
   if pos >= s.length() || s[pos] != '"' {
     return (None, -1)
@@ -58,14 +80,40 @@ fn cobra3_json_parse_string(s : String, pos : Int32) -> (String?, Int32) {
       } else if esc == 'r' {
         let _ = sb.write_char('\r')
       } else if esc == 'b' {
-        let _ = sb.write_char(' ')
+        let _ = sb.write_char((8).to_char().unwrap_or(' '))
       } else if esc == 'f' {
-        let _ = sb.write_char(' ')
+        let _ = sb.write_char((12).to_char().unwrap_or(' '))
       } else if esc == 'u' {
-        // 简化：保留原字符，不解析代理对
-        if i + 5 < s.length() {
-          let _ = sb.write(s[i + 2:i + 6].to_owned())
-          i = i + 4
+        match cobra3_json_hex4(s, i + 2) {
+          None => return (None, -1)
+          Some(hi) => {
+            let mut code = hi
+            let mut advance = 4
+            // UTF-16 代理对：高代理 + 低代理组合成一个码点
+            if hi >= 55296 &&
+              hi <= 56319 &&
+              i + 12 <= s.length() &&
+              s[i + 6] == '\\' &&
+              s[i + 7] == 'u' {
+              match cobra3_json_hex4(s, i + 8) {
+                Some(lo) =>
+                  if lo >= 56320 && lo <= 57343 {
+                    code = 65536 + ((hi - 55296) << 10) + (lo - 56320)
+                    advance = 10
+                  }
+                None => ()
+              }
+            }
+            match code.to_char() {
+              Some(ch) => {
+                let _ = sb.write_char(ch)
+              }
+              None => {
+                let _ = sb.write_char((0xfffd).to_char().unwrap_or('?'))
+              }
+            }
+            i = i + advance
+          }
         }
       } else {
         let _ = sb.write(s[i + 1:i + 2].to_owned())
@@ -652,6 +700,20 @@ pub fn cobra3_model_from_yaml(text : String) -> Cobra3Model? {
 }
 
 ///|
+fn cobra3_tsv_escape(s : String) -> String {
+  let sb = StringBuilder()
+  for i in 0..<s.length() {
+    let code = s[i].to_int()
+    if code == 9 || code == 10 || code == 13 {
+      let _ = sb.write_char(' ')
+    } else {
+      let _ = sb.write(s[i:i + 1].to_owned())
+    }
+  }
+  sb.to_string()
+}
+
+///|
 pub fn cobra3_model_to_tsv(model : Cobra3Model) -> String {
   let sb = StringBuilder()
   let _ = sb.write(
@@ -660,15 +722,15 @@ pub fn cobra3_model_to_tsv(model : Cobra3Model) -> String {
   for m in model.metabolites {
     let _ = sb.write(
       "M\t" +
-      m.id +
+      cobra3_tsv_escape(m.id) +
       "\t" +
-      m.name +
+      cobra3_tsv_escape(m.name) +
       "\t" +
-      m.formula +
+      cobra3_tsv_escape(m.formula) +
       "\t" +
       m.charge.to_string() +
       "\t" +
-      m.compartment +
+      cobra3_tsv_escape(m.compartment) +
       "\t" +
       (if m.boundary { "1" } else { "0" }) +
       "\n",
@@ -692,9 +754,9 @@ pub fn cobra3_model_to_tsv(model : Cobra3Model) -> String {
     }
     let _ = sb.write(
       "R\t" +
-      r.id +
+      cobra3_tsv_escape(r.id) +
       "\t" +
-      r.name +
+      cobra3_tsv_escape(r.name) +
       "\t" +
       r.lower_bound.to_string() +
       "\t" +
@@ -702,7 +764,7 @@ pub fn cobra3_model_to_tsv(model : Cobra3Model) -> String {
       "\t" +
       r.objective.to_string() +
       "\t" +
-      gpr +
+      cobra3_tsv_escape(gpr) +
       "\t" +
       sb_stoich.to_string() +
       "\n",

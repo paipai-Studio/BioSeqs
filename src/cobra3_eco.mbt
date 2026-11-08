@@ -133,6 +133,23 @@ fn cobra3_reaction_ids_for_genes(
 }
 
 ///|
+/// 按模型反应边界估算 big-M，避免硬编码 1000 在更大通量范围下失效.
+fn cobra3_model_big_m(model : Cobra3Model) -> Double {
+  let mut big_m = 1000.0
+  for r in model.reactions {
+    let scale = if r.lower_bound.abs() > r.upper_bound.abs() {
+      r.lower_bound.abs()
+    } else {
+      r.upper_bound.abs()
+    }
+    if 2.0 * scale > big_m {
+      big_m = 2.0 * scale
+    }
+  }
+  big_m
+}
+
+///|
 /// iMAT：最大化高表达反应开启 + 低表达反应关闭的一致性，保持生长.
 pub fn cobra3_imat(
   model : Cobra3Model,
@@ -172,17 +189,17 @@ pub fn cobra3_imat(
     lb[n + j] = 0.0
     ub[n + j] = 1.0
   }
-  let big_m = 1000.0
+  let big_m = cobra3_model_big_m(model)
   for id in high_ids {
     let idx = cobra3_model_reaction_index(model, id)
     if idx >= 0 {
-      // v >= eps - M*(1-y) -> v + M*y >= M + eps
+      // y=1 活跃: v >= eps；y=0 不活跃: v >= eps - M
       let c1 : Array[Double] = Array::make(nv, 0.0)
       c1[idx] = 1.0
-      c1[n + idx] = big_m
+      c1[n + idx] = -big_m
       cons.push({
         coeffs: c1,
-        rhs: big_m + 1.0e-6,
+        rhs: 1.0e-6 - big_m,
         sense: Cobra3Sense::GreaterEqual,
       })
     }
@@ -190,15 +207,15 @@ pub fn cobra3_imat(
   for id in low_ids {
     let idx = cobra3_model_reaction_index(model, id)
     if idx >= 0 {
-      // v <= M*(1-y) -> v + M*y <= M
+      // y=1 活跃: 不限制；y=0 不活跃: |v| <= eps
       let c1 : Array[Double] = Array::make(nv, 0.0)
       c1[idx] = 1.0
-      c1[n + idx] = big_m
-      cons.push({ coeffs: c1, rhs: big_m, sense: Cobra3Sense::LessEqual, })
+      c1[n + idx] = -big_m
+      cons.push({ coeffs: c1, rhs: 1.0e-6, sense: Cobra3Sense::LessEqual, })
       let c2 : Array[Double] = Array::make(nv, 0.0)
       c2[idx] = -1.0
-      c2[n + idx] = big_m
-      cons.push({ coeffs: c2, rhs: big_m, sense: Cobra3Sense::LessEqual, })
+      c2[n + idx] = -big_m
+      cons.push({ coeffs: c2, rhs: 1.0e-6, sense: Cobra3Sense::LessEqual, })
     }
   }
   let obj : Array[Double] = Array::make(nv, 0.0)
@@ -400,8 +417,6 @@ pub fn cobra3_optknock(
 }
 
 ///|
-/// 群落 FBA-lite：合并多个模型（id 冲突加前缀），共享同名 exchange，目标为各 biomass 之和.
-/// 这里采用最简做法：直接合并，返回合并模型的 FBA 结果与合并模型.
 pub(all) struct Cobra3CommunityResult {
   model : Cobra3Model
   fluxes : Array[Double]
@@ -410,30 +425,176 @@ pub(all) struct Cobra3CommunityResult {
 }
 
 ///|
+fn cobra3_community_shared_metabolites(
+  models : Array[Cobra3Model],
+) -> Map[String, Bool] {
+  let shared : Map[String, Bool] = Map([], capacity=8)
+  for m in models {
+    for r in m.reactions {
+      if cobra3_model_is_exchange(m, r) {
+        for met_id in r.metabolites.keys() {
+          shared[met_id] = true
+        }
+      }
+    }
+  }
+  shared
+}
+
+///|
+fn cobra3_community_gpr(gpr : Cobra3Gpr, prefix : String) -> Cobra3Gpr {
+  match gpr {
+    Gene(id) => Cobra3Gpr::Gene(prefix + id)
+    And(children) => {
+      let out : Array[Cobra3Gpr] = Array(capacity=children.length())
+      for c in children {
+        out.push(cobra3_community_gpr(c, prefix))
+      }
+      Cobra3Gpr::And(out)
+    }
+    Or(children) => {
+      let out : Array[Cobra3Gpr] = Array(capacity=children.length())
+      for c in children {
+        out.push(cobra3_community_gpr(c, prefix))
+      }
+      Cobra3Gpr::Or(out)
+    }
+  }
+}
+
+///|
+/// 群落 FBA-lite：合并多个模型；仅共享同名 exchange 及其代谢物，
+/// 内部反应/代谢物/基因加模型前缀，避免同名 biomass 互相覆盖.
 pub fn cobra3_community_fba(
   models : Array[Cobra3Model],
 ) -> Cobra3CommunityResult {
-  let empty : Cobra3Model = cobra3_model_new("community")
-  let mut merged = empty
+  let empty = cobra3_model_new("community")
+  let shared_mets = cobra3_community_shared_metabolites(models)
   let members : Array[String] = Array(capacity=models.length())
-  for k in 0..<models.length() {
-    let m = models[k]
+  let mets : Array[Cobra3Metabolite] = Array(capacity=8)
+  let genes : Array[Cobra3Gene] = Array(capacity=8)
+  let reactions : Array[Cobra3Reaction] = Array(capacity=8)
+  let seen_mets : Map[String, Bool] = Map([], capacity=8)
+  let seen_genes : Map[String, Bool] = Map([], capacity=8)
+  let seen_rxns : Map[String, Bool] = Map([], capacity=8)
+  for m in models {
     members.push(m.id)
     for met in m.metabolites {
-      if cobra3_model_metabolite_index(merged, met.id) < 0 {
-        merged = cobra3_model_add_metabolite(merged, met)
+      let nid = if shared_mets.contains(met.id) {
+        met.id
+      } else {
+        m.id + ":" + met.id
       }
-    }
-    for r in m.reactions {
-      if cobra3_model_reaction_index(merged, r.id) < 0 {
-        merged = cobra3_model_add_reaction(merged, r)
+      if !seen_mets.contains(nid) {
+        seen_mets[nid] = true
+        mets.push({
+          id: nid,
+          name: met.name,
+          formula: met.formula,
+          charge: met.charge,
+          compartment: met.compartment,
+          boundary: met.boundary,
+          annotation: met.annotation,
+        })
       }
     }
     for g in m.genes {
-      if cobra3_model_gene_index(merged, g.id) < 0 {
-        merged = cobra3_model_add_gene(merged, g)
+      let nid = m.id + ":" + g.id
+      if !seen_genes.contains(nid) {
+        seen_genes[nid] = true
+        genes.push({
+          id: nid,
+          name: g.name,
+          annotation: g.annotation,
+          functional: g.functional,
+        })
       }
     }
+    for r in m.reactions {
+      let is_exchange = cobra3_model_is_exchange(m, r)
+      let nid = if is_exchange { r.id } else { m.id + ":" + r.id }
+      let participants : Map[String, Double] = Map(
+        [],
+        capacity=r.metabolites.length(),
+      )
+      for met_id in r.metabolites.keys() {
+        let nk = if shared_mets.contains(met_id) {
+          met_id
+        } else {
+          m.id + ":" + met_id
+        }
+        participants[nk] = r.metabolites[met_id]
+        if !seen_mets.contains(nk) {
+          seen_mets[nk] = true
+          let met = cobra3_metabolite_new(nk)
+          let comp = cobra3_metabolite_compartment_from_id(nk)
+          mets.push({
+            id: met.id,
+            name: met.name,
+            formula: met.formula,
+            charge: met.charge,
+            compartment: comp,
+            boundary: comp != "c",
+            annotation: met.annotation,
+          })
+        }
+      }
+      let gpr = match r.gpr {
+        Some(g) => Some(cobra3_community_gpr(g, m.id + ":"))
+        None => None
+      }
+      if seen_rxns.contains(nid) {
+        // 共享 exchange：边界取并集，允许任一成员原本的摄取/分泌范围
+        for idx in 0..<reactions.length() {
+          if reactions[idx].id == nid {
+            let lb = if r.lower_bound < reactions[idx].lower_bound {
+              r.lower_bound
+            } else {
+              reactions[idx].lower_bound
+            }
+            let ub = if r.upper_bound > reactions[idx].upper_bound {
+              r.upper_bound
+            } else {
+              reactions[idx].upper_bound
+            }
+            reactions[idx] = {
+              id: reactions[idx].id,
+              name: reactions[idx].name,
+              metabolites: reactions[idx].metabolites,
+              lower_bound: lb,
+              upper_bound: ub,
+              objective: reactions[idx].objective,
+              subsystem: reactions[idx].subsystem,
+              gpr: reactions[idx].gpr,
+              annotation: reactions[idx].annotation,
+            }
+          }
+        }
+      } else {
+        seen_rxns[nid] = true
+        reactions.push({
+          id: nid,
+          name: r.name,
+          metabolites: participants,
+          lower_bound: r.lower_bound,
+          upper_bound: r.upper_bound,
+          objective: r.objective,
+          subsystem: r.subsystem,
+          gpr,
+          annotation: r.annotation,
+        })
+      }
+    }
+  }
+  let merged : Cobra3Model = {
+    id: empty.id,
+    name: empty.name,
+    metabolites: mets,
+    genes,
+    reactions,
+    compartments: empty.compartments,
+    annotation: empty.annotation,
+    undo_stack: Array(capacity=0),
   }
   let sol = cobra3_model_optimize(merged)
   { model: merged, fluxes: sol.fluxes, members, growth: sol.objective_value, }

@@ -164,6 +164,7 @@ test "cobra3 double gene deletion kills backup" {
   }
   assert_true(found)
   assert_true(growth.abs() < 1.0e-6)
+  assert_eq(res.length(), 3)
 }
 
 ///|

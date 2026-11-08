@@ -128,13 +128,13 @@ fn cobra3_remove_artificial_basis(t : Cobra3Tableau, col_art : Int32) -> Unit {
 }
 
 ///|
-/// 返回 0=最优, 1=无界, 2=迭代上限.
+/// 返回 (0=最优, 1=无界, 2=迭代上限) 与已执行迭代数.
 fn cobra3_simplex_run(
   t : Cobra3Tableau,
   c : Array[Double],
   max_iter : Int32,
   enter_limit : Int32,
-) -> Int32 {
+) -> (Int32, Int32) {
   let tol = 1.0e-9
   let mut iter = 0
   while iter < max_iter {
@@ -147,7 +147,7 @@ fn cobra3_simplex_run(
       }
     }
     if enter < 0 {
-      return 0
+      return (0, iter)
     }
     let mut leave = -1
     let mut best_ratio = 1.0e100
@@ -166,11 +166,11 @@ fn cobra3_simplex_run(
       }
     }
     if leave < 0 {
-      return 1
+      return (1, iter)
     }
     cobra3_tableau_pivot(t, leave, enter)
   }
-  2
+  (2, iter)
 }
 
 ///|
@@ -368,7 +368,7 @@ pub fn cobra3_solve_lp(
     c1[col_art + i] = -1.0
   }
   let max_iter = 20000 + rows * 200
-  let r1 = cobra3_simplex_run(t, c1, max_iter, col_art)
+  let (r1, it1) = cobra3_simplex_run(t, c1, max_iter, col_art)
   if r1 == 2 {
     return {
       status: Cobra3Status::IterLimit,
@@ -376,7 +376,7 @@ pub fn cobra3_solve_lp(
       x: empty_x,
       duals: empty_dual,
       reduced_costs: empty_rc,
-      iterations: max_iter,
+      iterations: it1,
     }
   }
   let mut art_sum = 0.0
@@ -392,7 +392,7 @@ pub fn cobra3_solve_lp(
       x: empty_x,
       duals: empty_dual,
       reduced_costs: empty_rc,
-      iterations: max_iter,
+      iterations: it1,
     }
   }
   // Phase 2：先把零值人工变量换出基，避免其值在 Phase 2 变化破坏约束
@@ -402,7 +402,7 @@ pub fn cobra3_solve_lp(
     c2[j] = c[j]
   }
   // Phase 2 不允许人工变量重新入基，否则会破坏原约束
-  let r2 = cobra3_simplex_run(t, c2, max_iter, col_art)
+  let (r2, it2) = cobra3_simplex_run(t, c2, max_iter, col_art)
   if r2 == 2 {
     return {
       status: Cobra3Status::IterLimit,
@@ -410,7 +410,7 @@ pub fn cobra3_solve_lp(
       x: empty_x,
       duals: empty_dual,
       reduced_costs: empty_rc,
-      iterations: max_iter,
+      iterations: it1 + it2,
     }
   }
   if r2 == 1 {
@@ -420,7 +420,7 @@ pub fn cobra3_solve_lp(
       x: empty_x,
       duals: empty_dual,
       reduced_costs: empty_rc,
-      iterations: max_iter,
+      iterations: it1 + it2,
     }
   }
   let x : Array[Double] = Array(capacity=n)
@@ -467,7 +467,7 @@ pub fn cobra3_solve_lp(
     x,
     duals,
     reduced_costs: rc,
-    iterations: max_iter,
+    iterations: it1 + it2,
   }
 }
 
@@ -522,6 +522,8 @@ fn cobra3_pick_branch_var(x : Array[Double], integer : Array[Int32]) -> Int32 {
 
 ///|
 /// 分支定界 MILP（max c^T x）.
+/// 达到 max_nodes 时返回当前 incumbent 并标记 Optimal，不保证全局最优；
+/// 未找到 incumbent 时返回 Infeasible（也可能是节点上限导致，见 iterations）.
 pub fn cobra3_solve_milp(
   constraints : Array[Cobra3LinConstraint],
   c : Array[Double],

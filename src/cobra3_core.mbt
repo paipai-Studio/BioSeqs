@@ -316,19 +316,26 @@ pub fn cobra3_model_add_gene(
 
 ///|
 /// 添加反应；计量中的代谢物若不存在则自动创建，GPR 中基因若不存在则自动创建.
+/// 自动创建代谢物/基因与添加反应属于同一次编辑，undo 一次即可整体回退.
 pub fn cobra3_model_add_reaction(
   model : Cobra3Model,
   reaction : Cobra3Reaction,
 ) -> Cobra3Model {
-  let mut next = model
-  if cobra3_model_reaction_index(next, reaction.id) >= 0 {
-    return next
+  if cobra3_model_reaction_index(model, reaction.id) >= 0 {
+    return model
+  }
+  let snapshot = cobra3_model_snapshot(model)
+  let mets : Array[Cobra3Metabolite] = Array(
+    capacity=model.metabolites.length() + reaction.metabolites.length(),
+  )
+  for met in model.metabolites {
+    mets.push(met)
   }
   for met_id in reaction.metabolites.keys() {
-    if cobra3_model_metabolite_index(next, met_id) < 0 {
+    if cobra3_model_metabolite_index(model, met_id) < 0 {
       let met = cobra3_metabolite_new(met_id)
       let comp = cobra3_metabolite_compartment_from_id(met_id)
-      let met = {
+      mets.push({
         id: met.id,
         name: met.name,
         formula: met.formula,
@@ -336,34 +343,38 @@ pub fn cobra3_model_add_reaction(
         compartment: comp,
         boundary: comp != "c",
         annotation: met.annotation,
-      }
-      next = cobra3_model_add_metabolite(next, met)
+      })
     }
+  }
+  let genes : Array[Cobra3Gene] = Array(capacity=model.genes.length() + 4)
+  for gene in model.genes {
+    genes.push(gene)
   }
   match reaction.gpr {
     Some(gpr) =>
       for gene_id in cobra3_gpr_genes(gpr) {
-        if cobra3_model_gene_index(next, gene_id) < 0 {
-          next = cobra3_model_add_gene(next, cobra3_gene_new(gene_id))
+        if cobra3_model_gene_index(model, gene_id) < 0 {
+          genes.push(cobra3_gene_new(gene_id))
         }
       }
     None => ()
   }
-  let snapshot = cobra3_model_snapshot(next)
-  let reactions : Array[Cobra3Reaction] = Array(capacity=0)
-  for r in next.reactions {
+  let reactions : Array[Cobra3Reaction] = Array(
+    capacity=model.reactions.length() + 1,
+  )
+  for r in model.reactions {
     reactions.push(r)
   }
   reactions.push(reaction)
   let next = {
-    id: next.id,
-    name: next.name,
-    metabolites: next.metabolites,
-    genes: next.genes,
+    id: model.id,
+    name: model.name,
+    metabolites: mets,
+    genes,
     reactions,
-    compartments: next.compartments,
-    annotation: next.annotation,
-    undo_stack: next.undo_stack,
+    compartments: model.compartments,
+    annotation: model.annotation,
+    undo_stack: model.undo_stack,
   }
   cobra3_model_with_history(next, snapshot)
 }
@@ -667,8 +678,8 @@ pub fn cobra3_model_objective_reaction(model : Cobra3Model) -> String? {
   let mut best = -1
   let mut best_val = 0.0
   for i in 0..<model.reactions.length() {
-    if model.reactions[i].objective > best_val {
-      best_val = model.reactions[i].objective
+    if model.reactions[i].objective.abs() > best_val {
+      best_val = model.reactions[i].objective.abs()
       best = i
     }
   }
@@ -680,18 +691,17 @@ pub fn cobra3_model_objective_reaction(model : Cobra3Model) -> String? {
 }
 
 ///|
+/// 主 biomass 反应：优先 id 含 biomass 者，否则回退到目标系数最大的反应.
 pub fn cobra3_model_biomass_reaction(model : Cobra3Model) -> String? {
-  match cobra3_model_objective_reaction(model) {
-    Some(id) => Some(id)
-    None => {
-      let mut found : String? = None
-      for r in model.reactions {
-        if found is None && r.id.to_lower().contains("biomass") {
-          found = Some(r.id)
-        }
-      }
-      found
+  let mut found : String? = None
+  for r in model.reactions {
+    if found is None && r.id.to_lower().contains("biomass") {
+      found = Some(r.id)
     }
+  }
+  match found {
+    Some(id) => Some(id)
+    None => cobra3_model_objective_reaction(model)
   }
 }
 
@@ -763,7 +773,7 @@ pub fn cobra3_model_set_medium(
         name: r.name,
         metabolites: r.metabolites,
         lower_bound: lb,
-        upper_bound: 1000.0,
+        upper_bound: r.upper_bound,
         objective: r.objective,
         subsystem: r.subsystem,
         gpr: r.gpr,
@@ -832,12 +842,16 @@ pub fn cobra3_model_stoichiometric_matrix(
   for _ in 0..<m {
     s.push(Array::make(n, 0.0))
   }
+  let index : Map[String, Int32] = Map([], capacity=m)
+  for i in 0..<m {
+    index[model.metabolites[i].id] = i
+  }
   for j in 0..<n {
     let r = model.reactions[j]
     for met_id in r.metabolites.keys() {
-      let i = cobra3_model_metabolite_index(model, met_id)
-      if i >= 0 {
-        s[i][j] = r.metabolites[met_id]
+      match index.get(met_id) {
+        Some(i) => s[i][j] = r.metabolites[met_id]
+        None => ()
       }
     }
   }
@@ -872,25 +886,64 @@ pub fn cobra3_model_upper_bounds(model : Cobra3Model) -> Array[Double] {
 }
 
 ///|
+fn cobra3_copy_string_map(m : Map[String, String]) -> Map[String, String] {
+  let out : Map[String, String] = Map([], capacity=m.length())
+  for k in m.keys() {
+    out[k] = m[k]
+  }
+  out
+}
+
+///|
+fn cobra3_copy_double_map(m : Map[String, Double]) -> Map[String, Double] {
+  let out : Map[String, Double] = Map([], capacity=m.length())
+  for k in m.keys() {
+    out[k] = m[k]
+  }
+  out
+}
+
+///|
+/// 深拷贝模型；Map 字段与 undo 历史不共享.
 pub fn cobra3_model_copy(model : Cobra3Model) -> Cobra3Model {
-  let mets : Array[Cobra3Metabolite] = Array(capacity=0)
-  for m in model.metabolites {
-    mets.push(m)
-  }
-  let genes : Array[Cobra3Gene] = Array(capacity=0)
-  for g in model.genes {
-    genes.push(g)
-  }
-  let reactions : Array[Cobra3Reaction] = Array(capacity=0)
-  for r in model.reactions {
-    reactions.push(r)
-  }
-  let compartments : Map[String, String] = Map(
-    [],
-    capacity=model.compartments.length(),
+  let mets : Array[Cobra3Metabolite] = Array(
+    capacity=model.metabolites.length(),
   )
-  for k in model.compartments.keys() {
-    compartments[k] = model.compartments[k]
+  for m in model.metabolites {
+    mets.push({
+      id: m.id,
+      name: m.name,
+      formula: m.formula,
+      charge: m.charge,
+      compartment: m.compartment,
+      boundary: m.boundary,
+      annotation: cobra3_copy_string_map(m.annotation),
+    })
+  }
+  let genes : Array[Cobra3Gene] = Array(capacity=model.genes.length())
+  for g in model.genes {
+    genes.push({
+      id: g.id,
+      name: g.name,
+      annotation: cobra3_copy_string_map(g.annotation),
+      functional: g.functional,
+    })
+  }
+  let reactions : Array[Cobra3Reaction] = Array(
+    capacity=model.reactions.length(),
+  )
+  for r in model.reactions {
+    reactions.push({
+      id: r.id,
+      name: r.name,
+      metabolites: cobra3_copy_double_map(r.metabolites),
+      lower_bound: r.lower_bound,
+      upper_bound: r.upper_bound,
+      objective: r.objective,
+      subsystem: r.subsystem,
+      gpr: r.gpr,
+      annotation: cobra3_copy_string_map(r.annotation),
+    })
   }
   {
     id: model.id,
@@ -898,21 +951,23 @@ pub fn cobra3_model_copy(model : Cobra3Model) -> Cobra3Model {
     metabolites: mets,
     genes,
     reactions,
-    compartments,
-    annotation: model.annotation,
+    compartments: cobra3_copy_string_map(model.compartments),
+    annotation: cobra3_copy_string_map(model.annotation),
     undo_stack: Array(capacity=0),
   }
 }
 
 ///|
 /// 由 fba_lite 平铺模型转换（保留 S 矩阵符号约定）.
+/// 一次性构造，避免逐条 add_reaction 带来的数组复制与 undo 栈开销.
 pub fn cobra3_from_fba_model(model : FbaModel) -> Cobra3Model {
-  let out = cobra3_model_new("model")
-  let mut out = out
+  let mets : Array[Cobra3Metabolite] = Array(
+    capacity=model.metabolites.length(),
+  )
   for met_id in model.metabolites {
     let met = cobra3_metabolite_new(met_id)
     let comp = cobra3_metabolite_compartment_from_id(met_id)
-    let met = {
+    mets.push({
       id: met.id,
       name: met.name,
       formula: met.formula,
@@ -920,9 +975,21 @@ pub fn cobra3_from_fba_model(model : FbaModel) -> Cobra3Model {
       compartment: comp,
       boundary: comp != "c",
       annotation: met.annotation,
-    }
-    out = cobra3_model_add_metabolite(out, met)
+    })
   }
+  let genes : Array[Cobra3Gene] = Array(capacity=8)
+  let seen_genes : Map[String, Bool] = Map([], capacity=8)
+  for r in model.reactions {
+    for g in r.genes {
+      if !seen_genes.contains(g) {
+        seen_genes[g] = true
+        genes.push(cobra3_gene_new(g))
+      }
+    }
+  }
+  let reactions : Array[Cobra3Reaction] = Array(
+    capacity=model.reactions.length(),
+  )
   for j in 0..<model.reactions.length() {
     let r = model.reactions[j]
     let participants : Map[String, Double] = Map([], capacity=4)
@@ -932,7 +999,11 @@ pub fn cobra3_from_fba_model(model : FbaModel) -> Cobra3Model {
         participants[model.metabolites[i]] = v
       }
     }
-    let r3 : Cobra3Reaction = {
+    let nodes : Array[Cobra3Gpr] = Array(capacity=r.genes.length())
+    for g in r.genes {
+      nodes.push(Cobra3Gpr::Gene(g))
+    }
+    reactions.push({
       id: r.id,
       name: r.name,
       metabolites: participants,
@@ -940,20 +1011,26 @@ pub fn cobra3_from_fba_model(model : FbaModel) -> Cobra3Model {
       upper_bound: r.upper_bound,
       objective: r.objective,
       subsystem: "",
-      gpr: if r.genes.length() == 0 {
+      gpr: if nodes.length() == 0 {
         None
       } else {
-        let nodes : Array[Cobra3Gpr] = Array(capacity=0)
-        for g in r.genes {
-          nodes.push(Cobra3Gpr::Gene(g))
-        }
         Some(Cobra3Gpr::Or(nodes))
       },
       annotation: Map([], capacity=2),
-    }
-    out = cobra3_model_add_reaction(out, r3)
+    })
   }
-  out
+  let compartments : Map[String, String] = Map([], capacity=2)
+  compartments["c"] = "cytosol"
+  {
+    id: "model",
+    name: "model",
+    metabolites: mets,
+    genes,
+    reactions,
+    compartments,
+    annotation: Map([], capacity=2),
+    undo_stack: Array(capacity=0),
+  }
 }
 
 ///|
@@ -1129,6 +1206,13 @@ fn cobra3_gpr_parse_or(
 ///|
 /// 解析 COBRA 风格 GPR 字符串，如 "(A and B) or C".
 pub fn cobra3_gpr_parse(text : String) -> Cobra3Gpr? {
+  // 空表达式常量：与 cobra3_gpr_to_string 的输出保持一致
+  if text == "true" {
+    return Some(Cobra3Gpr::And([]))
+  }
+  if text == "false" {
+    return Some(Cobra3Gpr::Or([]))
+  }
   match cobra3_gpr_tokenize(text) {
     None => None
     Some(tokens) => {
@@ -1209,30 +1293,36 @@ fn cobra3_gpr_collect_genes(gpr : Cobra3Gpr, out : Array[String]) -> Unit {
 pub fn cobra3_gpr_to_string(gpr : Cobra3Gpr) -> String {
   match gpr {
     Gene(id) => id
-    And(children) => {
-      let sb = StringBuilder()
-      let _ = sb.write("(")
-      for i in 0..<children.length() {
-        if i > 0 {
-          let _ = sb.write(" and ")
+    And(children) =>
+      if children.length() == 0 {
+        "true"
+      } else {
+        let sb = StringBuilder()
+        let _ = sb.write("(")
+        for i in 0..<children.length() {
+          if i > 0 {
+            let _ = sb.write(" and ")
+          }
+          let _ = sb.write(cobra3_gpr_to_string(children[i]))
         }
-        let _ = sb.write(cobra3_gpr_to_string(children[i]))
+        let _ = sb.write(")")
+        sb.to_string()
       }
-      let _ = sb.write(")")
-      sb.to_string()
-    }
-    Or(children) => {
-      let sb = StringBuilder()
-      let _ = sb.write("(")
-      for i in 0..<children.length() {
-        if i > 0 {
-          let _ = sb.write(" or ")
+    Or(children) =>
+      if children.length() == 0 {
+        "false"
+      } else {
+        let sb = StringBuilder()
+        let _ = sb.write("(")
+        for i in 0..<children.length() {
+          if i > 0 {
+            let _ = sb.write(" or ")
+          }
+          let _ = sb.write(cobra3_gpr_to_string(children[i]))
         }
-        let _ = sb.write(cobra3_gpr_to_string(children[i]))
+        let _ = sb.write(")")
+        sb.to_string()
       }
-      let _ = sb.write(")")
-      sb.to_string()
-    }
   }
 }
 
@@ -1359,6 +1449,32 @@ pub fn cobra3_reaction_active_after_knockout(
       )
       for g in cobra3_gpr_genes(gpr) {
         active[g] = !knocked_out.contains(g)
+      }
+      cobra3_gpr_eval(gpr, active)
+    }
+  }
+}
+
+///|
+/// 结合 Gene.functional 判断敲除后反应是否仍可承载通量.
+pub fn cobra3_reaction_active_in_model(
+  model : Cobra3Model,
+  reaction : Cobra3Reaction,
+  knocked_out : Array[String],
+) -> Bool {
+  match reaction.gpr {
+    None => true
+    Some(gpr) => {
+      let active : Map[String, Bool] = Map(
+        [],
+        capacity=cobra3_gpr_genes(gpr).length(),
+      )
+      for g in cobra3_gpr_genes(gpr) {
+        let functional = match cobra3_model_get_gene(model, g) {
+          Some(gene) => gene.functional
+          None => true
+        }
+        active[g] = functional && !knocked_out.contains(g)
       }
       cobra3_gpr_eval(gpr, active)
     }

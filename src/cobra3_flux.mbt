@@ -189,6 +189,7 @@ pub(all) struct Cobra3FvaResult {
 ///|
 /// FVA：对每个反应求在稳态与目标 >= fraction*opt 下的通量范围.
 /// processes 仅保留兼容参数（当前串行执行）；thresh 以下的结果归零.
+/// 子问题非最优时该反应范围返回 0，调用方需自行区分不可行与真实 0.
 pub fn cobra3_fva(
   model : Cobra3Model,
   fraction_of_optimum~ : Double = 1.0,
@@ -268,7 +269,7 @@ fn cobra3_apply_gene_knockout(
 ) -> Cobra3Model {
   let reactions : Array[Cobra3Reaction] = Array(capacity=0)
   for r in model.reactions {
-    let active = cobra3_reaction_active_after_knockout(r, genes)
+    let active = cobra3_reaction_active_in_model(model, r, genes)
     if active {
       reactions.push(r)
     } else {
@@ -343,6 +344,16 @@ fn cobra3_gene_list(model : Cobra3Model) -> Array[String] {
 }
 
 ///|
+fn cobra3_status_text(status : Cobra3Status) -> String {
+  match status {
+    Optimal => "optimal"
+    Infeasible => "infeasible"
+    Unbounded => "unbounded"
+    IterLimit => "iter_limit"
+  }
+}
+
+///|
 pub fn cobra3_single_gene_deletion(
   model : Cobra3Model,
 ) -> Array[Cobra3DeletionResult] {
@@ -350,7 +361,7 @@ pub fn cobra3_single_gene_deletion(
   for gene in cobra3_gene_list(model) {
     let ko = cobra3_apply_gene_knockout(model, [gene])
     let sol = cobra3_model_optimize(ko)
-    let status = if sol.status is Optimal { "optimal" } else { "infeasible" }
+    let status = cobra3_status_text(sol.status)
     out.push({ id: gene, growth: sol.objective_value, status, })
   }
   out
@@ -366,7 +377,7 @@ pub fn cobra3_single_reaction_deletion(
   for r in model.reactions {
     let ko = cobra3_apply_reaction_knockout(model, [r.id])
     let sol = cobra3_model_optimize(ko)
-    let status = if sol.status is Optimal { "optimal" } else { "infeasible" }
+    let status = cobra3_status_text(sol.status)
     out.push({ id: r.id, growth: sol.objective_value, status, })
   }
   out
@@ -381,10 +392,10 @@ pub fn cobra3_double_gene_deletion(
     capacity=genes.length() * genes.length(),
   )
   for i in 0..<genes.length() {
-    for j in i..<genes.length() {
+    for j in (i + 1)..<genes.length() {
       let ko = cobra3_apply_gene_knockout(model, [genes[i], genes[j]])
       let sol = cobra3_model_optimize(ko)
-      let status = if sol.status is Optimal { "optimal" } else { "infeasible" }
+      let status = cobra3_status_text(sol.status)
       out.push({
         id: genes[i] + "|" + genes[j],
         growth: sol.objective_value,
@@ -407,10 +418,10 @@ pub fn cobra3_double_reaction_deletion(
     capacity=ids.length() * ids.length(),
   )
   for i in 0..<ids.length() {
-    for j in i..<ids.length() {
+    for j in (i + 1)..<ids.length() {
       let ko = cobra3_apply_reaction_knockout(model, [ids[i], ids[j]])
       let sol = cobra3_model_optimize(ko)
-      let status = if sol.status is Optimal { "optimal" } else { "infeasible" }
+      let status = cobra3_status_text(sol.status)
       out.push({
         id: ids[i] + "|" + ids[j],
         growth: sol.objective_value,
@@ -595,12 +606,22 @@ pub fn cobra3_room(
     }
     cons.push({ coeffs, rhs: 0.0, sense: Cobra3Sense::Equal, })
   }
-  let big_m = 1000.0
   for j in 0..<n {
     let slack = delta * wt.fluxes[j].abs() + epsilon
+    let scale = if lb0[j].abs() > ub0[j].abs() {
+      lb0[j].abs()
+    } else {
+      ub0[j].abs()
+    }
+    let max_flux = if wt.fluxes[j].abs() > scale {
+      wt.fluxes[j].abs()
+    } else {
+      scale
+    }
+    let m_j = 2.0 * (max_flux + slack) + 1.0
     let c1 : Array[Double] = Array::make(nv, 0.0)
     c1[j] = 1.0
-    c1[n + j] = -big_m
+    c1[n + j] = -m_j
     cons.push({
       coeffs: c1,
       rhs: wt.fluxes[j] + slack,
@@ -608,7 +629,7 @@ pub fn cobra3_room(
     })
     let c2 : Array[Double] = Array::make(nv, 0.0)
     c2[j] = -1.0
-    c2[n + j] = -big_m
+    c2[n + j] = -m_j
     cons.push({
       coeffs: c2,
       rhs: -wt.fluxes[j] + slack,

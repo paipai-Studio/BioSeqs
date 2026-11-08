@@ -50,6 +50,14 @@ test "cobra3 lp dual of x<=2" {
 }
 
 ///|
+test "cobra3 lp reports real iterations" {
+  let cons = [cobra3_con_le([1.0], 2.0)]
+  let sol = @src.cobra3_solve_lp(cons, [1.0], [0.0], [1.0e18])
+  assert_true(sol.iterations > 0)
+  assert_true(sol.iterations < 100)
+}
+
+///|
 test "cobra3 lp equality dual" {
   // max x s.t. x = 3, 0<=x<=10 -> obj 3, dual 1
   let cons = [cobra3_con_eq([1.0], 3.0)]

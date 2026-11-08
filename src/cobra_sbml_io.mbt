@@ -81,8 +81,20 @@ pub fn cobra_write_sbml(model : FbaModel) -> String {
 ///|
 /// Parse SBML XML string to FBA model；优先使用 FBC v2 解析，失败时回退旧版简化解析.
 pub fn cobra_read_sbml(text : String) -> FbaModel? {
+  let has_fbc = text.contains("fbc:")
+  let has_notes_bounds = text.contains("lower_bound:") ||
+    text.contains("upper_bound:")
+  // 旧版写出把 bounds/objective 放在 notes 中；优先用 legacy 解析以免丢失
+  if has_notes_bounds && !has_fbc {
+    return cobra_read_sbml_legacy(text)
+  }
   match cobra3_read_sbml(text) {
-    Some(m) => Some(cobra3_to_fba_model(m))
+    Some(m) =>
+      if m.reactions.length() == 0 && m.metabolites.length() == 0 {
+        cobra_read_sbml_legacy(text)
+      } else {
+        Some(cobra3_to_fba_model(m))
+      }
     None => cobra_read_sbml_legacy(text)
   }
 }

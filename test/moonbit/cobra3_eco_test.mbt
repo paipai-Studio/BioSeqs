@@ -83,6 +83,52 @@ test "cobra3 eco growmatch adds missing reaction" {
   let res = @src.cobra3_growmatch(base, universal, min_growth=0.05)
   assert_eq(res.added_reactions.length(), 1)
   assert_eq(res.added_reactions[0], "R1")
+  assert_true(res.predicted_growth > 0.05)
+}
+
+///|
+test "cobra3 eco imat shuts low pathway" {
+  let m = cobra3_branch_model()
+  let res = @src.cobra3_imat(m, ["g1"], ["g2"], min_growth=5.0)
+  assert_true(res.status is @src.Cobra3Status::Optimal)
+  assert_true(res.fluxes[2].abs() < 1.0e-3)
+}
+
+///|
+test "cobra3 eco community prefixes same-named internal reactions" {
+  let mut m1 = @src.cobra3_model_new("m1")
+  m1 = @src.cobra3_model_add_reaction(
+    m1,
+    cobra3_make_rxn("EX_A", [("A", -1.0)], -10.0, 1000.0, ""),
+  )
+  m1 = @src.cobra3_model_add_reaction(
+    m1,
+    cobra3_make_rxn("R1", [("A", -1.0), ("B", 1.0)], 0.0, 1000.0, ""),
+  )
+  m1 = @src.cobra3_model_add_reaction(
+    m1,
+    cobra3_make_rxn("BIO", [("B", -1.0)], 0.0, 1000.0, ""),
+  )
+  m1 = @src.cobra3_model_set_objective(m1, "BIO", 1.0)
+  let mut m2 = @src.cobra3_model_new("m2")
+  m2 = @src.cobra3_model_add_reaction(
+    m2,
+    cobra3_make_rxn("EX_C", [("C", -1.0)], -10.0, 1000.0, ""),
+  )
+  m2 = @src.cobra3_model_add_reaction(
+    m2,
+    cobra3_make_rxn("R2", [("C", -1.0), ("D", 1.0)], 0.0, 1000.0, ""),
+  )
+  m2 = @src.cobra3_model_add_reaction(
+    m2,
+    cobra3_make_rxn("BIO", [("D", -1.0)], 0.0, 1000.0, ""),
+  )
+  m2 = @src.cobra3_model_set_objective(m2, "BIO", 1.0)
+  let res = @src.cobra3_community_fba([m1, m2])
+  assert_true((res.growth - 20.0).abs() < 1.0e-5)
+  assert_true(@src.cobra3_model_has_reaction(res.model, "m1:BIO"))
+  assert_true(@src.cobra3_model_has_reaction(res.model, "m2:BIO"))
+  assert_true(@src.cobra3_model_has_reaction(res.model, "EX_A"))
 }
 
 ///|

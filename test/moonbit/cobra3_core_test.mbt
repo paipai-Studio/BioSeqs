@@ -207,3 +207,100 @@ test "cobra3 core metadata preserved" {
   assert_eq(r.lower_bound, 0.0)
   assert_eq(r.upper_bound, 1000.0)
 }
+
+///|
+test "cobra3 core set medium keeps upper bound" {
+  let mut model = @src.cobra3_model_new("medium")
+  model = @src.cobra3_model_add_reaction_simple(
+    model,
+    "EX_A",
+    [("A", -1.0)],
+    -10.0,
+    500.0,
+  )
+  model = @src.cobra3_model_add_reaction_simple(
+    model,
+    "EX_B",
+    [("B", -1.0)],
+    -5.0,
+    300.0,
+  )
+  let mg : Map[String, Double] = Map([("EX_A", 4.0)])
+  let next = @src.cobra3_model_set_medium(model, mg)
+  let a = @src.cobra3_model_get_reaction(next, "EX_A").unwrap()
+  assert_eq(a.upper_bound, 500.0)
+  assert_true((a.lower_bound + 4.0).abs() < 1.0e-9)
+  let b = @src.cobra3_model_get_reaction(next, "EX_B").unwrap()
+  assert_eq(b.upper_bound, 300.0)
+  assert_eq(b.lower_bound, 0.0)
+}
+
+///|
+test "cobra3 core add reaction undo is atomic" {
+  let mut model = @src.cobra3_model_new("undo")
+  let participants : Array[(String, Double)] = [("A", -1.0), ("B", 1.0)]
+  let r : @src.Cobra3Reaction = {
+    id: "R",
+    name: "R",
+    metabolites: Map(participants),
+    lower_bound: 0.0,
+    upper_bound: 1000.0,
+    objective: 0.0,
+    subsystem: "",
+    gpr: @src.cobra3_gpr_parse("g1 and g2"),
+    annotation: Map([], capacity=1),
+  }
+  model = @src.cobra3_model_add_reaction(model, r)
+  assert_eq(model.metabolites.length(), 2)
+  assert_eq(model.genes.length(), 2)
+  let back = @src.cobra3_model_undo(model)
+  assert_eq(back.reactions.length(), 0)
+  assert_eq(back.metabolites.length(), 0)
+  assert_eq(back.genes.length(), 0)
+}
+
+///|
+test "cobra3 core gpr constants roundtrip" {
+  let empty : Map[String, Bool] = Map([])
+  let f = @src.cobra3_gpr_parse("false").unwrap()
+  let t = @src.cobra3_gpr_parse("true").unwrap()
+  assert_true(!@src.cobra3_gpr_eval(f, empty))
+  assert_true(@src.cobra3_gpr_eval(t, empty))
+  assert_eq(@src.cobra3_gpr_to_string(f), "false")
+  assert_eq(@src.cobra3_gpr_to_string(t), "true")
+}
+
+///|
+test "cobra3 core nonfunctional gene disables reaction" {
+  let mut model = @src.cobra3_model_new("functional")
+  model = @src.cobra3_model_add_gene(model, {
+    id: "g1",
+    name: "g1",
+    annotation: Map([], capacity=1),
+    functional: false,
+  })
+  let participants : Array[(String, Double)] = [("A", -1.0)]
+  let r : @src.Cobra3Reaction = {
+    id: "R",
+    name: "R",
+    metabolites: Map(participants),
+    lower_bound: 0.0,
+    upper_bound: 1000.0,
+    objective: 0.0,
+    subsystem: "",
+    gpr: @src.cobra3_gpr_parse("g1"),
+    annotation: Map([], capacity=1),
+  }
+  assert_true(!@src.cobra3_reaction_active_in_model(model, r, []))
+  assert_true(@src.cobra3_reaction_active_after_knockout(r, []))
+}
+
+///|
+test "cobra3 core copy deep copies maps" {
+  let model = cobra3_test_model()
+  let copy = @src.cobra3_model_copy(model)
+  let r = @src.cobra3_model_get_reaction(copy, "R1").unwrap()
+  r.metabolites["A"] = -99.0
+  let orig = @src.cobra3_model_get_reaction(model, "R1").unwrap()
+  assert_true((orig.metabolites["A"] + 1.0).abs() < 1.0e-9)
+}

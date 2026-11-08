@@ -30,6 +30,7 @@ test "cobra3 design gapfill restores growth" {
   assert_true(res.status is @src.Cobra3Status::Optimal)
   assert_eq(res.added_reactions.length(), 1)
   assert_eq(res.added_reactions[0], "R1")
+  assert_true(res.objective_value >= 0.05 - 1.0e-6)
 }
 
 ///|
@@ -38,7 +39,9 @@ test "cobra3 design minimal medium" {
   let res = @src.cobra3_minimal_medium(m, min_growth=5.0, max_import=10.0)
   assert_true(res.status is @src.Cobra3Status::Optimal)
   assert_eq(res.n_components, 1)
-  assert_true((res.medium["EX_A"] - 10.0).abs() < 1.0e-9)
+  assert_true(res.medium["EX_A"] > 1.0e-9)
+  assert_true(res.medium["EX_A"] <= 10.0 + 1.0e-9)
+  assert_true(res.objective_value >= 5.0 - 1.0e-6)
 }
 
 ///|

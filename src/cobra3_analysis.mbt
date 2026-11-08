@@ -16,6 +16,7 @@ pub(all) struct Cobra3CouplingPair {
 
 ///|
 /// 通量耦合分析-lite：逐个强制 v_a >= eps，检查 v_b 的范围.
+/// 反应数超过 max_reactions 时直接返回空数组（不做部分分析）.
 pub fn cobra3_flux_coupling(
   model : Cobra3Model,
   epsilon~ : Double = 1.0e-3,
@@ -76,7 +77,7 @@ pub(all) struct Cobra3PhasePlanePoint {
 }
 
 ///|
-/// 相平面：固定两个反应的通量，求目标函数值（不可行点为 NaN）.
+/// 相平面：固定两个反应的通量，求目标函数值（不可行点的目标记为 0.0）.
 pub fn cobra3_phase_plane(
   model : Cobra3Model,
   reaction_x : String,

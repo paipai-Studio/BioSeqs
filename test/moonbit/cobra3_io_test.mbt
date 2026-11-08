@@ -31,6 +31,36 @@ test "cobra3 io json parser nested" {
 }
 
 ///|
+test "cobra3 io json unicode escape" {
+  match @src.cobra3_json_parse("\"\\u4e2d\"") {
+    Some(@src.JStr(s)) => assert_eq(s, "中")
+    _ => fail("expect string")
+  }
+}
+
+///|
+test "cobra3 io legacy sbml roundtrip keeps notes bounds" {
+  let m = legacy_branch_model()
+  let xml = @src.cobra_write_sbml(m)
+  let back = @src.cobra_read_sbml(xml).unwrap()
+  let mut lb = -999.0
+  let mut ub = -1.0
+  let mut obj = 0.0
+  for r in back.reactions {
+    if r.id == "R1" {
+      lb = r.lower_bound
+      ub = r.upper_bound
+    }
+    if r.id == "BIO" {
+      obj = r.objective
+    }
+  }
+  assert_true((lb - 0.0).abs() < 1.0e-9)
+  assert_true((ub - 10.0).abs() < 1.0e-9)
+  assert_true((obj - 1.0).abs() < 1.0e-9)
+}
+
+///|
 test "cobra3 io yaml roundtrip" {
   let m = cobra3_toy()
   let text = @src.cobra3_model_to_yaml(m)

@@ -87,7 +87,6 @@ pub fn cobra3_gapfill(
     lb[j] = merged.reactions[j].lower_bound
     ub[j] = merged.reactions[j].upper_bound
   }
-  let big_m = 1000.0
   for k in 0..<nc {
     let j = n + k
     lb[j] = 0.0
@@ -95,17 +94,17 @@ pub fn cobra3_gapfill(
     let reaction_idx = cobra3_model_reaction_index(merged, candidates[k])
     let rlb = merged.reactions[reaction_idx].lower_bound
     let rub = merged.reactions[reaction_idx].upper_bound
+    let scale = if rlb.abs() > rub.abs() { rlb.abs() } else { rub.abs() }
+    let m = 2.0 * scale + 1.0
     // -M*y <= v <= M*y
     let c1 : Array[Double] = Array::make(nv, 0.0)
     c1[reaction_idx] = 1.0
-    c1[j] = -big_m
+    c1[j] = -m
     cons.push({ coeffs: c1, rhs: 0.0, sense: Cobra3Sense::LessEqual, })
     let c2 : Array[Double] = Array::make(nv, 0.0)
     c2[reaction_idx] = -1.0
-    c2[j] = -big_m
+    c2[j] = -m
     cons.push({ coeffs: c2, rhs: 0.0, sense: Cobra3Sense::LessEqual, })
-    let _ = rlb
-    let _ = rub
   }
   let obj : Array[Double] = Array::make(nv, 0.0)
   for k in 0..<nc {
@@ -129,7 +128,21 @@ pub fn cobra3_gapfill(
       added.push(candidates[k])
     }
   }
-  { added_reactions: added, objective_value: lower_bound, status: sol.status, }
+  // 用实际加入的反应重建模型并重解，避免返回固定的 lower_bound
+  let mut completed = model
+  for id in added {
+    match cobra3_model_get_reaction(universal, id) {
+      Some(r) => completed = cobra3_model_add_reaction(completed, r)
+      None => ()
+    }
+  }
+  let checked = cobra3_model_optimize(completed)
+  let growth = if checked.status is Optimal {
+    checked.objective_value
+  } else {
+    0.0
+  }
+  { added_reactions: added, objective_value: growth, status: sol.status, }
 }
 
 ///|
@@ -204,11 +217,19 @@ pub fn cobra3_minimal_medium(
   let mut n_components = 0
   for k in 0..<ne {
     if sol.x[n + k] > 0.5 {
-      medium[exchanges[k]] = max_import
-      n_components = n_components + 1
+      let ex_idx = cobra3_model_reaction_index(model, exchanges[k])
+      let uptake = -sol.x[ex_idx]
+      if uptake > 1.0e-9 {
+        medium[exchanges[k]] = uptake
+        n_components = n_components + 1
+      }
     }
   }
-  { medium, n_components, objective_value: min_growth, status: sol.status, }
+  let mut growth = 0.0
+  for j in 0..<n {
+    growth = growth + obj_vec[j] * sol.x[j]
+  }
+  { medium, n_components, objective_value: growth, status: sol.status, }
 }
 
 ///|
@@ -787,7 +808,7 @@ pub fn cobra3_fastcc(model : Cobra3Model) -> Cobra3ConsistencyResult {
       }
     }
     for id in to_remove {
-      current = cobra3_model_remove_reaction(current, id)
+      current = cobra3_model_remove_reaction(current, id, remove_orphans=false)
       removed.push(id)
       changed = true
     }
