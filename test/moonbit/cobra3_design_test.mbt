@@ -120,6 +120,41 @@ test "cobra3 design sampling diagnostics" {
 }
 
 ///|
+test "cobra3 design sampling diagnostics chains" {
+  let chains : Array[Array[Double]] = Array(capacity=4)
+  for _ in 0..<4 {
+    let xs : Array[Double] = Array(capacity=50)
+    for i in 0..<50 {
+      xs.push((i * 7 % 11).to_double())
+    }
+    chains.push(xs)
+  }
+  let same = @src.cobra3_sampling_diagnostics_chains(chains)
+  assert_true(same.r_hat >= 1.0 - 1.0e-9)
+  assert_true(same.r_hat < 1.0 + 1.0e-9)
+  let shifted : Array[Array[Double]] = Array(capacity=2)
+  let a : Array[Double] = Array(capacity=20)
+  let b : Array[Double] = Array(capacity=20)
+  for i in 0..<20 {
+    a.push(i.to_double())
+    b.push((i + 100).to_double())
+  }
+  shifted.push(a)
+  shifted.push(b)
+  let diff = @src.cobra3_sampling_diagnostics_chains(shifted)
+  assert_true(diff.r_hat > 1.5)
+}
+
+///|
+test "cobra3 design sample chains shape" {
+  let m = cobra3_toy()
+  let chains = @src.cobra3_sample_chains(m, n_chains=2, n_samples=10, warmup=5)
+  assert_eq(chains.length(), 2)
+  assert_eq(chains[0].length(), 10)
+  assert_eq(chains[0][0].length(), 3)
+}
+
+///|
 test "cobra3 design fastcc keeps viable reactions" {
   let m = cobra3_toy()
   let res = @src.cobra3_fastcc(m)

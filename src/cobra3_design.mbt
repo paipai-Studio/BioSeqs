@@ -622,6 +622,22 @@ pub fn cobra3_sample(
 }
 
 ///|
+/// 独立多链采样：每条链用不同 seed，返回 chain × sample × reaction.
+pub fn cobra3_sample_chains(
+  model : Cobra3Model,
+  n_chains~ : Int32 = 4,
+  n_samples~ : Int32 = 1000,
+  seed~ : Int32 = 42,
+  warmup~ : Int32 = 100,
+) -> Array[Array[Array[Double]]] {
+  let out : Array[Array[Array[Double]]] = Array(capacity=n_chains)
+  for k in 0..<n_chains {
+    out.push(cobra3_sample(model, n_samples~, seed=seed + k * 7919, warmup~))
+  }
+  out
+}
+
+///|
 pub(all) struct Cobra3FluxDistribution {
   reaction_id : String
   mean : Double
@@ -734,6 +750,68 @@ pub fn cobra3_sampling_diagnostics(
     1.0
   }
   { r_hat, geweke_z: geweke, effective_sample_size: ess, }
+}
+
+///|
+/// 多链诊断：R-hat 用链间/链内方差；Geweke z 取各链平均，ESS 取各链之和.
+pub fn cobra3_sampling_diagnostics_chains(
+  chains : Array[Array[Double]],
+) -> Cobra3SamplingDiagnostics {
+  let k = chains.length()
+  if k == 0 {
+    return { r_hat: 1.0, geweke_z: 0.0, effective_sample_size: 0.0, }
+  }
+  if k == 1 {
+    return cobra3_sampling_diagnostics(chains[0])
+  }
+  let m = chains[0].length()
+  let mut equal = true
+  for c in chains {
+    if c.length() != m {
+      equal = false
+    }
+  }
+  if !equal || m < 10 {
+    return { r_hat: 1.0, geweke_z: 0.0, effective_sample_size: 0.0, }
+  }
+  let means : Array[Double] = Array(capacity=k)
+  let vars : Array[Double] = Array(capacity=k)
+  let mut grand = 0.0
+  for c in chains {
+    let mean = cobra3_mean(c, 0, m)
+    means.push(mean)
+    vars.push(cobra3_var(c, 0, m, mean))
+    grand = grand + mean
+  }
+  grand = grand / k.to_double()
+  let mut within = 0.0
+  for i in 0..<k {
+    within = within + vars[i]
+  }
+  within = within / k.to_double()
+  let mut between = 0.0
+  for i in 0..<k {
+    between = between + (means[i] - grand) * (means[i] - grand)
+  }
+  between = between * m.to_double() / (k.to_double() - 1.0)
+  let var_hat = (m.to_double() - 1.0) / m.to_double() * within +
+    between / m.to_double()
+  let mut r_hat = if within > 1.0e-15 {
+    @math.pow(var_hat / within, 0.5)
+  } else {
+    1.0
+  }
+  if r_hat < 1.0 {
+    r_hat = 1.0
+  }
+  let mut geweke = 0.0
+  let mut ess = 0.0
+  for c in chains {
+    let d = cobra3_sampling_diagnostics(c)
+    geweke = geweke + d.geweke_z
+    ess = ess + d.effective_sample_size
+  }
+  { r_hat, geweke_z: geweke / k.to_double(), effective_sample_size: ess, }
 }
 
 ///|

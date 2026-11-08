@@ -197,6 +197,16 @@ test "cobra3 room keeps backup route" {
 }
 
 ///|
+test "cobra3 room enforces min growth" {
+  let m = cobra3_branch_model()
+  let ok = @src.cobra3_room(m, ["g1"], min_growth=9.0)
+  assert_true(ok.status is @src.Cobra3Status::Optimal)
+  assert_true(ok.growth >= 9.0 - 1.0e-6)
+  let bad = @src.cobra3_room(m, ["g1"], min_growth=100.0)
+  assert_true(bad.status is @src.Cobra3Status::Infeasible)
+}
+
+///|
 test "cobra3 geometric fba" {
   let m = cobra3_toy()
   let res = @src.cobra3_geometric_fba(m)

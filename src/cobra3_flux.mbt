@@ -584,6 +584,7 @@ pub fn cobra3_room(
   knockout_genes : Array[String],
   delta~ : Double = 0.03,
   epsilon~ : Double = 0.001,
+  min_growth~ : Double = 0.0,
   max_nodes~ : Int32 = 2000,
 ) -> Cobra3RoomResult {
   let wt = cobra3_model_optimize(model)
@@ -615,13 +616,25 @@ pub fn cobra3_room(
   for j in 0..<n {
     obj[n + j] = -1.0
   }
-  let cons : Array[Cobra3LinConstraint] = Array(capacity=s.length() + 2 * n)
+  let cons : Array[Cobra3LinConstraint] = Array(capacity=s.length() + 2 * n + 1)
   for i in 0..<s.length() {
     let coeffs : Array[Double] = Array::make(nv, 0.0)
     for j in 0..<n {
       coeffs[j] = s[i][j]
     }
     cons.push({ coeffs, rhs: 0.0, sense: Cobra3Sense::Equal, })
+  }
+  let obj_vec = cobra3_model_objective_vector(ko)
+  if min_growth > 0.0 {
+    let grow : Array[Double] = Array::make(nv, 0.0)
+    for j in 0..<n {
+      grow[j] = obj_vec[j]
+    }
+    cons.push({
+      coeffs: grow,
+      rhs: min_growth,
+      sense: Cobra3Sense::GreaterEqual,
+    })
   }
   for j in 0..<n {
     let slack = delta * wt.fluxes[j].abs() + epsilon
@@ -662,12 +675,9 @@ pub fn cobra3_room(
   for j in 0..<n {
     fluxes.push(sol.x[j])
   }
-  let growth = match cobra3_model_biomass_reaction(ko) {
-    Some(id) =>
-      match cobra3_model_reaction_index(ko, id) {
-        i => if i >= 0 { fluxes[i] } else { 0.0 }
-      }
-    None => 0.0
+  let mut growth = 0.0
+  for j in 0..<n {
+    growth = growth + obj_vec[j] * fluxes[j]
   }
   {
     growth,
