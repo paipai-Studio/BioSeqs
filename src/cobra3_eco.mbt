@@ -759,6 +759,213 @@ pub fn cobra3_optknock_milp(
 }
 
 ///|
+pub(all) struct Cobra3OptStrainResult {
+  knockout_ids : Array[String]
+  added_reactions : Array[String]
+  growth : Double
+  target_flux : Double
+}
+
+///|
+/// OptStrain：在宿主模型上同时选择「敲除的宿主反应」与「从 universal 模型
+/// 补充的异源反应」，max v_target，s.t. 合并后的稳态、宿主反应受
+/// lb(1−y) ≤ v ≤ ub(1−y)、补充反应受 lb·a ≤ v ≤ ub·a、目标加权生长 ≥
+/// `min_growth`、Σ y ≤ `max_knockouts`、Σ a ≤ `max_added`。
+///
+/// 补充反应取自 universal 中宿主没有的 id；target_id 可以是宿主反应或补充
+/// 反应。返回最多一个方案（Optimal/Feasible 都接受），不可行时返回空数组。
+pub fn cobra3_optstrain(
+  model : Cobra3Model,
+  universal : Cobra3Model,
+  target_id : String,
+  min_growth~ : Double = 0.0,
+  max_knockouts~ : Int32 = 2,
+  max_added~ : Int32 = 2,
+  max_nodes~ : Int32 = 4000,
+) -> Array[Cobra3OptStrainResult] {
+  let out : Array[Cobra3OptStrainResult] = Array(capacity=0)
+  let nh = model.reactions.length()
+  if nh == 0 || max_knockouts < 0 || max_added < 0 {
+    return out
+  }
+  let host_ids : Map[String, Bool] = Map([], capacity=nh)
+  for r in model.reactions {
+    host_ids[r.id] = true
+  }
+  let added_src : Array[Cobra3Reaction] = Array(capacity=0)
+  for r in universal.reactions {
+    if !host_ids.contains(r.id) {
+      added_src.push(r)
+    }
+  }
+  let nx = added_src.length()
+  let na = nh + nx
+  let total = na + nh + nx
+  let mut target_col = cobra3_model_reaction_index(model, target_id)
+  if target_col < 0 {
+    for k in 0..<nx {
+      if added_src[k].id == target_id {
+        target_col = nh + k
+      }
+    }
+  }
+  if target_col < 0 {
+    return out
+  }
+  // 代谢物索引：先宿主，再补充反应引入的新代谢物
+  let met_index : Map[String, Int32] = Map(
+    [],
+    capacity=model.metabolites.length(),
+  )
+  let met_ids : Array[String] = Array(capacity=model.metabolites.length())
+  for m in model.metabolites {
+    met_index[m.id] = met_ids.length()
+    met_ids.push(m.id)
+  }
+  for r in added_src {
+    for met_id in r.metabolites.keys() {
+      if !met_index.contains(met_id) {
+        met_index[met_id] = met_ids.length()
+        met_ids.push(met_id)
+      }
+    }
+  }
+  let nm = met_ids.length()
+  let rows : Array[Array[Double]] = Array(capacity=nm)
+  for _ in 0..<nm {
+    rows.push(Array::make(total, 0.0))
+  }
+  let host_s = cobra3_model_stoichiometric_matrix(model)
+  for i in 0..<host_s.length() {
+    for j in 0..<nh {
+      rows[i][j] = host_s[i][j]
+    }
+  }
+  for k in 0..<nx {
+    let col = nh + k
+    for met_id in added_src[k].metabolites.keys() {
+      match met_index.get(met_id) {
+        Some(row_idx) => rows[row_idx][col] = added_src[k].metabolites[met_id]
+        None => ()
+      }
+    }
+  }
+  let lb_v = cobra3_model_lower_bounds(model)
+  let ub_v = cobra3_model_upper_bounds(model)
+  let cons : Array[Cobra3LinConstraint] = Array(capacity=nm + 2 * (nh + nx) + 2)
+  for i in 0..<nm {
+    cons.push({ coeffs: rows[i], rhs: 0.0, sense: Cobra3Sense::Equal, })
+  }
+  // 宿主反应：lb(1−y) ≤ v ≤ ub(1−y)
+  for j in 0..<nh {
+    let upper : Array[Double] = Array::make(total, 0.0)
+    upper[j] = 1.0
+    upper[na + j] = ub_v[j]
+    cons.push({ coeffs: upper, rhs: ub_v[j], sense: Cobra3Sense::LessEqual, })
+    let lower : Array[Double] = Array::make(total, 0.0)
+    lower[j] = -1.0
+    lower[na + j] = -lb_v[j]
+    cons.push({ coeffs: lower, rhs: -lb_v[j], sense: Cobra3Sense::LessEqual, })
+  }
+  // 补充反应：lb·a ≤ v ≤ ub·a（a=0 时强制 v=0）
+  for k in 0..<nx {
+    let col = nh + k
+    let lbk = added_src[k].lower_bound
+    let ubk = added_src[k].upper_bound
+    let upper : Array[Double] = Array::make(total, 0.0)
+    upper[col] = 1.0
+    upper[na + nh + k] = -ubk
+    cons.push({ coeffs: upper, rhs: 0.0, sense: Cobra3Sense::LessEqual, })
+    let lower : Array[Double] = Array::make(total, 0.0)
+    lower[col] = -1.0
+    lower[na + nh + k] = lbk
+    cons.push({ coeffs: lower, rhs: 0.0, sense: Cobra3Sense::LessEqual, })
+  }
+  let obj = cobra3_model_objective_vector(model)
+  let grow : Array[Double] = Array::make(total, 0.0)
+  for j in 0..<nh {
+    grow[j] = obj[j]
+  }
+  cons.push({ coeffs: grow, rhs: min_growth, sense: Cobra3Sense::GreaterEqual, })
+  let knock_row : Array[Double] = Array::make(total, 0.0)
+  let add_row : Array[Double] = Array::make(total, 0.0)
+  for j in 0..<nh {
+    knock_row[na + j] = 1.0
+  }
+  for k in 0..<nx {
+    add_row[na + nh + k] = 1.0
+  }
+  cons.push({
+    coeffs: knock_row,
+    rhs: max_knockouts.to_double(),
+    sense: Cobra3Sense::LessEqual,
+  })
+  cons.push({
+    coeffs: add_row,
+    rhs: max_added.to_double(),
+    sense: Cobra3Sense::LessEqual,
+  })
+  let lb : Array[Double] = Array::make(total, 0.0)
+  let ub : Array[Double] = Array::make(total, 0.0)
+  for j in 0..<nh {
+    // 敲除时 v=0 必须可达，边界放宽到包含 0
+    lb[j] = if lb_v[j] > 0.0 { 0.0 } else { lb_v[j] }
+    ub[j] = if ub_v[j] < 0.0 { 0.0 } else { ub_v[j] }
+  }
+  for k in 0..<nx {
+    let col = nh + k
+    let lbk = added_src[k].lower_bound
+    let ubk = added_src[k].upper_bound
+    lb[col] = if lbk > 0.0 { 0.0 } else { lbk }
+    ub[col] = if ubk < 0.0 { 0.0 } else { ubk }
+  }
+  for j in 0..<nh {
+    lb[na + j] = 0.0
+    ub[na + j] = 1.0
+  }
+  for k in 0..<nx {
+    lb[na + nh + k] = 0.0
+    ub[na + nh + k] = 1.0
+  }
+  let integer : Array[Int32] = Array(capacity=nh + nx)
+  for j in 0..<nh {
+    integer.push(na + j)
+  }
+  for k in 0..<nx {
+    integer.push(na + nh + k)
+  }
+  let c : Array[Double] = Array::make(total, 0.0)
+  c[target_col] = 1.0
+  let sol = cobra3_solve_milp(cons, c, lb, ub, integer, max_nodes~)
+  if !(sol.status is Optimal) && !(sol.status is Feasible) {
+    return out
+  }
+  let knockout_ids : Array[String] = Array(capacity=0)
+  for j in 0..<nh {
+    if sol.x[na + j] > 0.5 {
+      knockout_ids.push(model.reactions[j].id)
+    }
+  }
+  let added_ids : Array[String] = Array(capacity=0)
+  for k in 0..<nx {
+    if sol.x[na + nh + k] > 0.5 {
+      added_ids.push(added_src[k].id)
+    }
+  }
+  let mut growth = 0.0
+  for j in 0..<nh {
+    growth = growth + obj[j] * sol.x[j]
+  }
+  out.push({
+    knockout_ids,
+    added_reactions: added_ids,
+    growth,
+    target_flux: sol.x[target_col],
+  })
+  out
+}
+
+///|
 pub(all) struct Cobra3CommunityResult {
   model : Cobra3Model
   fluxes : Array[Double]
