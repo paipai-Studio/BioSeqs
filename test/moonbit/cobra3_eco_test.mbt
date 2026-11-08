@@ -49,6 +49,101 @@ test "cobra3 eco efm linear chain" {
 }
 
 ///|
+test "cobra3 eco efm finds mode needing negative basis coefficient" {
+  let mut m = @src.cobra3_model_new("efmneg")
+  m = @src.cobra3_model_add_reaction(
+    m,
+    cobra3_make_rxn("EX_A", [("A", -1.0)], 0.0, 10.0, ""),
+  )
+  m = @src.cobra3_model_add_reaction(
+    m,
+    cobra3_make_rxn("R1", [("A", -1.0), ("B", 1.0)], -1000.0, 1000.0, ""),
+  )
+  m = @src.cobra3_model_add_reaction(
+    m,
+    cobra3_make_rxn("EX_B", [("B", -1.0)], -10.0, 0.0, ""),
+  )
+  // 零空间基给出的是 (-1,1,1)，可行方向为其反向；旧实现固定 λ=1 会一条都找不到
+  let modes = @src.cobra3_elementary_flux_modes(m)
+  assert_eq(modes.length(), 1)
+  let v = modes[0]
+  let mut mx = 0.0
+  for x in v {
+    if x.abs() > mx {
+      mx = x.abs()
+    }
+  }
+  assert_true((mx - 1.0).abs() < 1.0e-9)
+  for j in 0..<3 {
+    assert_true(v[j].abs() > 1.0e-9)
+  }
+  let s = @src.cobra3_model_stoichiometric_matrix(m)
+  for i in 0..<s.length() {
+    let mut sum = 0.0
+    for j in 0..<s[i].length() {
+      sum = sum + s[i][j] * v[j]
+    }
+    assert_true(sum.abs() < 1.0e-9)
+  }
+}
+
+///|
+test "cobra3 eco efm keeps internal loop mode" {
+  let mut m = @src.cobra3_model_new("efmloop")
+  m = @src.cobra3_model_add_reaction(
+    m,
+    cobra3_make_rxn("EX_A", [("A", -1.0)], 0.0, 10.0, ""),
+  )
+  m = @src.cobra3_model_add_reaction(
+    m,
+    cobra3_make_rxn("R1", [("A", -1.0), ("B", 1.0)], -1000.0, 1000.0, ""),
+  )
+  m = @src.cobra3_model_add_reaction(
+    m,
+    cobra3_make_rxn("R2", [("B", -1.0), ("C", 1.0)], -1000.0, 1000.0, ""),
+  )
+  m = @src.cobra3_model_add_reaction(
+    m,
+    cobra3_make_rxn("R3", [("C", -1.0), ("A", 1.0)], -1000.0, 1000.0, ""),
+  )
+  m = @src.cobra3_model_add_reaction(
+    m,
+    cobra3_make_rxn("EX_B", [("B", -1.0)], -10.0, 0.0, ""),
+  )
+  let modes = @src.cobra3_elementary_flux_modes(m)
+  assert_eq(modes.length(), 2)
+  let mut found_loop = false
+  let mut found_exchange = false
+  for v in modes {
+    let loop_only = v[0].abs() < 1.0e-9 &&
+      v[1].abs() > 1.0e-9 &&
+      v[2].abs() > 1.0e-9 &&
+      v[3].abs() > 1.0e-9 &&
+      v[4].abs() < 1.0e-9
+    let exchange = v[0].abs() > 1.0e-9 &&
+      v[1].abs() > 1.0e-9 &&
+      v[2].abs() < 1.0e-9 &&
+      v[3].abs() < 1.0e-9 &&
+      v[4].abs() > 1.0e-9
+    if loop_only {
+      found_loop = true
+    }
+    if exchange {
+      found_exchange = true
+    }
+  }
+  assert_true(found_loop)
+  assert_true(found_exchange)
+}
+
+///|
+test "cobra3 eco efm branch model yields two modes" {
+  let m = cobra3_branch_model()
+  let modes = @src.cobra3_elementary_flux_modes(m)
+  assert_eq(modes.length(), 2)
+}
+
+///|
 test "cobra3 eco imat keeps high pathway" {
   let m = cobra3_branch_model()
   let res = @src.cobra3_imat(m, ["g1"], ["g2"], min_growth=5.0)

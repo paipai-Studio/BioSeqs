@@ -10,11 +10,166 @@
 /// 这些都是简化实现，边界条件在函数注释中说明。
 
 ///|
-/// EFM 枚举：枚举零空间基的非空子集，保留满足边界/方向一致且支撑极小的模式.
+/// EFM 辅助：在固定零空间基列子集 `cols` 上求解一个非零可行流。
+/// 变量是基系数 λ（v = Σ λ_a · basis[cols[a]]），把每个反应的上下界
+/// （不可逆性由 lb/ub 表达）写成 λ 的线性约束，最大化 `target·λ`。
+/// 返回非零流（未归一化），不可行或只有零解时返回 None。
+fn cobra3_efm_flow(
+  model : Cobra3Model,
+  basis : Array[Array[Double]],
+  cols : Array[Int32],
+  target : Array[Double],
+  extra_zero : Array[Int32],
+  budget : Array[Int32],
+  epsilon : Double,
+) -> Array[Double]? {
+  if budget[0] <= 0 {
+    return None
+  }
+  budget[0] = budget[0] - 1
+  let n = model.reactions.length()
+  let k = cols.length()
+  let lb = cobra3_model_lower_bounds(model)
+  let ub = cobra3_model_upper_bounds(model)
+  let cons : Array[Cobra3LinConstraint] = Array(
+    capacity=2 * n + extra_zero.length(),
+  )
+  for j in 0..<n {
+    let coeffs : Array[Double] = Array(capacity=k)
+    for a in 0..<k {
+      coeffs.push(basis[cols[a]][j])
+    }
+    if lb[j] > -1.0e9 {
+      cons.push({ coeffs, rhs: lb[j], sense: Cobra3Sense::GreaterEqual, })
+    }
+    if ub[j] < 1.0e9 {
+      cons.push({ coeffs, rhs: ub[j], sense: Cobra3Sense::LessEqual, })
+    }
+  }
+  for j in extra_zero {
+    let coeffs : Array[Double] = Array(capacity=k)
+    for a in 0..<k {
+      coeffs.push(basis[cols[a]][j])
+    }
+    cons.push({ coeffs, rhs: 0.0, sense: Cobra3Sense::Equal, })
+  }
+  let lam_lb : Array[Double] = Array::make(k, -1.0e6)
+  let lam_ub : Array[Double] = Array::make(k, 1.0e6)
+  let sol = cobra3_solve_lp(cons, target, lam_lb, lam_ub)
+  if sol.status is Optimal && sol.objective_value > epsilon {
+    let v : Array[Double] = Array::make(n, 0.0)
+    for a in 0..<k {
+      let b = basis[cols[a]]
+      let lam = sol.x[a]
+      for j in 0..<n {
+        v[j] = v[j] + lam * b[j]
+      }
+    }
+    return Some(v)
+  }
+  None
+}
+
+///|
+/// EFM 辅助：贪心缩小支撑。逐个尝试把活跃反应置零后重解，仅当新解支撑
+/// 是原支撑的真子集时接受，保证支撑单调收缩到极小。
+fn cobra3_efm_prune(
+  model : Cobra3Model,
+  basis : Array[Array[Double]],
+  cols : Array[Int32],
+  v0 : Array[Double],
+  target : Array[Double],
+  epsilon : Double,
+  budget : Array[Int32],
+) -> Array[Double] {
+  let n = model.reactions.length()
+  let mut v = v0
+  let mut changed = true
+  while changed {
+    changed = false
+    let mut j = 0
+    while j < n {
+      if v[j].abs() > epsilon && budget[0] > 0 {
+        let fixed : Array[Int32] = [j]
+        match
+          cobra3_efm_flow(model, basis, cols, target, fixed, budget, epsilon) {
+          Some(v2) => {
+            let mut subset = true
+            let mut strict = false
+            for r in 0..<n {
+              if v2[r].abs() > epsilon && v[r].abs() <= epsilon {
+                subset = false
+              }
+              if v[r].abs() > epsilon && v2[r].abs() <= epsilon {
+                strict = true
+              }
+            }
+            if subset && strict {
+              v = v2
+              changed = true
+            }
+          }
+          None => ()
+        }
+      }
+      j = j + 1
+    }
+  }
+  v
+}
+
+///|
+/// EFM 辅助：按无穷范数归一化（并清除数值噪声），便于比较与去重.
+fn cobra3_efm_normalize(v : Array[Double], epsilon : Double) -> Array[Double] {
+  let n = v.length()
+  let out : Array[Double] = Array::make(n, 0.0)
+  let mut mx = 0.0
+  for x in v {
+    if x.abs() > mx {
+      mx = x.abs()
+    }
+  }
+  if mx <= epsilon {
+    return out
+  }
+  for j in 0..<n {
+    if v[j].abs() > epsilon {
+      out[j] = v[j] / mx
+    }
+  }
+  out
+}
+
+///|
+/// EFM 辅助：支撑签名，用于去重.
+fn cobra3_efm_support_key(supp : Array[Bool]) -> String {
+  let mut key = ""
+  for b in supp {
+    if b {
+      key = key + "1"
+    } else {
+      key = key + "0"
+    }
+  }
+  key
+}
+
+///|
+/// EFM 枚举：对零空间基的每个非空列子集，用 LP 在基系数空间求非零可行流
+/// （支持任意实数系数，而非仅 0/1 组合），再贪心压缩支撑并做全局极小筛选。
+///
+/// 与旧实现的区别：可逆性完全由反应 lb/ub 表达（不再用"内部反应不得正负
+/// 混合"的错误规则丢弃合法的内部循环），且能找回基向量方向与可行方向相反、
+/// 需要负系数的模式。
+///
+/// 边界：仍是基于零空间基子集的启发式（非双描述法/极射线枚举），当基维数
+/// 超过 12 时直接返回空；`max_lp` 限制总 LP 次数，达到上限后结果可能不完整；
+/// `max_modes` 限制返回模式数。
 pub fn cobra3_elementary_flux_modes(
   model : Cobra3Model,
   max_modes~ : Int32 = 500,
   epsilon~ : Double = 1.0e-9,
+  max_lp~ : Int32 = 20000,
 ) -> Array[Array[Double]] {
   let n = model.reactions.length()
   let basis = cobra3_nullspace_basis(model)
@@ -23,55 +178,64 @@ pub fn cobra3_elementary_flux_modes(
   if n == 0 || k == 0 || k > 12 {
     return out
   }
-  let lb = cobra3_model_lower_bounds(model)
-  let ub = cobra3_model_upper_bounds(model)
+  let budget : Array[Int32] = [max_lp]
+  let supports : Array[Array[Bool]] = Array(capacity=0)
+  let vectors : Array[Array[Double]] = Array(capacity=0)
+  let seen : Map[String, Bool] = Map([], capacity=16)
   let mut total = 1
   for _ in 0..<k {
     total = total * 2
   }
-  let supports : Array[Array[Bool]] = Array(capacity=total)
-  let vectors : Array[Array[Double]] = Array(capacity=total)
   for mask in 1..<total {
-    let vec : Array[Double] = Array::make(n, 0.0)
+    if budget[0] <= 0 {
+      break
+    }
+    let cols : Array[Int32] = Array(capacity=k)
     for b in 0..<k {
       if ((mask >> b) & 1) == 1 {
-        for j in 0..<n {
-          vec[j] = vec[j] + basis[b][j]
-        }
+        cols.push(b)
       }
     }
-    // 边界与方向一致性
-    let mut ok = true
-    let mut any_positive = false
-    let mut any_negative = false
-    for j in 0..<n {
-      let v = vec[j]
-      if v.abs() > epsilon {
-        if v < lb[j] - 1.0e-9 || v > ub[j] + 1.0e-9 {
-          ok = false
-          break
+    // 依次用 ±λ_a 作目标找非零流；任何一个成功即可
+    let mut a = 0
+    let mut v_opt : Array[Double]? = None
+    let target : Array[Double] = Array::make(cols.length(), 0.0)
+    while a < cols.length() && v_opt is None {
+      for c in 0..<cols.length() {
+        target[c] = 0.0
+      }
+      target[a] = 1.0
+      v_opt = cobra3_efm_flow(model, basis, cols, target, [], budget, epsilon)
+      if v_opt is None {
+        target[a] = -1.0
+        v_opt = cobra3_efm_flow(model, basis, cols, target, [], budget, epsilon)
+      }
+      a = a + 1
+    }
+    match v_opt {
+      Some(v0) => {
+        let v1 = cobra3_efm_prune(
+          model, basis, cols, v0, target, epsilon, budget,
+        )
+        let v = cobra3_efm_normalize(v1, epsilon)
+        let supp : Array[Bool] = Array::make(n, false)
+        let mut active = false
+        for j in 0..<n {
+          supp[j] = v[j].abs() > epsilon
+          if supp[j] {
+            active = true
+          }
         }
-        // 方向一致性只约束内部反应；exchange 可正可负
-        if !cobra3_model_is_exchange(model, model.reactions[j]) {
-          if v > 0.0 {
-            any_positive = true
-          } else {
-            any_negative = true
+        if active {
+          let key = cobra3_efm_support_key(supp)
+          if !seen.contains(key) {
+            seen[key] = true
+            supports.push(supp)
+            vectors.push(v)
           }
         }
       }
-    }
-    // 内部反应不得正负混合（可逆反应允许，但简化只保留单向模式）
-    if ok && any_positive && any_negative {
-      ok = false
-    }
-    if ok {
-      let support : Array[Bool] = Array::make(n, false)
-      for j in 0..<n {
-        support[j] = vec[j].abs() > epsilon
-      }
-      supports.push(support)
-      vectors.push(vec)
+      None => ()
     }
   }
   // 支撑极小化：若存在另一个模式的支撑是其真子集，则丢弃
