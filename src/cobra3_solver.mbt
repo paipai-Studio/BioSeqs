@@ -513,7 +513,9 @@ fn cobra3_pick_branch_var(x : Array[Double], integer : Array[Int32]) -> Int32 {
     let v = x[idx]
     let frac = (v - @math.floor(v)).abs()
     let d = if frac < 0.5 { frac } else { 1.0 - frac }
-    if d > 1.0e-6 && d > best_frac {
+    // 容差必须小于 big-M 模型里 `y ≈ α/M` 这类退化分数（如 α≈1、M=1e6 时
+    // y≈1e-6）；旧值 1e-6 会把这种分数当成整数 0，返回违反 big-M 约束的解。
+    if d > 1.0e-9 && d > best_frac {
       best = idx
       best_frac = d
     }

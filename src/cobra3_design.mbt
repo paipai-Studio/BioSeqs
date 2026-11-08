@@ -458,8 +458,9 @@ pub fn cobra3_minimal_cut_sets(
 }
 
 ///|
-/// 最小割集（单层 MILP，Farkas/对偶证书形式）：一次求解直接给出基数最小的
-/// 一个割集，避免组合枚举在 `max_size` 之外的指数爆炸。
+/// 最小割集（单层 MILP，Farkas/对偶证书形式）：每次求解给出当前最小基数割集，
+/// 避免组合枚举在 `max_size` 之外的指数爆炸。`max_solutions > 1` 时用
+/// no-good cut 迭代枚举更多极小割集。
 ///
 /// 原理：敲除集合 y 下原问题是 `max c·v s.t. S v = 0, lb(1−y) ≤ v ≤ ub(1−y)`。
 /// 其最大目标 ≤ threshold 的充要条件是对偶问题存在可行解且目标 ≤ threshold：
@@ -468,15 +469,20 @@ pub fn cobra3_minimal_cut_sets(
 /// 写成 `Σ(ub_j a_j − lb_j b_j) ≤ threshold`，再最小化 `Σ y_j`，得到一个
 /// 最小基数割集（最小基数自动保证极小：否则其真子集会是更小的割集）。
 ///
+/// 枚举多个解时，每找到一个集合 S 就加 `Σ_{j∈S} y_j ≤ |S|−1`，排除 S 及其
+/// 所有超集；任何其它极小割集都不可能是 S 的超集（否则不极小），因此不会
+/// 被误排除。默认 `max_solutions = 1` 保持"只取一个最小割集"的行为。
+///
 /// 与 `cobra3_minimal_cut_sets`（组合枚举 + 重复 FBA）并存：枚举版能列出
-/// 全部 ≤ max_size 的极小割集，本函数只返回一个最小割集但不受组合数限制。
+/// 全部 ≤ max_size 的极小割集，本函数按最小基数优先逐个返回但不搜索组合。
 /// 边界：对偶变量上界取 `big_m`，若真实对偶解超出该范围会漏解；若敲除后
-/// 原问题不可行（如存在 lb>0 的强制反应）对偶无界，本函数返回空，此时
-/// 仍需用枚举版（枚举版会把"不可行"视为割集）。
+/// 原问题不可行（如存在 lb>0 的强制反应）对偶无界，本函数漏掉这类割集，
+/// 此时仍需用枚举版（枚举版会把"不可行"视为割集）。
 pub fn cobra3_minimal_cut_sets_milp(
   model : Cobra3Model,
   threshold~ : Double = 0.01,
   exclude~ : Array[String] = [],
+  max_solutions~ : Int32 = 1,
   max_nodes~ : Int32 = 4000,
   big_m~ : Double = 1.0e6,
 ) -> Array[Cobra3McsResult] {
@@ -564,41 +570,58 @@ pub fn cobra3_minimal_cut_sets_milp(
     objrow[b0 + j] = -lb[j]
   }
   cons.push({ coeffs: objrow, rhs: threshold, sense: Cobra3Sense::LessEqual, })
-  // 最小化敲除数；exclude 的反应固定 y = 0
+  // 最小化敲除数（MILP 求解器是 max，故目标系数取 -1）；exclude 固定 y = 0
   let cobj : Array[Double] = Array::make(nv, 0.0)
   let ints : Array[Int32] = Array(capacity=n)
   for j in 0..<n {
-    cobj[y0 + j] = 1.0
+    cobj[y0 + j] = -1.0
     ints.push(y0 + j)
     if exclude.contains(model.reactions[j].id) {
       vub[y0 + j] = 0.0
     }
   }
-  let sol = cobra3_solve_milp(cons, cobj, vlb, vub, ints, max_nodes~)
-  let ok = match sol.status {
-    Cobra3Status::Optimal | Cobra3Status::Feasible => true
-    _ => false
-  }
-  if !ok {
-    return out
-  }
-  let ids : Array[String] = Array(capacity=0)
-  for j in 0..<n {
-    if sol.x[y0 + j] > 0.5 {
-      ids.push(model.reactions[j].id)
+  let mut round = 0
+  while out.length() < max_solutions && round <= n {
+    round = round + 1
+    let sol = cobra3_solve_milp(cons, cobj, vlb, vub, ints, max_nodes~)
+    let ok = match sol.status {
+      Cobra3Status::Optimal | Cobra3Status::Feasible => true
+      _ => false
     }
-  }
-  if ids.length() == 0 {
-    return out
-  }
-  // 用真实 FBA 校验 MILP 证书（数值误差下 false positive 直接丢弃）
-  let ko = cobra3_knockout_reactions(model, ids)
-  let ver = cobra3_model_optimize(ko)
-  if ver.status is Optimal && ver.objective_value <= threshold + 1.0e-6 {
-    out.push({
-      reaction_ids: ids,
-      growth: ver.objective_value,
-      size: ids.length(),
+    if !ok {
+      break
+    }
+    let ids : Array[String] = Array(capacity=0)
+    for j in 0..<n {
+      if sol.x[y0 + j] > 0.5 {
+        ids.push(model.reactions[j].id)
+      }
+    }
+    if ids.length() == 0 {
+      break
+    }
+    // 用真实 FBA 校验 MILP 证书（数值误差下 false positive 直接丢弃）
+    let ko = cobra3_knockout_reactions(model, ids)
+    let ver = cobra3_model_optimize(ko)
+    if ver.status is Optimal && ver.objective_value <= threshold + 1.0e-6 {
+      out.push({
+        reaction_ids: ids,
+        growth: ver.objective_value,
+        size: ids.length(),
+      })
+    }
+    // no-good cut：排除该集合及其所有超集，下一轮只能找其它极小割集
+    let nogood : Array[Double] = Array::make(nv, 0.0)
+    for id in ids {
+      let idx = cobra3_model_reaction_index(model, id)
+      if idx >= 0 {
+        nogood[y0 + idx] = 1.0
+      }
+    }
+    cons.push({
+      coeffs: nogood,
+      rhs: (ids.length() - 1).to_double(),
+      sense: Cobra3Sense::LessEqual,
     })
   }
   out

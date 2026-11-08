@@ -232,6 +232,54 @@ test "cobra3 design minimal cut sets milp finds triple cut" {
 }
 
 ///|
+test "cobra3 design minimal cut sets milp enumerates all minimal cuts" {
+  let mut m = @src.cobra3_model_new("mcs_milp_all")
+  m = @src.cobra3_model_add_reaction(
+    m,
+    cobra3_make_rxn("EX_A", [("A", -1.0)], -20.0, 1000.0, ""),
+  )
+  m = @src.cobra3_model_add_reaction(
+    m,
+    cobra3_make_rxn("R1", [("A", -1.0), ("B", 1.0)], 0.0, 1000.0, ""),
+  )
+  m = @src.cobra3_model_add_reaction(
+    m,
+    cobra3_make_rxn("R2", [("A", -1.0), ("B", 1.0)], 0.0, 1000.0, ""),
+  )
+  m = @src.cobra3_model_add_reaction(
+    m,
+    cobra3_make_rxn("R3", [("A", -1.0), ("C", 1.0)], 0.0, 1000.0, ""),
+  )
+  m = @src.cobra3_model_add_reaction(
+    m,
+    cobra3_make_rxn("BIO", [("B", -1.0), ("C", -1.0)], 0.0, 1000.0, ""),
+  )
+  m = @src.cobra3_model_set_objective(m, "BIO", 1.0)
+  // 排除 EX_A/BIO 后恰有两个极小割集：单割集 {R3} 与双割集 {R1,R2}
+  let mcs = @src.cobra3_minimal_cut_sets_milp(
+    m,
+    threshold=0.01,
+    exclude=["EX_A", "BIO"],
+    max_solutions=3,
+  )
+  assert_eq(mcs.length(), 2)
+  let mut has_r3 = false
+  let mut has_pair = false
+  for s in mcs {
+    if s.size == 1 && s.reaction_ids[0] == "R3" {
+      has_r3 = true
+    }
+    if s.size == 2 &&
+      s.reaction_ids.contains("R1") &&
+      s.reaction_ids.contains("R2") {
+      has_pair = true
+    }
+  }
+  assert_true(has_r3)
+  assert_true(has_pair)
+}
+
+///|
 test "cobra3 design minimal cut sets milp returns empty when no cut needed" {
   let m = cobra3_toy()
   let mcs = @src.cobra3_minimal_cut_sets_milp(m, threshold=100.0)
