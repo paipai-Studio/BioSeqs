@@ -63,6 +63,53 @@ test "cobra3 design minimal cut sets" {
 }
 
 ///|
+test "cobra3 design minimal cut sets includes disjoint pairs" {
+  let mut m = @src.cobra3_model_new("mcs")
+  m = @src.cobra3_model_add_reaction(
+    m,
+    cobra3_make_rxn("EX_A", [("A", -1.0)], -20.0, 1000.0, ""),
+  )
+  m = @src.cobra3_model_add_reaction(
+    m,
+    cobra3_make_rxn("R1", [("A", -1.0), ("B", 1.0)], 0.0, 1000.0, ""),
+  )
+  m = @src.cobra3_model_add_reaction(
+    m,
+    cobra3_make_rxn("R2", [("A", -1.0), ("B", 1.0)], 0.0, 1000.0, ""),
+  )
+  m = @src.cobra3_model_add_reaction(
+    m,
+    cobra3_make_rxn("R3", [("A", -1.0), ("C", 1.0)], 0.0, 1000.0, ""),
+  )
+  m = @src.cobra3_model_add_reaction(
+    m,
+    cobra3_make_rxn("BIO", [("B", -1.0), ("C", -1.0)], 0.0, 1000.0, ""),
+  )
+  m = @src.cobra3_model_set_objective(m, "BIO", 1.0)
+  let mcs = @src.cobra3_minimal_cut_sets(m, threshold=0.01)
+  let mut has_r3 = false
+  let mut has_pair = false
+  for s in mcs {
+    if s.size == 1 && s.reaction_ids[0] == "R3" {
+      has_r3 = true
+    }
+    if s.size == 2 &&
+      s.reaction_ids.contains("R1") &&
+      s.reaction_ids.contains("R2") {
+      has_pair = true
+    }
+  }
+  assert_true(has_r3)
+  assert_true(has_pair)
+  // 含单割集元素的双组合不是极小割集
+  for s in mcs {
+    if s.size == 2 {
+      assert_true(!s.reaction_ids.contains("R3"))
+    }
+  }
+}
+
+///|
 test "cobra3 design nullspace dimension" {
   let m = cobra3_toy()
   let basis = @src.cobra3_nullspace_basis(m)

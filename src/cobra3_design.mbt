@@ -354,25 +354,27 @@ pub fn cobra3_minimal_cut_sets(
   if !(base.status is Optimal) || base.objective_value <= threshold {
     return out
   }
-  // 单反应
+  // 单反应割集
+  let single_ids : Array[String] = Array(capacity=0)
   for j in 0..<n {
-    let ko = cobra3_knockout_reactions(model, [model.reactions[j].id])
+    let id = model.reactions[j].id
+    let ko = cobra3_knockout_reactions(model, [id])
     let sol = cobra3_model_optimize(ko)
     if sol.status is Optimal && sol.objective_value <= threshold {
-      out.push({
-        reaction_ids: [model.reactions[j].id],
-        growth: sol.objective_value,
-        size: 1,
-      })
+      out.push({ reaction_ids: [id], growth: sol.objective_value, size: 1, })
+      single_ids.push(id)
     }
   }
-  if out.length() > 0 {
-    return out
-  }
-  // 双反应
+  // 双反应割集：跳过包含单割集元素的组合，否则不是极小割集
   for i in 0..<n {
+    if single_ids.contains(model.reactions[i].id) {
+      continue
+    }
     let start = i + 1
     for j in start..<n {
+      if single_ids.contains(model.reactions[j].id) {
+        continue
+      }
       let ko = cobra3_knockout_reactions(model, [
         model.reactions[i].id,
         model.reactions[j].id,
