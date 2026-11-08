@@ -497,6 +497,65 @@ test "cobra3 eco optstrain rejects unknown target" {
 }
 
 ///|
+fn cobra3_optcouple_base_model() -> @src.Cobra3Model {
+  let mut m = @src.cobra3_model_new("optcouple")
+  m = @src.cobra3_model_add_reaction(
+    m,
+    cobra3_make_rxn("EX_A", [("A", -1.0)], -10.0, 1000.0, ""),
+  )
+  m = @src.cobra3_model_add_reaction(
+    m,
+    cobra3_make_rxn("R1", [("A", -1.0), ("B", 1.0)], 0.0, 1000.0, ""),
+  )
+  m = @src.cobra3_model_add_reaction(
+    m,
+    cobra3_make_rxn("BIO", [("B", -1.0)], 0.0, 1000.0, ""),
+  )
+  m = @src.cobra3_model_add_reaction(
+    m,
+    cobra3_make_rxn("P", [("B", -1.0)], 0.0, 1000.0, ""),
+  )
+  m = @src.cobra3_model_set_objective(m, "BIO", 1.0)
+  m
+}
+
+///|
+test "cobra3 eco optcouple couples product with growth" {
+  let m = cobra3_optcouple_base_model()
+  let res = @src.cobra3_optcouple(m, "P", min_growth=5.0, max_knockouts=1)
+  assert_eq(res.length(), 1)
+  assert_true((res[0].growth - 5.0).abs() < 1.0e-6)
+  assert_true((res[0].target_flux - 5.0).abs() < 1.0e-6)
+  assert_eq(res[0].knockout_ids.length(), 0)
+}
+
+///|
+test "cobra3 eco optcouple knocks out competing sink" {
+  let mut m = cobra3_optcouple_base_model()
+  // E 强制至少 3 通量，与产物竞争 B；敲掉 E 后产物上限从 2 提高到 5
+  m = @src.cobra3_model_add_reaction(
+    m,
+    cobra3_make_rxn("E", [("B", -1.0), ("F", 1.0)], 3.0, 1000.0, ""),
+  )
+  m = @src.cobra3_model_add_reaction(
+    m,
+    cobra3_make_rxn("EX_F", [("F", -1.0)], 0.0, 1000.0, ""),
+  )
+  let res = @src.cobra3_optcouple(m, "P", min_growth=5.0, max_knockouts=1)
+  assert_eq(res.length(), 1)
+  assert_true(res[0].knockout_ids.contains("E"))
+  assert_true((res[0].growth - 5.0).abs() < 1.0e-6)
+  assert_true((res[0].target_flux - 5.0).abs() < 1.0e-6)
+}
+
+///|
+test "cobra3 eco optcouple requires positive min growth" {
+  let m = cobra3_optcouple_base_model()
+  let res = @src.cobra3_optcouple(m, "P", min_growth=0.0)
+  assert_eq(res.length(), 0)
+}
+
+///|
 test "cobra3 eco community sums independent models" {
   let m1 = cobra3_toy()
   let mut m2 = @src.cobra3_model_new("second")

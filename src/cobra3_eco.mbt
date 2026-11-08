@@ -966,6 +966,154 @@ pub fn cobra3_optstrain(
 }
 
 ///|
+pub(all) struct Cobra3OptCoupleResult {
+  knockout_ids : Array[String]
+  growth : Double
+  target_flux : Double
+}
+
+///|
+/// OptCouple：寻找使「产物分泌与生长耦合」的敲除方案。MILP 变量为
+/// v（通量）、y（敲除）、o（产物活跃）、g（生长活跃），约束：
+/// S v = 0、lb(1−y) ≤ v ≤ ub(1−y)、Σy ≤ max_knockouts、
+/// v_target ≤ M_o·o、目标加权生长 ≥ min_growth·g、
+/// 目标加权生长 ≤ M_g·g、o ≤ g；目标 max v_target。
+/// o ≤ g 加上 g 生长下界保证「产物 > 0 ⇒ 生长 ≥ min_growth」。
+///
+/// 耦合只有在 `min_growth > 0` 时才有意义，故参数非正时直接返回空。
+pub fn cobra3_optcouple(
+  model : Cobra3Model,
+  target_id : String,
+  min_growth~ : Double = 0.0,
+  max_knockouts~ : Int32 = 2,
+  max_nodes~ : Int32 = 4000,
+  exclude~ : Array[String] = [],
+) -> Array[Cobra3OptCoupleResult] {
+  let out : Array[Cobra3OptCoupleResult] = Array(capacity=0)
+  let n = model.reactions.length()
+  let target_idx = cobra3_model_reaction_index(model, target_id)
+  if target_idx < 0 || n == 0 || max_knockouts < 0 || min_growth <= 0.0 {
+    return out
+  }
+  let total = n + n + 2
+  let o_col = n + n
+  let g_col = o_col + 1
+  let s = cobra3_model_stoichiometric_matrix(model)
+  let cons : Array[Cobra3LinConstraint] = Array(capacity=s.length() + 2 * n + 4)
+  for i in 0..<s.length() {
+    let row : Array[Double] = Array::make(total, 0.0)
+    for j in 0..<n {
+      row[j] = s[i][j]
+    }
+    cons.push({ coeffs: row, rhs: 0.0, sense: Cobra3Sense::Equal, })
+  }
+  let lb_v = cobra3_model_lower_bounds(model)
+  let ub_v = cobra3_model_upper_bounds(model)
+  for j in 0..<n {
+    let upper : Array[Double] = Array::make(total, 0.0)
+    upper[j] = 1.0
+    upper[n + j] = ub_v[j]
+    cons.push({ coeffs: upper, rhs: ub_v[j], sense: Cobra3Sense::LessEqual, })
+    let lower : Array[Double] = Array::make(total, 0.0)
+    lower[j] = -1.0
+    lower[n + j] = -lb_v[j]
+    cons.push({ coeffs: lower, rhs: -lb_v[j], sense: Cobra3Sense::LessEqual, })
+  }
+  let knock_row : Array[Double] = Array::make(total, 0.0)
+  for j in 0..<n {
+    knock_row[n + j] = 1.0
+  }
+  cons.push({
+    coeffs: knock_row,
+    rhs: max_knockouts.to_double(),
+    sense: Cobra3Sense::LessEqual,
+  })
+  let obj = cobra3_model_objective_vector(model)
+  // 产物活跃指示：v_target ≤ M_o · o
+  let mut m_o = ub_v[target_idx].abs()
+  if lb_v[target_idx].abs() > m_o {
+    m_o = lb_v[target_idx].abs()
+  }
+  if m_o < 1.0 {
+    m_o = 1.0
+  }
+  let target_row : Array[Double] = Array::make(total, 0.0)
+  target_row[target_idx] = 1.0
+  target_row[o_col] = -m_o
+  cons.push({ coeffs: target_row, rhs: 0.0, sense: Cobra3Sense::LessEqual, })
+  // 生长下界：Σ obj·v − min_growth·g ≥ 0
+  let grow_lo : Array[Double] = Array::make(total, 0.0)
+  for j in 0..<n {
+    grow_lo[j] = obj[j]
+  }
+  grow_lo[g_col] = -min_growth
+  cons.push({ coeffs: grow_lo, rhs: 0.0, sense: Cobra3Sense::GreaterEqual, })
+  // 生长上界：Σ obj·v − M_g·g ≤ 0
+  let mut m_g = 0.0
+  for j in 0..<n {
+    let hi = (obj[j] * ub_v[j]).abs()
+    let lo = (obj[j] * lb_v[j]).abs()
+    if hi > m_g {
+      m_g = hi
+    }
+    if lo > m_g {
+      m_g = lo
+    }
+  }
+  if m_g < 1.0 {
+    m_g = 1.0
+  }
+  let grow_hi : Array[Double] = Array::make(total, 0.0)
+  for j in 0..<n {
+    grow_hi[j] = obj[j]
+  }
+  grow_hi[g_col] = -m_g
+  cons.push({ coeffs: grow_hi, rhs: 0.0, sense: Cobra3Sense::LessEqual, })
+  // 耦合：o ≤ g
+  let couple_row : Array[Double] = Array::make(total, 0.0)
+  couple_row[o_col] = 1.0
+  couple_row[g_col] = -1.0
+  cons.push({ coeffs: couple_row, rhs: 0.0, sense: Cobra3Sense::LessEqual, })
+  let lb : Array[Double] = Array::make(total, 0.0)
+  let ub : Array[Double] = Array::make(total, 0.0)
+  for j in 0..<n {
+    // 敲除时 v=0 必须可达
+    lb[j] = if lb_v[j] > 0.0 { 0.0 } else { lb_v[j] }
+    ub[j] = if ub_v[j] < 0.0 { 0.0 } else { ub_v[j] }
+    lb[n + j] = 0.0
+    ub[n + j] = if exclude.contains(model.reactions[j].id) { 0.0 } else { 1.0 }
+  }
+  lb[o_col] = 0.0
+  ub[o_col] = 1.0
+  lb[g_col] = 0.0
+  ub[g_col] = 1.0
+  let integer : Array[Int32] = Array(capacity=n + 2)
+  for j in 0..<n {
+    integer.push(n + j)
+  }
+  integer.push(o_col)
+  integer.push(g_col)
+  let c : Array[Double] = Array::make(total, 0.0)
+  c[target_idx] = 1.0
+  let sol = cobra3_solve_milp(cons, c, lb, ub, integer, max_nodes~)
+  if !(sol.status is Optimal) && !(sol.status is Feasible) {
+    return out
+  }
+  let ids : Array[String] = Array(capacity=0)
+  for j in 0..<n {
+    if sol.x[n + j] > 0.5 {
+      ids.push(model.reactions[j].id)
+    }
+  }
+  let mut growth = 0.0
+  for j in 0..<n {
+    growth = growth + obj[j] * sol.x[j]
+  }
+  out.push({ knockout_ids: ids, growth, target_flux: sol.x[target_idx], })
+  out
+}
+
+///|
 pub(all) struct Cobra3CommunityResult {
   model : Cobra3Model
   fluxes : Array[Double]
