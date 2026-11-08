@@ -230,6 +230,14 @@ test "cobra3 geometric fba" {
 }
 
 ///|
+test "cobra3 geometric fba multi-target" {
+  let m = cobra3_branch_model()
+  let res = @src.cobra3_geometric_fba(m)
+  assert_true(res.status is @src.Cobra3Status::Optimal)
+  assert_true((res.objective_value - 9.9).abs() < 1.0e-4)
+}
+
+///|
 test "cobra3 fva zero reaction in blocked model" {
   let m = cobra3_toy()
   let fva = @src.cobra3_fva(m, fraction_of_optimum=1.0)
@@ -247,4 +255,21 @@ test "cobra3 fva reports infeasible status" {
   for f in fva {
     assert_true(f.status is @src.Cobra3Status::Infeasible)
   }
+}
+
+///|
+test "cobra3 fva negative objective keeps optimum" {
+  let m = cobra3_toy()
+  let neg = @src.cobra3_model_set_objective(m, "R2", -1.0)
+  let fva = @src.cobra3_fva(neg, fraction_of_optimum=0.9)
+  let mut st = false
+  let mut r2 = -1.0
+  for f in fva {
+    if f.reaction_id == "R2" {
+      st = f.status is @src.Cobra3Status::Optimal
+      r2 = f.maximum
+    }
+  }
+  assert_true(st)
+  assert_true((r2 - 10.0).abs() < 1.0e-5)
 }

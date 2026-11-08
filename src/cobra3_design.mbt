@@ -934,7 +934,7 @@ pub fn cobra3_loopless_fba(model : Cobra3Model) -> Cobra3FluxResult {
   if opt.objective_value.abs() > 1.0e-9 {
     base.push({
       coeffs: obj_vec,
-      rhs: opt.objective_value * (1.0 - 1.0e-6),
+      rhs: cobra3_optimum_floor(opt.objective_value, 1.0 - 1.0e-6),
       sense: Cobra3Sense::GreaterEqual,
     })
   }

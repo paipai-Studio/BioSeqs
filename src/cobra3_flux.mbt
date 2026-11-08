@@ -93,6 +93,16 @@ pub fn cobra3_flux_map(
 }
 
 ///|
+/// fraction 约束右端：目标为负时用 opt/fraction，保持绝对值的比例.
+fn cobra3_optimum_floor(opt : Double, fraction : Double) -> Double {
+  if opt >= 0.0 {
+    opt * fraction
+  } else {
+    opt / fraction
+  }
+}
+
+///|
 /// pFBA：先求最大目标，再在目标不低于最优值 (1-eps) 下最小化 Σ|v|.
 pub fn cobra3_pfba(model : Cobra3Model) -> Cobra3FluxResult {
   let n = model.reactions.length()
@@ -109,7 +119,7 @@ pub fn cobra3_pfba(model : Cobra3Model) -> Cobra3FluxResult {
   if opt.objective_value.abs() > 1.0e-9 {
     constraints.push({
       coeffs: c,
-      rhs: opt.objective_value * (1.0 - 1.0e-6),
+      rhs: cobra3_optimum_floor(opt.objective_value, 1.0 - 1.0e-6),
       sense: Cobra3Sense::GreaterEqual,
     })
   }
@@ -165,12 +175,26 @@ pub fn cobra3_pfba(model : Cobra3Model) -> Cobra3FluxResult {
   for j in 0..<n {
     fluxes.push(sol.x[j])
   }
+  let shadow : Array[Double] = Array(capacity=model.metabolites.length())
+  for i in 0..<model.metabolites.length() {
+    shadow.push(if i < sol.duals.length() { sol.duals[i] } else { 0.0 })
+  }
+  let rc : Array[Double] = Array(capacity=n)
+  for j in 0..<n {
+    rc.push(
+      if j < sol.reduced_costs.length() {
+        sol.reduced_costs[j]
+      } else {
+        0.0
+      },
+    )
+  }
   {
     status: sol.status,
     objective_value: opt.objective_value,
     fluxes,
-    shadow_prices: Array::make(model.metabolites.length(), 0.0),
-    reduced_costs: Array::make(n, 0.0),
+    shadow_prices: shadow,
+    reduced_costs: rc,
   }
 }
 
@@ -219,7 +243,7 @@ pub fn cobra3_fva(
   if fraction_of_optimum > 0.0 && opt.objective_value.abs() > 1.0e-9 {
     base.push({
       coeffs: cobra3_model_objective_vector(model),
-      rhs: opt.objective_value * fraction_of_optimum,
+      rhs: cobra3_optimum_floor(opt.objective_value, fraction_of_optimum),
       sense: Cobra3Sense::GreaterEqual,
     })
   }
@@ -694,22 +718,8 @@ pub fn cobra3_geometric_fba(model : Cobra3Model) -> Cobra3FluxResult {
     return opt
   }
   let s = cobra3_model_stoichiometric_matrix(model)
-  let zero : Array[Double] = Array::make(s.length(), 0.0)
   let lb = cobra3_model_lower_bounds(model)
   let ub = cobra3_model_upper_bounds(model)
-  // 用生长反应下界表达"至少 99% 最优生长"
-  match cobra3_model_biomass_reaction(model) {
-    Some(id) => {
-      let idx = cobra3_model_reaction_index(model, id)
-      if idx >= 0 {
-        let floor = opt.objective_value * 0.99
-        if lb[idx] < floor {
-          lb[idx] = floor
-        }
-      }
-    }
-    None => ()
-  }
   let q : Array[Array[Double]] = Array(capacity=n)
   for i in 0..<n {
     let row : Array[Double] = Array::make(n, 0.0)
@@ -717,21 +727,34 @@ pub fn cobra3_geometric_fba(model : Cobra3Model) -> Cobra3FluxResult {
     q.push(row)
   }
   let c : Array[Double] = Array::make(n, 0.0)
-  let eq : Array[Array[Double]] = Array(capacity=s.length())
+  let obj_vec = cobra3_model_objective_vector(model)
+  // 用目标加权和等式表达"至少 99% 最优生长"，兼容多目标/负目标
+  let eq : Array[Array[Double]] = Array(capacity=s.length() + 1)
   for i in 0..<s.length() {
     eq.push(s[i])
   }
-  let sol = cobra3_solve_qp(q, c, eq, zero, lb, ub)
-  let obj_vec = cobra3_model_objective_vector(model)
+  let rhs : Array[Double] = Array(capacity=s.length() + 1)
+  for _ in 0..<s.length() {
+    rhs.push(0.0)
+  }
+  if opt.objective_value.abs() > 1.0e-9 {
+    eq.push(obj_vec)
+    rhs.push(cobra3_optimum_floor(opt.objective_value, 0.99))
+  }
+  let sol = cobra3_solve_qp(q, c, eq, rhs, lb, ub)
   let mut growth = 0.0
   for j in 0..<n {
     growth = growth + obj_vec[j] * sol.x[j]
+  }
+  let shadow : Array[Double] = Array(capacity=model.metabolites.length())
+  for i in 0..<model.metabolites.length() {
+    shadow.push(if i < sol.duals.length() { sol.duals[i] } else { 0.0 })
   }
   {
     status: sol.status,
     objective_value: growth,
     fluxes: sol.x,
-    shadow_prices: Array::make(model.metabolites.length(), 0.0),
+    shadow_prices: shadow,
     reduced_costs: Array::make(n, 0.0),
   }
 }

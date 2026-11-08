@@ -389,7 +389,7 @@ fn cobra3_optknock_inner(
   if growth.abs() > 1.0e-9 {
     base.push({
       coeffs: cobra3_model_objective_vector(ko),
-      rhs: growth * (1.0 - 1.0e-6),
+      rhs: cobra3_optimum_floor(growth, 1.0 - 1.0e-6),
       sense: Cobra3Sense::GreaterEqual,
     })
   }
