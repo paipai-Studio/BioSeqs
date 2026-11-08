@@ -58,7 +58,8 @@ fn cobra3_empty_flux(
 pub fn cobra3_model_optimize(model : Cobra3Model) -> Cobra3FluxResult {
   let n = model.reactions.length()
   if n == 0 {
-    return cobra3_empty_flux(model, Cobra3Status::Infeasible)
+    // 空模型无变量、无约束，FBA 视为可行解 0（与 COBRApy 一致）
+    return cobra3_empty_flux(model, Cobra3Status::Optimal)
   }
   let constraints = cobra3_steady_state_constraints(model)
   let c = cobra3_model_objective_vector(model)

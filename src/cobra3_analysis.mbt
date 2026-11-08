@@ -233,7 +233,8 @@ pub fn cobra3_reaction_summary(
   for mp in r.metabolites.keys() {
     for i in 0..<model.metabolites.length() {
       if model.metabolites[i].id == mp && i < sol.shadow_prices.length() {
-        shadow = shadow + sol.shadow_prices[i]
+        // 反应对目标的影响 = Σ 计量系数 × 该代谢物的 shadow price
+        shadow = shadow + r.metabolites[mp] * sol.shadow_prices[i]
       }
     }
   }

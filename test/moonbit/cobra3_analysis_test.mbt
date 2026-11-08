@@ -82,6 +82,17 @@ test "cobra3 analysis reaction summary" {
 }
 
 ///|
+test "cobra3 analysis reaction summary shadow is stoichiometric" {
+  let m = cobra3_toy()
+  let sol = @src.cobra3_model_optimize(m)
+  let s = @src.cobra3_reaction_summary(m, "R2").unwrap()
+  let b_idx = @src.cobra3_model_metabolite_index(m, "B")
+  let r = @src.cobra3_model_get_reaction(m, "R2").unwrap()
+  let expected = r.metabolites["B"] * sol.shadow_prices[b_idx]
+  assert_true((s.shadow_price_of_metabolites - expected).abs() < 1.0e-9)
+}
+
+///|
 test "cobra3 analysis metabolite summary" {
   let m = cobra3_toy()
   let b = @src.cobra3_metabolite_summary(m, "B").unwrap()

@@ -273,3 +273,12 @@ test "cobra3 fva negative objective keeps optimum" {
   assert_true(st)
   assert_true((r2 - 10.0).abs() < 1.0e-5)
 }
+
+///|
+test "cobra3 fba empty model is optimal zero" {
+  let m = @src.cobra3_model_new("empty")
+  let sol = @src.cobra3_model_optimize(m)
+  assert_true(sol.status is @src.Cobra3Status::Optimal)
+  assert_eq(sol.objective_value, 0.0)
+  assert_eq(sol.fluxes.length(), 0)
+}
