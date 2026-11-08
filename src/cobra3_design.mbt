@@ -847,6 +847,9 @@ pub fn cobra3_loopless_fba(model : Cobra3Model) -> Cobra3FluxResult {
     return opt
   }
   let n = model.reactions.length()
+  if n == 0 {
+    return opt
+  }
   let base = cobra3_steady_state_constraints(model)
   if opt.objective_value.abs() > 1.0e-9 {
     base.push({
@@ -856,18 +859,23 @@ pub fn cobra3_loopless_fba(model : Cobra3Model) -> Cobra3FluxResult {
     })
   }
   let nv = 2 * n
-  let lb : Array[Double] = Array(capacity=nv)
-  let ub : Array[Double] = Array(capacity=nv)
-  let obj : Array[Double] = Array(capacity=nv)
+  let lb : Array[Double] = Array::make(nv, 0.0)
+  let ub : Array[Double] = Array::make(nv, 0.0)
+  let obj : Array[Double] = Array::make(nv, 0.0)
+  let integer : Array[Int32] = Array(capacity=n)
   for j in 0..<n {
-    lb.push(model.reactions[j].lower_bound)
-    ub.push(model.reactions[j].upper_bound)
-    obj.push(0.0)
-  }
-  for _ in 0..<n {
-    lb.push(0.0)
-    ub.push(1.0e18)
-    obj.push(-1.0)
+    lb[j] = model.reactions[j].lower_bound
+    ub[j] = model.reactions[j].upper_bound
+    // exchange 不参与循环；内部反应用二元指示变量控制是否活跃
+    if cobra3_model_is_exchange(model, model.reactions[j]) {
+      lb[n + j] = 0.0
+      ub[n + j] = 0.0
+    } else {
+      lb[n + j] = 0.0
+      ub[n + j] = 1.0
+      obj[n + j] = -1.0
+      integer.push(n + j)
+    }
   }
   let cons : Array[Cobra3LinConstraint] = Array(capacity=base.length() + 2 * n)
   for con in base {
@@ -878,16 +886,27 @@ pub fn cobra3_loopless_fba(model : Cobra3Model) -> Cobra3FluxResult {
     cons.push({ coeffs, rhs: con.rhs, sense: con.sense, })
   }
   for j in 0..<n {
+    if cobra3_model_is_exchange(model, model.reactions[j]) {
+      continue
+    }
+    let scale = if model.reactions[j].lower_bound.abs() >
+      model.reactions[j].upper_bound.abs() {
+      model.reactions[j].lower_bound.abs()
+    } else {
+      model.reactions[j].upper_bound.abs()
+    }
+    let m = 2.0 * scale + 1.0
+    // z=0 -> v=0；z=1 -> |v| <= M
     let c1 : Array[Double] = Array::make(nv, 0.0)
     c1[j] = 1.0
-    c1[n + j] = -1.0
+    c1[n + j] = -m
     cons.push({ coeffs: c1, rhs: 0.0, sense: Cobra3Sense::LessEqual, })
     let c2 : Array[Double] = Array::make(nv, 0.0)
     c2[j] = -1.0
-    c2[n + j] = -1.0
+    c2[n + j] = -m
     cons.push({ coeffs: c2, rhs: 0.0, sense: Cobra3Sense::LessEqual, })
   }
-  let sol = cobra3_solve_lp(cons, obj, lb, ub)
+  let sol = cobra3_solve_milp(cons, obj, lb, ub, integer)
   let fluxes : Array[Double] = Array(capacity=n)
   for j in 0..<n {
     fluxes.push(sol.x[j])

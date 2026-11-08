@@ -141,3 +141,32 @@ test "cobra3 design loopless fba keeps growth" {
   assert_true(res.status is @src.Cobra3Status::Optimal)
   assert_true((res.objective_value - 10.0).abs() < 1.0e-6)
 }
+
+///|
+test "cobra3 design loopless fba removes internal cycle" {
+  let mut m = @src.cobra3_model_new("cycle")
+  m = @src.cobra3_model_add_reaction(
+    m,
+    cobra3_make_rxn("EX_A", [("A", -1.0)], -10.0, 1000.0, ""),
+  )
+  m = @src.cobra3_model_add_reaction(
+    m,
+    cobra3_make_rxn("R1", [("A", -1.0), ("B", 1.0)], 0.0, 1000.0, ""),
+  )
+  m = @src.cobra3_model_add_reaction(
+    m,
+    cobra3_make_rxn("R2", [("B", -1.0), ("A", 1.0)], 0.0, 1000.0, ""),
+  )
+  m = @src.cobra3_model_add_reaction(
+    m,
+    cobra3_make_rxn("BIO", [("B", -1.0)], 0.0, 1000.0, ""),
+  )
+  m = @src.cobra3_model_set_objective(m, "BIO", 1.0)
+  let res = @src.cobra3_loopless_fba(m)
+  assert_true(res.status is @src.Cobra3Status::Optimal)
+  assert_true((res.objective_value - 10.0).abs() < 1.0e-5)
+  let r2 = @src.cobra3_model_reaction_index(m, "R2")
+  let r1 = @src.cobra3_model_reaction_index(m, "R1")
+  assert_true(res.fluxes[r2].abs() < 1.0e-5)
+  assert_true((res.fluxes[r1] - 10.0).abs() < 1.0e-5)
+}

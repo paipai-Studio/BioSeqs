@@ -147,6 +147,40 @@ test "cobra3 eco optknock enumerates knockouts" {
 }
 
 ///|
+test "cobra3 eco optknock inner maximizes target" {
+  let mut m = @src.cobra3_model_new("optknock")
+  m = @src.cobra3_model_add_reaction(
+    m,
+    cobra3_make_rxn("EX_A", [("A", -1.0)], -10.0, 1000.0, ""),
+  )
+  m = @src.cobra3_model_add_reaction(
+    m,
+    cobra3_make_rxn("R1", [("A", -1.0), ("B", 1.0)], 0.0, 1000.0, ""),
+  )
+  m = @src.cobra3_model_add_reaction(
+    m,
+    cobra3_make_rxn("BIO", [("B", -1.0)], 0.0, 1000.0, ""),
+  )
+  m = @src.cobra3_model_add_reaction(
+    m,
+    cobra3_make_rxn("P", [("B", -1.0)], 0.0, 1000.0, ""),
+  )
+  m = @src.cobra3_model_set_objective(m, "BIO", 1.0)
+  let res = @src.cobra3_optknock(m, "P", max_knockouts=1)
+  let mut found = false
+  let mut target = -1.0
+  for r in res {
+    if r.knockout_ids.length() == 1 && r.knockout_ids[0] == "BIO" {
+      found = true
+      target = r.target_flux
+      assert_true(r.growth.abs() < 1.0e-6)
+    }
+  }
+  assert_true(found)
+  assert_true((target - 10.0).abs() < 1.0e-4)
+}
+
+///|
 test "cobra3 eco community sums independent models" {
   let m1 = cobra3_toy()
   let mut m2 = @src.cobra3_model_new("second")

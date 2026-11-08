@@ -373,7 +373,41 @@ pub(all) struct Cobra3OptKnockResult {
 }
 
 ///|
-/// OptKnock-lite：枚举单/双反应敲除，内层 FBA 最大生长，记录目标产物通量.
+/// OptKnock 内层问题：先取敲除模型最大生长，再在保持该生长下最大化目标产物.
+fn cobra3_optknock_inner(
+  ko : Cobra3Model,
+  target_idx : Int32,
+) -> (Double, Double)? {
+  let growth_sol = cobra3_model_optimize(ko)
+  if !(growth_sol.status is Optimal) {
+    return None
+  }
+  let growth = growth_sol.objective_value
+  let base = cobra3_steady_state_constraints(ko)
+  if growth.abs() > 1.0e-9 {
+    base.push({
+      coeffs: cobra3_model_objective_vector(ko),
+      rhs: growth * (1.0 - 1.0e-6),
+      sense: Cobra3Sense::GreaterEqual,
+    })
+  }
+  let n = ko.reactions.length()
+  let c : Array[Double] = Array::make(n, 0.0)
+  if target_idx >= 0 && target_idx < n {
+    c[target_idx] = 1.0
+  }
+  let sol = cobra3_solve_lp(
+    base,
+    c,
+    cobra3_model_lower_bounds(ko),
+    cobra3_model_upper_bounds(ko),
+  )
+  let target = if sol.status is Optimal { sol.objective_value } else { 0.0 }
+  Some((growth, target))
+}
+
+///|
+/// OptKnock：枚举单/双反应敲除；内层先取最大生长，再在保持最大生长下最大化目标产物.
 pub fn cobra3_optknock(
   model : Cobra3Model,
   target_id : String,
@@ -387,13 +421,14 @@ pub fn cobra3_optknock(
   }
   for i in 0..<n {
     let ko1 = cobra3_knockout_reactions(model, [model.reactions[i].id])
-    let sol1 = cobra3_model_optimize(ko1)
-    if sol1.status is Optimal {
-      out.push({
-        knockout_ids: [model.reactions[i].id],
-        growth: sol1.objective_value,
-        target_flux: sol1.fluxes[target_idx],
-      })
+    match cobra3_optknock_inner(ko1, target_idx) {
+      Some(pair) =>
+        out.push({
+          knockout_ids: [model.reactions[i].id],
+          growth: pair.0,
+          target_flux: pair.1,
+        })
+      None => ()
     }
     if max_knockouts >= 2 {
       let start = i + 1
@@ -402,13 +437,14 @@ pub fn cobra3_optknock(
           model.reactions[i].id,
           model.reactions[j].id,
         ])
-        let sol2 = cobra3_model_optimize(ko2)
-        if sol2.status is Optimal {
-          out.push({
-            knockout_ids: [model.reactions[i].id, model.reactions[j].id],
-            growth: sol2.objective_value,
-            target_flux: sol2.fluxes[target_idx],
-          })
+        match cobra3_optknock_inner(ko2, target_idx) {
+          Some(pair) =>
+            out.push({
+              knockout_ids: [model.reactions[i].id, model.reactions[j].id],
+              growth: pair.0,
+              target_flux: pair.1,
+            })
+          None => ()
         }
       }
     }
