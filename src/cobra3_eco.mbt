@@ -970,15 +970,18 @@ pub(all) struct Cobra3OptCoupleResult {
   knockout_ids : Array[String]
   growth : Double
   target_flux : Double
+  coupled : Bool
 }
 
 ///|
 /// OptCouple：寻找使「产物分泌与生长耦合」的敲除方案。MILP 变量为
 /// v（通量）、y（敲除）、o（产物活跃）、g（生长活跃），约束：
 /// S v = 0、lb(1−y) ≤ v ≤ ub(1−y)、Σy ≤ max_knockouts、
-/// v_target ≤ M_o·o、目标加权生长 ≥ min_growth·g、
-/// 目标加权生长 ≤ M_g·g、o ≤ g；目标 max v_target。
-/// o ≤ g 加上 g 生长下界保证「产物 > 0 ⇒ 生长 ≥ min_growth」。
+/// v_target ≤ M_o·o、v_target ≥ min_target·o、目标加权生长 ≥ min_growth·g、
+/// 目标加权生长 ≤ M_g·g、o = g；目标 max v_target。
+/// o = g 加上两侧的通量下界保证「产物 > 0 ⇔ 生长 ≥ min_growth」：
+/// 生长活跃（g=1）时必须有 v_target ≥ min_target，产物活跃（o=1）时生长
+/// 必须达到 min_growth。返回值中的 coupled 表示最终解是否两侧同时活跃。
 ///
 /// 耦合只有在 `min_growth > 0` 时才有意义，故参数非正时直接返回空。
 pub fn cobra3_optcouple(
@@ -988,11 +991,16 @@ pub fn cobra3_optcouple(
   max_knockouts~ : Int32 = 2,
   max_nodes~ : Int32 = 4000,
   exclude~ : Array[String] = [],
+  min_target~ : Double = 1.0e-6,
 ) -> Array[Cobra3OptCoupleResult] {
   let out : Array[Cobra3OptCoupleResult] = Array(capacity=0)
   let n = model.reactions.length()
   let target_idx = cobra3_model_reaction_index(model, target_id)
-  if target_idx < 0 || n == 0 || max_knockouts < 0 || min_growth <= 0.0 {
+  if target_idx < 0 ||
+    n == 0 ||
+    max_knockouts < 0 ||
+    min_growth <= 0.0 ||
+    min_target < 0.0 {
     return out
   }
   let total = n + n + 2
@@ -1041,6 +1049,11 @@ pub fn cobra3_optcouple(
   target_row[target_idx] = 1.0
   target_row[o_col] = -m_o
   cons.push({ coeffs: target_row, rhs: 0.0, sense: Cobra3Sense::LessEqual, })
+  // 产物活跃 ⇒ 产物通量至少 min_target：v_target ≥ min_target · o
+  let target_lo : Array[Double] = Array::make(total, 0.0)
+  target_lo[target_idx] = 1.0
+  target_lo[o_col] = -min_target
+  cons.push({ coeffs: target_lo, rhs: 0.0, sense: Cobra3Sense::GreaterEqual, })
   // 生长下界：Σ obj·v − min_growth·g ≥ 0
   let grow_lo : Array[Double] = Array::make(total, 0.0)
   for j in 0..<n {
@@ -1069,11 +1082,15 @@ pub fn cobra3_optcouple(
   }
   grow_hi[g_col] = -m_g
   cons.push({ coeffs: grow_hi, rhs: 0.0, sense: Cobra3Sense::LessEqual, })
-  // 耦合：o ≤ g
+  // 耦合：o = g（两侧同时活跃）
   let couple_row : Array[Double] = Array::make(total, 0.0)
   couple_row[o_col] = 1.0
   couple_row[g_col] = -1.0
   cons.push({ coeffs: couple_row, rhs: 0.0, sense: Cobra3Sense::LessEqual, })
+  let couple_rev : Array[Double] = Array::make(total, 0.0)
+  couple_rev[o_col] = -1.0
+  couple_rev[g_col] = 1.0
+  cons.push({ coeffs: couple_rev, rhs: 0.0, sense: Cobra3Sense::LessEqual, })
   let lb : Array[Double] = Array::make(total, 0.0)
   let ub : Array[Double] = Array::make(total, 0.0)
   for j in 0..<n {
@@ -1109,7 +1126,13 @@ pub fn cobra3_optcouple(
   for j in 0..<n {
     growth = growth + obj[j] * sol.x[j]
   }
-  out.push({ knockout_ids: ids, growth, target_flux: sol.x[target_idx], })
+  let coupled = sol.x[o_col] > 0.5 && sol.x[g_col] > 0.5
+  out.push({
+    knockout_ids: ids,
+    growth,
+    target_flux: sol.x[target_idx],
+    coupled,
+  })
   out
 }
 

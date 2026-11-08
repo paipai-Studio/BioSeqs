@@ -527,6 +527,7 @@ test "cobra3 eco optcouple couples product with growth" {
   assert_true((res[0].growth - 5.0).abs() < 1.0e-6)
   assert_true((res[0].target_flux - 5.0).abs() < 1.0e-6)
   assert_eq(res[0].knockout_ids.length(), 0)
+  assert_true(res[0].coupled)
 }
 
 ///|
@@ -546,6 +547,7 @@ test "cobra3 eco optcouple knocks out competing sink" {
   assert_true(res[0].knockout_ids.contains("E"))
   assert_true((res[0].growth - 5.0).abs() < 1.0e-6)
   assert_true((res[0].target_flux - 5.0).abs() < 1.0e-6)
+  assert_true(res[0].coupled)
 }
 
 ///|
@@ -553,6 +555,22 @@ test "cobra3 eco optcouple requires positive min growth" {
   let m = cobra3_optcouple_base_model()
   let res = @src.cobra3_optcouple(m, "P", min_growth=0.0)
   assert_eq(res.length(), 0)
+}
+
+///|
+test "cobra3 eco optcouple enforces min target" {
+  let m = cobra3_optcouple_base_model()
+  // B 总量 10：min_growth=5 与 min_target=6 同时满足需要 11，无法耦合
+  let res = @src.cobra3_optcouple(
+    m,
+    "P",
+    min_growth=5.0,
+    max_knockouts=1,
+    min_target=6.0,
+  )
+  assert_eq(res.length(), 1)
+  assert_true(!res[0].coupled)
+  assert_true(res[0].target_flux.abs() < 1.0e-6)
 }
 
 ///|
