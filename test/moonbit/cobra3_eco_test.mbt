@@ -227,6 +227,43 @@ test "cobra3 eco community prefixes same-named internal reactions" {
 }
 
 ///|
+test "cobra3 eco community keeps same-named exchange with different metabolites" {
+  let mut m1 = @src.cobra3_model_new("m1")
+  m1 = @src.cobra3_model_add_reaction(
+    m1,
+    cobra3_make_rxn("EX_A", [("A", -1.0)], -10.0, 1000.0, ""),
+  )
+  m1 = @src.cobra3_model_add_reaction(
+    m1,
+    cobra3_make_rxn("R1", [("A", -1.0), ("B", 1.0)], 0.0, 1000.0, ""),
+  )
+  m1 = @src.cobra3_model_add_reaction(
+    m1,
+    cobra3_make_rxn("BIO", [("B", -1.0)], 0.0, 1000.0, ""),
+  )
+  m1 = @src.cobra3_model_set_objective(m1, "BIO", 1.0)
+  let mut m2 = @src.cobra3_model_new("m2")
+  // 与 m1 同名 EX_A，但交换的是 B 而不是 A
+  m2 = @src.cobra3_model_add_reaction(
+    m2,
+    cobra3_make_rxn("EX_A", [("B", -1.0)], -10.0, 1000.0, ""),
+  )
+  m2 = @src.cobra3_model_add_reaction(
+    m2,
+    cobra3_make_rxn("R2", [("B", -1.0), ("C", 1.0)], 0.0, 1000.0, ""),
+  )
+  m2 = @src.cobra3_model_add_reaction(
+    m2,
+    cobra3_make_rxn("BIO", [("C", -1.0)], 0.0, 1000.0, ""),
+  )
+  m2 = @src.cobra3_model_set_objective(m2, "BIO", 1.0)
+  let res = @src.cobra3_community_fba([m1, m2])
+  // 旧实现会把 m2 的 EX_A 错并到 m1 的 EX_A，丢掉 B 交换、总生长只有 10
+  assert_true((res.growth - 20.0).abs() < 1.0e-5)
+  assert_true(@src.cobra3_model_has_reaction(res.model, "m2:EX_A"))
+}
+
+///|
 test "cobra3 eco optknock enumerates knockouts" {
   let m = cobra3_toy()
   let res = @src.cobra3_optknock(m, "R2", max_knockouts=2)
@@ -353,6 +390,23 @@ test "cobra3 eco optknock honors exclude" {
   for r in res {
     assert_true(!r.knockout_ids.contains("R1"))
   }
+}
+
+///|
+test "cobra3 eco optknock candidate guard uses exclude" {
+  let mut m = cobra3_toy()
+  let excluded : Array[String] = Array(capacity=80)
+  for i in 0..<78 {
+    let id = "X" + i.to_string()
+    m = @src.cobra3_model_add_reaction(
+      m,
+      cobra3_make_rxn(id, [("P", -1.0), ("Q", 1.0)], 0.0, 1000.0, ""),
+    )
+    excluded.push(id)
+  }
+  // 81 个反应但 exclude 后只剩 3 个候选：旧实现的 n>80 会直接返回空
+  let res = @src.cobra3_optknock(m, "R2", max_knockouts=1, exclude=excluded)
+  assert_true(res.length() > 0)
 }
 
 ///|

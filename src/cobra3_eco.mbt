@@ -635,7 +635,7 @@ pub fn cobra3_optknock(
   let out : Array[Cobra3OptKnockResult] = Array(capacity=0)
   let n = model.reactions.length()
   let target_idx = cobra3_model_reaction_index(model, target_id)
-  if target_idx < 0 || n > 80 {
+  if target_idx < 0 {
     return out
   }
   let candidates : Array[Int32] = Array(capacity=n)
@@ -645,7 +645,8 @@ pub fn cobra3_optknock(
     }
   }
   let m = candidates.length()
-  if m == 0 {
+  // 规模守卫按「候选数」而不是模型反应总数：exclude 之后候选很少时应正常工作
+  if m == 0 || m > 80 {
     return out
   }
   let budget : Array[Int32] = [max_candidates]
@@ -1196,7 +1197,8 @@ pub fn cobra3_community_fba(
   let reactions : Array[Cobra3Reaction] = Array(capacity=8)
   let seen_mets : Map[String, Bool] = Map([], capacity=8)
   let seen_genes : Map[String, Bool] = Map([], capacity=8)
-  let seen_rxns : Map[String, Bool] = Map([], capacity=8)
+  let rx_index_by_key : Map[String, Int32] = Map([], capacity=8)
+  let seen_exchange_ids : Map[String, Bool] = Map([], capacity=8)
   for m in models {
     members.push(m.id)
     for met in m.metabolites {
@@ -1232,7 +1234,6 @@ pub fn cobra3_community_fba(
     }
     for r in m.reactions {
       let is_exchange = cobra3_model_is_exchange(m, r)
-      let nid = if is_exchange { r.id } else { m.id + ":" + r.id }
       let participants : Map[String, Double] = Map(
         [],
         capacity=r.metabolites.length(),
@@ -1259,50 +1260,68 @@ pub fn cobra3_community_fba(
           })
         }
       }
+      // 共享 exchange 只在参与者（映射后的代谢物集合）一致时合并；
+      // 同名但交换对象不同的 exchange 加成员前缀保留，避免静默丢掉第二份交换
+      let mut sig = ""
+      for met_id in participants.keys() {
+        sig = sig + met_id + "|"
+      }
+      let nid = if is_exchange {
+        if seen_exchange_ids.contains(r.id) {
+          m.id + ":" + r.id
+        } else {
+          r.id
+        }
+      } else {
+        m.id + ":" + r.id
+      }
+      if is_exchange {
+        seen_exchange_ids[r.id] = true
+      }
+      let share_key = if is_exchange { r.id + "#" + sig } else { nid }
       let gpr = match r.gpr {
         Some(g) => Some(cobra3_community_gpr(g, m.id + ":"))
         None => None
       }
-      if seen_rxns.contains(nid) {
-        // 共享 exchange：边界取并集，允许任一成员原本的摄取/分泌范围
-        for idx in 0..<reactions.length() {
-          if reactions[idx].id == nid {
-            let lb = if r.lower_bound < reactions[idx].lower_bound {
-              r.lower_bound
-            } else {
-              reactions[idx].lower_bound
-            }
-            let ub = if r.upper_bound > reactions[idx].upper_bound {
-              r.upper_bound
-            } else {
-              reactions[idx].upper_bound
-            }
-            reactions[idx] = {
-              id: reactions[idx].id,
-              name: reactions[idx].name,
-              metabolites: reactions[idx].metabolites,
-              lower_bound: lb,
-              upper_bound: ub,
-              objective: reactions[idx].objective,
-              subsystem: reactions[idx].subsystem,
-              gpr: reactions[idx].gpr,
-              annotation: reactions[idx].annotation,
-            }
+      match rx_index_by_key.get(share_key) {
+        Some(idx) => {
+          // 共享 exchange：边界取并集，允许任一成员原本的摄取/分泌范围
+          let lb = if r.lower_bound < reactions[idx].lower_bound {
+            r.lower_bound
+          } else {
+            reactions[idx].lower_bound
+          }
+          let ub = if r.upper_bound > reactions[idx].upper_bound {
+            r.upper_bound
+          } else {
+            reactions[idx].upper_bound
+          }
+          reactions[idx] = {
+            id: reactions[idx].id,
+            name: reactions[idx].name,
+            metabolites: reactions[idx].metabolites,
+            lower_bound: lb,
+            upper_bound: ub,
+            objective: reactions[idx].objective,
+            subsystem: reactions[idx].subsystem,
+            gpr: reactions[idx].gpr,
+            annotation: reactions[idx].annotation,
           }
         }
-      } else {
-        seen_rxns[nid] = true
-        reactions.push({
-          id: nid,
-          name: r.name,
-          metabolites: participants,
-          lower_bound: r.lower_bound,
-          upper_bound: r.upper_bound,
-          objective: r.objective,
-          subsystem: r.subsystem,
-          gpr,
-          annotation: r.annotation,
-        })
+        None => {
+          rx_index_by_key[share_key] = reactions.length()
+          reactions.push({
+            id: nid,
+            name: r.name,
+            metabolites: participants,
+            lower_bound: r.lower_bound,
+            upper_bound: r.upper_bound,
+            objective: r.objective,
+            subsystem: r.subsystem,
+            gpr,
+            annotation: r.annotation,
+          })
+        }
       }
     }
   }
