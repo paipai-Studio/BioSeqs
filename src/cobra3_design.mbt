@@ -369,6 +369,7 @@ fn cobra3_mcs_contains_smaller(
 fn cobra3_mcs_extend(
   model : Cobra3Model,
   threshold : Double,
+  candidates : Array[Int32],
   k : Int32,
   start : Int32,
   cur : Array[String],
@@ -376,11 +377,11 @@ fn cobra3_mcs_extend(
   out : Array[Cobra3McsResult],
   budget : Array[Int32],
 ) -> Unit {
-  let n = model.reactions.length()
+  let total = candidates.length()
   let need = k - cur.length()
   let mut i = start
-  while i < n && n - i >= need && budget[0] > 0 {
-    cur.push(model.reactions[i].id)
+  while i < total && total - i >= need && budget[0] > 0 {
+    cur.push(model.reactions[candidates[i]].id)
     if cur.length() == k {
       budget[0] = budget[0] - 1
       // 包含已找到的更小割集 => 不是极小割集
@@ -397,7 +398,17 @@ fn cobra3_mcs_extend(
         }
       }
     } else {
-      cobra3_mcs_extend(model, threshold, k, i + 1, cur, found, out, budget)
+      cobra3_mcs_extend(
+        model,
+        threshold,
+        candidates,
+        k,
+        i + 1,
+        cur,
+        found,
+        out,
+        budget,
+      )
     }
     ignore(cur.pop())
     i = i + 1
@@ -408,12 +419,14 @@ fn cobra3_mcs_extend(
 /// 最小割集：按尺寸 1..max_size 递增枚举反应删除组合，跳过任何包含
 /// 已知更小割集的组合，保证返回值都是极小割集（旧实现只支持 size<=2，
 /// 且遇到单割集就漏掉不相交的双割集）。`max_candidates` 限制组合测试
-/// 次数，达到上限即停止枚举。
+/// 次数，达到上限即停止枚举。`exclude` 中的反应不会作为敲除候选
+/// （例如保护 exchange / biomass 反应，对应 COBRApy 的 exclude 参数）。
 pub fn cobra3_minimal_cut_sets(
   model : Cobra3Model,
   threshold~ : Double = 0.01,
   max_size~ : Int32 = 2,
   max_candidates~ : Int32 = 20000,
+  exclude~ : Array[String] = [],
 ) -> Array[Cobra3McsResult] {
   let out : Array[Cobra3McsResult] = Array(capacity=0)
   let base = cobra3_model_optimize(model)
@@ -421,12 +434,24 @@ pub fn cobra3_minimal_cut_sets(
     return out
   }
   let n = model.reactions.length()
+  let candidates : Array[Int32] = Array(capacity=n)
+  for j in 0..<n {
+    if !exclude.contains(model.reactions[j].id) {
+      candidates.push(j)
+    }
+  }
+  let m = candidates.length()
+  if m == 0 {
+    return out
+  }
   let found : Array[Array[String]] = Array(capacity=0)
   let budget : Array[Int32] = [max_candidates]
   let mut k = 1
-  while k <= max_size && k <= n && budget[0] > 0 {
+  while k <= max_size && k <= m && budget[0] > 0 {
     let cur : Array[String] = Array(capacity=k)
-    cobra3_mcs_extend(model, threshold, k, 0, cur, found, out, budget)
+    cobra3_mcs_extend(
+      model, threshold, candidates, k, 0, cur, found, out, budget,
+    )
     k = k + 1
   }
   out

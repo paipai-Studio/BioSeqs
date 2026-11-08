@@ -154,6 +154,53 @@ test "cobra3 design minimal cut sets supports triple knockouts" {
 }
 
 ///|
+test "cobra3 design minimal cut sets honors exclude" {
+  let mut m = @src.cobra3_model_new("mcs_exclude")
+  m = @src.cobra3_model_add_reaction(
+    m,
+    cobra3_make_rxn("EX_A", [("A", -1.0)], -20.0, 1000.0, ""),
+  )
+  for id in ["P1", "P2", "P3"] {
+    m = @src.cobra3_model_add_reaction(
+      m,
+      cobra3_make_rxn(id, [("A", -1.0), ("P", 1.0)], 0.0, 1000.0, ""),
+    )
+  }
+  m = @src.cobra3_model_add_reaction(
+    m,
+    cobra3_make_rxn("BIO", [("P", -1.0)], 0.0, 1000.0, ""),
+  )
+  m = @src.cobra3_model_set_objective(m, "BIO", 1.0)
+  let all = @src.cobra3_minimal_cut_sets(m, threshold=0.01, max_size=3)
+  let mut all_has_ex_a = false
+  for s in all {
+    if s.reaction_ids.contains("EX_A") {
+      all_has_ex_a = true
+    }
+  }
+  assert_true(all_has_ex_a)
+  let mcs = @src.cobra3_minimal_cut_sets(m, threshold=0.01, max_size=3, exclude=[
+    "EX_A",
+  ])
+  let mut has_bio = false
+  let mut has_triple = false
+  for s in mcs {
+    assert_true(!s.reaction_ids.contains("EX_A"))
+    if s.size == 1 && s.reaction_ids[0] == "BIO" {
+      has_bio = true
+    }
+    if s.size == 3 &&
+      s.reaction_ids.contains("P1") &&
+      s.reaction_ids.contains("P2") &&
+      s.reaction_ids.contains("P3") {
+      has_triple = true
+    }
+  }
+  assert_true(has_bio)
+  assert_true(has_triple)
+}
+
+///|
 test "cobra3 design nullspace dimension" {
   let m = cobra3_toy()
   let basis = @src.cobra3_nullspace_basis(m)

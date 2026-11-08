@@ -578,17 +578,18 @@ fn cobra3_optknock_inner(
 fn cobra3_optknock_extend(
   model : Cobra3Model,
   target_idx : Int32,
+  candidates : Array[Int32],
   k : Int32,
   start : Int32,
   cur : Array[String],
   out : Array[Cobra3OptKnockResult],
   budget : Array[Int32],
 ) -> Unit {
-  let n = model.reactions.length()
+  let total = candidates.length()
   let need = k - cur.length()
   let mut i = start
-  while i < n && n - i >= need && budget[0] > 0 {
-    cur.push(model.reactions[i].id)
+  while i < total && total - i >= need && budget[0] > 0 {
+    cur.push(model.reactions[candidates[i]].id)
     if cur.length() == k {
       budget[0] = budget[0] - 1
       let ko = cobra3_knockout_reactions(model, cur)
@@ -603,7 +604,16 @@ fn cobra3_optknock_extend(
         None => ()
       }
     } else {
-      cobra3_optknock_extend(model, target_idx, k, i + 1, cur, out, budget)
+      cobra3_optknock_extend(
+        model,
+        target_idx,
+        candidates,
+        k,
+        i + 1,
+        cur,
+        out,
+        budget,
+      )
     }
     ignore(cur.pop())
     i = i + 1
@@ -614,11 +624,13 @@ fn cobra3_optknock_extend(
 /// OptKnock：枚举单反应直到 `max_knockouts` 元敲除（默认 2，与旧行为一致）；
 /// 内层先取最大生长，再在保持最大生长下最大化目标产物。`max_candidates`
 /// 限制内层 LP 的求解次数，达到上限即停止枚举（结果可能不完整）。
+/// `exclude` 中的反应不会作为敲除候选。
 pub fn cobra3_optknock(
   model : Cobra3Model,
   target_id : String,
   max_knockouts~ : Int32 = 2,
   max_candidates~ : Int32 = 5000,
+  exclude~ : Array[String] = [],
 ) -> Array[Cobra3OptKnockResult] {
   let out : Array[Cobra3OptKnockResult] = Array(capacity=0)
   let n = model.reactions.length()
@@ -626,11 +638,23 @@ pub fn cobra3_optknock(
   if target_idx < 0 || n > 80 {
     return out
   }
+  let candidates : Array[Int32] = Array(capacity=n)
+  for j in 0..<n {
+    if !exclude.contains(model.reactions[j].id) {
+      candidates.push(j)
+    }
+  }
+  let m = candidates.length()
+  if m == 0 {
+    return out
+  }
   let budget : Array[Int32] = [max_candidates]
   let mut k = 1
-  while k <= max_knockouts && k <= n && budget[0] > 0 {
+  while k <= max_knockouts && k <= m && budget[0] > 0 {
     let cur : Array[String] = Array(capacity=k)
-    cobra3_optknock_extend(model, target_idx, k, 0, cur, out, budget)
+    cobra3_optknock_extend(
+      model, target_idx, candidates, k, 0, cur, out, budget,
+    )
     k = k + 1
   }
   out
@@ -645,12 +669,14 @@ pub fn cobra3_optknock(
 /// 与 `cobra3_optknock` 的区别：生长下界由 `min_growth` 外部给定（默认 0），
 /// 不再「先最大化生长再最大化产物」；这是 OptKnock 原始 MILP 的语义，
 /// 适合在指定最小生长下权衡产物。大模型可通过 `max_nodes` 限制节点数。
+/// `exclude` 中的反应不会被敲除（对应搜索空间的排除项）。
 pub fn cobra3_optknock_milp(
   model : Cobra3Model,
   target_id : String,
   min_growth~ : Double = 0.0,
   max_knockouts~ : Int32 = 2,
   max_nodes~ : Int32 = 4000,
+  exclude~ : Array[String] = [],
 ) -> Array[Cobra3OptKnockResult] {
   let out : Array[Cobra3OptKnockResult] = Array(capacity=0)
   let n = model.reactions.length()
@@ -700,10 +726,13 @@ pub fn cobra3_optknock_milp(
   let lb : Array[Double] = Array::make(total, 0.0)
   let ub : Array[Double] = Array::make(total, 0.0)
   for j in 0..<n {
-    lb[j] = lb_v[j]
-    ub[j] = ub_v[j]
+    // 敲除时 v_j 必须能取 0：变量边界放宽到包含 0，原始 lb/ub 由
+    // lb(1−y) ≤ v ≤ ub(1−y) 约束保证（否则 lb>0 / ub<0 的反应无法敲除）
+    lb[j] = if lb_v[j] > 0.0 { 0.0 } else { lb_v[j] }
+    ub[j] = if ub_v[j] < 0.0 { 0.0 } else { ub_v[j] }
     lb[n + j] = 0.0
-    ub[n + j] = 1.0
+    // exclude 中的反应禁止敲除（y 上界 0）
+    ub[n + j] = if exclude.contains(model.reactions[j].id) { 0.0 } else { 1.0 }
   }
   let integer : Array[Int32] = Array(capacity=n)
   for j in 0..<n {

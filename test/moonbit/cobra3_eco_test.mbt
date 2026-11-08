@@ -346,6 +346,64 @@ test "cobra3 eco optknock milp reports infeasible" {
 }
 
 ///|
+test "cobra3 eco optknock honors exclude" {
+  let m = cobra3_optknock_milp_model()
+  let res = @src.cobra3_optknock(m, "P", max_knockouts=2, exclude=["R1"])
+  assert_true(res.length() > 0)
+  for r in res {
+    assert_true(!r.knockout_ids.contains("R1"))
+  }
+}
+
+///|
+test "cobra3 eco optknock milp honors exclude" {
+  let mut m = @src.cobra3_model_new("optknock_milp_exclude")
+  m = @src.cobra3_model_add_reaction(
+    m,
+    cobra3_make_rxn("EX_A", [("A", -1.0)], -10.0, 1000.0, ""),
+  )
+  m = @src.cobra3_model_add_reaction(
+    m,
+    cobra3_make_rxn("R1", [("A", -1.0), ("B", 1.0)], 0.0, 1000.0, ""),
+  )
+  m = @src.cobra3_model_add_reaction(
+    m,
+    cobra3_make_rxn("R2", [("B", -1.0), ("C", 1.0)], 0.0, 1000.0, ""),
+  )
+  // BIO 强制至少 5 生长：不敲除时产物最多 10-5=5，只有敲除 BIO 才能到 10
+  m = @src.cobra3_model_add_reaction(
+    m,
+    cobra3_make_rxn("BIO", [("C", -1.0)], 5.0, 1000.0, ""),
+  )
+  m = @src.cobra3_model_add_reaction(
+    m,
+    cobra3_make_rxn("P", [("B", -1.0)], 0.0, 1000.0, ""),
+  )
+  m = @src.cobra3_model_set_objective(m, "BIO", 1.0)
+  let free = @src.cobra3_optknock_milp(
+    m,
+    "P",
+    min_growth=0.0,
+    max_knockouts=1,
+    max_nodes=50000,
+  )
+  assert_eq(free.length(), 1)
+  assert_true(free[0].knockout_ids.contains("BIO"))
+  assert_true((free[0].target_flux - 10.0).abs() < 1.0e-6)
+  let blocked = @src.cobra3_optknock_milp(
+    m,
+    "P",
+    min_growth=0.0,
+    max_knockouts=1,
+    max_nodes=50000,
+    exclude=["BIO"],
+  )
+  assert_eq(blocked.length(), 1)
+  assert_true(!blocked[0].knockout_ids.contains("BIO"))
+  assert_true((blocked[0].target_flux - 5.0).abs() < 1.0e-6)
+}
+
+///|
 test "cobra3 eco community sums independent models" {
   let m1 = cobra3_toy()
   let mut m2 = @src.cobra3_model_new("second")
