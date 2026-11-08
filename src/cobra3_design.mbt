@@ -115,7 +115,7 @@ pub fn cobra3_gapfill(
     integer.push(n + k)
   }
   let sol = cobra3_solve_milp(cons, obj, lb, ub, integer, max_nodes~)
-  if !(sol.status is Optimal) {
+  if !(sol.status is Optimal) && !(sol.status is Feasible) {
     return {
       added_reactions: Array(capacity=0),
       objective_value: base.objective_value,
@@ -206,7 +206,7 @@ pub fn cobra3_minimal_medium(
   }
   let sol = cobra3_solve_milp(cons, obj, lb, ub, integer, max_nodes~)
   let medium : Map[String, Double] = Map([], capacity=ne)
-  if !(sol.status is Optimal) {
+  if !(sol.status is Optimal) && !(sol.status is Feasible) {
     return {
       medium,
       n_components: 0,
@@ -556,6 +556,17 @@ pub fn cobra3_sample(
       let coef = state.to_double() / 2147483647.0 - 0.5
       for j in 0..<n {
         direction[j] = direction[j] + coef * b[j]
+      }
+    }
+    // 归一化方向，避免不同基向量尺度主导步长
+    let mut norm = 0.0
+    for j in 0..<n {
+      norm = norm + direction[j] * direction[j]
+    }
+    norm = @math.pow(norm, 0.5)
+    if norm > 1.0e-12 {
+      for j in 0..<n {
+        direction[j] = direction[j] / norm
       }
     }
     // 计算可行步长区间

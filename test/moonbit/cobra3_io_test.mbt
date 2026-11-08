@@ -61,6 +61,33 @@ test "cobra3 io legacy sbml roundtrip keeps notes bounds" {
 }
 
 ///|
+test "cobra3 io json rejects trailing content" {
+  match @src.cobra3_json_parse("{}x") {
+    None => assert_true(true)
+    Some(_) => fail("trailing content should be rejected")
+  }
+}
+
+///|
+test "cobra3 io json escapes control characters" {
+  let mut m = @src.cobra3_model_new("ctrl")
+  let ch = (1).to_char().unwrap_or('?')
+  let name = "a" + Char::to_string(ch) + "b"
+  let met : @src.Cobra3Metabolite = {
+    id: "m1",
+    name,
+    formula: "",
+    charge: 0.0,
+    compartment: "c",
+    boundary: false,
+    annotation: Map([], capacity=1),
+  }
+  m = @src.cobra3_model_add_metabolite(m, met)
+  let text = @src.cobra3_model_to_json(m)
+  assert_true(text.contains("\\u0001"))
+}
+
+///|
 test "cobra3 io yaml roundtrip" {
   let m = cobra3_toy()
   let text = @src.cobra3_model_to_yaml(m)

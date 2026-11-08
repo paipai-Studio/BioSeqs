@@ -250,8 +250,16 @@ fn cobra3_json_parse_value(s : String, pos : Int32) -> (Cobra3Json?, Int32) {
 
 ///|
 pub fn cobra3_json_parse(text : String) -> Cobra3Json? {
-  let (value, _) = cobra3_json_parse_value(text, 0)
-  value
+  let (value, next) = cobra3_json_parse_value(text, 0)
+  match value {
+    None => None
+    Some(v) =>
+      if next >= 0 && cobra3_json_skip(text, next) == text.length() {
+        Some(v)
+      } else {
+        None
+      }
+  }
 }
 
 ///|
@@ -286,18 +294,25 @@ fn cobra3_json_object(j : Cobra3Json) -> Map[String, Cobra3Json]? {
 ///|
 fn cobra3_json_escape(s : String) -> String {
   let sb = StringBuilder()
+  let hex = "0123456789abcdef"
   for i in 0..<s.length() {
-    let c = s[i]
-    if c == '"' {
+    let code = s[i].to_int()
+    if code == 34 {
       let _ = sb.write("\\\"")
-    } else if c == '\\' {
+    } else if code == 92 {
       let _ = sb.write("\\\\")
-    } else if c == '\n' {
+    } else if code == 10 {
       let _ = sb.write("\\n")
-    } else if c == '\t' {
+    } else if code == 9 {
       let _ = sb.write("\\t")
-    } else if c == '\r' {
+    } else if code == 13 {
       let _ = sb.write("\\r")
+    } else if code < 32 {
+      let _ = sb.write(
+        "\\u00" +
+        hex[code / 16:code / 16 + 1].to_owned() +
+        hex[code % 16:code % 16 + 1].to_owned(),
+      )
     } else {
       let _ = sb.write(s[i:i + 1].to_owned())
     }

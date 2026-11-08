@@ -219,3 +219,13 @@ test "cobra3 fva zero reaction in blocked model" {
     assert_true((f.minimum - f.maximum).abs() < 1.0e-6)
   }
 }
+
+///|
+test "cobra3 fva reports infeasible status" {
+  let m = cobra3_toy()
+  let fva = @src.cobra3_fva(m, fraction_of_optimum=1.5)
+  assert_true(fva.length() > 0)
+  for f in fva {
+    assert_true(f.status is @src.Cobra3Status::Infeasible)
+  }
+}

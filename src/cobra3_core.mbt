@@ -215,8 +215,14 @@ fn cobra3_model_with_history(
   snap : Cobra3Snapshot,
 ) -> Cobra3Model {
   let stack : Array[Cobra3Snapshot] = Array(capacity=0)
-  for s in model.undo_stack {
-    stack.push(s)
+  // 最多保留最近 99 个快照 + 本次，避免反复编辑时历史无限增长
+  let start = if model.undo_stack.length() >= 100 {
+    model.undo_stack.length() - 99
+  } else {
+    0
+  }
+  for i in start..<model.undo_stack.length() {
+    stack.push(model.undo_stack[i])
   }
   stack.push(snap)
   {
@@ -1035,6 +1041,7 @@ pub fn cobra3_from_fba_model(model : FbaModel) -> Cobra3Model {
 
 ///|
 /// 转回 fba_lite 平铺模型（供旧算法复用）.
+/// FbaModel 只保存基因列表，GPR 的 AND/嵌套结构会退化为单层 OR；需要完整 GPR 时留在 Cobra3Model.
 pub fn cobra3_to_fba_model(model : Cobra3Model) -> FbaModel {
   let met_ids : Array[String] = Array(capacity=0)
   for m in model.metabolites {

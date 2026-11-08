@@ -304,3 +304,21 @@ test "cobra3 core copy deep copies maps" {
   let orig = @src.cobra3_model_get_reaction(model, "R1").unwrap()
   assert_true((orig.metabolites["A"] + 1.0).abs() < 1.0e-9)
 }
+
+///|
+test "cobra3 core undo stack is bounded" {
+  let mut model = @src.cobra3_model_new("undo-limit")
+  for i in 0..<101 {
+    let met : @src.Cobra3Metabolite = {
+      id: "m" + i.to_string(),
+      name: "m",
+      formula: "",
+      charge: 0.0,
+      compartment: "c",
+      boundary: false,
+      annotation: Map([], capacity=1),
+    }
+    model = @src.cobra3_model_add_metabolite(model, met)
+  }
+  assert_eq(model.undo_stack.length(), 100)
+}

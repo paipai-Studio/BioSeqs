@@ -25,6 +25,7 @@ pub(all) struct Cobra3LinConstraint {
 ///|
 pub(all) enum Cobra3Status {
   Optimal
+  Feasible
   Infeasible
   Unbounded
   IterLimit
@@ -607,7 +608,11 @@ pub fn cobra3_solve_milp(
   }
   if !incumbent_found {
     return {
-      status: Cobra3Status::Infeasible,
+      status: if stack_lb.length() == 0 {
+        Cobra3Status::Infeasible
+      } else {
+        Cobra3Status::IterLimit
+      },
       objective_value: 0.0,
       x: empty_x,
       duals: empty_dual,
@@ -616,7 +621,11 @@ pub fn cobra3_solve_milp(
     }
   }
   {
-    status: Cobra3Status::Optimal,
+    status: if stack_lb.length() == 0 {
+      Cobra3Status::Optimal
+    } else {
+      Cobra3Status::Feasible
+    },
     objective_value: incumbent_obj,
     x: incumbent_x,
     duals: incumbent_dual,

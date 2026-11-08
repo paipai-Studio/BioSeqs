@@ -184,12 +184,13 @@ pub(all) struct Cobra3FvaResult {
   reaction_id : String
   minimum : Double
   maximum : Double
+  status : Cobra3Status
 }
 
 ///|
 /// FVA：对每个反应求在稳态与目标 >= fraction*opt 下的通量范围.
 /// processes 仅保留兼容参数（当前串行执行）；thresh 以下的结果归零.
-/// 子问题非最优时该反应范围返回 0，调用方需自行区分不可行与真实 0.
+/// 子问题非最优时范围记 0，并以 status 标明 Infeasible/Unbounded/IterLimit.
 pub fn cobra3_fva(
   model : Cobra3Model,
   fraction_of_optimum~ : Double = 1.0,
@@ -209,6 +210,7 @@ pub fn cobra3_fva(
         reaction_id: model.reactions[j].id,
         minimum: 0.0,
         maximum: 0.0,
+        status: opt.status,
       })
     }
     return out
@@ -246,7 +248,21 @@ pub fn cobra3_fva(
     if mx.abs() < thresh {
       mx = 0.0
     }
-    out.push({ reaction_id: model.reactions[j].id, minimum: mn, maximum: mx, })
+    let status = if sol_min.status is Optimal {
+      if sol_max.status is Optimal {
+        Cobra3Status::Optimal
+      } else {
+        sol_max.status
+      }
+    } else {
+      sol_min.status
+    }
+    out.push({
+      reaction_id: model.reactions[j].id,
+      minimum: mn,
+      maximum: mx,
+      status,
+    })
   }
   out
 }
@@ -347,6 +363,7 @@ fn cobra3_gene_list(model : Cobra3Model) -> Array[String] {
 fn cobra3_status_text(status : Cobra3Status) -> String {
   match status {
     Optimal => "optimal"
+    Feasible => "feasible"
     Infeasible => "infeasible"
     Unbounded => "unbounded"
     IterLimit => "iter_limit"

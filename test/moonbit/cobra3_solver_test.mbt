@@ -141,3 +141,32 @@ test "cobra3 qp respects box" {
   assert_true(sol.converged)
   assert_true((sol.x[0] - 4.0).abs() < 1.0e-6)
 }
+
+///|
+test "cobra3 milp reports feasible at node limit" {
+  let cons = [cobra3_con_le([6.0, 4.0], 8.0)]
+  let sol = @src.cobra3_solve_milp(
+    cons,
+    [5.0, 4.0],
+    [0.0, 0.0],
+    [1.0, 1.0],
+    [0, 1],
+    max_nodes=4,
+  )
+  assert_true(sol.status is @src.Cobra3Status::Feasible)
+  assert_true(sol.objective_value >= 4.0 - 1.0e-9)
+}
+
+///|
+test "cobra3 milp reports iter limit without incumbent" {
+  let cons = [cobra3_con_le([6.0, 4.0], 8.0)]
+  let sol = @src.cobra3_solve_milp(
+    cons,
+    [5.0, 4.0],
+    [0.0, 0.0],
+    [1.0, 1.0],
+    [0, 1],
+    max_nodes=1,
+  )
+  assert_true(sol.status is @src.Cobra3Status::IterLimit)
+}
