@@ -767,7 +767,124 @@ pub(all) struct Cobra3SamplingDiagnostics {
 }
 
 ///|
-/// 多链采样的 R-hat 与单链 Geweke z / 有效样本数（简化诊断）.
+/// 自相关函数 ρ(k)（滞后 k），基于给定均值中心化.
+fn cobra3_autocorr(
+  samples : Array[Double],
+  mean : Double,
+  lag : Int32,
+) -> Double {
+  let n = samples.length()
+  if lag <= 0 || lag >= n {
+    return 0.0
+  }
+  let mut num = 0.0
+  let limit = n - lag
+  for i in 0..<limit {
+    num = num + (samples[i] - mean) * (samples[i + lag] - mean)
+  }
+  let mut den = 0.0
+  for i in 0..<n {
+    den = den + (samples[i] - mean) * (samples[i] - mean)
+  }
+  if den <= 1.0e-15 {
+    0.0
+  } else {
+    num / den
+  }
+}
+
+///|
+/// 有效样本数：Geyer 初始正序列（成对自相关和首次非正即截断），
+/// ESS = n / (1 + 2 Σ ρ_pair)，钳制在 [1, n].
+fn cobra3_ess(samples : Array[Double]) -> Double {
+  let n = samples.length()
+  if n < 4 {
+    return n.to_double()
+  }
+  let mean = cobra3_mean(samples, 0, n)
+  let mut variance = 0.0
+  for i in 0..<n {
+    variance = variance + (samples[i] - mean) * (samples[i] - mean)
+  }
+  variance = variance / n.to_double()
+  if variance <= 1.0e-15 {
+    return n.to_double()
+  }
+  let mut pair_sum = 0.0
+  let mut k = 1
+  let mut stop = false
+  while !stop && 2 * k <= n - 1 {
+    let r1 = cobra3_autocorr(samples, mean, 2 * k - 1)
+    let r2 = cobra3_autocorr(samples, mean, 2 * k)
+    if r1 + r2 <= 0.0 {
+      stop = true
+    } else {
+      pair_sum = pair_sum + r1 + r2
+      k = k + 1
+    }
+  }
+  let tau = 1.0 + 2.0 * pair_sum
+  let ess = n.to_double() / tau
+  if ess < 1.0 {
+    1.0
+  } else if ess > n.to_double() {
+    n.to_double()
+  } else {
+    ess
+  }
+}
+
+///|
+/// Newey-West（Bartlett 核）长程方差估计，用于 Geweke z 的分母.
+fn cobra3_long_run_var(
+  samples : Array[Double],
+  start : Int32,
+  stop : Int32,
+) -> Double {
+  let n = stop - start
+  if n < 2 {
+    return 0.0
+  }
+  let mean = cobra3_mean(samples, start, stop)
+  let mut gamma0 = 0.0
+  for i in start..<stop {
+    let d = samples[i] - mean
+    gamma0 = gamma0 + d * d
+  }
+  gamma0 = gamma0 / n.to_double()
+  if gamma0 <= 1.0e-15 {
+    return 0.0
+  }
+  let mut bw = @math.floor(4.0 * @math.pow(n.to_double() / 100.0, 2.0 / 9.0)).to_int()
+  if bw < 1 {
+    bw = 1
+  }
+  if bw > n - 1 {
+    bw = n - 1
+  }
+  let mut acc = 0.0
+  for k in 1..<(bw + 1) {
+    let mut gk = 0.0
+    let limit = stop - k
+    for i in start..<limit {
+      gk = gk + (samples[i] - mean) * (samples[i + k] - mean)
+    }
+    gk = gk / n.to_double()
+    let weight = 1.0 - k.to_double() / (bw.to_double() + 1.0)
+    acc = acc + weight * gk
+  }
+  let lrv = gamma0 + 2.0 * acc
+  if lrv <= 1.0e-15 {
+    gamma0
+  } else {
+    lrv
+  }
+}
+
+///|
+/// 多链采样的 R-hat 与单链 Geweke z / 有效样本数.
+/// 单链 R-hat 用前后两段（split-R-hat）；Geweke z 取前 10% 与后 50%，
+/// 分母用 Newey-West 长程方差；ESS 用 Geyer 初始正序列截断.
 pub fn cobra3_sampling_diagnostics(
   samples : Array[Double],
 ) -> Cobra3SamplingDiagnostics {
@@ -786,13 +903,14 @@ pub fn cobra3_sampling_diagnostics(
   let var_hat = (half.to_double() - 1.0) / half.to_double() * w +
     b / half.to_double()
   let r_hat = if w > 1.0e-15 { @math.pow(var_hat / w, 0.5) } else { 1.0 }
-  let slit = n / 4
-  let mean_front = cobra3_mean(samples, 0, slit)
-  let mean_back = cobra3_mean(samples, n - slit, n)
-  let var_front = cobra3_var(samples, 0, slit, mean_front)
-  let var_back = cobra3_var(samples, n - slit, n, mean_back)
+  let front = if n / 10 > 0 { n / 10 } else { 1 }
+  let back = if n / 2 > 0 { n / 2 } else { 1 }
+  let mean_front = cobra3_mean(samples, 0, front)
+  let mean_back = cobra3_mean(samples, n - back, n)
+  let lrv_front = cobra3_long_run_var(samples, 0, front)
+  let lrv_back = cobra3_long_run_var(samples, n - back, n)
   let denom = @math.pow(
-    var_front / slit.to_double() + var_back / slit.to_double(),
+    lrv_front / front.to_double() + lrv_back / back.to_double(),
     0.5,
   )
   let geweke = if denom > 1.0e-15 {
@@ -800,22 +918,7 @@ pub fn cobra3_sampling_diagnostics(
   } else {
     0.0
   }
-  // 用 lag-1 自相关估计 ESS
-  let mut lag1 = 0.0
-  let mut denom_ac = 0.0
-  for i in 0..<n {
-    denom_ac = denom_ac + (samples[i] - mean_all) * (samples[i] - mean_all)
-  }
-  let limit = n - 1
-  for i in 0..<limit {
-    lag1 = lag1 + (samples[i] - mean_all) * (samples[i + 1] - mean_all)
-  }
-  let rho = if denom_ac > 1.0e-15 { lag1 / denom_ac } else { 0.0 }
-  let ess = if rho.abs() < 0.999 {
-    n.to_double() * (1.0 - rho) / (1.0 + rho)
-  } else {
-    1.0
-  }
+  let ess = cobra3_ess(samples)
   { r_hat, geweke_z: geweke, effective_sample_size: ess, }
 }
 

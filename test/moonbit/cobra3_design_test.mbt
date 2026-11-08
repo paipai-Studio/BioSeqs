@@ -258,6 +258,63 @@ test "cobra3 design sampling diagnostics" {
 }
 
 ///|
+fn cobra3_test_rand_next(state : Int32) -> Int32 {
+  let s = (state * 1103515245 + 12345) % 2147483647
+  if s < 0 {
+    -s
+  } else {
+    s
+  }
+}
+
+///|
+test "cobra3 design ess near n for iid samples" {
+  let n = 2000
+  let samples : Array[Double] = Array(capacity=n)
+  let mut state = 7
+  for _ in 0..<n {
+    state = cobra3_test_rand_next(state)
+    samples.push(state.to_double() / 2147483647.0)
+  }
+  let diag = @src.cobra3_sampling_diagnostics(samples)
+  assert_true(diag.effective_sample_size > n.to_double() * 0.3)
+  assert_true(diag.effective_sample_size <= n.to_double() + 1.0e-9)
+  assert_true(diag.geweke_z.abs() < 5.0)
+}
+
+///|
+test "cobra3 design ess small for autocorrelated samples" {
+  let n = 2000
+  let samples : Array[Double] = Array(capacity=n)
+  let mut state = 11
+  let mut x = 0.0
+  for _ in 0..<n {
+    state = cobra3_test_rand_next(state)
+    let noise = state.to_double() / 2147483647.0 - 0.5
+    x = 0.95 * x + noise
+    samples.push(x)
+  }
+  let diag = @src.cobra3_sampling_diagnostics(samples)
+  assert_true(diag.effective_sample_size < n.to_double() * 0.25)
+  assert_true(diag.effective_sample_size >= 1.0)
+}
+
+///|
+test "cobra3 design geweke detects mean drift" {
+  let n = 1000
+  let samples : Array[Double] = Array(capacity=n)
+  let mut state = 3
+  for i in 0..<n {
+    state = cobra3_test_rand_next(state)
+    let noise = (state.to_double() / 2147483647.0 - 0.5) * 0.2
+    let base = if i < n / 10 { 0.0 } else { 5.0 }
+    samples.push(base + noise)
+  }
+  let diag = @src.cobra3_sampling_diagnostics(samples)
+  assert_true(diag.geweke_z.abs() > 5.0)
+}
+
+///|
 test "cobra3 design sampling diagnostics chains" {
   let chains : Array[Array[Double]] = Array(capacity=4)
   for _ in 0..<4 {
