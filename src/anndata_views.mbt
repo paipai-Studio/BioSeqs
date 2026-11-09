@@ -20,6 +20,7 @@ pub struct AnnDataView {
   obs_idx : Array[Int32] // obs indices (or all)
   var_idx : Array[Int32] // var indices (or all)
   mode : AnnDataViewMode
+  mut modified : Bool // set once X is mutated through the view
 }
 
 ///|
@@ -35,7 +36,7 @@ pub fn anndata_view(adata : AnnData) -> AnnDataView {
   for j = 0; j < n_vars; j = j + 1 {
     var_idx.push(j)
   }
-  { source: adata, obs_idx, var_idx, mode: ViewNone, }
+  { source: adata, obs_idx, var_idx, mode: ViewNone, modified: false, }
 }
 
 ///|
@@ -46,7 +47,7 @@ pub fn anndata_view_obs(adata : AnnData, idx : Array[Int32]) -> AnnDataView {
   for j = 0; j < n_vars; j = j + 1 {
     var_idx.push(j)
   }
-  { source: adata, obs_idx: idx, var_idx, mode: ViewObs, }
+  { source: adata, obs_idx: idx, var_idx, mode: ViewObs, modified: false, }
 }
 
 ///|
@@ -57,7 +58,7 @@ pub fn anndata_view_var(adata : AnnData, idx : Array[Int32]) -> AnnDataView {
   for i = 0; i < n_obs; i = i + 1 {
     obs_idx.push(i)
   }
-  { source: adata, obs_idx, var_idx: idx, mode: ViewVar, }
+  { source: adata, obs_idx, var_idx: idx, mode: ViewVar, modified: false, }
 }
 
 ///|
@@ -67,7 +68,7 @@ pub fn anndata_view_both(
   obs_idx : Array[Int32],
   var_idx : Array[Int32],
 ) -> AnnDataView {
-  { source: adata, obs_idx, var_idx, mode: ViewBoth, }
+  { source: adata, obs_idx, var_idx, mode: ViewBoth, modified: false, }
 }
 
 ///|
@@ -176,6 +177,7 @@ pub fn AnnDataView::subset(
     obs_idx: valid_obs,
     var_idx: valid_var,
     mode: ViewBoth,
+    modified: false,
   }
 }
 
@@ -203,5 +205,71 @@ pub fn AnnDataView::writeback(
         self.source.x[oi][oj] = new_x[i][j]
       }
     }
+  }
+  self.modified = true
+}
+
+// === SettingWithCopyWarning semantics ===
+//
+// In Python AnnData, mutating a view emits
+// `ImplicitModificationWarning` (pandas' SettingWithCopyWarning analogue):
+// the write goes through to the parent object, but the user is reminded
+// that they are modifying a copy-like slice and that `.copy()` should be
+// used instead. We mirror that: writes always reach the source, the view
+// records `modified = true`, and `set_x`/`warning` surface the message.
+
+///|
+/// The implicit-modification warning message.
+pub fn anndata_view_warning_text() -> String {
+  "ImplicitModificationWarning: a value is trying to be set on a copy of " +
+  "a slice from an AnnData. Try using .copy() instead."
+}
+
+///|
+/// Set a single X element through the view (inplace write to the source).
+/// Returns the implicit-modification warning text when the view is a real
+/// subset (not full), or `None` when writing on a full view / out of range.
+pub fn AnnDataView::set_x(
+  self : AnnDataView,
+  i : Int32,
+  j : Int32,
+  value : Double,
+) -> String? {
+  if i < 0 || i >= self.obs_idx.length() || j < 0 || j >= self.var_idx.length() {
+    return None
+  }
+  let oi = self.obs_idx[i]
+  let oj = self.var_idx[j]
+  if oi < self.source.x.length() && oj < self.source.x[oi].length() {
+    self.source.x[oi][oj] = value
+  }
+  self.modified = true
+  if self.is_full() {
+    None
+  } else {
+    Some(anndata_view_warning_text())
+  }
+}
+
+///|
+/// True once X has been mutated through this view.
+pub fn AnnDataView::is_modified(self : AnnDataView) -> Bool {
+  self.modified
+}
+
+///|
+/// True when a subsequent inplace write should warn (real subset view).
+pub fn AnnDataView::needs_copy(self : AnnDataView) -> Bool {
+  self.modified && not(self.is_full())
+}
+
+///|
+/// The pending implicit-modification warning for this view, or `None` if
+/// the view has not been mutated through (or is a full view).
+pub fn AnnDataView::warning(self : AnnDataView) -> String? {
+  if self.needs_copy() {
+    Some(anndata_view_warning_text())
+  } else {
+    None
   }
 }

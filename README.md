@@ -14,6 +14,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 
 - [Biopython 系列功能](#biopython-系列功能)
 - [Bioconductor 系列功能](#bioconductor-系列功能)
+- [分子动力学与结构分析](#分子动力学与结构分析)
 - [Others 其他功能与算法](#others-其他功能与算法)
 - [序列组装算法](#序列组装算法)
 - [架构设计](#架构设计)
@@ -430,6 +431,24 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **WNN 多模态整合** | Seurat v4 WNN (Hao et al. 2021) | 加权最近邻多模态整合（`wnn.mbt`）：各模态 KNN 图（欧氏 k 近邻 + 高斯核加权 SparseGraph）、细胞级模态权重（跨模态邻域一致性 → 温度软化 + 模态图邻域平滑，w_A+w_B=1 归一化）、联合加权图 J=w_A·A+w_B·B 再对称化、`WnnResult::cluster` 接 leiden 聚类闭环、权重 summary 与归一化校验 |
 | **scDblFinder / decontX / celda / milo 等容器接入** | 所有上面模块 | 统一 SingleCellExperiment 不可变写回与跨模块集成 |
 
+### scvi-tools 系列功能
+
+| 功能模块 | 对应 scvi-tools | 核心功能 |
+| :--- | :--- | :--- |
+| **scvi_distributions** | `scvi.distributions` | 单细胞计数分布族：`NegativeBinomial` / `ZeroInflatedNegativeBinomial`（`zi_logits` 零膨胀）/ `Poisson` / `Bernoulli` / 双组分 `NegativeBinomialMixture` / 多组分 `MixturePoisson`；统一提供 `log_prob` / `mean` / `variance` / `sample`，含 Lanczos `lgamma`、Poisson-Gamma 负二项采样与数值稳定化 |
+| **scvi_autograd** | PyTorch autograd | 反向模式自动微分 tape：向量/标量节点、`dense` 仿射层、ReLU/Sigmoid/Softmax、log/exp/square/neg、sum/mean/select、KL 散度、负二项/泊松 NLL；参数矩阵与向量梯度累积、全局梯度范数裁剪 |
+| **scvi_optim** | `torch.optim` | SGD、momentum SGD、Adam（含偏差校正/权重衰减），供 SCVI/SCANVI/LinearSCVI 真实训练使用 |
+| **scvi 模型训练重写** | `SCVI` / `SCANVI` / `LinearSCVI` | 三个核心模型的 `train` 由随机权重扰动改为 autograd + Adam 端到端训练；修正 encoder/decoder/classifier 权重维度约定；配套测试验证 ELBO 提升与潜变量形状 |
+| **scvi_dataloaders** | `scvi.dataloaders` | `AnnDataLoader`（batch/shuffle/epoch 重排）、`DataSplitter`（train/val/test 比例切分）、按标签分层切分、半监督 labeled/unlabeled 划分、masked-gene 批次、`ConcatenateLoader` 多数据集合并 |
+| **scvi_model_base** | `scvi.model.base` | 统一模型状态：`n_obs`/`n_vars`/`n_batch`、`is_trained`、train/validation/test 索引、split 合法性校验（越界/重复检测）、summary 与训练前 guard |
+| **scvi_data** | `scvi.data` | `setup_anndata`（scVI/scanVI/totalVI 入口）、字段注册与查询、`synthetic_iid` 合成计数数据、`read_10x_multiome` RNA+ATAC 合并、protein 矩阵挂载、`transfer_fields` 元数据迁移 |
+| **scvi_train_plans** | `scvi.train` | unsupervised / semi-supervised（交叉熵+熵正则）/ classifier / adversarial 训练方案；通用训练循环与早停（patience/min_delta）、loss 历史与最近窗口 |
+| **scvi_settings** | `scvi.settings` / `scvi.utils` | 运行时设置（seed/verbosity/dl_num_workers/num_threads/save_dir）；`DEFAULT_KEYS`、attrdict 键值查询、均匀/分层子采样、时长格式化、分类准确率 |
+| **scvi_stereoscope** | `scvi.external.RNAStereoscope` / `SpatialStereoscope` | 从单细胞参考估计细胞类型表达谱，乘法更新反卷积 bulk/空间点得到比例；`predict_expression`、主导细胞类型；提供 RNAStereoscope/SpatialStereoscope 别名接口 |
+| **scvi_spatial_stats** | squidpy 风格 | kNN 距离权重矩阵、Moran's I、Geary's C、置换检验 p 值、空间邻域同标签富集与全局标签比例 |
+| **scvi_autotune** | `scvi.autotune.ModelTuner` | 无外部依赖的超参搜索：网格搜索（笛卡尔积）、随机搜索、ModelTuner 别名；最优参数/得分/trial 记录与参数提取 |
+| **scvi_hub** | `scvi.hub` | 模型卡元数据（名称/版本/描述/URL/license/scvi 与 anndata 版本/维度）、校验、JSON 序列化、键值卡重建、缓存路径与下载 URL、模糊匹配与摘要 |
+
 ### 空间转录组
 
 | 功能模块 | 对应 Bioconductor | 核心功能 |
@@ -592,6 +611,71 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 
 ---
 
+## 分子动力学与结构分析
+
+对标 MDAnalysis / OpenMM / ProDy 的分子动力学（MD）模拟与结构分析模块族。此前版本已内置 `mdanalysis.mbt` 主分析库、19 个 `mda_*` 扩展分析模块、27 个 `omm_*` OpenMM 风格 MD 引擎模块以及约 80 个结构解析/叠合/二级结构/表面分析模块；本批新增以下内容（`omm_*` 扩展至 40 个模块）。
+
+### 轨迹与拓扑格式（新增）
+
+| 模块 | 对应库 | 功能说明 |
+| :--- | :--- | :--- |
+| **structure_trr** | MDAnalysis TRRReader/Writer | GROMACS TRR 全精度轨迹（XDR 大端）：多帧读写，坐标/速度/力/盒子/lambda，`trr_read`/`trr_write_frame`、与通用 `Trajectory` 互转 |
+| **structure_ncdf** | MDAnalysis NCDFReader/Writer | AMBER NetCDF (CDF-1) 轨迹：NetCDF 维度/属性/变量头解析、记录交错布局，`ncdf_write_amber`/`ncdf_read_amber`（coordinates/time/cell_lengths/cell_angles） |
+| **structure_lammps** | MDAnalysis LAMMPS DumpReader | LAMMPS dump 文本解析：正交与 triclinic 盒（xy/xz/yz 倾斜因子）、任意 ATOMS 列布局（id/mol/type/q 等）、`lammps_dump_read` |
+| **structure_psf** | MDAnalysis PSFParser | CHARMM/XPLOR/NAMD PSF 拓扑：NATOM（segid/resid/resname/charge/mass）、NBOND/NTHETA/NPHI/NIMPHI/NDON/NACC 流式切组、`psf_parse`/`psf_write` |
+| **structure_pqr** | MDAnalysis PQRParser | PQR 结构（拓扑+电荷+半径）：whitespace/固定列双模式解析、`pqr_parse`/`pqr_write`、总电荷与包围盒 |
+| **structure_h5md** | H5MD 规范 | H5MD 数据布局对象层（基于内存对象模型）：particles 组（position/velocity/force/box）、step/time 一致性校验 `h5md_validate`、与 `Trajectory` 互转、元数据 JSON 序列化 |
+
+### Universe / AtomGroup 对象模型（新增）
+
+| 模块 | 对应库 | 功能说明 |
+| :--- | :--- | :--- |
+| **mda_universe** | MDAnalysis Universe | 拓扑+轨迹+当前帧游标的统一对象模型：`universe_from_psf_dcd`（PSF+DCD 经典组合）、`universe_from_pdb_text`（多 MODEL→多帧）、`universe_from_pqr_text`；元素推断（`mda_infer_element`）、元素质量表、蛋白/水/骨架分类 |
+| **mda_universe** | MDAnalysis AtomGroup | 选择视图：positions（含 `positions_at` 逐帧）、center_of_geometry/mass、radius_of_gyration、charges/masses、子组再选择 |
+| **mda_selection_ext** | MDAnalysis select_atoms | 扩展选择语言：基础关键字（protein/water/backbone/name/resname/chain/element/resid/all/none）之外新增 `segid`/`type`/`bynum`（1-based 编号与区间）/`byres`（残基扩展）/`around`（近邻，正交盒最小镜像 PBC）/`point`（定点邻域）/`prop mass/charge <op> <v>`（属性比较）；递归下降求值，`not` > `and` > `or` 优先级 + 括号分组 |
+
+### 轨迹分析新模块（新增）
+
+| 模块 | 对应库 | 功能说明 |
+| :--- | :--- | :--- |
+| **mda_guess_bonds** | MDAnalysis guess_bonds | 由坐标几何推断共价键：共价半径表 + 容差判据、正交盒 PBC 最小镜像、邻接表构建 |
+| **mda_helanal** | MDAnalysis helix_analysis (HELANAL) | 螺旋轴系综分析：4-Cα 窗口协方差主方向（幂迭代）拟合局部轴，逐帧全局轴弯曲角（bend）、相邻窗口扭转角（twist） |
+| **mda_lmi** | MDAnalysis lmi | 线性互信息：等宽直方图联合熵 I(X;Y)、成对信号矩阵、归一化 NMI、边缘熵 |
+| **mda_rdf_site** | MDAnalysis InterRDF_s | 位点特异 RDF：逐对 (i,j) 计数与 g(r) 归一化；附 2D 平面 RDF（\|dx\|/\|dy\| 象限折叠直方图，PBC 可选） |
+| **mda_dipole** | MDAnalysis dipole moments | 体系偶极矩：μ=Σq·r（e·Å）、轨迹逐帧偶极、Debye 转换（×4.80320425）、模长与多时间原点偶极自相关 C(t) |
+
+### OpenMM 应用层与力场扩展（新增）
+
+| 模块 | 对应库 | 功能说明 |
+| :--- | :--- | :--- |
+| **omm_modeller** | openmm.app.Modeller | 体系构建与编辑：add_solvent（周期水盒格点填充+最小镜像过滤）、add_hydrogens（价态规则质子化）、center_in_box、delete_water、neutralize（水→反离子替换）、net_charge |
+| **omm_simulation** | openmm.app.Simulation | Simulation/State 应用层：OmmState 快照（positions/velocities/box/time/step/能量深拷贝）、minimize→equilibrate→production 工作流、Maxwell-Boltzmann 初速度+质心动量清零、checkpoint 文本序列化 `omm_checkpoint_save/load` |
+| **omm_variable_integrator** | VariableVerlet/LangevinIntegrator | 变步长积分器：全步 vs 双半步嵌入误差估计、PI-free 控制器 dt'=0.9dt(tol/err)^(1/3) 带夹紧；Langevin 变体附 Berendsen 式速度重标定 |
+| **omm_bridge** | — | omm↔mda 互转桥：OmmSystem↔Universe 双向转换（元素按质量猜测）、完整 AMBER prmtop 解析器 `omm_parse_prmtop_full`（FLAG 分节+固定宽字段+18.2223 电荷换算）、prmtop→Universe/OmmSystem、LJ A/B 系数→σ/ε 组合规则、inpcrd 坐标读取 |
+| **omm_xml_ff** | openmm.app.ForceField | XML 力场补全：HarmonicAngleForce/PeriodicTorsionForce（Proper/Improper 多重 Fourier 项）解析、`omm_xml_ff_build_system`（模板匹配→键/角/二面体参数化，OpenMM XML 单位 kJ/mol/nm → kcal/mol/Å 自动转换，元素级类型 fallback） |
+| **omm_builtin_ff** | amber99sb | 内置 amber99sb 教学子集力场：20 标准氨基酸残基模板（PRO 环闭合/GLY 双 HA 等特例）、14 种原子类型、键/角/二面角/非键参数（kJ/mol/nm 单位，电荷置零需自定义） |
+| **omm_custom_force** | CustomBond/Angle/Torsion/NonbondedForce | 自定义力：表达式以 r/theta/phi 为变量（全局+逐项参数覆盖）、能量精确求值、力经链式法则/有限差分 |
+| **omm_pme_fft** | PME (SPME) | 网格化倒易空间 Ewald：radix-2 三维 FFT（位反转+蝶形，三轴步进）、三线性电荷分配、sinc 窗口逆修正、与解析 k 空间求和对拍（<2%）；并修复既有 `omm_erfc`（A&S 7.1.26 系数符号反，erfc(0)≈1e-9 → 1） |
+| **omm_mbar** | pymbar | MBAR 多态重加权：对数域自洽迭代（logsumexp 混合归一化+似然平稳条件）、Beutler soft-core LJ/Coulomb 独立 API、λ 调度器（线性+按 ⟨dU/dλ⟩ 积分反插值重平衡） |
+| **omm_amd** | aMD / GaMD | 加速分子动力学：Hamelberg boost (E−V)²/(α+E−V) 与 Gaussian 变体 (E−V)²/(α+(E−V)²)、dV'/dV 力缩放、boosted 势能 velocity-Verlet 模拟循环 |
+| **omm_hremd** | HREMD | Hamiltonian 副本交换：混合温度/Hamiltonian 的 Metropolis 判据 Δ=βᵢ(Uᵢ(xⱼ)−Uᵢ(xᵢ))+βⱼ(Uⱼ(xᵢ)−Uⱼ(xⱼ))、偶对交换循环、占据簿记与最终构型归属 |
+| **omm_lincs** | LINCS | 约束求解器：B M⁻¹ Bᵀ 耦合矩阵高斯消元（部分主元）精确求解+外层再线性化、质量加权 COM 保持投影、位置与速度双投影 |
+| **omm_drude** | DrudeForce / DrudeLangevinIntegrator | Drude 振子：核-振子弹簧对、静态极化率 α=q²·332.06371/k、n_inner 子步 velocity-Verlet+相对坐标 OU 恒温（折合质量，不注入质心动量）、核心弱摩擦 |
+| **omm_reporter_file** | DCDFile / PDBFile | 落盘报告器：流式 DCD writer（复用 `write_dcd` 编码器，parse 往返校验）、`Simulation::record_dcd` 周期采样、多帧 PDB 文本（MODEL/ENDMDL，%8.3f 坐标格式化） |
+
+### 既有 MD / 结构动力学能力（本批补齐测试覆盖）
+
+| 模块族 | 对应库 | 功能说明 |
+| :--- | :--- | :--- |
+| `mdanalysis.mbt` | MDAnalysis | 距离阵列、RMSD/RMSF、RDF、MSD、氢键、接触分数、phi/psi 与 BAT 扭角、密度分布、介电、扩散/持久长度、PCA/TICA、准谐熵等 |
+| `mda_*`（19 个扩展） | MDAnalysis | 轨迹操作（merge/slice/wrap/unwrap/对齐/B-factor）、构象聚类、空腔检测、HOLE 孔道剖面、脂质序参数、leaflet finder、压力张量、水桥/驻留、盐桥/π 堆积/疏水接触、回转张量、距离矩阵时序/DCCM 等 |
+| `omm_*`（40 个模块） | OpenMM | AMBER/CHARMM/GROMACS/Tinker 力场解析、PME 静电（解析 k 空间 + FFT 网格 SPME）、RESPA 多时间步、SHAKE/SETTLE/RATTLE/LINCS 约束、REMD/HREMD 复制交换、伞形采样+WHAM、Metadynamics、SMD/REST2、aMD/GaMD 加速采样、自由能（TI/FEP/BAR/MBAR+soft-core）、隐式溶剂 GB/OBC、恒压器、L-BFGS/最速下降最小化、虚拟位点、Drude 振子、水模型、变步长积分器、Modeller/Simulation/State/checkpoint、XML 力场+内置 amber99sb、自定义力表达式、DCD/PDB 落盘报告器 |
+| 结构分析族 | Bio.PDB / Biotite / ProDy | PDB/mmCIF/MMTF/GRO/PDBQT 解析、DSSP、SASA（Shrake-Rupley/NACCESS/Lee-Richards）、SVD/QCP/四元数/CE/TM-score 叠合、弹性网络（ANM/GNM/RTB）、系综 PCA、氢键/二硫键/旋转异构体等 |
+
+MD 轨迹分析另提供与 MDAnalysis 的 Python 对拍基准：`test/python/mdanalysis_compare.sh`（距离矩阵/RMSD/RMSF/回转半径/质心/二面角等，容差 1e-4）。
+
+---
+
 ## Others 其他功能与算法
 
 ### 序列组装算法
@@ -712,6 +796,11 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **GWAS 可视化** | qqman / CMplot | `gwas_plot.mbt`：Manhattan（染色体交替着色散点、全基因组显著/suggestive 双线）、QQ plot（观测 vs 期望 -log10 p 分位数配对 + 置信带）、λGC 膨胀因子（χ²median/0.4549）与解读文案、内嵌 SVG 渲染（`gwas_manhattan_svg`/`gwas_qq_svg`）输出独立可打开 .svg |
 | **融合基因 caller** | STAR-Fusion / Arriba | `fusion.mbt`：SAM SA 标签 split-read 断点提取（pos + CIGAR M/D 段和近似断点）、(chromA, chromB) 有序对内断点邻近聚类（bp 容差）、支持读数阈值候选判定、同链 read-through 过滤、`fusion_write_tsv`/`fusion_write_bedpe` 输出与 bedpe.mbt 闭环 |
 | **FBA 代谢通量平衡** | cobrapy (cobra-lite) | `fba_lite.mbt`：化学计量模型（S 矩阵 + 反应上下界）、稳态约束 S·v=0 下最大化 biomass、两阶段单纯形 LP 求解（Bland 规则防循环、双向反应 v=base+x⁺−x⁻ 非负拆分）、`fba_knockout`/`fba_knockout_screen` 基因敲除表型筛查、模型 JSON 交换格式 IO |
+| **COBRApy 对象模型 v2** | cobrapy core（Model/Reaction/Metabolite/Gene） | `cobra3_core.mbt`：Metabolite（formula/charge/compartment/annotation）、Gene、结构化 GPR（And/Or/Gene 的解析/求值/化简/敲除语义）、Reaction（Map 计量/subsystem/annotation）、Model（by-id 索引、增删、快照撤销、medium、质量平衡、与 `fba_lite` 互转） |
+| **精确对偶 LP / MILP / QP** | cobrapy + optlang（GLPK/Gurobi 接口语义） | `cobra3_solver.mbt`：两阶段单纯形（Phase-1 人工基清理 + Bland 规则）返回**精确对偶** shadow price/reduced cost；分支定界 MILP；增广拉格朗日 + 坐标下降 QP（MOMA L2） |
+| **通量分析与设计** | cobrapy `flux_analysis` | `cobra3_flux.mbt` / `cobra3_design.mbt`：FBA/pFBA/FVA（`fraction_of_optimum` 真正生效）/GPR 布尔敲除/linear+quadratic MOMA/ROOM（MILP）/geometric FBA（QP）、gapfill（MILP 最小补反应）/minimal_medium（MILP 最小开放交换）/production envelope/MCS-lite/通量采样（hit-and-run）+ sample_flux + R-hat/Geweke/ESS/FastCC/loopless-lite |
+| **FBC v2 / JSON / YAML / TSV IO** | cobrapy `io.sbml` / `io.json` / `io.yaml` | `cobra3_sbml.mbt` / `cobra3_json.mbt`：SBML L3V2 + FBC v2（fluxBounds、geneProduct、GPR、objective、化学式/电荷）读写；模型 JSON/YAML/TSV 往返；JSON 递归解析器 |
+| **模型分析与生态扩展** | cobrapy `analysis` + iMAT/GIMME/CORDA/OptKnock 生态 | `cobra3_analysis.mbt` / `cobra3_eco.mbt`：通量耦合（fully/partial/directional）、相平面、模型/反应/代谢物摘要、敏感性、模型差异；EFM 枚举、iMAT、GIMME、CORDA-lite、GrowMatch-lite、OptKnock-lite、群落 FBA、热力学约束 FBA |
 | **3D 基因组建模** | ShRec3D / 3DMax | `genome3d.mbt`：Hi-C 接触矩阵倒数变换距离（d=1/contact，零接触取 d_max）、经典 MDS（距离平方双中心化 B=−0.5·J·D²·J + Jacobi 特征分解取前 3 维 X=V·Λ^0.5）、应力质量评估（恢复距离与目标距离 Pearson 相关）、`Genome3dModel::to_pdb` ATOM 记录输出与结构栈（tm_score/cealign/dssp）闭环 |
 
 ### 单细胞 / NGS 预处理进阶（第五阶段 G1-G6）
@@ -764,7 +853,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 ```
 IvanAXu/BioSeqs/
 ├── moon.mod                          # 模块配置 (name="IvanAXu/BioSeqs", version=0.1.12)
-├── src/                              # 源代码（1084 个 .mbt 模块）
+├── src/                              # 源代码（1206 个 .mbt 模块）
 │   ├── seq.mbt                       # Bio.Seq 序列对象
 │   ├── seqio.mbt / fasta_io.mbt / ... # 序列 I/O（30+ 种格式）
 │   ├── alignment.mbt / align_*.mbt   # 比对算法 + 20+ 种比对格式严格 API
@@ -786,7 +875,7 @@ IvanAXu/BioSeqs/
 │   ├── hla_typing.mbt / sv_caller.mbt # 第十阶段 K 系列: HLA 分型(NGS 读取水平) / 长读长 SV 检测(CIGAR + SA tag)
 │   ├── statistics.mbt / kmeans.mbt / hmm.mbt / neural_network.mbt / ... # ML 与统计
 │   └── utils.mbt / data.mbt / ...    # 通用工具与常量
-├── examples/                         # 示例程序（561 个演示 demo）
+├── examples/                         # 示例程序（563 个演示 demo）
 │   ├── basic_seq/                    # 基础序列操作
 │   ├── seqcode_demo/ / seq_utils_demo/ # SeqUtils 序列工具（gc_fraction/GC123/nt_search/六框翻译/seq3/seq1）
 │   ├── codon_utils_demo/               # CodonUtils 密码子分析（NCBI 27 表/GC123/六框翻译/CAI/Nc Wright 1990/表元数据）
@@ -848,7 +937,7 @@ IvanAXu/BioSeqs/
 │   ├── hla_typing_demo/ / sv_caller_demo/ # 第十阶段 K 系列（HLA 分型：参考序列库→读取比对→GL String 闭环；SV 检测：CIGAR/SA tag→DEL/INS/DUP/INV/BND→深度置信度闭环）
 │   └── ... （更多 examples/*_demo/）
 ├── test/
-│   ├── moonbit/                      # MoonBit 单元测试（730 个测试文件，16496 用例）
+│   ├── moonbit/                      # MoonBit 单元测试（840 个测试文件，17314 用例）
 │   │   ├── bio_seq_test.mbt / seqio_wb_test.mbt / ...
 │   │   ├── alignment_test.mbt / pdb_test.mbt / phylo_test.mbt / ...
 │   │   ├── deseq2_test.mbt / rankprod_test.mbt / seurat_test.mbt / scran_test.mbt / ...
@@ -885,7 +974,7 @@ IvanAXu/BioSeqs/
 
 ```bash
 moon build                                              # ✅ 成功
-moon test                                               # ✅ 16496 个测试全部通过（test/moonbit 包）
+moon test                                               # ✅ 17314 个测试全部通过（test/moonbit 包）
 ```
 
 ---
@@ -894,7 +983,7 @@ moon test                                               # ✅ 16496 个测试全
 
 ```bash
 moon build      # 构建项目
-moon test       # 运行全部测试 (16496 个测试用例，test/moonbit 包)
+moon test       # 运行全部测试 (17314 个测试用例，test/moonbit 包)
 ```
 
 ---

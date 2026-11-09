@@ -51,10 +51,7 @@ fn cobra2_ko_rxn(model : FbaModel, rxn_id : String) -> FbaModel {
 // #1 Flux variability analysis (wrapper with fraction)
 
 ///|
-pub fn cobra2_fva(
-  model : FbaModel,
-  fraction : Double,
-) -> Array[CobraFvaResult] raise FbaError {
+pub fn cobra2_fva(model : FbaModel, fraction : Double) -> Array[CobraFvaResult] {
   cobra_flux_variability_analysis(model, fraction_of_optimum=fraction)
 }
 
@@ -172,11 +169,12 @@ pub fn cobra2_lazy_fva(
         let _ = orig_lb
         let _ = orig_ub
         let _ = orig_obj
-        results.push({
+        let item : CobraFvaResult = {
           reaction_id: rxn_id,
           minimum: sol_min.objective_value,
           maximum: sol_max.objective_value,
-        })
+        }
+        results.push(item)
         break
       }
     }

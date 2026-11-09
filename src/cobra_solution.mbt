@@ -13,73 +13,24 @@ pub struct CobraSolution {
 
 ///|
 /// Compute enhanced solution from FBA result.
-/// Reduced costs and shadow prices are approximated from sensitivity analysis.
+/// 使用 cobra3 求解器返回的精确对偶解（shadow price / reduced cost）。
 pub fn cobra_enhanced_solution(
   model : FbaModel,
   sol : FbaSolution,
-) -> CobraSolution raise FbaError {
-  let n_r = model.reactions.length()
-  let m = model.metabolites.length()
-  // Approximate reduced costs: for each reaction, perturb its bound
-  // and measure objective change (finite difference)
-  let reduced_costs : Array[Double] = Array::make(n_r, 0.0)
-  let epsilon = 1.0e-6
-  for j = 0; j < n_r; j = j + 1 {
-    let r = model.reactions[j]
-    if r.objective != 0.0 {
-      reduced_costs[j] = 0.0 // objective reaction
-      continue
-    }
-    // Perturb upper bound
-    let perturbed = fba_set_reaction_bound(
-      model,
-      r.id,
-      r.lower_bound,
-      r.upper_bound + epsilon,
-    )
-    let pert_sol = fba_solve(perturbed)
-    if pert_sol.status == "optimal" && sol.status == "optimal" {
-      reduced_costs[j] = (pert_sol.objective_value - sol.objective_value) /
-        epsilon
-    }
-  }
-  // Shadow prices: dual of steady-state constraints
-  // Approximate by perturbing each metabolite's mass balance
-  let shadow_prices : Array[Double] = Array::make(m, 0.0)
-  for i = 0; i < m; i = i + 1 {
-    // Perturb stoichiometry row slightly
-    let pert_stoich : Array[Array[Double]] = Array(capacity=0)
-    for row = 0; row < m; row = row + 1 {
-      let row_arr : Array[Double] = Array(capacity=0)
-      for col = 0; col < n_r; col = col + 1 {
-        row_arr.push(model.stoichiometry[row][col])
-      }
-      pert_stoich.push(row_arr)
-    }
-    // Add small epsilon to first nonzero entry in row i
-    for col = 0; col < n_r; col = col + 1 {
-      if pert_stoich[i][col].abs() > 1.0e-9 {
-        pert_stoich[i][col] = pert_stoich[i][col] + epsilon
-        break
-      }
-    }
-    let pert_model : FbaModel = {
-      metabolites: model.metabolites,
-      reactions: model.reactions,
-      stoichiometry: pert_stoich,
-    }
-    let pert_sol = fba_solve(pert_model)
-    if pert_sol.status == "optimal" && sol.status == "optimal" {
-      shadow_prices[i] = (pert_sol.objective_value - sol.objective_value) /
-        epsilon
-    }
-  }
+) -> CobraSolution {
+  let _ = sol
+  let m3 = cobra3_from_fba_model(model)
+  let opt = cobra3_model_optimize(m3)
   {
-    objective_value: sol.objective_value,
-    fluxes: sol.fluxes,
-    reduced_costs,
-    shadow_prices,
-    status: sol.status,
+    objective_value: opt.objective_value,
+    fluxes: opt.fluxes,
+    reduced_costs: opt.reduced_costs,
+    shadow_prices: opt.shadow_prices,
+    status: if opt.status is Optimal {
+      "optimal"
+    } else {
+      "not_optimal"
+    },
   }
 }
 

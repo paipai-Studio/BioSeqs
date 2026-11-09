@@ -50,9 +50,9 @@ pub fn linear_scvi_init(
   }
   {
     config,
-    encoder_w: init_w(n_genes, config.n_latent),
+    encoder_w: init_w(config.n_latent, n_genes),
     encoder_b: init_b(config.n_latent),
-    decoder_w: init_w(config.n_latent, n_genes),
+    decoder_w: init_w(n_genes, config.n_latent),
     decoder_b: init_b(n_genes),
     log_theta: init_b(n_genes),
     n_genes,
@@ -132,29 +132,56 @@ pub fn linear_scvi_train(
   n_epochs : Int32,
 ) -> LinearSCVIModel {
   let m = model
-  for epoch in 0..<n_epochs {
-    let mut total_loss = 0.0
+  if x.length() == 0 {
+    m.trained = true
+    return m
+  }
+  let theta = Array(capacity=m.n_genes)
+  for g in 0..<m.n_genes {
+    theta.push(@math.exp(m.log_theta[g]))
+  }
+  let template = ScviAgTape::new()
+  ignore(template.matrix_param(m.encoder_w))
+  ignore(template.vector_param(m.encoder_b))
+  ignore(template.matrix_param(m.decoder_w))
+  ignore(template.vector_param(m.decoder_b))
+  let adam = scvi_adam_init(template, m.config.learning_rate)
+  let n_cells = x.length().to_double()
+  for _epoch in 0..<n_epochs {
+    let t = ScviAgTape::new()
+    let w_enc = t.matrix_param(m.encoder_w)
+    let b_enc = t.vector_param(m.encoder_b)
+    let w_dec = t.matrix_param(m.decoder_w)
+    let b_dec = t.vector_param(m.decoder_b)
+    let mut total = t.leaf([0.0])
     for i in 0..<x.length() {
-      let z = linear_scvi_encode(m, x[i])
-      let rates = linear_scvi_decode(m, z)
-      let lib = scvi_array_sum(x[i])
-      let mut loss = 0.0
-      for g in 0..<m.n_genes {
-        let mu = rates[g] * lib
-        loss += mu - x[i][g] * @math.ln(mu + 0.0000000001)
-      }
-      total_loss += loss
+      let xi = x[i]
+      let lib = scvi_array_sum(xi)
+      let lib_size = if lib <= 0.0 { 1.0 } else { lib }
+      let xin = t.leaf(xi)
+      let z = t.dense(xin, w_enc, b_enc)
+      let raw = t.dense(z, w_dec, b_dec)
+      let rates = t.softmax(raw)
+      let mean_counts = t.scale(rates, lib_size)
+      let nll = t.nb_nll(mean_counts, xi, theta)
+      total = t.add(total, nll)
     }
-    let lr = m.config.learning_rate
-    for j in 0..<m.encoder_w.length() {
-      for k in 0..<m.encoder_w[0].length() {
-        m.encoder_w[j][k] += lr * scvi_rand(epoch * 350 + j * 25 + k) * 0.01
-      }
-    }
-    ignore(total_loss)
+    let loss = t.scale(total, 1.0 / n_cells)
+    t.backward(loss)
+    ignore(t.clip_grad_norm(5.0))
+    scvi_adam_step(t, adam)
   }
   m.trained = true
   m
+}
+
+///|
+pub fn LinearSCVIConfig::new(
+  n_latent : Int32,
+  learning_rate : Double,
+  max_epochs : Int32,
+) -> LinearSCVIConfig {
+  { n_latent, learning_rate, max_epochs, }
 }
 
 ///|

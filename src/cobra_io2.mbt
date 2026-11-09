@@ -48,9 +48,10 @@ pub fn cobra2_model_to_json(model : FbaModel) -> String {
 
 ///|
 pub fn cobra2_model_from_json(json_str : String) -> FbaModel {
-  let model = fba_model_new([])
-  let _ = json_str
-  model
+  match cobra3_model_from_json(json_str) {
+    Some(m) => cobra3_to_fba_model(m)
+    None => fba_model_new([])
+  }
 }
 
 // #24 Model to SBML string (simplified)

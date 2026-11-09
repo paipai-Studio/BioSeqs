@@ -1,0 +1,1378 @@
+///|
+/// cobra3_design.mbt — 模型设计与采样.
+///
+/// - gapfill（MILP 最小添加反应数）
+/// - minimal_medium（MILP 最小开启交换数）
+/// - production_envelope（目标通量网格）
+/// - MCS-lite（单/双反应最小割集）
+/// - 通量采样（hit-and-run）+ sample_flux 统计 + 收敛诊断
+/// - FastCC、loopless-lite（最小化内部循环通量）
+
+///|
+pub(all) struct Cobra3GapFillResult {
+  added_reactions : Array[String]
+  objective_value : Double
+  status : Cobra3Status
+}
+
+///|
+fn cobra3_merge_universal(
+  model : Cobra3Model,
+  universal : Cobra3Model,
+) -> (Cobra3Model, Array[String]) {
+  let mut merged = model
+  let candidates : Array[String] = Array(capacity=0)
+  for r in universal.reactions {
+    if cobra3_model_reaction_index(merged, r.id) >= 0 {
+      continue
+    }
+    merged = cobra3_model_add_reaction(merged, r)
+    candidates.push(r.id)
+  }
+  (merged, candidates)
+}
+
+///|
+/// gapfill：在 universal 模型中挑选最少反应，使合并模型目标 >= lower_bound.
+pub fn cobra3_gapfill(
+  model : Cobra3Model,
+  universal : Cobra3Model,
+  lower_bound~ : Double = 0.05,
+  max_nodes~ : Int32 = 3000,
+) -> Cobra3GapFillResult {
+  let base = cobra3_model_optimize(model)
+  if base.status is Optimal && base.objective_value >= lower_bound {
+    return {
+      added_reactions: Array(capacity=0),
+      objective_value: base.objective_value,
+      status: Cobra3Status::Optimal,
+    }
+  }
+  let (merged, candidates) = cobra3_merge_universal(model, universal)
+  let n = merged.reactions.length()
+  let nc = candidates.length()
+  if nc == 0 {
+    return {
+      added_reactions: Array(capacity=0),
+      objective_value: base.objective_value,
+      status: Cobra3Status::Infeasible,
+    }
+  }
+  let nv = n + nc
+  let s = cobra3_model_stoichiometric_matrix(merged)
+  let cons : Array[Cobra3LinConstraint] = Array(
+    capacity=s.length() + 1 + 2 * nc,
+  )
+  for i in 0..<s.length() {
+    let coeffs : Array[Double] = Array::make(nv, 0.0)
+    for j in 0..<n {
+      coeffs[j] = s[i][j]
+    }
+    cons.push({ coeffs, rhs: 0.0, sense: Cobra3Sense::Equal, })
+  }
+  // 生长下界
+  let obj_vec = cobra3_model_objective_vector(merged)
+  let grow : Array[Double] = Array::make(nv, 0.0)
+  for j in 0..<n {
+    grow[j] = obj_vec[j]
+  }
+  cons.push({
+    coeffs: grow,
+    rhs: lower_bound,
+    sense: Cobra3Sense::GreaterEqual,
+  })
+  let lb : Array[Double] = Array::make(nv, 0.0)
+  let ub : Array[Double] = Array::make(nv, 0.0)
+  for j in 0..<n {
+    lb[j] = merged.reactions[j].lower_bound
+    ub[j] = merged.reactions[j].upper_bound
+  }
+  for k in 0..<nc {
+    let j = n + k
+    lb[j] = 0.0
+    ub[j] = 1.0
+    let reaction_idx = cobra3_model_reaction_index(merged, candidates[k])
+    let rlb = merged.reactions[reaction_idx].lower_bound
+    let rub = merged.reactions[reaction_idx].upper_bound
+    let scale = if rlb.abs() > rub.abs() { rlb.abs() } else { rub.abs() }
+    let m = 2.0 * scale + 1.0
+    // -M*y <= v <= M*y
+    let c1 : Array[Double] = Array::make(nv, 0.0)
+    c1[reaction_idx] = 1.0
+    c1[j] = -m
+    cons.push({ coeffs: c1, rhs: 0.0, sense: Cobra3Sense::LessEqual, })
+    let c2 : Array[Double] = Array::make(nv, 0.0)
+    c2[reaction_idx] = -1.0
+    c2[j] = -m
+    cons.push({ coeffs: c2, rhs: 0.0, sense: Cobra3Sense::LessEqual, })
+  }
+  let obj : Array[Double] = Array::make(nv, 0.0)
+  for k in 0..<nc {
+    obj[n + k] = -1.0
+  }
+  let integer : Array[Int32] = Array(capacity=nc)
+  for k in 0..<nc {
+    integer.push(n + k)
+  }
+  let sol = cobra3_solve_milp(cons, obj, lb, ub, integer, max_nodes~)
+  if !(sol.status is Optimal) && !(sol.status is Feasible) {
+    return {
+      added_reactions: Array(capacity=0),
+      objective_value: base.objective_value,
+      status: sol.status,
+    }
+  }
+  let added : Array[String] = Array(capacity=0)
+  for k in 0..<nc {
+    if sol.x[n + k] > 0.5 {
+      added.push(candidates[k])
+    }
+  }
+  // 用实际加入的反应重建模型并重解，避免返回固定的 lower_bound
+  let mut completed = model
+  for id in added {
+    match cobra3_model_get_reaction(universal, id) {
+      Some(r) => completed = cobra3_model_add_reaction(completed, r)
+      None => ()
+    }
+  }
+  let checked = cobra3_model_optimize(completed)
+  let growth = if checked.status is Optimal {
+    checked.objective_value
+  } else {
+    0.0
+  }
+  { added_reactions: added, objective_value: growth, status: sol.status, }
+}
+
+///|
+pub(all) struct Cobra3MinimalMediumResult {
+  medium : Map[String, Double]
+  n_components : Int32
+  objective_value : Double
+  status : Cobra3Status
+}
+
+///|
+/// minimal_medium：MILP 最小化开放的 exchange 数，同时保持生长 >= min_growth.
+pub fn cobra3_minimal_medium(
+  model : Cobra3Model,
+  min_growth~ : Double = 0.1,
+  max_import~ : Double = 10.0,
+  max_nodes~ : Int32 = 3000,
+) -> Cobra3MinimalMediumResult {
+  let exchanges = cobra3_model_exchange_reactions(model)
+  let n = model.reactions.length()
+  let ne = exchanges.length()
+  let nv = n + ne
+  let s = cobra3_model_stoichiometric_matrix(model)
+  let cons : Array[Cobra3LinConstraint] = Array(capacity=s.length() + 1 + ne)
+  for i in 0..<s.length() {
+    let coeffs : Array[Double] = Array::make(nv, 0.0)
+    for j in 0..<n {
+      coeffs[j] = s[i][j]
+    }
+    cons.push({ coeffs, rhs: 0.0, sense: Cobra3Sense::Equal, })
+  }
+  let obj_vec = cobra3_model_objective_vector(model)
+  let grow : Array[Double] = Array::make(nv, 0.0)
+  for j in 0..<n {
+    grow[j] = obj_vec[j]
+  }
+  cons.push({ coeffs: grow, rhs: min_growth, sense: Cobra3Sense::GreaterEqual, })
+  let lb : Array[Double] = Array::make(nv, 0.0)
+  let ub : Array[Double] = Array::make(nv, 0.0)
+  for j in 0..<n {
+    lb[j] = model.reactions[j].lower_bound
+    ub[j] = model.reactions[j].upper_bound
+  }
+  for k in 0..<ne {
+    let ex_idx = cobra3_model_reaction_index(model, exchanges[k])
+    lb[n + k] = 0.0
+    ub[n + k] = 1.0
+    // v_ex >= -max_import * y
+    let c1 : Array[Double] = Array::make(nv, 0.0)
+    c1[ex_idx] = -1.0
+    c1[n + k] = -max_import
+    cons.push({ coeffs: c1, rhs: 0.0, sense: Cobra3Sense::LessEqual, })
+  }
+  let obj : Array[Double] = Array::make(nv, 0.0)
+  for k in 0..<ne {
+    obj[n + k] = -1.0
+  }
+  let integer : Array[Int32] = Array(capacity=ne)
+  for k in 0..<ne {
+    integer.push(n + k)
+  }
+  let sol = cobra3_solve_milp(cons, obj, lb, ub, integer, max_nodes~)
+  let medium : Map[String, Double] = Map([], capacity=ne)
+  if !(sol.status is Optimal) && !(sol.status is Feasible) {
+    return {
+      medium,
+      n_components: 0,
+      objective_value: 0.0,
+      status: sol.status,
+    }
+  }
+  let mut n_components = 0
+  for k in 0..<ne {
+    if sol.x[n + k] > 0.5 {
+      let ex_idx = cobra3_model_reaction_index(model, exchanges[k])
+      let uptake = -sol.x[ex_idx]
+      if uptake > 1.0e-9 {
+        medium[exchanges[k]] = uptake
+        n_components = n_components + 1
+      }
+    }
+  }
+  let mut growth = 0.0
+  for j in 0..<n {
+    growth = growth + obj_vec[j] * sol.x[j]
+  }
+  { medium, n_components, objective_value: growth, status: sol.status, }
+}
+
+///|
+pub(all) struct Cobra3EnvelopePoint {
+  target_flux : Double
+  objective_max : Double
+  objective_min : Double
+  yield_max : Double
+  yield_min : Double
+}
+
+///|
+pub fn cobra3_production_envelope(
+  model : Cobra3Model,
+  target_id : String,
+  points~ : Int32 = 20,
+  carbon_source~ : String = "",
+) -> Array[Cobra3EnvelopePoint] {
+  let target_idx = cobra3_model_reaction_index(model, target_id)
+  let out : Array[Cobra3EnvelopePoint] = Array(capacity=points)
+  if target_idx < 0 || points <= 0 {
+    return out
+  }
+  let fva = cobra3_fva(model, fraction_of_optimum=0.0)
+  let mut lo = 0.0
+  let mut hi = 0.0
+  for f in fva {
+    if f.reaction_id == target_id {
+      lo = f.minimum
+      hi = f.maximum
+    }
+  }
+  if hi < lo {
+    return out
+  }
+  let n = model.reactions.length()
+  let carbon_idx = if carbon_source.length() == 0 {
+    -1
+  } else {
+    cobra3_model_reaction_index(model, carbon_source)
+  }
+  let base = cobra3_steady_state_constraints(model)
+  let lb = cobra3_model_lower_bounds(model)
+  let ub = cobra3_model_upper_bounds(model)
+  for p in 0..<points {
+    let t = if points > 1 {
+      p.to_double() / (points - 1).to_double()
+    } else {
+      0.0
+    }
+    let target_flux = lo + t * (hi - lo)
+    let cons : Array[Cobra3LinConstraint] = Array(capacity=base.length() + 1)
+    for c in base {
+      cons.push(c)
+    }
+    let fix : Array[Double] = Array::make(n, 0.0)
+    fix[target_idx] = 1.0
+    cons.push({ coeffs: fix, rhs: target_flux, sense: Cobra3Sense::Equal, })
+    let c_max : Array[Double] = Array::make(n, 0.0)
+    let c_min : Array[Double] = Array::make(n, 0.0)
+    for j in 0..<n {
+      c_max[j] = model.reactions[j].objective
+      c_min[j] = -model.reactions[j].objective
+    }
+    let sol_max = cobra3_solve_lp(cons, c_max, lb, ub)
+    let sol_min = cobra3_solve_lp(cons, c_min, lb, ub)
+    let mut obj_max = 0.0
+    let mut obj_min = 0.0
+    if sol_max.status is Optimal {
+      obj_max = sol_max.objective_value
+    }
+    if sol_min.status is Optimal {
+      obj_min = -sol_min.objective_value
+    }
+    let mut yield_max = 0.0
+    let mut yield_min = 0.0
+    if carbon_idx >= 0 {
+      let uptake = if sol_max.status is Optimal {
+        -sol_max.x[carbon_idx]
+      } else {
+        0.0
+      }
+      if uptake > 1.0e-9 {
+        yield_max = obj_max / uptake
+      }
+      let uptake_min = if sol_min.status is Optimal {
+        -sol_min.x[carbon_idx]
+      } else {
+        0.0
+      }
+      if uptake_min > 1.0e-9 {
+        yield_min = obj_min / uptake_min
+      }
+    }
+    out.push({
+      target_flux,
+      objective_max: obj_max,
+      objective_min: obj_min,
+      yield_max,
+      yield_min,
+    })
+  }
+  out
+}
+
+///|
+pub(all) struct Cobra3McsResult {
+  reaction_ids : Array[String]
+  growth : Double
+  size : Int32
+}
+
+///|
+/// 判断 `ids` 是否包含 `sets` 中任一集合（即该组合不是极小割集）.
+fn cobra3_mcs_contains_smaller(
+  ids : Array[String],
+  sets : Array[Array[String]],
+) -> Bool {
+  for set in sets {
+    let mut contained = true
+    for id in set {
+      if !ids.contains(id) {
+        contained = false
+        break
+      }
+    }
+    if contained {
+      return true
+    }
+  }
+  false
+}
+
+///|
+/// 递归枚举尺寸为 `k` 的反应删除组合；组合被测试一次后 `budget[0]` 递减，
+/// 归零即停止，避免大模型上组合爆炸.
+fn cobra3_mcs_extend(
+  model : Cobra3Model,
+  threshold : Double,
+  candidates : Array[Int32],
+  k : Int32,
+  start : Int32,
+  cur : Array[String],
+  found : Array[Array[String]],
+  out : Array[Cobra3McsResult],
+  budget : Array[Int32],
+) -> Unit {
+  let total = candidates.length()
+  let need = k - cur.length()
+  let mut i = start
+  while i < total && total - i >= need && budget[0] > 0 {
+    cur.push(model.reactions[candidates[i]].id)
+    if cur.length() == k {
+      budget[0] = budget[0] - 1
+      // 包含已找到的更小割集 => 不是极小割集
+      if !cobra3_mcs_contains_smaller(cur, found) {
+        let ko = cobra3_knockout_reactions(model, cur)
+        let sol = cobra3_model_optimize(ko)
+        // 删后不可行（例如 lb>0 的强制反应失去底物来源）同样视为被阻断：
+        // 模型无法生长，左右两侧都不满足原始 MCS 判据。
+        let blocked = match sol.status {
+          Optimal => sol.objective_value <= threshold
+          Infeasible => true
+          _ => false
+        }
+        if blocked {
+          let ids : Array[String] = Array(capacity=cur.length())
+          for id in cur {
+            ids.push(id)
+          }
+          found.push(ids)
+          let growth = if sol.status is Optimal {
+            sol.objective_value
+          } else {
+            0.0
+          }
+          out.push({ reaction_ids: ids, growth, size: k, })
+        }
+      }
+    } else {
+      cobra3_mcs_extend(
+        model,
+        threshold,
+        candidates,
+        k,
+        i + 1,
+        cur,
+        found,
+        out,
+        budget,
+      )
+    }
+    ignore(cur.pop())
+    i = i + 1
+  }
+}
+
+///|
+/// 最小割集：按尺寸 1..max_size 递增枚举反应删除组合，跳过任何包含
+/// 已知更小割集的组合，保证返回值都是极小割集（旧实现只支持 size<=2，
+/// 且遇到单割集就漏掉不相交的双割集）。`max_candidates` 限制组合测试
+/// 次数，达到上限即停止枚举。`exclude` 中的反应不会作为敲除候选
+/// （例如保护 exchange / biomass 反应，对应 COBRApy 的 exclude 参数）。
+pub fn cobra3_minimal_cut_sets(
+  model : Cobra3Model,
+  threshold~ : Double = 0.01,
+  max_size~ : Int32 = 2,
+  max_candidates~ : Int32 = 20000,
+  exclude~ : Array[String] = [],
+) -> Array[Cobra3McsResult] {
+  let out : Array[Cobra3McsResult] = Array(capacity=0)
+  let base = cobra3_model_optimize(model)
+  if !(base.status is Optimal) || base.objective_value <= threshold {
+    return out
+  }
+  let n = model.reactions.length()
+  let candidates : Array[Int32] = Array(capacity=n)
+  for j in 0..<n {
+    if !exclude.contains(model.reactions[j].id) {
+      candidates.push(j)
+    }
+  }
+  let m = candidates.length()
+  if m == 0 {
+    return out
+  }
+  let found : Array[Array[String]] = Array(capacity=0)
+  let budget : Array[Int32] = [max_candidates]
+  let mut k = 1
+  while k <= max_size && k <= m && budget[0] > 0 {
+    let cur : Array[String] = Array(capacity=k)
+    cobra3_mcs_extend(
+      model, threshold, candidates, k, 0, cur, found, out, budget,
+    )
+    k = k + 1
+  }
+  out
+}
+
+///|
+/// 最小割集（单层 MILP，Farkas/对偶证书形式）：每次求解给出当前最小基数割集，
+/// 避免组合枚举在 `max_size` 之外的指数爆炸。`max_solutions > 1` 时用
+/// no-good cut 迭代枚举更多极小割集。
+///
+/// 原理：敲除集合 y 下原问题是 `max c·v s.t. S v = 0, lb(1−y) ≤ v ≤ ub(1−y)`。
+/// 其最大目标 ≤ threshold 的充要条件是对偶问题存在可行解且目标 ≤ threshold：
+/// `min Σ(ub_j α_j − lb_j β_j) s.t. α_j − β_j − (Sᵀλ)_j = c_j, α,β ≥ 0`。
+/// 用 `a_j = (1−y_j)·α_j`、`b_j = (1−y_j)·β_j` 的 big-M 线性化把对偶目标
+/// 写成 `Σ(ub_j a_j − lb_j b_j) ≤ threshold`，再最小化 `Σ y_j`，得到一个
+/// 最小基数割集（最小基数自动保证极小：否则其真子集会是更小的割集）。
+///
+/// 枚举多个解时，每找到一个集合 S 就加 `Σ_{j∈S} y_j ≤ |S|−1`，排除 S 及其
+/// 所有超集；任何其它极小割集都不可能是 S 的超集（否则不极小），因此不会
+/// 被误排除。默认 `max_solutions = 1` 保持"只取一个最小割集"的行为。
+///
+/// 敲除后原问题不可行（如存在 lb>0 的强制反应失去底物来源）时，对偶可行
+/// 证书不存在，改用 Farkas 不可行证书：存在 λ free、α,β ≥ 0 使
+/// `α_j − β_j − (Sᵀλ)_j = 0` 且 `Σ(ub_j a_j − lb_j b_j) < 0`。用 0/1 变量
+/// `z` 在两种证书间切换（z=0 最优性证书、z=1 Farkas 证书），两种阻断情形
+/// 因此都在同一个 MILP 里求解。
+///
+/// 与 `cobra3_minimal_cut_sets`（组合枚举 + 重复 FBA）并存：枚举版能列出
+/// 全部 ≤ max_size 的极小割集，本函数按最小基数优先逐个返回但不搜索组合。
+/// 边界：对偶/Farkas 变量上界取 `big_m`，若真实证书超出该范围会漏解。
+pub fn cobra3_minimal_cut_sets_milp(
+  model : Cobra3Model,
+  threshold~ : Double = 0.01,
+  exclude~ : Array[String] = [],
+  max_solutions~ : Int32 = 1,
+  max_nodes~ : Int32 = 4000,
+  big_m~ : Double = 1.0e6,
+) -> Array[Cobra3McsResult] {
+  let out : Array[Cobra3McsResult] = Array(capacity=0)
+  let base = cobra3_model_optimize(model)
+  if !(base.status is Optimal) || base.objective_value <= threshold {
+    return out
+  }
+  let n = model.reactions.length()
+  let s = cobra3_model_stoichiometric_matrix(model)
+  let m = s.length()
+  let obj = cobra3_model_objective_vector(model)
+  let lb = cobra3_model_lower_bounds(model)
+  let ub = cobra3_model_upper_bounds(model)
+  // 变量布局：λ(m, free) | α(n) | β(n) | y(n, 0/1) | a(n) | b(n) | z(0/1)
+  let lam0 = 0
+  let alpha0 = m
+  let beta0 = m + n
+  let y0 = m + 2 * n
+  let a0 = m + 3 * n
+  let b0 = m + 4 * n
+  let z0 = m + 5 * n
+  let nv = m + 5 * n + 1
+  let vlb : Array[Double] = Array(capacity=nv)
+  let vub : Array[Double] = Array(capacity=nv)
+  for _ in 0..<m {
+    vlb.push(-big_m)
+    vub.push(big_m)
+  }
+  for _ in 0..<(2 * n) {
+    vlb.push(0.0)
+    vub.push(big_m)
+  }
+  for _ in 0..<n {
+    vlb.push(0.0)
+    vub.push(1.0)
+  }
+  for _ in 0..<(2 * n) {
+    vlb.push(0.0)
+    vub.push(big_m)
+  }
+  // z：0 = 最优性证书（对偶目标 ≤ threshold），1 = Farkas 不可行证书
+  vlb.push(0.0)
+  vub.push(1.0)
+  // 对偶等式：z=0 时 α_j − β_j − (Sᵀλ)_j = c_j；z=1 时右端变为 0
+  let cons : Array[Cobra3LinConstraint] = Array(capacity=m + 4 * n + 1)
+  for j in 0..<n {
+    let row : Array[Double] = Array::make(nv, 0.0)
+    row[alpha0 + j] = 1.0
+    row[beta0 + j] = -1.0
+    for i in 0..<m {
+      row[lam0 + i] = -s[i][j]
+    }
+    row[z0] = obj[j]
+    cons.push({ coeffs: row, rhs: obj[j], sense: Cobra3Sense::Equal, })
+  }
+  // a_j = (1−y_j)·α_j 与 b_j = (1−y_j)·β_j 的 big-M 线性化
+  for j in 0..<n {
+    let r1 : Array[Double] = Array::make(nv, 0.0)
+    r1[a0 + j] = 1.0
+    r1[alpha0 + j] = -1.0
+    cons.push({ coeffs: r1, rhs: 0.0, sense: Cobra3Sense::LessEqual, })
+    let r2 : Array[Double] = Array::make(nv, 0.0)
+    r2[a0 + j] = 1.0
+    r2[y0 + j] = big_m
+    cons.push({ coeffs: r2, rhs: big_m, sense: Cobra3Sense::LessEqual, })
+    let r3 : Array[Double] = Array::make(nv, 0.0)
+    r3[a0 + j] = -1.0
+    r3[alpha0 + j] = 1.0
+    r3[y0 + j] = -big_m
+    cons.push({ coeffs: r3, rhs: 0.0, sense: Cobra3Sense::LessEqual, })
+    let r4 : Array[Double] = Array::make(nv, 0.0)
+    r4[b0 + j] = 1.0
+    r4[beta0 + j] = -1.0
+    cons.push({ coeffs: r4, rhs: 0.0, sense: Cobra3Sense::LessEqual, })
+    let r5 : Array[Double] = Array::make(nv, 0.0)
+    r5[b0 + j] = 1.0
+    r5[y0 + j] = big_m
+    cons.push({ coeffs: r5, rhs: big_m, sense: Cobra3Sense::LessEqual, })
+    let r6 : Array[Double] = Array::make(nv, 0.0)
+    r6[b0 + j] = -1.0
+    r6[beta0 + j] = 1.0
+    r6[y0 + j] = -big_m
+    cons.push({ coeffs: r6, rhs: 0.0, sense: Cobra3Sense::LessEqual, })
+  }
+  // 证书目标：z=0 时对偶目标 ≤ threshold；z=1 时 Farkas 目标 ≤ −eps
+  let cert_eps = 1.0e-6
+  let objrow : Array[Double] = Array::make(nv, 0.0)
+  for j in 0..<n {
+    objrow[a0 + j] = ub[j]
+    objrow[b0 + j] = -lb[j]
+  }
+  objrow[z0] = threshold + cert_eps
+  cons.push({ coeffs: objrow, rhs: threshold, sense: Cobra3Sense::LessEqual, })
+  // 最小化敲除数（MILP 求解器是 max，故目标系数取 -1）；exclude 固定 y = 0
+  let cobj : Array[Double] = Array::make(nv, 0.0)
+  let ints : Array[Int32] = Array(capacity=n + 1)
+  for j in 0..<n {
+    cobj[y0 + j] = -1.0
+    ints.push(y0 + j)
+    if exclude.contains(model.reactions[j].id) {
+      vub[y0 + j] = 0.0
+    }
+  }
+  ints.push(z0)
+  let mut round = 0
+  while out.length() < max_solutions && round <= n {
+    round = round + 1
+    let sol = cobra3_solve_milp(cons, cobj, vlb, vub, ints, max_nodes~)
+    let ok = match sol.status {
+      Cobra3Status::Optimal | Cobra3Status::Feasible => true
+      _ => false
+    }
+    if !ok {
+      break
+    }
+    let ids : Array[String] = Array(capacity=0)
+    for j in 0..<n {
+      if sol.x[y0 + j] > 0.5 {
+        ids.push(model.reactions[j].id)
+      }
+    }
+    if ids.length() == 0 {
+      break
+    }
+    // 用真实 FBA 校验 MILP 证书（数值误差下 false positive 直接丢弃）；
+    // 删后不可行也视为阻断（对应 Farkas 分支的证书）。
+    let ko = cobra3_knockout_reactions(model, ids)
+    let ver = cobra3_model_optimize(ko)
+    let verified = match ver.status {
+      Optimal => ver.objective_value <= threshold + 1.0e-6
+      Infeasible => true
+      _ => false
+    }
+    if verified {
+      let growth = if ver.status is Optimal { ver.objective_value } else { 0.0 }
+      out.push({ reaction_ids: ids, growth, size: ids.length(), })
+    }
+    // no-good cut：验证通过时排除该集合及其所有超集（其它极小割集不可能是
+    // 它的超集）；验证失败时只排除这一个具体赋值，避免误删真正的割集。
+    let nogood : Array[Double] = Array::make(nv, 0.0)
+    for id in ids {
+      let idx = cobra3_model_reaction_index(model, id)
+      if idx >= 0 {
+        nogood[y0 + idx] = 1.0
+      }
+    }
+    if !verified {
+      for j in 0..<n {
+        if nogood[y0 + j] == 0.0 {
+          nogood[y0 + j] = -1.0
+        }
+      }
+    }
+    cons.push({
+      coeffs: nogood,
+      rhs: (ids.length() - 1).to_double(),
+      sense: Cobra3Sense::LessEqual,
+    })
+  }
+  out
+}
+
+///|
+fn cobra3_knockout_reactions(
+  model : Cobra3Model,
+  ids : Array[String],
+) -> Cobra3Model {
+  let reactions : Array[Cobra3Reaction] = Array(capacity=0)
+  for r in model.reactions {
+    if ids.contains(r.id) {
+      reactions.push({
+        id: r.id,
+        name: r.name,
+        metabolites: r.metabolites,
+        lower_bound: 0.0,
+        upper_bound: 0.0,
+        objective: r.objective,
+        subsystem: r.subsystem,
+        gpr: r.gpr,
+        annotation: r.annotation,
+      })
+    } else {
+      reactions.push(r)
+    }
+  }
+  {
+    id: model.id,
+    name: model.name,
+    metabolites: model.metabolites,
+    genes: model.genes,
+    reactions,
+    compartments: model.compartments,
+    annotation: model.annotation,
+    undo_stack: Array(capacity=0),
+  }
+}
+
+// ---------------------------------------------------------------------------
+// 采样
+// ---------------------------------------------------------------------------
+
+///|
+/// 化学计量矩阵零空间基（返回 basis x n_reactions）.
+pub fn cobra3_nullspace_basis(model : Cobra3Model) -> Array[Array[Double]] {
+  let s = cobra3_model_stoichiometric_matrix(model)
+  let m = s.length()
+  let n = if m == 0 { 0 } else { s[0].length() }
+  if n == 0 {
+    return Array(capacity=0)
+  }
+  let a : Array[Array[Double]] = Array(capacity=m)
+  for i in 0..<m {
+    let row : Array[Double] = Array(capacity=n)
+    for j in 0..<n {
+      row.push(s[i][j])
+    }
+    a.push(row)
+  }
+  let pivot_cols : Array[Int32] = Array(capacity=0)
+  let mut r = 0
+  for col in 0..<n {
+    let mut piv = r
+    for i in r..<m {
+      if a[i][col].abs() > a[piv][col].abs() {
+        piv = i
+      }
+    }
+    if r >= m || a[piv][col].abs() < 1.0e-10 {
+      continue
+    }
+    if piv != r {
+      let tmp = a[r]
+      a[r] = a[piv]
+      a[piv] = tmp
+    }
+    let d = a[r][col]
+    for j in 0..<n {
+      a[r][j] = a[r][j] / d
+    }
+    for i in 0..<m {
+      if i != r {
+        let factor = a[i][col]
+        if factor != 0.0 {
+          for j in 0..<n {
+            a[i][j] = a[i][j] - factor * a[r][j]
+          }
+        }
+      }
+    }
+    pivot_cols.push(col)
+    r = r + 1
+    if r == m {
+      break
+    }
+  }
+  let free : Array[Int32] = Array(capacity=n)
+  for j in 0..<n {
+    if !pivot_cols.contains(j) {
+      free.push(j)
+    }
+  }
+  let basis : Array[Array[Double]] = Array(capacity=free.length())
+  for f in free {
+    let vec : Array[Double] = Array::make(n, 0.0)
+    vec[f] = 1.0
+    for k in 0..<pivot_cols.length() {
+      vec[pivot_cols[k]] = -a[k][f]
+      if vec[pivot_cols[k]].abs() < 1.0e-12 {
+        vec[pivot_cols[k]] = 0.0
+      }
+    }
+    basis.push(vec)
+  }
+  basis
+}
+
+///|
+fn cobra3_lcg_next(state : Int32) -> Int32 {
+  let s = (state * 1103515245 + 12345) % 2147483647
+  if s < 0 {
+    -s
+  } else {
+    s
+  }
+}
+
+///|
+/// hit-and-run 通量采样；返回 samples x reactions.
+pub fn cobra3_sample(
+  model : Cobra3Model,
+  n_samples~ : Int32 = 1000,
+  seed~ : Int32 = 42,
+  warmup~ : Int32 = 100,
+) -> Array[Array[Double]] {
+  let n = model.reactions.length()
+  let out : Array[Array[Double]] = Array(capacity=n_samples)
+  if n == 0 || n_samples <= 0 {
+    return out
+  }
+  let zero_c : Array[Double] = Array::make(n, 0.0)
+  let base = cobra3_solve_lp_eq(
+    cobra3_model_stoichiometric_matrix(model),
+    Array::make(model.metabolites.length(), 0.0),
+    zero_c,
+    cobra3_model_lower_bounds(model),
+    cobra3_model_upper_bounds(model),
+  )
+  if !(base.status is Optimal) {
+    return out
+  }
+  let x = cobra3_bounds_copy(base.x)
+  let lb = cobra3_model_lower_bounds(model)
+  let ub = cobra3_model_upper_bounds(model)
+  let null_basis = cobra3_nullspace_basis(model)
+  if null_basis.length() == 0 {
+    return out
+  }
+  let mut state = seed
+  let mut step = 0
+  let target_steps = warmup + n_samples
+  while step < target_steps {
+    // 随机方向：零空间基的随机线性组合
+    let direction : Array[Double] = Array::make(n, 0.0)
+    for b in null_basis {
+      state = cobra3_lcg_next(state)
+      let coef = state.to_double() / 2147483647.0 - 0.5
+      for j in 0..<n {
+        direction[j] = direction[j] + coef * b[j]
+      }
+    }
+    // 归一化方向，避免不同基向量尺度主导步长
+    let mut norm = 0.0
+    for j in 0..<n {
+      norm = norm + direction[j] * direction[j]
+    }
+    norm = @math.pow(norm, 0.5)
+    if norm > 1.0e-12 {
+      for j in 0..<n {
+        direction[j] = direction[j] / norm
+      }
+    }
+    // 计算可行步长区间
+    let mut t_min = -1.0e18
+    let mut t_max = 1.0e18
+    for j in 0..<n {
+      let d = direction[j]
+      if d > 1.0e-12 {
+        let hi = (ub[j] - x[j]) / d
+        let lo = (lb[j] - x[j]) / d
+        if hi < t_max {
+          t_max = hi
+        }
+        if lo > t_min {
+          t_min = lo
+        }
+      } else if d < -1.0e-12 {
+        let hi = (lb[j] - x[j]) / d
+        let lo = (ub[j] - x[j]) / d
+        if hi < t_max {
+          t_max = hi
+        }
+        if lo > t_min {
+          t_min = lo
+        }
+      }
+    }
+    if t_max >= t_min {
+      state = cobra3_lcg_next(state)
+      let u = state.to_double() / 2147483647.0
+      let t = t_min + u * (t_max - t_min)
+      for j in 0..<n {
+        let mut v = x[j] + t * direction[j]
+        if v < lb[j] {
+          v = lb[j]
+        }
+        if v > ub[j] {
+          v = ub[j]
+        }
+        x[j] = v
+      }
+    }
+    if step >= warmup && out.length() < n_samples {
+      let sample : Array[Double] = Array(capacity=n)
+      for j in 0..<n {
+        sample.push(x[j])
+      }
+      out.push(sample)
+    }
+    step = step + 1
+  }
+  out
+}
+
+///|
+/// 独立多链采样：每条链用不同 seed，返回 chain × sample × reaction.
+pub fn cobra3_sample_chains(
+  model : Cobra3Model,
+  n_chains~ : Int32 = 4,
+  n_samples~ : Int32 = 1000,
+  seed~ : Int32 = 42,
+  warmup~ : Int32 = 100,
+) -> Array[Array[Array[Double]]] {
+  let out : Array[Array[Array[Double]]] = Array(capacity=n_chains)
+  for k in 0..<n_chains {
+    out.push(cobra3_sample(model, n_samples~, seed=seed + k * 7919, warmup~))
+  }
+  out
+}
+
+///|
+pub(all) struct Cobra3FluxDistribution {
+  reaction_id : String
+  mean : Double
+  std : Double
+  minimum : Double
+  maximum : Double
+  q05 : Double
+  q95 : Double
+}
+
+///|
+/// 从采样结果计算每个反应的通量分布.
+pub fn cobra3_sample_flux(
+  model : Cobra3Model,
+  samples : Array[Array[Double]],
+) -> Array[Cobra3FluxDistribution] {
+  let out : Array[Cobra3FluxDistribution] = Array(
+    capacity=model.reactions.length(),
+  )
+  if samples.length() == 0 {
+    return out
+  }
+  for j in 0..<model.reactions.length() {
+    let vals : Array[Double] = Array(capacity=samples.length())
+    for s in samples {
+      vals.push(s[j])
+    }
+    cobra3_sort_doubles(vals)
+    let mut sum = 0.0
+    for v in vals {
+      sum = sum + v
+    }
+    let mean = sum / vals.length().to_double()
+    let mut var_sum = 0.0
+    for v in vals {
+      var_sum = var_sum + (v - mean) * (v - mean)
+    }
+    let sd = @math.pow(var_sum / vals.length().to_double(), 0.5)
+    let last = (vals.length() - 1).to_double()
+    let q05 = vals[(last * 0.05).to_int()]
+    let q95 = vals[(last * 0.95).to_int()]
+    out.push({
+      reaction_id: model.reactions[j].id,
+      mean,
+      std: sd,
+      minimum: vals[0],
+      maximum: vals[vals.length() - 1],
+      q05,
+      q95,
+    })
+  }
+  out
+}
+
+///|
+pub(all) struct Cobra3SamplingDiagnostics {
+  r_hat : Double
+  geweke_z : Double
+  effective_sample_size : Double
+}
+
+///|
+/// 自相关函数 ρ(k)（滞后 k），基于给定均值中心化.
+fn cobra3_autocorr(
+  samples : Array[Double],
+  mean : Double,
+  lag : Int32,
+) -> Double {
+  let n = samples.length()
+  if lag <= 0 || lag >= n {
+    return 0.0
+  }
+  let mut num = 0.0
+  let limit = n - lag
+  for i in 0..<limit {
+    num = num + (samples[i] - mean) * (samples[i + lag] - mean)
+  }
+  let mut den = 0.0
+  for i in 0..<n {
+    den = den + (samples[i] - mean) * (samples[i] - mean)
+  }
+  if den <= 1.0e-15 {
+    0.0
+  } else {
+    num / den
+  }
+}
+
+///|
+/// 有效样本数：Geyer 初始正序列（成对自相关和首次非正即截断），
+/// ESS = n / (1 + 2 Σ ρ_pair)，钳制在 [1, n].
+fn cobra3_ess(samples : Array[Double]) -> Double {
+  let n = samples.length()
+  if n < 4 {
+    return n.to_double()
+  }
+  let mean = cobra3_mean(samples, 0, n)
+  let mut variance = 0.0
+  for i in 0..<n {
+    variance = variance + (samples[i] - mean) * (samples[i] - mean)
+  }
+  variance = variance / n.to_double()
+  if variance <= 1.0e-15 {
+    return n.to_double()
+  }
+  let mut pair_sum = 0.0
+  let mut k = 1
+  let mut stop = false
+  while !stop && 2 * k <= n - 1 {
+    let r1 = cobra3_autocorr(samples, mean, 2 * k - 1)
+    let r2 = cobra3_autocorr(samples, mean, 2 * k)
+    if r1 + r2 <= 0.0 {
+      stop = true
+    } else {
+      pair_sum = pair_sum + r1 + r2
+      k = k + 1
+    }
+  }
+  let tau = 1.0 + 2.0 * pair_sum
+  let ess = n.to_double() / tau
+  if ess < 1.0 {
+    1.0
+  } else if ess > n.to_double() {
+    n.to_double()
+  } else {
+    ess
+  }
+}
+
+///|
+/// Newey-West（Bartlett 核）长程方差估计，用于 Geweke z 的分母.
+fn cobra3_long_run_var(
+  samples : Array[Double],
+  start : Int32,
+  stop : Int32,
+) -> Double {
+  let n = stop - start
+  if n < 2 {
+    return 0.0
+  }
+  let mean = cobra3_mean(samples, start, stop)
+  let mut gamma0 = 0.0
+  for i in start..<stop {
+    let d = samples[i] - mean
+    gamma0 = gamma0 + d * d
+  }
+  gamma0 = gamma0 / n.to_double()
+  if gamma0 <= 1.0e-15 {
+    return 0.0
+  }
+  let mut bw = @math.floor(4.0 * @math.pow(n.to_double() / 100.0, 2.0 / 9.0)).to_int()
+  if bw < 1 {
+    bw = 1
+  }
+  if bw > n - 1 {
+    bw = n - 1
+  }
+  let mut acc = 0.0
+  for k in 1..<(bw + 1) {
+    let mut gk = 0.0
+    let limit = stop - k
+    for i in start..<limit {
+      gk = gk + (samples[i] - mean) * (samples[i + k] - mean)
+    }
+    gk = gk / n.to_double()
+    let weight = 1.0 - k.to_double() / (bw.to_double() + 1.0)
+    acc = acc + weight * gk
+  }
+  let lrv = gamma0 + 2.0 * acc
+  if lrv <= 1.0e-15 {
+    gamma0
+  } else {
+    lrv
+  }
+}
+
+///|
+/// 多链采样的 R-hat 与单链 Geweke z / 有效样本数.
+/// 单链 R-hat 用前后两段（split-R-hat）；Geweke z 取前 10% 与后 50%，
+/// 分母用 Newey-West 长程方差；ESS 用 Geyer 初始正序列截断.
+pub fn cobra3_sampling_diagnostics(
+  samples : Array[Double],
+) -> Cobra3SamplingDiagnostics {
+  let n = samples.length()
+  if n < 10 {
+    return { r_hat: 1.0, geweke_z: 0.0, effective_sample_size: 0.0, }
+  }
+  let half = n / 2
+  let mean_all = cobra3_mean(samples, 0, n)
+  let mean_a = cobra3_mean(samples, 0, half)
+  let mean_b = cobra3_mean(samples, half, n)
+  let var_a = cobra3_var(samples, 0, half, mean_a)
+  let var_b = cobra3_var(samples, half, n, mean_b)
+  let w = 0.5 * (var_a + var_b)
+  let b = half.to_double() * (mean_a - mean_all) * (mean_a - mean_all) * 2.0
+  let var_hat = (half.to_double() - 1.0) / half.to_double() * w +
+    b / half.to_double()
+  let r_hat = if w > 1.0e-15 { @math.pow(var_hat / w, 0.5) } else { 1.0 }
+  let front = if n / 10 > 0 { n / 10 } else { 1 }
+  let back = if n / 2 > 0 { n / 2 } else { 1 }
+  let mean_front = cobra3_mean(samples, 0, front)
+  let mean_back = cobra3_mean(samples, n - back, n)
+  let lrv_front = cobra3_long_run_var(samples, 0, front)
+  let lrv_back = cobra3_long_run_var(samples, n - back, n)
+  let denom = @math.pow(
+    lrv_front / front.to_double() + lrv_back / back.to_double(),
+    0.5,
+  )
+  let geweke = if denom > 1.0e-15 {
+    (mean_front - mean_back) / denom
+  } else {
+    0.0
+  }
+  let ess = cobra3_ess(samples)
+  { r_hat, geweke_z: geweke, effective_sample_size: ess, }
+}
+
+///|
+/// 多链诊断：R-hat 用链间/链内方差；Geweke z 取各链平均，ESS 取各链之和.
+pub fn cobra3_sampling_diagnostics_chains(
+  chains : Array[Array[Double]],
+) -> Cobra3SamplingDiagnostics {
+  let k = chains.length()
+  if k == 0 {
+    return { r_hat: 1.0, geweke_z: 0.0, effective_sample_size: 0.0, }
+  }
+  if k == 1 {
+    return cobra3_sampling_diagnostics(chains[0])
+  }
+  let m = chains[0].length()
+  let mut equal = true
+  for c in chains {
+    if c.length() != m {
+      equal = false
+    }
+  }
+  if !equal || m < 10 {
+    return { r_hat: 1.0, geweke_z: 0.0, effective_sample_size: 0.0, }
+  }
+  let means : Array[Double] = Array(capacity=k)
+  let vars : Array[Double] = Array(capacity=k)
+  let mut grand = 0.0
+  for c in chains {
+    let mean = cobra3_mean(c, 0, m)
+    means.push(mean)
+    vars.push(cobra3_var(c, 0, m, mean))
+    grand = grand + mean
+  }
+  grand = grand / k.to_double()
+  let mut within = 0.0
+  for i in 0..<k {
+    within = within + vars[i]
+  }
+  within = within / k.to_double()
+  let mut between = 0.0
+  for i in 0..<k {
+    between = between + (means[i] - grand) * (means[i] - grand)
+  }
+  between = between * m.to_double() / (k.to_double() - 1.0)
+  let var_hat = (m.to_double() - 1.0) / m.to_double() * within +
+    between / m.to_double()
+  let mut r_hat = if within > 1.0e-15 {
+    @math.pow(var_hat / within, 0.5)
+  } else {
+    1.0
+  }
+  if r_hat < 1.0 {
+    r_hat = 1.0
+  }
+  let mut geweke = 0.0
+  let mut ess = 0.0
+  for c in chains {
+    let d = cobra3_sampling_diagnostics(c)
+    geweke = geweke + d.geweke_z
+    ess = ess + d.effective_sample_size
+  }
+  { r_hat, geweke_z: geweke / k.to_double(), effective_sample_size: ess, }
+}
+
+///|
+fn cobra3_mean(arr : Array[Double], start : Int32, stop : Int32) -> Double {
+  let mut sum = 0.0
+  let mut cnt = 0
+  for i in start..<stop {
+    sum = sum + arr[i]
+    cnt = cnt + 1
+  }
+  if cnt == 0 {
+    0.0
+  } else {
+    sum / cnt.to_double()
+  }
+}
+
+///|
+fn cobra3_var(
+  arr : Array[Double],
+  start : Int32,
+  stop : Int32,
+  mean : Double,
+) -> Double {
+  let mut sum = 0.0
+  let mut cnt = 0
+  for i in start..<stop {
+    sum = sum + (arr[i] - mean) * (arr[i] - mean)
+    cnt = cnt + 1
+  }
+  if cnt <= 1 {
+    0.0
+  } else {
+    sum / (cnt - 1).to_double()
+  }
+}
+
+// ---------------------------------------------------------------------------
+// FastCC / loopless-lite
+// ---------------------------------------------------------------------------
+
+///|
+pub(all) struct Cobra3ConsistencyResult {
+  consistent_model : Cobra3Model
+  removed_reactions : Array[String]
+}
+
+///|
+fn cobra3_zero_objective_ranges(
+  model : Cobra3Model,
+) -> Array[(String, Double, Double)] {
+  let n = model.reactions.length()
+  let base = cobra3_steady_state_constraints(model)
+  let lb = cobra3_model_lower_bounds(model)
+  let ub = cobra3_model_upper_bounds(model)
+  let out : Array[(String, Double, Double)] = Array(capacity=n)
+  for j in 0..<n {
+    let c_max : Array[Double] = Array::make(n, 0.0)
+    c_max[j] = 1.0
+    let c_min : Array[Double] = Array::make(n, 0.0)
+    c_min[j] = -1.0
+    let smax = cobra3_solve_lp(base, c_max, lb, ub)
+    let smin = cobra3_solve_lp(base, c_min, lb, ub)
+    let mx = if smax.status is Optimal { smax.objective_value } else { 0.0 }
+    let mn = if smin.status is Optimal { -smin.objective_value } else { 0.0 }
+    out.push((model.reactions[j].id, mn, mx))
+  }
+  out
+}
+
+///|
+/// FastCC-lite：迭代移除无法承载通量的反应，得到一致子模型.
+pub fn cobra3_fastcc(model : Cobra3Model) -> Cobra3ConsistencyResult {
+  let mut current = model
+  let removed : Array[String] = Array(capacity=0)
+  let mut changed = true
+  while changed {
+    changed = false
+    let ranges = cobra3_zero_objective_ranges(current)
+    let to_remove : Array[String] = Array(capacity=0)
+    for r in ranges {
+      if r.1.abs() < 1.0e-9 && r.2.abs() < 1.0e-9 {
+        to_remove.push(r.0)
+      }
+    }
+    for id in to_remove {
+      current = cobra3_model_remove_reaction(current, id, remove_orphans=false)
+      removed.push(id)
+      changed = true
+    }
+  }
+  { consistent_model: current, removed_reactions: removed, }
+}
+
+///|
+/// 检测可参与内部循环的反应（在 c=0 时通量范围跨过 0 且非零）.
+pub fn cobra3_detect_loops(model : Cobra3Model) -> Array[String] {
+  let out : Array[String] = Array(capacity=0)
+  for r in cobra3_zero_objective_ranges(model) {
+    if r.2 > 1.0e-6 && r.1 < -1.0e-6 {
+      out.push(r.0)
+    }
+  }
+  out
+}
+
+///|
+/// loopless-lite：先最大化目标，再最小化内部反应通量（抑制循环）.
+pub fn cobra3_loopless_fba(model : Cobra3Model) -> Cobra3FluxResult {
+  let opt = cobra3_model_optimize(model)
+  if !(opt.status is Optimal) {
+    return opt
+  }
+  let n = model.reactions.length()
+  if n == 0 {
+    return opt
+  }
+  let obj_vec = cobra3_model_objective_vector(model)
+  let base = cobra3_steady_state_constraints(model)
+  if opt.objective_value.abs() > 1.0e-9 {
+    base.push({
+      coeffs: obj_vec,
+      rhs: cobra3_optimum_floor(opt.objective_value, 1.0 - 1.0e-6),
+      sense: Cobra3Sense::GreaterEqual,
+    })
+  }
+  let nv = 2 * n
+  let lb : Array[Double] = Array::make(nv, 0.0)
+  let ub : Array[Double] = Array::make(nv, 0.0)
+  let obj : Array[Double] = Array::make(nv, 0.0)
+  let integer : Array[Int32] = Array(capacity=n)
+  for j in 0..<n {
+    lb[j] = model.reactions[j].lower_bound
+    ub[j] = model.reactions[j].upper_bound
+    // exchange 不参与循环；内部反应用二元指示变量控制是否活跃
+    if cobra3_model_is_exchange(model, model.reactions[j]) {
+      lb[n + j] = 0.0
+      ub[n + j] = 0.0
+    } else {
+      lb[n + j] = 0.0
+      ub[n + j] = 1.0
+      obj[n + j] = -1.0
+      integer.push(n + j)
+    }
+  }
+  let cons : Array[Cobra3LinConstraint] = Array(capacity=base.length() + 2 * n)
+  for con in base {
+    let coeffs : Array[Double] = Array::make(nv, 0.0)
+    for j in 0..<con.coeffs.length() {
+      coeffs[j] = con.coeffs[j]
+    }
+    cons.push({ coeffs, rhs: con.rhs, sense: con.sense, })
+  }
+  for j in 0..<n {
+    if cobra3_model_is_exchange(model, model.reactions[j]) {
+      continue
+    }
+    let scale = if model.reactions[j].lower_bound.abs() >
+      model.reactions[j].upper_bound.abs() {
+      model.reactions[j].lower_bound.abs()
+    } else {
+      model.reactions[j].upper_bound.abs()
+    }
+    let m = 2.0 * scale + 1.0
+    // z=0 -> v=0；z=1 -> |v| <= M
+    let c1 : Array[Double] = Array::make(nv, 0.0)
+    c1[j] = 1.0
+    c1[n + j] = -m
+    cons.push({ coeffs: c1, rhs: 0.0, sense: Cobra3Sense::LessEqual, })
+    let c2 : Array[Double] = Array::make(nv, 0.0)
+    c2[j] = -1.0
+    c2[n + j] = -m
+    cons.push({ coeffs: c2, rhs: 0.0, sense: Cobra3Sense::LessEqual, })
+  }
+  let sol = cobra3_solve_milp(cons, obj, lb, ub, integer)
+  let fluxes : Array[Double] = Array(capacity=n)
+  let mut growth = 0.0
+  for j in 0..<n {
+    fluxes.push(sol.x[j])
+    growth = growth + obj_vec[j] * sol.x[j]
+  }
+  {
+    status: sol.status,
+    objective_value: growth,
+    fluxes,
+    shadow_prices: Array::make(model.metabolites.length(), 0.0),
+    reduced_costs: Array::make(n, 0.0),
+  }
+}

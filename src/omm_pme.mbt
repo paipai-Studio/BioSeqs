@@ -149,7 +149,8 @@ pub fn omm_pme_energy(
 }
 
 ///|
-/// Complementary error function (erfc) via rational approximation.
+/// Complementary error function (erfc), Abramowitz & Stegun 7.1.26:
+/// erfc(x) = t * exp(-x^2) * (a1 + a2*t + ... + a5*t^4), t = 1/(1+p*x).
 fn omm_erfc(x : Double) -> Double {
   if x < 0.0 {
     return 2.0 - omm_erfc(-x)
@@ -157,17 +158,14 @@ fn omm_erfc(x : Double) -> Double {
   if x > 10.0 {
     return 0.0
   }
-  // Abramowitz & Stegun 7.1.26
   let t = 1.0 / (1.0 + 0.3275911 * x)
   let t2 = t * t
   let t3 = t2 * t
   let t4 = t3 * t
-  let t5 = t4 * t
-  let poly = 1.0 -
-    0.254829592 * t +
-    0.284496736 * t2 -
-    1.421413741 * t3 +
-    1.453152027 * t4 -
-    1.061405429 * t5
-  poly * @math.exp(-x * x)
+  let poly = 0.254829592 +
+    -0.284496736 * t +
+    1.421413741 * t2 +
+    -1.453152027 * t3 +
+    1.061405429 * t4
+  poly * t * @math.exp(-x * x)
 }

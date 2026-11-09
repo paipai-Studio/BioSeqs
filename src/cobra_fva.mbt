@@ -19,61 +19,19 @@ pub struct CobraFvaResult {
 pub fn cobra_flux_variability_analysis(
   model : FbaModel,
   fraction_of_optimum~ : Double = 1.0,
-) -> Array[CobraFvaResult] raise FbaError {
-  let n_r = model.reactions.length()
-  if n_r == 0 {
-    raise FbaError("model has no reactions")
-  }
-  // First solve FBA to get optimal objective value
-  let opt_sol = fba_solve(model)
-  let opt_val = opt_sol.objective_value
-  let results : Array[CobraFvaResult] = Array(capacity=n_r)
-  for j = 0; j < n_r; j = j + 1 {
-    let r = model.reactions[j]
-    // Minimize this reaction's flux: set objective to -1 for this reaction
-    let min_model = cobra_set_objective(
-      model, j, -1.0, opt_val, fraction_of_optimum,
-    )
-    let min_sol = fba_solve(min_model)
-    let min_flux = min_sol.fluxes[j]
-    // Maximize this reaction's flux: set objective to +1
-    let max_model = cobra_set_objective(
-      model, j, 1.0, opt_val, fraction_of_optimum,
-    )
-    let max_sol = fba_solve(max_model)
-    let max_flux = max_sol.fluxes[j]
-    results.push({ reaction_id: r.id, minimum: min_flux, maximum: max_flux, })
+) -> Array[CobraFvaResult] {
+  let m3 = cobra3_from_fba_model(model)
+  let values = cobra3_fva(m3, fraction_of_optimum~)
+  let results : Array[CobraFvaResult] = Array(capacity=values.length())
+  for v in values {
+    let item : CobraFvaResult = {
+      reaction_id: v.reaction_id,
+      minimum: v.minimum,
+      maximum: v.maximum,
+    }
+    results.push(item)
   }
   results
-}
-
-///|
-/// Set a single reaction as objective and add fraction-of-optimum constraint.
-fn cobra_set_objective(
-  model : FbaModel,
-  target_idx : Int32,
-  obj_coeff : Double,
-  _opt_val : Double,
-  _fraction : Double,
-) -> FbaModel {
-  let reactions : Array[FbaReaction] = Array(capacity=0)
-  for j = 0; j < model.reactions.length(); j = j + 1 {
-    let r = model.reactions[j]
-    let new_obj = if j == target_idx { obj_coeff } else { 0.0 }
-    reactions.push({
-      id: r.id,
-      name: r.name,
-      lower_bound: r.lower_bound,
-      upper_bound: r.upper_bound,
-      objective: new_obj,
-      genes: r.genes,
-    })
-  }
-  {
-    metabolites: model.metabolites,
-    reactions,
-    stoichiometry: model.stoichiometry,
-  }
 }
 
 ///|
@@ -81,7 +39,7 @@ fn cobra_set_objective(
 pub fn cobra_find_blocked_reactions(
   model : FbaModel,
   zero_cutoff~ : Double = 1.0e-9,
-) -> Array[String] raise FbaError {
+) -> Array[String] {
   let fva = cobra_flux_variability_analysis(model, fraction_of_optimum=0.0)
   let blocked : Array[String] = Array(capacity=0)
   for r in fva {

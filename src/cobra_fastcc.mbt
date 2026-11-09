@@ -17,7 +17,7 @@ pub fn cobra_fastcc(
   model : FbaModel,
   _flux_threshold~ : Double = 1.0,
   zero_cutoff~ : Double = 1.0e-9,
-) -> CobraFastccResult raise FbaError {
+) -> CobraFastccResult {
   let blocked = cobra_find_blocked_reactions(model, zero_cutoff~)
   // Build consistent model without blocked reactions
   let keep_indices : Array[Int32] = Array(capacity=0)

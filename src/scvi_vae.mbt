@@ -88,15 +88,15 @@ pub fn scvi_init_model(
   }
   {
     config,
-    encoder_w1: init_w(n_genes, config.n_hidden),
+    encoder_w1: init_w(config.n_hidden, n_genes),
     encoder_b1: init_b(config.n_hidden),
-    encoder_w_mu: init_w(config.n_hidden, config.n_latent),
+    encoder_w_mu: init_w(config.n_latent, config.n_hidden),
     encoder_b_mu: init_b(config.n_latent),
-    encoder_w_lv: init_w(config.n_hidden, config.n_latent),
+    encoder_w_lv: init_w(config.n_latent, config.n_hidden),
     encoder_b_lv: init_b(config.n_latent),
-    decoder_w1: init_w(config.n_latent, config.n_hidden),
+    decoder_w1: init_w(config.n_hidden, config.n_latent),
     decoder_b1: init_b(config.n_hidden),
-    decoder_w_out: init_w(config.n_hidden, n_genes),
+    decoder_w_out: init_w(n_genes, config.n_hidden),
     decoder_b_out: init_b(n_genes),
     log_theta: init_b(n_genes),
     library_log_mean: init_b(n_batch),
@@ -308,26 +308,66 @@ pub fn scvi_train(
   x : Array[Array[Double]],
   n_epochs : Int32,
 ) -> ScVIModel {
-  let trained_model = model
-  for epoch in 0..<n_epochs {
-    let mut total_loss = 0.0
-    for i in 0..<x.length() {
-      let elbo = scvi_compute_elbo(trained_model, x[i])
-      total_loss += elbo
-    }
-    // Simple weight perturbation for optimization
-    let lr = trained_model.config.learning_rate
-    for _j in 0..<trained_model.encoder_w1.length() {
-      for k in 0..<trained_model.encoder_w1[0].length() {
-        trained_model.encoder_w1[_j][k] += lr *
-          scvi_rand(epoch * 1000 + _j * 100 + k) *
-          0.01
-      }
-    }
-    ignore(total_loss)
+  let m = model
+  if x.length() == 0 {
+    m.trained = true
+    return m
   }
-  trained_model.trained = true
-  trained_model
+  // Gene-wise inverse dispersion is kept fixed during this training pass.
+  let theta = Array(capacity=m.n_genes)
+  for g in 0..<m.n_genes {
+    theta.push(@math.exp(m.log_theta[g]))
+  }
+  // Allocate Adam moments with shapes matching the model parameters.
+  let template = ScviAgTape::new()
+  ignore(template.matrix_param(m.encoder_w1))
+  ignore(template.vector_param(m.encoder_b1))
+  ignore(template.matrix_param(m.encoder_w_mu))
+  ignore(template.vector_param(m.encoder_b_mu))
+  ignore(template.matrix_param(m.encoder_w_lv))
+  ignore(template.vector_param(m.encoder_b_lv))
+  ignore(template.matrix_param(m.decoder_w1))
+  ignore(template.vector_param(m.decoder_b1))
+  ignore(template.matrix_param(m.decoder_w_out))
+  ignore(template.vector_param(m.decoder_b_out))
+  let adam = scvi_adam_init(template, m.config.learning_rate)
+  let n_cells = x.length().to_double()
+  for _epoch in 0..<n_epochs {
+    let t = ScviAgTape::new()
+    let w1 = t.matrix_param(m.encoder_w1)
+    let b1 = t.vector_param(m.encoder_b1)
+    let w_mu = t.matrix_param(m.encoder_w_mu)
+    let b_mu = t.vector_param(m.encoder_b_mu)
+    let w_lv = t.matrix_param(m.encoder_w_lv)
+    let b_lv = t.vector_param(m.encoder_b_lv)
+    let wd1 = t.matrix_param(m.decoder_w1)
+    let bd1 = t.vector_param(m.decoder_b1)
+    let w_out = t.matrix_param(m.decoder_w_out)
+    let b_out = t.vector_param(m.decoder_b_out)
+    let mut total = t.leaf([0.0])
+    for i in 0..<x.length() {
+      let xi = x[i]
+      let lib = scvi_array_sum(xi)
+      let lib_size = if lib <= 0.0 { 1.0 } else { lib }
+      let xin = t.leaf(xi)
+      let hidden = t.relu(t.dense(xin, w1, b1))
+      let mu = t.dense(hidden, w_mu, b_mu)
+      let log_var = t.dense(hidden, w_lv, b_lv)
+      let decoded = t.relu(t.dense(mu, wd1, bd1))
+      let raw = t.dense(decoded, w_out, b_out)
+      let rates = t.softmax(raw)
+      let mean_counts = t.scale(rates, lib_size)
+      let nll = t.nb_nll(mean_counts, xi, theta)
+      let kl = t.kl_divergence(mu, log_var)
+      total = t.add(total, t.add(nll, kl))
+    }
+    let loss = t.scale(total, 1.0 / n_cells)
+    t.backward(loss)
+    ignore(t.clip_grad_norm(5.0))
+    scvi_adam_step(t, adam)
+  }
+  m.trained = true
+  m
 }
 
 ///|

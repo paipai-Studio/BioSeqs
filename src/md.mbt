@@ -4,7 +4,7 @@
 /// integration. Units are kcal/mol (energy), Å (length) and ps (time).
 
 ///|
-fn md_dist(a : Array[Double], b : Array[Double]) -> Double {
+pub fn md_dist(a : Array[Double], b : Array[Double]) -> Double {
   let dx = a[0] - b[0]
   let dy = a[1] - b[1]
   let dz = a[2] - b[2]
@@ -12,7 +12,9 @@ fn md_dist(a : Array[Double], b : Array[Double]) -> Double {
 }
 
 ///|
-fn md_new_forces(n : Int32) -> Array[Array[Double]] {
+/// Fresh n x 3 force array (independent zero rows). Public so that tests and
+/// external engines can allocate per-particle force buffers safely.
+pub fn md_new_forces(n : Int32) -> Array[Array[Double]] {
   let f : Array[Array[Double]] = Array::make(n, [])
   for i = 0; i < n; i = i + 1 {
     f[i] = [0.0, 0.0, 0.0]
