@@ -388,13 +388,25 @@ fn cobra3_mcs_extend(
       if !cobra3_mcs_contains_smaller(cur, found) {
         let ko = cobra3_knockout_reactions(model, cur)
         let sol = cobra3_model_optimize(ko)
-        if sol.status is Optimal && sol.objective_value <= threshold {
+        // 删后不可行（例如 lb>0 的强制反应失去底物来源）同样视为被阻断：
+        // 模型无法生长，左右两侧都不满足原始 MCS 判据。
+        let blocked = match sol.status {
+          Optimal => sol.objective_value <= threshold
+          Infeasible => true
+          _ => false
+        }
+        if blocked {
           let ids : Array[String] = Array(capacity=cur.length())
           for id in cur {
             ids.push(id)
           }
           found.push(ids)
-          out.push({ reaction_ids: ids, growth: sol.objective_value, size: k, })
+          let growth = if sol.status is Optimal {
+            sol.objective_value
+          } else {
+            0.0
+          }
+          out.push({ reaction_ids: ids, growth, size: k, })
         }
       }
     } else {
@@ -473,11 +485,15 @@ pub fn cobra3_minimal_cut_sets(
 /// 所有超集；任何其它极小割集都不可能是 S 的超集（否则不极小），因此不会
 /// 被误排除。默认 `max_solutions = 1` 保持"只取一个最小割集"的行为。
 ///
+/// 敲除后原问题不可行（如存在 lb>0 的强制反应失去底物来源）时，对偶可行
+/// 证书不存在，改用 Farkas 不可行证书：存在 λ free、α,β ≥ 0 使
+/// `α_j − β_j − (Sᵀλ)_j = 0` 且 `Σ(ub_j a_j − lb_j b_j) < 0`。用 0/1 变量
+/// `z` 在两种证书间切换（z=0 最优性证书、z=1 Farkas 证书），两种阻断情形
+/// 因此都在同一个 MILP 里求解。
+///
 /// 与 `cobra3_minimal_cut_sets`（组合枚举 + 重复 FBA）并存：枚举版能列出
 /// 全部 ≤ max_size 的极小割集，本函数按最小基数优先逐个返回但不搜索组合。
-/// 边界：对偶变量上界取 `big_m`，若真实对偶解超出该范围会漏解；若敲除后
-/// 原问题不可行（如存在 lb>0 的强制反应）对偶无界，本函数漏掉这类割集，
-/// 此时仍需用枚举版（枚举版会把"不可行"视为割集）。
+/// 边界：对偶/Farkas 变量上界取 `big_m`，若真实证书超出该范围会漏解。
 pub fn cobra3_minimal_cut_sets_milp(
   model : Cobra3Model,
   threshold~ : Double = 0.01,
@@ -497,14 +513,15 @@ pub fn cobra3_minimal_cut_sets_milp(
   let obj = cobra3_model_objective_vector(model)
   let lb = cobra3_model_lower_bounds(model)
   let ub = cobra3_model_upper_bounds(model)
-  // 变量布局：λ(m, free) | α(n) | β(n) | y(n, 0/1) | a(n) | b(n)
+  // 变量布局：λ(m, free) | α(n) | β(n) | y(n, 0/1) | a(n) | b(n) | z(0/1)
   let lam0 = 0
   let alpha0 = m
   let beta0 = m + n
   let y0 = m + 2 * n
   let a0 = m + 3 * n
   let b0 = m + 4 * n
-  let nv = m + 5 * n
+  let z0 = m + 5 * n
+  let nv = m + 5 * n + 1
   let vlb : Array[Double] = Array(capacity=nv)
   let vub : Array[Double] = Array(capacity=nv)
   for _ in 0..<m {
@@ -523,7 +540,10 @@ pub fn cobra3_minimal_cut_sets_milp(
     vlb.push(0.0)
     vub.push(big_m)
   }
-  // 对偶等式：α_j − β_j − (Sᵀλ)_j = c_j
+  // z：0 = 最优性证书（对偶目标 ≤ threshold），1 = Farkas 不可行证书
+  vlb.push(0.0)
+  vub.push(1.0)
+  // 对偶等式：z=0 时 α_j − β_j − (Sᵀλ)_j = c_j；z=1 时右端变为 0
   let cons : Array[Cobra3LinConstraint] = Array(capacity=m + 4 * n + 1)
   for j in 0..<n {
     let row : Array[Double] = Array::make(nv, 0.0)
@@ -532,6 +552,7 @@ pub fn cobra3_minimal_cut_sets_milp(
     for i in 0..<m {
       row[lam0 + i] = -s[i][j]
     }
+    row[z0] = obj[j]
     cons.push({ coeffs: row, rhs: obj[j], sense: Cobra3Sense::Equal, })
   }
   // a_j = (1−y_j)·α_j 与 b_j = (1−y_j)·β_j 的 big-M 线性化
@@ -563,16 +584,18 @@ pub fn cobra3_minimal_cut_sets_milp(
     r6[y0 + j] = -big_m
     cons.push({ coeffs: r6, rhs: 0.0, sense: Cobra3Sense::LessEqual, })
   }
-  // 对偶目标值 ≤ threshold（敲除后的最大目标不超过阈值）
+  // 证书目标：z=0 时对偶目标 ≤ threshold；z=1 时 Farkas 目标 ≤ −eps
+  let cert_eps = 1.0e-6
   let objrow : Array[Double] = Array::make(nv, 0.0)
   for j in 0..<n {
     objrow[a0 + j] = ub[j]
     objrow[b0 + j] = -lb[j]
   }
+  objrow[z0] = threshold + cert_eps
   cons.push({ coeffs: objrow, rhs: threshold, sense: Cobra3Sense::LessEqual, })
   // 最小化敲除数（MILP 求解器是 max，故目标系数取 -1）；exclude 固定 y = 0
   let cobj : Array[Double] = Array::make(nv, 0.0)
-  let ints : Array[Int32] = Array(capacity=n)
+  let ints : Array[Int32] = Array(capacity=n + 1)
   for j in 0..<n {
     cobj[y0 + j] = -1.0
     ints.push(y0 + j)
@@ -580,6 +603,7 @@ pub fn cobra3_minimal_cut_sets_milp(
       vub[y0 + j] = 0.0
     }
   }
+  ints.push(z0)
   let mut round = 0
   while out.length() < max_solutions && round <= n {
     round = round + 1
@@ -600,22 +624,33 @@ pub fn cobra3_minimal_cut_sets_milp(
     if ids.length() == 0 {
       break
     }
-    // 用真实 FBA 校验 MILP 证书（数值误差下 false positive 直接丢弃）
+    // 用真实 FBA 校验 MILP 证书（数值误差下 false positive 直接丢弃）；
+    // 删后不可行也视为阻断（对应 Farkas 分支的证书）。
     let ko = cobra3_knockout_reactions(model, ids)
     let ver = cobra3_model_optimize(ko)
-    if ver.status is Optimal && ver.objective_value <= threshold + 1.0e-6 {
-      out.push({
-        reaction_ids: ids,
-        growth: ver.objective_value,
-        size: ids.length(),
-      })
+    let verified = match ver.status {
+      Optimal => ver.objective_value <= threshold + 1.0e-6
+      Infeasible => true
+      _ => false
     }
-    // no-good cut：排除该集合及其所有超集，下一轮只能找其它极小割集
+    if verified {
+      let growth = if ver.status is Optimal { ver.objective_value } else { 0.0 }
+      out.push({ reaction_ids: ids, growth, size: ids.length(), })
+    }
+    // no-good cut：验证通过时排除该集合及其所有超集（其它极小割集不可能是
+    // 它的超集）；验证失败时只排除这一个具体赋值，避免误删真正的割集。
     let nogood : Array[Double] = Array::make(nv, 0.0)
     for id in ids {
       let idx = cobra3_model_reaction_index(model, id)
       if idx >= 0 {
         nogood[y0 + idx] = 1.0
+      }
+    }
+    if !verified {
+      for j in 0..<n {
+        if nogood[y0 + j] == 0.0 {
+          nogood[y0 + j] = -1.0
+        }
       }
     }
     cons.push({

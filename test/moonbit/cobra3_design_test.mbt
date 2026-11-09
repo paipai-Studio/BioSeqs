@@ -280,6 +280,39 @@ test "cobra3 design minimal cut sets milp enumerates all minimal cuts" {
 }
 
 ///|
+test "cobra3 design minimal cut sets treat infeasible knockout as cut" {
+  let mut m = @src.cobra3_model_new("mcs_infeasible")
+  m = @src.cobra3_model_add_reaction(
+    m,
+    cobra3_make_rxn("R1", [("A", 1.0)], 0.0, 10.0, ""),
+  )
+  m = @src.cobra3_model_add_reaction(
+    m,
+    cobra3_make_rxn("R2", [("A", -1.0), ("B", 1.0)], 2.0, 2.0, ""),
+  )
+  m = @src.cobra3_model_add_reaction(
+    m,
+    cobra3_make_rxn("BIO", [("B", -1.0)], 0.0, 1000.0, ""),
+  )
+  m = @src.cobra3_model_set_objective(m, "BIO", 1.0)
+  assert_true(
+    (@src.cobra3_model_optimize(m).objective_value - 2.0).abs() < 1.0e-6,
+  )
+  // R2 强制消耗 A（lb=2）；敲掉唯一 A 来源 R1 后模型不可行，
+  // 此时"不可行"也应视为被阻断（COBRApy 里生长视为 0）。
+  let mcs = @src.cobra3_minimal_cut_sets(m, threshold=0.01, max_size=1, exclude=[
+    "R2", "BIO",
+  ])
+  assert_eq(mcs.length(), 1)
+  assert_eq(mcs[0].reaction_ids[0], "R1")
+  let mcs_milp = @src.cobra3_minimal_cut_sets_milp(m, threshold=0.01, exclude=[
+    "R2", "BIO",
+  ])
+  assert_eq(mcs_milp.length(), 1)
+  assert_eq(mcs_milp[0].reaction_ids[0], "R1")
+}
+
+///|
 test "cobra3 design minimal cut sets milp returns empty when no cut needed" {
   let m = cobra3_toy()
   let mcs = @src.cobra3_minimal_cut_sets_milp(m, threshold=100.0)
