@@ -1149,6 +1149,182 @@ pub fn cobra3_optcouple(
 }
 
 ///|
+/// OptCouple 的严格耦合判定（与单层 MILP 版 `cobra3_optcouple` 并存）：
+/// 枚举 0..max_knockouts 元敲除，对每个敲除方案先求最大生长 g*（要求
+/// g* ≥ min_growth 且 g* > 0），再在生长最优面
+/// `growth ≥ g*·(1−growth_tol)` 上最小化目标反应通量；只有该最小值仍
+/// > min_target 才视为真正耦合（产物是生长最优解中的必然副产物），
+/// 此时再在同一面上最大化产物通量并记录。单层 MILP 版可能把「牺牲生长
+/// 换取产物」误报为耦合，本函数不会。
+///
+/// 返回目标通量最大的一个方案；枚举受 `max_candidates` 预算限制，
+/// `exclude` 中的反应不作为敲除候选。空敲除组合也会参与判定，因此
+/// 「产物天然伴随生长」的模型无需敲除即可返回。
+pub fn cobra3_optcouple_strict(
+  model : Cobra3Model,
+  target_id : String,
+  min_growth~ : Double = 0.0,
+  max_knockouts~ : Int32 = 2,
+  max_candidates~ : Int32 = 5000,
+  exclude~ : Array[String] = [],
+  min_target~ : Double = 1.0e-6,
+  growth_tol~ : Double = 1.0e-6,
+) -> Array[Cobra3OptCoupleResult] {
+  let out : Array[Cobra3OptCoupleResult] = Array(capacity=1)
+  let n = model.reactions.length()
+  let target_idx = cobra3_model_reaction_index(model, target_id)
+  if target_idx < 0 ||
+    n == 0 ||
+    max_knockouts < 0 ||
+    min_target < 0.0 ||
+    growth_tol <= 0.0 ||
+    growth_tol >= 1.0 {
+    return out
+  }
+  let candidates : Array[Int32] = Array(capacity=n)
+  for j in 0..<n {
+    if !exclude.contains(model.reactions[j].id) {
+      candidates.push(j)
+    }
+  }
+  let m = candidates.length()
+  if m > 80 {
+    return out
+  }
+  let found : Array[Cobra3OptCoupleResult] = Array(capacity=0)
+  let empty : Array[String] = Array(capacity=0)
+  cobra3_optcouple_strict_eval(
+    model, empty, target_idx, min_growth, growth_tol, min_target, found,
+  )
+  let budget : Array[Int32] = [max_candidates]
+  let mut k = 1
+  while k <= max_knockouts && k <= m && budget[0] > 0 {
+    let cur : Array[String] = Array(capacity=k)
+    cobra3_optcouple_strict_extend(
+      model, target_idx, candidates, k, 0, cur, min_growth, growth_tol, min_target,
+      found, budget,
+    )
+    k = k + 1
+  }
+  if found.length() == 0 {
+    return out
+  }
+  let mut best = found[0]
+  for i in 1..<found.length() {
+    if found[i].target_flux > best.target_flux + 1.0e-9 ||
+      (
+        (found[i].target_flux - best.target_flux).abs() <= 1.0e-9 &&
+        found[i].knockout_ids.length() < best.knockout_ids.length()
+      ) {
+      best = found[i]
+    }
+  }
+  out.push(best)
+  out
+}
+
+///|
+/// 判定单个敲除方案：最大生长 g*，再在生长最优面上求产物最小/最大通量.
+fn cobra3_optcouple_strict_eval(
+  ko : Cobra3Model,
+  ids : Array[String],
+  target_idx : Int32,
+  min_growth : Double,
+  growth_tol : Double,
+  min_target : Double,
+  out : Array[Cobra3OptCoupleResult],
+) -> Unit {
+  let growth_sol = cobra3_model_optimize(ko)
+  if !(growth_sol.status is Optimal) {
+    return
+  }
+  let growth = growth_sol.objective_value
+  if growth <= 0.0 || growth < min_growth {
+    return
+  }
+  let cons = cobra3_steady_state_constraints(ko)
+  cons.push({
+    coeffs: cobra3_model_objective_vector(ko),
+    rhs: cobra3_optimum_floor(growth, 1.0 - growth_tol),
+    sense: Cobra3Sense::GreaterEqual,
+  })
+  let n = ko.reactions.length()
+  let lb = cobra3_model_lower_bounds(ko)
+  let ub = cobra3_model_upper_bounds(ko)
+  let c_min : Array[Double] = Array::make(n, 0.0)
+  c_min[target_idx] = -1.0
+  let min_sol = cobra3_solve_lp(cons, c_min, lb, ub)
+  if !(min_sol.status is Optimal) {
+    return
+  }
+  let min_flux = -min_sol.objective_value
+  if min_flux <= min_target {
+    return
+  }
+  let c_max : Array[Double] = Array::make(n, 0.0)
+  c_max[target_idx] = 1.0
+  let max_sol = cobra3_solve_lp(cons, c_max, lb, ub)
+  if !(max_sol.status is Optimal) {
+    return
+  }
+  out.push({
+    knockout_ids: ids,
+    growth,
+    target_flux: max_sol.objective_value,
+    coupled: true,
+  })
+}
+
+///|
+fn cobra3_optcouple_strict_extend(
+  model : Cobra3Model,
+  target_idx : Int32,
+  candidates : Array[Int32],
+  k : Int32,
+  start : Int32,
+  cur : Array[String],
+  min_growth : Double,
+  growth_tol : Double,
+  min_target : Double,
+  out : Array[Cobra3OptCoupleResult],
+  budget : Array[Int32],
+) -> Unit {
+  let total = candidates.length()
+  let need = k - cur.length()
+  let mut i = start
+  while i < total && total - i >= need && budget[0] > 0 {
+    cur.push(model.reactions[candidates[i]].id)
+    if cur.length() == k {
+      budget[0] = budget[0] - 1
+      let ko = cobra3_knockout_reactions(model, cur)
+      let ids : Array[String] = Array(capacity=cur.length())
+      for id in cur {
+        ids.push(id)
+      }
+      cobra3_optcouple_strict_eval(
+        ko, ids, target_idx, min_growth, growth_tol, min_target, out,
+      )
+    } else {
+      cobra3_optcouple_strict_extend(
+        model,
+        target_idx,
+        candidates,
+        k,
+        i + 1,
+        cur,
+        min_growth,
+        growth_tol,
+        min_target,
+        out,
+        budget,
+      )
+    }
+    ignore(cur.pop())
+    i = i + 1
+  }
+}
+
+///|
 pub(all) struct Cobra3CommunityResult {
   model : Cobra3Model
   fluxes : Array[Double]

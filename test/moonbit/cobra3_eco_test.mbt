@@ -693,6 +693,100 @@ test "cobra3 eco optcouple enforces min target" {
 }
 
 ///|
+test "cobra3 eco optcouple strict rejects growth-suboptimal coupling" {
+  let m = cobra3_optcouple_base_model()
+  // 最大生长 10 时 B 全部流向 BIO、P=0；旧单层 MILP 会用「生长 5 + 产物 5」
+  // 误报耦合，严格版必须返回空。
+  let res = @src.cobra3_optcouple_strict(
+    m,
+    "P",
+    min_growth=5.0,
+    max_knockouts=1,
+  )
+  assert_eq(res.length(), 0)
+}
+
+///|
+test "cobra3 eco optcouple strict accepts obligatory byproduct" {
+  let mut m = @src.cobra3_model_new("optcouple_byproduct")
+  m = @src.cobra3_model_add_reaction(
+    m,
+    cobra3_make_rxn("EX_A", [("A", -1.0)], -10.0, 1000.0, ""),
+  )
+  m = @src.cobra3_model_add_reaction(
+    m,
+    cobra3_make_rxn("R1", [("A", -1.0), ("B", 1.0)], 0.0, 1000.0, ""),
+  )
+  // BIO 同时产 P：生长 10 必然产 P 10
+  m = @src.cobra3_model_add_reaction(
+    m,
+    cobra3_make_rxn("BIO", [("B", -1.0), ("P", 1.0)], 0.0, 1000.0, ""),
+  )
+  m = @src.cobra3_model_add_reaction(
+    m,
+    cobra3_make_rxn("EX_P", [("P", -1.0)], 0.0, 1000.0, ""),
+  )
+  m = @src.cobra3_model_set_objective(m, "BIO", 1.0)
+  let res = @src.cobra3_optcouple_strict(
+    m,
+    "EX_P",
+    min_growth=5.0,
+    max_knockouts=1,
+  )
+  assert_eq(res.length(), 1)
+  assert_eq(res[0].knockout_ids.length(), 0)
+  assert_true((res[0].growth - 10.0).abs() < 1.0e-6)
+  assert_true((res[0].target_flux - 10.0).abs() < 1.0e-6)
+  assert_true(res[0].coupled)
+}
+
+///|
+test "cobra3 eco optcouple strict finds knockout making product obligatory" {
+  let mut m = @src.cobra3_model_new("optcouple_strict_ko")
+  m = @src.cobra3_model_add_reaction(
+    m,
+    cobra3_make_rxn("EX_A", [("A", -1.0)], -10.0, 1000.0, ""),
+  )
+  m = @src.cobra3_model_add_reaction(
+    m,
+    cobra3_make_rxn("R1", [("A", -1.0), ("B", 1.0)], 0.0, 1000.0, ""),
+  )
+  m = @src.cobra3_model_add_reaction(
+    m,
+    cobra3_make_rxn("BIO", [("B", -1.0), ("P", 1.0)], 0.0, 1000.0, ""),
+  )
+  // D/EX_W 让 P 可以在不分泌的情况下消耗掉：生长最优时 EX_P 可为 0
+  m = @src.cobra3_model_add_reaction(
+    m,
+    cobra3_make_rxn("D", [("P", -1.0), ("W", 1.0)], 0.0, 1000.0, ""),
+  )
+  m = @src.cobra3_model_add_reaction(
+    m,
+    cobra3_make_rxn("EX_W", [("W", -1.0)], 0.0, 1000.0, ""),
+  )
+  m = @src.cobra3_model_add_reaction(
+    m,
+    cobra3_make_rxn("EX_P", [("P", -1.0)], 0.0, 1000.0, ""),
+  )
+  m = @src.cobra3_model_set_objective(m, "BIO", 1.0)
+  let res = @src.cobra3_optcouple_strict(
+    m,
+    "EX_P",
+    min_growth=5.0,
+    max_knockouts=1,
+    exclude=["EX_A", "EX_P"],
+  )
+  assert_eq(res.length(), 1)
+  assert_eq(res[0].knockout_ids.length(), 1)
+  assert_true(
+    res[0].knockout_ids.contains("D") || res[0].knockout_ids.contains("EX_W"),
+  )
+  assert_true((res[0].growth - 10.0).abs() < 1.0e-6)
+  assert_true((res[0].target_flux - 10.0).abs() < 1.0e-6)
+  assert_true(res[0].coupled)
+}
+
+///|
 test "cobra3 eco community sums independent models" {
   let m1 = cobra3_toy()
   let mut m2 = @src.cobra3_model_new("second")
