@@ -1000,15 +1000,55 @@ moon test                                               # ✅ 17314 个测试全
 | 后端 | 构建 | 测试 |
 | :--- | :--- | :--- |
 | `wasm-gc`（默认） | ✅ | ✅ 17314 通过 |
-| `wasm` | ✅ | — |
+| `wasm` | ✅ | ✅ 17314 通过 |
 | `native` | ✅ | ✅ 17314 通过 |
-| `js` | ✅ | — |
+| `js` | ✅ | ✅ 17314 通过 |
+
+> `wasm` 与 `js` 后端测试需配合两项措施：① `ulimit -s unlimited` 规避 `moonc link-core` 阶段的栈溢出；② `--release` 优化模式缩减 `moonbit__init` 函数的 local 数量（默认 debug 模式下该函数因合并 1206 个源模块 + 840 个测试模块的初始化代码而超出 WebAssembly single-function local 上限）。CI 已对四个后端统一应用该策略。`js` 后端测试需 Node.js 运行时。
 
 ```bash
 moon build                              # 构建项目（默认 wasm-gc）
 moon build --target native              # 指定后端构建
 moon test                               # 运行全部测试 (17314 个测试用例，test/moonbit 包)
 moon test --target native               # 指定后端运行测试
+```
+
+### wasm 后端构建与测试
+
+`wasm` 后端（非 wasm-gc）在构建大型测试二进制时会触发两项工具链限制，需额外参数才能完成测试。**构建**不受影响，仅**测试**需要特殊处理。
+
+#### 构建（无需特殊参数）
+
+```bash
+moon build --target wasm                # 构建全部包为 wasm
+moon build --target wasm --package IvanAXu/BioSeqs/src   # 仅构建库
+```
+
+#### 测试（需 `ulimit` + `--release`）
+
+```bash
+ulimit -s unlimited                     # 规避 moonc link-core 阶段栈溢出
+moon test --target wasm --release       # --release 缩减 moonbit__init 函数的 local 数量
+```
+
+**两项参数缺一不可**：
+
+| 参数 | 作用 | 缺失后果 |
+| :--- | :--- | :--- |
+| `ulimit -s unlimited` | 提升进程栈上限，使 `moonc link-core` 能完成 1206 源模块 + 840 测试模块的链接 | `Error: Stack overflow`（moonc ICE） |
+| `--release` | 开启优化，消除 `moonbit__init` 函数中的冗余局部变量，降至 WebAssembly 单函数 50000 locals 上限以内 | `CompileError: local count too large` |
+
+> 原因：debug 模式（`-O0`）下 `moonbit__init` 会合并全部模块的初始化代码，局部变量数超出 WebAssembly 限制；`--release` 优化后即可通过。`wasm-gc` 与 `native` 后端无此限制，可直接 `moon test`。
+
+#### 在 CI 中使用
+
+GitHub Actions 的 `ubuntu-latest` runner 默认栈空间充足，仍建议在测试步骤前设置 `ulimit -s unlimited`。本项目 CI 已统一配置：
+
+```yaml
+- name: Moon test (wasm)
+  run: |
+    ulimit -s unlimited
+    moon test --target wasm --release
 ```
 
 > 注：MoonBit core 暂无文件系统接口，CLI 工具的序列文本经命令行参数传入；宿主程序读取文件后调用库 API 可获得完整文件处理能力。
