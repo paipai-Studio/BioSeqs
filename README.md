@@ -1004,7 +1004,7 @@ moon test                                               # ✅ 17314 个测试全
 | `native` | ✅ | ✅ 17314 通过 |
 | `js` | ✅ | ✅ 17314 通过 |
 
-> `wasm` 与 `js` 后端测试需配合两项措施：① `ulimit -s unlimited` 规避 `moonc link-core` 阶段的栈溢出；② `--release` 优化模式缩减 `moonbit__init` 函数的 local 数量（默认 debug 模式下该函数因合并 1206 个源模块 + 840 个测试模块的初始化代码而超出 WebAssembly single-function local 上限）。CI 已对四个后端统一应用该策略。`js` 后端测试需 Node.js 运行时。
+> `wasm` 后端测试需配合两项措施：① `ulimit -s unlimited` 规避 `moonc link-core` 阶段的栈溢出；② `--release` 优化模式缩减 `moonbit__init` 函数的 local 数量（默认 debug 模式下该函数因合并 1206 个源模块 + 840 个测试模块的初始化代码而超出 WebAssembly single-function local 上限）。`js` 后端无此限制，默认模式即可运行测试，但需 Node.js 运行时。CI 中仅对 `wasm` 应用 `--release`。
 
 ```bash
 moon build                              # 构建项目（默认 wasm-gc）

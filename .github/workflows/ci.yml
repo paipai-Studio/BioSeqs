@@ -40,9 +40,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # wasm-gc / native：默认模式即可构建与测试
-        # wasm / js：需 --release 优化以缩减 moonbit__init 函数的 local 数量，
-        #           并配合 ulimit -s unlimited 规避 link-core 阶段的栈溢出
+        # wasm-gc / native / js：默认模式即可构建与测试
+        # wasm：需 --release 优化以缩减 moonbit__init 函数的 local 数量，
+        #       并配合 ulimit -s unlimited 规避 link-core 阶段的栈溢出
         target: [wasm-gc, wasm, native, js]
     steps:
       - name: Checkout repository
@@ -62,4 +62,4 @@ jobs:
       - name: Moon test (${{ matrix.target }})
         run: |
           ulimit -s unlimited
-          moon test --target ${{ matrix.target }} ${{ (matrix.target == 'wasm' || matrix.target == 'js') && '--release' || '' }}
+          moon test --target ${{ matrix.target }} ${{ matrix.target == 'wasm' && '--release' || '' }}

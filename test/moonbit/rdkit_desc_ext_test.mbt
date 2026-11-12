@@ -24,13 +24,16 @@ test "kappa_indices_benzene" {
 
 ///|
 test "chi_indices_n_butane" {
-  // degrees [1,2,2,1]; Chi0 = 2 + sqrt(2)
+  // degrees [1,2,2,1]; Chi0 = 2 + 2/sqrt(2)
   let mol = @src.parse_smiles("CCCC")
   let (chi0, chi1, _c2, _c3, _c4) = @src.rdkit_chi_indices(mol)
-  assert_eq(chi0, 2.0 + 2.0 * @math.pow(2.0, -0.5))
+  // 期望值与实现分别走 pow(2,-0.5) 与 1/pow(x,0.5) 路径，
+  // 各后端浮点舍入可能差 1 ULP，故采用近似比较
+  let expected0 = 2.0 + 2.0 * @math.pow(2.0, -0.5)
+  assert_true(@moonbit.assert_close_e9(chi0, expected0))
   // Chi1: three bonds, products 1*2, 2*2, 2*1 -> 2/sqrt(2) + 1/2
   let expected1 = 2.0 * @math.pow(2.0, -0.5) + 0.5
-  assert_eq(chi1, expected1)
+  assert_true(@moonbit.assert_close_e9(chi1, expected1))
 }
 
 ///|
