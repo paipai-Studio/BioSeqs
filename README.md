@@ -8,7 +8,7 @@
 
 ## 项目概述
 
-BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，复刻主流生物信息学库（Biopython、Bioconductor、scikit-bio、Scanpy、scikit-allel、SeqKit、DendroPy、gffutils 等）的核心功能，并实现高效的序列组装算法。项目当前版本：`0.1.12`。
+BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，复刻主流生物信息学库（Biopython、Bioconductor、scikit-bio、Scanpy、scikit-allel、SeqKit、DendroPy、gffutils 等）的核心功能，并实现高效的序列组装算法。项目当前版本：`0.1.14`。
 
 ## 目录
 
@@ -852,7 +852,7 @@ MD 轨迹分析另提供与 MDAnalysis 的 Python 对拍基准：`test/python/md
 
 ```
 IvanAXu/BioSeqs/
-├── moon.mod                          # 模块配置 (name="IvanAXu/BioSeqs", version=0.1.12)
+├── moon.mod                          # 模块配置 (name="IvanAXu/BioSeqs", version=0.1.14)
 ├── src/                              # 源代码（1206 个 .mbt 模块）
 │   ├── seq.mbt                       # Bio.Seq 序列对象
 │   ├── seqio.mbt / fasta_io.mbt / ... # 序列 I/O（30+ 种格式）
@@ -981,10 +981,37 @@ moon test                                               # ✅ 17314 个测试全
 
 ## 构建与测试
 
+### 工具链版本
+
+已验证的 MoonBit 官方工具链版本：
+
+| 组件 | 版本 |
+| :--- | :--- |
+| `moon` | `0.1.20261104` (940aa18 2026-11-04) |
+| `moonc` | `v0.10.20+65efd5b93` (2026-11-05) |
+| `moonrun` | `0.1.20261104` (940aa18 2026-11-04) |
+
+安装与更新：`curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash`
+
+### 目标后端
+
+`moon.mod` 声明 `preferred_target = "wasm-gc"`。项目无第三方依赖，纯 MoonBit core 实现，已验证可在以下全部后端构建与运行测试：
+
+| 后端 | 构建 | 测试 |
+| :--- | :--- | :--- |
+| `wasm-gc`（默认） | ✅ | ✅ 17314 通过 |
+| `wasm` | ✅ | — |
+| `native` | ✅ | ✅ 17314 通过 |
+| `js` | ✅ | — |
+
 ```bash
-moon build      # 构建项目
-moon test       # 运行全部测试 (17314 个测试用例，test/moonbit 包)
+moon build                              # 构建项目（默认 wasm-gc）
+moon build --target native              # 指定后端构建
+moon test                               # 运行全部测试 (17314 个测试用例，test/moonbit 包)
+moon test --target native               # 指定后端运行测试
 ```
+
+> 注：MoonBit core 暂无文件系统接口，CLI 工具的序列文本经命令行参数传入；宿主程序读取文件后调用库 API 可获得完整文件处理能力。
 
 ---
 
