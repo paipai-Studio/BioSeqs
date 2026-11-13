@@ -483,7 +483,19 @@ pub fn Seq::translate(
       } else if c0 == gap_code && c1 == gap_code && c2 == gap_code {
         amino_buf[amino_len] = gap_code
       } else if b0 >= 0 && b1 >= 0 && b2 >= 0 {
-        amino_buf[amino_len] = x_code
+        // All bases are valid (A/C/G/T/U + IUPAC), but codon is not a
+        // single unambiguous 2-bit index. Try to resolve the IUPAC degenerate
+        // form: if every expansion maps to the same amino acid, use it.
+        let resolved = resolve_degenerate_codon(c0, c1, c2)
+        if resolved != 0xFFFE {
+          if resolved == sentinel_stop {
+            let codon = codon_to_string(seq, i)
+            raise SeqError("Extra in frame stop codon '" + codon + "' found.")
+          }
+          amino_buf[amino_len] = resolved
+        } else {
+          amino_buf[amino_len] = x_code
+        }
       } else {
         let codon = codon_to_string(seq, i)
         raise SeqError("Codon '" + codon + "' is invalid")
@@ -533,7 +545,24 @@ pub fn Seq::translate(
     } else if c0 == gap_code && c1 == gap_code && c2 == gap_code {
       amino_buf[amino_len] = gap_code
     } else if u0 >= 0 && u1 >= 0 && u2 >= 0 {
-      amino_buf[amino_len] = x_code
+      // Try IUPAC resolution for degenerate-but-consensus codons (GCN → A etc).
+      let resolved = resolve_degenerate_codon(c0, c1, c2)
+      if resolved != 0xFFFE {
+        if resolved == sentinel_stop {
+          if to_stop {
+            let final_buf : FixedArray[UInt16] = FixedArray::make(amino_len, 0)
+            for k = 0; k < amino_len; k = k + 1 {
+              final_buf[k] = amino_buf[k]
+            }
+            return Seq::{ data: unsafe_from_uint16_fixedarray(final_buf), }
+          }
+          amino_buf[amino_len] = stop_code
+        } else {
+          amino_buf[amino_len] = resolved
+        }
+      } else {
+        amino_buf[amino_len] = x_code
+      }
     } else {
       let codon = codon_to_string(seq, i)
       raise SeqError("Codon '" + codon + "' is invalid")

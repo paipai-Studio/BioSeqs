@@ -158,3 +158,97 @@ pub let codon_fixed_table : FixedArray[UInt16] = {
 }
 
 ///|
+/// IUPAC nucleotide ambiguity codes, encoded as a 4-bit mask.
+/// Bit 0 = A, bit 1 = C, bit 2 = G, bit 3 = T/U.
+/// Example: R (purine = A|G) = 0b0101 = 5.
+/// Invalid / unknown characters → mask 0.
+pub let iupac_base_mask : FixedArray[Int32] = {
+  let t = FixedArray::make(256, 0)
+  // Standard bases
+  t[65] = 1; t[97] = 1  // A, a
+  t[67] = 2; t[99] = 2  // C, c
+  t[71] = 4; t[103] = 4 // G, g
+  t[84] = 8; t[116] = 8 // T, t
+  t[85] = 8; t[117] = 8 // U, u
+  // Two-way degenerate
+  t[82] = 5;  t[114] = 5  // R, r = A|G
+  t[89] = 10; t[121] = 10 // Y, y = C|T
+  t[83] = 6;  t[115] = 6  // S, s = G|C
+  t[87] = 9;  t[119] = 9  // W, w = A|T
+  t[75] = 12; t[107] = 12 // K, k = G|T
+  t[77] = 3;  t[109] = 3  // M, m = A|C
+  // Three-way degenerate
+  t[66] = 14; t[98] = 14  // B, b = C|G|T
+  t[68] = 13; t[100] = 13 // D, d = A|G|T
+  t[72] = 11; t[104] = 11 // H, h = A|C|T
+  t[86] = 7;  t[118] = 7  // V, v = A|C|G
+  // Four-way degenerate
+  t[78] = 15; t[110] = 15 // N, n = A|C|G|T
+  t
+}
+
+///|
+/// Enumerate all 2-bit base values (A=0, C=1, G=2, T/U=3) covered by an
+/// IUPAC mask, appending each value to `out`. Returns the count appended.
+fn expand_mask(mask : Int32, out : Array[Int32]) -> Int32 {
+  let mut count = 0
+  if (mask & 1) != 0 { out.push(0); count = count + 1 }
+  if (mask & 2) != 0 { out.push(1); count = count + 1 }
+  if (mask & 4) != 0 { out.push(2); count = count + 1 }
+  if (mask & 8) != 0 { out.push(3); count = count + 1 }
+  count
+}
+
+///|
+/// Resolve a potentially IUPAC-degenerate codon to a single amino acid.
+/// Enumerates every non-ambiguous expansion of (c0, c1, c2) via the 2-bit
+/// codon table. **If all expansions map to the same codon_fixed_table entry,
+/// that UInt16 is returned** (stop codons map to 0xFFFF as usual). Otherwise
+/// 0xFFFE is returned, signalling the caller to emit 'X'.
+///
+/// Invalid nucleotides (mask = 0) produce 0xFFFE immediately.
+pub fn resolve_degenerate_codon(
+  c0 : UInt16,
+  c1 : UInt16,
+  c2 : UInt16,
+) -> UInt16 {
+  let m0 = iupac_base_mask[c0.to_int()]
+  let m1 = iupac_base_mask[c1.to_int()]
+  let m2 = iupac_base_mask[c2.to_int()]
+  if m0 == 0 || m1 == 0 || m2 == 0 {
+    return 0xFFFE
+  }
+
+  let bases0 : Array[Int32] = []
+  let bases1 : Array[Int32] = []
+  let bases2 : Array[Int32] = []
+  let n0 = expand_mask(m0, bases0)
+  let n1 = expand_mask(m1, bases1)
+  let n2 = expand_mask(m2, bases2)
+
+  let mut consensus : UInt16 = 0
+  let mut first = true
+  let mut i0 = 0
+  while i0 < n0 {
+    let b0 = bases0[i0]
+    let mut i1 = 0
+    while i1 < n1 {
+      let b1 = bases1[i1]
+      let mut i2 = 0
+      while i2 < n2 {
+        let b2 = bases2[i2]
+        let entry = codon_fixed_table[(b0 << 4) | (b1 << 2) | b2]
+        if first {
+          consensus = entry
+          first = false
+        } else if entry != consensus {
+          return 0xFFFE
+        }
+        i2 = i2 + 1
+      }
+      i1 = i1 + 1
+    }
+    i0 = i0 + 1
+  }
+  consensus
+}
