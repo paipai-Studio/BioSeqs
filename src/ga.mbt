@@ -279,20 +279,7 @@ pub fn ga_fitness_match(target : String) -> (GAIndividual) -> Double {
 pub fn ga_fitness_gc_content(target_gc : Double) -> (GAIndividual) -> Double {
   fn(individual : GAIndividual) -> Double {
     let seq = individual.sequence
-    let n = seq.length()
-    if n == 0 {
-      return 0.0
-    }
-    let mut gc_count = 0
-    let mut i = 0
-    while i < n {
-      let base = seq[i:i + 1].to_owned()
-      if base == "G" || base == "C" {
-        gc_count = gc_count + 1
-      }
-      i = i + 1
-    }
-    let gc_content = gc_count.to_double() / n.to_double()
+    let gc_content = Seq::new(seq).gc_content()
     let diff = if gc_content - target_gc < 0.0 {
       target_gc - gc_content
     } else {

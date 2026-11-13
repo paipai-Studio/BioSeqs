@@ -4,50 +4,11 @@
 ///|
 /// Standard genetic code table (codon -> amino acid).
 fn biopython_codon_to_aa(codon : String) -> String {
-  match codon {
-    // Phenylalanine
-    "TTT" | "TTC" => "F"
-    // Leucine
-    "TTA" | "TTG" | "CTT" | "CTC" | "CTA" | "CTG" => "L"
-    // Isoleucine
-    "ATT" | "ATC" | "ATA" => "I"
-    // Methionine / Start
-    "ATG" => "M"
-    // Valine
-    "GTT" | "GTC" | "GTA" | "GTG" => "V"
-    // Serine
-    "TCT" | "TCC" | "TCA" | "TCG" | "AGT" | "AGC" => "S"
-    // Proline
-    "CCT" | "CCC" | "CCA" | "CCG" => "P"
-    // Threonine
-    "ACT" | "ACC" | "ACA" | "ACG" => "T"
-    // Alanine
-    "GCT" | "GCC" | "GCA" | "GCG" => "A"
-    // Tyrosine
-    "TAT" | "TAC" => "Y"
-    // Stop
-    "TAA" | "TAG" | "TGA" => "*"
-    // Histidine
-    "CAT" | "CAC" => "H"
-    // Glutamine
-    "CAA" | "CAG" => "Q"
-    // Asparagine
-    "AAT" | "AAC" => "N"
-    // Lysine
-    "AAA" | "AAG" => "K"
-    // Aspartate
-    "GAT" | "GAC" => "D"
-    // Glutamate
-    "GAA" | "GAG" => "E"
-    // Cysteine
-    "TGT" | "TGC" => "C"
-    // Tryptophan
-    "TGG" => "W"
-    // Arginine
-    "CGT" | "CGC" | "CGA" | "CGG" | "AGA" | "AGG" => "R"
-    // Glycine
-    "GGT" | "GGC" | "GGA" | "GGG" => "G"
-    _ => "X" // Unknown
+  let aa = codon_lookup(codon)
+  if aa == "?" {
+    "X"
+  } else {
+    aa
   }
 }
 

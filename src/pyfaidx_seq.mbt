@@ -128,18 +128,7 @@ pub fn pyfaidx_reverse_complement(seq : String) -> String raise PyfaidxError {
 ///|
 /// GC content (`(G + g + C + c) / length`), denominator is the full sequence.
 pub fn pyfaidx_gc(seq : String) -> Double {
-  let mut gc = 0.0
-  for i = 0; i < seq.length(); i = i + 1 {
-    let c = seq.unsafe_get(i).unsafe_to_char()
-    if c == 'G' || c == 'g' || c == 'C' || c == 'c' {
-      gc = gc + 1.0
-    }
-  }
-  if seq.length() == 0 {
-    0.0
-  } else {
-    gc / seq.length().to_double()
-  }
+  Seq::new(seq).gc_content()
 }
 
 ///|

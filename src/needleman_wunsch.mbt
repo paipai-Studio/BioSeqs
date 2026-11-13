@@ -229,91 +229,23 @@ pub fn needleman_wunsch(
   seq2 : String,
   scoring : NWScoring,
 ) -> NWResult {
-  let n = seq1.length()
-  let m = seq2.length()
-  // Build score matrix: (n+1) x (m+1).
-  let dp : Array[Array[Double]] = Array(capacity=0)
-  let trace : Array[Array[NWTrace]] = Array(capacity=0)
-  for i = 0; i <= n; i = i + 1 {
-    let drow : Array[Double] = Array(capacity=0)
-    let trow : Array[NWTrace] = Array(capacity=0)
-    for j = 0; j <= m; j = j + 1 {
-      drow.push(0.0)
-      trow.push(NWTrace::Start)
-    }
-    dp.push(drow)
-    trace.push(trow)
-  }
-  // Initialise first row and column (gap penalties).
-  // dp[0][0] = 0, trace = Start.
-  for i = 1; i <= n; i = i + 1 {
-    dp[i][0] = i.to_double() * scoring.gap_penalty
-    trace[i][0] = NWTrace::Up
-  }
-  for j = 1; j <= m; j = j + 1 {
-    dp[0][j] = j.to_double() * scoring.gap_penalty
-    trace[0][j] = NWTrace::Left
-  }
-  // Fill DP matrix.
-  for i = 1; i <= n; i = i + 1 {
-    for j = 1; j <= m; j = j + 1 {
-      let c1 = seq1.unsafe_get(i - 1).unsafe_to_char()
-      let c2 = seq2.unsafe_get(j - 1).unsafe_to_char()
-      let sub_score = if c1 == c2 {
-        scoring.match_reward
-      } else {
-        scoring.mismatch_penalty
-      }
-      let diag = dp[i - 1][j - 1] + sub_score
-      let up = dp[i - 1][j] + scoring.gap_penalty
-      let left = dp[i][j - 1] + scoring.gap_penalty
-      // Choose the maximum (no 0-flooring — that's the NW vs SW difference).
-      let (val, dir) = if diag >= up && diag >= left {
-        (diag, NWTrace::Diag)
-      } else if up >= left {
-        (up, NWTrace::Up)
-      } else {
-        (left, NWTrace::Left)
-      }
-      dp[i][j] = val
-      trace[i][j] = dir
-    }
-  }
-  // Traceback from (n, m) to (0, 0).
-  let r1 = StringBuilder()
-  let r2 = StringBuilder()
-  let mut i = n
-  let mut j = m
-  while i > 0 || j > 0 {
-    match trace[i][j] {
-      NWTrace::Diag => {
-        r1.write_char(seq1.unsafe_get(i - 1).unsafe_to_char())
-        r2.write_char(seq2.unsafe_get(j - 1).unsafe_to_char())
-        i = i - 1
-        j = j - 1
-      }
-      NWTrace::Up => {
-        r1.write_char(seq1.unsafe_get(i - 1).unsafe_to_char())
-        r2.write_char('-')
-        i = i - 1
-      }
-      NWTrace::Left => {
-        r1.write_char('-')
-        r2.write_char(seq2.unsafe_get(j - 1).unsafe_to_char())
-        j = j - 1
-      }
-      NWTrace::Start => break
-    }
-  }
-  let aligned1 = nw_reverse_string(r1.to_string())
-  let aligned2 = nw_reverse_string(r2.to_string())
-  let match_line = nw_build_match_line(aligned1, aligned2)
+  let out = align_core_simple(
+    seq1,
+    seq2,
+    scoring.match_reward,
+    scoring.mismatch_penalty,
+    scoring.gap_penalty,
+    AlignMode::Global,
+  )
+  let trace : Array[Array[NWTrace]] = out.trace_matrix.map(fn(row) {
+    row.map(align_trace_to_nw)
+  })
   NWResult::{
-    aligned_seq1: aligned1,
-    aligned_seq2: aligned2,
-    match_line,
-    score: dp[n][m],
-    score_matrix: dp,
+    aligned_seq1: out.aligned_seq1,
+    aligned_seq2: out.aligned_seq2,
+    match_line: out.match_line,
+    score: out.score,
+    score_matrix: out.score_matrix,
     trace_matrix: trace,
   }
 }
@@ -345,81 +277,22 @@ pub fn needleman_wunsch_with_matrix(
   matrix : @data.SubstitutionMatrix,
   gap_penalty : Double,
 ) -> NWResult {
-  let n = seq1.length()
-  let m = seq2.length()
-  let dp : Array[Array[Double]] = Array(capacity=0)
-  let trace : Array[Array[NWTrace]] = Array(capacity=0)
-  for i = 0; i <= n; i = i + 1 {
-    let drow : Array[Double] = Array(capacity=0)
-    let trow : Array[NWTrace] = Array(capacity=0)
-    for j = 0; j <= m; j = j + 1 {
-      drow.push(0.0)
-      trow.push(NWTrace::Start)
-    }
-    dp.push(drow)
-    trace.push(trow)
-  }
-  for i = 1; i <= n; i = i + 1 {
-    dp[i][0] = i.to_double() * gap_penalty
-    trace[i][0] = NWTrace::Up
-  }
-  for j = 1; j <= m; j = j + 1 {
-    dp[0][j] = j.to_double() * gap_penalty
-    trace[0][j] = NWTrace::Left
-  }
-  for i = 1; i <= n; i = i + 1 {
-    for j = 1; j <= m; j = j + 1 {
-      let c1 = seq1.unsafe_get(i - 1).unsafe_to_char().to_string()
-      let c2 = seq2.unsafe_get(j - 1).unsafe_to_char().to_string()
-      let sub_score = matrix.get_score_case_insensitive(c1, c2).to_double()
-      let diag = dp[i - 1][j - 1] + sub_score
-      let up = dp[i - 1][j] + gap_penalty
-      let left = dp[i][j - 1] + gap_penalty
-      let (val, dir) = if diag >= up && diag >= left {
-        (diag, NWTrace::Diag)
-      } else if up >= left {
-        (up, NWTrace::Up)
-      } else {
-        (left, NWTrace::Left)
-      }
-      dp[i][j] = val
-      trace[i][j] = dir
-    }
-  }
-  let r1 = StringBuilder()
-  let r2 = StringBuilder()
-  let mut i = n
-  let mut j = m
-  while i > 0 || j > 0 {
-    match trace[i][j] {
-      NWTrace::Diag => {
-        r1.write_char(seq1.unsafe_get(i - 1).unsafe_to_char())
-        r2.write_char(seq2.unsafe_get(j - 1).unsafe_to_char())
-        i = i - 1
-        j = j - 1
-      }
-      NWTrace::Up => {
-        r1.write_char(seq1.unsafe_get(i - 1).unsafe_to_char())
-        r2.write_char('-')
-        i = i - 1
-      }
-      NWTrace::Left => {
-        r1.write_char('-')
-        r2.write_char(seq2.unsafe_get(j - 1).unsafe_to_char())
-        j = j - 1
-      }
-      NWTrace::Start => break
-    }
-  }
-  let aligned1 = nw_reverse_string(r1.to_string())
-  let aligned2 = nw_reverse_string(r2.to_string())
-  let match_line = nw_build_match_line(aligned1, aligned2)
+  let out = align_core_matrix(
+    seq1,
+    seq2,
+    matrix,
+    gap_penalty,
+    AlignMode::Global,
+  )
+  let trace : Array[Array[NWTrace]] = out.trace_matrix.map(fn(row) {
+    row.map(align_trace_to_nw)
+  })
   NWResult::{
-    aligned_seq1: aligned1,
-    aligned_seq2: aligned2,
-    match_line,
-    score: dp[n][m],
-    score_matrix: dp,
+    aligned_seq1: out.aligned_seq1,
+    aligned_seq2: out.aligned_seq2,
+    match_line: out.match_line,
+    score: out.score,
+    score_matrix: out.score_matrix,
     trace_matrix: trace,
   }
 }
@@ -445,32 +318,12 @@ pub fn needleman_wunsch_pam250(
 }
 
 ///|
-/// Build the match line: '|' for match, '.' for mismatch, ' ' for gap.
-fn nw_build_match_line(s1 : String, s2 : String) -> String {
-  let buf = StringBuilder()
-  for i = 0; i < s1.length(); i = i + 1 {
-    let c1 = s1.unsafe_get(i).unsafe_to_char()
-    let c2 = s2.unsafe_get(i).unsafe_to_char()
-    if c1 == '-' || c2 == '-' {
-      buf.write_char(' ')
-    } else if c1 == c2 {
-      buf.write_char('|')
-    } else {
-      buf.write_char('.')
-    }
+/// Convert an AlignTrace code to a Needleman-Wunsch NWTrace.
+fn align_trace_to_nw(t : AlignTrace) -> NWTrace {
+  match t {
+    AlignTrace::Stop => NWTrace::Start
+    AlignTrace::Diag => NWTrace::Diag
+    AlignTrace::Up => NWTrace::Up
+    AlignTrace::Left => NWTrace::Left
   }
-  buf.to_string()
-}
-
-///|
-/// Reverse a string (local to avoid clashing with alignment.mbt).
-fn nw_reverse_string(s : String) -> String {
-  let n = s.length()
-  let result = StringBuilder()
-  let mut i = n - 1
-  while i >= 0 {
-    result.write_char(s.unsafe_get(i).unsafe_to_char())
-    i = i - 1
-  }
-  result.to_string()
 }

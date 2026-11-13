@@ -105,30 +105,8 @@ pub fn orff_translate(seq : String) -> String {
   let mut i = 0
   while i + 2 < n {
     let codon = substring(seq, i, 3)
-    let aa = match codon {
-      "TTT" | "TTC" => "F"
-      "TTA" | "TTG" | "CTT" | "CTC" | "CTA" | "CTG" => "L"
-      "ATT" | "ATC" | "ATA" => "I"
-      "ATG" => "M"
-      "GTT" | "GTC" | "GTA" | "GTG" => "V"
-      "TCT" | "TCC" | "TCA" | "TCG" | "AGT" | "AGC" => "S"
-      "CCT" | "CCC" | "CCA" | "CCG" => "P"
-      "ACT" | "ACC" | "ACA" | "ACG" => "T"
-      "GCT" | "GCC" | "GCA" | "GCG" => "A"
-      "TAT" | "TAC" => "Y"
-      "TAA" | "TAG" | "TGA" => "*"
-      "CAT" | "CAC" => "H"
-      "CAA" | "CAG" => "Q"
-      "AAT" | "AAC" => "N"
-      "AAA" | "AAG" => "K"
-      "GAT" | "GAC" => "D"
-      "GAA" | "GAG" => "E"
-      "TGT" | "TGC" => "C"
-      "TGG" => "W"
-      "CGT" | "CGC" | "CGA" | "CGG" | "AGA" | "AGG" => "R"
-      "GGT" | "GGC" | "GGA" | "GGG" => "G"
-      _ => "X"
-    }
+    let aa = codon_lookup(codon)
+    let aa = if aa == "?" { "X" } else { aa }
     if aa == "*" {
       break
     }

@@ -353,6 +353,29 @@ pub fn Seq::reverse_complement_rna(self : Seq) -> Seq {
 }
 
 ///|
+/// Return the GC content as a fraction in [0.0, 1.0].
+///
+/// Counts G, C, g and c (case-insensitive) and divides by the total sequence
+/// length. Non-ACGT characters are counted in the denominator (matching
+/// BioPython's `SeqUtils.gc_fraction` with `ambiguous="ignore"` for the simple
+/// case, and pyfaidx's `gc`). Returns 0.0 for an empty sequence.
+pub fn Seq::gc_content(self : Seq) -> Double {
+  let n = self.data.length()
+  if n == 0 {
+    return 0.0
+  }
+  let mut gc = 0
+  // ASCII: 'G'=71, 'C'=67, 'g'=103, 'c'=99
+  for i = 0; i < n; i = i + 1 {
+    let c = self.data.unsafe_get(i).to_int()
+    if c == 71 || c == 67 || c == 103 || c == 99 {
+      gc = gc + 1
+    }
+  }
+  gc.to_double() / n.to_double()
+}
+
+///|
 /// Transcribe DNA into RNA (T -> U), like BioPython's Seq.transcribe().
 /// Single-pass character replacement using FixedArray[UInt16] for fast
 /// string construction.
@@ -782,4 +805,10 @@ pub fn MutableSeq::count(self : MutableSeq, sub : String) -> Int32 {
 /// Count overlapping occurrences of `sub`.
 pub fn MutableSeq::count_overlap(self : MutableSeq, sub : String) -> Int32 {
   self.to_seq().count_overlap(sub)
+}
+
+///|
+/// Return the GC content as a fraction in [0.0, 1.0].
+pub fn MutableSeq::gc_content(self : MutableSeq) -> Double {
+  self.to_seq().gc_content()
 }

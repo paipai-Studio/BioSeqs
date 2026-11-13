@@ -381,19 +381,7 @@ pub fn scan_sequences(
 ///|
 /// Compute the reverse complement of a DNA sequence.
 pub fn reverse_complement_sequence(seq : String) -> String {
-  let mut result = ""
-  for i = seq.length() - 1; i >= 0; i = i - 1 {
-    let c = seq[i:i + 1].to_owned().to_upper()
-    let comp = match c {
-      "A" => "T"
-      "T" => "A"
-      "C" => "G"
-      "G" => "C"
-      _ => c
-    }
-    result = result + comp
-  }
-  result
+  Seq::new(seq.to_upper()).reverse_complement().to_string()
 }
 
 ///|

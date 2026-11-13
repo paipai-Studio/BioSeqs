@@ -311,99 +311,16 @@ fn find_all_orfs(seq : String, params : ProdigalParams) -> Array[OrfCandidate] {
 // ============================================================================
 
 ///|
-/// Standard genetic code: codon -> amino acid.
-fn genetic_code() -> Map[String, String] {
-  let code : Map[String, String] = Map([], capacity=0)
-  let pairs = [
-    ("TTT", "F"),
-    ("TTC", "F"),
-    ("TTA", "L"),
-    ("TTG", "L"),
-    ("CTT", "L"),
-    ("CTC", "L"),
-    ("CTA", "L"),
-    ("CTG", "L"),
-    ("ATT", "I"),
-    ("ATC", "I"),
-    ("ATA", "I"),
-    ("ATG", "M"),
-    ("GTT", "V"),
-    ("GTC", "V"),
-    ("GTA", "V"),
-    ("GTG", "V"),
-    ("TCT", "S"),
-    ("TCC", "S"),
-    ("TCA", "S"),
-    ("TCG", "S"),
-    ("CCT", "P"),
-    ("CCC", "P"),
-    ("CCA", "P"),
-    ("CCG", "P"),
-    ("ACT", "T"),
-    ("ACC", "T"),
-    ("ACA", "T"),
-    ("ACG", "T"),
-    ("GCT", "A"),
-    ("GCC", "A"),
-    ("GCA", "A"),
-    ("GCG", "A"),
-    ("TAT", "Y"),
-    ("TAC", "Y"),
-    ("TAA", "*"),
-    ("TAG", "*"),
-    ("CAT", "H"),
-    ("CAC", "H"),
-    ("CAA", "Q"),
-    ("CAG", "Q"),
-    ("AAT", "N"),
-    ("AAC", "N"),
-    ("AAA", "K"),
-    ("AAG", "K"),
-    ("GAT", "D"),
-    ("GAC", "D"),
-    ("GAA", "E"),
-    ("GAG", "E"),
-    ("TGT", "C"),
-    ("TGC", "C"),
-    ("TGA", "*"),
-    ("TGG", "W"),
-    ("CGT", "R"),
-    ("CGC", "R"),
-    ("CGA", "R"),
-    ("CGG", "R"),
-    ("AGT", "S"),
-    ("AGC", "S"),
-    ("AGA", "R"),
-    ("AGG", "R"),
-    ("GGT", "G"),
-    ("GGC", "G"),
-    ("GGA", "G"),
-    ("GGG", "G"),
-  ]
-  for (codon, aa) in pairs {
-    code[codon] = aa
-  }
-  code
-}
-
-///|
 /// Translate a DNA sequence to protein.
 fn translate_seq(seq : String) -> String {
-  let code = genetic_code()
   let buf : StringBuilder = StringBuilder()
   let n = seq.length()
   let mut i = 0
   while i + 2 < n {
     let codon = extract_codon(seq, i, 3)
-    let aa = match code.get(codon) {
-      Some(a) => a
-      None => "X"
-    }
-    if aa == "*" {
-      buf.write_char('*')
-    } else {
-      buf.write_string(aa)
-    }
+    let aa = codon_lookup(codon)
+    let s = if aa == "?" { "X" } else { aa }
+    buf.write_string(s)
     i += 3
   }
   buf.to_string()

@@ -462,35 +462,5 @@ pub fn num_synonymous_codons(aa : String) -> Int32 {
 /// Generate the reverse complement of a DNA sequence.
 /// Handles IUPAC ambiguous bases correctly.
 pub fn reverse_complement_iupac(seq : String) -> String {
-  let comp : Map[String, String] = Map([], capacity=16)
-  comp["A"] = "T"
-  comp["T"] = "A"
-  comp["C"] = "G"
-  comp["G"] = "C"
-  comp["U"] = "A"
-  comp["R"] = "Y"
-  comp["Y"] = "R"
-  comp["S"] = "S"
-  comp["W"] = "W"
-  comp["K"] = "M"
-  comp["M"] = "K"
-  comp["B"] = "V"
-  comp["V"] = "B"
-  comp["D"] = "H"
-  comp["H"] = "D"
-  comp["N"] = "N"
-
-  let mut result = ""
-  let mut i = seq.length() - 1
-  while i >= 0 {
-    let base = seq[i:i + 1].to_owned()
-    let upper = base.to_upper()
-    let comp_base = match comp.get(upper) {
-      Some(c) => c
-      None => base
-    }
-    result = result + comp_base
-    i = i - 1
-  }
-  result
+  Seq::new(seq.to_upper()).reverse_complement().to_string()
 }

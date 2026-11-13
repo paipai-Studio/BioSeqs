@@ -191,6 +191,327 @@ pub fn SWResult::format_wrapped(self : SWResult, width : Int32) -> String {
   buf.to_string()
 }
 
+// ──────────────────────────────────────────────────────────────────────
+// Shared alignment engine (used by both Smith-Waterman and Needleman-Wunsch)
+// ──────────────────────────────────────────────────────────────────────
+
+///|
+/// Alignment mode: local (Smith-Waterman) or global (Needleman-Wunsch).
+#derive(Eq)
+enum AlignMode {
+  Local
+  Global
+}
+
+///|
+pub extend AlignMode with Eq::{equal, not_equal}
+
+///|
+/// Unified traceback direction codes used internally by the shared engine.
+priv enum AlignTrace {
+  Stop // local: score floored to 0; global: only at (0,0)
+  Diag // match/mismatch: from (i-1, j-1)
+  Up // gap in seq2: from (i-1, j)
+  Left // gap in seq1: from (i, j-1)
+}
+
+///|
+/// Internal alignment output produced by the shared DP engine.
+priv struct AlignOutput {
+  aligned_seq1 : String
+  aligned_seq2 : String
+  match_line : String
+  score : Double
+  start1 : Int32 // start index in seq1 (local mode)
+  end1 : Int32 // end index in seq1 (local mode)
+  start2 : Int32
+  end2 : Int32
+  score_matrix : Array[Array[Double]]
+  trace_matrix : Array[Array[AlignTrace]]
+}
+
+///|
+/// Convert an AlignTrace code to a Smith-Waterman TraceDirection.
+fn align_trace_to_sw(t : AlignTrace) -> TraceDirection {
+  match t {
+    AlignTrace::Stop => TraceDirection::Stop
+    AlignTrace::Diag => TraceDirection::Diag
+    AlignTrace::Up => TraceDirection::Up
+    AlignTrace::Left => TraceDirection::Left
+  }
+}
+
+///|
+/// Shared DP engine for both simple (match/mismatch) scoring modes.
+fn align_core_simple(
+  seq1 : String,
+  seq2 : String,
+  match_reward : Double,
+  mismatch_penalty : Double,
+  gap_penalty : Double,
+  mode : AlignMode,
+) -> AlignOutput {
+  let n = seq1.length()
+  let m = seq2.length()
+  let dp : Array[Array[Double]] = Array(capacity=0)
+  let trace : Array[Array[AlignTrace]] = Array(capacity=0)
+  for i = 0; i <= n; i = i + 1 {
+    let drow : Array[Double] = Array(capacity=0)
+    let trow : Array[AlignTrace] = Array(capacity=0)
+    for j = 0; j <= m; j = j + 1 {
+      drow.push(0.0)
+      trow.push(AlignTrace::Stop)
+    }
+    dp.push(drow)
+    trace.push(trow)
+  }
+  // Global mode: initialise first row / column with gap penalties.
+  if mode == AlignMode::Global {
+    for i = 1; i <= n; i = i + 1 {
+      dp[i][0] = i.to_double() * gap_penalty
+      trace[i][0] = AlignTrace::Up
+    }
+    for j = 1; j <= m; j = j + 1 {
+      dp[0][j] = j.to_double() * gap_penalty
+      trace[0][j] = AlignTrace::Left
+    }
+  }
+  let mut max_score = 0.0
+  let mut max_i = 0
+  let mut max_j = 0
+  for i = 1; i <= n; i = i + 1 {
+    for j = 1; j <= m; j = j + 1 {
+      let c1 = seq1.unsafe_get(i - 1).unsafe_to_char()
+      let c2 = seq2.unsafe_get(j - 1).unsafe_to_char()
+      let sub_score = if c1 == c2 { match_reward } else { mismatch_penalty }
+      let diag = dp[i - 1][j - 1] + sub_score
+      let up = dp[i - 1][j] + gap_penalty
+      let left = dp[i][j - 1] + gap_penalty
+      let (val, dir) = match mode {
+        AlignMode::Local =>
+          if diag >= up && diag >= left && diag > 0.0 {
+            (diag, AlignTrace::Diag)
+          } else if up >= left && up > 0.0 {
+            (up, AlignTrace::Up)
+          } else if left > 0.0 {
+            (left, AlignTrace::Left)
+          } else {
+            (0.0, AlignTrace::Stop)
+          }
+        AlignMode::Global =>
+          if diag >= up && diag >= left {
+            (diag, AlignTrace::Diag)
+          } else if up >= left {
+            (up, AlignTrace::Up)
+          } else {
+            (left, AlignTrace::Left)
+          }
+      }
+      dp[i][j] = val
+      trace[i][j] = dir
+      if mode == AlignMode::Local && val > max_score {
+        max_score = val
+        max_i = i
+        max_j = j
+      }
+    }
+  }
+  // Traceback start depends on mode.
+  let (start_i, start_j, score) = match mode {
+    AlignMode::Local => (max_i, max_j, max_score)
+    AlignMode::Global => (n, m, dp[n][m])
+  }
+  let mut i = start_i
+  let mut j = start_j
+  let r1 = StringBuilder()
+  let r2 = StringBuilder()
+  while i > 0 || j > 0 {
+    match trace[i][j] {
+      AlignTrace::Stop => break
+      AlignTrace::Diag => {
+        r1.write_char(seq1.unsafe_get(i - 1).unsafe_to_char())
+        r2.write_char(seq2.unsafe_get(j - 1).unsafe_to_char())
+        i = i - 1
+        j = j - 1
+      }
+      AlignTrace::Up => {
+        r1.write_char(seq1.unsafe_get(i - 1).unsafe_to_char())
+        r2.write_char('-')
+        i = i - 1
+      }
+      AlignTrace::Left => {
+        r1.write_char('-')
+        r2.write_char(seq2.unsafe_get(j - 1).unsafe_to_char())
+        j = j - 1
+      }
+    }
+  }
+  let aligned1 = reverse_string(r1.to_string())
+  let aligned2 = reverse_string(r2.to_string())
+  let match_line = build_match_line(aligned1, aligned2)
+  AlignOutput::{
+    aligned_seq1: aligned1,
+    aligned_seq2: aligned2,
+    match_line,
+    score,
+    start1: i,
+    end1: match mode {
+      AlignMode::Local => max_i
+      AlignMode::Global => n
+    },
+    start2: j,
+    end2: match mode {
+      AlignMode::Local => max_j
+      AlignMode::Global => m
+    },
+    score_matrix: dp,
+    trace_matrix: trace,
+  }
+}
+
+///|
+/// Shared DP engine for substitution-matrix scoring modes.
+fn align_core_matrix(
+  seq1 : String,
+  seq2 : String,
+  matrix : @data.SubstitutionMatrix,
+  gap_penalty : Double,
+  mode : AlignMode,
+) -> AlignOutput {
+  let n = seq1.length()
+  let m = seq2.length()
+  let dp : Array[Array[Double]] = Array(capacity=0)
+  let trace : Array[Array[AlignTrace]] = Array(capacity=0)
+  for i = 0; i <= n; i = i + 1 {
+    let drow : Array[Double] = Array(capacity=0)
+    let trow : Array[AlignTrace] = Array(capacity=0)
+    for j = 0; j <= m; j = j + 1 {
+      drow.push(0.0)
+      trow.push(AlignTrace::Stop)
+    }
+    dp.push(drow)
+    trace.push(trow)
+  }
+  if mode == AlignMode::Global {
+    for i = 1; i <= n; i = i + 1 {
+      dp[i][0] = i.to_double() * gap_penalty
+      trace[i][0] = AlignTrace::Up
+    }
+    for j = 1; j <= m; j = j + 1 {
+      dp[0][j] = j.to_double() * gap_penalty
+      trace[0][j] = AlignTrace::Left
+    }
+  }
+  let mut max_score = 0.0
+  let mut max_i = 0
+  let mut max_j = 0
+  for i = 1; i <= n; i = i + 1 {
+    for j = 1; j <= m; j = j + 1 {
+      let c1 = seq1.unsafe_get(i - 1).unsafe_to_char().to_string()
+      let c2 = seq2.unsafe_get(j - 1).unsafe_to_char().to_string()
+      let sub_score = matrix.get_score_case_insensitive(c1, c2).to_double()
+      let diag = dp[i - 1][j - 1] + sub_score
+      let up = dp[i - 1][j] + gap_penalty
+      let left = dp[i][j - 1] + gap_penalty
+      let (val, dir) = match mode {
+        AlignMode::Local =>
+          if diag >= up && diag >= left && diag > 0.0 {
+            (diag, AlignTrace::Diag)
+          } else if up >= left && up > 0.0 {
+            (up, AlignTrace::Up)
+          } else if left > 0.0 {
+            (left, AlignTrace::Left)
+          } else {
+            (0.0, AlignTrace::Stop)
+          }
+        AlignMode::Global =>
+          if diag >= up && diag >= left {
+            (diag, AlignTrace::Diag)
+          } else if up >= left {
+            (up, AlignTrace::Up)
+          } else {
+            (left, AlignTrace::Left)
+          }
+      }
+      dp[i][j] = val
+      trace[i][j] = dir
+      if mode == AlignMode::Local && val > max_score {
+        max_score = val
+        max_i = i
+        max_j = j
+      }
+    }
+  }
+  let (start_i, start_j, score) = match mode {
+    AlignMode::Local => (max_i, max_j, max_score)
+    AlignMode::Global => (n, m, dp[n][m])
+  }
+  let mut i = start_i
+  let mut j = start_j
+  let r1 = StringBuilder()
+  let r2 = StringBuilder()
+  while i > 0 || j > 0 {
+    match trace[i][j] {
+      AlignTrace::Stop => break
+      AlignTrace::Diag => {
+        r1.write_char(seq1.unsafe_get(i - 1).unsafe_to_char())
+        r2.write_char(seq2.unsafe_get(j - 1).unsafe_to_char())
+        i = i - 1
+        j = j - 1
+      }
+      AlignTrace::Up => {
+        r1.write_char(seq1.unsafe_get(i - 1).unsafe_to_char())
+        r2.write_char('-')
+        i = i - 1
+      }
+      AlignTrace::Left => {
+        r1.write_char('-')
+        r2.write_char(seq2.unsafe_get(j - 1).unsafe_to_char())
+        j = j - 1
+      }
+    }
+  }
+  let aligned1 = reverse_string(r1.to_string())
+  let aligned2 = reverse_string(r2.to_string())
+  let match_line = build_match_line(aligned1, aligned2)
+  AlignOutput::{
+    aligned_seq1: aligned1,
+    aligned_seq2: aligned2,
+    match_line,
+    score,
+    start1: i,
+    end1: match mode {
+      AlignMode::Local => max_i
+      AlignMode::Global => n
+    },
+    start2: j,
+    end2: match mode {
+      AlignMode::Local => max_j
+      AlignMode::Global => m
+    },
+    score_matrix: dp,
+    trace_matrix: trace,
+  }
+}
+
+///|
+/// Build the match line: '|' for match, '.' for mismatch, ' ' for gap.
+fn build_match_line(s1 : String, s2 : String) -> String {
+  let buf = StringBuilder()
+  for i = 0; i < s1.length(); i = i + 1 {
+    let c1 = s1.unsafe_get(i).unsafe_to_char()
+    let c2 = s2.unsafe_get(i).unsafe_to_char()
+    if c1 == '-' || c2 == '-' {
+      buf.write_char(' ')
+    } else if c1 == c2 {
+      buf.write_char('|')
+    } else {
+      buf.write_char('.')
+    }
+  }
+  buf.to_string()
+}
+
 ///|
 /// Run Smith-Waterman local alignment.
 ///
@@ -205,95 +526,25 @@ pub fn smith_waterman(
   seq2 : String,
   scoring : Scoring,
 ) -> SWResult {
-  let n = seq1.length()
-  let m = seq2.length()
-  // Build score matrix: (n+1) x (m+1), initialised to 0.
-  let dp : Array[Array[Double]] = Array(capacity=0)
-  let trace : Array[Array[TraceDirection]] = Array(capacity=0)
-  for i = 0; i <= n; i = i + 1 {
-    let row = FixedArray::make(m + 1, 0.0)
-    let trow = FixedArray::make(m + 1, TraceDirection::Stop)
-    let drow : Array[Double] = Array(capacity=0)
-    let trrow : Array[TraceDirection] = Array(capacity=0)
-    for j = 0; j <= m; j = j + 1 {
-      drow.push(row[j])
-      trrow.push(trow[j])
-    }
-    dp.push(drow)
-    trace.push(trrow)
-  }
-  let mut max_score = 0.0
-  let mut max_i = 0
-  let mut max_j = 0
-  // Fill DP matrix.
-  for i = 1; i <= n; i = i + 1 {
-    for j = 1; j <= m; j = j + 1 {
-      let c1 = seq1.unsafe_get(i - 1).unsafe_to_char()
-      let c2 = seq2.unsafe_get(j - 1).unsafe_to_char()
-      let sub_score = if c1 == c2 {
-        scoring.match_reward
-      } else {
-        scoring.mismatch_penalty
-      }
-      let diag = dp[i - 1][j - 1] + sub_score
-      let up = dp[i - 1][j] + scoring.gap_penalty
-      let left = dp[i][j - 1] + scoring.gap_penalty
-      // Choose the best of diag, up, left, or 0 (Smith-Waterman key step).
-      let (val, dir) = if diag >= up && diag >= left && diag > 0.0 {
-        (diag, TraceDirection::Diag)
-      } else if up >= left && up > 0.0 {
-        (up, TraceDirection::Up)
-      } else if left > 0.0 {
-        (left, TraceDirection::Left)
-      } else {
-        (0.0, TraceDirection::Stop)
-      }
-      dp[i][j] = val
-      trace[i][j] = dir
-      if val > max_score {
-        max_score = val
-        max_i = i
-        max_j = j
-      }
-    }
-  }
-  // Traceback from (max_i, max_j) until a Stop cell.
-  let r1 = StringBuilder()
-  let r2 = StringBuilder()
-  let mut i = max_i
-  let mut j = max_j
-  while i > 0 && j > 0 {
-    match trace[i][j] {
-      TraceDirection::Stop => break
-      TraceDirection::Diag => {
-        r1.write_char(seq1.unsafe_get(i - 1).unsafe_to_char())
-        r2.write_char(seq2.unsafe_get(j - 1).unsafe_to_char())
-        i = i - 1
-        j = j - 1
-      }
-      TraceDirection::Up => {
-        r1.write_char(seq1.unsafe_get(i - 1).unsafe_to_char())
-        r2.write_char('-')
-        i = i - 1
-      }
-      TraceDirection::Left => {
-        r1.write_char('-')
-        r2.write_char(seq2.unsafe_get(j - 1).unsafe_to_char())
-        j = j - 1
-      }
-    }
-  }
-  let aligned1 = reverse_string(r1.to_string())
-  let aligned2 = reverse_string(r2.to_string())
-  let match_line = build_match_line(aligned1, aligned2)
+  let out = align_core_simple(
+    seq1,
+    seq2,
+    scoring.match_reward,
+    scoring.mismatch_penalty,
+    scoring.gap_penalty,
+    AlignMode::Local,
+  )
+  let trace : Array[Array[TraceDirection]] = out.trace_matrix.map(fn(row) {
+    row.map(align_trace_to_sw)
+  })
   SWResult::{
-    aligned_seq1: aligned1,
-    aligned_seq2: aligned2,
-    match_line,
-    score: max_score,
-    start_pos1: (i, max_i),
-    start_pos2: (j, max_j),
-    score_matrix: dp,
+    aligned_seq1: out.aligned_seq1,
+    aligned_seq2: out.aligned_seq2,
+    match_line: out.match_line,
+    score: out.score,
+    start_pos1: (out.start1, out.end1),
+    start_pos2: (out.start2, out.end2),
+    score_matrix: out.score_matrix,
     trace_matrix: trace,
   }
 }
@@ -325,87 +576,18 @@ pub fn smith_waterman_with_matrix(
   matrix : @data.SubstitutionMatrix,
   gap_penalty : Double,
 ) -> SWResult {
-  let n = seq1.length()
-  let m = seq2.length()
-  let dp : Array[Array[Double]] = Array(capacity=0)
-  let trace : Array[Array[TraceDirection]] = Array(capacity=0)
-  for i = 0; i <= n; i = i + 1 {
-    let row = FixedArray::make(m + 1, 0.0)
-    let trow = FixedArray::make(m + 1, TraceDirection::Stop)
-    let drow : Array[Double] = Array(capacity=0)
-    let trrow : Array[TraceDirection] = Array(capacity=0)
-    for j = 0; j <= m; j = j + 1 {
-      drow.push(row[j])
-      trrow.push(trow[j])
-    }
-    dp.push(drow)
-    trace.push(trrow)
-  }
-  let mut max_score = 0.0
-  let mut max_i = 0
-  let mut max_j = 0
-  for i = 1; i <= n; i = i + 1 {
-    for j = 1; j <= m; j = j + 1 {
-      let c1 = seq1.unsafe_get(i - 1).unsafe_to_char().to_string()
-      let c2 = seq2.unsafe_get(j - 1).unsafe_to_char().to_string()
-      let sub_score = matrix.get_score_case_insensitive(c1, c2).to_double()
-      let diag = dp[i - 1][j - 1] + sub_score
-      let up = dp[i - 1][j] + gap_penalty
-      let left = dp[i][j - 1] + gap_penalty
-      let (val, dir) = if diag >= up && diag >= left && diag > 0.0 {
-        (diag, TraceDirection::Diag)
-      } else if up >= left && up > 0.0 {
-        (up, TraceDirection::Up)
-      } else if left > 0.0 {
-        (left, TraceDirection::Left)
-      } else {
-        (0.0, TraceDirection::Stop)
-      }
-      dp[i][j] = val
-      trace[i][j] = dir
-      if val > max_score {
-        max_score = val
-        max_i = i
-        max_j = j
-      }
-    }
-  }
-  let r1 = StringBuilder()
-  let r2 = StringBuilder()
-  let mut i = max_i
-  let mut j = max_j
-  while i > 0 && j > 0 {
-    match trace[i][j] {
-      TraceDirection::Stop => break
-      TraceDirection::Diag => {
-        r1.write_char(seq1.unsafe_get(i - 1).unsafe_to_char())
-        r2.write_char(seq2.unsafe_get(j - 1).unsafe_to_char())
-        i = i - 1
-        j = j - 1
-      }
-      TraceDirection::Up => {
-        r1.write_char(seq1.unsafe_get(i - 1).unsafe_to_char())
-        r2.write_char('-')
-        i = i - 1
-      }
-      TraceDirection::Left => {
-        r1.write_char('-')
-        r2.write_char(seq2.unsafe_get(j - 1).unsafe_to_char())
-        j = j - 1
-      }
-    }
-  }
-  let aligned1 = reverse_string(r1.to_string())
-  let aligned2 = reverse_string(r2.to_string())
-  let match_line = build_match_line(aligned1, aligned2)
+  let out = align_core_matrix(seq1, seq2, matrix, gap_penalty, AlignMode::Local)
+  let trace : Array[Array[TraceDirection]] = out.trace_matrix.map(fn(row) {
+    row.map(align_trace_to_sw)
+  })
   SWResult::{
-    aligned_seq1: aligned1,
-    aligned_seq2: aligned2,
-    match_line,
-    score: max_score,
-    start_pos1: (i, max_i),
-    start_pos2: (j, max_j),
-    score_matrix: dp,
+    aligned_seq1: out.aligned_seq1,
+    aligned_seq2: out.aligned_seq2,
+    match_line: out.match_line,
+    score: out.score,
+    start_pos1: (out.start1, out.end1),
+    start_pos2: (out.start2, out.end2),
+    score_matrix: out.score_matrix,
     trace_matrix: trace,
   }
 }
@@ -428,24 +610,6 @@ pub fn smith_waterman_pam250(
   gap_penalty : Double,
 ) -> SWResult {
   smith_waterman_with_matrix(seq1, seq2, @data.pam250(), gap_penalty)
-}
-
-///|
-/// Build the match line: '|' for match, '.' for mismatch, ' ' for gap.
-fn build_match_line(s1 : String, s2 : String) -> String {
-  let buf = StringBuilder()
-  for i = 0; i < s1.length(); i = i + 1 {
-    let c1 = s1.unsafe_get(i).unsafe_to_char()
-    let c2 = s2.unsafe_get(i).unsafe_to_char()
-    if c1 == '-' || c2 == '-' {
-      buf.write_char(' ')
-    } else if c1 == c2 {
-      buf.write_char('|')
-    } else {
-      buf.write_char('.')
-    }
-  }
-  buf.to_string()
 }
 
 ///|

@@ -96,20 +96,7 @@ fn count_unique_kmers(seq : String, k : Int32) -> Int32 {
 ///|
 /// Calculate the GC content percentage of a sequence (alias).
 pub fn gc_content_percent(seq : String) -> Double {
-  let n = seq.length()
-  if n == 0 {
-    return 0.0
-  }
-  let mut gc = 0
-  let mut i = 0
-  while i < n {
-    let c = seq.unsafe_get(i).unsafe_to_char()
-    if c == 'G' || c == 'g' || c == 'C' || c == 'c' {
-      gc = gc + 1
-    }
-    i = i + 1
-  }
-  gc.to_double() / n.to_double() * 100.0
+  Seq::new(seq).gc_content() * 100.0
 }
 
 ///|
@@ -122,8 +109,9 @@ pub fn at_content(seq : String) -> Double {
   let mut at = 0
   let mut i = 0
   while i < n {
-    let c = seq.unsafe_get(i).unsafe_to_char()
-    if c == 'A' || c == 'a' || c == 'T' || c == 't' {
+    let c = seq.unsafe_get(i).to_int()
+    // 'A'=65, 'T'=84, 'a'=97, 't'=116
+    if c == 65 || c == 84 || c == 97 || c == 116 {
       at = at + 1
     }
     i = i + 1

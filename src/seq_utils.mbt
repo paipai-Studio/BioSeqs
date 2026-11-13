@@ -121,19 +121,7 @@ pub fn sequtils_molecular_weight(seq : String, seq_type : String) -> Double {
 
 ///|
 pub fn gc_content(seq : String) -> Double {
-  if seq.length() == 0 {
-    return 0.0
-  }
-
-  let mut gc = 0
-  for i = 0; i < seq.length(); i = i + 1 {
-    let c = seq[i:i + 1].to_owned().to_upper()
-    if c == "G" || c == "C" {
-      gc = gc + 1
-    }
-  }
-
-  gc.to_double() / seq.length().to_double()
+  Seq::new(seq).gc_content()
 }
 
 ///|
@@ -410,20 +398,7 @@ pub fn codon_usage(seq : String) -> Map[String, Int32] {
 
 ///|
 pub fn reverse_complement(seq : String) -> String {
-  let mut result = ""
-  for i = seq.length() - 1; i >= 0; i = i - 1 {
-    let c = seq[i:i + 1].to_owned()
-    let comp = match c.to_upper() {
-      "A" => "T"
-      "T" => "A"
-      "C" => "G"
-      "G" => "C"
-      "U" => "A"
-      _ => c
-    }
-    result = result + comp
-  }
-  result
+  Seq::new(seq.to_upper()).reverse_complement().to_string()
 }
 
 ///|

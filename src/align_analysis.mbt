@@ -90,57 +90,7 @@ pub fn AlnAnalysisResult::aln_has_purifying_selection(
 /// Simple genetic code table (standard code 1).
 /// Returns amino acid for a codon.
 pub fn aln_aa_from_codon(codon : String) -> String {
-  if codon == "TTT" || codon == "TTC" {
-    "F"
-  } else if codon == "TTA" || codon == "TTG" {
-    "L"
-  } else if codon == "CTT" || codon == "CTC" || codon == "CTA" || codon == "CTG" {
-    "L"
-  } else if codon == "ATT" || codon == "ATC" || codon == "ATA" {
-    "I"
-  } else if codon == "ATG" {
-    "M"
-  } else if codon == "GTT" || codon == "GTC" || codon == "GTA" || codon == "GTG" {
-    "V"
-  } else if codon == "TCT" || codon == "TCC" || codon == "TCA" || codon == "TCG" {
-    "S"
-  } else if codon == "CCT" || codon == "CCC" || codon == "CCA" || codon == "CCG" {
-    "P"
-  } else if codon == "ACT" || codon == "ACC" || codon == "ACA" || codon == "ACG" {
-    "T"
-  } else if codon == "GCT" || codon == "GCC" || codon == "GCA" || codon == "GCG" {
-    "A"
-  } else if codon == "TAT" || codon == "TAC" {
-    "Y"
-  } else if codon == "TAA" || codon == "TAG" || codon == "TGA" {
-    "*"
-  } else if codon == "CAT" || codon == "CAC" {
-    "H"
-  } else if codon == "CAA" || codon == "CAG" {
-    "Q"
-  } else if codon == "AAT" || codon == "AAC" {
-    "N"
-  } else if codon == "AAA" || codon == "AAG" {
-    "K"
-  } else if codon == "GAT" || codon == "GAC" {
-    "D"
-  } else if codon == "GAA" || codon == "GAG" {
-    "E"
-  } else if codon == "TGT" || codon == "TGC" {
-    "C"
-  } else if codon == "TGG" {
-    "W"
-  } else if codon == "CGT" || codon == "CGC" || codon == "CGA" || codon == "CGG" {
-    "R"
-  } else if codon == "AGT" || codon == "AGC" {
-    "S"
-  } else if codon == "AGA" || codon == "AGG" {
-    "R"
-  } else if codon == "GGT" || codon == "GGC" || codon == "GGA" || codon == "GGG" {
-    "G"
-  } else {
-    "?"
-  }
+  codon_lookup(codon)
 }
 
 ///|

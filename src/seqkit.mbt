@@ -31,7 +31,7 @@ pub fn seqkit_complement(seq : String) -> String {
 ///|
 /// Reverse-complement a sequence (`seqkit seq -r -p`).
 pub fn seqkit_reverse_complement(seq : String) -> String {
-  reverse_complement_chars(seq, dna_complement_arr)
+  Seq::new(seq).reverse_complement().to_string()
 }
 
 ///|

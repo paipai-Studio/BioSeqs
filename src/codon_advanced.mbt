@@ -361,8 +361,12 @@ pub fn codon_usage_from_sequences(seqs : Array[String]) -> CodonUsageTable {
 /// Get the amino acid for a given codon.
 /// Returns "X" for unknown codons.
 pub fn get_amino_acid(codon : String) -> String {
-  let codon_upper = codon.to_upper()
-  codon_to_aa_map.get(codon_upper).unwrap_or("X")
+  let aa = codon_lookup(codon)
+  if aa == "?" {
+    "X"
+  } else {
+    aa
+  }
 }
 
 ///|

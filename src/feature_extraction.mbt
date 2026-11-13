@@ -80,25 +80,7 @@ pub fn dna_canonical_kmer_frequency(
 
 ///|
 fn reverse_complement_str(s : String) -> String {
-  let n = s.length()
-  let mut result = ""
-  for i in 0..<n {
-    let idx = n - 1 - i
-    let c = s.unsafe_get(idx)
-    let complement = match c {
-      65 => 'T'
-      84 => 'A'
-      71 => 'C'
-      67 => 'G'
-      97 => 't'
-      116 => 'a'
-      103 => 'c'
-      99 => 'g'
-      _ => c.to_char().unwrap_or('?')
-    }
-    result = "\{result}\{complement}"
-  }
-  result
+  Seq::new(s).reverse_complement().to_string()
 }
 
 ///|

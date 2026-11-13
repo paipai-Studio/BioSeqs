@@ -179,96 +179,15 @@ pub fn emboss_reverse_complement(seq : String) -> String {
 ///|
 /// Translate DNA to protein using the standard genetic code.
 pub fn translate(seq : String) -> String {
-  let s = seq.to_upper()
-  let codon_table = codon_table_std()
   let mut result = ""
   let mut i = 0
-  while i < s.length() - 2 {
-    let codon = substring(s, i, 3)
-    let aa_opt = codon_table.get(codon)
-    let aa = if aa_opt is Some(_) {
-      match aa_opt {
-        Some(a) => a
-        None => "X"
-      }
-    } else {
-      "X"
-    }
-    result = result + aa
+  while i + 3 <= seq.length() {
+    let codon = seq[i:i + 3].to_owned()
+    let aa = codon_lookup(codon)
+    result = result + (if aa == "?" { "X" } else { aa })
     i = i + 3
   }
   result
-}
-
-///|
-/// Get the standard codon table.
-fn codon_table_std() -> Map[String, String] {
-  let table = Map([], capacity=64)
-  table["TTT"] = "F"
-  table["TTC"] = "F"
-  table["TTA"] = "L"
-  table["TTG"] = "L"
-  table["CTT"] = "L"
-  table["CTC"] = "L"
-  table["CTA"] = "L"
-  table["CTG"] = "L"
-  table["ATT"] = "I"
-  table["ATC"] = "I"
-  table["ATA"] = "I"
-  table["ATG"] = "M"
-  table["GTT"] = "V"
-  table["GTC"] = "V"
-  table["GTA"] = "V"
-  table["GTG"] = "V"
-  table["TCT"] = "S"
-  table["TCC"] = "S"
-  table["TCA"] = "S"
-  table["TCG"] = "S"
-  table["CCT"] = "P"
-  table["CCC"] = "P"
-  table["CCA"] = "P"
-  table["CCG"] = "P"
-  table["ACT"] = "T"
-  table["ACC"] = "T"
-  table["ACA"] = "T"
-  table["ACG"] = "T"
-  table["GCT"] = "A"
-  table["GCC"] = "A"
-  table["GCA"] = "A"
-  table["GCG"] = "A"
-  table["TAT"] = "Y"
-  table["TAC"] = "Y"
-  table["TAA"] = "*"
-  table["TAG"] = "*"
-  table["CAT"] = "H"
-  table["CAC"] = "H"
-  table["CAA"] = "Q"
-  table["CAG"] = "Q"
-  table["AAT"] = "N"
-  table["AAC"] = "N"
-  table["AAA"] = "K"
-  table["AAG"] = "K"
-  table["GAT"] = "D"
-  table["GAC"] = "D"
-  table["GAA"] = "E"
-  table["GAG"] = "E"
-  table["TGT"] = "C"
-  table["TGC"] = "C"
-  table["TGA"] = "*"
-  table["TGG"] = "W"
-  table["CGT"] = "R"
-  table["CGC"] = "R"
-  table["CGA"] = "R"
-  table["CGG"] = "R"
-  table["AGT"] = "S"
-  table["AGC"] = "S"
-  table["AGA"] = "R"
-  table["AGG"] = "R"
-  table["GGT"] = "G"
-  table["GGC"] = "G"
-  table["GGA"] = "G"
-  table["GGG"] = "G"
-  table
 }
 
 ///|
