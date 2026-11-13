@@ -59,7 +59,8 @@ test "phylo_get_node_count" {
   let newick = "((A,B),(C,D));"
   let tree = @src.parse_newick(newick)
 
-  assert_eq(@src.get_node_count(tree), 5)
+  // Root + 2 internal clades + 4 leaves = 7 nodes total.
+  assert_eq(@src.get_node_count(tree), 7)
 }
 
 ///|

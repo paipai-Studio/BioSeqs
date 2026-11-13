@@ -37,7 +37,8 @@ test "tree_io_get_node_count" {
   let newick = "(A,B,(C,D));"
   let tree = @src.parse_newick(newick)
 
-  assert_eq(@src.get_node_count(tree), 5)
+  // Root + 1 internal clade (C,D) + 4 leaves = 6 nodes total.
+  assert_eq(@src.get_node_count(tree), 6)
 }
 
 ///|
