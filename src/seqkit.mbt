@@ -25,7 +25,7 @@ pub fn seqkit_reverse(seq : String) -> String {
 /// Complement a sequence (`seqkit seq -p`). IUPAC alphabet, case-preserving;
 /// unknown characters pass through unchanged.
 pub fn seqkit_complement(seq : String) -> String {
-  complement_chars(seq, dna_complement_arr)
+  Seq::new(seq).complement().to_string()
 }
 
 ///|

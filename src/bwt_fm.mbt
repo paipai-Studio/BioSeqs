@@ -81,7 +81,7 @@ pub fn bwt_inverse(bwt_str : String) -> String {
     current = c_count + rank_below
   }
   // The result is reversed and includes '$'.
-  let reversed = bwt_reverse_string(buf.to_string())
+  let reversed = reverse_string(buf.to_string())
   // Remove sentinel (should be at the end).
   if reversed.length() > 0 &&
     reversed.unsafe_get(reversed.length() - 1).unsafe_to_char() == bwt_sentinel {
@@ -370,16 +370,3 @@ pub fn suffix_array(text : String) -> Array[Int32] {
 // ---------------------------------------------------------------------------
 // Utility: reverse string (local copy to avoid dependency)
 // ---------------------------------------------------------------------------
-
-///|
-/// Reverse a string.
-fn bwt_reverse_string(s : String) -> String {
-  let n = s.length()
-  let result = StringBuilder()
-  let mut i = n - 1
-  while i >= 0 {
-    result.write_char(s.unsafe_get(i).unsafe_to_char())
-    i = i - 1
-  }
-  result.to_string()
-}

@@ -468,3 +468,15 @@ pub fn num_synonymous_codons(aa : String) -> Int32 {
 pub fn reverse_complement_iupac(seq : String) -> String {
   Seq::new(seq.to_upper()).reverse_complement().to_string()
 }
+
+///|
+/// Reverse a string character-wise (O(n)).
+/// A single-pass implementation used by alignment/assembly/BWT modules.
+pub fn reverse_string(s : String) -> String {
+  let n = s.length()
+  let buf : FixedArray[UInt16] = FixedArray::make(n, 0)
+  for i = 0; i < n; i = i + 1 {
+    buf[i] = s.unsafe_get(n - 1 - i)
+  }
+  unsafe_from_uint16_fixedarray(buf)
+}

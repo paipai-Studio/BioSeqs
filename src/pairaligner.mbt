@@ -551,19 +551,6 @@ fn pairaligner_build_match_line(s1 : String, s2 : String) -> String {
   buf.to_string()
 }
 
-///|
-/// Reverse a string (local to pairaligner to avoid name clashes).
-fn pairaligner_reverse_string(s : String) -> String {
-  let n = s.length()
-  let result = StringBuilder()
-  let mut i = n - 1
-  while i >= 0 {
-    result.write_char(s.unsafe_get(i).unsafe_to_char())
-    i = i - 1
-  }
-  result.to_string()
-}
-
 // ============================================================
 // Traceback direction enum (internal)
 // ============================================================
@@ -840,8 +827,8 @@ pub fn pairaligner_align(
     }
   }
 
-  let aligned_target = pairaligner_reverse_string(r_target.to_string())
-  let aligned_query = pairaligner_reverse_string(r_query.to_string())
+  let aligned_target = reverse_string(r_target.to_string())
+  let aligned_query = reverse_string(r_query.to_string())
   let match_line = pairaligner_build_match_line(aligned_target, aligned_query)
 
   let target_start = i_pos

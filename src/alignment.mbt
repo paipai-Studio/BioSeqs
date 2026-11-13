@@ -323,19 +323,6 @@ pub fn align_score(msa : TabularMSA) -> Double {
 }
 
 ///|
-/// Reverse a string.
-fn reverse_string(s : String) -> String {
-  let n = s.length()
-  let result = StringBuilder()
-  let mut i = n - 1
-  while i >= 0 {
-    result.write_char(s.unsafe_get(i).unsafe_to_char())
-    i = i - 1
-  }
-  result.to_string()
-}
-
-///|
 /// Global alignment using Needleman-Wunsch algorithm.
 fn global_align(
   s1 : String,

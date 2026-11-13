@@ -1177,17 +1177,6 @@ fn polish_count_offset(
 }
 
 ///|
-fn polish_reverse_string(s : String) -> String {
-  let sb = StringBuilder()
-  let mut i = s.length() - 1
-  while i >= 0 {
-    sb.write_char(s.unsafe_get(i).unsafe_to_char())
-    i = i - 1
-  }
-  sb.to_string()
-}
-
-///|
 /// 半全局比对: 读段整体对齐到参考窗口, 窗口两端未覆盖部分不罚分.
 ///
 /// 与全局 Needleman-Wunsch 的差别: 第一行得分全为 0 (窗口前缀免费),
@@ -1270,13 +1259,13 @@ fn polish_semiglobal_align(read : String, window : String) -> (String, String) {
   for _k in 0..<prefix.length() {
     read_aligned.write_char('-')
   }
-  read_aligned.write_string(polish_reverse_string(read_mid.to_string()))
+  read_aligned.write_string(reverse_string(read_mid.to_string()))
   for _k in 0..<suffix.length() {
     read_aligned.write_char('-')
   }
   let ref_aligned = StringBuilder()
   ref_aligned.write_string(prefix)
-  ref_aligned.write_string(polish_reverse_string(ref_mid.to_string()))
+  ref_aligned.write_string(reverse_string(ref_mid.to_string()))
   ref_aligned.write_string(suffix)
   (read_aligned.to_string(), ref_aligned.to_string())
 }
