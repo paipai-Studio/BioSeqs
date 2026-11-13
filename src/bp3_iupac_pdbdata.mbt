@@ -100,71 +100,17 @@ pub fn bp3_iupac_valid_letter(letter : String, is_rna~ : Bool = false) -> Bool {
 }
 
 ///|
-let bp3_monoisotopic_mass : Map[String, Double] = Map([
-  ("A", 71.03711),
-  ("C", 103.00919),
-  ("D", 115.02694),
-  ("E", 129.04259),
-  ("F", 147.06841),
-  ("G", 57.02146),
-  ("H", 137.05891),
-  ("I", 113.08406),
-  ("K", 128.09496),
-  ("L", 113.08406),
-  ("M", 131.04049),
-  ("N", 114.04293),
-  ("P", 97.05276),
-  ("Q", 128.05858),
-  ("R", 156.10111),
-  ("S", 87.03203),
-  ("T", 101.04768),
-  ("V", 99.06841),
-  ("W", 186.07931),
-  ("Y", 163.06333),
-])
-
-///|
-let bp3_average_mass : Map[String, Double] = Map([
-  ("A", 71.0788),
-  ("C", 103.1388),
-  ("D", 115.0886),
-  ("E", 129.1155),
-  ("F", 147.1766),
-  ("G", 57.0519),
-  ("H", 137.1411),
-  ("I", 113.1594),
-  ("K", 128.1741),
-  ("L", 113.1594),
-  ("M", 131.1925),
-  ("N", 114.1038),
-  ("P", 97.1167),
-  ("Q", 128.1307),
-  ("R", 156.1875),
-  ("S", 87.0782),
-  ("T", 101.1051),
-  ("V", 99.1326),
-  ("W", 186.2132),
-  ("Y", 163.1760),
-])
+/// #11 IUPACData — monoisotopic/average masses delegated to data.mbt
+/// protein_residue_mass_monoisotopic() and protein_residue_mass_average().
 
 ///|
 pub fn bp3_molecular_weight_monoisotopic(sequence : String) -> Double {
-  let mut mw = 18.01056
-  for i in 0..<sequence.length() {
-    let aa = sequence[i:i + 1].to_owned()
-    mw = mw + bp3_monoisotopic_mass.get(aa).unwrap_or(0.0)
-  }
-  mw
+  protein_molecular_weight(sequence, is_monoisotopic=true)
 }
 
 ///|
 pub fn bp3_molecular_weight_average(sequence : String) -> Double {
-  let mut mw = 18.01524
-  for i in 0..<sequence.length() {
-    let aa = sequence[i:i + 1].to_owned()
-    mw = mw + bp3_average_mass.get(aa).unwrap_or(0.0)
-  }
-  mw
+  protein_molecular_weight(sequence, is_monoisotopic=false)
 }
 
 ///|

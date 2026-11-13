@@ -49,62 +49,19 @@ pub fn default_atomic_weights() -> AtomicWeights {
 
 ///|
 /// Molecular weight contribution of each DNA nucleotide.
-/// These are monoisotopic-like average masses for dNTPs.
-/// Each nucleotide: base + deoxyribose (C5H8O3) + phosphate (HO4P)
-/// minus water for each phosphodiester bond.
+/// Delegates to the unified table in data.mbt.
 pub fn nucleotide_weight(nucleotide : String) -> Double {
-  match nucleotide.to_upper() {
-    "A" => 335.2444 /// dATP: C10H16N5O12P3
-    "C" => 311.2133 /// dCTP: C9H16N3O13P3
-    "G" => 351.2407 /// dGTP: C10H16N5O14P3
-    "T" => 326.2079 /// dTTP: C10H17N2O14P3
-    "U" => 324.1968 /// dUTP: C9H17N2O14P3
-    "I" => 350.2559 /// dITP: C10H15N4O13P3 (inosine)
-    "X" => 335.2444 /// Unknown purine - use A as default
-    "Y" => 326.2079 /// Unknown pyrimidine - use T as default
-    "N" => 335.2444 /// Any - use average
-    "R" => 343.2426 /// A|G (average)
-    "S" => 331.2270 /// G|C (average)
-    "W" => 330.7262 /// A|T (average)
-    "K" => 338.7243 /// G|T (average)
-    "M" => 323.2289 /// A|C (average)
-    "B" => 318.7076 /// C|G|T (average)
-    "D" => 337.5837 /// A|G|T (average)
-    "H" => 324.2286 /// A|C|T (average)
-    "V" => 332.5660 /// A|C|G (average)
-    _ => 335.2444 /// Default
-  }
+  let table = dna_nucleotide_mass()
+  table.get(nucleotide.to_upper()).unwrap_or(335.2444)
 }
 
 ///|
 /// Molecular weight contribution of each amino acid (average isotopic).
-/// These are residue weights (amino acid minus water).
+/// These are full amino acid molecule masses (complete mass, residue + water).
+/// Delegates to the unified table in data.mbt, falls back to 118.8860 (average).
 pub fn amino_acid_weight(aa : String) -> Double {
-  match aa.to_upper() {
-    "A" => 89.0935 /// Alanine (C3H7NO2)
-    "R" => 174.2027 /// Arginine (C6H14N4O2)
-    "N" => 132.1184 /// Asparagine (C4H8N2O3)
-    "D" => 133.1032 /// Aspartic acid (C4H7NO4)
-    "C" => 121.1590 /// Cysteine (C3H7NO2S)
-    "E" => 147.1299 /// Glutamic acid (C5H9NO4)
-    "Q" => 146.1451 /// Glutamine (C5H10N2O3)
-    "G" => 75.0669 /// Glycine (C2H5NO2)
-    "H" => 155.1552 /// Histidine (C6H9N3O2)
-    "I" => 131.1736 /// Isoleucine (C6H13NO2)
-    "L" => 131.1736 /// Leucine (C6H13NO2)
-    "K" => 146.1882 /// Lysine (C6H14N2O2)
-    "M" => 149.2124 /// Methionine (C5H11NO2S)
-    "F" => 165.1900 /// Phenylalanine (C9H11NO2)
-    "P" => 115.1310 /// Proline (C5H9NO2)
-    "S" => 105.0930 /// Serine (C3H7NO3)
-    "T" => 119.1197 /// Threonine (C4H9NO3)
-    "W" => 204.2262 /// Tryptophan (C11H12N2O2)
-    "Y" => 181.1894 /// Tyrosine (C9H11NO3)
-    "V" => 117.1469 /// Valine (C5H11NO2)
-    "U" => 150.0388 /// Selenocysteine (C3H7NO2Se)
-    "O" => 237.2984 /// Pyrrolysine (C12H21N3O3)
-    _ => 118.8860 /// Average amino acid weight
-  }
+  let mass = amino_complete_mass(aa)
+  if mass > 0.0 { mass } else { 118.8860 }
 }
 
 ///|
@@ -125,7 +82,7 @@ pub fn mol_weight_dna(sequence : String) -> Double {
     i = i + 1
   }
   // Subtract water for each phosphodiester bond (n-1 bonds)
-  total - (n - 1).to_double() * 18.01524
+  total - (n - 1).to_double() * WATER_MASS_AVERAGE
 }
 
 ///|
@@ -153,7 +110,7 @@ pub fn mol_weight_protein(sequence : String) -> Double {
     i = i + 1
   }
   // Subtract water for each peptide bond (n-1 bonds)
-  total - (n - 1).to_double() * 18.01524
+  total - (n - 1).to_double() * WATER_MASS_AVERAGE
 }
 
 ///|

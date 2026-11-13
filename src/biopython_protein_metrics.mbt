@@ -158,38 +158,9 @@ pub fn biopython_amino_acid_composition(
 
 ///|
 /// Molecular weight of a protein (average weights).
+/// Delegates to the unified calculator in data.mbt.
 pub fn biopython_protein_molecular_weight(protein : String) -> Double {
-  // Average molecular weights (including water)
-  let mw = fn(aa : String) -> Double {
-    match aa {
-      "A" => 89.09
-      "C" => 121.16
-      "D" => 133.10
-      "E" => 147.13
-      "F" => 165.19
-      "G" => 75.07
-      "H" => 155.16
-      "I" => 131.17
-      "K" => 146.19
-      "L" => 131.17
-      "M" => 149.21
-      "N" => 132.12
-      "P" => 115.13
-      "Q" => 146.15
-      "R" => 174.20
-      "S" => 105.09
-      "T" => 119.12
-      "V" => 117.15
-      "W" => 204.23
-      "Y" => 181.19
-      _ => 0.0
-    }
-  }
-  let mut total = 18.02 // Water
-  for i = 0; i < protein.length(); i = i + 1 {
-    total = total + mw(protein[i:i + 1].to_owned())
-  }
-  total
+  protein_molecular_weight(protein)
 }
 
 ///|

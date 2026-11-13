@@ -39,67 +39,9 @@ pub struct DigestResult {
 }
 
 ///|
-let average_weights : Map[String, Double] = Map(
-  [
-    ("A", 89.0935),
-    ("R", 174.2017),
-    ("N", 132.1184),
-    ("D", 133.1032),
-    ("C", 121.1590),
-    ("E", 147.1299),
-    ("Q", 146.1451),
-    ("G", 75.0669),
-    ("H", 155.1552),
-    ("I", 131.1736),
-    ("L", 131.1736),
-    ("K", 146.1882),
-    ("M", 149.2124),
-    ("F", 165.1900),
-    ("P", 115.1310),
-    ("S", 105.0930),
-    ("T", 119.1197),
-    ("W", 204.2262),
-    ("Y", 181.1894),
-    ("V", 117.1469),
-  ],
-  capacity=20,
-)
-
-///|
-let monoisotopic_weights : Map[String, Double] = Map(
-  [
-    ("A", 71.03711),
-    ("R", 156.10111),
-    ("N", 114.04293),
-    ("D", 115.02694),
-    ("C", 103.00919),
-    ("E", 129.04259),
-    ("Q", 128.05858),
-    ("G", 57.02146),
-    ("H", 137.05891),
-    ("I", 113.08406),
-    ("L", 113.08406),
-    ("K", 128.09496),
-    ("M", 131.04049),
-    ("F", 147.06841),
-    ("P", 97.05276),
-    ("S", 87.03203),
-    ("T", 101.04768),
-    ("W", 186.07931),
-    ("Y", 163.06333),
-    ("V", 99.06841),
-  ],
-  capacity=20,
-)
-
-///|
-let water_mono : Double = 18.010565
-
-///|
-let water_avg : Double = 18.01524
-
-///|
-let proton_mass : Double = 1.007276
+/// NOTE: average_weights (complete masses) moved to data.protein_complete_mass_average()
+/// and monoisotopic_weights moved to data.protein_residue_mass_monoisotopic().
+/// Water constants moved to data.WATER_MASS_AVERAGE / WATER_MASS_MONOISOTOPIC / PROTON_MASS.
 
 ///|
 let enzyme_data : Map[String, (String, Bool, String)] = Map(
@@ -334,12 +276,12 @@ pub fn proteomics_calculate_mass(
   }
 
   let weights = if is_monoisotopic {
-    monoisotopic_weights
+    protein_residue_mass_monoisotopic()
   } else {
-    average_weights
+    protein_complete_mass_average()
   }
 
-  let water = if is_monoisotopic { water_mono } else { water_avg }
+  let water = if is_monoisotopic { WATER_MASS_MONOISOTOPIC } else { WATER_MASS_AVERAGE }
 
   let mut mass = 0.0
   let mut i = 0
@@ -394,7 +336,7 @@ pub fn proteomics_isotope_pattern(
   while i < num_peaks {
     let mass = mono_mass + delta_mass * i.to_double()
     let m = if charge > 0 {
-      mass / charge.to_double() + proton_mass
+      mass / charge.to_double() + PROTON_MASS
     } else {
       mass
     }
@@ -517,9 +459,9 @@ pub fn proteomics_fragment_ions(
     let y_avg = proteomics_calculate_mass(y_seq, false)
 
     let b_z = if charge > 0 { charge } else { 1 }
-    let b_ion_mono = (b_mono + (b_z.to_double() - 1.0) * proton_mass) /
+    let b_ion_mono = (b_mono + (b_z.to_double() - 1.0) * PROTON_MASS) /
       b_z.to_double()
-    let b_ion_avg = (b_avg + (b_z.to_double() - 1.0) * proton_mass) /
+    let b_ion_avg = (b_avg + (b_z.to_double() - 1.0) * PROTON_MASS) /
       b_z.to_double()
 
     frags.push(PeptideMassResult::{
@@ -530,9 +472,9 @@ pub fn proteomics_fragment_ions(
       end_position: i,
     })
 
-    let y_ion_mono = (y_mono + (b_z.to_double() - 1.0) * proton_mass) /
+    let y_ion_mono = (y_mono + (b_z.to_double() - 1.0) * PROTON_MASS) /
       b_z.to_double()
-    let y_ion_avg = (y_avg + (b_z.to_double() - 1.0) * proton_mass) /
+    let y_ion_avg = (y_avg + (b_z.to_double() - 1.0) * PROTON_MASS) /
       b_z.to_double()
 
     frags.push(PeptideMassResult::{

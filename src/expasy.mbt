@@ -248,44 +248,7 @@ pub fn expasy_get_enzyme(ec_number : String) -> EnzymeEntry? {
 pub fn expasy_analyze_protein(sequence : String) -> Map[String, Double] {
   let result = Map([], capacity=5)
 
-  let mut mw = 0.0
-  let aa_weights = Map(
-    [
-      ("A", 89.09),
-      ("R", 174.20),
-      ("N", 132.12),
-      ("D", 133.10),
-      ("C", 121.15),
-      ("E", 147.13),
-      ("Q", 146.15),
-      ("G", 75.07),
-      ("H", 155.16),
-      ("I", 131.17),
-      ("L", 131.17),
-      ("K", 146.19),
-      ("M", 149.21),
-      ("F", 165.19),
-      ("P", 115.13),
-      ("S", 105.09),
-      ("T", 119.12),
-      ("W", 204.23),
-      ("Y", 181.19),
-      ("V", 117.15),
-    ],
-    capacity=20,
-  )
-
-  let mut i = 0
-  while i < sequence.length() {
-    let aa = char_at(sequence, i)
-    let aa_upper = to_lowercase(aa)
-    if aa_weights.contains(aa_upper) {
-      mw = mw + aa_weights[aa_upper]
-    }
-    i = i + 1
-  }
-
-  mw = mw - (sequence.length() - 1).to_double() * 18.015
+  let mw = protein_molecular_weight(sequence)
   result.set("molecular_weight", mw)
 
   let mut gravy = 0.0
@@ -315,7 +278,7 @@ pub fn expasy_analyze_protein(sequence : String) -> Map[String, Double] {
     capacity=20,
   )
 
-  i = 0
+  let mut i = 0
   while i < sequence.length() {
     let aa = char_at(sequence, i)
     let aa_upper = to_lowercase(aa)

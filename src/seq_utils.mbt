@@ -1,36 +1,11 @@
 ///|
 /// Sequence utilities module.
-let dna_molecular_weights : Map[String, Double] = Map([
-  ("A", 313.2),
-  ("T", 304.2),
-  ("C", 289.2),
-  ("G", 329.2),
-  ("N", 0.0),
-])
+/// Protein/DNA weight tables moved to data.mbt unified infrastructure.
+/// DNA weights here follow the emboss-style simplified values.
+let dna_molecular_weights : Map[String, Double] = dna_nucleotide_mass()
 
 ///|
-let protein_molecular_weights : Map[String, Double] = Map([
-  ("A", 89.1),
-  ("R", 174.2),
-  ("N", 132.1),
-  ("D", 133.1),
-  ("C", 121.2),
-  ("E", 147.1),
-  ("Q", 146.2),
-  ("G", 75.1),
-  ("H", 155.2),
-  ("I", 131.2),
-  ("L", 131.2),
-  ("K", 146.2),
-  ("M", 149.2),
-  ("F", 165.2),
-  ("P", 115.1),
-  ("S", 105.1),
-  ("T", 119.1),
-  ("W", 204.2),
-  ("Y", 181.2),
-  ("V", 117.1),
-])
+let protein_molecular_weights : Map[String, Double] = protein_complete_mass_average()
 
 ///|
 /// Three-letter to one-letter amino acid map, mirroring
@@ -116,7 +91,7 @@ pub fn sequtils_molecular_weight(seq : String, seq_type : String) -> Double {
     weight = weight + added
   }
 
-  weight - (seq.length() - 1).to_double() * 18.0
+  weight - (seq.length() - 1).to_double() * WATER_MASS_AVERAGE
 }
 
 ///|
