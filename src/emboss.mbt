@@ -199,7 +199,6 @@ pub fn find_orfs(
   let s = seq.to_upper()
   let result : Array[(Int32, Int32, String)] = Array(capacity=0)
   let start_codons = ["ATG"]
-  let stop_codons = ["TAA", "TAG", "TGA"]
   let n = s.length()
 
   for frame in [0, 1, 2] {
@@ -220,16 +219,7 @@ pub fn find_orfs(
         let mut j = i + 3
         while j < n - 2 {
           let stop_codon = substring(s, j, 3)
-          let is_stop = {
-            let mut found = false
-            for stc in stop_codons {
-              if stop_codon == stc {
-                found = true
-                break
-              }
-            }
-            found
-          }
+          let is_stop = is_stop_codon(stop_codon)
           if is_stop {
             let length = j - i + 3
             if length >= min_length {

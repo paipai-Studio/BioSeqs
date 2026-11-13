@@ -118,7 +118,7 @@ pub fn relative_codon_deoptimization(
   let mut num_codons = 0
   let mut i = 0
   while i + 3 <= n {
-    let codon = seq[i:i + 3].to_owned().to_upper()
+    let codon = codon_at(seq, i)
     match weights.get(codon) {
       Some(w) => {
         sum_weights = sum_weights + w
@@ -143,7 +143,7 @@ pub fn rcd_with_weights(seq : String, weights : Map[String, Double]) -> Double {
   let mut num_codons = 0
   let mut i = 0
   while i + 3 <= n {
-    let codon = seq[i:i + 3].to_owned().to_upper()
+    let codon = codon_at(seq, i)
     match weights.get(codon) {
       Some(w) => {
         sum_weights = sum_weights + w
@@ -177,7 +177,7 @@ pub fn rcd_analysis(
   let mut num_codons = 0
   let mut i = 0
   while i + 3 <= n {
-    let codon = seq[i:i + 3].to_owned().to_upper()
+    let codon = codon_at(seq, i)
     match weights.get(codon) {
       Some(w) => {
         sum_weights = sum_weights + w
@@ -236,7 +236,7 @@ pub fn deoptimize_sequence(
   let buf = StringBuilder()
   let mut i = 0
   while i + 3 <= n {
-    let codon = seq[i:i + 3].to_owned().to_upper()
+    let codon = codon_at(seq, i)
     let aa = match ct.get(codon) {
       Some(a) => a
       None => "X"
@@ -288,7 +288,7 @@ pub fn codon_deoptimization_index(
   let mut total_codons = 0
   let mut i = 0
   while i + 3 <= n {
-    let codon = seq[i:i + 3].to_owned().to_upper()
+    let codon = codon_at(seq, i)
     match codon_counts.get(codon) {
       Some(c) => codon_counts[codon] = c + 1
       None => codon_counts[codon] = 1

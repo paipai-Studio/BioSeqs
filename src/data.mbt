@@ -480,3 +480,34 @@ pub fn reverse_string(s : String) -> String {
   }
   unsafe_from_uint16_fixedarray(buf)
 }
+
+///|
+/// Standard stop codons (NCBI table 1), DNA and RNA forms.
+pub fn stop_codon_list() -> Array[String] {
+  ["TAA", "TAG", "TGA", "UAA", "UAG", "UGA"]
+}
+
+///|
+/// Check whether a 3-letter codon is a standard stop codon.
+/// Case-insensitive, works with both DNA (T) and RNA (U) input.
+pub fn is_stop_codon(codon : String) -> Bool {
+  let upper = codon.to_upper()
+  upper == "TAA" ||
+  upper == "TAG" ||
+  upper == "TGA" ||
+  upper == "UAA" ||
+  upper == "UAG" ||
+  upper == "UGA"
+}
+
+///|
+/// Extract a 3-letter codon at position `i` and uppercase it.
+/// Returns an empty string if `i` is out of bounds.
+pub fn codon_at(seq : String, i : Int32) -> String {
+  let n = seq.length()
+  if i < 0 || i + 3 > n {
+    ""
+  } else {
+    seq[i:i + 3].to_owned().to_upper()
+  }
+}

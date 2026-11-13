@@ -74,13 +74,6 @@ pub fn codon_to_aa(codon : String) -> String {
 }
 
 ///|
-/// Check if a codon is a stop codon.
-pub fn is_stop_codon(codon : String) -> Bool {
-  let aa = codon_to_aa(codon)
-  aa == "*" || aa == "?"
-}
-
-///|
 /// Classify a codon substitution.
 pub fn classify_codon_substitution(
   codon1 : String,
