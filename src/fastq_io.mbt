@@ -113,6 +113,26 @@ pub fn parse_fastq(content : String) -> Array[SeqRecord] raise SeqIOError {
     })
     i = i + 4
   }
+  // Detect incomplete trailing record: any remaining non-empty lines
+  // after the last complete record indicate truncated input.
+  while i < n {
+    let line = lines[i]
+    let len = line.length()
+    let mut trimmed = len
+    if len > 0 && line.unsafe_get(len - 1) == '\r'.to_int().to_uint16() {
+      trimmed = len - 1
+    }
+    if trimmed > 0 {
+      raise SeqIOError(
+        "FASTQ input ended with an incomplete trailing record at line " +
+        (i + 1).to_string() +
+        " (expected 4 lines per record, got " +
+        (n - (i - 4 * records.length())).to_string() +
+        " remaining lines)",
+      )
+    }
+    i = i + 1
+  }
   records
 }
 
@@ -284,6 +304,22 @@ fn parse_fastq_offset(
       features: [],
     })
     i = i + 4
+  }
+  // Detect incomplete trailing record.
+  while i < n {
+    let line = lines[i]
+    let len = line.length()
+    let mut trimmed = len
+    if len > 0 && line.unsafe_get(len - 1) == '\r'.to_int().to_uint16() {
+      trimmed = len - 1
+    }
+    if trimmed > 0 {
+      raise SeqIOError(
+        "FASTQ input ended with an incomplete trailing record at line " +
+        (i + 1).to_string(),
+      )
+    }
+    i = i + 1
   }
   records
 }
