@@ -111,29 +111,12 @@ pub struct FragmentMapperResult {
 ///|
 /// Map 3-letter amino acid code to 1-letter code.
 fn _three_to_one(res_name : String) -> String {
-  match res_name {
-    "ALA" => "A"
-    "ARG" => "R"
-    "ASN" => "N"
-    "ASP" => "D"
-    "CYS" => "C"
-    "GLN" => "Q"
-    "GLU" => "E"
-    "GLY" => "G"
-    "HIS" => "H"
-    "ILE" => "I"
-    "LEU" => "L"
-    "LYS" => "K"
-    "MET" => "M"
-    "PHE" => "F"
-    "PRO" => "P"
-    "SER" => "S"
-    "THR" => "T"
-    "TRP" => "W"
-    "TYR" => "Y"
-    "VAL" => "V"
-    _ => "X"
+  let src = amino_3_to_1()
+  let m : Map[String, String] = Map([], capacity=src.length())
+  for k, v in src {
+    m[k.to_upper()] = v
   }
+  m.get(res_name.to_upper()).unwrap_or("X")
 }
 
 ///|

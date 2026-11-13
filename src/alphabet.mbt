@@ -106,55 +106,11 @@ pub fn reduced_protein() -> Alphabet {
 ///|
 /// Map from three-letter amino acid codes to one-letter codes.
 pub fn three_to_one() -> Map[String, String] {
-  let mapping : Map[String, String] = Map([], capacity=25)
-  mapping.set("Ala", "A")
-  mapping.set("Arg", "R")
-  mapping.set("Asn", "N")
-  mapping.set("Asp", "D")
-  mapping.set("Cys", "C")
-  mapping.set("Gln", "Q")
-  mapping.set("Glu", "E")
-  mapping.set("Gly", "G")
-  mapping.set("His", "H")
-  mapping.set("Ile", "I")
-  mapping.set("Leu", "L")
-  mapping.set("Lys", "K")
-  mapping.set("Met", "M")
-  mapping.set("Phe", "F")
-  mapping.set("Pro", "P")
-  mapping.set("Ser", "S")
-  mapping.set("Thr", "T")
-  mapping.set("Trp", "W")
-  mapping.set("Tyr", "Y")
-  mapping.set("Val", "V")
-  mapping.set("Ter", "*")
-  mapping
+  amino_3_to_1()
 }
 
 ///|
 /// Map from one-letter amino acid codes to three-letter codes.
 pub fn one_to_three() -> Map[String, String] {
-  let mapping : Map[String, String] = Map([], capacity=25)
-  mapping.set("A", "Ala")
-  mapping.set("R", "Arg")
-  mapping.set("N", "Asn")
-  mapping.set("D", "Asp")
-  mapping.set("C", "Cys")
-  mapping.set("Q", "Gln")
-  mapping.set("E", "Glu")
-  mapping.set("G", "Gly")
-  mapping.set("H", "His")
-  mapping.set("I", "Ile")
-  mapping.set("L", "Leu")
-  mapping.set("K", "Lys")
-  mapping.set("M", "Met")
-  mapping.set("F", "Phe")
-  mapping.set("P", "Pro")
-  mapping.set("S", "Ser")
-  mapping.set("T", "Thr")
-  mapping.set("W", "Trp")
-  mapping.set("Y", "Tyr")
-  mapping.set("V", "Val")
-  mapping.set("*", "Ter")
-  mapping
+  amino_1_to_3()
 }

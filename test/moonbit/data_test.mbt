@@ -56,7 +56,9 @@ test "amino_3_to_1" {
   let m = @src.amino_3_to_1()
   assert_eq(m.get("Ala").unwrap(), "A")
   assert_eq(m.get("Ter").unwrap(), "*")
-  assert_eq(m.length(), 21) // 20 standard + Ter
+  assert_eq(m.get("Sec").unwrap(), "U")
+  assert_eq(m.get("Pyl").unwrap(), "O")
+  assert_eq(m.length(), 23) // 20 standard + Sec + Pyl + Ter
 }
 
 ///|
@@ -64,7 +66,9 @@ test "amino_1_to_3" {
   let m = @src.amino_1_to_3()
   assert_eq(m.get("A").unwrap(), "Ala")
   assert_eq(m.get("*").unwrap(), "Ter")
-  assert_eq(m.length(), 21)
+  assert_eq(m.get("U").unwrap(), "Sec")
+  assert_eq(m.get("O").unwrap(), "Pyl")
+  assert_eq(m.length(), 23)
 }
 
 ///|

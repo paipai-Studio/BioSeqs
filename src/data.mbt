@@ -82,7 +82,7 @@ pub fn expand_ambiguous_rna(base : String) -> Array[String] {
 ///|
 /// Amino acid 3-letter to 1-letter code mapping (standard 20 + stop).
 pub fn amino_3_to_1() -> Map[String, String] {
-  let m : Map[String, String] = Map([], capacity=21)
+  let m : Map[String, String] = Map([], capacity=23)
   m["Ala"] = "A"
   m["Arg"] = "R"
   m["Asn"] = "N"
@@ -103,6 +103,8 @@ pub fn amino_3_to_1() -> Map[String, String] {
   m["Trp"] = "W"
   m["Tyr"] = "Y"
   m["Val"] = "V"
+  m["Sec"] = "U"
+  m["Pyl"] = "O"
   m["Ter"] = "*"
   m
 }
@@ -110,7 +112,7 @@ pub fn amino_3_to_1() -> Map[String, String] {
 ///|
 /// Amino acid 1-letter to 3-letter code mapping.
 pub fn amino_1_to_3() -> Map[String, String] {
-  let m : Map[String, String] = Map([], capacity=21)
+  let m : Map[String, String] = Map([], capacity=23)
   m["A"] = "Ala"
   m["R"] = "Arg"
   m["N"] = "Asn"
@@ -131,6 +133,8 @@ pub fn amino_1_to_3() -> Map[String, String] {
   m["W"] = "Trp"
   m["Y"] = "Tyr"
   m["V"] = "Val"
+  m["U"] = "Sec"
+  m["O"] = "Pyl"
   m["*"] = "Ter"
   m
 }

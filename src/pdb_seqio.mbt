@@ -18,29 +18,11 @@
 /// Codes are upper case, matching SEQRES and ATOM record format. Includes
 /// SEC (selenocysteine, U) and PYL (pyrrolysine, O).
 fn pdb_aa_3_to_1_map() -> Map[String, String] {
-  let m : Map[String, String] = Map([], capacity=22)
-  m["ALA"] = "A"
-  m["ARG"] = "R"
-  m["ASN"] = "N"
-  m["ASP"] = "D"
-  m["CYS"] = "C"
-  m["GLN"] = "Q"
-  m["GLU"] = "E"
-  m["GLY"] = "G"
-  m["HIS"] = "H"
-  m["ILE"] = "I"
-  m["LEU"] = "L"
-  m["LYS"] = "K"
-  m["MET"] = "M"
-  m["PHE"] = "F"
-  m["PRO"] = "P"
-  m["SER"] = "S"
-  m["THR"] = "T"
-  m["TRP"] = "W"
-  m["TYR"] = "Y"
-  m["VAL"] = "V"
-  m["SEC"] = "U"
-  m["PYL"] = "O"
+  let src = amino_3_to_1()
+  let m : Map[String, String] = Map([], capacity=src.length())
+  for k, v in src {
+    m[k.to_upper()] = v
+  }
   m
 }
 
@@ -48,29 +30,11 @@ fn pdb_aa_3_to_1_map() -> Map[String, String] {
 /// Reverse mapping: 1-letter amino acid code to upper-case 3-letter code.
 /// Returns "UNK" for codes without a standard 3-letter equivalent.
 fn pdb_aa_1_to_3_map() -> Map[String, String] {
-  let m : Map[String, String] = Map([], capacity=22)
-  m["A"] = "ALA"
-  m["R"] = "ARG"
-  m["N"] = "ASN"
-  m["D"] = "ASP"
-  m["C"] = "CYS"
-  m["Q"] = "GLN"
-  m["E"] = "GLU"
-  m["G"] = "GLY"
-  m["H"] = "HIS"
-  m["I"] = "ILE"
-  m["L"] = "LEU"
-  m["K"] = "LYS"
-  m["M"] = "MET"
-  m["F"] = "PHE"
-  m["P"] = "PRO"
-  m["S"] = "SER"
-  m["T"] = "THR"
-  m["W"] = "TRP"
-  m["Y"] = "TYR"
-  m["V"] = "VAL"
-  m["U"] = "SEC"
-  m["O"] = "PYL"
+  let src = amino_1_to_3()
+  let m : Map[String, String] = Map([], capacity=src.length())
+  for k, v in src {
+    m[k] = v.to_upper()
+  }
   m
 }
 
