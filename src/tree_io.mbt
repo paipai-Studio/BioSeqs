@@ -19,10 +19,11 @@ pub fn tree_node(
 
 ///|
 pub fn parse_newick(content : String) -> TreeNode {
-  let trimmed = content.trim().to_string()
+  let trimmed = content.trim().to_owned()
   // Strip optional trailing semicolon.
-  let without_semi = if trimmed.length() > 0 && char_at(trimmed, trimmed.length() - 1) == ";" {
-    trimmed.substring(start=0, end=trimmed.length() - 1).to_string()
+  let without_semi = if trimmed.length() > 0 &&
+    char_u(trimmed, trimmed.length() - 1) == ';' {
+    trimmed[0:trimmed.length() - 1].to_owned()
   } else {
     trimmed
   }
@@ -38,6 +39,20 @@ pub fn parse_newick(content : String) -> TreeNode {
 }
 
 ///|
+/// Read one UTF-16 code unit as a raw Char. Unlike the shared `char_at`
+/// helper (which translates unknown characters to their decimal code point
+/// as a string), this returns the actual character, which the parser needs
+/// for quote detection and numeric scanning.
+fn char_u(s : String, i : Int32) -> Char {
+  s.unsafe_get(i).unsafe_to_char()
+}
+
+///|
+fn is_ws_char(c : Char) -> Bool {
+  c == ' ' || c == '\t' || c == '\n' || c == '\r'
+}
+
+///|
 /// Parse one subtree starting at position `p`. Returns the parsed TreeNode
 /// and the position just past the consumed segment. Handles both leaves and
 /// internal nodes: `((child,...)[label][:len])` or `label[:len]`.
@@ -46,8 +61,8 @@ fn parse_subtree(s : String, p : Int32) -> (TreeNode, Int32) {
   if q >= s.length() {
     return (TreeNode::{ name: "", branch_length: 0.0, children: [], }, q)
   }
-  let first = char_at(s, q)
-  if first == "(" {
+  let first = char_u(s, q)
+  if first == '(' {
     // Internal node — parse children until matching ")".
     let after_open = q + 1
     let mut pos = after_open
@@ -55,14 +70,14 @@ fn parse_subtree(s : String, p : Int32) -> (TreeNode, Int32) {
     let mut first_child = true
     while true {
       let c = skip_ws(s, pos)
-      if c >= s.length() || char_at(s, c) == ")" {
+      if c >= s.length() || char_u(s, c) == ')' {
         pos = c
         break
       }
       if !first_child {
         // Expect a comma between siblings (strict Newick).
         let comma = skip_ws(s, c)
-        if comma < s.length() && char_at(s, comma) == "," {
+        if comma < s.length() && char_u(s, comma) == ',' {
           pos = skip_ws(s, comma + 1)
         } else {
           pos = c
@@ -75,7 +90,7 @@ fn parse_subtree(s : String, p : Int32) -> (TreeNode, Int32) {
     }
     // Consume closing ")".
     let close = skip_ws(s, pos)
-    if close < s.length() && char_at(s, close) == ")" {
+    if close < s.length() && char_u(s, close) == ')' {
       pos = close + 1
     }
     // Optional internal-node label + branch length.
@@ -96,8 +111,7 @@ fn skip_ws(s : String, p : Int32) -> Int32 {
   let n = s.length()
   let mut q = p
   while q < n {
-    let c = char_at(s, q)
-    if c == " " || c == "\t" || c == "\n" || c == "\r" {
+    if is_ws_char(char_u(s, q)) {
       q = q + 1
     } else {
       break
@@ -116,37 +130,36 @@ fn parse_label(s : String, p : Int32) -> (String, Int32) {
   if q >= n {
     return ("", q)
   }
-  let first = char_at(s, q)
-  if first == "\"" || first == "'" {
+  let first = char_u(s, q)
+  if first == '"' || first == '\'' {
     let quote = first
+    let buf = StringBuilder(size_hint=8)
     let mut pos = q + 1
-    let mut label = ""
     while pos < n {
-      let c = char_at(s, pos)
+      let c = char_u(s, pos)
       if c == quote {
-        pos = pos + 1
-        return (label, pos)
+        return (buf.to_string(), pos + 1)
       }
-      label = label + c
+      buf.write_char(c)
       pos = pos + 1
     }
-    return (label, pos)
+    return (buf.to_string(), pos)
   }
   // Unquoted label.
+  let buf = StringBuilder(size_hint=8)
   let mut pos = q
-  let mut label = ""
   while pos < n {
-    let c = char_at(s, pos)
-    if c == "(" || c == ")" || c == "," || c == ":" || c == ";" || c == "[" {
+    let c = char_u(s, pos)
+    if c == '(' || c == ')' || c == ',' || c == ':' || c == ';' || c == '[' {
       break
     }
-    if c == " " || c == "\t" || c == "\n" || c == "\r" {
+    if is_ws_char(c) {
       break
     }
-    label = label + c
+    buf.write_char(c)
     pos = pos + 1
   }
-  (label, pos)
+  (buf.to_string(), pos)
 }
 
 ///|
@@ -156,14 +169,14 @@ fn parse_label(s : String, p : Int32) -> (String, Int32) {
 fn parse_branch_length(s : String, p : Int32) -> (Double, Int32) {
   let n = s.length()
   let q = skip_ws(s, p)
-  if q >= n || char_at(s, q) != ":" {
+  if q >= n || char_u(s, q) != ':' {
     return (0.0, p)
   }
   let mut pos = q + 1
   // Optional whitespace after colon.
   while pos < n {
-    let c = char_at(s, pos)
-    if c == " " || c == "\t" {
+    let c = char_u(s, pos)
+    if c == ' ' || c == '\t' {
       pos = pos + 1
     } else {
       break
@@ -171,15 +184,19 @@ fn parse_branch_length(s : String, p : Int32) -> (Double, Int32) {
   }
   let start = pos
   while pos < n {
-    let c = char_at(s, pos)
-    if (c >= "0" && c <= "9") || c == "." || c == "-" || c == "+" ||
-       c == "e" || c == "E" {
+    let c = char_u(s, pos)
+    if (c >= '0' && c <= '9') ||
+      c == '.' ||
+      c == '-' ||
+      c == '+' ||
+      c == 'e' ||
+      c == 'E' {
       pos = pos + 1
     } else {
       break
     }
   }
-  let num_str = s.substring(start=start, end=pos).to_string()
+  let num_str = s[start:pos].to_owned()
   let v = match parse_double(num_str) {
     Some(d) => d
     None => 0.0

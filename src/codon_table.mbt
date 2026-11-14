@@ -165,25 +165,41 @@ pub let codon_fixed_table : FixedArray[UInt16] = {
 pub let iupac_base_mask : FixedArray[Int32] = {
   let t = FixedArray::make(256, 0)
   // Standard bases
-  t[65] = 1; t[97] = 1  // A, a
-  t[67] = 2; t[99] = 2  // C, c
-  t[71] = 4; t[103] = 4 // G, g
-  t[84] = 8; t[116] = 8 // T, t
-  t[85] = 8; t[117] = 8 // U, u
+  t[65] = 1
+  t[97] = 1 // A, a
+  t[67] = 2
+  t[99] = 2 // C, c
+  t[71] = 4
+  t[103] = 4 // G, g
+  t[84] = 8
+  t[116] = 8 // T, t
+  t[85] = 8
+  t[117] = 8 // U, u
   // Two-way degenerate
-  t[82] = 5;  t[114] = 5  // R, r = A|G
-  t[89] = 10; t[121] = 10 // Y, y = C|T
-  t[83] = 6;  t[115] = 6  // S, s = G|C
-  t[87] = 9;  t[119] = 9  // W, w = A|T
-  t[75] = 12; t[107] = 12 // K, k = G|T
-  t[77] = 3;  t[109] = 3  // M, m = A|C
+  t[82] = 5
+  t[114] = 5 // R, r = A|G
+  t[89] = 10
+  t[121] = 10 // Y, y = C|T
+  t[83] = 6
+  t[115] = 6 // S, s = G|C
+  t[87] = 9
+  t[119] = 9 // W, w = A|T
+  t[75] = 12
+  t[107] = 12 // K, k = G|T
+  t[77] = 3
+  t[109] = 3 // M, m = A|C
   // Three-way degenerate
-  t[66] = 14; t[98] = 14  // B, b = C|G|T
-  t[68] = 13; t[100] = 13 // D, d = A|G|T
-  t[72] = 11; t[104] = 11 // H, h = A|C|T
-  t[86] = 7;  t[118] = 7  // V, v = A|C|G
+  t[66] = 14
+  t[98] = 14 // B, b = C|G|T
+  t[68] = 13
+  t[100] = 13 // D, d = A|G|T
+  t[72] = 11
+  t[104] = 11 // H, h = A|C|T
+  t[86] = 7
+  t[118] = 7 // V, v = A|C|G
   // Four-way degenerate
-  t[78] = 15; t[110] = 15 // N, n = A|C|G|T
+  t[78] = 15
+  t[110] = 15 // N, n = A|C|G|T
   t
 }
 
@@ -192,10 +208,22 @@ pub let iupac_base_mask : FixedArray[Int32] = {
 /// IUPAC mask, appending each value to `out`. Returns the count appended.
 fn expand_mask(mask : Int32, out : Array[Int32]) -> Int32 {
   let mut count = 0
-  if (mask & 1) != 0 { out.push(0); count = count + 1 }
-  if (mask & 2) != 0 { out.push(1); count = count + 1 }
-  if (mask & 4) != 0 { out.push(2); count = count + 1 }
-  if (mask & 8) != 0 { out.push(3); count = count + 1 }
+  if (mask & 1) != 0 {
+    out.push(0)
+    count = count + 1
+  }
+  if (mask & 2) != 0 {
+    out.push(1)
+    count = count + 1
+  }
+  if (mask & 4) != 0 {
+    out.push(2)
+    count = count + 1
+  }
+  if (mask & 8) != 0 {
+    out.push(3)
+    count = count + 1
+  }
   count
 }
 

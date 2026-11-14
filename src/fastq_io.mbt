@@ -127,7 +127,7 @@ pub fn parse_fastq(content : String) -> Array[SeqRecord] raise SeqIOError {
         "FASTQ input ended with an incomplete trailing record at line " +
         (i + 1).to_string() +
         " (expected 4 lines per record, got " +
-        (n - (i - 4 * records.length())).to_string() +
+        (n - i).to_string() +
         " remaining lines)",
       )
     }

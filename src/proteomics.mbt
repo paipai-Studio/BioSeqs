@@ -281,7 +281,11 @@ pub fn proteomics_calculate_mass(
     protein_complete_mass_average()
   }
 
-  let water = if is_monoisotopic { WATER_MASS_MONOISOTOPIC } else { WATER_MASS_AVERAGE }
+  let water = if is_monoisotopic {
+    WATER_MASS_MONOISOTOPIC
+  } else {
+    WATER_MASS_AVERAGE
+  }
 
   let mut mass = 0.0
   let mut i = 0

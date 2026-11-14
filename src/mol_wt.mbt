@@ -61,7 +61,11 @@ pub fn nucleotide_weight(nucleotide : String) -> Double {
 /// Delegates to the unified table in data.mbt, falls back to 118.8860 (average).
 pub fn amino_acid_weight(aa : String) -> Double {
   let mass = amino_complete_mass(aa)
-  if mass > 0.0 { mass } else { 118.8860 }
+  if mass > 0.0 {
+    mass
+  } else {
+    118.8860
+  }
 }
 
 ///|
