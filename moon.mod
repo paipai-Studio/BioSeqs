@@ -11,7 +11,7 @@
 
 name = "IvanAXu/BioSeqs"
 
-version = "0.1.14"
+version = "0.1.16"
 
 readme = "README.md"
 
