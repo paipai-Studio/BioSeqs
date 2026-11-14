@@ -8,7 +8,7 @@
 
 ## 项目概述
 
-BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，复刻主流生物信息学库（Biopython、Bioconductor、scikit-bio、Scanpy、scikit-allel、SeqKit、DendroPy、gffutils 等）的核心功能，并实现高效的序列组装算法。项目当前版本：`0.1.14`。
+BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，复刻主流生物信息学库（Biopython、Bioconductor、scikit-bio、Scanpy、scikit-allel、SeqKit、DendroPy、gffutils 等）的核心功能，并实现高效的序列组装算法。项目当前版本：`0.1.16`。
 
 ## 目录
 
@@ -310,7 +310,6 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **Biostrings** | Biostrings | 生物序列字符串操作：字母表、反向互补、翻译、模式匹配、PDict 字典匹配、vcountPattern/vmatchPattern、pairwiseAlignment、核苷酸/蛋白质频率 |
 | **InteractionSet** | InteractionSet | 染色质互作数据：Anchor/InteractionSet 结构、Hi-C 互作矩阵、区域对操作、距离计算、重叠检测 |
 | **SeqArray** | SeqArray | GDS 层级容器（GdsNode/GdsFile 路径寻址、GdsInt/Double/String/Int2D/Int3D 值类型）、seqVCF2GDS VCF 导入（样本/变异/基因型三节点）、SeqVarData 过滤视图（seqSetFilter 语义：sample/variant/chrom/range 过滤与 reset）、基因型剂量提取（0/1/2 计数、-1 缺失、单倍型/多等位基因/缺失处理）、allele_frequencies/missing_rates/summary（seqSummary）与 apply_per_variant 逐变异统计 |
-
 | **BAM 记录解析** | htslib/pysam | BAM 二进制比对记录解析（标准 htslib 布局）：32 字节核心头（bin_mq_nl/flag_nc 打包）、CIGAR、4-bit 序列解码（=ACMGRSVTWYHKDBN）、Phred 质量、辅助 tags（A/c/C/s/S/i/I/f/Z/H/B 数组类型）、flag 位解码（paired/proper/unmapped/reverse/read1/read2/secondary/supplementary/qcfail/duplicate）、cigarstring；**写出**：`BamFile::to_bam_bytes`（未压缩 BAM 编码，header + 32 字节核心头 + qname/CIGAR/4-bit seq/Phred qual/aux tags 的逆向序列化）+ `to_bgzf_bytes`（BGZF stored 块压缩，`bgzf_compress` 复用） |
 | **BAM 比对几何** | htslib/pysam | BAM 记录比对几何：`reference_start`/`reference_end`（0-based）、`get_reference_positions`（full_length 时 I/S 置 None、D/N 跳过）、`get_overlap`（与半开区间的对齐碱基重叠数，M/=/X 计数）、`get_aligned_pairs`（query↔ref 坐标对，matches_only 过滤）、query 访问器（`query_sequence`/`query_qualities`/`query_length`/`infer_query_length` CIGAR 推导 M+I+S+=+X） |
 | **BAM pileup** | htslib/pysam | BAM 比对堆垛（`pileup`）：按参考位置产出一列覆盖 reads，每条给出 `query_position`（D/N 为 None）、`is_del`/`is_refskip`（htslib 的 N 同时置双标志的语义）、`indel`（前一个碱基后的 I 正 / D 负长度），匹配 pysam `stepper="all"` 语义 |
@@ -852,7 +851,7 @@ MD 轨迹分析另提供与 MDAnalysis 的 Python 对拍基准：`test/python/md
 
 ```
 IvanAXu/BioSeqs/
-├── moon.mod                          # 模块配置 (name="IvanAXu/BioSeqs", version=0.1.14)
+├── moon.mod                          # 模块配置 (name="IvanAXu/BioSeqs", version=0.1.16)
 ├── src/                              # 源代码（1206 个 .mbt 模块）
 │   ├── seq.mbt                       # Bio.Seq 序列对象
 │   ├── seqio.mbt / fasta_io.mbt / ... # 序列 I/O（30+ 种格式）
@@ -999,10 +998,10 @@ moon test                                               # ✅ 17390 个测试全
 
 | 后端 | 构建 | 测试 |
 | :--- | :--- | :--- |
-| `wasm-gc`（默认） | ✅ | ✅ 17314 通过 |
-| `wasm` | ✅ | ✅ 17314 通过 |
-| `native` | ✅ | ✅ 17314 通过 |
-| `js` | ✅ | ✅ 17314 通过 |
+| `wasm-gc`（默认） | ✅ | ✅ 17390 通过 |
+| `wasm` | ✅ | ✅ 17390 通过 |
+| `native` | ✅ | ✅ 17390 通过 |
+| `js` | ✅ | ✅ 17390 通过 |
 
 > `wasm` 后端测试需配合两项措施：① `ulimit -s unlimited` 规避 `moonc link-core` 阶段的栈溢出；② `--release` 优化模式缩减 `moonbit__init` 函数的 local 数量（默认 debug 模式下该函数因合并 1206 个源模块 + 840 个测试模块的初始化代码而超出 WebAssembly single-function local 上限）。`js` 后端无此限制，默认模式即可运行测试，但需 Node.js 运行时。CI 中仅对 `wasm` 应用 `--release`。
 
