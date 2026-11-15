@@ -3371,3 +3371,433 @@ pub fn BamFile::build_index(self : BamFile) -> BaiIndex {
     n_no_coor: Some(n_no_coor),
   }
 }
+
+// ============================================================================
+// A. BamHeader 序列化 / 构造 API  (P2-24)
+// ============================================================================
+
+///|
+/// Split a StringView at the first occurrence of `sep`. Returns
+/// (before, after) if found, or None. Avoids MoonBit's missing
+/// limit= argument on `split`.
+fn split_kv(s : StringView, sep : StringView) -> Option[(String, String)] {
+  let idx = s.find(sep)
+  match idx {
+    Some(i) => {
+      let before = s[0:i].to_owned()
+      let after = s[i + sep.length():].to_owned()
+      Some((before, after))
+    }
+    None => None
+  }
+}
+
+///|
+/// Shallow copy of the header (references array is `.copy()`ed, text
+/// String is implicitly owned). Matches Pysam `BamHeader.copy()`.
+pub fn BamHeader::copy(self : BamHeader) -> BamHeader {
+  BamHeader::{ text: self.text, references: self.references.copy(), }
+}
+
+///|
+/// Serialize the header to a flat dictionary. Key layout:
+/// - `HD.VN`, `HD.SO`, ... → the @HD record tags
+/// - `SQ_0.NAME`, `SQ_0.LN`, `SQ_1.NAME`, ... → one entry per reference
+/// - `RG.id`, `RG.SM`, ... → @RG records
+/// - `PG.id`, `PG.PN`, ... → @PG records
+///
+/// Matches Pysam `BamHeader.as_dict()` flattened form.
+pub fn BamHeader::as_dict(self : BamHeader) -> Map[String, String] {
+  let dict : Map[String, String] = Map([], capacity=16)
+  let lines = self.text.split("\n").to_array()
+  for line in lines {
+    if line.length() == 0 { continue }
+    let parts = line.split("\t").to_array()
+    if parts.length() == 0 { continue }
+    let tag = parts[0]
+    if tag.length() < 2 { continue }
+    let tag2 = tag[1:].to_owned()
+    let mut i = 1
+    while i < parts.length() {
+      let kv_opt = split_kv(parts[i], ":")
+      match kv_opt {
+        Some((k, v)) => { dict["\{tag2}.\{k}"] = v }
+        None => {
+          let rest = parts[i].to_owned()
+          dict["\{tag2}.\{rest}"] = ""
+        }
+      }
+      i = i + 1
+    }
+  }
+  let mut ri = 0
+  while ri < self.references.length() {
+    let r = self.references[ri]
+    dict["SQ_\{ri}.NAME"] = r.name
+    dict["SQ_\{ri}.LN"] = r.length.to_string()
+    ri = ri + 1
+  }
+  dict["n_ref"] = self.references.length().to_string()
+  dict
+}
+
+///|
+/// Construct a `BamHeader` from a flat dictionary as produced by
+/// `as_dict()`. References are extracted from `SQ_*.NAME` / `SQ_*.LN`
+/// pairs; the original `text` is regenerated from all non-reference keys
+/// grouped by their 2-char tag prefix.
+pub fn BamHeader::from_dict(dict : Map[String, String]) -> BamHeader {
+  let mut max_idx : Int32 = -1
+  let names : Map[Int32, String] = Map([], capacity=4)
+  let lens : Map[Int32, Int32] = Map([], capacity=4)
+  for (k, v) in dict {
+    if k.has_prefix("SQ_") {
+      let rest = k[3:].to_owned()
+      let dot = rest.find(".")
+      match dot {
+        Some(di) => {
+          let idx_str = rest[0:di].to_owned()
+          let prop = rest[di + 1:].to_owned()
+          let idx = parse_int(idx_str)
+          if idx > max_idx { max_idx = idx }
+          if prop == "NAME" { names[idx] = v }
+          if prop == "LN" { lens[idx] = parse_int(v) }
+        }
+        None => continue
+      }
+    }
+  }
+  let n_ref = if max_idx >= 0 { max_idx + 1 } else { 0 }
+  let references : FixedArray[BamReference] = FixedArray::make(n_ref, BamReference::{
+    name: "", length: 0,
+  })
+  let mut i = 0
+  while i < n_ref {
+    let nm = names.get(i)
+    let ln = lens.get(i)
+    let name : String = match nm {
+      Some(s) => s
+      None => ""
+    }
+    let length : Int32 = match ln {
+      Some(l) => l
+      None => 0
+    }
+    references[i] = BamReference::{ name, length, }
+    i = i + 1
+  }
+
+  let sb = StringBuilder()
+  let groups : Map[String, Array[(String, String)]] = Map([], capacity=8)
+  for (k, v) in dict {
+    if k.has_prefix("SQ_") || k == "n_ref" { continue }
+    let dot = k.find(".")
+    match dot {
+      Some(di) => {
+        let tag2 = k[0:di].to_owned()
+        let prop = k[di + 1:].to_owned()
+        let existing = groups.get(tag2)
+        let arr : Array[(String, String)] = match existing {
+          Some(a) => a
+          None => []
+        }
+        arr.push((prop, v))
+        groups[tag2] = arr
+      }
+      None => continue
+    }
+  }
+  let tag_order = ["HD", "SQ", "RG", "PG", "CO"]
+  for tag2 in tag_order {
+    let entries = groups.get(tag2)
+    match entries {
+      Some(es) => {
+        let mut line = "@\{tag2}"
+        for (prop, v) in es {
+          line = line + "\t\{prop}:\{v}"
+        }
+        sb.write_string(line)
+        sb.write_char('\n')
+      }
+      None => continue
+    }
+  }
+  let text = sb.to_string()
+  BamHeader::{ text, references, }
+}
+
+///|
+/// Parse a SAM header text block (the lines starting with @) into a
+/// `BamHeader`. References are pulled from the @SQ lines (`SQ.SN` and
+/// `SQ.LN`). The full text is preserved as-is.
+pub fn BamHeader::from_text(text : String) -> BamHeader {
+  let lines = text.split("\n").to_array()
+  let refs : Array[BamReference] = []
+  for line in lines {
+    if line.has_prefix("@SQ") {
+      let parts = line.split("\t").to_array()
+      let mut name = ""
+      let mut len : Int32 = 0
+      let mut i = 1
+      while i < parts.length() {
+        let kv_opt = split_kv(parts[i], ":")
+        match kv_opt {
+          Some((k, v)) => {
+            if k == "SN" { name = v }
+            if k == "LN" { len = parse_int(v) }
+          }
+          None => ()
+        }
+        i = i + 1
+      }
+      refs.push(BamReference::{ name, length: len, })
+    }
+  }
+  let references : FixedArray[BamReference] = FixedArray::make(refs.length(), BamReference::{
+    name: "", length: 0,
+  })
+  let mut j = 0
+  while j < refs.length() {
+    references[j] = refs[j]
+    j = j + 1
+  }
+  BamHeader::{ text, references, }
+}
+
+// ============================================================================
+// B. BamRecord 字典序列化  (P2-25)
+// ============================================================================
+
+///|
+/// Serialize a `BamRecord` to a flat dictionary suitable for JSON/WASM
+/// round-trips. Keys are the canonical SAM/BAM field names:
+/// `qname`, `flag`, `rname`, `pos`, `mapq`, `cigar`, `rnext`, `pnext`,
+/// `tlen`, `seq`, `qual`, plus one key per auxiliary tag (`tags.NM`, ...).
+/// `rname` is resolved against the supplied header (otherwise "?").
+pub fn BamRecord::to_dict(self : BamRecord, header : BamHeader) -> Map[String, String] {
+  let dict : Map[String, String] = Map([], capacity=20)
+  dict["qname"] = self.qname
+  dict["flag"] = self.flag.to_string()
+  let rname = self.get_reference_name(header)
+  dict["rname"] = rname
+  dict["pos"] = self.pos.to_string()
+  dict["mapq"] = self.mapq.to_string()
+  let cigar_sb = StringBuilder()
+  for elem in self.cigar {
+    let op_char = match elem.op {
+      BamCigarOp::Match => 'M'
+      BamCigarOp::Insert => 'I'
+      BamCigarOp::Delete => 'D'
+      BamCigarOp::Skip => 'N'
+      BamCigarOp::SoftClip => 'S'
+      BamCigarOp::HardClip => 'H'
+      BamCigarOp::Pad => 'P'
+      BamCigarOp::Equal => '='
+      BamCigarOp::Diff => 'X'
+    }
+    cigar_sb.write_string(elem.length.to_string())
+    cigar_sb.write_char(op_char)
+  }
+  dict["cigar"] = cigar_sb.to_string()
+  let rnext = if self.next_ref_id >= 0 &&
+    self.next_ref_id < header.references.length() {
+    header.references[self.next_ref_id].name
+  } else {
+    "*"
+  }
+  dict["rnext"] = rnext
+  dict["pnext"] = self.next_pos.to_string()
+  dict["tlen"] = self.tlen.to_string()
+  dict["seq"] = self.seq
+  dict["qual"] = self.qual
+  for t in self.tags {
+    let vstr = match t.value {
+      BamTagValue::Char(c) => c.to_string()
+      BamTagValue::Int(i) => i.to_string()
+      BamTagValue::Float(f) => f.to_string()
+      BamTagValue::Str(s) => s
+      BamTagValue::IntArray(arr) => arr.map(fn(x) { x.to_string() }).join(",")
+      BamTagValue::FloatArray(arr) => arr.map(fn(x) { x.to_string() }).join(",")
+    }
+    dict["tag.\{t.name}"] = vstr
+    dict["tag.\{t.name}.type"] = t.type_code.to_string()
+  }
+  dict
+}
+
+///|
+/// Reconstruct a `BamRecord` from a dictionary as produced by `to_dict`.
+/// Needs the header only to resolve reference names back to `ref_id`.
+/// Missing fields default to 0 / empty string.
+pub fn BamRecord::from_dict(dict : Map[String, String], header : BamHeader) -> BamRecord {
+  let qname = dict.get_or_default("qname", "")
+  let flag = parse_int(dict.get_or_default("flag", "0"))
+  let pos = parse_int(dict.get_or_default("pos", "0"))
+  let mapq = parse_int(dict.get_or_default("mapq", "0"))
+  let tlen = parse_int(dict.get_or_default("tlen", "0"))
+  let seq = dict.get_or_default("seq", "")
+  let qual = dict.get_or_default("qual", "")
+
+  let rname = dict.get_or_default("rname", "")
+  let mut ref_id : Int32 = -1
+  let mut ri = 0
+  while ri < header.references.length() {
+    if header.references[ri].name == rname { ref_id = ri; break }
+    ri = ri + 1
+  }
+
+  let rnext = dict.get_or_default("rnext", "")
+  let mut next_ref_id : Int32 = -1
+  if rnext != "*" {
+    let mut ni = 0
+    while ni < header.references.length() {
+      if header.references[ni].name == rnext { next_ref_id = ni; break }
+      ni = ni + 1
+    }
+  }
+  let next_pos = parse_int(dict.get_or_default("pnext", "0"))
+
+  // Parse cigar string — reset StringBuilder per op
+  let cigar_str = dict.get_or_default("cigar", "")
+  let mut num_buf : Array[Char] = []
+  let cigar_arr : Array[BamCigarElement] = []
+  for ch in cigar_str {
+    let c_int = ch.to_int()
+    if c_int >= '0'.to_int() && c_int <= '9'.to_int() {
+      num_buf.push(ch)
+    } else {
+      // collect digits into String
+      let mut num_str = ""
+      for dc in num_buf { num_str = num_str + dc.to_string() }
+      num_buf = []
+      let len = parse_int(num_str)
+      let op = match ch {
+        'M' => BamCigarOp::Match
+        'I' => BamCigarOp::Insert
+        'D' => BamCigarOp::Delete
+        'N' => BamCigarOp::Skip
+        'S' => BamCigarOp::SoftClip
+        'H' => BamCigarOp::HardClip
+        'P' => BamCigarOp::Pad
+        '=' => BamCigarOp::Equal
+        'X' => BamCigarOp::Diff
+        _ => BamCigarOp::Match
+      }
+      cigar_arr.push(BamCigarElement::{ op, length: len, })
+    }
+  }
+  let cigar_fixed : FixedArray[BamCigarElement] = FixedArray::make(cigar_arr.length(), BamCigarElement::{
+    op: BamCigarOp::Match, length: 0,
+  })
+  let mut ci = 0
+  while ci < cigar_arr.length() {
+    cigar_fixed[ci] = cigar_arr[ci]
+    ci = ci + 1
+  }
+
+  // Collect tag names (skip .type suffixes)
+  let tag_names : Map[String, Bool] = Map([], capacity=4)
+  for (k, _) in dict {
+    if k.has_prefix("tag.") {
+      let rest = k[4:].to_owned()
+      let suffix_start = rest.length() - 5
+      if suffix_start >= 0 {
+        let suffix = rest[suffix_start:].to_owned()
+        if suffix == ".type" { continue }
+      }
+      tag_names[rest] = true
+    }
+  }
+  let tags : Array[BamTag] = []
+  for (tname, _) in tag_names {
+    let val_str = dict.get_or_default("tag.\{tname}", "")
+    let type_str = dict.get_or_default("tag.\{tname}.type", "")
+    let type_code : Char = if type_str.length() > 0 {
+      type_str.unsafe_get(0).unsafe_to_char()
+    } else {
+      'Z'
+    }
+    let first_char : Char = if val_str.length() > 0 {
+      val_str.unsafe_get(0).unsafe_to_char()
+    } else {
+      ' '
+    }
+    let value : BamTagValue = match type_code {
+      'A' => BamTagValue::Char(first_char)
+      'i' | 'c' | 'C' | 's' | 'S' => BamTagValue::Int(parse_int(val_str))
+      'f' => {
+        let d : Double = match parse_double(val_str) {
+          Some(v) => v
+          None => 0.0
+        }
+        BamTagValue::Float(d)
+      }
+      'B' => {
+        let parts = val_str.split(",").to_array()
+        let ints : Array[Int32] = []
+        let floats : Array[Double] = []
+        let mut is_all_int : Bool = true
+        for p in parts {
+          let pstr = p.to_owned()
+          let maybe_int = parse_int(pstr)
+          let is_num = pstr.length() > 0 &&
+            (pstr.unsafe_get(0).to_int() >= '0'.to_int() &&
+              pstr.unsafe_get(0).to_int() <= '9'.to_int())
+          if is_num {
+            ints.push(maybe_int)
+            floats.push(maybe_int.to_double())
+          } else {
+            is_all_int = false
+            let d : Double = match parse_double(pstr) {
+              Some(v) => v
+              None => 0.0
+            }
+            floats.push(d)
+          }
+        }
+        if is_all_int { BamTagValue::IntArray(ints) } else { BamTagValue::FloatArray(floats) }
+      }
+      _ => BamTagValue::Str(val_str)
+    }
+    tags.push(BamTag::{ name: tname, type_code, value, })
+  }
+
+  BamRecord::{
+    ref_id,
+    pos,
+    bin: 0,
+    mapq,
+    flag,
+    l_read_name: qname.length() + 1,
+    cigar_len: cigar_fixed.length(),
+    l_seq: seq.length(),
+    next_ref_id,
+    next_pos,
+    tlen,
+    qname,
+    cigar: cigar_fixed,
+    seq,
+    qual,
+    tags,
+  }
+}
+
+// ============================================================================
+// C. BamFile::head(n)  (P2-26)
+// ============================================================================
+
+///|
+/// Return the first `n` records of the BAM file. If `n` is greater than
+/// the record count, returns all records. Used for quick preview.
+/// Matches Pysam `AlignmentFile.head(n)`.
+pub fn BamFile::head(self : BamFile, n : Int32) -> Array[BamRecord] {
+  let total = self.records.length()
+  let take = if n < total { n } else { total }
+  let out : Array[BamRecord] = []
+  let mut i = 0
+  while i < take {
+    out.push(self.records[i])
+    i = i + 1
+  }
+  out
+}
