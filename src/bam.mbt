@@ -2365,3 +2365,1009 @@ pub fn bam_alignment_quality(rec : BamRecord) -> Double {
     q
   }
 }
+
+// ============================================================================
+// P0 核心 API 补全：AlignedSegment 高频方法（query_alignment_* / cigar_stats /
+// blocks / infer_read_length / get_reference_sequence / get_forward_* /
+// has_tag / set_tag）
+// ============================================================================
+
+///|
+/// Total query-consuming length of a CIGAR op (M/I/S/=/X; excludes D/N/H/P).
+fn bam_cigar_op_qlen(op : BamCigarOp) -> Int32 {
+  match op {
+    BamCigarOp::Match
+    | BamCigarOp::Insert
+    | BamCigarOp::SoftClip
+    | BamCigarOp::Equal
+    | BamCigarOp::Diff => 1
+    _ => 0
+  }
+}
+
+///|
+/// Total reference-consuming length of a CIGAR op (M/D/N/=/X; excludes I/S/H/P).
+fn bam_cigar_op_rlen(op : BamCigarOp) -> Int32 {
+  match op {
+    BamCigarOp::Match
+    | BamCigarOp::Delete
+    | BamCigarOp::Skip
+    | BamCigarOp::Equal
+    | BamCigarOp::Diff => 1
+    _ => 0
+  }
+}
+
+///|
+/// Read length inferred from CIGAR including H clips (`bam_cigar2rlen`):
+/// sum of M/I/S/H/=/X lengths (Pysam `infer_read_length`).
+pub fn BamRecord::infer_read_length(self : BamRecord) -> Int32 {
+  let mut len = 0
+  for el in self.cigar {
+    match el.op {
+      BamCigarOp::Match
+      | BamCigarOp::Insert
+      | BamCigarOp::SoftClip
+      | BamCigarOp::HardClip
+      | BamCigarOp::Equal
+      | BamCigarOp::Diff => len = len + el.length
+      _ => ()
+    }
+  }
+  len
+}
+
+///|
+/// First aligned query position (0-based), i.e. query offset of the first
+/// non-softclip op. Returns None when the alignment contains no aligned bases
+/// (only H/S clips). Matches Pysam `AlignedSegment.query_alignment_start`.
+pub fn BamRecord::query_alignment_start(self : BamRecord) -> Int32? {
+  let mut qpos = 0
+  for el in self.cigar {
+    match el.op {
+      BamCigarOp::Match
+      | BamCigarOp::Equal
+      | BamCigarOp::Diff => return Some(qpos)
+      BamCigarOp::Insert
+      | BamCigarOp::SoftClip => qpos = qpos + el.length
+      BamCigarOp::HardClip | BamCigarOp::Pad => ()
+      _ => ()
+    }
+  }
+  None
+}
+
+///|
+/// Last aligned query position (exclusive). Returns None when the alignment
+/// contains no aligned bases. Matches Pysam `AlignedSegment.query_alignment_end`.
+pub fn BamRecord::query_alignment_end(self : BamRecord) -> Int32? {
+  let start = match self.query_alignment_start() {
+    None => return None
+    Some(s) => s
+  }
+  let mut qpos = 0
+  let mut first_aligned_seen = false
+  let mut last_aligned_qend = start
+  for el in self.cigar {
+    match el.op {
+      BamCigarOp::Match
+      | BamCigarOp::Equal
+      | BamCigarOp::Diff => {
+        qpos = qpos + el.length
+        first_aligned_seen = true
+        last_aligned_qend = qpos
+      }
+      BamCigarOp::Insert
+      | BamCigarOp::SoftClip => qpos = qpos + el.length
+      BamCigarOp::HardClip | BamCigarOp::Pad => ()
+      _ => ()
+    }
+  }
+  if first_aligned_seen { Some(last_aligned_qend) } else { None }
+}
+
+///|
+/// Length of the aligned portion of the query (end - start). Returns 0 when
+/// no aligned bases. Matches Pysam `AlignedSegment.query_alignment_length`.
+pub fn BamRecord::query_alignment_length(self : BamRecord) -> Int32 {
+  let start = self.query_alignment_start()
+  let end = self.query_alignment_end()
+  match (start, end) {
+    (Some(s), Some(e)) => e - s
+    _ => 0
+  }
+}
+
+///|
+/// Query sequence with soft clips removed. Equivalent to
+/// `query_sequence()[start..end]`. Matches Pysam
+/// `AlignedSegment.query_alignment_sequence`.
+pub fn BamRecord::query_alignment_sequence(self : BamRecord) -> String {
+  let start = self.query_alignment_start()
+  let end = self.query_alignment_end()
+  match (start, end) {
+    (Some(s), Some(e)) =>
+      if e > s && s >= 0 && e <= self.seq.length() {
+        self.seq[s:e].to_owned()
+      } else {
+        ""
+      }
+    _ => ""
+  }
+}
+
+///|
+/// Query base qualities with soft clips removed. Matches Pysam
+/// `AlignedSegment.query_alignment_qualities_str`.
+pub fn BamRecord::query_alignment_qualities(self : BamRecord) -> String {
+  let start = self.query_alignment_start()
+  let end = self.query_alignment_end()
+  match (start, end) {
+    (Some(s), Some(e)) =>
+      if e > s && s >= 0 && e <= self.qual.length() {
+        self.qual[s:e].to_owned()
+      } else {
+        ""
+      }
+    _ => ""
+  }
+}
+
+///|
+/// CIGAR operation counts in order `[M, I, D, N, S, H, P, =, X]`. Missing ops
+/// produce a 0 entry. Matches Pysam
+/// `AlignedSegment.get_cigar_stats()[0]`.
+pub fn BamRecord::get_cigar_stats(self : BamRecord) -> Array[Int32] {
+  let stats = Array::make(9, 0)
+  for el in self.cigar {
+    match el.op {
+      BamCigarOp::Match => stats[0] = stats[0] + el.length
+      BamCigarOp::Insert => stats[1] = stats[1] + el.length
+      BamCigarOp::Delete => stats[2] = stats[2] + el.length
+      BamCigarOp::Skip => stats[3] = stats[3] + el.length
+      BamCigarOp::SoftClip => stats[4] = stats[4] + el.length
+      BamCigarOp::HardClip => stats[5] = stats[5] + el.length
+      BamCigarOp::Pad => stats[6] = stats[6] + el.length
+      BamCigarOp::Equal => stats[7] = stats[7] + el.length
+      BamCigarOp::Diff => stats[8] = stats[8] + el.length
+    }
+  }
+  stats
+}
+
+///|
+/// Contiguous reference-coordinate blocks covered by aligned bases (M/=/X),
+/// split at D/N. Each block is `(ref_start, ref_end)` half-open. Soft clips
+/// and insertions do not produce blocks. Matches Pysam
+/// `AlignedSegment.blocks` / `get_blocks()`.
+pub fn BamRecord::blocks(self : BamRecord) -> Array[(Int32, Int32)] {
+  let out : Array[(Int32, Int32)] = Array(capacity=0)
+  if self.cigar.length() == 0 {
+    return out
+  }
+  let mut rpos = self.pos
+  let mut block_start : Int32? = None
+  let mut block_end : Int32? = None
+  for el in self.cigar {
+    match el.op {
+      BamCigarOp::Match
+      | BamCigarOp::Equal
+      | BamCigarOp::Diff => {
+        if block_start is None {
+          block_start = Some(rpos)
+          block_end = Some(rpos + el.length)
+        } else {
+          block_end = Some(block_end.unwrap() + el.length)
+        }
+        rpos = rpos + el.length
+      }
+      BamCigarOp::Delete
+      | BamCigarOp::Skip => {
+        if block_start is Some(_) {
+          out.push((block_start.unwrap(), block_end.unwrap()))
+          block_start = None
+          block_end = None
+        }
+        rpos = rpos + el.length
+      }
+      _ => ()
+    }
+  }
+  if block_start is Some(_) {
+    out.push((block_start.unwrap(), block_end.unwrap()))
+  }
+  out
+}
+
+///|
+/// Reference sequence covered by this alignment given the external contig
+/// FASTA `ref_seq`. Returns `ref_seq[reference_start:reference_end]`. Caller
+/// must ensure `ref_seq` covers the full reference contig. Matches Pysam
+/// `AlignedSegment.get_reference_sequence()`.
+pub fn BamRecord::get_reference_sequence(self : BamRecord, ref_seq : String) -> String {
+  let s = self.reference_start()
+  let e = self.reference_end()
+  if s < 0 || e < s || e > ref_seq.length() {
+    ""
+  } else {
+    ref_seq[s:e].to_owned()
+  }
+}
+
+///|
+/// Query sequence in original sequencing orientation (reverse-complemented
+/// when the read maps to the minus strand). Matches Pysam
+/// `AlignedSegment.get_forward_sequence()`.
+pub fn BamRecord::get_forward_sequence(self : BamRecord) -> String {
+  if self.is_reverse() {
+    reverse_complement(self.seq)
+  } else {
+    self.seq
+  }
+}
+
+///|
+/// Query qualities in original sequencing orientation (reversed when minus
+/// strand). Matches Pysam `AlignedSegment.get_forward_qualities()`.
+pub fn BamRecord::get_forward_qualities(self : BamRecord) -> String {
+  if self.is_reverse() {
+    let n = self.qual.length()
+    let buf : FixedArray[UInt16] = FixedArray::make(n, 0)
+    let mut i = 0
+    while i < n {
+      buf[i] = self.qual.unsafe_get(n - 1 - i)
+      i = i + 1
+    }
+    unsafe_from_uint16_fixedarray(buf)
+  } else {
+    self.qual
+  }
+}
+
+///|
+/// Check whether a tag is present on this record. Matches Pysam
+/// `AlignedSegment.has_tag()`.
+pub fn BamRecord::has_tag(self : BamRecord, tag : String) -> Bool {
+  for t in self.tags {
+    if t.name == tag {
+      return true
+    }
+  }
+  false
+}
+
+///|
+/// Create a new BamRecord with `tag` set to `value`. If the tag already exists,
+/// it is updated; otherwise appended. Existing `type_code` is preserved for an
+/// update. Matches Pysam `AlignedSegment.set_tag()` (in-place mutation on
+/// mutable records; here we follow the project's immutable-record convention).
+pub fn BamRecord::set_tag(
+  self : BamRecord,
+  tag : String,
+  value : BamTagValue,
+) -> BamRecord {
+  let new_tags = self.tags.copy()
+  let mut found = false
+  let mut i = 0
+  while i < new_tags.length() {
+    if new_tags[i].name == tag {
+      let old_type = new_tags[i].type_code
+      new_tags[i] = BamTag::{ name: tag, type_code: old_type, value, }
+      found = true
+      break
+    }
+    i = i + 1
+  }
+  if !found {
+    // Default type codes per Pysam convention
+    let type_code : Char = match value {
+      BamTagValue::Char(_) => 'A'
+      BamTagValue::Int(_) => 'i'
+      BamTagValue::Float(_) => 'f'
+      BamTagValue::Str(_) => 'Z'
+      BamTagValue::IntArray(_) => 'B'
+      BamTagValue::FloatArray(_) => 'B'
+    }
+    new_tags.push(BamTag::{ name: tag, type_code, value, })
+  }
+  BamRecord::{
+    ref_id: self.ref_id,
+    pos: self.pos,
+    bin: self.bin,
+    mapq: self.mapq,
+    flag: self.flag,
+    l_read_name: self.l_read_name,
+    cigar_len: self.cigar_len,
+    l_seq: self.l_seq,
+    next_ref_id: self.next_ref_id,
+    next_pos: self.next_pos,
+    tlen: self.tlen,
+    qname: self.qname,
+    cigar: self.cigar,
+    seq: self.seq,
+    qual: self.qual,
+    tags: new_tags,
+  }
+}
+
+// ============================================================================
+// Immutable-style BamRecord builder methods (for fixmate / merge workflows)
+// ============================================================================
+
+///|
+/// Produce a new BamRecord with `next_ref_id` and `next_pos` updated.
+/// Used by `samtools merge` + `samtools fixmate` pair repair.
+pub fn BamRecord::with_mate(self : BamRecord, next_ref_id : Int32, next_pos : Int32) -> BamRecord {
+  BamRecord::{
+    ref_id: self.ref_id,
+    pos: self.pos,
+    bin: self.bin,
+    mapq: self.mapq,
+    flag: self.flag,
+    l_read_name: self.l_read_name,
+    cigar_len: self.cigar_len,
+    l_seq: self.l_seq,
+    next_ref_id,
+    next_pos,
+    tlen: self.tlen,
+    qname: self.qname,
+    cigar: self.cigar,
+    seq: self.seq,
+    qual: self.qual,
+    tags: self.tags.copy(),
+  }
+}
+
+///|
+/// Produce a new BamRecord with `tlen` (insert size) updated.
+pub fn BamRecord::with_tlen(self : BamRecord, tlen : Int32) -> BamRecord {
+  BamRecord::{
+    ref_id: self.ref_id,
+    pos: self.pos,
+    bin: self.bin,
+    mapq: self.mapq,
+    flag: self.flag,
+    l_read_name: self.l_read_name,
+    cigar_len: self.cigar_len,
+    l_seq: self.l_seq,
+    next_ref_id: self.next_ref_id,
+    next_pos: self.next_pos,
+    tlen,
+    qname: self.qname,
+    cigar: self.cigar,
+    seq: self.seq,
+    qual: self.qual,
+    tags: self.tags.copy(),
+  }
+}
+
+///|
+/// Produce a new BamRecord with the FLAG field replaced.
+pub fn BamRecord::with_flag(self : BamRecord, flag : Int32) -> BamRecord {
+  BamRecord::{
+    ref_id: self.ref_id,
+    pos: self.pos,
+    bin: self.bin,
+    mapq: self.mapq,
+    flag,
+    l_read_name: self.l_read_name,
+    cigar_len: self.cigar_len,
+    l_seq: self.l_seq,
+    next_ref_id: self.next_ref_id,
+    next_pos: self.next_pos,
+    tlen: self.tlen,
+    qname: self.qname,
+    cigar: self.cigar,
+    seq: self.seq,
+    qual: self.qual,
+    tags: self.tags.copy(),
+  }
+}
+
+///|
+/// Per-base coverage split by base on `[start, stop)`. Returns four equal-length
+/// arrays `(A, C, G, T)`. `quality_threshold` filters bases whose Phred score
+/// is below the cutoff (default 0 = no filter). `read_filter` supports
+/// `"nofilter"` (count every read) and `"all"` (skip UNMAP / SECONDARY /
+/// QCFAIL / DUP). Matches Pysam `AlignmentFile.count_coverage`.
+pub fn BamFile::count_coverage(
+  self : BamFile,
+  contig : String,
+  start : Int32,
+  stop : Int32,
+  quality_threshold~ : Int32 = 0,
+  read_filter~ : String = "nofilter",
+) -> (Array[Int32], Array[Int32], Array[Int32], Array[Int32]) {
+  let n = stop - start
+  if n <= 0 {
+    return ([], [], [], [])
+  }
+  let mut ref_id = -1
+  for j = 0; j < self.header.references.length(); j = j + 1 {
+    if self.header.references[j].name == contig {
+      ref_id = j
+      break
+    }
+  }
+  if ref_id < 0 {
+    return (Array::make(n, 0), Array::make(n, 0), Array::make(n, 0), Array::make(n, 0))
+  }
+  let a = Array::make(n, 0)
+  let c = Array::make(n, 0)
+  let g = Array::make(n, 0)
+  let t = Array::make(n, 0)
+  let columns = self.pileup(contig, start, stop)
+  for col in columns {
+    let idx = col.reference_pos - start
+    if idx < 0 || idx >= n {
+      continue
+    }
+    for pu in col.pileups {
+      let read = self.records[pu.record_index]
+      // read filter
+      if read_filter == "all" {
+        if read.is_unmapped() ||
+          read.is_secondary() ||
+          read.is_qcfail() ||
+          read.is_duplicate() {
+          continue
+        }
+      }
+      // skip deletions / refskips
+      let qp = match pu.query_position {
+        Some(q) => q
+        None => continue
+      }
+      if qp < 0 || qp >= read.seq.length() {
+        continue
+      }
+      // quality filter (Phred score = qual - 33)
+      if quality_threshold > 0 {
+        let phred = read.qual.unsafe_get(qp).to_int() - 33
+        if phred < quality_threshold {
+          continue
+        }
+      }
+      let base = read.seq.unsafe_get(qp)
+      let upper = if base >= 97 && base <= 122 { base - 32 } else { base }
+      if upper == 65 {
+        a[idx] = a[idx] + 1
+      } else if upper == 67 {
+        c[idx] = c[idx] + 1
+      } else if upper == 71 {
+        g[idx] = g[idx] + 1
+      } else if upper == 84 {
+        t[idx] = t[idx] + 1
+      }
+    }
+  }
+  (a, c, g, t)
+}
+
+///|
+/// Number of reads overlapping `[start, stop)` on `contig`. Matches Pysam
+/// `AlignmentFile.count`.
+pub fn BamFile::count(
+  self : BamFile,
+  contig : String,
+  start : Int32,
+  stop : Int32,
+) -> Int32 {
+  let mut ref_id = -1
+  for j = 0; j < self.header.references.length(); j = j + 1 {
+    if self.header.references[j].name == contig {
+      ref_id = j
+      break
+    }
+  }
+  if ref_id < 0 {
+    return 0
+  }
+  let mut total = 0
+  for r in self.records {
+    if r.ref_id == ref_id && !r.is_unmapped() &&
+      r.pos < stop && r.get_end() + 1 > start {
+      total = total + 1
+    }
+  }
+  total
+}
+
+///|
+/// Intronic sites inferred from CIGAR `N` operations within `[start, stop)`.
+/// Returns a map of `(intron_start, intron_end)` to the number of reads
+/// supporting each intron. Matches Pysam `AlignmentFile.find_introns`.
+pub fn BamFile::find_introns(
+  self : BamFile,
+  contig : String,
+  start : Int32,
+  stop : Int32,
+) -> Map[(Int32, Int32), Int32] {
+  let introns : Map[(Int32, Int32), Int32] = Map([], capacity=0)
+  let mut ref_id = -1
+  for j = 0; j < self.header.references.length(); j = j + 1 {
+    if self.header.references[j].name == contig {
+      ref_id = j
+      break
+    }
+  }
+  if ref_id < 0 {
+    return introns
+  }
+  for r in self.records {
+    if r.ref_id != ref_id {
+      continue
+    }
+    let mut rpos = r.pos
+    for el in r.cigar {
+      match el.op {
+        BamCigarOp::Match
+        | BamCigarOp::Equal
+        | BamCigarOp::Diff => rpos = rpos + el.length
+        BamCigarOp::Delete => rpos = rpos + el.length
+        BamCigarOp::Skip => {
+          let intron_start = rpos
+          let intron_end = rpos + el.length
+          // overlap check
+          if intron_end > start && intron_start < stop {
+            let key = (intron_start, intron_end)
+            let cur = match introns.get(key) {
+              Some(v) => v
+              None => 0
+            }
+            introns.set(key, cur + 1)
+          }
+          rpos = rpos + el.length
+        }
+        _ => ()
+      }
+    }
+  }
+  introns
+}
+
+// ============================================================================
+// P1-1: PileupColumn / PileupRead 扩展（零 struct 变更；Pysam 对齐）
+// ============================================================================
+
+///|
+/// Return the full `BamRecord` this `PileupRead` refers to, looked up via the
+/// given `BamFile`. Matches Pysam `PileupRead.alignment`.
+pub fn PileupRead::alignment(self : PileupRead, bam : BamFile) -> BamRecord {
+  bam.records[self.record_index]
+}
+
+///|
+/// When `query_position` is None (deletion / refskip), return the query
+/// position immediately following the skipped region; otherwise return the
+/// stored value. Matches Pysam `PileupRead.query_position_or_next`.
+pub fn PileupRead::query_position_or_next(
+  self : PileupRead,
+  bam : BamFile,
+) -> Int32? {
+  match self.query_position {
+    Some(q) => Some(q)
+    None => {
+      let r = bam.records[self.record_index]
+      // Walk the CIGAR from the pileup's reference pos to find the next
+      // query-consuming op (M/I/S/=/X) that follows this D/N region.
+      let p = self.alignment(bam).pos + 0 // reference pos of this column
+      let mut rpos = r.pos
+      let mut qpos = 0
+      for el in r.cigar {
+        match el.op {
+          BamCigarOp::Match | BamCigarOp::Equal | BamCigarOp::Diff => {
+            // first aligned base strictly after the skipped ref position
+            // belongs to this op if rpos > p
+            if rpos + el.length > p && rpos >= p {
+              return Some(qpos)
+            }
+            if rpos + el.length > p {
+              // D covers the p position; next aligned base is at qpos
+              return Some(qpos)
+            }
+            qpos = qpos + el.length
+            rpos = rpos + el.length
+          }
+          BamCigarOp::Insert | BamCigarOp::SoftClip => qpos = qpos + el.length
+          BamCigarOp::Delete | BamCigarOp::Skip => rpos = rpos + el.length
+          _ => ()
+        }
+      }
+      None
+    }
+  }
+}
+
+///|
+/// Query sequences of all aligned reads in this column. Deletions / ref-skips
+/// are skipped. Matches Pysam `PileupColumn.get_query_sequences()`.
+pub fn BamFile::pileup_get_query_sequences(
+  self : BamFile,
+  col : PileupColumn,
+) -> Array[String] {
+  let out : Array[String] = Array(capacity=0)
+  for pu in col.pileups {
+    let r = self.records[pu.record_index]
+    match pu.query_position {
+      Some(q) =>
+        if q >= 0 && q < r.seq.length() {
+          out.push(r.seq[q:q + 1].to_owned())
+        } else {
+          out.push("")
+        }
+      None => ()
+    }
+  }
+  out
+}
+
+///|
+/// Query base qualities (Phred+33 char) of all aligned reads in this column.
+/// Deletions / ref-skips are skipped. Matches Pysam
+/// `PileupColumn.get_query_qualities()`.
+pub fn BamFile::pileup_get_query_qualities(
+  self : BamFile,
+  col : PileupColumn,
+) -> Array[String] {
+  let out : Array[String] = Array(capacity=0)
+  for pu in col.pileups {
+    let r = self.records[pu.record_index]
+    match pu.query_position {
+      Some(q) =>
+        if q >= 0 && q < r.qual.length() {
+          out.push(r.qual[q:q + 1].to_owned())
+        } else {
+          out.push("")
+        }
+      None => ()
+    }
+  }
+  out
+}
+
+///|
+/// Query positions of all aligned reads in this column. Matches Pysam
+/// `PileupColumn.get_query_positions()`.
+pub fn BamFile::pileup_get_query_positions(
+  self : BamFile,
+  col : PileupColumn,
+) -> Array[Int32] {
+  let out : Array[Int32] = Array(capacity=0)
+  for pu in col.pileups {
+    match pu.query_position {
+      Some(q) => out.push(q)
+      None => ()
+    }
+  }
+  out
+}
+
+///|
+/// Mapping quality (`mapq`) of every read covering this column, in the same
+/// order as `col.pileups`. Matches Pysam `PileupColumn.get_mapping_qualities()`.
+pub fn BamFile::pileup_get_mapping_qualities(
+  self : BamFile,
+  col : PileupColumn,
+) -> Array[Int32] {
+  let out : Array[Int32] = Array(capacity=0)
+  for pu in col.pileups {
+    out.push(self.records[pu.record_index].mapq)
+  }
+  out
+}
+
+///|
+/// Number of aligned (non-deletion, non-ref-skip) reads in this column.
+/// Matches Pysam `PileupColumn.get_num_aligned()`.
+pub fn BamFile::pileup_get_num_aligned(
+  self : BamFile,
+  col : PileupColumn,
+) -> Int32 {
+  let mut n = 0
+  for pu in col.pileups {
+    if pu.query_position is Some(_) {
+      n = n + 1
+    }
+  }
+  n
+}
+
+///|
+/// Reads covering this column whose base quality (Phred score, `qual - 33`) is
+/// at least `min_base_quality`. Returns `(filtered column, original count)`.
+/// Deletions / ref-skips are filtered out. Matches Pysam
+/// `PileupColumn.set_min_base_quality(min_base_quality)` filtering semantics.
+pub fn BamFile::pileup_set_min_base_quality(
+  self : BamFile,
+  col : PileupColumn,
+  min_base_quality : Int32,
+) -> PileupColumn {
+  let filtered : Array[PileupRead] = Array(capacity=0)
+  for pu in col.pileups {
+    match pu.query_position {
+      None => ()
+      Some(q) => {
+        let r = self.records[pu.record_index]
+        if q >= 0 && q < r.qual.length() {
+          let phred = r.qual.unsafe_get(q).to_int() - 33
+          if phred >= min_base_quality {
+            filtered.push(pu)
+          }
+        }
+      }
+    }
+  }
+  PileupColumn::{
+    reference_pos: col.reference_pos,
+    nsegments: filtered.length(),
+    pileups: filtered,
+  }
+}
+
+// ============================================================================
+// P1-2: IndexedReads — 按 read name 建索引，O(1) 快速查找
+// ============================================================================
+
+///|
+/// Build a read-name → record-array index over a BAM file. Matches Pysam
+/// `IndexedReads` (`build` + `find`).
+pub fn bam_build_indexed_reads(
+  bam : BamFile,
+) -> Map[String, Array[BamRecord]] {
+  let idx : Map[String, Array[BamRecord]] = Map([], capacity=0)
+  for r in bam.records {
+    let arr = match idx.get(r.qname) {
+      Some(existing) => {
+        let copy = existing.copy()
+        copy.push(r)
+        copy
+      }
+      None => [r]
+    }
+    idx.set(r.qname, arr)
+  }
+  idx
+}
+
+///|
+/// Find all reads (typically read1 + read2) sharing the same `qname` in
+/// `index`. Returns an empty array when not found.
+pub fn bam_indexed_find(
+  index : Map[String, Array[BamRecord]],
+  qname : String,
+) -> Array[BamRecord] {
+  match index.get(qname) {
+    Some(arr) => arr.copy()
+    None => []
+  }
+}
+
+// ============================================================================
+// P1-2: parse_region — UCSC/samtools 风格区域字符串解析
+// ============================================================================
+
+///|
+/// Parse a samtools-style region string into `(contig, start, stop)` (0-based
+/// half-open). Supported forms:
+///
+/// - `chr1`                       → `("chr1", 0, None)`
+/// - `chr1:100`                   → `("chr1", 99, 100)`
+/// - `chr1:100-200`               → `("chr1", 99, 200)`
+/// - `chr1:100..200`              → `("chr1", 99, 200)`
+/// - `chr1:100+50`                → `("chr1", 99, 149)`   (length, 1-based)
+///
+/// None values mean "to the contig boundary". Matches Pysam
+/// `HTSFile.parse_region`.
+pub fn parse_region(region : String) -> (String, Int32?, Int32?) {
+  let colon = bam_index_of_char(region, ':'.to_int())
+  if colon < 0 {
+    return (region, None, None)
+  }
+  let contig = region[0:colon].to_owned()
+  let interval = region[colon + 1:region.length()].to_owned()
+  let dash = bam_index_of_char(interval, '-'.to_int())
+  let dotdot = bam_index_of_char(interval, ':'.to_int()) // for chr1:100..200
+  let plus = bam_index_of_char(interval, '+'.to_int())
+  if dash >= 0 {
+    let s = parse_int(interval[0:dash].to_owned()) - 1
+    let e = parse_int(interval[dash + 1:interval.length()].to_owned())
+    (contig, Some(s), Some(e))
+  } else if dotdot >= 0 {
+    let s = parse_int(interval[0:dotdot].to_owned()) - 1
+    let e = parse_int(interval[dotdot + 1:interval.length()].to_owned())
+    (contig, Some(s), Some(e))
+  } else if plus >= 0 {
+    let s = parse_int(interval[0:plus].to_owned()) - 1
+    let len = parse_int(interval[plus + 1:interval.length()].to_owned())
+    (contig, Some(s), Some(s + len))
+  } else {
+    let s = parse_int(interval) - 1
+    (contig, Some(s), Some(s + 1))
+  }
+}
+
+///|
+fn bam_index_of_char(s : String, target : Int32) -> Int32 {
+  let mut i = 0
+  while i < s.length() {
+    if s.unsafe_get(i).to_int() == target {
+      return i
+    }
+    i = i + 1
+  }
+  -1
+}
+
+///|
+/// Fetch by samtools-style region string. Convenience wrapper combining
+/// `parse_region` + `BamFile::fetch`.
+pub fn BamFile::fetch_region(self : BamFile, region : String) -> Array[BamRecord] {
+  let (contig, start, stop) = parse_region(region)
+  match (start, stop) {
+    (Some(s), Some(e)) => bam_fetch(self, contig, s, e)
+    (Some(s), None) => bam_fetch(self, contig, s, self.get_reference_length_or_zero(contig))
+    (None, None) => {
+      let out : Array[BamRecord] = Array(capacity=0)
+      for r in self.records {
+        if r.ref_id >= 0 {
+          out.push(r)
+        }
+      }
+      out
+    }
+    _ => bam_fetch(self, contig, 0, self.get_reference_length_or_zero(contig))
+  }
+}
+
+///|
+fn BamFile::get_reference_length_or_zero(self : BamFile, name : String) -> Int32 {
+  match self.get_reference_length(name) {
+    Some(l) => l
+    None => 0
+  }
+}
+
+// ============================================================================
+// P2-3c: BamFile::build_index — samtools index 的内存实现
+// ============================================================================
+
+///|
+/// Compute which BAI bins a given half-open `[beg, end)` interval overlaps.
+/// Identical to `bai_reg2bins` in bam_index.mbt but exposed here for record
+/// aggregation.
+fn bam_bins_for_range(beg : Int32, end : Int32) -> Array[Int32] {
+  let bins : Array[Int32] = []
+  if beg >= end {
+    return bins
+  }
+  let e = end - 1
+  bins.push(0)
+  let mut k = 1 + (beg >> 26)
+  while k <= 1 + (e >> 26) {
+    bins.push(k)
+    k = k + 1
+  }
+  k = 9 + (beg >> 23)
+  while k <= 9 + (e >> 23) {
+    bins.push(k)
+    k = k + 1
+  }
+  k = 73 + (beg >> 20)
+  while k <= 73 + (e >> 20) {
+    bins.push(k)
+    k = k + 1
+  }
+  k = 585 + (beg >> 17)
+  while k <= 585 + (e >> 17) {
+    bins.push(k)
+    k = k + 1
+  }
+  k = 4681 + (beg >> 14)
+  while k <= 4681 + (e >> 14) {
+    bins.push(k)
+    k = k + 1
+  }
+  bins
+}
+
+///|
+/// Build an in-memory BAI index from the BamFile's records. This mirrors
+/// `samtools index` but works entirely on parsed records (no file I/O).
+///
+/// Since BamFile does not retain raw file offsets, we synthesize virtual
+/// offsets linearly per record — sufficient for binning correctness and
+/// query-result verification, but not for actual BGZF seek. The produced
+/// index can be serialized with `serialize_bai` and parsed back by
+/// `parse_bai` (round-trip testable).
+pub fn BamFile::build_index(self : BamFile) -> BaiIndex {
+  let n_ref = self.header.references.length()
+  let references : Array[BaiReference] = Array(capacity=n_ref)
+  let n_no_coor : Int64 = 0L
+  // Per-ref accumulators
+  let ref_bins : Array[Map[Int32, Array[BaiChunk]]] = Array(capacity=n_ref)
+  let ref_linear_last : Array[Int64] = Array(capacity=n_ref)
+  let ref_linear_count : Array[Int32] = Array(capacity=n_ref)
+  // Init
+  let mut i = 0
+  while i < n_ref {
+    ref_bins.push(Map([], capacity=0))
+    ref_linear_last.push(0L)
+    ref_linear_count.push(0)
+    i = i + 1
+  }
+  // Linear "virtual offset" synthesizer
+  let mut next_voff : Int64 = 65536L // reserve 1 virtual offset for header
+  for r in self.records {
+    if r.is_unmapped() || r.ref_id < 0 {
+      continue
+    }
+    let beg = r.pos
+    let end = beg + r.get_end()
+    if end <= beg {
+      continue
+    }
+    let ref_ = r.ref_id
+    if ref_ >= n_ref {
+      continue
+    }
+    let voff = next_voff
+    let voff_end = voff + 256L // synthetic chunk end (256 bytes per record)
+    next_voff = voff_end
+    let chunk = BaiChunk::{ chunk_beg: voff, chunk_end: voff_end, }
+    // Bins
+    let bins = bam_bins_for_range(beg, end)
+    for bin in bins {
+      let cur = ref_bins[ref_].get(bin)
+      match cur {
+        Some(arr) => {
+          let copy = arr.copy()
+          copy.push(chunk)
+          ref_bins[ref_].set(bin, copy)
+        }
+        None => {
+          ref_bins[ref_].set(bin, [chunk])
+        }
+      }
+    }
+    // Linear index: every 16384 bp, record minimum voff
+    let iv = beg >> 14
+    // Expand ref_linear_last to fit iv+1
+    while ref_linear_last.length() <= iv {
+      ref_linear_last.push(9223372036854775807L) // sentinel "no record"
+      ref_linear_count.push(0)
+    }
+    if voff < ref_linear_last[iv] {
+      ref_linear_last[iv] = voff
+    }
+  }
+  // Collapse sentinels back to the last known good offset
+  i = 0
+  while i < n_ref {
+    let linear : Array[Int64] = []
+    let ref_len = if i < self.header.references.length() {
+      self.header.references[i].length
+    } else {
+      0
+    }
+    let n_ivs = (ref_len >> 14) + 1
+    let mut last_good : Int64 = 0L
+    let mut k = 0
+    while k < n_ivs {
+      if k < ref_linear_last.length() {
+        if ref_linear_last[k] != 9223372036854775807L {
+          last_good = ref_linear_last[k]
+        }
+      }
+      linear.push(last_good)
+      k = k + 1
+    }
+    references.push(BaiReference::{ bins: ref_bins[i], linear, })
+    i = i + 1
+  }
+  BaiIndex::{
+    n_ref,
+    references,
+    n_no_coor: Some(n_no_coor),
+  }
+}

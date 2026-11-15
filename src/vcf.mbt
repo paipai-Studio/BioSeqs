@@ -460,3 +460,375 @@ pub fn VcfFile::to_string(self : VcfFile) -> String {
   }
   buf.to_string()
 }
+
+// ============================================================================
+// P1-3: Variant 完整 API — VcfFile / VcfRecord / header 构建
+// ============================================================================
+
+///|
+/// Allele index array `[0, 1, ... n_alt]`. Index 0 is REF, remaining indices
+/// are the ALT alleles. Matches Pysam `VariantRecord.allele_indices`.
+pub fn VcfRecord::allele_indices(self : VcfRecord) -> Array[Int32] {
+  let n = self.alt.length() + 1
+  let out = Array::make(n, 0)
+  let mut i = 0
+  while i < n {
+    out[i] = i
+    i = i + 1
+  }
+  out
+}
+
+///|
+/// Length of the variant: `|ref_len - max(alt_len)|` for indels; otherwise
+/// the ref length (SNPs). Matches Pysam `VariantRecord.rlen` /
+/// `VariantRecord.rlen_sv` simplified semantics.
+pub fn VcfRecord::rlen(self : VcfRecord) -> Int32 {
+  let rl = self.ref_seq.length()
+  if self.alt.length() == 0 {
+    return rl
+  }
+  let mut max_alt = self.alt[0].length()
+  let mut i = 1
+  while i < self.alt.length() {
+    let len = self.alt[i].length()
+    if len > max_alt {
+      max_alt = len
+    }
+    i = i + 1
+  }
+  if self.is_insertion() || self.is_deletion() {
+    let diff = rl - max_alt
+    if diff < 0 { -diff } else { diff }
+  } else {
+    rl
+  }
+}
+
+///|
+/// The variant's end position (1-based inclusive), computed as
+/// `pos + rlen - 1`. Useful for range queries / BED-style overlap tests.
+pub fn VcfRecord::pos_end(self : VcfRecord) -> Int32 {
+  self.pos + self.rlen() - 1
+}
+
+///|
+/// True when at least one filter is non-PASS (i.e. record is filtered).
+pub fn VcfRecord::is_filtered(self : VcfRecord) -> Bool {
+  for f in self.filter {
+    if f != "PASS" && f != "." && f != "" {
+      return true
+    }
+  }
+  false
+}
+
+///|
+/// Get an INFO field value by key, or None if absent.
+pub fn VcfRecord::info_get(self : VcfRecord, key : String) -> String? {
+  self.info.get(key)
+}
+
+///|
+/// Set an INFO field value (flag fields use `""` as value). Returns a new
+/// record (immutable convention, consistent with `BamRecord::set_tag`).
+pub fn VcfRecord::info_set(self : VcfRecord, key : String, value : String) -> VcfRecord {
+  let info = self.info.copy()
+  info.set(key, value)
+  let new_format : Array[String]? = match self.format {
+    Some(f) => Some(f.copy())
+    None => None
+  }
+  VcfRecord::{
+    chrom: self.chrom,
+    pos: self.pos,
+    id: self.id.copy(),
+    ref_seq: self.ref_seq,
+    alt: self.alt.copy(),
+    qual: self.qual,
+    filter: self.filter.copy(),
+    info,
+    format: new_format,
+    samples: self.samples.copy(),
+  }
+}
+
+///|
+/// Get a FORMAT column value for `sample_name`. Returns None when the
+/// sample / format column is missing.
+pub fn VcfRecord::sample_format(
+  self : VcfRecord,
+  sample_name : String,
+  format_col : String,
+) -> String? {
+  let fmt = match self.format {
+    Some(f) => f
+    None => return None
+  }
+  let mut col_idx = -1
+  let mut i = 0
+  while i < fmt.length() {
+    if fmt[i] == format_col {
+      col_idx = i
+      break
+    }
+    i = i + 1
+  }
+  if col_idx < 0 {
+    return None
+  }
+  let data = match self.samples.get(sample_name) {
+    Some(d) => d
+    None => return None
+  }
+  if col_idx >= data.length() {
+    None
+  } else {
+    Some(data[col_idx])
+  }
+}
+
+///|
+/// Contig names collected from `##contig=<...>` meta-headers. Empty when none
+/// are declared. Matches Pysam `VariantHeader.contigs`.
+pub fn VcfFile::get_contigs(self : VcfFile) -> Array[String] {
+  let out : Array[String] = Array(capacity=0)
+  for mh in self.meta_headers {
+    if mh.key == "contig" {
+      match mh.tags.get("ID") {
+        Some(name) => out.push(name)
+        None => ()
+      }
+    }
+  }
+  out
+}
+
+///|
+/// Look up the declared length of `contig_name` from meta-headers; None if
+/// absent or length tag missing. Matches Pysam
+/// `VariantFile.header.contigs[].length`.
+pub fn VcfFile::get_contig_length(
+  self : VcfFile,
+  contig_name : String,
+) -> Int32? {
+  let none : Int32? = None
+  for mh in self.meta_headers {
+    if mh.key == "contig" {
+      match mh.tags.get("ID") {
+        Some(id) =>
+          if id == contig_name {
+            match mh.tags.get("length") {
+              Some(l) => return Some(parse_int(l))
+              None => return none
+            }
+          }
+        None => ()
+      }
+    }
+  }
+  none
+}
+
+///|
+/// Contig ID → index (0-based) lookup, consistent with Pysam
+/// `VariantFile.header.get_tid(name)`. Returns -1 when absent.
+pub fn VcfFile::get_tid(self : VcfFile, contig_name : String) -> Int32 {
+  let contigs = self.get_contigs()
+  let mut i = 0
+  while i < contigs.length() {
+    if contigs[i] == contig_name {
+      return i
+    }
+    i = i + 1
+  }
+  -1
+}
+
+///|
+/// Fetch records overlapping `[start, stop)` on `contig`. Start/stop are
+/// **1-based inclusive/exclusive** (VCF convention). Matches Pysam
+/// `VariantFile.fetch(contig, start, stop)`.
+pub fn VcfFile::fetch_region(
+  self : VcfFile,
+  contig : String,
+  start : Int32,
+  stop : Int32,
+) -> Array[VcfRecord] {
+  let out : Array[VcfRecord] = Array(capacity=0)
+  for rec in self.records {
+    if rec.chrom != contig {
+      continue
+    }
+    let rec_end = rec.pos_end()
+    if rec.pos < stop && rec_end >= start {
+      out.push(rec)
+    }
+  }
+  out
+}
+
+///|
+/// Fetch records by samtools-style region string (`chr1:100-200` etc). Uses
+/// the same parser as `parse_region` (BAM 模块).
+pub fn VcfFile::fetch_region_str(self : VcfFile, region : String) -> Array[VcfRecord] {
+  let (contig, start0, stop0) = parse_region(region)
+  // VCF uses 1-based start, so +1
+  let start = match start0 {
+    Some(s) => s + 1
+    None => 1
+  }
+  let stop = match stop0 {
+    Some(e) => e
+    None => 0 // no upper bound → use a very large value
+  }
+  if stop == 0 {
+    let out : Array[VcfRecord] = Array(capacity=0)
+    for rec in self.records {
+      if rec.chrom == contig && rec.pos >= start {
+        out.push(rec)
+      }
+    }
+    out
+  } else {
+    self.fetch_region(contig, start, stop)
+  }
+}
+
+///|
+/// Build a minimal VcfFile from an array of contig names and lengths (for
+/// writing). Matches Pysam `VariantFile.header =
+/// VariantHeader().add_contig(...); VariantFile.new_record()`.
+pub fn vcf_from_contigs(
+  contig_names : Array[String],
+  contig_lengths : Array[Int32],
+  sample_names : Array[String]?,
+) -> VcfFile {
+  let meta = Array(capacity=0)
+  meta.push(VcfMetaHeader::{
+    key: "fileformat",
+    value: "VCFv4.2",
+    tags: Map([], capacity=0),
+  })
+  let n = contig_names.length()
+  let mut i = 0
+  while i < n {
+    let tags = Map([], capacity=0)
+    tags.set("ID", contig_names[i])
+    tags.set("length", contig_lengths[i].to_string())
+    meta.push(VcfMetaHeader::{
+      key: "contig",
+      value: "ID=\{contig_names[i]},length=\{contig_lengths[i]}",
+      tags,
+    })
+    i = i + 1
+  }
+  let columns : Array[String] = Array(capacity=0)
+  columns.push("#CHROM")
+  columns.push("POS")
+  columns.push("ID")
+  columns.push("REF")
+  columns.push("ALT")
+  columns.push("QUAL")
+  columns.push("FILTER")
+  columns.push("INFO")
+  match sample_names {
+    None => ()
+    Some(names) => {
+      columns.push("FORMAT")
+      for name in names {
+        columns.push(name)
+      }
+    }
+  }
+  VcfFile::{
+    meta_headers: meta,
+    fixed_header: Some(VcfFixedHeader::{ columns, }),
+    records: [],
+  }
+}
+
+///|
+/// Create a blank VcfRecord template, optionally pre-populating contig + pos.
+/// The caller is expected to fill REF / ALT / FORMAT / samples.
+pub fn vcf_new_record(
+  vcf : VcfFile,
+  chrom~ : String = "",
+  pos~ : Int32 = 0,
+) -> VcfRecord {
+  // Build empty samples dict from fixed_header's sample names
+  let samples = Map([], capacity=0)
+  let fmt : Array[String]? = match vcf.fixed_header {
+    None => None
+    Some(fh) => {
+      if fh.columns.length() > 8 && fh.columns[8] == "FORMAT" {
+        let names = Array(capacity=0)
+        let mut i = 9
+        while i < fh.columns.length() {
+          names.push(fh.columns[i])
+          samples.set(fh.columns[i], [])
+          i = i + 1
+        }
+        Some(names)
+      } else {
+        None
+      }
+    }
+  }
+  VcfRecord::{
+    chrom,
+    pos,
+    id: [],
+    ref_seq: "",
+    alt: [],
+    qual: None,
+    filter: [],
+    info: Map([], capacity=0),
+    format: fmt,
+    samples,
+  }
+}
+
+///|
+/// Append a contig declaration to `vcf.meta_headers`. Convenience wrapper for
+/// the writer workflow.
+pub fn VcfFile::add_contig(
+  self : VcfFile,
+  name : String,
+  length : Int32,
+) -> VcfFile {
+  let meta = self.meta_headers.copy()
+  let tags = Map([], capacity=0)
+  tags.set("ID", name)
+  tags.set("length", length.to_string())
+  meta.push(VcfMetaHeader::{
+    key: "contig",
+    value: "ID=\{name},length=\{length}",
+    tags,
+  })
+  VcfFile::{
+    meta_headers: meta,
+    fixed_header: self.fixed_header,
+    records: self.records,
+  }
+}
+
+///|
+/// Append an arbitrary meta header (##KEY=VALUE) to the VCF.
+pub fn VcfFile::add_meta(
+  self : VcfFile,
+  key : String,
+  value : String,
+) -> VcfFile {
+  let meta = self.meta_headers.copy()
+  meta.push(VcfMetaHeader::{
+    key,
+    value,
+    tags: Map([], capacity=0),
+  })
+  VcfFile::{
+    meta_headers: meta,
+    fixed_header: self.fixed_header,
+    records: self.records,
+  }
+}

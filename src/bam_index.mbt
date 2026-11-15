@@ -240,3 +240,111 @@ pub fn bai_query(
   }
   BaiQueryResult::{ min_off, chunks, }
 }
+
+// ---------------------------------------------------------------------------
+// BAI serialization (write) — used by samtools index / TabixFile writer
+// ---------------------------------------------------------------------------
+
+///|
+fn bai_write_u32(buf : StringBuilder, v : Int32) -> Unit {
+  buf.write_char(((v & 255).to_uint16()).unsafe_to_char())
+  buf.write_char((((v >> 8) & 255).to_uint16()).unsafe_to_char())
+  buf.write_char((((v >> 16) & 255).to_uint16()).unsafe_to_char())
+  buf.write_char((((v >> 24) & 255).to_uint16()).unsafe_to_char())
+}
+
+///|
+fn bai_write_u64(buf : StringBuilder, v : Int64) -> Unit {
+  buf.write_char((((v & 255).to_int()).to_uint16()).unsafe_to_char())
+  buf.write_char(((((v >> 8) & 255).to_int()).to_uint16()).unsafe_to_char())
+  buf.write_char(((((v >> 16) & 255).to_int()).to_uint16()).unsafe_to_char())
+  buf.write_char(((((v >> 24) & 255).to_int()).to_uint16()).unsafe_to_char())
+  buf.write_char(((((v >> 32) & 255).to_int()).to_uint16()).unsafe_to_char())
+  buf.write_char(((((v >> 40) & 255).to_int()).to_uint16()).unsafe_to_char())
+  buf.write_char(((((v >> 48) & 255).to_int()).to_uint16()).unsafe_to_char())
+  buf.write_char(((((v >> 56) & 255).to_int()).to_uint16()).unsafe_to_char())
+}
+
+///|
+/// Serialize a BaiIndex to its on-disk BAI byte format (magic `BAI\x01` +
+/// per-reference binning). Returns the raw bytes as a String (same format
+/// consumed by `parse_bai`).
+pub fn serialize_bai(index : BaiIndex) -> String {
+  let buf = StringBuilder()
+  // Magic: 'B'=66, 'A'=65, 'I'=73, 1
+  let b = 66
+  let a = 65
+  let i_ = 73
+  let one = 1
+  buf.write_char((b & 0xFF).to_uint16().unsafe_to_char())
+  buf.write_char((a & 0xFF).to_uint16().unsafe_to_char())
+  buf.write_char((i_ & 0xFF).to_uint16().unsafe_to_char())
+  buf.write_char((one & 0xFF).to_uint16().unsafe_to_char())
+  bai_write_u32(buf, index.n_ref)
+  for ref_ in index.references {
+    // Build sorted bin keys
+    let bin_keys : Array[Int32] = []
+    for (k, _) in ref_.bins {
+      bin_keys.push(k)
+    }
+    // Simple selection sort to keep deterministic output
+    let n = bin_keys.length()
+    let mut i = 0
+    while i < n {
+      let mut min_idx = i
+      let mut j = i + 1
+      while j < n {
+        if bin_keys[j] < bin_keys[min_idx] {
+          min_idx = j
+        }
+        j = j + 1
+      }
+      let tmp = bin_keys[i]
+      bin_keys[i] = bin_keys[min_idx]
+      bin_keys[min_idx] = tmp
+      i = i + 1
+    }
+    bai_write_u32(buf, bin_keys.length())
+    for bk in bin_keys {
+      bai_write_u32(buf, bk)
+      let chunks = ref_.bins[bk]
+      bai_write_u32(buf, chunks.length())
+      for c in chunks {
+        bai_write_u64(buf, c.chunk_beg)
+        bai_write_u64(buf, c.chunk_end)
+      }
+    }
+    bai_write_u32(buf, ref_.linear.length())
+    for off in ref_.linear {
+      bai_write_u64(buf, off)
+    }
+  }
+  match index.n_no_coor {
+    Some(v) => bai_write_u64(buf, v)
+    None => ()
+  }
+  buf.to_string()
+}
+
+// ============================================================================
+// BGZF virtual offset helpers (used throughout index code)
+// ============================================================================
+
+///|
+/// BGZF virtual offset: block offset (upper 48 bits) within-block offset
+/// (lower 16 bits). Produces a single Int64 suitable for BAI / TBI storage.
+pub fn bgzf_voffset(block_offset : Int64, within_block : Int32) -> Int64 {
+  (block_offset << 16) | within_block.to_int64()
+}
+
+///|
+/// Extract the file-block offset from a BGZF virtual offset (upper 48 bits).
+pub fn bgzf_block_offset(voffset : Int64) -> Int64 {
+  voffset >> 16
+}
+
+///|
+/// Extract the within-block offset from a BGZF virtual offset (lower 16 bits).
+pub fn bgzf_within_block(voffset : Int64) -> Int {
+  ((voffset & 65535).to_int())
+}
