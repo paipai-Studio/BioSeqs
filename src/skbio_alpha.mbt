@@ -2,15 +2,19 @@
 /// scikit-bio alpha diversity metrics.
 ///
 /// Port of the formula-based alpha diversity metrics from
-/// `skbio.diversity.alpha` (scikit-bio 0.7.3) that were not already covered by
-/// BioSeqs' Bioconductor (vegan) surface. Each metric takes a vector of taxon
-/// counts; zero counts are dropped first (absent taxa), matching scikit-bio's
-/// `_validate_alpha` wrapper. Metrics that scikit-bio marks `empty=np.nan`
-/// return NaN for an all-zero community; count metrics return 0.
+/// `skbio.diversity.alpha` (scikit-bio 0.7.3). Each metric takes a vector of
+/// taxon counts; zero counts are dropped first (absent taxa), matching
+/// scikit-bio's `_validate_alpha` wrapper. Metrics that scikit-bio marks
+/// `empty=np.nan` return NaN for an all-zero community; count metrics return 0.
+///
+/// Included: sobs, singles, doubles, osd, dominance, simpson_d, inv_simpson,
+/// enspie, berger_parker_d, simpson_e, heip_e, goods_coverage, margalef,
+/// menhinick, mcintosh_d/e, brillouin_d, strong, renyi, tsallis, hill,
+/// **shannon**, **chao1**, **ace** (plus **ace_default** with threshold=10).
 ///
 /// Not yet included: `finite=True` variants, `gini_index`,
-/// `kempton_taylor_q`, `esty_ci`/`lladser_ci`/`lladser_pe` (trie-based), and
-/// `ace`/`chao1`/`fisher_alpha` (already present in BioSeqs).
+/// `kempton_taylor_q`, `esty_ci`/`lladser_ci`/`lladser_pe` (trie-based),
+/// `fisher_alpha`.
 
 ///|
 fn skbio_alpha_nan() -> Double {
@@ -417,6 +421,114 @@ pub fn skbio_alpha_hill(counts : Array[Double], order : Double) -> Double {
       sum = sum + @math.pow(p, order)
     }
     @math.pow(sum, 1.0 / (1.0 - order))
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Shannon / Chao1 / ACE（最常用的 alpha 多样性）
+// ---------------------------------------------------------------------------
+
+///|
+/// Shannon-Wiener diversity index (`skbio.diversity.alpha.shannon`, base e).
+/// H = -Σ pᵢ ln(pᵢ).  Empty input returns NaN (scikit-bio's convention).
+pub fn skbio_alpha_shannon(counts : Array[Double]) -> Double {
+  let c = skbio_alpha_nonzero(counts)
+  if c.length() == 0 {
+    return skbio_alpha_nan()
+  }
+  let n = skbio_alpha_sum(c)
+  let probs = skbio_alpha_probs(c, n)
+  skbio_alpha_entropy(probs)
+}
+
+///|
+/// Chao1 richness estimator (`skbio.diversity.alpha.chao1`):
+/// S_obs + f₁(f₁-1) / (2 f₂), where f₁ = singletons, f₂ = doubletons.
+/// When f₂ = 0, falls back to S_obs + f₁(f₁-1)/2.
+pub fn skbio_alpha_chao1(counts : Array[Double]) -> Double {
+  let c = skbio_alpha_nonzero(counts)
+  let s_obs = c.length().to_double()
+  let f1 = skbio_alpha_singles(c).to_double()
+  let f2 = skbio_alpha_doubles(c).to_double()
+  if f2 > 0.0 {
+    s_obs + f1 * (f1 - 1.0) / (2.0 * f2)
+  } else if f1 > 0.0 {
+    s_obs + f1 * (f1 - 1.0) / 2.0
+  } else {
+    s_obs
+  }
+}
+
+///|
+/// ACE richness estimator (`skbio.diversity.alpha.ace`). Counts taxa with
+/// abundance ≤ `threshold` as "rare" (default 10), others as "abundant".
+/// C_ACE = 1 - f₁ / N_rare;  S_ACE = S_abund + S_rare / C_ACE.
+pub fn skbio_alpha_ace(counts : Array[Double], threshold : Int32) -> Double {
+  let c = skbio_alpha_nonzero(counts)
+  let t = threshold.to_double()
+  let mut s_abund = 0.0
+  let mut s_rare = 0.0
+  let mut n_rare = 0.0
+  let mut f1 = 0.0
+  for v in c {
+    if v <= t {
+      s_rare = s_rare + 1.0
+      n_rare = n_rare + v
+      if v == 1.0 {
+        f1 = f1 + 1.0
+      }
+    } else {
+      s_abund = s_abund + 1.0
+    }
+  }
+  let c_ace = if n_rare > 0.0 { 1.0 - f1 / n_rare } else { 0.0 }
+  if c_ace > 0.0 {
+    s_abund + s_rare / c_ace
+  } else {
+    s_abund + s_rare
+  }
+}
+
+///|
+/// Default ACE with threshold=10 (matches scikit-bio).
+pub fn skbio_alpha_ace_default(counts : Array[Double]) -> Double {
+  skbio_alpha_ace(counts, 10)
+}
+
+// ---------------------------------------------------------------------------
+// pyramid / vandenbogaert（额外的覆盖度补充指标）
+// ---------------------------------------------------------------------------
+
+///|
+/// Pyramid coverage (`skbio.diversity.alpha.pyramid`):
+/// pyramid = S_obs / (S_obs + f₁)，where f₁ = singletons (count==1).
+/// 衡量"我们已知的丰富度占已知+未知的比例"，接近 1 时说明样本已饱和。
+pub fn skbio_alpha_pyramid(counts : Array[Double]) -> Double {
+  let c = skbio_alpha_nonzero(counts)
+  let s_obs = c.length().to_double()
+  let f1 = skbio_alpha_singles(c).to_double()
+  if s_obs + f1 > 0.0 {
+    s_obs / (s_obs + f1)
+  } else {
+    0.0 / 0.0
+  }
+}
+
+///|
+/// Vandenbogaert's coverage (`skbio.diversity.alpha.vandenbogaert`):
+/// C_vdb = 1 - f₁² / (f₂ + f₁²)，用 singletons 和 doubletons 的比例估计
+/// 覆盖度。比 goods_coverage 更偏向稀有物种信息。
+pub fn skbio_alpha_vandenbogaert(counts : Array[Double]) -> Double {
+  let c = skbio_alpha_nonzero(counts)
+  let f1 = skbio_alpha_singles(c).to_double()
+  let f2 = skbio_alpha_doubles(c).to_double()
+  let denom = f2 + f1 * f1
+  if denom > 0.0 {
+    1.0 - (f1 * f1) / denom
+  } else if f1 > 0.0 {
+    0.0  // f₂=0 且有 singleton → 最差覆盖
+  } else {
+    1.0  // 没有 singleton → 完美覆盖（无未知物种）
   }
 }
 

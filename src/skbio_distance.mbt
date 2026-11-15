@@ -699,3 +699,129 @@ pub fn skbio_permdisp_median(
     num_groups: skbd_num_groups(grouping),
   }
 }
+
+// ============================================================================
+// MRPP（Multi-Response Permutation Procedure）
+// ============================================================================
+
+///|
+pub struct MrppResult {
+  group_delta_means : Array[Double]
+  t_observed : Double
+  chance_corrected_agreement : Double
+  p_value : Double
+  n_permutations : Int32
+}
+
+///|
+/// 计算每个组的平均组内 pairwise distance。
+fn skbd_mrpp_group_deltas(
+  dm : Array[Array[Double]],
+  grouping : Array[Int32],
+) -> (Array[Double], Array[Int32]) {
+  let n = dm.length()
+  let levels : Array[Int32] = Array(capacity=0)
+  for g in grouping {
+    let mut dup = false
+    for lv in levels {
+      if lv == g { dup = true; break }
+    }
+    if !dup { levels.push(g) }
+  }
+  let deltas : Array[Double] = Array(capacity=levels.length())
+  let sizes : Array[Int32] = Array(capacity=levels.length())
+  for lv in levels {
+    let members : Array[Int32] = Array(capacity=0)
+    for i = 0; i < n; i = i + 1 {
+      if grouping[i] == lv { members.push(i) }
+    }
+    let ng = members.length()
+    sizes.push(ng)
+    if ng < 2 {
+      deltas.push(0.0)
+    } else {
+      let mut sum_d = 0.0
+      for a = 0; a < ng; a = a + 1 {
+        for b = a + 1; b < ng; b = b + 1 {
+          sum_d = sum_d + dm[members[a]][members[b]]
+        }
+      }
+      let pairs = (ng.to_double() * (ng.to_double() - 1.0)) / 2.0
+      deltas.push(if pairs > 0.0 { sum_d / pairs } else { 0.0 })
+    }
+  }
+  (deltas, sizes)
+}
+
+///|
+/// MRPP（Multi-Response Permutation Procedure）。
+///
+/// 检验组内距离是否显著小于随机期望。t_obs = Σ (nᵢ − 1) δᵢ，其中 δᵢ
+/// 是组 i 的平均组内 pairwise distance。t 越小 → 组效应越强。因此
+/// p-value = P(t_perm ≤ t_obs)（单尾）。
+pub fn skbio_mrpp(
+  dm : Array[Array[Double]],
+  grouping : Array[Int32],
+  permutations : Int32,
+  seed : Int32,
+) -> MrppResult {
+  let n = dm.length()
+  if n < 3 {
+    return MrppResult::{
+      group_delta_means: [],
+      t_observed: 0.0 / 0.0,
+      chance_corrected_agreement: 0.0 / 0.0,
+      p_value: 0.0 / 0.0,
+      n_permutations: 0,
+    }
+  }
+  let (deltas, sizes) = skbd_mrpp_group_deltas(dm, grouping)
+  let g = deltas.length()
+  let mut t_obs = 0.0
+  for i = 0; i < g; i = i + 1 {
+    t_obs = t_obs + (sizes[i] - 1).to_double() * deltas[i]
+  }
+  let mut d_all = 0.0
+  for i = 0; i < n; i = i + 1 {
+    for j = i + 1; j < n; j = j + 1 {
+      d_all = d_all + dm[i][j]
+    }
+  }
+  let total_pairs = (n.to_double() * (n.to_double() - 1.0)) / 2.0
+  let delta_overall = if total_pairs > 0.0 { d_all / total_pairs } else { 0.0 }
+  let e_t0 = if n > g { (n.to_double() - g.to_double()) * delta_overall } else { 0.0 }
+  let agreement = if e_t0 > 0.0 { 1.0 - t_obs / e_t0 } else { 0.0 }
+
+  let mut count_le = 0
+  let mut rng = seed
+  for _p = 0; _p < permutations; _p = _p + 1 {
+    let grp = grouping.copy()
+    let mut i = n - 1
+    while i > 0 {
+      rng = skbd_lcg(rng)
+      let j = rng % (i + 1)
+      let t = grp[i]; grp[i] = grp[j]; grp[j] = t
+      i = i - 1
+    }
+    let (d_perm, s_perm) = skbd_mrpp_group_deltas(dm, grp)
+    let mut t_perm = 0.0
+    for k = 0; k < d_perm.length(); k = k + 1 {
+      t_perm = t_perm + (s_perm[k] - 1).to_double() * d_perm[k]
+    }
+    if t_perm <= t_obs {
+      count_le = count_le + 1
+    }
+  }
+  let p_value = if permutations == 0 {
+    skbd_nan()
+  } else {
+    (count_le + 1).to_double() / (permutations + 1).to_double()
+  }
+  MrppResult::{
+    group_delta_means: deltas,
+    t_observed: t_obs,
+    chance_corrected_agreement: agreement,
+    p_value,
+    n_permutations: permutations,
+  }
+}
