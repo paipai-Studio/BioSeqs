@@ -342,3 +342,72 @@ pub fn AtomArray::all_side_chain_dihedrals(
   }
   result
 }
+
+// ============================================================
+// #5: Batch backbone dihedral matrix (φ/ψ/ω per residue)
+// ============================================================
+
+///|
+/// 3-tuple of backbone dihedrals for one residue:
+///   (phi, psi, omega) — all degrees, None if undefined.
+pub type BackboneDihedralRow = (Double?, Double?, Double?)
+
+///|
+/// Compute a full backbone dihedral "matrix" — one row per residue,
+/// each row = (phi, psi, omega) degrees.
+///
+/// This is the standard Ramachandran-style φ/ψ map input:
+///   - phi[i]   = C(i-1)-N(i)-CA(i)-C(i)  (None for i=0 or chain break)
+///   - psi[i]   = N(i)-CA(i)-C(i)-N(i+1)  (None for last residue or chain break)
+///   - omega[i] = CA(i)-C(i)-N(i+1)-CA(i+1)  (peptide bond, None for last)
+///
+/// Returns an Array[BackboneDihedralRow] of length n_res.
+pub fn AtomArray::calculate_backbone_dihedral_matrix(
+  self : AtomArray,
+) -> Array[BackboneDihedralRow] {
+  let starts = self.get_residue_starts()
+  let n = starts.length()
+  let out : Array[BackboneDihedralRow] = Array(capacity=n)
+  let mut i = 0
+  while i < n {
+    let phi = self.backbone_phi(i)
+    let psi = self.backbone_psi(i)
+    let omega = self.backbone_omega(i)
+    out.push((phi, psi, omega))
+    i = i + 1
+  }
+  out
+}
+
+///|
+/// Extract just the (phi, psi) pairs from the dihedral matrix —
+/// convenient for Ramachandran plot / φψ map analysis.
+/// Residues where either phi or psi is None are skipped.
+pub fn AtomArray::extract_phi_psi_pairs(
+  self : AtomArray,
+) -> Array[(Double, Double)] {
+  let matrix = self.calculate_backbone_dihedral_matrix()
+  let out : Array[(Double, Double)] = Array(capacity=matrix.length())
+  for row in matrix {
+    match row {
+      (Some(ph), Some(ps), _) => out.push((ph, ps))
+      _ => ()
+    }
+  }
+  out
+}
+
+///|
+/// Extract the ω (omega) peptide bond angles for all inter-residue bonds.
+/// Length = n_res - 1; None where peptide bond crosses chain boundary.
+pub fn AtomArray::extract_omega_angles(self : AtomArray) -> Array[Double?] {
+  let starts = self.get_residue_starts()
+  let n = starts.length()
+  let out : Array[Double?] = Array(capacity=if n > 0 { n - 1 } else { 0 })
+  let mut i = 0
+  while i < n - 1 {
+    out.push(self.backbone_omega(i))
+    i = i + 1
+  }
+  out
+}

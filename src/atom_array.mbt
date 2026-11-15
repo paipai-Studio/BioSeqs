@@ -828,6 +828,36 @@ pub fn AtomArray::filter_intersection(
   self.filter(mask)
 }
 
+// --- #7: B-factor / occupancy threshold filters ---
+
+///|
+/// Keep only atoms with B-factor ≤ threshold (default 20.0 Å²).
+/// PDB quality filter — high B-factors indicate disorder / unreliable atoms.
+pub fn AtomArray::filter_bfactor(
+  self : AtomArray,
+  max_bfactor~ : Double = 20.0,
+) -> AtomArray {
+  let mask : Array[Bool] = []
+  for i in 0..<self.len() {
+    mask.push(self.b_factors[i] <= max_bfactor)
+  }
+  self.filter(mask)
+}
+
+///|
+/// Keep only atoms with occupancy ≥ threshold (default 0.5).
+/// Filters out low-occupancy alternate conformations or partial density.
+pub fn AtomArray::filter_occupancy(
+  self : AtomArray,
+  min_occupancy~ : Double = 0.5,
+) -> AtomArray {
+  let mask : Array[Bool] = []
+  for i in 0..<self.len() {
+    mask.push(self.occupancies[i] >= min_occupancy)
+  }
+  self.filter(mask)
+}
+
 // ============================================================
 // P0 — AtomArrayStack (multi-model structure)
 // ============================================================
@@ -1293,3 +1323,274 @@ pub fn AtomArray::center(self : AtomArray) -> AtomArray {
     altlocs: self.altlocs,
   }
 }
+
+// ============================================================
+// PDB string export
+// ============================================================
+
+///|
+/// Pad a string to the left with fill character.
+fn pad_left_pdb(s : String, width : Int32, c : Char) -> String {
+  let n = s.length()
+  if n >= width {
+    s
+  } else {
+    c.to_string().repeat(width - n) + s
+  }
+}
+
+///|
+/// Pad a string to the right with fill character.
+fn pad_right_pdb(s : String, width : Int32, c : Char) -> String {
+  let n = s.length()
+  if n >= width {
+    s
+  } else {
+    s + c.to_string().repeat(width - n)
+  }
+}
+
+///|
+/// Format Double as fixed-width with decimals (right-padded with spaces).
+fn format_fixed_pdb(v : Double, width : Int32, decimals : Int32) -> String {
+  let neg = v < 0.0
+  let av = if neg { -v } else { v }
+  let mult = 10.0.pow(decimals.to_double())
+  let total = (av * mult + 0.5).to_int()
+  let div = 10.0.pow(decimals.to_double()).to_int()
+  let int_part = total / div
+  let frac_part = total - int_part * div
+  let int_s = int_part.to_string()
+  let frac_s = pad_left_pdb(frac_part.to_string(), decimals, '0')
+  let num = (if neg { "-" } else { "" }) + int_s + "." + frac_s
+  pad_left_pdb(num, width, ' ')
+}
+
+///|
+/// Write a single PDB ATOM record.
+fn pdb_atom_line(
+  serial : Int32,
+  name : String,
+  res_name : String,
+  chain_id : Char,
+  res_id : Int32,
+  x : Double,
+  y : Double,
+  z : Double,
+  occupancy : Double,
+  b_factor : Double,
+  element : String,
+) -> String {
+  let sb = StringBuilder()
+  sb.write_string("ATOM  ")
+  sb.write_string(pad_left_pdb(serial.to_string(), 5, ' '))
+  sb.write_char(' ')
+  sb.write_string(pad_right_pdb(name, 4, ' '))
+  sb.write_string("  ")
+  sb.write_string(pad_right_pdb(res_name, 3, ' '))
+  sb.write_char(' ')
+  sb.write_char(chain_id)
+  sb.write_string(pad_left_pdb(res_id.to_string(), 4, ' '))
+  sb.write_string("    ")
+  sb.write_string(format_fixed_pdb(x, 8, 3))
+  sb.write_string(format_fixed_pdb(y, 8, 3))
+  sb.write_string(format_fixed_pdb(z, 8, 3))
+  sb.write_string(format_fixed_pdb(occupancy, 6, 2))
+  sb.write_string(format_fixed_pdb(b_factor, 6, 2))
+  sb.write_string("      ")
+  sb.write_string(pad_right_pdb(element, 2, ' '))
+  sb.write_char('\n')
+  sb.to_string()
+}
+
+///|
+/// Convert AtomArray to a PDB-format string (ATOM records).
+/// Inserts TER records at chain boundaries and ends with END.
+pub fn AtomArray::to_pdb_string(self : AtomArray) -> String {
+  let sb = StringBuilder()
+  let n = self.len()
+  if n == 0 {
+    sb.write_string("END\n")
+    return sb.to_string()
+  }
+  let chain_ids = self.chain_ids
+  let mut cur_chain = chain_ids[0]
+  let mut serial = 1
+  let mut i = 0
+  while i < n {
+    sb.write_string(
+      pdb_atom_line(
+        serial,
+        self.names[i],
+        self.res_names[i],
+        chain_ids[i],
+        self.res_ids[i],
+        self.coords[i].x,
+        self.coords[i].y,
+        self.coords[i].z,
+        self.occupancies[i],
+        self.b_factors[i],
+        self.elements[i],
+      ),
+    )
+    serial = serial + 1
+    if i + 1 < n && chain_ids[i + 1] != cur_chain {
+      sb.write_string("TER\n")
+      cur_chain = chain_ids[i + 1]
+    }
+    i = i + 1
+  }
+  sb.write_string("TER\n")
+  sb.write_string("END\n")
+  sb.to_string()
+}
+
+// ============================================================
+// Spatial neighbor search (CellList wrapper)
+// ============================================================
+
+///|
+/// Convert Array[Vector3] → Array[Array[Double]] for CellList.
+pub fn AtomArray::to_coord_array(self : AtomArray) -> Array[Array[Double]] {
+  let n = self.len()
+  let out : Array[Array[Double]] = Array(capacity=n)
+  let mut i = 0
+  while i < n {
+    let c = self.coords[i]
+    out.push([c.x, c.y, c.z])
+    i = i + 1
+  }
+  out
+}
+
+///|
+/// Build a CellList for fast spatial neighbor queries.
+/// `cell_size` should be ≥ the largest cutoff you plan to query
+/// (default 5.0 Å, good for most structural cutoffs).
+pub fn AtomArray::build_celllist(
+  self : AtomArray,
+  cell_size~ : Double = 5.0,
+) -> CellList {
+  celllist_new(self.to_coord_array(), cell_size)
+}
+
+///|
+/// Find all atoms within `cutoff` Å of atom index `idx` (excluding self).
+/// Uses CellList — O(N) preprocessing, O(K) query.
+pub fn AtomArray::search_neighbors(
+  self : AtomArray,
+  idx : Int32,
+  cutoff : Double,
+) -> Array[Int32] {
+  let cl = self.build_celllist(cell_size=cutoff)
+  celllist_neighbors(cl, idx, cutoff)
+}
+
+///|
+/// Find all atoms within `cutoff` Å of point (x, y, z).
+pub fn AtomArray::search_neighbors_point(
+  self : AtomArray,
+  x : Double,
+  y : Double,
+  z : Double,
+  cutoff : Double,
+) -> Array[Int32] {
+  let cl = self.build_celllist(cell_size=cutoff)
+  celllist_neighbors_point(cl, x, y, z, cutoff, -1)
+}
+
+///|
+/// Find all pairs (i, j) with i < j whose atoms are within `cutoff` Å.
+pub fn AtomArray::search_all_pairs(
+  self : AtomArray,
+  cutoff : Double,
+) -> Array[(Int32, Int32)] {
+  let cl = self.build_celllist(cell_size=cutoff)
+  celllist_all_pairs(cl, cutoff)
+}
+
+// ============================================================
+// #6: Sequence extraction (AtomArray → FASTA string)
+// ============================================================
+
+///|
+/// Three-letter → one-letter amino acid mapping (for AtomArray convenience).
+fn aa3to1(name : String) -> Char {
+  match name {
+    "ALA" => 'A'
+    "ARG" => 'R'
+    "ASN" => 'N'
+    "ASP" => 'D'
+    "CYS" => 'C'
+    "GLN" => 'Q'
+    "GLU" => 'E'
+    "GLY" => 'G'
+    "HIS" => 'H'
+    "ILE" => 'I'
+    "LEU" => 'L'
+    "LYS" => 'K'
+    "MET" => 'M'
+    "PHE" => 'F'
+    "PRO" => 'P'
+    "SER" => 'S'
+    "THR" => 'T'
+    "TRP" => 'W'
+    "TYR" => 'Y'
+    "VAL" => 'V'
+    "MSE" => 'M'
+    _ => 'X'
+  }
+}
+
+///|
+/// Extract one-letter amino acid sequence from this AtomArray.
+/// Residues are read in chain + residue order (get_residue_starts).
+/// Returns a single concatenated sequence string across all chains.
+pub fn AtomArray::to_sequence(self : AtomArray) -> String {
+  let starts = self.get_residue_starts()
+  let n = starts.length()
+  let mut seq = ""
+  let mut prev_chain : Char = if n > 0 {
+    self.chain_ids[starts[0]]
+  } else {
+    ' '
+  }
+  let mut i = 0
+  while i < n {
+    let chain = self.chain_ids[starts[i]]
+    if chain != prev_chain {
+      seq = seq + "/" // chain separator
+      prev_chain = chain
+    }
+    seq = seq + aa3to1(self.res_names[starts[i]]).to_string()
+    i = i + 1
+  }
+  seq
+}
+
+// ============================================================
+// #11: Secondary structure content summary
+// ============================================================
+
+///|
+/// Run PSEA secondary structure assignment on this AtomArray
+/// and return helix/sheet/turn/coil fractions + counts.
+pub fn AtomArray::sse_content_summary(self : AtomArray) -> SSContent {
+  let psea = self.annotate_sse()
+  let n = psea.psea_n_residues()
+  let codes : Array[Char] = Array(capacity=n)
+  let mut i = 0
+  while i < n {
+    let s = psea.psea_get_ss(i)
+    // PseaResult.ss stores single-char codes as String
+    let c = if s.length() > 0 { s.unsafe_get(0).unsafe_to_char() } else { 'C' }
+    codes.push(c)
+    i = i + 1
+  }
+  calculate_ss_content(codes)
+}
+
+// ============================================================
+// #13: mmCIF ↔ AtomArray convenience layer
+// ============================================================
+// (Entry-point wrappers — real impl in mmcif_complete.mbt)
