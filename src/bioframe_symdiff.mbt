@@ -21,11 +21,29 @@ pub fn bf_symmetric_diff(
 }
 
 ///|
+/// Set difference: return A minus B — keep portions of A that do NOT
+/// overlap any interval in B.
+///
+/// Bioframe equivalent: `bioframe.ops.setdiff`.  Note this is *not* the
+/// same as `bf_symmetric_diff`: setdiff is unidirectional A - B, while
+/// symmetric diff is the XOR (A - B) ∪ (B - A).
+///
+/// The result is a *fresh partitioned set of intervals* — an A interval
+/// spanning [0, 100) that has B covering [20, 40) becomes two intervals
+/// [0, 20) and [40, 100).
+pub fn bf_setdiff(
+  a : Array[BedInterval],
+  b : Array[BedInterval],
+) -> Array[BedInterval] {
+  bf_subtract_intervals(a, b)
+}
+
+///|
 /// Subtract intervals in b from a, returning the portions of a
 /// that don't overlap with any b interval.
 /// This is more precise than bedtools_subtract when we need
 /// the actual remaining fragments.
-fn bf_subtract_intervals(
+pub fn bf_subtract_intervals(
   a : Array[BedInterval],
   b : Array[BedInterval],
 ) -> Array[BedInterval] {

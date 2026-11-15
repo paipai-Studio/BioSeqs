@@ -9,15 +9,15 @@
 ///|
 pub struct BedInterval {
   chrom : String
-  start : Int32
-  end : Int32
+  start : Int
+  end : Int
 }
 
 ///|
 pub fn BedInterval::new(
   chrom : String,
-  start : Int32,
-  end : Int32,
+  start : Int,
+  end : Int,
 ) -> BedInterval {
   BedInterval::{ chrom, start, end, }
 }

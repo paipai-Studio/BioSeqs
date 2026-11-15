@@ -173,3 +173,104 @@ fn bf_percentile(sorted : Array[Int32], pct : Int32) -> Double {
   let frac = rank - lo.to_double()
   sorted[lo].to_double() + frac * (sorted[hi] - sorted[lo]).to_double()
 }
+
+// ================================================================
+// New: per-interval coverage (Bioframe-style)
+// ================================================================
+
+///|
+/// Coverage of each interval in A by intervals in B.
+///
+/// For every interval in `a`, compute how many base pairs of it are
+/// covered by any interval in `b`.  Overlaps in B are merged *first*
+/// so that overlapping B regions don't double-count.
+///
+/// Returns an Int32 array with exactly the same length as `a`.
+///
+///     bf_coverage_per_interval(a, b)
+///
+/// Example (no merge step shown for brevity):
+///     A:  [0, 100), [200, 300)
+///     B:  [50, 150)
+///     → coverage: [50, 0]
+///
+pub fn bf_coverage_per_interval(
+  a : Array[BedInterval],
+  b : Array[BedInterval],
+) -> Array[Int32] {
+  // Merge b so we count each covered bp only once
+  let merged_b = bf_coverage_merge(b)
+  let out : Array[Int32] = Array(capacity=a.length())
+  for ai in a {
+    let mut covered : Int32 = 0
+    // Only scan B on the same chromosome that overlaps this A interval
+    for bi in merged_b {
+      if bi.chrom != ai.chrom {
+        continue
+      }
+      if bi.end <= ai.start || bi.start >= ai.end {
+        continue
+      }
+      let overlap_start = if bi.start > ai.start { bi.start } else { ai.start }
+      let overlap_end = if bi.end < ai.end { bi.end } else { ai.end }
+      covered = covered + (overlap_end - overlap_start)
+    }
+    out.push(covered)
+  }
+  out
+}
+
+///|
+/// Same as bf_coverage_per_interval but also returns the fraction of
+/// each A interval that is covered (Double in [0, 1]).
+pub fn bf_coverage_per_interval_fraction(
+  a : Array[BedInterval],
+  b : Array[BedInterval],
+) -> Array[Double] {
+  let cov = bf_coverage_per_interval(a, b)
+  let out : Array[Double] = Array(capacity=a.length())
+  let mut i = 0
+  while i < a.length() {
+    let len = a[i].end - a[i].start
+    if len <= 0 {
+      out.push(0.0)
+    } else {
+      out.push(cov[i].to_double() / len.to_double())
+    }
+    i = i + 1
+  }
+  out
+}
+
+///|
+/// Merge helper for coverage — simplified, no min_dist, same-chrom only.
+fn bf_coverage_merge(intervals : Array[BedInterval]) -> Array[BedInterval] {
+  if intervals.length() == 0 {
+    return Array(capacity=0)
+  }
+  let sorted = intervals.copy()
+  sorted.sort_by(fn(x, y) {
+    if x.chrom < y.chrom { -1 }
+    else if x.chrom > y.chrom { 1 }
+    else if x.start < y.start { -1 }
+    else if x.start > y.start { 1 }
+    else if x.end < y.end { -1 }
+    else if x.end > y.end { 1 }
+    else { 0 }
+  })
+  let out : Array[BedInterval] = Array(capacity=0)
+  let mut cur = sorted[0]
+  for i = 1; i < sorted.length(); i = i + 1 {
+    let iv = sorted[i]
+    if iv.chrom == cur.chrom && iv.start <= cur.end {
+      if iv.end > cur.end {
+        cur = BedInterval::new(cur.chrom, cur.start, iv.end)
+      }
+    } else {
+      out.push(cur)
+      cur = iv
+    }
+  }
+  out.push(cur)
+  out
+}
