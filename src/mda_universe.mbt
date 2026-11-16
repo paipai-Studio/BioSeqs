@@ -1,695 +1,631 @@
-///|
-/// MDAnalysis-style `Universe` / `AtomGroup` object model.
-///
-/// A `Universe` bundles a static topology (per-atom metadata) with a
-/// `Trajectory` (coordinate frames) and a current-frame cursor, mirroring
-/// `MDAnalysis.Universe(topology, trajectory)`. Builders cover the classic
-/// workflows: PSF topology + DCD trajectory, multi-MODEL PDB, PQR structure
-/// (+ optional trajectory). An `AtomGroup` is a lightweight selection view
-/// over a `Universe` exposing positions, centers of geometry / mass, radius
-/// of gyration, charges and sub-selections.
+// ============================================================================
+// MDAnalysis 风格 Universe / AtomGroup 核心类型
+// ============================================================================
 
 ///|
-/// Per-atom topology metadata (one entry per atom in the system).
-pub(all) struct UnivAtom {
-  name : String // atom name: CA, N, O, ...
-  resname : String // residue name: ALA, HOH, ...
-  resid : Int32 // residue id
-  chain : String // chain identifier
-  segid : String // segment identifier (PSF)
-  element : String // element symbol: C, N, O, ...
-  atom_type : String // force-field atom type (PSF)
-  charge : Double // partial charge (e)
-  mass : Double // atomic mass (amu); <= 0 means unknown
-  is_protein : Bool // standard amino-acid residue
-  is_water : Bool // water-like solvent residue
-  is_backbone : Bool // protein backbone name in {N, CA, C, O}
+/// 扩展选择语言用的原子信息结构体。
+///
+/// `mda_selection_ext.mbt` 里的选择表达式会引用这些字段。
+pub struct UnivAtom {
+  name : String
+  resname : String
+  chain : String
+  segid : String
+  element : String
+  atom_type : String
+  resid : Int32
+  mass : Double
+  charge : Double
+  is_protein : Bool
+  is_water : Bool
+  is_backbone : Bool
 }
 
 ///|
-/// MDAnalysis-style Universe: topology + trajectory + current frame cursor.
+/// 构建 UnivAtom 默认值。
+pub fn UnivAtom::new(
+  name~ : String = "",
+  resname~ : String = "UNK",
+  chain~ : String = "",
+  segid~ : String = "",
+  element~ : String = "",
+  atom_type~ : String = "",
+  resid~ : Int32 = 1,
+  mass~ : Double = 12.0,
+  charge~ : Double = 0.0,
+  is_protein~ : Bool = false,
+  is_water~ : Bool = false,
+  is_backbone~ : Bool = false,
+) -> UnivAtom {
+  UnivAtom::{
+    name, resname, chain, segid, element, atom_type, resid, mass, charge,
+    is_protein, is_water, is_backbone,
+  }
+}
+
+// ============================================================================
+// PBCBox
+// ============================================================================
+
+///|
+/// 周期性边界条件（PBC）盒向量。
+pub struct PBCBox {
+  v1 : Vector3
+  v2 : Vector3
+  v3 : Vector3
+  alpha : Double
+  beta : Double
+  gamma : Double
+}
+
+///|
+/// 空 box（无 PBC）。
+pub fn PBCBox::empty() -> PBCBox {
+  PBCBox::{
+    v1: Vector3::new(0.0, 0.0, 0.0),
+    v2: Vector3::new(0.0, 0.0, 0.0),
+    v3: Vector3::new(0.0, 0.0, 0.0),
+    alpha: 90.0, beta: 90.0, gamma: 90.0,
+  }
+}
+
+///|
+/// 从正交盒长度构建。
+pub fn PBCBox::from_lengths(a : Double, b : Double, c : Double) -> PBCBox {
+  PBCBox::{
+    v1: Vector3::new(a, 0.0, 0.0),
+    v2: Vector3::new(0.0, b, 0.0),
+    v3: Vector3::new(0.0, 0.0, c),
+    alpha: 90.0, beta: 90.0, gamma: 90.0,
+  }
+}
+
+// ============================================================================
+// Universe
+// ============================================================================
+
+///|
+/// MDAnalysis Universe — 轨迹 + 拓扑的统一容器。
 pub struct Universe {
   atoms : Array[UnivAtom]
-  traj : Trajectory
-  mut current : Int32
+  trajectory : Array[Array[Vector3]]
+  times : Array[Double]
+  box : PBCBox
+  mut current_frame : Int32
 }
 
 ///|
-/// Create a Universe from atom metadata and a coordinate trajectory.
-pub fn Universe::new(atoms : Array[UnivAtom], traj : Trajectory) -> Universe {
-  Universe::{ atoms, traj, current: 0, }
+/// 构建 Universe。
+pub fn Universe::new(
+  atoms : Array[UnivAtom],
+  trajectory~ : Array[Array[Vector3]] = Array(capacity=0),
+  times~ : Array[Double] = Array(capacity=0),
+  box~ : PBCBox = PBCBox::empty(),
+) -> Universe {
+  Universe::{ atoms, trajectory, times, box, current_frame: 0 }
 }
 
 ///|
-/// Number of atoms in the topology.
+/// 从 `Array[Array[Array[Double]]]`（DCD/Trajectory 风格 frames）构建。
+///
+/// 每个 frame 是 `Array[Array[Double]]`，即 `[atom_idx] -> [x, y, z]`。
+pub fn Universe::from_dcd_frames(
+  atoms : Array[UnivAtom],
+  frames : Array[Array[Array[Double]]],
+  box~ : PBCBox = PBCBox::empty(),
+) -> Universe {
+  let traj : Array[Array[Vector3]] = Array(capacity=frames.length())
+  let mut f = 0
+  while f < frames.length() {
+    let frame = frames[f]
+    let v3s : Array[Vector3] = Array(capacity=frame.length())
+    let mut a = 0
+    while a < frame.length() {
+      let c = frame[a]
+      if c.length() >= 3 {
+        v3s.push(Vector3::new(c[0], c[1], c[2]))
+      } else {
+        v3s.push(Vector3::new(0.0, 0.0, 0.0))
+      }
+      a = a + 1
+    }
+    traj.push(v3s)
+    f = f + 1
+  }
+  Universe::new(atoms, trajectory=traj, box=box)
+}
+
+///|
+/// 原子总数。
 pub fn Universe::n_atoms(self : Universe) -> Int32 {
   self.atoms.length()
 }
 
 ///|
-/// Number of frames in the trajectory.
+/// 轨迹帧数。
 pub fn Universe::n_frames(self : Universe) -> Int32 {
-  self.traj.num_frames()
+  self.trajectory.length()
 }
 
 ///|
-/// Current frame index (0-based).
+/// 某一帧的坐标。
+pub fn Universe::frame(self : Universe, i : Int32) -> Array[Vector3] {
+  if i < 0 || i >= self.trajectory.length() {
+    Array(capacity=0)
+  } else {
+    self.trajectory[i]
+  }
+}
+
+///|
+/// 当前帧索引。
 pub fn Universe::frame_index(self : Universe) -> Int32 {
-  self.current
+  self.current_frame
 }
 
 ///|
-/// Set the current frame (clamped to the valid range).
+/// 切换当前帧（钳制到合法范围）。
 pub fn Universe::set_frame(self : Universe, i : Int32) -> Unit {
-  let n = self.traj.num_frames()
-  if n == 0 {
+  let n = self.trajectory.length()
+  if n <= 0 {
+    self.current_frame = 0
     return
   }
-  self.current = if i < 0 { 0 } else if i >= n { n - 1 } else { i }
+  let clamped = if i < 0 { 0 } else if i >= n { n - 1 } else { i }
+  self.current_frame = clamped
 }
 
 ///|
-/// Atom metadata array (read-only view).
+/// 当前帧坐标（返回 `Array[Array[Double]]` 兼容格式）。
+pub fn Universe::positions(self : Universe) -> Array[Array[Double]] {
+  self.positions_at(self.current_frame)
+}
+
+///|
+/// 指定帧坐标（返回 `Array[Array[Double]]` 兼容格式）。
+pub fn Universe::positions_at(self : Universe, i : Int32) -> Array[Array[Double]] {
+  let f = self.frame(i)
+  let out : Array[Array[Double]] = Array(capacity=f.length())
+  let mut k = 0
+  while k < f.length() {
+    out.push([f[k].x, f[k].y, f[k].z])
+    k = k + 1
+  }
+  out
+}
+
+///|
+/// 基于选择表达式筛选原子（复用 mda_selection_ext 的选择器）。
+pub fn Universe::select_atoms(self : Universe, expr : String) -> AtomGroup {
+  let mask = mda_select_universe(
+    expr,
+    self.atoms,
+    positions=Some(self.positions()),
+  )
+  AtomGroup::{ indices: mask, universe: self }
+}
+
+///|
+/// 拓扑元数据（供 omm_bridge 等外部调用）。
 pub fn Universe::atom_info(self : Universe) -> Array[UnivAtom] {
   self.atoms
 }
 
 ///|
-/// Coordinates of all atoms at the current frame.
-pub fn Universe::positions(self : Universe) -> Array[Array[Double]] {
-  self.positions_at(self.current)
+/// 单帧 Universe。
+pub fn Universe::from_frame(
+  atoms : Array[UnivAtom],
+  coords : Array[Vector3],
+  box~ : PBCBox = PBCBox::empty(),
+) -> Universe {
+  let traj : Array[Array[Vector3]] = Array(capacity=1)
+  traj.push(coords)
+  Universe::new(atoms, trajectory=traj, box=box)
 }
 
-///|
-/// Coordinates of all atoms at frame `i` (empty array when out of range).
-pub fn Universe::positions_at(
-  self : Universe,
-  i : Int32,
-) -> Array[Array[Double]] {
-  let n = self.traj.num_frames()
-  if i < 0 || i >= n {
-    return []
-  }
-  self.traj.get_frame(i)
-}
+// ============================================================================
+// AtomGroup
+// ============================================================================
 
 ///|
-/// Select atoms with the extended MDAnalysis-style selection language.
-/// See `mda_select_universe` for the supported keywords.
-pub fn Universe::select_atoms(
-  self : Universe,
-  expr : String,
-  box~ : Array[Double]? = None,
-) -> AtomGroup {
-  let idx = mda_select_universe(
-    expr,
-    self.atoms,
-    positions=Some(self.positions()),
-    box~,
-  )
-  AtomGroup::new(self, idx)
-}
-
-///|
-/// AtomGroup covering all atoms of the Universe.
-pub fn Universe::all(self : Universe) -> AtomGroup {
-  let idx : Array[Int32] = Array(capacity=0)
-  for i = 0; i < self.atoms.length(); i = i + 1 {
-    idx.push(i)
-  }
-  AtomGroup::new(self, idx)
-}
-
-///|
-/// Charges of all atoms.
-pub fn Universe::charges(self : Universe) -> Array[Double] {
-  let out : Array[Double] = Array(capacity=0)
-  for a in self.atoms {
-    out.push(a.charge)
-  }
-  out
-}
-
-///|
-/// Masses of all atoms.
-pub fn Universe::masses(self : Universe) -> Array[Double] {
-  let out : Array[Double] = Array(capacity=0)
-  for a in self.atoms {
-    out.push(a.mass)
-  }
-  out
-}
-
-///|
-/// MDAnalysis-style AtomGroup: an index view over a Universe.
+/// 原子组 — Universe 的子选择。
 pub struct AtomGroup {
-  universe : Universe
   indices : Array[Int32]
+  universe : Universe
 }
 
 ///|
-/// Create an AtomGroup from a Universe and a list of atom indices.
-pub fn AtomGroup::new(universe : Universe, indices : Array[Int32]) -> AtomGroup {
-  AtomGroup::{ universe, indices, }
+/// 选所有原子。
+pub fn Universe::all_atoms(self : Universe) -> AtomGroup {
+  let indices : Array[Int32] = Array(capacity=self.atoms.length())
+  let mut i = 0
+  while i < self.atoms.length() {
+    indices.push(i)
+    i = i + 1
+  }
+  AtomGroup::{ indices, universe: self }
 }
 
 ///|
-/// Number of atoms in the group.
+/// 按索引子集选原子。
+pub fn Universe::select_atoms_by_indices(self : Universe, indices : Array[Int32]) -> AtomGroup {
+  AtomGroup::{ indices, universe: self }
+}
+
+///|
+/// AtomGroup 原子数。
 pub fn AtomGroup::n_atoms(self : AtomGroup) -> Int32 {
   self.indices.length()
 }
 
 ///|
-/// Atom indices (into the parent Universe, 0-based).
+/// 按名字过滤。
+pub fn AtomGroup::select_by_name(self : AtomGroup, name : String) -> AtomGroup {
+  let indices : Array[Int32] = Array(capacity=self.indices.length())
+  let mut i = 0
+  while i < self.indices.length() {
+    let idx = self.indices[i]
+    if self.universe.atoms[idx].name == name { indices.push(idx) }
+    i = i + 1
+  }
+  AtomGroup::{ indices, universe: self.universe }
+}
+
+///|
+/// 按残基名过滤。
+pub fn AtomGroup::select_by_resname(self : AtomGroup, resname : String) -> AtomGroup {
+  let indices : Array[Int32] = Array(capacity=self.indices.length())
+  let mut i = 0
+  while i < self.indices.length() {
+    let idx = self.indices[i]
+    if self.universe.atoms[idx].resname == resname { indices.push(idx) }
+    i = i + 1
+  }
+  AtomGroup::{ indices, universe: self.universe }
+}
+
+///|
+/// 按链 ID 过滤。
+pub fn AtomGroup::select_by_chain(self : AtomGroup, chain : String) -> AtomGroup {
+  let indices : Array[Int32] = Array(capacity=self.indices.length())
+  let mut i = 0
+  while i < self.indices.length() {
+    let idx = self.indices[i]
+    if self.universe.atoms[idx].chain == chain { indices.push(idx) }
+    i = i + 1
+  }
+  AtomGroup::{ indices, universe: self.universe }
+}
+
+///|
+/// 按残基序号范围过滤。
+pub fn AtomGroup::select_by_resid_range(
+  self : AtomGroup,
+  start : Int32,
+  end : Int32,
+) -> AtomGroup {
+  let indices : Array[Int32] = Array(capacity=self.indices.length())
+  let mut i = 0
+  while i < self.indices.length() {
+    let idx = self.indices[i]
+    let r = self.universe.atoms[idx].resid
+    if r >= start && r <= end { indices.push(idx) }
+    i = i + 1
+  }
+  AtomGroup::{ indices, universe: self.universe }
+}
+
+///|
+/// 选择重原子（非 H）。
+pub fn AtomGroup::heavy_atoms(self : AtomGroup) -> AtomGroup {
+  let indices : Array[Int32] = Array(capacity=self.indices.length())
+  let mut i = 0
+  while i < self.indices.length() {
+    let idx = self.indices[i]
+    let sym = self.universe.atoms[idx].element
+    let is_h = if sym.length() > 0 {
+      sym == "H"
+    } else {
+      let name = self.universe.atoms[idx].name
+      name.length() > 0 && name.unsafe_get(0) == 72 // 'H' ASCII
+    }
+    if !is_h { indices.push(idx) }
+    i = i + 1
+  }
+  AtomGroup::{ indices, universe: self.universe }
+}
+
+///|
+/// AtomGroup 的原子索引数组（0-based，指向 Universe.atoms）。
 pub fn AtomGroup::indices(self : AtomGroup) -> Array[Int32] {
   self.indices
 }
 
 ///|
-/// Coordinates of the group atoms at the current frame.
-pub fn AtomGroup::positions(self : AtomGroup) -> Array[Array[Double]] {
-  let coords = self.universe.positions()
-  let out : Array[Array[Double]] = Array(capacity=0)
-  for i in self.indices {
-    if i >= 0 && i < coords.length() {
-      out.push(coords[i])
-    }
-  }
-  out
-}
-
-///|
-/// Coordinates of the group atoms at frame `i`.
-pub fn AtomGroup::positions_at(
-  self : AtomGroup,
-  i : Int32,
-) -> Array[Array[Double]] {
-  let coords = self.universe.positions_at(i)
-  let out : Array[Array[Double]] = Array(capacity=0)
-  for idx in self.indices {
-    if idx >= 0 && idx < coords.length() {
-      out.push(coords[idx])
-    }
-  }
-  out
-}
-
-///|
-/// Atom metadata of the group members.
-pub fn AtomGroup::atom_info(self : AtomGroup) -> Array[UnivAtom] {
-  let out : Array[UnivAtom] = Array(capacity=0)
-  for i in self.indices {
-    if i >= 0 && i < self.universe.atoms.length() {
-      out.push(self.universe.atoms[i])
-    }
-  }
-  out
-}
-
-///|
-/// Atom names of the group.
-pub fn AtomGroup::names(self : AtomGroup) -> Array[String] {
-  let out : Array[String] = Array(capacity=0)
-  for a in self.atom_info() {
-    out.push(a.name)
-  }
-  out
-}
-
-///|
-/// Residue names of the group.
-pub fn AtomGroup::resnames(self : AtomGroup) -> Array[String] {
-  let out : Array[String] = Array(capacity=0)
-  for a in self.atom_info() {
-    out.push(a.resname)
-  }
-  out
-}
-
-///|
-/// Residue ids of the group.
-pub fn AtomGroup::resids(self : AtomGroup) -> Array[Int32] {
-  let out : Array[Int32] = Array(capacity=0)
-  for a in self.atom_info() {
-    out.push(a.resid)
-  }
-  out
-}
-
-///|
-/// Charges of the group atoms.
-pub fn AtomGroup::charges(self : AtomGroup) -> Array[Double] {
-  let out : Array[Double] = Array(capacity=0)
-  for a in self.atom_info() {
-    out.push(a.charge)
-  }
-  out
-}
-
-///|
-/// Masses of the group atoms (non-positive mass counts as 1.0).
-pub fn AtomGroup::masses(self : AtomGroup) -> Array[Double] {
-  let out : Array[Double] = Array(capacity=0)
-  for a in self.atom_info() {
-    out.push(if a.mass > 0.0 { a.mass } else { 1.0 })
-  }
-  out
-}
-
-///|
-/// Sum of partial charges over the group.
-pub fn AtomGroup::total_charge(self : AtomGroup) -> Double {
-  let mut s = 0.0
-  for c in self.charges() {
-    s = s + c
-  }
-  s
-}
-
-///|
-/// Sum of masses over the group (non-positive mass counts as 1.0).
+/// 所有原子的 mass 之和。
 pub fn AtomGroup::total_mass(self : AtomGroup) -> Double {
-  let mut s = 0.0
-  for m in self.masses() {
-    s = s + m
-  }
-  s
-}
-
-///|
-/// Geometric center of the group at the current frame.
-pub fn AtomGroup::center_of_geometry(self : AtomGroup) -> Array[Double] {
-  let pos = self.positions()
-  let c = [0.0, 0.0, 0.0]
-  for p in pos {
-    c[0] = c[0] + p[0]
-    c[1] = c[1] + p[1]
-    c[2] = c[2] + p[2]
-  }
-  let n = pos.length().to_double()
-  if n > 0.0 {
-    c[0] = c[0] / n
-    c[1] = c[1] / n
-    c[2] = c[2] / n
-  }
-  c
-}
-
-///|
-/// Mass-weighted center of the group at the current frame
-/// (`AtomGroup.center_of_mass`). Non-positive masses count as 1.0.
-pub fn AtomGroup::center_of_mass(self : AtomGroup) -> Array[Double] {
-  let pos = self.positions()
-  let ms = self.masses()
-  let c = [0.0, 0.0, 0.0]
-  let mut mt = 0.0
-  for k = 0; k < pos.length(); k = k + 1 {
-    let m = if k < ms.length() { ms[k] } else { 1.0 }
-    c[0] = c[0] + m * pos[k][0]
-    c[1] = c[1] + m * pos[k][1]
-    c[2] = c[2] + m * pos[k][2]
-    mt = mt + m
-  }
-  if mt > 0.0 {
-    c[0] = c[0] / mt
-    c[1] = c[1] / mt
-    c[2] = c[2] / mt
-  }
-  c
-}
-
-///|
-/// Mass-weighted radius of gyration about the center of mass
-/// (`AtomGroup.radius_of_gyration`).
-pub fn AtomGroup::radius_of_gyration(self : AtomGroup) -> Double {
-  let pos = self.positions()
-  let ms = self.masses()
-  let com = self.center_of_mass()
-  let mut acc = 0.0
-  let mut mt = 0.0
-  for k = 0; k < pos.length(); k = k + 1 {
-    let m = if k < ms.length() { ms[k] } else { 1.0 }
-    let dx = pos[k][0] - com[0]
-    let dy = pos[k][1] - com[1]
-    let dz = pos[k][2] - com[2]
-    acc = acc + m * (dx * dx + dy * dy + dz * dz)
-    mt = mt + m
-  }
-  if mt > 0.0 {
-    (acc / mt).sqrt()
-  } else {
-    0.0
-  }
-}
-
-///|
-/// Sub-select within the group using the extended selection language.
-/// The sub-expression is evaluated against the group's own atoms
-/// (`bynum` indices are 1-based within the group).
-pub fn AtomGroup::select(
-  self : AtomGroup,
-  expr : String,
-  box~ : Array[Double]? = None,
-) -> AtomGroup {
-  let sub_atoms = self.atom_info()
-  let idx = mda_select_universe(
-    expr,
-    sub_atoms,
-    positions=Some(self.positions()),
-    box~,
-  )
-  let mapped : Array[Int32] = Array(capacity=0)
-  for i in idx {
-    if i >= 0 && i < self.indices.length() {
-      mapped.push(self.indices[i])
+  let mut total = 0.0
+  let mut i = 0
+  while i < self.indices.length() {
+    let idx = self.indices[i]
+    if idx >= 0 && idx < self.universe.atoms.length() {
+      let m = self.universe.atoms[idx].mass
+      total = total + (if m > 0.0 { m } else { 1.0 })
     }
-  }
-  AtomGroup::new(self.universe, mapped)
-}
-
-// ---------------------------------------------------------------------------
-// Builders
-// ---------------------------------------------------------------------------
-
-///|
-/// Classify a residue name: protein (standard amino acid), water-like
-/// solvent (HOH/WAT/TIP/TIP3/TIP4P/SPC/SOL) or other.
-pub fn mda_is_water_resname(resname : String) -> Bool {
-  let r = resname.to_upper()
-  r == "HOH" ||
-  r == "WAT" ||
-  r == "TIP" ||
-  r == "TIP3" ||
-  r == "TIP4P" ||
-  r == "SPC" ||
-  r == "SOL"
-}
-
-///|
-/// Infer the element symbol from an atom name, e.g. "CA" -> "C" (alpha
-/// carbon; "CA" is excluded from the two-letter set to avoid clashing with
-/// calcium), "CL1" -> "Cl", "FE" -> "Fe", "1HG2" -> "H".
-pub fn mda_infer_element(name : String) -> String {
-  let upper_a = 'A'.to_int()
-  let upper_z = 'Z'.to_int()
-  let lower_a = 'a'.to_int()
-  let lower_z = 'z'.to_int()
-  let letters : Array[Int32] = Array(capacity=0)
-  for i = 0; i < name.length(); i = i + 1 {
-    let v = name.unsafe_get(i).to_int()
-    if (v >= upper_a && v <= upper_z) || (v >= lower_a && v <= lower_z) {
-      letters.push(v)
-    } else if letters.length() > 0 {
-      break
-    }
-  }
-  if letters.length() == 0 {
-    return ""
-  }
-  let c0 = letters[0]
-  let c0_upper = if c0 >= lower_a && c0 <= lower_z { c0 - 32 } else { c0 }
-  if letters.length() >= 2 {
-    let c1 = letters[1]
-    let c1_lower = if c1 >= upper_a && c1 <= upper_z { c1 + 32 } else { c1 }
-    // normalized two-letter symbol: first upper, second lower
-    let sb = StringBuilder()
-    sb.write_char(c0_upper.to_uint16().unsafe_to_char())
-    sb.write_char(c1_lower.to_uint16().unsafe_to_char())
-    let two = sb.to_string()
-    let two_upper = two.to_upper()
-    if two_upper == "CL" ||
-      two_upper == "BR" ||
-      two_upper == "MG" ||
-      two_upper == "MN" ||
-      two_upper == "FE" ||
-      two_upper == "ZN" ||
-      two_upper == "SE" ||
-      two_upper == "NA" ||
-      two_upper == "SI" ||
-      two_upper == "CU" {
-      return two
-    }
-  }
-  let sb1 = StringBuilder()
-  sb1.write_char(c0_upper.to_uint16().unsafe_to_char())
-  sb1.to_string()
-}
-
-///|
-/// Approximate atomic mass by element symbol (amu); unknown elements
-/// return 12.011 (carbon).
-pub fn mda_element_mass(element : String) -> Double {
-  let e = element.to_upper()
-  if e == "H" {
-    1.008
-  } else if e == "C" {
-    12.011
-  } else if e == "N" {
-    14.007
-  } else if e == "O" {
-    15.999
-  } else if e == "P" {
-    30.974
-  } else if e == "S" {
-    32.06
-  } else if e == "NA" {
-    22.99
-  } else if e == "MG" {
-    24.305
-  } else if e == "CL" {
-    35.45
-  } else if e == "K" {
-    39.098
-  } else if e == "CA" {
-    40.078
-  } else if e == "FE" {
-    55.845
-  } else if e == "ZN" {
-    65.38
-  } else if e == "SE" {
-    78.971
-  } else if e == "F" {
-    18.998
-  } else if e == "BR" {
-    79.904
-  } else if e == "I" {
-    126.904
-  } else {
-    12.011
-  }
-}
-
-///|
-fn mda_univ_classify_atom(
-  name : String,
-  resname : String,
-  resid : Int32,
-  chain : String,
-  segid : String,
-  element : String,
-  atom_type : String,
-  charge : Double,
-  mass : Double,
-) -> UnivAtom {
-  let elem = if element.length() > 0 {
-    element
-  } else {
-    mda_infer_element(name)
-  }
-  let is_protein = psf_is_protein_resname(resname)
-  let bare = name.trim().to_owned().to_upper()
-  UnivAtom::{
-    name,
-    resname,
-    resid,
-    chain,
-    segid,
-    element: elem,
-    atom_type,
-    charge,
-    mass,
-    is_protein,
-    is_water: mda_is_water_resname(resname),
-    is_backbone: is_protein &&
-    (bare == "N" || bare == "CA" || bare == "C" || bare == "O"),
-  }
-}
-
-///|
-/// Build a Universe from a PSF topology text and a DCD trajectory byte
-/// string (`MDAnalysis.Universe(psf, dcd)`).
-pub fn universe_from_psf_dcd(
-  psf_text : String,
-  dcd_bytes : String,
-) -> Universe raise PsfError {
-  universe_from_psf_traj(psf_text, parse_dcd(dcd_bytes))
-}
-
-///|
-/// Build a Universe from a PSF topology text and an in-memory Trajectory.
-pub fn universe_from_psf_traj(
-  psf_text : String,
-  traj : Trajectory,
-) -> Universe raise PsfError {
-  let topo = psf_parse(psf_text)
-  let atoms : Array[UnivAtom] = Array(capacity=0)
-  for a in topo.atoms {
-    atoms.push(
-      mda_univ_classify_atom(
-        a.atom_name,
-        a.resname,
-        a.resid,
-        a.segid,
-        a.segid,
-        mda_infer_element(a.atom_name),
-        a.atom_type,
-        a.charge,
-        a.mass,
-      ),
-    )
-  }
-  Universe::new(atoms, traj)
-}
-
-///|
-/// Build a Universe from a multi-MODEL PDB text. Each `MODEL ... ENDMDL`
-/// block becomes one frame; a file without MODEL records yields a single
-/// frame. Atom metadata is taken from the first frame.
-pub fn universe_from_pdb_text(text : String) -> Universe {
-  let atoms : Array[UnivAtom] = Array(capacity=0)
-  let frames : Array[Array[Array[Double]]] = Array(capacity=0)
-  let mut cur : Array[Array[Double]]? = None
-  let mut collecting = true
-  let lines = text.split("\n")
-  for line in lines {
-    let l = line.to_owned()
-    if l.length() >= 5 && mda_univ_slice(l, 0, 5) == "MODEL" {
-      cur = Some([])
-      continue
-    }
-    if l.length() >= 6 && mda_univ_slice(l, 0, 6) == "ENDMDL" {
-      match cur {
-        Some(f) => {
-          frames.push(f)
-          cur = None
-        }
-        None => ()
-      }
-      collecting = false
-      continue
-    }
-    if l.length() >= 6 &&
-      (
-        mda_univ_slice(l, 0, 6) == "ATOM  " ||
-        mda_univ_slice(l, 0, 6) == "HETATM"
-      ) {
-      if cur is None {
-        cur = Some([])
-      }
-      let resname = mda_univ_slice(l, 17, 3).trim().to_owned()
-      let name = mda_univ_slice(l, 12, 4).trim().to_owned()
-      let chain = mda_univ_slice(l, 21, 1).trim().to_owned()
-      let resid_w = mda_univ_slice(l, 22, 4).trim().to_owned()
-      let resid_v = parse_int(resid_w)
-      let x = mda_univ_col_double(l, 30, 8)
-      let y = mda_univ_col_double(l, 38, 8)
-      let z = mda_univ_col_double(l, 46, 8)
-      let elem_col = mda_univ_slice(l, 76, 2).trim().to_owned()
-      if collecting {
-        atoms.push(
-          mda_univ_classify_atom(
-            name,
-            resname,
-            resid_v,
-            chain,
-            "",
-            elem_col,
-            "",
-            0.0,
-            mda_element_mass(
-              if elem_col.length() > 0 {
-                elem_col
-              } else {
-                mda_infer_element(name)
-              },
-            ),
-          ),
-        )
-      }
-      match cur {
-        Some(f) => f.push([x, y, z])
-        None => ()
-      }
-      continue
-    }
-  }
-  match cur {
-    Some(f) => if f.length() > 0 { frames.push(f) }
-    None => ()
-  }
-  Universe::new(atoms, Trajectory::new(frames))
-}
-
-///|
-/// Build a Universe from a PQR text (charges + radii). The coordinates of
-/// the PQR become the single frame unless a trajectory is supplied.
-pub fn universe_from_pqr_text(
-  pqr_text : String,
-  traj~ : Trajectory? = None,
-) -> Universe raise PqrError {
-  let s = pqr_parse(pqr_text)
-  let atoms : Array[UnivAtom] = Array(capacity=0)
-  for a in s.atoms {
-    atoms.push(
-      mda_univ_classify_atom(
-        a.name,
-        a.resname,
-        a.resid,
-        a.chain,
-        "",
-        mda_infer_element(a.name),
-        "",
-        a.charge,
-        mda_element_mass(mda_infer_element(a.name)),
-      ),
-    )
-  }
-  let tr = match traj {
-    Some(t) => t
-    None => {
-      let frames : Array[Array[Array[Double]]] = Array(capacity=0)
-      frames.push(pqr_coords(s))
-      Trajectory::new(frames)
-    }
-  }
-  Universe::new(atoms, tr)
-}
-
-// ---------------------------------------------------------------------------
-// Internal helpers
-// ---------------------------------------------------------------------------
-
-///|
-fn mda_univ_slice(s : String, start : Int32, len : Int32) -> String {
-  let n = s.length()
-  if start >= n || len <= 0 {
-    return ""
-  }
-  let out = StringBuilder()
-  let mut i = start
-  let end = if start + len < n { start + len } else { n }
-  while i < end {
-    out.write_char(s.unsafe_get(i).unsafe_to_char())
     i = i + 1
   }
-  out.to_string()
+  total
 }
 
 ///|
-fn mda_univ_col_double(s : String, start : Int32, len : Int32) -> Double {
-  let w = mda_univ_slice(s, start, len).trim().to_owned()
-  match parse_double(w) {
-    Some(v) => v
-    None => 0.0
+/// 所有原子的 name 数组。
+pub fn AtomGroup::names(self : AtomGroup) -> Array[String] {
+  let out : Array[String] = Array(capacity=self.indices.length())
+  let mut i = 0
+  while i < self.indices.length() {
+    let idx = self.indices[i]
+    if idx >= 0 && idx < self.universe.atoms.length() {
+      out.push(self.universe.atoms[idx].name)
+    }
+    i = i + 1
+  }
+  out
+}
+
+///|
+/// 所有原子的 resid 数组。
+pub fn AtomGroup::resids(self : AtomGroup) -> Array[Int32] {
+  let out : Array[Int32] = Array(capacity=self.indices.length())
+  let mut i = 0
+  while i < self.indices.length() {
+    let idx = self.indices[i]
+    if idx >= 0 && idx < self.universe.atoms.length() {
+      out.push(self.universe.atoms[idx].resid)
+    }
+    i = i + 1
+  }
+  out
+}
+
+///|
+/// 当前帧下的坐标（返回 `Array[Array[Double]]` 兼容格式）。
+pub fn AtomGroup::positions(self : AtomGroup) -> Array[Array[Double]] {
+  let v3s = self.coords(self.universe.current_frame)
+  let out : Array[Array[Double]] = Array(capacity=v3s.length())
+  let mut i = 0
+  while i < v3s.length() {
+    out.push([v3s[i].x, v3s[i].y, v3s[i].z])
+    i = i + 1
+  }
+  out
+}
+
+///|
+/// 子组内按选择表达式再筛选。
+pub fn AtomGroup::select(self : AtomGroup, expr : String) -> AtomGroup {
+  let selected = mda_select_universe(
+    expr,
+    self.universe.atoms,
+    positions=Some(self.universe.positions_at(self.universe.current_frame)),
+  )
+  // selected 是 Array[Int32]（选中的 indices 列表）
+  let out : Array[Int32] = Array(capacity=self.indices.length())
+  let mut i = 0
+  while i < self.indices.length() {
+    let idx = self.indices[i]
+    // 检查 idx 是否在 selected 里
+    let mut found = false
+    let mut j = 0
+    while j < selected.length() {
+      if selected[j] == idx {
+        found = true
+        j = selected.length() // break
+      }
+      j = j + 1
+    }
+    if found { out.push(idx) }
+    i = i + 1
+  }
+  AtomGroup::{ indices: out, universe: self.universe }
+}
+
+///|
+/// 选择 backbone 原子（PDB 标准：N, CA, C, O）。
+pub fn AtomGroup::backbone(self : AtomGroup) -> AtomGroup {
+  let names = ["N", "CA", "C", "O"]
+  let indices : Array[Int32] = Array(capacity=self.indices.length())
+  let mut i = 0
+  while i < self.indices.length() {
+    let idx = self.indices[i]
+    let n = self.universe.atoms[idx].name
+    let mut j = 0
+    while j < names.length() {
+      if n == names[j] {
+        indices.push(idx)
+        j = names.length() // break
+      }
+      j = j + 1
+    }
+    i = i + 1
+  }
+  AtomGroup::{ indices, universe: self.universe }
+}
+
+///|
+/// AtomGroup 在某帧的坐标。
+pub fn AtomGroup::coords(self : AtomGroup, frame : Int32) -> Array[Vector3] {
+  let fr = self.universe.frame(frame)
+  if fr.length() == 0 { return Array(capacity=0) }
+  let result : Array[Vector3] = Array(capacity=self.indices.length())
+  let mut i = 0
+  while i < self.indices.length() {
+    let idx = self.indices[i]
+    if idx >= 0 && idx < fr.length() { result.push(fr[idx]) }
+    i = i + 1
+  }
+  result
+}
+
+///|
+/// 几何中心（无权重，默认 frame 0）。
+pub fn AtomGroup::center_of_geometry(self : AtomGroup, frame~ : Int32 = 0) -> Vector3 {
+  let cs = self.coords(frame)
+  let n = cs.length()
+  if n == 0 { return Vector3::new(0.0, 0.0, 0.0) }
+  let mut sx = 0.0
+  let mut sy = 0.0
+  let mut sz = 0.0
+  let mut i = 0
+  while i < n {
+    sx = sx + cs[i].x
+    sy = sy + cs[i].y
+    sz = sz + cs[i].z
+    i = i + 1
+  }
+  Vector3::new(sx / n.to_double(), sy / n.to_double(), sz / n.to_double())
+}
+
+///|
+/// 质心（按 mass 权重，默认 frame 0）。
+pub fn AtomGroup::center_of_mass(self : AtomGroup, frame~ : Int32 = 0) -> Vector3 {
+  let cs = self.coords(frame)
+  let n = cs.length()
+  if n == 0 { return Vector3::new(0.0, 0.0, 0.0) }
+  let mut total_mass = 0.0
+  let mut wx = 0.0
+  let mut wy = 0.0
+  let mut wz = 0.0
+  let mut i = 0
+  while i < n {
+    let idx = self.indices[i]
+    let m = if idx >= 0 && idx < self.universe.atoms.length() {
+      let am = self.universe.atoms[idx].mass
+      if am > 0.0 { am } else { 1.0 }
+    } else {
+      1.0
+    }
+    total_mass = total_mass + m
+    wx = wx + m * cs[i].x
+    wy = wy + m * cs[i].y
+    wz = wz + m * cs[i].z
+    i = i + 1
+  }
+  if total_mass > 0.0 {
+    Vector3::new(wx / total_mass, wy / total_mass, wz / total_mass)
+  } else {
+    Vector3::new(0.0, 0.0, 0.0)
+  }
+}
+
+///|
+/// 回转半径（按 mass 权重，默认 frame 0）。
+pub fn AtomGroup::radius_of_gyration(self : AtomGroup, frame~ : Int32 = 0) -> Double {
+  let cs = self.coords(frame)
+  let n = cs.length()
+  if n == 0 { return 0.0 }
+  let com = self.center_of_mass(frame=frame)
+  let mut total_mass = 0.0
+  let mut rg_sum = 0.0
+  let mut i = 0
+  while i < n {
+    let idx = self.indices[i]
+    let m = if idx >= 0 && idx < self.universe.atoms.length() {
+      let am = self.universe.atoms[idx].mass
+      if am > 0.0 { am } else { 1.0 }
+    } else {
+      1.0
+    }
+    total_mass = total_mass + m
+    let dx = cs[i].x - com.x
+    let dy = cs[i].y - com.y
+    let dz = cs[i].z - com.z
+    rg_sum = rg_sum + m * (dx * dx + dy * dy + dz * dz)
+    i = i + 1
+  }
+  if total_mass > 0.0 { (rg_sum / total_mass).sqrt() } else { 0.0 }
+}
+
+// ============================================================================
+// GRO → Universe 便捷构建
+// ============================================================================
+
+///|
+/// 从 GRO 文本构建 Universe（单帧）。
+///
+/// 复用已有的 `gro_parse`（structure_gro.mbt）。
+/// GroAtom 坐标单位是 nm，这里转成 Å。
+pub fn Universe::from_gro(text : String) -> Universe {
+  let gro = gro_parse(text)
+  let natoms = gro.atoms.length()
+  let atoms : Array[UnivAtom] = Array(capacity=natoms)
+  let coords : Array[Vector3] = Array(capacity=natoms)
+  let mut i = 0
+  while i < natoms {
+    let ga = gro.atoms[i]
+    let name = ga.atom_name.trim().to_owned()
+    let resname = ga.res_name.trim().to_owned()
+    let element = if name.length() > 0 {
+      let c = name.unsafe_get(0)
+      if c >= 65 && c <= 90 {
+        // uppercase letter -> first char as element (e.g. "CA" -> "C")
+        let sb = StringBuilder()
+        sb.write_char(c.unsafe_to_char())
+        sb.to_string()
+      } else if c >= 48 && c <= 57 {
+        // digit prefix, take second char
+        if name.length() > 1 {
+          let c2 = name.unsafe_get(1)
+          let sb = StringBuilder()
+          sb.write_char(c2.unsafe_to_char())
+          sb.to_string()
+        } else {
+          ""
+        }
+      } else {
+        ""
+      }
+    } else {
+      ""
+    }
+    // nm → Å
+    let x = ga.x * 10.0
+    let y = ga.y * 10.0
+    let z = ga.z * 10.0
+    atoms.push(UnivAtom::new(
+      name=name,
+      resname=resname,
+      resid=ga.res_id,
+      chain="A",
+      segid="SYS",
+      element=element,
+      is_protein=mda_universe_is_protein(resname),
+      is_water=resname == "WAT" || resname == "HOH" || resname == "SOL",
+      is_backbone=name == "N" || name == "CA" || name == "C" || name == "O",
+    ))
+    coords.push(Vector3::new(x, y, z))
+    i = i + 1
+  }
+  let traj : Array[Array[Vector3]] = Array(capacity=1)
+  traj.push(coords)
+  let box = if gro.box.length() >= 3 && gro.box[0].length() >= 3 {
+    PBCBox::from_lengths(
+      gro.box[0][0] * 10.0,
+      gro.box[1][1] * 10.0,
+      gro.box[2][2] * 10.0,
+    )
+  } else {
+    PBCBox::empty()
+  }
+  Universe::new(atoms, trajectory=traj, box=box)
+}
+
+///|
+/// 判断是否标准蛋白质残基名。
+fn mda_universe_is_protein(resname : String) -> Bool {
+  match resname {
+    "ALA" | "ARG" | "ASN" | "ASP" | "CYS" | "GLN" | "GLU" | "GLY" |
+    "HIS" | "ILE" | "LEU" | "LYS" | "MET" | "PHE" | "PRO" | "SER" |
+    "THR" | "TRP" | "TYR" | "VAL" => true
+    _ => false
   }
 }

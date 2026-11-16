@@ -85,26 +85,29 @@ fn main {
   let atoms : Array[@lib.UnivAtom] = Array(capacity=0)
   let names : Array[String] = ["N", "C", "O"]
   for i = 0; i < 3; i = i + 1 {
-    atoms.push(@lib.UnivAtom::{
-      name: names[i],
-      resname: "ALA",
-      resid: 1,
-      chain: "A",
-      segid: "A",
-      element: names[i],
-      atom_type: "",
-      charge: 0.0,
-      mass: masses[i],
-      is_protein: true,
-      is_water: false,
-      is_backbone: false,
-    })
+    atoms.push(@lib.UnivAtom::new(
+      name=names[i],
+      resname="ALA",
+      resid=1,
+      chain="A",
+      segid="A",
+      element=names[i],
+      atom_type="",
+      charge=0.0,
+      mass=masses[i],
+      is_protein=true,
+      is_water=false,
+      is_backbone=false,
+    ))
   }
-  let u = @lib.Universe::new(atoms, traj)
-  let g = u.all()
-  record(cases, "radius_of_gyration", [g.radius_of_gyration()])
-  record(cases, "center_of_geometry", g.center_of_geometry())
-  record(cases, "center_of_mass", g.center_of_mass())
+  let u = @lib.Universe::from_dcd_frames(atoms, traj.frames)
+  let g = u.all_atoms()
+  let rg = g.radius_of_gyration()
+  record(cases, "radius_of_gyration", [rg])
+  let cog = g.center_of_geometry()
+  record(cases, "center_of_geometry", [cog.x, cog.y, cog.z])
+  let com = g.center_of_mass()
+  record(cases, "center_of_mass", [com.x, com.y, com.z])
 
   // 7. dihedral angle of four points (radians, absolute value)
   let p1 = @lib.Vector3::from_array([0.0, 0.0, 0.0])

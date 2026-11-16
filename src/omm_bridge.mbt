@@ -115,7 +115,7 @@ pub fn omm_system_to_universe(
       }
     None => ()
   }
-  Universe::new(atoms, Trajectory::new([frame]))
+  Universe::from_dcd_frames(atoms, [frame])
 }
 
 ///|
@@ -549,7 +549,7 @@ pub fn omm_universe_from_prmtop(
       frames.push(coords)
     }
   }
-  Universe::new(atoms, Trajectory::new(frames))
+  Universe::from_dcd_frames(atoms, frames)
 }
 
 ///|

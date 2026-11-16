@@ -90,32 +90,32 @@ test "universe_from_pqr_text" {
 ///|
 test "atomgroup_geometry_and_mass" {
   // 等质量 3 原子沿 x：(0,0,0),(2,0,0),(4,0,0)
-  let a1 = @src.UnivAtom::{
-    name: "C",
-    resname: "ALA",
-    resid: 1,
-    chain: "A",
-    segid: "A",
-    element: "C",
-    atom_type: "",
-    charge: 0.0,
-    mass: 12.011,
-    is_protein: true,
-    is_water: false,
-    is_backbone: false,
-  }
+  let a1 = @src.UnivAtom::new(
+    name="C",
+    resname="ALA",
+    chain="A",
+    segid="A",
+    element="C",
+    atom_type="",
+    resid=1,
+    mass=12.011,
+    charge=0.0,
+    is_protein=true,
+    is_water=false,
+    is_backbone=false,
+  )
   let a2 = a1
   let a3 = a1
   let traj = @src.Trajectory::new([
     [[0.0, 0.0, 0.0], [2.0, 0.0, 0.0], [4.0, 0.0, 0.0]],
   ])
-  let u = @src.Universe::new([a1, a2, a3], traj)
-  let g = u.all()
+  let u = @src.Universe::from_dcd_frames([a1, a2, a3], traj.frames)
+  let g = u.all_atoms()
   assert_eq(g.n_atoms(), 3)
   let cog = g.center_of_geometry()
-  assert_true(@moonbit.assert_num_close(cog[0], 2.0, 1.0e-9))
+  assert_true(@moonbit.assert_num_close(cog.x, 2.0, 1.0e-9))
   let com = g.center_of_mass()
-  assert_true(@moonbit.assert_num_close(com[0], 2.0, 1.0e-9))
+  assert_true(@moonbit.assert_num_close(com.x, 2.0, 1.0e-9))
   // Rg = sqrt((4+0+4)/3)
   assert_true(
     @moonbit.assert_num_close(g.radius_of_gyration(), 1.632993, 1.0e-5),

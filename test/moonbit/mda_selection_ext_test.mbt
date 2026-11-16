@@ -130,60 +130,76 @@ fn test_sel_atoms() -> Array[@src.UnivAtom] {
   // 2: CA (ALA, resid 1, chain A, type CT1)
   // 3: O (ALA, resid 2, chain A)
   // 4: O (HOH, resid 3, chain B, segid B)
-  let base = @src.UnivAtom::{
-    name: "N",
-    resname: "ALA",
-    resid: 1,
-    chain: "A",
-    segid: "A",
-    element: "N",
-    atom_type: "NH1",
-    charge: -0.4157,
-    mass: 14.007,
-    is_protein: true,
-    is_water: false,
-    is_backbone: true,
-  }
-  let h = @src.UnivAtom::{
-    ..base,
-    name: "H",
-    element: "H",
-    atom_type: "H",
-    charge: 0.2719,
-    mass: 1.008,
-    is_backbone: false,
-  }
-  let ca = @src.UnivAtom::{
-    ..base,
-    name: "CA",
-    element: "C",
-    atom_type: "CT1",
-    charge: 0.0213,
-    mass: 12.011,
-    is_backbone: true,
-  }
-  let o2 = @src.UnivAtom::{
-    ..base,
-    name: "O",
-    resid: 2,
-    element: "O",
-    charge: 0.0,
-    mass: 15.999,
-  }
-  let water = @src.UnivAtom::{
-    name: "O",
-    resname: "HOH",
-    resid: 3,
-    chain: "B",
-    segid: "B",
-    element: "O",
-    atom_type: "OH2",
-    charge: -0.834,
-    mass: 15.999,
-    is_protein: false,
-    is_water: true,
-    is_backbone: false,
-  }
+  let base = @src.UnivAtom::new(
+    name="N",
+    resname="ALA",
+    chain="A",
+    segid="A",
+    element="N",
+    atom_type="NH1",
+    resid=1,
+    mass=14.007,
+    charge=-0.4157,
+    is_protein=true,
+    is_water=false,
+    is_backbone=true,
+  )
+  let h = @src.UnivAtom::new(
+    name="H",
+    resname="ALA",
+    chain="A",
+    segid="A",
+    element="H",
+    atom_type="H",
+    resid=1,
+    mass=1.008,
+    charge=0.2719,
+    is_protein=true,
+    is_water=false,
+    is_backbone=false,
+  )
+  let ca = @src.UnivAtom::new(
+    name="CA",
+    resname="ALA",
+    chain="A",
+    segid="A",
+    element="C",
+    atom_type="CT1",
+    resid=1,
+    mass=12.011,
+    charge=0.0213,
+    is_protein=true,
+    is_water=false,
+    is_backbone=true,
+  )
+  let o2 = @src.UnivAtom::new(
+    name="O",
+    resname="ALA",
+    chain="A",
+    segid="A",
+    element="O",
+    atom_type="",
+    resid=2,
+    mass=15.999,
+    charge=0.0,
+    is_protein=true,
+    is_water=false,
+    is_backbone=false,
+  )
+  let water = @src.UnivAtom::new(
+    name="O",
+    resname="HOH",
+    chain="B",
+    segid="B",
+    element="O",
+    atom_type="OH2",
+    resid=3,
+    mass=15.999,
+    charge=-0.834,
+    is_protein=false,
+    is_water=true,
+    is_backbone=false,
+  )
   [base, h, ca, o2, water]
 }
 

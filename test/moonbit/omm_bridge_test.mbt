@@ -1,37 +1,37 @@
 ///|
 test "system_universe_roundtrip" {
   let atoms : Array[@src.UnivAtom] = [
-    {
-      name: "C1",
-      resname: "MOL",
-      resid: 1,
-      chain: "A",
-      segid: "SYS",
-      element: "C",
-      atom_type: "CT",
-      charge: -0.1,
-      mass: 12.011,
-      is_protein: false,
-      is_water: false,
-      is_backbone: false,
-    },
-    {
-      name: "H1",
-      resname: "MOL",
-      resid: 1,
-      chain: "A",
-      segid: "SYS",
-      element: "H",
-      atom_type: "HC",
-      charge: 0.1,
-      mass: 1.008,
-      is_protein: false,
-      is_water: false,
-      is_backbone: false,
-    },
+    @src.UnivAtom::new(
+      name="C1",
+      resname="MOL",
+      chain="A",
+      segid="SYS",
+      element="C",
+      atom_type="CT",
+      resid=1,
+      mass=12.011,
+      charge=-0.1,
+      is_protein=false,
+      is_water=false,
+      is_backbone=false,
+    ),
+    @src.UnivAtom::new(
+      name="H1",
+      resname="MOL",
+      chain="A",
+      segid="SYS",
+      element="H",
+      atom_type="HC",
+      resid=1,
+      mass=1.008,
+      charge=0.1,
+      is_protein=false,
+      is_water=false,
+      is_backbone=false,
+    ),
   ]
   let frame : Array[Array[Double]] = [[0.0, 0.0, 0.0], [1.5, 0.0, 0.0]]
-  let u0 = @src.Universe::new(atoms, @src.Trajectory::new([frame]))
+  let u0 = @src.Universe::from_dcd_frames(atoms, [frame])
   // Universe -> OmmSystem
   let sys = @src.omm_system_from_universe(u0, sigma=3.0, epsilon=0.1)
   assert_eq(sys.num_particles(), 2)
