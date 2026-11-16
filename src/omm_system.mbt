@@ -555,3 +555,110 @@ pub fn omm_system_from_pdb_fast(pdb_text : String) -> OmmSystem {
   }
   system
 }
+
+// ============================================================================
+// B2 完整版：PDB + OpenMM XML 力场 → OmmSystem 一键参数化
+// ============================================================================
+
+///|
+/// 从 PDB ATOM 名称推断元素。处理双字母元素：Na/Cl/Fe/Ca/Mg/Zn/Br。
+/// 返回标准格式：首字母大写 + 次字母小写（如 "Cl"，不是 "CL"）。
+/// PDB 原子名可能全大写（如 "NA"、"CL"），统一处理。
+fn omm_pdb_element_from_atom_name(name : String) -> String {
+  let nc : Int32 = name.length()
+  let mut j : Int32 = 0
+  // 找第一个字母（ASCII）
+  while j < nc {
+    let ci : UInt16 = name.unsafe_get(j)
+    if (ci >= 65 && ci <= 90) || (ci >= 97 && ci <= 122) {
+      let upp_ci = if ci >= 97 { ci - 32 } else { ci }   // 首字母大写
+      let fc : Char = upp_ci.unsafe_to_char()
+      let upp_result = String::make(1, fc)
+      // 看有没有第二个字母（PDB 可能是小写或大写）
+      if j + 1 < nc {
+        let c2 : UInt16 = name.unsafe_get(j + 1)
+        let is_letter = (c2 >= 65 && c2 <= 90) || (c2 >= 97 && c2 <= 122)
+        if is_letter {
+          // 次字母统一为小写（标准元素符号：Na, Cl, Fe...）
+          let low_c2 : UInt16 = if c2 >= 97 { c2 } else { c2 + 32 }
+          let sc : Char = low_c2.unsafe_to_char()
+          let two = upp_result + String::make(1, sc)
+          if two == "Na" || two == "Cl" || two == "Fe" || two == "Ca" || two == "Mg" || two == "Zn" || two == "Br" {
+            return two
+          }
+        }
+      }
+      return upp_result
+    }
+    j = j + 1
+  }
+  "C"
+}
+
+///|
+/// **B2 一键入口**：PDB 文本 + OpenMM XML 力场 → 参数化 OmmSystem。
+///
+/// - `pdb_text`: 标准 PDB 格式（ATOM / HETATM 记录）
+/// - `ff_content`: OpenMM XML 力场文件内容（如 amber14-all.xml）
+///
+/// 工作流：PDB 解析 → 从残基模板匹配 atom type → 无匹配则从元素回退 → 组装 bond/angle/torsion → 非键参数赋值。
+/// 当 XML 缺少某个键/角/二面角参数时使用合理默认值（bond: 300 kcal/mol/A^2, 1.5 A; angle: 50 kcal/mol/rad^2, 109.5°; torsion: 跳过）。
+/// 当 XML 也找不到元素模板时，非键参数回退到 omm_element_params 查表。
+pub fn omm_system_from_pdb_ff(
+  pdb_text : String,
+  ff_content : String,
+) -> OmmSystem {
+  // 1. 解析 PDB → 提取每个原子的 (name, resname, element)
+  let atoms : Array[OmmXmlAtomSpec] = Array(capacity=256)
+  let lines_sv = pdb_text.split("\n").to_array()
+  let mut i : Int32 = 0
+  while i < lines_sv.length() {
+    let ln = lines_sv[i].to_owned()
+    let rec = if ln.length() >= 6 { ln.substring(start=0, end=6) } else { "" }
+    if rec == "ATOM  " || rec == "HETATM" || (ln.length() >= 4 && ln.substring(start=0, end=4) == "ATOM") {
+      let name = if ln.length() >= 16 { ln.substring(start=12, end=16).trim().to_owned() } else { "X" }
+      let resname = if ln.length() >= 20 { ln.substring(start=17, end=20).trim().to_owned() } else { "UNK" }
+      let elem = omm_pdb_element_from_atom_name(name)
+      atoms.push(OmmXmlAtomSpec::{ name, resname, element: elem })
+    }
+    i = i + 1
+  }
+  // 2. 解析 XML 力场
+  let ff = omm_parse_xml_ff(ff_content)
+  // 3. 构建 OmmSystem（XML 力场参数化）
+  omm_xml_ff_build_system(ff, atoms)
+}
+
+///|
+/// B2 便捷入口：内置极简 XML 力场（覆盖 H/C/N/O/P/S/Na/Cl 的基本参数），不需要外部文件。
+/// 适合快速测试或简单体系。
+pub fn omm_system_from_pdb_ff_builtin(pdb_text : String) -> OmmSystem {
+  let builtin_ff =
+    "<?xml version=\"1.0\"?>\n" +
+    "<ForceField name=\"builtin_basic\">\n" +
+    "  <Type name=\"H\" element=\"H\" mass=\"1.008\"/>\n" +
+    "  <Type name=\"C\" element=\"C\" mass=\"12.011\"/>\n" +
+    "  <Type name=\"N\" element=\"N\" mass=\"14.007\"/>\n" +
+    "  <Type name=\"O\" element=\"O\" mass=\"15.999\"/>\n" +
+    "  <Type name=\"P\" element=\"P\" mass=\"30.974\"/>\n" +
+    "  <Type name=\"S\" element=\"S\" mass=\"32.06\"/>\n" +
+    "  <Type name=\"Na\" element=\"Na\" mass=\"22.99\"/>\n" +
+    "  <Type name=\"Cl\" element=\"Cl\" mass=\"35.453\"/>\n" +
+    "  <Residue name=\"HOH\">\n" +
+    "    <Atom name=\"O\" type=\"O\"/>\n" +
+    "    <Atom name=\"H1\" type=\"H\"/>\n" +
+    "    <Atom name=\"H2\" type=\"H\"/>\n" +
+    "    <Bond from=\"0\" to=\"1\"/>\n" +
+    "    <Bond from=\"0\" to=\"2\"/>\n" +
+    "  </Residue>\n" +
+    "  <Atom class=\"A\" type=\"H\" charge=\"0.000\" sigma=\"0.00000\" epsilon=\"0.000\"/>\n" +
+    "  <Atom class=\"A\" type=\"C\" charge=\"0.000\" sigma=\"0.33997\" epsilon=\"0.35982\"/>\n" +
+    "  <Atom class=\"A\" type=\"N\" charge=\"0.000\" sigma=\"0.32499\" epsilon=\"0.19246\"/>\n" +
+    "  <Atom class=\"A\" type=\"O\" charge=\"0.000\" sigma=\"0.31656\" epsilon=\"0.15500\"/>\n" +
+    "  <Atom class=\"A\" type=\"P\" charge=\"0.000\" sigma=\"0.37417\" epsilon=\"0.46900\"/>\n" +
+    "  <Atom class=\"A\" type=\"S\" charge=\"0.000\" sigma=\"0.35500\" epsilon=\"0.25000\"/>\n" +
+    "  <Atom class=\"A\" type=\"Na\" charge=\"1.000\" sigma=\"0.33284\" epsilon=\"0.00310\"/>\n" +
+    "  <Atom class=\"A\" type=\"Cl\" charge=\"-1.000\" sigma=\"0.44010\" epsilon=\"0.10000\"/>\n" +
+    "</ForceField>\n"
+  omm_system_from_pdb_ff(pdb_text, builtin_ff)
+}

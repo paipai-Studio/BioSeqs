@@ -154,3 +154,150 @@ test "omm_simulation_from_checkpoint_bogus_returns_fallback" {
   let sim = @src.omm_simulation_from_checkpoint(sys, "garbage\n")
   assert_eq(sim.state().positions.length(), 0)
 }
+
+// --- interval 边界 ---
+
+test "omm_full_checkpoint_reporter_interval_one_every_step" {
+  // interval=1 → 每步都 report
+  let rep = @src.OmmFullCheckpointReporter::new(interval=1)
+  assert_true(rep.should_report(0))
+  assert_true(rep.should_report(1))
+  assert_true(rep.should_report(2))
+  assert_true(rep.should_report(99))
+  // 非整数倍不适用（interval=1 所有 step 都是 1 的倍数）
+}
+
+test "omm_full_checkpoint_reporter_interval_default_1000" {
+  // 默认 interval=1000
+  let rep = @src.OmmFullCheckpointReporter::new()
+  assert_false(rep.should_report(999))
+  assert_true(rep.should_report(1000))
+  assert_false(rep.should_report(1500))
+  assert_true(rep.should_report(2000))
+}
+
+// --- serialize / restore 边界 ---
+
+test "omm_full_checkpoint_reporter_serialize_empty" {
+  // 没 report 过就 serialize → 返回空串
+  let rep = @src.OmmFullCheckpointReporter::new(interval=10)
+  let txt = rep.serialize_last()
+  assert_eq(txt.length(), 0)
+  assert_eq(txt, "")
+}
+
+test "omm_full_checkpoint_reporter_restore_partial_updates_only_pos_vel" {
+  // restore 只更新 positions 和 velocities，time/step/box 不更新
+  let sys = @src.OmmSystem::new()
+  ignore(sys.add_particle(particle=@src.OmmParticle::new(mass=1.0)))
+  ignore(sys.add_particle(particle=@src.OmmParticle::new(mass=1.0)))
+  let mut sim = @src.OmmSimulation::new(system=sys, dt=0.001, temperature=300.0, friction=1.0,
+    positions=Some([[0.0, 0.0, 0.0], [1.0, 0.0, 0.0]]))
+  let _ = sim // 避免 unused
+  sim = @src.OmmSimulation::new(system=sys, dt=0.001, temperature=300.0, friction=1.0,
+    positions=Some([[0.0, 0.0, 0.0], [1.0, 0.0, 0.0]]))
+  sim.set_velocities([[0.0, 0.0, 0.0], [0.0, 0.0, 0.0]])
+  // reporter 里存一个不同的 checkpoint
+  let rep = @src.OmmFullCheckpointReporter::new(interval=1)
+  rep.report(500, 2.5, [80.0, 80.0, 80.0],
+    [[42.0, 0.0, 0.0], [99.0, 0.0, 0.0]],
+    [[3.14, 0.0, 0.0], [2.71, 0.0, 0.0]])
+  // restore 只更新 pos/vel
+  rep.restore(sim)
+  let st = sim.state()
+  assert_true(@moonbit.assert_num_close(st.positions[0][0], 42.0, 1.0e-10))
+  assert_true(@moonbit.assert_num_close(st.positions[1][0], 99.0, 1.0e-10))
+  assert_true(@moonbit.assert_num_close(st.velocities[0][0], 3.14, 1.0e-10))
+  assert_true(@moonbit.assert_num_close(st.velocities[1][0], 2.71, 1.0e-10))
+  // time/step 不是 mut，restore 不会更新（保持 new() 默认值 0）
+  assert_true(@moonbit.assert_num_close(st.time, 0.0, 1.0e-10))
+  assert_eq(st.step, 0)
+}
+
+// --- omm_checkpoint_save / omm_checkpoint_load 底层 roundtrip ---
+
+test "omm_checkpoint_save_load_direct_roundtrip" {
+  let initial = @src.OmmState::new(
+    positions=[[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]],
+    velocities=[[0.1, 0.2, 0.3], [-0.4, 0.5, -0.6]],
+    box=[55.0, 66.0, 77.0],
+    time=1.5,
+    step=1500,
+  )
+  let txt = @src.omm_checkpoint_save(initial)
+  let parsed = @src.omm_checkpoint_load(txt)
+  match parsed {
+    Ok(st) => {
+      assert_eq(st.positions.length(), 2)
+      assert_true(@moonbit.assert_num_close(st.positions[0][0], 1.0, 1.0e-10))
+      assert_true(@moonbit.assert_num_close(st.positions[1][2], 6.0, 1.0e-10))
+      assert_true(@moonbit.assert_num_close(st.velocities[0][1], 0.2, 1.0e-10))
+      assert_true(@moonbit.assert_num_close(st.box[0], 55.0, 1.0e-10))
+      assert_true(@moonbit.assert_num_close(st.box[2], 77.0, 1.0e-10))
+      assert_true(@moonbit.assert_num_close(st.time, 1.5, 1.0e-10))
+      assert_eq(st.step, 1500)
+    }
+    Err(_) => fail("valid checkpoint should parse")
+  }
+}
+
+// --- omm_checkpoint_load 错误路径 ---
+
+test "omm_checkpoint_load_missing_header_returns_err" {
+  let result = @src.omm_checkpoint_load("NOHEADER 1\nNATOMS 0\n")
+  match result {
+    Ok(_) => fail("missing header should Err")
+    Err(_) => ()
+  }
+}
+
+test "omm_checkpoint_load_atom_count_mismatch_returns_err" {
+  // NATOMS 说 3 但只给了 2 条原子数据
+  let ckpt =
+    "OMMCHECKPOINT 1\n" +
+    "NATOMS 3\n" +
+    "BOX 50.0 50.0 50.0\n" +
+    "TIME 0.5\n" +
+    "STEP 100\n" +
+    "1.0 2.0 3.0 0.0 0.0 0.0\n" +
+    "4.0 5.0 6.0 0.0 0.0 0.0\n"
+  let result = @src.omm_checkpoint_load(ckpt)
+  match result {
+    Ok(_) => fail("atom count mismatch should Err")
+    Err(_) => ()
+  }
+}
+
+// --- 断点续跑完整故事：checkpoint → sim → 继续 step → 验证 state 连续 ---
+
+test "omm_checkpoint_full_resume_and_continue" {
+  let sys = @src.OmmSystem::new()
+  ignore(sys.add_particle(particle=@src.OmmParticle::new(mass=1.0)))
+  ignore(sys.add_particle(particle=@src.OmmParticle::new(mass=1.0)))
+  ignore(sys.add_particle(particle=@src.OmmParticle::new(mass=1.0)))
+  let ckpt =
+    "OMMCHECKPOINT 1\n" +
+    "NATOMS 3\n" +
+    "BOX 100.0 100.0 100.0\n" +
+    "TIME 2.0\n" +
+    "STEP 2000\n" +
+    "PE -10.0\n" +
+    "KE 5.0\n" +
+    "0.0 0.0 0.0 0.1 0.0 0.0\n" +
+    "1.0 0.0 0.0 0.0 0.1 0.0\n" +
+    "2.0 0.0 0.0 0.0 0.0 0.1\n"
+  let sim = @src.omm_simulation_from_checkpoint(sys, ckpt)
+  let st0 = sim.state()
+  assert_eq(st0.positions.length(), 3)
+  assert_true(@moonbit.assert_num_close(st0.positions[2][0], 2.0, 1.0e-10))
+  // 继续跑 100 步
+  sim.step(n_steps=100)
+  let st1 = sim.state()
+  // step 前进了 100（虽然 time/step 不是 mut，但 checkpoint_sim 是新构造的）
+  assert_true(st1.positions.length() == 3)
+  // 跑过之后 positions 应该有变化（自由粒子有速度）
+  let moved =
+    @moonbit.assert_num_close(st1.positions[0][0], 0.0, 1.0e-6) == false ||
+    @moonbit.assert_num_close(st1.positions[1][0], 1.0, 1.0e-6) == false
+  assert_true(moved)
+}

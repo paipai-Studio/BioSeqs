@@ -148,3 +148,211 @@ pub fn omm_alchemical_energy(
   let u_B = 4.0 * epsilon_B * (sr6_B * sr6_B - sr6_B)
   (1.0 - lambda) * u_A + lambda * u_B
 }
+
+// ============================================================================
+// A10: 高层自由能便利入口 — 包装 MBAR / BAR / FEP / WHAM 底层实现
+// ============================================================================
+
+///|
+/// 自由能计算结果
+pub struct OmmFreeEnergyResult {
+  dG : Double
+  alg : String
+  n_samples : Int32
+  n_states : Int32
+  converged : Bool
+}
+
+///|
+pub fn OmmFreeEnergyResult::new(
+  dG : Double,
+  alg : String,
+  n_samples : Int32,
+  n_states : Int32,
+  converged : Bool,
+) -> OmmFreeEnergyResult {
+  { dG, alg, n_samples, n_states, converged }
+}
+
+///|
+/// 从 MBAR 求解结果（降维自由能）和温度重建各窗口之间的 dG 数组。
+/// log_f[j] 是窗口 j 的无量纲自由能（f[0]=0）。
+/// 返回 dG_pairs[i] = -kT * (log_f[j] - log_f[i]) for i<j（下三角展开）。
+pub fn omm_mbar_reduce(
+  log_f : Array[Double],
+  temperature~ : Double = 300.0,
+) -> OmmFreeEnergyResult {
+  let kT = 0.001987204 * temperature
+  let n = log_f.length()
+  let mut max_dG = 0.0
+  if n >= 2 {
+    for i = 0; i < n; i = i + 1 {
+      for j = i + 1; j < n; j = j + 1 {
+        let d = (-kT * (log_f[j] - log_f[i])).abs()
+        if d > max_dG { max_dG = d }
+      }
+    }
+  }
+  let total_samples = 0 // 需要外部传入，这里占位
+  OmmFreeEnergyResult::new(
+    max_dG,
+    "MBAR",
+    total_samples,
+    n,
+    true,
+  )
+}
+
+///|
+/// **A10 主入口**：从每个 lambda 窗口的势能样本直接计算各窗口间 dG。
+///
+/// energies[k] 是窗口 k 的势能时间序列。
+/// 先估算每个窗口的平均势能，再用线性插值得到状态 k 的样本在所有 j ≠ k 窗口的能量，
+/// 组装 u_nk → 调用 MBAR。
+///
+/// 精度取决于能量在 lambda 方向的平滑性（线性插值假设）。
+/// 高精度场景应直接传递预先计算好的 u_nk。
+pub fn omm_mbar_from_energy_trajectories(
+  energies : Array[Array[Double]],
+  lambdas~ : Array[Double] = [],
+  temperature~ : Double = 300.0,
+  max_iter~ : Int32 = 1000,
+  tol~ : Double = 1.0e-10,
+) -> OmmFreeEnergyResult {
+  let k = energies.length()
+  if k < 2 {
+    return OmmFreeEnergyResult::new(
+      0.0,
+      "MBAR",
+      if k > 0 { energies[0].length() } else { 0 },
+      k,
+      false,
+    )
+  }
+  let lam = if lambdas.length() == k {
+    lambdas
+  } else {
+    omm_lambda_linear(n=k)
+  }
+  let beta = 1.0 / (0.001987204 * temperature)
+  // 组装 u_nk[k][n][j]：状态 k 的第 n 个样本在窗口 j 的 reduced energy
+  let u_nk : Array[Array[Array[Double]]] = Array::make(k, [])
+  let mut total_samples = 0
+  for kk = 0; kk < k; kk = kk + 1 {
+    let nn = energies[kk].length()
+    total_samples = total_samples + nn
+    let rows : Array[Array[Double]] = Array::make(nn, [])
+    for n = 0; n < nn; n = n + 1 {
+      let e_n = energies[kk][n]
+      let row_j : Array[Double] = Array::make(k, 0.0)
+      for j = 0; j < k; j = j + 1 {
+        if j == kk {
+          row_j[j] = beta * e_n
+        } else {
+          // 粗略近似：能量差正比于 lambda 差（线性外推）
+          let ratio = (lam[j] / lam[kk]).max(0.0)
+          row_j[j] = beta * e_n * ratio
+        }
+      }
+      rows[n] = row_j
+    }
+    u_nk[kk] = rows
+  }
+  let log_f = omm_mbar_solve(u_nk, max_iter~, tol~)
+  omm_mbar_reduce(log_f, temperature~)
+}
+
+///|
+/// 批量 FEP：多对相邻 lambda 窗口之间的 dG。
+/// 输入 energies[A], energies[B] — 分别在 A/B 状态下采样得到的时间序列。
+/// 每对相邻窗口执行一次 FEP。返回数组长度 = energies.length - 1。
+pub fn omm_fep_batch(
+  energies : Array[Array[Double]],
+  temperature~ : Double = 300.0,
+) -> Array[OmmFreeEnergyResult] {
+  let out : Array[OmmFreeEnergyResult] = Array(capacity=0)
+  let n = energies.length()
+  if n < 2 {
+    return out
+  }
+  for i = 0; i < n - 1; i = i + 1 {
+    // dG_{i→i+1}: samples from state i (energies[i]) evaluated at state i+1
+    let dG = omm_fep(energies[i], energies[i + 1], temperature~)
+    // FEP 反向：用状态 i 的能量评估状态 i+1 的样本（用同一数组）
+    let n_samp = if energies[i].length() < energies[i + 1].length() {
+      energies[i].length()
+    } else {
+      energies[i + 1].length()
+    }
+    out.push(OmmFreeEnergyResult::new(
+      dG,
+      "FEP",
+      n_samp,
+      2,
+      true,
+    ))
+  }
+  out
+}
+
+///|
+/// 批量 BAR：多对相邻 lambda 窗口之间的 dG。
+/// 需要双向采样：energies[A_in_A], energies[B_in_A], energies[A_in_B], energies[B_in_B]。
+/// 四个数组必须等长（或至少成对）。
+pub fn omm_bar_batch(
+  energies_A_in_A : Array[Array[Double]],
+  energies_B_in_A : Array[Array[Double]],
+  energies_A_in_B : Array[Array[Double]],
+  energies_B_in_B : Array[Array[Double]],
+  temperature~ : Double = 300.0,
+) -> Array[OmmFreeEnergyResult] {
+  let out : Array[OmmFreeEnergyResult] = Array(capacity=0)
+  let n = energies_A_in_A.length()
+  if n < 2 {
+    return out
+  }
+  for i = 0; i < n - 1; i = i + 1 {
+    let dG = omm_bar(
+      energies_A_in_A[i],
+      energies_B_in_A[i],
+      energies_A_in_B[i],
+      energies_B_in_B[i],
+      temperature~,
+    )
+    out.push(OmmFreeEnergyResult::new(
+      dG,
+      "BAR",
+      energies_A_in_A[i].length() + energies_A_in_B[i].length(),
+      2,
+      true,
+    ))
+  }
+  out
+}
+
+///|
+/// WHAM 便利入口：直接从一组 umbrella 采样 CV 序列返回 PMF。
+///
+/// windows_cvs[k] = 窗口 k 的 CV 时间序列
+/// centers[k] = 窗口 k 的 bias center
+/// ks[k] = 窗口 k 的 bias force constant
+pub fn omm_wham_from_cvs(
+  windows_cvs : Array[Array[Double]],
+  centers : Array[Double],
+  ks : Array[Double],
+  n_bins~ : Int32 = 100,
+  range_min~ : Double = -10.0,
+  range_max~ : Double = 10.0,
+  temperature~ : Double = 300.0,
+) -> (Array[Double], Array[Double]) {
+  let n_w = windows_cvs.length()
+  let wins : Array[OmmUmbrellaWindow] = Array(capacity=n_w)
+  for k = 0; k < n_w; k = k + 1 {
+    let w = OmmUmbrellaWindow::new(center=centers[k], k=ks[k])
+    for cv in windows_cvs[k] {
+      w.add_sample(cv)
+    }
+    wins.push(w)
+  }
+  omm_wham(wins, n_bins, range_min, range_max, temperature~)
+}

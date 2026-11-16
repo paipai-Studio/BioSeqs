@@ -10,6 +10,7 @@ pub struct OmmTrajectorySample {
   ke : Array[Double]
   temperature : Array[Double]
   pressure : Array[Double]
+  density : Array[Double]
   bond : Array[Double]
   angle : Array[Double]
   dihedral : Array[Double]
@@ -41,6 +42,7 @@ pub fn omm_simulation_run_to_universe(
     ke : Array(capacity=n_frames_expected),
     temperature : Array(capacity=n_frames_expected),
     pressure : Array(capacity=n_frames_expected),
+    density : Array(capacity=n_frames_expected),
     bond : Array(capacity=n_frames_expected),
     angle : Array(capacity=n_frames_expected),
     dihedral : Array(capacity=n_frames_expected),
@@ -76,6 +78,8 @@ pub fn omm_simulation_run_to_universe(
       md_safe_double((natoms_d * md_boltzmann() * temp / vol) * 602.214)
     } else { 0.0 }
     s.pressure.push(pressure)
+    let density = if vol > 0.0 { md_safe_double(natoms_d / vol) } else { 0.0 }
+    s.density.push(density)
     s.time.push(st.time)
     s.steps.push(st.step)
     i = i + report_interval
@@ -97,6 +101,7 @@ pub fn OmmTrajectorySample::lj(self : OmmTrajectorySample) -> Array[Double] { se
 pub fn OmmTrajectorySample::coulomb(self : OmmTrajectorySample) -> Array[Double] { self.coulomb }
 pub fn OmmTrajectorySample::temperature_trajectory(self : OmmTrajectorySample) -> Array[Double] { self.temperature }
 pub fn OmmTrajectorySample::pressure_trajectory(self : OmmTrajectorySample) -> Array[Double] { self.pressure }
+pub fn OmmTrajectorySample::density_trajectory(self : OmmTrajectorySample) -> Array[Double] { self.density }
 pub fn OmmTrajectorySample::time(self : OmmTrajectorySample) -> Array[Double] { self.time }
 
 pub fn OmmTrajectorySample::total_energy(self : OmmTrajectorySample) -> Array[Double] {

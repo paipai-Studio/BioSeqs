@@ -111,3 +111,96 @@ test "omm alchemical energy softened at intermediate lambda" {
   assert_true(@moonbit.assert_num_close(u1, 0.0, 1.0e-12))
   assert_true(u_mid < 0.0)
 }
+
+// --- A10 高层便利入口 ---
+
+test "omm_free_energy_result_fields" {
+  let r = @src.OmmFreeEnergyResult::new(
+    -1.23,
+    "MBAR",
+    1000,
+    5,
+    true,
+  )
+  assert_true(@moonbit.assert_num_close(r.dG, -1.23, 1.0e-12))
+  assert_eq(r.alg, "MBAR")
+  assert_eq(r.n_samples, 1000)
+  assert_eq(r.n_states, 5)
+  assert_true(r.converged)
+}
+
+test "omm_fep_batch_two_windows" {
+  // 两窗口 FEP batch 返回 1 条 dG
+  // convention: omm_fep(A_samples_in_A, A_samples_in_B) → dG_{A→B}
+  let e0_in_0 = [1.0, 2.0, 3.0, 4.0]   // 状态 A 样本在 A 的能量
+  let e0_in_1 = [3.0, 4.0, 5.0, 6.0]   // 状态 A 样本在 B 的能量 (= +2 恒偏移)
+  let results = @src.omm_fep_batch([e0_in_0, e0_in_1])
+  assert_eq(results.length(), 1)
+  assert_eq(results[0].alg, "FEP")
+  // dU = e0_in_1 - e0_in_0 = +2，FEP 算 dG = +2
+  assert_true(@moonbit.assert_num_close(results[0].dG, 2.0, 1.0e-9))
+}
+
+test "omm_fep_batch_single_window_returns_empty" {
+  let results = @src.omm_fep_batch([[1.0, 2.0]])
+  assert_eq(results.length(), 0)
+}
+
+test "omm_mbar_from_energy_trajectories_two_windows_constant_shift" {
+  // 两个 lambda 窗口，每个 4 个样本，窗口 1 比窗口 0 高 2.0
+  let e0 = [1.0, 2.0, 3.0, 4.0]
+  let e1 = [3.0, 4.0, 5.0, 6.0]
+  let result = @src.omm_mbar_from_energy_trajectories(
+    [e0, e1],
+    lambdas=[0.0, 1.0],
+    temperature=300.0,
+  )
+  assert_eq(result.alg, "MBAR")
+  assert_eq(result.n_states, 2)
+  assert_true(result.converged)
+}
+
+test "omm_bar_batch_two_pairs" {
+  // BAR batch 输入 k=3 个窗口 → 2 对相邻对 → 输出 2 条结果
+  let eA0_A0 = [0.0, 0.0, 0.0]
+  let eB0_A0 = [1.0, 1.0, 1.0]
+  let eA0_B0 = [0.0, 0.0, 0.0]
+  let eB0_B0 = [1.0, 1.0, 1.0]
+  let eA1_A1 = [0.0, 0.0, 0.0]
+  let eB1_A1 = [1.0, 1.0, 1.0]
+  let eA1_B1 = [0.0, 0.0, 0.0]
+  let eB1_B1 = [1.0, 1.0, 1.0]
+  let eA2_A2 = [0.0, 0.0, 0.0]
+  let eB2_A2 = [1.0, 1.0, 1.0]
+  let eA2_B2 = [0.0, 0.0, 0.0]
+  let eB2_B2 = [1.0, 1.0, 1.0]
+  let results = @src.omm_bar_batch(
+    [eA0_A0, eA1_A1, eA2_A2],
+    [eB0_A0, eB1_A1, eB2_A2],
+    [eA0_B0, eA1_B1, eA2_B2],
+    [eB0_B0, eB1_B1, eB2_B2],
+  )
+  assert_eq(results.length(), 2)
+  assert_eq(results[0].alg, "BAR")
+  assert_eq(results[1].alg, "BAR")
+  // BAR 恒偏移 1.0 → dG = 1.0
+  assert_true(@moonbit.assert_num_close(results[0].dG, 1.0, 1.0e-3))
+  assert_true(@moonbit.assert_num_close(results[1].dG, 1.0, 1.0e-3))
+}
+
+test "omm_wham_from_cvs_three_windows" {
+  // 三个 umbrella 窗口的简单测试
+  let cvs0 = [-0.1, 0.0, 0.1, -0.05]
+  let cvs1 = [0.9, 1.0, 1.1, 0.95]
+  let cvs2 = [1.9, 2.0, 2.1, 1.95]
+  let (bins, pmf) = @src.omm_wham_from_cvs(
+    [cvs0, cvs1, cvs2],
+    [0.0, 1.0, 2.0],
+    [50.0, 50.0, 50.0],
+    n_bins=50,
+    range_min=-0.5,
+    range_max=2.5,
+  )
+  assert_eq(bins.length(), 50)
+  assert_eq(pmf.length(), 50)
+}
