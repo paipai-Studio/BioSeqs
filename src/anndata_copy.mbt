@@ -79,6 +79,42 @@ pub fn anndata_copy(adata : AnnData) -> AnnData {
       None => ()
     }
   }
+  // Copy obsp (obs × obs pairwise matrices, e.g. distances / connectivities)
+  let obsp_keys = adata.obsp.keys().collect()
+  for k in obsp_keys {
+    match adata.obsp.get(k) {
+      Some(mat) => {
+        let mat_copy : Array[Array[Double]] = Array(capacity=mat.length())
+        for row in mat {
+          let row_copy : Array[Double] = Array(capacity=row.length())
+          for v in row {
+            row_copy.push(v)
+          }
+          mat_copy.push(row_copy)
+        }
+        ignore(copy.set_obsp(k, mat_copy))
+      }
+      None => ()
+    }
+  }
+  // Copy varp (var × var pairwise matrices, e.g. feature similarity)
+  let varp_keys = adata.varp.keys().collect()
+  for k in varp_keys {
+    match adata.varp.get(k) {
+      Some(mat) => {
+        let mat_copy : Array[Array[Double]] = Array(capacity=mat.length())
+        for row in mat {
+          let row_copy : Array[Double] = Array(capacity=row.length())
+          for v in row {
+            row_copy.push(v)
+          }
+          mat_copy.push(row_copy)
+        }
+        ignore(copy.set_varp(k, mat_copy))
+      }
+      None => ()
+    }
+  }
   // Copy uns
   let uns_keys = adata.uns.keys().collect()
   for k in uns_keys {

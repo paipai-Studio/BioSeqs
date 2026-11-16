@@ -91,6 +91,42 @@ pub fn anndata_write_text(adata : AnnData) -> String {
   sb.to_string()
 }
 
+///|
+/// Write AnnData X matrix as CSV (comma-delimited).
+pub fn anndata_write_csv(adata : AnnData) -> String {
+  anndata_write_text_inner(adata, ",")
+}
+
+///|
+/// Write AnnData X matrix as TSV (tab-delimited).
+pub fn anndata_write_tsv(adata : AnnData) -> String {
+  anndata_write_text_inner(adata, "\t")
+}
+
+///|
+/// Internal writer parametrized by delimiter.
+fn anndata_write_text_inner(adata : AnnData, sep : String) -> String {
+  let sb = StringBuilder()
+  // Header: var_names (no leading separator for obs-name column)
+  let _ = sb.write("")
+  for n in adata.var_names {
+    let _ = sb.write(sep)
+    let _ = sb.write(n)
+  }
+  let _ = sb.write("\n")
+  // Rows
+  let x = adata.x_matrix()
+  for i = 0; i < x.length(); i = i + 1 {
+    let _ = sb.write(adata.obs_names[i])
+    for j = 0; j < x[i].length(); j = j + 1 {
+      let _ = sb.write(sep)
+      let _ = sb.write(x[i][j].to_string())
+    }
+    let _ = sb.write("\n")
+  }
+  sb.to_string()
+}
+
 // ============================================================================
 // Matrix Market (.mtx) read/write — AnnData 官方 API 风格入口
 // ============================================================================

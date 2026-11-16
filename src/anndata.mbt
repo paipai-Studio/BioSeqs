@@ -414,9 +414,21 @@ pub fn AnnData::x_matrix(self : AnnData) -> Array[Array[Double]] {
 }
 
 ///|
+/// Observation (cell) names — official API attribute name.
+pub fn AnnData::obs_names(self : AnnData) -> Array[String] {
+  self.obs_names
+}
+
+///|
 /// Observation (cell) names.
 pub fn AnnData::get_obs_names(self : AnnData) -> Array[String] {
   self.obs_names
+}
+
+///|
+/// Variable (gene) names — official API attribute name.
+pub fn AnnData::var_names(self : AnnData) -> Array[String] {
+  self.var_names
 }
 
 ///|
@@ -732,6 +744,54 @@ pub fn AnnData::has_raw(self : AnnData) -> Bool {
 // ============================================================================
 // AnnData 官方 API 方法补充
 // ============================================================================
+
+///|
+/// 遍历：layers 所有 key.
+pub fn AnnData::layers_keys(self : AnnData) -> Array[String] {
+  self.layers.keys().collect()
+}
+
+///|
+/// 遍历：layers 的 (key, matrix) 对.
+pub fn AnnData::layers_items(
+  self : AnnData,
+) -> Array[(String, Array[Array[Double]])] {
+  let keys = self.layers.keys().collect()
+  let out : Array[(String, Array[Array[Double]])] = Array(
+    capacity=keys.length(),
+  )
+  for k in keys {
+    match self.layers.get(k) {
+      Some(m) => out.push((k, m))
+      None => ()
+    }
+  }
+  out
+}
+
+///|
+/// 遍历：obsm 所有 key.
+pub fn AnnData::obsm_keys(self : AnnData) -> Array[String] {
+  self.obsm.keys().collect()
+}
+
+///|
+/// 遍历：varm 所有 key.
+pub fn AnnData::varm_keys(self : AnnData) -> Array[String] {
+  self.varm.keys().collect()
+}
+
+///|
+/// 遍历：obsp 所有 key.
+pub fn AnnData::obsp_keys(self : AnnData) -> Array[String] {
+  self.obsp.keys().collect()
+}
+
+///|
+/// 遍历：varp 所有 key.
+pub fn AnnData::varp_keys(self : AnnData) -> Array[String] {
+  self.varp.keys().collect()
+}
 
 ///|
 /// Convenience for retrieving a 1-D array of values of length `n_obs`.

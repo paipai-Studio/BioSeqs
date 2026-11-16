@@ -95,3 +95,9 @@ pub fn anndata_transpose(adata : AnnData) -> AnnData {
   }
   result
 }
+
+///|
+/// Instance-method alias: `adata.transpose()` → 转置后的新 AnnData.
+pub fn AnnData::transpose(self : AnnData) -> AnnData {
+  anndata_transpose(self)
+}
