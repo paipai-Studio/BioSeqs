@@ -993,3 +993,187 @@ pub fn mol_to_smiles(mol : Molecule) -> String {
   mol_smiles_dfs(mol, start, -1, visited, neighbors, ranks, ring_map, result)
   result.to_string()
 }
+
+// ============================================================================
+// Canonical SMARTS（MolToSmarts 等价物）
+// ============================================================================
+
+///|
+/// 元素符号 → 原子序数（SMARTS 用 [#N] 表示）。
+fn mol_atomic_num(symbol : String) -> Int32 {
+  match symbol {
+    "H" => 1
+    "He" => 2
+    "Li" => 3
+    "Be" => 4
+    "B" => 5
+    "C" => 6
+    "N" => 7
+    "O" => 8
+    "F" => 9
+    "Ne" => 10
+    "Na" => 11
+    "Mg" => 12
+    "Al" => 13
+    "Si" => 14
+    "P" => 15
+    "S" => 16
+    "Cl" => 17
+    "Ar" => 18
+    "K" => 19
+    "Ca" => 20
+    "Br" => 35
+    "I" => 53
+    _ => 6
+  }
+}
+
+///|
+/// 生成 canonical SMARTS 字符串。
+///
+/// 与 canonical SMILES 的区别：对芳香原子用 [#N;H0] 显式表示（更精确的
+/// 模式匹配），对电荷、显式 H 等属性用 SMARTS 方括号语法。
+///
+/// 算法：先对 MolAtom 做 Morgan rank canonical 排序得到全局唯一 atom
+/// 顺序，然后输出 SMARTS 模式串。等价于 RDKit `Chem.MolToSmarts(mol)`.
+///
+/// 注：BioSeqs 当前 Molecule 没有 isotope/radical 字段，因此不支持
+/// 同位素标记 SMARTS（如 `[13C]`）。charge 和 aromatic 已支持。
+pub fn mol_to_smarts(mol : Molecule) -> String {
+  let n = mol.atoms.length()
+  if n == 0 { return "" }
+  let neighbors = mol_adjacency(mol)
+  let ranks = mol_canonical_ranks(mol)
+  // 找最小 rank 原子作起点
+  let mut start = 0
+  for k = 1; k < n; k = k + 1 {
+    if ranks[k] < ranks[start] { start = k }
+  }
+  // 构建 SMARTS：对每个原子根据属性选表达形式
+  let atom_exprs : Array[String] = Array(capacity=n)
+  for k = 0; k < n; k = k + 1 {
+    let a = mol.atoms[k]
+    let sym_up = a.symbol.to_upper()
+    let z = mol_atomic_num(sym_up)
+    let has_implicit_h = mol_has_implicit_h(mol, k)
+    let mut need_bracket = a.aromatic || a.charge != 0 || has_implicit_h || neighbors[k].length() > mol_typical_degree(sym_up)
+    // H 原子总是显式写
+    if sym_up == "H" { need_bracket = true }
+    if need_bracket {
+      let sb = StringBuilder()
+      sb.write_string("[#")
+      sb.write_string(z.to_string())
+      if a.aromatic { sb.write_string(";H0") }
+      if a.charge > 0 {
+        sb.write_string(";+")
+        sb.write_string(a.charge.to_string())
+      } else if a.charge < 0 {
+        sb.write_string(";-")
+        sb.write_string((-a.charge).to_string())
+      }
+      sb.write_string("]")
+      atom_exprs.push(sb.to_string())
+    } else {
+      // 普通原子：芳香用小写
+      if a.aromatic {
+        atom_exprs.push(sym_up.to_lower())
+      } else {
+        atom_exprs.push(sym_up)
+      }
+    }
+  }
+  // 用 atom_exprs 替换 mol_to_smiles 的 atom symbol，重新走一遍 DFS
+  let ring_map = mol_ring_digit_map(mol, neighbors, start)
+  let visited = Array::make(n, false)
+  let result : StringBuilder = StringBuilder()
+  mol_smarts_dfs(mol, start, -1, visited, neighbors, ranks, ring_map, atom_exprs, result)
+  result.to_string()
+}
+
+///|
+/// DFS 生成 SMARTS 字符串（和 smiles DFS 逻辑类似，但用 atom_exprs 代替 symbol）。
+fn mol_smarts_dfs(
+  mol : Molecule,
+  node : Int32,
+  parent : Int32,
+  visited : Array[Bool],
+  neighbors : Array[Array[(Int32, Int32)]],
+  ranks : Array[Int32],
+  ring_map : Map[Int32, Array[Int32]],
+  atom_exprs : Array[String],
+  out : StringBuilder,
+) -> Unit {
+  if visited[node] { return }
+  visited[node] = true
+  // Bond symbol before this atom (if not first atom)
+  if parent >= 0 {
+    let bo = mol_bond_order_between(mol, parent, node)
+    let arom = mol.atoms[parent].aromatic && mol.atoms[node].aromatic
+    out.write_string(mol_bond_symbol(bo, arom))
+  }
+  out.write_string(atom_exprs[node])
+  // Ring closure digits
+  match ring_map.get(node) {
+    Some(nums) =>
+      for rn in nums { out.write_string(rn.to_string()) }
+    None => ()
+  }
+  // Collect unvisited neighbors
+  let unvisited : Array[(Int32, Int32)] = Array(capacity=neighbors[node].length())
+  for (nb, order) in neighbors[node] {
+    if !visited[nb] { unvisited.push((nb, order)) }
+  }
+  // Sort by canonical rank
+  unvisited.sort_by(fn(a, b) { ranks[a.0].compare(ranks[b.0]) })
+  for (nb, _) in unvisited {
+    mol_smarts_dfs(mol, nb, node, visited, neighbors, ranks, ring_map, atom_exprs, out)
+  }
+}
+
+///|
+/// 原子是否有 implicit H（需要显式出现在 SMARTS 里）。
+fn mol_has_implicit_h(mol : Molecule, atom_idx : Int32) -> Bool {
+  let a = mol.atoms[atom_idx]
+  let sym = a.symbol.to_upper()
+  let neighbors = mol_adjacency(mol)
+  let degree = neighbors[atom_idx].length()
+  let tv = mol_atomic_typical_valence(sym)
+  let implicit = tv - degree + a.charge
+  implicit > 0
+}
+
+///|
+/// 原子的 typical degree（用于判断是否有显式 H）。
+fn mol_typical_degree(symbol : String) -> Int32 {
+  match symbol {
+    "C" => 4
+    "N" => 3
+    "O" => 2
+    "F" => 1
+    "P" => 3
+    "S" => 2
+    "Cl" => 1
+    "Br" => 1
+    "I" => 1
+    "B" => 3
+    "Si" => 4
+    _ => 4
+  }
+}
+
+///|
+/// 原子的 typical valence（用于 implicit H 估计）。
+fn mol_atomic_typical_valence(symbol : String) -> Int32 {
+  mol_typical_degree(symbol)
+}
+
+///|
+/// 两个原子之间的 bond order。
+fn mol_bond_order_between(mol : Molecule, a : Int32, b : Int32) -> Int32 {
+  for bond in mol.bonds {
+    if (bond.from == a && bond.to == b) || (bond.from == b && bond.to == a) {
+      return bond.order
+    }
+  }
+  1
+}
