@@ -629,3 +629,58 @@ fn mda_universe_is_protein(resname : String) -> Bool {
     _ => false
   }
 }
+
+///|
+/// 从 LAMMPS Dump text 构建 Universe（支持多帧）。
+///
+/// 直接调用 BioSeqs 已有的 `lammps_dump_read()`，
+/// 把 LammpsFrame → UnivAtom + Vector3 trajectory。
+pub fn Universe::from_lammps(text : String) -> Universe raise LammpsDumpError {
+  let frames = lammps_dump_read(text)
+  let nf = frames.length()
+  if nf == 0 {
+    return Universe::new(Array(capacity=0), trajectory=Array(capacity=0))
+  }
+  let first = frames[0]
+  let natoms = first.natoms
+  let atoms : Array[UnivAtom] = Array(capacity=natoms)
+  let mut i = 0
+  while i < natoms {
+    let la = first.atoms[i]
+    let tn = la.atom_type.to_string()
+    atoms.push(UnivAtom::new(
+      name="A" + tn,
+      resname="LAM",
+      resid=la.mol,
+      chain="A",
+      segid="SYS",
+      element="X",
+      mass=1.0,
+      charge=0.0,
+      is_protein=false,
+      is_backbone=false,
+    ))
+    i = i + 1
+  }
+  let traj : Array[Array[Vector3]] = Array(capacity=nf)
+  let mut f = 0
+  while f < nf {
+    let fr = frames[f]
+    let fv : Array[Vector3] = Array(capacity=fr.atoms.length())
+    let mut k = 0
+    while k < fr.atoms.length() {
+      fv.push(Vector3::new(fr.atoms[k].x, fr.atoms[k].y, fr.atoms[k].z))
+      k = k + 1
+    }
+    traj.push(fv); f = f + 1
+  }
+  let box = if first.box_lo.length() >= 3 && first.box_hi.length() >= 3 {
+    let dx = first.box_hi[0] - first.box_lo[0]
+    let dy = first.box_hi[1] - first.box_lo[1]
+    let dz = first.box_hi[2] - first.box_lo[2]
+    PBCBox::from_lengths(dx, dy, dz)
+  } else {
+    PBCBox::empty()
+  }
+  Universe::new(atoms, trajectory=traj, box=box)
+}
