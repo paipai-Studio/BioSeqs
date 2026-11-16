@@ -399,17 +399,23 @@ test "AnnCollectionView_out_of_bounds_returns_none" {
 ///|
 test "read_mtx_header_only_returns_none_no_panic" {
   // 仅含 MTX header、缺尺寸行 → 应回退 None 而非 panic（dims 空数组越界）
-  match @src.anndata_read_mtx("%%MatrixMarket matrix coordinate real general\n") {
+  match
+    @src.anndata_read_mtx("%%MatrixMarket matrix coordinate real general\n") {
     None => ()
     Some(_) => fail("header-only input should be None")
   }
   // 尺寸行只有 1 个 token → 同样安全返回 None
-  match @src.anndata_read_mtx("%%MatrixMarket matrix coordinate real general\n%\n3\n") {
+  match
+    @src.anndata_read_mtx(
+      "%%MatrixMarket matrix coordinate real general\n%\n3\n",
+    ) {
     None => ()
     Some(_) => fail("incomplete dims line should be None")
   }
   // scanpy_parse_mtx 本身对畸形输入返回空矩阵而非 panic
-  let (mat, nr, nc) = @src.scanpy_parse_mtx("%%MatrixMarket matrix coordinate real general\n")
+  let (mat, nr, nc) = @src.scanpy_parse_mtx(
+    "%%MatrixMarket matrix coordinate real general\n",
+  )
   assert_eq(nr, 0)
   assert_eq(nc, 0)
   assert_eq(mat.length(), 0)
