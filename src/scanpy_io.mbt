@@ -63,8 +63,16 @@ pub fn scanpy_parse_mtx(
     break
   }
   let dims = scanpy_split_ws(size_line)
-  let n_rows = parse_int(dims[0])
-  let n_cols = parse_int(dims[1])
+  // 缺尺寸行 / 尺寸行 token 不足时按 0 处理，交由上游守卫返回空结果，
+  // 避免对畸形输入（如仅有 MTX header）直接索引空数组导致 panic
+  let n_rows = match dims.get(0) {
+    Some(s) => parse_int(s)
+    None => 0
+  }
+  let n_cols = match dims.get(1) {
+    Some(s) => parse_int(s)
+    None => 0
+  }
   let mat : Array[Array[Double]] = Array(capacity=0)
   for _r = 0; _r < n_rows; _r = _r + 1 {
     mat.push(Array::make(n_cols, 0.0))

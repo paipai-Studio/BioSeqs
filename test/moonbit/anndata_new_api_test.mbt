@@ -391,3 +391,55 @@ test "AnnCollectionView_out_of_bounds_returns_none" {
     Some(_) => fail("out of bounds should be None")
   }
 }
+
+// ============================================================================
+// 6. 边界健壮性（审查修复回归测试）
+// ============================================================================
+
+///|
+test "read_mtx_header_only_returns_none_no_panic" {
+  // 仅含 MTX header、缺尺寸行 → 应回退 None 而非 panic（dims 空数组越界）
+  match @src.anndata_read_mtx("%%MatrixMarket matrix coordinate real general\n") {
+    None => ()
+    Some(_) => fail("header-only input should be None")
+  }
+  // 尺寸行只有 1 个 token → 同样安全返回 None
+  match @src.anndata_read_mtx("%%MatrixMarket matrix coordinate real general\n%\n3\n") {
+    None => ()
+    Some(_) => fail("incomplete dims line should be None")
+  }
+  // scanpy_parse_mtx 本身对畸形输入返回空矩阵而非 panic
+  let (mat, nr, nc) = @src.scanpy_parse_mtx("%%MatrixMarket matrix coordinate real general\n")
+  assert_eq(nr, 0)
+  assert_eq(nc, 0)
+  assert_eq(mat.length(), 0)
+}
+
+///|
+test "obs_vector_overflow_index_returns_none" {
+  let ad = make_fixture()
+  // 20 位数字串溢出 Int32 → 不应回绕误命中合法索引，应返回 None
+  match ad.obs_vector("99999999999999999999") {
+    Some(_) => fail("overflow index should be None")
+    None => ()
+  }
+  match ad.var_vector("-99999999999999999999") {
+    Some(_) => fail("overflow negative index should be None")
+    None => ()
+  }
+}
+
+///|
+test "AnnCollectionView_to_adata_out_of_range_obs_zero_fills" {
+  let (_, _, coll) = make_two_collections()
+  // obs_idx 含越界值 99 → 该行零填充且行长 = n_vars，保持矩形
+  let view = @src.AnnCollectionView::with_obs(coll, [99])
+  let ad = view.to_adata()
+  assert_eq(ad.n_obs(), 1)
+  assert_eq(ad.n_vars(), 2)
+  let x = ad.x_matrix()
+  assert_eq(x.length(), 1)
+  assert_eq(x[0].length(), 2)
+  assert_true(@moonbit.assert_num_close(x[0][0], 0.0, 1.0e-10))
+  assert_true(@moonbit.assert_num_close(x[0][1], 0.0, 1.0e-10))
+}

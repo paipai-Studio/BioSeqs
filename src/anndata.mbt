@@ -898,7 +898,13 @@ fn parse_int_string(s : String) -> Int32? {
   let mut j = start
   while j < s.length() {
     let ci : Int32 = s.unsafe_get(j).unsafe_to_char().to_int()
-    val = val * 10 + (ci - 48)
+    let digit = ci - 48
+    // Int32 溢出防护：超长数字串（如 20 位）会静默回绕，
+    // 回绕值可能碰巧落在合法索引区间导致取到错误数据，故直接判 None
+    if val > (2147483647 - digit) / 10 {
+      return None
+    }
+    val = val * 10 + digit
     j = j + 1
   }
   if neg {

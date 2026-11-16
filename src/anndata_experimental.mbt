@@ -375,7 +375,8 @@ pub fn AnnCollectionView::to_adata(self : AnnCollectionView) -> AnnData {
     // 表达向量
     match self.get_obs(i) {
       Some(row) => x.push(row)
-      None => x.push(Array(capacity=n_v))
+      // obs_idx 含越界值时零填充整行，保持矩阵矩形（行长 = n_v）
+      None => x.push(Array::make(n_v, 0.0))
     }
   }
   AnnData::new(x, obs_names, var_names)
