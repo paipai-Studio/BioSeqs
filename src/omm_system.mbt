@@ -309,3 +309,102 @@ pub fn OmmSystem::forces(
   }
   forces
 }
+
+///|
+/// Lennard-Jones + Coulomb 成对能量（非周期边界，不做 PME）。
+pub fn OmmSystem::potential_energy_nonbonded(
+  self : OmmSystem,
+  positions : Array[Array[Double]],
+) -> (Double, Double) {
+  let n = self.particles.length()
+  let mut lj = 0.0
+  let mut coul = 0.0
+  for i = 0; i < n; i = i + 1 {
+    for j = i + 1; j < n; j = j + 1 {
+      let sigma = (self.particles[i].sigma + self.particles[j].sigma) * 0.5
+      let epsilon = (self.particles[i].epsilon * self.particles[j].epsilon).sqrt()
+      let qi = self.particles[i].charge
+      let qj = self.particles[j].charge
+      if epsilon == 0.0 && qi * qj == 0.0 {
+        continue
+      }
+      let dx = positions[j][0] - positions[i][0]
+      let dy = positions[j][1] - positions[i][1]
+      let dz = positions[j][2] - positions[i][2]
+      let r2 = dx * dx + dy * dy + dz * dz
+      let r = if r2 > 1.0e-12 { @math.pow(r2, 0.5) } else { 1.0e-6 }
+      if epsilon > 0.0 && sigma > 0.0 {
+        let sr6 = (sigma / r) * (sigma / r) * (sigma / r) * (sigma / r) * (sigma / r) * (sigma / r)
+        lj = lj + 4.0 * epsilon * (sr6 * sr6 - sr6)
+      }
+      let qq = qi * qj
+      if qq != 0.0 {
+        coul = coul + 138.935485 * qq / r
+      }
+    }
+  }
+  (lj, coul)
+}
+
+///|
+/// 能量分解：返回 (bond, angle, dihedral, lj, coul) 各分量（kJ/mol）。
+pub fn OmmSystem::energy_decomposed(
+  self : OmmSystem,
+  positions : Array[Array[Double]],
+) -> (Double, Double, Double, Double, Double) {
+  let mut bond = 0.0
+  for b in self.bonds {
+    let dx = positions[b.1][0] - positions[b.0][0]
+    let dy = positions[b.1][1] - positions[b.0][1]
+    let dz = positions[b.1][2] - positions[b.0][2]
+    let r = (dx * dx + dy * dy + dz * dz).sqrt()
+    bond = bond + 0.5 * b.2 * (r - b.3) * (r - b.3)
+  }
+  let mut ang = 0.0
+  for a in self.angles {
+    let v1x = positions[a.0][0] - positions[a.1][0]
+    let v1y = positions[a.0][1] - positions[a.1][1]
+    let v1z = positions[a.0][2] - positions[a.1][2]
+    let v2x = positions[a.2][0] - positions[a.1][0]
+    let v2y = positions[a.2][1] - positions[a.1][1]
+    let v2z = positions[a.2][2] - positions[a.1][2]
+    let v1m = (v1x * v1x + v1y * v1y + v1z * v1z).sqrt()
+    let v2m = (v2x * v2x + v2y * v2y + v2z * v2z).sqrt()
+    if v1m > 0.0 && v2m > 0.0 {
+      let ct = (v1x * v2x + v1y * v2y + v1z * v2z) / (v1m * v2m)
+      let c = if ct > 1.0 { 1.0 } else if ct < -1.0 { -1.0 } else { ct }
+      let theta = @math.acos(c)
+      ang = ang + 0.5 * a.3 * (theta - a.4) * (theta - a.4)
+    }
+  }
+  let mut dih = 0.0
+  for di in self.dihedrals {
+    let (i0, j0, k0, l0, k_phi, phi0, n) = di
+    let b1x = positions[j0][0] - positions[i0][0]
+    let b1y = positions[j0][1] - positions[i0][1]
+    let b1z = positions[j0][2] - positions[i0][2]
+    let b2x = positions[k0][0] - positions[j0][0]
+    let b2y = positions[k0][1] - positions[j0][1]
+    let b2z = positions[k0][2] - positions[j0][2]
+    let b3x = positions[l0][0] - positions[k0][0]
+    let b3y = positions[l0][1] - positions[k0][1]
+    let b3z = positions[l0][2] - positions[k0][2]
+    let m1 = (b1y * b2z - b1z * b2y, b1z * b2x - b1x * b2z, b1x * b2y - b1y * b2x)
+    let m2 = (b2y * b3z - b2z * b3y, b2z * b3x - b2x * b3z, b2x * b3y - b2y * b3x)
+    let m1_len = @math.pow(m1.0 * m1.0 + m1.1 * m1.1 + m1.2 * m1.2, 0.5)
+    let m2_len = @math.pow(m2.0 * m2.0 + m2.1 * m2.1 + m2.2 * m2.2, 0.5)
+    let b2_len = @math.pow(b2x * b2x + b2y * b2y + b2z * b2z, 0.5)
+    if m1_len > 1.0e-12 && m2_len > 1.0e-12 && b2_len > 1.0e-12 {
+      let cos_phi = (m1.0 * m2.0 + m1.1 * m2.1 + m1.2 * m2.2) / (m1_len * m2_len)
+      let c = if cos_phi > 1.0 { 1.0 } else if cos_phi < -1.0 { -1.0 } else { cos_phi }
+      let cross_x = m1.1 * b2z - m1.2 * b2y
+      let cross_y = m1.2 * b2x - m1.0 * b2z
+      let cross_z = m1.0 * b2y - m1.1 * b2x
+      let sgn = if cross_x * m2.0 + cross_y * m2.1 + cross_z * m2.2 >= 0.0 { 1.0 } else { -1.0 }
+      let phi = sgn * @math.acos(c)
+      dih = dih + k_phi * (1.0 + @math.cos(n.to_double() * phi - phi0))
+    }
+  }
+  let (lj, coul) = self.potential_energy_nonbonded(positions)
+  (bond, ang, dih, lj, coul)
+}
