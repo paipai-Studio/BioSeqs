@@ -339,3 +339,28 @@ test "rank_dca_pairs" {
   assert_eq(j, 1)
   assert_true((score - 5.0).abs() < 1.0e-10)
 }
+
+///|
+/// test contact_map_probability + visualization (SVG/HTML)
+test "contact_map_visualization" {
+  let pdb = make_test_pdb()
+  let u = @src.universe_from_pdb_text(pdb)
+  let g = u.all_atoms()
+  let cm = g.contact_map_probability(cutoff=5.0)
+  assert_eq(cm.n_residues(), 10)
+  // SVG heatmap 非空
+  let svg = cm.to_svg_heatmap(cell_size=4)
+  assert_true(svg.length() > 200)
+  assert_true(svg.contains("<svg"))
+  assert_true(svg.contains("cm-cell"))
+  assert_true(svg.contains("cm-legend"))
+  // HTML 非空
+  let html = cm.to_html_heatmap(cell_size=4, title="Test")
+  assert_true(html.length() > 500)
+  assert_true(html.contains("<!DOCTYPE html>"))
+  assert_true(html.contains("cm-tip"))
+  assert_true(html.contains("cm-cell"))
+  // CSV 非空
+  let csv = cm.to_csv()
+  assert_true(csv.length() > 50)
+}

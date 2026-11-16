@@ -182,3 +182,112 @@ pub fn AtomGroup::hbond_trajectory(
   }
   out
 }
+
+// ============================================================================
+// A2 缺口：HBond 持续性矩阵
+// ============================================================================
+
+///|
+/// 一个 D-A 氢键对的统计结果。
+pub struct HBondPersistence {
+  /// donor 原子的 Universe 全局索引
+  donor_idx : Int32
+  /// acceptor 原子的 Universe 全局索引
+  acceptor_idx : Int32
+  /// 该 HBond 在多少帧被检测到
+  n_detected : Int32
+  /// occupancy = n_detected / n_frames
+  occupancy : Double
+  /// 平均连续出现帧数（"mean lifetime"，断开后重新计数）
+  mean_lifetime : Double
+  /// 出现过的帧索引
+  frames : Array[Int32]
+}
+
+///|
+/// 跨帧统计 HBond 持续性。
+///
+/// 返回所有出现过的 D-A 对，按 occupancy 降序排列。
+/// 同一 donor/acceptor 原子对在所有帧里被去重归并。
+pub fn AtomGroup::hbond_persistence(
+  self : AtomGroup,
+  max_distance~ : Double = 3.5,
+  max_h_distance~ : Double = 2.5,
+  min_angle~ : Double = 120.0,
+  consider_h~ : Bool = true,
+) -> Array[HBondPersistence] {
+  let n_frames = self.universe.n_frames()
+  // 用元组收集：(donor, acceptor, frames[])
+  let donors : Array[Int32] = Array(capacity=20)
+  let acceptors : Array[Int32] = Array(capacity=20)
+  let frames_arrs : Array[Array[Int32]] = Array(capacity=20)
+  let mut f = 0
+  while f < n_frames {
+    let hbs = self.hbonds(
+      frame=f,
+      max_distance=max_distance,
+      max_h_distance=max_h_distance,
+      min_angle=min_angle,
+      consider_h=consider_h,
+    )
+    for hb in hbs {
+      let d = hb.0
+      let a = hb.1
+      let mut found = -1
+      let mut p = 0
+      while p < donors.length() {
+        if donors[p] == d && acceptors[p] == a { found = p; break }
+        p = p + 1
+      }
+      if found >= 0 {
+        frames_arrs[found].push(f)
+      } else {
+        donors.push(d)
+        acceptors.push(a)
+        let new_frames : Array[Int32] = Array(capacity=20)
+        new_frames.push(f)
+        frames_arrs.push(new_frames)
+      }
+    }
+    f = f + 1
+  }
+  let nf = n_frames.to_double()
+  let n = donors.length()
+  let pers : Array[HBondPersistence] = Array(capacity=n)
+  let mut i = 0
+  while i < n {
+    let fs = frames_arrs[i]
+    let n_detected = fs.length()
+    let occupancy = n_detected.to_double() / nf
+    let mut segs_count = 0
+    let mut seg_total = 0
+    if fs.length() > 0 {
+      let mut cur_len = 1
+      let mut k = 1
+      while k < fs.length() {
+        if fs[k] == fs[k - 1] + 1 { cur_len = cur_len + 1 }
+        else { segs_count = segs_count + 1; seg_total = seg_total + cur_len; cur_len = 1 }
+        k = k + 1
+      }
+      segs_count = segs_count + 1
+      seg_total = seg_total + cur_len
+    }
+    let seg_sum = segs_count.to_double()
+    let mean_lifetime = if seg_sum > 0.0 { seg_total.to_double() / seg_sum } else { 0.0 }
+    pers.push(HBondPersistence::{
+      donor_idx: donors[i],
+      acceptor_idx: acceptors[i],
+      n_detected,
+      occupancy,
+      mean_lifetime,
+      frames: fs,
+    })
+    i = i + 1
+  }
+  pers.sort_by(mda_hb_pers_cmp)
+  pers
+}
+
+fn mda_hb_pers_cmp(a : HBondPersistence, b : HBondPersistence) -> Int {
+  if a.occupancy > b.occupancy { -1 } else if a.occupancy < b.occupancy { 1 } else { 0 }
+}
