@@ -18,8 +18,7 @@
 
 ///|
 /// UCSC goldenPath base (can be overridden).
-pub const BF_UCSC_GOLDENPATH_BASE : String =
-  "https://hgdownload.soe.ucsc.edu/goldenPath";
+pub const BF_UCSC_GOLDENPATH_BASE : String = "https://hgdownload.soe.ucsc.edu/goldenPath"
 
 ///|
 /// Optional external fetch callback type alias.
@@ -115,8 +114,8 @@ pub fn bf_fetch_centromeres_from_ucsc(
 
 ///|
 /// Parse UCSC chrom.sizes TSV (two columns: chrom<TAB>length).
-fn bf_parse_chromsizes_tsv(body : String) -> Array[(String, Int)] {
-  let out : Array[(String, Int)] = []
+fn bf_parse_chromsizes_tsv(body : String) -> Array[(String, Int32)] {
+  let out : Array[(String, Int32)] = []
   let mut sb_line = StringBuilder()
   for c in body {
     if c == '\n' {
@@ -150,8 +149,8 @@ fn bf_parse_chromsizes_tsv(body : String) -> Array[(String, Int)] {
 
 ///|
 /// Parse UCSC centromeres TSV (three columns: chrom<TAB>start<TAB>end).
-fn bf_parse_centromeres_tsv(body : String) -> Array[(String, Int, Int)] {
-  let out : Array[(String, Int, Int)] = []
+fn bf_parse_centromeres_tsv(body : String) -> Array[(String, Int32, Int32)] {
+  let out : Array[(String, Int32, Int32)] = []
   let mut sb_line = StringBuilder()
   for c in body {
     if c == '\n' {
@@ -169,8 +168,11 @@ fn bf_parse_centromeres_tsv(body : String) -> Array[(String, Int, Int)] {
         if c2 == '\t' {
           let val = sb.to_string()
           sb = StringBuilder()
-          if col == 0 { chrom = val }
-          else if col == 1 { s = parse_int(val) }
+          if col == 0 {
+            chrom = val
+          } else if col == 1 {
+            s = parse_int(val)
+          }
           col = col + 1
         } else {
           sb.write_char(c2)

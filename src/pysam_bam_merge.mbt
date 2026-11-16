@@ -56,9 +56,7 @@ fn bam_sort_by_coord(records : Array[BamRecord]) -> Array[BamRecord] {
 /// Merge multiple BamFiles into a single coord-sorted BamFile.
 /// The first file's header is used as-is; records are sorted by (ref, pos)
 /// after concatenation.  Matches `samtools merge` default behaviour.
-pub fn bam_merge_sorted(
-  inputs : Array[BamFile],
-) -> BamFile {
+pub fn bam_merge_sorted(inputs : Array[BamFile]) -> BamFile {
   if inputs.length() == 0 {
     return BamFile::{
       header: BamHeader::{ text: "", references: [], },
@@ -83,9 +81,7 @@ pub fn bam_merge_sorted(
 ///|
 /// Merge with strict header validation (like `bam_cat_safe`).
 /// Raises BamError on reference / length mismatch.
-pub fn bam_merge_sorted_safe(
-  inputs : Array[BamFile],
-) -> BamFile raise BamError {
+pub fn bam_merge_sorted_safe(inputs : Array[BamFile]) -> BamFile raise BamError {
   if inputs.length() == 0 {
     return BamFile::{
       header: BamHeader::{ text: "", references: [], },
@@ -103,14 +99,18 @@ pub fn bam_merge_sorted_safe(
     let mut j = 0
     while j < base_names.length() {
       if other[j] != base_names[j] {
-        raise BamError("Reference name mismatch at index \{j}: \{base_names[j]} vs \{other[j]}")
+        raise BamError(
+          "Reference name mismatch at index \{j}: \{base_names[j]} vs \{other[j]}",
+        )
       }
       match inputs[0].get_reference_length(base_names[j]) {
         Some(l1) =>
           match inputs[fi].get_reference_length(base_names[j]) {
             Some(l2) =>
               if l1 != l2 {
-                raise BamError("Reference length mismatch for \{base_names[j]}: \{l1} vs \{l2}")
+                raise BamError(
+                  "Reference length mismatch for \{base_names[j]}: \{l1} vs \{l2}",
+                )
               }
             None => raise BamError("Missing reference length in input \{fi}")
           }
@@ -220,7 +220,13 @@ pub fn bam_merge_fixmate_pairs(bam : BamFile) -> BamFile {
     // Only update if both mapped (keep unmapped pair flags unchanged)
     if !r1.is_unmapped() && !r2.is_unmapped() {
       // Determine which is read1
-      let (a, b) = if r1.is_read1() { (i1, i2) } else if r2.is_read1() { (i2, i1) } else { (i1, i2) }
+      let (a, b) = if r1.is_read1() {
+        (i1, i2)
+      } else if r2.is_read1() {
+        (i2, i1)
+      } else {
+        (i1, i2)
+      }
       let rec_a = out[a]
       let rec_b = out[b]
       let new_a = rec_a.with_mate(rec_b.ref_id, rec_b.pos)
@@ -249,9 +255,7 @@ pub fn bam_merge_fixmate_pairs(bam : BamFile) -> BamFile {
 /// Fixmate wrapper: merges then repairs pair info.  Exposed for callers who
 /// want a single convenience function (Pysam's `pysam.merge(...)` does both in
 /// one step).
-pub fn bam_merge_and_fixmate(
-  inputs : Array[BamFile],
-) -> BamFile raise BamError {
+pub fn bam_merge_and_fixmate(inputs : Array[BamFile]) -> BamFile raise BamError {
   let merged = bam_merge_sorted_safe(inputs)
   bam_merge_fixmate_pairs(merged)
 }

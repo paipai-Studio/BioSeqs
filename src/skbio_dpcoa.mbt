@@ -77,6 +77,7 @@ struct AncestorSnapshot {
   depths : Array[Double]
 }
 
+///|
 fn skbd_dpcoa_collect_tip_ancestors(
   node : SkbioNode,
   parent_depth : Double,
@@ -101,9 +102,16 @@ fn skbd_dpcoa_collect_tip_ancestors(
         // 复制当前 stack 作为这个 tip 的祖先快照
         let snap_names : Array[String] = Array(capacity=stack_names.length())
         let snap_depths : Array[Double] = Array(capacity=stack_depths.length())
-        for s in stack_names { snap_names.push(s) }
-        for d in stack_depths { snap_depths.push(d) }
-        out_snapshots.push(AncestorSnapshot::{ names: snap_names, depths: snap_depths })
+        for s in stack_names {
+          snap_names.push(s)
+        }
+        for d in stack_depths {
+          snap_depths.push(d)
+        }
+        out_snapshots.push(AncestorSnapshot::{
+          names: snap_names,
+          depths: snap_depths,
+        })
       }
       None => ()
     }
@@ -165,8 +173,7 @@ pub fn skbio_dpcoa(
   let empty_names : Array[String] = Array(capacity=0)
   let empty_depths : Array[Double] = Array(capacity=0)
   skbd_dpcoa_collect_tip_ancestors(
-    tree, 0.0, empty_names, empty_depths,
-    all_tip_names, all_tip_snaps,
+    tree, 0.0, empty_names, empty_depths, all_tip_names, all_tip_snaps,
   )
 
   // 2. 构建 taxa → tip snapshot 的映射（只保留 taxa 里出现的）
@@ -187,7 +194,7 @@ pub fn skbio_dpcoa(
     }
     if !found {
       // 不在 tree 里 → depth=0, snap 空
-      taxa_snaps.push(AncestorSnapshot::{ names: [], depths: [] })
+      taxa_snaps.push(AncestorSnapshot::{ names: [], depths: [], })
       taxa_depths.push(0.0)
     }
   }
@@ -220,7 +227,9 @@ pub fn skbio_dpcoa(
     // 归一化 abundance（转相对丰度）
     let row = samples[i]
     let mut total = 0.0
-    for v in row { total = total + v }
+    for v in row {
+      total = total + v
+    }
     let coords_row = Array::make(k, 0.0)
     if total > 0.0 {
       for otu = 0; otu < n_taxa; otu = otu + 1 {

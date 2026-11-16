@@ -11,6 +11,7 @@ test "bf_cluster: empty input → empty output" {
 
 // ---- No overlap → separate clusters ----------------------------------------
 
+///|
 test "bf_cluster: no overlap → each interval independent" {
   let a = [
     @src.BedInterval::new("chr1", 0, 100),
@@ -27,6 +28,7 @@ test "bf_cluster: no overlap → each interval independent" {
 
 // ---- Fully overlapping → one cluster ---------------------------------------
 
+///|
 test "bf_cluster: overlapping → one cluster" {
   let a = [
     @src.BedInterval::new("chr1", 0, 100),
@@ -42,6 +44,7 @@ test "bf_cluster: overlapping → one cluster" {
 
 // ---- Book-ended intervals do NOT cluster with min_dist=None ----------------
 
+///|
 test "bf_cluster: book-ended do NOT cluster by default (min_dist=None)" {
   let a = [
     @src.BedInterval::new("chr1", 0, 100),
@@ -53,6 +56,7 @@ test "bf_cluster: book-ended do NOT cluster by default (min_dist=None)" {
 
 // ---- min_dist parameter controls gap tolerance ------------------------------
 
+///|
 test "bf_cluster: min_dist=5 clusters intervals within 5bp gap" {
   let a = [
     @src.BedInterval::new("chr1", 0, 100),
@@ -62,6 +66,7 @@ test "bf_cluster: min_dist=5 clusters intervals within 5bp gap" {
   assert_eq(n, 1)
 }
 
+///|
 test "bf_cluster: min_dist=5 does NOT cluster 6bp gap" {
   let a = [
     @src.BedInterval::new("chr1", 0, 100),
@@ -73,6 +78,7 @@ test "bf_cluster: min_dist=5 does NOT cluster 6bp gap" {
 
 // ---- Book-ended intervals cluster with min_dist=0 --------------------------
 
+///|
 test "bf_cluster: min_dist=0 clusters book-ended intervals" {
   let a = [
     @src.BedInterval::new("chr1", 0, 100),
@@ -84,6 +90,7 @@ test "bf_cluster: min_dist=0 clusters book-ended intervals" {
 
 // ---- Different chromosomes always separate ---------------------------------
 
+///|
 test "bf_cluster: different chroms → separate clusters" {
   let a = [
     @src.BedInterval::new("chr1", 0, 100),
@@ -97,6 +104,7 @@ test "bf_cluster: different chroms → separate clusters" {
 
 // ---- Mixed chroms + overlap ------------------------------------------------
 
+///|
 test "bf_cluster: mixed chroms with multiple groups" {
   let a = [
     @src.BedInterval::new("chr1", 0, 100),
@@ -114,6 +122,7 @@ test "bf_cluster: mixed chroms with multiple groups" {
 
 // ---- bf_cluster_with_min_dist wrapper --------------------------------------
 
+///|
 test "bf_cluster_with_min_dist: convenience wrapper" {
   let a = [
     @src.BedInterval::new("chr1", 0, 100),
@@ -129,6 +138,7 @@ test "bf_cluster_with_min_dist: convenience wrapper" {
 
 // ---- n_clusters is correct -------------------------------------------------
 
+///|
 test "bf_cluster: n_clusters matches max cluster_id + 1" {
   let a = [
     @src.BedInterval::new("chr1", 0, 50),

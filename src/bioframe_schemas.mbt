@@ -1,3 +1,4 @@
+///|
 /// bioframe_schemas.mbt — Schema registry and tabular I/O for Bioframe.
 ///
 /// Bioframe equivalent: `bioframe.SCHEMAS` dict + `bioframe.read_table(schema=)`.
@@ -21,22 +22,56 @@
 // ================================================================
 
 const BF_SCHEMA_BED3 : String = "bed3"
+
+///|
 const BF_SCHEMA_BED4 : String = "bed4"
+
+///|
 const BF_SCHEMA_BED5 : String = "bed5"
+
+///|
 const BF_SCHEMA_BED6 : String = "bed6"
+
+///|
 const BF_SCHEMA_BED7 : String = "bed7"
+
+///|
 const BF_SCHEMA_BED8 : String = "bed8"
+
+///|
 const BF_SCHEMA_BED9 : String = "bed9"
+
+///|
 const BF_SCHEMA_BED12 : String = "bed12"
+
+///|
 const BF_SCHEMA_NARROWPEAK : String = "narrowPeak"
+
+///|
 const BF_SCHEMA_BROADPEAK : String = "broadPeak"
+
+///|
 const BF_SCHEMA_GAPPEDPEAK : String = "gappedPeak"
+
+///|
 const BF_SCHEMA_PAIRS : String = "pairs"
+
+///|
 const BF_SCHEMA_PAIRS_PX : String = "pairs_px"
+
+///|
 const BF_SCHEMA_TAD : String = "tad"
+
+///|
 const BF_SCHEMA_REFSEQ : String = "refSeq"
+
+///|
 const BF_SCHEMA_SIMPLEREPEAT : String = "simpleRepeat"
+
+///|
 const BF_SCHEMA_JASPAR : String = "jaspar"
+
+///|
 const BF_SCHEMA_BEDMETHYL : String = "bedMethyl"
 
 // ================================================================
@@ -44,76 +79,121 @@ const BF_SCHEMA_BEDMETHYL : String = "bedMethyl"
 //                     expose each schema's columns through a fn)
 // ================================================================
 
+///|
 fn bf_cols_bed3() -> Array[String] {
   ["chrom", "start", "end"]
 }
+
+///|
 fn bf_cols_bed4() -> Array[String] {
   ["chrom", "start", "end", "name"]
 }
+
+///|
 fn bf_cols_bed5() -> Array[String] {
   ["chrom", "start", "end", "name", "score"]
 }
+
+///|
 fn bf_cols_bed6() -> Array[String] {
   ["chrom", "start", "end", "name", "score", "strand"]
 }
+
+///|
 fn bf_cols_bed7() -> Array[String] {
-  ["chrom", "start", "end", "name", "score", "strand",
-   "thickStart", "thickEnd"]
+  ["chrom", "start", "end", "name", "score", "strand", "thickStart", "thickEnd"]
 }
+
+///|
 fn bf_cols_bed8() -> Array[String] {
-  ["chrom", "start", "end", "name", "score", "strand",
-   "thickStart", "thickEnd", "itemRgb"]
+  [
+    "chrom", "start", "end", "name", "score", "strand", "thickStart", "thickEnd",
+    "itemRgb",
+  ]
 }
+
+///|
 fn bf_cols_bed9() -> Array[String] {
-  ["chrom", "start", "end", "name", "score", "strand",
-   "thickStart", "thickEnd", "itemRgb",
-   "blockCount", "blockSizes", "blockStarts"]
+  [
+    "chrom", "start", "end", "name", "score", "strand", "thickStart", "thickEnd",
+    "itemRgb", "blockCount", "blockSizes", "blockStarts",
+  ]
 }
+
+///|
 fn bf_cols_bed12() -> Array[String] {
-  ["chrom", "start", "end", "name", "score", "strand",
-   "thickStart", "thickEnd", "itemRgb",
-   "blockCount", "blockSizes", "blockStarts"]
+  [
+    "chrom", "start", "end", "name", "score", "strand", "thickStart", "thickEnd",
+    "itemRgb", "blockCount", "blockSizes", "blockStarts",
+  ]
 }
+
+///|
 fn bf_cols_narrowpeak() -> Array[String] {
-  ["chrom", "start", "end", "name", "score", "strand",
-   "fc", "negLog10p", "negLog10q", "relSummit"]
+  [
+    "chrom", "start", "end", "name", "score", "strand", "fc", "negLog10p", "negLog10q",
+    "relSummit",
+  ]
 }
+
+///|
 fn bf_cols_broadpeak() -> Array[String] {
-  ["chrom", "start", "end", "name", "score", "strand",
-   "fc", "negLog10p", "negLog10q"]
+  [
+    "chrom", "start", "end", "name", "score", "strand", "fc", "negLog10p", "negLog10q",
+  ]
 }
+
+///|
 fn bf_cols_gappedpeak() -> Array[String] {
-  ["chrom", "start", "end", "name", "score", "strand",
-   "fc", "negLog10p", "negLog10q", "relSummit",
-   "blockCount", "blockSizes", "blockStarts",
-   "blockAq", "blockP", "blockQ"]
+  [
+    "chrom", "start", "end", "name", "score", "strand", "fc", "negLog10p", "negLog10q",
+    "relSummit", "blockCount", "blockSizes", "blockStarts", "blockAq", "blockP",
+    "blockQ",
+  ]
 }
+
+///|
 fn bf_cols_pairs() -> Array[String] {
   ["chrom1", "pos1", "chrom2", "pos2"]
 }
+
+///|
 fn bf_cols_pairs_px() -> Array[String] {
   ["read_id", "chrom1", "pos1", "chrom2", "pos2", "strand1", "strand2"]
 }
+
+///|
 fn bf_cols_tad() -> Array[String] {
   ["chrom", "start", "end", "name"]
 }
+
+///|
 fn bf_cols_refseq() -> Array[String] {
-  ["bin", "name", "chrom", "strand", "txStart", "txEnd",
-   "cdsStart", "cdsEnd", "exonCount", "exonStarts", "exonEnds",
-   "score", "name2", "cdsStartStat", "cdsEndStat", "exonFrames"]
+  [
+    "bin", "name", "chrom", "strand", "txStart", "txEnd", "cdsStart", "cdsEnd", "exonCount",
+    "exonStarts", "exonEnds", "score", "name2", "cdsStartStat", "cdsEndStat", "exonFrames",
+  ]
 }
+
+///|
 fn bf_cols_simplerepeat() -> Array[String] {
-  ["bin", "chrom", "chromStart", "chromEnd",
-   "name", "period", "copyNum", "consensusSize",
-   "perMatch", "perIndel", "score", "A", "C", "G", "T", "entropy",
-   "sequence"]
+  [
+    "bin", "chrom", "chromStart", "chromEnd", "name", "period", "copyNum", "consensusSize",
+    "perMatch", "perIndel", "score", "A", "C", "G", "T", "entropy", "sequence",
+  ]
 }
+
+///|
 fn bf_cols_jaspar() -> Array[String] {
   ["chrom", "start", "end", "name", "score", "strand"]
 }
+
+///|
 fn bf_cols_bedmethyl() -> Array[String] {
-  ["chrom", "start", "end", "name", "score", "strand",
-   "thickStart", "thickEnd", "itemRgb", "coverage", "methylationPct"]
+  [
+    "chrom", "start", "end", "name", "score", "strand", "thickStart", "thickEnd",
+    "itemRgb", "coverage", "methylationPct",
+  ]
 }
 
 // ================================================================
@@ -151,12 +231,23 @@ pub fn bf_schema_cols(name : String) -> Array[String]? {
 /// List all known schema names.
 pub fn bf_schemas_available() -> Array[String] {
   [
-    BF_SCHEMA_BED3, BF_SCHEMA_BED4, BF_SCHEMA_BED5,
-    BF_SCHEMA_BED6, BF_SCHEMA_BED7, BF_SCHEMA_BED8,
-    BF_SCHEMA_BED9, BF_SCHEMA_BED12,
-    BF_SCHEMA_NARROWPEAK, BF_SCHEMA_BROADPEAK, BF_SCHEMA_GAPPEDPEAK,
-    BF_SCHEMA_PAIRS, BF_SCHEMA_PAIRS_PX, BF_SCHEMA_TAD,
-    BF_SCHEMA_REFSEQ, BF_SCHEMA_SIMPLEREPEAT, BF_SCHEMA_JASPAR,
+    BF_SCHEMA_BED3,
+    BF_SCHEMA_BED4,
+    BF_SCHEMA_BED5,
+    BF_SCHEMA_BED6,
+    BF_SCHEMA_BED7,
+    BF_SCHEMA_BED8,
+    BF_SCHEMA_BED9,
+    BF_SCHEMA_BED12,
+    BF_SCHEMA_NARROWPEAK,
+    BF_SCHEMA_BROADPEAK,
+    BF_SCHEMA_GAPPEDPEAK,
+    BF_SCHEMA_PAIRS,
+    BF_SCHEMA_PAIRS_PX,
+    BF_SCHEMA_TAD,
+    BF_SCHEMA_REFSEQ,
+    BF_SCHEMA_SIMPLEREPEAT,
+    BF_SCHEMA_JASPAR,
     BF_SCHEMA_BEDMETHYL,
   ]
 }
@@ -173,7 +264,7 @@ pub struct BfTableRow {
 
 ///|
 /// Get the raw field by column index.
-pub fn BfTableRow::field(self : BfTableRow, idx : Int) -> String? {
+pub fn BfTableRow::field(self : BfTableRow, idx : Int32) -> String? {
   if idx >= 0 && idx < self.fields.length() {
     Some(self.fields[idx])
   } else {
@@ -224,7 +315,7 @@ pub fn bf_read_table(
               Some(h) => header = h
               None => header = cols
             }
-            rows.push(BfTableRow::{ fields: cols })
+            rows.push(BfTableRow::{ fields: cols, })
           }
           None => {
             let looks_like_header = !bf_all_numeric(cols)
@@ -232,13 +323,13 @@ pub fn bf_read_table(
               header = cols
             } else {
               header = bf_default_header(cols.length())
-              rows.push(BfTableRow::{ fields: cols })
+              rows.push(BfTableRow::{ fields: cols, })
             }
           }
         }
         is_first_line = false
       } else {
-        rows.push(BfTableRow::{ fields: cols })
+        rows.push(BfTableRow::{ fields: cols, })
       }
     } else {
       current.write_char(c)
@@ -254,7 +345,7 @@ pub fn bf_row_get(
   row : BfTableRow,
   col : String,
 ) -> String? {
-  let mut i : Int = 0
+  let mut i : Int32 = 0
   while i < header.length() {
     if header[i] == col {
       return row.field(i)
@@ -271,15 +362,19 @@ pub fn bf_rows_to_intervals(
   rows : Array[BfTableRow],
 ) -> Array[BedInterval] {
   let out : Array[BedInterval] = Array(capacity=0)
-  let mut ci : Int = 0
-  let mut si : Int = 1
-  let mut ei : Int = 2
-  let mut i : Int = 0
+  let mut ci : Int32 = 0
+  let mut si : Int32 = 1
+  let mut ei : Int32 = 2
+  let mut i : Int32 = 0
   while i < header.length() {
     let h = header[i].to_lower()
-    if h == "chrom" || h == "chr" { ci = i }
-    else if h == "start" || h == "chromstart" || h == "pos1" { si = i }
-    else if h == "end" || h == "chromend" || h == "pos2" { ei = i }
+    if h == "chrom" || h == "chr" {
+      ci = i
+    } else if h == "start" || h == "chromstart" || h == "pos1" {
+      si = i
+    } else if h == "end" || h == "chromend" || h == "pos2" {
+      ei = i
+    }
     i = i + 1
   }
   for r in rows {
@@ -308,12 +403,16 @@ pub fn bf_rows_to_intervals(
 // 6. Internal helpers
 // ================================================================
 
+///|
 fn bf_trim(s : String) -> String {
   let mut start = 0
   let mut end = s.length()
   while start < end {
     let c = s.unsafe_get(start).to_int()
-    if c == ' '.to_int() || c == '\t'.to_int() || c == '\n'.to_int() || c == '\r'.to_int() {
+    if c == ' '.to_int() ||
+      c == '\t'.to_int() ||
+      c == '\n'.to_int() ||
+      c == '\r'.to_int() {
       start = start + 1
     } else {
       break
@@ -321,7 +420,10 @@ fn bf_trim(s : String) -> String {
   }
   while end > start {
     let c = s.unsafe_get(end - 1).to_int()
-    if c == ' '.to_int() || c == '\t'.to_int() || c == '\n'.to_int() || c == '\r'.to_int() {
+    if c == ' '.to_int() ||
+      c == '\t'.to_int() ||
+      c == '\n'.to_int() ||
+      c == '\r'.to_int() {
       end = end - 1
     } else {
       break
@@ -330,6 +432,7 @@ fn bf_trim(s : String) -> String {
   s[start:end].to_owned()
 }
 
+///|
 /// Tab split helper, unique name (assemblies.mbt has bf_split_tab too).
 fn bf_sch_split_tab(line : String) -> Array[String] {
   let out : Array[String] = []
@@ -346,15 +449,22 @@ fn bf_sch_split_tab(line : String) -> Array[String] {
   out
 }
 
+///|
 /// Heuristic: true when every element looks like a number
 /// (digits, optional dot/scientific, optional +/-).
 fn bf_all_numeric(cols : Array[String]) -> Bool {
-  if cols.length() == 0 { return false }
+  if cols.length() == 0 {
+    return false
+  }
   for c in cols {
-    if c.length() == 0 { return false }
-    let mut i : Int = 0
+    if c.length() == 0 {
+      return false
+    }
+    let mut i : Int32 = 0
     let first = c.unsafe_get(0).to_int()
-    if first == '-'.to_int() || first == '+'.to_int() { i = 1 }
+    if first == '-'.to_int() || first == '+'.to_int() {
+      i = 1
+    }
     let mut saw_digit = false
     let mut saw_dot = false
     while i < c.length() {
@@ -368,11 +478,14 @@ fn bf_all_numeric(cols : Array[String]) -> Bool {
       }
       i = i + 1
     }
-    if !saw_digit { return false }
+    if !saw_digit {
+      return false
+    }
   }
   true
 }
 
+///|
 fn bf_default_header(n : Int32) -> Array[String] {
   let out : Array[String] = []
   let mut i : Int32 = 0

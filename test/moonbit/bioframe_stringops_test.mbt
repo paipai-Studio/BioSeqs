@@ -11,11 +11,13 @@ test "bf_to_ucsc_string: basic 0→1 conversion" {
   assert_eq(s, "chr1:1-10")
 }
 
+///|
 test "bf_to_ucsc_string: non-zero start" {
   let s = @src.bf_to_ucsc_string("chr1", 100, 200)
   assert_eq(s, "chr1:101-200")
 }
 
+///|
 test "bf_to_ucsc_string: end==start empty interval" {
   // [100, 100) has zero length; 1-based [101, 100] is also zero-length
   let s = @src.bf_to_ucsc_string("chr1", 100, 100)
@@ -24,38 +26,47 @@ test "bf_to_ucsc_string: end==start empty interval" {
 
 // ---- bf_is_complete_ucsc_string -------------------------------------------
 
+///|
 test "bf_is_complete_ucsc_string: valid pattern" {
   assert_true(@src.bf_is_complete_ucsc_string("chr1:1-100"))
 }
 
 // NOTE: current implementation allows additional dashes after the first;
 // it only rejects extra colons.  Test reflects actual source behaviour.
+
+///|
 test "bf_is_complete_ucsc_string: multi-dash accepted (current impl)" {
   assert_true(@src.bf_is_complete_ucsc_string("chr1:1-2-3"))
 }
 
+///|
 test "bf_is_complete_ucsc_string: no dash → false" {
   assert_true(!@src.bf_is_complete_ucsc_string("chr1:1"))
 }
 
+///|
 test "bf_is_complete_ucsc_string: empty → false" {
   assert_true(!@src.bf_is_complete_ucsc_string(""))
 }
 
+///|
 test "bf_is_complete_ucsc_string: no colon → false" {
   assert_true(!@src.bf_is_complete_ucsc_string("chr1"))
 }
 
+///|
 test "bf_is_complete_ucsc_string: too short → false" {
   assert_true(!@src.bf_is_complete_ucsc_string("c:1"))
 }
 
+///|
 test "bf_is_complete_ucsc_string: valid chrM" {
   assert_true(@src.bf_is_complete_ucsc_string("chrM:1-1000"))
 }
 
 // ---- bf_parse_region_string -----------------------------------------------
 
+///|
 test "bf_parse_region_string: chrom only" {
   let (c, s, e) = @src.bf_parse_region_string("chr1")
   assert_eq(c, "chr1")
@@ -69,6 +80,7 @@ test "bf_parse_region_string: chrom only" {
   }
 }
 
+///|
 test "bf_parse_region_string: chrom:start-end → 0-based" {
   let (c, s, e) = @src.bf_parse_region_string("chr1:1000-2000")
   assert_eq(c, "chr1")
@@ -82,6 +94,7 @@ test "bf_parse_region_string: chrom:start-end → 0-based" {
   }
 }
 
+///|
 test "bf_parse_region_string: MT alias resolved with hg38" {
   let (c, s, e) = @src.bf_parse_region_string("MT:1-100", assembly=Some("hg38"))
   assert_eq(c, "chrM")
@@ -95,8 +108,12 @@ test "bf_parse_region_string: MT alias resolved with hg38" {
   }
 }
 
+///|
 test "bf_parse_region_string: numeric alias 1 resolved with hg38" {
-  let (c, s, e) = @src.bf_parse_region_string("1:100-200", assembly=Some("hg38"))
+  let (c, s, e) = @src.bf_parse_region_string(
+    "1:100-200",
+    assembly=Some("hg38"),
+  )
   assert_eq(c, "chr1")
   match s {
     Some(v) => assert_eq(v, 99)
@@ -108,6 +125,7 @@ test "bf_parse_region_string: numeric alias 1 resolved with hg38" {
   }
 }
 
+///|
 test "bf_parse_region_string: no assembly → alias not resolved" {
   let (c, _, _) = @src.bf_parse_region_string("MT:1-100")
   assert_eq(c, "MT")
@@ -115,6 +133,7 @@ test "bf_parse_region_string: no assembly → alias not resolved" {
 
 // ---- bf_natsort_chroms ----------------------------------------------------
 
+///|
 test "bf_natsort_chroms: classic chr10 vs chr2" {
   let inp = ["chr10", "chr2", "chr1"]
   let out = @src.bf_natsort_chroms(inp)
@@ -126,6 +145,8 @@ test "bf_natsort_chroms: classic chr10 vs chr2" {
 
 // NOTE: natural key uses to_lower(), so chrM→"chrm" < chrX→"chrx" < chrY→"chry".
 // Expected order: chr1 (num=1), chrM, chrX, chrY
+
+///|
 test "bf_natsort_chroms: autosomes then X/Y/M" {
   let inp = ["chrX", "chr1", "chrY", "chrM"]
   let out = @src.bf_natsort_chroms(inp)
@@ -135,6 +156,7 @@ test "bf_natsort_chroms: autosomes then X/Y/M" {
   assert_eq(out[3], "chrY")
 }
 
+///|
 test "bf_natsort_chroms: empty → empty" {
   let out = @src.bf_natsort_chroms([])
   assert_eq(out.length(), 0)
@@ -142,6 +164,7 @@ test "bf_natsort_chroms: empty → empty" {
 
 // ---- bf_natsort_intervals -------------------------------------------------
 
+///|
 test "bf_natsort_intervals: sorted by chrom natural then start" {
   let inp = [
     @src.BedInterval::new("chr10", 100, 200),

@@ -93,11 +93,11 @@ fn mda_sel_ext_push_word(tokens : Array[String], word : String) -> Unit {
 /// expr := term ("or" term)*
 fn mda_sel_ext_eval_expr(
   tokens : Array[String],
-  start : Int,
+  start : Int32,
   atoms : Array[UnivAtom],
   positions : Array[Array[Double]]?,
   box : Array[Double]?,
-) -> (Array[Bool], Int) {
+) -> (Array[Bool], Int32) {
   let r0 = mda_sel_ext_eval_term(tokens, start, atoms, positions, box)
   let mask = r0.0
   let mut p = r0.1
@@ -117,11 +117,11 @@ fn mda_sel_ext_eval_expr(
 /// term := factor ("and" factor)*
 fn mda_sel_ext_eval_term(
   tokens : Array[String],
-  start : Int,
+  start : Int32,
   atoms : Array[UnivAtom],
   positions : Array[Array[Double]]?,
   box : Array[Double]?,
-) -> (Array[Bool], Int) {
+) -> (Array[Bool], Int32) {
   let r0 = mda_sel_ext_eval_factor(tokens, start, atoms, positions, box)
   let mask = r0.0
   let mut p = r0.1
@@ -141,11 +141,11 @@ fn mda_sel_ext_eval_term(
 /// factor := "not" factor | "(" expr ")" | keyword-section
 fn mda_sel_ext_eval_factor(
   tokens : Array[String],
-  start : Int,
+  start : Int32,
   atoms : Array[UnivAtom],
   positions : Array[Array[Double]]?,
   box : Array[Double]?,
-) -> (Array[Bool], Int) {
+) -> (Array[Bool], Int32) {
   let n = atoms.length()
   if start >= tokens.length() {
     let m : Array[Bool] = Array(capacity=n)
@@ -227,9 +227,7 @@ fn mda_sel_ext_mask(
     // MDAnalysis 标准：按原子名判断 backbone
     for i = 0; i < n; i = i + 1 {
       let name = atoms[i].name.to_upper()
-      mask.push(
-        name == "N" || name == "CA" || name == "C" || name == "O"
-      )
+      mask.push(name == "N" || name == "CA" || name == "C" || name == "O")
     }
   } else if kw == "all" {
     for i = 0; i < n; i = i + 1 {

@@ -1,8 +1,6 @@
 ///|
 /// P3: pysam_vcf_isec 单元测试
-
-let isec_vcf_a : String =
-  "##fileformat=VCFv4.2\n" +
+let isec_vcf_a : String = "##fileformat=VCFv4.2\n" +
   "##contig=<ID=chr1,length=1000>\n" +
   "#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\n" +
   "chr1\t100\ta1\tA\tT\t60\tPASS\t.\n" +
@@ -10,13 +8,13 @@ let isec_vcf_a : String =
   "chr1\t300\ta3\tG\tA\t40\tPASS\t.\n" +
   "chr1\t400\ta4\tT\tC\t30\tPASS\t.\n"
 
-let isec_vcf_b : String =
-  "##fileformat=VCFv4.2\n" +
+///|
+let isec_vcf_b : String = "##fileformat=VCFv4.2\n" +
   "##contig=<ID=chr1,length=1000>\n" +
   "#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\n" +
-  "chr1\t200\tb1\tC\tG\t55\tPASS\t.\n" +   // matches a2
-  "chr1\t300\tb2\tG\tA\t35\tPASS\t.\n" +   // matches a3 (ref same)
-  "chr1\t500\tb3\tA\tG\t45\tPASS\t.\n"    // only in b
+  "chr1\t200\tb1\tC\tG\t55\tPASS\t.\n" + // matches a2
+  "chr1\t300\tb2\tG\tA\t35\tPASS\t.\n" + // matches a3 (ref same)
+  "chr1\t500\tb3\tA\tG\t45\tPASS\t.\n" // only in b
 
 ///|
 test "isec_intersection_exact" {
@@ -89,19 +87,21 @@ test "isec_jaccard" {
 ///|
 test "isec_intersect_all_n_way" {
   let a = @src.parse_vcf(isec_vcf_a)
-  let b_text : String =
-    "##fileformat=VCFv4.2\n##contig=<ID=chr1,length=1000>\n" +
+  let b_text : String = "##fileformat=VCFv4.2\n##contig=<ID=chr1,length=1000>\n" +
     "#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\n" +
     "chr1\t200\t.\tC\tG\t55\tPASS\t.\n" +
     "chr1\t300\t.\tG\tA\t35\tPASS\t.\n" +
     "chr1\t999\t.\tA\tG\t45\tPASS\t.\n"
-  let c_text : String =
-    "##fileformat=VCFv4.2\n##contig=<ID=chr1,length=1000>\n" +
+  let c_text : String = "##fileformat=VCFv4.2\n##contig=<ID=chr1,length=1000>\n" +
     "#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\n" +
     "chr1\t200\t.\tC\tG\t55\tPASS\t.\n" +
     "chr1\t300\t.\tG\tA\t35\tPASS\t.\n" +
     "chr1\t1000\t.\tA\tG\t45\tPASS\t.\n"
-  let results = @src.vcf_isec_intersect_all([a, @src.parse_vcf(b_text), @src.parse_vcf(c_text)])
+  let results = @src.vcf_isec_intersect_all([
+    a,
+    @src.parse_vcf(b_text),
+    @src.parse_vcf(c_text),
+  ])
   // 三个 VCF 都有 pos=200, 300
   assert_eq(results.len(), 2)
 }
@@ -109,7 +109,9 @@ test "isec_intersect_all_n_way" {
 ///|
 test "isec_empty_input" {
   let a = @src.parse_vcf(isec_vcf_a)
-  let empty_vcf = @src.parse_vcf("##fileformat=VCFv4.2\n#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\n")
+  let empty_vcf = @src.parse_vcf(
+    "##fileformat=VCFv4.2\n#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\n",
+  )
   let r = @src.vcf_isec_intersection(a, empty_vcf)
   assert_eq(r.len(), 0)
   let r2 = @src.vcf_isec_intersect_all([])
@@ -120,6 +122,10 @@ test "isec_empty_input" {
 test "isec_match_mode_exact_with_ref" {
   let a = @src.parse_vcf(isec_vcf_a)
   let b = @src.parse_vcf(isec_vcf_b)
-  let result = @src.vcf_isec_intersection_fast(a, b, mode=@src.isec_mode_exact_with_ref())
+  let result = @src.vcf_isec_intersection_fast(
+    a,
+    b,
+    mode=@src.isec_mode_exact_with_ref(),
+  )
   assert_eq(result.len(), 2)
 }

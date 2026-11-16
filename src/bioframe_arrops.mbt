@@ -26,15 +26,15 @@
 ///
 /// Returns (merged_starts, merged_ends).  Empty input → two empty arrays.
 pub fn bf_arrops_merge_intervals(
-  starts : Array[Int],
-  ends : Array[Int],
-) -> (Array[Int], Array[Int]) {
+  starts : Array[Int32],
+  ends : Array[Int32],
+) -> (Array[Int32], Array[Int32]) {
   let n = starts.length()
   if n == 0 {
     return (Array(capacity=0), Array(capacity=0))
   }
-  let out_s : Array[Int] = Array(capacity=n)
-  let out_e : Array[Int] = Array(capacity=n)
+  let out_s : Array[Int32] = Array(capacity=n)
+  let out_e : Array[Int32] = Array(capacity=n)
   let mut cur_s = starts[0]
   let mut cur_e = ends[0]
   let mut i = 1
@@ -43,7 +43,9 @@ pub fn bf_arrops_merge_intervals(
     let e = ends[i]
     if s <= cur_e {
       // overlap or book-ended — extend
-      if e > cur_e { cur_e = e }
+      if e > cur_e {
+        cur_e = e
+      }
     } else {
       out_s.push(cur_s)
       out_e.push(cur_e)
@@ -72,13 +74,13 @@ pub fn bf_arrops_merge_intervals(
 ///   chrom_end = 500
 ///   → complement: [0, 100), [200, 300), [400, 500)
 pub fn bf_arrops_complement_intervals(
-  starts : Array[Int],
-  ends : Array[Int],
-  chrom_end : Int,
-) -> (Array[Int], Array[Int]) {
+  starts : Array[Int32],
+  ends : Array[Int32],
+  chrom_end : Int32,
+) -> (Array[Int32], Array[Int32]) {
   let n = starts.length()
-  let out_s : Array[Int] = Array(capacity=n + 1)
-  let out_e : Array[Int] = Array(capacity=n + 1)
+  let out_s : Array[Int32] = Array(capacity=n + 1)
+  let out_e : Array[Int32] = Array(capacity=n + 1)
   let mut prev_end = 0
   let mut i = 0
   while i < n {
@@ -92,7 +94,9 @@ pub fn bf_arrops_complement_intervals(
         out_e.push(ce)
       }
     }
-    if e > prev_end { prev_end = e }
+    if e > prev_end {
+      prev_end = e
+    }
     i = i + 1
   }
   // final tail gap
@@ -117,13 +121,13 @@ pub fn bf_arrops_complement_intervals(
 /// Returns two parallel index arrays `idx_a` and `idx_b` where each
 /// pair (idx_a[k], idx_b[k]) is an overlapping (A[i], B[j]) pair.
 pub fn bf_arrops_overlap_intervals(
-  starts_a : Array[Int],
-  ends_a : Array[Int],
-  starts_b : Array[Int],
-  ends_b : Array[Int],
-) -> (Array[Int], Array[Int]) {
-  let out_a : Array[Int] = Array(capacity=0)
-  let out_b : Array[Int] = Array(capacity=0)
+  starts_a : Array[Int32],
+  ends_a : Array[Int32],
+  starts_b : Array[Int32],
+  ends_b : Array[Int32],
+) -> (Array[Int32], Array[Int32]) {
+  let out_a : Array[Int32] = Array(capacity=0)
+  let out_b : Array[Int32] = Array(capacity=0)
   let na = starts_a.length()
   let nb = starts_b.length()
   let mut i = 0
@@ -162,21 +166,21 @@ pub fn bf_arrops_overlap_intervals(
 ///   - `closest_idx_b`: for each A interval, index of its closest B interval
 ///   - `distance`:       bp distance between the two midpoints
 pub fn bf_arrops_closest_intervals(
-  starts_a : Array[Int],
-  ends_a : Array[Int],
-  starts_b : Array[Int],
-  ends_b : Array[Int],
-) -> (Array[Int], Array[Int]) {
+  starts_a : Array[Int32],
+  ends_a : Array[Int32],
+  starts_b : Array[Int32],
+  ends_b : Array[Int32],
+) -> (Array[Int32], Array[Int32]) {
   let na = starts_a.length()
   let nb = starts_b.length()
-  let out_idx : Array[Int] = Array(capacity=na)
-  let out_dist : Array[Int] = Array(capacity=na)
+  let out_idx : Array[Int32] = Array(capacity=na)
+  let out_dist : Array[Int32] = Array(capacity=na)
   let mut i = 0
   while i < na {
     let sa = starts_a[i]
     let ea = ends_a[i]
-    let mut best_j : Int = 0
-    let mut best_dist : Int = bf_big_int()
+    let mut best_j : Int32 = 0
+    let mut best_dist : Int32 = bf_big_int()
     let mut j = 0
     while j < nb {
       let sb = starts_b[j]
@@ -198,8 +202,11 @@ pub fn bf_arrops_closest_intervals(
   (out_idx, out_dist)
 }
 
+///|
 /// A sentinel "very big number" for distance initialization.
-fn bf_big_int() -> Int { 1000000000 }
+fn bf_big_int() -> Int32 {
+  1000000000
+}
 
 // ================================================================
 // 5. arange_multi  (per-chromosome range expansion)
@@ -216,18 +223,18 @@ fn bf_big_int() -> Int { 1000000000 }
 /// Example:
 ///   lengths = [100, 200, 50]
 ///   → [0..99, 0..199, 0..49]   ← 400 elements total
-pub fn bf_arrops_arange_multi(lengths : Array[Int]) -> Array[Int] {
-  let mut total : Int = 0
+pub fn bf_arrops_arange_multi(lengths : Array[Int32]) -> Array[Int32] {
+  let mut total : Int32 = 0
   let mut i = 0
   while i < lengths.length() {
     total = total + lengths[i]
     i = i + 1
   }
-  let out : Array[Int] = Array(capacity=total)
+  let out : Array[Int32] = Array(capacity=total)
   i = 0
   while i < lengths.length() {
     let len = lengths[i]
-    let mut j : Int = 0
+    let mut j : Int32 = 0
     while j < len {
       out.push(j)
       j = j + 1
@@ -250,13 +257,16 @@ pub fn bf_arrops_arange_multi(lengths : Array[Int]) -> Array[Int] {
 ///
 /// Useful when you have parallel start/end arrays from different sources
 /// that need to be flattened.  The input lengths must match.
-pub fn bf_arrops_interweave(starts : Array[Int], ends : Array[Int]) -> Array[Int] {
+pub fn bf_arrops_interweave(
+  starts : Array[Int32],
+  ends : Array[Int32],
+) -> Array[Int32] {
   let n = starts.length()
   let m = ends.length()
   if n != m {
     // Best-effort: use the shorter length
     let n2 = if n < m { n } else { m }
-    let out : Array[Int] = Array(capacity=(n2 * 2))
+    let out : Array[Int32] = Array(capacity=n2 * 2)
     let mut i = 0
     while i < n2 {
       out.push(starts[i])
@@ -265,7 +275,7 @@ pub fn bf_arrops_interweave(starts : Array[Int], ends : Array[Int]) -> Array[Int
     }
     return out
   }
-  let out : Array[Int] = Array(capacity=(n * 2))
+  let out : Array[Int32] = Array(capacity=n * 2)
   let mut i = 0
   while i < n {
     out.push(starts[i])
@@ -294,15 +304,15 @@ pub fn bf_arrops_interweave(starts : Array[Int], ends : Array[Int]) -> Array[Int
 ///   slice_ends   = [2, 5]
 ///   → [30, 120]   i.e. (10+20) and (30+40+50)
 pub fn bf_arrops_sum_slices(
-  arr : Array[Int],
-  slice_starts : Array[Int],
-  slice_ends : Array[Int],
-) -> Array[Int] {
+  arr : Array[Int32],
+  slice_starts : Array[Int32],
+  slice_ends : Array[Int32],
+) -> Array[Int32] {
   // Build prefix sums once — O(N) precompute, then each slice is O(1)
   let n = arr.length()
-  let prefix : Array[Int] = Array(capacity=n + 1)
+  let prefix : Array[Int32] = Array(capacity=n + 1)
   prefix.push(0)
-  let mut psum : Int = 0
+  let mut psum : Int32 = 0
   let mut i = 0
   while i < n {
     psum = psum + arr[i]
@@ -311,15 +321,19 @@ pub fn bf_arrops_sum_slices(
   }
   // Answer each query in O(1)
   let nslices = slice_starts.length()
-  let out : Array[Int] = Array(capacity=nslices)
+  let out : Array[Int32] = Array(capacity=nslices)
   i = 0
   while i < nslices {
     let s = slice_starts[i]
     let e = slice_ends[i]
     let mut ss = s
     let mut ee = e
-    if ss < 0 { ss = 0 }
-    if ee > n { ee = n }
+    if ss < 0 {
+      ss = 0
+    }
+    if ee > n {
+      ee = n
+    }
     if ss >= ee {
       out.push(0)
     } else {

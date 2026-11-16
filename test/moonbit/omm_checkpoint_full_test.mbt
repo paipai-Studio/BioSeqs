@@ -4,6 +4,7 @@
 
 // --- OmmFullCheckpointReporter: 基本存/取 ---
 
+///|
 test "omm_full_checkpoint_reporter_new_and_interval" {
   let rep = @src.OmmFullCheckpointReporter::new(interval=1000)
   assert_true(rep.should_report(0))
@@ -17,6 +18,7 @@ test "omm_full_checkpoint_reporter_new_and_interval" {
   }
 }
 
+///|
 test "omm_full_checkpoint_reporter_collects_single" {
   let rep = @src.OmmFullCheckpointReporter::new(interval=10)
   let pos = [[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]]
@@ -37,6 +39,7 @@ test "omm_full_checkpoint_reporter_collects_single" {
   }
 }
 
+///|
 test "omm_full_checkpoint_reporter_stores_copy" {
   let rep = @src.OmmFullCheckpointReporter::new(interval=10)
   let pos = [[1.0, 0.0, 0.0]]
@@ -53,6 +56,7 @@ test "omm_full_checkpoint_reporter_stores_copy" {
   }
 }
 
+///|
 test "omm_full_checkpoint_reporter_multiple_frames" {
   let rep = @src.OmmFullCheckpointReporter::new(interval=10)
   rep.report(0, 0.0, [10.0, 10.0, 10.0], [[1.0, 0.0, 0.0]], [[0.1, 0.0, 0.0]])
@@ -70,15 +74,20 @@ test "omm_full_checkpoint_reporter_multiple_frames" {
 
 // --- serialize_last / omm_checkpoint_save ---
 
+///|
 test "omm_checkpoint_save_format" {
   let rep = @src.OmmFullCheckpointReporter::new(interval=1)
-  rep.report(100, 0.5, [50.0, 50.0, 50.0],
-    [[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]],
-    [[0.1, 0.0, 0.0], [0.0, -0.1, 0.0]])
+  rep.report(100, 0.5, [50.0, 50.0, 50.0], [[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]], [
+    [0.1, 0.0, 0.0],
+    [0.0, -0.1, 0.0],
+  ])
   let txt = rep.serialize_last()
   assert_true(txt.length() > 0)
   assert_true(txt.has_prefix("OMMCHECKPOINT"))
-  assert_true(txt.has_prefix("OMMCHECKPOINT 1\nNATOMS") || txt.has_prefix("OMMCHECKPOINT 1"))
+  assert_true(
+    txt.has_prefix("OMMCHECKPOINT 1\nNATOMS") ||
+    txt.has_prefix("OMMCHECKPOINT 1"),
+  )
   // checkpoint 文本包含 BOX/STEP 关键字
   let has_box = txt.contains("BOX")
   let has_step = txt.contains("STEP")
@@ -88,9 +97,9 @@ test "omm_checkpoint_save_format" {
 
 // --- omm_checkpoint_load / omm_checkpoint_restore roundtrip ---
 
+///|
 test "omm_checkpoint_load_roundtrip" {
-  let pdb_text =
-    "ATOM      1  O   HOH A   1       0.000   0.000   0.000  1.00  0.00           O\n" +
+  let pdb_text = "ATOM      1  O   HOH A   1       0.000   0.000   0.000  1.00  0.00           O\n" +
     "ATOM      2  H1  HOH A   1       0.9572  0.000   0.000  1.00  0.00           H\n" +
     "ATOM      3  H2  HOH A   1      -0.2879  0.9120  0.000  1.00  0.00           H\n"
   let u = @src.universe_from_pdb_text(pdb_text)
@@ -110,12 +119,15 @@ test "omm_checkpoint_load_roundtrip" {
     Some(cp) => {
       assert_true(cp.time > 0.0)
       assert_eq(cp.positions.length(), 3)
-      assert_true(@moonbit.assert_num_close(cp.box[0], sim.state().box[0], 1.0e-6))
+      assert_true(
+        @moonbit.assert_num_close(cp.box[0], sim.state().box[0], 1.0e-6),
+      )
     }
     None => fail("roundtrip should have one checkpoint")
   }
 }
 
+///|
 test "omm_checkpoint_load_garbage_input" {
   let rep = @src.omm_checkpoint_restore("not a checkpoint at all\n")
   match rep.last() {
@@ -126,12 +138,12 @@ test "omm_checkpoint_load_garbage_input" {
 
 // --- omm_simulation_from_checkpoint ---
 
+///|
 test "omm_simulation_from_checkpoint_returns_sim" {
   let sys = @src.OmmSystem::new()
   ignore(sys.add_particle(particle=@src.OmmParticle::new(mass=1.0)))
   ignore(sys.add_particle(particle=@src.OmmParticle::new(mass=1.0)))
-  let ckpt =
-    "OMMCHECKPOINT 1\n" +
+  let ckpt = "OMMCHECKPOINT 1\n" +
     "NATOMS 2\n" +
     "BOX 50.0 50.0 50.0\n" +
     "TIME 1.5\n" +
@@ -149,6 +161,7 @@ test "omm_simulation_from_checkpoint_returns_sim" {
   assert_true(@moonbit.assert_num_close(st.velocities[1][0], 0.4, 1.0e-10))
 }
 
+///|
 test "omm_simulation_from_checkpoint_bogus_returns_fallback" {
   let sys = @src.OmmSystem::new()
   let sim = @src.omm_simulation_from_checkpoint(sys, "garbage\n")
@@ -157,6 +170,7 @@ test "omm_simulation_from_checkpoint_bogus_returns_fallback" {
 
 // --- interval 边界 ---
 
+///|
 test "omm_full_checkpoint_reporter_interval_one_every_step" {
   // interval=1 → 每步都 report
   let rep = @src.OmmFullCheckpointReporter::new(interval=1)
@@ -167,6 +181,7 @@ test "omm_full_checkpoint_reporter_interval_one_every_step" {
   // 非整数倍不适用（interval=1 所有 step 都是 1 的倍数）
 }
 
+///|
 test "omm_full_checkpoint_reporter_interval_default_1000" {
   // 默认 interval=1000
   let rep = @src.OmmFullCheckpointReporter::new()
@@ -178,6 +193,7 @@ test "omm_full_checkpoint_reporter_interval_default_1000" {
 
 // --- serialize / restore 边界 ---
 
+///|
 test "omm_full_checkpoint_reporter_serialize_empty" {
   // 没 report 过就 serialize → 返回空串
   let rep = @src.OmmFullCheckpointReporter::new(interval=10)
@@ -186,22 +202,37 @@ test "omm_full_checkpoint_reporter_serialize_empty" {
   assert_eq(txt, "")
 }
 
+///|
 test "omm_full_checkpoint_reporter_restore_partial_updates_only_pos_vel" {
   // restore 只更新 positions 和 velocities，time/step/box 不更新
   let sys = @src.OmmSystem::new()
   ignore(sys.add_particle(particle=@src.OmmParticle::new(mass=1.0)))
   ignore(sys.add_particle(particle=@src.OmmParticle::new(mass=1.0)))
-  let mut sim = @src.OmmSimulation::new(system=sys, dt=0.001, temperature=300.0, friction=1.0,
-    positions=Some([[0.0, 0.0, 0.0], [1.0, 0.0, 0.0]]))
+  let mut sim = @src.OmmSimulation::new(
+    system=sys,
+    dt=0.001,
+    temperature=300.0,
+    friction=1.0,
+    positions=Some([[0.0, 0.0, 0.0], [1.0, 0.0, 0.0]]),
+  )
   let _ = sim // 避免 unused
-  sim = @src.OmmSimulation::new(system=sys, dt=0.001, temperature=300.0, friction=1.0,
-    positions=Some([[0.0, 0.0, 0.0], [1.0, 0.0, 0.0]]))
+  sim = @src.OmmSimulation::new(
+    system=sys,
+    dt=0.001,
+    temperature=300.0,
+    friction=1.0,
+    positions=Some([[0.0, 0.0, 0.0], [1.0, 0.0, 0.0]]),
+  )
   sim.set_velocities([[0.0, 0.0, 0.0], [0.0, 0.0, 0.0]])
   // reporter 里存一个不同的 checkpoint
   let rep = @src.OmmFullCheckpointReporter::new(interval=1)
-  rep.report(500, 2.5, [80.0, 80.0, 80.0],
+  rep.report(
+    500,
+    2.5,
+    [80.0, 80.0, 80.0],
     [[42.0, 0.0, 0.0], [99.0, 0.0, 0.0]],
-    [[3.14, 0.0, 0.0], [2.71, 0.0, 0.0]])
+    [[3.14, 0.0, 0.0], [2.71, 0.0, 0.0]],
+  )
   // restore 只更新 pos/vel
   rep.restore(sim)
   let st = sim.state()
@@ -216,6 +247,7 @@ test "omm_full_checkpoint_reporter_restore_partial_updates_only_pos_vel" {
 
 // --- omm_checkpoint_save / omm_checkpoint_load 底层 roundtrip ---
 
+///|
 test "omm_checkpoint_save_load_direct_roundtrip" {
   let initial = @src.OmmState::new(
     positions=[[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]],
@@ -243,6 +275,7 @@ test "omm_checkpoint_save_load_direct_roundtrip" {
 
 // --- omm_checkpoint_load 错误路径 ---
 
+///|
 test "omm_checkpoint_load_missing_header_returns_err" {
   let result = @src.omm_checkpoint_load("NOHEADER 1\nNATOMS 0\n")
   match result {
@@ -251,10 +284,10 @@ test "omm_checkpoint_load_missing_header_returns_err" {
   }
 }
 
+///|
 test "omm_checkpoint_load_atom_count_mismatch_returns_err" {
   // NATOMS 说 3 但只给了 2 条原子数据
-  let ckpt =
-    "OMMCHECKPOINT 1\n" +
+  let ckpt = "OMMCHECKPOINT 1\n" +
     "NATOMS 3\n" +
     "BOX 50.0 50.0 50.0\n" +
     "TIME 0.5\n" +
@@ -270,13 +303,13 @@ test "omm_checkpoint_load_atom_count_mismatch_returns_err" {
 
 // --- 断点续跑完整故事：checkpoint → sim → 继续 step → 验证 state 连续 ---
 
+///|
 test "omm_checkpoint_full_resume_and_continue" {
   let sys = @src.OmmSystem::new()
   ignore(sys.add_particle(particle=@src.OmmParticle::new(mass=1.0)))
   ignore(sys.add_particle(particle=@src.OmmParticle::new(mass=1.0)))
   ignore(sys.add_particle(particle=@src.OmmParticle::new(mass=1.0)))
-  let ckpt =
-    "OMMCHECKPOINT 1\n" +
+  let ckpt = "OMMCHECKPOINT 1\n" +
     "NATOMS 3\n" +
     "BOX 100.0 100.0 100.0\n" +
     "TIME 2.0\n" +
@@ -296,8 +329,8 @@ test "omm_checkpoint_full_resume_and_continue" {
   // step 前进了 100（虽然 time/step 不是 mut，但 checkpoint_sim 是新构造的）
   assert_true(st1.positions.length() == 3)
   // 跑过之后 positions 应该有变化（自由粒子有速度）
-  let moved =
-    @moonbit.assert_num_close(st1.positions[0][0], 0.0, 1.0e-6) == false ||
+  let moved = @moonbit.assert_num_close(st1.positions[0][0], 0.0, 1.0e-6) ==
+    false ||
     @moonbit.assert_num_close(st1.positions[1][0], 1.0, 1.0e-6) == false
   assert_true(moved)
 }

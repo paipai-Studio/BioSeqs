@@ -323,7 +323,9 @@ pub fn mol_radical_electrons(mol : Molecule) -> Int32 {
     let h_eff = if implicit_h > 0 { implicit_h } else { 0 }
     // bond_order_sum = Σ(该原子所有键的 order) — 双键算 2，三键算 3
     let mut bond_sum = 0
-    for (_, order) in neighbors[k] { bond_sum = bond_sum + order }
+    for (_, order) in neighbors[k] {
+      bond_sum = bond_sum + order
+    }
     // implicit H 每个贡献 1 个单键
     let total_bonds = bond_sum + h_eff
     let remaining = (ve - a.charge - 2 * total_bonds).abs()
@@ -488,7 +490,9 @@ pub fn mol_formula(mol : Molecule) -> String {
   }
   if c_count > 0 {
     sb.write_string("C")
-    if c_count > 1 { sb.write_string(c_count.to_string()) }
+    if c_count > 1 {
+      sb.write_string(c_count.to_string())
+    }
   }
   // H next (only if C present)
   if c_count > 0 {
@@ -498,13 +502,17 @@ pub fn mol_formula(mol : Molecule) -> String {
     }
     if h_count > 0 {
       sb.write_string("H")
-      if h_count > 1 { sb.write_string(h_count.to_string()) }
+      if h_count > 1 {
+        sb.write_string(h_count.to_string())
+      }
     }
   }
   // 收集其他元素，按字母序
   let rest : Array[String] = Array(capacity=0)
   for sym in counts.keys() {
-    if sym == "C" || sym == "H" { continue }
+    if sym == "C" || sym == "H" {
+      continue
+    }
     let mut inserted = false
     for i = 0; i < rest.length(); i = i + 1 {
       if sym < rest[i] {
@@ -513,7 +521,9 @@ pub fn mol_formula(mol : Molecule) -> String {
         break
       }
     }
-    if !inserted { rest.push(sym) }
+    if !inserted {
+      rest.push(sym)
+    }
   }
   for sym in rest {
     let c = match counts.get(sym) {
@@ -521,7 +531,9 @@ pub fn mol_formula(mol : Molecule) -> String {
       None => 0
     }
     sb.write_string(sym)
-    if c > 1 { sb.write_string(c.to_string()) }
+    if c > 1 {
+      sb.write_string(c.to_string())
+    }
   }
   sb.to_string()
 }
@@ -548,7 +560,9 @@ pub fn mol_to_mol_block(mol : Molecule) -> String {
   sb.write_string("  V2000\n")
 
   // Counts line: aaabbblllfffcccsssxxxrrrpppiiimmmvvvvvv
-  let counts = n_atoms.to_string().pad_start(3, ' ') + n_bonds.to_string().pad_start(3, ' ') + "000000000000000000000000000000000000"
+  let counts = n_atoms.to_string().pad_start(3, ' ') +
+    n_bonds.to_string().pad_start(3, ' ') +
+    "000000000000000000000000000000000000"
   sb.write_string(counts)
   sb.write_string("\n")
 
@@ -571,7 +585,14 @@ pub fn mol_to_mol_block(mol : Molecule) -> String {
       -2 => "004"
       _ => "000"
     }
-    let line = sx + sy + sz + " " + sp + " 000" + charge_code + "  0  0  0  0  0  0  0  0  0"
+    let line = sx +
+      sy +
+      sz +
+      " " +
+      sp +
+      " 000" +
+      charge_code +
+      "  0  0  0  0  0  0  0  0  0"
     sb.write_string(line)
     sb.write_string("\n")
   }
@@ -628,9 +649,11 @@ pub fn mol_from_mol_block(block : String) -> Molecule {
     }
     let _ = idx2
   }
-  if counts_idx == -1 { counts_idx = 3 }
+  if counts_idx == -1 {
+    counts_idx = 3
+  }
   if counts_idx >= lines.length() {
-    return Molecule::{ atoms: [], bonds: [] }
+    return Molecule::{ atoms: [], bonds: [], }
   }
   let counts_line = lines[counts_idx]
   let n_atoms = mol_block_parse_int(counts_line, 0, 3)
@@ -640,7 +663,9 @@ pub fn mol_from_mol_block(block : String) -> Molecule {
   let mut j = 0
   while j < n_atoms {
     let idx = counts_idx + 1 + j
-    if idx >= lines.length() { break }
+    if idx >= lines.length() {
+      break
+    }
     let al = lines[idx]
     let sym = mol_block_slice(al, 31, 3).trim().to_owned()
     let charge_code = mol_block_parse_int(al, 36, 3)
@@ -651,7 +676,7 @@ pub fn mol_from_mol_block(block : String) -> Molecule {
       4 => -2
       _ => 0
     }
-    atoms.push(MolAtom::{ symbol: sym, charge, aromatic: false })
+    atoms.push(MolAtom::{ symbol: sym, charge, aromatic: false, })
     j = j + 1
   }
 
@@ -659,21 +684,30 @@ pub fn mol_from_mol_block(block : String) -> Molecule {
   let mut k = 0
   while k < n_bonds {
     let idx = counts_idx + 1 + n_atoms + k
-    if idx >= lines.length() { break }
+    if idx >= lines.length() {
+      break
+    }
     let bl = lines[idx]
     let a1 = mol_block_parse_int(bl, 0, 3) - 1
     let a2 = mol_block_parse_int(bl, 3, 3) - 1
     let bt = mol_block_parse_int(bl, 6, 3)
     bonds.push(MolBond::{
-      from: a1, to: a2, order: if bt == 0 { 1 } else { bt },
+      from: a1,
+      to: a2,
+      order: if bt == 0 {
+        1
+      } else {
+        bt
+      },
     })
     k = k + 1
   }
 
-  Molecule::{ atoms, bonds }
+  Molecule::{ atoms, bonds, }
 }
 
-fn mol_block_slice(s : String, start : Int, len : Int) -> String {
+///|
+fn mol_block_slice(s : String, start : Int32, len : Int32) -> String {
   let sb = StringBuilder()
   let mut i = start
   let end = start + len
@@ -684,9 +718,12 @@ fn mol_block_slice(s : String, start : Int, len : Int) -> String {
   sb.to_string()
 }
 
-fn mol_block_parse_int(s : String, start : Int, len : Int) -> Int32 {
+///|
+fn mol_block_parse_int(s : String, start : Int32, len : Int32) -> Int32 {
   let slice = mol_block_slice(s, start, len).trim().to_owned()
-  if slice.length() == 0 { return 0 }
+  if slice.length() == 0 {
+    return 0
+  }
   parse_int(slice)
 }
 
@@ -717,7 +754,9 @@ pub fn mol_nh_count(mol : Molecule) -> Int32 {
     if a.symbol == "N" {
       let deg = neighbors[k].length()
       let implicit_h = 3 - deg + a.charge
-      if implicit_h > 0 { count = count + implicit_h }
+      if implicit_h > 0 {
+        count = count + implicit_h
+      }
     }
   }
   count
@@ -734,7 +773,9 @@ pub fn mol_oh_count(mol : Molecule) -> Int32 {
     if a.symbol == "O" {
       let deg = neighbors[k].length()
       let implicit_h = 2 - deg + a.charge
-      if implicit_h > 0 { count = count + implicit_h }
+      if implicit_h > 0 {
+        count = count + implicit_h
+      }
     }
   }
   count
@@ -751,7 +792,9 @@ pub fn mol_nhoh_count(mol : Molecule) -> Int32 {
 pub fn mol_no_count(mol : Molecule) -> Int32 {
   let mut count = 0
   for a in mol.atoms {
-    if a.symbol == "N" || a.symbol == "O" { count = count + 1 }
+    if a.symbol == "N" || a.symbol == "O" {
+      count = count + 1
+    }
   }
   count
 }
@@ -763,16 +806,24 @@ pub fn mol_amide_bond_count(mol : Molecule) -> Int32 {
   let mut count = 0
   for k = 0; k < mol.atoms.length(); k = k + 1 {
     let a = mol.atoms[k]
-    if a.symbol != "C" { continue }
+    if a.symbol != "C" {
+      continue
+    }
     // 找相邻双键 O 和单键 N
     let mut has_carbonyl_o = false
     let mut has_amine_n = false
     for (nb, order) in neighbors[k] {
       let nb_sym = mol.atoms[nb].symbol
-      if nb_sym == "O" && order == 2 { has_carbonyl_o = true }
-      if nb_sym == "N" && order == 1 { has_amine_n = true }
+      if nb_sym == "O" && order == 2 {
+        has_carbonyl_o = true
+      }
+      if nb_sym == "N" && order == 1 {
+        has_amine_n = true
+      }
     }
-    if has_carbonyl_o && has_amine_n { count = count + 1 }
+    if has_carbonyl_o && has_amine_n {
+      count = count + 1
+    }
   }
   count
 }
@@ -811,10 +862,14 @@ pub fn mol_spiro_ring_count(mol : Molecule) -> Int32 {
         let mut overlap = 0
         for a0 in r0 {
           for a1 in r1 {
-            if a0 == a1 { overlap = overlap + 1 }
+            if a0 == a1 {
+              overlap = overlap + 1
+            }
           }
         }
-        if overlap == 1 { count = count + 1 }
+        if overlap == 1 {
+          count = count + 1
+        }
       }
     }
   }
@@ -834,7 +889,9 @@ pub fn mol_bridgehead_atom_count(mol : Molecule) -> Int32 {
   }
   let mut count = 0
   for i = 0; i < n; i = i + 1 {
-    if ring_per_atom[i] >= 3 { count = count + 1 }
+    if ring_per_atom[i] >= 3 {
+      count = count + 1
+    }
   }
   count
 }
@@ -867,6 +924,7 @@ fn mol_atom_vdw_radius(symbol : String) -> Double {
   }
 }
 
+///|
 pub fn mol_labute_asa(mol : Molecule) -> Double {
   let neighbors = mol_adjacency(mol)
   let mut asa = 0.0
@@ -894,7 +952,11 @@ pub fn mol_labute_asa(mol : Molecule) -> Double {
     let h_overlap = h_eff * 2.0 * 3.141592653589793 * r * r_h
     asa = asa + sphere_area - overlap - h_overlap
   }
-  if asa < 0.0 { 0.0 } else { asa }
+  if asa < 0.0 {
+    0.0
+  } else {
+    asa
+  }
 }
 
 // ============================================================================
@@ -912,7 +974,9 @@ pub fn mol_labute_asa(mol : Molecule) -> Double {
 pub fn mol_kappa1(mol : Molecule) -> Double {
   let neighbors = mol_adjacency(mol)
   let n = mol.atoms.length()
-  if n <= 0 { return 0.0 }
+  if n <= 0 {
+    return 0.0
+  }
   let mut sum_sq = 0.0
   let mut sum_d = 0.0
   for k = 0; k < n; k = k + 1 {
@@ -920,7 +984,9 @@ pub fn mol_kappa1(mol : Molecule) -> Double {
     sum_d = sum_d + d
     sum_sq = sum_sq + d * d
   }
-  if sum_d <= 0.0 { return 0.0 }
+  if sum_d <= 0.0 {
+    return 0.0
+  }
   // 简化版：κ₁ = Σδ² / N
   sum_sq / n.to_double()
 }
@@ -932,7 +998,9 @@ pub fn mol_kappa1(mol : Molecule) -> Double {
 pub fn mol_kappa2(mol : Molecule) -> Double {
   let neighbors = mol_adjacency(mol)
   let n = mol.atoms.length()
-  if n <= 0 { return 0.0 }
+  if n <= 0 {
+    return 0.0
+  }
   let mut sum_cubed = 0.0
   for k = 0; k < n; k = k + 1 {
     let d = neighbors[k].length().to_double()
@@ -951,9 +1019,13 @@ pub fn mol_kappa3(mol : Molecule) -> Double {
   let nc = if heavy <= 0 { 1.0 } else { heavy.to_double() }
   let nr = rings.length().to_double()
   // 简化：环数相对原子数的比例 × 平均环大小
-  if nr <= 0.0 { return 0.0 }
+  if nr <= 0.0 {
+    return 0.0
+  }
   let mut avg_size = 0.0
-  for ring in rings { avg_size = avg_size + ring.length().to_double() }
+  for ring in rings {
+    avg_size = avg_size + ring.length().to_double()
+  }
   avg_size = avg_size / nr
   nr * avg_size / nc
 }
@@ -966,7 +1038,9 @@ pub fn mol_kappa3(mol : Molecule) -> Double {
 /// 这里用 rotatable bonds + rings + heavy atoms 的组合近似。
 pub fn mol_phi(mol : Molecule) -> Double {
   let heavy = mol_heavy_atom_count(mol)
-  if heavy <= 0 { return 0.0 }
+  if heavy <= 0 {
+    return 0.0
+  }
   let rot = mol_rotatable_bonds(mol)
   let rings = mol_find_rings(mol).length()
   // 简化柔性：可旋转键比例 + 环的约束效应
@@ -974,7 +1048,11 @@ pub fn mol_phi(mol : Molecule) -> Double {
   let base = rot.to_double() / heavy.to_double()
   // 环效应校正：环越多，额外柔性越受约束
   let ring_factor = 1.0 - 0.1 * rings.to_double() / heavy.to_double()
-  if ring_factor < 0.0 { 0.0 } else { base * ring_factor }
+  if ring_factor < 0.0 {
+    0.0
+  } else {
+    base * ring_factor
+  }
 }
 
 // ============================================================================
@@ -987,7 +1065,9 @@ fn mol_ring_hetero_count(mol : Molecule, ring : Array[Int32]) -> Int32 {
   let mut hetero = 0
   for a in ring {
     let sym = mol.atoms[a].symbol
-    if sym != "C" && sym != "H" { hetero = hetero + 1 }
+    if sym != "C" && sym != "H" {
+      hetero = hetero + 1
+    }
   }
   hetero
 }
@@ -1003,8 +1083,12 @@ fn mol_ring_bond_types(mol : Molecule, ring : Array[Int32]) -> (Bool, Bool) {
   while i < rs {
     let j = (i + 1) % rs
     let bo = mol_bond_order(mol, ring[i], ring[j])
-    if bo == 2 { has_double = true }
-    if bo == 3 { has_triple = true }
+    if bo == 2 {
+      has_double = true
+    }
+    if bo == 3 {
+      has_triple = true
+    }
     i = i + 1
   }
   (has_double, has_triple)
@@ -1099,7 +1183,9 @@ pub fn mol_volume(
   voxel_size~ : Double = 0.1,
 ) -> Double {
   let n = atoms.length()
-  if n == 0 { return 0.0 }
+  if n == 0 {
+    return 0.0
+  }
   // 1. bbox + padding（MoonBit 不支持 tuple destructuring 里的 mut）
   let x0 = coords[0].0
   let y0 = coords[0].1
@@ -1112,22 +1198,39 @@ pub fn mol_volume(
   let mut zmax : Double = z0
   for i = 1; i < n; i = i + 1 {
     let (x, y, z) = coords[i]
-    if x < xmin { xmin = x }
-    if x > xmax { xmax = x }
-    if y < ymin { ymin = y }
-    if y > ymax { ymax = y }
-    if z < zmin { zmin = z }
-    if z > zmax { zmax = z }
+    if x < xmin {
+      xmin = x
+    }
+    if x > xmax {
+      xmax = x
+    }
+    if y < ymin {
+      ymin = y
+    }
+    if y > ymax {
+      ymax = y
+    }
+    if z < zmin {
+      zmin = z
+    }
+    if z > zmax {
+      zmax = z
+    }
   }
   let pad = 2.0
-  xmin = xmin - pad; xmax = xmax + pad
-  ymin = ymin - pad; ymax = ymax + pad
-  zmin = zmin - pad; zmax = zmax + pad
+  xmin = xmin - pad
+  xmax = xmax + pad
+  ymin = ymin - pad
+  ymax = ymax + pad
+  zmin = zmin - pad
+  zmax = zmax + pad
   let nx = ((xmax - xmin) / voxel_size).ceil().to_int() + 1
   let ny = ((ymax - ymin) / voxel_size).ceil().to_int() + 1
   let nz = ((zmax - zmin) / voxel_size).ceil().to_int() + 1
   let total_voxels = nx * ny * nz
-  if total_voxels <= 0 { return 0.0 }
+  if total_voxels <= 0 {
+    return 0.0
+  }
   // 2. 预计算 vdW radius²
   let radii_sq : Array[Double] = Array(capacity=n)
   for i = 0; i < n; i = i + 1 {
@@ -1148,12 +1251,24 @@ pub fn mol_volume(
     let mut iy1 = ((cy + r - ymin) / v).floor().to_int()
     let mut iz0 = ((cz - r - zmin) / v).floor().to_int()
     let mut iz1 = ((cz + r - zmin) / v).floor().to_int()
-    if ix0 < 0 { ix0 = 0 }
-    if iy0 < 0 { iy0 = 0 }
-    if iz0 < 0 { iz0 = 0 }
-    if ix1 >= nx { ix1 = nx - 1 }
-    if iy1 >= ny { iy1 = ny - 1 }
-    if iz1 >= nz { iz1 = nz - 1 }
+    if ix0 < 0 {
+      ix0 = 0
+    }
+    if iy0 < 0 {
+      iy0 = 0
+    }
+    if iz0 < 0 {
+      iz0 = 0
+    }
+    if ix1 >= nx {
+      ix1 = nx - 1
+    }
+    if iy1 >= ny {
+      iy1 = ny - 1
+    }
+    if iz1 >= nz {
+      iz1 = nz - 1
+    }
     for ix = ix0; ix <= ix1; ix = ix + 1 {
       let xc = xmin + (ix.to_double() + 0.5) * v
       for iy = iy0; iy <= iy1; iy = iy + 1 {

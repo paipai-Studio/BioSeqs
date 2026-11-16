@@ -133,10 +133,11 @@ pub fn bf_parse_region_string(
   // Apply alias resolution if an assembly is supplied
   let contig = match assembly {
     None => contig_raw
-    Some(asm_name) => match bf_resolve_alias(asm_name, contig_raw) {
-      Some(c) => c
-      None => contig_raw
-    }
+    Some(asm_name) =>
+      match bf_resolve_alias(asm_name, contig_raw) {
+        Some(c) => c
+        None => contig_raw
+      }
   }
   (contig, s, e)
 }
@@ -160,7 +161,8 @@ pub fn bf_parse_region_string(
 ///
 pub struct BfNatKey {
   text : String
-  num : Int64   /// -1 means "no numeric suffix"
+  /// -1 means "no numeric suffix"
+  num : Int64
 }
 
 ///|
@@ -187,12 +189,12 @@ pub fn bf_nat_key(name : String) -> BfNatKey {
   }
   if num_start == name.length() {
     // No numeric suffix
-    BfNatKey::{ text: name.to_lower(), num: -1 }
+    BfNatKey::{ text: name.to_lower(), num: -1, }
   } else {
     let prefix = name[0:num_start].to_owned().to_lower()
     let digits = name[num_start:name.length()].to_owned()
     let n = parse_int(digits).to_int64()
-    BfNatKey::{ text: prefix, num: n }
+    BfNatKey::{ text: prefix, num: n, }
   }
 }
 
@@ -203,14 +205,12 @@ pub fn bf_nat_cmp(a : BfNatKey, b : BfNatKey) -> Int32 {
     -1
   } else if a.text > b.text {
     1
+  } else if a.num < b.num {
+    -1
+  } else if a.num > b.num {
+    1
   } else {
-    if a.num < b.num {
-      -1
-    } else if a.num > b.num {
-      1
-    } else {
-      0
-    }
+    0
   }
 }
 
@@ -219,16 +219,16 @@ pub fn bf_nat_cmp(a : BfNatKey, b : BfNatKey) -> Int32 {
 /// Returns a *new* sorted array; input is not mutated.
 pub fn bf_natsort_chroms(names : Array[String]) -> Array[String] {
   let out = names.copy()
-  out.sort_by(fn(a, b) {
-    bf_nat_cmp(bf_nat_key(a), bf_nat_key(b))
-  })
+  out.sort_by(fn(a, b) { bf_nat_cmp(bf_nat_key(a), bf_nat_key(b)) })
   out
 }
 
 ///|
 /// Sort BedIntervals primarily by natural chromosome order, secondarily
 /// by start coordinate (then end).  Returns a new array.
-pub fn bf_natsort_intervals(intervals : Array[BedInterval]) -> Array[BedInterval] {
+pub fn bf_natsort_intervals(
+  intervals : Array[BedInterval],
+) -> Array[BedInterval] {
   let out = intervals.copy()
   out.sort_by(fn(a, b) {
     let ka = bf_nat_key(a.chrom)

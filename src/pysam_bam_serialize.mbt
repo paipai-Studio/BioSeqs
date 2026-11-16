@@ -5,6 +5,7 @@
 // 反向函数：sam_to_bam（已存在于 bam.mbt）
 // ============================================================================
 
+///|
 fn tag_value_to_string(v : BamTagValue) -> String {
   match v {
     BamTagValue::Char(c) => c.to_string()
@@ -15,7 +16,9 @@ fn tag_value_to_string(v : BamTagValue) -> String {
       let mut out = ""
       let mut i = 0
       while i < arr.length() {
-        if i > 0 { out = out + "," }
+        if i > 0 {
+          out = out + ","
+        }
         out = out + arr[i].to_string()
         i = i + 1
       }
@@ -25,7 +28,9 @@ fn tag_value_to_string(v : BamTagValue) -> String {
       let mut out = ""
       let mut i = 0
       while i < arr.length() {
-        if i > 0 { out = out + "," }
+        if i > 0 {
+          out = out + ","
+        }
         out = out + arr[i].to_string()
         i = i + 1
       }
@@ -34,17 +39,27 @@ fn tag_value_to_string(v : BamTagValue) -> String {
   }
 }
 
+///|
 fn refs_to_string(refs : FixedArray[BamReference]) -> String {
   let mut out = ""
   let mut i = 0
   while i < refs.length() {
-    out = out + "@SQ\tSN:" + refs[i].name + "\tLN:" + refs[i].length.to_string() + "\n"
+    out = out +
+      "@SQ\tSN:" +
+      refs[i].name +
+      "\tLN:" +
+      refs[i].length.to_string() +
+      "\n"
     i = i + 1
   }
   out
 }
 
-fn flags_to_sam_string(header_text : String, refs : FixedArray[BamReference]) -> String {
+///|
+fn flags_to_sam_string(
+  header_text : String,
+  refs : FixedArray[BamReference],
+) -> String {
   let mut out = ""
   // 如果 header_text 已有内容（包含 @HD, @RG, @PG 等），直接输出
   if header_text.length() > 0 {
@@ -52,7 +67,9 @@ fn flags_to_sam_string(header_text : String, refs : FixedArray[BamReference]) ->
     // 确保最后有换行
     if out.length() > 0 {
       let last : Char = out[out.length() - 1].unsafe_to_char()
-      if last != '\n' { out = out + "\n" }
+      if last != '\n' {
+        out = out + "\n"
+      }
     }
   } else {
     // 空 header：用默认 @HD
@@ -68,7 +85,10 @@ fn flags_to_sam_string(header_text : String, refs : FixedArray[BamReference]) ->
 ///|
 /// 序列化一条 BamRecord 为一行 SAM。
 /// 列顺序：QNAME FLAG RNAME POS MAPQ CIGAR RNEXT PNEXT TLEN SEQ QUAL [TAGS]
-pub fn bam_record_to_sam_line(rec : BamRecord, refs : FixedArray[BamReference]) -> String {
+pub fn bam_record_to_sam_line(
+  rec : BamRecord,
+  refs : FixedArray[BamReference],
+) -> String {
   // QNAME
   let qname = rec.qname
   // FLAG
@@ -90,11 +110,14 @@ pub fn bam_record_to_sam_line(rec : BamRecord, refs : FixedArray[BamReference]) 
     "*"
   } else {
     (fn() {
-        let out : Array[BamCigarElement] = Array(capacity=rec.cigar.length())
-        let mut i = 0
-        while i < rec.cigar.length() { out.push(rec.cigar[i]); i = i + 1 }
-        cigar_to_string(out)
-      })()
+      let out : Array[BamCigarElement] = Array(capacity=rec.cigar.length())
+      let mut i = 0
+      while i < rec.cigar.length() {
+        out.push(rec.cigar[i])
+        i = i + 1
+      }
+      cigar_to_string(out)
+    })()
   }
   // RNEXT (next ref). SAM "=" means mate on same ref; bam_to_sam uses
   // same-ref-id detection as canonical signal (more robust than -2).
@@ -121,17 +144,27 @@ pub fn bam_record_to_sam_line(rec : BamRecord, refs : FixedArray[BamReference]) 
   let qual_str = if rec.qual.length() > 0 { rec.qual } else { "*" }
 
   // 组装前 11 列
-  let mut out = qname + "\t" +
-                flag_str + "\t" +
-                rname + "\t" +
-                pos_str + "\t" +
-                mapq_str + "\t" +
-                cigar_str + "\t" +
-                rnext + "\t" +
-                pnext + "\t" +
-                tlen_str + "\t" +
-                seq_str + "\t" +
-                qual_str
+  let mut out = qname +
+    "\t" +
+    flag_str +
+    "\t" +
+    rname +
+    "\t" +
+    pos_str +
+    "\t" +
+    mapq_str +
+    "\t" +
+    cigar_str +
+    "\t" +
+    rnext +
+    "\t" +
+    pnext +
+    "\t" +
+    tlen_str +
+    "\t" +
+    seq_str +
+    "\t" +
+    qual_str
 
   // TAGS: 每行 tab 追加；格式为 TAG:TYPE:VALUE
   let mut ti = 0
@@ -152,7 +185,9 @@ pub fn bam_to_sam_text(bam : BamFile) -> String {
   let mut out = flags_to_sam_string(bam.header.text, bam.header.references)
   let mut ri = 0
   while ri < bam.records.length() {
-    out = out + bam_record_to_sam_line(bam.records[ri], bam.header.references) + "\n"
+    out = out +
+      bam_record_to_sam_line(bam.records[ri], bam.header.references) +
+      "\n"
     ri = ri + 1
   }
   out

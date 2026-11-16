@@ -25,7 +25,9 @@ pub fn merge_vcf_meta(inputs : Array[VcfFile]) -> Array[VcfMetaHeader] {
           break
         }
       }
-      if !dup { out.push(mh) }
+      if !dup {
+        out.push(mh)
+      }
     }
   }
   out
@@ -59,17 +61,24 @@ pub fn merge_vcf_columns(
         Some(fh) => {
           let mut i = 0
           while i < fh.columns.length() {
-            if fh.columns[i] == "FORMAT" { any = true; break }
+            if fh.columns[i] == "FORMAT" {
+              any = true
+              break
+            }
             i = i + 1
           }
         }
         None => ()
       }
-      if any { break }
+      if any {
+        break
+      }
     }
     any
   }
-  if !has_samples { return base }
+  if !has_samples {
+    return base
+  }
 
   // Collect SAMPLE names with optional suffixes
   let out : Array[String] = base.copy()
@@ -88,7 +97,10 @@ pub fn merge_vcf_columns(
         let mut fmt_idx : Int32 = -1
         let mut ci = 0
         while ci < fh.columns.length() {
-          if fh.columns[ci] == "FORMAT" { fmt_idx = ci; break }
+          if fh.columns[ci] == "FORMAT" {
+            fmt_idx = ci
+            break
+          }
           ci = ci + 1
         }
         if fmt_idx >= 0 {
@@ -103,7 +115,10 @@ pub fn merge_vcf_columns(
             let mut final_name = name
             let mut dup = false
             for s in seen_samples {
-              if s == final_name { dup = true; break }
+              if s == final_name {
+                dup = true
+                break
+              }
             }
             if dup {
               final_name = name + "_" + vi.to_string()
@@ -117,7 +132,9 @@ pub fn merge_vcf_columns(
     }
     vi = vi + 1
   }
-  for s in seen_samples { out.push(s) }
+  for s in seen_samples {
+    out.push(s)
+  }
   out
 }
 
@@ -143,7 +160,7 @@ pub fn vcf_merge_unsorted(inputs : Array[VcfFile]) -> VcfFile {
   }
   VcfFile::{
     meta_headers: merge_vcf_meta(inputs),
-    fixed_header: Some(VcfFixedHeader::{ columns: merge_vcf_columns(inputs) }),
+    fixed_header: Some(VcfFixedHeader::{ columns: merge_vcf_columns(inputs), }),
     records: all_records,
   }
 }
@@ -180,8 +197,15 @@ pub fn vcf_merge_sorted(inputs : Array[VcfFile]) -> VcfFile {
     while vri < vrs.length() {
       let c = vrs[vri].chrom
       let mut seen = false
-      for sc in chrom_order { if sc == c { seen = true; break } }
-      if !seen { chrom_order.push(c) }
+      for sc in chrom_order {
+        if sc == c {
+          seen = true
+          break
+        }
+      }
+      if !seen {
+        chrom_order.push(c)
+      }
       vri = vri + 1
     }
   }
@@ -240,7 +264,7 @@ pub fn vcf_merge_with_sample_suffix(
   let raw = vcf_merge_unsorted(inputs)
   let base = VcfFile::{
     meta_headers: raw.meta_headers,
-    fixed_header: Some(VcfFixedHeader::{ columns: merged_columns }),
+    fixed_header: Some(VcfFixedHeader::{ columns: merged_columns, }),
     records: raw.records,
   }
   if sort {
@@ -278,8 +302,15 @@ pub fn vcf_merge_sort_records_only(vcf : VcfFile) -> VcfFile {
   while ri < records.length() {
     let c = records[ri].chrom
     let mut seen = false
-    for sc in chrom_order { if sc == c { seen = true; break } }
-    if !seen { chrom_order.push(c) }
+    for sc in chrom_order {
+      if sc == c {
+        seen = true
+        break
+      }
+    }
+    if !seen {
+      chrom_order.push(c)
+    }
     ri = ri + 1
   }
   let sorted_records : Array[VcfRecord] = Array(capacity=0)
@@ -326,9 +357,14 @@ pub fn vcf_merge_sort_records_only(vcf : VcfFile) -> VcfFile {
 
 ///|
 /// Return `(total_input_records, merged_records, unique_contigs_after)`.
-pub fn vcf_merge_stats(merged : VcfFile, inputs : Array[VcfFile]) -> (Int32, Int32, Int32) {
+pub fn vcf_merge_stats(
+  merged : VcfFile,
+  inputs : Array[VcfFile],
+) -> (Int32, Int32, Int32) {
   let mut total_input_records : Int32 = 0
-  for vcf in inputs { total_input_records = total_input_records + vcf.records.length() }
+  for vcf in inputs {
+    total_input_records = total_input_records + vcf.records.length()
+  }
   // unique contigs in merged
   let contigs : Set[String] = Set(Array(capacity=merged.records.length()))
   let mut ri = 0

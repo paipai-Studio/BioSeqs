@@ -195,7 +195,11 @@ pub fn parse_fai_index(content : String) -> Array[FaiEntry] {
     let name = tokens[0].to_owned()
     let length = parse_int(tokens[1].to_owned())
     // offset may not be present in synthetic fasta; tolerate default 0
-    let offset = if tokens[2].length() > 0 { parse_int(tokens[2].to_owned()).to_int64() } else { 0L }
+    let offset = if tokens[2].length() > 0 {
+      parse_int(tokens[2].to_owned()).to_int64()
+    } else {
+      0L
+    }
     let bpl = parse_int(tokens[3].to_owned())
     let btl = parse_int(tokens[4].to_owned())
     out.push(FaiEntry::{

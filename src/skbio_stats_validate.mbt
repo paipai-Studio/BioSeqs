@@ -71,7 +71,7 @@ pub fn skbio_bootstrap_ci(
 /// Adonis result (PERMANOVA with covariates).
 pub struct SkbioAdonisResult {
   term : String
-  df : Int
+  df : Int32
   ss : Double // sum of squares
   r_squared : Double // R^2 (effect size)
   f_stat : Double // F statistic
@@ -138,7 +138,11 @@ pub fn skbio_adonis(
     let (name, groups) = groupings[g]
     let new_x = skbd_dummy(groups)
     let new_df = new_x[0].length()
-    let cur_x = if cum_x.length() > 0 { skbd_hstack(cum_x, new_x) } else { new_x }
+    let cur_x = if cum_x.length() > 0 {
+      skbd_hstack(cum_x, new_x)
+    } else {
+      new_x
+    }
     let cur_cols = cur_x[0].length()
     let ss_full = skbd_proj_trace(cur_x, b)
     let delta_ss = ss_full - ss_cum
@@ -148,7 +152,7 @@ pub fn skbio_adonis(
     let df_resid = n - cur_cols
     let ss_resid = ss_total - ss_cum
     let obs_f = if df_resid > 0 && new_df > 0 {
-      (delta_ss / new_df.to_double()) / (ss_resid / df_resid.to_double())
+      delta_ss / new_df.to_double() / (ss_resid / df_resid.to_double())
     } else {
       0.0 / 0.0
     }
@@ -165,13 +169,21 @@ pub fn skbio_adonis(
       for k = 0; k <= g; k = k + 1 {
         let p_groups = if k == 0 { shuffled } else { groupings[k].1 }
         let pk = skbd_dummy(p_groups)
-        perm_cum = if perm_cum.length() > 0 { skbd_hstack(perm_cum, pk) } else { pk }
+        perm_cum = if perm_cum.length() > 0 {
+          skbd_hstack(perm_cum, pk)
+        } else {
+          pk
+        }
       }
       let mut perm_prev : Array[Array[Double]] = []
       for k = 0; k < g; k = k + 1 {
         let p_groups = if k == 0 { shuffled } else { groupings[k].1 }
         let pk = skbd_dummy(p_groups)
-        perm_prev = if perm_prev.length() > 0 { skbd_hstack(perm_prev, pk) } else { pk }
+        perm_prev = if perm_prev.length() > 0 {
+          skbd_hstack(perm_prev, pk)
+        } else {
+          pk
+        }
       }
       let perm_ss_full = skbd_proj_trace(perm_cum, b)
       let perm_ss_prev = skbd_proj_trace(perm_prev, b)
@@ -179,7 +191,9 @@ pub fn skbio_adonis(
       let perm_df_res = n - cur_cols
       let perm_ss_res = ss_total - perm_ss_full
       let perm_f = if perm_df_res > 0 && new_df > 0 {
-        (perm_delta / new_df.to_double()) / (perm_ss_res / perm_df_res.to_double())
+        perm_delta /
+        new_df.to_double() /
+        (perm_ss_res / perm_df_res.to_double())
       } else {
         0.0 / 0.0
       }
@@ -210,9 +224,17 @@ pub fn skbio_adonis(
   let ss_res_total = ss_total - ss_cum
   results.push(SkbioAdonisResult::{
     term: "Residual".to_string(),
-    df: if df_res_total > 0 { df_res_total } else { 0 },
+    df: if df_res_total > 0 {
+      df_res_total
+    } else {
+      0
+    },
     ss: ss_res_total,
-    r_squared: if ss_total > 0.0 { ss_res_total / ss_total } else { 0.0 },
+    r_squared: if ss_total > 0.0 {
+      ss_res_total / ss_total
+    } else {
+      0.0
+    },
     f_stat: 0.0 / 0.0,
     p_value: 1.0,
   })
@@ -240,9 +262,14 @@ fn skbd_dummy(grouping : Array[Int32]) -> Array[Array[Double]] {
   for g in grouping {
     let mut dup = false
     for lv in levels {
-      if lv == g { dup = true; break }
+      if lv == g {
+        dup = true
+        break
+      }
     }
-    if !dup { levels.push(g) }
+    if !dup {
+      levels.push(g)
+    }
   }
   let p = if levels.length() > 1 { levels.length() - 1 } else { 0 }
   let out : Array[Array[Double]] = Array(capacity=0)
@@ -260,15 +287,22 @@ fn skbd_dummy(grouping : Array[Int32]) -> Array[Array[Double]] {
 
 ///|
 /// 水平堆叠两个设计矩阵（n 相同）。
-fn skbd_hstack(a : Array[Array[Double]], b : Array[Array[Double]]) -> Array[Array[Double]] {
+fn skbd_hstack(
+  a : Array[Array[Double]],
+  b : Array[Array[Double]],
+) -> Array[Array[Double]] {
   let n = a.length()
   let pa = if n > 0 { a[0].length() } else { 0 }
   let pb = if b.length() > 0 { b[0].length() } else { 0 }
   let out : Array[Array[Double]] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {
     let row : Array[Double] = Array(capacity=0)
-    for j = 0; j < pa; j = j + 1 { row.push(a[i][j]) }
-    for j = 0; j < pb; j = j + 1 { row.push(b[i][j]) }
+    for j = 0; j < pa; j = j + 1 {
+      row.push(a[i][j])
+    }
+    for j = 0; j < pb; j = j + 1 {
+      row.push(b[i][j])
+    }
     out.push(row)
   }
   out
@@ -282,13 +316,17 @@ fn skbd_proj_trace(
 ) -> Double {
   let n = b.length()
   let p = if x.length() > 0 { x[0].length() } else { 0 }
-  if p == 0 { return 0.0 }
+  if p == 0 {
+    return 0.0
+  }
   let xt = skb_transpose(x)
   let xtx_inv = linalg_inverse(skb_mul(xt, x))
   let p_mat = skb_mul(skb_mul(x, xtx_inv), xt)
   let pb = skb_mul(p_mat, b)
   let mut trace_v = 0.0
-  for i = 0; i < n; i = i + 1 { trace_v = trace_v + pb[i][i] }
+  for i = 0; i < n; i = i + 1 {
+    trace_v = trace_v + pb[i][i]
+  }
   trace_v
 }
 
@@ -313,7 +351,9 @@ fn skbd_stratified_shuffle(
       while i > 0 {
         s = skbd_a_lcg(s)
         let j = s % (i + 1)
-        let t = out[i]; out[i] = out[j]; out[j] = t
+        let t = out[i]
+        out[i] = out[j]
+        out[j] = t
         i = i - 1
       }
       out
@@ -325,24 +365,35 @@ fn skbd_stratified_shuffle(
       for v in str {
         let mut dup = false
         for lv in seen {
-          if lv == v { dup = true; break }
+          if lv == v {
+            dup = true
+            break
+          }
         }
-        if !dup { seen.push(v) }
+        if !dup {
+          seen.push(v)
+        }
       }
       for lv in seen {
         let members : Array[Int32] = Array(capacity=0)
         for i = 0; i < str.length(); i = i + 1 {
-          if str[i] == lv { members.push(i) }
+          if str[i] == lv {
+            members.push(i)
+          }
         }
         let mut vi = members.length() - 1
         while vi > 0 {
           s = skbd_a_lcg(s)
           let vj = s % (vi + 1)
-          let vt = members[vi]; members[vi] = members[vj]; members[vj] = vt
+          let vt = members[vi]
+          members[vi] = members[vj]
+          members[vj] = vt
           vi = vi - 1
         }
         let original_vals : Array[Int32] = Array(capacity=0)
-        for m in members { original_vals.push(arr[m]) }
+        for m in members {
+          original_vals.push(arr[m])
+        }
         let mut oi = original_vals.length() - 1
         while oi > 0 {
           s = skbd_a_lcg(s)

@@ -115,16 +115,27 @@ pub fn cigar_to_code(op : BamCigarOp) -> UInt16 {
 ///|
 /// Map samtools op code byte → BamCigarOp. Returns None for unknown codes.
 pub fn cigar_from_code(code : UInt16) -> BamCigarOp? {
-  if code == 0 { Some(BamCigarOp::Match) }
-  else if code == 1 { Some(BamCigarOp::Insert) }
-  else if code == 2 { Some(BamCigarOp::Delete) }
-  else if code == 3 { Some(BamCigarOp::Skip) }
-  else if code == 4 { Some(BamCigarOp::SoftClip) }
-  else if code == 5 { Some(BamCigarOp::HardClip) }
-  else if code == 6 { Some(BamCigarOp::Pad) }
-  else if code == 7 { Some(BamCigarOp::Equal) }
-  else if code == 8 { Some(BamCigarOp::Diff) }
-  else { None }
+  if code == 0 {
+    Some(BamCigarOp::Match)
+  } else if code == 1 {
+    Some(BamCigarOp::Insert)
+  } else if code == 2 {
+    Some(BamCigarOp::Delete)
+  } else if code == 3 {
+    Some(BamCigarOp::Skip)
+  } else if code == 4 {
+    Some(BamCigarOp::SoftClip)
+  } else if code == 5 {
+    Some(BamCigarOp::HardClip)
+  } else if code == 6 {
+    Some(BamCigarOp::Pad)
+  } else if code == 7 {
+    Some(BamCigarOp::Equal)
+  } else if code == 8 {
+    Some(BamCigarOp::Diff)
+  } else {
+    None
+  }
 }
 
 ///|
@@ -218,7 +229,9 @@ pub fn cigar_read_length_with_hardclip(cigar : Array[BamCigarElement]) -> Int32 
 ///|
 /// Return a new CIGAR array with leading / trailing hard clips stripped.
 /// Soft clips are preserved. Useful before writing CIGAR to text / BAM.
-pub fn cigar_strip_hardclips(cigar : Array[BamCigarElement]) -> Array[BamCigarElement] {
+pub fn cigar_strip_hardclips(
+  cigar : Array[BamCigarElement],
+) -> Array[BamCigarElement] {
   // Find first non-H element
   let mut start = 0
   while start < cigar.length() && cigar[start].op == BamCigarOp::HardClip {
@@ -244,7 +257,9 @@ pub fn cigar_strip_hardclips(cigar : Array[BamCigarElement]) -> Array[BamCigarEl
 ///|
 /// Return a new CIGAR array that collapses adjacent ops of the same type.
 /// e.g. `[10M, 5M, 2I, 3D]` → `[15M, 2I, 3D]`.
-pub fn cigar_merge_adjacent(cigar : Array[BamCigarElement]) -> Array[BamCigarElement] {
+pub fn cigar_merge_adjacent(
+  cigar : Array[BamCigarElement],
+) -> Array[BamCigarElement] {
   let out : Array[BamCigarElement] = Array(capacity=cigar.length())
   if cigar.length() == 0 {
     return out
@@ -253,7 +268,10 @@ pub fn cigar_merge_adjacent(cigar : Array[BamCigarElement]) -> Array[BamCigarEle
   let mut i = 1
   while i < cigar.length() {
     if cigar[i].op == cur.op {
-      cur = BamCigarElement::{ op: cur.op, length: cur.length + cigar[i].length, }
+      cur = BamCigarElement::{
+        op: cur.op,
+        length: cur.length + cigar[i].length,
+      }
     } else {
       out.push(cur)
       cur = cigar[i]
@@ -279,9 +297,7 @@ pub fn cigar_coordinate_pairs(
   let mut rpos = ref_start
   for el in cigar {
     match el.op {
-      BamCigarOp::Match
-      | BamCigarOp::Equal
-      | BamCigarOp::Diff => {
+      BamCigarOp::Match | BamCigarOp::Equal | BamCigarOp::Diff => {
         let mut k = 0
         while k < el.length {
           out.push((qpos, rpos))
@@ -298,12 +314,8 @@ pub fn cigar_coordinate_pairs(
           k = k + 1
         }
       }
-      BamCigarOp::Delete | BamCigarOp::Skip => {
-        rpos = rpos + el.length
-      }
-      BamCigarOp::SoftClip => {
-        qpos = qpos + el.length
-      }
+      BamCigarOp::Delete | BamCigarOp::Skip => rpos = rpos + el.length
+      BamCigarOp::SoftClip => qpos = qpos + el.length
       BamCigarOp::HardClip | BamCigarOp::Pad => ()
     }
   }

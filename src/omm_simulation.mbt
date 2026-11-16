@@ -199,18 +199,16 @@ pub fn omm_simulation_from_checkpoint(
   match omm_checkpoint_load(checkpoint_text) {
     Ok(st) => {
       let sim = OmmSimulation::new(
-        system=system,
+        system~,
         dt=integrator_dt,
-        temperature=temperature,
-        friction=friction,
+        temperature~,
+        friction~,
         positions=Some(st.positions),
       )
       sim.set_velocities(st.velocities)
       sim
     }
-    Err(_) => {
-      OmmSimulation::new(system=system)
-    }
+    Err(_) => OmmSimulation::new(system~)
   }
 }
 

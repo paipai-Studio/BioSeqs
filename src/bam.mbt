@@ -2425,11 +2425,9 @@ pub fn BamRecord::query_alignment_start(self : BamRecord) -> Int32? {
   let mut qpos = 0
   for el in self.cigar {
     match el.op {
-      BamCigarOp::Match
-      | BamCigarOp::Equal
-      | BamCigarOp::Diff => return Some(qpos)
-      BamCigarOp::Insert
-      | BamCigarOp::SoftClip => qpos = qpos + el.length
+      BamCigarOp::Match | BamCigarOp::Equal | BamCigarOp::Diff =>
+        return Some(qpos)
+      BamCigarOp::Insert | BamCigarOp::SoftClip => qpos = qpos + el.length
       BamCigarOp::HardClip | BamCigarOp::Pad => ()
       _ => ()
     }
@@ -2450,20 +2448,21 @@ pub fn BamRecord::query_alignment_end(self : BamRecord) -> Int32? {
   let mut last_aligned_qend = start
   for el in self.cigar {
     match el.op {
-      BamCigarOp::Match
-      | BamCigarOp::Equal
-      | BamCigarOp::Diff => {
+      BamCigarOp::Match | BamCigarOp::Equal | BamCigarOp::Diff => {
         qpos = qpos + el.length
         first_aligned_seen = true
         last_aligned_qend = qpos
       }
-      BamCigarOp::Insert
-      | BamCigarOp::SoftClip => qpos = qpos + el.length
+      BamCigarOp::Insert | BamCigarOp::SoftClip => qpos = qpos + el.length
       BamCigarOp::HardClip | BamCigarOp::Pad => ()
       _ => ()
     }
   }
-  if first_aligned_seen { Some(last_aligned_qend) } else { None }
+  if first_aligned_seen {
+    Some(last_aligned_qend)
+  } else {
+    None
+  }
 }
 
 ///|
@@ -2550,9 +2549,7 @@ pub fn BamRecord::blocks(self : BamRecord) -> Array[(Int32, Int32)] {
   let mut block_end : Int32? = None
   for el in self.cigar {
     match el.op {
-      BamCigarOp::Match
-      | BamCigarOp::Equal
-      | BamCigarOp::Diff => {
+      BamCigarOp::Match | BamCigarOp::Equal | BamCigarOp::Diff => {
         if block_start is None {
           block_start = Some(rpos)
           block_end = Some(rpos + el.length)
@@ -2561,8 +2558,7 @@ pub fn BamRecord::blocks(self : BamRecord) -> Array[(Int32, Int32)] {
         }
         rpos = rpos + el.length
       }
-      BamCigarOp::Delete
-      | BamCigarOp::Skip => {
+      BamCigarOp::Delete | BamCigarOp::Skip => {
         if block_start is Some(_) {
           out.push((block_start.unwrap(), block_end.unwrap()))
           block_start = None
@@ -2584,7 +2580,10 @@ pub fn BamRecord::blocks(self : BamRecord) -> Array[(Int32, Int32)] {
 /// FASTA `ref_seq`. Returns `ref_seq[reference_start:reference_end]`. Caller
 /// must ensure `ref_seq` covers the full reference contig. Matches Pysam
 /// `AlignedSegment.get_reference_sequence()`.
-pub fn BamRecord::get_reference_sequence(self : BamRecord, ref_seq : String) -> String {
+pub fn BamRecord::get_reference_sequence(
+  self : BamRecord,
+  ref_seq : String,
+) -> String {
   let s = self.reference_start()
   let e = self.reference_end()
   if s < 0 || e < s || e > ref_seq.length() {
@@ -2697,7 +2696,11 @@ pub fn BamRecord::set_tag(
 ///|
 /// Produce a new BamRecord with `next_ref_id` and `next_pos` updated.
 /// Used by `samtools merge` + `samtools fixmate` pair repair.
-pub fn BamRecord::with_mate(self : BamRecord, next_ref_id : Int32, next_pos : Int32) -> BamRecord {
+pub fn BamRecord::with_mate(
+  self : BamRecord,
+  next_ref_id : Int32,
+  next_pos : Int32,
+) -> BamRecord {
   BamRecord::{
     ref_id: self.ref_id,
     pos: self.pos,
@@ -2790,7 +2793,12 @@ pub fn BamFile::count_coverage(
     }
   }
   if ref_id < 0 {
-    return (Array::make(n, 0), Array::make(n, 0), Array::make(n, 0), Array::make(n, 0))
+    return (
+      Array::make(n, 0),
+      Array::make(n, 0),
+      Array::make(n, 0),
+      Array::make(n, 0),
+    )
   }
   let a = Array::make(n, 0)
   let c = Array::make(n, 0)
@@ -2865,8 +2873,10 @@ pub fn BamFile::count(
   }
   let mut total = 0
   for r in self.records {
-    if r.ref_id == ref_id && !r.is_unmapped() &&
-      r.pos < stop && r.get_end() + 1 > start {
+    if r.ref_id == ref_id &&
+      !r.is_unmapped() &&
+      r.pos < stop &&
+      r.get_end() + 1 > start {
       total = total + 1
     }
   }
@@ -2901,9 +2911,8 @@ pub fn BamFile::find_introns(
     let mut rpos = r.pos
     for el in r.cigar {
       match el.op {
-        BamCigarOp::Match
-        | BamCigarOp::Equal
-        | BamCigarOp::Diff => rpos = rpos + el.length
+        BamCigarOp::Match | BamCigarOp::Equal | BamCigarOp::Diff =>
+          rpos = rpos + el.length
         BamCigarOp::Delete => rpos = rpos + el.length
         BamCigarOp::Skip => {
           let intron_start = rpos
@@ -3112,9 +3121,7 @@ pub fn BamFile::pileup_set_min_base_quality(
 ///|
 /// Build a read-name → record-array index over a BAM file. Matches Pysam
 /// `IndexedReads` (`build` + `find`).
-pub fn bam_build_indexed_reads(
-  bam : BamFile,
-) -> Map[String, Array[BamRecord]] {
+pub fn bam_build_indexed_reads(bam : BamFile) -> Map[String, Array[BamRecord]] {
   let idx : Map[String, Array[BamRecord]] = Map([], capacity=0)
   for r in bam.records {
     let arr = match idx.get(r.qname) {
@@ -3202,11 +3209,15 @@ fn bam_index_of_char(s : String, target : Int32) -> Int32 {
 ///|
 /// Fetch by samtools-style region string. Convenience wrapper combining
 /// `parse_region` + `BamFile::fetch`.
-pub fn BamFile::fetch_region(self : BamFile, region : String) -> Array[BamRecord] {
+pub fn BamFile::fetch_region(
+  self : BamFile,
+  region : String,
+) -> Array[BamRecord] {
   let (contig, start, stop) = parse_region(region)
   match (start, stop) {
     (Some(s), Some(e)) => bam_fetch(self, contig, s, e)
-    (Some(s), None) => bam_fetch(self, contig, s, self.get_reference_length_or_zero(contig))
+    (Some(s), None) =>
+      bam_fetch(self, contig, s, self.get_reference_length_or_zero(contig))
     (None, None) => {
       let out : Array[BamRecord] = Array(capacity=0)
       for r in self.records {
@@ -3221,7 +3232,10 @@ pub fn BamFile::fetch_region(self : BamFile, region : String) -> Array[BamRecord
 }
 
 ///|
-fn BamFile::get_reference_length_or_zero(self : BamFile, name : String) -> Int32 {
+fn BamFile::get_reference_length_or_zero(
+  self : BamFile,
+  name : String,
+) -> Int32 {
   match self.get_reference_length(name) {
     Some(l) => l
     None => 0
@@ -3325,9 +3339,7 @@ pub fn BamFile::build_index(self : BamFile) -> BaiIndex {
           copy.push(chunk)
           ref_bins[ref_].set(bin, copy)
         }
-        None => {
-          ref_bins[ref_].set(bin, [chunk])
-        }
+        None => ref_bins[ref_].set(bin, [chunk])
       }
     }
     // Linear index: every 16384 bp, record minimum voff
@@ -3365,11 +3377,7 @@ pub fn BamFile::build_index(self : BamFile) -> BaiIndex {
     references.push(BaiReference::{ bins: ref_bins[i], linear, })
     i = i + 1
   }
-  BaiIndex::{
-    n_ref,
-    references,
-    n_no_coor: Some(n_no_coor),
-  }
+  BaiIndex::{ n_ref, references, n_no_coor: Some(n_no_coor), }
 }
 
 // ============================================================================
@@ -3380,7 +3388,7 @@ pub fn BamFile::build_index(self : BamFile) -> BaiIndex {
 /// Split a StringView at the first occurrence of `sep`. Returns
 /// (before, after) if found, or None. Avoids MoonBit's missing
 /// limit= argument on `split`.
-fn split_kv(s : StringView, sep : StringView) -> Option[(String, String)] {
+fn split_kv(s : StringView, sep : StringView) -> (String, String)? {
   let idx = s.find(sep)
   match idx {
     Some(i) => {
@@ -3411,17 +3419,23 @@ pub fn BamHeader::as_dict(self : BamHeader) -> Map[String, String] {
   let dict : Map[String, String] = Map([], capacity=16)
   let lines = self.text.split("\n").to_array()
   for line in lines {
-    if line.length() == 0 { continue }
+    if line.length() == 0 {
+      continue
+    }
     let parts = line.split("\t").to_array()
-    if parts.length() == 0 { continue }
+    if parts.length() == 0 {
+      continue
+    }
     let tag = parts[0]
-    if tag.length() < 2 { continue }
+    if tag.length() < 2 {
+      continue
+    }
     let tag2 = tag[1:].to_owned()
     let mut i = 1
     while i < parts.length() {
       let kv_opt = split_kv(parts[i], ":")
       match kv_opt {
-        Some((k, v)) => { dict["\{tag2}.\{k}"] = v }
+        Some((k, v)) => dict["\{tag2}.\{k}"] = v
         None => {
           let rest = parts[i].to_owned()
           dict["\{tag2}.\{rest}"] = ""
@@ -3459,9 +3473,15 @@ pub fn BamHeader::from_dict(dict : Map[String, String]) -> BamHeader {
           let idx_str = rest[0:di].to_owned()
           let prop = rest[di + 1:].to_owned()
           let idx = parse_int(idx_str)
-          if idx > max_idx { max_idx = idx }
-          if prop == "NAME" { names[idx] = v }
-          if prop == "LN" { lens[idx] = parse_int(v) }
+          if idx > max_idx {
+            max_idx = idx
+          }
+          if prop == "NAME" {
+            names[idx] = v
+          }
+          if prop == "LN" {
+            lens[idx] = parse_int(v)
+          }
         }
         None => continue
       }
@@ -3469,7 +3489,8 @@ pub fn BamHeader::from_dict(dict : Map[String, String]) -> BamHeader {
   }
   let n_ref = if max_idx >= 0 { max_idx + 1 } else { 0 }
   let references : FixedArray[BamReference] = FixedArray::make(n_ref, BamReference::{
-    name: "", length: 0,
+    name: "",
+    length: 0,
   })
   let mut i = 0
   while i < n_ref {
@@ -3490,7 +3511,9 @@ pub fn BamHeader::from_dict(dict : Map[String, String]) -> BamHeader {
   let sb = StringBuilder()
   let groups : Map[String, Array[(String, String)]] = Map([], capacity=8)
   for (k, v) in dict {
-    if k.has_prefix("SQ_") || k == "n_ref" { continue }
+    if k.has_prefix("SQ_") || k == "n_ref" {
+      continue
+    }
     let dot = k.find(".")
     match dot {
       Some(di) => {
@@ -3543,8 +3566,12 @@ pub fn BamHeader::from_text(text : String) -> BamHeader {
         let kv_opt = split_kv(parts[i], ":")
         match kv_opt {
           Some((k, v)) => {
-            if k == "SN" { name = v }
-            if k == "LN" { len = parse_int(v) }
+            if k == "SN" {
+              name = v
+            }
+            if k == "LN" {
+              len = parse_int(v)
+            }
           }
           None => ()
         }
@@ -3554,7 +3581,8 @@ pub fn BamHeader::from_text(text : String) -> BamHeader {
     }
   }
   let references : FixedArray[BamReference] = FixedArray::make(refs.length(), BamReference::{
-    name: "", length: 0,
+    name: "",
+    length: 0,
   })
   let mut j = 0
   while j < refs.length() {
@@ -3574,7 +3602,10 @@ pub fn BamHeader::from_text(text : String) -> BamHeader {
 /// `qname`, `flag`, `rname`, `pos`, `mapq`, `cigar`, `rnext`, `pnext`,
 /// `tlen`, `seq`, `qual`, plus one key per auxiliary tag (`tags.NM`, ...).
 /// `rname` is resolved against the supplied header (otherwise "?").
-pub fn BamRecord::to_dict(self : BamRecord, header : BamHeader) -> Map[String, String] {
+pub fn BamRecord::to_dict(
+  self : BamRecord,
+  header : BamHeader,
+) -> Map[String, String] {
   let dict : Map[String, String] = Map([], capacity=20)
   dict["qname"] = self.qname
   dict["flag"] = self.flag.to_string()
@@ -3629,7 +3660,10 @@ pub fn BamRecord::to_dict(self : BamRecord, header : BamHeader) -> Map[String, S
 /// Reconstruct a `BamRecord` from a dictionary as produced by `to_dict`.
 /// Needs the header only to resolve reference names back to `ref_id`.
 /// Missing fields default to 0 / empty string.
-pub fn BamRecord::from_dict(dict : Map[String, String], header : BamHeader) -> BamRecord {
+pub fn BamRecord::from_dict(
+  dict : Map[String, String],
+  header : BamHeader,
+) -> BamRecord {
   let qname = dict.get_or_default("qname", "")
   let flag = parse_int(dict.get_or_default("flag", "0"))
   let pos = parse_int(dict.get_or_default("pos", "0"))
@@ -3642,7 +3676,10 @@ pub fn BamRecord::from_dict(dict : Map[String, String], header : BamHeader) -> B
   let mut ref_id : Int32 = -1
   let mut ri = 0
   while ri < header.references.length() {
-    if header.references[ri].name == rname { ref_id = ri; break }
+    if header.references[ri].name == rname {
+      ref_id = ri
+      break
+    }
     ri = ri + 1
   }
 
@@ -3651,7 +3688,10 @@ pub fn BamRecord::from_dict(dict : Map[String, String], header : BamHeader) -> B
   if rnext != "*" {
     let mut ni = 0
     while ni < header.references.length() {
-      if header.references[ni].name == rnext { next_ref_id = ni; break }
+      if header.references[ni].name == rnext {
+        next_ref_id = ni
+        break
+      }
       ni = ni + 1
     }
   }
@@ -3668,7 +3708,9 @@ pub fn BamRecord::from_dict(dict : Map[String, String], header : BamHeader) -> B
     } else {
       // collect digits into String
       let mut num_str = ""
-      for dc in num_buf { num_str = num_str + dc.to_string() }
+      for dc in num_buf {
+        num_str = num_str + dc.to_string()
+      }
       num_buf = []
       let len = parse_int(num_str)
       let op = match ch {
@@ -3686,9 +3728,10 @@ pub fn BamRecord::from_dict(dict : Map[String, String], header : BamHeader) -> B
       cigar_arr.push(BamCigarElement::{ op, length: len, })
     }
   }
-  let cigar_fixed : FixedArray[BamCigarElement] = FixedArray::make(cigar_arr.length(), BamCigarElement::{
-    op: BamCigarOp::Match, length: 0,
-  })
+  let cigar_fixed : FixedArray[BamCigarElement] = FixedArray::make(
+    cigar_arr.length(),
+    BamCigarElement::{ op: BamCigarOp::Match, length: 0, },
+  )
   let mut ci = 0
   while ci < cigar_arr.length() {
     cigar_fixed[ci] = cigar_arr[ci]
@@ -3703,7 +3746,9 @@ pub fn BamRecord::from_dict(dict : Map[String, String], header : BamHeader) -> B
       let suffix_start = rest.length() - 5
       if suffix_start >= 0 {
         let suffix = rest[suffix_start:].to_owned()
-        if suffix == ".type" { continue }
+        if suffix == ".type" {
+          continue
+        }
       }
       tag_names[rest] = true
     }
@@ -3741,8 +3786,8 @@ pub fn BamRecord::from_dict(dict : Map[String, String], header : BamHeader) -> B
           let pstr = p.to_owned()
           let maybe_int = parse_int(pstr)
           let is_num = pstr.length() > 0 &&
-            (pstr.unsafe_get(0).to_int() >= '0'.to_int() &&
-              pstr.unsafe_get(0).to_int() <= '9'.to_int())
+            pstr.unsafe_get(0).to_int() >= '0'.to_int() &&
+            pstr.unsafe_get(0).to_int() <= '9'.to_int()
           if is_num {
             ints.push(maybe_int)
             floats.push(maybe_int.to_double())
@@ -3755,7 +3800,11 @@ pub fn BamRecord::from_dict(dict : Map[String, String], header : BamHeader) -> B
             floats.push(d)
           }
         }
-        if is_all_int { BamTagValue::IntArray(ints) } else { BamTagValue::FloatArray(floats) }
+        if is_all_int {
+          BamTagValue::IntArray(ints)
+        } else {
+          BamTagValue::FloatArray(floats)
+        }
       }
       _ => BamTagValue::Str(val_str)
     }

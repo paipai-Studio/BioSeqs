@@ -235,7 +235,8 @@ pub fn AnnData::rename_categories(
   }
 
   // 2. 查 uns 里存的 categories（如果之前 factorize 过）
-  let old_cats : Array[String] = match anndata_uns_get_str_array(self, uns_cat_key) {
+  let old_cats : Array[String] = match
+    anndata_uns_get_str_array(self, uns_cat_key) {
     Some(a) => a
     None => {
       // 没有预存 categories → 从 mapping 的 old 部分构造
@@ -254,7 +255,10 @@ pub fn AnnData::rename_categories(
     let mut mapped = c
     for pair in mapping {
       let (old_n, new_n) = pair
-      if old_n == c { mapped = new_n; break }
+      if old_n == c {
+        mapped = new_n
+        break
+      }
     }
     new_cats.push(mapped)
   }
@@ -266,7 +270,9 @@ pub fn AnnData::rename_categories(
       Some(code_idx) =>
         if code_idx >= 0 && code_idx < new_cats.length() {
           new_cats[code_idx]
-        } else { cs }
+        } else {
+          cs
+        }
       None => cs
     }
     new_col.push(name)
@@ -302,13 +308,14 @@ pub fn AnnData::rename_categories_list(
   match anndata_uns_get_str_array(self, uns_cat_key) {
     None => false
     Some(old) =>
-      if old.length() != new_categories.length() { false }
-      else {
+      if old.length() != new_categories.length() {
+        false
+      } else {
         let mapping : Array[(String, String)] = Array(capacity=old.length())
         for i = 0; i < old.length(); i = i + 1 {
           mapping.push((old[i], new_categories[i]))
         }
-        self.rename_categories(key, mapping, axis=axis)
+        self.rename_categories(key, mapping, axis~)
       }
   }
 }
@@ -324,31 +331,45 @@ pub fn AnnDataCategorical::rename(
     let mut mapped = c
     for pair in mapping {
       let (old_name, new_name) = pair
-      if old_name == c { mapped = new_name; break }
+      if old_name == c {
+        mapped = new_name
+        break
+      }
     }
     new_cats.push(mapped)
   }
   anndata_categorical_make(new_cats, self.codes)
 }
 
+///|
 /// Helper: 从两个 Array 构造 AnnDataCategorical（文件内所以能 access literal）
 /// MoonBit struct literal 只支持 shorthand: { field1, field2, }
-fn anndata_categorical_make(categories : Array[String], codes : Array[Int32]) -> AnnDataCategorical {
+fn anndata_categorical_make(
+  categories : Array[String],
+  codes : Array[Int32],
+) -> AnnDataCategorical {
   { categories, codes, }
 }
 
+///|
 /// 本地 parse_int_string（因为 anndata.mbt 里的是私有）
 fn parse_int_string_local(s : String) -> Int32? {
-  if s.length() == 0 { return None }
+  if s.length() == 0 {
+    return None
+  }
   let first_i : Int32 = s.unsafe_get(0).unsafe_to_char().to_int()
   let mut is_num = (first_i >= 48 && first_i <= 57) || first_i == 45
   let mut i : Int32 = 1
   while i < s.length() && is_num {
     let ci : Int32 = s.unsafe_get(i).unsafe_to_char().to_int()
-    if !(ci >= 48 && ci <= 57) { is_num = false }
+    if !(ci >= 48 && ci <= 57) {
+      is_num = false
+    }
     i = i + 1
   }
-  if !is_num { return None }
+  if !is_num {
+    return None
+  }
   let neg = first_i == 45
   let start = if neg { 1 } else { 0 }
   let mut val : Int32 = 0
@@ -358,6 +379,8 @@ fn parse_int_string_local(s : String) -> Int32? {
     val = val * 10 + (ci - 48)
     j = j + 1
   }
-  if neg { val = -val }
+  if neg {
+    val = -val
+  }
   Some(val)
 }

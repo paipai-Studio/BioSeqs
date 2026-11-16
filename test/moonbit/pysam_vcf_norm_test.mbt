@@ -1,16 +1,14 @@
 ///|
 /// P3 Batch 1: pysam_vcf_norm 单元测试
-
-let norm_vcf_content : String =
-  "##fileformat=VCFv4.2\n" +
+let norm_vcf_content : String = "##fileformat=VCFv4.2\n" +
   "##contig=<ID=chr1,length=1000>\n" +
   "#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\n" +
-  "chr1\t100\trs1\tACGT\tACGTA\t60\tPASS\t.\n" +  // 共享 ACGT 4 前缀 → REF=N ALT=A pos=104
-  "chr1\t200\trs2\tATG\tACG\t50\tPASS\t.\n" +     // 共享 A 1 → REF=TG ALT=CG pos=201
-  "chr1\t300\trs3\tGGTC\tGGCC\t50\tPASS\t.\n" +    // 共享 G 1 → REF=GTC ALT=GCC pos=301
-  "chr1\t400\trs4\tA\tT\t60\tPASS\t.\n" +             // SNP，长度差 0 → 不是 norm target
-  "chr1\t500\t.\tAG\tA\t40\tPASS\t.\n" +            // REF=AG ALT=A 共享 A → REF=G ALT=N pos=501
-  "chr1\t600\t.\tA\tAG\t30\tPASS\t.\n"               // REF=A ALT=AG 共享 A → REF=N ALT=G pos=601
+  "chr1\t100\trs1\tACGT\tACGTA\t60\tPASS\t.\n" + // 共享 ACGT 4 前缀 → REF=N ALT=A pos=104
+  "chr1\t200\trs2\tATG\tACG\t50\tPASS\t.\n" + // 共享 A 1 → REF=TG ALT=CG pos=201
+  "chr1\t300\trs3\tGGTC\tGGCC\t50\tPASS\t.\n" + // 共享 G 1 → REF=GTC ALT=GCC pos=301
+  "chr1\t400\trs4\tA\tT\t60\tPASS\t.\n" + // SNP，长度差 0 → 不是 norm target
+  "chr1\t500\t.\tAG\tA\t40\tPASS\t.\n" + // REF=AG ALT=A 共享 A → REF=G ALT=N pos=501
+  "chr1\t600\t.\tA\tAG\t30\tPASS\t.\n" // REF=A ALT=AG 共享 A → REF=N ALT=G pos=601
 
 ///|
 test "norm_is_norm_target" {
@@ -19,10 +17,10 @@ test "norm_is_norm_target" {
     "##fileformat=VCFv4.2\n##contig=<ID=chr1,length=1000>\n" +
     "#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\n" +
     "chr1\t100\t.\tA\tAT\t60\tPASS\t.\n" +
-    "chr1\t200\t.\tA\tT\t60\tPASS\t.\n" +    // SNP 长度差 0 也被判 target（trim 后 ref/alt 不变）
-    "chr1\t300\t.\tA\tT,C\t60\tPASS\t.\n"   // multi-allelic → 不是
+    "chr1\t200\t.\tA\tT\t60\tPASS\t.\n" + // SNP 长度差 0 也被判 target（trim 后 ref/alt 不变）
+    "chr1\t300\t.\tA\tT,C\t60\tPASS\t.\n", // multi-allelic → 不是
   )
-  assert_true(@src.vcf_is_norm_target(v.records[0]))  // A→AT insertion
+  assert_true(@src.vcf_is_norm_target(v.records[0])) // A→AT insertion
   assert_true(@src.vcf_is_norm_target(v.records[1])) // A→T SNP 也判 target（ref!=alt）
   assert_true(!@src.vcf_is_norm_target(v.records[2])) // multi-allelic 不是
 }
@@ -73,7 +71,7 @@ test "norm_trim_suffix_shared" {
   let v = @src.parse_vcf(
     "##fileformat=VCFv4.2\n##contig=<ID=chr1,length=1000>\n" +
     "#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\n" +
-    "chr1\t100\t.\tATT\tCTT\t60\tPASS\t.\n"
+    "chr1\t100\t.\tATT\tCTT\t60\tPASS\t.\n",
   )
   let r = @src.vcf_norm_trim_suffix(v.records[0])
   assert_eq(r.pos, 100)
@@ -89,18 +87,20 @@ test "norm_trim_all_combines_prefix_suffix" {
   let v = @src.parse_vcf(
     "##fileformat=VCFv4.2\n##contig=<ID=chr1,length=1000>\n" +
     "#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\n" +
-    "chr1\t100\t.\tAACGGT\tAACTT\t60\tPASS\t.\n"
+    "chr1\t100\t.\tAACGGT\tAACTT\t60\tPASS\t.\n",
   )
   let rec = v.records[0]
   let r = @src.vcf_norm_trim_all(rec)
-  assert_eq(r.pos, 103)  // 3 个 prefix 去掉
+  assert_eq(r.pos, 103) // 3 个 prefix 去掉
   assert_eq(r.ref_seq, "GG")
   assert_eq(r.alt[0], "T")
 }
 
 ///|
 test "norm_file_trim_only_passthrough_empty" {
-  let empty = @src.parse_vcf("##fileformat=VCFv4.2\n#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\n")
+  let empty = @src.parse_vcf(
+    "##fileformat=VCFv4.2\n#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\n",
+  )
   let result = @src.vcf_norm_trim_only(empty)
   assert_eq(result.len(), 0)
 }

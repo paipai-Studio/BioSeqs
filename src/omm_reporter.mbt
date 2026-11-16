@@ -226,12 +226,17 @@ pub struct OmmFullCheckpointReporter {
 }
 
 ///|
-pub fn OmmFullCheckpointReporter::new(interval~ : Int32 = 1000) -> OmmFullCheckpointReporter {
+pub fn OmmFullCheckpointReporter::new(
+  interval~ : Int32 = 1000,
+) -> OmmFullCheckpointReporter {
   { report_interval: interval, checkpoints: [], }
 }
 
 ///|
-pub fn OmmFullCheckpointReporter::should_report(self : OmmFullCheckpointReporter, step : Int32) -> Bool {
+pub fn OmmFullCheckpointReporter::should_report(
+  self : OmmFullCheckpointReporter,
+  step : Int32,
+) -> Bool {
   step % self.report_interval == 0
 }
 
@@ -254,14 +259,24 @@ pub fn OmmFullCheckpointReporter::report(
     i = i + 1
   }
   let box_copy : Array[Double] = [box[0], box[1], box[2]]
-  self.checkpoints.push({ step, time, box: box_copy, positions: pos_copy, velocities: vel_copy })
+  self.checkpoints.push({
+    step,
+    time,
+    box: box_copy,
+    positions: pos_copy,
+    velocities: vel_copy,
+  })
 }
 
 ///|
-pub fn OmmFullCheckpointReporter::last(self : OmmFullCheckpointReporter) -> OmmCheckpoint? {
+pub fn OmmFullCheckpointReporter::last(
+  self : OmmFullCheckpointReporter,
+) -> OmmCheckpoint? {
   if self.checkpoints.length() > 0 {
     Some(self.checkpoints[self.checkpoints.length() - 1])
-  } else { None }
+  } else {
+    None
+  }
 }
 
 ///|
@@ -277,7 +292,8 @@ pub fn OmmFullCheckpointReporter::restore(
       sim.set_positions(cp.positions)
       sim.set_velocities(cp.velocities)
       // time 和 step 也不是 mut，用户需要 omm_simulation_from_checkpoint 完整恢复
-      ignore(cp.time); ignore(cp.step)
+      ignore(cp.time)
+      ignore(cp.step)
     }
     None => ()
   }
@@ -285,7 +301,9 @@ pub fn OmmFullCheckpointReporter::restore(
 
 ///|
 /// 把最后一个 checkpoint 序列化成文本（复用 omm_checkpoint_save）。
-pub fn OmmFullCheckpointReporter::serialize_last(self : OmmFullCheckpointReporter) -> String {
+pub fn OmmFullCheckpointReporter::serialize_last(
+  self : OmmFullCheckpointReporter,
+) -> String {
   match self.last() {
     Some(cp) => {
       let st = OmmState::new(
@@ -306,9 +324,7 @@ pub fn OmmFullCheckpointReporter::serialize_last(self : OmmFullCheckpointReporte
 pub fn omm_checkpoint_restore(text : String) -> OmmFullCheckpointReporter {
   let rep = OmmFullCheckpointReporter::new()
   match omm_checkpoint_load(text) {
-    Ok(st) => {
-      rep.report(st.step, st.time, st.box, st.positions, st.velocities)
-    }
+    Ok(st) => rep.report(st.step, st.time, st.box, st.positions, st.velocities)
     Err(_) => ()
   }
   rep

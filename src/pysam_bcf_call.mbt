@@ -51,7 +51,9 @@ pub fn call_genotype_pl(
   alt_count : Int32,
 ) -> (Int32, Double, Array[String]) {
   let total = ref_count + alt_count
-  if total == 0 { return (0, 0.0, ["99", "99", "99"]) }
+  if total == 0 {
+    return (0, 0.0, ["99", "99", "99"])
+  }
   let alt_f = alt_count.to_double() / total.to_double()
   // Diploid prior: 0.25 / 0.5 / 0.25
   let prior_rr : Double = 0.25
@@ -88,8 +90,14 @@ pub fn call_genotype_pl(
   // Call best genotype
   let mut gt : Int32 = 0
   let mut gt_prob : Double = p_rr
-  if p_ra > gt_prob { gt = 1; gt_prob = p_ra }
-  if p_aa > gt_prob { gt = 2; gt_prob = p_aa }
+  if p_ra > gt_prob {
+    gt = 1
+    gt_prob = p_ra
+  }
+  if p_aa > gt_prob {
+    gt = 2
+    gt_prob = p_aa
+  }
   // GQ = -10 * log10(1 - posterior)
   let one_minus : Double = 1.0 - gt_prob
   let tiny : Double = 0.000000000000000000000000000001
@@ -104,9 +112,15 @@ pub fn call_genotype_pl(
   let pl_ra_d : Double = log10_factor * @math.ln(la)
   let pl_aa_d : Double = log10_factor * @math.ln(laa)
   let best_pl : Double = if pl_rr_d < pl_ra_d {
-    if pl_rr_d < pl_aa_d { pl_rr_d } else { pl_aa_d }
+    if pl_rr_d < pl_aa_d {
+      pl_rr_d
+    } else {
+      pl_aa_d
+    }
+  } else if pl_ra_d < pl_aa_d {
+    pl_ra_d
   } else {
-    if pl_ra_d < pl_aa_d { pl_ra_d } else { pl_aa_d }
+    pl_aa_d
   }
   let pl_rr_s = (pl_rr_d - best_pl).to_int().to_string()
   let pl_ra_s = (pl_ra_d - best_pl).to_int().to_string()
@@ -129,11 +143,8 @@ pub fn gt_str(gt_index : Int32) -> String {
 /// Build INFO/FORMAT meta header lines suitable for bcftools-call output.
 pub fn bcf_call_meta_headers() -> Array[String] {
   [
-    "##INFO=<ID=DP,Number=1,Type=Integer,Description=Total Depth>",
-    "##INFO=<ID=AF,Number=A,Type=Float,Description=Allele Frequency>",
-    "##FORMAT=<ID=GT,Number=1,Type=String,Description=Genotype>",
-    "##FORMAT=<ID=PL,Number=G,Type=Integer,Description=Normalized Genotype Likelihoods>",
-    "##FORMAT=<ID=GQ,Number=1,Type=Integer,Description=Genotype Quality>",
-    "##FORMAT=<ID=DP,Number=1,Type=Integer,Description=Read Depth>",
+    "##INFO=<ID=DP,Number=1,Type=Integer,Description=Total Depth>", "##INFO=<ID=AF,Number=A,Type=Float,Description=Allele Frequency>",
+    "##FORMAT=<ID=GT,Number=1,Type=String,Description=Genotype>", "##FORMAT=<ID=PL,Number=G,Type=Integer,Description=Normalized Genotype Likelihoods>",
+    "##FORMAT=<ID=GQ,Number=1,Type=Integer,Description=Genotype Quality>", "##FORMAT=<ID=DP,Number=1,Type=Integer,Description=Read Depth>",
   ]
 }

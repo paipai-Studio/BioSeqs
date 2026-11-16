@@ -50,15 +50,22 @@ fn skbp_group_indices(grouping : Array[Int32]) -> Array[Array[Int32]] {
   for g in grouping {
     let mut dup = false
     for lv in levels {
-      if lv == g { dup = true; break }
+      if lv == g {
+        dup = true
+        break
+      }
     }
-    if !dup { levels.push(g) }
+    if !dup {
+      levels.push(g)
+    }
   }
   let out : Array[Array[Int32]] = Array(capacity=0)
   for lv in levels {
     let members : Array[Int32] = Array(capacity=0)
     for i = 0; i < grouping.length(); i = i + 1 {
-      if grouping[i] == lv { members.push(i) }
+      if grouping[i] == lv {
+        members.push(i)
+      }
     }
     out.push(members)
   }
@@ -92,14 +99,16 @@ fn skbp_coords_to_dm(coords : Array[Array[Double]]) -> Array[Array[Double]] {
 // PCoA 空间的 pilot 估计
 // ---------------------------------------------------------------------------
 
+///|
 struct PilotEst {
   group_means : Array[Array[Double]]
   sigma2 : Double
   k : Int32
   group_labels : Array[Int32]
-  group_sizes : Array[Int]
+  group_sizes : Array[Int32]
 }
 
+///|
 fn skbp_estimate_pilot(
   samples : Array[Array[Double]],
   grouping : Array[Int32],
@@ -121,7 +130,9 @@ fn skbp_estimate_pilot(
     let gmean : Array[Double] = Array(capacity=k)
     for ax = 0; ax < k; ax = ax + 1 {
       let mut sum_a = 0.0
-      for idx in members { sum_a = sum_a + samples[idx][ax] }
+      for idx in members {
+        sum_a = sum_a + samples[idx][ax]
+      }
       gmean.push(sum_a / m.to_double())
     }
     group_means.push(gmean)
@@ -133,8 +144,12 @@ fn skbp_estimate_pilot(
       total_count = total_count + k
     }
   }
-  let sigma2 = if total_count > 0 { total_ss / total_count.to_double() } else { 0.0 }
-  PilotEst::{ group_means, sigma2, k, group_labels, group_sizes }
+  let sigma2 = if total_count > 0 {
+    total_ss / total_count.to_double()
+  } else {
+    0.0
+  }
+  PilotEst::{ group_means, sigma2, k, group_labels, group_sizes, }
 }
 
 // ---------------------------------------------------------------------------
@@ -163,27 +178,37 @@ pub fn skbio_permanova_power(
 ) -> Array[SkbioPowerPoint] {
   let out : Array[SkbioPowerPoint] = Array(capacity=candidate_ns.length())
   let n = dm.length()
-  if n == 0 || grouping.length() != n || candidate_ns.length() == 0 { return out }
+  if n == 0 || grouping.length() != n || candidate_ns.length() == 0 {
+    return out
+  }
   let pcoa = skbio_pcoa(dm)
   let samples = pcoa.samples
-  if samples.length() == 0 { return out }
+  if samples.length() == 0 {
+    return out
+  }
   let pilot = skbp_estimate_pilot(samples, grouping)
   let k = pilot.k
   let sigma = pilot.sigma2.sqrt()
   let ng = pilot.group_labels.length()
-  if ng < 2 { return out }
+  if ng < 2 {
+    return out
+  }
 
   let mut state = seed
   for cand_n in candidate_ns {
-    let mut total_pilot_sum : Int = 0
-    for g in pilot.group_sizes { total_pilot_sum = total_pilot_sum + g }
-    let new_group_sizes : Array[Int] = Array(capacity=ng)
-    let mut assigned : Int = 0
+    let mut total_pilot_sum : Int32 = 0
+    for g in pilot.group_sizes {
+      total_pilot_sum = total_pilot_sum + g
+    }
+    let new_group_sizes : Array[Int32] = Array(capacity=ng)
+    let mut assigned : Int32 = 0
     for gi = 0; gi < ng; gi = gi + 1 {
       if gi == ng - 1 {
         new_group_sizes.push(cand_n.to_int64().to_int() - assigned)
       } else {
-        let size_d = (cand_n.to_double() * pilot.group_sizes[gi].to_double()) / total_pilot_sum.to_double()
+        let size_d = cand_n.to_double() *
+          pilot.group_sizes[gi].to_double() /
+          total_pilot_sum.to_double()
         new_group_sizes.push(size_d.floor().to_int64().to_int())
         assigned = assigned + new_group_sizes[gi]
       }
@@ -214,7 +239,7 @@ pub fn skbio_permanova_power(
       }
     }
     let power = count_reject.to_double() / n_bootstrap.to_double()
-    out.push(SkbioPowerPoint::{ sample_size: cand_n, power })
+    out.push(SkbioPowerPoint::{ sample_size: cand_n, power, })
   }
   out
 }

@@ -49,10 +49,16 @@ pub fn bf_to_bigbed(
     let name = if i < names.length() { names[i] } else { "." }
     let score = if i < scores.length() { scores[i] } else { 0 }
     let strand = if i < strands.length() { strands[i] } else { "." }
-    records.push(BigBedRecord::create(
-      chroms[i], starts[i], ends[i],
-      name=name, score=score, strand=strand,
-    ))
+    records.push(
+      BigBedRecord::create(
+        chroms[i],
+        starts[i],
+        ends[i],
+        name~,
+        score~,
+        strand~,
+      ),
+    )
   }
   bigbed_write(targets, records)
 }
@@ -77,11 +83,11 @@ pub fn bf_to_bigbed(
 ///   - height_per_chrom_px:  track height (default 24)
 pub fn bf_render_intervals_html(
   intervals : Array[BedInterval],
-  chromsizes : Array[(String, Int)],
+  chromsizes : Array[(String, Int32)],
   title~ : String = "",
-  width_px~ : Int = 900,
-  height_per_chrom_px~ : Int = 24,
-  padding_px~ : Int = 40,
+  width_px~ : Int32 = 900,
+  height_per_chrom_px~ : Int32 = 24,
+  padding_px~ : Int32 = 40,
 ) -> String {
   let n_chroms = chromsizes.length()
   let plot_h = n_chroms * height_per_chrom_px
@@ -95,7 +101,9 @@ pub fn bf_render_intervals_html(
   sb.write("  <title>Bioframe interval track</title>\n")
   sb.write("  <style>\n")
   sb.write("    body { font-family: sans-serif; padding: 16px; }\n")
-  sb.write("    .chrom-label { font-size: 11px; fill: #444; dominant-baseline: middle; }\n")
+  sb.write(
+    "    .chrom-label { font-size: 11px; fill: #444; dominant-baseline: middle; }\n",
+  )
   sb.write("    .chrom-axis  { stroke: #bbb; stroke-width: 1; }\n")
   sb.write("    .interval    { fill: #4c78a8; }\n")
   sb.write("  </style>\n")
@@ -135,19 +143,26 @@ pub fn bf_render_intervals_html(
   for iv in intervals {
     let mut row_idx = -1
     for j in 0..<n_chroms {
-      if chromsizes[j].0 == iv.chrom { row_idx = j; break }
+      if chromsizes[j].0 == iv.chrom {
+        row_idx = j
+        break
+      }
     }
-    if row_idx < 0 { continue }
+    if row_idx < 0 {
+      continue
+    }
     let chrom_len = chromsizes[row_idx].1
-    if chrom_len <= 0 { continue }
+    if chrom_len <= 0 {
+      continue
+    }
     let y = y_base + row_idx * height_per_chrom_px
     let w64 = width_px.to_double()
     let cl64 = chrom_len.to_double()
     let sx64 = iv.start.to_double()
     let ex64 = iv.end.to_double()
     let p64 = padding_px.to_double()
-    let x_start_d = p64 + (sx64 / cl64) * w64
-    let x_end_d = p64 + (ex64 / cl64) * w64
+    let x_start_d = p64 + sx64 / cl64 * w64
+    let x_end_d = p64 + ex64 / cl64 * w64
     let w_d = x_end_d - x_start_d
     let w_clamped_d = if w_d < 1.0 { 1.0 } else { w_d }
     let rect_y = y + 4

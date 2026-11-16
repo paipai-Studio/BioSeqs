@@ -71,12 +71,20 @@ pub fn bam_tview(
   for rec in bam.records {
     if contig != "" {
       let rn = rec.get_reference_name(bam.header)
-      if rn != contig { continue }
+      if rn != contig {
+        continue
+      }
     }
-    if rec.ref_id < 0 { continue }
+    if rec.ref_id < 0 {
+      continue
+    }
     let rec_end = rec.pos + rec.infer_read_length()
-    if rec.pos >= w_end || rec_end <= w_beg { continue }
-    if max_reads > 0 && shown >= max_reads { break }
+    if rec.pos >= w_end || rec_end <= w_beg {
+      continue
+    }
+    if max_reads > 0 && shown >= max_reads {
+      break
+    }
     reads.push(rec)
     shown = shown + 1
   }
@@ -112,7 +120,10 @@ fn render_tview_read(
   sb.write_string(qname)
   // pad
   let mut pad : Int32 = 10 - qname.length()
-  while pad > 0 { sb.write_char(' '); pad = pad - 1 }
+  while pad > 0 {
+    sb.write_char(' ')
+    pad = pad - 1
+  }
 
   let op_start : Int32 = match rec.query_alignment_start() {
     Some(s) => s
@@ -129,23 +140,29 @@ fn render_tview_read(
   let mut q_pos : Int32 = 0
   while ref_pos < w_beg {
     let (sd, qd) = cigar_step(rec.cigar, q_pos)
-    if sd == 0 && qd == 0 { break }
+    if sd == 0 && qd == 0 {
+      break
+    }
     ref_pos = ref_pos + sd
     q_pos = q_pos + qd
   }
 
   let mut col : Int32 = 0
-  while ref_pos < w_end && col < (w_end - w_beg) {
+  while ref_pos < w_end && col < w_end - w_beg {
     let (adv_ref, adv_q) = cigar_step(rec.cigar, q_pos)
     let ch : Char = if adv_ref > 0 && adv_q > 0 {
       let q_in_aligned = q_pos >= op_start && q_pos < op_end
-      if q_in_aligned && (q_pos - op_start) < read_seq.length() {
+      if q_in_aligned && q_pos - op_start < read_seq.length() {
         read_seq.unsafe_get(q_pos - op_start).unsafe_to_char()
       } else {
         '.'
       }
     } else if adv_ref > 0 {
-      if cigar_is_skip(rec.cigar, q_pos) { 'N' } else { '-' }
+      if cigar_is_skip(rec.cigar, q_pos) {
+        'N'
+      } else {
+        '-'
+      }
     } else if adv_q > 0 {
       'I'
     } else {
@@ -161,7 +178,10 @@ fn render_tview_read(
 ///|
 /// Advance through the CIGAR one element at a time, returning
 /// (ref_delta, query_delta) at q_pos.
-fn cigar_step(cigar : FixedArray[BamCigarElement], q_pos : Int32) -> (Int32, Int32) {
+fn cigar_step(
+  cigar : FixedArray[BamCigarElement],
+  q_pos : Int32,
+) -> (Int32, Int32) {
   let mut remaining : Int32 = q_pos
   for elem in cigar {
     let qlen = match elem.op {
@@ -184,9 +204,11 @@ fn cigar_step(cigar : FixedArray[BamCigarElement], q_pos : Int32) -> (Int32, Int
       // We are inside this op. Return proportional advance.
       // For simplicity return either full step or zero.
       let left = if remaining < 0 { 0 } else { remaining }
-      if qlen == 0 { return (rlen, 0) }
+      if qlen == 0 {
+        return (rlen, 0)
+      }
       return (
-        ((left.to_double() / qlen.to_double()) * rlen.to_double()).to_int(),
+        (left.to_double() / qlen.to_double() * rlen.to_double()).to_int(),
         left,
       )
     }

@@ -6,8 +6,7 @@
 //   r2: qname=readA, chr1, pos=100, mapq=30  ← dup of r1
 //   r3: qname=readB, chr1, pos=200, mapq=50
 //   r4: qname=readC, *,   pos=0,   mapq=10  ← unmapped (always kept)
-let rmdup_sam : String =
-  "@HD\tVN:1.6\tSO:coordinate\n" +
+let rmdup_sam : String = "@HD\tVN:1.6\tSO:coordinate\n" +
   "@SQ\tSN:chr1\tLN:1000\n" +
   "readA\t0\tchr1\t100\t60\t8M\t*\t0\t0\tACGTACGT\t!!!!!!!!\n" +
   "readA\t0\tchr1\t100\t30\t8M\t*\t0\t0\tACGTACGT\t!!!!!!!!\n" +
@@ -38,8 +37,7 @@ test "rmdup_count_duplicates" {
 ///|
 test "rmdup_no_duplicates" {
   // 每条 read 都在不同 pos，没 dup
-  let sam_no_dup : String =
-    "@HD\tVN:1.6\tSO:coordinate\n" +
+  let sam_no_dup : String = "@HD\tVN:1.6\tSO:coordinate\n" +
     "@SQ\tSN:chr1\tLN:1000\n" +
     "r1\t0\tchr1\t100\t60\t8M\t*\t0\t0\tACGTACGT\t!!!!!!!!\n" +
     "r2\t0\tchr1\t200\t30\t8M\t*\t0\t0\tACGTACGT\t!!!!!!!!\n" +
@@ -53,8 +51,7 @@ test "rmdup_no_duplicates" {
 ///|
 test "rmdup_all_duplicates_same_group" {
   // 4 条完全相同 qname+chr+pos 的 reads → rmdup 只保留 mapq 最高的那条
-  let sam_multi : String =
-    "@HD\tVN:1.6\tSO:coordinate\n" +
+  let sam_multi : String = "@HD\tVN:1.6\tSO:coordinate\n" +
     "@SQ\tSN:chr1\tLN:1000\n" +
     "dup_read\t0\tchr1\t100\t10\t8M\t*\t0\t0\tACGTACGT\t!!!!!!!!\n" +
     "dup_read\t0\tchr1\t100\t60\t8M\t*\t0\t0\tACGTACGT\t!!!!!!!!\n" +
@@ -91,8 +88,7 @@ test "rmdup_duplicate_rate_empty" {
 ///|
 test "rmdup_paired_mode" {
   // qname=pair1 出现两次（一个 pair），pair2 出现一次
-  let sam_pe : String =
-    "@HD\tVN:1.6\tSO:coordinate\n" +
+  let sam_pe : String = "@HD\tVN:1.6\tSO:coordinate\n" +
     "@SQ\tSN:chr1\tLN:1000\n" +
     "pair1\t67\tchr1\t100\t60\t8M\t=\t200\t150\tACGTACGT\t!!!!!!!!\n" +
     "pair1\t131\tchr1\t200\t60\t8M\t=\t100\t-150\tTGCATGCA\t!!!!!!!!\n" +

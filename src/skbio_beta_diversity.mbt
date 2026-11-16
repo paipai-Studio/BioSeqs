@@ -191,7 +191,9 @@ pub fn skbio_beta_dummy() -> Unit {
 /// 当 ᾱ = 0（全部样本全零）时返回 0。
 pub fn skbio_whittaker_beta(samples : Array[Array[Double]]) -> Double {
   let n = samples.length()
-  if n == 0 { return 0.0 }
+  if n == 0 {
+    return 0.0
+  }
   let d = if n > 0 { samples[0].length() } else { 0 }
   let mut gamma_count = 0
   let mut alpha_sum = 0
@@ -210,7 +212,9 @@ pub fn skbio_whittaker_beta(samples : Array[Array[Double]]) -> Double {
   for i = 0; i < n; i = i + 1 {
     let mut present = 0
     for f = 0; f < d; f = f + 1 {
-      if samples[i][f] > 0.0 { present = present + 1 }
+      if samples[i][f] > 0.0 {
+        present = present + 1
+      }
     }
     alpha_sum = alpha_sum + present
   }
@@ -236,7 +240,9 @@ pub fn skbio_subsample_counts_with_replacement(
 ) -> Array[Double] {
   let d = counts.length()
   let mut total = 0.0
-  for c in counts { total = total + c }
+  for c in counts {
+    total = total + c
+  }
   if total <= 0.0 || depth <= 0 {
     return Array::make(d, 0.0)
   }
@@ -282,13 +288,15 @@ pub fn skbio_subsample_counts(
   seed : Int32,
 ) -> Array[Double] {
   let d = counts.length()
-  let d_i = (depth.to_double()).floor().to_int()
-  let mut total : Int = 0
-  for c in counts { total = total + c.floor().to_int() }
+  let d_i = depth.to_double().floor().to_int()
+  let mut total : Int32 = 0
+  for c in counts {
+    total = total + c.floor().to_int()
+  }
   if total <= 0 || d_i <= 0 || d_i > total {
     return Array::make(d, 0.0)
   }
-  let flat : Array[Int] = Array(capacity=total)
+  let flat : Array[Int32] = Array(capacity=total)
   for f = 0; f < d; f = f + 1 {
     let nf = counts[f].floor().to_int()
     let mut k = 0
@@ -299,10 +307,12 @@ pub fn skbio_subsample_counts(
   }
   let mut rng = seed
   let mut i = total - 1
-  while i >= (total - d_i) {
+  while i >= total - d_i {
     rng = (rng * 1103515245 + 12345) & 0x7FFFFFFF
     let j = rng % (i + 1)
-    let t = flat[i]; flat[i] = flat[j]; flat[j] = t
+    let t = flat[i]
+    flat[i] = flat[j]
+    flat[j] = t
     i = i - 1
   }
   let out = Array::make(d, 0.0)
@@ -327,9 +337,7 @@ pub fn skbio_isubsample(
   let lc = depths.length()
   let out : Array[Array[Double]] = Array(capacity=n)
   for i = 0; i < n; i = i + 1 {
-    let dp = if lc == 1 { depths[0] } else {
-      if i < lc { depths[i] } else { 0 }
-    }
+    let dp = if lc == 1 { depths[0] } else if i < lc { depths[i] } else { 0 }
     out.push(skbio_subsample_counts(samples[i], dp, seed + i))
   }
   out

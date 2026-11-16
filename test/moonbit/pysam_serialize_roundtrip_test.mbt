@@ -3,8 +3,7 @@
 
 // ---------- VCF round-trip ----------
 
-let roundtrip_vcf_text : String =
-  "##fileformat=VCFv4.2\n" +
+let roundtrip_vcf_text : String = "##fileformat=VCFv4.2\n" +
   "##contig=<ID=chr1,length=1000>\n" +
   "##contig=<ID=chr2,length=800>\n" +
   "##INFO=<ID=DP,Number=1,Type=Integer,Description=\"depth\">\n" +
@@ -41,7 +40,7 @@ test "vcf_roundtrip_idempotent_text" {
   }
   // FORMAT + samples
   match r1.format {
-    Some(f) => { assert_eq(f[0], "GT") }
+    Some(f) => assert_eq(f[0], "GT")
     None => abort("FORMAT missing")
   }
   match r1.samples.get("sampleA") {
@@ -59,7 +58,7 @@ test "vcf_roundtrip_multi_allelic" {
   let vcf = @src.parse_vcf(roundtrip_vcf_text)
   let text = @src.vcf_to_text(vcf)
   let vcf2 = @src.parse_vcf(text)
-  let r2 = vcf2.records[1]  // rs2 chr1:200 REF=C ALT=G,A
+  let r2 = vcf2.records[1] // rs2 chr1:200 REF=C ALT=G,A
   assert_eq(r2.alt.length(), 2)
   assert_eq(r2.alt[0], "G")
   assert_eq(r2.alt[1], "A")
@@ -85,7 +84,9 @@ test "vcf_roundtrip_missing_qual_filter_id" {
 
 ///|
 test "vcf_roundtrip_empty_vcf" {
-  let vcf = @src.parse_vcf("##fileformat=VCFv4.2\n#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\n")
+  let vcf = @src.parse_vcf(
+    "##fileformat=VCFv4.2\n#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\n",
+  )
   let text = @src.vcf_to_text(vcf)
   let vcf2 = @src.parse_vcf(text)
   assert_eq(vcf2.records.length(), 0)
@@ -94,7 +95,9 @@ test "vcf_roundtrip_empty_vcf" {
 ///|
 test "vcf_roundtrip_no_meta_headers_fallback" {
   // 用 parse_vcf 构造一份只带 fileformat 没有 contig meta header 的 VCF
-  let vcf = @src.parse_vcf("##fileformat=VCFv4.2\n#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\n")
+  let vcf = @src.parse_vcf(
+    "##fileformat=VCFv4.2\n#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\n",
+  )
   let text = @src.vcf_to_text(vcf)
   assert_true(text.contains("CHROM"))
   assert_true(text.contains("POS"))
@@ -102,8 +105,8 @@ test "vcf_roundtrip_no_meta_headers_fallback" {
 
 // ---------- BAM → SAM round-trip ----------
 
-let roundtrip_sam_text : String =
-  "@HD\tVN:1.6\tSO:coordinate\n" +
+///|
+let roundtrip_sam_text : String = "@HD\tVN:1.6\tSO:coordinate\n" +
   "@SQ\tSN:chr1\tLN:1000\n" +
   "@SQ\tSN:chr2\tLN:800\n" +
   "@RG\tID:lib1\tSM:sample1\n" +
@@ -130,7 +133,7 @@ test "bam_roundtrip_pos_conversion" {
   let bam = @src.sam_to_bam(roundtrip_sam_text)
   let sam = @src.bam_to_sam_text(bam)
   // SAM pos 是 1-based；BamRecord.pos 是 0-based；bam_to_sam 要 +1 回去
-  assert_true(sam.contains("\t101\t"))  // chr1:100 (0-based) → SAM 101
+  assert_true(sam.contains("\t101\t")) // chr1:100 (0-based) → SAM 101
   assert_true(sam.contains("\t201\t"))
   assert_true(sam.contains("\t301\t"))
   assert_true(sam.contains("\t401\t"))
@@ -203,7 +206,7 @@ test "bam_roundtrip_empty_header_uses_defaults" {
   let bam = @src.sam_to_bam(
     "@HD\tVN:1.6\tSO:unsorted\n" +
     "@SQ\tSN:chr1\tLN:1000\n" +
-    "r1\t0\tchr1\t101\t60\t8M\t*\t0\t0\tACGTACGT\t!!!!!!!!\n"
+    "r1\t0\tchr1\t101\t60\t8M\t*\t0\t0\tACGTACGT\t!!!!!!!!\n",
   )
   let sam = @src.bam_to_sam_text(bam)
   assert_true(sam.contains("@HD"))
@@ -212,8 +215,7 @@ test "bam_roundtrip_empty_header_uses_defaults" {
 
 ///|
 test "bam_roundtrip_unmapped_read_star_fields" {
-  let sam_text : String =
-    "@HD\tVN:1.6\tSO:coordinate\n" +
+  let sam_text : String = "@HD\tVN:1.6\tSO:coordinate\n" +
     "@SQ\tSN:chr1\tLN:1000\n" +
     "unmap\t4\t*\t0\t0\t*\t*\t0\t0\tACGTACGT\t!!!!!!!!\n"
   let bam = @src.sam_to_bam(sam_text)
@@ -225,8 +227,7 @@ test "bam_roundtrip_unmapped_read_star_fields" {
 
 ///|
 test "bam_roundtrip_rnext_eq_symbol" {
-  let sam_text : String =
-    "@HD\tVN:1.6\tSO:coordinate\n" +
+  let sam_text : String = "@HD\tVN:1.6\tSO:coordinate\n" +
     "@SQ\tSN:chr1\tLN:1000\n" +
     "pair\t67\tchr1\t101\t60\t8M\t=\t201\t100\tACGTACGT\t!!!!!!!!\n"
   let bam = @src.sam_to_bam(sam_text)

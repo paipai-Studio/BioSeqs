@@ -23,9 +23,20 @@ pub enum IsecMatchMode {
   Nearby
 }
 
-pub fn isec_mode_exact() -> IsecMatchMode { IsecMatchMode::Exact }
-pub fn isec_mode_exact_with_ref() -> IsecMatchMode { IsecMatchMode::ExactWithRef }
-pub fn isec_mode_nearby() -> IsecMatchMode { IsecMatchMode::Nearby }
+///|
+pub fn isec_mode_exact() -> IsecMatchMode {
+  IsecMatchMode::Exact
+}
+
+///|
+pub fn isec_mode_exact_with_ref() -> IsecMatchMode {
+  IsecMatchMode::ExactWithRef
+}
+
+///|
+pub fn isec_mode_nearby() -> IsecMatchMode {
+  IsecMatchMode::Nearby
+}
 
 // ---------------------------------------------------------------------------
 // 内部：构建 (chrom, pos) 键 Map 用于加速查找
@@ -46,9 +57,7 @@ fn build_pos_index(vcf : VcfFile) -> Map[String, Array[Int32]] {
         copy.push(i)
         m.set(key, copy)
       }
-      None => {
-        m.set(key, [i])
-      }
+      None => m.set(key, [i])
     }
     i = i + 1
   }
@@ -63,14 +72,22 @@ fn isec_match(
   mode : IsecMatchMode,
   tolerance~ : Int32 = 0,
 ) -> Bool {
-  if a.chrom != b.chrom { return false }
+  if a.chrom != b.chrom {
+    return false
+  }
   match mode {
     Exact => a.pos == b.pos
     ExactWithRef => a.pos == b.pos && a.ref_seq == b.ref_seq
-    Nearby => {
-      let d = a.pos - b.pos
-      if d < 0 { -d } else { d }
-    } <= tolerance
+    Nearby =>
+      ({
+        let d = a.pos - b.pos
+        if d < 0 {
+          -d
+        } else {
+          d
+        }
+      }) <=
+      tolerance
   }
 }
 
@@ -84,7 +101,7 @@ fn find_matches(
 ) -> Array[VcfRecord] {
   let out : Array[VcfRecord] = Array(capacity=0)
   for r in vcf.records {
-    if isec_match(r, target_rec, mode, tolerance=tolerance) {
+    if isec_match(r, target_rec, mode, tolerance~) {
       out.push(r)
     }
   }
@@ -108,12 +125,14 @@ pub fn vcf_isec_unique_first(
   for ra in a.records {
     let mut found = false
     for rb in b.records {
-      if isec_match(ra, rb, mode, tolerance=tolerance) {
+      if isec_match(ra, rb, mode, tolerance~) {
         found = true
         break
       }
     }
-    if !found { out.push(ra) }
+    if !found {
+      out.push(ra)
+    }
   }
   VcfFile::{
     meta_headers: a.meta_headers,
@@ -130,7 +149,7 @@ pub fn vcf_isec_unique_second(
   mode~ : IsecMatchMode = Exact,
   tolerance~ : Int32 = 0,
 ) -> VcfFile {
-  vcf_isec_unique_first(b, a, mode=mode, tolerance=tolerance)
+  vcf_isec_unique_first(b, a, mode~, tolerance~)
 }
 
 ///|
@@ -147,12 +166,14 @@ pub fn vcf_isec_intersection(
   for ra in a.records {
     let mut found = false
     for rb in b.records {
-      if isec_match(ra, rb, mode, tolerance=tolerance) {
+      if isec_match(ra, rb, mode, tolerance~) {
         found = true
         break
       }
     }
-    if found { out.push(ra) }
+    if found {
+      out.push(ra)
+    }
   }
   VcfFile::{
     meta_headers: a.meta_headers,
@@ -173,7 +194,7 @@ pub fn vcf_isec_union(
   // a 的全部 records
   let out_a = a.records.copy()
   // 加上 b 里不在 a 中的 records
-  let only_b = vcf_isec_unique_second(a, b, mode=mode, tolerance=tolerance)
+  let only_b = vcf_isec_unique_second(a, b, mode~, tolerance~)
   for rb in only_b.records {
     out_a.push(rb)
   }
@@ -183,11 +204,7 @@ pub fn vcf_isec_union(
     Some(fh) => Some(fh)
     None => b.fixed_header
   }
-  VcfFile::{
-    meta_headers: meta,
-    fixed_header: fixed,
-    records: out_a,
-  }
+  VcfFile::{ meta_headers: meta, fixed_header: fixed, records: out_a, }
 }
 
 // ---------------------------------------------------------------------------
@@ -205,7 +222,7 @@ pub fn vcf_isec_intersect_all(
   tolerance~ : Int32 = 0,
 ) -> VcfFile {
   if inputs.length() == 0 {
-    return VcfFile::{ meta_headers: [], fixed_header: None, records: [] }
+    return VcfFile::{ meta_headers: [], fixed_header: None, records: [], }
   }
   if inputs.length() == 1 {
     return inputs[0]
@@ -227,15 +244,20 @@ pub fn vcf_isec_intersect_all(
       let b = rest_sorted[fi]
       let mut found = false
       for rb in b.records {
-        if isec_match(ra, rb, mode, tolerance=tolerance) {
+        if isec_match(ra, rb, mode, tolerance~) {
           found = true
           break
         }
       }
-      if !found { all_found = false; break }
+      if !found {
+        all_found = false
+        break
+      }
       fi = fi + 1
     }
-    if all_found { out.push(ra) }
+    if all_found {
+      out.push(ra)
+    }
   }
   VcfFile::{
     meta_headers: first.meta_headers,
@@ -253,7 +275,7 @@ pub fn vcf_isec_unique_to_first(
   tolerance~ : Int32 = 0,
 ) -> VcfFile {
   if inputs.length() == 0 {
-    return VcfFile::{ meta_headers: [], fixed_header: None, records: [] }
+    return VcfFile::{ meta_headers: [], fixed_header: None, records: [], }
   }
   if inputs.length() == 1 {
     return inputs[0]
@@ -275,15 +297,20 @@ pub fn vcf_isec_unique_to_first(
       let b = rest[fi]
       let mut hit_b = false
       for rb in b.records {
-        if isec_match(ra, rb, mode, tolerance=tolerance) {
+        if isec_match(ra, rb, mode, tolerance~) {
           hit_b = true
           break
         }
       }
-      if hit_b { all_missing = false; break }
+      if hit_b {
+        all_missing = false
+        break
+      }
       fi = fi + 1
     }
-    if all_missing { out.push(ra) }
+    if all_missing {
+      out.push(ra)
+    }
   }
   VcfFile::{
     meta_headers: first.meta_headers,
@@ -296,6 +323,7 @@ pub fn vcf_isec_unique_to_first(
 // 辅助：meta header 去重合并
 // ---------------------------------------------------------------------------
 
+///|
 fn merge_meta_headers(
   a : Array[VcfMetaHeader],
   b : Array[VcfMetaHeader],
@@ -310,7 +338,9 @@ fn merge_meta_headers(
         break
       }
     }
-    if !dup { out.push(mh) }
+    if !dup {
+      out.push(mh)
+    }
   }
   out
 }
@@ -337,14 +367,24 @@ pub fn vcf_isec_intersection_fast(
         for bi in b_indices {
           let rb = b.records[bi]
           match mode {
-            Exact => { matched = true; break }
-            ExactWithRef => {
-              if ra.ref_seq == rb.ref_seq { matched = true; break }
+            Exact => {
+              matched = true
+              break
             }
-            Nearby => { matched = true; break }
+            ExactWithRef =>
+              if ra.ref_seq == rb.ref_seq {
+                matched = true
+                break
+              }
+            Nearby => {
+              matched = true
+              break
+            }
           }
         }
-        if matched { out.push(ra) }
+        if matched {
+          out.push(ra)
+        }
       }
       None => ()
     }
@@ -368,9 +408,9 @@ pub fn vcf_isec_summary(
   mode~ : IsecMatchMode = Exact,
   tolerance~ : Int32 = 0,
 ) -> (Int32, Int32, Int32) {
-  let only_a = vcf_isec_unique_first(a, b, mode=mode, tolerance=tolerance).records.length()
+  let only_a = vcf_isec_unique_first(a, b, mode~, tolerance~).records.length()
   let shared = a.records.length() - only_a
-  let only_b = vcf_isec_unique_second(a, b, mode=mode, tolerance=tolerance).records.length()
+  let only_b = vcf_isec_unique_second(a, b, mode~, tolerance~).records.length()
   (only_a, only_b, shared)
 }
 
@@ -381,10 +421,14 @@ pub fn vcf_isec_jaccard(
   b : VcfFile,
   mode~ : IsecMatchMode = Exact,
 ) -> Double {
-  let inter = vcf_isec_intersection_fast(a, b, mode=mode).records.length().to_double()
+  let inter = vcf_isec_intersection_fast(a, b, mode~).records
+    .length()
+    .to_double()
   let union_a = a.records.length().to_double()
   let union_b = b.records.length().to_double()
   let union = union_a + union_b - inter
-  if union == 0.0 { return 0.0 }
+  if union == 0.0 {
+    return 0.0
+  }
   inter / union
 }

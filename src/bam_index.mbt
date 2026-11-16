@@ -247,22 +247,22 @@ pub fn bai_query(
 
 ///|
 fn bai_write_u32(buf : StringBuilder, v : Int32) -> Unit {
-  buf.write_char(((v & 255).to_uint16()).unsafe_to_char())
-  buf.write_char((((v >> 8) & 255).to_uint16()).unsafe_to_char())
-  buf.write_char((((v >> 16) & 255).to_uint16()).unsafe_to_char())
-  buf.write_char((((v >> 24) & 255).to_uint16()).unsafe_to_char())
+  buf.write_char((v & 255).to_uint16().unsafe_to_char())
+  buf.write_char(((v >> 8) & 255).to_uint16().unsafe_to_char())
+  buf.write_char(((v >> 16) & 255).to_uint16().unsafe_to_char())
+  buf.write_char(((v >> 24) & 255).to_uint16().unsafe_to_char())
 }
 
 ///|
 fn bai_write_u64(buf : StringBuilder, v : Int64) -> Unit {
-  buf.write_char((((v & 255).to_int()).to_uint16()).unsafe_to_char())
-  buf.write_char(((((v >> 8) & 255).to_int()).to_uint16()).unsafe_to_char())
-  buf.write_char(((((v >> 16) & 255).to_int()).to_uint16()).unsafe_to_char())
-  buf.write_char(((((v >> 24) & 255).to_int()).to_uint16()).unsafe_to_char())
-  buf.write_char(((((v >> 32) & 255).to_int()).to_uint16()).unsafe_to_char())
-  buf.write_char(((((v >> 40) & 255).to_int()).to_uint16()).unsafe_to_char())
-  buf.write_char(((((v >> 48) & 255).to_int()).to_uint16()).unsafe_to_char())
-  buf.write_char(((((v >> 56) & 255).to_int()).to_uint16()).unsafe_to_char())
+  buf.write_char((v & 255).to_int().to_uint16().unsafe_to_char())
+  buf.write_char(((v >> 8) & 255).to_int().to_uint16().unsafe_to_char())
+  buf.write_char(((v >> 16) & 255).to_int().to_uint16().unsafe_to_char())
+  buf.write_char(((v >> 24) & 255).to_int().to_uint16().unsafe_to_char())
+  buf.write_char(((v >> 32) & 255).to_int().to_uint16().unsafe_to_char())
+  buf.write_char(((v >> 40) & 255).to_int().to_uint16().unsafe_to_char())
+  buf.write_char(((v >> 48) & 255).to_int().to_uint16().unsafe_to_char())
+  buf.write_char(((v >> 56) & 255).to_int().to_uint16().unsafe_to_char())
 }
 
 ///|
@@ -345,6 +345,6 @@ pub fn bgzf_block_offset(voffset : Int64) -> Int64 {
 
 ///|
 /// Extract the within-block offset from a BGZF virtual offset (lower 16 bits).
-pub fn bgzf_within_block(voffset : Int64) -> Int {
-  ((voffset & 65535).to_int())
+pub fn bgzf_within_block(voffset : Int64) -> Int32 {
+  (voffset & 65535).to_int()
 }

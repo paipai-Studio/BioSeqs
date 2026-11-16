@@ -103,9 +103,13 @@ pub fn anndata_write_text(adata : AnnData) -> String {
 ///
 /// 成功返回 `Some(adata)`，解析失败返回 `None`。
 pub fn anndata_read_mtx(content : String) -> AnnData? {
-  if content.trim().length() == 0 { return None }
+  if content.trim().length() == 0 {
+    return None
+  }
   let (matrix, n_rows, n_cols) = scanpy_parse_mtx(content)
-  if n_rows == 0 || n_cols == 0 { return None }
+  if n_rows == 0 || n_cols == 0 {
+    return None
+  }
   // 构造 obs / var 名字（默认 "Cell_1", "Gene_1" ...）
   let obs_names : Array[String] = Array(capacity=n_rows)
   for i = 1; i <= n_rows; i = i + 1 {
@@ -134,7 +138,9 @@ pub fn anndata_write_mtx(adata : AnnData) -> String {
   let mut nnz : Int32 = 0
   for row in x {
     for v in row {
-      if v != 0.0 { nnz = nnz + 1 }
+      if v != 0.0 {
+        nnz = nnz + 1
+      }
     }
   }
   let _ = sb.write(n_rows.to_string())

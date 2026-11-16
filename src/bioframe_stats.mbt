@@ -250,13 +250,21 @@ fn bf_coverage_merge(intervals : Array[BedInterval]) -> Array[BedInterval] {
   }
   let sorted = intervals.copy()
   sorted.sort_by(fn(x, y) {
-    if x.chrom < y.chrom { -1 }
-    else if x.chrom > y.chrom { 1 }
-    else if x.start < y.start { -1 }
-    else if x.start > y.start { 1 }
-    else if x.end < y.end { -1 }
-    else if x.end > y.end { 1 }
-    else { 0 }
+    if x.chrom < y.chrom {
+      -1
+    } else if x.chrom > y.chrom {
+      1
+    } else if x.start < y.start {
+      -1
+    } else if x.start > y.start {
+      1
+    } else if x.end < y.end {
+      -1
+    } else if x.end > y.end {
+      1
+    } else {
+      0
+    }
   })
   let out : Array[BedInterval] = Array(capacity=0)
   let mut cur = sorted[0]

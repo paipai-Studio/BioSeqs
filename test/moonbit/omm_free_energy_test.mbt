@@ -114,14 +114,9 @@ test "omm alchemical energy softened at intermediate lambda" {
 
 // --- A10 高层便利入口 ---
 
+///|
 test "omm_free_energy_result_fields" {
-  let r = @src.OmmFreeEnergyResult::new(
-    -1.23,
-    "MBAR",
-    1000,
-    5,
-    true,
-  )
+  let r = @src.OmmFreeEnergyResult::new(-1.23, "MBAR", 1000, 5, true)
   assert_true(@moonbit.assert_num_close(r.dG, -1.23, 1.0e-12))
   assert_eq(r.alg, "MBAR")
   assert_eq(r.n_samples, 1000)
@@ -129,11 +124,12 @@ test "omm_free_energy_result_fields" {
   assert_true(r.converged)
 }
 
+///|
 test "omm_fep_batch_two_windows" {
   // 两窗口 FEP batch 返回 1 条 dG
   // convention: omm_fep(A_samples_in_A, A_samples_in_B) → dG_{A→B}
-  let e0_in_0 = [1.0, 2.0, 3.0, 4.0]   // 状态 A 样本在 A 的能量
-  let e0_in_1 = [3.0, 4.0, 5.0, 6.0]   // 状态 A 样本在 B 的能量 (= +2 恒偏移)
+  let e0_in_0 = [1.0, 2.0, 3.0, 4.0] // 状态 A 样本在 A 的能量
+  let e0_in_1 = [3.0, 4.0, 5.0, 6.0] // 状态 A 样本在 B 的能量 (= +2 恒偏移)
   let results = @src.omm_fep_batch([e0_in_0, e0_in_1])
   assert_eq(results.length(), 1)
   assert_eq(results[0].alg, "FEP")
@@ -141,11 +137,13 @@ test "omm_fep_batch_two_windows" {
   assert_true(@moonbit.assert_num_close(results[0].dG, 2.0, 1.0e-9))
 }
 
+///|
 test "omm_fep_batch_single_window_returns_empty" {
   let results = @src.omm_fep_batch([[1.0, 2.0]])
   assert_eq(results.length(), 0)
 }
 
+///|
 test "omm_mbar_from_energy_trajectories_two_windows_constant_shift" {
   // 两个 lambda 窗口，每个 4 个样本，窗口 1 比窗口 0 高 2.0
   let e0 = [1.0, 2.0, 3.0, 4.0]
@@ -160,6 +158,7 @@ test "omm_mbar_from_energy_trajectories_two_windows_constant_shift" {
   assert_true(result.converged)
 }
 
+///|
 test "omm_bar_batch_two_pairs" {
   // BAR batch 输入 k=3 个窗口 → 2 对相邻对 → 输出 2 条结果
   let eA0_A0 = [0.0, 0.0, 0.0]
@@ -188,6 +187,7 @@ test "omm_bar_batch_two_pairs" {
   assert_true(@moonbit.assert_num_close(results[1].dG, 1.0, 1.0e-3))
 }
 
+///|
 test "omm_wham_from_cvs_three_windows" {
   // 三个 umbrella 窗口的简单测试
   let cvs0 = [-0.1, 0.0, 0.1, -0.05]

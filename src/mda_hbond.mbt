@@ -46,14 +46,18 @@ fn mda_hbond_geom(
   let dy = donor.y - acceptor.y
   let dz = donor.z - acceptor.z
   let da = (dx * dx + dy * dy + dz * dz).sqrt()
-  if da > max_da { return None }
+  if da > max_da {
+    return None
+  }
   match hydrogen {
     Some(h) => {
       let hdx = h.x - acceptor.x
       let hdy = h.y - acceptor.y
       let hdz = h.z - acceptor.z
       let ha = (hdx * hdx + hdy * hdy + hdz * hdz).sqrt()
-      if ha > max_ha { return None }
+      if ha > max_ha {
+        return None
+      }
       // D-H-A 角度（在 H 处）
       let hh_dx = donor.x - h.x
       let hh_dy = donor.y - h.y
@@ -63,17 +67,27 @@ fn mda_hbond_geom(
       let ha_dz = acceptor.z - h.z
       let len_hh = (hh_dx * hh_dx + hh_dy * hh_dy + hh_dz * hh_dz).sqrt()
       let len_ha = (ha_dx * ha_dx + ha_dy * ha_dy + ha_dz * ha_dz).sqrt()
-      if len_hh < 1.0e-6 || len_ha < 1.0e-6 { return None }
-      let cos_a = (hh_dx * ha_dx + hh_dy * ha_dy + hh_dz * ha_dz) / (len_hh * len_ha)
-      let cos_clamped = if cos_a > 1.0 { 1.0 } else if cos_a < -1.0 { -1.0 } else { cos_a }
+      if len_hh < 1.0e-6 || len_ha < 1.0e-6 {
+        return None
+      }
+      let cos_a = (hh_dx * ha_dx + hh_dy * ha_dy + hh_dz * ha_dz) /
+        (len_hh * len_ha)
+      let cos_clamped = if cos_a > 1.0 {
+        1.0
+      } else if cos_a < -1.0 {
+        -1.0
+      } else {
+        cos_a
+      }
       let angle_deg = @math.acos(cos_clamped) * 180.0 / 3.141592653589793
-      if angle_deg < min_angle { return None }
+      if angle_deg < min_angle {
+        return None
+      }
       Some((da, angle_deg))
     }
-    None => {
+    None =>
       // 无 H：用 D-A 距离 + 近似角度（默认 180°，宽松匹配）
       Some((da, 180.0))
-    }
   }
 }
 
@@ -103,14 +117,17 @@ pub fn AtomGroup::hbonds(
   while i < n {
     let name = atoms[i].name.to_upper()
     let el = atoms[i].element.to_upper()
-    if mda_hbond_is_donor(name) || (el == "N" || el == "O") {
-      donor_idx.push(i); d_count = d_count + 1
+    if mda_hbond_is_donor(name) || el == "N" || el == "O" {
+      donor_idx.push(i)
+      d_count = d_count + 1
     }
     if mda_hbond_is_acceptor(name) || el == "O" {
-      acceptor_idx.push(i); a_count = a_count + 1
+      acceptor_idx.push(i)
+      a_count = a_count + 1
     }
-    if consider_h && (el == "H") {
-      hydrogen_idx.push(i); h_count = h_count + 1
+    if consider_h && el == "H" {
+      hydrogen_idx.push(i)
+      h_count = h_count + 1
     }
     i = i + 1
   }
@@ -122,7 +139,10 @@ pub fn AtomGroup::hbonds(
     let mut ai = 0
     while ai < acceptor_idx.length() {
       let a = acceptor_idx[ai]
-      if d == a { ai = ai + 1; continue }
+      if d == a {
+        ai = ai + 1
+        continue
+      }
       let ca = if a < fr.length() { fr[a] } else { Vector3::new(0.0, 0.0, 0.0) }
       let geom = if consider_h {
         // 找最近的 H 原子（不严格属于同一个 donor；简化匹配）
@@ -131,7 +151,11 @@ pub fn AtomGroup::hbonds(
         let mut hi = 0
         while hi < hydrogen_idx.length() {
           let h = hydrogen_idx[hi]
-          let ch = if h < fr.length() { fr[h] } else { Vector3::new(0.0, 0.0, 0.0) }
+          let ch = if h < fr.length() {
+            fr[h]
+          } else {
+            Vector3::new(0.0, 0.0, 0.0)
+          }
           let dx = ch.x - cd.x
           let dy = ch.y - cd.y
           let dz = ch.z - cd.z
@@ -172,10 +196,10 @@ pub fn AtomGroup::hbond_trajectory(
   while f < n_frames {
     let hb = self.hbonds(
       frame=f,
-      max_distance=max_distance,
-      max_h_distance=max_h_distance,
-      min_angle=min_angle,
-      consider_h=consider_h,
+      max_distance~,
+      max_h_distance~,
+      min_angle~,
+      consider_h~,
     )
     out.push(hb.length())
     f = f + 1
@@ -225,10 +249,10 @@ pub fn AtomGroup::hbond_persistence(
   while f < n_frames {
     let hbs = self.hbonds(
       frame=f,
-      max_distance=max_distance,
-      max_h_distance=max_h_distance,
-      min_angle=min_angle,
-      consider_h=consider_h,
+      max_distance~,
+      max_h_distance~,
+      min_angle~,
+      consider_h~,
     )
     for hb in hbs {
       let d = hb.0
@@ -236,7 +260,10 @@ pub fn AtomGroup::hbond_persistence(
       let mut found = -1
       let mut p = 0
       while p < donors.length() {
-        if donors[p] == d && acceptors[p] == a { found = p; break }
+        if donors[p] == d && acceptors[p] == a {
+          found = p
+          break
+        }
         p = p + 1
       }
       if found >= 0 {
@@ -265,15 +292,24 @@ pub fn AtomGroup::hbond_persistence(
       let mut cur_len = 1
       let mut k = 1
       while k < fs.length() {
-        if fs[k] == fs[k - 1] + 1 { cur_len = cur_len + 1 }
-        else { segs_count = segs_count + 1; seg_total = seg_total + cur_len; cur_len = 1 }
+        if fs[k] == fs[k - 1] + 1 {
+          cur_len = cur_len + 1
+        } else {
+          segs_count = segs_count + 1
+          seg_total = seg_total + cur_len
+          cur_len = 1
+        }
         k = k + 1
       }
       segs_count = segs_count + 1
       seg_total = seg_total + cur_len
     }
     let seg_sum = segs_count.to_double()
-    let mean_lifetime = if seg_sum > 0.0 { seg_total.to_double() / seg_sum } else { 0.0 }
+    let mean_lifetime = if seg_sum > 0.0 {
+      seg_total.to_double() / seg_sum
+    } else {
+      0.0
+    }
     pers.push(HBondPersistence::{
       donor_idx: donors[i],
       acceptor_idx: acceptors[i],
@@ -288,6 +324,13 @@ pub fn AtomGroup::hbond_persistence(
   pers
 }
 
-fn mda_hb_pers_cmp(a : HBondPersistence, b : HBondPersistence) -> Int {
-  if a.occupancy > b.occupancy { -1 } else if a.occupancy < b.occupancy { 1 } else { 0 }
+///|
+fn mda_hb_pers_cmp(a : HBondPersistence, b : HBondPersistence) -> Int32 {
+  if a.occupancy > b.occupancy {
+    -1
+  } else if a.occupancy < b.occupancy {
+    1
+  } else {
+    0
+  }
 }

@@ -11,6 +11,7 @@ test "bf_render_intervals_html: empty intervals → valid HTML with no rects" {
   assert_true(!html.contains("class=\"interval\""))
 }
 
+///|
 test "bf_render_intervals_html: one chrom one interval → rect present" {
   let chromsizes = [("chr1", 1000)]
   let intervals = [@src.BedInterval::new("chr1", 100, 500)]
@@ -19,13 +20,19 @@ test "bf_render_intervals_html: one chrom one interval → rect present" {
   assert_true(html.contains("chr1"))
 }
 
+///|
 test "bf_render_intervals_html: title appears in h2" {
   let chromsizes = [("chr1", 1000)]
-  let html = @src.bf_render_intervals_html([], chromsizes, title="My Figure Title")
+  let html = @src.bf_render_intervals_html(
+    [],
+    chromsizes,
+    title="My Figure Title",
+  )
   assert_true(html.contains("<h2>"))
   assert_true(html.contains("My Figure Title"))
 }
 
+///|
 test "bf_render_intervals_html: multi-chromosome tracks" {
   let chromsizes = [("chr1", 1000), ("chr2", 2000)]
   let intervals = [
@@ -38,6 +45,7 @@ test "bf_render_intervals_html: multi-chromosome tracks" {
   assert_true(html.contains("class=\"interval\""))
 }
 
+///|
 test "bf_render_intervals_html: intervals on unknown chrom → skipped" {
   let chromsizes = [("chr1", 1000)]
   let intervals = [@src.BedInterval::new("chr99", 100, 500)]
@@ -45,6 +53,7 @@ test "bf_render_intervals_html: intervals on unknown chrom → skipped" {
   assert_true(!html.contains("class=\"interval\""))
 }
 
+///|
 test "bf_render_intervals_html: produces self-closing HTML" {
   let html = @src.bf_render_intervals_html([], [("chr1", 100)])
   assert_true(html.has_suffix("</html>\n"))

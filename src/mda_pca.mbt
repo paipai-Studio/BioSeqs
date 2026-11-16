@@ -47,7 +47,9 @@ pub fn AtomGroup::pca_full(
     variance_explained: Array(capacity=0),
     mean_coords: Array(capacity=0),
   }
-  if n_atoms == 0 || n_frames < 2 { return empty }
+  if n_atoms == 0 || n_frames < 2 {
+    return empty
+  }
 
   // ===== 1. 从轨迹抽坐标 =====
   let frames_vec : Array[Array[Vector3]] = Array(capacity=n_frames)
@@ -59,7 +61,11 @@ pub fn AtomGroup::pca_full(
     while i < n_atoms {
       let idx = self.indices[i]
       coords.push(
-        if idx < fr.length() { fr[idx] } else { Vector3::new(0.0, 0.0, 0.0) }
+        if idx < fr.length() {
+          fr[idx]
+        } else {
+          Vector3::new(0.0, 0.0, 0.0)
+        },
       )
       i = i + 1
     }
@@ -121,7 +127,10 @@ pub fn AtomGroup::pca_full(
   while i < dim {
     let row : Array[Double] = Array(capacity=dim)
     let mut j = 0
-    while j < dim { row.push(0.0); j = j + 1 }
+    while j < dim {
+      row.push(0.0)
+      j = j + 1
+    }
     cov.push(row)
     i = i + 1
   }
@@ -149,11 +158,14 @@ pub fn AtomGroup::pca_full(
     }
     f = f + 1
   }
-  let norm = 1.0 / ((n_frames - 1).to_double())
+  let norm = 1.0 / (n_frames - 1).to_double()
   i = 0
   while i < dim {
     let mut j = 0
-    while j < dim { cov[i][j] = cov[i][j] * norm; j = j + 1 }
+    while j < dim {
+      cov[i][j] = cov[i][j] * norm
+      j = j + 1
+    }
     i = i + 1
   }
 
@@ -164,7 +176,10 @@ pub fn AtomGroup::pca_full(
   // ===== 6. 降序排序 =====
   let indices : Array[Int32] = Array(capacity=dim)
   i = 0
-  while i < dim { indices.push(i); i = i + 1 }
+  while i < dim {
+    indices.push(i)
+    i = i + 1
+  }
   i = 1
   while i < dim {
     let key = indices[i]
@@ -182,10 +197,14 @@ pub fn AtomGroup::pca_full(
   let mut n_modes = 0
   i = 0
   while i < dim {
-    if eigenvalues_raw[indices[i]] > 1.0e-12 { n_modes = n_modes + 1 }
+    if eigenvalues_raw[indices[i]] > 1.0e-12 {
+      n_modes = n_modes + 1
+    }
     i = i + 1
   }
-  if n_modes == 0 { n_modes = 1 }
+  if n_modes == 0 {
+    n_modes = 1
+  }
 
   let eigenvalues : Array[Double] = Array(capacity=n_modes)
   let eigenvectors : Array[Array[Double]] = Array(capacity=dim)
@@ -213,7 +232,11 @@ pub fn AtomGroup::pca_full(
   i = 0
   while i < n_modes {
     variance_explained.push(
-      if total_var > 1.0e-12 { eigenvalues[i] / total_var } else { 0.0 }
+      if total_var > 1.0e-12 {
+        eigenvalues[i] / total_var
+      } else {
+        0.0
+      },
     )
     i = i + 1
   }
@@ -234,19 +257,25 @@ pub fn AtomGroup::pca_full(
 
 ///|
 /// 特征值（降序），单位 Å²。
-pub fn AtomGroupPcaResult::eigenvalues(self : AtomGroupPcaResult) -> Array[Double] {
+pub fn AtomGroupPcaResult::eigenvalues(
+  self : AtomGroupPcaResult,
+) -> Array[Double] {
   self.eigenvalues
 }
 
 ///|
 /// 每个 PC 解释方差比例（降序，总和 ≈ 1）。
-pub fn AtomGroupPcaResult::variance_explained(self : AtomGroupPcaResult) -> Array[Double] {
+pub fn AtomGroupPcaResult::variance_explained(
+  self : AtomGroupPcaResult,
+) -> Array[Double] {
   self.variance_explained
 }
 
 ///|
 /// 累计解释方差。
-pub fn AtomGroupPcaResult::cumulative_variance(self : AtomGroupPcaResult) -> Array[Double] {
+pub fn AtomGroupPcaResult::cumulative_variance(
+  self : AtomGroupPcaResult,
+) -> Array[Double] {
   let n = self.variance_explained.length()
   let out : Array[Double] = Array(capacity=n)
   let mut acc = 0.0
@@ -267,7 +296,9 @@ pub fn AtomGroupPcaResult::n_modes(self : AtomGroupPcaResult) -> Int32 {
 
 ///|
 /// 平均结构坐标。
-pub fn AtomGroupPcaResult::mean_structure(self : AtomGroupPcaResult) -> Array[Vector3] {
+pub fn AtomGroupPcaResult::mean_structure(
+  self : AtomGroupPcaResult,
+) -> Array[Vector3] {
   self.mean_coords
 }
 
@@ -324,7 +355,11 @@ pub fn AtomGroupPcaResult::project_trajectory(
     while i < self.n_atoms {
       let idx = group.indices[i]
       coords.push(
-        if idx < fr.length() { fr[idx] } else { Vector3::new(0.0, 0.0, 0.0) }
+        if idx < fr.length() {
+          fr[idx]
+        } else {
+          Vector3::new(0.0, 0.0, 0.0)
+        },
       )
       i = i + 1
     }

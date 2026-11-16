@@ -6,6 +6,7 @@
 // 比 O(N²) 蛮力快 10-100×，用于 HBond/Contacts/RDF 加速。
 // ============================================================================
 
+///|
 pub struct SpatialGrid {
   cell_size : Double
   /// 所有原子坐标
@@ -18,18 +19,27 @@ pub struct SpatialGrid {
   bucket_values : Array[Array[Int32]]
 }
 
+///|
 fn mda_sg_ix(v : Double, cs : Double) -> Int32 {
-  if cs <= 0.0 { 0 } else { (v / cs).to_int() }
+  if cs <= 0.0 {
+    0
+  } else {
+    (v / cs).to_int()
+  }
 }
 
+///|
 fn mda_sg_key(ix : Int32, iy : Int32, iz : Int32) -> String {
   ix.to_string() + "," + iy.to_string() + "," + iz.to_string()
 }
 
+///|
 fn mda_sg_find_idx(keys : Array[String], target : String) -> Int32 {
   let mut i = 0
   while i < keys.length() {
-    if keys[i] == target { return i }
+    if keys[i] == target {
+      return i
+    }
     i = i + 1
   }
   -1
@@ -50,7 +60,13 @@ pub fn AtomGroup::build_spatial_grid(
   let mut i = 0
   while i < n {
     let id = idx[i]
-    coords.push(if id < fr.length() { fr[id] } else { Vector3::new(0.0, 0.0, 0.0) })
+    coords.push(
+      if id < fr.length() {
+        fr[id]
+      } else {
+        Vector3::new(0.0, 0.0, 0.0)
+      },
+    )
     gi.push(id)
     i = i + 1
   }
@@ -59,7 +75,11 @@ pub fn AtomGroup::build_spatial_grid(
   i = 0
   while i < n {
     let c = coords[i]
-    let key = mda_sg_key(mda_sg_ix(c.x, cell_size), mda_sg_ix(c.y, cell_size), mda_sg_ix(c.z, cell_size))
+    let key = mda_sg_key(
+      mda_sg_ix(c.x, cell_size),
+      mda_sg_ix(c.y, cell_size),
+      mda_sg_ix(c.z, cell_size),
+    )
     let bi = mda_sg_find_idx(bucket_keys, key)
     if bi >= 0 {
       bucket_values[bi].push(i)
@@ -71,13 +91,26 @@ pub fn AtomGroup::build_spatial_grid(
     }
     i = i + 1
   }
-  SpatialGrid::{ cell_size, coords, global_indices: gi, n_atoms: n, bucket_keys, bucket_values }
+  SpatialGrid::{
+    cell_size,
+    coords,
+    global_indices: gi,
+    n_atoms: n,
+    bucket_keys,
+    bucket_values,
+  }
 }
 
 ///|
 /// 查找所有与 local_idx 距离 ≤ cutoff 的原子（返回局部索引）。
-pub fn SpatialGrid::neighbors(self : SpatialGrid, local_idx : Int32, cutoff~ : Double = 4.5) -> Array[Int32] {
-  if local_idx < 0 || local_idx >= self.n_atoms { return Array(capacity=0) }
+pub fn SpatialGrid::neighbors(
+  self : SpatialGrid,
+  local_idx : Int32,
+  cutoff~ : Double = 4.5,
+) -> Array[Int32] {
+  if local_idx < 0 || local_idx >= self.n_atoms {
+    return Array(capacity=0)
+  }
   let c = self.coords[local_idx]
   let cs = self.cell_size
   let ix = mda_sg_ix(c.x, cs)
@@ -98,11 +131,18 @@ pub fn SpatialGrid::neighbors(self : SpatialGrid, local_idx : Int32, cutoff~ : D
           let mut k = 0
           while k < bucket.length() {
             let other = bucket[k]
-            if other == local_idx { k = k + 1; continue }
+            if other == local_idx {
+              k = k + 1
+              continue
+            }
             let oc = self.coords[other]
-            let ddx = c.x - oc.x; let ddy = c.y - oc.y; let ddz = c.z - oc.z
+            let ddx = c.x - oc.x
+            let ddy = c.y - oc.y
+            let ddz = c.z - oc.z
             let d2 = ddx * ddx + ddy * ddy + ddz * ddz
-            if d2 <= cutoff2 { out.push(other) }
+            if d2 <= cutoff2 {
+              out.push(other)
+            }
             k = k + 1
           }
         }
@@ -117,7 +157,10 @@ pub fn SpatialGrid::neighbors(self : SpatialGrid, local_idx : Int32, cutoff~ : D
 
 ///|
 /// 返回 self 内所有原子对距离 ≤ cutoff 的边（无向唯一对）。
-pub fn SpatialGrid::all_pairs_within(self : SpatialGrid, cutoff~ : Double = 4.5) -> Array[(Int32, Int32)] {
+pub fn SpatialGrid::all_pairs_within(
+  self : SpatialGrid,
+  cutoff~ : Double = 4.5,
+) -> Array[(Int32, Int32)] {
   let cutoff2 = cutoff * cutoff
   let out : Array[(Int32, Int32)] = Array(capacity=64)
   let cs = self.cell_size
@@ -142,9 +185,13 @@ pub fn SpatialGrid::all_pairs_within(self : SpatialGrid, cutoff~ : Double = 4.5)
               let other = bucket[k]
               if other > i {
                 let oc = self.coords[other]
-                let ddx = c.x - oc.x; let ddy = c.y - oc.y; let ddz = c.z - oc.z
+                let ddx = c.x - oc.x
+                let ddy = c.y - oc.y
+                let ddz = c.z - oc.z
                 let d2 = ddx * ddx + ddy * ddy + ddz * ddz
-                if d2 <= cutoff2 { out.push((i, other)) }
+                if d2 <= cutoff2 {
+                  out.push((i, other))
+                }
               }
               k = k + 1
             }
@@ -160,6 +207,14 @@ pub fn SpatialGrid::all_pairs_within(self : SpatialGrid, cutoff~ : Double = 4.5)
   out
 }
 
-pub fn SpatialGrid::global_index(self : SpatialGrid, local_idx : Int32) -> Int32 {
-  if local_idx >= 0 && local_idx < self.global_indices.length() { self.global_indices[local_idx] } else { -1 }
+///|
+pub fn SpatialGrid::global_index(
+  self : SpatialGrid,
+  local_idx : Int32,
+) -> Int32 {
+  if local_idx >= 0 && local_idx < self.global_indices.length() {
+    self.global_indices[local_idx]
+  } else {
+    -1
+  }
 }

@@ -12,10 +12,12 @@
 /// A single tiled region row.
 pub struct BfTile {
   chrom : String
-  start : Int
-  end : Int
-  index : Int32   /// which tile along the chromosome (0-based)
-  is_last : Bool  /// true if this tile is the last on its chrom
+  start : Int32
+  end : Int32
+  /// which tile along the chromosome (0-based)
+  /// true if this tile is the last on its chrom
+  index : Int32
+  is_last : Bool
 }
 
 // ================================================================
@@ -43,8 +45,8 @@ pub struct BfTile {
 /// overlap the chromosome end itself: the interval [0, pad) sits at the
 /// start, and [length - pad, length) sits at the end.
 pub fn bf_telomeres(
-  chromsizes : Array[(String, Int)],
-  pad~ : Int = 10000,
+  chromsizes : Array[(String, Int32)],
+  pad~ : Int32 = 10000,
 ) -> Array[BedInterval] {
   let out : Array[BedInterval] = Array(capacity=0)
   for cs in chromsizes {
@@ -66,16 +68,17 @@ pub fn bf_telomeres(
 /// Like bf_telomeres but returns rows with explicit side label ("p"/"q").
 pub struct BfTelomereRow {
   chrom : String
-  start : Int
-  end : Int
-  side : Char  /// 'p' or 'q'
+  start : Int32
+  end : Int32
+  /// 'p' or 'q'
+  side : Char
 }
 
 ///|
 /// bf_telomeres variant with explicit p/q side labels.
 pub fn bf_telomeres_labelled(
-  chromsizes : Array[(String, Int)],
-  pad~ : Int = 10000,
+  chromsizes : Array[(String, Int32)],
+  pad~ : Int32 = 10000,
 ) -> Array[BfTelomereRow] {
   let out : Array[BfTelomereRow] = Array(capacity=0)
   for cs in chromsizes {
@@ -84,12 +87,7 @@ pub fn bf_telomeres_labelled(
     if length <= 2 * pad {
       continue
     }
-    out.push(BfTelomereRow::{
-      chrom,
-      start: 0,
-      end: pad,
-      side: 'p',
-    })
+    out.push(BfTelomereRow::{ chrom, start: 0, end: pad, side: 'p', })
     out.push(BfTelomereRow::{
       chrom,
       start: length - pad,
@@ -118,10 +116,10 @@ pub fn bf_telomeres_labelled(
 /// Returns Array[BfTile].  Last tile on each chromosome is clipped to
 /// the chromosome length and marked `is_last = true`.
 pub fn bf_tiled_regions(
-  chromsizes : Array[(String, Int)],
-  tile_size~ : Int = 1000000,
-  stride~ : Int = 1000000,
-  start_offset~ : Int = 0,
+  chromsizes : Array[(String, Int32)],
+  tile_size~ : Int32 = 1000000,
+  stride~ : Int32 = 1000000,
+  start_offset~ : Int32 = 0,
 ) -> Array[BfTile] {
   let s = if stride <= 0 { tile_size } else { stride }
   let ts = if tile_size <= 0 { 1 } else { tile_size }
@@ -158,9 +156,9 @@ pub fn bf_tiled_regions(
 ///|
 /// Convenience: return tiled regions as BedInterval array (no index info).
 pub fn bf_tiled_as_bed(
-  chromsizes : Array[(String, Int)],
-  tile_size~ : Int = 1000000,
-  stride~ : Int = 1000000,
+  chromsizes : Array[(String, Int32)],
+  tile_size~ : Int32 = 1000000,
+  stride~ : Int32 = 1000000,
 ) -> Array[BedInterval] {
   let tiles = bf_tiled_regions(chromsizes, tile_size=1000000, stride=1000000)
   let out : Array[BedInterval] = []

@@ -724,16 +724,23 @@ fn skbd_mrpp_group_deltas(
   for g in grouping {
     let mut dup = false
     for lv in levels {
-      if lv == g { dup = true; break }
+      if lv == g {
+        dup = true
+        break
+      }
     }
-    if !dup { levels.push(g) }
+    if !dup {
+      levels.push(g)
+    }
   }
   let deltas : Array[Double] = Array(capacity=levels.length())
   let sizes : Array[Int32] = Array(capacity=levels.length())
   for lv in levels {
     let members : Array[Int32] = Array(capacity=0)
     for i = 0; i < n; i = i + 1 {
-      if grouping[i] == lv { members.push(i) }
+      if grouping[i] == lv {
+        members.push(i)
+      }
     }
     let ng = members.length()
     sizes.push(ng)
@@ -746,7 +753,7 @@ fn skbd_mrpp_group_deltas(
           sum_d = sum_d + dm[members[a]][members[b]]
         }
       }
-      let pairs = (ng.to_double() * (ng.to_double() - 1.0)) / 2.0
+      let pairs = ng.to_double() * (ng.to_double() - 1.0) / 2.0
       deltas.push(if pairs > 0.0 { sum_d / pairs } else { 0.0 })
     }
   }
@@ -787,9 +794,13 @@ pub fn skbio_mrpp(
       d_all = d_all + dm[i][j]
     }
   }
-  let total_pairs = (n.to_double() * (n.to_double() - 1.0)) / 2.0
+  let total_pairs = n.to_double() * (n.to_double() - 1.0) / 2.0
   let delta_overall = if total_pairs > 0.0 { d_all / total_pairs } else { 0.0 }
-  let e_t0 = if n > g { (n.to_double() - g.to_double()) * delta_overall } else { 0.0 }
+  let e_t0 = if n > g {
+    (n.to_double() - g.to_double()) * delta_overall
+  } else {
+    0.0
+  }
   let agreement = if e_t0 > 0.0 { 1.0 - t_obs / e_t0 } else { 0.0 }
 
   let mut count_le = 0
@@ -800,7 +811,9 @@ pub fn skbio_mrpp(
     while i > 0 {
       rng = skbd_lcg(rng)
       let j = rng % (i + 1)
-      let t = grp[i]; grp[i] = grp[j]; grp[j] = t
+      let t = grp[i]
+      grp[i] = grp[j]
+      grp[j] = t
       i = i - 1
     }
     let (d_perm, s_perm) = skbd_mrpp_group_deltas(dm, grp)

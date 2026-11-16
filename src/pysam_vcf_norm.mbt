@@ -15,11 +15,17 @@
 /// length difference ≥ 1 (SNPs are already canonical; complex MNVs can be
 /// trimmed but not left-aligned without a ref).
 pub fn vcf_is_norm_target(rec : VcfRecord) -> Bool {
-  if rec.alt.length() != 1 { return false }
+  if rec.alt.length() != 1 {
+    return false
+  }
   let ref_s = rec.ref_seq
   let alt_s = rec.alt[0]
-  if ref_s.length() == 0 || alt_s.length() == 0 { return false }
-  if ref_s == alt_s { return false } // not a variant
+  if ref_s.length() == 0 || alt_s.length() == 0 {
+    return false
+  }
+  if ref_s == alt_s {
+    return false
+  } // not a variant
   true
 }
 
@@ -34,15 +40,23 @@ pub fn vcf_is_norm_target(rec : VcfRecord) -> Bool {
 ///
 /// e.g. REF="ACGT" ALT="ACGTA" → REF="T" ALT="TA" at `pos+3`.
 pub fn vcf_norm_trim_prefix(rec : VcfRecord) -> VcfRecord {
-  if rec.alt.length() != 1 { return rec }
+  if rec.alt.length() != 1 {
+    return rec
+  }
   let ref_s = rec.ref_seq
   let alt_s = rec.alt[0]
-  if ref_s.length() == 0 || alt_s.length() == 0 { return rec }
+  if ref_s.length() == 0 || alt_s.length() == 0 {
+    return rec
+  }
   let mut i = 0
-  while i < ref_s.length() && i < alt_s.length() && ref_s.unsafe_get(i) == alt_s.unsafe_get(i) {
+  while i < ref_s.length() &&
+        i < alt_s.length() &&
+        ref_s.unsafe_get(i) == alt_s.unsafe_get(i) {
     i = i + 1
   }
-  if i == 0 { return rec }
+  if i == 0 {
+    return rec
+  }
   let new_ref = ref_s[i:ref_s.length()].to_owned()
   let new_alt = alt_s[i:alt_s.length()].to_owned()
   let new_format : Array[String]? = match rec.format {
@@ -53,8 +67,16 @@ pub fn vcf_norm_trim_prefix(rec : VcfRecord) -> VcfRecord {
     chrom: rec.chrom,
     pos: rec.pos + i,
     id: rec.id.copy(),
-    ref_seq: if new_ref.length() == 0 { "N" } else { new_ref },
-    alt: if new_alt.length() == 0 { ["N"] } else { [new_alt] },
+    ref_seq: if new_ref.length() == 0 {
+      "N"
+    } else {
+      new_ref
+    },
+    alt: if new_alt.length() == 0 {
+      ["N"]
+    } else {
+      [new_alt]
+    },
     qual: rec.qual,
     filter: rec.filter.copy(),
     info: rec.info.copy(),
@@ -72,19 +94,27 @@ pub fn vcf_norm_trim_prefix(rec : VcfRecord) -> VcfRecord {
 /// trimming so we only drop bases that remain equal at the end.  Matches
 /// bcftools norm's second pass.
 pub fn vcf_norm_trim_suffix(rec : VcfRecord) -> VcfRecord {
-  if rec.alt.length() != 1 { return rec }
+  if rec.alt.length() != 1 {
+    return rec
+  }
   let ref_s = rec.ref_seq
   let alt_s = rec.alt[0]
-  if ref_s.length() <= 1 || alt_s.length() <= 1 { return rec }
+  if ref_s.length() <= 1 || alt_s.length() <= 1 {
+    return rec
+  }
   let mut i = 0
   let mut ref_pos = ref_s.length() - 1
   let mut alt_pos = alt_s.length() - 1
-  while ref_pos > 0 && alt_pos > 0 && ref_s.unsafe_get(ref_pos) == alt_s.unsafe_get(alt_pos) {
+  while ref_pos > 0 &&
+        alt_pos > 0 &&
+        ref_s.unsafe_get(ref_pos) == alt_s.unsafe_get(alt_pos) {
     ref_pos = ref_pos - 1
     alt_pos = alt_pos - 1
     i = i + 1
   }
-  if i == 0 { return rec }
+  if i == 0 {
+    return rec
+  }
   let new_ref = ref_s[0:ref_pos + 1].to_owned()
   let new_alt = alt_s[0:alt_pos + 1].to_owned()
   if new_ref.length() == 0 {
@@ -99,7 +129,7 @@ pub fn vcf_norm_trim_suffix(rec : VcfRecord) -> VcfRecord {
   }
   VcfRecord::{
     chrom: rec.chrom,
-    pos: rec.pos,  // suffix trim does NOT shift pos
+    pos: rec.pos, // suffix trim does NOT shift pos
     id: rec.id.copy(),
     ref_seq: new_ref,
     alt: [new_alt],
@@ -137,7 +167,9 @@ pub fn vcf_norm_trim_all(rec : VcfRecord) -> VcfRecord {
 /// Returns the left-aligned record (or the original if not left-alignable).
 pub fn vcf_norm_left_align(rec : VcfRecord, ref_seq : String) -> VcfRecord {
   // Indels only (len diff = 1; we handle one-base-shift canonicalisation)
-  if rec.alt.length() != 1 { return rec }
+  if rec.alt.length() != 1 {
+    return rec
+  }
   let ref_s = rec.ref_seq
   let alt_s = rec.alt[0]
   let diff = alt_s.length() - ref_s.length()
@@ -170,7 +202,9 @@ pub fn vcf_norm_left_align(rec : VcfRecord, ref_seq : String) -> VcfRecord {
       break
     }
   }
-  if steps == 0 { return rec }
+  if steps == 0 {
+    return rec
+  }
   let new_format3 : Array[String]? = match rec.format {
     Some(f) => Some(f.copy())
     None => None
@@ -198,10 +232,7 @@ pub fn vcf_norm_left_align(rec : VcfRecord, ref_seq : String) -> VcfRecord {
 /// Normalise every record in a VcfFile. Without a reference, only trim is
 /// applied.  With a reference (per-contig FastaFile), indels are additionally
 /// left-aligned (matches `bcftools norm -f ref.fa`).
-pub fn vcf_norm_file(
-  vcf : VcfFile,
-  ref_file : FastaFile,
-) -> VcfFile {
+pub fn vcf_norm_file(vcf : VcfFile, ref_file : FastaFile) -> VcfFile {
   let out : Array[VcfRecord] = Array(capacity=vcf.records.length())
   for rec in vcf.records {
     if !vcf_is_norm_target(rec) {

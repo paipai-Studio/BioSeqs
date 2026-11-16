@@ -30,23 +30,20 @@ fn mda_analysis_min_dist(a : Vector3, b : Vector3, box : PBCBox?) -> Double {
       let ax = bx.v1.x
       let by = bx.v2.y
       let cz = bx.v3.z
-      let dx = if ax > 0.0 {
-        mda_analysis_min_image(dx0, ax)
-      } else { dx0 }
-      let dy = if by > 0.0 {
-        mda_analysis_min_image(dy0, by)
-      } else { dy0 }
-      let dz = if cz > 0.0 {
-        mda_analysis_min_image(dz0, cz)
-      } else { dz0 }
+      let dx = if ax > 0.0 { mda_analysis_min_image(dx0, ax) } else { dx0 }
+      let dy = if by > 0.0 { mda_analysis_min_image(dy0, by) } else { dy0 }
+      let dz = if cz > 0.0 { mda_analysis_min_image(dz0, cz) } else { dz0 }
       (dx * dx + dy * dy + dz * dz).sqrt()
     }
     None => mda_analysis_dist2(a, b)
   }
 }
 
+///|
 fn mda_analysis_min_image(d : Double, l : Double) -> Double {
-  if l <= 0.0 { return d }
+  if l <= 0.0 {
+    return d
+  }
   let k = (d / l + 0.5).floor()
   d - k * l
 }
@@ -65,7 +62,9 @@ pub fn AtomGroup::rmsd_between(
   let n = self.indices.length()
   let fr_a = self.universe.frame(frame_a)
   let fr_b = self.universe.frame(frame_b)
-  if fr_a.length() == 0 || fr_b.length() == 0 || n == 0 { return 0.0 }
+  if fr_a.length() == 0 || fr_b.length() == 0 || n == 0 {
+    return 0.0
+  }
   let mut ssd = 0.0
   let mut i = 0
   while i < n {
@@ -102,7 +101,9 @@ pub fn AtomGroup::mean_structure(self : AtomGroup) -> Array[Vector3] {
   let n_atoms = self.indices.length()
   let n_frames = self.universe.n_frames()
   let out : Array[Vector3] = Array(capacity=n_atoms)
-  if n_atoms == 0 || n_frames == 0 { return out }
+  if n_atoms == 0 || n_frames == 0 {
+    return out
+  }
   let nf = n_frames.to_double()
   let mut i = 0
   while i < n_atoms {
@@ -133,7 +134,9 @@ pub fn AtomGroup::rmsd_to_mean(self : AtomGroup) -> Array[Double] {
   let n_atoms = self.indices.length()
   let n_frames = self.universe.n_frames()
   let result : Array[Double] = Array(capacity=n_frames)
-  if n_atoms == 0 || n_frames == 0 { return result }
+  if n_atoms == 0 || n_frames == 0 {
+    return result
+  }
   let mut f = 0
   while f < n_frames {
     let fr = self.universe.frame(f)
@@ -162,7 +165,9 @@ pub fn AtomGroup::rmsf(self : AtomGroup) -> Array[Double] {
   let n_atoms = self.indices.length()
   let n_frames = self.universe.n_frames()
   let out : Array[Double] = Array(capacity=n_atoms)
-  if n_atoms == 0 || n_frames == 0 { return out }
+  if n_atoms == 0 || n_frames == 0 {
+    return out
+  }
   let mut i = 0
   while i < n_atoms {
     let idx = self.indices[i]
@@ -205,11 +210,19 @@ pub fn AtomGroup::distance_matrix(
   while i < n {
     let row : Array[Double] = Array(capacity=n)
     let idx_i = self.indices[i]
-    let ci = if idx_i < fr.length() { fr[idx_i] } else { Vector3::new(0.0, 0.0, 0.0) }
+    let ci = if idx_i < fr.length() {
+      fr[idx_i]
+    } else {
+      Vector3::new(0.0, 0.0, 0.0)
+    }
     let mut j = 0
     while j < n {
       let idx_j = self.indices[j]
-      let cj = if idx_j < fr.length() { fr[idx_j] } else { Vector3::new(0.0, 0.0, 0.0) }
+      let cj = if idx_j < fr.length() {
+        fr[idx_j]
+      } else {
+        Vector3::new(0.0, 0.0, 0.0)
+      }
       if pbc {
         row.push(mda_analysis_min_dist(ci, cj, box))
       } else {
@@ -241,11 +254,19 @@ pub fn AtomGroup::contacts(
   let mut i = 0
   while i < n {
     let idx_i = self.indices[i]
-    let ci = if idx_i < fr.length() { fr[idx_i] } else { Vector3::new(0.0, 0.0, 0.0) }
+    let ci = if idx_i < fr.length() {
+      fr[idx_i]
+    } else {
+      Vector3::new(0.0, 0.0, 0.0)
+    }
     let mut j = i + 1
     while j < n {
       let idx_j = self.indices[j]
-      let cj = if idx_j < fr.length() { fr[idx_j] } else { Vector3::new(0.0, 0.0, 0.0) }
+      let cj = if idx_j < fr.length() {
+        fr[idx_j]
+      } else {
+        Vector3::new(0.0, 0.0, 0.0)
+      }
       let d = if pbc {
         mda_analysis_min_dist(ci, cj, box)
       } else {
@@ -280,11 +301,19 @@ pub fn AtomGroup::contacts_with(
   let mut i = 0
   while i < n_a {
     let idx_i = self.indices[i]
-    let ci = if idx_i < fr.length() { fr[idx_i] } else { Vector3::new(0.0, 0.0, 0.0) }
+    let ci = if idx_i < fr.length() {
+      fr[idx_i]
+    } else {
+      Vector3::new(0.0, 0.0, 0.0)
+    }
     let mut j = 0
     while j < n_b {
       let idx_j = other.indices[j]
-      let cj = if idx_j < fr.length() { fr[idx_j] } else { Vector3::new(0.0, 0.0, 0.0) }
+      let cj = if idx_j < fr.length() {
+        fr[idx_j]
+      } else {
+        Vector3::new(0.0, 0.0, 0.0)
+      }
       let d = if pbc {
         mda_analysis_min_dist(ci, cj, box)
       } else {
@@ -306,7 +335,9 @@ pub fn AtomGroup::contacts_with(
 
 ///|
 /// 每帧回转半径轨迹（加权 mass，默认）。
-pub fn AtomGroup::radius_of_gyration_trajectory(self : AtomGroup) -> Array[Double] {
+pub fn AtomGroup::radius_of_gyration_trajectory(
+  self : AtomGroup,
+) -> Array[Double] {
   let n_frames = self.universe.n_frames()
   let result : Array[Double] = Array(capacity=n_frames)
   let mut f = 0
@@ -327,7 +358,10 @@ pub fn AtomGroup::msd(self : AtomGroup) -> Array[Double] {
   let out : Array[Double] = Array(capacity=n_frames)
   if n_atoms == 0 || n_frames < 2 {
     let mut f = 0
-    while f < n_frames { out.push(0.0); f = f + 1 }
+    while f < n_frames {
+      out.push(0.0)
+      f = f + 1
+    }
     return out
   }
   // 第 0 帧参考坐标
@@ -338,7 +372,11 @@ pub fn AtomGroup::msd(self : AtomGroup) -> Array[Double] {
   while i < n_atoms {
     let idx = self.indices[i]
     ref_coords.push(
-      if idx < fr0.length() { fr0[idx] } else { Vector3::new(0.0, 0.0, 0.0) }
+      if idx < fr0.length() {
+        fr0[idx]
+      } else {
+        Vector3::new(0.0, 0.0, 0.0)
+      },
     )
     i = i + 1
   }
@@ -380,7 +418,9 @@ pub fn AtomGroup::sasa_per_atom(
 ) -> Array[Double] {
   let n = self.indices.length()
   let fr = self.universe.frame(frame)
-  if n == 0 { return Array(capacity=0) }
+  if n == 0 {
+    return Array(capacity=0)
+  }
   // vdW radii（近似，常见元素）
   let vdw : Array[Double] = Array(capacity=n)
   let mut i = 0
@@ -389,7 +429,9 @@ pub fn AtomGroup::sasa_per_atom(
     let radius = if idx < self.universe.atoms.length() {
       let el = self.universe.atoms[idx].element.to_upper()
       mda_vdw_radius(el)
-    } else { 1.7 }
+    } else {
+      1.7
+    }
     vdw.push(radius + probe)
     i = i + 1
   }
@@ -398,7 +440,11 @@ pub fn AtomGroup::sasa_per_atom(
   i = 0
   while i < n {
     let idx_i = self.indices[i]
-    let ci = if idx_i < fr.length() { fr[idx_i] } else { Vector3::new(0.0, 0.0, 0.0) }
+    let ci = if idx_i < fr.length() {
+      fr[idx_i]
+    } else {
+      Vector3::new(0.0, 0.0, 0.0)
+    }
     let ri = vdw[i]
     let area = 4.0 * 3.141592653589793 * ri * ri
     // 检查每个邻居原子，若 overlap 则减去遮挡的球面帽面积
@@ -407,7 +453,11 @@ pub fn AtomGroup::sasa_per_atom(
     while j < n {
       if i != j {
         let idx_j = self.indices[j]
-        let cj = if idx_j < fr.length() { fr[idx_j] } else { Vector3::new(0.0, 0.0, 0.0) }
+        let cj = if idx_j < fr.length() {
+          fr[idx_j]
+        } else {
+          Vector3::new(0.0, 0.0, 0.0)
+        }
         let d = mda_analysis_dist2(ci, cj)
         let rj = vdw[j]
         // 两球重叠的球面帽面积（仅近似扣除遮挡的一半）
@@ -431,8 +481,12 @@ pub fn AtomGroup::sasa_per_atom(
 
 ///|
 /// 某帧总 SASA。
-pub fn AtomGroup::sasa(self : AtomGroup, frame~ : Int32 = 0, probe~ : Double = 1.4) -> Double {
-  let per_atom = self.sasa_per_atom(frame=frame, probe=probe)
+pub fn AtomGroup::sasa(
+  self : AtomGroup,
+  frame~ : Int32 = 0,
+  probe~ : Double = 1.4,
+) -> Double {
+  let per_atom = self.sasa_per_atom(frame~, probe~)
   let mut total = 0.0
   let mut i = 0
   while i < per_atom.length() {
@@ -463,8 +517,16 @@ pub fn AtomGroup::distance_trajectory(
   let mut f = 0
   while f < n_frames {
     let fr = self.universe.frame(f)
-    let di = if idx_i < fr.length() { fr[idx_i] } else { Vector3::new(0.0, 0.0, 0.0) }
-    let dj = if idx_j < fr.length() { fr[idx_j] } else { Vector3::new(0.0, 0.0, 0.0) }
+    let di = if idx_i < fr.length() {
+      fr[idx_i]
+    } else {
+      Vector3::new(0.0, 0.0, 0.0)
+    }
+    let dj = if idx_j < fr.length() {
+      fr[idx_j]
+    } else {
+      Vector3::new(0.0, 0.0, 0.0)
+    }
     out.push(mda_analysis_dist2(di, dj))
     f = f + 1
   }
@@ -489,9 +551,21 @@ pub fn AtomGroup::angle_trajectory(
   let mut f = 0
   while f < n_frames {
     let fr = self.universe.frame(f)
-    let pi = if idx_i < fr.length() { fr[idx_i] } else { Vector3::new(0.0, 0.0, 0.0) }
-    let pj = if idx_j < fr.length() { fr[idx_j] } else { Vector3::new(0.0, 0.0, 0.0) }
-    let pk = if idx_k < fr.length() { fr[idx_k] } else { Vector3::new(0.0, 0.0, 0.0) }
+    let pi = if idx_i < fr.length() {
+      fr[idx_i]
+    } else {
+      Vector3::new(0.0, 0.0, 0.0)
+    }
+    let pj = if idx_j < fr.length() {
+      fr[idx_j]
+    } else {
+      Vector3::new(0.0, 0.0, 0.0)
+    }
+    let pk = if idx_k < fr.length() {
+      fr[idx_k]
+    } else {
+      Vector3::new(0.0, 0.0, 0.0)
+    }
     let v1 = Vector3::new(pi.x - pj.x, pi.y - pj.y, pi.z - pj.z)
     let v2 = Vector3::new(pk.x - pj.x, pk.y - pj.y, pk.z - pj.z)
     let dot = v1.x * v2.x + v1.y * v2.y + v1.z * v2.z
@@ -499,8 +573,16 @@ pub fn AtomGroup::angle_trajectory(
     let l2 = (v2.x * v2.x + v2.y * v2.y + v2.z * v2.z).sqrt()
     let cos = if l1 > 1.0e-10 && l2 > 1.0e-10 {
       let c = dot / (l1 * l2)
-      if c > 1.0 { 1.0 } else if c < -1.0 { -1.0 } else { c }
-    } else { 0.0 }
+      if c > 1.0 {
+        1.0
+      } else if c < -1.0 {
+        -1.0
+      } else {
+        c
+      }
+    } else {
+      0.0
+    }
     out.push(@math.acos(cos) * 180.0 / 3.141592653589793)
     f = f + 1
   }
@@ -560,7 +642,9 @@ fn mda_analysis_residue_boundaries(
   while k < indices.length() {
     let idx = indices[k]
     let a = if idx < atoms.length() { atoms[idx] } else { UnivAtom::new() }
-    let is_new = (a.resid != cur_resid) || (a.chain != cur_chain) || (a.resname != cur_resname)
+    let is_new = a.resid != cur_resid ||
+      a.chain != cur_chain ||
+      a.resname != cur_resname
     if is_new {
       starts.push(k)
       resids_out.push(a.resid)
@@ -579,8 +663,8 @@ fn mda_analysis_residue_boundaries(
 fn mda_analysis_find_atom(
   atoms : Array[UnivAtom],
   indices : Array[Int32],
-  res_start : Int32,   // AtomGroup 局部起始
-  res_end : Int32,     // AtomGroup 局部结束（exclusive）
+  res_start : Int32, // AtomGroup 局部起始
+  res_end : Int32, // AtomGroup 局部结束（exclusive）
   name : String,
 ) -> Int32? {
   let mut k = res_start
@@ -599,7 +683,9 @@ fn mda_analysis_find_atom(
 ///
 /// 返回 Array[Array[Double?]]，shape `(n_res - 1, n_frames)`；
 /// 首残基没有 φ；跨 chain 断裂点也为 None。
-pub fn AtomGroup::backbone_phi_trajectory(self : AtomGroup) -> Array[Array[Double?]] {
+pub fn AtomGroup::backbone_phi_trajectory(
+  self : AtomGroup,
+) -> Array[Array[Double?]] {
   let atoms = self.universe.atoms
   let n_frames = self.universe.n_frames()
   let (starts, _resids) = mda_analysis_residue_boundaries(atoms, self.indices)
@@ -610,26 +696,66 @@ pub fn AtomGroup::backbone_phi_trajectory(self : AtomGroup) -> Array[Array[Doubl
     let row : Array[Double?] = Array(capacity=n_frames)
     // 残基边界
     let cur_start = starts[ri]
-    let cur_end = if ri + 1 < n_res { starts[ri + 1] } else { self.indices.length() }
+    let cur_end = if ri + 1 < n_res {
+      starts[ri + 1]
+    } else {
+      self.indices.length()
+    }
     // 找 N(i), CA(i), C(i)
-    let n_i = mda_analysis_find_atom(atoms, self.indices, cur_start, cur_end, "N")
-    let ca_i = mda_analysis_find_atom(atoms, self.indices, cur_start, cur_end, "CA")
-    let c_i = mda_analysis_find_atom(atoms, self.indices, cur_start, cur_end, "C")
+    let n_i = mda_analysis_find_atom(
+      atoms,
+      self.indices,
+      cur_start,
+      cur_end,
+      "N",
+    )
+    let ca_i = mda_analysis_find_atom(
+      atoms,
+      self.indices,
+      cur_start,
+      cur_end,
+      "CA",
+    )
+    let c_i = mda_analysis_find_atom(
+      atoms,
+      self.indices,
+      cur_start,
+      cur_end,
+      "C",
+    )
     // 前一个残基的 C
     let c_prev = if ri > 0 {
       let prev_s = starts[ri - 1]
       let prev_e = cur_start
       mda_analysis_find_atom(atoms, self.indices, prev_s, prev_e, "C")
-    } else { None }
+    } else {
+      None
+    }
     let mut f = 0
     while f < n_frames {
       match (c_prev, n_i, ca_i, c_i) {
         (Some(ic), Some(in1), Some(ica), Some(ic2)) => {
           let fr = self.universe.frame(f)
-          let pc = if ic < fr.length() { fr[ic] } else { Vector3::new(0.0, 0.0, 0.0) }
-          let pn = if in1 < fr.length() { fr[in1] } else { Vector3::new(0.0, 0.0, 0.0) }
-          let pca = if ica < fr.length() { fr[ica] } else { Vector3::new(0.0, 0.0, 0.0) }
-          let pci = if ic2 < fr.length() { fr[ic2] } else { Vector3::new(0.0, 0.0, 0.0) }
+          let pc = if ic < fr.length() {
+            fr[ic]
+          } else {
+            Vector3::new(0.0, 0.0, 0.0)
+          }
+          let pn = if in1 < fr.length() {
+            fr[in1]
+          } else {
+            Vector3::new(0.0, 0.0, 0.0)
+          }
+          let pca = if ica < fr.length() {
+            fr[ica]
+          } else {
+            Vector3::new(0.0, 0.0, 0.0)
+          }
+          let pci = if ic2 < fr.length() {
+            fr[ic2]
+          } else {
+            Vector3::new(0.0, 0.0, 0.0)
+          }
           row.push(Some(vector_dihedral_angle_degrees(pc, pn, pca, pci)))
         }
         _ => row.push(None)
@@ -644,7 +770,9 @@ pub fn AtomGroup::backbone_phi_trajectory(self : AtomGroup) -> Array[Array[Doubl
 
 ///|
 /// Backbone ψ (psi) 时间序列 — N(i)-CA(i)-C(i)-N(i+1)。
-pub fn AtomGroup::backbone_psi_trajectory(self : AtomGroup) -> Array[Array[Double?]] {
+pub fn AtomGroup::backbone_psi_trajectory(
+  self : AtomGroup,
+) -> Array[Array[Double?]] {
   let atoms = self.universe.atoms
   let n_frames = self.universe.n_frames()
   let (starts, _resids) = mda_analysis_residue_boundaries(atoms, self.indices)
@@ -654,24 +782,68 @@ pub fn AtomGroup::backbone_psi_trajectory(self : AtomGroup) -> Array[Array[Doubl
   while ri < n_res {
     let row : Array[Double?] = Array(capacity=n_frames)
     let cur_start = starts[ri]
-    let cur_end = if ri + 1 < n_res { starts[ri + 1] } else { self.indices.length() }
-    let n_i = mda_analysis_find_atom(atoms, self.indices, cur_start, cur_end, "N")
-    let ca_i = mda_analysis_find_atom(atoms, self.indices, cur_start, cur_end, "CA")
-    let c_i = mda_analysis_find_atom(atoms, self.indices, cur_start, cur_end, "C")
+    let cur_end = if ri + 1 < n_res {
+      starts[ri + 1]
+    } else {
+      self.indices.length()
+    }
+    let n_i = mda_analysis_find_atom(
+      atoms,
+      self.indices,
+      cur_start,
+      cur_end,
+      "N",
+    )
+    let ca_i = mda_analysis_find_atom(
+      atoms,
+      self.indices,
+      cur_start,
+      cur_end,
+      "CA",
+    )
+    let c_i = mda_analysis_find_atom(
+      atoms,
+      self.indices,
+      cur_start,
+      cur_end,
+      "C",
+    )
     let n_next = if ri + 1 < n_res {
       let next_s = starts[ri + 1]
-      let next_e = if ri + 2 < n_res { starts[ri + 2] } else { self.indices.length() }
+      let next_e = if ri + 2 < n_res {
+        starts[ri + 2]
+      } else {
+        self.indices.length()
+      }
       mda_analysis_find_atom(atoms, self.indices, next_s, next_e, "N")
-    } else { None }
+    } else {
+      None
+    }
     let mut f = 0
     while f < n_frames {
       match (n_i, ca_i, c_i, n_next) {
         (Some(in1), Some(ica), Some(ic), Some(in2)) => {
           let fr = self.universe.frame(f)
-          let pn = if in1 < fr.length() { fr[in1] } else { Vector3::new(0.0, 0.0, 0.0) }
-          let pca = if ica < fr.length() { fr[ica] } else { Vector3::new(0.0, 0.0, 0.0) }
-          let pci = if ic < fr.length() { fr[ic] } else { Vector3::new(0.0, 0.0, 0.0) }
-          let pnn = if in2 < fr.length() { fr[in2] } else { Vector3::new(0.0, 0.0, 0.0) }
+          let pn = if in1 < fr.length() {
+            fr[in1]
+          } else {
+            Vector3::new(0.0, 0.0, 0.0)
+          }
+          let pca = if ica < fr.length() {
+            fr[ica]
+          } else {
+            Vector3::new(0.0, 0.0, 0.0)
+          }
+          let pci = if ic < fr.length() {
+            fr[ic]
+          } else {
+            Vector3::new(0.0, 0.0, 0.0)
+          }
+          let pnn = if in2 < fr.length() {
+            fr[in2]
+          } else {
+            Vector3::new(0.0, 0.0, 0.0)
+          }
           row.push(Some(vector_dihedral_angle_degrees(pn, pca, pci, pnn)))
         }
         _ => row.push(None)
@@ -718,15 +890,26 @@ pub fn AtomGroup::rdf(
   let box = if pbc { Some(self.universe.box) } else { None }
   let counts : Array[Int32] = Array(capacity=nbins)
   let mut b = 0
-  while b < nbins { counts.push(0); b = b + 1 }
+  while b < nbins {
+    counts.push(0)
+    b = b + 1
+  }
   let mut i = 0
   while i < na {
     let idx_a = self.indices[i]
-    let ca = if idx_a < fr_a.length() { fr_a[idx_a] } else { Vector3::new(0.0, 0.0, 0.0) }
+    let ca = if idx_a < fr_a.length() {
+      fr_a[idx_a]
+    } else {
+      Vector3::new(0.0, 0.0, 0.0)
+    }
     let mut j = 0
     while j < nb {
       let idx_b = other.indices[j]
-      let cb = if idx_b < fr_b.length() { fr_b[idx_b] } else { Vector3::new(0.0, 0.0, 0.0) }
+      let cb = if idx_b < fr_b.length() {
+        fr_b[idx_b]
+      } else {
+        Vector3::new(0.0, 0.0, 0.0)
+      }
       let d = if pbc {
         mda_analysis_min_dist(ca, cb, box)
       } else {
@@ -743,7 +926,10 @@ pub fn AtomGroup::rdf(
     i = i + 1
   }
   // 归一化：g(r) = counts / (na * nb * shell_volume * rho_bulk)
-  let box_vol = if pbc && self.universe.box.v1.x > 0.0 && self.universe.box.v2.y > 0.0 && self.universe.box.v3.z > 0.0 {
+  let box_vol = if pbc &&
+    self.universe.box.v1.x > 0.0 &&
+    self.universe.box.v2.y > 0.0 &&
+    self.universe.box.v3.z > 0.0 {
     self.universe.box.v1.x * self.universe.box.v2.y * self.universe.box.v3.z
   } else {
     let cx = (na + nb).to_double().sqrt() * 20.0
@@ -756,13 +942,16 @@ pub fn AtomGroup::rdf(
   while k < nbins {
     let r_lo = k.to_double() * dr
     let r_hi = r_lo + dr
-    let shell_vol = (4.0 / 3.0) * 3.141592653589793 * (r_hi * r_hi * r_hi - r_lo * r_lo * r_lo)
+    let shell_vol = 4.0 /
+      3.0 *
+      3.141592653589793 *
+      (r_hi * r_hi * r_hi - r_lo * r_lo * r_lo)
     let ideal = na.to_double() * rho * shell_vol
     g_r.push(if ideal > 1.0e-10 { counts[k].to_double() / ideal } else { 0.0 })
     r.push((r_lo + r_hi) / 2.0)
     k = k + 1
   }
-  MdaRdfResult::{ r, g_r, n_bins: nbins, dr }
+  MdaRdfResult::{ r, g_r, n_bins: nbins, dr, }
 }
 
 ///|
@@ -783,7 +972,10 @@ pub fn AtomGroup::rdf_averaged(
   let box = if pbc { Some(self.universe.box) } else { None }
   let total_counts : Array[Double] = Array(capacity=nbins)
   let mut b = 0
-  while b < nbins { total_counts.push(0.0); b = b + 1 }
+  while b < nbins {
+    total_counts.push(0.0)
+    b = b + 1
+  }
   let mut f = 0
   while f < n_frames {
     let fr_a = self.universe.frame(f)
@@ -791,11 +983,19 @@ pub fn AtomGroup::rdf_averaged(
     let mut i = 0
     while i < na {
       let idx_a = self.indices[i]
-      let ca = if idx_a < fr_a.length() { fr_a[idx_a] } else { Vector3::new(0.0, 0.0, 0.0) }
+      let ca = if idx_a < fr_a.length() {
+        fr_a[idx_a]
+      } else {
+        Vector3::new(0.0, 0.0, 0.0)
+      }
       let mut j = 0
       while j < nb {
         let idx_b = other.indices[j]
-        let cb = if idx_b < fr_b.length() { fr_b[idx_b] } else { Vector3::new(0.0, 0.0, 0.0) }
+        let cb = if idx_b < fr_b.length() {
+          fr_b[idx_b]
+        } else {
+          Vector3::new(0.0, 0.0, 0.0)
+        }
         let d = if pbc {
           mda_analysis_min_dist(ca, cb, box)
         } else {
@@ -813,7 +1013,10 @@ pub fn AtomGroup::rdf_averaged(
     }
     f = f + 1
   }
-  let box_vol = if pbc && self.universe.box.v1.x > 0.0 && self.universe.box.v2.y > 0.0 && self.universe.box.v3.z > 0.0 {
+  let box_vol = if pbc &&
+    self.universe.box.v1.x > 0.0 &&
+    self.universe.box.v2.y > 0.0 &&
+    self.universe.box.v3.z > 0.0 {
     self.universe.box.v1.x * self.universe.box.v2.y * self.universe.box.v3.z
   } else {
     let cx = (na + nb).to_double().sqrt() * 20.0
@@ -827,37 +1030,41 @@ pub fn AtomGroup::rdf_averaged(
   while k < nbins {
     let r_lo = k.to_double() * dr
     let r_hi = r_lo + dr
-    let shell_vol = (4.0 / 3.0) * 3.141592653589793 * (r_hi * r_hi * r_hi - r_lo * r_lo * r_lo)
+    let shell_vol = 4.0 /
+      3.0 *
+      3.141592653589793 *
+      (r_hi * r_hi * r_hi - r_lo * r_lo * r_lo)
     let ideal = na.to_double() * rho * shell_vol * nf
     g_r.push(if ideal > 1.0e-10 { total_counts[k] / ideal } else { 0.0 })
     r.push((r_lo + r_hi) / 2.0)
     k = k + 1
   }
-  MdaRdfResult::{ r, g_r, n_bins: nbins, dr }
+  MdaRdfResult::{ r, g_r, n_bins: nbins, dr, }
 }
 
 // ============================================================================
 // vdW radii 表（Bondi 1964）
 // ============================================================================
 
+///|
 fn mda_vdw_radius(element : String) -> Double {
   match element {
-    "H"  => 1.2
-    "C"  => 1.7
-    "N"  => 1.55
-    "O"  => 1.52
-    "F"  => 1.47
-    "P"  => 1.8
-    "S"  => 1.8
+    "H" => 1.2
+    "C" => 1.7
+    "N" => 1.55
+    "O" => 1.52
+    "F" => 1.47
+    "P" => 1.8
+    "S" => 1.8
     "CL" => 1.75
     "BR" => 1.85
-    "I"  => 1.98
+    "I" => 1.98
     "FE" => 1.94
     "ZN" => 1.39
     "CA" => 2.31
     "NA" => 2.27
     "MG" => 1.73
     // 默认碳
-    _    => 1.7
+    _ => 1.7
   }
 }

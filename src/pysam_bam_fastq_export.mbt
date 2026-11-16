@@ -54,7 +54,7 @@ pub fn bam_record_fastq_sequence(
   original_sequence : Bool,
 ) -> String {
   if original_sequence {
-    rec.seq  // raw alignment direction (may have softclips at the ends)
+    rec.seq // raw alignment direction (may have softclips at the ends)
   } else {
     rec.get_forward_sequence()
   }
@@ -81,7 +81,13 @@ pub fn bam_record_fastq_header(
   append_mate_suffix : Bool,
 ) -> String {
   let suffix = if append_mate_suffix {
-    if rec.is_read1() { "/1" } else if rec.is_read2() { "/2" } else { "" }
+    if rec.is_read1() {
+      "/1"
+    } else if rec.is_read2() {
+      "/2"
+    } else {
+      ""
+    }
   } else {
     ""
   }
@@ -106,10 +112,7 @@ pub fn bam_to_fastq(bam : BamFile, config : FastqExportConfig) -> String {
     // RG filter
     if config.rg_filter.length() > 0 {
       match r.get_tag("RG") {
-        Some(BamTagValue::Str(rg)) =>
-          if rg != config.rg_filter {
-            continue
-          }
+        Some(BamTagValue::Str(rg)) => if rg != config.rg_filter { continue }
         _ => continue
       }
     }
@@ -201,7 +204,10 @@ pub fn bam_to_fasta(bam : BamFile) -> String {
 
 ///|
 /// Version of `bam_to_fasta` that takes a config (overriding prefix etc.).
-pub fn bam_to_fasta_with_config(bam : BamFile, config : FastqExportConfig) -> String {
+pub fn bam_to_fasta_with_config(
+  bam : BamFile,
+  config : FastqExportConfig,
+) -> String {
   let sb = StringBuilder()
   for r in bam.records {
     if r.is_secondary() || r.is_supplementary() {

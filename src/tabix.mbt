@@ -336,7 +336,10 @@ pub fn TabixFile::fetch(
 ///|
 /// Fetch by samtools-style region string (1-based half-open). Matches Pysam
 /// `TabixFile.fetch("chr1:100-200")`.
-pub fn TabixFile::fetch_region(self : TabixFile, region : String) -> Array[String] raise TabixError {
+pub fn TabixFile::fetch_region(
+  self : TabixFile,
+  region : String,
+) -> Array[String] raise TabixError {
   let (contig, start0, stop0) = parse_region(region)
   let zero : Int32 = 0
   let huge : Int32 = 1073741824
@@ -453,12 +456,15 @@ pub fn build_tabix_index(
   let sentinel_v : Int64 = 9223372036854775807L
   for line in lines {
     // Skip headers / comments
-    if header_skip > 0 || (line.length() > 0 && line.unsafe_get(0).unsafe_to_char() == meta) {
+    if header_skip > 0 ||
+      (line.length() > 0 && line.unsafe_get(0).unsafe_to_char() == meta) {
       header_skip = header_skip - 1
       continue
     }
     let fields = line.split("\t").to_array()
-    if fields.length() < col_beg { continue }
+    if fields.length() < col_beg {
+      continue
+    }
     let seq_name = fields[col_seq - 1].to_owned()
     let s = parse_int(fields[col_beg - 1].to_owned())
     let e = if col_end > 0 && col_end <= fields.length() {

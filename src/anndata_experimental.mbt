@@ -202,8 +202,8 @@ pub fn anndata_experimental_dummy() -> Unit {
 /// 不复制数据，仅通过索引映射访问底层 AnnCollection。
 pub struct AnnCollectionView {
   coll : AnnCollection
-  obs_idx : Array[Int32]  // 若非空 → 只暴露这些 obs；空 → 全部
-  var_idx : Array[Int32]  // 若非空 → 只暴露这些 var；空 → 全部
+  obs_idx : Array[Int32] // 若非空 → 只暴露这些 obs；空 → 全部
+  var_idx : Array[Int32] // 若非空 → 只暴露这些 var；空 → 全部
 }
 
 ///|
@@ -218,22 +218,20 @@ pub fn AnnCollectionView::from(coll : AnnCollection) -> AnnCollectionView {
 
 ///|
 /// 创建 view 并指定 obs 过滤索引。
-pub fn AnnCollectionView::with_obs(coll : AnnCollection, obs_idx : Array[Int32]) -> AnnCollectionView {
-  AnnCollectionView::{
-    coll,
-    obs_idx,
-    var_idx: Array(capacity=0),
-  }
+pub fn AnnCollectionView::with_obs(
+  coll : AnnCollection,
+  obs_idx : Array[Int32],
+) -> AnnCollectionView {
+  AnnCollectionView::{ coll, obs_idx, var_idx: Array(capacity=0), }
 }
 
 ///|
 /// 创建 view 并指定 var 过滤索引。
-pub fn AnnCollectionView::with_vars(coll : AnnCollection, var_idx : Array[Int32]) -> AnnCollectionView {
-  AnnCollectionView::{
-    coll,
-    obs_idx: Array(capacity=0),
-    var_idx,
-  }
+pub fn AnnCollectionView::with_vars(
+  coll : AnnCollection,
+  var_idx : Array[Int32],
+) -> AnnCollectionView {
+  AnnCollectionView::{ coll, obs_idx: Array(capacity=0), var_idx, }
 }
 
 ///|
@@ -268,10 +266,17 @@ pub fn AnnCollectionView::n_vars(self : AnnCollectionView) -> Int32 {
 
 ///|
 /// 取 view 中第 `i` 个 obs 的完整表达向量。
-pub fn AnnCollectionView::get_obs(self : AnnCollectionView, i : Int32) -> Array[Double]? {
+pub fn AnnCollectionView::get_obs(
+  self : AnnCollectionView,
+  i : Int32,
+) -> Array[Double]? {
   // 映射 i → global obs idx
   let global_i = if self.obs_idx.length() > 0 {
-    if i >= 0 && i < self.obs_idx.length() { self.obs_idx[i] } else { return None }
+    if i >= 0 && i < self.obs_idx.length() {
+      self.obs_idx[i]
+    } else {
+      return None
+    }
   } else {
     i
   }
@@ -304,16 +309,28 @@ pub fn AnnCollectionView::get_x(
 ) -> Double? {
   // obs 映射 + 边界
   let global_i = if self.obs_idx.length() > 0 {
-    if i >= 0 && i < self.obs_idx.length() { self.obs_idx[i] } else { return None }
+    if i >= 0 && i < self.obs_idx.length() {
+      self.obs_idx[i]
+    } else {
+      return None
+    }
   } else {
-    if i < 0 || i >= self.coll.n_obs() { return None }
+    if i < 0 || i >= self.coll.n_obs() {
+      return None
+    }
     i
   }
   // var 映射 + 边界
   let global_j = if self.var_idx.length() > 0 {
-    if j >= 0 && j < self.var_idx.length() { self.var_idx[j] } else { return None }
+    if j >= 0 && j < self.var_idx.length() {
+      self.var_idx[j]
+    } else {
+      return None
+    }
   } else {
-    if j < 0 || j >= self.coll.n_vars() { return None }
+    if j < 0 || j >= self.coll.n_vars() {
+      return None
+    }
     j
   }
   self.coll.get_x(global_i, global_j)
@@ -335,11 +352,16 @@ pub fn AnnCollectionView::to_adata(self : AnnCollectionView) -> AnnData {
   let var_names : Array[String] = Array(capacity=n_v)
   if self.var_idx.length() > 0 {
     for j in self.var_idx {
-      if j >= 0 && j < full_var.length() { var_names.push(full_var[j]) }
-      else { var_names.push("var_" + j.to_string()) }
+      if j >= 0 && j < full_var.length() {
+        var_names.push(full_var[j])
+      } else {
+        var_names.push("var_" + j.to_string())
+      }
     }
   } else {
-    for v in full_var { var_names.push(v) }
+    for v in full_var {
+      var_names.push(v)
+    }
   }
   // 构造过滤后的 x + obs_names
   for i = 0; i < n_o; i = i + 1 {

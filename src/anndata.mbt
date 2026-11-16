@@ -755,7 +755,11 @@ pub fn AnnData::obs_vector(
         if j >= 0 && j < self.n_vars() {
           let out : Array[Double] = Array(capacity=self.n_obs())
           for row in layer_mat {
-            if j < row.length() { out.push(row[j]) } else { out.push(0.0) }
+            if j < row.length() {
+              out.push(row[j])
+            } else {
+              out.push(0.0)
+            }
           }
           return Some(out)
         }
@@ -770,7 +774,11 @@ pub fn AnnData::obs_vector(
     let x = self.x_matrix()
     let out : Array[Double] = Array(capacity=x.length())
     for row in x {
-      if j < row.length() { out.push(row[j]) } else { out.push(0.0) }
+      if j < row.length() {
+        out.push(row[j])
+      } else {
+        out.push(0.0)
+      }
     }
     return Some(out)
   }
@@ -802,7 +810,11 @@ pub fn AnnData::var_vector(
           let row = layer_mat[i]
           let out : Array[Double] = Array(capacity=self.n_vars())
           for j = 0; j < self.n_vars(); j = j + 1 {
-            if j < row.length() { out.push(row[j]) } else { out.push(0.0) }
+            if j < row.length() {
+              out.push(row[j])
+            } else {
+              out.push(0.0)
+            }
           }
           return Some(out)
         }
@@ -818,7 +830,11 @@ pub fn AnnData::var_vector(
     let row = x[i]
     let out : Array[Double] = Array(capacity=self.n_vars())
     for j = 0; j < self.n_vars(); j = j + 1 {
-      if j < row.length() { out.push(row[j]) } else { out.push(0.0) }
+      if j < row.length() {
+        out.push(row[j])
+      } else {
+        out.push(0.0)
+      }
     }
     return Some(out)
   }
@@ -826,11 +842,14 @@ pub fn AnnData::var_vector(
   None
 }
 
+///|
 /// 根据名字或字符串整数找 var 索引，找不到返回 -1
 fn find_var_index(adata : AnnData, k : String) -> Int32 {
   let var_names = adata.get_var_names()
   for i = 0; i < var_names.length(); i = i + 1 {
-    if var_names[i] == k { return i }
+    if var_names[i] == k {
+      return i
+    }
   }
   match parse_int_string(k) {
     Some(idx) => idx
@@ -838,11 +857,14 @@ fn find_var_index(adata : AnnData, k : String) -> Int32 {
   }
 }
 
+///|
 /// 根据名字或字符串整数找 obs 索引，找不到返回 -1
 fn find_obs_index(adata : AnnData, k : String) -> Int32 {
   let obs_names = adata.get_obs_names()
   for i = 0; i < obs_names.length(); i = i + 1 {
-    if obs_names[i] == k { return i }
+    if obs_names[i] == k {
+      return i
+    }
   }
   match parse_int_string(k) {
     Some(idx) => idx
@@ -850,19 +872,26 @@ fn find_obs_index(adata : AnnData, k : String) -> Int32 {
   }
 }
 
+///|
 /// 小工具：解析字符串为 Int32
 fn parse_int_string(s : String) -> Int32? {
-  if s.length() == 0 { return None }
+  if s.length() == 0 {
+    return None
+  }
   let first_c = s.unsafe_get(0).unsafe_to_char()
   let first_i : Int32 = first_c.to_int()
   let mut is_num = (first_i >= 48 && first_i <= 57) || first_i == 45
   let mut i : Int32 = 1
   while i < s.length() && is_num {
     let ci : Int32 = s.unsafe_get(i).unsafe_to_char().to_int()
-    if !(ci >= 48 && ci <= 57) { is_num = false }
+    if !(ci >= 48 && ci <= 57) {
+      is_num = false
+    }
     i = i + 1
   }
-  if !is_num { return None }
+  if !is_num {
+    return None
+  }
   let neg = first_i == 45
   let start = if neg { 1 } else { 0 }
   let mut val : Int32 = 0
@@ -872,6 +901,8 @@ fn parse_int_string(s : String) -> Int32? {
     val = val * 10 + (ci - 48)
     j = j + 1
   }
-  if neg { val = -val }
+  if neg {
+    val = -val
+  }
   Some(val)
 }

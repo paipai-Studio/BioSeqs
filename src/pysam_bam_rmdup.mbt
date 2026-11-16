@@ -53,22 +53,25 @@ fn rmdup_keep_indices(bam : BamFile) -> Array[Int32] {
     let k = rmdup_key(r)
     let cur = best_per_key.get(k)
     match cur {
-      Some((best_q, best_idx)) => {
+      Some((best_q, best_idx)) =>
         // Keep whichever has higher mapq; if equal keep the first-seen one.
         if r.mapq > best_q {
           best_per_key.set(k, (r.mapq, i))
         } else {
           best_per_key.set(k, (best_q, best_idx))
         }
-      }
-      None => {
-        best_per_key.set(k, (r.mapq, i))
-      }
+      None => best_per_key.set(k, (r.mapq, i))
     }
     i = i + 1
   }
   // Collect kept indices. We preserve the original record order by sorting.
-  let kept : Array[Int32] = best_per_key.values().map(fn(v) { let (_, idx) = v; idx }).to_array()
+  let kept : Array[Int32] = best_per_key
+    .values()
+    .map(fn(v) {
+      let (_, idx) = v
+      idx
+    })
+    .to_array()
   // Also include unmapped reads (skipped in grouping) — we just didn't drop them
   // above, so `kept` misses them. Fix: iterate all and keep unmapped + winning idx.
   let kept_set : Set[Int32] = Set(kept)
@@ -149,7 +152,9 @@ pub fn bam_count_duplicates(bam : BamFile) -> Int32 {
 /// Fraction of reads that are duplicates (0.0 ~ 1.0).  Returns 0.0 when the
 /// BamFile has no records.
 pub fn bam_duplicate_rate(bam : BamFile) -> Double {
-  if bam.records.length() == 0 { return 0.0 }
+  if bam.records.length() == 0 {
+    return 0.0
+  }
   let dup = bam_count_duplicates(bam).to_double()
   dup / bam.records.length().to_double()
 }

@@ -11,7 +11,9 @@
 
 fn make_fixture() -> @src.AnnData {
   let x = [[1.0, 2.0], [3.0, 4.0], [5.0, 6.0]]
-  let ad = @src.AnnData::new(x, ["Cell_1", "Cell_2", "Cell_3"], ["Gene_1", "Gene_2"])
+  let ad = @src.AnnData::new(x, ["Cell_1", "Cell_2", "Cell_3"], [
+    "Gene_1", "Gene_2",
+  ])
   let layer_mat = [[10.0, 20.0], [30.0, 40.0], [50.0, 60.0]]
   let _ = ad.set_layer("counts", layer_mat)
   ad
@@ -141,7 +143,10 @@ test "rename_categories_roundtrip" {
   assert_eq(before[0], "0")
   assert_eq(before[1], "1")
   assert_eq(before[2], "0")
-  let ok = ad.rename_categories("batch", [("WT", "WildType"), ("KO", "Knockout")])
+  let ok = ad.rename_categories("batch", [
+    ("WT", "WildType"),
+    ("KO", "Knockout"),
+  ])
   assert_true(ok)
   let after = match ad.obs_column("batch") {
     Some(c) => c
@@ -277,6 +282,7 @@ test "read_mtx_empty_or_bad_returns_none" {
 // 5. AnnCollectionView tests
 // ============================================================================
 
+///|
 fn make_two_collections() -> (@src.AnnData, @src.AnnData, @src.AnnCollection) {
   let a = @src.AnnData::new([[1.0, 2.0], [3.0, 4.0]], ["c1", "c2"], ["g1", "g2"])
   let b = @src.AnnData::new([[5.0, 6.0]], ["c3"], ["g1", "g2"])

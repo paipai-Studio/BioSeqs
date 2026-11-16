@@ -104,10 +104,10 @@ test "omm_system_forces_single_particle_zero" {
 // B2: omm_system_from_pdb_ff + builtin 测试
 // ============================================================================
 
+///|
 test "omm_system_from_pdb_ff_builtin_water" {
   // 标准 3 原子 TIP3P 水 PDB + 内置 XML 力场
-  let pdb_text =
-    "ATOM      1  O   HOH A   1       0.000   0.000   0.000  1.00  0.00           O\n" +
+  let pdb_text = "ATOM      1  O   HOH A   1       0.000   0.000   0.000  1.00  0.00           O\n" +
     "ATOM      2  H1  HOH A   1       0.9572  0.000   0.000  1.00  0.00           H\n" +
     "ATOM      3  H2  HOH A   1      -0.2879  0.9120  0.000  1.00  0.00           H\n"
   let sys = @src.omm_system_from_pdb_ff_builtin(pdb_text)
@@ -119,10 +119,10 @@ test "omm_system_from_pdb_ff_builtin_water" {
   assert_true(sys.constraints.length() >= 0) // 不一定加，看 XML 定义
 }
 
+///|
 test "omm_system_from_pdb_ff_builtin_hcl" {
   // HCl 分子：H 和 Cl 两个原子
-  let pdb_text =
-    "ATOM      1  H   HCL A   1       0.000   0.000   0.000  1.00  0.00           H\n" +
+  let pdb_text = "ATOM      1  H   HCL A   1       0.000   0.000   0.000  1.00  0.00           H\n" +
     "ATOM      2  CL  HCL A   1       1.270   0.000   0.000  1.00  0.00          Cl\n"
   let sys = @src.omm_system_from_pdb_ff_builtin(pdb_text)
   assert_eq(sys.particles.length(), 2)
@@ -133,18 +133,17 @@ test "omm_system_from_pdb_ff_builtin_hcl" {
   assert_true(@moonbit.assert_num_close(sys.particles[0].charge, 0.0, 1.0e-6))
 }
 
+///|
 test "omm_system_from_pdb_ff_hexane_homemade_xml" {
   // 手工写极简单的 XML 力场 — element 匹配 → particle.mass 正确
-  let xml =
-    "<?xml version=\"1.0\"?>\n" +
+  let xml = "<?xml version=\"1.0\"?>\n" +
     "<ForceField name=\"hexane_test\">\n" +
     "  <Type name=\"C\" element=\"C\" mass=\"12.011\"/>\n" +
     "  <Type name=\"H\" element=\"H\" mass=\"1.008\"/>\n" +
     "  <Atom class=\"A\" type=\"C\" charge=\"-0.054\" sigma=\"0.33997\" epsilon=\"0.35982\"/>\n" +
     "  <Atom class=\"A\" type=\"H\" charge=\"0.018\" sigma=\"0.00000\" epsilon=\"0.000\"/>\n" +
     "</ForceField>\n"
-  let pdb_text =
-    "ATOM      1  C1  ETH A   1       0.765   0.000   0.000  1.00  0.00           C\n" +
+  let pdb_text = "ATOM      1  C1  ETH A   1       0.765   0.000   0.000  1.00  0.00           C\n" +
     "ATOM      2  C2  ETH A   1      -0.765   0.000   0.000  1.00  0.00           C\n"
   let sys = @src.omm_system_from_pdb_ff(pdb_text, xml)
   assert_eq(sys.particles.length(), 2)
@@ -153,10 +152,10 @@ test "omm_system_from_pdb_ff_hexane_homemade_xml" {
   assert_true(@moonbit.assert_num_close(sys.particles[1].mass, 12.011, 1.0e-3))
 }
 
+///|
 test "omm_system_from_pdb_ff_empty_pdb_no_crash" {
   // 空 PDB → 零粒子系统，不崩溃
-  let xml =
-    "<?xml version=\"1.0\"?>\n" +
+  let xml = "<?xml version=\"1.0\"?>\n" +
     "<ForceField name=\"empty_test\">\n" +
     "  <Type name=\"C\" element=\"C\" mass=\"12.011\"/>\n" +
     "</ForceField>\n"
@@ -165,21 +164,22 @@ test "omm_system_from_pdb_ff_empty_pdb_no_crash" {
   assert_eq(sys.bonds.length(), 0)
 }
 
+///|
 test "omm_system_from_pdb_ff_builtin_parses_hetatm" {
   // HETATM 记录也应该被解析
-  let pdb_text =
-    "HETATM    1  NA  NA  A   1       0.000   0.000   0.000  1.00  0.00          Na\n" +
+  let pdb_text = "HETATM    1  NA  NA  A   1       0.000   0.000   0.000  1.00  0.00          Na\n" +
     "HETATM    2  CL  CL  A   1       2.820   0.000   0.000  1.00  0.00          Cl\n"
   let sys = @src.omm_system_from_pdb_ff_builtin(pdb_text)
   assert_eq(sys.particles.length(), 2)
-  assert_true(@moonbit.assert_num_close(sys.particles[0].charge, 1.0, 1.0e-6))   // Na+
+  assert_true(@moonbit.assert_num_close(sys.particles[0].charge, 1.0, 1.0e-6)) // Na+
   assert_true(@moonbit.assert_num_close(sys.particles[1].charge, -1.0, 1.0e-6)) // Cl-
 }
 
+///|
 test "omm_pdb_element_from_atom_name" {
   // 测试元素推断逻辑（H -> H, Cl -> C 首字母, Fe -> F 首字母）
   let el1 = @src.omm_system_from_pdb_ff_builtin(
-    "ATOM      1  H   MOL A   1       0.000   0.000   0.000  1.00  0.00           H\n"
+    "ATOM      1  H   MOL A   1       0.000   0.000   0.000  1.00  0.00           H\n",
   )
   assert_eq(el1.particles.length(), 1)
   assert_true(@moonbit.assert_num_close(el1.particles[0].mass, 1.008, 1.0e-3))

@@ -85,20 +85,22 @@ fn main {
   let atoms : Array[@lib.UnivAtom] = Array(capacity=0)
   let names : Array[String] = ["N", "C", "O"]
   for i = 0; i < 3; i = i + 1 {
-    atoms.push(@lib.UnivAtom::new(
-      name=names[i],
-      resname="ALA",
-      resid=1,
-      chain="A",
-      segid="A",
-      element=names[i],
-      atom_type="",
-      charge=0.0,
-      mass=masses[i],
-      is_protein=true,
-      is_water=false,
-      is_backbone=false,
-    ))
+    atoms.push(
+      @lib.UnivAtom::new(
+        name=names[i],
+        resname="ALA",
+        resid=1,
+        chain="A",
+        segid="A",
+        element=names[i],
+        atom_type="",
+        charge=0.0,
+        mass=masses[i],
+        is_protein=true,
+        is_water=false,
+        is_backbone=false,
+      ),
+    )
   }
   let u = @lib.Universe::from_dcd_frames(atoms, traj.frames)
   let g = u.all_atoms()

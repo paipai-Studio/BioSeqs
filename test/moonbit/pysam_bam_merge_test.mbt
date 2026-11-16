@@ -3,15 +3,13 @@
 ///
 /// 注：sam_to_bam 把 SAM 的 1-based POS 转成 BamRecord.pos 0-based（减 1）。
 /// fixture 预期值按 0-based 写。
-
-let merge_sam_a : String =
-  "@HD\tVN:1.6\tSO:coordinate\n" +
+let merge_sam_a : String = "@HD\tVN:1.6\tSO:coordinate\n" +
   "@SQ\tSN:chr1\tLN:1000\n" +
   "read1\t0\tchr1\t101\t60\t8M\t*\t0\t0\tACGTACGT\t!!!!!!!!\n" +
   "read2\t0\tchr1\t301\t50\t8M\t*\t0\t0\tTGCATGCA\t!!!!!!!!\n"
 
-let merge_sam_b : String =
-  "@HD\tVN:1.6\tSO:coordinate\n" +
+///|
+let merge_sam_b : String = "@HD\tVN:1.6\tSO:coordinate\n" +
   "@SQ\tSN:chr1\tLN:1000\n" +
   "read3\t0\tchr1\t201\t40\t8M\t*\t0\t0\tGGCCGGCC\t!!!!!!!!\n" +
   "read4\t0\tchr1\t401\t30\t8M\t*\t0\t0\tAAAAAAA\t!!!!!!!!\n"
@@ -53,8 +51,7 @@ test "merge_sorted_safe_header_validation_pass" {
 
 ///|
 test "merge_rg_prefix_renames" {
-  let sam_with_rg : String =
-    "@HD\tVN:1.6\tSO:coordinate\n" +
+  let sam_with_rg : String = "@HD\tVN:1.6\tSO:coordinate\n" +
     "@SQ\tSN:chr1\tLN:1000\n" +
     "@RG\tID:orig\n" +
     "read1\t0\tchr1\t101\t60\t8M\t*\t0\t0\tACGTACGT\t!!!!!!!!\tRG:Z:orig\n"
@@ -76,8 +73,7 @@ test "merge_rg_prefix_renames" {
 
 ///|
 test "merge_fixmate_flag_is_mate_info" {
-  let sam_paired : String =
-    "@HD\tVN:1.6\tSO:coordinate\n" +
+  let sam_paired : String = "@HD\tVN:1.6\tSO:coordinate\n" +
     "@SQ\tSN:chr1\tLN:1000\n" +
     "pair\t67\tchr1\t101\t60\t8M\t=\t201\t150\tACGTACGT\t!!!!!!!!\n" +
     "pair\t131\tchr1\t201\t60\t8M\t=\t101\t-150\tTGCATGCA\t!!!!!!!!\n"
@@ -96,8 +92,7 @@ test "merge_fixmate_flag_is_mate_info" {
 test "merge_three_files_all_concat" {
   let a = @src.sam_to_bam(merge_sam_a)
   let b = @src.sam_to_bam(merge_sam_b)
-  let c_sam : String =
-    "@HD\tVN:1.6\tSO:coordinate\n@SQ\tSN:chr1\tLN:1000\n" +
+  let c_sam : String = "@HD\tVN:1.6\tSO:coordinate\n@SQ\tSN:chr1\tLN:1000\n" +
     "read5\t0\tchr1\t51\t60\t8M\t*\t0\t0\tACGTACGT\t!!!!!!!!\n"
   let c = @src.sam_to_bam(c_sam)
   let merged = @src.bam_merge_sorted([a, b, c])

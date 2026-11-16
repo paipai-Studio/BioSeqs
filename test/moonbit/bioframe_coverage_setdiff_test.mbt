@@ -14,6 +14,7 @@ test "bf_coverage_per_interval: simple partial overlap" {
   assert_eq(cov[0], 50)
 }
 
+///|
 test "bf_coverage_per_interval: merged B covers two A" {
   let a = [
     @src.BedInterval::new("chr1", 0, 100),
@@ -26,11 +27,15 @@ test "bf_coverage_per_interval: merged B covers two A" {
   assert_eq(cov[1], 50)
 }
 
+///|
 test "bf_coverage_per_interval: empty A → empty output" {
-  let cov = @src.bf_coverage_per_interval([], [@src.BedInterval::new("chr1", 0, 100)])
+  let cov = @src.bf_coverage_per_interval([], [
+    @src.BedInterval::new("chr1", 0, 100),
+  ])
   assert_eq(cov.length(), 0)
 }
 
+///|
 test "bf_coverage_per_interval: empty B → all zeros" {
   let a = [
     @src.BedInterval::new("chr1", 0, 100),
@@ -42,6 +47,7 @@ test "bf_coverage_per_interval: empty B → all zeros" {
   assert_eq(cov[1], 0)
 }
 
+///|
 test "bf_coverage_per_interval: full coverage" {
   let a = [@src.BedInterval::new("chr1", 0, 100)]
   let b = [@src.BedInterval::new("chr1", 0, 200)]
@@ -49,6 +55,7 @@ test "bf_coverage_per_interval: full coverage" {
   assert_eq(cov[0], 100)
 }
 
+///|
 test "bf_coverage_per_interval: B on different chrom → 0" {
   let a = [@src.BedInterval::new("chr1", 0, 100)]
   let b = [@src.BedInterval::new("chr2", 0, 200)]
@@ -58,6 +65,7 @@ test "bf_coverage_per_interval: B on different chrom → 0" {
 
 // ---- bf_coverage_per_interval_fraction ------------------------------------
 
+///|
 test "bf_coverage_per_interval_fraction: basic" {
   let a = [@src.BedInterval::new("chr1", 0, 100)]
   let b = [@src.BedInterval::new("chr1", 50, 100)]
@@ -66,6 +74,7 @@ test "bf_coverage_per_interval_fraction: basic" {
   assert_true((f[0] - 0.5).abs() < 0.0001)
 }
 
+///|
 test "bf_coverage_per_interval_fraction: zero-length A → 0" {
   let a = [@src.BedInterval::new("chr1", 0, 0)]
   let b = [@src.BedInterval::new("chr1", 0, 100)]
@@ -77,6 +86,7 @@ test "bf_coverage_per_interval_fraction: zero-length A → 0" {
 // bf_setdiff  (A - B)
 // ================================================================
 
+///|
 test "bf_setdiff: splits one interval in two" {
   let a = [@src.BedInterval::new("chr1", 0, 100)]
   let b = [@src.BedInterval::new("chr1", 25, 50)]
@@ -88,6 +98,7 @@ test "bf_setdiff: splits one interval in two" {
   assert_eq(out[1].end, 100)
 }
 
+///|
 test "bf_setdiff: no overlap → A unchanged" {
   let a = [@src.BedInterval::new("chr1", 0, 50)]
   let b = [@src.BedInterval::new("chr1", 100, 200)]
@@ -97,6 +108,7 @@ test "bf_setdiff: no overlap → A unchanged" {
   assert_eq(out[0].end, 50)
 }
 
+///|
 test "bf_setdiff: full coverage → empty" {
   let a = [@src.BedInterval::new("chr1", 0, 100)]
   let b = [@src.BedInterval::new("chr1", 0, 200)]
@@ -104,6 +116,7 @@ test "bf_setdiff: full coverage → empty" {
   assert_eq(out.length(), 0)
 }
 
+///|
 test "bf_setdiff: B in middle of A → two fragments" {
   let a = [@src.BedInterval::new("chr1", 0, 200)]
   let b = [@src.BedInterval::new("chr1", 50, 150)]
@@ -115,6 +128,7 @@ test "bf_setdiff: B in middle of A → two fragments" {
   assert_eq(out[1].end, 200)
 }
 
+///|
 test "bf_setdiff: empty B → A unchanged" {
   let a = [
     @src.BedInterval::new("chr1", 0, 100),
@@ -124,6 +138,7 @@ test "bf_setdiff: empty B → A unchanged" {
   assert_eq(out.length(), 2)
 }
 
+///|
 test "bf_setdiff: B on different chrom → no effect" {
   let a = [@src.BedInterval::new("chr1", 0, 100)]
   let b = [@src.BedInterval::new("chr2", 50, 150)]
@@ -137,6 +152,7 @@ test "bf_setdiff: B on different chrom → no effect" {
 // bf_symmetric_diff
 // ================================================================
 
+///|
 test "bf_symmetric_diff: A minus B plus B minus A" {
   let a = [@src.BedInterval::new("chr1", 0, 100)]
   let b = [@src.BedInterval::new("chr1", 50, 150)]
@@ -152,6 +168,7 @@ test "bf_symmetric_diff: A minus B plus B minus A" {
 // bf_jaccard
 // ================================================================
 
+///|
 test "bf_jaccard: identical sets → 1.0" {
   let a = [@src.BedInterval::new("chr1", 0, 100)]
   let b = [@src.BedInterval::new("chr1", 0, 100)]
@@ -159,6 +176,7 @@ test "bf_jaccard: identical sets → 1.0" {
   assert_true((j - 1.0).abs() < 0.0001)
 }
 
+///|
 test "bf_jaccard: no overlap → 0.0" {
   let a = [@src.BedInterval::new("chr1", 0, 100)]
   let b = [@src.BedInterval::new("chr1", 200, 300)]
@@ -170,6 +188,7 @@ test "bf_jaccard: no overlap → 0.0" {
 // bf_sets_equal
 // ================================================================
 
+///|
 test "bf_sets_equal: identical merged sets → true" {
   let a = [
     @src.BedInterval::new("chr1", 0, 50),
@@ -179,6 +198,7 @@ test "bf_sets_equal: identical merged sets → true" {
   assert_true(@src.bf_sets_equal(a, b))
 }
 
+///|
 test "bf_sets_equal: different sets → false" {
   let a = [@src.BedInterval::new("chr1", 0, 100)]
   let b = [@src.BedInterval::new("chr1", 0, 50)]

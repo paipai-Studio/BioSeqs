@@ -15,6 +15,7 @@ test "bf_schemas_available: 18 schemas" {
 
 // ---- bf_schema_cols -------------------------------------------------------
 
+///|
 test "bf_schema_cols: bed3" {
   match @src.bf_schema_cols("bed3") {
     Some(cols) => {
@@ -27,6 +28,7 @@ test "bf_schema_cols: bed3" {
   }
 }
 
+///|
 test "bf_schema_cols: narrowPeak" {
   match @src.bf_schema_cols("narrowPeak") {
     Some(cols) => assert_eq(cols.length(), 10)
@@ -34,6 +36,7 @@ test "bf_schema_cols: narrowPeak" {
   }
 }
 
+///|
 test "bf_schema_cols: unknown → None" {
   match @src.bf_schema_cols("notASchema") {
     Some(_) => assert_true(false)
@@ -43,6 +46,7 @@ test "bf_schema_cols: unknown → None" {
 
 // ---- bf_read_table: with schema ------------------------------------------
 
+///|
 test "bf_read_table: no header + schema=bed3" {
   let text = "chr1\t0\t100\nchr1\t200\t300\n"
   let (header, rows) = @src.bf_read_table(text, schema=Some("bed3"))
@@ -51,18 +55,21 @@ test "bf_read_table: no header + schema=bed3" {
   assert_eq(rows.length(), 2)
 }
 
+///|
 test "bf_read_table: # comment lines skipped" {
   let text = "# this is a comment\nchr1\t0\t100\n# another comment\nchr1\t200\t300\n"
   let (_, rows) = @src.bf_read_table(text, schema=Some("bed3"))
   assert_eq(rows.length(), 2)
 }
 
+///|
 test "bf_read_table: track/browser UCSC lines skipped" {
   let text = "track name=myTrack\nchr1\t0\t100\nbrowser position chr1\nchr1\t200\t300\n"
   let (_, rows) = @src.bf_read_table(text, schema=Some("bed3"))
   assert_eq(rows.length(), 2)
 }
 
+///|
 test "bf_read_table: with explicit header (auto-detected)" {
   let text = "chrom\tstart\tend\nchr1\t0\t100\nchr1\t200\t300\n"
   let (header, rows) = @src.bf_read_table(text)
@@ -72,6 +79,7 @@ test "bf_read_table: with explicit header (auto-detected)" {
   assert_eq(rows.length(), 2)
 }
 
+///|
 test "bf_read_table: all-numeric first row → default header" {
   let text = "1\t2\t3\n10\t20\t30\n"
   let (header, rows) = @src.bf_read_table(text)
@@ -83,6 +91,7 @@ test "bf_read_table: all-numeric first row → default header" {
 
 // ---- bf_row_get ----------------------------------------------------------
 
+///|
 test "bf_row_get: retrieve by column name" {
   let text = "chrom\tstart\tend\nchr1\t0\t100\n"
   let (header, rows) = @src.bf_read_table(text)
@@ -94,6 +103,7 @@ test "bf_row_get: retrieve by column name" {
 
 // ---- bf_rows_to_intervals -------------------------------------------------
 
+///|
 test "bf_rows_to_intervals: bed3 rows → BedInterval array" {
   let text = "chr1\t0\t100\nchr1\t200\t300\nchr2\t50\t150\n"
   let (header, rows) = @src.bf_read_table(text, schema=Some("bed3"))
@@ -107,6 +117,7 @@ test "bf_rows_to_intervals: bed3 rows → BedInterval array" {
   assert_eq(ivs[2].end, 150)
 }
 
+///|
 test "bf_rows_to_intervals: empty → empty" {
   let ivs = @src.bf_rows_to_intervals([], [])
   assert_eq(ivs.length(), 0)

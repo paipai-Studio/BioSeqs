@@ -21,8 +21,15 @@ pub enum AnnotMatchMode {
   Overlap
 }
 
-pub fn annot_match_mode_exact() -> AnnotMatchMode { AnnotMatchMode::Exact }
-pub fn annot_match_mode_overlap() -> AnnotMatchMode { AnnotMatchMode::Overlap }
+///|
+pub fn annot_match_mode_exact() -> AnnotMatchMode {
+  AnnotMatchMode::Exact
+}
+
+///|
+pub fn annot_match_mode_overlap() -> AnnotMatchMode {
+  AnnotMatchMode::Overlap
+}
 
 // ---------------------------------------------------------------------------
 // 注释源数据结构（全部加 Annot 前缀避免冲突）
@@ -54,12 +61,22 @@ pub enum VcfAnnotSource {
   PosMap(Map[String, String])
 }
 
-pub fn vcf_annot_source_from_bed(intervals : Array[AnnotBedInterval]) -> VcfAnnotSource {
+///|
+pub fn vcf_annot_source_from_bed(
+  intervals : Array[AnnotBedInterval],
+) -> VcfAnnotSource {
   VcfAnnotSource::Bed(intervals)
 }
-pub fn vcf_annot_source_from_vcf(vcf : VcfFile, keys : Array[String]) -> VcfAnnotSource {
+
+///|
+pub fn vcf_annot_source_from_vcf(
+  vcf : VcfFile,
+  keys : Array[String],
+) -> VcfAnnotSource {
   VcfAnnotSource::Vcf(vcf, keys)
 }
+
+///|
 pub fn vcf_annot_source_from_posmap(m : Map[String, String]) -> VcfAnnotSource {
   VcfAnnotSource::PosMap(m)
 }
@@ -82,7 +99,10 @@ pub fn vcf_annot_source_from_posmap(m : Map[String, String]) -> VcfAnnotSource {
 /// the whole interval as value ("chrom:start-end").
 ///
 /// Lines starting with `#` or "track"/"browser" are skipped.
-pub fn parse_bed_annot(text : String, value_col~ : Int32 = 4) -> Array[AnnotBedInterval] {
+pub fn parse_bed_annot(
+  text : String,
+  value_col~ : Int32 = 4,
+) -> Array[AnnotBedInterval] {
   let out : Array[AnnotBedInterval] = Array(capacity=0)
   let lines = text.split("\n").to_array()
   let mut i = 0
@@ -107,7 +127,7 @@ pub fn parse_bed_annot(text : String, value_col~ : Int32 = 4) -> Array[AnnotBedI
     } else {
       ""
     }
-    out.push(AnnotBedInterval::{ chrom, start, end, value })
+    out.push(AnnotBedInterval::{ chrom, start, end, value, })
     i = i + 1
   }
   out
@@ -116,7 +136,9 @@ pub fn parse_bed_annot(text : String, value_col~ : Int32 = 4) -> Array[AnnotBedI
 ///|
 /// Build a `Map[String, String]` keyed by `"chrom\tpos"` from an array of
 /// `AnnotBedInterval`. Useful for fast exact `(chrom, pos)` lookups.
-pub fn bed_intervals_to_map(intervals : Array[AnnotBedInterval]) -> Map[String, String] {
+pub fn bed_intervals_to_map(
+  intervals : Array[AnnotBedInterval],
+) -> Map[String, String] {
   let m : Map[String, String] = Map([], capacity=intervals.length())
   for iv in intervals {
     let key = iv.chrom + "\t" + iv.start.to_string()
@@ -146,12 +168,8 @@ fn find_bed_hit(
       continue
     }
     match mode {
-      Exact => {
-        if iv.start == pos { return Some(iv) }
-      }
-      Overlap => {
-        if pos >= iv.start && pos < iv.end { return Some(iv) }
-      }
+      Exact => if iv.start == pos { return Some(iv) }
+      Overlap => if pos >= iv.start && pos < iv.end { return Some(iv) }
     }
     i = i + 1
   }
@@ -171,16 +189,14 @@ fn resolve_annot_value(
   mode : AnnotMatchMode,
 ) -> String? {
   match source {
-    Bed(intervals) => {
+    Bed(intervals) =>
       match find_bed_hit(intervals, rec.chrom, rec.pos, mode) {
         Some(iv) => Some(iv.value)
         None => None
       }
-    }
-    PosMap(m) => {
+    PosMap(m) =>
       // PosMap 只支持精确键查找，忽略 match_mode
       m.get(rec.chrom + "\t" + rec.pos.to_string())
-    }
     Vcf(anno, keys) => {
       // Find first anno record matching (chrom, pos)
       let mut i = 0
@@ -190,7 +206,7 @@ fn resolve_annot_value(
           // Return first available key's value
           for k in keys {
             match a.info.get(k) {
-              Some(v) => { return Some(v) }
+              Some(v) => return Some(v)
               None => ()
             }
           }
@@ -224,7 +240,7 @@ pub fn vcf_annotate_bed(
   value_col~ : Int32 = 4,
   mode~ : AnnotMatchMode = Overlap,
 ) -> VcfFile {
-  let intervals = parse_bed_annot(bed_text, value_col=value_col)
+  let intervals = parse_bed_annot(bed_text, value_col~)
   let out : Array[VcfRecord] = Array(capacity=vcf.records.length())
   for rec in vcf.records {
     match mode {
@@ -237,12 +253,11 @@ pub fn vcf_annotate_bed(
           None => out.push(rec)
         }
       }
-      Overlap => {
+      Overlap =>
         match find_bed_hit(intervals, rec.chrom, rec.pos, Overlap) {
           Some(iv) => out.push(rec.info_set(dest_key, iv.value))
           None => out.push(rec)
         }
-      }
     }
   }
   VcfFile::{
@@ -283,10 +298,8 @@ pub fn vcf_annotate_from_vcf(
           if rec.pos >= a.pos && rec.pos < a_end {
             matched.push(a)
           }
-        } else {
-          if a.pos == rec.pos {
-            matched.push(a)
-          }
+        } else if a.pos == rec.pos {
+          matched.push(a)
         }
       }
       i = i + 1
@@ -351,11 +364,10 @@ pub fn vcf_annotate_id_from_source(
           qual: rec.qual,
           filter: rec.filter.copy(),
           info: rec.info.copy(),
-          format:
-            match rec.format {
-              Some(f) => Some(f.copy())
-              None => None
-            },
+          format: match rec.format {
+            Some(f) => Some(f.copy())
+            None => None
+          },
           samples: rec.samples.copy(),
         })
       }
@@ -428,10 +440,14 @@ pub fn vcf_annotate_summary(
 ///|
 /// Fraction of records that now carry `dest_key` after annotation.
 pub fn vcf_annotate_rate(after : VcfFile, dest_key : String) -> Double {
-  if after.records.length() == 0 { return 0.0 }
+  if after.records.length() == 0 {
+    return 0.0
+  }
   let mut hit = 0
   for r in after.records {
-    if r.info.get(dest_key) is Some(_) { hit = hit + 1 }
+    if r.info.get(dest_key) is Some(_) {
+      hit = hit + 1
+    }
   }
   hit.to_double() / after.records.length().to_double()
 }

@@ -39,7 +39,7 @@ pub struct BfClusterRow {
 ///
 pub fn bf_cluster(
   intervals : Array[BedInterval],
-  min_dist~ : Option[Int32] = None,
+  min_dist~ : Int32? = None,
 ) -> (Array[BfClusterRow], Int32) {
   if intervals.length() == 0 {
     return (Array(capacity=0), 0)
@@ -67,19 +67,17 @@ pub fn bf_cluster(
       start_new_cluster = true
     } else {
       match min_dist {
-        Some(d) => {
+        Some(d) =>
           // Cluster if start ≤ cur_end + d  (within gap)
           if iv.start > cur_end + d {
             start_new_cluster = true
           }
-        }
-        None => {
+        None =>
           // Only cluster overlapping / book-ended intervals
           // semi-open: [a, b) and [b, c) do NOT overlap, must be < not ≤
           if iv.start >= cur_end {
             start_new_cluster = true
           }
-        }
       }
     }
 
@@ -87,11 +85,9 @@ pub fn bf_cluster(
       cluster_id = cluster_id + 1
       cur_chrom = iv.chrom
       cur_end = iv.end
-    } else {
       // Extend current cluster's span
-      if iv.end > cur_end {
-        cur_end = iv.end
-      }
+    } else if iv.end > cur_end {
+      cur_end = iv.end
     }
     rows.push(BfClusterRow::{
       chrom: iv.chrom,

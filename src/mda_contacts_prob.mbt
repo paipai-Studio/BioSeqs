@@ -55,7 +55,9 @@ pub fn AtomGroup::contact_map_probability(
     frame_contact_counts: Array(capacity=0),
     n_frames,
   }
-  if n_atoms < 2 || n_frames < 1 { return zero }
+  if n_atoms < 2 || n_frames < 1 {
+    return zero
+  }
 
   // ===== 1. 建立残基索引 =====
   let resids : Array[Int32] = Array(capacity=n_atoms)
@@ -67,9 +69,7 @@ pub fn AtomGroup::contact_map_probability(
     while i < n_atoms {
       let idx = self.indices[i]
       resids.push(i)
-      resnames.push(
-        if idx < atoms.length() { atoms[idx].name } else { "" }
-      )
+      resnames.push(if idx < atoms.length() { atoms[idx].name } else { "" })
       res_atom_idx.push(i)
       i = i + 1
     }
@@ -83,7 +83,7 @@ pub fn AtomGroup::contact_map_probability(
       let idx = self.indices[i]
       let rid = if idx < atoms.length() { atoms[idx].resid } else { -1 }
       let rn = if idx < atoms.length() { atoms[idx].resname } else { "" }
-      let is_new = (rid != cur_resid) || (rn != cur_resname)
+      let is_new = rid != cur_resid || rn != cur_resname
       if is_new {
         cur_resid = rid
         cur_resname = rn
@@ -95,7 +95,9 @@ pub fn AtomGroup::contact_map_probability(
       i = i + 1
     }
   }
-  if n_res < 2 { return zero }
+  if n_res < 2 {
+    return zero
+  }
 
   let cutoff2 = cutoff * cutoff
   let box = if pbc { Some(self.universe.box) } else { None }
@@ -106,7 +108,10 @@ pub fn AtomGroup::contact_map_probability(
   while i < n_res {
     let row : Array[Int32] = Array(capacity=n_res)
     let mut j = 0
-    while j < n_res { row.push(0); j = j + 1 }
+    while j < n_res {
+      row.push(0)
+      j = j + 1
+    }
     count.push(row)
     i = i + 1
   }
@@ -120,17 +125,30 @@ pub fn AtomGroup::contact_map_probability(
     while i < n_atoms {
       let ri = res_atom_idx[i]
       let idx_i = self.indices[i]
-      let ci = if idx_i < fr.length() { fr[idx_i] } else { Vector3::new(0.0, 0.0, 0.0) }
+      let ci = if idx_i < fr.length() {
+        fr[idx_i]
+      } else {
+        Vector3::new(0.0, 0.0, 0.0)
+      }
       let mut j = i + 1
       while j < n_atoms {
         let rj = res_atom_idx[j]
-        if ri == rj { j = j + 1; continue }
+        if ri == rj {
+          j = j + 1
+          continue
+        }
         let idx_j = self.indices[j]
-        let cj = if idx_j < fr.length() { fr[idx_j] } else { Vector3::new(0.0, 0.0, 0.0) }
+        let cj = if idx_j < fr.length() {
+          fr[idx_j]
+        } else {
+          Vector3::new(0.0, 0.0, 0.0)
+        }
         let d2 = if pbc {
           mda_analysis_min_dist(ci, cj, box)
         } else {
-          let dx = ci.x - cj.x; let dy = ci.y - cj.y; let dz = ci.z - cj.z
+          let dx = ci.x - cj.x
+          let dy = ci.y - cj.y
+          let dz = ci.z - cj.z
           dx * dx + dy * dy + dz * dz
         }
         if d2 <= cutoff2 {
@@ -155,8 +173,9 @@ pub fn AtomGroup::contact_map_probability(
     let row : Array[Double] = Array(capacity=n_res)
     let mut j = 0
     while j < n_res {
-      if i == j { row.push(0.0) }
-      else {
+      if i == j {
+        row.push(0.0)
+      } else {
         let a = if i < j { i } else { j }
         let b = if i < j { j } else { i }
         row.push(count[a][b].to_double() / n_frames.to_double())
@@ -171,13 +190,19 @@ pub fn AtomGroup::contact_map_probability(
   let res_start_idx : Array[Int32] = Array(capacity=n_res)
   if res_per_atom {
     let mut k = 0
-    while k < n_res { res_start_idx.push(k); k = k + 1 }
+    while k < n_res {
+      res_start_idx.push(k)
+      k = k + 1
+    }
   } else {
     let mut k = 0
     let mut seen = -1
     while k < n_atoms {
       let r = res_atom_idx[k]
-      if r != seen { res_start_idx.push(k); seen = r }
+      if r != seen {
+        res_start_idx.push(k)
+        seen = r
+      }
       k = k + 1
     }
   }
@@ -205,7 +230,9 @@ pub fn ContactMapResult::n_residues(self : ContactMapResult) -> Int32 {
 
 ///|
 /// 接触概率矩阵（上三角 = 下三角镜像）。
-pub fn ContactMapResult::probability_matrix(self : ContactMapResult) -> Array[Array[Double]] {
+pub fn ContactMapResult::probability_matrix(
+  self : ContactMapResult,
+) -> Array[Array[Double]] {
   self.prob
 }
 
@@ -217,7 +244,9 @@ pub fn ContactMapResult::resid_ids(self : ContactMapResult) -> Array[Int32] {
 
 ///|
 /// 残基名数组。
-pub fn ContactMapResult::residue_names(self : ContactMapResult) -> Array[String] {
+pub fn ContactMapResult::residue_names(
+  self : ContactMapResult,
+) -> Array[String] {
   self.resnames
 }
 
@@ -229,13 +258,17 @@ pub fn ContactMapResult::top_contacts(
   self : ContactMapResult,
   n_top~ : Int32 = 10,
 ) -> Array[(Int32, Int32, Double)] {
-  let pairs : Array[(Int32, Int32, Double)] = Array(capacity=self.n_res * self.n_res / 2)
+  let pairs : Array[(Int32, Int32, Double)] = Array(
+    capacity=self.n_res * self.n_res / 2,
+  )
   let mut i = 0
   while i < self.n_res {
     let mut j = i + 1
     while j < self.n_res {
       let p = self.prob[i][j]
-      if p > 0.0 { pairs.push((i, j, p)) }
+      if p > 0.0 {
+        pairs.push((i, j, p))
+      }
       j = j + 1
     }
     i = i + 1
@@ -246,7 +279,11 @@ pub fn ContactMapResult::top_contacts(
     let key = pairs[k]
     let mut m = k - 1
     while m >= 0 {
-      if pairs[m].2 < key.2 { pairs[m + 1] = pairs[m] } else { break }
+      if pairs[m].2 < key.2 {
+        pairs[m + 1] = pairs[m]
+      } else {
+        break
+      }
       m = m - 1
     }
     pairs[m + 1] = key
@@ -271,10 +308,15 @@ pub fn ContactMapResult::frame_counts(self : ContactMapResult) -> Array[Int32] {
 /// 平均每帧接触数（残基对，同残基内不计）。
 pub fn ContactMapResult::mean_frame_contacts(self : ContactMapResult) -> Double {
   let n = self.frame_contact_counts.length()
-  if n == 0 { return 0.0 }
+  if n == 0 {
+    return 0.0
+  }
   let mut total = 0
   let mut i = 0
-  while i < n { total = total + self.frame_contact_counts[i]; i = i + 1 }
+  while i < n {
+    total = total + self.frame_contact_counts[i]
+    i = i + 1
+  }
   total.to_double() / n.to_double()
 }
 
@@ -291,7 +333,9 @@ pub fn ContactMapResult::to_csv(self : ContactMapResult) -> String {
   while j < self.n_res {
     sb.write_string(self.resnames[j])
     sb.write_string(self.resids[j].to_string())
-    if j + 1 < self.n_res { sb.write_string(",") }
+    if j + 1 < self.n_res {
+      sb.write_string(",")
+    }
     j = j + 1
   }
   sb.write_string("\n")
@@ -303,7 +347,9 @@ pub fn ContactMapResult::to_csv(self : ContactMapResult) -> String {
     j = 0
     while j < self.n_res {
       sb.write_string(self.prob[i][j].to_string())
-      if j + 1 < self.n_res { sb.write_string(",") }
+      if j + 1 < self.n_res {
+        sb.write_string(",")
+      }
       j = j + 1
     }
     sb.write_string("\n")
@@ -331,11 +377,13 @@ pub fn ContactMapResult::to_svg_heatmap(
   title~ : String = "Contact Probability Heatmap",
 ) -> String {
   let n = self.n_res
-  if n == 0 { return "<svg></svg>" }
+  if n == 0 {
+    return "<svg></svg>"
+  }
   let cs = cell_size
   let pad_left = 80
   let pad_top = 80
-  let pad_right = 180   // 留给 legend
+  let pad_right = 180 // 留给 legend
   let pad_bottom = 80
   let width = pad_left + n * cs + pad_right
   let height = pad_top + n * cs + pad_bottom
@@ -377,7 +425,7 @@ pub fn ContactMapResult::to_svg_heatmap(
 
   // Cell grid
   let max_label = if max_label > n { n } else { max_label }
-  let step_x = if n <= max_label { 1 } else { (n / max_label) + 1 }
+  let step_x = if n <= max_label { 1 } else { n / max_label + 1 }
   let mut i = 0
   while i < n {
     let mut j = 0
@@ -461,14 +509,17 @@ pub fn ContactMapResult::to_svg_heatmap(
   sb.write_string((legend_x + legend_w / 2).to_string())
   sb.write_string("\" y=\"")
   sb.write_string((legend_y - 16).to_string())
-  sb.write_string("\" text-anchor=\"middle\" style=\"font-size:11px\">Probability</text>\n")
+  sb.write_string(
+    "\" text-anchor=\"middle\" style=\"font-size:11px\">Probability</text>\n",
+  )
   let steps = 40
   let mut s = 0
   while s < steps {
     let t = s.to_double() / (steps.to_double() - 1.0)
     let val = t
     let color = mda_contact_prob_color(val)
-    let rect_y = legend_y + (steps - 1 - s) * (legend_h.to_double() / steps.to_double()).to_int()
+    let rect_y = legend_y +
+      (steps - 1 - s) * (legend_h.to_double() / steps.to_double()).to_int()
     let rect_h = (legend_h.to_double() / steps.to_double()).to_int() + 1
     sb.write_string("<rect x=\"")
     sb.write_string(legend_x.to_string())
@@ -523,8 +574,10 @@ pub fn ContactMapResult::to_html_heatmap(
   title~ : String = "Contact Probability Heatmap",
 ) -> String {
   let n = self.n_res
-  if n == 0 { return "<html><body>No data</body></html>" }
-  let svg = self.to_svg_heatmap(cell_size=cell_size, title=title, max_label=60)
+  if n == 0 {
+    return "<html><body>No data</body></html>"
+  }
+  let svg = self.to_svg_heatmap(cell_size~, title~, max_label=60)
   let sb = StringBuilder()
   sb.write_string("<!DOCTYPE html>\n<html>\n<head>\n")
   sb.write_string("<meta charset=\"utf-8\">\n")
@@ -532,11 +585,19 @@ pub fn ContactMapResult::to_html_heatmap(
   sb.write_string(title)
   sb.write_string("</title>\n")
   sb.write_string("<style>\n")
-  sb.write_string("body { font-family: -apple-system, Segoe UI, sans-serif; margin: 20px; background: #fff; }\n")
+  sb.write_string(
+    "body { font-family: -apple-system, Segoe UI, sans-serif; margin: 20px; background: #fff; }\n",
+  )
   sb.write_string(".wrap { display: inline-block; position: relative; }\n")
-  sb.write_string(".tooltip { position: absolute; background: rgba(0,0,0,0.85); color: #fff;\n")
-  sb.write_string("  padding: 6px 10px; border-radius: 4px; font: 12px monospace;\n")
-  sb.write_string("  pointer-events: none; opacity: 0; transition: opacity 0.15s;\n")
+  sb.write_string(
+    ".tooltip { position: absolute; background: rgba(0,0,0,0.85); color: #fff;\n",
+  )
+  sb.write_string(
+    "  padding: 6px 10px; border-radius: 4px; font: 12px monospace;\n",
+  )
+  sb.write_string(
+    "  pointer-events: none; opacity: 0; transition: opacity 0.15s;\n",
+  )
   sb.write_string("  z-index: 999; }\n")
   sb.write_string(".wrap:hover .tooltip { opacity: 1; }\n")
   sb.write_string(".info { margin: 20px 0; font-size: 13px; color: #555; }\n")
@@ -565,7 +626,9 @@ pub fn ContactMapResult::to_html_heatmap(
   sb.write_string("      var i = c.getAttribute('data-i');\n")
   sb.write_string("      var j = c.getAttribute('data-j');\n")
   sb.write_string("      var p = parseFloat(c.getAttribute('data-p'));\n")
-  sb.write_string("      tip.innerHTML = '[' + i + ',' + j + ']  p=' + p.toFixed(3);\n")
+  sb.write_string(
+    "      tip.innerHTML = '[' + i + ',' + j + ']  p=' + p.toFixed(3);\n",
+  )
   sb.write_string("      var r = wrap.getBoundingClientRect();\n")
   sb.write_string("      tip.style.left = (ev.clientX - r.left + 12) + 'px';\n")
   sb.write_string("      tip.style.top  = (ev.clientY - r.top  + 12) + 'px';\n")
@@ -579,7 +642,9 @@ pub fn ContactMapResult::to_html_heatmap(
   sb.write_string("      tip.style.opacity = 0;\n")
   sb.write_string("    });\n")
   sb.write_string("  });\n")
-  sb.write_string("  wrap.addEventListener('mouseenter', function() { tip.style.opacity = 1; });\n")
+  sb.write_string(
+    "  wrap.addEventListener('mouseenter', function() { tip.style.opacity = 1; });\n",
+  )
   sb.write_string("})();\n")
   sb.write_string("</script>\n")
   sb.write_string("</body>\n</html>\n")
@@ -658,18 +723,25 @@ pub fn AtomGroup::native_contact_fraction(
   let mut ri = 0
   while ri < n_res {
     let cur_s = starts[ri]
-    let cur_e = if ri + 1 < n_res { starts[ri + 1] } else { self.indices.length() }
+    let cur_e = if ri + 1 < n_res {
+      starts[ri + 1]
+    } else {
+      self.indices.length()
+    }
     // 优先找 CA，找不到就用第一个原子
     let mut found = -1
     let mut k = cur_s
     while k < cur_e && k < self.indices.length() {
       let idx = self.indices[k]
       if idx < atoms.length() && atoms[idx].name.to_upper() == "CA" {
-        found = idx; break
+        found = idx
+        break
       }
       k = k + 1
     }
-    if found < 0 && cur_s < self.indices.length() { found = self.indices[cur_s] }
+    if found < 0 && cur_s < self.indices.length() {
+      found = self.indices[cur_s]
+    }
     ca_idx.push(found)
     ri = ri + 1
   }
@@ -681,16 +753,24 @@ pub fn AtomGroup::native_contact_fraction(
   let native_j : Array[Int32] = Array(capacity=n_res * n_res / 2)
   ri = 0
   while ri < n_res {
-    if ca_idx[ri] < 0 || ca_idx[ri] >= fr0.length() { ri = ri + 1; continue }
+    if ca_idx[ri] < 0 || ca_idx[ri] >= fr0.length() {
+      ri = ri + 1
+      continue
+    }
     let ci = fr0[ca_idx[ri]]
     let mut rj = ri + 1
     while rj < n_res {
-      if ca_idx[rj] < 0 || ca_idx[rj] >= fr0.length() { rj = rj + 1; continue }
+      if ca_idx[rj] < 0 || ca_idx[rj] >= fr0.length() {
+        rj = rj + 1
+        continue
+      }
       let cj = fr0[ca_idx[rj]]
       let d2 = if pbc {
         mda_analysis_min_dist(ci, cj, box)
       } else {
-        let dx = ci.x - cj.x; let dy = ci.y - cj.y; let dz = ci.z - cj.z
+        let dx = ci.x - cj.x
+        let dy = ci.y - cj.y
+        let dz = ci.z - cj.z
         dx * dx + dy * dy + dz * dz
       }
       if d2 <= cutoff2 {
@@ -706,7 +786,10 @@ pub fn AtomGroup::native_contact_fraction(
   let out : Array[Double] = Array(capacity=n_frames)
   if n_native == 0 {
     let mut f = 0
-    while f < n_frames { out.push(0.0); f = f + 1 }
+    while f < n_frames {
+      out.push(0.0)
+      f = f + 1
+    }
     return out
   }
 
@@ -727,10 +810,14 @@ pub fn AtomGroup::native_contact_fraction(
         let d2 = if pbc {
           mda_analysis_min_dist(ca_pos, cb_pos, box)
         } else {
-          let dx = ca_pos.x - cb_pos.x; let dy = ca_pos.y - cb_pos.y; let dz = ca_pos.z - cb_pos.z
+          let dx = ca_pos.x - cb_pos.x
+          let dy = ca_pos.y - cb_pos.y
+          let dz = ca_pos.z - cb_pos.z
           dx * dx + dy * dy + dz * dz
         }
-        if d2 <= cutoff2 { kept = kept + 1 }
+        if d2 <= cutoff2 {
+          kept = kept + 1
+        }
       }
       k = k + 1
     }
@@ -740,6 +827,7 @@ pub fn AtomGroup::native_contact_fraction(
   out
 }
 
+///|
 fn mda_hex_byte(v : Int32) -> String {
   let x = if v < 0 { 0 } else if v > 255 { 255 } else { v }
   let hi = x / 16
@@ -750,6 +838,11 @@ fn mda_hex_byte(v : Int32) -> String {
   sb.to_string()
 }
 
+///|
 fn mda_hex_digit(n : Int32) -> Char {
-  if n < 10 { (n + 48).unsafe_to_char() } else { (n - 10 + 97).unsafe_to_char() }
+  if n < 10 {
+    (n + 48).unsafe_to_char()
+  } else {
+    (n - 10 + 97).unsafe_to_char()
+  }
 }

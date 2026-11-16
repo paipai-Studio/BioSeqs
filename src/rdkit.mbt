@@ -1041,13 +1041,17 @@ fn mol_atomic_num(symbol : String) -> Int32 {
 /// 同位素标记 SMARTS（如 `[13C]`）。charge 和 aromatic 已支持。
 pub fn mol_to_smarts(mol : Molecule) -> String {
   let n = mol.atoms.length()
-  if n == 0 { return "" }
+  if n == 0 {
+    return ""
+  }
   let neighbors = mol_adjacency(mol)
   let ranks = mol_canonical_ranks(mol)
   // 找最小 rank 原子作起点
   let mut start = 0
   for k = 1; k < n; k = k + 1 {
-    if ranks[k] < ranks[start] { start = k }
+    if ranks[k] < ranks[start] {
+      start = k
+    }
   }
   // 构建 SMARTS：对每个原子根据属性选表达形式
   let atom_exprs : Array[String] = Array(capacity=n)
@@ -1056,14 +1060,21 @@ pub fn mol_to_smarts(mol : Molecule) -> String {
     let sym_up = a.symbol.to_upper()
     let z = mol_atomic_num(sym_up)
     let has_implicit_h = mol_has_implicit_h(mol, k)
-    let mut need_bracket = a.aromatic || a.charge != 0 || has_implicit_h || neighbors[k].length() > mol_typical_degree(sym_up)
+    let mut need_bracket = a.aromatic ||
+      a.charge != 0 ||
+      has_implicit_h ||
+      neighbors[k].length() > mol_typical_degree(sym_up)
     // H 原子总是显式写
-    if sym_up == "H" { need_bracket = true }
+    if sym_up == "H" {
+      need_bracket = true
+    }
     if need_bracket {
       let sb = StringBuilder()
       sb.write_string("[#")
       sb.write_string(z.to_string())
-      if a.aromatic { sb.write_string(";H0") }
+      if a.aromatic {
+        sb.write_string(";H0")
+      }
       if a.charge > 0 {
         sb.write_string(";+")
         sb.write_string(a.charge.to_string())
@@ -1073,20 +1084,20 @@ pub fn mol_to_smarts(mol : Molecule) -> String {
       }
       sb.write_string("]")
       atom_exprs.push(sb.to_string())
-    } else {
       // 普通原子：芳香用小写
-      if a.aromatic {
-        atom_exprs.push(sym_up.to_lower())
-      } else {
-        atom_exprs.push(sym_up)
-      }
+    } else if a.aromatic {
+      atom_exprs.push(sym_up.to_lower())
+    } else {
+      atom_exprs.push(sym_up)
     }
   }
   // 用 atom_exprs 替换 mol_to_smiles 的 atom symbol，重新走一遍 DFS
   let ring_map = mol_ring_digit_map(mol, neighbors, start)
   let visited = Array::make(n, false)
   let result : StringBuilder = StringBuilder()
-  mol_smarts_dfs(mol, start, -1, visited, neighbors, ranks, ring_map, atom_exprs, result)
+  mol_smarts_dfs(
+    mol, start, -1, visited, neighbors, ranks, ring_map, atom_exprs, result,
+  )
   result.to_string()
 }
 
@@ -1103,7 +1114,9 @@ fn mol_smarts_dfs(
   atom_exprs : Array[String],
   out : StringBuilder,
 ) -> Unit {
-  if visited[node] { return }
+  if visited[node] {
+    return
+  }
   visited[node] = true
   // Bond symbol before this atom (if not first atom)
   if parent >= 0 {
@@ -1115,18 +1128,26 @@ fn mol_smarts_dfs(
   // Ring closure digits
   match ring_map.get(node) {
     Some(nums) =>
-      for rn in nums { out.write_string(rn.to_string()) }
+      for rn in nums {
+        out.write_string(rn.to_string())
+      }
     None => ()
   }
   // Collect unvisited neighbors
-  let unvisited : Array[(Int32, Int32)] = Array(capacity=neighbors[node].length())
+  let unvisited : Array[(Int32, Int32)] = Array(
+    capacity=neighbors[node].length(),
+  )
   for (nb, order) in neighbors[node] {
-    if !visited[nb] { unvisited.push((nb, order)) }
+    if !visited[nb] {
+      unvisited.push((nb, order))
+    }
   }
   // Sort by canonical rank
   unvisited.sort_by(fn(a, b) { ranks[a.0].compare(ranks[b.0]) })
   for (nb, _) in unvisited {
-    mol_smarts_dfs(mol, nb, node, visited, neighbors, ranks, ring_map, atom_exprs, out)
+    mol_smarts_dfs(
+      mol, nb, node, visited, neighbors, ranks, ring_map, atom_exprs, out,
+    )
   }
 }
 

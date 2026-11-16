@@ -1,18 +1,21 @@
 ///|
 /// P3 Batch 1: pysam_bam_fastq_export 单元测试
-
-let fq_sam : String =
-  "@HD\tVN:1.6\tSO:coordinate\n" +
+let fq_sam : String = "@HD\tVN:1.6\tSO:coordinate\n" +
   "@SQ\tSN:chr1\tLN:1000\n" +
   "read1\t0\tchr1\t100\t60\t8M\t*\t0\t0\tACGTACGT\t!!!!!!!!\n" +
   "read2\t16\tchr1\t200\t50\t8M\t*\t0\t0\tTGCATGCA\t!!!!!!!!\n" +
   "pair_r1\t67\tchr1\t300\t40\t8M\t=\t400\t150\tGGCCGGCC\t!!!!!!!!\n" +
   "pair_r2\t131\tchr1\t400\t40\t8M\t=\t300\t-150\tCCGGCCGG\t!!!!!!!!\n"
 
+///|
 fn count_nonempty_lines(s : String) -> Int32 {
   let lines = s.split("\n").to_array()
   let mut count = 0
-  for l in lines { if l.length() > 0 { count = count + 1 } }
+  for l in lines {
+    if l.length() > 0 {
+      count = count + 1
+    }
+  }
   count
 }
 
@@ -71,8 +74,10 @@ test "fastq_fasta_format" {
 test "fastq_config_mate_filter_read1_only" {
   let bam = @src.sam_to_bam(fq_sam)
   let cfg = @src.FastqExportConfig::{
-    mate_of: 1, name_prefix: "@",
-    original_sequence: false, rg_filter: "",
+    mate_of: 1,
+    name_prefix: "@",
+    original_sequence: false,
+    rg_filter: "",
     emit_qualities: true,
   }
   let fq = @src.bam_to_fastq(bam, cfg)
@@ -87,16 +92,15 @@ test "fastq_config_mate_filter_read1_only" {
 ///|
 test "fastq_config_mate_filter_all_mates" {
   // mate_of:0 应该 emit unpaired + paired singleton（mate-unmapped）
-  let sam_singleton : String =
-    "@HD\tVN:1.6\tSO:coordinate\n" +
+  let sam_singleton : String = "@HD\tVN:1.6\tSO:coordinate\n" +
     "@SQ\tSN:chr1\tLN:1000\n" +
-    "sgl_pair\t75\tchr1\t100\t60\t8M\t*\t0\t0\tACGTACGT\t!!!!!!!!\n" +  // 75=PAIRED+PROPER+READ1+MATE_UNMAPPED
+    "sgl_pair\t75\tchr1\t100\t60\t8M\t*\t0\t0\tACGTACGT\t!!!!!!!!\n" + // 75=PAIRED+PROPER+READ1+MATE_UNMAPPED
     "unp_read\t0\tchr1\t200\t50\t8M\t*\t0\t0\tTGCATGCA\t!!!!!!!!\n" +
-    "proper_pair\t67\tchr1\t300\t50\t8M\t=\t400\t100\tGGCCGGCC\t!!!!!!!!\n"  // PROPER_PAIR, mate mapped → 不 emit
+    "proper_pair\t67\tchr1\t300\t50\t8M\t=\t400\t100\tGGCCGGCC\t!!!!!!!!\n" // PROPER_PAIR, mate mapped → 不 emit
   let bam = @src.sam_to_bam(sam_singleton)
   let fq = @src.bam_to_fastq_default(bam)
-  assert_true(fq.contains("sgl_pair"))    // singleton
-  assert_true(fq.contains("unp_read"))    // unpaired
+  assert_true(fq.contains("sgl_pair")) // singleton
+  assert_true(fq.contains("unp_read")) // unpaired
   assert_true(!fq.contains("proper_pair")) // properly paired → 被过滤
 }
 
@@ -112,7 +116,9 @@ test "fastq_config_default_roundtrip" {
 
 ///|
 test "fastq_empty_bam" {
-  let empty = @src.sam_to_bam("@HD\tVN:1.6\tSO:coordinate\n@SQ\tSN:chr1\tLN:1000\n")
+  let empty = @src.sam_to_bam(
+    "@HD\tVN:1.6\tSO:coordinate\n@SQ\tSN:chr1\tLN:1000\n",
+  )
   let fq = @src.bam_to_fastq_default(empty)
   assert_eq(fq.length(), 0)
   let fa = @src.bam_to_fasta(empty)
@@ -122,15 +128,14 @@ test "fastq_empty_bam" {
 ///|
 test "fastq_secondary_supplementary_skipped" {
   // flag 256 (0x100) = secondary；flag 2048 (0x800) = supplementary
-  let sam : String =
-    "@HD\tVN:1.6\tSO:coordinate\n" +
+  let sam : String = "@HD\tVN:1.6\tSO:coordinate\n" +
     "@SQ\tSN:chr1\tLN:1000\n" +
     "primary\t0\tchr1\t100\t60\t8M\t*\t0\t0\tACGTACGT\t!!!!!!!!\n" +
     "sec\t256\tchr1\t100\t30\t8M\t*\t0\t0\tACGTACGT\t!!!!!!!!\n" +
     "supp\t2048\tchr1\t200\t30\t8M\t*\t0\t0\tACGTACGT\t!!!!!!!!\n"
   let bam = @src.sam_to_bam(sam)
   let fq = @src.bam_to_fastq_default(bam)
-  assert_eq(count_nonempty_lines(fq), 4)  // 只有 primary
+  assert_eq(count_nonempty_lines(fq), 4) // 只有 primary
   assert_true(fq.contains("primary"))
   assert_true(!fq.contains("sec"))
   assert_true(!fq.contains("supp"))

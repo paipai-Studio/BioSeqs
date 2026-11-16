@@ -38,8 +38,18 @@ pub fn UnivAtom::new(
   is_backbone~ : Bool = false,
 ) -> UnivAtom {
   UnivAtom::{
-    name, resname, chain, segid, element, atom_type, resid, mass, charge,
-    is_protein, is_water, is_backbone,
+    name,
+    resname,
+    chain,
+    segid,
+    element,
+    atom_type,
+    resid,
+    mass,
+    charge,
+    is_protein,
+    is_water,
+    is_backbone,
   }
 }
 
@@ -65,7 +75,9 @@ pub fn PBCBox::empty() -> PBCBox {
     v1: Vector3::new(0.0, 0.0, 0.0),
     v2: Vector3::new(0.0, 0.0, 0.0),
     v3: Vector3::new(0.0, 0.0, 0.0),
-    alpha: 90.0, beta: 90.0, gamma: 90.0,
+    alpha: 90.0,
+    beta: 90.0,
+    gamma: 90.0,
   }
 }
 
@@ -76,7 +88,9 @@ pub fn PBCBox::from_lengths(a : Double, b : Double, c : Double) -> PBCBox {
     v1: Vector3::new(a, 0.0, 0.0),
     v2: Vector3::new(0.0, b, 0.0),
     v3: Vector3::new(0.0, 0.0, c),
-    alpha: 90.0, beta: 90.0, gamma: 90.0,
+    alpha: 90.0,
+    beta: 90.0,
+    gamma: 90.0,
   }
 }
 
@@ -102,7 +116,7 @@ pub fn Universe::new(
   times~ : Array[Double] = Array(capacity=0),
   box~ : PBCBox = PBCBox::empty(),
 ) -> Universe {
-  Universe::{ atoms, trajectory, times, box, current_frame: 0 }
+  Universe::{ atoms, trajectory, times, box, current_frame: 0, }
 }
 
 ///|
@@ -132,7 +146,7 @@ pub fn Universe::from_dcd_frames(
     traj.push(v3s)
     f = f + 1
   }
-  Universe::new(atoms, trajectory=traj, box=box)
+  Universe::new(atoms, trajectory=traj, box~)
 }
 
 ///|
@@ -183,7 +197,10 @@ pub fn Universe::positions(self : Universe) -> Array[Array[Double]] {
 
 ///|
 /// 指定帧坐标（返回 `Array[Array[Double]]` 兼容格式）。
-pub fn Universe::positions_at(self : Universe, i : Int32) -> Array[Array[Double]] {
+pub fn Universe::positions_at(
+  self : Universe,
+  i : Int32,
+) -> Array[Array[Double]] {
   let f = self.frame(i)
   let out : Array[Array[Double]] = Array(capacity=f.length())
   let mut k = 0
@@ -202,7 +219,7 @@ pub fn Universe::select_atoms(self : Universe, expr : String) -> AtomGroup {
     self.atoms,
     positions=Some(self.positions()),
   )
-  AtomGroup::{ indices: mask, universe: self }
+  AtomGroup::{ indices: mask, universe: self, }
 }
 
 ///|
@@ -220,7 +237,7 @@ pub fn Universe::from_frame(
 ) -> Universe {
   let traj : Array[Array[Vector3]] = Array(capacity=1)
   traj.push(coords)
-  Universe::new(atoms, trajectory=traj, box=box)
+  Universe::new(atoms, trajectory=traj, box~)
 }
 
 // ============================================================================
@@ -243,13 +260,16 @@ pub fn Universe::all_atoms(self : Universe) -> AtomGroup {
     indices.push(i)
     i = i + 1
   }
-  AtomGroup::{ indices, universe: self }
+  AtomGroup::{ indices, universe: self, }
 }
 
 ///|
 /// 按索引子集选原子。
-pub fn Universe::select_atoms_by_indices(self : Universe, indices : Array[Int32]) -> AtomGroup {
-  AtomGroup::{ indices, universe: self }
+pub fn Universe::select_atoms_by_indices(
+  self : Universe,
+  indices : Array[Int32],
+) -> AtomGroup {
+  AtomGroup::{ indices, universe: self, }
 }
 
 ///|
@@ -265,36 +285,48 @@ pub fn AtomGroup::select_by_name(self : AtomGroup, name : String) -> AtomGroup {
   let mut i = 0
   while i < self.indices.length() {
     let idx = self.indices[i]
-    if self.universe.atoms[idx].name == name { indices.push(idx) }
+    if self.universe.atoms[idx].name == name {
+      indices.push(idx)
+    }
     i = i + 1
   }
-  AtomGroup::{ indices, universe: self.universe }
+  AtomGroup::{ indices, universe: self.universe, }
 }
 
 ///|
 /// 按残基名过滤。
-pub fn AtomGroup::select_by_resname(self : AtomGroup, resname : String) -> AtomGroup {
+pub fn AtomGroup::select_by_resname(
+  self : AtomGroup,
+  resname : String,
+) -> AtomGroup {
   let indices : Array[Int32] = Array(capacity=self.indices.length())
   let mut i = 0
   while i < self.indices.length() {
     let idx = self.indices[i]
-    if self.universe.atoms[idx].resname == resname { indices.push(idx) }
+    if self.universe.atoms[idx].resname == resname {
+      indices.push(idx)
+    }
     i = i + 1
   }
-  AtomGroup::{ indices, universe: self.universe }
+  AtomGroup::{ indices, universe: self.universe, }
 }
 
 ///|
 /// 按链 ID 过滤。
-pub fn AtomGroup::select_by_chain(self : AtomGroup, chain : String) -> AtomGroup {
+pub fn AtomGroup::select_by_chain(
+  self : AtomGroup,
+  chain : String,
+) -> AtomGroup {
   let indices : Array[Int32] = Array(capacity=self.indices.length())
   let mut i = 0
   while i < self.indices.length() {
     let idx = self.indices[i]
-    if self.universe.atoms[idx].chain == chain { indices.push(idx) }
+    if self.universe.atoms[idx].chain == chain {
+      indices.push(idx)
+    }
     i = i + 1
   }
-  AtomGroup::{ indices, universe: self.universe }
+  AtomGroup::{ indices, universe: self.universe, }
 }
 
 ///|
@@ -309,10 +341,12 @@ pub fn AtomGroup::select_by_resid_range(
   while i < self.indices.length() {
     let idx = self.indices[i]
     let r = self.universe.atoms[idx].resid
-    if r >= start && r <= end { indices.push(idx) }
+    if r >= start && r <= end {
+      indices.push(idx)
+    }
     i = i + 1
   }
-  AtomGroup::{ indices, universe: self.universe }
+  AtomGroup::{ indices, universe: self.universe, }
 }
 
 ///|
@@ -329,10 +363,12 @@ pub fn AtomGroup::heavy_atoms(self : AtomGroup) -> AtomGroup {
       let name = self.universe.atoms[idx].name
       name.length() > 0 && name.unsafe_get(0) == 72 // 'H' ASCII
     }
-    if !is_h { indices.push(idx) }
+    if !is_h {
+      indices.push(idx)
+    }
     i = i + 1
   }
-  AtomGroup::{ indices, universe: self.universe }
+  AtomGroup::{ indices, universe: self.universe, }
 }
 
 ///|
@@ -423,10 +459,12 @@ pub fn AtomGroup::select(self : AtomGroup, expr : String) -> AtomGroup {
       }
       j = j + 1
     }
-    if found { out.push(idx) }
+    if found {
+      out.push(idx)
+    }
     i = i + 1
   }
-  AtomGroup::{ indices: out, universe: self.universe }
+  AtomGroup::{ indices: out, universe: self.universe, }
 }
 
 ///|
@@ -448,19 +486,23 @@ pub fn AtomGroup::backbone(self : AtomGroup) -> AtomGroup {
     }
     i = i + 1
   }
-  AtomGroup::{ indices, universe: self.universe }
+  AtomGroup::{ indices, universe: self.universe, }
 }
 
 ///|
 /// AtomGroup 在某帧的坐标。
 pub fn AtomGroup::coords(self : AtomGroup, frame : Int32) -> Array[Vector3] {
   let fr = self.universe.frame(frame)
-  if fr.length() == 0 { return Array(capacity=0) }
+  if fr.length() == 0 {
+    return Array(capacity=0)
+  }
   let result : Array[Vector3] = Array(capacity=self.indices.length())
   let mut i = 0
   while i < self.indices.length() {
     let idx = self.indices[i]
-    if idx >= 0 && idx < fr.length() { result.push(fr[idx]) }
+    if idx >= 0 && idx < fr.length() {
+      result.push(fr[idx])
+    }
     i = i + 1
   }
   result
@@ -468,10 +510,15 @@ pub fn AtomGroup::coords(self : AtomGroup, frame : Int32) -> Array[Vector3] {
 
 ///|
 /// 几何中心（无权重，默认 frame 0）。
-pub fn AtomGroup::center_of_geometry(self : AtomGroup, frame~ : Int32 = 0) -> Vector3 {
+pub fn AtomGroup::center_of_geometry(
+  self : AtomGroup,
+  frame~ : Int32 = 0,
+) -> Vector3 {
   let cs = self.coords(frame)
   let n = cs.length()
-  if n == 0 { return Vector3::new(0.0, 0.0, 0.0) }
+  if n == 0 {
+    return Vector3::new(0.0, 0.0, 0.0)
+  }
   let mut sx = 0.0
   let mut sy = 0.0
   let mut sz = 0.0
@@ -487,10 +534,15 @@ pub fn AtomGroup::center_of_geometry(self : AtomGroup, frame~ : Int32 = 0) -> Ve
 
 ///|
 /// 质心（按 mass 权重，默认 frame 0）。
-pub fn AtomGroup::center_of_mass(self : AtomGroup, frame~ : Int32 = 0) -> Vector3 {
+pub fn AtomGroup::center_of_mass(
+  self : AtomGroup,
+  frame~ : Int32 = 0,
+) -> Vector3 {
   let cs = self.coords(frame)
   let n = cs.length()
-  if n == 0 { return Vector3::new(0.0, 0.0, 0.0) }
+  if n == 0 {
+    return Vector3::new(0.0, 0.0, 0.0)
+  }
   let mut total_mass = 0.0
   let mut wx = 0.0
   let mut wy = 0.0
@@ -500,7 +552,11 @@ pub fn AtomGroup::center_of_mass(self : AtomGroup, frame~ : Int32 = 0) -> Vector
     let idx = self.indices[i]
     let m = if idx >= 0 && idx < self.universe.atoms.length() {
       let am = self.universe.atoms[idx].mass
-      if am > 0.0 { am } else { 1.0 }
+      if am > 0.0 {
+        am
+      } else {
+        1.0
+      }
     } else {
       1.0
     }
@@ -519,11 +575,16 @@ pub fn AtomGroup::center_of_mass(self : AtomGroup, frame~ : Int32 = 0) -> Vector
 
 ///|
 /// 回转半径（按 mass 权重，默认 frame 0）。
-pub fn AtomGroup::radius_of_gyration(self : AtomGroup, frame~ : Int32 = 0) -> Double {
+pub fn AtomGroup::radius_of_gyration(
+  self : AtomGroup,
+  frame~ : Int32 = 0,
+) -> Double {
   let cs = self.coords(frame)
   let n = cs.length()
-  if n == 0 { return 0.0 }
-  let com = self.center_of_mass(frame=frame)
+  if n == 0 {
+    return 0.0
+  }
+  let com = self.center_of_mass(frame~)
   let mut total_mass = 0.0
   let mut rg_sum = 0.0
   let mut i = 0
@@ -531,7 +592,11 @@ pub fn AtomGroup::radius_of_gyration(self : AtomGroup, frame~ : Int32 = 0) -> Do
     let idx = self.indices[i]
     let m = if idx >= 0 && idx < self.universe.atoms.length() {
       let am = self.universe.atoms[idx].mass
-      if am > 0.0 { am } else { 1.0 }
+      if am > 0.0 {
+        am
+      } else {
+        1.0
+      }
     } else {
       1.0
     }
@@ -542,7 +607,11 @@ pub fn AtomGroup::radius_of_gyration(self : AtomGroup, frame~ : Int32 = 0) -> Do
     rg_sum = rg_sum + m * (dx * dx + dy * dy + dz * dz)
     i = i + 1
   }
-  if total_mass > 0.0 { (rg_sum / total_mass).sqrt() } else { 0.0 }
+  if total_mass > 0.0 {
+    (rg_sum / total_mass).sqrt()
+  } else {
+    0.0
+  }
 }
 
 // ============================================================================
@@ -591,17 +660,19 @@ pub fn Universe::from_gro(text : String) -> Universe {
     let x = ga.x * 10.0
     let y = ga.y * 10.0
     let z = ga.z * 10.0
-    atoms.push(UnivAtom::new(
-      name=name,
-      resname=resname,
-      resid=ga.res_id,
-      chain="A",
-      segid="SYS",
-      element=element,
-      is_protein=mda_universe_is_protein(resname),
-      is_water=resname == "WAT" || resname == "HOH" || resname == "SOL",
-      is_backbone=name == "N" || name == "CA" || name == "C" || name == "O",
-    ))
+    atoms.push(
+      UnivAtom::new(
+        name~,
+        resname~,
+        resid=ga.res_id,
+        chain="A",
+        segid="SYS",
+        element~,
+        is_protein=mda_universe_is_protein(resname),
+        is_water=resname == "WAT" || resname == "HOH" || resname == "SOL",
+        is_backbone=name == "N" || name == "CA" || name == "C" || name == "O",
+      ),
+    )
     coords.push(Vector3::new(x, y, z))
     i = i + 1
   }
@@ -616,16 +687,33 @@ pub fn Universe::from_gro(text : String) -> Universe {
   } else {
     PBCBox::empty()
   }
-  Universe::new(atoms, trajectory=traj, box=box)
+  Universe::new(atoms, trajectory=traj, box~)
 }
 
 ///|
 /// 判断是否标准蛋白质残基名。
 fn mda_universe_is_protein(resname : String) -> Bool {
   match resname {
-    "ALA" | "ARG" | "ASN" | "ASP" | "CYS" | "GLN" | "GLU" | "GLY" |
-    "HIS" | "ILE" | "LEU" | "LYS" | "MET" | "PHE" | "PRO" | "SER" |
-    "THR" | "TRP" | "TYR" | "VAL" => true
+    "ALA"
+    | "ARG"
+    | "ASN"
+    | "ASP"
+    | "CYS"
+    | "GLN"
+    | "GLU"
+    | "GLY"
+    | "HIS"
+    | "ILE"
+    | "LEU"
+    | "LYS"
+    | "MET"
+    | "PHE"
+    | "PRO"
+    | "SER"
+    | "THR"
+    | "TRP"
+    | "TYR"
+    | "VAL" => true
     _ => false
   }
 }
@@ -648,18 +736,20 @@ pub fn Universe::from_lammps(text : String) -> Universe raise LammpsDumpError {
   while i < natoms {
     let la = first.atoms[i]
     let tn = la.atom_type.to_string()
-    atoms.push(UnivAtom::new(
-      name="A" + tn,
-      resname="LAM",
-      resid=la.mol,
-      chain="A",
-      segid="SYS",
-      element="X",
-      mass=1.0,
-      charge=0.0,
-      is_protein=false,
-      is_backbone=false,
-    ))
+    atoms.push(
+      UnivAtom::new(
+        name="A" + tn,
+        resname="LAM",
+        resid=la.mol,
+        chain="A",
+        segid="SYS",
+        element="X",
+        mass=1.0,
+        charge=0.0,
+        is_protein=false,
+        is_backbone=false,
+      ),
+    )
     i = i + 1
   }
   let traj : Array[Array[Vector3]] = Array(capacity=nf)
@@ -672,7 +762,8 @@ pub fn Universe::from_lammps(text : String) -> Universe raise LammpsDumpError {
       fv.push(Vector3::new(fr.atoms[k].x, fr.atoms[k].y, fr.atoms[k].z))
       k = k + 1
     }
-    traj.push(fv); f = f + 1
+    traj.push(fv)
+    f = f + 1
   }
   let box = if first.box_lo.length() >= 3 && first.box_hi.length() >= 3 {
     let dx = first.box_hi[0] - first.box_lo[0]
@@ -682,5 +773,5 @@ pub fn Universe::from_lammps(text : String) -> Universe raise LammpsDumpError {
   } else {
     PBCBox::empty()
   }
-  Universe::new(atoms, trajectory=traj, box=box)
+  Universe::new(atoms, trajectory=traj, box~)
 }

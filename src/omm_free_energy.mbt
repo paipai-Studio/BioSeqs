@@ -171,7 +171,7 @@ pub fn OmmFreeEnergyResult::new(
   n_states : Int32,
   converged : Bool,
 ) -> OmmFreeEnergyResult {
-  { dG, alg, n_samples, n_states, converged }
+  { dG, alg, n_samples, n_states, converged, }
 }
 
 ///|
@@ -189,18 +189,14 @@ pub fn omm_mbar_reduce(
     for i = 0; i < n; i = i + 1 {
       for j = i + 1; j < n; j = j + 1 {
         let d = (-kT * (log_f[j] - log_f[i])).abs()
-        if d > max_dG { max_dG = d }
+        if d > max_dG {
+          max_dG = d
+        }
       }
     }
   }
   let total_samples = 0 // 需要外部传入，这里占位
-  OmmFreeEnergyResult::new(
-    max_dG,
-    "MBAR",
-    total_samples,
-    n,
-    true,
-  )
+  OmmFreeEnergyResult::new(max_dG, "MBAR", total_samples, n, true)
 }
 
 ///|
@@ -224,16 +220,16 @@ pub fn omm_mbar_from_energy_trajectories(
     return OmmFreeEnergyResult::new(
       0.0,
       "MBAR",
-      if k > 0 { energies[0].length() } else { 0 },
+      if k > 0 {
+        energies[0].length()
+      } else {
+        0
+      },
       k,
       false,
     )
   }
-  let lam = if lambdas.length() == k {
-    lambdas
-  } else {
-    omm_lambda_linear(n=k)
-  }
+  let lam = if lambdas.length() == k { lambdas } else { omm_lambda_linear(n=k) }
   let beta = 1.0 / (0.001987204 * temperature)
   // 组装 u_nk[k][n][j]：状态 k 的第 n 个样本在窗口 j 的 reduced energy
   let u_nk : Array[Array[Array[Double]]] = Array::make(k, [])
@@ -284,13 +280,7 @@ pub fn omm_fep_batch(
     } else {
       energies[i + 1].length()
     }
-    out.push(OmmFreeEnergyResult::new(
-      dG,
-      "FEP",
-      n_samp,
-      2,
-      true,
-    ))
+    out.push(OmmFreeEnergyResult::new(dG, "FEP", n_samp, 2, true))
   }
   out
 }
@@ -319,13 +309,15 @@ pub fn omm_bar_batch(
       energies_B_in_B[i],
       temperature~,
     )
-    out.push(OmmFreeEnergyResult::new(
-      dG,
-      "BAR",
-      energies_A_in_A[i].length() + energies_A_in_B[i].length(),
-      2,
-      true,
-    ))
+    out.push(
+      OmmFreeEnergyResult::new(
+        dG,
+        "BAR",
+        energies_A_in_A[i].length() + energies_A_in_B[i].length(),
+        2,
+        true,
+      ),
+    )
   }
   out
 }

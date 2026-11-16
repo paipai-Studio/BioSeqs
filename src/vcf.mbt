@@ -499,7 +499,11 @@ pub fn VcfRecord::rlen(self : VcfRecord) -> Int32 {
   }
   if self.is_insertion() || self.is_deletion() {
     let diff = rl - max_alt
-    if diff < 0 { -diff } else { diff }
+    if diff < 0 {
+      -diff
+    } else {
+      diff
+    }
   } else {
     rl
   }
@@ -532,7 +536,11 @@ pub fn VcfRecord::info_get(self : VcfRecord, key : String) -> String? {
 ///|
 /// Set an INFO field value (flag fields use `""` as value). Returns a new
 /// record (immutable convention, consistent with `BamRecord::set_tag`).
-pub fn VcfRecord::info_set(self : VcfRecord, key : String, value : String) -> VcfRecord {
+pub fn VcfRecord::info_set(
+  self : VcfRecord,
+  key : String,
+  value : String,
+) -> VcfRecord {
   let info = self.info.copy()
   info.set(key, value)
   let new_format : Array[String]? = match self.format {
@@ -671,7 +679,10 @@ pub fn VcfFile::fetch_region(
 ///|
 /// Fetch records by samtools-style region string (`chr1:100-200` etc). Uses
 /// the same parser as `parse_region` (BAM 模块).
-pub fn VcfFile::fetch_region_str(self : VcfFile, region : String) -> Array[VcfRecord] {
+pub fn VcfFile::fetch_region_str(
+  self : VcfFile,
+  region : String,
+) -> Array[VcfRecord] {
   let (contig, start0, stop0) = parse_region(region)
   // VCF uses 1-based start, so +1
   let start = match start0 {
@@ -760,7 +771,7 @@ pub fn vcf_new_record(
   let samples = Map([], capacity=0)
   let fmt : Array[String]? = match vcf.fixed_header {
     None => None
-    Some(fh) => {
+    Some(fh) =>
       if fh.columns.length() > 8 && fh.columns[8] == "FORMAT" {
         let names = Array(capacity=0)
         let mut i = 9
@@ -773,7 +784,6 @@ pub fn vcf_new_record(
       } else {
         None
       }
-    }
   }
   VcfRecord::{
     chrom,
@@ -821,11 +831,7 @@ pub fn VcfFile::add_meta(
   value : String,
 ) -> VcfFile {
   let meta = self.meta_headers.copy()
-  meta.push(VcfMetaHeader::{
-    key,
-    value,
-    tags: Map([], capacity=0),
-  })
+  meta.push(VcfMetaHeader::{ key, value, tags: Map([], capacity=0), })
   VcfFile::{
     meta_headers: meta,
     fixed_header: self.fixed_header,
@@ -865,7 +871,9 @@ pub fn VariantHeader::contigs(self : VariantHeader) -> Array[String] {
 ///|
 /// Contig name → length map. Matches Pysam `VariantHeader.contigs`
 /// dictionary form.
-pub fn VariantHeader::contig_lengths(self : VariantHeader) -> Map[String, Int32] {
+pub fn VariantHeader::contig_lengths(
+  self : VariantHeader,
+) -> Map[String, Int32] {
   let out : Map[String, Int32] = Map([], capacity=4)
   for m in self.meta_headers {
     if m.key == "contig" {
@@ -889,12 +897,14 @@ pub fn VariantHeader::contig_lengths(self : VariantHeader) -> Map[String, Int32]
 ///|
 /// INFO header entries — key → Map of Description/Type/Number.
 /// Matches Pysam `VariantHeader.info`.
-pub fn VariantHeader::info(self : VariantHeader) -> Map[String, Map[String, String]] {
+pub fn VariantHeader::info(
+  self : VariantHeader,
+) -> Map[String, Map[String, String]] {
   let out : Map[String, Map[String, String]] = Map([], capacity=4)
   for m in self.meta_headers {
     if m.key == "INFO" {
       match m.tags.get("ID") {
-        Some(id) => { out[id] = m.tags }
+        Some(id) => out[id] = m.tags
         None => ()
       }
     }
@@ -904,12 +914,14 @@ pub fn VariantHeader::info(self : VariantHeader) -> Map[String, Map[String, Stri
 
 ///|
 /// FORMAT header entries. Matches Pysam `VariantHeader.formats`.
-pub fn VariantHeader::formats(self : VariantHeader) -> Map[String, Map[String, String]] {
+pub fn VariantHeader::formats(
+  self : VariantHeader,
+) -> Map[String, Map[String, String]] {
   let out : Map[String, Map[String, String]] = Map([], capacity=4)
   for m in self.meta_headers {
     if m.key == "FORMAT" {
       match m.tags.get("ID") {
-        Some(id) => { out[id] = m.tags }
+        Some(id) => out[id] = m.tags
         None => ()
       }
     }
@@ -959,29 +971,39 @@ pub fn VariantHeader::samples(self : VariantHeader) -> Array[String] {
 ///|
 /// Build the VariantHeader that wraps a VcfFile.
 pub fn VcfFile::header(self : VcfFile) -> VariantHeader {
-  VariantHeader::{ meta_headers: self.meta_headers, fixed_header: self.fixed_header }
+  VariantHeader::{
+    meta_headers: self.meta_headers,
+    fixed_header: self.fixed_header,
+  }
 }
 
 ///|
 /// Construct an empty VariantHeader (##fileformat line only).
 pub fn VariantHeader::new() -> VariantHeader {
   let meta : Array[VcfMetaHeader] = []
-  let fixed : VcfFixedHeader = VcfFixedHeader::{ columns: ["#CHROM","POS","ID","REF","ALT","QUAL","FILTER","INFO","FORMAT"] }
-  VariantHeader::{ meta_headers: meta, fixed_header: Some(fixed) }
+  let fixed : VcfFixedHeader = VcfFixedHeader::{
+    columns: [
+      "#CHROM", "POS", "ID", "REF", "ALT", "QUAL", "FILTER", "INFO", "FORMAT",
+    ],
+  }
+  VariantHeader::{ meta_headers: meta, fixed_header: Some(fixed), }
 }
 
 ///|
 /// Append a raw meta header line (the full ##KEY=VALUE string).
 /// The line is parsed back into VcfMetaHeader and stored.
 /// Matches Pysam `VariantHeader.add_line(line)`.
-pub fn VariantHeader::add_line(self : VariantHeader, line : String) -> VariantHeader {
+pub fn VariantHeader::add_line(
+  self : VariantHeader,
+  line : String,
+) -> VariantHeader {
   let opt = parse_vcf_meta_header(line)
   let meta = self.meta_headers.copy()
   match opt {
-    Some(mh) => { meta.push(mh) }
+    Some(mh) => meta.push(mh)
     None => ()
   }
-  VariantHeader::{ meta_headers: meta, fixed_header: self.fixed_header }
+  VariantHeader::{ meta_headers: meta, fixed_header: self.fixed_header, }
 }
 
 ///|
@@ -992,9 +1014,12 @@ pub fn VariantHeader::add_contig(
   length : Int32,
 ) -> VariantHeader {
   let meta = self.meta_headers.copy()
-  let tags : Map[String, String] = Map([("ID", id), ("length", length.to_string())], capacity=2)
-  meta.push(VcfMetaHeader::{ key: "contig", value: "", tags })
-  VariantHeader::{ meta_headers: meta, fixed_header: self.fixed_header }
+  let tags : Map[String, String] = Map(
+    [("ID", id), ("length", length.to_string())],
+    capacity=2,
+  )
+  meta.push(VcfMetaHeader::{ key: "contig", value: "", tags, })
+  VariantHeader::{ meta_headers: meta, fixed_header: self.fixed_header, }
 }
 
 ///|
@@ -1007,14 +1032,17 @@ pub fn VariantHeader::add_info(
   description : String,
 ) -> VariantHeader {
   let meta = self.meta_headers.copy()
-  let tags : Map[String, String] = Map([
-    ("ID", id),
-    ("Number", number),
-    ("Type", type_name),
-    ("Description", description),
-  ], capacity=4)
-  meta.push(VcfMetaHeader::{ key: "INFO", value: "", tags })
-  VariantHeader::{ meta_headers: meta, fixed_header: self.fixed_header }
+  let tags : Map[String, String] = Map(
+    [
+      ("ID", id),
+      ("Number", number),
+      ("Type", type_name),
+      ("Description", description),
+    ],
+    capacity=4,
+  )
+  meta.push(VcfMetaHeader::{ key: "INFO", value: "", tags, })
+  VariantHeader::{ meta_headers: meta, fixed_header: self.fixed_header, }
 }
 
 ///|
@@ -1027,14 +1055,17 @@ pub fn VariantHeader::add_format(
   description : String,
 ) -> VariantHeader {
   let meta = self.meta_headers.copy()
-  let tags : Map[String, String] = Map([
-    ("ID", id),
-    ("Number", number),
-    ("Type", type_name),
-    ("Description", description),
-  ], capacity=4)
-  meta.push(VcfMetaHeader::{ key: "FORMAT", value: "", tags })
-  VariantHeader::{ meta_headers: meta, fixed_header: self.fixed_header }
+  let tags : Map[String, String] = Map(
+    [
+      ("ID", id),
+      ("Number", number),
+      ("Type", type_name),
+      ("Description", description),
+    ],
+    capacity=4,
+  )
+  meta.push(VcfMetaHeader::{ key: "FORMAT", value: "", tags, })
+  VariantHeader::{ meta_headers: meta, fixed_header: self.fixed_header, }
 }
 
 ///|
@@ -1045,25 +1076,28 @@ pub fn VariantHeader::add_filter(
   description : String,
 ) -> VariantHeader {
   let meta = self.meta_headers.copy()
-  let tags : Map[String, String] = Map([
-    ("ID", id),
-    ("Description", description),
-  ], capacity=2)
-  meta.push(VcfMetaHeader::{ key: "FILTER", value: "", tags })
-  VariantHeader::{ meta_headers: meta, fixed_header: self.fixed_header }
+  let tags : Map[String, String] = Map(
+    [("ID", id), ("Description", description)],
+    capacity=2,
+  )
+  meta.push(VcfMetaHeader::{ key: "FILTER", value: "", tags, })
+  VariantHeader::{ meta_headers: meta, fixed_header: self.fixed_header, }
 }
 
 ///|
 /// Add a sample name to the #CHROM line. If a FORMAT column exists the
 /// sample is appended after it, otherwise after the INFO column.
-pub fn VariantHeader::add_sample(self : VariantHeader, sample : String) -> VariantHeader {
+pub fn VariantHeader::add_sample(
+  self : VariantHeader,
+  sample : String,
+) -> VariantHeader {
   match self.fixed_header {
     Some(fh) => {
       let cols = fh.columns.copy()
       cols.push(sample)
       VariantHeader::{
         meta_headers: self.meta_headers,
-        fixed_header: Some(VcfFixedHeader::{ columns: cols }),
+        fixed_header: Some(VcfFixedHeader::{ columns: cols, }),
       }
     }
     None => self
@@ -1078,7 +1112,9 @@ pub fn VariantHeader::add_sample(self : VariantHeader, sample : String) -> Varia
 /// All INFO keys of this record (Map-like `.keys()`).
 pub fn VcfRecord::info_keys(self : VcfRecord) -> Array[String] {
   let out : Array[String] = []
-  for (k, _) in self.info { out.push(k) }
+  for (k, _) in self.info {
+    out.push(k)
+  }
   out
 }
 
@@ -1086,14 +1122,19 @@ pub fn VcfRecord::info_keys(self : VcfRecord) -> Array[String] {
 /// All INFO values of this record (Map-like `.values()`).
 pub fn VcfRecord::info_values(self : VcfRecord) -> Array[String] {
   let out : Array[String] = []
-  for (_, v) in self.info { out.push(v) }
+  for (_, v) in self.info {
+    out.push(v)
+  }
   out
 }
 
 ///|
 /// Remove an INFO key and return its previous value, if any.
 /// Matches Map-like `.pop(key)`.
-pub fn VcfRecord::info_pop(self : VcfRecord, key : String) -> (VcfRecord, String?) {
+pub fn VcfRecord::info_pop(
+  self : VcfRecord,
+  key : String,
+) -> (VcfRecord, String?) {
   let new_info = self.info.copy()
   let prev = new_info.get(key)
   new_info.remove(key)
@@ -1133,7 +1174,9 @@ pub fn VcfRecord::info_clear(self : VcfRecord) -> VcfRecord {
 /// Iterate over all INFO (key, value) pairs (Map-like `.items()`).
 pub fn VcfRecord::info_items(self : VcfRecord) -> Array[(String, String)] {
   let out : Array[(String, String)] = []
-  for (k, v) in self.info { out.push((k, v)) }
+  for (k, v) in self.info {
+    out.push((k, v))
+  }
   out
 }
 
@@ -1159,15 +1202,18 @@ pub fn VcfRecord::sample_get(
   let mut fi : Int32 = -1
   let mut idx = 0
   while idx < fmt.length() {
-    if fmt[idx] == field { fi = idx; break }
+    if fmt[idx] == field {
+      fi = idx
+      break
+    }
     idx = idx + 1
   }
-  if fi < 0 { return None }
+  if fi < 0 {
+    return None
+  }
   let arr = self.samples.get(sample_name)
   match arr {
-    Some(a) => {
-      if fi < a.length() { Some(a[fi]) } else { None }
-    }
+    Some(a) => if fi < a.length() { Some(a[fi]) } else { None }
     None => None
   }
 }
@@ -1185,6 +1231,8 @@ pub fn VcfRecord::format_fields(self : VcfRecord) -> Array[String] {
 /// Sample names present on this record.
 pub fn VcfRecord::sample_names(self : VcfRecord) -> Array[String] {
   let out : Array[String] = []
-  for (k, _) in self.samples { out.push(k) }
+  for (k, _) in self.samples {
+    out.push(k)
+  }
   out
 }

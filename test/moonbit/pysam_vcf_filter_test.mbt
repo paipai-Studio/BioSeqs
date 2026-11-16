@@ -1,8 +1,6 @@
 ///|
 /// P3: pysam_vcf_filter 单元测试
-
-let filter_vcf_content : String =
-  "##fileformat=VCFv4.2\n" +
+let filter_vcf_content : String = "##fileformat=VCFv4.2\n" +
   "##contig=<ID=chr1,length=1000>\n" +
   "##INFO=<ID=DP,Number=1,Type=Integer,Description=\"depth\">\n" +
   "##INFO=<ID=CSQ,Number=A,Type=String,Description=\"consequence\">\n" +
@@ -44,10 +42,12 @@ test "filter_pass_only" {
 test "filter_info_required" {
   let vcf = @src.parse_vcf(filter_vcf_content)
   let cfg = @src.VcfFilterConfig::{
-    qual_min: None, qual_max: None,
+    qual_min: None,
+    qual_max: None,
     pass_only: false,
     info_required_keys: ["CSQ"],
-    min_alt_count: None, max_alt_count: None,
+    min_alt_count: None,
+    max_alt_count: None,
     id_known: None,
   }
   let result = @src.vcf_filter(vcf, cfg)
@@ -74,7 +74,9 @@ test "filter_pass_rate_summary" {
   let (passes, fails) = @src.vcf_filter_summary(vcf, cfg)
   assert_eq(passes, 3)
   assert_eq(fails, 2)
-  assert_true(@moonbit.assert_close_e6(@src.vcf_filter_pass_rate(vcf, cfg), 0.6))
+  assert_true(
+    @moonbit.assert_close_e6(@src.vcf_filter_pass_rate(vcf, cfg), 0.6),
+  )
 }
 
 ///|

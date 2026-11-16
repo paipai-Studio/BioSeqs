@@ -77,13 +77,14 @@ pub fn vcf_record_passes(rec : VcfRecord, cfg : VcfFilterConfig) -> Bool {
   // QUAL range
   match (cfg.qual_min, cfg.qual_max, rec.qual) {
     (Some(lo), Some(hi), Some(q)) =>
-      if q < lo || q > hi { return false }
-      else { () }
-    (Some(lo), None, Some(q)) =>
-      if q < lo { return false } else { () }
-    (None, Some(hi), Some(q)) =>
-      if q > hi { return false } else { () }
-    (Some(_), Some(_), None) => return false  // QUAL required but missing
+      if q < lo || q > hi {
+        return false
+      } else {
+        ()
+      }
+    (Some(lo), None, Some(q)) => if q < lo { return false } else { () }
+    (None, Some(hi), Some(q)) => if q > hi { return false } else { () }
+    (Some(_), Some(_), None) => return false // QUAL required but missing
     (Some(_), None, None) => return false
     (None, Some(_), None) => return false
     (_, _, _) => ()
@@ -91,7 +92,8 @@ pub fn vcf_record_passes(rec : VcfRecord, cfg : VcfFilterConfig) -> Bool {
   // pass_only
   if cfg.pass_only {
     let filt = rec.filter
-    if filt.length() != 1 || (filt.length() == 1 && filt[0] != "PASS" && filt[0] != ".") {
+    if filt.length() != 1 ||
+      (filt.length() == 1 && filt[0] != "PASS" && filt[0] != ".") {
       return false
     }
   }
@@ -104,19 +106,19 @@ pub fn vcf_record_passes(rec : VcfRecord, cfg : VcfFilterConfig) -> Bool {
   // ALT count
   match (cfg.min_alt_count, cfg.max_alt_count) {
     (Some(lo), Some(hi)) =>
-      if rec.alt.length() < lo || rec.alt.length() > hi { return false } else { () }
-    (Some(lo), None) =>
-      if rec.alt.length() < lo { return false } else { () }
-    (None, Some(hi)) =>
-      if rec.alt.length() > hi { return false } else { () }
+      if rec.alt.length() < lo || rec.alt.length() > hi {
+        return false
+      } else {
+        ()
+      }
+    (Some(lo), None) => if rec.alt.length() < lo { return false } else { () }
+    (None, Some(hi)) => if rec.alt.length() > hi { return false } else { () }
     (None, None) => ()
   }
   // ID known
   match cfg.id_known {
-    Some(true) =>
-      if rec.id.length() == 0 { return false } else { () }
-    Some(false) =>
-      if rec.id.length() != 0 { return false } else { () }
+    Some(true) => if rec.id.length() == 0 { return false } else { () }
+    Some(false) => if rec.id.length() != 0 { return false } else { () }
     None => ()
   }
   true
@@ -197,11 +199,10 @@ pub fn vcf_filter_set_filter(
         qual: rec.qual,
         filter: new_filter,
         info: rec.info.copy(),
-        format:
-          match rec.format {
-            Some(f) => Some(f.copy())
-            None => None
-          },
+        format: match rec.format {
+          Some(f) => Some(f.copy())
+          None => None
+        },
         samples: rec.samples.copy(),
       })
     }
@@ -219,11 +220,18 @@ pub fn vcf_filter_set_filter(
 
 ///|
 /// Count records that pass / fail. Returns `(passes, failures)`.
-pub fn vcf_filter_summary(vcf : VcfFile, cfg : VcfFilterConfig) -> (Int32, Int32) {
+pub fn vcf_filter_summary(
+  vcf : VcfFile,
+  cfg : VcfFilterConfig,
+) -> (Int32, Int32) {
   let mut pass = 0
   let mut fail = 0
   for rec in vcf.records {
-    if vcf_record_passes(rec, cfg) { pass = pass + 1 } else { fail = fail + 1 }
+    if vcf_record_passes(rec, cfg) {
+      pass = pass + 1
+    } else {
+      fail = fail + 1
+    }
   }
   (pass, fail)
 }
@@ -231,7 +239,9 @@ pub fn vcf_filter_summary(vcf : VcfFile, cfg : VcfFilterConfig) -> (Int32, Int32
 ///|
 /// Fraction of records that pass (0.0 ~ 1.0).
 pub fn vcf_filter_pass_rate(vcf : VcfFile, cfg : VcfFilterConfig) -> Double {
-  if vcf.records.length() == 0 { return 0.0 }
+  if vcf.records.length() == 0 {
+    return 0.0
+  }
   let (p, _) = vcf_filter_summary(vcf, cfg)
   p.to_double() / vcf.records.length().to_double()
 }

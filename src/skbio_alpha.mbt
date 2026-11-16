@@ -524,11 +524,11 @@ pub fn skbio_alpha_vandenbogaert(counts : Array[Double]) -> Double {
   let f2 = skbio_alpha_doubles(c).to_double()
   let denom = f2 + f1 * f1
   if denom > 0.0 {
-    1.0 - (f1 * f1) / denom
+    1.0 - f1 * f1 / denom
   } else if f1 > 0.0 {
-    0.0  // f₂=0 且有 singleton → 最差覆盖
+    0.0 // f₂=0 且有 singleton → 最差覆盖
   } else {
-    1.0  // 没有 singleton → 完美覆盖（无未知物种）
+    1.0 // 没有 singleton → 完美覆盖（无未知物种）
   }
 }
 

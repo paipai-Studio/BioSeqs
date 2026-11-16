@@ -77,12 +77,24 @@ test "bcf_call_meta_headers_contains_required" {
   let mut has_fmt_gq = false
   let mut has_fmt_dp = false
   for ln in lines {
-    if ln.contains("INFO") && ln.contains("DP") { has_info_dp = true }
-    if ln.contains("INFO") && ln.contains("AF") { has_info_af = true }
-    if ln.contains("FORMAT") && ln.contains("GT") { has_fmt_gt = true }
-    if ln.contains("FORMAT") && ln.contains("PL") { has_fmt_pl = true }
-    if ln.contains("FORMAT") && ln.contains("GQ") { has_fmt_gq = true }
-    if ln.contains("FORMAT") && ln.contains("DP") { has_fmt_dp = true }
+    if ln.contains("INFO") && ln.contains("DP") {
+      has_info_dp = true
+    }
+    if ln.contains("INFO") && ln.contains("AF") {
+      has_info_af = true
+    }
+    if ln.contains("FORMAT") && ln.contains("GT") {
+      has_fmt_gt = true
+    }
+    if ln.contains("FORMAT") && ln.contains("PL") {
+      has_fmt_pl = true
+    }
+    if ln.contains("FORMAT") && ln.contains("GQ") {
+      has_fmt_gq = true
+    }
+    if ln.contains("FORMAT") && ln.contains("DP") {
+      has_fmt_dp = true
+    }
   }
   assert_true(has_info_dp)
   assert_true(has_info_af)
