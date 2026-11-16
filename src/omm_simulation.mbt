@@ -188,6 +188,33 @@ pub fn OmmSimulation::set_velocities(
 }
 
 ///|
+/// Checkpoint restore utility — 重新构造 simulation 并恢复速度。
+pub fn omm_simulation_from_checkpoint(
+  system : OmmSystem,
+  integrator_dt~ : Double = 0.001,
+  temperature~ : Double = 300.0,
+  friction~ : Double = 1.0,
+  checkpoint_text : String,
+) -> OmmSimulation {
+  match omm_checkpoint_load(checkpoint_text) {
+    Ok(st) => {
+      let sim = OmmSimulation::new(
+        system=system,
+        dt=integrator_dt,
+        temperature=temperature,
+        friction=friction,
+        positions=Some(st.positions),
+      )
+      sim.set_velocities(st.velocities)
+      sim
+    }
+    Err(_) => {
+      OmmSimulation::new(system=system)
+    }
+  }
+}
+
+///|
 /// Draw Maxwell-Boltzmann velocities at `temperature` (deterministic given
 /// `seed`), then remove the center-of-mass momentum.
 pub fn OmmSimulation::initialize_velocities(

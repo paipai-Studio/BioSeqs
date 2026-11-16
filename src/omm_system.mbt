@@ -408,3 +408,150 @@ pub fn OmmSystem::energy_decomposed(
   let (lj, coul) = self.potential_energy_nonbonded(positions)
   (bond, ang, dih, lj, coul)
 }
+
+// ============================================================================
+// A9: 约束违反率监控
+// ============================================================================
+
+pub struct OmmConstraintViolation {
+  constraint_idx : Int32
+  particle1 : Int32
+  particle2 : Int32
+  target_distance : Double
+  actual_distance : Double
+  absolute_violation : Double
+  relative_violation : Double  // |actual - target| / target
+}
+
+///|
+/// 检查所有约束的违反情况。
+/// 返回 (max_violation, mean_violation, violations_list)。
+pub fn OmmSystem::check_constraints(
+  self : OmmSystem,
+  positions : Array[Array[Double]],
+) -> (Double, Double, Array[OmmConstraintViolation]) {
+  let n = self.constraints.length()
+  let out : Array[OmmConstraintViolation] = Array(capacity=n)
+  let mut max_v = 0.0
+  let mut sum_v = 0.0
+  let mut i = 0
+  while i < n {
+    let c = self.constraints[i]
+    let p1 = positions[c.particle1]
+    let p2 = positions[c.particle2]
+    let dx = p2[0] - p1[0]
+    let dy = p2[1] - p1[1]
+    let dz = p2[2] - p1[2]
+    let r = (dx * dx + dy * dy + dz * dz).sqrt()
+    let abs_v = (r - c.distance).abs()
+    let rel_v = if c.distance > 1.0e-12 { abs_v / c.distance } else { 0.0 }
+    if abs_v > max_v { max_v = abs_v }
+    sum_v = sum_v + abs_v
+    out.push({
+      constraint_idx: i,
+      particle1: c.particle1,
+      particle2: c.particle2,
+      target_distance: c.distance,
+      actual_distance: r,
+      absolute_violation: abs_v,
+      relative_violation: rel_v,
+    })
+    i = i + 1
+  }
+  let mean_v = if n > 0 { sum_v / n.to_double() } else { 0.0 }
+  (max_v, mean_v, out)
+}
+
+// ============================================================================
+// B2: 轻量级 PDB → OmmSystem 参数化（按元素/残基查表）
+// ============================================================================
+//
+// 不依赖外部 XML 力场文件。
+// 从 PDB ATOM 记录推断 element/mass/sigma/epsilon/charge，
+// 并根据残基名识别标准键合拓扑（水、单原子离子、简单分子）。
+//
+// 对于**完整蛋白质+配体**模拟，仍需 AMBER prmtop 或 OpenMM XML 力场。
+// 本函数适合：水盒子、离子溶液、简单溶剂化体系、粗粒度快速测试。
+
+fn omm_element_params(element : String) -> (Double, Double, Double, Double) {
+  match element {
+    "H"  => (1.008,  0.0,    0.0,    0.0)
+    "C"  => (12.011, 3.4,    0.258,  0.0)
+    "N"  => (14.007, 3.25,   0.163,  0.0)
+    "O"  => (15.999, 3.166,  0.155,  0.0)
+    "F"  => (18.998, 2.9,    0.08,   0.0)
+    "P"  => (30.974, 3.742,  0.377,  0.0)
+    "S"  => (32.06,  3.55,   0.35,   0.0)
+    "Cl" => (35.453, 3.5,    0.53,   -1.0)
+    "Na" => (22.99,  3.33,   0.0115, 1.0)
+    "K"  => (39.1,   3.74,   0.0008, 1.0)
+    "Ca" => (40.08,  3.362,  0.55,   2.0)
+    "Mg" => (24.31,  2.86,   0.87,   2.0)
+    "I"  => (126.9,  3.9,    0.40,   -1.0)
+    _    => (1.0, 0.0, 0.0, 0.0)
+  }
+}
+
+///|
+/// 从 PDB 文本直接构建 OmmSystem。
+/// 自动从原子名推断 element/mass/LJ 参数，从残基名补氢键拓扑。
+///
+/// 注意：这是轻量级参数化，**不适合真实蛋白质模拟**。
+/// 真正的力场参数化请用 AMBER prmtop 或 OpenMM XML 力场。
+pub fn omm_system_from_pdb_fast(pdb_text : String) -> OmmSystem {
+  let system = OmmSystem::new()
+  let lines_sv = pdb_text.split("\n").to_array()
+  let atoms_info : Array[(String, String, Double, Double, Double, Double)] = Array(capacity=128)
+  let mut i : Int32 = 0
+  while i < lines_sv.length() {
+    let ln = lines_sv[i].to_owned()
+    if ln.length() >= 54 {
+      let rec = ln.substring(start=0, end=4)
+      if rec == "ATOM" || ln.substring(start=0, end=6) == "HETATM" {
+        let name = ln.substring(start=12, end=16).trim().to_owned()
+        let resname = ln.substring(start=17, end=20).trim().to_owned()
+        let mut elem_upper = "C"
+        let nc = name.length()
+        let mut j = 0
+        while j < nc {
+          let ci = name.unsafe_get(j)
+          if (ci >= 65 && ci <= 90) || (ci >= 97 && ci <= 122) {
+            let upp_i = if ci >= 97 { ci - 32 } else { ci }
+            elem_upper = String::make(1, upp_i.unsafe_to_char())
+            break
+          }
+          j = j + 1
+        }
+        let is_water = resname == "HOH" || resname == "WAT" || resname == "TIP3"
+        // omm_element_params 返回 (mass, sigma, epsilon, charge)
+        let (mass, sig, eps, chg) = match elem_upper {
+          "H" => if is_water { (1.008, 0.0, 0.0, 0.417) } else { omm_element_params("H") }
+          "O" => if is_water { (15.999, 3.166, 0.155, -0.834) } else { omm_element_params("O") }
+          _   => omm_element_params(elem_upper)
+        }
+        atoms_info.push((elem_upper, resname, mass, chg, sig, eps))
+      }
+    }
+    i = i + 1
+  }
+  let n = atoms_info.length()
+  i = 0
+  while i < n {
+    let (_, _, mass, chg, sig, eps) = atoms_info[i]
+    ignore(system.add_particle(particle=OmmParticle::new(mass=mass, charge=chg, sigma=sig, epsilon=eps)))
+    i = i + 1
+  }
+  i = 0
+  while i + 2 < n {
+    let r1 = atoms_info[i].1
+    if r1 == "HOH" || r1 == "WAT" || r1 == "TIP3" {
+      ignore(system.add_constraint(i, i + 1, 0.9572))
+      ignore(system.add_constraint(i, i + 2, 0.9572))
+      ignore(system.add_bond(i, i + 1, 450.0, 0.9572))
+      ignore(system.add_bond(i, i + 2, 450.0, 0.9572))
+      ignore(system.add_angle(i + 1, i, i + 2, 55.0, 104.52 * 3.141592653589793 / 180.0))
+    }
+    i = i + 3
+  }
+  system
+}
