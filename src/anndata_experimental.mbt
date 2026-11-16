@@ -192,3 +192,169 @@ pub fn anndata_experimental_dummy() -> Unit {
     label: "",
   })
 }
+
+// ============================================================================
+// AnnCollectionView — AnnCollection 的轻量 view 包装层
+// ============================================================================
+
+///|
+/// AnnCollection 的轻量 view：持有 AnnCollection + 可选 obs/var 索引过滤器。
+/// 不复制数据，仅通过索引映射访问底层 AnnCollection。
+pub struct AnnCollectionView {
+  coll : AnnCollection
+  obs_idx : Array[Int32]  // 若非空 → 只暴露这些 obs；空 → 全部
+  var_idx : Array[Int32]  // 若非空 → 只暴露这些 var；空 → 全部
+}
+
+///|
+/// 从 AnnCollection 创建完整 view（无过滤）。
+pub fn AnnCollectionView::from(coll : AnnCollection) -> AnnCollectionView {
+  AnnCollectionView::{
+    coll,
+    obs_idx: Array(capacity=0),
+    var_idx: Array(capacity=0),
+  }
+}
+
+///|
+/// 创建 view 并指定 obs 过滤索引。
+pub fn AnnCollectionView::with_obs(coll : AnnCollection, obs_idx : Array[Int32]) -> AnnCollectionView {
+  AnnCollectionView::{
+    coll,
+    obs_idx,
+    var_idx: Array(capacity=0),
+  }
+}
+
+///|
+/// 创建 view 并指定 var 过滤索引。
+pub fn AnnCollectionView::with_vars(coll : AnnCollection, var_idx : Array[Int32]) -> AnnCollectionView {
+  AnnCollectionView::{
+    coll,
+    obs_idx: Array(capacity=0),
+    var_idx,
+  }
+}
+
+///|
+/// 创建 view 并同时指定 obs + var 过滤索引。
+pub fn AnnCollectionView::with_both(
+  coll : AnnCollection,
+  obs_idx : Array[Int32],
+  var_idx : Array[Int32],
+) -> AnnCollectionView {
+  AnnCollectionView::{ coll, obs_idx, var_idx, }
+}
+
+///|
+/// view 中的 obs 数量。
+pub fn AnnCollectionView::n_obs(self : AnnCollectionView) -> Int32 {
+  if self.obs_idx.length() > 0 {
+    self.obs_idx.length()
+  } else {
+    self.coll.n_obs()
+  }
+}
+
+///|
+/// view 中的 var 数量。
+pub fn AnnCollectionView::n_vars(self : AnnCollectionView) -> Int32 {
+  if self.var_idx.length() > 0 {
+    self.var_idx.length()
+  } else {
+    self.coll.n_vars()
+  }
+}
+
+///|
+/// 取 view 中第 `i` 个 obs 的完整表达向量。
+pub fn AnnCollectionView::get_obs(self : AnnCollectionView, i : Int32) -> Array[Double]? {
+  // 映射 i → global obs idx
+  let global_i = if self.obs_idx.length() > 0 {
+    if i >= 0 && i < self.obs_idx.length() { self.obs_idx[i] } else { return None }
+  } else {
+    i
+  }
+  let full_row = match self.coll.get_obs(global_i) {
+    None => return None
+    Some(r) => r
+  }
+  // 再按 var_idx 过滤
+  if self.var_idx.length() == 0 {
+    return Some(full_row)
+  }
+  let out : Array[Double] = Array(capacity=self.var_idx.length())
+  for j = 0; j < self.var_idx.length(); j = j + 1 {
+    let vj = self.var_idx[j]
+    if vj >= 0 && vj < full_row.length() {
+      out.push(full_row[vj])
+    } else {
+      out.push(0.0)
+    }
+  }
+  Some(out)
+}
+
+///|
+/// 取 view 中第 i 个 obs、第 j 个 var 的值。
+pub fn AnnCollectionView::get_x(
+  self : AnnCollectionView,
+  i : Int32,
+  j : Int32,
+) -> Double? {
+  // obs 映射 + 边界
+  let global_i = if self.obs_idx.length() > 0 {
+    if i >= 0 && i < self.obs_idx.length() { self.obs_idx[i] } else { return None }
+  } else {
+    if i < 0 || i >= self.coll.n_obs() { return None }
+    i
+  }
+  // var 映射 + 边界
+  let global_j = if self.var_idx.length() > 0 {
+    if j >= 0 && j < self.var_idx.length() { self.var_idx[j] } else { return None }
+  } else {
+    if j < 0 || j >= self.coll.n_vars() { return None }
+    j
+  }
+  self.coll.get_x(global_i, global_j)
+}
+
+///|
+/// Materialize view → AnnData（带过滤后的 obs/var_names）。
+pub fn AnnCollectionView::to_adata(self : AnnCollectionView) -> AnnData {
+  let n_o = self.n_obs()
+  let n_v = self.n_vars()
+  let x : Array[Array[Double]] = Array(capacity=n_o)
+  let obs_names : Array[String] = Array(capacity=n_o)
+  // 取原 var_names（需要先拿到 full 源数据）
+  // 先从 coll.to_adata 取一次完整的，方便拿 var_names + obs_names
+  let full = self.coll.to_adata()
+  let full_var = full.var_names
+  let full_obs = full.obs_names
+  // 构造过滤后的 var_names
+  let var_names : Array[String] = Array(capacity=n_v)
+  if self.var_idx.length() > 0 {
+    for j in self.var_idx {
+      if j >= 0 && j < full_var.length() { var_names.push(full_var[j]) }
+      else { var_names.push("var_" + j.to_string()) }
+    }
+  } else {
+    for v in full_var { var_names.push(v) }
+  }
+  // 构造过滤后的 x + obs_names
+  for i = 0; i < n_o; i = i + 1 {
+    let global_i = if self.obs_idx.length() > 0 { self.obs_idx[i] } else { i }
+    // obs name
+    if global_i >= 0 && global_i < full_obs.length() {
+      obs_names.push(full_obs[global_i])
+    } else {
+      obs_names.push("obs_" + global_i.to_string())
+    }
+    // 表达向量
+    match self.get_obs(i) {
+      Some(row) => x.push(row)
+      None => x.push(Array(capacity=n_v))
+    }
+  }
+  AnnData::new(x, obs_names, var_names)
+}
