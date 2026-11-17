@@ -793,6 +793,38 @@ pub fn AnnData::varp_keys(self : AnnData) -> Array[String] {
   self.varp.keys().collect()
 }
 
+// --- obsp / varp 语义化命名（scanpy neighbors 默认写这两个 key） ---
+
+///|
+/// Get / Set for the canonical pairwise-distance matrix (obs × obs).
+/// scanpy's neighbors / paga / umap store this under `obsp['distances']`.
+pub fn AnnData::obsp_distances(self : AnnData) -> Array[Array[Double]]? {
+  self.obsp.get("distances")
+}
+
+///|
+pub fn AnnData::set_obsp_distances(
+  self : AnnData,
+  mat : Array[Array[Double]],
+) -> AnnData {
+  self.set_obsp("distances", mat)
+}
+
+///|
+/// Get / Set for the canonical connectivities matrix (obs × obs).
+/// scanpy neighbors / umap store this under `obsp['connectivities']`.
+pub fn AnnData::obsp_connectivities(self : AnnData) -> Array[Array[Double]]? {
+  self.obsp.get("connectivities")
+}
+
+///|
+pub fn AnnData::set_obsp_connectivities(
+  self : AnnData,
+  mat : Array[Array[Double]],
+) -> AnnData {
+  self.set_obsp("connectivities", mat)
+}
+
 ///|
 /// Convenience for retrieving a 1-D array of values of length `n_obs`.
 ///

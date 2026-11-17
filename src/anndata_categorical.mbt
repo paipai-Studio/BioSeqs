@@ -117,9 +117,24 @@ pub fn anndata_var_to_categorical(
 ///|
 /// Replace an obs column with its categorical codes (as strings).
 /// Stores the category mapping in uns for later decoding.
-pub fn anndata_obs_factorize(adata : AnnData, key : String) -> Unit {
+/// When `keep_original` is true (default), the original string column is
+/// preserved in `uns['<key>_original']` so it can be restored later via
+/// `anndata_restore_from_categorical`.
+pub fn anndata_obs_factorize(
+  adata : AnnData,
+  key : String,
+  keep_original~ : Bool = true,
+) -> Unit {
   match adata.obs_column(key) {
     Some(col) => {
+      // Backup original string values before overwriting
+      if keep_original {
+        let orig_arr : Array[JsonValue] = Array(capacity=col.length())
+        for s in col {
+          orig_arr.push(JsonStr(s))
+        }
+        ignore(adata.set_uns(key + "_original", JsonArr(orig_arr)))
+      }
       let cat = anndata_encode_categorical(col)
       let code_strs : Array[String] = Array(capacity=cat.codes.length())
       for c in cat.codes {
@@ -138,10 +153,61 @@ pub fn anndata_obs_factorize(adata : AnnData, key : String) -> Unit {
 }
 
 ///|
+/// Restore an obs column from its categorical codes using the
+/// `uns['<key>_original']` backup (preferred) or `uns['<key>_categories']`.
+/// Returns true when successfully restored.
+pub fn anndata_obs_restore(adata : AnnData, key : String) -> Bool {
+  // Prefer _original backup if present (keeps identical values, not just labels)
+  match anndata_uns_get_str_array(adata, key + "_original") {
+    Some(orig) => {
+      ignore(adata.set_obs(key, orig))
+      return true
+    }
+    None => ()
+  }
+  // Fallback: decode codes via categories
+  match anndata_uns_get_str_array(adata, key + "_categories") {
+    Some(cats) =>
+      match adata.obs_column(key) {
+        Some(codes_str) => {
+          let out : Array[String] = Array(capacity=codes_str.length())
+          for cs in codes_str {
+            let name = match parse_int_string_local(cs) {
+              Some(code_idx) =>
+                if code_idx >= 0 && code_idx < cats.length() {
+                  cats[code_idx]
+                } else {
+                  cs
+                }
+              None => cs
+            }
+            out.push(name)
+          }
+          ignore(adata.set_obs(key, out))
+          return true
+        }
+        None => false
+      }
+    None => false
+  }
+}
+
+///|
 /// Replace a var column with its categorical codes.
-pub fn anndata_var_factorize(adata : AnnData, key : String) -> Unit {
+pub fn anndata_var_factorize(
+  adata : AnnData,
+  key : String,
+  keep_original~ : Bool = true,
+) -> Unit {
   match adata.var_column(key) {
     Some(col) => {
+      if keep_original {
+        let orig_arr : Array[JsonValue] = Array(capacity=col.length())
+        for s in col {
+          orig_arr.push(JsonStr(s))
+        }
+        ignore(adata.set_uns(key + "_original", JsonArr(orig_arr)))
+      }
       let cat = anndata_encode_categorical(col)
       let code_strs : Array[String] = Array(capacity=cat.codes.length())
       for c in cat.codes {
@@ -155,6 +221,42 @@ pub fn anndata_var_factorize(adata : AnnData, key : String) -> Unit {
       ignore(adata.set_uns(key + "_categories", JsonArr(cat_arr)))
     }
     None => ()
+  }
+}
+
+///|
+/// Restore a var column from its categorical codes.
+pub fn anndata_var_restore(adata : AnnData, key : String) -> Bool {
+  match anndata_uns_get_str_array(adata, key + "_original") {
+    Some(orig) => {
+      ignore(adata.set_var(key, orig))
+      return true
+    }
+    None => ()
+  }
+  match anndata_uns_get_str_array(adata, key + "_categories") {
+    Some(cats) =>
+      match adata.var_column(key) {
+        Some(codes_str) => {
+          let out : Array[String] = Array(capacity=codes_str.length())
+          for cs in codes_str {
+            let name = match parse_int_string_local(cs) {
+              Some(code_idx) =>
+                if code_idx >= 0 && code_idx < cats.length() {
+                  cats[code_idx]
+                } else {
+                  cs
+                }
+              None => cs
+            }
+            out.push(name)
+          }
+          ignore(adata.set_var(key, out))
+          return true
+        }
+        None => false
+      }
+    None => false
   }
 }
 
