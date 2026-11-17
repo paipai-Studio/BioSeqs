@@ -483,7 +483,13 @@ test "scanpy_scib_metrics_and_correction" {
     [0.5, 0.0],
   ]
   let mixed_batch = [0, 1, 0, 1, 0, 1]
-  let m = @src.scanpy_scib_metrics(mixed, mixed_batch, [1, 1, 0, 0, 1, 1], k=5)
+  let m = @src.scanpy_scib_metrics(
+    mixed,
+    mixed_batch,
+    [1, 1, 0, 0, 1, 1],
+    [],
+    k=5,
+  )
   assert_true((m.graph_connectivity - 1.0).abs() < 1.0e-9)
   assert_true(m.kbet > 0.8)
   // separated batches: neighbourhoods are batch-pure, so kBET collapses
@@ -496,7 +502,13 @@ test "scanpy_scib_metrics_and_correction" {
     [5.2, 0.0],
   ]
   let split_batch = [0, 0, 0, 1, 1, 1]
-  let s = @src.scanpy_scib_metrics(split, split_batch, [0, 0, 0, 1, 1, 1], k=3)
+  let s = @src.scanpy_scib_metrics(
+    split,
+    split_batch,
+    [0, 0, 0, 1, 1, 1],
+    [],
+    k=3,
+  )
   assert_true(s.kbet < m.kbet)
   // label silhouette high for the label-aligned split embedding
   assert_true(s.silhouette_label > m.silhouette_label)

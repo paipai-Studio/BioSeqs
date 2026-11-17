@@ -98,6 +98,327 @@ pub fn scanpy_scib_correct(
 }
 
 ///|
+/// Adjusted Rand index between two labelings (truth vs. predicted clusters):
+/// `RI = sum_ij C(n_ij,2)`, chance-corrected against the hypergeometric
+/// expectation; 1.0 = perfect agreement, 0.0 = random overlap, negative =
+/// worse than chance.  Degenerate (single-class) identical partitions score
+/// 1.0, matching sklearn.
+pub fn scanpy_scib_ari(truth : Array[Int32], pred : Array[Int32]) -> Double {
+  let n = truth.length()
+  if n < 2 || pred.length() != n {
+    return 0.0
+  }
+  let pair : Map[(Int32, Int32), Int32] = Map([], capacity=n)
+  let row : Map[Int32, Int32] = Map([], capacity=n)
+  let col : Map[Int32, Int32] = Map([], capacity=n)
+  for i in 0..<n {
+    let t = truth[i]
+    let p = pred[i]
+    match pair.get((t, p)) {
+      None => pair.set((t, p), 1)
+      Some(c) => pair.set((t, p), c + 1)
+    }
+    match row.get(t) {
+      None => row.set(t, 1)
+      Some(c) => row.set(t, c + 1)
+    }
+    match col.get(p) {
+      None => col.set(p, 1)
+      Some(c) => col.set(p, c + 1)
+    }
+  }
+  let comb2 = fn(m : Int32) -> Double {
+    let v = m.to_double()
+    v * (v - 1.0) / 2.0
+  }
+  let mut sum_ij = 0.0
+  for kv in pair {
+    sum_ij = sum_ij + comb2(kv.1)
+  }
+  let mut sum_t = 0.0
+  for kv in row {
+    sum_t = sum_t + comb2(kv.1)
+  }
+  let mut sum_p = 0.0
+  for kv in col {
+    sum_p = sum_p + comb2(kv.1)
+  }
+  let expected = sum_t * sum_p / comb2(n)
+  let denom = 0.5 * (sum_t + sum_p) - expected
+  if denom <= 0.0 {
+    return 1.0
+  }
+  (sum_ij - expected) / denom
+}
+
+///|
+/// Normalized mutual information between two labelings, normalized by the
+/// arithmetic mean of the marginal entropies (sklearn default); 1.0 when the
+/// two labelings carry identical information.  Two constant labelings agree
+/// trivially and score 1.0.
+pub fn scanpy_scib_nmi(truth : Array[Int32], pred : Array[Int32]) -> Double {
+  let n = truth.length()
+  if n < 2 || pred.length() != n {
+    return 0.0
+  }
+  let pair : Map[(Int32, Int32), Int32] = Map([], capacity=n)
+  let row : Map[Int32, Int32] = Map([], capacity=n)
+  let col : Map[Int32, Int32] = Map([], capacity=n)
+  for i in 0..<n {
+    let t = truth[i]
+    let p = pred[i]
+    match pair.get((t, p)) {
+      None => pair.set((t, p), 1)
+      Some(c) => pair.set((t, p), c + 1)
+    }
+    match row.get(t) {
+      None => row.set(t, 1)
+      Some(c) => row.set(t, c + 1)
+    }
+    match col.get(p) {
+      None => col.set(p, 1)
+      Some(c) => col.set(p, c + 1)
+    }
+  }
+  let nf = n.to_double()
+  let entropy = fn(counts : Map[Int32, Int32]) -> Double {
+    let mut h = 0.0
+    for kv in counts {
+      let p = kv.1.to_double() / nf
+      if p > 0.0 {
+        h = h - p * @math.ln(p)
+      }
+    }
+    h
+  }
+  let h_t = entropy(row)
+  let h_p = entropy(col)
+  let mut mi = 0.0
+  for kv in pair {
+    let p_ij = kv.1.to_double() / nf
+    let p_t = row.get(kv.0.0).unwrap().to_double() / nf
+    let p_p = col.get(kv.0.1).unwrap().to_double() / nf
+    mi = mi + p_ij * @math.ln(p_ij / (p_t * p_p))
+  }
+  let norm = 0.5 * (h_t + h_p)
+  if norm <= 0.0 {
+    return if (h_t - h_p).abs() < 1.0e-12 { 1.0 } else { 0.0 }
+  }
+  (mi / norm).max(0.0)
+}
+
+///|
+/// Shared kNN-neighborhood batch/label mixing kernel behind
+/// `scanpy_scib_ilisi` / `scanpy_scib_kbet`.  Returns
+/// `(mean_iLISI, mean_kBET)` over each cell's k nearest neighbours
+/// (including the cell itself).
+fn scib_knn_mixing(
+  embedding : Array[Array[Double]],
+  group : Array[Int32],
+  k : Int32,
+) -> (Double, Double) {
+  let n = embedding.length()
+  if n == 0 {
+    return (0.0, 0.0)
+  }
+  let kk = if k < n { k } else { n }
+  if kk == 0 {
+    return (0.0, 0.0)
+  }
+  let (knn_idx, _d) = scanpy_knn_distances(embedding, kk)
+  let group_ids = Set([])
+  for g in group {
+    group_ids.add(g)
+  }
+  let global_counts : Map[Int32, Int32] = Map([], capacity=group_ids.length())
+  for g in group {
+    match global_counts.get(g) {
+      None => global_counts.set(g, 1)
+      Some(c) => global_counts.set(g, c + 1)
+    }
+  }
+  let global_p : Map[Int32, Double] = Map([], capacity=group_ids.length())
+  for kv in global_counts {
+    global_p.set(kv.0, kv.1.to_double() / n.to_double())
+  }
+  let mut ilisi_sum = 0.0
+  let mut kbet_sum = 0.0
+  for i in 0..<n {
+    let local_counts : Map[Int32, Int32] = Map([], capacity=group_ids.length())
+    for t in 0..<kk {
+      let j = knn_idx[i][t]
+      let g = group[j]
+      match local_counts.get(g) {
+        None => local_counts.set(g, 1)
+        Some(c) => local_counts.set(g, c + 1)
+      }
+    }
+    // iLISI = exp(H(p_local))
+    let mut h = 0.0
+    for kv in local_counts {
+      let p = kv.1.to_double() / kk.to_double()
+      if p > 0.0 {
+        h = h - p * @math.ln(p)
+      }
+    }
+    ilisi_sum = ilisi_sum + @math.exp(h)
+    // kBET = 1 - L1(p_local, p_global) / 2
+    let mut l1 = 0.0
+    for kv in global_p {
+      let pl = match local_counts.get(kv.0) {
+        None => 0.0
+        Some(c) => c.to_double() / kk.to_double()
+      }
+      l1 = l1 + (pl - kv.1).abs()
+    }
+    kbet_sum = kbet_sum + (1.0 - l1 / 2.0).max(0.0)
+  }
+  (ilisi_sum / n.to_double(), kbet_sum / n.to_double())
+}
+
+///|
+/// Mean iLISI (inverse Simpson-style exponential Shannon entropy) of the
+/// `group` distribution in each cell's kNN neighborhood — higher values mean
+/// the groups are better mixed.  Works for batch ids (batch mixing) as well
+/// as for label ids (label mixing / iCLISI-style).
+pub fn scanpy_scib_ilisi(
+  embedding : Array[Array[Double]],
+  group : Array[Int32],
+  k~ : Int32 = 15,
+) -> Double {
+  scib_knn_mixing(embedding, group, k).0
+}
+
+///|
+/// Mean kBET-style agreement between each cell's kNN neighborhood
+/// composition and the global `group` distribution:
+/// `1 - L1(p_neighborhood, p_global) / 2` averaged over cells (1.0 = every
+/// neighborhood mirrors the global mix).
+pub fn scanpy_scib_kbet(
+  embedding : Array[Array[Double]],
+  group : Array[Int32],
+  k~ : Int32 = 15,
+) -> Double {
+  scib_knn_mixing(embedding, group, k).1
+}
+
+///|
+/// Batch PCA entropy: PCA-project the embedding (`n_components` PCs), split
+/// each PC's scores into `n_bins` equal-width bins and average the batch
+/// distribution entropy inside each bin weighted by bin occupancy, with the
+/// per-PC scores combined by explained-variance share, normalized by
+/// `ln(n_batches)`.  Returns a value in [0, 1]; 1.0 means the dominant
+/// variance directions carry no batch structure (batches perfectly mixed
+/// along every informative PC), 0.0 means every PC bin is batch-pure.  A
+/// single batch trivially scores 1.0.
+pub fn scanpy_scib_pca_entropy(
+  embedding : Array[Array[Double]],
+  batch : Array[Int32],
+  n_components~ : Int32 = 10,
+  n_bins~ : Int32 = 4,
+) -> Double {
+  let n = embedding.length()
+  if n == 0 {
+    return 0.0
+  }
+  let batch_ids = Set([])
+  for b in batch {
+    batch_ids.add(b)
+  }
+  let n_batches = batch_ids.length()
+  if n_batches <= 1 {
+    return 1.0
+  }
+  let n_comps = if n_components < 1 { 1 } else { n_components }
+  let pca = scanpy_pca(embedding, n_comps)
+  let n_pc = if pca.coords.length() > 0 { pca.coords[0].length() } else { 0 }
+  if n_pc == 0 {
+    return 0.0
+  }
+  let ln_b = @math.ln(n_batches.to_double())
+  let n_bins_eff = if n_bins < 1 { 1 } else { n_bins }
+  // PCs are weighted by their explained-variance share (clipped at 0 so
+  // numerically-negative eigenvalues from rank-deficient data contribute
+  // nothing), so degenerate noise directions do not dilute the score.
+  let weights : Array[Double] = Array(capacity=n_pc)
+  let mut w_sum = 0.0
+  for c in 0..<n_pc {
+    let w = if c < pca.variance_ratio.length() {
+      pca.variance_ratio[c].max(0.0)
+    } else {
+      0.0
+    }
+    weights.push(w)
+    w_sum = w_sum + w
+  }
+  if w_sum <= 0.0 {
+    return 0.0
+  }
+  let mut acc = 0.0
+  for c in 0..<n_pc {
+    let mut lo = pca.coords[0][c]
+    let mut hi = lo
+    for i in 0..<n {
+      let s = pca.coords[i][c]
+      if s < lo {
+        lo = s
+      }
+      if s > hi {
+        hi = s
+      }
+    }
+    let width = (hi - lo) / n_bins_eff.to_double()
+    // per-bin batch occupancy
+    let bins : Map[Int32, Map[Int32, Int32]] = Map([], capacity=n_bins_eff)
+    for i in 0..<n {
+      let b = if width <= 0.0 {
+        0
+      } else {
+        let t = ((pca.coords[i][c] - lo) / width).floor().to_int()
+        if t < 0 {
+          0
+        } else if t >= n_bins_eff {
+          n_bins_eff - 1
+        } else {
+          t
+        }
+      }
+      match bins.get(b) {
+        None => {
+          let m : Map[Int32, Int32] = Map([])
+          m.set(batch[i], 1)
+          bins.set(b, m)
+        }
+        Some(m) =>
+          match m.get(batch[i]) {
+            None => m.set(batch[i], 1)
+            Some(cnt) => m.set(batch[i], cnt + 1)
+          }
+      }
+    }
+    let mut pc_acc = 0.0
+    for kv in bins {
+      let mut bin_total = 0
+      for kv2 in kv.1 {
+        bin_total = bin_total + kv2.1
+      }
+      if bin_total > 0 {
+        let mut h = 0.0
+        for kv2 in kv.1 {
+          let p = kv2.1.to_double() / bin_total.to_double()
+          if p > 0.0 {
+            h = h - p * @math.ln(p)
+          }
+        }
+        pc_acc = pc_acc + bin_total.to_double() / n.to_double() * h
+      }
+    }
+    acc = acc + weights[c] / w_sum * pc_acc / ln_b
+  }
+  acc
+}
+
+///|
 /// Mean silhouette score over a grouping (ids per row).  For each point the
 /// score compares the mean distance to its own group (excluding itself) with
 /// the minimum mean distance to any other group; single-group / single-member
@@ -241,23 +562,33 @@ pub fn scanpy_scib_graph_connectivity(
 /// - `kbet`: mean overlap `1 - L1(p_neighborhood, p_global) / 2` of the
 ///   neighborhood batch distribution with the global one (higher is better),
 /// - `silhouette_batch` / `silhouette_label`: `scanpy_scib_silhouette` by
-///   batch (lower is better) and by label (higher is better).
+///   batch (lower is better) and by label (higher is better),
+/// - `ari` / `nmi`: agreement of `clusters` (partition of the integrated
+///   embedding) with the reference `labels`; 0.0 when `clusters` is empty,
+/// - `pca_entropy`: batch mixing entropy along the embedding's principal
+///   components (higher is better).
 pub struct ScanpyScibMetrics {
   graph_connectivity : Double
   ilisi : Double
   kbet : Double
   silhouette_batch : Double
   silhouette_label : Double
+  ari : Double
+  nmi : Double
+  pca_entropy : Double
 }
 
 ///|
-/// Compute the scIB metrics for an embedding with per-cell batch ids and
-/// (optional) cell-label ids.  Pass an empty `labels` to skip the label
-/// silhouette (reported as 0.0).
+/// Compute the scIB metrics for an embedding with per-cell batch ids,
+/// (optional) cell-label ids and (optional) cluster assignments of the
+/// integrated embedding for the ARI/NMI label-agreement scores.  Pass an
+/// empty `labels` to skip the label silhouette (reported as 0.0) and an
+/// empty `clusters` to skip ARI/NMI (reported as 0.0).
 pub fn scanpy_scib_metrics(
   embedding : Array[Array[Double]],
   batch : Array[Int32],
   labels : Array[Int32],
+  clusters : Array[Int32],
   k~ : Int32 = 15,
 ) -> ScanpyScibMetrics {
   let n = embedding.length()
@@ -268,70 +599,31 @@ pub fn scanpy_scib_metrics(
       kbet: 0.0,
       silhouette_batch: 0.0,
       silhouette_label: 0.0,
+      ari: 0.0,
+      nmi: 0.0,
+      pca_entropy: 0.0,
     }
   }
   let conn = scanpy_scib_graph_connectivity(embedding, k~)
-  let kk = if k < n { k } else { n }
-  let (knn_idx, _d) = scanpy_knn_distances(embedding, kk)
-  // global batch distribution
-  let batch_ids = Set([])
-  for b in batch {
-    batch_ids.add(b)
-  }
-  let global_counts : Map[Int32, Int32] = Map([], capacity=batch_ids.length())
-  for b in batch {
-    match global_counts.get(b) {
-      None => global_counts.set(b, 1)
-      Some(c) => global_counts.set(b, c + 1)
-    }
-  }
-  let global_p : Map[Int32, Double] = Map([], capacity=batch_ids.length())
-  for kv in global_counts {
-    global_p.set(kv.0, kv.1.to_double() / n.to_double())
-  }
-  // iLISI + kBET over kNN neighborhoods (including the cell itself)
-  let mut ilisi_sum = 0.0
-  let mut kbet_sum = 0.0
-  for i = 0; i < n; i = i + 1 {
-    let local_counts : Map[Int32, Int32] = Map([], capacity=batch_ids.length())
-    for t = 0; t < kk; t = t + 1 {
-      let j = knn_idx[i][t]
-      let b = batch[j]
-      match local_counts.get(b) {
-        None => local_counts.set(b, 1)
-        Some(c) => local_counts.set(b, c + 1)
-      }
-    }
-    // iLISI = exp(H(p))
-    let mut h = 0.0
-    for kv in local_counts {
-      let p = kv.1.to_double() / kk.to_double()
-      if p > 0.0 {
-        h = h - p * @math.ln(p)
-      }
-    }
-    ilisi_sum = ilisi_sum + @math.exp(h)
-    // kBET = 1 - L1(p_local, p_global) / 2
-    let mut l1 = 0.0
-    for kv in global_p {
-      let pl = match local_counts.get(kv.0) {
-        None => 0.0
-        Some(c) => c.to_double() / kk.to_double()
-      }
-      l1 = l1 + (pl - kv.1).abs()
-    }
-    kbet_sum = kbet_sum + (1.0 - l1 / 2.0).max(0.0)
-  }
+  let (ilisi, kbet) = scib_knn_mixing(embedding, batch, k)
   let label_sil = if labels.length() == n {
     scanpy_scib_silhouette(embedding, labels)
   } else {
     0.0
   }
+  let (ari, nmi) = if clusters.length() == n && labels.length() == n {
+    (scanpy_scib_ari(labels, clusters), scanpy_scib_nmi(labels, clusters))
+  } else {
+    (0.0, 0.0)
+  }
   ScanpyScibMetrics::{
     graph_connectivity: conn,
-    ilisi: ilisi_sum / n.to_double(),
-    kbet: kbet_sum / n.to_double(),
+    ilisi,
+    kbet,
     silhouette_batch: scanpy_scib_silhouette(embedding, batch),
     silhouette_label: label_sil,
+    ari,
+    nmi,
+    pca_entropy: scanpy_scib_pca_entropy(embedding, batch),
   }
 }
