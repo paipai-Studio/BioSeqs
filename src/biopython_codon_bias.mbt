@@ -3,13 +3,9 @@
 
 ///|
 /// Standard genetic code: maps codon to amino acid.
+/// 简并密码子按 IUPAC 展开解析（GCN→A、ATH→I），无法判定才回落 X。
 fn biopython_cb_codon_to_aa(codon : String) -> String {
-  let aa = codon_lookup(codon)
-  if aa == "?" {
-    "X"
-  } else {
-    aa
-  }
+  codon_to_aa_resolved(codon).to_string()
 }
 
 ///|

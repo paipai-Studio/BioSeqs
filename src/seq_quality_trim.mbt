@@ -517,7 +517,7 @@ pub fn sqt_compute_stats(
 ///
 /// Handles Sanger/Phred+33 encoded FASTQ format. Each record consists of
 /// four lines: @header, sequence, +separator, and quality string.
-pub fn sqt_fastq_parse(content : String) -> Array[FastqRead] {
+pub fn sqt_fastq_parse(content : String) -> Array[FastqRead] raise SeqIOError {
   let reads : Array[FastqRead] = Array(capacity=0)
   let lines = content.split("\n").to_array()
   let n = lines.length()
@@ -535,25 +535,24 @@ pub fn sqt_fastq_parse(content : String) -> Array[FastqRead] {
       trimmed0 = len0 - 1
     }
 
+    // 记录之间的空行容忍跳过（不丢数据）
+    if trimmed0 == 0 {
+      i = i + 1
+      continue
+    }
+
+    if line0.unsafe_get(0) != '@'.to_int().to_uint16() {
+      raise SeqIOError("FASTQ header should start with '@': '\{line0}'")
+    }
+
     let len2 = line2.length()
     let mut trimmed2 = len2
     if len2 > 0 && line2.unsafe_get(len2 - 1) == '\r'.to_int().to_uint16() {
       trimmed2 = len2 - 1
     }
 
-    if trimmed0 == 0 || trimmed2 == 0 {
-      i = i + 4
-      continue
-    }
-
-    if line0.unsafe_get(0) != '@'.to_int().to_uint16() {
-      i = i + 4
-      continue
-    }
-
-    if line2.unsafe_get(0) != '+'.to_int().to_uint16() {
-      i = i + 4
-      continue
+    if trimmed2 == 0 || line2.unsafe_get(0) != '+'.to_int().to_uint16() {
+      raise SeqIOError("FASTQ 'plus' line should start with '+': '\{line2}'")
     }
 
     let len1 = line1.length()
@@ -569,8 +568,9 @@ pub fn sqt_fastq_parse(content : String) -> Array[FastqRead] {
     }
 
     if trimmed1 != trimmed3 {
-      i = i + 4
-      continue
+      raise SeqIOError(
+        "FASTQ sequence and quality lengths differ: \{trimmed1} vs \{trimmed3}",
+      )
     }
 
     let title = if trimmed0 > 1 { line0[1:trimmed0].to_owned() } else { "" }
@@ -584,6 +584,15 @@ pub fn sqt_fastq_parse(content : String) -> Array[FastqRead] {
 
     reads.push(FastqRead::{ id, sequence: seq_str, quality: qual_str, })
     i = i + 4
+  }
+
+  // 尾部尚有非空内容说明存在残缺记录，必须报错而不是静默丢弃
+  let mut rest = i
+  while rest < n && lines[rest].trim().length() == 0 {
+    rest = rest + 1
+  }
+  if rest < n {
+    raise SeqIOError("Truncated FASTQ record at end of input: '\{lines[rest]}'")
   }
 
   reads
@@ -949,8 +958,26 @@ test "sqt_fastq_parse_empty" {
 ///|
 test "sqt_fastq_parse_malformed" {
   let content = "not a fastq file\n"
-  let reads = sqt_fastq_parse(content)
-  assert_eq(reads.length(), 0)
+  let raised = try {
+    let _ = sqt_fastq_parse(content)
+    false
+  } catch {
+    _ => true
+  }
+  assert_true(raised)
+}
+
+///|
+test "sqt_fastq_parse_truncated_tail" {
+  // 合法头 + 截断尾：必须报错，不能静默丢弃
+  let content = "@r1\nACGT\n+\nIIII\n@r2\nTGCA\n"
+  let raised = try {
+    let _ = sqt_fastq_parse(content)
+    false
+  } catch {
+    _ => true
+  }
+  assert_true(raised)
 }
 
 ///|

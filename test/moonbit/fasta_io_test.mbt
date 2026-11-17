@@ -88,11 +88,35 @@ test "fastq_general_iterator_basic" {
 
 ///|
 test "fastq_general_iterator_raw_sequence_line" {
-  let fastq = "@seq1\nA C G T\n+\n!''*\n"
+  // 序列行保留内部空格（不做空白裁剪），但长度必须与质量行一致
+  let fastq = "@seq1\nA C G T\n+\n!''*!!!\n"
   let records = @src.fastq_general_parser(fastq)
   assert_eq(records.length(), 1)
   // FastqGeneralIterator yields the raw sequence line (no space stripping)
   assert_eq(records[0].1, "A C G T")
+}
+
+///|
+test "fastq_general_iterator_rejects_missing_plus_line" {
+  // 缺 '+' 分隔行会让后续记录错位，必须报错而不是静默产出错乱记录
+  let raised = try {
+    let _ = @src.fastq_general_parser("@r1\nACGT\n@r2\nTGCA\n+\nIIII\n")
+    false
+  } catch {
+    _ => true
+  }
+  assert_true(raised)
+}
+
+///|
+test "fastq_general_iterator_rejects_length_mismatch" {
+  let raised = try {
+    let _ = @src.fastq_general_parser("@r1\nACGT\n+\nIII\n")
+    false
+  } catch {
+    _ => true
+  }
+  assert_true(raised)
 }
 
 ///|
@@ -180,12 +204,35 @@ test "fastq_two_line_parser_basic" {
 
 ///|
 test "fastq_two_line_parser_no_space" {
-  let fastq = "@seq1ACGT\n!''*\n"
+  // 无空格：整段作为标题，序列为空（质量行须为空，否则长度不符）
+  let fastq = "@seq1ACGT\n\n"
   let records = @src.fastq_two_line_parser(fastq)
   assert_eq(records.length(), 1)
-  // No space: whole text after '@' is the title, sequence is empty
   assert_eq(records[0].0, "seq1ACGT")
   assert_eq(records[0].1, "")
+}
+
+///|
+test "fastq_two_line_parser_rejects_truncated_quality" {
+  // 末条记录缺质量行：必须报错，不能产出"序列非空、质量为空"的畸形记录
+  let raised = try {
+    let _ = @src.fastq_two_line_parser("@r1 ACGT\n")
+    false
+  } catch {
+    _ => true
+  }
+  assert_true(raised)
+}
+
+///|
+test "fastq_two_line_parser_rejects_length_mismatch" {
+  let raised = try {
+    let _ = @src.fastq_two_line_parser("@r1 ACGT\n!''\n")
+    false
+  } catch {
+    _ => true
+  }
+  assert_true(raised)
 }
 
 ///|

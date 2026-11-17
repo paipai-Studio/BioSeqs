@@ -280,3 +280,25 @@ pub fn resolve_degenerate_codon(
   }
   consensus
 }
+
+///|
+/// 密码子 → 氨基酸字符（支持 IUPAC 简并）。
+/// 简并密码子的所有展开一致时取该氨基酸（如 GCN → 'A'、ATH → 'I'）；
+/// 纯终止密码子返回 '*'；无法判定（展开结果不一致或含非法碱基）返回 'X'。
+pub fn codon_to_aa_resolved(codon : String) -> Char {
+  if codon.length() != 3 {
+    return 'X'
+  }
+  let code = resolve_degenerate_codon(
+    codon.unsafe_get(0),
+    codon.unsafe_get(1),
+    codon.unsafe_get(2),
+  )
+  if code == 0xFFFF {
+    '*'
+  } else if code == 0xFFFE {
+    'X'
+  } else {
+    code.unsafe_to_char()
+  }
+}

@@ -337,3 +337,46 @@ test "bam_alignment_quality" {
     ),
   )
 }
+
+///|
+test "bam_parse_bed_valid" {
+  let regions = @src.bam_parse_bed(
+    "track name=test\nbrowser position chr1\nchr1\t10\t20\n# comment\nchr2\t0\t5\n",
+  )
+  assert_eq(regions.length(), 2)
+  assert_eq(regions[0].chrom, "chr1")
+  assert_eq(regions[0].start, 10)
+  assert_eq(regions[0].end, 20)
+  assert_eq(regions[1].chrom, "chr2")
+}
+
+///|
+test "bam_parse_bed_rejects_bad_columns" {
+  // 字段不足：应报错而不是静默跳过
+  let raised = try {
+    let _ = @src.bam_parse_bed("chr1\t10\n")
+    false
+  } catch {
+    _ => true
+  }
+  assert_true(raised)
+}
+
+///|
+test "bam_parse_bed_rejects_bad_coordinates" {
+  // 非数字坐标不能静默变成 0（parse_int 会把 "abc" 当 0、"12abc" 截断为 12）
+  let raised = try {
+    let _ = @src.bam_parse_bed("chr1\tabc\t20\n")
+    false
+  } catch {
+    _ => true
+  }
+  assert_true(raised)
+  let raised2 = try {
+    let _ = @src.bam_parse_bed("chr1\t12abc\t20\n")
+    false
+  } catch {
+    _ => true
+  }
+  assert_true(raised2)
+}

@@ -14,7 +14,9 @@ fn main {
   let fastq_data = "@read1 high_quality\nACGTACGTACGTACGT\n+\nIIIIIIIIIIIIIIII\n@read2 adapter_contaminated\nACGTACGTAGATCGGAA\n+\nIIIIIIIIIIIIIIIII\n@read3 low_quality_ends\nACGTACGTACGT\n+\nIIIIIIII####\n@read4 poly_A_tail\nACGTACGGGGAAAA\n+\nIIIIIIIIIIIIII\n@read5 short_read\nACGT\n+\nIIII\n@read6 extreme_gc\nGGGGGGGGGGGGCCCC\n+\nIIIIIIIIIIIIIIII\n"
 
   println("1. Parsing FASTQ data")
-  let reads = @bio.sqt_fastq_parse(fastq_data)
+  let reads = @bio.sqt_fastq_parse(fastq_data) catch {
+    _ => abort("failed to parse FASTQ data")
+  }
   println("   Reads parsed: \{reads.length()}")
   let mut i = 0
   while i < reads.length() {

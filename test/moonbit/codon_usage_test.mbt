@@ -109,12 +109,24 @@ test "codon_usage_translate_codon" {
   assert_eq(@src.codon_translate("TAA"), "*")
   assert_eq(@src.codon_translate("GCA"), "A")
   assert_eq(@src.codon_translate("XXX"), "X")
+  // IUPAC 简并密码子：展开一致时应给出确定氨基酸，而不是 X
+  assert_eq(@src.codon_translate("GCN"), "A")
+  assert_eq(@src.codon_translate("ATH"), "I")
+  assert_eq(@src.codon_translate("GAR"), "E")
+  // 全部展开均为终止密码子
+  assert_eq(@src.codon_translate("TAR"), "*")
+  // 完全无法判定
+  assert_eq(@src.codon_translate("NNN"), "X")
 }
 
 ///|
 test "codon_usage_reverse_complement_codon" {
   assert_eq(@src.codon_reverse_complement("ATG"), "CAT")
   assert_eq(@src.codon_reverse_complement("GCA"), "TGC")
+  // IUPAC 互补：R↔Y、K↔M、N↔N
+  assert_eq(@src.codon_reverse_complement("GCR"), "YGC")
+  assert_eq(@src.codon_reverse_complement("AAK"), "MTT")
+  assert_eq(@src.codon_reverse_complement("GCN"), "NGC")
 }
 
 ///|

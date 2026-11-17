@@ -226,7 +226,9 @@ fn main {
   }
 
   println("\n=== FastqGeneralIterator (low-level FASTQ tuples) ===")
-  let fq_pairs = @bio.fastq_general_parser("@r1\nACGT\n+\n!''*\n")
+  let fq_pairs = @bio.fastq_general_parser("@r1\nACGT\n+\n!''*\n") catch {
+    _ => abort("failed to parse FASTQ")
+  }
   for i = 0; i < fq_pairs.length(); i = i + 1 {
     let (title, seq, quals) = fq_pairs[i]
     println("  title=\"\{title}\" seq=\"\{seq}\" quals=\{Repr(quals)}")
@@ -237,7 +239,9 @@ fn main {
   for i = 0; i < tl.length(); i = i + 1 {
     println("  id=\"\{tl[i].0}\" seq=\"\{tl[i].1}\"")
   }
-  let tq = @bio.fastq_two_line_parser("@r1 ACGT\n!''*\n")
+  let tq = @bio.fastq_two_line_parser("@r1 ACGT\n!''*\n") catch {
+    _ => abort("failed to parse two-line FASTQ")
+  }
   for i = 0; i < tq.length(); i = i + 1 {
     println("  id=\"\{tq[i].0}\" seq=\"\{tq[i].1}\" quals=\{Repr(tq[i].2)}")
   }

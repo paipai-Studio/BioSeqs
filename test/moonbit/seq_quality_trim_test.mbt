@@ -519,8 +519,26 @@ test "sqt_fastq_parse_empty_content" {
 ///|
 test "sqt_fastq_parse_malformed" {
   let content = "not a fastq file\n"
-  let reads = @src.sqt_fastq_parse(content)
-  assert_eq(reads.length(), 0)
+  let raised = try {
+    let _ = @src.sqt_fastq_parse(content)
+    false
+  } catch {
+    _ => true
+  }
+  assert_true(raised)
+}
+
+///|
+test "sqt_fastq_parse_truncated_tail" {
+  // 合法头 + 截断尾：必须报错，不能静默丢弃
+  let content = "@r1\nACGT\n+\nIIII\n@r2\nTGCA\n"
+  let raised = try {
+    let _ = @src.sqt_fastq_parse(content)
+    false
+  } catch {
+    _ => true
+  }
+  assert_true(raised)
 }
 
 ///|

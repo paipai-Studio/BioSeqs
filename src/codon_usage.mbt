@@ -6,10 +6,10 @@
 
 ///|
 /// Standard genetic code: codon -> amino acid.
+/// 简并密码子（GCN/ATH 等）按 IUPAC 展开解析，所有展开一致时取该氨基酸，
+/// 避免可判定的密码子被错误归入 X 组污染 RSCU/CAI。
 fn cu_codon_to_aa(codon : String) -> Char {
-  let aa = codon_lookup(codon)
-  let s = if aa == "?" { "X" } else { aa }
-  s.unsafe_get(0).unsafe_to_char()
+  codon_to_aa_resolved(codon)
 }
 
 ///|
@@ -353,19 +353,7 @@ pub fn codon_translate(codon : String) -> String {
 ///|
 /// Reverse complement of a codon.
 pub fn codon_reverse_complement(codon : String) -> String {
-  let mut result = ""
-  for i in 0..<codon.length() {
-    let ch = codon.unsafe_get(codon.length() - 1 - i).unsafe_to_char()
-    let comp = match ch {
-      'A' => 'T'
-      'T' => 'A'
-      'G' => 'C'
-      'C' => 'G'
-      _ => ch
-    }
-    result = result + comp.to_string()
-  }
-  result
+  reverse_complement_iupac(codon)
 }
 
 ///|

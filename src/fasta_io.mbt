@@ -229,11 +229,12 @@ pub fn simple_fasta_parser(content : String) -> Array[(String, String)] {
 ///   ```
 pub fn fastq_general_parser(
   content : String,
-) -> Array[(String, String, Array[Int32])] {
+) -> Array[(String, String, Array[Int32])] raise SeqIOError {
   let records = Array(capacity=0)
   let lines = content.split("\n").to_array()
   let n_lines = lines.length()
   let at : UInt16 = '@'.to_int().to_uint16()
+  let plus : UInt16 = '+'.to_int().to_uint16()
   let cr : UInt16 = '\r'.to_int().to_uint16()
 
   let mut index = 0
@@ -249,6 +250,13 @@ pub fn fastq_general_parser(
       continue
     }
     let title = if h_end > 1 { header[1:h_end].to_owned() } else { "" }
+    // 第三行必须是 '+' 分隔行；缺失会让后续记录整体错位，必须报错
+    let plus_line = lines[index + 2]
+    if plus_line.length() < 1 || plus_line.unsafe_get(0) != plus {
+      raise SeqIOError(
+        "FASTQ record 'plus' line should start with '+': record \{index / 4 + 1}",
+      )
+    }
     let seq_line = lines[index + 1]
     let seq_len = seq_line.length()
     let mut s_end = seq_len
@@ -261,6 +269,11 @@ pub fn fastq_general_parser(
     let mut q_end = quals_len
     if q_end > 0 && quals_line.unsafe_get(q_end - 1) == cr {
       q_end = q_end - 1
+    }
+    if s_end != q_end {
+      raise SeqIOError(
+        "FASTQ sequence and quality lengths differ for record \{index / 4 + 1}: \{s_end} vs \{q_end}",
+      )
     }
     let quals : Array[Int32] = Array(capacity=0)
     for i = 0; i < q_end; i = i + 1 {
@@ -331,7 +344,7 @@ pub fn fasta_two_line_parser(content : String) -> Array[(String, String)] {
 ///   ```
 pub fn fastq_two_line_parser(
   content : String,
-) -> Array[(String, String, Array[Int32])] {
+) -> Array[(String, String, Array[Int32])] raise SeqIOError {
   let records = Array(capacity=0)
   let lines = content.split("\n").to_array()
   let at : UInt16 = '@'.to_int().to_uint16()
@@ -368,17 +381,26 @@ pub fn fastq_two_line_parser(
     } else {
       ""
     }
+    // 末条记录缺质量行时应报错，而不是产出"序列非空、质量为空"的畸形记录
+    if i + 1 >= lines.length() {
+      raise SeqIOError(
+        "Truncated two-line FASTQ record for '\{title}': missing quality line",
+      )
+    }
+    let line1 = lines[i + 1]
+    let n1 = line1.length()
+    let mut trimmed1 = n1
+    if n1 > 0 && line1.unsafe_get(n1 - 1) == cr {
+      trimmed1 = n1 - 1
+    }
+    if seq.length() != trimmed1 {
+      raise SeqIOError(
+        "Two-line FASTQ sequence and quality lengths differ for '\{title}': \{seq.length()} vs \{trimmed1}",
+      )
+    }
     let quals : Array[Int32] = Array(capacity=0)
-    if i + 1 < lines.length() {
-      let line1 = lines[i + 1]
-      let n1 = line1.length()
-      let mut trimmed1 = n1
-      if n1 > 0 && line1.unsafe_get(n1 - 1) == cr {
-        trimmed1 = n1 - 1
-      }
-      for j = 0; j < trimmed1; j = j + 1 {
-        quals.push(line1.unsafe_get(j).to_int() - 33)
-      }
+    for j = 0; j < trimmed1; j = j + 1 {
+      quals.push(line1.unsafe_get(j).to_int() - 33)
     }
     records.push((title, seq, quals))
     i = i + 2
