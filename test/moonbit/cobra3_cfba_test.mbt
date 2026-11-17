@@ -75,8 +75,9 @@ test "cobra3 cfba sweep and edge cases" {
   assert_true(@moonbit.assert_num_close(sweep[0].growth, 0.5, 1.0e-6))
   assert_true(@moonbit.assert_num_close(sweep[1].growth, 10.0, 1.0e-6))
   assert_true(@moonbit.assert_num_close(sweep[2].growth, 10.0, 1.0e-6))
-  // points < 1 → 空
-  assert_eq(@src.cobra3_cfba_sweep(m, mw, points=0).length(), 0)
+  // points < 1（含负数）→ 空（负 capacity 构造已移到边界判断之后）
+  assert_eq(@src.cobra3_cfba_sweep(m, mw, points=0, k_eff=1.0).length(), 0)
+  assert_eq(@src.cobra3_cfba_sweep(m, mw, points=-1, k_eff=1.0).length(), 0)
   // 映射中未知反应 ID 与非正 MW 被忽略
   let weird : Map[String, Double] = Map([
     ("R1", 1.0),

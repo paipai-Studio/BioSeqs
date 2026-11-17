@@ -100,14 +100,14 @@ pub fn cobra3_cfba_sweep(
   p_max~ : Double = 2.0,
   k_eff~ : Double = 65.0,
 ) -> Array[Cobra3CfbaSweepPoint] raise Cobra3Error {
-  // 参数校验统一放在入口处（含 points<1 分支）
+  // 参数校验与边界判断先于数组构造（负 capacity 会 panic）
   if k_eff <= 0.0 {
     raise Cobra3Error("cFBA requires k_eff > 0, got \{k_eff}")
   }
-  let out : Array[Cobra3CfbaSweepPoint] = Array(capacity=points)
   if points < 1 {
-    return out
+    return []
   }
+  let out : Array[Cobra3CfbaSweepPoint] = Array(capacity=points)
   for i in 0..<points {
     let t = if points == 1 {
       0.0
