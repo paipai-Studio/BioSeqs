@@ -39,8 +39,11 @@ test "scvi_autograd_kl_gradient" {
   let kl = tape.kl_divergence(mu, lv)
   tape.backward(kl)
   let gm = tape.gradient(mu)
-  assert_true((gm[0] + 0.5).abs() < 1.0e-9)
-  assert_true((gm[1] - 0.2).abs() < 1.0e-9)
+  // correct closed-form KL: 0.5*(e^lv + mu^2 - 1 - lv) -> dkl/dmu = mu
+  assert_true((gm[0] - 0.5).abs() < 1.0e-9)
+  assert_true((gm[1] + 0.2).abs() < 1.0e-9)
+  // KL is non-negative
+  assert_true(tape.value(kl)[0] >= -1.0e-12)
 }
 
 ///|

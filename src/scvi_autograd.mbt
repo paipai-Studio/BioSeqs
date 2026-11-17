@@ -402,7 +402,7 @@ pub fn ScviAgTape::kl_divergence(
   let n = if m.length() < lv.length() { m.length() } else { lv.length() }
   let mut kl = 0.0
   for i in 0..<n {
-    kl += 0.5 * (lv[i] - @math.exp(lv[i]) - m[i] * m[i] + 1.0)
+    kl += 0.5 * (@math.exp(lv[i]) + m[i] * m[i] - 1.0 - lv[i])
   }
   scvi_ag_push(self, [kl], AgKl(mu, log_var))
 }
@@ -605,8 +605,8 @@ pub fn ScviAgTape::backward(self : ScviAgTape, out_id : Int32) -> Unit {
         let gm = Array(capacity=n)
         let gl = Array(capacity=n)
         for i in 0..<n {
-          gm.push(-m[i] * g[0])
-          gl.push(0.5 * (1.0 - @math.exp(lv[i])) * g[0])
+          gm.push(m[i] * g[0])
+          gl.push(0.5 * (@math.exp(lv[i]) - 1.0) * g[0])
         }
         scvi_ag_accum(self, mu, gm)
         scvi_ag_accum(self, log_var, gl)

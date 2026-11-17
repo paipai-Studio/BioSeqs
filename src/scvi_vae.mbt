@@ -286,7 +286,7 @@ pub fn scvi_kl_divergence(
 ) -> Double {
   let mut kl = 0.0
   for i in 0..<mu.length() {
-    kl += 0.5 * (log_var[i] - @math.exp(log_var[i]) - mu[i] * mu[i] + 1.0)
+    kl += 0.5 * (@math.exp(log_var[i]) + mu[i] * mu[i] - 1.0 - log_var[i])
   }
   kl
 }
