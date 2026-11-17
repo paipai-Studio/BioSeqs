@@ -131,3 +131,42 @@ test "cobra3 cfba rejects nonpositive k_eff" {
   }
   assert_true(raised_sweep0)
 }
+
+///|
+test "cobra3 cfba rejects reversible registered reaction" {
+  // 登记了 MW 的可逆反应可取大负通量使配额约束恒不绑定 → 显式拒绝
+  let mut m = @src.cobra3_model_new("cfba_rev")
+  m = @src.cobra3_model_add_reaction(
+    m,
+    cobra3_make_rxn("EX_A", [("A", -1.0)], -10.0, 1000.0, ""),
+  )
+  m = @src.cobra3_model_add_reaction(
+    m,
+    cobra3_make_rxn("Rrev", [("A", -1.0), ("B", 1.0)], -10.0, 1000.0, ""),
+  )
+  m = @src.cobra3_model_add_reaction(
+    m,
+    cobra3_make_rxn("BIO", [("B", -1.0)], 0.0, 1000.0, ""),
+  )
+  m = @src.cobra3_model_set_objective(m, "BIO", 1.0)
+  let mw : Map[String, Double] = Map([("Rrev", 1.0)])
+  let raised = try {
+    let _ = @src.cobra3_cfba(m, mw, protein_budget=1.0, k_eff=1.0)
+    false
+  } catch {
+    _ => true
+  }
+  assert_true(raised)
+  // sweep 同样透传报错
+  let raised_sweep = try {
+    let _ = @src.cobra3_cfba_sweep(m, mw, points=2, k_eff=1.0)
+    false
+  } catch {
+    _ => true
+  }
+  assert_true(raised_sweep)
+  // 不登记该可逆反应则合法（未登记反应免费）
+  let empty : Map[String, Double] = Map([])
+  let free = @src.cobra3_cfba(m, empty, protein_budget=1.0, k_eff=1.0)
+  assert_true(free.growth > 0.0)
+}

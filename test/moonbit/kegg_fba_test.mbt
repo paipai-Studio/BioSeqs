@@ -295,3 +295,57 @@ test "kegg fba reconstruct rejects duplicate pathway reactions" {
   }
   assert_true(raised)
 }
+
+///|
+test "kegg fba reconstruct merges duplicate participants" {
+  // 同一化合物双侧同现：C00001 + C00002 -> C00001 + C00003
+  // 正确净计量：C00002 -1、C00003 +1、C00001 净 0
+  // （旧实现按列覆盖赋值会把 C00001 存成 +1，破坏质量守恒）
+  let p = @src.KgmlPathway::new("path:ko00000", "ko", "00000", "merge test")
+  let r = @src.KgmlReaction::new("rn:R99999", "irreversible")
+  r.substrates().push("cpd:C00001")
+  r.substrates().push("cpd:C00002")
+  r.products().push("cpd:C00001")
+  r.products().push("cpd:C00003")
+  p.reactions().push(r)
+  let draft = @src.kegg_fba_reconstruct(p)
+  let mets = draft.model.metabolites
+  let idx = fn(id : String) -> Int32 {
+    let mut out = -1
+    for i in 0..<mets.length() {
+      if mets[i] == id {
+        out = i
+      }
+    }
+    out
+  }
+  let ridx = fn(id : String) -> Int32 {
+    let mut out = -1
+    for j in 0..<draft.model.reactions.length() {
+      if draft.model.reactions[j].id == id {
+        out = j
+      }
+    }
+    out
+  }
+  assert_eq(draft.model.stoichiometry[idx("C00001")][ridx("R99999")], 0.0)
+  assert_eq(draft.model.stoichiometry[idx("C00002")][ridx("R99999")], -1.0)
+  assert_eq(draft.model.stoichiometry[idx("C00003")][ridx("R99999")], 1.0)
+}
+
+///|
+test "kegg fba reconstruct rejects all-cancelling reaction" {
+  // A -> A：净参与物为空，无法表达 → 报错
+  let p = @src.KgmlPathway::new("path:ko00000", "ko", "00000", "zero test")
+  let r = @src.KgmlReaction::new("rn:R99998", "irreversible")
+  r.substrates().push("cpd:C00001")
+  r.products().push("cpd:C00001")
+  p.reactions().push(r)
+  let raised = try {
+    let _ = @src.kegg_fba_reconstruct(p)
+    false
+  } catch {
+    _ => true
+  }
+  assert_true(raised)
+}

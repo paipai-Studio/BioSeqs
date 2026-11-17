@@ -71,6 +71,47 @@ fn kegg_fba_gene_ids(name : String) -> Array[String] {
 }
 
 ///|
+/// 合并底物/产物为净计量：同一化合物两侧同现或同侧重复时系数累加，
+/// 按首次出现顺序返回剔除净零项后的 (化合物, 系数) 列表。
+/// 底层 FbaModel::add_reaction 对重复参与者是覆盖赋值而非累加，
+/// 因此所有构造参与者列表的路径都必须先经过本函数合并。
+fn kegg_fba_merge_participants(
+  subs : Array[(String, Double)],
+  prods : Array[(String, Double)],
+) -> Array[(String, Double)] {
+  let order : Array[String] = Array(capacity=subs.length() + prods.length())
+  let coeff : Map[String, Double] = Map([])
+  for p in subs {
+    let v = -p.1
+    match coeff.get(p.0) {
+      Some(prev) => coeff[p.0] = prev + v
+      None => {
+        coeff[p.0] = v
+        order.push(p.0)
+      }
+    }
+  }
+  for p in prods {
+    let v = p.1
+    match coeff.get(p.0) {
+      Some(prev) => coeff[p.0] = prev + v
+      None => {
+        coeff[p.0] = v
+        order.push(p.0)
+      }
+    }
+  }
+  let out : Array[(String, Double)] = Array(capacity=order.length())
+  for k in order {
+    let v = coeff[k]
+    if v.abs() > 1.0e-9 {
+      out.push((k, v))
+    }
+  }
+  out
+}
+
+///|
 /// 检查反应 ID 是否已存在（防重复列）.
 fn kegg_fba_has_reaction(model : FbaModel, id : String) -> Bool {
   for r in model.reactions {
@@ -243,43 +284,17 @@ pub fn kegg_fba_add_equation(
     None => raise FbaError("invalid KEGG equation: \{equation}")
     Some((subs, prods)) => {
       // 合并重复化合物：系数累加，避免底层按列覆盖赋值丢失计量
-      let order : Array[String] = Array(capacity=subs.length() + prods.length())
-      let coeff : Map[String, Double] = Map([])
-      for p in subs {
-        let v = -p.1
-        match coeff.get(p.0) {
-          Some(prev) => coeff[p.0] = prev + v
-          None => {
-            coeff[p.0] = v
-            order.push(p.0)
-          }
-        }
-      }
-      for p in prods {
-        let v = p.1
-        match coeff.get(p.0) {
-          Some(prev) => coeff[p.0] = prev + v
-          None => {
-            coeff[p.0] = v
-            order.push(p.0)
-          }
-        }
-      }
-      let m = kegg_fba_extend_mets(model, order)
-      let participants : Array[(String, Double)] = Array(
-        capacity=order.length(),
-      )
-      for k in order {
-        let v = coeff[k]
-        if v.abs() > 1.0e-9 {
-          participants.push((k, v))
-        }
-      }
+      let participants = kegg_fba_merge_participants(subs, prods)
       if participants.length() == 0 {
         raise FbaError(
           "KEGG equation resolves to zero net participants: \{equation}",
         )
       }
+      let extra : Array[String] = Array(capacity=participants.length())
+      for p in participants {
+        extra.push(p.0)
+      }
+      let m = kegg_fba_extend_mets(model, extra)
       let (lb, ub) = if reversible { (-1000.0, 1000.0) } else { (0.0, 1000.0) }
       m.add_reaction(
         {
@@ -455,6 +470,9 @@ pub fn kegg_fba_reconstruct(
     for gene in kegg_fba_gene_ids(e.name) {
       for tok in kegg_fba_tokens(e.reaction) {
         let rid = kegg_fba_strip_prefix(tok)
+        if rid.length() == 0 {
+          continue
+        }
         match gene_map.get(rid) {
           Some(arr) => arr.push(gene)
           None => gene_map[rid] = [gene]
@@ -470,14 +488,22 @@ pub fn kegg_fba_reconstruct(
     }
     let reversible = rxn.rtype == "reversible"
     let (lb, ub) = if reversible { (-1000.0, 1000.0) } else { (0.0, 1000.0) }
-    let participants : Array[(String, Double)] = Array(
-      capacity=rxn.substrates.length() + rxn.products.length(),
+    let raw_subs : Array[(String, Double)] = Array(
+      capacity=rxn.substrates.length(),
     )
     for s in rxn.substrates {
-      participants.push((kegg_fba_strip_prefix(s), -1.0))
+      raw_subs.push((kegg_fba_strip_prefix(s), 1.0))
     }
+    let raw_prods : Array[(String, Double)] = Array(
+      capacity=rxn.products.length(),
+    )
     for p in rxn.products {
-      participants.push((kegg_fba_strip_prefix(p), 1.0))
+      raw_prods.push((kegg_fba_strip_prefix(p), 1.0))
+    }
+    // 同一化合物双侧同现（如 A + B → A + C）时先合并，避免底层覆盖赋值
+    let participants = kegg_fba_merge_participants(raw_subs, raw_prods)
+    if participants.length() == 0 {
+      raise FbaError("reaction resolves to zero net participants: \{rid}")
     }
     let genes = match gene_map.get(rid) {
       Some(g) => g

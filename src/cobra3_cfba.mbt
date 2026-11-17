@@ -3,16 +3,16 @@
 //
 // 在标准 FBA 的稳态约束之上加一条线性"酶质量约束"：
 //   Σ_j (MW_j / k_eff) · v_j ≤ P_total
-// 其中 MW_j 为反应 j 的酶分子量（g/mol，来自 enzyme_mw 映射），k_eff 为
-// 比催化速率（1/s），P_total 为蛋白质配额（g/gDW）。 LP 直接重解即可
-// 得到配额下的最大生长。
+// 其中 MW_j 为反应 j 的酶分子量，k_eff 为比催化速率，P_total 为蛋白质
+// 配额（g/gDW）。三者的单位需由调用方保证自洽：惯例为 MW 用 g/mmol、
+// k_eff 用 1/h，配合 FBA 通量 mmol/gDW/h，乘积即 g/gDW（等同于
+// Sanchez 2017 的 MW/kcat）。LP 直接重解即可得到配额下的最大生长。
 //
 // 简化口径（边界条件）：
-// - 只对 enzyme_mw 中登记的反应计酶成本，未登记的反应免费（无酶旁路
-//   可绕过配额，符合 cFBA 语义：只有有酶参与的通量消耗蛋白）
-// - 酶成本按净正向通量线性计入：可逆反应负向通量会"退还"成本，因此
-//   建议只给不可逆反应登记 MW；对可逆反应的严格双方向计费需要拆分
-//   变量（简化版不做）
+// - 只对 enzyme_mw 中登记的反应计酶成本，未登记的反应免费
+// - 酶成本按净通量线性计入，不做正负方向拆分；因此可逆反应若登记 MW，
+//   LP 会取大的负向通量使 LHS 变负、令配额约束恒不绑定。为避免配额被
+//   静默绕过，登记表中出现 lb < 0 的反应时直接报错
 // - LP 不可行（如 P 不足以维持最小生长需求）时返回 growth = 0
 
 ///|
@@ -64,7 +64,13 @@ pub fn cobra3_cfba(
   for kv in enzyme_mw {
     let (rid, mw) = kv
     let idx = cobra3_model_reaction_index(model, rid)
-    if idx >= 0 && mw > 0.0 && k_eff > 0.0 {
+    if idx >= 0 && mw > 0.0 {
+      // 可逆反应的负向通量会"退还"酶成本，使配额约束恒不绑定 → 拒绝
+      if model.reactions[idx].lower_bound < 0.0 {
+        raise Cobra3Error(
+          "cFBA enzyme budget requires irreversible reaction, got reversible: \{rid}",
+        )
+      }
       coeffs[idx] = mw / k_eff
       n_assigned = n_assigned + 1
     }
