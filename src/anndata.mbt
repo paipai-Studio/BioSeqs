@@ -769,8 +769,107 @@ pub fn AnnData::layers_items(
   out
 }
 
+// ============================================================================
+// P2 官方 API 实例方法补充
+// ============================================================================
+
 ///|
-/// 遍历：obsm 所有 key.
+/// Concatenate with other AnnData objects along obs axis.
+/// `adata.concatenate([other1, other2])` 等价于
+/// `anndata_concat_obs([adata, other1, other2])`.
+pub fn AnnData::concatenate_obs(
+  self : AnnData,
+  others : Array[AnnData],
+  join~ : AnnDataJoin = AnnDataJoin::Inner,
+  label~ : String? = None,
+  keys~ : Array[String] = [],
+) -> AnnData {
+  let all : Array[AnnData] = Array(capacity=others.length() + 1)
+  all.push(self)
+  for a in others {
+    all.push(a)
+  }
+  anndata_concat_obs(all, join~, label~, keys~)
+}
+
+///|
+/// Concatenate with other AnnData objects along var axis.
+pub fn AnnData::concatenate_var(
+  self : AnnData,
+  others : Array[AnnData],
+  join~ : AnnDataJoin = AnnDataJoin::Inner,
+) -> AnnData {
+  let all : Array[AnnData] = Array(capacity=others.length() + 1)
+  all.push(self)
+  for a in others {
+    all.push(a)
+  }
+  anndata_concat_var(all, join~)
+}
+
+///|
+/// Subset by obs names (cells) and/or var names (genes).
+/// `adata.subset_by_names(obsnames=["cell1", "cell2"])` — 按 obs 名字切片.
+/// `adata.subset_by_names(varnames=["gene1", "gene2"])` — 按 var 名字切片.
+/// `adata.subset_by_names(obsnames=["c1"], varnames=["g1"])` — 双轴.
+/// 任何一方为 None 表示保留全部。
+pub fn AnnData::subset_by_names(
+  self : AnnData,
+  obsnames~ : Array[String]? = None,
+  varnames~ : Array[String]? = None,
+) -> AnnData {
+  match obsnames {
+    None =>
+      match varnames {
+        None => self
+        Some(vnames) => anndata_subset_var_by_name(self, vnames)
+      }
+    Some(onames) =>
+      match varnames {
+        None => anndata_subset_obs_by_name(self, onames)
+        Some(vnames) => {
+          let obs_sub = anndata_subset_obs_by_name(self, onames)
+          anndata_subset_var_by_name(obs_sub, vnames)
+        }
+      }
+  }
+}
+
+///|
+/// Subset by integer indices (convenience alias for `subset`).
+/// 任一参数为 None 表示保留全部。
+pub fn AnnData::subset_by_indices(
+  self : AnnData,
+  obs_idx~ : Array[Int32]? = None,
+  var_idx~ : Array[Int32]? = None,
+) -> AnnData {
+  let obs_i = match obs_idx {
+    Some(i) => i
+    None => {
+      let out : Array[Int32] = Array(capacity=self.n_obs())
+      for i = 0; i < self.n_obs(); i = i + 1 {
+        out.push(i)
+      }
+      out
+    }
+  }
+  let var_i = match var_idx {
+    Some(i) => i
+    None => {
+      let out : Array[Int32] = Array(capacity=self.n_vars())
+      for i = 0; i < self.n_vars(); i = i + 1 {
+        out.push(i)
+      }
+      out
+    }
+  }
+  self.subset(obs_i, var_i)
+}
+
+// ============================================================================
+// 遍历：obsm 所有 key.
+
+///|
 pub fn AnnData::obsm_keys(self : AnnData) -> Array[String] {
   self.obsm.keys().collect()
 }

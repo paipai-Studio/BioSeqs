@@ -134,3 +134,61 @@ pub fn AnnDataRaw::sum(self : AnnDataRaw) -> Double {
   }
   total
 }
+
+///|
+/// Restore raw snapshot to a full AnnData.
+/// Optional `obs_names` lets you pass the current obs names (e.g.
+/// from the parent AnnData) — if omitted, default integer indices
+/// ("0", "1", ...) are generated.
+/// Var names and var annotations are restored from the raw snapshot.
+pub fn AnnDataRaw::to_adata(
+  self : AnnDataRaw,
+  obs_names~ : Array[String]? = None,
+) -> AnnData {
+  let n_o = self.x.length()
+  let n_v = self.var_names.length()
+  // obs_names: use provided or generate defaults
+  let onames = match obs_names {
+    Some(n) => n
+    None => {
+      let out : Array[String] = Array(capacity=n_o)
+      for i = 0; i < n_o; i = i + 1 {
+        out.push(i.to_string())
+      }
+      out
+    }
+  }
+  // Ensure obs_names length matches n_obs
+  let onames_fixed = if onames.length() == n_o {
+    onames
+  } else {
+    let out : Array[String] = Array(capacity=n_o)
+    for i = 0; i < n_o; i = i + 1 {
+      if i < onames.length() {
+        out.push(onames[i])
+      } else {
+        out.push(i.to_string())
+      }
+    }
+    out
+  }
+  // Copy X
+  let x_copy : Array[Array[Double]] = Array(capacity=n_o)
+  for row in self.x {
+    let r : Array[Double] = Array(capacity=n_v)
+    for v in row {
+      r.push(v)
+    }
+    x_copy.push(r)
+  }
+  let adata = AnnData::new(x_copy, onames_fixed, self.var_names.copy())
+  // Restore var annotations
+  let var_keys = self.var_anno.keys().collect()
+  for k in var_keys {
+    match self.var_anno.get(k) {
+      Some(v) => ignore(adata.set_var(k, v.copy()))
+      None => ()
+    }
+  }
+  adata
+}
