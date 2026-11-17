@@ -46,6 +46,42 @@ fn kegg_fba_strip_prefix(id : String) -> String {
 }
 
 ///|
+/// 拆分 KGML gene entry 的 name 属性为基因 ID 列表。name 可为空格
+/// 或逗号（含无空格逗号形式）分隔的多个 KEGG ID，如
+/// "ko:K00844 ko:K01623" / "ko:K00844,ko:K01623"；逐个剥离前缀后返回。
+fn kegg_fba_gene_ids(name : String) -> Array[String] {
+  let out : Array[String] = []
+  for tok in kegg_fba_tokens(name) {
+    // 同一 token 内的逗号也是分隔符（"A,B" 无空格形式）：二次切分
+    let mut start = 0
+    let n = tok.length()
+    for i = 0; i < n; i = i + 1 {
+      if tok[i:i + 1].to_owned() == "," {
+        if i > start {
+          out.push(kegg_fba_strip_prefix(tok[start:i].to_owned()))
+        }
+        start = i + 1
+      }
+    }
+    if n > start {
+      out.push(kegg_fba_strip_prefix(tok[start:n].to_owned()))
+    }
+  }
+  out
+}
+
+///|
+/// 检查反应 ID 是否已存在（防重复列）.
+fn kegg_fba_has_reaction(model : FbaModel, id : String) -> Bool {
+  for r in model.reactions {
+    if r.id == id {
+      return true
+    }
+  }
+  false
+}
+
+///|
 /// 按空白切分字符串（跳过连续空格）.
 fn kegg_fba_tokens(s : String) -> Array[String] {
   let t = s.trim().to_owned()
@@ -188,7 +224,10 @@ fn kegg_fba_extend_mets(model : FbaModel, extra : Array[String]) -> FbaModel {
 }
 
 ///|
-/// 向模型追加一条 KEGG 方程反应（自动扩展新代谢物；底物取负系数）.
+/// 向模型追加一条 KEGG 方程反应（自动扩展新代谢物；底物取负系数）。
+/// 同一化合物在方程中重复出现（同侧重复或两侧同现）时系数累加合并，
+/// 合并后净参与物为空（如自转移 "A -> A"）则报错；反应 ID 与模型中
+/// 已有反应重复时报错。
 pub fn kegg_fba_add_equation(
   model : FbaModel,
   rxn_id : String,
@@ -197,25 +236,49 @@ pub fn kegg_fba_add_equation(
   objective~ : Double = 0.0,
   genes~ : Array[String] = [],
 ) -> FbaModel raise FbaError {
+  if kegg_fba_has_reaction(model, rxn_id) {
+    raise FbaError("reaction already exists: \{rxn_id}")
+  }
   match kegg_reaction_parse(equation) {
     None => raise FbaError("invalid KEGG equation: \{equation}")
     Some((subs, prods)) => {
-      let extra : Array[String] = Array(capacity=subs.length() + prods.length())
+      // 合并重复化合物：系数累加，避免底层按列覆盖赋值丢失计量
+      let order : Array[String] = Array(capacity=subs.length() + prods.length())
+      let coeff : Map[String, Double] = Map([])
       for p in subs {
-        extra.push(p.0)
+        let v = -p.1
+        match coeff.get(p.0) {
+          Some(prev) => coeff[p.0] = prev + v
+          None => {
+            coeff[p.0] = v
+            order.push(p.0)
+          }
+        }
       }
       for p in prods {
-        extra.push(p.0)
+        let v = p.1
+        match coeff.get(p.0) {
+          Some(prev) => coeff[p.0] = prev + v
+          None => {
+            coeff[p.0] = v
+            order.push(p.0)
+          }
+        }
       }
-      let m = kegg_fba_extend_mets(model, extra)
+      let m = kegg_fba_extend_mets(model, order)
       let participants : Array[(String, Double)] = Array(
-        capacity=subs.length() + prods.length(),
+        capacity=order.length(),
       )
-      for p in subs {
-        participants.push((p.0, -p.1))
+      for k in order {
+        let v = coeff[k]
+        if v.abs() > 1.0e-9 {
+          participants.push((k, v))
+        }
       }
-      for p in prods {
-        participants.push((p.0, p.1))
+      if participants.length() == 0 {
+        raise FbaError(
+          "KEGG equation resolves to zero net participants: \{equation}",
+        )
       }
       let (lb, ub) = if reversible { (-1000.0, 1000.0) } else { (0.0, 1000.0) }
       m.add_reaction(
@@ -236,16 +299,21 @@ pub fn kegg_fba_add_equation(
 ///|
 /// 追加一条 exchange 反应（EX_<met>："met ->"，下界默认 -10 允许摄取），
 /// 代谢物不存在时自动扩展。用于开边界与 gapfill universal 池构造。
+/// 反应 ID（EX_<met>）与模型中已有反应重复时报错。
 pub fn kegg_fba_add_exchange(
   model : FbaModel,
   met : String,
   lower_bound~ : Double = -10.0,
 ) -> FbaModel raise FbaError {
+  let ex_id = "EX_" + met
+  if kegg_fba_has_reaction(model, ex_id) {
+    raise FbaError("reaction already exists: \{ex_id}")
+  }
   let m = kegg_fba_extend_mets(model, [met])
   m.add_reaction(
     {
-      id: "EX_" + met,
-      name: "EX_" + met,
+      id: ex_id,
+      name: ex_id,
       lower_bound,
       upper_bound: 1000.0,
       objective: 0.0,
@@ -353,9 +421,10 @@ pub fn kegg_fba_check_mass_balance(
 ///|
 /// KEGG → FBA 草稿重建（pipeline 入口）：编译 KGML pathway 为 FbaModel
 /// 并跑质量平衡检查。代谢物按 ID 排序保证确定性；基因从 etype=gene 的
-/// entry 经其 reaction 字段关联（ko:Kxxxxx）；可逆反应边界 ±1000，
-/// 不可逆 [0, 1000]；`objective_reaction` 置目标系数 1；`open_exchanges`
-/// 为全部化合物开 exchange（下界 `exchange_lb`）。
+/// entry 经其 reaction 字段关联（entry.name 的多个 KO ID 按空格/逗号
+/// 拆分，ko:Kxxxxx）；可逆反应边界 ±1000，不可逆 [0, 1000]；
+/// `objective_reaction` 置目标系数 1；`open_exchanges` 为全部化合物开
+/// exchange（下界 `exchange_lb`）。pathway 中反应 ID 重复时报错。
 pub fn kegg_fba_reconstruct(
   pathway : KgmlPathway,
   open_exchanges~ : Bool = false,
@@ -379,21 +448,26 @@ pub fn kegg_fba_reconstruct(
   }
   cobra3_sort_strings(mets)
   let mut model = fba_model_new(mets)
-  // entry 基因 → reaction 关联（entry.reaction 可为空格分隔多个）
+  // entry 基因 → reaction 关联（entry.reaction 可为空格分隔多个；
+  // entry.name 同样可为空格/逗号分隔的多个 KO ID，逐个拆分）
   let gene_map : Map[String, Array[String]] = Map([])
   for e in pathway.get_entries_by_type("gene") {
-    let gene = kegg_fba_strip_prefix(e.name)
-    for tok in kegg_fba_tokens(e.reaction) {
-      let rid = kegg_fba_strip_prefix(tok)
-      match gene_map.get(rid) {
-        Some(arr) => arr.push(gene)
-        None => gene_map[rid] = [gene]
+    for gene in kegg_fba_gene_ids(e.name) {
+      for tok in kegg_fba_tokens(e.reaction) {
+        let rid = kegg_fba_strip_prefix(tok)
+        match gene_map.get(rid) {
+          Some(arr) => arr.push(gene)
+          None => gene_map[rid] = [gene]
+        }
       }
     }
   }
   // 编译反应
   for rxn in pathway.reactions {
     let rid = kegg_fba_strip_prefix(rxn.name)
+    if kegg_fba_has_reaction(model, rid) {
+      raise FbaError("duplicate reaction in pathway: \{rid}")
+    }
     let reversible = rxn.rtype == "reversible"
     let (lb, ub) = if reversible { (-1000.0, 1000.0) } else { (0.0, 1000.0) }
     let participants : Array[(String, Double)] = Array(

@@ -16,6 +16,12 @@
 // - LP 不可行（如 P 不足以维持最小生长需求）时返回 growth = 0
 
 ///|
+/// cFBA 参数错误.
+pub suberror Cobra3Error {
+  Cobra3Error(String)
+}
+
+///|
 /// cFBA 求解结果.
 pub(all) struct Cobra3CfbaResult {
   /// 配额下最大目标值（生物量通量）
@@ -40,12 +46,16 @@ pub(all) struct Cobra3CfbaSweepPoint {
 /// `enzyme_mw`：反应 ID → 酶分子量（未登记反应不消耗蛋白配额）；
 /// `protein_budget`：蛋白配额 P（g/gDW）；`k_eff`：统一比催化速率。
 /// `protein_budget = 0` 且酶约束绑定时生长为 0；映射为空等价于普通 FBA。
+/// `k_eff <= 0` 无物理意义（非正比催化速率会使约束失去意义），直接报错。
 pub fn cobra3_cfba(
   model : Cobra3Model,
   enzyme_mw : Map[String, Double],
   protein_budget~ : Double = 1.0,
   k_eff~ : Double = 65.0,
-) -> Cobra3CfbaResult {
+) -> Cobra3CfbaResult raise Cobra3Error {
+  if k_eff <= 0.0 {
+    raise Cobra3Error("cFBA requires k_eff > 0, got \{k_eff}")
+  }
   let n = model.reactions.length()
   let cons = cobra3_steady_state_constraints(model)
   // 酶质量约束：Σ (MW_j / k_eff) · v_j ≤ P
@@ -80,7 +90,8 @@ pub fn cobra3_cfba(
 ///|
 /// 蛋白配额扫描：在 [p_min, p_max] 上均匀取 `points` 个配额逐点求解，
 /// 输出经典的"生长 vs 蛋白配额"曲线（配额小时线性上升，底物受限后
-/// 进入平台期）。`k_eff` 透传给每次求解。`points < 1` 返回空列表。
+/// 进入平台期）。`k_eff` 透传给每次求解（入口统一校验，非正值报错）。
+/// `points < 1` 返回空列表。
 pub fn cobra3_cfba_sweep(
   model : Cobra3Model,
   enzyme_mw : Map[String, Double],
@@ -88,7 +99,11 @@ pub fn cobra3_cfba_sweep(
   p_min~ : Double = 0.2,
   p_max~ : Double = 2.0,
   k_eff~ : Double = 65.0,
-) -> Array[Cobra3CfbaSweepPoint] {
+) -> Array[Cobra3CfbaSweepPoint] raise Cobra3Error {
+  // 参数校验统一放在入口处（含 points<1 分支）
+  if k_eff <= 0.0 {
+    raise Cobra3Error("cFBA requires k_eff > 0, got \{k_eff}")
+  }
   let out : Array[Cobra3CfbaSweepPoint] = Array(capacity=points)
   if points < 1 {
     return out

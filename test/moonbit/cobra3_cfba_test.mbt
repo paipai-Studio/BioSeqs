@@ -93,3 +93,40 @@ test "cobra3 cfba sweep and edge cases" {
   let fast = @src.cobra3_cfba(m, mws, protein_budget=5.0, k_eff=200.0)
   assert_true(@moonbit.assert_num_close(fast.growth, 10.0, 1.0e-6))
 }
+
+///|
+test "cobra3 cfba rejects nonpositive k_eff" {
+  let m = cobra3_cfba_model()
+  let mw : Map[String, Double] = Map([("R1", 1.0)])
+  // k_eff = 0：非正比催化速率无意义 → 显式报错而非静默丢弃约束
+  let raised0 = try {
+    let _ = @src.cobra3_cfba(m, mw, protein_budget=1.0, k_eff=0.0)
+    false
+  } catch {
+    _ => true
+  }
+  assert_true(raised0)
+  let raised_neg = try {
+    let _ = @src.cobra3_cfba(m, mw, protein_budget=1.0, k_eff=-1.0)
+    false
+  } catch {
+    _ => true
+  }
+  assert_true(raised_neg)
+  // sweep 同样透传报错
+  let raised_sweep = try {
+    let _ = @src.cobra3_cfba_sweep(m, mw, points=2, k_eff=0.0)
+    false
+  } catch {
+    _ => true
+  }
+  assert_true(raised_sweep)
+  // points<1 提前返回的分支同样校验 k_eff（入口统一）
+  let raised_sweep0 = try {
+    let _ = @src.cobra3_cfba_sweep(m, mw, points=0, k_eff=0.0)
+    false
+  } catch {
+    _ => true
+  }
+  assert_true(raised_sweep0)
+}

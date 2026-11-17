@@ -193,3 +193,105 @@ test "kegg fba gapfill closure" {
   assert_eq(results[0].added_reactions, ["EX_C00197"])
   assert_true(results[0].objective_value > 0.05)
 }
+
+///|
+/// 构造最小 KGML：gene entry name 含空格分隔的两个 KO ID + 一条反应.
+fn kegg_fba_multi_gene_xml(gene_name : String) -> String {
+  let xml = "<?xml version=\"1.0\"?>\n"
+  let s = xml +
+    "<pathway name=\"path:tst00001\" org=\"tst\" number=\"00001\" title=\"Test\">\n" +
+    "<entry id=\"1\" name=\"" +
+    gene_name +
+    "\" type=\"gene\" reaction=\"rn:R00001\" link=\"https://example.com/K\">"
+  let s2 = s +
+    "<graphics name=\"K\" fgcolor=\"#000000\" bgcolor=\"#BFFFBF\" type=\"rect\" x=\"100\" y=\"200\" width=\"46\" height=\"17\"/>"
+  let s3 = s2 + "</entry>\n"
+  let s4 = s3 +
+    "<entry id=\"2\" name=\"cpd:C00001\" type=\"compound\" link=\"https://example.com/C1\">"
+  let s5 = s4 +
+    "<graphics name=\"C00001\" fgcolor=\"#000000\" bgcolor=\"#FFFFFF\" type=\"circle\" x=\"150\" y=\"250\" width=\"8\" height=\"8\"/>"
+  let s6 = s5 + "</entry>\n"
+  let s7 = s6 +
+    "<entry id=\"3\" name=\"cpd:C00002\" type=\"compound\" link=\"https://example.com/C2\">"
+  let s8 = s7 +
+    "<graphics name=\"C00002\" fgcolor=\"#000000\" bgcolor=\"#FFFFFF\" type=\"circle\" x=\"160\" y=\"250\" width=\"8\" height=\"8\"/>"
+  let s9 = s8 + "</entry>\n"
+  let s10 = s9 +
+    "<reaction name=\"rn:R00001\" type=\"irreversible\">\n" +
+    "<substrate id=\"2\" name=\"cpd:C00001\"/>\n" +
+    "<product id=\"3\" name=\"cpd:C00002\"/>\n" +
+    "</reaction>\n" +
+    "</pathway>"
+  s10
+}
+
+///|
+test "kegg fba multi gene entry name split" {
+  // 空格分隔的多 KO ID 拆分为独立基因（KGML name 属性规范形式）
+  let pw = @src.parse_kgml(kegg_fba_multi_gene_xml("ko:K00844 ko:K01623")).unwrap()
+  let draft = @src.kegg_fba_reconstruct(pw, objective_reaction="R00001")
+  assert_eq(draft.model.reactions[0].genes, ["K00844", "K01623"])
+  // 逗号分隔形式同样拆分
+  let pw2 = @src.parse_kgml(kegg_fba_multi_gene_xml("ko:K00844, ko:K01623")).unwrap()
+  let draft2 = @src.kegg_fba_reconstruct(pw2, objective_reaction="R00001")
+  assert_eq(draft2.model.reactions[0].genes, ["K00844", "K01623"])
+  // 无空格逗号形式同样拆分
+  let pw3 = @src.parse_kgml(kegg_fba_multi_gene_xml("ko:K00844,ko:K01623")).unwrap()
+  let draft3 = @src.kegg_fba_reconstruct(pw3, objective_reaction="R00001")
+  assert_eq(draft3.model.reactions[0].genes, ["K00844", "K01623"])
+}
+
+///|
+test "kegg fba add equation duplicate compounds and ids" {
+  let m = @src.fba_model_new([])
+  // 同侧重复化合物系数合并：A + A -> 2B → A:-2, B:+2
+  let m1 = @src.kegg_fba_add_equation(m, "R1", "A + A -> 2 B")
+  assert_eq(m1.reactions.length(), 1)
+  assert_eq(m1.metabolites.length(), 2)
+  assert_true(m1.stoichiometry[0][0] == -2.0)
+  assert_true(m1.stoichiometry[1][0] == 2.0)
+  // 自转移方程净参与物为空 → 报错
+  let zero = try {
+    let _ = @src.kegg_fba_add_equation(m1, "R2", "A -> A")
+    false
+  } catch {
+    _ => true
+  }
+  assert_true(zero)
+  // 重复反应 ID → 报错
+  let dup_eq = try {
+    let _ = @src.kegg_fba_add_equation(m1, "R1", "A -> B")
+    false
+  } catch {
+    _ => true
+  }
+  assert_true(dup_eq)
+  // 重复 exchange ID → 报错
+  let m2 = @src.kegg_fba_add_exchange(m1, "C")
+  let dup_ex = try {
+    let _ = @src.kegg_fba_add_exchange(m2, "C")
+    false
+  } catch {
+    _ => true
+  }
+  assert_true(dup_ex)
+}
+
+///|
+test "kegg fba reconstruct rejects duplicate pathway reactions" {
+  // 复制 <reaction> 块制造重复反应 ID
+  let base = kegg_fba_multi_gene_xml("ko:K00844")
+  let xml2 = base.replace(
+    old="</reaction>\n</pathway>",
+    new="</reaction>\n<reaction name=\"rn:R00001\" type=\"irreversible\">\n<substrate id=\"2\" name=\"cpd:C00001\"/>\n<product id=\"3\" name=\"cpd:C00002\"/>\n</reaction>\n</pathway>",
+  )
+  let pw = @src.parse_kgml(xml2).unwrap()
+  assert_eq(pw.reactions().length(), 2)
+  let raised = try {
+    let _ = @src.kegg_fba_reconstruct(pw)
+    false
+  } catch {
+    _ => true
+  }
+  assert_true(raised)
+}
