@@ -33,6 +33,8 @@ pub struct TotalVIModel {
   // Protein background parameters
   prot_bg_mean : Array[Double]
   prot_bg_scale : Array[Double]
+  // Per-protein foreground mixing logit (sigmoid -> prior pi_fg)
+  prot_mix_logit : Array[Double]
   n_rna_genes : Int32
   n_proteins : Int32
   mut trained : Bool
@@ -65,17 +67,17 @@ pub fn totalvi_init(
   }
   {
     config,
-    rna_encoder_w: init_w(n_rna_genes, config.n_hidden),
+    rna_encoder_w: init_w(config.n_hidden, n_rna_genes),
     rna_encoder_b: init_b(config.n_hidden),
-    prot_encoder_w: init_w(n_proteins, config.n_hidden),
+    prot_encoder_w: init_w(config.n_hidden, n_proteins),
     prot_encoder_b: init_b(config.n_hidden),
-    latent_w: init_w(config.n_hidden * 2, config.n_latent),
+    latent_w: init_w(config.n_latent, config.n_hidden * 2),
     latent_b: init_b(config.n_latent),
-    rna_decoder_w: init_w(config.n_latent, n_rna_genes),
+    rna_decoder_w: init_w(n_rna_genes, config.n_latent),
     rna_decoder_b: init_b(n_rna_genes),
-    prot_decoder_w: init_w(config.n_latent, n_proteins),
+    prot_decoder_w: init_w(n_proteins, config.n_latent),
     prot_decoder_b: init_b(n_proteins),
-    prot_bg_mean: init_b(n_proteins),
+    prot_bg_mean: Array::make(n_proteins, 1.0),
     prot_bg_scale: Array(capacity=n_proteins)
     |> a => {
       for _i in 0..<n_proteins {
@@ -83,6 +85,7 @@ pub fn totalvi_init(
       }
       a
     },
+    prot_mix_logit: Array::make(n_proteins, 0.0),
     n_rna_genes,
     n_proteins,
     trained: false,
@@ -253,6 +256,18 @@ pub fn totalvi_train(
 }
 
 ///|
+pub fn TotalVIConfig::new(
+  n_hidden : Int32,
+  n_latent : Int32,
+  n_layers : Int32,
+  dropout_rate : Double,
+  learning_rate : Double,
+  max_epochs : Int32,
+) -> TotalVIConfig {
+  { n_hidden, n_latent, n_layers, dropout_rate, learning_rate, max_epochs, }
+}
+
+///|
 pub fn TotalVIConfig::default() -> TotalVIConfig {
   {
     n_hidden: 0,
@@ -262,4 +277,215 @@ pub fn TotalVIConfig::default() -> TotalVIConfig {
     learning_rate: 0.0,
     max_epochs: 0,
   }
+}
+
+// ---------------------------------------------------------------------------
+// 蛋白 fore/background 去卷积（官方 protein_expression_foreground_probability）
+// ---------------------------------------------------------------------------
+
+///|
+/// 单细胞单蛋白的 fore/background 混合分解结果.
+pub(all) struct TotalViProteinMixture {
+  /// 蛋白下标
+  protein : Int32
+  /// 前景率 λ_fg（decoder softplus 输出）
+  foreground_rate : Double
+  /// 背景率 λ_bg（蛋白级参数）
+  background_rate : Double
+  /// 混合先验 π_fg（prot_mix_logit 经 sigmoid）
+  prior : Double
+  /// 观测计数下的前景后验概率（官方 foreground probability）
+  foreground_probability : Double
+}
+
+///|
+fn totalvi_sigmoid(x : Double) -> Double {
+  let c = if x > 30.0 { 30.0 } else if x < -30.0 { -30.0 } else { x }
+  1.0 / (1.0 + @math.exp(-c))
+}
+
+///|
+/// 单个蛋白的前景后验概率：观测计数 y 是前景（抗体特异性信号，率 λ_fg）
+/// 与背景（非特异性结合，率 λ_bg）的二元混合，混合先验为 π_fg：
+///   p_fg = π·Pois(y;λ_fg) / (π·Pois(y;λ_fg) + (1-π)·Pois(y;λ_bg))
+/// 官方 TOTALVI 用 NB 似然（蛋白级过离散）；这里用 Poisson 简化，
+/// 负计数按 0、速率下限 1e-6、先验钳制到 [1e-6, 1-1e-6]。
+pub fn totalvi_mixture_posterior(
+  count : Double,
+  foreground_rate : Double,
+  background_rate : Double,
+  prior : Double,
+) -> Double {
+  let y = if count < 0.0 { 0.0 } else { count }
+  let lam_fg = if foreground_rate < 1.0e-6 { 1.0e-6 } else { foreground_rate }
+  let lam_bg = if background_rate < 1.0e-6 { 1.0e-6 } else { background_rate }
+  let pi = if prior < 1.0e-6 {
+    1.0e-6
+  } else if prior > 1.0 - 1.0e-6 {
+    1.0 - 1.0e-6
+  } else {
+    prior
+  }
+  let log_fact = cobra3_lgamma(y + 1.0)
+  let lf = y * @math.ln(lam_fg) - lam_fg - log_fact
+  let lb = y * @math.ln(lam_bg) - lam_bg - log_fact
+  let af = @math.ln(pi) + lf
+  let ab = @math.ln(1.0 - pi) + lb
+  let m = if af > ab { af } else { ab }
+  let ef = @math.exp(af - m)
+  let eb = @math.exp(ab - m)
+  ef / (ef + eb)
+}
+
+///|
+/// 单细胞蛋白 fore/background 混合分解：前景率来自 decoder（softplus），
+/// 背景率为蛋白级参数 prot_bg_mean（下限 1e-3），先验 π_fg 由
+/// prot_mix_logit 经 sigmoid 给出。
+pub fn totalvi_protein_mixture(
+  model : TotalVIModel,
+  z : Array[Double],
+  counts : Array[Double],
+) -> Array[TotalViProteinMixture] {
+  let fg = totalvi_decode_protein(model, z)
+  let out : Array[TotalViProteinMixture] = Array(capacity=model.n_proteins)
+  for p in 0..<model.n_proteins {
+    let y = if p < counts.length() && counts[p] > 0.0 { counts[p] } else { 0.0 }
+    let bg = if model.prot_bg_mean[p] < 1.0e-3 {
+      1.0e-3
+    } else {
+      model.prot_bg_mean[p]
+    }
+    let prior = totalvi_sigmoid(model.prot_mix_logit[p])
+    out.push({
+      protein: p,
+      foreground_rate: fg[p],
+      background_rate: bg,
+      prior,
+      foreground_probability: totalvi_mixture_posterior(y, fg[p], bg, prior),
+    })
+  }
+  out
+}
+
+///|
+/// 全部查询细胞的前景概率矩阵（官方
+/// protein_expression_foreground_probability 语义）：逐细胞编码 → decoder
+/// 前景率 → 观测计数下的混合后验。rna 与 protein 行数不一致或无蛋白时
+/// 返回空列表。
+pub fn totalvi_get_foreground_probability(
+  model : TotalVIModel,
+  rna : Array[Array[Double]],
+  protein : Array[Array[Double]],
+) -> Array[Array[Double]] {
+  let out : Array[Array[Double]] = Array(capacity=protein.length())
+  if model.n_proteins == 0 || protein.length() != rna.length() {
+    return out
+  }
+  for i in 0..<protein.length() {
+    let z = totalvi_encode(model, rna[i], protein[i])
+    let fg = totalvi_decode_protein(model, z)
+    let row : Array[Double] = Array(capacity=model.n_proteins)
+    for p in 0..<model.n_proteins {
+      let y = if protein[i][p] > 0.0 { protein[i][p] } else { 0.0 }
+      let bg = if model.prot_bg_mean[p] < 1.0e-3 {
+        1.0e-3
+      } else {
+        model.prot_bg_mean[p]
+      }
+      row.push(
+        totalvi_mixture_posterior(
+          y,
+          fg[p],
+          bg,
+          totalvi_sigmoid(model.prot_mix_logit[p]),
+        ),
+      )
+    }
+    out.push(row)
+  }
+  out
+}
+
+///|
+/// 背景校正蛋白表达：期望前景计数 = 观测计数 × 前景后验（官方
+/// get_protein_expression 的 denoised 语义）。
+pub fn totalvi_corrected_protein_expression(
+  model : TotalVIModel,
+  rna : Array[Array[Double]],
+  protein : Array[Array[Double]],
+) -> Array[Array[Double]] {
+  let probs = totalvi_get_foreground_probability(model, rna, protein)
+  let out : Array[Array[Double]] = Array(capacity=probs.length())
+  for i in 0..<probs.length() {
+    let row : Array[Double] = Array(capacity=probs[i].length())
+    for p in 0..<probs[i].length() {
+      let y = if protein[i][p] > 0.0 { protein[i][p] } else { 0.0 }
+      row.push(y * probs[i][p])
+    }
+    out.push(row)
+  }
+  out
+}
+
+///|
+/// 蛋白背景 EM 去卷积：迭代优化背景率与混合先验。
+/// E 步：当前参数下逐细胞计算前景后验；M 步：以 (1-p_fg) 加权重估
+/// 背景率 λ_bg = Σ(1-p)·y / Σ(1-p)（背景归属计数的加权均值），并以
+/// 梯度步更新混合 logit（logit += p̄ - π）。返回最终前景概率矩阵。
+/// rna 与 protein 行数不一致或无蛋白时返回空列表且不修改模型。
+pub fn totalvi_fit_protein_background(
+  model : TotalVIModel,
+  rna : Array[Array[Double]],
+  protein : Array[Array[Double]],
+  n_iters~ : Int32 = 10,
+) -> Array[Array[Double]] {
+  if model.n_proteins == 0 || protein.length() != rna.length() {
+    return []
+  }
+  let n_cells = protein.length()
+  let n_cells_d = n_cells.to_double()
+  for _it in 0..<n_iters {
+    let wsum : Array[Double] = Array::make(model.n_proteins, 0.0)
+    let ysum : Array[Double] = Array::make(model.n_proteins, 0.0)
+    let psum : Array[Double] = Array::make(model.n_proteins, 0.0)
+    for i in 0..<n_cells {
+      let z = totalvi_encode(model, rna[i], protein[i])
+      let fg = totalvi_decode_protein(model, z)
+      for p in 0..<model.n_proteins {
+        let y = if protein[i][p] > 0.0 { protein[i][p] } else { 0.0 }
+        let bg = if model.prot_bg_mean[p] < 1.0e-3 {
+          1.0e-3
+        } else {
+          model.prot_bg_mean[p]
+        }
+        let post = totalvi_mixture_posterior(
+          y,
+          fg[p],
+          bg,
+          totalvi_sigmoid(model.prot_mix_logit[p]),
+        )
+        wsum[p] += 1.0 - post
+        ysum[p] += (1.0 - post) * y
+        psum[p] += post
+      }
+    }
+    for p in 0..<model.n_proteins {
+      if wsum[p] > 1.0e-9 {
+        let bg = ysum[p] / wsum[p]
+        if bg > 1.0e-3 {
+          model.prot_bg_mean[p] = bg
+        }
+      }
+      let pbar = psum[p] / n_cells_d
+      let mut logit = model.prot_mix_logit[p] +
+        (pbar - totalvi_sigmoid(model.prot_mix_logit[p]))
+      if logit > 10.0 {
+        logit = 10.0
+      } else if logit < -10.0 {
+        logit = -10.0
+      }
+      model.prot_mix_logit[p] = logit
+    }
+  }
+  totalvi_get_foreground_probability(model, rna, protein)
 }
