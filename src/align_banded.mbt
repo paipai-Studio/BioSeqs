@@ -8,7 +8,9 @@
 
 ///|
 /// Alignment mode for banded alignment.
-pub enum BandedAlignMode {
+///
+/// pub(all) 便于外部直接构造（纯模式枚举，无不变量需要保护）。
+pub(all) enum BandedAlignMode {
   Global // Needleman-Wunsch style
   Local // Smith-Waterman style
   Semiglobal // gaps at sequence ends are free
@@ -89,11 +91,12 @@ pub fn align_banded(
       }
     }
     BandedAlignMode::Semiglobal => {
-      // Semiglobal: global alignment where terminal gaps are free.
-      // Approximated by global alignment (terminal gap penalty is small
-      // relative to the alignment score for similar sequences).
-      let result = banded_needleman_wunsch(
-        seq1, seq2, k, match_reward, mismatch_penalty, gap_penalty,
+      // Semiglobal: 末端空位免费。委托给 semiglobal_alignment 的精确 DP
+      // 实现（原先此处为"用全局比对近似"的假实现，末端空位照罚）。
+      let result = semiglobal_align(
+        seq1,
+        seq2,
+        SGScoring::new(match_reward, mismatch_penalty, gap_penalty),
       )
       AlignBandedResult::{
         aligned_seq1: result.aligned_seq1,

@@ -11,46 +11,37 @@ pub struct SkbioGeneticCode {
 
 ///|
 /// Get standard genetic code (NCBI translation table 1).
+///
+/// 数据来源: 全库权威密码子表 codon_table(1),
+/// 密码子顺序沿用 TCAG 三重循环 (与 canonical_codon_order 一致),
+/// 因此 table 下标与 RSCU / CAI 权重数组下标保持对应关系。
 pub fn skbio_genetic_code_standard() -> SkbioGeneticCode {
-  let aa = "FFLLSSSSYY**CC*WLLLLPPPPHHQQRRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG"
-  let bases = "TCAG"
+  let forward = codon_table(1)
   let table : Array[(String, String)] = Array(capacity=64)
-  for i = 0; i < 4; i = i + 1 {
-    for j = 0; j < 4; j = j + 1 {
-      for k = 0; k < 4; k = k + 1 {
-        let codon = StringBuilder()
-        let _ = codon.write_char(bases[i].to_int().unsafe_to_char())
-        let _ = codon.write_char(bases[j].to_int().unsafe_to_char())
-        let _ = codon.write_char(bases[k].to_int().unsafe_to_char())
-        let idx = i * 16 + j * 4 + k
-        let amino = aa[idx].to_int().unsafe_to_char().to_string()
-        table.push((codon.to_string(), amino))
-      }
+  for codon in canonical_codon_order() {
+    let amino = match forward.get(codon) {
+      Some(aa) => aa
+      None => "X"
     }
+    table.push((codon, amino))
   }
   SkbioGeneticCode::{ id: 1, name: "Standard", table, }
 }
 
 ///|
 /// Get vertebrate mitochondrial genetic code (NCBI table 2).
+///
+/// 数据来源: 全库权威密码子表 codon_table(2)
+/// (TGA = W, ATA = M, AGA/AGG = 终止)。
 pub fn skbio_genetic_code_mito() -> SkbioGeneticCode {
-  let code = skbio_genetic_code_standard()
-  let overrides : Array[(String, String)] = [
-    ("TGA", "W"), // TGA = W (not stop)
-    ("AGA", "R"), // AGA = R
-    ("AGG", "R"), // AGG = R
-    ("ATA", "M"), // ATA = M
-  ]
+  let forward = codon_table(2)
   let table : Array[(String, String)] = Array(capacity=64)
-  for i = 0; i < code.table.length(); i = i + 1 {
-    let (codon, aa) = code.table[i]
-    let mut found = aa
-    for j = 0; j < overrides.length(); j = j + 1 {
-      if overrides[j].0 == codon {
-        found = overrides[j].1
-      }
+  for codon in canonical_codon_order() {
+    let amino = match forward.get(codon) {
+      Some(aa) => aa
+      None => "X"
     }
-    table.push((codon, found))
+    table.push((codon, amino))
   }
   SkbioGeneticCode::{ id: 2, name: "Vertebrate Mitochondrial", table, }
 }
@@ -58,25 +49,18 @@ pub fn skbio_genetic_code_mito() -> SkbioGeneticCode {
 ///|
 /// Translate a DNA sequence using a genetic code table.
 /// Returns amino acid sequence (stops as '*').
+///
+/// 实现走统一翻译入口 translate_with_codon_map,
+/// 因此支持 IUPAC 简并密码子与大小写归一。
 pub fn skbio_translate_seq(
   dna : String,
   code~ : SkbioGeneticCode = skbio_genetic_code_standard(),
 ) -> String {
-  let sb = StringBuilder()
-  let len = dna.length()
-  let mut i = 0
-  while i + 2 < len {
-    let codon = dna[i:i + 3].to_owned().to_upper()
-    let mut aa = "X"
-    for j = 0; j < code.table.length(); j = j + 1 {
-      if code.table[j].0 == codon {
-        aa = code.table[j].1
-      }
-    }
-    let _ = sb.write(aa)
-    i = i + 3
+  let map : Map[String, String] = Map([], capacity=64)
+  for entry in code.table {
+    map[entry.0] = entry.1
   }
-  sb.to_string()
+  translate_with_codon_map(dna, map)
 }
 
 ///|

@@ -3,130 +3,46 @@
 // alignment_identity_matrix, multiplicative_replacement
 
 ///|
+/// NCBI genetic code table 11: Bacterial/Archaeal/Plant Plastid。
+///
+/// 数据来源: 全库权威密码子表 codon_table(11) (见 src/codon_utils.mbt)。
+/// 相对标准表的差异: TGA = * (终止), ATA = I, AGA/AGG = R。
 pub fn skbio3_genetic_code_bacterial() -> Map[String, String] {
-  // NCBI genetic code table 11: Bacterial/Archaeal/Plant Plastid
-  // Differences from standard: TGA = W (not stop), TAG = stop, ATA = I, AGA/AGG = R
-  let table : Map[String, String] = Map([])
-  let standard_aas = "FFLLSSSSYY**CC*WLLLLPPPPHHQQRRRRIIITTTTNNKKSSRRVVVVAAAADDEEGGGG"
-  // Build codon table: TGA -> W instead of *
-  let bases = "TCAG"
-  for i in 0..<4 {
-    for j in 0..<4 {
-      for k in 0..<4 {
-        let codon = {
-          let sb = StringBuilder()
-          let _ = sb.write_char(Int32::unsafe_to_char(bases[i].to_int()))
-          let _ = sb.write_char(Int32::unsafe_to_char(bases[j].to_int()))
-          let _ = sb.write_char(Int32::unsafe_to_char(bases[k].to_int()))
-          sb.to_string()
-        }
-        let idx = i * 16 + j * 4 + k
-        let mut aa = {
-          let c = standard_aas[idx].to_int()
-          let sb = StringBuilder()
-          let _ = sb.write_char(Int32::unsafe_to_char(c))
-          sb.to_string()
-        }
-        // Bacterial code differences:
-        // TGA -> W (opal)
-        if codon == "TGA" {
-          aa = "W"
-        }
-        // AGA -> R, AGG -> R (same as standard, no change)
-        // ATA -> I (same as standard, no change)
-        table[codon] = aa
-      }
-    }
-  }
-  table
+  codon_table_bacterial().forward_table()
 }
 
 ///|
+/// NCBI genetic code table 12: Alternative Yeast Nuclear。
+///
+/// 数据来源: 全库权威密码子表 codon_table(12)。
+/// 相对标准表的差异: CTG = S (Ser) 而非 L (Leu)。
 pub fn skbio3_genetic_code_alt_yeast() -> Map[String, String] {
-  // NCBI genetic code table 12: Alternative Yeast Nuclear
-  // Differences from standard: CTG -> S (Ser) instead of L (Leu)
-  let table : Map[String, String] = Map([])
-  let standard_aas = "FFLLSSSSYY**CC*WLLLLPPPPHHQQRRRRIIITTTTNNKKSSRRVVVVAAAADDEEGGGG"
-  let bases = "TCAG"
-  for i in 0..<4 {
-    for j in 0..<4 {
-      for k in 0..<4 {
-        let codon = {
-          let sb = StringBuilder()
-          let _ = sb.write_char(Int32::unsafe_to_char(bases[i].to_int()))
-          let _ = sb.write_char(Int32::unsafe_to_char(bases[j].to_int()))
-          let _ = sb.write_char(Int32::unsafe_to_char(bases[k].to_int()))
-          sb.to_string()
-        }
-        let idx = i * 16 + j * 4 + k
-        let mut aa = {
-          let c = standard_aas[idx].to_int()
-          let sb = StringBuilder()
-          let _ = sb.write_char(Int32::unsafe_to_char(c))
-          sb.to_string()
-        }
-        // Alternative yeast: CTG -> S
-        if codon == "CTG" {
-          aa = "S"
-        }
-        table[codon] = aa
-      }
-    }
-  }
-  table
+  codon_table_alt_yeast().forward_table()
 }
 
 ///|
+/// NCBI genetic code table 6: Ciliate Nuclear。
+///
+/// 数据来源: 全库权威密码子表 codon_table(6)。
+/// 相对标准表的差异: TAA = Q, TAG = Q (不再是终止密码子)。
 pub fn skbio3_genetic_code_ciliate() -> Map[String, String] {
-  // NCBI genetic code table 6: Ciliate Nuclear
-  // Differences: TAA -> Q, TAG -> Q (not stop)
-  let table : Map[String, String] = Map([])
-  let standard_aas = "FFLLSSSSYY**CC*WLLLLPPPPHHQQRRRRIIITTTTNNKKSSRRVVVVAAAADDEEGGGG"
-  let bases = "TCAG"
-  for i in 0..<4 {
-    for j in 0..<4 {
-      for k in 0..<4 {
-        let codon = {
-          let sb = StringBuilder()
-          let _ = sb.write_char(Int32::unsafe_to_char(bases[i].to_int()))
-          let _ = sb.write_char(Int32::unsafe_to_char(bases[j].to_int()))
-          let _ = sb.write_char(Int32::unsafe_to_char(bases[k].to_int()))
-          sb.to_string()
-        }
-        let idx = i * 16 + j * 4 + k
-        let mut aa = {
-          let c = standard_aas[idx].to_int()
-          let sb = StringBuilder()
-          let _ = sb.write_char(Int32::unsafe_to_char(c))
-          sb.to_string()
-        }
-        // Ciliate: TAA -> Q, TAG -> Q
-        if codon == "TAA" || codon == "TAG" {
-          aa = "Q"
-        }
-        table[codon] = aa
-      }
-    }
-  }
-  table
+  codon_table_ciliate().forward_table()
 }
 
 ///|
+/// 使用自定义遗传密码表翻译 DNA 序列 (兼容入口)。
+///
+/// 实现已收敛到统一翻译入口 translate_with_codon_map,
+/// 因此自动支持 IUPAC 简并密码子与大小写归一。
+///
+/// 参数:
+///   - seq: DNA 序列
+///   - table: 密码子 → 氨基酸 映射
 pub fn skbio3_translate_with_table(
   seq : String,
   table : Map[String, String],
 ) -> String {
-  // Translate a DNA sequence using a custom genetic code table
-  let n = seq.length()
-  let sb = StringBuilder()
-  let mut i = 0
-  while i + 3 <= n {
-    let codon = seq[i:i + 3].to_owned()
-    let aa = table.get(codon).unwrap_or("X")
-    let _ = sb.write(aa)
-    i = i + 3
-  }
-  sb.to_string()
+  translate_with_codon_map(seq, table)
 }
 
 ///|

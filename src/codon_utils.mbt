@@ -2116,24 +2116,14 @@ pub struct SixFrameTranslation {
 
 ///|
 /// 单框翻译（内部）
+///
+/// 走统一密码子表对象 CodonTable, 因此自动支持 IUPAC 简并密码子。
 fn _cu_translate_frame(
   seq : String,
   frame : Int32,
-  codon_map : Map[String, String],
+  table : CodonTable,
 ) -> String {
-  let n = seq.length()
-  let buf = StringBuilder()
-  let mut i = frame
-  while i + 3 <= n {
-    let codon = seq[i:i + 3].to_owned().to_upper()
-    let aa = match codon_map.get(codon) {
-      Some(a) => a
-      None => "X"
-    }
-    buf.write_string(aa)
-    i = i + 3
-  }
-  buf.to_string()
+  table.translate_frame(seq, frame)
 }
 
 ///|
@@ -2259,12 +2249,13 @@ pub fn seq_six_frame_translations(
   table~ : Int32 = 1,
 ) -> Array[SixFrameTranslation] {
   let seq_upper = seq.to_upper()
-  let codon_map = codon_table(table)
+  // 非法表号静默回退标准表, 与 codon_table(table) 行为一致
+  let ct = codon_table_or_default(table)
   let result : Array[SixFrameTranslation] = Array(capacity=0)
 
   let mut frame = 0
   while frame < 3 {
-    let protein = _cu_translate_frame(seq_upper, frame, codon_map)
+    let protein = _cu_translate_frame(seq_upper, frame, ct)
     result.push(SixFrameTranslation::{
       frame_id: "Fwd-" + (frame + 1).to_string(),
       strand: "+",
@@ -2277,7 +2268,7 @@ pub fn seq_six_frame_translations(
   let rc_seq = reverse_complement(seq_upper)
   let mut frame2 = 0
   while frame2 < 3 {
-    let protein = _cu_translate_frame(rc_seq, frame2, codon_map)
+    let protein = _cu_translate_frame(rc_seq, frame2, ct)
     result.push(SixFrameTranslation::{
       frame_id: "Rev-" + (frame2 + 1).to_string(),
       strand: "-",
