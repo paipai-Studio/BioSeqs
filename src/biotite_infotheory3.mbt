@@ -4,7 +4,7 @@
 /// Shannon entropy.
 
 // #28 BLOSUM/PAM matrix construction from multiple sequence alignment
-pub struct Biotite3SubstMatrix {
+pub(all) struct Biotite3SubstMatrix {
   alphabet : Array[String]
   scores : Array[Array[Double]]
   name : String
@@ -209,7 +209,9 @@ pub fn biotite3_mutual_information(
   for i in 0..<n {
     for j in 0..<n {
       if joint[i][j] > 0.0 && p1[i] > 0.0 && p2[j] > 0.0 {
-        mi = mi + joint[i][j] * @math.ln(joint[i][j] / (p1[i] * p2[j]))
+        mi = mi +
+          joint[i][j] *
+          (@math.ln(joint[i][j] / (p1[i] * p2[j])) / @math.ln(2.0))
       }
     }
   }
@@ -270,7 +272,7 @@ pub fn biotite3_shannon_entropy(
   for i in 0..<n {
     let p = counts[i] / total
     if p > 0.0 {
-      h = h - p * @math.ln(p)
+      h = h - p * @math.ln(p) / @math.ln(2.0)
     }
   }
   h
@@ -322,7 +324,7 @@ pub fn biotite3_relative_entropy(
     let p = counts[i] / total
     let q = if i < bg_freq.length() { bg_freq[i] } else { 1.0 / n.to_double() }
     if p > 0.0 && q > 0.0 {
-      re = re + p * @math.ln(p / q)
+      re = re + p * @math.ln(p / q) / @math.ln(2.0)
     }
   }
   re

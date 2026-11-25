@@ -5,7 +5,7 @@
 /// alignment extraction functions.
 
 // #7 KmerAlphabet — k-mers as alphabet symbols
-pub struct Biotite3KmerAlphabet {
+pub(all) struct Biotite3KmerAlphabet {
   base_alphabet : Array[String]
   k : Int32
   kmer_symbols : Array[String]
@@ -78,7 +78,7 @@ pub fn biotite3_kmer_alphabet_decode(
 // #8 SimilarityRule / ScoreThresholdRule
 
 ///|
-pub struct Biotite3ScoreThresholdRule {
+pub(all) struct Biotite3ScoreThresholdRule {
   threshold : Double
   alphabet : Array[String]
   scores : Array[Array[Double]]
@@ -162,7 +162,7 @@ pub fn biotite3_mincode_select(
 // #10 Permutation / FrequencyPermutation — k-mer ordering
 
 ///|
-pub struct Biotite3FrequencyPermutation {
+pub(all) struct Biotite3FrequencyPermutation {
   kmer_frequencies : Array[(String, Int32)]
 }
 

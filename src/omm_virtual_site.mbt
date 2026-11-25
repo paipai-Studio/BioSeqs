@@ -20,7 +20,7 @@ pub enum OmmVirtualSiteType {
     Double,
     Double,
     Double,
-    Double,
+    Double
   )
 }
 

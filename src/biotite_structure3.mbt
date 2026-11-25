@@ -4,7 +4,7 @@
 /// find_connected, find_rotatable_bonds, infer_bond_types.
 
 // #22 AtomArrayStack — multi-model structure
-pub struct Biotite3Atom {
+pub(all) struct Biotite3Atom {
   atom_name : String
   element : String
   res_name : String
@@ -39,7 +39,7 @@ pub fn biotite3_atom(
 }
 
 ///|
-pub struct Biotite3AtomArrayStack {
+pub(all) struct Biotite3AtomArrayStack {
   atoms : Array[Biotite3Atom]
   coord_stack : Array[Array[(Double, Double, Double)]]
   n_models : Int32
@@ -103,7 +103,7 @@ pub fn biotite3_atom_array_stack_concatenate(
 // #23 connect_via_distances — bond inference from distance thresholds
 
 ///|
-pub struct Biotite3Bond {
+pub(all) struct Biotite3Bond {
   atom1 : Int32
   atom2 : Int32
   bond_type : Int32
@@ -390,6 +390,68 @@ fn biotite3_classify_bond(e1 : String, e2 : String, dist : Double) -> Int32 {
     "C-S" => if dist < 1.60 { 2 } else if dist < 1.85 { 1 } else { 0 }
     _ => 1
   }
+}
+
+// ============================================================
+// AtomArray adapters — the AtomArray in atom_array.mbt is the
+// canonical structure model; these views exist only for the
+// Biotite-flavoured helpers above.
+// ============================================================
+
+///|
+/// Build lightweight views from the canonical AtomArray.
+pub fn biotite3_atoms_from_atom_array(arr : AtomArray) -> Array[Biotite3Atom] {
+  let result : Array[Biotite3Atom] = Array(capacity=arr.len())
+  for i in 0..<arr.len() {
+    let c = arr.get_coord(i)
+    result.push({
+      atom_name: arr.get_name(i),
+      element: arr.elements[i],
+      res_name: arr.get_res_name(i),
+      res_id: arr.res_ids[i],
+      chain_id: arr.get_chain_id(i).to_string(),
+      coord: (c.x, c.y, c.z),
+      b_factor: arr.b_factors[i],
+      occupancy: arr.occupancies[i],
+      hetero: false,
+    })
+  }
+  result
+}
+
+///|
+/// Convert lightweight views back to the canonical AtomArray.
+pub fn biotite3_atoms_to_atom_array(atoms : Array[Biotite3Atom]) -> AtomArray {
+  let result : Array[Atom] = Array(capacity=atoms.length())
+  for a in atoms {
+    let mut chain_id = ' '
+    for ch in a.chain_id {
+      chain_id = ch
+      break
+    }
+    let (x, y, z) = a.coord
+    result.push(
+      Atom::new(
+        name=a.atom_name,
+        coord=Vector3::new(x, y, z),
+        resname=a.res_name,
+        chainid=chain_id,
+        resseq=a.res_id,
+        occupancy=a.occupancy,
+        bfactor=a.b_factor,
+        element=a.element,
+      ),
+    )
+  }
+  AtomArray::from_atoms(result)
+}
+
+///|
+/// Distance-based bond inference on the canonical AtomArray.
+pub fn biotite3_connect_via_distances_array(
+  arr : AtomArray,
+) -> Array[Biotite3Bond] {
+  biotite3_connect_via_distances(biotite3_atoms_from_atom_array(arr))
 }
 
 ///|

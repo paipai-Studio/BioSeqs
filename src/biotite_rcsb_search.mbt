@@ -3,7 +3,7 @@
 
 ///|
 /// RCSB search condition types.
-pub enum BiotiteRcsbSearchCondition {
+pub(all) enum BiotiteRcsbSearchCondition {
   BiotiteRcsbExperimentalMethod(String)
   BiotiteRcsbResolution(Double, Double) // min, max
   BiotiteRcsbMolecularWeight(Double, Double) // min, max
@@ -20,7 +20,7 @@ pub enum BiotiteRcsbSearchCondition {
 
 ///|
 /// RCSB search query builder.
-pub struct BiotiteRcsbSearchQuery {
+pub(all) struct BiotiteRcsbSearchQuery {
   conditions : Array[BiotiteRcsbSearchCondition]
   return_type : String // "entry", "polymer_entity", etc.
   sort_by : String
@@ -193,8 +193,9 @@ fn BiotiteRcsbSearchQuery::condition_to_json(
 ///|
 /// Convenience: search by experimental method.
 pub fn biotite_rcsb_search_by_method(method_ : String) -> String {
-  let search = BiotiteRcsbSearchQuery::new()
-  let _ = search.add_condition(BiotiteRcsbExperimentalMethod(method_))
+  let search = BiotiteRcsbSearchQuery::new().add_condition(
+    BiotiteRcsbExperimentalMethod(method_),
+  )
   search.build_url()
 }
 
@@ -204,8 +205,9 @@ pub fn biotite_rcsb_search_by_resolution(
   min_res : Double,
   max_res : Double,
 ) -> String {
-  let search = BiotiteRcsbSearchQuery::new()
-  let _ = search.add_condition(BiotiteRcsbResolution(min_res, max_res))
+  let search = BiotiteRcsbSearchQuery::new().add_condition(
+    BiotiteRcsbResolution(min_res, max_res),
+  )
   search.build_url()
 }
 

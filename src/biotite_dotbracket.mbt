@@ -4,7 +4,7 @@
 ///|
 /// RNA secondary structure in dot-bracket notation.
 /// Supports pseudoknots using multiple bracket levels: (), [], {}, <>.
-pub struct BiotiteDotBracket {
+pub(all) struct BiotiteDotBracket {
   base_pairs : Array[(Int32, Int32)] // (i, j) pairs, i < j
   length : Int32 // sequence length
 }

@@ -3,7 +3,7 @@
 
 ///|
 /// Minimizer selector: pick k-mers with minimum hash value in each window.
-pub struct BiotiteMinimizerSelector {
+pub(all) struct BiotiteMinimizerSelector {
   k : Int32 // k-mer size
   window_size : Int32 // window size (in k-mers)
 }
@@ -82,7 +82,7 @@ pub fn BiotiteMinimizerSelector::select(
 ///|
 /// Syncmer selector: pick k-mers whose internal minimizer is at a specific position.
 /// A syncmer is a k-mer where the smallest s-mer occurs at a designated position.
-pub struct BiotiteSyncmerSelector {
+pub(all) struct BiotiteSyncmerSelector {
   k : Int32 // k-mer size
   s : Int32 // s-mer size (internal minimizer)
   t : Int32 // target position of minimizer within k-mer (0-indexed)
@@ -134,7 +134,7 @@ pub fn BiotiteSyncmerSelector::select(
 ///|
 /// Mincode selector: select k-mers whose hash value is below a threshold.
 /// This gives a fixed-rate sampling of k-mers.
-pub struct BiotiteMincodeSelector {
+pub(all) struct BiotiteMincodeSelector {
   k : Int32 // k-mer size
   threshold : Int32 // hash threshold (0 to hash_max)
   hash_max : Int32 // maximum hash value

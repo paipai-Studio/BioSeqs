@@ -22,7 +22,7 @@ fn biotite_dabs(x : Double) -> Double {
 ///|
 /// A box (unit cell) represented by three edge vectors.
 /// Box vectors: [a, b, c] where each is a 3D vector.
-pub struct BiotiteBox {
+pub(all) struct BiotiteBox {
   // Three edge vectors, stored as flat array: [ax, ay, az, bx, by, bz, cx, cy, cz]
   vectors : Array[Double]
 }

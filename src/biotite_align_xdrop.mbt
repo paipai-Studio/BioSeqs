@@ -3,7 +3,7 @@
 
 ///|
 /// X-drop alignment result.
-pub struct BiotiteXdropResult {
+pub(all) struct BiotiteXdropResult {
   score : Double
   start1 : Int32 // start position in sequence 1
   end1 : Int32 // end position in sequence 1
@@ -97,8 +97,8 @@ fn biotite_xdrop_extend(
   let mut j = start2
   let mut best_score = 0.0
   let mut current_score = 0.0
-  let mut last_i = start1 - direction
-  let mut last_j = start2 - direction
+  let mut last_i = if direction > 0 { start1 - 1 } else { start1 }
+  let mut last_j = if direction > 0 { start2 - 1 } else { start2 }
   while true {
     // Check bounds
     let in_bounds = if direction > 0 {

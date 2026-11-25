@@ -3,7 +3,7 @@
 
 ///|
 /// Atom metadata for filtering.
-pub struct BiotiteAtomInfo {
+pub(all) struct BiotiteAtomInfo {
   atom_name : String
   res_name : String
   chain_id : String
@@ -228,4 +228,87 @@ fn not(b : Bool) -> Bool {
 /// Helper: check amino acid with boolean return
 fn biotite_is_amino_acids(res_name : String) -> Bool {
   biotite_is_amino_acid(res_name)
+}
+
+// ============================================================
+// AtomArray adapters — reuse the repository's single structure model
+// instead of maintaining a second one.
+// ============================================================
+
+///|
+/// Project an AtomArray into the lightweight BiotiteAtomInfo view.
+pub fn biotite_atom_info_from_array(arr : AtomArray) -> Array[BiotiteAtomInfo] {
+  let result : Array[BiotiteAtomInfo] = Array(capacity=arr.len())
+  for i in 0..<arr.len() {
+    result.push({
+      atom_name: arr.get_name(i),
+      res_name: arr.get_res_name(i),
+      chain_id: arr.get_chain_id(i).to_string(),
+      res_id: arr.res_ids[i],
+      hetero: false,
+    })
+  }
+  result
+}
+
+///|
+pub fn biotite_filter_amino_acids_array(arr : AtomArray) -> AtomArray {
+  arr.filter_amino_acids()
+}
+
+///|
+pub fn biotite_filter_backbone_array(arr : AtomArray) -> AtomArray {
+  arr.filter_backbone()
+}
+
+///|
+pub fn biotite_filter_nucleotides_array(arr : AtomArray) -> AtomArray {
+  arr.filter_nucleotides()
+}
+
+///|
+pub fn biotite_filter_chain_array(
+  arr : AtomArray,
+  chain_id : Char,
+) -> AtomArray {
+  arr.filter_chain(chain_id)
+}
+
+///|
+pub fn biotite_filter_residue_array(
+  arr : AtomArray,
+  res_name : String,
+) -> AtomArray {
+  let mask : Array[Bool] = Array(capacity=arr.len())
+  for i in 0..<arr.len() {
+    mask.push(arr.get_res_name(i) == res_name)
+  }
+  arr.filter(mask)
+}
+
+///|
+pub fn biotite_get_chain_starts_array(arr : AtomArray) -> Array[Int32] {
+  arr.get_chain_starts()
+}
+
+///|
+pub fn biotite_get_residue_starts_array(arr : AtomArray) -> Array[Int32] {
+  arr.get_residue_starts()
+}
+
+///|
+/// Segment starts: contiguous runs of the same chain + residue name.
+pub fn biotite_get_segment_starts_array(arr : AtomArray) -> Array[Int32] {
+  let result : Array[Int32] = Array(capacity=0)
+  if arr.len() == 0 {
+    return result
+  }
+  result.push(0)
+  for i in 1..<arr.len() {
+    if arr.chain_ids[i] != arr.chain_ids[i - 1] ||
+      arr.res_names[i] != arr.res_names[i - 1] {
+      result.push(i)
+    }
+  }
+  result
 }

@@ -3,7 +3,7 @@
 
 ///|
 /// A symmetry operation: rotation matrix (3x3) + translation vector (3).
-pub struct BiotiteSymmetryOp {
+pub(all) struct BiotiteSymmetryOp {
   rotation : Array[Double] // 9 elements, row-major
   translation : Array[Double] // 3 elements
 }

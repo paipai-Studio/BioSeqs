@@ -49,6 +49,39 @@ pub fn MmcifDataBlock::set_category(
 
 ///|
 /// Parse mmCIF content into a data block.
+
+///|
+/// Store the pending loop (headers + rows) under its category name.
+/// Called before a new loop_/data_ block and at end of input, so that
+/// files with several loops keep every category.
+fn biotite_flush_mmcif_loop(
+  block : MmcifDataBlock,
+  headers : Array[String],
+  current_data : Array[Array[String]],
+) -> Unit {
+  if headers.length() == 0 || current_data.length() == 0 {
+    return
+  }
+  let h = headers[0]
+  let mut dot_idx = -1
+  let mut j = 0
+  while j < h.length() {
+    if h.unsafe_get(j).unsafe_to_char() == '.' {
+      dot_idx = j
+      break
+    }
+    j = j + 1
+  }
+  let cat_name = if dot_idx >= 0 { substring(h, 0, dot_idx) } else { "unknown" }
+  let result : Array[Array[String]] = Array(capacity=current_data.length() + 1)
+  result.push(headers)
+  for row in current_data {
+    result.push(row)
+  }
+  block.categories[cat_name] = result
+}
+
+///|
 pub fn parse_mmcif(content : String) -> MmcifDataBlock {
   let lines = split_by_char(content, '\n'.to_int())
   let block = MmcifDataBlock::new("default")
@@ -66,6 +99,7 @@ pub fn parse_mmcif(content : String) -> MmcifDataBlock {
     }
 
     if starts_with(line, 0, "data_") {
+      biotite_flush_mmcif_loop(block, headers, current_data)
       let name = substring(line, 5, line.length() - 5)
       block.name = if name.length() > 0 { name } else { "default" }
       in_loop = false
@@ -75,6 +109,7 @@ pub fn parse_mmcif(content : String) -> MmcifDataBlock {
     }
 
     if starts_with(line, 0, "loop_") {
+      biotite_flush_mmcif_loop(block, headers, current_data)
       in_loop = true
       headers = Array(capacity=0)
       current_data = Array(capacity=0)
@@ -232,7 +267,7 @@ pub fn MmcifDataBlock::get_category_headers(
 ) -> Array[String] {
   match self.categories.get(name) {
     Some(data) =>
-      if data.length() > 0 && starts_with(data[0][0], 0, "_") {
+      if data.length() > 1 && data[0][0].length() > 0 {
         data[0]
       } else {
         Array(capacity=0)
@@ -249,7 +284,7 @@ pub fn MmcifDataBlock::get_category_rows(
 ) -> Array[Array[String]] {
   match self.categories.get(name) {
     Some(data) =>
-      if data.length() > 0 && starts_with(data[0][0], 0, "_") {
+      if data.length() > 1 && data[0][0].length() > 0 {
         let result : Array[Array[String]] = Array(capacity=0)
         let mut j = 1
         while j < data.length() {

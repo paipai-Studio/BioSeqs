@@ -6,7 +6,7 @@
 /// E = K * m * n * exp(-lambda * S)
 /// where K and lambda are parameters estimated from random alignments,
 /// m and n are sequence lengths, and S is the alignment score.
-pub struct BiotiteEValueEstimator {
+pub(all) struct BiotiteEValueEstimator {
   lambda : Double // Karlin-Altschul lambda parameter
   k : Double // Karlin-Altschul K parameter
   h : Double // relative entropy

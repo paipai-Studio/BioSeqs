@@ -3,7 +3,7 @@
 
 ///|
 /// CIGAR operation types.
-pub enum BiotiteCigarOp {
+pub(all) enum BiotiteCigarOp {
   BiotiteCigarMatch // M: match or mismatch (aligned)
   BiotiteCigarInsert // I: insertion in read (gap in reference)
   BiotiteCigarDelete // D: deletion in read (gap in reference)
@@ -17,7 +17,7 @@ pub enum BiotiteCigarOp {
 
 ///|
 /// A CIGAR element: operation + length.
-pub struct BiotiteCigarElement {
+pub(all) struct BiotiteCigarElement {
   op : BiotiteCigarOp
   length : Int32
 }
@@ -57,7 +57,7 @@ pub fn BiotiteCigarOp::from_char(ch : String) -> BiotiteCigarOp? {
 
 ///|
 /// CIGAR string representation.
-pub struct BiotiteCigar {
+pub(all) struct BiotiteCigar {
   elements : Array[BiotiteCigarElement]
 }
 

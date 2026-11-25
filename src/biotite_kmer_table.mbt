@@ -4,7 +4,7 @@
 ///|
 /// K-mer alphabet: treats k-mers as individual symbols in an extended alphabet.
 /// For DNA with k=3, alphabet size = 4^3 = 64.
-pub struct BiotiteKmerAlphabet {
+pub(all) struct BiotiteKmerAlphabet {
   base_size : Int32 // size of base alphabet (e.g. 4 for DNA)
   k : Int32 // k-mer size
   alphabet_size : Int32 // base_size^k
@@ -54,7 +54,7 @@ pub fn BiotiteKmerAlphabet::decode(
 ///|
 /// K-mer table using perfect hashing (direct array indexing).
 /// Maps each k-mer code to a list of positions in a reference sequence.
-pub struct BiotiteKmerTable {
+pub(all) struct BiotiteKmerTable {
   alphabet : BiotiteKmerAlphabet
   table : Array[Array[Int32]] // kmer_code -> positions
 }
@@ -65,7 +65,10 @@ pub fn BiotiteKmerTable::build(
   alphabet : BiotiteKmerAlphabet,
   sequence : Array[Int32],
 ) -> BiotiteKmerTable {
-  let table : Array[Array[Int32]] = Array::make(alphabet.alphabet_size, [])
+  let table : Array[Array[Int32]] = Array(capacity=alphabet.alphabet_size)
+  for _i in 0..<alphabet.alphabet_size {
+    table.push([])
+  }
   let n = sequence.length()
   if n >= alphabet.k {
     for pos = 0; pos <= n - alphabet.k; pos = pos + 1 {
@@ -120,7 +123,7 @@ pub fn BiotiteKmerTable::size(self : BiotiteKmerTable) -> Int32 {
 ///|
 /// Bucket k-mer table: space-efficient hashing using buckets.
 /// Instead of one entry per possible k-mer, uses hash buckets.
-pub struct BiotiteBucketKmerTable {
+pub(all) struct BiotiteBucketKmerTable {
   alphabet : BiotiteKmerAlphabet
   n_buckets : Int32
   buckets : Array[Array[(Int32, Array[Int32])]] // (kmer_code, positions) per bucket
@@ -146,7 +149,10 @@ pub fn BiotiteBucketKmerTable::build(
   sequence : Array[Int32],
   n_buckets~ : Int32 = 1024,
 ) -> BiotiteBucketKmerTable {
-  let buckets : Array[Array[(Int32, Array[Int32])]] = Array::make(n_buckets, [])
+  let buckets : Array[Array[(Int32, Array[Int32])]] = Array(capacity=n_buckets)
+  for _i in 0..<n_buckets {
+    buckets.push([])
+  }
   let n = sequence.length()
   if n >= alphabet.k {
     for pos = 0; pos <= n - alphabet.k; pos = pos + 1 {

@@ -5,7 +5,7 @@
 /// Location with defect.
 
 // #1 AlphabetMapper — symbol code conversion between alphabets
-pub struct Biotite3AlphabetMapper {
+pub(all) struct Biotite3AlphabetMapper {
   source_alphabet : Array[String]
   target_alphabet : Array[String]
   mapping : Array[Int32]
@@ -94,7 +94,7 @@ pub fn biotite3_common_alphabet(
 // #3 SequenceProfile — position-specific symbol frequencies
 
 ///|
-pub struct Biotite3SequenceProfile {
+pub(all) struct Biotite3SequenceProfile {
   alphabet : Array[String]
   frequencies : Array[Array[Double]]
   n_sequences : Int32
@@ -180,7 +180,7 @@ pub fn biotite3_profile_entropy(
 // #4 PositionalSequence / PurePositionalSequence
 
 ///|
-pub struct Biotite3PositionalSequence {
+pub(all) struct Biotite3PositionalSequence {
   symbols : Array[String]
   positions : Array[Double]
 }
@@ -234,7 +234,7 @@ pub fn biotite3_positional_sequence_slice(
 // #5 Annotation + AnnotatedSequence
 
 ///|
-pub struct Biotite3Location {
+pub(all) struct Biotite3Location {
   first : Int32
   last : Int32
   strand : Int32
@@ -252,7 +252,7 @@ pub fn biotite3_location(
 }
 
 ///|
-pub struct Biotite3Feature {
+pub(all) struct Biotite3Feature {
   key : String
   quals : Array[(String, String)]
   loc : Biotite3Location
@@ -268,7 +268,7 @@ pub fn biotite3_feature(
 }
 
 ///|
-pub struct Biotite3Annotation {
+pub(all) struct Biotite3Annotation {
   features : Array[Biotite3Feature]
 }
 
@@ -368,7 +368,7 @@ pub fn biotite3_annotation_split(
 }
 
 ///|
-pub struct Biotite3AnnotatedSequence {
+pub(all) struct Biotite3AnnotatedSequence {
   sequence : String
   annotation : Biotite3Annotation
 }

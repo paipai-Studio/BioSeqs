@@ -78,7 +78,7 @@ pub fn biotite_formal_charge(
 
 ///|
 /// Atom info for batch formal charge calculation.
-pub struct BiotiteFormalChargeAtom {
+pub(all) struct BiotiteFormalChargeAtom {
   element : String
   bond_order_sum : Double
   n_lone_pairs : Int32 // -1 = auto

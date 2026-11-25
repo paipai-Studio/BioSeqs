@@ -3,7 +3,7 @@
 
 ///|
 /// PubChem search type.
-pub enum BiotitePubChemSearchType {
+pub(all) enum BiotitePubChemSearchType {
   BiotitePubChemByName(String)
   BiotitePubChemBySmiles(String)
   BiotitePubChemByInchiKey(String)

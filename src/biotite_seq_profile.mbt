@@ -4,7 +4,7 @@
 ///|
 /// Sequence profile (Position-Specific Scoring Matrix).
 /// Each position has a score for each possible symbol.
-pub struct BiotiteSequenceProfile {
+pub(all) struct BiotiteSequenceProfile {
   symbols : Array[String] // alphabet symbols
   scores : Array[Array[Double]] // position -> symbol -> score
   consensus : Array[Int32] // consensus symbol index per position
@@ -36,10 +36,10 @@ pub fn BiotiteSequenceProfile::from_alignment(
   }
   let aln_len = alignment[0].length()
   let n_sym = symbols.length()
-  let scores : Array[Array[Double]] = Array::make(
-    aln_len,
-    Array::make(n_sym, 0.0),
-  )
+  let scores : Array[Array[Double]] = Array(capacity=aln_len)
+  for _i in 0..<aln_len {
+    scores.push(Array::make(n_sym, 0.0))
+  }
   let consensus : Array[Int32] = Array::make(aln_len, 0)
   for pos = 0; pos < aln_len; pos = pos + 1 {
     let counts : Array[Double] = Array::make(n_sym, pseudocount)

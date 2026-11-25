@@ -5,7 +5,7 @@
 /// SymbolPlotter, FeaturePlotter, ColorScheme.
 
 // #14 ColorScheme — color schemes for symbols
-pub struct Biotite3ColorScheme {
+pub(all) struct Biotite3ColorScheme {
   name : String
   symbol_colors : Array[(String, String)]
 }
@@ -77,6 +77,14 @@ pub fn biotite3_plot_sequence_logo(
   let n_pos = profile.length()
   let col_width = 30
   let width = n_pos * col_width + 40
+  // Select a color scheme from the alphabet instead of hard-coding one color.
+  let mut scheme_name = "protein"
+  for sym in alphabet {
+    if sym == "U" || sym == "T" {
+      scheme_name = "nucleotide"
+    }
+  }
+  let scheme = biotite3_get_color_scheme(scheme_name)
   let sb = StringBuilder()
   let _ = sb.write(
     "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"" +
@@ -109,7 +117,7 @@ pub fn biotite3_plot_sequence_logo(
           "\" height=\"" +
           bar_height.to_string() +
           "\" fill=\"" +
-          biotite3_get_color_scheme("nucleotide").symbol_colors[0].1 +
+          biotite3_color_scheme_get(scheme, sym) +
           "\" stroke=\"black\"/>\n",
         )
         let _ = sb.write(
@@ -152,17 +160,48 @@ pub fn biotite3_plot_alignment_similarity_based(
     for col in 0..<seq_len {
       if col < aligned[i].length() {
         let ch = aligned[i][col:col + 1].to_owned()
-        let mut all_same = true
+        let symbols : Array[String] = []
+        let counts : Array[Int32] = []
+        let mut total = 0
         for j in 0..<aligned.length() {
-          if j != i && col < aligned[j].length() {
-            let ch2 = aligned[j][col:col + 1].to_owned()
-            if ch2 != ch {
-              all_same = false
-              break
+          if col < aligned[j].length() {
+            let sym = aligned[j][col:col + 1].to_owned()
+            if sym != "-" {
+              total = total + 1
+              let mut found = -1
+              for k in 0..<symbols.length() {
+                if symbols[k] == sym {
+                  found = k
+                  break
+                }
+              }
+              if found >= 0 {
+                counts[found] = counts[found] + 1
+              } else {
+                symbols.push(sym)
+                counts.push(1)
+              }
             }
           }
         }
-        let color = if all_same { "#00FF00" } else { "#FFFFFF" }
+        let mut max_count = 0
+        for c in counts {
+          if c > max_count {
+            max_count = c
+          }
+        }
+        let ratio = if total > 0 {
+          max_count.to_double() / total.to_double()
+        } else {
+          0.0
+        }
+        let color = if ratio >= 0.8 {
+          "#006400"
+        } else if ratio >= 0.5 {
+          "#90EE90"
+        } else {
+          "#FFFFFF"
+        }
         let _ = sb.write(
           "<span style=\"background:" + color + "\">" + ch + "</span>",
         )
@@ -317,7 +356,7 @@ pub fn biotite3_plot_plasmid_map(
 // #20 SymbolPlotter — abstract symbol drawing
 
 ///|
-pub struct Biotite3SymbolPlotter {
+pub(all) struct Biotite3SymbolPlotter {
   plotter_type : String
   color_scheme : Biotite3ColorScheme
 }
@@ -363,7 +402,7 @@ pub fn biotite3_symbol_plotter_plot(
 // #21 FeaturePlotter — feature drawing
 
 ///|
-pub struct Biotite3FeaturePlotter {
+pub(all) struct Biotite3FeaturePlotter {
   feature_type : String
   color : String
 }

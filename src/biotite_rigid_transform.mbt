@@ -4,7 +4,7 @@
 ///|
 /// A rigid transformation: x' = R * x + t
 /// where R is a 3x3 rotation matrix and t is a translation vector.
-pub struct BiotiteRigidTransformation {
+pub(all) struct BiotiteRigidTransformation {
   rotation : Array[Double] // 9 elements, row-major 3x3
   translation : Array[Double] // 3 elements
 }
@@ -135,53 +135,38 @@ pub fn BiotiteRigidTransformation::from_alignment(
   if n == 0 {
     return BiotiteRigidTransformation::identity()
   }
-  // Calculate centroids
-  let fc = [0.0, 0.0, 0.0]
-  let mc = [0.0, 0.0, 0.0]
-  for i = 0; i < n; i = i + 1 {
-    fc[0] = fc[0] + fixed[i * 3]
-    fc[1] = fc[1] + fixed[i * 3 + 1]
-    fc[2] = fc[2] + fixed[i * 3 + 2]
-    mc[0] = mc[0] + mobile[i * 3]
-    mc[1] = mc[1] + mobile[i * 3 + 1]
-    mc[2] = mc[2] + mobile[i * 3 + 2]
+  let fixed_coords : Array[QCPAtomCoordinate] = Array(capacity=n)
+  let mobile_coords : Array[QCPAtomCoordinate] = Array(capacity=n)
+  for i in 0..<n {
+    fixed_coords.push(
+      QCPAtomCoordinate::new(fixed[i * 3], fixed[i * 3 + 1], fixed[i * 3 + 2]),
+    )
+    mobile_coords.push(
+      QCPAtomCoordinate::new(
+        mobile[i * 3],
+        mobile[i * 3 + 1],
+        mobile[i * 3 + 2],
+      ),
+    )
   }
-  for i = 0; i < 3; i = i + 1 {
-    fc[i] = fc[i] / n.to_double()
-    mc[i] = mc[i] / n.to_double()
+  let superimposer = QCPSuperimposer::new()
+  let fitted = superimposer.set(fixed_coords, mobile_coords)
+  let rot = fitted.get_rot()
+  let tran = fitted.get_tran()
+  {
+    rotation: [
+      rot[0][0],
+      rot[0][1],
+      rot[0][2],
+      rot[1][0],
+      rot[1][1],
+      rot[1][2],
+      rot[2][0],
+      rot[2][1],
+      rot[2][2],
+    ],
+    translation: [tran[0], tran[1], tran[2]],
   }
-  // Center the coordinates
-  let f_centered : Array[Double] = Array::make(n * 3, 0.0)
-  let m_centered : Array[Double] = Array::make(n * 3, 0.0)
-  for i = 0; i < n; i = i + 1 {
-    for j = 0; j < 3; j = j + 1 {
-      f_centered[i * 3 + j] = fixed[i * 3 + j] - fc[j]
-      m_centered[i * 3 + j] = mobile[i * 3 + j] - mc[j]
-    }
-  }
-  // Compute covariance matrix H = M^T * F (3x3)
-  let h : Array[Double] = Array::make(9, 0.0)
-  for i = 0; i < 3; i = i + 1 {
-    for j = 0; j < 3; j = j + 1 {
-      let mut sum = 0.0
-      for k = 0; k < n; k = k + 1 {
-        sum = sum + m_centered[k * 3 + i] * f_centered[k * 3 + j]
-      }
-      h[i * 3 + j] = sum
-    }
-  }
-  // For simplicity, use a basic rotation estimation
-  // Full SVD is complex; use a simplified approach for near-orthogonal cases
-  // R ≈ H * (H^T * H)^(-1/2) — simplified to identity for now
-  // This is a placeholder; a full implementation would use SVD
-  let rotation : Array[Double] = [1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0]
-  // Translation: t = fc - R * mc
-  let translation : Array[Double] = [
-    fc[0] - (rotation[0] * mc[0] + rotation[1] * mc[1] + rotation[2] * mc[2]),
-    fc[1] - (rotation[3] * mc[0] + rotation[4] * mc[1] + rotation[5] * mc[2]),
-    fc[2] - (rotation[6] * mc[0] + rotation[7] * mc[1] + rotation[8] * mc[2]),
-  ]
-  { rotation, translation, }
 }
 
 ///|

@@ -4,7 +4,7 @@
 ///|
 /// A permutation represents a reordering of sequence indices.
 /// Used to optimize the order of sequences in progressive MSA.
-pub struct BiotitePermutation {
+pub(all) struct BiotitePermutation {
   order : Array[Int32] // order[i] = original index of the i-th sequence
 }
 

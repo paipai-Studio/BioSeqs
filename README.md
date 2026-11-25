@@ -610,6 +610,24 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 
 ---
 
+## Biotite 系列功能
+
+对标 Biotite 的结构生物学与序列处理模块族。此前已内置 21 个 `biotite_*` 模块（覆盖 AtomArray 适配、键推断、CIGAR、dot-bracket、E-value、K-mer、替换矩阵、图形等），本批在补齐原有模块测试与语义的同时新增 27 个模块。
+
+| 功能模块 | 对应 Biotite | 核心功能 |
+| :--- | :--- | :--- |
+| **结构操作基元** | `structure.matrix` / `pairwise` / `deduplicate` / `compare` / `numeric` | 距离/角度/二面角矩阵、序列一致性、共享残基/原子、BFS 连通路径、结构去重与 identical 过滤、逐原子比较与 RMSD、向量/键角/二面角辅助 |
+| **结构化学与注释** | `structure.rings` / `integrity` / `info` / `annotation` / `residue` | 环序与环直方图、芳香环计数、残基完整性/双键/电荷检查、氨基酸与原子质量字典、SSE 与残基注释、残基迭代与质量 |
+| **结构 IO 与轨迹** | `structure.io.xyz` / `general` / `traj` / `pdbx` assembly | XYZ 读写、按格式分发 load/save（PDB/XYZ/mmCIF/GRO/PDBQT）、多模型 TrajectoryFile、mmCIF 生物装配 operator 解析与应用 |
+| **序列与比对** | `sequence` / `align` / `Bundles` / `KmerTable` / `EValueEstimator` / `Alignment` | 字母表映射、序列 profile、K-mer 字母表与表、置换、E-value、Alignment 对象与一致性、命名 Bundles 容器 |
+| **数据库与外部应用** | `database.rcsb` / `pfam` / `dob` / `application` | RCSB 下载/API URL 与响应解析、Pfam/InterPro URL 与字段解析、可配置 DOB 客户端、统一 fetch URL 与缓存路径、BLAST 命令/URL/表格解析、TANTAN 掩码、DockQ 评分、Reduce/Vina 命令与输出解析 |
+| **接口与可视化** | `interface.pymol` / `mdtraj` / `graphics` | PyMOL 命令脚本构造、MDTraj 风格 topology/坐标适配、序列 logo 配色、alignment 相似度梯度、质粒图/特征绘图 |
+| **结构容器与化学** | `AtomArrayStack` / `Box` / `SpaceGroup` / `RigidTransformation` / `formal_charges` | 多模型坐标栈、晶胞与周期边界、空间群对称操作、QCP 刚体叠合、形式/部分电荷 |
+
+> 边界：网络与外部二进制仅做 URL/命令构造和响应解析，不在库内发起请求或执行进程。
+
+---
+
 ## 分子动力学与结构分析
 
 对标 MDAnalysis / OpenMM / ProDy 的分子动力学（MD）模拟与结构分析模块族。此前版本已内置 `mdanalysis.mbt` 主分析库、19 个 `mda_*` 扩展分析模块、27 个 `omm_*` OpenMM 风格 MD 引擎模块以及约 80 个结构解析/叠合/二级结构/表面分析模块；本批新增以下内容（`omm_*` 扩展至 40 个模块）。
@@ -852,7 +870,7 @@ MD 轨迹分析另提供与 MDAnalysis 的 Python 对拍基准：`test/python/md
 ```
 IvanAXu/BioSeqs/
 ├── moon.mod                          # 模块配置 (name="IvanAXu/BioSeqs", version=0.1.16)
-├── src/                              # 源代码（1270 个 .mbt 模块）
+├── src/                              # 源代码（1297 个 .mbt 模块）
 │   ├── seq.mbt                       # Bio.Seq 序列对象
 │   ├── seqio.mbt / fasta_io.mbt / ... # 序列 I/O（30+ 种格式）
 │   ├── alignment.mbt / align_*.mbt   # 比对算法 + 20+ 种比对格式严格 API
@@ -936,7 +954,7 @@ IvanAXu/BioSeqs/
 │   ├── hla_typing_demo/ / sv_caller_demo/ # 第十阶段 K 系列（HLA 分型：参考序列库→读取比对→GL String 闭环；SV 检测：CIGAR/SA tag→DEL/INS/DUP/INV/BND→深度置信度闭环）
 │   └── ... （更多 examples/*_demo/）
 ├── test/
-│   ├── moonbit/                      # MoonBit 单元测试（886 个测试文件，17842 用例）
+│   ├── moonbit/                      # MoonBit 单元测试（934 个测试文件，18035 用例）
 │   │   ├── bio_seq_test.mbt / seqio_wb_test.mbt / ...
 │   │   ├── alignment_test.mbt / pdb_test.mbt / phylo_test.mbt / ...
 │   │   ├── deseq2_test.mbt / rankprod_test.mbt / seurat_test.mbt / scran_test.mbt / ...
@@ -973,7 +991,7 @@ IvanAXu/BioSeqs/
 
 ```bash
 moon build                                              # ✅ 成功
-moon test                                               # ✅ 17842 个测试全部通过（test/moonbit 包）
+moon test                                               # ✅ 18035 个测试全部通过（test/moonbit 包）
 ```
 
 ---
@@ -1008,7 +1026,7 @@ moon test                                               # ✅ 17842 个测试全
 ```bash
 moon build                              # 构建项目（默认 wasm-gc）
 moon build --target native              # 指定后端构建
-moon test                               # 运行全部测试 (17842 个测试用例，test/moonbit 包)
+moon test                               # 运行全部测试 (18035 个测试用例，test/moonbit 包)
 moon test --target native               # 指定后端运行测试
 ```
 
