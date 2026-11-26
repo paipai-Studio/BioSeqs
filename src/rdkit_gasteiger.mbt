@@ -64,8 +64,12 @@ pub fn rdkit_gasteiger_charges(
   for i = 0; i < n; i = i + 1 {
     charges[i] = mol.atoms[i].charge.to_double()
   }
-  // Build adjacency list
-  let adj : Array[Array[Int32]] = Array::make(n, [])
+  // Build adjacency list (rows allocated independently —
+  // Array::make(n, []) would share one inner array across all atoms).
+  let adj : Array[Array[Int32]] = Array(capacity=n)
+  for _i = 0; _i < n; _i = _i + 1 {
+    adj.push([])
+  }
   for bond in mol.bonds {
     adj[bond.from].push(bond.to)
     adj[bond.to].push(bond.from)

@@ -121,6 +121,95 @@ fn biotite_rnaalifold_pair_fraction(
 }
 
 ///|
+/// Covariance statistics for a column pair.
+///
+/// Returns (consistent mutation fraction, incompatible fraction) over
+/// all sequences: a sequence contributes a consistent mutation when
+/// its bases pair canonically but differ from the majority base pair
+/// (e.g. GC vs CG or AU); any non-gap sequence whose bases cannot pair
+/// counts as incompatible. This mirrors the qualitative idea of the
+/// RNAalifold covariance term (compensatory mutations support a pair,
+/// conflicting sequences penalize it).
+fn biotite_rnaalifold_covariance(
+  aligned : Array[String],
+  i : Int32,
+  j : Int32,
+  maj_a : String?,
+  maj_b : String?,
+) -> (Double, Double) {
+  let n = aligned.length()
+  if n == 0 {
+    return (0.0, 0.0)
+  }
+  let mut cons = 0
+  let mut pairable = 0
+  let mut valid = 0
+  for s in aligned {
+    if i < s.length() && j < s.length() {
+      let x = biotite_rna_norm_base(biotite_rna_char(s, i))
+      let y = biotite_rna_norm_base(biotite_rna_char(s, j))
+      if x != "-" && y != "-" {
+        valid = valid + 1
+        if biotite_rnaalifold_pair_score(x, y) > 0 {
+          pairable = pairable + 1
+          let is_maj = match (maj_a, maj_b) {
+            (Some(ma), Some(mb)) =>
+              x == biotite_rna_norm_base(ma) && y == biotite_rna_norm_base(mb)
+            _ => false
+          }
+          if !is_maj {
+            cons = cons + 1
+          }
+        }
+      }
+    }
+  }
+  let cons_frac = cons.to_double() / n.to_double()
+  let incompat_frac = if valid > 0 {
+    1.0 - pairable.to_double() / valid.to_double()
+  } else {
+    0.0
+  }
+  (cons_frac, incompat_frac)
+}
+
+///|
+/// Pairing score per (i, j): majority-pair base score scaled by the
+/// fraction of sequences that actually pair, plus a covariance bonus
+/// for consistent mutations and a penalty for incompatible sequences.
+fn biotite_rnaalifold_column_score(
+  aligned : Array[String],
+  i : Int32,
+  j : Int32,
+) -> Double {
+  match biotite_rnaalifold_majority(aligned, i) {
+    Some(a) =>
+      match biotite_rnaalifold_majority(aligned, j) {
+        Some(b) => {
+          let base = biotite_rnaalifold_pair_score(a, b).to_double()
+          let (cons, incompat) = biotite_rnaalifold_covariance(
+            aligned,
+            i,
+            j,
+            Some(a),
+            Some(b),
+          )
+          let total = base * biotite_rnaalifold_pair_fraction(aligned, i, j) +
+            3.0 * cons -
+            1.0 * incompat
+          if total > 0.0 {
+            total
+          } else {
+            0.0
+          }
+        }
+        None => 0.0
+      }
+    None => 0.0
+  }
+}
+
+///|
 /// Consensus folding: Nussinov-style maximum base-pair DP over
 /// pairwise column compatibility (majority bases must pair and a
 /// majority of sequences must actually pair at those columns).
@@ -166,23 +255,9 @@ fn biotite_rnaalifold_fold(
     }
     conservation.push(frac_non_gap * frac_maj)
   }
-  // Pairing score per (i, j).
+  // Pairing score per (i, j) — includes the covariance term.
   let score = fn(i : Int32, j : Int32) -> Double {
-    match biotite_rnaalifold_majority(aligned, i) {
-      Some(a) =>
-        match biotite_rnaalifold_majority(aligned, j) {
-          Some(b) => {
-            let base = biotite_rnaalifold_pair_score(a, b).to_double()
-            if base > 0.0 {
-              base * biotite_rnaalifold_pair_fraction(aligned, i, j)
-            } else {
-              0.0
-            }
-          }
-          None => 0.0
-        }
-      None => 0.0
-    }
+    biotite_rnaalifold_column_score(aligned, i, j)
   }
   // Nussinov DP.
   let dp : Array[Array[Double]] = Array(capacity=len)

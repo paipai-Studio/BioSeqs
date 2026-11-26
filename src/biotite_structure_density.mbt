@@ -1,88 +1,40 @@
-/// Biotite `structure.density` — electron/scattering density maps.
+/// Biotite `structure.density` — atomistic density as a 3D histogram.
 ///
-/// Each atom contributes a Gaussian density with a width derived from
-/// the resolution (FWHM) and a weight given by the electron count
-/// (X-ray, default) or the coherent scattering length (neutron).
-/// Unknown/ambiguous elements contribute nothing (Biotite: NaN).
+/// Faithful port of `biotite.structure.density.density`: the
+/// coordinates are binned into an even grid (spacing `delta`) spanning
+/// the coordinate range; optional weights are accumulated per bin and
+/// `density=true` normalizes the histogram into a probability density.
+/// Returns the histogram together with the bin edges of all three axes.
 
 ///|
-/// Electron count per element (atomic number for the common organic
-/// elements); None for unknown or pseudo atoms.
-pub fn biotite_density_electron_count(element : String) -> Int32? {
-  match element {
-    "H" | "D" => Some(1)
-    "C" => Some(6)
-    "N" => Some(7)
-    "O" => Some(8)
-    "P" => Some(15)
-    "S" => Some(16)
-    "F" => Some(9)
-    "Cl" => Some(17)
-    "Br" => Some(35)
-    "I" => Some(53)
-    "Na" => Some(11)
-    "Mg" => Some(12)
-    "K" => Some(19)
-    "Ca" => Some(20)
-    "Fe" => Some(26)
-    "Zn" => Some(30)
-    _ => None
-  }
-}
-
-///|
-/// Coherent neutron scattering length (fm) per element;
-/// None for unknown or pseudo atoms.
-pub fn biotite_density_scattering_length(element : String) -> Double? {
-  match element {
-    "H" => Some(-3.739)
-    "D" => Some(6.671)
-    "C" => Some(6.646)
-    "N" => Some(9.36)
-    "O" => Some(5.803)
-    "P" => Some(5.13)
-    "S" => Some(2.847)
-    "F" => Some(5.654)
-    "Cl" => Some(9.577)
-    "Br" => Some(6.795)
-    "I" => Some(6.191)
-    "Na" => Some(3.63)
-    "Mg" => Some(4.588)
-    "K" => Some(3.74)
-    "Ca" => Some(4.7)
-    "Fe" => Some(9.45)
-    "Zn" => Some(5.68)
-    _ => None
-  }
-}
-
-///|
-/// A 3D density grid with the box origin and the cell size.
+/// A 3D density histogram with the bin edges of each axis.
 pub struct BiotiteDensity {
-  // density[z][y][x]
-  density : Array[Array[Array[Double]]]
-  origin : Vector3
-  cell_size : Double
-  n_cells_x : Int32
-  n_cells_y : Int32
-  n_cells_z : Int32
+  // hist[x][y][z]
+  hist : Array[Array[Array[Double]]]
+  edges_x : Array[Double]
+  edges_y : Array[Double]
+  edges_z : Array[Double]
+  delta : Double
 }
 
 ///|
-/// Compute a density map over the structure's bounding box.
+/// Compute the 3D density histogram of the given coordinates.
 ///
-/// - `resolution`: FWHM of the per-atom Gaussian in Angstrom.
-/// - `scattering_length_consistency`: use neutron scattering lengths
-///   instead of electron counts as weights.
-/// - `box`: optional (min_corner, max_corner); defaults to the
-///   bounding box of all atoms.
-pub fn biotite_density_from_atom_array(
-  arr : AtomArray,
-  resolution~ : Double = 1.0,
-  scattering_length_consistency~ : Bool = false,
-  box~ : (Vector3, Vector3)? = None,
+/// - `delta`: grid spacing in all three dimensions (default 1.0 A).
+/// - `weights`: optional per-atom weights accumulated per bin
+///   (default: each atom counts 1).
+/// - `density`: when true, the histogram is normalized into a
+///   probability density (count divided by total weight and bin
+///   volume delta^3), mirroring `numpy.histogramdd(density=True)`.
+pub fn biotite_density(
+  coords : Array[Vector3],
+  delta~ : Double = 1.0,
+  weights~ : Array[Double]? = None,
+  density~ : Bool = false,
 ) -> BiotiteDensity {
-  let n = arr.len()
+  let n = coords.length()
+  // Grid spanned by the coordinate extremes (as histogramdd with
+  // default bins based on arange(min, max + delta, delta)).
   let mut min_x = 0.0
   let mut min_y = 0.0
   let mut min_z = 0.0
@@ -90,7 +42,7 @@ pub fn biotite_density_from_atom_array(
   let mut max_y = 0.0
   let mut max_z = 0.0
   if n > 0 {
-    let c0 = arr.coords[0]
+    let c0 = coords[0]
     min_x = c0.x
     min_y = c0.y
     min_z = c0.z
@@ -98,7 +50,7 @@ pub fn biotite_density_from_atom_array(
     max_y = c0.y
     max_z = c0.z
     for i = 1; i < n; i = i + 1 {
-      let c = arr.coords[i]
+      let c = coords[i]
       if c.x < min_x {
         min_x = c.x
       }
@@ -119,119 +71,137 @@ pub fn biotite_density_from_atom_array(
       }
     }
   }
-  let (box_min, box_max) = match box {
-    Some((lo, hi)) => (lo, hi)
-    None => {
-      let lo = Vector3::{ x: min_x, y: min_y, z: min_z, }
-      let hi = Vector3::{ x: max_x, y: max_y, z: max_z, }
-      (lo, hi)
-    }
-  }
-  let cell_size = resolution
-  let pad = 2.0 * resolution
-  let origin = Vector3::{
-    x: box_min.x - pad,
-    y: box_min.y - pad,
-    z: box_min.z - pad,
-  }
-  let nx = ((box_max.x - box_min.x + 2.0 * pad) / cell_size).to_int() + 1
-  let ny = ((box_max.y - box_min.y + 2.0 * pad) / cell_size).to_int() + 1
-  let nz = ((box_max.z - box_min.z + 2.0 * pad) / cell_size).to_int() + 1
-  let grid = biotite_density_grid(nz, ny, nx)
-  // FWHM -> sigma: sigma = FWHM / (2 * sqrt(2 * ln 2))
-  let sigma = resolution / 2.3548200450309493
-  let cutoff = 3.0 * sigma
+  let (nx, ny, nz) = biotite_density_bin_count(
+    max_x - min_x,
+    max_y - min_y,
+    max_z - min_z,
+    delta,
+  )
+  let edges_x = biotite_density_edges(min_x, delta, nx)
+  let edges_y = biotite_density_edges(min_y, delta, ny)
+  let edges_z = biotite_density_edges(min_z, delta, nz)
+  let hist = biotite_density_grid(nx, ny, nz)
   for i = 0; i < n; i = i + 1 {
-    let weight = if scattering_length_consistency {
-      biotite_density_scattering_length(arr.elements[i])
-    } else {
-      match biotite_density_electron_count(arr.elements[i]) {
-        Some(e) => Some(e.to_double())
-        None => None
-      }
+    let w = match weights {
+      Some(ws) => if i < ws.length() { ws[i] } else { 0.0 }
+      None => 1.0
     }
-    match weight {
-      Some(w) => {
-        let c = arr.coords[i]
-        biotite_density_splat(
-          grid, origin, cell_size, nz, ny, nx, c, w, sigma, cutoff,
-        )
-      }
-      None => ()
-    }
+    let c = coords[i]
+    let ix = biotite_density_bin_index(c.x, min_x, delta, nx)
+    let iy = biotite_density_bin_index(c.y, min_y, delta, ny)
+    let iz = biotite_density_bin_index(c.z, min_z, delta, nz)
+    hist[ix][iy][iz] = hist[ix][iy][iz] + w
   }
-  BiotiteDensity::{
-    density: grid,
-    origin,
-    cell_size,
-    n_cells_x: nx,
-    n_cells_y: ny,
-    n_cells_z: nz,
+  let out = BiotiteDensity::{ hist, edges_x, edges_y, edges_z, delta, }
+  if density {
+    biotite_density_normalize(out)
   }
+  out
 }
 
 ///|
-/// Allocate an all-zero grid; rows are allocated independently to
-/// avoid shared-array aliasing.
-fn biotite_density_grid(
-  nz : Int32,
-  ny : Int32,
-  nx : Int32,
-) -> Array[Array[Array[Double]]] {
-  let grid : Array[Array[Array[Double]]] = Array(capacity=nz)
-  for z = 0; z < nz; z = z + 1 {
-    let row : Array[Array[Double]] = Array(capacity=ny)
-    for _y = 0; _y < ny; _y = _y + 1 {
-      row.push(Array::make(nx, 0.0))
+/// Number of bins per axis: ceil(span / delta), mirroring the number
+/// of arange(min, max + delta, delta) edges minus one.
+fn biotite_density_bin_count(
+  span_x : Double,
+  span_y : Double,
+  span_z : Double,
+  delta : Double,
+) -> (Int32, Int32, Int32) {
+  if delta <= 0.0 {
+    return (1, 1, 1)
+  }
+  let count = fn(span : Double) -> Int32 {
+    if span <= 0.0 {
+      1
+    } else {
+      let ratio = span / delta
+      let whole = ratio.to_int()
+      if ratio > whole.to_double() {
+        whole + 1
+      } else {
+        whole
+      }
     }
-    grid.push(row)
+  }
+  (count(span_x), count(span_y), count(span_z))
+}
+
+///|
+/// Bin edges along one axis: `n_bins + 1` values from `min` stepping
+/// by `delta`.
+fn biotite_density_edges(
+  min : Double,
+  delta : Double,
+  n_bins : Int32,
+) -> Array[Double] {
+  let edges : Array[Double] = Array(capacity=n_bins + 1)
+  for i = 0; i <= n_bins; i = i + 1 {
+    edges.push(min + i.to_double() * delta)
+  }
+  edges
+}
+
+///|
+/// All-zero grid; rows allocated independently to avoid shared-array
+/// aliasing.
+fn biotite_density_grid(
+  nx : Int32,
+  ny : Int32,
+  nz : Int32,
+) -> Array[Array[Array[Double]]] {
+  let grid : Array[Array[Array[Double]]] = Array(capacity=nx)
+  for _x = 0; _x < nx; _x = _x + 1 {
+    let plane : Array[Array[Double]] = Array(capacity=ny)
+    for _y = 0; _y < ny; _y = _y + 1 {
+      plane.push(Array::make(nz, 0.0))
+    }
+    grid.push(plane)
   }
   grid
 }
 
 ///|
-/// Add one atom's Gaussian contribution to the grid (3-sigma truncated).
-fn biotite_density_splat(
-  grid : Array[Array[Array[Double]]],
-  origin : Vector3,
-  cell_size : Double,
-  nz : Int32,
-  ny : Int32,
-  nx : Int32,
-  center : Vector3,
-  weight : Double,
-  sigma : Double,
-  cutoff : Double,
-) -> Unit {
-  let two_sigma2 = 2.0 * sigma * sigma
-  let r_lo = ((center.x - cutoff - origin.x) / cell_size).to_int()
-  let r_hi = ((center.x + cutoff - origin.x) / cell_size).to_int()
-  let y_lo = ((center.y - cutoff - origin.y) / cell_size).to_int()
-  let y_hi = ((center.y + cutoff - origin.y) / cell_size).to_int()
-  let z_lo = ((center.z - cutoff - origin.z) / cell_size).to_int()
-  let z_hi = ((center.z + cutoff - origin.z) / cell_size).to_int()
-  for iz = z_lo; iz <= z_hi; iz = iz + 1 {
-    if iz < 0 || iz >= nz {
-      continue
-    }
-    for iy = y_lo; iy <= y_hi; iy = iy + 1 {
-      if iy < 0 || iy >= ny {
-        continue
+/// Bin index of a coordinate (clamped into the grid; values at the
+/// upper edge fall into the last bin like histogramdd's right closure).
+fn biotite_density_bin_index(
+  value : Double,
+  min : Double,
+  delta : Double,
+  n_bins : Int32,
+) -> Int32 {
+  if delta <= 0.0 {
+    return 0
+  }
+  let mut idx = ((value - min) / delta).to_int()
+  if idx < 0 {
+    idx = 0
+  }
+  if idx >= n_bins {
+    idx = n_bins - 1
+  }
+  idx
+}
+
+///|
+/// Normalize the histogram into a probability density:
+/// hist / (total weight * bin volume).
+fn biotite_density_normalize(d : BiotiteDensity) -> Unit {
+  let mut total = 0.0
+  for plane in d.hist {
+    for row in plane {
+      for v in row {
+        total = total + v
       }
-      for ix = r_lo; ix <= r_hi; ix = ix + 1 {
-        if ix < 0 || ix >= nx {
-          continue
-        }
-        let px = origin.x + ix.to_double() * cell_size
-        let py = origin.y + iy.to_double() * cell_size
-        let pz = origin.z + iz.to_double() * cell_size
-        let dx = px - center.x
-        let dy = py - center.y
-        let dz = pz - center.z
-        let r2 = dx * dx + dy * dy + dz * dz
-        if r2 <= cutoff * cutoff {
-          grid[iz][iy][ix] = grid[iz][iy][ix] +
-            weight * @math.exp(-r2 / two_sigma2)
+    }
+  }
+  let volume = d.delta * d.delta * d.delta
+  if total > 0.0 && volume > 0.0 {
+    let scale = 1.0 / (total * volume)
+    for plane in d.hist {
+      for row in plane {
+        for k = 0; k < row.length(); k = k + 1 {
+          row[k] = row[k] * scale
         }
       }
     }
@@ -239,16 +209,23 @@ fn biotite_density_splat(
 }
 
 ///|
-/// Grid extents: (nz, ny, nx).
+/// Grid extents: (nx, ny, nz).
 pub fn BiotiteDensity::shape(self : BiotiteDensity) -> (Int32, Int32, Int32) {
-  (self.n_cells_z, self.n_cells_y, self.n_cells_x)
+  let nx = self.hist.length()
+  let ny = if nx > 0 { self.hist[0].length() } else { 0 }
+  let nz = if ny > 0 && self.hist[0].length() > 0 {
+    self.hist[0][0].length()
+  } else {
+    0
+  }
+  (nx, ny, nz)
 }
 
 ///|
 /// Total density over the whole grid.
 pub fn BiotiteDensity::total(self : BiotiteDensity) -> Double {
   let mut sum = 0.0
-  for plane in self.density {
+  for plane in self.hist {
     for row in plane {
       for v in row {
         sum = sum + v
@@ -262,7 +239,7 @@ pub fn BiotiteDensity::total(self : BiotiteDensity) -> Double {
 /// Maximum density value in the grid.
 pub fn BiotiteDensity::max(self : BiotiteDensity) -> Double {
   let mut best = -1.7976931348623157e308
-  for plane in self.density {
+  for plane in self.hist {
     for row in plane {
       for v in row {
         if v > best {
@@ -275,14 +252,31 @@ pub fn BiotiteDensity::max(self : BiotiteDensity) -> Double {
 }
 
 ///|
+/// Bin edges of the x axis.
+pub fn BiotiteDensity::get_edges_x(self : BiotiteDensity) -> Array[Double] {
+  self.edges_x
+}
+
+///|
+/// Bin edges of the y axis.
+pub fn BiotiteDensity::get_edges_y(self : BiotiteDensity) -> Array[Double] {
+  self.edges_y
+}
+
+///|
+/// Bin edges of the z axis.
+pub fn BiotiteDensity::get_edges_z(self : BiotiteDensity) -> Array[Double] {
+  self.edges_z
+}
+
+///|
 pub fn _biotite_structure_density_dummy() -> Unit {
-  let d = biotite_density_from_atom_array(AtomArray::new())
+  let d = biotite_density([], delta=1.0)
   let _ = d.shape()
   let _ = d.total()
   let _ = d.max()
-  let _ = biotite_density_electron_count("C")
-  let _ = biotite_density_scattering_length("H")
-  ignore(d.cell_size)
-  ignore(d.n_cells_x)
-  ignore(d.origin)
+  let _ = d.get_edges_x()
+  let _ = d.get_edges_y()
+  let _ = d.get_edges_z()
+  ignore(d.delta)
 }

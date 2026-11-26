@@ -86,3 +86,20 @@ test "rnaalifold command custom bin" {
   )
   assert_eq(cmd, "/usr/local/bin/RNAalifold aln.clustal")
 }
+
+///|
+test "rnaalifold covariance rescues consistent mutations" {
+  // The majority bases (A/A) cannot pair, but the third sequence
+  // carries a compensatory G-C pair: the covariance bonus supports
+  // the closing pair despite the zero majority score.
+  let r = @src.biotite_rnaalifold_local(["AAAAAA", "AAAAAA", "GCCCCC"])
+  assert_eq(r.consensus_structure, "(....)")
+}
+
+///|
+test "rnaalifold incompatible columns stay unpaired" {
+  // The third sequence's columns cannot pair and carry no consistent
+  // mutation, so the incompatibility penalty keeps the pair closed.
+  let r = @src.biotite_rnaalifold_local(["AAAAAA", "AAAAAA", "GAAAAA"])
+  assert_eq(r.consensus_structure, "......")
+}

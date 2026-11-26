@@ -612,7 +612,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 
 ## Biotite 系列功能
 
-对标 Biotite 的结构生物学与序列处理模块族。此前已内置 21 个 `biotite_*` 模块（覆盖 AtomArray 适配、键推断、CIGAR、dot-bracket、E-value、K-mer、替换矩阵、图形等），本批在补齐原有模块测试与语义的同时新增 27 个模块，随后第五轮再补 10 个真实缺口模块。
+对标 Biotite 的结构生物学与序列处理模块族。此前已内置 21 个 `biotite_*` 模块（覆盖 AtomArray 适配、键推断、CIGAR、dot-bracket、E-value、K-mer、替换矩阵、图形等），本批在补齐原有模块测试与语义的同时新增 27 个模块，随后第五轮补 10 个真实缺口模块、第六轮按官方源码校准 charges（RDKit PEOE 精确算法）、density（histogramdd 直方图）、phylo（整数节点编号）并对齐 rnaalifold 协方差与 rules terminator 语义。
 
 | 功能模块 | 对应 Biotite | 核心功能 |
 | :--- | :--- | :--- |
@@ -624,10 +624,10 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **接口与可视化** | `interface.pymol` / `mdtraj` / `graphics` | PyMOL 命令脚本构造、MDTraj 风格 topology/坐标适配、序列 logo 配色、alignment 相似度梯度、质粒图/特征绘图 |
 | **结构容器与化学** | `AtomArrayStack` / `Box` / `SpaceGroup` / `RigidTransformation` / `formal_charges` | 多模型坐标栈、晶胞与周期边界、空间群对称操作、QCP 刚体叠合、形式/部分电荷 |
 | **邻域搜索与结构校验** | `structure.celllist` / `structure.check` | Biotite 高层 CellList（adjacent_atoms/nearest_neighbors/conflict/create_by_boxes）、StericClashCheck（vdW 半径 0.7 判据、键合排除）、主链校验（缺原子/肽键距离/N-CA-C 键角） |
-| **密度图与部分电荷** | `structure.density` / `structure.charges` | 高斯密度图（FWHM→σ、电子计数/中子散射长度权重、3σ 截断、显式 box）、AtomArray 键拓扑 Gasteiger-Marsili 电荷（23 轮迭代、有机子集外 None、形式电荷归一） |
-| **进化树** | `sequence.phylo` | TreeNode/Tree、Newick 解析与序列化、LCA 叶间距离（含拓扑距离）、UPGMA（平均连接、ultrametric）、Neighbor-Joining（Q 矩阵、limb 长度） |
+| **密度图与部分电荷** | `structure.density` / `structure.charges` | 官方 histogramdd 语义 3D 密度直方图（delta 网格、weights、probability density 归一化、edges 返回）、RDKit 精确 PEOE/Gasteiger-Marsili 电荷（官方参数表 + ionX 分母 + damp 0.5 每轮减半，氟甲烷 doctest 数值对齐） |
+| **进化树** | `sequence.phylo` | 官方整数节点编号（叶按出现序 0..n-1、中间节点按闭合序续编、根最大）、Newick 往返（根带 :0.0、round_distance）、任意节点 LCA 距离（含拓扑）、全叶距离矩阵、as_binary 多叉转二叉、UPGMA（平均连接、ultrametric）、Neighbor-Joining（Q 矩阵、limb 长度） |
 | **规则基因查找与引物修剪** | `sequence.rules` / `sequence.trim` | 双链规则式原核基因查找（promoter→RBS→start→in-frame stop→terminator、长度/gap 过滤、负链坐标映射）、引物端部重叠修剪（mismatch 容差与 distance_weight 评分、双引物独立修剪） |
-| **多序列比对与共有结构** | `application.mafft` / `muscle` / `rnaalifold` | MAFFT/MUSCLE 命令行构造（globalpair/super5 变体）+ 本地渐进对齐回退、FASTA 输出解析与序列化；RNAalifold 命令构造 + 本地一致性折叠（Nussinov DP、GC/AU/GU 评分、列保守性） |
+| **多序列比对与共有结构** | `application.mafft` / `muscle` / `rnaalifold` | MAFFT/MUSCLE 命令行构造（globalpair/super5 变体）+ 本地渐进对齐回退、FASTA 输出解析与序列化；RNAalifold 命令构造 + 本地一致性折叠（Nussinov DP、GC/AU/GU 评分、列保守性、协方差项：一致突变加分/冲突序列罚分） |
 
 > 边界：网络与外部二进制仅做 URL/命令构造和响应解析，不在库内发起请求或执行进程。
 
@@ -959,7 +959,7 @@ IvanAXu/BioSeqs/
 │   ├── hla_typing_demo/ / sv_caller_demo/ # 第十阶段 K 系列（HLA 分型：参考序列库→读取比对→GL String 闭环；SV 检测：CIGAR/SA tag→DEL/INS/DUP/INV/BND→深度置信度闭环）
 │   └── ... （更多 examples/*_demo/）
 ├── test/
-│   ├── moonbit/                      # MoonBit 单元测试（944 个测试文件，18112 用例）
+│   ├── moonbit/                      # MoonBit 单元测试（945 个测试文件，18132 用例）
 │   │   ├── bio_seq_test.mbt / seqio_wb_test.mbt / ...
 │   │   ├── alignment_test.mbt / pdb_test.mbt / phylo_test.mbt / ...
 │   │   ├── deseq2_test.mbt / rankprod_test.mbt / seurat_test.mbt / scran_test.mbt / ...
@@ -996,7 +996,7 @@ IvanAXu/BioSeqs/
 
 ```bash
 moon build                                              # ✅ 成功
-moon test                                               # ✅ 18112 个测试全部通过（test/moonbit 包）
+moon test                                               # ✅ 18132 个测试全部通过（test/moonbit 包）
 ```
 
 ---
@@ -1031,7 +1031,7 @@ moon test                                               # ✅ 18112 个测试全
 ```bash
 moon build                              # 构建项目（默认 wasm-gc）
 moon build --target native              # 指定后端构建
-moon test                               # 运行全部测试 (18112 个测试用例，test/moonbit 包)
+moon test                               # 运行全部测试 (18132 个测试用例，test/moonbit 包)
 moon test --target native               # 指定后端运行测试
 ```
 

@@ -1,5 +1,7 @@
 ///|
-/// Tests for biotite_structure_density.mbt.
+/// Tests for biotite_structure_density.mbt (official histogramdd
+/// semantics: even delta grid, per-bin counts/weights, optional
+/// probability-density normalization).
 fn bsd_elem_atom(
   element : String,
   x : Double,
@@ -17,85 +19,116 @@ fn bsd_elem_atom(
 }
 
 ///|
-test "density electron counts" {
-  assert_eq(@src.biotite_density_electron_count("C"), Some(6))
-  assert_eq(@src.biotite_density_electron_count("O"), Some(8))
-  assert_eq(@src.biotite_density_electron_count("S"), Some(16))
-  assert_eq(@src.biotite_density_electron_count("X"), None)
-}
-
-///|
-test "density scattering lengths" {
-  match @src.biotite_density_scattering_length("H") {
-    Some(v) => assert_true(@moonbit.assert_num_close(v, -3.739, 1.0e-9))
-    None => fail("H should have a scattering length")
-  }
-  match @src.biotite_density_scattering_length("C") {
-    Some(v) => assert_true(@moonbit.assert_num_close(v, 6.646, 1.0e-9))
-    None => fail("C should have a scattering length")
-  }
-  assert_eq(@src.biotite_density_scattering_length("X"), None)
-}
-
-///|
-test "density from single carbon atom" {
+test "density single atom histogram" {
   let arr = @src.AtomArray::from_atoms([bsd_elem_atom("C", 0.0, 0.0, 0.0)])
-  let density = @src.biotite_density_from_atom_array(arr, resolution=1.0)
-  let (nz, ny, nx) = density.shape()
-  assert_true(nz > 0 && ny > 0 && nx > 0)
-  assert_true(density.max() > 0.0)
-  assert_true(density.total() > 0.0)
-  // peak close to the atom center: find max cell
-  let grid = match density {
-    d => d
-  }
-  let _ = grid
+  let d = @src.biotite_density(arr.coords, delta=1.0)
+  let (nx, ny, nz) = d.shape()
+  // one atom at the origin: single bin in each axis
+  assert_eq(nx, 1)
+  assert_eq(ny, 1)
+  assert_eq(nz, 1)
+  assert_true(@moonbit.assert_num_close(d.total(), 1.0, 1.0e-12))
+  assert_true(@moonbit.assert_num_close(d.max(), 1.0, 1.0e-12))
+  // edges start at the coordinate minimum
+  assert_true(@moonbit.assert_num_close(d.get_edges_x()[0], 0.0, 1.0e-12))
 }
 
 ///|
-test "density unknown element contributes nothing" {
-  let arr = @src.AtomArray::from_atoms([bsd_elem_atom("X", 0.0, 0.0, 0.0)])
-  let density = @src.biotite_density_from_atom_array(arr, resolution=1.0)
-  assert_true(@moonbit.assert_num_close(density.total(), 0.0, 1.0e-15))
-}
-
-///|
-test "density neutron weights" {
-  // hydrogen has a negative scattering length -> negative total
-  let arr = @src.AtomArray::from_atoms([bsd_elem_atom("H", 0.0, 0.0, 0.0)])
-  let xray = @src.biotite_density_from_atom_array(arr, resolution=1.0)
-  assert_true(xray.total() > 0.0)
-  let neutron = @src.biotite_density_from_atom_array(
-    arr,
-    resolution=1.0,
-    scattering_length_consistency=true,
-  )
-  assert_true(neutron.total() < 0.0)
-}
-
-///|
-test "density separates distant atoms" {
+test "density separated atoms count separately" {
   let arr = @src.AtomArray::from_atoms([
     bsd_elem_atom("C", 0.0, 0.0, 0.0),
-    bsd_elem_atom("C", 10.0, 0.0, 0.0),
+    bsd_elem_atom("C", 3.0, 0.0, 0.0),
   ])
-  let density = @src.biotite_density_from_atom_array(arr, resolution=1.0)
-  let (nz, ny, nx) = density.shape()
-  // total density equals 2 electrons (integral approximation >= 1)
-  assert_true(density.total() > 1.0)
-  let _ = (nz, ny, nx)
+  let d = @src.biotite_density(arr.coords, delta=1.0)
+  let (nx, ny, nz) = d.shape()
+  // span 3.0 with delta 1.0 -> 3 bins along x
+  assert_eq(nx, 3)
+  assert_eq(ny, 1)
+  assert_eq(nz, 1)
+  assert_true(@moonbit.assert_num_close(d.total(), 2.0, 1.0e-12))
+  assert_true(@moonbit.assert_num_close(d.max(), 1.0, 1.0e-12))
 }
 
 ///|
-test "density respects explicit box" {
-  let arr = @src.AtomArray::from_atoms([bsd_elem_atom("C", 2.0, 2.0, 2.0)])
-  let density = @src.biotite_density_from_atom_array(
-    arr,
-    resolution=1.0,
-    box=Some(
-      (@src.Vector3::new(0.0, 0.0, 0.0), @src.Vector3::new(4.0, 4.0, 4.0)),
-    ),
-  )
-  assert_true(density.total() > 0.0)
-  assert_true(density.max() > 0.0)
+test "density weights accumulate" {
+  let arr = @src.AtomArray::from_atoms([
+    bsd_elem_atom("C", 0.0, 0.0, 0.0),
+    bsd_elem_atom("C", 0.1, 0.0, 0.0),
+  ])
+  // both atoms share the first bin
+  let d = @src.biotite_density(arr.coords, delta=1.0)
+  assert_true(@moonbit.assert_num_close(d.max(), 2.0, 1.0e-12))
+  // weighted: one heavy, one light atom in the same bin
+  let dw = @src.biotite_density(arr.coords, delta=1.0, weights=Some([5.0, 1.0]))
+  assert_true(@moonbit.assert_num_close(dw.max(), 6.0, 1.0e-12))
+  assert_true(@moonbit.assert_num_close(dw.total(), 6.0, 1.0e-12))
+}
+
+///|
+test "density probability density normalization" {
+  let arr = @src.AtomArray::from_atoms([
+    bsd_elem_atom("C", 0.0, 0.0, 0.0),
+    bsd_elem_atom("C", 3.0, 0.0, 0.0),
+  ])
+  let d = @src.biotite_density(arr.coords, delta=1.0, density=true)
+  // two atoms, two occupied bins of volume 1 -> density 0.5 per bin
+  assert_true(@moonbit.assert_num_close(d.total(), 1.0, 1.0e-12))
+  assert_true(@moonbit.assert_num_close(d.max(), 0.5, 1.0e-12))
+}
+
+///|
+test "density z axis binning" {
+  let arr = @src.AtomArray::from_atoms([
+    bsd_elem_atom("C", 0.0, 0.0, 0.0),
+    bsd_elem_atom("C", 0.0, 0.0, 2.5),
+  ])
+  let d = @src.biotite_density(arr.coords, delta=1.0)
+  let (nx, ny, nz) = d.shape()
+  assert_eq(nx, 1)
+  assert_eq(ny, 1)
+  // span 2.5 -> 3 bins along z (0-1, 1-2, 2-3)
+  assert_eq(nz, 3)
+  assert_true(@moonbit.assert_num_close(d.total(), 2.0, 1.0e-12))
+  // z edges: 0, 1, 2, 3
+  assert_eq(d.get_edges_z().length(), 4)
+  assert_true(@moonbit.assert_num_close(d.get_edges_z()[3], 3.0, 1.0e-12))
+}
+
+///|
+test "density edges cover coordinate range" {
+  let arr = @src.AtomArray::from_atoms([
+    bsd_elem_atom("C", -2.0, 0.0, 0.0),
+    bsd_elem_atom("C", 2.0, 0.0, 0.0),
+  ])
+  let d = @src.biotite_density(arr.coords, delta=1.0)
+  // span 4.0 -> 4 bins along x
+  let (nx, _ny, _nz) = d.shape()
+  assert_eq(nx, 4)
+  // edges from -2.0 stepping by 1.0
+  assert_true(@moonbit.assert_num_close(d.get_edges_x()[0], -2.0, 1.0e-12))
+  assert_true(@moonbit.assert_num_close(d.get_edges_x()[4], 2.0, 1.0e-12))
+}
+
+///|
+test "density empty coordinates" {
+  let d = @src.biotite_density([], delta=1.0)
+  let (nx, ny, nz) = d.shape()
+  assert_eq(nx, 1)
+  assert_eq(ny, 1)
+  assert_eq(nz, 1)
+  assert_true(@moonbit.assert_num_close(d.total(), 0.0, 1.0e-12))
+}
+
+///|
+test "density non-integer span rounds up" {
+  let arr = @src.AtomArray::from_atoms([
+    bsd_elem_atom("C", 0.0, 0.0, 0.0),
+    bsd_elem_atom("C", 2.5, 0.0, 0.0),
+  ])
+  let d = @src.biotite_density(arr.coords, delta=1.0)
+  let (nx, _ny, _nz) = d.shape()
+  // 2.5 span needs ceil(2.5) = 2..3 bins; atom at 2.5 clamps into the
+  // last bin
+  assert_true(nx == 3)
+  assert_true(@moonbit.assert_num_close(d.total(), 2.0, 1.0e-12))
 }

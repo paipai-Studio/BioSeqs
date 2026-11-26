@@ -1,18 +1,25 @@
 /// Biotite `sequence.phylo` — phylogenetic trees, distance-based
 /// construction (UPGMA, neighbor joining), Newick I/O and tree
 /// distance queries.
+///
+/// Node numbering follows the official Biotite semantics: leaves are
+/// numbered `0..n-1` in the order they appear in the Newick notation,
+/// intermediate nodes continue the numbering in the order they are
+/// *closed* (post-order), and the root has the highest number.
+/// `get_distance` accepts arbitrary node ids, not only leaves.
 
 ///|
 /// A node of a phylogenetic tree.
 ///
-/// Leaves carry an `index` (matrix row/column); internal nodes carry an
-/// optional `name` and a list of `children`, each child remembering its
-/// branch `distance` to its parent.
+/// Leaves carry an `index` (distance-matrix row/column, equal to the
+/// node id for parsed trees); every node carries a `node_id` following
+/// the Biotite numbering scheme.
 pub struct BiotiteTreeNode {
   children : Array[BiotiteTreeNode]
   mut distance : Double
   name : String?
   index : Int32?
+  mut node_id : Int32
   mut parent : BiotiteTreeNode?
 }
 
@@ -32,6 +39,7 @@ pub fn biotite_tree_node_new(
     distance: 0.0,
     name,
     index,
+    node_id: -1,
     parent: None,
   }
   for i = 0; i < children.length(); i = i + 1 {
@@ -51,15 +59,55 @@ pub struct BiotiteTree {
 }
 
 ///|
-/// Wrap a root node into a tree.
+/// Wrap a root node into a tree and assign node ids (Biotite scheme:
+/// leaves keep their matrix index, intermediate nodes are numbered
+/// from the leaf count upwards in post-order, so the root has the
+/// highest id).
 pub fn biotite_tree_new(root : BiotiteTreeNode) -> BiotiteTree {
-  BiotiteTree::{ root, }
+  let tree = BiotiteTree::{ root, }
+  biotite_tree_assign_ids(tree)
+  tree
+}
+
+///|
+/// Assign node ids in Biotite order (post-order, leaves first).
+pub fn biotite_tree_assign_ids(tree : BiotiteTree) -> Unit {
+  let n_leaves = tree.leaves().length()
+  let counter : BiotitePosRef = BiotitePosRef::{ value: n_leaves, }
+  biotite_assign_ids_rec(tree.root, counter)
+}
+
+///|
+/// Post-order id assignment helper.
+fn biotite_assign_ids_rec(
+  node : BiotiteTreeNode,
+  counter : BiotitePosRef,
+) -> Unit {
+  for child in node.children {
+    biotite_assign_ids_rec(child, counter)
+  }
+  match node.index {
+    Some(ix) =>
+      if node.children.length() == 0 {
+        node.node_id = ix
+        return
+      }
+    None => ()
+  }
+  node.node_id = counter.value
+  counter.value = counter.value + 1
 }
 
 ///|
 /// Whether the node is a leaf (no children).
 pub fn BiotiteTreeNode::is_leaf(self : BiotiteTreeNode) -> Bool {
   self.children.length() == 0
+}
+
+///|
+/// One-cell mutable cell for parser/count bookkeeping.
+priv struct BiotitePosRef {
+  mut value : Int32
 }
 
 ///|
@@ -83,9 +131,8 @@ fn biotite_tree_node_ancestors(
 }
 
 ///|
-/// Collect the leaves of the tree, sorted by leaf index.
-///
-/// A root without index and children (empty tree) contributes nothing.
+/// Collect the leaves of the tree in depth-first (Newick appearance)
+/// order, sorted by leaf index.
 pub fn BiotiteTree::leaves(self : BiotiteTree) -> Array[BiotiteTreeNode] {
   let out : Array[BiotiteTreeNode] = []
   let stack : Array[BiotiteTreeNode] = [self.root]
@@ -114,13 +161,32 @@ pub fn BiotiteTree::n_leaves(self : BiotiteTree) -> Int32 {
 }
 
 ///|
-/// Bottom-up search for the two leaves and their path distances.
+/// Find the node with the given node id (None when absent).
+pub fn BiotiteTree::find_node(
+  self : BiotiteTree,
+  id : Int32,
+) -> BiotiteTreeNode? {
+  let stack : Array[BiotiteTreeNode] = [self.root]
+  while stack.length() > 0 {
+    let node = stack.pop().unwrap()
+    if node.node_id == id {
+      return Some(node)
+    }
+    for child in node.children {
+      stack.push(child)
+    }
+  }
+  None
+}
+
+///|
+/// Bottom-up search for the two nodes and their path distances.
 ///
 /// Returns (contains_a, dist_a, contains_b, dist_b, lca_done).
-/// Once `lca_done` is true, dist_a + dist_b is the final leaf-leaf
+/// Once `lca_done` is true, dist_a + dist_b is the final node-node
 /// distance via their most recent common ancestor and must be passed
 /// upward unchanged. Otherwise dist_a / dist_b accumulate from the
-/// leaves toward the current node (the pending LCA).
+/// nodes toward the current node (the pending LCA).
 fn biotite_tree_walk(
   node : BiotiteTreeNode,
   ia : Int32,
@@ -132,16 +198,11 @@ fn biotite_tree_walk(
   let mut fb = false
   let mut db = 0.0
   let mut lca_done = false
-  match node.index {
-    Some(ix) => {
-      if ix == ia {
-        fa = true
-      }
-      if ix == ib {
-        fb = true
-      }
-    }
-    None => ()
+  if node.node_id == ia {
+    fa = true
+  }
+  if node.node_id == ib {
+    fb = true
   }
   for child in node.children {
     let (ca, dda, cb, ddb, done) = biotite_tree_walk(child, ia, ib, topo)
@@ -175,8 +236,10 @@ fn biotite_tree_walk(
 }
 
 ///|
-/// Distance between two leaves via their most recent common ancestor.
+/// Distance between two nodes via their most recent common ancestor.
 ///
+/// `i` and `j` are node ids (leaves are `0..n-1`, intermediate nodes
+/// continue the numbering, the root has the highest id).
 /// `topological=true` counts each branch as length 1.
 pub fn BiotiteTree::get_distance(
   self : BiotiteTree,
@@ -193,10 +256,46 @@ pub fn BiotiteTree::get_distance(
 }
 
 ///|
-/// Render the tree in Newick format.
-pub fn BiotiteTree::as_newick(self : BiotiteTree) -> String {
+/// Pairwise distances between all leaves (n-by-n matrix, indexed by
+/// leaf id).
+pub fn BiotiteTree::get_leaf_distances(
+  self : BiotiteTree,
+  topological~ : Bool = false,
+) -> Array[Array[Double]] {
+  let leaves = self.leaves()
+  let n = leaves.length()
+  let out : Array[Array[Double]] = Array(capacity=n)
+  for _i = 0; _i < n; _i = _i + 1 {
+    out.push(Array::make(n, 0.0))
+  }
+  for i = 0; i < n; i = i + 1 {
+    for j = i + 1; j < n; j = j + 1 {
+      let id_i = leaves[i].node_id
+      let id_j = leaves[j].node_id
+      let d = match self.get_distance(id_i, id_j, topological~) {
+        Some(v) => v
+        None => 0.0
+      }
+      out[i][j] = d
+      out[j][i] = d
+    }
+  }
+  out
+}
+
+///|
+/// Render the tree in Newick notation.
+///
+/// Mirrors the official `to_newick`: every node is suffixed with its
+/// branch distance (the root gets `:0.0`); `include_distance=false`
+/// omits the suffixes; `round_distance` fixes the number of decimals.
+pub fn BiotiteTree::as_newick(
+  self : BiotiteTree,
+  include_distance~ : Bool = true,
+  round_distance~ : Int32? = None,
+) -> String {
   let sb = StringBuilder()
-  biotite_newick_node(self.root, true, sb)
+  biotite_newick_node(self.root, sb, include_distance, round_distance)
   let _ = sb.write(";")
   sb.to_string()
 }
@@ -204,8 +303,9 @@ pub fn BiotiteTree::as_newick(self : BiotiteTree) -> String {
 ///|
 fn biotite_newick_node(
   node : BiotiteTreeNode,
-  is_root : Bool,
   sb : StringBuilder,
+  include_distance : Bool,
+  round_distance : Int32?,
 ) -> Unit {
   if node.is_leaf() {
     match node.name {
@@ -219,7 +319,10 @@ fn biotite_newick_node(
             let _ = sb.write(ix.to_string())
             ()
           }
-          None => ()
+          None => {
+            let _ = sb.write(node.node_id.to_string())
+            ()
+          }
         }
     }
   } else {
@@ -228,7 +331,12 @@ fn biotite_newick_node(
       if i > 0 {
         let _ = sb.write(",")
       }
-      biotite_newick_node(node.children[i], false, sb)
+      biotite_newick_node(
+        node.children[i],
+        sb,
+        include_distance,
+        round_distance,
+      )
     }
     let _ = sb.write(")")
     match node.name {
@@ -239,53 +347,92 @@ fn biotite_newick_node(
       None => ()
     }
   }
-  if !is_root {
+  if include_distance {
     let _ = sb.write(":")
-    let _ = sb.write(biotite_format_dist(node.distance))
+    let _ = sb.write(biotite_format_dist(node.distance, round_distance))
   }
 }
 
 ///|
-/// Compact float formatting for Newick branch lengths.
-fn biotite_format_dist(d : Double) -> String {
-  let s = d.to_string()
-  if s.has_suffix(".0") {
-    s[0:s.length() - 2].to_owned()
-  } else {
-    s
+/// Float formatting for Newick branch lengths: with a fixed number of
+/// decimals when `round_distance` is given, otherwise the default
+/// string form.
+fn biotite_format_dist(d : Double, round_distance : Int32?) -> String {
+  match round_distance {
+    Some(digits) => {
+      if digits <= 0 {
+        return d.round().to_int().to_string()
+      }
+      let scale = @math.pow(10.0, digits.to_double())
+      let scaled = (d * scale).round()
+      let int_part = (scaled / scale).to_int()
+      let frac = (scaled - int_part.to_double() * scale).to_int()
+      let mut frac_str = frac.to_string()
+      while frac_str.length() < digits {
+        frac_str = "0" + frac_str
+      }
+      int_part.to_string() + "." + frac_str
+    }
+    None => d.to_string()
   }
-}
-
-///|
-/// One-cell mutable cell for parser position bookkeeping.
-priv struct BiotitePosRef {
-  mut value : Int32
 }
 
 ///|
 /// Parse a Newick string into a tree.
 ///
-/// Leaves receive indices in depth-first order (0-based), matching the
-/// order they appear in the string.
+/// Leaves receive ids `0..n-1` in the order they appear; intermediate
+/// nodes are numbered in the order they are closed (post-order), so
+/// the root has the highest id — matching the official `from_newick`.
+/// Leaf labels are kept as names; the leaf index equals the id.
 pub fn biotite_tree_from_newick(newick : String) -> BiotiteTree {
-  let cleaned = newick.trim().to_owned()
-  let mut text = cleaned
-  if text.has_suffix(";") {
-    text = text[0:text.length() - 1].to_owned()
+  // Ignore any whitespace like the official parser.
+  let joined = newick.trim().to_owned()
+  let text = StringBuilder()
+  for i = 0; i < joined.length(); i = i + 1 {
+    let ch = joined[i]
+    if ch != ' ' && ch != '\t' && ch != '\n' && ch != '\r' {
+      let _ = text.write(joined[i:i + 1].to_owned())
+    }
+  }
+  let mut clean = text.to_string()
+  if clean.has_suffix(";") {
+    clean = clean[0:clean.length() - 1].to_owned()
   }
   let pos = BiotitePosRef::{ value: 0, }
   let next_leaf = BiotitePosRef::{ value: 0, }
-  let root = biotite_parse_newick_node(text, pos, next_leaf)
+  let n_intermediate = BiotitePosRef::{ value: 0, }
+  let root = biotite_parse_newick_node(clean, pos, next_leaf, n_intermediate)
+  let n_leaves = next_leaf.value
+  // Map the temporary negative intermediate ids to their final
+  // numbers (first closed -> n_leaves, root -> highest).
+  biotite_renumber_intermediate(root, n_leaves)
   BiotiteTree::{ root, }
 }
 
 ///|
+/// Convert temporary negative intermediate ids:
+/// id = -1 - k  ->  n_leaves + k.
+fn biotite_renumber_intermediate(
+  node : BiotiteTreeNode,
+  n_leaves : Int32,
+) -> Unit {
+  if node.node_id < 0 {
+    node.node_id = n_leaves + (-node.node_id - 1)
+  }
+  for child in node.children {
+    biotite_renumber_intermediate(child, n_leaves)
+  }
+}
+
+///|
 /// Recursive Newick node parser; `pos.value` points at the character
-/// after the parsed node.
+/// after the parsed node. Intermediate nodes get temporary negative
+/// ids in closure order.
 fn biotite_parse_newick_node(
   text : String,
   pos : BiotitePosRef,
   next_leaf : BiotitePosRef,
+  n_intermediate : BiotitePosRef,
 ) -> BiotiteTreeNode {
   if pos.value < text.length() && text[pos.value] == '(' {
     pos.value = pos.value + 1
@@ -293,7 +440,9 @@ fn biotite_parse_newick_node(
     let distances : Array[Double] = []
     let mut parsing = true
     while parsing {
-      let child = biotite_parse_newick_node(text, pos, next_leaf)
+      let child = biotite_parse_newick_node(
+        text, pos, next_leaf, n_intermediate,
+      )
       children.push(child)
       distances.push(child.distance)
       if pos.value < text.length() && text[pos.value] == ',' {
@@ -306,12 +455,14 @@ fn biotite_parse_newick_node(
     if pos.value < text.length() && text[pos.value] == ')' {
       pos.value = pos.value + 1
     }
-    // optional internal name
-    let name = biotite_parse_newick_name(text, pos)
+    // optional internal name (discarded, like the official parser)
+    let _name = biotite_parse_newick_name(text, pos)
     // optional branch length of this node
     let dist = biotite_parse_newick_dist(text, pos)
-    let node = biotite_tree_node_new(name~, children~, distances~)
+    let node = biotite_tree_node_new(children~, distances~)
     node.distance = dist
+    node.node_id = -1 - n_intermediate.value
+    n_intermediate.value = n_intermediate.value + 1
     node
   } else {
     // leaf
@@ -321,6 +472,7 @@ fn biotite_parse_newick_node(
     next_leaf.value = next_leaf.value + 1
     let node = biotite_tree_node_new(name~, index=Some(idx))
     node.distance = dist
+    node.node_id = idx
     node
   }
 }
@@ -363,6 +515,72 @@ fn biotite_parse_newick_dist(text : String, pos : BiotitePosRef) -> Double {
   } else {
     0.0
   }
+}
+
+///|
+/// Convert a tree into a binary tree (official `as_binary`):
+/// intermediate nodes with a single child are omitted (distances
+/// summed), nodes with more than two children are split into a chain
+/// of binary nodes. New intermediate nodes are numbered from the leaf
+/// count upwards in post-order; the root has the highest id.
+pub fn biotite_tree_as_binary(tree : BiotiteTree) -> BiotiteTree {
+  let n_leaves = tree.leaves().length()
+  let counter : BiotitePosRef = BiotitePosRef::{ value: n_leaves, }
+  let (root, _extra) = biotite_as_binary_rec(tree.root, counter)
+  // Rebuild parent pointers and node ids for the converted tree.
+  let binary = BiotiteTree::{ root, }
+  biotite_tree_assign_ids(binary)
+  binary
+}
+
+///|
+/// Recursive binary conversion; returns the converted subtree node and
+/// the accumulated distance of omitted single-child nodes.
+fn biotite_as_binary_rec(
+  node : BiotiteTreeNode,
+  counter : BiotitePosRef,
+) -> (BiotiteTreeNode, Double) {
+  if node.children.length() == 0 {
+    return (node, 0.0)
+  }
+  if node.children.length() == 1 {
+    let (child, extra) = biotite_as_binary_rec(node.children[0], counter)
+    return (child, node.children[0].distance + extra)
+  }
+  // Convert every child first.
+  let converted : Array[(BiotiteTreeNode, Double)] = []
+  for child in node.children {
+    converted.push(biotite_as_binary_rec(child, counter))
+  }
+  // Fold the children into a binary chain:
+  // n1 = (c1, c2); n2 = (n1 with distance 0, c3); ...
+  // Read the source distances BEFORE constructing the new node: the
+  // converted children are the original nodes, and node_new would
+  // overwrite their distances with the placeholders otherwise.
+  let (first, extra0) = converted[0]
+  let (second, extra1) = converted[1]
+  let d0 = node.children[0].distance + extra0
+  let d1 = node.children[1].distance + extra1
+  let mut current = biotite_tree_node_new(children=[first, second], distances=[
+    d0, d1,
+  ])
+  current.node_id = counter.value
+  counter.value = counter.value + 1
+  for k = 2; k < converted.length(); k = k + 1 {
+    let (child, extra) = converted[k]
+    let dk = node.children[k].distance + extra
+    let parent = biotite_tree_node_new(children=[], distances=[])
+    parent.node_id = counter.value
+    counter.value = counter.value + 1
+    // current joins with distance 0, the next child with its distance
+    current.parent = Some(parent)
+    parent.children.push(current)
+    child.parent = Some(parent)
+    child.distance = dk
+    parent.children.push(child)
+    current = parent
+  }
+  (current, 0.0)
 }
 
 ///|
@@ -598,6 +816,8 @@ pub fn _biotite_sequence_phylo_dummy() -> Unit {
   let _ = t.get_distance(0, 1)
   let _ = t.leaves()
   let _ = t.n_leaves()
+  let _ = t.get_leaf_distances()
+  let _ = biotite_tree_as_binary(t)
   let up = biotite_upgma([[0.0, 1.0, 2.0], [1.0, 0.0, 3.0], [2.0, 3.0, 0.0]])
   let _ = up.as_newick()
   let nj = biotite_neighbor_joining([
@@ -610,4 +830,5 @@ pub fn _biotite_sequence_phylo_dummy() -> Unit {
   let _ = node.is_leaf()
   ignore(t.root)
   let _ = biotite_tree_node_ancestors(node)
+  let _ = t.find_node(0)
 }

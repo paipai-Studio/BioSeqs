@@ -180,3 +180,23 @@ test "find genes gap filter" {
   )
   assert_eq(genes.length(), 0)
 }
+
+///|
+test "find genes terminator must directly follow stop codon" {
+  // Terminator appears 10 bp downstream of the stop codon instead of
+  // directly after it -> no gene is reported.
+  let mut seq = "TATAAT" + "GCGCGC" + "AGGAGGT" + "AAAAAA" + "ATG"
+  for _i = 0; _i < 31; _i = _i + 1 {
+    seq = seq + "AAG"
+  }
+  seq = seq + "TAA" + "CGCGCGCGC" + "AAAAAA"
+  let genes = @src.biotite_find_genes(
+    seq,
+    "TATAAT",
+    "AAAAAA",
+    "AGGAGGT",
+    ["ATG"],
+    ["TAA", "TAG", "TGA"],
+  )
+  assert_eq(genes.length(), 0)
+}

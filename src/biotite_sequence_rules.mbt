@@ -4,6 +4,11 @@
 /// follow the bacterial transcription/translation pattern:
 /// promoter (e.g. Pribnow box) -> ribosome binding site -> start codon
 /// -> in-frame stop codon -> terminator downstream of the stop codon.
+///
+/// Note: no published Biotite release ships a `sequence.rules` module
+/// (checked main and the v0.36.0 tag), so the semantics here are the
+/// documented local definition — in particular the terminator must
+/// start directly after the stop codon (no gap tolerated).
 
 ///|
 /// A gene candidate in the coordinate system of the original (forward)
@@ -159,9 +164,13 @@ fn biotite_find_genes_strand(
           s = start_pos + 1
           continue
         }
-        // Terminator downstream of the stop codon.
-        let term_hi = if gene_end + 50 < n { gene_end + 50 } else { n }
-        if biotite_rules_contains(seq, terminator, gene_end, term_hi) {
+        // The terminator must start directly after the stop codon.
+        if biotite_rules_contains(
+            seq,
+            terminator,
+            gene_end,
+            gene_end + terminator.length(),
+          ) {
           out.push(BiotiteGeneProduct::{
             start: biotite_rules_map_coord(
               if direction > 0 {
