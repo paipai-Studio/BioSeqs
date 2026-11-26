@@ -612,7 +612,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 
 ## Biotite 系列功能
 
-对标 Biotite 的结构生物学与序列处理模块族。此前已内置 21 个 `biotite_*` 模块（覆盖 AtomArray 适配、键推断、CIGAR、dot-bracket、E-value、K-mer、替换矩阵、图形等），本批在补齐原有模块测试与语义的同时新增 27 个模块。
+对标 Biotite 的结构生物学与序列处理模块族。此前已内置 21 个 `biotite_*` 模块（覆盖 AtomArray 适配、键推断、CIGAR、dot-bracket、E-value、K-mer、替换矩阵、图形等），本批在补齐原有模块测试与语义的同时新增 27 个模块，随后第五轮再补 10 个真实缺口模块。
 
 | 功能模块 | 对应 Biotite | 核心功能 |
 | :--- | :--- | :--- |
@@ -623,6 +623,11 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **数据库与外部应用** | `database.rcsb` / `pfam` / `dob` / `application` | RCSB 下载/API URL 与响应解析、Pfam/InterPro URL 与字段解析、可配置 DOB 客户端、统一 fetch URL 与缓存路径、BLAST 命令/URL/表格解析、TANTAN 掩码、DockQ 评分、Reduce/Vina 命令与输出解析 |
 | **接口与可视化** | `interface.pymol` / `mdtraj` / `graphics` | PyMOL 命令脚本构造、MDTraj 风格 topology/坐标适配、序列 logo 配色、alignment 相似度梯度、质粒图/特征绘图 |
 | **结构容器与化学** | `AtomArrayStack` / `Box` / `SpaceGroup` / `RigidTransformation` / `formal_charges` | 多模型坐标栈、晶胞与周期边界、空间群对称操作、QCP 刚体叠合、形式/部分电荷 |
+| **邻域搜索与结构校验** | `structure.celllist` / `structure.check` | Biotite 高层 CellList（adjacent_atoms/nearest_neighbors/conflict/create_by_boxes）、StericClashCheck（vdW 半径 0.7 判据、键合排除）、主链校验（缺原子/肽键距离/N-CA-C 键角） |
+| **密度图与部分电荷** | `structure.density` / `structure.charges` | 高斯密度图（FWHM→σ、电子计数/中子散射长度权重、3σ 截断、显式 box）、AtomArray 键拓扑 Gasteiger-Marsili 电荷（23 轮迭代、有机子集外 None、形式电荷归一） |
+| **进化树** | `sequence.phylo` | TreeNode/Tree、Newick 解析与序列化、LCA 叶间距离（含拓扑距离）、UPGMA（平均连接、ultrametric）、Neighbor-Joining（Q 矩阵、limb 长度） |
+| **规则基因查找与引物修剪** | `sequence.rules` / `sequence.trim` | 双链规则式原核基因查找（promoter→RBS→start→in-frame stop→terminator、长度/gap 过滤、负链坐标映射）、引物端部重叠修剪（mismatch 容差与 distance_weight 评分、双引物独立修剪） |
+| **多序列比对与共有结构** | `application.mafft` / `muscle` / `rnaalifold` | MAFFT/MUSCLE 命令行构造（globalpair/super5 变体）+ 本地渐进对齐回退、FASTA 输出解析与序列化；RNAalifold 命令构造 + 本地一致性折叠（Nussinov DP、GC/AU/GU 评分、列保守性） |
 
 > 边界：网络与外部二进制仅做 URL/命令构造和响应解析，不在库内发起请求或执行进程。
 
@@ -870,7 +875,7 @@ MD 轨迹分析另提供与 MDAnalysis 的 Python 对拍基准：`test/python/md
 ```
 IvanAXu/BioSeqs/
 ├── moon.mod                          # 模块配置 (name="IvanAXu/BioSeqs", version=0.1.16)
-├── src/                              # 源代码（1297 个 .mbt 模块）
+├── src/                              # 源代码（1307 个 .mbt 模块）
 │   ├── seq.mbt                       # Bio.Seq 序列对象
 │   ├── seqio.mbt / fasta_io.mbt / ... # 序列 I/O（30+ 种格式）
 │   ├── alignment.mbt / align_*.mbt   # 比对算法 + 20+ 种比对格式严格 API
@@ -954,7 +959,7 @@ IvanAXu/BioSeqs/
 │   ├── hla_typing_demo/ / sv_caller_demo/ # 第十阶段 K 系列（HLA 分型：参考序列库→读取比对→GL String 闭环；SV 检测：CIGAR/SA tag→DEL/INS/DUP/INV/BND→深度置信度闭环）
 │   └── ... （更多 examples/*_demo/）
 ├── test/
-│   ├── moonbit/                      # MoonBit 单元测试（934 个测试文件，18035 用例）
+│   ├── moonbit/                      # MoonBit 单元测试（944 个测试文件，18112 用例）
 │   │   ├── bio_seq_test.mbt / seqio_wb_test.mbt / ...
 │   │   ├── alignment_test.mbt / pdb_test.mbt / phylo_test.mbt / ...
 │   │   ├── deseq2_test.mbt / rankprod_test.mbt / seurat_test.mbt / scran_test.mbt / ...
@@ -991,7 +996,7 @@ IvanAXu/BioSeqs/
 
 ```bash
 moon build                                              # ✅ 成功
-moon test                                               # ✅ 18035 个测试全部通过（test/moonbit 包）
+moon test                                               # ✅ 18112 个测试全部通过（test/moonbit 包）
 ```
 
 ---
@@ -1026,7 +1031,7 @@ moon test                                               # ✅ 18035 个测试全
 ```bash
 moon build                              # 构建项目（默认 wasm-gc）
 moon build --target native              # 指定后端构建
-moon test                               # 运行全部测试 (18035 个测试用例，test/moonbit 包)
+moon test                               # 运行全部测试 (18112 个测试用例，test/moonbit 包)
 moon test --target native               # 指定后端运行测试
 ```
 
