@@ -197,6 +197,44 @@ test "neighbor joining star tree" {
     Some(d) => assert_true(@moonbit.assert_num_close(d, 2.0, 1.0e-6))
     None => fail("star distance should exist")
   }
+  // Official Rust semantics: the root joins the last three remaining
+  // nodes via the three-point condition, so it has three children.
+  assert_eq(t.root.children.length(), 3)
+}
+
+///|
+test "neighbor joining trifurcating root three point condition" {
+  // Official Rust neighbor_joining: with 3 taxa the root joins all
+  // three leaves directly via the three-point condition:
+  // 0 -> 0.5*(d01+d02-d12) = 0, 1 -> 0.5*(d01+d12-d02) = 1,
+  // 2 -> 0.5*(d02+d12-d01) = 2. The old implementation instead
+  // clustered (0,1) and split the remaining distance in half.
+  let t = @src.biotite_neighbor_joining([
+    [0.0, 1.0, 2.0],
+    [1.0, 0.0, 3.0],
+    [2.0, 3.0, 0.0],
+  ])
+  assert_eq(t.root.children.length(), 3)
+  // Three-point condition: 0.5*(d01+d02-d12) = 0, etc.; the branch
+  // length is stored on each child node.
+  assert_true(
+    @moonbit.assert_num_close(t.root.children[0].distance, 0.0, 1.0e-12),
+  )
+  assert_true(
+    @moonbit.assert_num_close(t.root.children[1].distance, 1.0, 1.0e-12),
+  )
+  assert_true(
+    @moonbit.assert_num_close(t.root.children[2].distance, 2.0, 1.0e-12),
+  )
+  // The children are the three leaves in matrix order.
+  match t.root.children[0].index {
+    Some(i) => assert_eq(i, 0)
+    None => fail("leaf index expected")
+  }
+  match t.root.children[2].index {
+    Some(i) => assert_eq(i, 2)
+    None => fail("leaf index expected")
+  }
 }
 
 ///|

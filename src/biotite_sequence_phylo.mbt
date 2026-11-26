@@ -691,7 +691,12 @@ pub fn biotite_upgma(distances : Array[Array[Double]]) -> BiotiteTree {
 
 ///|
 /// Build a tree with the neighbor-joining method from an n-by-n
-/// distance matrix.
+/// distance matrix, following the official Rust implementation: the
+/// iteration stops at three remaining nodes, which are joined into
+/// the root via the three-point condition — the root therefore has
+/// three children (for n leaves the intermediate nodes are created in
+/// order n..2n-4 and the root is 2n-3), while all other intermediate
+/// nodes have two.
 pub fn biotite_neighbor_joining(
   distances : Array[Array[Double]],
 ) -> BiotiteTree {
@@ -715,7 +720,7 @@ pub fn biotite_neighbor_joining(
     nodes.push(Some(biotite_tree_node_new(index=Some(i))))
   }
   let mut m = n0
-  while m > 2 {
+  while m > 3 {
     // Row sums r.
     let r : Array[Double] = Array(capacity=m)
     for i = 0; i < m; i = i + 1 {
@@ -799,14 +804,35 @@ pub fn biotite_neighbor_joining(
     nodes = new_nodes
     m = m - 1
   }
-  // m == 2: connect the two remaining clusters via the root.
-  let node_a = nodes[0].unwrap()
-  let node_b = nodes[1].unwrap()
-  let half = d[0][1] / 2.0
-  let root = biotite_tree_node_new(children=[node_a, node_b], distances=[
-    half, half,
-  ])
-  biotite_tree_new(root)
+  // Official Rust semantics: with three nodes remaining they are
+  // joined into the root via the three-point condition — the root has
+  // three children (for n leaves the intermediate nodes are numbered
+  // n..2n-4 in creation order and the root is 2n-3). The m == 2 case
+  // is only reachable for the degenerate n == 2 input (official
+  // neighbor_joining raises ValueError for n < 3, which has no
+  // counterpart in this error style; the old half-split is kept).
+  if m == 3 {
+    let node_i = nodes[0].unwrap()
+    let node_j = nodes[1].unwrap()
+    let node_k = nodes[2].unwrap()
+    let dij = d[0][1]
+    let dik = d[0][2]
+    let djk = d[1][2]
+    let root = biotite_tree_node_new(children=[node_i, node_j, node_k], distances=[
+      0.5 * (dij + dik - djk),
+      0.5 * (dij + djk - dik),
+      0.5 * (dik + djk - dij),
+    ])
+    biotite_tree_new(root)
+  } else {
+    let node_a = nodes[0].unwrap()
+    let node_b = nodes[1].unwrap()
+    let half = d[0][1] / 2.0
+    let root = biotite_tree_node_new(children=[node_a, node_b], distances=[
+      half, half,
+    ])
+    biotite_tree_new(root)
+  }
 }
 
 ///|
