@@ -121,6 +121,64 @@ fn biotite_poeo_lookup(
 }
 
 ///|
+/// Split formal charges across same-element atoms of a conjugated
+/// system — approximation of RDKit's `splitChargeConjugated`, which
+/// runs before the PEOE iteration.
+///
+/// RDKit marks conjugated bonds via `MolOps::setConjugation` and
+/// spreads the formal charge of any charged atom over all same-element
+/// atoms reachable through two consecutive conjugated bonds. We use the
+/// bond types as the conjugation proxy (aromatic and double bonds) and
+/// walk the conjugated neighborhood breadth-first, then average the
+/// accumulated charge of the same-element group over its members.
+pub fn biotite_split_charge_conjugated(
+  elements : Array[String],
+  adjacency : Array[Array[(Int32, BondType)]],
+  q : Array[Double],
+) -> Unit {
+  let n = elements.length()
+  for seed = 0; seed < n; seed = seed + 1 {
+    if q[seed] == 0.0 {
+      continue
+    }
+    // BFS over conjugated bonds from the seed, collecting the
+    // same-element atoms of that conjugated neighborhood.
+    let visited : Map[Int32, Bool] = Map([], capacity=8)
+    let group : Array[Int32] = [seed]
+    visited[seed] = true
+    let stack : Array[Int32] = [seed]
+    while stack.length() > 0 {
+      let cur = stack.pop().unwrap()
+      for (j, bt) in adjacency[cur] {
+        let conjugated = match bt {
+          BondType::Aromatic | BondType::Double => true
+          _ => false
+        }
+        if conjugated && visited.get(j).is_empty() {
+          visited[j] = true
+          if elements[j] == elements[seed] {
+            group.push(j)
+          }
+          stack.push(j)
+        }
+      }
+    }
+    if group.length() > 1 {
+      // Sum the charges of the whole group (RDKit accumulates the
+      // formal charges of its members) and split evenly.
+      let mut total = 0.0
+      for m in group {
+        total = total + q[m]
+      }
+      let share = total / group.length().to_double()
+      for m in group {
+        q[m] = share
+      }
+    }
+  }
+}
+
+///|
 /// Compute Gasteiger-Marsili (PEOE) partial charges for an AtomArray.
 ///
 /// Mirrors `biotite.structure.charges.partial_charges` (RDKit
@@ -165,6 +223,10 @@ pub fn biotite_partial_charges_peoe(
     // No bonds along which charge transfer can occur.
     return q
   }
+  // RDKit's splitChargeConjugated: distribute formal charges of a
+  // conjugated system evenly over its same-element atoms before the
+  // iteration starts.
+  biotite_split_charge_conjugated(arr.elements, adjacency, q)
   // Per-atom parameters and ionization potentials.
   let a_p : Array[Double] = Array(capacity=n)
   let b_p : Array[Double] = Array(capacity=n)

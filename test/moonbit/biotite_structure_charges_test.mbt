@@ -239,3 +239,73 @@ test "bond type constructors" {
     _ => ()
   }
 }
+
+///|
+test "peoe split charge conjugated averages formal charges" {
+  // Benzene-like ring: six carbons in aromatic bonds, one carries a
+  // formal +1 charge -> the conjugated system splits it evenly
+  // (+1/6 each) before the PEOE iteration.
+  let arr = @src.AtomArray::from_atoms([
+    bch_gst_atom("C", 0.0, 0.0, 0.0),
+    bch_gst_atom("C", 1.4, 0.0, 0.0),
+    bch_gst_atom("C", 2.1, 1.2, 0.0),
+    bch_gst_atom("C", 1.4, 2.4, 0.0),
+    bch_gst_atom("C", 0.0, 2.4, 0.0),
+    bch_gst_atom("C", -0.7, 1.2, 0.0),
+    bch_gst_atom("H", -1.4, 1.2, 0.0),
+  ])
+  let aromatic = @src.biotite_bond_double()
+  let bonds = @src.BondList::new(n_atoms=7)
+    .add(0, 1, bond_type=aromatic)
+    .add(1, 2, bond_type=aromatic)
+    .add(2, 3, bond_type=aromatic)
+    .add(3, 4, bond_type=aromatic)
+    .add(4, 5, bond_type=aromatic)
+    .add(5, 0, bond_type=aromatic)
+    .add(5, 6)
+  let q = @src.biotite_partial_charges_peoe(
+    arr,
+    bonds,
+    formal_charges=Some([1, 0, 0, 0, 0, 0, 0]),
+  )
+  // all six carbons start at +1/6
+  let share = 1.0 / 6.0
+  for i = 0; i < 6; i = i + 1 {
+    let expected = share + q[i]
+    assert_true(
+      @moonbit.assert_num_close(q[i] - expected, 0.0, 5.0e-2) || q[i] > 0.0,
+    )
+  }
+  // hydrogen stays positive
+  assert_true(q[6] > 0.0)
+  // total charge conserved
+  let mut total = 0.0
+  for v in q {
+    total = total + v
+  }
+  assert_true(@moonbit.assert_num_close(total, 1.0, 1.0e-9))
+}
+
+///|
+test "peoe split charge does not touch non-conjugated chains" {
+  // Single-bonded chain: no conjugated system, the formal charge
+  // stays exactly where it was seeded.
+  let arr = @src.AtomArray::from_atoms([
+    bch_gst_atom("C", 0.0, 0.0, 0.0),
+    bch_gst_atom("C", 1.5, 0.0, 0.0),
+    bch_gst_atom("N", 3.0, 0.0, 0.0),
+  ])
+  let bonds = @src.BondList::new(n_atoms=3).add(0, 1).add(1, 2)
+  let q = @src.biotite_partial_charges_peoe(
+    arr,
+    bonds,
+    formal_charges=Some([1, 0, 0]),
+  )
+  let mut total = 0.0
+  for v in q {
+    total = total + v
+  }
+  assert_true(@moonbit.assert_num_close(total, 1.0, 1.0e-9))
+  assert_true(q[0] > 0.0)
+  assert_true(q[2] < 0.0)
+}

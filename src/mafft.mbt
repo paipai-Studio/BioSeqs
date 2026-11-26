@@ -624,6 +624,40 @@ pub fn mafft_align_with_params(
 }
 
 ///|
+/// Iterative refinement of an existing alignment until the SP score
+/// stops improving (or `max_rounds` rounds have been performed).
+///
+/// Exposes the refinement loop used by the MAFFT-lite pipeline so that
+/// tool-specific wrappers (e.g. the Muscle3-style pipeline) can apply
+/// stronger refinement than the single default round.
+pub fn msa_refine_iterations(
+  alignment : Array[String],
+  names : Array[String],
+  max_rounds~ : Int32 = 3,
+) -> MsaResult {
+  let matrix = @data.blosum62()
+  let gap_open = -10.0
+  let mut best = alignment
+  let mut best_score = sp_score(best, matrix)
+  let mut round = 0
+  let mut improved = true
+  while improved && round < max_rounds {
+    let next = refine_once(best, matrix, gap_open)
+    let next_score = sp_score(next, matrix)
+    if next_score > best_score {
+      best = next
+      best_score = next_score
+      round = round + 1
+    } else {
+      improved = false
+    }
+  }
+  let cleaned = remove_all_gap_columns(best)
+  let score = sp_score(cleaned, matrix)
+  { aligned_sequences: cleaned, names, score, method_: "refined", }
+}
+
+///|
 /// Convert MSA result to FASTA format.
 pub fn msa_to_fasta(result : MsaResult) -> String {
   let buf : StringBuilder = StringBuilder()

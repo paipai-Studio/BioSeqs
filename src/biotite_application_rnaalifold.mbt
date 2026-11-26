@@ -176,11 +176,19 @@ fn biotite_rnaalifold_covariance(
 ///|
 /// Pairing score per (i, j): majority-pair base score scaled by the
 /// fraction of sequences that actually pair, plus a covariance bonus
-/// for consistent mutations and a penalty for incompatible sequences.
+/// (`cv_fact`) for consistent mutations and a penalty (`nc_fact`) for
+/// incompatible sequences.
+///
+/// The two weights mirror the official RNAalifold knobs `--cfactor`
+/// (cv_fact) and `--nfactor` (nc_fact); the official energy model uses
+/// kcal/mol scale with defaults cv_fact=1.0 / nc_fact=0.5, while this
+/// Nussinov-style scoring keeps its own defaults.
 fn biotite_rnaalifold_column_score(
   aligned : Array[String],
   i : Int32,
   j : Int32,
+  cv_fact~ : Double = 3.0,
+  nc_fact~ : Double = 1.0,
 ) -> Double {
   match biotite_rnaalifold_majority(aligned, i) {
     Some(a) =>
@@ -195,8 +203,8 @@ fn biotite_rnaalifold_column_score(
             Some(b),
           )
           let total = base * biotite_rnaalifold_pair_fraction(aligned, i, j) +
-            3.0 * cons -
-            1.0 * incompat
+            cv_fact * cons -
+            nc_fact * incompat
           if total > 0.0 {
             total
           } else {
@@ -216,6 +224,8 @@ fn biotite_rnaalifold_column_score(
 fn biotite_rnaalifold_fold(
   aligned : Array[String],
   min_loop : Int32,
+  cv_fact~ : Double = 3.0,
+  nc_fact~ : Double = 1.0,
 ) -> (String, Array[Double]) {
   let len = if aligned.length() > 0 { aligned[0].length() } else { 0 }
   if len == 0 {
@@ -257,7 +267,7 @@ fn biotite_rnaalifold_fold(
   }
   // Pairing score per (i, j) — includes the covariance term.
   let score = fn(i : Int32, j : Int32) -> Double {
-    biotite_rnaalifold_column_score(aligned, i, j)
+    biotite_rnaalifold_column_score(aligned, i, j, cv_fact~, nc_fact~)
   }
   // Nussinov DP.
   let dp : Array[Array[Double]] = Array(capacity=len)
@@ -330,12 +340,24 @@ fn biotite_rnaalifold_fold(
 
 ///|
 /// Local RNAalifold-compatible consensus folding.
+///
+/// `cv_fact` / `nc_fact` mirror the official RNAalifold knobs
+/// `--cfactor` (covariance bonus for consistent mutations) and
+/// `--nfactor` (penalty for incompatible sequences). The official
+/// energy-model defaults are 1.0 / 0.5 kcal/mol scale; these Nussinov
+/// scoring defaults (3.0 / 1.0) reproduce the behavior of earlier
+/// versions of this module.
 pub fn biotite_rnaalifold_local(
   aligned_sequences : Array[String],
   min_loop~ : Int32 = 3,
+  cv_fact~ : Double = 3.0,
+  nc_fact~ : Double = 1.0,
 ) -> Biotite3RNAalifoldResult {
   let (structure, conservation) = biotite_rnaalifold_fold(
-    aligned_sequences, min_loop,
+    aligned_sequences,
+    min_loop,
+    cv_fact~,
+    nc_fact~,
   )
   {
     consensus_structure: structure,

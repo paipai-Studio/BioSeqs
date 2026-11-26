@@ -77,15 +77,24 @@ pub fn biotite_muscle_parse_fasta(
 
 ///|
 /// Local MUSCLE-compatible multiple alignment.
+///
+/// Muscle3-style pipeline: progressive alignment (k-mer UPGMA guide
+/// tree), then iterative refinement rounds until the SP score stops
+/// improving — stronger refinement than the single MAFFT-lite round.
 pub fn biotite_muscle_local(
   sequences : Array[String],
   names~ : Array[String] = [],
 ) -> Biotite3MuscleResult {
-  let result = mafft_align(sequences, names)
+  let initial = mafft_align(sequences, names)
+  let refined = msa_refine_iterations(
+    initial.aligned_sequences,
+    initial.names,
+    max_rounds=2,
+  )
   {
-    aligned_sequences: result.aligned_sequences,
-    names: result.names,
-    score: result.score,
+    aligned_sequences: refined.aligned_sequences,
+    names: refined.names,
+    score: refined.score,
     command: biotite_muscle5_command("input.fasta", "output.fasta"),
     status: "computed-local",
   }

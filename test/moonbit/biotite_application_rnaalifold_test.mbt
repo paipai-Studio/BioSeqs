@@ -103,3 +103,25 @@ test "rnaalifold incompatible columns stay unpaired" {
   let r = @src.biotite_rnaalifold_local(["AAAAAA", "AAAAAA", "GAAAAA"])
   assert_eq(r.consensus_structure, "......")
 }
+
+///|
+test "rnaalifold cv_fact zero disables covariance rescue" {
+  // With cv_fact=0 the compensatory G-C pair in the third sequence no
+  // longer supports the pair (the incompatible penalty wins).
+  let r = @src.biotite_rnaalifold_local(
+    ["AAAAAA", "AAAAAA", "GCCCCC"],
+    cv_fact=0.0,
+  )
+  assert_eq(r.consensus_structure, "......")
+}
+
+///|
+test "rnaalifold nc_fact zero ignores incompatibility" {
+  // With nc_fact=0 incompatible sequences carry no penalty; the
+  // majority G-C stem still closes.
+  let r = @src.biotite_rnaalifold_local(
+    ["GGGAAACCC", "GGGAAACCC", "AGGAAACCA"],
+    nc_fact=0.0,
+  )
+  assert_true(r.consensus_structure.has_prefix("(("))
+}

@@ -63,3 +63,26 @@ test "muscle identical sequences align unchanged" {
   assert_eq(result.aligned_sequences[0], "AAAA")
   assert_eq(result.aligned_sequences[1], "AAAA")
 }
+
+///|
+test "muscle refinement at least as good as mafft" {
+  // Muscle3-style pipeline: the extra refinement rounds must not
+  // degrade the SP score compared to the single-round MAFFT pipeline.
+  let seqs = ["GGCAGCTAAAAGG", "GGCTTGCTAAAAG", "GGAATGCCCTTTT"]
+  let mafft = @src.biotite_mafft_local(seqs, names=["a", "b", "c"])
+  let muscle = @src.biotite_muscle_local(seqs, names=["a", "b", "c"])
+  assert_true(muscle.score >= mafft.score)
+  assert_eq(
+    muscle.aligned_sequences[0].length(),
+    muscle.aligned_sequences[1].length(),
+  )
+}
+
+///|
+test "muscle refinement stops when score stops improving" {
+  // Identical sequences: the refinement cannot improve anything, the
+  // result stays fully aligned.
+  let r = @src.biotite_muscle_local(["AAAA", "AAAA", "AAAA"])
+  assert_eq(r.aligned_sequences[0], "AAAA")
+  assert_eq(r.aligned_sequences[2], "AAAA")
+}
