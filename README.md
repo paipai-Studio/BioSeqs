@@ -623,7 +623,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **数据库与外部应用** | `database.rcsb` / `pfam` / `dob` / `application` | RCSB 下载/API URL 与响应解析、Pfam/InterPro URL 与字段解析、可配置 DOB 客户端、统一 fetch URL 与缓存路径、BLAST 命令/URL/表格解析、TANTAN 掩码、DockQ 评分、Reduce/Vina 命令与输出解析 |
 | **接口与可视化** | `interface.pymol` / `mdtraj` / `graphics` | PyMOL 命令脚本构造、MDTraj 风格 topology/坐标适配、序列 logo 配色、alignment 相似度梯度、质粒图/特征绘图 |
 | **结构容器与化学** | `AtomArrayStack` / `Box` / `SpaceGroup` / `RigidTransformation` / `formal_charges` | 多模型坐标栈、晶胞与周期边界、空间群对称操作、QCP 刚体叠合、形式/部分电荷 |
-| **邻域搜索与结构校验** | `structure.celllist` / `structure.check` | Biotite 高层 CellList（adjacent_atoms/nearest_neighbors/conflict/create_by_boxes）、StericClashCheck（vdW 半径 0.7 判据、键合排除）、主链校验（缺原子/肽键距离/N-CA-C 键角） |
+| **邻域搜索与结构校验** | `structure.celllist` / `structure.check` | 官方 CellList API（get_atoms 距离 ≤ 半径含边界、ceil(radius/cell_size) 邻域、MAPPING/MASK/PAIRS 三格式、get_atoms_in_cells 纯 cell 计数无距离过滤、create_adjacency_matrix 对齐暴力距离矩阵、selection 掩码存储、结果与 cell_size 无关）、StericClashCheck（vdW 半径 0.7 判据、键合排除）、主链校验（缺原子/肽键距离/N-CA-C 键角） |
 | **密度图与部分电荷** | `structure.density` / `structure.charges` | 官方 histogramdd 语义 3D 密度直方图（delta 网格、weights、probability density 归一化、edges 返回）、官方 Rust 语义 PEOE/Gasteiger-Marsili 电荷（9 元素参数表 H/C/N/O/S/F/Cl/Br/I、C sp2 与 sp3 共享 B/C、最高键序定杂化 + Any 键伙伴数回退、无参数原子 NaN 电荷向成键伙伴传播、给体电离势分母 + H/D 常数 20.02 eV、damp 0.5 每轮减半，氟甲烷 doctest 与 Gasteiger-Marsili 论文表 3 全部 17 个分子数值对齐） |
 | **进化树** | `sequence.phylo` | 官方整数节点编号（叶按出现序 0..n-1、中间节点按闭合序续编、根最大）、Newick 往返（根带 :0.0、round_distance）、任意节点 LCA 距离（含拓扑）、全叶距离矩阵、as_binary 多叉转二叉、UPGMA（平均连接、ultrametric）、Neighbor-Joining（Q 矩阵、limb 长度） |
 | **规则基因查找与引物修剪** | `sequence.rules` / `sequence.trim` | 双链规则式原核基因查找（promoter→RBS→start→in-frame stop→terminator、长度/gap 过滤、负链坐标映射）、引物端部重叠修剪（mismatch 容差与 distance_weight 评分、双引物独立修剪） |
@@ -959,7 +959,7 @@ IvanAXu/BioSeqs/
 │   ├── hla_typing_demo/ / sv_caller_demo/ # 第十阶段 K 系列（HLA 分型：参考序列库→读取比对→GL String 闭环；SV 检测：CIGAR/SA tag→DEL/INS/DUP/INV/BND→深度置信度闭环）
 │   └── ... （更多 examples/*_demo/）
 ├── test/
-│   ├── moonbit/                      # MoonBit 单元测试（945 个测试文件，18140 用例）
+│   ├── moonbit/                      # MoonBit 单元测试（945 个测试文件，18145 用例）
 │   │   ├── bio_seq_test.mbt / seqio_wb_test.mbt / ...
 │   │   ├── alignment_test.mbt / pdb_test.mbt / phylo_test.mbt / ...
 │   │   ├── deseq2_test.mbt / rankprod_test.mbt / seurat_test.mbt / scran_test.mbt / ...
@@ -996,7 +996,7 @@ IvanAXu/BioSeqs/
 
 ```bash
 moon build                                              # ✅ 成功
-moon test                                               # ✅ 18140 个测试全部通过（test/moonbit 包）
+moon test                                               # ✅ 18145 个测试全部通过（test/moonbit 包）
 ```
 
 ---
@@ -1031,7 +1031,7 @@ moon test                                               # ✅ 18140 个测试全
 ```bash
 moon build                              # 构建项目（默认 wasm-gc）
 moon build --target native              # 指定后端构建
-moon test                               # 运行全部测试 (18140 个测试用例，test/moonbit 包)
+moon test                               # 运行全部测试 (18145 个测试用例，test/moonbit 包)
 moon test --target native               # 指定后端运行测试
 ```
 
