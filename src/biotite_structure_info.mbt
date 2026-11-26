@@ -130,3 +130,73 @@ pub fn biotite_structure_mass(arr : AtomArray) -> Double {
   }
   total
 }
+
+///|
+/// Van-der-Waals radius (Angstrom) of an element
+/// (official `biotite.structure.info.vdw_radius_single`).
+///
+/// Main group values follow Mantina et al. 2009 (Table 12), the
+/// transition metal subset follows RDKit 2024.09.4, exactly like the
+/// official `_SINGLE_ATOM_VDW_RADII` table. Element lookup is
+/// case-insensitive (the official implementation upper-cases the
+/// input); `None` is returned for elements without an entry.
+pub fn biotite_vdw_radius_single(element : String) -> Double? {
+  match element.to_string().to_upper() {
+    "H" => Some(1.10)
+    "HE" => Some(1.40)
+    "LI" => Some(1.81)
+    "BE" => Some(1.53)
+    "B" => Some(1.92)
+    "C" => Some(1.70)
+    "N" => Some(1.55)
+    "O" => Some(1.52)
+    "F" => Some(1.47)
+    "NE" => Some(1.54)
+    "NA" => Some(2.27)
+    "MG" => Some(1.73)
+    "AL" => Some(1.84)
+    "SI" => Some(2.10)
+    "P" => Some(1.80)
+    "S" => Some(1.80)
+    "CL" => Some(1.75)
+    "AR" => Some(1.88)
+    "K" => Some(2.75)
+    "CA" => Some(2.31)
+    "GA" => Some(1.87)
+    "GE" => Some(2.11)
+    "AS" => Some(1.85)
+    "SE" => Some(1.90)
+    "BR" => Some(1.83)
+    "KR" => Some(2.02)
+    "RB" => Some(3.03)
+    "SR" => Some(2.49)
+    "IN" => Some(1.93)
+    "SN" => Some(2.17)
+    "SB" => Some(2.06)
+    "TE" => Some(2.06)
+    "I" => Some(1.98)
+    "XE" => Some(2.16)
+    "CS" => Some(3.43)
+    "BA" => Some(2.68)
+    "TL" => Some(1.96)
+    "PB" => Some(2.02)
+    "BI" => Some(2.07)
+    "PO" => Some(1.97)
+    "AT" => Some(2.02)
+    "RN" => Some(2.20)
+    "FR" => Some(3.48)
+    "RA" => Some(2.83)
+    "FE" => Some(2.05)
+    "CU" => Some(2.00)
+    "ZN" => Some(2.10)
+    "MN" => Some(2.05)
+    "CO" => Some(2.00)
+    "NI" => Some(2.00)
+    "MO" => Some(2.10)
+    "RU" => Some(2.05)
+    "W" => Some(2.10)
+    "PT" => Some(2.05)
+    "AU" => Some(2.10)
+    _ => None
+  }
+}
